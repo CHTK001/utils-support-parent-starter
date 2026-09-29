@@ -17,6 +17,8 @@ import java.io.ByteArrayOutputStream;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.awt.Color;
+import java.util.Map;
 
 /**
  * YOLO26-深度 单目深度估计翻译器（纯 ONNX Runtime 实现）。
@@ -129,7 +131,7 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
 
         BufferedImage letterbox = new BufferedImage(MODEL_SIZE, MODEL_SIZE, BufferedImage.TYPE_3BYTE_BGR);
         Graphics2D g = letterbox.createGraphics();
-        g.setColor(new java.awt.Color(PAD_VALUE, PAD_VALUE, PAD_VALUE));
+        g.setColor(new Color(PAD_VALUE, PAD_VALUE, PAD_VALUE));
         g.fillRect(0, 0, MODEL_SIZE, MODEL_SIZE);
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g.drawImage(src, left, top, left + resizedW, top + resizedH, 0, 0, origW, origH, null);
@@ -149,7 +151,7 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
 
         try (OnnxTensor inputTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(chw),
                 new long[]{1, 3, MODEL_SIZE, MODEL_SIZE})) {
-            var inputs = java.util.Map.of("images", inputTensor);
+            var inputs = Map.of("images", inputTensor);
             try (OrtSession.Result result = session.run(inputs)) {
                 float[][][][] depthMap = (float[][][][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                 int h = depthMap[0][0].length;

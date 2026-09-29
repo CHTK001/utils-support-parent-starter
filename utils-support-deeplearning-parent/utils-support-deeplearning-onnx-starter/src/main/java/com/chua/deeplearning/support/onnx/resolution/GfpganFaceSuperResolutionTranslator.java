@@ -15,6 +15,7 @@ import com.chua.deeplearning.support.utils.TensorOptions;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 
 /**
  * GFPGAN 人脸修复/超分 Translator（ONNX 版）。
@@ -55,7 +56,7 @@ public class GfpganFaceSuperResolutionTranslator implements Translator<Image, Im
             shape = array.getShape().getShape();
         }
         if (shape.length != 3) {
-            throw new IllegalStateException("GFPGAN 输出维度异常: " + java.util.Arrays.toString(shape));
+            throw new IllegalStateException("GFPGAN 输出维度异常: " + Arrays.toString(shape));
         }
 
         int h = (int) shape[1];

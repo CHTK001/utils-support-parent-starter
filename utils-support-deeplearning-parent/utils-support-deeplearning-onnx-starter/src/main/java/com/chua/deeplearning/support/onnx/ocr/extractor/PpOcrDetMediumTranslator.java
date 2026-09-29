@@ -32,10 +32,10 @@ public class PpOcrDetMediumTranslator extends PpOcrDetTranslator {
      *
      * @param configuration 检测配置（可空）
      */
-    public PpOcrDetMediumTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public PpOcrDetMediumTranslator(DetectionConfiguration configuration) {
         super("ocr/PP-OCRv6/medium/det_infer/", "paddleocrv6-medium-det");
         if (null != configuration) {
-            applyThresholdOverride(configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f));
+            applyThresholdOverride(configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, -1f));
         }
     }
 

@@ -8,6 +8,7 @@ import com.chua.deeplearning.support.ai.client.AbstractLocalImageClient;
 import com.chua.deeplearning.support.ai.client.DeeplearningModels;
 
 import java.util.List;
+import ai.djl.modality.cv.Image;
 
 /**
  * 基于 ONNX Runtime 的本地文生图客户端。
@@ -44,6 +45,6 @@ public class OnnxImageClient extends AbstractLocalImageClient {
      * 模型
     */
     public List<ModelDefinition> models() {
-        return DeeplearningModels.models(engine, String.class, ai.djl.modality.cv.Image.class);
+        return DeeplearningModels.models(engine, String.class, Image.class);
     }
 }

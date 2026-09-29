@@ -17,6 +17,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.deeplearning.support.engine.ModelRegistry;
+import com.chua.deeplearning.support.onnx.GpuHelper;
+import java.nio.FloatBuffer;
+import java.nio.LongBuffer;
 
 /**
  * vit-GPT2 图像描述（镜像 Captioning）Translator。
@@ -154,7 +158,7 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
         ortEnv = OrtEnvironment.getEnvironment();
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
-        com.chua.deeplearning.support.onnx.GpuHelper.apply(opts);
+        GpuHelper.apply(opts);
         encoderSession = ortEnv.createSession(encoderPath.toString(), opts);
         decoderSession = ortEnv.createSession(decoderPath.toString(), opts);
         log.info("[ViT-GPT2] 模型加载完成: encoder={} decoder={}", encoderPath, decoderPath);
@@ -189,7 +193,7 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
         }
  // 尝试从 模型registry 下载缓存
         try {
-            Path resolved = com.chua.deeplearning.support.engine.ModelRegistry.resolveModelPath("vit-gpt2-captioning");
+            Path resolved = ModelRegistry.resolveModelPath("vit-gpt2-captioning");
             if (resolved != null && Files.exists(resolved)) {
                 return resolved;
             }
@@ -246,7 +250,7 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
     private float[][] inferEncoder(byte[] imageData) throws Exception {
         float[] pixels = preprocessImage(imageData);
         long[] shape = {1, 3, IMAGE_SIZE, IMAGE_SIZE};
-        try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(pixels), shape)) {
+        try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
             Map<String, OnnxTensor> inputs = new HashMap<>();
             inputs.put("pixel_values", tensor);
             try (OrtSession.Result result = encoderSession.run(inputs)) {
@@ -323,14 +327,14 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
         List<Long> tokens = new ArrayList<>();
         tokens.add(BOS_ID);
 
-        try (OnnxTensor encoderTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(encFlat), encShape)) {
+        try (OnnxTensor encoderTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(encFlat), encShape)) {
             for (int step = 0; step < MAX_NEW_TOKENS; step++) {
                 long[] inputIds = new long[tokens.size()];
                 for (int i = 0; i < tokens.size(); i++) {
                     inputIds[i] = tokens.get(i);
                 }
                 long[] idsShape = {1, inputIds.length};
-                try (OnnxTensor idsTensor = OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(inputIds), idsShape)) {
+                try (OnnxTensor idsTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(inputIds), idsShape)) {
                     Map<String, OnnxTensor> inputs = new HashMap<>();
                     inputs.put("input_ids", idsTensor);
                     inputs.put("encoder_hidden_states", encoderTensor);

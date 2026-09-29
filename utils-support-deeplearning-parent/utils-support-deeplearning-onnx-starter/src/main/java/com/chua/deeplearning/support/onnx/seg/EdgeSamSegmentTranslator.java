@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.awt.Color;
 
 /**
  * edgesam 分割 Translator（提示框 → 前景掩码）。
@@ -220,7 +221,7 @@ public class EdgeSamSegmentTranslator {
         try {
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            g.setColor(new java.awt.Color(0, 0, 0));
+            g.setColor(new Color(0, 0, 0));
             g.fillRect(0, 0, INPUT_SIZE, INPUT_SIZE);
             g.drawImage(src, padX, padY, newWidth, newHeight, null);
         } finally {

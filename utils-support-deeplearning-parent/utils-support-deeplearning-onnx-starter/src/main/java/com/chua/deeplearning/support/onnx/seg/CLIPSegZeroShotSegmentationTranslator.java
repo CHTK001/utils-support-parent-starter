@@ -78,10 +78,10 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
      *
      * @param configuration 检测配置（可空）
      */
-    public CLIPSegZeroShotSegmentationTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public CLIPSegZeroShotSegmentationTranslator(DetectionConfiguration configuration) {
         this();
         if (null != configuration) {
-            float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);
+            float t = configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, -1f);
             if (t > 0 && t < 1) {
                 this.probThreshold = t;
             }

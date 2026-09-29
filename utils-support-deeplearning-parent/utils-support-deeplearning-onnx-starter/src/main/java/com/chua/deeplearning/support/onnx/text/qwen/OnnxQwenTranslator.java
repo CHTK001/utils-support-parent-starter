@@ -12,6 +12,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
+import ai.onnxruntime.NodeInfo;
+import ai.onnxruntime.TensorInfo;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.FloatBuffer;
+import java.nio.LongBuffer;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.IntStream;
 
 /**
  * 通义千问2.5-Instruct ONNX 因果语言模型（onnxruntime 直连 + KV 缓存 自回归）。
@@ -34,7 +48,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     private final float repeatPenalty; // repeat罚款
     private final int topK; // topk
 
-    private ai.djl.huggingface.tokenizers.HuggingFaceTokenizer tokenizer; // tokenizer
+    private HuggingFaceTokenizer tokenizer; // tokenizer
     private OrtEnvironment ortEnv; // ortenv
     private OrtSession session; // 会话
     private int eosTokenId = -1; // eos令牌标识
@@ -107,16 +121,16 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         Exception last = null;
         for (int attempt = 0; attempt < 3; attempt++) {
             try {
-                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL(url).openConnection();
+                HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
                 conn.setConnectTimeout(30000);
                 conn.setReadTimeout(600000);
                 conn.setRequestProperty("User-Agent", "Mozilla/5.0");
                 int code = conn.getResponseCode();
                 if (code != 200) {
-                    throw new java.io.IOException("HTTP " + code);
+                    throw new IOException("HTTP " + code);
                 }
-                try (java.io.InputStream in = conn.getInputStream()) {
-                    Files.copy(in, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                try (InputStream in = conn.getInputStream()) {
+                    Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
                 }
                 conn.disconnect();
                 log.info("[QwenOnnx] 已下载 {} -> {} ({}}", fileName, target, Files.size(target));
@@ -131,7 +145,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                 Thread.sleep(3000L * (attempt + 1));
             }
         }
-        throw last != null ? last : new java.io.IOException("下载失败: " + url);
+        throw last != null ? last : new IOException("下载失败: " + url);
     }
 
     @Override
@@ -171,7 +185,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         if (tokPath == null || !Files.exists(tokPath)) {
             throw new IllegalStateException("tokenizer.json 不存在: " + tokPath);
         }
-        tokenizer = ai.djl.huggingface.tokenizers.HuggingFaceTokenizer.builder()
+        tokenizer = HuggingFaceTokenizer.builder()
                 .optTokenizerPath(tokPath)
                 .optMaxLength(8192)
                 .build();
@@ -204,7 +218,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         // 读 KV 维度 + 动态层数
         try {
             int maxLayer = 0;
-            for (ai.onnxruntime.NodeInfo ni : session.getInputInfo().values()) {
+            for (NodeInfo ni : session.getInputInfo().values()) {
                 String nm = ni.getName();
                 if (nm.startsWith("past_key_values.") && nm.endsWith(".key")) {
                     String mid = nm.substring("past_key_values.".length(), nm.indexOf(".key"));
@@ -215,7 +229,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                         }
                     } catch (NumberFormatException ignore) {
                     }
-                    ai.onnxruntime.TensorInfo ti = (ai.onnxruntime.TensorInfo) ni.getInfo();
+                    TensorInfo ti = (TensorInfo) ni.getInfo();
                     long[] s = ti.getShape();
                     if (s != null && s.length == 4) {
                         kvDim = (int) s[3];
@@ -240,7 +254,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                 + "<|im_start|>assistant\n";
         long[] ids = tokenizer.encode(chat).getIds();
         StringBuilder out = new StringBuilder();
-        java.util.List<Long> tokens = new java.util.ArrayList<>();
+        List<Long> tokens = new ArrayList<>();
         for (long id : ids) {
             tokens.add(id);
         }
@@ -257,9 +271,9 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
 
         while (generated < MAX_NEW_TOKENS) {
             Map<String, OnnxTensor> inputs = new HashMap<>();
-            inputs.put("input_ids", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(inputIds), new long[]{1, inputIds.length}));
-            inputs.put("attention_mask", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(attMask), new long[]{1, attMask.length}));
-            inputs.put("position_ids", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(posIds), new long[]{1, posIds.length}));
+            inputs.put("input_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(inputIds), new long[]{1, inputIds.length}));
+            inputs.put("attention_mask", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(attMask), new long[]{1, attMask.length}));
+            inputs.put("position_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(posIds), new long[]{1, posIds.length}));
             if (!first) {
                 inputs.putAll(past);
             } else {
@@ -335,9 +349,9 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
             long[] shape = new long[]{1, 2, 0, kvDim};
             float[] empty = new float[0];
             m.put("past_key_values." + layer + ".key",
-                    OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(empty), shape));
+                    OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(empty), shape));
             m.put("past_key_values." + layer + ".value",
-                    OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(empty), shape));
+                    OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(empty), shape));
         }
         return m;
     }
@@ -376,7 +390,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
      * @param token 令牌
      * @return 是否degenerate的结果
      */
-    private static boolean isDegenerate(java.util.List<Long> tokens, int promptLen) {
+    private static boolean isDegenerate(List<Long> tokens, int promptLen) {
         int gen = tokens.size() - promptLen;
         if (gen < 8) {
             return false;
@@ -464,7 +478,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
      * @param promptLen 提示词Len，不允许为 null
      * @return 结果数值
      */
-    private int nextToken(float[] logits, java.util.List<Long> tokens, int promptLen) {
+    private int nextToken(float[] logits, List<Long> tokens, int promptLen) {
         float[] scores = logits.clone();
         if (repeatPenalty > 1f) {
             for (int i = promptLen; i < tokens.size(); i++) {
@@ -515,7 +529,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
             sum += probs[i];
         }
         if (k > 0 && k < scores.length) {
-            int[] order = java.util.stream.IntStream.range(0, scores.length)
+            int[] order = IntStream.range(0, scores.length)
                     .boxed()
                     .sorted((a, b) -> Double.compare(probs[b], probs[a]))
                     .mapToInt(Integer::intValue)
@@ -531,7 +545,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                 sum = kept;
             }
         }
-        double r = new java.util.Random().nextDouble() * sum;
+        double r = new Random().nextDouble() * sum;
         double cumulative = 0.0;
         for (int i = 0; i < scores.length; i++) {
             cumulative += probs[i];

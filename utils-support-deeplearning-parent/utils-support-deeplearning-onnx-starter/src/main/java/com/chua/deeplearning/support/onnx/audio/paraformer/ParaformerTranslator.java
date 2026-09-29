@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * Paraformer ONNX Translator（音频文件 → 转写文本）。
@@ -264,7 +267,7 @@ public class ParaformerTranslator {
             boolean bigEndian = fmt.isBigEndian();
 
             byte[] bytes;
-            try (var baos = new java.io.ByteArrayOutputStream()) {
+            try (var baos = new ByteArrayOutputStream()) {
                 byte[] buf = new byte[8192];
                 int n;
                 while ((n = in.read(buf)) > 0) {
@@ -290,8 +293,8 @@ public class ParaformerTranslator {
                     } else if (sampleSizeInBits == 8) {
                         s = (bytes[idx] - 128) * 256.0f;
                     } else if (sampleSizeInBits == 32 && fmt.getEncoding() == AudioFormat.Encoding.PCM_FLOAT) {
-                        int v = java.nio.ByteBuffer.wrap(bytes, idx, 4)
-                                .order(bigEndian ? java.nio.ByteOrder.BIG_ENDIAN : java.nio.ByteOrder.LITTLE_ENDIAN)
+                        int v = ByteBuffer.wrap(bytes, idx, 4)
+                                .order(bigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN)
                                 .getInt();
                         s = Float.intBitsToFloat(v) * 32768.0f;
                     } else {

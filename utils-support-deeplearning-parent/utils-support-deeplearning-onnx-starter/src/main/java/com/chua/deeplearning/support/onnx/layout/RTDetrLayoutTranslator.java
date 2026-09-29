@@ -17,6 +17,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
+import ai.djl.modality.cv.output.BoundingBox;
 
 /**
  * RT-DETR v2 文档版面检测 Translator（doclaynet 17 类）。
@@ -125,7 +126,7 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
 
         List<String> nameList = new ArrayList<>();
         List<Double> probList = new ArrayList<>();
-        List<ai.djl.modality.cv.output.BoundingBox> boxList = new ArrayList<>();
+        List<BoundingBox> boxList = new ArrayList<>();
 
         for (int i = 0; i < numBoxes; i++) {
             if (scores[i] < scoreThreshold) {

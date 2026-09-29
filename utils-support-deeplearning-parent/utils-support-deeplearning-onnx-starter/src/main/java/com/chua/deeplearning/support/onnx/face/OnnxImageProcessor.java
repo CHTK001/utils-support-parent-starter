@@ -9,6 +9,9 @@ import ai.djl.ndarray.types.Shape;
 
 import java.awt.image.BufferedImage;
 import java.nio.FloatBuffer;
+import java.awt.RenderingHints;
+import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferInt;
 
 /**
  * ONNX 引擎 ndarray 预处理工具。
@@ -118,10 +121,10 @@ public final class OnnxImageProcessor {
         BufferedImage dst = new BufferedImage(w, h, type);
         var g = dst.createGraphics();
         try {
-            g.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION,
-                    java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            g.setRenderingHint(java.awt.RenderingHints.KEY_RENDERING,
-                    java.awt.RenderingHints.VALUE_RENDER_SPEED);
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                    RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g.setRenderingHint(RenderingHints.KEY_RENDERING,
+                    RenderingHints.VALUE_RENDER_SPEED);
             g.drawImage(src, 0, 0, w, h, null);
         } finally {
             g.dispose();
@@ -164,7 +167,7 @@ public final class OnnxImageProcessor {
      */
     private static void fillChwBgr(BufferedImage img, float[] chw,
                                     int w, int h, float mean, float scale) {
-        byte[] data = ((java.awt.image.DataBufferByte) img.getRaster().getDataBuffer()).getData();
+        byte[] data = ((DataBufferByte) img.getRaster().getDataBuffer()).getData();
         // CHW 顺序：先写 R 通道，再 G，再 B
         int rOff = 0;
         int gOff = w * h;
@@ -186,7 +189,7 @@ public final class OnnxImageProcessor {
     private static void fillChwArgb(BufferedImage img, float[] chw,
                                      int w, int h, float mean, float scale,
                                      boolean hasAlpha) {
-        int[] data = ((java.awt.image.DataBufferInt) img.getRaster().getDataBuffer()).getData();
+        int[] data = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
         int rOff = 0;
         int gOff = w * h;
         int bOff = 2 * w * h;
@@ -207,7 +210,7 @@ public final class OnnxImageProcessor {
      */
     private static void fillChwGray(BufferedImage img, float[] chw,
                                      int w, int h, float mean, float scale) {
-        byte[] data = ((java.awt.image.DataBufferByte) img.getRaster().getDataBuffer()).getData();
+        byte[] data = ((DataBufferByte) img.getRaster().getDataBuffer()).getData();
         for (int i = 0; i < w * h; i++) {
             chw[i] = (data[i] & 0xFF) * scale - mean;
         }

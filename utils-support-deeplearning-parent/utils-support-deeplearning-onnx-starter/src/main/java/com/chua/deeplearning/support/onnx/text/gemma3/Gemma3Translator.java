@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
+import ai.onnxruntime.providers.OrtCUDAProviderOptions;
+import java.nio.LongBuffer;
+import java.util.stream.IntStream;
 
 /**
  * Gemma-3-270M 中文通用语言模型 Translator。
@@ -313,9 +316,9 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
             while (stepCount < MAX_NEW_TOKENS) {
                 long[] ids = toLongArray(tokens);
                 Map<String, OnnxTensor> inputs = new HashMap<>();
-                inputs.put("input_ids", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(ids), new long[]{1, ids.length}));
-                inputs.put("attention_mask", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(ones(ids.length)), new long[]{1, ids.length}));
-                inputs.put("position_ids", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(range(ids.length)), new long[]{1, ids.length}));
+                inputs.put("input_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ids), new long[]{1, ids.length}));
+                inputs.put("attention_mask", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ones(ids.length)), new long[]{1, ids.length}));
+                inputs.put("position_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(range(ids.length)), new long[]{1, ids.length}));
 
                 try (OrtSession.Result result = session.run(inputs)) {
                     float[][][] logits = (float[][][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
@@ -404,7 +407,7 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         }
         // top-k 截断（保留概率最大的 k 个，其余置 0）
         if (k > 0 && k < scores.length) {
-            int[] order = java.util.stream.IntStream.range(0, scores.length)
+            int[] order = IntStream.range(0, scores.length)
                     .boxed()
                     .sorted((a, b) -> Double.compare(probs[b], probs[a]))
                     .mapToInt(Integer::intValue)
@@ -600,8 +603,8 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
  // CUDA 提供者：默认图优化 + 默认 arena 策略（gemma 大词表 lm_head 临时缓冲较大，
             // 不宜过度收紧内存限制否则碎片导致 OOM）。gpu_mem_limit 可选，经 -Dgemma.gpuMemLimit=MB 设置。
             try {
-                ai.onnxruntime.providers.OrtCUDAProviderOptions cuda =
-                        new ai.onnxruntime.providers.OrtCUDAProviderOptions();
+                OrtCUDAProviderOptions cuda =
+                        new OrtCUDAProviderOptions();
                 long gpuMemLimit = Long.getLong("gemma.gpuMemLimit", 0L) * 1024L * 1024L;
                 if (gpuMemLimit > 0L) {
                     cuda.add("gpu_mem_limit", String.valueOf(gpuMemLimit));

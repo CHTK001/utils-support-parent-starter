@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
 
 /**
  * sensevoice-small ONNX 推理器（音频文件 → 转写文本，支持中/英/日/韩/粤）。
@@ -157,8 +158,8 @@ public class SenseVoiceTranslator {
         if (meta == null || meta.isEmpty()) {
             return;
         }
-        com.fasterxml.jackson.databind.ObjectMapper mapper =
-                new com.fasterxml.jackson.databind.ObjectMapper();
+        ObjectMapper mapper =
+                new ObjectMapper();
         float[] nm = parseFloatArray(meta.get("neg_mean"), mapper);
         float[] is = parseFloatArray(meta.get("inv_stddev"), mapper);
         if (nm.length > 0) {
@@ -403,7 +404,7 @@ public class SenseVoiceTranslator {
         StringBuilder sb = new StringBuilder();
         String lang = null;
         String emo = null;
-        List<String> events = new java.util.ArrayList<>();
+        List<String> events = new ArrayList<>();
         for (Integer id : ids) {
             String tk = vocab.get(id);
             if (tk == null) {
@@ -556,8 +557,8 @@ public class SenseVoiceTranslator {
 
             // FFT（radix-2，N=512 ≥ 400 补零）
             System.arraycopy(frame, 0, re, 0, frameLen);
-            java.util.Arrays.fill(im, 0);
-            java.util.Arrays.fill(re, frameLen, FFT_N, 0F);
+            Arrays.fill(im, 0);
+            Arrays.fill(re, frameLen, FFT_N, 0F);
             fftRadix2(re, im);
 
             // 功率谱前半段 → mel

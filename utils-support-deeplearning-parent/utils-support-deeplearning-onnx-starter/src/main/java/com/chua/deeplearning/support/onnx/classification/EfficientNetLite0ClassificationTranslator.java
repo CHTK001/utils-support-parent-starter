@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import com.chua.deeplearning.support.utils.ImageUtils;
 
 /**
  * efficientnet-Lite0              Translator
@@ -54,7 +55,7 @@ public class EfficientNetLite0ClassificationTranslator implements Translator<Ima
     */
     public NDList processInput(TranslatorContext ctx, Image input) {
         // OpenCV 预处理：resize 224 + CHW 归一化 → float[] → create() 喂入 djl-onnx
-        float[] pixels = com.chua.deeplearning.support.utils.ImageUtils.toTensor(input, 224);
+        float[] pixels = ImageUtils.toTensor(input, 224);
         NDArray array = ctx.getNDManager().create(pixels, new Shape(1, 3, 224, 224));
         array.setName("input");
         return new NDList(array);

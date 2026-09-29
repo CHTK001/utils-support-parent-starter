@@ -17,6 +17,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
+import ai.onnxruntime.OnnxTensor;
+import ai.onnxruntime.OrtEnvironment;
+import ai.onnxruntime.OrtSession;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * MMS-TTS（VITS）语音合成器。
@@ -83,11 +91,11 @@ public class MmsTtsTranslator {
     /**
      * ONNX 运行时环境
     */
-    private ai.onnxruntime.OrtEnvironment ortEnv;
+    private OrtEnvironment ortEnv;
     /**
      * 会话
     */
-    private ai.onnxruntime.OrtSession session;
+    private OrtSession session;
     /**
      * 是否已准备
     */
@@ -124,8 +132,8 @@ public class MmsTtsTranslator {
             throw new IllegalStateException("MMS-TTS 模型资源缺失: " + modelPath);
         }
         loadVocab(modelDir.resolve(VOCAB_FILE));
-        ortEnv = ai.onnxruntime.OrtEnvironment.getEnvironment();
-        ai.onnxruntime.OrtSession.SessionOptions opts = new ai.onnxruntime.OrtSession.SessionOptions();
+        ortEnv = OrtEnvironment.getEnvironment();
+        OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
         session = ortEnv.createSession(modelPath.toString(), opts);
         log.info("[MMS-TTS] 模型加载完成: {} (vocab={})", modelPath, charToId.size());
@@ -153,7 +161,7 @@ public class MmsTtsTranslator {
         charToId = new LinkedHashMap<>();
         try (InputStream in = Files.newInputStream(vocabPath)) {
             // tokenizer.json 中 vocab 是 {"k":0,"'":1,...,"<unk>":38}
-            String content = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+            String content = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             int vocabStart = content.indexOf("\"vocab\"");
             if (vocabStart < 0) {
                 throw new IllegalStateException("tokenizer.json 缺少 vocab");
@@ -162,7 +170,7 @@ public class MmsTtsTranslator {
             int braceEnd = findMatchingBrace(vocabSection);
             String vocabBody = vocabSection.substring(1, braceEnd);
             // 解析 "char": id 对
-            java.util.regex.Matcher matcher = java.util.regex.Pattern
+            Matcher matcher = Pattern
                     .compile("\"((?:[^\"\\\\]|\\\\.)*)\"\\s*:\\s*(-?\\d+)")
                     .matcher(vocabBody);
             while (matcher.find()) {
@@ -254,7 +262,7 @@ public class MmsTtsTranslator {
      * @return token 标识
      */
     private long[] encode(String text) {
-        java.util.ArrayList<Long> ids = new java.util.ArrayList<>();
+        ArrayList<Long> ids = new ArrayList<>();
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             if (c == ' ') {
@@ -293,7 +301,7 @@ public class MmsTtsTranslator {
             prepare();
             long[] ids = encode(text);
             long[] mask = new long[ids.length];
-            java.util.Arrays.fill(mask, 1L);
+            Arrays.fill(mask, 1L);
             float[] waveform = inferWaveform(ids, mask);
             return toWav(waveform, SAMPLE_RATE);
         } catch (Exception e) {
@@ -311,17 +319,17 @@ public class MmsTtsTranslator {
      */
     private float[] inferWaveform(long[] ids, long[] mask) throws Exception {
         long[] shape = new long[]{1, ids.length};
-        try (ai.onnxruntime.OnnxTensor tIds = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ids), shape);
-             ai.onnxruntime.OnnxTensor tMask = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(mask), shape)) {
-            Map<String, ai.onnxruntime.OnnxTensor> inputs = new HashMap<>();
+        try (OnnxTensor tIds = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ids), shape);
+             OnnxTensor tMask = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(mask), shape)) {
+            Map<String, OnnxTensor> inputs = new HashMap<>();
             inputs.put("input_ids", tIds);
             inputs.put("attention_mask", tMask);
-            try (ai.onnxruntime.OrtSession.Result result = session.run(inputs)) {
-                ai.onnxruntime.OnnxTensor wave = (ai.onnxruntime.OnnxTensor) result.get("waveform").get();
+            try (OrtSession.Result result = session.run(inputs)) {
+                OnnxTensor wave = (OnnxTensor) result.get("waveform").get();
                 long nSamples = wave.getInfo().getShape()[1];
                 float[] samples = wave.getFloatBuffer().array();
                 if (samples.length != nSamples) {
-                    samples = java.util.Arrays.copyOf(samples, (int) nSamples);
+                    samples = Arrays.copyOf(samples, (int) nSamples);
                 }
                 return samples;
             }

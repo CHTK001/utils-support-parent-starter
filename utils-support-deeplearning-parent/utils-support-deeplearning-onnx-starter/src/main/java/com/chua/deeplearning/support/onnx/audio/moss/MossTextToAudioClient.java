@@ -66,7 +66,7 @@ public class MossTextToAudioClient implements TextToAudioClient {
     /**
      * 克隆参考音频（设置后优先于内置音色）。
      */
-    private java.nio.file.Path referencePath;
+    private Path referencePath;
 
     /**
      * 构造客户端。
@@ -130,7 +130,7 @@ public class MossTextToAudioClient implements TextToAudioClient {
      * @param refPath 参考音频 WAV 路径（建议 5~10 秒干净人声）
      * @return this
      */
-    public MossTextToAudioClient reference(java.nio.file.Path refPath) {
+    public MossTextToAudioClient reference(Path refPath) {
         this.referencePath = refPath;
         return this;
     }

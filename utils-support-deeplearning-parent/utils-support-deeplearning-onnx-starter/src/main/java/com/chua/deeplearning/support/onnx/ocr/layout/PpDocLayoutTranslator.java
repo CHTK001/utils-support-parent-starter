@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.awt.image.BufferedImage;
 
 
 /**
@@ -130,17 +131,17 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
         height = input.getHeight();
 
         Object wrapped = input.getWrappedImage();
-        if (!(wrapped instanceof java.awt.image.BufferedImage bufferedImage)) {
+        if (!(wrapped instanceof BufferedImage bufferedImage)) {
             throw new IllegalArgumentException("不支持的图像类型: " + wrapped.getClass().getName());
         }
-        scale = java.awt.image.BufferedImage.SCALE_SMOOTH;
+        scale = BufferedImage.SCALE_SMOOTH;
         lowInformationInput = isLowInformationBuffered(bufferedImage);
         scoreThreshold = configuredScoreThreshold != null
                 ? configuredScoreThreshold
                 : resolveDefaultThreshold(ctx.getModel().getModelPath());
 
  // 用 AWT 缩放（ONNX Runtime 引擎的 ndarray 不支持 resize）
-        java.awt.image.BufferedImage resized = ImageUtils.resize(bufferedImage, INPUT_SIZE, INPUT_SIZE, scale);
+        BufferedImage resized = ImageUtils.resize(bufferedImage, INPUT_SIZE, INPUT_SIZE, scale);
         float[] chw = toChwFloats(resized);
         NDArray image = ctx.getNDManager().create(chw, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
         image.setName("image");
@@ -311,7 +312,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
      * @param buf buf
      * @return 是否low信息缓冲的结果
      */
-    private boolean isLowInformationBuffered(java.awt.image.BufferedImage buf) {
+    private boolean isLowInformationBuffered(BufferedImage buf) {
         int w = buf.getWidth();
         int h = buf.getHeight();
         if (w <= 0 || h <= 0) {
@@ -342,7 +343,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
      * @param buf 缓冲镜像
      * @return CHW 数组，长度 3 * H * W
      */
-    private float[] toChwFloats(java.awt.image.BufferedImage buf) {
+    private float[] toChwFloats(BufferedImage buf) {
         int w = buf.getWidth();
         int h = buf.getHeight();
         int[] pixels = new int[w * h];

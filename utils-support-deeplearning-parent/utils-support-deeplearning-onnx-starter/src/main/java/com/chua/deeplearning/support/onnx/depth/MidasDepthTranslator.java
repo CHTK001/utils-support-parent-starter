@@ -13,6 +13,7 @@ import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
+import org.opencv.imgproc.Imgproc;
 
 
 /**
@@ -133,7 +134,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
             }
         }
 
-        BufferedImage scaled = ImageUtils.resize(bufferedImage, width, height, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        BufferedImage scaled = ImageUtils.resize(bufferedImage, width, height, Imgproc.INTER_LINEAR);
 
         return ImageFactory.getInstance().fromImage(scaled);
     }

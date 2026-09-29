@@ -20,6 +20,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
+import com.chua.deeplearning.support.engine.ModelRegistry;
+import com.chua.deeplearning.support.onnx.GpuHelper;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
+import org.opencv.imgproc.Imgproc;
 
 /**
  * fastsam-s 分割 Translator（yolov8-seg 架构，单模型自动分割）。
@@ -131,7 +137,7 @@ public class FastSamSegmentTranslator implements ITranslator<byte[], byte[]> {
             this.ortEnv = OrtEnvironment.getEnvironment();
             OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
             opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
-            com.chua.deeplearning.support.onnx.GpuHelper.apply(opts, name());
+            GpuHelper.apply(opts, name());
             this.session = ortEnv.createSession(modelPath.toString(), opts);
             log.info("[FastSAM] ONNX loaded: {}", modelPath);
         } catch (Exception e) {
@@ -159,14 +165,14 @@ public class FastSamSegmentTranslator implements ITranslator<byte[], byte[]> {
         // ⓪ 框架注入的路径 / 外部目录（外部目录绑定走这条）
         String injected = this.injectedPath;
         if (injected != null && !injected.isBlank()) {
-            Path p = java.nio.file.Paths.get(injected);
-            if (java.nio.file.Files.isDirectory(p)) {
+            Path p = Paths.get(injected);
+            if (Files.isDirectory(p)) {
                 Path inside = p.resolve(MODEL_FILE);
-                if (java.nio.file.Files.isRegularFile(inside)) {
+                if (Files.isRegularFile(inside)) {
                     log.info("[FastSAM] 使用注入的外部目录: {}", inside);
                     return inside;
                 }
-                try (java.util.stream.Stream<Path> s = java.nio.file.Files.list(p)) {
+                try (Stream<Path> s = Files.list(p)) {
                     Path found = s.filter(x -> x.getFileName().toString().toLowerCase().endsWith(".onnx"))
                             .findFirst()
                             .orElseThrow(() -> new IOException("注入目录内无 .onnx: " + p));
@@ -174,34 +180,34 @@ public class FastSamSegmentTranslator implements ITranslator<byte[], byte[]> {
                     return found;
                 }
             }
-            if (java.nio.file.Files.isRegularFile(p)) {
+            if (Files.isRegularFile(p)) {
                 return p;
             }
         }
         // ① 外部目录：modelId 即目录
         if (modelId != null && !modelId.isBlank()) {
             try {
-                Path asPath = java.nio.file.Paths.get(modelId);
-                if (java.nio.file.Files.isDirectory(asPath)) {
+                Path asPath = Paths.get(modelId);
+                if (Files.isDirectory(asPath)) {
                     Path inside = asPath.resolve(MODEL_FILE);
-                    if (java.nio.file.Files.isRegularFile(inside)) {
+                    if (Files.isRegularFile(inside)) {
                         log.info("[FastSAM] 使用外部目录模型: {}", inside);
                         return inside;
                     }
-                    try (java.util.stream.Stream<Path> s = java.nio.file.Files.list(asPath)) {
+                    try (Stream<Path> s = Files.list(asPath)) {
                         return s.filter(p -> p.getFileName().toString()
                                         .toLowerCase().endsWith(".onnx"))
                                 .findFirst()
                                 .orElseThrow(() -> new IOException("外部目录内无 .onnx 文件: " + asPath));
                     }
                 }
-            } catch (java.nio.file.InvalidPathException ignored) {
+            } catch (InvalidPathException ignored) {
                 // modelId 非路径（如内置 "fastsam"），继续下一级
             }
         }
         // ② 显式路径 / 注册表解析
-        Path resolved = com.chua.deeplearning.support.engine.ModelRegistry.resolveModelPath(modelId);
-        if (resolved != null && java.nio.file.Files.isRegularFile(resolved)) {
+        Path resolved = ModelRegistry.resolveModelPath(modelId);
+        if (resolved != null && Files.isRegularFile(resolved)) {
             return resolved;
         }
         // ③ classpath 兜底
@@ -237,7 +243,7 @@ public class FastSamSegmentTranslator implements ITranslator<byte[], byte[]> {
 
  // Preprocess: resize 转为 1024x1024 stretch, /255
         BufferedImage src = toBufferedImage(input);
-        BufferedImage canvas = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        BufferedImage canvas = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, Imgproc.INTER_LINEAR);
 
         float[] pixels = new float[3 * INPUT_SIZE * INPUT_SIZE];
         int idx = 0;
@@ -465,9 +471,9 @@ public class FastSamSegmentTranslator implements ITranslator<byte[], byte[]> {
      *
      * @param configuration 检测配置（可空）
      */
-    public FastSamSegmentTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public FastSamSegmentTranslator(DetectionConfiguration configuration) {
         if (null != configuration) {
-            float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);
+            float t = configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, -1f);
             if (t > 0) {
                 this.thresholdOverride = t;
             }

@@ -14,6 +14,11 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.chua.deeplearning.support.onnx.GpuHelper;
+import java.awt.Graphics2D;
+import java.io.ByteArrayInputStream;
+import java.nio.FloatBuffer;
+import java.util.Map;
 
 /**
  * 深度-Anything V2 ONNX（ORT 直连，规避 DJL onnxruntime 对 Resize op 的兼容问题）。
@@ -93,7 +98,7 @@ public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, 
         SessionOptions opts = new SessionOptions();
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
         opts.setOptimizationLevel(SessionOptions.OptLevel.NO_OPT);
-        com.chua.deeplearning.support.onnx.GpuHelper.apply(opts);
+        GpuHelper.apply(opts);
         session = ortEnv.createSession(modelPath.toString(), opts);
         initialized = true;
         log.info("[DepthAnything] ORT ready, model={}", modelPath);
@@ -109,13 +114,13 @@ public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, 
     public byte[] depth(byte[] imageBytes) throws Exception {
         prepare();
 
-        BufferedImage src = ImageIO.read(new java.io.ByteArrayInputStream(imageBytes));
+        BufferedImage src = ImageIO.read(new ByteArrayInputStream(imageBytes));
         int origW = src.getWidth();
         int origH = src.getHeight();
 
         // 预处理：resize + normalize
         BufferedImage resized = new BufferedImage(MODEL_SIZE, MODEL_SIZE, BufferedImage.TYPE_3BYTE_BGR);
-        java.awt.Graphics2D g = resized.createGraphics();
+        Graphics2D g = resized.createGraphics();
         g.drawImage(src, 0, 0, MODEL_SIZE, MODEL_SIZE, null);
         g.dispose();
 
@@ -133,9 +138,9 @@ public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, 
             }
         }
 
-        try (OnnxTensor inputTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(chw),
+        try (OnnxTensor inputTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(chw),
                 new long[]{1, 3, MODEL_SIZE, MODEL_SIZE})) {
-            var inputs = java.util.Map.of("pixel_values", inputTensor);
+            var inputs = Map.of("pixel_values", inputTensor);
             try (OrtSession.Result result = session.run(inputs)) {
                 float[][][] depth = (float[][][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                 int h = depth[0].length;
@@ -170,7 +175,7 @@ public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, 
 
                 // 缩放到原图尺寸
                 BufferedImage scaled = new BufferedImage(origW, origH, BufferedImage.TYPE_3BYTE_BGR);
-                java.awt.Graphics2D g2 = scaled.createGraphics();
+                Graphics2D g2 = scaled.createGraphics();
                 g2.drawImage(depthImg, 0, 0, origW, origH, null);
                 g2.dispose();
 

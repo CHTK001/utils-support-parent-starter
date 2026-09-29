@@ -18,6 +18,15 @@ import java.util.Map;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ai.onnxruntime.NodeInfo;
+import ai.onnxruntime.OnnxJavaType;
+import ai.onnxruntime.OnnxTensor;
+import ai.onnxruntime.OrtEnvironment;
+import ai.onnxruntime.OrtSession;
+import ai.onnxruntime.TensorInfo;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 /**
  * Kyutai Pocket-TTS（100M 流匹配 TTS）嵌入式语音合成器。
@@ -77,23 +86,23 @@ public class PocketTtsTranslator {
     /**
      * ONNX 运行时环境
     */
-    private ai.onnxruntime.OrtEnvironment ortEnv;
+    private OrtEnvironment ortEnv;
     /**
      * 文本编码器会话
     */
-    private ai.onnxruntime.OrtSession textEncoderSession;
+    private OrtSession textEncoderSession;
     /**
      * 流 LM 会话
     */
-    private ai.onnxruntime.OrtSession flowSession;
+    private OrtSession flowSession;
     /**
      * Mimi 解码器会话
     */
-    private ai.onnxruntime.OrtSession mimiDecoderSession;
+    private OrtSession mimiDecoderSession;
     /**
      * Mimi 编码器会话
     */
-    private ai.onnxruntime.OrtSession mimiEncoderSession;
+    private OrtSession mimiEncoderSession;
     /**
      * 分词器
     */
@@ -223,8 +232,8 @@ public class PocketTtsTranslator {
         }
         loadConfig(modelDir.resolve("config.json"));
         loadTokenizer(modelDir.resolve("vocab.json"));
-        ortEnv = ai.onnxruntime.OrtEnvironment.getEnvironment();
-        ai.onnxruntime.OrtSession.SessionOptions opts = new ai.onnxruntime.OrtSession.SessionOptions();
+        ortEnv = OrtEnvironment.getEnvironment();
+        OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
         textEncoderSession = ortEnv.createSession(modelDir.resolve(textEncoderFile()).toString(), opts);
         flowSession = ortEnv.createSession(modelDir.resolve(flowFile()).toString(), opts);
@@ -313,9 +322,9 @@ public class PocketTtsTranslator {
                         || name.equals(flowEmbName) || name.equals(flowMaskName)) {
                     continue;
                 }
-                ai.onnxruntime.NodeInfo info = (ai.onnxruntime.NodeInfo) e.getValue();
-                ai.onnxruntime.TensorInfo tensorInfo = (ai.onnxruntime.TensorInfo) info.getInfo();
-                if (tensorInfo.type == ai.onnxruntime.OnnxJavaType.FLOAT) {
+                NodeInfo info = (NodeInfo) e.getValue();
+                TensorInfo tensorInfo = (TensorInfo) info.getInfo();
+                if (tensorInfo.type == OnnxJavaType.FLOAT) {
                     log.info("[Pocket-TTS] 推断参考音频输入: {}", name);
                     return name;
                 }
@@ -428,7 +437,7 @@ public class PocketTtsTranslator {
             log.warn("[Pocket-TTS] config.json 不存在，使用默认配置");
             return;
         }
-        String content = new String(Files.readAllBytes(configPath), java.nio.charset.StandardCharsets.UTF_8);
+        String content = new String(Files.readAllBytes(configPath), StandardCharsets.UTF_8);
         flattenJson("", content, configCache);
         flowSteps = configInt("flow_steps", flowSteps);
         latentDim = configInt("latent_dim", latentDim);
@@ -665,34 +674,34 @@ public class PocketTtsTranslator {
  // 空 文本_嵌入：让 LM 从 sequence 中提取说话人信息
         float[] emptyEmb = new float[0];
 
-        try (ai.onnxruntime.OnnxTensor tSeq = ai.onnxruntime.OnnxTensor.createTensor(
+        try (OnnxTensor tSeq = OnnxTensor.createTensor(
                         ortEnv, FloatBuffer.wrap(seqFloat), seqShape);
-             ai.onnxruntime.OnnxTensor tEmb = ai.onnxruntime.OnnxTensor.createTensor(
+             OnnxTensor tEmb = OnnxTensor.createTensor(
                          ortEnv, FloatBuffer.wrap(emptyEmb), new long[]{1, 0, CONDITIONING_DIM})) {
 
-            Map<String, ai.onnxruntime.OnnxTensor> initInputs = new LinkedHashMap<>();
+            Map<String, OnnxTensor> initInputs = new LinkedHashMap<>();
             initInputs.put("sequence", tSeq);
             initInputs.put("text_embeddings", tEmb);
             for (int i = 0; i < STATE_TENSOR_COUNT; i++) {
                 initInputs.put("state_" + i, buildZeroStateTensor(i));
             }
 
-            try (ai.onnxruntime.OrtSession.Result initResult = textEncoderSession.run(initInputs)) {
-                ai.onnxruntime.OnnxTensor cond = (ai.onnxruntime.OnnxTensor) initResult.get("conditioning").get();
+            try (OrtSession.Result initResult = textEncoderSession.run(initInputs)) {
+                OnnxTensor cond = (OnnxTensor) initResult.get("conditioning").get();
                 FloatBuffer fb = cond.getFloatBuffer();
                 float[] conditioning = new float[fb.remaining()];
                 fb.get(conditioning);
 
  // 收集输出 状态 张量（流 LM 的 recurrent 状态，供后续帧使用）
-                Map<String, ai.onnxruntime.OnnxTensor> initState = new LinkedHashMap<>();
+                Map<String, OnnxTensor> initState = new LinkedHashMap<>();
                 for (int i = 0; i < STATE_TENSOR_COUNT; i++) {
                     try {
-                        ai.onnxruntime.OnnxTensor outState = (ai.onnxruntime.OnnxTensor) initResult.get("out_state_" + i).get();
+                        OnnxTensor outState = (OnnxTensor) initResult.get("out_state_" + i).get();
                         FloatBuffer sb = outState.getFloatBuffer();
                         float[] stateData = new float[sb.remaining()];
                         sb.get(stateData);
-                        initState.put("state_" + i, ai.onnxruntime.OnnxTensor.createTensor(
-                                ortEnv, FloatBuffer.wrap(stateData), ((ai.onnxruntime.TensorInfo) outState.getInfo()).getShape()));
+                        initState.put("state_" + i, OnnxTensor.createTensor(
+                                ortEnv, FloatBuffer.wrap(stateData), ((TensorInfo) outState.getInfo()).getShape()));
                     } catch (Exception e) {
                         log.debug("[Pocket-TTS] out_state_{} 不在输出中，跳过", i);
                     }
@@ -728,26 +737,26 @@ public class PocketTtsTranslator {
      * @param index 索引
      * @return 构建zero状态tensor的结果
      */
-    private ai.onnxruntime.OnnxTensor buildZeroStateTensor(int index) throws Exception {
+    private OnnxTensor buildZeroStateTensor(int index) throws Exception {
         try {
             Map<String, ?> meta = textEncoderSession.getInputInfo();
             String name = "state_" + index;
             if (!meta.containsKey(name)) {
                 return null;
             }
-            ai.onnxruntime.NodeInfo info = (ai.onnxruntime.NodeInfo) meta.get(name);
-            ai.onnxruntime.TensorInfo ti = (ai.onnxruntime.TensorInfo) info.getInfo();
+            NodeInfo info = (NodeInfo) meta.get(name);
+            TensorInfo ti = (TensorInfo) info.getInfo();
             long[] shape = ti.getShape();
  // ONNX Runtime 1.x: tensor信息.类型 是 公共 最终 字段，不是方法
-            boolean isFloat = ti.type == ai.onnxruntime.OnnxJavaType.FLOAT;
+            boolean isFloat = ti.type == OnnxJavaType.FLOAT;
             // 严格遵循模型形状，包括 0 维张量
             if (shape.length == 1 && shape[0] == 0) {
  // 空张量：用空 缓冲 创建
                 if (isFloat) {
-                    return ai.onnxruntime.OnnxTensor.createTensor(ortEnv,
+                    return OnnxTensor.createTensor(ortEnv,
                             FloatBuffer.wrap(new float[0]), shape);
                 }
-                return ai.onnxruntime.OnnxTensor.createTensor(ortEnv,
+                return OnnxTensor.createTensor(ortEnv,
                         LongBuffer.wrap(new long[0]), shape);
             }
             long total = 1;
@@ -755,10 +764,10 @@ public class PocketTtsTranslator {
                 total *= s;
             }
             if (isFloat) {
-                return ai.onnxruntime.OnnxTensor.createTensor(ortEnv,
+                return OnnxTensor.createTensor(ortEnv,
                         FloatBuffer.wrap(new float[(int) total]), shape);
             }
-            return ai.onnxruntime.OnnxTensor.createTensor(ortEnv,
+            return OnnxTensor.createTensor(ortEnv,
                     LongBuffer.wrap(new long[(int) total]), shape);
         } catch (Exception e) {
             log.warn("[Pocket-TTS] 构建 state_{} 张量失败: {}", index, e.getMessage());
@@ -769,7 +778,7 @@ public class PocketTtsTranslator {
     /**
      * 流 LM 当前 状态（由 运行文本条件 初始化）
     */
-    private Map<String, ai.onnxruntime.OnnxTensor> flowState = new LinkedHashMap<>();
+    private Map<String, OnnxTensor> flowState = new LinkedHashMap<>();
 
     /**
      * 获取状态tensorshape。
@@ -780,8 +789,8 @@ public class PocketTtsTranslator {
         try {
             Map<String, ?> meta = textEncoderSession.getInputInfo();
             if (meta.containsKey(inName)) {
-                ai.onnxruntime.NodeInfo info = (ai.onnxruntime.NodeInfo) meta.get(inName);
-                return ((ai.onnxruntime.TensorInfo) info.getInfo()).getShape();
+                NodeInfo info = (NodeInfo) meta.get(inName);
+                return ((TensorInfo) info.getInfo()).getShape();
             }
         } catch (Exception e) {
             log.warn("[Pocket-TTS] 获取 state 张量形状失败: {}", e.getMessage());
@@ -811,11 +820,11 @@ public class PocketTtsTranslator {
             return null;
         }
         long[] shape = new long[]{1, 1, waveform.length};
-        try (ai.onnxruntime.OnnxTensor tWave = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(waveform), shape)) {
-            Map<String, ai.onnxruntime.OnnxTensor> inputs = new LinkedHashMap<>();
+        try (OnnxTensor tWave = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(waveform), shape)) {
+            Map<String, OnnxTensor> inputs = new LinkedHashMap<>();
             inputs.put(mimiEncoderInputName, tWave);
-            try (ai.onnxruntime.OrtSession.Result result = mimiEncoderSession.run(inputs)) {
-                ai.onnxruntime.OnnxTensor latents = (ai.onnxruntime.OnnxTensor) result.get(mimiEncoderOutputName).get();
+            try (OrtSession.Result result = mimiEncoderSession.run(inputs)) {
+                OnnxTensor latents = (OnnxTensor) result.get(mimiEncoderOutputName).get();
                 FloatBuffer fb = latents.getFloatBuffer();
                 float[] encOut = new float[fb.remaining()];
                 fb.get(encOut);
@@ -823,7 +832,7 @@ public class PocketTtsTranslator {
  // 编码器dim 从模型元数据获取（1024），非 waveform 长度
                 int encoderDim = latentDim * 128; // mimi_编码器 固定输出维度 1024
  // 更可靠：从 输出 shape 推断
-                long[] encShape = ((ai.onnxruntime.TensorInfo) ((ai.onnxruntime.NodeInfo)
+                long[] encShape = ((TensorInfo) ((NodeInfo)
                         mimiEncoderSession.getOutputInfo().get(mimiEncoderOutputName)).getInfo()).getShape();
                 if (encShape.length >= 3) {
                     encoderDim = (int) encShape[2];
@@ -900,17 +909,17 @@ public class PocketTtsTranslator {
         long[] tShape = new long[]{1, 1};
         long[] cShape = new long[]{1, conditioning.length};
 
-        Map<String, ai.onnxruntime.OnnxTensor> inputs = new LinkedHashMap<>();
-        try (ai.onnxruntime.OnnxTensor tX = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(x), xShape);
-             ai.onnxruntime.OnnxTensor tS = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(new float[]{s}), sShape);
-             ai.onnxruntime.OnnxTensor tT = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(new float[]{t}), tShape);
-             ai.onnxruntime.OnnxTensor tC = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(conditioning), cShape)) {
+        Map<String, OnnxTensor> inputs = new LinkedHashMap<>();
+        try (OnnxTensor tX = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(x), xShape);
+             OnnxTensor tS = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(new float[]{s}), sShape);
+             OnnxTensor tT = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(new float[]{t}), tShape);
+             OnnxTensor tC = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(conditioning), cShape)) {
             inputs.put(flowXName, tX);
             inputs.put("s", tS);
             inputs.put("t", tT);
             inputs.put(flowEmbName, tC);
-            try (ai.onnxruntime.OrtSession.Result result = flowSession.run(inputs)) {
-                ai.onnxruntime.OnnxTensor vTensor = (ai.onnxruntime.OnnxTensor) result.get(flowVName).get();
+            try (OrtSession.Result result = flowSession.run(inputs)) {
+                OnnxTensor vTensor = (OnnxTensor) result.get(flowVName).get();
                 FloatBuffer fb = vTensor.getFloatBuffer();
                 float[] out = new float[fb.remaining()];
                 fb.get(out);
@@ -934,12 +943,12 @@ public class PocketTtsTranslator {
         int latentSize = SEQUENCE_EMBED_DIM;
         int frames = latents.length / latentSize;
         long[] shape = new long[]{1, frames, latentSize};
-        try (ai.onnxruntime.OnnxTensor tLatents = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(latents), shape)) {
-            Map<String, ai.onnxruntime.OnnxTensor> inputs = new LinkedHashMap<>();
+        try (OnnxTensor tLatents = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(latents), shape)) {
+            Map<String, OnnxTensor> inputs = new LinkedHashMap<>();
             inputs.put(mimiInputName, tLatents);
  // 注入零初始化 状态 张量
-            for (ai.onnxruntime.NodeInfo info : mimiDecoderSession.getInputInfo().values()) {
-                ai.onnxruntime.TensorInfo ti = (ai.onnxruntime.TensorInfo) info.getInfo();
+            for (NodeInfo info : mimiDecoderSession.getInputInfo().values()) {
+                TensorInfo ti = (TensorInfo) info.getInfo();
                 String name = info.getName();
                 if (name.equals(mimiInputName)) {
                     continue;
@@ -948,28 +957,28 @@ public class PocketTtsTranslator {
                     continue;
                 }
                 long[] s = ti.getShape();
-                if (ti.type == ai.onnxruntime.OnnxJavaType.BOOL) {
+                if (ti.type == OnnxJavaType.BOOL) {
                     boolean[] b = new boolean[(int) s[0]];
-                    java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocate(b.length);
+                    ByteBuffer bb = ByteBuffer.allocate(b.length);
                     for (int j = 0; j < b.length; j++) {
                         bb.put((byte) (b[j] ? 1 : 0));
                     }
                     bb.flip();
-                    inputs.put(name, ai.onnxruntime.OnnxTensor.createTensor(ortEnv, bb, s, ai.onnxruntime.OnnxJavaType.BOOL));
-                } else if (ti.type == ai.onnxruntime.OnnxJavaType.INT64) {
+                    inputs.put(name, OnnxTensor.createTensor(ortEnv, bb, s, OnnxJavaType.BOOL));
+                } else if (ti.type == OnnxJavaType.INT64) {
                     long[] l = new long[(int) s[0]];
-                    inputs.put(name, ai.onnxruntime.OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(l), s));
+                    inputs.put(name, OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(l), s));
                 } else {
                     long total = 1;
                     for (long dim : s) {
                         total *= dim;
                     }
-                    inputs.put(name, ai.onnxruntime.OnnxTensor.createTensor(
+                    inputs.put(name, OnnxTensor.createTensor(
                             ortEnv, FloatBuffer.wrap(new float[(int) total]), s));
                 }
             }
-            try (ai.onnxruntime.OrtSession.Result result = mimiDecoderSession.run(inputs)) {
-                ai.onnxruntime.OnnxTensor wave = (ai.onnxruntime.OnnxTensor) result.get(mimiOutputName).get();
+            try (OrtSession.Result result = mimiDecoderSession.run(inputs)) {
+                OnnxTensor wave = (OnnxTensor) result.get(mimiOutputName).get();
                 FloatBuffer fb = wave.getFloatBuffer();
                 float[] out = new float[fb.remaining()];
                 fb.get(out);
@@ -988,7 +997,7 @@ public class PocketTtsTranslator {
      * @param inputSide  true 查输入 / false 查输出
      * @param preferFloat true 优先 float 张量（文本_嵌入 等）/ false 优先 int64（令牌/mask）
      */
-    private String tensorName(String configKey, String def, ai.onnxruntime.OrtSession session,
+    private String tensorName(String configKey, String def, OrtSession session,
                               boolean inputSide, boolean preferFloat) {
         String configured = configCache.get(configKey);
         if (configured != null && !configured.isBlank()) {
@@ -1007,9 +1016,9 @@ public class PocketTtsTranslator {
         try {
             Map<String, ?> meta = inputSide ? session.getInputInfo() : session.getOutputInfo();
             for (Map.Entry<String, ?> e : meta.entrySet()) {
-                ai.onnxruntime.NodeInfo info = (ai.onnxruntime.NodeInfo) e.getValue();
-                ai.onnxruntime.TensorInfo tensorInfo = (ai.onnxruntime.TensorInfo) info.getInfo();
-                boolean isFloat = tensorInfo.type == ai.onnxruntime.OnnxJavaType.FLOAT;
+                NodeInfo info = (NodeInfo) e.getValue();
+                TensorInfo tensorInfo = (TensorInfo) info.getInfo();
+                boolean isFloat = tensorInfo.type == OnnxJavaType.FLOAT;
                 if (preferFloat == isFloat) {
                     return e.getKey();
                 }
@@ -1054,7 +1063,7 @@ public class PocketTtsTranslator {
                 }
  // raw 可能因 部分 读取 而含尾部零，截断到实际读取长度
                 if (totalRead < raw.length) {
-                    raw = java.util.Arrays.copyOf(raw, totalRead);
+                    raw = Arrays.copyOf(raw, totalRead);
                 }
             } else {
                 // 帧长度未知，分块读取
@@ -1150,7 +1159,7 @@ public class PocketTtsTranslator {
      *
      * @param s 方法入参 s
      */
-    private static void closeQuietly(ai.onnxruntime.OrtSession s) {
+    private static void closeQuietly(OrtSession s) {
         if (s != null) {
             try {
                 s.close();

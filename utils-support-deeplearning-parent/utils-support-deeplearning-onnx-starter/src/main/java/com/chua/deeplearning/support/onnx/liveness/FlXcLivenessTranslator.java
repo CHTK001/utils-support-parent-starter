@@ -12,6 +12,7 @@ import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.BufferedImage;
+import org.opencv.imgproc.Imgproc;
 
 /**
  * FLXC 炫彩人脸活体检测 Translator（模型scope iic/cv_manual_face-liveness_flxc）。
@@ -43,7 +44,7 @@ public class FlXcLivenessTranslator implements Translator<Image, Float> {
     */
     public NDList processInput(TranslatorContext ctx, Image input) {
         BufferedImage src = (BufferedImage) input.getWrappedImage();
-        BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, Imgproc.INTER_LINEAR);
         int[] pixels = resized.getRGB(0, 0, INPUT_SIZE, INPUT_SIZE, null, 0, INPUT_SIZE);
         float[] data = new float[CHANNELS * INPUT_SIZE * INPUT_SIZE];
         // 单帧 RGB 重复 4 帧构造 12 通道

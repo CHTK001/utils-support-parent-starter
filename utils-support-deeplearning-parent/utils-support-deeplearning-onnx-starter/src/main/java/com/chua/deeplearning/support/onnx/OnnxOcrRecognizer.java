@@ -6,6 +6,7 @@ import com.chua.deeplearning.support.ocr.OcrResult;
 import com.chua.deeplearning.support.ocr.OcrPipeline;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.deeplearning.support.engine.DeviceSelector;
 /**
  * @作者 CH
  */
@@ -173,9 +174,9 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
      */
     private void applyDevice() {
         if (StringUtils.isNotBlank(device)) {
-            System.setProperty(com.chua.deeplearning.support.engine.DeviceSelector.PROP, device.trim());
+            System.setProperty(DeviceSelector.PROP, device.trim());
         } else if (useGpu) {
-            System.setProperty(com.chua.deeplearning.support.engine.DeviceSelector.PROP, "gpu");
+            System.setProperty(DeviceSelector.PROP, "gpu");
         }
     }
 

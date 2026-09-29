@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Arrays;
 
 /**
  * CAM++ 声纹嵌入提取翻译器（纯 ONNX Runtime 实现，192维）。
@@ -248,8 +249,8 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
                 frame[j] *= window[j];
             }
 
-            java.util.Arrays.fill(re, 0.0);
-            java.util.Arrays.fill(im, 0.0);
+            Arrays.fill(re, 0.0);
+            Arrays.fill(im, 0.0);
             for (int j = 0; j < FRAME_LEN; j++) {
                 re[j] = frame[j];
             }

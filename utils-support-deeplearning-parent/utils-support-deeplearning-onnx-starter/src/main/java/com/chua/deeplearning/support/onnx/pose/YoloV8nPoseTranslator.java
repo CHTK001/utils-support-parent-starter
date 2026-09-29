@@ -335,9 +335,9 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
      * @param configuration 检测配置（可空）
      * @return YoloV8nPoseTranslator的结果
      */
-    public YoloV8nPoseTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public YoloV8nPoseTranslator(DetectionConfiguration configuration) {
         if (null != configuration) {
-            float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);
+            float t = configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, -1f);
             if (t > 0) {
                 this.thresholdOverride = t;
             }

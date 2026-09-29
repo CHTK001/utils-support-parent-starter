@@ -13,6 +13,7 @@ import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.BufferedImage;
+import org.opencv.imgproc.Imgproc;
 
 /**
  * 编码former ONNX
@@ -55,7 +56,7 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
         // 纯 Java 预处理：AWT BICUBIC resize + CHW 标准化，
  // 避免 nd镜像工具.resize / ndarray 张量运算在部分 engine（Rust/ONNX）不受支持
         BufferedImage src = (BufferedImage) input.getWrappedImage();
-        BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_CUBIC);
+        BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, Imgproc.INTER_CUBIC);
 
         int total = INPUT_SIZE * INPUT_SIZE;
         float[] data = new float[3 * total];

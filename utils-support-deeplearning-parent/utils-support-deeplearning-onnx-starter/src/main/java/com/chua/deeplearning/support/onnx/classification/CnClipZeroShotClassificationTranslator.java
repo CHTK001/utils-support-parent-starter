@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import ai.djl.training.ParameterStore;
 
 /**
  * CN-CLIP                 Translator   
@@ -171,7 +172,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
             Arrays.fill(attention, 1L);
             NDList textInput = new NDList(manager.create(inputIds), manager.create(attention));
             NDList textOutput = ctx.getModel().getBlock()
-                    .forward(new ai.djl.training.ParameterStore(), textInput, false);
+                    .forward(new ParameterStore(), textInput, false);
             float[] textVec = normalize(textOutput.singletonOrThrow().squeeze().toFloatArray());
             scores[i] = cosineSimilarity(imageVec, textVec) * LOGIT_SCALE;
             if (scores[i] > maxScore) {

@@ -18,6 +18,8 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
+import ai.djl.modality.cv.output.BoundingBox;
+import ai.djl.ndarray.types.Shape;
 
 /**
  * D-罚金 实时目标检测 Translator（COCO 80 类）。
@@ -80,7 +82,7 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
 
         BufferedImage wrapped = (BufferedImage) input.getWrappedImage();
         BufferedImage resized = ImageUtils.resize(wrapped, INPUT_SIZE, INPUT_SIZE,
-                java.awt.image.BufferedImage.SCALE_SMOOTH);
+                BufferedImage.SCALE_SMOOTH);
         float[] chw = new float[3 * INPUT_SIZE * INPUT_SIZE];
         int idx = 0;
         for (int c = 0; c < 3; c++) {
@@ -92,7 +94,7 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
                 }
             }
         }
-        NDArray pixelValues = manager.create(chw, new ai.djl.ndarray.types.Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
+        NDArray pixelValues = manager.create(chw, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
         pixelValues.setName("pixel_values");
         return new NDList(pixelValues);
     }
@@ -124,7 +126,7 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
 
         List<String> names = new ArrayList<>();
         List<Double> probabilities = new ArrayList<>();
-        List<ai.djl.modality.cv.output.BoundingBox> boxes = new ArrayList<>();
+        List<BoundingBox> boxes = new ArrayList<>();
 
         for (int q = 0; q < queries; q++) {
             int best = 0;
@@ -184,9 +186,9 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
      *
      * @param configuration 检测配置（可空）
      */
-    public DFineTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public DFineTranslator(DetectionConfiguration configuration) {
         if (null != configuration) {
-            float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);
+            float t = configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, -1f);
             if (t > 0) {
                 this.thresholdOverride = t;
             }

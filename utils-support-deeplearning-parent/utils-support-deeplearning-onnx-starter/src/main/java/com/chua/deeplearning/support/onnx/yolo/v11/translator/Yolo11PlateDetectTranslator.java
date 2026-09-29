@@ -20,6 +20,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import ai.djl.modality.cv.BufferedImageFactory;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
  * yolov11 车牌检测 Translator（morsetechlab/yolov11-执照-铭牌-detection）。
@@ -104,12 +106,12 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
      *
      * @param configuration 检测配置（可空）
      */
-    public Yolo11PlateDetectTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public Yolo11PlateDetectTranslator(DetectionConfiguration configuration) {
         this.confThreshold = configuration == null ? DEFAULT_CONF_THRESHOLD
-                : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD,
+                : configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD,
                         DEFAULT_CONF_THRESHOLD);
         this.iouThreshold = configuration == null ? DEFAULT_IOU_THRESHOLD
-                : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_IOU_THRESHOLD,
+                : configuration.optFloat(DetectionConfiguration.KEY_IOU_THRESHOLD,
                         DEFAULT_IOU_THRESHOLD);
     }
 
@@ -133,7 +135,7 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
         g.drawImage(src, padX, padY, newW, newH, null);
         g.dispose();
 
-        Image letterboxed = new ai.djl.modality.cv.BufferedImageFactory().fromImage(canvas);
+        Image letterboxed = new BufferedImageFactory().fromImage(canvas);
         NDArray hwc = letterboxed.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         return new NDList(toNormalizedChw(ctx.getNDManager(), hwc));
     }

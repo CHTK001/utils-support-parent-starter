@@ -17,6 +17,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import ai.onnxruntime.OnnxValue;
+import java.io.ByteArrayOutputStream;
+import java.net.URL;
 
 /**
  * 基于 wav2vec2 的音频指纹提取翻译器（纯 ONNX Runtime 实现，无 DJL 依赖）。
@@ -189,7 +192,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
                     ortEnv, FloatBuffer.wrap(dummyInput), new long[]{1, probeSeq});
                  OrtSession.Result result = session.run(Map.of(inputName, inputTensor))) {
 
-                ai.onnxruntime.OnnxValue outVal = result.get(0); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+                OnnxValue outVal = result.get(0); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                 if (outVal instanceof OnnxTensor outTensor) {
                     long[] shape = outTensor.getInfo().getShape();
                     // shape 通常为 [1, seq_len, hidden_size] 或 [1, hidden_size]
@@ -225,7 +228,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
         if (pathStr.startsWith("classpath:")) {
             resource = pathStr.substring("classpath:".length());
         }
-        java.net.URL url = Wav2Vec2FingerprintTranslator.class.getClassLoader().getResource(resource);
+        URL url = Wav2Vec2FingerprintTranslator.class.getClassLoader().getResource(resource);
         if (url != null) {
             try {
                 if ("file".equals(url.getProtocol())) {
@@ -302,7 +305,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
             feed.put(inputName, inputTensor);
             try (OrtSession.Result result = session.run(feed)) {
                 // 步骤 5：从输出张量中提取 hidden state
-                ai.onnxruntime.OnnxValue outVal = result.get(0); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+                OnnxValue outVal = result.get(0); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                 if (!(outVal instanceof OnnxTensor outTensor)) {
                     throw new RuntimeException("模型输出类型不兼容: " + outVal.getClass().getSimpleName());
                 }
@@ -424,7 +427,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
             AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(bytes));
             AudioFormat fmt = ais.getFormat();
             byte[] buf = new byte[8192];
-            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
             int n;
             while ((n = ais.read(buf)) > 0) {
                 baos.write(buf, 0, n);

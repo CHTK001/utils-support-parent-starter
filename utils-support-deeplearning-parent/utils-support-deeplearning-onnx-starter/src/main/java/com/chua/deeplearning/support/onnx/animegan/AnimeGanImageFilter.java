@@ -16,6 +16,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import ai.djl.ndarray.NDArray;
+import ai.djl.ndarray.NDManager;
+import ai.djl.ndarray.types.DataType;
 
 /**
  * 动漫风格迁移图像滤镜（animeganv2）
@@ -215,10 +218,10 @@ public class AnimeGanImageFilter implements ImageFilter {
         }
 
  // 回退方案：通过 ndarray 转换
-        try (var manager = ai.djl.ndarray.NDManager.newBaseManager()) {
-            ai.djl.ndarray.NDArray array = djlImage.toNDArray(manager);
+        try (var manager = NDManager.newBaseManager()) {
+            NDArray array = djlImage.toNDArray(manager);
  // NHWC → 缓冲镜像
-            array = array.clip(0, 255).toType(ai.djl.ndarray.types.DataType.UINT8, false);
+            array = array.clip(0, 255).toType(DataType.UINT8, false);
             Image result = ImageFactory.getInstance().fromNDArray(array);
             Object wrapped = result.getWrappedImage();
             if (wrapped instanceof BufferedImage bi) {

@@ -13,6 +13,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
+import com.chua.common.support.ai.chat.ModelDefinition;
+import java.net.URI;
+import java.nio.file.StandardCopyOption;
 
 /**
  * Zipformer 纯中文流式 ASR 客户端。
@@ -182,9 +185,9 @@ public class ZipformerZhAudioClient implements VirtualClient {
     }
 
     @Override
-    public List<com.chua.common.support.ai.chat.ModelDefinition> models() {
+    public List<ModelDefinition> models() {
         return List.of(
-                com.chua.common.support.ai.chat.ModelDefinition.builder()
+                ModelDefinition.builder()
                         .id("zipformer-zh-14m").name("Zipformer-zh-14M")
                         .description("纯中文流式 ASR，~31MB int8")
                         .build()
@@ -252,10 +255,10 @@ public class ZipformerZhAudioClient implements VirtualClient {
             }
             log.info("[ZipformerZh] downloading {}...", name);
             Path tmp = modelDir.resolve(name + ".part");
-            try (InputStream in = java.net.URI.create(HF_BASE + name).toURL().openStream()) {
-                Files.copy(in, tmp, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            try (InputStream in = URI.create(HF_BASE + name).toURL().openStream()) {
+                Files.copy(in, tmp, StandardCopyOption.REPLACE_EXISTING);
             }
-            Files.move(tmp, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
             log.info("[ZipformerZh] downloaded {} ({} bytes)", name, Files.size(target));
         }
     }
@@ -293,7 +296,7 @@ public class ZipformerZhAudioClient implements VirtualClient {
             else {
                 InputStream in = setting.getAudioInput();
                 if (in != null) {
-                    Files.copy(in, tmp, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    Files.copy(in, tmp, StandardCopyOption.REPLACE_EXISTING);
                 }
             }
             tmp.toFile().deleteOnExit();

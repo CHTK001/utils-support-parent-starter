@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.onnx.yolo;
 
 import java.util.Arrays;
 import java.util.List;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
  * visdrone 小目标检测 Translator（嵌入式，visdrone 10 类）。
@@ -19,10 +20,10 @@ public class VisDroneSmallDetectorTranslator extends YoloTranslator {
          *
          * @param configuration 检测配置（可空）
          */
-    public VisDroneSmallDetectorTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public VisDroneSmallDetectorTranslator(DetectionConfiguration configuration) {
         super(640,
                 configuration == null ? 0.10f
-                        : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, 0.10f),
+                        : configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, 0.10f),
                 0.50f, VISDRONE_10_CLASSES, true);
     }
 

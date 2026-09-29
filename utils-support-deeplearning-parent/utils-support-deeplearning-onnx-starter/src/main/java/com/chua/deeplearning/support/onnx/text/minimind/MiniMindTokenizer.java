@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.regex.Matcher;
 
 /**
  * minimind BPE Tokenizer（纯 Java 实现，零外部依赖）。
@@ -282,7 +283,7 @@ public class MiniMindTokenizer {
      */
     private List<String> byteLevelPreTokenize(String text) {
         List<String> tokens = new ArrayList<>();
-        java.util.regex.Matcher m = BYTE_LEVEL_PATTERN.matcher(text);
+        Matcher m = BYTE_LEVEL_PATTERN.matcher(text);
         while (m.find()) {
             String token = m.group();
             byte[] bytes = token.getBytes(StandardCharsets.UTF_8);

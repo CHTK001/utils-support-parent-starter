@@ -11,6 +11,7 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.feature.FeatureExtractor;
 import lombok.extern.slf4j.Slf4j;
+import ai.djl.ndarray.types.Shape;
 
 /**
  * SAM vit-H 编码器
@@ -61,8 +62,8 @@ public class SamImageEncoderTranslator implements Translator<Image, float[]> {
 
         array = array.transpose(2, 0, 1).div(255.0f);
 
-        NDArray mean = manager.create(MEAN, new ai.djl.ndarray.types.Shape(3, 1, 1));
-        NDArray std = manager.create(STD, new ai.djl.ndarray.types.Shape(3, 1, 1));
+        NDArray mean = manager.create(MEAN, new Shape(3, 1, 1));
+        NDArray std = manager.create(STD, new Shape(3, 1, 1));
         array = array.sub(mean).div(std);
 
         array = array.expandDims(0);

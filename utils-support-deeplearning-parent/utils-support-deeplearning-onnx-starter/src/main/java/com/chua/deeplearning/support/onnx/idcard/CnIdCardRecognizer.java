@@ -18,6 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import com.chua.deeplearning.support.engine.ModelRegistry;
 
 /**
  * 中国居民身份证识别门面
@@ -178,8 +179,8 @@ public class CnIdCardRecognizer {
     @SuppressWarnings("unchecked")
     private <I, O> ITranslator<I, O> createTranslator(String modelId) {
         try {
-            com.chua.deeplearning.support.engine.ModelRegistry.Entry entry =
-                    com.chua.deeplearning.support.engine.ModelRegistry.get(modelId);
+            ModelRegistry.Entry entry =
+                    ModelRegistry.get(modelId);
             if (entry == null) {
                 return null;
             }

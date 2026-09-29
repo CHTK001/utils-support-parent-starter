@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.opencv.imgproc.Imgproc;
 
 /**
  * tinaface        ONNX Translator
@@ -97,7 +98,7 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         var src = (BufferedImage) input.getWrappedImage();
-        var resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        var resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, Imgproc.INTER_LINEAR);
         var rgb = resized.getRGB(0, 0, INPUT_SIZE, INPUT_SIZE, null, 0, INPUT_SIZE);
         var total = INPUT_SIZE * INPUT_SIZE;
         var data = new float[3 * total];

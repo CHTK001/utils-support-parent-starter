@@ -32,6 +32,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
+import java.io.InputStream;
+import java.nio.file.StandardCopyOption;
 
 /**
  * Grounding DINO Tiny ONNX                 
@@ -86,7 +89,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
     /**
      * 分词器
     */
-    private ai.djl.huggingface.tokenizers.HuggingFaceTokenizer tokenizer;
+    private HuggingFaceTokenizer tokenizer;
     /**
      * 候选输入标识
     */
@@ -167,7 +170,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokenizerPath = resolveRequiredFile(modelRoot, "tokenizer.json");
-        tokenizer = ai.djl.huggingface.tokenizers.HuggingFaceTokenizer.builder()
+        tokenizer = HuggingFaceTokenizer.builder()
                 .optTokenizerPath(tokenizerPath)
                 .optPadding(true)
                 .build();
@@ -225,8 +228,8 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         tokenTypeIds.setName("token_type_ids");
 
         long[] maskShape = {1, pixelValues.getShape().get(2), pixelValues.getShape().get(3)};
-        NDArray pixelMask = manager.ones(new ai.djl.ndarray.types.Shape(maskShape),
-                ai.djl.ndarray.types.DataType.INT64);
+        NDArray pixelMask = manager.ones(new Shape(maskShape),
+                DataType.INT64);
         pixelMask.setName("pixel_mask");
 
         return new NDList(inputIds, pixelValues, attentionMask, tokenTypeIds, pixelMask);
@@ -603,12 +606,12 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         }
  // 类路径 内嵌资源回退（如 tokenizer 等配套文件）
         String cpResource = "vision/detection/grounding-dino-tiny/" + name;
-        try (java.io.InputStream is = getClass().getClassLoader()
+        try (InputStream is = getClass().getClassLoader()
                 .getResourceAsStream(cpResource)) {
             if (is != null) {
                 Files.createDirectories(root);
-                java.nio.file.Files.copy(is, file,
-                        java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(is, file,
+                        StandardCopyOption.REPLACE_EXISTING);
                 log.info("Grounding DINO 从 classpath 恢复配套文件: {} -> {}",
                         cpResource, file);
                 return file;

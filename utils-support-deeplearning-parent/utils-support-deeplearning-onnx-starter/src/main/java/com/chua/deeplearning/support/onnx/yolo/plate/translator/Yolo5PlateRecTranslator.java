@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import org.opencv.core.Size;
 
 /**
  * yolov5 车牌识别（cvhub520/yolov5_car_铭牌，ORT 原生 + 打开cv）。
@@ -147,7 +148,7 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
         }
         try {
             Mat resized = new Mat();
-            Imgproc.resize(src, resized, new org.opencv.core.Size(INPUT_W, INPUT_H), 0, 0, Imgproc.INTER_LINEAR);
+            Imgproc.resize(src, resized, new Size(INPUT_W, INPUT_H), 0, 0, Imgproc.INTER_LINEAR);
 
             float[] pixels = new float[3 * INPUT_H * INPUT_W];
             for (int y = 0; y < INPUT_H; y++) {

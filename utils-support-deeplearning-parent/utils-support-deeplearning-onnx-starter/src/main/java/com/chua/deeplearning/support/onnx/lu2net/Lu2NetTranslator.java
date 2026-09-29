@@ -10,6 +10,8 @@ import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.TranslatorContext;
 import ai.djl.translate.Translator;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 /**
  * @作者 CH
@@ -23,10 +25,10 @@ public class Lu2NetTranslator implements Translator<Image, Image> {
         NDManager manager = ctx.getNDManager();
         // U²-Net 类模型要求尺寸对齐，统一缩放到 320x320
  // （DJL 镜像.resize 在部分版本为 no-op，ndarray.resize 在 Rust 引擎未实现，故用 Java2D）
-        java.awt.image.BufferedImage src = (java.awt.image.BufferedImage) input.getWrappedImage();
-        java.awt.image.BufferedImage scaled = new java.awt.image.BufferedImage(
-                320, 320, java.awt.image.BufferedImage.TYPE_INT_RGB);
-        java.awt.Graphics2D graphics = scaled.createGraphics();
+        BufferedImage src = (BufferedImage) input.getWrappedImage();
+        BufferedImage scaled = new BufferedImage(
+                320, 320, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = scaled.createGraphics();
         try {
             graphics.drawImage(src, 0, 0, 320, 320, null);
         } finally {

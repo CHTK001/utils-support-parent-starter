@@ -2,6 +2,9 @@ package com.chua.deeplearning.support.onnx;
 
 import ai.onnxruntime.OrtSession;
 import ai.onnxruntime.providers.OrtCUDAProviderOptions;
+import com.chua.deeplearning.support.engine.DeviceSelector;
+import com.chua.deeplearning.support.engine.ModelParams;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * ONNX Runtime GPU 通用工具。
@@ -26,7 +29,7 @@ import ai.onnxruntime.providers.OrtCUDAProviderOptions;
  * @author CH
  * @since 4.0.0.43
  */
-@lombok.extern.slf4j.Slf4j
+@Slf4j
 public final class GpuHelper {
 
     /**
@@ -55,7 +58,7 @@ public final class GpuHelper {
      * @return true 表示应使用 CUDA
      */
     public static boolean isGpu() {
-        return "gpu".equals(com.chua.deeplearning.support.engine.DeviceSelector.resolve(null));
+        return "gpu".equals(DeviceSelector.resolve(null));
     }
 
     /**
@@ -65,7 +68,7 @@ public final class GpuHelper {
      * @return true 表示该模型应使用 CUDA
      */
     public static boolean isGpu(String modelId) {
-        String device = com.chua.deeplearning.support.engine.ModelParams.resolveDevice(modelId, null);
+        String device = ModelParams.resolveDevice(modelId, null);
         return "gpu".equals(device);
     }
 

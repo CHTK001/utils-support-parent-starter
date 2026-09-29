@@ -90,10 +90,10 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
          *
          * @param configuration 检测配置（可空）
          */
-    public FacePluginDetectTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public FacePluginDetectTranslator(DetectionConfiguration configuration) {
         this();
         if (null != configuration) {
-            float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);
+            float t = configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, -1f);
             if (t > 0) {
                 this.thresholdOverride = t;
             }

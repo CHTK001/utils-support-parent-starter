@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.text.Normalizer;
 
 /**
  * 纯 Java 实现的 BERT wordpiece tokenizer（不依赖 Rust tokenizers / DJL）。
@@ -356,7 +357,7 @@ public class MiniLMTokenizer {
      */
     private static String stripAccents(String s) {
         try {
-            String nfd = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD);
+            String nfd = Normalizer.normalize(s, Normalizer.Form.NFD);
             StringBuilder sb = new StringBuilder(nfd.length());
             for (int i = 0; i < nfd.length(); i++) {
                 char c = nfd.charAt(i);

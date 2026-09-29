@@ -16,6 +16,8 @@ import org.opencv.imgproc.Imgproc;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * vit-H-14 ONNX 图像特征提取 Translator。
@@ -234,7 +236,7 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
         long[] shape = {batch, 3, IMAGE_SIZE, IMAGE_SIZE};
 
         try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
-            java.util.Map<String, OnnxTensor> inputs = new java.util.HashMap<>();
+            Map<String, OnnxTensor> inputs = new HashMap<>();
             inputs.put("pixel_values", tensor);
 
             try (OrtSession.Result result = session.run(inputs)) {

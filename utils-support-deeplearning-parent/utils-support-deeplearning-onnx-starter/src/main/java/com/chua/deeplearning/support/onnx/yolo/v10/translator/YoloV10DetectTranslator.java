@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.onnx.yolo.v10.translator;
 
 import java.util.Arrays;
 import java.util.List;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
  * yolov10 通用检测 Translator（COCO 80 类，640 输入）。
@@ -37,10 +38,10 @@ public class YoloV10DetectTranslator extends DocLayoutYoloTranslator {
          *
          * @param configuration 检测配置（可空）
          */
-    public YoloV10DetectTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public YoloV10DetectTranslator(DetectionConfiguration configuration) {
         super(640,
                 configuration == null ? 0.2f
-                        : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, 0.2f),
+                        : configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, 0.2f),
                 COCO_CLASSES);
     }
 

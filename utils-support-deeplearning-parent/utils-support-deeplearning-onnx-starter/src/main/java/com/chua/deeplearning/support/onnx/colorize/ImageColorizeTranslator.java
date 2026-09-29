@@ -12,6 +12,8 @@ import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
+import ai.djl.ndarray.NDArrays;
+import java.util.Arrays;
 
 /**
  * 图像上色 Translator
@@ -56,7 +58,7 @@ public class ImageColorizeTranslator implements Translator<Image, Image> {
         gray = gray.div(255.0f);
         gray = gray.transpose(2, 0, 1);
  // 复制三通道（Rust 引擎未实现 repeat，改用 连接 拼接）
-        gray = ai.djl.ndarray.NDArrays.concat(
+        gray = NDArrays.concat(
                 new NDList(gray, gray, gray), 0).get(0); // [P3C 3.7 豁免] NDArray 张量下标访问（concat 返回单张量后取 batch 首样本）
         gray = gray.expandDims(0);
 
@@ -71,7 +73,7 @@ public class ImageColorizeTranslator implements Translator<Image, Image> {
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = list.singletonOrThrow();
         long[] shape = output.getShape().getShape();
-        log.info("[ImageColorize] Output raw shape={} dtype={}", java.util.Arrays.toString(shape), output.getDataType());
+        log.info("[ImageColorize] Output raw shape={} dtype={}", Arrays.toString(shape), output.getDataType());
 
         if (shape.length == 4) {
             output = output.squeeze(0);

@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 
 /**
  * CAM++ 声纹嵌入提取器（中文优化，192 维）。
@@ -106,7 +107,7 @@ public class CampplusEmbedding {
                     }
                 }
                 if (!copied) {
-                    throw new IllegalStateException("未在 classpath 找到 campplus 模型: " + java.util.Arrays.toString(candidates));
+                    throw new IllegalStateException("未在 classpath 找到 campplus 模型: " + Arrays.toString(candidates));
                 }
             }
             OrtEnvironment env = OrtEnvironment.getEnvironment();
@@ -270,8 +271,8 @@ public class CampplusEmbedding {
     private static void fftRadix2(double[] frameSamples, double[] re, double[] im) {
         int n = FFT_N;
         System.arraycopy(frameSamples, 0, re, 0, Math.min(frameSamples.length, n));
-        java.util.Arrays.fill(im, 0, n, 0);
-        java.util.Arrays.fill(re, frameSamples.length, n, 0);
+        Arrays.fill(im, 0, n, 0);
+        Arrays.fill(re, frameSamples.length, n, 0);
 
         int j = 0;
         for (int i = 1; i < n; i++) {
@@ -324,7 +325,7 @@ public class CampplusEmbedding {
      * @param t 方法入参 t
      * @return 结果值
      */
-    private static float[] toFloatArray(ai.onnxruntime.OnnxTensor t) {
+    private static float[] toFloatArray(OnnxTensor t) {
         FloatBuffer fb = t.getFloatBuffer();
         /**
          * l2Normalize。
