@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
  *       读取基线快照进行总结，与当前压缩上下文做偏差纠正，输出修复后的上下文</li>
  * </ol>
  *
- * <h3>使用示例</h3>
+ * <p><b>使用示例</b></p>
  * <pre>{@code
  *   Agent.create("agentscope")
  *       .chatClient(mainChatClient)

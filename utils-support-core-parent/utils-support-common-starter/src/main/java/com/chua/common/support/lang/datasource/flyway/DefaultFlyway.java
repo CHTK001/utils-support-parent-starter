@@ -207,6 +207,11 @@ public class DefaultFlyway implements Flyway {
      *
      * <p>依赖 {@link Engine} 的默认 SQL 代理：不支持原生语句的引擎会抛出
      * {@link UnsupportedOperationException}，迁移在首个建表语句即失败，而不是静默无记录。</p>
+     *
+     * @param engine 所属数据库引擎实例，作为历史表（{@code sys_database_version}）读写与迁移 SQL 的执行通道，
+     *               由 {@link DefaultFlyway#DefaultFlyway(Engine)} 唯一传入；不允许为 null
+     *               （规范构造器显式 {@code requireNonNull}，空引擎在构造期即失败，
+     *               而不是等到首次读写时才失败）。其 {@link Engine#execute(String, Object...)} 需支持原生 DDL/DML 语句
      */
     private record EngineRunner(Engine engine) implements FlywayHistory.Runner {
 

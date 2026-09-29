@@ -10,9 +10,7 @@ import java.util.List;
 
 /**
  * AI 模型定义。
- * <p>
  * 描述一个 AI 模型的基本信息，包括 ID、名称、提供商、描述和能力列表。
- * </p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -64,12 +62,19 @@ public class ModelDefinition {
     private String downloadFileName;
 
     /**
-     * 输入单价（每 Token）
+     * 输入单价，单位为<b>货币单位 / 百万 Token</b>
+     *
+     * <p>本字段是定价表的<b>唯一权威口径</b>：所有 {@code ModelMetricsProvider} 都按「每百万
+     * Token」填充（源字段名即 {@code price1mInputTokens}、{@code price1mOutputTokens} 等），
+     * {@code UsageFieldCompleter} 把它原值搬进 {@code AiUsage#inputUnitPrice} 时也不做归一化。
+     * 计算费用时必须除以 1_000_000，参考实现见 {@code AiUsageRecord#enrichPricing}。
      */
     private BigDecimal inputUnitPrice;
 
     /**
-     * 输出单价（每 Token）
+     * 输出单价，单位为<b>货币单位 / 百万 Token</b>
+     *
+     * <p>与 {@link #inputUnitPrice} 同单位（每百万 Token），通常高于输入单价。
      */
     private BigDecimal outputUnitPrice;
 

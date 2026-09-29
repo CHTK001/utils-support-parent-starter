@@ -43,17 +43,34 @@ public final class ReflectUtils {
     /**
      * 方法处理 缓存：键 = 类名称 + "." + 方法名称 + 参数类型
      */
-    private static final ConcurrentMap<String, MethodHandle> METHOD_HANDLE_CACHE = new ConcurrentHashMap<>(512);
+    private static final ConcurrentMap<Object, MethodHandle> METHOD_HANDLE_CACHE = new ConcurrentHashMap<>(512);
+
+    /**
+     * 方法句柄缓存键。
+     *
+     * <p>必须把 {@link Class} <b>本体</b>放进键里，而不是只用类名：动态编译
+     * （{@code JdkCompiler}）每次重编都用**新的类加载器**装载同名类。若只用类名做键，
+     * 第二次编译同名类时会命中上一次那条属于**旧 Class** 的句柄，随后
+     * {@code clazz.cast(handle.invoke())} 抛 {@link ClassCastException}，
+     * 被 {@link #instantiate(Class)} 吞成 null，上层就报「无法实例化」——
+     * 表现为同一条任务时好时坏（首次跑成功、重编后失败）。
+     * record 的相等性按组件比较，{@code Class} 相等即同一个类本体，天然按类加载器区分。</p>
+     *
+     * @param owner 目标类本体（不是类名）
+     * @param op    操作签名描述
+     */
+    private record HandleKey(Class<?> owner, String op) {
+    }
 
     /**
      * 字段 getter 方法处理 缓存
      */
-    private static final ConcurrentMap<String, MethodHandle> FIELD_GETTER_CACHE = new ConcurrentHashMap<>(256);
+    private static final ConcurrentMap<Object, MethodHandle> FIELD_GETTER_CACHE = new ConcurrentHashMap<>(256);
 
     /**
      * 字段 setter 方法处理 缓存
      */
-    private static final ConcurrentMap<String, MethodHandle> FIELD_SETTER_CACHE = new ConcurrentHashMap<>(256);
+    private static final ConcurrentMap<Object, MethodHandle> FIELD_SETTER_CACHE = new ConcurrentHashMap<>(256);
 
     /**
      * 类加载 缓存
@@ -317,7 +334,7 @@ public final class ReflectUtils {
         if (clazz == null || methodName == null) {
             return null;
         }
-        String key = buildMethodKey(clazz, methodName, returnType, paramTypes);
+        Object key = buildMethodKey(clazz, methodName, returnType, paramTypes);
         try {
             return METHOD_HANDLE_CACHE.computeIfAbsent(key, k -> {
                 try {
@@ -359,7 +376,7 @@ public final class ReflectUtils {
         if (clazz == null || methodName == null) {
             return null;
         }
-        String key = buildStaticMethodKey(clazz, methodName, returnType, paramTypes);
+        Object key = buildStaticMethodKey(clazz, methodName, returnType, paramTypes);
         try {
             return METHOD_HANDLE_CACHE.computeIfAbsent(key, k -> {
                 try {
@@ -494,14 +511,14 @@ public final class ReflectUtils {
     /**
      * 查找字段（沿继承链），返回 方法处理 getter。
      *
-     * <p>结果按 (类名, 字段名) 键缓存于 {@link #FIELD_GETTER_CACHE}。</p>
+     * <p>结果按 (类本体, 字段名) 键缓存于 {@link #FIELD_GETTER_CACHE}。</p>
      *
      * @param clazz     目标类
      * @param fieldName 字段名称
      * @return 字段 getter 的 MethodHandle，找不到或异常时返回 null
      */
     private static MethodHandle findFieldGetter(Class<?> clazz, String fieldName) {
-        String key = "GET:" + clazz.getName() + "|" + fieldName;
+        Object key = new HandleKey(clazz, "GET|" + fieldName);
         try {
             return FIELD_GETTER_CACHE.computeIfAbsent(key, k -> {
                 Class<?> c = clazz;
@@ -525,14 +542,14 @@ public final class ReflectUtils {
     /**
      * 查找字段（沿继承链），返回 方法处理 setter。
      *
-     * <p>结果按 (类名, 字段名) 键缓存于 {@link #FIELD_SETTER_CACHE}。</p>
+     * <p>结果按 (类本体, 字段名) 键缓存于 {@link #FIELD_SETTER_CACHE}。</p>
      *
      * @param clazz     目标类
      * @param fieldName 字段名称
      * @return 字段 setter 的 MethodHandle，找不到或异常时返回 null
      */
     private static MethodHandle findFieldSetter(Class<?> clazz, String fieldName) {
-        String key = "SET:" + clazz.getName() + "|" + fieldName;
+        Object key = new HandleKey(clazz, "SET|" + fieldName);
         try {
             return FIELD_SETTER_CACHE.computeIfAbsent(key, k -> {
                 Class<?> c = clazz;
@@ -753,6 +770,26 @@ public final class ReflectUtils {
     }
 
     /**
+     * 取类的全部 public 方法（含继承自父类/接口的默认实现）。
+     *
+     * <p>语义等价于 {@code Class.getMethods()}，供脚本引擎这类需要自行挑选入口方法
+     * 的场景使用；纯调用请优先使用 {@link #invoke(Object, String, Class, Object...)}。</p>
+     *
+     * @param clazz 目标类，允许为 null
+     * @return 方法列表；clazz 为 null 时返回空列表
+     */
+    public static List<java.lang.reflect.Method> getPublicMethods(Class<?> clazz) {
+        List<java.lang.reflect.Method> methods = new ArrayList<>();
+        if (clazz == null) {
+            return methods;
+        }
+        for (java.lang.reflect.Method method : clazz.getMethods()) {
+            methods.add(method);
+        }
+        return methods;
+    }
+
+    /**
      * 查找本类声明的全部构造器（含私有），语义等价于 {@code Class.getDeclaredConstructors}。
      *
      * <p>供构造器挑选场景（如按参数个数最多、按参数类型可赋值性匹配）使用；
@@ -854,7 +891,7 @@ public final class ReflectUtils {
      * @return 构造器 MethodHandle，找不到或异常时返回 null
      */
     private static MethodHandle findConstructorHandle(Class<?> clazz, Class<?>... paramTypes) {
-        String key = "CTOR:" + clazz.getName() + "@" + formatTypes(paramTypes);
+        Object key = new HandleKey(clazz, "CTOR:@" + formatTypes(paramTypes));
         try {
             return METHOD_HANDLE_CACHE.computeIfAbsent(key, k -> {
                 try {
@@ -1004,10 +1041,10 @@ public final class ReflectUtils {
      * @param paramTypes 参数类型
      * @return 缓存键字符串
      */
-    private static String buildMethodKey(Class<?> clazz, String methodName,
-                                          Class<?> returnType, Class<?>... paramTypes) {
-        return "MH:" + clazz.getName() + "." + methodName + "@"
-                + formatTypes(paramTypes) + "->" + returnType.getName();
+    private static Object buildMethodKey(Class<?> clazz, String methodName,
+                                         Class<?> returnType, Class<?>... paramTypes) {
+        return new HandleKey(clazz, "MH:" + methodName + "@"
+                + formatTypes(paramTypes) + "->" + returnType.getName());
     }
 
     /**
@@ -1019,10 +1056,10 @@ public final class ReflectUtils {
      * @param paramTypes 参数类型
      * @return 缓存键字符串
      */
-    private static String buildStaticMethodKey(Class<?> clazz, String methodName,
-                                                Class<?> returnType, Class<?>... paramTypes) {
-        return "SMH:" + clazz.getName() + "." + methodName + "@"
-                + formatTypes(paramTypes) + "->" + returnType.getName();
+    private static Object buildStaticMethodKey(Class<?> clazz, String methodName,
+                                               Class<?> returnType, Class<?>... paramTypes) {
+        return new HandleKey(clazz, "SMH:" + methodName + "@"
+                + formatTypes(paramTypes) + "->" + returnType.getName());
     }
 
     /**

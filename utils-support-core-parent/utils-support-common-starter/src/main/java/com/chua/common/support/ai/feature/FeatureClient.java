@@ -9,10 +9,8 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * AI 特征提取客户端接口。
- * <p>
  * 提供统一的特征向量提取抽象，支持文本与图像两种输入模态，返回浮点向量。
  * 实现类通过 SPI 机制按 provider 名称注册，调用方通过工厂方法获取实例。
- * </p>
  *
  * <p>文本特征示例：
  * <pre>{@code

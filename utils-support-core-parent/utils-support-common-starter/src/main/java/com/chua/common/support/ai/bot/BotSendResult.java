@@ -4,9 +4,7 @@ import lombok.Data;
 
 /**
  * Bot 发送结果
- * <p>
  * 封装 Bot API 调用结果，包含消息 ID 或错误信息。
- * </p>
  *
  * @author CH
  * @since 2026/07/18

@@ -7,10 +7,8 @@ import java.util.List;
 
 /**
  * 基于句子边界的文本分割器。
- * <p>
  * 按句号（。！？）、换行符等自然句子边界进行分割，
  * 每个块的大小受 maxChunkSize 控制，优先在句子边界截断。
- * </p>
  *
  * @author CH
  * @since 4.0.0.42

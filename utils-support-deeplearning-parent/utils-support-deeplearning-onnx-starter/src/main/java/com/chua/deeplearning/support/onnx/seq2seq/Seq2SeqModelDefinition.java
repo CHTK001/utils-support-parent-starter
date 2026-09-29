@@ -9,6 +9,36 @@ import java.util.Objects;
  * 类路径 嵌入式资源路径（优先）、modelscope 下载文件清单（备用）、
  * 层数 / 注意力头数 / 单头维度 / EOS / 解码器 起始 令牌。</p>
  *
+ * @param modelId          模型标识，同时作为本地缓存目录名，取自各常量的第一个构造实参，
+ *                         如 {@code t5-seq2seq}、{@code bart-zh-seq2seq}；无紧凑构造器校验，
+ *                         但实际所有常量均传非空字面量
+ * @param classpathBase    类路径嵌入式资源根路径，目录形式且以 {@code /} 结尾，
+ *                         如 {@code nlp/seq2seq/t5-small/}；紧凑构造器刻意不做校验，
+ *                         契约为「为空表示无嵌入式模型」，此时只走 modelscope 下载分支
+ * @param modelscopeRepo   modelscope 模型仓库名，格式 {@code 命名空间/仓库名}，
+ *                         如 {@code Xenova/t5-small}、{@code fnlp/bart-large-chinese}；
+ *                         允许为 {@code null}（{@link #MT5_ZH} 即显式传 {@code null}，
+ *                         因官方未在 modelscope 发布该模型的 ONNX 文件，改由其它渠道获取）
+ * @param downloadFiles    modelscope 下载文件清单，元素是相对仓库根路径的文件名，
+ *                         带 {@code onnx/} 前缀（如 {@code onnx/decoder_model_int8.onnx}）；
+ *                         不允许为 {@code null}，元素亦不允许含 {@code null}
+ *                         （紧凑构造器用 {@code List.copyOf} 拷贝，缺 {@code null} 直接抛 NPE）；
+ *                         与 {@link #requiredFiles} 逐项按序对应
+ * @param requiredFiles    缓存目录 / 嵌入式目录中必需存在的文件名清单，不带 {@code onnx/} 前缀
+ *                         （如 {@code decoder_model_int8.onnx}）；用于加载前的完整性校验，
+ *                         缺任一项即判定模型不可用；不允许为 {@code null}，
+ *                         元素亦不允许含 {@code null}，同样经 {@code List.copyOf} 拷贝为不可变列表
+ * @param numLayers        解码器层数，各常量取值 6（t5-small）/ 8（mt5-small）/ 12（其余）；
+ *                         注意 mT5 系列实际解码参数由模型输出维度动态解析，此字段主要用于文档与自检
+ * @param numHeads         注意力头数，各常量取值 6 / 8 / 12 / 16；
+ *                         与 {@link #headDim} 相乘得到模型维度 d_model（384 / 512 / 768 / 1024）
+ * @param headDim          单头注意力维度（每头 query/key/value 的宽度），各常量统一为 64；
+ *                         约束为 {@code headDim * numHeads == d_model}，取值不当会与 ONNX 权重形状不符
+ * @param eosId            结束符（EOS）令牌的词表 ID，T5 / mT5 系列为 1；
+ *                         BART 词表把 BOS 与 EOS 合并为同一 ID，故 {@link #BART_ZH} 为 102。
+ *                         超出词表范围会导致解码无法终止
+ * @param decoderStartId  解码器起始令牌的词表 ID，即自回归解码时喂给 decoder 的第一个 token；
+ *                         T5 / mT5 系列为 0（decoder start token），{@link #BART_ZH} 为 102（复用 BOS）
  * @author CH
  * @since 4.0.0.42
  */

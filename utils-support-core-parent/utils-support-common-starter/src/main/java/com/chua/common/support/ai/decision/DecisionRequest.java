@@ -23,7 +23,6 @@ import java.util.Objects;
  * {@code state} 的定位是<b>跨进程传输的载荷</b>：实现方需要把上下文
  * 序列化后发给远端概率决策服务时，才消费它。SPI <b>不要求</b>每个实现
  * 都读它，{@link DefaultDecisionProvider} 就完全不读。因此：
- * </p>
  * <ul>
  *   <li><b>接远端服务</b>：把上下文放进 {@code state}，
  *       由实现方负责序列化。这是 {@code state} 唯一真正被消费的场合。</li>

@@ -483,11 +483,15 @@ public interface Engine extends AutoCloseable {
         if (all == null || all.isEmpty()) {
             return List.of();
         }
-        int from = (pageNum - 1) * pageSize;
-        if (from >= all.size()) {
+        // 偏移量必须用 long 计算：(pageNum - 1) * pageSize 是 int 乘法，
+        // 大页码下会回绕为负数或小正数，使下方的越界守卫失效
+        long offset = (long) (pageNum - 1) * pageSize;
+        if (offset >= all.size()) {
             return List.of();
         }
-        int to = Math.min(from + pageSize, all.size());
+        // 此处 offset 已落在 [0, all.size()) 内，收窄为 int 是安全的
+        int from = (int) offset;
+        int to = (int) Math.min(offset + pageSize, all.size());
         // 独立副本，避免 subList 视图持有底层存储引用
         return new java.util.ArrayList<>(all.subList(from, to));
     }

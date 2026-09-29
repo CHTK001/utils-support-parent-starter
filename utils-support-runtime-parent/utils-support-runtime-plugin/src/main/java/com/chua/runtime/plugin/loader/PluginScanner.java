@@ -163,6 +163,25 @@ public class PluginScanner {
     /**
      * 插件信息。
      *
+     * <p>{@code scanPlugin(Path)} 每成功加载一个插件就产出一条：先用
+     * {@code PluginClassLoader} 读 SPI 配置，再对每个实现类名反射实例化、
+     * 用 {@code PluginContext} 完成 {@code init}，最后打包成该 record 追加到列表。
+     * 本 record 无紧凑构造器，四个组件均按实际扫描结果原样携带。</p>
+     *
+     * @param name        插件名，取自插件子目录的文件名（{@code pluginDir.getFileName()}），
+     *                   即插件根目录下一级子目录名，如 {@code demo-plugin}；
+     *                   一个目录内若有多个 SPI 实现类，会产出多条同 {@code name} 的记录，
+     *                   故该值只标识「插件包」而非「插件实现」
+     * @param plugin      已完成初始化的插件实例，由 {@code PluginClassLoader.loadPlugin(className)}
+     *                   依据 SPI 配置中的实现类名反射创建，并已通过
+     *                   {@code plugin.init(context)} 拿到上下文；
+     *                   加载或初始化抛异常时不会产出记录，因此不允许为 {@code null}
+     * @param classLoader 承载该插件的类加载器，为每个插件目录单独创建的
+     *                   {@code PluginClassLoader}（父加载器为扫描器的 {@code parentLoader}）；
+     *                   插件的依赖隔离与卸载都依赖它，跨插件不应共享
+     * @param context     传给 {@code plugin.init(context)} 的 {@code PluginContext}，
+     *                   以插件目录为根，向插件暴露配置属性、运行时管理器等能力；
+     *                   与 {@link #plugin} 一一对应，同一次 {@code scanPlugin} 内是同一实例
      * @author CH
      * @since 4.0.0.42
      */

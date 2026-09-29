@@ -411,6 +411,37 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
     /**
      * {@code pg_index} 展开后的单行原始值。
      *
+     * <p>一个复合索引会被 {@code unnest(indkey, indoption) WITH ORDINALITY}
+     * 展开成「每索引列一行」；{@link #readIndexes(String, String, String)}
+     * 再按 {@link #indexName} 分组回 {@code IndexMetadata}，并用
+     * {@link #seqInIndex} 还原列序。唯一构造点是 {@link #read(ResultSet)}，
+     * 即全部取值直接来自 {@link #INDEX_SQL} 的结果集列。</p>
+     *
+     * @param tableName    索引所属的基表名，取 {@code pg_index.indrelid} 关联的 {@code pg_class.relname}；
+     *                     查询已按 {@code nspname} 限定模式，不允许为 {@code null}
+     * @param indexName    索引名，取 {@code pg_index.indexrelid} 关联的 {@code pg_class.relname}；
+     *                     同一索引的多行共享该值，也是 {@link #readIndexes(String, String, String)}
+     *                     分组的键，不允许为 {@code null}
+     * @param seqInIndex   该索引列在索引内的序号，取 {@code WITH ORDINALITY} 的 {@code k.ord}，
+     *                     从 1 开始连续递增；列序即此值升序，合成索引时用于回填
+     *                     {@code IndexMetadata.position}，不允许为 {@code null}
+     * @param columnName   索引列名，取 {@code pg_attribute.attname}。表达式索引的 {@code indkey}
+     *                     为 0 时关联不上 {@code pg_attribute}，此时为 {@code null}，
+     *                     {@link #readIndexes(String, String, String)} 会跳过该行不加入列清单
+     * @param unique       {@code pg_index.indisunique}，该索引是否为唯一索引
+     * @param primary      {@code pg_index.indisprimary}，该索引是否即主键索引
+     *                     （PostgreSQL 的主键是 {@code indisprimary} 的唯一索引）
+     * @param valid        {@code pg_index.indisvalid}，索引是否处于有效状态
+     *                     （如并发建索引失败会为 {@code false}）。{@code IndexMetadata} 没有承载字段，
+     *                     故当前只读出不下传，避免挪作「可见性」语义
+     * @param descending   {@code pg_index.indoption} 对应列的低位是否为 1：{@code true} 表示该列降序
+     *                     （{@code DESC}），{@code false} 表示升序（{@code ASC}）；
+     *                     合成索引时只有首个索引列的该值被采纳为整体排序方向
+     * @param indexType    索引访问方法，取 {@code pg_am.amname}（{@code btree} / {@code hash} /
+     *                     {@code gin} / {@code brin} 等），已 {@code trimToNull}，
+     *                     {@code LEFT JOIN} 未命中时为 {@code null}
+     * @param indexComment 索引注释，取 {@code obj_description(ci.oid, 'pg_class')}，
+     *                     已 {@code trimToNull}；未写过 {@code COMMENT ON INDEX} 时为 {@code null}
      * @author CH
      * @since 4.0.0
      */

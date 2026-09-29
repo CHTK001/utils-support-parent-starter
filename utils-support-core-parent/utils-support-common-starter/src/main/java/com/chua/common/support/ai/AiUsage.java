@@ -11,7 +11,7 @@ import java.math.BigDecimal;
  * <p>统一封装 AI 调用过程中产生的 Token 用量、费用和性能指标信息。
  * 适用于对话（Chat）、图片生成（Image）、视频生成（Video）、Agent 等各类 AI 服务场景。
  *
- * <h3>在 Agent 系统中的角色</h3>
+ * <h2>在 Agent 系统中的角色</h2>
  * <pre>
  *   AgentResponse.getUsage()  → 返回 AiUsage
  *     → 含主 Agent 的路由决策耗时
@@ -30,7 +30,7 @@ import java.math.BigDecimal;
  *   <li><b>性能指标</b> — 记录请求时间戳、耗时、首字耗时等性能数据</li>
  * </ul>
  *
- * <p>使用示例：
+ * <p>使用示例（注意单价单位为 <b>币种 / 百万 Token</b>，费用需再除以 1_000_000）：
  * <pre>{@code
  *   AiUsage usage = AiUsage.builder()
  *       // Token 用量
@@ -38,12 +38,13 @@ import java.math.BigDecimal;
  *       .outputTokens(800)
  *       .totalTokens(2000)
  *       .cacheTokens(200)
- *       // 费用信息
- *       .inputUnitPrice(new BigDecimal("0.005"))
- *       .outputUnitPrice(new BigDecimal("0.015"))
- *       .inputCost(new BigDecimal("0.006"))
- *       .outputCost(new BigDecimal("0.012"))
- *       .totalCost(new BigDecimal("0.018"))
+ *       // 费用信息：单价 2.5 / 10 均为「每百万 Token」
+ *       .inputUnitPrice(new BigDecimal("2.5"))
+ *       .outputUnitPrice(new BigDecimal("10"))
+ *       // 2.5 × 1200 ÷ 1_000_000 = 0.003；10 × 800 ÷ 1_000_000 = 0.008
+ *       .inputCost(new BigDecimal("0.003"))
+ *       .outputCost(new BigDecimal("0.008"))
+ *       .totalCost(new BigDecimal("0.011"))
  *       .currency("USD")
  *       .estimated(false)
  *       // 性能指标
@@ -131,32 +132,46 @@ public class AiUsage {
     // ==================== 费用信息 ====================
 
     /**
-     * 输入单价（每 Token）
+     * 输入单价，单位为<b>货币单位 / 百万 Token</b>
      *
-     * <p>输入部分的单价，单位为货币单位/Token。
+     * <p><b>单位口径（易错，务必按此理解）</b>：本字段存的是「每<b>百万</b> Token 的价格」，
+     * <b>不是</b>每 Token、也不是每千 Token。据此计算费用必须除以 1_000_000：
+     * <pre>{@code
+     *   inputCost = inputUnitPrice.multiply(inputTokens).divide(1_000_000, scale, RoundingMode.HALF_UP);
+     * }</pre>
+     * 直接用 {@code inputTokens × inputUnitPrice} 会把金额放大 <b>一百万倍</b>。
      *
      * <p>参考定价（以 OpenAI gpt-4o 为例）：
      * <ul>
-     *   <li>输入单价：$0.005 / 1K tokens = 0.000005 / token</li>
-     *   <li>输出单价：$0.015 / 1K tokens = 0.000015 / token</li>
+     *   <li>输入单价：2.5 / 百万 tokens（即 0.0000025 / token）</li>
+     *   <li>输出单价：10 / 百万 tokens（即 0.00001 / token）</li>
      * </ul>
      *
-     * <p>实现类应从服务商公开定价或 API 响应中解析并填充此字段。
+     * <p>本字段与定价表 {@code ModelDefinition#getInputUnitPrice()} 同单位，
+     * {@code UsageFieldCompleter} 会把定价表的单价原值直接搬过来，不做归一化；
+     * 已实现的口径换算见 {@code SysAiPricingServiceImpl}（除以 1000 存为每千）与
+     * {@code AiUsageRecord}（乘 Token 数后除以一百万）。实现类应从服务商公开定价或
+     * API 响应中解析并填充此字段。
      */
     private BigDecimal inputUnitPrice;
 
     /**
-     * 输出单价（每 Token）
+     * 输出单价，单位为<b>货币单位 / 百万 Token</b>
      *
-     * <p>输出部分的单价，单位为货币单位/Token。
-     * 通常输出单价高于输入单价（约为输入的 2~4 倍）。
+     * <p><b>单位口径与 {@link #inputUnitPrice} 完全一致</b>：存的是每<b>百万</b> Token 的价格，
+     * 计算费用同样必须除以 1_000_000。通常输出单价高于输入单价（约为输入的 2~4 倍）。
      */
     private BigDecimal outputUnitPrice;
 
     /**
      * 输入费用
      *
-     * <p>本次请求输入部分的实际费用，计算公式：inputTokens × inputUnitPrice。
+     * <p>本次请求输入部分的实际费用，计算公式：
+     * <pre>{@code
+     *   inputCost = inputUnitPrice × inputTokens ÷ 1_000_000
+     * }</pre>
+     * 其中 {@code inputUnitPrice} 的单位是<b>货币单位 / 百万 Token</b>（见该字段说明），
+     * 因此公式里的除数 1_000_000 不可省略。
      * 该字段由实现类根据单价和 Token 数自动计算填充。
      *
      * <p>如果服务商支持缓存折扣，此处应为实际扣除折扣后的费用。
@@ -166,7 +181,11 @@ public class AiUsage {
     /**
      * 输出费用
      *
-     * <p>本次响应输出部分的实际费用，计算公式：outputTokens × outputUnitPrice。
+     * <p>本次响应输出部分的实际费用，计算公式：
+     * <pre>{@code
+     *   outputCost = outputUnitPrice × outputTokens ÷ 1_000_000
+     * }</pre>
+     * 与 {@link #inputCost} 同理，除数 1_000_000 不可省略。
      * 该字段由实现类根据单价和 Token 数自动计算填充。
      */
     private BigDecimal outputCost;

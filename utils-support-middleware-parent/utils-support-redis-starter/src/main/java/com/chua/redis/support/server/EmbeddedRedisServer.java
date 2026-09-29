@@ -26,8 +26,6 @@ import org.slf4j.LoggerFactory;
  *     .maxMemory("256mb")
  *     .build();
  * redis.start();
- * }</pre> *     .build();
- * redis.start();
  * }</pre>
  *
  * @author CH

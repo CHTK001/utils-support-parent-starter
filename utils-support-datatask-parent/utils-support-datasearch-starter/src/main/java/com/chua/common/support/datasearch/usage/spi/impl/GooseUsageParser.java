@@ -39,9 +39,6 @@ import java.util.Map;
 @Spi("goose")
 public class GooseUsageParser extends BaseUsageParser {
 
-    private static final Path DB_PATH = Path.of(System.getenv("APPDATA"),
-            "Block", "goose", "data", "sessions", "sessions.db");
-
     private static final String SQL_LEDGER =
             "SELECT l.session_id, l.created_timestamp, l.model, l.input_tokens, l.output_tokens, "
                     + "l.total_tokens, l.cache_read_tokens, l.cache_write_tokens, l.cost, l.cost_source, "
@@ -61,6 +58,31 @@ public class GooseUsageParser extends BaseUsageParser {
     private static final long EPOCH_SECONDS_TO_MILLIS = 1000L; // 轮次seconds转为millis
 
     /**
+     * 解析 Goose 会话库路径。
+     *
+     * <p>Goose 是 Windows 工具，库固定落在 {@code %APPDATA%\Block\goose\data\sessions\sessions.db}。
+     * 但 {@code APPDATA} 是 Windows 环境变量，Linux/macOS 上 {@link System#getenv} 返回 {@code null}，
+     * 而 {@code Path.of} 首个实参为 null 会抛 {@link NullPointerException}。</p>
+     *
+     * <p>原先写成静态字段初始化，代价是类初始化失败抛出
+     * {@link ExceptionInInitializerError}——它是 {@link Error} 而非 {@link Exception}，
+     * 调用方的 {@code catch (Exception)} 抓不住，会一路穿透成接口 500
+     * （实测 2026-09-29 远端 {@code GET /v2/usage/parsers} 即报 {@code S9999C0000}；
+     * 且首次失败后该类永久不可用，后续访问改抛 {@link NoClassDefFoundError}）。
+     * 故改为调用期解析，用 {@code null} 表示「本机没有 Goose」，
+     * 与本包其它解析器（如 KiroUsageParser 的 resolveDbPath）风格一致。</p>
+     *
+     * @return Goose 会话库路径；环境变量缺失（本机非 Windows）时返回 null
+     */
+    private static Path resolveDbPath() {
+        String appData = System.getenv("APPDATA");
+        if (appData == null || appData.isBlank()) {
+            return null;
+        }
+        return Path.of(appData, "Block", "goose", "data", "sessions", "sessions.db");
+    }
+
+    /**
      * 返回 SPI 名称。
      *
      * @return {@code "goose"}
@@ -71,15 +93,18 @@ public class GooseUsageParser extends BaseUsageParser {
 
     /**
      * 流式解析全部用量台账记录。
+     *
+     * @return 用量记录流；本机无 Goose 时返回空流
      */
     @Override
     public Flux<AiUsage> streamAll() {
-        if (!Files.exists(DB_PATH)) {
-            log.debug("[goose] database not found: {} (Goose not installed)", DB_PATH);
+        Path dbPath = resolveDbPath();
+        if (dbPath == null || !Files.exists(dbPath)) {
+            log.debug("[goose] database not found (Goose 未安装于本平台或路径不存在)");
             return Flux.empty();
         }
         SqliteReactorEngine engine = new SqliteReactorEngine()
-                .addDataSource("goose", DB_PATH.toString());
+                .addDataSource("goose", dbPath.toString());
         return engine.query(SQL_LEDGER)
                 .map(this::toAiUsage)
                 .doOnComplete(() -> log.info("[goose] stream complete"));

@@ -9,9 +9,7 @@ import lombok.Singular;
 
 /**
  * Bot 入站消息
- * <p>
  * 封装从平台接收到的用户消息，支持文本、图片、语音、视频、文件等类型。
- * </p>
  *
  * @author CH
  * @since 2026/07/18
@@ -143,10 +141,8 @@ public class BotInboundMessage {
 
     /**
      * 会话上下文令牌
-     * <p>
      * 平台（如微信 iLink）在入站消息上携带的 context_token，回复 / 主动发送时必须原样回传，
      * 否则平台返回 {@code ret=-2 prepare failed}。仅入站消息携带，平台未提供时为 null。
-     * </p>
      */
     private String contextToken;
 

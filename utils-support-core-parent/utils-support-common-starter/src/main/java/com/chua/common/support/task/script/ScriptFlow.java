@@ -1,9 +1,8 @@
 package com.chua.common.support.task.script;
 
-import com.chua.common.support.spi.ServiceProvider;
-
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -47,13 +46,24 @@ public class ScriptFlow {
      * @return ScriptFlow 实例
      */
     public static ScriptFlow of(String engineName) {
-        ScriptProvider provider = ServiceProvider.of(ScriptProvider.class)
-                .getExtension(engineName);
+        ScriptProvider provider = ScriptProviders.resolve(engineName);
         if (provider == null) {
             throw new IllegalStateException("未找到脚本引擎: " + engineName
                     + "，请添加对应的脚本引擎依赖");
         }
         return new ScriptFlow(provider);
+    }
+
+    /**
+     * 枚举全部已注册的脚本引擎名。
+     *
+     * <p>转发 {@link ScriptProviders#engines()}：上层（调度台语言下拉等）用它驱动可选项，
+     * 装了新引擎自动出现。</p>
+     *
+     * @return 引擎名集合
+     */
+    public static Set<String> engines() {
+        return ScriptProviders.engines();
     }
 
     /**

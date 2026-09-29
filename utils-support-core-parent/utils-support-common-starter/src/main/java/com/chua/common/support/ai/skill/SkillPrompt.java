@@ -6,10 +6,8 @@ import java.util.Map;
 
 /**
  * 技能描述注入 system 的轻量工具（不依赖 Agent 执行环）。
- * <p>
  * 只负责把 {@link SkillManager} 中的技能写成 Markdown，拼进 system prompt。
  * 不执行工具调用、不跑规划 —— ChatClient / Aggregate 均可使用。
- * </p>
  *
  * <pre>{@code
  * String system = SkillPrompt.inject(baseSystem, skillManager);

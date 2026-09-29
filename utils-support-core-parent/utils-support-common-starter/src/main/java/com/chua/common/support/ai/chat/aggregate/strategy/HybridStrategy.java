@@ -151,6 +151,25 @@ public class HybridStrategy implements RouterStrategy {
 
     /**
      * 组路由器
+     *
+     * <p>一条「路由组」配置：先由 {@link #condition} 判定本次 prompt 是否属于本组，
+     * 再由组内 {@link #strategy} 在本组的候选 {@link #clients} 里做二次选路。
+     * {@link HybridStrategy} 持有一组 {@code GroupRouter} 并按声明顺序依次尝试，
+     * 组内失败或本组无可用客户端时继续下一组，全部失败才抛异常。</p>
+     *
+     * <p>可空性：{@code condition} 为 null 表示「无条件命中」（见 {@link #matches(String)}）；
+     * {@code name} 取自配置且可能缺省，允许为 null，此时仅影响日志可读性、不影响路由行为；
+     * {@code clients} 不允许为 null——规范构造器用 {@code List.copyOf} 拷贝，为 null 会立即抛
+     * {@link NullPointerException}，空候选请传 {@link List#of()}。</p>
+     *
+     * @param name      组名称，仅用于 {@code log.debug}/{@code log.warn} 的 {@code [Hybrid] group=...} 输出；
+     *                  取自配置项，缺省时为 null
+     * @param condition 组匹配条件，入参为待发送的 prompt，返回 true 表示本组参与本轮路由；
+     *                  允许为 null，语义等价于「恒真」，即无条件参与
+     * @param strategy  组内路由策略（非空），在本组通过健康过滤后的客户端上执行选路；
+     *                  通常为加权轮询或故障转移等子策略，抛出异常时由 HybridStrategy 捕获并转移到下一组
+     * @param clients   本组候选客户端列表，构造时按声明顺序做不可变拷贝；
+     *                  不允许为 null，可为空列表（此时本组恒被跳过，只记一条 debug 日志）
      */
     public record GroupRouter(
             String name,

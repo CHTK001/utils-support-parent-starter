@@ -212,7 +212,28 @@ public class AgentChatClient implements ChatClient {
     }
 
     /**
-     * SlaveConfig
+     * 从模型注册项。
+     *
+     * <p>由 {@link AgentChatClient#slave(String, String, String, ChatClient)} 唯一构造，
+     * 存放在 {@link #slaves} 注册表中；{@link #getOrCreateAgent()} 首次建 Agent 时把它转成
+     * {@link AgentDefinition} 并把 {@link #client} 绑到对应 {@link #id} 上。四个组件均无校验，
+     * 字符串组件允许为 {@code null}（但会拼进 instruction 产生「你是null」文本）。</p>
+     *
+     * @param id          从模型的 Agent 标识，同时作为 {@link #slaves} 的注册表键
+     *                    （{@link LinkedHashMap#put} 语义，重复 id 后注册者覆盖先注册者）、
+     *                    {@link AgentDefinition} 的 {@code id}，并作为
+     *                    {@code agent.chatClient(id, client)} 的绑定键。主模型据此分派子任务
+     *                    与回查后端客户端，须与 {@link #client} 成对一致。允许为 {@code null}，
+     *                    但会成为 {@code null} 键并使路由无法定位该从模型
+     * @param name        从模型的展示名称，写入 {@link AgentDefinition} 的 {@code name}，
+     *                    同时被拼进系统提示词「你是 + name + ，+ description」。
+     *                    取值来源为 {@link #slave(String, String, String, ChatClient)} 的入参
+     * @param description 从模型的能力描述，写入 {@link AgentDefinition} 的 {@code description}，
+     *                    同样拼进系统提示词；主模型正是依据这段描述判断该派给哪个子任务，
+     *                    描述越具体分派越准。允许为 {@code null}
+     * @param client      该从模型实际使用的 {@link ChatClient} 实例（承载真实模型调用），
+     *                    在 {@link #getOrCreateAgent()} 中按 {@link #id} 绑定到 Agent。
+     *                    允许为 {@code null}，此时该子任务被选中但无可用后端
      */
     private record SlaveConfig(String id, String name, String description, ChatClient client) {}
 }

@@ -34,8 +34,6 @@ import java.util.concurrent.TimeUnit;
  *         provider.unlock();
  *     }
  * }
- * }</pre>.unlock();
- *     }
  * }
  * }</pre>
  *

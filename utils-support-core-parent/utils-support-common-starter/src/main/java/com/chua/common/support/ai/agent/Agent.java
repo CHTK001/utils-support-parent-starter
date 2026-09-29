@@ -22,7 +22,7 @@ import reactor.core.publisher.Flux;
  * <p>提供统一的Agent执行抽象，支持多 Agent 编排、MCP 工具调用、技能系统和大模型对话。
  * 实现类通过 SPI 机制按 provider 名称注册，调用方通过工厂方法获取实例。
  *
- * <h3>系统架构</h3>
+ * <p><b>系统架构</b></p>
  * <pre>
  * ┌─────────────────────────────────────────────────────────────┐
  * │                        Agent 接口                           │
@@ -54,8 +54,8 @@ import reactor.core.publisher.Flux;
  * └─────────────────────────────────────────────────────────────┘
  * </pre>
  *
- * <h3>主从路由流程（ROUTER/AUTO 模式）</h3>
- * <pre>
+ * <p><b>主从路由流程（ROUTER/AUTO 模式）</b></p>
+ * <pre>{@code
  *   用户输入
  *     → 主 Agent ChatClient(system=路由表)
  *     → LLM 输出: "使用 dev-agent 执行"
@@ -63,16 +63,16 @@ import reactor.core.publisher.Flux;
  *     → 取出 dev-agent 的 ChatClient + MCP + Skill
  *     → 用 dev-agent 的 system prompt 重新执行
  *     → 返回结果
- * </pre>
+ * }</pre>
  *
- * <h3>记忆体流程</h3>
- * <pre>
+ * <p><b>记忆体流程</b></p>
+ * <pre>{@code
  *   Agent.run(input)
  *     → initMemoryIfNeeded()           首次创建 MemoryManager + 注册 MCP 插件
  *     → execute(input)                 正常执行
  *     → autoSaveMemory(input, output)  对话结束后 AI 总结 → 持久化存储
  *     → 下次对话 search(keyword)       检索相关记忆 → 注入上下文
- * </pre>
+ * }</pre>
  *
  * <p>多 Agent 编排示例：
  * <pre>{@code
@@ -231,8 +231,8 @@ public interface Agent extends AutoCloseable {
      * <p>决定 Agent 如何处理用户输入以及如何使用已注册的子 Agent。
      * 不同模式对子 Agent 的使用方式差异很大，选择合适的模式至关重要。
      *
-     * <h3>各模式对子 Agent 的处理方式</h3>
-     * <pre>
+     * <p><b>各模式对子 Agent 的处理方式</b></p>
+     * <pre>{@code
      * ┌──────────────────┬──────────┬──────────────────────────────────────────┐
      * │ 模式              │ 使用子Agent │ 主从处理方式                               │
      * ├──────────────────┼──────────┼──────────────────────────────────────────┤
@@ -243,10 +243,10 @@ public interface Agent extends AutoCloseable {
      * │ FAN_OUT          │ 是        │ 所有子 Agent 并行执行，结果合并             │
      * │ PLAN_AND_EXECUTE │ 否        │ 主 Agent 先规划再执行，不委派子 Agent       │
      * └──────────────────┴──────────┴──────────────────────────────────────────┘
-     * </pre>
+     * }</pre>
      *
-     * <h3>执行流程</h3>
-     * <pre>
+     * <p><b>执行流程</b></p>
+     * <pre>{@code
      *   SINGLE:       用户 → [主 Agent] → 输出
      *   ROUTER:       用户 → [主 Agent LLM(路由表)] → 选中子 Agent → [子 Agent] → 输出
      *   AUTO:         用户 → [主 Agent LLM(路由表+工具+技能)] → 自主决策 → 输出
@@ -255,17 +255,17 @@ public interface Agent extends AutoCloseable {
      *                            [Agent2] ─┼→ 合并 → 输出
      *                            [Agent3] ─┘
      *   PLAN_EXECUTE: 用户 → [规划] → 计划 → [执行] → 输出
-     * </pre>
+     * }</pre>
      *
-     * <h3>适用场景</h3>
-     * <pre>
+     * <p><b>适用场景</b></p>
+     * <pre>{@code
      *   SINGLE           → 简单问答，无需多 Agent 协作
      *   ROUTER           → 多 Agent 智能分派（代码→dev-agent，搜索→search-agent）
      *   AUTO             → 通用场景，LLM 灵活决策
      *   PIPELINE         → 多步骤任务链（需求→架构→编码→测试）
      *   FAN_OUT          → 多角度分析（Java专家 + Python专家 同时分析）
      *   PLAN_AND_EXECUTE → 复杂任务分解，先拆解再逐步处理
-     * </pre>
+     * }</pre>
      *
      * @param mode 执行模式，默认 {@link AgentMode#AUTO}
      * @return 当前 Agent 实例，支持链式调用
@@ -596,7 +596,7 @@ public interface Agent extends AutoCloseable {
      * 设置是否打印架构配置（默认开启）。
      *
      * <p>开启后，Agent 运行前（在 {@link #run(String)} 内部）会在控制台输出完整架构图，
-     * 包括主 Agent、子 Agent、ChatClient 映射等，便于确认配置正确。在 {@link AgentScopeAgent}
+     * 包括主 Agent、子 Agent、ChatClient 映射等，便于确认配置正确。在 {@link Agent}
      * 实现中，此信息在实际调用大模型前打印一次。
      *
      * @param printConfig 是否启用，默认 true
@@ -612,7 +612,7 @@ public interface Agent extends AutoCloseable {
      * <p>开启后，Agent 运行前（在 {@link #run(String)} 内部）会输出主 Agent 和所有
      * 子 Agent 的系统提示词（system prompt），并以树形结构展示，方便调试和排查问题。
      * 主 Agent 提示词若包含子 Agent，会在 {@link com.chua.common.support.ai.agent.AgentSystemPromptBuilder}
-     * 构建阶段自动追加路由表；在 {@link AgentScopeAgent} 中，调用大模型前会一次性输出整棵树。
+     * 构建阶段自动追加路由表；在 {@link Agent} 中，调用大模型前会一次性输出整棵树。
      *
      * @param debug 是否启用，默认 false
      * @return 当前 Agent 实例，支持链式调用
@@ -637,8 +637,8 @@ public interface Agent extends AutoCloseable {
      * 设置当前 Agent 的定义（主 Agent 元信息）。
      *
      * <p>设置后，{@link #getDefinition()} 可返回此实例，
-     * 并且架构图与系统提示词树（在 {@link AgentScopeAgent} 中）会展示更多细节。
-     * 若主 Agent 需要被子 Agent 路由表感知，建议使用 {@link AgentDefinition#leader(boolean)} 设为 true。
+     * 并且架构图与系统提示词树（在 {@link Agent} 中）会展示更多细节。
+     * 若主 Agent 需要被子 Agent 路由表感知，建议使用 {@link AgentDefinition#leader} 设为 true。
      *
      * @param definition Agent 定义
      * @return 当前 Agent 实例，支持链式调用

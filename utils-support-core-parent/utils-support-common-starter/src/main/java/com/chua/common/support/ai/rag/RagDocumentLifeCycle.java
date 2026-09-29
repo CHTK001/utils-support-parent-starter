@@ -24,10 +24,8 @@ import java.util.stream.Collectors;
 
 /**
  * RAG 文档生命周期管理。
- * <p>
  * 管理文档的完整生命周期：上传 → 提取文本 → 分块 → 索引 → 删除 → 重索引。
  * 文档元数据以 JSON 格式持久化到本地文件系统。
- * </p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -201,6 +199,10 @@ public class RagDocumentLifeCycle implements AutoCloseable {
      * @return 文档列表
      */
     public List<RagDocument> listDocuments(int page, int pageSize) {
+        if (page < 1) {
+            // 契约是 1 基页码；越界页码按第 1 页处理，避免 (page-1)*pageSize 为负导致 subList 抛异常
+            page = 1;
+        }
         List<RagDocument> sorted = documents.stream()
                 .sorted((a, b) -> Long.compare(b.createTime(), a.createTime()))
                 .collect(Collectors.toList());

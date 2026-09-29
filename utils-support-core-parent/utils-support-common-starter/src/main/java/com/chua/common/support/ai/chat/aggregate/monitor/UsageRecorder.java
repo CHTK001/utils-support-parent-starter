@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 /**
  * 用量记录器 — 收集 AI 调用 {@link AiUsage} 数据。
  *
- * <p>作为 {@link Consumer}<{@link AiUsage}> 使用，可直接传入
+ * <p>作为 {@link Consumer}{@code <}{@link AiUsage}{@code >} 使用，可直接传入
  * {@link com.chua.common.support.ai.chat.aggregate.FailoverTemplate}。
  *
  * @author CH

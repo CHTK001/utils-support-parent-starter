@@ -6,10 +6,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 内存版 Bot 用户存储
- * <p>
  * 使用 ConcurrentHashMap 实现线程安全的内存用户存储，
  * 适用于测试和轻量场景。
- * </p>
  *
  * @author CH
  * @since 2026/07/18

@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
  *
  * <p>统一承载函数调用（function call）信息，同时用于两类场景：
  * <ul>
- *   <li><b>历史消息</b>：作为 assistant 消息中的 {@code tool_calls}（{@link ChatMessage#getToolCalls()}），
+ *   <li><b>历史消息</b>：作为 assistant 消息中的 {@code tool_calls}（{@link ChatMessage#toolCalls}，读取方法由 Lombok 生成），
  *       此时 {@link #index} 无意义（取 0），{@link #arguments} 为完整入参 JSON；</li>
- *   <li><b>流式增量</b>：作为 {@link ChatResponse#getToolCalls()} 中的一帧，
+ *   <li><b>流式增量</b>：作为 {@link ChatResponse#toolCalls} 中的一帧，
  *       {@link #index} 标识工具调用序号，{@link #id}/{@link #name} 通常仅首帧给出，
  *       {@link #arguments} 为入参 JSON 的增量片段。</li>
  * </ul>

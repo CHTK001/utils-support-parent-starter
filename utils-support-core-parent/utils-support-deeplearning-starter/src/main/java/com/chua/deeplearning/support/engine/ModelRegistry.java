@@ -660,10 +660,26 @@ public final class ModelRegistry {
         }
 
         String[] suffixes = MODEL_SUFFIXES;
+        // 外部目录按「模板模型标识」注册，其目录名不一定等于模型标识
+        // （如 template=anime-face-detector 落在 /opt/ai-starter/models/anime-face）。
+        // 因此这里按标识取出目录，再在目录内找模型文件，两种命名都能命中。
+        Path externalDir = findExternalDirectory(modelId);
         for (String suffix : suffixes) {
             Path exact = root.resolve(modelId + suffix);
             if (Files.exists(exact)) {
                 return exact;
+            }
+            // 「每模型一目录」布局：<模型根>/<模型id>/model<suffix>
+            Path inModelDir = root.resolve(modelId).resolve("model" + suffix);
+            if (Files.exists(inModelDir)) {
+                return inModelDir;
+            }
+            // 已注册的外部目录：<外部目录>/model<suffix>
+            if (externalDir != null) {
+                Path inExternal = externalDir.resolve("model" + suffix);
+                if (Files.exists(inExternal)) {
+                    return inExternal;
+                }
             }
             Path fromCp = resolveClasspathResource(modelId + suffix);
             if (fromCp != null) {

@@ -1,0 +1,2 @@
+openai=com.chua.openai.support.video.OpenAiVideoClient
+agnes=com.chua.openai.support.video.AgnesVideoClient

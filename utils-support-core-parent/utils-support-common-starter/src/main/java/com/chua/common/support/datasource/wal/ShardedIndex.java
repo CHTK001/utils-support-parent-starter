@@ -44,6 +44,19 @@ public class ShardedIndex {
 
     /**
      * EntryLoc：WAL 分片内的记录位置
+     *
+     * <p>B+Tree 的 value，本索引不存业务数据、只存「记录在哪」的定位三元组，
+     * 由 {@code AbstractWalStoreSystem#rebuildShardIndex} 在重建索引时批量写入，
+     * 读取时经 {@code AbstractWalStoreSystem#readFromSegment} 回读 payload。
+     * 本记录不可变，定位信息一旦生成即不可改写。</p>
+     *
+     * @param segmentNo 分段编号，取自 {@code WalSegmentInfo.segmentNo()}；消费侧用它下标定位 {@code walLogs[]}，
+     *                  取值须落在 {@code [0, 分片数)} 内，越界时 {@code readFromSegment} 直接返回 null
+     * @param offset    记录定位偏移，无符号语义、非负。唯一构造点传入的是 {@code WalLog#replay} 回调给出的
+     *                  <strong>LSN（单调递增的日志序号，并非字节位置）</strong>；而消费侧
+     *                  {@code readFromSegment} 按字节位置使用它（{@code FileChannel.read(buf, offset)}）——
+     *                  写入与读取口径不一致，此处如实记录现状，不做推断
+     * @param length    记录负载长度，单位字节，取自 {@code payload.length}，即 value 字节数组的长度；非负
      */
     public record EntryLoc(int segmentNo, long offset, int length) {}
 
@@ -235,6 +248,14 @@ public class ShardedIndex {
 
     /**
      * 索引条目（批量重建用）
+     *
+     * <p>供 {@link #putAll(List)} 一次性灌入的 key/loc 配对，
+     * 典型来源是 compaction 之后重扫 WAL 得到的全量清单。
+     * 逐条独立于 {@link #put(String, EntryLoc)} 之外的批量入口，两者最终都写入同一组 B+Tree 分片。</p>
+     *
+     * @param key 索引键，业务键的字符串形态（{@code K.toString()}）；分片路由取
+     *            {@code (key.hashCode() & 0x7FFFFFFF) % shardCount}，不要求全局有序，但 range 查询会先归并再按 key 升序排序
+     * @param loc 该键对应的 WAL 记录定位三元组；本索引覆盖写，重复键以最后一次写入的 loc 为准
      */
     public record IndexEntry(String key, EntryLoc loc) {}
 }

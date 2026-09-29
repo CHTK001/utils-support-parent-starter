@@ -49,7 +49,6 @@ public class RedisEngine {
      * @param name        数据源名称
      * @param dataSource  数据源封装
      * @param <T>         底层源类型
-     * @return 执行添加数据源的结果
      */
     protected <T> void doAddDataSource(String name, EngineDataSource<T> dataSource) {
         Object src = dataSource.getSource();

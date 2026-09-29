@@ -12,10 +12,8 @@ import javax.annotation.Nonnull;
 
 /**
  * RAG 客户端配置。
- * <p>
  * 封装 RAG 客户端所需的全部依赖，通过 Builder 模式构建。
  * 所有必填参数在构建时注入，可选参数提供默认值。
- * </p>
  *
  * @author CH
  * @since 4.0.0.42

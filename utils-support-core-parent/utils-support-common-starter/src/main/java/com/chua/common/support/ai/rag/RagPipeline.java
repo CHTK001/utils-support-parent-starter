@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * 查询（嵌入→检索→过滤→生成）编排为 Pipeline 通用管线执行。
  *
  * <p>实现 {@link RagClient} 接口，供 Spring 配置层或独立 main 直接调用。
- * 图片文件走 OCR 提取器（由 {@link RagClientSetting#getTextExtractor()} 注入），
+ * 图片文件走 OCR 提取器（由 {@link RagClientSetting#textExtractor} 注入，读取方法由 Lombok 生成），
  * 非图片文件按扩展名经 {@link com.chua.common.support.file.txtractor.TextExtractor#auto}
  * 自动分发提取。向量存储支持任意 {@link VectorStorage} 实现
  * （内存、jvector、pgvector 等）。</p>
@@ -290,7 +290,10 @@ public class RagPipeline implements RagClient {
                 .task(NODE_SPLIT, ctx -> {
                     RagContext rc = current(ctx);
                     try {
-                        List<TextChunk> chunks = textSplitter.split(rc.currentText());
+                        // 优先用本次调用传入的分片器（按知识库自定义大小/重叠），
+                        // 没有才回落到全局那个
+                        TextSplitter use = rc.splitter() != null ? rc.splitter() : textSplitter;
+                        List<TextChunk> chunks = use.split(rc.currentText());
                         rc.currentChunks(chunks);
                     } catch (Exception e) {
                         rc.currentError("分块失败: " + e.getMessage());
@@ -477,7 +480,7 @@ public class RagPipeline implements RagClient {
                     ? new HashMap<>(v.metadata())
                     : new HashMap<>(16);
             String docId = meta.containsKey(META_DOC_ID)
-                    ? String.valueOf(meta.get(META_DOC_ID)) : chunkId;
+                    ? String.valueOf(meta.get(META_DOC_ID)) : docIdOfChunk(chunkId);
             String content = meta.containsKey(META_CONTENT)
                     ? String.valueOf(meta.get(META_CONTENT)) : chunkContentCache.get(chunkId);
             if (content == null) {
@@ -521,6 +524,35 @@ public class RagPipeline implements RagClient {
             prompt = systemPrompt + PARAGRAPH_BREAK + prompt;
         }
         return prompt;
+    }
+
+    /**
+     * 从分块 ID 反推所属文档 ID。
+     *
+     * <p>入库时 chunkId 按 {@code <docId>_<块号>} 拼接（见 {@link #NODE_SAVE} 后的分块节点）。
+     * 向量库在检索时可能不回传 metadata（如 jvector ON_DISK），此时只能靠这个规则还原 docId，
+     * 否则引用溯源会退化成一个无法定位文件的 chunkId。</p>
+     *
+     * <p>只有结尾是「下划线 + 纯数字」时才剥离；否则原样返回，
+     * 避免把本身不以块号结尾的 docId 误截断。</p>
+     *
+     * @param chunkId 分块 ID，null 时返回空字符串
+     * @return 反推出的文档 ID，无法反推时原样返回 chunkId
+     */
+    private String docIdOfChunk(String chunkId) {
+        if (chunkId == null) {
+            return EMPTY;
+        }
+        int sep = chunkId.lastIndexOf(FILE_NAME_SEPARATOR);
+        if (sep <= 0 || sep == chunkId.length() - 1) {
+            return chunkId;
+        }
+        for (int i = sep + 1; i < chunkId.length(); i++) {
+            if (!Character.isDigit(chunkId.charAt(i))) {
+                return chunkId;
+            }
+        }
+        return chunkId.substring(0, sep);
     }
 
     /**
@@ -729,7 +761,61 @@ public class RagPipeline implements RagClient {
 
     @Override
     public RagDocument uploadDocument(String fileName, byte[] data) {
+        return uploadDocument(fileName, data, null);
+    }
+
+    /**
+     * 上传并索引一个文档，可指定本次使用的分片器。
+     *
+     * <p>分割器挂在 {@link RagContext} 上而不是改 pipeline 字段：pipeline 是单例、
+     * 被所有知识库共用，改字段等于改全局配置，并发上传会互相串扰。</p>
+     *
+     * @param fileName 文件名（带扩展名）
+     * @param data     文件二进制内容
+     * @param splitter 本次使用的分片器，可为 null（用全局默认）
+     * @return 文档状态对象
+     */
+    @Override
+    public RagDocument uploadDocument(String fileName, byte[] data, TextSplitter splitter) {
         String docId = UUID.randomUUID().toString().replace(UUID_DASH, EMPTY);
+        return ingest(docId, fileName, data, splitter);
+    }
+
+    /**
+     * 上传并索引文档，docId 由调用方指定。
+     *
+     * <p>{@link #uploadDocument(String, byte[], TextSplitter)} 用随机 UUID 当 docId，
+     * 调用方无法从检索结果反推它对应哪个业务对象。本方法让知识库这类场景能传入
+     * {@code <知识库ID>/<相对路径>} 形式的 docId，使引用可以溯源回具体文件。</p>
+     *
+     * <p>注意向量库（如 jvector）search 时可能不回传 metadata，此时
+     * {@link #query(String, int, double)} 会按 {@code <docId>_<块号>} 的拼接规则
+     * 从 chunkId 反推 docId，所以传入的 docId 里<b>不要出现下划线加纯数字的结尾</b>。</p>
+     *
+     * @param docId    文档 ID，不能为 null 或空白
+     * @param fileName 文件名（带扩展名）
+     * @param data     文件二进制内容
+     * @param splitter 本次使用的分片器，可为 null（用全局默认）
+     * @return 文档状态对象
+     */
+    @Override
+    public RagDocument uploadDocumentWithId(String docId, String fileName, byte[] data, TextSplitter splitter) {
+        if (StringUtils.isBlank(docId)) {
+            throw new IllegalArgumentException("docId 不能为空");
+        }
+        return ingest(docId, fileName, data, splitter);
+    }
+
+    /**
+     * 走入库管线索引一个文档（docId 已由调用方确定）。
+     *
+     * @param docId    文档 ID
+     * @param fileName 文件名（带扩展名）
+     * @param data     文件二进制内容
+     * @param splitter 本次使用的分片器，可为 null（用全局默认）
+     * @return 文档状态对象
+     */
+    private RagDocument ingest(String docId, String fileName, byte[] data, TextSplitter splitter) {
         String fileType = fileName.contains(".")
                 ? fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase()
                 : EMPTY;
@@ -738,12 +824,27 @@ public class RagPipeline implements RagClient {
         rc.fileName(fileName);
         rc.fileType(fileType);
         rc.data(data);
+        rc.splitter(splitter);
         runIngest(rc);
         return rc.currentDocument();
     }
 
     @Override
     public RagDocument updateDocument(String docId, String fileName, byte[] data) {
+        return updateDocument(docId, fileName, data, null);
+    }
+
+    /**
+     * 更新并重建索引，可指定本次使用的分片器。
+     *
+     * @param docId    文档 ID
+     * @param fileName 文件名
+     * @param data     文件内容
+     * @param splitter 本次使用的分片器，可为 null（用全局默认）
+     * @return 文档状态对象
+     */
+    @Override
+    public RagDocument updateDocument(String docId, String fileName, byte[] data, TextSplitter splitter) {
         deleteDocument(docId);
         RagContext rc = new RagContext();
         rc.docId(docId);
@@ -753,6 +854,7 @@ public class RagPipeline implements RagClient {
                 : EMPTY;
         rc.fileType(fileType);
         rc.data(data);
+        rc.splitter(splitter);
         runIngest(rc);
         return rc.currentDocument();
     }
@@ -776,6 +878,10 @@ public class RagPipeline implements RagClient {
 
     @Override
     public List<RagDocument> listDocuments(int page, int pageSize) {
+        if (page < 1) {
+            // 契约是 1 基页码；越界页码按第 1 页处理，避免 (page-1)*pageSize 为负导致 subList 抛异常
+            page = 1;
+        }
         List<RagDocument> sorted = documents.stream()
                 .sorted((a, b) -> Long.compare(b.createTime(), a.createTime()))
                 .collect(Collectors.toList());
@@ -1076,6 +1182,13 @@ public class RagPipeline implements RagClient {
          */
         private byte[] data;
         /**
+         * 本次入库专用的分片器；为 null 时用 pipeline 的全局 {@code textSplitter}。
+         *
+         * <p>放在上下文里而不是改成 pipeline 字段：pipeline 是<b>单例且被所有知识库共用</b>，
+         * 改它的字段等于改全局配置，并发上传时会互相串扰。</p>
+         */
+        private TextSplitter splitter;
+        /**
          * 查询语句
          */
         private String query;
@@ -1173,6 +1286,18 @@ public class RagPipeline implements RagClient {
          * 设置文件字节
          */
         public void data(byte[] data) { this.data = data; }
+        /**
+         * 获取本次入库专用的分片器
+         *
+         * @return 分片器，null 表示用全局默认
+         */
+        public TextSplitter splitter() { return splitter; }
+        /**
+         * 设置本次入库专用的分片器
+         *
+         * @param splitter 分片器，null 表示用全局默认
+         */
+        public void splitter(TextSplitter splitter) { this.splitter = splitter; }
         /**
          * 获取查询语句
          */

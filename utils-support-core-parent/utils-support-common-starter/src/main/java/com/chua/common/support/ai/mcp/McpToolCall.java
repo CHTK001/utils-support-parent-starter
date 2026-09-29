@@ -24,10 +24,9 @@ public class McpToolCall {
 
     /**
      * 创建 McpToolCall 实例
-     * @param toolName toolName
-     * @param arguments Map
-     * @param Object Object
-     * @param arguments arguments
+     *
+     * @param toolName  被调用的工具名称，不允许为 null
+     * @param arguments 调用参数，不可为 null
      */
     public McpToolCall(String toolName, Map<String, Object> arguments) {
         this.toolName = toolName;

@@ -13,16 +13,16 @@ import java.util.List;
  * <p>描述一个 Agent 的元信息，包括标识、角色、指令描述、关联大模型和工具配置。
  * 支持通过 Builder 模式构建，主 Agent 可注册子 Agent 并自动生成路由提示词。
  *
- * <h3>每个 Agent 可独立配置</h3>
- * <pre>
+ * <p><b>每个 Agent 可独立配置</b></p>
+ * <pre>{@code
  *   instruction  → system prompt，决定 Agent 的行为和能力边界
  *   chatClient   → 通过 Agent.chatClient("id", client) 注入，决定使用哪个大模型
  *   mcpManager   → 决定可调用哪些 MCP 工具（代码分析/搜索/数据库等）
  *   skillManager → 决定可执行哪些技能（天气/翻译/SQL 等）
  *   memoryConfig → 决定是否启用长期记忆及存储配置
- * </pre>
+ * }</pre>
  *
- * <h3>system prompt 自动生成机制</h3>
+ * <p><b>system prompt 自动生成机制</b></p>
  * <p>构造时自动计算：
  * <ul>
  *   <li>主 Agent（leader=true）+ 有子 Agent → instruction + 路由表 + 路由规则</li>
@@ -31,7 +31,7 @@ import java.util.List;
  * </ul>
  * <p>通过 {@link #getSystemPrompt()} 获取完整 prompt，Agent 实现类直接传给 ChatClient。
  *
- * <h3>使用示例：
+ * <p><b>使用示例</b></p>
  * <pre>{@code
  *   // 构建子 Agent（独立 MCP + 独立 Skill）
  *   AgentDefinition devAgent = AgentDefinition.builder()

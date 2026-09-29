@@ -168,6 +168,23 @@ public final class BinaryTreeConverter {
         }
     }
 
+    /**
+     * 有序键值条目。
+     *
+     * <p>B+ 树 / B 树与二叉树双向转换过程中的中间载体：先按树的键顺序把每个
+     * {@code (key, value)} 对收集成条目列表，再把列表依次串成一条右斜链二叉树。
+     * 因此条目在列表中的先后，就是重建后二叉树的遍历顺序，也决定了
+     * {@code binaryToBPlusTree} / {@code binaryToBTree} 写回键值的先后次序。</p>
+     *
+     * <p>本 record 是纯内部实现细节，不做防御性拷贝：两个组件一律由
+     * {@code new Entry<>(cur.keys.get(i), cur.values.get(i))} 按节点内同一列表下标配对产生，
+     * 生命周期仅限单次转换调用，不跨线程共享。键类型受两个公开转换方法的
+     * {@code K extends Comparable<K>} 约束，故列表天然有序。</p>
+     *
+     * @param key 键，取自树节点内按升序排列的键列表，与 {@code value} 按同一列表下标配对；
+     *            重建成树时对 null 键直接跳过（不调用 {@code put}），故 null 键不参与写回
+     * @param value 值，与 {@code key} 同下标配对；B 树 / B+ 树对值无非空约束，允许为 null
+     */
     private record Entry<K, V>(K key, V value) {
     }
 }

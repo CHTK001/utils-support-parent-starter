@@ -4,7 +4,8 @@ package com.chua.common.support.ai.probe;
 /**
  * 探测进度事件。
  *
- * <p>用于 {@link ChatClient#probe(java.util.function.Consumer, java.util.function.Consumer, java.util.function.Consumer)}
+ * <p>用于 {@link com.chua.common.support.ai.chat.ChatClient#probe()} 的过程回调，
+ * 记录各维度探测的推进情况。
  * 回调中的进度推送，包含当前进度百分比、状态消息、时间戳及当前维度结果（如已完成）。</p>
  *
  * @param progress        进度百分比（0-100）

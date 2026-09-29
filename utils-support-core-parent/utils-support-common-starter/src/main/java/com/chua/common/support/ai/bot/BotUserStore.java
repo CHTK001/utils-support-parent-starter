@@ -5,9 +5,7 @@ import java.util.Optional;
 
 /**
  * Bot 用户存储 SPI 接口
- * <p>
  * 支持持久化用户数据（SQLite/H2/DuckDB 等实现）。
- * </p>
  *
  * @author CH
  * @since 2026/07/18

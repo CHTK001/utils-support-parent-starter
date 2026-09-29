@@ -15,7 +15,7 @@ import java.util.UUID;
  * <p>提供记忆体的高层操作 API，整合存储和 AI 总结能力。
  * Agent 通过此管理器保存、搜索和管理记忆条目。
  *
- * <h3>工作流程</h3>
+ * <p><b>工作流程</b></p>
  * <pre>
  *   Agent.run(input)
  *     → autoSaveMemory(input, output)
@@ -28,7 +28,7 @@ import java.util.UUID;
  *     → 注入到 system prompt 或 context 中
  * </pre>
  *
- * <h3>存储实现</h3>
+ * <p><b>存储实现</b></p>
  * <pre>
  *   默认：FileMemoryStore（基于工作间 JSON 文件）
  *   可替换：通过 SPI MemoryStoreProvider 注册自定义实现

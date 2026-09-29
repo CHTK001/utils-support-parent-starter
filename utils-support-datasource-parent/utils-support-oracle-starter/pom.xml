@@ -34,7 +34,6 @@
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc11</artifactId>
-            <version>23.26.0.0.0</version>
         </dependency>
         <!-- Oracle R2DBC 驱动：运行时经 SPI 被 JdbcReactorEngine 发现 -->
         <dependency>
@@ -58,7 +57,7 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>oracle-xe</artifactId>
-            <version>1.21.3</version>
+            <version>1.21.4</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

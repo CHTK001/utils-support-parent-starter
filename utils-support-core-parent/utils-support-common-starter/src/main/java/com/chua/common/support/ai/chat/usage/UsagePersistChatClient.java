@@ -46,7 +46,8 @@ import java.util.function.Consumer;
  * @author CH
  * @since 4.0.0.42
  *
- * @see AggregateChatClient AggregateChatClient 内置了相同的持久化逻辑，
+ * @see com.chua.common.support.ai.chat.aggregate.AggregateChatClient
+ *      AggregateChatClient 内置了相同的持久化逻辑，
  *      包装已配置 Engine 的 AggregateChatClient 会导致用量重复写入，请避免。
  */
 @Slf4j

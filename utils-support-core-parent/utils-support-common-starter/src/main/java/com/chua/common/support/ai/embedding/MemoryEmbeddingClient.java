@@ -4,10 +4,8 @@ import com.chua.common.support.spi.annotations.Spi;
 
 /**
  * 内存嵌入向量客户端，用于测试和演示。
- * <p>
  * 基于文本哈希生成伪向量，无需外部服务。
  * 仅用于功能验证，不适合生产环境。
- * </p>
  *
  * @author CH
  * @since 4.0.0.42
