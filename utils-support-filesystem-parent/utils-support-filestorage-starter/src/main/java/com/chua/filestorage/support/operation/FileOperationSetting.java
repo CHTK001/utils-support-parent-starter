@@ -36,6 +36,11 @@ public class FileOperationSetting {
     private Integer quality;
 
     /**
+     * 亮度系数，大于 1 变亮、小于 1 变暗，1 表示不变
+     */
+    private Float brightness;
+
+    /**
      * 裁剪区域 "x,y,w,h"
      */
     private String crop;
@@ -121,6 +126,7 @@ public class FileOperationSetting {
         return size != null || format != null || quality != null
                 || crop != null || rotate != null || flip != null
                 || grayscale != null || blur != null || sharpen != null
+                || brightness != null
                 || autoOrient != null || watermarkText != null
                 || watermarkImage != null;
     }

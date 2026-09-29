@@ -50,6 +50,29 @@ public interface ImageOperation {
     Mono<byte[]> rotate(byte[] imageBytes, String format, int angle);
 
     /**
+     * 翻转。默认不支持，由实现方覆盖；保留 default 以兼容既有实现。
+     *
+     * @param imageBytes 图片字节
+     * @param format    输出格式
+     * @param direction horizontal / vertical / both
+     * @return 翻转后的字节
+     */
+    default Mono<byte[]> flip(byte[] imageBytes, String format, String direction) {
+        return Mono.error(new UnsupportedOperationException("flip not supported"));
+    }
+
+    /**
+     * 按 EXIF Orientation 自动旋正。默认不支持，由实现方覆盖。
+     *
+     * @param imageBytes 图片字节
+     * @param format     输出格式
+     * @return 旋正后的字节
+     */
+    default Mono<byte[]> autoOrient(byte[] imageBytes, String format) {
+        return Mono.error(new UnsupportedOperationException("autoOrient not supported"));
+    }
+
+    /**
      * 对给定图像字节应用滤镜。
      *
      * @param imageBytes 输入图像数据，以字节数组形式提供。

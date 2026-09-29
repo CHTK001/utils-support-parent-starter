@@ -292,7 +292,13 @@ public class HttpServerRequest implements ServerRequest {
      * @return 解码后的参数
      */
     private String decode(String value) {
-        return URLDecoder.decode(value, defaultCharset);
+        try {
+            return URLDecoder.decode(value, defaultCharset);
+        } catch (IllegalArgumentException e) {
+            // 非法转义（如 ?size=50% 里 % 后面不是两位十六进制）不是致命输入错误，
+            // 裸 % 在业务参数里合法（缩放百分比）。此前直接抛出，导致整个请求 500。
+            return value;
+        }
     }
 
     /**

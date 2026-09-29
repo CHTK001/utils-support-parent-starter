@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-filesystem-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <groupId>com.chua</groupId>
+    <artifactId>utils-support-cad-starter</artifactId>
+    <version>4.0.0.42</version>
+    <packaging>jar</packaging>
+    <name>Utils Support CAD Starter</name>
+    <description>CAD 图纸预览模块：DXF 真渲染（纯 Java 解析转 SVG）与 DWG 头信息解析</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- 预览结果与 SPI 接口来自 filestorage 模块，本模块只提供 CAD 解析实现 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-filestorage-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+</project>

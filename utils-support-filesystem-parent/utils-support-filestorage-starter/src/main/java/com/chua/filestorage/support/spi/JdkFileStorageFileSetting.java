@@ -40,6 +40,7 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
                 .size(getFirst(request, "size", "w", "width"))
                 .format(getFirst(request, "format", "f"))
                 .quality(parseInt(request, "quality", "q"))
+                .brightness(parseFloat(request, "brightness", "bright"))
                 .crop(getFirst(request, "crop", "c"))
                 .rotate(parseInt(request, "rotate", "r"))
                 .flip(getFirst(request, "flip"))

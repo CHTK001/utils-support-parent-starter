@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Locale;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.chua.common.support.utils.SubImageOptions;
@@ -172,6 +173,10 @@ public class JdkImageOperation implements ImageOperation {
                     var brightness = params != null && params.getBrightness() != null ? params.getBrightness() : 1.0f;
                     yield BufferedImageUtils.brightnessImage(image, brightness);
                 }
+                case "sharpen" -> {
+                    var st = params != null && params.getRadius() != null ? params.getRadius() : 1.0f;
+                    yield BufferedImageUtils.sharpenImage(image, st);
+                }
                 default -> throw new IOException("不支持的滤镜类型: " + filterType);
             };
 
@@ -249,6 +254,55 @@ public class JdkImageOperation implements ImageOperation {
                 throw new RuntimeException("图片压缩失败", e);
             }
         }).subscribeOn(Schedulers.boundedElastic()).then();
+    }
+
+    @Override
+    /**
+     * 翻转
+     */
+    public Mono<byte[]> flip(byte[] imageBytes, String format, String direction) {
+        return Mono.fromCallable(() -> {
+            if (imageBytes == null || imageBytes.length == 0) {
+                throw new IOException("图片数据不能为空");
+            }
+            if (direction == null || direction.isBlank()) {
+                throw new IOException("翻转方向不能为空");
+            }
+            var image = BufferedImageUtils.getBufferedImage(imageBytes);
+            if (image == null) {
+                throw new IOException("无法解析图片数据");
+            }
+            var dir = direction.trim().toLowerCase(Locale.ROOT);
+            BufferedImage flipped = switch (dir) {
+                case "horizontal", "h" -> BufferedImageUtils.flipImage(image, true, false);
+                case "vertical", "v" -> BufferedImageUtils.flipImage(image, false, true);
+                case "both", "all", "hv" -> BufferedImageUtils.flipImage(image, true, true);
+                default -> throw new IOException("不支持的翻转方向: " + direction);
+            };
+            return BufferedImageUtils.toBufferedImageArray(flipped, format);
+        }).subscribeOn(Schedulers.boundedElastic());
+    }
+
+    @Override
+    /**
+     * 按 EXIF 自动旋正
+     */
+    public Mono<byte[]> autoOrient(byte[] imageBytes, String format) {
+        return Mono.fromCallable(() -> {
+            if (imageBytes == null || imageBytes.length == 0) {
+                throw new IOException("图片数据不能为空");
+            }
+            int orientation = BufferedImageUtils.readExifOrientation(imageBytes);
+            if (orientation <= 1) {
+                return imageBytes;
+            }
+            var image = BufferedImageUtils.getBufferedImage(imageBytes);
+            if (image == null) {
+                throw new IOException("无法解析图片数据");
+            }
+            return BufferedImageUtils.toBufferedImageArray(
+                    BufferedImageUtils.applyExifOrientation(image, orientation), format);
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.chua.elasticsearch.support.meta;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.mapping.DocValues;
 import co.elastic.clients.elasticsearch._types.mapping.Property;
 import co.elastic.clients.elasticsearch._types.mapping.PropertyBuilders;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
@@ -172,7 +173,7 @@ public class EsSearchEngineImpl implements SearchEngine {
                     b.nullValue(field.getNullValue());
                 }
                 if (field.getDocValues() != null) {
-                    b.docValues(field.getDocValues());
+                    b.docValues(DocValues.of(d -> d.enabled(field.getDocValues())));
                 }
                 return b;
             });
@@ -195,14 +196,14 @@ public class EsSearchEngineImpl implements SearchEngine {
             case "BOOLEAN" -> PropertyBuilders.boolean_(b -> {
                 b.index(indexed).store(stored);
                 if (field.getDocValues() != null) {
-                    b.docValues(field.getDocValues());
+                    b.docValues(DocValues.of(d -> d.enabled(field.getDocValues())));
                 }
                 return b;
             });
             case "DATE" -> PropertyBuilders.date(b -> {
                 b.store(stored);
                 if (field.getDocValues() != null) {
-                    b.docValues(field.getDocValues());
+                    b.docValues(DocValues.of(d -> d.enabled(field.getDocValues())));
                 }
                 return b;
             });

@@ -40,6 +40,7 @@
         <module>utils-support-json-starter</module>
         <module>utils-support-filesearch-starter</module>
         <module>utils-support-filestorage-starter</module>
+        <module>utils-support-cad-starter</module>
         <module>utils-support-geoip2-starter</module>
         <module>utils-support-log-starter</module>
         <module>utils-support-hprof-starter</module>
