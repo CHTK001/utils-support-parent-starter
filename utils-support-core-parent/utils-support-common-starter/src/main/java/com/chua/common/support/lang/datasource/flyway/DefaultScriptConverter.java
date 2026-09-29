@@ -3,7 +3,9 @@ package com.chua.common.support.lang.datasource.flyway;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDefault;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -101,6 +103,104 @@ public class DefaultScriptConverter implements ScriptConverter {
             "\\s*ROW_FORMAT\\s*=\\s*\\S+", Pattern.CASE_INSENSITIVE);
     private static final Pattern TAIL_COMMENT = Pattern.compile(
             "\\s*COMMENT\\s*=?\\s*'(?:[^']|'')*'", Pattern.CASE_INSENSITIVE);
+
+    /**
+     * SQL 的一段：{@code code} 为 true 表示可按关键字改写的代码区，
+     * false 表示字面量 / 引号标识符 / 注释，原样保留。
+     *
+     * @param code  是否为代码区
+     * @param start 起始下标（含）
+     * @param end   结束下标（不含）
+     */
+    private record Segment(boolean code, int start, int end) {
+    }
+
+    /**
+     * 把一条 SQL 切成「代码区」与「保护区段」交替的序列。
+     *
+     * <p>保护区段 = 单引号字符串字面量（支持 {@code ''} 与反斜杠两种转义）、双引号标识符、
+     * 反引号标识符、{@code --} 行注释、C 风格块注释。</p>
+     *
+     * <p><b>为什么必须有它</b>：本类早期把类型/函数映射写成整条 SQL 的
+     * {@code replaceAll}，于是 initdata 里任何<em>字符串字面量</em>中出现的类型名都会被当成
+     * 列类型改写。真实事故：{@code V1.0__initdata_all_api_collect.sql} 的种子流程里
+     * {@code "parserType":"JSON"} 被 h2 分支的 {@code JSON -> CLOB} 改成了
+     * {@code "parserType":"CLOB"}，抽取节点随即落到 CSS 解析分支，十行数据全写成 NULL，
+     * 而任务状态仍是 SUCCESS。字面量里的 {@code TEXT}/{@code DATETIME}/{@code NOW()} 同理。</p>
+     *
+     * <p><b>为什么是手写扫描而不是一条正则</b>：正则版（{@code '(?:\\.|''|[^'\\])*'} 那种）
+     * 在引号不配对的真实语句上会指数级回溯，实测直接 {@code StackOverflowError}。
+     * 扫描器是 O(n)、无回溯，行为可预测。</p>
+     *
+     * <p>未闭合的引号按「剩余全部当保护区段」处理：宁可漏改（语句本身随后会被数据库拒绝），
+     * 也不能把半个字面量当代码去改写。</p>
+     *
+     * @param sql 待切分 SQL
+     * @return 区段列表，非空
+     */
+    private static List<Segment> splitSegments(String sql) {
+        List<Segment> segments = new ArrayList<>();
+        int length = sql.length();
+        int codeStart = 0;
+        int i = 0;
+        while (i < length) {
+            int regionEnd = protectedRegionEnd(sql, i);
+            if (regionEnd < 0) {
+                i++;
+                continue;
+            }
+            if (i > codeStart) {
+                segments.add(new Segment(true, codeStart, i));
+            }
+            segments.add(new Segment(false, i, regionEnd));
+            codeStart = regionEnd;
+            i = regionEnd;
+        }
+        if (codeStart < length) {
+            segments.add(new Segment(true, codeStart, length));
+        }
+        return segments;
+    }
+
+    /**
+     * 判断 {@code sql} 的 {@code from} 处是否开启一个保护区段。
+     *
+     * @param sql  SQL
+     * @param from 起始下标
+     * @return 保护区段结束下标（不含）；{@code from} 处不是保护区段起点时返回 -1
+     */
+    private static int protectedRegionEnd(String sql, int from) {
+        int length = sql.length();
+        char c = sql.charAt(from);
+        if (c == '\'' || c == '"' || c == '`') {
+            int j = from + 1;
+            while (j < length) {
+                char d = sql.charAt(j);
+                if (c == '\'' && d == '\\' && j + 1 < length) {
+                    j += 2;
+                    continue;
+                }
+                if (d == c) {
+                    if (j + 1 < length && sql.charAt(j + 1) == c) {
+                        j += 2;
+                        continue;
+                    }
+                    return j + 1;
+                }
+                j++;
+            }
+            return length;
+        }
+        if (c == '-' && from + 1 < length && sql.charAt(from + 1) == '-') {
+            int newline = sql.indexOf('\n', from);
+            return newline < 0 ? length : newline;
+        }
+        if (c == '/' && from + 1 < length && sql.charAt(from + 1) == '*') {
+            int close = sql.indexOf("*/", from + 2);
+            return close < 0 ? length : close + 2;
+        }
+        return -1;
+    }
 
     @Override
     public boolean supports(String protocol) {
@@ -215,6 +315,95 @@ public class DefaultScriptConverter implements ScriptConverter {
     }
 
     /**
+     * 只在「代码区」做替换，跳过字符串字面量、引号标识符与注释。
+     *
+     * <p>类型与函数映射必须走这里而不是 {@link String#replaceAll(String, String)}：
+     * 后者会把字面量里的同名单词一起改掉（见 {@link PROTECTED_SEGMENT} 的事故记录）。</p>
+     *
+     * <p>刻意<b>不</b>用于剥除 {@code COMMENT 'xxx'} 的那几条规则 ——
+     * 那些模式本来就以字面量为目标，加了保护反而一条都匹配不到。</p>
+     *
+     * @param sql         待处理 SQL
+     * @param regex       正则
+     * @param replacement 替换文本
+     * @return 替换结果
+     */
+    protected static String replaceInCode(String sql, String regex, String replacement) {
+        return replaceInCode(sql, Pattern.compile(regex), replacement, false);
+    }
+
+    /**
+     * 只在「代码区」做替换，跳过字符串字面量、引号标识符与注释（替换全部匹配）。
+     *
+     * <p>给已持有编译好的 {@link Pattern} 的子类用，避免每次调用重复编译正则。</p>
+     *
+     * @param sql         待处理 SQL
+     * @param pattern     正则
+     * @param replacement 替换文本
+     * @return 替换结果
+     */
+    protected static String replaceInCode(String sql, Pattern pattern, String replacement) {
+        return replaceInCode(sql, pattern, replacement, false);
+    }
+
+    /**
+     * 只在「代码区」做替换，跳过字符串字面量、引号标识符与注释。
+     *
+     * @param sql         待处理 SQL
+     * @param pattern     正则
+     * @param replacement 替换文本
+     * @param firstOnly   true 表示只替换第一处
+     * @return 替换结果
+     */
+    protected static String replaceInCode(String sql, Pattern pattern, String replacement, boolean firstOnly) {
+        if (sql == null || sql.isEmpty()) {
+            return sql;
+        }
+        StringBuilder out = new StringBuilder(sql.length());
+        boolean replaced = false;
+        for (Segment segment : splitSegments(sql)) {
+            String piece = sql.substring(segment.start(), segment.end());
+            if (segment.code() && (!firstOnly || !replaced)) {
+                Matcher target = pattern.matcher(piece);
+                boolean hit = target.find();
+                if (hit) {
+                    replaced = true;
+                }
+                piece = firstOnly ? target.replaceFirst(replacement) : target.replaceAll(replacement);
+            }
+            out.append(piece);
+            if (firstOnly && replaced) {
+                // 只改第一处：余下内容（含后续全部保护区段）原样接回，锚点与结构都不变
+                out.append(sql, segment.end(), sql.length());
+                return out.toString();
+            }
+        }
+        return out.toString();
+    }
+
+    /**
+     * 判断「代码区」里是否存在匹配（用于整条语句的判定，如 {@code ON DUPLICATE KEY UPDATE}）。
+     *
+     * <p>字面量里出现同样的词不应触发判定：例如种子数据里存了一条
+     * {@code '... ON DUPLICATE KEY UPDATE ...'} 说明文字，整条跳过就等于丢数据。</p>
+     *
+     * @param sql     待检查 SQL
+     * @param pattern 正则
+     * @return 代码区存在匹配返回 true
+     */
+    protected static boolean matchesInCode(String sql, Pattern pattern) {
+        if (sql == null || sql.isEmpty()) {
+            return false;
+        }
+        for (Segment segment : splitSegments(sql)) {
+            if (segment.code() && pattern.matcher(sql.substring(segment.start(), segment.end())).find()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 类型与函数方言映射（保守策略：只替换可安全替换的独立类型/函数关键字）。
      * @param sql SQL，不允许为 null
      * @param protocol 方法入参 protocol
@@ -223,47 +412,47 @@ public class DefaultScriptConverter implements ScriptConverter {
     private String applyTypeAndFunctionMapping(String sql, String protocol) {
         switch (protocol) {
             case "postgresql" -> {
-                sql = sql.replaceAll("(?i)\\bMEDIUMTEXT\\b", "TEXT");
-                sql = sql.replaceAll("(?i)\\bLONGTEXT\\b", "TEXT");
-                sql = sql.replaceAll("(?i)\\bTINYTEXT\\b", "TEXT");
-                sql = sql.replaceAll("(?i)\\bDATETIME\\b", "TIMESTAMP");
-                sql = sql.replaceAll("(?i)\\bNOW\\s*\\(\\s*\\)", "CURRENT_TIMESTAMP");
-                sql = sql.replaceAll("(?i)\\bIFNULL\\s*\\(", "COALESCE(");
+                sql = replaceInCode(sql, "(?i)\\bMEDIUMTEXT\\b", "TEXT");
+                sql = replaceInCode(sql, "(?i)\\bLONGTEXT\\b", "TEXT");
+                sql = replaceInCode(sql, "(?i)\\bTINYTEXT\\b", "TEXT");
+                sql = replaceInCode(sql, "(?i)\\bDATETIME\\b", "TIMESTAMP");
+                sql = replaceInCode(sql, "(?i)\\bNOW\\s*\\(\\s*\\)", "CURRENT_TIMESTAMP");
+                sql = replaceInCode(sql, "(?i)\\bIFNULL\\s*\\(", "COALESCE(");
             }
             case "oracle" -> {
-                sql = sql.replaceAll("(?i)\\bMEDIUMTEXT\\b", "CLOB");
-                sql = sql.replaceAll("(?i)\\bLONGTEXT\\b", "CLOB");
-                sql = sql.replaceAll("(?i)\\bTINYTEXT\\b", "CLOB");
-                sql = sql.replaceAll("(?i)\\bTEXT\\b", "CLOB");
-                sql = sql.replaceAll("(?i)\\bDATETIME\\b", "TIMESTAMP");
-                sql = sql.replaceAll("(?i)\\bTINYINT\\b", "NUMBER(3)");
-                sql = sql.replaceAll("(?i)\\bNOW\\s*\\(\\s*\\)", "SYSDATE");
-                sql = sql.replaceAll("(?i)\\bIFNULL\\s*\\(", "NVL(");
+                sql = replaceInCode(sql, "(?i)\\bMEDIUMTEXT\\b", "CLOB");
+                sql = replaceInCode(sql, "(?i)\\bLONGTEXT\\b", "CLOB");
+                sql = replaceInCode(sql, "(?i)\\bTINYTEXT\\b", "CLOB");
+                sql = replaceInCode(sql, "(?i)\\bTEXT\\b", "CLOB");
+                sql = replaceInCode(sql, "(?i)\\bDATETIME\\b", "TIMESTAMP");
+                sql = replaceInCode(sql, "(?i)\\bTINYINT\\b", "NUMBER(3)");
+                sql = replaceInCode(sql, "(?i)\\bNOW\\s*\\(\\s*\\)", "SYSDATE");
+                sql = replaceInCode(sql, "(?i)\\bIFNULL\\s*\\(", "NVL(");
             }
             case "sqlserver" -> {
-                sql = sql.replaceAll("(?i)\\bMEDIUMTEXT\\b", "VARCHAR(MAX)");
-                sql = sql.replaceAll("(?i)\\bLONGTEXT\\b", "VARCHAR(MAX)");
-                sql = sql.replaceAll("(?i)\\bTINYTEXT\\b", "VARCHAR(MAX)");
-                sql = sql.replaceAll("(?i)\\bTEXT\\b", "VARCHAR(MAX)");
-                sql = sql.replaceAll("(?i)\\bDATETIME\\b", "DATETIME2");
-                sql = sql.replaceAll("(?i)\\bIFNULL\\s*\\(", "ISNULL(");
+                sql = replaceInCode(sql, "(?i)\\bMEDIUMTEXT\\b", "VARCHAR(MAX)");
+                sql = replaceInCode(sql, "(?i)\\bLONGTEXT\\b", "VARCHAR(MAX)");
+                sql = replaceInCode(sql, "(?i)\\bTINYTEXT\\b", "VARCHAR(MAX)");
+                sql = replaceInCode(sql, "(?i)\\bTEXT\\b", "VARCHAR(MAX)");
+                sql = replaceInCode(sql, "(?i)\\bDATETIME\\b", "DATETIME2");
+                sql = replaceInCode(sql, "(?i)\\bIFNULL\\s*\\(", "ISNULL(");
             }
             case "h2" -> {
                 // H2（非 MySQL 模式）：JSON 类型映射为 CLOB（H2 1.x 无 JSON 类型）
-                sql = sql.replaceAll("(?i)\\bJSON\\b", "CLOB");
+                sql = replaceInCode(sql, "(?i)\\bJSON\\b", "CLOB");
             }
             case "sqlite" -> {
-                sql = sql.replaceAll("(?i)\\bMEDIUMTEXT\\b", "TEXT");
-                sql = sql.replaceAll("(?i)\\bLONGTEXT\\b", "TEXT");
-                sql = sql.replaceAll("(?i)\\bTINYTEXT\\b", "TEXT");
-                sql = sql.replaceAll("(?i)\\bDATETIME\\b", "TIMESTAMP");
-                sql = sql.replaceAll("(?i)\\bJSON\\b", "TEXT");
+                sql = replaceInCode(sql, "(?i)\\bMEDIUMTEXT\\b", "TEXT");
+                sql = replaceInCode(sql, "(?i)\\bLONGTEXT\\b", "TEXT");
+                sql = replaceInCode(sql, "(?i)\\bTINYTEXT\\b", "TEXT");
+                sql = replaceInCode(sql, "(?i)\\bDATETIME\\b", "TIMESTAMP");
+                sql = replaceInCode(sql, "(?i)\\bJSON\\b", "TEXT");
                 // SQLite 无 NOW() 函数，MySQL 风格脚本需映射到标准 CURRENT_TIMESTAMP
-                sql = sql.replaceAll("(?i)\\bNOW\\s*\\(\\s*\\)", "CURRENT_TIMESTAMP");
+                sql = replaceInCode(sql, "(?i)\\bNOW\\s*\\(\\s*\\)", "CURRENT_TIMESTAMP");
             }
             default -> {
                 // duckdb/hive/其他协议：仅通用函数映射
-                sql = sql.replaceAll("(?i)\\bNOW\\s*\\(\\s*\\)", "CURRENT_TIMESTAMP");
+                sql = replaceInCode(sql, "(?i)\\bNOW\\s*\\(\\s*\\)", "CURRENT_TIMESTAMP");
             }
         }
         return sql;
