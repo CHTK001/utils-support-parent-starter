@@ -5,9 +5,7 @@ import lombok.Data;
 
 /**
  * Agent 重试配置。
- * <p>
  * 控制 Agent 执行失败时的重试行为，包括最大重试次数和退避策略。
- * </p>
  *
  * @author CH
  * @since 4.0.0.42

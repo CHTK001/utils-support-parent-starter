@@ -33,17 +33,17 @@
     -->
     <description>抓取/解析 SPI 与数据模型（可插拔 Fetcher / Parser）。爬虫平台已下线，能力由 spring-api-support-collect-starter 承接；本模块仍被 collect 与 playwright-starter 依赖，不可删除。</description>
 
+    <!--
+      2026-09-28 解除 Boot 3 降级：本模块原先局部定义 spring.boot.version=3.2.0、
+      spring.version=6.1.14，并把字节码从 25 降到 21，理由是「Spring 6.1 的 ASM
+      不识别 JDK 25 产出的 class 文件版本 69」。该约束随 Spring 7 / Boot 4 已失效：
+      Spring 7.0.8 的 ASM 支持 class 69，故此处不再需要任何覆盖，
+      全部交由 utils-support-parent-starter 统一提供（Boot 4.1.0 / Spring 7.0.8 / 字节码 25）。
+      保留本段仅为固化 properties 区的可读结构。
+    -->
     <properties>
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.boot.version>3.2.0</spring.boot.version>
-        <!-- 父 pom 默认 spring 7.0.8 与 spring-boot 3.2 不兼容，强制锁定 spring 6.1.x -->
-        <spring.version>6.1.14</spring.version>
-        <!-- JDK 25 编译的 class 文件版本 69，Spring 6.1 ASM 不识别；
-             目标字节码锁定到 21，兼容 JDK 17-25 运行 -->
-        <maven.compiler.release>21</maven.compiler.release>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
     </properties>
 
     <build>
@@ -53,9 +53,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <encoding>UTF-8</encoding>
-                    <source>21</source>
-                    <target>21</target>
-                    <release>21</release>
                 </configuration>
             </plugin>
         </plugins>
@@ -89,7 +86,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.databind.version}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -97,7 +93,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
-            <version>${spring.boot.version}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -119,7 +114,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>3.2.0</version>
             <scope>compile</scope>
         </dependency>
 

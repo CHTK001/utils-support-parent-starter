@@ -335,6 +335,18 @@ public class DataSourceFlyway implements Flyway {
 
     /**
      * 以 JDBC {@link DataSource} 为底座的历史表读写执行器。
+     *
+     * <p>{@link FlywayHistory.Runner} 的默认实现：每次 {@code update} / {@code select} 都从
+     * {@link #dataSource()} 取一个连接、用 try-with-resources 关闭连接与语句，
+     * {@code SQLException} 一律包装为 {@link IllegalStateException} 上抛（不会吞异常）。
+     * 由外层 {@code DataSourceFlyway} 构造器一次性创建并持有（字段 {@code runner}），
+     * 生命周期与迁移器一致，不做连接池预热、不缓存连接。</p>
+     *
+     * @param dataSource 迁移目标库的 JDBC 数据源，用于历史表（{@code sys_database_version}）的读写。
+     *                   **不允许为 {@code null}**：紧凑构造器用 {@code requireNonNull} 强制校验，
+     *                   传入 {@code null} 立即抛 {@link NullPointerException}（消息「dataSource 不能为 null」），
+     *                   而不会推迟到首次取连接时。取值来源为 {@code DataSourceFlyway} 构造器入参，
+     *                   该入参本身不做校验，因此校验责任落在此处
      */
     private record JdbcRunner(DataSource dataSource) implements FlywayHistory.Runner {
 

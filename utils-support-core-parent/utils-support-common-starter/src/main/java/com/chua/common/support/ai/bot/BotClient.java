@@ -5,12 +5,10 @@ import com.chua.common.support.spi.ServiceProvider;
 
 /**
  * Bot 客户端统一接口
- * <p>
  * 支持多平台 Bot（钉钉、飞书、QQ 等）的统一抽象。
  * 通过 {@link Factory} SPI 机制实现平台扩展。
- * </p>
  *
- * <h3>使用示例</h3>
+ * <p><b>使用示例</b></p>
  * <pre>{@code
  * BotClient client = BotClient.auto("dingtalk");
  * client.configure(token, secret, null);

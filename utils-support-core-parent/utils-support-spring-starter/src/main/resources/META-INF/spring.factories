@@ -1,2 +1,3 @@
 org.springframework.context.ApplicationContextInitializer=\
-  com.chua.spring.support.configuration.ApplicationAwareApplicationContextInitializer
+  com.chua.spring.support.configuration.ApplicationAwareApplicationContextInitializer,\
+  com.chua.spring.support.configuration.ScriptProviderSpringRegistrar

@@ -412,6 +412,32 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
         return s;
     }
 
+    /**
+     * 本存储的轻量列定义。
+     *
+     * <p>只保留列名、类型文本与可空标记三要素，是
+     * {@link com.chua.common.support.lang.datasource.table.ColumnDef}
+     * 在「行式 WAL 存储」这一场景下的裁剪投影：后者还有注释、默认值、排序规则等
+     * 十余个属性，而本存储的表结构仅以 JSON 落盘供 {@link #getSchema(String)}
+     * 回读，不需要那些字段。</p>
+     *
+     * <p>值的来源是 {@link #createTable(String, List)} 传入的建表列清单
+     * （序列化为 {@code <baseDir>/_schemas/<表名>.json} 的 {@code columns} 数组），
+     * 出口是 {@link #getSchema(String)} 从同一份 JSON 反序列化回来的同名字段。
+     * 本 record 无紧凑构造器，不做校验也不做防御性拷贝，字段按声明顺序原样持有。</p>
+     *
+     * @param name     列名，即建表语句里的列标识符（不含引号、不含 {@code NOT NULL} 等修饰），
+     *                 落盘为 {@code columns[].name}；回读时按该键取值，
+     *                 JSON 中缺此键会得到 {@code null}
+     * @param type     列的数据类型文本，取自建表语句的类型片段并原样保存
+     *                 （如 {@code VARCHAR(255)}、{@code BIGINT}、{@code TEXT}），
+     *                 落盘为 {@code columns[].type}；不做规范化与合法性校验，
+     *                 回读时该键缺失则为 {@code null}
+     * @param nullable 该列是否允许 {@code NULL}，落盘为 {@code columns[].nullable}。
+     *                 注意回读走 {@code Boolean.TRUE.equals(...)} 判定，
+     *                 因此 JSON 中该键缺失或值不为 {@code true} 时一律得到 {@code false}，
+     *                 即「读不出可空信息」会被当作 NOT NULL
+     */
     public record ColumnDef(String name, String type, boolean nullable) {}
 
     /**

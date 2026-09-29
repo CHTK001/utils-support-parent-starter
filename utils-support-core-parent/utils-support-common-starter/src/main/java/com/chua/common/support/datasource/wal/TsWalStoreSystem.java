@@ -378,6 +378,41 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
 
     public enum AggregateFn { AVG, MIN, MAX, COUNT, SUM; }
 
+    /**
+     * 时序聚合结果。
+     *
+     * <p>由 {@link #aggregate(String, long, long, AggregateFn)} 在 {@code [fromTs, toTs)} 窗口内
+     * 对同一 measure 的全部 {@link TsPoint} 归约得到。这里同时携带 avg/min/max/count/sum 五个槽位，
+     * 但**只有本次请求的 {@link AggregateFn} 对应槽位才是有效值**，其余槽位被显式置为
+     * {@link Double#NaN} 或 0（见各参数说明），调用方必须用 {@link Double#isNaN(double)} 判断可用性，
+     * 不能把 NaN 当成真实的聚合结果。空窗口由 {@link #empty(String, long, long)} 产出：
+     * avg/min/max 全为 NaN，count 与 sum 均为 0。</p>
+     *
+     * <p>本 record 是不可变值对象，不做防御性拷贝（全部为基本类型，无引用组件），
+     * 未定义紧凑构造器做校验，调用方需自行保证 measure 非 null。</p>
+     *
+     * @param measure 度量名，即时间序列的 key，与 {@code append(String measure, long ts, double value)}
+     *                追加时使用的名称一致；不允许为 null（{@code queryRange} 内部对其做 hashCode 与 equals）
+     * @param fromTs  聚合窗口的时间下界，**含**该时刻（{@code p.ts() >= fromTs} 命中）；
+     *                单位与 {@link TsPoint#ts()} 一致，为 epoch 毫秒；由调用方原样传入，不做归一或校验
+     * @param toTs    聚合窗口的时间上界，**不含**该时刻（{@code p.ts() < toTs} 命中）；
+     *                单位同 {@link #fromTs}；取 {@link Long#MAX_VALUE} 表示一直查到最新点
+     * @param avg     窗口内算术平均值 = sum / count。仅当 {@link AggregateFn#AVG} 时为有效值；
+     *                其余函数（MIN/MAX/COUNT/SUM）以及空窗口一律为 {@link Double#NaN}
+     * @param min     窗口内最小值。在 {@link AggregateFn#AVG}、{@link AggregateFn#MIN}、
+     *                {@link AggregateFn#SUM} 三种调用下都会附带产出（MIN 时它就是本次的返回值）；
+     *                {@link AggregateFn#MAX}、{@link AggregateFn#COUNT} 与空窗口为 {@link Double#NaN}
+     * @param max     窗口内最大值。在 {@link AggregateFn#AVG}、{@link AggregateFn#MAX}、
+     *                {@link AggregateFn#SUM} 三种调用下都会附带产出（MAX 时它就是本次的返回值）；
+     *                {@link AggregateFn#MIN}、{@link AggregateFn#COUNT} 与空窗口为 {@link Double#NaN}
+     * @param count   窗口内命中的时序点总数。{@code queryRange} 只按 measure 与 ts 过滤，
+     *                不校验 {@link TsPoint#ttlSec()}，因此已过 TTL 的点同样计入；
+     *                所有 {@link AggregateFn} 都会填充该槽位，{@link AggregateFn#COUNT} 时它就是本次的返回值；
+     *                空窗口为 0
+     * @param sum     窗口内数值总和。仅当 {@link AggregateFn#SUM} 与 {@link AggregateFn#AVG} 时为有效值；
+     *                {@link AggregateFn#MIN}、{@link AggregateFn#MAX}、{@link AggregateFn#COUNT}
+     *                时为 0.0（注意是 0.0 而非 NaN，与其余槽位的失效标记不同）；空窗口为 0.0
+     */
     public record TsAggregate(String measure, long fromTs, long toTs,
                               double avg, double min, double max, long count, double sum) {
         public static TsAggregate empty(String m, long f, long t) {

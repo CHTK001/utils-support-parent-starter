@@ -14,7 +14,7 @@
     <name>Utils Support Deep Learning Parent</name>
     <description>深度学习模块：ONNX / PyTorch / Paddle / TensorFlow / AgentScope / LangChain4j / Llama.cpp</description>
     <properties>
-        <langchain4j.version>1.12.2</langchain4j.version>
+        <langchain4j.version>1.20.2</langchain4j.version>
     </properties>
     <modules>
         <module>utils-support-deeplearning-onnx-starter</module>

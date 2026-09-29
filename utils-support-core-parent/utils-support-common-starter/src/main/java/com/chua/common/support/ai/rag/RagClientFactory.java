@@ -3,10 +3,8 @@ package com.chua.common.support.ai.rag;
 
 /**
  * RagClient SPI 工厂接口。
- * <p>
  * 实现类通过 {@link com.chua.common.support.spi.ServiceProvider} 注册，
  * 用于创建不同后端的 {@link RagClient} 实现。
- * </p>
  *
  * @author CH
  * @since 4.0.0.42

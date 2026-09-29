@@ -31,6 +31,15 @@
             <groupId>com.openai</groupId>
             <artifactId>openai-java-client-okhttp</artifactId>
         </dependency>
+        <!-- AgentSubAgentRoutingTest 使用 JUnit 5 注解（@Test / @BeforeEach / @AfterEach），
+             本模块原先未声明 junit，导致 testCompile 报「package org.junit.jupiter.api does not exist」。
+             版本取全仓 junit-jupiter 主流值 5.13.0-M3（25 处），避免再引入新变体。 -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.13.0-M3</version>
+            <scope>test</scope>
+        </dependency>
 <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
@@ -38,18 +47,18 @@
     </dependencies>
     <dependencyManagement>
         <dependencies>
-            <!-- Override slf4j to stable release (agentscope pulls 2.1.0-alpha1) -->
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>2.0.17</version>
-            </dependency>
-            <!-- Fix jackson version mismatch (jsr310 pulled 2.19.0, others are 2.21.4) -->
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>2.21.4</version>
-            </dependency>
+            <!--
+              2026-09-28 原先此处有两条无版本覆盖条目（slf4j-api 钉 2.0.17、
+              jackson-datatype-jsr310 钉 2.21.4），注释写明用意是压住 agentscope
+              传递依赖拉进来的 slf4j 2.1.0-alpha1 与 jsr310 2.19.0。
+              现父 POM 已在根上统一托管这两个坐标（slf4j-api=2.0.18、
+              jackson-datatype-jsr310=2.21.4），本地覆盖已属冗余，故整条删除。
+
+              注意：只删 version 会留下「无版本的 dependencyManagement 条目」，
+              该条目会遮蔽父 POM 的托管值，使 jsr310 回落到传递依赖的 2.18.9，
+              反而重新制造出 databind 2.21.4 / jsr310 2.18.9 的错配。
+              要么给全版本，要么整条删除，不可只删 version。
+            -->
             <!-- Lock okhttp to single version (agentscope pulls both 4.x and 5.x) -->
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>

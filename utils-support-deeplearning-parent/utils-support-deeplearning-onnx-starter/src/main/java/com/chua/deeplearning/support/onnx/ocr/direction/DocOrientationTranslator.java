@@ -7,6 +7,7 @@ import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
 import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.translator.ITranslator;
+import com.chua.common.support.utils.NativeLoader;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
@@ -68,11 +69,11 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
         if (session != null) {
             return;
         }
-        Path tmpDir = java.nio.file.Files.createTempDirectory("doc-orientation-");
+        Path tmpDir = Files.createTempDirectory("doc-orientation-");
         tmpDir.toFile().deleteOnExit();
         Path modelDir = tmpDir.resolve("model");
-        java.nio.file.Files.createDirectories(modelDir);
-        com.chua.common.support.utils.NativeLoader.of("doc-orientation")
+        Files.createDirectories(modelDir);
+        NativeLoader.of("doc-orientation")
                 .basePath(RESOURCE_BASE)
                 .toTarget(modelDir)
                 .glob("*.onnx")

@@ -212,6 +212,37 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
     /**
      * {@code ROUTINES} 单行原始值。
      *
+     * <p>本 record 只做「字典列 → Java 值」的一比一搬运，不做类型归一，
+     * 全部组件按 {@code MysqlMetaData.trimToNull(String)} 语义把空白串归一为
+     * {@code null}（{@code routineSchema} / {@code routineName} / {@code routineType} 例外，
+     * 它们是 {@code key()} 归并键的组成部分，必须原样保留）。
+     * 无紧凑构造器，故所有组件都允许为 {@code null}，调用方
+     * {@code toDef(List)} 对可空列显式做了回退处理。</p>
+     *
+     * @param routineCatalog     例程所属目录（catalog）名，MySQL 恒为 {@code def}；
+     *                            取自 {@code ROUTINE_CATALOG}，空白归一为 {@code null}，
+     *                            写入 {@code ProcedureDef.setCatalog}
+     * @param routineSchema      例程所属库（schema）名，取自 {@code ROUTINE_SCHEMA}；
+     *                            因 SQL 侧已用 {@code ROUTINE_SCHEMA = COALESCE(?, DATABASE())} 过滤，
+     *                            实际恒非空，写入 {@code ProcedureDef.setSchema}
+     * @param routineName        过程名或函数名，取自 {@code ROUTINE_NAME}，原样保留大小写，
+     *                            写入 {@code ProcedureDef.setName}
+     * @param routineType        例程类型，取自 {@code ROUTINE_TYPE}，取值 {@code PROCEDURE} 或
+     *                            {@code FUNCTION}；参与 {@code key()} 归并，不允许为 {@code null}
+     * @param dataType           返回值的数据类型名（不含长度/精度），取自 {@code DATA_TYPE}，
+     *                            如 {@code int}、{@code decimal}；仅函数有值，过程为 {@code null}
+     * @param dtd                返回值的完整数据类型描述，取自 {@code DTD_IDENTIFIER}，
+     *                            如 {@code int(11)}、{@code decimal(10,2)}、{@code varchar(64)}；
+     *                            {@code toDef(List)} 优先用它填 {@code returnType}，缺失时回退 {@link #dataType}
+     * @param routineBody        例程体所用语言，取自 {@code ROUTINE_BODY}，MySQL 恒为 {@code SQL}；
+     *                            写入 {@code ProcedureDef.setLanguage}
+     * @param routineDefinition  例程体全文，取自 {@code ROUTINE_DEFINITION}，即 {@code CREATE} 时的
+     *                            {@code BEGIN ... END} 内部语句；不做去空白处理以保留原始缩进，
+     *                            写入 {@code ProcedureDef.setBody}
+     * @param routineComment     例程注释文本，取自 {@code ROUTINE_COMMENT}（{@code COMMENT} 子句），
+     *                            空白归一为 {@code null}，写入 {@code ProcedureDef.setComment}
+     * @param securityType       SQL 安全类型，取自 {@code SECURITY_TYPE}，取值
+     *                            {@code DEFINER} 或 {@code INVOKER}，写入 {@code ProcedureDef.setSecurityType}
      * @author CH
      * @since 4.0.0
      */
@@ -272,6 +303,31 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
     /**
      * {@code PARAMETERS} 单行原始值。
      *
+     * <p>本 record 同样只做字典列到 Java 值的一比一搬运，无紧凑构造器，
+     * 全部组件允许为 {@code null}。SQL 侧已用 {@code ORDINAL_POSITION > 0}
+     * 过滤掉函数的返回值占位行，因此每行都对应一个真实的入参/出参。
+     * 归并侧的约定见 {@code readRoutines(String)}：类型取 {@code dtd} 优先、
+     * 方向缺省为 {@code IN}。</p>
+     *
+     * @param specificName     本参数所属的例程名，取自 {@code SPECIFIC_NAME}（过程名或函数名）；
+     *                         与 {@link #routineType} 拼成 {@code ROUTINE_TYPE.SPECIFIC_NAME}
+     *                         归并键去 {@code RoutineRow} 上取参数列表，不允许为 {@code null}
+     * @param routineType      本参数所属例程的类型，取自 {@code ROUTINE_TYPE}，取值
+     *                         {@code PROCEDURE} 或 {@code FUNCTION}；参与归并键，不允许为 {@code null}
+     * @param ordinalPosition  该参数在形参列表中的序号，取自 {@code ORDINAL_POSITION}，
+     *                         从 1 开始连续递增（函数返回值占位行已被 SQL 过滤）；
+     *                         以 {@code getInt} + {@code wasNull} 读取，列值为 SQL {@code NULL} 时为 {@code null}，
+     *                         写入 {@code ProcedureParamDef.setPosition}
+     * @param mode             参数方向，取自 {@code PARAMETER_MODE}，取值
+     *                         {@code IN} / {@code OUT} / {@code INOUT}；空白归一为 {@code null}，
+     *                         {@code readRoutines(String)} 对 {@code null} 缺省按 {@code IN} 处理
+     * @param parameterName    参数名，取自 {@code PARAMETER_NAME}；空白归一为 {@code null}
+     *                         （本工具不做重命名补全），写入 {@code ProcedureParamDef.setName}
+     * @param dataType         参数的数据类型名（不含长度/精度），取自 {@code DATA_TYPE}，
+     *                         如 {@code int}、{@code varchar}；空白归一为 {@code null}
+     * @param dtd              参数的完整数据类型描述，取自 {@code DTD_IDENTIFIER}，
+     *                         如 {@code int(11)}、{@code varchar(64)}、{@code decimal(10,2)}；
+     *                         {@code readRoutines(String)} 优先用它作为参数类型，缺失时回退 {@link #dataType}
      * @author CH
      * @since 4.0.0
      */

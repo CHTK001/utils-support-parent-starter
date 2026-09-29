@@ -11,10 +11,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * AI 嵌入向量客户端接口。
- * <p>
  * 提供统一的文本向量化调用抽象，支持同步、异步和批量三种调用方式。
  * 实现类通过 SPI 机制按 provider 名称注册，调用方通过工厂方法获取实例。
- * </p>
  *
  * <p>链式配置示例：
  * <pre>{@code
@@ -38,9 +36,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
 
     /**
      * 创建指定 provider 的 AI 嵌入向量客户端。
-     * <p>
      * 通过 SPI 查找并实例化与 provider 名称匹配的 {@link EmbeddingClient} 实现。
-     * </p>
      *
      * @param provider AI 服务商名称，如 "openai"、"deepseek" 等
      * @param apiKey   API 密钥
@@ -101,10 +97,8 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
 
     /**
      * 设置输出向量维度。
-     * <p>
      * 部分模型支持通过此参数指定输出向量的维度数。
      * 例如 text-embedding-3-small 支持 256、512、1536 等。
-     * </p>
      *
      * @param dimensions 向量维度
      * @return 当前客户端实例，支持链式调用
@@ -117,9 +111,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
 
     /**
      * 单文本向量化。
-     * <p>
      * 将单条文本转换为嵌入向量。
-     * </p>
      *
      * @param text 待向量化的文本
      * @return 浮点数向量
@@ -128,9 +120,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
 
     /**
      * 单文本向量化（返回完整响应对象）。
-     * <p>
      * 将单条文本转换为嵌入向量，返回包含向量和用量信息的响应对象。
-     * </p>
      *
      * @param text 待向量化的文本
      * @return 包含向量和用量信息的完整响应
@@ -148,9 +138,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
 
     /**
      * 批量文本向量化。
-     * <p>
      * 将多条文本批量转换为嵌入向量，性能优于逐条调用。
-     * </p>
      *
      * @param texts 待向量化的文本列表
      * @return 浮点数向量数组，顺序与输入一致
@@ -159,9 +147,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
 
     /**
      * 批量文本向量化（返回完整响应对象）。
-     * <p>
      * 将多条文本批量转换为嵌入向量，返回包含向量和用量信息的响应对象。
-     * </p>
      *
      * @param texts 待向量化的文本列表
      * @return 包含向量和用量信息的完整响应
@@ -184,9 +170,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
 
     /**
      * 异步单文本向量化。
-     * <p>
      * 通过 CompletableFuture 异步执行单文本向量化。
-     * </p>
      *
      * @param text 待向量化的文本
      * @return 异步任务，完成时返回浮点数向量
@@ -197,9 +181,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
 
     /**
      * 异步批量文本向量化。
-     * <p>
      * 通过 CompletableFuture 异步执行批量文本向量化。
-     * </p>
      *
      * @param texts 待向量化的文本列表
      * @return 异步任务，完成时返回浮点数向量数组

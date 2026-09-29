@@ -52,7 +52,7 @@ public class EsSearchEngineImpl implements SearchEngine {
     public List<String> listIndexes() {
         try {
             var response = engine.getClient().indices().get(i -> i.index("*"));
-            return new ArrayList<>(response.result().keySet());
+            return new ArrayList<>(response.indices().keySet());
         } catch (Exception e) {
             throw new RuntimeException("列出 ES 索引失败", e);
         }
@@ -70,8 +70,8 @@ public class EsSearchEngineImpl implements SearchEngine {
             SearchIndexDef def = new SearchIndexDef();
             def.setName(indexName);
 
-            if (indexResponse.result().containsKey(indexName)) {
-                var indexSettings = indexResponse.result().get(indexName).settings();
+            if (indexResponse.indices().containsKey(indexName)) {
+                var indexSettings = indexResponse.indices().get(indexName).settings();
                 Map<String, Object> settings = new LinkedHashMap<>();
                 if (indexSettings.index() != null) {
                     if (indexSettings.index().numberOfShards() != null) {
@@ -84,8 +84,8 @@ public class EsSearchEngineImpl implements SearchEngine {
                 def.setSettings(settings);
             }
 
-            if (mappingResponse.result().containsKey(indexName)) {
-                TypeMapping mapping = mappingResponse.result().get(indexName).mappings();
+            if (mappingResponse.mappings().containsKey(indexName)) {
+                TypeMapping mapping = mappingResponse.mappings().get(indexName).mappings();
                 List<SearchFieldDef> fields = new ArrayList<>();
                 if (mapping.properties() != null) {
                     mapping.properties().forEach((name, prop) -> {

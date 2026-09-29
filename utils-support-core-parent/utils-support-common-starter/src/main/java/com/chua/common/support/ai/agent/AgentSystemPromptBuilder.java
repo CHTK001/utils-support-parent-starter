@@ -17,7 +17,7 @@ import java.util.Map;
  * <p>负责将主 Agent 的指令（instruction）与子 Agent 路由描述、技能描述、MCP 工具描述自动拼接，
  * 生成完整的 system prompt，使大模型能够感知可用的子 Agent、技能和外部工具并进行智能路由。</p>
  *
- * <h3>生成的 prompt 结构</h3>
+ * <p><b>生成的 prompt 结构</b></p>
  * <pre>
  * {主 Agent 的 instruction}
  *
@@ -50,7 +50,7 @@ import java.util.Map;
  * 3. 框架将自动执行对应技能并返回结果
  * </pre>
  *
- * <h3>调用链</h3>
+ * <p><b>调用链</b></p>
  * <pre>
  *   AgentDefinition 构造
  *     → AgentSystemPromptBuilder.build(instruction, subAgents, skills)

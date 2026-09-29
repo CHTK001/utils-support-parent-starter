@@ -12,7 +12,7 @@
     <name>Utils Support Apollo Starter</name>
     <description>Apollo 配置中心服务发现集成</description>
     <properties>
-        <apollo.version>2.2.0</apollo.version>
+        <apollo.version>2.5.0</apollo.version>
     </properties>
     <dependencies>
         <dependency>

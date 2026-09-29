@@ -3,7 +3,6 @@ package com.chua.common.support.ai.calibration;
 
 /**
  * 纯分数校准器接口
- * <p>
  * 职责：将原始相似度分数（通常0~1）映射为0~100的校准分。
  * 不含任何训练/拟合方法，参数通过构造函数或builder注入。
  * @author CH

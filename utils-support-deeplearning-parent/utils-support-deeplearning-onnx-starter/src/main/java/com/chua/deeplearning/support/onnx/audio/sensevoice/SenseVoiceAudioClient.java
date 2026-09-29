@@ -4,6 +4,7 @@ import com.chua.common.support.ai.audio.VirtualClient;
 import com.chua.common.support.ai.audio.AudioClientSetting;
 import com.chua.common.support.ai.audio.AudioResponse;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.NativeLoader;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
@@ -238,7 +239,7 @@ public class SenseVoiceAudioClient implements VirtualClient {
             boolean ready = Files.exists(modelDir.resolve("model.int8.onnx"))
                     && Files.exists(modelDir.resolve("tokens.txt"));
             if (!ready) {
-                com.chua.common.support.utils.NativeLoader
+                NativeLoader
                         .of("sensevoice-resources")
                         .from(SenseVoiceAudioClient.class.getClassLoader())
                         .basePath(RESOURCE_BASE + RESOURCE_DIR + "/")

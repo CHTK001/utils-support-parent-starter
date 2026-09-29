@@ -33,6 +33,64 @@ public final class CrashContext {
 
     /**
      * 推断出的崩溃信号。
+     *
+     * <p>一条信号代表一次<b>启发式推断</b>，而非确定性结论：
+     * {@link #kind} 说明推断来源，{@link #detail} 是结论文字，
+     * {@link #evidence} 是支撑该结论的原始数据（文件名、日志签名、字节数等），
+     * {@link #oomLikely} 是「疑似 OOM」这一判断标志。报告展示时
+     * 三者需一并呈现，{@link #label()} 会把 OOM 情形收敛为「疑似 OOM」
+     * 四个字，避免把推断说成事实。</p>
+     *
+     * <p>可空性：规范构造器不做任何非空校验，三个 {@code String} 分量在实践
+     * 中均被调用点赋非空值（{@link #kind} 固定取自三个字面量），
+     * 但类型上允许为 {@code null}，消费方需自行判空。</p>
+     *
+     * @param kind 信号 类别，即推断来源，取自受控的三个中文常量：
+     *                {@code "文件名约定"}（{@code detectFromName}，命中
+     *                {@code java_error_in_*} 前缀或 {@code _oom.hprof} /
+     *                {@code outofmemory} 命名）、{@code "hs_err 伴随日志"}
+     *                （{@code detectCompanionLogs}，同目录找到
+     *                {@code hs_err_pid*.log} 并提取到签名）、{@code "堆水位"}
+     *                （{@code heapWaterLevel}，按存活堆字节数与 4G/8G/16G
+     *                阈值比较）。该值同时是 {@link #detect} 合并降级时的
+     *                分流依据（靠 {@code equals} 做字符串比较，不是枚举，
+     *                故新增类别必须同步改 {@code detect} 中的比较）
+     * @param detail 结论 文字，面向阅读者的自然语言说明，形如
+     *                「存活堆 9.5G，≥ 8G，已打满 8G 的常见 Xmx，强烈疑似 OOM」。
+     *                内容由 {@code HprofObject#formatSize} 格式化出的可读尺寸
+     *                与阈值文案拼接而成；{@code hs_err} 场景下则为从日志中
+     *                提取的异常 / 信号签名（原始行以 {@code " | "} 连接）。
+     *                取值来源为各 {@code detectXxx} 内的字面量与实时计算结果，
+     *                允许为 {@code null}，但 {@code hs_err} 签名会截断到
+     *                400 字符以内以控制报告体积
+     * @param evidence 推断 依据，即支撑上述结论的可核查原始数据串，与
+     *                 {@link #detail} 分开保存以免结论与证据混淆。
+     *                 各来源形态不同：文件名来源填命中的文件名；
+     *                 {@code hs_err} 来源填「日志文件名（字节数 B）」；
+     *                 堆水位来源填 {@code totalRetained=字节数}，
+     *                 高水位分支还会附「（对象数）」。允许为 {@code null}。
+     *                 注意本字段可被 {@code detect} <b>追加文字</b>：
+     *                 当定性 OOM 信号与堆水位证据矛盾时，会在其后拼接
+     *                 「（但堆水位未达 4G，OOM 判定存疑，需结合 -Xmx 实际值复核）」
+     *                 一类的存疑说明
+     * @param oomLikely 是否 <b>疑似</b> OOM（OutOfMemoryError）的判断标志，
+     *                   原始 {@code boolean}，不是概率也不是置信度，只表示
+     *                   「本次推断倾向 OOM」。取值依据分两类：
+     *                   <b>定性来源</b>（文件名约定、{@code hs_err} 伴随日志）
+     *                   命中时置 {@code true}——注意 {@code hs_err} 分支
+     *                   <b>无条件</b>置 {@code true}，即使提取到的签名是
+     *                   {@code SIGSEGV} 等 native 崩溃而非内存溢出，
+     *                   因此该值须与 {@link #detail} 中的实际签名对照阅读；
+     *                   <b>定量来源</b>（堆水位）按存活保留字节分档：
+     *                   小于 2G 置 {@code false}（「OOM 可能性低」），
+     *                   大于等于 16G / 8G / 4G 三档依次置 {@code true}。
+     *                   {@code detect} 还会在「定性为 OOM 但堆水位判定为
+     *                   {@code false}」时，把所有非堆水位信号的本字段
+     *                   <b>降级为 {@code false}</b>，即最终值以更具体的
+     *                   堆水位证据为准。原始类型，恒为 {@code true} 或
+     *                   {@code false}，无空值语义
+     * @author CH
+     * @since 4.0.0.42
      */
     public record CrashSignal(String kind,
                               String detail,

@@ -31,6 +31,35 @@ public final class HprofParser {
 
     /**
      * Parsed result holder, immutable.
+     *
+     * <p>hprof 解析的最终对外结果。唯一构造点
+     * {@link #fromContext(HprofParseContext.ParsedContext)}：把
+     * {@link HprofParseContext.ParsedContext} 的按类原始记录翻译成
+     * 报告用的模型对象，并顺带算好直方图、Top 保留量与两项汇总值。</p>
+     *
+     * @param objects          全部 Java 类的对象行模型列表，元素顺序与
+     *                         {@link HprofParseContext.ParsedContext#objects()} 一致，
+     *                         逐条由 {@link #toObject(HprofParseContext.HprofRecord)} 转换而来；
+     *                         每行代表「一个类」而非「一个实例」
+     * @param histogram        按类直方图行（类名 / 实例数 / 浅堆 / 保留量，单位字节），
+     *                         按保留量<b>降序</b>排列，供报告首屏的「谁最占内存」使用
+     * @param topRetained      保留量最高的 50 个类所对应的对象行模型（截取自 {@link #objects}
+     *                         的降序副本），即 {@code objects} 的前 50 项
+     * @param gcRoots          去重后的 GC 根描述列表，元素形如 {@code 种类:持有者类名}，
+     *                         顺序为首次出现顺序；直接透传
+     *                         {@link HprofParseContext.ParsedContext#gcRoots()}
+     * @param gcRootsByKind    GC 根种类 → 该种类根数量（单位「个」），用于按种类给根因归类；
+     *                         直接透传 {@link HprofParseContext.ParsedContext#gcRootsByKind()}
+     * @param classDetails     类名 → 类明细（保留量最大实例的字段值与静态字段），
+     *                         支撑报告的「点击展开明细」视图，回答「谁持有了什么」；
+     *                         直接透传 {@link HprofParseContext.ParsedContext#classDetails()}
+     * @param refChains        保留量 Top 类的三层引用链（持有者实例 → 按保留量排序的子引用），
+     *                         最多 10 条；直接透传
+     *                         {@link HprofParseContext.ParsedContext#refChains()}
+     * @param totalRetainedBytes 各按类保留大小之和，单位「字节」，仅作汇总指标：
+     *                         不同类的保留集合可能相互重叠，故不等价于全堆实际占用，
+     *                         不可与其他工具的「堆已用内存」直接比较
+     * @param totalObjectCount 各类实例数量之和，单位「个」，即转储中该堆的实例总数
      */
     public record Result(List<HprofObject> objects,
                           List<HprofHistogramRow> histogram,

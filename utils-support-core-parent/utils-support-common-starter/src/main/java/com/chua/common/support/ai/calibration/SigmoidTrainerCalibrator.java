@@ -15,16 +15,12 @@ import java.util.Random;
 
 /**
  * Sigmoid 可训练校准器
- * <p>
  * 【用途】 实现 TrainerPureCalibrator 接口，自身就是 PureCalibrator。
  * 支持生成三个目录的训练数据、自动训练拟合参数、保存/加载模型。
- * <p>
  * 【公式】 score' = 100 / (1 + e^{-k * (raw - t)})
- * <p>
  * 【参数对象】 SigmoidParams
  * k – 陡度，越大过渡越陡（建议10~30）
  * t – 阈值，决定分界线位置（建议0.7~0.85）
- * <p>
  * 【典型用法】
  * <pre>
  * // 方式一：生成模拟数据训练
@@ -44,7 +40,6 @@ import java.util.Random;
  *
  * double score2 = loaded.calibrate(0.85);
  * </pre>
- * <p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -78,7 +73,6 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
 
     /**
      * Sigmoid 参数对象
-     * <p>
      * 包含 Sigmoid 校准器的全部可调参数。
      * 用于替代 Map，明确告知用户有哪些参数可用。
      */

@@ -16,7 +16,7 @@ import java.util.UUID;
  * <p>将记忆体操作暴露为 MCP 工具，LLM 可通过标准 MCP 协议主动管理记忆。
  * Agent 在 {@code initMemoryIfNeeded()} 时自动注册此插件，无需手动配置。
  *
- * <h3>注册的 MCP 工具</h3>
+ * <p><b>注册的 MCP 工具</b></p>
  * <pre>
  *   memory_save    — 保存一条记忆（LLM 可主动存储重要信息）
  *   memory_search  — 按关键词搜索记忆（LLM 可主动检索相关背景）
@@ -25,7 +25,7 @@ import java.util.UUID;
  *   memory_count   — 获取记忆总数
  * </pre>
  *
- * <h3>LLM 调用链</h3>
+ * <p><b>LLM 调用链</b></p>
  * <pre>
  *   用户: "记住我喜欢用 Java"
  *     → LLM 判断需要保存记忆

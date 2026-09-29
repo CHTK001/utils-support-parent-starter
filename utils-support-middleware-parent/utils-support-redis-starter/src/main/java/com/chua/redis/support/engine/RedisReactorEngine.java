@@ -45,7 +45,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * // 前缀扫描
  * Flux<String> keys = engine.scanKeys("user:*");
- * }</pre>scanKeys("user:*");
  * }</pre>
  *
  * @author CH

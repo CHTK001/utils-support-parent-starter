@@ -4,10 +4,8 @@ import java.util.List;
 
 /**
  * 全局设置 SPI 接口。
- * <p>
  * 用于动态获取 RAG 模块的配置项，可通过数据库或配置中心管理。
  * 实现类通过 {@link com.chua.common.support.spi.ServiceProvider} 注册。
- * </p>
  *
  * @author CH
  * @since 4.0.0.42

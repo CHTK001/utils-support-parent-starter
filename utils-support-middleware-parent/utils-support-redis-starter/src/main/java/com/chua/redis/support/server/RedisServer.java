@@ -25,8 +25,6 @@ import lombok.extern.slf4j.Slf4j;
  *     .maxMemory("256mb")
  *     .build();
  * redis.start();
- * }</pre> *     .build();
- * redis.start();
  * }</pre>
  *
  * @author CH

@@ -176,6 +176,35 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     }
 
     /**
+     * 判断本实现是否接受<em>公网可访问地址</em>形态的参考图。
+     *
+     * <p>部分协议（如 Agnes）的 {@code first_frame} / {@code images} 只收公网 URL，
+     * 不收字节也不收 data URI。调用方据此决定是把字节直接交给客户端，
+     * 还是先落到文件存储服务、再换一条限时访问链接交给客户端。</p>
+     *
+     * <p>默认 {@code false}，表示只支持 {@link #referenceImage(byte[])} 字节形态。</p>
+     *
+     * @return true 表示支持 {@link #referenceImageUrl(String)}
+     */
+    default boolean supportsReferenceImageUrl() {
+        return false;
+    }
+
+    /**
+     * 设置参考图的公网可访问地址。
+     *
+     * <p>仅当 {@link #supportsReferenceImageUrl()} 为 true 时可用；
+     * 默认实现直接拒绝，避免调用方误以为参考图已生效、实际被静默丢弃后照样生成并计费。</p>
+     *
+     * @param url 公网可访问的图片地址
+     * @return 当前客户端实例，支持链式调用
+     * @throws UnsupportedOperationException 本实现不支持该形态时抛出
+     */
+    default VideoClient referenceImageUrl(String url) {
+        throw new UnsupportedOperationException("该渠道的参考图只支持字节形态，不支持公网地址");
+    }
+
+    /**
      * 设置参考图影响强度
      *
      * <p>控制参考图对生成结果的影响程度，取值范围 0.0 ~ 1.0。

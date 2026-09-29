@@ -30,7 +30,7 @@
         <dependency>
             <groupId>io.r2dbc</groupId>
             <artifactId>r2dbc-mssql</artifactId>
-            <version>1.0.5.RELEASE</version>
+            <version>1.0.7.RELEASE</version>
             <scope>runtime</scope>
         </dependency>
         <!-- SQL Server JDBC 驱动（SQL Server 2008 R2+）；版本由 datasource-parent 管理，可通过 mssql-jdbc.version 属性覆盖 -->

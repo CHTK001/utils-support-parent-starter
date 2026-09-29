@@ -3,7 +3,6 @@ package com.chua.common.support.ai.bot;
 
 /**
  * 二维码生命周期监听器
- * <p>
  * 用于扫码登录 Bot 的场景，提供以下回调：
  * <ul>
  *   <li>{@code newQrcode(url, key)} — 生成新二维码</li>

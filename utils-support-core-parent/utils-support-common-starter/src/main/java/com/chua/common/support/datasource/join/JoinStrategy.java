@@ -35,7 +35,32 @@ public interface JoinStrategy {
     List<Map<String, Object>> execute(JoinContext ctx);
 
     /**
-     * JOIN 查询上下文
+     * JOIN 查询上下文。
+     *
+     * <p>交给 {@link JoinStrategy#execute(JoinContext)} 的入参载体：左右两张表的
+     * 表名、已从数据库查出的行集合、关联键列名与投影列。
+     * 行集合由调用方先各自查询好再组装，本 record 不做任何 IO。</p>
+     *
+     * <p>表名以 {@link String} 形式承载（不是表对象），行以
+     * {@code Map<列名, 列值>} 形式承载，关联比较统一走
+     * {@code String.valueOf(row.get(key))}，即数值列也按字符串匹配。</p>
+     *
+     * @param leftTable      左（驱动）侧表名，仅用于报错信息与结果溯源，策略实现不据此访问数据源；
+     *                      不允许为 {@code null}
+     * @param leftRows       左表记录集合，每行为「列名 → 列值」映射，键即查询结果的列名；
+     *                      允许为 {@code null}，此时按空集合处理；行内列值允许为 {@code null}
+     *                      （规范构造器只拷外层列表，不动行内元素）
+     * @param rightTable     右（被驱动）侧表名，作用同 {@link #leftTable}；不允许为 {@code null}
+     * @param rightRows      右表记录集合，行结构同 {@link #leftRows}；
+     *                      允许为 {@code null}。{@code InnerJoinStrategy} 会先按
+     *                      {@link #rightKey} 对其做哈希分组，故数据量大时该列的选择性直接决定性能
+     * @param leftKey        左表关联键的<b>列名</b>，取值方式是 {@code left.get(leftKey)}；
+     *                      不允许为 {@code null}（取不到会得到 {@code "null"} 字面量而误匹配）
+     * @param rightKey       右表关联键的<b>列名</b>，与 {@link #leftKey} 按字符串相等配对；
+     *                      不允许为 {@code null}
+     * @param projectColumns 投影列名列表，限定结果行只输出这些列；允许为 {@code null}，
+     *                      且为 {@code null} 或空列表时输出左右合并后的全部列。
+     *                      非空时只保留在合并结果中确实存在的列，不存在的列被静默丢弃
      */
     record JoinContext(
             String leftTable,

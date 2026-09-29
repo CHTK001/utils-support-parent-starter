@@ -20,6 +20,31 @@ public interface RemoteServiceManager {
 
     /**
      * SSH 连接配置。
+     *
+     * <p>{@link RemoteServiceManager#connect(SshConfig)} 的入参载体，
+     * 全部字段由调用方经 {@code ServiceBuilder} 的远程 DSL 注入后组装，
+     * 实现方不应自行提供默认值。规范构造器只对
+     * {@link #host} 与 {@link #username} 做必填校验（为 {@code null}
+     * 或全空白即抛 {@link IllegalArgumentException}），
+     * 其余字段原样透传。</p>
+     *
+     * <p>凭据字段（{@link #password} / {@link #privateKeyPath}）留有
+     * {@code null} 空间，用于在「口令认证」与「私钥认证」之间二选一；
+     * 两者都不给时由具体实现决定行为。</p>
+     *
+     * @param host          远程主机地址，可为 IP 或域名；不允许为 {@code null}，
+     *                      也不允许为空白（紧凑构造器直接拒绝）
+     * @param port          远程服务监听端口，单位「端口号」，取值 1~65535。
+     *                      SSH 实现取默认 22；复用本 record 的 WinRM 实现取 HTTP 端口 5985。
+     *                      紧凑构造器只校验取值由调用方负责，未做范围检查
+     * @param username      登录用户名，用于认证与远端命令的归属标识；
+     *                      不允许为 {@code null}，也不允许为空白（紧凑构造器直接拒绝）
+     * @param password      口令认证用的登录口令，由调用方通过配置注入，
+     *                      实现方原样交给底层 SSH/WinRM 客户端；
+     *                      允许为 {@code null}，此时应改走 {@link #privateKeyPath} 的私钥认证
+     * @param privateKeyPath 私钥认证用的私钥文件路径（对发起连接的进程可读）；
+     *                      允许为 {@code null} 或空白，空白等价于未提供。
+     *                      典型实现只在该值非空时才装配私钥认证器
      */
     record SshConfig(
         String host,

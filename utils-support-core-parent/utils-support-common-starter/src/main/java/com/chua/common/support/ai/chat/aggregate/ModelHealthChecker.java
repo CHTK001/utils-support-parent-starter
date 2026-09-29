@@ -48,9 +48,7 @@ public class ModelHealthChecker {
     /**
      * 创建 ModelHealthChecker 实例
      * @param checkIntervalMs checkIntervalMs
-     * @param healthCheckFunction Function
-     * @param ModelHealthCheckResult ModelHealthCheckResult
-     * @param healthCheckFunction healthCheckFunction
+     * @param healthCheckFunction 对每个客户端执行健康检查的函数，返回检查结果
      */
     public ModelHealthChecker(long checkIntervalMs, Function<ChatClient, ModelHealthCheckResult> healthCheckFunction) {
         this.checkIntervalMs = checkIntervalMs;

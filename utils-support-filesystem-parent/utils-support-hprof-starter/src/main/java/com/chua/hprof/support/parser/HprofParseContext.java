@@ -45,6 +45,31 @@ public final class HprofParseContext {
 
     /**
      * 已解析的记录行，不可变。
+     *
+     * <p>一行代表「堆中的一个 Java 类」的聚合统计（不是单个实例）：由
+     * {@code Heap.getAllClasses()} 逐类产出，因此 {@code className} 兼作
+     * 直方图的行键。</p>
+     *
+     * @param className      类名，来源 {@code JavaClass.getName()}；为 {@code null} 时解析器回退为
+     *                       {@code class#<javaClassId>}，故唯一构造点保证非空，可直接作映射键
+     * @param instanceCount  该类在堆中的实例数量，单位「个」，来源 {@code JavaClass.getInstancesCount()}
+     * @param shallowSize    浅堆大小（shallow size），单位「字节」，为该类全部实例自身占用之和
+     *                       （不含其引用的子对象）；来源 {@code Math.max(cls.getAllInstancesSize(), 0L)}，
+     *                       故不会出现负值
+     * @param retainedSize   保留大小（retained size），单位「字节」，表示「释放该类全部实例后能一并回收的
+     *                       内存量」，即其独占支配的子对象也算在内；来源
+     *                       {@code JavaClass.getRetainedSizeByClass()}，非 0 才有意义——
+     *                       采集明细与引用链时均以 {@code retainedSize() <= 0} 作为跳过条件
+     * @param objectId       堆内标识符，来源 {@code JavaClass.getJavaClassId()}，可用
+     *                       {@code heap.getJavaClassByID(objectId)} 查回该 {@code JavaClass}。
+     *                       注意它是「类」的 id，不是实例 id（实例 id 为 {@code Instance.getInstanceId()}）
+     * @param gcRoot         GC Root 种类描述（如 {@code JNI Global}）。唯一构造点
+     *                       {@link #parse(Heap)} 恒传 {@code null}，即按类聚合阶段不填充，
+     *                       该行本身不代表某个 GC 根实例；可为空
+     * @param refChain       从 GC Root 到该对象的引用链文本。唯一构造点
+     *                       {@link #parse(Heap)} 恒传 {@code null}，真正的引用链由
+     *                       {@link HprofRefChainWalker} 产出在 {@link ParsedContext#refChains()}；
+     *                       可为空
      */
     public record HprofRecord(String className,
                               long instanceCount,
@@ -57,6 +82,28 @@ public final class HprofParseContext {
 
     /**
      * 解析上下文载体，不可变。
+     *
+     * <p>是 {@link #parse(Heap)} 的唯一产物：把类直方图、GC 根统计、
+     * Top 类明细与引用链一次性打包交给 {@link HprofParser}，
+     * 避免下游重复扫描堆。</p>
+     *
+     * @param objects         按类聚合的记录行，元素顺序即 {@code Heap.getAllClasses()} 的返回顺序，
+     *                       一个 {@link HprofRecord} 对应一个 {@code JavaClass}，不允许为 {@code null}
+     * @param retainedByClass 类名 → 该类保留大小（单位「字节」），供直方图按类汇总；
+     *                       键即 {@link HprofRecord#className()}，不允许为 {@code null}
+     * @param countByClass    类名 → 该类实例数量（单位「个」），供直方图按类汇总；
+     *                       键即 {@link HprofRecord#className()}，不允许为 {@code null}
+     * @param gcRoots         去重后的 GC 根描述列表，元素格式为 {@code 种类:持有者类名}
+     *                       （{@code GCRoot.getInstance()} 为 {@code null} 时只写种类），
+     *                       顺序为首次出现顺序（内部用 {@code LinkedHashSet} 去重）
+     * @param gcRootsByKind   GC 根种类 → 该种类的根数量（单位「个」），
+     *                       来源 {@code GCRoot.getKind()} 的计数
+     * @param classDetails    类名 → 该类的明细（保留量最大实例的字段值与静态字段），
+     *                       仅包含保留量 &gt; 0 的前 20 个类（见 {@link #DETAIL_CLASS_LIMIT}）；
+     *                       数组类、JDK 内部类等遍历实例会抛异常的类已被跳过，故可能缺项
+     * @param refChains       保留量 Top 类的三层引用链（持有者实例 + 按保留量排序的子引用），
+     *                       最多 10 条（见 {@link HprofRefChainWalker} 的类数上限）；
+     *                       保留量 ≤ 0 或无可用实例的类不会产出链
      */
     public record ParsedContext(List<HprofRecord> objects,
                                 Map<String, Long> retainedByClass,

@@ -14,7 +14,7 @@
     <description>Weka 随机森林模块：分类 / 回归 / 特征重要性场景封装，输入业务数据对象，输出预测与评估结果</description>
 
     <properties>
-        <weka.version>3.8.6</weka.version>
+        <weka.version>3.8.7</weka.version>
     </properties>
 
     <dependencies>

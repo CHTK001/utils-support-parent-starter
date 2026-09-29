@@ -149,7 +149,32 @@ public class HybridRouterStrategy implements RouterStrategy {
     }
 
     /**
-     * 组路由器
+     * 组路由器。
+     *
+     * <p>混合策略的最小配置单元：一个组 = 一组带 {@link #condition} 的候选
+     * {@link #clients} + 一个组内子策略 {@link #strategy}。组内由子策略自行做负载均衡与重试，
+     * 组间则由 {@link HybridRouterStrategy#executeSync(List, String, Consumer)} 按
+     * {@link #groups} 的声明顺序依次故障转移，前一组抛异常才落到下一组。</p>
+     *
+     * <p>可空性：{@code condition} 与 {@code name} 允许为 null（紧凑构造器未校验，
+     * 且 {@code matches} 把 {@code condition == null} 视作「无条件命中」）；
+     * {@code clients} 走 {@link List#copyOf}，为 null 即抛空指针，故恒非 null 且元素非 null；
+     * {@code strategy} 无显式校验，但调用点紧接着就调用其 {@code executeSync} /
+     * {@code executeStream}，因此实际上不允许为 null。</p>
+     *
+     * @param name      组名，仅用于 {@code [Hybrid]} 日志标识本组，不参与路由判定；
+     *                  可为 null，允许与兄弟实现 {@code HybridStrategy.GroupRouter} 一致
+     *                  （非分组配置下由配置解析器硬编码为 {@code "default"}，
+     *                  分组配置下取组配置的 {@code name}，缺项时为 null）
+     * @param condition 组命中条件，入参为本次请求的 prompt 文本；为 null 表示本组无条件命中
+     *                  （见 {@link #matches(String)}）。取值来源是组配置的分组条件，
+     *                  并可能与 token 分组条件取合取
+     * @param strategy  组内子路由策略，由组配置的策略名经 SPI 解析得到
+     *                  （未知策略名回退到 {@code failover}）；命中本组后由它执行实际调用，
+     *                  抛异常时触发向下一组的故障转移，不允许为 null
+     * @param clients   本组的候选客户端（带权重），执行前先经构造器传入的健康过滤器剔除
+     *                  不健康项；恒非 null 且元素非 null。取值为空列表的组会在运行期
+     *                  以「no healthy clients」被跳过
      */
     public record GroupRouter(
             String name,

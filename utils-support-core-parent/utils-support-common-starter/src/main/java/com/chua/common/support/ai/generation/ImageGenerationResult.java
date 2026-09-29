@@ -12,7 +12,6 @@ import java.util.Objects;
  * @param prompt 生成提示词
  * @author CH
  * @since 2026/08/11
- * @return 结果值
  */
 public record ImageGenerationResult(List<GeneratedImage> images, String prompt) {
 

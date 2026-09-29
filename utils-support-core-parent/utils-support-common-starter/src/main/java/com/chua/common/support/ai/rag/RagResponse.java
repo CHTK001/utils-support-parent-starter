@@ -80,7 +80,6 @@ public record RagResponse(
          * @param content    文档片段内容
          * @param score      相似度分数
          * @param metadata   扩展元数据
-         * @return isImage=false 的 Source
          */
         public Source(String documentId, String content, double score, Map<String, Object> metadata) {
             this(documentId, content, score, false, metadata);

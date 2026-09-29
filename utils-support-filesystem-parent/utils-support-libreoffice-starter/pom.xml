@@ -12,31 +12,20 @@
     <artifactId>utils-support-libreoffice-starter</artifactId>
     <name>Utils Support LibreOffice Starter</name>
     <description>基于 LibreOffice 的文档格式转换模块</description>
+    <!--
+        2026-09-28 移除 org.libreoffice 的 UNO 五件套（juh / jurt / ridl / unoil / officebean）。
+        本模块唯一的实现类 LibreOfficeFileConvertSystem 是通过
+        ProcessBuilder 调用 soffice 命令行完成转换的，不走 UNO 远程桥，
+        全仓对 com.sun.star 的引用数为 0，因此这五件套属于纯粹的传递依赖负担：
+        既拖慢下游依赖解析，又要求 juh/jurt/ridl/unoil 四个 jar 严格同版本
+        （UNO 桥版本强耦合，混版会在运行期抛 UnsatisfiedLinkError）。
+        如将来确实要改用 UNO API 直接嵌入，再按整组加回，不要只加其中一两个。
+    -->
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.libreoffice</groupId>
-            <artifactId>juh</artifactId>
-            <version>7.6.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.libreoffice</groupId>
-            <artifactId>jurt</artifactId>
-            <version>7.6.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.libreoffice</groupId>
-            <artifactId>ridl</artifactId>
-            <version>7.6.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.libreoffice</groupId>
-            <artifactId>unoil</artifactId>
-            <version>7.6.3</version>
         </dependency>
     </dependencies>
 </project>

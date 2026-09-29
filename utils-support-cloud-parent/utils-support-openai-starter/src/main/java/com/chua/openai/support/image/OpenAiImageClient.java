@@ -12,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -92,6 +95,16 @@ public class OpenAiImageClient implements ImageClient {
     private String style;
 
     /**
+     * 参考图字节（图生图）。为空表示纯文生图。
+     */
+    private byte[] referenceImage;
+
+    /**
+     * 参考图 MIME 类型，缺省 PNG。
+     */
+    private String referenceImageMime = "image/png";
+
+    /**
      * 构造 打开AI 图片生成客户端。
      *
      * @param setting 客户端配置
@@ -146,14 +159,35 @@ public class OpenAiImageClient implements ImageClient {
     }
     @Override
     /**
-     * 引用镜像
-    */
-    public ImageClient referenceImage(byte[] image) { throw new UnsupportedOperationException("该服务商不支持参考图"); }
+     * 引用镜像：以 {@code image} 数组携带（图生图）。
+     *
+     * <p>OpenAI 兼容渠道（如 Agnes）的图生图在 {@code /images/generations} 的请求体里
+     * 直接带 {@code image: [DataURI]}，不是 multipart，也不需要另起 edit 接口。</p>
+     */
+    public ImageClient referenceImage(byte[] image) {
+        this.referenceImage = image == null ? null : image.clone();
+        this.referenceImageMime = "image/png";
+        return this;
+    }
     @Override
     /**
-     * 引用镜像
-    */
-    public ImageClient referenceImage(BufferedImage image) { throw new UnsupportedOperationException("该服务商不支持参考图"); }
+     * 引用镜像：编码为 PNG 后同上。
+     */
+    public ImageClient referenceImage(BufferedImage image) {
+        if (image == null) {
+            this.referenceImage = null;
+            return this;
+        }
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", out);
+            this.referenceImage = out.toByteArray();
+            this.referenceImageMime = "image/png";
+        } catch (IOException e) {
+            throw new IllegalStateException("参考图编码失败: " + e.getMessage(), e);
+        }
+        return this;
+    }
     @Override
     /**
      * 镜像strength
@@ -164,6 +198,23 @@ public class OpenAiImageClient implements ImageClient {
      * control类型
     */
     public ImageClient controlType(String controlType) { throw new UnsupportedOperationException("该服务商不支持ControlNet"); }
+
+    /**
+     * 参考图请求载荷：Data URI 数组。
+     *
+     * <p>OpenAI 兼容的图生图以 {@code image} 数组携带输入图，元素可为公网 URL 或
+     * Data URI（Agnes 两种都收）。这里统一编码为 Data URI，避免依赖外链可访问性；
+     * 多图合成时按传入顺序排列。</p>
+     *
+     * @return 载荷列表；无参考图时返回空列表
+     */
+    private List<String> referenceImagePayload() {
+        if (referenceImage == null || referenceImage.length == 0) {
+            return List.of();
+        }
+        return List.of("data:" + referenceImageMime + ";base64,"
+                + Base64.getEncoder().encodeToString(referenceImage));
+    }
 
     @Override
     /**
@@ -177,13 +228,17 @@ public class OpenAiImageClient implements ImageClient {
         }
 
  // 构建 打开AI 图片生成请求体
+        List<String> imagePayload = referenceImagePayload();
         String requestBody = JsonObject.create()
                 .fluentPut("model", model != null ? model : "dall-e-3")
                 .fluentPut("prompt", actualPrompt)
                 .fluentPut("n", 1)
                 .fluentPut("size", buildSize())
                 .fluentPut(quality != null && !quality.isBlank(), "quality", quality)
-                .fluentPut(style != null && !style.isBlank(), "style", style)
+                // 刻意不发 style：多数 OpenAI 兼容渠道（如 Agnes）不认该参数，
+                // 会把整个请求判 400「style is not supported」。
+                // 风格语义应由调用方拼进 prompt 描述，而不是当作独立入参。
+                .fluentPut(!imagePayload.isEmpty(), "image", imagePayload)
                 .toJSONString();
         ClientResponse resp = HttpClientFactory.of(normalizeBaseUrl())
                 .path("/images/generations")

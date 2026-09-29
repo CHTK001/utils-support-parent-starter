@@ -294,7 +294,44 @@ public class MemoryRagClient implements RagClient {
      */
     @Override
     public RagDocument uploadDocument(String fileName, byte[] data) {
+        return uploadDocument(fileName, data, null);
+    }
+
+    /**
+     * 上传并索引一个文档，可指定本次使用的分片器。
+     *
+     * <p>{@code splitter} 为 {@code null} 时用全局 {@code setting.getTextSplitter()}。
+     * 传入非空分割器即可让单个知识库用自己的分片大小/重叠，而不去改那个进程级共享实例。</p>
+     *
+     * @param fileName 文件名（带扩展名）
+     * @param data     文件二进制内容
+     * @param splitter 本次使用的分片器，可为 null
+     * @return 文档状态对象（含 docId、状态、错误信息等）
+     */
+    @Override
+    public RagDocument uploadDocument(String fileName, byte[] data, TextSplitter splitter) {
         String docId = UUID.randomUUID().toString().replace(UUID_DASH, EMPTY);
+        return uploadDocumentWithId(docId, fileName, data, splitter);
+    }
+
+    /**
+     * 上传并索引文档，docId 由调用方指定。
+     *
+     * <p>见 {@link RagClient#uploadDocumentWithId}：知识库需要 docId 自身带
+     * {@code <知识库ID>/<相对路径>}，检索结果才能溯源回具体文件。</p>
+     *
+     * @param docId    文档 ID，不能为 null 或空白
+     * @param fileName 文件名（带扩展名）
+     * @param data     文件二进制内容
+     * @param splitter 本次使用的分片器，可为 null
+     * @return 文档状态对象（含 docId、状态、错误信息等）
+     */
+    @Override
+    public RagDocument uploadDocumentWithId(String docId, String fileName, byte[] data, TextSplitter splitter) {
+        if (docId == null || docId.isBlank()) {
+            throw new IllegalArgumentException("docId 不能为空");
+        }
+        TextSplitter splitterToUse = splitter != null ? splitter : textSplitter;
         String fileType = fileName.contains(".")
                 ? fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase()
                 : EMPTY;
@@ -319,7 +356,7 @@ public class MemoryRagClient implements RagClient {
                 documents.add(failed);
                 return failed;
             }
-            List<TextChunk> chunks = textSplitter.split(text);
+            List<TextChunk> chunks = splitterToUse.split(text);
             if (chunks.isEmpty()) {
                 RagDocument failed = doc.withError("分块为空");
                 documents.add(failed);
@@ -456,6 +493,10 @@ public class MemoryRagClient implements RagClient {
      */
     @Override
     public List<RagDocument> listDocuments(int page, int pageSize) {
+        if (page < 1) {
+            // 契约是 1 基页码；越界页码按第 1 页处理，避免 (page-1)*pageSize 为负导致 subList 抛异常
+            page = 1;
+        }
         List<RagDocument> sorted = documents.stream()
                 .sorted((a, b) -> Long.compare(b.createTime(), a.createTime()))
                 .collect(Collectors.toList());

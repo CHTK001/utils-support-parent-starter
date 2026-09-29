@@ -76,7 +76,6 @@ public interface RouterStrategy {
      * @param model    模型
      * @param weight   权重
      * @param client   ChatClient 实例
-     * @return 结果值
      */
     record WeightedClient(String provider, String model, int weight, ChatClient client) {
     }

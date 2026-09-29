@@ -37,7 +37,6 @@ import java.util.Properties;
  *   <li>自动识别 JSON、Properties 格式并解析为键值映射</li>
  *   <li>内置连接健康检测（PING）</li>
  * </ul>
- * </p>
  *
  * @author CH
  * @since 4.0.0.42

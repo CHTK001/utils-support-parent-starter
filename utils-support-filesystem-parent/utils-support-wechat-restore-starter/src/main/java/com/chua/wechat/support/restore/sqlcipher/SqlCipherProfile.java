@@ -26,6 +26,30 @@ import java.util.List;
  * <p><b>微信 4.x</b>使用 SQLCipher 4：AES-256-CBC、HMAC-SHA512、PBKDF2-HMAC-SHA512 256000 次、
  * 页大小 4096、每页保留 80 字节（IV 16 + HMAC 64）。</p>
  *
+ * <p>紧凑构造器只校验数值组件的自洽性（见下），两个算法名字符串不做非空校验，
+ * 实际取值由 {@link #candidates()} 的内置档案给定。</p>
+ *
+ * @param name 档案名称，仅用于探测日志与错误信息区分，不参与任何解密计算。
+ *             内置档案取值为 {@code wechat-4}（微信 4.x 实测口径）与
+ *             {@code sqlcipher-4}（同族 SQLCipher 4 的 1024 页变体）
+ * @param pageSize 加密页字节数，对应 {@code PRAGMA page_size}，单位「字节/页」，
+ *                 决定每页布局 {@code [密文 pageSize - 16 - hmacSize][IV 16B][HMAC hmacSize B]}。
+ *                 合法区间为 512 ~ 65536，且须使密文长度与首页密文长度都为
+ *                 {@link #AES_BLOCK_SIZE} 字节（16 字节）的整数倍且大于 0；微信 4.x 为 4096
+ * @param kdfAlgorithm 主密钥派生算法的 JCA 名称，对应 {@code PRAGMA kdf_algorithm}，
+ *                     语义上与 {@link #hmacAlgorithm} 保持一致（PBKDF2 系列的底层摘要相同）。
+ *                     取值 {@code PBKDF2WithHmacSHA512}。注意：本 record 的
+ *                     {@code SqlCipherDecryptor} 当前不读取该组件，密钥由微信自身口令路径给出，
+ *                     该字段仅作档案自描述与将来接入 {@code PRAGMA} 时的预留
+ * @param kdfIterations 主密钥 PBKDF2 迭代次数，对应 {@code PRAGMA kdf_iter}，单位「次」，
+ *                      取值来源为实测口径 256000，SQLCipher 4 规范值，不做范围校验。
+ *                      同样地，当前 {@code SqlCipherDecryptor} 未读取该组件
+ * @param hmacAlgorithm 页面 HMAC 的 JCA 算法名，传入 {@code Mac#getInstance}，
+ *                      同时作为派生 HMAC 密钥时 PBKDF2 的 PBE 算法名使用。
+ *                      取值 {@code HmacSHA512}（输出 512 位，即 {@link #hmacSize} 64 字节）
+ * @param hmacSize 每页尾部 HMAC 校验和字节数，单位「字节/页」，与 {@link #IV_SIZE} 共同构成
+ *                 每页保留区 {@link #reserveSize()}。合法区间为 0 ~ 64；0 表示不启用
+ *                 页面校验（{@link #hmacEnabled()} 返回 {@code false}）。微信 4.x 为 64
  * @author CH
  * @since 4.0.0.42
  */

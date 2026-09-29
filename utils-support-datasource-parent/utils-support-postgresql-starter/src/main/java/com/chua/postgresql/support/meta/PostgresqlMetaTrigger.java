@@ -387,6 +387,36 @@ public class PostgresqlMetaTrigger extends AbstractMetaTrigger {
     /**
      * {@code pg_trigger} 单行原始值。
      *
+     * <p>查询路径为 {@code pg_trigger} JOIN {@code pg_class} JOIN {@code pg_namespace} JOIN {@code pg_proc}，
+     * 已用 {@code NOT tgisinternal} 排除外键约束等内置触发器。每行代表「一个触发器 × 一个事件」，
+     * 同一触发器的多事件会在 {@link #key()} 归并键（{@code 模式.表名.触发器名}）下由
+     * {@link #group(List)} 合并为一条 {@link TriggerDef}。本 record 只承载原始值，
+     * 不做位掩码解码，解码逻辑在 {@link #timingOf(int)}、{@link #eventOf(int)}、
+     * {@link #statusOf(String)} 中。</p>
+     *
+     * <p>可空性：{@code catalog} 与 {@code enabled} 经 {@code trimToNull} 归一（空白归 null），
+     * {@code schema} / {@code name} / {@code tableName} / {@code body} 直接取 {@code ResultSet} 原值，
+     * 不做归一；本 record 未定义紧凑构造器，7 个组件均不做防御性处理。</p>
+     *
+     * @param catalog   触发器所在数据库名，取自 {@code current_database()}，已做去首尾空白归一；
+     *                  有效连接下恒为当前连接的库名，仅作展示与 {@link TriggerDef} 回填用
+     * @param schema    触发器所属模式名，取自 {@code pg_namespace.nspname}，直接取原值不做归一；
+     *                  非空，{@link #key()} 依赖它
+     * @param name      触发器名，取自 {@code pg_trigger.tgname}，直接取原值不做归一；
+     *                  在同一模式 + 表内唯一，是 {@link #key()} 归并键的末段
+     * @param tableName 触发器所属表名，取自 {@code pg_class.relname}，直接取原值不做归一；
+     *                  非空。{@code onTable(String)} 上下文缺失时也用它做归属判定
+     * @param type      {@code pg_trigger.tgtype} 位掩码（int），由 Java 侧逐位解码为时机、事件与逐行标记：
+     *                  {@code 0x01} ROW、{@code 0x02} BEFORE、{@code 0x04} INSERT、{@code 0x08} DELETE、
+     *                  {@code 0x10} UPDATE、{@code 0x20} TRUNCATE、{@code 0x40} AFTER、{@code 0x80} INSTEAD。
+     *                  原始类型不允许为 null；多个事件位可同时置位
+     * @param enabled   {@code pg_trigger.tgenabled} 单字符启用标志，已做去首尾空白归一：
+     *                  {@code D} 表示禁用，{@code O}（普通启用）/{@code R}（replica）/{@code B}（always）都会触发。
+     *                  原始类型可能为 null（列缺失或为空），由 {@link #statusOf(String)} 归一为
+     *                  {@code ENABLED} / {@code DISABLED} / {@code null}
+     * @param body      触发器函数体，取自 {@code pg_proc.prosrc}（plpgsql 源码原文），直接取原值不做归一；
+     *                  为空或非 {@code trigger} 返回类型时只影响回填到 {@link TriggerDef#getBody()} 的内容，
+     *                  不阻断查询
      * @author CH
      * @since 4.0.0
      */

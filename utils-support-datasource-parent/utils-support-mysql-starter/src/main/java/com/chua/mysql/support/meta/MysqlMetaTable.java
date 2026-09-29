@@ -371,6 +371,19 @@ public class MysqlMetaTable extends AbstractMetaTable {
     /**
      * {@code STATISTICS} 单行原始值。
      *
+     * <p>{@code INFORMATION_SCHEMA.STATISTICS} 每个索引的每个索引列占一行，
+     * 因此一条复合索引会被读成多行，再由 {@link #readIndexes(String, String, String)}
+     * 按 {@code indexName} 归并为一条 {@code IndexMetadata}。本记录只做
+     * 「原样落袋 + 去空白」，语义判定全部留给归并处。</p>
+     *
+     * @param tableName    所属表名，取自 {@code STATISTICS.TABLE_NAME}；查询已按 {@code TABLE_SCHEMA + TABLE_NAME} 过滤，非空
+     * @param indexName    索引名，取自 {@code STATISTICS.INDEX_NAME}；主键为常量 {@code PRIMARY}（InnoDB 下即聚簇索引）
+     * @param seqInIndex   该列在索引内的序号，取自 {@code STATISTICS.SEQ_IN_INDEX}，自 1 起按列在索引定义中的先后递增；列为 {@code NULL} 时为 null
+     * @param columnName   索引列名，取自 {@code STATISTICS.COLUMN_NAME}；函数索引等表达式索引部件在 MySQL 8 上可为 null
+     * @param nonUnique    非唯一标志，取自 {@code STATISTICS.NON_UNIQUE} 非 0 即为 {@code true}；主键与唯一索引为 {@code false}，原始值非空
+     * @param indexType    索引实现类型，取自 {@code STATISTICS.INDEX_TYPE}（如 {@code BTREE} / {@code HASH} / {@code FULLTEXT} / {@code SPATIAL}）；去首尾空白后为空则归一为 null
+     * @param indexComment 索引注释，取自 {@code STATISTICS.INDEX_COMMENT}；空注释去首尾空白后归一为 null
+     * @param collation    排序方向原始值，取自 {@code STATISTICS.COLLATION}：{@code A} 升序、{@code D} 降序、{@code NULL} 不适用；由 {@link #resolveSortDirection(String)} 翻译为 ASC/DESC
      * @author CH
      * @since 4.0.0
      */

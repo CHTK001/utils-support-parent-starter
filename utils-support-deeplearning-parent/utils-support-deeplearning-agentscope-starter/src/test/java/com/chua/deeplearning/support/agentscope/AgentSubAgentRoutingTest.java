@@ -110,6 +110,18 @@ class AgentSubAgentRoutingTest {
             return calls.size();
         }
 
+        /**
+         * 一次 {@link ChatClient#chatSync(String)} 调用的入参留痕。
+         *
+         * <p>由 {@code chatSync} 与 {@code chat} 在每次调用时追加，用于
+         * {@code lastInput()} 断言路由命中了预期客户端。本 record 无紧凑构造器，
+         * 直接持有原始字符串，不做任何拷贝或归一。</p>
+         *
+         * @param prompt 传给客户端的完整提示词原文，由 Agent 侧拼装（可能含系统提示词
+         *               与路由表），不截断也不脱敏；允许为 {@code null}——
+         *               {@code testNullInput_noCrash} 就用 {@code null} 提示词验证容错，
+         *               此时响应前缀仍为 {@code [TRACE:label] null}
+         */
         public record CallRecord(String prompt) {}
     }
 

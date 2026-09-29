@@ -36,19 +36,19 @@ public class OpenMeteoWeatherFieldTest {
             summary();
             return;
         }
-        System.out.println("      city=" + info.getCity() + " temp=" + info.getTempC()
-                + " feelsLike=" + info.getFeelsLikeC() + " cloud=" + info.getCloudcover()
-                + " pressure=" + info.getPressure() + " obs=" + info.getObservationTime()
-                + " desc=" + info.getWeatherDesc());
+        System.out.println("      city=" + info.city() + " temp=" + info.tempC()
+                + " feelsLike=" + info.feelsLikeC() + " cloud=" + info.cloudcover()
+                + " pressure=" + info.pressure() + " obs=" + info.observationTime()
+                + " desc=" + info.weatherDesc());
 
-        check("实时体感温度 feelsLikeC（修复前恒为 null）", info.getFeelsLikeC() != null);
-        check("实时云量 cloudcover（修复前恒为 null）", info.getCloudcover() != null);
-        check("实时气压 pressure（修复前恒为 null）", info.getPressure() != null);
-        check("实时观测时间 observationTime（修复前恒为 null）", notBlank(info.getObservationTime()));
-        check("实时基础字段未回归", info.getTempC() != null && info.getHumidity() != null
-                && info.getWindSpeedKmph() != null && notBlank(info.getWeatherDesc()));
+        check("实时体感温度 feelsLikeC（修复前恒为 null）", info.feelsLikeC() != null);
+        check("实时云量 cloudcover（修复前恒为 null）", info.cloudcover() != null);
+        check("实时气压 pressure（修复前恒为 null）", info.pressure() != null);
+        check("实时观测时间 observationTime（修复前恒为 null）", notBlank(info.observationTime()));
+        check("实时基础字段未回归", info.tempC() != null && info.humidity() != null
+                && info.windSpeedKmph() != null && notBlank(info.weatherDesc()));
 
-        List<DailyForecast> forecast = info.getForecast();
+        List<DailyForecast> forecast = info.forecast();
         check("三日预报非空", forecast != null && forecast.size() == 3);
         if (forecast == null || forecast.isEmpty()) {
             summary();
@@ -61,7 +61,7 @@ public class OpenMeteoWeatherFieldTest {
                     + " hourly=" + (day.getHourly() == null ? 0 : day.getHourly().size()));
         }
         check("每日均温 avgTempC（修复前恒为 null）", forecast.stream().allMatch(d -> d.getAvgTempC() != null));
-        check("每日紫外线 uvIndex（修复前恒为 null）", forecast.stream().allMatch(d -> notBlank(d.getUvIndex())));
+        check("每日紫外线 uvIndex（修复前恒为 null）", forecast.stream().allMatch(d -> d.getUvIndex() != null));
         check("每日日照 sunHour（修复前恒为 null）", forecast.stream().allMatch(d -> notBlank(d.getSunHour())));
         check("均温落在最低/最高之间", forecast.stream().allMatch(d ->
                 d.getMinTempC() != null && d.getMaxTempC() != null
@@ -75,7 +75,7 @@ public class OpenMeteoWeatherFieldTest {
                 && hourly.stream().allMatch(h -> h.getFeelsLikeC() != null));
         check("逐小时基础字段未回归", hourly != null && hourly.stream().allMatch(h ->
                 h.getTempC() != null && h.getHumidity() != null && h.getWindSpeedKmph() != null));
-        check("当天逐小时已挂到 WeatherInfo.hourly", info.getHourly() != null && !info.getHourly().isEmpty());
+        check("当天逐小时已挂到 WeatherInfo.hourly", info.hourly() != null && !info.hourly().isEmpty());
 
         summary();
     }

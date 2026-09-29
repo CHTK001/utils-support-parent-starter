@@ -119,6 +119,15 @@ public class VideoClientSetting {
     private byte[] referenceImage;
 
     /**
+     * 参考图的公网可访问地址
+     *
+     * <p>部分协议（如 Agnes）只接受公网 URL 形态的参考图，此时由调用方先把字节
+     * 落盘到文件存储服务、再取限时访问链接填到这里。与 {@link #referenceImage}
+     * 二选一，优先使用本字段。</p>
+     */
+    private String referenceImageUrl;
+
+    /**
      * 参考图影响强度
      *
      * <p>控制参考图对生成结果的影响程度，取值范围 0.0 ~ 1.0。

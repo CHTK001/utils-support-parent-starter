@@ -4,10 +4,8 @@ import java.util.List;
 
 /**
  * GraphRAG 上下文提供者接口（可选）。
- * <p>
  * 在 RAG 查询时注入知识图谱上下文到 prompt 中，
  * 将检索到的文档片段与知识图谱关系结合，增强 LLM 的回答质量。
- * </p>
  *
  * @author CH
  * @since 4.0.0.42

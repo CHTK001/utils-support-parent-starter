@@ -222,7 +222,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
      * 设置是否启用深度思考模式
      *
      * <p>启用后模型会输出推理过程（思维链），
-     * {@link ChatResponse#getReasoningContent()} 可获得思考内容。
+     * {@link ChatResponse#reasoningContent} 可获得思考内容（读取方法由 Lombok 生成）。
      * 仅支持思考模式的模型有效，其他模型忽略此参数。
      *
      * @param thinking true 启用深度思考
@@ -283,7 +283,8 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
      * 设置技能管理器
      *
      * <p>将注册的技能说明注入系统提示词，使模型感知可用技能。
-     * 技能通过 {@link SkillPrompt#inject(String, SkillManager)} 拼入 system prompt，
+     * 技能通过 {@link com.chua.common.support.ai.skill.SkillPrompt#inject}
+     * 拼入 system prompt，
      * 不依赖 function calling 能力，适用于不支持工具调用的模型。
      *
      * <p>使用示例：
@@ -451,8 +452,8 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
      *
      * <p>决定 API Key 以哪个 HTTP 头发出。取值：{@code api_key} / {@code bearer}
      * / {@code oauth} / {@code none}；{@code none} 表示不发送认证头。
-     * 头名称与值前缀的差异由 {@link ChatClientSetting#getAuthHeader()} 与
-     * {@link ChatClientSetting#getAuthPrefix()} 承载，例如 Dots Studio 只认
+     * 头名称与值前缀的差异由 {@link ChatClientSetting#authHeader} 与
+     * {@link ChatClientSetting#authPrefix} 承载（读取方法由 Lombok 生成），例如 Dots Studio 只认
      * {@code api-key} 头而非标准的 {@code Authorization: Bearer}。</p>
      *
      * @param authScheme 认证方案
@@ -709,8 +710,8 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
      *
      * <p>基于多维度交叉验证策略，探测 OpenAI 兼容 API 中转站背后真实使用的模型。
      * 返回包含各维度探测结果、综合置信度和最终判词的 {@link ProbeReport}。
-     * 默认抛出 {@link UnsupportedOperationException}，支持探测的实现类（如 {@link OpenAiChatClient}）
-     * 应覆写此方法以提供真实探测能力。
+     * 默认抛出 {@link UnsupportedOperationException}，支持探测的实现类
+     * （如 {@link MemoryChatClient}）应覆写此方法以提供真实探测能力。
      *
      * @return 真伪探测综合报告
      * @throws UnsupportedOperationException 当前实现不支持探测功能

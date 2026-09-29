@@ -82,6 +82,51 @@ public final class HprofDiffer {
     /**
      * 两份转储的对比结果。
      *
+     * <p>由 {@link HprofDiffer#compare} 一次产出，包含两类视角：两个按类增长排行
+     * （{@link #byRetainedDelta} 按保留字节增量、{@link #byInstanceDelta} 按实例数增量
+     * 降序），以及两份转储各自的总体量（{@link #beforeRetainedTotal} /
+     * {@link #afterRetainedTotal} 与 {@link #beforeObjectCount} /
+     * {@link #afterObjectCount}），便于先看整体涨跌、再下钻到具体类。</p>
+     *
+     * <p>可空性：两个排行列表在紧凑构造器里已 {@code requireNonNull} 并用
+     * {@link List#copyOf(List)} 快照，访问器<b>保证非 null</b>，且元素不允许为
+     * {@code null}。四个 {@code long} 分量均为原始类型，不存在空值语义。
+     * 两个排行覆盖的是两份直方图<b>类名并集</b>的每一个类，因此两侧列表元素个数相同、
+     * 仅排序不同；负增量（类被正常回收）同样保留在列表中，不做过滤。</p>
+     *
+     * @param byRetainedDelta 按 保留字节增量 降序排列的类增长明细，取值范围为两份转储
+     *                        直方图的类名并集，每个类各一条 {@link ClassGrowth}。
+     *                        排序键为 {@code afterRetained - beforeRetained}（单位字节），
+     *                        增量为负的类排在后面。取自 {@code compare} 中按
+     *                        {@code ClassGrowth#retainedDelta()} 降序排序的副本，
+     *                        已做不可变快照，不允许为 {@code null}；
+     *                        {@link #topGrowths(int)} 即取本列表的前若干项
+     * @param byInstanceDelta 按 实例数增量 降序排列的类增长明细，类名并集与
+     *                        {@link #byRetainedDelta} 完全相同，元素也是同一批
+     *                        {@link ClassGrowth} 对象，区别仅在排序键为
+     *                        {@code afterCount - beforeCount}（单位「个实例」）。
+     *                        排在首位者即实例数膨胀最严重的类。
+     *                        已做不可变快照，不允许为 {@code null}
+     * @param beforeRetainedTotal 前一份（较早）转储的 全堆保留字节总量，单位字节，
+     *                             取自 {@code before.totalRetainedBytes()}，即解析时
+     *                             对各类的 {@code retainedSize} 求和得到的近似值
+     *                             （按类累加，非按对象去重的精确 retained size）。
+     *                             原始 {@code long}，非负，无数据时为 0；
+     *                             与 {@link #afterRetainedTotal} 相减即得全堆增长量，
+     *                             可用来判断单类排行是否足以解释整体增长
+     * @param afterRetainedTotal 后一份（较晚）转储的 全堆保留字节总量，单位字节，
+     *                            取自 {@code after.totalRetainedBytes()}，口径与
+     *                            {@link #beforeRetainedTotal} 相同，两者必须来自同一套
+     *                            解析实现才可比较。原始 {@code long}，非负
+     * @param beforeObjectCount 前一份（较早）转储的 堆内对象实例总数，单位「个」，
+     *                          取自 {@code before.totalObjectCount()}，即解析时对各类的
+     *                          {@code instanceCount} 求和。原始 {@code long}，非负，
+     *                          无数据时为 0
+     * @param afterObjectCount 后一份（较晚）转储的 堆内对象实例总数，单位「个」，
+     *                         取自 {@code after.totalObjectCount()}，口径与
+     *                         {@link #beforeObjectCount} 相同。原始 {@code long}，非负。
+     *                         与 {@link #beforeObjectCount} 相减可交叉验证实例增长
+     *                         究竟由大对象数组还是小对象海量堆积造成
      * @author CH
      * @since 4.0.0.42
      */

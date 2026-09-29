@@ -77,7 +77,7 @@
         <dependency>
             <groupId>com.alipay.sdk</groupId>
             <artifactId>alipay-sdk-java</artifactId>
-            <version>4.40.669.ALL</version>
+            <version>4.40.1026.ALL</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

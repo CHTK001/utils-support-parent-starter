@@ -5,10 +5,8 @@ import java.util.List;
 
 /**
  * 文本分割器接口。
- * <p>
  * 将长文本按不同策略分割成多个文本块（TextChunk），
  * 用于 RAG、LLM 上下文窗口等场景。
- * </p>
  *
  * @author CH
  * @since 4.0.0.42

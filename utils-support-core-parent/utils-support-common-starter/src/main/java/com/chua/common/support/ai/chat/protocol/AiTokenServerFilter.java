@@ -14,11 +14,9 @@ import lombok.extern.slf4j.Slf4j;
  * <p>从 {@code Authorization: Bearer xxx} 头中提取 token，
  * 通过 {@link AiTokenProvider} 校验其有效性。
  * 校验通过后将 token 分组设置到请求属性，供下游 {@link AiProtocolServerFilter} 做模型分组路由。
- * </p>
  *
  * <p>token 数据来源：由 {@link AiTokenProvider} 提供。
  * 通常从 {@link com.chua.common.support.ai.chat.aggregate.AggregateChatClient#getTokenProvider()} 获取。
- * </p>
  *
  * @author CH
  * @since 4.0.0.42

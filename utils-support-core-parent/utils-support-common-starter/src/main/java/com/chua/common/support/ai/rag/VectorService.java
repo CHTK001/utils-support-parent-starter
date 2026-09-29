@@ -4,10 +4,8 @@ import com.chua.common.support.ai.embedding.EmbeddingClient;
 
 /**
  * 向量服务接口，提供文本向量化能力。
- * <p>
  * 可通过 {@link #from(EmbeddingClient)} 从 {@link EmbeddingClient} 适配，
  * 也可以直接实现自定义的向量化逻辑。
- * </p>
  *
  * @author CH
  * @since 4.0.0.42

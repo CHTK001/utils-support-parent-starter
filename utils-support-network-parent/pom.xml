@@ -48,11 +48,10 @@
     </modules>
     <properties>
         <jeromq.version>0.6.0</jeromq.version>
-        <sshd.version>2.13.2</sshd.version>
         <!-- MINA SSHD 2.13 的可选依赖：缺失时 ssh-ed25519 私钥静默加载不到任何密钥对 -->
         <eddsa.version>0.3.0</eddsa.version>
-        <commons.net.version>3.11.1</commons.net.version>
-        <sinch.version>2.0.0</sinch.version>
+        <commons.net.version>3.13.0</commons.net.version>
+        <sinch.version>2.2.0</sinch.version>
         <smb.server.version>0.4.0</smb.server.version>
         <smb.jna.version>0.14.0</smb.jna.version>
         <ngrok.version>1.1.1</ngrok.version>

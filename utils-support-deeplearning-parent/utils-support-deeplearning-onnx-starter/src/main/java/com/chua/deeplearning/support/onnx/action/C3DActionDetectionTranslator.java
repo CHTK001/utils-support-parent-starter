@@ -18,38 +18,28 @@ import java.nio.LongBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * C3D 视频动作检测 ONNX 翻译器。
  *
  * <p>基于 C3D 卷积神经网络，对输入视频帧序列执行动作分类检测。
  *
- * @author CH
- * @since 4.0.0.42
- */
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-/**
- * c3d动作detectiontranslator类。
+ * <p><b>处理流程</b>：解码视频 → 采样固定长度帧序列（{@code INPUT_FRAMES} 帧）→
+ * 缩放为模型输入分辨率 → 构造 NCHW 浮点张量 → ONNX Runtime 推理 →
+ * 解码检测框与类别分数 → 两级 NMS 去重 → 映射为 {@link ActionDetectionResult}。
+ *
+ * <p><b>三方依赖</b>：模型推理用 ONNX Runtime（{@code ai.onnxruntime}），
+ * 视频解码与图像缩放用 OpenCV（{@code org.opencv}）；模型文件
+ * {@code vision/action/c3d/model.onnx} 由 {@code utils-support-resource-parent} 提供。
  *
  * @author CH
- * @since 4.0.0
- * @param x1 x1
- * @param y1 y1
- * @param x2 x2
- * @param y2 y2
- * @param score score
- * @param classId 类标识
- * @return Detection的结果
- * @param predBboxes predbboxes
- * @param predScores predscores
- * @param timestamp 时间戳
- * @param frames 帧
- * @param videoData 视频数据
+ * @since 4.0.0.42
+ * @see <a href="https://onnxruntime.ai/docs/get-started/with-java.html">ONNX Runtime for Java</a>
  */
-
 @Slf4j
 public class C3DActionDetectionTranslator implements ITranslator<byte[], List<ActionDetectionResult>> {
 
@@ -428,5 +418,29 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
         return union <= 0 ? 0 : inter / union;
     }
 
+    /**
+     * 后处理阶段的单个候选检测框。
+     *
+     * <p>唯一构造点在 {@link #postprocess(float[][], float[][], float)}：
+     * 从模型输出张量 {@code pred_bboxes} 的第 0~3 个分量与 {@code pred_scores}
+     * 的当前类别分量直接取值，<b>不做归一化、也不按视频原始分辨率反缩放</b>，
+     * 因此坐标沿用模型输出自身的尺度。该实例只用于
+     * 「按分数排序 → {@link #nms} 去重 → 转换成
+     * {@link ActionDetectionResult}」这条流水线，不对外暴露。</p>
+     *
+     * @param x1      检测框左上角 x 坐标，取自 {@code pred_bboxes[i][0]}；
+     *                坐标尺度沿用模型输出，未归一化到 0~1，也未反缩放到视频原始分辨率
+     * @param y1      检测框左上角 y 坐标，取自 {@code pred_bboxes[i][1]}；尺度同上
+     * @param x2      检测框右下角 x 坐标，取自 {@code pred_bboxes[i][2]}；
+     *                {@link #computeIou(Detection, Detection)} 按 {@code x2 - x1} 求宽，
+     *                故约定 {@code x2 >= x1}
+     * @param y2      检测框右下角 y 坐标，取自 {@code pred_bboxes[i][3]}；约定 {@code y2 >= y1}
+     * @param score   该候选属于本类动作的置信度，取自 {@code pred_scores[i][c]}，
+     *                取值 0~1；构造前已与本类别阈值 {@code PRE_NMS_THRESH[c]}（0.45）比较，
+     *                低于阈值的候选不会生成实例，故实际值 ≥ 0.45
+     * @param classId 动作类别下标，即 {@code pred_scores} 的列下标 {@code c}，
+     *                取值范围 0 ~ {@code NUM_CLASSES - 1}（当前 0~8）；
+     *                用于索引 {@code ACTION_NAMES} 得到动作名，不是数据库主键
+     */
     private record Detection(float x1, float y1, float x2, float y2, float score, int classId) {}
 }

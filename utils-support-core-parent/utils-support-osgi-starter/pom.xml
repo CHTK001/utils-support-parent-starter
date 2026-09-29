@@ -22,7 +22,6 @@
         <felix.gogo.runtime.version>1.1.6</felix.gogo.runtime.version>
         <felix.gogo.shell.version>1.1.4</felix.gogo.shell.version>
         <felix.gogo.command.version>1.1.2</felix.gogo.command.version>
-        <sshd.version>2.13.2</sshd.version>
     </properties>
     <dependencies>
         <dependency>

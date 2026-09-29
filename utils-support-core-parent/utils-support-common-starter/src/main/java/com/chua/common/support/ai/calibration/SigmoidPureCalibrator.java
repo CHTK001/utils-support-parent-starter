@@ -8,21 +8,16 @@ import lombok.Setter;
 
 /**
  * Sigmoid 纯校准器
- * <p>
  * 【用途】 将原始分数通过Sigmoid函数映射到0~100分，在阈值附近产生陡峭过渡，
  * 有效拉开相似和不相似的分数。
- * <p>
  * 【公式】 score' = 100 / (1 + e^{-k * (raw - t)})
- * <p>
  * 【参数】
  * k – 陡度，越大过渡越陡（建议10~30）
  * t – 阈值，决定分界线位置（建议0.7~0.85）
- * <p>
  * 【场景】
  * - 快速原型验证
  * - 正负样本分布接近逻辑分布时
  * - 只需简单可调的S形曲线
- * <p>
  * 【示例】
  * PureCalibrator cal = SigmoidPureCalibrator.builder().k(20).t(0.78).build();
  * double score = cal.calibrate(0.85); // 约90.59

@@ -258,6 +258,21 @@ public class PostgresqlMetaProcedure extends AbstractMetaProcedure {
     /**
      * {@code pg_proc} 单行原始值。
      *
+     * <p>全部组件均为 {@link ResultSet} 读回的可空字符串，构造时不做任何校验，
+     * 因此每个组件都可能为 {@code null}；调用方 {@link RoutineRow#key()} 假定
+     * {@code routineSchema} / {@code routineType} / {@code routineName} 非空
+     * （它们在 {@code pg_proc} 上均为非空列）。</p>
+     *
+     * @param routineCatalog 数据库名，取 {@code current_database()}，去首尾空白后仍为空则记为 {@code null}
+     * @param routineSchema  所属模式名，取 {@code pg_namespace.nspname}，参与 {@link RoutineRow#key()} 归并键
+     * @param routineName    过程/函数名，取 {@code pg_proc.proname}，参与 {@link RoutineRow#key()} 归并键
+     * @param routineType    过程类别，取值仅 {@code PROCEDURE} 或 {@code FUNCTION}，由 {@code pg_proc.prokind} 派生
+     * @param language       实现语言名，取 {@code pg_language.lanname}（如 {@code plpgsql}、{@code sql}），去首尾空白
+     * @param returnType     返回类型名，取 {@code format_type(prorettype)}，集合返回带 {@code []} 后缀；
+     *                       仅函数且返回类型非 {@code void} 时保留，过程与 {@code void} 函数恒为 {@code null}
+     * @param body           定义体源码，取 {@code pg_proc.prosrc}，不裁剪（过程体内空白有语义）
+     * @param comment        注释文本，取 {@code obj_description(p.oid, 'pg_proc')}，未写 {@code COMMENT ON} 时为 {@code null}
+     * @param securityType   安全类型，取值仅 {@code DEFINER} 或 {@code INVOKER}，由 {@code pg_proc.prosecdef} 派生
      * @author CH
      * @since 4.0.0
      */
@@ -317,6 +332,22 @@ public class PostgresqlMetaProcedure extends AbstractMetaProcedure {
     /**
      * {@code pg_proc} 参数展开后的单行原始值。
      *
+     * <p>由 {@code unnest(... ) WITH ORDINALITY} 逐参数展开得到，{@code specificSchema} /
+     * {@code specificName} / {@code routineType} 与 {@link RoutineRow} 同名列一致，
+     * 三个字段共同构成与过程行的归并键。只有 {@code ordinalPosition} 是 {@link Integer}
+     * 且允许 {@code null}（列值为 SQL {@code NULL} 时 {@link ParamRow#read} 会回填 {@code null}）。</p>
+     *
+     * @param specificSchema 所属模式名，取 {@code pg_namespace.nspname}，参与参数归并键
+     * @param specificName   所属过程/函数名，取 {@code pg_proc.proname}，参与参数归并键
+     * @param routineType    所属过程类别，取值仅 {@code PROCEDURE} 或 {@code FUNCTION}，参与参数归并键
+     * @param ordinalPosition 参数序号，取 {@code WITH ORDINALITY} 生成的下标并转为 {@code int}，
+     *                       从 1 开始按 {@code proallargtypes}/{@code proargtypes} 的声明顺序递增，无单位
+     * @param mode           参数方向，取值 {@code IN} / {@code OUT} / {@code INOUT} / {@code VARIADIC} / {@code TABLE}；
+     *                      {@code proargmodes} 整体为空时该列回退为 {@code IN}
+     * @param parameterName  参数名，取 {@code pg_proc.proargnames} 对应下标值；
+     *                      声明时未命名则 SQL 侧 {@code COALESCE} 为空串，读回后去空白归一为 {@code null}
+     * @param dtd            类型描述符，取 {@code format_type(t.typ, NULL)}，即 PostgreSQL 渲染的类型全名
+     *                      （如 {@code character varying(32)}、{@code integer[]}），是类型名文本而非可执行表达式
      * @author CH
      * @since 4.0.0
      */

@@ -41,12 +41,28 @@ public class GooseConversationParser implements ConversationParser {
 
     private static final Logger log = LoggerFactory.getLogger(GooseConversationParser.class); // 日志
 
-    private static final Path DB_PATH = Path.of(System.getenv("APPDATA"),
-            "Block", "goose", "data", "sessions", "sessions.db");
-
     private static final String SQL_MESSAGES =
             "SELECT message_id, session_id, role, content_json, created_timestamp "
                     + "FROM messages ORDER BY created_timestamp ASC";
+
+    /**
+     * 解析 Goose 会话库路径。
+     *
+     * <p>{@code APPDATA} 是 Windows 环境变量，Linux/macOS 上为 {@code null}，
+     * 而 {@code Path.of} 首个实参为 null 会抛 {@link NullPointerException}。
+     * 写成静态字段初始化时，失败抛出的是 {@link ExceptionInInitializerError}（Error 而非
+     * Exception），调用方的 {@code catch (Exception)} 抓不住，会穿透成接口 500，
+     * 且该类此后永久不可用。详见 {@code GooseUsageParser#resolveDbPath}。</p>
+     *
+     * @return Goose 会话库路径；环境变量缺失（本机非 Windows）时返回 null
+     */
+    private static Path resolveDbPath() {
+        String appData = System.getenv("APPDATA");
+        if (appData == null || appData.isBlank()) {
+            return null;
+        }
+        return Path.of(appData, "Block", "goose", "data", "sessions", "sessions.db");
+    }
 
     /**
      * 返回 SPI 名称。
@@ -70,12 +86,13 @@ public class GooseConversationParser implements ConversationParser {
       */
     @Override
     public Flux<ConversationMessage> streamMessages() {
-        if (!Files.exists(DB_PATH)) {
-            log.debug("[goose] database not found: {}", DB_PATH);
+        Path dbPath = resolveDbPath();
+        if (dbPath == null || !Files.exists(dbPath)) {
+            log.debug("[goose] database not found (Goose 未安装于本平台或路径不存在)");
             return Flux.empty();
         }
         return Flux.<ConversationMessage>create(sink -> {
-            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH);
+            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
                  PreparedStatement stmt = conn.prepareStatement(SQL_MESSAGES);
                  ResultSet rs = stmt.executeQuery()) {
                 while (rs.next() && !sink.isCancelled()) {

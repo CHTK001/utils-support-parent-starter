@@ -10,10 +10,8 @@ import java.util.List;
 
 /**
  * 统一上下文压缩入口 — Agent / 普通 ChatClient 共用。
- * <p>
  * 算法委托 {@link AgentContextCompressionService}（两阶段：阈值压缩 + 偏差纠正）。
  * 不创建计划、不调用工具，只处理 {@code List<ChatMessage>}。
- * </p>
  *
  * <pre>{@code
  * // 轻量
@@ -159,11 +157,9 @@ public final class ContextCompressor {
 
     /**
      * 将单个 user prompt 包装为单条消息后按 maybeCompress 策略压缩。
-     * <p>
      * 仅用于无状态的轻量 ChatClient（如 AggregateChatClient）：
      * 将 prompt 视为 {@code List<ChatMessage>} 的 user 消息，
      * 返回压缩后的内容（若未触发压缩则原样返回）。
-     * </p>
      * @param prompt 提示词，不允许为 null
      * @return 结果字符串
      */

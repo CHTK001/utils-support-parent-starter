@@ -28,7 +28,6 @@
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-commons</artifactId>
-            <version>9.9.1</version>
         </dependency>
 
         <!-- 可选：SpringBoot 支持（自动装配 + 加密配置文件装载），普通 Java/FatJar 运行时不引入也可用 -->

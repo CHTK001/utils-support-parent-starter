@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-rpc-all</artifactId>
-            <version>5.13.5</version>
+            <version>5.14.3</version>
         </dependency>
         <!-- sofa-rpc-all 内嵌 msgpack codec（sofa-rpc-codec-msgpack）在 SerializerFactory 启动时
              即需旧版 org.msgpack.MessagePack API，缺此依赖抛 NoClassDefFoundError -->
@@ -36,7 +36,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.36</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>

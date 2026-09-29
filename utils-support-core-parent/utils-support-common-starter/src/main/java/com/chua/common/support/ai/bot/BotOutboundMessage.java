@@ -9,9 +9,7 @@ import lombok.Singular;
 
 /**
  * Bot 出站消息
- * <p>
  * 封装要发送给 Bot 平台的消息，支持按类型构建文本、图片、语音等。
- * </p>
  * <pre>{@code
  * // 快捷构造文本消息
  * BotOutboundMessage msg = BotOutboundMessage.text("openid_xxx", "你好");

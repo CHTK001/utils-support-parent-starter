@@ -15,11 +15,9 @@ import java.util.stream.Collectors;
 
 /**
  * 基于 {@link Engine} 接口的记忆存储（无反射、不依赖 datasource 实现包）。
- * <p>
  * 通过 {@link Engine#store(String, List)} / {@link Engine#query(Class)} 解耦。
  * 主副本在本类列表；同步写入 Engine 表名 {@link #TABLE}（与实体类名驼峰转下划线一致）。
  * 换模型时用 sessionId 读写，与具体 ChatClient 无关。
- * </p>
  *
  * <pre>{@code
  * MemoryManager mm = MemoryManager.ofEngine(engine);

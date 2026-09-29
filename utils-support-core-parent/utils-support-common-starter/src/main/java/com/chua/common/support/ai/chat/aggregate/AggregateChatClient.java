@@ -662,7 +662,6 @@ public class AggregateChatClient implements ChatClient {
 
     /**
      * 等待所有异步用量写入完成。
-     * <p>
      * 在 {@link #close()} 前调用可确保所有待写入的用量记录已持久化。
      */
     public void flush() {
@@ -680,11 +679,9 @@ public class AggregateChatClient implements ChatClient {
 
     /**
      * 从外部 SPI 同步用量到当前 Engine。
-     * <p>
      * 将外部数据源（如 UsageParser 解析的本地工具用量）批量写入 Engine 持久化表，
-     * 同时合并到内存中的 usageRecords，供 stats/aggregateUsage 查询。</p>
-     * <p>
-     * 使用示例：
+     * 同时合并到内存中的 usageRecords，供 stats/aggregateUsage 查询。
+     * <p>使用示例：
      * <pre>{@code
      *   // 从 UsageParser 同步
      *   UsageParser parser = ServiceProvider.of(UsageParser.class).getExtension("opencode");
@@ -878,10 +875,9 @@ public class AggregateChatClient implements ChatClient {
 
     /**
      * 设置当前线程的 token 分组，用于模型分组路由。
-     * <p>
      * 调用 {@link #chatSync} 或 {@link #chat} 前调用此方法，
      * 路由策略会根据 {@link AggregateChatClientSetting.GroupConfig#tokenGroups}
-     * 过滤允许访问的模型组。</p>
+     * 过滤允许访问的模型组。
      *
      * @param tokenGroup token 分组名称，null 表示不限制
      * @return 当前客户端实例，支持链式调用

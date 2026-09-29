@@ -1,5 +1,6 @@
 package com.chua.redis.support.engine;
 
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -13,9 +14,14 @@ import java.util.*;
  * <p>此类不实现 KvEngine 接口（接口为同步），而是作为响应式操作的便捷封装。
  * 所有操作通过 boundedElastic 调度器执行，避免阻塞 Reactor 事件循环线程。</p>
  *
+ * <p><b>错误处理原则</b>：响应式链路不把后端故障降级成「空结果」。
+ * Redis 不可用或解码失败时错误必须沿 Flux/Mono 传播，让订阅方能区分
+ * 「确实没有数据」与「没取到数据」。</p>
+ *
  * @author CH
  * @since 4.0.0.43
  */
+@Slf4j
 public class RedisReactiveKvEngine {
 
     /**
@@ -161,8 +167,12 @@ public class RedisReactiveKvEngine {
     /**
      * 响应式前缀扫描并获取值，返回匹配键值对的 Flux。
      *
+     * <p>单个键的读取失败会让整条 Flux 以错误终止，不做静默跳过：
+     * 跳过会把「Redis 故障」伪装成「匹配到的键变少了」，调用方据此渲染出残缺列表
+     * 却察觉不到异常。故障通过 {@code doOnError} 留日志，便于在订阅方之外排查。</p>
+     *
      * @param prefix 键前缀（如 "用户:"）
-     * @return 匹配键值对 Flux
+     * @return 匹配键值对 Flux，后端故障时以错误终止
      */
     public Flux<Map.Entry<String, String>> findAllByPrefix(String prefix) {
         if (prefix == null || prefix.isEmpty()) {
@@ -170,8 +180,11 @@ public class RedisReactiveKvEngine {
         }
         return engine.scanKeys(prefix + "*")
                 .flatMap(key -> engine.get(key)
-                        .map(value -> new AbstractMap.SimpleEntry<>(key, value != null ? value : ""))
-                        .onErrorResume(e -> Mono.empty()));
+                        // 用 Map.entry 而非 new SimpleEntry<>(...): 前者类型即 Map.Entry，
+                        // 配合外层「移除 onErrorResume 降级」后仍能保持 Flux<Entry<..>> 的不变型匹配
+                        .map(value -> Map.entry(key, value != null ? value : "")))
+                .doOnError(e -> log.warn("[RedisReactiveKvEngine] 前缀扫描失败 prefix={}: {}",
+                        prefix, e.getMessage()));
     }
 
     /**

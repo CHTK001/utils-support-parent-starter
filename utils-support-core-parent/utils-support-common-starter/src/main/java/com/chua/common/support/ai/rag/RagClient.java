@@ -2,6 +2,7 @@ package com.chua.common.support.ai.rag;
 
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.embedding.EmbeddingClient;
+import com.chua.common.support.ai.splitter.TextSplitter;
 import com.chua.common.support.pool.PooledObjectClient;
 import com.chua.common.support.spi.ServiceProvider;
 
@@ -10,10 +11,8 @@ import java.util.function.Consumer;
 
 /**
  * RAG 客户端接口。
- * <p>
  * 提供检索增强生成（RAG）的统一抽象，支持文档管理和语义查询。
  * 通过 SPI 机制按 provider 名称扩展不同实现，调用方通过工厂方法获取实例。
- * </p>
  *
  * <p>链式构建示例：
  * <pre>{@code
@@ -77,9 +76,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
 
     /**
      * 设置系统提示词。
-     * <p>
      * 用于 RAG 查询时注入到 prompt 中的系统角色设定。
-     * </p>
      *
      * @param system 系统提示词内容
      * @return 当前客户端实例，支持链式调用
@@ -179,6 +176,48 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     RagDocument uploadDocument(String fileName, byte[] data);
 
     /**
+     * 用指定的分片器上传文档（按知识库自定义分片大小/重叠时使用）。
+     *
+     * <p>{@link RagClientSetting#getTextSplitter()} 是<b>全局一份</b>的分割器，所有知识库共用。
+     * 要让每个知识库用自己的 {@code chunkSize/chunkOverlap}，只能按调用传入分割器；
+     * 绝不能去改全局 setting 里的那个实例（它是进程级共享对象，改了会影响所有知识库
+     * 与并发的其它请求）。</p>
+     *
+     * <p>默认实现忽略 {@code splitter} 委派给 {@link #uploadDocument(String, byte[])}，
+     * 这样未实现本重载的实现类不受影响。</p>
+     *
+     * @param fileName 文件名
+     * @param data     文件内容字节数组
+     * @param splitter 本次使用的分片器；为 {@code null} 时回退到全局分片器
+     * @return 已上传的文档元数据
+     */
+    default RagDocument uploadDocument(String fileName, byte[] data, TextSplitter splitter) {
+        return uploadDocument(fileName, data);
+    }
+
+    /**
+     * 上传并索引文档，<b>docId 由调用方指定</b>。
+     *
+     * <p>{@link #uploadDocument(String, byte[], TextSplitter)} 内部用随机 UUID 当 docId，
+     * 调用方拿不到可反推的标识；而有些场景（知识库）需要 docId 自身就带业务含义
+     * （如 {@code <知识库ID>/<相对路径>}），这样检索结果才能溯源回具体文件。
+     * 这就是本方法存在的理由。</p>
+     *
+     * <p>默认实现忽略 docId 委派给 {@link #uploadDocument(String, byte[], TextSplitter)}，
+     * 因此不支持自定义 docId 的实现类无需改动即可编译通过（代价是 docId 仍为随机值）。
+     * 支持的实现类（如 {@code RagPipeline}）应覆写本方法真正落库指定 docId。</p>
+     *
+     * @param docId    文档 ID，不能为 null 或空白
+     * @param fileName 文件名（带扩展名，决定文本抽取器与 fileType）
+     * @param data     文件字节数据
+     * @param splitter 本次使用的分片器，可为 null（用全局默认）
+     * @return 文档元数据
+     */
+    default RagDocument uploadDocumentWithId(String docId, String fileName, byte[] data, TextSplitter splitter) {
+        return uploadDocument(fileName, data, splitter);
+    }
+
+    /**
      * 上传或更新文档（by docId）。
      * <p>若 docId 已存在则覆盖旧内容并重新索引，否则新建文档。</p>
      *
@@ -189,7 +228,9 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
      */
     default RagDocument upsertDocument(String docId, String fileName, byte[] data) {
         if (docId != null) {
-            return uploadDocument(docId + "_ " + fileName, data);
+            // 原实现是 uploadDocument(docId + "_ " + fileName, data)：把 docId 拼进 fileName
+            // 当文件名传，docId 实际仍由实现内部随机生成，拼接串还会污染 fileName 与扩展名判定。
+            return uploadDocumentWithId(docId, fileName, data, null);
         }
         return uploadDocument(fileName, data);
     }
@@ -206,6 +247,24 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     default RagDocument updateDocument(String docId, String fileName, byte[] data) {
         deleteDocument(docId);
         return uploadDocument(fileName, data);
+    }
+
+    /**
+     * 更新文档并重建索引，可指定本次使用的分片器。
+     *
+     * <p>默认实现把 {@code splitter} 透传给
+     * {@link #uploadDocument(String, byte[], TextSplitter)}，未实现带分割器重载的
+     * 实现类会自动回落到全局分片器。</p>
+     *
+     * @param docId    原文档 ID
+     * @param fileName 文件名
+     * @param data     文件内容字节数组
+     * @param splitter 本次使用的分片器；为 {@code null} 时回退到全局分片器
+     * @return 更新后的文档元数据
+     */
+    default RagDocument updateDocument(String docId, String fileName, byte[] data, TextSplitter splitter) {
+        deleteDocument(docId);
+        return uploadDocument(fileName, data, splitter);
     }
 
     /**
@@ -262,10 +321,8 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
 
     /**
      * 文档上传 SPI 接口。
-     * <p>
      * 通过 {@link com.chua.common.support.spi.ServiceProvider} 注册不同实现，
      * 支持按场景切换上传策略（本地落盘 / 云存储 / 内存缓冲等）。
-     * </p>
      *
      * @author CH
      * @since 4.0.0.42

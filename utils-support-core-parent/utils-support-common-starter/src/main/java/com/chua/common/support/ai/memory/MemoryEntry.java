@@ -15,6 +15,20 @@ import java.util.Map;
  * <p>表示一条从对话中提炼出来的长期记忆。每条记忆包含内容、来源、时间戳和元数据。
  * 记忆体通过 MCP 插件暴露给 Agent，Agent 可搜索、保存和管理记忆。
  *
+ * <p>可空性：全部组件均允许为 {@code null}——记忆可能来自 JSON 反序列化
+ * （{@code FileMemoryStore}）、存储层回填（{@code MemoryManager#saveRaw}）或
+ * 实体转换（{@link MemoryEntryEntity#toEntry}），这些路径都可能给出残缺数据，
+ * 规范构造器只在非空时才做防御性拷贝并保留 {@code null} 语义。</p>
+ *
+ * @param id         记忆唯一标识，由存储层生成（UUID）；入参可为 null，留给存储层补齐
+ * @param content    记忆正文，由 AI 总结生成；可为 null，长度受 {@link MemoryConfig#maxContentLength} 限制
+ * @param type       记忆类型分类标签（如 {@code fact} / {@code preference} / {@code summary}），供按类型检索；可为 null
+ * @param sessionId  记忆来源会话 ID，用于按会话清理或回溯；匿名会话下可为 null
+ * @param agentId    生成该记忆的 Agent ID，多 Agent 场景下按此隔离记忆；单 Agent 部署下可为 null
+ * @param createdAt  创建时间，epoch 毫秒时间戳；缺省为 0
+ * @param importance 重要性评分，取值区间 0.0 ~ 1.0，越大在搜索排序中越靠前；未评估时可为 null
+ * @param tags       检索标签列表；可为 null，非空时元素可含 null
+ * @param metadata   扩展元数据键值表，用于承载标签之外的附加信息；可为 null，非空时构造器按插入顺序做不可变拷贝
  * @author CH
  * @since 2026/07/16
  */
