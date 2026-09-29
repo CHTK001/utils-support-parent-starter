@@ -1,13 +1,14 @@
 package com.chua.sqlite.support.engine;
 
-import com.chua.common.support.utils.NativeLoader;
-import com.chua.common.support.utils.NativeUtils;
+import com.chua.nativesqlite.support.SqliteHookBridge;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Schedulers;
 
-import java.lang.foreign.*;
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -45,21 +46,12 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public final class SqliteReactorHook implements AutoCloseable {
 
-    private static final Linker LINKER = Linker.nativeLinker();
-
     /**
      * 日志记录器
      */
     private static final org.slf4j.Logger log =
             org.slf4j.LoggerFactory.getLogger(SqliteReactorHook.class);
-    private static volatile SymbolLookup SYM_LOOKUP;
     private static final int EVENT_BUF_SIZE = 512;
-
-    private static volatile MethodHandle HOOK_OPEN_ASYNC_HANDLE;
-    private static volatile MethodHandle HOOK_EXEC_ASYNC_HANDLE;
-    private static volatile MethodHandle HOOK_CLOSE_ASYNC_HANDLE;
-    private static volatile boolean LIBRARY_RESOLVED = false;
-    private static volatile boolean LIBRARY_OK = false;
 
     /**
      * 实例 ID，用于全局回调分发
@@ -91,7 +83,7 @@ public final class SqliteReactorHook implements AutoCloseable {
      * @param dbPath SQLite 数据库文件路径
      */
     public SqliteReactorHook(String dbPath) {
-        if (!loadLibrary()) {
+        if (!SqliteHookBridge.isAvailable()) {
             throw new UnsatisfiedLinkError("Failed to load sqlite3_hook native library");
         }
 
@@ -108,14 +100,13 @@ public final class SqliteReactorHook implements AutoCloseable {
             // hook_event_fn 签名: void (*)(const char *json, void *user_data)
             // onNativeEvent 是 static 方法，通过 user_data 分发到实例
             MethodHandle mh = onEventHandle();
-            FunctionDescriptor fd = FunctionDescriptor.ofVoid(ValueLayout.ADDRESS, ValueLayout.ADDRESS);
-            MemorySegment callback = LINKER.upcallStub(mh, fd, callbackArena);
+            MemorySegment callback = SqliteHookBridge.eventCallbackStub(mh, callbackArena);
 
             // user_data 传递 instanceId（转换为指针）
             MemorySegment userId = callbackArena.allocate(ValueLayout.JAVA_LONG);
             userId.set(ValueLayout.JAVA_LONG, 0, instanceId);
 
-            this.handle = (MemorySegment) HOOK_OPEN_ASYNC_HANDLE.invoke(
+            this.handle = (MemorySegment) SqliteHookBridge.hookOpenAsync().invoke(
                 callbackArena.allocateFrom(dbPath, StandardCharsets.UTF_8),
                 callback,
                 userId
@@ -162,7 +153,7 @@ public final class SqliteReactorHook implements AutoCloseable {
      */
     private int execSync(String sql) {
         try (var arena = Arena.ofConfined()) {
-            return (int) HOOK_EXEC_ASYNC_HANDLE.invoke(
+            return (int) SqliteHookBridge.hookExecAsync().invoke(
                 handle,
                 arena.allocateFrom(sql, StandardCharsets.UTF_8)
             );
@@ -216,7 +207,7 @@ public final class SqliteReactorHook implements AutoCloseable {
 
         try {
             if (handle != null && !handle.equals(MemorySegment.NULL)) {
-                HOOK_CLOSE_ASYNC_HANDLE.invoke(handle);
+                SqliteHookBridge.hookCloseAsync().invoke(handle);
             }
         } catch (Throwable e) {
             log.warn("SQLite CDC 钩子关闭失败: {}", e.toString());
@@ -261,56 +252,6 @@ public final class SqliteReactorHook implements AutoCloseable {
         } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new UnsatisfiedLinkError("Cannot find onNativeEvent: " + e.getMessage());
         }
-    }
-
-    /**
-     * 加载Library。
-     *
-     * @return 是否成功（true 表示成功）
-     */
-    private static boolean loadLibrary() {
-        if (LIBRARY_RESOLVED) {
-            return LIBRARY_OK;
-        }
-        synchronized (SqliteReactorHook.class) {
-            if (LIBRARY_RESOLVED) {
-                return LIBRARY_OK;
-            }
-            try {
-                // 统一走项目受控的原生库加载体系：由 NativeLoader 按平台目录抽取、MD5 去重后加载，
-                // 避免业务代码直接调用 System.load（与同包 SqliteHookConnection 保持一致用法）
-                NativeLoader.of("sqlite3-hook")
-                        .glob(NativeUtils.getLibraryFileName("sqlite3_hook"))
-                        .toTarget(NativeUtils.tempRoot().resolve("sqlite3-hook").toFile().getAbsolutePath())
-                        .load();
-                SYM_LOOKUP = SymbolLookup.loaderLookup();
-                HOOK_OPEN_ASYNC_HANDLE = bind("hook_open_async",
-                    FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
-                HOOK_EXEC_ASYNC_HANDLE = bind("hook_exec_async",
-                    FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
-                HOOK_CLOSE_ASYNC_HANDLE = bind("hook_close_async",
-                    FunctionDescriptor.ofVoid(ValueLayout.ADDRESS));
-                LIBRARY_OK = true;
-                LIBRARY_RESOLVED = true;
-                return true;
-            } catch (Throwable e) {
-                LIBRARY_RESOLVED = true;
-                return false;
-            }
-        }
-    }
-
-    /**
-     * 绑定。
-     *
-     * @param name 名称，不允许为 null
-     * @param desc 描述，不允许为 null
-     * @return 方法处理 对象
-     */
-    private static MethodHandle bind(String name, FunctionDescriptor desc) {
-        MemorySegment sym = SYM_LOOKUP.find(name)
-            .orElseThrow(() -> new UnsatisfiedLinkError("Symbol not found: " + name));
-        return LINKER.downcallHandle(sym, desc);
     }
 
     /**
