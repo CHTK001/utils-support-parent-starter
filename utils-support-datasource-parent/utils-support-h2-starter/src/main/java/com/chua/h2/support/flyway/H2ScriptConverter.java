@@ -163,24 +163,21 @@ public class H2ScriptConverter extends DefaultScriptConverter {
         if (converted == null || converted.isBlank()) {
             return converted;
         }
-        // 下面每一条都必须走 replaceInCode 而不是 replaceAll：
-        // 种子数据里存着 JSON 文本（采集流程的 "parserType":"JSON" 就是），
-        // 裸替换会把字面量里的类型名/函数名一并改掉。依据见父类 replaceInCode 的注释。
         // ON DUPLICATE KEY UPDATE 仅 MySQL 兼容模式支持，标准模式一律跳过而非高风险改写
-        if (matchesInCode(converted, ON_DUPLICATE_KEY_UPDATE)) {
+        if (ON_DUPLICATE_KEY_UPDATE.matcher(converted).find()) {
             return null;
         }
         // INSERT IGNORE -> INSERT（仅剥离 H2 不支持的 IGNORE，依据与代价见 INSERT_IGNORE 注释）
-        converted = replaceInCode(converted, INSERT_IGNORE, "INSERT", true);
+        converted = INSERT_IGNORE.matcher(converted).replaceFirst("INSERT");
         // 类型映射；TINYINT 去掉显示宽度（H2 2.x 拒绝 TINYINT(1)），ADD COLUMN IF NOT EXISTS 保持原样（H2 原生支持）
-        converted = replaceInCode(converted, DATETIME_TYPE, "TIMESTAMP");
-        converted = replaceInCode(converted, TEXT_TYPE, "CLOB");
-        converted = replaceInCode(converted, TINYINT_DISPLAY_WIDTH, "TINYINT");
-        converted = replaceInCode(converted, DOUBLE_TYPE, "DOUBLE PRECISION");
+        converted = DATETIME_TYPE.matcher(converted).replaceAll("TIMESTAMP");
+        converted = TEXT_TYPE.matcher(converted).replaceAll("CLOB");
+        converted = TINYINT_DISPLAY_WIDTH.matcher(converted).replaceAll("TINYINT");
+        converted = DOUBLE_TYPE.matcher(converted).replaceAll("DOUBLE PRECISION");
         // 函数映射
-        converted = replaceInCode(converted, NOW_FUNCTION, "CURRENT_TIMESTAMP");
-        converted = replaceInCode(converted, IFNULL_FUNCTION, "COALESCE(");
-        converted = replaceInCode(converted, RAND_FUNCTION, "RANDOM()");
+        converted = NOW_FUNCTION.matcher(converted).replaceAll("CURRENT_TIMESTAMP");
+        converted = IFNULL_FUNCTION.matcher(converted).replaceAll("COALESCE(");
+        converted = RAND_FUNCTION.matcher(converted).replaceAll("RANDOM()");
         return converted;
     }
 }
