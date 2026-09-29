@@ -1,5 +1,6 @@
 package com.chua.openai.support.video;
 
+import com.chua.common.support.ai.AiProviderException;
 import com.chua.common.support.ai.video.VideoClient;
 import com.chua.common.support.ai.video.VideoClientSetting;
 import com.chua.common.support.ai.video.VideoResponse;
@@ -231,10 +232,13 @@ abstract class AbstractOpenAiVideosClient implements VideoClient {
                 .connectTimeout(120000)
                 .post();
         if (!resp.isSuccess()) {
-            throw new RuntimeException("视频生成请求失败: " + resp.getStatusCode() + " - " + resp.getBodyString());
+            throw new AiProviderException(describeFailure(resp),
+                    resp.getStatusCode(), resp.getBodyString());
         }
         Map<String, Object> root = Json.fromJson(resp.getBodyString(), Map.class);
-        // video_id 才是取结果的键；id / task_id 是同一个任务号，兼容只回传其中一种的渠道
+        // 存 video_id 而非 id/task_id：降级路径 /agnesapi 的参数名就是 video_id，
+        // 那是官方文档确认可用的；标准路径 /v1/videos/{id} 按 task_id 查，
+        // 能否用 video_id 尚未验证。用确认可用的那个，标准路径若不通会自行降级。
         String taskId = firstNonBlank(str(root.get("video_id")), str(root.get("id")), str(root.get("task_id")));
         if (taskId == null) {
             throw new RuntimeException("视频生成未返回任务 ID: " + resp.getBodyString());
@@ -512,6 +516,27 @@ abstract class AbstractOpenAiVideosClient implements VideoClient {
      */
     static String encode(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * 把上游失败翻译成我们自己的提示。
+     *
+     * <p>刻意<b>不把上游原文拼进来</b>：上游返回的是给开发者看的英文
+     * （实测 Agnes 会回 {@code You've reached the API rate limit for free users.
+     * Upgrade to a Token Plan...}），直接抛给终端用户既读不懂，也把供应商的
+     * 内部策略暴露出去。这里只按状态码给出本系统的说法与可执行的下一步。</p>
+     *
+     * @param resp 上游响应（非 2xx）
+     * @return 本系统的中文提示
+     */
+    private String describeFailure(ClientResponse resp) {
+        return switch (resp.getStatusCode()) {
+            case 401, 403 -> "该供应商拒绝了请求，API Key 无效或已失效，请在模型管理中检查密钥";
+            case 404 -> "该供应商未提供视频生成接口，请确认所选模型是否支持视频生成";
+            case 429 -> "该供应商的 API 调用已达上限，请稍后重试或更换 API Key";
+            case 503 -> "该供应商当前繁忙（队列已满或临时不可用），请稍后重试";
+            default -> "该供应商的视频生成接口调用失败（HTTP " + resp.getStatusCode() + "），请稍后重试";
+        };
     }
 
     /**
