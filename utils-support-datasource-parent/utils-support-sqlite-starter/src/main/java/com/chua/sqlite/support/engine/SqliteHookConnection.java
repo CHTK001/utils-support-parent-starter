@@ -1,9 +1,8 @@
 package com.chua.sqlite.support.engine;
 
-import com.chua.common.support.utils.NativeLoader;
-import com.chua.common.support.utils.NativeUtils;
-import java.lang.foreign.*;
-import java.lang.invoke.MethodHandle;
+import com.chua.nativesqlite.support.SqliteHookBridge;
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,16 +31,7 @@ import java.util.function.Consumer;
  */
 public final class SqliteHookConnection implements AutoCloseable {
 
-    private static final Linker LINKER = Linker.nativeLinker(); // 链接
-    private static volatile SymbolLookup SYM_LOOKUP; // SYM_LOOKUP
     private static final int BUFFER_SIZE = 512; // 缓冲大小
-
-    private static volatile MethodHandle HOOK_OPEN_HANDLE; // hook打开处理
-    private static volatile MethodHandle HOOK_POLL_HANDLE; // hookpoll处理
-    private static volatile MethodHandle HOOK_EXEC_HANDLE; // hook执行处理
-    private static volatile MethodHandle HOOK_CLOSE_HANDLE; // hook关闭处理
-    private static volatile boolean LIBRARY_RESOLVED = false; // 图书馆resolved
-    private static volatile boolean LIBRARY_OK = false; // 图书馆ok
 
     /**
      * 日志记录器
@@ -60,11 +50,12 @@ public final class SqliteHookConnection implements AutoCloseable {
      * @return 连接实例；native 钩子库缺失或打开失败时返回空，失败原因见日志
      */
     public static SqliteHookConnection open(String dbPath) {
-        if (!loadLibrary()) {
+        if (!SqliteHookBridge.isAvailable()) {
             return null;
         }
         try (var arena = Arena.ofConfined()) {
-            MemorySegment h = (MemorySegment) HOOK_OPEN_HANDLE.invoke(arena.allocateFrom(dbPath, StandardCharsets.UTF_8));
+            MemorySegment h = (MemorySegment) SqliteHookBridge.hookOpen()
+                    .invoke(arena.allocateFrom(dbPath, StandardCharsets.UTF_8));
             if (h == null || h.equals(MemorySegment.NULL)) {
                 log.warn("SQLite CDC 钩子打开失败 dbPath={}", dbPath);
                 return null;
@@ -101,7 +92,8 @@ public final class SqliteHookConnection implements AutoCloseable {
      */
     public int exec(String sql) {
         try (var arena = Arena.ofConfined()) {
-            int rc = (int) HOOK_EXEC_HANDLE.invoke(handle, arena.allocateFrom(sql, StandardCharsets.UTF_8));
+            int rc = (int) SqliteHookBridge.hookExec()
+                    .invoke(handle, arena.allocateFrom(sql, StandardCharsets.UTF_8));
             drainBufferSync();
             return rc;
         } catch (Throwable e) {
@@ -127,7 +119,7 @@ public final class SqliteHookConnection implements AutoCloseable {
     public void close() {
         closed = true;
         try {
-            HOOK_CLOSE_HANDLE.invoke(handle);
+            SqliteHookBridge.hookClose().invoke(handle);
         } catch (Throwable e) {
             log.warn("SQLite CDC 钩子关闭失败: {}", e.toString());
         }
@@ -149,7 +141,7 @@ public final class SqliteHookConnection implements AutoCloseable {
         try (var arena = Arena.ofConfined()) {
             MemorySegment buf = arena.allocate(BUFFER_SIZE);
             while (true) {
-                int len = (int) HOOK_POLL_HANDLE.invoke(handle, buf, BUFFER_SIZE);
+                int len = (int) SqliteHookBridge.hookPoll().invoke(handle, buf, BUFFER_SIZE);
                 if (len <= 0) {
                     break;
                 }
@@ -165,54 +157,6 @@ public final class SqliteHookConnection implements AutoCloseable {
         } catch (Throwable e) {
             log.warn("SQLite CDC 事件排空失败，缓冲区事件可能丢失: {}", e.toString());
         }
-    }
-
-    /**
-     * 加载Library。
-     *
-     * @return 是否成功（true 表示成功）
-     */
-    private static boolean loadLibrary() {
-        if (LIBRARY_RESOLVED) {
-            return LIBRARY_OK;
-        }
-        synchronized (SqliteHookConnection.class) {
-            if (LIBRARY_RESOLVED) {
-                return LIBRARY_OK;
-            }
-            try {
-                NativeLoader.of("sqlite3-hook")
-                        .glob(NativeUtils.getLibraryFileName("sqlite3_hook"))
-                        .toTarget(NativeUtils.tempRoot().resolve("sqlite3-hook").toFile().getAbsolutePath())
-                        .load();
-                SYM_LOOKUP = SymbolLookup.loaderLookup();
-                HOOK_OPEN_HANDLE  = bind("hook_open",  FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS));
-                HOOK_POLL_HANDLE  = bind("hook_poll",  FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
-                HOOK_EXEC_HANDLE  = bind("hook_exec",  FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
-                HOOK_CLOSE_HANDLE = bind("hook_close", FunctionDescriptor.ofVoid(ValueLayout.ADDRESS));
-                LIBRARY_OK = true;
-                LIBRARY_RESOLVED = true;
-                return true;
-            } catch (Throwable e) {
-                LIBRARY_RESOLVED = true;
-                LIBRARY_OK = false;
-                log.warn("SQLite CDC 原生钩子库不可用，CDC 能力降级: {}", e.toString());
-                return false;
-            }
-        }
-    }
-
-    /**
-     * 绑定。
-     *
-     * @param name 名称，不允许为 null
-     * @param desc 描述，不允许为 null
-     * @return 方法处理 对象
-     */
-    private static MethodHandle bind(String name, FunctionDescriptor desc) {
-        MemorySegment sym = SYM_LOOKUP.find(name)
-                .orElseThrow(() -> new UnsatisfiedLinkError("符号未找到: " + name));
-        return LINKER.downcallHandle(sym, desc);
     }
 
     /**
