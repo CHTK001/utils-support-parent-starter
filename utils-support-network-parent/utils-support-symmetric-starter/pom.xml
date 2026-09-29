@@ -57,12 +57,12 @@
         <dependency>
             <groupId>org.jumpmind.symmetric</groupId>
             <artifactId>symmetric-core</artifactId>
-            <version>3.18.1</version>
+            <version>3.17.9</version>
         </dependency>
         <dependency>
             <groupId>org.jumpmind.symmetric</groupId>
             <artifactId>symmetric-client</artifactId>
-            <version>3.18.1</version>
+            <version>3.17.9</version>
         </dependency>
     </dependencies>
 

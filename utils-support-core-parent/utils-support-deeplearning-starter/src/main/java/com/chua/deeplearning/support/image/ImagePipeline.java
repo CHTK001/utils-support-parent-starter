@@ -358,6 +358,32 @@ public class ImagePipeline {
     }
 
     /**
+     * 移除向量。
+     *
+     * <p>与 {@link #enroll}、{@link #search} 并列，让调用方只面对图像管线一个入口。
+     * 实现委托给内部的 {@link SearchPipeline}，不另写一份 —— 删除逻辑必须与
+     * 入库/检索同源，否则会出现「入库走管线、删除绕过管线」的半统一状态。</p>
+     *
+     * @param id 业务标识
+     * @return 是否确实移除了（索引中本就没有该条目时返回 false）
+     */
+    public boolean remove(String id) {
+        return searchPipeline.remove(id);
+    }
+
+    /**
+     * 向量库维度。
+     *
+     * <p>供调用方判定能否复用当前管线：换了特征模型时维度可能变化，
+     * 也可能不变 —— 两者都要能识别。</p>
+     *
+     * @return 维度；底层不可用时返回 0
+     */
+    public int dimension() {
+        return searchPipeline.dimension();
+    }
+
+    /**
      * 特征提取器。
      *
      * @return FeatureExtractor

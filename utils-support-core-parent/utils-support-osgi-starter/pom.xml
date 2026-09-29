@@ -30,6 +30,27 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- 源码扩展点热重载（SourceJavaCompiler / SourceGroovyLoader / SourceExtensionScheduler）的真实行为测试。
+             不引入 mockito：这些用例依赖的是真实 JDK 编译器与真实 SPI 注册表，
+             打桩反而测不到「注册表里到底存了什么」这个关键点。 -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>6.1.3</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Groovy 引擎 + GroovyScriptProvider。生产依赖里本模块<b>不</b>引入 groovy：
+             SourceGroovyLoader 靠 ScriptProviders.resolve 探测引擎是否可用，
+             缺失时降级为「只支持 Java 源码」。放 test 作用域是为了让
+             groovy 那条代码路径真正被执行到，而不是永远未被覆盖。 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-groovy-starter</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.framework</artifactId>
