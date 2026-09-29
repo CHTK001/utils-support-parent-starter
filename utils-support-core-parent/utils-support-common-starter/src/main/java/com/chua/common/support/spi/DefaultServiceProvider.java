@@ -12,6 +12,7 @@ import com.chua.common.support.proxy.ProxyMethod;
 import com.chua.common.support.proxy.ProxyUtils;
 import com.chua.common.support.proxy.intercept.DelegateMethodIntercept;
 import com.chua.common.support.proxy.intercept.VoidMethodIntercept;
+import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.autowire.AutoServiceAutowire;
 import com.chua.common.support.spi.autowire.ServiceAutowire;
@@ -66,6 +67,7 @@ import static com.chua.common.support.spi.definition.ServiceDefinition.COMPARATO
  * @see ServiceDefinition
  */
 @SuppressWarnings({"ALL", "unchecked"})
+@Slf4j
 public class DefaultServiceProvider<T> implements ServiceProvider<T>, InitializingAware {
     /**
      * SPI 名称缓存
@@ -350,6 +352,15 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
 
     /**
      * Collect
+     *
+     * <p>{@link #list()} 的 value 允许为 {@code null}（某个扩展实例化失败，例如缺少所需依赖或配置）。
+     * 原实现直接 {@code List.copyOf(values)}，只要集合里存在一个 {@code null} 就会抛
+     * {@code NullPointerException}，而该异常被此处的 {@code catch (Exception ignore)} 静默吞掉，
+     * 方法随即返回空列表 —— 于是「16 个扩展里 14 个实例化失败」被放大成「一个都没有」，
+     * 且没有任何日志，极难排查（AI 侧表现为「SPI 发现 0 个 ChatClient」）。</p>
+     *
+     * <p>这里改为先滤掉 {@code null} 再拷贝，并保持返回不可变列表：实例化失败的项被跳过，
+     * 成功的项照常返回。</p>
      */
     @Override
     public List<T> collect() {
@@ -357,11 +368,19 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         if (CollectionUtils.isEmpty(values)) {
             return Collections.emptyList();
         }
-        try {
-            return List.copyOf(values);
-        } catch (Exception ignore) {
+        List<T> available = new ArrayList<>(values.size());
+        int failed = 0;
+        for (T value : values) {
+            if (value == null) {
+                failed++;
+                continue;
+            }
+            available.add(value);
         }
-        return Collections.emptyList();
+        if (failed > 0) {
+            log.warn("[ServiceProvider] {} 个扩展实例化失败已跳过（可用 {} 个）", failed, available.size());
+        }
+        return Collections.unmodifiableList(available);
     }
 
     /**
