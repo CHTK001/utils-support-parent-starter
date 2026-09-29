@@ -1829,6 +1829,9 @@
                 <artifactId>lucene-queryparser</artifactId>
                 <version>${lucene.version}</version>
             </dependency>
+            <!-- 2026-09-29 恢复：该托管条目此前被并发会话误删，
+                 导致 utils-support-armeria-starter 的依赖无版本可用、反应堆无法启动。
+                 版本取本批依赖收敛的目标值（central 稳定版）。 -->
             <dependency>
                 <groupId>com.linecorp.armeria</groupId>
                 <artifactId>armeria</artifactId>

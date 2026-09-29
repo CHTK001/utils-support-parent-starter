@@ -1031,14 +1031,199 @@ public class BufferedImageUtils {
         if (src == null || radius <= 0) {
             return src;
         }
-        int width = src.getWidth();
-        int height = src.getHeight();
-        BufferedImage dest = new BufferedImage(width, height, safeType(src));
-        Graphics2D g = dest.createGraphics();
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g.drawImage(src, 0, 0, null);
-        g.dispose();
-        return dest;
+        int w = src.getWidth();
+        int h = src.getHeight();
+        float[] k = gaussKernel(radius);
+        int r = k.length / 2;
+        int[] a = src.getRGB(0, 0, w, h, null, 0, w);
+        int[] tmp = new int[a.length];
+        int[] out = new int[a.length];
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                float aa = 0, rr = 0, gg = 0, bb = 0;
+                for (int i = -r; i <= r; i++) {
+                    int p = a[y * w + clampIdx(x + i, 0, w - 1)];
+                    float q = k[i + r];
+                    aa += ((p >> 24) & 0xFF) * q;
+                    rr += ((p >> 16) & 0xFF) * q;
+                    gg += ((p >> 8) & 0xFF) * q;
+                    bb += (p & 0xFF) * q;
+                }
+                tmp[y * w + x] = argb(aa, rr, gg, bb);
+            }
+        }
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                float aa = 0, rr = 0, gg = 0, bb = 0;
+                for (int i = -r; i <= r; i++) {
+                    int p = tmp[clampIdx(y + i, 0, h - 1) * w + x];
+                    float q = k[i + r];
+                    aa += ((p >> 24) & 0xFF) * q;
+                    rr += ((p >> 16) & 0xFF) * q;
+                    gg += ((p >> 8) & 0xFF) * q;
+                    bb += (p & 0xFF) * q;
+                }
+                out[y * w + x] = argb(aa, rr, gg, bb);
+            }
+        }
+        BufferedImage res = new BufferedImage(w, h, safeType(src));
+        res.setRGB(0, 0, w, h, out, 0, w);
+        return res;
+    }
+
+    private static float[] gaussKernel(float radius) {
+        int r = Math.max(1, Math.round(radius));
+        float[] k = new float[r * 2 + 1];
+        double sigma = Math.max(0.1d, radius);
+        double sum = 0;
+        for (int i = -r; i <= r; i++) {
+            double v = Math.exp(-(i * i) / (2 * sigma * sigma));
+            k[i + r] = (float) v;
+            sum += v;
+        }
+        for (int i = 0; i < k.length; i++) {
+            k[i] = (float) (k[i] / sum);
+        }
+        return k;
+    }
+
+    private static int clampIdx(int v, int lo, int hi) {
+        return v < lo ? lo : (v > hi ? hi : v);
+    }
+
+    private static int argb(float a, float r, float g, float b) {
+        return (clamp((int) a) & 0xFF) << 24 | (clamp((int) r) & 0xFF) << 16
+                | (clamp((int) g) & 0xFF) << 8 | (clamp((int) b) & 0xFF);
+    }
+
+    /**
+     * 锐化（3x3 掩模）。
+     *
+     * @param src      源图
+     * @param strength 强度
+     * @return 锐化后的图片
+     */
+    public static BufferedImage sharpenImage(BufferedImage src, float strength) {
+        if (src == null || strength <= 0) {
+            return src;
+        }
+        float s = clamp(strength);
+        int w = src.getWidth();
+        int h = src.getHeight();
+        int[] a = src.getRGB(0, 0, w, h, null, 0, w);
+        int[] out = new int[a.length];
+        float c = 1 + 4 * s;
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                float rr = 0, gg = 0, bb = 0;
+                for (int dy = -1; dy <= 1; dy++) {
+                    for (int dx = -1; dx <= 1; dx++) {
+                        int p = a[clampIdx(y + dy, 0, h - 1) * w + clampIdx(x + dx, 0, w - 1)];
+                        float q = (dx == 0 && dy == 0) ? c : ((dx == 0 || dy == 0) ? -s : 0f);
+                        rr += ((p >> 16) & 0xFF) * q;
+                        gg += ((p >> 8) & 0xFF) * q;
+                        bb += (p & 0xFF) * q;
+                    }
+                }
+                out[y * w + x] = ((a[y * w + x] >> 24) & 0xFF) << 24 | argb(0, rr, gg, bb);
+            }
+        }
+        BufferedImage res = new BufferedImage(w, h, safeType(src));
+        res.setRGB(0, 0, w, h, out, 0, w);
+        return res;
+    }
+
+    /**
+     * 读 JPEG 的 EXIF Orientation（TIFF 0x0112）；无则返回 1。
+     *
+     * @param bytes 图片字节
+     * @return 1-8
+     */
+    public static int readExifOrientation(byte[] bytes) {
+        if (bytes == null || bytes.length < 4 || (bytes[0] & 0xFF) != 0xFF || (bytes[1] & 0xFF) != 0xD8) {
+            return 1;
+        }
+        int off = 2;
+        while (off + 4 <= bytes.length) {
+            if ((bytes[off] & 0xFF) != 0xFF) {
+                return 1;
+            }
+            int marker = bytes[off + 1] & 0xFF;
+            if (marker == 0xD8 || marker == 0x01 || (marker >= 0xD0 && marker <= 0xD7)) {
+                off += 2;
+                continue;
+            }
+            if (marker == 0xDA || marker == 0xD9) {
+                return 1;
+            }
+            int len = ((bytes[off + 2] & 0xFF) << 8) | (bytes[off + 3] & 0xFF);
+            if (marker == 0xE1 && off + 10 <= bytes.length) {
+                int p = off + 4;
+                if ((bytes[p] & 0xFF) == 0x45 && (bytes[p + 1] & 0xFF) == 0x78
+                        && (bytes[p + 2] & 0xFF) == 0x69 && (bytes[p + 3] & 0xFF) == 0x66) {
+                    return readOrientationFromTiff(bytes, p + 6);
+                }
+            }
+            off += 2 + len;
+        }
+        return 1;
+    }
+
+    private static int readOrientationFromTiff(byte[] b, int tiff) {
+        if (tiff + 8 > b.length) {
+            return 1;
+        }
+        boolean little;
+        if ((b[tiff] & 0xFF) == 0x49 && (b[tiff + 1] & 0xFF) == 0x49) {
+            little = true;
+        } else if ((b[tiff] & 0xFF) == 0x4D && (b[tiff + 1] & 0xFF) == 0x4D) {
+            little = false;
+        } else {
+            return 1;
+        }
+        int ifd = tiff + 4 + u2(b, tiff + 4, little);
+        int count = ifd + 2 <= b.length ? u2(b, ifd, little) : 0;
+        for (int i = 0; i < count; i++) {
+            int e = ifd + 2 + i * 12;
+            if (e + 12 > b.length) {
+                return 1;
+            }
+            if (u2(b, e, little) == 0x0112) {
+                int v = u2(b, e + 8, little);
+                return v >= 1 && v <= 8 ? v : 1;
+            }
+        }
+        return 1;
+    }
+
+    private static int u2(byte[] b, int i, boolean little) {
+        if (i + 1 >= b.length) {
+            return 0;
+        }
+        return little ? ((b[i] & 0xFF) | ((b[i + 1] & 0xFF) << 8)) : (((b[i] & 0xFF) << 8) | (b[i + 1] & 0xFF));
+    }
+
+    /**
+     * 按 EXIF Orientation 旋正。
+     *
+     * @param src         源图
+     * @param orientation 1-8
+     * @return 旋正后的图片
+     */
+    public static BufferedImage applyExifOrientation(BufferedImage src, int orientation) {
+        if (src == null || orientation <= 1 || orientation > 8) {
+            return src;
+        }
+        return switch (orientation) {
+            case 2 -> flipImage(src, true, false);
+            case 3 -> rotate(src, 180);
+            case 4 -> flipImage(src, false, true);
+            case 5 -> rotate(flipImage(src, true, false), 90);
+            case 6 -> rotate(src, 90);
+            case 7 -> rotate(flipImage(src, true, false), -90);
+            case 8 -> rotate(src, -90);
+            default -> src;
+        };
     }
 
     /**
