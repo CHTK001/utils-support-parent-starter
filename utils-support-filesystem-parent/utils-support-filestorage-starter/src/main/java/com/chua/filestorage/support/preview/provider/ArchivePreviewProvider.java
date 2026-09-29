@@ -161,6 +161,14 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
             // 按「解出 1 个同名文件」呈现，这是压缩流预览唯一说得通的形态。
             raw.add(new RawEntry(normalizePath("content." + e), false, content.length, content.length, 0L));
         } else if (isZipContainer(e)) {
+            // 扩展名说自己是 ZIP，但内容可能根本不是（改过名的 tar、传输中断的
+            // 残片、纯文本伪装成 .zip）。先验魔数：不是 ZIP 就别往下走，
+            // 直接抛给调用方报错——否则 scanZip 的两级回退会把「这不是压缩包」
+            // 悄悄降级成「0 个条目的合法压缩包」，面板上显示成「文件 0 个」，
+            // 用户完全看不出是自己的文件坏了。
+            if (!looksLikeZip(content)) {
+                throw new IOException("Not a ZIP archive (bad magic): " + e);
+            }
             raw.addAll(scanZip(content));
         } else {
             try {
@@ -203,6 +211,25 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
+     * 内容是否具备 ZIP 魔数。
+     *
+     * <p>ZIP 有三种合法开头：{@code PK\003\004}（普通条目）、{@code PK\005\006}
+     * （空归档 / 仅有中央目录）、{@code PK\007\008}（分卷起始）。三者都接受，
+     * 否则合法的空 zip 会被误判成非压缩包。</p>
+     *
+     * @param content 文件字节
+     * @return true 表示开头是 ZIP 魔数
+     */
+    private static boolean looksLikeZip(byte[] content) {
+        return content != null
+                && content.length >= 4
+                && content[0] == 'P'
+                && content[1] == 'K'
+                && (content[2] == 0x03 || content[2] == 0x05 || content[2] == 0x07)
+                && (content[3] == 0x04 || content[3] == 0x06 || content[3] == 0x08);
+    }
+
+    /**
      * 以中央目录（central directory）方式读取 ZIP 条目。
      *
      * <p><b>为什么 ZIP 不能走流式 {@link ArchiveInputStream}</b>：
@@ -223,6 +250,11 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
      * @throws IOException 中央目录不可读且流式回退也失败
      */
     private static List<RawEntry> scanZip(byte[] content) throws IOException {
+        if (!looksLikeZip(content)) {
+            // 魔数都不对，后面的中央目录 / 流式两级回退必然都失败，
+            // 跑一遍只会把同一个错误包成 IOException 再抛一次。
+            throw new IOException("Not a ZIP archive (bad magic)");
+        }
         List<RawEntry> raw = new ArrayList<>();
         try (ZipFile zipFile = new ZipFile(new SeekableInMemoryByteChannel(content))) {
             Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
