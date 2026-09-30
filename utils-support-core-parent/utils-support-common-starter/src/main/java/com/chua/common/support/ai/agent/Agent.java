@@ -580,6 +580,24 @@ public interface Agent extends AutoCloseable {
     }
 
     /**
+     * 是否允许 shell 工具。
+     *
+     * <p>与文件类工具不同：文件工具走路径白名单（{@code PathPolicy}），
+     * 而 shell 是一条命令字符串，能靠前缀改写拦住的东西有限——{@code cat /etc/passwd}、
+     * {@code curl} 外发这类都绕得过去。因此对「不准出工作间」的账号，
+     * 正确的做法是把这条通道整个关掉，而不是指望路径规则兜住。</p>
+     *
+     * <p>默认 {@code true} 表示沿用底层默认（底层默认开启 shell，只在 Plan 模式关闭）。
+     * 实现方若不支持 shell 控制，可沿用本默认实现（无副作用）。</p>
+     *
+     * @param enabled false 表示禁用 shell 工具
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent shellTool(boolean enabled) {
+        return this;
+    }
+
+    /**
      * 设置规划最大子任务数
      *
      * <p>限制 Plan 模式下单次计划可拆分的最大子任务数量。

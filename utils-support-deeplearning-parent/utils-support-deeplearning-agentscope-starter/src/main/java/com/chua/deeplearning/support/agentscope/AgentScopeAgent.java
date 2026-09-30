@@ -131,6 +131,15 @@ public class AgentScopeAgent implements Agent {
      * 工作目录：文件类工具与 shell 工具以此为根，由系统设置「工作目录基路径」解析
      */
     private String workspacePath;
+
+    /**
+     * 是否允许 shell 工具：默认 true 沿用底层默认（开启）。
+     *
+     * <p>置 false 会在装配阶段调用 builder.disableShellTool()。用于「不准出工作间」的账号——
+     * shell 是一条命令字符串，路径白名单拦不住 {@code cat /etc/passwd} 这类绝对路径读取，
+     * 只能整条通道关掉。</p>
+     */
+    private boolean shellToolEnabled = true;
     /**
      * 是否打印配置
     */
@@ -337,6 +346,15 @@ public class AgentScopeAgent implements Agent {
      */
     public Agent workspace(String workspace) {
         this.workspacePath = workspace;
+        return this;
+    }
+
+    @Override
+    /**
+     * 是否允许 shell 工具：false 时装配阶段调用 disableShellTool()
+     */
+    public Agent shellTool(boolean enabled) {
+        this.shellToolEnabled = enabled;
         return this;
     }
 
@@ -1072,6 +1090,14 @@ public class AgentScopeAgent implements Agent {
         // 设置工作目录：文件类工具 / shell 工具以此为根，相对路径在此目录下解析
         if (this.workspacePath != null && !this.workspacePath.isBlank()) {
             builder.workspace(this.workspacePath);
+        }
+
+        // 禁用 shell 通道：文件工具由路径白名单（PathPolicy，默认 ROOTED）挡住越界，
+        // 但 shell 是一条命令字符串，绝对路径读取与外部调用都绕得过去，
+        // 对「不准出工作间」的账号只能整条关掉。
+        if (!this.shellToolEnabled) {
+            builder.disableShellTool();
+            log.info("[Agent] 已禁用 shell 工具（调用方判定该账号不允许出工作间）");
         }
 
         // 工具结果截断：超大目录/文件清单（如 list_files 返回数百文件、多 MB）会撑爆
