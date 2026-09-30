@@ -208,6 +208,38 @@ public class FacePipeline {
     private final float livenessThreshold;
 
     /**
+     * 1:1 人脸比对判定阈值。
+     *
+     * <p>此前这里是**写死的 0.5**：设置页声明了 {@code face.compare_threshold}（默认 0.5）
+     * 却读都没读，用户在界面上改它不会有任何效果。现改为可配置项，默认值仍取 0.5，
+     * 因此未配置时的行为与改动前**完全一致**。</p>
+     */
+    private float compareThreshold = DEFAULT_COMPARE_THRESHOLD;
+
+    /**
+     * 1:1 比对判定阈值的默认值。
+     *
+     * <p>与 {@code FaceGlobalSettingProvider} 里 {@code compare_threshold} 登记的默认值保持一致；
+     * 两处都写 0.5 是有意的（管线可脱离 Spring 独立使用，不能依赖设置读取器）。</p>
+     */
+    private static final float DEFAULT_COMPARE_THRESHOLD = 0.5f;
+
+    /**
+     * 1:N 检索命中判定的相似度下限。
+     *
+     * <p>此前设置页声明了 {@code face.match_threshold}（默认 0.5）却读都没读，
+     * 1:N 把 topK 全量返回 —— 相似度 0.01 也会被算作「命中」，于是
+     * {@code matched} 退化成「库里存在至少一条记录」。现改为可配置，默认仍 0.5，
+     * 未配置时行为与登记默认一致。</p>
+     */
+    private float matchThreshold = DEFAULT_MATCH_THRESHOLD;
+
+    /**
+     * 1:N 命中阈值的默认值（与 {@code face.match_threshold} 登记默认值一致）。
+     */
+    private static final float DEFAULT_MATCH_THRESHOLD = 0.5f;
+
+    /**
      * 检测框四扩展像素数
      */
     private final int cropPadding;
@@ -396,6 +428,16 @@ public class FacePipeline {
          * 活体检测置信度阈值
          */
         private float livenessThreshold = 0.5f;
+
+        /**
+         * 1:1 比对判定阈值（默认 0.5，与设置项 face.compare_threshold 的登记默认值一致）
+         */
+        private float compareThreshold = DEFAULT_COMPARE_THRESHOLD;
+
+        /**
+         * 1:N 检索命中判定阈值（默认 0.5，与设置项 face.match_threshold 的登记默认值一致）
+         */
+        private float matchThreshold = DEFAULT_MATCH_THRESHOLD;
 
         /**
          * 检测框四周扩展像素数（默认 0）
@@ -715,6 +757,34 @@ public class FacePipeline {
         }
 
         /**
+         * 设置 1:1 比对判定阈值。
+         *
+         * <p>不调用时保持默认 0.5，与改动前的写死值一致；调用方（FaceClientManager）
+         * 用设置项 {@code face.compare_threshold} 覆盖它。</p>
+         *
+         * @param compareThreshold 阈值 0~1
+         * @return this
+         */
+        public Builder compareThreshold(float compareThreshold) {
+            this.compareThreshold = compareThreshold;
+            return this;
+        }
+
+        /**
+         * 设置 1:N 检索命中判定阈值。
+         *
+         * <p>不调用时保持默认 0.5；调用方（FaceClientManager）用设置项
+         * {@code face.match_threshold} 覆盖它。低于该相似度的命中会被丢弃。</p>
+         *
+         * @param matchThreshold 阈值 0~1
+         * @return this
+         */
+        public Builder matchThreshold(float matchThreshold) {
+            this.matchThreshold = matchThreshold;
+            return this;
+        }
+
+        /**
          * 设置检测框四周扩展像素数。
          *
          * @param cropPadding 扩展像素数
@@ -764,12 +834,17 @@ public class FacePipeline {
          * @return FacePipeline
          */
         public FacePipeline build() {
-            return new FacePipeline(detector, liveness, featureExtractor, vectorStorage,
+            FacePipeline built = new FacePipeline(detector, liveness, featureExtractor, vectorStorage,
                     animeDetector, superResolution, restorer, faceSeg,
                     attributeClassifier, emotionClassifier, landmarkExtractor,
                     qualityAssessor, deepfakeClassifier,
                     topK, requireLive, livenessThreshold,
                     cropPadding, minFaceArea, minConfidence, sigmoidRecognize);
+            // compareThreshold 不塞进构造器：那是 public 且参数已很多，再插一个会破坏既有调用点签名。
+            // 在这里赋值效果相同，且不动公开 API；越界值收敛到 0~1，避免配置写坏导致全部判为「不匹配」。
+            built.compareThreshold = Math.max(0f, Math.min(1f, compareThreshold));
+            built.matchThreshold = Math.max(0f, Math.min(1f, matchThreshold));
+            return built;
         }
     }
 
@@ -1270,7 +1345,7 @@ public class FacePipeline {
             return null;
         }
         double score = MathUtils.cosineSimilarity(a.feature(), b.feature());
-        return new FaceCompareResult(score, score >= 0.5, a, b, System.currentTimeMillis() - t0);
+        return new FaceCompareResult(score, score >= compareThreshold, a, b, System.currentTimeMillis() - t0);
     }
 
     /**
@@ -1716,7 +1791,20 @@ public class FacePipeline {
                     v.metadata() == null ? Map.of() : v.metadata(),
                     v.content()));
         }
-        return hits;
+        // 相似度下限：设置项 face.match_threshold 此前只声明、未读取，1:N 会把 topK 全量返回，
+        // 相似度 0.01 也会被当成「命中」，于是 controller 的 matched 退化成「库里非空」。
+        // 这里按阈值过滤，让配置真正生效（默认 0.5，与登记默认一致）。
+        List<FaceSearchHit> kept = new ArrayList<>(hits.size());
+        for (FaceSearchHit hit : hits) {
+            if (hit.score() >= matchThreshold) {
+                kept.add(hit);
+            }
+        }
+        if (kept.size() != hits.size()) {
+            log.debug("[face-pipeline] 1:N 命中 {} 条，按阈值 {} 过滤后剩 {} 条",
+                    hits.size(), matchThreshold, kept.size());
+        }
+        return kept;
     }
 
     /**
