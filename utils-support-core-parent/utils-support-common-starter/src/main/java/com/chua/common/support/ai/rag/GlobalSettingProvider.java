@@ -47,6 +47,24 @@ public interface GlobalSettingProvider {
             String defaultValue,
             String valueType,
             String description,
-            int sort
-    ) {}
+            int sort,
+            boolean adminOnly
+    ) {
+
+        /**
+         * 兼容原有 5 参构造。
+         *
+         * <p>不加这个次级构造器，全仓数百处 {@code new SettingItem(...)} 会一起编译失败。
+         * 缺省为「非管理员专属」，即与加这个参数之前的行为完全一致。</p>
+         *
+         * @param field        字段名
+         * @param defaultValue 默认值
+         * @param valueType    值类型
+         * @param description  描述
+         * @param sort         排序
+         */
+        public SettingItem(String field, String defaultValue, String valueType, String description, int sort) {
+            this(field, defaultValue, valueType, description, sort, false);
+        }
+    }
 }
