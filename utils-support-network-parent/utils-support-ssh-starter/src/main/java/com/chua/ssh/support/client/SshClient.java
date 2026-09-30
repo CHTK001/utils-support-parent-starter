@@ -77,6 +77,14 @@ public class SshClient implements AutoCloseable {
      * 命令执行/读取超时时间（秒）：等待 exit-status/CLOSED 的上限，慢链路可调大
      */
     private final long execTimeoutSeconds;
+    /**
+     * 主机密钥校验策略
+     */
+    private final HostKeyPolicy hostKeyPolicy;
+    /**
+     * 已知主机密钥库路径
+     */
+    private final java.nio.file.Path knownHostsPath;
 
     /**
      * exec 通道打开超时（秒）
@@ -113,6 +121,8 @@ public class SshClient implements AutoCloseable {
         this.connectTimeout = b.connectTimeout;
         this.sessionTimeout = b.sessionTimeout;
         this.execTimeoutSeconds = b.execTimeoutSeconds;
+        this.hostKeyPolicy = b.hostKeyPolicy;
+        this.knownHostsPath = b.knownHostsPath;
     }
 
     // ==================== 工厂方法 ====================
@@ -142,6 +152,9 @@ public class SshClient implements AutoCloseable {
     public SshClient connect() {
         try {
             sshClient = org.apache.sshd.client.SshClient.setUpDefaultClient();
+            // 主机密钥校验：MINA 未设置 verifier 时默认 AcceptAllServerKeyVerifier，
+            // 即接受任意密钥（仅打一条 WARN），对投放制品的场景等于不设防，故此处显式装配
+            sshClient.setServerKeyVerifier(buildServerKeyVerifier());
             // MINA 默认 ForwardingFilter 为 RejectAllForwardingFilter, 会静默拒绝服务端下发的
             // forwarded-tcpip 通道, 导致反向隧道(-R)注册成功但数据面不通; 此处显式放行
             sshClient.setForwardingFilter(org.apache.sshd.server.forward.AcceptAllForwardingFilter.INSTANCE);
@@ -182,6 +195,18 @@ public class SshClient implements AutoCloseable {
             throw new SshClientException("SSH 连接失败: " + host + ":" + port + "，" + rootReason(e), e);
         }
         return this;
+    }
+
+    /**
+     * 依据 {@link #hostKeyPolicy} 装配主机密钥校验器。
+     *
+     * <p>已知主机密钥统一落在 {@link #knownHostsPath}，ACCEPT_NEW 与 STRICT 共用同一份文件，
+     * 因此策略可以从 ACCEPT_NEW 收紧到 STRICT 而无需重新播种。</p>
+     *
+     * @return 主机密钥校验器
+     */
+    private org.apache.sshd.client.keyverifier.ServerKeyVerifier buildServerKeyVerifier() {
+        return HostKeyVerifiers.of(hostKeyPolicy, knownHostsPath, host, port);
     }
 
     /**
@@ -1093,6 +1118,36 @@ public class SshClient implements AutoCloseable {
          * 命令执行/读取超时时间（秒），默认 60s，慢链路可调大
          */
         private long execTimeoutSeconds = 60L;
+        /**
+         * 主机密钥校验策略，默认 accept-new
+         */
+        private HostKeyPolicy hostKeyPolicy = HostKeyPolicy.ACCEPT_NEW;
+        /**
+         * 已知主机密钥库路径
+         */
+        private java.nio.file.Path knownHostsPath = HostKeyVerifiers.defaultKnownHostsPath();
+
+        /**
+         * 设置主机密钥校验策略。
+         *
+         * @param p 策略
+         * @return 链式句柄
+         */
+        public Builder hostKeyPolicy(HostKeyPolicy p) {
+            this.hostKeyPolicy = p == null ? HostKeyPolicy.ACCEPT_NEW : p;
+            return this;
+        }
+
+        /**
+         * 指定 known_hosts 路径（同一客户端管理多套指纹时区分）。
+         *
+         * @param p 路径
+         * @return 链式句柄
+         */
+        public Builder knownHostsPath(java.nio.file.Path p) {
+            this.knownHostsPath = p;
+            return this;
+        }
 
         /**
          * Host

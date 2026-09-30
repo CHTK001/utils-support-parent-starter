@@ -48,6 +48,14 @@ public class SftpClient implements AutoCloseable {
      * 连接超时时间（毫秒）
      */
     private final int connectTimeout;
+    /**
+     * 主机密钥校验策略
+     */
+    private final HostKeyPolicy hostKeyPolicy;
+    /**
+     * 已知主机密钥库路径
+     */
+    private final Path knownHostsPath;
 
     /**
      * ssh 客户端
@@ -73,6 +81,8 @@ public class SftpClient implements AutoCloseable {
         this.password = b.password;
         this.privateKeyPath = b.privateKeyPath;
         this.connectTimeout = b.connectTimeout;
+        this.hostKeyPolicy = b.hostKeyPolicy;
+        this.knownHostsPath = b.knownHostsPath;
     }
 
     /**
@@ -101,6 +111,8 @@ public class SftpClient implements AutoCloseable {
     public SftpClient connect() {
         try {
             sshClient = SshClient.setUpDefaultClient();
+            // 主机密钥校验：未设置 verifier 时 MINA 退化为 AcceptAllServerKeyVerifier（接受任意密钥）
+            sshClient.setServerKeyVerifier(HostKeyVerifiers.of(hostKeyPolicy, knownHostsPath, host, port));
             sshClient.start();
             session = sshClient.connect(username, host, port)
                     .verify(connectTimeout, TimeUnit.SECONDS).getSession();
@@ -583,6 +595,37 @@ public class SftpClient implements AutoCloseable {
          * 连接超时时间（毫秒）
          */
         private int connectTimeout = 30;
+        /**
+         * 主机密钥校验策略，默认 accept-new
+         */
+        private HostKeyPolicy hostKeyPolicy = HostKeyPolicy.ACCEPT_NEW;
+        /**
+         * 已知主机密钥库路径
+         */
+        private Path knownHostsPath = HostKeyVerifiers.defaultKnownHostsPath();
+
+        /**
+         * 设置主机密钥校验策略。
+         *
+         * @param p 策略
+         * @return 链式句柄
+         */
+        public Builder hostKeyPolicy(HostKeyPolicy p) {
+            this.hostKeyPolicy = p == null ? HostKeyPolicy.ACCEPT_NEW : p;
+            return this;
+        }
+
+        /**
+         * 指定 known_hosts 路径（同一客户端管理多套指纹时区分）。
+         *
+         * @param p 路径
+         * @return 链式句柄
+         */
+        public Builder knownHostsPath(Path p) {
+            this.knownHostsPath = p;
+            return this;
+        }
+
         /**
          * 主机
          *
