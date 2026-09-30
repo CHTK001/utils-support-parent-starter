@@ -10,7 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.InputStream;
 import java.nio.FloatBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -112,12 +114,16 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
         }
         Path modelPath = resolveModelFile();
         Path configPath = modelPath.getParent().resolve(CONFIG_FILE);
-        if (!Files.isRegularFile(configPath)) {
-            // 目录内缺少 inference.yml 时，字典退化为空表（识别结果为空串但不再抛错）
-            log.warn("[PaddleOCRv6-rec] 缺少字符字典配置 {}，识别结果将为空", configPath);
-            dict = new ArrayList<>();
-        } else {
+        if (Files.isRegularFile(configPath)) {
             dict = loadCharacterDict(configPath);
+        } else {
+            // 模型来自 classpath（模型资产 jar）时会被物化到缓存目录，
+            // 但物化只带出主模型文件，同目录的 inference.yml 不会一起落盘，
+            // 于是「onnx 旁边找字典」必然落空、字典退化为空表、识别结果全为空串
+            // （且不抛错，极难排查）。这里回落到 classpath 按资源目录读取，
+            // 与兄弟实现 PpOcrOpencvTranslator 的做法保持一致。
+            log.info("[PaddleOCRv6-rec] 模型同目录无 {}，回落 classpath 读取: {}", CONFIG_FILE, configPath);
+            dict = loadCharacterDictFromClasspath();
         }
         this.ortEnv = OrtEnvironment.getEnvironment();
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
@@ -183,7 +189,40 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
      * @return 字符表（index 0 为 blank，其余为字符）
      */
     private static List<String> loadCharacterDict(Path ymlPath) throws Exception {
-        List<String> lines = Files.readAllLines(ymlPath);
+        return parseCharacterDict(Files.readAllLines(ymlPath));
+    }
+
+    /**
+     * 从 classpath 读取字符字典（模型资产 jar 内的 {@code inference.yml}）。
+     *
+     * <p>模型来自 jar 时，物化到磁盘的只有主模型文件，附属的 {@code inference.yml}
+     * 仍在 classpath 上，故按 {@link #resourceBase} 拼接资源路径直接读取。</p>
+     *
+     * @return 字符表（index 0 为 blank）；取不到时返回仅含 blank 的表
+     */
+    private List<String> loadCharacterDictFromClasspath() {
+        String resource = resourceBase.endsWith("/") ? resourceBase + CONFIG_FILE : resourceBase + "/" + CONFIG_FILE;
+        try (InputStream is = PpWordExtractorTranslator.class.getClassLoader().getResourceAsStream(resource)) {
+            if (is == null) {
+                log.warn("[PaddleOCRv6-rec] classpath 也找不到字符字典 {}，识别结果将为空", resource);
+                return new ArrayList<>();
+            }
+            var table = parseCharacterDict(List.of(new String(is.readAllBytes(), StandardCharsets.UTF_8).split("\n")));
+            log.info("[PaddleOCRv6-rec] 字符字典取自 classpath: {} dict_size={}", resource, table.size());
+            return table;
+        } catch (Exception e) {
+            log.warn("[PaddleOCRv6-rec] classpath 字典读取失败: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 解析 character_dict 段为字符表（文件与 classpath 两条来源共用）。
+     *
+     * @param lines 推理配置的文本行
+     * @return 字符表（index 0 为 blank，其余为字符）
+     */
+    private static List<String> parseCharacterDict(List<String> lines) {
         List<String> chars = new ArrayList<>();
         boolean inDict = false;
         for (String line : lines) {
