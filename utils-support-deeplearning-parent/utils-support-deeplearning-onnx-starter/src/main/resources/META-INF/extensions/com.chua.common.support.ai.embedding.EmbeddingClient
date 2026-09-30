@@ -1,4 +1,1 @@
-minilm=com.chua.deeplearning.support.onnx.embedding.minilm.MiniLMEmbeddingClient
-bge=com.chua.deeplearning.support.onnx.embedding.bge.BgeEmbeddingClient
-wemm=com.chua.deeplearning.support.onnx.embedding.wemm.WeMMEmbeddingClient
 onnx=com.chua.deeplearning.support.onnx.OnnxEmbeddingClient
