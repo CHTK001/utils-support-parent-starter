@@ -84,12 +84,33 @@ public interface GenerateProgressEstimator {
      * @return 1..99 的估算进度
      */
     static int estimateWith(Context context) {
+        return estimateWith(context, null);
+    }
+
+    /**
+     * 按指定实现名估算；名字为空时取 order 最大者。
+     *
+     * <p>新增多个实现后，「谁生效」必须显式可控：若只按 order 取最大，
+     * 那么加入一个新实现就会静默改掉默认行为（实测那会把 12.3s 处的值从 49 变成 59）。
+     * 故这里保留「按名选择」这条路径，默认实现的名字由调用方给出。</p>
+     *
+     * @param context   估算上下文
+     * @param preferred 期望的实现名（{@code @Spi} 的值），为空则按 order 取最大
+     * @return 1..99 的估算进度
+     */
+    static int estimateWith(Context context, String preferred) {
         if (context == null) {
             return 1;
         }
         try {
-            List<GenerateProgressEstimator> candidates = ServiceProvider.of(GenerateProgressEstimator.class)
-                    .collect().stream()
+            ServiceProvider<GenerateProgressEstimator> provider = ServiceProvider.of(GenerateProgressEstimator.class);
+            if (preferred != null && !preferred.isBlank()) {
+                GenerateProgressEstimator named = provider.getExtension(preferred);
+                if (named != null && named.supports(context)) {
+                    return clamp(named.estimate(context));
+                }
+            }
+            List<GenerateProgressEstimator> candidates = provider.collect().stream()
                     .filter(item -> item.supports(context))
                     .sorted(Comparator.comparingInt(GenerateProgressEstimator::order).reversed())
                     .toList();

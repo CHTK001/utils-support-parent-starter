@@ -63,8 +63,9 @@ public class TimeBasedProgressEstimator implements GenerateProgressEstimator {
 
     @Override
     public int order() {
-        // 默认实现优先级最低，任何自定义实现都能盖过它
-        return Integer.MIN_VALUE;
+        // 内置实现里优先级最高：本类是「默认实现」，加入更多实现时不应因此被换掉。
+        // 自定义实现只要给更大的 order 就能盖过它，或由调用方按 @Spi 名显式指定。
+        return 0;
     }
 
     /**
