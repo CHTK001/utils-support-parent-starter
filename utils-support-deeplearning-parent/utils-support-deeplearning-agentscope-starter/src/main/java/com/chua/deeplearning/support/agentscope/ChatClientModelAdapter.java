@@ -144,17 +144,25 @@ public class ChatClientModelAdapter implements Model {
             prompt = history.remove(history.size() - 1).getContent();
         }
 
-        // 2. 有原生工具 → OpenAI 流式 function calling；构造失败则降级文本流式
+        // 2. 有原生工具 → OpenAI 流式 function calling；失败则降级文本流式。
+        //
+        // 降级必须挂在响应式链上：streamWithTools 返回的是**惰性 Flux**，HTTP 请求
+        // 在订阅时才发出（Flux.create 的 lambda 内），异常也在那时才抛。用同步
+        // try/catch 包住方法调用结构性地抓不到它 —— 这条兜底曾因此永不生效，
+        // 表现为 run() 只拿到空输出、注入的 ChatClient 一次都没被调用。
         if (tools != null && !tools.isEmpty()) {
-            try {
-                return streamWithTools(messages, tools, systemPrompt, options)
-                        .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
-            } catch (Exception e) {
-                log.warn("[ChatClientModelAdapter] 原生工具流式构造失败，降级文本流式: {}", e.getMessage());
-            }
+            final List<ChatMessage> fallbackHistory = history;
+            final String fallbackPrompt = prompt;
+            final String fallbackSystemPrompt = systemPrompt;
+            return streamWithTools(messages, tools, systemPrompt, options)
+                    .onErrorResume(e -> {
+                        log.warn("[ChatClientModelAdapter] 原生工具流式失败，降级文本流式: {}", e.getMessage());
+                        return streamText(fallbackHistory, fallbackPrompt, tools, fallbackSystemPrompt);
+                    })
+                    .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
         }
 
-        // 3. 无工具（或降级）→ 桥接 ChatClient 逐字流式
+        // 3. 无工具 → 桥接 ChatClient 逐字流式
         return streamText(history, prompt, tools, systemPrompt)
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
     }
