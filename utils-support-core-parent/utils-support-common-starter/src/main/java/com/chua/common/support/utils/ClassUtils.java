@@ -92,6 +92,33 @@ public class ClassUtils {
      */
     private static final Map<Integer, Method> cacheMethod = new ConcurrentReferenceHashMap<>(512);
     /**
+     * 反射实例化彻底失败的原因摘要。
+     *
+     * <p>记录的是最内层异常而不是最外层：反射调用构造器时抛出的
+     * {@code InvocationTargetException} 只是包装层，构造器体内真正失败的异常在它的 cause 上。
+     * 直接报外层只会得到「构造器抛了异常」这种没有信息量的描述，
+     * 这正是实例化失败长期无法定位的直接原因。</p>
+     *
+     * @param typeName         目标类全名
+     * @param constructorCount 目标类声明的构造器数量
+     * @param reason           最内层异常描述，形如「异常类型名: 消息」；
+     *                         没有任何构造器体抛过异常时为 {@code null}
+     *                         （属合法业务状态，故不加非空约束）
+     */
+    public record NewInstanceFailure(String typeName, int constructorCount, String reason) {
+    }
+    /**
+     * 最近一次「所有构造器都试完仍然失败」的原因，按线程隔离保存。
+     *
+     * <p>刻意用 {@link ThreadLocal} 而不是静态字段：本类在多线程下被并发调用，
+     * 共享一个「最近失败」会让线程 A 读到线程 B 的错误，诊断时追错方向，
+     * 比根本拿不到信息更糟。</p>
+     *
+     * <p>每次实例化尝试的入口处会先清空，因此该值只可能来自「最近一次已完成的尝试」，
+     * 不会被上一次失败残留的值掩盖一次成功。</p>
+     */
+    private static final ThreadLocal<NewInstanceFailure> LAST_INSTANTIATION_FAILURE = new ThreadLocal<>();
+    /**
      *                   : {@code '$' == {@value}}.
      * 外部$内部        $
      */
@@ -1051,6 +1078,10 @@ public class ClassUtils {
      * 允许在内部实现中直接使用 java.lang.reflect API。</p>
      */
     private static <T> T createAlgorithm(Class<T> tClass, Object[] params) {
+        // 每次尝试入口先清空：SPI 装配会在同一线程连续尝试多个实现，
+        // 若不在此清空，一次成功会掩盖上一次失败，调用方读到陈旧原因。
+        LAST_INSTANTIATION_FAILURE.remove();
+        Throwable lastError = null;
         Map<Constructor<?>, Object[]> loss = new LinkedHashMap<>(8);
         Map<Constructor<?>, Object[]> allnull = new LinkedHashMap<>(8);
         Map<Class<?>, Object> typeAndValue = createTypeAndValue(params);
@@ -1059,7 +1090,8 @@ public class ClassUtils {
             T algorithm = null;
             try {
                 algorithm = createAlgorithm(declaredConstructor, typeAndValue, loss, allnull);
-            } catch (Exception ignored) {
+            } catch (Exception ex) {
+                lastError = ex;
             }
             if (null != algorithm) {
                 return algorithm;
@@ -1074,7 +1106,8 @@ public class ClassUtils {
                     if (null != newInstance) {
                         return (T) newInstance;
                     }
-                } catch (Exception ignored) {
+                } catch (Exception ex) {
+                    lastError = ex;
                 }
             }
         }
@@ -1087,11 +1120,81 @@ public class ClassUtils {
                     if (null != newInstance) {
                         return (T) newInstance;
                     }
-                } catch (Exception ignored) {
+                } catch (Exception ex) {
+                    lastError = ex;
                 }
             }
         }
+        // 所有构造器都试完仍然失败：记录最内层原因。控制流与返回值保持原样，
+        // 仅补可观测性——此前此处直接返回 null，调用方拿不到任何线索。
+        recordInstantiationFailure(tClass, declaredConstructors.length, lastError);
         return null;
+    }
+    /**
+     * 取出并清除本线程最近一次实例化彻底失败的原因。
+     *
+     * <p>语义是「一次性读取」：读走即清除。这样设计有两个原因——</p>
+     * <ul>
+     *   <li>避免 {@link ThreadLocal} 长期持有对象造成内存驻留；</li>
+     *   <li>避免调用方重复取到同一个值，把陈旧原因当成新发生的故障去追。</li>
+     * </ul>
+     *
+     * <p>典型用法是紧跟在一次失败的实例化调用之后取：</p>
+     * <pre>{@code
+     * Object instance = ClassUtils.forObject(type, loader, args);
+     * if (null == instance) {
+     *     ClassUtils.NewInstanceFailure failure = ClassUtils.consumeLastInstantiationFailure();
+     *     // failure.reason() 形如「java.net.BindException: Address already in use」
+     * }
+     * }</pre>
+     *
+     * <p>注意：实例化成功时该方法返回 {@code null}，因为每次尝试入口都会清空记录。</p>
+     *
+     * @return 失败原因摘要；没有失败记录（最近一次尝试成功，或从未尝试过）时返回 {@code null}
+     */
+    public static NewInstanceFailure consumeLastInstantiationFailure() {
+        NewInstanceFailure failure = LAST_INSTANTIATION_FAILURE.get();
+        LAST_INSTANTIATION_FAILURE.remove();
+        return failure;
+    }
+    /**
+     * 记录一次实例化失败的原因，供 {@link #consumeLastInstantiationFailure()} 取回。
+     *
+     * @param type             目标类
+     * @param constructorCount 目标类声明的构造器数量
+     * @param error            捕获到的异常，允许为 {@code null}
+     *                         （此时记录里只有类型名与构造器数量，仍可判断「根本没匹配上构造器」）
+     */
+    private static void recordInstantiationFailure(Class<?> type, int constructorCount, Throwable error) {
+        LAST_INSTANTIATION_FAILURE.set(
+                new NewInstanceFailure(type.getName(), constructorCount, rootReason(error)));
+    }
+    /**
+     * 沿 cause 链取最内层异常并格式化为可读描述。
+     *
+     * <p>反射调用构造器失败时抛出的 {@code InvocationTargetException} 只是包装层，
+     * 真正的原因在它的 cause 上，因此必须下钻，否则只会得到
+     * 「构造器抛了异常」这种无法定位的信息。</p>
+     *
+     * @param error 捕获到的异常，允许为 {@code null}
+     * @return 形如「异常类型名: 消息」的描述；{@code error} 为 {@code null} 时返回 {@code null}；
+     *         异常无 message 时只返回类型名
+     */
+    private static String rootReason(Throwable error) {
+        if (null == error) {
+            return null;
+        }
+        Throwable root = error;
+        // 防御 cause 链成环（异常自引用 cause）导致死循环
+        for (int depth = 0; depth < 32; depth++) {
+            Throwable cause = root.getCause();
+            if (null == cause || cause == root) {
+                break;
+            }
+            root = cause;
+        }
+        String message = root.getMessage();
+        return null == message ? root.getClass().getName() : root.getClass().getName() + ": " + message;
     }
     /**
      * 尝试用给定构造器和参数集合创建实例，并记录无法完全匹配的构造器。
@@ -3029,10 +3132,15 @@ public class ClassUtils {
      * @return 实例化成功的对象，失败时返回 null
      */
     public static <T>T newInstance(Constructor<T> declaredConstructor, Object...args) {
+        LAST_INSTANTIATION_FAILURE.remove();
         try {
             setAccessible(declaredConstructor);
             return (T) declaredConstructor.newInstance(args); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（newInstance(Constructor) 对外封装）
         } catch (Exception e) {
+            // 这是 SPI 实例化实现的主要入口（ServiceDefinition 直接调用本方法），
+            // 此前吞掉异常返回 null，调用方只能看到「实例化结果为 null」，
+            // 原始异常无从取回。现补记录，控制流与返回值不变。
+            recordInstantiationFailure(declaredConstructor.getDeclaringClass(), 1, e);
         }
         return null;
     }
@@ -3053,6 +3161,8 @@ public class ClassUtils {
      * 允许在内部实现中直接使用 java.lang.reflect API。</p>
      */
     public static <T>T newInstance(Class<T> protoMapClass, Object...args) {
+        LAST_INSTANTIATION_FAILURE.remove();
+        Throwable lastError = null;
         try {
             Constructor<?>[] declaredConstructors = protoMapClass.getDeclaredConstructors(); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（newInstance 构造器枚举匹配）
             for (Constructor<?> declaredConstructor : declaredConstructors) {
@@ -3061,13 +3171,22 @@ public class ClassUtils {
                         setAccessible(declaredConstructor);
                         return (T) declaredConstructor.newInstance(args); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（newInstance(Class) 构造器匹配实例化）
                     } catch (Exception e) {
+                        lastError = e;
                     }
                 }
             }
             if(args.length == 0) {
-                return staticBuilderMethod(protoMapClass);
+                T built = staticBuilderMethod(protoMapClass);
+                if (null == built) {
+                    recordInstantiationFailure(protoMapClass, declaredConstructors.length, lastError);
+                }
+                return built;
             }
-            return ReflectUtils.instantiate(protoMapClass, args);
+            T instantiated = ReflectUtils.instantiate(protoMapClass, args);
+            if (null == instantiated) {
+                recordInstantiationFailure(protoMapClass, declaredConstructors.length, lastError);
+            }
+            return instantiated;
         } catch (Exception e) {
             // 构造器调用失败（参数不匹配等），继续尝试下一个构造器
             throw new RuntimeException(e);
