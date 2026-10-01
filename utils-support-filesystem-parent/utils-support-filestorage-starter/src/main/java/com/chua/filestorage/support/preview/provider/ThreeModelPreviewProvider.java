@@ -50,9 +50,14 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
     public PreviewResult preview(byte[] content, String ext, String mime) {
         String b64 = Base64.getEncoder().encodeToString(content);
         return PreviewResult.builder()
-                .htmlContent("<div id=\"app\" style=\"width:100%;height:100vh;overflow:hidden\">" +
+                .htmlContent("<div id=\"app\" style=\"width:100%;height:100vh;overflow:hidden\"></div>" +
+                        // loading / error 必须是 #app 的**兄弟节点**：#app 的内容会被整体换成
+                        // canvas（app.innerHTML='' 后 appendChild），放在里面会被一起清掉，
+                        // 于是失败回调 sh() 去写 #error 时抛 null，把真实失败原因盖掉，
+                        // 页面只剩一个永远转不完的「加载中」。
                         "<div id=\"loading\" style=\"position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);" +
-                        "color:#aaa;font-family:sans-serif;font-size:14px\">加载 3D 模型中...</div></div>")
+                        "color:#aaa;font-family:sans-serif;font-size:14px\">加载 3D 模型中...</div>" +
+                        "<div id=\"error\"></div>")
                 .embeddedCss("body{margin:0;padding:0;overflow:hidden;background:#1a1a2e}" +
                         "#info{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);" +
                         "color:rgba(255,255,255,0.4);font:12px sans-serif;pointer-events:none;" +
@@ -177,7 +182,7 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
                 "eg.forEach(function(g){if(g.c===10)cx=parseFloat(g.v);if(g.c===20)cy=parseFloat(g.v);" +
                 "if(g.c===30)cz=parseFloat(g.v);if(g.c===40)cr=parseFloat(g.v)});" +
                 "for(var a=0;a<=64;a++){var ang=a/64*Math.PI*2;" +
-                "pts.push(cx+Math.cos(ang)*cr,cy+Math.sin(ang)*cr,cz)" +
+                "pts.push(cx+Math.cos(ang)*cr,cy+Math.sin(ang)*cr,cz);" +
                 "if(a>0)pts.push(cx+Math.cos((a-1)/64*Math.PI*2)*cr,cy+Math.sin((a-1)/64*Math.PI*2)*cr,cz)}" +
                 "}else if(et==='ARC'){" +
                 "var acx=0,acy=0,acz=0,acr=1,ast=0,aend=Math.PI*2;" +
@@ -186,7 +191,7 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
                 "if(g.c===50)ast=parseFloat(g.v)*Math.PI/180;" +
                 "if(g.c===51)aend=parseFloat(g.v)*Math.PI/180});" +
                 "for(var aa=0;aa<=64;aa++){var aang=ast+(aend-ast)*aa/64;" +
-                "pts.push(acx+Math.cos(aang)*acr,acy+Math.sin(aang)*acr,acz)" +
+                "pts.push(acx+Math.cos(aang)*acr,acy+Math.sin(aang)*acr,acz);" +
                 "if(aa>0)pts.push(acx+Math.cos(ast+(aend-ast)*(aa-1)/64)*acr,acy+Math.sin(ast+(aend-ast)*(aa-1)/64)*acr,acz)}}}" +
  // 创建 线 segments
                 "var geom=new TH.BufferGeometry();geom.setAttribute('position',new TH.Float32BufferAttribute(pts,3));" +
