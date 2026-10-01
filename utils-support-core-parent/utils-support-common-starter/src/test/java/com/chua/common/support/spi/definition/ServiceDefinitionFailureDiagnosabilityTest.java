@@ -97,6 +97,26 @@ class ServiceDefinitionFailureDiagnosabilityTest {
     }
 
     @Test
+    @DisplayName("失败原因必须带上构造器体里的真实根因，而不只是「实例化失败」")
+    void rootCauseReachesFailureMessage() {
+        ServiceDefinition definition = definitionOf(ThrowingOnConstruct.class);
+
+        try {
+            definition.newInstance(AutoServiceAutowire.INSTANCE, "ROOTCAUSE-MARK-91");
+        } catch (RuntimeException expected) {
+            // 兜底路径会包装后 rethrow，此处不改变控制流，仅容忍
+        }
+
+        String reason = definition.getFailureMessage();
+        assertNotNull(reason, "失败原因必须可取");
+        assertTrue(reason.contains("ROOTCAUSE-MARK-91"),
+                "失败原因必须包含构造器体抛出的原始信息（BOOM-from-constructor:ROOTCAUSE-MARK-91），"
+                        + "否则排查时仍只能看到「实例化失败」而无法定位；实际: " + reason);
+        assertTrue(!reason.contains("InvocationTargetException"),
+                "不应把反射包装层当根因报出，实际: " + reason);
+    }
+
+    @Test
     @DisplayName("实参类型与任何构造器都不匹配时，失败原因应说明所有构造器都无法实例化")
     void noMatchingConstructorIsDiagnosable() {
         ServiceDefinition definition = definitionOf(NoCtorAtAll.class);

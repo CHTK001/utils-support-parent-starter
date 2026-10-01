@@ -554,12 +554,19 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
                 ClassUtils.setAccessible(declaredConstructor);
                 T instance = (T) serviceAutowire.autowire(ClassUtils.newInstance(declaredConstructor, args));
                 if (null == instance) {
-                    // 关键分支：ClassUtils.newInstance 内部有三处 catch (Exception ignored)，
-                    // 构造过程抛异常会被吞成 null 返回，因此这里拿不到异常对象。但「精确匹配到了
-                    // 构造器、却产不出实例」本身就是最关键的信息——它把「签名不匹配」与
-                    // 「构造过程抛异常」区分开，也正是 FTPS 长期无从定位的那一类。
+                    // 关键分支：ClassUtils.newInstance 内部捕获异常后返回 null，异常对象本身
+                    // 在此拿不到；但 ClassUtils 已把**最内层**根因记录在
+                    // consumeLastInstantiationFailure() 中，这里取出并附到失败原因上。
+                    // 此前这里只能写「异常已被吞掉」，排查时等于没有任何线索——
+                    // FTPS 就因此被长期误报为「SPI 未注册」，真因（自签证书未预处理）
+                    // 被掩盖了整整一轮排查。
+                    // 「精确匹配到了构造器、却产不出实例」本身也是最关键的信息：
+                    // 它把「签名不匹配」与「构造过程抛异常」区分开。
+                    ClassUtils.NewInstanceFailure rootCause = ClassUtils.consumeLastInstantiationFailure();
                     recordFailure(null, "已匹配构造器 " + declaredConstructor
-                            + "，但实例化结果为 null（构造过程异常已被 ClassUtils.newInstance 吞掉）");
+                            + "，但实例化结果为 null；根因："
+                            + (null == rootCause || null == rootCause.reason()
+                                    ? "未能取得（构造器可能未真正执行）" : rootCause.reason()));
                     return null;
                 }
                 if (!checkSpiCondition(instance)) {
