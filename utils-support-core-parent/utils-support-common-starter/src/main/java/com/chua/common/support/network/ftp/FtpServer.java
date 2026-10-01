@@ -120,6 +120,37 @@ public class FtpServer extends AbstractServer implements TcpServer {
     }
 
     /**
+     * 创建使用外部服务器配置的 FTP 服务器。
+     *
+     * <p>服务管理以 SPI 方式装配服务器时，实例化按「实参运行时类型」精确匹配构造器，
+     * 传入的是 {@link ServerSetting}。本类原先只有无参与 {@link FtpConfig} 两种构造器，
+     * 匹配失败后回退到无参构造，于是绑定 {@link FtpConfig#defaults()} 里的 21 端口，
+     * 与调用方配置的端口完全无关：表现为「节点状态 RUNNING、日志也报启动成功，
+     * 但配置端口上没有任何监听」，实现在 21 上监听并回 FTP banner。</p>
+     *
+     * @param setting 外部服务器配置（host 与 port 生效，homeDirectory 等 FTP 项取默认值）
+     */
+    public FtpServer(ServerSetting setting) {
+        this(buildConfigFrom(setting));
+    }
+
+    /**
+     * 由外部服务器配置派生 FTP 配置：只覆盖监听地址与控制端口。
+     *
+     * <p>{@link FtpConfig.Builder} 内部以 {@code new FtpConfig()} 起手，
+     * 未显式设置的字段（homeDirectory/超时/匿名开关/被动端口范围）保留其默认值。</p>
+     *
+     * @param setting 外部服务器配置
+     * @return FTP 配置
+     */
+    private static FtpConfig buildConfigFrom(ServerSetting setting) {
+        return FtpConfig.builder()
+                .host(setting.getHost())
+                .controlPort(setting.getPort())
+                .build();
+    }
+
+    /**
      * 构建服务器配置（供 AbstractServer 初始化生命周期/过滤器/指标）。
      *
      * @param config FTP 配置
@@ -157,7 +188,8 @@ public class FtpServer extends AbstractServer implements TcpServer {
             setting.setPort(controlServerSocket.getLocalPort());
             running = true;
             acceptThread = Thread.ofVirtual().name(ACCEPT_THREAD_NAME).start(this::acceptLoop);
-            log.info("FTP 服务器启动成功: {}:{}", ftpConfig.getHost(), setting.getPort());
+            log.info("FTP 服务器启动成功: {}:{}", controlServerSocket.getInetAddress().getHostAddress(),
+                    controlServerSocket.getLocalPort());
         } catch (IOException e) {
             throw new IllegalStateException("FTP 服务器启动失败: " + ftpConfig.getHost() + ":" + ftpConfig.getControlPort(), e);
         }

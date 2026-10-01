@@ -101,6 +101,36 @@ public class FtpsServer extends FtpServer {
     }
 
     /**
+     * 创建使用外部服务器配置的 FTPS 服务器（隐式 SSL + 自动自签证书）。
+     *
+     * <p>SPI 实例化按「实参运行时类型」精确匹配构造器，服务管理传入的是
+     * {@link ServerSetting}。本类原先只有无参与 {@link FtpConfig} 两种构造器，
+     * 匹配失败后实例化抛错被 SPI 吞掉、只表现为返回 {@code null}，
+     * 最终报「{@code Server SPI 未注册: ftps}」——而 {@code /protocols} 仍在宣告该协议，
+     * 属于「宣告支持但实际建不出来」。</p>
+     *
+     * @param setting 外部服务器配置（host 与 port 生效，其余取 FTPS 默认值）
+     */
+    public FtpsServer(ServerSetting setting) {
+        this(buildConfigFrom(setting), true);
+    }
+
+    /**
+     * 由外部服务器配置派生 FTPS 配置：覆盖监听地址与控制端口，并强制开启 SSL 与自签。
+     *
+     * @param setting 外部服务器配置
+     * @return FTPS 配置
+     */
+    private static FtpConfig buildConfigFrom(ServerSetting setting) {
+        return FtpConfig.builder()
+                .host(setting.getHost())
+                .controlPort(setting.getPort())
+                .sslEnabled(true)
+                .selfSignedAuto(true)
+                .build();
+    }
+
+    /**
      * 初始化 SSL 上下文。
      *
      * @param config FTP 配置
@@ -116,6 +146,11 @@ public class FtpsServer extends FtpServer {
             } else {
                 sslConfig.setSelfSignedAuto(true);
             }
+            // 必须先做预处理：selfSignedAuto 只是「意图」，prepareSslConfig 才把它翻成
+            // enabled=true + selfSigned=true。缺了这一步，loadKeyStore 走不到
+            // generateSelfSignedKeyStore 分支，直接抛「未配置 KeyStore 与 Cert/Key 文件」，
+            // 表现为 FTPS 一启动就失败（SPI 还会把构造异常吞成 null，报成「SPI 未注册」）。
+            SslUtils.prepareSslConfig(sslConfig);
             SSLContext ctx = SslUtils.createSslContext(sslConfig);
             if (config.getCertPath() != null) {
                 log.info("FTPS 使用指定证书: {}", config.getCertPath());

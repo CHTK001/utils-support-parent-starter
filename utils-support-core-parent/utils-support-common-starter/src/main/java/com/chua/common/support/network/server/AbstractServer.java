@@ -474,10 +474,19 @@ public abstract class AbstractServer implements ConfigServer {
 
     /**
      * 移除过滤
+     *
+     * <p>必须与 {@link #addFilter} 对称：既摘阻塞列表，也摘响应式列表。原先只摘阻塞列表，
+     * 而 JDK/响应式服务器走的是 {@code getMergedReactiveFilters()} 链，于是同时实现
+     * {@code ReactiveServerFilter} 的插件（如 {@code FileStorageServerFilter}，其逻辑全在
+     * 响应式 {@code doFilter} 里）热更新后旧实例仍留在链上并先终结响应，新实例永远不可达，
+     * 表现为「参数已落库、实例也重建了，运行中行为却不变，只有停→起才生效」。</p>
      */
     @Override
     public Server removeFilter(ServerFilter filter) {
         filterManager.removeFilter(filter);
+        if (filter instanceof ReactiveServerFilter reactiveFilter) {
+            filterManager.removeReactiveFilter(reactiveFilter);
+        }
         return this;
     }
 
