@@ -20,18 +20,28 @@ name: Engine Integration Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
     paths:
       - "**/src/test/**"
+      - "**/src/main/**"
       - "**/pom.xml"
+      - "libs/**"
       - ".github/workflows/**"
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
     paths:
       - "**/src/test/**"
+      - "**/src/main/**"
       - "**/pom.xml"
+      - "libs/**"
       - ".github/workflows/**"
   workflow_dispatch:
+
+# 只在 push 时取消进行中的同类运行，workflow_dispatch 排队不取消。
+# group 必须带 event_name：dispatch 并不豁免 concurrency，同 group 的 push 照样会取消它。
+concurrency:
+  group: engine-integration-tests-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 
 env:
   TARGET_MODULES: >-
@@ -78,15 +88,24 @@ jobs:
                 <username>${{ github.actor }}</username>
                 <password>${{ github.token }}</password>
               </server>
+              <!--
+                凭据改走仓库 Secrets，不再写死在工作流里。
+                原值（60fe204f3c458713ddc3889e / mo7_coLcrZtG）已进 git 历史，
+                任何有仓库读权限的人都能拿到，必须**轮换**。
+                需要在 Settings → Secrets 里配置两个名字：
+                  ALIYUN_PACKAGES_USERNAME
+                  ALIYUN_PACKAGES_PASSWORD
+                没配之前这两个 server 凭据为空，依赖解析会失败 —— 这是预期的。
+              -->
               <server>
                 <id>2676178-release-jmLEdB</id>
-                <username>60fe204f3c458713ddc3889e</username>
-                <password>mo7_coLcrZtG</password>
+                <username>${{ secrets.ALIYUN_PACKAGES_USERNAME }}</username>
+                <password>${{ secrets.ALIYUN_PACKAGES_PASSWORD }}</password>
               </server>
               <server>
                 <id>2676178-snapshot-FwAJpk</id>
-                <username>60fe204f3c458713ddc3889e</username>
-                <password>mo7_coLcrZtG</password>
+                <username>${{ secrets.ALIYUN_PACKAGES_USERNAME }}</username>
+                <password>${{ secrets.ALIYUN_PACKAGES_PASSWORD }}</password>
               </server>
             </servers>
           </settings>
@@ -138,15 +157,24 @@ jobs:
                 <username>${{ github.actor }}</username>
                 <password>${{ github.token }}</password>
               </server>
+              <!--
+                凭据改走仓库 Secrets，不再写死在工作流里。
+                原值（60fe204f3c458713ddc3889e / mo7_coLcrZtG）已进 git 历史，
+                任何有仓库读权限的人都能拿到，必须**轮换**。
+                需要在 Settings → Secrets 里配置两个名字：
+                  ALIYUN_PACKAGES_USERNAME
+                  ALIYUN_PACKAGES_PASSWORD
+                没配之前这两个 server 凭据为空，依赖解析会失败 —— 这是预期的。
+              -->
               <server>
                 <id>2676178-release-jmLEdB</id>
-                <username>60fe204f3c458713ddc3889e</username>
-                <password>mo7_coLcrZtG</password>
+                <username>${{ secrets.ALIYUN_PACKAGES_USERNAME }}</username>
+                <password>${{ secrets.ALIYUN_PACKAGES_PASSWORD }}</password>
               </server>
               <server>
                 <id>2676178-snapshot-FwAJpk</id>
-                <username>60fe204f3c458713ddc3889e</username>
-                <password>mo7_coLcrZtG</password>
+                <username>${{ secrets.ALIYUN_PACKAGES_USERNAME }}</username>
+                <password>${{ secrets.ALIYUN_PACKAGES_PASSWORD }}</password>
               </server>
             </servers>
           </settings>
