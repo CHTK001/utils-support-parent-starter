@@ -10,7 +10,17 @@ import java.util.Set;
 
 /**
  * 3D 模型预览提供器，基于 three.js 0.163 渲染 glb / gltf / obj / stl / dxf 格式。
+ *
  * <p>SPI 类型：{@code preview-3d}。输出嵌入 OrbitControls 的 three.js 预览页面。</p>
+ *
+ * <p><b>渲染器必须同源自托管，不得依赖公网 CDN</b>：本类早期版本把 three 的
+ * ES Module 同时写进 {@code jsUrls}（渲染器把它拼成普通 {@code <script src>}，
+ * 而 ESM 被当 classic 脚本加载必然报 {@code Unexpected token 'export'}）
+ * 并指向 {@code cdn.jsdelivr.net}。实测该 CDN 在内网不可达，且 {@code await import}
+ * 位于 try 之外，失败时 async IIFE 直接 reject —— 页面永远停在「加载 3D 模型中...」，
+ * 且没有任何错误提示。现改为从 {@code /preview-vendor/three/**} 同源动态导入
+ * （资源随本模块 classpath 提供，由文件服务器的 preview-vendor 通道按约定放行），
+ * 并把导入移入 try 以便失败时给出可读原因。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -49,13 +59,6 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
                         "text-align:center;background:rgba(0,0,0,0.3);padding:4px 12px;border-radius:4px}" +
                         "#error{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);" +
                         "color:#e74c3c;font:14px sans-serif;display:none}")
-                .jsUrls(new String[]{
-                        "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js",
-                        "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/loaders/GLTFLoader.js",
-                        "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/loaders/OBJLoader.js",
-                        "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/loaders/STLLoader.js",
-                        "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/controls/OrbitControls.js"
-                })
                 .embeddedJs(buildScript(b64, ext))
                 .build();
     }
@@ -74,11 +77,22 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
  // 基础64 → 字符串
                 "var ts=function(b){return new TextDecoder().decode(p(b))};" +
  // 导入 Three.js
-                "var m=await import('https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js');" +
-                "var GL=await import('https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/loaders/GLTFLoader.js');" +
-                "var OL=await import('https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/loaders/OBJLoader.js');" +
-                "var SL=await import('https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/loaders/STLLoader.js');" +
-                "var OC=await import('https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/controls/OrbitControls.js');" +
+                // 错误 处理器（必须先定义：渲染器自身加载失败时也要有可读反馈，
+                // 否则 async IIFE 直接 reject，页面永远停在「加载 3D 模型中...」）
+                "var sh=function(msg){var el=document.getElementById('error');el.textContent=msg;el.style.display='block';" +
+                "document.getElementById('loading').style.display='none'};" +
+                // 渲染器同源自托管：早期版本把 three 的 ES Module 同时写进 jsUrls
+                // （被渲染成普通 <script>，必然报 Unexpected token 'export'）
+                // 且指向公网 CDN（内网不可达），结果页面永远卡在加载中。
+                // 现改为同源 /preview-vendor/three/** 动态 import。
+                "var m,GL,OL,SL,OC;" +
+                "try{" +
+                "m=await import('/preview-vendor/three/three.module.min.js');" +
+                "GL=await import('/preview-vendor/three/GLTFLoader.js');" +
+                "OL=await import('/preview-vendor/three/OBJLoader.js');" +
+                "SL=await import('/preview-vendor/three/STLLoader.js');" +
+                "OC=await import('/preview-vendor/three/OrbitControls.js');" +
+                "}catch(ex){return sh('3D 渲染器加载失败: '+ex.message)}" +
                 // scene setup
                 "var s=new m.Scene();s.background=new m.Color(0x1a1a2e);" +
                 "var ca=new m.PerspectiveCamera(45,innerWidth/innerHeight,0.01,1e5);" +
@@ -92,9 +106,6 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
                 "var co=new OC.OrbitControls(ca,r.domElement);co.enableDamping=true;co.dampingFactor=0.1;" +
  // 助手
                 "s.add(new m.GridHelper(10,10,0x444466,0x333355));" +
- // 错误 处理器
-                "var sh=function(msg){var el=document.getElementById('error');el.textContent=msg;el.style.display='block';" +
-                "document.getElementById('loading').style.display='none'};" +
  // 加载 模型
                 "try{var obj;" +
                 // GLB
