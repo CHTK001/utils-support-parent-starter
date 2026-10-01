@@ -126,6 +126,14 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
     private Throwable ex;
 
     /**
+     * 实例化失败的场景描述（配合 {@link #ex} 一起构成可诊断信息）。
+     *
+     * <p>见 {@link #recordFailure(Throwable, String)}：本类历史上有多处静默吞异常，
+     * 失败原因无处可查。</p>
+     */
+    private volatile String failureMessage;
+
+    /**
      * 发现该服务定义的类型或入口类型。
      */
     private Class<?> finderType;
@@ -437,6 +445,23 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
     }
 
     /**
+     * 获取实例化失败的可读原因（含场景描述与原始异常信息）。
+     *
+     * <p>供调用方在「实例化返回 {@code null}」时拼进错误信息，避免只能报「实例化失败」
+     * 这种无指向性的结论。</p>
+     *
+     * @return 可读原因；从未失败过返回 {@code null}
+     */
+    public String getFailureMessage() {
+        if (ex == null && failureMessage == null) {
+            return null;
+        }
+        String detail = ex == null ? "无异常" : ex.getClass().getSimpleName()
+                + (ex.getMessage() == null ? "" : ": " + ex.getMessage());
+        return (failureMessage == null ? "实例化失败" : failureMessage) + " -> " + detail;
+    }
+
+    /**
      * 设置Ex
      *
      * @param ex ex
@@ -528,12 +553,25 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
             if(null != declaredConstructor) {
                 ClassUtils.setAccessible(declaredConstructor);
                 T instance = (T) serviceAutowire.autowire(ClassUtils.newInstance(declaredConstructor, args));
-                if (instance != null && !checkSpiCondition(instance)) {
+                if (null == instance) {
+                    // 关键分支：ClassUtils.newInstance 内部有三处 catch (Exception ignored)，
+                    // 构造过程抛异常会被吞成 null 返回，因此这里拿不到异常对象。但「精确匹配到了
+                    // 构造器、却产不出实例」本身就是最关键的信息——它把「签名不匹配」与
+                    // 「构造过程抛异常」区分开，也正是 FTPS 长期无从定位的那一类。
+                    recordFailure(null, "已匹配构造器 " + declaredConstructor
+                            + "，但实例化结果为 null（构造过程异常已被 ClassUtils.newInstance 吞掉）");
+                    return null;
+                }
+                if (!checkSpiCondition(instance)) {
                     return null;
                 }
                 return instance;
             }
+            // 精确匹配未命中在此**不**记失败：无参/少参构造器兜底很可能随后成功，
+            // 先记失败会让成功路径也残留一条“失败原因”（已实测踩到）。真正的失败
+            // 统一在方法末尾 return null 之前记录。
         } catch (Exception e) {
+            recordFailure(e, "精确匹配构造器实例化失败");
             throw new RuntimeException(" : " + implClass.getName(), e);
         }
         Constructor<?>[] constructors = implClass.getConstructors();
@@ -550,6 +588,10 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
                     }
                     return instance;
                 } catch (Exception ignored) {
+                    // 原为完全静默吞掉，使「构造器签名不匹配」与「构造过程抛异常」两类失败
+                    // 都只表现为返回 null，排查时完全无从下手——FTPS 就因此被长期误报为
+                    // 「SPI 未注册」，真因（自签证书未预处理）被掩盖了整整一轮排查。
+                    recordFailure(ignored, "构造器 " + constructor + " 实例化失败");
                 }
             }
             ClassUtils.setAccessible(constructor);
@@ -581,8 +623,39 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
             }
             return instance;
         } catch (Exception ignored) {
+            recordFailure(ignored, "无参兜底实例化失败（该类无可用无参构造器），实参类型: "
+                    + java.util.Arrays.toString(ClassUtils.toType(args)));
         }
+        // 走到这里说明所有路径都没能产出实例。精确匹配未命中本身不是失败原因
+        // （少参/无参兜底可能成功），因此在此统一补记一次，保证「返回 null」时
+        // 一定带得可读原因。
+        recordFailure(null, "所有构造器均无法用给定实参实例化，实参类型: "
+                + java.util.Arrays.toString(ClassUtils.toType(args)));
         return null;
+    }
+
+    /**
+     * 记录一次实例化失败的原因，供 {@link #getEx()} 与日志使用。
+     *
+     * <p>本类存在多条实例化路径（精确构造器匹配 → 逐个构造器尝试 → 无参兜底），
+     * 历史上其中两处的 {@code catch (Exception ignored)} 完全静默，使「构造器签名
+     * 不匹配」与「构造过程抛异常」都只表现为返回 {@code null}。调用方据此只能报
+     * 「实例化失败」，无法区分更无法定位。这里保留首个失败原因（首个通常最接近根因，
+     * 后续多为派生失败），既不改变控制流，也不影响原有返回语义。</p>
+     *
+     * @param cause   异常，可为 {@code null}（表示「不是抛异常，而是没匹配上」）
+     * @param message 失败场景描述
+     */
+    private void recordFailure(Throwable cause, String message) {
+        if (ex == null) {
+            ex = cause != null ? cause : new IllegalStateException(message);
+            failureMessage = message;
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[ServiceDefinition] {} 实例化失败（{}）: {}",
+                    implClass == null ? "unknown" : implClass.getName(), message,
+                    cause == null ? "无异常" : cause.toString());
+        }
     }
 
     /**

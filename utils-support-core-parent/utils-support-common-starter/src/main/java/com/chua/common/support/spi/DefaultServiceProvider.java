@@ -216,7 +216,15 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
             return definitions.size() == 1 ? definitions.values().iterator().next().first().newInstance(serviceAutowire, args) : getDefaultImpl(args);
         }
         ServiceDefinition serviceDefinition = definitionFinder.getServiceDefinition(name, args);
-        return (T) Optional.ofNullable(serviceDefinition.newInstance(serviceAutowire, args)).orElse(getDefaultImpl(args));
+        T instance = (T) Optional.ofNullable(serviceDefinition.newInstance(serviceAutowire, args)).orElse(null);
+        if (instance == null) {
+            // 原实现直接 orElse(getDefaultImpl(args))，实例化失败与「没有默认实现」都表现为
+            // 返回 null，调用方只能报「未注册 / 实例化失败」，真实原因（构造器签名不匹配、
+            // 还是构造过程抛异常）被完全丢弃。此处按 WARN 记一条，让失败可诊断。
+            log.warn("[ServiceProvider] 扩展实例化失败: name={} args={} 原因={}", name,
+                    args == null ? 0 : args.length, serviceDefinition.getFailureMessage());
+        }
+        return instance;
     }
 
     /**
