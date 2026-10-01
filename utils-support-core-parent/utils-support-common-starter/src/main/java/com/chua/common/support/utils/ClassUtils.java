@@ -1167,7 +1167,7 @@ public class ClassUtils {
      */
     private static void recordInstantiationFailure(Class<?> type, int constructorCount, Throwable error) {
         LAST_INSTANTIATION_FAILURE.set(
-                new NewInstanceFailure(type.getName(), constructorCount, rootReason(error)));
+                new NewInstanceFailure(type.getName(), constructorCount, describeRootCause(error)));
     }
     /**
      * 沿 cause 链取最内层异常并格式化为可读描述。
@@ -1176,11 +1176,15 @@ public class ClassUtils {
      * 真正的原因在它的 cause 上，因此必须下钻，否则只会得到
      * 「构造器抛了异常」这种无法定位的信息。</p>
      *
+     * <p>本方法对外可见，是为了让「把异常消息写进运行态 / 日志 / 接口返回」的各处
+     * 统一用同一套下钻规则，而不是各自 {@code e.getMessage()} —— 后者只拿得到
+     * 最外层那句包装文案，真实原因（如端口被占用）就丢了。</p>
+     *
      * @param error 捕获到的异常，允许为 {@code null}
      * @return 形如「异常类型名: 消息」的描述；{@code error} 为 {@code null} 时返回 {@code null}；
      *         异常无 message 时只返回类型名
      */
-    private static String rootReason(Throwable error) {
+    public static String describeRootCause(Throwable error) {
         if (null == error) {
             return null;
         }
