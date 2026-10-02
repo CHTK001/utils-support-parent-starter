@@ -30,8 +30,12 @@ public class AsposePptFileConvertSystem implements FileConvertSystem {
 
     /**
      * 支持的源文件格式列表
+     *
+     * <p>含 ODF 演示文稿 {@code odp/otp}：Aspose.Slides 可读写（实测往返
+     * generate → read(slides=2) → pdf 31 KB 全通过）。此前缺 odp，
+     * 只能落到「需配置 LibreOffice」的提示卡。</p>
      */
-    private static final List<String> SOURCES = List.of("ppt", "pptx", "pptm", "potx", "potm");
+    private static final List<String> SOURCES = List.of("ppt", "pptx", "pptm", "potx", "potm", "odp", "otp");
 
     /**
      * 支持的目标文件格式列表

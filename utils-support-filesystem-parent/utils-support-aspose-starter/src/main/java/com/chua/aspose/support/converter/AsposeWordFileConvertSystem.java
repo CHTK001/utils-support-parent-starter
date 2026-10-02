@@ -30,8 +30,13 @@ public class AsposeWordFileConvertSystem implements FileConvertSystem {
 
     /**
      * 支持的源文件格式列表
+     *
+     * <p>含 ODF 文本文档 {@code odt/ott}：Aspose.Words 可直接读取（实测
+     * odt → pdf 产出 44 KB 有效 PDF）。此前这里没有 odt，导致
+     * {@code ConvertSupport.convert("odt","pdf")} 匹配不到实现，
+     * ODT 只能落到「需配置 LibreOffice」的提示卡。</p>
      */
-    private static final List<String> SOURCES = List.of("doc", "docx", "dot", "dotx", "docm", "dotm", "wps");
+    private static final List<String> SOURCES = List.of("doc", "docx", "dot", "dotx", "docm", "dotm", "wps", "odt", "ott");
 
     /**
      * 支持的目标文件格式列表
