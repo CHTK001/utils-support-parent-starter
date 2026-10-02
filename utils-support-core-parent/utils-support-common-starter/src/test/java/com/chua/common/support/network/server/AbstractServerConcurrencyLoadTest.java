@@ -178,6 +178,54 @@ class AbstractServerConcurrencyLoadTest {
     }
 
     /**
+     * 等待指定毫秒。
+     *
+     * @param millis 毫秒
+     * @throws InterruptedException 等待被中断
+     */
+    private static void sleep(long millis) throws InterruptedException {
+        Thread.sleep(millis);
+    }
+
+    /**
+     * 等待端口上的监听者消失。
+ *
+     * <p><b>为什么必须沉降，不能查一次就下结论</b>：实测本用例原本 50% 抖动
+     * （6 次里 3 次失败，失败点随机落在第 1/25/55 轮）。诊断数据：</p>
+ *
+ * <pre>
+ * round=1 bindable=true listenNow=true listen@200ms=false listen@1300ms=false
+ *        serverRunning=false serverSocketClosed=true
+ * </pre>
+ *
+ * <p>即：{@code stop()} 返回后端口<b>已经可以重新 bind</b>、serverSocket 已关闭、
+ * {@code isRunning()} 为 false —— 没有任何泄漏迹象；唯独紧接着的那一次 connect
+ * 成功了，随后 200ms 内就消失。这是内核 accept 队列里尚未完成握手的连接被 close()
+ * 顺手带过，属于操作系统层面的瞬时行为。</p>
+ *
+ * <p>泄漏点随机分布而不是单调递增，也是佐证：真泄漏会累积增长，随机点说明是竞态。
+ * 所以查一次 connect 就有假阳性，会把一个没有缺陷的实现判成泄漏。</p>
+ *
+ * <p>反过来，真正的 socket 泄漏（LISTEN socket 没被关掉）会持续接受连接，
+ * 永远不会自己消失，因此「等它消失」这个判据不会漏掉真泄漏。</p>
+ *
+ * @param port    端口
+ * @param budgetMs 最多等待多少毫秒
+ * @return 在预算内消失返回 true
+ * @throws InterruptedException 等待被中断
+ */
+    private static boolean waitListenerGone(int port, long budgetMs) throws InterruptedException {
+        long deadline = System.currentTimeMillis() + budgetMs;
+        do {
+            if (!hasListener(port)) {
+                return true;
+            }
+            sleep(50L);
+        } while (System.currentTimeMillis() < deadline);
+        return !hasListener(port);
+    }
+
+    /**
      * 取一个当前空闲的端口。
      *
      * @return 空闲端口
@@ -354,22 +402,34 @@ class AbstractServerConcurrencyLoadTest {
         int port = freePort();
         int iterations = 60;
         int leakedAt = -1;
+        String diag = "";
 
+        // 必须持有全部实例引用：否则每轮的 server 立刻不可达，GC 的 cleaner 会把
+// ServerSocket 顺手关掉 —— 于是「即使 doStop() 忘了 close，端口也会因为被 GC 而空闲」，
+// 泄漏检测就成了摆设。实测踩过：把 doStop() 里的 close 短路掉后测试仍然通过，
+// 原因就是 GC 兜住了。持有引用后 GC 无法掩盖真实泄漏。
+        List<LoadEchoServer> servers = new ArrayList<>(iterations);
         for (int i = 0; i < iterations; i++) {
             LoadEchoServer server = new LoadEchoServer(setting(port));
+            servers.add(server);
             server.start();
             assertTrue(isBound(port), "第 " + i + " 轮：启动后端口 " + port + " 应被监听");
             server.stop();
-            // 泄漏判据用 hasListener 而不是 isBound：后者会被 TIME_WAIT 误导，
-            // 而本循环自身几十轮探测 bind/close 正好会制造 TIME_WAIT
-            if (hasListener(port)) {
+            // 沉降后再判：立刻 connect 会命中内核 accept 队列里未完成握手的连接，
+            // 那是 close() 的瞬时副作用，不是泄漏。真泄漏的 LISTEN 永不消失。
+            if (!waitListenerGone(port, 3_000L)) {
                 leakedAt = i;
+                diag = " round=" + i
+                        + " bindable=" + (!isBound(port))
+                        + " 3s 后仍在监听"
+                        + " serverRunning=" + server.isRunning()
+                        + " serverSocketClosed=" + (server.serverSocket == null || server.serverSocket.isClosed());
                 break;
             }
         }
-
         assertEquals(-1, leakedAt,
-                "第 " + leakedAt + " 轮 start/stop 之后端口上仍有监听者，说明存在 socket 泄漏");
+                "第 " + leakedAt + " 轮 start/stop 之后端口上持续存在监听者（已等 3s），"
+                        + "说明 socket 泄漏。" + diag);
     }
 
     @Test
@@ -491,7 +551,9 @@ class AbstractServerConcurrencyLoadTest {
                     "客户端全部结束后服务端仍有 " + server.activeConnections.get() + " 个活跃连接，说明连接没被回收");
 
             server.stop();
-            assertFalse(hasListener(port), "停止后端口上不应再有监听者");
+            // 同样是沉降后判定：stop() 之后立刻 connect 会命中内核 accept 队列里
+            // 尚未完成握手的连接，实测本用例原本也会偶发失败（8 次里 1 次）
+            assertTrue(waitListenerGone(port, 3_000L), "停止后端口上不应再有监听者（已等 3s）");
 
             server.start();
             assertEquals(2, server.bindCount.get(), "重启应再次真正 bind");
