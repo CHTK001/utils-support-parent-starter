@@ -35,8 +35,12 @@ public class AsposeWordFileConvertSystem implements FileConvertSystem {
      * odt → pdf 产出 44 KB 有效 PDF）。此前这里没有 odt，导致
      * {@code ConvertSupport.convert("odt","pdf")} 匹配不到实现，
      * ODT 只能落到「需配置 LibreOffice」的提示卡。</p>
+     *
+     * <p>含富文本 {@code rtf}：SPI 预览对 RTF 的中文会退化成 {@code ???}
+     * （实测同一份样本，SPI 出 {@code RTF ???????????}，而 Aspose 转 PDF 后
+     * 中文与加粗/斜体都完整保留）。因此 RTF 也走转换通道。</p>
      */
-    private static final List<String> SOURCES = List.of("doc", "docx", "dot", "dotx", "docm", "dotm", "wps", "odt", "ott");
+    private static final List<String> SOURCES = List.of("doc", "docx", "dot", "dotx", "docm", "dotm", "wps", "odt", "ott", "rtf");
 
     /**
      * 支持的目标文件格式列表
