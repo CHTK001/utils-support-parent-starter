@@ -107,15 +107,21 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
             }
 
             if (!inTag && !inScript) {
-                if (c == '&' && html.substring(i, Math.min(i + 5, html.length())).startsWith("&amp;")) {
-                    sb.append('&');
-                    i += 4;
-                } else if (c == '&' && html.substring(i, Math.min(i + 4, html.length())).startsWith("&lt;")) {
-                    sb.append('<');
-                    i += 3;
-                } else if (c == '&' && html.substring(i, Math.min(i + 4, html.length())).startsWith("&gt;")) {
-                    sb.append('>');
-                    i += 3;
+                if (c == '&') {
+                    // 实体必须在合理长度内闭合，否则按普通 & 处理。
+                    // 原实现只解码 &amp; / &lt; / &gt;，其余（&nbsp;、&#xa0; 等）
+                    // 会原样留着，随后被 escapeHtml 转成 &amp;#xa0;，
+                    // 浏览器就渲染出**字面量** `&#xa0;` —— 用户会在正文里看到它。
+                    int end = html.indexOf(';', i);
+                    Integer cp = (end > i && end - i <= 10)
+                            ? decodeEntity(html.substring(i + 1, end))
+                            : null;
+                    if (cp != null) {
+                        sb.appendCodePoint(cp);
+                        i = end;
+                    } else {
+                        sb.append(c);
+                    }
                 } else {
                     sb.append(c);
                 }
@@ -127,6 +133,47 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
         }
 
         return sb.toString().trim();
+    }
+
+    /**
+     * 解码一个 HTML 实体（不含首尾的 {@code &} 与 {@code ;}）。
+     *
+     * <p>支持数字实体（{@code #123}、{@code #x1F600}）与常用具名实体。
+     * 识别不了时返回 {@code null}，由调用方按普通 {@code &} 处理。</p>
+     *
+     * @param entity 实体名，如 {@code nbsp}、{@code #xa0}、{@code amp}
+     * @return 码点；无法识别返回 null
+     */
+    private static Integer decodeEntity(String entity) {
+        if (entity == null || entity.isEmpty()) {
+            return null;
+        }
+        if (entity.charAt(0) == '#') {
+            try {
+                boolean hex = entity.length() > 1 && (entity.charAt(1) == 'x' || entity.charAt(1) == 'X');
+                int cp = hex ? Integer.parseInt(entity.substring(2), 16) : Integer.parseInt(entity.substring(1));
+                return cp > 0 && cp <= 0x10FFFF ? cp : null;
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        switch (entity) {
+            case "amp":
+                return (int) '&';
+            case "lt":
+                return (int) '<';
+            case "gt":
+                return (int) '>';
+            case "quot":
+                return (int) '"';
+            case "apos":
+                return (int) '\'';
+            // 不换行空格按普通空格展示：正文里它本意就是间隔
+            case "nbsp":
+                return (int) ' ';
+            default:
+                return null;
+        }
     }
 
     /**
