@@ -29,8 +29,11 @@ public class AsposeExcelFileConvertSystem implements FileConvertSystem {
 
     /**
      * 支持的源文件格式列表
+     *
+     * <p>含 ODF 电子表格 {@code ods/ots}：Aspose.Cells 可直接读取（实测
+     * ods → pdf 产出 21 KB 有效 PDF）。此前缺 ods，只能落到提示卡。</p>
      */
-    private static final List<String> SOURCES = List.of("xls", "xlsx", "xlsm", "xlsb", "csv");
+    private static final List<String> SOURCES = List.of("xls", "xlsx", "xlsm", "xlsb", "csv", "ods", "ots");
 
     /**
      * 支持的目标文件格式列表
