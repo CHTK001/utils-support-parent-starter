@@ -70,7 +70,11 @@ public class FileSystemFileStorage extends AbstractFileStorage {
         String root = bucket != null && !bucket.isEmpty() ? bucket
                 : endpoint != null ? endpoint
                 : System.getProperty("user.home") + File.separator + "filestorage";
-        this.basePath = Paths.get(root).toAbsolutePath();
+        // 必须 normalize：resolvePath 里要做 startsWith(basePath) 的包含校验，
+        // 而 toAbsolutePath() 不消除 ".." 与 "."。root 含 ".." 时 basePath 会保持
+        // "/a/../b" 这种形态，而 resolvePath 返回的是已归一的 "/b"，两者字符串不等，
+        // 结果是**合法 key 也被判成越界**。这正是加安全校验时最容易顺手弄坏的地方。
+        this.basePath = Paths.get(root).toAbsolutePath().normalize();
         ensureBasePath();
     }
 
@@ -92,7 +96,18 @@ public class FileSystemFileStorage extends AbstractFileStorage {
      * @return resolve路径的结果
      */
     private Path resolvePath(String key) {
-        return basePath.resolve(key).normalize();
+        Path resolved = basePath.resolve(key).normalize();
+        // 必须做根目录包含校验：normalize() 只做字面归一，不会消除开头的 ".."，
+        // 所以 "../../../../etc/passwd" 归一后依然指向 basePath 之外 —— 少了这一句
+        // 就是任意文件读，写与删同理。
+        // 与 LocalFileStorage 的处理保持一致（那里越界返回 null）；这里选择抛异常，
+        // 因为四个调用方（put/get/delete/list）都已把整段包在 catch (Exception) 里
+        // 转成 ResultCode.FAILURE，抛出去既干净又是 fail-closed —— 将来新增调用方
+        // 忘了处理也只会失败，不会漏出去。
+        if (!resolved.startsWith(basePath)) {
+            throw new IllegalArgumentException("键越出了存储根目录: " + key);
+        }
+        return resolved;
     }
 
     /**
