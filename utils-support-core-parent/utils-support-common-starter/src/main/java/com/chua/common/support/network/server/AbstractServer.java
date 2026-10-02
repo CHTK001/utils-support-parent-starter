@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server;
 
+import com.chua.common.support.network.PortBindRetry;
 import com.chua.common.support.network.annotations.ResponseConverter;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.network.http.HttpMethod;
@@ -81,6 +82,15 @@ public abstract class AbstractServer implements ConfigServer {
      * 对象上下文，用于依赖注入和 Bean 管理。
      */
     protected ObjectContext objectContext;
+
+    /**
+     * 端口绑定重试策略。
+     *
+     * <p>重启时旧进程尚未退出端口仍被占着，直接 bind 会拿到
+     * {@code BindException}，节点就此卡在 ERROR。退避重试让这类竞争可自愈，
+     * 详见 {@link PortBindRetry}。</p>
+     */
+    private PortBindRetry.Policy bindRetryPolicy = PortBindRetry.defaultPolicy();
 
     /**
      * 并发限制信号量。
@@ -334,13 +344,49 @@ public abstract class AbstractServer implements ConfigServer {
         }
         try {
             filterManager.initFilters(new SimpleServerFilterConfig(setting));
-            doStart();
+            // 只把 doStart 放进重试，filterManager.initFilters 留在外面：
+            // 重试期间过滤器必须保持已初始化，否则每次重试都会重复 init 一遍，
+            // 而 destroyFilters 只应在最终失败时执行一次。
+            PortBindRetry.retry(describeEndpoint(), bindRetryPolicy, this::doStart);
             running = true;
             log.info("服务器启动成功：{}://{}:{}", setting.getProtocol(), setting.getHost(), setting.getPort());
         } catch (RuntimeException e) {
             filterManager.destroyFilters();
             throw e;
         }
+    }
+
+    /**
+     * 取端口绑定重试策略。
+     *
+     * @return 当前重试策略
+     */
+    public PortBindRetry.Policy getBindRetryPolicy() {
+        return bindRetryPolicy;
+    }
+
+    /**
+     * 设置端口绑定重试策略，须在 {@link #start()} 之前调用。
+     *
+     * <p>退出流程比默认 30s 预算更长的部署可以调大；要求端口冲突立即失败、
+     * 好让节点尽早显出 ERROR 的场景可以传 {@link PortBindRetry.Policy#noRetry()}。</p>
+     *
+     * @param bindRetryPolicy 重试策略，{@code null} 表示恢复默认
+     */
+    public void setBindRetryPolicy(PortBindRetry.Policy bindRetryPolicy) {
+        this.bindRetryPolicy = bindRetryPolicy == null ? PortBindRetry.defaultPolicy() : bindRetryPolicy;
+    }
+
+    /**
+     * 端点描述，进重试日志与异常信息。
+     *
+     * <p>把协议与端口写进去，是因为这类失败的排查第一步就是「到底是谁的哪个端口」，
+     * 只报一句 Address already in use 会让人先去找错进程。</p>
+     *
+     * @return 端点描述
+     */
+    private String describeEndpoint() {
+        return "服务器 " + setting.getProtocol() + "://" + setting.getHost() + ":" + setting.getPort();
     }
 
     /**

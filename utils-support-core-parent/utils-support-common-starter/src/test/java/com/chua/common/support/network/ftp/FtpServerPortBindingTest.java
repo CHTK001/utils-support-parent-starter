@@ -1,5 +1,6 @@
 package com.chua.common.support.network.ftp;
 
+import com.chua.common.support.network.PortBindRetry;
 import com.chua.common.support.network.server.ServerSetting;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -7,10 +8,13 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -27,6 +31,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 不读 {@code getSetting().getPort()}——两个实现的 doStart 对「回写实际绑定端口」的处理
  * 并不一致（{@code FtpServer} 回写、{@code FtpsServer} 不回写），依赖它会把测试绑死在一个
  * 与本用例无关的实现细节上。</p>
+ *
+ * <p><b>重启时的端口竞争回归</b>：服务管理在 {@code ApplicationReadyEvent} 里自动拉起
+ * 启用节点，而本应用优雅关闭本身要 30~40s。重启时旧 JVM 还占着端口，新进程 bind 就会
+ * 拿到 {@code BindException: Address already in use}，节点就此永久停在 ERROR——
+ * 实际故障记录正是 FTPS 在 {@code doStart} 第 176 行 bind 处间歇失败。
+ * 这里用真实套接字复现该竞态：先由一个「旧进程」占住端口，再让 server 在后台线程里
+ * start，中途释放占用，断言它最终能绑定成功。修复点在 {@link PortBindRetry}
+ * （由 {@code AbstractServer.start()} 统一套上，FTP / FTPS / 其余 45 个 doStart 都受益），
+ * 因此这些用例放在这里只为验证 FTPS 这条真实链路确实走到了该策略。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -121,6 +134,10 @@ class FtpServerPortBindingTest {
             int taken = occupied.getLocalPort();
 
             FtpServer server = new FtpServer(setting(taken));
+            // 这里要的是「首次 bind 失败就抛」，而不是「等满预算再抛」：
+            // 端口被明确长期占用属于配置错误，应当立刻暴露，而不是白等 30s。
+            // 重试能力由下面的 portRace* 用例单独覆盖，两者互不替代。
+            server.setBindRetryPolicy(PortBindRetry.Policy.noRetry());
             assertThrows(RuntimeException.class, server::start,
                     "端口被占用时必须抛错，让调用方把节点标成 ERROR，而不是报成功却监听在别处");
         }
@@ -135,5 +152,135 @@ class FtpServerPortBindingTest {
 
         FtpsServer ftps = new FtpsServer();
         assertNotNull(ftps.getSetting(), "无参构造应产出可用的 setting");
+    }
+
+    // ---------- 重启时的端口竞争回归 ----------
+
+    /**
+     * 竞态用例用的重试策略：次数与预算都给足，单次退避压到 100ms，
+     * 让用例稳定在 1 秒级结束，而不是真的睡满默认的 30s 预算。
+     *
+     * @return 快速重试策略
+     */
+    private static PortBindRetry.Policy quickRetryPolicy() {
+        return new PortBindRetry.Policy(30, 100L, 200L, 20_000L);
+    }
+
+    @Test
+    @DisplayName("端口在重试期间被释放时，FTPS 必须最终绑定成功而不是停在 ERROR")
+    void ftpsRecoversWhenPortReleasedMidRetry() throws Exception {
+        // 占用方用普通 ServerSocket 而不是另一个 FTP server：真正的阻塞者是
+        // 「另一个还在活跃监听的进程」，用普通套接字就能精确复现，且不依赖被测类自身，
+        // 免得把「谁该让谁」搞混
+        ServerSocket occupied = new ServerSocket();
+        occupied.setReuseAddress(true);
+        occupied.bind(new InetSocketAddress("127.0.0.1", 0));
+        int held = occupied.getLocalPort();
+
+        FtpsServer target = new FtpsServer(setting(held));
+        target.setBindRetryPolicy(quickRetryPolicy());
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+        Thread starter = new Thread(() -> {
+            try {
+                target.start();
+            } catch (Throwable e) {
+                failure.set(e);
+            }
+        }, "ftps-port-race");
+
+        try {
+            starter.start();
+            // 必须先睡够，让第一次 bind 真的撞上占用；否则本用例会退化成
+            // 「端口本来就没被占」的空跑，也就无法证明修复起了作用
+            Thread.sleep(300L);
+            occupied.close();
+            starter.join(30_000L);
+
+            assertFalse(starter.isAlive(), "FTPS 启动线程不应仍在等待端口释放");
+            assertNull(failure.get(), "端口已释放，FTPS 不该再因端口冲突失败：" + failure.get());
+            assertTrue(target.isRunning(), "重试成功后必须处于运行态");
+            assertTrue(isBound(held), "端口 " + held + " 应由 FTPS 实际监听");
+        } finally {
+            occupied.close();
+            if (target.isRunning()) {
+                target.stop();
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("FTP 同样具备该恢复能力（修复落在 AbstractServer，不是 FTP 专用补丁）")
+    void ftpRecoversWhenPortReleasedMidRetry() throws Exception {
+        ServerSocket occupied = new ServerSocket();
+        occupied.setReuseAddress(true);
+        occupied.bind(new InetSocketAddress("127.0.0.1", 0));
+        int held = occupied.getLocalPort();
+
+        FtpServer target = new FtpServer(setting(held));
+        target.setBindRetryPolicy(new PortBindRetry.Policy(30, 100L, 200L, 20_000L));
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+        Thread starter = new Thread(() -> {
+            try {
+                target.start();
+            } catch (Throwable e) {
+                failure.set(e);
+            }
+        }, "ftp-port-race");
+
+        try {
+            starter.start();
+            Thread.sleep(300L);
+            occupied.close();
+            starter.join(30_000L);
+
+            assertFalse(starter.isAlive(), "FTP 启动线程不应一直挂着");
+            assertNull(failure.get(), "端口已释放，FTP 不该再因端口冲突失败：" + failure.get());
+            assertTrue(target.isRunning(), "重试成功后必须处于运行态");
+            assertTrue(isBound(held), "端口 " + held + " 应由 FTP 实际监听");
+        } finally {
+            occupied.close();
+            if (target.isRunning()) {
+                target.stop();
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("端口被长期占用时在预算内失败，且异常要写明端点与尝试次数")
+    void permanentOccupationFailsWithinBudgetWithDiagnosticMessage() throws Exception {
+        try (ServerSocket occupied = new ServerSocket()) {
+            occupied.setReuseAddress(true);
+            occupied.bind(new InetSocketAddress("127.0.0.1", 0));
+            int taken = occupied.getLocalPort();
+
+            FtpsServer server = new FtpsServer(setting(taken));
+            server.setBindRetryPolicy(new PortBindRetry.Policy(2, 10L, 10L, 5_000L));
+
+            long began = System.nanoTime();
+            IllegalStateException thrown = assertThrows(IllegalStateException.class, server::start);
+            long elapsedMs = (System.nanoTime() - began) / 1_000_000L;
+
+            assertTrue(PortBindRetry.isBindConflict(thrown),
+                    "对外抛的异常必须仍能追溯到 BindException，运维才判断得出是端口问题");
+            assertTrue(thrown.getMessage().contains(String.valueOf(taken)),
+                    "异常信息应含端口号 " + taken + "，实际=" + thrown.getMessage());
+            assertTrue(thrown.getMessage().contains("2"), "异常信息应含重试次数，实际=" + thrown.getMessage());
+            assertTrue(elapsedMs < 10_000L,
+                    "必须按预算及时失败，实测耗了 " + elapsedMs + "ms；不设上限会让启动无限期挂住");
+        }
+    }
+
+    @Test
+    @DisplayName("默认策略可读可改，传 null 恢复默认")
+    void bindRetryPolicyIsReadableAndWritable() {
+        FtpServer server = new FtpServer(setting(0));
+        assertNotNull(server.getBindRetryPolicy(), "应默认启用重试，否则重启竞态会复现");
+        assertTrue(server.getBindRetryPolicy().enabled(), "默认策略必须启用重试");
+
+        server.setBindRetryPolicy(PortBindRetry.Policy.noRetry());
+        assertFalse(server.getBindRetryPolicy().enabled(), "应能切成不重试");
+
+        server.setBindRetryPolicy(null);
+        assertTrue(server.getBindRetryPolicy().enabled(), "传 null 应恢复默认策略");
     }
 }
