@@ -37,7 +37,10 @@ import java.net.BindException;
 public final class PortBindRetry {
 
     /**
-     * 覆盖默认重试策略的系统属性，形如 {@code 12:250:4000:30000}。
+     * 覆盖默认重试策略的系统属性。
+     *
+     * <p>两种写法：{@code 12:250:4000:30000} 给出全部四项，或只给最大尝试次数
+     * {@code 12}（其余取默认）。{@code 0} 表示关闭重试。</p>
      */
     public static final String POLICY_PROPERTY = "com.chua.support.network.port-bind-retry";
 
@@ -134,10 +137,18 @@ public final class PortBindRetry {
     }
 
     /**
-     * 解析形如 {@code maxAttempts:initialDelayMs:maxDelayMs:totalBudgetMs} 的配置。
+     * 解析重试策略配置，支持两种写法。
      *
-     * <p>配置非法时<b>回退默认而不是抛错</b>：这是一个运维可选的调优项，
-     * 少写一个冒号不该让整个应用起不来。回退时会打 warn，便于事后发现打错了。</p>
+     * <p>完整写法 {@code maxAttempts:initialDelayMs:maxDelayMs:totalBudgetMs}，
+     * 或只写最大尝试次数 {@code maxAttempts}，其余沿用默认。</p>
+     *
+     * <p><b>单段简写是必需的，不是省事</b>：实测踩过这个坑 —— 用户想「关掉重试」
+     * 会写 {@code -D...port-bind-retry=0}，若只接受 4 段，这个值会被判为格式非法
+     * 然后回退默认策略，而默认策略<b>是带重试的</b>。于是「禁用」变成了「照常重试」，
+     * 与意图完全相反，且只有一行 warn 混在启动日志里。方向反了的兜底比不兜底更危险。</p>
+     *
+     * <p>配置非法时<b>回退默认而不是抛错</b>：这是运维可选的调优项，少写一个冒号
+     * 不该让整个应用起不来；回退时会打 warn，便于事后发现打错了。</p>
      *
      * @param raw 原始配置，{@code null} 或空白表示用默认值
      * @return 重试策略，解析失败时为默认策略
@@ -147,20 +158,24 @@ public final class PortBindRetry {
             return defaults();
         }
         String[] parts = raw.trim().split(":");
-        if (parts.length != 4) {
-            log.warn("{} 格式非法（应为 maxAttempts:initialDelayMs:maxDelayMs:totalBudgetMs），已回退默认策略：{}",
-                    POLICY_PROPERTY, raw);
-            return defaults();
-        }
         try {
-            return new Policy(Integer.parseInt(parts[0].trim()),
-                    Long.parseLong(parts[1].trim()),
-                    Long.parseLong(parts[2].trim()),
-                    Long.parseLong(parts[3].trim()));
+            if (parts.length == 1) {
+                return new Policy(Integer.parseInt(parts[0].trim()),
+                        DEFAULT_INITIAL_DELAY_MS, DEFAULT_MAX_DELAY_MS, DEFAULT_TOTAL_BUDGET_MS);
+            }
+            if (parts.length == 4) {
+                return new Policy(Integer.parseInt(parts[0].trim()),
+                        Long.parseLong(parts[1].trim()),
+                        Long.parseLong(parts[2].trim()),
+                        Long.parseLong(parts[3].trim()));
+            }
         } catch (IllegalArgumentException e) {
             log.warn("{} 取值非法，已回退默认策略：{}（{}）", POLICY_PROPERTY, raw, e.getMessage());
             return defaults();
         }
+        log.warn("{} 格式非法（应为 maxAttempts，或 maxAttempts:initialDelayMs:maxDelayMs:totalBudgetMs），"
+                + "已回退默认策略：{}", POLICY_PROPERTY, raw);
+        return defaults();
     }
 
     /**

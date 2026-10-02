@@ -267,9 +267,27 @@ class PortBindRetryTest {
     }
 
     @Test
+    @DisplayName("只写 maxAttempts 的简写要生效，其中 0 必须真的表示关闭重试")
+    void singleFieldShorthandWorks() {
+        // 这一条是被实测逼出来的：写 =0 关重试时，若只接受 4 段写法，
+        // "0" 会被判格式非法并回退到「带重试」的默认策略 —— 禁用变成了照常重试，
+        // 与意图完全相反。方向反了的兜底比不兜底更危险，所以必须有断言钉住。
+        PortBindRetry.Policy off = PortBindRetry.parse("0");
+        assertFalse(off.enabled(), "=0 必须真的关闭重试，而不是回退到带重试的默认值");
+        assertEquals(0, off.maxAttempts());
+
+        PortBindRetry.Policy five = PortBindRetry.parse("5");
+        assertTrue(five.enabled());
+        assertEquals(5, five.maxAttempts(), "只给尝试次数时其余三项应沿用默认");
+        assertTrue(five.initialDelayMs() > 0L);
+        assertTrue(five.totalBudgetMs() > 0L);
+    }
+
+    @Test
     @DisplayName("配置项写错时回退默认，而不是让应用起不来")
     void malformedPropertyFallsBackToDefault() {
         PortBindRetry.Policy expected = PortBindRetry.parse(null);
+        assertTrue(expected.enabled(), "默认策略必须是带重试的");
 
         for (String bad : List.of("abc", "12:250", "12:250:4000:30000:1", "12:x:4000:30000", "")) {
             PortBindRetry.Policy parsed = PortBindRetry.parse(bad);
