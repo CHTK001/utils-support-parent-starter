@@ -54,7 +54,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     /**
      * 最大边长
     */
-    private static final int MAX_SIDE = 960;
+    private static final int MAX_SIDE = Integer.getInteger("deeplearning.ocr.det.max-side", 960);
 
         /**
          * 外部阈值覆盖（-1 表示未配置，使用内置默认值）。
