@@ -6,13 +6,22 @@ import com.chua.common.support.ai.agent.AgentMode;
 import com.chua.common.support.ai.agent.AgentResponse;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatResponse;
+import com.sun.net.httpserver.HttpServer;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -34,17 +43,103 @@ class AgentSubAgentRoutingTest {
     /** 所有追踪客户端的集合 */
     private static final List<TrackingChatClient> allTrackingClients = new ArrayList<>();
 
+    /**
+     * 本机桩上游：任何请求都立刻返回 401，用来替代真实网络。
+     *
+     * <p><b>为什么必须有：</b>{@link TrackingChatClient} 若不覆写 base url，
+     * {@code ChatClientModelAdapter} 会把 base url 兜底成 {@code https://api.openai.com/v1}，
+     * 于是「单元测试」会朝真实 OpenAI 发 HTTPS 请求（客户端超时上限 120 s）。本机实测该主机不可达、
+     * 单次连接即耗掉 20 s，22 个用例的耗时因此完全由外网状况决定 —— 这正是本类长期随机超时、
+     * 且失败集每次都不同的直接原因。
+     *
+     * <p>有了本机桩，「原生工具分支先失败 → onErrorResume 降级到内存客户端」这条路径既被真实覆盖，
+     * 又只花几毫秒，且整个套件不再出网。
+     */
+    private static HttpServer upstreamStub;
+
+    /** 本机桩的 base url；桩未启动时为 null。 */
+    private static String stubBaseUrl;
+
+    /**
+     * 每个用例一个全新的空工作区，用完即删。
+     *
+     * <p><b>为什么必须有：</b>不设工作区时 agentscope-harness 会回落到用户主目录下的
+     * {@code .agentscope}，而那是<b>同一 JVM 内所有 agent 实例共享</b>的一份落盘状态。
+     * {@code MemoryMaintenanceMiddleware} / {@code MemoryFlushMiddleware} /
+     * {@code WorkspaceContextMiddleware} 每轮都要归并、刷写（刷写还会再调一次模型）并重新序列化它，
+     * 而 {@code run()} 会阻塞在 {@code MemoryBackgroundTasks.awaitQuiescence} 等这些后台任务静默。
+     *
+     * <p>实测（同一份代码、同一个本机桩，只差工作区是否隔离）：
+     * <ul>
+     *   <li>共享默认工作区：单轮 27s ~ 63s，实例增多后彻底不返回</li>
+     *   <li>每轮独立空工作区：首轮 3.7s，随后 130ms / 107ms</li>
+     * </ul>
+     * 生产侧不受影响，因为 facade 会按业务会话传入真实工作区目录；只有本类没传，才踩到共享默认目录。
+     * 顺带解决另一个问题：此前它会在开发者家目录留下 59 个文件 / 932 KB 的残留。
+     */
+    private Path testWorkspace;
+
+    @BeforeAll
+    static void startUpstreamStub() throws IOException {
+        upstreamStub = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        upstreamStub.createContext("/", exchange -> {
+            byte[] body = ("{\"error\":{\"message\":\"stub: no upstream\","
+                    + "\"type\":\"invalid_request_error\"}}").getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().add("Content-Type", "application/json");
+            exchange.sendResponseHeaders(401, body.length);
+            exchange.getResponseBody().write(body);
+            exchange.close();
+        });
+        upstreamStub.start();
+        stubBaseUrl = "http://127.0.0.1:" + upstreamStub.getAddress().getPort() + "/v1";
+    }
+
+    @AfterAll
+    static void stopUpstreamStub() {
+        if (upstreamStub != null) {
+            upstreamStub.stop(0);
+            upstreamStub = null;
+            stubBaseUrl = null;
+        }
+    }
+
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
         originalOut = System.out;
         captureOut = new ByteArrayOutputStream();
         System.setOut(new PrintStream(captureOut));
+        testWorkspace = Files.createTempDirectory("agentscope-test-ws-");
     }
 
     @AfterEach
-    void tearDown() {
+    void tearDown() throws IOException {
         System.setOut(originalOut);
         allTrackingClients.clear();
+        deleteRecursively(testWorkspace);
+        testWorkspace = null;
+    }
+
+    /** 递归删除目录；清理失败不抛，临时目录残留不影响断言。 */
+    private static void deleteRecursively(Path dir) {
+        if (dir == null || !Files.exists(dir)) {
+            return;
+        }
+        try (var walk = Files.walk(dir)) {
+            for (Path each : walk.sorted(Comparator.reverseOrder()).toList()) {
+                Files.deleteIfExists(each);
+            }
+        } catch (IOException ignored) {
+            // 交给系统清理临时目录即可
+        }
+    }
+
+    /**
+     * 交给 Agent 的工作区路径。
+     *
+     * @return 本用例专属的空工作区路径；未建立时返回 null
+     */
+    private String ws() {
+        return testWorkspace == null ? null : testWorkspace.toString();
     }
 
     /** 当前捕获的输出 */
@@ -67,6 +162,30 @@ class AgentSubAgentRoutingTest {
         TrackingChatClient(String label) {
             this.label = label;
             allTrackingClients.add(this);
+        }
+
+        /**
+         * 指向本机桩，绝不指向真实供应商。
+         *
+         * <p>不覆写时 {@code ChatClient} 的默认实现返回 null，
+         * {@code ChatClientModelAdapter} 会兜底成 {@code https://api.openai.com/v1}，
+         * 让单元测试真的去连外网。
+         *
+         * @return 本机桩的 base url；桩未启动时为 null
+         */
+        @Override
+        public String getBaseUrl() {
+            return stubBaseUrl;
+        }
+
+        /**
+         * 桩上游用的假 key。
+         *
+         * @return 固定测试用 key
+         */
+        @Override
+        public String getApiKey() {
+            return "test-key";
         }
 
         @Override
@@ -161,7 +280,8 @@ class AgentSubAgentRoutingTest {
                 .chatClient("math-agent", subClient)
                 .subAgent(mathDef)
                 .definition(mainDef)
-                .mode(mode);
+                .mode(mode)
+                .workspace(ws());
     }
 
     /** 构建带多个子 Agent 的主 Agent */
@@ -190,7 +310,8 @@ class AgentSubAgentRoutingTest {
                 .subAgent(mathDef)
                 .subAgent(transDef)
                 .definition(mainDef)
-                .mode(mode);
+                .mode(mode)
+                .workspace(ws());
     }
 
     // =====================================================================
@@ -264,7 +385,8 @@ class AgentSubAgentRoutingTest {
                     .subAgent(mathDef)
                     .definition(mainDef)
                     .debug(true)
-                    .mode(AgentMode.ROUTER);
+                    .mode(AgentMode.ROUTER)
+                    .workspace(ws());
             agent.run("ping");
         }
 
@@ -316,7 +438,8 @@ class AgentSubAgentRoutingTest {
                     .definition(mainDef)
                     .printConfig(true)
                     .debug(false)
-                    .mode(AgentMode.ROUTER);
+                    .mode(AgentMode.ROUTER)
+                    .workspace(ws());
             AgentResponse response = agent.run("你好");
             assertNotNull(response);
             assertNotNull(response.getOutput());
@@ -566,7 +689,8 @@ class AgentSubAgentRoutingTest {
             agent.chatClient(masterClient)
                     .subAgent(mathDef)
                     .definition(mainDef)
-                    .mode(AgentMode.ROUTER);
+                    .mode(AgentMode.ROUTER)
+                    .workspace(ws());
 
             assertNotNull(agent.getDefinition());
             assertEquals("main", agent.getDefinition().getId());
@@ -598,7 +722,8 @@ class AgentSubAgentRoutingTest {
             agent.chatClient(masterClient)
                     .subAgent(mathDef)
                     .definition(mainDef)
-                    .mode(AgentMode.ROUTER);
+                    .mode(AgentMode.ROUTER)
+                    .workspace(ws());
             agent.run("test");
         }
 
