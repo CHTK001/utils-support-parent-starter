@@ -18,9 +18,15 @@ import org.opencv.imgproc.Imgproc;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.model.PredictRectangle;
 
@@ -71,6 +77,40 @@ public final class ImageUtils {
     }
 
     /**
+     * SPI 图像处理器是否可用（进程内只判定一次）。
+     *
+     * <p>判定结果为 {@code null} 表示尚未判定。</p>
+     */
+    private static volatile Boolean spiUsable;
+
+    /**
+     * 判定 SPI 图像处理器是否可用，结果进程内缓存。
+     *
+     * <p>原生实现（如 {@code RustImageProcessor}）在动态库缺失时 {@link ImageProcessor#available()}
+     * 为 {@code false}，且其 {@code process} 会直接抛「Rust 原生库未加载」。而本类的
+     * resize / crop / rotate 统一是「先调 SPI、捕获异常再回落本地实现」，于是每次调用都会
+     * 白跑一次注定失败的反射调用，并在 SPI 层留下一条「反射调用失败」WARN 与一条带完整栈的
+     * ERROR —— 实测单个 21 题 3 页卷就上百条，日志被这类必然失败的调用淹没。
+     * 这里先按可用性判定，不可用就直接走本地实现，不再触碰 SPI。</p>
+     *
+     * @return true 表示可走 SPI；false 表示应直接使用本地实现
+     */
+    private static boolean spiUsable() {
+        Boolean cached = spiUsable;
+        if (cached != null) {
+            return cached;
+        }
+        boolean usable;
+        try {
+            usable = processor().available();
+        } catch (Exception e) {
+            usable = false;
+        }
+        spiUsable = usable;
+        return usable;
+    }
+
+    /**
      * 确保 打开cv 已加载（幂等，进程内只加载一次）。
      *
      * <p>统一在此管理 {@code nu.pattern.OpenCV.loadLocally()}，
@@ -81,8 +121,65 @@ public final class ImageUtils {
             synchronized (ImageUtils.class) {
                 if (!loaded) {
                     nu.pattern.OpenCV.loadLocally();
+                    purgeStaleOpencvTempDirs();
                     loaded = true;
                 }
+            }
+        }
+    }
+
+    /**
+     * 清理上一个进程残留的 OpenCV 原生库解压目录。
+     *
+     * <p>{@code nu.pattern.OpenCV} 会把原生库解压到 {@code java.io.tmpdir} 下的
+     * {@code opencv_openpnp*} 目录，并注册退出钩子删除；但退出钩子运行时类加载器已卸载，
+     * 内部抛 {@code ClassNotFoundException: nu.pattern.OpenCV$TemporaryDirectory$2}，
+     * 于是目录永远删不掉 —— 实测 eduai 单实例累计残留 7 个、437MB（每个约 60MB）。</p>
+     *
+     * <p>该缺陷在第三方库内，我方无法修其钩子，只能在每次加载前把「早于本进程启动」的
+     * 同名目录清掉：属于本进程的目录必然不早于 JVM 启动时刻，因此不会被误删。
+     * 清理失败只忽略，不影响启动。</p>
+     */
+    private static void purgeStaleOpencvTempDirs() {
+        Path tempRoot;
+        try {
+            tempRoot = Paths.get(System.getProperty("java.io.tmpdir"));
+        } catch (Exception e) {
+            return;
+        }
+        long jvmStart = ManagementFactory.getRuntimeMXBean().getStartTime();
+        try (var children = Files.list(tempRoot)) {
+            children.filter(Files::isDirectory)
+                    .filter(path -> path.getFileName().toString().startsWith("opencv_openpnp"))
+                    .forEach(path -> {
+                        try {
+                            if (Files.getLastModifiedTime(path).toMillis() < jvmStart) {
+                                deleteRecursively(path);
+                            }
+                        } catch (Exception ignored) {
+                            // 清理失败不影响启动
+                        }
+                    });
+        } catch (Exception ignored) {
+            // 临时目录不可枚举时忽略
+        }
+    }
+
+    /**
+     * 递归删除目录（文件在前、目录在后，避免非空目录删不掉）。
+     *
+     * @param root 待删除的根目录
+     */
+    private static void deleteRecursively(Path root) throws IOException {
+        try (var paths = Files.walk(root)) {
+            var all = paths.collect(Collectors.toList());
+            for (Path path : all) {
+                if (!Files.isDirectory(path)) {
+                    Files.deleteIfExists(path);
+                }
+            }
+            for (int i = all.size() - 1; i >= 0; i--) {
+                Files.deleteIfExists(all.get(i));
             }
         }
     }
@@ -305,6 +402,9 @@ public final class ImageUtils {
      * @return 缩放后 PNG 字节
      */
     public static byte[] resize(byte[] imageData, int width, int height, int interpolation) {
+        if (!spiUsable()) {
+            return resizeLocal(imageData, width, height, interpolation);
+        }
         try {
             Map<String, Object> params = new HashMap<>(3);
             params.put("width", width);
@@ -364,6 +464,9 @@ public final class ImageUtils {
      * @return 裁剪后 PNG 字节
      */
     public static byte[] crop(ImageCropOptions options) {
+        if (!spiUsable()) {
+            return cropLocal(options.imageData(), options.x(), options.y(), options.width(), options.height());
+        }
         try {
             Map<String, Object> params = new HashMap<>(4);
             params.put("x", options.x());
@@ -688,6 +791,9 @@ public static byte[] encode(Mat mat) {
      * @return 旋转后 PNG 字节
      */
     public static byte[] rotate(byte[] imageData, int degree) {
+        if (!spiUsable()) {
+            return rotateLocal(imageData, degree);
+        }
         try {
             Map<String, Object> params = new HashMap<>(1);
             params.put("angle", degree);
