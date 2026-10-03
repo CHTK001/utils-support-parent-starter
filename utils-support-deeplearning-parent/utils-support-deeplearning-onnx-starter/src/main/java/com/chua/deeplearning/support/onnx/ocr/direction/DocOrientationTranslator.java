@@ -13,11 +13,15 @@ import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
 
@@ -72,7 +76,6 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
             return;
         }
         Path tmpDir = Files.createTempDirectory("doc-orientation-");
-        tmpDir.toFile().deleteOnExit();
         Path modelDir = tmpDir.resolve("model");
         Files.createDirectories(modelDir);
         NativeLoader.of("doc-orientation")
@@ -94,7 +97,42 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
         this.session = ortEnv.createSession(modelPath.toString(), opts);
+        // 会话建立后模型已读入内存，此时才登记临时目录清理。
+        // 原实现只登记了顶层目录，而 deleteOnExit 要求目录为空才能删除，
+        // model/ 及其内容（model.onnx 与 .md5_* 标记）从不登记，
+        // 于是每次启动都残留一份（实测单份约 6.5MB）。
+        registerDeleteOnExit(tmpDir);
         log.info("[doc-orientation] ONNX loaded: {}", modelPath.getFileName());
+    }
+
+    /**
+     * 递归登记目录树到 {@link File#deleteOnExit()}。
+     *
+     * <p>{@code deleteOnExit} 按<b>后登记先删除</b>的逆序语义执行，且目录必须为空才能删掉。
+     * 因此登记顺序必须让反序删除变成「文件 → 深目录 → 浅目录」，
+     * 即<b>先按浅到深登记目录，再登记文件</b>。</p>
+     *
+     * <p>注意不能用 {@code Comparator.reverseOrder()} 直接对 {@link Path} 排序：
+     * 它是<b>字典序</b>而非深度序，得到的删除顺序不保证「文件先于目录」，
+     * 实测那样只能把残留从 3 项降到 1 项，顶层目录仍然删不掉。</p>
+     *
+     * @param root 待清理的根目录
+     */
+    private static void registerDeleteOnExit(Path root) {
+        try (var paths = Files.walk(root)) {
+            var all = paths.collect(Collectors.toList());
+            all.stream()
+                    .filter(Files::isDirectory)
+                    .sorted(Comparator.comparingInt(Path::getNameCount))
+                    .map(Path::toFile)
+                    .forEach(File::deleteOnExit);
+            all.stream()
+                    .filter(path -> !Files.isDirectory(path))
+                    .map(Path::toFile)
+                    .forEach(File::deleteOnExit);
+        } catch (IOException e) {
+            log.debug("[doc-orientation] 登记临时目录清理失败: {}", e.getMessage());
+        }
     }
     @Override
     /**
