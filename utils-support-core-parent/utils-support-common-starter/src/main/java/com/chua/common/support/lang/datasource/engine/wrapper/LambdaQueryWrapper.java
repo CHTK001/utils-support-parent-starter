@@ -405,6 +405,31 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     }
 
     /**
+     * 清除返回行数上限，恢复为「不限制」。
+     *
+     * <p>{@link #limit(int)} 只接受正整数，因此「恢复为不限制」无法用传入 0 表达。
+     * 分页执行器（{@code AbstractEngine.executePage}）会临时注入分页参数，执行后必须把
+     * 包装器还原到调用前状态；若直接回传 0 会抛 {@link IllegalArgumentException}，
+     * 把已经成功的分页结果覆盖成异常（该缺陷曾使全部 JDBC 引擎的 {@code page()} 恒失败）。</p>
+     *
+     * @return this
+     */
+    public LambdaQueryWrapper<T> clearLimit() {
+        this.limit = 0;
+        return this;
+    }
+
+    /**
+     * 清除偏移行数，恢复为不偏移。
+     *
+     * @return this
+     */
+    public LambdaQueryWrapper<T> clearOffset() {
+        this.offset = 0;
+        return this;
+    }
+
+    /**
      * 获取偏移行数。
      *
      * @return 偏移行数

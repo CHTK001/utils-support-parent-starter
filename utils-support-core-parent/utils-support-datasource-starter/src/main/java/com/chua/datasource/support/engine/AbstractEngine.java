@@ -240,15 +240,18 @@ public abstract class AbstractEngine implements Engine {
     @Override
     /**
      * 摘除并关闭指定数据源
+     * <p>名称为 null 时抛 {@link IllegalArgumentException}：空名称是调用方用法错误，
+     * 静默无操作会让"已摘除"的假象掩盖掉拼写错误的名称（接口契约明示该异常）。</p>
      * <p>被摘除的若是默认数据源，默认数据源名同时置空，避免后续无参调用指向已释放资源。
      * 关闭失败只记录日志并继续摘除：调用方的意图是"移除"，不能因底层 close 异常而留下悬挂引用。</p>
      *
-     * @param name 数据源名称
+     * @param name 数据源名称，不允许为 null
      * @return this
+     * @throws IllegalArgumentException 名称为 null 时抛出
      */
     public Engine removeDataSource(String name) {
         if (name == null) {
-            return this;
+            throw new IllegalArgumentException("数据源名称不能为空");
         }
         EngineDataSource<Object> removed = dataSources.remove(name);
         if (removed == null) {
@@ -566,7 +569,15 @@ public abstract class AbstractEngine implements Engine {
                 wrapper.limit(ps).offset((pn - 1) * ps);
                 records = executeQuery(wrapper, ec);
             } finally {
-                wrapper.limit(origLimit).offset(origOffset);
+                // 还原调用前状态：limit 的 0 是「不限制」哨兵，必须走 clearLimit()。
+                // 直接 limit(origLimit) 在 origLimit=0 时会抛 IllegalArgumentException，
+                // 把已经成功的分页结果覆盖成异常（曾使全部 JDBC 引擎 page() 恒失败）。
+                if (origLimit > 0) {
+                    wrapper.limit(origLimit);
+                } else {
+                    wrapper.clearLimit();
+                }
+                wrapper.offset(origOffset);
             }
             return new Page<>(pn, ps, total, records);
         }

@@ -238,36 +238,51 @@ final class MemorySqlLex {
             }
             try {
                 String setterName = "set" + Character.toUpperCase(column.charAt(0)) + column.substring(1);
-                ReflectUtils.invoke(row, setterName, void.class, new Class<?>[]{guessType(value)}, value);
-                return true;
+                // 按「包装类型 → 基本类型」逐个尝试：Lombok @Data 生成的 setter 形参是包装类型
+                // （setAge(Integer)），手写实体常是基本类型（setAge(int)）。任一步成功即返回；
+                // 全部失败才返回 false，避免把形参不匹配静默变成「字段丢失」。
+                for (Class<?> paramType : candidateParamTypes(value)) {
+                    try {
+                        ReflectUtils.invoke(row, setterName, void.class, new Class<?>[]{paramType}, value);
+                        return true;
+                    } catch (Exception ignored) {
+                        // 换下一种候选形参类型重试
+                    }
+                }
+                return false;
             } catch (Exception e) {
                 return false;
             }
         }
 
         /**
-         * 依据值类型推断 setter 形参类型。
+         * 给出 setter 形参类型的候选顺序：值自身的包装类型在前，对应基本类型兜底。
+         *
+         * <p>顺序很关键：本仓库实体普遍由 Lombok 生成 boxed setter，若只按
+         * {@code int.class}/{@code long.class} 查找会因形参不匹配而失败，且失败被
+         * 上层 catch 吞掉 —— 曾使内存/文件引擎的类型化查询把全部非 String 字段
+         * 静默映射成 null（读路径数据丢失）。</p>
          *
          * @param v 值
-         * @return 对应的基本类型或运行时类型
+         * @return 候选形参类型数组（至少一个元素）
          */
-        private static Class<?> guessType(Object v) {
+        private static Class<?>[] candidateParamTypes(Object v) {
             if (v == null) {
-                return Object.class;
+                return new Class<?>[]{Object.class};
             }
-            if (v instanceof Integer) {
-                return int.class;
-            }
-            if (v instanceof Long) {
-                return long.class;
-            }
-            if (v instanceof Double) {
-                return double.class;
-            }
-            if (v instanceof Boolean) {
-                return boolean.class;
-            }
-            return v.getClass();
+            Class<?> boxed = v.getClass();
+            Class<?> primitive = switch (boxed.getName()) {
+                case "java.lang.Integer" -> int.class;
+                case "java.lang.Long" -> long.class;
+                case "java.lang.Double" -> double.class;
+                case "java.lang.Float" -> float.class;
+                case "java.lang.Short" -> short.class;
+                case "java.lang.Byte" -> byte.class;
+                case "java.lang.Boolean" -> boolean.class;
+                case "java.lang.Character" -> char.class;
+                default -> null;
+            };
+            return primitive == null ? new Class<?>[]{boxed} : new Class<?>[]{boxed, primitive};
         }
 
         /**

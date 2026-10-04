@@ -3,6 +3,7 @@ package com.chua.datasource.support.engine;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import com.chua.datasource.support.engine.MemorySqlAst.BetweenNode;
 import com.chua.datasource.support.engine.MemorySqlAst.BinaryNode;
 import com.chua.datasource.support.engine.MemorySqlAst.ColumnNode;
@@ -25,7 +26,7 @@ import com.chua.datasource.support.engine.MemorySqlLex.TokenStream;
  * 内存引擎原生 SQL 解析器：将单表 SQL 编译为二叉表达式树（AST），
  * 求值时以内存 列表 行引用为输入执行过滤 / 投影 / 排序 / 截断管道。
  *
- * <p>支持：SELECT 列清单 / * / COUNT(*)、WHERE、ORDER BY、LIMIT [OFFSET]、
+ * <p>支持：SELECT 列清单 / * / COUNT(*) / 标量聚合 MAX|MIN|SUM|AVG|COUNT(列)、WHERE、ORDER BY、LIMIT [OFFSET]、
  * 插入 多值、更新 设置、删除，运算符 = != &lt;&gt; &lt; &lt;= &gt; &gt;=
  * LIKE 入 BETWEEN 是否 [NOT] 空 及 和 / 或 / 括号 / NOT，支持 ? 参数绑定。</p>
  *
@@ -33,6 +34,11 @@ import com.chua.datasource.support.engine.MemorySqlLex.TokenStream;
  * @since 4.0.0.42
  */
 public class MemorySqlParser {
+
+    /**
+     * 支持的标量聚合函数名（大写）。COUNT 允许 {@code *} 参数，其余只接受列名。
+     */
+    private static final Set<String> AGGREGATES = Set.of("COUNT", "MAX", "MIN", "SUM", "AVG");
 
     /**
      * 解析并执行查询。
@@ -78,11 +84,23 @@ public class MemorySqlParser {
         TokenStream ts = new TokenStream(sql);
         expectKeyword(ts, "SELECT");
         SelectStmt stmt = new SelectStmt();
-        if (matchKeyword(ts, "COUNT")) {
+        // 聚合投影：COUNT(*) 与标量聚合 FUNC(列)。
+        // Engine 接口的 queryValue 明确以 SELECT max(id) 为适用场景，
+        // 内存/文件引擎必须支持，否则能力声明与该文档冲突。
+        String aggregate = peekAggregate(ts);
+        if (aggregate != null) {
+            matchKeyword(ts, aggregate);
             consume(ts, "(");
-            consume(ts, "*");
+            if (match(ts, "*")) {
+                if (!"COUNT".equals(aggregate)) {
+                    throw new IllegalArgumentException(aggregate + " 不接受 * 参数，请写成 " + aggregate + "(列名)");
+                }
+                stmt.countStar = true;
+            } else {
+                stmt.aggFunc = aggregate;
+                stmt.aggColumn = consumeIdentifier(ts);
+            }
             consume(ts, ")");
-            stmt.countStar = true;
         } else if (match(ts, "*")) {
             stmt.selectAll = true;
         } else {
@@ -284,6 +302,23 @@ public class MemorySqlParser {
      * @param kw 关键字（忽略大小写）
      * @return 是否命中
      */
+    /**
+     * 若词法流当前位置是受支持的聚合函数名则返回其大写名（不消费），否则返回 null。
+     *
+     * <p>独立于 {@link #matchKeyword} 是因为需要在「决定走聚合分支还是普通列分支」时
+     * 先窥视再决定是否消费。</p>
+     *
+     * @param ts 词法流
+     * @return 聚合函数名（大写）或 null
+     */
+    private static String peekAggregate(TokenStream ts) {
+        if (ts.eof()) {
+            return null;
+        }
+        String head = ts.peek().toUpperCase(Locale.ROOT);
+        return AGGREGATES.contains(head) ? head : null;
+    }
+
     private static boolean matchKeyword(TokenStream ts, String kw) {
         if (!ts.eof() && ts.peek().equalsIgnoreCase(kw)) {
             ts.next();

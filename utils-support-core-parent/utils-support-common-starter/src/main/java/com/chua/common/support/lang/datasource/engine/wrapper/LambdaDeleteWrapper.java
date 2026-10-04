@@ -39,6 +39,23 @@ public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDelet
     }
 
     /**
+     * 校验是否允许无 WHERE 条件执行全表操作。
+     *
+     * <p>守卫集中在此处，供 {@link #buildSql()} 与「不经过 SQL 渲染」的求值路径
+     * （内存/文件引擎的 {@code remove()}）共用。后者若自行求值而不复用本方法，
+     * 无 WHERE 的终端调用会静默作用于全表（曾使内存引擎的 {@code remove()} 清空整表）。</p>
+     *
+     * @param operation 操作名，用于异常文案（如「删除」）
+     * @throws IllegalStateException 无 WHERE 条件且未显式调用 {@code allowFullTable()} 时抛出
+     */
+    public void requireWhereCondition(String operation) {
+        if (conditions.isEmpty() && !fullTableAllowed) {
+            throw new IllegalStateException("禁止无 WHERE 条件的全表" + operation + ": "
+                    + entityClass.getSimpleName() + "，如需全表" + operation + "请显式调用 allowFullTable()");
+        }
+    }
+
+    /**
      * 将当前链式 API 构建的条件渲染为结构化的删除 SQL 信息。
      * <p>
      * 返回的 {@link DeleteSql} 记录了 WHERE 子句和参数列表。
@@ -47,10 +64,7 @@ public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDelet
      * @return 删除 SQL 信息
      */
     public DeleteSql buildSql() {
-        if (conditions.isEmpty() && !fullTableAllowed) {
-            throw new IllegalStateException("禁止无 WHERE 条件的全表删除: "
-                    + entityClass.getSimpleName() + "，如需全表删除请显式调用 allowFullTable()");
-        }
+        requireWhereCondition("删除");
         List<Object> params = new ArrayList<>();
         StringBuilder where = new StringBuilder();
         buildWhere(where, params);
