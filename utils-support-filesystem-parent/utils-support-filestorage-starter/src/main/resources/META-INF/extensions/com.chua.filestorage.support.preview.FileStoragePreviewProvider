@@ -26,3 +26,4 @@ com.chua.filestorage.support.preview.provider.SqlitePreviewProvider
 com.chua.filestorage.support.preview.provider.OldOfficePreviewProvider
 com.chua.filestorage.support.preview.provider.ParquetPreviewProvider
 com.chua.filestorage.support.preview.provider.PsdPreviewProvider
+com.chua.filestorage.support.preview.provider.TiffPreviewProvider
