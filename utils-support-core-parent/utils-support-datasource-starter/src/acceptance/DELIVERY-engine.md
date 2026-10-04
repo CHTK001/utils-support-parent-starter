@@ -141,6 +141,16 @@ run-acceptance.bat              :: 五阶段全跑，末行 ACCEPTANCE_RESULT=PA
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 ```
 
+> **交付教训（2026-10-04 实际发生）**：仓库根 `.gitignore` 有 `*.ps1`（16 行）/
+> `*.cmd`（97 行）/ `*.bat`（146 行）三条全局规则。第一次提交 harness 时用了
+> `git add <目录>`，`.gitignore` **静默**剔除了 `run-acceptance.bat` 与
+> `prepare-classpath.ps1` —— 提交报告显示"9 文件 1767 行"，看起来完整，
+> 但**运行器根本不在 HEAD**，harness 只剩源码、无法复跑。
+> 修法是在 `src/acceptance/.gitignore` 里对该目录显式求反
+> （`!run-acceptance.bat` / `!prepare-classpath.ps1`）。
+> **纪律**：提交"工具目录"后必须用 `git ls-files <目录>` 逐文件核对，
+> 不能只看 `git commit` 的文件数——被 ignore 剔掉的文件不会报错、也不会出现在 `git status`。
+
 前置条件：
 
 - **pwsh 7** 在 PATH 上（仓库禁用 PowerShell 5.1：它按 ANSI 解码无 BOM 的 UTF-8 脚本）。
