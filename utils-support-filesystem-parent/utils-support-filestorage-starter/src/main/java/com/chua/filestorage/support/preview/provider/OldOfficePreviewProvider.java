@@ -541,6 +541,17 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
         } catch (org.apache.poi.OldFileFormatException e) {
             return PreviewResult.builder()
                     .htmlContent(page(unavailableHtml("Excel 97-2003 (.xls) 解析失败: " + escape(e.getMessage())))).build();
+        } catch (IOException | RuntimeException e) {
+            // 与 Word 路径保持一致：**兜住所有解析失败**并给出真实原因。
+            //
+            // 原先只 catch OldFileFormatException，于是「文件本身损坏」的异常
+            // （如 OLE2 复合文档扇区大小非法：Unsupported blocksize (2^0)）会直接抛出，
+            // 被 SPI 视为「该提供器失败」→ 落到 unsupported 提示页，
+            // 页面把**文件损坏**说成「该类型暂不支持在线预览」—— 与「损坏 docx 不得
+            // 说成格式兼容问题」是同一类错误（实测 matrix-legacy.xls 520 B 就是这个表现，
+            // 而同批的 matrix-legacy.doc 因为 Word 路径有兜底，能正确报出原因）。
+            return PreviewResult.builder()
+                    .htmlContent(page(unavailableHtml("Excel 97-2003 (.xls) 解析失败: " + escape(String.valueOf(e.getMessage()))))).build();
         }
         appendEmbeddedObjectsSection(body, content);
         return PreviewResult.builder().htmlContent(page(body.toString())).build();
