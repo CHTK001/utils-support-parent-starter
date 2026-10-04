@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  引擎验收运行器的独立工程（工具，不属于任何交付模块）。
+  只做一件事：把全部引擎 starter 的传递依赖收敛成一份 classpath，
+  供 .tmp/engine-accept 下的验收运行器编译与执行使用。
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.chua.accept</groupId>
+    <artifactId>engine-accept-runner</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+        <v>4.0.0.42</v>
+    </properties>
+
+    <dependencies>
+        <!-- 核心抽象与内置引擎 -->
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-datasource-starter</artifactId><version>${v}</version></dependency>
+        <!-- 嵌入式引擎 -->
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-h2-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-sqlite-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-duckdb-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-parquet-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-lucene-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-rocksdb-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-nitrite-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-tablesaw-starter</artifactId><version>${v}</version></dependency>
+        <!-- 需要外部服务的引擎（验收其契约与能力声明） -->
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-mysql-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-postgresql-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-redis-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-prometheus-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-elasticsearch-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-neo4j-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-solr-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-hbase-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-influxdb-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-clickhouse-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-greptimedb-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-oracle-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-sqlserver-starter</artifactId><version>${v}</version></dependency>
+        <!-- KV / Series 实现所需 -->
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-chronicle-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>io.lettuce</groupId><artifactId>lettuce-core</artifactId><version>7.5.2.RELEASE</version></dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.1</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1782,6 +1782,11 @@ public class TablesawEngine implements Engine {
      * @return 转换后的表名
      */
     private static String getTableName(Class<?> entityClass) {
+        // 注意：本模块只依赖 utils-support-common-starter，不依赖
+        // utils-support-datasource-starter，因此无法读取该模块的
+        // com.chua.datasource.support.annotation.TableName —— 表名一律由类名派生。
+        // 若将来需要与 JDBC/内存引擎共用 @TableName 约定，须先评估引入
+        // datasource-starter 依赖的影响（会改变本模块的传递依赖面）。
         String simpleName = entityClass.getSimpleName();
         StringBuilder sb = new StringBuilder();
         for (char c : simpleName.toCharArray()) {
