@@ -235,6 +235,12 @@ public class RedisSeriesEngine implements SeriesEngine, AutoCloseable {
                 log.warn("[SeriesEngine] 丢弃无法解析的 Redis 成员 target={} monitor={} metric={} 丢弃={} 保留={}",
                         target, monitorId, metric, dropped, points.size());
             }
+        } catch (IllegalArgumentException iae) {
+            // 契约要求「指标无法唯一确定」以 IllegalArgumentException 暴露，不得包成后端故障：
+            // 调用方据此区分「需要显式传 metricName」与「Redis 不可用」——包成
+            // IllegalStateException 会让 catch (IllegalArgumentException) 失效，
+            // 前端只能把「参数没给全」显示成「服务异常」。
+            throw iae;
         } catch (Exception e) {
             log.warn("[SeriesEngine] Redis 查询失败 target={} monitor={}: {}", target, monitorId, e.getMessage());
             throw new IllegalStateException("Redis 时序曲线查询失败 target=" + target + ": " + e.getMessage(), e);
@@ -299,9 +305,18 @@ public class RedisSeriesEngine implements SeriesEngine, AutoCloseable {
                         ? List.of(metricName)
                         : metrics(target, monitorId);
                 for (String metric : metrics) {
-                    Long removed = sync.zremrangebyscore(key(target, monitorId, metric), "-inf",
+                    String zsetKey = key(target, monitorId, metric);
+                    Long removed = sync.zremrangebyscore(zsetKey, "-inf",
                             "(" + beforeMillis);
                     deleted += removed == null ? 0 : removed.intValue();
+                    // 清理后该指标若已无数据，必须同时从指标索引摘除：
+                    // 否则 metrics() 仍把它报成「已写入」，resolveSingleMetric 会把空指标
+                    // 计入候选，使 series(..., metricName=null, ...) 对该 monitor
+                    // 永久抛「指标不唯一」——数据已清空却查不出原因。
+                    Long remain = sync.zcard(zsetKey);
+                    if (remain != null && remain == 0L) {
+                        sync.srem(metricsIndexKey(target, monitorId), metric);
+                    }
                 }
             }
             log.info("[SeriesEngine] Redis 保留期清理 target={} monitor={} metric={} before={} 删除={} 点",

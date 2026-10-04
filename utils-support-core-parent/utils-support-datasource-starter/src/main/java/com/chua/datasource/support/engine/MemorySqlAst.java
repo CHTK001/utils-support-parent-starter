@@ -401,6 +401,16 @@ final class MemorySqlAst {
         final List<String> selectColumns = new ArrayList<>();
 
         /**
+         * 标量聚合函数名（MAX/MIN/SUM/AVG/COUNT），null 表示非聚合投影
+         */
+        String aggFunc;
+
+        /**
+         * 标量聚合的列名，仅 {@link #aggFunc} 非 null 时有效
+         */
+        String aggColumn;
+
+        /**
          * 从 表名
         */
         String table;
@@ -484,6 +494,9 @@ final class MemorySqlAst {
                 m.put("cnt", filtered.size());
                 return List.of(m);
             }
+            if (aggFunc != null) {
+                return List.of(aggregate(filtered));
+            }
             List<Map<String, Object>> projected = new ArrayList<>();
             int fromIdx = Math.min(offset, filtered.size());
             int toIdx = Math.min(offset + limit, filtered.size());
@@ -491,6 +504,71 @@ final class MemorySqlAst {
                 projected.add(project(r));
             }
             return projected;
+        }
+
+        /**
+         * 对过滤后的行集合求标量聚合，返回单行结果。
+         *
+         * <p>COUNT 统计该列非空值个数；MAX/MIN/SUM/AVG 忽略空值。
+         * 无行时 COUNT 返回 0，其余返回 null（与 SQL 语义一致）。
+         * 键取聚合列名，调用方（如 {@code queryValue}）取首行首列即可。</p>
+         *
+         * @param rows 过滤后的行引用
+         * @return 单行结果映射
+         */
+        private Map<String, Object> aggregate(List<?> rows) {
+            List<Object> values = new ArrayList<>();
+            for (Object r : rows) {
+                Object v = RowAccessor.value(r, aggColumn);
+                if (v != null) {
+                    values.add(v);
+                }
+            }
+            Object result;
+            switch (aggFunc) {
+                case "COUNT" -> result = (long) values.size();
+                case "MAX" -> result = values.stream().max(SelectStmt::compareValues).orElse(null);
+                case "MIN" -> result = values.stream().min(SelectStmt::compareValues).orElse(null);
+                case "SUM" -> result = values.isEmpty() ? null : values.stream().mapToDouble(SelectStmt::asDouble).sum();
+                case "AVG" -> result = values.isEmpty() ? null
+                        : values.stream().mapToDouble(SelectStmt::asDouble).average().orElse(0d);
+                default -> throw new IllegalStateException("不支持的聚合函数: " + aggFunc);
+            }
+            Map<String, Object> out = new LinkedHashMap<>();
+            out.put(aggColumn, result);
+            return out;
+        }
+
+        /**
+         * 比较两个聚合取值：同为数值按数值比较，否则按字符串比较。
+         *
+         * @param a 左值
+         * @param b 右值
+         * @return 比较结果
+         */
+        private static int compareValues(Object a, Object b) {
+            if (a instanceof Number na && b instanceof Number nb) {
+                return Double.compare(na.doubleValue(), nb.doubleValue());
+            }
+            return String.valueOf(a).compareTo(String.valueOf(b));
+        }
+
+        /**
+         * 将聚合取值转为 double，供 SUM/AVG 使用。
+         *
+         * @param v 取值（非空）
+         * @return double 值
+         * @throws IllegalArgumentException 取值无法解析为数值时抛出
+         */
+        private static double asDouble(Object v) {
+            if (v instanceof Number n) {
+                return n.doubleValue();
+            }
+            try {
+                return Double.parseDouble(String.valueOf(v).trim());
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("SUM/AVG 需要数值列，实际值: " + v, e);
+            }
         }
 
         /**

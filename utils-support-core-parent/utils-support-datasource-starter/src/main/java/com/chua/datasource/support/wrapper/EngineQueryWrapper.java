@@ -230,6 +230,28 @@ public class EngineQueryWrapper<T> extends LambdaQueryWrapper<T> {
 
     @Override
     /**
+     * 清除返回行数上限（恢复为不限制）。
+     *
+     * @return this
+     */
+    public EngineQueryWrapper<T> clearLimit() {
+        super.clearLimit();
+        return this;
+    }
+
+    @Override
+    /**
+     * 清除偏移行数（恢复为不偏移）。
+     *
+     * @return this
+     */
+    public EngineQueryWrapper<T> clearOffset() {
+        super.clearOffset();
+        return this;
+    }
+
+    @Override
+    /**
      * Lambda 投影列
     */
     public EngineQueryWrapper<T> select(SFunction<T, ?> column) {

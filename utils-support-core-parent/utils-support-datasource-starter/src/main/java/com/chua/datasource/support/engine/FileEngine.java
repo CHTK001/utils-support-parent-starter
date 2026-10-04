@@ -437,10 +437,45 @@ public class FileEngine extends AbstractEngine {
      */
     @Override
     public List<Map<String, Object>> querySql(String sql, Object... params) {
-        Objects.requireNonNull(sql, "sql must not be null");
+        if (sql == null) {
+            throw new IllegalArgumentException("sql 不能为空");
+        }
+        Object[] args = params == null ? new Object[0] : params;
         String table = extractTable(sql);
         List<?> rows = dataStores.getOrDefault(table, Collections.emptyList());
-        return interceptQuery(sql, params, () -> new MemorySqlParser().executeQuery(sql, rows, params));
+        return interceptQuery(sql, args, () -> new MemorySqlParser().executeQuery(sql, rows, args));
+    }
+
+    /**
+     * 执行原生查询并按行类型映射。
+     *
+     * <p>文件引擎没有 {@link SqlExecutor}，接口默认实现会按
+     * {@code getExecutor() == null} 直接抛不支持异常 —— 但本引擎
+     * {@link #supportsSql()} 为 true 且已具备完整语句通道，因此必须覆写本方法，
+     * 否则能力声明与实际行为不一致。映射复用与
+     * {@code FileReactorEngine} 同一套 {@link MemorySqlLex.RowAccessor#toBean}。</p>
+     *
+     * @param ql      查询语句，不允许为 null
+     * @param rowType 行类型，不允许为 null
+     * @param params  绑定参数，可为 null（按无参处理）
+     * @param <T>     行类型
+     * @return 类型化结果列表
+     * @throws IllegalArgumentException 语句或行类型为 null 时抛出
+     */
+    @Override
+    public <T> List<T> querySql(String ql, Class<T> rowType, Object... params) {
+        if (ql == null) {
+            throw new IllegalArgumentException("ql 不能为空");
+        }
+        if (rowType == null) {
+            throw new IllegalArgumentException("rowType 不能为空");
+        }
+        List<Map<String, Object>> rows = querySql(ql, params);
+        List<T> out = new ArrayList<>(rows.size());
+        for (Map<String, Object> row : rows) {
+            out.add(MemorySqlLex.RowAccessor.toBean(row, rowType));
+        }
+        return out;
     }
 
     /**

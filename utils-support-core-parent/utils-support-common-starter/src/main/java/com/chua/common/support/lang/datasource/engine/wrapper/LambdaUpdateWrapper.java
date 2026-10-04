@@ -83,6 +83,23 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
     }
 
     /**
+     * 校验是否允许无 WHERE 条件执行全表操作。
+     *
+     * <p>守卫集中在此处，供 {@link #buildSql()} 与「不经过 SQL 渲染」的求值路径
+     * （内存/文件引擎的 {@code update()}）共用。后者若自行求值而不复用本方法，
+     * 无 WHERE 的终端调用会静默作用于全表（曾使内存引擎的 {@code update()} 更新整表）。</p>
+     *
+     * @param operation 操作名，用于异常文案（如「更新」）
+     * @throws IllegalStateException 无 WHERE 条件且未显式调用 {@code allowFullTable()} 时抛出
+     */
+    public void requireWhereCondition(String operation) {
+        if (conditions.isEmpty() && !fullTableAllowed) {
+            throw new IllegalStateException("禁止无 WHERE 条件的全表" + operation + ": "
+                    + entityClass.getSimpleName() + "，如需全表" + operation + "请显式调用 allowFullTable()");
+        }
+    }
+
+    /**
      * 将当前链式 API 构建的条件渲染为结构化的更新 SQL 信息。
      * <p>
      * 返回的 {@link UpdateSql} 记录了 SET 子句、WHERE 子句和参数列表，
@@ -96,10 +113,7 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
             throw new IllegalStateException("UPDATE 至少需要一个 SET 列: "
                     + entityClass.getSimpleName());
         }
-        if (conditions.isEmpty() && !fullTableAllowed) {
-            throw new IllegalStateException("禁止无 WHERE 条件的全表更新: "
-                    + entityClass.getSimpleName() + "，如需全表更新请显式调用 allowFullTable()");
-        }
+        requireWhereCondition("更新");
         List<Object> params = new ArrayList<>();
         StringBuilder setSb = new StringBuilder();
         for (Map.Entry<String, Object> e : setValues.entrySet()) {
