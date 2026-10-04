@@ -183,6 +183,41 @@ public class ReturnResult<T> implements Serializable {
     }
 
     /**
+     * 失败(编码 + 信息 + 载荷)
+     *
+     * <p>用于「操作最终失败、但已经产生了可回滚的副作用」这一类结果。典型场景：
+     * 创建节点时定义已落库（用户能在列表里看到并修正），随后的启动却失败了。
+     * 此时若只返回一段文字，调用方既拿不到 {@code data} 里的 id，也就无从回滚 ——
+     * 而「失败后残留半成品」恰恰是最需要调用方自己决定保留还是清理的场景，
+     * 不该由服务端替它决定，更不该让它无从下手。</p>
+     *
+     * <p>与 {@link #error(String, String)} 的区别仅在于 {@code data} 不为 null：
+     * {@code success} 仍然是 false，语义没有放宽。它不是「部分成功」，而是
+     * 「失败了，并且失败留下了这些东西交给你处理」。</p>
+     *
+     * @param code 编码
+     * @param msg  信息
+     * @param data 失败后仍然存在的载荷（如已落库实体的 id）
+     * @param <T>  类型
+     * @return 结果
+     */
+    public static <T> ReturnResult<T> error(String code, String msg, T data) {
+        return new ReturnResult<>(code, data, msg);
+    }
+
+    /**
+     * 失败(信息 + 载荷)
+     *
+     * @param msg  信息
+     * @param data 失败后仍然存在的载荷
+     * @param <T>  类型
+     * @return 结果
+     */
+    public static <T> ReturnResult<T> error(String msg, T data) {
+        return error(ReturnCode.SYSTEM_SERVER_BUSINESS_ERROR.getCode(), msg, data);
+    }
+
+    /**
      * 失败(根据异常类型自动推断 code)
      *
      * @param throwable 异常
