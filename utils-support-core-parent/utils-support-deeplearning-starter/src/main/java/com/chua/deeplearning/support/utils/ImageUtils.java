@@ -121,7 +121,7 @@ public final class ImageUtils {
             synchronized (ImageUtils.class) {
                 if (!loaded) {
                     nu.pattern.OpenCV.loadLocally();
-                    purgeStaleOpencvTempDirs();
+                    purgeStaleNativeTempDirs();
                     loaded = true;
                 }
             }
@@ -129,18 +129,31 @@ public final class ImageUtils {
     }
 
     /**
-     * 清理上一个进程残留的 OpenCV 原生库解压目录。
+     * 需要清理的原生库解压目录前缀。
      *
-     * <p>{@code nu.pattern.OpenCV} 会把原生库解压到 {@code java.io.tmpdir} 下的
-     * {@code opencv_openpnp*} 目录，并注册退出钩子删除；但退出钩子运行时类加载器已卸载，
-     * 内部抛 {@code ClassNotFoundException: nu.pattern.OpenCV$TemporaryDirectory$2}，
-     * 于是目录永远删不掉 —— 实测 eduai 单实例累计残留 7 个、437MB（每个约 60MB）。</p>
+     * <p>覆盖三类：OpenCV（{@code opencv_openpnp*}，约 60MB/份）、ONNX Runtime
+     * （{@code onnxruntime-java*}，约 20MB/份）、方向分类模型
+     * （{@code doc-orientation-*}，约 6.5MB/份）。三者都由各自组件在
+     * {@code java.io.tmpdir} 下解压并自行注册清理，进程非正常退出时一律残留。</p>
+     */
+    private static final List<String> NATIVE_TEMP_DIR_PREFIXES =
+            List.of("opencv_openpnp", "onnxruntime-java", "doc-orientation-");
+
+    /**
+     * 清理上一个进程残留的原生库解压目录。
      *
-     * <p>该缺陷在第三方库内，我方无法修其钩子，只能在每次加载前把「早于本进程启动」的
+     * <p>三类来源的共性问题是「靠退出钩子删除」不可靠：</p>
+     * <ul>
+     *   <li>{@code nu.pattern.OpenCV} 的钩子运行时类加载器已卸载，内部抛
+     *       {@code ClassNotFoundException}，目录永远删不掉；</li>
+     *   <li>进程被强杀（SIGKILL）或关闭超时被 systemd 追加 SIGKILL 时，钩子根本不执行。</li>
+     * </ul>
+     *
+     * <p>这些都在第三方组件内，无法修其钩子，只能在每次加载前把「早于本进程启动」的
      * 同名目录清掉：属于本进程的目录必然不早于 JVM 启动时刻，因此不会被误删。
      * 清理失败只忽略，不影响启动。</p>
      */
-    private static void purgeStaleOpencvTempDirs() {
+    private static void purgeStaleNativeTempDirs() {
         Path tempRoot;
         try {
             tempRoot = Paths.get(System.getProperty("java.io.tmpdir"));
@@ -150,7 +163,8 @@ public final class ImageUtils {
         long jvmStart = ManagementFactory.getRuntimeMXBean().getStartTime();
         try (var children = Files.list(tempRoot)) {
             children.filter(Files::isDirectory)
-                    .filter(path -> path.getFileName().toString().startsWith("opencv_openpnp"))
+                    .filter(path -> NATIVE_TEMP_DIR_PREFIXES.stream()
+                            .anyMatch(prefix -> path.getFileName().toString().startsWith(prefix)))
                     .forEach(path -> {
                         try {
                             if (Files.getLastModifiedTime(path).toMillis() < jvmStart) {
