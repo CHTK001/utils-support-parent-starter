@@ -22,7 +22,12 @@ import com.chua.common.support.ai.mcp.McpManager;
 import com.chua.common.support.ai.mcp.McpToolCall;
 import com.chua.common.support.ai.mcp.McpToolDescriptor;
 import com.chua.common.support.ai.mcp.McpToolResult;
+import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.memory.MemoryConfig;
+import com.chua.deeplearning.support.agentscope.goal.GoalLoop;
+import com.chua.deeplearning.support.agentscope.goal.GoalStatus;
+import com.chua.deeplearning.support.agentscope.goal.GoalTracker;
+import com.chua.deeplearning.support.agentscope.goal.SessionGoal;
 import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.utils.StringUtils;
 import io.agentscope.core.agent.RuntimeContext;
@@ -95,6 +100,18 @@ public class AgentScopeAgent implements Agent {
      * 聊天客户端映射
     */
     private final Map<String, ChatClient> chatClients = new HashMap<>();
+    /**
+     * 会话目标状态机；为 null 表示该 agent 未绑定目标。
+     */
+    private GoalTracker goalTracker;
+    /**
+     * 目标循环的轮次硬上限（有界，防止无限推进）。
+     */
+    private int goalMaxRounds = 20;
+    /**
+     * 单次暂停等待上限（毫秒）；小于等于 0 表示一直等到恢复或被取消。
+     */
+    private long goalPauseTimeoutMillis = 0L;
     /**
      * 子代理定义列表
     */
@@ -1009,6 +1026,177 @@ public class AgentScopeAgent implements Agent {
             sb.append(en.getKey()).append(": ").append(String.valueOf(en.getValue())).append('\n');
         }
         return sb.toString().trim();
+    }
+
+    /**
+     * 绑定一个会话目标（Issue）。
+     *
+     * <p>绑定后可用 {@link #runGoal()} 让 agent 围绕该目标反复推进直至完成；
+     * 目标状态机由 {@link GoalTracker} 持有，可被其它线程暂停/恢复/取消。
+     *
+     * @param goal 目标快照，不能为 null
+     * @return 当前 agent（链式）
+     */
+    public Agent goal(SessionGoal goal) {
+        this.goalTracker = new GoalTracker(goal);
+        return this;
+    }
+
+    /**
+     * 直接挂接一个已存在的目标状态机（通常来自 {@link GoalRegistry} 的会话级目标）。
+     *
+     * <p>与 {@link #goal(SessionGoal)} 的区别：后者为本次 agent 新建状态机，
+     * 本方法挂接共享状态机，因此多次请求可以围绕同一目标接力推进。
+     *
+     * @param tracker 目标状态机，不能为 null
+     * @return 当前 agent（链式）
+     */
+    public Agent attachGoal(GoalTracker tracker) {
+        if (tracker == null) {
+            throw new IllegalArgumentException("tracker 不能为 null");
+        }
+        this.goalTracker = tracker;
+        return this;
+    }
+
+    /**
+     * 设置目标循环的轮次硬上限（至少 1）。
+     *
+     * @param maxRounds 轮次上限
+     * @return 当前 agent（链式）
+     */
+    public Agent goalMaxRounds(int maxRounds) {
+        if (maxRounds < 1) {
+            throw new IllegalArgumentException("maxRounds 至少为 1: " + maxRounds);
+        }
+        this.goalMaxRounds = maxRounds;
+        return this;
+    }
+
+    /**
+     * 设置单次暂停等待上限。
+     *
+     * @param pauseTimeoutMillis 毫秒；小于等于 0 表示一直等到恢复或被取消
+     * @return 当前 agent（链式）
+     */
+    public Agent goalPauseTimeout(long pauseTimeoutMillis) {
+        this.goalPauseTimeoutMillis = pauseTimeoutMillis;
+        return this;
+    }
+
+    /**
+     * 是否已绑定目标。
+     *
+     * @return 已绑定返回 true
+     */
+    public boolean hasGoal() {
+        return goalTracker != null;
+    }
+
+    /**
+     * 当前目标状态；未绑定目标时返回 null。
+     *
+     * @return 展示投影；未绑定返回 null
+     */
+    public GoalStatus goalStatus() {
+        GoalTracker tracker = this.goalTracker;
+        return tracker == null ? null : tracker.status();
+    }
+
+    /**
+     * 暂停当前目标。
+     *
+     * @return 暂停后的展示投影
+     */
+    public GoalStatus pauseGoal() {
+        return requireGoal().pause(System.currentTimeMillis());
+    }
+
+    /**
+     * 恢复当前目标。
+     *
+     * @return 恢复后的展示投影
+     */
+    public GoalStatus resumeGoal() {
+        return requireGoal().resume(System.currentTimeMillis());
+    }
+
+    /**
+     * 取消当前目标。
+     *
+     * @param reason 取消原因
+     * @return 取消后的展示投影
+     */
+    public GoalStatus cancelGoal(String reason) {
+        return requireGoal().cancel(reason, System.currentTimeMillis());
+    }
+
+    /**
+     * 围绕已绑定的目标反复推进，直到完成/失败/取消或到达轮次上限。
+     *
+     * <p>每一轮都通过 {@link #run(String)} 真实调用一次 agent；轮次之间检查暂停，
+     * 暂停期间不发起模型调用。被中断时把目标转为 CANCELED 并重新打上中断标记。
+     *
+     * @return 结束时的展示投影
+     */
+    public GoalStatus runGoal() {
+        GoalTracker tracker = requireGoal();
+        try {
+            return GoalLoop.run(tracker, this::goalTurn, new GoalLoop.MarkerGoalEvaluator(),
+                    goalMaxRounds, goalPauseTimeoutMillis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("[AgentScope] 目标执行被中断，转为取消: {}", tracker.status().title());
+            try {
+                return tracker.cancel("目标执行被中断", System.currentTimeMillis());
+            } catch (IllegalStateException terminal) {
+                return tracker.status();
+            }
+        }
+    }
+
+    /**
+     * 目标循环的单轮执行体：真实跑一次 agent，并折算本轮的令牌消耗。
+     *
+     * @param prompt 本轮提示词
+     * @return 本轮结果
+     */
+    private GoalLoop.TurnResult goalTurn(String prompt) {
+        AgentResponse response = run(prompt);
+        String reply = response != null && response.getOutput() != null ? response.getOutput() : "";
+        return new GoalLoop.TurnResult(reply, tokenOf(response));
+    }
+
+    /**
+     * 从响应里取令牌消耗；缺失时返回 0 而不是猜一个数。
+     *
+     * @param response agent 响应，可为 null
+     * @return 令牌数（未知为 0）
+     */
+    private static long tokenOf(AgentResponse response) {
+        if (response == null || response.getUsage() == null) {
+            return 0L;
+        }
+        AiUsage usage = response.getUsage();
+        if (usage.getTotalTokens() != null) {
+            return usage.getTotalTokens();
+        }
+        long input = usage.getInputTokens() == null ? 0L : usage.getInputTokens();
+        long output = usage.getOutputTokens() == null ? 0L : usage.getOutputTokens();
+        return input + output;
+    }
+
+    /**
+     * 取得已绑定的目标状态机。
+     *
+     * @return 目标状态机
+     */
+    private GoalTracker requireGoal() {
+        GoalTracker tracker = this.goalTracker;
+        if (tracker == null) {
+            throw new IllegalStateException("未绑定目标，请先调用 goal(...)");
+        }
+        return tracker;
     }
 
     @Override
