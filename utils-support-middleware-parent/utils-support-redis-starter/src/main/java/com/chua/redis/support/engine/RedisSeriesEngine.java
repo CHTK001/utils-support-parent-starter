@@ -4,6 +4,7 @@ import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.series.SeriesEngine;
 import com.chua.common.support.spi.annotations.Spi;
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.RedisURI;
 import io.lettuce.core.ScanArgs;
 import io.lettuce.core.ScanIterator;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -60,6 +61,11 @@ public class RedisSeriesEngine implements SeriesEngine, AutoCloseable {
     private static final int SCAN_BATCH = 1000;
 
     /**
+     * 缺省 Redis 连接串
+     */
+    private static final String DEFAULT_REDIS_URL = "redis://127.0.0.1:6379";
+
+    /**
      * Lettuce Redis 客户端
     */
     private final RedisClient redisClient;
@@ -87,11 +93,36 @@ public class RedisSeriesEngine implements SeriesEngine, AutoCloseable {
     /**
      * SPI 构造：按 Properties 创建自有客户端。
      *
-     * @param properties 配置：url（缺省 redis://127.0.0.1:6379）
+     * @param properties 配置：url（缺省 redis://127.0.0.1:6379）、database（Redis 逻辑库下标，可选）
      */
     public RedisSeriesEngine(Properties properties) {
-        this(RedisClient.create(properties == null ? "redis://127.0.0.1:6379"
-                : properties.getProperty("url", "redis://127.0.0.1:6379")), true);
+        this(RedisClient.create(redisUri(properties)), true);
+    }
+
+    /**
+     * 按配置构造 Redis 连接串。
+     *
+     * <p>支持 {@code monitor.timeseries.database} 指定 Redis 逻辑库下标（0-15），
+     * 与 url 同级配置；兼容 influxdb 语义下 {@code database=monitor} 这类非数字值会被忽略。</p>
+     *
+     * @param properties 配置
+     * @return Redis 连接串
+     */
+    static RedisURI redisUri(Properties properties) {
+        String url = properties == null ? null : properties.getProperty("url");
+        RedisURI uri = RedisURI.create(url == null || url.isBlank() ? DEFAULT_REDIS_URL : url);
+        String database = properties == null ? null : properties.getProperty("database");
+        if (database != null && !database.isBlank()) {
+            try {
+                int index = Integer.parseInt(database.trim());
+                if (index >= 0) {
+                    uri.setDatabase(index);
+                }
+            } catch (NumberFormatException e) {
+                log.warn("[SeriesEngine] 忽略非数字 Redis database 配置: {}", database);
+            }
+        }
+        return uri;
     }
 
     /**
