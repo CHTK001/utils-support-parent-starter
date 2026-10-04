@@ -5,3 +5,11 @@
 /cp.txt
 /*-report.txt
 /selfcheck.log
+/stage5-check.log
+/all5.log
+
+# 运行器脚本必须入库：仓库根 .gitignore 以 *.ps1 / *.cmd / *.bat 全局忽略。
+# 不在此显式求反，harness 就只剩源码、没有可复跑的运行器
+# （2026-10-04 实际漏提交过一次：commit 只进了 8 个文件，两个脚本不在 HEAD）。
+!run-acceptance.bat
+!prepare-classpath.ps1
