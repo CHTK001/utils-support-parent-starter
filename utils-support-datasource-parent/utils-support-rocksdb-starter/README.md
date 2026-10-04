@@ -86,6 +86,32 @@ rocksDb.delete(User.class)
 rocksDb.close();
 ```
 
+### 3. 时序存储（SeriesEngine，SPI: `rocksdb`）
+
+纯本地、无外部服务的时序后端，把时序点直接写入 RocksDB 目录。
+
+```java
+Properties props = new Properties();
+props.setProperty("path", "data/series-rocksdb");   // 必填，RocksDB 数据目录（不存在则创建）
+props.setProperty("datasource", "default");          // 可选，数据源名，缺省 default
+
+SeriesEngine series = ServiceProvider.of(SeriesEngine.class).getNewExtension("rocksdb", props);
+series.writePoint("ms_monitor_metric_cpu", 1L, "cpu_usage", 25.5, System.currentTimeMillis());
+List<List<Object>> curve = series.series("ms_monitor_metric_cpu", 1L, "cpu_usage", 1, "5m");
+series.purge("ms_monitor_metric_cpu", 1L, "cpu_usage", System.currentTimeMillis() - 7L * 86_400_000L);
+((AutoCloseable) series).close();
+```
+
+键布局（`SER:1:` 键空间，与 `SKV:` / `DOC:` / `FTS_` / `ORM:` 隔离）：
+
+```
+点：  SER:1:<target>:<monitorId>:<metricName>:<16 位时序化时间戳>  → 8 字节 double
+索引：SER:1:IDX:<target>:<monitorId>:<metricName>                 → "1"
+```
+
+时间戳按 `ts ^ Long.MIN_VALUE` 编成定长十六进制，字典序等于数值序，前缀扫描即时间升序；
+点与索引同批原子写入，保留期清理按点键直接删除并回收已清空的索引。
+
 ---
 
 ## 功能概览
@@ -93,6 +119,7 @@ rocksDb.close();
 | 类/接口 | 说明 |
 |---------|------|
 | `RocksDbEngine` | RocksDB 数据库引擎实现，提供字节/字符串 KV、文档存储、全文检索、Lambda ORM 能力。 (SPI: `rocksdb`) |
+| `RocksDbSeriesEngine` | 基于 RocksDB 本地目录的时序引擎实现，实现 `SeriesEngine` 契约（写点/批量写/指标发现/均值曲线/保留期清理）。 (SPI: `rocksdb`) |
 | `RocksDbEngineDataSource` | RocksDB 数据源封装，持有真实 `RocksDB` 实例与目录路径 |
 | `RocksDbOrmStore` | ORM 实体存取辅助类，键布局 `ORM:<table>:<id>`，前缀扫描 + 内存 WHERE 过滤 + 原子批量回写 |
 
