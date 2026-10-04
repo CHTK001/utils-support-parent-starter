@@ -1,17 +1,11 @@
 package com.chua.common.support.lang.code;
 
-import com.chua.common.support.utils.ClassUtils;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -29,7 +23,6 @@ import java.util.function.Supplier;
 @Getter
 @Setter
 @Accessors(chain = true)
-@SuppressWarnings({"ALL", "unchecked"})
 public class ReturnResult<T> implements Serializable {
 
     /**
@@ -49,10 +42,6 @@ public class ReturnResult<T> implements Serializable {
      * 信息
      */
     private String msg;
-    /**
-     * 临时字段(用于反射填充实体), 不参与序列化
-     */
-    private transient volatile Map<String, Object> temp;
 
     /**
      * 创建 ReturnResult 实例
@@ -205,17 +194,7 @@ public class ReturnResult<T> implements Serializable {
         return new ReturnResult<>(code, data, msg);
     }
 
-    /**
-     * 失败(信息 + 载荷)
-     *
-     * @param msg  信息
-     * @param data 失败后仍然存在的载荷
-     * @param <T>  类型
-     * @return 结果
-     */
-    public static <T> ReturnResult<T> error(String msg, T data) {
-        return error(ReturnCode.SYSTEM_SERVER_BUSINESS_ERROR.getCode(), msg, data);
-    }
+
 
     /**
      * 失败(根据异常类型自动推断 code)
@@ -313,37 +292,7 @@ public class ReturnResult<T> implements Serializable {
         return this;
     }
 
-    /**
-     * 添加待反射填充的字段(替代原 ReturnResultBuilder.with)
-     *
-     * @param field 字段
-     * @param value 数据
-     * @return this
-     */
-    public ReturnResult<T> with(String field, Object value) {
-        if (null == temp) {
-            temp = new HashMap<>();
-        }
-        temp.put(field, value);
-        return this;
-    }
-
-    /**
-     * 使用临时字段反射填充目标实体的 data
-     *
-     * @param target 类型
-     * @return this
-     */
-    public ReturnResult<T> build(Class<T> target) {
-        if (null == data && null != temp && !temp.isEmpty() && null != target) {
-            this.data = analysis(target);
-        }
-        return this;
-    }
-
-    // ==================== 分支能力 ====================
-
-    /**
+   /**
      * 数据转换(成功时执行, 失败时透传错误)
      *
      * @param function 转换函数
@@ -435,14 +384,35 @@ public class ReturnResult<T> implements Serializable {
     /**
      * 失败时提供默认值并转为成功
      *
+     * <p><b>与 Optional#orElse 的语义差异（刻意为之）</b>：Optional 的
+     * {@code orElse} 返回的是<b>值本身</b>，原始异常仍在调用方手上；本方法返回的是
+     * 容器，所以「转成成功」必须由它自己来做。</p>
+     *
      * @param other 默认值
      * @return this
      */
     public ReturnResult<T> orElse(T other) {
+        return orElseMarked(other, null);
+    }
+
+    /**
+     * 失败时提供默认值、转为成功，并显式标注降级原因
+     *
+     * <p>原实现把 {@code msg} 一并覆盖成「成功」文案，这是错的：失败原因就此丢失，
+     * 调用方即使打了日志也查不出当初为什么失败。失败信息在排障时的价值往往高于
+     * 那句「成功」，所以默认只改 code（它决定 isOk），<b>保留原 msg</b>。</p>
+     *
+     * @param other   默认值
+     * @param degrade 降级说明；为 null 或空白时保留原始失败信息
+     * @return this
+     */
+    public ReturnResult<T> orElseMarked(T other, String degrade) {
         if (!isOk()) {
             this.data = other;
             this.code = ReturnCode.SUCCESS.getCode();
-            this.msg = ReturnCode.SUCCESS.getMsg();
+            if (degrade != null && !degrade.isBlank()) {
+                this.msg = degrade;
+            }
         }
         return this;
     }
@@ -455,9 +425,7 @@ public class ReturnResult<T> implements Serializable {
      */
     public ReturnResult<T> orElseGet(Supplier<T> supplier) {
         if (!isOk()) {
-            this.data = supplier.get();
-            this.code = ReturnCode.SUCCESS.getCode();
-            this.msg = ReturnCode.SUCCESS.getMsg();
+            return orElseMarked(supplier.get(), null);
         }
         return this;
     }
@@ -482,74 +450,4 @@ public class ReturnResult<T> implements Serializable {
         return isOk();
     }
 
-    // ==================== 反射填充 ====================
-
-    /**
-     * Analysis
-     * @param target 目标，不允许为 null
-     * @return T 对象
-     */
-    private T analysis(Class<T> target) {
-        T realType = realType(target);
-        if (null == realType) {
-            return null;
-        }
-        Class<?> aClass = realType.getClass();
-        for (Map.Entry<String, Object> entry : temp.entrySet()) {
-            Object value = entry.getValue();
-            if (null == value) {
-                continue;
-            }
-            render(aClass, realType, entry.getKey(), value);
-        }
-        return realType;
-    }
-
-    /**
-     * Render
-     * @param aClass 方法入参 aClass
-     * @param realType real类型，不允许为 null
-     * @param entryKey 条目键，不允许为 null
-     * @param value 值，不允许为 null
-     */
-    private void render(Class<?> aClass, T realType, String entryKey, Object value) {
-        Field field = ClassUtils.findField(aClass, entryKey);
-        if (null == field) {
-            return;
-        }
-        ClassUtils.setAccessible(field);
-        try {
-            ClassUtils.setFieldValue(field, value, realType);
-        } catch (Exception ignored) {
-        }
-    }
-
-    /**
-     * RealType
-     * @param target 目标，不允许为 null
-     * @return T 对象
-     */
-    private T realType(Class<T> target) {
-        Class<?> aClass = this.getClass();
-        Type superclass = aClass.getGenericSuperclass();
-        if (superclass == Object.class) {
-            try {
-                return ClassUtils.forObject(target);
-            } catch (Exception ignored) {
-                return null;
-            }
-        }
-        Type type = null;
-        if (superclass instanceof ParameterizedType) {
-            type = ((ParameterizedType) superclass).getActualTypeArguments()[0];
-        }
-        if (!(type instanceof Class<?>)) {
-            return null;
-        }
-        try {
-            return (T) ClassUtils.newInstance(((Class<?>) type));
-        } catch (Exception e) {
-            return null;
-        }
-    }
 }
