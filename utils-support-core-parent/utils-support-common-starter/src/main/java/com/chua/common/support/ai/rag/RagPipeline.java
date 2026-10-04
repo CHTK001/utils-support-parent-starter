@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,6 +95,11 @@ public class RagPipeline implements RagClient {
      * 上传文件子目录名
      */
     private static final String UPLOAD_FILES_SUBDIR = "files";
+    /**
+     * 分块内容缓存文件名（uploadDir 下）。进程重启后据此恢复检索引用所需的原文——
+     * jvector 等向量库的落盘格式不含 metadata，只存 id+向量，内容必须另行持久化。
+     */
+    private static final String CHUNK_CONTENT_CACHE_FILE = "chunk-content-cache.tsv";
     /**
      * 向量元数据键：分块原文
      */
@@ -233,6 +239,7 @@ public class RagPipeline implements RagClient {
         }
         this.documents = new CopyOnWriteArrayList<>();
         this.chunkContentCache = new ConcurrentHashMap<>();
+        loadChunkContentCache();
         this.ingestPipeline = buildIngestPipeline();
         this.queryPipeline = buildQueryPipeline();
         log.info("[RagPipeline] 初始化完成, uploadDir={}", setting.getUploadDir());
@@ -448,6 +455,15 @@ public class RagPipeline implements RagClient {
                 chunkContentCache.put(chunkId, meta.content());
             }
         }
+        // 持久化：① 让向量索引落盘（jvector 等默认只在 rebuild 时写盘，仅 add 不落盘）；
+        // ② 保存分块内容缓存。否则进程重启后内存索引与内容缓存全丢，历史文档检索不到
+        // （实测表现为 /ask 无引用、回「无法回答」）。
+        try {
+            vectorStorage.rebuild();
+        } catch (Exception e) {
+            log.warn("[RagPipeline] 向量索引落盘失败（内存仍可用）: {}", e.getMessage());
+        }
+        persistChunkContentCache();
         return chunks.size();
     }
 
@@ -985,8 +1001,80 @@ public class RagPipeline implements RagClient {
         setting.setEmbeddingClient(embeddingClient);
     }
 
+    /**
+     * 分块内容缓存落盘路径。
+     *
+     * @return uploadDir 下的缓存文件路径
+     */
+    private Path chunkContentCachePath() {
+        return uploadDir.resolve(CHUNK_CONTENT_CACHE_FILE);
+    }
+
+    /**
+     * 从磁盘加载分块内容缓存（进程重启后恢复检索引用的原文）。
+     */
+    private void loadChunkContentCache() {
+        Path path = chunkContentCachePath();
+        if (!Files.exists(path)) {
+            return;
+        }
+        try {
+            int loaded = 0;
+            for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
+                if (line.isEmpty()) {
+                    continue;
+                }
+                int tab = line.indexOf('\t');
+                if (tab <= 0) {
+                    continue;
+                }
+                String chunkId = line.substring(0, tab);
+                String content = new String(Base64.getDecoder().decode(line.substring(tab + 1)),
+                        StandardCharsets.UTF_8);
+                chunkContentCache.put(chunkId, content);
+                loaded++;
+            }
+            log.info("[RagPipeline] 载入分块内容缓存 {} 条", loaded);
+        } catch (Exception e) {
+            log.warn("[RagPipeline] 载入分块内容缓存失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 把分块内容缓存落盘。每行 {@code chunkId<TAB>base64(content)}，
+     * 用 Base64 规避内容里的换行 / 制表符。
+     */
+    private void persistChunkContentCache() {
+        Path path = chunkContentCachePath();
+        try {
+            Files.createDirectories(path.getParent());
+            StringBuilder sb = new StringBuilder();
+            for (Map.Entry<String, String> entry : chunkContentCache.entrySet()) {
+                if (entry.getKey() == null || entry.getValue() == null) {
+                    continue;
+                }
+                sb.append(entry.getKey()).append('\t')
+                        .append(Base64.getEncoder().encodeToString(
+                                entry.getValue().getBytes(StandardCharsets.UTF_8)))
+                        .append('\n');
+            }
+            Files.writeString(path, sb.toString(), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            log.warn("[RagPipeline] 分块内容缓存落盘失败: {}", e.getMessage());
+        }
+    }
+
     @Override
     public void close() {
+        // 关闭前落盘并关闭向量存储：不 close 时部分实现（jvector ON_DISK）不会 flush 索引。
+        persistChunkContentCache();
+        try {
+            if (vectorStorage != null) {
+                vectorStorage.close();
+            }
+        } catch (Exception e) {
+            log.warn("[RagPipeline] 关闭向量存储失败: {}", e.getMessage());
+        }
         log.info("[RagPipeline] 已关闭");
     }
 
