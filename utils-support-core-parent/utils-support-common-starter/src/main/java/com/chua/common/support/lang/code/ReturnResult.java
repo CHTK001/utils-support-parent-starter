@@ -101,6 +101,15 @@ public class ReturnResult<T> implements Serializable {
     /**
      * 成功
      *
+     * <p><b>刻意保留的同义别名</b>：本方法与 {@link #ok()} 完全等价
+     * （实现就是 {@code return ok(null)}）。规范写法是 {@code ok}，
+     * 本方法只因全仓已有 30 余处调用而保留，<b>不要在新代码里使用</b>。</p>
+     *
+     * <p>之所以不一并删掉：它不是 {@code error} 家族那种
+     * 「两参重载静默吞掉载荷」的歧义缺陷，只是冗余，删它属于纯粹的
+     * 破坏性变更（要同时改 6 个模块 30 余处调用点），与本次重构要解决的
+     * 问题不在一个量级。留着并在Javadoc 里写明，比删掉更划算。</p>
+     *
      * @param <T> 类型
      * @return 结果
      */
@@ -110,6 +119,8 @@ public class ReturnResult<T> implements Serializable {
 
     /**
      * 成功（携带数据）
+     *
+     * <p>与 {@link #success()} 同理，属刻意保留的同义别名，规范写法是 {@link #ok(Object)}。</p>
      *
      * @param data 数据
      * @param <T>  类型
@@ -150,6 +161,15 @@ public class ReturnResult<T> implements Serializable {
 
     /**
      * 失败
+     *
+     * <p><b>两参形式必须是 {@code (code, msg)}，不得用来携带载荷。</b>
+     * 本类曾存在一个 {@code error(String msg, T data)} 重载，它是错的：当
+     * {@code data} 恰好也是 {@code String} 时，本方法与它都是 {@code (String,String)}
+     * 完美匹配，编译器会静默选中先声明的那一个，于是错误信息被当成业务码、
+     * 载荷被丢弃 —— 而调用方拿到的仍是一个「看起来正常」的结果对象。</p>
+     *
+     * <p>需要「失败但仍回传数据」（如服务管理建节点时把已落库的 id 交给调用方
+     * 回滚），必须用三参的 {@link #error(String, String, Object)}。</p>
      *
      * @param code 编码
      * @param msg  信息
