@@ -2,7 +2,7 @@
 <!--
   引擎验收运行器的独立工程（工具，不属于任何交付模块）。
   只做一件事：把全部引擎 starter 的传递依赖收敛成一份 classpath，
-  供 .tmp/engine-accept 下的验收运行器编译与执行使用。
+  供同目录 harness/ 下的验收运行器编译与执行使用（见 README.md）。
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -49,6 +49,9 @@
         <!-- KV / Series 实现所需 -->
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-chronicle-starter</artifactId><version>${v}</version></dependency>
         <dependency><groupId>io.lettuce</groupId><artifactId>lettuce-core</artifactId><version>7.5.2.RELEASE</version></dependency>
+        <!-- 阶段五：KvEngine 第 4 个实现（spring StringRedisTemplate）与 monitor 的 SeriesEngine 装配面 -->
+        <dependency><groupId>com.chua</groupId><artifactId>spring-support-redis-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>spring-support-monitor-starter</artifactId><version>${v}</version></dependency>
     </dependencies>
 
     <build>
