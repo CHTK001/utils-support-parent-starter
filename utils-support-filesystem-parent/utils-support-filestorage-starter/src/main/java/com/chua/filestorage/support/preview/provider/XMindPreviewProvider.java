@@ -3,6 +3,8 @@ package com.chua.filestorage.support.preview.provider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.filestorage.support.preview.FileStoragePreviewProvider;
 import com.chua.filestorage.support.preview.PreviewResult;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -28,6 +30,11 @@ import java.util.zip.ZipInputStream;
  */
 @Spi("preview-xmind")
 public class XMindPreviewProvider implements FileStoragePreviewProvider {
+
+    /**
+     * JSON 解析器（线程安全，复用同一实例）。
+     */
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
      * 判断是否支持该扩展名的预览。
@@ -133,11 +140,17 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 解析 xmind Zen/2020+ 的 内容.json，提取主题层级结构。
+     * 解析 xmind Zen/2020+ 的 content.json，提取主题层级结构。
      *
      * <p>content.json 格式示例：</p>
      * <pre>[{"rootTopic":{"title":"根主题","children":{"attached":[...]}}}]</pre>
-     * <p>本方法采用简易 JSON 字符串扫描（不依赖 JSON 库），从 {@code "rootTopic"} 开始递归解析。</p>
+     *
+     * <p><b>为什么改用 Jackson 而不是字符串扫描</b>：原实现用
+     * {@code json.indexOf("\"children\"", startPos)} 找子节点，**搜索范围没有限定在当前对象内**
+     * —— 一个没有 children 的节点会抓到**兄弟或后续节点**的 children，递归下去把主题树
+     * 解析成一棵重复十几遍的错树（实测用合法 XMind 样本时，同一段叶子主题重复出现十余次）。
+     * 这类「按索引扫 JSON」的写法对嵌套与转义都不健壮，改用同包 {@code JupyterPreviewProvider}
+     * 已经在用的 Jackson。</p>
      *
      * @param json 内容.json 的文件内容字符串
      * @return 根主题列表（通常只有一个元素），解析失败或内容为空时返回空列表
@@ -147,19 +160,57 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
         if (json == null || json.isBlank() || "[]".equals(json.trim())) {
             return roots;
         }
-
         try {
-            int rootIdx = json.indexOf("\"rootTopic\"");
-            if (rootIdx >= 0) {
-                TopicNode root = parseTopicObject(json, rootIdx);
-                if (root != null) {
-                    roots.add(root);
+            JsonNode root = OBJECT_MAPPER.readTree(json);
+            if (root == null) {
+                return roots;
+            }
+            if (root.isArray()) {
+                // 顶层是数组：每个元素是一张画布（sheet），取它的 rootTopic
+                for (JsonNode sheet : root) {
+                    JsonNode rootTopic = sheet.path("rootTopic");
+                    if (!rootTopic.isMissingNode() && !rootTopic.isNull()) {
+                        roots.add(buildNodeFromJson(rootTopic));
+                    }
+                }
+            } else if (root.isObject()) {
+                JsonNode rootTopic = root.path("rootTopic");
+                if (!rootTopic.isMissingNode() && !rootTopic.isNull()) {
+                    roots.add(buildNodeFromJson(rootTopic));
                 }
             }
         } catch (Exception e) {
-            // JSON 解析异常时静默返回已解析内容（或空列表）
+            // JSON 非法时静默返回已解析内容（或空列表），由上层回落「无法解析」提示
         }
         return roots;
+    }
+
+    /**
+     * 从 JSON 的 topic 对象递归构建主题节点树。
+     *
+     * <p>子主题位置为 {@code children.attached}（XMind Zen/2020+），
+     * 兼容 {@code children.attachments} 这一拼写。</p>
+     *
+     * @param topic JSON 中的 topic 对象
+     * @return 构建好的主题节点（标题为空时置为 {@code Untitled}）
+     */
+    private TopicNode buildNodeFromJson(JsonNode topic) {
+        String title = topic.path("title").asText("");
+        if (title.isBlank()) {
+            title = "Untitled";
+        }
+        TopicNode node = new TopicNode(title);
+        JsonNode children = topic.path("children");
+        JsonNode attached = children.path("attached");
+        if (!attached.isArray()) {
+            attached = children.path("attachments");
+        }
+        if (attached.isArray()) {
+            for (JsonNode child : attached) {
+                node.children.add(buildNodeFromJson(child));
+            }
+        }
+        return node;
     }
 
     /**
@@ -289,134 +340,6 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
             return text != null ? text.trim() : null;
         }
         return null;
-    }
-
-    /**
-     * 递归解析 JSON 格式的 topic 对象（用于 xmind Zen/2020+ 内容.json）。
-     *
-     * <p>从 {@code startPos} 位置开始，先提取 {@code title} 字段，
-     * 再定位 {@code children → attachments/attached} 数组，
-     * 通过大括号计数递归解析每个子 topic 对象。</p>
-     *
-     * @param json     内容.json 的完整内容字符串
-     * @param startPos 当前 topic 对象在 JSON 字符串中的起始位置
-     * @return 解析出的主题节点；解析失败时返回 空
-     */
-    private TopicNode parseTopicObject(String json, int startPos) {
-        String title = extractStringValue(json, startPos, "title");
-        if (title == null) {
-            title = "Untitled";
-        }
-
-        TopicNode node = new TopicNode(title);
-
-        // 定位 children 对象中的 attachments 或 attached 数组（子主题列表）
-        int childrenIdx = json.indexOf("\"children\"", startPos);
-        if (childrenIdx > startPos && childrenIdx - startPos < 500) {
-            int attachmentsIdx = json.indexOf("\"attachments\"", childrenIdx);
-            int attachedIdx = json.indexOf("\"attached\"", childrenIdx);
-
-            int listStart = -1;
-            if (attachmentsIdx > childrenIdx && (attachedIdx < 0 || attachmentsIdx < attachedIdx)) {
-                listStart = attachmentsIdx + 13; // "\"attachments\":".length()
-            } else if (attachedIdx > childrenIdx) {
-                listStart = attachedIdx + 11; // "\"attached\":".length()
-            }
-
-            if (listStart > 0 && listStart < json.length()) {
-                // 跳过空白字符和左方括号 '['
-                while (listStart < json.length() && Character.isWhitespace(json.charAt(listStart))) {
-                    listStart++;
-                }
-                if (listStart < json.length() && json.charAt(listStart) == '[') {
-                    listStart++;
-                    // 通过大括号深度计数解析每个子 topic 对象
-                    int depth = 0;
-                    int itemStart = listStart;
-                    for (int i = listStart; i < json.length(); i++) {
-                        char c = json.charAt(i);
-                        if (c == '{' && depth == 0) {
-                            itemStart = i;
-                            depth = 1;
-                        } else if (c == '{') {
-                            depth++;
-                        } else if (c == '}') {
-                            depth--;
-                            if (depth == 0) {
-                                TopicNode child = parseTopicObject(json, itemStart);
-                                if (child != null) {
-                                    node.children.add(child);
-                                }
-                            }
-                        } else if (c == ']' && depth == 0) {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        return node;
-    }
-
-    /**
-     * 从 JSON 字符串中提取指定 键 对应的字符串值。
-     *
-     * <p>从 {@code startPos} 开始查找 {@code "key": "value"} 结构，
-     * 处理转义字符（反斜杠、双引号、换行）。</p>
-     *
-     * @param json     完整的 JSON 字符串
-     * @param startPos 起始搜索位置
-     * @param key      要查找的字段名（不含引号，如 "title"）
-     * @return 字段值字符串；未找到或距离超过 500 字符时返回 空
-     */
-    private String extractStringValue(String json, int startPos, String key) {
-        String search = "\"" + key + "\"";
-        int idx = json.indexOf(search, startPos);
-        if (idx < 0 || idx - startPos > 500) {
-            return null;
-        }
-
-        int colonIdx = json.indexOf(':', idx + search.length());
-        if (colonIdx < 0) {
-            return null;
-        }
-
-        int quoteStart = json.indexOf('"', colonIdx + 1);
-        if (quoteStart < 0) {
-            return null;
-        }
-
-        int quoteEnd = findStringEnd(json, quoteStart + 1);
-        if (quoteEnd < 0) {
-            return null;
-        }
-
-        return json.substring(quoteStart + 1, quoteEnd)
-                .replace("\\\"", "\"")
-                .replace("\\\\", "\\")
-                .replace("\\n", "\n");
-    }
-
-    /**
-     * 在 JSON 字符串中查找未转义的双引号结束位置。
-     *
-     * <p>从 {@code start} 位置开始向后扫描，遇到反斜杠则跳过下一个字符（转义处理），
-     * 遇到未转义的双引号则返回其位置。</p>
-     *
-     * @param json  完整的 JSON 字符串
-     * @param start 字符串内容的起始位置（紧跟第一个双引号之后）
-     * @return 字符串结束位置（双引号的索引）；未找到时返回 -1
-     */
-    private int findStringEnd(String json, int start) {
-        for (int i = start; i < json.length(); i++) {
-            char c = json.charAt(i);
-            if (c == '\\') {
-                i++; // 跳过转义字符及其后一个字符
-            } else if (c == '"') {
-                return i;
-            }
-        }
-        return -1;
     }
 
     /**
