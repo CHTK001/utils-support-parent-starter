@@ -264,8 +264,24 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     @Override
     /**
      * Translate
-    */
-    public String translate(byte[] imageData) {
+     *
+     * <p><b>本方法必须串行执行，不可去掉 synchronized。</b> 本实例只有一个
+     * {@link OrtSession} 字段，由 {@link #prepare()} 创建、由 {@link #close()} 释放，
+     * 而 ONNX Runtime Java 绑定的 {@code OrtSession.run()} <b>不是线程安全的</b>：
+     * 同一 session 上并发 run 会在原生层破坏内存并直接 SIGSEGV 掉整个 JVM
+     * （不是抛 Java 异常，Java 侧 catch/finally 完全拦不住）。
+     *
+     * <p>加锁范围覆盖 prepare + run 整体，且与已 synchronized 的 {@link #prepare()}、
+     * {@link #close()} 共用同一监视器，因此既杜绝了并发 run，
+     * 也杜绝了「一边 run 一边 close 释放原生 session」的 use-after-free。
+     * 参见 {@code hs_err_pid78102.log}：崩溃线程为
+     * {@code ForkJoinPool-1-worker-7} → 本类 {@code recognize} →
+     * {@code OrtSession.run} → {@code libonnxruntime.so+0xb66403}。</p>
+     *
+     * <p>不用 {@code ThreadLocal<OrtSession>}：推理跑在虚拟线程上，线程数无界，
+     * 会为每个虚拟线程各建一个原生 session 而耗尽内存。</p>
+     */
+    public synchronized String translate(byte[] imageData) {
         try {
             prepare();
             return recognize(imageData);
