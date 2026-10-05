@@ -326,13 +326,30 @@ public class DjlModelFactory implements AutoCloseable {
      * <p>GPU 推理抛出异常时视为 CUDA 运行时故障：自动降级 CPU 并重建会话后重试一次，
      * 后续请求保持 CPU（粘性），进程内不再反复尝试 GPU。</p>
      *
+     * <p><b>本方法必须串行执行，不可去掉 synchronized。</b> DJL 的 {@code Predictor}
+     * 内部持有一个 {@code OrtSession}，而 ONNX Runtime Java 绑定的
+     * {@code OrtSession.run()} <b>不是线程安全的</b>：同一 session 上并发 run 会在
+     * 原生层破坏内存并直接 SIGSEGV 掉整个 JVM（不是抛 Java 异常）。
+     * 本类每个模型只有一个 {@code predictor} 字段、由 {@link #close()} 释放，
+     * 而推理来自 ForkJoinPool 公共池上的多个平台线程（各跑一个虚拟线程 continuation），
+     * 因此「加载加锁、使用不加锁」会让并发推理打穿原生层。
+     * 参见 {@code hs_err_pid*.log}：崩溃线程均为
+     * {@code ForkJoinPool-1-worker-N} → {@code Predictor.predict} →
+     * {@code OrtSymbolBlock.forwardInternal} → {@code OrtSession.run} →
+     * {@code libonnxruntime.so+0xb66403}。
+     *
+     * <p>不用 {@code ThreadLocal<Session>} 是因为推理跑在虚拟线程上，
+     * 线程数无界，会为每个虚拟线程各建一个原生 session 而耗尽内存；
+     * ONNX Runtime 本身已在单 session 内做 intra-op 并行，
+     * 因此这里串行化入口不会损失单次推理的并行度。</p>
+     *
      * @param input 输入
      * @param <I>   输入类型
      * @param <O>   输出类型
      * @return 输出
      */
     @SuppressWarnings("unchecked")
-    public <I, O> O predict(I input) {
+    public synchronized <I, O> O predict(I input) {
         ensureInitialized();
         boolean retriedAfterFallback = false;
         while (true) {
@@ -369,7 +386,7 @@ public class DjlModelFactory implements AutoCloseable {
     /**
      * 关闭
     */
-    public void close() {
+    public synchronized void close() {
         releaseQuietly();
     }
 }
