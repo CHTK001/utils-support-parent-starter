@@ -38,19 +38,15 @@ public final class FailoverTemplate {
 
     /**
      * 流式首包（首个正文/思考片段）等待超时：超时未返回即判定该密钥卡顿，切换下一密钥。
-     * 上游对受限密钥可能“延迟处理”而非返回 429，仅靠异常故障转移会一直干等。
+     * 上游对受限密钥可能“延迟处理��而非返回 429，仅靠异常故障转移会一直干等。
+     *
+     * <p>取值来自 {@link FailoverTimeouts}（默认与改造前的常量一致），可由上层按部署情况覆盖。</p>
      */
-    private static final long FIRST_TOKEN_TIMEOUT_MS = 8000L;
 
     /**
      * 放弃卡顿客户端后，等待其底层请求真正结束（关闭连接）的最长时间。
      */
     private static final long ABANDON_WAIT_MS = 1500L;
-
-    /**
-     * 已开始流式输出后，等待整段回复完成的最长时间（略大于底层客户端的 90s 超时）。
-     */
-    private static final long COMPLETION_WAIT_SECONDS = 100L;
 
     /**
      * 流式竞速线程池的并发上限。
@@ -204,7 +200,8 @@ public final class FailoverTemplate {
                     }
                 });
 
-                boolean signaled = firstSignal.await(FIRST_TOKEN_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+                long firstTokenTimeoutMs = FailoverTimeouts.firstTokenTimeoutMs();
+                boolean signaled = firstSignal.await(firstTokenTimeoutMs, TimeUnit.MILLISECONDS);
                 if (!signaled) {
                     // 首包超时：判定该密钥卡顿，关闭并放弃其全部输出，切换下一密钥
                     abandoned.set(true);
@@ -218,14 +215,14 @@ public final class FailoverTemplate {
                     } catch (InterruptedException ignore) {
                     }
                     lastError = new java.util.concurrent.TimeoutException(
-                            wc.provider() + " 首包超时(" + FIRST_TOKEN_TIMEOUT_MS + "ms)");
+                            wc.provider() + " 首包超时(" + firstTokenTimeoutMs + "ms)");
                     log.warn("[FailoverTemplate] {} 首包 {}ms 未返回，切换下一客户端",
-                            wc.provider(), FIRST_TOKEN_TIMEOUT_MS);
+                            wc.provider(), firstTokenTimeoutMs);
                     continue;
                 }
 
                 // 已收到信号：等待任务彻底结束（正常流式会等到整段回复完成）
-                finished.await(COMPLETION_WAIT_SECONDS, TimeUnit.SECONDS);
+                finished.await(FailoverTimeouts.completionWaitSeconds(), TimeUnit.SECONDS);
                 Throwable t = taskError.get();
                 if (t == null) {
                     return;
