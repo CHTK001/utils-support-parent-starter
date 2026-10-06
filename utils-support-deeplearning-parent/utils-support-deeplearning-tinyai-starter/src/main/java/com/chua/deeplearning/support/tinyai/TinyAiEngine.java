@@ -103,6 +103,51 @@ public final class TinyAiEngine implements Serializable {
     }
 
     /**
+     * 增量训练（微调）：在已有模型权重上继续训练。
+     *
+     * <p>复用训练的同一套循环与 Adam 更新；新建 Adam 优化器（动量按当前参数
+     * 身份重建，等价于延续训练）。新样本标签须落在原数据域标签表内，
+     * 出现未见标签时抛错（输出层维度固定，无法容纳新类）。
+     * 典型用于“上线后拿到新标注数据，追加训练几轮”。</p>
+     *
+     * @param model 已训练的 TinyAI 模型，不能为 null
+     * @param domain 原数据域（特征口径与标签表须与模型一致），不能为 null
+     * @param newSamples 新增样本行，不能为 null
+     * @param options 微调参数（epochs 即追加轮数），null 用默认值
+     */
+    public void finetune(Model model, ModelDomain domain, List<Map<String, Object>> newSamples,
+            MlpOptions options) {
+        Objects.requireNonNull(model, "model must not be null");
+        Objects.requireNonNull(domain, "domain must not be null");
+        Objects.requireNonNull(newSamples, "newSamples must not be null");
+        var opts = options == null ? MlpOptions.defaults() : options;
+        var dataset = toDataset(domain, newSamples, opts.batchSize());
+        dataset.prepare();
+        var loss = new SoftmaxCrossEntropy();
+        var optimizer = new Adam(model, opts.learningRate(), 0.9F, 0.999F, 1e-8F);
+        Config.train = true;
+        model.getModule().train();
+        var trainSet = dataset.getTrainDataSet() == null ? dataset : dataset.getTrainDataSet();
+        for (var epoch = 0; epoch < opts.epochs(); epoch++) {
+            trainSet.shuffle();
+            for (var batch : trainSet.getBatches()) {
+                var x = batch.toVariableX().setName("x").setRequireGrad(false);
+                var y = batch.toVariableY().setName("y").setRequireGrad(false);
+                var predict = model.forward(x);
+                var lossValue = loss.loss(y, predict);
+                lossValue.setName("loss");
+                model.clearGrads();
+                lossValue.backward();
+                optimizer.update();
+                lossValue.unChainBackward();
+                model.tmpPredict = predict;
+            }
+        }
+        model.getModule().eval();
+        Config.train = false;
+    }
+
+    /**
      * 单行推理：前向 + softmax，取 argmax 与概率分布。
      *
      * @param model  训练好的模型，不能为 null

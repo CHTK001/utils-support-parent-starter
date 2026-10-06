@@ -71,6 +71,31 @@ public class TinyAiMlpClassifier implements ClassifierTask, Serializable {
     }
 
     /**
+     * 增量训练（微调）：在已有模型上用新样本继续训练。
+     *
+     * <p>新样本复用模型自带数据域口径编码；未见标签抛错（输出层维度固定）。
+     * 微调直接原地更新模型权重并返回同一模型实例。</p>
+     *
+     * @param model 已训练模型，不能为 null
+     * @param newSamples 新增样本行，不能为 null
+     * @param options 微调参数（epochs 即追加轮数），null 用默认值
+     * @return 同一模型实例（权重已更新）
+     */
+    public TinyAiMlpModel finetune(TinyAiMlpModel model, List<Map<String, Object>> newSamples,
+            MlpOptions options) {
+        Objects.requireNonNull(model, "model must not be null");
+        Objects.requireNonNull(newSamples, "newSamples must not be null");
+        try {
+            engine.finetune(model.getModel(), model.getDomain(), newSamples, options);
+            return model;
+        } catch (TinyAiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new TinyAiException("TinyAI 增量训练失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
      * 预测单条数据。
      *
      * @param model 已训练模型，不能为 null
