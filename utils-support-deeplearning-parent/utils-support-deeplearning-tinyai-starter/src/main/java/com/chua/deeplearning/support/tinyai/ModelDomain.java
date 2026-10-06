@@ -86,6 +86,31 @@ public record ModelDomain(List<FeatureColumn> features, String targetName, List<
                     .allMatch(ModelDomain::isNumericValue);
             features.add(numeric ? FeatureColumn.numeric(name) : FeatureColumn.categorical(name));
         }
+        return of(features, labelColumn, samples);
+    }
+
+    /**
+     * 从显式特征列定义构建数据域（TrainData / SPI 内部转化入口）。
+     *
+     * <p>特征顺序按传入定义固定；标签取值表按样本首次出现顺序收集；
+     * 类别列取值表同步收集，供预测期编码复用。</p>
+     *
+     * @param features    特征列定义，不能为 null / 空
+     * @param labelColumn 标签列名，不能为 null / 空白
+     * @param samples     样本行，不能为 null
+     * @return 数据域
+     */
+    public static ModelDomain of(List<FeatureColumn> features, String labelColumn,
+            List<Map<String, Object>> samples) {
+        Objects.requireNonNull(features, "features 不能为 null");
+        Objects.requireNonNull(labelColumn, "labelColumn 不能为 null");
+        Objects.requireNonNull(samples, "samples 不能为 null");
+        if (features.isEmpty()) {
+            throw new TinyAiException("特征列不能为空");
+        }
+        if (labelColumn.isBlank()) {
+            throw new TinyAiException("标签列名不能为空白");
+        }
         var labels = new ArrayList<String>();
         var seen = new LinkedHashSet<String>();
         for (var row : samples) {
@@ -101,7 +126,10 @@ public record ModelDomain(List<FeatureColumn> features, String targetName, List<
                 labels.add(label);
             }
         }
-        var domain = new ModelDomain(features, labelColumn, labels);
+        if (labels.size() < 2) {
+            throw new TinyAiException("分类标签至少需要 2 种取值，实际 " + labels.size());
+        }
+        var domain = new ModelDomain(new ArrayList<>(features), labelColumn, labels);
         domain.collectCategories(samples);
         return domain;
     }

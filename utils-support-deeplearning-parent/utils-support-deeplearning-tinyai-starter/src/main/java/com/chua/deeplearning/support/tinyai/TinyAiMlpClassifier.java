@@ -13,24 +13,31 @@ import java.util.Objects;
 /**
  * TinyAI 神经网络分类场景。
  *
- * <p>输入：带标签行数据（列名 -> 值），输出：模型、分类预测结果、评估报告。
- * 同时实现 {@link ClassifierTask} SPI（扩展名 {@code tinyai-mlp}），
- * 调用方可通过接口 + 自动特征类型推断使用，无需手工声明特征列。</p>
+ * <p>输入：{@link TinyAiTrainData}（特征列 + 标签列 + 行数据三件套），
+ * 输出：模型、分类预测结果、评估报告。同时实现 {@link ClassifierTask} SPI
+ * （扩展名 {@code tinyai-mlp}），SPI 侧内部走同一套 TrainData 转化，
+ * 调用方传裸 JSON 行数据即可，无需手写特征列。</p>
  *
  * <p>使用示例：</p>
  * <pre>{@code
- * List<Map<String, Object>> rows = List.of(
- *         Map.of("age", 35, "city", "北京", "label", "high"),
- *         Map.of("age", 22, "city", "上海", "label", "low"));
+ * TinyAiTrainData data = TinyAiTrainData.classification("label")
+ *         .numeric("age").categorical("city")
+ *         .addRow(Map.of("age", 35, "city", "北京", "label", "high"))
+ *         .addRow(Map.of("age", 22, "city", "上海", "label", "low"));
  * TinyAiMlpClassifier classifier = new TinyAiMlpClassifier();
- * TinyAiMlpModel model = classifier.train(ModelDomain.of(rows, "label"), MlpOptions.defaults());
+ * TinyAiMlpModel model = classifier.train(data, MlpOptions.defaults());
  *
  * var one = classifier.predict(model, Map.of("age", 41, "city", "广州"));
  * one.label();          // 预测标签
  * one.probabilities(); // 各类别概率
  *
- * var report = classifier.evaluate(model, rows);
+ * var report = classifier.evaluate(model, data);
  * report.accuracyPct(); // 准确率（%）
+ *
+ * // 增量训练：新标注数据追加几轮
+ * TinyAiTrainData delta = TinyAiTrainData.fromJson("label",
+ *         "[{\"age\":40,\"city\":\"深圳\",\"label\":\"high\"}]");
+ * classifier.finetune(model, delta, MlpOptions.defaults());
  *
  * model.save(Path.of("tinyai-mlp.ser"));
  * TinyAiMlpModel loaded = TinyAiMlpModel.load(Path.of("tinyai-mlp.ser"));
@@ -71,6 +78,21 @@ public class TinyAiMlpClassifier implements ClassifierTask, Serializable {
     }
 
     /**
+     * 训练分类模型（训练数据对象版，用户侧首选入口）。
+     *
+     * <p>内部由 {@link TinyAiTrainData#toDomain()} 转为张量编码口径，
+     * 用户只管特征列 + 标签列 + 行数据三件套。</p>
+     *
+     * @param data 训练数据，不能为 null
+     * @param options 训练参数，null 用默认值
+     * @return 训练完成的模型
+     */
+    public TinyAiMlpModel train(TinyAiTrainData data, MlpOptions options) {
+        Objects.requireNonNull(data, "data must not be null");
+        return train(data.toDomain(), data.rows(), options);
+    }
+
+    /**
      * 增量训练（微调）：在已有模型上用新样本继续训练。
      *
      * <p>新样本复用模型自带数据域口径编码；未见标签抛错（输出层维度固定）。
@@ -92,6 +114,61 @@ public class TinyAiMlpClassifier implements ClassifierTask, Serializable {
             throw e;
         } catch (Exception e) {
             throw new TinyAiException("TinyAI 增量训练失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 增量训练（微调，训练数据对象版）。
+     *
+     * <p>增量数据的特征口径须与模型一致（同名、同类型、同顺序），
+     * 标签列须相同且标签取值须落在原标签表内；类别列出现新取值时允许
+     * （编码为全 0，未知类别口径），但新标签不允许（输出层维度固定）。</p>
+     *
+     * @param model 已训练模型，不能为 null
+     * @param data 增量训练数据，不能为 null
+     * @param options 微调参数（epochs 即追加轮数），null 用默认值
+     * @return 同一模型实例（权重已更新）
+     */
+    public TinyAiMlpModel finetune(TinyAiMlpModel model, TinyAiTrainData data, MlpOptions options) {
+        Objects.requireNonNull(model, "model must not be null");
+        Objects.requireNonNull(data, "data must not be null");
+        checkFinetuneCompatible(model.getDomain(), data);
+        return finetune(model, data.rows(), options);
+    }
+
+    /**
+     * 校验增量数据与模型数据域兼容。
+     *
+     * @param domain 模型数据域
+     * @param data 增量训练数据
+     */
+    private static void checkFinetuneCompatible(ModelDomain domain, TinyAiTrainData data) {
+        if (!domain.targetName().equals(data.labelColumn())) {
+            throw new TinyAiException(
+                    "增量数据标签列与模型不一致: 模型=" + domain.targetName() + "，增量=" + data.labelColumn());
+        }
+        var expected = domain.features();
+        var actual = data.features();
+        if (expected.size() != actual.size()) {
+            throw new TinyAiException("增量数据特征列数与模型不一致: 模型=" + expected.size()
+                    + "，增量=" + actual.size());
+        }
+        for (var i = 0; i < expected.size(); i++) {
+            var e = expected.get(i);
+            var a = actual.get(i);
+            if (!e.name().equals(a.name()) || e.isNumeric() != a.isNumeric()) {
+                throw new TinyAiException("增量数据特征列与模型不一致: 位置=" + i
+                        + "，模型=" + e + "，增量=" + a);
+            }
+        }
+        for (var row : data.rows()) {
+            var label = row == null ? null : row.get(data.labelColumn());
+            if (label == null) {
+                throw new TinyAiException("增量样本行标签列 " + data.labelColumn() + " 缺失");
+            }
+            if (domain.labelIndex(String.valueOf(label)) < 0) {
+                throw new TinyAiException("增量样本标签未在模型数据域中: " + label);
+            }
         }
     }
 
@@ -174,6 +251,19 @@ public class TinyAiMlpClassifier implements ClassifierTask, Serializable {
     }
 
     /**
+     * 在给定训练数据上评估（训练数据对象版）。
+     *
+     * @param model 已训练模型，不能为 null
+     * @param data 评估数据，不能为 null
+     * @return 评估报告
+     */
+    public EvaluationReport evaluate(TinyAiMlpModel model, TinyAiTrainData data) {
+        Objects.requireNonNull(model, "model must not be null");
+        Objects.requireNonNull(data, "data must not be null");
+        return evaluate(model, data.rows());
+    }
+
+    /**
      * K 折交叉验证评估：每折独立训练评估，汇总准确率。
      *
      * @param domain 数据域，不能为 null
@@ -223,7 +313,23 @@ public class TinyAiMlpClassifier implements ClassifierTask, Serializable {
     }
 
     /**
-     * 通过 {@link ClassifierTask} SPI 训练（自动推断特征列类型）。
+     * K 折交叉验证评估（训练数据对象版）。
+     *
+     * @param data 训练数据，不能为 null
+     * @param options 训练参数，null 用默认值
+     * @param numFolds 折数（至少 2，超过样本数时按样本数处理）
+     * @return 评估报告
+     */
+    public EvaluationReport crossValidate(TinyAiTrainData data, MlpOptions options, int numFolds) {
+        Objects.requireNonNull(data, "data must not be null");
+        return crossValidate(data.toDomain(), data.rows(), options, numFolds);
+    }
+
+    /**
+     * 通过 {@link ClassifierTask} SPI 训练（内部走 TrainData 转化）。
+     *
+     * <p>裸 JSON 行数据入口：内部按 {@link TinyAiTrainData#infer} 自动推断
+     * 特征列类型并转为数据域，与显式 TrainData 入口同一套口径。</p>
      *
      * @param labelColumn 标签列名，不能为 null / 空白
      * @param samples 样本行，至少 2 行，不能为 null
@@ -232,15 +338,9 @@ public class TinyAiMlpClassifier implements ClassifierTask, Serializable {
     @Override
     public Model train(String labelColumn, List<Map<String, Object>> samples) {
         Objects.requireNonNull(labelColumn, "labelColumn must not be null");
-        if (labelColumn.isBlank()) {
-            throw new TinyAiException("标签列名不能为空白");
-        }
         Objects.requireNonNull(samples, "samples must not be null");
-        if (samples.size() < 2) {
-            throw new TinyAiException("样本行数不足: 至少 2 行，实际 " + samples.size());
-        }
-        var domain = ModelDomain.of(samples, labelColumn);
-        return new TaskModel(this, train(domain, samples, MlpOptions.defaults()));
+        var data = TinyAiTrainData.infer(labelColumn, samples);
+        return new TaskModel(this, train(data, MlpOptions.defaults()));
     }
 
     /**

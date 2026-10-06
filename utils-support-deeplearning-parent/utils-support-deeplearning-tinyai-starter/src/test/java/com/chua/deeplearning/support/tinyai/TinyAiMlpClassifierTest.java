@@ -136,4 +136,82 @@ class TinyAiMlpClassifierTest {
             assertTrue(e.getMessage().contains("未在数据域中"));
         }
     }
+
+    @Test
+    void trainDataBuilderTrains() {
+        var data = TinyAiTrainData.classification("label")
+                .numeric("x1").numeric("x2")
+                .rows(samples(10))
+                .build();
+        var model = new TinyAiMlpClassifier().train(data, MlpOptions.testDefaults());
+        assertNotNull(model);
+        assertEquals(List.of("low", "high"), model.getDomain().labels());
+    }
+
+    @Test
+    void trainDataFromJsonTrains() {
+        var data = TinyAiTrainData.fromJson("label",
+                "[{\"x1\":0.1,\"x2\":0.2,\"label\":\"low\"},"
+                        + "{\"x1\":0.9,\"x2\":0.8,\"label\":\"high\"},"
+                        + "{\"x1\":0.15,\"x2\":0.25,\"label\":\"low\"},"
+                        + "{\"x1\":0.85,\"x2\":0.75,\"label\":\"high\"}]");
+        var model = new TinyAiMlpClassifier().train(data, MlpOptions.testDefaults());
+        assertNotNull(model);
+        assertEquals(2, model.getDomain().inputSize());
+    }
+
+    @Test
+    void trainDataInferCategorical() {
+        var rows = new ArrayList<Map<String, Object>>();
+        var low = new LinkedHashMap<String, Object>();
+        low.put("city", "北京");
+        low.put("label", "low");
+        rows.add(low);
+        var high = new LinkedHashMap<String, Object>();
+        high.put("city", "上海");
+        high.put("label", "high");
+        rows.add(high);
+        var data = TinyAiTrainData.infer("label", rows);
+        assertEquals(1, data.features().size());
+        assertTrue(!data.features().get(0).isNumeric());
+    }
+
+    @Test
+    void finetuneWithTrainData() {
+        var data = TinyAiTrainData.classification("label")
+                .numeric("x1").numeric("x2")
+                .rows(samples(10))
+                .build();
+        var classifier = new TinyAiMlpClassifier();
+        var model = classifier.train(data, MlpOptions.testDefaults());
+        var delta = TinyAiTrainData.classification("label")
+                .numeric("x1").numeric("x2")
+                .rows(samples(4))
+                .build();
+        var before = classifier.evaluate(model, data).accuracyPct();
+        classifier.finetune(model, delta, MlpOptions.testDefaults());
+        var after = classifier.evaluate(model, data).accuracyPct();
+        assertTrue(after >= before - 20.0, "微调前后准确率 " + before + " -> " + after);
+    }
+
+    @Test
+    void finetuneWithTrainDataRejectsSchemaMismatch() {
+        var data = TinyAiTrainData.classification("label")
+                .numeric("x1").numeric("x2")
+                .rows(samples(4))
+                .build();
+        var classifier = new TinyAiMlpClassifier();
+        var model = classifier.train(data, MlpOptions.testDefaults());
+        var bad = TinyAiTrainData.classification("other")
+                .numeric("x1").numeric("x2")
+                .addRow(Map.of("x1", 0.5, "x2", 0.5, "other", "low"))
+                .addRow(Map.of("x1", 0.6, "x2", 0.6, "other", "high"))
+                .build();
+        try {
+            classifier.finetune(model, bad, MlpOptions.testDefaults());
+            throw new AssertionError("标签列不一致应抛错");
+        } catch (TinyAiException e) {
+            assertTrue(e.getMessage().contains("标签列"));
+        }
+    }
 }
