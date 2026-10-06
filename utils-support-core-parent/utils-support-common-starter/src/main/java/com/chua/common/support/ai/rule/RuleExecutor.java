@@ -149,12 +149,26 @@ public final class RuleExecutor {
     /**
      * 执行一次规则求值。
      *
+     * <p>AI 规则自动决策：集合内出现 {@link AiRule} 时，执行前自动收集
+     * 全部 {@code AiRuleQuery} 并按底座分组批量求值，展平后注入上下文；
+     * 自然规则不受影响。调用方无需显式装配决策。</p>
+     *
      * @param input       流程输入，可为 {@link Map} 或任意业务对象，可为 null
      * @param environment 环境量，可为 null
      * @return 执行结果
      */
     public RuleResult execute(Object input, Map<String, Object> environment) {
         Map<String, Object> external = decide(input);
+        Map<String, Object> auto = decideAiRules(input);
+        if (!auto.isEmpty()) {
+            if (external == null || external.isEmpty()) {
+                external = auto;
+            } else {
+                Map<String, Object> merged = new LinkedHashMap<>(external);
+                merged.putAll(auto);
+                external = Collections.unmodifiableMap(merged);
+            }
+        }
         RuleContext context = RuleContext.of(null, external, input, environment);
         Acc result = new Acc();
 
@@ -268,6 +282,77 @@ public final class RuleExecutor {
         DecisionBatch batch = decisionProvider.decide(request);
         batch.answers(request);
         return batch.flatten();
+    }
+
+    /**
+     * 自动求值集合内全部 AI 规则的决策问题并展平。
+     *
+     * <p>无 AI 规则时返回空表，不产生任何决策调用；有 AI 规则时按
+     * {@code provider} 分组、每组一次批量求值。分组键取自
+     * {@link AiRuleQuery} 归属规则的底座声明。</p>
+     *
+     * @param input 流程输入
+     * @return 展平后的决策变量；无 AI 规则时返回空表
+     */
+    private Map<String, Object> decideAiRules(Object input) {
+        Map<String, List<DecisionQuery>> grouped = new LinkedHashMap<>();
+        Map<String, Object> states = new LinkedHashMap<>();
+        Map<String, DecisionProvider> providers = new LinkedHashMap<>();
+        for (Rule rule : ruleSet.rules()) {
+            if (!(rule instanceof AiRule ai)) {
+                continue;
+            }
+            List<AiRuleQuery> queries = ai.queries();
+            if (queries == null || queries.isEmpty()) {
+                continue;
+            }
+            String provider = aiProvider(ai);
+            DecisionProvider client = providers.computeIfAbsent(provider, key -> ai.client());
+            if (client == null) {
+                throw new RuleException("AI 规则 " + ai.id() + " 未提供决策底座(provider=" + provider + ")");
+            }
+            List<DecisionQuery> group = grouped.computeIfAbsent(provider, key -> new java.util.ArrayList<>());
+            for (AiRuleQuery item : queries) {
+                if (item == null || item.query() == null) {
+                    throw new RuleException("AI 规则 " + ai.id() + " 存在空决策问题");
+                }
+                group.add(item.query());
+            }
+            Object state = ai.state() == null ? input : ai.state();
+            states.putIfAbsent(provider, state);
+        }
+        if (grouped.isEmpty()) {
+            return Map.of();
+        }
+        Map<String, Object> flattened = new LinkedHashMap<>();
+        for (Map.Entry<String, List<DecisionQuery>> entry : grouped.entrySet()) {
+            String provider = entry.getKey();
+            List<DecisionQuery> queries = entry.getValue();
+            DecisionProvider client = providers.get(provider);
+            DecisionRequest request = DecisionRequest.of(states.get(provider), queries);
+            DecisionBatch batch = client.decide(request);
+            batch.answers(request);
+            flattened.putAll(batch.flatten());
+            if (client instanceof AutoCloseable closeable) {
+                try {
+                    closeable.close();
+                } catch (Exception e) {
+                    throw new RuleException("关闭 AI 决策底座失败(provider=" + provider + "): " + e.getMessage(), e);
+                }
+            }
+        }
+        return Collections.unmodifiableMap(flattened);
+    }
+
+    /**
+     * 读取 AI 规则的底座名。
+     *
+     * @param rule AI 规则
+     * @return 底座名，缺省为 laya
+     */
+    private static String aiProvider(AiRule rule) {
+        String provider = rule.provider();
+        return provider == null || provider.isBlank() ? "laya" : provider;
     }
 
     /**

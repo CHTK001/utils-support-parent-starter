@@ -1,0 +1,38 @@
+[
+{
+  "name": "com.chua.deeplearning.support.laya.LayaDecisionClient",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+},
+{
+  "name": "com.chua.common.support.ai.decision.DecisionSetting",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+},
+{
+  "name": "com.chua.deeplearning.support.laya.LayaAiRuleBuilder",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+},
+{
+  "name": "com.chua.deeplearning.support.laya.LayaAiRule",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}
+]

@@ -32,20 +32,43 @@ public final class RuleSet {
     private final List<Rule> rules;
 
     /**
+     * 规则类型，集合内全部规则一致
+     */
+    private final RuleType type;
+
+    /**
      * 用规则集合构造。
      *
-     * @param rules 规则集合，不可为 null、不可为空、规则标识不可重复
+     * <p>规则集泛型化 + 运行时双校验：编译期要求同一 {@link Rule} 子类型，
+     * 构造期再校验「非空 + 标识唯一 + 类型一致」，防止不同 {@code xxRule}
+     * 混进同一个集合。</p>
+     *
+     * @param <R>   规则子类型
+     * @param rules 规则集合，不可为 null、不可为空、规则标识不可重复、类型不可混用
      * @throws NullPointerException     规则集合为 null 或含 null 元素时
-     * @throws IllegalArgumentException 规则集合为空或存在重复标识时
+     * @throws IllegalArgumentException 规则集合为空、存在重复标识或类型混用时
      */
-    public RuleSet(Collection<Rule> rules) {
+    public <R extends Rule> RuleSet(Collection<R> rules) {
         Objects.requireNonNull(rules, "rules 不能为 null");
         if (rules.isEmpty()) {
             throw new IllegalArgumentException("rules 不能为空");
         }
         Set<String> ids = new LinkedHashSet<>();
+        RuleType type = null;
+        Class<?> expected = null;
         for (Rule rule : rules) {
             Objects.requireNonNull(rule, "rules 不能包含 null 元素");
+            if (type == null) {
+                type = rule.type();
+                expected = rule.getClass();
+            } else if (type != rule.type()) {
+                throw new IllegalArgumentException("规则类型不可混用: 期望 " + type + "，实际 " + rule.type()
+                        + "(规则 " + rule.id() + ")");
+            }
+            if (!expected.isInstance(rule)) {
+                throw new IllegalArgumentException("规则实现不可混用: 期望 " + expected.getSimpleName()
+                        + "，实际 " + rule.getClass().getSimpleName() + "(规则 " + rule.id() + ")");
+            }
             if (!ids.add(rule.id())) {
                 throw new IllegalArgumentException("规则标识重复: " + rule.id());
             }
@@ -54,16 +77,18 @@ public final class RuleSet {
         // 降序 + 稳定：List.sort 是稳定排序，只在 salience 严格不等时换位
         sorted.sort((left, right) -> Integer.compare(right.salience(), left.salience()));
         this.rules = Collections.unmodifiableList(sorted);
+        this.type = type;
     }
 
     /**
      * 用规则数组构造。
      *
+     * @param <R>   规则子类型
      * @param rules 规则
      * @return 规则集
-     * @throws IllegalArgumentException 规则为空或存在重复标识时
+     * @throws IllegalArgumentException 规则为空、存在重复标识或类型混用时
      */
-    public static RuleSet of(Rule... rules) {
+    public static <R extends Rule> RuleSet of(R... rules) {
         return new RuleSet(List.of(rules));
     }
 
@@ -116,6 +141,15 @@ public final class RuleSet {
             index.put(rule.id(), rule);
         }
         return Collections.unmodifiableMap(index);
+    }
+
+    /**
+     * 规则类型，集合内全部规则一致。
+     *
+     * @return 规则类型
+     */
+    public RuleType type() {
+        return type;
     }
 
     /**
