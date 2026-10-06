@@ -105,4 +105,35 @@ class TinyAiMlpClassifierTest {
         assertEquals(2, report.numFolds());
         assertTrue(report.accuracyPct() >= 0 && report.accuracyPct() <= 100.0);
     }
+
+    @Test
+    void finetuneKeepsPredicting() {
+        var rows = samples(10);
+        var domain = ModelDomain.of(rows, "label");
+        var classifier = new TinyAiMlpClassifier();
+        var model = classifier.train(domain, rows, MlpOptions.testDefaults());
+        var before = classifier.evaluate(model, rows).accuracyPct();
+        classifier.finetune(model, rows, MlpOptions.testDefaults());
+        var after = classifier.evaluate(model, rows).accuracyPct();
+        // 增量训练后在同分布上不应退化（允许小幅波动，阈值放宽到 -20）。
+        assertTrue(after >= before - 20.0, "微调前后准确率 " + before + " -> " + after);
+    }
+
+    @Test
+    void finetuneRejectsUnseenLabel() {
+        var rows = samples(4);
+        var domain = ModelDomain.of(rows, "label");
+        var classifier = new TinyAiMlpClassifier();
+        var model = classifier.train(domain, rows, MlpOptions.testDefaults());
+        var bad = new LinkedHashMap<String, Object>();
+        bad.put("x1", 0.5);
+        bad.put("x2", 0.5);
+        bad.put("label", "unknown-class");
+        try {
+            classifier.finetune(model, List.of(bad), MlpOptions.testDefaults());
+            throw new AssertionError("未见标签应抛错");
+        } catch (TinyAiException e) {
+            assertTrue(e.getMessage().contains("未在数据域中"));
+        }
+    }
 }
