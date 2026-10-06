@@ -34,5 +34,23 @@
   "allPublicMethods": true,
   "allDeclaredFields": true,
   "allPublicFields": true
+},
+{
+  "name": "com.chua.deeplearning.support.tinyai.TinyAiTrainData",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+},
+{
+  "name": "com.chua.deeplearning.support.tinyai.FeatureColumn",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
 }
 ]

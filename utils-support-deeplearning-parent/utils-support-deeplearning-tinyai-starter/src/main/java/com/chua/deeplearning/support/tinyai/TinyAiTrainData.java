@@ -81,7 +81,15 @@ public final class TinyAiTrainData implements Serializable {
         if (rows.size() < 2) {
             throw new TinyAiException("样本行数不足: 至少 2 行，实际 " + rows.size());
         }
-        this.features = List.copyOf(features);
+        var featuresCopy = new ArrayList<FeatureColumn>(features.size());
+        for (var feature : features) {
+            Objects.requireNonNull(feature, "特征列不能为 null");
+            var copy = feature.isNumeric() ? FeatureColumn.numeric(feature.name())
+                    : FeatureColumn.categorical(feature.name());
+            copy.categories().addAll(feature.categories());
+            featuresCopy.add(copy);
+        }
+        this.features = List.copyOf(featuresCopy);
         this.labelColumn = labelColumn;
         var copy = new ArrayList<Map<String, Object>>(rows.size());
         for (var row : rows) {
