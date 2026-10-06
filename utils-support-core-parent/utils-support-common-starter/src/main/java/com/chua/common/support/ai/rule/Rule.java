@@ -1,8 +1,5 @@
 package com.chua.common.support.ai.rule;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,70 +32,129 @@ import java.util.function.Predicate;
  * 由执行器从条件里读到的变量反推。这也意味着规则引擎<b>可以完全独立使用</b>，
  * 不装配任何决策实现。</p>
  *
- * @param id        规则标识，同一规则集内唯一；{@code to} 按它指向下一条规则
- * @param name      规则显示名，默认与 {@code id} 相同
- * @param salience  优先级，数值越大越先求值，默认 0
- * @param effect    本规则给出的结论
- * @param conditions 顶层条件，OR 关系
- * @param actions   命中后按序执行的动作
- * @param target    下一条规则的 {@code id}，可为 null
- * @param variables 规则声明的变量，注入 {@link RuleContext} 的最高优先级层
  * @author CH
  * @since 4.0.0.42
  */
-public record Rule(String id,
-                   String name,
-                   int salience,
-                   RuleEffect effect,
-                   List<Predicate<RuleContext>> conditions,
-                   List<Consumer<RuleContext>> actions,
-                   String target,
-                   Map<String, Object> variables) {
+public interface Rule {
 
     /**
-     * 构造规则。
-     *
-     * <p>防御性拷贝：两个列表用 {@link List#copyOf(Collection)}（会拒绝 null 元素），
-     * 变量表刻意<b>不</b>用 {@link Map#copyOf(Map)}——
-     * 后者拒绝 null 值，而 {@code Rule.var("switch", null)} 表示
-     * 「显式置空」是合法且有意义的（配置驱动、开关类场景），
-     * 被拒会平白把业务语义变成 {@link NullPointerException}。
-     * 因此用不可变包装 + {@link LinkedHashMap} 拷贝，允许 null 值。</p>
-     *
-     * @throws NullPointerException     {@code id}、{@code name}、{@code conditions}、
-     *                                  {@code actions}、{@code variables} 为 null 时
-     * @throws IllegalArgumentException 规则标识或显示名为空白时
-     */
-    public Rule {
-        Objects.requireNonNull(id, "id 不能为 null");
-        if (id.isBlank()) {
-            throw new IllegalArgumentException("id 不能为空白");
-        }
-        Objects.requireNonNull(name, "name 不能为 null");
-        if (name.isBlank()) {
-            throw new IllegalArgumentException("name 不能为空白");
-        }
-        conditions = List.copyOf(Objects.requireNonNull(conditions, "conditions 不能为 null"));
-        actions = List.copyOf(Objects.requireNonNull(actions, "actions 不能为 null"));
-        variables = Collections.unmodifiableMap(
-                new LinkedHashMap<>(Objects.requireNonNull(variables, "variables 不能为 null")));
-        effect = effect == null ? RuleEffect.NONE : effect;
-    }
-
-    /**
-     * 开始定义一条规则。
+     * 开始定义一条自然规则。
      *
      * <p>入参是<b>规则标识</b>（{@code id}），同时作为默认显示名。
      * 需要区分机器标识与人类可读名时用
      * {@link RuleBuilder#name(String)} 覆盖显示名。</p>
      *
      * @param id 规则标识
-     * @return 规则构造器
+     * @return 自然规则构造器
      * @throws IllegalArgumentException 规则标识为空白时
      */
-    public static RuleBuilder definition(String id) {
-        return new RuleBuilder(id);
+    static RuleBuilder definition(String id) {
+        return RuleType.NATIVE.builder(id);
     }
+
+    /**
+     * 开始定义一条规则。
+     *
+     * <p>无参形态：按类型默认底座经 SPI 初始化，规则标识后续用
+     * {@link RuleBuilder#id(String)} 指定。</p>
+     *
+     * @return 自然规则构造器
+     */
+    static RuleBuilder builder() {
+        return RuleType.NATIVE.builder();
+    }
+
+    /**
+     * 开始定义一条规则。
+     *
+     * <p>枚举形态：按规则类型走 SPI 初始化不同的 {@code xxBuilder}。</p>
+     *
+     * @param type 规则类型
+     * @return 规则构造器
+     * @throws NullPointerException 规则类型为 null 时
+     */
+    static RuleBuilder builder(RuleType type) {
+        Objects.requireNonNull(type, "type 不能为 null");
+        return type.builder();
+    }
+
+    /**
+     * 开始定义一条规则。
+     *
+     * <p>枚举形态：按规则类型初始化对应的构造器。</p>
+     *
+     * @param type 规则类型
+     * @param id   规则标识
+     * @return 规则构造器
+     * @throws NullPointerException 规则类型为 null 时
+     */
+    static RuleBuilder builder(RuleType type, String id) {
+        Objects.requireNonNull(type, "type 不能为 null");
+        return type.builder(id);
+    }
+
+    /**
+     * 规则类型。
+     *
+     * @return 规则类型
+     */
+    RuleType type();
+
+    /**
+     * 规则标识，同一规则集内唯一；{@code to} 按它指向下一条规则。
+     *
+     * @return 规则标识
+     */
+    String id();
+
+    /**
+     * 规则显示名，默认与 {@code id} 相同。
+     *
+     * @return 规则显示名
+     */
+    String name();
+
+    /**
+     * 优先级，数值越大越先求值，默认 0。
+     *
+     * @return 优先级
+     */
+    int salience();
+
+    /**
+     * 本规则给出的结论。
+     *
+     * @return 结果语义
+     */
+    RuleEffect effect();
+
+    /**
+     * 顶层条件，OR 关系。
+     *
+     * @return 不可变条件列表
+     */
+    List<Predicate<RuleContext>> conditions();
+
+    /**
+     * 命中后按序执行的动作。
+     *
+     * @return 不可变动作列表
+     */
+    List<Consumer<RuleContext>> actions();
+
+    /**
+     * 下一条规则的 {@code id}，可为 null。
+     *
+     * @return 下一条规则标识
+     */
+    String target();
+
+    /**
+     * 规则声明的变量，注入 {@link RuleContext} 的最高优先级层。
+     *
+     * @return 不可变变量表
+     */
+    Map<String, Object> variables();
 
     /**
      * 判断条件是否成立。
@@ -108,18 +164,7 @@ public record Rule(String id,
      * @param context 规则上下文
      * @return 条件成立返回 true
      */
-    public boolean matched(RuleContext context) {
-        Objects.requireNonNull(context, "context 不能为 null");
-        if (conditions.isEmpty()) {
-            return true;
-        }
-        for (Predicate<RuleContext> condition : conditions) {
-            if (condition.test(context)) {
-                return true;
-            }
-        }
-        return false;
-    }
+    boolean matched(RuleContext context);
 
     /**
      * 执行动作，按声明顺序。
@@ -130,28 +175,19 @@ public record Rule(String id,
      *
      * @param context 规则上下文
      */
-    public void apply(RuleContext context) {
-        Objects.requireNonNull(context, "context 不能为 null");
-        for (Consumer<RuleContext> action : actions) {
-            action.accept(context);
-        }
-    }
+    void apply(RuleContext context);
 
     /**
      * 是否有动作需要执行。
      *
      * @return 存在动作返回 true
      */
-    public boolean hasActions() {
-        return !actions.isEmpty();
-    }
+    boolean hasActions();
 
     /**
      * 声明了变量。
      *
      * @return 变量表非空返回 true
      */
-    public boolean hasVariables() {
-        return !variables.isEmpty();
-    }
+    boolean hasVariables();
 }
