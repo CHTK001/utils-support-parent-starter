@@ -31,7 +31,7 @@
         <module>utils-support-deeplearning-ollama-starter</module>
         <module>utils-support-deeplearning-laya-starter</module>
         <module>utils-support-deeplearning-dl4j-starter</module>
-        <module>utils-support-weka-starter</module>
+        <module>utils-support-deeplearning-weka-starter</module>
         <!-- utils-support-deeplearning-jev-starter 已于 2026-09-27 退役：决策能力改为走自研实现，
              不再需要 JEV 远程概率决策服务。通用决策 SPI 仍在 utils-support-common-starter 的
              com.chua.common.support.ai.decision 包下，可独立使用，不依赖本模块。

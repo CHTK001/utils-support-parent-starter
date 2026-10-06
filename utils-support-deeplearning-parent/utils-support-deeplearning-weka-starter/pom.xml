@@ -9,8 +9,8 @@
         <version>4.0.0.42</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>utils-support-weka-starter</artifactId>
-    <name>Utils Support Weka Starter</name>
+    <artifactId>utils-support-deeplearning-weka-starter</artifactId>
+    <name>Utils Support Deep Learning Weka Starter</name>
     <description>Weka 随机森林模块：分类 / 回归 / 特征重要性场景封装，输入业务数据对象，输出预测与评估结果</description>
 
     <properties>
