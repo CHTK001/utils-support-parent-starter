@@ -1,4 +1,4 @@
-# utils-support-weka-starter
+# utils-support-deeplearning-weka-starter
 
 基于 Weka（`nz.ac.waikato.cms.weka:weka-stable:3.8.6`）的随机森林建模模块。
 提供**分类 / 回归 / 特征重要性**三类场景对象，输入业务数据对象，输出预测与评估结果。
