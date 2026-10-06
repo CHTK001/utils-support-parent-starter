@@ -27,6 +27,7 @@
         <module>utils-support-rpc-json-starter</module>
         <module>utils-support-rpc-dubbo-starter</module>
         <module>utils-support-rpc-zmq-starter</module>
+        <module>utils-support-kitesurf-starter</module>
         <module>utils-support-playwright-starter</module>
         <module>utils-support-kimi-starter</module>
         <module>utils-support-armeria-starter</module>
