@@ -30,6 +30,7 @@
         <module>utils-support-deeplearning-gpu-llama3-starter</module>
         <module>utils-support-deeplearning-ollama-starter</module>
         <module>utils-support-deeplearning-laya-starter</module>
+        <module>utils-support-deeplearning-tinyai-starter</module>
         <module>utils-support-deeplearning-dl4j-starter</module>
         <module>utils-support-deeplearning-weka-starter</module>
         <!-- utils-support-deeplearning-jev-starter 已于 2026-09-27 退役：决策能力改为走自研实现，
