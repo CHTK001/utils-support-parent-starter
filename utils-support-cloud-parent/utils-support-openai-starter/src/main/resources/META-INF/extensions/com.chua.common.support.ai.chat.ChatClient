@@ -4,3 +4,4 @@ sensetime=com.chua.openai.support.OpenAiChatClient
 github=com.chua.openai.support.OpenAiChatClient
 gitee=com.chua.openai.support.OpenAiChatClient
 dots=com.chua.openai.support.OpenAiChatClient
+custom=com.chua.openai.support.OpenAiChatClient
