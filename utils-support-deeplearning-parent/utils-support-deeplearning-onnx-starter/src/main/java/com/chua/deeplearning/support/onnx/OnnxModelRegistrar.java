@@ -658,6 +658,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // Embedding+BiGRU+FC encoder + numpy Viterbi，输出 [token,label]；词典随新模型（word/tag/q2b.dic）。
         // encoder 约 31MB：优先 jar 内嵌 nlp/lac/lac_encoder.onnx，缺失时走 downloadUrl 自动下载。
         reg("lac-onnx", "com.chua.deeplearning.support.onnx.nlp.lac.LacOnnxTranslator", String.class, String[][].class, TextTranslator.class, "nlp/lac/lac_encoder.onnx", "https://raw.githubusercontent.com/kniost/LAC-ONNX/main/lac_onnx/lac_encoder.onnx", List.of("https://cdn.jsdelivr.net/gh/kniost/LAC-ONNX@main/lac_onnx/lac_encoder.onnx"), false, null);
+        // 中文拼写纠错（macbert4csc-base-chinese）：shibing624/macbert4csc 的 ONNX 导出，BERT MLM 逐位置
+        // argmax + 0.7 置信度阈值逐字纠错，输入/输出均为文本，用于修复 OCR/录入错别字；约 474MB：
+        // 优先 jar 内嵌 nlp/csc/macbert4csc/model.onnx，缺失时走 downloadUrl 自动下载（hf-mirror 主源）。
+        reg("macbert4csc", "com.chua.deeplearning.support.onnx.nlp.csc.MacBertCscTranslator", String.class, String.class, TextTranslator.class, "nlp/csc/macbert4csc/model.onnx", "https://hf-mirror.com/shibing624/macbert4csc-base-chinese/resolve/main/onnx/model.onnx", List.of("https://huggingface.co/shibing624/macbert4csc-base-chinese/resolve/main/onnx/model.onnx"), false, null);
         // 多模态文本嵌入(WeMM-2B)：腾讯 WeMM-Embedding-2B 文本分支，2048维 Matryoshka（64/128/256/512/1024/2048），
  // 支持中文/英文，适用高精度语义搜索、多模态检索；downloadurl 自动下载（chtk/wemm-嵌入-onnx）
         String wemm2bUrl = "https://hf-mirror.com/chtk/wemm-embedding-onnx/resolve/main/model.onnx";

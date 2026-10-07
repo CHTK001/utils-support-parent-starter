@@ -23,7 +23,7 @@ public class OnnxOcrPipeline {
     private final OcrPipeline delegate;
 
     /**
-     * 创建 onnxocrpipeline 实例
+     * 创建 onnxocrpipeline 实例（不启用中文纠错）。
      * @param detector detector
      * @param recognizer recognizer
      * @param direction direction
@@ -45,7 +45,37 @@ public class OnnxOcrPipeline {
                            int cropPadding, int cropMinHeight, float cropRotateThreshold,
                            boolean qualityGate, float blurThreshold,
                            boolean sigmoidDetect, boolean sigmoidRecognize) {
-        this.delegate = new OcrPipeline(detector, recognizer, direction, enhancer,
+        this(detector, recognizer, direction, enhancer, null, enhanceInPipeline, sortReadingOrder,
+                minConfidence, cropPadding, cropMinHeight, cropRotateThreshold, qualityGate,
+                blurThreshold, sigmoidDetect, sigmoidRecognize);
+    }
+
+    /**
+     * 创建 onnxocrpipeline 实例（含可选中文纠错后处理）。
+     * @param detector detector
+     * @param recognizer recognizer
+     * @param direction direction
+     * @param enhancer enhancer
+     * @param corrector 中文纠错翻译器，可为 空（如 macbert4csc；纠错失败保留原文）
+     * @param enhanceInPipeline 增强入pipeline
+     * @param sortReadingOrder 排序读取订单
+     * @param minConfidence 最小信心
+     * @param cropPadding croppadding
+     * @param cropMinHeight crop最小height
+     * @param cropRotateThreshold croprotate阈值
+     * @param qualityGate qualitygate
+     * @param blurThreshold blur阈值
+     * @param sigmoidDetect sigmoiddetect
+     * @param sigmoidRecognize sigmoidrecognize
+     */
+    public OnnxOcrPipeline(ImageDetector detector, OcrRecognizer recognizer,
+                           ITranslator<Object, Object> direction, ITranslator<Object, Object> enhancer,
+                           ITranslator<Object, Object> corrector,
+                           boolean enhanceInPipeline, boolean sortReadingOrder, float minConfidence,
+                           int cropPadding, int cropMinHeight, float cropRotateThreshold,
+                           boolean qualityGate, float blurThreshold,
+                           boolean sigmoidDetect, boolean sigmoidRecognize) {
+        this.delegate = new OcrPipeline(detector, recognizer, direction, enhancer, corrector,
                 enhanceInPipeline, sortReadingOrder, minConfidence, cropPadding, cropMinHeight,
                 cropRotateThreshold, qualityGate, blurThreshold,
                 sigmoidDetect, sigmoidRecognize);
@@ -117,5 +147,14 @@ public class OnnxOcrPipeline {
      */
     public OcrRecognizer recognizer() {
         return delegate.recognizer();
+    }
+
+    /**
+     * Corrector
+     *
+     * @return 中文纠错翻译器；未配置或未注册时返回 空
+     */
+    public ITranslator<Object, Object> corrector() {
+        return delegate.corrector();
     }
 }

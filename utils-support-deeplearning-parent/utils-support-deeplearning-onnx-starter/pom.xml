@@ -267,6 +267,8 @@
 
         <!-- 音频模型（wespeaker/campplus/wav2vec2/sensevoice）：从 utils-support-models-parent 独立仓库构建，本地 maven repo install 后自动可用；downloadUrl 作为网络备用（HF: chtk/chua-dl-models） -->
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-lac</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+        <!-- 中文拼写纠错模型（macbert4csc-base-chinese，约 474MB）：从 utils-support-models-parent 独立仓库构建；MacBertCscTranslator 与 OcrPipeline 中文纠错测试使用 -->
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-macbert4csc</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wespeaker</artifactId><version>${project.version}</version><scope>test</scope></dependency>
                         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-sensevoice</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-zipformer-zh</artifactId><version>${project.version}</version><scope>test</scope></dependency>
