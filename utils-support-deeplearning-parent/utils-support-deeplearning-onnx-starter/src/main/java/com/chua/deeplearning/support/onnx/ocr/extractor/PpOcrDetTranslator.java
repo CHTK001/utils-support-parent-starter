@@ -1,4 +1,5 @@
 package com.chua.deeplearning.support.onnx.ocr.extractor;
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.utils.ImageUtils;
 
 import ai.onnxruntime.OnnxTensor;
@@ -16,8 +17,6 @@ import org.opencv.imgproc.Imgproc;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
@@ -55,6 +54,17 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
      * 最大边长
     */
     private static final int MAX_SIDE = Integer.getInteger("deeplearning.ocr.det.max-side", 960);
+    /**
+     * unclip 外扩系数（DBNet 官方后处理参数，PaddleOCR 默认 1.5）。
+     *
+     * <p>概率图二值化 + 膨胀后得到的轮廓只覆盖"文字核心像素区"，
+     * 上下低概率边缘会被阈值切掉，导致检测框行高缩水。DBNet 标准流程是在
+     * 找轮廓之后按 {@code 距离 = 面积 * unclipRatio / 周长} 将轮廓等距外扩，
+     * 恢复完整文字行高。此实现此前缺失，粗体/大字号中文行会得到过瘦的框，
+     * 下游 OCR 裁剪块被切掉字的上下半截。</p>
+     */
+    private static final float UNCLIP_RATIO = Float.parseFloat(
+            System.getProperty("deeplearning.ocr.det.unclip-ratio", "1.5"));
 
         /**
          * 外部阈值覆盖（-1 表示未配置，使用内置默认值）。
@@ -239,13 +249,13 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
             float[] pixels = new float[3 * h * w];
             long[] shape = {1, 3, h, w};
             try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
-                Map<String, OnnxTensor> inputs = new HashMap<>();
+                Map<String, OnnxTensor> inputs = Wraps.map();
                 inputs.put("x", tensor);
                 try (OrtSession.Result ignored = session.run(inputs)) {
                     // warmup 完成
                 }
                 try (OnnxTensor tensor2 = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
-                    Map<String, OnnxTensor> inputs2 = new HashMap<>();
+                    Map<String, OnnxTensor> inputs2 = Wraps.map();
                     inputs2.put("x", tensor2);
                     try (OrtSession.Result ignored = session.run(inputs2)) {
                         // 二次 warmup 确保状态就绪
@@ -330,7 +340,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
 
                 long[] shape = {1, 3, h, w};
                 try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
-                    Map<String, OnnxTensor> inputs = new HashMap<>();
+                    Map<String, OnnxTensor> inputs = Wraps.map();
                     inputs.put("x", tensor);
                     try (OrtSession.Result result = session.run(inputs)) {
                         Object out = result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
@@ -405,11 +415,11 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
         Mat dilated = new Mat();
         Imgproc.dilate(binary, dilated, kernel);
 
-        List<MatOfPoint> contours = new ArrayList<>();
+        List<MatOfPoint> contours = Wraps.list();
         Mat hierarchy = new Mat();
         Imgproc.findContours(dilated, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 
-        List<DetectionInfo> result = new ArrayList<>();
+        List<DetectionInfo> result = Wraps.list();
         for (MatOfPoint contour : contours) {
             // 轴对齐框（保持原有检测精度）
             Rect rect = Imgproc.boundingRect(contour);
@@ -465,6 +475,20 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
             }
             mask.release();
             conf = count > 0 ? (float) (sum / count) : 0;
+            // unclip 外扩（DBNet 标准后处理）：按 距离 = 面积 * unclipRatio / 周长
+            // 将框等距外扩，恢复被阈值切掉的文字行高；轴对齐框与旋转框同步外扩。
+            double unclipDist = rect.width * (double) rect.height * UNCLIP_RATIO
+                    / (2.0 * (rect.width + rect.height));
+            float padX = (float) (unclipDist * scaleX);
+            float padY = (float) (unclipDist * scaleY);
+            x1 = Math.max(0, x1 - padX);
+            y1 = Math.max(0, y1 - padY);
+            x2 = Math.min(srcWidth, x2 + padX);
+            y2 = Math.min(srcHeight, y2 + padY);
+            // 旋转框等距外扩（scaleX ≈ scaleY，取均值近似；中心点不变）
+            float pad = (padX + padY) / 2f;
+            rw += 2 * pad;
+            rh += 2 * pad;
             result.add(new DetectionInfo("text", conf,
                     Math.max(0, x1), Math.max(0, y1), Math.max(0, x2 - x1), Math.max(0, y2 - y1), angle,
                     rw, rh,
