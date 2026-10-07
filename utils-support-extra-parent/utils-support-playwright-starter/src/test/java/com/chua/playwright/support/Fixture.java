@@ -102,7 +102,7 @@ final class Fixture {
                   .toolbar button{background:transparent;border:1px solid #555;color:#fff;padding:6px;cursor:pointer}
                   .card{padding:8px}
                   input,textarea,select{display:block;margin:6px 0}
-                  #tip{display:none;margin:4px;color:#c00}
+                  #tip{display:none;position:absolute;left:-9999px;top:0;color:#c00}
                   .long{height:2000px}
                 </style>
                 </head><body>
@@ -125,9 +125,9 @@ final class Fixture {
                 </div>
 
                 <div id="std" class="card">
-                  <button data-clickable data-id="btn-counter" id="counter">counter</button>
+                  <button data-clickable data-id="btn-counter" id="btn-counter">counter</button>
                   <button data-clickable data-id="btn-dbl" id="dbl">dbl</button>
-                  <button data-clickable data-id="btn-toggle" id="toggle" aria-pressed="false">toggle</button>
+                  <button data-clickable data-id="btn-toggle" id="btn-toggle" aria-pressed="false">toggle</button>
                   <button data-clickable data-id="btn-hover" id="hoverbtn">hover</button>
                   <button id="disabled-btn" disabled>disabled</button>
                   <form id="form"><input id="name" value="pre"><button type="submit" data-clickable data-id="btn-submit">submit</button></form>
@@ -139,9 +139,9 @@ final class Fixture {
                   <label><input type="checkbox" id="cb2"> cb2</label>
                   <label><input type="radio" name="r" id="r1" value="a" checked> a</label>
                   <label><input type="radio" name="r" id="r2" value="b"> b</label>
-                  <div id="sw" role="switch" aria-checked="false" data-clickable>switch</div>
-                  <div id="mi" role="menuitemcheckbox" aria-checked="true" data-clickable>menuitem</div>
-                  <div id="tree1" role="treeitem" aria-checked="false" data-clickable>tree</div>
+                  <div id="sw" role="switch" aria-checked="false" data-clickable data-id="sw">switch</div>
+                  <div id="mi" role="menuitemcheckbox" aria-checked="true" data-clickable data-id="mi">menuitem</div>
+                  <div id="tree1" role="treeitem" aria-checked="false" data-clickable data-id="tree1">tree</div>
                 </div>
 
                 <div id="forms" class="card">
@@ -173,6 +173,11 @@ final class Fixture {
 
                 <script>
                 window.__clicks = {};
+                window.__clickLog = [];
+                document.addEventListener('click', function(ev){
+                  var t = ev.target;
+                  window.__clickLog.push((t.id || t.tagName) + ':' + (t.type || ''));
+                }, true);
                 document.querySelectorAll('[data-clickable]').forEach(function(el){
                   el.addEventListener('click', function(){
                     window.__clicks[el.dataset.id] = (window.__clicks[el.dataset.id] || 0) + 1;
@@ -182,9 +187,16 @@ final class Fixture {
                 document.getElementById('dbl').addEventListener('dblclick', function(){
                   window.__dbl = (window.__dbl || 0) + 1;
                 });
-                document.getElementById('toggle').addEventListener('click', function(){
+                document.getElementById('btn-toggle').addEventListener('click', function(){
                   var on = this.getAttribute('aria-pressed') === 'true';
                   this.setAttribute('aria-pressed', on ? 'false' : 'true');
+                });
+                ['sw','mi','tree1'].forEach(function(id){
+                  var e2 = document.getElementById(id);
+                  e2.addEventListener('click', function(){
+                    var cur = e2.getAttribute('aria-checked') === 'true';
+                    e2.setAttribute('aria-checked', cur ? 'false' : 'true');
+                  });
                 });
                 var tip = document.getElementById('tip');
                 document.getElementById('hov').addEventListener('mouseover', function(){ tip.style.display = 'block'; });

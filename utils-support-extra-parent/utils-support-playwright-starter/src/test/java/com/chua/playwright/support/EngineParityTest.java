@@ -107,11 +107,40 @@ class EngineParityTest {
         return v;
     }
 
+    /**
+     * 错误消息归一化：抹平两侧报错的**呈现格式**差异，只比较语义消息本身。
+     *
+     * <p>playwright-Java 对带堆栈的错误是 {@code Error { message='...' }} 多行格式，
+     * 对 stackless 错误是裸文本；原生侧是首行消息。统一为：先取 {@code message='...'}
+     * 字段（若有），再取首行，最后剥掉 {@code Error: } 前缀 —— 与 Playwright
+     * 对外消息文本一致。</p>
+     *
+     * @param m 原始消息（可为 null）
+     * @return 归一化后的消息
+     */
+    private static String msgNorm(String m) {
+        if (m == null) {
+            return null;
+        }
+        int i = m.indexOf("message='");
+        if (i >= 0) {
+            int start = i + "message='".length();
+            int end = m.indexOf('\'', start);
+            m = end >= 0 ? m.substring(start, end) : m.substring(start);
+        }
+        int nl = m.indexOf('\n');
+        if (nl >= 0) {
+            m = m.substring(0, nl);
+        }
+        m = m.trim();
+        return m.startsWith("Error: ") ? m.substring("Error: ".length()) : m;
+    }
+
     private static Outcome run(Supplier<Object> op) {
         try {
             return new Outcome(norm(op.get()), null);
         } catch (Throwable t) {
-            return new Outcome(null, t.getMessage());
+            return new Outcome(null, msgNorm(t.getMessage()));
         }
     }
 
@@ -518,11 +547,11 @@ class EngineParityTest {
             assertTrue(nh > 0);
             assertTrue(jh > 0);
             assertSameOutcome("元素 evaluate",
-                    () -> nativeEngine.evaluate(nh, "function(v){ return this.id + ':' + v; }", "A"),
-                    () -> javaEngine.evaluate(jh, "function(v){ return this.id + ':' + v; }", "A"));
+                    () -> nativeEngine.evaluate(nh, "function(el, v){ return el.id + ':' + v; }", "A"),
+                    () -> javaEngine.evaluate(jh, "function(el, v){ return el.id + ':' + v; }", "A"));
             assertSameOutcome("元素 evaluate this.value",
-                    () -> nativeEngine.evaluate(nh, "function(){ return this.value; }", null),
-                    () -> javaEngine.evaluate(jh, "function(){ return this.value; }", null));
+                    () -> nativeEngine.evaluate(nh, "function(el){ return el.value; }", null),
+                    () -> javaEngine.evaluate(jh, "function(el){ return el.value; }", null));
         } finally {
             nativeEngine.close(np);
             javaEngine.close(jp);
