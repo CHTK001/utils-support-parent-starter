@@ -12,6 +12,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -60,6 +61,9 @@ class MacBertCscTranslatorTest {
                         .anyMatch(u -> u.contains("huggingface.co/shibing624/macbert4csc-base-chinese")),
                 "镜像应含 huggingface 官方地址: " + entry.downloadMirrors());
         assertFalse(entry.compress());
+        assertNotNull(entry.downloadFiles(), "macbert4csc 应声明 downloadFiles");
+        assertEquals(List.of("vocab.txt"), entry.downloadFiles(),
+                "downloadFiles 应声明同目录 vocab.txt 一并下载: " + entry.downloadFiles());
     }
 
     @Test
