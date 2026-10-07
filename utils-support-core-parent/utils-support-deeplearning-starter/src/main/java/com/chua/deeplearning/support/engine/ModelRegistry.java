@@ -213,7 +213,10 @@ public final class ModelRegistry {
      * @param capabilityInterface 能力接口
      * @param relativePath        相对模型根目录 / 类路径 路径，可为 空
      * @param downloadUrl         远程下载地址，空表示不下载
-     * @param downloadMirrors     备用下载地址列表（主地址失败时依次尝试），可为 空
+     * @param downloadMirrors     主文件的备用镜像地址（主地址失败时依次尝试），可为 空
+     * @param downloadFiles       随主文件一并下载的附属文件清单（绝对 URL，或相对
+     *                            主文件同目录的路径），可为 空；与 {@code downloadMirrors}
+     *                            （同文件多地址容灾）语义独立
      * @param compress            下载文件是否为压缩包
      * @param downloadFileName    压缩包内目标文件名（compress=true 时生效）
      * @param hardwareConfig      硬件配置（设备/显存上限/推荐标记），可为 空
@@ -222,22 +225,26 @@ public final class ModelRegistry {
                         Class<?> inputType, Class<?> outputType,
                         Class<?> capabilityInterface, String relativePath,
                         String downloadUrl, List<String> downloadMirrors,
+                        List<String> downloadFiles,
                         boolean compress, String downloadFileName,
                         com.chua.deeplearning.support.model.HardwareConfig hardwareConfig) {
 
         /**
-         * 规范构造器：对备用镜像地址列表做防御性拷贝。
+         * 规范构造器：对镜像地址与附属文件清单做防御性拷贝。
          *
          * <p>value class 前置条件——集合组件必须深不可变。此处保留 {@code null} 语义
          * （{@code registerExternalDirectory} 与无镜像的注册入口均显式传 {@code null}），
          * 且元素可能为 {@code null}（下载侧对空元素显式跳过），故采用可空安全的不可变包装
          * 而非 {@link List#copyOf}。</p>
          *
-         * @param downloadMirrors 备用镜像地址列表，可为 {@code null}
+         * @param downloadMirrors 主文件备用镜像地址列表，可为 {@code null}
+         * @param downloadFiles   附属文件清单，可为 {@code null}
          */
         public Entry {
             downloadMirrors = downloadMirrors == null ? null
                     : Collections.unmodifiableList(Wraps.list(downloadMirrors));
+            downloadFiles = downloadFiles == null ? null
+                    : Collections.unmodifiableList(Wraps.list(downloadFiles));
         }
 
         /**
@@ -314,6 +321,7 @@ public final class ModelRegistry {
                 key,
                 null,
                 null,
+                null,
                 false,
                 null,
                 template.hardwareConfig());
@@ -386,7 +394,7 @@ public final class ModelRegistry {
     public static void register(String modelId, String translatorClassName,
                                 Class<?> inputType, Class<?> outputType,
                                 Class<?> capabilityInterface, String relativePath) {
-        REGISTRY.put(modelId, new Entry(modelId, translatorClassName, inputType, outputType, capabilityInterface, relativePath, null, null, false, null, null));
+        REGISTRY.put(modelId, new Entry(modelId, translatorClassName, inputType, outputType, capabilityInterface, relativePath, null, null, null, false, null, null));
         log.debug("[deeplearning-engine] ModelRegistry register: {} -> {}", modelId, translatorClassName);
     }
 
@@ -444,7 +452,7 @@ public final class ModelRegistry {
      * @param capabilityInterface 能力接口
      * @param relativePath        相对路径或 类路径 路径
      * @param downloadUrl         远程下载地址
-     * @param downloadMirrors     备用下载地址列表（主地址失败时依次尝试），可为 空
+     * @param downloadMirrors     主文件备用镜像地址列表（主地址失败时依次尝试），可为 空
      * @param compress            是否压缩包
      * @param downloadFileName    压缩包内目标文件名
      * @param hardwareConfig      硬件配置（设备/显存上限/推荐标记），可为 空
@@ -455,11 +463,67 @@ public final class ModelRegistry {
                                 String downloadUrl, List<String> downloadMirrors,
                                 boolean compress, String downloadFileName,
                                 com.chua.deeplearning.support.model.HardwareConfig hardwareConfig) {
+        register(modelId, translatorClassName, inputType, outputType, capabilityInterface, relativePath,
+                downloadUrl, downloadMirrors, null, compress, downloadFileName, hardwareConfig);
+    }
+
+    /**
+     * 按类名注册模型（含远程下载信息、备用镜像地址与附属文件清单）。
+     *
+     * <p>{@code downloadFiles} 为随主文件一并下载的附属文件（如词表、配置）：
+     * 绝对 URL 原样下载，相对路径按主文件实际下载地址的同目录拼接；
+     * 与 {@code downloadMirrors} 的「同文件多地址容灾」语义互不混淆。</p>
+     *
+     * @param modelId             模型标识
+     * @param translatorClassName Translator 全限定类名
+     * @param inputType           输入类型
+     * @param outputType          输出类型
+     * @param capabilityInterface 能力接口
+     * @param relativePath        相对路径或 类路径 路径
+     * @param downloadUrl         远程下载地址
+     * @param downloadMirrors     主文件备用镜像地址列表（主地址失败时依次尝试），可为 空
+     * @param downloadFiles       附属文件清单（绝对 URL 或相对主文件同目录路径），可为 空
+     * @param compress            是否压缩包
+     * @param downloadFileName    压缩包内目标文件名
+     */
+    public static void register(String modelId, String translatorClassName,
+                                Class<?> inputType, Class<?> outputType,
+                                Class<?> capabilityInterface, String relativePath,
+                                String downloadUrl, List<String> downloadMirrors,
+                                List<String> downloadFiles,
+                                boolean compress, String downloadFileName) {
+        register(modelId, translatorClassName, inputType, outputType, capabilityInterface, relativePath,
+                downloadUrl, downloadMirrors, downloadFiles, compress, downloadFileName, null);
+    }
+
+    /**
+     * 按类名注册模型（含远程下载信息、备用镜像地址、附属文件清单与硬件配置）——规范入口。
+     *
+     * @param modelId             模型标识
+     * @param translatorClassName Translator 全限定类名
+     * @param inputType           输入类型
+     * @param outputType          输出类型
+     * @param capabilityInterface 能力接口
+     * @param relativePath        相对路径或 类路径 路径
+     * @param downloadUrl         远程下载地址
+     * @param downloadMirrors     主文件备用镜像地址列表（主地址失败时依次尝试），可为 空
+     * @param downloadFiles       附属文件清单（绝对 URL 或相对主文件同目录路径），可为 空
+     * @param compress            是否压缩包
+     * @param downloadFileName    压缩包内目标文件名
+     * @param hardwareConfig      硬件配置（设备/显存上限/推荐标记），可为 空
+     */
+    public static void register(String modelId, String translatorClassName,
+                                Class<?> inputType, Class<?> outputType,
+                                Class<?> capabilityInterface, String relativePath,
+                                String downloadUrl, List<String> downloadMirrors,
+                                List<String> downloadFiles,
+                                boolean compress, String downloadFileName,
+                                com.chua.deeplearning.support.model.HardwareConfig hardwareConfig) {
         List<String> mirrors = resolveMirrors(downloadUrl, downloadMirrors);
         REGISTRY.put(modelId, new Entry(modelId, translatorClassName, inputType, outputType, capabilityInterface,
-                relativePath, downloadUrl, mirrors, compress, downloadFileName, hardwareConfig));
-        log.debug("[deeplearning-engine] ModelRegistry register: {} -> {} (downloadUrl={}, mirrors={})",
-                modelId, translatorClassName, downloadUrl, mirrors);
+                relativePath, downloadUrl, mirrors, downloadFiles, compress, downloadFileName, hardwareConfig));
+        log.debug("[deeplearning-engine] ModelRegistry register: {} -> {} (downloadUrl={}, mirrors={}, files={})",
+                modelId, translatorClassName, downloadUrl, mirrors, downloadFiles);
     }
 
     /**
@@ -655,6 +719,8 @@ public final class ModelRegistry {
         if (entry != null && entry.downloadUrl() != null && !entry.downloadUrl().isBlank()) {
             Path dlTarget = cachedDownloadTarget(modelId, entry);
             if (dlTarget != null) {
+                // 缓存命中时补齐 downloadFiles 声明的缺失附属文件（已存在则幂等跳过）
+                downloadDeclaredFiles(modelId, entry, entry.downloadUrl(), dlTarget.getParent());
                 return dlTarget;
             }
         }
@@ -763,7 +829,12 @@ public final class ModelRegistry {
             return null;
         }
         Path cached = cachedDownloadTarget(modelId, entry);
-        return cached != null ? cached : tryDownloadFromRemote(modelId, entry);
+        if (cached != null) {
+            // 缓存命中时补齐 downloadFiles 声明的缺失附属文件（已存在则幂等跳过）
+            downloadDeclaredFiles(modelId, entry, entry.downloadUrl(), cached.getParent());
+            return cached;
+        }
+        return tryDownloadFromRemote(modelId, entry);
     }
 
     /**
@@ -861,7 +932,9 @@ public final class ModelRegistry {
      */
     private static Path finishDownload(String modelId, Entry entry, String baseUrl, Path target, Path downloadDir) {
         try {
- // ONNX .onnx 可能附带同名权重文件：优先下载标准命名的 .onnx_数据（多文件导出），
+            // Entry.downloadFiles 声明的附属文件清单：相对路径以实际下载成功的 baseUrl 为基准拼接
+            downloadDeclaredFiles(modelId, entry, baseUrl, downloadDir);
+            // ONNX .onnx 可能附带同名权重文件：优先下载标准命名的 .onnx_数据（多文件导出），
  // 其次兼容遗留的 .extra_文件 命名
             if (target.toString().toLowerCase().endsWith(MODEL_SUFFIXES[0])) {
                 String fileName = target.getFileName().toString();
@@ -929,6 +1002,137 @@ public final class ModelRegistry {
             log.warn("[deeplearning-engine] 模型下载后处理失败: {} -> {}: {}", modelId, baseUrl, e.getMessage());
             return target;
         }
+    }
+
+    /**
+     * 下载 {@link Entry#downloadFiles()} 声明的附属文件清单（主文件之外需一并下载的词表、配置等）。
+     *
+     * <p>解析规则：</p>
+     * <ul>
+     *   <li>绝对 URL（http/https 开头）原样下载；</li>
+     *   <li>相对路径按候选基地址的目录拼接：优先实际下载成功的地址（preferredBaseUrl），
+     *       其次 {@link Entry#downloadUrl()} 与 {@link Entry#downloadMirrors()}，按序尝试直到成功；</li>
+     *   <li>目标文件名取 URL 最后一段（剥离查询串与锚点），平铺落盘于 {@code downloadDir}；</li>
+     *   <li>已存在且非空的文件跳过（幂等）；</li>
+     *   <li>单个附属文件下载失败仅告警，不阻断主文件加载。</li>
+     * </ul>
+     *
+     * @param modelId          模型标识
+     * @param entry            注册条目
+     * @param preferredBaseUrl 相对路径首选拼接基准（主文件实际下载成功的地址），可为 空
+     * @param downloadDir      附属文件落盘目录（主文件所在目录）
+     */
+    private static void downloadDeclaredFiles(String modelId, Entry entry, String preferredBaseUrl, Path downloadDir) {
+        List<String> files = entry == null ? null : entry.downloadFiles();
+        if (files == null || files.isEmpty() || downloadDir == null) {
+            return;
+        }
+        // 相对路径候选基地址：实际下载成功地址优先，其次主地址与镜像（去重、保持顺序）
+        List<String> bases = Wraps.list();
+        addBaseUrl(bases, preferredBaseUrl);
+        addBaseUrl(bases, entry.downloadUrl());
+        if (entry.downloadMirrors() != null) {
+            for (String mirror : entry.downloadMirrors()) {
+                addBaseUrl(bases, mirror);
+            }
+        }
+        for (String spec : files) {
+            if (spec == null || spec.isBlank()) {
+                continue;
+            }
+            String trimmed = spec.trim();
+            boolean absolute = trimmed.startsWith("http://") || trimmed.startsWith("https://");
+            String fileName = lastSegment(trimmed);
+            if (fileName == null || fileName.isBlank()) {
+                log.warn("[deeplearning-engine] 附属文件名无法解析，跳过: {} -> {}", modelId, trimmed);
+                continue;
+            }
+            Path target = downloadDir.resolve(fileName);
+            try {
+                if (Files.isRegularFile(target) && Files.size(target) > 0) {
+                    log.debug("[deeplearning-engine] 附属文件已存在，跳过: {} -> {}", modelId, target);
+                    continue;
+                }
+            } catch (IOException e) {
+                log.debug("[deeplearning-engine] 附属文件存在性检查失败: {} -> {}", target, e.getMessage());
+            }
+            boolean done = false;
+            if (absolute) {
+                done = downloadDeclaredFile(modelId, trimmed, target, downloadDir);
+            } else {
+                for (String base : bases) {
+                    int cut = base.lastIndexOf('/');
+                    if (cut < 0) {
+                        continue;
+                    }
+                    if (downloadDeclaredFile(modelId, base.substring(0, cut + 1) + trimmed, target, downloadDir)) {
+                        done = true;
+                        break;
+                    }
+                }
+            }
+            if (!done) {
+                log.warn("[deeplearning-engine] 附属文件全部地址下载失败（不影响主文件加载）: {} -> {}", modelId, trimmed);
+            }
+        }
+    }
+
+    /**
+     * 追加候选基地址（非空且去重）。
+     *
+     * @param bases 候选列表
+     * @param url   地址
+     */
+    private static void addBaseUrl(List<String> bases, String url) {
+        if (url != null && !url.isBlank() && !bases.contains(url)) {
+            bases.add(url);
+        }
+    }
+
+    /**
+     * 取 URL 最后一段作为目标文件名（剥离查询串与锚点）。
+     *
+     * @param url 地址
+     * @return 文件名，无法解析返回 空
+     */
+    private static String lastSegment(String url) {
+        String clean = url;
+        int cut = clean.indexOf('?');
+        if (cut >= 0) {
+            clean = clean.substring(0, cut);
+        }
+        cut = clean.indexOf('#');
+        if (cut >= 0) {
+            clean = clean.substring(0, cut);
+        }
+        int slash = clean.lastIndexOf('/');
+        String name = slash >= 0 ? clean.substring(slash + 1) : clean;
+        return name.trim();
+    }
+
+    /**
+     * 下载单个附属文件。
+     *
+     * @param modelId     模型标识
+     * @param url         远程地址
+     * @param target      本地目标路径
+     * @param downloadDir 落盘目录
+     * @return 是否成功落盘（非空）
+     */
+    private static boolean downloadDeclaredFile(String modelId, String url, Path target, Path downloadDir) {
+        try {
+            log.info("[deeplearning-engine] 开始下载附属文件: {} -> {}", modelId, url);
+            Files.createDirectories(downloadDir);
+            downloader.download(url, target);
+            if (Files.isRegularFile(target) && Files.size(target) > 0) {
+                log.info("[deeplearning-engine] 附属文件下载完成: {} -> {}", modelId, target);
+                return true;
+            }
+            log.warn("[deeplearning-engine] 附属文件为空: {} -> {}", modelId, url);
+        } catch (Exception e) {
+            log.warn("[deeplearning-engine] 下载附属文件失败（将尝试下一个地址）: {} -> {}: {}", modelId, url, e.getMessage());
+        }
+        return false;
     }
 
     /**

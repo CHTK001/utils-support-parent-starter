@@ -660,8 +660,9 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("lac-onnx", "com.chua.deeplearning.support.onnx.nlp.lac.LacOnnxTranslator", String.class, String[][].class, TextTranslator.class, "nlp/lac/lac_encoder.onnx", "https://raw.githubusercontent.com/kniost/LAC-ONNX/main/lac_onnx/lac_encoder.onnx", List.of("https://cdn.jsdelivr.net/gh/kniost/LAC-ONNX@main/lac_onnx/lac_encoder.onnx"), false, null);
         // 中文拼写纠错（macbert4csc-base-chinese）：shibing624/macbert4csc 的 ONNX 导出，BERT MLM 逐位置
         // argmax + 0.7 置信度阈值逐字纠错，输入/输出均为文本，用于修复 OCR/录入错别字；约 474MB：
-        // 优先 jar 内嵌 nlp/csc/macbert4csc/model.onnx，缺失时走 downloadUrl 自动下载（hf-mirror 主源）。
-        reg("macbert4csc", "com.chua.deeplearning.support.onnx.nlp.csc.MacBertCscTranslator", String.class, String.class, TextTranslator.class, "nlp/csc/macbert4csc/model.onnx", "https://hf-mirror.com/shibing624/macbert4csc-base-chinese/resolve/main/onnx/model.onnx", List.of("https://huggingface.co/shibing624/macbert4csc-base-chinese/resolve/main/onnx/model.onnx"), false, null);
+        // 优先 jar 内嵌 nlp/csc/macbert4csc/model.onnx，缺失时走 downloadUrl 自动下载（hf-mirror 主源），
+        // downloadFiles 声明同目录 vocab.txt 一并下载（Translator 优先取模型同目录词表，补齐无 jar 场景）。
+        reg("macbert4csc", "com.chua.deeplearning.support.onnx.nlp.csc.MacBertCscTranslator", String.class, String.class, TextTranslator.class, "nlp/csc/macbert4csc/model.onnx", "https://hf-mirror.com/shibing624/macbert4csc-base-chinese/resolve/main/onnx/model.onnx", List.of("https://huggingface.co/shibing624/macbert4csc-base-chinese/resolve/main/onnx/model.onnx"), List.of("vocab.txt"), false, null);
         // 多模态文本嵌入(WeMM-2B)：腾讯 WeMM-Embedding-2B 文本分支，2048维 Matryoshka（64/128/256/512/1024/2048），
  // 支持中文/英文，适用高精度语义搜索、多模态检索；downloadurl 自动下载（chtk/wemm-嵌入-onnx）
         String wemm2bUrl = "https://hf-mirror.com/chtk/wemm-embedding-onnx/resolve/main/model.onnx";
@@ -745,6 +746,60 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         if (ModelRegistry.get(modelId) == null) {
             ModelRegistry.register(modelId, translatorClassName, inputType, outputType, capability,
                     relativePath, downloadUrl, downloadMirrors, compress, downloadFileName);
+        }
+    }
+
+    /**
+     * Reg（含附属文件清单）
+     * @param modelId 模型标识
+     * @param translatorClassName translator类名称
+     * @param inputType 输入类型
+     * @param outputType 输出类型
+     * @param capability capability
+     * @param relativePath relative路径
+     * @param downloadUrl downloadurl
+     * @param downloadMirrors downloadmirrors
+     * @param downloadFiles 随主文件一并下载的附属文件清单（绝对 URL 或相对主文件目录的路径）
+     * @param compress compress
+     * @param downloadFileName download文件名称
+     */
+    private static void reg(String modelId, String translatorClassName,
+                            Class<?> inputType, Class<?> outputType,
+                            Class<?> capability, String relativePath,
+                            String downloadUrl, List<String> downloadMirrors,
+                            List<String> downloadFiles,
+                            boolean compress, String downloadFileName) {
+        if (ModelRegistry.get(modelId) == null) {
+            ModelRegistry.register(modelId, translatorClassName, inputType, outputType, capability,
+                    relativePath, downloadUrl, downloadMirrors, downloadFiles, compress, downloadFileName);
+        }
+    }
+
+    /**
+     * Reg（含附属文件清单与硬件配置）
+     * @param modelId 模型标识
+     * @param translatorClassName translator类名称
+     * @param inputType 输入类型
+     * @param outputType 输出类型
+     * @param capability capability
+     * @param relativePath relative路径
+     * @param downloadUrl downloadurl
+     * @param downloadMirrors downloadmirrors
+     * @param downloadFiles 随主文件一并下载的附属文件清单（绝对 URL 或相对主文件目录的路径）
+     * @param compress compress
+     * @param downloadFileName download文件名称
+     * @param hardwareConfig hardware配置
+     */
+    private static void reg(String modelId, String translatorClassName,
+                            Class<?> inputType, Class<?> outputType,
+                            Class<?> capability, String relativePath,
+                            String downloadUrl, List<String> downloadMirrors,
+                            List<String> downloadFiles,
+                            boolean compress, String downloadFileName,
+                            HardwareConfig hardwareConfig) {
+        if (ModelRegistry.get(modelId) == null) {
+            ModelRegistry.register(modelId, translatorClassName, inputType, outputType, capability,
+                    relativePath, downloadUrl, downloadMirrors, downloadFiles, compress, downloadFileName, hardwareConfig);
         }
     }
 
