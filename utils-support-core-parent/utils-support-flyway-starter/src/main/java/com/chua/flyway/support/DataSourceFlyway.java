@@ -94,6 +94,14 @@ public class DataSourceFlyway implements Flyway {
     private final List<String> lastFailedStatements = Wraps.list();
 
     /**
+     * 最近一次 migrate 中失败语句的 {@code 语句 -> 异常信息}，供日志/排查。
+     *
+     * <p>与 {@link #lastFailedStatements} 成对维护：只有语句、没有原因时，
+     * 「哪个脚本 success=false」这件事无法定位到具体 SQL 错误（列不存在？唯一键冲突？）。
+     */
+    private final Map<String, String> lastFailureReasons = new LinkedHashMap<>();
+
+    /**
      * 构造迁移器。
      *
      * @param dataSource JDBC 数据源
@@ -179,6 +187,7 @@ public class DataSourceFlyway implements Flyway {
         warnIfEmpty(scripts);
         int executed = 0;
         lastFailedStatements.clear();
+        lastFailureReasons.clear();
         for (FlywayScripts.Script script : scripts) {
             if (FlywayHistory.SUCCESS_TRUE.equals(applied.get(script.fileName()))) {
                 continue;
@@ -233,6 +242,17 @@ public class DataSourceFlyway implements Flyway {
      */
     public List<String> getFailedStatements() {
         return List.copyOf(lastFailedStatements);
+    }
+
+    /**
+     * 获取最近一次 migrate 中被容错跳过的失败语句及其原因。
+     *
+     * <p>供日志/排查使用；无失败时返回空 Map。
+     *
+     * @return 语句 -&gt; 异常信息
+     */
+    public Map<String, String> getFailureReasons() {
+        return Map.copyOf(lastFailureReasons);
     }
 
     /**
@@ -291,7 +311,9 @@ public class DataSourceFlyway implements Flyway {
                     st.execute(statement);
                     executed++;
                 } catch (SQLException e) {
-                    lastFailedStatements.add(FlywayScripts.truncate(statement, LOG_STATEMENT_LENGTH));
+                    String truncated = FlywayScripts.truncate(statement, LOG_STATEMENT_LENGTH);
+                    lastFailedStatements.add(truncated);
+                    lastFailureReasons.put(truncated, e.getMessage() == null ? e.toString() : e.getMessage());
                     if (!continueOnError) {
                         throw new IllegalStateException("执行迁移脚本失败: " + scriptName
                                 + " (语句: " + FlywayScripts.truncate(statement, ERROR_STATEMENT_LENGTH) + ")", e);
