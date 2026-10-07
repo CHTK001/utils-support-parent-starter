@@ -1,12 +1,11 @@
 package com.chua.hprof.support.analyzer;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.hprof.support.crash.CrashContext;
 import com.chua.hprof.support.crash.CrashContext.CrashSignal;
 import com.chua.hprof.support.model.HprofHistogramRow;
 import com.chua.hprof.support.model.HprofObject;
 import com.chua.hprof.support.parser.HprofParser;
-
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -132,7 +131,7 @@ public final class HprofAnalyzer {
         // 规则 3：类加载器扇出
         long classLoaderClasses = 0L;
         long classLoaderRetained = 0L;
-        List<HprofHistogramRow> classLoaderRows = new ArrayList<>();
+        List<HprofHistogramRow> classLoaderRows = Wraps.list();
         for (HprofHistogramRow row : histogram) {
             if (row.getClassName() != null
                     && row.getClassName().toLowerCase(Locale.ROOT).contains("classloader")) {
@@ -198,7 +197,7 @@ public final class HprofAnalyzer {
      */
     private static List<PackageGroup> groupByPackage(List<HprofHistogramRow> rows,
                                                       boolean jdkOnly, int limit) {
-        Map<String, long[]> groups = new java.util.LinkedHashMap<>();
+        Map<String, long[]> groups = Wraps.linkedMap();
         for (HprofHistogramRow row : rows) {
             if (row.getRetainedSize() <= 0) {
                 continue;
@@ -212,7 +211,7 @@ public final class HprofAnalyzer {
             acc[0] += row.getInstanceCount();
             acc[1] += row.getRetainedSize();
         }
-        List<PackageGroup> list = new ArrayList<>();
+        List<PackageGroup> list = Wraps.list();
         for (Map.Entry<String, long[]> e : groups.entrySet()) {
             list.add(new PackageGroup(e.getKey(), e.getValue()[0], e.getValue()[1]));
         }
@@ -274,7 +273,7 @@ public final class HprofAnalyzer {
      * @return 排行行
      */
     private static List<HprofHistogramRow> topRows(List<HprofHistogramRow> rows, int limit) {
-        List<HprofHistogramRow> out = new ArrayList<>(Math.min(limit, rows.size()));
+        List<HprofHistogramRow> out = Wraps.list(Math.min(limit, rows.size()));
         for (HprofHistogramRow row : rows) {
             if (row.getRetainedSize() <= 0) {
                 continue;
@@ -296,7 +295,7 @@ public final class HprofAnalyzer {
      * @return 排行行
      */
     private static List<HprofHistogramRow> topInstances(List<HprofHistogramRow> rows, int limit) {
-        List<HprofHistogramRow> copy = new ArrayList<>(rows);
+        List<HprofHistogramRow> copy = Wraps.list(rows);
         copy.sort(Comparator.comparingLong(HprofHistogramRow::getInstanceCount).reversed());
         return copy.subList(0, Math.min(limit, copy.size()));
     }
@@ -330,7 +329,7 @@ public final class HprofAnalyzer {
      * @return finding 列表，严重程度降序
      */
     private static List<HprofFinding> buildFindings(HprofAnalysis analysis, HprofParser.Result result) {
-        List<HprofFinding> findings = new ArrayList<>();
+        List<HprofFinding> findings = Wraps.list();
         long total = Math.max(analysis.totalRetainedBytes, 1L);
 
         if (analysis.topNRetainedRatio >= 0.5) {
@@ -426,7 +425,7 @@ public final class HprofAnalyzer {
      * @return 结论字符串列表，每段一条
      */
     private static List<String> buildConclusions(HprofAnalysis analysis, HprofParser.Result result) {
-        List<String> conclusions = new ArrayList<>();
+        List<String> conclusions = Wraps.list();
         conclusions.add("存活堆共 " + result.totalObjectCount()
                 + " 个对象，总保留 " + HprofObject.formatSize(analysis.totalRetainedBytes) + "。");
         conclusions.add("Top-" + CONCENTRATION_TOP_N + " 类占保留内存 "
@@ -474,7 +473,7 @@ public final class HprofAnalyzer {
      */
     private static void buildRootCause(HprofAnalysis analysis, HprofParser.Result result) {
         List<CrashSignal> crashSignals = analysis.crashSignals;
-        List<RootCauseSection> sections = new ArrayList<>();
+        List<RootCauseSection> sections = Wraps.list();
         long total = Math.max(analysis.totalRetainedBytes, 1L);
         long nonJdk = analysis.nonJdkRetainedBytes;
 
@@ -509,7 +508,7 @@ public final class HprofAnalyzer {
         }
 
         // 2. 具体机制
-        List<String> mechanisms = new ArrayList<>();
+        List<String> mechanisms = Wraps.list();
         if (analysis.classLoaderClassCount >= 50) {
             mechanisms.add("类加载器泄漏（" + analysis.classLoaderClassCount
                     + " 个加载器类，疑似插件 / 脚本未卸载）");

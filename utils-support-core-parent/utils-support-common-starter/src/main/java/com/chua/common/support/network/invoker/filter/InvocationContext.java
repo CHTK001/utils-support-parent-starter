@@ -1,5 +1,6 @@
 package com.chua.common.support.network.invoker.filter;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.server.request.FormFile;
@@ -25,15 +26,15 @@ public class InvocationContext implements ServerRequest, ServerResponse {
     /**
      * headers
      */
-    private final Map<String, String> headers = new LinkedHashMap<>();
+    private final Map<String, String> headers = Wraps.linkedMap();
     /**
      * queryParams
      */
-    private final Map<String, String> queryParams = new LinkedHashMap<>();
+    private final Map<String, String> queryParams = Wraps.linkedMap();
     /**
      * attributes
      */
-    private final Map<String, Object> attributes = new LinkedHashMap<>();
+    private final Map<String, Object> attributes = Wraps.linkedMap();
     /**
      * 请求体
      */

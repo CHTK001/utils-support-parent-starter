@@ -1,5 +1,6 @@
 package com.chua.trae.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -24,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -512,7 +512,7 @@ public class ChatClient implements AutoCloseable {
         /**
          * 工具调用列表
         */
-        final List<ToolCall> toolCalls = new ArrayList<>();
+        final List<ToolCall> toolCalls = Wraps.list();
         /**
          * 重试计数器
         */
@@ -673,7 +673,7 @@ public class ChatClient implements AutoCloseable {
             resp.object("chat.completion");
             resp.created(System.currentTimeMillis());
             resp.model(request.model());
-            List<ChatResponse.Choice> choices = new ArrayList<>();
+            List<ChatResponse.Choice> choices = Wraps.list();
             ChatResponse.Choice choice = new ChatResponse.Choice();
             choice.index(0);
             choice.finishReason(finishReason);

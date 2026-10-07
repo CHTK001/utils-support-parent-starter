@@ -1,10 +1,9 @@
 package com.chua.common.support.network.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.client.spi.HttpClientExecutor;
 import com.chua.common.support.network.http.HttpMethod;
 import reactor.core.publisher.Mono;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,7 +48,7 @@ public class DefaultHttpClient implements HttpClient {
      * <p>最外层，适合统一加 Token、Header、日志、请求预处理、短路 Mock/缓存等。
      * 通过 {@link #addInterceptor(HttpInterceptor)} 注册。</p>
      */
-    private final List<HttpInterceptor> interceptors = new ArrayList<>();
+    private final List<HttpInterceptor> interceptors = Wraps.list();
 
     /**
      * 网络层拦截器列表（按注册顺序执行）。
@@ -57,7 +56,7 @@ public class DefaultHttpClient implements HttpClient {
      * <p>紧贴网络调用，适合监控、错误码统一包装、网络层日志等。
      * 通过 {@link #addNetworkInterceptor(HttpInterceptor)} 注册。</p>
      */
-    private final List<HttpInterceptor> networkInterceptors = new ArrayList<>();
+    private final List<HttpInterceptor> networkInterceptors = Wraps.list();
 
     /**
      * 使用指定的 HTTP 执行器创建默认客户端。

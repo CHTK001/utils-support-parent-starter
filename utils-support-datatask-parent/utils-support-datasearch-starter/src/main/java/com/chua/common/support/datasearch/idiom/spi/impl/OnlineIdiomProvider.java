@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.idiom.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.idiom.model.IdiomInfo;
 import com.chua.common.support.datasearch.idiom.spi.IdiomProvider;
 import com.chua.common.support.network.client.ClientResponse;
@@ -10,10 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -121,7 +119,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
             return Collections.emptyList();
         }
         String kw = keyword.trim();
-        List<IdiomInfo> result = new ArrayList<>();
+        List<IdiomInfo> result = Wraps.list();
         for (IdiomInfo info : loadIndex().values()) {
             if (contains(info.getWord(), kw) || contains(info.getExplanation(), kw) || contains(info.getPinyin(), kw)) {
                 result.add(info);
@@ -142,7 +140,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
         if (idx.isEmpty()) {
             return null;
         }
-        List<IdiomInfo> values = new ArrayList<>(idx.values());
+        List<IdiomInfo> values = Wraps.list(idx.values());
         return values.get(ThreadLocalRandom.current().nextInt(values.size()));
     }
 
@@ -173,9 +171,9 @@ public class OnlineIdiomProvider implements IdiomProvider {
             return Collections.emptyList();
         }
         if (limit <= 0 || candidates.size() <= limit) {
-            return new ArrayList<>(candidates);
+            return Wraps.list(candidates);
         }
-        return new ArrayList<>(candidates.subList(0, limit));
+        return Wraps.list(candidates.subList(0, limit));
     }
 
     /**
@@ -203,7 +201,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
             if (!index.isEmpty()) {
                 return index;
             }
-            Map<String, IdiomInfo> map = new LinkedHashMap<>();
+            Map<String, IdiomInfo> map = Wraps.linkedMap();
             try {
                 ClientResponse resp = httpClient.get(url);
                 if (resp.isSuccess()) {
@@ -252,7 +250,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
                     continue;
                 }
                 String first = word.substring(0, 1);
-                map.computeIfAbsent(first, k -> new ArrayList<>()).add(info);
+                map.computeIfAbsent(first, k -> Wraps.list()).add(info);
             }
             firstCharIndex = map;
             log.info("[chinese-xinhua] 成语首字索引加载完成: {} 个首字", map.size());
@@ -297,7 +295,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
      * @return 构建降级的结果
      */
     private static List<IdiomInfo> buildFallback() {
-        List<IdiomInfo> list = new ArrayList<>();
+        List<IdiomInfo> list = Wraps.list();
         add(list, "守株待兔", "shǒu zhū dài tù", "szdt", "《韩非子·五蠹》", "比喻不主动努力，而存万一的侥幸心理，希望得到意外的收获。", "学习不能守株待兔，需要脚踏实地。");
         add(list, "亡羊补牢", "wáng yáng bǔ láo", "wybl", "《战国策·楚策四》", "羊丢失了才去修补羊圈。比喻出了问题以后想办法补救，可以防止继续受损失。", "出了问题不要紧，亡羊补牢为时未晚。");
         add(list, "画蛇添足", "huà shé tiān zú", "hstz", "《战国策·齐策二》", "画蛇时给蛇添上脚。比喻做了多余的事，非但无益，反而不合适。", "这篇文章到此已经很完整，再补充反而是画蛇添足。");

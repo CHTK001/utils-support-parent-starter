@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.anime.detection;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -14,7 +15,6 @@ import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 import java.util.Arrays;
@@ -222,8 +222,8 @@ private float confThreshold = 0.45f; // conf阈值
             throw new IllegalStateException("AnimeFace 输出通道异常: " + numChannels);
         }
         // 收集候选框（letterbox 坐标系）
-        List<float[]> boxes = new ArrayList<>();
-        List<Float> scores = new ArrayList<>();
+        List<float[]> boxes = Wraps.list();
+        List<Float> scores = Wraps.list();
         for (int i = 0; i < numDets; i++) {
             int offset = i * numChannels;
             if (offset + 4 >= data.length) {
@@ -252,9 +252,9 @@ private float confThreshold = 0.45f; // conf阈值
         // NMS（纯 Java）
         int[] keep = nms(boxes, scores);
 
-        List<String> names = new ArrayList<>();
-        List<Double> probs = new ArrayList<>();
-        List<BoundingBox> rects = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> probs = Wraps.list();
+        List<BoundingBox> rects = Wraps.list();
         int topK = Math.min(keep.length, TOP_K);
         for (int i = 0; i < topK; i++) {
             float[] b = boxes.get(keep[i]);
@@ -288,7 +288,7 @@ private float confThreshold = 0.45f; // conf阈值
             idx[i] = i;
         }
         Arrays.sort(idx, (a, b) -> Float.compare(scores.get(b), scores.get(a)));
-        List<Integer> keep = new ArrayList<>();
+        List<Integer> keep = Wraps.list();
         boolean[] removed = new boolean[n];
         for (int ii = 0; ii < n; ii++) {
             int i = idx[ii];

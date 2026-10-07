@@ -1,14 +1,13 @@
 package com.chua.wechat.support.restore.memory;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.wechat.support.restore.WechatBlobCodec;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -106,7 +105,7 @@ public final class WechatMemoryPageParser {
          * @param records 解析出的记录
          */
         public LeafPage {
-            records = Collections.unmodifiableList(new ArrayList<>(
+            records = Collections.unmodifiableList(Wraps.list(
                     Objects.requireNonNull(records, "records 不能为 null")));
         }
     }
@@ -187,9 +186,9 @@ public final class WechatMemoryPageParser {
          * @param declarations 列声明类型
          */
         public TableSchema {
-            columns = Collections.unmodifiableList(new ArrayList<>(
+            columns = Collections.unmodifiableList(Wraps.list(
                     Objects.requireNonNull(columns, "columns 不能为 null")));
-            declarations = Collections.unmodifiableList(new ArrayList<>(
+            declarations = Collections.unmodifiableList(Wraps.list(
                     Objects.requireNonNull(declarations, "declarations 不能为 null")));
         }
     }
@@ -203,7 +202,7 @@ public final class WechatMemoryPageParser {
      * @return 叶子页列表
      */
     public static List<LeafPage> scan(byte[] buffer, long baseAddress, boolean decodeBlob) {
-        List<LeafPage> pages = new ArrayList<>();
+        List<LeafPage> pages = Wraps.list();
         if (buffer == null || buffer.length < PAGE_SIZE) {
             return pages;
         }
@@ -218,7 +217,7 @@ public final class WechatMemoryPageParser {
             if (kind == 0) {
                 continue;
             }
-            List<LeafRecord> records = new ArrayList<>(cells[0]);
+            List<LeafRecord> records = Wraps.list(cells[0]);
             int[] out = new int[2];
             for (int c = 0; c < cells[0]; c++) {
                 int pointer = u16(buffer, i + 8 + c * 2);
@@ -385,7 +384,7 @@ public final class WechatMemoryPageParser {
         if (headerEnd > end) {
             return null;
         }
-        List<Long> types = new ArrayList<>(16);
+        List<Long> types = Wraps.list(16);
         while (pos[0] < headerEnd) {
             long type = varint(buffer, pos);
             if (type < 0) {
@@ -480,7 +479,7 @@ public final class WechatMemoryPageParser {
      * @return 表名 → 表结构
      */
     public static Map<String, TableSchema> buildSchema(Collection<LeafRecord> records) {
-        Map<String, TableSchema> tables = new LinkedHashMap<>();
+        Map<String, TableSchema> tables = Wraps.linkedMap();
         for (LeafRecord record : records) {
             for (String value : record.values()) {
                 if (value == null || value.length() < 16) {
@@ -529,8 +528,8 @@ public final class WechatMemoryPageParser {
             return null;
         }
 
-        List<String> columns = new ArrayList<>(16);
-        List<String> declarations = new ArrayList<>(16);
+        List<String> columns = Wraps.list(16);
+        List<String> declarations = Wraps.list(16);
         for (String part : splitTopLevel(ddl.substring(leftParen + 1, rightParen))) {
             String item = part.trim();
             if (item.isEmpty()) {
@@ -621,7 +620,7 @@ public final class WechatMemoryPageParser {
      * @return 片段列表
      */
     private static List<String> splitTopLevel(String text) {
-        List<String> out = new ArrayList<>(16);
+        List<String> out = Wraps.list(16);
         int depth = 0;
         char quote = 0;
         StringBuilder sb = new StringBuilder();

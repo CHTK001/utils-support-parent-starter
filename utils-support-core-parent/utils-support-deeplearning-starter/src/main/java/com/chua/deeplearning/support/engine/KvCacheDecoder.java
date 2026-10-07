@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.onnxruntime.OnnxJavaType;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
@@ -11,8 +12,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -159,7 +158,7 @@ public final class KvCacheDecoder implements AutoCloseable {
      * @throws OrtException 推理异常
      */
     public float[] step(long[] inputIds, long[] attentionMask) throws OrtException {
-        Map<String, OnnxTensor> inputs = new LinkedHashMap<>();
+        Map<String, OnnxTensor> inputs = Wraps.linkedMap();
         inputs.put("input_ids", OnnxTensor.createTensor(env, LongBuffer.wrap(inputIds), new long[]{BATCH, inputIds.length}));
         inputs.put("attention_mask", OnnxTensor.createTensor(env, LongBuffer.wrap(attentionMask), new long[]{BATCH, attentionMask.length}));
 
@@ -193,7 +192,7 @@ public final class KvCacheDecoder implements AutoCloseable {
             float[] lastLogits = logits[0][last];
 
  // 重建 past：从 present 复制 fp16 数据（结果 关闭后张量不可用，故拷贝）
-            List<OnnxTensor> newPast = new ArrayList<>(numLayers * 2);
+            List<OnnxTensor> newPast = Wraps.list(numLayers * 2);
             for (int l = 0; l < numLayers; l++) {
                 int layerIdx = l;
                 OnnxTensor pk = (OnnxTensor) result.get("present." + l + ".key").orElseThrow(

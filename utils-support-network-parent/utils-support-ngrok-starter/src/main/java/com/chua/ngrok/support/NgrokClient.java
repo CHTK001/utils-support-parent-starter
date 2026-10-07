@@ -1,5 +1,6 @@
 package com.chua.ngrok.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.ngrok.Forwarder;
 import com.ngrok.HttpBuilder;
@@ -12,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.net.URL;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -105,12 +105,12 @@ public class NgrokClient implements AutoCloseable {
     /**
      * 启动过程中的监听器
      */
-    private final List<Listener> listeners = new ArrayList<>();
+    private final List<Listener> listeners = Wraps.list();
 
     /**
      * 启动过程中的转发器
      */
-    private final List<Forwarder> forwarders = new ArrayList<>();
+    private final List<Forwarder> forwarders = Wraps.list();
 
     /**
      * 创建 ngrok客户端 实例
@@ -388,7 +388,7 @@ public class NgrokClient implements AutoCloseable {
      * @return URL 列表
      */
     public List<String> getUrls() {
-        List<String> urls = new ArrayList<>();
+        List<String> urls = Wraps.list();
         for (Listener listener : listeners) {
             String url = safeGetUrl(listener);
             if (url != null) {

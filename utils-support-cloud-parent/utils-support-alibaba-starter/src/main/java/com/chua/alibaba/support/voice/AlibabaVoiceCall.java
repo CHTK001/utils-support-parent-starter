@@ -1,5 +1,6 @@
 package com.chua.alibaba.support.voice;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.aliyun.teaopenapi.Client;
 import com.aliyun.teaopenapi.models.Config;
 import com.aliyun.teaopenapi.models.OpenApiRequest;
@@ -10,8 +11,6 @@ import com.chua.common.support.network.voice.CallResponse;
 import com.chua.common.support.network.voice.VoiceCall;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.task.message.MessageEnvironment;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -94,13 +93,13 @@ public class AlibabaVoiceCall implements VoiceCall {
 
         Client client = new Client(config);
 
-        Map<String, Object> body = new HashMap<>(5);
+        Map<String, Object> body = Wraps.map(5);
         body.put("CalledNumber", request.getTo());
         body.put("CalledShowNumber", calledShowNumber);
         body.put("TtsCode", ttsCode);
 
         if (request.getMessage() != null && !request.getMessage().isBlank()) {
-            Map<String, String> ttsParam = new HashMap<>();
+            Map<String, String> ttsParam = Wraps.map();
             ttsParam.put("message", request.getMessage());
             body.put("TtsParam", JsonObject.create().fluentPut(ttsParam).toJSONString());
         }
@@ -158,7 +157,7 @@ public class AlibabaVoiceCall implements VoiceCall {
 
         Client client = new Client(config);
 
-        Map<String, Object> body = new HashMap<>(1);
+        Map<String, Object> body = Wraps.map(1);
         body.put("CallId", callId);
 
         OpenApiRequest apiRequest = new OpenApiRequest();
@@ -181,7 +180,7 @@ public class AlibabaVoiceCall implements VoiceCall {
                     .success(true)
                     .callId(callId)
                     .status("queried")
-                    .data(new HashMap<>(Map.of("detail", data != null ? data : "")))
+                    .data(Wraps.map(Map.of("detail", data != null ? data : "")))
                     .duration(duration)
                     .build();
         }
@@ -209,7 +208,7 @@ public class AlibabaVoiceCall implements VoiceCall {
 
         Client client = new Client(config);
 
-        Map<String, Object> body = new HashMap<>();
+        Map<String, Object> body = Wraps.map();
         body.put("CallId", callId);
 
         OpenApiRequest apiRequest = new OpenApiRequest();

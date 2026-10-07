@@ -1,5 +1,6 @@
 package com.chua.common.support.datasource.wal;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.tree.BPlusTree;
 import com.chua.common.support.utils.ThreadUtils;
@@ -140,7 +141,7 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
     public List<Map.Entry<K, byte[]>> range(K from, K to, int offset, int limit) throws IOException {
         List<Map.Entry<String, ShardedIndex.EntryLoc>> indexed =
                 index.range(from.toString(), to.toString(), offset, limit);
-        List<Map.Entry<K, byte[]>> result = new ArrayList<>();
+        List<Map.Entry<K, byte[]>> result = Wraps.list();
         for (Map.Entry<String, ShardedIndex.EntryLoc> e : indexed) {
             byte[] payload = readFromSegment(e.getValue().segmentNo(), e.getValue().offset(), e.getValue().length());
             if (payload != null) {
@@ -213,7 +214,7 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
 
     @Override
     public List<WalSegmentInfo> listSegments() throws IOException {
-        List<WalSegmentInfo> all = new ArrayList<>();
+        List<WalSegmentInfo> all = Wraps.list();
         for (SegmentWalLog log : walLogs) {
             all.addAll(log.listSegments());
         }

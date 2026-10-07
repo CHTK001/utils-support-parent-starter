@@ -1,6 +1,5 @@
 package com.chua.common.support.ai.chat;
-
-import java.util.LinkedHashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Map;
 
 /**
@@ -208,7 +207,7 @@ public final class AuthHeaders {
      * @return 请求头容器（永不为 null，可能为空）
      */
     public static Map<String, String> newHeaders(String authScheme, String authHeader, String authPrefix, String apiKey) {
-        Map<String, String> headers = new LinkedHashMap<>();
+        Map<String, String> headers = Wraps.linkedMap();
         apply(headers, authScheme, authHeader, authPrefix, apiKey);
         return headers;
     }

@@ -1,5 +1,6 @@
 package com.chua.redis.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.meta.SearchEngine;
 import com.chua.common.support.lang.datasource.meta.model.SearchFieldDef;
 import com.chua.common.support.lang.datasource.meta.model.SearchIndexDef;
@@ -14,9 +15,7 @@ import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.util.SafeEncoder;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -89,7 +88,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
      * 列表索引
     */
     public List<String> listIndexes() {
-        List<String> indexes = new ArrayList<>();
+        List<String> indexes = Wraps.list();
         try (Jedis jedis = engine.getPoolPublic(engine.getDefaultDataSourceName()).getResource()) {
             Object response = jedis.sendCommand(FT_LIST);
             if (response == null) {
@@ -143,7 +142,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
      * @return 索引字段列表
      */
     private static List<SearchFieldDef> parseAttributes(List<?> infoList) {
-        List<SearchFieldDef> fields = new ArrayList<>();
+        List<SearchFieldDef> fields = Wraps.list();
         List<?> attrs = flatValue(infoList, "attributes");
         if (attrs == null) {
             return fields;
@@ -197,7 +196,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
      * @return 索引设置，缺段时返回空 Map
      */
     private static Map<String, Object> parseIndexSettings(List<?> infoList) {
-        Map<String, Object> settings = new LinkedHashMap<>();
+        Map<String, Object> settings = Wraps.linkedMap();
         List<?> definition = flatValue(infoList, "index_definition");
         if (definition == null) {
             return settings;
@@ -208,7 +207,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
             settings.put("on", keyType);
         }
         if (kv.get("prefixes") instanceof List<?> prefixes) {
-            List<String> values = new ArrayList<>();
+            List<String> values = Wraps.list();
             for (Object prefix : prefixes) {
                 values.add(stringValue(prefix));
             }
@@ -249,7 +248,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
         }
         String indexName = indexDef.getName();
         Map<String, Object> settings = indexDef.getSettings();
-        List<byte[]> argv = new ArrayList<>();
+        List<byte[]> argv = Wraps.list();
         argv.add(enc(token(indexName, "索引名")));
         argv.add(enc("ON"));
         argv.add(enc(keyType(settings)));
@@ -318,7 +317,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
      * @param settings  索引设置，可为空
      */
     private static void appendIndexSettings(List<byte[]> argv, String indexName, Map<String, Object> settings) {
-        List<String> prefixes = new ArrayList<>();
+        List<String> prefixes = Wraps.list();
         Object prefix = settings == null ? null : settings.get("prefix");
         if (prefix instanceof Collection<?> collection) {
             for (Object item : collection) {
@@ -361,7 +360,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
         }
         Object stopwords = settings.get("stopwords");
         if (stopwords != null) {
-            List<String> words = new ArrayList<>();
+            List<String> words = Wraps.list();
             if (stopwords instanceof Collection<?> collection) {
                 for (Object item : collection) {
                     words.add(token(String.valueOf(item), "stopwords"));
@@ -554,7 +553,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
      * @return 键值映射，键统一为小写文本
      */
     private static Map<String, Object> toFlatMap(List<?> list) {
-        Map<String, Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = Wraps.linkedMap();
         for (int i = 0; i < list.size(); i += 2) {
             String key = stringValue(list.get(i));
             if (key == null) {

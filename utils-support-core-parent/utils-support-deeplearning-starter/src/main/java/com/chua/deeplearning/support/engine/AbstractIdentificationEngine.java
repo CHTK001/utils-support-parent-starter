@@ -1,13 +1,12 @@
 package com.chua.deeplearning.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.translator.TranslatorModelDefinition;
 import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -156,7 +155,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
      * 获取模型
     */
     public List<ModelDefinition> getModels() {
-        List<ModelDefinition> result = new ArrayList<>();
+        List<ModelDefinition> result = Wraps.list();
         for (TranslatorModelDefinition def : modelMap.values()) {
             if (def.getModelDefinition() != null) {
                 result.add(def.getModelDefinition());
@@ -170,7 +169,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
      * 获取translator模型
     */
     public List<TranslatorModelDefinition> getTranslatorModels() {
-        return new ArrayList<>(modelMap.values());
+        return Wraps.list(modelMap.values());
     }
 
     @Override
@@ -208,13 +207,13 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     */
     public List<String> getModelNamesByCapability(String capability) {
         if (capability == null || capability.isBlank()) {
-            List<String> all = new ArrayList<>();
+            List<String> all = Wraps.list();
             for (ModelDefinition def : getModels()) {
                 all.add(def.getId());
             }
             return all;
         }
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         for (ModelDefinition def : getModels()) {
             List<String> caps = def.getCapabilities();
             if (caps != null && caps.contains(capability)) {
@@ -383,7 +382,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
      * @return 能力标签列表（可为空列表）
      */
     private static List<String> capabilityLabels(ModelRegistry.Entry entry) {
-        List<String> labels = new ArrayList<>();
+        List<String> labels = Wraps.list();
         String label = com.chua.deeplearning.support.capability.ModelCapabilities.labelOf(entry.capabilityInterface());
         if (label != null) {
             labels.add(label);

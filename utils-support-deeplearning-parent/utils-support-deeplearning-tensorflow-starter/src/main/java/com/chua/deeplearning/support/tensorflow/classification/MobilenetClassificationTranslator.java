@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.tensorflow.classification;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.Model;
 import ai.djl.modality.Classifications;
 import ai.djl.modality.cv.Image;
@@ -111,7 +112,7 @@ public class MobilenetClassificationTranslator implements Translator<Image, Clas
         NDArray probabilities = list.singletonOrThrow();
         if (classes == null || classes.isEmpty()) {
             long n = probabilities.size();
-            List<String> synthetic = new java.util.ArrayList<>((int) n);
+            List<String> synthetic = Wraps.list((int) n);
             for (int i = 0; i < n; i++) {
                 synthetic.add("class_" + i);
             }

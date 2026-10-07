@@ -1,5 +1,6 @@
 package com.chua.common.support.objects.register.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import com.chua.common.support.objects.definition.BeanDefinition;
@@ -121,7 +122,7 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
         if (typeName == null || closed) {
             return Collections.emptyList();
         }
-        List<BeanDefinition> result = new ArrayList<>();
+        List<BeanDefinition> result = Wraps.list();
         for (BeanDefinition def : beanDefinitions.values()) {
             if (def == null) {
                 continue;
@@ -166,7 +167,7 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
      */
     @Override
     public Collection<String> getBeanDefinitionNames() {
-        return closed ? Collections.emptyList() : new ArrayList<>(beanDefinitions.keySet());
+        return closed ? Collections.emptyList() : Wraps.list(beanDefinitions.keySet());
     }
 
     /**
@@ -177,7 +178,7 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
         if (annotationType == null || closed) {
             return Collections.emptyMap();
         }
-        Map<String, BeanDefinition> result = new LinkedHashMap<>();
+        Map<String, BeanDefinition> result = Wraps.linkedMap();
         for (BeanDefinition def : beanDefinitions.values()) {
             if (def == null) {
                 continue;
@@ -200,7 +201,7 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
         if (annotationType == null || closed) {
             return Collections.emptyMap();
         }
-        Map<String, BeanDefinition> result = new LinkedHashMap<>();
+        Map<String, BeanDefinition> result = Wraps.linkedMap();
         for (BeanDefinition def : beanDefinitions.values()) {
             if (def == null) {
                 continue;

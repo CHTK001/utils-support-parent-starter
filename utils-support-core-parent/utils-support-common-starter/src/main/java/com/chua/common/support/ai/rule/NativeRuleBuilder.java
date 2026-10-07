@@ -34,6 +34,12 @@ public interface NativeRuleBuilder extends RuleBuilder {
     NativeRuleBuilder name(String name);
 
     @Override
+    NativeRuleBuilder description(String description);
+
+    @Override
+    NativeRuleBuilder message(String message);
+
+    @Override
     NativeRuleBuilder when(String expression);
 
     @Override

@@ -1,4 +1,5 @@
 package com.chua.deeplearning.support.onnx.pose;
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.utils.ImageUtils;
 
 import ai.onnxruntime.OnnxTensor;
@@ -179,7 +180,7 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
             return List.of();
         }
         PoseResult best = results.getFirst();
-        List<PoseKeypoint> keypoints = new ArrayList<>();
+        List<PoseKeypoint> keypoints = Wraps.list();
         for (int i = 0; i < NUM_KEYPOINTS; i++) {
             String name = i < KEYPOINT_NAMES.length ? KEYPOINT_NAMES[i] : "kp_" + i;
             keypoints.add(new PoseKeypoint(name,
@@ -221,7 +222,7 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
 
                 long[] shape = {1, 3, INPUT_SIZE, INPUT_SIZE};
                 try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
-                    Map<String, OnnxTensor> inputs = new HashMap<>();
+                    Map<String, OnnxTensor> inputs = Wraps.map();
                     inputs.put("images", tensor);
                     try (OrtSession.Result result = session.run(inputs)) {
                         float[][][] output = (float[][][]) result.get(0).getValue(); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
@@ -245,7 +246,7 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     private List<PoseResult> decode(float[][] data) {
         float scaleX = (float) srcWidth / INPUT_SIZE;
         float scaleY = (float) srcHeight / INPUT_SIZE;
-        List<PoseResult> candidates = new ArrayList<>();
+        List<PoseResult> candidates = Wraps.list();
 
         for (int i = 0; i < NUM_PREDS; i++) {
             float cx = data[0][i];
@@ -280,7 +281,7 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
 
         candidates.sort((a, b) -> Float.compare(b.score, a.score));
         boolean[] suppressed = new boolean[candidates.size()];
-        List<PoseResult> result = new ArrayList<>();
+        List<PoseResult> result = Wraps.list();
         for (int i = 0; i < candidates.size(); i++) {
             if (suppressed[i]) {
                 continue;

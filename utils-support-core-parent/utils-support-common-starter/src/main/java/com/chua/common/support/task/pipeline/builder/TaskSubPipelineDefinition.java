@@ -1,12 +1,11 @@
 package com.chua.common.support.task.pipeline.builder;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.pipeline.core.Action;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 import com.chua.common.support.task.pipeline.node.SubPipelineNode;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -248,7 +247,7 @@ public class TaskSubPipelineDefinition {
      */
     public TaskSubPipelineDefinition env(String key, Object value) {
         if (this.env == null) {
-            this.env = new LinkedHashMap<>();
+            this.env = Wraps.linkedMap();
         }
         this.env.put(key, value);
         return this;

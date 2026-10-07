@@ -1,5 +1,6 @@
 package com.chua.datasync.agent.support.source;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasync.agent.support.DataSyncAgentSource;
 import com.chua.datasync.agent.support.model.Direction;
 import com.chua.datasync.agent.support.model.Directional;
@@ -16,7 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -169,7 +169,7 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
                         continue;
                     }
                     String[] values = line.split(Pattern.quote(delimiter), -1);
-                    Map<String, Object> row = new HashMap<>();
+                    Map<String, Object> row = Wraps.map();
                     for (int i = 0; i < finalHeaders.length && i < values.length; i++) {
                         row.put(finalHeaders[i], values[i]);
                     }

@@ -1,5 +1,6 @@
 package com.chua.dbf.support.datasource;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasource.support.datasource.MutableDataTable;
 import com.linuxense.javadbf.DBFDataType;
 import com.linuxense.javadbf.DBFField;
@@ -55,8 +56,8 @@ public class DbfDataTable extends MutableDataTable {
     public DbfDataTable(String name, File file) {
         super(name);
         this.filePath = file.getAbsolutePath();
-        this.columnTypes = new ArrayList<>();
-        this.dbfFields = new ArrayList<>();
+        this.columnTypes = Wraps.list();
+        this.dbfFields = Wraps.list();
 
         if (file.exists()) {
             var parsed = parseDbf(file);
@@ -121,10 +122,10 @@ public class DbfDataTable extends MutableDataTable {
      * @return 解析dbf的结果
      */
     private DbfParseResult parseDbf(File file) {
-        List<String> names = new ArrayList<>();
-        List<Class<?>> types = new ArrayList<>();
-        List<DBFField> fields = new ArrayList<>();
-        List<Map<String, Object>> dataRows = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Class<?>> types = Wraps.list();
+        List<DBFField> fields = Wraps.list();
+        List<Map<String, Object>> dataRows = Wraps.list();
 
         try (DBFReader reader = new DBFReader(new FileInputStream(file))) {
             // 读取字段定义
@@ -138,7 +139,7 @@ public class DbfDataTable extends MutableDataTable {
             // 读取数据行
             Object[] row;
             while ((row = reader.nextRecord()) != null) {
-                Map<String, Object> rowMap = new LinkedHashMap<>();
+                Map<String, Object> rowMap = Wraps.linkedMap();
                 for (int i = 0; i < row.length && i < names.size(); i++) {
                     rowMap.put(names.get(i), row[i]);
                 }
@@ -187,7 +188,7 @@ public class DbfDataTable extends MutableDataTable {
         }
 
         // 构建字段定义
-        List<DBFField> outFields = new ArrayList<>();
+        List<DBFField> outFields = Wraps.list();
         if (!dbfFields.isEmpty()) {
             outFields.addAll(dbfFields);
         } else {

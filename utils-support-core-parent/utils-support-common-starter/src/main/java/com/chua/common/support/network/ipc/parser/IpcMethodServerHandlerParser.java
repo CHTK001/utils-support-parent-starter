@@ -1,5 +1,6 @@
 package com.chua.common.support.network.ipc.parser;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ipc.annotations.IpcMethod;
 import com.chua.common.support.network.server.filter.ServerFilter;
 import com.chua.common.support.network.server.handler.ServerHandler;
@@ -12,8 +13,6 @@ import com.chua.common.support.utils.ClassUtils;
 import com.chua.common.support.utils.UrlUtils;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,12 +52,12 @@ public class IpcMethodServerHandlerParser implements ServerHandlerAnnotationPars
         if (!(serverFilter instanceof IpcServerFilter)) {
             return List.of();
         }
-        List<ServerHandler> result = new ArrayList<>();
+        List<ServerHandler> result = Wraps.list();
         if (objectContext == null) {
             return result;
         }
 
-        Set<String> processedClasses = new HashSet<>();
+        Set<String> processedClasses = Wraps.set();
 
         // 处理类级 @IpcMethod 注解的 Bean
         Map<String, Object> classBeans = objectContext.getBeansWithAnnotation(IpcMethod.class);

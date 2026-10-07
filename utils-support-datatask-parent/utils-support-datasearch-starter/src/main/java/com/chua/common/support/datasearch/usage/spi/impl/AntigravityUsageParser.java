@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
@@ -13,7 +14,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -106,7 +106,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
      * @return 转录文件列表
      */
     private List<Path> listTranscripts() {
-        List<Path> files = new ArrayList<>();
+        List<Path> files = Wraps.list();
         for (String variant : VARIANT_SUBDIRS) {
             Path brainDir = GEMINI_HOME.resolve(variant).resolve("brain");
             if (!Files.isDirectory(brainDir)) {
@@ -138,7 +138,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
      */
     private Flux<AiUsage> streamTranscript(Path file) {
         return Flux.defer(() -> {
-            List<AiUsage> records = new ArrayList<>();
+            List<AiUsage> records = Wraps.list();
             try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
                 long contextTokens = 0L;
                 long previousContextTokens = 0L;

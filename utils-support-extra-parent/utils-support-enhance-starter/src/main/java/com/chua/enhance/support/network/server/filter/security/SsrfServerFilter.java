@@ -1,5 +1,6 @@
 package com.chua.enhance.support.network.server.filter.security;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.network.server.filter.ServerFilter;
@@ -8,7 +9,6 @@ import com.chua.common.support.network.server.filter.ServerFilterConfig;
 
 import java.net.InetAddress;
 import java.net.URI;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -31,7 +31,7 @@ public class SsrfServerFilter implements ServerFilter {
     /**
      * 允许的域名白名单
      */
-    private final Set<String> allowedDomains = new HashSet<>();
+    private final Set<String> allowedDomains = Wraps.set();
 
     /**
      * 是否阻止内网地址

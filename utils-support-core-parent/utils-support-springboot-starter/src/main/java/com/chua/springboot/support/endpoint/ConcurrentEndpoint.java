@@ -1,5 +1,6 @@
 package com.chua.springboot.support.endpoint;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.concurrent.circuitbreaker.CircuitBreakerFlow;
 import com.chua.common.support.concurrent.lock.LockFlow;
 import com.chua.common.support.concurrent.rate.RateLimiterFlow;
@@ -20,9 +21,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -99,7 +97,7 @@ public class ConcurrentEndpoint {
      */
     @ReadOperation
     public Map<String, Object> overview() {
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = Wraps.map();
         result.put("rateLimiterCount", RateLimiterFlow.list().size());
         result.put("circuitBreakerCount", CircuitBreakerFlow.list().size());
         result.put("lockCount", LockFlow.list().size());
@@ -266,7 +264,7 @@ public class ConcurrentEndpoint {
         }
         return rateLimiterRepo.findByName(name)
                 .map(c -> {
-                    Map<String, Object> m = new HashMap<>();
+                    Map<String, Object> m = Wraps.map();
                     m.put("name", c.getName());
                     m.put("permitsPerSecond", c.getPermitsPerSecond());
                     m.put("warmupPeriodMs", c.getWarmupPeriodMs());
@@ -336,10 +334,10 @@ public class ConcurrentEndpoint {
      * @return 限流view的结果
      */
     private Map<String, Object> ratelimiterView(String name) {
-        List<Map<String, Object>> configs = new ArrayList<>();
+        List<Map<String, Object>> configs = Wraps.list();
         if (rateLimiterRepo != null) {
             for (ConcurrentRateLimiterConfig c : rateLimiterRepo.findAll()) {
-                Map<String, Object> item = new HashMap<>();
+                Map<String, Object> item = Wraps.map();
                 item.put("name", c.getName());
                 item.put("permitsPerSecond", c.getPermitsPerSecond());
                 item.put("warmupPeriodMs", c.getWarmupPeriodMs());
@@ -348,10 +346,10 @@ public class ConcurrentEndpoint {
                 configs.add(item);
             }
         }
-        List<Map<String, Object>> status = new ArrayList<>();
+        List<Map<String, Object>> status = Wraps.list();
         for (Map.Entry<String, com.chua.common.support.concurrent.rate.RateLimiterProvider> e : RateLimiterFlow.list().entrySet()) {
             var p = e.getValue();
-            Map<String, Object> item = new HashMap<>();
+            Map<String, Object> item = Wraps.map();
             item.put("name", p.getName());
             item.put("availablePermits", p.availablePermits());
             status.add(item);
@@ -361,7 +359,7 @@ public class ConcurrentEndpoint {
             if (p == null) {
                 return Map.of("error", "not found: " + name);
             }
-            Map<String, Object> r = new HashMap<>();
+            Map<String, Object> r = Wraps.map();
             r.put("name", p.getName());
             r.put("availablePermits", p.availablePermits());
             r.put("config", configs.stream()
@@ -378,10 +376,10 @@ public class ConcurrentEndpoint {
      * @return circuitbreakerView的结果
      */
     private Map<String, Object> circuitbreakerView(String name) {
-        List<Map<String, Object>> configs = new ArrayList<>();
+        List<Map<String, Object>> configs = Wraps.list();
         if (cbRepo != null) {
             for (ConcurrentCircuitBreakerConfig c : cbRepo.findAll()) {
-                Map<String, Object> item = new HashMap<>();
+                Map<String, Object> item = Wraps.map();
                 item.put("name", c.getName());
                 item.put("failureThreshold", c.getFailureThreshold());
                 item.put("successThreshold", c.getSuccessThreshold());
@@ -390,9 +388,9 @@ public class ConcurrentEndpoint {
                 configs.add(item);
             }
         }
-        List<Map<String, Object>> status = new ArrayList<>();
+        List<Map<String, Object>> status = Wraps.list();
         for (var p : CircuitBreakerFlow.list().values()) {
-            Map<String, Object> item = new HashMap<>();
+            Map<String, Object> item = Wraps.map();
             item.put("name", p.getName());
             item.put("open", p.isOpen());
             status.add(item);
@@ -402,7 +400,7 @@ public class ConcurrentEndpoint {
             if (p == null) {
                 return Map.of("error", "not found: " + name);
             }
-            Map<String, Object> r = new HashMap<>();
+            Map<String, Object> r = Wraps.map();
             r.put("name", p.getName());
             r.put("open", p.isOpen());
             r.put("config", configs.stream()
@@ -425,10 +423,10 @@ public class ConcurrentEndpoint {
      * @return 锁配置保存的结果
      */
     private Map<String, Object> lockView(String name) {
-        List<Map<String, Object>> configs = new ArrayList<>();
+        List<Map<String, Object>> configs = Wraps.list();
         if (lockRepo != null) {
             for (ConcurrentDistributedLockConfig c : lockRepo.findAll()) {
-                Map<String, Object> item = new HashMap<>();
+                Map<String, Object> item = Wraps.map();
                 item.put("name", c.getName());
                 item.put("lockType", c.getLockType());
                 item.put("fair", c.isFair());
@@ -438,10 +436,10 @@ public class ConcurrentEndpoint {
                 configs.add(item);
             }
         }
-        List<Map<String, Object>> status = new ArrayList<>();
+        List<Map<String, Object>> status = Wraps.list();
         for (var e : LockFlow.list().entrySet()) {
             var p = e.getValue();
-            Map<String, Object> item = new HashMap<>();
+            Map<String, Object> item = Wraps.map();
             item.put("key", e.getKey());
             item.put("name", p.getName());
             item.put("type", p.getType());
@@ -452,7 +450,7 @@ public class ConcurrentEndpoint {
             if (p == null) {
                 return Map.of("error", "not found: " + name);
             }
-            Map<String, Object> r = new HashMap<>();
+            Map<String, Object> r = Wraps.map();
             r.put("name", p.getName());
             r.put("type", p.getType());
             r.put("config", configs.stream()

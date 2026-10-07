@@ -1,5 +1,6 @@
 package com.chua.wechat.support.restore;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import lombok.extern.slf4j.Slf4j;
 
@@ -8,9 +9,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -173,7 +172,7 @@ public final class WechatExportUtils {
             writer.write(String.join(",", headers));
             writer.write("\n");
             for (Map<String, Object> row : rows) {
-                List<String> values = new ArrayList<>(headers.size());
+                List<String> values = Wraps.list(headers.size());
                 for (String header : headers) {
                     values.add(escapeCsvField(row.get(header)));
                 }
@@ -194,8 +193,8 @@ public final class WechatExportUtils {
      * @throws IOException 遍历异常
      */
     public static List<File> collectGeneratedFiles(File outputDir, long startStamp) throws IOException {
-        List<File> dataFiles = new ArrayList<>(16);
-        List<File> allFiles = new ArrayList<>(16);
+        List<File> dataFiles = Wraps.list(16);
+        List<File> allFiles = Wraps.list(16);
         long stamp = startStamp - COLLECT_TIME_TOLERANCE_MILLIS;
         collectFilesRecursively(outputDir, stamp, dataFiles, allFiles);
         return dataFiles.isEmpty() ? allFiles : dataFiles;
@@ -243,7 +242,7 @@ public final class WechatExportUtils {
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static List<Map<String, Object>> parseJsonToRows(List<File> jsonFiles) throws IOException {
-        List<Map<String, Object>> rows = new ArrayList<>(256);
+        List<Map<String, Object>> rows = Wraps.list(256);
         for (File jsonFile : jsonFiles) {
             String content = Files.readString(jsonFile.toPath(), Charset.forName("UTF-8"));
             String trimmed = content.trim();
@@ -334,12 +333,12 @@ public final class WechatExportUtils {
         }
 
         // 插入语句
-        List<String> columnList = new ArrayList<>(columns);
+        List<String> columnList = Wraps.list(columns);
         for (Map<String, Object> row : rows) {
             sql.append("INSERT INTO `").append(tableName).append("` (");
             sql.append(String.join(", ", columnList.stream().map(c -> "`" + c + "`").toList()));
             sql.append(") VALUES (");
-            List<String> values = new ArrayList<>(columnList.size());
+            List<String> values = Wraps.list(columnList.size());
             for (String column : columnList) {
                 values.add(toSqlValue(row.get(column)));
             }
@@ -356,7 +355,7 @@ public final class WechatExportUtils {
      * @return 列名集合
      */
     public static Set<String> inferColumns(List<Map<String, Object>> rows) {
-        Set<String> columns = new LinkedHashSet<>(32);
+        Set<String> columns = Wraps.linkedSet(32);
         for (Map<String, Object> row : rows) {
             columns.addAll(row.keySet());
         }

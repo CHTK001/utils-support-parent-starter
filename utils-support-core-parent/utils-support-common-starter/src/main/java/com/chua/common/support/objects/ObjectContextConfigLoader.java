@@ -1,5 +1,6 @@
 package com.chua.common.support.objects;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.config.parser.ConfigParser;
 import com.chua.common.support.config.source.PropertySource;
 import com.chua.common.support.reflection.ReflectUtils;
@@ -8,7 +9,6 @@ import com.chua.common.support.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -193,7 +193,7 @@ public final class ObjectContextConfigLoader {
             return Collections.emptyList();
         }
         if (value instanceof List<?> list) {
-            List<String> result = new ArrayList<>(list.size());
+            List<String> result = Wraps.list(list.size());
             for (Object item : list) {
                 if (item != null) {
                     String pkg = String.valueOf(item).trim();
@@ -205,7 +205,7 @@ public final class ObjectContextConfigLoader {
             return result;
         }
         if (value instanceof String[] arr) {
-            List<String> result = new ArrayList<>(arr.length);
+            List<String> result = Wraps.list(arr.length);
             for (String item : arr) {
                 if (item != null && !item.isBlank()) {
                     result.add(item.trim());
@@ -218,7 +218,7 @@ public final class ObjectContextConfigLoader {
             return Collections.emptyList();
         }
         String[] parts = text.split("[,;\\s]+");
-        List<String> result = new ArrayList<>(parts.length);
+        List<String> result = Wraps.list(parts.length);
         for (String part : parts) {
             if (part != null && !part.isBlank()) {
                 result.add(part.trim());

@@ -1,5 +1,6 @@
 package com.chua.serialize.support.pool;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.serialize.Serializer;
 import com.chua.serialize.support.kryo.KryoSerializer;
 import lombok.extern.slf4j.Slf4j;
@@ -65,7 +66,7 @@ public class KryoPoolManager<T extends Serializable> {
     private KryoPoolManager(Class<T> clazz, int maxSize) {
         this.clazz = clazz;
         this.maxSize = maxSize;
-        this.pool = new ArrayDeque<>(maxSize);
+        this.pool = Wraps.deque(maxSize);
     }
 
     /**

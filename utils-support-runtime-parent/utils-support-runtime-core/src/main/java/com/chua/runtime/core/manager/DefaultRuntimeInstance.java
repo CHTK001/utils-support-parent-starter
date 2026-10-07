@@ -1,5 +1,6 @@
 package com.chua.runtime.core.manager;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.lang.cmd.LineCallback;
@@ -20,7 +21,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -323,7 +323,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
      * @return 构建命令的结果
      */
     private List<String> buildCommand() {
-        List<String> cmd = new ArrayList<>();
+        List<String> cmd = Wraps.list();
         Path exec = artifact.getExecutable();
         switch (artifact.getType()) {
             case JAR -> {

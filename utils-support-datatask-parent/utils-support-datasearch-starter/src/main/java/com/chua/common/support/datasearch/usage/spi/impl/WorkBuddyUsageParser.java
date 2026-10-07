@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
@@ -11,7 +12,6 @@ import reactor.core.scheduler.Schedulers;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -108,7 +108,7 @@ public class WorkBuddyUsageParser extends BaseUsageParser {
         if (!Files.isDirectory(PROJECTS_DIR)) {
             return List.of();
         }
-        List<Path> files = new ArrayList<>();
+        List<Path> files = Wraps.list();
         try (Stream<Path> stream = Files.walk(PROJECTS_DIR)) {
             stream.filter(Files::isRegularFile)
                     .filter(p -> p.getFileName().toString().endsWith(".jsonl"))

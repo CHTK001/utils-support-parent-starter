@@ -1,5 +1,6 @@
 package com.chua.common.support.network.discovery.peermesh;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.discovery.peermesh.MessageProtocol;
@@ -11,7 +12,6 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,7 +48,7 @@ public class SeedModeProbe implements ProbeStrategy {
     /**
      * Discovered
      */
-    private final List<NodeTable.NodeEntry> discovered = new ArrayList<>();
+    private final List<NodeTable.NodeEntry> discovered = Wraps.list();
     /**
      * stopped
      */

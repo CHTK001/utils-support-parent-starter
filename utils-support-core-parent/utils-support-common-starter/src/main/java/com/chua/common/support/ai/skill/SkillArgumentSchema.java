@@ -1,6 +1,5 @@
 package com.chua.common.support.ai.skill;
-
-import java.util.HashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
 
@@ -105,7 +104,7 @@ public class SkillArgumentSchema {
      * @return 结果映射，无数据时为空映射
      */
     public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = Wraps.map();
         map.put("name", name);
         map.put("description", description);
         map.put("type", type);

@@ -1,10 +1,9 @@
 package com.chua.hprof.support.action;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.hprof.support.analyzer.HprofAnalyzer.HprofAnalysis;
 import com.chua.hprof.support.model.HprofObject;
 import com.chua.hprof.support.parser.HprofParser;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -80,7 +79,7 @@ public final class HprofActionPlanner {
      * @return 处置计划
      */
     public static ActionPlan plan(HprofParser.Result result, HprofAnalysis analysis) {
-        List<ActionItem> items = new ArrayList<>();
+        List<ActionItem> items = Wraps.list();
         boolean idea = isIntelliJ(analysis);
         String topPkg = analysis.nonJdkPackageGroups.isEmpty()
                 ? "" : analysis.nonJdkPackageGroups.get(0).name();

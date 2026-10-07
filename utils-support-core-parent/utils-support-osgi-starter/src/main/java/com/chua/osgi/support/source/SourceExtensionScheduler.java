@@ -1,13 +1,12 @@
 package com.chua.osgi.support.source;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -67,7 +66,7 @@ public class SourceExtensionScheduler {
     /**
      * 上一轮发布的声明，按 SPI 类型分桶，注销时按桶处理。
      */
-    private final Map<Class<?>, List<String>> published = new LinkedHashMap<>();
+    private final Map<Class<?>, List<String>> published = Wraps.linkedMap();
 
     /**
      * 上一轮的目录指纹。
@@ -163,7 +162,7 @@ public class SourceExtensionScheduler {
         List<SourceExtensionFactory> groovyBatch =
                 groovyLoader == null ? List.of() : groovyLoader.load();
 
-        List<SourceExtensionFactory> merged = new ArrayList<>(outcome.declarations());
+        List<SourceExtensionFactory> merged = Wraps.list(outcome.declarations());
         merged.addAll(groovyBatch);
         publish(merged);
         javaCompiler.markPublished(merged);
@@ -180,13 +179,13 @@ public class SourceExtensionScheduler {
     private void publish(List<SourceExtensionFactory> batch) {
         unpublishAll();
         resolver.replaceAll(batch);
-        Map<Class<?>, List<SourceExtensionFactory>> grouped = new LinkedHashMap<>();
+        Map<Class<?>, List<SourceExtensionFactory>> grouped = Wraps.linkedMap();
         for (SourceExtensionFactory factory : batch) {
-            grouped.computeIfAbsent(factory.spiType(), k -> new ArrayList<>()).add(factory);
+            grouped.computeIfAbsent(factory.spiType(), k -> Wraps.list()).add(factory);
         }
         for (Map.Entry<Class<?>, List<SourceExtensionFactory>> entry : grouped.entrySet()) {
             ServiceProvider.of(entry.getKey()).register(resolver);
-            List<String> names = new ArrayList<>();
+            List<String> names = Wraps.list();
             for (SourceExtensionFactory factory : entry.getValue()) {
                 names.add(factory.extensionName());
             }

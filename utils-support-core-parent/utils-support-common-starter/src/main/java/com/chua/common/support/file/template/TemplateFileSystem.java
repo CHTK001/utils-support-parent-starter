@@ -1,5 +1,6 @@
 package com.chua.common.support.file.template;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
@@ -14,7 +15,7 @@ import java.util.Map;
  * <pre>{@code
  * FileTemplateSystem template = FileTemplateSystem.create("xml");
  *
- * Map<String, Object> data = new HashMap<>();
+ * Map<String, Object> data = Wraps.map();
  * data.put("name", "张三");
  * data.put("age", 25);
  *

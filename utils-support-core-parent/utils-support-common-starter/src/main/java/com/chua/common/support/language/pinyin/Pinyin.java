@@ -1,12 +1,11 @@
 package com.chua.common.support.language.pinyin;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.NumberUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -50,7 +49,7 @@ public class Pinyin {
      */
     public Pinyin(String items, @NonNull String word) {
         this.word = word;
-        this.items = new LinkedList<>();
+        this.items = Wraps.list();
         this.items.add(new PinyinItem(items, word, items.substring(0, 1), null));
     }
 
@@ -63,7 +62,7 @@ public class Pinyin {
      */
     public Pinyin(String[] items, @NonNull String word) {
         this.word = word;
-        this.items = new LinkedList<>();
+        this.items = Wraps.list();
         String marks = null;
         String name;
         String fNames;

@@ -1,9 +1,8 @@
 package com.chua.common.support.lang.document;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,15 +43,15 @@ public class OpenApiDocumentData extends DocumentData {
     /**
      * Tag 分组列表（与 OpenAPI tags 一致，可缺省）。
      */
-    private List<OpenApiTag> tags = new ArrayList<>();
+    private List<OpenApiTag> tags = Wraps.list();
 
     /**
      * 全量接口列表（按 tag 不重复；tag 缺省归入 "default"）。
      */
-    private List<OpenApiEndpoint> endpoints = new ArrayList<>();
+    private List<OpenApiEndpoint> endpoints = Wraps.list();
 
     /**
      * 顶部附加信息（约定：home / changelog / 联系 等）。
      */
-    private List<OpenApiSection> sections = new ArrayList<>();
+    private List<OpenApiSection> sections = Wraps.list();
 }

@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.music.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.datasearch.music.model.MusicOverview;
 import com.chua.common.support.datasearch.music.model.MusicPlaylistCategory;
@@ -19,9 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.chua.common.support.utils.StringUtils;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -78,8 +76,8 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
      * 搜索
     */
     public MusicSearchResult search(String keyword, int page, int pageSize) {
-        Map<String, Object> request = new LinkedHashMap<>();
-        Map<String, Object> comm = new LinkedHashMap<>();
+        Map<String, Object> request = Wraps.linkedMap();
+        Map<String, Object> comm = Wraps.linkedMap();
         comm.put("ct", "11");
         comm.put("cv", "14090508");
         comm.put("v", "14090508");
@@ -108,7 +106,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
         comm.put("nettype", "1020");
         comm.put("v4ip", "");
         request.put("comm", comm);
-        Map<String, Object> searchParam = new LinkedHashMap<>();
+        Map<String, Object> searchParam = Wraps.linkedMap();
         searchParam.put("search_type", 0);
         searchParam.put("searchid", String.valueOf(System.currentTimeMillis()));
         searchParam.put("query", keyword);
@@ -128,7 +126,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
         ));
         JsonNode root = postSigned(request);
         JsonNode data = path(root, "req", "data");
-        List<MusicTrackSummary> tracks = new ArrayList<>();
+        List<MusicTrackSummary> tracks = Wraps.list();
         for (JsonNode item : elements(path(data, "body", "item_song"))) {
             MusicTrackSummary summary = toTrackSummary(item);
             if (summary != null) {
@@ -150,7 +148,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
         JsonNode root = getJson(url, builder -> builder
                 .header("User-Agent", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)")
                 .header("Referer", "http://y.qq.com/portal/search.html"));
-        List<MusicPlaylistSummary> playlists = new ArrayList<>();
+        List<MusicPlaylistSummary> playlists = Wraps.list();
         for (JsonNode item : elements(path(root, "data", "list"))) {
             playlists.add(MusicPlaylistSummary.builder()
                     .playlistId(text(item, "dissid"))
@@ -179,11 +177,11 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     */
     public MusicPlaylistCategoryCatalog getPlaylistCategoryCatalog() {
         JsonNode root = getJson("https://u.y.qq.com/cgi-bin/musicu.fcg?loginUin=0&hostUin=0&format=json&inCharset=utf-8&outCharset=utf-8&notice=0&platform=wk_v15.json&needNewCode=0&data=%7B%22tags%22%3A%7B%22method%22%3A%22get_all_categories%22%2C%22param%22%3A%7B%22qq%22%3A%22%22%7D%2C%22module%22%3A%22playlist.PlaylistAllCategoriesServer%22%7D%7D");
-        List<MusicPlaylistCategoryGroup> groups = new ArrayList<>();
-        List<MusicPlaylistCategory> hotTags = new ArrayList<>();
+        List<MusicPlaylistCategoryGroup> groups = Wraps.list();
+        List<MusicPlaylistCategory> hotTags = Wraps.list();
         int groupIndex = 0;
         for (JsonNode group : elements(path(root, "tags", "data", "v_group"))) {
-            List<MusicPlaylistCategory> tags = new ArrayList<>();
+            List<MusicPlaylistCategory> tags = Wraps.list();
             for (JsonNode item : elements(group.path("v_item"))) {
                 MusicPlaylistCategory tag = MusicPlaylistCategory.builder()
                         .tagId(text(item, "id"))
@@ -250,7 +248,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
                     + "},\"module\":\"playlist.PlayListPlazaServer\"}}");
             playlist = path(getJson(url), "playlist", "data");
         }
-        List<MusicPlaylistSummary> playlists = new ArrayList<>();
+        List<MusicPlaylistSummary> playlists = Wraps.list();
         JsonNode rawList = StringUtils.hasText(tagId) ? playlist.path("v_item") : playlist.path("v_playlist");
         for (JsonNode item : elements(rawList)) {
             JsonNode basic = StringUtils.hasText(tagId) ? item.path("basic") : item;
@@ -288,7 +286,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
                 .header("Origin", "https://y.qq.com")
                 .header("Referer", "https://y.qq.com/n/yqq/playsquare/" + playlistId + ".html"));
         JsonNode cd = path(root, "cdlist").path(0);
-        List<MusicTrackSummary> tracks = new ArrayList<>();
+        List<MusicTrackSummary> tracks = Wraps.list();
         for (JsonNode item : elements(cd.path("songlist"))) {
             MusicTrackSummary summary = toTrackSummary(item);
             if (summary != null) {
@@ -374,7 +372,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
                         "param", Map.of("search_id", "", "uin", 0)
                 )
         ), builder -> builder.header("Referer", "https://y.qq.com/portal/player.html"));
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         for (JsonNode item : elements(path(root, "hotkey", "data", "vec_hotkey"))) {
             result.add(item.path("query").asText(""));
         }
@@ -388,7 +386,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
      * @return 获取lyrics的结果
      */
     private String fetchLyrics(String songId) {
-        Map<String, Object> lyricParam = new LinkedHashMap<>();
+        Map<String, Object> lyricParam = Wraps.linkedMap();
         lyricParam.put("format", "json");
         lyricParam.put("crypt", 0);
         lyricParam.put("ct", 19);
@@ -503,7 +501,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
      * @return 连接名称的结果
      */
     private String joinNames(JsonNode array, String field) {
-        List<String> values = new ArrayList<>();
+        List<String> values = Wraps.list();
         for (JsonNode item : elements(array)) {
             String value = item.path(field).asText("");
             if (StringUtils.hasText(value)) {

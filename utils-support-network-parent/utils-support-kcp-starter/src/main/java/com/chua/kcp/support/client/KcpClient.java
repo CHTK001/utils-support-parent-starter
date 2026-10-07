@@ -1,5 +1,6 @@
 package com.chua.kcp.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.objects.annotation.OnClose;
 import com.chua.common.support.objects.annotation.OnError;
@@ -20,7 +21,6 @@ import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -138,7 +138,7 @@ public class KcpClient {
     /**
      * 客户端元数据
      */
-    private final Map<String, Object> metadata = new HashMap<>();
+    private final Map<String, Object> metadata = Wraps.map();
 
     /**
      * 已注册的注解 Bean（Bean类 -> 实例）

@@ -1,5 +1,6 @@
 package com.chua.common.support.network.discovery.peermesh;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.discovery.Discovery;
 import lombok.extern.slf4j.Slf4j;
@@ -10,9 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -70,7 +69,7 @@ public class DiskStore {
                     return Collections.emptyList();
                 }
                 long now = System.currentTimeMillis();
-                List<NodeTable.NodeEntry> result = new ArrayList<>();
+                List<NodeTable.NodeEntry> result = Wraps.list();
                 for (Discovery d : discoList) {
                     int epoch = 0;
                     if (d.getMetadata() != null) {
@@ -117,10 +116,10 @@ public class DiskStore {
             if (parent != null) {
                 Files.createDirectories(parent);
             }
-            List<Discovery> discoList = new ArrayList<>();
+            List<Discovery> discoList = Wraps.list();
             for (NodeTable.NodeEntry entry : entries) {
                 Discovery d = entry.getDiscovery();
-                Map<String, String> meta = d.getMetadata() != null ? new HashMap<>(d.getMetadata()) : new HashMap<>();
+                Map<String, String> meta = d.getMetadata() != null ? Wraps.map(d.getMetadata()) : Wraps.map();
                 meta.put("epoch", Integer.toString(entry.getEpoch()));
                 Discovery copy = Discovery.builder()
                         .id(d.getId())

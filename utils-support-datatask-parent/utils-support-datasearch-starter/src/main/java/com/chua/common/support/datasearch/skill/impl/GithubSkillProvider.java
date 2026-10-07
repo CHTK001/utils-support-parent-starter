@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.skill.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.mcp.McpToolCall;
 import com.chua.common.support.ai.mcp.McpToolDescriptor;
 import com.chua.common.support.ai.mcp.McpToolResult;
@@ -15,8 +16,6 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -151,7 +150,7 @@ public class GithubSkillProvider {
      */
     @SuppressWarnings("unchecked")
     protected Map<String, Object> discoverSkills(String keyword) throws Exception {
-        List<Map<String, Object>> items = new ArrayList<>();
+        List<Map<String, Object>> items = Wraps.list();
         String kw = keyword == null ? "" : keyword.trim().toLowerCase(Locale.ROOT);
         for (String[] repo : DEFAULT_REPOS) {
             String owner = repo[0];
@@ -178,7 +177,7 @@ public class GithubSkillProvider {
                         || directory.toLowerCase(Locale.ROOT).contains(kw))) {
                     continue;
                 }
-                Map<String, Object> item = new LinkedHashMap<>();
+                Map<String, Object> item = Wraps.linkedMap();
                 item.put("key", owner + "/" + name + ":" + directory);
                 item.put("name", installName);
                 item.put("directory", directory);
@@ -189,7 +188,7 @@ public class GithubSkillProvider {
                 items.add(item);
             }
         }
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
         result.put("keyword", keyword == null ? "" : keyword);
         result.put("totalCount", items.size());
         result.put("items", items);
@@ -218,7 +217,7 @@ public class GithubSkillProvider {
         if (tree == null) {
             return List.of();
         }
-        List<String> paths = new ArrayList<>();
+        List<String> paths = Wraps.list();
         for (Map<String, Object> entry : tree) {
             Object type = entry.get("type");
             Object path = entry.get("path");

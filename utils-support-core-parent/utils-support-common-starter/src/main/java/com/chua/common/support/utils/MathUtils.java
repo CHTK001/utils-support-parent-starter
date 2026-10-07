@@ -1,6 +1,5 @@
 package com.chua.common.support.utils;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -118,20 +117,20 @@ public class MathUtils {
             double rangeMultiplier) {
         // 参数校验
         if (stdDev <= 0.0) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
         if (sampleSize < 2) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
         if (rangeMultiplier <= 0.0) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
         // 计算横坐标起止点
         double start = mean - rangeMultiplier * stdDev;
         double end = mean + rangeMultiplier * stdDev;
         // 相邻点间距
         double step = (end - start) / (sampleSize - 1);
-        List<SamplePoint> points = new ArrayList<>(sampleSize);
+        List<SamplePoint> points = Wraps.list(sampleSize);
         for (int i = 0; i < sampleSize; i++) {
  // 当前 x：启动 + i·step（末项恰为 结束）
             double x = start + i * step;

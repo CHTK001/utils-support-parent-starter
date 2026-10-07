@@ -1,13 +1,12 @@
 package com.chua.metrics.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.WatcherEvent;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -42,7 +41,7 @@ public class MetricsAutoConfiguration {
 
         MetricsService service = new MetricsService(intervalMs);
 
-        Set<WatcherEvent> events = new HashSet<>();
+        Set<WatcherEvent> events = Wraps.set();
         events.add(WatcherEvent.ALL_KIND);
 
         DirectoryPollerEnvironment environment = new DirectoryPollerEnvironment(

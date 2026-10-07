@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.tts;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
@@ -17,8 +18,6 @@ import java.nio.LongBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -97,17 +96,17 @@ public class VitsTtsTranslator {
     /**
      * 音素 → 标识 映射
     */
-    private Map<String, Integer> token2id = new LinkedHashMap<>();
+    private Map<String, Integer> token2id = Wraps.linkedMap();
 
     /**
      * 字 → 音素 令牌 标识 列表映射
     */
-    private Map<String, int[]> word2ids = new LinkedHashMap<>();
+    private Map<String, int[]> word2ids = Wraps.linkedMap();
 
     /**
      * 说话人列表
     */
-    private List<String> speakers = new ArrayList<>();
+    private List<String> speakers = Wraps.list();
 
     /**
      * 是否已准备
@@ -201,7 +200,7 @@ public class VitsTtsTranslator {
             if (parts.length < 2) {
                 continue;
             }
-            List<Integer> ids = new ArrayList<>();
+            List<Integer> ids = Wraps.list();
             boolean valid = true;
             for (int i = 1; i < parts.length; i++) {
                 Integer id = token2id.get(parts[i]);
@@ -243,7 +242,7 @@ public class VitsTtsTranslator {
         Integer sil = token2id.get("sil");
         Integer eos = token2id.get("eos");
         Integer pad = token2id.get("#0");
-        List<Integer> result = new ArrayList<>();
+        List<Integer> result = Wraps.list();
         if (sil != null) {
             result.add(sil);
         }
@@ -329,7 +328,7 @@ public class VitsTtsTranslator {
              OnnxTensor alpha = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(new float[]{1.0f}), lenShape);
              OnnxTensor noiseScaleDur = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(new float[]{1.0f}), lenShape);
              OnnxTensor speaker = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(new long[]{sid}), lenShape)) {
-            Map<String, OnnxTensor> inputs = new LinkedHashMap<>();
+            Map<String, OnnxTensor> inputs = Wraps.linkedMap();
             inputs.put("tokens", tokens);
             inputs.put("tokens_lens", lens);
             inputs.put("noise_scale", noiseScale);

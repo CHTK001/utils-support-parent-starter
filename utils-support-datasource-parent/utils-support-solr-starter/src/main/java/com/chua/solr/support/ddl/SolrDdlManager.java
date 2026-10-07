@@ -1,5 +1,6 @@
 package com.chua.solr.support.ddl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.table.ColumnDef;
 import com.chua.common.support.lang.datasource.table.TableDef;
 import com.chua.common.support.lang.datasource.engine.Engine;
@@ -14,8 +15,6 @@ import org.apache.solr.client.solrj.request.CollectionAdminRequest;
 import org.apache.solr.client.solrj.request.schema.SchemaRequest;
 import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.client.solrj.response.schema.SchemaResponse;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -137,7 +136,7 @@ public class SolrDdlManager implements DslManager, EngineAware {
             CollectionAdminRequest.List request = new CollectionAdminRequest.List();
             CollectionAdminResponse response = request.process(client);
             Object names = response.getResponse().get("collections");
-            List<TableDef> tables = new ArrayList<>();
+            List<TableDef> tables = Wraps.list();
             if (names instanceof List) {
                 for (Object n : (List<?>) names) {
                     tables.add(new TableDef().setName(String.valueOf(n)).setType("COLLECTION"));
@@ -288,7 +287,7 @@ public class SolrDdlManager implements DslManager, EngineAware {
      * @return 读取columns的结果
      */
     private List<ColumnDef> readColumns(String tableName) {
-        List<ColumnDef> columns = new ArrayList<>();
+        List<ColumnDef> columns = Wraps.list();
         try {
             SchemaResponse.FieldsResponse resp =
                     new SchemaRequest.Fields().process(client, tableName);

@@ -1,11 +1,9 @@
 package com.chua.calcite.support.datasource;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasource.support.datasource.DataTable;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +49,7 @@ public class CalciteDataTable implements DataTable {
         this.name = name;
         this.columnNames = List.copyOf(columnNames);
         this.columnTypes = List.copyOf(columnTypes);
-        this.data = new ArrayList<>();
+        this.data = Wraps.list();
     }
 
     /**
@@ -70,7 +68,7 @@ public class CalciteDataTable implements DataTable {
      * @return 当前实例，支持链式调用
      */
     public CalciteDataTable addRow(Object... values) {
-        Map<String, Object> row = new LinkedHashMap<>();
+        Map<String, Object> row = Wraps.linkedMap();
         int size = Math.min(columnNames.size(), values.length);
         for (int i = 0; i < size; i++) {
             row.put(columnNames.get(i), values[i]);

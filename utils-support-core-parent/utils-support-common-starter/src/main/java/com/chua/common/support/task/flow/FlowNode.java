@@ -1,6 +1,5 @@
 package com.chua.common.support.task.flow;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 
 /**
@@ -84,6 +83,6 @@ public interface FlowNode {
      * @return 节点配置字段列表
      */
     default List<FlowNodeField> configSchema() {
-        return new ArrayList<>();
+        return Wraps.list();
     }
 }

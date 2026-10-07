@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorStorage;
 import com.chua.common.support.vector.DefaultVectorStorage;
@@ -7,9 +8,7 @@ import com.chua.deeplearning.support.speech.SpeechEnhancer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -237,7 +236,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         int minSeg = (int) (minSegSec * 16000);
         int maxSeg = (int) (maxSegSec * 16000);
         int mergeGap = (int) (0.6F * 16000);
-        List<int[]> voiced = new ArrayList<>();
+        List<int[]> voiced = Wraps.list();
         int start = -1;
         for (int i = 0; i + frame <= s.length; i += frame) {
             boolean loud = rms(s, i, frame) >= silenceRms;
@@ -253,7 +252,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         if (start >= 0) {
             voiced.add(new int[]{start, Math.min(s.length, start + maxSeg)});
         }
-        List<int[]> merged = new ArrayList<>();
+        List<int[]> merged = Wraps.list();
         for (int[] r : voiced) {
             if (!merged.isEmpty() && r[0] - merged.get(merged.size() - 1)[1] < mergeGap) {
                 merged.get(merged.size() - 1)[1] = r[1];
@@ -264,7 +263,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         if (merged.isEmpty()) {
             return List.of(s);
         }
-        List<float[]> out = new ArrayList<>(merged.size());
+        List<float[]> out = Wraps.list(merged.size());
         for (int[] r : merged) {
             float[] seg = new float[Math.min(r[1], s.length) - r[0]];
             System.arraycopy(s, r[0], seg, 0, seg.length);
@@ -379,7 +378,7 @@ public class VoiceprintPipeline implements AutoCloseable {
                 throw new IllegalStateException("id 和 audio 均为必填");
             }
             float[] feature = parent.extract(audioPath);
-            Map<String, Object> metadata = new HashMap<>();
+            Map<String, Object> metadata = Wraps.map();
             if (label != null) {
                 metadata.put("label", label);
             }
@@ -447,7 +446,7 @@ public class VoiceprintPipeline implements AutoCloseable {
             int effectiveK = Math.min(topK, parent.maxResults);
             float[] probe = parent.extract(queryPath);
             List<Vector> hits = parent.storage().search(probe, effectiveK);
-            List<Match> matches = new ArrayList<>(hits.size());
+            List<Match> matches = Wraps.list(hits.size());
             for (Vector v : hits) {
                 double sim = AudioUtils.cosine(probe, v.data());
                 if (threshold > 0 && sim < threshold) {
@@ -486,7 +485,7 @@ public class VoiceprintPipeline implements AutoCloseable {
          */
         public Match {
             metadata = metadata == null ? null
-                    : Collections.unmodifiableMap(new LinkedHashMap<>(metadata));
+                    : Collections.unmodifiableMap(Wraps.linkedMap(metadata));
         }
     }
 
@@ -575,7 +574,7 @@ public class VoiceprintPipeline implements AutoCloseable {
                 collection = trimOrNull(map.get("collection"));
             }
             if ("MILVUS".equalsIgnoreCase(provider)) {
-                List<String> missing = new ArrayList<>();
+                List<String> missing = Wraps.list();
                 if (host == null) {
                     missing.add("host");
                 }

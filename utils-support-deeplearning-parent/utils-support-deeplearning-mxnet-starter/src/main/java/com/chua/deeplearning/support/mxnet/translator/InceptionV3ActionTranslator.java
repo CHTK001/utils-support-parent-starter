@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.mxnet.translator;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.Classifications;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.translator.ImageClassificationTranslator;
@@ -7,8 +8,6 @@ import ai.djl.ndarray.NDList;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -52,7 +51,7 @@ public class InceptionV3ActionTranslator implements Translator<Image, Classifica
      * @param arguments 参数
      */
     public InceptionV3ActionTranslator(Map<String, ?> arguments) {
-        Map<String, Object> options = new LinkedHashMap<>();
+        Map<String, Object> options = Wraps.linkedMap();
         if (arguments != null && !arguments.isEmpty()) {
             options.putAll(arguments);
         }

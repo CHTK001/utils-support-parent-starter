@@ -1,10 +1,9 @@
 package com.chua.common.support.network.sse;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.http.HttpMethod;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -57,7 +56,7 @@ public class SseRequest {
      * 默认为空 Map。
      */
     @Builder.Default
-    private Map<String, String> headers = new HashMap<>();
+    private Map<String, String> headers = Wraps.map();
 
     /**
      * 请求体
@@ -105,7 +104,7 @@ public class SseRequest {
      */
     public SseRequest addHeader(String name, String value) {
         if (headers == null) {
-            headers = new HashMap<>();
+            headers = Wraps.map();
         }
         headers.put(name, value);
         return this;

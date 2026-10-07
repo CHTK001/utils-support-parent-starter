@@ -1,5 +1,6 @@
 package com.chua.playwright.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.playwright.support.engine.Engine;
 
 import java.util.Map;
@@ -235,7 +236,7 @@ public class Page {
      */
     public java.util.List<ElementHandle> querySelectorAll(String selector) {
         java.util.List<Long> ids = engine.querySelectorAll(handle, selector);
-        java.util.List<ElementHandle> result = new java.util.ArrayList<>();
+        java.util.List<ElementHandle> result = Wraps.list();
         for (long id : ids) {
             result.add(new ElementHandle(engine, id));
         }

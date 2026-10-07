@@ -1,5 +1,6 @@
 package com.chua.datalake.support.sink;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.json.Json;
@@ -12,7 +13,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -74,8 +74,8 @@ public class JdbcSink implements DataSink {
             return false;
         }
 
-        List<String> columns = new ArrayList<>(row.size());
-        List<Object> values = new ArrayList<>(row.size());
+        List<String> columns = Wraps.list(row.size());
+        List<Object> values = Wraps.list(row.size());
         for (Map.Entry<String, Object> entry : row.entrySet()) {
             // CDC 元数据列（_cdc_op 等）不属于目标表结构
             if (entry.getKey().startsWith("_cdc_")) {

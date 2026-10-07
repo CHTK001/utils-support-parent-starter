@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.document;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Builder;
 import lombok.Data;
 
@@ -40,7 +41,7 @@ public class TableData {
      * Columns
      */
     @Builder.Default
-    private List<ColumnData> columns = new ArrayList<>();
+    private List<ColumnData> columns = Wraps.list();
 
     /**
      * 外键关系（本表引用其他表）
@@ -48,7 +49,7 @@ public class TableData {
      * Importedkeys
      */
     @Builder.Default
-    private List<RelationshipData> importedKeys = new ArrayList<>();
+    private List<RelationshipData> importedKeys = Wraps.list();
 
     /**
      * 被引用关系（其他表引用本表）
@@ -56,7 +57,7 @@ public class TableData {
      * Exportedkeys
      */
     @Builder.Default
-    private List<RelationshipData> exportedKeys = new ArrayList<>();
+    private List<RelationshipData> exportedKeys = Wraps.list();
 
     /**
      * 对象类型：TABLE 或 VIEW

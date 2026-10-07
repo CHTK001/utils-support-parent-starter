@@ -1,5 +1,6 @@
 package com.chua.crypto.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.crypto.support.codec.DataCipher;
 import com.chua.crypto.support.config.ConfigFileCipher;
@@ -9,7 +10,6 @@ import com.chua.crypto.support.store.SecretKeyStore;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -428,7 +428,7 @@ public class Crypto implements AutoCloseable {
      */
     public List<Path> encryptConfigFiles() {
         ensureInitialized();
-        List<Path> results = new ArrayList<>();
+        List<Path> results = Wraps.list();
         for (String name : setting.getConfigFiles()) {
             results.add(ConfigFileCipher.encryptFile(KeyFileResolver.resolve(name), this, setting.isConfigBackup()));
         }
@@ -442,7 +442,7 @@ public class Crypto implements AutoCloseable {
      */
     public List<Path> decryptConfigFiles() {
         ensureInitialized();
-        List<Path> results = new ArrayList<>();
+        List<Path> results = Wraps.list();
         for (String name : setting.getConfigFiles()) {
             Path source = KeyFileResolver.resolve(name);
             Path target = source.resolveSibling(source.getFileName() + ".dec");

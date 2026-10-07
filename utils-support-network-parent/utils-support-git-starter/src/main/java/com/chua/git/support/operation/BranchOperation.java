@@ -1,5 +1,6 @@
 package com.chua.git.support.operation;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.git.support.GitClient;
 import com.chua.git.support.exception.GitClientException;
 import com.chua.git.support.model.BranchInfo;
@@ -7,8 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -222,7 +221,7 @@ public class BranchOperation {
      */
     public List<String> remoteUrls() {
         try {
-            List<String> urls = new ArrayList<>();
+            List<String> urls = Wraps.list();
             Repository repo = client.getRepository();
             for (String remoteName : repo.getConfig().getSubsections("remote")) {
                 String url = repo.getConfig().getString("remote", remoteName, "url");

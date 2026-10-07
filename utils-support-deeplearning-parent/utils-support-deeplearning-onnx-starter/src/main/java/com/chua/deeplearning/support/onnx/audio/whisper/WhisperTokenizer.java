@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.whisper;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -7,8 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -83,10 +82,10 @@ public class WhisperTokenizer {
      */
     public static WhisperTokenizer load(Path vocabJson, Path tokJson) throws IOException {
  // 1. 加载 BPE vocab（自动识别方向：标识→令牌 或 令牌→标识）
-        Map<Integer, String> idToTokenMap = new HashMap<>();
+        Map<Integer, String> idToTokenMap = Wraps.map();
         try (InputStream in = Files.newInputStream(vocabJson)) {
             JsonNode root = MAPPER.readTree(in);
-            List<Map.Entry<String, JsonNode>> entries = new ArrayList<>();
+            List<Map.Entry<String, JsonNode>> entries = Wraps.list();
             root.fields().forEachRemaining(entries::add);
             boolean idKeyed = !entries.isEmpty() && isIntKey(entries.getFirst().getKey());
             for (Map.Entry<String, JsonNode> e : entries) {
@@ -124,7 +123,7 @@ public class WhisperTokenizer {
 
         // 3. 构建定长 idToToken 数组（大小 = VOCAB_SIZE）
         String[] idToTokenArr = new String[VOCAB_SIZE];
-        Map<String, Integer> tokenToIdMap = new HashMap<>(VOCAB_SIZE);
+        Map<String, Integer> tokenToIdMap = Wraps.map(VOCAB_SIZE);
         for (Map.Entry<Integer, String> e : idToTokenMap.entrySet()) {
             int id = e.getKey();
             String tok = e.getValue();

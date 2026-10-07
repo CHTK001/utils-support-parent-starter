@@ -1,5 +1,6 @@
 package com.chua.datasource.support.wrapper;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.dialect.Pagination;
@@ -12,8 +13,6 @@ import com.chua.datasource.support.wrapper.toolkit.LambdaUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +44,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     /**
      * 查询列列表
      */
-    private final List<String> selectColumns = new ArrayList<>();
+    private final List<String> selectColumns = Wraps.list();
 
     /**
      * 分组列名
@@ -65,7 +64,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     /**
      * JOIN 关联子句列表
      */
-    private final List<JoinClause> joins = new ArrayList<>();
+    private final List<JoinClause> joins = Wraps.list();
 
     /**
      * HAVING 条件片段（不含 HAVING 关键字），null 表示无分组过滤
@@ -75,7 +74,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     /**
      * HAVING 条件参数列表（与 ? 占位符顺序一致）
      */
-    private final List<Object> havingParams = new ArrayList<>();
+    private final List<Object> havingParams = Wraps.list();
 
     /**
      * 创建响应式查询包装器。
@@ -408,7 +407,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
      */
     public QuerySql<T> buildSql() {
         StringBuilder where = new StringBuilder();
-        List<Object> params = new ArrayList<>();
+        List<Object> params = Wraps.list();
         buildWhere(where, params);
         return new QuerySql<>(entityClass, selectColumns, where.toString(), params,
                 groupByColumn, getOrderBys(), limit, offset,
@@ -495,7 +494,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
      * @return 参数数组（WHERE 参数在前，HAVING 参数在后）
      */
     private static <T> Object[] mergedParams(QuerySql<T> sql) {
-        List<Object> all = new ArrayList<>(sql.params());
+        List<Object> all = Wraps.list(sql.params());
         if (sql.hasHaving()) {
             all.addAll(sql.havingParams());
         }

@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.holiday.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.holiday.model.HolidayInfo;
 import com.chua.common.support.datasearch.holiday.spi.HolidayProvider;
 import com.chua.common.support.network.client.ClientResponse;
@@ -13,11 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -131,7 +129,7 @@ public class OnlineHolidayProvider implements HolidayProvider {
      * 获取假日
     */
     public List<HolidayInfo> getHolidays(int year) {
-        return new ArrayList<>(load(year).values());
+        return Wraps.list(load(year).values());
     }
 
     /**
@@ -155,7 +153,7 @@ public class OnlineHolidayProvider implements HolidayProvider {
         if (cached != null) {
             return cached;
         }
-        Map<String, HolidayInfo> map = new HashMap<>();
+        Map<String, HolidayInfo> map = Wraps.map();
         try {
             String url = String.format(urlTemplate, year);
             ClientResponse resp = httpClient.get(url);
@@ -205,7 +203,7 @@ public class OnlineHolidayProvider implements HolidayProvider {
      * @return build2026的结果
      */
     private static Map<String, HolidayInfo> build2026() {
-        Map<String, HolidayInfo> m = new LinkedHashMap<>();
+        Map<String, HolidayInfo> m = Wraps.linkedMap();
         add(m, "2026-01-01", "2026-01-03", "元旦", "holiday");
         add(m, "2026-02-15", "2026-02-23", "春节", "holiday");
         add(m, "2026-04-04", "2026-04-06", "清明节", "holiday");

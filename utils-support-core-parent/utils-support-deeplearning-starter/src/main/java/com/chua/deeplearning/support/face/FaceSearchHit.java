@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.face;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,7 +39,7 @@ public record FaceSearchHit(
     public FaceSearchHit {
         feature = feature == null ? null : feature.clone();
         metadata = metadata == null ? null
-                : Collections.unmodifiableMap(new LinkedHashMap<>(metadata));
+                : Collections.unmodifiableMap(Wraps.linkedMap(metadata));
     }
 
     /**

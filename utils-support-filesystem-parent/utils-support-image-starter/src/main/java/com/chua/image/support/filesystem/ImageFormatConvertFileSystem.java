@@ -1,5 +1,6 @@
 package com.chua.image.support.filesystem;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.converter.AbstractConvertFileSystem;
 import com.chua.common.support.file.converter.ConvertFileSystem;
 import com.chua.common.support.spi.annotations.Spi;
@@ -12,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -138,9 +138,9 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
     */
     public ConvertFileSystem.ConvertSupport[] supportedTypes() {
         Set<String> formats = ImageSupportUtils.getAllSupportedFormats();
-        List<String> formatList = new ArrayList<>(formats);
+        List<String> formatList = Wraps.list(formats);
 
-        List<ConvertFileSystem.ConvertSupport> supports = new ArrayList<>();
+        List<ConvertFileSystem.ConvertSupport> supports = Wraps.list();
 
         for (String source : formatList) {
             if (ImageSupportUtils.isExcluded(source)) {

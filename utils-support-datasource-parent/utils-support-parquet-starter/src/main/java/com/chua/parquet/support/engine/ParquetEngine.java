@@ -1,5 +1,6 @@
 package com.chua.parquet.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.Engine;
@@ -31,11 +32,9 @@ import java.lang.reflect.Modifier;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -317,7 +316,7 @@ public class ParquetEngine extends AbstractEngine {
         }
         List<GenericRecord> records = readAll(getTableName(entityClass));
         Map<String, Field> fields = fieldsOf(entityClass);
-        List<T> out = new ArrayList<>(records.size());
+        List<T> out = Wraps.list(records.size());
         for (GenericRecord rec : records) {
             T inst = ReflectUtils.instantiate(entityClass);
             if (inst == null) {
@@ -367,10 +366,10 @@ public class ParquetEngine extends AbstractEngine {
         }
         List<T> whole = doRead(ec);
         Map<String, Field> fields = fieldsOf(ec);
-        List<Object> params = sql.params() == null ? new ArrayList<>() : new ArrayList<>(sql.params());
+        List<Object> params = sql.params() == null ? Wraps.list() : Wraps.list(sql.params());
         // 仅 "?" 占位符消费参数，字面量赋值直接取值；按 SET 段数推算参数个数会把
         // 字面量算成占位符，导致 WHERE 参数整体错位、更新到错误的行
-        Map<Field, Object> sets = new LinkedHashMap<>();
+        Map<Field, Object> sets = Wraps.linkedMap();
         int paramIdx = 0;
         for (String part : setClause.split(", ")) {
             int eq = part.indexOf(" = ");
@@ -396,7 +395,7 @@ public class ParquetEngine extends AbstractEngine {
             sets.put(f, value);
         }
         List<Object> whereParams = paramIdx < params.size()
-                ? new ArrayList<>(params.subList(paramIdx, params.size())) : new ArrayList<>();
+                ? Wraps.list(params.subList(paramIdx, params.size())) : Wraps.list();
         var hit = new MemoryWhereParser().parse(normalizeColumns(sql.whereClause(), ec), whereParams);
         int affected = 0;
         for (T row : whole) {
@@ -436,9 +435,9 @@ public class ParquetEngine extends AbstractEngine {
             throw new IllegalArgumentException("Parquet 删除缺少实体类型");
         }
         List<T> whole = doRead(ec);
-        List<Object> params = sql.params() == null ? new ArrayList<>() : new ArrayList<>(sql.params());
+        List<Object> params = sql.params() == null ? Wraps.list() : Wraps.list(sql.params());
         var hit = new MemoryWhereParser().parse(normalizeColumns(sql.whereClause(), ec), params);
-        List<T> keep = new ArrayList<>(whole.size());
+        List<T> keep = Wraps.list(whole.size());
         int removed = 0;
         for (T row : whole) {
             if (hit.test(row)) {
@@ -534,7 +533,7 @@ public class ParquetEngine extends AbstractEngine {
      */
     private List<GenericRecord> readAll(String table) {
         File file = tableFile(table);
-        List<GenericRecord> out = new ArrayList<>();
+        List<GenericRecord> out = Wraps.list();
         if (!file.exists()) {
             return out;
         }
@@ -614,7 +613,7 @@ public class ParquetEngine extends AbstractEngine {
      */
     private Schema schemaFor(Class<?> clazz) {
         return SCHEMA_CACHE.computeIfAbsent(clazz, c -> {
-            List<Schema.Field> fields = new ArrayList<>();
+            List<Schema.Field> fields = Wraps.list();
             for (Map.Entry<String, Field> e : fieldsOf(c).entrySet()) {
                 Schema base = avroTypeOf(e.getValue().getType());
                 if (base == null) {
@@ -736,7 +735,7 @@ public class ParquetEngine extends AbstractEngine {
      */
     private static Map<String, Field> fieldsOf(Class<?> clazz) {
         return FIELD_CACHE.computeIfAbsent(clazz, c -> {
-            Map<String, Field> map = new LinkedHashMap<>();
+            Map<String, Field> map = Wraps.linkedMap();
             for (Class<?> cur = c; cur != null && cur != Object.class; cur = cur.getSuperclass()) {
                 for (Field f : cur.getDeclaredFields()) {
                     if (Modifier.isStatic(f.getModifiers()) || f.isSynthetic()) {
@@ -849,7 +848,7 @@ public class ParquetEngine extends AbstractEngine {
             return expr;
         }
         Map<String, Field> fields = fieldsOf(entityClass);
-        List<String[]> rules = new ArrayList<>();
+        List<String[]> rules = Wraps.list();
         for (Map.Entry<String, Field> e : fields.entrySet()) {
             String javaName = e.getValue().getName();
             addRule(rules, e.getKey(), javaName);
@@ -943,7 +942,7 @@ public class ParquetEngine extends AbstractEngine {
      */
     private <T> void syncMemory(String table, List<T> rows) {
         if (dataStores.containsKey(table)) {
-            dataStores.put(table, new ArrayList<>(rows));
+            dataStores.put(table, Wraps.list(rows));
         }
     }
 
@@ -960,10 +959,10 @@ public class ParquetEngine extends AbstractEngine {
     private static <T> List<T> applyPaging(List<T> rows, int limit, int offset) {
         List<T> out = rows;
         if (offset > 0) {
-            out = offset >= out.size() ? List.of() : new ArrayList<>(out.subList(offset, out.size()));
+            out = offset >= out.size() ? List.of() : Wraps.list(out.subList(offset, out.size()));
         }
         if (limit > 0 && limit < out.size()) {
-            out = new ArrayList<>(out.subList(0, limit));
+            out = Wraps.list(out.subList(0, limit));
         }
         return out;
     }

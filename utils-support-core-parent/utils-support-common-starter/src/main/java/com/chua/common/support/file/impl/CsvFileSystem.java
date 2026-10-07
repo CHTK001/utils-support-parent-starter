@@ -1,5 +1,6 @@
 package com.chua.common.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.FileSystem;
 import com.chua.common.support.file.builder.ReadBuilder;
 import com.chua.common.support.file.builder.WriteBuilder;
@@ -17,7 +18,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -154,7 +154,7 @@ public class CsvFileSystem implements FileSystem {
                         }
                         continue;
                     }
-                    Map<String, Object> rowMap = new LinkedHashMap<>(ESTIMATED_COLUMN_COUNT);
+                    Map<String, Object> rowMap = Wraps.linkedMap(ESTIMATED_COLUMN_COUNT);
                     for (int i = 0; i < parts.length; i++) {
                         String col = (hasHeader && i < headerRow.size()) ? headerRow.get(i) : COLUMN_KEY_PREFIX + i;
                         String key = (columnMapping != null) ? columnMapping.getOrDefault(col, col) : col;

@@ -1,5 +1,6 @@
 package com.chua.image.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
@@ -50,7 +51,7 @@ public class ImageSupportUtils {
     /**
      * 格式别名映射：别名 → 标准名称
      */
-    private static final Map<String, String> FORMAT_ALIASES = new LinkedHashMap<>();
+    private static final Map<String, String> FORMAT_ALIASES = Wraps.linkedMap();
 
     /**
      * 需要排除的格式名称集合（由专门的转换器处理）
@@ -89,7 +90,7 @@ public class ImageSupportUtils {
         IIORegistry registry = IIORegistry.getDefaultInstance();
         Iterator<ImageReaderSpi> providers = registry.getServiceProviders(ImageReaderSpi.class, false);
 
-        Set<String> suffixes = new LinkedHashSet<>();
+        Set<String> suffixes = Wraps.linkedSet();
         providers.forEachRemaining(spi -> {
             String[] formatNames = spi.getFormatNames();
             for (String name : formatNames) {
@@ -119,7 +120,7 @@ public class ImageSupportUtils {
         IIORegistry registry = IIORegistry.getDefaultInstance();
         Iterator<ImageWriterSpi> providers = registry.getServiceProviders(ImageWriterSpi.class, false);
 
-        Set<String> suffixes = new LinkedHashSet<>();
+        Set<String> suffixes = Wraps.linkedSet();
         providers.forEachRemaining(spi -> {
             String[] formatNames = spi.getFormatNames();
             for (String name : formatNames) {
@@ -261,7 +262,7 @@ public class ImageSupportUtils {
      * @return 去重的标准化格式名称集合
      */
     public static Set<String> getAllSupportedFormats() {
-        Set<String> formats = new LinkedHashSet<>();
+        Set<String> formats = Wraps.linkedSet();
         Stream.of(supportReader(), supportWriter())
                 .flatMap(Arrays::stream)
                 .map(ImageSupportUtils::normalizeFormat)

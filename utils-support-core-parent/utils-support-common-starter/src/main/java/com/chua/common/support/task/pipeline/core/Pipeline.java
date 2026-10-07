@@ -1,5 +1,8 @@
 package com.chua.common.support.task.pipeline.core;
 
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+
 import java.util.List;
 
 /**
@@ -54,6 +57,43 @@ public interface Pipeline {
      */
     default <T> PipelineContext<T> execute(PipelineContext<T> existingContext) {
         throw new UnsupportedOperationException("当前流水线实现不支持复用上下文执行");
+    }
+
+    /**
+     * 异步执行流水线。
+     *
+     * <p>与 {@link #execute(Object)} 同一语义，整体（含 {@code StructuredTaskScope}
+     * 的创建与 join）搬到 {@code boundedElastic} 调度线程执行，
+     * 以 Reactor 三个回调交付：
+     * <ul>
+     *   <li>{@code onNext}：执行完成后的上下文（历史、结果数据等）</li>
+     *   <li>{@code onError}：节点异常终止等失败，后续节点不再执行</li>
+     *   <li>{@code onComplete}：流正常结束</li>
+     * </ul>
+     *
+     * <p>冷流：每次订阅创建新上下文、重新执行一遍。
+     *
+     * @param input 输入数据
+     * @param <T>   数据类型
+     * @return 执行完成后的上下文的冷流
+     */
+    default <T> Mono<PipelineContext<T>> executeAsync(T input) {
+        return Mono.fromCallable(() -> execute(input))
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    /**
+     * 使用已有上下文异步执行流水线。
+     *
+     * <p>冷流：每次订阅复用传入的同一上下文对象重新执行。
+     *
+     * @param existingContext 已存在的上下文实例
+     * @param <T>             数据类型
+     * @return 执行完成后的上下文的冷流
+     */
+    default <T> Mono<PipelineContext<T>> executeAsync(PipelineContext<T> existingContext) {
+        return Mono.fromCallable(() -> execute(existingContext))
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     /**

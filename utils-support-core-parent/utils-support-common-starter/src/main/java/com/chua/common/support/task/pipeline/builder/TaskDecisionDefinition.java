@@ -1,13 +1,12 @@
 package com.chua.common.support.task.pipeline.builder;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.pipeline.core.Action;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 import com.chua.common.support.task.pipeline.node.DecisionNode;
 import com.chua.common.support.task.retry.RetryConfig;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -105,7 +104,7 @@ public class TaskDecisionDefinition {
     /**
      * branches
      */
-    private final Map<String, String> branches = new LinkedHashMap<>();
+    private final Map<String, String> branches = Wraps.linkedMap();
     /**
      * 默认分支
      */
@@ -285,7 +284,7 @@ public class TaskDecisionDefinition {
      */
     public TaskDecisionDefinition env(String key, Object value) {
         if (this.env == null) {
-            this.env = new LinkedHashMap<>();
+            this.env = Wraps.linkedMap();
         }
         this.env.put(key, value);
         return this;

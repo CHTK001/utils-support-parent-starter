@@ -1,5 +1,6 @@
 package com.chua.docker.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.InspectImageResponse;
@@ -27,8 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.Closeable;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -577,7 +576,7 @@ public class DockerClient implements Closeable {
             /**
              * 存储卷绑定
             */
-            private final List<Bind> binds = new ArrayList<>();
+            private final List<Bind> binds = Wraps.list();
 
             /**
              * 重启策略，默认 no
@@ -838,10 +837,10 @@ public class DockerClient implements Closeable {
                     create.withEntrypoint(entrypoint);
                 }
                 if (!portBindings.isEmpty()) {
-                    Map<String, List<Map<String, String>>> primitive = new HashMap<>();
+                    Map<String, List<Map<String, String>>> primitive = Wraps.map();
                     for (Map.Entry<Integer, String> e : portBindings.entrySet()) {
-                        List<Map<String, String>> bindings = new ArrayList<>();
-                        Map<String, String> binding = new HashMap<>();
+                        List<Map<String, String>> bindings = Wraps.list();
+                        Map<String, String> binding = Wraps.map();
                         binding.put("HostIp", "0.0.0.0");
                         binding.put("HostPort", String.valueOf(e.getKey()));
                         bindings.add(binding);
@@ -1183,7 +1182,7 @@ public class DockerClient implements Closeable {
             /**
              * 过滤条件
             */
-            private List<String> filters = new ArrayList<>();
+            private List<String> filters = Wraps.list();
 
             /**
              * 构造列表命令。

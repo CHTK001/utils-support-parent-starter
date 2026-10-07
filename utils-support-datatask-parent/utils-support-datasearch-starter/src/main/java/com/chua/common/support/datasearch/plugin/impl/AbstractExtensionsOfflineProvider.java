@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.plugin.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.plugin.model.PluginDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +9,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,7 +46,7 @@ public abstract class AbstractExtensionsOfflineProvider implements com.chua.comm
 
     @Override
     public List<PluginDefinition> listPlugins() {
-        List<PluginDefinition> result = new ArrayList<>();
+        List<PluginDefinition> result = Wraps.list();
         Path dir = extensionsDir();
         if (!Files.isDirectory(dir)) {
             return result;

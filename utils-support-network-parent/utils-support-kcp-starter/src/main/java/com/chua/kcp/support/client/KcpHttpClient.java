@@ -1,5 +1,6 @@
 package com.chua.kcp.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -8,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -89,7 +89,7 @@ public class KcpHttpClient {
         if (!isConnected()) {
             throw new IllegalStateException("KCP HTTP 客户端未连接");
         }
-        Map<String, Object> req = new HashMap<>();
+        Map<String, Object> req = Wraps.map();
         req.put("method", method);
         req.put("path", path);
         req.put("headers", headers != null ? headers : Collections.emptyMap());
@@ -175,7 +175,7 @@ public class KcpHttpClient {
         /**
          * 响应头键值映射
          */
-        private final Map<String, String> headers = new HashMap<>();
+        private final Map<String, String> headers = Wraps.map();
         /**
          * 响应体字节数组，默认空数组
          */

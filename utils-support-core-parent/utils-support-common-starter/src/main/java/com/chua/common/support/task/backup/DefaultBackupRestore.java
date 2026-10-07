@@ -1,5 +1,6 @@
 package com.chua.common.support.task.backup;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -8,7 +9,6 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -103,7 +103,7 @@ public class DefaultBackupRestore implements BackupRestore {
      */
     @Override
     public List<LocalDate> listAvailableDates(Path backupDir) {
-        List<LocalDate> dates = new ArrayList<>();
+        List<LocalDate> dates = Wraps.list();
 
         // 扫描原始目录
         if (Files.exists(backupDir)) {
@@ -154,7 +154,7 @@ public class DefaultBackupRestore implements BackupRestore {
      * @return restore从目录的结果
      */
     private List<Path> restoreFromDirectory(Path source, RestoreConfig config) throws IOException {
-        List<Path> restored = new ArrayList<>();
+        List<Path> restored = Wraps.list();
         Files.walkFileTree(source, new SimpleFileVisitor<>() {
             /**
              * 恢复单个文件：命中过滤规则后复制到目标目录，失败仅告警并跳过。
@@ -192,7 +192,7 @@ public class DefaultBackupRestore implements BackupRestore {
      * @return restore从压缩的结果
      */
     private List<Path> restoreFromZip(Path zipFile, RestoreConfig config) throws IOException {
-        List<Path> restored = new ArrayList<>();
+        List<Path> restored = Wraps.list();
         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFile))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {

@@ -1,5 +1,6 @@
 package com.chua.common.support.task.scheduler;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -7,7 +8,6 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Date;
 import java.util.List;
@@ -390,7 +390,7 @@ public class CronExpression {
      * @return 执行时间点列表
      */
     List<LocalDateTime> getFireTimes(int count, LocalDateTime from) {
-        List<LocalDateTime> result = new ArrayList<>(count);
+        List<LocalDateTime> result = Wraps.list(count);
         LocalDateTime current = from;
         for (int i = 0; i < count; i++) {
             current = nextExecutionTime(current);

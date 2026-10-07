@@ -14,6 +14,9 @@ import java.util.function.Supplier;
  * <ul>
  *   <li><strong>单个异步任务</strong>：通过 {@link #supply(Supplier)} 或 {@link #run(Runnable)}</li>
  *   <li><strong>批量异步任务</strong>：通过 {@link #supplyAll(Supplier...)} 并发执行多个任务</li>
+ *   <li><strong>链式任务</strong>：通过 {@link #task(Supplier)} / {@link #task(Runnable)}
+ *       组成顺序执行的任务链，{@code execute} 同步执行、
+ *       {@code executeAsync} 以 Reactor 三回调交付（见 {@link AsyncFlowChain}）</li>
  * </ul>
  *
  * <p>使用示例：
@@ -25,9 +28,15 @@ import java.util.function.Supplier;
  *     () -> api.call("/b"),
  *     () -> api.call("/c")
  * );
- * }</pre>() -> api.call("/c")
- * );
- * }
+ * }</pre>
+ *
+ * <p>链式任务示例：
+ * <pre>{@code
+ * Mono<List<Object>> mono = AsyncFlow.of()
+ *         .task(() -> loadConfig())
+ *         .task(cfg -> query(cfg))
+ *         .executeAsync();
+ * }</pre>
  *
  * @author CH
  * @since 1.0.0
@@ -109,6 +118,30 @@ public class AsyncFlow {
      */
     public <T> CompletableFuture<List<T>> supplyAll(List<Supplier<T>> suppliers) {
         return provider.supplyAll(suppliers);
+    }
+
+    /**
+     * 追加链式任务的第一步（带返回值）。
+     *
+     * <p>由此进入 {@link AsyncFlowChain} 链式定义，
+     * 与后续任务一起由 {@code execute}（同步）或 {@code executeAsync}（Reactor 三回调）执行。
+     *
+     * @param <R>  产出类型
+     * @param task 任务
+     * @return 任务链（类型为 {@code R}）
+     */
+    public <R> AsyncFlowChain<R> task(Supplier<? extends R> task) {
+        return new AsyncFlowChain<R>(this).task(task);
+    }
+
+    /**
+     * 追加链式任务的第一步（无返回值）。
+     *
+     * @param task 任务
+     * @return 任务链
+     */
+    public AsyncFlowChain<Object> task(Runnable task) {
+        return new AsyncFlowChain<Object>(this).task(task);
     }
 
     /**

@@ -1,9 +1,9 @@
 package com.chua.common.support.converter.definition;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.constant.CommonConstant;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -52,7 +52,7 @@ public class StringArrayTypeConverter implements TypeConverter<String[]> {
                 return transToArray(parts, String.class);
             } else if (stringValue.startsWith(SYMBOL_LEFT_BIG_PARENTHESES) && stringValue.endsWith(SYMBOL_RIGHT_BIG_PARENTHESES)) {
                 String[] split = PATTERN.split(stringValue);
-                List<String> result = new ArrayList<>(split.length);
+                List<String> result = Wraps.list(split.length);
                 for (String it : split) {
                     if (!it.startsWith(SYMBOL_LEFT_BIG_PARENTHESES)) {
                         it = SYMBOL_LEFT_BIG_PARENTHESES + it;

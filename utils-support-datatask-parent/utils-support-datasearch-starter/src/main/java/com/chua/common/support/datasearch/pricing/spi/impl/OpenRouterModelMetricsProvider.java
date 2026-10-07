@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.pricing.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.datasearch.pricing.spi.AbstractModelMetricsProvider;
 import com.chua.common.support.spi.annotations.Spi;
@@ -7,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -70,9 +70,9 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
         JsonNode root = MAPPER.readTree(json);
         JsonNode data = root.path("data");
         if (!data.isArray()) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
-        List<ModelDefinition> result = new ArrayList<>();
+        List<ModelDefinition> result = Wraps.list();
         for (JsonNode item : data) {
             String fullId = item.path("id").asText(null);
             if (fullId == null || fullId.isEmpty()) {
@@ -104,7 +104,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
                     ? textOf(reasoningNode.path("default_effort")) : null;
             List<String> outputModalities = modalities(architecture.path("output_modalities"));
 
-            List<String> capabilities = new ArrayList<>(5);
+            List<String> capabilities = Wraps.list(5);
             capabilities.add("chat");
             if (reasoning) {
                 capabilities.add("reasoning");
@@ -200,7 +200,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
      * @return 模态列表；非数组时返回空列表
      */
     private List<String> modalities(JsonNode node) {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         if (node == null || !node.isArray()) {
             return result;
         }

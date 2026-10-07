@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.face;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.branch.Branch;
 import com.chua.common.support.utils.MathUtils;
 import com.chua.common.support.task.pipeline.core.Action;
@@ -27,10 +28,9 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.Objects;
 
@@ -1174,7 +1174,7 @@ public class FacePipeline {
         if (regular.isEmpty() && anime.isEmpty()) {
             return List.of();
         }
-        List<PredictRectangle> merged = new ArrayList<>(regular.size() + anime.size());
+        List<PredictRectangle> merged = Wraps.list(regular.size() + anime.size());
         merged.addAll(regular);
         merged.addAll(anime);
         return filterBoxes(crossNms(merged));
@@ -1187,8 +1187,8 @@ public class FacePipeline {
      * @return 去重后的框列表
      */
     private static List<PredictRectangle> crossNms(List<PredictRectangle> input) {
-        List<PredictRectangle> pool = new ArrayList<>(input);
-        List<PredictRectangle> keep = new ArrayList<>();
+        List<PredictRectangle> pool = Wraps.list(input);
+        List<PredictRectangle> keep = Wraps.list();
         while (!pool.isEmpty()) {
             int best = 0;
             for (int i = 1; i < pool.size(); i++) {
@@ -1501,7 +1501,7 @@ public class FacePipeline {
             return List.of();
         }
 
-        List<FaceRestoreResult> results = new ArrayList<>();
+        List<FaceRestoreResult> results = Wraps.list();
 
         for (int i = 0; i < boxes.size(); i++) {
             PredictRectangle box = boxes.get(i);
@@ -1647,18 +1647,18 @@ public class FacePipeline {
         } catch (Exception e) {
             log.warn("模型注册表发现失败: {}", e.getMessage());
         }
-        Map<String, java.util.LinkedHashSet<String>> grouped = new java.util.LinkedHashMap<>();
+        Map<String, java.util.Set<String>> grouped = Wraps.linkedMap();
         for (ModelRegistry.Entry e : ModelRegistry.getAll()) {
             String group = groupOf(e);
             if (group != null) {
-                grouped.computeIfAbsent(group, k -> new java.util.LinkedHashSet<>()).add(e.modelId());
+                grouped.computeIfAbsent(group, k -> Wraps.linkedSet()).add(e.modelId());
             }
         }
         // 向量库非模型，属存储后端枚举
-        grouped.computeIfAbsent("vectorStorage", k -> new java.util.LinkedHashSet<>())
+        grouped.computeIfAbsent("vectorStorage", k -> Wraps.linkedSet())
                 .addAll(List.of("jvector", "memory", "milvus"));
-        Map<String, List<String>> result = new java.util.LinkedHashMap<>();
-        for (Map.Entry<String, java.util.LinkedHashSet<String>> entry : grouped.entrySet()) {
+        Map<String, List<String>> result = Wraps.linkedMap();
+        for (Map.Entry<String, java.util.Set<String>> entry : grouped.entrySet()) {
             result.put(entry.getKey(), List.copyOf(entry.getValue()));
         }
         return result;
@@ -1780,7 +1780,7 @@ public class FacePipeline {
         if (vectors == null || vectors.isEmpty()) {
             return List.of();
         }
-        List<FaceSearchHit> hits = new ArrayList<>(vectors.size());
+        List<FaceSearchHit> hits = Wraps.list(vectors.size());
         for (com.chua.common.support.vector.Vector v : vectors) {
             double score = 0d;
             if (v.metadata() != null && v.metadata().get("score") instanceof Number n) {
@@ -1794,7 +1794,7 @@ public class FacePipeline {
         // 相似度下限：设置项 face.match_threshold 此前只声明、未读取，1:N 会把 topK 全量返回，
         // 相似度 0.01 也会被当成「命中」，于是 controller 的 matched 退化成「库里非空」。
         // 这里按阈值过滤，让配置真正生效（默认 0.5，与登记默认一致）。
-        List<FaceSearchHit> kept = new ArrayList<>(hits.size());
+        List<FaceSearchHit> kept = Wraps.list(hits.size());
         for (FaceSearchHit hit : hits) {
             if (hit.score() >= matchThreshold) {
                 kept.add(hit);

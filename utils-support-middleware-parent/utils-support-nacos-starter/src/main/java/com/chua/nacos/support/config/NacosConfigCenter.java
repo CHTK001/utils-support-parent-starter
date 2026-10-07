@@ -1,5 +1,6 @@
 package com.chua.nacos.support.config;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.config.ConfigService;
@@ -180,7 +181,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
             // 获取当前配置缓存
             Map<String, Object> currentConfig = configContentCache.computeIfAbsent(cacheKey, k -> {
                 Map<String, Object> config = get(dataId, grp);
-                return config != null ? new LinkedHashMap<>(config) : new LinkedHashMap<>();
+                return config != null ? Wraps.linkedMap(config) : Wraps.linkedMap();
             });
 
             // 更新配置项
@@ -221,7 +222,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
                 if (currentConfig == null || currentConfig.isEmpty()) {
                     return true;
                 }
-                currentConfig = new LinkedHashMap<>(currentConfig);
+                currentConfig = Wraps.linkedMap(currentConfig);
             }
 
             // 移除配置项

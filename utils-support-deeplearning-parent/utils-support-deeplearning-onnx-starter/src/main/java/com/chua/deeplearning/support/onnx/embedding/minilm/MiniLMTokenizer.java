@@ -1,14 +1,12 @@
 package com.chua.deeplearning.support.onnx.embedding.minilm;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -113,7 +111,7 @@ public class MiniLMTokenizer {
      * @return 加载好的 tokenizer
      */
     public static MiniLMTokenizer load(Path vocabPath) throws IOException {
-        Map<String, Integer> vocab = new HashMap<>();
+        Map<String, Integer> vocab = Wraps.map();
         try (BufferedReader reader = Files.newBufferedReader(vocabPath)) {
             String line;
             int idx = 0;
@@ -210,7 +208,7 @@ public class MiniLMTokenizer {
      * @return 三个长度均为 最大len 的 int[] 数组
      */
     public EncodeResult encode(String text, int maxLen) {
-        List<Integer> tokenIds = new ArrayList<>();
+        List<Integer> tokenIds = Wraps.list();
         tokenIds.add(clsId);
         for (String token : basicTokenize(text)) {
             for (int subId : wordpieceTokenize(token)) {
@@ -248,7 +246,7 @@ public class MiniLMTokenizer {
      */
     private List<String> basicTokenize(String text) {
         if (text == null || text.isEmpty()) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
         String s = text;
         if (doLowerCase) {
@@ -256,7 +254,7 @@ public class MiniLMTokenizer {
         }
         s = stripAccents(s);
 
-        List<String> tokens = new ArrayList<>();
+        List<String> tokens = Wraps.list();
         if (tokenizeChineseChars) {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < s.length(); i++) {
@@ -286,7 +284,7 @@ public class MiniLMTokenizer {
      * @return 分割onwhitespace和punct的结果
      */
     private List<String> splitOnWhitespaceAndPunct(String text) {
-        List<String> out = new ArrayList<>();
+        List<String> out = Wraps.list();
         StringBuilder buf = new StringBuilder();
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
@@ -378,15 +376,15 @@ public class MiniLMTokenizer {
      */
     private List<Integer> wordpieceTokenize(String token) {
         if (token.isEmpty()) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
         if (vocab.containsKey(token)) {
-            List<Integer> single = new ArrayList<>();
+            List<Integer> single = Wraps.list();
             single.add(vocab.get(token));
             return single;
         }
-        List<Integer> out = new ArrayList<>();
-        LinkedList<String> subTokens = new LinkedList<>();
+        List<Integer> out = Wraps.list();
+        List<String> subTokens = Wraps.list();
         for (int start = 0; start < token.length(); ) {
             int end = token.length();
             String cur = null;

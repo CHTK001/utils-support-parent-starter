@@ -1,11 +1,10 @@
 package com.chua.common.support.ai.chat.aggregate.strategy;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatResponse;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -140,7 +139,7 @@ public class HybridStrategy implements RouterStrategy {
      * @return 结果列表，无数据时为空列表
      */
     private List<WeightedClient> filterHealthy(List<WeightedClient> clients) {
-        List<WeightedClient> result = new ArrayList<>(clients.size());
+        List<WeightedClient> result = Wraps.list(clients.size());
         for (WeightedClient wc : clients) {
             if (healthFilter.test(wc)) {
                 result.add(wc);

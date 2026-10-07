@@ -1,9 +1,8 @@
 package com.chua.common.support.taskdistribution.task;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -47,7 +46,7 @@ public class Task<T> {
      * 任务标签（用于能力匹配和路由）
      */
     @Builder.Default
-    private Map<String, String> tags = new HashMap<>(); // 标签
+    private Map<String, String> tags = Wraps.map(); // 标签
 
     /**
      * 分片数量（>1 表示需要分片执行）

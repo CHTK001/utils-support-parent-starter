@@ -1,11 +1,11 @@
 package com.chua.common.support.network.server.dht.bep9;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.server.dht.krpc.BencodeCodec;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -111,7 +111,7 @@ public class MetadataDownloader {
      * @throws Exception 下载异常
      */
     private byte[] downloadPiece(PeerWireClient client, int utId, int piece, long deadline) throws Exception {
-        Map<String, Object> req = new LinkedHashMap<>();
+        Map<String, Object> req = Wraps.linkedMap();
         req.put("msg_type", 0L);
         req.put("piece", (long) piece);
         byte[] reqBytes = BencodeCodec.encode(req);

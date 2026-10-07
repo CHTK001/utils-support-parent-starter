@@ -1,8 +1,6 @@
 package com.chua.cloudflare.support.d1;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,7 +35,7 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
     public D1SqlParameter {
         positional = Objects.requireNonNull(positional, "positional 不能为 null").clone();
         named = Collections.unmodifiableMap(
-                new HashMap<>(Objects.requireNonNull(named, "named 不能为 null")));
+                Wraps.map(Objects.requireNonNull(named, "named 不能为 null")));
     }
 
     /**
@@ -67,7 +65,7 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
      * @return D1SqlParameter
      */
     public static D1SqlParameter ofNamed(Map<String, Object> named) {
-        return new D1SqlParameter(new Object[0], named == null ? Map.of() : new HashMap<>(named));
+        return new D1SqlParameter(new Object[0], named == null ? Map.of() : Wraps.map(named));
     }
 
     /**
@@ -108,7 +106,7 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
      * @return 按顺序排列的参数值数组
      */
     private Object[] resolveNamedOrder(String sql) {
-        List<Object> ordered = new ArrayList<>();
+        List<Object> ordered = Wraps.list();
         Matcher matcher = NAMED_PARAM.matcher(sql);
         while (matcher.find()) {
             var name = matcher.group(1);

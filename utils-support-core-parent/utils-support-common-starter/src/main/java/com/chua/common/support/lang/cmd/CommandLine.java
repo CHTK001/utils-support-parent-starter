@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.cmd;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.StringUtils;
 
 import javax.annotation.Nonnull;
@@ -117,7 +118,7 @@ public final class CommandLine {
      * @param builder builder
      */
     private CommandLine(Builder builder) {
-        this.options = Collections.unmodifiableList(new ArrayList<>(builder.options));
+        this.options = Collections.unmodifiableList(Wraps.list(builder.options));
         this.programName = builder.programName;
         this.programDescription = builder.programDescription;
         this.helpOptionEnabled = builder.helpOptionEnabled;
@@ -181,9 +182,9 @@ public final class CommandLine {
      */
     @Nonnull
     public Result parse(@Nullable String[] args) {
-        Map<String, Object> values = new LinkedHashMap<>();
-        List<String> positionalArgs = new ArrayList<>();
-        Set<String> seenOptions = new HashSet<>();
+        Map<String, Object> values = Wraps.linkedMap();
+        List<String> positionalArgs = Wraps.list();
+        Set<String> seenOptions = Wraps.set();
 
         // 初始化所有选项的默认值
         for (CliOption opt : options) {
@@ -326,7 +327,7 @@ public final class CommandLine {
         }
 
         // 校验必需选项
-        List<String> missing = new ArrayList<>();
+        List<String> missing = Wraps.list();
         for (CliOption opt : options) {
             if (opt.required() && !seenOptions.contains(opt.longName())) {
                 missing.add("--" + opt.longName());
@@ -404,7 +405,7 @@ public final class CommandLine {
 
         // 计算格式对齐宽度
         int maxNameWidth = 0;
-        Map<CliOption, String> nameParts = new LinkedHashMap<>();
+        Map<CliOption, String> nameParts = Wraps.linkedMap();
         for (CliOption opt : options) {
             String namePart = formatOptionName(opt);
             nameParts.put(opt, namePart);
@@ -677,7 +678,7 @@ public final class CommandLine {
      * @return 换行后的行列表
      */
     private static List<String> wordWrap(String text, int width) {
-        List<String> lines = new ArrayList<>();
+        List<String> lines = Wraps.list();
         if (StringUtils.isEmpty(text)) {
             lines.add("");
             return lines;
@@ -715,7 +716,7 @@ public final class CommandLine {
         /**
          * 选项列表
          */
-        private final List<CliOption> options = new ArrayList<>();
+        private final List<CliOption> options = Wraps.list();
         /**
          * 程序名称
          */
@@ -1139,11 +1140,11 @@ public final class CommandLine {
         /**
          * 已解析选项值映射
          */
-        private final Map<String, Object> optionValues = new LinkedHashMap<>();
+        private final Map<String, Object> optionValues = Wraps.linkedMap();
         /**
          * 位置参数列表
          */
-        private final List<String> positionalArgs = new ArrayList<>();
+        private final List<String> positionalArgs = Wraps.list();
         /**
          * 是否使用长选项名
          */
@@ -1304,7 +1305,7 @@ public final class CommandLine {
          */
         @Nonnull
         public String[] build() {
-            List<String> result = new ArrayList<>();
+            List<String> result = Wraps.list();
 
             for (CliOption opt : commandLine.options) {
                 Object value = optionValues.get(opt.longName());

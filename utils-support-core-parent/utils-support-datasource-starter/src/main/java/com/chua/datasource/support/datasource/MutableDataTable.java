@@ -1,6 +1,5 @@
 package com.chua.datasource.support.datasource;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
 
@@ -33,8 +32,8 @@ public class MutableDataTable implements DataTable {
      */
     public MutableDataTable(String name) {
         this.name = name;
-        this.columnNames = new ArrayList<>();
-        this.data = new ArrayList<>();
+        this.columnNames = Wraps.list();
+        this.data = Wraps.list();
     }
 
     /**

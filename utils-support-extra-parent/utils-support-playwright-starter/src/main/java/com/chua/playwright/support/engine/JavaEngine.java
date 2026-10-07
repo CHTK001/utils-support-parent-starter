@@ -1,5 +1,6 @@
 package com.chua.playwright.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.playwright.support.PlaywrightException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.playwright.Browser;
@@ -17,7 +18,6 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
@@ -389,7 +389,7 @@ public class JavaEngine implements Engine {
     @Override
     public List<Long> querySelectorAll(long handle, String selector) {
         List<ElementHandle> elements = get(handle, Page.class).querySelectorAll(selector);
-        List<Long> result = new ArrayList<>();
+        List<Long> result = Wraps.list();
         for (ElementHandle element : elements) {
             result.add(register(element));
         }
@@ -572,7 +572,7 @@ public class JavaEngine implements Engine {
      */
     @Override
     public List<Object> batch(List<Map<String, Object>> commands, boolean stopOnError) {
-        List<Object> results = new ArrayList<>();
+        List<Object> results = Wraps.list();
         for (int i = 0; i < commands.size(); i++) {
             Map<String, Object> command = commands.get(i);
             try {

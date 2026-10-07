@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.text.minimind;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.types.DataType;
@@ -13,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -206,7 +206,7 @@ public class MiniMindTranslator implements Translator<String, String> {
         int generatedCount = 0;
         StringBuilder out = new StringBuilder();
         try {
-            List<Long> tokenList = new ArrayList<>();
+            List<Long> tokenList = Wraps.list();
             for (int id : cachedIds) {
                 tokenList.add((long) id);
             }

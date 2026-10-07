@@ -1,5 +1,6 @@
 package com.chua.captcha.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
@@ -9,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -42,7 +42,7 @@ public class FileTaskPersistence implements TaskPersistence {
     /**
      * 内存缓存（保持写入顺序）
      */
-    private final Map<String, CaptchaResponse> cache = new LinkedHashMap<>();
+    private final Map<String, CaptchaResponse> cache = Wraps.linkedMap();
 
     /**
      * 是否已从文件加载到缓存

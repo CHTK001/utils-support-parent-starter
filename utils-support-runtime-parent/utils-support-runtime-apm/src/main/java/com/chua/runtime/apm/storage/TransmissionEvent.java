@@ -1,5 +1,6 @@
 package com.chua.runtime.apm.storage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.runtime.protocol.Endpoint;
 import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
@@ -9,8 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -148,7 +147,7 @@ public class TransmissionEvent {
      * 附加属性（懒填充）
     */
     @Builder.Default
-    private Map<String, String> attributes = new HashMap<>(); // attributes
+    private Map<String, String> attributes = Wraps.map(); // attributes
 
     /**
      * 从 {@link com.chua.runtime.protocol.TransmissionRecord} 转扁平字段。

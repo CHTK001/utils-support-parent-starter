@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.arcsoft;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.deeplearning.support.arcsoft.translator.ArcFaceCropperTranslator;
 import com.chua.deeplearning.support.arcsoft.translator.ArcFaceDetectorTranslator;
@@ -8,8 +9,6 @@ import com.chua.deeplearning.support.engine.BulkModelProvider;
 import com.chua.deeplearning.support.translator.TranslatorModelDefinition;
 import com.arcsoft.face.FaceEngine;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,7 +46,7 @@ public class ArcFaceModelProvider implements BulkModelProvider {
      * 获取全部
     */
     public List<TranslatorModelDefinition> getAll() {
-        List<TranslatorModelDefinition> definitions = new ArrayList<>();
+        List<TranslatorModelDefinition> definitions = Wraps.list();
 
         // 人脸检测
         definitions.add(TranslatorModelDefinition.builder()

@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.langchain4j;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.agent.Agent;
 import com.chua.common.support.ai.agent.AgentDefinition;
 import com.chua.common.support.ai.agent.AgentMode;
@@ -30,9 +31,6 @@ import dev.langchain4j.model.chat.request.json.JsonNumberSchema;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import dev.langchain4j.model.chat.request.json.JsonSchemaElement;
 import dev.langchain4j.model.chat.request.json.JsonStringSchema;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,12 +62,12 @@ public class LangChain4jAgent implements Agent {
     /**
      * 聊天客户端集合，键 为 Agent 标识
      */
-    private final Map<String, ChatClient> chatClients = new HashMap<>();
+    private final Map<String, ChatClient> chatClients = Wraps.map();
 
     /**
      * 子 Agent 定义列表
      */
-    private final List<AgentDefinition> subAgentDefinitions = new ArrayList<>();
+    private final List<AgentDefinition> subAgentDefinitions = Wraps.list();
 
     /**
      * 全局 MCP 管理器，用于动态注入 MCP 工具
@@ -398,7 +396,7 @@ public class LangChain4jAgent implements Agent {
         List<ToolSpecification> toolSpecs = buildToolSpecifications();
         Map<String, ToolExecutor> executors = buildToolExecutors();
 
-        List<ChatMessage> history = new ArrayList<>();
+        List<ChatMessage> history = Wraps.list();
         history.add(SystemMessage.from(systemPrompt));
         history.add(UserMessage.from(input));
 
@@ -422,7 +420,7 @@ public class LangChain4jAgent implements Agent {
                     break;
                 }
 
-                List<ToolExecutionResultMessage> results = new ArrayList<>();
+                List<ToolExecutionResultMessage> results = Wraps.list();
                 for (ToolExecutionRequest request : aiMessage.toolExecutionRequests()) {
                     String resultText = executeTool(request, executors);
                     results.add(ToolExecutionResultMessage.from(request, resultText));
@@ -485,7 +483,7 @@ public class LangChain4jAgent implements Agent {
      * @return 工具规格列表
      */
     private List<ToolSpecification> buildToolSpecifications() {
-        List<ToolSpecification> specs = new ArrayList<>();
+        List<ToolSpecification> specs = Wraps.list();
 
         if (globalMcpManager != null) {
             for (McpToolDescriptor descriptor : globalMcpManager.listAllTools()) {
@@ -520,7 +518,7 @@ public class LangChain4jAgent implements Agent {
      * @return 工具名称到执行器的映射
      */
     private Map<String, ToolExecutor> buildToolExecutors() {
-        Map<String, ToolExecutor> executors = new HashMap<>();
+        Map<String, ToolExecutor> executors = Wraps.map();
 
         if (globalMcpManager != null) {
             for (McpToolDescriptor descriptor : globalMcpManager.listAllTools()) {
@@ -615,7 +613,7 @@ public class LangChain4jAgent implements Agent {
 
         Object required = schema.get("required");
         if (required instanceof List) {
-            List<String> reqList = new ArrayList<>();
+            List<String> reqList = Wraps.list();
             for (Object item : (List<?>) required) {
                 if (item instanceof String) {
                     reqList.add((String) item);
@@ -640,7 +638,7 @@ public class LangChain4jAgent implements Agent {
     private static JsonObjectSchema buildParametersFromSkill(SkillDefinition skill) {
         JsonObjectSchema.Builder builder = JsonObjectSchema.builder()
                 .description(skill.getDescription());
-        List<String> requiredArgs = new ArrayList<>();
+        List<String> requiredArgs = Wraps.list();
 
         for (com.chua.common.support.ai.skill.SkillArgumentSchema arg : skill.getArguments()) {
             JsonSchemaElement property = switch (arg.getType().toLowerCase()) {

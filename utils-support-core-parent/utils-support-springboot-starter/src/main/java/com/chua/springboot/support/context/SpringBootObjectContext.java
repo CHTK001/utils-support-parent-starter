@@ -1,5 +1,6 @@
 package com.chua.springboot.support.context;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.objects.ObjectContext;
 import com.chua.common.support.objects.ObjectContextConfig;
 import com.chua.common.support.objects.definition.BeanDefinition;
@@ -18,11 +19,8 @@ import org.springframework.context.ApplicationContext;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -191,7 +189,7 @@ public class SpringBootObjectContext implements ObjectContext {
      * 获取Bean的类型
     */
     public <T> Map<String, T> getBeanOfTypes(Class<T> type) {
-        Map<String, T> result = new LinkedHashMap<>();
+        Map<String, T> result = Wraps.linkedMap();
 
         // 1. Spring
         try {
@@ -229,7 +227,7 @@ public class SpringBootObjectContext implements ObjectContext {
      * 获取方法with注解
     */
     public List<MethodDefinition> getMethodWithAnnotation(Class<? extends Annotation> annotationType) {
-        List<MethodDefinition> result = new ArrayList<>();
+        List<MethodDefinition> result = Wraps.list();
         // 1. Spring 容器中标注了该类注解的 Bean 上的方法
         try {
             Map<String, Object> springBeans = applicationContext.getBeansWithAnnotation(annotationType);
@@ -327,7 +325,7 @@ public class SpringBootObjectContext implements ObjectContext {
      * 获取Beandefinition名称
     */
     public Collection<String> getBeanDefinitionNames() {
-        Set<String> names = new LinkedHashSet<>();
+        Set<String> names = Wraps.linkedSet();
         names.addAll(Arrays.asList(applicationContext.getBeanDefinitionNames()));
         names.addAll(localRegistry.getBeanDefinitionNames());
         return names;
@@ -358,7 +356,7 @@ public class SpringBootObjectContext implements ObjectContext {
      * 获取Bean名称
     */
     public Collection<String> getBeanNames(Class<?> type) {
-        Set<String> names = new LinkedHashSet<>();
+        Set<String> names = Wraps.linkedSet();
         try {
             names.addAll(Arrays.asList(applicationContext.getBeanNamesForType(type)));
         } catch (Exception ignored) {

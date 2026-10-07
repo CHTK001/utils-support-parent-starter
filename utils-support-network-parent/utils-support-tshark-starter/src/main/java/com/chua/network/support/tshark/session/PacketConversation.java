@@ -1,11 +1,10 @@
 package com.chua.network.support.tshark.session;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.network.support.tshark.PacketRecord;
 import com.chua.network.support.tshark.stream.TcpStreamKey;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,17 +53,17 @@ public final class PacketConversation {
     /**
      * 包明细，按到达顺序
      */
-    private final List<PacketRecord> packets = new ArrayList<>();
+    private final List<PacketRecord> packets = Wraps.list();
 
     /**
      * 请求响应对
      */
-    private final List<ProtocolExchange> exchanges = new ArrayList<>();
+    private final List<ProtocolExchange> exchanges = Wraps.list();
 
     /**
      * 协议计数
      */
-    private final Map<String, Integer> protocolCounts = new LinkedHashMap<>();
+    private final Map<String, Integer> protocolCounts = Wraps.linkedMap();
 
     /**
      * 客户端到服务端的待配对请求

@@ -1,8 +1,7 @@
 package com.chua.common.support.lang.cmd;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -104,7 +103,7 @@ public class PackageManager {
   */
  static String[] installArgs(Type type, String packageId) {
  String[] tokens = type.getInstallTemplate().trim().split("\\s+");
- List<String> args = new ArrayList<>();
+ List<String> args = Wraps.list();
  for (int i = 0; i < tokens.length; i++) {
  if (i == 0 && isEnvPrefix(tokens[i])) {
  continue;

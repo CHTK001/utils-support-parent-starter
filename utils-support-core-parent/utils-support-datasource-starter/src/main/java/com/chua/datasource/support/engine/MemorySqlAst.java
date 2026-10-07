@@ -1,8 +1,6 @@
 package com.chua.datasource.support.engine;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -398,7 +396,7 @@ final class MemorySqlAst {
         /**
          * 投影列清单
         */
-        final List<String> selectColumns = new ArrayList<>();
+        final List<String> selectColumns = Wraps.list();
 
         /**
          * 标量聚合函数名（MAX/MIN/SUM/AVG/COUNT），null 表示非聚合投影
@@ -423,7 +421,7 @@ final class MemorySqlAst {
         /**
          * 排序项列表
         */
-        final List<OrderItem> orderBys = new ArrayList<>();
+        final List<OrderItem> orderBys = Wraps.list();
 
         /**
          * 返回上限，默认整型最大值表示不限
@@ -474,7 +472,7 @@ final class MemorySqlAst {
         public List<Map<String, Object>> evaluate(List<?> rows) {
             List<?> filtered = rows;
             if (where != null) {
-                List<Object> out = new ArrayList<>();
+                List<Object> out = Wraps.list();
                 for (Object r : rows) {
                     /* 参数绑定值不随行变化：每行求值需重置参数游标 */
                     if (where.eval(r, provider())) {
@@ -485,19 +483,19 @@ final class MemorySqlAst {
             }
             if (!orderBys.isEmpty()) {
                 Comparator<Object> cmp = buildComparator();
-                List<Object> sorted = new ArrayList<>(filtered);
+                List<Object> sorted = Wraps.list(filtered);
                 sorted.sort(cmp);
                 filtered = sorted;
             }
             if (countStar) {
-                Map<String, Object> m = new LinkedHashMap<>();
+                Map<String, Object> m = Wraps.linkedMap();
                 m.put("cnt", filtered.size());
                 return List.of(m);
             }
             if (aggFunc != null) {
                 return List.of(aggregate(filtered));
             }
-            List<Map<String, Object>> projected = new ArrayList<>();
+            List<Map<String, Object>> projected = Wraps.list();
             int fromIdx = Math.min(offset, filtered.size());
             int toIdx = Math.min(offset + limit, filtered.size());
             for (Object r : filtered.subList(fromIdx, toIdx)) {
@@ -517,7 +515,7 @@ final class MemorySqlAst {
          * @return 单行结果映射
          */
         private Map<String, Object> aggregate(List<?> rows) {
-            List<Object> values = new ArrayList<>();
+            List<Object> values = Wraps.list();
             for (Object r : rows) {
                 Object v = RowAccessor.value(r, aggColumn);
                 if (v != null) {
@@ -534,7 +532,7 @@ final class MemorySqlAst {
                         : values.stream().mapToDouble(SelectStmt::asDouble).average().orElse(0d);
                 default -> throw new IllegalStateException("不支持的聚合函数: " + aggFunc);
             }
-            Map<String, Object> out = new LinkedHashMap<>();
+            Map<String, Object> out = Wraps.linkedMap();
             out.put(aggColumn, result);
             return out;
         }
@@ -606,7 +604,7 @@ final class MemorySqlAst {
          * @return 投影后的有序映射
          */
         private Map<String, Object> project(Object row) {
-            Map<String, Object> out = new LinkedHashMap<>();
+            Map<String, Object> out = Wraps.linkedMap();
             if (selectAll) {
                 for (Map.Entry<String, Object> e : RowAccessor.allColumns(row).entrySet()) {
                     out.put(e.getKey(), e.getValue());
@@ -656,12 +654,12 @@ final class MemorySqlAst {
         /**
          * 显式列清单，未指定时由首行推断
         */
-        final List<String> columns = new ArrayList<>();
+        final List<String> columns = Wraps.list();
 
         /**
          * 各待插入行的值集合
         */
-        final List<List<Object>> rows = new ArrayList<>();
+        final List<List<Object>> rows = Wraps.list();
 
         /**
          * 列清单。
@@ -690,7 +688,7 @@ final class MemorySqlAst {
         /**
          * 设置 赋值映射（保持语句顺序）
         */
-        final Map<String, Object> sets = new LinkedHashMap<>();
+        final Map<String, Object> sets = Wraps.linkedMap();
 
         /**
          * 设置 赋值。
@@ -799,7 +797,7 @@ final class MemorySqlAst {
             List<String> cols = !plan.columns().isEmpty() ? plan.columns()
                     : (rows.isEmpty()
                             ? List.of()
-                            : new ArrayList<>(RowAccessor.allColumns(rows.getFirst()).keySet()));
+                            : Wraps.list(RowAccessor.allColumns(rows.getFirst()).keySet()));
             if (cols.isEmpty()) {
                 throw new IllegalStateException("无法推断插入列，请显式指定列清单");
             }
@@ -809,7 +807,7 @@ final class MemorySqlAst {
             }
             Object row;
             if (asMap) {
-                LinkedHashMap<String, Object> rowMap = new LinkedHashMap<>();
+                Map<String, Object> rowMap = Wraps.linkedMap();
                 for (int i = 0; i < values.size(); i++) {
                     rowMap.put(cols.get(i), values.get(i));
                 }

@@ -1,5 +1,6 @@
 package com.chua.common.support.network.http;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -57,7 +58,7 @@ public class HttpHeader {
      * <p>键为请求头名称（String），值为请求头值（String）。
      * 如果通过 {@link #add(String, String)} 添加同名请求头，新值会覆盖旧值。
      */
-    private final Map<String, String> headers = new LinkedHashMap<>();
+    private final Map<String, String> headers = Wraps.linkedMap();
 
     /**
      * 创建空的请求头容器。
@@ -128,7 +129,7 @@ public class HttpHeader {
      * @return 包含所有请求头键值对的 Map（保持插入顺序）
      */
     public Map<String, String> toMap() {
-        return new LinkedHashMap<>(headers);
+        return Wraps.linkedMap(headers);
     }
 
     /**

@@ -1,8 +1,7 @@
 package com.chua.common.support.datasource.wal;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.tree.BPlusTree;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -148,7 +147,7 @@ public class ShardedIndex {
     public List<Map.Entry<String, EntryLoc>> range(String from, String to) {
         rwLock.readLock().lock();
         try {
-            List<Map.Entry<String, EntryLoc>> result = new ArrayList<>();
+            List<Map.Entry<String, EntryLoc>> result = Wraps.list();
             for (BPlusTree<String, EntryLoc> tree : shards) {
                 result.addAll(tree.range(from, to));
             }

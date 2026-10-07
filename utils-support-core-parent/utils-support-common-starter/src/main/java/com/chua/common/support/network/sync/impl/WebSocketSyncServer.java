@@ -1,5 +1,6 @@
 package com.chua.common.support.network.sync.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.ServerSetting;
@@ -83,7 +84,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     /**
      * 监听器列表
      */
-    private final List<SyncServerListener> listeners = new ArrayList<>();
+    private final List<SyncServerListener> listeners = Wraps.list();
 
     /**
      * 连接 ID 生成器
@@ -191,7 +192,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
      */
     @Override
     public List<String> getConnectedClients() {
-        return new ArrayList<>(clients.keySet());
+        return Wraps.list(clients.keySet());
     }
 
     /**
@@ -240,7 +241,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
                 connections.add(conn);
                 String sessionId = "ws-" + connectionIdSeq.incrementAndGet();
                 conn.sessionId = sessionId;
-                clients.put(sessionId, new HashMap<>());
+                clients.put(sessionId, Wraps.map());
                 notifyListener(l -> l.onClientConnected(sessionId, clients.get(sessionId)));
                 executor.submit(() -> handleConnection(conn));
             } catch (IOException e) {

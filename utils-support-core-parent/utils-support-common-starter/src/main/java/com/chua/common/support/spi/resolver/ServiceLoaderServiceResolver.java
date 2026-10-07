@@ -1,5 +1,6 @@
 package com.chua.common.support.spi.resolver;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.definition.ServiceDefinition;
 import com.chua.common.support.spi.definition.ServiceDefinitionUtils;
 import com.chua.common.support.utils.ClassUtils;
@@ -9,7 +10,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class ServiceLoaderServiceResolver implements ServiceResolver {
      */
     @Override
     public List<ServiceDefinition> resolve(Class<?> type, ClassLoader classLoader) {
-        List<ServiceDefinition> result = new ArrayList<>();
+        List<ServiceDefinition> result = Wraps.list();
         String fileName = "META-INF/services/" + type.getName();
 
         try {

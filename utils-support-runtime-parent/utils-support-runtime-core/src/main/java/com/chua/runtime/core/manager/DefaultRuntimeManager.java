@@ -1,5 +1,6 @@
 package com.chua.runtime.core.manager;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.reflection.ReflectUtils;
@@ -19,7 +20,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -265,7 +265,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
      * 获取artifact标识
     */
     public List<String> getArtifactIds() {
-        return new ArrayList<>(artifactMap.keySet());
+        return Wraps.list(artifactMap.keySet());
     }
 
     @Override
@@ -273,7 +273,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
      * 获取runninginstances
     */
     public List<RuntimeInstance> getRunningInstances() {
-        List<RuntimeInstance> list = new ArrayList<>();
+        List<RuntimeInstance> list = Wraps.list();
         for (RuntimeInstance i : instanceMap.values()) {
             if (i.status() == RuntimeStatus.RUNNING) {
                 list.add(i);
@@ -463,7 +463,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
      * 列表java处理
     */
     public Map<Integer, String> listJavaProcesses() {
-        Map<Integer, String> jvms = new java.util.LinkedHashMap<>();
+        Map<Integer, String> jvms = Wraps.linkedMap();
         try {
             CmdResult r = CmdExecutors.execute(
                     new String[]{"ps", "-eo", "pid,comm,args"},

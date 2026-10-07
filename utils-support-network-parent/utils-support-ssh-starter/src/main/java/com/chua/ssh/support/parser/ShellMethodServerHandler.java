@@ -1,5 +1,6 @@
 package com.chua.ssh.support.parser;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.view.ViewParser;
 import com.chua.common.support.network.http.HttpMethod;
@@ -128,7 +129,7 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
      * @return resolve参数的结果
      */
     private static String[] resolveArgs(ServerRequest request) {
-        List<String> args = new java.util.ArrayList<>();
+        List<String> args = Wraps.list();
         for (int i = 0; ; i++) {
             String param = request.getParam(String.valueOf(i));
             if (param == null) {

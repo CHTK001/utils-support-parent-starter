@@ -1,6 +1,5 @@
 package com.chua.common.support.concurrent.threadflow;
-
-import java.util.HashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -33,7 +32,7 @@ public class ThreadContext {
     /**
      * 上下文属性存储
      */
-    private final Map<String, Object> attributes = new HashMap<>();
+    private final Map<String, Object> attributes = Wraps.map();
 
     /**
      * 获取当前线程的上下文，若不存在则自动创建。

@@ -1,5 +1,6 @@
 package com.chua.common.support.network.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.bean.BeanPath;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.placeholder.PlaceholderSupport;
@@ -27,7 +28,6 @@ import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -57,7 +57,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     /**
      * Spring MVC 方法级注解 → HTTP 方法映射
      */
-    private static final Map<String, HttpMethod> SPRING_METHOD_ANNOTATIONS = new LinkedHashMap<>();
+    private static final Map<String, HttpMethod> SPRING_METHOD_ANNOTATIONS = Wraps.linkedMap();
 
     /**
      * Spring MVC 类级注解（提取 baseUrl）
@@ -242,8 +242,8 @@ public class HttpApiInvocationHandler implements InvocationHandler {
         String path = propertyResolver.resolvePlaceholders(meta.pathTemplate);
 
         // 2. 解析参数：查询参数、请求头、请求体
-        Map<String, String> queryParams = new LinkedHashMap<>();
-        Map<String, String> headers = new LinkedHashMap<>();
+        Map<String, String> queryParams = Wraps.linkedMap();
+        Map<String, String> headers = Wraps.linkedMap();
         Object body = null;
 
         if (args != null) {

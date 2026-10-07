@@ -1,10 +1,10 @@
 package com.chua.ueba.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.ueba.support.dto.TrafficEvent;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayDeque;
 import java.util.List;
+import java.util.Deque;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,7 +26,7 @@ public class IpBehaviorTracker implements AutoCloseable {
     /**
      * 各实体的窗口队列（实体标识 → 事件队列）
      */
-    private final ConcurrentHashMap<String, ArrayDeque<TrafficEvent>> windows;
+    private final ConcurrentHashMap<String, Deque<TrafficEvent>> windows;
 
     /**
      * 窗口最大事件数
@@ -72,7 +72,7 @@ public class IpBehaviorTracker implements AutoCloseable {
     public synchronized void add(TrafficEvent event) {
         Objects.requireNonNull(event, "event must not be null");
         String key = entityKey(event);
-        ArrayDeque<TrafficEvent> queue = windows.computeIfAbsent(key, k -> new ArrayDeque<>());
+        Deque<TrafficEvent> queue = windows.computeIfAbsent(key, k -> Wraps.deque());
         queue.addLast(event);
         while (queue.size() > maxWindow) {
             queue.pollFirst();
@@ -89,7 +89,7 @@ public class IpBehaviorTracker implements AutoCloseable {
         if (entityId == null) {
             return List.of();
         }
-        ArrayDeque<TrafficEvent> queue = windows.get(entityId);
+        Deque<TrafficEvent> queue = windows.get(entityId);
         return queue == null ? List.of() : List.copyOf(queue);
     }
 

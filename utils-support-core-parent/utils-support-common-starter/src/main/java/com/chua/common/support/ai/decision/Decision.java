@@ -1,5 +1,6 @@
 package com.chua.common.support.ai.decision;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -85,7 +86,7 @@ public record Decision(
         if (probabilities.isEmpty()) {
             throw new IllegalArgumentException("probabilities 不能为空");
         }
-        Map<String, Double> copy = new LinkedHashMap<>();
+        Map<String, Double> copy = Wraps.linkedMap();
         BigDecimal sum = BigDecimal.ZERO;
         for (Map.Entry<String, Double> entry : probabilities.entrySet()) {
             String key = entry.getKey();
@@ -138,7 +139,7 @@ public record Decision(
         if (trueProbability < 0.0D || trueProbability > 1.0D || Double.isNaN(trueProbability)) {
             throw new IllegalArgumentException("trueProbability 必须在 0.0~1.0 之间，实际 " + trueProbability);
         }
-        Map<String, Double> distribution = new LinkedHashMap<>();
+        Map<String, Double> distribution = Wraps.linkedMap();
         distribution.put(DecisionType.TRUE_LABEL, trueProbability);
         distribution.put(DecisionType.FALSE_LABEL, complement(trueProbability));
         return new Decision(queryId, DecisionType.NOUL,

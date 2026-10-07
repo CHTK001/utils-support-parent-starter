@@ -1,5 +1,6 @@
 package com.chua.ollama.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.ai.embedding.EmbeddingClient;
 import com.chua.common.support.ai.embedding.EmbeddingClientSetting;
@@ -10,8 +11,6 @@ import io.github.ollama4j.models.embed.OllamaEmbedRequest;
 import io.github.ollama4j.models.embed.OllamaEmbedResult;
 import io.github.ollama4j.models.response.Model;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -150,7 +149,7 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
-        List<EmbeddingResponse.Embedding> embs = new ArrayList<>(vs.length);
+        List<EmbeddingResponse.Embedding> embs = Wraps.list(vs.length);
         for (float[] v : vs) {
             embs.add(EmbeddingResponse.Embedding.builder()
                     .vector(v).index(idx.getAndIncrement()).dimensions(v != null ? v.length : 0).build());
@@ -165,7 +164,7 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
     public List<ModelDefinition> models() {
         try {
             List<Model> raw = ollama.listModels();
-            List<ModelDefinition> result = new ArrayList<>();
+            List<ModelDefinition> result = Wraps.list();
             if (raw != null) {
                 for (Model m : raw) {
                     if (m == null || m.getName() == null || m.getName().isBlank()) {

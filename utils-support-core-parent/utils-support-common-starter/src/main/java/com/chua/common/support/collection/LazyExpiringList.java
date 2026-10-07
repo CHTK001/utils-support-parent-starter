@@ -1,10 +1,10 @@
 package com.chua.common.support.collection;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.serialize.JavaSerializer;
 import com.chua.common.support.serialize.Serializer;
 
 import java.util.AbstractList;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -491,9 +491,9 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
             }
             state = ListState.LOADING;
             try {
-                List<E> data = new ArrayList<>(loader.get());
+                List<E> data = Wraps.list(loader.get());
                 if (data.size() > maxCapacity) {
-                    data = new ArrayList<>(data.subList(0, maxCapacity));
+                    data = Wraps.list(data.subList(0, maxCapacity));
                 }
                 DataStore<E> created = createStore();
                 for (E e : data) {

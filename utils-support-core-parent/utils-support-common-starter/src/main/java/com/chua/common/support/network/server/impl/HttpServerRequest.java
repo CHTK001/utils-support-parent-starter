@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.server.request.ServerRequest;
@@ -11,9 +12,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -120,7 +119,7 @@ public class HttpServerRequest implements ServerRequest {
         if (query == null || query.isEmpty()) {
             return Map.of();
         }
-        Map<String, String> map = new LinkedHashMap<>();
+        Map<String, String> map = Wraps.linkedMap();
         for (String pair : query.split("&")) {
             String[] kv = pair.split("=", 2);
             if (kv.length > 0) {
@@ -251,7 +250,7 @@ public class HttpServerRequest implements ServerRequest {
             if (body == null || body.isEmpty()) {
                 return Collections.emptyMap();
             }
-            Map<String, String> form = new LinkedHashMap<>();
+            Map<String, String> form = Wraps.linkedMap();
             for (String pair : body.split("&")) {
                 String[] kv = pair.split("=", 2);
                 if (kv.length > 0) {

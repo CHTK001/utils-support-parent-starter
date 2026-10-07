@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.format;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.*;
 
 /**
@@ -104,7 +105,7 @@ public abstract class SqlFormatter implements Formatter {
 
     static {
         // 初始化关键字集合
-        KEYWORDS = new HashSet<>(Arrays.asList(
+        KEYWORDS = Wraps.set(Arrays.asList(
                 // DML（数据操作语言）
                 "SELECT", "INSERT", "UPDATE", "DELETE", "MERGE",
                 // DDL（数据定义语言）
@@ -130,7 +131,7 @@ public abstract class SqlFormatter implements Formatter {
         ));
 
         // 初始化操作符集合
-        OPERATORS = new HashSet<>(Arrays.asList(
+        OPERATORS = Wraps.set(Arrays.asList(
                 '=', '<', '>', '+', '-', '*', '/', '(', ')', ',', ';', '.'
         ));
     }
@@ -355,7 +356,7 @@ public abstract class SqlFormatter implements Formatter {
      * @return 分割后的字符串列表
      */
     protected List<String> splitPreservingParens(String text) {
-        List<String> parts = new ArrayList<>();
+        List<String> parts = Wraps.list();
         if (text == null || text.isEmpty()) {
             return parts;
         }

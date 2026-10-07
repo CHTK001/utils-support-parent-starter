@@ -1,5 +1,6 @@
 package com.chua.common.support.taskdistribution.store;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.taskdistribution.task.Task;
@@ -178,7 +179,7 @@ public class FileTaskStore implements TaskStore {
 
     @Override
     public List<Task<?>> getRecoverableTasks() {
-        List<Task<?>> result = new ArrayList<>();
+        List<Task<?>> result = Wraps.list();
         for (Map.Entry<String, Task<?>> entry : taskCache.entrySet()) {
             String taskId = entry.getKey();
             TaskStatus status = statusCache.get(taskId);

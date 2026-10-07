@@ -1,5 +1,6 @@
 package com.chua.kcp.support.server;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.network.http.HttpHeader;
@@ -32,9 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -105,7 +104,7 @@ public class KcpServer extends AbstractServer {
     /**
      * 客户端连接表（客户端id -> ukcp）
      */
-    private final Map<String, Ukcp> sessions = new HashMap<>();
+    private final Map<String, Ukcp> sessions = Wraps.map();
 
     /**
      * 批量发送队列（连接 -> 待发送消息字节，无锁队列）
@@ -118,7 +117,7 @@ public class KcpServer extends AbstractServer {
     /**
      * 批量 flusher 列表（虚拟线程，按连接 哈希 分片并发冲刷）。
      */
-    private volatile List<Thread> batchFlushers = new ArrayList<>();
+    private volatile List<Thread> batchFlushers = Wraps.list();
 
     /**
      * 批量 flusher 生命周期标志。
@@ -130,7 +129,7 @@ public class KcpServer extends AbstractServer {
     /**
      * 客户端元数据集合（客户端id -> 映射）
      */
-    private final Map<String, Map<String, Object>> sessionMetadata = new HashMap<>();
+    private final Map<String, Map<String, Object>> sessionMetadata = Wraps.map();
 
     /**
      * 同步事件监听器列表
@@ -246,7 +245,7 @@ public class KcpServer extends AbstractServer {
  // 启动批量 flusher 多实例：按连接 哈希 分片，多个虚拟线程并发合并写出，
  // 避免单 flusher 串行瓶颈（无锁 并发链接队列 入队，无锁并发安全）
         int flusherCount = Math.max(2, Math.min(Runtime.getRuntime().availableProcessors(), 8));
-        batchFlushers = new ArrayList<>(flusherCount);
+        batchFlushers = Wraps.list(flusherCount);
         batchRunning.set(true);
         for (int i = 0; i < flusherCount; i++) {
             final int shard = i;
@@ -389,7 +388,7 @@ public class KcpServer extends AbstractServer {
      * @return 获取连接客户端的结果
      */
     public List<String> getConnectedClients() {
-        return new ArrayList<>(sessions.keySet());
+        return Wraps.list(sessions.keySet());
     }
 
     /**
@@ -652,7 +651,7 @@ public class KcpServer extends AbstractServer {
             // kcp-base 1.6.2 的 Ukcp 未暴露 remoteAddress()，用 hashCode 兜底，由客户端 register: 重命名
             String initialId = "client-" + System.nanoTime() + "-" + ukcp.hashCode();
             sessions.put(initialId, ukcp);
-            Map<String, Object> meta = new HashMap<>();
+            Map<String, Object> meta = Wraps.map();
             meta.put("clientId", initialId);
             sessionMetadata.put(initialId, meta);
  // 用 kcp-基础 用户 缓存 客户端标识（不持有 通道，避免外部 通道 失效）
@@ -768,7 +767,7 @@ public class KcpServer extends AbstractServer {
                 notifyDisconnectListeners(oldId);
             }
             sessions.put(clientId, ukcp);
-            Map<String, Object> meta = new HashMap<>();
+            Map<String, Object> meta = Wraps.map();
             meta.put("clientId", clientId);
             sessionMetadata.put(clientId, meta);
             if (user != null) {

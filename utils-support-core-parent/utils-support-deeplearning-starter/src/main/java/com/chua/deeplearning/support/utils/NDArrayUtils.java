@@ -1,13 +1,12 @@
 package com.chua.deeplearning.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.types.DataType;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,7 +27,7 @@ public class NDArrayUtils {
         int rows = mat.rows();
         MatOfPoint matOfPoint = new MatOfPoint();
 
-        List<Point> list = new ArrayList<>();
+        List<Point> list = Wraps.list();
         for (int i = 0; i < rows; i++) {
             Point point = new Point((float) mat.get(i, 0)[0], (float) mat.get(i, 1)[0]);
             list.add(point);

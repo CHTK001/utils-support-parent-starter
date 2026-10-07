@@ -1,5 +1,6 @@
 package com.chua.common.support.proxy;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.objects.ObjectContext;
 import com.chua.common.support.objects.describe.MethodDescribe;
 import com.chua.common.support.utils.ClassUtils;
@@ -13,7 +14,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -244,7 +244,7 @@ public class ProxyMethod {
             return Collections.emptyMap();
         }
 
-        Map<String, Object> params = new HashMap<>(args.length);
+        Map<String, Object> params = Wraps.map(args.length);
         Parameter[] parameters = method.getParameters();
 
         for (int i = 0; i < parameters.length; i++) {

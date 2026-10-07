@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -13,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -162,7 +162,7 @@ public final class CliModelRunner {
         String base = "https://github.com/NVIDIA/NeMo-Speech.cpp/releases/download/v0.1.0/";
         String name = "nemo-speech-0.1.0-" + osTag + "-" + archTag + "-" + backend;
         String ext = windows ? "zip" : "tar.gz";
-        List<String> urls = new ArrayList<>();
+        List<String> urls = Wraps.list();
         urls.add(base + name + "." + ext);
         if ("cuda".equals(backend) || "vulkan".equals(backend)) {
             urls.add(base + "nemo-speech-0.1.0-" + osTag + "-" + archTag + "-cpu." + ext);
@@ -198,7 +198,7 @@ public final class CliModelRunner {
         String version = System.getProperty("opencode.version", DEFAULT_OPENCODE_VERSION).trim();
         String base = "https://github.com/anomalyco/opencode/releases/download/" + version + "/";
         String name = "opencode-" + osTag + "-" + archTag + "." + ext;
-        List<String> urls = new ArrayList<>();
+        List<String> urls = Wraps.list();
         urls.add(base + name);
         // 无配套 .sha256；二进制位于压缩包根目录 → entryPathIn=null（仅取同名根二进制）
         return new CliDescriptor("opencode", "opencode", urls, null, null);
@@ -328,7 +328,7 @@ public final class CliModelRunner {
             return null;
         }
         String exe = exeName(d);
-        List<Path> candidates = new ArrayList<>();
+        List<Path> candidates = Wraps.list();
         if (d.entryPathIn() != null && !d.entryPathIn().isBlank()) {
             candidates.add(root.resolve(d.entryPathIn().replace('\\', '/')));
         }
@@ -383,7 +383,7 @@ public final class CliModelRunner {
         if (pathEnv == null || pathEnv.isBlank()) {
             return null;
         }
-        List<String> candidates = new ArrayList<>();
+        List<String> candidates = Wraps.list();
         candidates.add(d.binaryName());
         if (isWindows()) {
             String pathext = System.getenv("PATHEXT");
@@ -667,7 +667,7 @@ public final class CliModelRunner {
      */
     public static String run(Path exePath, String[] args, long timeoutSec)
             throws IOException, InterruptedException, TimeoutException {
-        List<String> cmd = new ArrayList<>();
+        List<String> cmd = Wraps.list();
         cmd.add(exePath.toString());
         if (args != null) {
             for (String a : args) {
@@ -754,7 +754,7 @@ public final class CliModelRunner {
      */
     public static void runStream(Path exePath, String[] args, long timeoutSec, Consumer<String> onLine)
             throws IOException, InterruptedException, TimeoutException {
-        List<String> cmd = new ArrayList<>();
+        List<String> cmd = Wraps.list();
         cmd.add(exePath.toString());
         if (args != null) {
             for (String a : args) {

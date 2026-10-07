@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.paraformer;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
@@ -14,8 +15,6 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.io.ByteArrayOutputStream;
@@ -230,7 +229,7 @@ public class ParaformerTranslator {
  // greedy 搜索
         int vocabSize = tokenizer.vocabSize();
         int eosId = tokenizer.eosId();
-        List<Integer> tokenIds = new ArrayList<>();
+        List<Integer> tokenIds = Wraps.list();
         for (int k = 0; k < seqLen; k++) {
             int offset = k * vocabSize;
             int maxIdx = 0;

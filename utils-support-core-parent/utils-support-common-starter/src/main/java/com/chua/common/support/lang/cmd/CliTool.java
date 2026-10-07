@@ -1,12 +1,12 @@
 package com.chua.common.support.lang.cmd;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -149,7 +149,7 @@ public class CliTool {
         if (args == null || args.length == 0) {
             this.fixedArgs = null;
         } else {
-            this.fixedArgs = Collections.unmodifiableList(new ArrayList<>(Arrays.asList(args)));
+            this.fixedArgs = Collections.unmodifiableList(Wraps.list(Arrays.asList(args)));
         }
         return this;
     }

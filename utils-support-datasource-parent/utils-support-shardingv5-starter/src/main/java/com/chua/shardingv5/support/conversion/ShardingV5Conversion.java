@@ -1,5 +1,6 @@
 package com.chua.shardingv5.support.conversion;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.DataSourceConversion;
@@ -71,19 +72,19 @@ public class ShardingV5Conversion implements DataSourceConversion {
     /**
      * 表配置
     */
-    private final List<TableConfig> tableConfigs = new ArrayList<>();
+    private final List<TableConfig> tableConfigs = Wraps.list();
     /**
      * 数据库配置
     */
-    private final List<DbConfig> dbConfigs = new ArrayList<>();
+    private final List<DbConfig> dbConfigs = Wraps.list();
     /**
      * 时间rangeconfigs
     */
-    private final List<TimeRangeConfig> timeRangeConfigs = new ArrayList<>();
+    private final List<TimeRangeConfig> timeRangeConfigs = Wraps.list();
     /**
      * algorithms
     */
-    private final Map<String, AlgorithmHolder> algorithms = new LinkedHashMap<>();
+    private final Map<String, AlgorithmHolder> algorithms = Wraps.linkedMap();
     /**
      * Autodiscover
     */
@@ -223,8 +224,8 @@ public class ShardingV5Conversion implements DataSourceConversion {
         if (dataSources.isEmpty()) {
             throw new IllegalArgumentException("至少需要一个实际数据源");
         }
-        var actualMap = new LinkedHashMap<String, DataSource>();
-        var discovered = new LinkedHashMap<String, Set<String>>();
+        var actualMap = Wraps.<String, DataSource>linkedMap();
+        var discovered = Wraps.<String, Set<String>>linkedMap();
         var isCached = cacheSeconds > 0;
 
         for (int i = 0; i < dataSources.size(); i++) {
@@ -238,7 +239,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
         }
 
         var shardingRule = new ShardingRuleConfiguration();
-        var allTables = autoDiscover && !isCached ? mergeDiscoveredTables(discovered) : new LinkedHashSet<String>();
+        var allTables = autoDiscover && !isCached ? mergeDiscoveredTables(discovered) : Wraps.<String>linkedSet();
 
  // 注册算法到 分库分表sphere
         for (var e : algorithms.entrySet()) {
@@ -263,7 +264,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
         }
 
  // 校验：重复 前缀 冲突
-        var seenPrefixes = new HashSet<String>();
+        var seenPrefixes = Wraps.<String>set();
         for (var tc : tableConfigs) {
             if (!seenPrefixes.add(tc.prefix)) {
                 log.warn("发现重复的分片表前缀: " + tc.prefix + "，后者将覆盖前者");
@@ -415,7 +416,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
      * @return 扫描全部tables的结果
      */
     private Set<String> scanAllTables(List<DataSource> dss) {
-        var all = new LinkedHashSet<String>();
+        var all = Wraps.<String>linkedSet();
         for (var ds : dss) {
             all.addAll(discoverTables(ds));
         }
@@ -429,7 +430,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
      * @return 转为映射的结果
      */
     private Map<String, String> toMap(Properties props) {
-        var map = new LinkedHashMap<String, String>();
+        var map = Wraps.<String, String>linkedMap();
         props.forEach((k, v) -> map.put((String) k, (String) v));
         return map;
     }
@@ -441,7 +442,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
      * @return discoverTables的结果
      */
     private Set<String> discoverTables(DataSource ds) {
-        var tables = new LinkedHashSet<String>();
+        var tables = Wraps.<String>linkedSet();
         try (var conn = ds.getConnection()) {
             var meta = conn.getMetaData();
             try (var rs = meta.getTables(null, null, "%", new String[]{"TABLE", "VIEW"})) {
@@ -460,7 +461,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
      * @return 合并discoveredtables的结果
      */
     private Set<String> mergeDiscoveredTables(Map<String, Set<String>> discovered) {
-        var all = new LinkedHashSet<String>();
+        var all = Wraps.<String>linkedSet();
         discovered.values().forEach(all::addAll);
         return all;
     }

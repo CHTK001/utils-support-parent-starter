@@ -1,9 +1,8 @@
 package com.chua.filestorage.support.storage.lanzou;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonObject;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -94,7 +93,7 @@ final class LanzouSharePageParser {
         // 形态一：有密码，down_p 函数
         String sign = matchFirst(SIGN_PATTERN, mainHtml, 1);
         if (sign != null) {
-            Map<String, String> params = new LinkedHashMap<>();
+            Map<String, String> params = Wraps.linkedMap();
             params.put("action", "downprocess");
             params.put("sign", sign);
             if (password != null && !password.isEmpty()) {
@@ -134,7 +133,7 @@ final class LanzouSharePageParser {
      * @return resolveAJAX参数的结果
      */
     private static Map<String, String> resolveAjaxParams(String html, String password) {
-        Map<String, String> params = new LinkedHashMap<>();
+        Map<String, String> params = Wraps.linkedMap();
         String block = matchFirst(DATA_BLOCK_PATTERN, html, 1);
         if (block == null) {
             params.put("action", "downprocess");

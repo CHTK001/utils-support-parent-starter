@@ -1,15 +1,14 @@
 package com.chua.common.support.collection;
 
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.BeanUtils;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.common.support.utils.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,12 +50,12 @@ public class LevelsOpen implements Levels {
         if (MapUtils.isEmpty(stringObjectMap)) {
             return null;
         }
-        List<Map<String, Object>> result = new ArrayList<>();
+        List<Map<String, Object>> result = Wraps.list();
         Set<String> keySet = stringObjectMap.keySet();
-        List<String> list = new ArrayList<>(keySet);
+        List<String> list = Wraps.list(keySet);
         Collections.sort(list);
         for (String key : list) {
-            Map<String, Object> map = new HashMap<>(DEFAULT_INITIAL_CAPACITY);
+            Map<String, Object> map = Wraps.map(DEFAULT_INITIAL_CAPACITY);
             String tempKey = key;
             int index = tempKey.indexOf(".");
             if (index > -1) {
@@ -100,7 +99,7 @@ public class LevelsOpen implements Levels {
      * @return 合并后的最终 Map
      */
     private Map<String, Object> merge(List<Map<String, Object>> toArray) {
-        Map<String, Object> result = new HashMap<>(DEFAULT_INITIAL_CAPACITY);
+        Map<String, Object> result = Wraps.map(DEFAULT_INITIAL_CAPACITY);
         for (Map<String, Object> objectMap : toArray) {
             merge(result, objectMap);
         }
@@ -235,7 +234,7 @@ public class LevelsOpen implements Levels {
             tempKey = tempKey.substring(0, index);
         }
         int newIndex = tempKey.indexOf(SYMBOL_LEFT_SQUARE_BRACKET);
-        Map<String, Object> item = new HashMap<>(DEFAULT_INITIAL_CAPACITY);
+        Map<String, Object> item = Wraps.map(DEFAULT_INITIAL_CAPACITY);
 
         if (index == -1) {
             if (newIndex == -1) {
@@ -268,8 +267,8 @@ public class LevelsOpen implements Levels {
             tempKey = tempKey.substring(0, index);
         }
         int newIndex = tempKey.indexOf(SYMBOL_LEFT_SQUARE_BRACKET);
-        List<Map<String, Object>> result = new ArrayList<>();
-        Map<String, Object> item = new HashMap<>(DEFAULT_INITIAL_CAPACITY);
+        List<Map<String, Object>> result = Wraps.list();
+        Map<String, Object> item = Wraps.map(DEFAULT_INITIAL_CAPACITY);
 
         if (index == -1) {
             if (newIndex == -1) {
@@ -299,9 +298,9 @@ public class LevelsOpen implements Levels {
      */
     private List<Object> levelOpenList(String substring, Object o) {
         if (o instanceof Collection) {
-            return new ArrayList<Object>((Collection<?>) o);
+            return Wraps.<Object>list((Collection<?>) o);
         }
-        return new ArrayList<>(Collections.singletonList(o));
+        return Wraps.list(Collections.singletonList(o));
     }
 
 }

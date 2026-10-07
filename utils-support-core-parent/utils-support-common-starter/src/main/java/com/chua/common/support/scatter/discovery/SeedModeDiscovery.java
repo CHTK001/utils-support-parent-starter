@@ -1,5 +1,6 @@
 package com.chua.common.support.scatter.discovery;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.scatter.ScatterContext;
 import com.chua.common.support.scatter.ScatterNode;
@@ -11,7 +12,6 @@ import com.chua.common.support.scatter.protocol.ScatterProtocol;
 import com.chua.common.support.lang.json.Json;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -163,7 +163,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
             }
             // 仅标记 seed 引导条目（metadata.seed=true）
             if (d.getMetadata() != null && "true".equals(d.getMetadata().get(METADATA_SEED))) {
-                java.util.Map<String, String> meta = new java.util.HashMap<>(d.getMetadata());
+                java.util.Map<String, String> meta = Wraps.map(d.getMetadata());
                 meta.put(METADATA_SEED_DOWN, "true");
                 Discovery copy = Discovery.builder()
                         .id(d.getId()).serverId(d.getServerId()).scatterId(d.getScatterId())
@@ -180,7 +180,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
      */
     private void degradeSync() {
         Set<Discovery> services = getServiceAll(setting.getServicePath());
-        List<Discovery> candidates = new ArrayList<>();
+        List<Discovery> candidates = Wraps.list();
         for (Discovery d : services) {
             if (d.getServerId() == null || setting.getNodeId().equals(d.getServerId())) {
                 continue;
@@ -240,7 +240,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         ScatterFrame elec = new ScatterFrame(ScatterProtocol.TYPE_ELEC,
                 genRequestId(),
                 setting.getServicePath(), payload);
-        List<ScatterNode> targets = new ArrayList<>();
+        List<ScatterNode> targets = Wraps.list();
         Set<Discovery> services = getServiceAll(setting.getServicePath());
         for (Discovery d : services) {
             if (d.getServerId() == null || setting.getNodeId().equals(d.getServerId())) {

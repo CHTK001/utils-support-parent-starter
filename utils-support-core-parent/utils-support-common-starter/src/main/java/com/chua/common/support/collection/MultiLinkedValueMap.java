@@ -1,5 +1,6 @@
 package com.chua.common.support.collection;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.CollectionUtils;
 
 import java.io.Serializable;
@@ -28,7 +29,7 @@ public class MultiLinkedValueMap<K, V> implements MultiValueMap<K, V>, Serializa
     /**
      * targetMap
      */
-    private final Map<K, List<V>> targetMap = new LinkedHashMap<>();
+    private final Map<K, List<V>> targetMap = Wraps.linkedMap();
 
     /**
      * 构造一个空的 MultiLinkedValueMap 实例。
@@ -76,7 +77,7 @@ public class MultiLinkedValueMap<K, V> implements MultiValueMap<K, V>, Serializa
      */
     @Override
     public void add(K key, V value) {
-        List<V> values = this.targetMap.computeIfAbsent(key, k -> new LinkedList<>());
+        List<V> values = this.targetMap.computeIfAbsent(key, k -> Wraps.list());
         values.add(value);
     }
 
@@ -88,7 +89,7 @@ public class MultiLinkedValueMap<K, V> implements MultiValueMap<K, V>, Serializa
      */
     @Override
     public void addAll(K key, List<V> values) {
-        List<V> currentValues = this.targetMap.computeIfAbsent(key, k -> new LinkedList<>());
+        List<V> currentValues = this.targetMap.computeIfAbsent(key, k -> Wraps.list());
         currentValues.addAll(values);
     }
 
@@ -112,7 +113,7 @@ public class MultiLinkedValueMap<K, V> implements MultiValueMap<K, V>, Serializa
      */
     @Override
     public void set(K key, V value) {
-        List<V> values = new LinkedList<>();
+        List<V> values = Wraps.list();
         values.add(value);
         this.targetMap.put(key, values);
     }
@@ -134,7 +135,7 @@ public class MultiLinkedValueMap<K, V> implements MultiValueMap<K, V>, Serializa
      */
     @Override
     public Map<K, V> toSingleValueMap() {
-        Map<K, V> singleValueMap = new LinkedHashMap<>();
+        Map<K, V> singleValueMap = Wraps.linkedMap();
         this.targetMap.forEach((key, values) -> {
             if (values != null && !values.isEmpty()) {
                 singleValueMap.put(key, values.getFirst());
@@ -186,7 +187,7 @@ public class MultiLinkedValueMap<K, V> implements MultiValueMap<K, V>, Serializa
     @Override
     public List<V> values() {
         Collection<List<V>> values = targetMap.values();
-        List<V> rs = new LinkedList<>();
+        List<V> rs = Wraps.list();
         for (List<V> value : values) {
             rs.addAll(value);
         }

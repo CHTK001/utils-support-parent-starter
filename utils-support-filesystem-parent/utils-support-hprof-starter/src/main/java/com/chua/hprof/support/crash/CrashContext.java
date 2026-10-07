@@ -1,9 +1,9 @@
 package com.chua.hprof.support.crash;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.hprof.support.model.HprofObject;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -124,7 +124,7 @@ public final class CrashContext {
     public static List<CrashSignal> detect(File hprofFile,
                                            long totalRetained,
                                            long totalLiveCount) {
-        List<CrashSignal> signals = new ArrayList<>();
+        List<CrashSignal> signals = Wraps.list();
         if (hprofFile != null) {
             signals.addAll(detectFromName(hprofFile));
             signals.addAll(detectCompanionLogs(hprofFile));
@@ -145,7 +145,7 @@ public final class CrashContext {
                 .anyMatch(CrashSignal::oomLikely);
         if (namedOom && !waterLevelHigh) {
             // 文件名声称 OOM 但堆水位并未打满 -> 全部 OOM 信号降级
-            List<CrashSignal> downgraded = new ArrayList<>();
+            List<CrashSignal> downgraded = Wraps.list();
             for (CrashSignal s : signals) {
                 if (s.oomLikely() && !s.kind().equals("堆水位")) {
                     downgraded.add(new CrashSignal(s.kind(), s.detail(),
@@ -167,7 +167,7 @@ public final class CrashContext {
      * @return 命中的信号（0..1 条）
      */
     private static List<CrashSignal> detectFromName(File file) {
-        List<CrashSignal> out = new ArrayList<>();
+        List<CrashSignal> out = Wraps.list();
         String name = file.getName().toLowerCase(java.util.Locale.ROOT);
         if (name.startsWith("java_error_in_")) {
             out.add(new CrashSignal("文件名约定",
@@ -190,7 +190,7 @@ public final class CrashContext {
      * @return 命中的信号（0..2 条）
      */
     private static List<CrashSignal> detectCompanionLogs(File file) {
-        List<CrashSignal> out = new ArrayList<>();
+        List<CrashSignal> out = Wraps.list();
         File dir = file.getParentFile();
         if (dir == null || !dir.isDirectory()) {
             return out;

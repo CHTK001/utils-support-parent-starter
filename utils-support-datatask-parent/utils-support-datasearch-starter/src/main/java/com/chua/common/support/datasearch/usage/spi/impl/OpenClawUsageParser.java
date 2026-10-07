@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
@@ -14,8 +15,6 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -115,7 +114,7 @@ public class OpenClawUsageParser extends BaseUsageParser {
         if (!Files.isDirectory(agentsDir)) {
             return List.of();
         }
-        List<Path> files = new ArrayList<>();
+        List<Path> files = Wraps.list();
         try (var agents = Files.list(agentsDir)) {
             for (Path agent : (Iterable<Path>) agents::iterator) {
                 Path sessions = agent.resolve("sessions");
@@ -152,13 +151,13 @@ public class OpenClawUsageParser extends BaseUsageParser {
      * @return 去重后的用量记录列表
      */
     private List<AiUsage> collectCalls(Path file) {
-        Map<String, AiUsage> calls = new LinkedHashMap<>();
+        Map<String, AiUsage> calls = Wraps.linkedMap();
         try (Stream<String> lines = Files.lines(file, StandardCharsets.UTF_8)) {
             lines.forEach(line -> absorbCalls(line, calls));
         } catch (IOException | UncheckedIOException e) {
             log.debug("[openclaw] read failed {}: {}", file.getFileName(), e.getMessage());
         }
-        return new ArrayList<>(calls.values());
+        return Wraps.list(calls.values());
     }
 
     /**

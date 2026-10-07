@@ -17,7 +17,7 @@
     <properties>
         <maven.api.version>3.9.16</maven.api.version>
         <maven.plugin.annotations.version>3.16.0</maven.plugin.annotations.version>
-        <maven.plugin.plugin.version>3.9.0</maven.plugin.plugin.version>
+        <maven.plugin.plugin.version>3.16.0</maven.plugin.plugin.version>
     </properties>
 
     <dependencies>
@@ -33,6 +33,13 @@
             <version>${maven.plugin.annotations.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- 源码引用 com.chua.common.support.collection.wrap.Wraps（集合包装工具），必须进插件运行期
+             classpath，故用默认 compile scope（会随 plugin.xml 声明为插件依赖）；版本由 root 依赖管理托管 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -45,7 +52,8 @@
                     <release>17</release>
                 </configuration>
             </plugin>
-            <!-- 版本钉死为本地仓库已存在的 3.9.0，避免离线环境拉取最新版本失败 -->
+            <!-- 2026-10-06 升级 3.9.0 → 3.16.0：支持 Java 25 环境，与 maven-plugin-annotations 3.16.0 配套；
+                 3.16.0 已确认存在于本地仓库 D:\maven-repo，离线构建可用 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>

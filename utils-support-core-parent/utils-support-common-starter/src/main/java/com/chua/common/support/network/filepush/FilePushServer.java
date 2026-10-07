@@ -1,5 +1,6 @@
 package com.chua.common.support.network.filepush;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.ThreadUtils;
 
 import java.io.BufferedOutputStream;
@@ -20,7 +21,6 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -505,7 +505,7 @@ public class FilePushServer implements AutoCloseable {
         if (count < 0 || count > MAX_MANIFEST_ENTRIES) {
             throw new IOException("非法清单条数: " + count);
         }
-        Set<String> paths = new HashSet<>(Math.max(16, count * 2));
+        Set<String> paths = Wraps.set(Math.max(16, count * 2));
         for (int i = 0; i < count; i++) {
             int len = in.readInt();
             if (len <= 0 || len > 16384) {

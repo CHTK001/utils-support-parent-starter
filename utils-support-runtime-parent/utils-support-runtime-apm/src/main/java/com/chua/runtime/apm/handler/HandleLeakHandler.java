@@ -1,5 +1,6 @@
 package com.chua.runtime.apm.handler;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
@@ -340,7 +341,7 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     public java.util.List<HandleRecord> detectLeaks() {
         long now = System.currentTimeMillis();
-        java.util.List<HandleRecord> leaks = new java.util.ArrayList<>();
+        java.util.List<HandleRecord> leaks = Wraps.list();
         for (HandleRecord r : handles.values()) {
             if (!r.isClosed() && now - r.getCreatedAt() > LEAK_THRESHOLD_MS) {
                 leaks.add(r);

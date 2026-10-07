@@ -1,4 +1,5 @@
 package com.chua.common.support.utils;
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.collection.ConcurrentReferenceHashMap;
 import com.chua.common.support.constant.CommonConstant;
 import com.chua.common.support.converter.Converter;
@@ -37,18 +38,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -151,19 +146,26 @@ public class ClassUtils {
      * int.类                                        Integer.类
      * 映射
      */
-    public static final Map<Class<?>, Class<?>> PRIMITIVE_PACK = Collections.unmodifiableMap(new HashMap<Class<?>, Class<?>>() {
-        {
-            put(byte.class, Byte.class);
-            put(boolean.class, Boolean.class);
-            put(short.class, Short.class);
-            put(char.class, Character.class);
-            put(int.class, Integer.class);
-            put(float.class, Float.class);
-            put(long.class, Long.class);
-            put(double.class, Double.class);
-            put(void.class, Void.class);
-        }
-    });
+    public static final Map<Class<?>, Class<?>> PRIMITIVE_PACK = createPrimitivePack();
+
+    /**
+     * 构建基本类型与包装类型映射。
+     *
+     * @return 基本类型与包装类型映射
+     */
+    private static Map<Class<?>, Class<?>> createPrimitivePack() {
+        Map<Class<?>, Class<?>> pack = Wraps.map();
+        pack.put(byte.class, Byte.class);
+        pack.put(boolean.class, Boolean.class);
+        pack.put(short.class, Short.class);
+        pack.put(char.class, Character.class);
+        pack.put(int.class, Integer.class);
+        pack.put(float.class, Float.class);
+        pack.put(long.class, Long.class);
+        pack.put(double.class, Double.class);
+        pack.put(void.class, Void.class);
+        return Collections.unmodifiableMap(pack);
+    }
     /**
      *                            .
      * Table                                  B   I   D                                                   
@@ -302,7 +304,7 @@ public class ClassUtils {
     private static final Map<String, String> REVERSE_ABBREVIATION_MAP;
  // Feed abbreviation 映射
     static {
-        final Map<String, String> m = new HashMap<>();
+        final Map<String, String> m = Wraps.map();
         m.put("int", "I");
         m.put("boolean", "Z");
         m.put("float", "F");
@@ -311,7 +313,7 @@ public class ClassUtils {
         m.put("byte", "B");
         m.put("double", "D");
         m.put("char", "C");
-        final Map<String, String> r = new HashMap<>();
+        final Map<String, String> r = Wraps.map();
         for (final Map.Entry<String, String> e : m.entrySet()) {
             r.put(e.getValue(), e.getKey());
         }
@@ -332,7 +334,7 @@ public class ClassUtils {
             PRIMITIVE_TYPE_TO_WRAPPER_MAP.put(entry.getValue(), entry.getKey());
             registerCommonClasses(entry.getKey());
         }
-        Set<Class<?>> primitiveTypes = new HashSet<>(32);
+        Set<Class<?>> primitiveTypes = Wraps.set(32);
         primitiveTypes.addAll(PRIMITIVE_WRAPPER_TYPE_MAP.values());
         Collections.addAll(primitiveTypes, boolean[].class, byte[].class, char[].class,
                 double[].class, float[].class, int[].class, long[].class, short[].class);
@@ -350,7 +352,7 @@ public class ClassUtils {
         Class<?>[] javaLanguageInterfaceArray = {Serializable.class, Externalizable.class,
                 Closeable.class, AutoCloseable.class, Cloneable.class, Comparable.class};
         registerCommonClasses(javaLanguageInterfaceArray);
-        JAVA_LANGUAGE_INTERFACES = new HashSet<>(Arrays.asList(javaLanguageInterfaceArray));
+        JAVA_LANGUAGE_INTERFACES = Wraps.set(Arrays.asList(javaLanguageInterfaceArray));
     }
     /**
      * 将常见 Java 类型注册到名称缓存中，便于后续通过类名快速定位。
@@ -1002,10 +1004,10 @@ public class ClassUtils {
     public static <T> T forObject(Class<T> tClass, ClassLoader classLoader, Object... params) throws Exception {
         if (null == tClass) { return null; }
         if (List.class.isAssignableFrom(tClass) || Collection.class.isAssignableFrom(tClass)) {
-            return (T) new ArrayList<>(16);
+            return (T) Wraps.list(16);
         }
         if (Set.class.isAssignableFrom(tClass)) {
-            return (T) new HashSet<>(16);
+            return (T) Wraps.set(16);
         }
         if (tClass.isInterface()) {
             return null;
@@ -1082,8 +1084,8 @@ public class ClassUtils {
         // 若不在此清空，一次成功会掩盖上一次失败，调用方读到陈旧原因。
         LAST_INSTANTIATION_FAILURE.remove();
         Throwable lastError = null;
-        Map<Constructor<?>, Object[]> loss = new LinkedHashMap<>(8);
-        Map<Constructor<?>, Object[]> allnull = new LinkedHashMap<>(8);
+        Map<Constructor<?>, Object[]> loss = Wraps.linkedMap(8);
+        Map<Constructor<?>, Object[]> allnull = Wraps.linkedMap(8);
         Map<Class<?>, Object> typeAndValue = createTypeAndValue(params);
         Constructor<?>[] declaredConstructors = tClass.getDeclaredConstructors(); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（构造器匹配创建实例）
         for (Constructor<?> declaredConstructor : declaredConstructors) {
@@ -1407,7 +1409,7 @@ public class ClassUtils {
     public static Type[] getActualTypeArguments(final Class<?> value, final Class<?>... includes) {
         return ACTUAL.computeIfAbsent(value, it -> {
             Type type = value.getGenericSuperclass();
-            List<Type> types = new ArrayList<>();
+            List<Type> types = Wraps.list();
             if (type instanceof ParameterizedType && container(type, includes)) {
                 ParameterizedType parameterizedType = (ParameterizedType) type;
                 Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
@@ -1582,7 +1584,7 @@ public class ClassUtils {
         if (null == obj) { return Collections.emptyList(); }
         final Class<?> aClass = ClassUtils.toType(obj);
         return MapUtils.getComputeIfFunction(CLASS_FIELD_LOCAL, aClass, aClass12 -> {
-            List<Field> result = new ArrayList<>();
+            List<Field> result = Wraps.list();
             Class<?> newClass = aClass12;
             while (!ClassUtils.isObject(newClass)) {
                 Field[] fields = new Field[0];
@@ -1639,7 +1641,7 @@ public class ClassUtils {
      */
     public static List<Field> getFields(final Class<?> aClass) {
         return MapUtils.getComputeIfFunction(CLASS_FIELD_LOCAL, aClass, aClass12 -> {
-            List<Field> result = new ArrayList<>();
+            List<Field> result = Wraps.list();
             Class<?> newClass = aClass12;
             while (!ClassUtils.isObject(newClass)) {
                 Field[] fields = new Field[0];
@@ -1702,7 +1704,7 @@ public class ClassUtils {
         if (null == aClass || null == callback) {
             return;
         }
-        Set<Method> cache = new HashSet<>(64);
+        Set<Method> cache = Wraps.set(64);
         for (Method method : getMethods(aClass)) {
             if (methodFilter != null && !methodFilter.matches(method)) {
                 continue;
@@ -1739,7 +1741,7 @@ public class ClassUtils {
         }
         final Class<?> aClass = ClassUtils.toType(obj);
         return MapUtils.getComputeIfFunction(CLASS_METHOD, aClass, it -> {
-            List<Method> result = new ArrayList<>();
+            List<Method> result = Wraps.list();
             Class<?> newClass = aClass;
             while (!ClassUtils.isObject(newClass)) {
                 Method[] methods = null;
@@ -1752,7 +1754,7 @@ public class ClassUtils {
                 newClass = newClass.getSuperclass();
             }
             Class<?>[] interfaces = aClass.getInterfaces();
-            Set<Class<?>> allInterfaces = new HashSet<>(16);
+            Set<Class<?>> allInterfaces = Wraps.set(16);
             for (Class<?> anInterface : interfaces) {
                 Class<?>[] newInterface1 = anInterface.getInterfaces();
                 allInterfaces.add(anInterface);
@@ -1916,7 +1918,7 @@ public class ClassUtils {
      * @return             
      */
     private static Map<Class<?>, Object> createTypeAndValue(Object[] params) {
-        Map<Class<?>, Object> rs = new HashMap<>(params.length);
+        Map<Class<?>, Object> rs = Wraps.map(params.length);
         for (Object param : params) {
             if (null == param) {
                 rs.put(void.class, null);
@@ -2186,9 +2188,9 @@ public class ClassUtils {
              */
             @Override
             public Method[] apply(Class<?> aClass) {
-                List<Method> rs = new LinkedList<>();
+                List<Method> rs = Wraps.list();
                 // 防止循环引用（递归注册时同一类型重复出现）
-                List<Class<?>> validate = new LinkedList<>();
+                List<Class<?>> validate = Wraps.list();
                 doRegisterMethod(rs, aClass, validate);
                 return rs.toArray(new Method[0]);
             }
@@ -2650,7 +2652,7 @@ public class ClassUtils {
      * @return 父类型集合（含所有父类和直接接口）
      */
     public static Set<Class<?>> getSuperType(Class<?> type) {
-        Set<Class<?>> result = new HashSet<>(16);
+        Set<Class<?>> result = Wraps.set(16);
         getSuperType(type, result);
         return result;
     }
@@ -2682,7 +2684,7 @@ public class ClassUtils {
      * @param consumer 接口回调
      */
     public static void withInterface(Class<?> type, Consumer<Class<?>> consumer) {
-        Set<Class<?>> result = new HashSet<>(16);
+        Set<Class<?>> result = Wraps.set(16);
         loopInterfaces(type, result);
         for (Class<?> aClass : result) {
             consumer.accept(aClass);
@@ -2695,7 +2697,7 @@ public class ClassUtils {
      * @return 所有接口的集合
      */
     public static Set<Class<?>> getAllInterfaces(Class<?> type) {
-        Set<Class<?>> result = new HashSet<>(16);
+        Set<Class<?>> result = Wraps.set(16);
         loopInterfaces(type, result);
         return result;
     }
@@ -2719,7 +2721,7 @@ public class ClassUtils {
      * @param consumer 父类型回调
      */
     public static void withSuperType(Class<?> type, Consumer<Class<?>> consumer) {
-        Set<Class<?>> result = new HashSet<>(16);
+        Set<Class<?>> result = Wraps.set(16);
         getSuperType(type, result);
         for (Class<?> aClass : result) {
             consumer.accept(aClass);
@@ -2746,7 +2748,7 @@ public class ClassUtils {
         } catch (IOException e) {
             log.error("获取类加载器资源失败", e);
         }
-        List<URL> rs = new LinkedList<>();
+        List<URL> rs = Wraps.list();
         while (enumeration.hasMoreElements()) {
             rs.add(enumeration.nextElement());
         }
@@ -2789,7 +2791,7 @@ public class ClassUtils {
         }
         aClass = fromPrimitive(aClass);
         // 收集 null 值与可赋值目标类型的参数
-        List<Object> tpl = new LinkedList<>();
+        List<Object> tpl = Wraps.list();
         for (Object arg : args) {
             if (null == arg || (null != arg && aClass.isAssignableFrom(arg.getClass()))) {
                 tpl.add(arg);
@@ -2873,7 +2875,7 @@ public class ClassUtils {
      * @return 方法名称到 Method 的映射（含驼峰名变体）
      */
     public static Map<String, Method> getMethodsByName(Class<?> type, Predicate<Method> predicate) {
-            Map<String, Method> rs = new LinkedHashMap<>(64);
+            Map<String, Method> rs = Wraps.linkedMap(64);
         doWithMethods(type, new SafeConsumer<Method>() {
             /**
              * 安全回调：注册方法的原始名与驼峰名映射
@@ -2957,7 +2959,7 @@ public class ClassUtils {
      * @return 有序的类型集合（含所有父类与直接/间接接口）
      */
     public static Set<Class<?>> getAllType(Class<?> type) {
-        Set<Class<?>> rs = new LinkedHashSet<>(16);
+        Set<Class<?>> rs = Wraps.linkedSet(16);
         getSuperType(type, rs);
         return rs;
     }

@@ -1,5 +1,6 @@
 package com.chua.datasource.support.dialect;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.dialect.Pagination;
 import com.chua.common.support.lang.datasource.dialect.StorageEngine;
@@ -10,7 +11,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.Types;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -392,7 +392,7 @@ public class SqlDialect extends AbstractDialect {
     protected Properties loadDefaultEnv() {
         String resourceName = "META-INF/dialect-env/" + protocol + ".env";
         Properties props = new Properties();
-        java.util.List<java.net.URL> urls = new java.util.ArrayList<>();
+        java.util.List<java.net.URL> urls = Wraps.list();
         try {
             java.util.Enumeration<java.net.URL> found =
                     getClass().getClassLoader().getResources(resourceName);

@@ -1,5 +1,6 @@
 package com.chua.common.support.network.sync.netty;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServer;
@@ -46,7 +47,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     /**
      * 监听器
     */
-    private final List<SyncServerListener> listeners = new ArrayList<>();
+    private final List<SyncServerListener> listeners = Wraps.list();
     /**
      * connectionidseq
     */
@@ -144,7 +145,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
      * 获取连接客户端
     */
     public List<String> getConnectedClients() {
-        return new ArrayList<>(clients.keySet());
+        return Wraps.list(clients.keySet());
     }
 
     @Override
@@ -191,7 +192,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
                 connections.add(conn);
                 String sessionId = "netty-ws-" + connectionIdSeq.incrementAndGet();
                 conn.sessionId = sessionId;
-                clients.put(sessionId, new HashMap<>());
+                clients.put(sessionId, Wraps.map());
                 notifyListener(l -> l.onClientConnected(sessionId, clients.get(sessionId)));
                 executor.submit(() -> handleConnection(conn));
             } catch (IOException e) {

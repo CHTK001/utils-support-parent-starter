@@ -1,6 +1,5 @@
 package com.chua.common.support.concurrent.threadflow;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -50,7 +49,7 @@ public class ReactiveThreadExecutor extends AbstractThreadExecutor {
      */
     @Override
     protected List<Future<Object>> submitTasks() {
-        List<CompletableFuture<Object>> futures = new ArrayList<>(tasks.size());
+        List<CompletableFuture<Object>> futures = Wraps.list(tasks.size());
         for (var task : tasks) {
             CompletableFuture<Object> future = CompletableFuture.supplyAsync(() -> {
                 try {
@@ -61,7 +60,7 @@ public class ReactiveThreadExecutor extends AbstractThreadExecutor {
             });
             futures.add(future);
         }
-        return new ArrayList<>(futures);
+        return Wraps.list(futures);
     }
 
     /**

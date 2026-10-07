@@ -1,8 +1,8 @@
 package com.chua.common.support.file.system;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 /**
  * @author CH
@@ -25,7 +25,7 @@ public class WriteOption {
     /**
      * 扩展属性集合
      */
-    private Map<String, Object> attributes = new HashMap<>();
+    private Map<String, Object> attributes = Wraps.map();
 
     /**
      * Maps

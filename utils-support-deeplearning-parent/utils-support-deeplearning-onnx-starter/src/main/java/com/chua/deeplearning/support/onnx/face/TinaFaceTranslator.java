@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.face;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -13,7 +14,6 @@ import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.utils.ImageUtils;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.opencv.imgproc.Imgproc;
@@ -120,14 +120,14 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
         if (list == null || list.size() < STRIDES.length * 3) {
             return empty();
         }
-        var candidates = new ArrayList<Candidate>();
+        var candidates = Wraps.<Candidate>list();
         for (var level = 0; level < STRIDES.length; level++) {
             decodeLevel(candidates, list.get(level * 3), list.get(level * 3 + 1), list.get(level * 3 + 2), STRIDES[level]);
         }
         candidates.sort((left, right) -> Double.compare(right.score(), left.score()));
-        var names = new ArrayList<String>();
-        var probabilities = new ArrayList<Double>();
-        var boxes = new ArrayList<BoundingBox>();
+        var names = Wraps.<String>list();
+        var probabilities = Wraps.<Double>list();
+        var boxes = Wraps.<BoundingBox>list();
         for (var candidate : candidates) {
             var keep = true;
             for (var existing : boxes) {
@@ -236,7 +236,7 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
      * @return 空的结果
      */
     private DetectedObjects empty() {
-        return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        return new DetectedObjects(Wraps.list(), Wraps.list(), Wraps.list());
     }
 
     @Override

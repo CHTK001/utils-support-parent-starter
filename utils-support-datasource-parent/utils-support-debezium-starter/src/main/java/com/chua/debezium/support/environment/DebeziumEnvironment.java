@@ -1,10 +1,8 @@
 package com.chua.debezium.support.environment;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.WatcherEvent;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -163,7 +161,7 @@ public class DebeziumEnvironment {
         /**
          * 配置属性集合
          */
-        private final Map<String, String> props = new LinkedHashMap<>();
+        private final Map<String, String> props = Wraps.linkedMap();
 
         /**
          * 轮询间隔
@@ -343,7 +341,7 @@ public class DebeziumEnvironment {
          * @return 缺失属性名列表，空表示全部有效
          */
         public List<String> validate() {
-            List<String> missing = new ArrayList<>();
+            List<String> missing = Wraps.list();
             String type = props.get(KEY_CONNECTOR_TYPE);
             if (type == null) {
                 missing.add(KEY_CONNECTOR_TYPE);

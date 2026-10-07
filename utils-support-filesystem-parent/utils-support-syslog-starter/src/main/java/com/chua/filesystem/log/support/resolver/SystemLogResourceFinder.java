@@ -1,5 +1,7 @@
 package com.chua.filesystem.log.support.resolver;
 
+import com.chua.common.support.collection.wrap.Wraps;
+
 import com.chua.common.support.file.resource.Resource;
 import com.chua.common.support.file.resource.ResourceFinder;
 import com.chua.filesystem.log.support.bridge.SystemLogBridge;
@@ -76,7 +78,7 @@ public class SystemLogResourceFinder implements ResourceFinder {
 
         return entries.stream()
                 .map(this::toResource)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .collect(Collectors.toCollection(Wraps::linkedSet));
     }
 
     @Nullable
@@ -165,7 +167,7 @@ public class SystemLogResourceFinder implements ResourceFinder {
             queryString = "";
         }
 
-        Map<String, String> params = new LinkedHashMap<>();
+        Map<String, String> params = Wraps.linkedMap();
         if (!queryString.isEmpty()) {
             for (String pair : queryString.split("&")) {
                 int eqIdx = pair.indexOf('=');

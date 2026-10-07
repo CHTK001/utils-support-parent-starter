@@ -1,8 +1,7 @@
 package com.chua.filestorage.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +46,7 @@ public final class MimeTypeUtils {
 
     static {
         // 扩展名 -> MIME
-        Map<String, String> map = new HashMap<>();
+        Map<String, String> map = Wraps.map();
         // 图片
         map.put("png", "image/png");
         map.put("jpg", "image/jpeg");
@@ -107,7 +106,7 @@ public final class MimeTypeUtils {
         EXTENSION_TO_MIME = Collections.unmodifiableMap(map);
 
         // 浏览器原生可预览的 MIME（图片、音频、视频、PDF、文本类）
-        Set<String> browser = new HashSet<>();
+        Set<String> browser = Wraps.set();
         browser.add("image/png");
         browser.add("image/jpeg");
         browser.add("image/gif");
@@ -135,7 +134,7 @@ public final class MimeTypeUtils {
         BROWSER_PREVIEW_MIMES = Collections.unmodifiableSet(browser);
 
         // 可转为 PDF 的扩展名
-        Set<String> convertable = new HashSet<>();
+        Set<String> convertable = Wraps.set();
         convertable.add("doc");
         convertable.add("docx");
         convertable.add("xls");
@@ -153,7 +152,7 @@ public final class MimeTypeUtils {
         CONVERTABLE_TO_PDF_EXTENSIONS = Collections.unmodifiableSet(convertable);
 
  // 前端插件可预览（办公室 等）
-        Set<String> plugin = new HashSet<>();
+        Set<String> plugin = Wraps.set();
         plugin.add("doc");
         plugin.add("docx");
         plugin.add("xls");
@@ -182,7 +181,7 @@ public final class MimeTypeUtils {
         PLUGIN_PREVIEW_EXTENSIONS = Collections.unmodifiableSet(plugin);
 
  // 支持 范围 的 MIME（通常是流媒体或大文件）
-        Set<String> range = new HashSet<>();
+        Set<String> range = Wraps.set();
         range.add("video/mp4");
         range.add("video/webm");
         range.add("video/ogg");

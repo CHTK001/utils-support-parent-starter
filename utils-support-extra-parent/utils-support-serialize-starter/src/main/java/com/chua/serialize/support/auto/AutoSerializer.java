@@ -1,5 +1,6 @@
 package com.chua.serialize.support.auto;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.serialize.JavaSerializer;
 import com.chua.common.support.serialize.JsonSerializer;
 import com.chua.common.support.serialize.Serializer;
@@ -7,7 +8,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.serialize.support.kryo.KryoSerializer;
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -150,7 +150,7 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
         if (object == null) {
             return new byte[0];
         }
-        List<Serializer<T>> chain = new ArrayList<>(serializers);
+        List<Serializer<T>> chain = Wraps.list(serializers);
         for (int i = 0; i < chain.size(); i++) {
             Serializer<T> serializer = chain.get(i);
             try {

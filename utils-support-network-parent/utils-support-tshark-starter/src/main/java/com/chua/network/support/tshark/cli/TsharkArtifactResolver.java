@@ -1,12 +1,12 @@
 package com.chua.network.support.tshark.cli;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
@@ -102,7 +102,7 @@ public final class TsharkArtifactResolver {
     private static List<TsharkArtifact> resolveWindows(String version, String executableName,
                                                        List<String> mirrors, String architecture,
                                                        @Nullable String sha256) {
-        List<TsharkArtifact> artifacts = new ArrayList<>();
+        List<TsharkArtifact> artifacts = Wraps.list();
         if ("386".equals(architecture)) {
             log.warn("不支持的 32 位 Windows 架构: {}", architecture);
             return List.of();
@@ -133,7 +133,7 @@ public final class TsharkArtifactResolver {
     @Nonnull
     private static List<TsharkArtifact> resolveMacOs(String version, String executableName,
                                                      List<String> mirrors, @Nullable String sha256) {
-        List<TsharkArtifact> artifacts = new ArrayList<>();
+        List<TsharkArtifact> artifacts = Wraps.list();
         String fileName = "Wireshark" + MACOS_FILE_SEPARATOR + version + ".dmg";
         appendAll(artifacts, mirrors, mirror -> mirror + "/" + MACOS_DIR + "/" + fileName,
                 TsharkArtifact.Kind.DMG, version, executableName, sha256);

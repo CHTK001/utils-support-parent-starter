@@ -1,5 +1,6 @@
 package com.chua.quarkus.support.server;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpMethod;
@@ -22,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -637,7 +637,7 @@ public class QuarkusHttpServer extends AbstractServer {
          * 获取参数
         */
         public Map<String, String> getParams() {
-            Map<String, String> params = new java.util.HashMap<>();
+            Map<String, String> params = Wraps.map();
             ctx.request().params().forEach(e -> params.put(e.getKey(), e.getValue()));
             return params;
         }
@@ -735,7 +735,7 @@ public class QuarkusHttpServer extends AbstractServer {
          * 获取form数据
         */
         public Map<String, String> getFormData() {
-            Map<String, String> form = new java.util.LinkedHashMap<>();
+            Map<String, String> form = Wraps.linkedMap();
             var req = ctx.request();
             if (req.formAttributes() != null) {
                 req.formAttributes().forEach(e -> form.put(e.getKey(), e.getValue()));
@@ -752,7 +752,7 @@ public class QuarkusHttpServer extends AbstractServer {
             if (uploads == null || uploads.isEmpty()) {
                 return java.util.Collections.emptyList();
             }
-            List<FormFile> files = new ArrayList<>();
+            List<FormFile> files = Wraps.list();
             for (io.vertx.ext.web.FileUpload fu : uploads) {
                 String filePath = fu.uploadedFileName();
                 byte[] data;

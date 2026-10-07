@@ -1,5 +1,6 @@
 package com.chua.common.support.collection;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
@@ -551,7 +552,7 @@ public class CircularArrayList<E> implements CircularArray<E> {
      */
     @Override
     public void sort(Comparator<? super E> c) {
-        List<E> sorted = new ArrayList<>(this);
+        List<E> sorted = Wraps.list(this);
         sorted.sort(c);
         clear();
         for (E e : sorted) {

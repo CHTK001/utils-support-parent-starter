@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.format;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.*;
 
 /**
@@ -76,7 +77,7 @@ public class DmlFormatter extends SqlFormatter {
      * <p>这些关键字表示SELECT语句中各个子句的开始位置，
      * 用于将完整的SELECT语句拆分为多个逻辑部分。
      */
-    private static final Set<String> CLAUSE_KEYWORDS = new HashSet<>(Arrays.asList(
+    private static final Set<String> CLAUSE_KEYWORDS = Wraps.set(Arrays.asList(
             // 查询核心子句
             "SELECT", "FROM", "WHERE",
             // 分组排序
@@ -95,7 +96,7 @@ public class DmlFormatter extends SqlFormatter {
      * <p>这些关键字在格式化时会放在行首，
      * 而其他关键字（如AND、OR）会跟随在上一行之后。
      */
-    private static final Set<String> MAJOR_CLAUSE = new HashSet<>(Arrays.asList(
+    private static final Set<String> MAJOR_CLAUSE = Wraps.set(Arrays.asList(
             "SELECT", "FROM", "WHERE", "GROUP", "ORDER", "HAVING", "LIMIT", "OFFSET"
     ));
 
@@ -104,7 +105,7 @@ public class DmlFormatter extends SqlFormatter {
      *
      * <p>这些关键字在FROM子句中控制连接行为。
      */
-    private static final Set<String> JOIN_KEYWORDS = new HashSet<>(Arrays.asList(
+    private static final Set<String> JOIN_KEYWORDS = Wraps.set(Arrays.asList(
             "JOIN", "INNER", "LEFT", "RIGHT", "FULL", "OUTER", "CROSS", "ON", "USING"
     ));
 
@@ -269,7 +270,7 @@ public class DmlFormatter extends SqlFormatter {
      * @return 分割后的子句列表
      */
     private List<String> splitByKeywords(String sql, Set<String> keywords) {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         if (sql == null || sql.isEmpty()) {
             return result;
         }

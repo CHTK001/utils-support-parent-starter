@@ -1,9 +1,9 @@
 package com.chua.common.support.lang.datasource.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.tunnel.Tunnel;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -52,7 +52,7 @@ public record DataSourceOptions(
      */
     public DataSourceOptions {
         jtdsUrlParams = jtdsUrlParams == null ? null
-                : Collections.unmodifiableMap(new LinkedHashMap<>(jtdsUrlParams));
+                : Collections.unmodifiableMap(Wraps.linkedMap(jtdsUrlParams));
     }
 
     /**

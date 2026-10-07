@@ -1,5 +1,6 @@
 package com.chua.filesystem.support.config.parser.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.config.parser.ConfigParser;
 import com.chua.common.support.config.source.MapPropertySource;
 import com.chua.common.support.config.source.PropertySource;
@@ -9,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStream;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -58,7 +58,7 @@ public class YamlConfigParser implements ConfigParser {
      * 解析
     */
     public PropertySource parse(String urlPath, InputStream is) {
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
         try {
             Yaml yaml = new Yaml();
             result = yaml.load(is);

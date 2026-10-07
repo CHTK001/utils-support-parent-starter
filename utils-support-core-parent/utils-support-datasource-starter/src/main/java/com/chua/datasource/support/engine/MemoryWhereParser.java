@@ -1,6 +1,5 @@
 package com.chua.datasource.support.engine;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
@@ -178,7 +177,7 @@ public class MemoryWhereParser {
                 int parenEnd = remaining.indexOf(')', parenStart);
                 String placeholders = remaining.substring(parenStart + 1, parenEnd).trim();
                 int count = placeholders.split(",").length;
-                Collection<Object> values = new ArrayList<>();
+                Collection<Object> values = Wraps.list();
                 for (int i = 0; i < count; i++) {
                     values.add(params.get(idxHolder[0]++));
                 }
@@ -204,7 +203,7 @@ public class MemoryWhereParser {
                 int parenEnd = remaining.indexOf(')', parenStart);
                 String placeholders = remaining.substring(parenStart + 1, parenEnd).trim();
                 int count = placeholders.split(",").length;
-                Collection<Object> values = new ArrayList<>();
+                Collection<Object> values = Wraps.list();
                 for (int i = 0; i < count; i++) {
                     values.add(params.get(idxHolder[0]++));
                 }

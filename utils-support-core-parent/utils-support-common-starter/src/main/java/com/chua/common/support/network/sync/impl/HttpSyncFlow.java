@@ -1,13 +1,12 @@
 package com.chua.common.support.network.sync.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncFlow;
 import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.common.support.network.server.SyncServer;
 import com.chua.common.support.network.server.SyncServerListener;
 import com.chua.common.support.network.server.ServerSetting;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -39,7 +38,7 @@ public class HttpSyncFlow implements SyncFlow {
     /**
      * 监听器列表
      */
-    private final java.util.List<SyncFlowListener> listeners = new java.util.ArrayList<>();
+    private final java.util.List<SyncFlowListener> listeners = Wraps.list();
 
     /**
      * 创建 HTTP 同步流程。

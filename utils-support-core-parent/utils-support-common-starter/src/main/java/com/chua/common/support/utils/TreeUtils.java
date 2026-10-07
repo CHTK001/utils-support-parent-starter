@@ -1,12 +1,9 @@
 package com.chua.common.support.utils;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -119,7 +116,7 @@ public final class TreeUtils {
         Objects.requireNonNull(parentIdGetter, "parentIdGetter must not be null");
         Objects.requireNonNull(childrenSetter, "childrenSetter must not be null");
 
-        Map<I, T> idIndex = new LinkedHashMap<>();
+        Map<I, T> idIndex = Wraps.linkedMap();
         for (var item : items) {
             var id = idGetter.apply(item);
             if (idIndex.putIfAbsent(id, item) != null) {
@@ -127,26 +124,26 @@ public final class TreeUtils {
             }
         }
 
-        Map<I, List<I>> adjacency = new LinkedHashMap<>();
-        var rootIds = new ArrayList<I>();
+        Map<I, List<I>> adjacency = Wraps.linkedMap();
+        var rootIds = Wraps.<I>list();
         for (var item : items) {
             var id = idGetter.apply(item);
             var parentId = parentIdGetter.apply(item);
             if (parentId == null || !idIndex.containsKey(parentId)) {
                 rootIds.add(id);
             } else {
-                adjacency.computeIfAbsent(parentId, k -> new ArrayList<>()).add(id);
+                adjacency.computeIfAbsent(parentId, k -> Wraps.<I>list()).add(id);
             }
         }
 
  // 写回 children：按父 标识 分组，依序挂载到节点本体
-        var roots = new ArrayList<T>(rootIds.size());
+        var roots = Wraps.<T>list(rootIds.size());
         for (var rootId : rootIds) {
             roots.add(idIndex.get(rootId));
         }
         for (var entry : adjacency.entrySet()) {
             var parent = idIndex.get(entry.getKey());
-            var kids = new ArrayList<T>(entry.getValue().size());
+            var kids = Wraps.<T>list(entry.getValue().size());
             for (var childId : entry.getValue()) {
                 kids.add(idIndex.get(childId));
             }
@@ -163,8 +160,8 @@ public final class TreeUtils {
      */
     private static <I> void validateReachable(int totalNodes, Collection<I> rootIds,
                                               Map<I, List<I>> adjacency) {
-        Set<I> reached = new HashSet<>();
-        Deque<I> stack = new ArrayDeque<>(rootIds);
+        Set<I> reached = Wraps.set();
+        Deque<I> stack = Wraps.deque(rootIds);
         while (!stack.isEmpty()) {
             var current = stack.pop();
             if (!reached.add(current)) {
@@ -230,7 +227,7 @@ public final class TreeUtils {
      */
     private static <T> T findDfs(T node, Predicate<? super T> matcher,
                                  Function<T, List<T>> childrenGetter) {
-        Deque<T> stack = new ArrayDeque<>();
+        Deque<T> stack = Wraps.deque();
         stack.push(node);
         while (!stack.isEmpty()) {
             var current = stack.pop();
@@ -267,8 +264,8 @@ public final class TreeUtils {
      */
     public static <T> List<T> getAllChildren(T node, Function<T, List<T>> childrenGetter) {
         Objects.requireNonNull(node, "node must not be null");
-        var descendants = new ArrayList<T>();
-        Deque<T> stack = new ArrayDeque<>();
+        var descendants = Wraps.<T>list();
+        Deque<T> stack = Wraps.deque();
         pushReversed(stack, childrenOf(node, childrenGetter));
         while (!stack.isEmpty()) {
             var current = stack.pop();
@@ -320,7 +317,7 @@ public final class TreeUtils {
     public static <T> List<T> getParents(Collection<T> roots, T target,
                                          Function<T, List<T>> childrenGetter) {
         var path = locatePath(roots, target, childrenGetter);
-        var parents = new ArrayList<T>(Math.max(0, path.size() - 1));
+        var parents = Wraps.<T>list(Math.max(0, path.size() - 1));
         for (var i = path.size() - 2; i >= 0; i--) {
             parents.add(path.get(i));
         }
@@ -348,7 +345,7 @@ public final class TreeUtils {
         List<T> sameLevel = path.size() == 1
                 ? List.copyOf(roots)
                 : childrenOf(path.get(path.size() - 2), childrenGetter);
-        var siblings = new ArrayList<T>(sameLevel.size());
+        var siblings = Wraps.<T>list(sameLevel.size());
         for (var candidate : sameLevel) {
             if (candidate != target) {
                 siblings.add(candidate);
@@ -380,8 +377,8 @@ public final class TreeUtils {
                                           Function<T, List<T>> childrenGetter) {
         Objects.requireNonNull(roots, "roots must not be null");
         Objects.requireNonNull(target, "target must not be null");
-        var path = new ArrayList<T>();
-        Deque<Frame<T>> stack = new ArrayDeque<>();
+        var path = Wraps.<T>list();
+        Deque<Frame<T>> stack = Wraps.deque();
         for (var root : roots) {
             path.clear();
             stack.clear();
@@ -428,7 +425,7 @@ public final class TreeUtils {
         Objects.requireNonNull(roots, "roots must not be null");
         Objects.requireNonNull(comparator, "comparator must not be null");
         roots.sort(comparator);
-        Deque<T> stack = new ArrayDeque<>(roots);
+        Deque<T> stack = Wraps.deque(roots);
         while (!stack.isEmpty()) {
             var current = stack.pop();
             var children = childrenOf(current, childrenGetter);
@@ -447,8 +444,8 @@ public final class TreeUtils {
      */
     public static <T> List<T> flatten(Collection<T> roots, Function<T, List<T>> childrenGetter) {
         Objects.requireNonNull(roots, "roots must not be null");
-        var flat = new ArrayList<T>();
-        Deque<T> stack = new ArrayDeque<>();
+        var flat = Wraps.<T>list();
+        Deque<T> stack = Wraps.deque();
         pushReversed(stack, List.copyOf(roots));
         while (!stack.isEmpty()) {
             var current = stack.pop();

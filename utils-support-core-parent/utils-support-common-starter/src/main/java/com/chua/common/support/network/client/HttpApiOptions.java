@@ -1,10 +1,9 @@
 package com.chua.common.support.network.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.http.HttpVersion;
 import com.chua.common.support.network.invoker.filter.InjectCallback;
 import com.chua.common.support.network.invoker.filter.SharedInvocationContext;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,12 +61,12 @@ public class HttpApiOptions {
     /**
      * 应用层拦截器列表（仅对当前 API 代理生效）。
      */
-    private final List<HttpInterceptor> interceptors = new ArrayList<>();
+    private final List<HttpInterceptor> interceptors = Wraps.list();
 
     /**
      * 网络层拦截器列表（仅对当前 API 代理生效）。
      */
-    private final List<HttpInterceptor> networkInterceptors = new ArrayList<>();
+    private final List<HttpInterceptor> networkInterceptors = Wraps.list();
 
     /**
      * 已被解析注册到客户端上的拦截器（按实例去重）。
@@ -85,12 +84,12 @@ public class HttpApiOptions {
      * <p>每次远程调用前执行，将回调返回值按 target 注入到请求头（{@code headers.X}）
      * 或共享属性（{@code attributes.X}）。由 {@link HttpInvoker#addInject(String, InjectCallback)} 注册。</p>
      */
-    private final List<SharedInvocationContext.InjectRule> injectRules = new ArrayList<>();
+    private final List<SharedInvocationContext.InjectRule> injectRules = Wraps.list();
 
     /**
      * 默认请求头，每次远程调用自动携带。
      */
-    private final Map<String, String> defaultHeaders = new java.util.LinkedHashMap<>();
+    private final Map<String, String> defaultHeaders = Wraps.linkedMap();
 
     /**
      * 连接超时（毫秒），-1 表示使用执行器默认值。

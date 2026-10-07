@@ -1,5 +1,6 @@
 package com.chua.spring.support.objects.register.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.definition.FrameworkBeanDefinition;
@@ -12,11 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -149,7 +148,7 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
         if (beans == null || beans.isEmpty()) {
             return Collections.emptyList();
         }
-        List<BeanDefinition> result = new ArrayList<>(beans.size());
+        List<BeanDefinition> result = Wraps.list(beans.size());
         for (Map.Entry<String, ?> entry : beans.entrySet()) {
             result.add(new FrameworkBeanDefinition(entry.getKey(), type, entry.getValue()));
         }
@@ -214,7 +213,7 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
             return Collections.emptyMap();
         }
         Map<String, Object> beans = ctx.getBeansWithAnnotation(annotationType);
-        Map<String, BeanDefinition> result = new LinkedHashMap<>(beans.size());
+        Map<String, BeanDefinition> result = Wraps.linkedMap(beans.size());
         for (Map.Entry<String, Object> entry : beans.entrySet()) {
             result.put(entry.getKey(),
                     new FrameworkBeanDefinition(entry.getKey(), entry.getValue().getClass(), entry.getValue()));

@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.embedding.minilm;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
@@ -10,7 +11,6 @@ import java.io.IOException;
 import java.nio.LongBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -202,7 +202,7 @@ public class MiniLMEmbeddingTranslator {
         }
 
         long[] shape = new long[]{1, seqLen};
-        Map<String, OnnxTensor> inputs = new HashMap<>();
+        Map<String, OnnxTensor> inputs = Wraps.map();
         try (OnnxTensor inputIds = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(inputIdsArr), shape);
              OnnxTensor attentionMask = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(attMaskArr), shape);
              OnnxTensor tokenTypeIds = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(tokenTypeArr), shape)) {

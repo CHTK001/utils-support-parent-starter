@@ -1,10 +1,9 @@
 package com.chua.common.support.scatter;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.tcp.TcpClient;
 import com.chua.common.support.network.tcp.TcpServer;
 import lombok.Data;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -62,7 +61,7 @@ public class ScatterSetting {
     /**
      * seed 引导模式：seed 地址列表（如 "192.168.1.10:19000"），非空即 seed 模式
      */
-    private List<String> seeds = new ArrayList<>();
+    private List<String> seeds = Wraps.list();
 
     /**
      * 路由模式：网段（如 "192.168.1.0/24"），非空即路由模式

@@ -1,5 +1,6 @@
 package com.chua.common.support.network.download;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.process.ProgressBar;
 import com.chua.common.support.lang.process.ProgressBarBuilder;
 import com.chua.common.support.lang.process.ProgressBarStyle;
@@ -23,7 +24,6 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -202,7 +202,7 @@ public class DefaultDownloadService implements DownloadService {
 
             int concurrency = config.getConcurrency();
             ExecutorService pool = ThreadUtils.newFixedThreadPool(concurrency);
-            var futures = new ArrayList<Future<?>>();
+            var futures = Wraps.<Future<?>>list();
 
             long chunkSize = totalSize / concurrency;
             for (int i = 0; i < concurrency; i++) {

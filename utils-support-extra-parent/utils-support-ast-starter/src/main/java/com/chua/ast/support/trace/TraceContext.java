@@ -1,11 +1,11 @@
 package com.chua.ast.support.trace;
 
+import com.chua.common.support.collection.wrap.Wraps;
+
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.UUID;
@@ -50,7 +50,7 @@ public final class TraceContext {
     /**
      * 调用栈
     */
-    private static final ThreadLocal<Deque<TraceNode>> STACK = ThreadLocal.withInitial(ArrayDeque::new);
+    private static final ThreadLocal<Deque<TraceNode>> STACK = ThreadLocal.withInitial(Wraps::deque);
     /**
      * 最大深度
     */
@@ -163,7 +163,7 @@ public final class TraceContext {
 
         stack.push(node);
         if (!suppressed) {
-            SHARED_NODES.computeIfAbsent(traceId, k -> new ArrayList<>()).add(node);
+            SHARED_NODES.computeIfAbsent(traceId, k -> Wraps.list()).add(node);
         }
         putMdc(traceId);
         return traceId;
@@ -195,7 +195,7 @@ public final class TraceContext {
 
         stack.push(node);
         if (!suppressed) {
-            SHARED_NODES.computeIfAbsent(traceId, k -> new ArrayList<>()).add(node);
+            SHARED_NODES.computeIfAbsent(traceId, k -> Wraps.list()).add(node);
         }
         putMdc(traceId);
     }
@@ -237,7 +237,7 @@ public final class TraceContext {
 
         stack.push(node);
         if (!suppressed) {
-            SHARED_NODES.computeIfAbsent(traceId, k -> new ArrayList<>()).add(node);
+            SHARED_NODES.computeIfAbsent(traceId, k -> Wraps.list()).add(node);
         }
         putMdc(traceId);
         return traceId;
@@ -412,7 +412,7 @@ public final class TraceContext {
         if (maxDepth != null && maxDepth > 0 && depth >= maxDepth) { return; }
         TraceNode node = new TraceNode(traceId, className, methodName, depth);
         stack.push(node);
-        SHARED_NODES.computeIfAbsent(traceId, k -> new ArrayList<>()).add(node);
+        SHARED_NODES.computeIfAbsent(traceId, k -> Wraps.list()).add(node);
         putMdc(traceId);
     }
 

@@ -1,5 +1,6 @@
 package com.chua.mysql.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.meta.AlterColumnBuilder;
@@ -15,9 +16,6 @@ import com.chua.datasource.support.meta.AbstractMetaTable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -130,7 +128,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
         List<IndexMetadata> indexes = readIndexes(schema, tableName, null);
         def.setIndexes(indexes);
-        Set<String> pkColumns = new LinkedHashSet<>();
+        Set<String> pkColumns = Wraps.linkedSet();
         for (IndexMetadata index : indexes) {
             if (index.isPrimary() && index.getColumns() != null) {
                 pkColumns.addAll(index.getColumns());
@@ -202,7 +200,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
                 ? MysqlMetaData.args(schema, table)
                 : MysqlMetaData.args(schema, table, indexName);
         List<IndexRow> rows = MysqlMetaData.query(engine, "查询索引 " + table, sql, args, IndexRow::read);
-        Map<String, IndexMetadata> grouped = new LinkedHashMap<>();
+        Map<String, IndexMetadata> grouped = Wraps.linkedMap();
         for (IndexRow row : rows) {
             IndexMetadata meta = grouped.get(row.indexName);
             if (meta == null) {
@@ -214,7 +212,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
                 meta.setType(row.indexType);
                 meta.setComment(row.indexComment);
                 meta.setPosition(row.seqInIndex);
-                meta.setColumns(new ArrayList<>());
+                meta.setColumns(Wraps.list());
                 grouped.put(row.indexName, meta);
             }
             if (row.columnName != null) {
@@ -229,7 +227,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
         // MySQL 的 information_schema 不提供索引可见性（仅 SHOW INDEX / mysql.indexes 提供），
         // 故 IndexMetadata.invisible 保持默认 false，不伪造"不可见索引"信息。
-        return new ArrayList<>(grouped.values());
+        return Wraps.list(grouped.values());
     }
 
     /**
@@ -426,11 +424,11 @@ public class MysqlMetaTable extends AbstractMetaTable {
         /**
          * 列定义
          */
-        private final List<ColumnDef> columns = new ArrayList<>();
+        private final List<ColumnDef> columns = Wraps.list();
         /**
          * 联合主键列
          */
-        private final List<String> primaryKeys = new ArrayList<>();
+        private final List<String> primaryKeys = Wraps.list();
         /**
          * 表注释
          */
@@ -563,7 +561,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             if (columns.isEmpty()) {
                 throw new IllegalStateException("建表至少需要一个列");
             }
-            List<String> definitions = new ArrayList<>();
+            List<String> definitions = Wraps.list();
             for (ColumnDef col : columns) {
                 StringBuilder line = new StringBuilder();
                 line.append(metaTable.quote(col.getName())).append(' ').append(col.getType());
@@ -585,7 +583,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
                 definitions.add(line.toString());
             }
             if (!primaryKeys.isEmpty()) {
-                List<String> quoted = new ArrayList<>();
+                List<String> quoted = Wraps.list();
                 for (String pk : primaryKeys) {
                     quoted.add(metaTable.quote(pk));
                 }
@@ -632,7 +630,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         /**
          * 变更子句
          */
-        private final List<String> clauses = new ArrayList<>();
+        private final List<String> clauses = Wraps.list();
 
         MysqlTableAlterBuilder(MysqlMetaTable metaTable) {
             this.metaTable = metaTable;
@@ -670,7 +668,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
 
         @Override
         public TableAlterBuilder addPrimaryKey(String... columns) {
-            List<String> quoted = new ArrayList<>();
+            List<String> quoted = Wraps.list();
             for (String column : columns) {
                 quoted.add(metaTable.quote(column));
             }
@@ -875,7 +873,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         /**
          * 索引列
          */
-        private final List<String> cols = new ArrayList<>();
+        private final List<String> cols = Wraps.list();
         /**
          * 唯一
          */

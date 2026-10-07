@@ -1,5 +1,6 @@
 package com.chua.common.support.proxy;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.constant.ValueConstant;
 import com.chua.common.support.proxy.annotation.Around;
 import com.chua.common.support.proxy.annotation.MethodAnnotationIntercept;
@@ -16,7 +17,6 @@ import lombok.Getter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -441,7 +441,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
             }
 
  // 按 订单 升序组成洋葱链：数值越小越靠外层执行
-            List<MethodAnnotationIntercept<Annotation>> sorted = new ArrayList<>(matched);
+            List<MethodAnnotationIntercept<Annotation>> sorted = Wraps.list(matched);
             sorted.sort(Comparator.comparingInt(MethodAnnotationIntercept::order));
 
             for (int i = sorted.size() - 1; i >= 0; i--) {
@@ -500,7 +500,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
         }
 
         // 二次校验：确保每个拦截器的 annotationType() 与目标注解一致
-        List<MethodAnnotationIntercept<Annotation>> valid = new ArrayList<>(intercepts.size());
+        List<MethodAnnotationIntercept<Annotation>> valid = Wraps.list(intercepts.size());
         for (MethodAnnotationIntercept raw : intercepts) {
             if (raw == null) {
                 continue;
@@ -561,7 +561,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
         }
         String signature = buildSignature(method);
 
-        List<ArroundHandler> matched = new ArrayList<>();
+        List<ArroundHandler> matched = Wraps.list();
         for (ArroundHandler handler : handlers) {
             if (handler.matches(signature, method)) {
                 matched.add(handler);

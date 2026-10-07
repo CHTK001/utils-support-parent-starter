@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.filter;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.handler.ServerHandler;
 import com.chua.common.support.network.server.handler.ServerHandlerFactory;
@@ -9,8 +10,6 @@ import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.objects.ObjectContext;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
-
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -101,7 +100,7 @@ public class ShellUrlServerFilter implements EndServerFilter {
      * @return 命令名称集合
      */
     public Set<String> getCommandNames() {
-        return new LinkedHashSet<>(factory.getAnyMethodRoutes().keySet());
+        return Wraps.linkedSet(factory.getAnyMethodRoutes().keySet());
     }
 
     /**

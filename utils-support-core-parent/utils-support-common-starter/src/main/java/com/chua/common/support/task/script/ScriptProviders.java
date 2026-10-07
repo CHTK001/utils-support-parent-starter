@@ -1,9 +1,9 @@
 package com.chua.common.support.task.script;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -69,7 +69,7 @@ public final class ScriptProviders {
      * @return 去重后的引擎名集合，无实现时为空集合
      */
     public static Set<String> engines() {
-        return Collections.unmodifiableSet(new LinkedHashSet<>(resolver.engines()));
+        return Collections.unmodifiableSet(Wraps.linkedSet(resolver.engines()));
     }
 
     /**

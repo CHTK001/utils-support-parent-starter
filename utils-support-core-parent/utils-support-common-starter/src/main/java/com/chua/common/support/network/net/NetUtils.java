@@ -1,5 +1,6 @@
 package com.chua.common.support.network.net;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.StringUtils;
 
 import java.net.Inet4Address;
@@ -116,7 +117,7 @@ public final class NetUtils {
      * @return 本机全部 IPv4 列表（可能为空）
      */
     public static java.util.List<String> getLocalIps() {
-        java.util.List<String> ips = new java.util.ArrayList<>();
+        java.util.List<String> ips = Wraps.list();
         try {
             Enumeration<NetworkInterface> nifs = NetworkInterface.getNetworkInterfaces();
             while (nifs.hasMoreElements()) {

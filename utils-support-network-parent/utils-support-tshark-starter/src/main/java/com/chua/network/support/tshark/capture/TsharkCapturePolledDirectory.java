@@ -1,5 +1,6 @@
 package com.chua.network.support.tshark.capture;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.PolledDirectory;
 import com.chua.common.support.lang.directory.PolledDirectorySupport;
 import com.chua.common.support.lang.directory.PolledListener;
@@ -23,7 +24,6 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -427,7 +427,7 @@ public class TsharkCapturePolledDirectory implements PolledDirectory {
      */
     @Nonnull
     private List<String> buildCommand(@Nonnull Path executable) {
-        List<String> command = new ArrayList<>();
+        List<String> command = Wraps.list();
         command.add(executable.toString());
         command.add("-i");
         command.add(options.interfaceId());
@@ -560,7 +560,7 @@ public class TsharkCapturePolledDirectory implements PolledDirectory {
      * @param batch 数据包批次
      */
     private void consume(@Nonnull List<PacketRecord> batch) {
-        List<PacketRecord> capped = new ArrayList<>(batch.size());
+        List<PacketRecord> capped = Wraps.list(batch.size());
         for (PacketRecord record : batch) {
             delivered.incrementAndGet();
             statistics.addPacket(record.length() == null ? 0 : record.length());

@@ -1,11 +1,11 @@
 package com.chua.spring.support.script;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.script.ScriptProvider;
 import com.chua.common.support.task.script.ScriptProviderResolver;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -85,7 +85,7 @@ public class SpringScriptProviderResolver implements ScriptProviderResolver {
             classLoader = getClass().getClassLoader();
         }
         List<ScriptProvider> factories = SpringFactoriesLoader.loadFactories(ScriptProvider.class, classLoader);
-        Map<String, ScriptProvider> result = new LinkedHashMap<>(factories.size());
+        Map<String, ScriptProvider> result = Wraps.linkedMap(factories.size());
         for (ScriptProvider provider : factories) {
             String name = provider.engineName();
             if (name != null && !name.isBlank()) {

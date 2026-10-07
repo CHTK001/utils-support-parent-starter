@@ -1,5 +1,6 @@
 package com.chua.spring.support.proxy.intercept;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.concurrent.collapse.CollapseBatchFunction;
 import com.chua.common.support.concurrent.collapse.CollapseConfig;
 import com.chua.common.support.concurrent.collapse.CollapseExecutor;
@@ -23,11 +24,7 @@ import org.springframework.util.ClassUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -70,7 +67,7 @@ public class CollapsibleIntercept
     /**
      * 正在合并执行核心方法的方法集合（防递归重入）
      */
-    private final ThreadLocal<Set<Method>> collapsingMethods = ThreadLocal.withInitial(HashSet::new);
+    private final ThreadLocal<Set<Method>> collapsingMethods = ThreadLocal.withInitial(Wraps::set);
 
     @Override
     public Class<Collapsible> annotationType() {
@@ -297,13 +294,13 @@ public class CollapsibleIntercept
             }
         }
         // 按归约键去重并集与归属索引（key() SpEL 提取；缺省时元素自身即键，兼容 Map 返回模式）
-        Map<Object, Object> unionElements = new LinkedHashMap<>();
-        Map<Object, List<InvocationKey>> owners = new LinkedHashMap<>();
+        Map<Object, Object> unionElements = Wraps.linkedMap();
+        Map<Object, List<InvocationKey>> owners = Wraps.linkedMap();
         for (InvocationKey key : inputs) {
             for (Object element : key.collectionArgs) {
                 Object collapseKey = key.keyExtractor.apply(element);
                 unionElements.putIfAbsent(collapseKey, element);
-                owners.computeIfAbsent(collapseKey, ignored -> new ArrayList<>(2)).add(key);
+                owners.computeIfAbsent(collapseKey, ignored -> Wraps.list(2)).add(key);
             }
         }
         // 一次核心方法调用（实参 = 按归约键去重后的元素集合）
@@ -314,14 +311,14 @@ public class CollapsibleIntercept
         }
         Map<?, ?> full = (Map<?, ?>) rawResult;
         // 按归属拆分回填（子 Map 键 = 调用者元素的归约键）
-        Map<InvocationKey, Object> result = new LinkedHashMap<>();
+        Map<InvocationKey, Object> result = Wraps.linkedMap();
         for (Map.Entry<Object, List<InvocationKey>> entry : owners.entrySet()) {
             Object collapseKey = entry.getKey();
             if (!full.containsKey(collapseKey)) {
                 continue;
             }
             for (InvocationKey owner : entry.getValue()) {
-                Map<Object, Object> sub = (Map<Object, Object>) result.computeIfAbsent(owner, ignored -> new LinkedHashMap<>());
+                Map<Object, Object> sub = (Map<Object, Object>) result.computeIfAbsent(owner, ignored -> Wraps.linkedMap());
                 sub.put(collapseKey, full.get(collapseKey));
             }
         }
@@ -337,9 +334,9 @@ public class CollapsibleIntercept
      */
     private static Object newCollectionArg(Class<?> parameterType, Collection<?> union) {
         if (Set.class.isAssignableFrom(parameterType)) {
-            return new LinkedHashSet<>(union);
+            return Wraps.linkedSet(union);
         }
-        return new ArrayList<>(union);
+        return Wraps.list(union);
     }
 
     /**

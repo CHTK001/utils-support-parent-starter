@@ -1,9 +1,8 @@
 package com.chua.common.support.lang.view;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -122,7 +121,7 @@ public class CardViewParser implements ViewParser {
      * @return 有序键值对映射
      */
     private static Map<String, String> toKeyValue(Object data) {
-        Map<String, String> result = new LinkedHashMap<>();
+        Map<String, String> result = Wraps.linkedMap();
         if (data instanceof Map) {
             for (var entry : ((Map<Object, Object>) data).entrySet()) {
                 result.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));

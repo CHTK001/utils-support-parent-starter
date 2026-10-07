@@ -1,6 +1,5 @@
 package com.chua.cad.support.dxf;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.List;
 
@@ -155,7 +154,7 @@ public record DxfEntity(
      */
     public DxfEntity {
         layer = layer == null || layer.isBlank() ? "0" : layer;
-        points = points == null ? List.of() : Collections.unmodifiableList(new ArrayList<>(points));
+        points = points == null ? List.of() : Collections.unmodifiableList(Wraps.list(points));
         text = text == null ? "" : text;
     }
 }

@@ -1,8 +1,7 @@
 package com.chua.common.support.lang.view;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -84,12 +83,12 @@ public class ListViewParser implements ViewParser {
      */
     private static List<Object> toList(Object data) {
         if (data instanceof Iterable) {
-            List<Object> result = new ArrayList<>();
+            List<Object> result = Wraps.list();
             ((Iterable<?>) data).forEach(result::add);
             return result;
         }
         if (data.getClass().isArray()) {
-            return new ArrayList<>(Arrays.asList((Object[]) data));
+            return Wraps.list(Arrays.asList((Object[]) data));
         }
         return List.of(data);
     }

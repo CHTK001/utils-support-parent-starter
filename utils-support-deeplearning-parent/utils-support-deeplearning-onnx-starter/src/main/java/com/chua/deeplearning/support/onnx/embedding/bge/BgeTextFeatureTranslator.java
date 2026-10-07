@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.embedding.bge;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import com.chua.common.support.utils.NativeLoader;
 import com.chua.deeplearning.support.translator.ITranslator;
@@ -7,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import com.chua.deeplearning.support.engine.ModelRegistry;
 
@@ -98,7 +98,7 @@ public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
  // 2. 若 jar 内未找到，尝试从 模型registry 下载缓存读取（新模型如 bge-基础-zh）
         if (modelDir == null) {
             // 2.1 显式指定优先（系统属性，便于多模型并存时精确选择）
-            List<String> candidateIds = new ArrayList<>(2);
+            List<String> candidateIds = Wraps.list(2);
             String explicit = System.getProperty("bge.registry.model", "");
             if (!explicit.isBlank()) {
                 candidateIds.add(explicit.trim());

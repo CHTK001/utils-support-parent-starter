@@ -1,5 +1,6 @@
 package com.chua.hunyuan.support.storage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.storage.AbstractFileStorage;
 import com.chua.common.support.storage.metadata.Metadata;
@@ -21,7 +22,6 @@ import com.qcloud.cos.model.ObjectMetadata;
 import com.qcloud.cos.region.Region;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -206,7 +206,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
             }
 
             ObjectListing listing = cosClient.listObjects(listReq);
-            List<Metadata> metadataList = new ArrayList<>();
+            List<Metadata> metadataList = Wraps.list();
             for (COSObjectSummary summary : listing.getObjectSummaries()) {
                 metadataList.add(Metadata.builder()
                         .name(summary.getKey())

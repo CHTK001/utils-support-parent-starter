@@ -1,5 +1,6 @@
 package com.chua.git.support.operation;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.lang.json.JsonObject;
@@ -11,8 +12,6 @@ import com.chua.git.support.exception.GitClientException;
 import com.chua.git.support.model.WorkflowInfo;
 import com.chua.git.support.model.WorkflowRun;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -191,7 +190,7 @@ public class ActionsOperation {
                 .path("/repos/" + owner + "/" + repo + "/actions/workflows")
                 .get();
         checkResponse(response, "查询 CI 工作流列表");
-        List<WorkflowInfo> result = new ArrayList<>();
+        List<WorkflowInfo> result = Wraps.list();
         JsonNode root = Json.parse(response.getBodyString());
         JsonNode workflows = root.get("workflows");
         if (workflows != null && workflows.isArray()) {
@@ -216,7 +215,7 @@ public class ActionsOperation {
                 .path("/repos/" + owner + "/" + repo + "/actions/runs")
                 .get();
         checkResponse(response, "查询 CI 运行列表");
-        List<WorkflowRun> result = new ArrayList<>();
+        List<WorkflowRun> result = Wraps.list();
         JsonNode root = Json.parse(response.getBodyString());
         JsonNode runs = root.get("workflow_runs");
         if (runs != null && runs.isArray()) {
@@ -274,7 +273,7 @@ public class ActionsOperation {
         JsonObject body = Json.createJsonObject();
         body.put("ref", ref);
         if (platform == CiPlatform.GITEE) {
-            body.put("variables", new ArrayList<>());
+            body.put("variables", Wraps.list());
         }
         ClientResponse response = newRequest()
                 .path(path)

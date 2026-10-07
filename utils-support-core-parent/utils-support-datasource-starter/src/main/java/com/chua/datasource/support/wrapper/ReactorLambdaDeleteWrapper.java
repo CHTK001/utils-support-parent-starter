@@ -1,5 +1,6 @@
 package com.chua.datasource.support.wrapper;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.wrapper.AbstractLambdaWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
@@ -7,8 +8,6 @@ import com.chua.common.support.lang.datasource.engine.wrapper.SFunction;
 import com.chua.datasource.support.wrapper.toolkit.LambdaUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,7 +52,7 @@ public class ReactorLambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, Reac
             throw new IllegalStateException("禁止无 WHERE 条件的全表删除: "
                     + entityClass.getSimpleName() + "，如需全表删除请显式调用 allowFullTable()");
         }
-        List<Object> params = new ArrayList<>();
+        List<Object> params = Wraps.list();
         StringBuilder where = new StringBuilder();
         buildWhere(where, params);
         return new DeleteSql<>(entityClass, where.toString(), params);

@@ -1,5 +1,6 @@
 package com.chua.datasource.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
@@ -10,7 +11,6 @@ import com.chua.common.support.lang.datasource.table.TableDef;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -180,12 +180,12 @@ public class JdbcMetaTable extends AbstractMetaTable {
         /**
          * 列定义
          */
-        private final List<ColumnDef> columns = new ArrayList<>();
+        private final List<ColumnDef> columns = Wraps.list();
 
         /**
          * 联合主键
          */
-        private final List<String> primaryKeys = new ArrayList<>();
+        private final List<String> primaryKeys = Wraps.list();
 
         /**
          * 表注释

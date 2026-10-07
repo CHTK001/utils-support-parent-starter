@@ -1,5 +1,6 @@
 package com.chua.common.support.spi;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.collection.ConcurrentReferenceHashMap;
 import com.chua.common.support.collection.SortedList;
 import com.chua.common.support.proxy.intercept.DelegateMethodIntercept;
@@ -13,9 +14,7 @@ import com.chua.common.support.utils.ClassUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -663,8 +662,8 @@ public interface ServiceProvider<T> {
         if (instances == null || instances.isEmpty()) {
             return null;
         }
-        List<T> unique = new ArrayList<>(instances.size());
-        Set<Class<?>> seen = new HashSet<>();
+        List<T> unique = Wraps.list(instances.size());
+        Set<Class<?>> seen = Wraps.set();
         for (T t : instances) {
             Class<?> implClass = t.getClass();
             if (seen.add(implClass)) {

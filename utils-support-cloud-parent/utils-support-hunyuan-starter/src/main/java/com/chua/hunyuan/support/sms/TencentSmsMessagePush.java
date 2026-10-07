@@ -1,5 +1,6 @@
 package com.chua.hunyuan.support.sms;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import com.chua.common.support.spi.annotations.SpiParam;
@@ -15,8 +16,6 @@ import com.tencentcloudapi.sms.v20190711.SmsClient;
 import com.tencentcloudapi.sms.v20190711.models.SendSmsRequest;
 import com.tencentcloudapi.sms.v20190711.models.SendSmsResponse;
 import com.tencentcloudapi.sms.v20190711.models.SendStatus;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -173,7 +172,7 @@ public class TencentSmsMessagePush implements MessagePush {
      * 列表templates
     */
     public List<TemplateInfo> listTemplates() {
-        return new ArrayList<>(templates.values());
+        return Wraps.list(templates.values());
     }
 
     @Override

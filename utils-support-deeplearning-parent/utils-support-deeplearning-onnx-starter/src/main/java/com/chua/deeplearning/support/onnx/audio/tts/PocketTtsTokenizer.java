@@ -1,13 +1,12 @@
 package com.chua.deeplearning.support.onnx.audio.tts;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -39,7 +38,7 @@ public class PocketTtsTokenizer {
     /**
      * 词表：令牌 字符串 → 标识
     */
-    private final Map<String, Integer> vocab = new LinkedHashMap<>(4096);
+    private final Map<String, Integer> vocab = Wraps.linkedMap(4096);
 
     /**
      * BOS 令牌 标识
@@ -127,7 +126,7 @@ public class PocketTtsTokenizer {
         }
 
  // 预估 令牌 数量：每 2 个字符约 1 个 令牌，加上 bos/eos
-        List<Long> ids = new ArrayList<>((processed.length() + 1) / 2 + 2);
+        List<Long> ids = Wraps.list((processed.length() + 1) / 2 + 2);
         ids.add((long) bosId);
 
         int pos = 0;

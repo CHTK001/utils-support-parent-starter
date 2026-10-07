@@ -1,11 +1,10 @@
 package com.chua.runtime.protocol;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -40,5 +39,5 @@ public class SpanEvent {
      * 事件属性
      */
     @Builder.Default
-    private Map<String, String> attributes = new HashMap<>(); // attributes
+    private Map<String, String> attributes = Wraps.map(); // attributes
 }

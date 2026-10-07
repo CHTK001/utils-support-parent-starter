@@ -2,6 +2,7 @@ package com.chua.common.support.utils;
 
 import com.chua.common.support.collection.MultiLinkedValueMap;
 import com.chua.common.support.collection.MultiValueMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.google.common.base.CaseFormat;
@@ -82,7 +83,7 @@ public class MapUtils {
         if (null == map) {
             return Collections.emptyMap();
         }
-        Map<String, Object> flattenedMap = new HashMap<>(map.size());
+        Map<String, Object> flattenedMap = Wraps.map(map.size());
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
@@ -122,8 +123,8 @@ public class MapUtils {
      * @return 初始容量适配 期望大小 的 哈希映射
      * @since 3.4.0
      */
-    public static <K, V> HashMap<K, V> newHashMapWithExpectedSize(int expectedSize) {
-        return new HashMap<>(capacity(expectedSize));
+    public static <K, V> Map<K, V> newHashMapWithExpectedSize(int expectedSize) {
+        return Wraps.map(capacity(expectedSize));
     }
 
     /**
@@ -189,7 +190,7 @@ public class MapUtils {
         if (null == source) {
             return Collections.emptyMap();
         }
-        Map<K, V> result = new HashMap<>(source.length);
+        Map<K, V> result = Wraps.map(source.length);
         for (Map<K, V> map : source) {
             if (isEmpty(map)) {
                 continue;
@@ -1344,7 +1345,7 @@ public class MapUtils {
             throw new IllegalArgumentException("键值分隔符不能为空");
         }
 
-        Map<String, Object> source = new HashMap<>(DEFAULT_INITIAL_CAPACITY);
+        Map<String, Object> source = Wraps.map(DEFAULT_INITIAL_CAPACITY);
         String[] split;
         if (StringUtils.isNotEmpty(valueSeparator)) {
             // 分隔符按字面量处理：'.'、'|'、'+' 等作为正则会匹配到完全不同甚至每个位置
@@ -1377,7 +1378,7 @@ public class MapUtils {
 
             convertToList(source, mapKey, null == mapValue ? null : safeUrlDecode(mapValue));
         }
-        Map<String, String> result = new HashMap<>(source.size());
+        Map<String, String> result = Wraps.map(source.size());
         for (Map.Entry<String, Object> entry : source.entrySet()) {
             Object value1 = entry.getValue();
             result.put(entry.getKey(), value1 instanceof Collection && ((Collection<?>) value1).size() == 1 ? CollectionUtils.findFirst((Collection) value1).toString() : value1.toString());
@@ -1416,7 +1417,7 @@ public class MapUtils {
      * @param value  值，若为 空 则不做任何操作
      */
     private static void convertToList(Map<String, Object> target, String key, Object value) {
-        Object computeIfAbsent = target.computeIfAbsent(key, (Function<String, List<Object>>) input -> new ArrayList());
+        Object computeIfAbsent = target.computeIfAbsent(key, (Function<String, List<Object>>) input -> Wraps.list());
         if (null == value) {
             return;
         }
@@ -1424,7 +1425,7 @@ public class MapUtils {
         if (computeIfAbsent instanceof List) {
             ((List) computeIfAbsent).add(value);
         } else {
-            List<Object> newValue = new ArrayList();
+            List<Object> newValue = Wraps.list();
             newValue.add(computeIfAbsent);
             newValue.add(value);
             target.put(key, newValue);
@@ -1522,7 +1523,7 @@ public class MapUtils {
      * @return 对应的 映射
      */
     public static Map<String, Object> asMap(Properties properties) {
-        Map<String, Object> rs = new HashMap<>(properties.size());
+        Map<String, Object> rs = Wraps.map(properties.size());
         properties.forEach((k, v) -> {
             rs.put(k.toString(), v);
         });
@@ -1539,7 +1540,7 @@ public class MapUtils {
      * @return 键添加前缀后的新 映射
      */
     public static <K, V> Map<String, V> appendPre(String pre, Map<K, V> kvMap) {
-        Map<String, V> tmp = new HashMap<>(kvMap.size());
+        Map<String, V> tmp = Wraps.map(kvMap.size());
         for (Map.Entry<K, V> entry : kvMap.entrySet()) {
             tmp.put(pre + entry.getKey().toString(), entry.getValue());
         }
@@ -1576,7 +1577,7 @@ public class MapUtils {
             return defaultValue;
         }
 
-        Map<K, V> temp = new LinkedHashMap<>(source);
+        Map<K, V> temp = Wraps.linkedMap(source);
         for (Map.Entry<K, V> entry : defaultValue.entrySet()) {
             if (temp.containsKey(entry.getKey())) {
                 continue;
@@ -1615,7 +1616,7 @@ public class MapUtils {
      * @return 键为 字符串 的新 链接哈希映射
      */
     public static Map<String, Object> asStringObjectMap(Map source) {
-        Map<String, Object> tpl = new LinkedHashMap<>(source.size());
+        Map<String, Object> tpl = Wraps.linkedMap(source.size());
         source.forEach((k, v) -> {
             tpl.put(k.toString(), v);
         });
@@ -1629,7 +1630,7 @@ public class MapUtils {
      * @return 键和值均为 字符串 的新 链接哈希映射
      */
     public static Map<String, String> asStringMap(Map source) {
-        Map<String, String> tpl = new LinkedHashMap<>(source.size());
+        Map<String, String> tpl = Wraps.linkedMap(source.size());
         source.forEach((k, v) -> {
             tpl.put(k.toString(), v == null ? null : v.toString());
         });
@@ -1643,7 +1644,7 @@ public class MapUtils {
      * @return 键和值均为 字符串 的新 链接哈希映射
      */
     public static Map<String, String> asStringMap(Properties source) {
-        Map<String, String> tpl = new LinkedHashMap<>(source.size());
+        Map<String, String> tpl = Wraps.linkedMap(source.size());
         for (Map.Entry<Object, Object> entry : source.entrySet()) {
             tpl.put(entry.getKey().toString(), null == entry.getValue() ? null : entry.getValue().toString());
         }
@@ -1658,7 +1659,7 @@ public class MapUtils {
      * @return 元素到索引的映射
      */
     public static <T> Map<T, Integer> indexMap(List<T> valuesInOrder) {
-        Map<T, Integer> rs = new HashMap<>(valuesInOrder.size());
+        Map<T, Integer> rs = Wraps.map(valuesInOrder.size());
         int i = 0;
         for (T t : valuesInOrder) {
             rs.put(t, i++);
@@ -1696,7 +1697,7 @@ public class MapUtils {
      * @return 新的 哈希映射
      */
     public static <K, V> Map<K, V> newHashMap() {
-        return new HashMap<>(DEFAULT_INITIAL_CAPACITY);
+        return Wraps.map(DEFAULT_INITIAL_CAPACITY);
     }
 
     /**
@@ -1709,7 +1710,7 @@ public class MapUtils {
      * @return 包含指定键值对的新 哈希映射
      */
     public static <K, V> Map<K, V> ofHashMap(K k, V v) {
-        Map<K, V> rs = new HashMap<>(1 << 4);
+        Map<K, V> rs = Wraps.map(1 << 4);
         rs.put(k, v);
         return rs;
     }
@@ -1724,7 +1725,7 @@ public class MapUtils {
      * @return 包含指定键值对的新 链接哈希映射
      */
     public static <K, V> Map<K, V> ofLinkedMap(K k, V v) {
-        Map<K, V> rs = new LinkedHashMap<>();
+        Map<K, V> rs = Wraps.linkedMap();
         rs.put(k, v);
         return rs;
     }
@@ -1787,8 +1788,8 @@ public class MapUtils {
  * @return 按键排序后的新 链接哈希映射
  */
     public static <V> Map<String, V> sortKey(Map<String, V> param) {
-        Map<String, V> rs = new LinkedHashMap<>();
-        List<String> strings = new ArrayList<>(param.keySet());
+        Map<String, V> rs = Wraps.linkedMap();
+        List<String> strings = Wraps.list(param.keySet());
         strings.sort(String::compareTo);
         for (String string : strings) {
             rs.put(string, param.get(string));
@@ -1827,7 +1828,7 @@ public class MapUtils {
         if (newData == null || oldData == null) {
             throw new IllegalArgumentException("新旧数据不能为空");
         }
-        Map<K, V> rs = new HashMap<>(newData.size());
+        Map<K, V> rs = Wraps.map(newData.size());
         for (Map.Entry<K, V> entry : newData.entrySet()) {
             K key = entry.getKey();
             // 键不在旧数据中：属于新增项，必须保留
@@ -2109,7 +2110,11 @@ public class MapUtils {
      * @return 扁平化的 映射
      */
     public static Map<String, Object> flattenToProperties(Properties properties) {
-        return flattenToProperties(new HashMap(properties), "");
+        Map<String, Object> copy = Wraps.map(properties.size());
+        for (String name : properties.stringPropertyNames()) {
+            copy.put(name, properties.getProperty(name));
+        }
+        return flattenToProperties(copy, "");
     }
 
     /**
@@ -2122,7 +2127,7 @@ public class MapUtils {
      * @return 扁平化的 映射
      */
     public static Map<String, Object> flattenToProperties(Map<String, Object> map, String prefix) {
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
 
         if (map == null) {
             return result;
@@ -2186,10 +2191,10 @@ public class MapUtils {
      */
     public static Map<String, Object> unflattenFromProperties(Map<String, Object> flatMap) {
         if (flatMap == null || flatMap.isEmpty()) {
-            return new LinkedHashMap<>();
+            return Wraps.linkedMap();
         }
 
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
 
         for (Map.Entry<String, Object> entry : flatMap.entrySet()) {
             String key = entry.getKey();
@@ -2249,25 +2254,25 @@ public class MapUtils {
 
                 //                   
                 if (!current.containsKey(arrayName)) {
-                    current.put(arrayName, new ArrayList<>());
+                    current.put(arrayName, Wraps.list());
                 }
 
                 Object arrayObj = current.get(arrayName);
                 if (!(arrayObj instanceof List)) {
-                    arrayObj = new ArrayList<>();
+                    arrayObj = Wraps.list();
                     current.put(arrayName, arrayObj);
                 }
 
                 List<Object> list = (List<Object>) arrayObj;
 
-                //                   
+                //                  
                 while (list.size() <= index) {
-                    list.add(new LinkedHashMap<String, Object>());
+                    list.add(Wraps.linkedMap());
                 }
 
  // 映射
                 if (!(list.get(index) instanceof Map)) {
-                    list.set(index, new LinkedHashMap<String, Object>());
+                    list.set(index, Wraps.linkedMap());
                 }
 
                 return (Map<String, Object>) list.get(index);
@@ -2293,12 +2298,12 @@ public class MapUtils {
      */
     private static Map<String, Object> ensureMapExists(Map<String, Object> current, String key) {
         if (!current.containsKey(key)) {
-            current.put(key, new LinkedHashMap<String, Object>());
+            current.put(key, Wraps.linkedMap());
         }
 
         Object nextLevel = current.get(key);
         if (!(nextLevel instanceof Map)) {
-            nextLevel = new LinkedHashMap<String, Object>();
+            nextLevel = Wraps.linkedMap();
             current.put(key, nextLevel);
         }
         return (Map<String, Object>) nextLevel;
@@ -2320,12 +2325,12 @@ public class MapUtils {
                 int index = Integer.parseInt(indexStr);
 
                 if (!current.containsKey(arrayName)) {
-                    current.put(arrayName, new ArrayList<>());
+                    current.put(arrayName, Wraps.list());
                 }
 
                 Object arrayObj = current.get(arrayName);
                 if (!(arrayObj instanceof List)) {
-                    arrayObj = new ArrayList<>();
+                    arrayObj = Wraps.list();
                     current.put(arrayName, arrayObj);
                 }
 
@@ -2478,7 +2483,7 @@ public class MapUtils {
         if (bean instanceof Map) {
             return (Map<String, Object>) bean;
         }
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
         try {
             java.beans.BeanInfo beanInfo = java.beans.Introspector.getBeanInfo(bean.getClass());
             for (java.beans.PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {

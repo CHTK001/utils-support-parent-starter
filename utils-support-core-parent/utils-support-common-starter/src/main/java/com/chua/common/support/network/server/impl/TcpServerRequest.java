@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.server.request.ServerRequest;
@@ -10,9 +11,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -132,7 +131,7 @@ public class TcpServerRequest implements ServerRequest {
         this.params = parseQueryParams(this.uri);
 
         // 解析请求头
-        this.headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        this.headers = Wraps.sortedMap(String.CASE_INSENSITIVE_ORDER);
         String[] lines = headerSection.split("\n");
         for (int i = 1; i < lines.length; i++) {
             String line = lines[i].trim();
@@ -183,7 +182,7 @@ public class TcpServerRequest implements ServerRequest {
             return Collections.emptyMap();
         }
         String query = uri.substring(q + 1);
-        Map<String, String> map = new LinkedHashMap<>();
+        Map<String, String> map = Wraps.linkedMap();
         for (String pair : query.split("&")) {
             int eq = pair.indexOf('=');
             if (eq < 0) {

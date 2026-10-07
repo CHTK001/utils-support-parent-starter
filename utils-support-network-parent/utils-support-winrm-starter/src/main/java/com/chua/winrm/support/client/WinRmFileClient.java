@@ -1,5 +1,6 @@
 package com.chua.winrm.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.protocol.ClientSetting;
 import com.chua.common.support.network.protocol.client.FileClient;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -56,7 +56,7 @@ public class WinRmFileClient implements FileClient {
     public List<String> listFiles(String path) throws IOException {
         String output = executePowerShell("Get-ChildItem -LiteralPath " + quote(path)
                 + " -ErrorAction Stop | Select-Object -ExpandProperty Name");
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         for (String line : output.split("\\R")) {
             if (!line.isBlank()) {
                 result.add(line.trim());

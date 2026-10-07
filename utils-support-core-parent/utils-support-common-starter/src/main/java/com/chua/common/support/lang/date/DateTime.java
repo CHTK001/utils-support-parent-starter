@@ -2,10 +2,12 @@ package com.chua.common.support.lang.date;
 
 import com.chua.common.support.lang.date.enums.ZoneIdEnum;
 import com.chua.common.support.lang.date.unit.DateUnit;
+import com.chua.common.support.spi.ServiceProvider;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -63,11 +65,25 @@ public final class DateTime {
     /**
      * 字符串转 {@link LocalDateTime}。
      * <p>支持格式：yyyy-MM-dd HH:mm:ss、yyyy-MM-ddTHH:mm:ss 等。</p>
+     * <p>先依次尝试全部 {@link DateTimeParser} SPI 实现（
+     * {@link ServiceProvider#collect()} 从头处理），
+     * 有一个成功即解析成功；全部失败时回退到 {@link LocalDateTime#parse(CharSequence)}。</p>
      *
      * @param timeStr 时间字符串
      * @return {@link LocalDateTime}
      */
     public static LocalDateTime parse(String timeStr) {
+        List<DateTimeParser> parsers = ServiceProvider.of(DateTimeParser.class).collect();
+        for (DateTimeParser parser : parsers) {
+            try {
+                LocalDateTime result = parser.parse(timeStr);
+                if (result != null) {
+                    return result;
+                }
+            } catch (Exception ignored) {
+                // 尝试下一个 SPI 实现
+            }
+        }
         return LocalDateTime.parse(timeStr);
     }
 

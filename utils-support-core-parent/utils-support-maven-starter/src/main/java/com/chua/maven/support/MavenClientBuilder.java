@@ -1,7 +1,7 @@
 package com.chua.maven.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -112,8 +112,8 @@ public class MavenClientBuilder {
      * 构造方法，创建 Maven客户端Builder 实例。
      */
     MavenClientBuilder() {
-        this.goals = new ArrayList<>();
-        this.profiles = new ArrayList<>();
+        this.goals = Wraps.list();
+        this.profiles = Wraps.list();
         this.properties = new Properties();
     }
 
@@ -243,7 +243,7 @@ public class MavenClientBuilder {
      * @return this
      */
     public MavenClientBuilder goals(List<String> goals) {
-        this.goals = new ArrayList<>(goals);
+        this.goals = Wraps.list(goals);
         return this;
     }
 
@@ -280,7 +280,7 @@ public class MavenClientBuilder {
      * @return this
      */
     public MavenClientBuilder profiles(List<String> profiles) {
-        this.profiles = new ArrayList<>(profiles);
+        this.profiles = Wraps.list(profiles);
         return this;
     }
 

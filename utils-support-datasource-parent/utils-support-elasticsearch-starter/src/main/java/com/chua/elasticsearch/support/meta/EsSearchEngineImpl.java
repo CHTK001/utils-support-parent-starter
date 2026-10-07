@@ -1,5 +1,6 @@
 package com.chua.elasticsearch.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.mapping.DocValues;
 import co.elastic.clients.elasticsearch._types.mapping.Property;
@@ -11,9 +12,6 @@ import com.chua.common.support.lang.datasource.meta.SearchEngine;
 import com.chua.common.support.lang.datasource.meta.model.SearchFieldDef;
 import com.chua.common.support.lang.datasource.meta.model.SearchIndexDef;
 import com.chua.elasticsearch.support.engine.ElasticsearchEngine;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +51,7 @@ public class EsSearchEngineImpl implements SearchEngine {
     public List<String> listIndexes() {
         try {
             var response = engine.getClient().indices().get(i -> i.index("*"));
-            return new ArrayList<>(response.indices().keySet());
+            return Wraps.list(response.indices().keySet());
         } catch (Exception e) {
             throw new RuntimeException("列出 ES 索引失败", e);
         }
@@ -73,7 +71,7 @@ public class EsSearchEngineImpl implements SearchEngine {
 
             if (indexResponse.indices().containsKey(indexName)) {
                 var indexSettings = indexResponse.indices().get(indexName).settings();
-                Map<String, Object> settings = new LinkedHashMap<>();
+                Map<String, Object> settings = Wraps.linkedMap();
                 if (indexSettings.index() != null) {
                     if (indexSettings.index().numberOfShards() != null) {
                         settings.put("number_of_shards", indexSettings.index().numberOfShards());
@@ -87,7 +85,7 @@ public class EsSearchEngineImpl implements SearchEngine {
 
             if (mappingResponse.mappings().containsKey(indexName)) {
                 TypeMapping mapping = mappingResponse.mappings().get(indexName).mappings();
-                List<SearchFieldDef> fields = new ArrayList<>();
+                List<SearchFieldDef> fields = Wraps.list();
                 if (mapping.properties() != null) {
                     mapping.properties().forEach((name, prop) -> {
                         SearchFieldDef field = new SearchFieldDef();
@@ -138,7 +136,7 @@ public class EsSearchEngineImpl implements SearchEngine {
                     })
                     .mappings(m -> {
                         if (indexDef.getFields() != null && !indexDef.getFields().isEmpty()) {
-                            Map<String, Property> properties = new LinkedHashMap<>();
+                            Map<String, Property> properties = Wraps.linkedMap();
                             for (SearchFieldDef field : indexDef.getFields()) {
                                 properties.put(field.getName(), buildProperty(field));
                             }

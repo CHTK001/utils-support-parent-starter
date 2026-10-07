@@ -1,5 +1,6 @@
 package com.chua.ollama.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
@@ -15,8 +16,6 @@ import io.github.ollama4j.models.chat.OllamaChatResult;
 import io.github.ollama4j.models.response.Model;
 import io.github.ollama4j.utils.Options;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -90,7 +89,7 @@ public class OllamaChatClient implements ChatClient {
     /**
      * 增量 历史（按 时间 正序）
      */
-    private final List<ChatMessage> history = new ArrayList<>();
+    private final List<ChatMessage> history = Wraps.list();
 
     /**
      * 外部 一次性 历史（覆盖 增量 历史）
@@ -277,7 +276,7 @@ public class OllamaChatClient implements ChatClient {
     public List<ModelDefinition> models() {
         try {
             List<Model> raw = ollama.listModels();
-            List<ModelDefinition> result = new ArrayList<>();
+            List<ModelDefinition> result = Wraps.list();
             if (raw != null) {
                 for (Model m : raw) {
                     if (m == null || m.getName() == null || m.getName().isBlank()) {
@@ -349,7 +348,7 @@ public class OllamaChatClient implements ChatClient {
      * @return 消息 列表
      */
     private List<OllamaChatMessage> buildOllamaMessages(String prompt) {
-        List<OllamaChatMessage> messages = new ArrayList<>();
+        List<OllamaChatMessage> messages = Wraps.list();
         if (system != null && !system.isBlank()) {
             messages.add(new OllamaChatMessage(OllamaChatMessageRole.SYSTEM, system));
         }
@@ -373,7 +372,7 @@ public class OllamaChatClient implements ChatClient {
      * @return 选项 构建器 结果
      */
     private Options buildOptions() {
-        Map<String, Object> map = new java.util.LinkedHashMap<>();
+        Map<String, Object> map = Wraps.linkedMap();
         if (temperature != null) {
             map.put("temperature", temperature);
         }

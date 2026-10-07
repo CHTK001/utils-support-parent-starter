@@ -1,5 +1,6 @@
 package com.chua.prometheus.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.exception.RemoteExecutionException;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonArray;
@@ -23,10 +24,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -318,7 +317,7 @@ public class PrometheusClient implements AutoCloseable {
     public List<PrometheusTarget> targets() {
         JsonObject root = getJson(PATH_TARGETS);
         JsonObject data = requireData(root, PATH_TARGETS);
-        List<PrometheusTarget> out = new ArrayList<>();
+        List<PrometheusTarget> out = Wraps.list();
         // activeTargets 缺失按"无目标"处理, 存在却不是数组则属于响应非法
         JsonArray active = optionalArray(data, "activeTargets", PATH_TARGETS);
         if (active == null) {
@@ -352,7 +351,7 @@ public class PrometheusClient implements AutoCloseable {
     public List<PrometheusRule> rules() {
         JsonObject root = getJson(PATH_RULES);
         JsonObject data = requireData(root, PATH_RULES);
-        List<PrometheusRule> out = new ArrayList<>();
+        List<PrometheusRule> out = Wraps.list();
         // groups 缺失按"无规则"处理, 存在却不是数组则属于响应非法
         JsonArray groups = optionalArray(data, "groups", PATH_RULES);
         if (groups == null) {
@@ -398,7 +397,7 @@ public class PrometheusClient implements AutoCloseable {
     public List<PrometheusAlert> alerts() {
         JsonObject root = getJson(PATH_ALERTS);
         JsonObject data = requireData(root, PATH_ALERTS);
-        List<PrometheusAlert> out = new ArrayList<>();
+        List<PrometheusAlert> out = Wraps.list();
         // alerts 缺失按"当前无告警"处理, 存在却不是数组则属于响应非法
         JsonArray alerts = optionalArray(data, "alerts", PATH_ALERTS);
         if (alerts == null) {
@@ -601,7 +600,7 @@ public class PrometheusClient implements AutoCloseable {
      * @return 字符串列表, 远端返回空数组时为空列表
      */
     private static List<String> readStringList(JsonObject root, String api) {
-        List<String> out = new ArrayList<>();
+        List<String> out = Wraps.list();
         JsonArray data = requireArray(root, "data", api);
         for (int i = 0; i < data.size(); i++) {
             Object item = data.get(i);
@@ -730,7 +729,7 @@ public class PrometheusClient implements AutoCloseable {
      * @return 采样点列表
      */
     private List<PrometheusMetric.Sample> parseSamples(JsonArray arr, String api) {
-        List<PrometheusMetric.Sample> samples = new ArrayList<>();
+        List<PrometheusMetric.Sample> samples = Wraps.list();
         for (int i = 0; i < arr.size(); i++) {
             JsonArray pair = asArray(arr.get(i));
             if (pair == null) {
@@ -788,7 +787,7 @@ public class PrometheusClient implements AutoCloseable {
      * @return Map, 非 null
      */
     private static Map<String, String> toStringMap(JsonObject obj) {
-        Map<String, String> out = new LinkedHashMap<>();
+        Map<String, String> out = Wraps.linkedMap();
         if (obj != null) {
             for (Map.Entry<String, Object> entry : obj.entrySet()) {
                 Object v = entry.getValue();
@@ -1219,7 +1218,7 @@ public class PrometheusClient implements AutoCloseable {
             }
             String path = PATH_SERIES + "?match[]=" + encode(match.trim());
             JsonArray data = requireArray(getJson(path), "data", PATH_SERIES);
-            List<Map<String, String>> out = new ArrayList<>(data.size());
+            List<Map<String, String>> out = Wraps.list(data.size());
             for (int i = 0; i < data.size(); i++) {
                 out.add(toStringMap(requireObject(data.get(i), PATH_SERIES, i)));
             }

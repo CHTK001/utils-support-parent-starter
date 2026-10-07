@@ -1,5 +1,6 @@
 package com.chua.common.support.network.sync.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServer;
@@ -15,9 +16,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -152,7 +151,7 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
      */
     @Override
     public List<String> getConnectedClients() {
-        return new ArrayList<>(clients.keySet());
+        return Wraps.list(clients.keySet());
     }
 
     /**
@@ -292,7 +291,7 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
         /**
          * 客户端元数据
          */
-        private final Map<String, Object> metadata = new HashMap<>();
+        private final Map<String, Object> metadata = Wraps.map();
 
         /**
          * 创建客户端信息。

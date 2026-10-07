@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.ocr.extractor;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -13,7 +14,6 @@ import org.opencv.imgproc.Imgproc;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import org.opencv.core.MatOfByte;
 
@@ -79,7 +79,7 @@ public class PpOcrOpencvTranslator {
      * @return 结果列表，无数据时为空列表
      */
     private static List<String> loadCharacterDict(String resourcePath) {
-        List<String> chars = new ArrayList<>();
+        List<String> chars = Wraps.list();
         try (InputStream is = PpOcrOpencvTranslator.class.getClassLoader().getResourceAsStream(resourcePath)) {
             if (is == null) {
                 return List.of("blank");
@@ -108,7 +108,7 @@ public class PpOcrOpencvTranslator {
         } catch (Exception e) {
             log.warn("[PpOcrOpencv] 字典加载失败: {}", e.getMessage());
         }
-        List<String> table = new ArrayList<>(chars.size() + 1);
+        List<String> table = Wraps.list(chars.size() + 1);
         table.add(0, "blank");
         table.addAll(chars);
         return table;
@@ -154,7 +154,7 @@ public class PpOcrOpencvTranslator {
             inputBlob.put(0, 0, pixels);
 
  // 远期 通过
-            List<Mat> outputs = new ArrayList<>();
+            List<Mat> outputs = Wraps.list();
             net.forward(outputs);
             if (outputs.isEmpty()) {
                 throw new RuntimeException("模型无输出");

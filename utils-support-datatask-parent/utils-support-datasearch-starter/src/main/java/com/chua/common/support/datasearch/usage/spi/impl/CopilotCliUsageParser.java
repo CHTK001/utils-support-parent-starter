@@ -2,6 +2,7 @@ package com.chua.common.support.datasearch.usage.spi.impl;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.spi.annotations.Spi;
@@ -11,7 +12,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -104,7 +104,7 @@ public class CopilotCliUsageParser extends BaseUsageParser {
         if (!Files.isDirectory(SESSION_STATE_DIR)) {
             return List.of();
         }
-        List<Path> files = new ArrayList<>();
+        List<Path> files = Wraps.list();
         try (Stream<Path> stream = Files.list(SESSION_STATE_DIR)) {
             stream.filter(Files::isDirectory)
                     .map(d -> d.resolve("events.jsonl"))
@@ -172,14 +172,14 @@ public class CopilotCliUsageParser extends BaseUsageParser {
             long startTime = sessionStart > 0 ? sessionStart
                     : startTimeOf(eventMillis, totalApiDurationMs > 0 ? totalApiDurationMs : null);
 
-            List<AiUsage> result = new ArrayList<>();
+            List<AiUsage> result = Wraps.list();
             Map<String, Object> metricMap = modelMetrics.toJsonObject().toMap();
             for (Map.Entry<String, Object> entry : metricMap.entrySet()) {
                 String modelId = entry.getKey();
                 if (!(entry.getValue() instanceof Map<?, ?> metricsMap)) {
                     continue;
                 }
-                Map<String, Object> metrics = new java.util.HashMap<>();
+                Map<String, Object> metrics = Wraps.map();
                 metricsMap.forEach((k, v) -> {
                     if (k instanceof String s) {
                         metrics.put(s, v);

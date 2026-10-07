@@ -2,7 +2,7 @@ package com.chua.runtime.support.model;
 
 import com.chua.common.support.lang.cmd.LineCallback;
 
-import java.util.LinkedList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -30,7 +30,7 @@ public class LogStream implements LineCallback, AutoCloseable {
     /**
      * 环形缓冲区
      */
-    private final LinkedList<String> buffer;
+    private final List<String> buffer;
 
     /**
      * 订阅者列表
@@ -56,7 +56,7 @@ public class LogStream implements LineCallback, AutoCloseable {
      */
     public LogStream(int maxLines) {
         this.maxLines = maxLines;
-        this.buffer = new LinkedList<>();
+        this.buffer = Wraps.list();
         this.subscribers = new CopyOnWriteArrayList<>();
         this.closed = false;
     }
@@ -130,7 +130,7 @@ public class LogStream implements LineCallback, AutoCloseable {
      * @return 日志行列表（从旧到新）
      */
     public synchronized List<String> getBuffer() {
-        return new LinkedList<>(buffer);
+        return Wraps.list(buffer);
     }
 
     /**
@@ -144,7 +144,7 @@ public class LogStream implements LineCallback, AutoCloseable {
         if (n >= size) {
             return getBuffer();
         }
-        return new LinkedList<>(buffer.subList(size - n, size));
+        return Wraps.list(buffer.subList(size - n, size));
     }
 
     /**

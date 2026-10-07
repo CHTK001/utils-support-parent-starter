@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.proxy;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
@@ -15,7 +16,6 @@ import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -46,7 +46,7 @@ public class AioHttpProxyServer extends AbstractServer {
      * 后端空闲连接池(target -> 空闲通道列表,复用避免每次 connect)
      */
     private final java.util.concurrent.ConcurrentHashMap<String,
-            ArrayDeque<AsynchronousSocketChannel>> BACKEND_POOL =
+            java.util.Deque<AsynchronousSocketChannel>> BACKEND_POOL =
             new java.util.concurrent.ConcurrentHashMap<>();
 
     /**
@@ -76,7 +76,7 @@ public class AioHttpProxyServer extends AbstractServer {
      */
     private void returnBackend(String hostKey, AsynchronousSocketChannel ch) {
         if (ch != null && ch.isOpen()) {
-            BACKEND_POOL.computeIfAbsent(hostKey, k -> new ArrayDeque<>())
+            BACKEND_POOL.computeIfAbsent(hostKey, k -> Wraps.deque())
                     .offer(ch);
         } else {
             closeQuietly(ch);
@@ -833,7 +833,7 @@ public class AioHttpProxyServer extends AbstractServer {
             int port = 80;
             long cl = 0;
             String connection = "";
-            java.util.List<String> headers = new java.util.ArrayList<>();
+            java.util.List<String> headers = Wraps.list();
             for (int i = 1; i < lines.length; i++) {
                 String h = lines[i];
                 if (h.isEmpty()) {

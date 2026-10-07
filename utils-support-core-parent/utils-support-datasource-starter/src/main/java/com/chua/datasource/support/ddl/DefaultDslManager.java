@@ -1,5 +1,6 @@
 package com.chua.datasource.support.ddl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.ddl.DialectAware;
 import com.chua.common.support.lang.datasource.engine.ddl.DslManager;
@@ -12,7 +13,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -112,7 +112,7 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
             def.setCatalog(catalogName);
             def.setSchema(actualSchema);
 
-            List<String> primaryKeys = new ArrayList<>();
+            List<String> primaryKeys = Wraps.list();
             try (ResultSet rs = meta.getPrimaryKeys(catalogName, actualSchema, tableName)) {
                 while (rs.next()) {
                     primaryKeys.add(rs.getString("COLUMN_NAME"));
@@ -141,10 +141,10 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
      */
     public List<TableDef> listTables(String catalogName, String schemaName) {
         requireContext();
-        List<TableDef> result = new ArrayList<>();
+        List<TableDef> result = Wraps.list();
         try (Connection conn = dataSource.getConnection()) {
             DatabaseMetaData meta = conn.getMetaData();
-            List<String> names = new ArrayList<>();
+            List<String> names = Wraps.list();
             try (ResultSet rs = meta.getTables(catalogName, schemaName, "%", new String[]{"TABLE"})) {
                 while (rs.next()) {
                     names.add(rs.getString("TABLE_NAME"));
@@ -272,7 +272,7 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
      */
     private List<ColumnDef> readColumns(DatabaseMetaData meta, String catalog, String schema, String table)
             throws Exception {
-        List<ColumnDef> columns = new ArrayList<>();
+        List<ColumnDef> columns = Wraps.list();
         try (ResultSet rs = meta.getColumns(catalog, schema, table, "%")) {
             while (rs.next()) {
                 ColumnDef col = new ColumnDef();

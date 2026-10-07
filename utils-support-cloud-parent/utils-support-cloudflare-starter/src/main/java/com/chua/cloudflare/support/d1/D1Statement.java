@@ -1,6 +1,5 @@
 package com.chua.cloudflare.support.d1;
-
-import java.util.LinkedHashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Map;
 
 /**
@@ -38,7 +37,7 @@ public record D1Statement(String sql, D1SqlParameter params) {
      * @return JSON 节点（映射 形式）
      */
     public Map<String, Object> toJson() {
-        var map = new LinkedHashMap<String, Object>();
+        var map = Wraps.<String, Object>linkedMap();
         map.put("sql", sql);
         if (params.hasParams()) {
             map.put("params", params.toJson(sql));

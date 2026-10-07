@@ -1,10 +1,9 @@
 package com.chua.runtime.apm.storage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -31,7 +30,7 @@ public class StorageConfig {
     /**
      * 配置项 映射
     */
-    private Map<String, String> properties = new HashMap<>();
+    private Map<String, String> properties = Wraps.map();
 
     /**
      * 放入

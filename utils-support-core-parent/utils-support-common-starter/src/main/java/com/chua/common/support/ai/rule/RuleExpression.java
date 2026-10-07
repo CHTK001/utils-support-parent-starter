@@ -1,13 +1,9 @@
 package com.chua.common.support.ai.rule;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.ast.BTreeNode;
 import com.chua.common.support.lang.ast.ExpressionParser;
 import com.chua.common.support.spi.ServiceProvider;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -103,7 +99,7 @@ public final class RuleExpression {
         if (text == null || text.isBlank()) {
             throw new RuleException("表达式不能为 null 或空白");
         }
-        Map<String, String> paths = new HashMap<>();
+        Map<String, String> paths = Wraps.map();
         String normalized = normalize(text, paths);
         ExpressionParser parser = ServiceProvider.of(ExpressionParser.class).getExtension(PARSER_EXTENSION);
         if (parser == null) {
@@ -237,7 +233,7 @@ public final class RuleExpression {
         if (collection == null) {
             return false;
         }
-        List<Object> items = new ArrayList<>();
+        List<Object> items = Wraps.list();
         if (collection instanceof Iterable<?> iterable) {
             iterable.forEach(items::add);
         } else if (collection instanceof Object[] array) {
@@ -307,7 +303,7 @@ public final class RuleExpression {
         if (body.length() >= 2 && body.charAt(0) == '(' && body.charAt(body.length() - 1) == ')') {
             body = body.substring(1, body.length() - 1);
         }
-        List<String> parts = new ArrayList<>();
+        List<String> parts = Wraps.list();
         int depth = 0;
         boolean quoted = false;
         StringBuilder current = new StringBuilder();
@@ -425,7 +421,7 @@ public final class RuleExpression {
      * @return 归一化文本
      */
     private static String normalize(String text, Map<String, String> paths) {
-        Set<String> taken = new HashSet<>(identifiersOf(text));
+        Set<String> taken = Wraps.set(identifiersOf(text));
         StringBuilder out = new StringBuilder(text.length() + 16);
         int index = 0;
         boolean quoted = false;
@@ -449,7 +445,7 @@ public final class RuleExpression {
                 cursor++;
             }
             // 尝试吞掉 . 段，形成路径
-            List<String> segments = new ArrayList<>();
+            List<String> segments = Wraps.list();
             segments.add(identifier.toString());
             int probe = cursor;
             while (probe < text.length() && text.charAt(probe) == '.'
@@ -485,7 +481,7 @@ public final class RuleExpression {
      * 收集文本中出现的全部标识（忽略引号内容），用于合成名防撞。
      */
     private static Set<String> identifiersOf(String text) {
-        Set<String> found = new LinkedHashSet<>();
+        Set<String> found = Wraps.linkedSet();
         boolean quoted = false;
         StringBuilder current = new StringBuilder();
         for (int i = 0; i < text.length(); i++) {

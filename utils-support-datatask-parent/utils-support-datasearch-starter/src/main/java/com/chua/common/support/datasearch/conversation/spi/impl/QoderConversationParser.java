@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.conversation.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.conversation.ConversationMessage;
 import com.chua.common.support.datasearch.conversation.spi.AbstractJsonlConversationParser;
 import com.chua.common.support.lang.json.Json;
@@ -8,7 +9,6 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -118,7 +118,7 @@ public class QoderConversationParser extends AbstractJsonlConversationParser {
                         .cwd(cwd)
                         .build();
 
-        List<ConversationMessage> result = new ArrayList<>();
+        List<ConversationMessage> result = Wraps.list();
         if (!content.isArray()) {
             result.add(base.apply("text").toBuilder().content(content.toStringValue()).build());
             return result;

@@ -1,5 +1,6 @@
 package com.chua.common.support.task.pipeline.core;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.JacksonJsonProvider;
 import com.chua.common.support.wal.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -153,10 +154,10 @@ public class PipelineWal implements AutoCloseable {
             this.currentNodeId = ctx.getCurrentNodeId();
             this.nextNodeId = ctx.getNextNodeId();
             this.currentData = ctx.getCurrentData();
-            this.history = new ArrayList<>(ctx.getHistory());
+            this.history = Wraps.list(ctx.getHistory());
             this.action = ctx.getAction() != null ? ctx.getAction().name() : Action.NEXT.name();
-            this.attributes = new LinkedHashMap<>(ctx.getAttributes());
-            this.nodeOutputs = new LinkedHashMap<>(ctx.getNodeOutputs());
+            this.attributes = Wraps.linkedMap(ctx.getAttributes());
+            this.nodeOutputs = Wraps.linkedMap(ctx.getNodeOutputs());
         }
     }
 

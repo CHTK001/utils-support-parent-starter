@@ -1,5 +1,6 @@
 package com.chua.common.support.objects;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.objects.definition.*;
 import com.chua.common.support.objects.environment.DefaultEnvironment;
 import com.chua.common.support.objects.environment.Environment;
@@ -375,7 +376,7 @@ public class DefaultObjectContext implements ObjectContext {
         if (defs.isEmpty()) {
             return null;
         }
-        List<BeanDefinition> sorted = new ArrayList<>(defs);
+        List<BeanDefinition> sorted = Wraps.list(defs);
         sorted.sort(Comparator.comparingInt(BeanDefinition::getPriority).reversed());
         for (BeanDefinition def : sorted) {
             try {
@@ -412,9 +413,9 @@ public class DefaultObjectContext implements ObjectContext {
             return Collections.emptyMap();
         }
         Collection<BeanDefinition> defs = registry.getBeanDefinitionOfType(type);
-        List<BeanDefinition> sorted = new ArrayList<>(defs);
+        List<BeanDefinition> sorted = Wraps.list(defs);
         sorted.sort(Comparator.comparingInt(BeanDefinition::getPriority).reversed());
-        Map<String, T> result = new LinkedHashMap<>();
+        Map<String, T> result = Wraps.linkedMap();
         for (BeanDefinition def : sorted) {
             try {
                 configureBeanDefinitionProvider(def);
@@ -445,7 +446,7 @@ public class DefaultObjectContext implements ObjectContext {
         if (annotationType == null || closed || registry == null) {
             return Collections.emptyMap();
         }
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
         for (String name : registry.getBeanDefinitionNames()) {
             BeanDefinition def = registry.getBeanDefinition(name);
             if (def != null && def.getBeanClass() != null && def.getBeanClass().isAnnotationPresent(annotationType)) {
@@ -471,7 +472,7 @@ public class DefaultObjectContext implements ObjectContext {
         if (annotationType == null || closed || registry == null) {
             return Collections.emptyList();
         }
-        List<MethodDefinition> result = new ArrayList<>();
+        List<MethodDefinition> result = Wraps.list();
         for (String name : registry.getBeanDefinitionNames()) {
             BeanDefinition def = registry.getBeanDefinition(name);
             if (def == null || def.getBean() == null) {

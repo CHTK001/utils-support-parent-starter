@@ -1,8 +1,7 @@
 package com.chua.common.support.lang.view;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -79,7 +78,7 @@ public class BarChartViewParser implements ViewParser {
             return EMPTY_PLACEHOLDER;
         }
 
-        List<Entry> entries = new ArrayList<>();
+        List<Entry> entries = Wraps.list();
         double maxVal = 0;
         int maxNameLen = 0;
 

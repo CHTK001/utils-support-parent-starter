@@ -1,10 +1,9 @@
 package com.chua.common.support.lang.template;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,11 +46,11 @@ public record TemplateExtractResult(
      */
     public TemplateExtractResult {
         extracted = Collections.unmodifiableMap(
-                new LinkedHashMap<>(Objects.requireNonNull(extracted, "extracted 不能为 null")));
+                Wraps.linkedMap(Objects.requireNonNull(extracted, "extracted 不能为 null")));
         missing = Collections.unmodifiableList(
-                new ArrayList<>(Objects.requireNonNull(missing, "missing 不能为 null")));
+                Wraps.list(Objects.requireNonNull(missing, "missing 不能为 null")));
         vars = Collections.unmodifiableList(
-                new ArrayList<>(Objects.requireNonNull(vars, "vars 不能为 null")));
+                Wraps.list(Objects.requireNonNull(vars, "vars 不能为 null")));
     }
 
     /**
@@ -100,9 +99,9 @@ public record TemplateExtractResult(
      */
     public static TemplateExtractResult partial(Map<String, Object> extracted, List<String> missing, List<TemplateVar> vars) {
         return new TemplateExtractResult(
-                extracted == null ? Collections.emptyMap() : new LinkedHashMap<>(extracted),
-                missing == null ? Collections.emptyList() : new java.util.ArrayList<>(missing),
-                vars == null ? Collections.emptyList() : new java.util.ArrayList<>(vars)
+                extracted == null ? Collections.emptyMap() : Wraps.linkedMap(extracted),
+                missing == null ? Collections.emptyList() : Wraps.list(missing),
+                vars == null ? Collections.emptyList() : Wraps.list(vars)
         );
     }
 

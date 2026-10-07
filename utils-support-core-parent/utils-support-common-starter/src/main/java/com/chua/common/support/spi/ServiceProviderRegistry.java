@@ -1,5 +1,6 @@
 package com.chua.common.support.spi;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.collection.SortedArrayList;
 import com.chua.common.support.collection.SortedList;
 import com.chua.common.support.spi.autowire.ServiceAutowire;
@@ -128,7 +129,7 @@ class ServiceProviderRegistry {
      * @param resolverType 解析器类型
      */
     public void unregister(String baseName, Class<? extends ServiceResolver> resolverType) {
-        Map<String, List<ServiceDefinition>> remove = new HashMap<>(DEFAULT_SIZE);
+        Map<String, List<ServiceDefinition>> remove = Wraps.map(DEFAULT_SIZE);
         for (Map.Entry<String, SortedList<ServiceDefinition>> entry : definitions.entrySet()) {
             SortedList<ServiceDefinition> value = entry.getValue();
             for (ServiceDefinition serviceDefinition : value) {
@@ -164,10 +165,10 @@ class ServiceProviderRegistry {
                                                 Map<String, List<ServiceDefinition>> remove, 
                                                 ServiceDefinition serviceDefinition) {
         if (StringUtils.isBlank(baseName)) {
-            remove.computeIfAbsent(key, it -> new LinkedList<>()).add(serviceDefinition);
+            remove.computeIfAbsent(key, it -> Wraps.list()).add(serviceDefinition);
         }
         if (baseName.equalsIgnoreCase(serviceDefinition.getName())) {
-            remove.computeIfAbsent(key, it -> new LinkedList<>()).add(serviceDefinition);
+            remove.computeIfAbsent(key, it -> Wraps.list()).add(serviceDefinition);
         }
     }
     

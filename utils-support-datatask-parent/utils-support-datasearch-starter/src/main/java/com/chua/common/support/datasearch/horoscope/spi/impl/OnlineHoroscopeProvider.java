@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.horoscope.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.horoscope.model.HoroscopeInfo;
 import com.chua.common.support.datasearch.horoscope.spi.HoroscopeProvider;
 import com.chua.common.support.network.client.ClientResponse;
@@ -10,8 +11,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -206,7 +205,7 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
      * @return 构建降级的结果
      */
     private static Map<String, Map<String, HoroscopeInfo>> buildFallback() {
-        Map<String, Map<String, HoroscopeInfo>> map = new HashMap<>();
+        Map<String, Map<String, HoroscopeInfo>> map = Wraps.map();
         put(map, "白羊座", 88, 85, 90, 80, 86, "3", "红色", "今天精力充沛，适合开启新计划，主动出击会有不错收获。");
         put(map, "金牛座", 82, 78, 85, 90, 84, "6", "绿色", "财运稳步提升，工作按部就班，保持耐心终有回报。");
         put(map, "双子座", 86, 90, 82, 78, 80, "5", "蓝色", "社交运旺盛，沟通顺畅，灵感频现，适合头脑风暴。");
@@ -227,7 +226,7 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
     */
     private static void put(Map<String, Map<String, HoroscopeInfo>> map, String sign, int overall, int love,
                             int career, int wealth, int health, String luckyNumber, String luckyColor, String description) {
-        Map<String, HoroscopeInfo> inner = new HashMap<>();
+        Map<String, HoroscopeInfo> inner = Wraps.map();
         inner.put("today", new HoroscopeInfo(sign, "today", overall, love, career, wealth, health, luckyNumber, luckyColor, description));
         inner.put("week", new HoroscopeInfo(sign, "week", overall, love, career, wealth, health, luckyNumber, luckyColor, description));
         inner.put("month", new HoroscopeInfo(sign, "month", overall, love, career, wealth, health, luckyNumber, luckyColor, description));

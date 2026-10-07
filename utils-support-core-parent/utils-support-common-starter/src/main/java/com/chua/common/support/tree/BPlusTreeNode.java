@@ -1,5 +1,7 @@
 package com.chua.common.support.tree;
 
+import com.chua.common.support.collection.wrap.Wraps;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -21,15 +23,15 @@ class BPlusTreeNode<K, V> {
     /**
      * 当前节点所有键，有序排列
      */
-    List<K> keys = new ArrayList<>();
+    List<K> keys = Wraps.list();
     /**
      * 与 键 一一对应的值
      */
-    List<V> values = new ArrayList<>();
+    List<V> values = Wraps.list();
     /**
      * 内部节点的子节点列表（叶子节点为空）
      */
-    List<BPlusTreeNode<K, V>> children = new ArrayList<>();
+    List<BPlusTreeNode<K, V>> children = Wraps.list();
     /**
      * 叶子节点之间的链表后继指针；内部节点为 空
      */

@@ -1,5 +1,6 @@
 package com.chua.modelscope.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.ai.image.ImageClient;
 import com.chua.common.support.ai.image.ImageClientSetting;
@@ -16,7 +17,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +76,7 @@ public class ModelscopeImageClient implements ImageClient {
     private Long seed; // 参见
     private Integer steps; // steps
     private Double guidanceScale; // guidancescale
-    private final List<byte[]> referenceImages = new ArrayList<>(); // 引用镜像
+    private final List<byte[]> referenceImages = Wraps.list(); // 引用镜像
 
     /**
      * modelscope镜像客户端。
@@ -235,7 +235,7 @@ public class ModelscopeImageClient implements ImageClient {
             body.fluentPut("guidance_scale", guidanceScale);
         }
         if (!referenceImages.isEmpty()) {
-            List<String> refs = new ArrayList<>(referenceImages.size());
+            List<String> refs = Wraps.list(referenceImages.size());
             for (byte[] ref : referenceImages) {
                 refs.add(Base64.getEncoder().encodeToString(ref));
             }
@@ -284,7 +284,7 @@ public class ModelscopeImageClient implements ImageClient {
             body.fluentPut("guidance_scale", guidanceScale);
         }
         if (!referenceImages.isEmpty()) {
-            List<String> refs = new ArrayList<>(referenceImages.size());
+            List<String> refs = Wraps.list(referenceImages.size());
             for (byte[] ref : referenceImages) {
                 refs.add(Base64.getEncoder().encodeToString(ref));
             }

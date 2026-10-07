@@ -1,10 +1,9 @@
 package com.chua.common.support.sync;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.sync.executor.SinkExecutor;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -406,12 +405,12 @@ public class SyncFlow implements AutoCloseable {
         /**
          * 输入端列表
          */
-        private final List<Input> inputs = new ArrayList<>();
+        private final List<Input> inputs = Wraps.list();
 
         /**
          * 输出端列表
          */
-        private final List<Output> outputs = new ArrayList<>();
+        private final List<Output> outputs = Wraps.list();
 
         /**
          * 数据中心

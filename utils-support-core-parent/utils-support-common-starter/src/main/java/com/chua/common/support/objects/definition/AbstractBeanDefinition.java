@@ -1,5 +1,6 @@
 package com.chua.common.support.objects.definition;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.objects.register.BeanDefinitionRegister;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
@@ -18,10 +19,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -843,7 +842,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      * @return 所有字段列表
      */
     protected List<Field> getAllFields(Class<?> clazz) {
-        List<Field> fields = new ArrayList<>();
+        List<Field> fields = Wraps.list();
         Class<?> current = clazz;
         while (current != null && current != Object.class) {
             fields.addAll(Arrays.asList(current.getDeclaredFields()));
@@ -875,8 +874,8 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
             if (beanClass == cachedBeanClass) {
                 return;
             }
-            Set<String> hierarchy = new HashSet<>();
-            Set<String> annotations = new HashSet<>();
+            Set<String> hierarchy = Wraps.set();
+            Set<String> annotations = Wraps.set();
             collectTypeHierarchy(beanClass, hierarchy);
             collectAnnotationTypes(beanClass, annotations);
             typeHierarchyNames = Collections.unmodifiableSet(hierarchy);

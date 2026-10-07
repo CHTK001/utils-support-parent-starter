@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.tensorflow.detection;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -10,9 +11,6 @@ import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.types.DataType;
 import ai.djl.translate.NoBatchifyTranslator;
 import ai.djl.translate.TranslatorContext;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -130,13 +128,13 @@ public class SavedModelObjectDetectionTranslator implements NoBatchifyTranslator
                 classIds = (list.get(2).getShape().dimension() > 1 ? list.get(2).get(0) : list.get(2)) // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
                         .toType(DataType.INT32, true).toIntArray();
             } else {
-                return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                return new DetectedObjects(Wraps.list(), Wraps.list(), Wraps.list());
             }
         }
 
-        List<String> retNames = new ArrayList<>();
-        List<Double> retProbs = new ArrayList<>();
-        List<BoundingBox> retBB = new ArrayList<>();
+        List<String> retNames = Wraps.list();
+        List<Double> retProbs = Wraps.list();
+        List<BoundingBox> retBB = Wraps.list();
         int limit = Math.min(classIds.length, maxBoxes);
         for (int i = 0; i < limit; ++i) {
             int classId = classIds[i];
@@ -163,7 +161,7 @@ public class SavedModelObjectDetectionTranslator implements NoBatchifyTranslator
      * @return 类别 标识 到名称的映射
      */
     private static Map<Integer, String> defaultCocoClasses() {
-        Map<Integer, String> map = new HashMap<>();
+        Map<Integer, String> map = Wraps.map();
         String[] names = {
                 "background", "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat",
                 "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse",

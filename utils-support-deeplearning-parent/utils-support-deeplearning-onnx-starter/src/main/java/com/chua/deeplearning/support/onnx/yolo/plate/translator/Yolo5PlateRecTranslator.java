@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.yolo.plate.translator;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
@@ -14,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 import org.opencv.core.Size;
 
@@ -165,7 +165,7 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
 
             long[] shape = {1, 3, INPUT_H, INPUT_W};
             try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
-                Map<String, OnnxTensor> inputs = new HashMap<>();
+                Map<String, OnnxTensor> inputs = Wraps.map();
                 inputs.put(session.getInputInfo().keySet().iterator().next(), tensor);
                 try (OrtSession.Result result = session.run(inputs)) {
                     float[][] ctcLogits = toMat2D(result.get(0).getValue()); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）

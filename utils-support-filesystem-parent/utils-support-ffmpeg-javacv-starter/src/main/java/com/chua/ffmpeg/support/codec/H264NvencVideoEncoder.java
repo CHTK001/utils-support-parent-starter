@@ -1,5 +1,6 @@
 package com.chua.ffmpeg.support.codec;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.codec.video.PixelFormat;
 import com.chua.common.support.codec.video.VideoCodecOptions;
 import com.chua.common.support.codec.video.VideoEncoder;
@@ -19,7 +20,6 @@ import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.ffmpeg.global.avutil;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -374,7 +374,7 @@ public class H264NvencVideoEncoder implements VideoEncoder {
      * @return 编码包列表，可能为空
      */
     private List<VideoPacket> receivePackets() {
-        List<VideoPacket> packets = new ArrayList<>();
+        List<VideoPacket> packets = Wraps.list();
         for (int i = 0; i < MAX_DRAIN_PER_CALL; i++) {
             avcodec.av_packet_unref(packet);
             int ret = avcodec.avcodec_receive_packet(context, packet);

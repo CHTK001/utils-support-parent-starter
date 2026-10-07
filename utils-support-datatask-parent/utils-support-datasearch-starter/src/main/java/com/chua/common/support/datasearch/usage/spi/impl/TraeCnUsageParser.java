@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
@@ -10,7 +11,6 @@ import reactor.core.publisher.Flux;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -99,7 +99,7 @@ public class TraeCnUsageParser extends BaseUsageParser {
      * @return 文件列表
      */
     private List<Path> listEventFiles() {
-        List<Path> files = new ArrayList<>();
+        List<Path> files = Wraps.list();
         if (!Files.isDirectory(CACHE_ROOT)) {
             return files;
         }
@@ -120,7 +120,7 @@ public class TraeCnUsageParser extends BaseUsageParser {
      * @return 用量记录列表
      */
     private List<AiUsage> parseFile(Path file) {
-        List<AiUsage> result = new ArrayList<>();
+        List<AiUsage> result = Wraps.list();
         long startTime = 0L;
         String sessionId = null;
         String messageId = null;

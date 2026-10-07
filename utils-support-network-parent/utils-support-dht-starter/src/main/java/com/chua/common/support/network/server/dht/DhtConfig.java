@@ -1,11 +1,10 @@
 package com.chua.common.support.network.server.dht;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.discovery.DiscoveryOption;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -155,7 +154,7 @@ public class DhtConfig {
             }
             Object seedsVal = opts.get("dht.seeds");
             if (seedsVal instanceof String) {
-                Set<String> seedSet = new LinkedHashSet<>();
+                Set<String> seedSet = Wraps.linkedSet();
                 for (String s : ((String) seedsVal).split(",")) {
                     String t = s.trim();
                     if (!t.isEmpty()) {

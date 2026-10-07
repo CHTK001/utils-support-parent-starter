@@ -1,5 +1,6 @@
 package com.chua.sqlite.support.directory;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.directory.DiffPolledDirectory;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
@@ -112,7 +113,7 @@ public class SqlitePolledDirectory extends DiffPolledDirectory<String> {
      */
     @Override
     protected List<String> listAndModified(String path) {
-        List<String> rows = new ArrayList<>();
+        List<String> rows = Wraps.list();
         try (Connection conn = DriverManager.getConnection(jdbcUrl);
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(querySql)) {

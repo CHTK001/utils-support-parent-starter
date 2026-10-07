@@ -1,5 +1,6 @@
 package com.chua.ueba.support.config;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -8,8 +9,6 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -62,7 +61,7 @@ public final class UebaConfigSerializer {
      * @return 纯结构 映射
      */
     private static Map<String, Object> toPlainMap(UebaConfig config) {
-        Map<String, Object> root = new LinkedHashMap<>(8);
+        Map<String, Object> root = Wraps.linkedMap(8);
         root.put("features", features(config.getFeatures()));
         root.put("autoEncoder", autoEncoder(config.getAutoEncoder()));
         root.put("lstm", lstm(config.getLstm()));
@@ -78,18 +77,18 @@ public final class UebaConfigSerializer {
      * @return 纯结构列表
      */
     private static List<Object> features(List<FeatureDefinition> defs) {
-        List<Object> result = new ArrayList<>();
+        List<Object> result = Wraps.list();
         if (defs == null) {
             return result;
         }
         for (FeatureDefinition def : defs) {
-            Map<String, Object> item = new LinkedHashMap<>(8);
+            Map<String, Object> item = Wraps.linkedMap(8);
             item.put("name", def.getName());
             item.put("type", def.getType() == null ? "NUMERIC" : def.getType().name());
             item.put("normalize", def.getNormalize() == null ? "NONE" : def.getNormalize().name());
             item.put("window", def.getWindow());
             item.put("vocabSize", def.getVocabSize());
-            item.put("vocab", def.getVocab() == null ? List.of() : new ArrayList<>(def.getVocab()));
+            item.put("vocab", def.getVocab() == null ? List.of() : Wraps.list(def.getVocab()));
             item.put("period", def.getPeriod());
             result.add(item);
         }
@@ -103,11 +102,11 @@ public final class UebaConfigSerializer {
      * @return 纯结构 映射，ae 为 空 时返回空 映射
      */
     private static Map<String, Object> autoEncoder(UebaConfig.AutoEncoder ae) {
-        Map<String, Object> map = new LinkedHashMap<>(4);
+        Map<String, Object> map = Wraps.linkedMap(4);
         if (ae == null) {
             return map;
         }
-        map.put("hiddenDims", ae.getHiddenDims() == null ? List.of() : new ArrayList<>(ae.getHiddenDims()));
+        map.put("hiddenDims", ae.getHiddenDims() == null ? List.of() : Wraps.list(ae.getHiddenDims()));
         map.put("threshold", ae.getThreshold());
         map.put("modelFile", ae.getModelFile());
         map.put("modelPath", ae.getModelPath() == null ? "" : ae.getModelPath());
@@ -121,14 +120,14 @@ public final class UebaConfigSerializer {
      * @return 纯结构 映射，lstm 为 空 时返回空 映射
      */
     private static Map<String, Object> lstm(UebaConfig.Lstm lstm) {
-        Map<String, Object> map = new LinkedHashMap<>(6);
+        Map<String, Object> map = Wraps.linkedMap(6);
         if (lstm == null) {
             return map;
         }
         map.put("windowSize", lstm.getWindowSize());
         map.put("numNumericFeatures", lstm.getNumNumericFeatures());
         map.put("numClasses", lstm.getNumClasses());
-        map.put("classLabels", lstm.getClassLabels() == null ? List.of() : new ArrayList<>(lstm.getClassLabels()));
+        map.put("classLabels", lstm.getClassLabels() == null ? List.of() : Wraps.list(lstm.getClassLabels()));
         map.put("modelFile", lstm.getModelFile());
         map.put("modelPath", lstm.getModelPath() == null ? "" : lstm.getModelPath());
         return map;
@@ -141,7 +140,7 @@ public final class UebaConfigSerializer {
      * @return 纯结构 映射，risk 为 空 时返回空 映射
      */
     private static Map<String, Object> risk(UebaConfig.Risk risk) {
-        Map<String, Object> map = new LinkedHashMap<>(4);
+        Map<String, Object> map = Wraps.linkedMap(4);
         if (risk == null) {
             return map;
         }
@@ -159,17 +158,17 @@ public final class UebaConfigSerializer {
      * @return 纯结构 映射，preprocessing 为 空 时返回空 映射
      */
     private static Map<String, Object> preprocessing(UebaConfig.Preprocessing preprocessing) {
-        Map<String, Object> map = new LinkedHashMap<>(2);
+        Map<String, Object> map = Wraps.linkedMap(2);
         if (preprocessing == null) {
             return map;
         }
-        Map<String, Object> scalers = new LinkedHashMap<>(16);
+        Map<String, Object> scalers = Wraps.linkedMap(16);
         if (preprocessing.getScalers() != null) {
             for (Map.Entry<String, UebaConfig.Scaler> entry : preprocessing.getScalers().entrySet()) {
                 scalers.put(entry.getKey(), scaler(entry.getValue()));
             }
         }
-        Map<String, Object> vocab = new LinkedHashMap<>(64);
+        Map<String, Object> vocab = Wraps.linkedMap(64);
         if (preprocessing.getVocab() != null) {
             for (Map.Entry<String, Integer> entry : preprocessing.getVocab().entrySet()) {
                 vocab.put(entry.getKey(), entry.getValue());
@@ -187,7 +186,7 @@ public final class UebaConfigSerializer {
      * @return 纯结构 映射，scaler 为 空 时返回空 映射
      */
     private static Map<String, Object> scaler(UebaConfig.Scaler scaler) {
-        Map<String, Object> map = new LinkedHashMap<>(4);
+        Map<String, Object> map = Wraps.linkedMap(4);
         if (scaler == null) {
             return map;
         }

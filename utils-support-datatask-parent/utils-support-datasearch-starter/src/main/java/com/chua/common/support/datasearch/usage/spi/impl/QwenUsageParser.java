@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
@@ -10,7 +11,6 @@ import reactor.core.scheduler.Schedulers;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -124,7 +124,7 @@ public class QwenUsageParser extends BaseUsageParser {
         String sessionId = node.get("sessionId").toStringValue();
 
         Map<String, Object> modelStats = models.toJsonObject().toMap();
-        List<AiUsage> result = new ArrayList<>(modelStats.size());
+        List<AiUsage> result = Wraps.list(modelStats.size());
         for (Map.Entry<String, Object> entry : modelStats.entrySet()) {
             if (entry.getValue() instanceof Map<?, ?> stats) {
                 AiUsage usage = toAiUsage(entry.getKey(), stats, sessionId, startedAt, durationMs);

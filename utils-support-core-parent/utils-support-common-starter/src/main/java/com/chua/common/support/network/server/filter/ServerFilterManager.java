@@ -1,13 +1,12 @@
 package com.chua.common.support.network.server.filter;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.handler.ServerHandler;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -105,7 +104,7 @@ public class ServerFilterManager {
      * @return 静态过滤器列表
      */
     public List<ServerFilter> getStaticFilters() {
-        return new ArrayList<>(staticFilters);
+        return Wraps.list(staticFilters);
     }
 
     // ==================== SPI 动态过滤器 ====================
@@ -155,7 +154,7 @@ public class ServerFilterManager {
         if (!dirty && mergedCache != null) {
             return mergedCache;
         }
-        List<ServerFilter> result = new ArrayList<>(staticFilters);
+        List<ServerFilter> result = Wraps.list(staticFilters);
         result.sort(Comparator.comparingInt(ServerFilter::getOrder));
         mergedCache = result;
         dirty = false;
@@ -200,7 +199,7 @@ public class ServerFilterManager {
      * @param config 初始化配置
      */
     public void initFilters(ServerFilterConfig config) {
-        List<ServerFilter> initialized = new ArrayList<>();
+        List<ServerFilter> initialized = Wraps.list();
         for (ServerFilter filter : staticFilters) {
             try {
                 filter.init(config);
@@ -278,7 +277,7 @@ public class ServerFilterManager {
         if (!dirty && cached != null) {
             return cached;
         }
-        List<ReactiveServerFilter> result = new ArrayList<>(reactiveFilters.size() + staticFilters.size());
+        List<ReactiveServerFilter> result = Wraps.list(reactiveFilters.size() + staticFilters.size());
         for (ServerFilter filter : staticFilters) {
             if (filter != null) {
                 result.add(wrapStatic(filter));
@@ -286,7 +285,7 @@ public class ServerFilterManager {
         }
         result.addAll(reactiveFilters);
         result.sort(Comparator.comparingInt(ReactiveServerFilter::getOrder));
-        mergedReactiveCache = Collections.unmodifiableList(new ArrayList<>(result));
+        mergedReactiveCache = Collections.unmodifiableList(Wraps.list(result));
         dirty = false;
         return mergedReactiveCache;
     }

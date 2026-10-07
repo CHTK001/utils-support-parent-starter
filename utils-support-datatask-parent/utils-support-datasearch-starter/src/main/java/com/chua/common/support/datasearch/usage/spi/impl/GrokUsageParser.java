@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
@@ -235,7 +236,7 @@ public class GrokUsageParser extends BaseUsageParser {
             long bestTokens = -1L;
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 if (entry.getValue() instanceof Map<?, ?> stats) {
-                    Map<String, Object> converted = new java.util.HashMap<>();
+                    Map<String, Object> converted = Wraps.map();
                     stats.forEach((k, v) -> {
                         if (k instanceof String s) {
                             converted.put(s, v);

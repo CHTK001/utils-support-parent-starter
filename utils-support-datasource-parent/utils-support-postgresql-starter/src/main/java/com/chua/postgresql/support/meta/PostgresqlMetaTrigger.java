@@ -1,5 +1,6 @@
 package com.chua.postgresql.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.meta.TriggerCreateBuilder;
 import com.chua.common.support.lang.datasource.meta.model.TriggerDef;
@@ -8,9 +9,6 @@ import com.chua.datasource.support.meta.AbstractMetaTrigger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -281,8 +279,8 @@ public class PostgresqlMetaTrigger extends AbstractMetaTrigger {
      * @return 归并后的触发器定义列表
      */
     private static List<TriggerDef> group(List<TriggerRow> rows) {
-        Map<String, TriggerDef> defs = new LinkedHashMap<>();
-        Map<String, Set<String>> events = new LinkedHashMap<>();
+        Map<String, TriggerDef> defs = Wraps.linkedMap();
+        Map<String, Set<String>> events = Wraps.linkedMap();
         for (TriggerRow row : rows) {
             String key = row.key();
             TriggerDef def = defs.get(key);
@@ -297,7 +295,7 @@ public class PostgresqlMetaTrigger extends AbstractMetaTrigger {
                 def.setBody(row.body());
                 def.setStatus(statusOf(row.enabled()));
                 defs.put(key, def);
-                events.put(key, new LinkedHashSet<>());
+                events.put(key, Wraps.linkedSet());
             }
             events.get(key).addAll(eventOf(row.type()));
         }
@@ -305,7 +303,7 @@ public class PostgresqlMetaTrigger extends AbstractMetaTrigger {
             Set<String> set = events.get(entry.getKey());
             entry.getValue().setEvent(set == null || set.isEmpty() ? null : String.join(" OR ", set));
         }
-        return new ArrayList<>(defs.values());
+        return Wraps.list(defs.values());
     }
 
     /**
@@ -334,7 +332,7 @@ public class PostgresqlMetaTrigger extends AbstractMetaTrigger {
      * @return 事件列表，按 INSERT / UPDATE / DELETE / TRUNCATE 顺序
      */
     private static List<String> eventOf(int type) {
-        List<String> events = new ArrayList<>();
+        List<String> events = Wraps.list();
         if ((type & BIT_INSERT) != 0) {
             events.add("INSERT");
         }
@@ -481,7 +479,7 @@ public class PostgresqlMetaTrigger extends AbstractMetaTrigger {
         /**
          * 触发事件（可多值）
          */
-        private final List<String> events = new ArrayList<>();
+        private final List<String> events = Wraps.list();
         /**
          * 逐行/逐语句，{@code null} 表示未显式指定
          */

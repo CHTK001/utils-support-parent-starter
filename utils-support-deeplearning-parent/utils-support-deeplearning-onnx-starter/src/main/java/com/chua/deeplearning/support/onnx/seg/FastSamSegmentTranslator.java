@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.seg;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.ImageFactory;
 import ai.onnxruntime.OnnxTensor;
@@ -259,7 +260,7 @@ public class FastSamSegmentTranslator implements ITranslator<byte[], byte[]> {
 
         long[] shape = {1, 3, INPUT_SIZE, INPUT_SIZE};
         try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
-            Map<String, OnnxTensor> inputs = new HashMap<>();
+            Map<String, OnnxTensor> inputs = Wraps.map();
             inputs.put("images", tensor);
             try (OrtSession.Result result = session.run(inputs)) {
                 float[][][] detections = (float[][][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
@@ -386,7 +387,7 @@ public class FastSamSegmentTranslator implements ITranslator<byte[], byte[]> {
         Arrays.sort(idx, (a, b) -> Float.compare(scores[b], scores[a]));
 
         boolean[] suppressed = new boolean[n];
-        List<Integer> kept = new ArrayList<>();
+        List<Integer> kept = Wraps.list();
         for (int i = 0; i < n; i++) {
             int ii = idx[i];
             if (suppressed[ii]) {

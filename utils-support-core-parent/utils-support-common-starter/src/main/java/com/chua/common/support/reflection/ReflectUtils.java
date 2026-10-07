@@ -1,11 +1,11 @@
 package com.chua.common.support.reflection;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.invoke.*;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -607,11 +607,11 @@ public final class ReflectUtils {
         if (clazz == null) {
             return java.util.List.of();
         }
-        java.util.Deque<Class<?>> hierarchy = new java.util.ArrayDeque<>();
+        java.util.Deque<Class<?>> hierarchy = Wraps.deque();
         for (Class<?> c = clazz; c != null && c != Object.class; c = c.getSuperclass()) {
             hierarchy.addFirst(c);
         }
-        java.util.List<java.lang.reflect.Field> fields = new java.util.ArrayList<>();
+        java.util.List<java.lang.reflect.Field> fields = Wraps.list();
         for (Class<?> c : hierarchy) {
             for (java.lang.reflect.Field f : c.getDeclaredFields()) { // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（getPersistentFields 对外封装）
                 int mods = f.getModifiers();
@@ -779,7 +779,7 @@ public final class ReflectUtils {
      * @return 方法列表；clazz 为 null 时返回空列表
      */
     public static List<java.lang.reflect.Method> getPublicMethods(Class<?> clazz) {
-        List<java.lang.reflect.Method> methods = new ArrayList<>();
+        List<java.lang.reflect.Method> methods = Wraps.list();
         if (clazz == null) {
             return methods;
         }
@@ -1113,7 +1113,7 @@ public final class ReflectUtils {
      * @return 公开静态方法描述列表，按 {@code getMethods()} 的返回顺序
      */
     public static List<MethodDescriptor> publicStaticMethods(Class<?> clazz) {
-        List<MethodDescriptor> methods = new ArrayList<>();
+        List<MethodDescriptor> methods = Wraps.list();
         if (clazz == null) {
             return methods;
         }

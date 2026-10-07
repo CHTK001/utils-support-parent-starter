@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.yoloworld;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -19,7 +20,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -112,7 +112,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         if (raw == null || raw.trim().isEmpty()) {
             return Collections.emptyList();
         }
-        List<String> classes = new ArrayList<>();
+        List<String> classes = Wraps.list();
         for (String s : raw.split("[,，]")) {
             String t = s.trim();
             if (!t.isEmpty()) {
@@ -234,9 +234,9 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         int numAnchors = (int) shape.get(2);
         String[] labels = customClasses.isEmpty() ? COCO_80 : buildCustomLabels(numClasses);
         float[] data = output.toFloatArray();
-        List<String> names = new ArrayList<>();
-        List<Double> probs = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> probs = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
         for (int i = 0; i < numAnchors; i++) {
             float bestLogit = Float.NEGATIVE_INFINITY;
             int bestClass = -1;
@@ -280,8 +280,8 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
             probs.add((double) bestLogit);
         }
         List<Integer> keep = nms(boxes, probs, nmsThreshold);
-        List<String> fn = new ArrayList<>(), fp = new ArrayList<>();
-        List<BoundingBox> fb = new ArrayList<>();
+        List<String> fn = Wraps.list(), fp = Wraps.list();
+        List<BoundingBox> fb = Wraps.list();
         for (int idx : keep) {
             fn.add(names.get(idx));
             probs.add(probs.get(idx));
@@ -310,11 +310,11 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     @Override public Batchifier getBatchifier() { return null; }
 
     private List<Integer> nms(List<BoundingBox> boxes, List<Double> scores, double iouTh) {
-        List<Integer> keep = new ArrayList<>();
+        List<Integer> keep = Wraps.list();
         if (boxes.isEmpty()) {
             return keep;
         }
-        List<Integer> order = new ArrayList<>();
+        List<Integer> order = Wraps.list();
         for (int i = 0; i < scores.size(); i++) {
             order.add(i);
         }

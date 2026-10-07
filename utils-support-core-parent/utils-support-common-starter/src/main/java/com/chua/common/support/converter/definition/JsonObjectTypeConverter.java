@@ -1,7 +1,8 @@
 package com.chua.common.support.converter.definition;
 
 
-import java.util.HashMap;
+import com.chua.common.support.collection.wrap.Wraps;
+
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,7 +41,7 @@ public class JsonObjectTypeConverter implements TypeConverter<Map> {
             String str = (String) value;
             if (str.startsWith("{") && str.endsWith("}")) {
                 String inner = str.substring(1, str.length() - 1);
-                Map<String, String> result = new HashMap<>();
+                Map<String, String> result = Wraps.map();
                 if (inner.trim().isEmpty()) {
                     return result;
                 }
@@ -62,7 +63,7 @@ public class JsonObjectTypeConverter implements TypeConverter<Map> {
         }
 
         if (value instanceof Map) {
-            return new HashMap((Map) value);
+            return Wraps.map((Map) value);
         }
 
         return null;

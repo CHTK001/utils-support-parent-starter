@@ -1,5 +1,6 @@
 package com.chua.wechat.support.restore.jdbc;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.FileSystem;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.task.restore.DataRestoreConfig;
@@ -21,9 +22,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -133,8 +131,8 @@ public final class WechatJdbcExporter {
 
         String dbBase = WechatExportUtils.sanitizeFileName(stripExtension(dbFile.getName()));
         Charset charset = Charset.forName(config.getCharset());
-        Set<String> usedNames = new HashSet<>();
-        List<File> outputs = new ArrayList<>(16);
+        Set<String> usedNames = Wraps.set();
+        List<File> outputs = Wraps.list(16);
 
         try (Connection connection = open(dbFile)) {
             List<String> tables = resolveTables(connection, config);
@@ -199,7 +197,7 @@ public final class WechatJdbcExporter {
     private static List<String> resolveTables(Connection connection, DataRestoreConfig config) throws SQLException {
         Set<String> whitelist = parseNameSet(config.getOptions().get(OPTION_TABLE_WHITELIST));
         Set<String> blacklist = parseNameSet(config.getOptions().get(OPTION_TABLE_BLACKLIST));
-        List<String> tables = new ArrayList<>(32);
+        List<String> tables = Wraps.list(32);
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(LIST_TABLES_SQL)) {
             while (resultSet.next()) {
@@ -236,7 +234,7 @@ public final class WechatJdbcExporter {
     private static File exportTable(Connection connection, File outputDir, Set<String> usedNames,
                                     String dbBase, String table, ExportFormat format,
                                     DataRestoreConfig config, Charset charset) throws Exception {
-        List<String> columns = new ArrayList<>(16);
+        List<String> columns = Wraps.list(16);
         List<Map<String, Object>> rows = readRows(connection, table, config, columns);
         if (columns.isEmpty()) {
             log.info("跳过无列的表: {}.{}", dbBase, table);
@@ -293,7 +291,7 @@ public final class WechatJdbcExporter {
                                                      List<String> columnsOut) throws SQLException {
         long limit = parseLong(config.getOptions().get(WechatDataRestore.OPTION_LIMIT), 0L);
         String sql = "SELECT * FROM " + quoteIdentifier(table) + (limit > 0 ? " LIMIT " + limit : "");
-        List<Map<String, Object>> rows = new ArrayList<>(256);
+        List<Map<String, Object>> rows = Wraps.list(256);
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(sql)) {
             ResultSetMetaData metaData = resultSet.getMetaData();
@@ -302,7 +300,7 @@ public final class WechatJdbcExporter {
                 columnsOut.add(metaData.getColumnLabel(i));
             }
             while (resultSet.next()) {
-                Map<String, Object> row = new LinkedHashMap<>(columnCount * 2);
+                Map<String, Object> row = Wraps.linkedMap(columnCount * 2);
                 for (int i = 1; i <= columnCount; i++) {
                     row.put(columnsOut.get(i - 1), convert(resultSet.getObject(i)));
                 }
@@ -393,7 +391,7 @@ public final class WechatJdbcExporter {
         if (value == null) {
             return Set.of();
         }
-        Set<String> result = new HashSet<>();
+        Set<String> result = Wraps.set();
         for (String item : String.valueOf(value).split(",")) {
             String trimmed = item.trim();
             if (!trimmed.isBlank()) {

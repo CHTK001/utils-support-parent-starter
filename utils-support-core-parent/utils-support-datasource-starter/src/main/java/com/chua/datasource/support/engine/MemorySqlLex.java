@@ -1,7 +1,7 @@
 package com.chua.datasource.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.lang.reflect.Method;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -85,7 +85,7 @@ final class MemorySqlLex {
          * @return token 列表
          */
         private static List<String> tokenize(String sql) {
-            java.util.List<String> out = new java.util.ArrayList<>();
+            java.util.List<String> out = Wraps.list();
             int i = 0;
             int n = sql.length();
             while (i < n) {
@@ -190,7 +190,7 @@ final class MemorySqlLex {
          * @return 列名到值的有序映射
          */
         static Map<String, Object> allColumns(Object row) {
-            Map<String, Object> out = new LinkedHashMap<>();
+            Map<String, Object> out = Wraps.linkedMap();
             if (row instanceof Map) {
                 for (Map.Entry<?, ?> e : ((Map<?, ?>) row).entrySet()) {
                     out.put(String.valueOf(e.getKey()), e.getValue());

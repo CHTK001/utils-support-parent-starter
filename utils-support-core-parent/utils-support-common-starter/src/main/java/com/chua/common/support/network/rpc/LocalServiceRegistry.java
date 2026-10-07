@@ -1,8 +1,7 @@
 package com.chua.common.support.network.rpc;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -140,7 +139,7 @@ public final class LocalServiceRegistry {
      * @return 服务名列表，按名称排序
      */
     public List<String> names() {
-        return new ArrayList<>(services.keySet());
+        return Wraps.list(services.keySet());
     }
 
     /**

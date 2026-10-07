@@ -1,9 +1,7 @@
 package com.chua.common.support.ai.memory;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Data;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -70,8 +68,8 @@ public class MemoryEntryEntity {
         e.agentId = entry.getAgentId();
         e.createdAt = entry.getCreatedAt();
         e.importance = entry.getImportance();
-        e.tags = entry.getTags() != null ? new ArrayList<>(entry.getTags()) : null;
-        e.metadata = entry.getMetadata() != null ? new LinkedHashMap<>(entry.getMetadata()) : null;
+        e.tags = entry.getTags() != null ? Wraps.list(entry.getTags()) : null;
+        e.metadata = entry.getMetadata() != null ? Wraps.linkedMap(entry.getMetadata()) : null;
         return e;
     }
 

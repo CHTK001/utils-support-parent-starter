@@ -1,13 +1,12 @@
 package com.chua.common.support.datasearch.pricing.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.datasearch.pricing.spi.AbstractModelMetricsProvider;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -110,16 +109,16 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
      */
     private List<ModelDefinition> parseFlightData(String html) {
         // 目录：slug -> [displayName, creatorName, logo]
-        Map<String, String[]> catalog = new LinkedHashMap<>();
+        Map<String, String[]> catalog = Wraps.linkedMap();
         Matcher cat = CATALOG_ENTRY.matcher(html.replace("\\\"", "\""));
         while (cat.find()) {
             catalog.putIfAbsent(cat.group(1), new String[]{cat.group(2), cat.group(4), cat.group(5)});
         }
 
         // 指标记录锚点扫描（转义形态）
-        Map<String, ModelDefinition> dedup = new LinkedHashMap<>();
+        Map<String, ModelDefinition> dedup = Wraps.linkedMap();
         Matcher am = ANCHOR.matcher(html);
-        List<int[]> anchors = new ArrayList<>();
+        List<int[]> anchors = Wraps.list();
         while (am.find()) { anchors.add(new int[]{am.start(), am.end()}); }
         for (int k = 0; k < anchors.size(); k++) {
             int from = anchors.get(k)[0];
@@ -213,7 +212,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
                     : (logoPath.startsWith("/") ? LOGO_BASE + logoPath : LOGO_BASE + "/img/logos/" + logoPath));
 
  // 能力标签：基础 对话 + 推断出的多维能力
-            List<String> capabilities = new ArrayList<>(4);
+            List<String> capabilities = Wraps.list(4);
             capabilities.add("chat");
             if (Boolean.TRUE.equals(reasoning)) { capabilities.add("reasoning"); }
             if (webSearch) { capabilities.add("web_search"); }
@@ -272,7 +271,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
                     .iconUrl(iconUrl)
                     .build());
         }
-        return new ArrayList<>(dedup.values());
+        return Wraps.list(dedup.values());
     }
 
     /**
@@ -286,7 +285,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
      * @return slug -> 活跃参数(十亿)
      */
     private Map<String, BigDecimal> parseActiveParams(String html) {
-        Map<String, BigDecimal> result = new LinkedHashMap<>();
+        Map<String, BigDecimal> result = Wraps.linkedMap();
         String esc = html.replace("\\\"", "\"");
         Matcher m = Pattern.compile(
                 "\\{\"label\":\"[^\"]*\",\"activeParams\":(-?[0-9]+(?:\\.[0-9]+)?),\"passiveParams\":[0-9]+,\"detailsUrl\":\"/models/([^\"]+)\"")
@@ -307,7 +306,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
      * @return slug -> 思考等级
      */
     private Map<String, String> parseReasoningEfforts(String html) {
-        Map<String, String> result = new LinkedHashMap<>();
+        Map<String, String> result = Wraps.linkedMap();
         String esc = html.replace("\\\"", "\"");
         Matcher m = Pattern.compile(
                 "\"slug\":\"([^\"]+)\",\"name\":\"[^\"]*\"[^}]*?\"effort\":\\{\"slug\":\"([^\"]+)\"")

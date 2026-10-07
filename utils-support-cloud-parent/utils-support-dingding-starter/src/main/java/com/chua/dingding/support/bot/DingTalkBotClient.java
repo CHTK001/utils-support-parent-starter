@@ -1,5 +1,6 @@
 package com.chua.dingding.support.bot;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -13,10 +14,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -646,7 +645,7 @@ public class DingTalkBotClient implements BotClient {
      * @return 已订阅主题列表
      */
     public List<String> getTopics() {
-        List<String> topics = new ArrayList<>();
+        List<String> topics = Wraps.list();
         for (Map<String, Object> item : subscriptions) {
             topics.add(stringValue(item.get("topic")));
         }
@@ -843,7 +842,7 @@ public class DingTalkBotClient implements BotClient {
                 .fluent("clientSecret", clientSecret)
                 .fluent("ua", USER_AGENT)
                 .fluent("localIp", LOCAL_IP);
-        body.put("subscriptions", new ArrayList<>(subscriptions));
+        body.put("subscriptions", Wraps.list(subscriptions));
         Map<String, Object> result = api(STREAM_OPEN_PATH, body, false);
         String endpoint = stringValue(result.get("endpoint"));
         String ticket = stringValue(result.get("ticket"));
@@ -1243,7 +1242,7 @@ public class DingTalkBotClient implements BotClient {
                 .chatId(stringValue(data.get("conversationId")))
                 .fromGroup(fromGroup)
                 .mentionedBot(inAtList != null ? inAtList : fromGroup)
-                .rawFields(new LinkedHashMap<>(data));
+                .rawFields(Wraps.linkedMap(data));
         if (!mentioned.isEmpty()) {
             builder.mentionedList(mentioned);
         }
@@ -1264,7 +1263,7 @@ public class DingTalkBotClient implements BotClient {
         if (!(atUsers instanceof List)) {
             return Collections.emptyList();
         }
-        List<String> ids = new ArrayList<>();
+        List<String> ids = Wraps.list();
         for (Object item : (List<?>) atUsers) {
             JsonObject at = objectValue(item);
             String dingtalkId = at == null ? null : stringValue(at.get("dingtalkId"));
@@ -1373,7 +1372,7 @@ public class DingTalkBotClient implements BotClient {
         }
         observedGroups.put(chatId, BotGroupInfo.builder()
                 .groupId(chatId)
-                .memberIds(new ArrayList<>(members))
+                .memberIds(Wraps.list(members))
                 .memberCount(members.size())
                 .build());
     }
@@ -1944,7 +1943,7 @@ public class DingTalkBotClient implements BotClient {
      */
     private Map<String, Object> parse(HttpResponse<String> response) {
         JsonObject json = objectValue(response.body());
-        return json == null ? new LinkedHashMap<>() : json;
+        return json == null ? Wraps.linkedMap() : json;
     }
 
     /**
@@ -2001,7 +2000,7 @@ public class DingTalkBotClient implements BotClient {
      */
     @Override
     public List<BotGroupInfo> listGroups() {
-        return new ArrayList<>(observedGroups.values());
+        return Wraps.list(observedGroups.values());
     }
 
     /**
@@ -2049,7 +2048,7 @@ public class DingTalkBotClient implements BotClient {
      */
     @Override
     public Map<String, Object> getConfig() {
-        Map<String, Object> config = new LinkedHashMap<>();
+        Map<String, Object> config = Wraps.linkedMap();
         config.put("mode", streamMode ? "stream" : (webhookMode ? "webhook" : "send-only"));
         config.put("clientId", mask(clientId));
         config.put("apiBaseUrl", apiBaseUrl);
@@ -2073,7 +2072,7 @@ public class DingTalkBotClient implements BotClient {
      * @return 订阅项
      */
     private static Map<String, Object> subscription(String type, String topic) {
-        Map<String, Object> item = new LinkedHashMap<>();
+        Map<String, Object> item = Wraps.linkedMap();
         item.put("type", type);
         item.put("topic", topic);
         return item;

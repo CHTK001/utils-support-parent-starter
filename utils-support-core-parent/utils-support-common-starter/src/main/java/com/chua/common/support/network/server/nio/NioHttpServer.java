@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.nio;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
@@ -735,7 +736,7 @@ public class NioHttpServer extends AbstractServer {
         ByteBuffer readBuf;
         // 实测 ArrayDeque + synchronized 在 1000/2000 并发下吞吐最高(3876/2430 RPS),
         // 无锁队列 + pendingWrites 因多一轮 select 循环反而降低吞吐
-        final java.util.ArrayDeque<ByteBuffer> writeQueue = new java.util.ArrayDeque<>();
+        final java.util.Deque<ByteBuffer> writeQueue = Wraps.deque();
         boolean keepAlive = true;
         boolean inWorker = false;
         /**

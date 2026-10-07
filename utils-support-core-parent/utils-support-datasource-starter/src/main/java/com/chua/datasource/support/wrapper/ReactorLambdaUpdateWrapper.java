@@ -1,5 +1,6 @@
 package com.chua.datasource.support.wrapper;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.wrapper.AbstractLambdaWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.SFunction;
@@ -7,9 +8,6 @@ import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 import com.chua.datasource.support.wrapper.toolkit.LambdaUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +38,7 @@ public class ReactorLambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, Reac
     /**
      * 设置 值映射：列名 → 新值
      */
-    private final Map<String, Object> setValues = new LinkedHashMap<>();
+    private final Map<String, Object> setValues = Wraps.linkedMap();
 
     /**
      * 创建响应式更新包装器。
@@ -97,7 +95,7 @@ public class ReactorLambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, Reac
             throw new IllegalStateException("禁止无 WHERE 条件的全表更新: "
                     + entityClass.getSimpleName() + "，如需全表更新请显式调用 allowFullTable()");
         }
-        List<Object> params = new ArrayList<>();
+        List<Object> params = Wraps.list();
         StringBuilder setSb = new StringBuilder();
         for (Map.Entry<String, Object> e : setValues.entrySet()) {
             if (!setSb.isEmpty()) {

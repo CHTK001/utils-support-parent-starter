@@ -25,5 +25,12 @@ com.chua.filestorage.support.preview.provider.JupyterPreviewProvider
 com.chua.filestorage.support.preview.provider.SqlitePreviewProvider
 com.chua.filestorage.support.preview.provider.OldOfficePreviewProvider
 com.chua.filestorage.support.preview.provider.ParquetPreviewProvider
+com.chua.filestorage.support.preview.provider.AvroPreviewProvider
+com.chua.filestorage.support.preview.provider.MobiPreviewProvider
+com.chua.filestorage.support.preview.provider.XpsPreviewProvider
+com.chua.filestorage.support.preview.provider.RawPreviewProvider
+com.chua.filestorage.support.preview.provider.IworkPreviewProvider
+com.chua.filestorage.support.preview.provider.DjvuPreviewProvider
 com.chua.filestorage.support.preview.provider.PsdPreviewProvider
 com.chua.filestorage.support.preview.provider.TiffPreviewProvider
+com.chua.filestorage.support.preview.provider.HeicPreviewProvider

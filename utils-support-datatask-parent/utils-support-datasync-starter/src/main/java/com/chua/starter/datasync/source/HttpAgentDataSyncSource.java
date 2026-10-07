@@ -1,12 +1,11 @@
 package com.chua.starter.datasync.source;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.client.ClientRequest;
 import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.client.ReactiveHttpClient;
 import com.chua.datasync.agent.support.DataSyncAgentSource;
 import reactor.core.publisher.Flux;
-
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +69,7 @@ public class HttpAgentDataSyncSource implements DataSyncAgentSource {
     public Flux<Map<String, Object>> read(Map<String, Object> params) {
         ReactiveHttpClient client = getHttpClient();
         ClientRequest request = ClientRequest.of(agentUrl);
-        java.util.Map<String, String> stringParams = new java.util.LinkedHashMap<>();
+        java.util.Map<String, String> stringParams = Wraps.linkedMap();
         params.forEach((k, v) -> stringParams.put(k, v == null ? "" : String.valueOf(v)));
         request.setParams(stringParams);
         try {
@@ -91,7 +90,7 @@ public class HttpAgentDataSyncSource implements DataSyncAgentSource {
      */
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> parseJsonResponse(String body) {
-        List<Map<String, Object>> rows = new java.util.ArrayList<>();
+        List<Map<String, Object>> rows = Wraps.list();
         body = body.trim();
         try {
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
@@ -99,13 +98,13 @@ public class HttpAgentDataSyncSource implements DataSyncAgentSource {
             if (obj instanceof List<?> list) {
                 for (Object item : list) {
                     if (item instanceof Map<?, ?> map) {
-                        Map<String, Object> row = new LinkedHashMap<>();
+                        Map<String, Object> row = Wraps.linkedMap();
                         map.forEach((k, v) -> row.put(String.valueOf(k), v));
                         rows.add(row);
                     }
                 }
             } else if (obj instanceof Map<?, ?> map) {
-                Map<String, Object> row = new LinkedHashMap<>();
+                Map<String, Object> row = Wraps.linkedMap();
                 map.forEach((k, v) -> row.put(String.valueOf(k), v));
                 rows.add(row);
             }

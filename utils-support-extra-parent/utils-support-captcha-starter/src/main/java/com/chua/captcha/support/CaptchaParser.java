@@ -1,8 +1,7 @@
 package com.chua.captcha.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.constant.CaptchaConstant;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -93,7 +92,7 @@ public interface CaptchaParser {
      * @return 终态响应；提交失败返回 {@link CaptchaConstant#ERROR_SUBMIT_FAILED}
      */
     default CaptchaResponse solve(CaptchaRequest request, byte[] imageData) {
-        Map<String, String> options = new HashMap<>();
+        Map<String, String> options = Wraps.map();
         if (request.getType() != null) {
             options.put("captchaType", request.getType().getType());
         }

@@ -1,11 +1,10 @@
 package com.chua.datalake.support.model;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,7 +68,7 @@ public class DataEnvelope {
     /**
      * 数据迹日志记录（附加信息）
      */
-    private final List<String> trace = new ArrayList<>();
+    private final List<String> trace = Wraps.list();
 
     /**
      * 以指定业务数据创建 Envelope

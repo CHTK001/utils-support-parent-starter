@@ -1,10 +1,10 @@
 package com.chua.filesystem.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -141,7 +141,7 @@ public class CompressedFileSystem implements AutoCloseable {
      * @throws IOException IO 异常
      */
     public List<String> list() throws IOException {
-        List<String> files = new ArrayList<>();
+        List<String> files = Wraps.list();
         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipPath))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {

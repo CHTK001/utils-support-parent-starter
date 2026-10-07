@@ -1,5 +1,6 @@
 package com.chua.trae.support.http;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.trae.support.auth.AuthManager;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -9,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.time.Duration;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -222,7 +222,7 @@ public class TraeHttpClient {
     public Map<String, String> buildHeaders(AuthManager.AuthSnapshot auth) {
         Objects.requireNonNull(auth, "auth must not be null");
         String traceId = UUID.randomUUID().toString().replace("-", "");
-        Map<String, String> headers = new LinkedHashMap<>();
+        Map<String, String> headers = Wraps.linkedMap();
         headers.put("Content-Type", "application/json");
         headers.put("Authorization", "Cloud-IDE-JWT " + auth.token());
         headers.put("X-Cloudide-Token", auth.token());

@@ -1,6 +1,5 @@
 package com.chua.common.support.concurrent.threadflow;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -22,7 +21,7 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
     /**
      * 待执行任务列表
      */
-    protected final List<Callable<Object>> tasks = new ArrayList<>();
+    protected final List<Callable<Object>> tasks = Wraps.list();
 
     /**
      * 合并策略
@@ -134,8 +133,8 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
         int total = tasks.size();
         List<Future<Object>> futures = submitTasks();
 
-        List<Object> results = new ArrayList<>();
-        List<Throwable> errors = new ArrayList<>();
+        List<Object> results = Wraps.list();
+        List<Throwable> errors = Wraps.list();
         int successCount = 0;
         int failCount = 0;
         int index = 0;

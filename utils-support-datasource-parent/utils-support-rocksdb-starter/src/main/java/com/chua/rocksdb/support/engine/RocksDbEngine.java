@@ -1,5 +1,6 @@
 package com.chua.rocksdb.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
@@ -22,10 +23,7 @@ import org.rocksdb.WriteBatch;
 import org.rocksdb.WriteOptions;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -127,7 +125,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      * 本引擎自建（按路径打开）的数据源名称集合，仅这些实例由本引擎负责关闭。
      */
     private final Set<String> ownedDataSources =
-            Collections.synchronizedSet(new java.util.HashSet<>());
+            Collections.synchronizedSet(Wraps.set());
 
     /**
      * 注册数据源到引擎内部映射；同名替换时关闭旧的自建实例（外部实例不关）。
@@ -263,7 +261,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      */
     public List<Map.Entry<byte[], byte[]>> scanBytes(String name) {
         RocksDB db = requireDB(name);
-        List<Map.Entry<byte[], byte[]>> rows = new ArrayList<>();
+        List<Map.Entry<byte[], byte[]>> rows = Wraps.list();
         try (RocksIterator iter = db.newIterator()) {
             for (iter.seekToFirst(); iter.isValid(); iter.next()) {
                 rows.add(Map.entry(iter.key(), iter.value()));
@@ -281,7 +279,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      */
     public List<Map.Entry<byte[], byte[]>> scanBytes(String name, byte[] prefix) {
         RocksDB db = requireDB(name);
-        List<Map.Entry<byte[], byte[]>> rows = new ArrayList<>();
+        List<Map.Entry<byte[], byte[]>> rows = Wraps.list();
         try (RocksIterator iter = db.newIterator()) {
             for (iter.seek(prefix); iter.isValid() && startsWith(iter.key(), prefix); iter.next()) {
                 rows.add(Map.entry(iter.key(), iter.value()));
@@ -465,7 +463,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      */
     public Map<String, String> findAllByPrefix(String prefix) {
         RocksDB db = currentDB();
-        Map<String, String> result = new LinkedHashMap<>();
+        Map<String, String> result = Wraps.linkedMap();
         if (db == null) {
             return result;
         }
@@ -617,7 +615,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
             return Collections.emptyList();
         }
         byte[] prefix = (DOC_PREFIX + collection + ":").getBytes(StandardCharsets.UTF_8);
-        List<T> results = new ArrayList<>();
+        List<T> results = Wraps.list();
         try (RocksIterator iter = db.newIterator()) {
             for (iter.seek(prefix); iter.isValid() && startsWith(iter.key(), prefix); iter.next()) {
                 byte[] value = iter.value();
@@ -660,7 +658,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         }
         String token = normalizeToken(query);
         byte[] ftsPrefix = FTS_PREFIX.getBytes(StandardCharsets.UTF_8);
-        List<T> results = new ArrayList<>();
+        List<T> results = Wraps.list();
         try (RocksIterator iter = db.newIterator()) {
             for (iter.seek(ftsPrefix); iter.isValid() && startsWith(iter.key(), ftsPrefix); iter.next()) {
                 byte[] keyBytes = iter.key();
@@ -713,7 +711,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         String collection = resolveCollection(entityClass);
         byte[] prefix = (FTS_PREFIX + collection + ":").getBytes(StandardCharsets.UTF_8);
         synchronized (ftsCollectionLock(collection)) {
-            List<byte[]> keys = new ArrayList<>();
+            List<byte[]> keys = Wraps.list();
             try (RocksIterator iter = db.newIterator()) {
                 for (iter.seek(prefix); iter.isValid() && startsWith(iter.key(), prefix); iter.next()) {
                     keys.add(iter.key());
@@ -801,9 +799,9 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         String docId = docIdOf(docKey);
         Set<String> oldKeys = ftsKeysOf(collection, docMap, docId);
         Set<String> newKeys = newDocMap == null ? Collections.emptySet() : ftsKeysOf(collection, newDocMap, docId);
-        Set<String> toRemove = new LinkedHashSet<>(oldKeys);
+        Set<String> toRemove = Wraps.linkedSet(oldKeys);
         toRemove.removeAll(newKeys);
-        Set<String> toAdd = new LinkedHashSet<>(newKeys);
+        Set<String> toAdd = Wraps.linkedSet(newKeys);
         toAdd.removeAll(oldKeys);
         if (toRemove.isEmpty() && toAdd.isEmpty() && newDocJson == null) {
             // 无 FTS 条目 变更 且 无 文档 变更，无需 写 入
@@ -839,7 +837,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      * @return 条目 键 集合（去 重，保持 出现 顺序）
      */
     private static Set<String> ftsKeysOf(String collection, Map<String, Object> docMap, String docId) {
-        Set<String> keys = new LinkedHashSet<>();
+        Set<String> keys = Wraps.linkedSet();
         for (Map.Entry<String, Object> entry : docMap.entrySet()) {
             if (entry.getValue() instanceof String text) {
                 for (String token : tokenize(text)) {
@@ -868,7 +866,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      * @return 分 词 结果 列表
      */
     private static List<String> tokenize(String text) {
-        List<String> tokens = new ArrayList<>();
+        List<String> tokens = Wraps.list();
         for (String part : text.toLowerCase().split("[^\\p{L}\\p{N}]+")) {
             if (!part.isEmpty()) {
                 tokens.add(part);
@@ -920,7 +918,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     @SuppressWarnings("unchecked")
     private static Map<String, Object> toDocumentMap(Object source) {
         if (source instanceof Map<?, ?> map) {
-            Map<String, Object> result = new LinkedHashMap<>();
+            Map<String, Object> result = Wraps.linkedMap();
             for (Map.Entry<?, ?> entry : map.entrySet()) {
                 result.put(String.valueOf(entry.getKey()), entry.getValue());
             }
@@ -1079,7 +1077,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
             throw new IllegalStateException("RocksDB 数据源未连接");
         }
         // 解析 SET 子句 与 WHERE 参数 边界（与 Lucene 引擎同 语法：正则 逐个 消费 "col = ?"）
-        java.util.Map<String, Object> setValues = new java.util.LinkedHashMap<>();
+        java.util.Map<String, Object> setValues = Wraps.linkedMap();
         String setClause = sql.setClause();
         java.util.List<Object> allParams = sql.params() == null
                 ? java.util.Collections.emptyList() : sql.params();

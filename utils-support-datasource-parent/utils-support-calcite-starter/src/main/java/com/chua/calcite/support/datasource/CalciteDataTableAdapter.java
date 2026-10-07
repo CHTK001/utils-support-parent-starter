@@ -1,5 +1,6 @@
 package com.chua.calcite.support.datasource;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.wrapper.Condition;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
@@ -207,7 +208,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
      * @return translaterex节点的结果
      */
     private List<Condition> translateRexNodes(List<RexNode> filters, List<String> columnNames) {
-        List<Condition> result = new ArrayList<>();
+        List<Condition> result = Wraps.list();
         for (RexNode filter : filters) {
             Condition c = translateCondition(filter, columnNames);
             if (c != null) {
@@ -464,7 +465,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
         List<Method> getters = resolveGetters(entities.getFirst().getClass());
         Map<String, Method> getterMap = toGetterMap(getters);
-        List<Object[]> result = new ArrayList<>(entities.size());
+        List<Object[]> result = Wraps.list(entities.size());
         for (Object entity : entities) {
             Object[] row = new Object[columnNames.size()];
             for (int i = 0; i < columnNames.size(); i++) {
@@ -491,7 +492,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
      * @return resolveGetters的结果
      */
     private static List<Method> resolveGetters(Class<?> entityClass) {
-        List<Method> result = new ArrayList<>();
+        List<Method> result = Wraps.list();
         for (Method method : entityClass.getMethods()) {
             if (Modifier.isStatic(method.getModifiers())) {
                 continue;
@@ -521,7 +522,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
      * @return 转为getter映射的结果
      */
     private static Map<String, Method> toGetterMap(List<Method> getters) {
-        Map<String, Method> map = new LinkedHashMap<>();
+        Map<String, Method> map = Wraps.linkedMap();
         for (Method getter : getters) {
             map.put(getterToColumnName(getter), getter);
         }
@@ -652,7 +653,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
                 */
                 public Enumerator<T> enumerator() {
                     List<String> names = source.getColumnNames();
-                    List<Object[]> rows = new ArrayList<>();
+                    List<Object[]> rows = Wraps.list();
                     for (Map<String, Object> row : source.getData()) {
                         Object[] arr = new Object[names.size()];
                         for (int i = 0; i < names.size(); i++) {
@@ -703,7 +704,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         /**
          * Rows
         */
-        private final List<Row> rows = new ArrayList<>();
+        private final List<Row> rows = Wraps.list();
 
         ObjectArrayMutableCollection(DataTable dataTable) {
             this.dataTable = dataTable;
@@ -830,10 +831,10 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
          * 刷新
         */
         private void flush() {
-            List<Map<String, Object>> maps = new ArrayList<>(rows.size());
+            List<Map<String, Object>> maps = Wraps.list(rows.size());
             for (Row row : rows) {
                 Object[] arr = row.values;
-                Map<String, Object> map = new LinkedHashMap<>();
+                Map<String, Object> map = Wraps.linkedMap();
                 for (int i = 0; i < columnNames.size(); i++) {
                     Object v = (arr != null && i < arr.length) ? arr[i] : null;
                     map.put(columnNames.get(i), v);
@@ -952,7 +953,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
             return Collections.emptyList();
         }
         Map<String, Object> first = data.getFirst();
-        List<Class<?>> types = new ArrayList<>(first.size());
+        List<Class<?>> types = Wraps.list(first.size());
         for (Map.Entry<String, Object> entry : first.entrySet()) {
             if (entry.getValue() != null) {
                 types.add(entry.getValue().getClass());

@@ -1,9 +1,8 @@
 package com.chua.crypto.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -73,7 +72,7 @@ public class CryptoSetting {
     /**
      * 参与整体加解密的配置文件列表（如 application.yml、application-prod.yml）
      */
-    private List<String> configFiles = new ArrayList<>();
+    private List<String> configFiles = Wraps.list();
 
     /**
      * 配置文件加密时是否保留明文备份(*.bak)，默认不保留：

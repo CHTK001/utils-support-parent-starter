@@ -1,5 +1,6 @@
 package com.chua.oracle.support.user;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasource.support.user.DataSourceAware;
 import com.chua.datasource.support.user.UserInfo;
 import com.chua.datasource.support.user.UserManager;
@@ -9,7 +10,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -63,7 +63,7 @@ public class OracleUserManager implements UserManager, DataSourceAware {
      */
     @Override
     public List<UserInfo> listUsers() {
-        List<UserInfo> list = new ArrayList<>();
+        List<UserInfo> list = Wraps.list();
         try (Connection c = dataSource.getConnection();
              Statement s = c.createStatement();
              ResultSet rs = s.executeQuery("SELECT username FROM dba_users ORDER BY username")) {

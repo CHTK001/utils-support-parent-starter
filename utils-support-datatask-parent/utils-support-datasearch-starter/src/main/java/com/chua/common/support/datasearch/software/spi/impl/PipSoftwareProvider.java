@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.software.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.software.model.SoftwareInfo;
 import com.chua.common.support.datasearch.software.spi.SoftwareProvider;
 import com.chua.common.support.lang.cmd.CmdExecutors;
@@ -10,8 +11,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -66,7 +65,7 @@ public class PipSoftwareProvider implements SoftwareProvider {
      * 搜索
     */
     public List<SoftwareInfo> search(String keyword) {
-        List<SoftwareInfo> results = new ArrayList<>();
+        List<SoftwareInfo> results = Wraps.list();
 
         // pip 索引查询已被 PyPI 禁用，改用 install --dry-run --report 试探；
         // 数组形式直接作为进程参数传递，不经 cmd.exe 解析，keyword 不会被拼成命令执行
@@ -201,7 +200,7 @@ public class PipSoftwareProvider implements SoftwareProvider {
      * @return 报告中的软件信息；无报告或解析失败返回空列表
      */
     private static List<SoftwareInfo> parseReport(String output) {
-        List<SoftwareInfo> results = new ArrayList<>();
+        List<SoftwareInfo> results = Wraps.list();
         int start = output.indexOf('{');
         int end = output.lastIndexOf('}');
         if (start < 0 || end <= start) {

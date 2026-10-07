@@ -1,5 +1,6 @@
 package com.chua.datasource.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.dialect.Pagination;
 import com.chua.common.support.lang.datasource.dialect.ProcedureDefinition;
@@ -27,7 +28,6 @@ import com.chua.datasource.support.user.UserManager;
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -70,7 +70,7 @@ public abstract class JdbcEngine extends AbstractEngine {
             return limitSlice(filtered, limit, offset);
         }
 
-        List<T> result = new ArrayList<>();
+        List<T> result = Wraps.list();
         EngineDataSource<?> dataSource = getDataSource();
         if (dataSource == null) {
             return result;
@@ -147,7 +147,7 @@ public abstract class JdbcEngine extends AbstractEngine {
      * @return 参数数组（WHERE 参数在前，HAVING 参数在后）
      */
     private static <T> Object[] mergedParams(QuerySql<T> sql) {
-        List<Object> all = new ArrayList<>(sql.params());
+        List<Object> all = Wraps.list(sql.params());
         if (sql.hasHaving()) {
             all.addAll(sql.havingParams());
         }
@@ -164,7 +164,7 @@ public abstract class JdbcEngine extends AbstractEngine {
      * @return 实体列表，数据源缺失或非 JDBC 时返回空列表
      */
     private <T> List<T> executeNativeQuery(String fullSql, Object[] args, Class<T> clazz) {
-        List<T> result = new ArrayList<>();
+        List<T> result = Wraps.list();
         EngineDataSource<?> dataSource = getDataSource();
         if (dataSource == null) {
             return result;
@@ -295,7 +295,7 @@ public abstract class JdbcEngine extends AbstractEngine {
      */
     @SuppressWarnings("unchecked")
     private <T> List<T> mapEntities(ResultSet rs, Class<T> clazz) throws Exception {
-        List<T> result = new ArrayList<>();
+        List<T> result = Wraps.list();
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
         while (rs.next()) {
@@ -384,7 +384,7 @@ public abstract class JdbcEngine extends AbstractEngine {
         if (from >= data.size()) {
             return Collections.emptyList();
         }
-        return new ArrayList<>(data.subList(from, to));
+        return Wraps.list(data.subList(from, to));
     }
 
     /**
@@ -734,7 +734,7 @@ public abstract class JdbcEngine extends AbstractEngine {
             throw new UnsupportedOperationException("当前数据库不支持获取触发器: "
                     + (dialect != null ? dialect.protocol() : "unknown"));
         }
-        List<TriggerDefinition> result = new ArrayList<>();
+        List<TriggerDefinition> result = Wraps.list();
         try (Connection conn = getJdbcConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -786,7 +786,7 @@ public abstract class JdbcEngine extends AbstractEngine {
             throw new UnsupportedOperationException("当前数据库不支持获取存储过程: "
                     + (dialect != null ? dialect.protocol() : "unknown"));
         }
-        List<ProcedureDefinition> result = new ArrayList<>();
+        List<ProcedureDefinition> result = Wraps.list();
         try (Connection conn = getJdbcConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -1205,7 +1205,7 @@ public abstract class JdbcEngine extends AbstractEngine {
      * @return 数据库名列表
      */
     public List<String> listDatabases() {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         String protocol = currentDialectProtocol();
         boolean mysqlFamily = "mysql".equals(protocol) || "mariadb".equals(protocol);
         try (Connection conn = getJdbcConnection()) {

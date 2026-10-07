@@ -1,5 +1,6 @@
 package com.chua.jrebel.support.server;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.http.HttpMethod;
@@ -15,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import com.sun.net.httpserver.HttpExchange;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -121,7 +121,7 @@ import java.util.UUID;
      * @param response 响应
      */
     private void handleValidateConnection(ServerRequest request, ServerResponse response) throws Exception {
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = Wraps.map();
         result.put("serverVersion", "3.2.4");
         result.put("serverProtocolVersion", 2);
         result.put("serverGuid", "a]\\%Qq@Yq/4~}Z^sT");
@@ -164,7 +164,7 @@ import java.util.UUID;
         String clientId = request.getParam("clientId");
         String guid = licenseService.generateGuid(clientId);
 
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = Wraps.map();
         result.put("guid", guid);
         result.put("status", STATUS_SUCCESS);
 

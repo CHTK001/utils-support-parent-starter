@@ -1,5 +1,6 @@
 package com.chua.filestorage.support.preview.provider;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.filestorage.support.preview.FileStoragePreviewProvider;
@@ -9,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -80,7 +80,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
      * @return 单元格信息列表
      */
     private List<CellInfo> parseCells(JsonNode root) {
-        List<CellInfo> cells = new ArrayList<>();
+        List<CellInfo> cells = Wraps.list();
         JsonNode cellNodes = root.path("cells");
         if (!cellNodes.isArray()) {
             return cells;
@@ -91,7 +91,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
             if (source == null) {
                 continue;
             }
-            List<String> outputs = new ArrayList<>();
+            List<String> outputs = Wraps.list();
             if ("code".equals(type)) {
                 outputs.addAll(readOutputs(cellNode.path("outputs")));
             }
@@ -134,7 +134,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
      * @return 输出内容列表
      */
     private List<String> readOutputs(JsonNode outputsNode) {
-        List<String> outputs = new ArrayList<>();
+        List<String> outputs = Wraps.list();
         if (!outputsNode.isArray()) {
             return outputs;
         }
@@ -305,7 +305,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
      */
     private String renderMarkdown(String source) {
         StringBuilder sb = new StringBuilder();
-        List<String> lines = new ArrayList<>(List.of(source.split("\r?\n")));
+        List<String> lines = Wraps.list(List.of(source.split("\r?\n")));
         boolean inCode = false;
         StringBuilder inline = new StringBuilder();
         for (String rawLine : lines) {

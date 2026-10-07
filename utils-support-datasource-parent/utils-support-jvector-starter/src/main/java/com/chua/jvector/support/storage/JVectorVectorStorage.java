@@ -1,5 +1,6 @@
 package com.chua.jvector.support.storage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.vector.AbstractIdOrdinalStorage;
 import com.chua.common.support.vector.AbstractVectorStorage;
 import com.chua.common.support.vector.Vector;
@@ -33,7 +34,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
@@ -203,7 +203,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         try (DataInputStream dis = new DataInputStream(
                 new BufferedInputStream(Files.newInputStream(path)))) {
             int count = dis.readInt();
-            List<Map.Entry<String, float[]>> entries = new ArrayList<>(count);
+            List<Map.Entry<String, float[]>> entries = Wraps.list(count);
             for (int i = 0; i < count; i++) {
                 String id = dis.readUTF();
                 int len = dis.readInt();
@@ -331,11 +331,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         /**
          * 原始向量深拷贝（防御调用者后续修改）
         */
-        private final List<float[]> rawVectors = new ArrayList<>();
+        private final List<float[]> rawVectors = Wraps.list();
         /**
          * j向量 向量视图
         */
-        private final List<VectorFloat<?>> vectors = new ArrayList<>();
+        private final List<VectorFloat<?>> vectors = Wraps.list();
 
         EagerMemoryStrategy(int dimension, VectorSimilarityFunction similarity,
                             JVectorStorageProperties properties, VectorCompareAlgorithm algorithm) {
@@ -396,7 +396,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (algo == null) {
                 // 无重排算法时也必须封顶 topK，不能把 topK*5 的超集直接返回
                 return graphResults.size() > topK
-                        ? new ArrayList<>(graphResults.subList(0, topK))
+                        ? Wraps.list(graphResults.subList(0, topK))
                         : graphResults;
             }
             return reRank(graphResults, query, algo, topK);
@@ -415,7 +415,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 SearchScoreProvider ssp = DefaultSearchScoreProvider.exact(queryVec, similarity, rav);
                 try (var searcher = new GraphSearcher(graph)) {
                     var result = searcher.search(ssp, fetchK, Bits.ALL);
-                    var list = new ArrayList<Vector>();
+                    var list = Wraps.<Vector>list();
                     for (var n : result.getNodes()) {
                         var id = idOf(n.node);
                         if (id == null) {
@@ -503,7 +503,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 float sim = algo.compare(query, vec);
                 filled = insertIntoTopK(topIds, topScores, filled, sim, idOf(i));
             }
-            var result = new ArrayList<Vector>(filled);
+            var result = Wraps.<Vector>list(filled);
             for (int i = 0; i < filled; i++) {
                 int idx = ordinalOf(topIds[i]);
                 if (idx < 0 || idx >= rawVectors.size()) {
@@ -544,7 +544,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 float sim = (float) (dot / (qNorm * vNorm));
                 filled = insertIntoTopK(topIds, topScores, filled, sim, idOf(i));
             }
-            var result = new ArrayList<Vector>(filled);
+            var result = Wraps.<Vector>list(filled);
             for (int i = 0; i < filled; i++) {
                 int idx = ordinalOf(topIds[i]);
                 if (idx < 0 || idx >= rawVectors.size()) {
@@ -694,11 +694,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         /**
          * 原始向量深拷贝（防御调用者后续修改）
         */
-        private final List<float[]> rawVectors = new ArrayList<>();
+        private final List<float[]> rawVectors = Wraps.list();
         /**
          * j向量 向量视图
         */
-        private final List<VectorFloat<?>> vectors = new ArrayList<>();
+        private final List<VectorFloat<?>> vectors = Wraps.list();
         /**
          * 向量持久化文件路径
         */
@@ -828,7 +828,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             try (var searcher = new GraphSearcher(diskGraph)) {
                 int ef = Math.max(topK, (int) (topK * properties.getSearchOverquery()));
                 var result = searcher.search(ssp, ef, Bits.ALL);
-                var list = new ArrayList<Vector>();
+                var list = Wraps.<Vector>list();
                 for (var n : result.getNodes()) {
                     var id = idOf(n.node);
                     if (id == null) {
@@ -1032,11 +1032,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         /**
          * 原始向量深拷贝（防御调用者后续修改）
         */
-        private final List<float[]> rawVectors = new ArrayList<>();
+        private final List<float[]> rawVectors = Wraps.list();
         /**
          * j向量 向量视图
         */
-        private final List<VectorFloat<?>> vectors = new ArrayList<>();
+        private final List<VectorFloat<?>> vectors = Wraps.list();
         /**
          * 比较算法
         */
@@ -1156,7 +1156,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 // 粗排获取候选集
                 var roughResult = searcher.search(roughProvider, ef * 2, Bits.ALL);
                 // 精排 rerank
-                var list = new ArrayList<Vector>();
+                var list = Wraps.<Vector>list();
                 for (var n : roughResult.getNodes()) {
                     var id = idOf(n.node);
                     if (id == null) {

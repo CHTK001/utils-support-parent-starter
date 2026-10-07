@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.reid;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.feature.FeatureExtractor;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.image.ImageDetector;
@@ -9,7 +10,6 @@ import com.chua.common.support.vector.VectorStorage;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -153,7 +153,7 @@ public class PersonReidPipeline {
      * @return 图库特征条目
      */
     public List<GalleryEntry> buildGallery(List<byte[]> images, List<String> labels) {
-        List<GalleryEntry> gallery = new ArrayList<>();
+        List<GalleryEntry> gallery = Wraps.list();
         for (int i = 0; i < images.size(); i++) {
             float[] feat = extractor.extract(images.get(i));
             String label = labels != null && i < labels.size() ? labels.get(i) : "gallery_" + i;
@@ -189,7 +189,7 @@ public class PersonReidPipeline {
         java.util.Arrays.sort(scores, (a, b) -> Float.compare(b[0], a[0]));
 
         int k = Math.min(topK, scores.length);
-        List<SearchResult> results = new ArrayList<>(k);
+        List<SearchResult> results = Wraps.list(k);
         for (int i = 0; i < k; i++) {
             int idx = (int) scores[i][1];
             GalleryEntry entry = gallery.get(idx);

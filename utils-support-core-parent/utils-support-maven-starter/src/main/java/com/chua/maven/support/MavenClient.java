@@ -1,5 +1,6 @@
 package com.chua.maven.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
@@ -11,7 +12,6 @@ import java.io.File;
 import java.io.PrintStream;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Future;
@@ -181,7 +181,7 @@ public class MavenClient implements AutoCloseable {
     MavenClient(MavenClientBuilder builder) {
         this.projectPath = builder.getProjectPath();
         this.goals = builder.getEffectiveGoals();
-        this.profiles = new ArrayList<>(builder.getProfiles());
+        this.profiles = Wraps.list(builder.getProfiles());
         this.skipTests = builder.isSkipTests();
         this.quiet = builder.isQuiet();
         this.debug = builder.isDebug();
@@ -212,7 +212,7 @@ public class MavenClient implements AutoCloseable {
      * @return 编译结果
      */
     public MavenCompileResult execute() {
-        return doExecute(new ArrayList<>(goals));
+        return doExecute(Wraps.list(goals));
     }
 
     /**
@@ -296,7 +296,7 @@ public class MavenClient implements AutoCloseable {
         // 2. 准备输出收集
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(outputStream, true);
-        List<String> errorLines = new ArrayList<>();
+        List<String> errorLines = Wraps.list();
         int[] progressHolder = {0};
 
  // 3. 创建 invocation请求
@@ -374,7 +374,7 @@ public class MavenClient implements AutoCloseable {
             return result;
         } catch (MavenInvocationException e) {
             long duration = Duration.between(start, Instant.now()).toMillis();
-            List<String> errors = new ArrayList<>(errorLines);
+            List<String> errors = Wraps.list(errorLines);
             errors.add("Maven 调用异常: " + e.getMessage());
             MavenCompileResult result = MavenCompileResult.failure(
                     projectPath, -1, outputStream.toString(), errors, effectiveGoals, profiles, duration);
@@ -392,7 +392,7 @@ public class MavenClient implements AutoCloseable {
      * @return 错误列表
      */
     private List<String> buildErrorList(String output, int exitCode, Exception executionException) {
-        List<String> errors = new ArrayList<>();
+        List<String> errors = Wraps.list();
         if (exitCode != EXIT_SUCCESS) {
             if (executionException != null) {
                 errors.add("Maven 退出码: " + exitCode + " - " + executionException.getMessage());

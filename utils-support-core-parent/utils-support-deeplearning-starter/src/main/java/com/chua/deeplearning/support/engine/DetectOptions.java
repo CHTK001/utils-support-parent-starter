@@ -1,8 +1,7 @@
 package com.chua.deeplearning.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -40,7 +39,7 @@ public final class DetectOptions {
      * @return 运行参数（可能为空 映射）
      */
     public static Map<String, Object> of(Float threshold, Float nms) {
-        Map<String, Object> options = new LinkedHashMap<>();
+        Map<String, Object> options = Wraps.linkedMap();
         if (threshold != null) {
             options.put(DetectionConfiguration.KEY_THRESHOLD, threshold);
         }
@@ -69,7 +68,7 @@ public final class DetectOptions {
         /**
          * 参数表（保持插入顺序，便于日志与序列化稳定）。
          */
-        private final Map<String, Object> options = new LinkedHashMap<>();
+        private final Map<String, Object> options = Wraps.linkedMap();
 
         /**
          * 构造器。
@@ -155,7 +154,7 @@ public final class DetectOptions {
          * @return 运行参数（可能为空 映射）
          */
         public Map<String, Object> build() {
-            return new LinkedHashMap<>(options);
+            return Wraps.linkedMap(options);
         }
     }
 }

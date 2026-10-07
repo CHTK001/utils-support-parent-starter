@@ -1,5 +1,6 @@
 package com.chua.ssh.support.directory;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.DiffPolledDirectory;
 import com.chua.common.support.lang.directory.PolledListener;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
@@ -11,7 +12,6 @@ import org.apache.sshd.sftp.client.SftpClient;
 import org.apache.sshd.sftp.client.SftpClientFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -114,7 +114,7 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
     protected List<SftpClient.DirEntry> listAndModified(String path) {
         try {
             Iterable<SftpClient.DirEntry> dirEntries = sftp.readDir(path);
-            List<SftpClient.DirEntry> dirEntryList = new ArrayList<>();
+            List<SftpClient.DirEntry> dirEntryList = Wraps.list();
             dirEntries.iterator()
                     .forEachRemaining(dirEntryList::add);
             return dirEntryList;

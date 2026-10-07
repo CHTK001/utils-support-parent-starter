@@ -1,5 +1,6 @@
 package com.chua.fory.support.json;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.JsonArray;
 import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.lang.json.JsonObject;
@@ -339,7 +340,7 @@ public class ForyJsonProvider implements JsonProvider {
      */
     private Map<String, Object> topLevelCopy(Object mapped) {
         if (mapped instanceof Map<?, ?> source) {
-            Map<String, Object> copy = new LinkedHashMap<>(source.size());
+            Map<String, Object> copy = Wraps.linkedMap(source.size());
             source.forEach((key, value) -> copy.put(String.valueOf(key), value));
             return copy;
         }

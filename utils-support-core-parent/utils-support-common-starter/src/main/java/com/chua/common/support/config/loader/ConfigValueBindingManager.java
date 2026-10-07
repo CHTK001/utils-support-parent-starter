@@ -1,5 +1,6 @@
 package com.chua.common.support.config.loader;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.config.center.ConfigListener;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.objects.annotation.ConfigValue;
@@ -10,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +57,7 @@ public class ConfigValueBindingManager implements ConfigListener {
     /**
      * 全部绑定的列表。
      */
-    private final List<ConfigValueBinding> allBindings = Collections.synchronizedList(new ArrayList<>());
+    private final List<ConfigValueBinding> allBindings = Collections.synchronizedList(Wraps.list());
 
     /**
      * 配置值提供者函数。
@@ -205,7 +205,7 @@ public class ConfigValueBindingManager implements ConfigListener {
      */
     private void addBinding(ConfigValueBinding binding) {
         allBindings.add(binding);
-        bindingsByKey.computeIfAbsent(binding.getConfigKey(), k -> Collections.synchronizedList(new ArrayList<>()))
+        bindingsByKey.computeIfAbsent(binding.getConfigKey(), k -> Collections.synchronizedList(Wraps.list()))
                 .add(binding);
     }
 
@@ -308,7 +308,7 @@ public class ConfigValueBindingManager implements ConfigListener {
      * @return 热加载绑定列表
      */
     public List<ConfigValueBinding> getHotReloadBindings() {
-        List<ConfigValueBinding> result = new ArrayList<>();
+        List<ConfigValueBinding> result = Wraps.list();
         for (ConfigValueBinding binding : allBindings) {
             if (binding.isHotReload()) {
                 result.add(binding);

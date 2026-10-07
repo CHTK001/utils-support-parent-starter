@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
@@ -12,8 +13,6 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -133,7 +132,7 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
      */
     @Override protected List<AiUsage> parseAll() {
         Map<String, RequestTiming> timings = loadRequestTimings();
-        List<AiUsage> result = new ArrayList<>();
+        List<AiUsage> result = Wraps.list();
         AtomicInteger fileCount = new AtomicInteger(0);
         for (Path projectsDir : new Path[] {PROJECTS_DIR_INTL, PROJECTS_DIR_CN}) {
             if (!Files.isDirectory(projectsDir)) {
@@ -167,7 +166,7 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
      * @return 请求号到时间线的映射；日志目录缺失时为空映射
      */
     private Map<String, RequestTiming> loadRequestTimings() {
-        Map<String, RequestTiming> timings = new HashMap<>();
+        Map<String, RequestTiming> timings = Wraps.map();
         for (Path logsDir : new Path[] {LOGS_DIR_INTL, LOGS_DIR_CN}) {
             if (!Files.isDirectory(logsDir)) {
                 continue;

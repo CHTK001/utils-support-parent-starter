@@ -1,5 +1,6 @@
 package com.chua.postgresql.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.meta.AlterColumnBuilder;
@@ -14,9 +15,6 @@ import com.chua.datasource.support.meta.AbstractMetaTable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -171,7 +169,7 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
         }
         List<IndexMetadata> indexes = readIndexes(schema, tableName, null);
         def.setIndexes(indexes);
-        Set<String> pkColumns = new LinkedHashSet<>();
+        Set<String> pkColumns = Wraps.linkedSet();
         for (IndexMetadata index : indexes) {
             if (index.isPrimary() && index.getColumns() != null) {
                 pkColumns.addAll(index.getColumns());
@@ -256,7 +254,7 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
                 ? PostgresqlMetaData.args(schema, table)
                 : PostgresqlMetaData.args(schema, table, indexName);
         List<IndexRow> rows = PostgresqlMetaData.query(metaData, "查询索引 " + table, sql, args, IndexRow::read);
-        Map<String, IndexMetadata> grouped = new LinkedHashMap<>();
+        Map<String, IndexMetadata> grouped = Wraps.linkedMap();
         for (IndexRow row : rows) {
             IndexMetadata meta = grouped.get(row.indexName);
             if (meta == null) {
@@ -268,7 +266,7 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
                 meta.setType(row.indexType);
                 meta.setComment(row.indexComment);
                 meta.setPosition(row.seqInIndex);
-                meta.setColumns(new ArrayList<>());
+                meta.setColumns(Wraps.list());
                 meta.setSortDirection(row.descending ? "DESC" : "ASC");
                 grouped.put(row.indexName, meta);
             }
@@ -281,7 +279,7 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
         }
         // PostgreSQL 没有不可见索引概念；indisvalid 在 IndexMetadata 中没有承载字段，
         // 故 invisible 保持默认 false，不借用有效性字段伪造语义。
-        return new ArrayList<>(grouped.values());
+        return Wraps.list(grouped.values());
     }
 
     /**
@@ -490,11 +488,11 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
         /**
          * 列定义
          */
-        private final List<ColumnDef> columns = new ArrayList<>();
+        private final List<ColumnDef> columns = Wraps.list();
         /**
          * 联合主键列
          */
-        private final List<String> primaryKeys = new ArrayList<>();
+        private final List<String> primaryKeys = Wraps.list();
         /**
          * 表注释
          */
@@ -602,7 +600,7 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
             if (columns.isEmpty()) {
                 throw new IllegalStateException("建表至少需要一个列");
             }
-            List<String> definitions = new ArrayList<>();
+            List<String> definitions = Wraps.list();
             for (ColumnDef col : columns) {
                 StringBuilder line = new StringBuilder()
                         .append(metaTable.quote(col.getName())).append(' ').append(col.getType());
@@ -621,7 +619,7 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
                 definitions.add(line.toString());
             }
             if (!primaryKeys.isEmpty()) {
-                List<String> quoted = new ArrayList<>();
+                List<String> quoted = Wraps.list();
                 for (String pk : primaryKeys) {
                     quoted.add(metaTable.quote(pk));
                 }
@@ -684,11 +682,11 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
         /**
          * 待执行语句
          */
-        private final List<String> statements = new ArrayList<>();
+        private final List<String> statements = Wraps.list();
         /**
          * 待执行的列注释：列名 -> 注释
          */
-        private final Map<String, String> columnComments = new LinkedHashMap<>();
+        private final Map<String, String> columnComments = Wraps.linkedMap();
 
         PostgresTableAlterBuilder(PostgresqlMetaTable metaTable) {
             this.metaTable = metaTable;
@@ -735,7 +733,7 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
 
         @Override
         public TableAlterBuilder addPrimaryKey(String... columns) {
-            List<String> quoted = new ArrayList<>();
+            List<String> quoted = Wraps.list();
             for (String column : columns) {
                 quoted.add(metaTable.quote(column));
             }
@@ -942,7 +940,7 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
         /**
          * 索引列
          */
-        private final List<String> cols = new ArrayList<>();
+        private final List<String> cols = Wraps.list();
         /**
          * 唯一
          */
@@ -992,7 +990,7 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
             if (cols.isEmpty()) {
                 throw new IllegalStateException("索引列不能为空");
             }
-            List<String> quoted = new ArrayList<>();
+            List<String> quoted = Wraps.list();
             for (String col : cols) {
                 quoted.add(metaTable.quote(col));
             }

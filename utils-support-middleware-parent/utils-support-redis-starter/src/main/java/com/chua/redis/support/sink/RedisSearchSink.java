@@ -1,5 +1,6 @@
 package com.chua.redis.support.sink;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datalake.support.model.DataEnvelope;
@@ -239,7 +240,7 @@ public class RedisSearchSink implements DataSink {
      * @return 字符串形式的新 映射
      */
     private static Map<String, String> convertToStringMap(Map<String, Object> data) {
-        Map<String, String> result = new java.util.LinkedHashMap<>();
+        Map<String, String> result = Wraps.linkedMap();
         for (Map.Entry<String, Object> entry : data.entrySet()) {
             if (entry.getValue() != null) {
                 result.put(entry.getKey(), entry.getValue().toString());

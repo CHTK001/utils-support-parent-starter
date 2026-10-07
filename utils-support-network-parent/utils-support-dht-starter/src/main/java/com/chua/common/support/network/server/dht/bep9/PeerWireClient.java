@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.dht.bep9;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -207,9 +208,9 @@ public class PeerWireClient implements AutoCloseable {
      * @throws IOException 发送失败
      */
     public void sendExtHandshake(long metadataSize) throws IOException {
-        Map<String, Object> m = new java.util.LinkedHashMap<>();
+        Map<String, Object> m = Wraps.linkedMap();
         m.put("ut_metadata", 1L);
-        Map<String, Object> dict = new java.util.LinkedHashMap<>();
+        Map<String, Object> dict = Wraps.linkedMap();
         dict.put("m", m);
         dict.put("metadata_size", metadataSize);
         sendExtendedMessage(0, com.chua.common.support.network.server.dht.krpc.BencodeCodec.encode(dict));

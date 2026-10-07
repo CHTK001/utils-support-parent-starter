@@ -1,12 +1,12 @@
 package com.chua.ueba.support.dto;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -56,7 +56,7 @@ public class BehaviorProfile implements Serializable {
      * 最近访问路径（按时间倒序）
      */
     @Builder.Default
-    private List<String> recentPaths = new ArrayList<>(); // recent路径
+    private List<String> recentPaths = Wraps.list(); // recent路径
 
     /**
      * 行为风险分数，范围 [0, 1]，越大越危险

@@ -4,6 +4,7 @@ import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.embedding.EmbeddingClient;
 import com.chua.common.support.ai.splitter.TextChunk;
 import com.chua.common.support.ai.splitter.TextSplitter;
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.txtractor.TextExtractor;
 import com.chua.common.support.task.pipeline.builder.PipelineBuilder;
 import com.chua.common.support.task.pipeline.core.Pipeline;
@@ -20,7 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -444,7 +444,7 @@ public class RagPipeline implements RagClient {
                         rc.fileName(),
                         rc.fileType(),
                         chunks.get(i).index());
-                Map<String, Object> metadata = new HashMap<>(8);
+                Map<String, Object> metadata = Wraps.map(8);
                 metadata.put(META_CONTENT, meta.content());
                 metadata.put(META_DOC_ID, meta.docId());
                 metadata.put(META_FILE_NAME, meta.fileName());
@@ -493,8 +493,8 @@ public class RagPipeline implements RagClient {
             // jvector ON_DISK 等向量库返回的 metadata 可能是不可变 Map，
             // 统一拷贝为可变 Map 再增补 fileName/fileType/docId，避免 UnsupportedOperationException
             Map<String, Object> meta = v.metadata() != null
-                    ? new HashMap<>(v.metadata())
-                    : new HashMap<>(16);
+                    ? Wraps.map(v.metadata())
+                    : Wraps.map(16);
             String docId = meta.containsKey(META_DOC_ID)
                     ? String.valueOf(meta.get(META_DOC_ID)) : docIdOfChunk(chunkId);
             String content = meta.containsKey(META_CONTENT)
@@ -925,7 +925,7 @@ public class RagPipeline implements RagClient {
      * @return 文档快照列表（新建 ArrayList，不含原引用），不为 null
      */
     private List<RagDocument> snapshotDocuments() {
-        return new java.util.ArrayList<>(documents);
+        return Wraps.list(documents);
     }
 
     @Override

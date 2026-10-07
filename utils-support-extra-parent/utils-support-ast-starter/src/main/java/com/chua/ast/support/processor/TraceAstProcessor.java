@@ -1,5 +1,6 @@
 package com.chua.ast.support.processor;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.ast.support.annotation.Trace;
 
 import javax.annotation.processing.*;
@@ -136,7 +137,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
                 com.sun.tools.javac.util.List.of(catcher), finallyBlock);
 
         // 4. 组装
-        java.util.List<com.sun.tools.javac.tree.JCTree.JCStatement> body = new java.util.ArrayList<>();
+        java.util.List<com.sun.tools.javac.tree.JCTree.JCStatement> body = Wraps.list();
         if (setDepthStmt != null) { body.add(setDepthStmt); }
         body.add(pushStmt);
         body.add(tryCatchFinally);

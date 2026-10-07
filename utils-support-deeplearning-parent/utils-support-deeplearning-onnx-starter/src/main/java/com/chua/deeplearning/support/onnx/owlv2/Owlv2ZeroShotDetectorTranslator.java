@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.owlv2;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.huggingface.tokenizers.Encoding;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.djl.modality.cv.Image;
@@ -29,14 +30,12 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -79,7 +78,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     private static final Map<String, String> CHINESE_TO_ENGLISH;
 
     static {
-        Map<String, String> mapping = new LinkedHashMap<>();
+        Map<String, String> mapping = Wraps.linkedMap();
         mapping.put("   ", "person");
         mapping.put("      ", "woman");
         mapping.put("      ", "man");
@@ -276,10 +275,10 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
             return emptyDetections();
         }
 
-        List<DetectionCandidate> merged = new ArrayList<>();
+        List<DetectionCandidate> merged = Wraps.list();
         double maxScore = 0d;
         for (int queryIndex = 0; queryIndex < Math.min(numQueries, candidateOutputLabels.size()); queryIndex++) {
-            List<DetectionCandidate> perClass = new ArrayList<>();
+            List<DetectionCandidate> perClass = Wraps.list();
             String label = candidateOutputLabels.get(queryIndex);
             for (int boxIndex = 0; boxIndex < numBoxes; boxIndex++) {
                 double score = sigmoid(logitsArray.getFloat(boxIndex, queryIndex));
@@ -302,9 +301,9 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
         }
 
         merged.sort(Comparator.comparingDouble(DetectionCandidate::score).reversed());
-        List<String> names = new ArrayList<>(merged.size());
-        List<Double> probabilities = new ArrayList<>(merged.size());
-        List<BoundingBox> boxes = new ArrayList<>(merged.size());
+        List<String> names = Wraps.list(merged.size());
+        List<Double> probabilities = Wraps.list(merged.size());
+        List<BoundingBox> boxes = Wraps.list(merged.size());
         for (DetectionCandidate candidate : merged) {
             names.add(candidate.label());
             probabilities.add(candidate.score());
@@ -344,7 +343,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     */
     private void resolveCandidates() {
         List<String> source = requestedCandidates.isEmpty() ? DEFAULT_CANDIDATES : requestedCandidates;
-        LinkedHashMap<String, String> normalized = new LinkedHashMap<>();
+        Map<String, String> normalized = Wraps.linkedMap();
         for (String raw : source) {
             String label = raw.trim();
             if (label.isEmpty()) {
@@ -356,8 +355,8 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
         if (normalized.isEmpty()) {
             throw new IllegalArgumentException("OWLv2                      ");
         }
-        candidateModelLabels = new ArrayList<>(normalized.keySet());
-        candidateOutputLabels = new ArrayList<>(normalized.values());
+        candidateModelLabels = Wraps.list(normalized.keySet());
+        candidateOutputLabels = Wraps.list(normalized.values());
     }
 
     /**
@@ -381,7 +380,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
      * 构建文本输入
     */
     private void buildTextInputs() {
-        List<long[]> idsList = new ArrayList<>(candidateModelLabels.size());
+        List<long[]> idsList = Wraps.list(candidateModelLabels.size());
         int maxLength = 1;
         for (String candidate : candidateModelLabels) {
             Encoding encoding = tokenizer.encode(formatPrompt(candidate));
@@ -482,7 +481,7 @@ finally {
             return Collections.emptyList();
         }
         candidates.sort(Comparator.comparingDouble(DetectionCandidate::score).reversed());
-        List<DetectionCandidate> kept = new ArrayList<>();
+        List<DetectionCandidate> kept = Wraps.list();
         for (DetectionCandidate candidate : candidates) {
             boolean keep = true;
             for (DetectionCandidate existing : kept) {
@@ -575,14 +574,14 @@ finally {
         if (StringUtils.isBlank(rawCandidates)) {
             return Collections.emptyList();
         }
-        LinkedHashSet<String> values = new LinkedHashSet<>();
+        Set<String> values = Wraps.linkedSet();
         for (String item : rawCandidates.split("[,|]")) {
             if (StringUtils.isBlank(item)) {
                 continue;
             }
             values.add(item.trim());
         }
-        return new ArrayList<>(values);
+        return Wraps.list(values);
     }
 
     /**

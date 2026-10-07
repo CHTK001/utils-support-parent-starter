@@ -1,4 +1,5 @@
 package com.chua.deeplearning.support.onnx.image.captioning;
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.utils.ImageUtils;
 
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
@@ -13,8 +14,6 @@ import org.opencv.imgproc.Imgproc;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.chua.deeplearning.support.engine.ModelRegistry;
@@ -251,7 +250,7 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
         float[] pixels = preprocessImage(imageData);
         long[] shape = {1, 3, IMAGE_SIZE, IMAGE_SIZE};
         try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
-            Map<String, OnnxTensor> inputs = new HashMap<>();
+            Map<String, OnnxTensor> inputs = Wraps.map();
             inputs.put("pixel_values", tensor);
             try (OrtSession.Result result = encoderSession.run(inputs)) {
                 OnnxTensor hidden = (OnnxTensor) result.get("last_hidden_state").get();
@@ -324,7 +323,7 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
         for (int i = 0; i < seqLen; i++) {
             System.arraycopy(encoderHidden[i], 0, encFlat, i * hiddenSize, hiddenSize);
         }
-        List<Long> tokens = new ArrayList<>();
+        List<Long> tokens = Wraps.list();
         tokens.add(BOS_ID);
 
         try (OnnxTensor encoderTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(encFlat), encShape)) {
@@ -335,7 +334,7 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
                 }
                 long[] idsShape = {1, inputIds.length};
                 try (OnnxTensor idsTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(inputIds), idsShape)) {
-                    Map<String, OnnxTensor> inputs = new HashMap<>();
+                    Map<String, OnnxTensor> inputs = Wraps.map();
                     inputs.put("input_ids", idsTensor);
                     inputs.put("encoder_hidden_states", encoderTensor);
                     try (OrtSession.Result result = decoderSession.run(inputs)) {

@@ -1,5 +1,6 @@
 package com.chua.email.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.PolledDirectory;
 import com.chua.common.support.lang.directory.PolledListener;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
@@ -233,15 +234,15 @@ public class EmailClient {
         /**
          * CC
         */
-        private List<String> cc = new ArrayList<>();
+        private List<String> cc = Wraps.list();
         /**
          * BCC
         */
-        private List<String> bcc = new ArrayList<>();
+        private List<String> bcc = Wraps.list();
         /**
          * attachments
         */
-        private Map<String, byte[]> attachments = new LinkedHashMap<>();
+        private Map<String, byte[]> attachments = Wraps.linkedMap();
 
         SendOperation(EmailClient client) { this.client = client; }
 
@@ -499,9 +500,9 @@ public class EmailClient {
                 int start = Math.max(1, total - limit + 1);
                 Message[] messages = inbox.getMessages(start, total);
 
-                List<Map<String, Object>> result = new ArrayList<>();
+                List<Map<String, Object>> result = Wraps.list();
                 for (Message msg : messages) {
-                    Map<String, Object> email = new LinkedHashMap<>();
+                    Map<String, Object> email = Wraps.linkedMap();
                     email.put("subject", msg.getSubject());
                     email.put("from", msg.getFrom() != null ? msg.getFrom()[0].toString() : "");
                     email.put("date", msg.getSentDate());
@@ -515,7 +516,7 @@ public class EmailClient {
                 return result;
             } catch (Exception e) {
                 log.error("获取邮件失败: {}", e.getMessage());
-                return new ArrayList<>();
+                return Wraps.list();
             }
         }
 

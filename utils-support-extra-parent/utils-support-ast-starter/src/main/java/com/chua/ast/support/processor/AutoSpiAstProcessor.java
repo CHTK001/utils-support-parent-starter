@@ -1,5 +1,6 @@
 package com.chua.ast.support.processor;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.ast.support.annotation.AutoSpi;
 
 import javax.annotation.processing.*;
@@ -75,13 +76,13 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     /**
      * 索引内容：接口全限定名 -> 配置行集合（去重、有序）
      */
-    private final Map<String, SortedSet<String>> index = new LinkedHashMap<>();
+    private final Map<String, SortedSet<String>> index = Wraps.linkedMap();
 
     /**
      * 注解派生别名的实现类：类全限定名 -> {@code @Spi}/{@code @Extension} 注解派生别名集合
      * <p>用于清理历史构建遗留的冗余 {@code 别名=类名} 行（运行时忽略这些别名，且会与新的发现行叠加导致重复注册）。</p>
      */
-    private final Map<String, Set<String>> annotationDerivedAliases = new LinkedHashMap<>();
+    private final Map<String, Set<String>> annotationDerivedAliases = Wraps.linkedMap();
 
     /**
      * 编译期消息输出
@@ -167,12 +168,12 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
         List<String> annotationAliases = hasAnnotationNames ? readAnnotationAliases(implElement)
                 : Collections.emptyList();
         if (!annotationAliases.isEmpty()) {
-            annotationDerivedAliases.computeIfAbsent(implFqn, k -> new LinkedHashSet<>())
+            annotationDerivedAliases.computeIfAbsent(implFqn, k -> Wraps.linkedSet())
                     .addAll(annotationAliases);
         }
 
         for (String iface : interfaces) {
-            SortedSet<String> lines = index.computeIfAbsent(iface, k -> new TreeSet<>());
+            SortedSet<String> lines = index.computeIfAbsent(iface, k -> Wraps.sortedSet());
             if (hasAnnotationNames) {
                 // 运行时注解名优先：每接口只写一条「裸类名」发现行，
                 // 避免为每个注解别名各写一行导致运行时 N×M 重复注册
@@ -204,7 +205,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
      * @return 接口全限定名列表
      */
     private List<String> readInterfaces(AutoSpi annotation, TypeElement implElement) {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         String[] explicit = annotation.value();
         if (explicit.length > 0) {
             for (String fqn : explicit) {
@@ -214,7 +215,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
             return result;
         }
 
-        Set<String> collected = new LinkedHashSet<>();
+        Set<String> collected = Wraps.linkedSet();
         collectInterfaces(implElement, collected);
         result.addAll(collected);
         return result;
@@ -285,7 +286,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
      * @return 注解声明的名称列表
      */
     private List<String> readAnnotationAliases(TypeElement implElement) {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         for (AnnotationMirror mirror : implElement.getAnnotationMirrors()) {
             String fqn = mirror.getAnnotationType().toString();
             if (SPI_ANNOTATION.equals(fqn) || EXTENSION_ANNOTATION.equals(fqn)) {
@@ -302,7 +303,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
      * @return 属性值列表
      */
     private List<String> readAnnotationValue(AnnotationMirror mirror) {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry
                 : mirror.getElementValues().entrySet()) {
             if (entry.getKey().getSimpleName().contentEquals("value")) {
@@ -362,7 +363,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
             String fileName = EXTENSIONS_PATH + entry.getKey();
 
             // 1. 读取已存在的索引文件内容（手动维护或历史生成），不存在则忽略
-            Set<String> merged = new LinkedHashSet<>();
+            Set<String> merged = Wraps.linkedSet();
             boolean exists = readExisting(filer, fileName, merged);
 
             // 2. 清理历史冗余行：注解派生别名对应的「别名=类名」行

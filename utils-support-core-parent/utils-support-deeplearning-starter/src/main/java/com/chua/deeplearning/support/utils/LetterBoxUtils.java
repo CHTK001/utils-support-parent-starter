@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.output.Landmark;
 import ai.djl.modality.cv.output.Point;
 import ai.djl.modality.cv.output.Rectangle;
@@ -13,9 +14,6 @@ import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-
-
 /**
  * letterbox 图像缩放填充工具，将图像等比缩放后填充到目标尺寸，满足 YOLO 等模型输入要求
  *
@@ -282,7 +280,7 @@ public class LetterBoxUtils {
         double boxW = width / scale / origImageWidth;
         double boxH = height / scale / origImageHeight;
 
-        var points = new ArrayList<Point>();
+        var points = Wraps.<Point>list();
         // 还原关键点路径上的坐标
         landmark.getPath().forEach(point -> {
             double pointX = (point.getX() - paddingWidth) / scale;

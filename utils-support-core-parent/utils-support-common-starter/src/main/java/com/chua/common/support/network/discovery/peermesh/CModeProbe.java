@@ -1,5 +1,6 @@
 package com.chua.common.support.network.discovery.peermesh;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.discovery.Discovery;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -48,7 +48,7 @@ public class CModeProbe implements ProbeStrategy {
     /**
      * Discovered
      */
-    private final List<NodeTable.NodeEntry> discovered = new ArrayList<>();
+    private final List<NodeTable.NodeEntry> discovered = Wraps.list();
     /**
      * stopped
      */
@@ -74,7 +74,7 @@ public class CModeProbe implements ProbeStrategy {
         if (subnets == null || subnets.isEmpty()) {
             return;
         }
-        List<String> allHosts = new ArrayList<>();
+        List<String> allHosts = Wraps.list();
         for (String cidr : subnets) {
             List<String> hosts = parseCidrHosts(cidr);
             if (hosts != null) {
@@ -85,7 +85,7 @@ public class CModeProbe implements ProbeStrategy {
             return;
         }
         ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
-        List<Future<?>> futures = new ArrayList<>();
+        List<Future<?>> futures = Wraps.list();
         for (String host : allHosts) {
             futures.add(executor.submit(() -> probeHost(host, config.getPort())));
         }
@@ -193,7 +193,7 @@ public class CModeProbe implements ProbeStrategy {
                 log.warn("CIDR {} 主机数量过多，已截断为 {} 个", cidr, MAX_HOSTS_PER_CIDR);
                 end = start + MAX_HOSTS_PER_CIDR - 1;
             }
-            List<String> hosts = new ArrayList<>();
+            List<String> hosts = Wraps.list();
             for (int i = start; i <= end; i++) {
                 hosts.add(inetNtoA(i));
             }

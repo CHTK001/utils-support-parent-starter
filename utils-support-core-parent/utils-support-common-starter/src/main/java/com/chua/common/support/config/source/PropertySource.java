@@ -1,12 +1,11 @@
 package com.chua.common.support.config.source;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.utils.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -304,7 +303,7 @@ public interface PropertySource {
             if (props == null || props.isEmpty()) {
                 return Map.of();
             }
-            Map<String, Object> result = new HashMap<>(props.size());
+            Map<String, Object> result = Wraps.map(props.size());
             for (String name : props.stringPropertyNames()) {
                 result.put(name, props.getProperty(name));
             }
@@ -317,7 +316,7 @@ public interface PropertySource {
             if (iterable == null) {
                 return Map.of();
             }
-            Map<String, Object> result = new LinkedHashMap<>();
+            Map<String, Object> result = Wraps.linkedMap();
             for (Object item : iterable) {
                 if (item instanceof Map map) {
                     for (Map.Entry entry : (Iterable<Map.Entry>) map.entrySet()) {
@@ -336,7 +335,7 @@ public interface PropertySource {
             if (props == null || props.isEmpty()) {
                 return Map.of();
             }
-            Map<String, Object> result = new HashMap<>(props.size());
+            Map<String, Object> result = Wraps.map(props.size());
             for (Map.Entry<Object, Object> entry : props.entrySet()) {
                 if (entry.getKey() != null) {
                     result.put(String.valueOf(entry.getKey()), entry.getValue());
@@ -351,7 +350,7 @@ public interface PropertySource {
             if (env == null) {
                 return Map.of();
             }
-            return new HashMap<>(env);
+            return Wraps.map(env);
         }
 
         return Map.of();

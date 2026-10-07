@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.placeholder;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Arrays;
 import java.util.List;
 
@@ -55,7 +54,7 @@ public class CompositePropertyResolver implements PropertyResolver {
         if (resolvers == null || resolvers.isEmpty()) {
             throw new IllegalArgumentException("resolvers cannot be null or empty");
         }
-        this.resolvers = new ArrayList<>(resolvers);
+        this.resolvers = Wraps.list(resolvers);
         // 默认以第一个解析器的配置作为主配置
         this.primaryPlaceholderSupport = resolvers.getFirst().getPlaceholderSupport();
     }
@@ -179,7 +178,7 @@ public class CompositePropertyResolver implements PropertyResolver {
      * @return 解析器列表
      */
     public List<PropertyResolver> getResolvers() {
-        return new ArrayList<>(resolvers);
+        return Wraps.list(resolvers);
     }
 
     /**
@@ -204,7 +203,7 @@ public class CompositePropertyResolver implements PropertyResolver {
         /**
          * 存储配置的占位符分隔符规则列表。
          */
-        private final List<PlaceholderConfig> configs = new ArrayList<>();
+        private final List<PlaceholderConfig> configs = Wraps.list();
 
         /**
          * 是否忽略无法解析的占位符。
@@ -282,7 +281,7 @@ public class CompositePropertyResolver implements PropertyResolver {
                 addDollarResolver();
             }
 
-            List<PropertyResolver> resolvers = new ArrayList<>();
+            List<PropertyResolver> resolvers = Wraps.list();
             for (PlaceholderConfig config : configs) {
                 // 为每种格式创建对应的 PlaceholderSupport 配置
                 PlaceholderSupport support = new PlaceholderSupport(

@@ -1,5 +1,6 @@
 package com.chua.common.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.constant.CommonConstant;
 import com.chua.common.support.constant.RegexConstant;
 import com.chua.common.support.lang.algorithm.crypto.Hex;
@@ -26,18 +27,16 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Stack;
+import java.util.Deque;
 import java.util.StringJoiner;
 import java.util.StringTokenizer;
 import java.util.function.Consumer;
@@ -93,15 +92,8 @@ public class StringUtils {
     /**
      * Thread_本地_构建器
      */
-    private static final ThreadLocal<Stack<StringBuilder>> THREAD_LOCAL_BUILDERS = new ThreadLocal<Stack<StringBuilder>>() {
-        /**
-         * initial值
-         */
-        @Override
-        protected Stack<StringBuilder> initialValue() {
-            return new Stack<>();
-        }
-    };
+    private static final ThreadLocal<Deque<StringBuilder>> THREAD_LOCAL_BUILDERS =
+            ThreadLocal.withInitial(Wraps::deque);
     /**
      * 无
      */
@@ -143,7 +135,7 @@ public class StringUtils {
      * 释放当前线程的 {@link StringBuilder} 池 thread本地
      *
      * <p>在固定线程池中，线程长期存活会导致 {@link #THREAD_LOCAL_BUILDERS} 缓存的
-     * {@link Stack} 及其持有对象无法被回收，线程池关闭或应用退出时应调用此方法。</p>
+     * {@link Deque} 及其持有对象无法被回收，线程池关闭或应用退出时应调用此方法。</p>
      */
     public static void clearThreadLocalBuilders() {
         THREAD_LOCAL_BUILDERS.remove();
@@ -1121,7 +1113,7 @@ public class StringUtils {
         }
 
         StringTokenizer st = new StringTokenizer(str, delimiters);
-        List<String> tokens = new ArrayList<String>();
+        List<String> tokens = Wraps.list();
         while (st.hasMoreTokens()) {
             String token = st.nextToken();
             if (trimTokens) {
@@ -2178,7 +2170,7 @@ public class StringUtils {
             return new String[]{source};
         }
 
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         if (delimiter.isEmpty()) {
             for (int i = 0; i < source.length(); i++) {
                 result.add(deleteAny(source.substring(i, i + 1), charsToDelete));
@@ -2521,7 +2513,7 @@ public class StringUtils {
         if (len == 0) {
             return new String[0];
         }
-        final List<String> list = new ArrayList<String>();
+        final List<String> list = Wraps.list();
         int i = 0;
         int start = 0;
         boolean match = false;
@@ -2575,7 +2567,7 @@ public class StringUtils {
      */
     public static List<String> split(CharSequence text, String separator, int limit, boolean isTrim, boolean ignoreEmpty, boolean ignoreCase) {
         if (null == text) {
-            return new ArrayList<>(0);
+            return Wraps.list(0);
         }
         Splitter splitter = Splitter.on(separator);
         if (ignoreEmpty) {
@@ -2607,7 +2599,7 @@ public class StringUtils {
      */
     public static List<String> split(CharSequence str, char separator, int limit, boolean isTrim, boolean ignoreEmpty) {
         if (null == str) {
-            return new ArrayList<>(0);
+            return Wraps.list(0);
         }
         Splitter splitter = Splitter.on(separator);
         if (limit > 0) {
@@ -2841,7 +2833,7 @@ public class StringUtils {
      * @return 转为线的结果
      */
     public static List<String> toLines(String text) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = Wraps.list();
         BufferedReader reader = new BufferedReader(new StringReader(text));
         try {
             String line = reader.readLine();
@@ -3018,7 +3010,7 @@ public class StringUtils {
      * @return 连接后的字符串
      */
     public static String join(String[] strings, String sep) {
-        List<String> list = new ArrayList<>(strings.length);
+        List<String> list = Wraps.list(strings.length);
         for (String s : strings) {
             if (StringUtils.isEmpty(s)) {
                 continue;
@@ -3036,7 +3028,7 @@ public class StringUtils {
      * @return 连接后的字符串
      */
     public static String join(String sep, String... strings) {
-        List<String> list = new ArrayList<>(strings.length);
+        List<String> list = Wraps.list(strings.length);
         for (String s : strings) {
             if (StringUtils.isEmpty(s)) {
                 continue;
@@ -4056,7 +4048,7 @@ public class StringUtils {
      * @return 合并后的数组
      */
     public static String[] joinStringArray(String[] array1, String[] array2) {
-        List<String> l = new ArrayList<String>();
+        List<String> l = Wraps.list();
         Collections.addAll(l, array1);
         Collections.addAll(l, array2);
         return l.toArray(new String[0]);

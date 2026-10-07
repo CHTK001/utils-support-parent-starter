@@ -1,5 +1,6 @@
 package com.chua.hunyuan.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
@@ -17,8 +18,6 @@ import com.tencentcloudapi.hunyuan.v20230901.models.ChatCompletionsResponse;
 import com.tencentcloudapi.hunyuan.v20230901.models.Choice;
 import com.tencentcloudapi.hunyuan.v20230901.models.Message;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -78,7 +77,7 @@ public class TencentHunyuanChatClient implements ChatClient {
     /**
      * 对话历史消息列表
      */
-    private final List<ChatMessage> history = new ArrayList<>();
+    private final List<ChatMessage> history = Wraps.list();
 
     /**
      * 外部传入的完整历史记录
@@ -88,7 +87,7 @@ public class TencentHunyuanChatClient implements ChatClient {
     /**
      * 图片附件 URL 列表
      */
-    private final List<String> imageUrls = new ArrayList<>();
+    private final List<String> imageUrls = Wraps.list();
 
     /**
      * 是否启用深度思考
@@ -377,7 +376,7 @@ public class TencentHunyuanChatClient implements ChatClient {
      * @return 混元 消息 数组
      */
     private Message[] buildMessages(String prompt) {
-        List<Message> messages = new ArrayList<>();
+        List<Message> messages = Wraps.list();
         String actualSystem = system;
         if (skillManager != null) {
             actualSystem = SkillPrompt.inject(system, skillManager);

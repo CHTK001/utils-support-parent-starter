@@ -1,6 +1,5 @@
 package com.chua.common.support.datasource.join;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +91,7 @@ public interface JoinStrategy {
             leftRows = copyRows(leftRows);
             rightRows = copyRows(rightRows);
             projectColumns = projectColumns == null ? null
-                    : Collections.unmodifiableList(new ArrayList<>(projectColumns));
+                    : Collections.unmodifiableList(Wraps.list(projectColumns));
         }
 
         /**
@@ -105,7 +104,7 @@ public interface JoinStrategy {
             if (rows == null) {
                 return null;
             }
-            return Collections.unmodifiableList(new ArrayList<>(rows));
+            return Collections.unmodifiableList(Wraps.list(rows));
         }
     }
 }

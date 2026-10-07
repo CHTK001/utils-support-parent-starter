@@ -1,10 +1,9 @@
 package com.chua.mysql.support.flyway;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.flyway.DefaultScriptConverter;
 import com.chua.common.support.spi.annotations.Spi;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -91,7 +90,7 @@ public class MysqlScriptConverter extends DefaultScriptConverter {
 
     @Override
     public List<String> convertAll(List<String> statements, String protocol) {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         if (statements == null || statements.isEmpty()) {
             return result;
         }

@@ -1,5 +1,6 @@
 package com.chua.vector.support.spi;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import static com.chua.common.support.reflection.ReflectUtils.invoke;
 import static com.chua.common.support.reflection.ReflectUtils.invokeStatic;
 
@@ -15,8 +16,6 @@ import com.chua.vector.support.configuration.VectorStorageProperties;
 import com.chua.vector.support.storage.CuvsVectorStorage;
 import com.chua.vector.support.storage.JvectorVectorStorageDelegate;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -257,7 +256,7 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
      */
     @SuppressWarnings("unchecked")
     private VectorStorageProperties.Backend selectBestBackend(VectorStorageProperties props) {
-        List<RuntimeDetector> detectors = new ArrayList<>(ServiceProvider.of(RuntimeDetector.class).collect());
+        List<RuntimeDetector> detectors = Wraps.list(ServiceProvider.of(RuntimeDetector.class).collect());
         if (detectors.isEmpty()) {
             log.info("[vector-starter] No RuntimeDetector found, using jvector CPU");
             return VectorStorageProperties.Backend.JVECTOR;
@@ -286,7 +285,7 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
      */
     @SuppressWarnings("unchecked")
     private VectorStorageProperties.Backend selectBackend(String name) {
-        List<RuntimeDetector> detectors = new ArrayList<>(ServiceProvider.of(RuntimeDetector.class).collect());
+        List<RuntimeDetector> detectors = Wraps.list(ServiceProvider.of(RuntimeDetector.class).collect());
         for (RuntimeDetector d : detectors) {
             if (name.equals(d.name()) && d.isAvailable()) {
                 return switch (name) {

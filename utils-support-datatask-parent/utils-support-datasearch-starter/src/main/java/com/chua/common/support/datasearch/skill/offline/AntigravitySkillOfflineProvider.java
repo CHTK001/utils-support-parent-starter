@@ -1,10 +1,10 @@
 package com.chua.common.support.datasearch.skill.offline;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,7 +26,7 @@ public class AntigravitySkillOfflineProvider extends AbstractAgentSkillOfflinePr
 
     @Override
     protected List<Path> skillRoots() {
-        List<Path> roots = new ArrayList<>();
+        List<Path> roots = Wraps.list();
         for (String dir : new String[]{".antigravity", ".antigravity-ide"}) {
             Path parent = USER_HOME.resolve(dir);
             if (Files.isDirectory(parent)) {

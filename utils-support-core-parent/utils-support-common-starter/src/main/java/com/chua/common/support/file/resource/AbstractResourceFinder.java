@@ -1,10 +1,9 @@
 package com.chua.common.support.file.resource;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.matcher.PathMatcher;
 import com.chua.common.support.utils.FileUtils;
 import com.chua.common.support.utils.StringUtils;
-
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -156,7 +155,7 @@ public abstract class AbstractResourceFinder implements ResourceFinder {
      */
     public String getFullPath(String path) {
         path = path.replace("\\", SYMBOL_LEFT_SLASH);
-        List<String> sep = new LinkedList<>();
+        List<String> sep = Wraps.list();
         for (String item : path.split(SYMBOL_LEFT_SLASH)) {
             if (item.contains(SYMBOL_ASTERISK) || item.contains(SYMBOL_QUESTION)) {
                 break;
@@ -174,7 +173,7 @@ public abstract class AbstractResourceFinder implements ResourceFinder {
      */
     public String getMatchPath(String path) {
         path = path.replace("\\", SYMBOL_LEFT_SLASH);
-        List<String> sep = new LinkedList<>();
+        List<String> sep = Wraps.list();
         for (String item : path.split(SYMBOL_LEFT_SLASH)) {
             if (item.contains(SYMBOL_ASTERISK) || item.contains(SYMBOL_QUESTION)) {
                 sep.add(item);

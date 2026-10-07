@@ -1,9 +1,8 @@
 package com.chua.symmetric.support.environment;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.WatcherEvent;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -207,7 +206,7 @@ public class SymmetricEnvironment {
         /**
          * props
          */
-        private final Map<String, String> props = new LinkedHashMap<>();
+        private final Map<String, String> props = Wraps.linkedMap();
         /**
          * polling间隔
          */

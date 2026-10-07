@@ -1,11 +1,10 @@
 package com.chua.deeplearning.support.face;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
-
-import java.util.ArrayList;
 import java.util.List;
 import com.chua.common.support.spi.ServiceProvider;
 
@@ -276,7 +275,7 @@ class DefaultFaceRecognizer implements FaceRecognizer {
     */
     public List<FaceFeature> recognize(byte[] imageData, List<float[]> referenceFeatures) {
         float[] query = extractFeature(imageData);
-        List<FaceFeature> result = new ArrayList<>();
+        List<FaceFeature> result = Wraps.list();
         for (float[] ref : referenceFeatures) {
             float score = compare(query, ref);
             if (score >= threshold) {

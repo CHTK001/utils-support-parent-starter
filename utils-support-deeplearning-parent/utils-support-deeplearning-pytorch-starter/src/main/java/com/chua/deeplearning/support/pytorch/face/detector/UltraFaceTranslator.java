@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.pytorch.face.detector;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -11,8 +12,6 @@ import ai.djl.ndarray.types.DataType;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -123,14 +122,14 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 2) {
-            return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+            return new DetectedObjects(Wraps.list(), Wraps.list(), Wraps.list());
         }
         NDArray rawBoxes = squeezeBatch(list.getFirst());
         NDArray rawScores = squeezeBatch(list.get(1));
-        List<String> names = new ArrayList<>();
-        List<Double> probs = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
-        List<Candidate> candidates = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> probs = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
+        List<Candidate> candidates = Wraps.list();
         double[][] priors = boxRecover(inputWidth, inputHeight, scales, steps);
         float[] boxArray = rawBoxes.toFloatArray();
         float[] scoreArray = rawScores.toFloatArray();
@@ -205,7 +204,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
      * @return boxRecover的结果
      */
     private double[][] boxRecover(int width, int height, int[][] scales, int[] steps) {
-        List<double[]> defaultBoxes = new ArrayList<>();
+        List<double[]> defaultBoxes = Wraps.list();
         for (int index = 0; index < steps.length; index++) {
             int step = steps[index];
             int hRatio = (int) Math.ceil((double) height / step);

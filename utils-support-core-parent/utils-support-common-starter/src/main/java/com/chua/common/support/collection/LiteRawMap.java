@@ -1,10 +1,10 @@
 package com.chua.common.support.collection;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.converter.Converter;
 
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,7 +59,7 @@ public class LiteRawMap implements Map<String, Object> {
         if (map instanceof LiteRawMap lrm) {
             return lrm;
         }
-        return new LiteRawMap(map != null ? map : new LinkedHashMap<>());
+        return new LiteRawMap(map != null ? map : Wraps.linkedMap());
     }
 
     /**
@@ -68,7 +68,7 @@ public class LiteRawMap implements Map<String, Object> {
      * @return 空的 LiteRawMap 实例
      */
     public static LiteRawMap create() {
-        return new LiteRawMap(new LinkedHashMap<>());
+        return new LiteRawMap(Wraps.linkedMap());
     }
 
     /**
@@ -240,7 +240,7 @@ public class LiteRawMap implements Map<String, Object> {
      * @return 扁平化后的 Map
      */
     public Map<String, Object> flatten() {
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
         flattenInternal(delegate, "", result);
         return result;
     }

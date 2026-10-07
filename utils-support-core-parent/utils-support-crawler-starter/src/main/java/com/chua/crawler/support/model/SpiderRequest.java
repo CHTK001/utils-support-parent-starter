@@ -1,4 +1,7 @@
 package com.chua.crawler.support.model;
+
+import com.chua.common.support.collection.wrap.Wraps;
+
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
@@ -6,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -38,7 +40,7 @@ public class SpiderRequest {
      * <p>自定义 HTTP 请求头，用于模拟浏览器行为或携带认证信息。</p>
      */
     @Builder.Default
-    private Map<String, String> headers = new HashMap<>(); // 头部
+    private Map<String, String> headers = Wraps.map(); // 头部
 
     /**
      * Cookie。
@@ -57,7 +59,7 @@ public class SpiderRequest {
     /**
      * Cookie列表
     */
-    private java.util.List<SpiderCookie> cookieList = new java.util.ArrayList<>();
+    private java.util.List<SpiderCookie> cookieList = Wraps.list();
 
     /**
      * 请求方法。
@@ -112,7 +114,7 @@ public class SpiderRequest {
      * <p>透传给后续组件的自定义属性，Fetcher、Parser、Pipeline 均可读取。</p>
      */
     @Builder.Default
-    private Map<String, Object> attributes = new HashMap<>(); // attributes
+    private Map<String, Object> attributes = Wraps.map(); // attributes
 
     /**
      * 代理配置。

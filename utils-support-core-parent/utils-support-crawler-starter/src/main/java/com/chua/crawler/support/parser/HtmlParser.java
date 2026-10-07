@@ -1,5 +1,6 @@
 package com.chua.crawler.support.parser;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.ConditionalOnClass;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
@@ -10,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -115,7 +114,7 @@ public class HtmlParser implements SpiderParser {
      * @return 结构化元数据键值对
      */
     private Map<String, Object> extractMeta(Document doc) {
-        Map<String, Object> meta = new LinkedHashMap<>();
+        Map<String, Object> meta = Wraps.linkedMap();
 
  // 提取 名称 类 meta
         for (Element element : doc.select("meta[name]")) {

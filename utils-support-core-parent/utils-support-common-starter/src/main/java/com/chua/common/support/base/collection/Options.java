@@ -1,6 +1,5 @@
 package com.chua.common.support.base.collection;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 
 /**
@@ -14,7 +13,7 @@ public class Options {
     /**
      * 内部字符串列表
      */
-    private final List<String> options = new ArrayList<>();
+    private final List<String> options = Wraps.list();
 
     /**
      * 静态工厂。

@@ -1,5 +1,6 @@
 package com.chua.modelscope.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.Attachment;
 import com.chua.common.support.ai.chat.ChatClient;
@@ -16,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -86,13 +86,13 @@ public class ModelscopeChatClient implements ChatClient {
      * 顶部P
     */
     private Double topP;
-    private final List<ChatMessage> history = new ArrayList<>();
+    private final List<ChatMessage> history = Wraps.list();
     /**
      * externalHistory
     */
     private List<ChatMessage> externalHistory;
-    private final List<String> imageUrls = new ArrayList<>();
-    private final List<Attachment> attachments = new ArrayList<>();
+    private final List<String> imageUrls = Wraps.list();
+    private final List<Attachment> attachments = Wraps.list();
 
     /**
      * 构造方法，创建 ModelscopeChat客户端 实例。
@@ -260,7 +260,7 @@ public class ModelscopeChatClient implements ChatClient {
      * @return 结果列表，无数据时为空列表
      */
     private List<JsonObject> buildMessages(String prompt) {
-        List<JsonObject> messages = new ArrayList<>();
+        List<JsonObject> messages = Wraps.list();
         if (system != null && !system.isBlank()) {
             messages.add(JsonObject.create()
                     .fluentPut("role", "system")
@@ -286,7 +286,7 @@ public class ModelscopeChatClient implements ChatClient {
      * @return Json对象 对象
      */
     private JsonObject buildUserMessage(String prompt) {
-        List<JsonObject> parts = new ArrayList<>();
+        List<JsonObject> parts = Wraps.list();
         for (String imageUrl : imageUrls) {
             parts.add(JsonObject.create()
                     .fluentPut("type", "image_url")

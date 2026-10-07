@@ -1,8 +1,7 @@
 package com.chua.osgi.support.source;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -116,8 +115,8 @@ public final class SourceContextHolder {
          * @param beans Bean 映射
          */
         private MapSourceContext(Map<String, Object> beans) {
-            this.byName = new LinkedHashMap<>(beans);
-            var types = new LinkedHashMap<Class<?>, Object>();
+            this.byName = Wraps.linkedMap(beans);
+            var types = Wraps.<Class<?>, Object>linkedMap();
             for (Object bean : beans.values()) {
                 if (bean != null) {
                     types.putIfAbsent(bean.getClass(), bean);

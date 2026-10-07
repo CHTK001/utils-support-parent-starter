@@ -1,5 +1,6 @@
 package com.chua.common.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.InputStream;
 import java.net.JarURLConnection;
 import java.net.URL;
@@ -7,10 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -298,7 +297,7 @@ public class NativeLoader {
      * @return 列表类路径resources的结果
      */
     private List<ResourceItem> listClasspathResources(String resourceBase) throws Exception {
-        List<ResourceItem> result = new ArrayList<>();
+        List<ResourceItem> result = Wraps.list();
         // 原生镜像内不存在目录资源条目，getResources(目录) 无法枚举，直接走精确路径探测
         if (!isNativeImageRuntime()) {
             Enumeration<URL> urls = classLoader.getResources(resourceBase);
@@ -371,7 +370,7 @@ public class NativeLoader {
      * @param result       输出集合
      */
     private void probeClasspathResources(String resourceBase, List<ResourceItem> result) {
-        List<String> basePaths = new ArrayList<>();
+        List<String> basePaths = Wraps.list();
         if (resourceBase != null && !resourceBase.isEmpty()) {
             basePaths.add(resourceBase);
         }
@@ -402,7 +401,7 @@ public class NativeLoader {
      * @return 候选文件名列表
      */
     private List<String> probeCandidateNames() {
-        Set<String> bases = new LinkedHashSet<>();
+        Set<String> bases = Wraps.linkedSet();
         if (!glob.contains("*") && !glob.contains("?")) {
             bases.add(glob);
         }
@@ -423,7 +422,7 @@ public class NativeLoader {
                 bases.add(prefix);
             }
         }
-        List<String> names = new ArrayList<>();
+        List<String> names = Wraps.list();
         for (String b : bases) {
             names.add(NativeUtils.getLibraryFileName(b));
             names.add(NativeUtils.getLibraryFileName(b, false));
@@ -456,7 +455,7 @@ public class NativeLoader {
      */
     private static String computeResourcesMd5(List<ResourceItem> items) throws Exception {
         MessageDigest md = MessageDigest.getInstance("MD5");
-        List<ResourceItem> sorted = new ArrayList<>(items);
+        List<ResourceItem> sorted = Wraps.list(items);
         sorted.sort((a, b) -> a.name.compareTo(b.name));
         for (ResourceItem item : sorted) {
             md.update(item.name.getBytes());

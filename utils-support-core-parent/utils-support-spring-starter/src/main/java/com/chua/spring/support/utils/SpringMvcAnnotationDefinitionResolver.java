@@ -1,10 +1,10 @@
 package com.chua.spring.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.AnnotationDefinitionResolver;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
 
@@ -44,7 +44,7 @@ public class SpringMvcAnnotationDefinitionResolver implements AnnotationDefiniti
     @Override
     public List<AnnotationAliasMapping> getAliasMappings() {
         discoverAliases();
-        List<AnnotationAliasMapping> result = new ArrayList<>();
+        List<AnnotationAliasMapping> result = Wraps.list();
         for (java.util.Map.Entry<Class<? extends Annotation>, String> entry : aliasCache.entrySet()) {
             result.add(new AnnotationAliasMapping(entry.getKey().getName(), entry.getValue()));
         }

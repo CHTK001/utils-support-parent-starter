@@ -1,12 +1,12 @@
 package com.chua.deeplearning.support.onnx.audio;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import com.chua.deeplearning.support.speech.SpeechEnhancer;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import com.chua.common.support.ai.audio.VirtualClient;
 import com.chua.deeplearning.support.onnx.audio.denoise.WavDecoder;
@@ -152,10 +152,10 @@ public final class AsrPipeline {
         if (vadType != null) {
             segments = splitByVad(samples, vadType);
         } else {
-            segments = new ArrayList<>(forceSplit(samples));
+            segments = Wraps.list(forceSplit(samples));
         }
 
-        List<String> parts = new ArrayList<>(segments.size());
+        List<String> parts = Wraps.list(segments.size());
         try (VirtualClient client =
                      VirtualClient.create(engineId, "")) {
             if (language != null && !language.isBlank()) {
@@ -216,7 +216,7 @@ public final class AsrPipeline {
         int maxSeg = (int) (maxSegSec * TARGET_SR);
         int mergeGap = (int) (0.6F * TARGET_SR);
 
-        List<int[]> voiced = new ArrayList<>();
+        List<int[]> voiced = Wraps.list();
         int start = -1;
         for (int i = 0; i + frame <= s.length; i += frame) {
             boolean loud = rms(s, i, frame) >= silenceRms;
@@ -234,7 +234,7 @@ public final class AsrPipeline {
         }
 
         // 合并短停顿的相邻段，保持完整语句上下文（对 moonshine 类模型尤为关键）
-        List<int[]> merged = new ArrayList<>(voiced.size());
+        List<int[]> merged = Wraps.list(voiced.size());
         for (int[] r : voiced) {
             if (!merged.isEmpty() && r[0] - merged.get(merged.size() - 1)[1] < mergeGap) {
                 merged.get(merged.size() - 1)[1] = r[1];
@@ -246,7 +246,7 @@ public final class AsrPipeline {
         if (merged.isEmpty()) {
             return List.of(s);
         }
-        List<float[]> out = new ArrayList<>(merged.size());
+        List<float[]> out = Wraps.list(merged.size());
         for (int[] r : merged) {
             for (int p = r[0]; p < r[1]; p += maxSeg) {
                 int end = Math.min(r[1], p + maxSeg);
@@ -269,7 +269,7 @@ public final class AsrPipeline {
         if (s.length <= maxSeg) {
             return List.of(s);
         }
-        List<float[]> out = new ArrayList<>((s.length + maxSeg - 1) / maxSeg);
+        List<float[]> out = Wraps.list((s.length + maxSeg - 1) / maxSeg);
         for (int p = 0; p < s.length; p += maxSeg) {
             int end = Math.min(s.length, p + maxSeg);
             float[] seg = new float[end - p];

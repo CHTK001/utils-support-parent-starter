@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
@@ -11,7 +12,6 @@ import reactor.core.publisher.Flux;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -134,7 +134,7 @@ public class KiloUsageParser extends BaseUsageParser {
         SqliteReactorEngine engine = new SqliteReactorEngine()
                 .addDataSource("kilo", DB_PATH.toString());
         Set<String> seenMessageIds = ConcurrentHashMap.newKeySet();
-        List<Flux<AiUsage>> streams = new ArrayList<>();
+        List<Flux<AiUsage>> streams = Wraps.list();
         streams.add(engine.query(SQL_V1).mapNotNull(row -> toAiUsage(row, seenMessageIds)).onErrorResume(e -> {
             log.debug("[kilo] v1 table read failed: {}", e.getMessage());
             return Flux.empty();

@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.nlp.translation;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.huggingface.tokenizers.Encoding;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.onnxruntime.OnnxTensor;
@@ -11,9 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -200,12 +198,12 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
                 encoderHidden = encOut.getFloatBuffer().array().clone();
             }
 
-            List<Long> generated = new ArrayList<>();
+            List<Long> generated = Wraps.list();
             long[] encMask = attn;
             int decSeq;
 
  // 2. 解码器 首步：解码器_启动_令牌 + 编码器_hidden_状态
-            Map<String, OnnxTensor> feed = new HashMap<>();
+            Map<String, OnnxTensor> feed = Wraps.map();
             feed.put("input_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(new long[]{DECODER_START_ID}), new long[]{1, 1}));
             feed.put("encoder_attention_mask", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(encMask), new long[]{1, ids.length}));
             feed.put("encoder_hidden_states", OnnxTensor.createTensor(ortEnv,
@@ -229,7 +227,7 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
 
  // 3. 解码器_with_past 循环：自回归生成
                 for (int step = 0; step < MAX_GENERATE_STEPS; step++) {
-                    Map<String, OnnxTensor> f2 = new HashMap<>();
+                    Map<String, OnnxTensor> f2 = Wraps.map();
                     f2.put("input_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(new long[]{next}), new long[]{1, 1}));
                     f2.put("encoder_attention_mask", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(encMask), new long[]{1, ids.length}));
                     long[] dShape = {1, NUM_HEADS, decSeq, HEAD_DIM};
@@ -319,7 +317,7 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
         OnnxTensor logitsTensor = (OnnxTensor) result.get("logits").get();
         float[][][] logits = (float[][][]) logitsTensor.getValue();
         float[] row = logits[0][0];
-        Set<Long> seen = new HashSet<>(gen);
+        Set<Long> seen = Wraps.set(gen);
         for (Long token : seen) {
             int idx = token.intValue();
             if (idx < 0 || idx >= row.length) {

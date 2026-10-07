@@ -1,14 +1,12 @@
 package com.chua.metrics.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.DiffPolledDirectory;
 import com.chua.common.support.lang.directory.WatcherEvent;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
 import com.chua.nativemetrics.support.MetricsNativeLibrary;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -93,19 +91,19 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
     protected List<SnapshotWrapper> listAndModified(String path) {
         String json = nativeLib.poll();
         if (json == null || json.isEmpty()) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
 
         MetricsSnapshot snapshot = parser.parse(json);
         if (snapshot == null) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
 
         SnapshotWrapper wrapper = new SnapshotWrapper();
         wrapper.setSnapshot(snapshot);
         wrapper.setTimestamp(snapshot.getTimestamp());
 
-        List<SnapshotWrapper> list = new ArrayList<>();
+        List<SnapshotWrapper> list = Wraps.list();
         list.add(wrapper);
         return list;
     }

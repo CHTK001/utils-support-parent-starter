@@ -1,5 +1,6 @@
 package com.chua.common.support.file.converter;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.FileSystem;
 import com.chua.common.support.file.builder.ReadBuilder;
 import com.chua.common.support.file.builder.WriteBuilder;
@@ -8,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +39,7 @@ public abstract class AbstractWriter implements FileSystem {
      * 创建 AbstractWriter 实例
      */
     protected AbstractWriter() {
-        this.headers = new ArrayList<>();
+        this.headers = Wraps.list();
         this.writeOption = WriteOption.maps();
         this.initialized = false;
     }
@@ -50,7 +50,7 @@ public abstract class AbstractWriter implements FileSystem {
      */
     protected AbstractWriter(File file) {
         this.file = file;
-        this.headers = new ArrayList<>();
+        this.headers = Wraps.list();
         this.writeOption = WriteOption.maps();
         this.initialized = false;
     }
@@ -61,7 +61,7 @@ public abstract class AbstractWriter implements FileSystem {
      */
     protected AbstractWriter(String filePath) {
         this.file = filePath != null ? new File(filePath) : null;
-        this.headers = new ArrayList<>();
+        this.headers = Wraps.list();
         this.writeOption = WriteOption.maps();
         this.initialized = false;
     }
@@ -107,7 +107,7 @@ public abstract class AbstractWriter implements FileSystem {
      * @return AbstractWriter 对象
      */
     public AbstractWriter withHeader(List<String> headers) {
-        this.headers = headers != null ? new ArrayList<>(headers) : new ArrayList<>();
+        this.headers = headers != null ? Wraps.list(headers) : Wraps.list();
         return this;
     }
 

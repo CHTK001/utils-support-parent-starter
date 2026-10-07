@@ -1,5 +1,6 @@
 package com.chua.filestorage.support.preview.provider;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.filestorage.support.preview.FileStoragePreviewProvider;
@@ -12,7 +13,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -71,7 +71,7 @@ public class ParquetPreviewProvider implements FileStoragePreviewProvider {
         try (Connection conn = DriverManager.getConnection("jdbc:duckdb:");
              Statement stmt = conn.createStatement()) {
             // 读取列名
-            List<String> fields = new ArrayList<>();
+            List<String> fields = Wraps.list();
             ResultSet schemaRs = stmt.executeQuery("DESCRIBE SELECT * FROM " + sqlPath);
             while (schemaRs.next()) {
                 fields.add(schemaRs.getString("column_name"));
@@ -82,12 +82,12 @@ public class ParquetPreviewProvider implements FileStoragePreviewProvider {
                 totalRows = countRs.next() ? countRs.getLong(1) : 0;
             }
             // 读取前 N 行
-            List<List<String>> rows = new ArrayList<>();
+            List<List<String>> rows = Wraps.list();
             try (ResultSet dataRs = stmt.executeQuery("SELECT * FROM " + sqlPath + " LIMIT " + MAX_ROWS)) {
                 ResultSetMetaData meta = dataRs.getMetaData();
                 int cols = meta.getColumnCount();
                 while (dataRs.next() && rows.size() < MAX_ROWS) {
-                    List<String> row = new ArrayList<>(cols);
+                    List<String> row = Wraps.list(cols);
                     for (int i = 1; i <= cols; i++) {
                         Object val = dataRs.getObject(i);
                         row.add(val == null ? "" : String.valueOf(val));

@@ -1,8 +1,7 @@
 package com.chua.common.support.task.branch;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.concurrent.circuitbreaker.CircuitBreakerFlow;
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +92,7 @@ public final class Branch<T> {
         /**
          * 组内候选分支。
          */
-        final List<Case> cases = new ArrayList<>();
+        final List<Case> cases = Wraps.list();
     }
 
     /**
@@ -160,7 +159,7 @@ public final class Branch<T> {
     /**
      * 已登记的阶段序列。
      */
-    private final List<Stage> stages = new ArrayList<>();
+    private final List<Stage> stages = Wraps.list();
 
     /**
      * 当前未封组的条件组；空 表示无开放组。

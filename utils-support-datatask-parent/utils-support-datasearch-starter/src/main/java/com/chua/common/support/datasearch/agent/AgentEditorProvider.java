@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.agent;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.mcp.*;
 import com.chua.common.support.ai.skill.*;
 import com.chua.common.support.datasearch.music.model.MusicSearchResult;
@@ -511,7 +512,7 @@ public class AgentEditorProvider {
      * 自定义编辑器列表，存放用户通过 添加习俗editor 追加的非内置编辑器配置，
      * 用于扩展安装/卸载的目标范围
      */
-    private final List<AgentEditor> customEditors = new ArrayList<>();
+    private final List<AgentEditor> customEditors = Wraps.list();
 
     /**
      * 视频搜索回调接口，由调用方实现以接收搜索结果与下载链接。
@@ -641,7 +642,7 @@ public class AgentEditorProvider {
                 if (provider == null) {
                     provider = ServiceProvider.of(ResourceProvider.class).getExtension(type);
                 }
-                Map<String, Object> result = new LinkedHashMap<>();
+                Map<String, Object> result = Wraps.linkedMap();
                 result.put("source", type);
                 result.put("keyword", keyword);
                 if (provider == null) {
@@ -661,11 +662,11 @@ public class AgentEditorProvider {
                     result.put("error", pageResult == null ? "null" : pageResult.getMessage());
                     return result;
                 }
-                List<Map<String, Object>> items = new ArrayList<>();
+                List<Map<String, Object>> items = Wraps.list();
                 List<VideoInfoResult> data = pageResult.getData().getData();
                 if (data != null) {
                     for (VideoInfoResult video : data) {
-                        Map<String, Object> item = new LinkedHashMap<>();
+                        Map<String, Object> item = Wraps.linkedMap();
                         item.put("name", video.getVideoName());
                         item.put("score", video.getVideoScore());
                         item.put("year", video.getVideoYear());
@@ -679,7 +680,7 @@ public class AgentEditorProvider {
 
             @Override
             public List<Map<String, Object>> getDownloadUrls(String keyword) {
-                List<Map<String, Object>> urls = new ArrayList<>();
+                List<Map<String, Object>> urls = Wraps.list();
                 Map<String, ResourceProvider> providers = ServiceProvider.of(ResourceProvider.class).list();
                 if (providers == null) {
                     return urls;
@@ -693,7 +694,7 @@ public class AgentEditorProvider {
                         var result = downloadLinkProvider.searchDownloadUrls(keyword);
                         if (result != null && result.getData() != null) {
                             for (String url : result.getData()) {
-                                Map<String, Object> item = new LinkedHashMap<>();
+                                Map<String, Object> item = Wraps.linkedMap();
                                 item.put("source", entry.getKey().toLowerCase(Locale.ROOT));
                                 item.put("url", url);
                                 urls.add(item);
@@ -777,7 +778,7 @@ public class AgentEditorProvider {
      * @return 编辑器列表（新建副本，对返回值的修改不影响内部状态）
      */
     public List<AgentEditor> supportedEditors() {
-        List<AgentEditor> all = new ArrayList<>(AgentEditor.ALL);
+        List<AgentEditor> all = Wraps.list(AgentEditor.ALL);
         all.addAll(customEditors);
         return all;
     }
@@ -861,7 +862,7 @@ public class AgentEditorProvider {
      * @return 编辑器到 MCP 配置的 链接哈希映射，保留插入顺序
      */
     public Map<AgentEditor, Map<String, Object>> readAllMcpConfigs() {
-        Map<AgentEditor, Map<String, Object>> result = new LinkedHashMap<>();
+        Map<AgentEditor, Map<String, Object>> result = Wraps.linkedMap();
         for (AgentEditor editor : supportedEditors()) {
             Map<String, Object> config = readMcpConfig(editor);
             if (!config.isEmpty()) {
@@ -882,7 +883,7 @@ public class AgentEditorProvider {
      * @return 已发现的工作区 路径 列表（去重）
      */
     public List<Path> discoverCodebuddyWorkspaces(String workspacePaths) {
-        List<Path> workspaces = new ArrayList<>();
+        List<Path> workspaces = Wraps.list();
         // 1. 从当前目录向上搜索
         Path current = Paths.get("").toAbsolutePath();
         for (int i = 0; i < 64 && current != null; i++) {
@@ -912,7 +913,7 @@ public class AgentEditorProvider {
      * @return MCP 配置文件 路径 列表
      */
     public List<Path> getCodebuddyConfigPaths(String workspacePaths) {
-        List<Path> paths = new ArrayList<>();
+        List<Path> paths = Wraps.list();
         for (Path ws : discoverCodebuddyWorkspaces(workspacePaths)) {
             Path configFile = ws.resolve(CODEBUDDY_DIR).resolve("mcp.json");
             paths.add(configFile);
@@ -928,7 +929,7 @@ public class AgentEditorProvider {
      * @return 发现的 Skills 定义列表
      */
     public List<SkillDefinition> scanCodebuddySkills(String workspacePaths) {
-        List<SkillDefinition> skills = new ArrayList<>();
+        List<SkillDefinition> skills = Wraps.list();
         for (Path ws : discoverCodebuddyWorkspaces(workspacePaths)) {
             Path skillsDir = ws.resolve(CODEBUDDY_DIR).resolve(CODEBUDDY_SKILLS_DIR);
             if (!Files.isDirectory(skillsDir)) {
@@ -961,7 +962,7 @@ public class AgentEditorProvider {
      * @return 已发现的 MCP 服务端 配置列表
      */
     public List<McpServerConfig> scanTraeCnMcpServers() {
-        List<McpServerConfig> servers = new ArrayList<>();
+        List<McpServerConfig> servers = Wraps.list();
         if (!Files.isDirectory(TRAE_CN_PLUGINS_DIR)) {
             return servers;
         }
@@ -993,7 +994,7 @@ public class AgentEditorProvider {
      * @return 已发现的 Skills 定义列表
      */
     public List<SkillDefinition> scanTraeCnSkills() {
-        List<SkillDefinition> skills = new ArrayList<>();
+        List<SkillDefinition> skills = Wraps.list();
         if (!Files.isDirectory(TRAE_CN_SKILLS_DIR)) {
             return skills;
         }
@@ -1104,7 +1105,7 @@ public class AgentEditorProvider {
      * @return 编辑器名称到安装状态（true=已安装, false=未安装）的有序映射
      */
     public Map<String, Boolean> listInstalled() {
-        Map<String, Boolean> result = new LinkedHashMap<>();
+        Map<String, Boolean> result = Wraps.linkedMap();
         for (AgentEditor editor : supportedEditors()) {
             result.put(editor.getName(), isInstalled(editor));
         }
@@ -1119,7 +1120,7 @@ public class AgentEditorProvider {
      * @return 配置目录实际存在的编辑器名称列表，按 支持editors 顺序
      */
     public List<String> listAvailableEditors() {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         for (AgentEditor editor : supportedEditors()) {
             if (editor.isWorkspaceBased()) {
                 if (!discoverCodebuddyWorkspaces(null).isEmpty()) {
@@ -1249,14 +1250,14 @@ public class AgentEditorProvider {
             }
             // 工作区模式下读取工作区级别的配置文件
             Map<String, Object> existing = editor.isWorkspaceBased()
-                    ? new LinkedHashMap<>(readMcpConfig(configFile))
-                    : new LinkedHashMap<>(readMcpConfig(editor));
-            Map<String, Object> servers = new LinkedHashMap<>();
+                    ? Wraps.linkedMap(readMcpConfig(configFile))
+                    : Wraps.linkedMap(readMcpConfig(editor));
+            Map<String, Object> servers = Wraps.linkedMap();
             Object existingServers = existing.get("mcpServers");
             if (existingServers instanceof Map) {
                 servers.putAll((Map<String, Object>) existingServers);
             }
-            Map<String, Object> datasearchConfig = new LinkedHashMap<>();
+            Map<String, Object> datasearchConfig = Wraps.linkedMap();
             if (mode == McpMode.STDIO) {
                 datasearchConfig.put("command", "java");
                 datasearchConfig.put("args", List.of("-jar", jarPath != null ? jarPath : DEFAULT_JAR_PATH));
@@ -1286,7 +1287,7 @@ public class AgentEditorProvider {
      * @return 编辑器到安装结果的 映射，true 表示安装成功，按 {@link #supportedEditors()} 顺序返回
      */
     public Map<AgentEditor, Boolean> installToAll(McpMode mode, String jarPath, String serverUrl) {
-        Map<AgentEditor, Boolean> result = new LinkedHashMap<>();
+        Map<AgentEditor, Boolean> result = Wraps.linkedMap();
         for (AgentEditor editor : supportedEditors()) {
             result.put(editor, installTo(editor, mode, jarPath, serverUrl));
         }
@@ -1344,8 +1345,8 @@ public class AgentEditorProvider {
                 return true;
             }
             Map<String, Object> existing = editor.isWorkspaceBased()
-                    ? new LinkedHashMap<>(readMcpConfig(configFile))
-                    : new LinkedHashMap<>(readMcpConfig(editor));
+                    ? Wraps.linkedMap(readMcpConfig(configFile))
+                    : Wraps.linkedMap(readMcpConfig(editor));
             Object servers = existing.get("mcpServers");
             if (servers instanceof Map) {
                 ((Map<String, Object>) servers).remove(NAME);
@@ -1594,12 +1595,12 @@ public class AgentEditorProvider {
      */
     private McpToolResult handleSearchAll(Map<String, Object> args) {
         String keyword = (String) args.get("keyword");
-        Map<String, Object> results = new LinkedHashMap<>();
+        Map<String, Object> results = Wraps.linkedMap();
         results.put("keyword", keyword);
         if (videoSearchHandler != null) {
             results.put("video", videoSearchHandler.search(keyword, SEARCH_ALL_VIDEO_SOURCE, DEFAULT_PAGE, SEARCH_ALL_LIMIT));
         }
-        Map<String, Object> musicResults = new LinkedHashMap<>();
+        Map<String, Object> musicResults = Wraps.linkedMap();
         for (Map.Entry<String, MusicSourceProvider> entry : musicProviders.entrySet()) {
             try {
                 MusicSearchResult r = entry.getValue().search(keyword, DEFAULT_PAGE, SEARCH_ALL_LIMIT);
@@ -1714,7 +1715,7 @@ public class AgentEditorProvider {
     protected static String mapToJson(Map<String, Object> map, int indent) {
         StringBuilder sb = new StringBuilder();
         sb.append("{\n");
-        List<Map.Entry<String, Object>> entries = new ArrayList<>(map.entrySet());
+        List<Map.Entry<String, Object>> entries = Wraps.list(map.entrySet());
         for (int i = 0; i < entries.size(); i++) {
             Map.Entry<String, Object> entry = entries.get(i);
             sb.append("  ".repeat(indent + 1));
@@ -1849,7 +1850,7 @@ public class AgentEditorProvider {
          * @return 解析得到的 映射，保留键的插入顺序
          */
         private Map<String, Object> parseObject() {
-            Map<String, Object> map = new LinkedHashMap<>();
+            Map<String, Object> map = Wraps.linkedMap();
             pos++;
             skipWhitespace();
             if (pos < json.length() && json.charAt(pos) == '}') {
@@ -1884,7 +1885,7 @@ public class AgentEditorProvider {
          * @return 解析得到的 列表，保留元素顺序
          */
         private List<Object> parseArray() {
-            List<Object> list = new ArrayList<>();
+            List<Object> list = Wraps.list();
             pos++;
             skipWhitespace();
             if (pos < json.length() && json.charAt(pos) == ']') {

@@ -1,5 +1,6 @@
 package com.chua.common.support.image.gif;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -8,7 +9,6 @@ import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,12 +29,12 @@ public class GifDecoder {
     /**
      * 已解码的帧画面列表。
      */
-    protected List<BufferedImage> frames = new ArrayList<>();
+    protected List<BufferedImage> frames = Wraps.list();
 
     /**
      * 每一帧对应的延迟时间列表，单位为百分之一秒，默认 10（即 100 毫秒）。
      */
-    protected List<Integer> delays = new ArrayList<>();
+    protected List<Integer> delays = Wraps.list();
 
     /**
      * 循环播放次数，0 表示无限循环。

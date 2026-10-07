@@ -1,12 +1,11 @@
 package com.chua.common.support.ai.agent;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,13 +47,13 @@ public class AgentResponse implements Serializable {
      * Events
      */
     @Builder.Default
-    private List<AgentEvent> events = new ArrayList<>(); // [P3C 3.15 豁免] 数据容器值对象，调用方动态追加，规模不可预估
+    private List<AgentEvent> events = Wraps.list(); // [P3C 3.15 豁免] 数据容器值对象，调用方动态追加，规模不可预估
 
     /**
      * 扩展元数据
      */
     @Builder.Default
-    private Map<String, Object> metadata = new LinkedHashMap<>(); // [P3C 3.15 豁免] 数据容器值对象，调用方动态写入，规模不可预估
+    private Map<String, Object> metadata = Wraps.linkedMap(); // [P3C 3.15 豁免] 数据容器值对象，调用方动态写入，规模不可预估
 
     /**
      * 用量信息

@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.ocr.layout;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -16,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -266,9 +266,9 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
         float[] values = rows.toFloatArray();
         int count = determineCount(list, rows);
 
-        List<String> names = new ArrayList<>();
-        List<Double> probabilities = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> probabilities = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
 
         for (int i = 0; i < count; i++) {
             int offset = i * rowWidth;

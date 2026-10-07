@@ -1,5 +1,6 @@
 package com.chua.osgi.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.osgi.BundleApplication;
 import com.chua.common.support.osgi.BundleContext;
 import com.chua.common.support.osgi.BundleLifecycleListener;
@@ -18,12 +19,8 @@ import org.osgi.framework.BundleListener;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.launch.Framework;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -191,7 +188,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
             }
         }
 
-        Map<String, String> felixConfig = new HashMap<>();
+        Map<String, String> felixConfig = Wraps.map();
         if (config != null) {
             felixConfig.putAll(config);
         }
@@ -305,8 +302,8 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
             return Collections.emptyList();
         }
         org.osgi.framework.BundleContext context = framework.getBundleContext();
-        List<T> result = new ArrayList<>();
-        List<ServiceReference<?>> acquired = new ArrayList<>();
+        List<T> result = Wraps.list();
+        List<ServiceReference<?>> acquired = Wraps.list();
         try {
             ServiceReference<?>[] refs = context.getServiceReferences(type.getName(), null);
             if (refs == null) {
@@ -387,7 +384,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
      * @return 释放的引用数量
      */
     private int releaseReferencesOf(long bundleId) {
-        List<ServiceReference<?>> owned = new ArrayList<>();
+        List<ServiceReference<?>> owned = Wraps.list();
         for (Map.Entry<ServiceReference<?>, Long> entry : referenceOwners.entrySet()) {
             if (entry.getValue() == bundleId) {
                 owned.add(entry.getKey());
@@ -447,7 +444,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
      */
     @Override
     public void releaseAllServices() {
-        for (Class<?> type : new ArrayList<>(heldServiceReferences.keySet())) {
+        for (Class<?> type : Wraps.list(heldServiceReferences.keySet())) {
             releaseServices(type);
         }
     }
@@ -463,7 +460,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
         if (context == null) {
             return Collections.emptyList();
         }
-        Set<String> types = new LinkedHashSet<>();
+        Set<String> types = Wraps.linkedSet();
         try {
             ServiceReference<?>[] refs = context.getAllServiceReferences(null, null);
             if (refs == null) {
@@ -503,8 +500,8 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
         if (context == null) {
             return Collections.emptyList();
         }
-        List<OsgiServiceDescriptor> result = new ArrayList<>();
-        List<ServiceReference<?>> acquired = new ArrayList<>();
+        List<OsgiServiceDescriptor> result = Wraps.list();
+        List<ServiceReference<?>> acquired = Wraps.list();
         try {
             ServiceReference<?>[] refs = context.getAllServiceReferences(null, null);
             if (refs == null) {
@@ -576,7 +573,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
      * @return 排好序的引用列表
      */
     static List<ServiceReference<?>> orderByRanking(ServiceReference<?>[] refs) {
-        List<ServiceReference<?>> ordered = new ArrayList<>(List.of(refs));
+        List<ServiceReference<?>> ordered = Wraps.list(List.of(refs));
         ordered.sort(Comparator
                 .comparingLong(FelixOsgiLauncher::rankingOf).reversed()
                 .thenComparing(FelixOsgiLauncher::serviceIdOf));
@@ -662,8 +659,8 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
      * @return 服务属性，只读映射
      */
     private static Map<String, Object> readProperties(ServiceReference<?> reference, String[] types) {
-        Map<String, Object> properties = new HashMap<>();
-        List<String> typeList = new ArrayList<>(List.of(types));
+        Map<String, Object> properties = Wraps.map();
+        List<String> typeList = Wraps.list(List.of(types));
         properties.put(Constants.OBJECTCLASS, Collections.unmodifiableList(typeList));
         try {
             String[] keys = reference.getPropertyKeys();
@@ -698,7 +695,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
         if (raw == null) {
             return Collections.emptyList();
         }
-        List<OsgiBundle> result = new ArrayList<>(raw.length);
+        List<OsgiBundle> result = Wraps.list(raw.length);
         for (Bundle bundle : raw) {
             result.add(wrap(bundle));
         }
@@ -1008,7 +1005,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
      */
     @Override
     public Map<String, Object> getFrameworkStats() {
-        Map<String, Object> stats = new HashMap<>();
+        Map<String, Object> stats = Wraps.map();
         Framework current = framework;
         stats.put("active", current != null && current.getState() == Bundle.ACTIVE);
         stats.put("frameworkState", current == null ? "NONE" : stateName(current.getState()));
@@ -1021,7 +1018,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
                 .mapToInt(List::size).sum());
         stats.put("autoStartFailures", autoStartFailureCount.get());
         stats.put("lastAutoStartFailure", lastAutoStartFailure.get());
-        Map<String, Long> stateCounts = new HashMap<>();
+        Map<String, Long> stateCounts = Wraps.map();
         for (OsgiBundle bundle : getBundles()) {
             stateCounts.merge(bundle.getState(), 1L, Long::sum);
         }

@@ -1,5 +1,6 @@
 package com.chua.duckdb.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.Engine;
@@ -15,7 +16,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -73,7 +73,7 @@ public class DuckDBEngine extends JdbcEngine {
      * @return 当前引擎实例
      */
     public <T> DuckDBEngine store(String name, List<T> data) {
-        dataStores.put(name, new ArrayList<>(data));
+        dataStores.put(name, Wraps.list(data));
         if (defaultDataSourceName == null) {
             defaultDataSourceName = name;
         }

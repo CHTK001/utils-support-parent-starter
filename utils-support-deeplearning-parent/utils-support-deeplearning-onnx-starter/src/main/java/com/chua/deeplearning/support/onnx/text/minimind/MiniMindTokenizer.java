@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.text.minimind;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -8,10 +9,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -82,20 +80,20 @@ public class MiniMindTokenizer {
                               Map<String, Integer> addedTokens,
                               List<String> merges) {
         this.vocab = vocab;
-        this.reverseVocab = new HashMap<>();
+        this.reverseVocab = Wraps.map();
         for (Map.Entry<String, Integer> e : vocab.entrySet()) {
             reverseVocab.put(e.getValue(), e.getKey());
         }
         this.addedTokens = addedTokens;
-        this.bpeRanks = new HashMap<>();
+        this.bpeRanks = Wraps.map();
         for (int i = 0; i < merges.size(); i++) {
             String[] parts = merges.get(i).split(" ", 2);
             if (parts.length == 2) {
                 bpeRanks.put(parts[0] + "" + parts[1], i);
             }
         }
-        Map<Integer, Character> b2u = new LinkedHashMap<>();
-        Map<Character, Integer> u2b = new LinkedHashMap<>();
+        Map<Integer, Character> b2u = Wraps.linkedMap();
+        Map<Character, Integer> u2b = Wraps.linkedMap();
         int n = 0;
         for (int b = 0; b < 256; b++) {
             boolean printable = (b >= 33 && b <= 126)
@@ -135,7 +133,7 @@ public class MiniMindTokenizer {
     public static MiniMindTokenizer loadFromJson(InputStream in) throws IOException {
         JsonNode root = MAPPER.readTree(in);
         JsonNode model = root.get("model");
-        Map<String, Integer> vocab = new LinkedHashMap<>();
+        Map<String, Integer> vocab = Wraps.linkedMap();
         JsonNode vocabNode = model.get("vocab");
         if (vocabNode != null && vocabNode.isObject()) {
             vocabNode.fields().forEachRemaining(e -> vocab.put(e.getKey(), e.getValue().asInt()));
@@ -144,7 +142,7 @@ public class MiniMindTokenizer {
                 vocab.put(vocabNode.get(i).asText(), i);
             }
         }
-        Map<String, Integer> addedTokens = new HashMap<>();
+        Map<String, Integer> addedTokens = Wraps.map();
         JsonNode added = root.get("added_tokens");
         if (added != null && added.isArray()) {
             for (int i = 0; i < added.size(); i++) {
@@ -152,7 +150,7 @@ public class MiniMindTokenizer {
                 addedTokens.put(t.get("content").asText(), t.get("id").asInt());
             }
         }
-        List<String> merges = new ArrayList<>();
+        List<String> merges = Wraps.list();
         JsonNode mergesNode = model.get("merges");
         if (mergesNode != null && mergesNode.isArray()) {
             for (int i = 0; i < mergesNode.size(); i++) {
@@ -211,7 +209,7 @@ public class MiniMindTokenizer {
             return new int[0];
         }
         List<String> preTokens = byteLevelPreTokenize(text);
-        List<Integer> ids = new ArrayList<>();
+        List<Integer> ids = Wraps.list();
         for (String pre : preTokens) {
             if (addedTokens.containsKey(pre)) {
                 ids.add(addedTokens.get(pre));
@@ -282,7 +280,7 @@ public class MiniMindTokenizer {
      * @return byte级别pretokenize的结果
      */
     private List<String> byteLevelPreTokenize(String text) {
-        List<String> tokens = new ArrayList<>();
+        List<String> tokens = Wraps.list();
         Matcher m = BYTE_LEVEL_PATTERN.matcher(text);
         while (m.find()) {
             String token = m.group();
@@ -310,7 +308,7 @@ public class MiniMindTokenizer {
             return Collections.emptyList();
         }
  // 初始：每个 byte 一个 令牌
-        List<String> wordPieces = new ArrayList<>();
+        List<String> wordPieces = Wraps.list();
         for (char c : word.toCharArray()) {
             wordPieces.add(String.valueOf(c));
         }
@@ -330,7 +328,7 @@ public class MiniMindTokenizer {
                 break;
             }
             String merged = wordPieces.get(bestIdx) + wordPieces.get(bestIdx + 1);
-            List<String> next = new ArrayList<>();
+            List<String> next = Wraps.list();
             for (int i = 0; i < wordPieces.size(); i++) {
                 if (i == bestIdx) {
                     next.add(merged);

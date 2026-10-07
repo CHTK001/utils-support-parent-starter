@@ -1,5 +1,6 @@
 package com.chua.starter.datasync.agent;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasync.agent.support.DataSyncAgent;
 import com.chua.datasync.agent.support.DataSyncAgentSink;
 import com.chua.datasync.agent.support.DataSyncAgentSource;
@@ -10,8 +11,6 @@ import com.chua.common.support.task.scheduler.Trigger;
 import com.chua.starter.datasync.DataSyncServer;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -152,7 +151,7 @@ public class DataSyncAgentServer implements AgentServerManager {
      * 获取Agent
     */
     public List<DataSyncAgent> getAgents() {
-        return new ArrayList<>(agents.values());
+        return Wraps.list(agents.values());
     }
 
     @Override
@@ -181,10 +180,10 @@ public class DataSyncAgentServer implements AgentServerManager {
      * @param agent Agent
      */
     private void registerAgentResources(DataSyncAgent agent) {
-        List<DataSyncAgentSource> sources = new ArrayList<>();
+        List<DataSyncAgentSource> sources = Wraps.list();
         sources.addAll(agent.sources());
 
-        List<DataSyncAgentSink> sinks = new ArrayList<>();
+        List<DataSyncAgentSink> sinks = Wraps.list();
         sinks.addAll(agent.sinks());
 
         for (DataSyncAgentSource source : sources) {
@@ -234,8 +233,8 @@ public class DataSyncAgentServer implements AgentServerManager {
             if (topic != null && topic.startsWith(TOPIC_REGISTER_PREFIX)) {
                 String agentId = topic.substring(TOPIC_REGISTER_PREFIX.length());
                 if (!agents.containsKey(agentId)) {
-                    List<String> sourceIds = new ArrayList<>();
-                    List<String> sinkIds = new ArrayList<>();
+                    List<String> sourceIds = Wraps.list();
+                    List<String> sinkIds = Wraps.list();
                     if (message instanceof String body) {
                         sourceIds = parseStringArray(body, "sources");
                         sinkIds = parseStringArray(body, "sinks");
@@ -253,7 +252,7 @@ public class DataSyncAgentServer implements AgentServerManager {
          * @return 字符串列表
          */
         private List<String> parseStringArray(String json, String field) {
-            List<String> result = new ArrayList<>();
+            List<String> result = Wraps.list();
             String marker = "\"" + field + "\":";
             int start = json.indexOf(marker);
             if (start < 0) {

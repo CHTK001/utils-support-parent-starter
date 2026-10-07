@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.agent;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.mcp.McpClient;
 import com.chua.common.support.ai.mcp.McpProvider;
 import com.chua.common.support.ai.mcp.McpToolCall;
@@ -13,8 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -143,15 +142,15 @@ public abstract class AbstractExternalMcpInstallerProvider extends AgentEditorPr
             } else {
                 configFile = editor.getMcpConfigFilePath();
             }
-            Map<String, Object> existing = new LinkedHashMap<>(readMcpConfig(configFile));
-            Map<String, Object> servers = new LinkedHashMap<>();
+            Map<String, Object> existing = Wraps.linkedMap(readMcpConfig(configFile));
+            Map<String, Object> servers = Wraps.linkedMap();
             Object existingServers = existing.get("mcpServers");
             if (existingServers instanceof Map) {
                 servers.putAll((Map<String, Object>) existingServers);
             }
             String key = mcpServerKey();
             if (install) {
-                Map<String, Object> serverConfig = new LinkedHashMap<>();
+                Map<String, Object> serverConfig = Wraps.linkedMap();
                 serverConfig.put("command", mcpCommand());
                 serverConfig.put("args", mcpArgs());
                 servers.put(key, serverConfig);

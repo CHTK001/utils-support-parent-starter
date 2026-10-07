@@ -1,5 +1,6 @@
 package com.chua.filestorage.support.preview.provider;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.DateUtils;
 import com.chua.common.support.utils.FileUtils;
@@ -22,10 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -138,7 +137,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
             throw new IllegalArgumentException("content and ext must not be null");
         }
         String e = ext.toLowerCase(Locale.ENGLISH);
-        List<RawEntry> raw = new ArrayList<>();
+        List<RawEntry> raw = Wraps.list();
 
         if ("7z".equals(e)) {
             Path tmp = Files.createTempFile("archive-7z-", ".7z");
@@ -255,7 +254,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
             // 跑一遍只会把同一个错误包成 IOException 再抛一次。
             throw new IOException("Not a ZIP archive (bad magic)");
         }
-        List<RawEntry> raw = new ArrayList<>();
+        List<RawEntry> raw = Wraps.list();
         try (ZipFile zipFile = new ZipFile(new SeekableInMemoryByteChannel(content))) {
             Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
             while (entries.hasMoreElements()) {
@@ -291,7 +290,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
      * @return 规范化后的扫描结果
      */
     private static ArchiveScan normalize(List<RawEntry> raw) {
-        Map<String, ArchiveEntryItem> byPath = new LinkedHashMap<>();
+        Map<String, ArchiveEntryItem> byPath = Wraps.linkedMap();
         // 先落文件条目：文件路径即事实，隐式目录由文件推导，避免目录条目缺失导致树断裂
         for (RawEntry entry : raw) {
             if (!entry.directory()) {
@@ -304,7 +303,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
                 byPath.putIfAbsent(entry.path(), entry.toItem());
             }
         }
-        for (String path : new ArrayList<>(byPath.keySet())) {
+        for (String path : Wraps.list(byPath.keySet())) {
             int slash = path.lastIndexOf('/');
             while (slash > 0) {
                 String parent = path.substring(0, slash);
@@ -313,7 +312,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
                 slash = parent.lastIndexOf('/');
             }
         }
-        List<ArchiveEntryItem> entries = new ArrayList<>(byPath.size());
+        List<ArchiveEntryItem> entries = Wraps.list(byPath.size());
         int fileCount = 0;
         int dirCount = 0;
         long totalSize = 0L;
@@ -558,8 +557,8 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
      * @return 树形 HTML 片段
      */
     private String buildHtml(String ext, ArchiveScan scan) {
-        Map<String, List<ArchiveEntryItem>> dirMap = new java.util.TreeMap<>();
-        List<ArchiveEntryItem> rootFiles = new ArrayList<>();
+        Map<String, List<ArchiveEntryItem>> dirMap = Wraps.sortedMap();
+        List<ArchiveEntryItem> rootFiles = Wraps.list();
         for (ArchiveEntryItem e : scan.entries()) {
             if (e.directory()) {
                 // 目录条目已由左侧目录层级承载，正文只列文件，避免同一目录既当标题又当条目渲染两次
@@ -568,7 +567,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
             int slash = e.path().lastIndexOf('/');
             if (slash > 0) {
                 String dir = e.path().substring(0, slash);
-                dirMap.computeIfAbsent(dir, k -> new ArrayList<>()).add(e);
+                dirMap.computeIfAbsent(dir, k -> Wraps.list()).add(e);
             } else {
                 rootFiles.add(e);
             }

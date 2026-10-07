@@ -1,5 +1,6 @@
 package com.chua.common.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.FileSystem;
 import com.chua.common.support.file.builder.ReadBuilder;
 import com.chua.common.support.file.builder.WriteBuilder;
@@ -7,7 +8,6 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -118,7 +118,7 @@ public class ZipFileSystem implements FileSystem {
          * @return 条目名称列表
          */
         public List<String> listEntries() {
-            List<String> entries = new ArrayList<>();
+            List<String> entries = Wraps.list();
             if (splitMode) {
                 try (InputStream mergedInputStream = createMergedInputStream()) {
                     try (ZipInputStream zis = new ZipInputStream(mergedInputStream)) {
@@ -174,7 +174,7 @@ public class ZipFileSystem implements FileSystem {
          * @return 分卷文件列表（按顺序排列）
          */
         private List<File> findSplitFiles() {
-            List<File> splitFiles = new ArrayList<>();
+            List<File> splitFiles = Wraps.list();
             File parentDir = file.getParentFile();
             if (parentDir == null || !parentDir.exists()) {
                 return splitFiles;
@@ -195,7 +195,7 @@ public class ZipFileSystem implements FileSystem {
 
             if (files != null) {
                 // 按分卷编号排序
-                List<File> sortedFiles = new ArrayList<>();
+                List<File> sortedFiles = Wraps.list();
                 for (File f : files) {
                     String name = f.getName();
                     String ext = name.substring(prefix.length());
@@ -491,7 +491,7 @@ public class ZipFileSystem implements FileSystem {
         /**
          * ZIP 条目列表
          */
-        private final List<ZipEntryData> entries = new ArrayList<>();
+        private final List<ZipEntryData> entries = Wraps.list();
 
         /**
          * 压缩级别（0~9，-1 为默认）

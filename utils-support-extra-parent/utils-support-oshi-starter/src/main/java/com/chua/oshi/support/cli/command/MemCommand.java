@@ -1,5 +1,6 @@
 package com.chua.oshi.support.cli.command;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.CommandLine;
 import com.chua.oshi.support.Mem;
 import com.chua.oshi.support.Oshi;
@@ -9,8 +10,6 @@ import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -56,7 +55,7 @@ public final class MemCommand extends AbstractCommand {
         if (modules != null && !modules.isEmpty()) {
             System.out.println();
             System.out.println("Physical Memory Modules (" + modules.size() + "):");
-            List<String[]> rows = new ArrayList<>();
+            List<String[]> rows = Wraps.list();
             for (PhysicalMemory pm : modules) {
                 rows.add(new String[]{
                         pm.getBankLabel() == null ? "N/A" : pm.getBankLabel(),
@@ -98,7 +97,7 @@ public final class MemCommand extends AbstractCommand {
         if (!procs.isEmpty()) {
             System.out.println();
             System.out.println("Top 10 Processes by RSS:");
-            List<String[]> rows = new ArrayList<>();
+            List<String[]> rows = Wraps.list();
             for (oshi.software.os.OSProcess p : procs) {
                 rows.add(new String[]{
                         String.valueOf(p.getProcessID()),

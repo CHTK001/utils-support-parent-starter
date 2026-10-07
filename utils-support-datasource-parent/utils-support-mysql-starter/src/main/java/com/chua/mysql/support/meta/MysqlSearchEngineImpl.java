@@ -1,5 +1,6 @@
 package com.chua.mysql.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.meta.SearchEngine;
 import com.chua.common.support.lang.datasource.meta.model.SearchFieldDef;
@@ -12,8 +13,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -82,7 +81,7 @@ public class MysqlSearchEngineImpl implements SearchEngine {
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-            List<String> indexes = new ArrayList<>();
+            List<String> indexes = Wraps.list();
             while (rs.next()) {
                 indexes.add(rs.getString("INDEX_NAME"));
             }
@@ -106,7 +105,7 @@ public class MysqlSearchEngineImpl implements SearchEngine {
                     return null;
                 }
                 String table = rs.getString("TABLE_NAME");
-                List<SearchFieldDef> fields = new ArrayList<>();
+                List<SearchFieldDef> fields = Wraps.list();
                 do {
                     String other = rs.getString("TABLE_NAME");
                     if (!table.equals(other)) {
@@ -121,7 +120,7 @@ public class MysqlSearchEngineImpl implements SearchEngine {
                 SearchIndexDef def = new SearchIndexDef();
                 def.setName(indexName);
                 def.setFields(fields);
-                Map<String, Object> settings = new LinkedHashMap<>();
+                Map<String, Object> settings = Wraps.linkedMap();
                 settings.put(SETTING_TABLE, table);
                 def.setSettings(settings);
                 return def;

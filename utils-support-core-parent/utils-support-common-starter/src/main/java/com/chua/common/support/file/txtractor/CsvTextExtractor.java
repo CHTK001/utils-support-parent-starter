@@ -1,11 +1,11 @@
 package com.chua.common.support.file.txtractor;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -87,7 +87,7 @@ public class CsvTextExtractor implements TextExtractor {
      * @return 字符串 对象
      */
     private String[] parseLine(String line, char delimiter) {
-        List<String> parts = new ArrayList<>();
+        List<String> parts = Wraps.list();
         StringBuilder sb = new StringBuilder();
         boolean inQuotes = false;
 

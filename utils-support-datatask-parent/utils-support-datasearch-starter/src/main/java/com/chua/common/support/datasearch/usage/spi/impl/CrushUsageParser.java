@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
@@ -11,7 +12,6 @@ import reactor.core.publisher.Flux;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -81,7 +81,7 @@ public class CrushUsageParser extends BaseUsageParser {
      * @return crush.db 文件列表；索引缺失或无有效条目时为空
      */
     private List<Path> listProjectDatabases() {
-        List<Path> result = new ArrayList<>();
+        List<Path> result = Wraps.list();
         if (!Files.exists(PROJECTS_INDEX)) {
             return result;
         }

@@ -1,5 +1,6 @@
 package com.chua.filestorage.support.preview.provider;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
@@ -16,7 +17,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -123,7 +123,7 @@ public class SqlitePreviewProvider implements FileStoragePreviewProvider {
      * @throws SQLException 查询失败时抛出
      */
     private List<String> listTables(Connection conn) throws SQLException {
-        List<String> tables = new ArrayList<>();
+        List<String> tables = Wraps.list();
         String sql = "SELECT name FROM sqlite_master WHERE type IN ('table','view') "
                 + "AND name NOT LIKE 'sqlite_%' ORDER BY name";
         try (Statement st = conn.createStatement();

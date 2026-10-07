@@ -1,12 +1,12 @@
 package com.chua.common.support.ai.rag;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.splitter.TextChunk;
 import com.chua.common.support.ai.splitter.TextSplitter;
 import com.chua.common.support.vector.VectorStorage;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +46,7 @@ public interface KnowledgeClient extends AutoCloseable {
          */
         public Document {
             metadata = metadata == null ? null
-                    : Collections.unmodifiableMap(new LinkedHashMap<>(metadata));
+                    : Collections.unmodifiableMap(Wraps.linkedMap(metadata));
             embedding = embedding == null ? null : embedding.clone();
         }
 

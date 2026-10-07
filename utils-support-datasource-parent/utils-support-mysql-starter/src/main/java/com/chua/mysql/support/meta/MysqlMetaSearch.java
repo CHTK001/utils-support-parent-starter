@@ -1,5 +1,6 @@
 package com.chua.mysql.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.meta.SearchFieldBuilder;
 import com.chua.common.support.lang.datasource.meta.SearchIndexCreateBuilder;
@@ -10,8 +11,6 @@ import com.chua.datasource.support.meta.AbstractMetaSearch;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -50,7 +49,7 @@ public class MysqlMetaSearch extends AbstractMetaSearch {
     @Override
     public List<SearchIndexDef> list() {
         List<String> names = searchEngine.listIndexes();
-        List<SearchIndexDef> result = new ArrayList<>();
+        List<SearchIndexDef> result = Wraps.list();
         for (String name : names) {
             SearchIndexDef def = searchEngine.getIndex(name);
             if (def != null) {
@@ -109,10 +108,10 @@ public class MysqlMetaSearch extends AbstractMetaSearch {
     private class MysqlCreateIndexBuilder implements SearchIndexCreateBuilder {
 
         private final String indexName; // 索引名称
-        private final List<SearchFieldDef> fields = new ArrayList<>(); // 字段
-        private final Map<String, Object> settings = new LinkedHashMap<>(); // settings
+        private final List<SearchFieldDef> fields = Wraps.list(); // 字段
+        private final Map<String, Object> settings = Wraps.linkedMap(); // settings
         /** 无法落到 MySQL 全文索引、统一在 execute() 告警的选项 */
-        private final List<String> unsupported = new ArrayList<>(); // 不支持项
+        private final List<String> unsupported = Wraps.list(); // 不支持项
         private int shards = 1; // shards
         private int replicas = 1; // replicas
 
@@ -192,7 +191,7 @@ public class MysqlMetaSearch extends AbstractMetaSearch {
 
         @Override
         public SearchIndexDef execute() {
-            List<SearchFieldDef> columns = new ArrayList<>(fields);
+            List<SearchFieldDef> columns = Wraps.list(fields);
             for (SearchFieldDef column : columns) {
                 if (column == null) {
                     continue;
@@ -212,7 +211,7 @@ public class MysqlMetaSearch extends AbstractMetaSearch {
             SearchIndexDef def = new SearchIndexDef();
             def.setName(indexName);
             def.setFields(columns);
-            def.setSettings(new LinkedHashMap<>(settings));
+            def.setSettings(Wraps.linkedMap(settings));
             def.setShards(shards);
             def.setReplicas(replicas);
             searchEngine.createIndex(def);
@@ -229,7 +228,7 @@ public class MysqlMetaSearch extends AbstractMetaSearch {
     private static class MysqlFieldBuilderImpl implements SearchFieldBuilder {
 
         /** 无法落实的字段级选项 */
-        private final List<String> unsupported = new ArrayList<>(); // 不支持项
+        private final List<String> unsupported = Wraps.list(); // 不支持项
         private boolean indexed = true; // 索引
         private boolean stored = false; // 存储
         private String type; // 类型

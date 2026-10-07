@@ -1,9 +1,9 @@
 package com.chua.common.support.lang.cmd;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.ServiceProvider;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -147,7 +147,7 @@ public final class CliToolRegistry {
      */
     @Nonnull
     public List<CliTool> available() {
-        List<CliTool> result = new ArrayList<>();
+        List<CliTool> result = Wraps.list();
         for (CliTool tool : tools.values()) {
             if (tool.isAvailable()) {
                 result.add(tool);

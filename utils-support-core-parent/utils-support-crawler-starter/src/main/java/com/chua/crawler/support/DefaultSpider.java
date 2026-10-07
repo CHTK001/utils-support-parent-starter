@@ -1,5 +1,6 @@
 package com.chua.crawler.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDefault;
@@ -21,8 +22,6 @@ import com.chua.crawler.support.pipeline.ConsolePipeline;
 import com.chua.crawler.support.scheduler.FifoScheduler;
 import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -139,10 +138,10 @@ public class DefaultSpider implements Spider {
         this.scheduler = builder.scheduler;
         this.deduplicator = builder.deduplicator;
         this.linkExtractor = builder.linkExtractor;
-        this.urlFilters = builder.urlFilters != null ? builder.urlFilters : new ArrayList<>();
+        this.urlFilters = builder.urlFilters != null ? builder.urlFilters : Wraps.list();
         this.aiParser = builder.aiParser;
-        this.pipelines = builder.pipelines != null ? builder.pipelines : new ArrayList<>();
-        this.seedUrls = builder.seedUrls != null ? builder.seedUrls : new ArrayList<>();
+        this.pipelines = builder.pipelines != null ? builder.pipelines : Wraps.list();
+        this.seedUrls = builder.seedUrls != null ? builder.seedUrls : Wraps.list();
         this.threads = builder.threads > 0 ? builder.threads : 1;
         this.retryTimes = builder.site != null ? builder.site.getRetryTimes() : 3;
         this.results = new CopyOnWriteArrayList<>();
@@ -540,7 +539,7 @@ public class DefaultSpider implements Spider {
         /**
          * URL 过滤链。
          */
-        private final List<SpiderUrlFilter> urlFilters = new ArrayList<>();
+        private final List<SpiderUrlFilter> urlFilters = Wraps.list();
 
         /**
          * 请求调度器。
@@ -560,12 +559,12 @@ public class DefaultSpider implements Spider {
         /**
          * 结果处理管道列表。
          */
-        private final List<SpiderPipeline> pipelines = new ArrayList<>();
+        private final List<SpiderPipeline> pipelines = Wraps.list();
 
         /**
          * 种子 URL 列表。
          */
-        private final List<String> seedUrls = new ArrayList<>();
+        private final List<String> seedUrls = Wraps.list();
 
         /**
          * 工作线程数。

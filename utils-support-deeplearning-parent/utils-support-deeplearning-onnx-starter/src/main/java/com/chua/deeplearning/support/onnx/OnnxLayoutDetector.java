@@ -1,11 +1,10 @@
 package com.chua.deeplearning.support.onnx;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.image.ImageDetector;
 import com.chua.deeplearning.support.layout.LayoutDetector;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.model.PredictRectangle;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -110,10 +109,10 @@ public class OnnxLayoutDetector implements LayoutDetector {
     public Map<String, List<PredictRectangle>> detect(byte[] imageData) {
         List<DetectionInfo> detections = ImageDetector.create(resolveModel())
                 .threshold(threshold).modelPath(modelPath).device(device).detect(imageData);
-        Map<String, List<PredictRectangle>> result = new LinkedHashMap<>();
+        Map<String, List<PredictRectangle>> result = Wraps.linkedMap();
         for (DetectionInfo d : detections) {
             String label = d.label() == null || d.label().isBlank() ? "unknown" : d.label();
-            result.computeIfAbsent(label, k -> new ArrayList<>())
+            result.computeIfAbsent(label, k -> Wraps.list())
                   .add(new PredictRectangle(d.x(), d.y(), d.width(), d.height(), d.confidence(), 0, d.label()));
         }
         return result;

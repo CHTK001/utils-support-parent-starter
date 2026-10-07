@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.skill.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.mcp.McpClient;
 import com.chua.common.support.ai.mcp.McpToolCall;
 import com.chua.common.support.ai.mcp.McpToolDescriptor;
@@ -15,8 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -155,10 +154,10 @@ public class SkillsmpProvider {
         List<Map<String, Object>> rawSkills = (List<Map<String, Object>>) rawResult.get("skills");
         Map<String, Object> pagination = (Map<String, Object>) rawResult.get("pagination");
 
-        List<Map<String, Object>> items = new ArrayList<>();
+        List<Map<String, Object>> items = Wraps.list();
         if (rawSkills != null) {
             for (Map<String, Object> skill : rawSkills) {
-                Map<String, Object> item = new LinkedHashMap<>();
+                Map<String, Object> item = Wraps.linkedMap();
                 item.put("id", skill.get("id"));
                 item.put("name", skill.get("name"));
                 item.put("author", skill.get("author"));
@@ -172,7 +171,7 @@ public class SkillsmpProvider {
             }
         }
 
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
         result.put("items", items);
         if (pagination != null) {
             result.put("pagination", pagination);

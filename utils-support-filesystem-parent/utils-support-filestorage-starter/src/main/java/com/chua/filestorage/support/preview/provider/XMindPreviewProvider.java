@@ -1,5 +1,6 @@
 package com.chua.filestorage.support.preview.provider;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.filestorage.support.preview.FileStoragePreviewProvider;
 import com.chua.filestorage.support.preview.PreviewResult;
@@ -9,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
@@ -156,7 +156,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
      * @return 根主题列表（通常只有一个元素），解析失败或内容为空时返回空列表
      */
     private List<TopicNode> parseTopics(String json) {
-        List<TopicNode> roots = new ArrayList<>();
+        List<TopicNode> roots = Wraps.list();
         if (json == null || json.isBlank() || "[]".equals(json.trim())) {
             return roots;
         }
@@ -224,7 +224,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
      * @return 根主题列表（每个 sheet 的根主题），解析失败或内容为空时返回空列表
      */
     private List<TopicNode> parseTopicsFromXml(String xml) {
-        List<TopicNode> roots = new ArrayList<>();
+        List<TopicNode> roots = Wraps.list();
         if (xml == null || xml.isBlank()) {
             return roots;
         }
@@ -474,7 +474,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
         /**
          * 子主题列表（可能为空）
         */
-        List<TopicNode> children = new ArrayList<>();
+        List<TopicNode> children = Wraps.list();
 
         /**
          * 创建主题节点。

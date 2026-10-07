@@ -1,6 +1,5 @@
 package com.chua.wechat.support.bot;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -486,7 +485,7 @@ public class WechatPersonalBotClient implements BotClient {
 
     @Override
     public Map<String, Object> getConfig() {
-        Map<String, Object> config = new LinkedHashMap<>();
+        Map<String, Object> config = Wraps.linkedMap();
         config.put("baseUrl", baseUrl);
         config.put("callbackUrl", callbackUrl == null ? "" : callbackUrl);
         config.put("selfWxid", selfWxid == null ? "" : selfWxid);
@@ -501,7 +500,7 @@ public class WechatPersonalBotClient implements BotClient {
      * @return 本次实际分发给监听器的消息，重复、自发、解析失败的条目不在其中
      */
     public List<BotInboundMessage> deliver(String rawBody) {
-        List<BotInboundMessage> accepted = new ArrayList<>();
+        List<BotInboundMessage> accepted = Wraps.list();
         if (StringUtils.isBlank(rawBody)) {
             return accepted;
         }
@@ -662,7 +661,7 @@ public class WechatPersonalBotClient implements BotClient {
      * @return 解析后的条目列表，解析失败时返回空列表
      */
     private List<Map<String, Object>> parsePayload(String rawBody) {
-        List<Map<String, Object>> items = new ArrayList<>();
+        List<Map<String, Object>> items = Wraps.list();
         String trimmed = rawBody.trim();
         if (trimmed.startsWith("[")) {
             JsonArray array = Json.getJsonArray(trimmed);

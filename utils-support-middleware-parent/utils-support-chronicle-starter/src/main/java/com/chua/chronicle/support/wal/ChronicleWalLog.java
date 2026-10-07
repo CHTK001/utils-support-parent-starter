@@ -1,5 +1,6 @@
 package com.chua.chronicle.support.wal;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.wal.CheckpointMeta;
 import com.chua.common.support.wal.WalChain;
@@ -25,13 +26,12 @@ import net.openhft.chronicle.wire.ValueIn;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.SortedSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 /**
  * @作者 CH
@@ -272,7 +272,7 @@ public class ChronicleWalLog implements WalLog {
     */
     public WalReplayResult replay(long fromLsn, long toLsn, WalReplayHandler handler) throws IOException {
         ensureOpen();
-        List<WalRecord> records = new ArrayList<>();
+        List<WalRecord> records = Wraps.list();
         ExcerptTailer tailer = queue.createTailer();
         boolean stopped = false;
         while (true) {
@@ -321,7 +321,7 @@ public class ChronicleWalLog implements WalLog {
     */
     public long appendChain(WalChainHandler handler) throws IOException {
         ensureOpen();
-        List<WalOp> ops = new ArrayList<>();
+        List<WalOp> ops = Wraps.list();
         try {
             handler.apply(new ChronicleWalChain(ops));
         } catch (IOException e) {
@@ -383,7 +383,7 @@ public class ChronicleWalLog implements WalLog {
         }
         int activeCycle = cycles.get(cycles.size() - 1);
         long cp = checkpointLsn.get();
-        List<Integer> removable = new ArrayList<>();
+        List<Integer> removable = Wraps.list();
         for (int c : cycles) {
             if (c == activeCycle) {
                 continue;
@@ -449,7 +449,7 @@ public class ChronicleWalLog implements WalLog {
     public List<WalSegmentInfo> listSegments() {
         Map<Integer, long[]> stats = scanCycleStats();
         List<Integer> cycles = allCycles(stats);
-        List<WalSegmentInfo> out = new ArrayList<>();
+        List<WalSegmentInfo> out = Wraps.list();
         int activeCycle = cycles.isEmpty() ? Integer.MIN_VALUE : cycles.get(cycles.size() - 1);
         int no = 1;
         for (int c : cycles) {
@@ -469,7 +469,7 @@ public class ChronicleWalLog implements WalLog {
      * @return cycle → 统计 数组（LinkedHashMap 保 持 读 取 顺 序）
      */
     private Map<Integer, long[]> scanCycleStats() {
-        Map<Integer, long[]> stats = new LinkedHashMap<>();
+        Map<Integer, long[]> stats = Wraps.linkedMap();
         ExcerptTailer tailer = queue.createTailer();
         while (true) {
             try (DocumentContext dc = tailer.readingDocument(true)) {
@@ -504,9 +504,9 @@ public class ChronicleWalLog implements WalLog {
      * @return 全 部 cycle（升 序）
      */
     private List<Integer> allCycles(Map<Integer, long[]> stats) {
-        TreeSet<Integer> set = new TreeSet<>(stats.keySet());
+        SortedSet<Integer> set = Wraps.sortedSet(stats.keySet());
         set.addAll(cyclesOnDisk());
-        return new ArrayList<>(set);
+        return Wraps.list(set);
     }
 
     /**
@@ -515,7 +515,7 @@ public class ChronicleWalLog implements WalLog {
      * @return 磁 盘 上 存 在 的 cycle（升 序）
      */
     private List<Integer> cyclesOnDisk() {
-        List<Integer> cycles = new ArrayList<>();
+        List<Integer> cycles = Wraps.list();
         File[] files = resolveDir(config).toFile().listFiles(
                 (d, n) -> n.startsWith(CYCLE_FILE_PREFIX) && n.endsWith(CYCLE_FILE_SUFFIX));
         if (files != null) {

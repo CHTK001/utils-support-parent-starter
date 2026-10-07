@@ -33,6 +33,8 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- 2026-10-06 依赖升级评估：Groovy 6 为高风险跨 major（groovy-all 聚合组成、
+             测试件与 JUnit 传递依赖规则变化，见下方 groovy-all 注释），保留 4.0.x 不升 -->
         <groovy.version>4.0.21</groovy.version>
     </properties>
     <dependencies>
@@ -62,7 +64,9 @@
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
-                <version>3.0.2</version>
+                <!-- 2026-10-06 依赖升级：3.0.2 → 5.1.0（低风险跨 major，构建期 Groovy 源码
+                     编译插件，5.x 仍支持 addSources/generateStubs 等既有 goal，不进产物） -->
+                <version>5.1.0</version>
                 <executions>
                     <execution>
                         <goals>

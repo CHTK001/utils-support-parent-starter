@@ -1,5 +1,6 @@
 package com.chua.baidu.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.baidubce.qianfan.Qianfan;
 import com.baidubce.qianfan.model.chat.ChatResponse;
 import com.baidubce.qianfan.model.chat.ChatUsage;
@@ -13,8 +14,6 @@ import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -69,7 +68,7 @@ public class BaiduChatClient implements ChatClient {
     /**
      * 对话历史消息列表
      */
-    private final List<ChatMessage> history = new ArrayList<>();
+    private final List<ChatMessage> history = Wraps.list();
 
     /**
      * 外部传入的完整历史记录
@@ -79,7 +78,7 @@ public class BaiduChatClient implements ChatClient {
     /**
      * 图片附件 URL 列表
      */
-    private final List<String> imageUrls = new ArrayList<>();
+    private final List<String> imageUrls = Wraps.list();
 
     /**
      * 是否启用深度思考
@@ -310,7 +309,7 @@ public class BaiduChatClient implements ChatClient {
             }
 
             List<ChatMessage> messages = externalHistory != null ? externalHistory : history;
-            List<Message> sdkMessages = new ArrayList<>();
+            List<Message> sdkMessages = Wraps.list();
             for (ChatMessage msg : messages) {
                 sdkMessages.add(new Message()
                         .setRole(msg.getRole())

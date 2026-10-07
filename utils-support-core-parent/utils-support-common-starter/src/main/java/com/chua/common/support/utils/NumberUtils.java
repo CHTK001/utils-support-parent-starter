@@ -1,4 +1,5 @@
 package com.chua.common.support.utils;
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.algorithm.crypto.Hex;
 import com.chua.common.support.value.NumberValue;
@@ -55,11 +56,11 @@ public class NumberUtils {
     /**
      * 中文数字字符 → 数值映射（小写+大写+两）
      */
-    private static final Map<Character, Integer> CN_DIGITS = new HashMap<>();
+    private static final Map<Character, Integer> CN_DIGITS = Wraps.map();
     /**
      * 中文单位字符 → 数值映射（十/百/千/万/亿）
      */
-    private static final Map<Character, Integer> CN_UNITS = new HashMap<>();
+    private static final Map<Character, Integer> CN_UNITS = Wraps.map();
     static {
         CN_DIGITS.put('零', 0);
         CN_DIGITS.put('一', 1);
@@ -1379,14 +1380,14 @@ public class NumberUtils {
      * @return the 结果
      */
     public static List<Map.Entry<Long, Long>> split(long size, long realSize, int thread) {
-        List<Map.Entry<Long, Long>> result = new LinkedList<>();
+        List<Map.Entry<Long, Long>> result = Wraps.list();
         int cols = (int) (realSize / thread);
         if (cols == 0) {
             return Collections.emptyList();
         }
         int less = (int) (realSize % thread);
         IntStream.range(0, thread).forEach(it -> {
-            Map<Long, Long> item = new HashMap<>(1);
+            Map<Long, Long> item = Wraps.map(1);
             int less1 = less < thread ? 1 : 0;
             if (result.isEmpty()) {
                 item.put(size + (long) it * cols, Math.min(size + (long) (it + 1) * cols + less1, realSize));
@@ -2482,7 +2483,7 @@ public class NumberUtils {
      */
     public static String getNumberFromChinese(String chinese) {
         String result = "0";
-        List<String> lists = new ArrayList<>();
+        List<String> lists = Wraps.list();
         int lastLevelIndex = 0;
         for (int i = NumberValue.HIGH_LEVEL.size() - 1; i >= 0; i--) {
             int levelIndex = chinese.indexOf(NumberValue.HIGH_LEVEL.get(i));
@@ -2615,7 +2616,7 @@ public class NumberUtils {
      */
     public static String getNumberFromAlamo(String alabo) {
         StringBuilder result = new StringBuilder();
-        List<String> list = new ArrayList<>();
+        List<String> list = Wraps.list();
         for (int length = alabo.length() - 1; length >= 0; length--) {
             list.add(String.valueOf(alabo.charAt(length)));
         }

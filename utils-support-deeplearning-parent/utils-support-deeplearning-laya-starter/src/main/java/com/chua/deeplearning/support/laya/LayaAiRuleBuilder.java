@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.laya;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.decision.DecisionQuery;
 import com.chua.common.support.ai.rule.AiRule;
 import com.chua.common.support.ai.rule.AiRuleBuilder;
@@ -11,9 +12,6 @@ import com.chua.common.support.ai.rule.RuleException;
 import com.chua.common.support.ai.rule.RuleExpression;
 import com.chua.common.support.ai.rule.RuleType;
 import com.chua.common.support.spi.annotations.Spi;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -25,8 +23,8 @@ import java.util.function.Predicate;
  *
  * <p>经 SPI 以 {@code ai} 名称注册，与 {@code native} 底座一一对应：
  * 一个构造器只允许构造一条 {@link LayaAiRule}。
- * 决策问题在构造期只做声明，真正的 AI 求值由
- * {@code RuleExecutor} 在执行前按底座分组批量触发。</p>
+ * 决策问题在构造期只做声明，真正的 AI 求值由规则在
+ * {@link LayaAiRule#matched} 里按需向自己的底座触发。</p>
  *
  * @author CH
  * @since 4.0.0.43
@@ -45,6 +43,16 @@ public final class LayaAiRuleBuilder implements AiRuleBuilder {
     private String name;
 
     /**
+     * 规则描述
+     */
+    private String description;
+
+    /**
+     * 命中后对外说明的原因
+     */
+    private String message;
+
+    /**
      * 优先级
      */
     private int salience;
@@ -57,17 +65,17 @@ public final class LayaAiRuleBuilder implements AiRuleBuilder {
     /**
      * 声明的决策问题
      */
-    private final List<AiRuleQuery> queries = new ArrayList<>();
+    private final List<AiRuleQuery> queries = Wraps.list();
 
     /**
      * 命中后执行的动作
      */
-    private final List<Consumer<RuleContext>> actions = new ArrayList<>();
+    private final List<Consumer<RuleContext>> actions = Wraps.list();
 
     /**
      * 兼容自然规则写法的本地条件，AI 规则同样支持 when/then 混用
      */
-    private final List<Predicate<RuleContext>> conditions = new ArrayList<>();
+    private final List<Predicate<RuleContext>> conditions = Wraps.list();
 
     /**
      * 下一条规则的标识
@@ -82,7 +90,7 @@ public final class LayaAiRuleBuilder implements AiRuleBuilder {
     /**
      * 规则声明的变量
      */
-    private final Map<String, Object> variables = new LinkedHashMap<>();
+    private final Map<String, Object> variables = Wraps.linkedMap();
 
     /**
      * AI 决策上下文，null 表示使用执行期 input
@@ -90,9 +98,19 @@ public final class LayaAiRuleBuilder implements AiRuleBuilder {
     private Object state;
 
     /**
-     * AI 底座配置
+     * 本地模型资产目录
      */
-    private final Map<String, Object> settings = new LinkedHashMap<>();
+    private String modelPath;
+
+    /**
+     * 推理线程数
+     */
+    private Integer threads;
+
+    /**
+     * 校准文件路径
+     */
+    private String calibrationPath;
 
     /**
      * 是否已构造过规则，一个构造器只允许构造一条规则
@@ -154,6 +172,20 @@ public final class LayaAiRuleBuilder implements AiRuleBuilder {
             throw new IllegalArgumentException("name 不能为 null 或空白");
         }
         this.name = name;
+        return this;
+    }
+
+    @Override
+    public AiRuleBuilder message(String message) {
+        requireUsable();
+        this.message = message;
+        return this;
+    }
+
+    @Override
+    public AiRuleBuilder description(String description) {
+        requireUsable();
+        this.description = description;
         return this;
     }
 
@@ -257,26 +289,26 @@ public final class LayaAiRuleBuilder implements AiRuleBuilder {
     }
 
     @Override
-    public AiRuleBuilder settings(Map<String, Object> settings) {
+    public AiRuleBuilder modelPath(String modelPath) {
         requireUsable();
-        Objects.requireNonNull(settings, "settings 不能为 null");
-        this.settings.putAll(settings);
+        this.modelPath = modelPath;
         return this;
     }
 
-    /**
-     * 指定底座的单个配置。
-     *
-     * @param key 配置键
-     * @param value 配置值
-     * @return 自身，便于链式调用
-     */
-    public AiRuleBuilder setting(String key, Object value) {
+    @Override
+    public AiRuleBuilder threads(Integer threads) {
         requireUsable();
-        if (key == null || key.isBlank()) {
-            throw new IllegalArgumentException("key 不能为 null 或空白");
+        if (threads != null && threads <= 0) {
+            throw new IllegalArgumentException("threads 必须为正数，实际 " + threads);
         }
-        settings.put(key, value);
+        this.threads = threads;
+        return this;
+    }
+
+    @Override
+    public AiRuleBuilder calibrationPath(String calibrationPath) {
+        requireUsable();
+        this.calibrationPath = calibrationPath;
         return this;
     }
 
@@ -293,20 +325,9 @@ public final class LayaAiRuleBuilder implements AiRuleBuilder {
             throw new RuleException("规则 " + id + " 的下一条规则标识不能为空白");
         }
         built = true;
-        List<Consumer<RuleContext>> merged = new ArrayList<>(actions);
-        if (!conditions.isEmpty()) {
-            List<Predicate<RuleContext>> snapshot = List.copyOf(conditions);
-            merged.addFirst(context -> {
-                for (Predicate<RuleContext> condition : snapshot) {
-                    if (!condition.test(context)) {
-                        throw new RuleException("AI 规则 " + id + " 的本地条件不成立");
-                    }
-                }
-            });
-        }
-        return new LayaAiRule(id, name, salience, effect, List.copyOf(queries),
-                List.copyOf(merged), target, new LinkedHashMap<>(variables),
-                "laya", state, new LinkedHashMap<>(settings));
+        return new LayaAiRule(id, name, description, message, salience, effect, List.copyOf(queries),
+                List.copyOf(conditions), List.copyOf(actions), target, Wraps.linkedMap(variables),
+                "laya", state, modelPath, threads, calibrationPath);
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.chua.kafka.support.wal;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.wal.*;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -291,7 +292,7 @@ public class KafkaWalLog implements WalLog {
         lock.lock();
         try {
             consumer.seekToBeginning(consumer.assignment());
-            List<WalRecord> records = new ArrayList<>();
+            List<WalRecord> records = Wraps.list();
             boolean stopped = false;
             while (!stopped) {
                 ConsumerRecords<String, byte[]> recordsBatch = consumer.poll(Duration.ofMillis(200));
@@ -338,7 +339,7 @@ public class KafkaWalLog implements WalLog {
     */
     public long appendChain(WalChainHandler handler) throws IOException {
         ensureOpen();
-        List<WalOp> ops = new ArrayList<>();
+        List<WalOp> ops = Wraps.list();
         try {
             handler.apply(new WalChain() {
                 @Override

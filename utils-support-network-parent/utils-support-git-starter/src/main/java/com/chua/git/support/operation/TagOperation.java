@@ -1,12 +1,11 @@
 package com.chua.git.support.operation;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.git.support.GitClient;
 import com.chua.git.support.exception.GitClientException;
 import com.chua.git.support.model.TagInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.lib.Ref;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -65,7 +64,7 @@ public class TagOperation {
             client.open();
             List<Ref> refs = client.getGit().tagList().call();
 
-            List<TagInfo> result = new ArrayList<>();
+            List<TagInfo> result = Wraps.list();
             for (Ref ref : refs) {
                 String name = ref.getName().substring("refs/tags/".length());
                 String sha = ref.getObjectId().getName();

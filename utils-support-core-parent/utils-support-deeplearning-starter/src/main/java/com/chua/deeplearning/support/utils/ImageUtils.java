@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import com.chua.common.support.image.ImageProcessor;
 import com.chua.common.support.image.ImageProcessors;
@@ -23,7 +24,6 @@ import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -420,7 +420,7 @@ public final class ImageUtils {
             return resizeLocal(imageData, width, height, interpolation);
         }
         try {
-            Map<String, Object> params = new HashMap<>(3);
+            Map<String, Object> params = Wraps.map(3);
             params.put("width", width);
             params.put("height", height);
             return processor().process(imageData, "resize", params);
@@ -482,7 +482,7 @@ public final class ImageUtils {
             return cropLocal(options.imageData(), options.x(), options.y(), options.width(), options.height());
         }
         try {
-            Map<String, Object> params = new HashMap<>(4);
+            Map<String, Object> params = Wraps.map(4);
             params.put("x", options.x());
             params.put("y", options.y());
             params.put("width", options.width());
@@ -809,7 +809,7 @@ public static byte[] encode(Mat mat) {
             return rotateLocal(imageData, degree);
         }
         try {
-            Map<String, Object> params = new HashMap<>(1);
+            Map<String, Object> params = Wraps.map(1);
             params.put("angle", degree);
             return processor().process(imageData, "rotate", params);
         } catch (Exception e) {

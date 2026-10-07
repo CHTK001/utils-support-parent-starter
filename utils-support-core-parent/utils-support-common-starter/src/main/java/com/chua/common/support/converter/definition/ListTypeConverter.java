@@ -1,8 +1,8 @@
 package com.chua.common.support.converter.definition;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.ArrayUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -54,11 +54,11 @@ public class ListTypeConverter implements TypeConverter<List> {
         }
 
         if (isAssignableFrom(value, Collection.class)) {
-            return new ArrayList((Collection) value);
+            return Wraps.list((Collection) value);
         }
 
         if(value instanceof Iterable) {
-            List<Object> tpl = new LinkedList<>();
+            List<Object> tpl = Wraps.list();
             ((Iterable<?>) value).forEach(tpl::add);
             return tpl;
         }
@@ -70,7 +70,7 @@ public class ListTypeConverter implements TypeConverter<List> {
                 String substring = string.substring(1, string.length() - 1);
                 if (isListMap) {
                     String[] split = substring.split("\\},\\{");
-                    List<Map<String, Object>> result = new LinkedList<>();
+                    List<Map<String, Object>> result = Wraps.list();
                     for (String s : split) {
                         result.add(new MapTypeConverter().convert(s));
                     }
@@ -82,7 +82,7 @@ public class ListTypeConverter implements TypeConverter<List> {
 
             String[] parts = string.split("[\\n\\r\\t ,;|]+");
             if (parts.length > 1 || (parts.length == 1 && parts[0].length() > 0)) {
-                return new ArrayList<>(Arrays.asList(parts));
+                return Wraps.list(Arrays.asList(parts));
             }
         }
 

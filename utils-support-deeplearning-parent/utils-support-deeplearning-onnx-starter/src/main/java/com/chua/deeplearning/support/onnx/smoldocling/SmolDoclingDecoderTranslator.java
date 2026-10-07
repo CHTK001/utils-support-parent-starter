@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.smoldocling;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
@@ -9,8 +10,6 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -172,7 +171,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         //                logits + 30       (key, value) = 1 + 60 = 61          
         Map<String, NDArray> pastKeyValues = null;
         if (list.size() > 1) {
-            pastKeyValues = new HashMap<>();
+            pastKeyValues = Wraps.map();
  // past_键_值                                      键     值
             int expectedOutputs = 1 + NUM_LAYERS * 2;
             if (list.size() >= expectedOutputs) {

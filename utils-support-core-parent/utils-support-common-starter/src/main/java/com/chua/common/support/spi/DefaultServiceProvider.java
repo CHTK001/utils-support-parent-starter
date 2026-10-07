@@ -1,5 +1,6 @@
 package com.chua.common.support.spi;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.collection.ConcurrentReferenceHashMap;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ThreadUtils;
@@ -99,7 +100,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     /**
      * 默认解析器列表
      */
-    private final List<ServiceResolver> defaultResolvers = new LinkedList<>();
+    private final List<ServiceResolver> defaultResolvers = Wraps.list();
     /**
      * 是否已加载默认实现
      */
@@ -165,7 +166,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     @Override
     public List<T> getNewExtensions(String name, Object... args) {
         SortedList<ServiceDefinition> serviceDefinitions = getDefinitions(name);
-        List<T> result = new LinkedList<>();
+        List<T> result = Wraps.list();
         for (ServiceDefinition serviceDefinition : serviceDefinitions) {
             Object newInstance = serviceDefinition.newInstance(serviceAutowire, args);
             if (null == newInstance) {
@@ -376,7 +377,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         if (CollectionUtils.isEmpty(values)) {
             return Collections.emptyList();
         }
-        List<T> available = new ArrayList<>(values.size());
+        List<T> available = Wraps.list(values.size());
         int failed = 0;
         for (T value : values) {
             if (value == null) {
@@ -400,7 +401,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
             return Collections.emptyMap();
         }
 
-        Map<String, Class<T>> result = new HashMap<>(definitions.size());
+        Map<String, Class<T>> result = Wraps.map(definitions.size());
 
         for (SortedList<ServiceDefinition> value : this.definitions.values()) {
             ServiceDefinition noneObject = value.first();
@@ -417,7 +418,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     @Override
     public List<T> collect(Object... args) {
-        Map<T, Integer> temp = new HashMap<>(definitions.size());
+        Map<T, Integer> temp = Wraps.map(definitions.size());
         for (SortedList<ServiceDefinition> value : this.definitions.values()) {
             ServiceDefinition noneObject = value.first();
             if (null == noneObject) {
@@ -443,7 +444,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
             return Collections.emptyMap();
         }
 
-        Map<String, T> result = new HashMap<>(definitions.size());
+        Map<String, T> result = Wraps.map(definitions.size());
 
         for (SortedList<ServiceDefinition> value : this.definitions.values()) {
             ServiceDefinition noneObject = value.first();
@@ -464,7 +465,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
             return Collections.emptyMap();
         }
 
-        Map<String, T> result = new HashMap<>(definitions.size());
+        Map<String, T> result = Wraps.map(definitions.size());
 
         for (SortedList<ServiceDefinition> value : this.definitions.values()) {
             ServiceDefinition noneObject = value.first();
@@ -571,7 +572,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     @Override
     public void unregister(String baseName, Class<? extends ServiceResolver> resolverType) {
-        Map<String, List<ServiceDefinition>> remove = new HashMap<>(DEFAULT_SIZE);
+        Map<String, List<ServiceDefinition>> remove = Wraps.map(DEFAULT_SIZE);
         for (Map.Entry<String, SortedList<ServiceDefinition>> entry : definitions.entrySet()) {
             SortedList<ServiceDefinition> value = entry.getValue();
             for (ServiceDefinition serviceDefinition : value) {
@@ -614,10 +615,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     private void doRegisterRemoveCollectionItem(String baseName, String key, Map<String, List<ServiceDefinition>> remove, ServiceDefinition serviceDefinition) {
         if (StringUtils.isBlank(baseName)) {
-            remove.computeIfAbsent(key, it -> new LinkedList<>()).add(serviceDefinition);
+            remove.computeIfAbsent(key, it -> Wraps.list()).add(serviceDefinition);
         }
         if (baseName.equalsIgnoreCase(serviceDefinition.getName())) {
-            remove.computeIfAbsent(key, it -> new LinkedList<>()).add(serviceDefinition);
+            remove.computeIfAbsent(key, it -> Wraps.list()).add(serviceDefinition);
         }
     }
 
@@ -670,7 +671,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      */
     @Override
     public T getObjectProvider(String names, Object... args) {
-        List<T> impl = new LinkedList<>();
+        List<T> impl = Wraps.list();
         for (String name : Splitter.on(',').omitEmptyStrings().trimResults().splitToList(names)) {
             T deepNewExtension = getNewExtension(name, args);
             if (null != deepNewExtension) {
@@ -756,7 +757,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
             return Collections.emptyList();
         }
 
-        List<T> result = new ArrayList<>(definitions.size());
+        List<T> result = Wraps.list(definitions.size());
 
         for (SortedList<ServiceDefinition> value : this.definitions.values()) {
             ServiceDefinition noneObject = value.first();
@@ -1006,7 +1007,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         }
 
         // 初始化结果映射，容量预设为定义数量以提高性能
-        Map<String, ServiceDefinition> result = new HashMap<>(definitions.size());
+        Map<String, ServiceDefinition> result = Wraps.map(definitions.size());
 
         // 遍历所有服务名称对应的定义列表
         for (SortedList<ServiceDefinition> value : this.definitions.values()) {

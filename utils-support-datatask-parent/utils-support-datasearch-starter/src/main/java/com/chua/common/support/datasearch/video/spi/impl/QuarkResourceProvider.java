@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.video.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.video.model.VideoInfoResult;
 import com.chua.common.support.datasearch.video.model.VideoSearch;
 import com.chua.common.support.datasearch.video.model.VideoSource;
@@ -16,9 +17,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -109,7 +108,7 @@ public class QuarkResourceProvider extends AbstractResourceProvider {
                 return ReturnPageResult.error("quark 搜索页为纯 JS 渲染，当前接口不可用");
             }
 
-            List<VideoInfoResult> results = new ArrayList<>(MAX_RESULT_COUNT);
+            List<VideoInfoResult> results = Wraps.list(MAX_RESULT_COUNT);
             parseQuarkHtml(body, results);
 
             if (results.isEmpty()) {
@@ -131,7 +130,7 @@ public class QuarkResourceProvider extends AbstractResourceProvider {
      * @param results 结果列表，方法内追加条目，不能为 null
      */
     private void parseQuarkHtml(String html, List<VideoInfoResult> results) {
-        Set<String> seen = new LinkedHashSet<>(MAX_RESULT_COUNT);
+        Set<String> seen = Wraps.linkedSet(MAX_RESULT_COUNT);
         Matcher m = SHARE_LINK_PATTERN.matcher(html);
         int idx = 0;
         while (m.find() && idx++ < MAX_RESULT_COUNT) {

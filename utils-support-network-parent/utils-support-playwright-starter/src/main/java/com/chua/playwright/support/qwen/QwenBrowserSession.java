@@ -1,11 +1,9 @@
 package com.chua.playwright.support.qwen;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.JsonObject;
 import com.microsoft.playwright.*;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -145,7 +143,7 @@ public class QwenBrowserSession implements AutoCloseable {
             String sse = new String(resp.body(), java.nio.charset.StandardCharsets.UTF_8);
             StringBuilder text = new StringBuilder();
             StringBuilder thinking = new StringBuilder();
-            List<Map<String, Object>> rawEvents = new ArrayList<>();
+            List<Map<String, Object>> rawEvents = Wraps.list();
             for (String line : sse.split("\n")) {
                 if (line.startsWith("data:")) {
                     String data = line.substring(5).trim();
@@ -235,7 +233,7 @@ public class QwenBrowserSession implements AutoCloseable {
      */
     private void injectCookies(String cookieString) {
         Map<String, String> cookies = parseCookies(cookieString);
-        List<com.microsoft.playwright.options.Cookie> cookieList = new ArrayList<>(cookies.size());
+        List<com.microsoft.playwright.options.Cookie> cookieList = Wraps.list(cookies.size());
         for (Map.Entry<String, String> entry : cookies.entrySet()) {
             cookieList.add(new com.microsoft.playwright.options.Cookie(entry.getKey(), entry.getValue())
                     .setDomain(".qwen.ai").setPath("/"));
@@ -250,7 +248,7 @@ public class QwenBrowserSession implements AutoCloseable {
      * @return 解析Cookie的结果
      */
     private static Map<String, String> parseCookies(String cookieString) {
-        Map<String, String> map = new LinkedHashMap<>();
+        Map<String, String> map = Wraps.linkedMap();
         if (cookieString == null || cookieString.isBlank()) {
             return map;
         }

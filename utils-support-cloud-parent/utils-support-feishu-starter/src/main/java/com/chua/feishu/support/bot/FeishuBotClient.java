@@ -1,13 +1,11 @@
 package com.chua.feishu.support.bot;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -1068,7 +1066,7 @@ public class FeishuBotClient implements BotClient {
             if (data == null || data.getItems() == null) {
                 return Collections.emptyList();
             }
-            List<BotGroupInfo> groups = new ArrayList<>();
+            List<BotGroupInfo> groups = Wraps.list();
             for (var chat : data.getItems()) {
                 groups.add(BotGroupInfo.builder()
                         .groupId(chat.getChatId())
@@ -1535,7 +1533,7 @@ public class FeishuBotClient implements BotClient {
      */
     private static Map<String, List<String>> normalizeHeaders(
             Map<String, String> headers) {
-        Map<String, List<String>> normalized = new HashMap<>();
+        Map<String, List<String>> normalized = Wraps.map();
         if (headers == null) {
             return normalized;
         }
@@ -1570,7 +1568,7 @@ public class FeishuBotClient implements BotClient {
             }
             boolean group
                     = "group".equals(message.getChatType());
-            List<String> mentionedIds = new ArrayList<>();
+            List<String> mentionedIds = Wraps.list();
             MentionEvent[] mentions = message.getMentions();
             if (mentions != null) {
                 for (MentionEvent mention : mentions) {
@@ -1671,7 +1669,7 @@ public class FeishuBotClient implements BotClient {
         try {
             CreateMessageReq req = new CreateMessageReq();
             req.setReceiveIdType(receiveIdType(receiveId));
-            Map<String, String> contentMap = new HashMap<>();
+            Map<String, String> contentMap = Wraps.map();
             contentMap.put("text", content);
             CreateMessageReqBody body = new CreateMessageReqBody();
             body.setReceiveId(receiveId);
@@ -1733,7 +1731,7 @@ public class FeishuBotClient implements BotClient {
     private BotSendResult sendGroupTextInternal(
             String groupId, String content) {
         try {
-            Map<String, String> contentMap = new HashMap<>();
+            Map<String, String> contentMap = Wraps.map();
             contentMap.put("text", content);
             CreateMessageReq req = new CreateMessageReq();
             req.setReceiveIdType("chat_id");
@@ -1770,11 +1768,11 @@ public class FeishuBotClient implements BotClient {
             String content,
             List<String> mentionedUserIds) {
         try {
-            Map<String, Object> contentMap = new LinkedHashMap<>();
+            Map<String, Object> contentMap = Wraps.linkedMap();
             contentMap.put("text", content);
-            List<Map<String, String>> atList = new ArrayList<>();
+            List<Map<String, String>> atList = Wraps.list();
             for (String userId : mentionedUserIds) {
-                Map<String, String> at = new HashMap<>();
+                Map<String, String> at = Wraps.map();
                 at.put("open_id", userId);
                 at.put("key", "@" + userId);
                 atList.add(at);
@@ -1848,7 +1846,7 @@ public class FeishuBotClient implements BotClient {
                         uploadResp.getMsg());
             }
             String imageKey = uploadResp.getData().getImageKey();
-            Map<String, String> contentMap = new HashMap<>();
+            Map<String, String> contentMap = Wraps.map();
             contentMap.put("image_key", imageKey);
             CreateMessageReq req = new CreateMessageReq();
             req.setReceiveIdType(receiveIdType(receiveId));

@@ -1,5 +1,6 @@
 package com.chua.datasync.agent.support.source;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasync.agent.support.DataSyncAgentSource;
 import com.chua.datasync.agent.support.model.Direction;
 import com.chua.datasync.agent.support.model.Directional;
@@ -9,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 
 import java.sql.*;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -147,7 +147,7 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
                     int count = 0;
                     int colCount = columnNames.length;
                     while (rs.next()) {
-                        Map<String, Object> row = new HashMap<>();
+                        Map<String, Object> row = Wraps.map();
                         for (int i = 0; i < colCount; i++) {
                             row.put(columnNames[i], rs.getObject(columnNames[i]));
                         }

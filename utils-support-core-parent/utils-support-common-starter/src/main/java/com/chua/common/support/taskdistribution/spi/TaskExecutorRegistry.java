@@ -1,8 +1,7 @@
 package com.chua.common.support.taskdistribution.spi;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.taskdistribution.task.Task;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -78,7 +77,7 @@ public class TaskExecutorRegistry {
      * @return 执行器列表
      */
     public List<TaskExecutor<?>> all() {
-        return new ArrayList<>(executors.values());
+        return Wraps.list(executors.values());
     }
 
     /**

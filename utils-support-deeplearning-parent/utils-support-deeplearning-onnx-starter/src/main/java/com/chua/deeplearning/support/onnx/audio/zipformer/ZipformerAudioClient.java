@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.zipformer;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.ai.audio.VirtualClient;
 import com.chua.common.support.ai.audio.AudioClientSetting;
@@ -13,7 +14,6 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -204,7 +204,7 @@ public class ZipformerAudioClient implements VirtualClient {
      */
     private void downloadModels(Path dir) throws IOException {
         Files.createDirectories(dir);
-        List<String> failed = new ArrayList<>();
+        List<String> failed = Wraps.list();
         for (String name : MODEL_FILES) {
             Path target = dir.resolve(name);
             if (Files.exists(target) && Files.size(target) > 1024) {

@@ -1,5 +1,6 @@
 package com.chua.common.support.ai.calibration;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.calibration.train.TrainingData;
 import com.chua.common.support.ai.calibration.train.TrainingStats;
 import com.chua.common.support.lang.json.Json;
@@ -9,7 +10,6 @@ import lombok.Getter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -186,9 +186,9 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
                                                  List<Double> lookSimilarScores,
                                                  List<Double> samePersonScores) {
         this.trainingData = TrainingData.builder()
-                .notSimilarScores(new ArrayList<>(notSimilarScores))
-                .lookSimilarScores(new ArrayList<>(lookSimilarScores))
-                .samePersonScores(new ArrayList<>(samePersonScores))
+                .notSimilarScores(Wraps.list(notSimilarScores))
+                .lookSimilarScores(Wraps.list(lookSimilarScores))
+                .samePersonScores(Wraps.list(samePersonScores))
                 .build();
         return this;
     }
@@ -380,7 +380,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
      * @return 分数列表
      */
     private List<Double> generateNormalSamples(int count, double mean, double std, Random rng) {
-        List<Double> samples = new ArrayList<>(count);
+        List<Double> samples = Wraps.list(count);
         for (int i = 0; i < count; i++) {
             double sample = rng.nextGaussian() * std + mean;
             // 截断到 [0, 1] 范围

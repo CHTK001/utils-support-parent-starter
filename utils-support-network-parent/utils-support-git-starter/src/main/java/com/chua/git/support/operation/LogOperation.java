@@ -1,5 +1,6 @@
 package com.chua.git.support.operation;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.git.support.GitClient;
 import com.chua.git.support.exception.GitClientException;
 import com.chua.git.support.model.LogEntry;
@@ -8,8 +9,6 @@ import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -116,7 +115,7 @@ public class LogOperation {
         try {
             client.open();
             Repository repo = client.getRepository();
-            List<LogEntry> result = new ArrayList<>();
+            List<LogEntry> result = Wraps.list();
 
             try (org.eclipse.jgit.revwalk.RevWalk revWalk = new org.eclipse.jgit.revwalk.RevWalk(repo)) {
                 if (fromRef != null && toRef != null) {

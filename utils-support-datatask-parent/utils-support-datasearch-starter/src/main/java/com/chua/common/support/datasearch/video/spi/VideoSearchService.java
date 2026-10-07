@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.video.spi;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.network.lang.code.ReturnPageResult;
 import com.chua.common.support.datasearch.video.model.VideoInfoResult;
 import com.chua.common.support.datasearch.video.model.VideoSearch;
@@ -7,8 +8,6 @@ import com.chua.common.support.lang.code.PageResult;
 import com.chua.common.support.spi.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +33,7 @@ public class VideoSearchService {
      * @return 聚合分页结果（各源结果合并，total 为各源之和）
      */
     public ReturnPageResult<VideoInfoResult> search(VideoSearch search) {
-        List<VideoInfoResult> all = new ArrayList<>();
+        List<VideoInfoResult> all = Wraps.list();
         long total = 0;
         int sources = 0;
         Map<String, ResourceProvider> providers = ServiceProvider.of(ResourceProvider.class).list();

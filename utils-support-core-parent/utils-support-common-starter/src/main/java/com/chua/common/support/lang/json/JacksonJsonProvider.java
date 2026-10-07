@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.json;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.loader.SupplierLazyLoader;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDefault;
@@ -43,7 +44,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -433,7 +433,7 @@ public class JacksonJsonProvider implements JsonProvider {
     public String toJson(Object object, String... ignores) {
         try {
             // 收集需要忽略的字段名
-            Set<String> ignoreFields = new HashSet<>();
+            Set<String> ignoreFields = Wraps.set();
             for (String field : ignores) {
                 ignoreFields.add(field);
             }

@@ -1,5 +1,6 @@
 package com.chua.email.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.PolledDirectory;
 import com.chua.common.support.lang.directory.PolledListener;
 import com.chua.common.support.lang.directory.WatcherEvent;
@@ -163,7 +164,7 @@ public class EmailDirectory implements PolledDirectory {
                 if (messageId != null && !seenMessageIds.contains(messageId)) {
                     seenMessageIds.add(messageId);
 
-                    Map<String, Object> emailData = new LinkedHashMap<>();
+                    Map<String, Object> emailData = Wraps.linkedMap();
                     emailData.put("messageId", messageId);
                     emailData.put("subject", msg.getSubject());
                     emailData.put("from", msg.getFrom() != null ? msg.getFrom()[0].toString() : "");

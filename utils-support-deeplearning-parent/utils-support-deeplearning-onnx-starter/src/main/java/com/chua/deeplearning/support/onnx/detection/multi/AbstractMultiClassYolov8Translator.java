@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.detection.multi;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -19,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -145,12 +145,12 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
      * @return 加载类名称的结果
      */
     private List<String> loadClassNames() {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(classNamesResourcePath())) {
             if (is == null) {
                 log.warn("classpath 未找到 {}, 使用默认类别 ({} 个)",
                         classNamesResourcePath(), defaultClassNames().size());
-                return new ArrayList<>(defaultClassNames());
+                return Wraps.list(defaultClassNames());
             }
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
                 String line;
@@ -163,13 +163,13 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
             }
             if (result.isEmpty()) {
                 log.warn("{} 为空, 使用默认类别", classNamesResourcePath());
-                return new ArrayList<>(defaultClassNames());
+                return Wraps.list(defaultClassNames());
             }
             log.info("{} 从 class.names.txt 加载 {} 类", getClass().getSimpleName(), result.size());
             return result;
         } catch (IOException e) {
             log.warn("加载 class.names.txt 失败: {}, 使用默认", e.getMessage());
-            return new ArrayList<>(defaultClassNames());
+            return Wraps.list(defaultClassNames());
         }
     }
 
@@ -215,9 +215,9 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
                     getClass().getSimpleName(), numFeatures, expectedFeatures);
         }
 
-        List<String> names = new ArrayList<>();
-        List<Double> probs = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> probs = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
 
         for (int i = 0; i < numBoxes; i++) {
             float cx, cy, w, h;
@@ -287,9 +287,9 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
         }
 
         List<Integer> keep = NMSUtils.nms(boxes, probs, nmsThreshold);
-        List<String> finalNames = new ArrayList<>();
-        List<Double> finalProbs = new ArrayList<>();
-        List<BoundingBox> finalBoxes = new ArrayList<>();
+        List<String> finalNames = Wraps.list();
+        List<Double> finalProbs = Wraps.list();
+        List<BoundingBox> finalBoxes = Wraps.list();
         for (int idx : keep) {
             finalNames.add(names.get(idx));
             finalProbs.add(probs.get(idx));

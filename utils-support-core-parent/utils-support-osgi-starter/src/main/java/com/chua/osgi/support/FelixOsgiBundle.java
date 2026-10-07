@@ -1,18 +1,15 @@
 package com.chua.osgi.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.osgi.OsgiBundle;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -112,7 +109,7 @@ public class FelixOsgiBundle implements OsgiBundle {
         if (headers == null) {
             return Collections.emptyMap();
         }
-        Map<String, String> result = new LinkedHashMap<>();
+        Map<String, String> result = Wraps.linkedMap();
         Enumeration<String> keys = headers.keys();
         while (keys.hasMoreElements()) {
             String key = keys.nextElement();
@@ -254,8 +251,8 @@ public class FelixOsgiBundle implements OsgiBundle {
         if (context == null) {
             return Collections.emptyList();
         }
-        List<T> result = new ArrayList<>();
-        List<ServiceReference<?>> acquired = new ArrayList<>();
+        List<T> result = Wraps.list();
+        List<ServiceReference<?>> acquired = Wraps.list();
         try {
             ServiceReference<?>[] refs = context.getServiceReferences(type.getName(), null);
             if (refs == null) {
@@ -282,7 +279,7 @@ public class FelixOsgiBundle implements OsgiBundle {
 
     @Override
     public List<String> getRegisteredServiceTypes() {
-        Set<String> types = new LinkedHashSet<>();
+        Set<String> types = Wraps.linkedSet();
         for (ServiceRegistration<?> registration : registrations) {
             try {
                 Object objectClass = registration.getReference().getProperty(Constants.OBJECTCLASS);

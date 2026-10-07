@@ -1,5 +1,6 @@
 package com.chua.runtime.shell.command.builtin;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.runtime.apm.ApmBootstrap;
 import com.chua.runtime.apm.handler.DependencyGraphHandler;
 import com.chua.runtime.apm.handler.FileHandler;
@@ -14,8 +15,6 @@ import com.chua.runtime.protocol.DependencyEdge;
 import com.chua.runtime.protocol.TransmissionRecord;
 import com.chua.runtime.shell.command.Command;
 import com.chua.runtime.shell.output.Console;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -122,7 +121,7 @@ public class ApmCommand implements Command {
     */
     public String[] aliases() {
  // 动态别名：处理器 名称去除 -处理器 后缀
-        List<String> aliases = new ArrayList<>();
+        List<String> aliases = Wraps.list();
         if (apm != null) {
             for (Plugin p : apm.getHandlers()) {
                 aliases.add(shortName(p.name()));
@@ -144,7 +143,7 @@ public class ApmCommand implements Command {
      * 完成
     */
     public List<String> complete(String[] args) {
-        List<String> completions = new ArrayList<>();
+        List<String> completions = Wraps.list();
         if (args.length == 0 || args.length == 1) {
             completions.add(SUB_LIST);
             completions.add(SUB_STATUS);
@@ -482,7 +481,7 @@ public class ApmCommand implements Command {
      * @return 简称列表
      */
     private List<String> handlerNames() {
-        List<String> names = new ArrayList<>();
+        List<String> names = Wraps.list();
         if (apm != null) {
             for (Plugin p : apm.getHandlers()) {
                 names.add(shortName(p.name()));

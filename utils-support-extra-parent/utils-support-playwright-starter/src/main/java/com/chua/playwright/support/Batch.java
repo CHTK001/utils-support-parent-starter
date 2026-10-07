@@ -1,5 +1,6 @@
 package com.chua.playwright.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.playwright.support.engine.Engine;
 
 import java.util.*;
@@ -20,8 +21,8 @@ public class Batch {
      * 批量。
      */
     private final Engine engine;
-    private final List<Map<String, Object>> commands = new ArrayList<>(); // 命令
-    private final List<String> names = new ArrayList<>(); // 名称
+    private final List<Map<String, Object>> commands = Wraps.list(); // 命令
+    private final List<String> names = Wraps.list(); // 名称
     private boolean stopOnError = true; // 停止on错误
 /**
  * 停止on错误。
@@ -65,7 +66,7 @@ public class Batch {
      * @return launch的结果
      */
     public int launch(boolean headless) {
-        Map<String, Object> p = new LinkedHashMap<>();
+        Map<String, Object> p = Wraps.linkedMap();
         p.put("headless", headless);
         return add("launch", null, p);
     }
@@ -78,7 +79,7 @@ public class Batch {
      * @param url url
      */
     public void gotoPage(int pageHandle, String url) {
-        Map<String, Object> p = new LinkedHashMap<>();
+        Map<String, Object> p = Wraps.linkedMap();
         p.put("url", url);
         /**
          * click。
@@ -96,7 +97,7 @@ public class Batch {
      * @param selector 方法入参 selector
      */
     public void click(int handle, String selector) {
-        Map<String, Object> p = new LinkedHashMap<>();
+        Map<String, Object> p = Wraps.linkedMap();
         p.put("selector", selector);
         add("click", handle, p);
     }
@@ -109,7 +110,7 @@ public class Batch {
      * @param value 值，不允许为 null
      */
     public void fill(int handle, String selector, String value) {
-        Map<String, Object> p = new LinkedHashMap<>();
+        Map<String, Object> p = Wraps.linkedMap();
         p.put("selector", selector);
         p.put("value", value);
         add("fill", handle, p);
@@ -123,7 +124,7 @@ public class Batch {
  */
 
     public void evaluate(int handle, String expression) {
-        Map<String, Object> p = new LinkedHashMap<>();
+        Map<String, Object> p = Wraps.linkedMap();
         p.put("expression", expression);
         add("evaluate", handle, p);
     }
@@ -149,7 +150,7 @@ public class Batch {
      * @return 结果列表，无数据时为空列表
      */
     public List<Object> execute() {
-        List<Object> results = new ArrayList<>();
+        List<Object> results = Wraps.list();
         for (int i = 0; i < commands.size(); i++) {
             Map<String, Object> cmd = commands.get(i);
             String action = (String) cmd.get("action");
@@ -220,7 +221,7 @@ public class Batch {
      * @return 结果数值
      */
     private int add(String action, Integer handle, Map<String, Object> params) {
-        Map<String, Object> cmd = new LinkedHashMap<>();
+        Map<String, Object> cmd = Wraps.linkedMap();
         cmd.put("action", action);
         cmd.put("handle", handle != null ? handle : 0);
         if (params != null) {

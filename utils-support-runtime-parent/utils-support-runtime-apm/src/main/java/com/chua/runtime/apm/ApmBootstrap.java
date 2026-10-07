@@ -1,5 +1,6 @@
 package com.chua.runtime.apm;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.runtime.apm.handler.AsyncHttpClientHandler;
 import com.chua.runtime.apm.handler.CassandraHandler;
 import com.chua.runtime.apm.handler.ClickHouseHandler;
@@ -94,7 +95,6 @@ import java.util.logging.Logger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -274,7 +274,7 @@ public class ApmBootstrap {
             return;
         }
         // 1. 先启动存储层(Handlers 在 addRecord 时会调用 StorageManager.append)
-        Map<String, String> configMap = new HashMap<>();
+        Map<String, String> configMap = Wraps.map();
         configMap.put("apm.storage.type", System.getProperty("apm.storage.type", "inmemory"));
         configMap.put("apm.storage.retention.ms",
                 System.getProperty("apm.storage.retention.ms", String.valueOf(7L * 24 * 60 * 60 * 1000)));

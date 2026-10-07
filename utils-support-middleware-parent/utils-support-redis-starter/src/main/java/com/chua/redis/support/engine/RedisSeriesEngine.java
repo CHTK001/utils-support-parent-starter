@@ -1,5 +1,6 @@
 package com.chua.redis.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.series.SeriesEngine;
 import com.chua.common.support.spi.annotations.Spi;
@@ -10,8 +11,6 @@ import io.lettuce.core.ScanIterator;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -205,7 +204,7 @@ public class RedisSeriesEngine implements SeriesEngine, AutoCloseable {
             if (found == null || found.isEmpty()) {
                 return List.of();
             }
-            List<String> sorted = new ArrayList<>(found);
+            List<String> sorted = Wraps.list(found);
             Collections.sort(sorted);
             return sorted;
         } catch (Exception e) {
@@ -232,7 +231,7 @@ public class RedisSeriesEngine implements SeriesEngine, AutoCloseable {
         long nowMs = System.currentTimeMillis();
         long startMs = nowMs - (long) hours * 3600_000L;
 
-        List<Object[]> points = new ArrayList<>();
+        List<Object[]> points = Wraps.list();
         int dropped = 0;
         try {
             RedisCommands<String, String> sync = commands();
@@ -304,7 +303,7 @@ public class RedisSeriesEngine implements SeriesEngine, AutoCloseable {
         if (found.size() == 1) {
             return found.iterator().next();
         }
-        List<String> candidates = new ArrayList<>(found);
+        List<String> candidates = Wraps.list(found);
         Collections.sort(candidates);
         throw new IllegalArgumentException("target=" + target + " monitor=" + monitorId + " 下存在多个指标 "
                 + candidates + "，无法确定要查询哪条曲线；请显式传入 metricName");

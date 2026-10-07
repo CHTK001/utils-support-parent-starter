@@ -1,12 +1,11 @@
 package com.chua.deeplearning.support.safetensors;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.translator.TranslatorModelDefinition;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,7 +47,7 @@ public class SafeTensorIdentificationEngine implements IdentificationEngine {
      * 获取模型
     */
     public List<ModelDefinition> getModels() {
-        return new ArrayList<>();
+        return Wraps.list();
     }
 
     @Override
@@ -56,7 +55,7 @@ public class SafeTensorIdentificationEngine implements IdentificationEngine {
      * 获取translator模型
     */
     public List<TranslatorModelDefinition> getTranslatorModels() {
-        return new ArrayList<>();
+        return Wraps.list();
     }
 
     @Override
@@ -64,7 +63,7 @@ public class SafeTensorIdentificationEngine implements IdentificationEngine {
      * 按能力接口查询模型名称（Safetensors 引擎暂无注册模型，返回空列表）
     */
     public List<String> getModelNamesByCapability(Class<?> capabilityInterface) {
-        return new ArrayList<>();
+        return Wraps.list();
     }
 
     @Override
@@ -72,7 +71,7 @@ public class SafeTensorIdentificationEngine implements IdentificationEngine {
      * 按能力标签查询模型名称（Safetensors 引擎暂无注册模型，返回空列表）
     */
     public List<String> getModelNamesByCapability(String capability) {
-        return new ArrayList<>();
+        return Wraps.list();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.video.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.datasearch.function.Splitter;
@@ -20,7 +21,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -106,7 +106,7 @@ public class WanouResourceProvider extends AbstractResourceProvider {
 
                                 String vodDownFrom = item.getVodDownFrom();
                                 String vodDownUrl = item.getVodDownUrl();
-                                List<VideoDownload> videoDownloads = new ArrayList<>();
+                                List<VideoDownload> videoDownloads = Wraps.list();
                                 registerDownload(videoDownloads, vodDownFrom, vodDownUrl);
                                 result.setDownloadList(videoDownloads);
                                 return result;

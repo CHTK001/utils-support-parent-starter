@@ -1,6 +1,7 @@
 package com.chua.deeplearning.support.engine;
 
 import ai.djl.translate.Translator;
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,6 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -237,7 +237,7 @@ public final class ModelRegistry {
          */
         public Entry {
             downloadMirrors = downloadMirrors == null ? null
-                    : Collections.unmodifiableList(new ArrayList<>(downloadMirrors));
+                    : Collections.unmodifiableList(Wraps.list(downloadMirrors));
         }
 
         /**
@@ -473,7 +473,7 @@ public final class ModelRegistry {
      * @return 镜像地址列表，可为 空
      */
     private static List<String> resolveMirrors(String downloadUrl, List<String> downloadMirrors) {
-        List<String> mirrors = downloadMirrors == null ? new java.util.ArrayList<>() : new java.util.ArrayList<>(downloadMirrors);
+        List<String> mirrors = downloadMirrors == null ? Wraps.list() : Wraps.list(downloadMirrors);
         if (downloadUrl != null && downloadUrl.contains("huggingface.co") && mirrors.stream().noneMatch(m -> m != null && m.contains("hf-mirror.com"))) {
             mirrors.add(downloadUrl.replace("huggingface.co", "hf-mirror.com"));
         }
@@ -542,7 +542,7 @@ public final class ModelRegistry {
      */
     public static List<Entry> getAllByCapability(Class<?> capabilityInterface) {
         if (capabilityInterface == null) {
-            return new ArrayList<>(REGISTRY.values());
+            return Wraps.list(REGISTRY.values());
         }
         return REGISTRY.values().stream()
                 .filter(e -> e.capabilityInterface() != null)
@@ -804,7 +804,7 @@ public final class ModelRegistry {
         if (entry == null || entry.downloadUrl() == null || entry.downloadUrl().isBlank()) {
             return null;
         }
-        List<String> urls = new ArrayList<>();
+        List<String> urls = Wraps.list();
         urls.add(entry.downloadUrl());
         if (entry.downloadMirrors() != null) {
             for (String mirror : entry.downloadMirrors()) {
@@ -1234,7 +1234,7 @@ public final class ModelRegistry {
             }
             synchronized (this) {
                 if (delegate == null) {
-                    this.options = new java.util.LinkedHashMap<>(options);
+                    this.options = Wraps.linkedMap(options);
                     return;
                 }
                 if (delegate instanceof DetectionConfigurable configurable) {
@@ -1354,14 +1354,14 @@ public final class ModelRegistry {
             if (options != null && !options.isEmpty()) {
                 com.chua.deeplearning.support.ai.DetectionConfiguration cfg =
                         new com.chua.deeplearning.support.ai.DetectionConfiguration.DetectionConfigurationBuilder()
-                                .systemOption(new java.util.LinkedHashMap<>(options))
+                                .systemOption(Wraps.linkedMap(options))
                                 .build();
                 // 优先带参构造：ctor(DetectionConfiguration) → ctor(Map)，均不可用则回退无参默认值
                 Object cfgInstance = ReflectUtils.instantiate(translatorClass, cfg);
                 if (cfgInstance != null) {
                     return cfgInstance;
                 }
-                Object mapInstance = ReflectUtils.instantiate(translatorClass, new java.util.LinkedHashMap<>(options));
+                Object mapInstance = ReflectUtils.instantiate(translatorClass, Wraps.linkedMap(options));
                 if (mapInstance != null) {
                     return mapInstance;
                 }

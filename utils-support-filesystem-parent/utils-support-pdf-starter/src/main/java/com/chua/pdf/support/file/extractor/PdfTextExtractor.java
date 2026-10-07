@@ -1,5 +1,6 @@
 package com.chua.pdf.support.file.extractor;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.txtractor.TextExtractResult;
 import com.chua.common.support.file.txtractor.TextExtractor;
 import com.chua.common.support.spi.annotations.Spi;
@@ -13,8 +14,6 @@ import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +35,7 @@ public class PdfTextExtractor implements TextExtractor {
      * extract文本
     */
     public List<TextExtractResult> extractText(File file) {
-        List<TextExtractResult> results = new ArrayList<>();
+        List<TextExtractResult> results = Wraps.list();
 
         try (PDDocument doc = Loader.loadPDF(file)) {
             // 解析书签/大纲结构，获取章节→页码映射
@@ -68,7 +67,7 @@ public class PdfTextExtractor implements TextExtractor {
      * @return resolveBookmarks的结果
      */
     private Map<Integer, String> resolveBookmarks(PDDocument doc) throws IOException {
-        Map<Integer, String> pageToSection = new java.util.LinkedHashMap<>();
+        Map<Integer, String> pageToSection = Wraps.linkedMap();
         PDDocumentOutline outline = doc.getDocumentCatalog().getDocumentOutline();
         if (outline != null) {
             collectBookmarks(outline, doc, pageToSection, "");

@@ -1,5 +1,6 @@
 package com.chua.datalake.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.Pagination;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
@@ -10,8 +11,6 @@ import com.chua.common.support.lang.datasource.meta.MetaData;
 import com.chua.common.support.lang.json.Json;
 import com.chua.datalake.support.client.DefaultDatalakeHttpClient;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -218,7 +217,7 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
         */
         public <T> List<T> query(String sql, Class<T> rowType, Object... params) {
             List<Map<String, Object>> rows = query(sql, params);
-            List<T> result = new ArrayList<>(rows.size());
+            List<T> result = Wraps.list(rows.size());
             for (Map<String, Object> row : rows) {
                 result.add(Json.getMapper().convertValue(row, rowType));
             }
@@ -239,7 +238,7 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
             int from = Math.min(rows.size(), Math.max(0, (pagination.getPageNum() - 1) * size));
             int to = size == 0 ? from : Math.min(rows.size(), from + size);
             pagination.setTotal(rows.size());
-            return new ArrayList<>(rows.subList(from, to));
+            return Wraps.list(rows.subList(from, to));
         }
 
         @Override

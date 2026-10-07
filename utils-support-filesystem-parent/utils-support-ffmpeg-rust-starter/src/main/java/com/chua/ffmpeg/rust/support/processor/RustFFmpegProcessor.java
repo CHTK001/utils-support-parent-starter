@@ -1,5 +1,6 @@
 package com.chua.ffmpeg.rust.support.processor;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.media.ffmpeg.FFmpegProcessor;
 import com.chua.common.support.media.ffmpeg.FFmpegOptions;
@@ -158,7 +159,7 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
         if (duration <= 0) {
             throw new IOException("Cannot determine video duration for frame capture");
         }
-        java.util.List<File> frames = new java.util.ArrayList<>();
+        java.util.List<File> frames = Wraps.list();
         double timestamp = 0;
         int index = 0;
         String ext = imageFormat != null ? imageFormat.toLowerCase() : "jpg";

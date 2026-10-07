@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.software.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.software.model.SoftwareInfo;
 import com.chua.common.support.datasearch.software.spi.SoftwareProvider;
 import com.chua.common.support.lang.cmd.CmdExecutors;
@@ -9,8 +10,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -49,7 +48,7 @@ public class NpmSoftwareProvider implements SoftwareProvider {
      * 搜索
     */
     public List<SoftwareInfo> search(String keyword) {
-        List<SoftwareInfo> results = new ArrayList<>();
+        List<SoftwareInfo> results = Wraps.list();
         String[] cmd = {"npm", "search", keyword, "--json"};
 
         log.info("npm 搜索: keyword={}", keyword);
@@ -153,7 +152,7 @@ public class NpmSoftwareProvider implements SoftwareProvider {
      * @return 解析npm输出的结果
      */
     private List<SoftwareInfo> parseNpmOutput(String output) {
-        List<SoftwareInfo> results = new ArrayList<>();
+        List<SoftwareInfo> results = Wraps.list();
         try {
  // NPM 搜索 --json 返回 JSON 数组，每项包含 名称、版本、description 等
             for (String line : output.split("\\r?\\n")) {

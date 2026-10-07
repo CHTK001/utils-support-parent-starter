@@ -1,6 +1,5 @@
 package com.chua.common.support.ai.decision;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -68,7 +67,7 @@ public class DefaultDecisionProvider implements DecisionProvider {
         if (functions.isEmpty()) {
             throw new IllegalArgumentException("functions 不能为空");
         }
-        Map<String, Function<DecisionQuery, Decision>> copy = new LinkedHashMap<>();
+        Map<String, Function<DecisionQuery, Decision>> copy = Wraps.linkedMap();
         for (Map.Entry<String, Function<DecisionQuery, Decision>> entry : functions.entrySet()) {
             if (entry.getKey() == null || entry.getKey().isBlank()) {
                 throw new IllegalArgumentException("functions 的键不能为 null 或空白");
@@ -113,7 +112,7 @@ public class DefaultDecisionProvider implements DecisionProvider {
     @Override
     public DecisionBatch decide(DecisionRequest request) {
         Objects.requireNonNull(request, "request 不能为 null");
-        List<Decision> decisions = new ArrayList<>(request.size());
+        List<Decision> decisions = Wraps.list(request.size());
         for (DecisionQuery query : request.queries()) {
             Function<DecisionQuery, Decision> function = functions.get(query.id());
             if (function == null) {

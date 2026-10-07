@@ -1,4 +1,5 @@
 package com.chua.deeplearning.support.onnx.florence2;
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.huggingface.tokenizers.Encoding;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.onnxruntime.OnnxTensor;
@@ -12,8 +13,6 @@ import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import ai.onnxruntime.OnnxJavaType;
@@ -225,10 +224,10 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         Arrays.fill(encMask, 1L);
         OnnxTensor encoderMaskTensor = OnnxTensor.createTensor(ortEnv,
                 LongBuffer.wrap(encMask), new long[]{1, seqLen});
-        List<Long> tokens = new ArrayList<>();
+        List<Long> tokens = Wraps.list();
         try { Encoding enc = tokenizer.encode(taskPrompt); for (long t : enc.getIds()) tokens.add(t); }
         catch (Exception e) { log.warn("[Florence-2] tokenizer failed: {}", e.getMessage()); for (char c : taskPrompt.toCharArray()) tokens.add((long) c); }
-        List<Long> generatedTokens = new ArrayList<>(tokens);
+        List<Long> generatedTokens = Wraps.list(tokens);
         try {
             long[] currentIds = tokens.stream().mapToLong(Long::longValue).toArray();
             OnnxTensor idsTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(currentIds), new long[]{1, currentIds.length});
@@ -242,7 +241,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                 }
                 OnnxTensor embedsTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(floatArrayFrom2D(embeds)), new long[]{1, embedSeqLen, HIDDEN_SIZE});
                 OnnxTensor encoderHiddenTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(floatArrayFrom2D(encoderHidden)), new long[]{1, seqLen, HIDDEN_SIZE});
-                Map<String, OnnxTensor> decoderInputs = new HashMap<>();
+                Map<String, OnnxTensor> decoderInputs = Wraps.map();
                 decoderInputs.put("inputs_embeds", embedsTensor);
                 decoderInputs.put("encoder_hidden_states", encoderHiddenTensor);
                 decoderInputs.put("encoder_attention_mask", encoderMaskTensor);
@@ -275,7 +274,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                             }
                             OnnxTensor stepEmbedsTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(floatArrayFrom2D(stepEmbeds)), new long[]{1, stepSeqLen, HIDDEN_SIZE});
                             OnnxTensor stepEncoderHiddenTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(floatArrayFrom2D(encoderHidden)), new long[]{1, seqLen, HIDDEN_SIZE});
-                            Map<String, OnnxTensor> stepDecoderInputs = new HashMap<>();
+                            Map<String, OnnxTensor> stepDecoderInputs = Wraps.map();
                             stepDecoderInputs.put("inputs_embeds", stepEmbedsTensor);
                             stepDecoderInputs.put("encoder_hidden_states", stepEncoderHiddenTensor);
                             stepDecoderInputs.put("encoder_attention_mask", encoderMaskTensor);

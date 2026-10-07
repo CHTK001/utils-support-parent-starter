@@ -1,5 +1,6 @@
 package com.chua.datasource.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.meta.*;
@@ -10,7 +11,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -91,7 +91,7 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
      * @return 列表table名称的结果
      */
     protected List<String> listTableNames(String catalog, String schemaPattern) throws Exception {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         try (Connection conn = getDataSource().getConnection()) {
             DatabaseMetaData dbmd = conn.getMetaData();
             try (ResultSet rs = dbmd.getTables(catalog, schemaPattern, "%",
@@ -115,7 +115,7 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
      * @return 列表column名称的结果
      */
     protected List<String> listColumnNames(String catalog, String schema, String tableName) throws Exception {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         try (Connection conn = getDataSource().getConnection()) {
             DatabaseMetaData dbmd = conn.getMetaData();
             try (ResultSet rs = dbmd.getColumns(catalog, schema, tableName, "%")) {
@@ -136,7 +136,7 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
      * @return 查询dialectsql的结果
      */
     protected List<String[]> queryDialectSql(String sql) {
-        List<String[]> result = new ArrayList<>();
+        List<String[]> result = Wraps.list();
         try (Connection conn = getDataSource().getConnection();
              java.sql.Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {

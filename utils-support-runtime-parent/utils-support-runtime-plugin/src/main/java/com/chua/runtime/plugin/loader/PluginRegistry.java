@@ -1,5 +1,6 @@
 package com.chua.runtime.plugin.loader;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
 import com.chua.runtime.plugin.loader.PluginScanner.PluginInfo;
@@ -33,8 +34,8 @@ public class PluginRegistry {
      * 创建 pluginregistry 实例
     */
     public PluginRegistry() {
-        this.pluginMap = new HashMap<>();
-        this.pluginList = new ArrayList<>();
+        this.pluginMap = Wraps.map();
+        this.pluginList = Wraps.list();
     }
 
     /**
@@ -78,7 +79,7 @@ public class PluginRegistry {
      * @return 名称列表
      */
     public List<String> getNames() {
-        return new ArrayList<>(pluginMap.keySet());
+        return Wraps.list(pluginMap.keySet());
     }
 
     /**
@@ -151,7 +152,7 @@ public class PluginRegistry {
      * @return 运行中的插件列表
      */
     public List<PluginInfo> getRunning() {
-        List<PluginInfo> running = new ArrayList<>();
+        List<PluginInfo> running = Wraps.list();
         for (PluginInfo info : pluginList) {
             if (info.plugin().isRunning()) {
                 running.add(info);

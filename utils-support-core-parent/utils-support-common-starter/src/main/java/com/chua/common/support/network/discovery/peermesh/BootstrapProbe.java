@@ -1,8 +1,7 @@
 package com.chua.common.support.network.discovery.peermesh;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -83,7 +82,7 @@ public class BootstrapProbe {
             }
         }
         if (diskStore != null) {
-            diskStore.save(new ArrayList<>(nodeTable.getAllEntries().values()));
+            diskStore.save(Wraps.list(nodeTable.getAllEntries().values()));
         }
     }
 
@@ -107,7 +106,7 @@ public class BootstrapProbe {
             case "seed":
                 return new SeedModeProbe(config, localServerId, localHost, localPort);
             case "c-seed":
-                List<NodeTable.NodeEntry> all = new ArrayList<>();
+                List<NodeTable.NodeEntry> all = Wraps.list();
                 CModeProbe cMode = new CModeProbe(config, localServerId);
                 try {
                     cMode.start();

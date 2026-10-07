@@ -1,13 +1,11 @@
 package com.chua.git.support.operation;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.git.support.GitClient;
 import com.chua.git.support.exception.GitClientException;
 import com.chua.git.support.model.StatusResult;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Status;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -84,12 +82,12 @@ public class StatusOperation {
      * @return 结果列表，无数据时为空列表
      */
     private List<String> toList(Set<String> set) {
-        return set != null ? new ArrayList<>(set) : new ArrayList<>();
+        return set != null ? Wraps.list(set) : Wraps.list();
     }
 
     private Map<String, List<String>> buildMap(List<String> added, List<String> removed,
                                                 List<String> modified, List<String> missing) {
-        Map<String, List<String>> map = new LinkedHashMap<>();
+        Map<String, List<String>> map = Wraps.linkedMap();
         if (!added.isEmpty()) {
             map.put("added", added);
         }

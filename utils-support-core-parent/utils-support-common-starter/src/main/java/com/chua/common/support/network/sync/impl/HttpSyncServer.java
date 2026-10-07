@@ -1,5 +1,6 @@
 package com.chua.common.support.network.sync.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.network.server.ServerSetting;
@@ -12,9 +13,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -69,7 +68,7 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     /**
      * 监听器列表
      */
-    private final List<SyncServerListener> listeners = new ArrayList<>();
+    private final List<SyncServerListener> listeners = Wraps.list();
 
     /**
      * HTTP 服务器
@@ -135,7 +134,7 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
                     return;
                 }
 
-                clients.putIfAbsent(clientId, new HashMap<>());
+                clients.putIfAbsent(clientId, Wraps.map());
                 String[] topics = topicsStr.split(",");
                 int timeout = timeoutStr != null ? Integer.parseInt(timeoutStr) : 30;
 
@@ -155,7 +154,7 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
                 String body = new String(exchange.getRequestBody().readAllBytes());
                 String clientId = extractParam(body, "clientId");
                 if (clientId != null) {
-                    clients.putIfAbsent(clientId, new HashMap<>());
+                    clients.putIfAbsent(clientId, Wraps.map());
                     notifyListener(l -> l.onClientConnected(clientId, clients.get(clientId)));
                     sendResponse(exchange, 200, "{\"status\":\"ok\"}");
                 } else {
@@ -188,7 +187,7 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     @Override
     public void publish(String topic, Object message) {
         String payload = topic + ":" + message.toString();
-        messageQueues.computeIfAbsent(topic, k -> new java.util.LinkedList<>()).add(payload);
+        messageQueues.computeIfAbsent(topic, k -> Wraps.deque()).add(payload);
     }
 
     /**
@@ -200,7 +199,7 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
         if (meta == null) {
             return;
         }
-        messageQueues.computeIfAbsent(topic, k -> new java.util.LinkedList<>())
+        messageQueues.computeIfAbsent(topic, k -> Wraps.deque())
                 .add(topic + ":" + message.toString());
         notifyListener(l -> l.onMessage(clientId, topic, message));
     }
@@ -210,7 +209,7 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
      */
     @Override
     public List<String> getConnectedClients() {
-        return new ArrayList<>(clients.keySet());
+        return Wraps.list(clients.keySet());
     }
 
     /**
@@ -343,7 +342,7 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
      * @return 结果映射，无数据时为空映射
      */
     private Map<String, String> parseQuery(String query) {
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = Wraps.map();
         if (query == null || query.isEmpty()) {
             return params;
         }

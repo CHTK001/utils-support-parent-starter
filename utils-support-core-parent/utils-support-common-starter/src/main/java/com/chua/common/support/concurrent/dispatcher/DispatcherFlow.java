@@ -1,10 +1,9 @@
 package com.chua.common.support.concurrent.dispatcher;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.concurrent.dispatcher.provider.MemoryDispatcherProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -96,7 +95,7 @@ public class DispatcherFlow {
             throw new IllegalArgumentException("不支持注册接口类型，请传入实例对象");
         }
 
-        var definitions = new ArrayList<DispatcherDefinition>();
+        var definitions = Wraps.<DispatcherDefinition>list();
         var clazz = subscriber.getClass();
 
         for (var method : clazz.getMethods()) {
@@ -153,7 +152,7 @@ public class DispatcherFlow {
         if (type == null || type.isEmpty()) {
             return providers.isEmpty() ? List.of() : List.of(providers.getFirst());
         }
-        var result = new ArrayList<DispatcherProvider>();
+        var result = Wraps.<DispatcherProvider>list();
         for (var provider : providers) {
             var spi = provider.getClass().getAnnotation(Spi.class);
             if (spi != null) {

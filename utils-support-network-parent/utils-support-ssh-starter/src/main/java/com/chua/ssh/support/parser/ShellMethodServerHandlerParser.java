@@ -1,5 +1,6 @@
 package com.chua.ssh.support.parser;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.server.filter.ServerFilter;
 import com.chua.common.support.network.server.filter.ShellUrlServerFilter;
 import com.chua.common.support.network.server.handler.ServerHandler;
@@ -42,12 +43,12 @@ public class ShellMethodServerHandlerParser implements ServerHandlerAnnotationPa
         if (!(serverFilter instanceof ShellUrlServerFilter)) {
             return List.of();
         }
-        List<ServerHandler> result = new ArrayList<>();
+        List<ServerHandler> result = Wraps.list();
         if (objectContext == null) {
             return result;
         }
 
-        Set<String> processedClasses = new HashSet<>();
+        Set<String> processedClasses = Wraps.set();
 
  // 处理类级 @Shell方法 注解的 Bean
         Map<String, Object> classBeans = objectContext.getBeansWithAnnotation(ShellMethod.class);

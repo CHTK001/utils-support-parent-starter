@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
@@ -9,7 +10,6 @@ import reactor.core.publisher.Flux;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -103,7 +103,7 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
      * @return 用量记录
      */
     private List<AiUsage> parseFile(Path file) {
-        List<AiUsage> result = new ArrayList<>();
+        List<AiUsage> result = Wraps.list();
         String fileModel = null;
         // requestId 兜底：多数 rollout 事件没有 event_id，用「文件唯一名 + 文件内序号」保证稳定且唯一，
         // 供用量增量同步按 requestId 去重（缺失会导致每轮重复插入）
@@ -226,7 +226,7 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
      * @return 文件列表
      */
     private List<Path> listRolloutFiles() {
-        List<Path> files = new ArrayList<>();
+        List<Path> files = Wraps.list();
         // sessionsRoot() 是提供者根目录（如 ~/.codex），sessions/ 与 archived_sessions/ 均在其下
         Path root = sessionsRoot();
         for (String sub : new String[]{"sessions", "archived_sessions"}) {

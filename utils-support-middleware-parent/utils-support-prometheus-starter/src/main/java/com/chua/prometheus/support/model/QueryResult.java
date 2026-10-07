@@ -1,11 +1,10 @@
 package com.chua.prometheus.support.model;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,7 +32,7 @@ public class QueryResult {
      * 结果列表(vector/matrix 为序列, scalar 为单条值)
      */
     @Builder.Default
-    private List<PrometheusMetric> result = new ArrayList<>(); // 结果
+    private List<PrometheusMetric> result = Wraps.list(); // 结果
 
     /**
      * 是否存在数据

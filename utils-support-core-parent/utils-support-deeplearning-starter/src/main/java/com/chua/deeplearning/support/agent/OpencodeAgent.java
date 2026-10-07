@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.agent;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.agent.Agent;
 import com.chua.common.support.ai.agent.AgentCompressionConfig;
@@ -28,8 +29,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -168,7 +167,7 @@ public class OpencodeAgent implements Agent {
     /**
      * 已注册子 Agent（SINGLE 下不委派，仅记录）
     */
-    private final List<AgentDefinition> subAgents = new ArrayList<>();
+    private final List<AgentDefinition> subAgents = Wraps.list();
 
     /**
      * 上下文压缩配置（仅存值供 getter，不转发）
@@ -178,7 +177,7 @@ public class OpencodeAgent implements Agent {
     /**
      * 无法映射到 opencode 的配置项，首次运行 WARN 一次
     */
-    private final Set<String> ignored = new LinkedHashSet<>();
+    private final Set<String> ignored = Wraps.linkedSet();
 
     /**
      * WARN 是否已发出
@@ -577,7 +576,7 @@ public class OpencodeAgent implements Agent {
         /**
          * 已采集事件列表
         */
-        final List<AgentEvent> events = new ArrayList<>();
+        final List<AgentEvent> events = Wraps.list();
         /**
          * token/费用累加器
         */
@@ -675,7 +674,7 @@ public class OpencodeAgent implements Agent {
      * @return 参数数组
      */
     private String[] buildArgs(String input) {
-        List<String> a = new ArrayList<>();
+        List<String> a = Wraps.list();
         a.add("run");
         a.add(input);
         a.add("--format");

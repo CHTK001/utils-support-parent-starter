@@ -4,13 +4,13 @@ import static com.chua.common.support.reflection.ReflectUtils.forName;
 import static com.chua.common.support.reflection.ReflectUtils.invoke;
 import static com.chua.common.support.reflection.ReflectUtils.invokeStatic;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.vector.AbstractVectorStorage;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorCompareAlgorithm;
 import com.chua.vector.support.configuration.VectorStorageProperties;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -115,8 +115,8 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
      */
 
     private class BruteForceStrategy implements IndexStrategy {
-        private final List<float[]> vectors = new ArrayList<>(); // 向量
-        private final Map<String, Integer> idToOrd = new java.util.HashMap<>(); // 标识转为ord
+        private final List<float[]> vectors = Wraps.list(); // 向量
+        private final Map<String, Integer> idToOrd = Wraps.map(); // 标识转为ord
 
         @Override
         public boolean add(String id, float[] vector) {
@@ -135,7 +135,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                 return List.of();
             }
             var algo = getAlgorithm() != null ? getAlgorithm() : VectorCompareAlgorithm.euclidean();
-            List<Vector> all = new ArrayList<>(vectors.size());
+            List<Vector> all = Wraps.list(vectors.size());
             for (Map.Entry<String, Integer> entry : idToOrd.entrySet()) {
                 float sim = algo.compare(query, vectors.get(entry.getValue()));
                 all.add(new Vector(entry.getKey(), vectors.get(entry.getValue()),
@@ -145,7 +145,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             all.sort((a, b) -> Double.compare(
                     (Double) b.metadata().get("score"),
                     (Double) a.metadata().get("score")));
-            return new ArrayList<>(all.subList(0, Math.min(topK, all.size())));
+            return Wraps.list(all.subList(0, Math.min(topK, all.size())));
         }
 
         @Override
@@ -196,8 +196,8 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
     private class CagraStrategy implements IndexStrategy {
         private Object index; // 索引
         private Object resources; // resources
-        private final List<float[]> rawVectors = new ArrayList<>(); // raw向量
-        private final Map<String, Integer> idToOrd = new java.util.HashMap<>(); // 标识转为ord
+        private final List<float[]> rawVectors = Wraps.list(); // raw向量
+        private final Map<String, Integer> idToOrd = Wraps.map(); // 标识转为ord
         private volatile boolean indexBuilt = false; // 索引built
         private volatile boolean building = false; // 构建
 
@@ -226,7 +226,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                         forName("com.nvidia.cuvs.CagraQuery"), queryObj);
                 @SuppressWarnings("unchecked")
                 List<Map<Integer, Float>> hits = (List<Map<Integer, Float>>) invoke(results, "getResults", List.class);
-                List<Vector> candidates = new ArrayList<>();
+                List<Vector> candidates = Wraps.list();
                 if (!hits.isEmpty()) {
                     Map<Integer, Float> hit = hits.getFirst();
                     for (Map.Entry<Integer, Float> e : hit.entrySet()) {
@@ -260,7 +260,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                 return List.of();
             }
             var algo = getAlgorithm() != null ? getAlgorithm() : VectorCompareAlgorithm.euclidean();
-            List<Vector> all = new ArrayList<>();
+            List<Vector> all = Wraps.list();
             for (Map.Entry<String, Integer> entry : idToOrd.entrySet()) {
                 float sim = algo.compare(query, rawVectors.get(entry.getValue()));
                 all.add(new Vector(entry.getKey(), rawVectors.get(entry.getValue()),
@@ -270,7 +270,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             all.sort((a, b) -> Double.compare(
                     (Double) b.metadata().get("score"),
                     (Double) a.metadata().get("score")));
-            return new ArrayList<>(all.subList(0, Math.min(topK, all.size())));
+            return Wraps.list(all.subList(0, Math.min(topK, all.size())));
         }
 
         /**
@@ -414,8 +414,8 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
     private class HnswStrategy implements IndexStrategy {
         private Object index; // 索引
         private Object resources; // resources
-        private final List<float[]> rawVectors = new ArrayList<>(); // raw向量
-        private final Map<String, Integer> idToOrd = new java.util.HashMap<>(); // 标识转为ord
+        private final List<float[]> rawVectors = Wraps.list(); // raw向量
+        private final Map<String, Integer> idToOrd = Wraps.map(); // 标识转为ord
         private volatile boolean indexBuilt = false; // 索引built
         private volatile boolean building = false;
 
@@ -447,7 +447,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                         forName("com.nvidia.cuvs.HnswQuery"), queryObj);
                 @SuppressWarnings("unchecked")
                 List<Map<Integer, Float>> hits = (List<Map<Integer, Float>>) invoke(results, "getResults", List.class);
-                List<Vector> candidates = new ArrayList<>();
+                List<Vector> candidates = Wraps.list();
                 if (!hits.isEmpty()) {
                     Map<Integer, Float> hit = hits.getFirst();
                     for (Map.Entry<Integer, Float> e : hit.entrySet()) {
@@ -474,7 +474,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                 return List.of();
             }
             var algo = getAlgorithm() != null ? getAlgorithm() : VectorCompareAlgorithm.euclidean();
-            List<Vector> all = new ArrayList<>();
+            List<Vector> all = Wraps.list();
             for (Map.Entry<String, Integer> entry : idToOrd.entrySet()) {
                 float sim = algo.compare(query, rawVectors.get(entry.getValue()));
                 all.add(new Vector(entry.getKey(), rawVectors.get(entry.getValue()),
@@ -484,7 +484,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             all.sort((a, b) -> Double.compare(
                     (Double) b.metadata().get("score"),
                     (Double) a.metadata().get("score")));
-            return new ArrayList<>(all.subList(0, Math.min(topK, all.size())));
+            return Wraps.list(all.subList(0, Math.min(topK, all.size())));
         }
 
         private synchronized void ensureIndexBuilt() {

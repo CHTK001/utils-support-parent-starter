@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.opencv.face;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.opencv.OpencvModelTranslator;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,6 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -104,7 +104,7 @@ public class OpencvFaceDetector extends OpencvModelTranslator {
             );
 
             Rect[] rects = faces.toArray();
-            List<PredictRectangle> results = new ArrayList<>(rects.length);
+            List<PredictRectangle> results = Wraps.list(rects.length);
             for (Rect rect : rects) {
                 results.add(new PredictRectangle(
                         (float) rect.x,

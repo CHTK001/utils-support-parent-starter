@@ -1,8 +1,8 @@
 package com.chua.runtime.protocol;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.StringUtils;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -122,7 +122,7 @@ public final class TraceContextPropagator {
      * @return 新建的 头部 映射
      */
     public static Map<String, String> newOutgoingHeaders() {
-        Map<String, String> headers = new HashMap<>();
+        Map<String, String> headers = Wraps.map();
         inject(headers);
         return headers;
     }

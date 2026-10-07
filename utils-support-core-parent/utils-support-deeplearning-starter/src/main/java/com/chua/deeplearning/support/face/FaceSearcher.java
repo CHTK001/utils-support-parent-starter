@@ -1,11 +1,10 @@
 package com.chua.deeplearning.support.face;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorStorage;
 import com.chua.deeplearning.support.feature.FeatureExtractor;
 import com.chua.deeplearning.support.search.SearchPipeline;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -191,7 +190,7 @@ public class FaceSearcher {
         if (vectors == null || vectors.isEmpty()) {
             return List.of();
         }
-        List<FaceSearchHit> hits = new ArrayList<>(vectors.size());
+        List<FaceSearchHit> hits = Wraps.list(vectors.size());
         for (Vector v : vectors) {
             double score = 0d;
             if (v.metadata() != null && v.metadata().get("score") instanceof Number n) {
@@ -219,7 +218,7 @@ public class FaceSearcher {
         if (vectors == null || vectors.isEmpty()) {
             return List.of();
         }
-        List<FaceSearchHit> hits = new ArrayList<>(vectors.size());
+        List<FaceSearchHit> hits = Wraps.list(vectors.size());
         for (Vector v : vectors) {
             double score = 0d;
             if (v.metadata() != null && v.metadata().get("score") instanceof Number n) {

@@ -1,6 +1,5 @@
 package com.chua.deeplearning.support.recognition;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 
 /**
@@ -21,7 +20,7 @@ public class TableStructureContext {
     /**
      * 已收集的识别结果。
      */
-    private final List<Object> results = new ArrayList<>();
+    private final List<Object> results = Wraps.list();
 
     /**
      * 构造。

@@ -1,5 +1,6 @@
 package com.chua.filestorage.support.preview.provider;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.filestorage.support.preview.FileStoragePreviewProvider;
@@ -33,7 +34,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
@@ -343,7 +343,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
      */
     private String paragraphsToHtml(String[] paragraphs) {
         StringBuilder body = new StringBuilder("<div class=\"doc\">");
-        List<String> lines = new ArrayList<>();
+        List<String> lines = Wraps.list();
         for (String paragraph : paragraphs) {
             if (paragraph != null && !paragraph.trim().isEmpty()) {
                 lines.add("<p>" + escape(paragraph.trim()) + "</p>");
@@ -403,7 +403,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
      * @param source 来源描述（如 "工作簿" / "演示文稿"）
      */
     private void appendImagesSection(StringBuilder body, List<byte[]> images, String source) {
-        List<String> inlined = new ArrayList<>();
+        List<String> inlined = Wraps.list();
         int skipped = 0;
         for (byte[] data : images) {
             String uri = inlineImage(data);
@@ -446,7 +446,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
         // 注意：内嵌对象的字节必须在 POIFSFileSystem 打开期间读取。
         // Entry 只是句柄，一旦文件系统关闭再读就会失败（曾因此导致下载链接静默丢失）。
         try (POIFSFileSystem fs = new POIFSFileSystem(new ByteArrayInputStream(content))) {
-            List<Entry> objects = new ArrayList<>();
+            List<Entry> objects = Wraps.list();
             collectEmbeddedObjects(fs.getRoot(), objects);
             if (objects.isEmpty()) {
                 return;
@@ -533,7 +533,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
             for (int i = 0; i < sheetCount; i++) {
                 renderSheet(body, wb.getSheetAt(i));
             }
-            List<byte[]> images = new ArrayList<>();
+            List<byte[]> images = Wraps.list();
             for (org.apache.poi.hssf.usermodel.HSSFPictureData pic : wb.getAllPictures()) {
                 images.add(pic.getData());
             }
@@ -633,7 +633,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
             int index = 1;
             for (HSLFSlide slide : slides) {
                 body.append("<div class=\"slide\"><div class=\"slide-head\">第 ").append(index++).append(" 页</div><div class=\"slide-body\">");
-                List<String> texts = new ArrayList<>();
+                List<String> texts = Wraps.list();
                 for (HSLFShape shape : slide.getShapes()) {
                     if (shape instanceof HSLFTextShape textShape) {
                         String t = textShape.getText();
@@ -656,7 +656,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
                     .htmlContent(page(unavailableHtml("PowerPoint (.ppt) 解析失败: " + escape(e.getMessage())))).build();
         }
         // 演示文稿内嵌图片与内嵌对象
-        List<byte[]> pptImages = new ArrayList<>();
+        List<byte[]> pptImages = Wraps.list();
         try (InputStream in = new ByteArrayInputStream(content);
              HSLFSlideShow show = new HSLFSlideShow(in)) {
             for (org.apache.poi.hslf.usermodel.HSLFPictureData pic : show.getPictureData()) {

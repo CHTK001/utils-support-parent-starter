@@ -1,5 +1,6 @@
 package com.chua.enhance.support.network.server.filter.security;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.network.server.filter.ServerFilter;
@@ -11,7 +12,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Base64;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -57,7 +57,7 @@ public class SignatureServerFilter implements ServerFilter {
     /**
      * Excludepaths
     */
-    private final Set<String> excludePaths = new HashSet<>();
+    private final Set<String> excludePaths = Wraps.set();
 
     @Override
     /**

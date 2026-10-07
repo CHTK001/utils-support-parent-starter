@@ -1,5 +1,6 @@
 package com.chua.smb.storage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.storage.AbstractFileStorage;
 import com.chua.common.support.storage.metadata.Metadata;
@@ -13,7 +14,6 @@ import com.chua.smb.client.SmbClient;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -202,7 +202,7 @@ public class SmbFileStorage extends AbstractFileStorage {
             String path = request.getFilePath() != null ? request.getFilePath() : "/";
             ensureConnected();
             List<SmbClient.SmbFileEntry> entries = smbClient.listFiles(path);
-            List<Metadata> metadata = new ArrayList<>();
+            List<Metadata> metadata = Wraps.list();
             for (SmbClient.SmbFileEntry entry : entries) {
                 metadata.add(Metadata.builder()
                         .name(entry.name())

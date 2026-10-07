@@ -1,9 +1,8 @@
 package com.chua.common.support.datasearch.region.model;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
-import java.util.LinkedHashMap;
-
 /**
  * 行政区划信息模型。
  *
@@ -172,7 +171,7 @@ public class RegionInfo {
      * @return Map 表示
      */
     public Map<String, Object> toMap() {
-        Map<String, Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = Wraps.linkedMap();
         map.put("adcode", adcode);
         map.put("name", name);
         map.put("level", level);

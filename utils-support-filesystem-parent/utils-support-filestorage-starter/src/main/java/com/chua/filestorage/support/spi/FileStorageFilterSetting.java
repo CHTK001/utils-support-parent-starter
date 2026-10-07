@@ -1,9 +1,9 @@
 package com.chua.filestorage.support.spi;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -93,7 +93,7 @@ public interface FileStorageFilterSetting {
         public ImageFilterConfig {
             params = params == null
                     ? Collections.emptyMap()
-                    : Collections.unmodifiableMap(new LinkedHashMap<>(params));
+                    : Collections.unmodifiableMap(Wraps.linkedMap(params));
         }
 
         /**

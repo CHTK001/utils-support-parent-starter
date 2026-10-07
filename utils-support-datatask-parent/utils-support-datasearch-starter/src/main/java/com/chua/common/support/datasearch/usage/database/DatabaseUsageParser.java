@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.database;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import lombok.extern.slf4j.Slf4j;
@@ -10,8 +11,6 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +70,7 @@ public class DatabaseUsageParser extends BaseUsageParser {
     /**
      * 默认字段映射
      */
-    private static final Map<String, String> DEFAULT_FIELD_MAPPING = new LinkedHashMap<>();
+    private static final Map<String, String> DEFAULT_FIELD_MAPPING = Wraps.linkedMap();
     static {
         DEFAULT_FIELD_MAPPING.put("provider", "sys_ai_usage_provider");
         DEFAULT_FIELD_MAPPING.put("model", "sys_ai_usage_model");
@@ -125,7 +124,7 @@ public class DatabaseUsageParser extends BaseUsageParser {
     public Flux<AiUsage> streamAll() {
         try {
             List<Map<String, Object>> rows = jdbcTemplate.queryForList(querySql);
-            List<AiUsage> result = new ArrayList<>();
+            List<AiUsage> result = Wraps.list();
             for (Map<String, Object> row : rows) {
                 try {
                     AiUsage usage = mapToAiUsage(row);

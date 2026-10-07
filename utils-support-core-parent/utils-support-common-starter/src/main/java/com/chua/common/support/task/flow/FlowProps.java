@@ -1,7 +1,5 @@
 package com.chua.common.support.task.flow;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +36,7 @@ public class FlowProps {
      * @param values 属性键值映射
      */
     public FlowProps(Map<String, Object> values) {
-        this.values = values != null ? new LinkedHashMap<>(values) : new LinkedHashMap<>();
+        this.values = values != null ? Wraps.linkedMap(values) : Wraps.linkedMap();
     }
 
     /**
@@ -171,9 +169,9 @@ public class FlowProps {
     public <T> List<T> getList(String key, Class<T> clazz) {
         Object value = values.get(key);
         if (!(value instanceof List<?> list)) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
-        List<T> result = new ArrayList<>(list.size());
+        List<T> result = Wraps.list(list.size());
         for (Object item : list) {
             if (item != null && clazz.isAssignableFrom(item.getClass())) {
                 result.add((T) item);
@@ -204,13 +202,13 @@ public class FlowProps {
     public Map<String, Object> getMap(String key) {
         Object value = values.get(key);
         if (value instanceof Map<?, ?> map) {
-            Map<String, Object> result = new LinkedHashMap<>(map.size());
+            Map<String, Object> result = Wraps.linkedMap(map.size());
             for (Map.Entry<?, ?> entry : map.entrySet()) {
                 result.put(String.valueOf(entry.getKey()), entry.getValue());
             }
             return result;
         }
-        return new LinkedHashMap<>();
+        return Wraps.linkedMap();
     }
 
     /**
@@ -219,7 +217,7 @@ public class FlowProps {
      * @return 不可修改的属性映射
      */
     public Map<String, Object> toMap() {
-        return new LinkedHashMap<>(values);
+        return Wraps.linkedMap(values);
     }
 
     /**

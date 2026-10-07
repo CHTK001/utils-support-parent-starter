@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.network.jsoup;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.BeanUtils;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
@@ -117,7 +118,7 @@ public class JsoupResponse {
      * @return 创建结果的结果
      */
     private <T> List<T> createResult(Class<T> targetClass, String parentXpath, List<MappingsPath> mapping) {
-        List<T> result = new ArrayList<>();
+        List<T> result = Wraps.list();
         Elements elements = document.selectXpath(parentXpath);
         for (Element element : elements) {
             Map<String, Object> item = createItem(element, mapping);
@@ -153,7 +154,7 @@ public class JsoupResponse {
      * @return 创建item的结果
      */
     private Map<String, Object> createItem(Element element, List<MappingsPath> mapping) {
-        Map<String, Object> item = new HashMap<>();
+        Map<String, Object> item = Wraps.map();
         for (MappingsPath mappingsPath : mapping) {
             if (mappingsPath.getType() == PathType.XPATH) {
                 item.put(mappingsPath.getField(), getValue(element.selectXpath(mappingsPath.getPath()), mappingsPath));

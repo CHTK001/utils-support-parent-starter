@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.plugin.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.plugin.model.PluginDefinition;
 import com.chua.common.support.datasearch.plugin.spi.PluginOfflineProvider;
 import org.slf4j.Logger;
@@ -10,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -80,7 +80,7 @@ public abstract class AbstractLocalPluginOfflineProvider implements PluginOfflin
 
     @Override
     public List<PluginDefinition> listPlugins() {
-        List<PluginDefinition> result = new ArrayList<>();
+        List<PluginDefinition> result = Wraps.list();
         for (Path root : pluginRoots()) {
             scanRoot(root, result);
         }

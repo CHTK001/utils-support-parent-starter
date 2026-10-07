@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.region.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.region.model.RegionInfo;
 import com.chua.common.support.datasearch.region.spi.RegionProvider;
 import com.chua.common.support.network.client.ClientResponse;
@@ -10,8 +11,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -102,7 +101,7 @@ public class AlibabaRegionProvider implements RegionProvider {
     */
     public List<RegionInfo> getRegions(int maxLevel) {
         RegionInfo root = getTree(maxLevel);
-        List<RegionInfo> flat = new ArrayList<>();
+        List<RegionInfo> flat = Wraps.list();
         flatten(root, flat);
         return flat;
     }
@@ -196,7 +195,7 @@ public class AlibabaRegionProvider implements RegionProvider {
      * @return 解析的结果
      */
     private List<RegionInfo> parse(String json) {
-        List<RegionInfo> list = new ArrayList<>();
+        List<RegionInfo> list = Wraps.list();
         try {
             JsonNode root = MAPPER.readTree(json);
             JsonNode features = root.get("features");

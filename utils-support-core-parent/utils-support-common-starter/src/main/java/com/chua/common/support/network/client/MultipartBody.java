@@ -1,10 +1,10 @@
 package com.chua.common.support.network.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Getter;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,7 +54,7 @@ public class MultipartBody {
     /**
      * 所有表单部件（文本字段 + 文件）
      */
-    private final List<Part> parts = new ArrayList<>();
+    private final List<Part> parts = Wraps.list();
 
     /**
      * 唯一的分隔符字符串

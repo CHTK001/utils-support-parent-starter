@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.ocr;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.task.pipeline.builder.PipelineBuilder;
 import com.chua.common.support.task.pipeline.core.Pipeline;
@@ -24,11 +25,9 @@ import org.opencv.imgproc.Imgproc;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -923,15 +922,15 @@ public class OcrPipeline {
         } catch (Exception e) {
             log.warn("模型注册表发现失败: {}", e.getMessage());
         }
-        Map<String, LinkedHashSet<String>> grouped = new LinkedHashMap<>();
+        Map<String, Set<String>> grouped = Wraps.linkedMap();
         for (ModelRegistry.Entry entry : ModelRegistry.getAll()) {
             String group = groupOf(entry);
             if (group != null) {
-                grouped.computeIfAbsent(group, k -> new LinkedHashSet<>()).add(entry.modelId());
+                grouped.computeIfAbsent(group, k -> Wraps.linkedSet()).add(entry.modelId());
             }
         }
-        Map<String, List<String>> result = new LinkedHashMap<>();
-        for (Map.Entry<String, LinkedHashSet<String>> entry : grouped.entrySet()) {
+        Map<String, List<String>> result = Wraps.linkedMap();
+        for (Map.Entry<String, Set<String>> entry : grouped.entrySet()) {
             result.put(entry.getKey(), List.copyOf(entry.getValue()));
         }
         return result;

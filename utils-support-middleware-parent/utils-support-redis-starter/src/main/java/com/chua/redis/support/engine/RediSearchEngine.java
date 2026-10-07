@@ -1,5 +1,6 @@
 package com.chua.redis.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
@@ -65,7 +66,7 @@ import java.util.*;
         try (Jedis jedis = getPool(defaultDataSourceName).getResource()) {
             for (int i = 0; i < data.size(); i++) {
                 T item = data.get(i);
-                Map<String, String> hash = new LinkedHashMap<>();
+                Map<String, String> hash = Wraps.linkedMap();
                 for (Method method : item.getClass().getMethods()) {
                     if (method.getParameterCount() != 0 || method.getDeclaringClass() == Object.class) {
                         continue;
@@ -130,7 +131,7 @@ import java.util.*;
         }
         String[] tokens = ql.trim().split("\\s+");
         ProtocolCommand command = () -> SafeEncoder.encode(tokens[0].toUpperCase());
-        List<byte[]> args = new ArrayList<>();
+        List<byte[]> args = Wraps.list();
         for (int i = 1; i < tokens.length; i++) {
             args.add(SafeEncoder.encode(tokens[i]));
         }
@@ -331,11 +332,11 @@ import java.util.*;
         /**
          * 分组bycols
         */
-        private final List<String> groupByCols = new ArrayList<>();
+        private final List<String> groupByCols = Wraps.list();
         /**
          * Where
         */
-        private final List<String> where = new ArrayList<>();
+        private final List<String> where = Wraps.list();
         /**
          * 排序col
         */
@@ -738,7 +739,7 @@ import java.util.*;
         int total = all.size();
         int from = (pageNum - 1) * pageSize;
         int to = Math.min(from + pageSize, total);
-        List<T> records = from >= total ? Collections.emptyList() : new ArrayList<>(all.subList(from, to));
+        List<T> records = from >= total ? Collections.emptyList() : Wraps.list(all.subList(from, to));
         return new Page<>(pageNum, pageSize, total, records);
     }
 
@@ -816,7 +817,7 @@ import java.util.*;
      * @return 映射ft搜索响应的结果
      */
     private <T> List<T> mapFtSearchResponse(Object response, Class<T> entityClass, Jedis jedis) {
-        List<T> result = new ArrayList<>();
+        List<T> result = Wraps.list();
         if (!(response instanceof List<?> reply) || reply.isEmpty()) {
             return result;
         }
@@ -829,7 +830,7 @@ import java.util.*;
             if (key == null || key.isEmpty()) {
                 continue;
             }
-            Map<String, String> hash = new LinkedHashMap<>();
+            Map<String, String> hash = Wraps.linkedMap();
             if (payload instanceof List<?> flat) {
                 int start = flat.size() % 2 == 1 ? 1 : 0;
                 for (int j = start; j + 1 < flat.size(); j += 2) {
@@ -883,7 +884,7 @@ import java.util.*;
      */
     private static byte[][] buildFtAggregateArgs(String index, String query, List<String> groupByCols,
                                                   String sortCol, boolean sortAsc, int offset, int limit) {
-        List<byte[]> args = new ArrayList<>();
+        List<byte[]> args = Wraps.list();
         args.add(SafeEncoder.encode(index));
         args.add(SafeEncoder.encode(query));
         if (groupByCols != null && !groupByCols.isEmpty()) {
@@ -918,27 +919,27 @@ import java.util.*;
      * @return 解析aggregate响应的结果
      */
     private static List<Map<String, Object>> parseAggregateResponse(Object response) {
-        List<Map<String, Object>> result = new ArrayList<>();
+        List<Map<String, Object>> result = Wraps.list();
         if (response == null) {
             return result;
         }
         List<Object> rows;
         if (response instanceof List<?> list) {
-            rows = new ArrayList<>(list);
+            rows = Wraps.list(list);
         } else {
             return result;
         }
         for (Object rowObj : rows) {
             List<String> kv;
             if (rowObj instanceof List<?> listRow) {
-                kv = new ArrayList<>();
+                kv = Wraps.list();
                 for (Object o : listRow) {
                     kv.add(o.toString());
                 }
             } else {
                 continue;
             }
-            Map<String, Object> row = new LinkedHashMap<>();
+            Map<String, Object> row = Wraps.linkedMap();
             for (int i = 0; i < kv.size(); i += 2) {
                 if (i + 1 < kv.size()) {
                     String key = kv.get(i);

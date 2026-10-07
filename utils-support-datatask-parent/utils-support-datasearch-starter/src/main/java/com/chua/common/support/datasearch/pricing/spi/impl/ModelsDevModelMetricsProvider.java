@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.pricing.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.datasearch.pricing.spi.AbstractModelMetricsProvider;
 import com.chua.common.support.spi.annotations.Spi;
@@ -7,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -99,9 +99,9 @@ public class ModelsDevModelMetricsProvider extends AbstractModelMetricsProvider 
     private List<ModelDefinition> parseCatalog(String json) throws Exception {
         JsonNode root = MAPPER.readTree(json);
         if (!root.isObject()) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
-        List<ModelDefinition> result = new ArrayList<>();
+        List<ModelDefinition> result = Wraps.list();
         var providers = root.fields();
         while (providers.hasNext()) {
             var providerEntry = providers.next();
@@ -160,7 +160,7 @@ public class ModelsDevModelMetricsProvider extends AbstractModelMetricsProvider 
         boolean jsonMode = model.path("structured_output").asBoolean(false);
         boolean imageInput = containsText(modalities.path("input"), MODALITY_IMAGE);
 
-        List<String> capabilities = new ArrayList<>(6);
+        List<String> capabilities = Wraps.list(6);
         capabilities.add("chat");
         if (reasoning) {
             capabilities.add("reasoning");

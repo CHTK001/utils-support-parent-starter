@@ -1,4 +1,5 @@
 package com.chua.common.support.utils;
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.constant.DateFormatConstant;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.date.unit.DateUnit;
@@ -547,9 +548,9 @@ public class DateUtils {
         LocalDate beforeLocalDate = toLocalDate(before);
         LocalDate afterLocalDate = toLocalDate(after);
         if (beforeLocalDate.isAfter(afterLocalDate)) {
-            return new ArrayList<>(0);
+            return Wraps.list(0);
         }
-        List<Date> result = new ArrayList<>();
+        List<Date> result = Wraps.list();
         long beforeEpochMilli = beforeLocalDate.atStartOfDay(DEFAULT_ZONE_ID).toInstant().toEpochMilli();
         for (LocalDate day = beforeLocalDate; !day.isAfter(afterLocalDate); day = day.plusDays(1)) {
             // 起始日若恰为零点则保留原实例，其余统一取当天零点
@@ -802,7 +803,7 @@ public class DateUtils {
     public static List<Date> getBeforeDate(final int num) {
         assert num > 0 : "num            1";
         LocalDate localDate = LocalDate.now();
-        List<Date> dateList = new ArrayList<>();
+        List<Date> dateList = Wraps.list();
         for (int i = 0; i < num; i++) {
             dateList.add(Date.from(localDate.minusDays(i).atStartOfDay().atZone(DEFAULT_ZONE_ID).toInstant()));
         }
@@ -873,7 +874,7 @@ public class DateUtils {
      * @return the 结果
      */
     public static LocalDateTime nearLocalDateTime(LocalDateTime localDateTime, LocalDateTime... localDateTimes) {
-        Map<Long, LocalDateTime> result = new HashMap<>(localDateTimes.length);
+        Map<Long, LocalDateTime> result = Wraps.map(localDateTimes.length);
         long nanoOfDay = localDateTime.atZone(DEFAULT_ZONE_ID).toInstant().toEpochMilli();
         for (LocalDateTime time : localDateTimes) {
             result.put(Math.abs(nanoOfDay - time.getNano()), time);
@@ -912,7 +913,7 @@ public class DateUtils {
      * @return the 结果
      */
     public static LocalTime nearLocalTime(LocalTime localTime, LocalTime... localTimes) {
-        Map<Long, LocalTime> result = new HashMap<>(localTimes.length);
+        Map<Long, LocalTime> result = Wraps.map(localTimes.length);
         long secondOfDay = localTime.toSecondOfDay();
         for (LocalTime time : localTimes) {
             result.put(Math.abs(secondOfDay - time.toSecondOfDay()), time);

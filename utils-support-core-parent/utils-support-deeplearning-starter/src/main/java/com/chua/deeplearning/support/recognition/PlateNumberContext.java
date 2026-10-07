@@ -1,9 +1,8 @@
 package com.chua.deeplearning.support.recognition;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.plate.PlateResult;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,7 +44,7 @@ public class PlateNumberContext {
     /**
      * 已收集的识别结果。
      */
-    private final List<PlateResult> results = new ArrayList<>();
+    private final List<PlateResult> results = Wraps.list();
 
     /**
      * 构造。

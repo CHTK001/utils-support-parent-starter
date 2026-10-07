@@ -1,5 +1,6 @@
 package com.chua.pdf.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.builder.ReadBuilder;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -8,7 +9,6 @@ import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -93,7 +93,7 @@ public class PdfReadBuilder extends ReadBuilder {
      * @return pages的结果
      */
     public List<String> pages() {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         try (PDDocument doc = Loader.loadPDF(file)) {
             PDFTextStripper stripper = new PDFTextStripper();
             int total = doc.getNumberOfPages();

@@ -1,7 +1,7 @@
 package com.chua.common.support.ai.splitter;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -97,7 +97,7 @@ public class SentenceTextSplitter implements TextSplitter {
 
         int cursor = 0;
         int len = text.length();
-        List<TextChunk> result = new ArrayList<>();
+        List<TextChunk> result = Wraps.list();
         int index = 0;
 
         while (cursor < len) {

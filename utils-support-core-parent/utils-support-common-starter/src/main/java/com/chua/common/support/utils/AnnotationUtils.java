@@ -1,6 +1,7 @@
 package com.chua.common.support.utils;
 
 import com.chua.common.support.collection.ConcurrentReferenceHashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
 
@@ -59,7 +60,7 @@ public class AnnotationUtils {
     /**
      * 别名族标记集合（字符串全限定名），用于快速判断某注解是否属于某个别名族。
      */
-    private static final Set<String> ALIAS_SOURCE_SET = new HashSet<>();
+    private static final Set<String> ALIAS_SOURCE_SET = Wraps.set();
 
     private static volatile boolean aliasesLoaded = false;
 
@@ -405,7 +406,7 @@ public class AnnotationUtils {
      * @return 构建搜索设置的结果
      */
     private static Set<Class<? extends Annotation>> buildSearchSet(Class<? extends Annotation> target) {
-        Set<Class<? extends Annotation>> set = new LinkedHashSet<>();
+        Set<Class<? extends Annotation>> set = Wraps.linkedSet();
         set.add(target);
         ensureAliasesLoaded();
         String targetName = target.getName();
@@ -651,7 +652,7 @@ public class AnnotationUtils {
      * @return 获取父类的结果
      */
     private static java.util.List<Class<?>> getSuperClasses(Class<?> clazz) {
-        java.util.List<Class<?>> list = new java.util.ArrayList<>();
+        java.util.List<Class<?>> list = Wraps.list();
         Class<?> current = clazz.getSuperclass();
         while (current != null && current != Object.class) {
             list.add(current);
@@ -669,7 +670,7 @@ public class AnnotationUtils {
      * @return 获取注解attributes的结果
      */
     public static Map<String, Object> getAnnotationAttributes(Class<?> clazz, Class<? extends Annotation> annotationClass) {
-        Map<String, Object> attributes = new HashMap<>();
+        Map<String, Object> attributes = Wraps.map();
         Annotation annotation = clazz.getAnnotation(annotationClass);
         if (annotation == null) {
             return attributes;
@@ -692,7 +693,7 @@ public class AnnotationUtils {
      * @return 属性名 → 属性值 映射
      */
     public static Map<String, Object> getAnnotationAttributes(Annotation annotation) {
-        Map<String, Object> attributes = new HashMap<>();
+        Map<String, Object> attributes = Wraps.map();
         if (annotation == null) {
             return attributes;
         }

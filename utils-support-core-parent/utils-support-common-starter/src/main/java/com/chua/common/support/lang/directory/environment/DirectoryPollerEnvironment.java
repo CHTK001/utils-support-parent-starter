@@ -1,8 +1,7 @@
 package com.chua.common.support.lang.directory.environment;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.WatcherEvent;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -41,7 +40,7 @@ public class DirectoryPollerEnvironment {
     /**
      * 自定义属性，通过 key-value 存储数据库/SSH/FTP 等连接参数
      */
-    private final Map<String, String> properties = new LinkedHashMap<>();
+    private final Map<String, String> properties = Wraps.linkedMap();
 
     /**
      * 构造环境配置。

@@ -1,5 +1,6 @@
 package com.chua.webdav.support.storage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.storage.AbstractFileStorage;
 import com.chua.common.support.storage.metadata.Metadata;
@@ -15,7 +16,6 @@ import com.github.sardine.SardineFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -199,7 +199,7 @@ public class WebdavFileStorage extends AbstractFileStorage {
             String path = request.getFilePath() != null ? request.getFilePath() : "";
  // webdav 协议原生不支持分页，忽略 记号笔 参数
             List<DavResource> resources = sardine.list(fullUrl(path));
-            List<Metadata> metadataList = new ArrayList<>();
+            List<Metadata> metadataList = Wraps.list();
 
             for (DavResource resource : resources) {
                 // 跳过当前目录引用

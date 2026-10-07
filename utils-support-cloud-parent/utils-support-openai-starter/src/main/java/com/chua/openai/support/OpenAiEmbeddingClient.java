@@ -1,5 +1,6 @@
 package com.chua.openai.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.embedding.EmbeddingClient;
 import com.chua.common.support.ai.embedding.EmbeddingClientSetting;
@@ -15,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -246,7 +246,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
         if (texts.length == 1) {
             paramsBuilder.input(texts[0] != null ? texts[0] : "");
         } else {
-            List<String> sanitized = new ArrayList<>(texts.length);
+            List<String> sanitized = Wraps.list(texts.length);
             for (String t : texts) {
                 sanitized.add(t != null ? t : "");
             }
@@ -269,7 +269,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
      */
     private static List<EmbeddingResponse.Embedding> buildEmbeddingList(List<float[]> vectors) {
         AtomicInteger idx = new AtomicInteger(0);
-        List<EmbeddingResponse.Embedding> embeddings = new ArrayList<>(vectors.size());
+        List<EmbeddingResponse.Embedding> embeddings = Wraps.list(vectors.size());
         for (float[] v : vectors) {
             embeddings.add(EmbeddingResponse.Embedding.builder()
                     .vector(v)
@@ -331,7 +331,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
             return List.of();
         }
 
-        List<float[]> results = new ArrayList<>(response.data().size());
+        List<float[]> results = Wraps.list(response.data().size());
         for (Embedding item : response.data()) {
             if (item == null || item.embedding() == null || item.embedding().isEmpty()) {
                 continue;

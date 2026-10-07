@@ -1,8 +1,7 @@
 package com.chua.common.support.config.source;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Getter;
-
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -68,6 +67,6 @@ public class PropertiesPropertySource extends AbstractPropertySource {
             return null;
         }
         // 将 Properties 转换为 Map 返回
-        return new HashMap<String, Object>((Map) properties);
+        return Wraps.map((Map) properties);
     }
 }

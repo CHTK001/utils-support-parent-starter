@@ -1,5 +1,6 @@
 package com.chua.filestorage.support.storage.lanzou;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +9,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
@@ -402,7 +402,7 @@ class LanzouHttp {
                                   String fileKey, String fileName, byte[] content) {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         try {
-            Map<String, String> safeFields = fields == null ? new LinkedHashMap<>() : fields;
+            Map<String, String> safeFields = fields == null ? Wraps.linkedMap() : fields;
             for (Map.Entry<String, String> entry : safeFields.entrySet()) {
                 buffer.write(("--" + boundary + "\r\n").getBytes(StandardCharsets.UTF_8));
                 buffer.write(("Content-Disposition: form-data; name=\"" + entry.getKey() + "\"\r\n\r\n")

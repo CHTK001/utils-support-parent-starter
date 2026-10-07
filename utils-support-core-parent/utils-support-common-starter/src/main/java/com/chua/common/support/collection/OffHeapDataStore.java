@@ -1,12 +1,12 @@
 package com.chua.common.support.collection;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.serialize.Serializer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -121,7 +121,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
         synchronized (writeLock) {
             ensureOpen();
             List<MemorySegment> current = this.segments;
-            List<MemorySegment> newSegments = new ArrayList<>(current.size() + 1);
+            List<MemorySegment> newSegments = Wraps.list(current.size() + 1);
             newSegments.addAll(current);
             newSegments.add(segment);
             this.segments = Collections.unmodifiableList(newSegments);
@@ -146,7 +146,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
         }
 
         // 先在锁外序列化所有元素
-        List<byte[]> serializedList = new ArrayList<>(elements.size());
+        List<byte[]> serializedList = Wraps.list(elements.size());
         long bytesAdded = 0;
         for (E element : elements) {
             byte[] data = serializer.serialize(element);
@@ -160,7 +160,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
         synchronized (writeLock) {
             ensureOpen();
             List<MemorySegment> current = this.segments;
-            List<MemorySegment> newSegments = new ArrayList<>(current.size() + serializedList.size());
+            List<MemorySegment> newSegments = Wraps.list(current.size() + serializedList.size());
             newSegments.addAll(current);
 
             for (byte[] data : serializedList) {

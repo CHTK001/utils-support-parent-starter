@@ -1,5 +1,6 @@
 package com.chua.common.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.FileSystem;
 import com.chua.common.support.file.builder.ReadBuilder;
 import com.chua.common.support.file.builder.WriteBuilder;
@@ -9,8 +10,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -97,7 +96,7 @@ public class JsonFileSystem implements FileSystem {
          */
         @SuppressWarnings("unchecked")
         public List<Map<String, Object>> rows() {
-            List<Map<String, Object>> result = new ArrayList<>();
+            List<Map<String, Object>> result = Wraps.list();
             try {
                 String content = new String(Files.readAllBytes(file.toPath()));
                 List<?> raw = Json.toList(content);
@@ -110,7 +109,7 @@ public class JsonFileSystem implements FileSystem {
                 if (raw.getFirst() instanceof Map) {
                     /* 对象数组形态：[{"k":v,...},...]，每个元素即一行 */
                     for (Object item : raw) {
-                        Map<String, Object> map = new LinkedHashMap<>((Map<String, Object>) item);
+                        Map<String, Object> map = Wraps.linkedMap((Map<String, Object>) item);
                         result.add(map);
                         if (callback != null) {
                             callback.onBody(map);
@@ -125,7 +124,7 @@ public class JsonFileSystem implements FileSystem {
                 }
                 // 二维数组形态：[[header,...],[val,...],...]，首行为表头
                 List<Object> headerRow = (List<Object>) raw.getFirst();
-                List<String> headers = new ArrayList<>();
+                List<String> headers = Wraps.list();
                 for (Object h : headerRow) {
                     headers.add(h == null ? EMPTY_HEADER_PLACEHOLDER : h.toString());
                 }
@@ -135,7 +134,7 @@ public class JsonFileSystem implements FileSystem {
                 // 后续行为数据
                 for (int i = 1; i < raw.size(); i++) {
                     List<Object> row = (List<Object>) raw.get(i);
-                    Map<String, Object> map = new LinkedHashMap<>();
+                    Map<String, Object> map = Wraps.linkedMap();
                     for (int c = 0; c < headers.size() && c < row.size(); c++) {
                         String key = (columnMapping != null)
                                 ? columnMapping.getOrDefault(headers.get(c), headers.get(c))
@@ -320,7 +319,7 @@ public class JsonFileSystem implements FileSystem {
                 return list;
             }
             // 检测是否为 List<Map> 格式
-            List<List<Object>> table = new ArrayList<>();
+            List<List<Object>> table = Wraps.list();
             List<String> headers = null;
             for (Object item : list) {
                 if (item instanceof List) {
@@ -333,11 +332,11 @@ public class JsonFileSystem implements FileSystem {
                         continue;
                     }
                     if (headers == null) {
-                        headers = new ArrayList<>(map.keySet());
-                        List<Object> headerRow = new ArrayList<>(headers);
+                        headers = Wraps.list(map.keySet());
+                        List<Object> headerRow = Wraps.list(headers);
                         table.add(headerRow);
                     }
-                    List<Object> dataRow = new ArrayList<>();
+                    List<Object> dataRow = Wraps.list();
                     for (String h : headers) {
                         String key = (columnMapping != null) ? columnMapping.getOrDefault(h, h) : h;
                         dataRow.add(map.get(h));

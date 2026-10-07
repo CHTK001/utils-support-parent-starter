@@ -1,5 +1,6 @@
 package com.chua.tika.support.file.extractor;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.txtractor.TextExtractResult;
 import com.chua.common.support.file.txtractor.TextExtractor;
 import com.chua.common.support.spi.annotations.Spi;
@@ -86,7 +87,7 @@ public class TikaTextExtractor implements TextExtractor {
                 }
                 // 简单分块：每 N 段为一页
                 int paragraphsPerPage = Math.max(1, paragraphs.length / pageCount);
-                java.util.List<TextExtractResult> results = new java.util.ArrayList<>();
+                java.util.List<TextExtractResult> results = Wraps.list();
                 StringBuilder pageBuilder = new StringBuilder();
                 for (int i = 0; i < paragraphs.length; i++) {
                     pageBuilder.append(paragraphs[i]).append("\n\n");

@@ -1,12 +1,12 @@
 package com.chua.mock.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.mock.MockEnvironment;
 import com.chua.common.support.mock.MockString;
 import com.chua.common.support.spi.ServiceProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -75,7 +75,7 @@ public final class MockStringFactory {
      */
     @Nonnull
     public static List<String> names() {
-        return new ArrayList<>(PROVIDER.getExtensions());
+        return Wraps.list(PROVIDER.getExtensions());
     }
 
     /**
@@ -178,7 +178,7 @@ public final class MockStringFactory {
         if (null == mockString || count < 1 || null == environment) {
             return Collections.emptyList();
         }
-        List<String> result = new ArrayList<>(count);
+        List<String> result = Wraps.list(count);
         for (int i = 0; i < count; i++) {
             result.add(mockString.getString(environment));
         }

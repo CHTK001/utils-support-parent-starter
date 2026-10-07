@@ -1,5 +1,6 @@
 package com.chua.common.support.network.sync.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncFlow;
 import com.chua.common.support.network.sync.SyncFlowListener;
@@ -38,7 +39,7 @@ public class WebSocketSyncFlow implements SyncFlow {
     /**
      * 监听器列表
      */
-    private final List<SyncFlowListener> listeners = new ArrayList<>();
+    private final List<SyncFlowListener> listeners = Wraps.list();
 
     /**
      * 创建 WebSocket 同步流程。

@@ -1,9 +1,8 @@
 package com.chua.common.support.lang.view;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
-
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,13 +62,13 @@ public class KeyValueViewParser implements ViewParser {
     private static Map<String, String> toKeyValue(Object data) {
         if (data instanceof Map) {
             Map<Object, Object> map = (Map<Object, Object>) data;
-            Map<String, String> result = new LinkedHashMap<>();
+            Map<String, String> result = Wraps.linkedMap();
             for (var entry : map.entrySet()) {
                 result.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
             }
             return result;
         }
-        Map<String, String> result = new LinkedHashMap<>();
+        Map<String, String> result = Wraps.linkedMap();
         Class<?> type = data.getClass();
         while (type != null && type != Object.class) {
             for (var f : ViewFormatter.extractFields(type)) {

@@ -1,5 +1,6 @@
 package com.chua.starter.datasync.source;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasync.agent.support.DataSyncAgentSource;
 import org.yaml.snakeyaml.Yaml;
 import reactor.core.publisher.Flux;
@@ -8,8 +9,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +67,7 @@ public class FileSystemDataSyncSource implements DataSyncAgentSource {
         try {
             String content = Files.readString(path, StandardCharsets.UTF_8);
             String fileName = path.getFileName().toString().toLowerCase();
-            List<Map<String, Object>> rows = new ArrayList<>();
+            List<Map<String, Object>> rows = Wraps.list();
 
             if (fileName.endsWith(".json")) {
                 rows.addAll(parseJson(content));
@@ -90,7 +89,7 @@ public class FileSystemDataSyncSource implements DataSyncAgentSource {
      */
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> parseJson(String content) {
-        List<Map<String, Object>> rows = new ArrayList<>();
+        List<Map<String, Object>> rows = Wraps.list();
         content = content.trim();
         if (content.startsWith("[")) {
             Object obj;
@@ -102,7 +101,7 @@ public class FileSystemDataSyncSource implements DataSyncAgentSource {
             if (obj instanceof List<?> list) {
                 for (Object item : list) {
                     if (item instanceof Map<?, ?> map) {
-                        Map<String, Object> row = new LinkedHashMap<>();
+                        Map<String, Object> row = Wraps.linkedMap();
                         map.forEach((k, v) -> row.put(String.valueOf(k), v));
                         rows.add(row);
                     }
@@ -116,7 +115,7 @@ public class FileSystemDataSyncSource implements DataSyncAgentSource {
                 return rows;
             }
             if (obj instanceof Map<?, ?> map) {
-                Map<String, Object> row = new LinkedHashMap<>();
+                Map<String, Object> row = Wraps.linkedMap();
                 map.forEach((k, v) -> row.put(String.valueOf(k), v));
                 rows.add(row);
             }
@@ -131,19 +130,19 @@ public class FileSystemDataSyncSource implements DataSyncAgentSource {
      */
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> parseYaml(String content) {
-        List<Map<String, Object>> rows = new ArrayList<>();
+        List<Map<String, Object>> rows = Wraps.list();
         Yaml yaml = new Yaml();
         Object obj = yaml.load(content);
         if (obj instanceof List<?> list) {
             for (Object item : list) {
                 if (item instanceof Map<?, ?> map) {
-                    Map<String, Object> row = new LinkedHashMap<>();
+                    Map<String, Object> row = Wraps.linkedMap();
                     map.forEach((k, v) -> row.put(String.valueOf(k), v));
                     rows.add(row);
                 }
             }
         } else if (obj instanceof Map<?, ?> map) {
-            Map<String, Object> row = new LinkedHashMap<>();
+            Map<String, Object> row = Wraps.linkedMap();
             map.forEach((k, v) -> row.put(String.valueOf(k), v));
             rows.add(row);
         }

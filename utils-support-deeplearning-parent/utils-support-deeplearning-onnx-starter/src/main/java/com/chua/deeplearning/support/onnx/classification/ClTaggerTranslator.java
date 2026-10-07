@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.classification;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.Classifications;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.util.NDImageUtils;
@@ -18,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -111,7 +111,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
      * @param topk    Top-K             
      */
     public ClTaggerTranslator(List<String> classes, int topk) {
-        this.classes = new ArrayList<>(classes);
+        this.classes = Wraps.list(classes);
         this.topk = topk;
         if (log.isDebugEnabled()) {
             log.debug("[CL Tagger][Translator]                -             : {}x{},          : {}, Top-K: {}",

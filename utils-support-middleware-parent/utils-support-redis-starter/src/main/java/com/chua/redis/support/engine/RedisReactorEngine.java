@@ -1,5 +1,6 @@
 package com.chua.redis.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
@@ -434,7 +435,7 @@ public class RedisReactorEngine implements ReactorEngine {
         String[] parts = command.trim().split("\\s+");
  // 仅命令名大写；键值保持原样（Redis 键大小写敏感）
         String cmd = parts[0].toUpperCase(Locale.ROOT);
-        List<String> argList = new ArrayList<>();
+        List<String> argList = Wraps.list();
         for (int i = 1; i < parts.length; i++) {
             argList.add(parts[i]);
         }
@@ -529,7 +530,7 @@ public class RedisReactorEngine implements ReactorEngine {
                     result = conn.sadd(args[0], Arrays.copyOfRange(args, 1, args.length));
                     break;
                 case "SMEMBERS":
-                    result = new ArrayList<>(conn.smembers(args[0]));
+                    result = Wraps.list(conn.smembers(args[0]));
                     break;
                 case "SREM":
                     result = conn.srem(args[0], Arrays.copyOfRange(args, 1, args.length));
@@ -550,7 +551,7 @@ public class RedisReactorEngine implements ReactorEngine {
                     result = conn.zcard(args[0]);
                     break;
                 case "KEYS":
-                    result = new ArrayList<>(conn.keys(args[0]));
+                    result = Wraps.list(conn.keys(args[0]));
                     break;
                 case "DBSIZE":
                     result = conn.dbsize();
@@ -811,7 +812,7 @@ public class RedisReactorEngine implements ReactorEngine {
         return Mono.fromCallable(() -> {
             Object result = executeSingleCommand(defaultDataSourceName, "HGETALL", key);
             if (result instanceof Map<?, ?> map) {
-                List<Map.Entry<String, String>> entries = new ArrayList<>();
+                List<Map.Entry<String, String>> entries = Wraps.list();
                 map.forEach((k, v) -> entries.add(new AbstractMap.SimpleEntry<>(
                         k.toString(), v != null ? v.toString() : null)));
                 return entries;
@@ -837,7 +838,7 @@ public class RedisReactorEngine implements ReactorEngine {
             ScanArgs scanArgs = pattern == null || pattern.isEmpty()
                     ? ScanArgs.Builder.limit(500)
                     : ScanArgs.Builder.matches(pattern).limit(500);
-            List<String> keys = new ArrayList<>();
+            List<String> keys = Wraps.list();
             KeyScanCursor<String> cursor = conn.scan(scanArgs);
             while (true) {
                 keys.addAll(cursor.getKeys());
@@ -876,7 +877,7 @@ public class RedisReactorEngine implements ReactorEngine {
         return Mono.fromCallable(() -> {
             Object result = executeSingleCommand(defaultDataSourceName, "LRANGE", key, start, end);
             if (result instanceof Collection<?> coll) {
-                return new ArrayList<>((Collection<?>) coll);
+                return Wraps.list((Collection<?>) coll);
             }
             return Collections.emptyList();
         }).subscribeOn(Schedulers.boundedElastic())
@@ -893,7 +894,7 @@ public class RedisReactorEngine implements ReactorEngine {
         return Mono.fromCallable(() -> {
             Object result = executeSingleCommand(defaultDataSourceName, "SMEMBERS", key);
             if (result instanceof Collection<?> coll) {
-                return new ArrayList<>((Collection<?>) coll);
+                return Wraps.list((Collection<?>) coll);
             }
             return Collections.emptyList();
         }).subscribeOn(Schedulers.boundedElastic())

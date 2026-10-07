@@ -1,5 +1,6 @@
 package com.chua.filesystem.support.storage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.storage.AbstractFileStorage;
 import com.chua.common.support.storage.metadata.Metadata;
@@ -13,7 +14,6 @@ import com.chua.common.support.storage.setting.BucketSetting;
 import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -273,7 +273,7 @@ public class FileSystemFileStorage extends AbstractFileStorage {
                         .build();
             }
 
-            List<Metadata> metadataList = new ArrayList<>();
+            List<Metadata> metadataList = Wraps.list();
             int limit = request.getLimit();
             String marker = request.getMarker();
 

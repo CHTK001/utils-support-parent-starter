@@ -1,5 +1,6 @@
 package com.chua.rpc.support.json;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.proxy.ProxyUtils;
 import com.chua.common.support.proxy.ProxyMethod;
@@ -13,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -209,7 +209,7 @@ public class JsonRpcClient implements RpcClient {
             if (!headers.isEmpty()) {
                 client.setHeaders(headers);
             }
-            Map<String, Object> additional = new HashMap<>(2);
+            Map<String, Object> additional = Wraps.map(2);
             additional.put(JsonRpcServer.SERVICE_FIELD, targetType.getName());
             client.setAdditionalJsonContent(additional);
             Method method = proxyMethod.getMethod();
@@ -223,7 +223,7 @@ public class JsonRpcClient implements RpcClient {
      * @return 请求头集合，可能为空
      */
     private Map<String, String> buildHeaders() {
-        Map<String, String> headers = new HashMap<>(16);
+        Map<String, String> headers = Wraps.map(16);
         if (consumerConfig != null) {
             if (consumerConfig.getVersion() != null) {
                 headers.put(JsonRpcServer.HEADER_VERSION, consumerConfig.getVersion());

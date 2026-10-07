@@ -1,5 +1,6 @@
 package com.chua.common.support.converter.definition;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.ArrayUtils;
 import com.chua.common.support.utils.DateUtils;
 import com.chua.common.support.utils.NumberUtils;
@@ -14,7 +15,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -51,7 +51,7 @@ public interface TypeConverter<O> {
     /**
      * 存储容量单位与字节数的映射表
      */
-    Map<String, Long> MAPPING = new HashMap<>(10);
+    Map<String, Long> MAPPING = Wraps.map(10);
 
     /**
      * 初始化存储容量单位映射表。

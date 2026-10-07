@@ -1,13 +1,12 @@
 package com.chua.common.support.concurrent.structured;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.concurrent.backoff.BackoffProvider;
 import com.chua.common.support.concurrent.backoff.provider.ExponentialBackoffProvider;
 import com.chua.common.support.concurrent.structured.provider.ShutdownOnFailureStructuredConcurrencyProvider;
 import com.chua.common.support.concurrent.structured.provider.ShutdownOnSuccessStructuredConcurrencyProvider;
 import com.chua.common.support.concurrent.structured.provider.VirtualThreadStructuredConcurrencyProvider;
 import com.chua.common.support.utils.ThreadUtils;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -136,7 +135,7 @@ public final class StructuredConcurrencyFlow {
     /**
      * 任务列表
      */
-    private final List<Callable<?>> tasks = new ArrayList<>();
+    private final List<Callable<?>> tasks = Wraps.list();
 
     /**
      * 创建 StructuredConcurrencyFlow 实例
@@ -322,7 +321,7 @@ public final class StructuredConcurrencyFlow {
      */
     private List<Object> executeFailFast(ExecutorService executor) throws Exception {
         List<Future<Object>> futures = invokeAll(executor);
-        List<Object> results = new ArrayList<>();
+        List<Object> results = Wraps.list();
         for (int i = 0; i < futures.size(); i++) {
             try {
                 results.add(futures.get(i).get());
@@ -364,7 +363,7 @@ public final class StructuredConcurrencyFlow {
      */
     private List<Object> executeSuccessCount(ExecutorService executor) throws Exception {
         List<Future<Object>> futures = invokeAll(executor);
-        List<Object> results = new ArrayList<>();
+        List<Object> results = Wraps.list();
         int success = 0;
         int fail = 0;
         Exception firstException = null;
@@ -399,7 +398,7 @@ public final class StructuredConcurrencyFlow {
      */
     private List<Object> executeFailureCount(ExecutorService executor) throws Exception {
         List<Future<Object>> futures = invokeAll(executor);
-        List<Object> results = new ArrayList<>();
+        List<Object> results = Wraps.list();
         int fail = 0;
         Exception firstException = null;
         for (int i = 0; i < futures.size(); i++) {
@@ -424,8 +423,8 @@ public final class StructuredConcurrencyFlow {
      * @return 结果列表，无数据时为空列表
      */
     private List<Object> executeWithRetry(ExecutorService executor) throws Exception {
-        List<Object> results = new ArrayList<>();
-        List<Integer> failedIndices = new ArrayList<>();
+        List<Object> results = Wraps.list();
+        List<Integer> failedIndices = Wraps.list();
 
         invokeAll(executor).forEach(f -> {
             try {
@@ -443,7 +442,7 @@ public final class StructuredConcurrencyFlow {
         BackoffProvider bp = resolveBackoff();
         for (int attempt = 0; attempt < maxRetries && !failedIndices.isEmpty(); attempt++) {
             bp.sleep(attempt);
-            List<Integer> stillFailed = new ArrayList<>();
+            List<Integer> stillFailed = Wraps.list();
             for (int idx : failedIndices) {
                 try {
                     Object result = executor.submit(tasks.get(idx)).get();

@@ -1,5 +1,6 @@
 package com.chua.common.support.task.pipeline.builder;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.pipeline.callback.LoggingListener;
 import com.chua.common.support.task.pipeline.callback.PipelineListener;
 import com.chua.common.support.task.pipeline.core.Pipeline;
@@ -132,9 +133,9 @@ public class PipelineBuilder {
      */
     private PipelineBuilder(String id) {
         this.id = id;
-        this.nodes = new ArrayList<>();
-        this.listeners = new ArrayList<>();
-        this.nodeMap = new LinkedHashMap<>();
+        this.nodes = Wraps.list();
+        this.listeners = Wraps.list();
+        this.nodeMap = Wraps.linkedMap();
         this.startNodeId = null;
         this.endNodeId = null;
     }

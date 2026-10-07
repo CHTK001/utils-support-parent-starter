@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.ImageFactory;
 import ai.djl.ndarray.NDArray;
@@ -10,7 +11,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,7 +45,7 @@ public final class LocationUtils {
         if (modelPath == null || modelPath.isBlank()) {
             return Collections.emptyList();
         }
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         Path path = Paths.get(modelPath);
         if (Files.exists(path)) {
             result.add(path.toAbsolutePath().normalize().toString());

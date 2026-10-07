@@ -1,5 +1,6 @@
 package com.chua.cloudflare.support.d1;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.cloudflare.support.CloudflareClient;
 
 import java.util.List;
@@ -150,7 +151,7 @@ public class CloudflareD1Engine {
      * @return 每条的结果
      */
     public List<D1Result> multi(String sql, List<Object[]> paramsList) {
-        var statements = new java.util.ArrayList<D1Statement>();
+        var statements = Wraps.<D1Statement>list();
         for (var params : paramsList) {
             statements.add(D1Statement.of(sql, D1SqlParameter.ofPositional(params)));
         }

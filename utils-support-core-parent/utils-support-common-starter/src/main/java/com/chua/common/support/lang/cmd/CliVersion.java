@@ -1,8 +1,8 @@
 package com.chua.common.support.lang.cmd;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -185,7 +185,7 @@ public final class CliVersion implements Comparable<CliVersion> {
      */
     private static int[] splitNumbers(String versionPart) {
         String[] segments = SEGMENT_SEPARATOR.split(versionPart);
-        List<Integer> list = new ArrayList<>(segments.length);
+        List<Integer> list = Wraps.list(segments.length);
         for (String segment : segments) {
             if (segment.isEmpty()) {
                 continue;

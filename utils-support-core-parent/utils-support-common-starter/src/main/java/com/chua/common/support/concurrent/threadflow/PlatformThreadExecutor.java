@@ -1,7 +1,7 @@
 package com.chua.common.support.concurrent.threadflow;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.ThreadUtils;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -70,7 +70,7 @@ public class PlatformThreadExecutor extends AbstractThreadExecutor {
      */
     @Override
     protected List<Future<Object>> submitTasks() {
-        List<Future<Object>> futures = new ArrayList<>(tasks.size());
+        List<Future<Object>> futures = Wraps.list(tasks.size());
         for (var task : tasks) {
             futures.add(executor.submit(task));
         }

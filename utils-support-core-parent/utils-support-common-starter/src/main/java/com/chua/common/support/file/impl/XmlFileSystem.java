@@ -1,5 +1,6 @@
 package com.chua.common.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.FileSystem;
 import com.chua.common.support.file.builder.ReadBuilder;
 import com.chua.common.support.file.builder.WriteBuilder;
@@ -8,8 +9,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -206,7 +205,7 @@ public class XmlFileSystem implements FileSystem {
          */
         @SuppressWarnings("unchecked")
         public List<Map<String, Object>> rows() {
-            List<Map<String, Object>> result = new ArrayList<>();
+            List<Map<String, Object>> result = Wraps.list();
             try {
                 String content = new String(Files.readAllBytes(file.toPath()));
                 content = content.replaceAll(XML_DECLARATION_PATTERN, "").trim();
@@ -220,7 +219,7 @@ public class XmlFileSystem implements FileSystem {
                         break;
                     }
                     String inner = content.substring(rowStart + ROW_START_TAG_LENGTH, rowEnd).trim();
-                    Map<String, Object> row = new LinkedHashMap<>();
+                    Map<String, Object> row = Wraps.linkedMap();
                     parseXml(inner, row);
                     result.add(row);
                     rowStart = content.indexOf(ROW_START_TAG, rowEnd + ROW_END_TAG_LENGTH);
@@ -235,11 +234,11 @@ public class XmlFileSystem implements FileSystem {
                 }
 
                 if (!result.isEmpty() && callback != null) {
-                    List<String> headers = new ArrayList<>(result.getFirst().keySet());
+                    List<String> headers = Wraps.list(result.getFirst().keySet());
                     callback.onHeader(headers);
                     for (Map<String, Object> row : result) {
                         if (columnMapping != null) {
-                            Map<String, Object> mapped = new LinkedHashMap<>();
+                            Map<String, Object> mapped = Wraps.linkedMap();
                             for (Map.Entry<String, Object> e : row.entrySet()) {
                                 mapped.put(columnMapping.getOrDefault(e.getKey(), e.getKey()), e.getValue());
                             }
@@ -264,7 +263,7 @@ public class XmlFileSystem implements FileSystem {
          * @return Map 格式的数据
          */
         public Map<String, Object> toMap() {
-            Map<String, Object> result = new LinkedHashMap<>();
+            Map<String, Object> result = Wraps.linkedMap();
             try {
                 String content = new String(Files.readAllBytes(file.toPath()));
                 content = content.replaceAll(XML_DECLARATION_PATTERN, "").trim();
@@ -317,7 +316,7 @@ public class XmlFileSystem implements FileSystem {
                 if (!inner.contains("<")) {
                     map.put(tag, inner);
                 } else {
-                    Map<String, Object> child = new LinkedHashMap<>();
+                    Map<String, Object> child = Wraps.linkedMap();
                     parseXml(inner, child);
                     map.put(tag, child);
                 }

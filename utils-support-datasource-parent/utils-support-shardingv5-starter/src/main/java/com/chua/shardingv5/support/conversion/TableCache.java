@@ -1,5 +1,6 @@
 package com.chua.shardingv5.support.conversion;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -79,7 +80,7 @@ public class TableCache {
      * @return 扫描tables的结果
      */
     private List<String> scanTables(String prefix) {
-        var all = new LinkedHashSet<String>();
+        var all = Wraps.<String>linkedSet();
         var pat = Pattern.compile("^" + Pattern.quote(prefix) + ".+");
         for (var ds : dataSources) {
             try (var conn = ds.getConnection()) {
@@ -96,7 +97,7 @@ public class TableCache {
                 log.warn("扫描表失败: {}", e.getMessage());
             }
         }
-        var result = new ArrayList<>(all);
+        var result = Wraps.<String>list(all);
         result.sort((a, b) -> {
             var ma = Pattern.compile("\\d+$").matcher(a);
             var mb = Pattern.compile("\\d+$").matcher(b);

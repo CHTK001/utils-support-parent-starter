@@ -1,9 +1,8 @@
 package com.chua.runtime.shell.command;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.StringUtils;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,8 +28,8 @@ public class CommandRegistry {
      * 创建命令注册表。
      */
     public CommandRegistry() {
-        this.commands = new LinkedHashMap<>();
-        this.aliases = new LinkedHashMap<>();
+        this.commands = Wraps.linkedMap();
+        this.aliases = Wraps.linkedMap();
     }
 
     /**
@@ -78,7 +77,7 @@ public class CommandRegistry {
      * @return 名称列表
      */
     public List<String> allNames() {
-        List<String> names = new ArrayList<>();
+        List<String> names = Wraps.list();
         names.addAll(commands.keySet());
         names.addAll(aliases.keySet());
         return names;
@@ -95,7 +94,7 @@ public class CommandRegistry {
             return allNames();
         }
         String lower = prefix.toLowerCase();
-        List<String> matches = new ArrayList<>();
+        List<String> matches = Wraps.list();
         for (String name : commands.keySet()) {
             if (name.startsWith(lower)) {
                 matches.add(name);

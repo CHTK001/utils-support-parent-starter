@@ -1,7 +1,5 @@
 package com.chua.common.support.utils;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
 
@@ -45,27 +43,27 @@ public class CommandLine {
  /**
   * 解析后的键值映射
   */
- private final Map<String, String> options = new LinkedHashMap<>();
+ private final Map<String, String> options = Wraps.linkedMap();
 
  /**
   * 短名到基础名的映射
   */
- private final Map<String, String> shortToBase = new LinkedHashMap<>();
+ private final Map<String, String> shortToBase = Wraps.linkedMap();
 
  /**
   * 长名（带 -- 前缀）到基础名的映射
   */
- private final Map<String, String> longToBase = new LinkedHashMap<>();
+ private final Map<String, String> longToBase = Wraps.linkedMap();
 
  /**
   * 位置参数列表
   */
- private final List<String> positional = new ArrayList<>();
+ private final List<String> positional = Wraps.list();
 
  /**
   * 命令注册列表
   */
- private final List<CommandSpec> specs = new ArrayList<>();
+ private final List<CommandSpec> specs = Wraps.list();
 
  /**
   * 程序名称（用于 help 头部）

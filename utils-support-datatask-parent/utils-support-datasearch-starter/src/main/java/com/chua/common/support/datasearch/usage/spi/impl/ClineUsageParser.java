@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
@@ -10,8 +11,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -110,8 +109,8 @@ public class ClineUsageParser extends BaseUsageParser {
             log.warn("[cline] walk failed: {}", e.getMessage(), e);
             return List.of();
         }
-        List<AiUsage> result = new ArrayList<>();
-        Set<Path> detailed = new HashSet<>();
+        List<AiUsage> result = Wraps.list();
+        Set<Path> detailed = Wraps.set();
         for (Path file : files) {
             if (!isMessagesFile(file)) {
                 continue;

@@ -1,8 +1,7 @@
 package com.chua.network.support.tshark;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.algorithm.crypto.Hex;
-
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -149,7 +148,7 @@ public final class TsharkFields {
         if (chunks.isEmpty()) {
             return null;
         }
-        List<String> keys = new ArrayList<>(chunks.size());
+        List<String> keys = Wraps.list(chunks.size());
         for (Object key : chunks.keySet()) {
             keys.add(String.valueOf(key));
         }

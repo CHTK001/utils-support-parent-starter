@@ -1,5 +1,6 @@
 package com.chua.runtime.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.lang.cmd.LineCallback;
 import com.chua.common.support.lang.cmd.RuntimeType;
@@ -18,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -298,7 +298,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
      * 获取artifact标识
     */
     public List<String> getArtifactIds() {
-        return new ArrayList<>(artifactMap.keySet());
+        return Wraps.list(artifactMap.keySet());
     }
 
     @Override
@@ -306,7 +306,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
      * 获取runninginstances
     */
     public List<RuntimeInstance> getRunningInstances() {
-        List<RuntimeInstance> running = new ArrayList<>();
+        List<RuntimeInstance> running = Wraps.list();
         for (RuntimeInstance instance : instanceMap.values()) {
             if (instance.status() == RuntimeStatus.RUNNING) {
                 running.add(instance);

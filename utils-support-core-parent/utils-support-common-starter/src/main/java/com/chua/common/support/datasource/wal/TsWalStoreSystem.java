@@ -1,5 +1,6 @@
 package com.chua.common.support.datasource.wal;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.wal.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -91,7 +92,7 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
      */
     @Override
     public List<Map.Entry<String, byte[]>> range(String from, String to, int offset, int limit) throws IOException {
-        List<Map.Entry<String, byte[]>> entries = new ArrayList<>();
+        List<Map.Entry<String, byte[]>> entries = Wraps.list();
         for (int i = 0; i < walLogs.length; i++) {
             collectKeyRange(i, from, to, entries);
         }
@@ -99,7 +100,7 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
         int begin = Math.min(Math.max(offset, 0), entries.size());
         int end = limit <= 0 || (long) begin + limit > entries.size()
                 ? entries.size() : begin + limit;
-        return new ArrayList<>(entries.subList(begin, end));
+        return Wraps.list(entries.subList(begin, end));
     }
 
     /**
@@ -213,7 +214,7 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
     public int size() { return (int) totalRecords.get(); }
     @Override
     public List<WalSegmentInfo> listSegments() throws IOException {
-        List<WalSegmentInfo> all = new ArrayList<>();
+        List<WalSegmentInfo> all = Wraps.list();
         for (SegmentWalLog log : walLogs) {
             all.addAll(log.listSegments());
         }
@@ -295,7 +296,7 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
      * @throws IOException 当执行过程不满足前置条件时
      */
     public List<TsPoint> queryRange(String measure, long fromTs, long toTs, int offset, int limit) throws IOException {
-        List<TsPoint> result = new ArrayList<>();
+        List<TsPoint> result = Wraps.list();
         int idx = Math.abs(measure.hashCode()) % config.shardCount();
         for (WalSegmentInfo seg : walLogs[idx].listSegments()) {
             walLogs[idx].replay(seg.firstLsn(), seg.lastLsn() + 1, (lsn, op, payload) -> {

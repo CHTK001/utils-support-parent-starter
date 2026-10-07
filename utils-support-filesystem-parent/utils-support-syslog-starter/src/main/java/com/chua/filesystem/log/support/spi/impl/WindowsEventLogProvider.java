@@ -1,5 +1,6 @@
 package com.chua.filesystem.log.support.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import com.chua.filesystem.log.support.bridge.NativeFunctionRegistry;
@@ -19,7 +20,6 @@ import java.lang.invoke.MethodHandle;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -149,7 +149,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         LogLevel minLevel = query.minLevel();
         int maxResults = query.maxResults();
 
-        List<LogEntry> results = new ArrayList<>();
+        List<LogEntry> results = Wraps.list();
         MemorySegment hEventLog = null;
 
         try (Arena arena = Arena.ofConfined()) {

@@ -1,6 +1,5 @@
 package com.chua.common.support.concurrent.threadflow;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -37,7 +36,7 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
      */
     @Override
     protected List<Future<Object>> submitTasks() {
-        List<Future<Object>> futures = new ArrayList<>(tasks.size());
+        List<Future<Object>> futures = Wraps.list(tasks.size());
         for (var task : tasks) {
             try {
                 Object result = task.call();

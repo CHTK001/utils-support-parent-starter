@@ -1,10 +1,11 @@
 package com.chua.common.support.ai.chat.aggregate.monitor;
 
 import com.chua.common.support.ai.AiUsage;
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.CollectionUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.LinkedList;
+import java.util.Deque;
 import java.util.List;
 
 /**
@@ -25,9 +26,9 @@ public class DefaultUsageRecorder implements UsageRecorder {
     private static final int MAX_RECORDS = 1000;
 
     /**
-     * 用量记录链表，链表头为最新记录
+     * 用量记录双端队列，队头为最新记录
      */
-    private final LinkedList<AiUsage> records = new LinkedList<>();
+    private final Deque<AiUsage> records = Wraps.deque();
 
     /**
      * 读写锁对象，保护 {@link #records} 的并发访问

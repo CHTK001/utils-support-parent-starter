@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.datasource.flyway;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 
@@ -109,7 +110,7 @@ public interface ScriptConverter {
                 return exact;
             }
         }
-        for (String name : new java.util.TreeSet<>(provider.getExtensions())) {
+        for (String name : Wraps.sortedSet(provider.getExtensions())) {
             if ("default".equalsIgnoreCase(name) || name.contains(".")) {
                 continue;
             }

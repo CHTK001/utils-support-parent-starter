@@ -1,10 +1,9 @@
 package com.chua.postgresql.support.ddl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.ddl.ColumnDef;
 import com.chua.common.support.lang.datasource.engine.ddl.DdlProvider;
 import com.chua.common.support.spi.annotations.Spi;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -76,8 +75,8 @@ public class PostgresqlDdlProvider implements DdlProvider {
         }
         StringBuilder sb = new StringBuilder("CREATE TABLE IF NOT EXISTS ")
                 .append(quote(tableName)).append(" (\n");
-        List<String> pk = new ArrayList<>();
-        List<String> defs = new ArrayList<>();
+        List<String> pk = Wraps.list();
+        List<String> defs = Wraps.list();
         for (ColumnDef col : columns) {
             if (col.getName() == null || col.getName().isBlank()) {
                 throw new IllegalArgumentException("建表列名不能为空: " + tableName);

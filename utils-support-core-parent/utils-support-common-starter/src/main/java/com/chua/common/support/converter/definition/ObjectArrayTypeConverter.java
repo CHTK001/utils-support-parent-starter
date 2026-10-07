@@ -1,12 +1,12 @@
 package com.chua.common.support.converter.definition;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.utils.ArrayUtils;
 import com.chua.common.support.utils.ClassUtils;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -111,7 +111,7 @@ public class ObjectArrayTypeConverter implements TypeConverter<Object[]> {
             return (T) Array.newInstance(newType, 0);
         }
 
-List<Object> tpl = new LinkedList<>();
+List<Object> tpl = Wraps.list();
         Class<?> actualType = ClassUtils.getActualType(newType);
         if (value instanceof Collection) {
             ((Collection<?>) value).forEach(it -> {

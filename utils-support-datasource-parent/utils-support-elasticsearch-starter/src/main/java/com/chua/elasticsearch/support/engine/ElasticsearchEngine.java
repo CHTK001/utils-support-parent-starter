@@ -1,5 +1,6 @@
 package com.chua.elasticsearch.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
@@ -40,7 +41,6 @@ import org.elasticsearch.client.RestClient;
 
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.reflection.ReflectUtils;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -75,7 +75,7 @@ public class ElasticsearchEngine implements Engine {
     /**
      * 本引擎创建的 RestClient，close() 时统一回收（外部传入的客户端不归本引擎管）
      */
-      private final List<RestClient> ownedRestClients = new ArrayList<>();
+      private final List<RestClient> ownedRestClients = Wraps.list();
 
       /**
        * 关闭标记：{@link #close()} 后置位，使 close() 幂等且 {@link #isClosed()} 可查询。
@@ -819,7 +819,7 @@ public class ElasticsearchEngine implements Engine {
         if (conditions.size() == 1) {
             return buildConditionQuery(conditions.getFirst());
         }
-        List<Query> mustQueries = new ArrayList<>(conditions.size());
+        List<Query> mustQueries = Wraps.list(conditions.size());
         for (Condition c : conditions) {
             mustQueries.add(buildConditionQuery(c));
         }
@@ -839,7 +839,7 @@ public class ElasticsearchEngine implements Engine {
             if (CollectionUtils.isEmpty(nested)) {
                 return Query.of(q -> q.matchAll(m -> m));
             }
-            List<Query> subQueries = new ArrayList<>(nested.size());
+            List<Query> subQueries = Wraps.list(nested.size());
             for (Condition sub : nested) {
                 subQueries.add(buildConditionQuery(sub));
             }
@@ -911,7 +911,7 @@ public class ElasticsearchEngine implements Engine {
         if (CollectionUtils.isEmpty(values)) {
             return Query.of(q -> q.matchNone(m -> m));
         }
-        List<FieldValue> fieldValues = new ArrayList<>(values.size());
+        List<FieldValue> fieldValues = Wraps.list(values.size());
         for (Object v : values) {
             fieldValues.add(toFieldValue(v));
         }
@@ -930,7 +930,7 @@ public class ElasticsearchEngine implements Engine {
         if (CollectionUtils.isEmpty(values)) {
             return Query.of(q -> q.matchAll(m -> m));
         }
-        List<FieldValue> fieldValues = new ArrayList<>(values.size());
+        List<FieldValue> fieldValues = Wraps.list(values.size());
         for (Object v : values) {
             fieldValues.add(toFieldValue(v));
         }

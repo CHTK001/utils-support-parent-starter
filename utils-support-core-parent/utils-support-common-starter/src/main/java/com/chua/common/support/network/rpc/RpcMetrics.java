@@ -1,8 +1,7 @@
 package com.chua.common.support.network.rpc;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Data;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -53,11 +52,11 @@ public class RpcMetrics {
     /**
      * 连接列表
      */
-    private List<RpcConnectionInfo> connections = new ArrayList<>();
+    private List<RpcConnectionInfo> connections = Wraps.list();
     /**
      * 方法级统计（可选）
      */
-    private List<MethodStat> methodStats = new ArrayList<>();
+    private List<MethodStat> methodStats = Wraps.list();
 
     /**
      * 创建指定协议的指标快照。

@@ -1,5 +1,6 @@
 package com.chua.datalake.support.webhook;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datalake.support.model.DataEnvelope;
 import com.chua.datalake.support.model.PipelineState;
 import com.chua.datalake.support.spi.pipeline.PipelineEngine;
@@ -18,7 +19,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -391,7 +391,7 @@ public class WebhookInboundAdapter {
         } catch (Exception e) {
             throw new WebhookRejectException(400, "invalid_json", "请求体不是合法 JSON: " + describe(e));
         }
-        List<Map<String, Object>> rows = new ArrayList<>();
+        List<Map<String, Object>> rows = Wraps.list();
         if (batch) {
             if (root == null || !root.isArray()) {
                 throw new WebhookRejectException(400, "invalid_payload", "批量推送的请求体必须是 JSON 数组");

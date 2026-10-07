@@ -1,5 +1,6 @@
 package com.chua.network.support.tshark.cli;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.lang.cmd.ExecutableLocator;
@@ -20,7 +21,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
@@ -467,7 +467,7 @@ public final class TsharkArtifactInstaller {
         if (!Files.isDirectory(root)) {
             return Optional.empty();
         }
-        List<Path> matches = new ArrayList<>();
+        List<Path> matches = Wraps.list();
         try {
             Files.walkFileTree(root, java.util.Set.of(), MAX_SEARCH_DEPTH, new SimpleFileVisitor<>() {
                 @Override

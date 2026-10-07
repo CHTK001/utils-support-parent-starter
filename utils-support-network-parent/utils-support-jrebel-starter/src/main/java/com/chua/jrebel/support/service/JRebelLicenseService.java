@@ -1,12 +1,12 @@
 package com.chua.jrebel.support.service;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.jrebel.support.sign.JRebelSign;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -95,7 +95,7 @@ public class JRebelLicenseService {
         String signature = jRebelSign.toLeaseCreateJson(
                 clientRandomness, guid, offline, validFromStr, validUntilStr);
 
-        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> response = Wraps.map();
         response.put("serverVersion", "3.2.4");
         response.put("serverProtocolVersion", 2);
         response.put("serverGuid", SERVER_GUID);
@@ -133,7 +133,7 @@ public class JRebelLicenseService {
      * @return 验证结果
      */
     public Map<String, Object> validateLease(String guid) {
-        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> response = Wraps.map();
 
         LicenseInfo licenseInfo = licenseCache.get(guid);
         if (licenseInfo != null) {
@@ -173,7 +173,7 @@ public class JRebelLicenseService {
      * @return ping 响应
      */
     public Map<String, Object> createPingResponse() {
-        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> response = Wraps.map();
         response.put("serverVersion", "3.2.4");
         response.put("serverProtocolVersion", 2);
         response.put("serverGuid", SERVER_GUID);

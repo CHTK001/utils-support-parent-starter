@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import reactor.core.publisher.Flux;
 
@@ -80,7 +81,7 @@ public class RooCodeExtensionUsageParser extends VscodeExtensionTaskUsageParser 
      * @return 任务文件 -> 任务 id 的全局映射（跨全部 IDE 安装）
      */
     private java.util.Map<Path, String> resolveTaskFilesOnDisk() {
-        java.util.Map<Path, String> merged = new java.util.LinkedHashMap<>();
+        java.util.Map<Path, String> merged = Wraps.linkedMap();
         for (Map<Path, String> batch : collectTaskFiles()) {
             merged.putAll(batch);
         }

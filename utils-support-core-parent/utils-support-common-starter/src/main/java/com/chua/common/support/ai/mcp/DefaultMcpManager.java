@@ -1,8 +1,6 @@
 package com.chua.common.support.ai.mcp;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,7 +46,7 @@ public class DefaultMcpManager implements McpManager {
      */
     @Override
     public Map<String, McpClient> getAll() {
-        return Collections.unmodifiableMap(new LinkedHashMap<>(clients));
+        return Collections.unmodifiableMap(Wraps.linkedMap(clients));
     }
 
     /**
@@ -56,7 +54,7 @@ public class DefaultMcpManager implements McpManager {
      */
     @Override
     public List<McpToolDescriptor> listAllTools() {
-        List<McpToolDescriptor> allTools = new ArrayList<>();
+        List<McpToolDescriptor> allTools = Wraps.list();
         for (Map.Entry<String, McpClient> entry : clients.entrySet()) {
             McpClient client = entry.getValue();
             if (client == null || !client.isInitialized()) {

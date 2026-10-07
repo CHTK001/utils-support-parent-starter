@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.face;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -15,7 +16,6 @@ import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.utils.ImageUtils;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 import org.opencv.imgproc.Imgproc;
@@ -100,14 +100,14 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
         if (list == null || list.size() < 9) {
             return empty();
         }
-        List<Candidate> candidates = new ArrayList<>();
+        List<Candidate> candidates = Wraps.list();
         for (int i = 0; i < STRIDES.length; i++) {
             decodeStride(candidates, squeezeBatch(list.get(i)), squeezeBatch(list.get(i + STRIDES.length)), squeezeBatch(list.get(i + STRIDES.length * 2)), STRIDES[i]);
         }
         candidates.sort((l, r) -> Double.compare(r.score(), l.score()));
-        List<String> names = new ArrayList<>();
-        List<Double> probs = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> probs = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
         for (Candidate c : candidates) {
             boolean keep = true;
             for (BoundingBox b : boxes) {
@@ -160,7 +160,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
             if (x2 <= x1 || y2 <= y1) {
                 continue;
             }
-            List<Point> points = new ArrayList<>();
+            List<Point> points = Wraps.list();
             if (kps != null && idx < kpsLength) {
                 for (int p = 0; p < 5; p++) {
                     points.add(new Point(clamp(cx + kps[idx * 10 + p * 2] * stride, 0f, INPUT_SIZE - 1f) / INPUT_SIZE, clamp(cy + kps[idx * 10 + p * 2 + 1] * stride, 0f, INPUT_SIZE - 1f) / INPUT_SIZE));
@@ -202,7 +202,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
      * @return 空的结果
      */
     private DetectedObjects empty() {
-        return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        return new DetectedObjects(Wraps.list(), Wraps.list(), Wraps.list());
     }
 
     @Override

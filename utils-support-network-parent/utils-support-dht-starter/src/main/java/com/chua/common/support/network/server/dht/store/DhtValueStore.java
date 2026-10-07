@@ -1,9 +1,7 @@
 package com.chua.common.support.network.server.dht.store;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -86,7 +84,7 @@ public class DhtValueStore {
      */
     public Map<String, String> getAll() {
         expire();
-        Map<String, String> result = new HashMap<>();
+        Map<String, String> result = Wraps.map();
         for (Map.Entry<String, DhtValueEntry> e : store.entrySet()) {
             if (!e.getValue().isExpired()) {
                 result.put(e.getKey(), e.getValue().value());

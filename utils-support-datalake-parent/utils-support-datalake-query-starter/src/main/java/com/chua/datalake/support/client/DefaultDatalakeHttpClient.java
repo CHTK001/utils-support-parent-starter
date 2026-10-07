@@ -1,10 +1,9 @@
 package com.chua.datalake.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,7 +81,7 @@ public class DefaultDatalakeHttpClient extends DatalakeHttpClient {
         if (root == null || !root.isArray()) {
             throw new IllegalArgumentException("查询响应不是 JSON 数组: " + preview(body));
         }
-        List<Map<String, Object>> rows = new ArrayList<>(root.size());
+        List<Map<String, Object>> rows = Wraps.list(root.size());
         TypeFactory types = Json.getMapper().getTypeFactory();
         for (JsonNode node : root) {
             if (!node.isObject()) {

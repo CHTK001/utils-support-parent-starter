@@ -1,5 +1,6 @@
 package com.chua.common.support.task.backup;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -8,7 +9,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -153,7 +153,7 @@ public class PolledDirectoryBackup implements BackupStrategy {
      * @return 备份的文件列表
      */
     private List<Path> backupPolledFiles(Path source, Path target, BackupConfig config) throws IOException {
-        List<Path> backedUp = new ArrayList<>();
+        List<Path> backedUp = Wraps.list();
         if (!Files.exists(source)) {
             return backedUp;
         }

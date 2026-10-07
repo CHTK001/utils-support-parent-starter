@@ -1,5 +1,6 @@
 package com.chua.runtime.core.manager;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.reflection.ReflectUtils;
@@ -7,7 +8,6 @@ import com.chua.runtime.core.service.JavaAgentManager;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -42,7 +42,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
      * 列表pids
     */
     public Map<Integer, String> listPids() {
-        Map<Integer, String> jvms = new HashMap<>();
+        Map<Integer, String> jvms = Wraps.map();
         try {
             CmdResult r = CmdExecutors.execute(
                     new String[]{"ps", "-eo", "pid,comm,args"},

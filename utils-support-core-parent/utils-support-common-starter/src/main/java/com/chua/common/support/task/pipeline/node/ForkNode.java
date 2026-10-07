@@ -1,5 +1,6 @@
 package com.chua.common.support.task.pipeline.node;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.pipeline.core.ForkErrorStrategy;
 import com.chua.common.support.task.pipeline.core.ForkResult;
 import com.chua.common.support.task.pipeline.core.Pipeline;
@@ -124,7 +125,7 @@ public class ForkNode implements PipelineNode {
      */
     public ForkNode(String id, Map<String, Pipeline> branches, ForkErrorStrategy errorStrategy) {
         this.id = id;
-        this.branches = branches != null ? new LinkedHashMap<>(branches) : new LinkedHashMap<>();
+        this.branches = branches != null ? Wraps.linkedMap(branches) : Wraps.linkedMap();
         this.errorStrategy = errorStrategy != null ? errorStrategy : ForkErrorStrategy.WAIT_ALL;
         this.params = Collections.emptyMap();
     }
@@ -286,7 +287,7 @@ public class ForkNode implements PipelineNode {
                 scope.join();
 
                 // 汇总异常
-                List<Exception> errors = new ArrayList<>();
+                List<Exception> errors = Wraps.list();
                 for (BranchResult result : results) {
                     if (result.error != null) {
                         errors.add(result.error);
@@ -368,8 +369,8 @@ public class ForkNode implements PipelineNode {
      * @return 结构化的分叉结果
      */
     private ForkResult collectForkResult(ConcurrentLinkedQueue<BranchResult> results) {
-        Map<String, Object> branchOutputs = new LinkedHashMap<>();
-        Map<String, List<String>> branchHistories = new LinkedHashMap<>();
+        Map<String, Object> branchOutputs = Wraps.linkedMap();
+        Map<String, List<String>> branchHistories = Wraps.linkedMap();
         for (BranchResult result : results) {
             branchOutputs.put(result.branchName, result.context.getCurrentData());
             branchHistories.put(result.branchName, result.context.getHistory());
@@ -392,9 +393,9 @@ public class ForkNode implements PipelineNode {
         branchPipeline.execute(branchCtx);
 
  // 以 fork结果 结构化存储，与多分支路径格式一致
-        Map<String, Object> branchOutputs = new LinkedHashMap<>();
+        Map<String, Object> branchOutputs = Wraps.linkedMap();
         branchOutputs.put(branchName, branchCtx.getCurrentData());
-        Map<String, List<String>> branchHistories = new LinkedHashMap<>();
+        Map<String, List<String>> branchHistories = Wraps.linkedMap();
         branchHistories.put(branchName, branchCtx.getHistory());
         ForkResult forkResult = new ForkResult(id, branchOutputs, branchHistories);
         parentCtx.setNodeOutput(id, forkResult);

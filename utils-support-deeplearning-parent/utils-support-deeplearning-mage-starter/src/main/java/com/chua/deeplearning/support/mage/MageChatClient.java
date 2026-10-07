@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.mage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.Attachment;
 import com.chua.common.support.ai.chat.ChatClient;
@@ -13,8 +14,6 @@ import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +91,7 @@ public class MageChatClient implements ChatClient {
     /**
      * 对话历史消息列表
      */
-    private final List<ChatMessage> history = new ArrayList<>();
+    private final List<ChatMessage> history = Wraps.list();
 
     /**
      * 外部传入的完整历史记录；非空时覆盖内部 history
@@ -102,17 +101,17 @@ public class MageChatClient implements ChatClient {
     /**
      * 图片附件 URL / data URI / 本地路径列表
      */
-    private final List<String> imageUrls = new ArrayList<>();
+    private final List<String> imageUrls = Wraps.list();
 
     /**
      * 视频附件 URL / data URI / 本地路径列表
      */
-    private final List<String> videoUrls = new ArrayList<>();
+    private final List<String> videoUrls = Wraps.list();
 
     /**
      * 文件附件列表（图片字节将转为 data URI 参与请求）
      */
-    private final List<Attachment> attachments = new ArrayList<>();
+    private final List<Attachment> attachments = Wraps.list();
 
     /**
      * 构造 Mage 多模态理解客户端。
@@ -322,7 +321,7 @@ public class MageChatClient implements ChatClient {
      * @return 消息列表（JsonObject 结构）
      */
     private List<JsonObject> buildMessages(String prompt) {
-        List<JsonObject> messages = new ArrayList<>();
+        List<JsonObject> messages = Wraps.list();
         if (system != null && !system.isBlank()) {
             messages.add(JsonObject.create()
                     .fluentPut("role", "system")
@@ -348,7 +347,7 @@ public class MageChatClient implements ChatClient {
      * @return 含多模态 content parts 或纯文本的用户消息
      */
     private JsonObject buildUserMessage(String prompt) {
-        List<JsonObject> parts = new ArrayList<>();
+        List<JsonObject> parts = Wraps.list();
         for (String imageUrl : imageUrls) {
             parts.add(JsonObject.create()
                     .fluentPut("type", "image_url")

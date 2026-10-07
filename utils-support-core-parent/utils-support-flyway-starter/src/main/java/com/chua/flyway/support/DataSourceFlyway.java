@@ -1,5 +1,6 @@
 package com.chua.flyway.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.resource.Resource;
 import com.chua.common.support.lang.datasource.flyway.Flyway;
 import com.chua.common.support.lang.datasource.flyway.FlywayHistory;
@@ -18,8 +19,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -74,7 +73,7 @@ public class DataSourceFlyway implements Flyway {
     /**
      * 脚本位置列表
      */
-    private final List<String> locations = new ArrayList<>();
+    private final List<String> locations = Wraps.list();
 
     /**
      * 版本与描述分隔符
@@ -92,7 +91,7 @@ public class DataSourceFlyway implements Flyway {
     /**
      * 最近一次 migrate 中失败（continueOnError 跳过）的语句，供日志/排查
      */
-    private final List<String> lastFailedStatements = new ArrayList<>();
+    private final List<String> lastFailedStatements = Wraps.list();
 
     /**
      * 构造迁移器。
@@ -136,7 +135,7 @@ public class DataSourceFlyway implements Flyway {
     @Override
     public List<MigrationInfo> info() {
         Map<String, String> applied = FlywayHistory.loadApplied(runner);
-        List<MigrationInfo> result = new ArrayList<>();
+        List<MigrationInfo> result = Wraps.list();
         for (FlywayScripts.Script script : scanScripts()) {
             result.add(new MigrationInfo(
                     FlywayScripts.majorVersion(script.version()),
@@ -374,14 +373,14 @@ public class DataSourceFlyway implements Flyway {
 
         @Override
         public List<Map<String, Object>> select(String sql, Object... params) {
-            List<Map<String, Object>> rows = new ArrayList<>();
+            List<Map<String, Object>> rows = Wraps.list();
             try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
                 bind(ps, params);
                 try (ResultSet rs = ps.executeQuery()) {
                     ResultSetMetaData meta = rs.getMetaData();
                     int columnCount = meta.getColumnCount();
                     while (rs.next()) {
-                        Map<String, Object> row = new LinkedHashMap<>();
+                        Map<String, Object> row = Wraps.linkedMap();
                         for (int i = 1; i <= columnCount; i++) {
                             row.put(meta.getColumnLabel(i), rs.getObject(i));
                         }

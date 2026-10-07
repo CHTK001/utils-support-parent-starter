@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.datasource.engine.wrapper;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 
 /**
@@ -65,7 +64,7 @@ public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDelet
      */
     public DeleteSql buildSql() {
         requireWhereCondition("删除");
-        List<Object> params = new ArrayList<>();
+        List<Object> params = Wraps.list();
         StringBuilder where = new StringBuilder();
         buildWhere(where, params);
         return new DeleteSql(entityClass, where.toString(), params);

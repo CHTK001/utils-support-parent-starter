@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.weather.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.weather.model.DailyForecast;
 import com.chua.common.support.datasearch.weather.model.HourlyWeather;
 import com.chua.common.support.datasearch.weather.model.WeatherInfo;
@@ -10,8 +11,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -141,7 +140,7 @@ public class WttrInWeatherProvider implements WeatherProvider {
      * @return 预报列表；非数组时返回空列表
      */
     private List<DailyForecast> parseForecast(JsonNode weatherNode) {
-        List<DailyForecast> result = new ArrayList<>();
+        List<DailyForecast> result = Wraps.list();
         if (weatherNode == null || !weatherNode.isArray()) {
             return result;
         }
@@ -167,7 +166,7 @@ public class WttrInWeatherProvider implements WeatherProvider {
      * @return 逐小时列表；非数组时返回空列表
      */
     private List<HourlyWeather> parseHourly(JsonNode hourlyNode, String date) {
-        List<HourlyWeather> result = new ArrayList<>();
+        List<HourlyWeather> result = Wraps.list();
         if (hourlyNode == null || !hourlyNode.isArray()) {
             return result;
         }

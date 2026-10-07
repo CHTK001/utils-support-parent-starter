@@ -1,6 +1,5 @@
 package com.chua.flow.support.store;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +33,7 @@ public class MemoryFlowSnapshotStore implements FlowSnapshotStore {
     @Override
     public void save(FlowSnapshot snapshot) {
         snapshots.put(snapshot.executionNo(), snapshot);
-        flowIndex.computeIfAbsent(snapshot.flowId(), k -> new ArrayList<>())
+        flowIndex.computeIfAbsent(snapshot.flowId(), k -> Wraps.list())
                 .add(snapshot.executionNo());
     }
 
@@ -61,7 +60,7 @@ public class MemoryFlowSnapshotStore implements FlowSnapshotStore {
         if (nos == null) {
             return List.of();
         }
-        List<FlowSnapshot> result = new ArrayList<>(nos.size());
+        List<FlowSnapshot> result = Wraps.list(nos.size());
         for (String no : nos) {
             FlowSnapshot snapshot = snapshots.get(no);
             if (snapshot != null) {

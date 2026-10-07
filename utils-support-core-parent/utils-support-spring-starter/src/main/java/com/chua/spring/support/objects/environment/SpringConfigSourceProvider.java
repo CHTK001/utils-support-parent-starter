@@ -1,11 +1,10 @@
 package com.chua.spring.support.objects.environment;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.objects.environment.ConfigSourceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.spring.support.configuration.SpringBeanUtils;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -25,7 +24,7 @@ public class SpringConfigSourceProvider implements ConfigSourceProvider {
      * 获取财产源
     */
     public List<com.chua.common.support.config.source.PropertySource> getPropertySources() {
-        List<com.chua.common.support.config.source.PropertySource> result = new ArrayList<>();
+        List<com.chua.common.support.config.source.PropertySource> result = Wraps.list();
         try {
             org.springframework.core.env.Environment env = SpringBeanUtils.getEnvironment();
             if (env == null) {

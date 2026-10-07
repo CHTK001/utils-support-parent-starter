@@ -1,5 +1,6 @@
 package com.chua.playwright.support.doubao;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.JsonObject;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
@@ -8,8 +9,6 @@ import com.microsoft.playwright.Playwright;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -327,7 +326,7 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
      * 注入认证 Cookie 到豆包主域与字节跳动域。
      */
     private void injectCookies() {
-        List<com.microsoft.playwright.options.Cookie> cookieList = new ArrayList<>(cookies.size());
+        List<com.microsoft.playwright.options.Cookie> cookieList = Wraps.list(cookies.size());
         String[] domains = {DoubaoConstants.DOUBAO_DOMAIN, DoubaoConstants.BYTEDANCE_DOMAIN};
         for (Map.Entry<String, String> entry : cookies.entrySet()) {
             for (String domain : domains) {
@@ -346,7 +345,7 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
      * @return 键值对映射
      */
     private static Map<String, String> parseCookies(String cookieString) {
-        Map<String, String> map = new LinkedHashMap<>();
+        Map<String, String> map = Wraps.linkedMap();
         if (cookieString == null || cookieString.isBlank()) {
             return map;
         }

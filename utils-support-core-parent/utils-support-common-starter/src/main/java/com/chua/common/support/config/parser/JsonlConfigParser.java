@@ -1,5 +1,6 @@
 package com.chua.common.support.config.parser;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.config.source.MapPropertySource;
 import com.chua.common.support.config.source.PropertySource;
 import com.chua.common.support.lang.json.Json;
@@ -9,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -36,7 +36,7 @@ public class JsonlConfigParser implements ConfigParser {
     public PropertySource parse(String urlPath, InputStream is) {
         try {
             String content = IoUtils.asString(is, StandardCharsets.UTF_8);
-            Map<String, Object> merged = new LinkedHashMap<>();
+            Map<String, Object> merged = Wraps.linkedMap();
 
             for (String line : content.split("\n")) {
                 String trimmed = line.trim();

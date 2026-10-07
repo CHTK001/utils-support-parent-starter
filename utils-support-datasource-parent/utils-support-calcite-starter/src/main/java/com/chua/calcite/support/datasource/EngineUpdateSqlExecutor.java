@@ -1,13 +1,11 @@
 package com.chua.calcite.support.datasource;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
 import com.chua.datasource.support.datasource.DataScheme;
 import com.chua.datasource.support.datasource.DataTable;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -235,7 +233,7 @@ public final class EngineUpdateSqlExecutor {
      * @return 解析assignments的结果
      */
     private static Map<String, Object> parseAssignments(String part) {
-        Map<String, Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = Wraps.linkedMap();
         for (String seg : splitTopLevel(part, ',')) {
             Map.Entry<String, Object> entry = parseCondition(seg);
             if (entry == null) {
@@ -253,7 +251,7 @@ public final class EngineUpdateSqlExecutor {
      * @return 列名到字面量的映射；含不可解析或非等值条件时返回 空
      */
     private static Map<String, Object> parseAndEquals(String where) {
-        Map<String, Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = Wraps.linkedMap();
         // 仅支持 AND 连接的 col = val，任何一段解析失败都不能当作"没有条件"
         for (String seg : splitTopLevel(where, "AND")) {
             Map.Entry<String, Object> entry = parseCondition(seg);
@@ -321,7 +319,7 @@ public final class EngineUpdateSqlExecutor {
      * @return 分割top级别的结果
      */
     private static List<String> splitTopLevel(String text, char sep) {
-        List<String> parts = new ArrayList<>();
+        List<String> parts = Wraps.list();
         StringBuilder cur = new StringBuilder();
         boolean inStr = false;
         for (int i = 0; i < text.length(); i++) {
@@ -354,7 +352,7 @@ public final class EngineUpdateSqlExecutor {
      * @return 分割top级别的结果
      */
     private static List<String> splitTopLevel(String text, String keyword) {
-        List<String> parts = new ArrayList<>();
+        List<String> parts = Wraps.list();
         String upper = text.toUpperCase(Locale.ROOT);
         String key = keyword.toUpperCase(Locale.ROOT);
         int start = 0;

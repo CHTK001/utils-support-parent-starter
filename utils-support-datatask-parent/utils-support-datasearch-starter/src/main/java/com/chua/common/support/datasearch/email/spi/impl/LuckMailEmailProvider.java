@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.email.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.email.model.EmailInfo;
 import com.chua.common.support.datasearch.email.spi.EmailProvider;
 import com.chua.common.support.network.client.ClientResponse;
@@ -11,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -125,7 +125,7 @@ public class LuckMailEmailProvider implements EmailProvider {
             if (messages == null) {
                 throw new IllegalStateException("LuckMail 邮件响应中缺少邮件数组");
             }
-            List<EmailInfo> result = new ArrayList<>();
+            List<EmailInfo> result = Wraps.list();
             for (JsonNode message : messages) {
                 result.add(toEmailInfo(message));
             }

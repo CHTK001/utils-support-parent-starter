@@ -1,12 +1,11 @@
 package com.chua.runtime.protocol;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -75,7 +74,7 @@ public class Endpoint {
      * 附加属性（动态标签，懒填充）
      */
     @Builder.Default
-    private Map<String, String> attributes = new HashMap<>(); // attributes
+    private Map<String, String> attributes = Wraps.map(); // attributes
 
     /**
      * 端点的稳定唯一 标识（用于依赖图节点去重）。

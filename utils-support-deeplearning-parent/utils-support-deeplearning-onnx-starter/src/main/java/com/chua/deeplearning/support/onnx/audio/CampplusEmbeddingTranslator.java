@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtException;
@@ -14,7 +15,6 @@ import java.io.ByteArrayInputStream;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Arrays;
 
@@ -91,7 +91,7 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
 
  // 运行 推理
             String inputName = session.getInputNames().iterator().next();
-            Map<String, OnnxTensor> inputs = new HashMap<>();
+            Map<String, OnnxTensor> inputs = Wraps.map();
             inputs.put(inputName, inputTensor);
 
             try (OrtSession.Result results = session.run(inputs)) {

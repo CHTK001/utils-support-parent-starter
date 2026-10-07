@@ -1,5 +1,6 @@
 package com.chua.ssh.support.server;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.CommandLine;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpMethod;
@@ -41,7 +42,7 @@ public class SshCommandRequest implements ServerRequest {
     /**
      * 请求属性映射
      */
-    private final Map<String, Object> attributes = new HashMap<>();
+    private final Map<String, Object> attributes = Wraps.map();
 
     /**
      * 构造 SSH 命令请求。
@@ -136,7 +137,7 @@ public class SshCommandRequest implements ServerRequest {
      * 获取参数
     */
     public Map<String, String> getParams() {
-        Map<String, String> result = new LinkedHashMap<>();
+        Map<String, String> result = Wraps.linkedMap();
         for (int i = 0; i < args.length; i++) {
             result.put(String.valueOf(i), args[i]);
         }

@@ -1,4 +1,5 @@
 package com.chua.common.support.matcher;
+import com.chua.common.support.collection.wrap.Wraps;
 import  com.chua.common.support.collection.ConcurrentReferenceHashMap;
 import com.chua.common.support.constant.CommonConstant;
 import com.chua.common.support.utils.StringUtils;
@@ -509,7 +510,7 @@ public class AntPathMatcher implements PathMatcher {
      * @return URI                   
      */
     public Map<String, String> extractUriTemplateVariables(String pattern, String path) {
-        Map<String, String> variables = new LinkedHashMap<>();
+        Map<String, String> variables = Wraps.linkedMap();
         boolean result = doMatch(pattern, path, true, variables);
         if (!result) {
             throw new IllegalStateException("Pattern \"" + pattern + "\" is not a match for \"" + path + "\"");
@@ -652,7 +653,7 @@ public class AntPathMatcher implements PathMatcher {
         private final Pattern pattern;
         /**
          */
-        private final List<String> variableNames = new ArrayList<>();
+        private final List<String> variableNames = Wraps.list();
         /**
          *        AntPathStringMatcher
          *

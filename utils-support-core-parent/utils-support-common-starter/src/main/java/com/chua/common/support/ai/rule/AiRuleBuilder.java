@@ -3,7 +3,6 @@ package com.chua.common.support.ai.rule;
 import com.chua.common.support.ai.decision.DecisionQuery;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -23,6 +22,12 @@ public interface AiRuleBuilder extends RuleBuilder {
 
     @Override
     AiRuleBuilder name(String name);
+
+    @Override
+    AiRuleBuilder description(String description);
+
+    @Override
+    AiRuleBuilder message(String message);
 
     @Override
     AiRuleBuilder when(String expression);
@@ -98,13 +103,27 @@ public interface AiRuleBuilder extends RuleBuilder {
     AiRuleBuilder state(Object state);
 
     /**
-     * 指定 AI 底座配置。
+     * 指定本地模型资产目录。
      *
-     * <p>键值由实现方解释，例如 laya 的 {@code modelPath}、{@code threads}。</p>
-     *
-     * @param settings 底座配置
+     * @param modelPath 模型目录，可为 null（使用底座默认）
      * @return 自身，便于链式调用
-     * @throws NullPointerException 配置为 null 时
      */
-    AiRuleBuilder settings(Map<String, Object> settings);
+    AiRuleBuilder modelPath(String modelPath);
+
+    /**
+     * 指定推理线程数。
+     *
+     * @param threads 推理线程数，可为 null（使用底座默认）；非 null 时必须为正数
+     * @return 自身，便于链式调用
+     * @throws IllegalArgumentException 线程数为负或零时
+     */
+    AiRuleBuilder threads(Integer threads);
+
+    /**
+     * 指定校准文件路径。
+     *
+     * @param calibrationPath 校准文件路径，可为 null（使用模型自带校准）
+     * @return 自身，便于链式调用
+     */
+    AiRuleBuilder calibrationPath(String calibrationPath);
 }

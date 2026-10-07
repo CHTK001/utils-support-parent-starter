@@ -1,5 +1,6 @@
 package com.chua.common.support.task.script.java;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.compile.Compiler;
 import com.chua.common.support.lang.compile.JdkCompiler;
 import com.chua.common.support.reflection.ReflectUtils;
@@ -13,7 +14,6 @@ import java.lang.reflect.Parameter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -223,7 +223,7 @@ public class JavaScriptProvider implements ScriptProvider {
                 return method;
             }
         }
-        List<Method> candidates = new ArrayList<>();
+        List<Method> candidates = Wraps.list();
         for (Method method : methods) {
             if (method.getDeclaringClass() == Object.class || method.isSynthetic() || method.isBridge()) {
                 continue;

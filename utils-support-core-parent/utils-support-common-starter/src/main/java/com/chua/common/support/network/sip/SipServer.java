@@ -1,5 +1,6 @@
 package com.chua.common.support.network.sip;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.algorithm.hmac.HMacUtils;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.AbstractServer;
@@ -19,7 +20,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -407,7 +407,7 @@ private static ServerSetting serverSetting(SipConfig config) {
         buffer.put(payload);
         byte[] fullFrame = buffer.array();
         List<byte[]> pending = muxPending.computeIfAbsent(channelId + "|" + peerKey,
-                k -> java.util.Collections.synchronizedList(new ArrayList<>()));
+                k -> java.util.Collections.synchronizedList(Wraps.list()));
         synchronized (pending) {
             if (pending.size() < 256) {
                 pending.add(fullFrame);
@@ -702,7 +702,7 @@ onSignalClosed(clientId);
         // 移除该客户端提供的服务
         tunnelServices.entrySet().removeIf(entry -> entry.getValue().equals(clientId));
         // 关闭该客户端参与的隧道
-        List<String> closed = new ArrayList<>();
+        List<String> closed = Wraps.list();
         for (Map.Entry<String, TunnelChannel> entry : tunnelChannels.entrySet()) {
             TunnelChannel channel = entry.getValue();
             if (channel.aId().equals(clientId) || channel.bId().equals(clientId)) {

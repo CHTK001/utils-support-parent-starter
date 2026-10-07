@@ -1,5 +1,6 @@
 package com.chua.runtime.plugin.loader;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
@@ -108,7 +109,7 @@ public class PluginClassLoader extends URLClassLoader {
      * @return JAR URL 列表
      */
     private static URL[] toUrls(Path pluginDir) {
-        List<URL> urls = new ArrayList<>();
+        List<URL> urls = Wraps.list();
         try {
             if (Files.exists(pluginDir)) {
                 urls.add(pluginDir.toUri().toURL());
@@ -150,7 +151,7 @@ public class PluginClassLoader extends URLClassLoader {
      * @return Plugin 实现类名列表
      */
     public List<String> scanPlugins() {
-        List<String> plugins = new ArrayList<>();
+        List<String> plugins = Wraps.list();
         Path spiPath = pluginDir.resolve("META-INF/services/com.chua.runtime.plugin.Plugin");
         if (Files.exists(spiPath)) {
             try {

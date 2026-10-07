@@ -1,5 +1,6 @@
 package com.chua.calcite.support.datasource;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.reflection.ReflectUtils;
@@ -144,7 +145,7 @@ public class SourceDataTable extends MutableDataTable {
         data.clear();
         if (rows != null) {
             for (Map<String, Object> row : rows) {
-                data.add(new LinkedHashMap<>(row));
+                data.add(Wraps.linkedMap(row));
             }
         }
         persistSnapshot(data);
@@ -162,7 +163,7 @@ public class SourceDataTable extends MutableDataTable {
             if (results == null || results.isEmpty()) {
                 return Collections.emptyList();
             }
-            List<Map<String, Object>> rows = new ArrayList<>(results.size());
+            List<Map<String, Object>> rows = Wraps.list(results.size());
             for (Object entity : results) {
                 rows.add(entityToRow(entity));
             }
@@ -179,7 +180,7 @@ public class SourceDataTable extends MutableDataTable {
      * @param rows rows
      */
     private void persistSnapshot(List<Map<String, Object>> rows) {
-        List<Object> entities = new ArrayList<>(rows.size());
+        List<Object> entities = Wraps.list(rows.size());
         for (Map<String, Object> row : rows) {
             entities.add(mapToEntity(row));
         }
@@ -249,7 +250,7 @@ public class SourceDataTable extends MutableDataTable {
      * @return 实体转为row的结果
      */
     private Map<String, Object> entityToRow(Object entity) {
-        Map<String, Object> row = new LinkedHashMap<>(getters.size());
+        Map<String, Object> row = Wraps.linkedMap(getters.size());
         for (int i = 0; i < getters.size(); i++) {
             try {
                 row.put(getColumnNames().get(i), ReflectUtils.invoke(entity, getters.get(i).getName(), getters.get(i).getReturnType()));
@@ -267,7 +268,7 @@ public class SourceDataTable extends MutableDataTable {
      * @return resolveGetters的结果
      */
     private static List<Method> resolveGetters(Class<?> entityClass) {
-        List<Method> result = new ArrayList<>();
+        List<Method> result = Wraps.list();
         for (Method method : entityClass.getMethods()) {
             if (Modifier.isStatic(method.getModifiers())
                     || method.getParameterCount() != 0
@@ -295,7 +296,7 @@ public class SourceDataTable extends MutableDataTable {
      * @return resolveSetters的结果
      */
     private static List<Method> resolveSetters(Class<?> entityClass, List<Method> getters) {
-        List<Method> setters = new ArrayList<>(getters.size());
+        List<Method> setters = Wraps.list(getters.size());
         for (Method getter : getters) {
             String col = getterToColumnName(getter);
             String setterName = "set" + Character.toUpperCase(col.charAt(0)) + col.substring(1);
@@ -317,7 +318,7 @@ public class SourceDataTable extends MutableDataTable {
       * @return 转为column名称的结果
       */
     private static List<String> toColumnNames(List<Method> getters) {
-        List<String> names = new ArrayList<>(getters.size());
+        List<String> names = Wraps.list(getters.size());
         for (Method getter : getters) {
             names.add(getterToColumnName(getter));
         }
@@ -331,7 +332,7 @@ public class SourceDataTable extends MutableDataTable {
      * @return 结果列表，无数据时为空列表
      */
     private static List<Class<?>> toColumnTypes(List<Method> getters) {
-        List<Class<?>> types = new ArrayList<>(getters.size());
+        List<Class<?>> types = Wraps.list(getters.size());
         for (Method getter : getters) {
             types.add(getter.getReturnType());
         }

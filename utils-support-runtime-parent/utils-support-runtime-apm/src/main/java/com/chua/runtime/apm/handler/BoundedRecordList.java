@@ -1,6 +1,7 @@
 package com.chua.runtime.apm.handler;
 
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -23,7 +24,7 @@ public class BoundedRecordList<T> implements Iterable<T> {
     /**
      * 委托对象
      */
-    private final ArrayList<T> delegate;
+    private final List<T> delegate;
     /**
      * 最大大小
      */
@@ -35,7 +36,7 @@ public class BoundedRecordList<T> implements Iterable<T> {
      */
     public BoundedRecordList(int maxSize) {
         this.maxSize = maxSize;
-        this.delegate = new ArrayList<>(Math.min(maxSize, 64));
+        this.delegate = Wraps.list(Math.min(maxSize, 64));
     }
 
     /**
@@ -78,7 +79,7 @@ public class BoundedRecordList<T> implements Iterable<T> {
             return Collections.emptyList();
         }
         int from = Math.max(0, delegate.size() - n);
-        return Collections.unmodifiableList(new ArrayList<>(delegate.subList(from, delegate.size())));
+        return Collections.unmodifiableList(Wraps.list(delegate.subList(from, delegate.size())));
     }
 
     /**
@@ -86,7 +87,7 @@ public class BoundedRecordList<T> implements Iterable<T> {
      * @return snapshot的结果
      */
     public synchronized List<T> snapshot() {
-        return Collections.unmodifiableList(new ArrayList<>(delegate));
+        return Collections.unmodifiableList(Wraps.list(delegate));
     }
 
     /**

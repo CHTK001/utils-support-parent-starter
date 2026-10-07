@@ -1,11 +1,9 @@
 package com.chua.common.support.lang.directory;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
 import com.chua.common.support.lang.directory.executor.DirectoryPollerExecutor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -138,7 +136,7 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
             return;
         }
 
-        Map<String, T> curMap = new HashMap<>();
+        Map<String, T> curMap = Wraps.map();
         for (T item : current) {
             String name = getFileName(item);
             curMap.put(name, item);
@@ -155,7 +153,7 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
         }
 
         // 快照 key 集合，避免在遍历 cache 时修改 cache
-        for (String name : new ArrayList<>(cache.keySet())) {
+        for (String name : Wraps.list(cache.keySet())) {
             if (!curMap.containsKey(name)) {
                 cache.remove(name);
                 support.fire(listenPath, WatcherEvent.DELETE, name, environment);

@@ -1,10 +1,9 @@
 package com.chua.influxdb.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.AbstractEngine;
 import com.chua.datasource.support.engine.MemoryWhereParser;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +31,7 @@ public class InfluxDbEngine extends AbstractEngine {
      * @return 当前引擎实例
      */
     public <T> InfluxDbEngine store(String name, List<T> data) {
-        dataStores.put(name, new ArrayList<>(data));
+        dataStores.put(name, Wraps.list(data));
         if (defaultDataSourceName == null) {
             defaultDataSourceName = name;
         }

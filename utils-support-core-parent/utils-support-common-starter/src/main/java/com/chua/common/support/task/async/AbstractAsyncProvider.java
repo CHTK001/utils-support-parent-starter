@@ -1,6 +1,5 @@
 package com.chua.common.support.task.async;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
@@ -42,7 +41,7 @@ public abstract class AbstractAsyncProvider implements AsyncProvider {
     @SafeVarargs
     @SuppressWarnings("unchecked")
     public final <T> CompletableFuture<List<T>> supplyAll(Supplier<T>... suppliers) {
-        List<CompletableFuture<T>> futures = new ArrayList<>(suppliers.length);
+        List<CompletableFuture<T>> futures = Wraps.list(suppliers.length);
         for (Supplier<T> s : suppliers) {
             futures.add(supply(s));
         }

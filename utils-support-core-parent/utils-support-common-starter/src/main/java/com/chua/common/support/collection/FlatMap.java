@@ -1,9 +1,8 @@
 package com.chua.common.support.collection;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.BeanUtils;
 import com.chua.common.support.utils.ClassUtils;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -62,7 +61,7 @@ public interface FlatMap extends Map<String, Object> {
      */
     default <R> List<R> wildcard(String key, Class<R> type) {
         List<Object> read = wildcard(key);
-        List<R> result = new ArrayList<>(read.size());
+        List<R> result = Wraps.list(read.size());
         for (Object o : read) {
             R forObject = ClassUtils.forObject(type);
             if (null == forObject) {

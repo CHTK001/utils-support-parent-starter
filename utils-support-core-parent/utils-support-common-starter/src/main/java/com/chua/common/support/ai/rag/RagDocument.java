@@ -1,7 +1,7 @@
 package com.chua.common.support.ai.rag;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -51,7 +51,7 @@ public record RagDocument(
      */
     public RagDocument {
         metadata = metadata == null ? null
-                : Collections.unmodifiableMap(new LinkedHashMap<>(metadata));
+                : Collections.unmodifiableMap(Wraps.linkedMap(metadata));
     }
 
     /**

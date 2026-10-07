@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.plugin.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.plugin.model.PluginDefinition;
 import com.chua.common.support.datasearch.plugin.spi.PluginOnlineProvider;
 import com.chua.common.support.lang.json.Json;
@@ -8,8 +9,6 @@ import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -62,7 +61,7 @@ public class VscodeMarketplacePluginOnlineProvider implements PluginOnlineProvid
             Map<String, Object> raw = Json.fromJson(response.getBodyString());
             List<Map<String, Object>> results =
                     (List<Map<String, Object>>) raw.get("results");
-            List<PluginDefinition> result = new ArrayList<>();
+            List<PluginDefinition> result = Wraps.list();
             if (results != null) {
                 for (Map<String, Object> page : results) {
                     List<Object> extensions = (List<Object>) page.get("extensions");

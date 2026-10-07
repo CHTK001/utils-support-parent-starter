@@ -1,5 +1,6 @@
 package com.chua.common.support.objects.register;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.generator.BeanDefinitionGenerator;
@@ -288,7 +289,7 @@ public class BeanDefinitionRegistry {
      * @return 所有 Bean 名称的集合
      */
     public Collection<String> getBeanDefinitionNames() {
-        Set<String> names = new LinkedHashSet<>();
+        Set<String> names = Wraps.linkedSet();
         for (BeanDefinitionRegister reg : registers) {
             names.addAll(reg.getBeanDefinitionNames());
         }
@@ -301,7 +302,7 @@ public class BeanDefinitionRegistry {
      * @return 所有 Beandefinition 的集合
      */
     public Collection<BeanDefinition> getAllBeanDefinitions() {
-        Set<BeanDefinition> definitions = new LinkedHashSet<>();
+        Set<BeanDefinition> definitions = Wraps.linkedSet();
         for (BeanDefinitionRegister reg : registers) {
             for (String beanName : reg.getBeanDefinitionNames()) {
                 BeanDefinition def = reg.getBeanDefinition(beanName);
@@ -325,7 +326,7 @@ public class BeanDefinitionRegistry {
         }
         typeCacheLock.readLock().lock();
         try {
-            Set<BeanDefinition> definitions = new LinkedHashSet<>();
+            Set<BeanDefinition> definitions = Wraps.linkedSet();
             for (BeanDefinitionRegister reg : registers) {
                 definitions.addAll(reg.getBeanDefinitionOfType(typeName));
             }
@@ -351,7 +352,7 @@ public class BeanDefinitionRegistry {
         if (beanNames != null && !beanNames.isEmpty()) {
             typeCacheLock.readLock().lock();
             try {
-                List<BeanDefinition> result = new ArrayList<>();
+                List<BeanDefinition> result = Wraps.list();
                 for (String name : beanNames) {
                     if (name != null) {
                         BeanDefinition def = getBeanDefinition(name);
@@ -449,7 +450,7 @@ public class BeanDefinitionRegistry {
         if (type == null) {
             return Collections.emptyMap();
         }
-        Map<String, T> result = new LinkedHashMap<>();
+        Map<String, T> result = Wraps.linkedMap();
         for (BeanDefinition def : getBeanDefinitionOfType(type)) {
             if (def == null) {
                 continue;
@@ -505,7 +506,7 @@ public class BeanDefinitionRegistry {
         if (type == null) {
             return Collections.emptyList();
         }
-        Set<String> names = new LinkedHashSet<>();
+        Set<String> names = Wraps.linkedSet();
         for (BeanDefinition def : getBeanDefinitionOfType(type)) {
             if (def != null && def.getName() != null) {
                 names.add(def.getName());
@@ -521,7 +522,7 @@ public class BeanDefinitionRegistry {
      * @return Bean 名称到 Beandefinition 的映射
      */
     public Map<String, BeanDefinition> getBeansWithMethodAnnotation(Class<? extends Annotation> annotationType) {
-        Map<String, BeanDefinition> result = new LinkedHashMap<>();
+        Map<String, BeanDefinition> result = Wraps.linkedMap();
         for (BeanDefinitionRegister reg : registers) {
             try {
                 Map<String, BeanDefinition> sub = reg.getBeansWithMethodAnnotation(annotationType);
@@ -545,7 +546,7 @@ public class BeanDefinitionRegistry {
         if (annotationTypeName == null || annotationTypeName.isEmpty()) {
             return Collections.emptyMap();
         }
-        Map<String, BeanDefinition> result = new LinkedHashMap<>();
+        Map<String, BeanDefinition> result = Wraps.linkedMap();
         for (BeanDefinition def : getAllBeanDefinitions()) {
             if (def == null) {
                 continue;
@@ -576,7 +577,7 @@ public class BeanDefinitionRegistry {
                 .collect().stream()
                 .sorted(Comparator.comparingInt(BeanDefinitionGenerator::getPriority).reversed())
                 .toList();
-        List<BeanDefinition> definitions = new ArrayList<>();
+        List<BeanDefinition> definitions = Wraps.list();
         for (BeanDefinitionGenerator generator : generators) {
             Boolean isSupport = generator.isSupport(beanClass);
             if (Boolean.TRUE.equals(isSupport)) {
@@ -648,7 +649,7 @@ public class BeanDefinitionRegistry {
     public void clear() {
         for (BeanDefinitionRegister register : registers) {
             try {
-                for (String name : new ArrayList<>(register.getBeanDefinitionNames())) {
+                for (String name : Wraps.list(register.getBeanDefinitionNames())) {
                     BeanDefinition def = register.getBeanDefinition(name);
                     if (def != null) {
                         register.unregister(def);

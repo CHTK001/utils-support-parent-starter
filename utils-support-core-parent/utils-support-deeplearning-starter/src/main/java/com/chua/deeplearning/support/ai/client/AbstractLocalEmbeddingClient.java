@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.ai.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.embedding.EmbeddingClient;
 import com.chua.common.support.ai.embedding.EmbeddingClientSetting;
 import com.chua.common.support.ai.embedding.EmbeddingResponse;
@@ -7,8 +8,6 @@ import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -168,7 +167,7 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
-        List<EmbeddingResponse.Embedding> embs = new ArrayList<>();
+        List<EmbeddingResponse.Embedding> embs = Wraps.list();
         for (float[] v : vs) {
             embs.add(EmbeddingResponse.Embedding.builder()
                     .vector(v).index(idx.getAndIncrement()).dimensions(v != null ? v.length : 0).build());

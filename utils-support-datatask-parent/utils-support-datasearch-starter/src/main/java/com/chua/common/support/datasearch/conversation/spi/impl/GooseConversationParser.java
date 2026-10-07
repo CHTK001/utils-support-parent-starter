@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.conversation.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.conversation.ConversationMessage;
 import com.chua.common.support.datasearch.conversation.spi.ConversationParser;
 import com.chua.common.support.lang.json.Json;
@@ -13,7 +14,6 @@ import reactor.core.scheduler.Schedulers;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -129,7 +129,7 @@ public class GooseConversationParser implements ConversationParser {
         String role = rs.getString("role");
         long ts = rs.getLong("created_timestamp") * 1000L;
 
-        List<ConversationMessage> result = new ArrayList<>();
+        List<ConversationMessage> result = Wraps.list();
         JsonNode content = safeParse(rs.getString("content_json"));
         if (content.isMissingValue() || !content.isArray()) {
             return result;

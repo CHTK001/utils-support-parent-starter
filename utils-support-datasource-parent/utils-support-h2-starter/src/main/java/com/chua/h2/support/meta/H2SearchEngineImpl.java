@@ -1,5 +1,6 @@
 package com.chua.h2.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.meta.SearchEngine;
 import com.chua.common.support.lang.datasource.meta.model.SearchFieldDef;
@@ -12,7 +13,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -82,7 +82,7 @@ public class H2SearchEngineImpl implements SearchEngine {
         try (Connection conn = getConn();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            List<String> indexes = new ArrayList<>();
+            List<String> indexes = Wraps.list();
             while (rs.next()) {
                 indexes.add(rs.getString(1));
             }
@@ -114,7 +114,7 @@ public class H2SearchEngineImpl implements SearchEngine {
             throw new IllegalArgumentException("索引定义与索引名不能为空");
         }
         String indexName = indexDef.getName();
-        List<String> columns = new ArrayList<>();
+        List<String> columns = Wraps.list();
         if (indexDef.getFields() != null) {
             for (SearchFieldDef field : indexDef.getFields()) {
                 if (field == null) {
@@ -133,7 +133,7 @@ public class H2SearchEngineImpl implements SearchEngine {
             throw new IllegalArgumentException("H2 普通索引至少需要一个索引列, 索引名: " + indexName);
         }
         // H2 2.x 无全文检索引擎，检索门面降级为同名表上的普通索引 + LIKE 关键字查询
-        List<String> quoted = new ArrayList<>();
+        List<String> quoted = Wraps.list();
         for (String column : columns) {
             quoted.add(escapeIdentifier(column));
         }
@@ -146,7 +146,7 @@ public class H2SearchEngineImpl implements SearchEngine {
                     return true;
                 }
                 // IF NOT EXISTS 会静默保留旧索引，不报错就等于谎报建索引成功
-                List<String> existingNames = new ArrayList<>();
+                List<String> existingNames = Wraps.list();
                 for (SearchFieldDef field : existing) {
                     existingNames.add(field.getName());
                 }
@@ -253,7 +253,7 @@ public class H2SearchEngineImpl implements SearchEngine {
      * @throws SQLException 查询失败
      */
     private static List<SearchFieldDef> indexColumns(Connection conn, String indexName) throws SQLException {
-        List<SearchFieldDef> fields = new ArrayList<>();
+        List<SearchFieldDef> fields = Wraps.list();
         try (PreparedStatement ps = conn.prepareStatement(INDEX_COLUMNS_SQL)) {
             ps.setString(1, indexName);
             try (ResultSet rs = ps.executeQuery()) {
@@ -282,11 +282,11 @@ public class H2SearchEngineImpl implements SearchEngine {
         if (existing.size() != requested.size()) {
             return false;
         }
-        List<String> current = new ArrayList<>();
+        List<String> current = Wraps.list();
         for (SearchFieldDef field : existing) {
             current.add(normalizeName(field.getName()));
         }
-        List<String> wanted = new ArrayList<>();
+        List<String> wanted = Wraps.list();
         for (String name : requested) {
             wanted.add(normalizeName(name));
         }

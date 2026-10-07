@@ -1,5 +1,6 @@
 package com.chua.flow.support.config;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.flow.Flow;
 import com.chua.common.support.task.flow.FlowDefinition;
 import com.chua.common.support.task.flow.FlowInstance;
@@ -15,8 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -111,7 +110,7 @@ public class FlowController {
     @DeleteMapping("/{flowId}")
     public ResponseEntity<Map<String, Object>> remove(@PathVariable String flowId) {
         boolean removed = definitionStore.remove(flowId);
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
         result.put("deleted", removed);
         return ResponseEntity.ok(result);
     }
@@ -201,7 +200,7 @@ public class FlowController {
      * @return 结果摘要映射
      */
     private Map<String, Object> buildResult(FlowInstance instance) {
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
         result.put("instanceId", instance.getInstanceId());
         result.put("flowId", instance.getFlowId());
         result.put("status", instance.getStatus());

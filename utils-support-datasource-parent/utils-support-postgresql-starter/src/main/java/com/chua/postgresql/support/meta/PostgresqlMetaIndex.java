@@ -1,12 +1,11 @@
 package com.chua.postgresql.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.meta.IndexCreateBuilder;
 import com.chua.datasource.support.meta.AbstractMetaData;
 import com.chua.datasource.support.meta.AbstractMetaIndex;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -168,7 +167,7 @@ public class PostgresqlMetaIndex extends AbstractMetaIndex {
         /**
          * 索引列
          */
-        private final List<String> columns = new ArrayList<>();
+        private final List<String> columns = Wraps.list();
         /**
          * 唯一
          */
@@ -247,7 +246,7 @@ public class PostgresqlMetaIndex extends AbstractMetaIndex {
             if (columns.isEmpty()) {
                 throw new IllegalStateException("索引列不能为空");
             }
-            List<String> quoted = new ArrayList<>();
+            List<String> quoted = Wraps.list();
             for (String col : columns) {
                 quoted.add(PostgresqlMetaData.quote(col));
             }

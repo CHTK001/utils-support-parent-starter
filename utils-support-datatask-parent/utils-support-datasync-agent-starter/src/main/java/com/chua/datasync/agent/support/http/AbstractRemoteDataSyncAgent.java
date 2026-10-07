@@ -1,5 +1,6 @@
 package com.chua.datasync.agent.support.http;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasync.agent.support.AbstractDataSyncAgent;
 import com.chua.datasync.agent.support.DataSyncAgentException;
 import com.chua.datasync.agent.support.DataSyncAgentSink;
@@ -7,7 +8,6 @@ import com.chua.datasync.agent.support.DataSyncAgentSource;
 import com.chua.datasync.agent.support.executor.ReactorDataSyncExecutor;
 import com.chua.common.support.network.sync.SyncClient;
 import lombok.extern.slf4j.Slf4j;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -203,7 +203,7 @@ public abstract class AbstractRemoteDataSyncAgent extends AbstractDataSyncAgent 
      * @return 所有已注册 源 的 标识 列表
      */
     private List<String> getSourceIds() {
-        List<String> ids = new ArrayList<>();
+        List<String> ids = Wraps.list();
         for (DataSyncAgentSource source : sources()) {
             ids.add(source.sourceId());
         }
@@ -214,7 +214,7 @@ public abstract class AbstractRemoteDataSyncAgent extends AbstractDataSyncAgent 
      * @return 所有已注册 sink 的 标识 列表
      */
     private List<String> getSinkIds() {
-        List<String> ids = new ArrayList<>();
+        List<String> ids = Wraps.list();
         for (DataSyncAgentSink sink : sinks()) {
             ids.add(sink.sinkId());
         }

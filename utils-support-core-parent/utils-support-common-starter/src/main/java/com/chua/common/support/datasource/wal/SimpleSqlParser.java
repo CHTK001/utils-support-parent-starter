@@ -1,5 +1,6 @@
 package com.chua.common.support.datasource.wal;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.wal.AbstractWalFileSystem;
 import com.chua.common.support.wal.WalSegmentInfo;
 import com.chua.common.support.wal.SegmentWalLog;
@@ -50,7 +51,7 @@ public class SimpleSqlParser {
                 : (limIdx > 0 ? afterFrom.substring(0, limIdx).trim() : afterFrom.trim());
         String tableName = tablePart;
 
-        List<Map<String, Object>> rows = new ArrayList<>();
+        List<Map<String, Object>> rows = Wraps.list();
         for (int i = 0; i < store.walLogs.length; i++) {
             SegmentWalLog log = store.walLogs[i];
             if (log == null) {
@@ -165,7 +166,7 @@ public class SimpleSqlParser {
                 throw new WalException("INSERT 列数与值数不一致: 列=" + columns.size() + ", 值=" + literals.size()
                         + ", 语句=" + statement);
             }
-            Map<String, Object> row = new LinkedHashMap<>();
+            Map<String, Object> row = Wraps.linkedMap();
             for (int i = 0; i < literals.size(); i++) {
                 String literal = literals.get(i).trim();
                 if (PLACEHOLDER == literal.charAt(0) && literal.length() == 1) {
@@ -223,7 +224,7 @@ public class SimpleSqlParser {
      * @return 每个值组的内部文本
      */
     private static List<String> splitTuples(String text, String statement) {
-        List<String> tuples = new ArrayList<>();
+        List<String> tuples = Wraps.list();
         int depth = 0;
         boolean quote = false;
         int begin = -1;
@@ -258,7 +259,7 @@ public class SimpleSqlParser {
      * @return 拆分结果
      */
     private static List<String> splitFlat(String text, String statement) {
-        List<String> parts = new ArrayList<>();
+        List<String> parts = Wraps.list();
         int depth = 0;
         boolean quote = false;
         int begin = 0;
@@ -276,7 +277,7 @@ public class SimpleSqlParser {
             }
         }
         parts.add(text.substring(begin));
-        List<String> result = new ArrayList<>(parts.size());
+        List<String> result = Wraps.list(parts.size());
         for (String part : parts) {
             String trimmed = part.trim();
             if (trimmed.isEmpty()) {

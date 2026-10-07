@@ -1,6 +1,5 @@
 package com.chua.common.support.image;
-
-import java.util.HashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Map;
 
 /**
@@ -136,22 +135,22 @@ public class ImagePipeline {
             current = apply(current, "grayscale", Map.of());
         }
         if (binarize) {
-            Map<String, Object> params = new HashMap<>();
+            Map<String, Object> params = Wraps.map();
             params.put("threshold", binarizeThreshold);
             current = apply(current, "binarize", params);
         }
         if (denoise) {
-            Map<String, Object> params = new HashMap<>();
+            Map<String, Object> params = Wraps.map();
             params.put("radius", denoiseRadius);
             current = apply(current, "denoise", params);
         }
         if (erode) {
-            Map<String, Object> params = new HashMap<>();
+            Map<String, Object> params = Wraps.map();
             params.put("kernel", erodeKernel);
             current = apply(current, "erode", params);
         }
         if (dilate) {
-            Map<String, Object> params = new HashMap<>();
+            Map<String, Object> params = Wraps.map();
             params.put("kernel", dilateKernel);
             current = apply(current, "dilate", params);
         }

@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.filter;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.handler.ServerHandler;
@@ -12,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -132,7 +132,7 @@ public class IpcServerFilter implements ServerFilter {
      * @param msg 消息，不允许为 null
      */
     private void sendError(ServerResponse res, int status, String msg) {
-        Map<String, Object> body = new LinkedHashMap<>();
+        Map<String, Object> body = Wraps.linkedMap();
         body.put("success", false);
         body.put("error", msg);
         res.setStatus(status);

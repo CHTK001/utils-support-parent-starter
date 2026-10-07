@@ -1,11 +1,11 @@
 package com.chua.ibd.support.innodb;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
@@ -120,7 +120,7 @@ public final class IbdSdiReader {
      * @throws IOException 读取或解压失败
      */
     public static List<SdiRecord> readRecords(IbdTablespace tablespace) throws IOException {
-        List<SdiRecord> records = new ArrayList<>();
+        List<SdiRecord> records = Wraps.list();
         int pageSize = tablespace.pageSize();
         for (long pageNo : tablespace.sdiPages()) {
             byte[] page = tablespace.readPage(pageNo);
@@ -232,11 +232,11 @@ public final class IbdSdiReader {
         if (dd == null || dd.isNull()) {
             throw new IOException("SDI JSON 里缺少 dd_object 节点");
         }
-        List<IbdColumn> columns = new ArrayList<>();
+        List<IbdColumn> columns = Wraps.list();
         for (JsonNode node : arrayOf(dd, "columns")) {
             columns.add(parseColumn(node));
         }
-        List<IbdIndex> indexes = new ArrayList<>();
+        List<IbdIndex> indexes = Wraps.list();
         for (JsonNode node : arrayOf(dd, "indexes")) {
             indexes.add(parseIndex(node, columns));
         }
@@ -261,7 +261,7 @@ public final class IbdSdiReader {
         boolean hasDefault = !boolValue(node, "default_value_utf8_null", true);
         String defaultOption = text(node, "default_option");
         String defaultValue = defaultOption.isEmpty() ? text(node, "default_value_utf8") : defaultOption;
-        List<String> elements = new ArrayList<>();
+        List<String> elements = Wraps.list();
         for (JsonNode element : arrayOf(node, "elements")) {
             elements.add(base64Decode(text(element, "name")));
         }
@@ -292,7 +292,7 @@ public final class IbdSdiReader {
      * @return 索引定义
      */
     private static IbdIndex parseIndex(JsonNode node, List<IbdColumn> columns) {
-        List<IbdColumn> indexColumns = new ArrayList<>();
+        List<IbdColumn> indexColumns = Wraps.list();
         for (JsonNode element : arrayOf(node, "elements")) {
             int ordinal = intValue(element, "column_opx", -1);
             if (ordinal >= 0 && ordinal < columns.size()) {

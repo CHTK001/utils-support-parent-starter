@@ -1,9 +1,6 @@
 package com.chua.common.support.task.taskrunner;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,7 +28,7 @@ public final class TaskGraph {
     /**
      * 注册顺序保持的节点定义表：标识 -> definition
      */
-    private final Map<String, TaskDefinition> definitions = new LinkedHashMap<>();
+    private final Map<String, TaskDefinition> definitions = Wraps.linkedMap();
 
     /**
      * 创建任务拓扑图。
@@ -98,17 +95,17 @@ public final class TaskGraph {
      * @throws IllegalStateException 当存在循环依赖时，消息中列出环内节点
      */
     public List<List<TaskDefinition>> layeredTopology() {
-        var inDegree = new HashMap<String, Integer>();
-        var dependents = new HashMap<String, List<String>>();
+        var inDegree = Wraps.<String, Integer>map();
+        var dependents = Wraps.<String, List<String>>map();
         for (var def : definitions.values()) {
             inDegree.putIfAbsent(def.getId(), 0);
             for (var dep : def.getDependencies()) {
                 inDegree.merge(def.getId(), 1, Integer::sum);
-                dependents.computeIfAbsent(dep, k -> new ArrayList<>()).add(def.getId());
+                dependents.computeIfAbsent(dep, k -> Wraps.<String>list()).add(def.getId());
             }
         }
 
-        var initial = new ArrayList<String>();
+        var initial = Wraps.<String>list();
         inDegree.forEach((id, degree) -> {
             if (degree == 0) {
                 initial.add(id);
@@ -116,11 +113,11 @@ public final class TaskGraph {
         });
         var currentLayer = initial;
 
-        var layers = new ArrayList<List<TaskDefinition>>();
+        var layers = Wraps.<List<TaskDefinition>>list();
         var resolved = 0;
         while (!currentLayer.isEmpty()) {
-            var nextLayer = new ArrayList<String>();
-            var layerDefs = new ArrayList<TaskDefinition>();
+            var nextLayer = Wraps.<String>list();
+            var layerDefs = Wraps.<TaskDefinition>list();
             for (var id : currentLayer) {
                 layerDefs.add(definitions.get(id));
                 resolved++;
@@ -164,7 +161,7 @@ public final class TaskGraph {
      * @throws IllegalStateException 当存在循环依赖时
      */
     public List<TaskDefinition> definitionsInExecutionOrder() {
-        var flattened = new ArrayList<TaskDefinition>(definitions.size());
+        var flattened = Wraps.<TaskDefinition>list(definitions.size());
         layeredTopology().forEach(flattened::addAll);
         return List.copyOf(flattened);
     }

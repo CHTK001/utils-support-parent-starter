@@ -1,5 +1,6 @@
 package com.chua.common.support.collection;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.ObjectUtils;
 
 import java.lang.ref.ReferenceQueue;
@@ -10,7 +11,6 @@ import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -680,7 +680,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
                 int countAfterRestructure = this.count.get();
                 Set<Reference<K, V>> toPurge = Collections.emptySet();
                 if (ref != null) {
-                    toPurge = new HashSet<>();
+                    toPurge = Wraps.set();
                     while (ref != null) {
                         toPurge.add(ref);
                         ref = this.referenceManager.pollForPurge();

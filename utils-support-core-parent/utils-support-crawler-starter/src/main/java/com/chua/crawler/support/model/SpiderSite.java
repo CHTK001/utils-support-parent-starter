@@ -1,11 +1,10 @@
 package com.chua.crawler.support.model;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -89,7 +88,7 @@ public class SpiderSite {
      * <p>爬取该站点时附加的 HTTP 请求头。
      */
     @Builder.Default
-    private Map<String, String> headers = new HashMap<>(); // 头部
+    private Map<String, String> headers = Wraps.map(); // 头部
 
     /**
      * 是否遵守 robots.txt。

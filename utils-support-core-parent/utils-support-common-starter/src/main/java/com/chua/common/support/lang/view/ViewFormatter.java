@@ -1,15 +1,14 @@
 package com.chua.common.support.lang.view;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.time.temporal.Temporal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -96,7 +95,7 @@ public final class ViewFormatter {
      */
     public static List<Object> toList(Object data) {
         if (data instanceof Iterable) {
-            List<Object> result = new ArrayList<>();
+            List<Object> result = Wraps.list();
             ((Iterable<?>) data).forEach(result::add);
             return result;
         }
@@ -113,7 +112,7 @@ public final class ViewFormatter {
      * @return 两列表格行集合
      */
     public static List<String[]> extractFromMap(Map<Object, Object> map) {
-        List<String[]> rows = new ArrayList<>();
+        List<String[]> rows = Wraps.list();
         rows.add(new String[]{KEY_COLUMN, VALUE_COLUMN});
         for (var entry : map.entrySet()) {
             rows.add(new String[]{String.valueOf(entry.getKey()), String.valueOf(entry.getValue())});
@@ -128,14 +127,14 @@ public final class ViewFormatter {
      * @return 多列表格行集合
      */
     public static List<String[]> extractFromMapList(List<Object> items) {
-        Set<String> keys = new LinkedHashSet<>();
+        Set<String> keys = Wraps.linkedSet();
         for (Object item : items) {
             if (item instanceof Map) {
                 keys.addAll(((Map<String, Object>) item).keySet());
             }
         }
-        List<String> cols = new ArrayList<>(keys);
-        List<String[]> rows = new ArrayList<>();
+        List<String> cols = Wraps.list(keys);
+        List<String[]> rows = Wraps.list();
         rows.add(cols.toArray(new String[0]));
         for (Object item : items) {
             Map<String, Object> m = (Map<String, Object>) item;
@@ -156,7 +155,7 @@ public final class ViewFormatter {
      * @return 单列表格行集合
      */
     public static List<String[]> extractFromSimpleList(List<Object> items) {
-        List<String[]> rows = new ArrayList<>();
+        List<String[]> rows = Wraps.list();
         rows.add(new String[]{INDEX_COLUMN});
         for (Object item : items) {
             rows.add(new String[]{String.valueOf(item)});
@@ -176,7 +175,7 @@ public final class ViewFormatter {
         if (cols.isEmpty()) {
             return extractFromSimpleList(items);
         }
-        List<String[]> rows = new ArrayList<>();
+        List<String[]> rows = Wraps.list();
         rows.add(cols.toArray(new String[0]));
         for (Object bean : items) {
             String[] vals = new String[cols.size()];
@@ -229,7 +228,7 @@ public final class ViewFormatter {
      * @return 字段列表（按继承顺序：子类在前）
      */
     public static List<Field> extractFields(Class<?> type) {
-        List<Field> result = new ArrayList<>();
+        List<Field> result = Wraps.list();
         while (type != null && type != Object.class) {
             for (Field field : type.getDeclaredFields()) {
                 if (!Modifier.isStatic(field.getModifiers())) {

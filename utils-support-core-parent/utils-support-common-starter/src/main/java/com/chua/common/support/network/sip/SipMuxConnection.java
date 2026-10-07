@@ -1,5 +1,6 @@
 package com.chua.common.support.network.sip;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.algorithm.hmac.HMacUtils;
 import com.chua.common.support.network.crypto.AesGcmUtils;
 import com.chua.common.support.utils.ThreadUtils;
@@ -248,7 +249,7 @@ class SipMuxConnection {
                         earlyClosed.add(channelId);
                     } else {
                         List<byte[]> early = earlyFrames.computeIfAbsent(channelId,
-                                k -> java.util.Collections.synchronizedList(new java.util.ArrayList<>()));
+                                k -> java.util.Collections.synchronizedList(Wraps.list()));
                         synchronized (early) {
                             if (early.size() < 256) {
                                 early.add(payload);

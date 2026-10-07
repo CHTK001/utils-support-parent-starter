@@ -1,10 +1,10 @@
 package com.chua.common.support.datasearch.plugin.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,7 +22,7 @@ public class OpenClawPluginOfflineProvider extends AbstractLocalPluginOfflinePro
 
     @Override
     protected List<Path> pluginRoots() {
-        List<Path> roots = new ArrayList<>();
+        List<Path> roots = Wraps.list();
         String workspace = System.getenv("TOKENTRACKER_OPENCLAW_WORKSPACE");
         Path home = USER_HOME.resolve(".openclaw");
         if (workspace != null && !workspace.isBlank()) {

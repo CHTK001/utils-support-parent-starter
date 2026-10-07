@@ -1,9 +1,8 @@
 package com.chua.common.support.lang.document;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -58,7 +57,7 @@ public class OpenApiEndpoint {
     /**
      * 请求参数列表（query / path / header / cookie / body）。
      */
-    private List<OpenApiParam> parameters = new ArrayList<>();
+    private List<OpenApiParam> parameters = Wraps.list();
 
     /**
      * 请求 Body（可选，自描述片段）。
@@ -68,7 +67,7 @@ public class OpenApiEndpoint {
     /**
      * 响应列表（key 为 HTTP 状态码，如 "200" / "404"）。
      */
-    private List<OpenApiResponse> responses = new ArrayList<>();
+    private List<OpenApiResponse> responses = Wraps.list();
 
     /**
      * 请求示例 JSON（可选，由 provider 写入）。

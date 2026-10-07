@@ -1,5 +1,6 @@
 package com.chua.datasource.support.document;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.document.*;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonObject;
@@ -37,7 +38,7 @@ public class SwaggerOpenApiParser implements DocumentParser {
             throw new IllegalArgumentException("DocumentConfig.url 不能为空");
         }
 
-        Map<String, String> overrides = new HashMap<>();
+        Map<String, String> overrides = Wraps.map();
         if (config.getOptions() != null) {
             config.getOptions().forEach((k, v) -> {
                 if (v != null) {
@@ -90,7 +91,7 @@ public class SwaggerOpenApiParser implements DocumentParser {
 
  // 标签
             JsonArray tagsArr = root.getJsonArray("tags");
-            List<OpenApiTag> tags = new ArrayList<>();
+            List<OpenApiTag> tags = Wraps.list();
             if (tagsArr != null) {
                 for (int i = 0; i < tagsArr.size(); i++) {
                     JsonObject t = tagsArr.getJsonObject(i);
@@ -105,7 +106,7 @@ public class SwaggerOpenApiParser implements DocumentParser {
             data.setTags(tags);
 
  // 路径 → 端点
-            List<OpenApiEndpoint> endpoints = new ArrayList<>();
+            List<OpenApiEndpoint> endpoints = Wraps.list();
             JsonObject paths = root.getJsonObject("paths");
             if (paths != null) {
                 paths.forEach((path, pathObj) -> {
@@ -139,7 +140,7 @@ public class SwaggerOpenApiParser implements DocumentParser {
                         }
 
  // 参数
-                        List<OpenApiParam> params = new ArrayList<>();
+                        List<OpenApiParam> params = Wraps.list();
                         collectParams(op, params);
                         ep.setParameters(params);
 
@@ -150,7 +151,7 @@ public class SwaggerOpenApiParser implements DocumentParser {
                         }
 
  // 响应
-                        List<OpenApiResponse> responses = new ArrayList<>();
+                        List<OpenApiResponse> responses = Wraps.list();
                         JsonObject respNode = op.getJsonObject("responses");
                         if (respNode != null) {
                             parseResponses(respNode, responses);
@@ -409,7 +410,7 @@ public class SwaggerOpenApiParser implements DocumentParser {
                         if (schema != null && schema.hasKey("properties")) {
                             JsonObject props = schema.getJsonObject("properties");
                             if (props != null) {
-                                List<OpenApiParam> fields = new ArrayList<>();
+                                List<OpenApiParam> fields = Wraps.list();
                                 props.forEach((fieldName, fieldNode) -> {
                                     if (!(fieldNode instanceof JsonObject f)) {
                                         return;

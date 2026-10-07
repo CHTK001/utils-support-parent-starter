@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.process;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
@@ -42,7 +41,7 @@ public class MultiProgressBar implements AutoCloseable {
     /**
      * 任务列表
      */
-    private final List<TaskProgress> tasks = new ArrayList<>();
+    private final List<TaskProgress> tasks = Wraps.list();
 
     /**
      * 进度条消费者
@@ -308,11 +307,11 @@ public class MultiProgressBar implements AutoCloseable {
         /**
          * 任务names
          */
-        private final List<String> taskNames = new ArrayList<>();
+        private final List<String> taskNames = Wraps.list();
         /**
          * 任务maxs
          */
-        private final List<Long> taskMaxs = new ArrayList<>();
+        private final List<Long> taskMaxs = Wraps.list();
         /**
          * 消费者
          */

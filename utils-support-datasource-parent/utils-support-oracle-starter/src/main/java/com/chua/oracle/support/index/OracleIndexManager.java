@@ -1,5 +1,6 @@
 package com.chua.oracle.support.index;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.datasource.support.index.IndexManager;
 import com.chua.datasource.support.user.DataSourceAware;
@@ -9,7 +10,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -76,7 +76,7 @@ public class OracleIndexManager implements IndexManager, DataSourceAware {
     @Override
     public List<String> listIndexes(String table) {
         String name = objectOf(SqlName.check(table, "表名"));
-        List<String> list = new ArrayList<>();
+        List<String> list = Wraps.list();
         try (Connection conn = requireDataSource().getConnection();
              PreparedStatement ps = conn.prepareStatement(LIST_INDEX_SQL)) {
             ps.setString(1, name);

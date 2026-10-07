@@ -1,12 +1,11 @@
 package com.chua.common.support.file.tar;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermission;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,7 +59,7 @@ public class PermissionUtils {
     /**
      * POSIX权限到整数的映射表。
      */
-    private static final Map<PosixFilePermission, Integer> POSIX_PERMISSION_TO_INTEGER = new HashMap<>();
+    private static final Map<PosixFilePermission, Integer> POSIX_PERMISSION_TO_INTEGER = Wraps.map();
 
     static {
         // 所有者权限
@@ -144,7 +143,7 @@ public class PermissionUtils {
      * @return 包含标准权限的集合。
      */
     private static Set<StandardFilePermission> readStandardPermissions(File f) {
-        Set<StandardFilePermission> permissions = new HashSet<>();
+        Set<StandardFilePermission> permissions = Wraps.set();
         if (f.canExecute()) {
             permissions.add(StandardFilePermission.EXECUTE);
         }

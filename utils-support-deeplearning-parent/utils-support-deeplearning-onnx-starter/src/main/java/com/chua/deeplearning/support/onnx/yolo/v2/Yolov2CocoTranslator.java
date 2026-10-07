@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.yolo.v2;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -10,8 +11,6 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -179,9 +178,9 @@ private static final float[][] ANCHORS = {
         output = output.squeeze(0);
 
         //                   
-        List<String> classNames = new ArrayList<>();
-        List<Double> probabilities = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
+        List<String> classNames = Wraps.list();
+        List<Double> probabilities = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
 
         //                               
         for (int cy = 0; cy < GRID_SIZE; cy++) {
@@ -254,9 +253,9 @@ private static final float[][] ANCHORS = {
         }
 
         //                   
-        List<String> finalNames = new ArrayList<>();
-        List<Double> finalProbs = new ArrayList<>();
-        List<BoundingBox> finalBoxes = new ArrayList<>();
+        List<String> finalNames = Wraps.list();
+        List<Double> finalProbs = Wraps.list();
+        List<BoundingBox> finalBoxes = Wraps.list();
 
         for (int idx : keepIndices) {
             finalNames.add(classNames.get(idx));
@@ -288,13 +287,13 @@ private static final float[][] ANCHORS = {
      * @return                      
      */
     private List<Integer> nms(List<BoundingBox> boxes, List<Double> probabilities, float nmsThreshold) {
-        List<Integer> indices = new ArrayList<>();
+        List<Integer> indices = Wraps.list();
         if (boxes.isEmpty()) {
             return indices;
         }
 
         //                      
-        List<Integer> sortedIndices = new ArrayList<>();
+        List<Integer> sortedIndices = Wraps.list();
         for (int i = 0; i < probabilities.size(); i++) {
             sortedIndices.add(i);
         }
@@ -373,7 +372,7 @@ private static final float[][] ANCHORS = {
                 "toothbrush"
         };
 
-        List<String> classList = new ArrayList<>();
+        List<String> classList = Wraps.list();
         for (String className : cocoClasses) {
             classList.add(className);
         }

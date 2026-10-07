@@ -46,10 +46,15 @@
             <groupId>org.tukaani</groupId>
             <artifactId>xz</artifactId>
         </dependency>
+        <!-- iWork IWA 解压（IworkPreviewProvider，版本由父 POM 管理） -->
+        <dependency>
+            <groupId>org.xerial.snappy</groupId>
+            <artifactId>snappy-java</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.github.luben</groupId>
             <artifactId>zstd-jni</artifactId>
-            <version>1.5.7-20</version>
+            <version>1.5.7-21</version>
         </dependency>
         <dependency>
             <groupId>org.brotli</groupId>
@@ -78,11 +83,22 @@
             <artifactId>imageio-psd</artifactId>
             <version>3.15.2</version>
         </dependency>
+        <!-- 相机 RAW 预览（RawPreviewProvider，仅取 EXIF 参数与内嵌预览，不做反马赛克） -->
+        <dependency>
+            <groupId>com.drewnoakes</groupId>
+            <artifactId>metadata-extractor</artifactId>
+            <version>2.19.0</version>
+        </dependency>
         <!-- Parquet 列存文件预览（ParquetPreviewProvider，DuckDB JDBC，无需 Hadoop） -->
         <dependency>
             <groupId>org.duckdb</groupId>
             <artifactId>duckdb_jdbc</artifactId>
             <version>1.5.6.0</version>
+        </dependency>
+        <!-- Avro 数据文件预览（AvroPreviewProvider，纯 Java，无需 Hadoop；版本与父 pom 管理一致） -->
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
         </dependency>
           <!-- Rust native 实现已移除，仅保留 JDK 实现 -->
      </dependencies>

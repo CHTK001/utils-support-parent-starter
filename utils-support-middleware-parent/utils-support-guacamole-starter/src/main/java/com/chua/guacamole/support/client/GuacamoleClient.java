@@ -1,5 +1,6 @@
 package com.chua.guacamole.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.value.ExpireValue;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.HexFormat;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -568,7 +568,7 @@ public class GuacamoleClient {
         /**
          * Guacamole 扩展参数
         */
-        private final Map<String, String> params = new LinkedHashMap<>(8);
+        private final Map<String, String> params = Wraps.linkedMap(8);
 
         /**
          * 创建登记操作链。

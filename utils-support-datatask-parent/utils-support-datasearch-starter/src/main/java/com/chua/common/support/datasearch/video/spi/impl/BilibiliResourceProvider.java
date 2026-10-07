@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.video.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.code.PageResult;
@@ -19,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -74,7 +74,7 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
         }
 
         log.info("从B站资源检索视频: {}", keyword);
-        List<VideoInfoResult> results = new ArrayList<>();
+        List<VideoInfoResult> results = Wraps.list();
 
         try {
  // 构建请求（使用原生 HTTP客户端，绕过框架层 Cookie/编码差异）

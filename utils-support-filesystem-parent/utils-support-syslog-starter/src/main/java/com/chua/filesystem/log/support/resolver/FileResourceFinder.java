@@ -1,5 +1,6 @@
 package com.chua.filesystem.log.support.resolver;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.resource.FileSystemResource;
 import com.chua.common.support.file.resource.Resource;
 import com.chua.common.support.file.resource.ResourceConfiguration;
@@ -88,7 +89,7 @@ public class FileResourceFinder implements ResourceFinder {
             if (StringUtils.isNotEmpty(fullPath)) {
                 File f = new File(fullPath);
                 if (f.isFile()) {
-                    results = new LinkedHashSet<>();
+                    results = Wraps.linkedSet();
                     results.add(new FileSystemResource(f));
                     return results;
                 }
@@ -193,7 +194,7 @@ public class FileResourceFinder implements ResourceFinder {
             return null;
         }
 
-        Set<Resource> results = new LinkedHashSet<>();
+        Set<Resource> results = Wraps.linkedSet();
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
@@ -242,7 +243,7 @@ public class FileResourceFinder implements ResourceFinder {
             return null;
         }
 
-        Set<Resource> results = new LinkedHashSet<>();
+        Set<Resource> results = Wraps.linkedSet();
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
@@ -283,7 +284,7 @@ public class FileResourceFinder implements ResourceFinder {
             return null;
         }
 
-        Set<Resource> results = new LinkedHashSet<>();
+        Set<Resource> results = Wraps.linkedSet();
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
             String line;

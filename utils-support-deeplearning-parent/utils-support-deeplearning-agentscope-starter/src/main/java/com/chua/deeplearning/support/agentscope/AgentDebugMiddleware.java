@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.agentscope;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.agent.AgentDebugHook;
 import com.chua.common.support.ai.agent.AgentHookEvent;
 import com.chua.common.support.ai.agent.AgentPlanHook;
@@ -13,9 +14,6 @@ import io.agentscope.core.state.AgentState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -127,7 +125,7 @@ public class AgentDebugMiddleware implements MiddlewareBase {
                 try {
                     orig.add(feedbackMsg);
                 } catch (UnsupportedOperationException uoe) {
-                    List<Msg> copy = new ArrayList<>(orig);
+                    List<Msg> copy = Wraps.list(orig);
                     copy.add(feedbackMsg);
                     return new io.agentscope.core.middleware.ReasoningInput(
                             copy, input.tools(), input.options());
@@ -167,7 +165,7 @@ public class AgentDebugMiddleware implements MiddlewareBase {
             if ("AGENT_END".equals(type)) {
                 type = "POST_CALL";
             }
-            Map<String, Object> attrs = new HashMap<>(16);
+            Map<String, Object> attrs = Wraps.map(16);
             attrs.put("eventClass", event.getClass().getSimpleName());
             if (toolName != null) {
                 attrs.put("toolName", toolName);

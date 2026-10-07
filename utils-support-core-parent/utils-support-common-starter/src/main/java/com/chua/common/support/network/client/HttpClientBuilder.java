@@ -1,5 +1,6 @@
 package com.chua.common.support.network.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpMethod;
 import reactor.core.publisher.Mono;
@@ -448,7 +449,7 @@ public class HttpClientBuilder {
         } else {
             // 非 multipart 模式，保持向后兼容的 key=value 序列化
             if (this.formData == null) {
-                this.formData = new LinkedHashMap<>();
+                this.formData = Wraps.linkedMap();
             }
             this.formData.put(key, value);
         }
@@ -618,7 +619,7 @@ public class HttpClientBuilder {
      */
     public HttpClientBuilder query(String key, String value) {
         if (this.params == null) {
-            this.params = new LinkedHashMap<>();
+            this.params = Wraps.linkedMap();
         }
         this.params.put(key, value);
         return this;

@@ -1,9 +1,9 @@
 package com.chua.common.support.lang.view;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -89,7 +89,7 @@ public class TreeViewParser implements ViewParser {
         StringBuilder sb = new StringBuilder();
         if (data instanceof Map) {
             Map<Object, Object> map = (Map<Object, Object>) data;
-            List<Object> keys = new ArrayList<>(map.keySet());
+            List<Object> keys = Wraps.list(map.keySet());
             for (int i = 0; i < keys.size(); i++) {
                 Object key = keys.get(i);
                 Object val = map.get(key);
@@ -97,7 +97,7 @@ public class TreeViewParser implements ViewParser {
                 renderNode(sb, String.valueOf(key), val, "", last);
             }
         } else if (data instanceof Iterable) {
-            List<Object> list = new ArrayList<>();
+            List<Object> list = Wraps.list();
             ((Iterable<Object>) data).forEach(list::add);
             for (int i = 0; i < list.size(); i++) {
                 renderNode(sb, String.valueOf(list.get(i)), null, "", i == list.size() - 1);
@@ -159,17 +159,17 @@ public class TreeViewParser implements ViewParser {
         }
         if (value instanceof Map) {
             Map<Object, Object> map = (Map<Object, Object>) value;
-            return new ArrayList<>(map.entrySet());
+            return Wraps.list(map.entrySet());
         }
         if (value instanceof Iterable) {
-            List<Map.Entry<Object, Object>> result = new ArrayList<>();
+            List<Map.Entry<Object, Object>> result = Wraps.list();
             for (Object item : (Iterable<Object>) value) {
                 result.add(new AbstractMap.SimpleEntry<>(item, null));
             }
             return result;
         }
         if (value.getClass().isArray()) {
-            List<Map.Entry<Object, Object>> result = new ArrayList<>();
+            List<Map.Entry<Object, Object>> result = Wraps.list();
             for (Object item : (Object[]) value) {
                 result.add(new AbstractMap.SimpleEntry<>(item, null));
             }

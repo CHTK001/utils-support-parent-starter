@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.opencv;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.deeplearning.support.engine.BulkModelProvider;
 import com.chua.deeplearning.support.opencv.cascade.OpencvCascadeDetector;
@@ -12,7 +13,6 @@ import com.chua.deeplearning.support.translator.TranslatorModelDefinition;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -73,7 +73,7 @@ public class OpencvModelProvider implements BulkModelProvider {
      * 获取全部
     */
     public List<TranslatorModelDefinition> getAll() {
-        List<TranslatorModelDefinition> list = new ArrayList<>();
+        List<TranslatorModelDefinition> list = Wraps.list();
         add(list, "opencv-face-detector", FACE, () -> new OpencvFaceDetector(FACE));
         add(list, "opencv-eye-detector", EYE,
                 () -> new OpencvCascadeDetector("opencv-eye-detector", EYE, "eye", 1.1, 3, 20, 20));

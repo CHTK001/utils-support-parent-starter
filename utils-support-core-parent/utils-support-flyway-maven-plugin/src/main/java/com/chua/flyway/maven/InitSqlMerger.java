@@ -1,12 +1,12 @@
 package com.chua.flyway.maven;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -382,7 +382,7 @@ public final class InitSqlMerger {
      * @return 已锚定的正则列表
      */
     private static List<Pattern> toPatterns(final List<String> patterns) {
-        final List<Pattern> result = new ArrayList<>();
+        final List<Pattern> result = Wraps.list();
         if (patterns == null) {
             return result;
         }

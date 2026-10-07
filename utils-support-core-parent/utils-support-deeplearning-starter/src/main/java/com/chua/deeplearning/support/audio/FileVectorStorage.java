@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.audio;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.MathUtils;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorCompareAlgorithm;
@@ -13,10 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -54,7 +52,7 @@ public class FileVectorStorage implements VectorStorage {
     /**
      * 内存索引：标识 → 向量（链接哈希映射 保持插入序）
      */
-    private final Map<String, float[]> store = new LinkedHashMap<>();
+    private final Map<String, float[]> store = Wraps.linkedMap();
 
     /**
      * 读写锁
@@ -196,10 +194,10 @@ public class FileVectorStorage implements VectorStorage {
     public List<Vector> search(float[] query, int topK) {
         lock.readLock().lock();
         try {
-            List<Vector> scored = new ArrayList<>(store.size());
+            List<Vector> scored = Wraps.list(store.size());
             for (Map.Entry<String, float[]> e : store.entrySet()) {
                 double score = MathUtils.cosineSimilarity(query, e.getValue());
-                Map<String, Object> meta = new HashMap<>();
+                Map<String, Object> meta = Wraps.map();
                 meta.put("score", score);
                 scored.add(new Vector(e.getKey(), e.getValue(), meta));
             }

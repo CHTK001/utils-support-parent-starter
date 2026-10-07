@@ -1,12 +1,11 @@
 package com.chua.common.support.task.pipeline.builder;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.pipeline.core.AsyncResult;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 import com.chua.common.support.task.pipeline.node.ParallelNode;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -144,7 +143,7 @@ public class TaskParallelDefinition {
         }
  // 环境 注入到 参数 中（与 任务definition 的 环境 语义一致）
         if (environment != null && !environment.isEmpty()) {
-            Map<String, Object> mergedParams = new LinkedHashMap<>();
+            Map<String, Object> mergedParams = Wraps.linkedMap();
             if (node.getParams() != null && !node.getParams().isEmpty()) {
                 mergedParams.putAll(node.getParams());
             }
@@ -239,7 +238,7 @@ public class TaskParallelDefinition {
      */
     public TaskParallelDefinition env(String key, Object value) {
         if (this.env == null) {
-            this.env = new LinkedHashMap<>();
+            this.env = Wraps.linkedMap();
         }
         this.env.put(key, value);
         return this;
@@ -275,7 +274,7 @@ public class TaskParallelDefinition {
      */
     public TaskParallelDefinition environment(String key, Object value) {
         if (this.environment == null) {
-            this.environment = new LinkedHashMap<>();
+            this.environment = Wraps.linkedMap();
         }
         this.environment.put(key, value);
         return this;

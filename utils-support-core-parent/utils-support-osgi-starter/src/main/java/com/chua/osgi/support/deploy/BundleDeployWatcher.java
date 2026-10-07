@@ -1,5 +1,6 @@
 package com.chua.osgi.support.deploy;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.osgi.OsgiBundle;
 import com.chua.common.support.osgi.OsgiLauncher;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +10,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -80,7 +80,7 @@ public class BundleDeployWatcher {
     /**
      * 上一轮扫描得到的「符号名 → jar 指纹」快照。
      */
-    private final Map<String, String> fingerprints = new LinkedHashMap<>();
+    private final Map<String, String> fingerprints = Wraps.linkedMap();
 
     /**
      * 调度线程池。
@@ -154,7 +154,7 @@ public class BundleDeployWatcher {
         if (!launcher.isActive() || !Files.isDirectory(directory)) {
             return;
         }
-        Map<String, String> current = new LinkedHashMap<>();
+        Map<String, String> current = Wraps.linkedMap();
         File[] jars = directory.toFile().listFiles((dir, name) -> name.endsWith(".jar"));
         if (jars != null) {
             for (File jar : jars) {
@@ -176,7 +176,7 @@ public class BundleDeployWatcher {
             }
         }
         if (uninstallOnRemoved) {
-            for (String installed : new LinkedHashMap<>(fingerprints).keySet()) {
+            for (String installed : Wraps.linkedMap(fingerprints).keySet()) {
                 if (!current.containsKey(installed)) {
                     uninstall(installed);
                 }

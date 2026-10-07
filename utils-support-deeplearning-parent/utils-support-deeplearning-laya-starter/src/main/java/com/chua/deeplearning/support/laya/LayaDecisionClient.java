@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.laya;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.decision.Decision;
 import com.chua.common.support.ai.decision.DecisionBatch;
 import com.chua.common.support.ai.decision.DecisionClient;
@@ -17,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,7 +125,7 @@ public class LayaDecisionClient implements DecisionClient {
         if (closed) {
             throw new DecisionException("Laya 决策客户端已关闭");
         }
-        Map<String, Question> questions = new LinkedHashMap<>();
+        Map<String, Question> questions = Wraps.linkedMap();
         for (DecisionQuery query : queries) {
             if (query == null) {
                 throw new DecisionException("queries 中存在 null 问题");
@@ -162,13 +162,13 @@ public class LayaDecisionClient implements DecisionClient {
             if (query.criteria() == null) {
                 return Question.noul(query.question());
             }
-            Map<String, String> criteria = new LinkedHashMap<>(query.criteria());
+            Map<String, String> criteria = Wraps.linkedMap(query.criteria());
             return new Question("noul", query.question(), MAPPER.valueToTree(criteria));
         }
         if (query.type().isChoice()) {
-            return Question.choice(query.question(), new LinkedHashMap<>(query.options()));
+            return Question.choice(query.question(), Wraps.linkedMap(query.options()));
         }
-        return Question.score(query.question(), new ArrayList<>(query.levels()));
+        return Question.score(query.question(), Wraps.list(query.levels()));
     }
 
     /**
@@ -189,7 +189,7 @@ public class LayaDecisionClient implements DecisionClient {
             throw new DecisionException("Laya 返回体缺失 answers 对象");
         }
         JsonNode answers = result.get("answers");
-        List<Decision> decisions = new ArrayList<>(queries.size());
+        List<Decision> decisions = Wraps.list(queries.size());
         for (DecisionQuery query : queries) {
             JsonNode answer = answers.get(query.id());
             if (answer == null || !answer.isObject()) {
@@ -241,7 +241,7 @@ public class LayaDecisionClient implements DecisionClient {
         // Laya 的 score 答案是期望值（浮点下标）；取 argmax 档位的标签作结论，
         // 与 jevlaya 文档「想要标签就对 probabilities 取 argmax」一致。
         List<String> levels = query.levels();
-        Map<String, Double> distribution = new LinkedHashMap<>();
+        Map<String, Double> distribution = Wraps.linkedMap();
         String best = null;
         double bestP = Double.NEGATIVE_INFINITY;
         for (int i = 0; i < levels.size(); i++) {
@@ -273,7 +273,7 @@ public class LayaDecisionClient implements DecisionClient {
      * 读取 choice 分布并做钳位（只钳位不归一，保留模型原始置信度）。
      */
     private static Map<String, Double> readDistribution(DecisionQuery query, JsonNode probabilities) {
-        Map<String, Double> distribution = new LinkedHashMap<>();
+        Map<String, Double> distribution = Wraps.linkedMap();
         probabilities.fields().forEachRemaining(e -> distribution.put(e.getKey(), clamp(e.getValue().asDouble(0.0D))));
         if (distribution.isEmpty()) {
             throw new DecisionException(query.id(), "probabilities 为空");

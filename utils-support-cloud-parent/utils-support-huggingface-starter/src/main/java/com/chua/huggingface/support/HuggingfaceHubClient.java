@@ -1,5 +1,6 @@
 package com.chua.huggingface.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.client.HttpClientFactory;
@@ -13,10 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -155,7 +153,7 @@ public class HuggingfaceHubClient {
      */
     public List<String> listFiles(String repoId) {
         Map<String, Object> info = getRepoInfo(repoId);
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         Object siblings = info.get("siblings");
         if (siblings instanceof List<?> list) {
             for (Object item : list) {
@@ -246,7 +244,7 @@ public class HuggingfaceHubClient {
         String repoName = repoId.contains("/") ? repoId.substring(repoId.indexOf('/') + 1) : repoId;
         Path target = localDir.resolve(repoName);
         String authUrl = buildAuthenticatedGitUrl(repoId);
-        List<String> cmd = new ArrayList<>();
+        List<String> cmd = Wraps.list();
         cmd.add("git");
         cmd.add("clone");
         cmd.add(authUrl);
@@ -312,7 +310,7 @@ public class HuggingfaceHubClient {
         // 2b. regular：无需预传，commit 时内联 base64
 
         // 3. NDJSON commit
-        Map<String, Object> fileValue = new LinkedHashMap<>();
+        Map<String, Object> fileValue = Wraps.linkedMap();
         if ("lfs".equals(mode)) {
             fileValue.put("algo", "sha256");
             fileValue.put("oid", oid);
@@ -371,7 +369,7 @@ public class HuggingfaceHubClient {
             owner = repoName.substring(0, slash);
             name = repoName.substring(slash + 1);
         }
-        Map<String, Object> payload = new HashMap<>();
+        Map<String, Object> payload = Wraps.map();
         payload.put("name", name);
         payload.put("type", repoType);
         payload.put("private", isPrivate);
@@ -408,7 +406,7 @@ public class HuggingfaceHubClient {
             owner = repoId.substring(0, slash);
             name = repoId.substring(slash + 1);
         }
-        Map<String, Object> payload = new HashMap<>();
+        Map<String, Object> payload = Wraps.map();
         payload.put("name", name);
         payload.put("type", "model");
         if (owner != null) {
@@ -442,7 +440,7 @@ public class HuggingfaceHubClient {
      */
     private void postCommit(String repoId, String repoType, String revision,
                             Map<String, Object> operation, String summary) {
-        Map<String, Object> header = new LinkedHashMap<>();
+        Map<String, Object> header = Wraps.linkedMap();
         header.put("summary", summary);
         header.put("description", "");
         String ndjson = Json.toJson(Map.of("key", "header", "value", header)) + "\n"
@@ -473,7 +471,7 @@ public class HuggingfaceHubClient {
             case "space" -> "spaces/";
             default -> "";
         };
-        Map<String, Object> payload = new LinkedHashMap<>();
+        Map<String, Object> payload = Wraps.linkedMap();
         payload.put("operation", "upload");
         payload.put("transfers", List.of("basic", "multipart"));
         payload.put("objects", List.of(Map.of("oid", oid, "size", size)));
@@ -566,7 +564,7 @@ public class HuggingfaceHubClient {
                                  Map<String, Object> header) {
         int chunkSize = Integer.parseInt(String.valueOf(header.get("chunk_size")));
         // 分片 URL：header 里 "00001".."000NN"（S3 预签名 UploadPart URL，不能附加自定义头）
-        List<String> partUrls = new ArrayList<>();
+        List<String> partUrls = Wraps.list();
         for (int i = 1; i * (long) chunkSize < size || (i == 1 && size == 0); i++) {
             String key = String.format("%05d", i);
             Object url = header.get(key);
@@ -581,7 +579,7 @@ public class HuggingfaceHubClient {
         log.info("[hf-hub] LFS multipart 上传: {} bytes, {} parts x {}B", size, partUrls.size(), chunkSize);
 
         // 收集每个分片 PUT 响应的 ETag，完成 multipart 时需要
-        List<Map<String, Object>> parts = new ArrayList<>();
+        List<Map<String, Object>> parts = Wraps.list();
         int offset = 0;
         for (int i = 0; i < partUrls.size(); i++) {
             int len = (int) Math.min(chunkSize, content.length - offset);
@@ -606,7 +604,7 @@ public class HuggingfaceHubClient {
 
         // 完成 multipart：POST oid/size/parts（含各分片 ETag）到完成 URL
         // （官方 HF 与镜像站均用 POST；缺 parts 或 partNumber 会返回 400）
-        Map<String, Object> doneBody = new LinkedHashMap<>();
+        Map<String, Object> doneBody = Wraps.linkedMap();
         doneBody.put("oid", oid);
         doneBody.put("size", size);
         doneBody.put("parts", parts);
@@ -733,7 +731,7 @@ public class HuggingfaceHubClient {
             throw new IllegalArgumentException("本地路径不是 git 仓库（缺少 .git 目录）: " + localRepoPath);
         }
         String authUrl = buildAuthenticatedGitUrl(repoId);
-        List<String> setUrl = new ArrayList<>();
+        List<String> setUrl = Wraps.list();
         setUrl.add("git");
         setUrl.add("remote");
         setUrl.add("set-url");
@@ -742,7 +740,7 @@ public class HuggingfaceHubClient {
         if (exec(setUrl, localRepoPath) != 0) {
             throw new RuntimeException("git remote set-url 失败: " + repoId);
         }
-        List<String> push = new ArrayList<>();
+        List<String> push = Wraps.list();
         push.add("git");
         push.add("push");
         push.add("origin");

@@ -1,8 +1,7 @@
 package com.chua.common.support.network.discovery.peermesh;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +53,7 @@ public class EvictionManager {
     public void evict() {
         long now = System.currentTimeMillis();
         long timeoutMs = config.getEvictTimeout() * 1000L;
-        List<String> toRemove = new ArrayList<>();
+        List<String> toRemove = Wraps.list();
         for (Map.Entry<String, NodeTable.NodeEntry> entry : nodeTable.getAllEntries().entrySet()) {
             if (localServerId.equals(entry.getKey())) {
                 continue;

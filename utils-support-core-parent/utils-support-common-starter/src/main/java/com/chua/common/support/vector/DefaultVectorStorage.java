@@ -1,5 +1,6 @@
 package com.chua.common.support.vector;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.tree.BPlusTree;
 
 import java.io.*;
@@ -129,7 +130,7 @@ public class DefaultVectorStorage implements VectorStorage {
     /**
      * 冷数据分片列表（有序，用于定位文件路径）。
      */
-    private final TreeMap<Integer, Path> coldShards = new TreeMap<>();
+    private final SortedMap<Integer, Path> coldShards = Wraps.sortedMap();
     /**
      * 路径 → 分片序号的反向索引，O(1) 查找，避免每次 读取entry 线性扫描。
      */
@@ -353,7 +354,7 @@ public class DefaultVectorStorage implements VectorStorage {
         lock.readLock().lock();
         try {
             // 热数据收集
-            List<VectorScored> candidates = Collections.synchronizedList(new ArrayList<>(hot.size()));
+            List<VectorScored> candidates = Collections.synchronizedList(Wraps.list(hot.size()));
             for (Vector v : hot.values()) {
                 candidates.add(new VectorScored(v.id(), algorithm.compare(query, v.data()), v));
             }
@@ -401,7 +402,7 @@ public class DefaultVectorStorage implements VectorStorage {
             if (hot.isEmpty()) {
                 return;
             }
-            List<Vector> toFlush = new ArrayList<>(hot.values());
+            List<Vector> toFlush = Wraps.list(hot.values());
             int shardIdx = coldShards.isEmpty() ? 0 : coldShards.lastKey() + 1;
             Path shardPath = dir.resolve(String.format("shard_%04d.bin", shardIdx));
             try {
@@ -482,7 +483,7 @@ public class DefaultVectorStorage implements VectorStorage {
                     coldIndex.put(id, new EntryLoc(shardPath, offset, entryLen));
                     offset += entryLen;
                     maxNorm = Math.max(maxNorm, (float) Math.sqrt(norm));
-                    List<EntryLoc> entries = shardToEntries.computeIfAbsent(idx, k -> new ArrayList<>());
+                    List<EntryLoc> entries = shardToEntries.computeIfAbsent(idx, k -> Wraps.list());
                     entries.add(new EntryLoc(shardPath, offset - entryLen, entryLen));
                 }
             } catch (IOException ignored) {
@@ -581,7 +582,7 @@ public class DefaultVectorStorage implements VectorStorage {
             return Collections.emptyMap();
         }
         try {
-            java.util.Map<String, Object> map = new LinkedHashMap<>();
+            java.util.Map<String, Object> map = Wraps.linkedMap();
             String inner = metaStr.strip().startsWith("{")
                     ? metaStr.substring(1, metaStr.length() - 1) : metaStr;
             for (String pair : inner.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)")) {
@@ -678,7 +679,7 @@ public class DefaultVectorStorage implements VectorStorage {
         if (coldShards.isEmpty()) {
             return;
         }
-        List<Integer> shardOrder = new ArrayList<>(shardMetas.keySet());
+        List<Integer> shardOrder = Wraps.list(shardMetas.keySet());
         shardOrder.sort((a, b) -> {
             float sa = algorithm.compare(query, shardMetas.get(a).centroid());
             float sb = algorithm.compare(query, shardMetas.get(b).centroid());
@@ -772,8 +773,8 @@ public class DefaultVectorStorage implements VectorStorage {
      */
     private static List<Vector> topKHeap(List<VectorScored> candidates, int topK) {
         if (candidates.size() <= topK) {
-            List<Vector> results = new ArrayList<>(candidates.size());
-            Set<String> seen = new HashSet<>();
+            List<Vector> results = Wraps.list(candidates.size());
+            Set<String> seen = Wraps.set();
             for (VectorScored vs : candidates) {
                 if (seen.add(vs.id)) {
                     results.add(vs.vector);
@@ -803,8 +804,8 @@ public class DefaultVectorStorage implements VectorStorage {
         }
  // 堆中即为 topk，倒序排列
         Arrays.sort(heap, (a, b) -> Float.compare(b.score, a.score));
-        List<Vector> results = new ArrayList<>(topK);
-        Set<String> seen = new HashSet<>();
+        List<Vector> results = Wraps.list(topK);
+        Set<String> seen = Wraps.set();
         for (VectorScored vs : heap) {
             if (seen.add(vs.id)) {
                 results.add(vs.vector);

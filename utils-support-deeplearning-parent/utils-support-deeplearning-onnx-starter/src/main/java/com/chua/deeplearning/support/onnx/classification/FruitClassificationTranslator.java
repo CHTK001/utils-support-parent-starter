@@ -1,7 +1,7 @@
 package com.chua.deeplearning.support.onnx.classification;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -38,7 +38,7 @@ public class FruitClassificationTranslator extends SiglipZeroShotClassificationT
      * @return 结果映射，无数据时为空映射
      */
     private static Map<String, Object> buildArgs(String candidates) {
-        Map<String, Object> args = new HashMap<>();
+        Map<String, Object> args = Wraps.map();
         args.put("candidates", candidates);
         return Collections.unmodifiableMap(args);
     }

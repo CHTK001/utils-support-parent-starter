@@ -1,5 +1,6 @@
 package com.chua.wechat.support.restore.memory;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -9,9 +10,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -72,12 +70,12 @@ public final class WechatMemoryRebuilder {
         }
 
         // 表名 → 列名，用于插入
-        Map<String, List<String>> columnsOf = new LinkedHashMap<>();
+        Map<String, List<String>> columnsOf = Wraps.linkedMap();
         // 分组键 (小写表名#列数) → 该组的记录。
         // SQLite 的表名大小写不敏感：Name2Id 与 name2id 会被当成同一张表，
         // 直接按原始名字建表会报「table "Name2Id" already exists」。
         // 按小写表名归并、列数不同再加数字后缀，才能把两个库的同名表都保住。
-        Map<String, List<WechatMemoryExtractor.ExtractedRecord>> grouped = new LinkedHashMap<>();
+        Map<String, List<WechatMemoryExtractor.ExtractedRecord>> grouped = Wraps.linkedMap();
         for (WechatMemoryExtractor.ExtractedRecord record : result.records()) {
             // 表名为 null / 空串表示「无法判定归属」，直接丢弃。
             // 不能让它进分组 —— 否则 base 为空串，第二组会退化成名为 "_2" 的表
@@ -85,10 +83,10 @@ public final class WechatMemoryRebuilder {
                 continue;
             }
             String key = record.table().toLowerCase(Locale.ROOT) + '#' + record.values().length;
-            grouped.computeIfAbsent(key, k -> new ArrayList<>()).add(record);
+            grouped.computeIfAbsent(key, k -> Wraps.list()).add(record);
         }
-        Map<String, String> tableNames = new LinkedHashMap<>();
-        Set<String> used = new HashSet<>();
+        Map<String, String> tableNames = Wraps.linkedMap();
+        Set<String> used = Wraps.set();
         for (String key : grouped.keySet()) {
             String base = key.substring(0, key.lastIndexOf('#'));
             String name = base;
@@ -140,7 +138,7 @@ public final class WechatMemoryRebuilder {
         }
         // 没有可用 schema 时退化为 column1..columnN，保证数据不丢
         int count = records.getFirst().values().length;
-        List<String> fallback = new ArrayList<>(count);
+        List<String> fallback = Wraps.list(count);
         for (int i = 0; i < count; i++) {
             fallback.add("column" + (i + 1));
         }
@@ -308,7 +306,7 @@ public final class WechatMemoryRebuilder {
      */
     public static void writeSummary(WechatMemoryExtractor.ExtractResult result, File outFile)
             throws Exception {
-        Map<String, Integer> tableCount = new LinkedHashMap<>();
+        Map<String, Integer> tableCount = Wraps.linkedMap();
         for (WechatMemoryExtractor.ExtractedRecord record : result.records()) {
             tableCount.merge(record.table() == null ? "?unknown" : record.table(), 1, Integer::sum);
         }

@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.cmd.tools;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.CliTool;
 import com.chua.common.support.lang.cmd.CliToolDescriptor;
 import com.chua.common.support.lang.cmd.CmdResult;
@@ -7,7 +8,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -93,7 +93,7 @@ public class NvidiaSmiTool extends CliTool {
         if (StringUtils.isNullOrEmpty(stdout)) {
             return List.of();
         }
-        List<String> values = new ArrayList<>();
+        List<String> values = Wraps.list();
         for (String line : stdout.split("\\R")) {
             String trimmed = line.trim();
             if (!trimmed.isEmpty()) {
@@ -111,7 +111,7 @@ public class NvidiaSmiTool extends CliTool {
     @Nonnull
     public List<Integer> queryGpuMemoryTotal() {
         List<String> raw = queryGpuColumn("memory.total");
-        List<Integer> result = new ArrayList<>(raw.size());
+        List<Integer> result = Wraps.list(raw.size());
         for (String value : raw) {
             result.add(parseMemory(value));
         }

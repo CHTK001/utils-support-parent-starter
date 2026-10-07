@@ -1,9 +1,9 @@
 package com.chua.common.support.task.backup;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -88,7 +88,7 @@ public class DirectoryBackup implements BackupStrategy {
      * @return 副本改变文件的结果
      */
     private List<Path> copyChangedFiles(Path source, Path target, BackupConfig config, long since) throws IOException {
-        List<Path> changed = new ArrayList<>();
+        List<Path> changed = Wraps.list();
         if (!Files.exists(source)) {
             return changed;
         }

@@ -1,11 +1,10 @@
 package com.chua.deeplearning.support.onnx.embedding.wemm;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.embedding.EmbeddingClient;
 import com.chua.common.support.ai.embedding.EmbeddingClientSetting;
 import com.chua.common.support.ai.embedding.EmbeddingResponse;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -184,7 +183,7 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
-        List<EmbeddingResponse.Embedding> embs = new ArrayList<>();
+        List<EmbeddingResponse.Embedding> embs = Wraps.list();
         for (float[] v : vs) {
             embs.add(EmbeddingResponse.Embedding.builder()
                     .vector(v).index(idx.getAndIncrement()).dimensions(v != null ? v.length : 0).build());

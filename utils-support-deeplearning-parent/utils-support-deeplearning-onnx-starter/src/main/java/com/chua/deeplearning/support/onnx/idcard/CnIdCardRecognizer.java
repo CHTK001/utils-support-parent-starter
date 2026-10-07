@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.idcard;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.ImageFactory;
 import ai.djl.modality.cv.output.BoundingBox;
@@ -16,7 +17,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import java.util.List;
 import com.chua.deeplearning.support.engine.ModelRegistry;
 
@@ -69,7 +69,7 @@ public class CnIdCardRecognizer {
      * @return 解析结果列表（通常 1 条）
      */
     public List<CnIdCardResult> recognize(byte[] imageData) {
-        List<CnIdCardResult> results = new ArrayList<>();
+        List<CnIdCardResult> results = Wraps.list();
         try {
             DetectedObjects cards = detectCard(imageData);
             if (cards == null || cards.getNumberOfObjects() == 0) {

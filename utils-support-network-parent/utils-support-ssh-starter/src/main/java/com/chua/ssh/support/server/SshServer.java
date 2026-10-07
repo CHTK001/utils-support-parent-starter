@@ -1,5 +1,6 @@
 package com.chua.ssh.support.server;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.Server;
@@ -21,7 +22,6 @@ import org.apache.sshd.server.shell.ShellFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -155,7 +155,7 @@ public class SshServer extends AbstractServer {
      * @return 命令名称列表
      */
     public List<String> getCommandNames() {
-        return new ArrayList<>(shellFilter.getCommandNames());
+        return Wraps.list(shellFilter.getCommandNames());
     }
 
     @Override

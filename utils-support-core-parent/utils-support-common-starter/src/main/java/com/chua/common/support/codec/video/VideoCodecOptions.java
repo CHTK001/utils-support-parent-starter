@@ -1,9 +1,8 @@
 package com.chua.common.support.codec.video;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -67,7 +66,7 @@ public class VideoCodecOptions {
     /**
      * 实现相关的附加选项。
      */
-    private final Map<String, String> extra = new LinkedHashMap<>();
+    private final Map<String, String> extra = Wraps.linkedMap();
 
     /**
      * 读取附加选项。

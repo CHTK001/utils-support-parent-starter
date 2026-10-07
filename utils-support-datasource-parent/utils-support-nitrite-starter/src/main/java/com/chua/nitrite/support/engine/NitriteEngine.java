@@ -1,5 +1,6 @@
 package com.chua.nitrite.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.search.DocumentStore;
 import com.chua.common.support.lang.datasource.search.FulltextSearch;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
@@ -21,11 +22,8 @@ import org.dizitart.no2.common.Fields;
 import org.dizitart.no2.common.FieldValues;
 import org.dizitart.no2.index.fulltext.TextTokenizer;
 import org.dizitart.no2.index.fulltext.Languages;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -156,7 +154,7 @@ import java.util.concurrent.ConcurrentHashMap;
         }
         // Nitrite 4.4.x 仓库需注册 EntityConverter，这里用原生集合 + 引擎自研编解码绕过
         NitriteCollection collection = nitrite.getCollection(entityClass.getSimpleName());
-        List<T> all = new ArrayList<>();
+        List<T> all = Wraps.list();
         for (Document doc : collection.find()) {
             all.add(fromDocument(doc, entityClass));
         }
@@ -184,7 +182,7 @@ import java.util.concurrent.ConcurrentHashMap;
             return Collections.emptyList();
         }
         int to = limit > 0 ? Math.min(from + limit, data.size()) : data.size();
-        return new ArrayList<>(data.subList(from, to));
+        return Wraps.list(data.subList(from, to));
     }
 
     @Override
@@ -277,7 +275,7 @@ import java.util.concurrent.ConcurrentHashMap;
         String collectionName = entityClass.getSimpleName();
         try {
             NitriteCollection collection = nitrite.getCollection(collectionName);
-            List<org.dizitart.no2.filters.NitriteFilter> textFilters = new ArrayList<>();
+            List<org.dizitart.no2.filters.NitriteFilter> textFilters = Wraps.list();
             Class<?> cls = entityClass;
             while (cls != null && cls != Object.class) {
                 for (java.lang.reflect.Field f : cls.getDeclaredFields()) {
@@ -295,7 +293,7 @@ import java.util.concurrent.ConcurrentHashMap;
                     ? textFilters.get(0)
                     : org.dizitart.no2.filters.Filter.or(
                             textFilters.toArray(new org.dizitart.no2.filters.Filter[0]));
-            List<T> results = new ArrayList<>();
+            List<T> results = Wraps.list();
             for (Document doc : collection.find(textFilter)) {
                 results.add(fromDocument(doc, entityClass));
                 if (results.size() >= limit) {
@@ -472,7 +470,7 @@ import java.util.concurrent.ConcurrentHashMap;
             return Collections.emptyList();
         }
         NitriteCollection nitriteCollection = nitrite.getCollection(collection);
-        List<T> results = new ArrayList<>();
+        List<T> results = Wraps.list();
         for (Document doc : nitriteCollection.find()) {
             results.add(fromDocument(doc, documentClass));
         }
@@ -554,7 +552,7 @@ import java.util.concurrent.ConcurrentHashMap;
                     (java.util.Map<String, Object>) com.chua.common.support.reflection.ReflectUtils
                             .instantiate(documentClass);
             if (map == null) {
-                map = new LinkedHashMap<>();
+                map = Wraps.linkedMap();
             }
             for (String field : document.getFields()) {
                 map.put(field, document.get(field));

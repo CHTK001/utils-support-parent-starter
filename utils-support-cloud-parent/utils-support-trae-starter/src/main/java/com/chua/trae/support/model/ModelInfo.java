@@ -1,7 +1,7 @@
 package com.chua.trae.support.model;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -68,7 +68,7 @@ public record ModelInfo(
          * @param data   模型信息列表
          */
         public ModelList {
-            data = data == null ? null : Collections.unmodifiableList(new ArrayList<>(data));
+            data = data == null ? null : Collections.unmodifiableList(Wraps.list(data));
         }
 
         /**

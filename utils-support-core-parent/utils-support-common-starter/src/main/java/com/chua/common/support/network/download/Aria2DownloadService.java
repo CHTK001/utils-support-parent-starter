@@ -1,5 +1,6 @@
 package com.chua.common.support.network.download;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,7 +12,6 @@ import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -146,7 +146,7 @@ public class Aria2DownloadService implements DownloadService {
      * @return aria2c 命令行参数列表
      */
     private static List<String> buildCommand(Aria2Options o) {
-        List<String> cmd = new ArrayList<>();
+        List<String> cmd = Wraps.list();
         cmd.add("aria2c");
         cmd.add("--no-conf=true");
         cmd.add("--file-allocation=none");

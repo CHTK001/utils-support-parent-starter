@@ -1,5 +1,6 @@
 package com.chua.alibaba.support.cas;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.aliyun.cas20200407.Client;
 import com.aliyun.cas20200407.models.CreateCertificateForPackageRequestRequest;
 import com.aliyun.cas20200407.models.CreateCertificateForPackageRequestResponse;
@@ -26,7 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -178,7 +178,7 @@ public class AlibabaCasProvider implements AcmeProvider {
                     content != null && !content.isEmpty() ? content : null,
                     hasRecord ? body.getRecordDomain() : null,
                     hasRecord ? body.getRecordValue() : null);
-            List<AcmeValidationInfo> result = new ArrayList<>();
+            List<AcmeValidationInfo> result = Wraps.list();
             result.add(info);
             return result;
         } catch (Exception e) {

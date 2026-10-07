@@ -1,9 +1,9 @@
 package com.chua.deeplearning.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -119,7 +119,7 @@ public final class ModelParams {
             STORE.remove(modelId);
             return;
         }
-        STORE.put(modelId, new LinkedHashMap<>(params));
+        STORE.put(modelId, Wraps.linkedMap(params));
     }
 
     /**
@@ -133,7 +133,7 @@ public final class ModelParams {
             return;
         }
         STORE.compute(modelId, (key, old) -> {
-            Map<String, Object> merged = old == null ? new LinkedHashMap<>() : new LinkedHashMap<>(old);
+            Map<String, Object> merged = old == null ? Wraps.linkedMap() : Wraps.linkedMap(old);
             merged.putAll(params);
             return merged;
         });
@@ -177,7 +177,7 @@ public final class ModelParams {
      * @return 合并后的参数表
      */
     public static Map<String, Object> merge(String modelId, Map<String, Object> options) {
-        Map<String, Object> merged = new LinkedHashMap<>(get(modelId));
+        Map<String, Object> merged = Wraps.linkedMap(get(modelId));
         if (options != null) {
             merged.putAll(options);
         }

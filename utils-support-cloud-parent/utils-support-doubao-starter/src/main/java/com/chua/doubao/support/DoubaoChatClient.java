@@ -1,5 +1,6 @@
 package com.chua.doubao.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
@@ -18,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -71,7 +71,7 @@ public class DoubaoChatClient implements ChatClient {
     /**
      * 对话历史消息
     */
-    private final List<ChatMessage> history = new ArrayList<>();
+    private final List<ChatMessage> history = Wraps.list();
     /**
      * 外部历史消息
     */
@@ -280,7 +280,7 @@ public class DoubaoChatClient implements ChatClient {
                 actualSystem = SkillPrompt.inject(system, skillManager);
             }
 
-            List<com.volcengine.ark.runtime.model.completion.chat.ChatMessage> messages = new ArrayList<>();
+            List<com.volcengine.ark.runtime.model.completion.chat.ChatMessage> messages = Wraps.list();
             if (actualSystem != null && !actualSystem.isEmpty()) {
                 messages.add(com.volcengine.ark.runtime.model.completion.chat.ChatMessage.builder()
                         .role(ChatMessageRole.SYSTEM)

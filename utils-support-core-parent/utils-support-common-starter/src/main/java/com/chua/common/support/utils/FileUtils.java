@@ -1,5 +1,6 @@
 package com.chua.common.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.constant.Projects;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -7,7 +8,6 @@ import com.google.common.net.MediaType;
 
 import java.io.File;
 import java.net.URL;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,7 +48,7 @@ public class FileUtils {
             name = name.substring(index);
         }
         String[] split = name.split("\\.");
-        List<String> rs = new LinkedList<>();
+        List<String> rs = Wraps.list();
         for (int i = 1; i < split.length; i++) {
             String t = split[i];
             if (NumberUtils.isNumber(t)) {
@@ -639,7 +639,7 @@ public class FileUtils {
         }
 
         List<String> pathList = Splitter.on(SYMBOL_LEFT_SLASH_CHAR).splitToList(pathToUse);
-        List<String> pathElements = new LinkedList<>();
+        List<String> pathElements = Wraps.list();
         int tops = 0;
 
         String element;

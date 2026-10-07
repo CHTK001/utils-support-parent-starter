@@ -1,8 +1,7 @@
 package com.chua.enhance.support.emoji;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Data;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,7 +21,7 @@ public class Emoji {
     /**
      * 别名列表
      */
-    private List<String> aliases = new ArrayList<>();
+    private List<String> aliases = Wraps.list();
 
     /**
      * HTML 十六进制实体
@@ -42,7 +41,7 @@ public class Emoji {
     /**
      * 表情符号列表
      */
-    private List<String> emoticons = new ArrayList<>();
+    private List<String> emoticons = Wraps.list();
 
     /**
      * 获取emojichar

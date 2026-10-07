@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.cmd;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.ServiceProvider;
 
 import javax.annotation.Nonnull;
@@ -201,7 +202,7 @@ public final class Commands {
      */
     @Nonnull
     public List<String> getNames() {
-        return new ArrayList<>(commandMap.keySet());
+        return Wraps.list(commandMap.keySet());
     }
 
     /**
@@ -359,7 +360,7 @@ public final class Commands {
      */
     @Nonnull
     private static String[] splitCommandLine(@Nonnull String line) {
-        List<String> parts = new ArrayList<>();
+        List<String> parts = Wraps.list();
         StringBuilder current = new StringBuilder();
         boolean inQuote = false;
 

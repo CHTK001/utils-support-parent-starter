@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.embedding.wemm;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
@@ -12,7 +13,6 @@ import java.io.IOException;
 import java.nio.LongBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -255,7 +255,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
         System.arraycopy(ids, 0, idsTrim, 0, seqLen);
 
         long[] shape = new long[]{1, seqLen};
-        Map<String, OnnxTensor> inputs = new HashMap<>();
+        Map<String, OnnxTensor> inputs = Wraps.map();
         float[] fullVec;
         try (OnnxTensor inputIdsTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(idsTrim), shape)) {
             inputs.put("input_ids", inputIdsTensor);

@@ -1,5 +1,6 @@
 package com.chua.openai.support.audio;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.audio.TextToAudioClient;
 import com.chua.common.support.ai.audio.TextToAudioClientSetting;
 import com.chua.common.support.ai.audio.TextToAudioResponse;
@@ -10,8 +11,6 @@ import com.chua.common.support.network.client.HttpClientBuilder;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -219,7 +218,7 @@ public class OpenAiTextToAudioClient implements TextToAudioClient {
 
     @Override
     public List<ModelDefinition> models() {
-        List<ModelDefinition> models = new ArrayList<>(3);
+        List<ModelDefinition> models = Wraps.list(3);
         models.add(ModelDefinition.builder()
                 .id("tts-1")
                 .name("tts-1")

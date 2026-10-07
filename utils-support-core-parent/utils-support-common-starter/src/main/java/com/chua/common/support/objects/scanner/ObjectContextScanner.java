@@ -1,5 +1,6 @@
 package com.chua.common.support.objects.scanner;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.objects.ObjectContext;
 import com.chua.common.support.objects.register.BeanDefinitionRegistry;
 import com.chua.common.support.reflection.ReflectUtils;
@@ -9,7 +10,6 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.*;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +76,7 @@ public final class ObjectContextScanner {
      */
     private static List<Class<?>> findClasses(String basePackage) {
         String path = basePackage.replace('.', '/');
-        List<Class<?>> result = new ArrayList<>();
+        List<Class<?>> result = Wraps.list();
 
         try {
             Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources(path);

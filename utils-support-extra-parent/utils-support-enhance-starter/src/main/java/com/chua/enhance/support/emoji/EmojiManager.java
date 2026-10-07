@@ -1,6 +1,5 @@
 package com.chua.enhance.support.emoji;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +29,7 @@ public class EmojiManager {
     /**
      * Emoji_数据
     */
-    private static final List<Emoji> EMOJI_DATA = new ArrayList<>();
+    private static final List<Emoji> EMOJI_DATA = Wraps.list();
     /**
      * 别名到 Emoji 的映射
      */

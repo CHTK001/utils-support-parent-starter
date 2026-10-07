@@ -29,7 +29,15 @@ public class CodePreviewProvider implements FileStoragePreviewProvider {
             "xml", "json", "yaml", "yml", "toml",
             "java", "kt", "groovy", "py", "rb", "go", "rs", "c", "cpp", "h", "hpp",
             "sql", "sh", "bash", "zsh", "ps1",
-            "properties", "cfg", "conf", "ini", "env"
+            "properties", "cfg", "conf", "ini", "env",
+            // 文本小格式：无专门渲染器，统一走代码高亮通道兜底。
+            // srt/vtt/ass/ssa（字幕）、diff/patch（补丁）、har（HTTP 归档 JSON）、
+            // ttc（字体集合走文本信息）、wasm（文本 wat 反汇编看不到但至少可读字节转储外的文本头）、
+            // proto/avsc/graphql（IDL/模式），以及 dockerfile/Makefile 等无扩展名靠 MIME 兜底的不在此列。
+            "srt", "vtt", "ass", "ssa",
+            "diff", "patch",
+            "proto", "avsc", "graphql", "gql",
+            "ttc", "har", "editorconfig", "gitignore", "dockerignore", "npmrc"
     );
 
     /**

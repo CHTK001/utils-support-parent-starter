@@ -1,5 +1,6 @@
 package com.chua.datasource.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.lang.datasource.engine.wrapper.Condition;
@@ -16,11 +17,8 @@ import com.chua.datasource.support.wrapper.EngineDeleteWrapper;
 import com.chua.datasource.support.wrapper.EngineQueryWrapper;
 import com.chua.datasource.support.wrapper.EngineUpdateWrapper;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -87,8 +85,8 @@ public class InMemoryEngine extends AbstractEngine {
         for (Object row : rows) {
             for (String field : fields) {
                 Object val = MethodCache.getValue(row, field);
-                tableIdx.computeIfAbsent(field, k -> new HashMap<>())
-                        .computeIfAbsent(val, k -> new ArrayList<>())
+                tableIdx.computeIfAbsent(field, k -> Wraps.map())
+                        .computeIfAbsent(val, k -> Wraps.list())
                         .add(row);
             }
         }
@@ -101,7 +99,7 @@ public class InMemoryEngine extends AbstractEngine {
      * @return 获取getters的结果
      */
     private static List<String> getGetters(Class<?> clazz) {
-        List<String> fields = new ArrayList<>();
+        List<String> fields = Wraps.list();
         for (var m : clazz.getMethods()) {
             if (m.getParameterCount() != 0 || m.getDeclaringClass() == Object.class) {
                 continue;
@@ -201,7 +199,7 @@ public class InMemoryEngine extends AbstractEngine {
             throw new IllegalArgumentException("rowType 不能为空");
         }
         List<Map<String, Object>> rows = querySql(ql, params);
-        List<T> out = new ArrayList<>(rows.size());
+        List<T> out = Wraps.list(rows.size());
         for (Map<String, Object> row : rows) {
             out.add(MemorySqlLex.RowAccessor.toBean(row, rowType));
         }
@@ -250,7 +248,7 @@ public class InMemoryEngine extends AbstractEngine {
      * @return 可变行引用列表
      */
     private List<Object> mutableRowsFor(String table) {
-        dataStores.computeIfAbsent(table, k -> new ArrayList<>());
+        dataStores.computeIfAbsent(table, k -> Wraps.list());
         @SuppressWarnings("unchecked")
         List<Object> rows = (List<Object>) dataStores.get(table);
         return rows;
@@ -298,7 +296,7 @@ public class InMemoryEngine extends AbstractEngine {
         }
         List<String> orderBys = wrapper.getOrderBys();
         if (!orderBys.isEmpty()) {
-            result = new ArrayList<>(result);
+            result = Wraps.list(result);
             result.sort((a, b) -> compareOrdered(a, b, orderBys));
         }
         return result;
@@ -374,7 +372,7 @@ public class InMemoryEngine extends AbstractEngine {
             return new Page<>(pn, ps, all.size(), Collections.emptyList());
         }
         // 独立副本，避免 subList 视图持有内存存储引用
-        return new Page<>(pn, ps, all.size(), new java.util.ArrayList<>(all.subList(from, to)));
+        return new Page<>(pn, ps, all.size(), Wraps.list(all.subList(from, to)));
     }
 
     /**

@@ -1,11 +1,10 @@
 package com.chua.ibd.support.innodb;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -126,7 +125,7 @@ public final class IbdTableReader implements Closeable {
      */
     public List<String> columnNames() {
         List<IbdColumn> columns = definition.userColumns();
-        List<String> names = new ArrayList<>(columns.size());
+        List<String> names = Wraps.list(columns.size());
         for (IbdColumn column : columns) {
             names.add(column.name());
         }
@@ -167,7 +166,7 @@ public final class IbdTableReader implements Closeable {
         List<IbdColumn> recordColumns = index.columns();
         List<String> outputColumns = columnNames();
         int pageSize = tablespace.pageSize();
-        List<Map<String, Object>> rows = new ArrayList<>();
+        List<Map<String, Object>> rows = Wraps.list();
         for (long pageNo : tablespace.leafPagesOf(index.id())) {
             byte[] page = tablespace.readPage(pageNo);
             IbdRecordCursor cursor = new IbdRecordCursor(page, pageSize);
@@ -181,7 +180,7 @@ public final class IbdTableReader implements Closeable {
                     continue;
                 }
                 Map<String, Object> record = cursor.at(header.origin()).readRow(recordColumns, lobReader);
-                Map<String, Object> row = new LinkedHashMap<>();
+                Map<String, Object> row = Wraps.linkedMap();
                 for (String name : outputColumns) {
                     row.put(name, record.get(name));
                 }

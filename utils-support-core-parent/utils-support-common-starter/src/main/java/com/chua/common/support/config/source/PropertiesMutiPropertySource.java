@@ -1,5 +1,6 @@
 package com.chua.common.support.config.source;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Getter;
 
 import java.util.LinkedHashMap;
@@ -59,7 +60,7 @@ public class PropertiesMutiPropertySource extends AbstractPropertySource impleme
             return null;
         }
         // 合并所有 Map 中的属性到一个新的 LinkedHashMap 中
-        Map<String, Object> merged = new LinkedHashMap<>();
+        Map<String, Object> merged = Wraps.linkedMap();
         for (Object property : properties) {
             if (property instanceof Map map) {
                 merged.putAll(map);

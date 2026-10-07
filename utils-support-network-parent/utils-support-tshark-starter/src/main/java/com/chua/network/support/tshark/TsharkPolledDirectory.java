@@ -1,5 +1,6 @@
 package com.chua.network.support.tshark;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.PolledDirectory;
 import com.chua.common.support.lang.directory.PolledDirectorySupport;
 import com.chua.common.support.lang.directory.PolledListener;
@@ -16,9 +17,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -299,7 +297,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
             return;
         }
 
-        Map<String, Long> currentSnap = new HashMap<>();
+        Map<String, Long> currentSnap = Wraps.map();
         for (String name : captureFiles()) {
             currentSnap.put(name, lastModified(name));
         }
@@ -331,7 +329,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
         }
 
         // 检测删除
-        for (String name : new HashSet<>(cache.keySet())) {
+        for (String name : Wraps.set(cache.keySet())) {
             if (!currentSnap.containsKey(name)) {
                 cache.remove(name);
                 processed.remove(name);
@@ -380,7 +378,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
      */
     @Nonnull
     private Set<String> captureFiles() {
-        Set<String> names = new HashSet<>();
+        Set<String> names = Wraps.set();
         File[] files = new File(listenPath).listFiles();
         if (files == null) {
             return names;
@@ -487,7 +485,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
         TsharkCliConfig config = cliConfig.get();
         Path executable = TsharkCliProvider.getInstance().require(config);
 
-        List<String> command = new ArrayList<>();
+        List<String> command = Wraps.list();
         command.add(executable.toString());
         command.add("-r");
         command.add(capture.toAbsolutePath().toString());
@@ -539,6 +537,6 @@ public class TsharkPolledDirectory implements PolledDirectory {
      * @return 当前缓存的文件名集合
      */
     public Set<String> snapshot() {
-        return new HashSet<>(cache.keySet());
+        return Wraps.set(cache.keySet());
     }
 }

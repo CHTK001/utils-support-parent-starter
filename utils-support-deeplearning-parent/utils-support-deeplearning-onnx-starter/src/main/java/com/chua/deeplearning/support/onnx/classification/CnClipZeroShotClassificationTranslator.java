@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.classification;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.huggingface.tokenizers.Encoding;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.djl.modality.Classifications;
@@ -22,7 +23,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -159,8 +159,8 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         float[] imageVec = normalize(imageEmbeds.squeeze().toFloatArray());
 
         NDManager manager = ctx.getNDManager();
-        List<String> classNames = new ArrayList<>();
-        List<Double> probabilities = new ArrayList<>();
+        List<String> classNames = Wraps.list();
+        List<Double> probabilities = Wraps.list();
 
         float maxScore = Float.NEGATIVE_INFINITY;
         float[] scores = new float[candidates.size()];
@@ -298,7 +298,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
             return Collections.emptyList();
         }
         String[] parts = raw.split("[,\\uff0c;；\\s]+");
-        List<String> list = new ArrayList<>(parts.length);
+        List<String> list = Wraps.list(parts.length);
         for (String p : parts) {
             if (!p.isBlank()) {
                 list.add(p.trim());

@@ -1,5 +1,6 @@
 package com.chua.tablesaw.support.network.server.filter;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.ServerMetrics;
@@ -8,9 +9,6 @@ import com.chua.common.support.network.server.filter.ServerFilterChain;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.utils.BeanUtils;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -135,7 +133,7 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
      * @param response 响应对象
      */
     private void handleHealth(com.chua.common.support.network.server.response.ServerResponse response) throws Exception {
-        Map<String, Object> body = new LinkedHashMap<>(6);
+        Map<String, Object> body = Wraps.linkedMap(6);
         BeanUtils.copyProperties(metrics, body);
         body.put("status", "UP");
         body.put("timestamp", System.currentTimeMillis());
@@ -152,7 +150,7 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
      * @param response 响应对象
      */
     private void handleMetrics(com.chua.common.support.network.server.response.ServerResponse response) throws Exception {
-        Map<String, Object> body = new LinkedHashMap<>(12);
+        Map<String, Object> body = Wraps.linkedMap(12);
         BeanUtils.copyProperties(metrics, body);
         long lastErrorTime = metrics.getLastErrorTime();
         if (lastErrorTime > 0) {
@@ -175,7 +173,7 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
      */
     private void handleLatencyHistogram(com.chua.common.support.network.server.response.ServerResponse response) {
         Map<String, Long> histogram = metrics.getLatencyHistogram();
-        List<Map.Entry<String, Long>> entries = new ArrayList<>(histogram.entrySet());
+        List<Map.Entry<String, Long>> entries = Wraps.list(histogram.entrySet());
 
         long max = 1;
         for (Map.Entry<String, Long> entry : entries) {

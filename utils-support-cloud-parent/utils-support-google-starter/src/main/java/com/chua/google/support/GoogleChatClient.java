@@ -1,5 +1,6 @@
 package com.chua.google.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
@@ -15,8 +16,6 @@ import com.google.genai.types.GenerateContentResponse;
 import com.google.genai.types.Part;
 import com.google.genai.ResponseStream;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -76,7 +75,7 @@ public class GoogleChatClient implements ChatClient {
     /**
      * 对话历史消息列表
      */
-    private final List<ChatMessage> history = new ArrayList<>();
+    private final List<ChatMessage> history = Wraps.list();
 
     /**
      * 外部传入的完整历史记录
@@ -86,7 +85,7 @@ public class GoogleChatClient implements ChatClient {
     /**
      * 图片附件 URL 列表
      */
-    private final List<String> imageUrls = new ArrayList<>();
+    private final List<String> imageUrls = Wraps.list();
 
     /**
      * 是否启用深度思考
@@ -347,7 +346,7 @@ public class GoogleChatClient implements ChatClient {
             }
             GenerateContentConfig config = configBuilder.build();
 
-            List<Content> contents = new ArrayList<>();
+            List<Content> contents = Wraps.list();
             List<ChatMessage> messages = externalHistory != null ? externalHistory : history;
             for (ChatMessage msg : messages) {
                 contents.add(Content.builder()

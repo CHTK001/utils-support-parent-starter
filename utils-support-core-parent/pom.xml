@@ -30,8 +30,8 @@
         <module>utils-support-runtime-support</module>
     </modules>
     <properties>
-        <maven.jar.plugin.version>3.4.2</maven.jar.plugin.version>
-        <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
+        <maven.jar.plugin.version>3.5.1</maven.jar.plugin.version>
+        <maven.source.plugin.version>3.4.0</maven.source.plugin.version>
         <!-- 传递给子模块：utils-support-common-starter 直接依赖 org.ow2.asm:asm 并引用该属性，
              若此处不定义则属性无法解析，依赖会以字面量 ${asm.version} 出现在仓库路径中并导致离线构建失败 -->
         <asm.version>9.9.1</asm.version>
@@ -64,7 +64,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.15.0</version>
+                    <version>3.16.0</version>
                     <configuration>
                         <release>25</release>
                         <fork>false</fork>
@@ -102,7 +102,7 @@
                     <plugin>
                         <groupId>org.graalvm.buildtools</groupId>
                         <artifactId>native-maven-plugin</artifactId>
-                        <version>1.1.1</version>
+                        <version>1.1.14</version>
                         <configuration>
                             <!--                                               -->
                             <agent>

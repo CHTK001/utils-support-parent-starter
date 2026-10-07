@@ -1,5 +1,6 @@
 package com.chua.redis.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.kv.KvEngine;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.redis.support.engine.RedisReactorEngine;
@@ -244,7 +245,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
         if (entries == null) {
             return Map.of();
         }
-        Map<String, String> result = new java.util.LinkedHashMap<>();
+        Map<String, String> result = Wraps.linkedMap();
         for (Map.Entry<String, String> entry : entries) {
             result.put(entry.getKey(), entry.getValue());
         }

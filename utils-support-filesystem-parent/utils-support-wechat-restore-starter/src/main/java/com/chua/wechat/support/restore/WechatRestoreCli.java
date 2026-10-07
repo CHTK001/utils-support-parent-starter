@@ -1,5 +1,6 @@
 package com.chua.wechat.support.restore;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.restore.DataRestore;
 import com.chua.common.support.task.restore.DataRestoreConfig;
 import com.chua.common.support.task.restore.DataRestoreResult;
@@ -13,9 +14,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -317,8 +316,8 @@ public final class WechatRestoreCli {
         // 先复制到临时目录再导出：微信运行时会持续持有 -wal / -shm，
         // 直接对实时库建连可能触发 SQLITE_IOERR_TRUNCATE（本机实测复现）。
         File staging = Files.createTempDirectory("wechat-plain-").toFile();
-        List<File> outputs = new ArrayList<>(64);
-        List<String> failures = new ArrayList<>(8);
+        List<File> outputs = Wraps.list(64);
+        List<String> failures = Wraps.list(8);
         try {
             for (File db : databases) {
                 File copy = new File(staging, db.getName());
@@ -476,7 +475,7 @@ public final class WechatRestoreCli {
      */
     private static DataRestoreConfig buildConfig(Options options) {
         File outputDir = new File(options.out == null ? "wechat-restore-out" : options.out);
-        Map<String, Object> ext = new HashMap<>(16);
+        Map<String, Object> ext = Wraps.map(16);
         ext.put(WechatDataRestore.OPTION_MODE, options.mode);
         if (options.dataDir != null) {
             ext.put(WechatDataRestore.OPTION_DATA_DIR, options.dataDir);
@@ -534,7 +533,7 @@ public final class WechatRestoreCli {
      * @return 按体积升序排列的数据库文件
      */
     static List<File> collectDatabases(File source) {
-        List<File> result = new ArrayList<>(32);
+        List<File> result = Wraps.list(32);
         if (source.isFile()) {
             if (isDatabase(source)) {
                 result.add(source);

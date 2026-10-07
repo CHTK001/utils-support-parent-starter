@@ -5,9 +5,10 @@ import com.chua.common.support.network.server.response.ServerResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -48,7 +49,7 @@ public class SshCommandResponse implements ServerResponse {
     /**
      * 响应头映射
      */
-    private final LinkedHashMap<String, String> headers = new LinkedHashMap<>();
+    private final Map<String, String> headers = Wraps.linkedMap();
 
     /**
      * 原始结果对象

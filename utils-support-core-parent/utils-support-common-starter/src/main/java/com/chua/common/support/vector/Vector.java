@@ -1,5 +1,6 @@
 package com.chua.common.support.vector;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,7 +39,7 @@ public record Vector(
         id = Objects.requireNonNull(id, "id 不能为 null");
         data = data == null ? null : data.clone();
         metadata = metadata == null ? null
-                : Collections.unmodifiableMap(new LinkedHashMap<>(metadata));
+                : Collections.unmodifiableMap(Wraps.linkedMap(metadata));
     }
 
     /**

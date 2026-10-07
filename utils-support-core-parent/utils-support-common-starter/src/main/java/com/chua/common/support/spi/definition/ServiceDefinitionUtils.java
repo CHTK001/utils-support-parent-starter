@@ -1,5 +1,6 @@
 package com.chua.common.support.spi.definition;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.*;
 import com.chua.common.support.lang.reflect.AnnotationUtils;
 import com.chua.common.support.reflection.ReflectUtils;
@@ -97,7 +98,7 @@ public class ServiceDefinitionUtils {
             return buildEnumDefinition(service, resolverType, obj, implType, alias, url);
         }
 
-        List<ServiceDefinition> rs = new LinkedList<>(buildDefinitionType(service, resolverType, obj, implType, url));
+        List<ServiceDefinition> rs = Wraps.list(buildDefinitionType(service, resolverType, obj, implType, url));
         if (null == alias || alias.isEmpty()) {
             return rs;
         }
@@ -126,7 +127,7 @@ public class ServiceDefinitionUtils {
         if (StringUtils.isEmpty(alias)) {
             return Collections.emptyList();
         }
-        List<ServiceDefinition> rs = new LinkedList<>();
+        List<ServiceDefinition> rs = Wraps.list();
         if (service.isAssignableFrom(implType)) {
             rs.add(buildDefinitionAlias(service, resolverType, obj, implType, url, alias, 0));
         }
@@ -198,7 +199,7 @@ public class ServiceDefinitionUtils {
         if (name.length == 0) {
             return Collections.emptyList();
         }
-        List<ServiceDefinition> rs = new LinkedList<>();
+        List<ServiceDefinition> rs = Wraps.list();
         url = url == null ? implType.getProtectionDomain().getCodeSource().getLocation() : url;
         int order = getOrder(implType);
         for (String s : name) {
@@ -221,7 +222,7 @@ public class ServiceDefinitionUtils {
         if(null == implType) {
             return SYMBOL_EMPTY_STRING_ARRAY;
         }
-        Set<String> name = new LinkedHashSet<>();
+        Set<String> name = Wraps.linkedSet();
         Spi spi = implType.getDeclaredAnnotation(Spi.class);
         if (null != spi) {
             name.addAll(Arrays.asList(spi.value()));
@@ -264,8 +265,8 @@ public class ServiceDefinitionUtils {
             serviceDefinition.setDescribe(spiDescribe.value());
             serviceDefinition.setDescribeType(spiDescribe.type());
             serviceDefinition.setDescribeDetail(spiDescribe.desc());
-            Map<String, String> optional = new LinkedHashMap<>();
-            List<DescribeOptional> optionalList = new LinkedList<>();
+            Map<String, String> optional = Wraps.linkedMap();
+            List<DescribeOptional> optionalList = Wraps.list();
             for (SpiParam s : spiDescribe.optional()) {
                 optionalList.add(new DescribeOptional(s.value(), s.defaultValue(), s.desc(), s.type()));
             }

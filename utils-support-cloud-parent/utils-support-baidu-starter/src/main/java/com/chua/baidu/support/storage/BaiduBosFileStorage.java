@@ -1,5 +1,6 @@
 package com.chua.baidu.support.storage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.baidubce.auth.DefaultBceCredentials;
 import com.baidubce.services.bos.BosClient;
 import com.baidubce.services.bos.BosClientConfiguration;
@@ -15,7 +16,6 @@ import com.chua.common.support.storage.result.*;
 import com.chua.common.support.storage.setting.BucketSetting;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -161,7 +161,7 @@ public class BaiduBosFileStorage extends AbstractFileStorage {
             }
 
             ListObjectsResponse listing = bosClient.listObjects(listReq);
-            List<Metadata> metadataList = new ArrayList<>();
+            List<Metadata> metadataList = Wraps.list();
             for (BosObjectSummary summary : listing.getContents()) {
                 metadataList.add(Metadata.builder()
                         .name(summary.getKey())

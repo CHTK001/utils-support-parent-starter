@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.dht.krpc;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.server.dht.DhtMessage;
 import com.chua.common.support.network.server.dht.DhtMessageType;
 import com.chua.common.support.network.server.dht.DhtPeer;
@@ -8,10 +9,8 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -222,7 +221,7 @@ public class KrpcDhtBridge {
         KrpcMessage krpc = new KrpcMessage();
         krpc.t = txId;
         krpc.y = 'q';
-        krpc.a = new LinkedHashMap<>();
+        krpc.a = Wraps.linkedMap();
         krpc.a.put("id", hexToRawId(msg.getSenderId()));
 
         switch (msg.getType()) {
@@ -294,7 +293,7 @@ public class KrpcDhtBridge {
                 @SuppressWarnings("unchecked")
                 List<Object> values = (List<Object>) krpc.r.get("values");
                 if (values != null) {
-                    List<DhtPeer> peers = new ArrayList<>();
+                    List<DhtPeer> peers = Wraps.list();
                     for (Object v : values) {
                         byte[] peerData = v instanceof String
                                 ? ((String) v).getBytes(StandardCharsets.ISO_8859_1)
@@ -345,7 +344,7 @@ public class KrpcDhtBridge {
         KrpcMessage krpc = new KrpcMessage();
         krpc.t = txId;
         krpc.y = 'r';
-        krpc.r = new LinkedHashMap<>();
+        krpc.r = Wraps.linkedMap();
         krpc.r.put("id", hexToRawId(resp.getSenderId()));
 
         switch (resp.getType()) {
@@ -364,7 +363,7 @@ public class KrpcDhtBridge {
                     if (hasNodeIds) {
                         krpc.r.put("nodes", encodeCompactNodeList(resp.getPeers()));
                     } else {
-                        List<byte[]> values = new ArrayList<>();
+                        List<byte[]> values = Wraps.list();
                         for (DhtPeer p : resp.getPeers()) {
                             values.add(encodeCompactPeer(p));
                         }
@@ -453,7 +452,7 @@ public class KrpcDhtBridge {
      * @return 紧凑编码的字节数组
      */
     public byte[] encodeCompactNodeList(List<DhtPeer> peers) {
-        List<byte[]> entries = new ArrayList<>();
+        List<byte[]> entries = Wraps.list();
         for (DhtPeer p : peers) {
             byte[] nodeId = p.getNodeId() != null && !p.getNodeId().isEmpty()
                     ? hexToRawId(p.getNodeId()) : new byte[KRP_NODE_ID_BYTES];
@@ -482,7 +481,7 @@ public class KrpcDhtBridge {
      * @return 节点列表
      */
     public List<DhtPeer> decodeCompactNodeList(byte[] data) {
-        List<DhtPeer> peers = new ArrayList<>();
+        List<DhtPeer> peers = Wraps.list();
         int entrySize = KRP_NODE_ID_BYTES + 6;
         for (int i = 0; i + entrySize <= data.length; i += entrySize) {
             byte[] nodeId = new byte[KRP_NODE_ID_BYTES];

@@ -1,5 +1,6 @@
 package com.chua.redis.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.reflection.ReflectUtils;
@@ -232,7 +233,7 @@ public class RedisEngine {
         }
         String[] tokens = ql.trim().split("\\s+");
         String command = tokens[0].toUpperCase();
-        List<String> args = new ArrayList<>();
+        List<String> args = Wraps.list();
         for (int i = 1; i < tokens.length; i++) {
             args.add(tokens[i]);
         }
@@ -259,7 +260,7 @@ public class RedisEngine {
      * @return 实体列表
      */
     protected <T> List<T> scanAll(Jedis jedis, String keyPrefix, Class<T> entityClass) {
-        List<T> result = new ArrayList<>();
+        List<T> result = Wraps.list();
         String cursor = "0";
         do {
             var scanResult = jedis.scan(cursor, new redis.clients.jedis.params.ScanParams().match(keyPrefix + ":*").count(100));

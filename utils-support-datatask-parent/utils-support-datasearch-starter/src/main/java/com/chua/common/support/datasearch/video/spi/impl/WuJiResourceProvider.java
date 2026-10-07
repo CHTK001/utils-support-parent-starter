@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.video.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.lang.code.PageResult;
@@ -16,7 +17,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -99,7 +99,7 @@ public class WuJiResourceProvider extends AbstractResourceProvider {
         if (blocked != null) {
             return blocked;
         }
-        List<VideoInfoResult> results = new ArrayList<>(MAX_RESULT_COUNT);
+        List<VideoInfoResult> results = Wraps.list(MAX_RESULT_COUNT);
         try {
             String keyword = URLEncoder.encode(
                     videoSearch.getKeyword(), StandardCharsets.UTF_8);

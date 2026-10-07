@@ -1,12 +1,12 @@
 package com.chua.ueba.support.config;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -110,7 +110,7 @@ public class FeatureDefinition implements Serializable {
      * 类别特征候选值，仅 CATEGORICAL 类型使用，允许为空
      */
     @Builder.Default
-    private List<String> vocab = new ArrayList<>();
+    private List<String> vocab = Wraps.list();
 
     /**
      * 循环周期（秒），仅 CYCLIC 类型使用，默认 86400（一天）

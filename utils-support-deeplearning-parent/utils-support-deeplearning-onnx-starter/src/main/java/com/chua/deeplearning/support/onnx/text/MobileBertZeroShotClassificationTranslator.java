@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.text;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.huggingface.tokenizers.Encoding;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.djl.modality.Classifications;
@@ -15,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -153,7 +153,7 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
             String text,
             List<String> candidateLabels) throws Exception {
 
-        List<Double> scores = new ArrayList<>();
+        List<Double> scores = Wraps.list();
         for (String label : candidateLabels) {
             String hypothesis = "This example is about " + label + ".";
             Map<String, String> pair = Map.of("premise", text, "hypothesis", hypothesis);

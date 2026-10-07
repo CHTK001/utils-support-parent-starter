@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.dht;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.EventObserver;
 import com.chua.common.support.lang.directory.PolledDirectory;
 import com.chua.common.support.lang.directory.PolledListener;
@@ -12,10 +13,7 @@ import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -207,7 +205,7 @@ public class DhtPolledDirectory implements PolledDirectory {
      */
     private void pollDirectory(String key) {
         String value = protocol.findValue(key);
-        Set<Discovery> current = new HashSet<>();
+        Set<Discovery> current = Wraps.set();
         if (value != null) {
             try {
                 Discovery d = Json.fromJson(value, Discovery.class);
@@ -232,11 +230,11 @@ public class DhtPolledDirectory implements PolledDirectory {
      * @param current  当前的快照
      */
     private void detectChanges(String key, Set<Discovery> previous, Set<Discovery> current) {
-        Set<String> prevIds = new HashSet<>();
+        Set<String> prevIds = Wraps.set();
         for (Discovery d : previous) {
             prevIds.add(d.getId());
         }
-        Set<String> currIds = new HashSet<>();
+        Set<String> currIds = Wraps.set();
         for (Discovery d : current) {
             currIds.add(d.getId());
         }
@@ -345,7 +343,7 @@ public class DhtPolledDirectory implements PolledDirectory {
             }
 
             builder.host(host).port(port);
-            Set<String> seeds = new LinkedHashSet<>();
+            Set<String> seeds = Wraps.linkedSet();
             if (!host.equals("0.0.0.0") && !host.equals("127.0.0.1")) {
                 seeds.add(host + ":" + port);
             }

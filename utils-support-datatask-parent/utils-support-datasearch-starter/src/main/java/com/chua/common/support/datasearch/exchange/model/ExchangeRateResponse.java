@@ -1,10 +1,10 @@
 package com.chua.common.support.datasearch.exchange.model;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -41,6 +41,6 @@ public record ExchangeRateResponse(
      * @param rates 全量汇率表
      */
     public ExchangeRateResponse {
-        rates = rates == null ? null : Collections.unmodifiableMap(new LinkedHashMap<>(rates));
+        rates = rates == null ? null : Collections.unmodifiableMap(Wraps.linkedMap(rates));
     }
 }

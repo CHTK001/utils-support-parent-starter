@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.sensevoice;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtException;
@@ -18,9 +19,6 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -210,7 +208,7 @@ public class SenseVoiceTranslator {
      * @param tokensPath 令牌路径
      */
     private void loadVocab(Path tokensPath) throws IOException {
-        this.vocab = new HashMap<>(4096);
+        this.vocab = Wraps.map(4096);
         for (String line : Files.readAllLines(tokensPath)) {
             String trimmed = line.trim();
             if (trimmed.isEmpty()) {
@@ -237,7 +235,7 @@ public class SenseVoiceTranslator {
         this.lfrWindowShift = 6;
         this.blankId = 0;
         this.withItnId = 14;
-        Map<String, Integer> langMap = new HashMap<>();
+        Map<String, Integer> langMap = Wraps.map();
         langMap.put("auto", 0);
         langMap.put("zh", 3);
         langMap.put("en", 4);
@@ -343,7 +341,7 @@ public class SenseVoiceTranslator {
              OnnxTensor tnT = OnnxTensor.createTensor(ortEnv,
                      IntBuffer.wrap(new int[]{withItnId}), new long[]{1}) ) {
 
-            Map<String, OnnxTensor> feed = new HashMap<>();
+            Map<String, OnnxTensor> feed = Wraps.map();
             feed.put("x", xt);
             feed.put("x_length", lenT);
             feed.put("language", langT);
@@ -404,7 +402,7 @@ public class SenseVoiceTranslator {
         StringBuilder sb = new StringBuilder();
         String lang = null;
         String emo = null;
-        List<String> events = new ArrayList<>();
+        List<String> events = Wraps.list();
         for (Integer id : ids) {
             String tk = vocab.get(id);
             if (tk == null) {
@@ -456,7 +454,7 @@ public class SenseVoiceTranslator {
      * @return greedyCtc的结果
      */
     private List<Integer> greedyCtc(float[] logits, int vocabSize) {
-        List<Integer> ids = new ArrayList<>();
+        List<Integer> ids = Wraps.list();
         int frames = logits.length / vocabSize;
         int prev = -1;
         for (int t = 0; t < frames; t++) {
@@ -648,7 +646,7 @@ public class SenseVoiceTranslator {
                 : (int) Math.ceil((double) (total - lfrWindowSize) / lfrWindowShift) + 1;
         int padded = (outFrames - 1) * lfrWindowShift + lfrWindowSize;
         // 尾部复制最后一帧补齐
-        List<double[]> list = new ArrayList<>(padded);
+        List<double[]> list = Wraps.list(padded);
         for (int i = 0; i < total; i++) {
             list.add(feat80[i]);
         }

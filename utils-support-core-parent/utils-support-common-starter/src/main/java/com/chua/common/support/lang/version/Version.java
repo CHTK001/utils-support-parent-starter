@@ -1,10 +1,9 @@
 package com.chua.common.support.lang.version;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -73,7 +72,7 @@ public class Version implements Comparable<Version> {
      * Subversionnumbers
      */
     @Getter
-    private final List<Long> subversionNumbers = new ArrayList<>();
+    private final List<Long> subversionNumbers = Wraps.list();
 
     /**
      * 修剪后的子版本号列表。
@@ -83,7 +82,7 @@ public class Version implements Comparable<Version> {
      * Trimmedsubversionnumbers
      */
     @Getter
-    private final List<Long> trimmedSubversionNumbers = new ArrayList<>();
+    private final List<Long> trimmedSubversionNumbers = Wraps.list();
 
     /**
      * 后缀字符串。

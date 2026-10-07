@@ -1,15 +1,12 @@
 package com.chua.wechat.support.restore.memory;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -234,23 +231,23 @@ public final class WechatMemoryMessages {
         Map<String, String> displayNames = collectDisplayNames(result);
 
         // 消息页 → 该页全部 real_sender_id
-        Map<String, Set<Integer>> sendersOfPage = new LinkedHashMap<>();
+        Map<String, Set<Integer>> sendersOfPage = Wraps.linkedMap();
         // 消息页 → 该页的记录
-        Map<String, List<WechatMemoryExtractor.ExtractedRecord>> recordsOfPage = new LinkedHashMap<>();
+        Map<String, List<WechatMemoryExtractor.ExtractedRecord>> recordsOfPage = Wraps.linkedMap();
         for (WechatMemoryExtractor.ExtractedRecord record : result.records()) {
             if (!WechatMemoryRebuilder.MSG_TABLE.equals(record.table())) {
                 continue;
             }
             String key = record.pid() + "#" + record.pageAddress();
-            recordsOfPage.computeIfAbsent(key, k -> new ArrayList<>()).add(record);
+            recordsOfPage.computeIfAbsent(key, k -> Wraps.list()).add(record);
             Integer sender = intValue(record.values(), COL_REAL_SENDER_ID);
             if (sender != null) {
-                sendersOfPage.computeIfAbsent(key, k -> new HashSet<>()).add(sender);
+                sendersOfPage.computeIfAbsent(key, k -> Wraps.set()).add(sender);
             }
         }
 
         // 消息页 → 库簇
-        Map<String, WechatMemoryExtractor.IdCluster> ownerOfPage = new HashMap<>();
+        Map<String, WechatMemoryExtractor.IdCluster> ownerOfPage = Wraps.map();
         for (Map.Entry<String, Set<Integer>> entry : sendersOfPage.entrySet()) {
             WechatMemoryExtractor.IdCluster cluster =
                     resolveCluster(entry.getKey(), entry.getValue(), result.clusters());
@@ -259,7 +256,7 @@ public final class WechatMemoryMessages {
             }
         }
 
-        List<Message> messages = new ArrayList<>(recordsOfPage.size() * 4);
+        List<Message> messages = Wraps.list(recordsOfPage.size() * 4);
         for (Map.Entry<String, List<WechatMemoryExtractor.ExtractedRecord>> entry
                 : recordsOfPage.entrySet()) {
             WechatMemoryExtractor.IdCluster cluster = ownerOfPage.get(entry.getKey());
@@ -290,7 +287,7 @@ public final class WechatMemoryMessages {
      * @return 页数
      */
     private static long distinctPages(List<Message> messages) {
-        Set<String> pages = new HashSet<>();
+        Set<String> pages = Wraps.set();
         for (Message message : messages) {
             pages.add(message.page());
         }
@@ -366,7 +363,7 @@ public final class WechatMemoryMessages {
      * @return username → 显示名（备注优先，其次昵称）
      */
     private static Map<String, String> collectDisplayNames(WechatMemoryExtractor.ExtractResult result) {
-        Map<String, String> names = new LinkedHashMap<>();
+        Map<String, String> names = Wraps.linkedMap();
         for (WechatMemoryExtractor.ExtractedRecord record : result.records()) {
             if (record.table() == null || !"contact".equalsIgnoreCase(record.table())) {
                 continue;

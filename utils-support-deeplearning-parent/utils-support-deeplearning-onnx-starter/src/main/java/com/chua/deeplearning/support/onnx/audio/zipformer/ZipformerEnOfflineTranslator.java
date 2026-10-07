@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.zipformer;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.onnx.audio.AudioUtils;
 
 import ai.onnxruntime.OnnxTensor;
@@ -15,7 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -37,7 +37,7 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
     private OrtSession encoderSession; // 编码器会话
     private OrtSession decoderSession; // 解码器会话
     private OrtSession joinerSession; // 连接会话
-    private final Map<Integer, String> vocab = new HashMap<>(); // vocab
+    private final Map<Integer, String> vocab = Wraps.map(); // vocab
 
     /**
      * 从模型目录加载。

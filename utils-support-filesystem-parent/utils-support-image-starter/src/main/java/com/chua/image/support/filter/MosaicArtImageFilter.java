@@ -1,5 +1,6 @@
 package com.chua.image.support.filter;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import lombok.Data;
@@ -13,7 +14,6 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -133,7 +133,7 @@ public class MosaicArtImageFilter extends AbstractImageFilter {
     /**
      * 支持的贴图文件扩展名（不含点，小写），默认 png,jpg,jpeg,bmp,gif,webp
      */
-    private List<String> extensions = new ArrayList<>(
+    private List<String> extensions = Wraps.list(
             Arrays.asList("png", "jpg", "jpeg", "bmp", "gif", "webp"));
 
     /**
@@ -299,7 +299,7 @@ public class MosaicArtImageFilter extends AbstractImageFilter {
             // 文件名升序排序，保证 SEQUENTIAL 模式可复现
             Arrays.sort(files);
 
-            List<TileRecord> list = new ArrayList<>();
+            List<TileRecord> list = Wraps.list();
             for (File file : files) {
                 String name = file.getName().toLowerCase();
                 int dot = name.lastIndexOf('.');

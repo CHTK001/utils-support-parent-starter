@@ -1,5 +1,6 @@
 package com.chua.neo4j.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.engine.Engine;
@@ -22,11 +23,8 @@ import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -190,9 +188,9 @@ public class Neo4jEngine implements Engine {
         }
         Class<T> entityClass = (Class<T>) data.getFirst().getClass();
         String label = safeLabel(entityClass.getSimpleName());
-        List<Map<String, Object>> rows = new ArrayList<>(data.size());
+        List<Map<String, Object>> rows = Wraps.list(data.size());
         for (T entity : data) {
-            Map<String, Object> props = new LinkedHashMap<>();
+            Map<String, Object> props = Wraps.linkedMap();
             for (var method : entityClass.getMethods()) {
                 if (method.getName().startsWith("get") && method.getParameterCount() == 0
                         && !method.getName().equals("getClass")) {
@@ -253,7 +251,7 @@ public class Neo4jEngine implements Engine {
         if (driver == null) {
             throw new IllegalStateException("Neo4j 驱动未初始化，请先调用 connect 或注册数据源");
         }
-        Map<String, Object> cypherParams = new LinkedHashMap<>();
+        Map<String, Object> cypherParams = Wraps.linkedMap();
         for (int i = 0; i < params.length; i++) {
             cypherParams.put("p" + i, params[i]);
         }
@@ -532,7 +530,7 @@ public class Neo4jEngine implements Engine {
             throw new IllegalStateException("Neo4j 驱动未初始化，请先调用 connect 或注册数据源");
         }
         String label = safeLabel(entityClass.getSimpleName());
-        Map<String, Object> params = new LinkedHashMap<>();
+        Map<String, Object> params = Wraps.linkedMap();
         String whereClause = buildCypherWhere(conditions, params, "n");
         StringBuilder cypher = new StringBuilder("MATCH (n:").append(label).append(")");
         if (!whereClause.isEmpty()) {
@@ -575,7 +573,7 @@ public class Neo4jEngine implements Engine {
             throw new IllegalStateException("Neo4j 驱动未初始化，请先调用 connect 或注册数据源");
         }
         String label = safeLabel(entityClass.getSimpleName());
-        Map<String, Object> params = new LinkedHashMap<>();
+        Map<String, Object> params = Wraps.linkedMap();
         String whereClause = buildCypherWhere(conditions, params, "n");
         StringBuilder cypher = new StringBuilder("MATCH (n:").append(label).append(")");
         if (!whereClause.isEmpty()) {
@@ -631,7 +629,7 @@ public class Neo4jEngine implements Engine {
             return 0;
         }
         String label = safeLabel(entityClass.getSimpleName());
-        Map<String, Object> params = new LinkedHashMap<>();
+        Map<String, Object> params = Wraps.linkedMap();
         String whereClause = buildCypherWhere(conditions, params, "n");
 
         StringBuilder setSb = new StringBuilder(" SET ");
@@ -673,7 +671,7 @@ public class Neo4jEngine implements Engine {
             throw new IllegalStateException("Neo4j 驱动未初始化，请先调用 connect 或注册数据源");
         }
         String label = safeLabel(entityClass.getSimpleName());
-        Map<String, Object> params = new LinkedHashMap<>();
+        Map<String, Object> params = Wraps.linkedMap();
         String whereClause = buildCypherWhere(conditions, params, "n");
 
         StringBuilder cypher = new StringBuilder("MATCH (n:").append(label).append(")");

@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.request;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpMethod;
 
@@ -7,7 +8,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -107,7 +107,7 @@ public abstract class AbstractServerRequest implements ServerRequest {
      */
     @Override
     public Map<String, Object> getAttributes() {
-        return new HashMap<>(attributes);
+        return Wraps.map(attributes);
     }
 
     /**

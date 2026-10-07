@@ -1,12 +1,11 @@
 package com.chua.filesystem.support.restore;
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -92,7 +91,7 @@ public class RestoreResult {
     /**
      * 警告
     */
-    private List<String> warnings = new ArrayList<>();
+    private List<String> warnings = Wraps.list();
 
     /**
      * 创建成功结果
@@ -181,7 +180,7 @@ public class RestoreResult {
      */
     public RestoreResult addWarning(String warning) {
         if (this.warnings == null) {
-            this.warnings = new ArrayList<>();
+            this.warnings = Wraps.list();
         }
         this.warnings.add(warning);
         return this;

@@ -1,5 +1,6 @@
 package com.chua.google.support.storage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.storage.AbstractFileStorage;
 import com.chua.common.support.storage.metadata.Metadata;
@@ -20,7 +21,6 @@ import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.storage.*;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -232,7 +232,7 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
             }
 
             var result = storage.list(bucket, options);
-            List<Metadata> metadataList = new ArrayList<>();
+            List<Metadata> metadataList = Wraps.list();
             for (Blob blob : result.getValues()) {
                 metadataList.add(Metadata.builder()
                         .name(blob.getName())

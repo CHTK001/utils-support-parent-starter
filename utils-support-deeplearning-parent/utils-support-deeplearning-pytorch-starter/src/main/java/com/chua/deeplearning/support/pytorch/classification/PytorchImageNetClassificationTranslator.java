@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.pytorch.classification;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.Classifications;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.util.NDImageUtils;
@@ -13,7 +14,6 @@ import ai.djl.translate.TranslatorContext;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -92,7 +92,7 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
         List<String> labels = runtimeLabels.size() == scores.length
                 ? runtimeLabels
                 : defaultLabels(scores.length);
-        List<Double> probs = new ArrayList<>(scores.length);
+        List<Double> probs = Wraps.list(scores.length);
         for (float score : scores) {
             probs.add((double) score);
         }

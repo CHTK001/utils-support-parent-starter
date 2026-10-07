@@ -1,5 +1,6 @@
 package com.chua.crypto.support.launch;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -173,7 +174,7 @@ public class EncryptedAppClassLoader extends URLClassLoader {
      * @return 候选列表
      */
     private java.util.List<String> candidates(String path) {
-        java.util.List<String> list = new java.util.ArrayList<>(2);
+        java.util.List<String> list = Wraps.list(2);
         list.add(path);
         list.add(BOOT_CLASSES_PREFIX + path);
         return list;

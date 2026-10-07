@@ -1,11 +1,11 @@
 package com.chua.crypto.support.store;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -82,7 +82,7 @@ public final class KeyFileResolver {
      * @return 候选列表（工作目录、Jar 目录、用户目录）
      */
     private static List<Path> candidates(Path relative) {
-        List<Path> candidates = new ArrayList<>();
+        List<Path> candidates = Wraps.list();
         candidates.add(Paths.get(System.getProperty("user.dir")).resolve(relative));
         Path jarDir = jarDirectory();
         if (jarDir != null) {

@@ -1,12 +1,11 @@
 package com.chua.mysql.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.meta.IndexCreateBuilder;
 import com.chua.datasource.support.meta.AbstractMetaData;
 import com.chua.datasource.support.meta.AbstractMetaIndex;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -140,7 +139,7 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
         /**
          * 索引列
          */
-        private final List<String> columns = new ArrayList<>();
+        private final List<String> columns = Wraps.list();
         /**
          * 唯一
          */

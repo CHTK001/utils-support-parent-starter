@@ -1,5 +1,6 @@
 package com.chua.alibaba.support.sms;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.JsonObject;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
@@ -16,8 +17,6 @@ import com.aliyun.dysmsapi20170525.models.QuerySmsTemplateListResponseBody.Query
 import com.aliyun.dysmsapi20170525.models.SendSmsRequest;
 import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
 import com.aliyun.teaopenapi.models.Config;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -154,7 +153,7 @@ public class AlibabaSmsMessagePush implements MessagePush {
      * 列表templates
      */
     public List<TemplateInfo> listTemplates() {
-        List<TemplateInfo> result = new ArrayList<>();
+        List<TemplateInfo> result = Wraps.list();
         try {
             Client client = buildClient();
             int pageIndex = 1;

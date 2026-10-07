@@ -1,6 +1,5 @@
 package com.chua.cad.support.dxf;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -319,8 +318,8 @@ public final class DxfSvgRenderer {
      * @return 图元类型 → 数量
      */
     public Map<String, Integer> countByType(DxfDocument doc) {
-        Map<String, Integer> counts = new java.util.LinkedHashMap<>();
-        List<String> order = new ArrayList<>(doc.entities().stream()
+        Map<String, Integer> counts = Wraps.linkedMap();
+        List<String> order = Wraps.list(doc.entities().stream()
                 .map(DxfEntity::type).distinct().toList());
         for (String type : order) {
             long n = doc.entities().stream().filter(e -> e.type().equals(type)).count();

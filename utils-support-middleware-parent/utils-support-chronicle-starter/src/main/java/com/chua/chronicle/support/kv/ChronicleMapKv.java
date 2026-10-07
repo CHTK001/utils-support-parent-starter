@@ -1,5 +1,6 @@
 package com.chua.chronicle.support.kv;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.kv.KvEngine;
 import com.chua.common.support.spi.annotations.Spi;
 import net.openhft.chronicle.map.ChronicleMap;
@@ -7,7 +8,6 @@ import net.openhft.chronicle.map.ChronicleMapBuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -199,7 +199,7 @@ public class ChronicleMapKv implements KvEngine, AutoCloseable {
     public Map<String, String> findAllByPrefix(String prefix) {
         ensureOpen();
         String p = prefix == null ? "" : prefix;
-        Map<String, String> result = new LinkedHashMap<>();
+        Map<String, String> result = Wraps.linkedMap();
         Set<String> keys = map.keySet();
         for (String key : keys) {
             if (key.startsWith(p)) {

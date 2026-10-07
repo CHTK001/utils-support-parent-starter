@@ -1,5 +1,6 @@
 package com.chua.crawler.support.extractor;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.ConditionalOnClass;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
@@ -11,7 +12,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,7 +42,7 @@ public class HtmlLinkExtractor implements SpiderLinkExtractor {
      * Extract
     */
     public List<String> extract(SpiderResponse response) {
-        List<String> links = new ArrayList<>();
+        List<String> links = Wraps.list();
         String content = response.getContent();
         if (StringUtils.isEmpty(content)) {
             return links;

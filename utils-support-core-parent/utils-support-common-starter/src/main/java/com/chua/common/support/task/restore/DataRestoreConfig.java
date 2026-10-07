@@ -1,10 +1,10 @@
 package com.chua.common.support.task.restore;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Builder;
 import lombok.Data;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -56,5 +56,5 @@ public class DataRestoreConfig {
      * 扩展参数，供具体实现读取（如微信数据库密钥、IBD 页大小等）
      */
     @Builder.Default
-    private Map<String, Object> options = new HashMap<>(8);
+    private Map<String, Object> options = Wraps.map(8);
 }

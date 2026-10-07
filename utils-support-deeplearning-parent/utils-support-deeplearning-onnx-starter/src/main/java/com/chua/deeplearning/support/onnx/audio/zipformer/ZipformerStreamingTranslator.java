@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.zipformer;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.onnx.audio.AudioUtils;
 
 import ai.onnxruntime.OnnxTensor;
@@ -15,10 +16,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,17 +47,17 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
     private OrtSession joinerSession; // 连接会话
     private Map<String, OnnxTensor> initialStates; // initial状态
     private List<String> inputNames; // 输入名称
-    private final Map<Integer, String> vocab = new HashMap<>(); // vocab
+    private final Map<Integer, String> vocab = Wraps.map(); // vocab
 
     // ===== 流式状态 =====
     /**
      * 待解码的编码器输出帧
     */
-    private final List<float[]> streamingEncoderOut = new ArrayList<>();
+    private final List<float[]> streamingEncoderOut = Wraps.list();
     /**
      * 当前编码器状态（跨 chunk 保持）
     */
-    private Map<String, OnnxTensor> streamingStates = new LinkedHashMap<>();
+    private Map<String, OnnxTensor> streamingStates = Wraps.linkedMap();
     /**
      * 当前解码器上下文 [-1, BLANK_标识]
     */
@@ -152,10 +150,10 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
      * 构建initial状态。
      */
     private void buildInitialStates() throws OrtException {
-        inputNames = new ArrayList<>(encoderSession.getInputInfo().keySet());
+        inputNames = Wraps.list(encoderSession.getInputInfo().keySet());
         Collections.sort(inputNames);
 
-        initialStates = new LinkedHashMap<>();
+        initialStates = Wraps.linkedMap();
         for (String name : inputNames) {
             if ("x".equals(name)) {
                 continue;
@@ -246,7 +244,7 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
         }
         // 首次调用时初始化流式状态
         if (streamingStates.isEmpty()) {
-            streamingStates = new LinkedHashMap<>(initialStates);
+            streamingStates = Wraps.linkedMap(initialStates);
             streamingDecoderOut = runDecoder(streamingContext);
         }
         // fbank 特征提取
@@ -309,7 +307,7 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
 
  // 首次调用时初始化流式状态（深拷贝 initial状态）
         if (streamingStates.isEmpty()) {
-            streamingStates = new LinkedHashMap<>(initialStates);
+            streamingStates = Wraps.linkedMap(initialStates);
             streamingDecoderOut = runDecoder(streamingContext);
         }
 
@@ -323,7 +321,7 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
                 chunk[i] = features[start + i];
             }
 
-            Map<String, OnnxTensor> feed = new HashMap<>();
+            Map<String, OnnxTensor> feed = Wraps.map();
             feed.put("x", OnnxTensor.createTensor(env, new float[][][]{chunk}));
             feed.putAll(streamingStates);
 
@@ -335,7 +333,7 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
                 Collections.addAll(streamingEncoderOut, rawEnc[0]);
 
                 // 构建新一轮状态
-                Map<String, OnnxTensor> newStates = new LinkedHashMap<>();
+                Map<String, OnnxTensor> newStates = Wraps.linkedMap();
                 for (String inName : inputNames) {
                     if ("x".equals(inName)) {
                         continue;
@@ -367,9 +365,9 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
         int totalFrames = features.length;
         int numChunks = Math.max(1, (totalFrames + DECODE_CHUNK_LEN - 1) / DECODE_CHUNK_LEN);
 
-        List<float[]> outputs = new ArrayList<>();
-        Map<String, OnnxTensor> states = new LinkedHashMap<>(initialStates);
-        List<OnnxTensor> toClose = new ArrayList<>();
+        List<float[]> outputs = Wraps.list();
+        Map<String, OnnxTensor> states = Wraps.linkedMap(initialStates);
+        List<OnnxTensor> toClose = Wraps.list();
 
         try {
             for (int ci = 0; ci < numChunks; ci++) {
@@ -382,7 +380,7 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
                     chunk[i] = features[start + i];
                 }
 
-                Map<String, OnnxTensor> feed = new HashMap<>();
+                Map<String, OnnxTensor> feed = Wraps.map();
                 feed.put("x", OnnxTensor.createTensor(env,
                         new float[][][]{chunk}));
                 feed.putAll(states);

@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.server.response.ServerResponse;
 
@@ -8,8 +9,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.TreeMap;
-
 /**
  * TCP 帧式协议的 {@link ServerResponse} 实现。
  *
@@ -39,7 +38,7 @@ public class TcpServerResponse implements ServerResponse {
     /**
      * 响应头（大小写不敏感）
      */
-    private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private final Map<String, String> headers = Wraps.sortedMap(String.CASE_INSENSITIVE_ORDER);
     /**
      * 响应体
      */

@@ -1,5 +1,6 @@
 package com.chua.questdb.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.series.SeriesEngine;
 import com.chua.common.support.spi.annotations.Spi;
@@ -18,7 +19,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -469,7 +469,7 @@ public class QuestdbSeriesEngine implements SeriesEngine, AutoCloseable {
      * @return 指标列名列表
      */
     private List<String> numericColumns(JsonNode response, boolean rowScoped) {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         JsonNode columns = response.get("columns");
         if (columns == null) {
             return result;
@@ -499,7 +499,7 @@ public class QuestdbSeriesEngine implements SeriesEngine, AutoCloseable {
      * @return 点列表
      */
     private List<Object[]> toPoints(JsonNode response) {
-        List<Object[]> points = new ArrayList<>();
+        List<Object[]> points = Wraps.list();
         JsonNode dataset = response.get("dataset");
         if (dataset == null || !dataset.isArray()) {
             return points;

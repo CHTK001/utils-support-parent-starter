@@ -1,6 +1,7 @@
 package com.chua.common.support.collection;
 
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.matcher.PathMatcher;
 import com.chua.common.support.utils.BeanUtils;
 import com.chua.common.support.utils.CollectionUtils;
@@ -54,7 +55,7 @@ public class FlatHashMap implements FlatMap {
      * 构造一个空的 FlatHashMap 实例，使用默认的 HashMap 作为底层存储。
      */
     protected FlatHashMap() {
-        this.flatMap = new HashMap<>();
+        this.flatMap = Wraps.map();
     }
 
     /**
@@ -151,7 +152,7 @@ public class FlatHashMap implements FlatMap {
      */
     @Override
     public List<Object> wildcard(String key) {
-        Map<String, Object> values = new HashMap<>(flatMap.size());
+        Map<String, Object> values = Wraps.map(flatMap.size());
         for (Entry<String, Object> entry : flatMap.entrySet()) {
             String entryKey = entry.getKey();
             if (isMatch(key, entryKey)) {

@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.classification;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.Classifications;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.translator.ImageClassificationTranslator;
@@ -7,8 +8,6 @@ import ai.djl.ndarray.NDList;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +40,7 @@ public class AnimeRealClsTranslator implements Translator<Image, Classifications
      * @param arguments 参数
      */
     public AnimeRealClsTranslator(Map<String, ?> arguments) {
-        Map<String, Object> options = new LinkedHashMap<>();
+        Map<String, Object> options = Wraps.linkedMap();
         if (arguments != null && !arguments.isEmpty()) {
             options.putAll(arguments);
         }

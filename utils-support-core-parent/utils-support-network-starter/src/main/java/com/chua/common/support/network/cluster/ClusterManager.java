@@ -1,5 +1,6 @@
 package com.chua.common.support.network.cluster;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.cluster.ServerEntry;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.scatter.DefaultScatterServiceDiscovery;
@@ -7,9 +8,6 @@ import com.chua.common.support.scatter.ScatterServiceDiscovery;
 import com.chua.common.support.scatter.ScatterSetting;
 import com.chua.common.support.scatter.TcpScatterBuilder;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -55,7 +53,7 @@ public class ClusterManager {
      * 已注册的服务端 entry 列表（含本节点自身与远端目标）。
      * 注册后的服务端通过 Scatter 自动扩散到集群，无需手动维护节点表。
      */
-    private final List<ServerEntry> entries = new ArrayList<>();
+    private final List<ServerEntry> entries = Wraps.list();
 
     /**
      * 双参构造器。

@@ -1,5 +1,6 @@
 package com.chua.common.support.task.pipeline.builder;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.pipeline.core.Action;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
@@ -8,8 +9,6 @@ import com.chua.common.support.task.pipeline.node.TaskNode;
 import com.chua.common.support.task.retry.RetryConfig;
 
 import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -386,7 +385,7 @@ public class TaskDefinition {
      * @see PipelineContext#getNodeOutput(String)
      */
     public TaskDefinition unit(String... unitIds) {
-        this.units = new LinkedHashSet<>(Arrays.asList(unitIds));
+        this.units = Wraps.linkedSet(Arrays.asList(unitIds));
         return this;
     }
 
@@ -613,7 +612,7 @@ public class TaskDefinition {
      */
     public TaskDefinition env(String key, Object value) {
         if (this.env == null) {
-            this.env = new LinkedHashMap<>();
+            this.env = Wraps.linkedMap();
         }
         this.env.put(key, value);
         return this;

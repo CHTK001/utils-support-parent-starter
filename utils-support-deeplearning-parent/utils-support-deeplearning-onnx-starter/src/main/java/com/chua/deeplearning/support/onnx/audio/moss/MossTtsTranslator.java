@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.moss;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.onnx.audio.AudioUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,14 +15,11 @@ import java.nio.IntBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.extern.slf4j.Slf4j;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import javax.sound.sampled.AudioSystem;
 
@@ -62,7 +60,7 @@ public class MossTtsTranslator implements AutoCloseable {
     private int audioAssistantSlotTokenId; // 音频assistantslot令牌标识
     private int audioCodebookSize; // 音频codebook大小
     private int maxNewFramesLimit; // 最大新帧限制
-    private final Map<String, int[][]> voicePrompts = new HashMap<>(); // voice提示符
+    private final Map<String, int[][]> voicePrompts = Wraps.map(); // voice提示符
 
     /**
      * 加载模型。
@@ -165,7 +163,7 @@ public class MossTtsTranslator implements AutoCloseable {
      * @return 结果列表，无数据时为空列表
      */
     private List<Integer> toIntList(JsonNode node) {
-        List<Integer> values = new ArrayList<>();
+        List<Integer> values = Wraps.list();
         for (JsonNode item : node) {
             values.add(item.asInt());
         }
@@ -225,7 +223,7 @@ public class MossTtsTranslator implements AutoCloseable {
             int[][][] raw = (int[][][]) ((OnnxTensor) result.get("audio_codes").get())
                     .getValue();
             int frames = raw[0].length;
-            List<int[]> codes = new ArrayList<>(frames);
+            List<int[]> codes = Wraps.list(frames);
             for (int t = 0; t < frames; t++) {
                 int[] row = new int[nVq];
                 for (int q = 0; q < nVq; q++) {
@@ -348,7 +346,7 @@ public class MossTtsTranslator implements AutoCloseable {
             throw new IllegalStateException("文本无有效内容");
         }
 
-        List<float[]> segments = new ArrayList<>();
+        List<float[]> segments = Wraps.list();
         int totalSamples = 0;
         int pauseSamples = Math.round(48000 * PAUSE_SECONDS);
 
@@ -421,7 +419,7 @@ public class MossTtsTranslator implements AutoCloseable {
       */
     private List<String> splitChunks(String text) {
         List<String> sentences = splitBy(text, SENTENCE_END);
-        List<String> chunks = new ArrayList<>();
+        List<String> chunks = Wraps.list();
         for (String sentence : sentences) {
             if (sentence.length() <= MAX_CHUNK_CHARS) {
                 appendNonEmpty(chunks, sentence);
@@ -463,7 +461,7 @@ public class MossTtsTranslator implements AutoCloseable {
      * @return 分割by的结果
      */
     private List<String> splitBy(String text, String delims) {
-        List<String> parts = new ArrayList<>();
+        List<String> parts = Wraps.list();
         StringBuilder buf = new StringBuilder();
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
@@ -515,7 +513,7 @@ public class MossTtsTranslator implements AutoCloseable {
         if (codes == null || codes.length == 0) {
             throw new IllegalStateException("清单中没有可用的内置音色提示码");
         }
-        List<int[]> rows = new ArrayList<>(codes.length);
+        List<int[]> rows = Wraps.list(codes.length);
         Collections.addAll(rows, codes);
         return rows;
     }
@@ -533,14 +531,14 @@ public class MossTtsTranslator implements AutoCloseable {
      */
     private int[][] buildInputRows(List<int[]> promptCodes, int[] textTokens) {
         int rowWidth = nVq + 1;
-        List<int[]> rows = new ArrayList<>();
+        List<int[]> rows = Wraps.list();
 
-        List<Integer> prefix = new ArrayList<>(userPromptPrefix);
+        List<Integer> prefix = Wraps.list(userPromptPrefix);
         prefix.add(audioStartTokenId);
         appendTextRows(rows, prefix, rowWidth);
         appendAudioRows(rows, promptCodes, rowWidth);
 
-        List<Integer> suffix = new ArrayList<>();
+        List<Integer> suffix = Wraps.list();
         suffix.add(audioEndTokenId);
         suffix.addAll(userPromptAfterReference);
         for (int token : textTokens) {
@@ -686,20 +684,20 @@ public class MossTtsTranslator implements AutoCloseable {
      * @throws OrtException 当执行过程不满足前置条件时
      */
     private List<int[]> generateFrames(PrefillState state, int maxFrames) throws OrtException {
-        List<int[]> audioTokens = new ArrayList<>();
+        List<int[]> audioTokens = Wraps.list();
         int rowWidth = nVq + 1;
         Random random = new Random(1234L);
         Set<Integer>[] seen = new Set[nVq];
         for (int q = 0; q < nVq; q++) {
-            seen[q] = new HashSet<>();
+            seen[q] = Wraps.set();
         }
 
-        List<String> pastInputNames = new ArrayList<>();
+        List<String> pastInputNames = Wraps.list();
         for (int layer = 0; layer < 12; layer++) {
             pastInputNames.add("past_key_" + layer);
             pastInputNames.add("past_value_" + layer);
         }
-        List<String> presentOutputNames = new ArrayList<>();
+        List<String> presentOutputNames = Wraps.list();
         for (int layer = 0; layer < 12; layer++) {
             presentOutputNames.add("present_key_" + layer);
             presentOutputNames.add("present_value_" + layer);
@@ -721,7 +719,7 @@ public class MossTtsTranslator implements AutoCloseable {
 
             int[] nextFlat = new int[rowWidth];
             System.arraycopy(audioRow, 0, nextFlat, 0, rowWidth);
-            Map<String, OnnxTensor> feeds = new HashMap<>();
+            Map<String, OnnxTensor> feeds = Wraps.map();
             OnnxTensor idsTensor = OnnxTensor.createTensor(env,
                     IntBuffer.wrap(nextFlat), new long[]{1, 1, rowWidth});
             OnnxTensor lenTensor = OnnxTensor.createTensor(env,
@@ -877,7 +875,7 @@ public class MossTtsTranslator implements AutoCloseable {
      * @return 结果数值
      */
     private static int firstInt(Object raw) {
-        List<Integer> values = new ArrayList<>();
+        List<Integer> values = Wraps.list();
         collect(raw, values);
         if (values.isEmpty()) {
             throw new IllegalStateException("无法提取标量整数");
@@ -899,7 +897,7 @@ public class MossTtsTranslator implements AutoCloseable {
      * @return 结果值
      */
     private static int[] flattenInts(Object raw, int limit) {
-        List<Integer> values = new ArrayList<>();
+        List<Integer> values = Wraps.list();
         collect(raw, values);
         int[] result = new int[Math.min(limit, values.size())];
         for (int i = 0; i < result.length; i++) {

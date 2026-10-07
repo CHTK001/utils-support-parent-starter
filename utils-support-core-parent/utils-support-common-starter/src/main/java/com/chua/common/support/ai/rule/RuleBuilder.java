@@ -64,6 +64,28 @@ public interface RuleBuilder {
     RuleBuilder name(String name);
 
     /**
+     * 声明规则描述。
+     *
+     * <p>写清业务含义、触发场景与维护信息，便于规则多了之后可检索、可交接。</p>
+     *
+     * @param description 规则描述，可为 null（表示不声明）
+     * @return 自身，便于链式调用
+     */
+    RuleBuilder description(String description);
+
+    /**
+     * 声明命中后对外说明的原因。
+     *
+     * <p>拦截类规则用它直接给出拦截原因：命中后执行器把
+     * {@link Rule#message()} 按规则标识收集到
+     * {@link RuleResult#messages()}，调用方按标识取。</p>
+     *
+     * @param message 拦截原因，可为 null（表示不声明）
+     * @return 自身，便于链式调用
+     */
+    RuleBuilder message(String message);
+
+    /**
      * 追加一个顶层条件（表达式形态），与已有条件是 OR 关系。
      *
      * <p>表达式在<b>构造期</b>就被编译，

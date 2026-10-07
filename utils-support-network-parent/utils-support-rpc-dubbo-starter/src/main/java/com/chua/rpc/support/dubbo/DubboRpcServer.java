@@ -1,5 +1,6 @@
 package com.chua.rpc.support.dubbo;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.network.rpc.RpcConnectionInfo;
 import com.chua.common.support.network.rpc.RpcMetrics;
@@ -17,7 +18,6 @@ import org.apache.dubbo.rpc.ProtocolServer;
 import org.apache.dubbo.rpc.protocol.dubbo.DubboProtocol;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -35,15 +35,15 @@ public class DubboRpcServer implements RpcServer {
     /**
      * registry 配置
      */
-    private final List<RegistryConfig> registryConfigs = new ArrayList<>();
+    private final List<RegistryConfig> registryConfigs = Wraps.list();
     /**
      * 协议 配置
      */
-    private final List<ProtocolConfig> protocolConfigs = new ArrayList<>();
+    private final List<ProtocolConfig> protocolConfigs = Wraps.list();
     /**
      * 服务 配置
      */
-    private final List<ServiceConfig<?>> serviceConfigs = new ArrayList<>();
+    private final List<ServiceConfig<?>> serviceConfigs = Wraps.list();
     /**
      * 状态
      */
@@ -202,7 +202,7 @@ public class DubboRpcServer implements RpcServer {
      * 获取连接信息
     */
     public List<RpcConnectionInfo> getConnections() {
-        List<RpcConnectionInfo> result = new ArrayList<>();
+        List<RpcConnectionInfo> result = Wraps.list();
         try {
             DubboProtocol protocol = DubboProtocol.getDubboProtocol();
             for (ProtocolServer protocolServer : protocol.getServers()) {

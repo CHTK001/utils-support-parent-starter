@@ -1,5 +1,6 @@
 package com.chua.crypto.support.spring;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.ClassUtils;
 import com.chua.crypto.support.Crypto;
 import com.chua.crypto.support.config.ConfigFileCipher;
@@ -19,8 +20,6 @@ import org.springframework.core.env.SystemEnvironmentPropertySource;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -124,7 +123,7 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
      * @return 属性键值
      */
     private Map<String, Object> decryptWholeFileConfigs(Crypto crypto, List<String> files) {
-        Map<String, Object> flat = new LinkedHashMap<>();
+        Map<String, Object> flat = Wraps.linkedMap();
         int loaded = 0;
         for (String name : files) {
             Path path = KeyFileResolver.resolve(name);
@@ -190,7 +189,7 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
         } catch (Exception e) {
             throw new IllegalStateException("properties 解析失败", e);
         }
-        Map<String, Object> flat = new LinkedHashMap<>();
+        Map<String, Object> flat = Wraps.linkedMap();
         for (String key : properties.stringPropertyNames()) {
             flat.put(key, properties.getProperty(key));
         }
@@ -207,7 +206,7 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
     private Map<String, Object> parseYaml(String content) {
         try {
             Object loaded = new org.yaml.snakeyaml.Yaml().load(content);
-            Map<String, Object> flat = new LinkedHashMap<>();
+            Map<String, Object> flat = Wraps.linkedMap();
             if (loaded instanceof Map<?, ?> map) {
                 flatten("", (Map<String, Object>) map, flat);
             }
@@ -245,7 +244,7 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
      * @param crypto  加密门面
      */
     private void wrapValueDecryption(MutablePropertySources sources, Crypto crypto) {
-        List<PropertySource<?>> snapshot = new ArrayList<>();
+        List<PropertySource<?>> snapshot = Wraps.list();
         for (PropertySource<?> source : sources) {
             snapshot.add(source);
         }

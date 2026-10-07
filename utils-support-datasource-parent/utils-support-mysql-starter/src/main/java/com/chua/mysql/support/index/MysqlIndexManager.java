@@ -1,12 +1,12 @@
 package com.chua.mysql.support.index;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasource.support.index.IndexManager;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 /**
  * @author CH
@@ -41,7 +41,7 @@ public class MysqlIndexManager implements IndexManager, com.chua.datasource.supp
      * 列表索引
     */
     public List<String> listIndexes(String table) {
-        List<String> list = new ArrayList<>();
+        List<String> list = Wraps.list();
         try (Connection c = dataSource.getConnection();
              Statement s = c.createStatement();
              ResultSet rs = s.executeQuery("SHOW INDEX FROM " + table)) {

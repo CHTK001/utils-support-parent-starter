@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.format;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Getter;
 
 import java.util.*;
@@ -77,12 +78,12 @@ public class HighlightConfig {
     /**
      * 关键词颜色映射（ANSI）
      */
-    private Map<KeywordCategory, String> ansiColors = new HashMap<>();
+    private Map<KeywordCategory, String> ansiColors = Wraps.map();
 
     /**
      * 关键词颜色映射（HTML）
      */
-    private Map<KeywordCategory, String> htmlColors = new HashMap<>();
+    private Map<KeywordCategory, String> htmlColors = Wraps.map();
 
     /**
      * 是否启用高亮

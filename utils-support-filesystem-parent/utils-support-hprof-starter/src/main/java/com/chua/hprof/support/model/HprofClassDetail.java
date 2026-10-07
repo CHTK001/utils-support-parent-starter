@@ -1,8 +1,7 @@
 package com.chua.hprof.support.model;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Getter;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,8 +44,8 @@ public class HprofClassDetail {
                             List<InstanceDetail> instances,
                             List<FieldValueDetail> staticFields) {
         this.className = className;
-        this.instances = instances == null ? new ArrayList<>() : instances;
-        this.staticFields = staticFields == null ? new ArrayList<>() : staticFields;
+        this.instances = instances == null ? Wraps.list() : instances;
+        this.staticFields = staticFields == null ? Wraps.list() : staticFields;
     }
 
     /**
@@ -91,7 +90,7 @@ public class HprofClassDetail {
             this.instanceId = instanceId;
             this.retainedSize = retainedSize;
             this.shallowSize = shallowSize;
-            this.fieldValues = fieldValues == null ? new ArrayList<>() : fieldValues;
+            this.fieldValues = fieldValues == null ? Wraps.list() : fieldValues;
         }
     }
 

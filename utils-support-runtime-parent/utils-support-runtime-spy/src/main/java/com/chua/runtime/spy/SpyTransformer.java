@@ -1,5 +1,6 @@
 package com.chua.runtime.spy;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.runtime.plugin.InterceptPoint;
@@ -130,8 +131,8 @@ public class SpyTransformer implements ClassFileTransformer {
                           List<Pattern> excludePatterns) {
         this.pluginManager = pluginManager;
         this.methodRules = new ConcurrentHashMap<>();
-        this.includePatterns = includePatterns != null ? includePatterns : new ArrayList<>();
-        this.excludePatterns = excludePatterns != null ? excludePatterns : new ArrayList<>();
+        this.includePatterns = includePatterns != null ? includePatterns : Wraps.list();
+        this.excludePatterns = excludePatterns != null ? excludePatterns : Wraps.list();
         this.transformedClasses = ConcurrentHashMap.newKeySet();
     }
 
@@ -405,7 +406,7 @@ public class SpyTransformer implements ClassFileTransformer {
      * @throws Exception 重变换异常
      */
     public void retransformLoadedClasses(Instrumentation inst) throws Exception {
-        List<Class<?>> toRetransform = new ArrayList<>();
+        List<Class<?>> toRetransform = Wraps.list();
         for (Class<?> clazz : inst.getAllLoadedClasses()) {
             String name = clazz.getName().replace('.', '/');
             boolean exact = hasAnyRule(name);

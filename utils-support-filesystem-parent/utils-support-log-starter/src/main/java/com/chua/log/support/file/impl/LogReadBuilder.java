@@ -1,5 +1,6 @@
 package com.chua.log.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.builder.ReadBuilder;
 
 import java.io.BufferedReader;
@@ -10,7 +11,6 @@ import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -284,7 +284,7 @@ public class LogReadBuilder extends ReadBuilder {
      * @return 读取全部线的结果
      */
     private List<String> readAllLines() {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         if (file == null || !file.exists() || !file.isFile()) {
             return result;
         }

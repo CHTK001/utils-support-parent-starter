@@ -1,5 +1,6 @@
 package com.chua.filestorage.support.preview.provider;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.filestorage.support.preview.FileStoragePreviewProvider;
 import com.chua.filestorage.support.preview.PreviewResult;
@@ -7,7 +8,6 @@ import com.chua.filestorage.support.preview.PreviewResult;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -60,7 +60,7 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
      * @throws IOException 当执行过程不满足前置条件时
      */
     private List<String> extractChapters(byte[] epubBytes) throws IOException {
-        List<String> chapters = new ArrayList<>();
+        List<String> chapters = Wraps.list();
         try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(epubBytes))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {

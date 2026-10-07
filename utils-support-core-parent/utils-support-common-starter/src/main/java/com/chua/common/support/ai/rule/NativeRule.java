@@ -1,5 +1,6 @@
 package com.chua.common.support.ai.rule;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -28,15 +29,15 @@ import java.util.function.Predicate;
  *       只有下一条规则自己的 {@code effect} 等于当前累积结论时才真的走过去。</li>
  * </ul>
  *
- * <p><b>决策是可选增强，不是必需</b>。规则默认只做 {@code when} 条件求值，
- * 压根不触碰 {@code ai.decision} 包；只有当 {@code when} 里读了决策变量
- * （例如展平后的 {@code fraud}、{@code fraud.confidence}），
- * 执行器才去调决策提供者。规则作者不需要声明「这条规则要不要决策」——
- * 由执行器从条件里读到的变量反推。这也意味着规则引擎<b>可以完全独立使用</b>，
- * 不装配任何决策实现。</p>
+ * <p><b>决策不是本类的事</b>。自然规则只做 {@code when} 条件求值，
+ * 压根不触碰 {@code ai.decision} 包；需要 AI 判定的场景用 {@link AiRule}，
+ * 由 AI 规则自己在 {@code matched} 里向底座求值。
+ * 因此规则引擎<b>可以完全独立使用</b>，不装配任何决策实现。</p>
  *
- * @param id         规则标识，同一规则集内唯一；{@code to} 按它指向下一条规则
- * @param name       规则显示名，默认与 {@code id} 相同
+ * @param id          规则标识，同一规则集内唯一；{@code to} 按它指向下一条规则
+ * @param name        规则显示名，默认与 {@code id} 相同
+ * @param description 规则描述，可为 null
+ * @param message     命中后对外说明的原因，可为 null
  * @param salience   优先级，数值越大越先求值，默认 0
  * @param effect     本规则给出的结论
  * @param conditions 顶层条件，OR 关系
@@ -48,6 +49,8 @@ import java.util.function.Predicate;
  */
 public record NativeRule(String id,
                          String name,
+                         String description,
+                         String message,
                          int salience,
                          RuleEffect effect,
                          List<Predicate<RuleContext>> conditions,
@@ -81,7 +84,7 @@ public record NativeRule(String id,
         conditions = List.copyOf(Objects.requireNonNull(conditions, "conditions 不能为 null"));
         actions = List.copyOf(Objects.requireNonNull(actions, "actions 不能为 null"));
         variables = Collections.unmodifiableMap(
-                new LinkedHashMap<>(Objects.requireNonNull(variables, "variables 不能为 null")));
+                Wraps.linkedMap(Objects.requireNonNull(variables, "variables 不能为 null")));
         effect = effect == null ? RuleEffect.NONE : effect;
     }
 

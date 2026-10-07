@@ -1,5 +1,6 @@
 package com.chua.oshi.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
@@ -12,7 +13,6 @@ import oshi.software.os.OperatingSystem;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -125,7 +125,7 @@ public final class Oshi {
      * @return 新sys文件的结果
      */
     public static List<SysFile> newSysFile() {
-        List<SysFile> list = new ArrayList<>();
+        List<SysFile> list = Wraps.list();
         try {
             List<OSFileStore> fileStores = OPERATING_SYSTEM.getFileSystem().getFileStores();
             for (OSFileStore store : fileStores) {
@@ -152,7 +152,7 @@ public final class Oshi {
      * @return 新network的结果
      */
     public static List<Network> newNetwork() {
-        List<Network> list = new ArrayList<>();
+        List<Network> list = Wraps.list();
         try {
             List<NetworkIF> networkIfs = HARDWARE.getNetworkIFs();
             for (NetworkIF net : networkIfs) {

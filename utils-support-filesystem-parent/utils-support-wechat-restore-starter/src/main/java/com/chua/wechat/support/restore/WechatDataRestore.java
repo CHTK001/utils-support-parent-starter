@@ -1,5 +1,6 @@
 package com.chua.wechat.support.restore;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.task.restore.AbstractDataRestore;
 import com.chua.common.support.task.restore.DataRestoreConfig;
@@ -22,9 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -349,7 +347,7 @@ public class WechatDataRestore extends AbstractDataRestore {
      */
     DataRestoreConfig withDirectoryDefaults(File source, DataRestoreConfig config) {
         DataRestoreConfig base = config != null ? config : DataRestoreConfig.builder().build();
-        Map<String, Object> options = new HashMap<>(base.getOptions());
+        Map<String, Object> options = Wraps.map(base.getOptions());
         if (!options.containsKey(OPTION_DATA_DIR)) {
             options.put(OPTION_DATA_DIR, source.getAbsolutePath());
         }
@@ -470,7 +468,7 @@ public class WechatDataRestore extends AbstractDataRestore {
         // 被打断最多损失当前这一个进程。
         File store = new File(outputDir, WechatMemoryAccumulator.FILE_NAME);
         List<WechatMemoryKeyScanner.PidInfo> processes = WechatMemoryExtractor.listProcesses();
-        List<Integer> pids = new ArrayList<>(processes.size());
+        List<Integer> pids = Wraps.list(processes.size());
         for (WechatMemoryKeyScanner.PidInfo info : processes) {
             pids.add(info.pid());
         }
@@ -522,7 +520,7 @@ public class WechatDataRestore extends AbstractDataRestore {
         WechatMemoryMessages.writeHtml(snapshot.messages(), reportFile);
 
         DataRestoreResult exported = WechatJdbcExporter.export(dbFile, config, outputDir);
-        List<File> extras = new ArrayList<>();
+        List<File> extras = Wraps.list();
         extras.add(new File(outputDir, WechatMemoryMessages.FILE_NAME));
         extras.add(new File(outputDir, WechatMemoryMessages.ID_MAP_FILE_NAME));
         extras.add(reportFile);
@@ -559,8 +557,8 @@ public class WechatDataRestore extends AbstractDataRestore {
         if (result == null || !result.isSuccess()) {
             return result;
         }
-        List<File> files = new ArrayList<>(result.getOutputFiles());
-        Set<String> seen = new HashSet<>();
+        List<File> files = Wraps.list(result.getOutputFiles());
+        Set<String> seen = Wraps.set();
         for (File file : files) {
             seen.add(file.getAbsolutePath());
         }
@@ -612,7 +610,7 @@ public class WechatDataRestore extends AbstractDataRestore {
         File plainDir = resolveDecryptDir(config, outputDir);
 
         long started = System.currentTimeMillis();
-        List<File> outputs = new ArrayList<>();
+        List<File> outputs = Wraps.list();
         long totalSize = 0;
         for (File db : databases) {
             File target = db;
@@ -682,7 +680,7 @@ public class WechatDataRestore extends AbstractDataRestore {
      * @return 数据库文件列表
      */
     private List<File> collectDatabases(File source, File exclude) {
-        List<File> out = new ArrayList<>(16);
+        List<File> out = Wraps.list(16);
         if (source.isFile()) {
             // 源本身是文件时也要校验后缀：数据源里常混着 note.txt 之类的非数据库文件
             if (isDatabase(source)) {
@@ -690,7 +688,7 @@ public class WechatDataRestore extends AbstractDataRestore {
             }
             return out;
         }
-        Set<String> excluded = new HashSet<>(4);
+        Set<String> excluded = Wraps.set(4);
         if (exclude != null) {
             excluded.add(normalizePath(exclude));
         }

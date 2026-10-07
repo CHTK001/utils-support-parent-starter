@@ -1,7 +1,7 @@
 package com.chua.common.support.lang.document;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -55,7 +55,7 @@ public class DocumentExporter {
     /**
      * 扩展参数
      */
-    private final Map<String, Object> options = new HashMap<>();
+    private final Map<String, Object> options = Wraps.map();
 
     /**
      * 创建 DocumentExporter 实例
@@ -177,7 +177,7 @@ public class DocumentExporter {
                 .templateType(templateType)
                 .outputFile(outputFile)
                 .customHtmlTemplate(customHtmlTemplate)
-                .options(new HashMap<>(options))
+                .options(Wraps.map(options))
                 .build();
     }
 

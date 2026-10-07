@@ -1,5 +1,6 @@
 package com.chua.common.support.task.pipeline.core;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -107,7 +108,7 @@ public class AsyncResult {
         this.latch = new CountDownLatch(1);
         this.completed = false;
         this.output = null;
-        this.history = new ArrayList<>();
+        this.history = Wraps.list();
         this.error = null;
     }
 
@@ -119,7 +120,7 @@ public class AsyncResult {
      */
     public void complete(Object output, List<String> history) {
         this.output = output;
-        this.history = history != null ? new ArrayList<>(history) : new ArrayList<>();
+        this.history = history != null ? Wraps.list(history) : Wraps.list();
         this.completed = true;
         this.latch.countDown();
     }

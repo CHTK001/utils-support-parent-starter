@@ -1,5 +1,6 @@
 package com.chua.mysql.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.meta.GrantBuilder;
 import com.chua.common.support.lang.datasource.meta.MetaPermission;
 import com.chua.common.support.lang.datasource.meta.RevokeBuilder;
@@ -11,7 +12,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -64,7 +64,7 @@ public class MysqlMetaPermission implements MetaPermission {
      */
     @Override
     public List<PermissionDef> list() {
-        List<PermissionDef> result = new ArrayList<>();
+        List<PermissionDef> result = Wraps.list();
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(
@@ -199,7 +199,7 @@ public class MysqlMetaPermission implements MetaPermission {
         if (privileges == null || privileges.trim().isEmpty()) {
             throw new IllegalArgumentException("权限列表不能为空");
         }
-        List<String> checked = new ArrayList<>();
+        List<String> checked = Wraps.list();
         for (String item : splitTopLevel(privileges)) {
             String privilege = item.trim();
             if (privilege.isEmpty()
@@ -219,7 +219,7 @@ public class MysqlMetaPermission implements MetaPermission {
      * @return 切分后的权限项
      */
     private static List<String> splitTopLevel(String privileges) {
-        List<String> items = new ArrayList<>();
+        List<String> items = Wraps.list();
         StringBuilder current = new StringBuilder();
         int depth = 0;
         for (int i = 0; i < privileges.length(); i++) {

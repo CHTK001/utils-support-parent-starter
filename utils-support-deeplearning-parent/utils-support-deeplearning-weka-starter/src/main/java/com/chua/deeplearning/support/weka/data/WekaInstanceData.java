@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.weka.data;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.weka.WekaException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -231,6 +232,7 @@ public final class WekaInstanceData {
             throw new WekaException("请先指定标签列或目标列（withLabelColumn / withTargetColumn）");
         }
         var nominal = nominalValues();
+        // Weka 的 Instances(String, ArrayList<Attribute>, int) 只收 ArrayList，不能改用 Wraps.list()
         var attrs = new ArrayList<Attribute>(features.size() + 1);
         for (var feature : features) {
             if (feature.getType() == FeatureColumn.FeatureType.NUMERIC) {
@@ -320,6 +322,6 @@ public final class WekaInstanceData {
                 values.add(value instanceof String s ? s : value.toString());
             }
         }
-        return new ArrayList<>(values);
+        return Wraps.list(values);
     }
 }

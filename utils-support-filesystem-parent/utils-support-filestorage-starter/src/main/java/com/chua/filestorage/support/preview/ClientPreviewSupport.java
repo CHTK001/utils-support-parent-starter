@@ -1,9 +1,8 @@
 package com.chua.filestorage.support.preview;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -168,7 +167,7 @@ public final class ClientPreviewSupport {
     );
 
     static {
-        Map<String, String> map = new LinkedHashMap<>();
+        Map<String, String> map = Wraps.linkedMap();
         // Word：OOXML wordprocessingml 家族（含宏启用与模板变体）
         for (String ext : new String[]{"docx", "docm", "dotx", "dotm"}) {
             map.put(ext, RENDERER_DOCX);
@@ -397,7 +396,7 @@ public final class ClientPreviewSupport {
      * @return 扩展名集合，保持声明顺序
      */
     public static Set<String> clientRenderableExtensions() {
-        return Collections.unmodifiableSet(new LinkedHashSet<>(EXTENSION_TO_RENDERER.keySet()));
+        return Collections.unmodifiableSet(Wraps.linkedSet(EXTENSION_TO_RENDERER.keySet()));
     }
 
     /**

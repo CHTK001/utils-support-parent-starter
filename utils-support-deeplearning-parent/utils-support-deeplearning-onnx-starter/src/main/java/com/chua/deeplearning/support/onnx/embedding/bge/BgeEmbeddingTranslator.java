@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.embedding.bge;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OnnxValue;
 import ai.onnxruntime.OrtEnvironment;
@@ -11,7 +12,6 @@ import java.io.IOException;
 import java.nio.LongBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -130,7 +130,7 @@ public class BgeEmbeddingTranslator {
         try (OnnxTensor inputIdsTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(inputIds), shape);
              OnnxTensor attMaskTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(attentionMask), shape);
              OnnxTensor typeIdsTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(typeIds), shape)) {
-            Map<String, OnnxTensor> inputs = new HashMap<>();
+            Map<String, OnnxTensor> inputs = Wraps.map();
             inputs.put("input_ids", inputIdsTensor);
             inputs.put("attention_mask", attMaskTensor);
             inputs.put("token_type_ids", typeIdsTensor);

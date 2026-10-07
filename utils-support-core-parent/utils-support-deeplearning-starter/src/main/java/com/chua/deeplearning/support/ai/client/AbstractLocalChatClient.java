@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.ai.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatMessage;
@@ -9,8 +10,6 @@ import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.DeviceSelector;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
-
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -130,7 +129,7 @@ public abstract class AbstractLocalChatClient implements ChatClient {
      */
     protected Map<String, Object> resolveOptions() {
         ChatClientSetting setting = this.setting;
-        Map<String, Object> opts = new LinkedHashMap<>();
+        Map<String, Object> opts = Wraps.linkedMap();
         if (setting == null) {
             return opts;
         }

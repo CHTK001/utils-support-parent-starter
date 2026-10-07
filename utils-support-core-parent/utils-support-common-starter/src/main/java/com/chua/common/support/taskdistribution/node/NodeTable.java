@@ -1,11 +1,10 @@
 package com.chua.common.support.taskdistribution.node;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.taskdistribution.task.Task;
 import com.chua.common.support.taskdistribution.strategy.DispatchStrategy;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -308,7 +307,7 @@ public class NodeTable {
      * @return 所有节点列表
      */
     public List<NodeMeta> getAllNodesIncludingOffline() {
-        return new ArrayList<>(nodes.values());
+        return Wraps.list(nodes.values());
     }
 
     /**

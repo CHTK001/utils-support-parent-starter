@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.whisper;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
@@ -14,8 +15,6 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import ai.onnxruntime.OnnxValue;
@@ -305,7 +304,7 @@ public class WhisperTranslator {
      * @return greedyDecode的结果
      */
     private int[] greedyDecode(float[] encoderHidden) {
-        List<Integer> tokens = new ArrayList<>();
+        List<Integer> tokens = Wraps.list();
         tokens.add(WhisperTokenizer.SOT);
         // 显式语言时使用官方提示布局：[SOT, <|lang|>, TRANSCRIBE, NOTIMESTAMPS]
         if (language != null && !language.isBlank()) {
@@ -328,7 +327,7 @@ public class WhisperTranslator {
                 ids[i] = tokens.get(i);
             }
 
-            Map<String, OnnxTensor> feed = new HashMap<>();
+            Map<String, OnnxTensor> feed = Wraps.map();
             try {
                 feed.put("input_ids", OnnxTensor.createTensor(ortEnv,
                         LongBuffer.wrap(ids), new long[]{1, ids.length}));

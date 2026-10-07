@@ -1,5 +1,6 @@
 package com.chua.common.support.ai.chat.protocol;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import com.chua.common.support.utils.ThreadUtils;
@@ -14,9 +15,7 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -119,7 +118,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
         }
         try {
             List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
-            Map<String, AiToken> newMap = new LinkedHashMap<>((int) (lines.size() / 0.75f) + 1);
+            Map<String, AiToken> newMap = Wraps.linkedMap((int) (lines.size() / 0.75f) + 1);
             int count = 0;
             for (String line : lines) {
                 String trimmed = line.trim();
@@ -162,7 +161,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     private void flushToFile() {
         synchronized (this) {
         try {
-            List<String> lines = new ArrayList<>(tokenMap.size() + 3);
+            List<String> lines = Wraps.list(tokenMap.size() + 3);
             lines.add("# AI Token File");
             lines.add("# format: token [group] [expire_time(yyyy-MM-dd)]");
             lines.add("");

@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.compile;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.constant.CommonConstant;
 import lombok.extern.slf4j.Slf4j;
 
@@ -60,7 +61,7 @@ public class JdkCompiler implements Compiler {
         /**
          * 字节码缓存集合
          */
-        private final Map<String, MemoryByteCode> byteCodes = new HashMap<String, MemoryByteCode>();
+        private final Map<String, MemoryByteCode> byteCodes = Wraps.map();
 
         /**
          * 创建 DynamicClassLoader 实例
@@ -75,7 +76,7 @@ public class JdkCompiler implements Compiler {
          * @return 类名到字节码数组的映射
          */
         public Map<String, byte[]> getByteCodes() {
-            Map<String, byte[]> result = new HashMap<String, byte[]>(byteCodes.size());
+            Map<String, byte[]> result = Wraps.map(byteCodes.size());
             for (Map.Entry<String, MemoryByteCode> entry : byteCodes.entrySet()) {
                 result.put(entry.getKey(), entry.getValue().getByteCode());
             }
@@ -89,7 +90,7 @@ public class JdkCompiler implements Compiler {
          * @throws ClassNotFoundException 如果类定义失败
          */
         public Map<String, Class<?>> getClasses() throws ClassNotFoundException {
-            Map<String, Class<?>> classes = new HashMap<String, Class<?>>(1 << 4);
+            Map<String, Class<?>> classes = Wraps.map(1 << 4);
             for (MemoryByteCode byteCode : byteCodes.values()) {
                 classes.put(byteCode.getClassName(), findClass(byteCode.getClassName()));
             }
@@ -150,7 +151,7 @@ public class JdkCompiler implements Compiler {
         /**
          * 字节码缓存集合
          */
-        private final List<MemoryByteCode> byteCodes = new ArrayList<MemoryByteCode>();
+        private final List<MemoryByteCode> byteCodes = Wraps.list();
 
         /**
          * 创建 DynamicJavaFileManager 实例
@@ -468,7 +469,7 @@ public class JdkCompiler implements Compiler {
         public List<JavaFileObject> find(String packageName) throws IOException {
             String javaPackageName = packageName.replaceAll("\\.", "/");
 
-            List<JavaFileObject> result = new ArrayList<JavaFileObject>();
+            List<JavaFileObject> result = Wraps.list();
 
             // 获取 ClassLoader 中该包对应的所有 URL 资源
             Enumeration<URL> urlEnumeration = classLoader.getResources(javaPackageName);
@@ -499,7 +500,7 @@ public class JdkCompiler implements Compiler {
          * 处理 JAR 包中的类文件
          */
         private List<JavaFileObject> processJar(URL url) {
-            List<JavaFileObject> result = new ArrayList<JavaFileObject>();
+            List<JavaFileObject> result = Wraps.list();
             try {
                 // 提取 JAR 包的 URI 前缀
                 String jarUri = url.toExternalForm().substring(0, url.toExternalForm().lastIndexOf(JAR_URL_SEPARATOR));
@@ -531,7 +532,7 @@ public class JdkCompiler implements Compiler {
          * 处理本地目录中的类文件
          */
         private List<JavaFileObject> processDir(String packageName, File directory) {
-            List<JavaFileObject> result = new ArrayList<JavaFileObject>();
+            List<JavaFileObject> result = Wraps.list();
 
             File[] childFiles = directory.listFiles();
             for (File childFile : childFiles) {
@@ -566,7 +567,7 @@ public class JdkCompiler implements Compiler {
         /**
          * 选项列表
          */
-        private final List<String> options = new ArrayList<>();
+        private final List<String> options = Wraps.list();
         /**
          * 动态类加载器
          */
@@ -575,15 +576,15 @@ public class JdkCompiler implements Compiler {
         /**
          * 编译单元集合
          */
-        private final Collection<JavaFileObject> compilationUnits = new ArrayList<>();
+        private final Collection<JavaFileObject> compilationUnits = Wraps.list();
         /**
          * 编译错误列表
          */
-        private final List<Diagnostic<? extends JavaFileObject>> errors = new ArrayList<>();
+        private final List<Diagnostic<? extends JavaFileObject>> errors = Wraps.list();
         /**
          * 编译警告列表
          */
-        private final List<Diagnostic<? extends JavaFileObject>> warnings = new ArrayList<>();
+        private final List<Diagnostic<? extends JavaFileObject>> warnings = Wraps.list();
 
         /**
          * 写入器
@@ -763,7 +764,7 @@ public class JdkCompiler implements Compiler {
          */
         private List<String> diagnosticToString(List<Diagnostic<? extends JavaFileObject>> diagnostics) {
 
-            List<String> diagnosticMessages = new ArrayList<String>();
+            List<String> diagnosticMessages = Wraps.list();
 
             for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics) {
                 diagnosticMessages.add(

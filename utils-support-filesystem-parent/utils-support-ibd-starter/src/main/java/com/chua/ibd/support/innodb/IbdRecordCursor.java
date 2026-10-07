@@ -1,8 +1,7 @@
 package com.chua.ibd.support.innodb;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -115,7 +114,7 @@ public final class IbdRecordCursor {
      * @return 记录头列表（含 infimum / supremum）
      */
     public static List<Header> chain(byte[] page, int pageSize) {
-        List<Header> headers = new ArrayList<>();
+        List<Header> headers = Wraps.list();
         int origin = IbdConstants.PAGE_NEW_INFIMUM;
         IbdRecordCursor cursor = new IbdRecordCursor(page, pageSize);
         int guard = Math.min(IbdPageHeader.recordCount(page) + 2, IbdConstants.MAX_RECORDS_PER_PAGE);
@@ -201,8 +200,8 @@ public final class IbdRecordCursor {
             nullBitmap = readBackwardInt(bytes);
         }
 
-        Map<String, Boolean> isNull = new LinkedHashMap<>();
-        Map<String, Integer> sizes = new LinkedHashMap<>();
+        Map<String, Boolean> isNull = Wraps.linkedMap();
+        Map<String, Integer> sizes = Wraps.linkedMap();
         int bit = 0;
         for (IbdColumn column : columns) {
             boolean nul = false;
@@ -225,7 +224,7 @@ public final class IbdRecordCursor {
             }
         }
 
-        Map<String, Object> row = new LinkedHashMap<>();
+        Map<String, Object> row = Wraps.linkedMap();
         for (IbdColumn column : columns) {
             if (Boolean.TRUE.equals(isNull.get(column.name()))) {
                 row.put(column.name(), null);

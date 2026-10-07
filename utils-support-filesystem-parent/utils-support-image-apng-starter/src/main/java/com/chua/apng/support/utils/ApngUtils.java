@@ -1,5 +1,6 @@
 package com.chua.apng.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
@@ -13,7 +14,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -145,7 +145,7 @@ public class ApngUtils {
      * @return 帧列表
      */
     public static List<BufferedImage> extractFrames(InputStream inputStream) {
-        List<BufferedImage> frames = new ArrayList<>();
+        List<BufferedImage> frames = Wraps.list();
         
         try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream)) {
             Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName("APNG");

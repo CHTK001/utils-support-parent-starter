@@ -1,4 +1,5 @@
 package com.chua.common.support.config.parser;
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.config.source.MapPropertySource;
 import com.chua.common.support.config.source.PropertiesMutiPropertySource;
 import com.chua.common.support.config.source.PropertySource;
@@ -12,8 +13,6 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 /**
@@ -121,7 +120,7 @@ public class XmlConfigParser implements ConfigParser {
      */
     private List<Map<String, Object>> parseAsList(Element root) {
         NodeList children = root.getChildNodes();
-        List<Element> elements = new ArrayList<>();
+        List<Element> elements = Wraps.list();
         String firstTagName = null;
         
         for (int i = 0; i < children.getLength(); i++) {
@@ -143,7 +142,7 @@ public class XmlConfigParser implements ConfigParser {
             return null;
         }
         
-        List<Map<String, Object>> result = new ArrayList<>();
+        List<Map<String, Object>> result = Wraps.list();
         for (Element elem : elements) {
             result.add(parseElement(elem));
         }
@@ -165,7 +164,7 @@ public class XmlConfigParser implements ConfigParser {
      */
     private Map<String, Object> parsePropertyFormat(Element root) {
         NodeList children = root.getChildNodes();
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
         boolean isPropertyFormat = false;
         
         for (int i = 0; i < children.getLength(); i++) {
@@ -205,7 +204,7 @@ public class XmlConfigParser implements ConfigParser {
      * @return 结果映射，无数据时为空映射
      */
     private Map<String, Object> parseElement(Element element) {
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
         
         //             
         NamedNodeMap attributes = element.getAttributes();
@@ -216,7 +215,7 @@ public class XmlConfigParser implements ConfigParser {
         
         //                                              
         NodeList children = element.getChildNodes();
-        Map<String, List<Object>> childMap = new LinkedHashMap<>();
+        Map<String, List<Object>> childMap = Wraps.linkedMap();
         
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
@@ -231,7 +230,7 @@ public class XmlConfigParser implements ConfigParser {
                     value = parseElement(childElement);
                 }
                 
-                childMap.computeIfAbsent(tagName, k -> new ArrayList<>()).add(value);
+                childMap.computeIfAbsent(tagName, k -> Wraps.list()).add(value);
             }
         }
         

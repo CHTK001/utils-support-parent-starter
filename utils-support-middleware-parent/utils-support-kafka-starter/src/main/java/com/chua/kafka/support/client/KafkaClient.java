@@ -1,5 +1,6 @@
 package com.chua.kafka.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.*;
@@ -362,7 +363,7 @@ public class KafkaClient implements AutoCloseable {
         /**
          * 头部
         */
-        private Map<String, byte[]> headers = new LinkedHashMap<>();
+        private Map<String, byte[]> headers = Wraps.linkedMap();
         /**
          * 分区
         */

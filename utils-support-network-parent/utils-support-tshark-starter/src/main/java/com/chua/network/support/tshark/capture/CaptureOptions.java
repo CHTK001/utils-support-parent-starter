@@ -1,5 +1,6 @@
 package com.chua.network.support.tshark.capture;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.network.support.tshark.cli.TsharkCliConfig;
 import com.chua.network.support.tshark.cli.TsharkSettings;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
@@ -184,7 +185,7 @@ public final class CaptureOptions {
      */
     @Nonnull
     public static java.util.List<CaptureInterface> listInterfaces(@Nonnull TsharkCliConfig cliConfig) {
-        java.util.List<CaptureInterface> interfaces = new java.util.ArrayList<>();
+        java.util.List<CaptureInterface> interfaces = Wraps.list();
         for (String line : com.chua.network.support.tshark.cli.TsharkCliProvider.getInstance()
                 .listInterfaces(cliConfig)) {
             CaptureInterface parsed = CaptureInterface.parse(line);

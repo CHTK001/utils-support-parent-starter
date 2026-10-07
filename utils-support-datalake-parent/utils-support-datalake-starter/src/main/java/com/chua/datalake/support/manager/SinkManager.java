@@ -1,10 +1,9 @@
 package com.chua.datalake.support.manager;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datalake.support.spi.sink.AccessSink;
 import com.chua.datalake.support.spi.sink.DataSink;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +70,7 @@ public class SinkManager {
      * @return 存储型 sink 列表
      */
     public List<DataSink> storeSinks() {
-        List<DataSink> result = new ArrayList<>();
+        List<DataSink> result = Wraps.list();
         for (DataSink sink : sinkMap.values()) {
             if (!(sink instanceof AccessSink) && sink.getDataSource() != null) {
                 result.add(sink);

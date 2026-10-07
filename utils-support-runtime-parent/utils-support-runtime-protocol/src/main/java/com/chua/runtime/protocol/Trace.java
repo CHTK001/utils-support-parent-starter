@@ -1,12 +1,10 @@
 package com.chua.runtime.protocol;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,13 +44,13 @@ public class Trace {
     /**
      * Spans
     */
-    private List<Span> spans = new ArrayList<>();
+    private List<Span> spans = Wraps.list();
 
     /**
      * 追踪级属性（追踪-级别 attributes）
      */
     @Builder.Default
-    private Map<String, String> attributes = new HashMap<>(); // attributes
+    private Map<String, String> attributes = Wraps.map(); // attributes
 
     /**
      * 追踪开始时间（毫秒）

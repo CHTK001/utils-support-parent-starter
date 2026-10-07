@@ -1,5 +1,6 @@
 package com.chua.common.support.wal;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasource.wal.WalStoreConfig;
 import com.chua.common.support.file.FileSystem;
 import com.chua.common.support.spi.annotations.Spi;
@@ -146,7 +147,7 @@ public class FileSearchWalFileSystem implements WalFileSystem {
      * @return 搜索内容的结果
      */
     public List<WalSearchHit> searchContent(long fromLsn, long toLsn, byte[] keyword) throws IOException {
-        List<WalSearchHit> hits = new java.util.ArrayList<>();
+        List<WalSearchHit> hits = Wraps.list();
         // 遍历所有分片，扫描记录内容
         for (WalSegmentInfo seg : listSegments()) {
             if (seg.lastLsn() < fromLsn) {

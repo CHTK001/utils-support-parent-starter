@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.face;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -9,8 +10,6 @@ import ai.djl.ndarray.NDList;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-
-import java.util.ArrayList;
 import java.util.List;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
@@ -127,7 +126,7 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 2) {
-            return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+            return new DetectedObjects(Wraps.list(), Wraps.list(), Wraps.list());
         }
 
  // 直接读取 ONNX 引擎 ndarray 的 flat float[] 数据，避免不支持的 squeeze/transpose
@@ -140,7 +139,7 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
 
         float[] priors = generatePriors();
 
-        List<Candidate> candidates = new ArrayList<>();
+        List<Candidate> candidates = Wraps.list();
         for (int i = 0; i < numPriors && candidates.size() < MAX_CANDIDATES; i++) {
             // 模型输出原始 logits，对每个 prior 的两个类别做 softmax 后取 face 概率
             float bg = confData[i * 2 + 0];
@@ -177,9 +176,9 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
         }
 
         candidates.sort((a, b) -> Double.compare(b.score, a.score));
-        List<String> names = new ArrayList<>();
-        List<Double> probs = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> probs = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
 
         for (Candidate c : candidates) {
             boolean keep = true;
@@ -227,7 +226,7 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
             {128, 192, 256}
         };
 
-        List<Float> priors = new ArrayList<>();
+        List<Float> priors = Wraps.list();
         for (int level = 0; level < featureW.length; level++) {
             float scaleW = (float) INPUT_WIDTH / shrinkW[level];
             float scaleH = (float) INPUT_HEIGHT / shrinkH[level];

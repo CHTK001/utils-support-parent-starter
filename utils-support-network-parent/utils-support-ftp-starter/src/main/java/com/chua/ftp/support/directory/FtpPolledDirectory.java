@@ -1,5 +1,6 @@
 package com.chua.ftp.support.directory;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.DiffPolledDirectory;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
 import lombok.extern.slf4j.Slf4j;
@@ -7,7 +8,6 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -105,10 +105,10 @@ public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
     protected List<FTPFile> listAndModified(String path) {
         try {
             FTPFile[] files = client.listFiles(path);
-            return files != null ? Arrays.asList(files) : new ArrayList<>();
+            return files != null ? Arrays.asList(files) : Wraps.list();
         } catch (IOException e) {
             log.error("FTP 读取目录失败: {}", path, e);
-            return new ArrayList<>();
+            return Wraps.list();
         }
     }
 

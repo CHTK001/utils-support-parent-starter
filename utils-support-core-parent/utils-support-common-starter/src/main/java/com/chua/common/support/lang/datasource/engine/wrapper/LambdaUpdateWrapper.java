@@ -1,7 +1,5 @@
 package com.chua.common.support.lang.datasource.engine.wrapper;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +37,7 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
     /**
      * SET 值映射：列名 → 新值
      */
-    private final Map<String, Object> setValues = new LinkedHashMap<>();
+    private final Map<String, Object> setValues = Wraps.linkedMap();
 
     /**
      * 创建 LambdaUpdateWrapper 实例
@@ -114,7 +112,7 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
                     + entityClass.getSimpleName());
         }
         requireWhereCondition("更新");
-        List<Object> params = new ArrayList<>();
+        List<Object> params = Wraps.list();
         StringBuilder setSb = new StringBuilder();
         for (Map.Entry<String, Object> e : setValues.entrySet()) {
             if (!setSb.isEmpty()) {

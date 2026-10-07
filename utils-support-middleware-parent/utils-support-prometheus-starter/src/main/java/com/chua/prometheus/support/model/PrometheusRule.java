@@ -1,11 +1,10 @@
 package com.chua.prometheus.support.model;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -82,13 +81,13 @@ public class PrometheusRule {
      * 规则附加标签
      */
     @Builder.Default
-    private Map<String, String> labels = new LinkedHashMap<>(); // 标签
+    private Map<String, String> labels = Wraps.linkedMap(); // 标签
 
     /**
      * 规则注解
      */
     @Builder.Default
-    private Map<String, String> annotations = new LinkedHashMap<>(); // 注解
+    private Map<String, String> annotations = Wraps.linkedMap(); // 注解
 
     /**
      * 是否为告警型规则

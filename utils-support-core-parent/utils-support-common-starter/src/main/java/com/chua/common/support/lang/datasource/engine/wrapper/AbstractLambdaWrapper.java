@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.datasource.engine.wrapper;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 
 import java.util.*;
@@ -50,12 +51,12 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
     /**
      * 条件列表，每个条件是一个列名 + 操作符 + 值的组合
      */
-    protected final List<Condition> conditions = new ArrayList<>();
+    protected final List<Condition> conditions = Wraps.list();
 
     /**
      * 排序列列表，每项格式为 "列名 ASC" 或 "列名 DESC"
      */
-    protected final List<String> orderBys = new ArrayList<>();
+    protected final List<String> orderBys = Wraps.list();
 
     /**
      * 表别名，用于多表关联查询

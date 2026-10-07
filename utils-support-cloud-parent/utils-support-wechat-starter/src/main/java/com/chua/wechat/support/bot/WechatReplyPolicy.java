@@ -1,9 +1,7 @@
 package com.chua.wechat.support.bot;
-
-import java.util.ArrayDeque;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Deque;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -113,17 +111,17 @@ public class WechatReplyPolicy {
     /**
      * 白名单，为空表示不限制对象
     */
-    private final Set<String> allowList = new LinkedHashSet<>();
+    private final Set<String> allowList = Wraps.linkedSet();
 
     /**
      * 黑名单，优先级高于白名单
     */
-    private final Set<String> blockList = new LinkedHashSet<>();
+    private final Set<String> blockList = Wraps.linkedSet();
 
     /**
      * 触发关键词，为空表示任何消息都触发
     */
-    private final Set<String> keywords = new LinkedHashSet<>();
+    private final Set<String> keywords = Wraps.linkedSet();
 
     /**
      * 单对象每分钟命中时间
@@ -133,7 +131,7 @@ public class WechatReplyPolicy {
     /**
      * 当日全局回复时间
     */
-    private final Deque<Long> dailyHits = new ArrayDeque<>();
+    private final Deque<Long> dailyHits = Wraps.deque();
 
     /**
      * 人工接管开关，置位后一律不回
@@ -335,7 +333,7 @@ public class WechatReplyPolicy {
     public void markReplied(String conversation) {
         long now = System.currentTimeMillis();
         if (StringUtils.isNotBlank(conversation)) {
-            Deque<Long> hits = userHits.computeIfAbsent(conversation, key -> new ArrayDeque<>());
+            Deque<Long> hits = userHits.computeIfAbsent(conversation, key -> Wraps.deque());
             synchronized (hits) {
                 hits.addLast(now);
             }

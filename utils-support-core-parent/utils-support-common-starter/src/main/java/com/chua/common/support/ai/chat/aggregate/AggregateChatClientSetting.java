@@ -1,5 +1,6 @@
 package com.chua.common.support.ai.chat.aggregate;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.protocol.AiToken;
@@ -10,7 +11,6 @@ import lombok.NoArgsConstructor;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -166,7 +166,7 @@ public class AggregateChatClientSetting {
         if (tokens == null || tokens.isEmpty()) {
             return Map.of();
         }
-        Map<String, AiToken> map = new LinkedHashMap<>((int) (tokens.size() / 0.75f) + 1);
+        Map<String, AiToken> map = Wraps.linkedMap((int) (tokens.size() / 0.75f) + 1);
         for (TokenConfig tc : tokens) {
             if (tc.getToken() == null || tc.getToken().isBlank()) {
                 continue;

@@ -1,8 +1,6 @@
 package com.chua.deeplearning.support.safetensors;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -78,7 +76,7 @@ public final class SafeTensorModelRegistry {
      * @return 类型集
      */
     public static Set<String> allTypes() {
-        Set<String> types = new LinkedHashSet<>();
+        Set<String> types = Wraps.linkedSet();
         for (ModelEntry e : ALL_MODELS) {
             types.add(e.type());
         }
@@ -171,7 +169,7 @@ public final class SafeTensorModelRegistry {
      * @return 构建registry的结果
      */
     private static List<ModelEntry> buildRegistry() {
-        List<ModelEntry> list = new ArrayList<>();
+        List<ModelEntry> list = Wraps.list();
 
         // LLM
         list.add(new ModelEntry("facade-text", "llm", "huggingface", "SafeTensor 门面文本模型（回退/兜底）"));

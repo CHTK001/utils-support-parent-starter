@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.skill.offline;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.skill.SkillDefinition;
 import com.chua.common.support.datasearch.agent.AgentEditorProvider;
 import com.chua.common.support.datasearch.skill.spi.SkillOfflineProvider;
@@ -9,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -72,7 +72,7 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
 
     @Override
     public List<SkillDefinition> listAgentSkills() {
-        List<SkillDefinition> result = new ArrayList<>();
+        List<SkillDefinition> result = Wraps.list();
         for (Path base : skillRoots()) {
             scanDirs(base, result);
         }

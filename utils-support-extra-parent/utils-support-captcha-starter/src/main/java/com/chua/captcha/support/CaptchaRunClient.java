@@ -1,5 +1,6 @@
 package com.chua.captcha.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
@@ -12,7 +13,6 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -89,7 +89,7 @@ public class CaptchaRunClient implements CaptchaParser {
                     .map(CaptchaType::getType).toList()));
         }
 
-        Map<String, Object> body = new HashMap<>();
+        Map<String, Object> body = Wraps.map();
         body.put("captchaType", type.getType());
         putIfNotBlank(body, "siteKey", opts.get("siteKey"));
         putIfNotBlank(body, "siteReferer", opts.get("siteReferer"));

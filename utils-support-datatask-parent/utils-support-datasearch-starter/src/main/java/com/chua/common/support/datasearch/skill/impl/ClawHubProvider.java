@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.skill.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.mcp.McpToolCall;
 import com.chua.common.support.ai.mcp.McpToolDescriptor;
 import com.chua.common.support.ai.mcp.McpToolResult;
@@ -15,8 +16,6 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -114,7 +113,7 @@ public class ClawHubProvider {
      */
     protected McpToolResult handleSearch(Map<String, Object> args) {
         String search = (String) args.get("search");
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
         result.put("search", search);
         result.put("market", "https://clawhub.ai/skills");
         result.put("hint", "ClawHub 技能市场以 GitHub 仓库聚合，请前往市场主页浏览");

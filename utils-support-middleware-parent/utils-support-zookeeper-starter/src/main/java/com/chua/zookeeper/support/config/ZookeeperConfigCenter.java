@@ -1,5 +1,6 @@
 package com.chua.zookeeper.support.config;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.config.center.AbstractConfigCenter;
 import com.chua.common.support.config.center.ConfigCenterSetting;
 import com.chua.common.support.spi.annotations.Spi;
@@ -13,7 +14,6 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -241,7 +241,7 @@ public class ZookeeperConfigCenter extends AbstractConfigCenter {
      * @return 键值映射
      */
     private Map<String, Object> parsePropertiesContent(String content) {
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = Wraps.map();
         String[] lines = content.split("\n");
         for (String line : lines) {
             line = line.trim();
