@@ -84,7 +84,7 @@ import java.util.function.Consumer;
  * @since 4.0.0.42
  */
 @Slf4j
-@Spi({"openai", "siliconflow", "sensetime", "github", "gitee", "dots"})
+@Spi({"openai", "siliconflow", "sensetime", "github", "gitee", "dots", "custom"})
 public class OpenAiChatClient implements ChatClient {
 
     /**
