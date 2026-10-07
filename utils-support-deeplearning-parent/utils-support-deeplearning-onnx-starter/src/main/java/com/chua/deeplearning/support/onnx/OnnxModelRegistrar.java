@@ -518,6 +518,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("paddleocrv6-medium-det", "com.chua.deeplearning.support.onnx.ocr.extractor.PpOcrDetMediumTranslator", byte[].class, List.class, ImageDetector.class, "ocr/PP-OCRv6/medium/det_infer/inference.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/ocr/PP-OCRv6/medium/det_infer/inference.onnx", List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/PP-OCRv6/medium/det_infer/inference.onnx"), false, null);
         // OCR识别(PP-OCRv6-medium)：PaddleOCR v6 中量文字识别，精度更高；适用高精度 OCR
         reg("paddleocrv6-medium-rec", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorMediumTranslator", byte[].class, String.class, Object.class, "ocr/PP-OCRv6/medium/rec_infer/inference.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/ocr/PP-OCRv6/medium/rec_infer/inference.onnx", List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/PP-OCRv6/medium/rec_infer/inference.onnx"), false, null);
+        // OCR识别(Qota-OCR)：PP-OCRv6_small_rec 架构加训韩文后的多语（韩/中/日/英）行识别器，float32 ~26MB；适用韩中日英混排文档行识别
+        reg("qota-ocr", "com.chua.deeplearning.support.onnx.ocr.extractor.QotaOcrTranslator", byte[].class, String.class, Object.class, "ocr/Qota-OCR/model.onnx", "https://hf-mirror.com/atonlee/Qota-OCR/resolve/main/onnx/model.onnx", List.of("https://huggingface.co/atonlee/Qota-OCR/resolve/main/onnx/model.onnx"), false, null);
         // #禁用# 读光OCR(Duguang) 全部 4 条：Translator 类 ocr.duguang.DuguangOcrTranslator / DuguangDetTranslator
         // 在当前源码树中不存在，注册后首次推理必抛 IllegalStateException("Translator 类不可用")。
         // 权重已内嵌 utils-support-models-onnx-duguang-ocr（small ~13MB / large ~120MB，含 config.json 与 vocab.txt），
@@ -652,6 +654,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 String.class, float[].class, Object.class,
                 "vision/clip/vit-h-14/text_encoder.onnx");
         // ==================== WeMM-Embedding 多模态文本嵌入 ====================
+        // 中文分词/词性标注/NER(LAC-ONNX)：百度 LAC BiGRU+CRF 的 ONNX 版（kniost/LAC-ONNX），
+        // Embedding+BiGRU+FC encoder + numpy Viterbi，输出 [token,label]；词典随新模型（word/tag/q2b.dic）。
+        // encoder 约 31MB：优先 jar 内嵌 nlp/lac/lac_encoder.onnx，缺失时走 downloadUrl 自动下载。
+        reg("lac-onnx", "com.chua.deeplearning.support.onnx.nlp.lac.LacOnnxTranslator", String.class, String[][].class, TextTranslator.class, "nlp/lac/lac_encoder.onnx", "https://raw.githubusercontent.com/kniost/LAC-ONNX/main/lac_onnx/lac_encoder.onnx", List.of("https://cdn.jsdelivr.net/gh/kniost/LAC-ONNX@main/lac_onnx/lac_encoder.onnx"), false, null);
         // 多模态文本嵌入(WeMM-2B)：腾讯 WeMM-Embedding-2B 文本分支，2048维 Matryoshka（64/128/256/512/1024/2048），
  // 支持中文/英文，适用高精度语义搜索、多模态检索；downloadurl 自动下载（chtk/wemm-嵌入-onnx）
         String wemm2bUrl = "https://hf-mirror.com/chtk/wemm-embedding-onnx/resolve/main/model.onnx";

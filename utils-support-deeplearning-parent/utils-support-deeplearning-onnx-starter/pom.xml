@@ -12,6 +12,15 @@
 <artifactId>utils-support-deeplearning-onnx-starter</artifactId>
   <name>Utils Support Deep Learning ONNX Starter</name>
   <description>ONNX 鎺ㄧ悊寮曟搸妯″潡锛歒OLO 妫€娴嬨€佸浘鍍忓垎绫荤瓑妯″瀷鎺ㄧ悊</description>
+  <properties>
+    <!--
+      父 pom 的 dev profile 默认 skipTests=true，会让本模块的验收测试被静默跳过
+      （BUILD SUCCESS 但 0 用例）。本模块含 LAC 等需要真实推理的验收用例，
+      必须默认执行，否则等于没验收；与 utils-support-ast-starter /
+      utils-support-deeplearning-agentscope-starter 保持同一约定。
+    -->
+    <skipTests>false</skipTests>
+  </properties>
   <build>
     <plugins>
       <plugin>
@@ -34,7 +43,7 @@
           <forkCount>1</forkCount>
           <reuseForks>false</reuseForks>
           <runOrder>alphabetical</runOrder>
-          <argLine>--add-modules jdk.incubator.vector --add-opens java.base/jdk.internal.misc=ALL-UNNAMED</argLine>
+          <argLine>--enable-preview --add-modules jdk.incubator.vector --add-opens java.base/jdk.internal.misc=ALL-UNNAMED</argLine>
         </configuration>
       </plugin>
     </plugins>
@@ -89,6 +98,12 @@
     </profile>
   </profiles>
   <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.13.0-M3</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
@@ -251,10 +266,12 @@
         <!-- 宓屽叆寮忎腑鏂囧璇濇ā鍨嬶紙Gemma-3-270M锛寀int8 ONNX锛寏519MB锛夛紝渚?Gemma3GpuTest 浣跨敤 -->
 
         <!-- 音频模型（wespeaker/campplus/wav2vec2/sensevoice）：从 utils-support-models-parent 独立仓库构建，本地 maven repo install 后自动可用；downloadUrl 作为网络备用（HF: chtk/chua-dl-models） -->
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-lac</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wespeaker</artifactId><version>${project.version}</version><scope>test</scope></dependency>
                         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-sensevoice</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-zipformer-zh</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-paddleocrv6-tiny</artifactId><version>4.0.0.42</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-qota-ocr</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <!-- WeMM-Embedding 多模态嵌入模型（2B/4B/9B）：文本分支 ONNX，供 WeMMEmbeddingClient 测试 -->
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wemm-embedding-2b</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wemm-embedding-4b</artifactId><version>${project.version}</version><scope>test</scope></dependency>
