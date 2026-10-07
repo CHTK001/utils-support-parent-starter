@@ -1,12 +1,12 @@
 package com.chua.crawler.support.filter;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.crawler.support.SpiderUrlFilter;
 import com.chua.crawler.support.model.SpiderRequest;
 
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -34,7 +34,7 @@ public class DomainUrlFilter implements SpiderUrlFilter {
     /**
      * 允许的域名集合
      */
-    private final Set<String> allowedDomains = new HashSet<>();
+    private final Set<String> allowedDomains = Wraps.set();
 
     /**
      * 默认构造器，不限制域名（接受所有 URL）。

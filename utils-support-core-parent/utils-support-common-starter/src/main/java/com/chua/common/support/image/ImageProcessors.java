@@ -1,9 +1,8 @@
 package com.chua.common.support.image;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.image.processor.JdkImageProcessor;
 import com.chua.common.support.spi.ServiceProvider;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -423,7 +422,7 @@ public final class ImageProcessors {
          * @return 包含 format 参数的 Map
          */
         private Map<String, Object> newParams() {
-            Map<String, Object> params = new HashMap<>();
+            Map<String, Object> params = Wraps.map();
             if (!"png".equals(format)) {
                 params.put("format", format);
             }

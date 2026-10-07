@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.paddle.nlp;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import ai.djl.Model;
 import ai.djl.ndarray.NDArray;
@@ -13,8 +14,6 @@ import ai.djl.util.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,17 +29,17 @@ public class LacTranslator implements Translator<String, String[][]> {
     /**
      * 词 → 标识。
      */
-    private final Map<String, String> word2IdDict = new HashMap<>();
+    private final Map<String, String> word2IdDict = Wraps.map();
 
     /**
      * 标识 → 标签。
      */
-    private final Map<String, String> id2LabelDict = new HashMap<>();
+    private final Map<String, String> id2LabelDict = Wraps.map();
 
     /**
      * 全角半角替换。
      */
-    private final Map<String, String> wordReplaceDict = new HashMap<>();
+    private final Map<String, String> wordReplaceDict = Wraps.map();
 
     /**
      * OOV 标识。
@@ -151,9 +150,9 @@ public class LacTranslator implements Translator<String, String[][]> {
     public NDList processInput(TranslatorContext ctx, String input) {
         this.input = input == null ? "" : input;
         NDManager manager = ctx.getNDManager();
-        List<Long> lodList = new ArrayList<>();
+        List<Long> lodList = Wraps.list();
         lodList.add(0L);
-        List<Long> wordIds = new ArrayList<>();
+        List<Long> wordIds = Wraps.list();
         for (int i = 0; i < this.input.length(); i++) {
             String ch = String.valueOf(this.input.charAt(i));
             ch = wordReplaceDict.getOrDefault(ch, ch);
@@ -195,8 +194,8 @@ public class LacTranslator implements Translator<String, String[][]> {
     public String[][] processOutput(TranslatorContext ctx, NDList list) {
         NDArray tags = list.getFirst();
         long[] tagIds = tags.toLongArray();
-        List<String> tokens = new ArrayList<>();
-        List<String> labels = new ArrayList<>();
+        List<String> tokens = Wraps.list();
+        List<String> labels = Wraps.list();
         StringBuilder buf = new StringBuilder();
         String currentLabel = "n";
         for (int i = 0; i < input.length() && i < tagIds.length; i++) {

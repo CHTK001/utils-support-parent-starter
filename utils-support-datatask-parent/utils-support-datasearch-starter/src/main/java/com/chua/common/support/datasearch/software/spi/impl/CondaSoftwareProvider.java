@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.software.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.software.model.SoftwareInfo;
 import com.chua.common.support.datasearch.software.spi.SoftwareProvider;
 import com.chua.common.support.lang.cmd.CmdExecutors;
@@ -8,8 +9,6 @@ import com.chua.common.support.lang.cmd.LineCallback;
 import com.chua.common.support.spi.annotations.Spi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -49,7 +48,7 @@ public class CondaSoftwareProvider implements SoftwareProvider {
      * 搜索
     */
     public List<SoftwareInfo> search(String keyword) {
-        List<SoftwareInfo> results = new ArrayList<>();
+        List<SoftwareInfo> results = Wraps.list();
         String[] cmd = {"conda", "search", keyword};
 
         log.info("conda 搜索: keyword={}", keyword);
@@ -153,7 +152,7 @@ public class CondaSoftwareProvider implements SoftwareProvider {
      * @return 解析conda输出的结果
      */
     private List<SoftwareInfo> parseCondaOutput(String output) {
-        List<SoftwareInfo> results = new ArrayList<>();
+        List<SoftwareInfo> results = Wraps.list();
         try {
             for (String line : output.split("\\r?\\n")) {
                 String trimmed = line.trim();

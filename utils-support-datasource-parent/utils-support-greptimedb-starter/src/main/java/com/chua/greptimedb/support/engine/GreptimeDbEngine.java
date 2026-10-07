@@ -1,5 +1,6 @@
 package com.chua.greptimedb.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.dialect.Pagination;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
@@ -28,10 +29,8 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -399,7 +398,7 @@ public class GreptimeDbEngine extends AbstractEngine {
             throw new IllegalArgumentException("查询条件不能为空");
         }
         Class<T> entityClass = sql.entityClass();
-        List<Object> params = new ArrayList<>(sql.params() == null ? List.of() : sql.params());
+        List<Object> params = Wraps.list(sql.params() == null ? List.of() : sql.params());
         if (sql.hasHaving()) {
             params.addAll(sql.havingParams() == null ? List.of() : sql.havingParams());
         }
@@ -489,7 +488,7 @@ public class GreptimeDbEngine extends AbstractEngine {
      */
     static String buildProjection(List<String> selectColumns, String groupColumns, Class<?> entityClass) {
         if (selectColumns != null && !selectColumns.isEmpty()) {
-            List<String> normalized = new ArrayList<>(selectColumns.size());
+            List<String> normalized = Wraps.list(selectColumns.size());
             for (String column : selectColumns) {
                 String fragment = normalizeColumns(nz(column), entityClass);
                 if (!fragment.isEmpty()) {
@@ -559,7 +558,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     private <T> List<T> runQuery(String statement, List<Object> params, Class<T> entityClass) {
         JdbcResult result = execQuery(statement, params, null);
         Map<String, Field> fields = fieldsOf(entityClass);
-        List<T> out = new ArrayList<>(result.rows().size());
+        List<T> out = Wraps.list(result.rows().size());
         for (Object[] row : result.rows()) {
             out.add(mapRow(entityClass, fields, result.columns(), row));
         }
@@ -595,7 +594,7 @@ public class GreptimeDbEngine extends AbstractEngine {
         }
         QuerySql<T> sql = (QuerySql<T>) wrapper.buildSql();
         Class<T> entityClass = sql.entityClass();
-        List<Object> params = new ArrayList<>(sql.params() == null ? List.of() : sql.params());
+        List<Object> params = Wraps.list(sql.params() == null ? List.of() : sql.params());
         if (sql.hasHaving()) {
             params.addAll(sql.havingParams() == null ? List.of() : sql.havingParams());
         }
@@ -647,7 +646,7 @@ public class GreptimeDbEngine extends AbstractEngine {
      */
     static List<String[]> columnAliasRules(Class<?> entityClass) {
         Map<String, Field> fields = fieldsOf(entityClass);
-        List<String[]> rules = new ArrayList<>();
+        List<String[]> rules = Wraps.list();
         for (Map.Entry<String, Field> e : fields.entrySet()) {
             String canonical = e.getKey();
             addRule(rules, e.getValue().getName(), canonical);
@@ -732,9 +731,9 @@ public class GreptimeDbEngine extends AbstractEngine {
         @Override
         public List<Map<String, Object>> query(String sql, Object... params) {
             JdbcResult r = execQuery(requireSql(sql), toParamList(params), dataSourceName);
-            List<Map<String, Object>> out = new ArrayList<>(r.rows().size());
+            List<Map<String, Object>> out = Wraps.list(r.rows().size());
             for (Object[] row : r.rows()) {
-                Map<String, Object> m = new LinkedHashMap<>();
+                Map<String, Object> m = Wraps.linkedMap();
                 for (int i = 0; i < r.columns().size() && i < row.length; i++) {
                     m.put(r.columns().get(i), row[i]);
                 }
@@ -759,7 +758,7 @@ public class GreptimeDbEngine extends AbstractEngine {
             }
             JdbcResult r = execQuery(requireSql(sql), toParamList(params), dataSourceName);
             Map<String, Field> fields = fieldsOf(entityClass);
-            List<T> out = new ArrayList<>(r.rows().size());
+            List<T> out = Wraps.list(r.rows().size());
             for (Object[] row : r.rows()) {
                 out.add(mapRow(entityClass, fields, r.columns(), row));
             }

@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.ast;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 
 /**
@@ -93,7 +92,7 @@ public class BTreeNode {
     /**
      * 子节点列表（FUNCTION 参数等）
      */
-    private final List<BTreeNode> children = new ArrayList<>();
+    private final List<BTreeNode> children = Wraps.list();
 
     /**
      * 创建 BTreeNode 实例

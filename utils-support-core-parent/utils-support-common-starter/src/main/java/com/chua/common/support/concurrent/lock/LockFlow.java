@@ -1,5 +1,6 @@
 package com.chua.common.support.concurrent.lock;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.concurrent.lock.provider.ObjectLockProvider;
 import com.chua.common.support.spi.ServiceProvider;
 
@@ -274,7 +275,7 @@ public final class LockFlow {
      * @return 锁缓存键 → 实例映射
      */
     public static Map<String, LockProvider> list() {
-        return new java.util.HashMap<>(CACHE);
+        return Wraps.map(CACHE);
     }
 
     /**

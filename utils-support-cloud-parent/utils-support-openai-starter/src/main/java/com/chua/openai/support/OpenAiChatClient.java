@@ -1,5 +1,6 @@
 package com.chua.openai.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.Attachment;
 import com.chua.common.support.ai.chat.AuthHeaders;
@@ -43,8 +44,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +125,7 @@ public class OpenAiChatClient implements ChatClient {
     /**
      * 对话历史消息列表
      */
-    private final List<ChatMessage> history = new ArrayList<>();
+    private final List<ChatMessage> history = Wraps.list();
 
     /**
      * 外部传入的完整历史记录
@@ -136,7 +135,7 @@ public class OpenAiChatClient implements ChatClient {
     /**
      * 工具（函数调用）定义列表
      */
-    private final List<ChatTool> tools = new ArrayList<>();
+    private final List<ChatTool> tools = Wraps.list();
 
     /**
      * 工具选择策略（tool_choice）：auto / 无 / required / 指定工具名称
@@ -166,7 +165,7 @@ public class OpenAiChatClient implements ChatClient {
     /**
      * 额外请求体参数
      */
-    private Map<String, Object> extraBody = new HashMap<>();
+    private Map<String, Object> extraBody = Wraps.map();
 
     /**
      * 自定义 HTTP 请求头
@@ -206,11 +205,11 @@ public class OpenAiChatClient implements ChatClient {
     /**
      * 图片附件 URL 列表
      */
-    private final List<String> imageUrls = new ArrayList<>();
+    private final List<String> imageUrls = Wraps.list();
     /**
      * 附件列表
      */
-    private final List<Attachment> attachments = new ArrayList<>();
+    private final List<Attachment> attachments = Wraps.list();
 
     /**
      * 真伪探测器实例（延迟初始化）
@@ -230,7 +229,7 @@ public class OpenAiChatClient implements ChatClient {
         this.system = setting.getSystem();
         this.topP = setting.getTopP();
         this.toolChoice = setting.getToolChoice();
-        this.stop = setting.getStop() != null ? new ArrayList<>(setting.getStop()) : null;
+        this.stop = setting.getStop() != null ? Wraps.list(setting.getStop()) : null;
         this.seed = setting.getSeed();
         this.responseFormat = setting.getResponseFormat();
         if (setting.getTools() != null) {
@@ -395,7 +394,7 @@ public class OpenAiChatClient implements ChatClient {
      * 停止
     */
     public ChatClient stop(List<String> stop) {
-        this.stop = stop != null ? new ArrayList<>(stop) : null;
+        this.stop = stop != null ? Wraps.list(stop) : null;
         return this;
     }
 
@@ -422,7 +421,7 @@ public class OpenAiChatClient implements ChatClient {
      * extra主体
     */
     public ChatClient extraBody(Map<String, Object> extraBody) {
-        this.extraBody = extraBody != null ? extraBody : new HashMap<>();
+        this.extraBody = extraBody != null ? extraBody : Wraps.map();
         return this;
     }
 
@@ -625,7 +624,7 @@ public class OpenAiChatClient implements ChatClient {
 
         // 工具（函数调用）定义
         if (tools != null && !tools.isEmpty()) {
-            List<ChatCompletionTool> toolDefs = new ArrayList<>();
+            List<ChatCompletionTool> toolDefs = Wraps.list();
             for (ChatTool tool : tools) {
                 ChatCompletionTool def = toOpenAiTool(tool);
                 if (def != null) {
@@ -803,7 +802,7 @@ public class OpenAiChatClient implements ChatClient {
                                 if (firstTokenAt == 0) {
                                     firstTokenAt = System.currentTimeMillis();
                                 }
-                                List<ChatToolCallData> toolCallData = new ArrayList<>();
+                                List<ChatToolCallData> toolCallData = Wraps.list();
                                 for (ChatCompletionChunk.Choice.Delta.ToolCall raw : rawToolCalls.get()) {
                                     ChatToolCallData.ChatToolCallDataBuilder dataBuilder =
                                             ChatToolCallData.builder().index(raw.index());
@@ -838,7 +837,7 @@ public class OpenAiChatClient implements ChatClient {
                         // 非流式工具调用：一次性转换为完整工具数据下发
                         message.toolCalls().ifPresent(rawToolCalls -> {
                             if (!rawToolCalls.isEmpty()) {
-                                List<ChatToolCallData> toolCallData = new ArrayList<>();
+                                List<ChatToolCallData> toolCallData = Wraps.list();
                                 int idx = 0;
                                 for (ChatCompletionMessageToolCall raw : rawToolCalls) {
                                     if (raw.isFunction()) {
@@ -978,7 +977,7 @@ public class OpenAiChatClient implements ChatClient {
      * @return JsonValue 映射
      */
     private static Map<String, JsonValue> toJsonValueMap(Map<String, Object> params) {
-        Map<String, JsonValue> result = new HashMap<>();
+        Map<String, JsonValue> result = Wraps.map();
         if (params != null) {
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 if (entry.getValue() != null) {

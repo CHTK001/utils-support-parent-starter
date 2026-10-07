@@ -1,11 +1,11 @@
 package com.chua.deeplearning.support.weka.rf;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.weka.WekaException;
 import com.chua.deeplearning.support.weka.data.ModelDomain;
 import com.chua.deeplearning.support.weka.data.WekaInstanceData;
 import com.chua.deeplearning.support.weka.result.EvaluationReport;
 import com.chua.deeplearning.support.weka.result.RegressionResult;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -92,7 +92,7 @@ public class WekaRandomForestRegressor {
         Objects.requireNonNull(model, "model must not be null");
         Objects.requireNonNull(rows, "rows must not be null");
         var instances = model.instancesFor(rows);
-        var results = new ArrayList<RegressionResult>(rows.size());
+        var results = Wraps.<RegressionResult>list(rows.size());
         for (int i = 0; i < rows.size(); i++) {
             results.add(new RegressionResult(model.predictRaw(instances.instance(i))));
         }

@@ -1,6 +1,7 @@
 package com.chua.common.support.config.source;
 
-import java.util.HashMap;
+import com.chua.common.support.collection.wrap.Wraps;
+
 import java.util.Map;
 import java.util.Properties;
 
@@ -45,6 +46,6 @@ public class SystemPropertySource extends AbstractPropertySource {
     @Override
     protected Object getSource() {
         Properties properties = System.getProperties();
-        return new HashMap<String, Object>((Map) properties);
+        return Wraps.map(properties);
     }
 }

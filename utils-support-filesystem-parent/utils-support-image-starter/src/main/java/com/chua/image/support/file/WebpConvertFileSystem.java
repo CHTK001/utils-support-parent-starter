@@ -1,5 +1,6 @@
 package com.chua.image.support.file;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.image.support.utils.ImageSupportUtils;
 import com.chua.common.support.file.converter.AbstractConvertFileSystem;
@@ -12,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -134,7 +134,7 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
      * 支持类型
     */
     public ConvertFileSystem.ConvertSupport[] supportedTypes() {
-        List<ConvertFileSystem.ConvertSupport> supports = new ArrayList<>();
+        List<ConvertFileSystem.ConvertSupport> supports = Wraps.list();
         
  // webp 转其他格式
         for (String format : SUPPORTED_FORMATS) {

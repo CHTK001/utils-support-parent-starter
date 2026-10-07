@@ -1,5 +1,6 @@
 package com.chua.ueba.support.config;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,8 +16,6 @@ import java.io.Serializable;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -132,7 +131,7 @@ public class UebaConfig implements Serializable {
          * 隐藏层维度，默认 [32, 16]，仅供训练参考，推理端忽略
          */
         @Builder.Default
-        private List<Integer> hiddenDims = new ArrayList<>(List.of(32, 16)); // hiddendims
+        private List<Integer> hiddenDims = Wraps.list(List.of(32, 16)); // hiddendims
 
         /**
          * 异常判定阈值（重建误差），小于等于 0 时按训练期自适应阈值处理
@@ -187,7 +186,7 @@ public class UebaConfig implements Serializable {
          * 类别标签，顺序与训练类别下标一一对应
          */
         @Builder.Default
-        private List<String> classLabels = new ArrayList<>(List.of("normal", "suspicious", "attack")); // 类标签
+        private List<String> classLabels = Wraps.list(List.of("normal", "suspicious", "attack")); // 类标签
 
         /**
          * 模型文件名，默认 lstm_attention_行为.onnx
@@ -256,13 +255,13 @@ public class UebaConfig implements Serializable {
          * 特征名到归一化参数的映射
          */
         @Builder.Default
-        private Map<String, Scaler> scalers = new HashMap<>(16); // scalers
+        private Map<String, Scaler> scalers = Wraps.map(16); // scalers
 
         /**
          * 类别值（如 路径）到整数 标识 的映射，0 保留给填充位
          */
         @Builder.Default
-        private Map<String, Integer> vocab = new HashMap<>(64); // vocab
+        private Map<String, Integer> vocab = Wraps.map(64); // vocab
     }
 
     /**

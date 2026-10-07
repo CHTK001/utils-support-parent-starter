@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.pytorch.face.expression;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.Classifications;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.util.NDImageUtils;
@@ -10,8 +11,6 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -81,7 +80,7 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
         }
         NDArray probs = output.softmax(-1);
         float[] scores = probs.toFloatArray();
-        List<Double> probabilities = new ArrayList<>(scores.length);
+        List<Double> probabilities = Wraps.list(scores.length);
         for (float score : scores) {
             probabilities.add((double) score);
         }
@@ -106,7 +105,7 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
      * @return 默认标签的结果
      */
     private static List<String> defaultLabels(int size) {
-        List<String> labels = new ArrayList<>(size);
+        List<String> labels = Wraps.list(size);
         for (int i = 0; i < size; i++) {
             labels.add("class_" + i);
         }

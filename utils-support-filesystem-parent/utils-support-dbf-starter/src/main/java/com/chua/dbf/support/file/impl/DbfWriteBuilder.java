@@ -1,5 +1,6 @@
 package com.chua.dbf.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.builder.WriteBuilder;
 import com.linuxense.javadbf.DBFDataType;
 import com.linuxense.javadbf.DBFField;
@@ -8,7 +9,6 @@ import com.linuxense.javadbf.DBFWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 /**
@@ -113,6 +113,6 @@ public class DbfWriteBuilder extends WriteBuilder {
         if (rows.isEmpty()) {
             return List.of();
         }
-        return new ArrayList<>(rows.getFirst().keySet());
+        return Wraps.list(rows.getFirst().keySet());
     }
 }

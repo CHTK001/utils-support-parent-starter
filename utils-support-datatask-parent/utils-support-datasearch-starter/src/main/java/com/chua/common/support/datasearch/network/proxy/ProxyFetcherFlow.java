@@ -1,8 +1,7 @@
 package com.chua.common.support.datasearch.network.proxy;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.ServiceProvider;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -130,7 +129,7 @@ public final class ProxyFetcherFlow {
         if (fetchers.isEmpty()) {
             return List.of();
         }
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         for (ProxyFetcher fetcher : fetchers.values()) {
             if (sourceName == null || sourceName.equals(fetcher.getSourceName())) {
                 try {

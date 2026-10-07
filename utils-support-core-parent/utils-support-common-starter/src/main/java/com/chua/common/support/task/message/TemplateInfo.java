@@ -1,7 +1,7 @@
 package com.chua.common.support.task.message;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -45,7 +45,7 @@ public record TemplateInfo(String id, String name, String content, String type, 
         content = Objects.requireNonNull(content, "content 不能为 null");
         paramDefs = paramDefs == null
                 ? null
-                : Collections.unmodifiableMap(new LinkedHashMap<>(paramDefs));
+                : Collections.unmodifiableMap(Wraps.linkedMap(paramDefs));
     }
 
     /**

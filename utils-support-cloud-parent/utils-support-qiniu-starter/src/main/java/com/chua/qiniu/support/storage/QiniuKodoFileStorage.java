@@ -1,5 +1,6 @@
 package com.chua.qiniu.support.storage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.storage.AbstractFileStorage;
 import com.chua.common.support.storage.metadata.Metadata;
@@ -18,7 +19,6 @@ import com.qiniu.storage.model.FileInfo;
 import com.qiniu.util.Auth;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -177,7 +177,7 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
             String marker = request.getMarker() != null ? request.getMarker() : "";
             BucketManager.FileListIterator iterator = bucketManager.createFileListIterator(
                     bucket, request.getFilePath(), request.getLimit(), marker);
-            List<Metadata> metadataList = new ArrayList<>();
+            List<Metadata> metadataList = Wraps.list();
 
  // 只获取一页数据（不循环所有页），以支持 记号笔 分页
             if (iterator.hasNext()) {

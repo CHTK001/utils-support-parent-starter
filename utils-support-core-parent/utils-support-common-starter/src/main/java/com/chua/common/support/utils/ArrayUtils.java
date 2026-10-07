@@ -1,5 +1,6 @@
 package com.chua.common.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.constant.CommonConstant;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.matcher.PathMatcher;
@@ -774,7 +775,7 @@ public class ArrayUtils {
             return empty;
         }
 
-        List<T> merged = new ArrayList<>(target.length + source.length);
+        List<T> merged = Wraps.list(target.length + source.length);
         // 先加入 target，保证其元素排在前面
         for (T t : target) {
             if (!merged.contains(t)) {
@@ -805,7 +806,7 @@ public class ArrayUtils {
             return null;
         }
 
-        List<T> objects = new ArrayList<>(target.length + source.length);
+        List<T> objects = Wraps.list(target.length + source.length);
         objects.addAll(Arrays.asList(target));
         objects.addAll(Arrays.asList(source));
 
@@ -1184,7 +1185,7 @@ public class ArrayUtils {
         }
 
         if (value instanceof Collection) {
-            return transToByteArray(new LinkedList((Collection) value));
+            return transToByteArray(Wraps.list((Collection) value));
         }
         return new byte[0];
     }
@@ -1392,7 +1393,7 @@ public class ArrayUtils {
      * @return the 结果
      */
     public static List<String> strArrayToList(String[] arr) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = Wraps.list();
         if (arr == null) {
             return result;
         }
@@ -1443,7 +1444,7 @@ public class ArrayUtils {
      * @return the 结果
      */
     public static Collection<?> toList(Object value) {
-        List<Object> rs = new LinkedList<>();
+        List<Object> rs = Wraps.list();
         int length = Array.getLength(value);
         for (int i = 0; i < length; i++) {
             rs.add(Array.get(value, i));
@@ -1780,7 +1781,7 @@ public class ArrayUtils {
      * @return the 结果
      */
     public static <S, T, R> R[] convert(S[] strings, T[] strings1, BiFunction<S, T, R> strBiFunction) {
-        List<Object> result = new ArrayList<Object>(strings.length * strings1.length);
+        List<Object> result = Wraps.list(strings.length * strings1.length);
         for (S string : strings) {
             for (T t : strings1) {
                 result.add(strBiFunction.apply(string, t));
@@ -1909,7 +1910,7 @@ public class ArrayUtils {
         }
 
         // 1.                    Map<         ,       >                        
-        Map<String, Integer> order = new HashMap<>(sortedFields.length);
+        Map<String, Integer> order = Wraps.map(sortedFields.length);
         int idx = 0;
         for (String k : sortedFields) {
             //                                  
@@ -1917,8 +1918,8 @@ public class ArrayUtils {
         }
 
         // 2.                                                             
-        List<String> inDict = new ArrayList<>(values.length);
-        List<String> outDict = new ArrayList<>(values.length);
+        List<String> inDict = Wraps.list(values.length);
+        List<String> outDict = Wraps.list(values.length);
         for (String v : values) {
             (order.containsKey(v) ? inDict : outDict).add(v);
         }
@@ -1955,15 +1956,15 @@ public class ArrayUtils {
         }
 
         // 1.                   
-        Map<String, Integer> order = new HashMap<>(sortedFields.length);
+        Map<String, Integer> order = Wraps.map(sortedFields.length);
         int idx = 0;
         for (String k : sortedFields) {
             order.putIfAbsent(k, idx++);
         }
 
         // 2.                                                       
-        List<String> inDict = new ArrayList<>(values.length);
-        List<String> outDict = new ArrayList<>(values.length);
+        List<String> inDict = Wraps.list(values.length);
+        List<String> outDict = Wraps.list(values.length);
         for (String v : values) {
             (order.containsKey(v) ? inDict : outDict).add(v);
         }

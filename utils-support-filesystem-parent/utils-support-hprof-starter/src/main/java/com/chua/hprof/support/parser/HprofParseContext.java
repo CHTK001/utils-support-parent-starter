@@ -1,5 +1,6 @@
 package com.chua.hprof.support.parser;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.hprof.support.model.HprofClassDetail;
 import org.netbeans.lib.profiler.heap.Field;
 import org.netbeans.lib.profiler.heap.FieldValue;
@@ -13,8 +14,6 @@ import org.netbeans.lib.profiler.heap.Type;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -204,9 +203,9 @@ public final class HprofParseContext {
      * @return 解析上下文
      */
     private static ParsedContext parse(Heap heap) {
-        List<HprofRecord> objects = new ArrayList<>();
-        Map<String, Long> retainedByClass = new HashMap<>();
-        Map<String, Long> countByClass = new HashMap<>();
+        List<HprofRecord> objects = Wraps.list();
+        Map<String, Long> retainedByClass = Wraps.map();
+        Map<String, Long> countByClass = Wraps.map();
 
         List<JavaClass> classes = heap.getAllClasses();
         for (JavaClass cls : classes) {
@@ -247,8 +246,8 @@ public final class HprofParseContext {
      */
     private static Map<String, HprofClassDetail> collectClassDetails(Heap heap,
                                                                       List<HprofRecord> objects) {
-        Map<String, HprofClassDetail> details = new HashMap<>();
-        List<HprofRecord> top = new ArrayList<>(objects);
+        Map<String, HprofClassDetail> details = Wraps.map();
+        List<HprofRecord> top = Wraps.list(objects);
         top.sort((a, b) -> Long.compare(b.retainedSize(), a.retainedSize()));
         int captured = 0;
         for (HprofRecord record : top) {
@@ -293,7 +292,7 @@ public final class HprofParseContext {
         // 用 JavaClass.getInstances()（LazyInstanceList，逐实例惰性生成）而非
         // Heap.getAllInstances(classId)——后者在 GridKit 里会忽略 classId 参数
         // 退化成全堆迭代器，导致每个类抓到的是同一批全局最大实例。
-        List<HprofClassDetail.InstanceDetail> instances = new ArrayList<>();
+        List<HprofClassDetail.InstanceDetail> instances = Wraps.list();
         int scanned = 0;
         for (Instance inst : cls.getInstances()) {
             scanned++;
@@ -334,7 +333,7 @@ public final class HprofParseContext {
      * @return 实例明细
      */
     private static HprofClassDetail.InstanceDetail instanceDetail(Instance inst) {
-        List<HprofClassDetail.FieldValueDetail> fieldValues = new ArrayList<>();
+        List<HprofClassDetail.FieldValueDetail> fieldValues = Wraps.list();
         for (FieldValue fv : inst.getFieldValues()) {
             if (fieldValues.size() >= DETAIL_FIELD_LIMIT) {
                 break;
@@ -399,7 +398,7 @@ public final class HprofParseContext {
      * @return 种类到数量的映射
      */
     private static Map<String, Long> countGcRootsByKind(Heap heap) {
-        Map<String, Long> byKind = new HashMap<>();
+        Map<String, Long> byKind = Wraps.map();
         for (GCRoot root : heap.getGCRoots()) {
             byKind.merge(root.getKind(), 1L, Long::sum);
         }
@@ -413,7 +412,7 @@ public final class HprofParseContext {
      * @return GC 根描述列表
      */
     private static List<String> collectGcRoots(Heap heap) {
-        Set<String> seen = new LinkedHashSet<>();
+        Set<String> seen = Wraps.linkedSet();
         for (GCRoot root : heap.getGCRoots()) {
             Instance inst = root.getInstance();
             String kind = root.getKind();
@@ -423,6 +422,6 @@ public final class HprofParseContext {
                 seen.add(kind);
             }
         }
-        return new ArrayList<>(seen);
+        return Wraps.list(seen);
     }
 }

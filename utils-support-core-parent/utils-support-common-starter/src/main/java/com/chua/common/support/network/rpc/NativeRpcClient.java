@@ -1,5 +1,6 @@
 package com.chua.common.support.network.rpc;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.discovery.DiscoveryOption;
 import com.chua.common.support.network.discovery.ServiceDiscovery;
@@ -15,7 +16,6 @@ import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
@@ -62,7 +62,7 @@ public class NativeRpcClient implements RpcClient {
     /**
      * 候选服务端地址
      */
-    private final List<String> addresses = new ArrayList<>();
+    private final List<String> addresses = Wraps.list();
 
     /**
      * 服务发现
@@ -129,7 +129,7 @@ public class NativeRpcClient implements RpcClient {
         this.inlineEnabled = consumerConfig != null && Boolean.TRUE.equals(consumerConfig.getInline());
         log.info("NativeRpcClient serialization: {}, inline: {}", rpcSerialization.name(), inlineEnabled);
         if (registryConfigs == null) {
-            registryConfigs = new ArrayList<>();
+            registryConfigs = Wraps.list();
         }
         this.appName = name;
         ServiceDiscovery sd = null;
@@ -198,7 +198,7 @@ public class NativeRpcClient implements RpcClient {
                     .map(Class::getName).toArray(String[]::new));
             req.setArgs(pm.getArgs());
 
-            List<String> targets = new ArrayList<>(addresses);
+            List<String> targets = Wraps.list(addresses);
             if (serviceDiscovery != null) {
                 String path = "/" + appName + "/" + targetType.getName();
                 Discovery d = serviceDiscovery.getService(path);
@@ -324,6 +324,6 @@ public class NativeRpcClient implements RpcClient {
         if (loadBalance == null || targets == null || targets.isEmpty()) {
             return null;
         }
-        return loadBalance.select(new ArrayList<>(targets));
+        return loadBalance.select(Wraps.list(targets));
     }
 }

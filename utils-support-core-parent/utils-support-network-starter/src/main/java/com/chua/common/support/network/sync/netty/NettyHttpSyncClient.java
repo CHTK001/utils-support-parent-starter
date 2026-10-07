@@ -1,5 +1,6 @@
 package com.chua.common.support.network.sync.netty;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.common.support.network.sync.SyncMessageHandler;
 
@@ -43,7 +44,7 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
     /**
      * 监听器
     */
-    private final java.util.List<SyncFlowListener> listeners = new java.util.ArrayList<>();
+    private final java.util.List<SyncFlowListener> listeners = Wraps.list();
     /**
      * 拉手线程
     */

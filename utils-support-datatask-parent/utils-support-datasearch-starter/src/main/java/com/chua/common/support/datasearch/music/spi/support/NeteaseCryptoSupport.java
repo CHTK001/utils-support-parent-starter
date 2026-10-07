@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.music.spi.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.crypto.Cipher;
@@ -11,7 +12,6 @@ import java.security.PublicKey;
 import java.security.MessageDigest;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -83,7 +83,7 @@ public final class NeteaseCryptoSupport {
                 secretKey,
                 IV,
                 Cipher.ENCRYPT_MODE);
-        Map<String, String> result = new LinkedHashMap<>();
+        Map<String, String> result = Wraps.linkedMap();
         result.put("params", Base64.getEncoder().encodeToString(second));
         result.put("encSecKey", rsaNoPadding(reverse(secretKey)));
         return result;
@@ -102,7 +102,7 @@ public final class NeteaseCryptoSupport {
                 LINUX_API_KEY,
                 null,
                 Cipher.ENCRYPT_MODE);
-        Map<String, String> result = new LinkedHashMap<>();
+        Map<String, String> result = Wraps.linkedMap();
         result.put("eparams", toHex(encrypted).toUpperCase());
         return result;
     }
@@ -124,7 +124,7 @@ public final class NeteaseCryptoSupport {
                 EAPI_KEY,
                 null,
                 Cipher.ENCRYPT_MODE);
-        Map<String, String> result = new LinkedHashMap<>();
+        Map<String, String> result = Wraps.linkedMap();
         result.put("params", toHex(encrypted).toUpperCase());
         return result;
     }

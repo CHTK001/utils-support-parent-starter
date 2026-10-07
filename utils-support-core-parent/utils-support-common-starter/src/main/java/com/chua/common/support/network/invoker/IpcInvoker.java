@@ -1,5 +1,6 @@
 package com.chua.common.support.network.invoker;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.bean.BeanPath;
 import com.chua.common.support.lang.placeholder.StringValuePropertyResolver;
 import com.chua.common.support.network.annotations.RequestMethod;
@@ -37,7 +38,7 @@ public class IpcInvoker implements Invoker {
     /**
      * 全局injectrules
      */
-    private final List<SharedInvocationContext.InjectRule> globalInjectRules = new java.util.ArrayList<>();
+    private final List<SharedInvocationContext.InjectRule> globalInjectRules = Wraps.list();
 
     @Override
     @SuppressWarnings("unchecked")

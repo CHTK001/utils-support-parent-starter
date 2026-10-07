@@ -1,10 +1,10 @@
 package com.chua.common.support.converter.definition;
 
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.ArrayUtils;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -50,7 +50,7 @@ public class JsonArrayTypeConverter implements TypeConverter<List> {
                     return Collections.emptyList();
                 }
                 String[] parts = inner.split(",");
-                List<Object> result = new ArrayList<>();
+                List<Object> result = Wraps.list();
                 for (String part : parts) {
                     String trimmed = part.trim();
                     if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
@@ -69,16 +69,16 @@ public class JsonArrayTypeConverter implements TypeConverter<List> {
         }
 
         if (value instanceof Collection) {
-            return new ArrayList((Collection) value);
+            return Wraps.list((Collection) value);
         }
 
         if (value instanceof Map) {
-            return new ArrayList(Collections.singletonList(value));
+            return Wraps.list(Collections.singletonList(value));
         }
 
         if (value.getClass().isArray() && Array.getLength(value) > 0) {
             Collection<?> list = ArrayUtils.toList(value);
-            return new ArrayList<>(list);
+            return Wraps.list(list);
         }
 
         return null;

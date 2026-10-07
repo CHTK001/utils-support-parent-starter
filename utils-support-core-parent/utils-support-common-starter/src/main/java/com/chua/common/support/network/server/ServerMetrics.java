@@ -1,8 +1,8 @@
 package com.chua.common.support.network.server;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -145,7 +145,7 @@ public class ServerMetrics {
      * @return 延迟直方图
      */
     public Map<String, Long> getLatencyHistogram() {
-        Map<String, Long> histogram = new LinkedHashMap<>();
+        Map<String, Long> histogram = Wraps.linkedMap();
         for (int i = 0; i < LATENCY_BUCKETS.length; i++) {
             histogram.put("le_" + LATENCY_BUCKETS[i] + "ms", latencyBuckets[i].sum());
         }

@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.capability;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.embedding.EmbeddingService;
 import com.chua.deeplearning.support.face.EyeDetector;
 import com.chua.deeplearning.support.face.FaceDetector;
@@ -273,7 +274,7 @@ public final class ModelCapabilities {
      * @return 能力标签列表
      */
     public static List<String> allLabels() {
-        return List.copyOf(new java.util.LinkedHashSet<>(CAPABILITY_LABELS.values()));
+        return List.copyOf(Wraps.linkedSet(CAPABILITY_LABELS.values()));
     }
 }
 

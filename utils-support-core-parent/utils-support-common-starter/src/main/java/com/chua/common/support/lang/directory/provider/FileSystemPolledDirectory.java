@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.directory.provider;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.EventObserver;
 import com.chua.common.support.lang.directory.PolledDirectory;
 import com.chua.common.support.lang.directory.PolledDirectorySupport;
@@ -20,7 +21,6 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -64,7 +64,7 @@ public class FileSystemPolledDirectory implements PolledDirectory {
     /**
      * WatchKey 与目录路径的映射
      */
-    private final Map<WatchKey, Path> watchKeys = new HashMap<>();
+    private final Map<WatchKey, Path> watchKeys = Wraps.map();
 
     /**
      * 环境配置

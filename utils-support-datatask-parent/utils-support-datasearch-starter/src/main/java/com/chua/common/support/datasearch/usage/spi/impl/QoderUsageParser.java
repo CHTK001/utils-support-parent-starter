@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.datasearch.usage.spi.QoderModelCatalog;
@@ -13,8 +14,6 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -125,7 +124,7 @@ public class QoderUsageParser extends BaseUsageParser {
             return List.of();
         }
         Map<String, long[]> timings = loadRequestTimings();
-        List<AiUsage> result = new ArrayList<>();
+        List<AiUsage> result = Wraps.list();
         AtomicInteger fileCount = new AtomicInteger(0);
         try (var stream = Files.walk(PROJECTS_DIR)) {
             stream.filter(Files::isRegularFile)
@@ -156,7 +155,7 @@ public class QoderUsageParser extends BaseUsageParser {
      * @return 请求号到时间线的映射；日志目录缺失时为空映射
      */
     private Map<String, long[]> loadRequestTimings() {
-        Map<String, long[]> timings = new HashMap<>();
+        Map<String, long[]> timings = Wraps.map();
         if (!Files.isDirectory(LOG_SESSIONS_DIR)) {
             log.info("[qoder] 运行日志目录不存在, 耗时字段无法补齐: {}", LOG_SESSIONS_DIR);
             return timings;

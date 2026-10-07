@@ -1,5 +1,6 @@
 package com.chua.datasource.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.FileUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
@@ -23,8 +24,6 @@ import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -144,7 +143,7 @@ public class FileReactorEngine implements ReactorEngine {
     @Override
     public <T> Flux<T> query(String sql, Class<T> rowType, Object... params) {
         return Flux.defer(() -> {
-            var out = new java.util.ArrayList<T>();
+            var out = Wraps.<T>list();
             for (var row : delegate.querySql(sql, params)) {
                 out.add(MemorySqlLex.RowAccessor.toBean(row, rowType));
             }
@@ -181,7 +180,7 @@ public class FileReactorEngine implements ReactorEngine {
             return readFileAsync(path)
                     .map(bytes -> parseJson(name, bytes))
                     .flatMap(list -> Mono.fromRunnable(() ->
-                            delegate.store(name, new ArrayList<>(list))
+                            delegate.store(name, Wraps.list(list))
                     ).then(Mono.just(this)));
         }
 
@@ -190,7 +189,7 @@ public class FileReactorEngine implements ReactorEngine {
             return readFileAsync(path)
                     .map(bytes -> parseCsv(name, bytes, sep))
                     .flatMap(list -> Mono.fromRunnable(() ->
-                            delegate.store(name, new ArrayList<>(list))
+                            delegate.store(name, Wraps.list(list))
                     ).then(Mono.just(this)));
         }
 
@@ -269,7 +268,7 @@ public class FileReactorEngine implements ReactorEngine {
         } catch (Exception e) {
             try {
                 Map<String, Object> map = MAPPER.readValue(bytes, Map.class);
-                List<Map<String, Object>> list = new ArrayList<>();
+                List<Map<String, Object>> list = Wraps.list();
                 list.add(map);
                 return list;
             } catch (Exception e2) {
@@ -293,14 +292,14 @@ public class FileReactorEngine implements ReactorEngine {
             throw new RuntimeException("CSV 文件缺少数据行: " + name);
         }
         String[] headers = parseLine(lines[0], separator);
-        List<Map<String, Object>> result = new ArrayList<>(lines.length - 1);
+        List<Map<String, Object>> result = Wraps.list(lines.length - 1);
         for (int i = 1; i < lines.length; i++) {
             String line = lines[i].trim();
             if (line.isEmpty()) {
                 continue;
             }
             String[] values = parseLine(line, separator);
-            Map<String, Object> row = new LinkedHashMap<>();
+            Map<String, Object> row = Wraps.linkedMap();
             for (int j = 0; j < headers.length && j < values.length; j++) {
                 row.put(headers[j].trim(), values[j].trim());
             }
@@ -317,7 +316,7 @@ public class FileReactorEngine implements ReactorEngine {
      * @return 字符串 对象
      */
     private static String[] parseLine(String line, char separator) {
-        List<String> fields = new ArrayList<>();
+        List<String> fields = Wraps.list();
         StringBuilder cur = new StringBuilder();
         boolean inQuotes = false;
         for (int i = 0; i < line.length(); i++) {

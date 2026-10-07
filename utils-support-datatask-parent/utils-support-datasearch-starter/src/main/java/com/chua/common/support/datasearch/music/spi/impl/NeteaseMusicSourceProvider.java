@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.music.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.music.model.MusicOverview;
 import com.chua.common.support.datasearch.music.model.MusicPlaylistDetail;
 import com.chua.common.support.datasearch.music.model.MusicPlaylistSearchResult;
@@ -12,9 +13,6 @@ import com.chua.common.support.datasearch.music.spi.support.AbstractHttpMusicSou
 import com.chua.common.support.datasearch.music.spi.support.NeteaseCryptoSupport;
 import com.chua.common.support.spi.annotations.Spi;
 import com.fasterxml.jackson.databind.JsonNode;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -61,14 +59,14 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
      * 搜索歌曲
     */
     public MusicSearchResult search(String keyword, int page, int pageSize) {
-        Map<String, Object> payload = new LinkedHashMap<>();
+        Map<String, Object> payload = Wraps.linkedMap();
         payload.put("s", keyword);
         payload.put("type", 1);
         payload.put("limit", pageSize);
         payload.put("offset", Math.max(0, (page - 1) * pageSize));
         payload.put("total", true);
         JsonNode result = postEncrypted(payload).path("result");
-        List<MusicTrackSummary> tracks = new ArrayList<>();
+        List<MusicTrackSummary> tracks = Wraps.list();
         for (JsonNode item : elements(result.path("songs"))) {
             MusicTrackSummary summary = toTrackSummary(item);
             if (summary != null) {
@@ -83,14 +81,14 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
      * 搜索歌单
     */
     public MusicPlaylistSearchResult searchPlaylists(String keyword, int page, int pageSize) {
-        Map<String, Object> payload = new LinkedHashMap<>();
+        Map<String, Object> payload = Wraps.linkedMap();
         payload.put("s", keyword);
         payload.put("type", 1000);
         payload.put("limit", pageSize);
         payload.put("offset", Math.max(0, (page - 1) * pageSize));
         payload.put("total", true);
         JsonNode result = postEncrypted(payload).path("result");
-        List<MusicPlaylistSummary> playlists = new ArrayList<>();
+        List<MusicPlaylistSummary> playlists = Wraps.list();
         for (JsonNode item : elements(result.path("playlists"))) {
             MusicPlaylistSummary summary = toPlaylistSummary(item);
             if (summary != null) {
@@ -191,7 +189,7 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
      * @return 逗号分隔字符串
      */
     private String joinNames(JsonNode array, String field) {
-        List<String> values = new ArrayList<>();
+        List<String> values = Wraps.list();
         for (JsonNode item : elements(array)) {
             String value = item.path(field).asText("");
             if (!value.isEmpty()) {

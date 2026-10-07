@@ -1,8 +1,7 @@
 package com.chua.common.support.network.cluster;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -125,7 +124,7 @@ public class ClusterServer implements AutoCloseable {
     public static class Builder {
 
         private final ClusterSetting setting = new ClusterSetting(); // setting
-        private final List<ServerEntry> entries = new ArrayList<>(); // entries
+        private final List<ServerEntry> entries = Wraps.list(); // entries
 
         /**
          * 构建器。
@@ -293,7 +292,7 @@ public class ClusterServer implements AutoCloseable {
          * @return 构建的结果
          */
         public ClusterServer build() throws Exception {
-            setting.setServerEntries(new ArrayList<>(entries));
+            setting.setServerEntries(Wraps.list(entries));
             ClusterNode node = new ClusterNode(setting);
             ClusterManager mgr = new ClusterManager(node.discovery(),
                     setting.getBalance(), setting.getNodeId());

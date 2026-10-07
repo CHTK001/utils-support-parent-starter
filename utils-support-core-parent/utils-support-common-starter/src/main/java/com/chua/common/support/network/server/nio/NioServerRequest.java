@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.nio;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.server.request.FormFile;
@@ -19,10 +20,8 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -112,7 +111,7 @@ public class NioServerRequest implements ServerRequest {
     /**
      * headers - 使用 HashMap(忽略大小写通过 toLowerCase 保证)
      */
-    private final java.util.HashMap<String, String> headers = new java.util.HashMap<>(8);
+    private final java.util.Map<String, String> headers = Wraps.map(8);
     /**
      * 请求体
      */
@@ -482,7 +481,7 @@ public class NioServerRequest implements ServerRequest {
         if (queryString == null || queryString.isEmpty()) {
             return Map.of();
         }
-        Map<String, String> map = new LinkedHashMap<>();
+        Map<String, String> map = Wraps.linkedMap();
         for (String pair : queryString.split("&")) {
             String[] kv = pair.split("=", 2);
             if (kv.length > 0) {
@@ -548,7 +547,7 @@ public class NioServerRequest implements ServerRequest {
             if (bodyStr.isEmpty()) {
                 return Collections.emptyMap();
             }
-            Map<String, String> form = new LinkedHashMap<>();
+            Map<String, String> form = Wraps.linkedMap();
             for (String pair : bodyStr.split("&")) {
                 String[] kv = pair.split("=", 2);
                 if (kv.length > 0) {

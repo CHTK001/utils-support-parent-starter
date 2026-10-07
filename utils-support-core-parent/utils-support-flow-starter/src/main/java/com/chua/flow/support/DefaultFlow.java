@@ -1,5 +1,6 @@
 package com.chua.flow.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.flow.Flow;
 import com.chua.common.support.task.flow.FlowDefinition;
 import com.chua.common.support.task.flow.FlowException;
@@ -9,10 +10,7 @@ import com.chua.common.support.task.flow.FlowJson;
 import com.chua.common.support.task.flow.FlowNode;
 import com.chua.common.support.task.flow.FlowNodeRegistry;
 import com.chua.common.support.task.flow.FlowProps;
-
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +37,7 @@ public class DefaultFlow implements Flow {
     /**
      * 节点 标识 到节点实例的映射
      */
-    private final Map<String, FlowNode> nodes = new LinkedHashMap<>();
+    private final Map<String, FlowNode> nodes = Wraps.linkedMap();
 
     /**
      * 以指定 标识 创建流程。
@@ -124,7 +122,7 @@ public class DefaultFlow implements Flow {
      * 列表节点
     */
     public List<FlowNode> listNodes() {
-        return new ArrayList<>(nodes.values());
+        return Wraps.list(nodes.values());
     }
 
     @Override
@@ -187,7 +185,7 @@ public class DefaultFlow implements Flow {
         if (definition.getNodes().isEmpty()) {
             return null;
         }
-        List<String> all = new ArrayList<>();
+        List<String> all = Wraps.list();
         for (FlowDefinition.FlowNodeDef node : definition.getNodes()) {
             all.add(node.id());
         }

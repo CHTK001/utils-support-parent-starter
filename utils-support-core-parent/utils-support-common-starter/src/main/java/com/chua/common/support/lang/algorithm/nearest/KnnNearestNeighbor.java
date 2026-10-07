@@ -1,9 +1,8 @@
 package com.chua.common.support.lang.algorithm.nearest;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Comparator;
 import java.util.List;
-import java.util.PriorityQueue;
+import java.util.Queue;
 
 /**
  * KNN（K-Nearest Neighbors）临近算法实现，基于欧几里得距离查找最近的 K 个邻居。
@@ -57,7 +56,7 @@ public class KnnNearestNeighbor implements NearestNeighborAlgorithm {
         int actualK = Math.min(k, dataset.size());
 
         // 最大堆：容量为 actualK，堆顶是距离最大的元素
-        PriorityQueue<NeighborResult> maxHeap = new PriorityQueue<>(
+        Queue<NeighborResult> maxHeap = Wraps.priorityQueue(
                 actualK,
                 Comparator.comparingDouble(NeighborResult::getDistance).reversed()
         );
@@ -80,7 +79,7 @@ public class KnnNearestNeighbor implements NearestNeighborAlgorithm {
         }
 
         // 按距离升序排序
-        List<NeighborResult> sorted = new ArrayList<>(maxHeap);
+        List<NeighborResult> sorted = Wraps.list(maxHeap);
         sorted.sort(Comparator.comparingDouble(NeighborResult::getDistance));
 
         return sorted;

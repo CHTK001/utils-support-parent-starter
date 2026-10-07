@@ -1,14 +1,13 @@
 package com.chua.common.support.network.server.dht;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.server.dht.krpc.KrpcDhtBridge;
 import com.chua.common.support.network.server.dht.store.DhtValueStore;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -203,7 +202,7 @@ public class DhtProtocol implements AutoCloseable {
     public void bootstrap() {
         int total = routingTable.totalPeers();
         if (total < 20 && !bootstrapSeeds.isEmpty()) {
-            java.util.List<CompletableFuture<Void>> seedFutures = new ArrayList<>();
+            java.util.List<CompletableFuture<Void>> seedFutures = Wraps.list();
             for (String seed : bootstrapSeeds) {
                 seedFutures.add(CompletableFuture.runAsync(() -> {
                     try {
@@ -227,7 +226,7 @@ public class DhtProtocol implements AutoCloseable {
         if (routingTable.totalPeers() > 0) {
             List<DhtPeer> allPeers = routingTable.getAllPeers();
             int count = Math.min(config.getAlpha(), allPeers.size());
-            java.util.List<CompletableFuture<Void>> peerFutures = new ArrayList<>();
+            java.util.List<CompletableFuture<Void>> peerFutures = Wraps.list();
             for (DhtPeer p : allPeers.subList(0, count)) {
                 peerFutures.add(CompletableFuture.runAsync(() -> {
                     try {
@@ -345,11 +344,11 @@ public class DhtProtocol implements AutoCloseable {
      * @return 最接近目标节点的 k 个节点
      */
     public List<DhtPeer> iterativeFindNode(KademliaNodeId target) {
-        Set<String> visited = new HashSet<>();
-        Set<DhtPeer> closest = new HashSet<>(routingTable.findClosestPeers(target, config.getAlpha()));
+        Set<String> visited = Wraps.set();
+        Set<DhtPeer> closest = Wraps.set(routingTable.findClosestPeers(target, config.getAlpha()));
 
         while (true) {
-            List<DhtPeer> newPeers = Collections.synchronizedList(new ArrayList<>());
+            List<DhtPeer> newPeers = Collections.synchronizedList(Wraps.list());
             List<CompletableFuture<Void>> futures = closest.stream()
                     .filter(p -> !visited.contains(p.getNodeId()))
                     .limit(config.getAlpha())
@@ -375,7 +374,7 @@ public class DhtProtocol implements AutoCloseable {
             boolean foundCloser = false;
             List<DhtPeer> snapshot;
             synchronized (newPeers) {
-                snapshot = new ArrayList<>(newPeers);
+                snapshot = Wraps.list(newPeers);
                 newPeers.clear();
             }
             for (DhtPeer p : snapshot) {
@@ -800,7 +799,7 @@ public class DhtProtocol implements AutoCloseable {
             return Collections.emptyList();
         }
 
-        List<DhtPeer> collected = Collections.synchronizedList(new ArrayList<>());
+        List<DhtPeer> collected = Collections.synchronizedList(Wraps.list());
         List<CompletableFuture<Void>> futures = closest.stream()
                 .map(p -> CompletableFuture.runAsync(() -> {
                     try {
@@ -821,7 +820,7 @@ public class DhtProtocol implements AutoCloseable {
         }
 
         if (!collected.isEmpty() && crawlListener != null) {
-            List<DhtPeer> copy = new ArrayList<>(collected);
+            List<DhtPeer> copy = Wraps.list(collected);
             crawlListener.onPeers(infohash, copy);
         }
         return collected;

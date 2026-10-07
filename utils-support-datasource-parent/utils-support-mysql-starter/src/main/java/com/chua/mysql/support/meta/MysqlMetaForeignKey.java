@@ -1,5 +1,6 @@
 package com.chua.mysql.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.meta.ForeignKeyCreateBuilder;
 import com.chua.common.support.lang.datasource.meta.MetaForeignKey;
@@ -9,7 +10,6 @@ import com.chua.datasource.support.meta.AbstractMetaForeignKey;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -257,7 +257,7 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
                     onDelete == null ? null : MysqlMetaData.referentialAction("删除规则", onDelete),
                     onUpdate == null ? null : MysqlMetaData.referentialAction("更新规则", onUpdate));
             String sql = "ALTER TABLE " + MysqlMetaData.quote(metaFk.tableName) + " " + clause;
-            MysqlMetaData.execute(metaFk.engine, "创建外键 " + fkName, sql, new ArrayList<>());
+            MysqlMetaData.execute(metaFk.engine, "创建外键 " + fkName, sql, Wraps.list());
             return metaFk.readForeignKey(metaFk.tableName, fkName);
         }
     }

@@ -1,5 +1,6 @@
 package com.chua.kitesurf.support.agent;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.mcp.McpClient;
 import com.chua.common.support.ai.mcp.McpProvider;
 import com.chua.common.support.ai.mcp.McpToolCall;
@@ -11,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Base64;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -134,7 +134,7 @@ public class KitesurfMcpProvider implements McpProvider {
                         byte[] png = KitesurfRenderer.fetch(
                                 new KitesurfRenderer.RenderConfig().setBaseUrl(baseUrl),
                                 "screenshot", url);
-                        Map<String, Object> content = new LinkedHashMap<>();
+                        Map<String, Object> content = Wraps.linkedMap();
                         content.put("mimeType", "image/png");
                         content.put("base64", Base64.getEncoder().encodeToString(png));
                         content.put("onlineUrl", baseUrl.replaceAll("/+$", "")
@@ -145,7 +145,7 @@ public class KitesurfMcpProvider implements McpProvider {
                         byte[] pdf = KitesurfRenderer.fetch(
                                 new KitesurfRenderer.RenderConfig().setBaseUrl(baseUrl),
                                 "pdf", url);
-                        Map<String, Object> content = new LinkedHashMap<>();
+                        Map<String, Object> content = Wraps.linkedMap();
                         content.put("mimeType", "application/pdf");
                         content.put("base64", Base64.getEncoder().encodeToString(pdf));
                         return McpToolResult.success(content);

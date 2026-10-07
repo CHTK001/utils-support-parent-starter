@@ -1,12 +1,11 @@
 package com.chua.enhance.support.network.server.filter.security;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.network.server.filter.ServerFilter;
 import com.chua.common.support.network.server.filter.ServerFilterChain;
 import com.chua.common.support.network.server.filter.ServerFilterConfig;
-
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -40,12 +39,12 @@ public class AuthServerFilter implements ServerFilter {
     /**
      * 有效 令牌 白名单
      */
-    private final Set<String> validTokens = new HashSet<>();
+    private final Set<String> validTokens = Wraps.set();
 
     /**
      * 排除路径集合
      */
-    private final Set<String> excludePaths = new HashSet<>();
+    private final Set<String> excludePaths = Wraps.set();
 
     @Override
     /**

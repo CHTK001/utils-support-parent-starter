@@ -1,5 +1,7 @@
 package com.chua.common.support.ai.rule;
 
+import com.chua.common.support.content.ObjectContent;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -25,11 +27,10 @@ import java.util.function.Predicate;
  *       只有下一条规则自己的 {@code effect} 等于当前累积结论时才真的走过去。</li>
  * </ul>
  *
- * <p><b>决策是可选增强，不是必需</b>。规则默认只做 {@code when} 条件求值，
- * 压根不触碰 {@code ai.decision} 包；只有当 {@code when} 里读了决策变量
- * （例如展平后的 {@code fraud}、{@code fraud.confidence}），
- * 执行器才去调决策提供者。规则作者不需要声明「这条规则要不要决策」——
- * 由执行器从条件里读到的变量反推。这也意味着规则引擎<b>可以完全独立使用</b>，
+ * <p><b>决策不是自然规则的事</b>。规则默认只做 {@code when} 条件求值，
+ * 压根不触碰 {@code ai.decision} 包；需要 AI 判定的场景用 {@link AiRule}，
+ * 由 AI 规则自己在 {@code matched} 里向底座求值。
+ * 这也意味着规则引擎<b>可以完全独立使用</b>，
  * 不装配任何决策实现。</p>
  *
  * @author CH
@@ -48,8 +49,12 @@ public interface Rule {
      * @return 自然规则构造器
      * @throws IllegalArgumentException 规则标识为空白时
      */
-    static RuleBuilder definition(String id) {
-        return RuleType.NATIVE.builder(id);
+    static NativeRuleBuilder definition(String id) {
+        RuleBuilder builder = RuleType.NATIVE.builder(id);
+        if (!(builder instanceof NativeRuleBuilder nativeBuilder)) {
+            throw new RuleException("NATIVE 规则构造器类型异常: " + builder.getClass().getName());
+        }
+        return nativeBuilder;
     }
 
     /**
@@ -113,6 +118,33 @@ public interface Rule {
      * @return 规则显示名
      */
     String name();
+
+    /**
+     * 规则描述，用于说明业务含义、归属与维护信息。
+     *
+     * <p>与 {@link #name()} 的区别：{@code name} 给人读的短名，
+     * {@code description} 是给人看的长说明，可写清触发场景、负责人、
+     * 变更记录。未声明时返回 null。</p>
+     *
+     * @return 规则描述，可为 null
+     */
+    default String description() {
+        return null;
+    }
+
+    /**
+     * 命中后对外说明的原因。
+     *
+     * <p>拦截类规则用它直接给出拦截原因，调用方从
+     * {@link RuleResult#messages()} 按规则标识取，不再需要每个
+     * {@code then} 里手写 {@code ctx.set("拦截原因", ...)}。
+     * 未声明时返回 null。</p>
+     *
+     * @return 拦截原因，可为 null
+     */
+    default String message() {
+        return null;
+    }
 
     /**
      * 优先级，数值越大越先求值，默认 0。

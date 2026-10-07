@@ -42,6 +42,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- 源码引用 com.chua.common.support.collection.wrap.Wraps（集合包装工具），本模块此前无任何
+             com.chua 依赖（依赖树为空，拿不到传递路径），需显式引入；版本由 root 依赖管理托管 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

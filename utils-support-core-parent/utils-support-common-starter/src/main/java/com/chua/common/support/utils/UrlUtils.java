@@ -1,5 +1,6 @@
 package com.chua.common.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.algorithm.crypto.Hex;
 import com.google.common.base.Joiner;
 
@@ -150,7 +151,7 @@ public class UrlUtils {
      */
     private static String stripPathTraversal(String path) {
         String[] parts = path.split("/");
-        var stack = new java.util.ArrayList<String>(parts.length);
+        var stack = Wraps.<String>list(parts.length);
         for (String part : parts) {
             if (part.isEmpty() || ".".equals(part)) {
                 continue;

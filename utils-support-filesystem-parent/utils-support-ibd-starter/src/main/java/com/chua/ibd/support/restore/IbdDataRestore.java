@@ -1,5 +1,6 @@
 package com.chua.ibd.support.restore;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.FileSystem;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
@@ -18,8 +19,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -217,7 +216,7 @@ public class IbdDataRestore extends AbstractDataRestore {
                 writer.write(String.join(",", data.columns) + "\n");
             }
             for (Map<String, Object> row : data.rows) {
-                List<String> values = new ArrayList<>(data.columns.size());
+                List<String> values = Wraps.list(data.columns.size());
                 for (String col : data.columns) {
                     values.add(escapeCsvField(row.get(col)));
                 }
@@ -530,7 +529,7 @@ public class IbdDataRestore extends AbstractDataRestore {
                     + "① 把仓库根目录放进 PYTHONPATH（本实现会自动定位其中的 main.py）；"
                     + "② 通过 options['" + OPTION_IBD2SQL_PATH + "'] 直接指定 main.py 或其所在目录");
         }
-        List<String> command = new ArrayList<>(invocation);
+        List<String> command = Wraps.list(invocation);
         command.add(ibdFile.getAbsolutePath());
         command.add("--ddl");
         command.add("--sql");
@@ -671,7 +670,7 @@ public class IbdDataRestore extends AbstractDataRestore {
      * <p>包级可见，便于单测直接喂 SQL 文本校验解析结果（不需要装 ibd2sql）。</p>
      */
     List<Map<String, Object>> parseSqlToRows(String rawSql) {
-        List<Map<String, Object>> rows = new ArrayList<>();
+        List<Map<String, Object>> rows = Wraps.list();
         List<String> columns = parseCreateTableColumns(rawSql);
         for (String line : rawSql.split("\n")) {
             int valuesIdx = indexOfIgnoreCase(line, "VALUES");
@@ -680,7 +679,7 @@ public class IbdDataRestore extends AbstractDataRestore {
             }
             String clause = line.substring(valuesIdx + "VALUES".length()).trim();
             for (List<String> values : splitValueGroups(clause)) {
-                Map<String, Object> row = new LinkedHashMap<>();
+                Map<String, Object> row = Wraps.linkedMap();
                 for (int i = 0; i < values.size(); i++) {
                     String key = i < columns.size() ? columns.get(i) : String.valueOf(i);
                     row.put(key, values.get(i));
@@ -702,7 +701,7 @@ public class IbdDataRestore extends AbstractDataRestore {
      * <p>包级可见，便于单测直接喂 SQL 文本校验解析结果（不需要装 ibd2sql）。</p>
      */
     List<String> parseCreateTableColumns(String rawSql) {
-        List<String> columns = new ArrayList<>();
+        List<String> columns = Wraps.list();
         int createIdx = indexOfIgnoreCase(rawSql, "CREATE TABLE");
         if (createIdx < 0) {
             return columns;
@@ -817,7 +816,7 @@ public class IbdDataRestore extends AbstractDataRestore {
      * @return 每个分组的取值列表
      */
     private List<List<String>> splitValueGroups(String clause) {
-        List<List<String>> groups = new ArrayList<>();
+        List<List<String>> groups = Wraps.list();
         int depth = 0;
         int start = -1;
         for (int i = 0; i < clause.length(); i++) {
@@ -863,7 +862,7 @@ public class IbdDataRestore extends AbstractDataRestore {
         if (rows.isEmpty()) {
             return List.of();
         }
-        return new ArrayList<>(rows.getFirst().keySet());
+        return Wraps.list(rows.getFirst().keySet());
     }
 
     /**
@@ -1042,7 +1041,7 @@ public class IbdDataRestore extends AbstractDataRestore {
      * <p>包级可见，便于单测直接喂 SQL 文本校验解析结果（不需要装 ibd2sql）。</p>
      */
     List<String> splitValues(String valuesStr) {
-        List<String> values = new ArrayList<>();
+        List<String> values = Wraps.list();
         int depth = 0;
         int start = 0;
         for (int i = 0; i < valuesStr.length(); i++) {

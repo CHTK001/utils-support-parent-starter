@@ -1,5 +1,6 @@
 package com.chua.common.support.image.apng;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.image.png.PNG;
 
 import javax.annotation.Nonnull;
@@ -9,7 +10,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.CRC32;
 import java.util.zip.Deflater;
@@ -46,12 +46,12 @@ public class ApngEncoder {
     /**
      * 帧列表
     */
-    private final List<BufferedImage> frames = new ArrayList<>();
+    private final List<BufferedImage> frames = Wraps.list();
 
     /**
      * 每帧延迟（毫秒）
     */
-    private final List<Integer> delays = new ArrayList<>();
+    private final List<Integer> delays = Wraps.list();
 
     /**
      * 循环次数，0 表示无限循环

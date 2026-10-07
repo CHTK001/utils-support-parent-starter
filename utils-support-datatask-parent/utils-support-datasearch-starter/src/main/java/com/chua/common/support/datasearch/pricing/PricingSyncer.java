@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.pricing;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.config.loader.ConfigSaveOrLoader;
 import com.chua.common.support.datasearch.pricing.spi.ModelMetricsProvider;
@@ -7,8 +8,6 @@ import com.chua.common.support.datasearch.usage.spi.UsageFieldCompleter;
 import com.chua.common.support.spi.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -119,7 +118,7 @@ public final class PricingSyncer {
         if (providers == null || providers.isEmpty()) {
             return Collections.emptyList();
         }
-        List<ModelDefinition> result = new ArrayList<>();
+        List<ModelDefinition> result = Wraps.list();
         for (Map.Entry<String, ModelMetricsProvider> entry : providers.entrySet()) {
             try {
                 result.addAll(entry.getValue().getMetrics());

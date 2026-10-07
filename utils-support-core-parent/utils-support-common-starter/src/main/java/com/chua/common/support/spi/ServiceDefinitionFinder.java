@@ -1,5 +1,6 @@
 package com.chua.common.support.spi;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.collection.SortedArrayList;
 import com.chua.common.support.collection.SortedList;
 import com.chua.common.support.constant.NameConstant;
@@ -10,8 +11,6 @@ import com.chua.common.support.spi.resolver.ServiceResolver;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.function.NameAware;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +89,7 @@ public class ServiceDefinitionFinder {
      * @param classLoader 类加载器
      */
     public void setDynamicResolvers(List<ServiceResolver> resolvers, Class<?> type, ClassLoader classLoader) {
-        List<ServiceResolver> dynamic = new ArrayList<>();
+        List<ServiceResolver> dynamic = Wraps.list();
         for (ServiceResolver resolver : resolvers) {
             if (resolver.isDynamic()) {
                 dynamic.add(resolver);
@@ -310,7 +309,7 @@ public class ServiceDefinitionFinder {
     private <T> Collection<? extends ServiceDefinition> createNameAware(String name, 
                                                                         SortedList<ServiceDefinition> definitions, 
                                                                         Object[] args) {
-        List<ServiceDefinition> rs = new ArrayList<>(definitions.size());
+        List<ServiceDefinition> rs = Wraps.list(definitions.size());
         for (ServiceDefinition definition : definitions) {
             if (!definition.isPresent()) {
                 continue;

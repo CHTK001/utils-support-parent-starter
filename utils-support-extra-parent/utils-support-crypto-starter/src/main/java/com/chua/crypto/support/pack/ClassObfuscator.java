@@ -1,5 +1,6 @@
 package com.chua.crypto.support.pack;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -8,8 +9,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
-
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -82,8 +81,8 @@ public final class ClassObfuscator {
         ClassReader reader = new ClassReader(bytes);
         String internalName = reader.getClassName();
 
-        Map<String, String> methodRenames = new HashMap<>();
-        Map<String, String> fieldRenames = new HashMap<>();
+        Map<String, String> methodRenames = Wraps.map();
+        Map<String, String> fieldRenames = Wraps.map();
         reader.accept(new CollectorVisitor(internalName, methodRenames, fieldRenames), 0);
 
         if (methodRenames.isEmpty() && fieldRenames.isEmpty()) {

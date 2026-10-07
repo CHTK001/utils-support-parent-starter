@@ -1,5 +1,6 @@
 package com.chua.starter.datasync.mapping;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.starter.datasync.config.DataSyncConfigDefinition;
 import com.chua.starter.datasync.config.DirectoryConfigDefinition;
 import com.chua.starter.datasync.config.FileConfigDefinition;
@@ -120,8 +121,8 @@ public record DefaultDataSyncMapping(
      * @param params 参数映射
      */
     public DefaultDataSyncMapping {
-        mappings = mappings == null ? null : Collections.unmodifiableList(new ArrayList<>(mappings));
-        params = params == null ? null : Collections.unmodifiableMap(new LinkedHashMap<>(params));
+        mappings = mappings == null ? null : Collections.unmodifiableList(Wraps.list(mappings));
+        params = params == null ? null : Collections.unmodifiableMap(Wraps.linkedMap(params));
     }
 
     /**

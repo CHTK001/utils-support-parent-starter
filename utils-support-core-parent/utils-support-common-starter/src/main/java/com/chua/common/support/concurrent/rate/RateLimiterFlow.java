@@ -1,5 +1,6 @@
 package com.chua.common.support.concurrent.rate;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.concurrent.rate.provider.GuavaRateLimiterProvider;
 import com.chua.common.support.spi.ServiceProvider;
 
@@ -210,7 +211,7 @@ public final class RateLimiterFlow {
      * @return 限流器名称 → 实例映射
      */
     public static Map<String, RateLimiterProvider> list() {
-        return new java.util.HashMap<>(CACHE);
+        return Wraps.map(CACHE);
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.chua.network.support.tshark.stream;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.network.support.tshark.PacketMeta;
 import com.chua.network.support.tshark.PacketRecord;
 import lombok.extern.slf4j.Slf4j;
@@ -7,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -184,7 +184,7 @@ public final class TcpStreamAssembler {
      */
     @Nonnull
     public List<ReassembledMessage> evictIdle(long nowMillis) {
-        List<ReassembledMessage> messages = new ArrayList<>();
+        List<ReassembledMessage> messages = Wraps.list();
         Iterator<Map.Entry<TcpStreamKey, StreamState>> iterator = streams.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<TcpStreamKey, StreamState> entry = iterator.next();
@@ -211,7 +211,7 @@ public final class TcpStreamAssembler {
      */
     @Nonnull
     public List<ReassembledMessage> flushAll(long nowMillis) {
-        List<ReassembledMessage> messages = new ArrayList<>();
+        List<ReassembledMessage> messages = Wraps.list();
         for (Map.Entry<TcpStreamKey, StreamState> entry : streams.entrySet()) {
             messages.addAll(entry.getValue().flushPending(entry.getKey(), 0L));
         }
@@ -417,7 +417,7 @@ public final class TcpStreamAssembler {
          */
         @Nonnull
         List<ReassembledMessage> flushPending(@Nonnull TcpStreamKey key, long gapTimeoutMillis) {
-            List<ReassembledMessage> messages = new ArrayList<>(2);
+            List<ReassembledMessage> messages = Wraps.list(2);
             messages.addAll(clientToServer.forceDrain(key, gapTimeoutMillis));
             messages.addAll(serverToClient.forceDrain(key, gapTimeoutMillis));
             return messages;

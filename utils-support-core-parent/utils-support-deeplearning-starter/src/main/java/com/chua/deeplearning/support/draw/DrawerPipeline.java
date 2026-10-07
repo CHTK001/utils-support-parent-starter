@@ -1,10 +1,9 @@
 package com.chua.deeplearning.support.draw;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.utils.ImageUtils;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -47,12 +46,12 @@ public class DrawerPipeline {
     /**
      * 待标注的检测框列表。
      */
-    private final List<DetectionInfo> boxes = new ArrayList<>();
+    private final List<DetectionInfo> boxes = Wraps.list();
 
     /**
      * 对应的标签列表。
      */
-    private final List<String> labels = new ArrayList<>();
+    private final List<String> labels = Wraps.list();
 
     /**
      * 最小置信度阈值。

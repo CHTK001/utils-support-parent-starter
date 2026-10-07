@@ -1,5 +1,6 @@
 package com.chua.datasource.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
@@ -229,7 +230,7 @@ public class JdbcReactorEngine implements ReactorEngine {
             // 只有 R2DBC 工厂，无法直接联邦，退回单数据源模式
             return;
         }
-        List<DataSource> sources = new ArrayList<>(jdbcDataSources.values());
+        List<DataSource> sources = Wraps.list(jdbcDataSources.values());
         DataSourceConversion conversion = ServiceProvider.of(DataSourceConversion.class).getDefault();
         if (conversion == null) {
             throw new IllegalStateException(
@@ -632,7 +633,7 @@ public class JdbcReactorEngine implements ReactorEngine {
 
     private Flux<Map<String, Object>> queryViaJdbc(DataSource ds, String sql, Object... params) {
         return Mono.fromCallable(() -> {
-            List<Map<String, Object>> result = new ArrayList<>();
+            List<Map<String, Object>> result = Wraps.list();
             try (java.sql.Connection conn = ds.getConnection();
                  java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
                 for (int i = 0; i < params.length; i++) {
@@ -642,7 +643,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                     java.sql.ResultSetMetaData meta = rs.getMetaData();
                     int colCount = meta.getColumnCount();
                     while (rs.next()) {
-                        Map<String, Object> row = new LinkedHashMap<>();
+                        Map<String, Object> row = Wraps.linkedMap();
                         for (int i = 1; i <= colCount; i++) {
                             row.put(meta.getColumnLabel(i), rs.getObject(i));
                         }
@@ -656,7 +657,7 @@ public class JdbcReactorEngine implements ReactorEngine {
 
     private <T> Flux<T> queryTypedViaJdbc(DataSource ds, String sql, Class<T> rowType, Object... params) {
         return Mono.fromCallable(() -> {
-            List<T> result = new ArrayList<>();
+            List<T> result = Wraps.list();
             try (java.sql.Connection conn = ds.getConnection();
                  java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
                 for (int i = 0; i < params.length; i++) {
@@ -699,7 +700,7 @@ public class JdbcReactorEngine implements ReactorEngine {
             return Flux.empty();
         }
         return Mono.fromCallable(() -> {
-            List<Integer> results = new ArrayList<>();
+            List<Integer> results = Wraps.list();
             try (java.sql.Connection conn = ds.getConnection();
                  java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
                 for (Object[] params : batchParams) {
@@ -736,7 +737,7 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     private Map<String, Object> toMap(Row row, RowMetadata meta) {
-        Map<String, Object> rowMap = new LinkedHashMap<>();
+        Map<String, Object> rowMap = Wraps.linkedMap();
         for (ColumnMetadata cm : meta.getColumnMetadatas()) {
             String name = cm.getName();
             if (name != null && !name.isEmpty()) {
@@ -1069,12 +1070,12 @@ public class JdbcReactorEngine implements ReactorEngine {
                 for (int i = 0; i < params.length; i++) {
                     ps.setObject(i + 1, params[i]);
                 }
-                List<Map<String, Object>> result = new ArrayList<>();
+                List<Map<String, Object>> result = Wraps.list();
                 try (java.sql.ResultSet rs = ps.executeQuery()) {
                     java.sql.ResultSetMetaData meta = rs.getMetaData();
                     int colCount = meta.getColumnCount();
                     while (rs.next()) {
-                        Map<String, Object> row = new LinkedHashMap<>();
+                        Map<String, Object> row = Wraps.linkedMap();
                         for (int i = 1; i <= colCount; i++) {
                             row.put(meta.getColumnLabel(i), rs.getObject(i));
                         }
@@ -1092,7 +1093,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                 for (int i = 0; i < params.length; i++) {
                     ps.setObject(i + 1, params[i]);
                 }
-                List<T> result = new ArrayList<>();
+                List<T> result = Wraps.list();
                 try (java.sql.ResultSet rs = ps.executeQuery()) {
                     java.sql.ResultSetMetaData meta = rs.getMetaData();
                     int colCount = meta.getColumnCount();

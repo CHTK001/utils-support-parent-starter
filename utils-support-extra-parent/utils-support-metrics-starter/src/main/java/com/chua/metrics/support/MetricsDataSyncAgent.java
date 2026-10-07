@@ -1,5 +1,6 @@
 package com.chua.metrics.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasync.agent.support.AbstractDataSyncAgent;
 import com.chua.datasync.agent.support.DataSyncAgentSink;
 import com.chua.datasync.agent.support.DataSyncAgentSource;
@@ -8,9 +9,6 @@ import com.chua.datasync.agent.support.model.Directional;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
@@ -127,7 +125,7 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
 
         try {
             for (DataSyncAgentSource source : sources) {
-                Map<String, Object> params = new HashMap<>();
+                Map<String, Object> params = Wraps.map();
                 Flux<Map<String, Object>> data = source.read(params);
 
                 for (DataSyncAgentSink sink : sinks) {
@@ -230,7 +228,7 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
          * @return 行数据列表
          */
         private List<Map<String, Object>> buildRows(MetricsSnapshot snapshot) {
-            List<Map<String, Object>> rows = new ArrayList<>();
+            List<Map<String, Object>> rows = Wraps.list();
             long ts = snapshot.getTimestamp();
 
             if (snapshot.getCpuCores() != null) {
@@ -288,7 +286,7 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
          * @return row的结果
          */
         private static Map<String, Object> row(long ts, String type, String name, Object... kv) {
-            Map<String, Object> r = new HashMap<>();
+            Map<String, Object> r = Wraps.map();
             r.put("timestamp", ts);
             r.put("metric_type", type);
             if (name != null) {

@@ -1,8 +1,7 @@
 package com.chua.common.support.spi.autowire;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.ClassUtils;
-
-import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,7 +39,7 @@ public class AutoServiceAutowire implements ServiceAutowire {
     /**
      * 自定义/扩展的自动装配器列表，按顺序执行装配逻辑
      */
-    public static final List<ServiceAutowire> AUTOWIRES = new LinkedList<>();
+    public static final List<ServiceAutowire> AUTOWIRES = Wraps.list();
 
     /**
      * Spring 环境下的自动装配器实例，若存在 Spring 环境则初始化

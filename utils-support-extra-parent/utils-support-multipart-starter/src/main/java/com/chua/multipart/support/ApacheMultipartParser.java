@@ -1,5 +1,6 @@
 package com.chua.multipart.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.server.request.FormFile;
 import com.chua.common.support.network.server.request.MultipartParser;
 import com.chua.common.support.spi.annotations.Spi;
@@ -16,8 +17,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +46,7 @@ public class ApacheMultipartParser implements MultipartParser {
         if (body == null || body.length == 0 || contentType == null) {
             return List.of();
         }
-        List<FormFile> files = new ArrayList<>();
+        List<FormFile> files = Wraps.list();
         try {
             DiskFileItemFactory factory = DiskFileItemFactory.builder()
                     .setPath(new java.io.File(System.getProperty("java.io.tmpdir")).toPath())
@@ -103,7 +102,7 @@ public class ApacheMultipartParser implements MultipartParser {
         if (body == null || body.length == 0 || contentType == null) {
             return Map.of();
         }
-        Map<String, String> fields = new LinkedHashMap<>();
+        Map<String, String> fields = Wraps.linkedMap();
         try {
             DiskFileItemFactory factory = DiskFileItemFactory.builder()
                     .setPath(new java.io.File(System.getProperty("java.io.tmpdir")).toPath())

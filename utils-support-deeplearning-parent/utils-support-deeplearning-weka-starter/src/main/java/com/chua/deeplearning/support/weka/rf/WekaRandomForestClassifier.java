@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.weka.rf;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.task.classifier.ClassifierTask;
 import com.chua.deeplearning.support.weka.WekaException;
@@ -10,9 +11,6 @@ import com.chua.deeplearning.support.weka.result.ClassificationResult;
 import com.chua.deeplearning.support.weka.result.EvaluationReport;
 import java.io.Serializable;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -115,7 +113,7 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
                 index = i;
             }
         }
-        var probabilities = new LinkedHashMap<String, Double>(labels.size());
+        var probabilities = Wraps.<String, Double>linkedMap(labels.size());
         for (int i = 0; i < labels.size(); i++) {
             probabilities.put(labels.get(i), dist[i]);
         }
@@ -141,7 +139,7 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
             throw new WekaException("随机森林批量预测失败: " + e.getMessage(), e);
         }
         var labels = model.getDomain().nominalValues().getOrDefault(model.getDomain().targetName(), List.of());
-        var results = new ArrayList<ClassificationResult>(rows.size());
+        var results = Wraps.<ClassificationResult>list(rows.size());
         for (int i = 0; i < rows.size(); i++) {
             var distribution = distributions[i];
             if (distribution == null) {
@@ -155,7 +153,7 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
                     best = c;
                 }
             }
-            var probabilities = new LinkedHashMap<String, Double>(labels.size());
+            var probabilities = Wraps.<String, Double>linkedMap(labels.size());
             for (int c = 0; c < labels.size(); c++) {
                 probabilities.put(labels.get(c), distribution[c]);
             }
@@ -241,7 +239,7 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
      * @throws WekaException 样本行不包含任何特征列
      */
     private static List<FeatureColumn> inferFeatures(List<Map<String, Object>> samples, String labelColumn) {
-        var names = new LinkedHashSet<String>();
+        var names = Wraps.<String>linkedSet();
         for (var row : samples) {
             if (row != null) {
                 row.keySet().stream().filter(name -> !name.equals(labelColumn)).forEach(names::add);
@@ -250,7 +248,7 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
         if (names.isEmpty()) {
             throw new WekaException("样本行不包含任何特征列（仅标签列?）");
         }
-        var features = new ArrayList<FeatureColumn>(names.size());
+        var features = Wraps.<FeatureColumn>list(names.size());
         for (var name : names) {
             var numeric = samples.stream()
                     .filter(row -> row != null && row.get(name) != null)
@@ -324,7 +322,7 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
         @Override
         public List<Result> predictBatch(List<Map<String, Object>> rows) {
             Objects.requireNonNull(rows, "rows must not be null");
-            var results = new ArrayList<Result>(rows.size());
+            var results = Wraps.<Result>list(rows.size());
             for (var row : task.predictBatch(model, rows)) {
                 results.add(new Result(row.label(), row.confidence(), row.probabilities()));
             }

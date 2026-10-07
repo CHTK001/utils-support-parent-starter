@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.conversation.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.conversation.ConversationMessage;
 import com.chua.common.support.datasearch.conversation.spi.ConversationParser;
 import com.chua.common.support.lang.json.Json;
@@ -14,7 +15,6 @@ import reactor.core.scheduler.Schedulers;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -129,7 +129,7 @@ public class ContinueConversationParser implements ConversationParser {
             if (history.isMissingValue() || !history.isArray()) {
                 return List.of();
             }
-            List<ConversationMessage> result = new ArrayList<>(history.size());
+            List<ConversationMessage> result = Wraps.list(history.size());
             for (int i = 0; i < history.size(); i++) {
                 result.addAll(parseEntry(history.get(i), sessionId));
             }

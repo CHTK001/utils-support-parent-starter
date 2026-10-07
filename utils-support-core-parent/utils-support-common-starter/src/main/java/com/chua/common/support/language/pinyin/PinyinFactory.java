@@ -1,9 +1,10 @@
 package com.chua.common.support.language.pinyin;
 
+import com.chua.common.support.collection.wrap.Wraps;
+
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -68,7 +69,7 @@ public interface PinyinFactory {
                 .map(this::transfer)
                 .map(CollectionUtils::findFirst)
                 .filter(Objects::nonNull)
-                .collect(ArrayList::new, List::add, List::addAll);
+                .collect(Wraps::list, List::add, List::addAll);
     }
 
     /**

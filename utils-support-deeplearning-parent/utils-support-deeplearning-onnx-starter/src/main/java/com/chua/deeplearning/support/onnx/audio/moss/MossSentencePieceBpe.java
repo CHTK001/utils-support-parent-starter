@@ -1,12 +1,11 @@
 package com.chua.deeplearning.support.onnx.audio.moss;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.text.Normalizer;
@@ -38,10 +37,10 @@ public class MossSentencePieceBpe implements AutoCloseable {
     private static final int TYPE_CONTROL = 3; // 类型control
     private static final int TYPE_USER_DEFINED = 4; // 类型用户defined
 
-    private final List<String> idToPiece = new ArrayList<>(); // 标识转为piece
-    private final Map<String, Integer> pieceToId = new HashMap<>(); // piece转为标识
-    private final Map<String, Float> pieceScore = new HashMap<>(); // piecescore
-    private final List<Integer> userDefinedIds = new ArrayList<>(); // 用户defined标识
+    private final List<String> idToPiece = Wraps.list(); // 标识转为piece
+    private final Map<String, Integer> pieceToId = Wraps.map(); // piece转为标识
+    private final Map<String, Float> pieceScore = Wraps.map(); // piecescore
+    private final List<Integer> userDefinedIds = Wraps.list(); // 用户defined标识
 
     /**
      * 从 .模型 文件加载词表。
@@ -100,7 +99,7 @@ public class MossSentencePieceBpe implements AutoCloseable {
      */
     public int[] encode(String text) {
         List<String> segments = splitUserDefined(text);
-        List<Integer> ids = new ArrayList<>();
+        List<Integer> ids = Wraps.list();
         boolean firstNormal = true;
         for (String segment : segments) {
             if (isUserDefined(segment)) {
@@ -170,7 +169,7 @@ public class MossSentencePieceBpe implements AutoCloseable {
      * @param out 方法入参 out
      */
     private void encodeWord(String word, List<Integer> out) {
-        List<String> symbols = new ArrayList<>();
+        List<String> symbols = Wraps.list();
         for (int i = 0; i < word.length(); ) {
             int codePoint = word.codePointAt(i);
             String ch = new String(Character.toChars(codePoint));
@@ -234,7 +233,7 @@ public class MossSentencePieceBpe implements AutoCloseable {
      * @return 结果列表，无数据时为空列表
      */
     private List<String> splitUserDefined(String text) {
-        List<String> segments = new ArrayList<>();
+        List<String> segments = Wraps.list();
         if (userDefinedIds.isEmpty()) {
             segments.add(text);
             return segments;

@@ -1,9 +1,8 @@
 package com.chua.common.support.network.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -75,7 +74,7 @@ public final class CurlParser {
      */
     static List<String> tokenize(String command) {
         String normalized = command.replaceAll("(?m)\\\\\n\\s*", " ");
-        List<String> tokens = new ArrayList<>();
+        List<String> tokens = Wraps.list();
         StringBuilder current = new StringBuilder();
         boolean inDoubleQuote = false;
         boolean inSingleQuote = false;
@@ -179,7 +178,7 @@ public final class CurlParser {
                 Matcher m = DATA_URL_ENCODE_PATTERN.matcher(d);
                 if (m.matches()) {
                     if (state.formData == null) {
-                        state.formData = new LinkedHashMap<>();
+                        state.formData = Wraps.linkedMap();
                     }
                     state.formData.put(java.net.URLEncoder.encode(m.group(1), StandardCharsets.UTF_8),
                             java.net.URLEncoder.encode(m.group(2), StandardCharsets.UTF_8));
@@ -235,7 +234,7 @@ public final class CurlParser {
             case "--form": {
                 String f = next(tokens, idx);
                 if (state.formFields == null) {
-                    state.formFields = new ArrayList<>();
+                    state.formFields = Wraps.list();
                 }
                 state.formFields.add(f);
                 return idx + 1;
@@ -349,7 +348,7 @@ public final class CurlParser {
             case "--form":
                 arg = next(tokens, idx);
                 if (state.formFields == null) {
-                    state.formFields = new ArrayList<>();
+                    state.formFields = Wraps.list();
                 }
                 state.formFields.add(arg);
                 return idx + 1;
@@ -514,7 +513,7 @@ public final class CurlParser {
         boolean getFlag;
         boolean followRedirects = true;
         boolean insecure;
-        Map<String, String> headers = new LinkedHashMap<>();
+        Map<String, String> headers = Wraps.linkedMap();
         String body;
         BodyKind bodyKind = BodyKind.NONE;
         Map<String, String> formData;

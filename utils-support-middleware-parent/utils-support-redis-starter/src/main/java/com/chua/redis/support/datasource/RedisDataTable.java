@@ -1,5 +1,6 @@
 package com.chua.redis.support.datasource;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasource.support.datasource.DataTable;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
@@ -72,9 +73,9 @@ public class RedisDataTable implements DataTable {
         this.name = name;
         this.jedisPool = jedisPool;
         this.keyPattern = keyPattern;
-        this.columnNames = new ArrayList<>();
-        this.columnTypes = new ArrayList<>();
-        this.rows = new ArrayList<>();
+        this.columnNames = Wraps.list();
+        this.columnTypes = Wraps.list();
+        this.rows = Wraps.list();
         this.initialized = false;
     }
 
@@ -89,8 +90,8 @@ public class RedisDataTable implements DataTable {
         if (initialized) {
             return;
         }
-        Set<String> columnSet = new LinkedHashSet<>();
-        List<Map<String, Object>> dataRows = new ArrayList<>();
+        Set<String> columnSet = Wraps.linkedSet();
+        List<Map<String, Object>> dataRows = Wraps.list();
 
         try (Jedis jedis = jedisPool.getResource()) {
             String cursor = "0";
@@ -104,7 +105,7 @@ public class RedisDataTable implements DataTable {
                     if (hash.isEmpty()) {
                         continue;
                     }
-                    Map<String, Object> row = new LinkedHashMap<>();
+                    Map<String, Object> row = Wraps.linkedMap();
                     row.put("_key", key);
                     for (Map.Entry<String, String> entry : hash.entrySet()) {
                         columnSet.add(entry.getKey());
@@ -118,7 +119,7 @@ public class RedisDataTable implements DataTable {
         }
 
  // 补充 _键 列
-        List<String> cols = new ArrayList<>();
+        List<String> cols = Wraps.list();
         cols.add("_key");
         cols.addAll(columnSet);
 

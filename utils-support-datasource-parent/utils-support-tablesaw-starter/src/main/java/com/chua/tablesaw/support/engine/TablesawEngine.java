@@ -1,5 +1,6 @@
 package com.chua.tablesaw.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.Engine;
@@ -47,12 +48,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -741,7 +737,7 @@ public class TablesawEngine implements Engine {
                     + wrapper.getEntityClass().getSimpleName());
         }
         // 先整体校验列存在性，避免部分列写入后才失败
-        Map<Column<?>, Object> writes = new LinkedHashMap<>(setValues.size());
+        Map<Column<?>, Object> writes = Wraps.linkedMap(setValues.size());
         for (Map.Entry<String, Object> entry : setValues.entrySet()) {
             writes.put(requireColumn(table, entry.getKey(), "更新列"), entry.getValue());
         }
@@ -810,7 +806,7 @@ public class TablesawEngine implements Engine {
      * @return 归一化后的投影键集合，空集合表示不裁剪
      */
     private static Set<String> resolveProjection(Table table, List<String> selectColumns) {
-        Set<String> projection = new LinkedHashSet<>();
+        Set<String> projection = Wraps.linkedSet();
         if (CollectionUtils.isEmpty(selectColumns)) {
             return projection;
         }
@@ -863,12 +859,12 @@ public class TablesawEngine implements Engine {
     private static <T> List<T> materialize(Table table, Class<T> entityClass, List<Integer> rows,
                                            Set<String> projection) {
         if (rows.isEmpty()) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
         List<String> columnNames = table.columnNames();
         Map<String, Method> setters = resolveSetters(entityClass, columnNames);
         Map<String, Field> fields = resolveFields(entityClass, columnNames, setters.keySet());
-        List<T> result = new ArrayList<>(rows.size());
+        List<T> result = Wraps.list(rows.size());
         for (Integer row : rows) {
             result.add(rowToEntity(table, row, entityClass, setters, fields, projection));
         }
@@ -1019,7 +1015,7 @@ public class TablesawEngine implements Engine {
                 // 空分组与 SQL 渲染的 1 = 1 一致，恒真
                 return (t, i) -> true;
             }
-            List<BiPredicate<Table, Integer>> matchers = new ArrayList<>(nested.size());
+            List<BiPredicate<Table, Integer>> matchers = Wraps.list(nested.size());
             for (Condition sub : nested) {
                 matchers.add(conditionToMatcher(table, sub));
             }
@@ -1289,7 +1285,7 @@ public class TablesawEngine implements Engine {
      * @return 命中行号（升序）
      */
     private static List<Integer> matchedRowIndexes(Table table, BiPredicate<Table, Integer> matcher) {
-        List<Integer> hits = new ArrayList<>(table.rowCount());
+        List<Integer> hits = Wraps.list(table.rowCount());
         for (int row = 0; row < table.rowCount(); row++) {
             if (matcher.test(table, row)) {
                 hits.add(row);
@@ -1615,7 +1611,7 @@ public class TablesawEngine implements Engine {
      * @return 有序的属性名到 getter 映射
      */
     private static Map<String, Method> resolveGetterMethods(Class<?> entityClass) {
-        Set<String> fieldNames = new HashSet<>();
+        Set<String> fieldNames = Wraps.set();
         for (Class<?> clazz = entityClass; clazz != null && clazz != Object.class; clazz = clazz.getSuperclass()) {
             for (Field field : clazz.getDeclaredFields()) {
                 if (!Modifier.isStatic(field.getModifiers())) {
@@ -1623,7 +1619,7 @@ public class TablesawEngine implements Engine {
                 }
             }
         }
-        Map<String, Method> getters = new LinkedHashMap<>();
+        Map<String, Method> getters = Wraps.linkedMap();
         for (Method method : entityClass.getMethods()) {
             String methodName = method.getName();
             if (method.getParameterCount() != 0 || method.isBridge() || method.isSynthetic()
@@ -1678,7 +1674,7 @@ public class TablesawEngine implements Engine {
      */
     private static Map<String, Method> resolveSetters(Class<?> entityClass, Collection<String> columnNames) {
         Set<String> wanted = columnNames.stream().map(TablesawEngine::normalize).collect(Collectors.toSet());
-        Map<String, Method> setters = new HashMap<>();
+        Map<String, Method> setters = Wraps.map();
         for (Method method : entityClass.getMethods()) {
             String name = method.getName();
             if (method.getParameterCount() != 1 || method.isBridge() || method.isSynthetic()
@@ -1704,7 +1700,7 @@ public class TablesawEngine implements Engine {
     private static Map<String, Field> resolveFields(Class<?> entityClass, Collection<String> columnNames,
                                                     Set<String> setterKeys) {
         Set<String> wanted = columnNames.stream().map(TablesawEngine::normalize).collect(Collectors.toSet());
-        Map<String, Field> fields = new HashMap<>();
+        Map<String, Field> fields = Wraps.map();
         for (Class<?> clazz = entityClass; clazz != null && clazz != Object.class; clazz = clazz.getSuperclass()) {
             for (Field field : clazz.getDeclaredFields()) {
                 if (Modifier.isStatic(field.getModifiers())) {

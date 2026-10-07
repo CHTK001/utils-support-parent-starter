@@ -1,5 +1,6 @@
 package com.chua.email.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import com.chua.common.support.spi.annotations.SpiParam;
@@ -11,7 +12,6 @@ import com.chua.common.support.task.message.TemplateInfo;
 
 import jakarta.mail.Message;
 import jakarta.mail.Transport;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -157,7 +157,7 @@ public class EmailPush implements MessagePush {
      * 列表templates
     */
     public List<TemplateInfo> listTemplates() {
-        return new ArrayList<>(templates.values());
+        return Wraps.list(templates.values());
     }
 
     @Override

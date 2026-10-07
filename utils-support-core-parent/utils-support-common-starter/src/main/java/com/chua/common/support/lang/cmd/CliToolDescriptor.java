@@ -1,12 +1,11 @@
 package com.chua.common.support.lang.cmd;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -118,13 +117,13 @@ public final class CliToolDescriptor {
                 ? builder.unixExecutable : builder.executable;
         this.executable = builder.executable;
         this.envKey = builder.envKey;
-        this.candidateDirs = Collections.unmodifiableList(new ArrayList<>(builder.candidateDirs));
-        this.versionArgs = Collections.unmodifiableList(new ArrayList<>(builder.versionArgs));
+        this.candidateDirs = Collections.unmodifiableList(Wraps.list(builder.candidateDirs));
+        this.versionArgs = Collections.unmodifiableList(Wraps.list(builder.versionArgs));
         this.versionPattern = builder.versionPattern;
         this.minVersion = builder.minVersion;
         this.defaultTimeoutSeconds = builder.defaultTimeoutSeconds;
         this.installPackageId = builder.installPackageId;
-        this.options = Collections.unmodifiableList(new ArrayList<>(builder.options));
+        this.options = Collections.unmodifiableList(Wraps.list(builder.options));
     }
 
     /**
@@ -314,11 +313,11 @@ public final class CliToolDescriptor {
         /**
          * 候选目录，去重有序
          */
-        private final Set<String> candidateDirs = new LinkedHashSet<>();
+        private final Set<String> candidateDirs = Wraps.linkedSet();
         /**
          * 版本参数
          */
-        private final List<String> versionArgs = new ArrayList<>(DEFAULT_VERSION_ARGS);
+        private final List<String> versionArgs = Wraps.list(DEFAULT_VERSION_ARGS);
         /**
          * 版本正则
          */
@@ -338,7 +337,7 @@ public final class CliToolDescriptor {
         /**
          * 选项契约，去重有序
          */
-        private final Set<CliOption> options = new LinkedHashSet<>();
+        private final Set<CliOption> options = Wraps.linkedSet();
 
         /**
          * 创建构建器

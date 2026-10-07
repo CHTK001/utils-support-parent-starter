@@ -1,10 +1,10 @@
 package com.chua.common.support.objects.describe;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.ClassUtils;
 import lombok.Getter;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -62,7 +62,7 @@ public class ObjectDescribe {
     public List<MethodDescribe> getMethodDescribes() {
         if (objectClass == null) { return Collections.emptyList(); }
         List<Method> methods = ClassUtils.getLocalMethods(objectClass);
-        List<MethodDescribe> describes = new ArrayList<>();
+        List<MethodDescribe> describes = Wraps.list();
         for (Method method : methods) {
             describes.add(new MethodDescribe(object, method));
         }

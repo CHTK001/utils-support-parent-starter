@@ -1,8 +1,7 @@
 package com.chua.deeplearning.support.plate;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.model.PredictRectangle;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,7 +43,7 @@ public class PlateContext {
     /**
      * 已收集的识别结果。
      */
-    private final List<PlateDetectHit> hits = new ArrayList<>();
+    private final List<PlateDetectHit> hits = Wraps.list();
 
     /**
      * 构造。

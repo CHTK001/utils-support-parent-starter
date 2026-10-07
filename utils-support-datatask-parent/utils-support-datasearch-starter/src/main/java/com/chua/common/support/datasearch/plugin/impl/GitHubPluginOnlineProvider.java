@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.plugin.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.plugin.model.PluginDefinition;
 import com.chua.common.support.datasearch.plugin.spi.PluginOnlineProvider;
 import com.chua.common.support.lang.json.Json;
@@ -12,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +56,7 @@ public class GitHubPluginOnlineProvider implements PluginOnlineProvider {
     @Override
     public List<PluginDefinition> search(String keyword) {
         String kw = keyword == null ? "" : keyword.trim().toLowerCase(java.util.Locale.ROOT);
-        List<PluginDefinition> result = new ArrayList<>();
+        List<PluginDefinition> result = Wraps.list();
         for (String[] repo : DEFAULT_REPOS) {
             try {
                 result.addAll(discoverRepoPlugins(repo[0], repo[1], repo[2], kw));
@@ -79,7 +79,7 @@ public class GitHubPluginOnlineProvider implements PluginOnlineProvider {
         }
         Map<String, Object> raw = Json.fromJson(response.getBodyString());
         List<Map<String, Object>> tree = (List<Map<String, Object>>) raw.get("tree");
-        List<PluginDefinition> result = new ArrayList<>();
+        List<PluginDefinition> result = Wraps.list();
         if (tree == null) {
             return result;
         }

@@ -1,5 +1,6 @@
 package com.chua.crypto.support.pack;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.crypto.support.Crypto;
 import com.chua.crypto.support.launch.CryptoLauncher;
 import com.chua.crypto.support.codec.DataCipher;
@@ -8,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -149,7 +149,7 @@ public class JarEncryptor {
     /**
      * 明文保留前缀排除列表
      */
-    private final List<String> excludes = new ArrayList<>();
+    private final List<String> excludes = Wraps.list();
 
     /**
      * 私有构造，统一从 {@link #create()} 进入

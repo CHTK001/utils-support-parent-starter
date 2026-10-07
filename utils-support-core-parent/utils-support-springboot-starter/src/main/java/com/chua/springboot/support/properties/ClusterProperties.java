@@ -1,10 +1,9 @@
 package com.chua.springboot.support.properties;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -63,12 +62,12 @@ public class ClusterProperties {
     /**
      * 种子节点列表（主机:端口）
     */
-    private List<String> seeds = new ArrayList<>();
+    private List<String> seeds = Wraps.list();
 
     /**
      * 本节点服务路径列表
     */
-    private List<String> servicePaths = new ArrayList<>();
+    private List<String> servicePaths = Wraps.list();
 
     /**
      * 本节点业务端口（0=自动分配）
@@ -109,7 +108,7 @@ public class ClusterProperties {
      * 声明的远端服务条目（scatter 会自动将这些服务注册到集群，供对等发现）。
      * 同一 服务路径 下只允许同一种协议。
      */
-    private List<ServerEntryProp> serverEntries = new ArrayList<>();
+    private List<ServerEntryProp> serverEntries = Wraps.list();
 
     /**
      * 单个服务条目元数据。

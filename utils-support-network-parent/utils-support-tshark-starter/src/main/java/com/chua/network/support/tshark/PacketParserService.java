@@ -1,5 +1,6 @@
 package com.chua.network.support.tshark;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.protocol.ProtocolRestorer;
 import com.chua.common.support.spi.ServiceProvider;
 import com.fasterxml.jackson.core.JsonParser;
@@ -18,7 +19,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -55,7 +55,7 @@ public final class PacketParserService {
     private static final List<ProtocolRestorer> RESTORERS;
 
     static {
-        List<ProtocolRestorer> restorers = new ArrayList<>(ServiceProvider.of(ProtocolRestorer.class).collect());
+        List<ProtocolRestorer> restorers = Wraps.list(ServiceProvider.of(ProtocolRestorer.class).collect());
         // 还原器按 getPriority() 升序尝试：SPI 登记顺序不代表协议优先级，
         // 否则字节嗅探型还原器（如 telnet）会抢走后续专有协议的报文
         restorers.sort(Comparator.comparingInt(ProtocolRestorer::getPriority));
@@ -150,7 +150,7 @@ public final class PacketParserService {
     private static final Map<String, List<String>> RESTORER_LAYER_ALIASES;
 
     static {
-        Map<String, String> layers = new LinkedHashMap<>();
+        Map<String, String> layers = Wraps.linkedMap();
         layers.put("http2", "HTTP2");
         layers.put("websocket", "WEBSOCKET");
         layers.put(PROTOCOL_HTTP.toLowerCase(), PROTOCOL_HTTP);
@@ -200,7 +200,7 @@ public final class PacketParserService {
         layers.put("pop3", "POP3");
         APPLICATION_LAYERS = Collections.unmodifiableMap(layers);
 
-        Map<String, List<String>> aliases = new LinkedHashMap<>();
+        Map<String, List<String>> aliases = Wraps.linkedMap();
         aliases.put("https", List.of(PROTOCOL_TLS.toLowerCase()));
         aliases.put("postgresql", List.of("pgsql"));
         aliases.put("email", List.of("smtp", "imap", "pop"));
@@ -317,7 +317,7 @@ public final class PacketParserService {
      */
     @Nonnull
     public static List<PacketRecord> parseAll(@Nonnull InputStream inputStream) throws IOException {
-        List<PacketRecord> records = new ArrayList<>();
+        List<PacketRecord> records = Wraps.list();
         try (JsonParser parser = OBJECT_MAPPER.getFactory().createParser(inputStream)) {
             if (parser.nextToken() != JsonToken.START_ARRAY) {
                 log.debug("tshark 输出不是 JSON 数组，忽略");
@@ -450,7 +450,7 @@ public final class PacketParserService {
          */
         @Nonnull
         public List<PacketRecord> poll(long waitMillis) {
-            List<PacketRecord> records = new ArrayList<>();
+            List<PacketRecord> records = Wraps.list();
             ensureStarted();
             PacketRecord first = queue.poll();
             if (first == null && waitMillis > 0) {
@@ -587,9 +587,9 @@ public final class PacketParserService {
         if (payload == null || payload.length == 0 || RESTORERS.isEmpty()) {
             return List.of();
         }
-        Map<String, Object> context = new LinkedHashMap<>();
+        Map<String, Object> context = Wraps.linkedMap();
         context.put("rawData", payload);
-        List<String> results = new ArrayList<>();
+        List<String> results = Wraps.list();
         for (ProtocolRestorer restorer : RESTORERS) {
             try {
                 if (!restorer.canRestore(context, payload)) {
@@ -650,7 +650,7 @@ public final class PacketParserService {
             return List.of();
         }
         Map<String, Object> context = restoreContext(layers, rawBytes);
-        List<String> results = new ArrayList<>();
+        List<String> results = Wraps.list();
         for (ProtocolRestorer restorer : candidates) {
             try {
                 if (!restorer.canRestore(context, rawBytes)) {
@@ -674,7 +674,7 @@ public final class PacketParserService {
      * @return 候选还原器列表（已按优先级升序）
      */
     private static List<ProtocolRestorer> selectRestorers(Map<String, Object> layers) {
-        List<ProtocolRestorer> guided = new ArrayList<>();
+        List<ProtocolRestorer> guided = Wraps.list();
         for (ProtocolRestorer restorer : RESTORERS) {
             if (hasLayer(layers, restorer.getProtocolName())) {
                 guided.add(restorer);
@@ -714,7 +714,7 @@ public final class PacketParserService {
         if (alias == null || alias.isEmpty()) {
             return List.of(name);
         }
-        List<String> names = new ArrayList<>(alias.size() + 1);
+        List<String> names = Wraps.list(alias.size() + 1);
         names.add(name);
         names.addAll(alias);
         return names;
@@ -731,7 +731,7 @@ public final class PacketParserService {
      * @return 还原器上下文
      */
     private static Map<String, Object> restoreContext(Map<String, Object> layers, byte[] rawBytes) {
-        Map<String, Object> context = new LinkedHashMap<>(layers);
+        Map<String, Object> context = Wraps.linkedMap(layers);
         context.put("rawData", rawBytes);
         return context;
     }
@@ -1122,7 +1122,7 @@ public final class PacketParserService {
         if (tcp == null) {
             return "{}";
         }
-        Map<String, String> lifecycleMap = new LinkedHashMap<>();
+        Map<String, String> lifecycleMap = Wraps.linkedMap();
         lifecycleMap.put("tcp_flags", buildTcpFlags(tcp));
         lifecycleMap.put("lifecycle", calculateTcpLifecycle(tcp));
         try {

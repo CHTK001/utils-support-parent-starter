@@ -1,10 +1,7 @@
 package com.chua.common.support.ai.rule;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -53,7 +50,7 @@ public final class RuleSet {
         if (rules.isEmpty()) {
             throw new IllegalArgumentException("rules 不能为空");
         }
-        Set<String> ids = new LinkedHashSet<>();
+        Set<String> ids = Wraps.linkedSet();
         RuleType type = null;
         Class<?> expected = null;
         for (Rule rule : rules) {
@@ -73,7 +70,7 @@ public final class RuleSet {
                 throw new IllegalArgumentException("规则标识重复: " + rule.id());
             }
         }
-        List<Rule> sorted = new ArrayList<>(rules);
+        List<Rule> sorted = Wraps.list(rules);
         // 降序 + 稳定：List.sort 是稳定排序，只在 salience 严格不等时换位
         sorted.sort((left, right) -> Integer.compare(right.salience(), left.salience()));
         this.rules = Collections.unmodifiableList(sorted);
@@ -136,7 +133,7 @@ public final class RuleSet {
      * @return 不可变映射
      */
     public Map<String, Rule> byIdIndex() {
-        Map<String, Rule> index = new LinkedHashMap<>();
+        Map<String, Rule> index = Wraps.linkedMap();
         for (Rule rule : rules) {
             index.put(rule.id(), rule);
         }
@@ -158,7 +155,7 @@ public final class RuleSet {
      * @return 不可变规则标识列表
      */
     public List<String> chainedIds() {
-        List<String> ids = new ArrayList<>();
+        List<String> ids = Wraps.list();
         for (Rule rule : rules) {
             if (rule.target() != null) {
                 ids.add(rule.id());

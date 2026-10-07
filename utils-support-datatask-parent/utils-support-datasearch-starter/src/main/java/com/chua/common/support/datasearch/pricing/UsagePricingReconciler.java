@@ -1,10 +1,9 @@
 package com.chua.common.support.datasearch.pricing;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.datasearch.pricing.spi.ModelMetricsProvider;
 import com.chua.common.support.spi.ServiceProvider;
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -91,12 +90,12 @@ public final class UsagePricingReconciler {
          * @param totalUsages 参与对账的用量总条数
          */
         public Report {
-            unpricedModels = Collections.unmodifiableMap(new LinkedHashMap<>(
+            unpricedModels = Collections.unmodifiableMap(Wraps.linkedMap(
                     Objects.requireNonNull(unpricedModels, "unpricedModels 不能为 null")));
-            zeroCostGroups = Collections.unmodifiableMap(new LinkedHashMap<>(
+            zeroCostGroups = Collections.unmodifiableMap(Wraps.linkedMap(
                     Objects.requireNonNull(zeroCostGroups, "zeroCostGroups 不能为 null")));
             idlePricings = List.copyOf(Objects.requireNonNull(idlePricings, "idlePricings 不能为 null"));
-            duplicatePricings = Collections.unmodifiableMap(new LinkedHashMap<>(
+            duplicatePricings = Collections.unmodifiableMap(Wraps.linkedMap(
                     Objects.requireNonNull(duplicatePricings, "duplicatePricings 不能为 null")));
         }
 
@@ -159,9 +158,9 @@ public final class UsagePricingReconciler {
         Map<String, Integer> duplicatePricings = countDuplicates(sources);
 
         // 记录命中的定价键，用于识别闲置定价
-        java.util.Set<String> hitKeys = new java.util.LinkedHashSet<>();
-        Map<String, Integer> unpriced = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        Map<String, Integer> zeroCostGroups = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        java.util.Set<String> hitKeys = Wraps.linkedSet();
+        Map<String, Integer> unpriced = Wraps.sortedMap(String.CASE_INSENSITIVE_ORDER);
+        Map<String, Integer> zeroCostGroups = Wraps.sortedMap(String.CASE_INSENSITIVE_ORDER);
 
         int total = 0;
         for (UsageEntry usage : usages == null ? List.<UsageEntry>of() : usages) {
@@ -185,7 +184,7 @@ public final class UsagePricingReconciler {
         }
 
         // 闲置定价：原样键里有、但没被任何用量命中；以 厂商:模型 输出
-        List<String> idle = new ArrayList<>();
+        List<String> idle = Wraps.list();
         for (Map.Entry<String, ModelDefinition> entry : index.entrySet()) {
             String key = entry.getKey();
             if (key.startsWith("\u0000fold:")) {
@@ -208,7 +207,7 @@ public final class UsagePricingReconciler {
      * @return 各数据源指标列表
      */
     private static List<List<ModelDefinition>> loadAllSources() {
-        List<List<ModelDefinition>> result = new ArrayList<>();
+        List<List<ModelDefinition>> result = Wraps.list();
         Map<String, ModelMetricsProvider> providers;
         try {
             providers = ServiceProvider.of(ModelMetricsProvider.class).list();
@@ -241,7 +240,7 @@ public final class UsagePricingReconciler {
      * @return 索引
      */
     private static Map<String, ModelDefinition> buildIndex(List<List<ModelDefinition>> sources) {
-        Map<String, ModelDefinition> index = new LinkedHashMap<>();
+        Map<String, ModelDefinition> index = Wraps.linkedMap();
         for (List<ModelDefinition> metrics : sources) {
             for (ModelDefinition md : metrics) {
                 if (md == null || md.getId() == null || md.getId().isBlank()) {
@@ -299,7 +298,7 @@ public final class UsagePricingReconciler {
      * @return 厂商:模型 → 出现次数（仅含 &gt;1 的）
      */
     private static Map<String, Integer> countDuplicates(List<List<ModelDefinition>> sources) {
-        Map<String, Integer> counts = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        Map<String, Integer> counts = Wraps.sortedMap(String.CASE_INSENSITIVE_ORDER);
         for (List<ModelDefinition> metrics : sources) {
             for (ModelDefinition md : metrics) {
                 if (md == null || md.getId() == null || md.getId().isBlank()) {
@@ -311,7 +310,7 @@ public final class UsagePricingReconciler {
                 counts.merge(providerKey(md.getProvider(), md.getId()), 1, Integer::sum);
             }
         }
-        Map<String, Integer> duplicates = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        Map<String, Integer> duplicates = Wraps.sortedMap(String.CASE_INSENSITIVE_ORDER);
         counts.forEach((k, v) -> {
             if (v > 1) {
                 duplicates.put(k, v);

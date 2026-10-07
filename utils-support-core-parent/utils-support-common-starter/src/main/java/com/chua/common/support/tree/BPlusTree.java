@@ -1,6 +1,5 @@
 package com.chua.common.support.tree;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -97,7 +96,7 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     @Override
     public List<Map.Entry<K, V>> range(K from, K to) {
         int estimatedSize = Math.min(size, (size / maxKeys) * 2);
-        List<Map.Entry<K, V>> result = new ArrayList<>(estimatedSize);
+        List<Map.Entry<K, V>> result = Wraps.list(estimatedSize);
         locateLeaf(root, from, to, result);
         return result;
     }
@@ -358,7 +357,7 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
      * @since 4.0.0
      */
     public List<Map.Entry<K, V>> allEntries() {
-        List<Map.Entry<K, V>> result = new ArrayList<>(size);
+        List<Map.Entry<K, V>> result = Wraps.list(size);
         BPlusTreeNode<K, V> cur = root;
         while (cur != null && !cur.leaf) {
             cur = cur.children.getFirst();

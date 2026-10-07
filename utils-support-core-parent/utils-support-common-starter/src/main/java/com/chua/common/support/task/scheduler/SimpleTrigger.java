@@ -1,8 +1,8 @@
 package com.chua.common.support.task.scheduler;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -57,7 +57,7 @@ public class SimpleTrigger implements Trigger {
      */
     @Override
     public List<LocalDateTime> getFireTimes(int count, LocalDateTime from) {
-        List<LocalDateTime> times = new ArrayList<>(count);
+        List<LocalDateTime> times = Wraps.list(count);
         LocalDateTime t = from.plus(interval);
         for (int i = 0; i < count; i++) {
             times.add(t);

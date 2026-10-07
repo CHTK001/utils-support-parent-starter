@@ -1,5 +1,6 @@
 package com.chua.crypto.support.launch;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.SecretKeyFactory;
@@ -10,7 +11,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -194,7 +194,7 @@ public final class PayloadCipher {
         if (pinned != null && !pinned.isBlank()) {
             return sha256Hex("pinned|" + pinned.trim());
         }
-        List<String> parts = new ArrayList<>();
+        List<String> parts = Wraps.list();
         parts.add(System.getProperty("os.name", "unknown-os"));
         parts.add(System.getProperty("os.arch", "unknown-arch"));
         parts.add(String.valueOf(Runtime.getRuntime().availableProcessors()));
@@ -203,7 +203,7 @@ public final class PayloadCipher {
         } catch (Exception ignored) {
             parts.add("unknown-host");
         }
-        List<String> macs = new ArrayList<>();
+        List<String> macs = Wraps.list();
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {

@@ -1,8 +1,8 @@
 package com.chua.common.support.network.discovery;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -58,5 +58,5 @@ public class DiscoveryOption {
     /**
      * 额外的自定义配置项。
      */
-    private Map<String, Object> extra = new LinkedHashMap<>();
+    private Map<String, Object> extra = Wraps.linkedMap();
 }

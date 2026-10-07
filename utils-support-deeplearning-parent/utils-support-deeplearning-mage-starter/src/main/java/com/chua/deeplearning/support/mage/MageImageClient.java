@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.mage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.ai.image.ImageClient;
 import com.chua.common.support.ai.image.ImageClientSetting;
@@ -16,7 +17,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -140,7 +140,7 @@ public class MageImageClient implements ImageClient {
     /**
      * 编辑参考图列表（字节数据）；非空时 generate 走图像编辑接口
      */
-    private final List<byte[]> referenceImages = new ArrayList<>();
+    private final List<byte[]> referenceImages = Wraps.list();
 
     /**
      * 构造 Mage 图像生成客户端。
@@ -291,7 +291,7 @@ public class MageImageClient implements ImageClient {
         boolean editMode = !referenceImages.isEmpty();
         List<String> imagesB64 = null;
         if (editMode) {
-            imagesB64 = new ArrayList<>(referenceImages.size());
+            imagesB64 = Wraps.list(referenceImages.size());
             for (byte[] ref : referenceImages) {
                 imagesB64.add(Base64.getEncoder().encodeToString(ref));
             }

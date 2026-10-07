@@ -1,5 +1,6 @@
 package com.chua.ueba.support.training;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.ueba.support.config.UebaConfig;
 import com.chua.ueba.support.config.UebaConfigSerializer;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -262,7 +262,7 @@ public class UebaTrainer {
      * @return 完整命令字符串
      */
     private String buildCommand(Path scriptFile, Path configFile) {
-        List<String> parts = new ArrayList<>(12);
+        List<String> parts = Wraps.list(12);
         parts.add(quote(pythonCommand));
         parts.add(quote(scriptFile.toString()));
         parts.add("--config=" + quote(configFile.toString()));
@@ -284,7 +284,7 @@ public class UebaTrainer {
      * @return 参数列表
      */
     private static List<String> parseCommand(String command) {
-        List<String> result = new ArrayList<>(8);
+        List<String> result = Wraps.list(8);
         StringBuilder current = new StringBuilder();
         boolean inQuote = false;
         for (int i = 0; i < command.length(); i++) {

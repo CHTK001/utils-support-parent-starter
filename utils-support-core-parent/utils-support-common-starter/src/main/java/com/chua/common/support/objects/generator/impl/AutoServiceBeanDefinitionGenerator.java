@@ -1,5 +1,6 @@
 package com.chua.common.support.objects.generator.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import com.chua.common.support.objects.annotation.AutoService;
@@ -7,8 +8,6 @@ import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.definition.TypeBeanDefinition;
 import com.chua.common.support.objects.generator.BeanDefinitionGenerator;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,7 +49,7 @@ public class AutoServiceBeanDefinitionGenerator implements BeanDefinitionGenerat
      */
     @Override
     public List<BeanDefinition> generate(Class<?> beanClass) {
-        List<BeanDefinition> definitions = new ArrayList<>();
+        List<BeanDefinition> definitions = Wraps.list();
         if (beanClass == null) {
             return definitions;
         }

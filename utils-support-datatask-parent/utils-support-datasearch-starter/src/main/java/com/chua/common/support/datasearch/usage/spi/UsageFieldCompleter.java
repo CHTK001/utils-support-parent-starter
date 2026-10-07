@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.ai.chat.pricing.ModelPricingProvider;
@@ -10,7 +11,6 @@ import reactor.core.publisher.Flux;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -369,7 +369,7 @@ public final class UsageFieldCompleter {
      * @return 候选标识列表
      */
     private static List<String> candidateModels(String model) {
-        List<String> candidates = new ArrayList<>(3);
+        List<String> candidates = Wraps.list(3);
         candidates.add(model);
         String lower = model.toLowerCase(Locale.ROOT);
         if (!lower.equals(model)) {

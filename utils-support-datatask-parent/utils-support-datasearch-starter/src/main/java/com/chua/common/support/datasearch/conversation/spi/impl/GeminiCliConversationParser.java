@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.conversation.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.conversation.ConversationMessage;
 import com.chua.common.support.datasearch.conversation.spi.AbstractJsonlConversationParser;
 import com.chua.common.support.lang.json.Json;
@@ -8,7 +9,6 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -108,7 +108,7 @@ public class GeminiCliConversationParser extends AbstractJsonlConversationParser
                 return List.of(base.contentType("text")
                         .content(content.toStringValue()).build());
             }
-            List<ConversationMessage> result = new ArrayList<>(content.size());
+            List<ConversationMessage> result = Wraps.list(content.size());
             for (int i = 0; i < content.size(); i++) {
                 JsonNode block = content.get(i);
                 JsonNode text = block.get("text");

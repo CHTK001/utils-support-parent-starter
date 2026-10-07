@@ -1,8 +1,7 @@
 package com.chua.deeplearning.support.onnx.yolo.obb;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Data;
-
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -151,7 +150,7 @@ public class YoloRotatedBox {
         var vec2x = -h / 2.0 * sin;
         var vec2y = h / 2.0 * cos;
 
-        var points = new ArrayList<Point2D>(4);
+        var points = Wraps.<Point2D>list(4);
 
         // pt1 = ctr + vec1 + vec2
         points.add(new Point2D((float) (cx + vec1x + vec2x), (float) (cy + vec1y + vec2y)));

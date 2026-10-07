@@ -1,5 +1,6 @@
 package com.chua.datalake.support.mqtt;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datalake.support.model.DataEnvelope;
 import com.chua.datalake.support.spi.pipeline.PipelineEngine;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +13,6 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -272,7 +272,7 @@ public class MqttInboundAdapter {
         if (trimmed.startsWith("{")) {
             return objectMapper.readValue(trimmed, Map.class);
         }
-        Map<String, Object> wrapped = new LinkedHashMap<>();
+        Map<String, Object> wrapped = Wraps.linkedMap();
         wrapped.put("payload", payload);
         return wrapped;
     }

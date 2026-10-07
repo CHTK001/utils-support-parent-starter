@@ -1,5 +1,6 @@
 package com.chua.datasource.support.document;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.document.*;
 import com.chua.common.support.spi.annotations.Spi;
 
@@ -52,10 +53,10 @@ public class DatabaseDocumentParser implements DocumentParser {
             String dbVersion = meta.getDatabaseProductVersion();
             String docVersion = resolveVersion(config);
 
-            List<TableData> tables = new ArrayList<>();
-            Set<String> schemaNames = new LinkedHashSet<>();
+            List<TableData> tables = Wraps.list();
+            Set<String> schemaNames = Wraps.linkedSet();
 
-            List<String> catalogs = new ArrayList<>();
+            List<String> catalogs = Wraps.list();
             if (allMode) {
                 try (ResultSet rsCatalogs = meta.getCatalogs()) {
                     while (rsCatalogs.next()) {
@@ -108,7 +109,7 @@ public class DatabaseDocumentParser implements DocumentParser {
                                 .remark(remarks != null ? remarks : "")
                                 .type(tableType);
 
-                        List<ColumnData> columns = new ArrayList<>();
+                        List<ColumnData> columns = Wraps.list();
                         try (ResultSet cols = meta.getColumns(tableCatalog, tableSchema, tableName, "%")) {
                             while (cols.next()) {
                                 String colName = cols.getString("COLUMN_NAME");
@@ -150,7 +151,7 @@ public class DatabaseDocumentParser implements DocumentParser {
                         }
                         builder.columns(columns);
 
-                        List<RelationshipData> importedKeys = new ArrayList<>();
+                        List<RelationshipData> importedKeys = Wraps.list();
                         try (ResultSet fk = meta.getImportedKeys(tableCatalog, tableSchema, tableName)) {
                             while (fk.next()) {
                                 importedKeys.add(RelationshipData.builder()
@@ -166,7 +167,7 @@ public class DatabaseDocumentParser implements DocumentParser {
                         }
                         builder.importedKeys(importedKeys);
 
-                        List<RelationshipData> exportedKeys = new ArrayList<>();
+                        List<RelationshipData> exportedKeys = Wraps.list();
                         try (ResultSet fk = meta.getExportedKeys(tableCatalog, tableSchema, tableName)) {
                             while (fk.next()) {
                                 exportedKeys.add(RelationshipData.builder()
@@ -247,7 +248,7 @@ public class DatabaseDocumentParser implements DocumentParser {
         if (val.isEmpty() || "*".equals(val)) {
             return null;
         }
-        Set<String> set = new LinkedHashSet<>();
+        Set<String> set = Wraps.linkedSet();
         for (String s : val.split(",")) {
             String t = s.trim();
             if (!t.isEmpty()) {

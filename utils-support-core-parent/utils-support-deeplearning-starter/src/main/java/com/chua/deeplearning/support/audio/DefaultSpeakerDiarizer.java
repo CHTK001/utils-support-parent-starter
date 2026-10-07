@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.audio;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import lombok.extern.slf4j.Slf4j;
@@ -7,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -246,7 +246,7 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
         }
 
  // 步骤 4：合并连续语音帧为语音片段，并根据静音间隔分配说话人 标识
-        List<SpeakerSegment> segments = new ArrayList<>();
+        List<SpeakerSegment> segments = Wraps.list();
         int speakerCounter = 0;
         long segmentMs = segmentDurationMs;
 

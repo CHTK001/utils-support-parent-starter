@@ -1,9 +1,8 @@
 package com.chua.common.support.ai.calibration.train;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,7 +51,7 @@ public class TrainingData {
         if (samePersonScores == null) {
             return Collections.emptyList();
         }
-        return new ArrayList<>(samePersonScores);
+        return Wraps.list(samePersonScores);
     }
 
     /**
@@ -61,7 +60,7 @@ public class TrainingData {
      * @return 负样本分数列表
      */
     public List<Double> getNegativeScores() {
-        List<Double> negatives = new ArrayList<>(); // [P3C 3.15 豁免] 多个可空字段值拷贝汇总，规模运行期决定
+        List<Double> negatives = Wraps.list(); // [P3C 3.15 豁免] 多个可空字段值拷贝汇总，规模运行期决定
         if (notSimilarScores != null) {
             negatives.addAll(notSimilarScores);
         }

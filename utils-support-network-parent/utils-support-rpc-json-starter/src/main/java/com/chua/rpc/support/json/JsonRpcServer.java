@@ -1,5 +1,6 @@
 package com.chua.rpc.support.json;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.network.rpc.RpcConnectionInfo;
 import com.chua.common.support.network.rpc.RpcMetrics;
@@ -20,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -316,7 +316,7 @@ public class JsonRpcServer implements RpcServer {
             }
         }
         long now = System.currentTimeMillis();
-        List<RpcConnectionInfo> result = new ArrayList<>(clientAddresses.size());
+        List<RpcConnectionInfo> result = Wraps.list(clientAddresses.size());
         for (String address : clientAddresses) {
             result.add(new RpcConnectionInfo("json", localAddress, localPort,
                     address, 0, "ACTIVE", now, now, Collections.emptyMap()));

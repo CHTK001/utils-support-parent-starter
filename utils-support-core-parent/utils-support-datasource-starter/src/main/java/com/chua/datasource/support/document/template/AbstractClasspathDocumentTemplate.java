@@ -1,12 +1,11 @@
 package com.chua.datasource.support.document.template;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.document.*;
 import com.chua.common.support.lang.json.Json;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -76,7 +75,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
      * @return 变量表
      */
     protected Map<String, Object> buildVariables(DocumentData data, DocumentExportConfig config) {
-        Map<String, Object> vars = new LinkedHashMap<>();
+        Map<String, Object> vars = Wraps.linkedMap();
         vars.put("title", nullToEmpty(data.getTitle()));
         vars.put("databaseName", nullToEmpty(data.getDatabaseName(), "All Databases"));
         vars.put("productName", nullToEmpty(data.getProductName()));
@@ -100,7 +99,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
      * @return JSON
      */
     protected String toDataJson(DocumentData data) {
-        Map<String, Object> root = new LinkedHashMap<>();
+        Map<String, Object> root = Wraps.linkedMap();
         root.put("title", data.getTitle());
         root.put("databaseName", data.getDatabaseName());
         root.put("productName", data.getProductName());
@@ -110,25 +109,25 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
         root.put("description", data.getDescription());
         root.put("total", data.getTables() == null ? 0 : data.getTables().size());
 
-        List<Map<String, Object>> tables = new ArrayList<>();
-        List<Map<String, Object>> db = new ArrayList<>();
-        List<Map<String, Object>> mo = new ArrayList<>();
-        List<Map<String, Object>> ts = new ArrayList<>();
-        Map<String, Integer> dbCount = new LinkedHashMap<>();
+        List<Map<String, Object>> tables = Wraps.list();
+        List<Map<String, Object>> db = Wraps.list();
+        List<Map<String, Object>> mo = Wraps.list();
+        List<Map<String, Object>> ts = Wraps.list();
+        Map<String, Integer> dbCount = Wraps.linkedMap();
 
         if (data.getTables() != null) {
             for (TableData table : data.getTables()) {
-                Map<String, Object> t = new LinkedHashMap<>();
+                Map<String, Object> t = Wraps.linkedMap();
                 t.put("tableName", table.getTableName());
                 t.put("remark", table.getRemark());
                 t.put("schema", table.getSchema());
                 t.put("schemaName", table.getSchema());
                 t.put("tableSchema", table.getSchema());
                 t.put("type", table.getType() != null ? table.getType() : "TABLE");
-                List<Map<String, Object>> importedKeys = new ArrayList<>();
+                List<Map<String, Object>> importedKeys = Wraps.list();
                 if (table.getImportedKeys() != null) {
                     for (RelationshipData r : table.getImportedKeys()) {
-                        Map<String, Object> rMap = new LinkedHashMap<>();
+                        Map<String, Object> rMap = Wraps.linkedMap();
                         rMap.put("fkName", r.getFkName());
                         rMap.put("fkTableName", r.getFkTableName());
                         rMap.put("fkColumnName", r.getFkColumnName());
@@ -140,10 +139,10 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
                     }
                 }
                 t.put("importedKeys", importedKeys);
-                List<Map<String, Object>> exportedKeys = new ArrayList<>();
+                List<Map<String, Object>> exportedKeys = Wraps.list();
                 if (table.getExportedKeys() != null) {
                     for (RelationshipData r : table.getExportedKeys()) {
-                        Map<String, Object> rMap = new LinkedHashMap<>();
+                        Map<String, Object> rMap = Wraps.linkedMap();
                         rMap.put("fkName", r.getFkName());
                         rMap.put("fkTableName", r.getFkTableName());
                         rMap.put("fkColumnName", r.getFkColumnName());
@@ -155,11 +154,11 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
                     }
                 }
                 t.put("exportedKeys", exportedKeys);
-                List<Map<String, Object>> columns = new ArrayList<>();
-                List<Map<String, Object>> fields = new ArrayList<>();
+                List<Map<String, Object>> columns = Wraps.list();
+                List<Map<String, Object>> fields = Wraps.list();
                 if (table.getColumns() != null) {
                     for (ColumnData col : table.getColumns()) {
-                        Map<String, Object> c = new LinkedHashMap<>();
+                        Map<String, Object> c = Wraps.linkedMap();
                         c.put("ordinalPosition", col.getOrdinalPosition());
                         c.put("columnName", col.getColumnName());
                         c.put("typeName", col.getTypeName());
@@ -171,7 +170,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
                         c.put("remark", col.getRemark());
                         columns.add(c);
 
-                        Map<String, Object> f = new LinkedHashMap<>();
+                        Map<String, Object> f = Wraps.linkedMap();
                         f.put("n", col.getColumnName());
                         f.put("c", col.getRemark());
                         f.put("tp", col.getTypeName());
@@ -191,7 +190,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
                     dbCount.merge(schemaName, 1, Integer::sum);
                 }
 
-                Map<String, Object> row = new LinkedHashMap<>();
+                Map<String, Object> row = Wraps.linkedMap();
                 row.put("t", table.getTableName());
                 row.put("c", table.getRemark());
                 row.put("d", schemaName);
@@ -202,7 +201,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
         }
 
         for (Map.Entry<String, Integer> e : dbCount.entrySet()) {
-            Map<String, Object> item = new LinkedHashMap<>();
+            Map<String, Object> item = Wraps.linkedMap();
             item.put("n", e.getKey());
             item.put("c", e.getValue());
             db.add(item);
@@ -213,18 +212,18 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
         root.put("mo", mo);
         root.put("ts", ts);
 
-        List<Map<String, Object>> nodes = new ArrayList<>();
-        List<Map<String, Object>> edges = new ArrayList<>();
+        List<Map<String, Object>> nodes = Wraps.list();
+        List<Map<String, Object>> edges = Wraps.list();
         if (data.getTables() != null) {
             for (TableData table : data.getTables()) {
-                Map<String, Object> node = new LinkedHashMap<>();
+                Map<String, Object> node = Wraps.linkedMap();
                 node.put("id", table.getTableName());
                 node.put("label", (table.getRemark() != null && !table.getRemark().isEmpty()) ? table.getRemark() : table.getTableName());
                 node.put("schema", table.getSchema());
                 node.put("type", table.getType() != null ? table.getType() : "TABLE");
 
-                List<String> pkCols = new ArrayList<>();
-                List<String> fkCols = new ArrayList<>();
+                List<String> pkCols = Wraps.list();
+                List<String> fkCols = Wraps.list();
                 if (table.getColumns() != null) {
                     for (ColumnData col : table.getColumns()) {
                         if (col.isPrimaryKey()) {
@@ -247,7 +246,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
             for (TableData table : data.getTables()) {
                 if (table.getExportedKeys() != null) {
                     for (RelationshipData r : table.getExportedKeys()) {
-                        Map<String, Object> edge = new LinkedHashMap<>();
+                        Map<String, Object> edge = Wraps.linkedMap();
                         edge.put("from", r.getFkTableName());
                         edge.put("to", r.getPkTableName());
                         edge.put("fromColumn", r.getFkColumnName());

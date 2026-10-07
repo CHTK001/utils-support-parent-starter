@@ -1,13 +1,12 @@
 package com.chua.common.support.network.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.concurrent.collapse.CollapseBatchFunction;
 import com.chua.common.support.concurrent.collapse.CollapseConfig;
 import com.chua.common.support.concurrent.collapse.CollapseFlow;
 import com.chua.common.support.network.http.HttpMethod;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -151,7 +150,7 @@ public class CollapseHttpClient implements HttpClient {
                 ? url.substring(queryIndex + 1)
                 : url.substring(queryIndex + 1, fragmentIndex);
         String fragment = fragmentIndex < 0 ? "" : url.substring(fragmentIndex);
-        List<String> params = new ArrayList<>();
+        List<String> params = Wraps.list();
         for (String param : query.split("&")) {
             if (!param.isEmpty()) {
                 params.add(param);

@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.dht;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
@@ -9,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -364,7 +364,7 @@ public class DHTServer extends AbstractServer {
         /**
          * 种子节点地址集合。
          */
-        private Set<String> seeds = new LinkedHashSet<>(DEFAULT_SEEDS);
+        private Set<String> seeds = Wraps.linkedSet(DEFAULT_SEEDS);
 
         /**
          * 构造 dht服务端 构建器。

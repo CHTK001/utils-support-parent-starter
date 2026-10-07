@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.face;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -13,7 +14,6 @@ import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 import java.util.Arrays;
@@ -182,8 +182,8 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
         }
 
         // 收集候选框
-        List<float[]> boxes = new ArrayList<>();
-        List<Float> scores = new ArrayList<>();
+        List<float[]> boxes = Wraps.list();
+        List<Float> scores = Wraps.list();
         for (int i = 0; i < numDets; i++) {
             float cx, cy, w, h;
             if (transpose) {
@@ -226,9 +226,9 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
         }
 
         int[] keep = nms(boxes, scores);
-        List<String> names = new ArrayList<>();
-        List<Double> probs = new ArrayList<>();
-        List<Rectangle> rects = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> probs = Wraps.list();
+        List<Rectangle> rects = Wraps.list();
         int topK = Math.min(keep.length, TOP_K);
         for (int i = 0; i < topK; i++) {
             float[] b = boxes.get(keep[i]);
@@ -257,7 +257,7 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
                     (x2 - x1) / imageWidth, (y2 - y1) / imageHeight));
         }
         // 后处理：去重（中心点距离过滤 + 嵌套框过滤）
-        List<Integer> finalKeep = new ArrayList<>();
+        List<Integer> finalKeep = Wraps.list();
         boolean[] suppressed = new boolean[names.size()];
         for (int i = 0; i < names.size(); i++) {
             if (suppressed[i]) {
@@ -303,9 +303,9 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
                 }
             }
         }
-        List<String> finalNames = new ArrayList<>(finalKeep.size());
-        List<Double> finalProbs = new ArrayList<>(finalKeep.size());
-        List<BoundingBox> finalBoxes = new ArrayList<>(finalKeep.size());
+        List<String> finalNames = Wraps.list(finalKeep.size());
+        List<Double> finalProbs = Wraps.list(finalKeep.size());
+        List<BoundingBox> finalBoxes = Wraps.list(finalKeep.size());
         for (int idx : finalKeep) {
             if (!suppressed[idx]) {
                 finalNames.add(names.get(idx));
@@ -330,7 +330,7 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
             idx[i] = i;
         }
         Arrays.sort(idx, (a, b) -> Float.compare(scores.get(b), scores.get(a)));
-        List<Integer> keep = new ArrayList<>();
+        List<Integer> keep = Wraps.list();
         boolean[] removed = new boolean[n];
         for (int ii = 0; ii < n; ii++) {
             int i = idx[ii];

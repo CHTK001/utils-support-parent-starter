@@ -1,5 +1,6 @@
 package com.chua.common.support.spi.definition;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.function.NameAware;
 import com.chua.common.support.spi.autowire.ServiceAutowire;
@@ -12,7 +13,6 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -518,7 +518,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
                     if (null == implClass) {
                         this.subType = Collections.emptySet();
                     } else {
-                        this.subType = new HashSet<>(ClassUtils.getAllType(implClass));
+                        this.subType = Wraps.set(ClassUtils.getAllType(implClass));
                         this.subType.add(implClass);
                     }
                     this.subTypeInitialized = true;

@@ -1,4 +1,5 @@
 package com.chua.deeplearning.support.onnx.classification;
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.utils.ImageUtils;
 
 import ai.onnxruntime.OnnxTensor;
@@ -14,8 +15,6 @@ import org.opencv.core.Size;import org.opencv.imgproc.Imgproc;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
@@ -174,7 +173,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
         try {
             prepare();
             List<float[][]> quads = detectQuads(imageData);
-            List<DetectionInfo> result = new ArrayList<>(quads.size());
+            List<DetectionInfo> result = Wraps.list(quads.size());
             for (float[][] quad : quads) {
                 float minX = Float.MAX_VALUE, minY = Float.MAX_VALUE;
                 float maxX = -Float.MAX_VALUE, maxY = -Float.MAX_VALUE;
@@ -294,7 +293,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
 
             long[] shape = {1, 3, INPUT_SIZE, INPUT_SIZE};
             try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
-                Map<String, OnnxTensor> inputs = new HashMap<>();
+                Map<String, OnnxTensor> inputs = Wraps.map();
                 inputs.put("image", tensor);
                 try (OrtSession.Result result = session.run(inputs)) {
                     float[][] hm = toMat2D(result.get("hm").get().getValue());
@@ -318,7 +317,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     private List<float[][]> decodeCorners(float[][] hm, float[][][] wh, float[][][] reg) {
         float scaleX = (float) srcWidth / INPUT_SIZE;
         float scaleY = (float) srcHeight / INPUT_SIZE;
-        List<float[][]> result = new ArrayList<>();
+        List<float[][]> result = Wraps.list();
         List<int[]> centers = findPeaks(hm, effThreshold(CONF_THRESHOLD));
         for (int[] c : centers) {
             int bestY = c[0];
@@ -343,8 +342,8 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
      * @return 峰值 (y,x) 列表，按置信度降序
      */
     private List<int[]> findPeaks(float[][] hm, float threshold) {
-        List<int[]> peaks = new ArrayList<>();
-        List<Float> vals = new ArrayList<>();
+        List<int[]> peaks = Wraps.list();
+        List<Float> vals = Wraps.list();
         for (int y = 0; y < HEAT_SIZE; y++) {
             for (int x = 0; x < HEAT_SIZE; x++) {
                 float v = hm[y][x];
@@ -361,7 +360,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
         }
         Arrays.sort(idx, (a, b) -> Float.compare(vals.get(b), vals.get(a)));
         // NMS：抑制距离过近的峰（半径 8 像素）
-        List<int[]> kept = new ArrayList<>();
+        List<int[]> kept = Wraps.list();
         for (int i : idx) {
             int[] p = peaks.get(i);
             boolean dup = false;

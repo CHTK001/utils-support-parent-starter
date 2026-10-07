@@ -1,11 +1,11 @@
 package com.chua.common.support.lang.datasource.flyway;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDefault;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,7 +47,7 @@ public class DefaultFlyway implements Flyway {
     /**
      * 脚本位置列表
      */
-    private final List<String> locations = new ArrayList<>();
+    private final List<String> locations = Wraps.list();
 
     /**
      * 版本与描述分隔符
@@ -94,7 +94,7 @@ public class DefaultFlyway implements Flyway {
     @Override
     public List<MigrationInfo> info() {
         Map<String, String> applied = FlywayHistory.loadApplied(runner);
-        List<MigrationInfo> result = new ArrayList<>();
+        List<MigrationInfo> result = Wraps.list();
         for (FlywayScripts.Script script : scan()) {
             result.add(new MigrationInfo(
                     FlywayScripts.majorVersion(script.version()),

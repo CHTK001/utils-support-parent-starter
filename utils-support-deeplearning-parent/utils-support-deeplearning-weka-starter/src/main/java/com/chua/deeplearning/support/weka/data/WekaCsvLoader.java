@@ -1,12 +1,11 @@
 package com.chua.deeplearning.support.weka.data;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.weka.WekaException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -74,14 +73,14 @@ public final class WekaCsvLoader {
         if (start >= lines.size() || lines.subList(start, lines.size()).stream().allMatch(String::isBlank)) {
             throw new WekaException("CSV 无数据行: " + csvFile);
         }
-        var cellRows = new ArrayList<List<String>>(lines.size() - start);
+        var cellRows = Wraps.<List<String>>list(lines.size() - start);
         for (int i = start; i < lines.size(); i++) {
             if (!lines.get(i).isBlank()) {
                 cellRows.add(splitLine(lines.get(i)));
             }
         }
         int numCols = cellRows.getFirst().size();
-        var names = new ArrayList<String>(numCols);
+        var names = Wraps.<String>list(numCols);
         if (hasHeader) {
             var header = splitLine(stripBom(lines.getFirst()));
             for (int i = 0; i < numCols; i++) {
@@ -93,16 +92,16 @@ public final class WekaCsvLoader {
                 names.add("col_" + i);
             }
         }
-        var rows = new ArrayList<Map<String, Object>>(cellRows.size());
+        var rows = Wraps.<Map<String, Object>>list(cellRows.size());
         for (var cells : cellRows) {
-            var row = new LinkedHashMap<String, Object>(numCols);
+            var row = Wraps.<String, Object>linkedMap(numCols);
             for (int c = 0; c < numCols; c++) {
                 var cell = c < cells.size() ? cells.get(c).trim() : "";
                 row.put(names.get(c), cell.isEmpty() ? null : cell);
             }
             rows.add(row);
         }
-        var features = new ArrayList<FeatureColumn>(numCols);
+        var features = Wraps.<FeatureColumn>list(numCols);
         for (int c = 0; c < numCols; c++) {
             var numeric = true;
             for (var row : rows) {
@@ -140,7 +139,7 @@ public final class WekaCsvLoader {
      * @return 字段列表
      */
     private static List<String> splitLine(String line) {
-        List<String> out = new ArrayList<>();
+        List<String> out = Wraps.list();
         StringBuilder sb = new StringBuilder();
         boolean inQuotes = false;
         for (int i = 0; i < line.length(); i++) {

@@ -1,6 +1,5 @@
 package com.chua.playwright.support.doubao;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,7 @@ public record DoubaoChatResult(
     public DoubaoChatResult {
         rawEvents = rawEvents == null
                 ? null
-                : Collections.unmodifiableList(new ArrayList<>(rawEvents));
+                : Collections.unmodifiableList(Wraps.list(rawEvents));
     }
 
     /**

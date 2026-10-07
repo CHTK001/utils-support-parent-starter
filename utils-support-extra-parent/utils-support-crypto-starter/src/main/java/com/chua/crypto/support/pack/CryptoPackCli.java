@@ -1,9 +1,8 @@
 package com.chua.crypto.support.pack;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.crypto.support.Crypto;
 import com.chua.crypto.support.KeyPolicy;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -93,7 +92,7 @@ public final class CryptoPackCli {
      * @return 键值表（布尔开关值为 "true"）
      */
     private static Map<String, String> parse(String[] args) {
-        Map<String, String> opts = new HashMap<>();
+        Map<String, String> opts = Wraps.map();
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
             if (!arg.startsWith("--")) {

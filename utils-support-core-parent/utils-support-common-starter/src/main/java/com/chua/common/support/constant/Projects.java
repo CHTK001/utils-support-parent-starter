@@ -1,5 +1,6 @@
 package com.chua.common.support.constant;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.lang.algorithm.crypto.Hex;
 import com.chua.common.support.utils.IdUtils;
@@ -10,7 +11,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
@@ -86,7 +86,7 @@ public final class Projects {
      * @return IP地址列表，可能为空列表
      */
     static List<InetAddress> getAddressList() {
-        List<InetAddress> ipList = new ArrayList<>();
+        List<InetAddress> ipList = Wraps.list();
         Enumeration<NetworkInterface> networkInterfaces = null;
         try {
             networkInterfaces = NetworkInterface.getNetworkInterfaces();

@@ -1,5 +1,6 @@
 package com.chua.ollama.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.ai.image.ImageClient;
 import com.chua.common.support.ai.image.ImageClientSetting;
@@ -14,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -209,7 +209,7 @@ public class OllamaImageClient implements ImageClient {
     public List<ModelDefinition> models() {
         try {
             List<Model> raw = ollama.listModels();
-            List<ModelDefinition> result = new ArrayList<>();
+            List<ModelDefinition> result = Wraps.list();
             if (raw != null) {
                 for (Model m : raw) {
                     if (m == null || m.getName() == null || m.getName().isBlank()) {

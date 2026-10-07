@@ -1,5 +1,6 @@
 package com.chua.apng.support.converter;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.file.converter.AbstractConvertFileSystem;
 import com.chua.common.support.file.converter.ConvertFileSystem;
@@ -15,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -94,7 +94,7 @@ public class ApngToGifConvertFileSystem extends AbstractConvertFileSystem {
      * @throws Exception 读取异常
      */
     private List<AnimationFrame> readApngFrames(InputStream inputStream) throws Exception {
-        List<AnimationFrame> frames = new ArrayList<>();
+        List<AnimationFrame> frames = Wraps.list();
 
         try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream)) {
             // 获取 APNG 读取器

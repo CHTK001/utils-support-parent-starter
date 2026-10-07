@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.pytorch.detection;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -11,8 +12,6 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.utils.LetterBoxUtils;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -158,9 +157,9 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
             return new DetectedObjects(List.of(), List.of(), List.of());
         }
 
-        List<String> classNames = new ArrayList<>();
-        List<Double> probabilities = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
+        List<String> classNames = Wraps.list();
+        List<Double> probabilities = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
 
         float[] data = output.toFloatArray();
         int c = (int) cols;
@@ -224,9 +223,9 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
 
         // 简单 NMS
         List<Integer> keep = nms(boxes, probabilities, nmsThreshold);
-        List<String> outNames = new ArrayList<>();
-        List<Double> outProbs = new ArrayList<>();
-        List<BoundingBox> outBoxes = new ArrayList<>();
+        List<String> outNames = Wraps.list();
+        List<Double> outProbs = Wraps.list();
+        List<BoundingBox> outBoxes = Wraps.list();
         for (int idx : keep) {
             outNames.add(classNames.get(idx));
             outProbs.add(probabilities.get(idx));
@@ -253,14 +252,14 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
      */
     private static List<Integer> nms(List<BoundingBox> boxes, List<Double> probabilities, float threshold) {
         int n = boxes.size();
-        List<Integer> order = new ArrayList<>(n);
+        List<Integer> order = Wraps.list(n);
         for (int i = 0; i < n; i++) {
             order.add(i);
         }
         order.sort((a, b) -> Double.compare(probabilities.get(b), probabilities.get(a)));
 
         boolean[] removed = new boolean[n];
-        List<Integer> keep = new ArrayList<>();
+        List<Integer> keep = Wraps.list();
         for (int i = 0; i < n; i++) {
             int idx = order.get(i);
             if (removed[idx]) {

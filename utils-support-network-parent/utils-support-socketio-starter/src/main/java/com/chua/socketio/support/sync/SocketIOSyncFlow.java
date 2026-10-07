@@ -1,5 +1,6 @@
 package com.chua.socketio.support.sync;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncFlow;
 import com.chua.common.support.network.sync.SyncFlowListener;
@@ -31,7 +32,7 @@ public class SocketIOSyncFlow implements SyncFlow {
     /**
      * 监听器列表
      */
-    private final List<SyncFlowListener> listeners = new ArrayList<>();
+    private final List<SyncFlowListener> listeners = Wraps.list();
 
     /**
      * 创建 Socketio同步流 实例

@@ -1,10 +1,8 @@
 package com.chua.deeplearning.support.tinyai;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -69,7 +67,7 @@ public record ModelDomain(List<FeatureColumn> features, String targetName, List<
         if (labelColumn.isBlank()) {
             throw new TinyAiException("标签列名不能为空白");
         }
-        var names = new LinkedHashSet<String>();
+        var names = Wraps.<String>linkedSet();
         for (var row : samples) {
             if (row != null) {
                 row.keySet().stream().filter(name -> !name.equals(labelColumn)).forEach(names::add);
@@ -78,7 +76,7 @@ public record ModelDomain(List<FeatureColumn> features, String targetName, List<
         if (names.isEmpty()) {
             throw new TinyAiException("样本行不包含任何特征列（仅标签列?）");
         }
-        var features = new ArrayList<FeatureColumn>(names.size());
+        var features = Wraps.<FeatureColumn>list(names.size());
         for (var name : names) {
             var numeric = samples.stream()
                     .filter(row -> row != null && row.get(name) != null)
@@ -111,8 +109,8 @@ public record ModelDomain(List<FeatureColumn> features, String targetName, List<
         if (labelColumn.isBlank()) {
             throw new TinyAiException("标签列名不能为空白");
         }
-        var labels = new ArrayList<String>();
-        var seen = new LinkedHashSet<String>();
+        var labels = Wraps.<String>list();
+        var seen = Wraps.<String>linkedSet();
         for (var row : samples) {
             if (row == null) {
                 continue;
@@ -129,7 +127,7 @@ public record ModelDomain(List<FeatureColumn> features, String targetName, List<
         if (labels.size() < 2) {
             throw new TinyAiException("分类标签至少需要 2 种取值，实际 " + labels.size());
         }
-        var domain = new ModelDomain(new ArrayList<>(features), labelColumn, labels);
+        var domain = new ModelDomain(Wraps.list(features), labelColumn, labels);
         domain.collectCategories(samples);
         return domain;
     }
@@ -165,7 +163,7 @@ public record ModelDomain(List<FeatureColumn> features, String targetName, List<
             if (feature.isNumeric()) {
                 continue;
             }
-            var ordered = new LinkedHashSet<String>();
+            var ordered = Wraps.<String>linkedSet();
             for (var row : samples) {
                 if (row == null) {
                     continue;
@@ -255,7 +253,7 @@ public record ModelDomain(List<FeatureColumn> features, String targetName, List<
      * @return 列名到有序取值的映射
      */
     public Map<String, List<String>> categorySnapshot() {
-        var snapshot = new LinkedHashMap<String, List<String>>();
+        var snapshot = Wraps.<String, List<String>>linkedMap();
         for (var feature : features) {
             if (!feature.isNumeric()) {
                 snapshot.put(feature.name(), List.copyOf(feature.categories()));

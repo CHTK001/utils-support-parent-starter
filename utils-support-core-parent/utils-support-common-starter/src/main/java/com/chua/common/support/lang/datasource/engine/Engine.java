@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.datasource.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.ddl.DslManager;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
@@ -493,7 +494,7 @@ public interface Engine extends AutoCloseable {
         int from = (int) offset;
         int to = (int) Math.min(offset + pageSize, all.size());
         // 独立副本，避免 subList 视图持有底层存储引用
-        return new java.util.ArrayList<>(all.subList(from, to));
+        return Wraps.list(all.subList(from, to));
     }
 
     /**

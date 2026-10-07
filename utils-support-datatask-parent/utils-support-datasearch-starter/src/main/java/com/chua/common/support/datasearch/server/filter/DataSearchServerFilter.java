@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.server.filter;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.exchange.spi.ExchangeRateProvider;
 import com.chua.common.support.datasearch.express.model.ExpressTrace;
 import com.chua.common.support.datasearch.express.spi.ExpressProvider;
@@ -37,8 +38,6 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -325,7 +324,7 @@ public class DataSearchServerFilter implements ServerFilter {
                     write(response, 400, "missing param: date", null);
                     return;
                 }
-                Map<String, Object> data = new LinkedHashMap<>(4);
+                Map<String, Object> data = Wraps.linkedMap(4);
                 LocalDate d = LocalDate.parse(date);
                 data.put("date", date);
                 data.put("holiday", provider.isHoliday(d));
@@ -389,7 +388,7 @@ public class DataSearchServerFilter implements ServerFilter {
         switch (action) {
             case "rate": {
                 BigDecimal rate = provider.getRate(request.getParam("from"), request.getParam("to"));
-                Map<String, Object> data = new LinkedHashMap<>(4);
+                Map<String, Object> data = Wraps.linkedMap(4);
                 data.put("from", request.getParam("from"));
                 data.put("to", request.getParam("to"));
                 data.put("rate", rate);
@@ -397,7 +396,7 @@ public class DataSearchServerFilter implements ServerFilter {
                 return;
             }
             case "rates": {
-                Map<String, Object> data = new LinkedHashMap<>(2);
+                Map<String, Object> data = Wraps.linkedMap(2);
                 data.put("base", request.getParam("base"));
                 data.put("rates", provider.getRates(request.getParam("base")));
                 write(response, 200, "ok", data);
@@ -474,13 +473,13 @@ public class DataSearchServerFilter implements ServerFilter {
                     write(response, 400, "missing param: lat/lon", null);
                     return;
                 }
-                Map<String, Object> data = new LinkedHashMap<>(3);
+                Map<String, Object> data = Wraps.linkedMap(3);
                 data.put("address", provider.reverseGeocode(Double.parseDouble(lat), Double.parseDouble(lon)));
                 write(response, 200, "ok", data);
                 return;
             }
             case "ip": {
-                Map<String, Object> data = new LinkedHashMap<>(2);
+                Map<String, Object> data = Wraps.linkedMap(2);
                 data.put("address", provider.ipToAddress(request.getParam("ip")));
                 write(response, 200, "ok", data);
                 return;
@@ -616,7 +615,7 @@ public class DataSearchServerFilter implements ServerFilter {
      * @param data 数据
      */
     private static void write(ServerResponse response, int code, String msg, Object data) {
-        Map<String, Object> body = new LinkedHashMap<>(3);
+        Map<String, Object> body = Wraps.linkedMap(3);
         body.put("code", code);
         body.put("msg", msg);
         body.put("data", data);
@@ -670,7 +669,7 @@ public class DataSearchServerFilter implements ServerFilter {
      * @return 转为jsonable列表的结果
      */
     private static List<Object> toJsonableList(List<?> list) {
-        List<Object> result = new ArrayList<>();
+        List<Object> result = Wraps.list();
         if (list != null) {
             for (Object item : list) {
                 result.add(toJsonable(item));
@@ -685,7 +684,7 @@ public class DataSearchServerFilter implements ServerFilter {
      * @return 索引的结果
      */
     private static Map<String, Object> index() {
-        Map<String, Object> map = new LinkedHashMap<>(32);
+        Map<String, Object> map = Wraps.linkedMap(32);
         map.put("page", "/datasearch/page");
         map.put("idiom/get", "?word=守株待兔");
         map.put("idiom/search", "?keyword=兔&limit=10");

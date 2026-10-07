@@ -1,5 +1,6 @@
 package com.chua.filesystem.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.FileSystem;
 import com.chua.common.support.file.builder.ReadBuilder;
 import com.chua.common.support.file.builder.WriteBuilder;
@@ -11,7 +12,6 @@ import net.lingala.zip4j.model.enums.EncryptionMethod;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -114,7 +114,7 @@ public class Zip4jFileSystem implements FileSystem {
          * @return 列表entries的结果
          */
         public List<String> listEntries() {
-            List<String> entries = new ArrayList<>();
+            List<String> entries = Wraps.list();
             try (ZipFile zipFile = openZip()) {
                 zipFile.getFileHeaders().forEach(h -> entries.add(h.getFileName()));
             } catch (IOException e) {
@@ -232,7 +232,7 @@ public class Zip4jFileSystem implements FileSystem {
         /**
          * Entries
         */
-        private final List<EntryData> entries = new ArrayList<>();
+        private final List<EntryData> entries = Wraps.list();
         /**
          * 密码
         */

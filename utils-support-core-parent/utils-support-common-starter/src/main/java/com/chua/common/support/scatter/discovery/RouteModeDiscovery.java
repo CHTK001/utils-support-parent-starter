@@ -1,12 +1,12 @@
 package com.chua.common.support.scatter.discovery;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.scatter.ScatterContext;
 import com.chua.common.support.scatter.ScatterNode;
 import com.chua.common.support.scatter.ScatterSyncHelper;
 import com.chua.common.support.scatter.ScatterSetting;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -136,7 +136,7 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
             byte[] base = InetAddress.getByName(parts[0].trim()).getAddress();
             int hostBits = 32 - prefix;
             long baseIp = toLong(base) & (prefix == 0 ? 0L : (~0L << hostBits));
-            List<ScatterNode> nodes = new ArrayList<>();
+            List<ScatterNode> nodes = Wraps.list();
             int maxHosts = (1 << Math.max(1, 32 - prefix)) - 2;
             int limit = Math.min(maxHosts, 254);
             for (int i = 1; i <= limit; i++) {

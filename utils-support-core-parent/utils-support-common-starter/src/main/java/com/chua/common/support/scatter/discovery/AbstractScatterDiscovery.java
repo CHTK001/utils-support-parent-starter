@@ -1,5 +1,6 @@
 package com.chua.common.support.scatter.discovery;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.discovery.AbstractServiceDiscovery;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.discovery.DiscoveryOption;
@@ -20,7 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -234,7 +234,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
             if (frame.getType() == ScatterProtocol.TYPE_REQ) {
                 Set<Discovery> services = getServiceAll(frame.getPath());
                 // 返回完整服务表（JSON 数组），对端逐条按 serverId 合并
-                byte[] payload = Json.toJson(new ArrayList<>(services)).getBytes(StandardCharsets.UTF_8);
+                byte[] payload = Json.toJson(Wraps.list(services)).getBytes(StandardCharsets.UTF_8);
                 return new ScatterFrame(ScatterProtocol.TYPE_RESP, frame.getRequestId(),
                         frame.getPath(), payload).encode();
             } else if (frame.getType() == ScatterProtocol.TYPE_PUSH) {
@@ -251,7 +251,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 Discovery elected = Json.fromJson(json, Discovery.class);
                 if (elected != null && elected.getHost() != null) {
                     String seedAddr = elected.getHost() + ":" + elected.getPort();
-                    List<String> seeds = new ArrayList<>(setting.getSeeds() == null
+                    List<String> seeds = Wraps.list(setting.getSeeds() == null
                             ? List.of() : setting.getSeeds());
                     if (!seeds.contains(seedAddr)) {
                         seeds.add(seedAddr);
@@ -372,7 +372,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
      * @return 结果列表，无数据时为空列表
      */
     protected List<ScatterNode> resolveSeeds() {
-        List<ScatterNode> nodes = new ArrayList<>();
+        List<ScatterNode> nodes = Wraps.list();
         if (setting.getSeeds() == null) {
             return nodes;
         }
@@ -401,9 +401,9 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
             return;
         }
         try {
-            List<Discovery> nodes = new ArrayList<>(getServiceAll(setting.getServicePath()));
+            List<Discovery> nodes = Wraps.list(getServiceAll(setting.getServicePath()));
             List<ScatterNode> seeds = resolveSeeds();
-            Map<String, Object> root = new java.util.LinkedHashMap<>();
+            Map<String, Object> root = Wraps.linkedMap();
             root.put("nodes", nodes);
             root.put("seeds", seeds);
             root.put("persistedAt", System.currentTimeMillis());

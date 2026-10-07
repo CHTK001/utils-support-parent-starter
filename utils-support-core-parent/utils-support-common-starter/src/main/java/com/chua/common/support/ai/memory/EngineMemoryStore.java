@@ -1,12 +1,12 @@
 package com.chua.common.support.ai.memory;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.json.Json;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -89,7 +89,7 @@ public class EngineMemoryStore implements MemoryStore {
             return;
         }
         try {
-            List<MemoryEntryEntity> snapshot = new ArrayList<>(rows);
+            List<MemoryEntryEntity> snapshot = Wraps.list(rows);
             engine.store(TABLE, snapshot);
         } catch (Exception e) {
             log.debug("[EngineMemoryStore] store skip: {}", e.getMessage());

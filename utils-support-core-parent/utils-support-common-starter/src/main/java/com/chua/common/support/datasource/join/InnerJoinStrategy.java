@@ -1,5 +1,6 @@
 package com.chua.common.support.datasource.join;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.*;
@@ -22,16 +23,16 @@ public class InnerJoinStrategy implements JoinStrategy {
     @Override
     public List<Map<String, Object>> execute(JoinContext ctx) {
         Map<String, List<Map<String, Object>>> rightGrouped = groupBy(ctx.rightRows(), ctx.rightKey());
-        List<Map<String, Object>> result = new ArrayList<>();
+        List<Map<String, Object>> result = Wraps.list();
         for (Map<String, Object> left : ctx.leftRows()) {
             String leftVal = String.valueOf(left.get(ctx.leftKey()));
             List<Map<String, Object>> matchingRight = rightGrouped.getOrDefault(leftVal, Collections.emptyList());
             for (Map<String, Object> right : matchingRight) {
-                Map<String, Object> merged = new LinkedHashMap<>();
+                Map<String, Object> merged = Wraps.linkedMap();
                 merged.putAll(left);
                 merged.putAll(right);
                 if (ctx.projectColumns() != null && !ctx.projectColumns().isEmpty()) {
-                    Map<String, Object> projected = new LinkedHashMap<>();
+                    Map<String, Object> projected = Wraps.linkedMap();
                     for (String col : ctx.projectColumns()) {
                         if (merged.containsKey(col)) {
                             projected.put(col, merged.get(col));
@@ -48,10 +49,10 @@ public class InnerJoinStrategy implements JoinStrategy {
 
     private static Map<String, List<Map<String, Object>>> groupBy(
             List<Map<String, Object>> rows, String key) {
-        Map<String, List<Map<String, Object>>> map = new HashMap<>();
+        Map<String, List<Map<String, Object>>> map = Wraps.map();
         for (Map<String, Object> row : rows) {
             String val = String.valueOf(row.get(key));
-            map.computeIfAbsent(val, k -> new ArrayList<>()).add(row);
+            map.computeIfAbsent(val, k -> Wraps.list()).add(row);
         }
         return map;
     }

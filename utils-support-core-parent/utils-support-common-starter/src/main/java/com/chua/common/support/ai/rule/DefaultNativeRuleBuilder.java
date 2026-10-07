@@ -1,9 +1,7 @@
 package com.chua.common.support.ai.rule;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -34,6 +32,16 @@ public final class DefaultNativeRuleBuilder implements NativeRuleBuilder {
     private String name;
 
     /**
+     * 规则描述
+     */
+    private String description;
+
+    /**
+     * 命中后对外说明的原因
+     */
+    private String message;
+
+    /**
      * 优先级
      */
     private int salience;
@@ -46,12 +54,12 @@ public final class DefaultNativeRuleBuilder implements NativeRuleBuilder {
     /**
      * 顶层条件，OR 关系
      */
-    private final List<Predicate<RuleContext>> conditions = new ArrayList<>();
+    private final List<Predicate<RuleContext>> conditions = Wraps.list();
 
     /**
      * 命中后按序执行的动作
      */
-    private final List<Consumer<RuleContext>> actions = new ArrayList<>();
+    private final List<Consumer<RuleContext>> actions = Wraps.list();
 
     /**
      * 下一条规则的标识
@@ -66,7 +74,7 @@ public final class DefaultNativeRuleBuilder implements NativeRuleBuilder {
     /**
      * 规则声明的变量
      */
-    private final Map<String, Object> variables = new LinkedHashMap<>();
+    private final Map<String, Object> variables = Wraps.linkedMap();
 
     /**
      * 是否已构造过规则，一个构造器只允许构造一条规则
@@ -129,6 +137,20 @@ public final class DefaultNativeRuleBuilder implements NativeRuleBuilder {
             throw new IllegalArgumentException("name 不能为 null 或空白");
         }
         this.name = name;
+        return this;
+    }
+
+    @Override
+    public NativeRuleBuilder message(String message) {
+        requireUsable();
+        this.message = message;
+        return this;
+    }
+
+    @Override
+    public NativeRuleBuilder description(String description) {
+        requireUsable();
+        this.description = description;
         return this;
     }
 
@@ -201,6 +223,6 @@ public final class DefaultNativeRuleBuilder implements NativeRuleBuilder {
             throw new RuleException("规则 " + id + " 的下一条规则标识不能为空白");
         }
         built = true;
-        return new NativeRule(id, name, salience, effect, conditions, actions, target, variables);
+        return new NativeRule(id, name, description, message, salience, effect, conditions, actions, target, variables);
     }
 }

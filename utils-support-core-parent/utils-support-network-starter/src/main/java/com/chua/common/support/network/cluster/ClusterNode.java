@@ -1,5 +1,6 @@
 package com.chua.common.support.network.cluster;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.scatter.ScatterRemoteClient;
 import com.chua.common.support.scatter.ScatterServiceDiscovery;
 import com.chua.common.support.scatter.ScatterSetting;
@@ -14,8 +15,6 @@ import com.chua.common.support.network.server.filter.proxy.ReverseProxyServerFil
 import com.chua.common.support.network.server.proxy.DiscoveryProxyTargetResolver;
 import com.chua.common.support.network.server.proxy.TcpProxyServer;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -59,7 +58,7 @@ public class ClusterNode implements AutoCloseable {
     /**
      * 本节点注册的 http/tcp 服务端标识，用于注销
     */
-    private final List<String> selfServerIds = new ArrayList<>();
+    private final List<String> selfServerIds = Wraps.list();
 
     /**
      * cluster节点。

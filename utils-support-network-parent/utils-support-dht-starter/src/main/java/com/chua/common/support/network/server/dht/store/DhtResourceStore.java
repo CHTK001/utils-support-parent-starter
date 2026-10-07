@@ -1,11 +1,8 @@
 package com.chua.common.support.network.server.dht.store;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -66,7 +63,7 @@ public class DhtResourceStore {
         if (peers == null) {
             return Collections.emptyList();
         }
-        return new ArrayList<>(peers);
+        return Wraps.list(peers);
     }
 
     /**
@@ -75,7 +72,7 @@ public class DhtResourceStore {
      * @return infohash 集合
      */
     public Set<String> getInfohashes() {
-        return new LinkedHashSet<>(store.keySet());
+        return Wraps.linkedSet(store.keySet());
     }
 
     /**
@@ -113,9 +110,9 @@ public class DhtResourceStore {
      * @return 只读的映射快照
      */
     public Map<String, List<DiscoveredPeer>> getAll() {
-        Map<String, List<DiscoveredPeer>> result = new LinkedHashMap<>();
+        Map<String, List<DiscoveredPeer>> result = Wraps.linkedMap();
         for (Map.Entry<String, CopyOnWriteArrayList<DiscoveredPeer>> e : store.entrySet()) {
-            result.put(e.getKey(), new ArrayList<>(e.getValue()));
+            result.put(e.getKey(), Wraps.list(e.getValue()));
         }
         return result;
     }

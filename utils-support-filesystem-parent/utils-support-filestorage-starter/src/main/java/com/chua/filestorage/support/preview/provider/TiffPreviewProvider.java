@@ -1,5 +1,6 @@
 package com.chua.filestorage.support.preview.provider;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.filestorage.support.preview.FileStoragePreviewProvider;
 import com.chua.filestorage.support.preview.PreviewResult;
@@ -11,7 +12,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
@@ -99,9 +99,9 @@ public class TiffPreviewProvider implements FileStoragePreviewProvider {
                     .build();
         }
 
-        List<String> pages = new ArrayList<>();
-        List<Integer> widths = new ArrayList<>();
-        List<Integer> heights = new ArrayList<>();
+        List<String> pages = Wraps.list();
+        List<Integer> widths = Wraps.list();
+        List<Integer> heights = Wraps.list();
         int total;
         long totalPng = 0;
         String pageError = null;

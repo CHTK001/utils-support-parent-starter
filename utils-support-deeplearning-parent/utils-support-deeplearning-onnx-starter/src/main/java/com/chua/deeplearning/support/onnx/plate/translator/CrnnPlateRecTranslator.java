@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.plate.translator;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.util.NDImageUtils;
 import ai.djl.ndarray.NDArray;
@@ -10,8 +11,6 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.plate.PlateResult;
-
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -117,7 +116,7 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
      */
     private String decodePlate(int[] preds) {
         int pre = 0;
-        List<Integer> newPreds = new ArrayList<>();
+        List<Integer> newPreds = Wraps.list();
         for (int idx : preds) {
             if (idx != 0 && idx != pre) {
                 newPreds.add(idx);

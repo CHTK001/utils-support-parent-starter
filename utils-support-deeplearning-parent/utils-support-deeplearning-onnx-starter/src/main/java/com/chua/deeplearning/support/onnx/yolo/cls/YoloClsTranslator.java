@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.yolo.cls;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.Classifications;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.util.NDImageUtils;
@@ -10,8 +11,6 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -101,7 +100,7 @@ public class YoloClsTranslator implements Translator<Image, Classifications> {
     public YoloClsTranslator(int width, int height, List<String> classes, int topk) {
         this.width = width;
         this.height = height;
-        this.classes = new ArrayList<>(classes);
+        this.classes = Wraps.list(classes);
         this.topk = topk;
         log.info("          YOLO                 -             : {}x{},          : {}, Top-K: {}",
                 width, height, classes.size(), topk);

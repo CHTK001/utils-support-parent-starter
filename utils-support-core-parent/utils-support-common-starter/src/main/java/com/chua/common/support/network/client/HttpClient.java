@@ -1,5 +1,6 @@
 package com.chua.common.support.network.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.http.HttpMethod;
 import reactor.core.publisher.Mono;
 
@@ -171,7 +172,7 @@ public interface HttpClient extends AutoCloseable {
      * @return 应用层拦截器列表，不会返回 null
      */
     default List<HttpInterceptor> getInterceptors() {
-        return new java.util.ArrayList<>();
+        return Wraps.list();
     }
 
     /**
@@ -183,7 +184,7 @@ public interface HttpClient extends AutoCloseable {
      * @return 网络层拦截器列表，不会返回 null
      */
     default List<HttpInterceptor> getNetworkInterceptors() {
-        return new java.util.ArrayList<>();
+        return Wraps.list();
     }
 
     /**

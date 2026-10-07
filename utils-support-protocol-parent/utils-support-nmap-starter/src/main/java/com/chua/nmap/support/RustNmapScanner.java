@@ -1,5 +1,6 @@
 package com.chua.nmap.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.chua.common.support.spi.annotations.Spi;
@@ -71,7 +72,7 @@ public class RustNmapScanner implements NmapScanner {
         Semaphore permits = new Semaphore(Math.max(1, cfg.getConcurrency()));
         try {
             // 并发扫描，利用虚拟线程
-            List<CompletableFuture<PortInfo>> futures = new ArrayList<>(ports.length);
+            List<CompletableFuture<PortInfo>> futures = Wraps.list(ports.length);
             for (int port : ports) {
                 final int p = port;
                 futures.add(CompletableFuture.supplyAsync(() -> {
@@ -88,7 +89,7 @@ public class RustNmapScanner implements NmapScanner {
                 }, executor));
             }
 
-            List<PortInfo> portInfos = new ArrayList<>(ports.length);
+            List<PortInfo> portInfos = Wraps.list(ports.length);
             for (CompletableFuture<PortInfo> future : futures) {
                 portInfos.add(future.join());
             }
@@ -221,7 +222,7 @@ public class RustNmapScanner implements NmapScanner {
         }
         ScanOptions cfg = options;
         Semaphore permits = new Semaphore(Math.max(1, cfg.getConcurrency()));
-        List<CompletableFuture<HostInfo>> futures = new ArrayList<>((int) count);
+        List<CompletableFuture<HostInfo>> futures = Wraps.list((int) count);
         for (long i = 0; i < count; i++) {
             final String ip = longToIpv4(start + i);
             futures.add(CompletableFuture.supplyAsync(() -> {
@@ -236,7 +237,7 @@ public class RustNmapScanner implements NmapScanner {
                 }
             }, executor));
         }
-        List<HostInfo> alive = new ArrayList<>();
+        List<HostInfo> alive = Wraps.list();
         for (CompletableFuture<HostInfo> future : futures) {
             HostInfo info = future.join();
             if (info.isAlive()) {
@@ -271,7 +272,7 @@ public class RustNmapScanner implements NmapScanner {
 
     @Override
     public List<ServiceInfo> detectServices(String host, int[] ports) {
-        List<ServiceInfo> services = new ArrayList<>();
+        List<ServiceInfo> services = Wraps.list();
         for (int port : ports) {
             services.add(detectService(host, port));
         }
@@ -300,7 +301,7 @@ public class RustNmapScanner implements NmapScanner {
         RustNmapBridge.ensureLoaded();
         return CompletableFuture.supplyAsync(() -> {
             int total = ports.length;
-            List<PortInfo> results = new ArrayList<>();
+            List<PortInfo> results = Wraps.list();
             int openCount = 0;
             long startTime = System.currentTimeMillis();
             
@@ -379,7 +380,7 @@ public class RustNmapScanner implements NmapScanner {
      * @return 结果列表，无数据时为空列表
      */
     private List<PortInfo> parsePortRangeResult(String result, String protocol) {
-        List<PortInfo> portInfos = new ArrayList<>();
+        List<PortInfo> portInfos = Wraps.list();
         List<Map<String, Object>> list = readJsonList(result, "端口扫描结果: protocol=" + protocol);
         for (Map<String, Object> item : list) {
             if (item == null || item.get("port") == null) {
@@ -428,7 +429,7 @@ public class RustNmapScanner implements NmapScanner {
      * @return 存活主机列表，无存活主机时为空列表
      */
     private List<HostInfo> parseAliveHostList(String result, String label) {
-        List<HostInfo> hosts = new ArrayList<>();
+        List<HostInfo> hosts = Wraps.list();
         for (Object item : readJsonRawList(result, label)) {
             if (item == null) {
                 continue;

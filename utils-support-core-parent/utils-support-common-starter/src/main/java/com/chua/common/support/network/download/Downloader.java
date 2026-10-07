@@ -1,5 +1,6 @@
 package com.chua.common.support.network.download;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.download.extractor.Extractor;
 import com.chua.common.support.network.download.extractor.ExtractorFactory;
 import com.chua.common.support.spi.ServiceProvider;
@@ -9,7 +10,6 @@ import java.io.IOException;
 import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -110,7 +110,7 @@ public class Downloader {
     /**
      * 自定义请求头
      */
-    private Map<String, String> headers = new LinkedHashMap<>();
+    private Map<String, String> headers = Wraps.linkedMap();
     /**
      * 下载协议
      */

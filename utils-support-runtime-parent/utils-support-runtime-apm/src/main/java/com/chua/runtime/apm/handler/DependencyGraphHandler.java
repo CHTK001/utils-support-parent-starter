@@ -1,5 +1,6 @@
 package com.chua.runtime.apm.handler;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
 import com.chua.runtime.protocol.DependencyEdge;
@@ -9,7 +10,6 @@ import com.chua.runtime.protocol.Software;
 import lombok.Data;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -204,7 +204,7 @@ public class DependencyGraphHandler implements Plugin {
      * @return 不可修改的边列表
      */
     public List<DependencyEdge> getEdges() {
-        return Collections.unmodifiableList(new ArrayList<>(edges.values()));
+        return Collections.unmodifiableList(Wraps.list(edges.values()));
     }
 
     /**
@@ -213,7 +213,7 @@ public class DependencyGraphHandler implements Plugin {
      * @return 不可修改的节点列表
      */
     public List<Endpoint> getNodes() {
-        return Collections.unmodifiableList(new ArrayList<>(nodes.values()));
+        return Collections.unmodifiableList(Wraps.list(nodes.values()));
     }
 
     /**

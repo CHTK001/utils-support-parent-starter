@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.video.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.network.lang.code.ReturnPageResult;
 import com.chua.common.support.datasearch.video.model.VideoInfoResult;
 import com.chua.common.support.datasearch.video.model.VideoSearch;
@@ -18,8 +19,6 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -187,7 +186,7 @@ public class MuouResourceProvider extends AbstractResourceProvider {
             }
 
  // 收集不重复的视频标识
-            Set<String> ids = new LinkedHashSet<>(MAX_ID_COUNT);
+            Set<String> ids = Wraps.linkedSet(MAX_ID_COUNT);
             Matcher m = ID_PATTERN.matcher(body);
             while (m.find()) {
                 ids.add(m.group(1));
@@ -196,7 +195,7 @@ public class MuouResourceProvider extends AbstractResourceProvider {
                 }
             }
 
-            List<VideoInfoResult> results = new ArrayList<>(MAX_RESULT_COUNT);
+            List<VideoInfoResult> results = Wraps.list(MAX_RESULT_COUNT);
             for (String id : ids) {
                 VideoInfoResult item = fetchDetail(client, id);
                 if (item != null && item.getVideoDescription() != null
@@ -304,7 +303,7 @@ public class MuouResourceProvider extends AbstractResourceProvider {
      * @param html 待扫描 HTML，不能为 null
      */
     private void appendLinks(StringBuilder sb, Pattern p, String type, String html) {
-        Set<String> seen = new LinkedHashSet<>(8);
+        Set<String> seen = Wraps.linkedSet(8);
         Matcher m = p.matcher(html);
         while (m.find()) {
             String url = m.group();

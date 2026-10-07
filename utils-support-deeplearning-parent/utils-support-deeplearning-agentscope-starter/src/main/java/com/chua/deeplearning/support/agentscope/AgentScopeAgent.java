@@ -29,6 +29,7 @@ import com.chua.deeplearning.support.agentscope.goal.GoalStatus;
 import com.chua.deeplearning.support.agentscope.goal.GoalTracker;
 import com.chua.deeplearning.support.agentscope.goal.SessionGoal;
 import com.chua.common.support.ai.skill.SkillManager;
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.StringUtils;
 import io.agentscope.core.agent.RuntimeContext;
 import io.agentscope.core.event.*;
@@ -48,10 +49,6 @@ import io.agentscope.harness.agent.subagent.SubagentDeclaration;
 import io.agentscope.harness.agent.subagent.WorkspaceMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -99,7 +96,7 @@ public class AgentScopeAgent implements Agent {
     /**
      * 聊天客户端映射
     */
-    private final Map<String, ChatClient> chatClients = new HashMap<>();
+    private final Map<String, ChatClient> chatClients = Wraps.map();
     /**
      * 会话目标状态机；为 null 表示该 agent 未绑定目标。
      */
@@ -115,7 +112,7 @@ public class AgentScopeAgent implements Agent {
     /**
      * 子代理定义列表
     */
-    private final List<AgentDefinition> subAgentDefinitions = new ArrayList<>();
+    private final List<AgentDefinition> subAgentDefinitions = Wraps.list();
     /**
      * 全局 MCP 管理器
     */
@@ -185,13 +182,13 @@ public class AgentScopeAgent implements Agent {
     /**
      * 注册的技能列表（名称 → 处理器）
     */
-    private final Map<String, com.chua.common.support.ai.skill.SkillHandler> skills = new java.util.LinkedHashMap<>();
-    private final Map<String, String> skillDescriptions = new java.util.LinkedHashMap<>(); // skilldescriptions
+    private final Map<String, com.chua.common.support.ai.skill.SkillHandler> skills = Wraps.linkedMap();
+    private final Map<String, String> skillDescriptions = Wraps.linkedMap(); // skilldescriptions
 
     /**
      * 每次 运行 注册的 模型id 追踪，用于清理
      */
-    private final List<String> registeredModelIds = new ArrayList<>();
+    private final List<String> registeredModelIds = Wraps.list();
 
     // ==================== Agent 接口覆写 ====================
 
@@ -590,7 +587,7 @@ public class AgentScopeAgent implements Agent {
             log.error("[AgentScope] resumeStream准备失败: {}", e.getMessage(), e);
             return Flux.error(e);
         }
-        List<ConfirmResult> confirmResults = new ArrayList<>();
+        List<ConfirmResult> confirmResults = Wraps.list();
         Map<String, ToolUseBlock> cached = replyId == null ? null : PENDING_BLOCKS.get(replyId);
         if (decisions != null) {
             for (ConfirmationDecision d : decisions) {
@@ -611,7 +608,7 @@ public class AgentScopeAgent implements Agent {
                 confirmResults.add(new ConfirmResult(d.isConfirmed(), ref));
             }
         }
-        Map<String, Object> meta = new HashMap<>();
+        Map<String, Object> meta = Wraps.map();
         meta.put(Msg.METADATA_CONFIRM_REQUEST_REPLY_ID, replyId);
         meta.put(Msg.METADATA_CONFIRM_RESULTS, confirmResults);
         plan.userMsg = Msg.builder().role(MsgRole.USER).metadata(meta).build();
@@ -644,7 +641,7 @@ public class AgentScopeAgent implements Agent {
             final long[] cachedTokens = {0L};
             // 记录每个 agent 是否已通过 delta 流式输出过正文；
             // 非流式模型适配器不产生 TextBlockDeltaEvent，需在 AgentResultEvent 补正文
-            final java.util.Map<String, Boolean> textDeltaEmitted = new java.util.HashMap<>();
+            final java.util.Map<String, Boolean> textDeltaEmitted = Wraps.map();
 
             // 复用同一个 RuntimeContext：Plan 模式在订阅流前预先进入，首轮即只读
             RuntimeContext ctx = buildRuntimeContext();
@@ -732,11 +729,11 @@ public class AgentScopeAgent implements Agent {
                                         AgentTrace.KIND_HINT, aid, null,
                                         "提示[" + e.getHintSource() + "]: " + e.getHint())));
                             } else if (event instanceof RequireUserConfirmEvent e) {
-                                List<ConfirmationItem> confirmItems = new ArrayList<>();
+                                List<ConfirmationItem> confirmItems = Wraps.list();
                                 List<ToolUseBlock> pending = e.getToolCalls();
                                 if (pending != null) {
                                     // 缓存完整待批块（按 replyId 分组），resume 轮原样回传
-                                    Map<String, ToolUseBlock> blockById = new LinkedHashMap<>();
+                                    Map<String, ToolUseBlock> blockById = Wraps.linkedMap();
                                     for (ToolUseBlock tb : pending) {
                                         if (tb.getId() != null) {
                                             blockById.put(tb.getId(), tb);
@@ -871,7 +868,7 @@ public class AgentScopeAgent implements Agent {
                     compressionModelId);
         }
 
-        List<SubagentDeclaration> declarations = new ArrayList<>();
+        List<SubagentDeclaration> declarations = Wraps.list();
         for (int i = 0; i < subAgentDefinitions.size(); i++) {
             AgentDefinition subDef = subAgentDefinitions.get(i);
             String subId = StringUtils.defaultString(subDef.getId(), "sub-" + i);
@@ -1309,7 +1306,7 @@ public class AgentScopeAgent implements Agent {
         }
 
         // 汇总工具：技能工具 + MCP 工具，统一注册到 Toolkit
-        List<McpToolDescriptor> mcpTools = new ArrayList<>();
+        List<McpToolDescriptor> mcpTools = Wraps.list();
         if (mcpEnabled && globalMcpManager != null) {
             try {
                 List<McpToolDescriptor> descriptors = globalMcpManager.listAllTools();
@@ -1534,7 +1531,7 @@ public class AgentScopeAgent implements Agent {
                 io.agentscope.core.tool.ToolCallParam param) {
             try {
                 Map<String, Object> input = param.getInput() != null
-                        ? new HashMap<>(param.getInput()) : Map.of();
+                        ? Wraps.map(param.getInput()) : Map.of();
                 com.chua.common.support.ai.skill.SkillResult result = handler.handle(input);
                 String text = result.isSuccess()
                         ? String.valueOf(result.getContent())
@@ -1591,7 +1588,7 @@ public class AgentScopeAgent implements Agent {
             if (schema != null && !schema.isEmpty()) {
                 return schema;
             }
-            return new HashMap<>(Map.of("type", "object", "properties", Map.of()));
+            return Wraps.map(Map.of("type", "object", "properties", Map.of()));
         }
 
         @Override
@@ -1599,7 +1596,7 @@ public class AgentScopeAgent implements Agent {
                 io.agentscope.core.tool.ToolCallParam param) {
             try {
                 Map<String, Object> input = param.getInput() != null
-                        ? new HashMap<>(param.getInput()) : new HashMap<>();
+                        ? Wraps.map(param.getInput()) : Wraps.map();
                 McpToolResult result = manager.callTool(
                         descriptor.getServerName(),
                         new McpToolCall(descriptor.getName(), input));

@@ -1,5 +1,6 @@
 package com.chua.common.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.qr.CodePointStyle;
 
 import javax.imageio.IIOImage;
@@ -23,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -446,7 +446,7 @@ public class BufferedImageUtils {
         try {
             reader.setInput(iis, false);
             int numFrames = reader.getNumImages(true);
-            List<BufferedImage> frames = new ArrayList<>(numFrames);
+            List<BufferedImage> frames = Wraps.list(numFrames);
             for (int i = 0; i < numFrames; i++) {
                 frames.add(reader.read(i));
             }

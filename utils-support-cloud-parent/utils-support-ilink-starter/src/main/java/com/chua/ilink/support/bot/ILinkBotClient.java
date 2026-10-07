@@ -1,5 +1,6 @@
 package com.chua.ilink.support.bot;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.bot.BotClient;
 import com.chua.common.support.ai.bot.BotInboundMessage;
 import com.chua.common.support.ai.bot.BotMessageListener;
@@ -18,7 +19,6 @@ import com.chua.common.support.network.http.HttpMethod;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -575,7 +575,7 @@ public class ILinkBotClient implements BotClient {
      * @return 入站消息列表
      */
     private List<BotInboundMessage> pollMessages() {
-        List<BotInboundMessage> result = new ArrayList<>();
+        List<BotInboundMessage> result = Wraps.list();
         try {
             JsonObject body = new JsonObject();
             body.fluentPut("base_info", new JsonObject().fluentPut("channel_version", CHANNEL_VERSION)

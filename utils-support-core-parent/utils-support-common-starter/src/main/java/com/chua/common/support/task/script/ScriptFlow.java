@@ -1,5 +1,6 @@
 package com.chua.common.support.task.script;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
@@ -139,7 +140,7 @@ public class ScriptFlow {
      * @return 脚本名 → 结果的映射
      */
     public Map<String, Object> executeBatch(Path scriptDir, Object context) {
-        Map<String, Object> results = new java.util.LinkedHashMap<>();
+        Map<String, Object> results = Wraps.linkedMap();
         try (var stream = java.nio.file.Files.list(scriptDir)) {
             stream.filter(p -> p.toString().endsWith(getScriptExtension()))
                     .sorted()

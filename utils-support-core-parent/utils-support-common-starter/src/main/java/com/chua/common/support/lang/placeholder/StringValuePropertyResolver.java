@@ -1,10 +1,8 @@
 package com.chua.common.support.lang.placeholder;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,7 +25,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
     /**
      * 定义右括号到左括号的映射关系，用于处理简单的嵌套前缀匹配
      */
-    private static final Map<String, String> STRING_STRING_HASH_MAP = new HashMap<>(4);
+    private static final Map<String, String> STRING_STRING_HASH_MAP = Wraps.map(4);
 
     static {
         STRING_STRING_HASH_MAP.put("}", "{");
@@ -108,7 +106,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
                 
                 // 初始化循环引用检查集合
                 if (visitedPlaceholders == null) {
-                    visitedPlaceholders = new HashSet<>(4);
+                    visitedPlaceholders = Wraps.set(4);
                 }
                 // 检查是否已存在循环引用
                 if (!visitedPlaceholders.add(originalPlaceholder)) {
@@ -225,7 +223,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
                 String placeholder = result.substring(startIndex + placeholderSupport.getPlaceholderPrefix().length(), endIndex);
                 String originalPlaceholder = placeholder;
                 if (visitedPlaceholders == null) {
-                    visitedPlaceholders = new HashSet<>(4);
+                    visitedPlaceholders = Wraps.set(4);
                 }
                 if (!visitedPlaceholders.add(originalPlaceholder)) {
                     throw new IllegalArgumentException(

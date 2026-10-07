@@ -1,5 +1,6 @@
 package com.chua.rsocket.support.sync;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServer;
@@ -55,7 +56,7 @@ public class RSocketSyncServer extends com.chua.common.support.network.server.Ab
     /**
      * 监听器列表
      */
-    private final List<SyncServerListener> listeners = new ArrayList<>();
+    private final List<SyncServerListener> listeners = Wraps.list();
     /**
      * 委托对象
      */
@@ -110,7 +111,7 @@ public class RSocketSyncServer extends com.chua.common.support.network.server.Ab
      * 获取连接客户端
     */
     public List<String> getConnectedClients() {
-        return new ArrayList<>(clients.keySet());
+        return Wraps.list(clients.keySet());
     }
 
     @Override

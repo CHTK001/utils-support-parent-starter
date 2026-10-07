@@ -1,5 +1,6 @@
 package com.chua.rocksdb.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.series.SeriesEngine;
 import com.chua.common.support.spi.annotations.Spi;
@@ -7,15 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.TreeSet;
-
 /**
  * 基于 RocksDB（嵌入式本地目录）的时序存储实现（{@link SeriesEngine} SPI，别名 {@code rocksdb}）。
  *
@@ -164,7 +161,7 @@ public class RocksDbSeriesEngine implements SeriesEngine, AutoCloseable {
                     + target + " metric=" + metricName);
         }
         // 点与指标索引同批原子写入，避免崩溃后出现「有索引无点」或「有点无索引」的悬空状态
-        List<byte[][]> ops = new ArrayList<>(2);
+        List<byte[][]> ops = Wraps.list(2);
         ops.add(new byte[][]{OP_PUT, bytes(pointKey(target, monitorId, metricName, timestamp)), encodeDouble(value)});
         ops.add(new byte[][]{OP_PUT, bytes(indexKey(target, monitorId, metricName)), INDEX_VALUE});
         try {
@@ -189,7 +186,7 @@ public class RocksDbSeriesEngine implements SeriesEngine, AutoCloseable {
         }
         String prefix = monitorId == null ? INDEX_PREFIX + target + ":"
                 : INDEX_PREFIX + target + ":" + monitorId + ":";
-        Set<String> found = new TreeSet<>();
+        Set<String> found = Wraps.sortedSet();
         try {
             for (Map.Entry<byte[], byte[]> entry : engine.scanBytes(datasource, bytes(prefix))) {
                 // 索引键：SER:1:IDX:<target>:<monitorId>:<metric>
@@ -202,7 +199,7 @@ public class RocksDbSeriesEngine implements SeriesEngine, AutoCloseable {
             log.warn("[SeriesEngine] RocksDB 指标发现失败 target={} monitor={}: {}", target, monitorId, e.getMessage());
             throw new IllegalStateException("RocksDB 时序指标发现失败 target=" + target + ": " + e.getMessage(), e);
         }
-        return new ArrayList<>(found);
+        return Wraps.list(found);
     }
 
     @Override
@@ -228,7 +225,7 @@ public class RocksDbSeriesEngine implements SeriesEngine, AutoCloseable {
         long nowMs = System.currentTimeMillis();
         long startMs = nowMs - (long) hours * 3600_000L;
         String prefix = pointPrefix(target, monitorId, metric);
-        List<Object[]> points = new ArrayList<>();
+        List<Object[]> points = Wraps.list();
         int dropped = 0;
         try {
             for (Map.Entry<byte[], byte[]> entry : engine.scanBytes(datasource, bytes(prefix))) {
@@ -295,7 +292,7 @@ public class RocksDbSeriesEngine implements SeriesEngine, AutoCloseable {
         }
         // 扫描范围：能按下标收窄就收窄，否则退化为整个 target 前缀后逐个过滤
         String scanPrefix = scanPrefix(target, monitorId, metricName);
-        Set<String> affectedIndexes = new LinkedHashSet<>();
+        Set<String> affectedIndexes = Wraps.linkedSet();
         int deleted = 0;
         try {
             for (Map.Entry<byte[], byte[]> entry : engine.scanBytes(datasource, bytes(scanPrefix))) {

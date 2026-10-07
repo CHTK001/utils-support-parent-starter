@@ -1,10 +1,9 @@
 package com.chua.common.support.ai.embedding;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.pool.PooledObjectClient;
 import com.chua.common.support.spi.ServiceProvider;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -155,7 +154,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
     default EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vectors = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
-        List<EmbeddingResponse.Embedding> embeddings = new ArrayList<>(vectors.length);
+        List<EmbeddingResponse.Embedding> embeddings = Wraps.list(vectors.length);
         for (float[] v : vectors) {
             embeddings.add(EmbeddingResponse.Embedding.builder()
                     .vector(v)

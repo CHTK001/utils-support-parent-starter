@@ -1,5 +1,6 @@
 package com.chua.xunfei.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
@@ -25,7 +26,6 @@ import okhttp3.OkHttpClient;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -87,7 +87,7 @@ public class XunfeiChatClient implements ChatClient {
     /**
      * 对话历史消息列表
      */
-    private final List<ChatMessage> history = new ArrayList<>();
+    private final List<ChatMessage> history = Wraps.list();
 
     /**
      * 外部传入的完整历史记录
@@ -97,7 +97,7 @@ public class XunfeiChatClient implements ChatClient {
     /**
      * 图片附件 URL 列表
      */
-    private final List<String> imageUrls = new ArrayList<>();
+    private final List<String> imageUrls = Wraps.list();
 
     /**
      * 是否启用深度思考
@@ -346,7 +346,7 @@ public class XunfeiChatClient implements ChatClient {
                 .build());
 
         // 构建消息列表
-        List<Text> textList = new ArrayList<>();
+        List<Text> textList = Wraps.list();
         if (StringUtils.isNotEmpty(actualSystem)) {
             textList.add(Text.builder().role("system").content(actualSystem).build());
         }

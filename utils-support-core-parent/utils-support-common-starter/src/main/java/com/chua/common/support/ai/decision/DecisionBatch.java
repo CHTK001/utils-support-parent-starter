@@ -1,9 +1,8 @@
 package com.chua.common.support.ai.decision;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -56,7 +55,7 @@ public record DecisionBatch(List<Decision> decisions) {
         if (decisions.isEmpty()) {
             throw new IllegalArgumentException("decisions 不能为空");
         }
-        Map<String, Decision> indexed = new LinkedHashMap<>();
+        Map<String, Decision> indexed = Wraps.linkedMap();
         for (Decision decision : decisions) {
             if (indexed.put(decision.queryId(), decision) != null) {
                 throw new IllegalArgumentException("decisions 中存在重复的答案标识: " + decision.queryId());
@@ -109,7 +108,7 @@ public record DecisionBatch(List<Decision> decisions) {
      */
     public Map<String, Decision> answers(DecisionRequest request) {
         Objects.requireNonNull(request, "request 不能为 null");
-        Map<String, Decision> result = new LinkedHashMap<>();
+        Map<String, Decision> result = Wraps.linkedMap();
         for (DecisionQuery query : request.queries()) {
             Decision decision = decision(query.id());
             if (decision == null) {
@@ -133,6 +132,22 @@ public record DecisionBatch(List<Decision> decisions) {
     }
 
     /**
+     * 取标识到结论标签的映射。
+     *
+     * <p>供 {@code AiRule} 命中判定：只关心每个问题选了哪个标签，
+     * 置信度走 {@link #flatten()} 的 {@code <id>.confidence} 变量。</p>
+     *
+     * @return 不可变的标识到标签映射，迭代顺序与答案声明顺序一致
+     */
+    public Map<String, String> labels() {
+        Map<String, String> result = Wraps.linkedMap();
+        for (Decision decision : decisions) {
+            result.put(decision.queryId(), decision.label());
+        }
+        return Collections.unmodifiableMap(result);
+    }
+
+    /**
      * 展平为普通上下文变量，供规则 {@code when} 直接取值。
      *
      * <p>每个答案产出三个变量：</p>
@@ -150,7 +165,7 @@ public record DecisionBatch(List<Decision> decisions) {
      * @return 不可变变量表，迭代顺序与答案声明顺序一致
      */
     public Map<String, Object> flatten() {
-        Map<String, Object> variables = new LinkedHashMap<>();
+        Map<String, Object> variables = Wraps.linkedMap();
         for (Decision decision : decisions) {
             variables.put(decision.queryId(), decision.label());
             variables.put(decision.queryId() + SUFFIX_CONFIDENCE, decision.confidence());
@@ -198,7 +213,7 @@ public record DecisionBatch(List<Decision> decisions) {
             return Set.of(DecisionType.TRUE_LABEL, DecisionType.FALSE_LABEL);
         }
         if (query.type().isScore()) {
-            return new LinkedHashSet<>(query.levels());
+            return Wraps.linkedSet(query.levels());
         }
         return query.options().keySet();
     }

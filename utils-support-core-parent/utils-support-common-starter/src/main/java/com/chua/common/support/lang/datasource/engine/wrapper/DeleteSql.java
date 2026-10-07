@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.datasource.engine.wrapper;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -34,7 +33,7 @@ public record DeleteSql<T>(
      */
     public DeleteSql {
         Objects.requireNonNull(entityClass, "entityClass 不能为 null");
-        params = params == null ? null : Collections.unmodifiableList(new ArrayList<>(params));
+        params = params == null ? null : Collections.unmodifiableList(Wraps.list(params));
     }
 
     /**

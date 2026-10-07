@@ -1,10 +1,9 @@
 package com.chua.deeplearning.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.capability.ModelCapabilities;
 import com.chua.deeplearning.support.model.HardwareConfig;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,7 +53,7 @@ public final class ModelSelector {
         if (capability == null || capability.isBlank()) {
             return null;
         }
-        List<String> candidates = new ArrayList<>();
+        List<String> candidates = Wraps.list();
         for (ModelRegistry.Entry e : ModelRegistry.getAll()) {
             String label = ModelCapabilities.labelOf(e.capabilityInterface());
             if (label != null && label.equalsIgnoreCase(capability)) {

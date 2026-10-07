@@ -1,5 +1,6 @@
 package com.chua.playwright.support.doubao;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
@@ -18,9 +19,6 @@ import com.chua.common.support.ai.chat.ChatTool;
 import com.chua.common.support.spi.annotations.ConditionalOnClass;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -115,15 +113,15 @@ public class DoubaoProxyChatClient implements ChatClient {
     /**
      * image Urls
      */
-    private final List<String> imageUrls = new ArrayList<>();
+    private final List<String> imageUrls = Wraps.list();
     /**
      * attachments
      */
-    private final List<Attachment> attachments = new ArrayList<>();
+    private final List<Attachment> attachments = Wraps.list();
     /**
      * tools
      */
-    private final List<ChatTool> tools = new ArrayList<>();
+    private final List<ChatTool> tools = Wraps.list();
     /**
      * tool Choice
      */
@@ -152,7 +150,7 @@ public class DoubaoProxyChatClient implements ChatClient {
     /**
      * 对话历史消息列表。
      */
-    private final List<ChatMessage> history = new ArrayList<>();
+    private final List<ChatMessage> history = Wraps.list();
 
     /**
      * 外部传入的完整历史记录。
@@ -896,7 +894,7 @@ return parseImageResult(result, prompt);
      * @return ImageGeneration结果 对象
      */
     private ImageGenerationResult parseImageResult(DoubaoChatResult result, String prompt) {
-        List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();
+        List<ImageGenerationResult.GeneratedImage> images = Wraps.list();
         List<Map<String, Object>> rawEvents = result.rawEvents();
         if (rawEvents != null) {
             for (Map<String, Object> event : rawEvents) {
@@ -958,7 +956,7 @@ return parseImageResult(result, prompt);
      * @return VideoGeneration结果 对象
      */
     private VideoGenerationResult parseVideoResult(DoubaoChatResult result, String prompt) {
-        List<VideoGenerationResult.GeneratedVideo> videos = new ArrayList<>();
+        List<VideoGenerationResult.GeneratedVideo> videos = Wraps.list();
         List<Map<String, Object>> rawEvents = result.rawEvents();
         if (rawEvents != null) {
             for (Map<String, Object> event : rawEvents) {

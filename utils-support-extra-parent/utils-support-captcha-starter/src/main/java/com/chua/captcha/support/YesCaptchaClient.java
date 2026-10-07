@@ -1,5 +1,6 @@
 package com.chua.captcha.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
@@ -11,8 +12,6 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -83,7 +82,7 @@ public class YesCaptchaClient implements CaptchaParser {
 
     @Override
     public String submitCaptcha(byte[] imageData, Map<String, String> options) {
-        Map<String, Object> body = new HashMap<>();
+        Map<String, Object> body = Wraps.map();
         body.put("clientKey", setting.requireApiToken());
         body.put("task", buildTask(imageData, options == null ? Map.of() : options));
         return createTask(body);
@@ -107,7 +106,7 @@ public class YesCaptchaClient implements CaptchaParser {
      */
     public double getBalance() {
         try {
-            Map<String, Object> body = new HashMap<>();
+            Map<String, Object> body = Wraps.map();
             body.put("clientKey", setting.requireApiToken());
             String json = doPost("/getBalance", body);
             if (json != null) {
@@ -141,7 +140,7 @@ public class YesCaptchaClient implements CaptchaParser {
         if (type == null) {
             throw new IllegalArgumentException("不支持的验证码类型: " + captchaType + "，可选: " + supportedTypes());
         }
-        Map<String, Object> task = new HashMap<>();
+        Map<String, Object> task = Wraps.map();
         String taskType = TASK_TYPES.get(type);
         if (taskType == null) {
             throw new IllegalArgumentException("yescaptcha 暂不支持验证码类型: " + captchaType);
@@ -182,7 +181,7 @@ public class YesCaptchaClient implements CaptchaParser {
      * @return 映射表
      */
     private static Map<CaptchaType, String> buildTaskTypes() {
-        Map<CaptchaType, String> map = new EnumMap<>(CaptchaType.class);
+        Map<CaptchaType, String> map = Wraps.enumMap(CaptchaType.class);
         map.put(CaptchaType.RECAPTCHA_V2, "NoCaptchaTaskProxyless");
         map.put(CaptchaType.RECAPTCHA_V3, "RecaptchaV3TaskProxyless");
         map.put(CaptchaType.RECAPTCHA_V2_ENTERPRISE, "RecaptchaV2EnterpriseTaskProxyless");
@@ -236,7 +235,7 @@ public class YesCaptchaClient implements CaptchaParser {
      */
     private CaptchaResponse getTaskResult(String taskId) {
         try {
-            Map<String, Object> body = new HashMap<>();
+            Map<String, Object> body = Wraps.map();
             body.put("clientKey", setting.requireApiToken());
             body.put("taskId", taskId);
 

@@ -1,5 +1,6 @@
 package com.chua.datalake.support.cdc;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datalake.support.model.DataEnvelope;
 import com.chua.datalake.support.spi.pipeline.PipelineEngine;
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
@@ -7,7 +8,6 @@ import com.github.shyiko.mysql.binlog.event.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -317,7 +317,7 @@ public class MysqlCdcListener {
             }
 
             for (Serializable[] row : data.getRows()) {
-                Map<String, Object> rowMap = new HashMap<>();
+                Map<String, Object> rowMap = Wraps.map();
                 rowMap.put("_cdc_op", "INSERT");
                 rowMap.put("_cdc_table_id", data.getTableId());
                 rowMap.put("_cdc_ts", event.getHeader().getTimestamp());
@@ -331,7 +331,7 @@ public class MysqlCdcListener {
             }
 
             for (Map.Entry<Serializable[], Serializable[]> row : data.getRows()) {
-                Map<String, Object> rowMap = new HashMap<>();
+                Map<String, Object> rowMap = Wraps.map();
                 rowMap.put("_cdc_op", "UPDATE");
                 rowMap.put("_cdc_table_id", data.getTableId());
                 rowMap.put("_cdc_ts", event.getHeader().getTimestamp());
@@ -346,7 +346,7 @@ public class MysqlCdcListener {
             }
 
             for (Serializable[] row : data.getRows()) {
-                Map<String, Object> rowMap = new HashMap<>();
+                Map<String, Object> rowMap = Wraps.map();
                 rowMap.put("_cdc_op", "DELETE");
                 rowMap.put("_cdc_table_id", data.getTableId());
                 rowMap.put("_cdc_ts", event.getHeader().getTimestamp());

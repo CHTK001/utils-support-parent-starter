@@ -1,5 +1,6 @@
 package com.chua.common.support.vector;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.tree.BPlusTree;
 
 import java.util.Comparator;
@@ -94,7 +95,7 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
         checkNotClosed();
         rwLock.writeLock().lock();
         try {
-            List<String> toRemove = new java.util.ArrayList<>();
+            List<String> toRemove = Wraps.list();
             for (Map.Entry<String, Vector> entry : allEntries()) {
                 if (entry.getKey().startsWith(idPrefix)) {
                     toRemove.add(entry.getKey());
@@ -131,7 +132,7 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
         var algo = getAlgorithm() != null ? getAlgorithm() : VectorCompareAlgorithm.euclidean();
         rwLock.readLock().lock();
         try {
-            List<Vector> results = new java.util.ArrayList<>();
+            List<Vector> results = Wraps.list();
             for (Map.Entry<String, Vector> entry : allEntries()) {
                 Vector v = entry.getValue();
                 double score = algo.compare(query, v.data());
@@ -174,7 +175,7 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
      * @return 合并metadata的结果
      */
     private static Map<String, Object> mergeMetadata(Vector v, double score) {
-        var meta = new java.util.LinkedHashMap<String, Object>();
+        var meta = Wraps.<String, Object>linkedMap();
         meta.put("score", score);
         if (v.metadata() != null) {
             meta.putAll(v.metadata());

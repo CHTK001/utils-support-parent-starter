@@ -1,5 +1,6 @@
 package com.chua.google.support.colab;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -17,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -142,7 +142,7 @@ public class GoogleColabClient implements AutoCloseable {
      * @return 当前项目与区域下的全部 Notebook 运行时
      */
     public List<RuntimeInfo> listRuntimes() {
-        List<RuntimeInfo> result = new ArrayList<>();
+        List<RuntimeInfo> result = Wraps.list();
         for (NotebookRuntime runtime : client.listNotebookRuntimes(parent).iterateAll()) {
             result.add(RuntimeInfo.builder()
                     .name(runtime.getName())
@@ -205,7 +205,7 @@ public class GoogleColabClient implements AutoCloseable {
      * @return 当前项目与区域下的全部运行时模板
      */
     public List<TemplateInfo> listRuntimeTemplates() {
-        List<TemplateInfo> result = new ArrayList<>();
+        List<TemplateInfo> result = Wraps.list();
         for (NotebookRuntimeTemplate template : client.listNotebookRuntimeTemplates(parent).iterateAll()) {
             result.add(TemplateInfo.builder()
                     .name(template.getName())
@@ -267,7 +267,7 @@ public class GoogleColabClient implements AutoCloseable {
      * @return 全部执行作业
      */
     public List<ExecutionInfo> listExecutions() {
-        List<ExecutionInfo> result = new ArrayList<>();
+        List<ExecutionInfo> result = Wraps.list();
         for (NotebookExecutionJob job : client.listNotebookExecutionJobs(parent).iterateAll()) {
             result.add(toExecutionInfo(job));
         }

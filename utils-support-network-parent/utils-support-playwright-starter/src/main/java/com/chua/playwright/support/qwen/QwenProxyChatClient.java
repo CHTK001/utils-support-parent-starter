@@ -1,5 +1,6 @@
 package com.chua.playwright.support.qwen;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
@@ -16,8 +17,6 @@ import com.chua.common.support.ai.chat.ChatTool;
 import com.chua.common.support.spi.annotations.ConditionalOnClass;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -112,15 +111,15 @@ public class QwenProxyChatClient implements ChatClient {
     /**
      * image Urls
      */
-    private final List<String> imageUrls = new ArrayList<>();
+    private final List<String> imageUrls = Wraps.list();
     /**
      * attachments
      */
-    private final List<Attachment> attachments = new ArrayList<>();
+    private final List<Attachment> attachments = Wraps.list();
     /**
      * tools
      */
-    private final List<ChatTool> tools = new ArrayList<>();
+    private final List<ChatTool> tools = Wraps.list();
     /**
      * tool Choice
      */
@@ -144,7 +143,7 @@ public class QwenProxyChatClient implements ChatClient {
     /**
      * 对话历史消息列表。
      */
-    private final List<ChatMessage> history = new ArrayList<>();
+    private final List<ChatMessage> history = Wraps.list();
 
     /**
      * 外部传入的完整历史记录。
@@ -510,7 +509,7 @@ public class QwenProxyChatClient implements ChatClient {
         }
 
         // 从 rawEvents 中提取 image_list
-        List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();
+        List<ImageGenerationResult.GeneratedImage> images = Wraps.list();
         List<Map<String, Object>> rawEvents = result.rawEvents();
         if (rawEvents != null) {
             for (Map<String, Object> event : rawEvents) {
@@ -571,7 +570,7 @@ public class QwenProxyChatClient implements ChatClient {
 
         QwenChatResult result = session.chat("{\"messages\":[{\"role\":\"user\",\"content\":\"" + fullPrompt + "\"}]}",
                 "qwen3.8-max", null);
-        List<VideoGenerationResult.GeneratedVideo> videos = new ArrayList<>();
+        List<VideoGenerationResult.GeneratedVideo> videos = Wraps.list();
         if (result.isSuccess() && result.text() != null) {
             // 从文本中提取视频 URL
             java.util.regex.Matcher m = java.util.regex.Pattern.compile(
@@ -591,7 +590,7 @@ public class QwenProxyChatClient implements ChatClient {
      * @return 结果列表，无数据时为空列表
      */
     private static List<ImageGenerationResult.GeneratedImage> extractImagesFromText(String text, String prompt) {
-        List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();
+        List<ImageGenerationResult.GeneratedImage> images = Wraps.list();
         if (text == null || text.isEmpty()) {
             return images;
         }

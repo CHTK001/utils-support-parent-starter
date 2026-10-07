@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.ueba;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
@@ -12,7 +13,6 @@ import java.nio.LongBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -291,7 +291,7 @@ public class LstmAttentionBehaviorTranslator {
         }
         long[] seqShape = new long[]{1L, seqLen};
         long[] numShape = new long[]{1L, seqLen, numNumeric};
-        Map<String, OnnxTensor> inputs = new HashMap<>(4);
+        Map<String, OnnxTensor> inputs = Wraps.map(4);
         String[] inputNames = session.getInputInfo().keySet().toArray(new String[0]);
         try (OnnxTensor idsTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ids), seqShape);
              OnnxTensor numericTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(numeric), numShape)) {

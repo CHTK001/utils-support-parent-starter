@@ -1,6 +1,5 @@
 package com.chua.common.support.tree;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Objects;
 
@@ -116,7 +115,7 @@ public final class BinaryTreeConverter {
      * @return 有序条目列表
      */
     private static <K extends Comparable<K>, V> List<Entry<K, V>> collectEntries(BPlusTree<K, V> tree) {
-        List<Entry<K, V>> result = new ArrayList<>();
+        List<Entry<K, V>> result = Wraps.list();
         BPlusTreeNode<K, V> cur = tree.getRoot();
         while (cur != null && !cur.leaf) {
             cur = cur.children.getFirst();
@@ -139,7 +138,7 @@ public final class BinaryTreeConverter {
      * @return 有序条目列表
      */
     private static <K extends Comparable<K>, V> List<Entry<K, V>> collectEntriesFromBTree(BTree<K, V> tree) {
-        List<Entry<K, V>> result = new ArrayList<>();
+        List<Entry<K, V>> result = Wraps.list();
         inOrderCollect(tree.root, result);
         return result;
     }

@@ -1,5 +1,6 @@
 package com.chua.oracle.support.user;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasource.support.user.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +9,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -69,11 +69,11 @@ public class OracleAlterUserStep implements UserManager.AlterUserStep {
     /**
      * 待执行的授权语句
      */
-    private final List<SqlStep> grants = new ArrayList<>();
+    private final List<SqlStep> grants = Wraps.list();
     /**
      * 待执行的回收语句
      */
-    private final List<SqlStep> revokes = new ArrayList<>();
+    private final List<SqlStep> revokes = Wraps.list();
 
     /**
      * 构造方法，创建 Oracle 修改用户步骤实例。
@@ -149,7 +149,7 @@ public class OracleAlterUserStep implements UserManager.AlterUserStep {
     @Override
     public void execute() {
         String user = OracleSqlNames.checkUserName(username);
-        List<SqlStep> steps = new ArrayList<>();
+        List<SqlStep> steps = Wraps.list();
         if (password != null) {
             steps.add(new SqlStep("ALTER USER " + user + " 改口令",
                     "ALTER USER " + user + " IDENTIFIED BY \"" + checkPassword(password) + "\""));
@@ -198,7 +198,7 @@ public class OracleAlterUserStep implements UserManager.AlterUserStep {
         if (privileges == null || privileges.trim().isEmpty()) {
             throw new IllegalArgumentException("权限列表不能为空");
         }
-        List<String> checked = new ArrayList<>();
+        List<String> checked = Wraps.list();
         for (String item : privileges.split(",")) {
             String privilege = item.trim().replaceAll("\\s+", " ");
             if (privilege.isEmpty() || !PRIVILEGE_PATTERN.matcher(privilege).matches()) {

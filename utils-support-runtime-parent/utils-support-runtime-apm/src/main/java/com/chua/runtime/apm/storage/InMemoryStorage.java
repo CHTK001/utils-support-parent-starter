@@ -1,9 +1,8 @@
 package com.chua.runtime.apm.storage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.runtime.protocol.DependencyEdge;
 import lombok.extern.java.Log;
-
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -183,7 +182,7 @@ public class InMemoryStorage implements ApmStorage {
      * 查询Dependencies
     */
     public List<DependencyEdge> queryDependencies(Query query) {
-        return new ArrayList<>(dependencies.values());
+        return Wraps.list(dependencies.values());
     }
 
     @Override

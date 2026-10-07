@@ -1,5 +1,6 @@
 package com.chua.common.support.task.pipeline.core;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.*;
 
 /**
@@ -69,8 +70,8 @@ public class ForkResult {
      */
     public ForkResult(String nodeId, Map<String, Object> branches, Map<String, List<String>> histories) {
         this.nodeId = nodeId;
-        this.branches = branches != null ? new LinkedHashMap<>(branches) : new LinkedHashMap<>();
-        this.histories = histories != null ? new LinkedHashMap<>(histories) : new LinkedHashMap<>();
+        this.branches = branches != null ? Wraps.linkedMap(branches) : Wraps.linkedMap();
+        this.histories = histories != null ? Wraps.linkedMap(histories) : Wraps.linkedMap();
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +14,6 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -302,12 +301,12 @@ public abstract class BaseUsageParser implements UsageParser {
      * @return 按天聚合后的记录列表
      */
     protected List<AiUsage> aggregateByDay(List<AiUsage> records) {
-        Map<String, DayAggregator> dayMap = new LinkedHashMap<>();
+        Map<String, DayAggregator> dayMap = Wraps.linkedMap();
         for (AiUsage usage : records) {
             String day = toDay(usage.getStartTime());
             dayMap.computeIfAbsent(day, d -> new DayAggregator(d, usage.getProvider())).add(usage);
         }
-        List<AiUsage> result = new ArrayList<>(dayMap.size());
+        List<AiUsage> result = Wraps.list(dayMap.size());
         for (DayAggregator agg : dayMap.values()) {
             result.add(agg.build());
         }

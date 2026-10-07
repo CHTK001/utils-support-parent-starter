@@ -1,8 +1,6 @@
 package com.chua.common.support.task.flow;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -95,7 +93,7 @@ public final class FlowNodeRegistry {
      * @return 节点类型元信息列表
      */
     public static List<FlowNodeMetadata> listMetadata() {
-        List<FlowNodeMetadata> result = new ArrayList<>();
+        List<FlowNodeMetadata> result = Wraps.list();
         for (Registration registration : REGISTRY.values()) {
             result.add(registration.toMetadata());
         }
@@ -117,7 +115,7 @@ public final class FlowNodeRegistry {
      * @return 类型标识到描述的映射
      */
     public static Map<String, String> describeMap() {
-        Map<String, String> result = new LinkedHashMap<>();
+        Map<String, String> result = Wraps.linkedMap();
         for (Registration registration : REGISTRY.values()) {
             result.put(registration.type(), registration.describe());
         }

@@ -1,5 +1,6 @@
 package com.chua.common.support.ai.bot;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Builder;
 
 import java.util.Collections;
@@ -71,7 +72,7 @@ public record BotUserInfo(
      */
     public BotUserInfo {
         userId = Objects.requireNonNull(userId, "userId 不能为 null");
-        extra = extra == null ? null : Collections.unmodifiableMap(new LinkedHashMap<>(extra));
+        extra = extra == null ? null : Collections.unmodifiableMap(Wraps.linkedMap(extra));
     }
 
     /**

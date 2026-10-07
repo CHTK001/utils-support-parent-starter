@@ -1,5 +1,6 @@
 package com.chua.starter.datasync.scanner;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.datasync.config.DataSyncConfigDefinition;
 import com.chua.starter.datasync.config.DirectoryConfigDefinition;
@@ -11,7 +12,6 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -65,12 +65,12 @@ public class YamlConfigFileParser implements ConfigFileParser {
         String filePath = getString(map, "filePath");
         String text = getString(map, "text");
 
-        List<Map<String, String>> mappings = new ArrayList<>();
+        List<Map<String, String>> mappings = Wraps.list();
         Object mappingsObj = map.get("mappings");
         if (mappingsObj instanceof List<?> list) {
             for (Object item : list) {
                 if (item instanceof Map<?, ?> m) {
-                    Map<String, String> entry = new LinkedHashMap<>();
+                    Map<String, String> entry = Wraps.linkedMap();
                     for (Map.Entry<?, ?> e : m.entrySet()) {
                         entry.put(String.valueOf(e.getKey()), String.valueOf(e.getValue()));
                     }
@@ -79,7 +79,7 @@ public class YamlConfigFileParser implements ConfigFileParser {
             }
         }
 
-        List<DataSyncFieldMapping> fieldMappings = new ArrayList<>();
+        List<DataSyncFieldMapping> fieldMappings = Wraps.list();
         for (Map<String, String> m : mappings) {
             fieldMappings.add(new DefaultDataSyncFieldMapping(
                     m.getOrDefault("sourceField", ""),
@@ -88,7 +88,7 @@ public class YamlConfigFileParser implements ConfigFileParser {
             ));
         }
 
-        Map<String, Object> params = new LinkedHashMap<>();
+        Map<String, Object> params = Wraps.linkedMap();
         Object paramsObj = map.get("params");
         if (paramsObj instanceof Map<?, ?> p) {
             for (Map.Entry<?, ?> e : p.entrySet()) {
@@ -285,7 +285,7 @@ public class YamlConfigFileParser implements ConfigFileParser {
          */
         public DefaultDirectoryConfigDefinition {
             mappings = List.copyOf(Objects.requireNonNull(mappings, "mappings 不能为 null"));
-            params = Collections.unmodifiableMap(new LinkedHashMap<>(
+            params = Collections.unmodifiableMap(Wraps.linkedMap(
                     Objects.requireNonNull(params, "params 不能为 null")));
             directoryPath = Objects.requireNonNull(directoryPath, "directoryPath 不能为 null");
         }
@@ -428,7 +428,7 @@ public class YamlConfigFileParser implements ConfigFileParser {
          */
         public DefaultFileConfigDefinition {
             mappings = List.copyOf(Objects.requireNonNull(mappings, "mappings 不能为 null"));
-            params = Collections.unmodifiableMap(new LinkedHashMap<>(
+            params = Collections.unmodifiableMap(Wraps.linkedMap(
                     Objects.requireNonNull(params, "params 不能为 null")));
             filePath = Objects.requireNonNull(filePath, "filePath 不能为 null");
         }
@@ -572,7 +572,7 @@ public class YamlConfigFileParser implements ConfigFileParser {
          */
         public DefaultTextConfigDefinition {
             mappings = List.copyOf(Objects.requireNonNull(mappings, "mappings 不能为 null"));
-            params = Collections.unmodifiableMap(new LinkedHashMap<>(
+            params = Collections.unmodifiableMap(Wraps.linkedMap(
                     Objects.requireNonNull(params, "params 不能为 null")));
             text = Objects.requireNonNull(text, "text 不能为 null");
         }
@@ -708,7 +708,7 @@ public class YamlConfigFileParser implements ConfigFileParser {
          */
         public SimpleConfigDefinition {
             mappings = List.copyOf(Objects.requireNonNull(mappings, "mappings 不能为 null"));
-            params = Collections.unmodifiableMap(new LinkedHashMap<>(
+            params = Collections.unmodifiableMap(Wraps.linkedMap(
                     Objects.requireNonNull(params, "params 不能为 null")));
         }
 

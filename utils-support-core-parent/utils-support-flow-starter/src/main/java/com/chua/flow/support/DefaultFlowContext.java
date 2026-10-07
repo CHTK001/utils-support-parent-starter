@@ -1,12 +1,10 @@
 package com.chua.flow.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.flow.FlowContext;
 import com.chua.common.support.task.flow.FlowProps;
 import com.chua.common.support.task.flow.FlowTrace;
 import com.chua.common.support.task.pipeline.core.Action;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +55,7 @@ public class DefaultFlowContext implements FlowContext {
     /**
      * 上下文属性映射，保持插入顺序
      */
-    private final Map<String, Object> attributes = new LinkedHashMap<>();
+    private final Map<String, Object> attributes = Wraps.linkedMap();
 
     /**
      * 手动指定的下一节点 标识
@@ -72,17 +70,17 @@ public class DefaultFlowContext implements FlowContext {
     /**
      * 执行轨迹：按序记录全部已执行节点 标识
      */
-    private final List<String> executionTrace = new ArrayList<>();
+    private final List<String> executionTrace = Wraps.list();
 
     /**
      * 执行轨迹记录：按序记录每个节点的输入输出快照
      */
-    private final List<FlowTrace> traces = new ArrayList<>();
+    private final List<FlowTrace> traces = Wraps.list();
 
     /**
      * 节点 标识 到累计执行次数的映射
      */
-    private final Map<String, Integer> executeCounts = new LinkedHashMap<>();
+    private final Map<String, Integer> executeCounts = Wraps.linkedMap();
 
     /**
      * 单节点最大执行次数上限
@@ -92,7 +90,7 @@ public class DefaultFlowContext implements FlowContext {
     /**
      * 挂起时待执行的后续节点快照
      */
-    private final List<String> pendingSnapshot = new ArrayList<>();
+    private final List<String> pendingSnapshot = Wraps.list();
 
     /**
      * 构造流程运行上下文。
@@ -218,7 +216,7 @@ public class DefaultFlowContext implements FlowContext {
      * 获取执行追踪
     */
     public List<String> getExecutionTrace() {
-        return new ArrayList<>(executionTrace);
+        return Wraps.list(executionTrace);
     }
 
     @Override
@@ -226,7 +224,7 @@ public class DefaultFlowContext implements FlowContext {
      * 获取追踪
     */
     public List<FlowTrace> getTraces() {
-        return new ArrayList<>(traces);
+        return Wraps.list(traces);
     }
 
     @Override
@@ -261,7 +259,7 @@ public class DefaultFlowContext implements FlowContext {
      * 获取pending节点标识
     */
     public List<String> getPendingNodeIds() {
-        return new ArrayList<>(pendingSnapshot);
+        return Wraps.list(pendingSnapshot);
     }
 
     /**

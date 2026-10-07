@@ -1,5 +1,6 @@
 package com.chua.datasource.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.wrapper.SFunction;
 import com.chua.common.support.lang.datasource.page.Page;
@@ -132,7 +133,7 @@ public class InMemoryReactorEngine implements ReactorEngine {
     @Override
     public <T> Flux<T> query(String sql, Class<T> rowType, Object... params) {
         return Flux.defer(() -> {
-            List<T> out = new java.util.ArrayList<>();
+            List<T> out = Wraps.list();
             for (Map<String, Object> row : delegate.querySql(sql, params)) {
                 out.add(MemorySqlLex.RowAccessor.toBean(row, rowType));
             }

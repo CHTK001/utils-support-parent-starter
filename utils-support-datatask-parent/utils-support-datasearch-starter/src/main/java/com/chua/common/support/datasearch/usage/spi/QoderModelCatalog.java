@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,7 +9,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -114,7 +114,7 @@ public final class QoderModelCatalog {
             log.debug("[qoder] 读取档位显示名失败: {}", e.getMessage());
             return Collections.emptyMap();
         }
-        Map<String, String> result = new LinkedHashMap<>();
+        Map<String, String> result = Wraps.linkedMap();
         Matcher matcher = ENTRY.matcher(json);
         while (matcher.find()) {
             String slug = slugify(matcher.group(2));

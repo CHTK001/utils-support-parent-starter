@@ -1,13 +1,12 @@
 package com.chua.common.support.converter.definition;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.ArrayUtils;
 import com.chua.common.support.utils.MapUtils;
 
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_COLON;
@@ -62,7 +61,7 @@ public class MapTypeConverter implements TypeConverter<Map> {
 
         if (isAssignableFrom(value, Dictionary.class)) {
             Dictionary dictionary = (Dictionary) value;
-            Map item = new HashMap<>(1 << 4);
+            Map item = Wraps.map(1 << 4);
             Enumeration enumeration = dictionary.keys();
             while (enumeration.hasMoreElements()) {
                 Object element = enumeration.nextElement();
@@ -81,7 +80,7 @@ public class MapTypeConverter implements TypeConverter<Map> {
             if (string.startsWith(SYMBOL_LEFT_BIG_PARENTHESES) && string.endsWith(SYMBOL_RIGHT_BIG_PARENTHESES)) {
                 String substring = string.substring(1, string.length() - 1);
                 String[] parts = substring.split(SYMBOL_COMMA);
-                Map<String, Object> rs = new LinkedHashMap<>();
+                Map<String, Object> rs = Wraps.linkedMap();
                 for (String s : parts) {
                     s = s.trim();
                     int index = s.indexOf(SYMBOL_EQUALS);
@@ -131,7 +130,7 @@ public class MapTypeConverter implements TypeConverter<Map> {
      */
     private Map<String, String> parseKeyValue(String str, String entrySep, String kvSep) {
         String[] entries = str.split(entrySep);
-        Map<String, String> result = new LinkedHashMap<>();
+        Map<String, String> result = Wraps.linkedMap();
         for (String entry : entries) {
             int idx = entry.indexOf(kvSep);
             if (idx > -1) {

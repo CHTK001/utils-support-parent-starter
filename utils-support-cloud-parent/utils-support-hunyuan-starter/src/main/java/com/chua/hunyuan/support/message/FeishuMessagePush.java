@@ -1,5 +1,6 @@
 package com.chua.hunyuan.support.message;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.JsonObject;
 import com.chua.common.support.network.client.ClientRequest;
 import com.chua.common.support.network.client.ClientResponse;
@@ -14,8 +15,6 @@ import com.chua.common.support.task.message.MessagePush;
 import com.chua.common.support.task.message.MessageRequest;
 import com.chua.common.support.task.message.MessageResponse;
 import com.chua.common.support.task.message.TemplateInfo;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -184,7 +183,7 @@ public class FeishuMessagePush implements MessagePush {
      * 列表templates
     */
     public List<TemplateInfo> listTemplates() {
-        return new ArrayList<>(templates.values());
+        return Wraps.list(templates.values());
     }
 
     @Override

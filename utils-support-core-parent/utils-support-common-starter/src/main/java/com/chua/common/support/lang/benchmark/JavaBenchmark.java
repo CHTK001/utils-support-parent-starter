@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.benchmark;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.document.BenchmarkDocumentData;
 import com.chua.common.support.lang.document.BenchmarkHtmlProvider;
 import com.chua.common.support.lang.document.DocumentProvider;
@@ -13,7 +14,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -139,7 +139,7 @@ public class JavaBenchmark implements Benchmark {
         CountDownLatch start = new CountDownLatch(1);
         CountDownLatch done = new CountDownLatch(vus);
         LongAdder errors = new LongAdder();
-        List<long[]> latencies = java.util.Collections.synchronizedList(new ArrayList<>(vus));
+        List<long[]> latencies = java.util.Collections.synchronizedList(Wraps.list(vus));
 
         try {
             for (int i = 0; i < vus; i++) {
@@ -183,7 +183,7 @@ public class JavaBenchmark implements Benchmark {
             long elapsedNs = System.nanoTime() - wallStart;
 
             // 合并延迟
-            List<Long> valid = new ArrayList<>();
+            List<Long> valid = Wraps.list();
             long total = 0;
             for (long[] arr : latencies) {
                 for (long ns : arr) {

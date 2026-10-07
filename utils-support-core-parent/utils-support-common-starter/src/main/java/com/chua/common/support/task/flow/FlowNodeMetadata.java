@@ -1,6 +1,5 @@
 package com.chua.common.support.task.flow;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -45,7 +44,7 @@ public record FlowNodeMetadata(
         type = Objects.requireNonNull(type, "type 不能为 null");
         schema = schema == null
                 ? null
-                : Collections.unmodifiableList(new ArrayList<>(schema));
+                : Collections.unmodifiableList(Wraps.list(schema));
     }
 
     /**
@@ -59,6 +58,6 @@ public record FlowNodeMetadata(
      * @return 节点元信息实例
      */
     public FlowNodeMetadata(String type, String name, String describe) {
-        this(type, name, describe, new ArrayList<>());
+        this(type, name, describe, Wraps.list());
     }
 }

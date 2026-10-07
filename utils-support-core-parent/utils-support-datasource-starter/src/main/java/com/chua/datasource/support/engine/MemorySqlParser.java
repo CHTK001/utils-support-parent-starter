@@ -1,6 +1,5 @@
 package com.chua.datasource.support.engine;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -189,7 +188,7 @@ public class MemorySqlParser {
             result = new BetweenNode(col, lo, hi);
         } else if (matchKeyword(ts, "IN")) {
             consume(ts, "(");
-            List<Object> values = new ArrayList<>();
+            List<Object> values = Wraps.list();
             do {
                 values.add(consumeValueOrParam(ts));
             } while (match(ts, ","));
@@ -231,7 +230,7 @@ public class MemorySqlParser {
         expectKeyword(ts, "VALUES");
         do {
             consume(ts, "(");
-            List<Object> row = new ArrayList<>();
+            List<Object> row = Wraps.list();
             do {
                 row.add(consumeValueOrParam(ts));
             } while (match(ts, ","));

@@ -1,11 +1,10 @@
 package com.chua.common.support.lang.document;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -71,5 +70,5 @@ public class DocumentData {
      * Tables
      */
     @Builder.Default
-    private List<TableData> tables = new ArrayList<>();
+    private List<TableData> tables = Wraps.list();
 }

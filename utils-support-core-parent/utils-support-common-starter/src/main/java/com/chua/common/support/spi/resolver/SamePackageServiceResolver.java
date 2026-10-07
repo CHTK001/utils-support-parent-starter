@@ -1,5 +1,6 @@
 package com.chua.common.support.spi.resolver;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.definition.ServiceDefinition;
 import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -89,7 +90,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
             log.trace("[SPI] 包名：{}", packageName);
         }
 
-        List<ServiceDefinition> result = new ArrayList<>();
+        List<ServiceDefinition> result = Wraps.list();
         List<Class<?>> subTypeByPackage = findSubTypeByPackage(packageName, service, classLoader);
 
         int foundCount = 0;
@@ -170,7 +171,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
 
         Collection<Class<?>> result = new ConcurrentLinkedQueue<>();
 
-        List<URL> urlList = new ArrayList<>();
+        List<URL> urlList = Wraps.list();
         while (resources.hasMoreElements()) {
             urlList.add(resources.nextElement());
         }
@@ -185,7 +186,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
             doAnalysisUrl(result, url, packageName, packageDirName, service, classLoader);
         });
 
-        return new ArrayList<>(result);
+        return Wraps.list(result);
     }
 
     /**
@@ -381,7 +382,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
         }
 
         final int baseLen = packageDir.getAbsolutePath().length();
-        Deque<File> stack = new ArrayDeque<>();
+        Deque<File> stack = Wraps.deque();
         stack.push(packageDir);
 
         while (!stack.isEmpty()) {

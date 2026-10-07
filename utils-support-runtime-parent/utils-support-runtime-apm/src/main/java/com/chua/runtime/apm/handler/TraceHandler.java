@@ -1,5 +1,6 @@
 package com.chua.runtime.apm.handler;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.runtime.plugin.InterceptPoint;
@@ -253,7 +254,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     */
     public TraceHandler() {
         this.traceContext = new TraceContext();
-        this.spans = Collections.synchronizedList(new ArrayList<>());
+        this.spans = Collections.synchronizedList(Wraps.list());
         this.spanMap = new ConcurrentHashMap<>();
         this.started = new AtomicBoolean(false);
     }

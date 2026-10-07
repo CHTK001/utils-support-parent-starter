@@ -1,5 +1,6 @@
 package com.chua.mysql.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.meta.MetaUser;
 import com.chua.common.support.lang.datasource.meta.UserAlterBuilder;
 import com.chua.common.support.lang.datasource.meta.UserCreateBuilder;
@@ -11,7 +12,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -57,7 +57,7 @@ public class MysqlMetaUser implements MetaUser {
      */
     @Override
     public List<UserDef> list() {
-        List<UserDef> result = new ArrayList<>();
+        List<UserDef> result = Wraps.list();
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(

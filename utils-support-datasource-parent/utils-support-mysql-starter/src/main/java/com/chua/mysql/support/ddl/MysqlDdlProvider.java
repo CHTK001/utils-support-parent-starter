@@ -1,10 +1,9 @@
 package com.chua.mysql.support.ddl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.ddl.ColumnDef;
 import com.chua.common.support.lang.datasource.engine.ddl.DdlProvider;
 import com.chua.common.support.spi.annotations.Spi;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -74,7 +73,7 @@ public class MysqlDdlProvider implements DdlProvider {
         }
         StringBuilder sb = new StringBuilder("CREATE TABLE IF NOT EXISTS ")
                 .append(quote(tableName)).append(" (\n");
-        List<String> pk = new ArrayList<>();
+        List<String> pk = Wraps.list();
         for (int i = 0; i < columns.size(); i++) {
             ColumnDef col = columns.get(i);
             if (col.getName() == null || col.getName().isBlank()) {

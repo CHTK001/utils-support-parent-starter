@@ -1,5 +1,6 @@
 package com.chua.ueba.support.feature;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.ueba.support.config.FeatureDefinition;
 import com.chua.ueba.support.config.UebaConfig;
 import com.chua.ueba.support.dto.TrafficEvent;
@@ -8,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -232,7 +232,7 @@ public class FeatureExtractor {
         if (window == null || window.isEmpty()) {
             return 0.0d;
         }
-        Map<String, Integer> counts = new HashMap<>(Math.max(16, window.size()));
+        Map<String, Integer> counts = Wraps.map(Math.max(16, window.size()));
         for (TrafficEvent event : window) {
             String path = event.getPath() == null ? "" : event.getPath();
             counts.merge(path, 1, Integer::sum);
@@ -256,7 +256,7 @@ public class FeatureExtractor {
         if (window == null || window.isEmpty()) {
             return 0.0d;
         }
-        Map<String, Integer> counts = new HashMap<>(Math.max(16, window.size()));
+        Map<String, Integer> counts = Wraps.map(Math.max(16, window.size()));
         for (TrafficEvent event : window) {
             String path = event.getPath() == null ? "" : event.getPath();
             counts.put(path, 1);
@@ -293,7 +293,7 @@ public class FeatureExtractor {
         if (window == null || window.isEmpty()) {
             return 0.0d;
         }
-        Map<String, Integer> counts = new HashMap<>(8);
+        Map<String, Integer> counts = Wraps.map(8);
         for (TrafficEvent event : window) {
             counts.put(event.getMethod() == null ? "UNKNOWN" : event.getMethod(), 1);
         }
@@ -310,7 +310,7 @@ public class FeatureExtractor {
         if (window == null || window.isEmpty()) {
             return 0.0d;
         }
-        Map<String, Integer> counts = new HashMap<>(Math.max(8, window.size()));
+        Map<String, Integer> counts = Wraps.map(Math.max(8, window.size()));
         for (TrafficEvent event : window) {
             String ua = event.getUserAgent() == null || event.getUserAgent().isBlank() ? "UNKNOWN" : event.getUserAgent();
             counts.put(ua, 1);

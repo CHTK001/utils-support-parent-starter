@@ -1,5 +1,6 @@
 package com.chua.quartz.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.task.scheduler.AbstractSchedulerProvider;
 import com.chua.common.support.task.scheduler.CronTrigger;
@@ -24,11 +25,9 @@ import org.quartz.impl.matchers.GroupMatcher;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -439,7 +438,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
         if ("*".equals(field) || "?".equals(field)) {
             return field;
         }
-        Set<String> translated = new LinkedHashSet<>();
+        Set<String> translated = Wraps.linkedSet();
         for (String part : field.split(",")) {
             translated.add(translateWeekdayPart(part.trim()));
         }
@@ -513,7 +512,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
         if (!stepText.isEmpty() && min == max) {
             max = WEEKDAY_MAX;
         }
-        Set<Integer> translated = new TreeSet<>();
+        Set<Integer> translated = Wraps.sortedSet();
         for (int weekday = min; weekday <= max; weekday += step) {
             translated.add(weekday % 7 + 1);
         }

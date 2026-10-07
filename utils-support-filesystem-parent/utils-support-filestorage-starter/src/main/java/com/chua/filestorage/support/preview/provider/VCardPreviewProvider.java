@@ -1,12 +1,12 @@
 package com.chua.filestorage.support.preview.provider;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.filestorage.support.preview.FileStoragePreviewProvider;
 import com.chua.filestorage.support.preview.PreviewResult;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -56,7 +56,7 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
      * @return 结果列表，无数据时为空列表
      */
     private List<ContactInfo> parseVCard(String vcf) {
-        List<ContactInfo> contacts = new ArrayList<>();
+        List<ContactInfo> contacts = Wraps.list();
         String[] lines = vcf.split("\r?\n");
 
         ContactInfo current = null;
@@ -265,7 +265,7 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
         String address; // 地址
         String url; // url
         String note; // 笔记
-        List<String> phones = new ArrayList<>(); // phones
-        List<String> emails = new ArrayList<>(); // emails
+        List<String> phones = Wraps.list(); // phones
+        List<String> emails = Wraps.list(); // emails
     }
 }

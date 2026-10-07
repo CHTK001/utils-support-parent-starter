@@ -1,13 +1,12 @@
 package com.chua.deeplearning.support.face;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorStorage;
 import com.chua.deeplearning.support.feature.FeatureExtractor;
 import com.chua.deeplearning.support.liveness.LivenessDetector;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.utils.ImageCropUtils;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -303,7 +302,7 @@ public class FaceIdentify {
         if (boxes == null || boxes.isEmpty()) {
             return List.of();
         }
-        List<FaceIdentifyHit> results = new ArrayList<>(boxes.size());
+        List<FaceIdentifyHit> results = Wraps.list(boxes.size());
         for (PredictRectangle box : boxes) {
             results.add(identifyOne(imageData, box));
         }
@@ -430,7 +429,7 @@ public class FaceIdentify {
         if (vectors == null || vectors.isEmpty()) {
             return List.of();
         }
-        List<FaceSearchHit> hits = new ArrayList<>(vectors.size());
+        List<FaceSearchHit> hits = Wraps.list(vectors.size());
         for (com.chua.common.support.vector.Vector v : vectors) {
             double score = 0d;
             if (v.metadata() != null && v.metadata().get("score") instanceof Number n) {

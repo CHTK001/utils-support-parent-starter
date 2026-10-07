@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.cmd;
-
-import java.util.LinkedHashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -42,7 +41,7 @@ public final class CmdTranslateUtils {
     private static final String PS_PREFIX = "powershell -Command \"";
     private static final String PS_SUFFIX = "\"";
 
-    private static final Map<Pattern, String> LINUX_TO_WIN = new LinkedHashMap<>();
+    private static final Map<Pattern, String> LINUX_TO_WIN = Wraps.linkedMap();
 
     static {
         // ---- 网络 ----

@@ -1,5 +1,6 @@
 package com.chua.common.support.ai.chat.aggregate;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
@@ -27,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.file.FileSystem;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -564,7 +564,7 @@ public class AggregateChatClient implements ChatClient {
         if (!autoSwitchEnabled) {
             return clients;
         }
-        List<RouterStrategy.WeightedClient> result = new ArrayList<>(clients.size());
+        List<RouterStrategy.WeightedClient> result = Wraps.list(clients.size());
         for (RouterStrategy.WeightedClient wc : clients) {
             if (healthFilter.test(wc)) {
                 result.add(wc);
@@ -1035,8 +1035,8 @@ public class AggregateChatClient implements ChatClient {
      * @return 解析结果，包含所有客户端和分组路由器
      */
     private AllParsed parseGroups(AggregateChatClientSetting config) {
-        List<RouterStrategy.WeightedClient> allClients = new ArrayList<>(); // [P3C 3.15 豁免] 配置解析动态聚合多组客户端，规模运行期决定
-        List<HybridStrategy.GroupRouter> groupRouters = new ArrayList<>(); // [P3C 3.15 豁免] 配置解析，组数量运行期决定
+        List<RouterStrategy.WeightedClient> allClients = Wraps.list(); // [P3C 3.15 豁免] 配置解析动态聚合多组客户端，规模运行期决定
+        List<HybridStrategy.GroupRouter> groupRouters = Wraps.list(); // [P3C 3.15 豁免] 配置解析，组数量运行期决定
 
         List<AggregateChatClientSetting.GroupConfig> groups = config.getGroups();
         if (groups == null || groups.isEmpty()) {
@@ -1094,7 +1094,7 @@ public class AggregateChatClient implements ChatClient {
     private static List<RouterStrategy.WeightedClient> buildClients(
             List<AggregateChatClientSetting.ClientConfig> configs,
             SkillManager skillManager) {
-        List<RouterStrategy.WeightedClient> result = new ArrayList<>(configs.size());
+        List<RouterStrategy.WeightedClient> result = Wraps.list(configs.size());
         for (AggregateChatClientSetting.ClientConfig cc : configs) {
             if (cc.getProvider() == null || cc.getApiKey() == null) {
                 log.warn("[Aggregate] client missing provider/apiKey, skipping");

@@ -1,12 +1,12 @@
 package com.chua.filestorage.support.preview.provider;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.filestorage.support.preview.FileStoragePreviewProvider;
 import com.chua.filestorage.support.preview.PreviewResult;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -51,7 +51,7 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
      * @return 结果列表，无数据时为空列表
      */
     private List<CalendarEvent> parseIcs(String ics) {
-        List<CalendarEvent> events = new ArrayList<>();
+        List<CalendarEvent> events = Wraps.list();
         String[] lines = ics.split("\r?\n");
 
         CalendarEvent current = null;

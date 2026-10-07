@@ -1,13 +1,12 @@
 package com.chua.common.support.datasearch.skill.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.mcp.McpClient;
 import com.chua.common.support.ai.mcp.McpProvider;
 import com.chua.common.support.ai.mcp.McpToolCall;
 import com.chua.common.support.ai.mcp.McpToolDescriptor;
 import com.chua.common.support.ai.mcp.McpToolResult;
 import com.chua.common.support.spi.annotations.Spi;
-
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +48,7 @@ public class GithubMcpProvider extends GithubSkillProvider implements McpProvide
      * @return 安装状态
      */
     public Map<String, Boolean> listInstalled() {
-        Map<String, Boolean> result = new HashMap<>();
+        Map<String, Boolean> result = Wraps.map();
         result.put(PREFIX + "discover", true);
         return result;
     }

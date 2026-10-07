@@ -1,5 +1,6 @@
 package com.chua.excel.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.FileSystem;
 import com.chua.common.support.file.builder.ReadBuilder;
 import com.chua.common.support.file.builder.WriteBuilder;
@@ -179,7 +180,7 @@ public class ExcelFileSystem implements FileSystem {
          */
         public ExcelReadBuilder selectColumns(String... columns) {
             this.selectedColumns = columns != null
-                    ? new LinkedHashSet<>(Arrays.asList(columns))
+                    ? Wraps.linkedSet(Arrays.asList(columns))
                     : null;
             return this;
         }
@@ -192,7 +193,7 @@ public class ExcelFileSystem implements FileSystem {
          */
         public ExcelReadBuilder selectColumns(Collection<String> columns) {
             this.selectedColumns = columns != null
-                    ? new LinkedHashSet<>(columns)
+                    ? Wraps.linkedSet(columns)
                     : null;
             return this;
         }
@@ -213,7 +214,7 @@ public class ExcelFileSystem implements FileSystem {
          * @return rows的结果
          */
         public List<Map<String, Object>> rows() {
-            List<Map<String, Object>> result = new ArrayList<>();
+            List<Map<String, Object>> result = Wraps.list();
             try (FileInputStream fis = new FileInputStream(file);
                  Workbook wb = WorkbookFactory.create(fis)) {
                 Sheet sheet = resolveSheet(wb);
@@ -227,7 +228,7 @@ public class ExcelFileSystem implements FileSystem {
                 }
 
                 Row headerRow = it.next();
-                List<String> allHeaders = new ArrayList<>();
+                List<String> allHeaders = Wraps.list();
                 for (Cell cell : headerRow) {
                     allHeaders.add(cell.toString());
                 }
@@ -235,14 +236,14 @@ public class ExcelFileSystem implements FileSystem {
                 // 列投影：确定实际读取的列索引
                 List<Integer> projectedIndices;
                 if (selectedColumns != null && !selectedColumns.isEmpty()) {
-                    projectedIndices = new ArrayList<>();
+                    projectedIndices = Wraps.list();
                     for (int i = 0; i < allHeaders.size(); i++) {
                         if (selectedColumns.contains(allHeaders.get(i))) {
                             projectedIndices.add(i);
                         }
                     }
                 } else {
-                    projectedIndices = new ArrayList<>();
+                    projectedIndices = Wraps.list();
                     for (int i = 0; i < allHeaders.size(); i++) {
                         projectedIndices.add(i);
                     }
@@ -260,7 +261,7 @@ public class ExcelFileSystem implements FileSystem {
                 while (it.hasNext()) {
                     Row row = it.next();
                     int rowNum = row.getRowNum();
-                    Map<String, Object> map = new LinkedHashMap<>();
+                    Map<String, Object> map = Wraps.linkedMap();
 
                     for (int i = 0; i < projectedIndices.size(); i++) {
                         int colIdx = projectedIndices.get(i);
@@ -305,7 +306,7 @@ public class ExcelFileSystem implements FileSystem {
         public List<String> sheetNames() {
             try (FileInputStream fis = new FileInputStream(file);
                  Workbook wb = WorkbookFactory.create(fis)) {
-                List<String> names = new ArrayList<>();
+                List<String> names = Wraps.list();
                 for (int i = 0; i < wb.getNumberOfSheets(); i++) {
                     names.add(wb.getSheetName(i));
                 }
@@ -353,7 +354,7 @@ public class ExcelFileSystem implements FileSystem {
          * @return 构建合并缓存的结果
          */
         private java.util.Map<String, Object> buildMergedCache(Sheet sheet) {
-            java.util.Map<String, Object> cache = new java.util.HashMap<>();
+            java.util.Map<String, Object> cache = Wraps.map();
             for (CellRangeAddress region : sheet.getMergedRegions()) {
                 Row firstRow = sheet.getRow(region.getFirstRow());
                 if (firstRow == null) {
@@ -424,7 +425,7 @@ public class ExcelFileSystem implements FileSystem {
          */
         private static class SheetContext {
             final String name; // 名称
-            final List<Map<String, Object>> rows = new ArrayList<>(); // rows
+            final List<Map<String, Object>> rows = Wraps.list(); // rows
             /**
              * 表头列，为 空 则自动推断
              */
@@ -432,7 +433,7 @@ public class ExcelFileSystem implements FileSystem {
             boolean withHeader = true; // with头部
             CellStyleConfig defaultStyle; // 默认style
             CellStyleConfig headerStyle; // 头部style
-            java.util.Map<String, ColumnConfig> columnConfigs = new LinkedHashMap<>(); // column配置
+            java.util.Map<String, ColumnConfig> columnConfigs = Wraps.linkedMap(); // column配置
             boolean freezeHeader; // freeze头部
             boolean autoFilter; // auto过滤器
             Integer defaultColumnWidth; // 默认columnwidth
@@ -449,7 +450,7 @@ public class ExcelFileSystem implements FileSystem {
                     return headerColumns;
                 }
                 if (!rows.isEmpty()) {
-                    return new ArrayList<>(rows.getFirst().keySet());
+                    return Wraps.list(rows.getFirst().keySet());
                 }
                 return List.of();
             }
@@ -458,7 +459,7 @@ public class ExcelFileSystem implements FileSystem {
         /**
          * 所有 Sheet（按添加顺序），键 为 sheet 名
         */
-        private final LinkedHashMap<String, SheetContext> sheets = new LinkedHashMap<>();
+        private final Map<String, SheetContext> sheets = Wraps.linkedMap();
 
         /**
          * 当前活跃的 Sheet 上下文

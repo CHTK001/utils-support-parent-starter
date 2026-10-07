@@ -1,5 +1,6 @@
 package com.chua.common.support.converter;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.converter.definition.*;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.ClassUtils;
@@ -65,16 +66,25 @@ public final class Converter {
     /**
      * 基本类型的默认值映射，用于无法转换时返回各基本类型的零值
      */
-    private static final Map<Class<?>, Object> DEFAULT_VALUE = new HashMap<>() {{
-        put(long.class, 0L);
-        put(short.class, (short) 0);
-        put(byte.class, (byte) 0);
-        put(float.class, 0F);
-        put(double.class, 0D);
-        put(boolean.class, false);
-        put(char.class, ' ');
-        put(int.class, 0);
-    }};
+    private static final Map<Class<?>, Object> DEFAULT_VALUE = createDefaultValue();
+
+    /**
+     * 构建基本类型默认值映射。
+     *
+     * @return 基本类型默认值映射
+     */
+    private static Map<Class<?>, Object> createDefaultValue() {
+        Map<Class<?>, Object> defaults = Wraps.map();
+        defaults.put(long.class, 0L);
+        defaults.put(short.class, (short) 0);
+        defaults.put(byte.class, (byte) 0);
+        defaults.put(float.class, 0F);
+        defaults.put(double.class, 0D);
+        defaults.put(boolean.class, false);
+        defaults.put(char.class, ' ');
+        defaults.put(int.class, 0);
+        return defaults;
+    }
 
     /**
      * 创建 Converter 实例
@@ -232,7 +242,7 @@ public final class Converter {
         if (source == null) {
             return Collections.emptyList();
         }
-        List<T> result = new ArrayList<>(source.size());
+        List<T> result = Wraps.list(source.size());
         for (Object item : source) {
             result.add(convertIfNecessary(item, type));
         }
@@ -272,7 +282,7 @@ public final class Converter {
             return convertList(source, (Class<T>) elementClass);
         }
         // 泛型元素类型（如 List<List<String>>）逐元素转换
-        List<Object> result = new ArrayList<>(source.size());
+        List<Object> result = Wraps.list(source.size());
         for (Object item : source) {
             result.add(convertIfNecessary(item, elementType));
         }
@@ -308,7 +318,7 @@ public final class Converter {
         if (elementType instanceof Class<?> elementClass) {
             return convertSet(source, (Class<T>) elementClass);
         }
-        Set<Object> result = new LinkedHashSet<>(Math.max(16, source.size()));
+        Set<Object> result = Wraps.linkedSet(Math.max(16, source.size()));
         for (Object item : source) {
             result.add(convertIfNecessary(item, elementType));
         }
@@ -368,7 +378,7 @@ public final class Converter {
         }
         Type keyType = types[0];
         Type valueType = types.length > 1 ? types[1] : Object.class;
-        Map<Object, Object> result = new LinkedHashMap<>(Math.max(16, source.size()));
+        Map<Object, Object> result = Wraps.linkedMap(Math.max(16, source.size()));
         for (Map.Entry<?, ?> entry : source.entrySet()) {
             result.put(
                     convertIfNecessary(entry.getKey(), keyType),
@@ -412,7 +422,7 @@ public final class Converter {
         if (source == null) {
             return Collections.emptySet();
         }
-        Set<T> result = new LinkedHashSet<>(source.size());
+        Set<T> result = Wraps.linkedSet(source.size());
         for (Object item : source) {
             result.add(convertIfNecessary(item, type));
         }
@@ -432,7 +442,7 @@ public final class Converter {
         if (source == null) {
             return Collections.emptyMap();
         }
-        Map<K, V> result = new LinkedHashMap<>(source.size());
+        Map<K, V> result = Wraps.linkedMap(source.size());
         for (Map.Entry<K, ?> entry : source.entrySet()) {
             result.put(entry.getKey(), convertIfNecessary(entry.getValue(), valueType));
         }
@@ -649,7 +659,7 @@ public final class Converter {
         if (!(elemType instanceof Class<?> elemClass)) {
             return (List<E>) src;
         }
-        List<Object> result = new ArrayList<>(src.size());
+        List<Object> result = Wraps.list(src.size());
         for (Object item : src) {
             result.add(convertIfNecessary(item, elemClass));
         }
@@ -666,9 +676,9 @@ public final class Converter {
         Type elemType = args.length > 0 ? args[0] : Object.class;
         List<?> src = ListTypeConverter.INSTANCE.convert(value);
         if (!(elemType instanceof Class<?> elemClass)) {
-            return (Set<E>) new LinkedHashSet<>(src);
+            return (Set<E>) Wraps.linkedSet(src);
         }
-        Set<Object> result = new LinkedHashSet<>(src.size());
+        Set<Object> result = Wraps.linkedSet(src.size());
         for (Object item : src) {
             result.add(convertIfNecessary(item, elemClass));
         }
@@ -702,7 +712,7 @@ public final class Converter {
         if (!(keyType instanceof Class<?> keyClass) || !(valType instanceof Class<?> valClass)) {
             return (Map<K, V>) src;
         }
-        Map<Object, Object> result = new LinkedHashMap<>(Math.max(16, src.size()));
+        Map<Object, Object> result = Wraps.linkedMap(Math.max(16, src.size()));
         for (Map.Entry<?, ?> entry : src.entrySet()) {
             result.put(
                     convertIfNecessary(entry.getKey(), keyClass),
@@ -787,5 +797,203 @@ public final class Converter {
      */
     public static BufferedImage toBufferedImage(Object predict) {
         return convertIfNecessary(predict, BufferedImage.class);
+    }
+
+    /**
+     * 转为字符串。
+     *
+     * @param value 待转换的值
+     * @return 字符串；值为 null 或转不动时返回 null
+     */
+    public static String stringOf(Object value) {
+        return convertIfNecessary(value, String.class);
+    }
+
+    /**
+     * 转为字符串，失败时返回默认值。
+     *
+     * @param value        待转换的值
+     * @param defaultValue 默认值
+     * @return 字符串或默认值
+     */
+    public static String stringOf(Object value, String defaultValue) {
+        String result = stringOf(value);
+        return result != null ? result : defaultValue;
+    }
+
+    /**
+     * 转为整数。
+     *
+     * @param value 待转换的值
+     * @return 整数；值为 null 或转不动时返回 null
+     */
+    public static Integer intOf(Object value) {
+        return convertIfNecessary(value, Integer.class);
+    }
+
+    /**
+     * 转为整数，失败时返回默认值。
+     *
+     * @param value        待转换的值
+     * @param defaultValue 默认值
+     * @return 整数或默认值
+     */
+    public static int intOf(Object value, int defaultValue) {
+        Integer result = intOf(value);
+        return result != null ? result : defaultValue;
+    }
+
+    /**
+     * 转为长整数。
+     *
+     * @param value 待转换的值
+     * @return 长整数；值为 null 或转不动时返回 null
+     */
+    public static Long longOf(Object value) {
+        return convertIfNecessary(value, Long.class);
+    }
+
+    /**
+     * 转为长整数，失败时返回默认值。
+     *
+     * @param value        待转换的值
+     * @param defaultValue 默认值
+     * @return 长整数或默认值
+     */
+    public static long longOf(Object value, long defaultValue) {
+        Long result = longOf(value);
+        return result != null ? result : defaultValue;
+    }
+
+    /**
+     * 转为双精度浮点。
+     *
+     * @param value 待转换的值
+     * @return 双精度浮点；值为 null 或转不动时返回 null
+     */
+    public static Double doubleOf(Object value) {
+        return convertIfNecessary(value, Double.class);
+    }
+
+    /**
+     * 转为双精度浮点，失败时返回默认值。
+     *
+     * @param value        待转换的值
+     * @param defaultValue 默认值
+     * @return 双精度浮点或默认值
+     */
+    public static double doubleOf(Object value, double defaultValue) {
+        Double result = doubleOf(value);
+        return result != null ? result : defaultValue;
+    }
+
+    /**
+     * 转为单精度浮点。
+     *
+     * @param value 待转换的值
+     * @return 单精度浮点；值为 null 或转不动时返回 null
+     */
+    public static Float floatOf(Object value) {
+        return convertIfNecessary(value, Float.class);
+    }
+
+    /**
+     * 转为单精度浮点，失败时返回默认值。
+     *
+     * @param value        待转换的值
+     * @param defaultValue 默认值
+     * @return 单精度浮点或默认值
+     */
+    public static float floatOf(Object value, float defaultValue) {
+        Float result = floatOf(value);
+        return result != null ? result : defaultValue;
+    }
+
+    /**
+     * 转为短整数。
+     *
+     * @param value 待转换的值
+     * @return 短整数；值为 null 或转不动时返回 null
+     */
+    public static Short shortOf(Object value) {
+        return convertIfNecessary(value, Short.class);
+    }
+
+    /**
+     * 转为短整数，失败时返回默认值。
+     *
+     * @param value        待转换的值
+     * @param defaultValue 默认值
+     * @return 短整数或默认值
+     */
+    public static short shortOf(Object value, short defaultValue) {
+        Short result = shortOf(value);
+        return result != null ? result : defaultValue;
+    }
+
+    /**
+     * 转为字节。
+     *
+     * @param value 待转换的值
+     * @return 字节；值为 null 或转不动时返回 null
+     */
+    public static Byte byteOf(Object value) {
+        return convertIfNecessary(value, Byte.class);
+    }
+
+    /**
+     * 转为字节，失败时返回默认值。
+     *
+     * @param value        待转换的值
+     * @param defaultValue 默认值
+     * @return 字节或默认值
+     */
+    public static byte byteOf(Object value, byte defaultValue) {
+        Byte result = byteOf(value);
+        return result != null ? result : defaultValue;
+    }
+
+    /**
+     * 转为布尔。
+     *
+     * @param value 待转换的值
+     * @return 布尔；值为 null 或转不动时返回 null
+     */
+    public static Boolean booleanOf(Object value) {
+        return convertIfNecessary(value, Boolean.class);
+    }
+
+    /**
+     * 转为布尔，失败时返回默认值。
+     *
+     * @param value        待转换的值
+     * @param defaultValue 默认值
+     * @return 布尔或默认值
+     */
+    public static boolean booleanOf(Object value, boolean defaultValue) {
+        Boolean result = booleanOf(value);
+        return result != null ? result : defaultValue;
+    }
+
+    /**
+     * 转为字符。
+     *
+     * @param value 待转换的值
+     * @return 字符；值为 null 或转不动时返回 null
+     */
+    public static Character charOf(Object value) {
+        return convertIfNecessary(value, Character.class);
+    }
+
+    /**
+     * 转为字符，失败时返回默认值。
+     *
+     * @param value        待转换的值
+     * @param defaultValue 默认值
+     * @return 字符或默认值
+     */
+    public static char charOf(Object value, char defaultValue) {
+        Character result = charOf(value);
+        return result != null ? result : defaultValue;
     }
 }

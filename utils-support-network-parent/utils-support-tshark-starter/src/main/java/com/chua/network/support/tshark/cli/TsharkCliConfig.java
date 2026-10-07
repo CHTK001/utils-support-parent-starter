@@ -1,5 +1,6 @@
 package com.chua.network.support.tshark.cli;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
 
 import javax.annotation.Nonnull;
@@ -406,7 +407,7 @@ public final class TsharkCliConfig {
         if (configured == null || configured.isBlank()) {
             return null;
         }
-        List<Stage> stages = new java.util.ArrayList<>();
+        List<Stage> stages = Wraps.list();
         for (String token : configured.split(",")) {
             Stage stage = Stage.of(token);
             if (stage == null) {
@@ -434,7 +435,7 @@ public final class TsharkCliConfig {
         if (configured == null || configured.isEmpty()) {
             return List.of(Stage.LOCATE, Stage.PACKAGE_MANAGER, Stage.DOWNLOAD);
         }
-        List<Stage> result = new java.util.ArrayList<>();
+        List<Stage> result = Wraps.list();
         for (Stage stage : configured) {
             if (stage != null && !result.contains(stage)) {
                 result.add(stage);

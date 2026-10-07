@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.reflect;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -8,10 +9,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -66,7 +64,7 @@ public record AnnotationDefinition(
     public AnnotationDefinition {
         Objects.requireNonNull(annotationClass, "annotationClass 不能为 null");
         attributes = Collections.unmodifiableMap(
-                new LinkedHashMap<>(Objects.requireNonNull(attributes, "attributes 不能为 null")));
+                Wraps.linkedMap(Objects.requireNonNull(attributes, "attributes 不能为 null")));
         metaAnnotations = List.copyOf(
                 Objects.requireNonNull(metaAnnotations, "metaAnnotations 不能为 null"));
         targets = targets == null ? null : targets.clone();
@@ -92,7 +90,7 @@ public record AnnotationDefinition(
      * @return 注解全限定名列表
      */
     public List<String> fullChain() {
-        List<String> chain = new ArrayList<>();
+        List<String> chain = Wraps.list();
         chain.add(annotationClass.getName());
         for (AnnotationDefinition meta : metaAnnotations) {
             chain.addAll(meta.fullChain());

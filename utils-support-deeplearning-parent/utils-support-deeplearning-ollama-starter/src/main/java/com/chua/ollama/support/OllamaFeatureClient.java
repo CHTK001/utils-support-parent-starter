@@ -1,5 +1,6 @@
 package com.chua.ollama.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.ai.feature.FeatureClient;
 import com.chua.common.support.ai.feature.FeatureClientSetting;
@@ -9,8 +10,6 @@ import io.github.ollama4j.models.embed.OllamaEmbedRequest;
 import io.github.ollama4j.models.embed.OllamaEmbedResult;
 import io.github.ollama4j.models.response.Model;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -130,7 +129,7 @@ public class OllamaFeatureClient implements FeatureClient {
     public List<ModelDefinition> models() {
         try {
             List<Model> raw = ollama.listModels();
-            List<ModelDefinition> result = new ArrayList<>();
+            List<ModelDefinition> result = Wraps.list();
             if (raw != null) {
                 for (Model m : raw) {
                     if (m == null || m.getName() == null || m.getName().isBlank()) {

@@ -1,5 +1,6 @@
 package com.chua.common.support.network.discovery.peermesh;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import lombok.extern.slf4j.Slf4j;
 
@@ -8,7 +9,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,7 +39,7 @@ public class UdpModeProbe implements ProbeStrategy {
     /**
      * Discovered
      */
-    private final List<NodeTable.NodeEntry> discovered = new ArrayList<>();
+    private final List<NodeTable.NodeEntry> discovered = Wraps.list();
     /**
      * stopped
      */

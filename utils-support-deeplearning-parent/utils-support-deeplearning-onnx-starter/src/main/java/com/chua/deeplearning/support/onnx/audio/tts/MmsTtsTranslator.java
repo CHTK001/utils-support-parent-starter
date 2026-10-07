@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.tts;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.NativeLoader;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,15 +14,13 @@ import java.io.InputStream;
 import java.nio.LongBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -158,7 +157,7 @@ public class MmsTtsTranslator {
      * @throws Exception 加载异常
      */
     private void loadVocab(Path vocabPath) throws Exception {
-        charToId = new LinkedHashMap<>();
+        charToId = Wraps.linkedMap();
         try (InputStream in = Files.newInputStream(vocabPath)) {
             // tokenizer.json 中 vocab 是 {"k":0,"'":1,...,"<unk>":38}
             String content = new String(in.readAllBytes(), StandardCharsets.UTF_8);
@@ -262,7 +261,7 @@ public class MmsTtsTranslator {
      * @return token 标识
      */
     private long[] encode(String text) {
-        ArrayList<Long> ids = new ArrayList<>();
+        List<Long> ids = Wraps.list();
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             if (c == ' ') {
@@ -321,7 +320,7 @@ public class MmsTtsTranslator {
         long[] shape = new long[]{1, ids.length};
         try (OnnxTensor tIds = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ids), shape);
              OnnxTensor tMask = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(mask), shape)) {
-            Map<String, OnnxTensor> inputs = new HashMap<>();
+            Map<String, OnnxTensor> inputs = Wraps.map();
             inputs.put("input_ids", tIds);
             inputs.put("attention_mask", tMask);
             try (OrtSession.Result result = session.run(inputs)) {

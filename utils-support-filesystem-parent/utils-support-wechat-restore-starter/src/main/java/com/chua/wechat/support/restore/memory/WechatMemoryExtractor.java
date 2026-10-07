@@ -1,16 +1,13 @@
 package com.chua.wechat.support.restore.memory;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.wechat.support.restore.keyscan.WechatMemoryKeyScanner;
 import lombok.extern.slf4j.Slf4j;
 
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -173,13 +170,13 @@ public final class WechatMemoryExtractor {
          * @param clusters  Name2Id 库簇
          */
         public ExtractResult {
-            processes = Collections.unmodifiableList(new ArrayList<>(
+            processes = Collections.unmodifiableList(Wraps.list(
                     Objects.requireNonNull(processes, "processes 不能为 null")));
-            records = Collections.unmodifiableList(new ArrayList<>(
+            records = Collections.unmodifiableList(Wraps.list(
                     Objects.requireNonNull(records, "records 不能为 null")));
-            schemas = Collections.unmodifiableMap(new LinkedHashMap<>(
+            schemas = Collections.unmodifiableMap(Wraps.linkedMap(
                     Objects.requireNonNull(schemas, "schemas 不能为 null")));
-            clusters = Collections.unmodifiableList(new ArrayList<>(
+            clusters = Collections.unmodifiableList(Wraps.list(
                     Objects.requireNonNull(clusters, "clusters 不能为 null")));
         }
     }
@@ -201,7 +198,7 @@ public final class WechatMemoryExtractor {
      */
     public static ExtractResult extract(boolean decodeBlob) {
         List<WechatMemoryKeyScanner.PidInfo> processes = listProcesses();
-        List<Integer> pids = new ArrayList<>(processes.size());
+        List<Integer> pids = Wraps.list(processes.size());
         for (WechatMemoryKeyScanner.PidInfo info : processes) {
             pids.add(info.pid());
         }
@@ -251,16 +248,16 @@ public final class WechatMemoryExtractor {
                                    List<WechatMemoryKeyScanner.PidInfo> processes,
                                    boolean decodeBlob,
                                    ProcessSink sink) throws Exception {
-        Map<Integer, Long> workingSets = new LinkedHashMap<>();
+        Map<Integer, Long> workingSets = Wraps.linkedMap();
         if (processes != null) {
             for (WechatMemoryKeyScanner.PidInfo info : processes) {
                 workingSets.put(info.pid(), info.workingSetBytes());
             }
         }
 
-        List<ProcessScan> scans = new ArrayList<>();
-        List<ExtractedRecord> collected = new ArrayList<>();
-        Set<String> seen = new HashSet<>();
+        List<ProcessScan> scans = Wraps.list();
+        List<ExtractedRecord> collected = Wraps.list();
+        Set<String> seen = Wraps.set();
         boolean scanned = false;
         for (int pid : pids) {
             ProcessScan scan = scanProcess(pid, workingSets.getOrDefault(pid, 0L), decodeBlob,
@@ -302,7 +299,7 @@ public final class WechatMemoryExtractor {
     private static ExtractResult finish(List<ExtractedRecord> collected, List<ProcessScan> scans) {
         Map<String, WechatMemoryPageParser.TableSchema> schemas =
                 WechatMemoryPageParser.buildSchema(recordsOf(collected));
-        List<ExtractedRecord> attributed = new ArrayList<>(collected.size());
+        List<ExtractedRecord> attributed = Wraps.list(collected.size());
         for (ExtractedRecord record : collected) {
             String table = WechatMemoryPageParser.attribute(
                     new WechatMemoryPageParser.LeafRecord(record.rowid(), record.values(),
@@ -315,7 +312,7 @@ public final class WechatMemoryExtractor {
                     record.rowid(), record.values(), record.serialTypes()));
         }
         List<ExtractedRecord> kept = pruneUntrustedName2id(attributed);
-        return new ExtractResult(new ArrayList<>(scans), kept, schemas, buildClusters(kept));
+        return new ExtractResult(Wraps.list(scans), kept, schemas, buildClusters(kept));
     }
 
     /**
@@ -328,7 +325,7 @@ public final class WechatMemoryExtractor {
      * @return 可信页标识集合（{@code pid#页地址}）
      */
     static Set<String> trustedName2IdPages(List<ExtractedRecord> records) {
-        Set<String> trusted = new HashSet<>();
+        Set<String> trusted = Wraps.set();
         for (ExtractedRecord record : records) {
             if (!isName2Id(record.table()) || record.values().length == 0) {
                 continue;
@@ -353,7 +350,7 @@ public final class WechatMemoryExtractor {
      */
     static List<ExtractedRecord> pruneUntrustedName2id(List<ExtractedRecord> attributed) {
         Set<String> trusted = trustedName2IdPages(attributed);
-        List<ExtractedRecord> out = new ArrayList<>(attributed.size());
+        List<ExtractedRecord> out = Wraps.list(attributed.size());
         for (ExtractedRecord record : attributed) {
             if (isName2Id(record.table())
                     && !trusted.contains(record.pid() + "#" + record.pageAddress())) {
@@ -396,7 +393,7 @@ public final class WechatMemoryExtractor {
      * @return 解析器记录
      */
     private static List<WechatMemoryPageParser.LeafRecord> recordsOf(List<ExtractedRecord> records) {
-        List<WechatMemoryPageParser.LeafRecord> out = new ArrayList<>(records.size());
+        List<WechatMemoryPageParser.LeafRecord> out = Wraps.list(records.size());
         for (ExtractedRecord record : records) {
             out.add(new WechatMemoryPageParser.LeafRecord(record.rowid(), record.values(),
                     record.serialTypes()));
@@ -420,7 +417,7 @@ public final class WechatMemoryExtractor {
         int lenient = 0;
         int count = 0;
         long readable = 0;
-        Set<String> pageHashes = new HashSet<>();
+        Set<String> pageHashes = Wraps.set();
         try (WechatMemoryAccess access = WechatMemoryAccess.open(pid)) {
             if (access == null) {
                 return new ProcessScan(pid, workingSet, 0, 0, 0, 0);
@@ -471,7 +468,7 @@ public final class WechatMemoryExtractor {
      */
     static List<IdCluster> buildClusters(List<ExtractedRecord> records) {
         Set<String> trusted = trustedName2IdPages(records);
-        Map<String, Map<Integer, String>> pages = new LinkedHashMap<>();
+        Map<String, Map<Integer, String>> pages = Wraps.linkedMap();
         for (ExtractedRecord record : records) {
             // 表名大小写不敏感：微信不同库里同一张表可能写作 Name2Id / name2id
             if (!isName2Id(record.table())
@@ -489,15 +486,15 @@ public final class WechatMemoryExtractor {
             }
             try {
                 pages.computeIfAbsent(record.pid() + "#" + record.pageAddress(),
-                        k -> new LinkedHashMap<>()).put(Integer.parseInt(Long.toString(record.rowid())), name);
+                        k -> Wraps.linkedMap()).put(Integer.parseInt(Long.toString(record.rowid())), name);
             } catch (NumberFormatException ignored) {
                 // rowid 非数字，跳过
             }
         }
 
-        List<String> keys = new ArrayList<>(pages.keySet());
+        List<String> keys = Wraps.list(pages.keySet());
         keys.sort(Comparator.comparingLong(WechatMemoryExtractor::addressOf));
-        List<IdCluster> clusters = new ArrayList<>();
+        List<IdCluster> clusters = Wraps.list();
         for (String key : keys) {
             Map<Integer, String> idMap = pages.get(key);
             if (!trusted.contains(key)) {
@@ -519,7 +516,7 @@ public final class WechatMemoryExtractor {
                     continue;
                 }
                 // 不同库的 Name2Id 都从 id=1 开始（每库都有「自己」），id 重叠即异库
-                Set<Integer> intersection = new LinkedHashSet<>(cluster.idMap().keySet());
+                Set<Integer> intersection = Wraps.linkedSet(cluster.idMap().keySet());
                 intersection.retainAll(idMap.keySet());
                 if (!intersection.isEmpty()) {
                     continue;
@@ -528,9 +525,9 @@ public final class WechatMemoryExtractor {
                 break;
             }
             if (target == null) {
-                List<Long> pageList = new ArrayList<>();
+                List<Long> pageList = Wraps.list();
                 pageList.add(address);
-                clusters.add(new IdCluster(pid, address, pageList, new LinkedHashMap<>(idMap)));
+                clusters.add(new IdCluster(pid, address, pageList, Wraps.linkedMap(idMap)));
             } else {
                 target.idMap().putAll(idMap);
                 target.pages().add(address);
@@ -560,7 +557,7 @@ public final class WechatMemoryExtractor {
      * @return 合并后的簇
      */
     static List<IdCluster> mergeContiguous(List<IdCluster> clusters) {
-        List<IdCluster> work = new ArrayList<>(clusters);
+        List<IdCluster> work = Wraps.list(clusters);
         boolean changed = true;
         while (changed) {
             changed = false;
@@ -568,7 +565,7 @@ public final class WechatMemoryExtractor {
                 for (int j = i + 1; j < work.size(); j++) {
                     IdCluster first = work.get(i);
                     IdCluster second = work.get(j);
-                    Set<Integer> union = new HashSet<>(first.idMap().keySet());
+                    Set<Integer> union = Wraps.set(first.idMap().keySet());
                     union.addAll(second.idMap().keySet());
                     if (union.size() != first.idMap().size() + second.idMap().size()) {
                         continue;

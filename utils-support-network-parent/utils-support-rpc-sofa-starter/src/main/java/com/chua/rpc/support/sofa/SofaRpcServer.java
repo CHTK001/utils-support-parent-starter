@@ -1,5 +1,6 @@
 package com.chua.rpc.support.sofa;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.alipay.sofa.rpc.config.ApplicationConfig;
 import com.alipay.sofa.rpc.config.ProviderConfig;
 import com.alipay.sofa.rpc.config.RegistryConfig;
@@ -13,7 +14,6 @@ import com.chua.common.support.network.rpc.RpcServer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,15 +31,15 @@ public class SofaRpcServer implements RpcServer {
     /**
      * registry 配置
      */
-    private final List<RegistryConfig> registryConfigs = new ArrayList<>();
+    private final List<RegistryConfig> registryConfigs = Wraps.list();
     /**
      * 服务器 配置
      */
-    private final List<ServerConfig> serverConfigs = new ArrayList<>();
+    private final List<ServerConfig> serverConfigs = Wraps.list();
     /**
      * 提供者 配置
      */
-    private final List<ProviderConfig<?>> providerConfigs = new ArrayList<>();
+    private final List<ProviderConfig<?>> providerConfigs = Wraps.list();
     /**
      * 状态
      */
@@ -182,7 +182,7 @@ public class SofaRpcServer implements RpcServer {
     */
     public List<RpcConnectionInfo> getConnections() {
         long now = System.currentTimeMillis();
-        List<RpcConnectionInfo> result = new ArrayList<>(serverConfigs.size());
+        List<RpcConnectionInfo> result = Wraps.list(serverConfigs.size());
         for (ServerConfig serverConfig : serverConfigs) {
             result.add(new RpcConnectionInfo("sofa",
                     serverConfig.getHost(), serverConfig.getPort(),

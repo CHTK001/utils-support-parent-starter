@@ -1,7 +1,7 @@
 package com.chua.common.support.ai.rag;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,7 +35,7 @@ public record RagResponse(
     public RagResponse {
         sources = List.copyOf(Objects.requireNonNull(sources, "sources 不能为 null"));
         metadata = metadata == null ? null
-                : Collections.unmodifiableMap(new LinkedHashMap<>(metadata));
+                : Collections.unmodifiableMap(Wraps.linkedMap(metadata));
     }
 
     /**
@@ -70,7 +70,7 @@ public record RagResponse(
          */
         public Source {
             metadata = metadata == null ? null
-                    : Collections.unmodifiableMap(new LinkedHashMap<>(metadata));
+                    : Collections.unmodifiableMap(Wraps.linkedMap(metadata));
         }
 
         /**

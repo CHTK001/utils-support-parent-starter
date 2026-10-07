@@ -1,5 +1,6 @@
 package com.chua.filesystem.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.builder.ReadBuilder;
 import com.chua.filesystem.support.ini.IniParser;
 
@@ -70,7 +71,7 @@ public class IniReadBuilder extends ReadBuilder {
             return Map.of();
         }
         Map<String, Map<String, String>> nested = IniParser.parseToNestedMap(content);
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
         result.putAll(nested);
         return result;
     }
@@ -88,10 +89,10 @@ public class IniReadBuilder extends ReadBuilder {
         }
 
         List<Map<String, String>> list = IniParser.parseToList(content);
-        List<Map<String, Object>> result = new ArrayList<>(list.size());
+        List<Map<String, Object>> result = Wraps.list(list.size());
 
         for (Map<String, String> stringMap : list) {
-            Map<String, Object> row = new LinkedHashMap<>(stringMap);
+            Map<String, Object> row = Wraps.linkedMap(stringMap);
             result.add(row);
         }
 

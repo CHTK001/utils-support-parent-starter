@@ -1,5 +1,6 @@
 package com.chua.runtime.support.javaagent;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.lang.cmd.LineCallback;
@@ -13,7 +14,6 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -200,7 +200,7 @@ public class AgentInjector {
      * @return 所有注入结果
      */
     public java.util.List<java.util.Map<String, Object>> injectAll() {
-        java.util.List<java.util.Map<String, Object>> results = new ArrayList<>();
+        java.util.List<java.util.Map<String, Object>> results = Wraps.list();
 
         java.util.Map<Integer, String> jvms = listJavaProcesses();
         for (java.util.Map.Entry<Integer, String> entry : jvms.entrySet()) {
@@ -227,7 +227,7 @@ public class AgentInjector {
 
             CmdResult result = injector.inject();
 
-            java.util.Map<String, Object> map = new java.util.LinkedHashMap<>();
+            java.util.Map<String, Object> map = Wraps.linkedMap();
             map.put("pid", targetPid);
             map.put("name", processName);
             map.put("success", result.isSuccess());
@@ -292,7 +292,7 @@ public class AgentInjector {
      * @return 注入结果
      */
     private CmdResult injectByJattach(int pid, String agentJarPath) {
-        List<String> cmd = new ArrayList<>(List.of(
+        List<String> cmd = Wraps.list(List.of(
                 "jattach", String.valueOf(pid), "load", agentJarPath));
         if (options != null && !options.isEmpty()) {
             cmd.add(options);
@@ -308,7 +308,7 @@ public class AgentInjector {
      * @return 注入结果
      */
     private CmdResult injectByJpigeon(int pid, String agentJarPath) {
-        List<String> cmd = new ArrayList<>(List.of(
+        List<String> cmd = Wraps.list(List.of(
                 "java", "-jar", "jpigeon.jar", String.valueOf(pid), "load", agentJarPath));
         if (options != null && !options.isEmpty()) {
             cmd.add(options);
@@ -350,7 +350,7 @@ public class AgentInjector {
                 new String[]{"ps", "-eo", "pid,comm,args"},
                 10, TimeUnit.SECONDS);
 
-        java.util.Map<Integer, String> jvms = new java.util.LinkedHashMap<>();
+        java.util.Map<Integer, String> jvms = Wraps.linkedMap();
 
         if (result.isSuccess()) {
             String[] lines = result.getStdout().split("\n");

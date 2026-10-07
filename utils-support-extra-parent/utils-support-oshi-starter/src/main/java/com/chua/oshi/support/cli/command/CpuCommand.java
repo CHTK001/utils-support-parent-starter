@@ -1,5 +1,6 @@
 package com.chua.oshi.support.cli.command;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.CommandLine;
 import com.chua.oshi.support.Oshi;
 import com.chua.oshi.support.cli.display.Formatter;
@@ -7,8 +8,6 @@ import com.chua.oshi.support.cli.display.Formatter;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OSProcess;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -60,7 +59,7 @@ public final class CpuCommand extends AbstractCommand {
         System.out.println("Per-Core Usage:");
         int n = perCore.length;
         int cols = 4;
-        List<String[]> rows = new ArrayList<>();
+        List<String[]> rows = Wraps.list();
         for (int i = 0; i < n; i += cols) {
             String[] row = new String[cols * 2];
             for (int j = 0; j < cols; j++) {
@@ -104,7 +103,7 @@ public final class CpuCommand extends AbstractCommand {
         if (procs != null && !procs.isEmpty()) {
             System.out.println();
             System.out.println("Top 10 Processes by CPU:");
-            List<String[]> procs2 = new ArrayList<>();
+            List<String[]> procs2 = Wraps.list();
             for (OSProcess p : procs) {
                 procs2.add(new String[]{
                         String.valueOf(p.getProcessID()),

@@ -1,5 +1,6 @@
 package com.chua.common.support.objects.generator.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.definition.TypeBeanDefinition;
 import com.chua.common.support.objects.generator.BeanDefinitionGenerator;
@@ -9,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -77,7 +77,7 @@ public class QuarkusBeanDefinitionGenerator implements BeanDefinitionGenerator {
      */
     @Override
     public List<BeanDefinition> generate(Class<?> beanClass) {
-        List<BeanDefinition> definitions = new ArrayList<>();
+        List<BeanDefinition> definitions = Wraps.list();
         if (beanClass == null) {
             return definitions;
         }

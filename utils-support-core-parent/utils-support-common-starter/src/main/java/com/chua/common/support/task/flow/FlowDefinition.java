@@ -1,10 +1,8 @@
 package com.chua.common.support.task.flow;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Data;
-
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -51,12 +49,12 @@ public class FlowDefinition {
     /**
      * 节点列表
      */
-    private List<FlowNodeDef> nodes = new ArrayList<>();
+    private List<FlowNodeDef> nodes = Wraps.list();
 
     /**
      * 连线列表
      */
-    private List<FlowEdgeDef> edges = new ArrayList<>();
+    private List<FlowEdgeDef> edges = Wraps.list();
 
     /**
      * 查找指定节点定义。
@@ -80,7 +78,7 @@ public class FlowDefinition {
      * @return 出边列表，不存在时返回空列表
      */
     public List<FlowEdgeDef> findOutEdges(String nodeId) {
-        List<FlowEdgeDef> result = new ArrayList<>();
+        List<FlowEdgeDef> result = Wraps.list();
         for (FlowEdgeDef edge : edges) {
             if (edge.from().equals(nodeId)) {
                 result.add(edge);
@@ -129,7 +127,7 @@ public class FlowDefinition {
             type = Objects.requireNonNull(type, "type 不能为 null");
             props = props == null
                     ? null
-                    : Collections.unmodifiableMap(new LinkedHashMap<>(props));
+                    : Collections.unmodifiableMap(Wraps.linkedMap(props));
         }
 
         /**
@@ -152,7 +150,7 @@ public class FlowDefinition {
          * @return 节点定义实例
          */
         public static FlowNodeDef of(String id, String type) {
-            return new FlowNodeDef(id, type, new LinkedHashMap<>(), 0, 0);
+            return new FlowNodeDef(id, type, Wraps.linkedMap(), 0, 0);
         }
     }
 

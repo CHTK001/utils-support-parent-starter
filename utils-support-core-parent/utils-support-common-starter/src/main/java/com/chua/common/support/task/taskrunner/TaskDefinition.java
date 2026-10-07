@@ -1,8 +1,7 @@
 package com.chua.common.support.task.taskrunner;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -68,12 +67,12 @@ public final class TaskDefinition {
     /**
      * 控制流依赖的前置节点 标识 集合（保持注册顺序）
      */
-    private final List<String> dependencies = new ArrayList<>();
+    private final List<String> dependencies = Wraps.list();
 
     /**
      * 数据依赖的前置节点 标识 集合（requires 非 空 结果）
      */
-    private final Set<String> dataDependencies = new LinkedHashSet<>();
+    private final Set<String> dataDependencies = Wraps.linkedSet();
 
     /**
      * 单独超时，空 表示使用 runner 全局值

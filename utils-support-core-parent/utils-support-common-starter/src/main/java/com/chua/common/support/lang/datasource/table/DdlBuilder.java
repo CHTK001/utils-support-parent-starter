@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.datasource.table;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 
 /**
@@ -95,11 +94,11 @@ public class DdlBuilder {
     /**
      * Columns
      */
-    private final List<ColumnDef> columns = new ArrayList<>();
+    private final List<ColumnDef> columns = Wraps.list();
     /**
      * Primarykeys
      */
-    private final List<String> primaryKeys = new ArrayList<>();
+    private final List<String> primaryKeys = Wraps.list();
     /**
      * NEW表名称
      */

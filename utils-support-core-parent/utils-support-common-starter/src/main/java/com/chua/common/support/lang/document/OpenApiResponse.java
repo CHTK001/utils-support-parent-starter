@@ -1,9 +1,8 @@
 package com.chua.common.support.lang.document;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,7 +33,7 @@ public class OpenApiResponse {
     /**
      * 响应字段（平铺 / 嵌套 flatten 后）。
      */
-    private List<OpenApiParam> fields = new ArrayList<>();
+    private List<OpenApiParam> fields = Wraps.list();
 
     /**
      * 响应示例 JSON（可选）。

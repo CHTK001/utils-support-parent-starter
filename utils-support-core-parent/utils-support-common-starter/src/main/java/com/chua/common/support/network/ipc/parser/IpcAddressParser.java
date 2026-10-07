@@ -1,9 +1,9 @@
 package com.chua.common.support.network.ipc.parser;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ipc.annotations.IpcMethod;
 import com.chua.common.support.utils.ClassUtils;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -24,7 +24,7 @@ public class IpcAddressParser {
     public Map<String, Method> parse(Object bean) {
         Objects.requireNonNull(bean, "Bean cannot be null");
         Class<?> clazz = bean.getClass();
-        Map<String, Method> map = new HashMap<>();
+        Map<String, Method> map = Wraps.map();
 
         for (Method method : clazz.getDeclaredMethods()) {
             IpcMethod annotation = method.getAnnotation(IpcMethod.class);

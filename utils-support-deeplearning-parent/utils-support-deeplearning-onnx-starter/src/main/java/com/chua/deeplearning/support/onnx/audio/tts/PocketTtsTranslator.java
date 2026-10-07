@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.tts;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.NativeLoader;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,7 +14,6 @@ import java.nio.FloatBuffer;
 import java.nio.LongBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -377,7 +377,7 @@ public class PocketTtsTranslator {
     /**
      * 配置.json 扁平化缓存：点路径 → 值
     */
-    private final Map<String, String> configCache = new LinkedHashMap<>();
+    private final Map<String, String> configCache = Wraps.linkedMap();
 
     /**
      * 从 配置.json 读取字符串（点路径），未配置时返回默认值。
@@ -679,7 +679,7 @@ public class PocketTtsTranslator {
              OnnxTensor tEmb = OnnxTensor.createTensor(
                          ortEnv, FloatBuffer.wrap(emptyEmb), new long[]{1, 0, CONDITIONING_DIM})) {
 
-            Map<String, OnnxTensor> initInputs = new LinkedHashMap<>();
+            Map<String, OnnxTensor> initInputs = Wraps.linkedMap();
             initInputs.put("sequence", tSeq);
             initInputs.put("text_embeddings", tEmb);
             for (int i = 0; i < STATE_TENSOR_COUNT; i++) {
@@ -693,7 +693,7 @@ public class PocketTtsTranslator {
                 fb.get(conditioning);
 
  // 收集输出 状态 张量（流 LM 的 recurrent 状态，供后续帧使用）
-                Map<String, OnnxTensor> initState = new LinkedHashMap<>();
+                Map<String, OnnxTensor> initState = Wraps.linkedMap();
                 for (int i = 0; i < STATE_TENSOR_COUNT; i++) {
                     try {
                         OnnxTensor outState = (OnnxTensor) initResult.get("out_state_" + i).get();
@@ -778,7 +778,7 @@ public class PocketTtsTranslator {
     /**
      * 流 LM 当前 状态（由 运行文本条件 初始化）
     */
-    private Map<String, OnnxTensor> flowState = new LinkedHashMap<>();
+    private Map<String, OnnxTensor> flowState = Wraps.linkedMap();
 
     /**
      * 获取状态tensorshape。
@@ -821,7 +821,7 @@ public class PocketTtsTranslator {
         }
         long[] shape = new long[]{1, 1, waveform.length};
         try (OnnxTensor tWave = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(waveform), shape)) {
-            Map<String, OnnxTensor> inputs = new LinkedHashMap<>();
+            Map<String, OnnxTensor> inputs = Wraps.linkedMap();
             inputs.put(mimiEncoderInputName, tWave);
             try (OrtSession.Result result = mimiEncoderSession.run(inputs)) {
                 OnnxTensor latents = (OnnxTensor) result.get(mimiEncoderOutputName).get();
@@ -909,7 +909,7 @@ public class PocketTtsTranslator {
         long[] tShape = new long[]{1, 1};
         long[] cShape = new long[]{1, conditioning.length};
 
-        Map<String, OnnxTensor> inputs = new LinkedHashMap<>();
+        Map<String, OnnxTensor> inputs = Wraps.linkedMap();
         try (OnnxTensor tX = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(x), xShape);
              OnnxTensor tS = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(new float[]{s}), sShape);
              OnnxTensor tT = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(new float[]{t}), tShape);
@@ -944,7 +944,7 @@ public class PocketTtsTranslator {
         int frames = latents.length / latentSize;
         long[] shape = new long[]{1, frames, latentSize};
         try (OnnxTensor tLatents = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(latents), shape)) {
-            Map<String, OnnxTensor> inputs = new LinkedHashMap<>();
+            Map<String, OnnxTensor> inputs = Wraps.linkedMap();
             inputs.put(mimiInputName, tLatents);
  // 注入零初始化 状态 张量
             for (NodeInfo info : mimiDecoderSession.getInputInfo().values()) {

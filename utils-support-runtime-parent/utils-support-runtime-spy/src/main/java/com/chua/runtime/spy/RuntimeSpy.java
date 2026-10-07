@@ -1,5 +1,6 @@
 package com.chua.runtime.spy;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.StringUtils;
@@ -8,7 +9,6 @@ import java.lang.instrument.Instrumentation;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
@@ -109,7 +109,7 @@ public class RuntimeSpy {
      * spanid 是当前栈帧，父spanid 是栈帧下方那个 spanid。</p>
      */
     private static final ThreadLocal<Deque<TraceStackFrame>> TRACE_STACK =
-            ThreadLocal.withInitial(ArrayDeque::new);
+            ThreadLocal.withInitial(Wraps::deque);
 
     /**
      * 处理器 注册表：拦截键 → 处理器 实例
@@ -269,7 +269,7 @@ public class RuntimeSpy {
      */
     public static void unregisterAll(Interceptor interceptor) {
         String handlerName = interceptor.getClass().getSimpleName();
-        List<String> keysToRemove = new ArrayList<>();
+        List<String> keysToRemove = Wraps.list();
         for (Map.Entry<String, Interceptor> entry : INTERCEPTOR_MAP.entrySet()) {
             Interceptor v = entry.getValue();
             if (v != null && v.getClass().getSimpleName().equals(handlerName)) {
@@ -435,7 +435,7 @@ public class RuntimeSpy {
             return new TraceContextSnapshot(null, Collections.emptyList());
         }
         TraceStackFrame top = stack.peek();
-        return new TraceContextSnapshot(top.traceId(), new ArrayList<>(stack));
+        return new TraceContextSnapshot(top.traceId(), Wraps.list(stack));
     }
 
     /**

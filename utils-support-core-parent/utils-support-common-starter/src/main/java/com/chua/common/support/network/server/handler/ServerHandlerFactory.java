@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.handler;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.matcher.PathMatcher;
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.server.ServerAttribute;
@@ -13,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -43,12 +43,12 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     /**
      * 按 HTTP 方法区分的路由表（路径 -> 方法 -> 处理器）
      */
-    private final Map<String, Map<HttpMethod, ServerHandler>> routes = new LinkedHashMap<>();
+    private final Map<String, Map<HttpMethod, ServerHandler>> routes = Wraps.linkedMap();
 
     /**
      * 不区分 HTTP 方法的路由表（路径 -> 处理器）
      */
-    private final Map<String, ServerHandler> anyMethodRoutes = new LinkedHashMap<>();
+    private final Map<String, ServerHandler> anyMethodRoutes = Wraps.linkedMap();
 
     /**
      * 路由表读写锁
@@ -70,7 +70,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
      * @param serverFilter 服务器过滤器
      */
     public void initialize(Class<T> parserType, ServerFilter serverFilter) {
-        Map<String, T> parsers = new LinkedHashMap<>(ServiceProvider.of(parserType).list());
+        Map<String, T> parsers = Wraps.linkedMap(ServiceProvider.of(parserType).list());
         Map<String, T> iocParsers = objectContext.getBeanOfTypes(parserType);
         if (iocParsers != null) {
             parsers.putAll(iocParsers);
@@ -120,7 +120,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
         validateRoute(path, handler);
         routeLock.writeLock().lock();
         try {
-            routes.computeIfAbsent(path, k -> new LinkedHashMap<>()).put(method, handler);
+            routes.computeIfAbsent(path, k -> Wraps.linkedMap()).put(method, handler);
         } finally {
             routeLock.writeLock().unlock();
         }
@@ -151,7 +151,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
      * @param routes 路由映射表
      * @return 当前工厂实例
      */
-    public ServerHandlerFactory<T> routes(LinkedHashMap<String, ServerHandler> routes) {
+    public ServerHandlerFactory<T> routes(Map<String, ServerHandler> routes) {
         for (Map.Entry<String, ServerHandler> entry : routes.entrySet()) {
             route(entry.getKey(), entry.getValue());
         }
@@ -322,7 +322,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     public Map<String, Map<HttpMethod, ServerHandler>> getRoutes() {
         routeLock.readLock().lock();
         try {
-            return Collections.unmodifiableMap(new LinkedHashMap<>(routes));
+            return Collections.unmodifiableMap(Wraps.linkedMap(routes));
         } finally {
             routeLock.readLock().unlock();
         }
@@ -336,7 +336,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     public Map<String, ServerHandler> getAnyMethodRoutes() {
         routeLock.readLock().lock();
         try {
-            return Collections.unmodifiableMap(new LinkedHashMap<>(anyMethodRoutes));
+            return Collections.unmodifiableMap(Wraps.linkedMap(anyMethodRoutes));
         } finally {
             routeLock.readLock().unlock();
         }

@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
@@ -10,7 +11,6 @@ import reactor.core.publisher.Flux;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -74,7 +74,7 @@ public class PiUsageParser extends BaseUsageParser {
      * @return Flux 对象
      */
     private Flux<AiUsage> streamFile(Path file) {
-        java.util.List<AiUsage> out = new ArrayList<>();
+        java.util.List<AiUsage> out = Wraps.list();
         try (Stream<String> lines = Files.lines(file)) {
             for (String line : lines.toList()) {
                 AiUsage usage = parseLine(line);
@@ -187,7 +187,7 @@ public class PiUsageParser extends BaseUsageParser {
         if (!Files.isDirectory(sessionsDir)) {
             return List.of();
         }
-        List<Path> files = new ArrayList<>();
+        List<Path> files = Wraps.list();
         try (Stream<Path> stream = Files.walk(sessionsDir)) {
             stream.filter(Files::isRegularFile)
                     .filter(p -> p.getFileName().toString().endsWith(".jsonl"))

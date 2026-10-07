@@ -1,10 +1,9 @@
 package com.chua.common.support.lang.datasource.table;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -86,7 +85,7 @@ public class TableDef {
     /**
      * 列定义列表
      */
-    private List<ColumnDef> columns = new ArrayList<>();
+    private List<ColumnDef> columns = Wraps.list();
 
     /**
      * 联合主键的列名数组
@@ -96,7 +95,7 @@ public class TableDef {
     /**
      * 索引元数据列表
      */
-    private List<IndexMetadata> indexes = new ArrayList<>();
+    private List<IndexMetadata> indexes = Wraps.list();
 
     /**
      * 创建时间

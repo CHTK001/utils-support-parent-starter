@@ -1,8 +1,8 @@
 package com.chua.common.support.datasearch.music.spi.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -38,7 +38,7 @@ public final class MiguSignSupport {
      */
     public static Map<String, String> headers(String keyword, String timestamp) {
         String sign = md5(keyword + SIGNATURE_MD5 + "yyapp2d16148780a1dcc7408e06336b98cfd50" + DEVICE_ID + timestamp);
-        Map<String, String> headers = new LinkedHashMap<>();
+        Map<String, String> headers = Wraps.linkedMap();
         headers.put("uiVersion", "A_music_3.6.1");
         headers.put("deviceId", DEVICE_ID);
         headers.put("timestamp", timestamp);

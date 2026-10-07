@@ -1,5 +1,6 @@
 package com.chua.starter.datasync.scanner;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.starter.datasync.config.DataSyncConfigDefinition;
 
 import java.io.InputStream;
@@ -33,7 +34,7 @@ public class PropertiesConfigFileParser implements ConfigFileParser {
         try (InputStream is = Files.newInputStream(file)) {
             props.load(is);
         }
-        Map<String, Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = Wraps.linkedMap();
         for (String key : props.stringPropertyNames()) {
             map.put(key, props.getProperty(key));
         }
@@ -49,7 +50,7 @@ public class PropertiesConfigFileParser implements ConfigFileParser {
      * @return 构建嵌套映射的结果
      */
     private static Map<String, Object> buildNestedMap(Map<String, Object> flat) {
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
         for (Map.Entry<String, Object> entry : flat.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
@@ -61,7 +62,7 @@ public class PropertiesConfigFileParser implements ConfigFileParser {
                 if (next == null) {
                     current.put(part, value);
                 } else {
-                    Map<String, Object> child = (Map<String, Object>) current.computeIfAbsent(part, k -> new LinkedHashMap<String, Object>());
+                    Map<String, Object> child = (Map<String, Object>) current.computeIfAbsent(part, k -> Wraps.linkedMap());
                     current = child;
                 }
             }

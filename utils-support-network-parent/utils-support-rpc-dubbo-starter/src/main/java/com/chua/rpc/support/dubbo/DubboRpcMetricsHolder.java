@@ -1,8 +1,7 @@
 package com.chua.rpc.support.dubbo;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.rpc.RpcMetrics;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -109,7 +108,7 @@ public final class DubboRpcMetricsHolder {
         metrics.setSuccessCalls(SUCCESS_CALLS.get());
         metrics.setFailureCalls(FAILURE_CALLS.get());
         metrics.setActiveCalls(ACTIVE_CALLS.get());
-        List<RpcMetrics.MethodStat> stats = new ArrayList<>(METHOD_STATS.size());
+        List<RpcMetrics.MethodStat> stats = Wraps.list(METHOD_STATS.size());
         METHOD_STATS.forEach((key, stat) -> {
             long total = stat.total.get();
             long minDuration = stat.minDuration.get() == MIN_DURATION_INIT ? 0 : stat.minDuration.get();

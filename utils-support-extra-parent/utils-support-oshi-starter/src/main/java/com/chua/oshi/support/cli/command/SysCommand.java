@@ -1,5 +1,6 @@
 package com.chua.oshi.support.cli.command;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.CommandLine;
 import com.chua.oshi.support.Oshi;
 import com.chua.oshi.support.Sys;
@@ -9,8 +10,6 @@ import oshi.hardware.*;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OperatingSystem;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -173,7 +172,7 @@ public final class SysCommand extends AbstractCommand {
             if (svcs != null && !svcs.isEmpty()) {
                 System.out.println();
                 System.out.println("Running Services (" + svcs.size() + "):");
-                List<String[]> srow = new ArrayList<>();
+                List<String[]> srow = Wraps.list();
                 int count = 0;
                 for (OSService svc : svcs) {
                     if (count >= 100) {

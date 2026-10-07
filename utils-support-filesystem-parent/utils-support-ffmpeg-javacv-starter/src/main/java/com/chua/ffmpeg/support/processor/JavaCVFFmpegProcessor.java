@@ -1,5 +1,6 @@
 package com.chua.ffmpeg.support.processor;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.media.ffmpeg.*;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.FileUtils;
@@ -11,7 +12,6 @@ import org.bytedeco.javacv.*;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -238,7 +238,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
         }
         outputDir.mkdirs();
 
-        List<File> capturedFiles = new ArrayList<>();
+        List<File> capturedFiles = Wraps.list();
         try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(videoInput)) {
             grabber.start();
             Java2DFrameConverter converter = new Java2DFrameConverter();

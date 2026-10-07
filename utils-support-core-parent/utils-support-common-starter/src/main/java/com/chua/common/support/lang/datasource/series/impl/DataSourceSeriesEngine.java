@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.datasource.series.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
@@ -11,7 +12,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -149,7 +149,7 @@ public class DataSourceSeriesEngine implements SeriesEngine {
         String querySql = String.format("SELECT %s, %s FROM %s WHERE %s = ? AND %s >= ? AND %s <= ? ORDER BY %s ASC",
                 timeCol, valueCol, target, monitorColumn(target), timeCol, timeCol, timeCol);
 
-        List<Object[]> points = new ArrayList<>();
+        List<Object[]> points = Wraps.list();
         try {
             List<Map<String, Object>> rows = executor.query(querySql, monitorId, new Timestamp(startMs), new Timestamp(nowMs));
             int dropped = 0;
@@ -193,7 +193,7 @@ public class DataSourceSeriesEngine implements SeriesEngine {
         String timeCol = timeColumn(target);
         StringBuilder sql = new StringBuilder("DELETE FROM ").append(target)
                 .append(" WHERE ").append(timeCol).append(" < ?");
-        List<Object> params = new ArrayList<>();
+        List<Object> params = Wraps.list();
         params.add(new Timestamp(beforeMillis));
         if (monitorId != null) {
             sql.append(" AND ").append(monitorColumn(target)).append(" = ?");

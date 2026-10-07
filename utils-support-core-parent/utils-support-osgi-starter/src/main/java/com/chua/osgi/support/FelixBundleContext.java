@@ -1,10 +1,8 @@
 package com.chua.osgi.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.osgi.OsgiBundle;
-
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -127,8 +125,8 @@ public class FelixBundleContext implements com.chua.common.support.osgi.BundleCo
             if (refs == null) {
                 return Collections.emptyList();
             }
-            List<T> result = new ArrayList<>();
-            List<org.osgi.framework.ServiceReference<?>> acquired = new ArrayList<>();
+            List<T> result = Wraps.list();
+            List<org.osgi.framework.ServiceReference<?>> acquired = Wraps.list();
             for (org.osgi.framework.ServiceReference<?> ref : FelixOsgiLauncher.orderByRanking(refs)) {
                 Object service = delegate.getService(ref);
                 if (service == null) {
@@ -156,7 +154,7 @@ public class FelixBundleContext implements com.chua.common.support.osgi.BundleCo
 
     @Override
     public List<String> getServiceTypes() {
-        Set<String> types = new LinkedHashSet<>();
+        Set<String> types = Wraps.linkedSet();
         try {
             org.osgi.framework.ServiceReference<?>[] refs = delegate.getAllServiceReferences(null, null);
             if (refs == null) {

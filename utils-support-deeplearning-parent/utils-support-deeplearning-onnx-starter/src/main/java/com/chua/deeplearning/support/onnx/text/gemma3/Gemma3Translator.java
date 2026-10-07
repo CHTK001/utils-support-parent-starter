@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.text.gemma3;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.huggingface.tokenizers.Encoding;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.onnxruntime.OnnxTensor;
@@ -17,8 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,7 +116,7 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
     /**
      * 多轮对话历史（交替存储 用户 / assistant 文本）
     */
-    private final List<String> history = new ArrayList<>();
+    private final List<String> history = Wraps.list();
 
     /**
      * 多轮对话总结指令
@@ -284,7 +283,7 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
             log.warn("[Gemma3] 输入超过 {} token，已截断", MAX_INPUT_LENGTH);
         }
 
-        List<Long> tokens = new ArrayList<>();
+        List<Long> tokens = Wraps.list();
         for (long id : promptIds) {
             tokens.add(id);
         }
@@ -315,7 +314,7 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
  // 朴素自回归（无 KV 缓存）：每步前向完整序列，取最后位置 logits
             while (stepCount < MAX_NEW_TOKENS) {
                 long[] ids = toLongArray(tokens);
-                Map<String, OnnxTensor> inputs = new HashMap<>();
+                Map<String, OnnxTensor> inputs = Wraps.map();
                 inputs.put("input_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ids), new long[]{1, ids.length}));
                 inputs.put("attention_mask", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ones(ids.length)), new long[]{1, ids.length}));
                 inputs.put("position_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(range(ids.length)), new long[]{1, ids.length}));

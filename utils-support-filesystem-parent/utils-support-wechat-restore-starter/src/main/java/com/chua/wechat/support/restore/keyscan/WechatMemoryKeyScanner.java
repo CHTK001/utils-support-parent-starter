@@ -1,5 +1,6 @@
 package com.chua.wechat.support.restore.keyscan;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -179,7 +179,7 @@ public final class WechatMemoryKeyScanner {
      * @return 进程列表，探测失败返回空列表
      */
     public static List<PidInfo> weixinProcesses() {
-        List<PidInfo> result = new ArrayList<>(4);
+        List<PidInfo> result = Wraps.list(4);
         for (String processName : PROCESS_NAMES) {
             try {
                 String[] command = {"tasklist", "/FI", "IMAGENAME eq " + processName, "/FO", "CSV", "/NH"};
@@ -283,7 +283,7 @@ public final class WechatMemoryKeyScanner {
         int saltRegions = 0;
         try {
             List<Region> regions = enumRegions(handle);
-            List<Region> ordered = new ArrayList<>(regions.size());
+            List<Region> ordered = Wraps.list(regions.size());
             // 第一遍：定位 salt 所在区域并如实统计可读性
             for (Region region : regions) {
                 boolean hit = false;
@@ -323,7 +323,7 @@ public final class WechatMemoryKeyScanner {
             int threads = Math.max(1, Runtime.getRuntime().availableProcessors());
             ExecutorService pool = Executors.newFixedThreadPool(threads);
             Semaphore slots = new Semaphore(threads * 2);
-            List<Future<Long>> futures = new ArrayList<>(64);
+            List<Future<Long>> futures = Wraps.list(64);
             AtomicLong counter = new AtomicLong();
             try {
                 for (Region region : ordered) {
@@ -839,7 +839,7 @@ public final class WechatMemoryKeyScanner {
      * @throws Throwable 本地调用失败
      */
     private static List<Region> enumRegions(long handle) throws Throwable {
-        List<Region> regions = new ArrayList<>(4096);
+        List<Region> regions = Wraps.list(4096);
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment mbi = arena.allocate(48);
             long address = 0;

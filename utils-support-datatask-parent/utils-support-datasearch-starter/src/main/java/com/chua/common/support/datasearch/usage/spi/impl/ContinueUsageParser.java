@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
@@ -9,8 +10,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -82,7 +81,7 @@ public class ContinueUsageParser extends BaseUsageParser {
             return List.of();
         }
         Map<String, Long> dateIndex = loadDateIndex();
-        List<AiUsage> result = new ArrayList<>();
+        List<AiUsage> result = Wraps.list();
         try (var stream = Files.list(SESSIONS_DIR)) {
             stream.filter(Files::isRegularFile)
                     .filter(p -> p.getFileName().toString().endsWith(".json"))
@@ -101,7 +100,7 @@ public class ContinueUsageParser extends BaseUsageParser {
      * @return sessionId 到创建时间的映射；文件缺失时返回空表
      */
     private Map<String, Long> loadDateIndex() {
-        Map<String, Long> index = new HashMap<>();
+        Map<String, Long> index = Wraps.map();
         Path indexFile = SESSIONS_DIR.resolve(INDEX_FILE);
         if (!Files.exists(indexFile)) {
             return index;

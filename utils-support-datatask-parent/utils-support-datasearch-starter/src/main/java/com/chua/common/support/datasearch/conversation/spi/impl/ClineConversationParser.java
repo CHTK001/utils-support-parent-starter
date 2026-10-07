@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.conversation.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.conversation.ConversationMessage;
 import com.chua.common.support.datasearch.conversation.spi.ConversationParser;
 import com.chua.common.support.lang.json.Json;
@@ -14,7 +15,6 @@ import reactor.core.scheduler.Schedulers;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -107,7 +107,7 @@ public class ClineConversationParser implements ConversationParser {
             if (messages.isMissingValue() || !messages.isArray()) {
                 return List.of();
             }
-            List<ConversationMessage> result = new ArrayList<>(messages.size());
+            List<ConversationMessage> result = Wraps.list(messages.size());
             for (int i = 0; i < messages.size(); i++) {
                 result.addAll(parseMessage(messages.get(i), sessionId));
             }
@@ -142,7 +142,7 @@ public class ClineConversationParser implements ConversationParser {
                         .timestamp(ts > 0 ? ts : null)
                         .build();
 
-        List<ConversationMessage> result = new ArrayList<>();
+        List<ConversationMessage> result = Wraps.list();
         JsonNode content = node.get("content");
         if (content.isMissingValue()) {
             return result;

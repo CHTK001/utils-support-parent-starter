@@ -1,10 +1,9 @@
 package com.chua.osgi.support.source;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.definition.ServiceDefinition;
 import com.chua.common.support.spi.resolver.ServiceResolver;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +38,7 @@ public class SourceExtensionResolver implements ServiceResolver {
      *
      * <p>用 {@link LinkedHashMap} 保持注册顺序稳定，便于日志与测试断言。</p>
      */
-    private final Map<Class<?>, List<SourceExtensionFactory>> factories = new LinkedHashMap<>();
+    private final Map<Class<?>, List<SourceExtensionFactory>> factories = Wraps.linkedMap();
 
     /**
      * 发布一批扩展点声明。
@@ -52,7 +51,7 @@ public class SourceExtensionResolver implements ServiceResolver {
     public void replaceAll(List<SourceExtensionFactory> newFactories) {
         factories.clear();
         for (SourceExtensionFactory factory : newFactories) {
-            factories.computeIfAbsent(factory.spiType(), k -> new ArrayList<>()).add(factory);
+            factories.computeIfAbsent(factory.spiType(), k -> Wraps.list()).add(factory);
         }
         log.debug("[osgi-source] 解析器已装载 {} 个扩展点声明，覆盖 {} 种 SPI 类型",
                 newFactories.size(), factories.size());
@@ -64,7 +63,7 @@ public class SourceExtensionResolver implements ServiceResolver {
         if (declared == null || declared.isEmpty()) {
             return List.of();
         }
-        List<ServiceDefinition> result = new ArrayList<>(declared.size());
+        List<ServiceDefinition> result = Wraps.list(declared.size());
         for (SourceExtensionFactory factory : declared) {
             if (factory.extensionName() == null || factory.extensionName().isBlank()) {
                 log.warn("[osgi-source] 跳过扩展名空白的声明: spiType={}", type.getName());

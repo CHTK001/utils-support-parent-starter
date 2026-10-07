@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.image;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
@@ -260,7 +261,7 @@ class DefaultImageDetector implements ImageDetector {
             return List.of();
         }
         if (result instanceof List<?> list) {
-            List<DetectionInfo> out = new java.util.ArrayList<>(list.size());
+            List<DetectionInfo> out = Wraps.list(list.size());
             for (Object item : list) {
                 if (item instanceof DetectionInfo info) {
                     out.add(info);

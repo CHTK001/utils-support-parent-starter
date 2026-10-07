@@ -1,5 +1,6 @@
 package com.chua.common.support.file.resource;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.FileUtils;
 import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +19,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.zip.ZipFile;
@@ -95,7 +94,7 @@ public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
      * @return 匹配资源集合
      */
     private Set<Resource> findPathMatchingResources(String name) {
-        Set<Resource> result = new LinkedHashSet<>();
+        Set<Resource> result = Wraps.linkedSet();
         String classPathRoot = findPathRootPath(name);
         String rootPath = classPathRoot.substring(CLASSPATH_URL_ALL_PREFIX.length()).trim();
         if (rootPath.startsWith(SYMBOL_LEFT_SLASH)) {
@@ -261,8 +260,8 @@ public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
      * @return 资源集合
      */
     private Set<Resource> findAllClassPathResources(String name) {
-        Set<Resource> result = new LinkedHashSet<>();
-        Set<String> additionalCollections = new HashSet<>();
+        Set<Resource> result = Wraps.linkedSet();
+        Set<String> additionalCollections = Wraps.set();
         String path = name.substring(CLASSPATH_URL_ALL_PREFIX.length()).trim();
         if (path.startsWith(SYMBOL_LEFT_SLASH)) {
             path = path.substring(1);

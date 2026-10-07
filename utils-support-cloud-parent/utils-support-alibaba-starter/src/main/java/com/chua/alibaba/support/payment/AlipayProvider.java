@@ -1,5 +1,6 @@
 package com.chua.alibaba.support.payment;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.AlipayObject;
 import com.alipay.api.DefaultAlipayClient;
@@ -24,7 +25,6 @@ import com.chua.payment.support.Scene;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -138,7 +138,7 @@ public class AlipayProvider implements PaymentChannel {
         try {
             AlipayTradeAppPayResponse response = client.execute(payRequest);
             if (response.isSuccess()) {
-                Map<String, String> ext = new HashMap<>();
+                Map<String, String> ext = Wraps.map();
                 ext.put("orderStr", response.getBody());
                 return PaymentResponse.builder()
                         .success(true)

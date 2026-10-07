@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.face;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -12,8 +13,6 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 import com.chua.deeplearning.support.utils.ImageUtils;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.awt.image.BufferedImage;
@@ -222,7 +221,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 2) {
-            return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+            return new DetectedObjects(Wraps.list(), Wraps.list(), Wraps.list());
         }
 
         // 直读 flat float[]，避免 ORT 引擎不支持的 squeeze（会递归 StackOverflow）
@@ -242,10 +241,10 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         }
         double[][] priors = boxRecover(inputWidth, inputHeight, scales, steps);
         int iterLimit = Math.min(numAnchors, priors.length);
-        List<String> names = new ArrayList<>();
-        List<Double> probs = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
-        List<Candidate> candidates = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> probs = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
+        List<Candidate> candidates = Wraps.list();
 
         for (int i = 0; i < iterLimit; i++) {
             double probability = scoreArray[i * 2 + 1];
@@ -321,7 +320,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
      * @return boxRecover的结果
      */
     private double[][] boxRecover(int width, int height, int[][] scales, int[] steps) {
-        List<double[]> defaultBoxes = new ArrayList<>();
+        List<double[]> defaultBoxes = Wraps.list();
         for (int index = 0; index < steps.length; index++) {
             int step = steps[index];
             int hRatio = (int) Math.ceil((double) height / step);

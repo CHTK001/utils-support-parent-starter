@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.video.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.code.PageResult;
@@ -23,7 +24,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -91,7 +91,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
         }
 
         log.info("从豆瓣资源检索视频: {}", keyword);
-        List<VideoInfoResult> results = new ArrayList<>();
+        List<VideoInfoResult> results = Wraps.list();
 
         try {
             String searchUrl = buildSearchUrl(keyword);

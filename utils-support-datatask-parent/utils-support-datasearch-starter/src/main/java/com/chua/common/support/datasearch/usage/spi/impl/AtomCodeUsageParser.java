@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
@@ -11,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -196,7 +196,7 @@ public class AtomCodeUsageParser extends BaseUsageParser {
             if (turnStats.isMissingValue() || !turnStats.isArray()) {
                 return Map.of();
             }
-            Map<Integer, TurnStat> stats = new HashMap<>();
+            Map<Integer, TurnStat> stats = Wraps.map();
             int count = turnStats.size();
             for (int i = 0; i < count; i++) {
                 JsonNode turn = turnStats.get(i);

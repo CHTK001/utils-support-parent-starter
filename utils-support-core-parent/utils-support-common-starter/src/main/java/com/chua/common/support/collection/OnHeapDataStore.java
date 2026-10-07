@@ -1,6 +1,6 @@
 package com.chua.common.support.collection;
 
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collection;
 import java.util.List;
 
@@ -37,7 +37,7 @@ public class OnHeapDataStore<E> implements DataStore<E> {
      * 构造空的堆内存储。
      */
     public OnHeapDataStore() {
-        this.elements = new ArrayList<>();
+        this.elements = Wraps.list();
     }
 
     /**
@@ -46,7 +46,7 @@ public class OnHeapDataStore<E> implements DataStore<E> {
      * @param data 初始数据列表（会创建防御性拷贝）
      */
     public OnHeapDataStore(List<E> data) {
-        this.elements = new ArrayList<>(data);
+        this.elements = Wraps.list(data);
     }
 
     /**
@@ -158,7 +158,7 @@ public class OnHeapDataStore<E> implements DataStore<E> {
      * @return 包含所有元素的列表副本
      */
     public List<E> toList() {
-        return new ArrayList<>(elements);
+        return Wraps.list(elements);
     }
 
     /**

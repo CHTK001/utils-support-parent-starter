@@ -1,5 +1,6 @@
 package com.chua.hprof.support.parser;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.hprof.support.model.HprofClassDetail;
 import org.netbeans.lib.profiler.heap.FieldValue;
 import org.netbeans.lib.profiler.heap.Heap;
@@ -7,8 +8,6 @@ import org.netbeans.lib.profiler.heap.Instance;
 import org.netbeans.lib.profiler.heap.JavaClass;
 import org.netbeans.lib.profiler.heap.ObjectFieldValue;
 import org.netbeans.lib.profiler.heap.Value;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -113,8 +112,8 @@ public final class HprofRefChainWalker {
      * @return 每个存在保留量最大实例的类对应一条 {@link RefChain}
      */
     public static List<RefChain> walk(Heap heap, List<HprofParseContext.HprofRecord> objects) {
-        List<RefChain> chains = new ArrayList<>();
-        List<HprofParseContext.HprofRecord> top = new ArrayList<>(objects);
+        List<RefChain> chains = Wraps.list();
+        List<HprofParseContext.HprofRecord> top = Wraps.list(objects);
         top.sort((a, b) -> Long.compare(b.retainedSize(), a.retainedSize()));
         int done = 0;
         for (HprofParseContext.HprofRecord record : top) {
@@ -161,7 +160,7 @@ public final class HprofRefChainWalker {
             return null;
         }
 
-        List<HprofClassDetail.FieldValueDetail> fields = new ArrayList<>();
+        List<HprofClassDetail.FieldValueDetail> fields = Wraps.list();
         for (FieldValue fv : best.getFieldValues()) {
             fields.add(HprofParseContext.toFieldValueDetail(fv, false));
         }
@@ -178,7 +177,7 @@ public final class HprofRefChainWalker {
      * @return 排序后的子引用（无对象引用时为空）
      */
     private static List<ChildRef> rankChildren(Instance inst) {
-        List<ChildRef> children = new ArrayList<>();
+        List<ChildRef> children = Wraps.list();
         for (Value value : inst.getReferences()) {
             if (value instanceof ObjectFieldValue objectFieldValue) {
                 Instance child = objectFieldValue.getInstance();
@@ -195,7 +194,7 @@ public final class HprofRefChainWalker {
         }
         children.sort((a, b) -> Long.compare(b.retained(), a.retained()));
         return children.size() > CHILD_LIMIT
-                ? new ArrayList<>(children.subList(0, CHILD_LIMIT))
+                ? Wraps.list(children.subList(0, CHILD_LIMIT))
                 : children;
     }
 }

@@ -1,5 +1,6 @@
 package com.chua.common.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
  *
  * <h3>使用示例</h3>
  * <pre>{@code
- * Map<String, String> params = new HashMap<>();
+ * Map<String, String> params = Wraps.map();
  * params.put("name", "test");
  * params.put("age", "18");
  * params.put("empty", "");
@@ -66,13 +67,13 @@ public class SignUtils {
      * 默认需要排除的参数名称（小写）
      */
     private static final Set<String> DEFAULT_EXCLUDE_KEYS = Collections.unmodifiableSet(
-            new HashSet<>(Arrays.asList("sign", "signature")));
+            Wraps.set(Arrays.asList("sign", "signature")));
 
     /**
      * 微信支付签名需要排除的参数名称（小写）：标志、标志_类型
      */
     private static final Set<String> WECHAT_EXCLUDE_KEYS = Collections.unmodifiableSet(
-            new HashSet<>(Arrays.asList("sign", "sign_type")));
+            Wraps.set(Arrays.asList("sign", "sign_type")));
 
     /**
      * 创建 标志工具 实例
@@ -344,7 +345,7 @@ public class SignUtils {
         Set<String> excludeSet = normalizeExcludeKeys(excludeKeys);
 
  // 按 键 自然排序，过滤空值，排除指定 键
-        TreeMap<String, String> sortedMap = new TreeMap<>();
+        SortedMap<String, String> sortedMap = Wraps.sortedMap();
         if (params != null) {
             for (Map.Entry<String, ?> entry : params.entrySet()) {
                 String key = entry.getKey();
@@ -535,7 +536,7 @@ public class SignUtils {
      * @return 构建标志参数的结果
      */
     public static Map<String, Object> buildSignedParams(Map<String, ?> params, String secretKey, String signKey) {
-        Map<String, Object> signedParams = params != null ? new HashMap<>(params) : new HashMap<>();
+        Map<String, Object> signedParams = params != null ? Wraps.map(params) : Wraps.map();
         String signValue = signDirectKey(params, secretKey);
         signedParams.put(signKey, signValue);
         return signedParams;
@@ -549,7 +550,7 @@ public class SignUtils {
      * @return 构建sha256标志参数的结果
      */
     public static Map<String, Object> buildSha256SignedParams(Map<String, ?> params, String secretKey) {
-        Map<String, Object> signedParams = params != null ? new HashMap<>(params) : new HashMap<>();
+        Map<String, Object> signedParams = params != null ? Wraps.map(params) : Wraps.map();
         String signValue = signSha256(params, secretKey);
         signedParams.put("sign", signValue);
         return signedParams;
@@ -581,7 +582,7 @@ public class SignUtils {
             return false;
         }
         String expectedSign = String.valueOf(params.get(signKey));
-        Map<String, Object> paramsWithoutSign = new HashMap<>(params);
+        Map<String, Object> paramsWithoutSign = Wraps.map(params);
         paramsWithoutSign.remove(signKey);
         return verifyDirectKey(paramsWithoutSign, expectedSign, secretKey,
                 Collections.singleton(signKey.toLowerCase()));
@@ -599,7 +600,7 @@ public class SignUtils {
         if (excludeKeys == null || excludeKeys.isEmpty()) {
             return Collections.emptySet();
         }
-        Set<String> result = new HashSet<>(excludeKeys.size());
+        Set<String> result = Wraps.set(excludeKeys.size());
         for (String key : excludeKeys) {
             if (key != null) {
                 result.add(key.toLowerCase());

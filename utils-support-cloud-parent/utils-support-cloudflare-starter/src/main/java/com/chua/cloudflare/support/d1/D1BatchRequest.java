@@ -1,6 +1,5 @@
 package com.chua.cloudflare.support.d1;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
@@ -48,7 +47,7 @@ public record D1BatchRequest(List<D1Statement> statements, Boolean sequential) {
      * @return JSON 节点
      */
     public Object toJson() {
-        var list = new ArrayList<Object>(statements.size());
+        var list = Wraps.<Object>list(statements.size());
         for (var s : statements) {
             list.add(s.toJson());
         }

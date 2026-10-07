@@ -1,5 +1,6 @@
 package com.chua.common.support.image.png;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import org.w3c.dom.Node;
 
@@ -18,7 +19,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 import javax.annotation.Nonnull;
@@ -340,27 +341,27 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     /**
      * Itxt_keyword
     */
-    public ArrayList<String> iTXt_keyword = new ArrayList<String>();
+    public List<String> iTXt_keyword = Wraps.list();
     /**
      * Itxt_compressionFlag
     */
-    public ArrayList<Boolean> iTXt_compressionFlag = new ArrayList<Boolean>();
+    public List<Boolean> iTXt_compressionFlag = Wraps.list();
     /**
      * Itxt_compressionmethod
     */
-    public ArrayList<Integer> iTXt_compressionMethod = new ArrayList<Integer>();
+    public List<Integer> iTXt_compressionMethod = Wraps.list();
     /**
      * Itxt_languageTag
     */
-    public ArrayList<String> iTXt_languageTag = new ArrayList<String>();
+    public List<String> iTXt_languageTag = Wraps.list();
     /**
      * Itxt_translatedkeyword
     */
-    public ArrayList<String> iTXt_translatedKeyword = new ArrayList<String>();
+    public List<String> iTXt_translatedKeyword = Wraps.list();
     /**
      * Itxt_text
     */
-    public ArrayList<String> iTXt_text = new ArrayList<String>();
+    public List<String> iTXt_text = Wraps.list();
 
  // phys chunk
     /**
@@ -468,11 +469,11 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     /**
      * 文本_keyword
     */
-    public ArrayList<String> tEXt_keyword = new ArrayList<String>();
+    public List<String> tEXt_keyword = Wraps.list();
     /**
      * 文本_文本
     */
-    public ArrayList<String> tEXt_text = new ArrayList<String>();
+    public List<String> tEXt_text = Wraps.list();
 
  // 时间块。给出图像的修改时间。
     /**
@@ -612,15 +613,15 @@ public boolean tRNS_present;
     /**
      * ZTXt_keyword
     */
-    public ArrayList<String> zTXt_keyword = new ArrayList<String>();
+    public List<String> zTXt_keyword = Wraps.list();
     /**
      * ZTXt_compressionMethod
     */
-    public ArrayList<Integer> zTXt_compressionMethod = new ArrayList<Integer>();
+    public List<Integer> zTXt_compressionMethod = Wraps.list();
     /**
      * Z 轴txt_文本
     */
-    public ArrayList<String> zTXt_text = new ArrayList<String>();
+    public List<String> zTXt_text = Wraps.list();
 
  // actl chunk
     /**
@@ -692,11 +693,11 @@ public boolean tRNS_present;
     /**
      * UnknownChunk_type
     */
-    public ArrayList<String> unknownChunkType = new ArrayList<String>();
+    public List<String> unknownChunkType = Wraps.list();
     /**
      * UnknownChunk_data
     */
-    public ArrayList<byte[]> unknownChunkData = new ArrayList<byte[]>();
+    public List<byte[]> unknownChunkData = Wraps.list();
 
     /**
      * 创建 PNGMetadata 实例
@@ -952,11 +953,11 @@ public boolean tRNS_present;
      * @param in 原始列表
      * @return 克隆后的列表，入参为 {@code null} 时返回 {@code null}
      */
-    private ArrayList<byte[]> cloneBytesArrayList(ArrayList<byte[]> in) {
+    private List<byte[]> cloneBytesArrayList(List<byte[]> in) {
         if (in == null) {
             return null;
         } else {
-            ArrayList<byte[]> list = new ArrayList<byte[]>(in.size());
+            List<byte[]> list = Wraps.list(in.size());
             for (byte[] b: in) {
                 list.add((b == null) ? null : b.clone());
             }
@@ -3163,18 +3164,18 @@ public boolean tRNS_present;
         iCCP_present = false;
         cICP_present = false;
         eXIf_present = false;
-        iTXt_keyword = new ArrayList<String>();
-        iTXt_compressionFlag = new ArrayList<Boolean>();
-        iTXt_compressionMethod = new ArrayList<Integer>();
-        iTXt_languageTag = new ArrayList<String>();
-        iTXt_translatedKeyword = new ArrayList<String>();
-        iTXt_text = new ArrayList<String>();
+        iTXt_keyword = Wraps.list();
+        iTXt_compressionFlag = Wraps.list();
+        iTXt_compressionMethod = Wraps.list();
+        iTXt_languageTag = Wraps.list();
+        iTXt_translatedKeyword = Wraps.list();
+        iTXt_text = Wraps.list();
         pHYs_present = false;
         sBIT_present = false;
         sPLT_present = false;
         sRGB_present = false;
-        tEXt_keyword = new ArrayList<String>();
-        tEXt_text = new ArrayList<String>();
+        tEXt_keyword = Wraps.<String>list();
+        tEXt_text = Wraps.<String>list();
  // 时间块(含图像修改时间)
         tIME_present = false;
  // 文本块(含图像创建时间)
@@ -3182,13 +3183,13 @@ public boolean tRNS_present;
         tEXt_creation_time_iter = null;
         creation_time_present = false;
         tRNS_present = false;
-        zTXt_keyword = new ArrayList<String>();
-        zTXt_compressionMethod = new ArrayList<Integer>();
-        zTXt_text = new ArrayList<String>();
+        zTXt_keyword = Wraps.<String>list();
+        zTXt_compressionMethod = Wraps.<Integer>list();
+        zTXt_text = Wraps.<String>list();
         acTL_present = false;
         fcTL_present = false;
         fdAT_present = false;
-        unknownChunkType = new ArrayList<String>();
-        unknownChunkData = new ArrayList<byte[]>();
+        unknownChunkType = Wraps.<String>list();
+        unknownChunkData = Wraps.<byte[]>list();
     }
 }

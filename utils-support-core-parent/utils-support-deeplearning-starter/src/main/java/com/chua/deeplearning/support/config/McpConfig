@@ -1,8 +1,8 @@
 package com.chua.deeplearning.support.config;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,10 +23,10 @@ public class McpConfig {
     /**
      * 前置处理器列表
      */
-    private List<String> preprocessors = new ArrayList<>();
+    private List<String> preprocessors = Wraps.list();
     
     /**
      * 后置处理器列表
      */
-    private List<String> postprocessors = new ArrayList<>();
+    private List<String> postprocessors = Wraps.list();
 }

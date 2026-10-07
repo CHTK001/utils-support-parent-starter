@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.seg;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
@@ -16,7 +17,6 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 import java.awt.Color;
 
@@ -251,7 +251,7 @@ public class EdgeSamSegmentTranslator {
     private float[][][][] encode(float[][] normalized) {
         long[] shape = new long[]{1, 3, INPUT_SIZE, INPUT_SIZE};
         try (OnnxTensor imageTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(flatten(normalized)), shape)) {
-            Map<String, OnnxTensor> inputs = new HashMap<>();
+            Map<String, OnnxTensor> inputs = Wraps.map();
             inputs.put("image", imageTensor);
             try (OrtSession.Result result = encoderSession.run(inputs)) {
                 return (float[][][][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
@@ -276,7 +276,7 @@ public class EdgeSamSegmentTranslator {
         try (OnnxTensor embTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(flatten4(embeddings)), embShape);
              OnnxTensor coordTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(flatten(coords)), coordShape);
              OnnxTensor labelTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(flatten(labels)), labelShape)) {
-            Map<String, OnnxTensor> inputs = new HashMap<>();
+            Map<String, OnnxTensor> inputs = Wraps.map();
             inputs.put("image_embeddings", embTensor);
             inputs.put("point_coords", coordTensor);
             inputs.put("point_labels", labelTensor);

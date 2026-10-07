@@ -1,12 +1,11 @@
 package com.chua.osgi.support.source;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.script.ScriptProviders;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -71,7 +70,7 @@ public class SourceGroovyLoader {
     /**
      * 已加载的脚本路径，重载时据此卸载。
      */
-    private final Set<Path> loadedScripts = new HashSet<>();
+    private final Set<Path> loadedScripts = Wraps.set();
 
     /**
      * 创建 Groovy 源码加载器。
@@ -105,7 +104,7 @@ public class SourceGroovyLoader {
         // 先卸载全部旧脚本：ScriptProvider 内部按路径缓存脚本类，
         // 不卸载则源码改动后 loadScript 仍命中旧类，表现为「改了没生效」
         unloadAll();
-        List<SourceExtensionFactory> batch = new ArrayList<>();
+        List<SourceExtensionFactory> batch = Wraps.list();
         for (Path script : scripts) {
             batch.addAll(loadOne(script));
         }
@@ -164,7 +163,7 @@ public class SourceGroovyLoader {
      */
     @SuppressWarnings("unchecked")
     private List<SourceExtensionFactory> parseDeclarations(Object result, Path script) {
-        List<SourceExtensionFactory> batch = new ArrayList<>();
+        List<SourceExtensionFactory> batch = Wraps.list();
         if (result instanceof List<?> list) {
             for (Object item : list) {
                 batch.addAll(parseDeclarations(item, script));

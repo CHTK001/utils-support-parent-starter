@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.datasource.flyway;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.resource.Resource;
 import com.chua.common.support.file.resource.ResourceConfiguration;
 import com.chua.common.support.file.resource.ResourceFlow;
@@ -11,9 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -118,13 +117,13 @@ public final class FlywayScripts {
      */
     public static List<Script> scan(List<String> locations, String separator, ClassLoader classLoader) {
         Pattern pattern = scriptPattern(separator);
-        Map<String, Script> found = new LinkedHashMap<>();
+        Map<String, Script> found = Wraps.linkedMap();
         if (locations != null) {
             for (String location : locations) {
                 collect(location, pattern, classLoader, found);
             }
         }
-        List<Script> sorted = new ArrayList<>(found.values());
+        List<Script> sorted = Wraps.list(found.values());
         sorted.sort(Comparator.comparing(Script::version, FlywayScripts::compareVersions)
                 .thenComparing(Script::fileName));
         return sorted;
@@ -409,7 +408,7 @@ public final class FlywayScripts {
      * @return 拆分后的语句列表（不含分隔分号）；空输入返回空列表
      */
     public static List<String> splitStatements(String sql) {
-        List<String> statements = new ArrayList<>();
+        List<String> statements = Wraps.list();
         if (sql == null || sql.isEmpty()) {
             return statements;
         }

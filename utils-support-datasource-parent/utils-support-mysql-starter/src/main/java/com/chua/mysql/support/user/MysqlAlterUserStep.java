@@ -1,5 +1,6 @@
 package com.chua.mysql.support.user;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasource.support.user.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +9,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -67,11 +67,11 @@ public class MysqlAlterUserStep implements UserManager.AlterUserStep {
     /**
      * 待执行的授权语句
      */
-    private final List<SqlStep> grants = new ArrayList<>();
+    private final List<SqlStep> grants = Wraps.list();
     /**
      * 待执行的回收语句
      */
-    private final List<SqlStep> revokes = new ArrayList<>();
+    private final List<SqlStep> revokes = Wraps.list();
 
     /**
      * 构造方法，创建修改用户步骤实例。
@@ -148,7 +148,7 @@ public class MysqlAlterUserStep implements UserManager.AlterUserStep {
     @Override
     public void execute() {
         String account = accountLiteral();
-        List<SqlStep> steps = new ArrayList<>();
+        List<SqlStep> steps = Wraps.list();
         if (password != null) {
             steps.add(new SqlStep("ALTER USER " + account + " 改口令",
                     "ALTER USER " + account + " IDENTIFIED BY " + quoteLiteral(checkPassword(password))));
@@ -210,7 +210,7 @@ public class MysqlAlterUserStep implements UserManager.AlterUserStep {
             throw new IllegalArgumentException("权限列表不能为空");
         }
         List<String> items = splitTopLevel(privileges);
-        List<String> checked = new ArrayList<>(items.size());
+        List<String> checked = Wraps.list(items.size());
         for (String item : items) {
             String privilege = item.trim();
             if (privilege.isEmpty()
@@ -257,7 +257,7 @@ public class MysqlAlterUserStep implements UserManager.AlterUserStep {
      * @return 切分后的权限项
      */
     private static List<String> splitTopLevel(String privileges) {
-        List<String> items = new ArrayList<>();
+        List<String> items = Wraps.list();
         StringBuilder current = new StringBuilder();
         int depth = 0;
         for (int i = 0; i < privileges.length(); i++) {

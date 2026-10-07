@@ -1,4 +1,5 @@
 package com.chua.deeplearning.support.onnx.ocr.extractor;
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.utils.ImageUtils;
 
 import ai.onnxruntime.OnnxTensor;
@@ -15,8 +16,6 @@ import java.nio.FloatBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.chua.deeplearning.support.onnx.GpuHelper;
@@ -205,14 +204,14 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
         try (InputStream is = PpWordExtractorTranslator.class.getClassLoader().getResourceAsStream(resource)) {
             if (is == null) {
                 log.warn("[PaddleOCRv6-rec] classpath 也找不到字符字典 {}，识别结果将为空", resource);
-                return new ArrayList<>();
+                return Wraps.list();
             }
             var table = parseCharacterDict(List.of(new String(is.readAllBytes(), StandardCharsets.UTF_8).split("\n")));
             log.info("[PaddleOCRv6-rec] 字符字典取自 classpath: {} dict_size={}", resource, table.size());
             return table;
         } catch (Exception e) {
             log.warn("[PaddleOCRv6-rec] classpath 字典读取失败: {}", e.getMessage());
-            return new ArrayList<>();
+            return Wraps.list();
         }
     }
 
@@ -223,7 +222,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
      * @return 字符表（index 0 为 blank，其余为字符）
      */
     private static List<String> parseCharacterDict(List<String> lines) {
-        List<String> chars = new ArrayList<>();
+        List<String> chars = Wraps.list();
         boolean inDict = false;
         for (String line : lines) {
             String trimmed = line.trim();
@@ -247,7 +246,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
                 }
             }
         }
-        List<String> table = new ArrayList<>(chars.size() + 1);
+        List<String> table = Wraps.list(chars.size() + 1);
         table.add("blank");
         table.addAll(chars);
         return table;
@@ -329,7 +328,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
 
                 long[] shape = {1, 3, IMG_H, resizeW};
                 try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
-                    Map<String, OnnxTensor> inputs = new HashMap<>();
+                    Map<String, OnnxTensor> inputs = Wraps.map();
                     inputs.put("x", tensor);
                     try (OrtSession.Result result = session.run(inputs)) {
                         Object out = result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）

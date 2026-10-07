@@ -1,8 +1,8 @@
 package com.chua.ibd.support.innodb;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +48,7 @@ public final class IbdSqlWriter {
         StringBuilder sql = new StringBuilder(512);
         sql.append("CREATE TABLE IF NOT EXISTS ").append(qualified(schema, target)).append(" (\n");
 
-        List<String> parts = new java.util.ArrayList<>();
+        List<String> parts = Wraps.list();
         for (IbdColumn column : definition.userColumns()) {
             parts.add("  " + columnDefinition(column, definition));
         }
@@ -186,7 +186,7 @@ public final class IbdSqlWriter {
             return null;
         }
         StringBuilder columns = new StringBuilder();
-        Set<String> seen = new LinkedHashSet<>();
+        Set<String> seen = Wraps.linkedSet();
         for (IbdColumn column : index.columns()) {
             if (column.systemColumn() || !seen.add(column.name())) {
                 continue;
@@ -268,7 +268,7 @@ public final class IbdSqlWriter {
         String target = table == null || table.isBlank() ? definition.name() : table;
         String prefix = "INSERT INTO " + qualified(schema, target) + " ("
                 + joinQuoted(columns) + ") VALUES (";
-        java.util.List<String> statements = new java.util.ArrayList<>(rows.size());
+        java.util.List<String> statements = Wraps.list(rows.size());
         for (Map<String, Object> row : rows) {
             StringBuilder sb = new StringBuilder(prefix.length() + columns.size() * 12);
             sb.append(prefix);

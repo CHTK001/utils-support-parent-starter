@@ -1,5 +1,6 @@
 package com.chua.runtime.plugin.loader;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
 import java.util.logging.Level;
@@ -60,7 +61,7 @@ public class PluginScanner {
     public PluginScanner(Path pluginRoot, ClassLoader parentLoader) {
         this.pluginRoot = pluginRoot;
         this.parentLoader = parentLoader;
-        this.plugins = new ArrayList<>();
+        this.plugins = Wraps.list();
     }
 
     /**

@@ -1,13 +1,12 @@
 package com.chua.crypto.support.spring;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.crypto.support.CryptoSetting;
 import com.chua.crypto.support.KeyLifecycle;
 import com.chua.crypto.support.KeyPolicy;
 import com.chua.crypto.support.KeyStoreType;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -84,7 +83,7 @@ public class CryptoProperties {
     /**
      * 参与整体加解密的配置文件列表
      */
-    private List<String> configFiles = new ArrayList<>();
+    private List<String> configFiles = Wraps.list();
 
     /**
      * 配置文件加密时是否保留明文备份(*.bak)，默认 false，与 {@link com.chua.crypto.support.CryptoSetting} 一致

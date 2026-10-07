@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -208,7 +209,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
  // 关键点 路径 同样归一化，一并转像素（人脸 5 点，用于对齐）
                             float scaleX = imgW > 0 ? imgW : 1f;
                             float scaleY = imgH > 0 ? imgH : 1f;
-                            java.util.List<float[]> keypoints = new java.util.ArrayList<>();
+                            java.util.List<float[]> keypoints = Wraps.list();
                             Iterable<ai.djl.modality.cv.output.Point> path = box.getPath();
                             if (path != null) {
                                 for (ai.djl.modality.cv.output.Point p : path) {

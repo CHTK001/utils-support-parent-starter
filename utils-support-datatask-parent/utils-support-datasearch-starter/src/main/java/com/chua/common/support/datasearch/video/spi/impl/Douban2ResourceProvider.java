@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.video.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.video.model.VideoInfoResult;
 import com.chua.common.support.datasearch.video.model.VideoSearch;
 import com.chua.common.support.datasearch.video.spi.AbstractResourceProvider;
@@ -15,7 +16,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -76,7 +76,7 @@ public class Douban2ResourceProvider extends AbstractResourceProvider {
                     .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
                     .GET().build();
             HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString());
-            List<VideoInfoResult> results = new ArrayList<>(MAX_RESULT_COUNT);
+            List<VideoInfoResult> results = Wraps.list(MAX_RESULT_COUNT);
             Matcher m = TITLE_LINK_PATTERN.matcher(resp.body());
             int idx = 0;
             while (m.find() && idx++ < MAX_RESULT_COUNT) {

@@ -1,8 +1,7 @@
 package com.chua.flow.support.store;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.flow.FlowDefinition;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,6 +61,6 @@ public class MemoryFlowDefinitionStore implements FlowDefinitionStore {
      */
     @Override
     public List<FlowDefinition> list() {
-        return new ArrayList<>(storage.values());
+        return Wraps.list(storage.values());
     }
 }

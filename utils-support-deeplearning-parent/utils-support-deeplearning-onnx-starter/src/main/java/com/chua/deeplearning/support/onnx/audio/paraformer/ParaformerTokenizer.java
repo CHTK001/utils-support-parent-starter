@@ -1,11 +1,11 @@
 package com.chua.deeplearning.support.onnx.audio.paraformer;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +70,7 @@ public class ParaformerTokenizer {
     private ParaformerTokenizer(String[] idToToken) {
         this.idToToken = idToToken;
         this.vocabSize = idToToken.length;
-        this.tokenToId = new HashMap<>(vocabSize);
+        this.tokenToId = Wraps.map(vocabSize);
         for (int i = 0; i < vocabSize; i++) {
             this.tokenToId.put(idToToken[i], i);
         }
@@ -100,7 +100,7 @@ public class ParaformerTokenizer {
     public static ParaformerTokenizer loadFromStream(InputStream in) throws IOException {
         String content = new String(in.readAllBytes(), StandardCharsets.UTF_8);
         List<String> lines = content.lines().toList();
-        Map<Integer, String> idToToken = new HashMap<>();
+        Map<Integer, String> idToToken = Wraps.map();
         int maxId = 0;
         for (String line : lines) {
             if (line.isBlank()) {

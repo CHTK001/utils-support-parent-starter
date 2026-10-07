@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.classification;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.Classifications;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.util.NDImageUtils;
@@ -16,7 +17,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import ai.djl.ndarray.types.Shape;
@@ -128,13 +128,13 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
     public Classifications processOutput(TranslatorContext ctx, NDList list) throws Exception {
         var prob = list.singletonOrThrow();
         float[] scores = prob.toFloatArray();
-        List<Integer> idx = new ArrayList<>();
+        List<Integer> idx = Wraps.list();
         for (int i = 0; i < scores.length; i++) {
             idx.add(i);
         }
         idx.sort(Comparator.comparingDouble((Integer i) -> -scores[i]));
-        List<String> names = new ArrayList<>();
-        List<Double> probs = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> probs = Wraps.list();
         int k = Math.min(topk, idx.size());
         for (int i = 0; i < k; i++) {
             int id = idx.get(i);
@@ -160,7 +160,7 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
      * @return 加载csv的结果
      */
     private static List<String> loadCsv(Path csv) throws Exception {
-        List<String> names = new ArrayList<>();
+        List<String> names = Wraps.list();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(csv), StandardCharsets.UTF_8))) {
             String line;
             boolean first = true;

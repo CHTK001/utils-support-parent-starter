@@ -1,5 +1,6 @@
 package com.chua.hprof.support.serializer;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.hprof.support.analyzer.HprofAnalyzer;
 import com.chua.hprof.support.analyzer.HprofAnalyzer.HprofAnalysis;
 import com.chua.hprof.support.analyzer.HprofAnalyzer.HprofFinding;
@@ -9,8 +10,6 @@ import com.chua.hprof.support.model.HprofObject;
 import com.chua.hprof.support.parser.HprofParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -683,27 +682,27 @@ public final class HprofToHtmlSerializer {
      */
     private static String analysisJson(HprofAnalysis analysis, String fileName) {
         try {
-            java.util.Map<String, Object> data = new java.util.LinkedHashMap<>();
+            java.util.Map<String, Object> data = Wraps.linkedMap();
             data.put("file", fileName);
             data.put("totalRetained", analysis.totalRetainedBytes);
             data.put("totalObjects", analysis.totalObjectCount);
 
-            List<Map<String, Object>> retained = new ArrayList<>();
+            List<Map<String, Object>> retained = Wraps.list();
             for (HprofHistogramRow row : analysis.topByRetained) {
                 retained.add(rowJson(row, "retained"));
             }
             data.put("retained", retained);
 
-            List<Map<String, Object>> instances = new ArrayList<>();
+            List<Map<String, Object>> instances = Wraps.list();
             for (HprofHistogramRow row : analysis.topByInstances) {
                 instances.add(rowJson(row, "instances"));
             }
             data.put("instances", instances);
 
-            List<Map<String, Object>> roots = new ArrayList<>();
+            List<Map<String, Object>> roots = Wraps.list();
             if (analysis.gcRootsByKind != null) {
                 for (Map.Entry<String, Long> e : analysis.gcRootsByKind.entrySet()) {
-                    Map<String, Object> r = new java.util.LinkedHashMap<>();
+                    Map<String, Object> r = Wraps.linkedMap();
                     r.put("name", e.getKey());
                     r.put("value", e.getValue());
                     roots.add(r);
@@ -713,7 +712,7 @@ public final class HprofToHtmlSerializer {
 
             data.put("findings", analysis.findingDetails.stream()
                     .map(f -> {
-                        Map<String, Object> m = new java.util.LinkedHashMap<>();
+                        Map<String, Object> m = Wraps.linkedMap();
                         m.put("key", f.key());
                         m.put("severity", f.severity());
                         m.put("title", f.title());
@@ -735,7 +734,7 @@ public final class HprofToHtmlSerializer {
      * @return the row map
      */
     private static Map<String, Object> rowJson(HprofHistogramRow row, String mode) {
-        Map<String, Object> m = new java.util.LinkedHashMap<>();
+        Map<String, Object> m = Wraps.linkedMap();
         m.put("name", row.getSimpleName().isEmpty() ? row.getClassName() : row.getSimpleName());
         m.put("className", row.getClassName());
         m.put("count", row.getInstanceCount());

@@ -1,12 +1,11 @@
 package com.chua.common.support.task.pipeline.builder;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.pipeline.core.ForkErrorStrategy;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 import com.chua.common.support.task.pipeline.node.ForkNode;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -106,7 +105,7 @@ public class TaskForkDefinition {
     /**
      * branches
      */
-    private final Map<String, Pipeline> branches = new LinkedHashMap<>();
+    private final Map<String, Pipeline> branches = Wraps.linkedMap();
     /**
      * 错误策略
      */
@@ -299,7 +298,7 @@ public class TaskForkDefinition {
      */
     public TaskForkDefinition env(String key, Object value) {
         if (this.env == null) {
-            this.env = new LinkedHashMap<>();
+            this.env = Wraps.linkedMap();
         }
         this.env.put(key, value);
         return this;

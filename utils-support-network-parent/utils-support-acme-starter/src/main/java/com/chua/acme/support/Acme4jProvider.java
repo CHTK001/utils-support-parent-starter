@@ -1,5 +1,6 @@
 package com.chua.acme.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ssl.AcmeCertificateResult;
 import com.chua.common.support.network.ssl.AcmeConnectionResult;
 import com.chua.common.support.network.ssl.AcmeProvider;
@@ -32,7 +33,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -161,7 +161,7 @@ public class Acme4jProvider implements AcmeProvider {
 
     @Override
     public List<AcmeValidationInfo> getValidationInfo(List<String> domains, String challengeType) {
-        List<AcmeValidationInfo> result = new ArrayList<>();
+        List<AcmeValidationInfo> result = Wraps.list();
         try {
             // 创建订单并生成域名密钥对，后续 requestCertificate 必须复用该订单
             prepareOrder(domains);

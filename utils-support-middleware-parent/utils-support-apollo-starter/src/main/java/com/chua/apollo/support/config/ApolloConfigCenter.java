@@ -1,5 +1,6 @@
 package com.chua.apollo.support.config;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.config.center.AbstractConfigCenter;
 import com.chua.common.support.config.center.ConfigCenterSetting;
 import com.chua.common.support.config.center.ConfigListener;
@@ -12,7 +13,6 @@ import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -92,7 +92,7 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
             return Collections.emptyMap();
         }
 
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = Wraps.map();
         for (String key : propertyNames) {
             String value = config.getProperty(key, null);
             if (value != null) {

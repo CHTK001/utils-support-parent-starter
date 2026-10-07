@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.yolo.v8.translator;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
@@ -10,8 +11,6 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import ai.djl.modality.cv.output.DetectedObjects;
 import com.chua.deeplearning.support.utils.NMSUtils;
-
-import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import ai.djl.modality.cv.output.BoundingBox;
@@ -116,7 +115,7 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     public YoloV8sTranslator(float threshold, float nmsThreshold, List<String> classes) {
         this.threshold = threshold;
         this.nmsThreshold = nmsThreshold;
-        this.classes = new ArrayList<>(classes);
+        this.classes = Wraps.list(classes);
         log.info("YOLOv8s 初始化: input={}, threshold={}, nms={}, classes={}", INPUT_SIZE, threshold, nmsThreshold, classes.size());
     }
 
@@ -165,9 +164,9 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
             log.warn("Feature mismatch: actual={}, expected={}", numFeatures, expectedFeatures);
         }
 
-        List<String> names = new ArrayList<>();
-        List<Double> probs = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> probs = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
 
         for (int i = 0; i < numBoxes; i++) {
             float cx, cy, w, h;
@@ -232,9 +231,9 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
 
         List<Integer> keep = NMSUtils.nms(boxes, probs, nmsThreshold);
 
-        List<String> finalNames = new ArrayList<>();
-        List<Double> finalProbs = new ArrayList<>();
-        List<BoundingBox> finalBoxes = new ArrayList<>();
+        List<String> finalNames = Wraps.list();
+        List<Double> finalProbs = Wraps.list();
+        List<BoundingBox> finalBoxes = Wraps.list();
 
         for (int idx : keep) {
             finalNames.add(names.get(idx));

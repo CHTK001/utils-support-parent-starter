@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.yolo.v11.translator;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.types.DataType;
@@ -11,8 +12,6 @@ import com.chua.deeplearning.support.utils.LetterBoxUtils;
 import com.chua.deeplearning.support.onnx.yolo.obb.ObbResult;
 import com.chua.deeplearning.support.onnx.yolo.obb.YoloRotatedBox;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -130,7 +129,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
         this.height = height;
         this.threshold = threshold;
         this.nmsThreshold = nmsThreshold;
-        this.classes = new ArrayList<>(classes);
+        this.classes = Wraps.list(classes);
         this.maxBoxes = maxBoxes;
         log.info("          YOLOv11 OBB                 -             : {}x{},       : {}, NMS: {},          : {},             : {}",
                  width, height, threshold, nmsThreshold, classes.size(), maxBoxes);
@@ -218,7 +217,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
         var nClasses = Math.toIntExact(shape.get(1));
 
         //                   
-        var rotatedBoxes = new ArrayList<YoloRotatedBox>();
+        List<YoloRotatedBox> rotatedBoxes = Wraps.list();
 
         //                                                       
         for (int i = numberRows - 1; i >= Math.max(0, numberRows - maxBoxes); i--) {
@@ -269,11 +268,11 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
      * @return                         
      */
     private List<YoloRotatedBox> rotatedNMS(List<YoloRotatedBox> boxes, double iouThreshold) {
-        var keep = new ArrayList<YoloRotatedBox>();
+        var keep = Wraps.<YoloRotatedBox>list();
         var removed = new boolean[boxes.size()];
 
         //                      
-        var sortedIndices = new ArrayList<Integer>();
+        List<Integer> sortedIndices = Wraps.list();
         for (int i = 0; i < boxes.size(); i++) {
             sortedIndices.add(i);
         }

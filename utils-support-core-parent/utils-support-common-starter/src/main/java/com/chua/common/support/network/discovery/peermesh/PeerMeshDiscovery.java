@@ -1,5 +1,6 @@
 package com.chua.common.support.network.discovery.peermesh;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.exception.StartFailedException;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.discovery.AbstractServiceDiscovery;
@@ -24,8 +25,6 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -318,7 +317,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
                             mergeNodeEntry(entry, now);
                         }
                     }
-                    List<NodeTable.NodeEntry> known = new ArrayList<>(nodeTable.getAllEntries().values());
+                    List<NodeTable.NodeEntry> known = Wraps.list(nodeTable.getAllEntries().values());
                     MessageProtocol.PeerMeshMessage pong = new MessageProtocol.PeerMeshMessage(
                             MessageProtocol.TYPE_PONG, Json.toJson(known));
                     sendUdpResponse(packet.getAddress(), packet.getPort(), pong);
@@ -332,7 +331,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
                             new MessageProtocol.PeerMeshMessage(MessageProtocol.TYPE_ACK, ""));
                 }
                 case MessageProtocol.TYPE_PROBE -> {
-                    List<NodeTable.NodeEntry> known = new ArrayList<>(nodeTable.getAllEntries().values());
+                    List<NodeTable.NodeEntry> known = Wraps.list(nodeTable.getAllEntries().values());
                     sendUdpResponse(packet.getAddress(), packet.getPort(),
                             new MessageProtocol.PeerMeshMessage(MessageProtocol.TYPE_PONG, Json.toJson(known)));
                 }
@@ -439,7 +438,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
         membershipPropagation = null;
         evictionManager = null;
 
-        diskStore.save(new ArrayList<>(nodeTable.getAllEntries().values()));
+        diskStore.save(Wraps.list(nodeTable.getAllEntries().values()));
         clearCache();
 
         log.info("PeerMesh 已停止");
@@ -521,7 +520,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
             }
         }
         // 回复 PONG
-        List<NodeTable.NodeEntry> known = new ArrayList<>(nodeTable.getAllEntries().values());
+        List<NodeTable.NodeEntry> known = Wraps.list(nodeTable.getAllEntries().values());
         MessageProtocol.write(out, new MessageProtocol.PeerMeshMessage(
                 MessageProtocol.TYPE_PONG, Json.toJson(known)));
     }
@@ -734,7 +733,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
             if (existing != null && existing.getDiscovery() != null) {
                 Discovery base = existing.getDiscovery();
                 Map<String, String> meta = discovery.getMetadata() != null
-                        ? new HashMap<>(discovery.getMetadata()) : new HashMap<>();
+                        ? Wraps.map(discovery.getMetadata()) : Wraps.map();
                 meta.put("svcHost", discovery.getHost());
                 meta.put("svcPort", String.valueOf(discovery.getPort()));
                 Discovery merged = Discovery.builder()

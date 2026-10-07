@@ -1,11 +1,10 @@
 package com.chua.common.support.datasearch.skill.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.skill.SkillDefinition;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.datasearch.skill.model.SkillMarketListing;
 import com.chua.common.support.datasearch.skill.spi.SkillOnlineProvider;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +62,7 @@ public class SkillsmpSkillProvider extends SkillsmpProvider implements SkillOnli
             if (items == null || items.isEmpty()) {
                 return Collections.emptyList();
             }
-            List<SkillMarketListing> listings = new ArrayList<>(items.size());
+            List<SkillMarketListing> listings = Wraps.list(items.size());
             int rank = (Math.max(1, page) - 1) * Math.max(1, limit) + 1;
             for (Map<String, Object> item : items) {
                 listings.add(SkillMarketListing.builder()

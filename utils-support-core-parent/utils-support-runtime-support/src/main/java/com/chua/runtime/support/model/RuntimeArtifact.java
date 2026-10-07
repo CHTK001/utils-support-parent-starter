@@ -1,5 +1,6 @@
 package com.chua.runtime.support.model;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.RuntimeType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,8 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -68,13 +67,13 @@ public class RuntimeArtifact {
     /**
      * 参数
     */
-    private List<String> args = new ArrayList<>();
+    private List<String> args = Wraps.list();
 
     /**
      * 环境变量
      */
     @Builder.Default
-    private Map<String, String> env = new LinkedHashMap<>(); // env
+    private Map<String, String> env = Wraps.linkedMap(); // env
 
     /**
      * 启动超时时间（毫秒），0 表示不超时

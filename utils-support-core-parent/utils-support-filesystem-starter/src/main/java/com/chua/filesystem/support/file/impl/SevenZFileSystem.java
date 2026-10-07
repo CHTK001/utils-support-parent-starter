@@ -1,5 +1,6 @@
 package com.chua.filesystem.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.FileSystem;
 import com.chua.common.support.file.builder.ReadBuilder;
 import com.chua.common.support.file.builder.WriteBuilder;
@@ -15,7 +16,6 @@ import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.compress.utils.MultiReadOnlySeekableByteChannel;
@@ -89,7 +89,7 @@ public class SevenZFileSystem implements FileSystem {
          * @return 分卷文件列表（按顺序排列）
          */
         private List<File> findSplitFiles() {
-            List<File> splitFiles = new ArrayList<>();
+            List<File> splitFiles = Wraps.list();
             File parentDir = file.getParentFile();
             if (parentDir == null || !parentDir.exists()) {
                 if (file.exists()) {
@@ -113,7 +113,7 @@ public class SevenZFileSystem implements FileSystem {
                     !name.equals(baseName));
 
             if (files != null) {
-                List<File> sortedFiles = new ArrayList<>();
+                List<File> sortedFiles = Wraps.list();
                 for (File f : files) {
                     String name = f.getName();
                     String ext = name.substring(prefix.length());
@@ -152,7 +152,7 @@ public class SevenZFileSystem implements FileSystem {
             }
 
  // 使用 multi读取onlyseekablebyte通道 合并分卷文件
-            List<SeekableByteChannel> channels = new ArrayList<>();
+            List<SeekableByteChannel> channels = Wraps.list();
             for (File f : splitFiles) {
                 channels.add(Files.newByteChannel(f.toPath(), StandardOpenOption.READ));
             }
@@ -167,7 +167,7 @@ public class SevenZFileSystem implements FileSystem {
          * @return 列表entries的结果
          */
         public List<String> listEntries() {
-            List<String> entries = new ArrayList<>();
+            List<String> entries = Wraps.list();
             try (SevenZFile szFile = openSevenZFile()) {
                 SevenZArchiveEntry entry;
                 while ((entry = szFile.getNextEntry()) != null) {
@@ -301,7 +301,7 @@ public class SevenZFileSystem implements FileSystem {
         /**
          * Entries
         */
-        private final List<EntryData> entries = new ArrayList<>();
+        private final List<EntryData> entries = Wraps.list();
 
         /**
          * 压缩方法（默认 LZMA2）

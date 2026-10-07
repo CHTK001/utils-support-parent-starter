@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.format;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -222,8 +223,8 @@ public class DdlFormatter extends SqlFormatter {
         // 3. 解析列定义部分
         //    将列定义和约束定义分开存储
         // );    列定义列表
-        List<String> columnDefs = new ArrayList<>();
-        List<String> constraintDefs = new ArrayList<>();
+        List<String> columnDefs = Wraps.list();
+        List<String> constraintDefs = Wraps.list();
         parseColumnDefinitions(columnsPart, columnDefs, constraintDefs);
 
         // 4. 构建格式化后的SQL

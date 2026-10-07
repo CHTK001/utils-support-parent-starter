@@ -1,8 +1,7 @@
 package com.chua.common.support.converter.definition;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,11 +26,11 @@ public class BooleanTypeConverter implements TypeConverter<Boolean> {
     /**
      * 识别为 true 的字符串集合
      */
-    private static final Set<String> TRUE_WORDS = new HashSet<>();
+    private static final Set<String> TRUE_WORDS = Wraps.set();
     /**
      * 识别为 false 的字符串集合
      */
-    private static final Set<String> FALSE_WORDS = new HashSet<>();
+    private static final Set<String> FALSE_WORDS = Wraps.set();
 
     static {
         TRUE_WORDS.add("true");

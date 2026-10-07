@@ -1,10 +1,9 @@
 package com.chua.common.support.network.cluster;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.scatter.ScatterSetting;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,19 +42,19 @@ public class ClusterSetting {
     /**
      * 集群种子节点（主机:端口 列表，引导无中心化发现）
     */
-    private List<String> seeds = new ArrayList<>();
+    private List<String> seeds = Wraps.list();
 
     /**
      * 本节点对外提供的服务路径（用于 scatter 路由前缀匹配）
     */
-    private List<String> servicePaths = new ArrayList<>();
+    private List<String> servicePaths = Wraps.list();
 
     /**
      * 显式声明的远端服务元数据列表。
      * <p>ClusterServer builder 在启动前填入，ClusterNode.start() 会将它们注册进 scatter 供对等扩散。</p>
      * <p>同一 servicePath 下只允许同一种协议，混用时 {@link ClusterManager#addServer} 会拒绝。</p>
      */
-    private List<ServerEntry> serverEntries = new ArrayList<>();
+    private List<ServerEntry> serverEntries = Wraps.list();
 
     /**
      * 本节点业务端口（HTTP 与 TCP 共用；0=自动分配）

@@ -33,11 +33,11 @@
         <aliyun.java.sdk.facebody.version>1.2.16</aliyun.java.sdk.facebody.version>
         <aliyun.java.sdk.ocr.version>1.0.26</aliyun.java.sdk.ocr.version>
         <aliyun.cas.sdk.version>3.7.2</aliyun.cas.sdk.version>
-        <aliyun.tea.openapi.version>0.3.12</aliyun.tea.openapi.version>
-        <aliyun.tea.util.version>0.2.26</aliyun.tea.util.version>
+        <aliyun.tea.openapi.version>0.3.17</aliyun.tea.openapi.version>
+        <aliyun.tea.util.version>0.2.28</aliyun.tea.util.version>
         <aliyun.endpoint.util.version>0.0.8</aliyun.endpoint.util.version>
         <aliyun.tea.version>1.4.2</aliyun.tea.version>
-        <aliyun.openapiutil.version>0.2.2</aliyun.openapiutil.version>
+        <aliyun.openapiutil.version>0.2.5</aliyun.openapiutil.version>
         <opencv.version>4.9.0-0</opencv.version>
         <!--
           bytedeco 全家桶必须同号：preset 版本末尾的 1.5.12 后缀，代表该组原生绑定是针对
@@ -55,9 +55,9 @@
           集中在此定义，便于个别模块覆盖。
         -->
         <enable.preview.jvm.args>--enable-preview</enable.preview.jvm.args>
-        <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
-        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-        <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+        <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
+        <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
+        <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
           <nitrite.version>4.4.3</nitrite.version>
           <!-- Lucene：全仓库统一版本，禁止下游硬编码。
                版本必须与 utils-support-lucene-starter 源码实际使用的 API 保持一致：
@@ -71,7 +71,7 @@
         <lombok.version>1.18.48</lombok.version>
         <lombok.maven.plugin.version>1.18.46</lombok.maven.plugin.version>
         
-        <maven.resolver.version>2.0.23</maven.resolver.version>
+        <maven.resolver.version>2.0.24</maven.resolver.version>
         <maven.resolver.transport.http.version>2.0.0-alpha-2</maven.resolver.transport.http.version>
         <maven.invoker.version>3.3.0</maven.invoker.version>
         <slf4j.version>2.0.20</slf4j.version>
@@ -86,7 +86,7 @@
         <loki4j.version>2.1.0</loki4j.version>
         <commons.compress.version>1.28.0</commons.compress.version>
         <tukaani.xz.version>1.12</tukaani.xz.version>
-        <zstd-jni.version>1.5.7-20</zstd-jni.version>
+        <zstd-jni.version>1.5.7-21</zstd-jni.version>
         <brotli.dec.version>0.1.2</brotli.dec.version>
         <json.path.version>2.10.0</json.path.version>
         <javassist.version>3.30.2-GA</javassist.version>
@@ -103,6 +103,14 @@
         <ojdbc.version>23.26.3.0.0</ojdbc.version>
         <reactor.core.version>3.8.7</reactor.core.version>
         <jsoup.version>1.17.2</jsoup.version>
+        <!--
+            Eclipse Collections 集合框架（org.eclipse.collections:eclipse-collections + -api）。
+            用途：common-starter 的 collection.wrap 包提供「集合分装对象 + 后端 SPI 切换」，
+            默认走 Eclipse 后端以降低内存（实测 100k 条 UnifiedSet 较 HashSet 省约 46%，
+            8 条目小集合 UnifiedMap 较 HashMap 省约 54%）；JDK 后端仅作 classpath 缺失兜底。
+            13.0.0 为当前最新 release（class 文件版本 61 / Java 17 目标，本仓 release=25 可直接加载）。
+        -->
+        <eclipse.collections.version>13.0.0</eclipse.collections.version>
         <spring.version>7.0.9</spring.version>
         <pmd.ruleset.path>${maven.multiModuleProjectDirectory}/pmd-ruleset.xml</pmd.ruleset.path>
         <!--
@@ -136,12 +144,12 @@
           Jackson 各模块必须同 minor 发布，datatype-jsr310 停在 2.19.0 会与 databind 2.21.4
           形成 databind 新 / datatype 旧的错配组合。两者现统一在 2.21.4。
         -->
-        <jackson.datatype.jsr310.version>2.21.4</jackson.datatype.jsr310.version>
+        <jackson.datatype.jsr310.version>2.22.3</jackson.datatype.jsr310.version>
         <vertx.version>5.2.0</vertx.version>
         <commons.fileupload2.version>2.0.0-M1</commons.fileupload2.version>
         <hikaricp.version>7.1.0</hikaricp.version>
         <jedis.version>6.0.0</jedis.version>
-        <redisson.version>4.7.0</redisson.version>
+        <redisson.version>4.8.0</redisson.version>
         <netty.all.version>4.2.18.Final</netty.all.version>
         <commons.net.version>3.12.0</commons.net.version>
         <dubbo.version>3.3.6</dubbo.version>
@@ -160,6 +168,7 @@
         <parquet.avro.version>1.18.1</parquet.avro.version>
         <cuvs.version>24.10.0</cuvs.version>
         <ollama4j.version>1.1.7</ollama4j.version>
+        <xk.time.version>3.2.4</xk.time.version>
     </properties>
     <dependencies>
         <dependency>
@@ -171,7 +180,9 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>24.1.0</version>
+            <!-- 2026-10-06 依赖升级：24.1.0 → 26.1.0（低风险跨 major，注解库仅编译期 provided，
+                 26.x 向后兼容 24.x 的 @NotNull/@Contract 等注解） -->
+            <version>26.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -181,6 +192,25 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    <!--
+      2026-10-06 依赖升级保留项说明（本次策略：同 major 全量升级 + 仅低风险跨 major 升级，
+      已升的跨 major 项均在对应条目附变更理由注释）。以下高风险跨 major 项经评估保留原版本不升：
+        - org.testcontainers → 2：2.x 重构初始化与模块 API
+        - redis.clients:jedis → 8：客户端与连接池 API 大改（现 6.0.0）
+        - com.github.oshi:oshi-core → 7、org.neo4j.driver → 6、influxdb 客户端 → 8：驱动 API 不兼容
+        - io.minio → 9、io.milvus → 3、org.questdb → 10：SDK 主版本 API 变更
+        - cn.idev.excel:fastexcel → 1.3、com.github.junrar → 8、com.jayway.jsonpath:json-path → 3、
+          com.maxmind.geoip2 → 5：库 API/坐标变更
+        - com.squareup.okhttp3:okhttp → 5：Kotlin 重写、API 不兼容
+        - org.apache.sshd → 3-M6：3.x 未 GA 且 API 大改（现 2.20.0）
+        - chronicle-queue → 2026 版本节奏、配置格式变化
+        - schemacrawler → 17、org.jline:jline → 4、org.graalvm.js：主版本 API/发布方式变化
+        - mica-net-http → 2、aliyun-java-sdk-facebody → 2、volcengine ark → 2：SDK 主版本 API 变更
+        - javax JAXB（javax.xml.bind:jaxb-api）→ jakarta 坐标迁移：高风险，涉及下游依赖方
+        - org.apache.tomcat.embed → 11：Servlet 容器主版本与下游兼容性（现 10.1.40）
+        - lucene 8.11.x、bytedeco 全家桶、org.openpnp:opencv：与源码 API/原生绑定强耦合，永久钉版
+          （见各属性处既有注释）
+    -->
     <dependencyManagement>
         <dependencies>
             
@@ -229,7 +259,8 @@
             <dependency>
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
-                <version>24.1.0</version>
+                <!-- 2026-10-06 依赖升级：24.1.0 → 26.1.0（低风险跨 major，注解库 provided 仅编译期） -->
+                <version>26.1.0</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -395,17 +426,17 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-xml</artifactId>
-                <version>2.19.0</version>
+                <version>2.22.3</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-toml</artifactId>
-                <version>2.19.0</version>
+                <version>2.22.3</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-smile</artifactId>
-                <version>2.19.0</version>
+                <version>2.22.3</version>
             </dependency>
             <dependency>
                 <groupId>com.github.junrar</groupId>
@@ -430,7 +461,17 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>33.7.1-jre</version>
+                <version>33.7.2-jre</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.collections</groupId>
+                <artifactId>eclipse-collections-api</artifactId>
+                <version>${eclipse.collections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.collections</groupId>
+                <artifactId>eclipse-collections</artifactId>
+                <version>${eclipse.collections.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.xerial</groupId>
@@ -445,7 +486,7 @@
             <dependency>
                 <groupId>tech.tablesaw</groupId>
                 <artifactId>tablesaw-core</artifactId>
-                <version>0.43.1</version>
+                <version>0.44.4</version>
             </dependency>
             <dependency>
                 <groupId>org.jsoup</groupId>
@@ -650,7 +691,10 @@
             <dependency>
                 <groupId>com.mysql</groupId>
                 <artifactId>mysql-connector-j</artifactId>
-                <version>9.7.0</version>
+                <!-- 2026-10-06 依赖升级：9.7.0 → 26.7.0（低风险跨 major，MySQL 官方版本号按年份
+                     跳进，JDBC API 不变）。仅 utils parent dm 生效；job-starter 生产钉版 9.7.0、
+                     monitor/test-app 8.0.33、mysql:mysql-connector-java 老 GAV 均保留不动。 -->
+                <version>26.7.0</version>
             </dependency>
             <dependency>
                 <groupId>com.github.luben</groupId>
@@ -690,12 +734,12 @@
             <dependency>
                 <groupId>org.seleniumhq.selenium</groupId>
                 <artifactId>selenium-java</artifactId>
-                <version>4.49.0</version>
+                <version>4.50.0</version>
             </dependency>
             <dependency>
                 <groupId>org.seleniumhq.selenium</groupId>
                 <artifactId>selenium-chrome-driver</artifactId>
-                <version>4.49.0</version>
+                <version>4.50.0</version>
             </dependency>
             <dependency>
                 <groupId>com.assertthat</groupId>
@@ -720,7 +764,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.20.0</version>
+                <version>3.21.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -882,30 +926,32 @@
                 <artifactId>lz4-java</artifactId>
                 <version>1.12.0</version>
             </dependency>
+            <!-- 2026-10-06 依赖升级：org.openjfx javafx-* 5 个坐标 25.0.1 → 27（低风险跨 major，
+                 OpenJFX 版本号随 JDK 年份跳进，JavaFX API 稳定；5 个坐标必须同号） -->
             <dependency>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-controls</artifactId>
-                <version>25.0.1</version>
+                <version>27</version>
             </dependency>
             <dependency>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-graphics</artifactId>
-                <version>25.0.1</version>
+                <version>27</version>
             </dependency>
             <dependency>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-fxml</artifactId>
-                <version>25.0.1</version>
+                <version>27</version>
             </dependency>
             <dependency>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-swing</artifactId>
-                <version>25.0.1</version>
+                <version>27</version>
             </dependency>
             <dependency>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-web</artifactId>
-                <version>25.0.1</version>
+                <version>27</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jgit</groupId>
@@ -958,6 +1004,11 @@
                 <version>0.13</version>
             </dependency>
             <dependency>
+                <groupId>com.github.xkzhangsan</groupId>
+                <artifactId>xk-time</artifactId>
+                <version>${xk.time.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.immutables</groupId>
                 <artifactId>value</artifactId>
                 <version>2.12.2</version>
@@ -980,7 +1031,7 @@
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-core</artifactId>
-                <version>7.4.11.Final</version>
+                <version>7.4.12.Final</version>
             </dependency>
             <dependency>
                 <groupId>net.bytebuddy</groupId>
@@ -995,12 +1046,19 @@
             <dependency>
                 <groupId>org.apache.shardingsphere</groupId>
                 <artifactId>shardingsphere-jdbc</artifactId>
+                <!-- 2026-10-06 曾升至 5.5.3（同 major），编译验证失败后回退：5.5.3 的
+                     shardingsphere-jdbc POM 将 shardingsphere-sharding-core 降为 test scope
+                     （5.5.2 为 compile），shardingv5-starter 源码使用的
+                     org.apache.shardingsphere.sharding.api.* / sharding.spi.* 不再进入编译
+                     classpath，故保留 5.5.2。 -->
                 <version>5.5.2</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-data-mongodb</artifactId>
-                <version>3.5.3</version>
+                <!-- 2026-10-06 依赖升级：3.5.3 → 4.1.1（低风险跨 major，Spring Boot 4 主线，
+                     starter 仅追加依赖与自动配置，跟进本仓 spring.boot.version 4.x 的大版本对齐） -->
+                <version>4.1.1</version>
             </dependency>
             <dependency>
                 <groupId>io.vertx</groupId>
@@ -1040,7 +1098,7 @@
             <dependency>
                 <groupId>com.esotericsoftware</groupId>
                 <artifactId>kryo</artifactId>
-                <version>5.6.2</version>
+                <version>5.7.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.fury</groupId>
@@ -1050,7 +1108,7 @@
             <dependency>
                 <groupId>org.apache.fory</groupId>
                 <artifactId>fory-json</artifactId>
-                <version>1.7.5</version>
+                <version>1.7.6</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -1225,17 +1283,17 @@
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>google-cloud-storage</artifactId>
-                <version>2.74.0</version>
+                <version>2.75.0</version>
             </dependency>
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>google-cloud-vision</artifactId>
-                <version>3.96.0</version>
+                <version>3.97.0</version>
             </dependency>
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>google-cloud-aiplatform</artifactId>
-                <version>3.99.0</version>
+                <version>3.100.0</version>
             </dependency>
             <dependency>
                 <groupId>com.googlecode.aviator</groupId>
@@ -1245,7 +1303,7 @@
             <dependency>
                 <groupId>com.itextpdf</groupId>
                 <artifactId>font-asian</artifactId>
-                <version>9.7.1</version>
+                <version>9.8.0</version>
             </dependency>
             <dependency>
                 <groupId>com.knuddels</groupId>
@@ -1295,22 +1353,22 @@
             <dependency>
                 <groupId>com.openai</groupId>
                 <artifactId>openai-java</artifactId>
-                <version>4.70.0</version>
+                <version>4.76.0</version>
             </dependency>
             <dependency>
                 <groupId>com.openai</groupId>
                 <artifactId>openai-java-core</artifactId>
-                <version>4.70.0</version>
+                <version>4.76.0</version>
             </dependency>
             <dependency>
                 <groupId>com.openai</groupId>
                 <artifactId>openai-java-client-okhttp</artifactId>
-                <version>4.70.0</version>
+                <version>4.76.0</version>
             </dependency>
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp-sse</artifactId>
-                <version>5.0.0-alpha.16</version>
+                <version>5.0.0-alpha.17</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.mail</groupId>
@@ -1370,7 +1428,7 @@
             <dependency>
                 <groupId>io.etcd</groupId>
                 <artifactId>jetcd-core</artifactId>
-                <version>0.8.5</version>
+                <version>0.8.7</version>
             </dependency>
             <dependency>
                 <groupId>io.github.karlatemp</groupId>
@@ -1436,7 +1494,7 @@
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.14.4</version>
+                <version>2.15.0</version>
             </dependency>
             <dependency>
                 <groupId>net.dreamlu</groupId>
@@ -1532,7 +1590,7 @@
             <dependency>
                 <groupId>org.commonmark</groupId>
                 <artifactId>commonmark</artifactId>
-                <version>0.24.0</version>
+                <version>0.30.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty.websocket</groupId>
@@ -1592,7 +1650,7 @@
             <dependency>
                 <groupId>org.xerial.snappy</groupId>
                 <artifactId>snappy-java</artifactId>
-                <version>1.1.10.8</version>
+                <version>1.1.10.11</version>
             </dependency>
             <dependency>
                 <groupId>com.hazelcast</groupId>
@@ -1672,7 +1730,7 @@
             <dependency>
                 <groupId>com.meilisearch.sdk</groupId>
                 <artifactId>meilisearch-java</artifactId>
-                <version>0.11.3</version>
+                <version>0.21.0</version>
             </dependency>
             <dependency>
                 <groupId>mysql</groupId>
@@ -1807,17 +1865,17 @@
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-core</artifactId>
-                <version>4.0.0-rc-5</version>
+                <version>4.0.0-rc-7</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-model</artifactId>
-                <version>4.0.0-rc-5</version>
+                <version>4.0.0-rc-7</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-settings</artifactId>
-                <version>4.0.0-rc-5</version>
+                <version>4.0.0-rc-7</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.lucene</groupId>
@@ -1840,7 +1898,7 @@
             <dependency>
                 <groupId>com.linecorp.armeria</groupId>
                 <artifactId>armeria</artifactId>
-                <version>1.41.1</version>
+                <version>1.42.0</version>
             </dependency>
             <dependency>
                 <groupId>io.rsocket</groupId>
@@ -1895,7 +1953,7 @@
             <dependency>
                 <groupId>com.rabbitmq</groupId>
                 <artifactId>amqp-client</artifactId>
-                <version>5.36.0</version>
+                <version>5.37.0</version>
             </dependency>
 
             <dependency>
@@ -2141,12 +2199,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.3.1</version>
+                    <version>3.4.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.11.2</version>
+                    <version>3.12.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -2171,7 +2229,9 @@
                 <plugin>
                     <groupId>org.sonarsource.scanner.maven</groupId>
                     <artifactId>sonar-maven-plugin</artifactId>
-                    <version>3.11.0.3922</version>
+                    <!-- 2026-10-06 依赖升级：3.11.0.3922 → 5.8.0.7211（低风险跨 major，构建期
+                     插件仅用于 sonar:sonar 扫描，不参与编译与产物） -->
+                    <version>5.8.0.7211</version>
                 </plugin>
                 <plugin>
                     <groupId>org.projectlombok</groupId>
@@ -2194,16 +2254,18 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.5.0</version>
+                    <version>3.6.3</version>
                     <configuration>
                         <skip>true</skip>
                     </configuration>
                 </plugin>
-                <!-- OWASP 依赖安全扫描 -->
+                <!-- OWASP 依赖安全扫描
+                     2026-10-06 依赖升级：12.1.3 → 13.0.0（低风险跨 major，构建期扫描插件且
+                     <skip>true</skip> 默认跳过，不参与编译与产物） -->
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>12.1.3</version>
+                    <version>13.0.0</version>
                     <configuration>
                         <skip>true</skip>
                         <format>ALL</format>
@@ -2215,7 +2277,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.13</version>
+                    <version>0.8.15</version>
                     <configuration>
                     </configuration>
                     <executions>
@@ -2284,7 +2346,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-pmd-plugin</artifactId>
-                    <version>3.20.0</version>
+                    <version>3.28.0</version>
                     <dependencies>
                         <dependency>
                             <groupId>com.alibaba.p3c</groupId>

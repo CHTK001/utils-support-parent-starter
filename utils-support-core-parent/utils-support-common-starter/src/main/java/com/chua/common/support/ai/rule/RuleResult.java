@@ -1,9 +1,7 @@
 package com.chua.common.support.ai.rule;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,6 +29,7 @@ import java.util.Optional;
  * @param matched 条件成立但没有动作的规则名
  * @param target  实际跟随到的下一条规则标识，可为 null
  * @param halted 是否因命中 {@link RuleEffect#HALT} 提前中断
+ * @param messages 命中规则的拦截原因，key 为规则标识
  * @param vars   冻结后的全部变量，含规则声明、决策展平、规则中间结果
  * @author CH
  * @since 4.0.0.42
@@ -40,6 +39,7 @@ public record RuleResult(RuleEffect effect,
                          List<String> matched,
                          String target,
                          boolean halted,
+                         Map<String, String> messages,
                          Map<String, Object> vars) {
 
     /**
@@ -51,8 +51,10 @@ public record RuleResult(RuleEffect effect,
         Objects.requireNonNull(effect, "effect 不能为 null");
         fired = List.copyOf(Objects.requireNonNull(fired, "fired 不能为 null"));
         matched = List.copyOf(Objects.requireNonNull(matched, "matched 不能为 null"));
+        messages = Collections.unmodifiableMap(
+                Wraps.linkedMap(Objects.requireNonNull(messages, "messages 不能为 null")));
         vars = Collections.unmodifiableMap(
-                new LinkedHashMap<>(Objects.requireNonNull(vars, "vars 不能为 null")));
+                Wraps.linkedMap(Objects.requireNonNull(vars, "vars 不能为 null")));
     }
 
     /**
@@ -61,7 +63,7 @@ public record RuleResult(RuleEffect effect,
      * @return 不可变规则名列表
      */
     public List<String> hitNames() {
-        List<String> all = new ArrayList<>(fired);
+        List<String> all = Wraps.list(fired);
         for (String name : matched) {
             if (!all.contains(name)) {
                 all.add(name);
@@ -78,6 +80,16 @@ public record RuleResult(RuleEffect effect,
      */
     public Optional<Object> value(String name) {
         return Optional.ofNullable(vars.get(name));
+    }
+
+    /**
+     * 取某条命中规则的拦截原因。
+     *
+     * @param ruleId 规则标识
+     * @return 拦截原因；该规则未声明或未命中时返回 {@link Optional#empty()}
+     */
+    public Optional<String> message(String ruleId) {
+        return Optional.ofNullable(messages.get(ruleId));
     }
 
     /**

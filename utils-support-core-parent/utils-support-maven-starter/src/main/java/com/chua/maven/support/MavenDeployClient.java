@@ -1,11 +1,11 @@
 package com.chua.maven.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -145,7 +145,7 @@ public class MavenDeployClient {
             throw new MavenDeployException("部署目标连接失败: " + target.name(), e);
         }
 
-        List<String> deployed = new ArrayList<>();
+        List<String> deployed = Wraps.list();
         try {
             List<String> artifacts = result.getArtifacts();
             int count = artifacts.size();

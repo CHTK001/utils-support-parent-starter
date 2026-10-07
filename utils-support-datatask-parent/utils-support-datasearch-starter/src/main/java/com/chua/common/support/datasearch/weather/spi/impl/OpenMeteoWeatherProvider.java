@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.weather.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.weather.model.DailyForecast;
 import com.chua.common.support.datasearch.weather.model.HourlyWeather;
 import com.chua.common.support.datasearch.weather.model.WeatherInfo;
@@ -10,8 +11,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -248,7 +247,7 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
      * @return 逐小时列表
      */
     private List<HourlyWeather> parseHourly(JsonNode hourlyNode) {
-        List<HourlyWeather> result = new ArrayList<>();
+        List<HourlyWeather> result = Wraps.list();
         JsonNode times = hourlyNode.path("time");
         if (!times.isArray()) {
             return result;
@@ -277,7 +276,7 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
      * @return 逐日预报列表
      */
     private List<DailyForecast> parseDaily(JsonNode dailyNode) {
-        List<DailyForecast> result = new ArrayList<>();
+        List<DailyForecast> result = Wraps.list();
         JsonNode dates = dailyNode.path("time");
         if (!dates.isArray()) {
             return result;
@@ -312,14 +311,14 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
         if (forecast.isEmpty() || hourly.isEmpty()) {
             return;
         }
-        Map<String, List<HourlyWeather>> byDay = new LinkedHashMap<>();
+        Map<String, List<HourlyWeather>> byDay = Wraps.linkedMap();
         for (HourlyWeather hw : hourly) {
             String time = hw.getTime();
             String day = time != null && time.length() >= 10 ? time.substring(0, 10) : time;
-            byDay.computeIfAbsent(day, k -> new ArrayList<>()).add(hw);
+            byDay.computeIfAbsent(day, k -> Wraps.list()).add(hw);
         }
         for (DailyForecast day : forecast) {
-            day.setHourly(byDay.getOrDefault(day.getDate(), new ArrayList<>()));
+            day.setHourly(byDay.getOrDefault(day.getDate(), Wraps.list()));
         }
     }
 

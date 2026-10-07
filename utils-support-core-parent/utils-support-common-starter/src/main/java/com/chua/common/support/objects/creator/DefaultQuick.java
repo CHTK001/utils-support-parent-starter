@@ -1,5 +1,6 @@
 package com.chua.common.support.objects.creator;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.collection.SortedArrayList;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.compile.Compiler;
@@ -32,16 +33,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -90,12 +86,12 @@ public class DefaultQuick implements Quick {
     /**
      * 导入的包路径集合
      */
-    private final Set<String> importPackages = new LinkedHashSet<>();
+    private final Set<String> importPackages = Wraps.linkedSet();
 
     /**
      * 常量绑定（不可变）
      */
-    private final Map<String, Object> constants = new LinkedHashMap<>();
+    private final Map<String, Object> constants = Wraps.linkedMap();
 
     /**
      * 变量绑定（可变）
@@ -690,7 +686,7 @@ public class DefaultQuick implements Quick {
      * @return 绑定变量 映射
      */
     private Map<String, Object> bindings() {
-        Map<String, Object> result = new LinkedHashMap<>(constants);
+        Map<String, Object> result = Wraps.linkedMap(constants);
         result.putAll(variables);
         return result;
     }
@@ -818,14 +814,14 @@ public class DefaultQuick implements Quick {
      * @return Map 结构
      */
     private Map<String, Object> elementToMap(Element element) {
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
         NamedNodeMap attributes = element.getAttributes();
         for (int i = 0; i < attributes.getLength(); i++) {
             Node attr = attributes.item(i);
             result.put(attr.getNodeName(), attr.getNodeValue());
         }
         NodeList children = element.getChildNodes();
-        Map<String, List<Object>> grouped = new LinkedHashMap<>();
+        Map<String, List<Object>> grouped = Wraps.linkedMap();
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
             if (child.getNodeType() == Node.ELEMENT_NODE) {
@@ -836,7 +832,7 @@ public class DefaultQuick implements Quick {
                 } else {
                     value = elementToMap(childElement);
                 }
-                grouped.computeIfAbsent(childElement.getTagName(), k -> new ArrayList<>()).add(value);
+                grouped.computeIfAbsent(childElement.getTagName(), k -> Wraps.list()).add(value);
             }
         }
         for (Map.Entry<String, List<Object>> entry : grouped.entrySet()) {
@@ -880,7 +876,7 @@ public class DefaultQuick implements Quick {
         /**
          * 中间存储（保持插入顺序）
          */
-        private final Map<K, V> values = new LinkedHashMap<>();
+        private final Map<K, V> values = Wraps.linkedMap();
 
         /**
          * 目标实现类型
@@ -913,10 +909,10 @@ public class DefaultQuick implements Quick {
         @Override
         public Map<K, V> build() {
             return switch (type) {
-                case "linked" -> new LinkedHashMap<>(values);
-                case "tree" -> new TreeMap<>(values);
+                case "linked" -> Wraps.linkedMap(values);
+                case "tree" -> Wraps.sortedMap(values);
                 case "concurrent" -> new ConcurrentHashMap<>(values);
-                default -> new LinkedHashMap<>(values);
+                default -> Wraps.linkedMap(values);
             };
         }
     }
@@ -933,7 +929,7 @@ public class DefaultQuick implements Quick {
         /**
          * 中间存储
          */
-        private final List<E> values = new ArrayList<>();
+        private final List<E> values = Wraps.list();
 
         /**
          * 目标实现类型
@@ -966,14 +962,14 @@ public class DefaultQuick implements Quick {
         @Override
         public List<E> build() {
             return switch (type) {
-                case "linked" -> new LinkedList<>(values);
+                case "linked" -> Wraps.list(values);
                 case "sorted" -> {
                     SortedArrayList<E> sorted = new SortedArrayList<>((Comparator<? super E>) Comparator.naturalOrder());
                     sorted.addAll(values);
                     yield sorted;
                 }
                 case "sync" -> new CopyOnWriteArrayList<>(values);
-                default -> new ArrayList<>(values);
+                default -> Wraps.list(values);
             };
         }
     }

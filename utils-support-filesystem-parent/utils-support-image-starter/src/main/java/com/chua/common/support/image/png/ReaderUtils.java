@@ -1,9 +1,9 @@
 package com.chua.common.support.image.png;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -209,7 +209,7 @@ final class ReaderUtils {
         } else {
             int bytesToRead = length;
             int bytesRead = 0;
-            List<byte[]> bufs = new ArrayList<>();
+            List<byte[]> bufs = Wraps.list();
             while (bytesToRead != 0) {
                 int sz = Math.min(bytesToRead, UNIT_SIZE);
                 byte[] unit = new byte[sz];

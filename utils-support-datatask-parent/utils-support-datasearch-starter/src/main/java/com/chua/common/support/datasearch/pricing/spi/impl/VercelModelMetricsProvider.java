@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.pricing.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.datasearch.pricing.spi.AbstractModelMetricsProvider;
 import com.chua.common.support.spi.annotations.Spi;
@@ -7,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -100,18 +100,18 @@ public class VercelModelMetricsProvider extends AbstractModelMetricsProvider {
         String flight = decodeFlightPayload(html);
         int key = flight.indexOf(MODELS_ANCHOR);
         if (key < 0) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
         int start = flight.indexOf('[', key);
         int end = findArrayEnd(flight, start);
         if (end < 0) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
         JsonNode root = MAPPER.readTree(flight.substring(start, end + 1));
         if (!root.isArray()) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
-        List<ModelDefinition> result = new ArrayList<>(root.size());
+        List<ModelDefinition> result = Wraps.list(root.size());
         for (JsonNode item : root) {
             ModelDefinition md = toModelDefinition(item);
             if (md != null) {
@@ -255,7 +255,7 @@ public class VercelModelMetricsProvider extends AbstractModelMetricsProvider {
         boolean webSearch = hasTag(tags, "web-search");
         boolean jsonMode = hasTag(tags, "structured-output");
 
-        List<String> capabilities = new ArrayList<>(6);
+        List<String> capabilities = Wraps.list(6);
         capabilities.add("chat");
         if (reasoning) {
             capabilities.add("reasoning");

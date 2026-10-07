@@ -1,5 +1,6 @@
 package com.chua.postgresql.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
@@ -23,9 +24,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -286,7 +285,7 @@ public class PostgresqlMetaData extends JdbcMetaData {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             bind(ps, args);
             try (ResultSet rs = ps.executeQuery()) {
-                List<T> rows = new ArrayList<>();
+                List<T> rows = Wraps.list();
                 while (rs.next()) {
                     rows.add(mapper.map(rs));
                 }
@@ -351,7 +350,7 @@ public class PostgresqlMetaData extends JdbcMetaData {
         try (Connection conn = connection(metaData);
              PreparedStatement ps = callable ? conn.prepareCall(sql) : conn.prepareStatement(sql)) {
             bind(ps, args);
-            List<Map<String, Object>> rows = new ArrayList<>();
+            List<Map<String, Object>> rows = Wraps.list();
             if (ps.execute()) {
                 try (ResultSet rs = ps.getResultSet()) {
                     while (rs.next()) {
@@ -396,7 +395,7 @@ public class PostgresqlMetaData extends JdbcMetaData {
     private static Map<String, Object> rowOf(ResultSet rs) throws SQLException {
         ResultSetMetaData md = rs.getMetaData();
         int columns = md.getColumnCount();
-        Map<String, Object> row = new LinkedHashMap<>();
+        Map<String, Object> row = Wraps.linkedMap();
         for (int i = 1; i <= columns; i++) {
             String label = md.getColumnLabel(i);
             row.put(label == null ? ("COL_" + i) : label, rs.getObject(i));
@@ -535,6 +534,6 @@ public class PostgresqlMetaData extends JdbcMetaData {
      * @return 可变参数列表
      */
     static List<Object> args(Object... args) {
-        return args == null ? new ArrayList<>() : new ArrayList<>(Arrays.asList(args));
+        return args == null ? Wraps.list() : Wraps.list(Arrays.asList(args));
     }
 }

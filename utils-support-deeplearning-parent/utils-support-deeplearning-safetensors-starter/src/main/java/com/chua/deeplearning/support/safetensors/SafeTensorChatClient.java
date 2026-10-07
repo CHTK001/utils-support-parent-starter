@@ -1,12 +1,11 @@
 package com.chua.deeplearning.support.safetensors;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.deeplearning.support.ai.client.AbstractLocalChatClient;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -60,7 +59,7 @@ final class SafeTensorModels {
      * @return 模型定义列表
      */
     static List<ModelDefinition> ofType(String... types) {
-        List<ModelDefinition> result = new ArrayList<>();
+        List<ModelDefinition> result = Wraps.list();
         for (SafeTensorModelRegistry.ModelEntry entry : SafeTensorModelRegistry.allModels()) {
             for (String type : types) {
                 if (type.equals(entry.type())) {

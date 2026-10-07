@@ -1,9 +1,8 @@
 package com.chua.common.support.datasearch.network.proxy;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,7 +34,7 @@ public class GetFreeProxyFetcher implements ProxyFetcher {
      * 获取代理
     */
     public List<String> fetchProxies() {
-        List<String> proxies = new ArrayList<>();
+        List<String> proxies = Wraps.list();
         try {
             String html = HttpClientFactory.of(URL).get().getBodyString();
             Matcher matcher = PATTERN.matcher(html);

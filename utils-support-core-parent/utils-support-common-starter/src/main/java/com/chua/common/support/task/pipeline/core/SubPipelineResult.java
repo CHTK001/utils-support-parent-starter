@@ -1,5 +1,6 @@
 package com.chua.common.support.task.pipeline.core;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.*;
 
 /**
@@ -76,7 +77,7 @@ public class SubPipelineResult {
     public SubPipelineResult(String nodeId, Object output, List<String> history, String pipelineId) {
         this.nodeId = nodeId;
         this.output = output;
-        this.history = history != null ? new ArrayList<>(history) : new ArrayList<>();
+        this.history = history != null ? Wraps.list(history) : Wraps.list();
         this.pipelineId = pipelineId;
     }
 

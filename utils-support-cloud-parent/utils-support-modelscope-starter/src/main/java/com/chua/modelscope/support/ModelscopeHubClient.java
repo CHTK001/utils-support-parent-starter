@@ -1,5 +1,6 @@
 package com.chua.modelscope.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.client.HttpClientFactory;
@@ -12,7 +13,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -85,7 +85,7 @@ public class ModelscopeHubClient {
             Map<String, Object> root = Json.fromJson(resp.getBodyString(), Map.class);
             Object data = root.get("data");
             if (data instanceof List<?> list) {
-                List<String> result = new ArrayList<>(list.size());
+                List<String> result = Wraps.list(list.size());
                 for (Object item : list) {
                     if (item instanceof Map<?, ?> map && map.get("Path") != null) {
                         result.add(map.get("Path").toString());
@@ -152,7 +152,7 @@ public class ModelscopeHubClient {
         String repoName = repoId.contains("/") ? repoId.substring(repoId.indexOf('/') + 1) : repoId;
         Path target = localDir.resolve(repoName);
         String authUrl = buildAuthenticatedGitUrl(repoId);
-        List<String> cmd = new ArrayList<>();
+        List<String> cmd = Wraps.list();
         cmd.add("git");
         cmd.add("clone");
         cmd.add(authUrl);
@@ -178,7 +178,7 @@ public class ModelscopeHubClient {
             throw new IllegalArgumentException("本地路径不是 git 仓库（缺少 .git 目录）: " + localRepoPath);
         }
         String authUrl = buildAuthenticatedGitUrl(repoId);
-        List<String> setUrl = new ArrayList<>();
+        List<String> setUrl = Wraps.list();
         setUrl.add("git");
         setUrl.add("remote");
         setUrl.add("set-url");
@@ -187,7 +187,7 @@ public class ModelscopeHubClient {
         if (exec(setUrl, localRepoPath) != 0) {
             throw new RuntimeException("git remote set-url 失败: " + repoId);
         }
-        List<String> push = new ArrayList<>();
+        List<String> push = Wraps.list();
         push.add("git");
         push.add("push");
         push.add("origin");

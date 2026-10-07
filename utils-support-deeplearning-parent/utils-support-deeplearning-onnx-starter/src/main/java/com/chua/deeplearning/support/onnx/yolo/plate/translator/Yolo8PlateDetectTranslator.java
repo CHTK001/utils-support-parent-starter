@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.yolo.plate.translator;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -14,8 +15,6 @@ import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.utils.NMSUtils;
 import com.chua.deeplearning.support.utils.LetterBoxUtils;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Map;
 
 
@@ -182,7 +181,7 @@ public class Yolo8PlateDetectTranslator implements Translator<Image, DetectedObj
         preds = preds.get(confMask);
 
         if (preds.isEmpty()) {
-            return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+            return new DetectedObjects(Wraps.list(), Wraps.list(), Wraps.list());
         }
 
         // box (xywh)             xyxy
@@ -208,9 +207,9 @@ public class Yolo8PlateDetectTranslator implements Translator<Image, DetectedObj
         }
         var restored = LetterBoxUtils.restoreBox(kept, letterBoxResult.r, letterBoxResult.left, letterBoxResult.top, 5, 0);
 
-        var classNames = new ArrayList<String>();
-        var probabilities = new ArrayList<Double>();
-        var boundingBoxes = new ArrayList<BoundingBox>();
+        var classNames = Wraps.<String>list();
+        var probabilities = Wraps.<Double>list();
+        var boundingBoxes = Wraps.<BoundingBox>list();
 
         float[] flatData = restored.toFloatArray();
         long[] shape = restored.getShape().getShape();

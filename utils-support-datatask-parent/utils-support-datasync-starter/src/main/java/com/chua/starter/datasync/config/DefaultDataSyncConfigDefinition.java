@@ -1,5 +1,6 @@
 package com.chua.starter.datasync.config;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.starter.datasync.mapping.DataSyncFieldMapping;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -100,7 +101,7 @@ public record DefaultDataSyncConfigDefinition(
      * @param params 参数映射
      */
     public DefaultDataSyncConfigDefinition {
-        mappings = mappings == null ? null : Collections.unmodifiableList(new ArrayList<>(mappings));
-        params = params == null ? null : Collections.unmodifiableMap(new LinkedHashMap<>(params));
+        mappings = mappings == null ? null : Collections.unmodifiableList(Wraps.list(mappings));
+        params = params == null ? null : Collections.unmodifiableMap(Wraps.linkedMap(params));
     }
 }

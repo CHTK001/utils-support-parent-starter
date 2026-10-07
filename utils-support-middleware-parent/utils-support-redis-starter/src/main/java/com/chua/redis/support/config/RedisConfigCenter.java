@@ -1,5 +1,6 @@
 package com.chua.redis.support.config;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.config.center.AbstractConfigCenter;
 import com.chua.common.support.config.center.ConfigCenterSetting;
 import com.chua.common.support.spi.annotations.Spi;
@@ -16,7 +17,6 @@ import redis.clients.jedis.exceptions.JedisException;
 
 import java.io.StringReader;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -302,7 +302,7 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     @SuppressWarnings("unchecked")
     private Map<String, Object> parseJsonContent(String content) {
         try {
-            Map<String, Object> result = new HashMap<>();
+            Map<String, Object> result = Wraps.map();
 
             // 简单 JSON 对象解析
             if (content.trim().startsWith("{") && content.trim().endsWith("}")) {
@@ -333,7 +333,7 @@ public class RedisConfigCenter extends AbstractConfigCenter {
      * @return 键值映射
      */
     private Map<String, Object> parsePropertiesContent(String content) {
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = Wraps.map();
         Properties properties = new Properties();
 
         try {

@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.paddle.nlp;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.Model;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
@@ -12,8 +13,6 @@ import ai.djl.util.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +28,7 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
     /**
      * 词表。
      */
-    private final Map<String, Long> word2Id = new HashMap<>();
+    private final Map<String, Long> word2Id = Wraps.map();
 
     /**
      * unk。
@@ -103,7 +102,7 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
      * @return 转为标识的结果
      */
     private NDArray toIds(NDManager manager, String[] tokens, String name) {
-        List<Long> ids = new ArrayList<>();
+        List<Long> ids = Wraps.list();
         if (tokens != null) {
             for (String token : tokens) {
                 ids.add(word2Id.getOrDefault(token, unkId));

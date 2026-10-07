@@ -1,5 +1,6 @@
 package com.chua.redis.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.meta.SearchFieldBuilder;
 import com.chua.common.support.lang.datasource.meta.SearchIndexCreateBuilder;
 import com.chua.common.support.lang.datasource.meta.model.SearchFieldDef;
@@ -8,9 +9,6 @@ import com.chua.datasource.support.meta.AbstractMetaData;
 import com.chua.datasource.support.meta.AbstractMetaSearch;
 import com.chua.redis.support.engine.RediSearchEngine;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -62,7 +60,7 @@ public class RedisSearchMeta extends AbstractMetaSearch {
     */
     public List<SearchIndexDef> list() {
         List<String> indexNames = searchEngine.listIndexes();
-        List<SearchIndexDef> result = new ArrayList<>();
+        List<SearchIndexDef> result = Wraps.list();
         for (String name : indexNames) {
             SearchIndexDef def = searchEngine.getIndex(name);
             if (def != null) {
@@ -142,15 +140,15 @@ public class RedisSearchMeta extends AbstractMetaSearch {
         /**
          * 字段
         */
-        private final List<SearchFieldDef> fields = new ArrayList<>();
+        private final List<SearchFieldDef> fields = Wraps.list();
         /**
          * settings
         */
-        private final Map<String, Object> settings = new LinkedHashMap<>();
+        private final Map<String, Object> settings = Wraps.linkedMap();
         /**
          * FT.CREATE 无法落实、已在 execute() 中统一告警的选项
          */
-        private final List<String> unsupported = new ArrayList<>();
+        private final List<String> unsupported = Wraps.list();
         /**
          * Shards
         */
@@ -295,8 +293,8 @@ public class RedisSearchMeta extends AbstractMetaSearch {
             def.setName(indexName);
             def.setShards(shards);
             def.setReplicas(replicas);
-            def.setFields(new ArrayList<>(fields));
-            def.setSettings(new LinkedHashMap<>(settings));
+            def.setFields(Wraps.list(fields));
+            def.setSettings(Wraps.linkedMap(settings));
             searchEngine.createIndex(def);
             return def;
         }
@@ -307,7 +305,7 @@ public class RedisSearchMeta extends AbstractMetaSearch {
         /**
          * FT.CREATE 未落实的字段级选项，由外层构建器汇总告警
          */
-        private final List<String> unsupported = new ArrayList<>();
+        private final List<String> unsupported = Wraps.list();
         /**
          * 权重
         */

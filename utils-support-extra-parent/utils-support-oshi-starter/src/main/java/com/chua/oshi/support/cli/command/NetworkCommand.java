@@ -1,11 +1,10 @@
 package com.chua.oshi.support.cli.command;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.CommandLine;
 import com.chua.oshi.support.Network;
 import com.chua.oshi.support.Oshi;
 import com.chua.oshi.support.cli.display.Formatter;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,7 +43,7 @@ public final class NetworkCommand extends AbstractCommand {
 
         System.out.println();
         System.out.println("Network Interfaces (" + nets.size() + "):");
-        List<String[]> rows = new ArrayList<>();
+        List<String[]> rows = Wraps.list();
         for (Network net : nets) {
             String[] ipv4 = net.getIpv4();
             String ip = (ipv4 != null && ipv4.length > 0) ? String.join(", ", ipv4) : "N/A";

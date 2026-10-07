@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.paddle.ocr;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -12,8 +13,6 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.paddle.util.BoundFinderV2;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -61,8 +60,8 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
                 .parallel()
                 .forEach(i -> grid[i / h][i % h] = flattened[i]);
         List<BoundingBox> boxes = new BoundFinderV2(grid).getBoxes();
-        List<String> names = new ArrayList<>();
-        List<Double> probs = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> probs = Wraps.list();
         for (int i = 0; i < boxes.size(); i++) {
             names.add("word");
             probs.add(1.0);

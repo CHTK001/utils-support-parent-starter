@@ -1,5 +1,7 @@
 package com.chua.common.support.tree;
 
+import com.chua.common.support.collection.wrap.Wraps;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,9 +15,9 @@ import java.util.List;
  */
 class BTreeNode<K, V> {
 
-    List<K> keys = new ArrayList<>(); // 键
-    List<V> values = new ArrayList<>(); // 值
-    List<BTreeNode<K, V>> children = new ArrayList<>(); // children
+    List<K> keys = Wraps.list(); // 键
+    List<V> values = Wraps.list(); // 值
+    List<BTreeNode<K, V>> children = Wraps.list(); // children
     boolean leaf; // leaf
 
     /**

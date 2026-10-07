@@ -1,5 +1,6 @@
 package com.chua.common.support.spi.resolver;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.definition.ServiceDefinition;
 import com.chua.common.support.utils.ClassUtils;
@@ -84,7 +85,7 @@ public class CustomServiceResolver implements ServiceResolver {
      */
     private List<ServiceDefinition> loadFromClassLoader(final String fullFileName, Class<?> type, ClassLoader classLoader) throws Throwable {
         Enumeration<URL> urls = classLoader.getResources(fullFileName);
-        List<ServiceDefinition> allExtensionClass = new ArrayList<>();
+        List<ServiceDefinition> allExtensionClass = Wraps.list();
         if (urls != null) {
             while (urls.hasMoreElements()) {
                 URL url = urls.nextElement();

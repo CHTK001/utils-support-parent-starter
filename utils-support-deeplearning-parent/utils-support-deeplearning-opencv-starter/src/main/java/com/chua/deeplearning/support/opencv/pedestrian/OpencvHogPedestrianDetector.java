@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.opencv.pedestrian;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.opencv.OpencvModelTranslator;
 import com.chua.deeplearning.support.utils.ImageUtils;
@@ -11,8 +12,6 @@ import org.opencv.core.Rect;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.HOGDescriptor;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -95,7 +94,7 @@ public class OpencvHogPedestrianDetector extends OpencvModelTranslator {
             double[] weightArr = (weights == null || weights.empty() || weights.rows() == 0)
                     ? new double[0]
                     : weights.toArray();
-            List<DetectionInfo> results = new ArrayList<>(rects.length);
+            List<DetectionInfo> results = Wraps.list(rects.length);
             for (int i = 0; i < rects.length; i++) {
                 Rect rect = rects[i];
                 float conf = weightArr.length > i ? (float) weightArr[i] : 1.0f;

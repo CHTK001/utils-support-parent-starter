@@ -1,5 +1,6 @@
 package com.chua.common.support.task.pipeline.builder;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 import com.chua.common.support.task.pipeline.node.DecisionNode;
@@ -169,7 +170,7 @@ public class PipelineJsonParser {
         private final Map<String, Object> data;
 
         JsonNode(Map<String, Object> data) {
-            this.data = data != null ? data : new LinkedHashMap<>();
+            this.data = data != null ? data : Wraps.linkedMap();
         }
 
         String getString(String key, String defaultValue) {
@@ -197,7 +198,7 @@ public class PipelineJsonParser {
         Map<String, String> getObjectAsStringMap(String key) {
             Object val = data.get(key);
             if (val instanceof Map) {
-                Map<String, String> result = new LinkedHashMap<>();
+                Map<String, String> result = Wraps.linkedMap();
                 @SuppressWarnings("unchecked")
                 Map<String, Object> raw = (Map<String, Object>) val;
                 for (Map.Entry<String, Object> entry : raw.entrySet()) {
@@ -275,7 +276,7 @@ public class PipelineJsonParser {
      * @return 结果映射，无数据时为空映射
      */
     private static Map<String, Object> parseObject(String json, int[] pos) {
-        Map<String, Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = Wraps.linkedMap();
         // 跳过 '{'
         pos[0]++;
         skipWhitespace(json, pos);
@@ -308,7 +309,7 @@ public class PipelineJsonParser {
      * @return 结果列表，无数据时为空列表
      */
     private static List<Object> parseArray(String json, int[] pos) {
-        List<Object> list = new ArrayList<>();
+        List<Object> list = Wraps.list();
         // 跳过 '['
         pos[0]++;
         skipWhitespace(json, pos);

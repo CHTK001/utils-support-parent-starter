@@ -1,5 +1,6 @@
 package com.chua.common.support.taskdistribution.manager;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.taskdistribution.task.Task;
 import com.chua.common.support.taskdistribution.task.TaskCallback;
 import com.chua.common.support.taskdistribution.task.TaskIdGenerator;
@@ -12,7 +13,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -354,7 +354,7 @@ public class ReactiveTaskManager {
         /**
          * 任务标签
          */
-        private final Map<String, String> tags = new HashMap<>();
+        private final Map<String, String> tags = Wraps.map();
 
         /**
          * 分片数量

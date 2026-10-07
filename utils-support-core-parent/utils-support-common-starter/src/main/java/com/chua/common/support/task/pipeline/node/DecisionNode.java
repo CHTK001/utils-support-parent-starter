@@ -1,11 +1,11 @@
 package com.chua.common.support.task.pipeline.node;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 import com.chua.common.support.task.retry.RetryConfig;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -121,7 +121,7 @@ public class DecisionNode implements PipelineNode {
      * @return this
      */
     public DecisionNode branches(Map<String, String> branches) {
-        this.branches = branches != null ? new LinkedHashMap<>(branches) : null;
+        this.branches = branches != null ? Wraps.linkedMap(branches) : null;
         return this;
     }
 

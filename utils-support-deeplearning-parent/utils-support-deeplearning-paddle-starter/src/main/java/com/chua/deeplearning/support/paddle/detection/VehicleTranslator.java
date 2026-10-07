@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.paddle.detection;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.Model;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
@@ -17,7 +18,6 @@ import ai.djl.util.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -61,9 +61,9 @@ public class VehicleTranslator implements Translator<Image, DetectedObjects> {
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray result = list.singletonOrThrow();
         float[] probabilities = result.get(":,1").toFloatArray();
-        List<String> names = new ArrayList<>();
-        List<Double> prob = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> prob = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
         for (int i = 0; i < probabilities.length; i++) {
             float[] array = result.get(i).toFloatArray();
             int cls = (int) array[0];

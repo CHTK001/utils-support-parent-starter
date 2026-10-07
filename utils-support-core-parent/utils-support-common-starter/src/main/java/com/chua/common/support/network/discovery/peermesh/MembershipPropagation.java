@@ -1,9 +1,8 @@
 package com.chua.common.support.network.discovery.peermesh;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -58,7 +57,7 @@ public class MembershipPropagation {
      * 发送心跳至所有已知节点。
      */
     public void sendHeartbeat() {
-        List<NodeTable.NodeEntry> known = new ArrayList<>(nodeTable.getAllEntries().values());
+        List<NodeTable.NodeEntry> known = Wraps.list(nodeTable.getAllEntries().values());
         String payload = Json.toJson(known);
         MessageProtocol.PeerMeshMessage msg = new MessageProtocol.PeerMeshMessage(MessageProtocol.TYPE_HEARTBEAT, payload);
         for (NodeTable.NodeEntry entry : known) {

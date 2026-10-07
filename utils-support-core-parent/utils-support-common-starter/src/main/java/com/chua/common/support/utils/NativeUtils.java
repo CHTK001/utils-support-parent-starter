@@ -1,5 +1,6 @@
 package com.chua.common.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -50,7 +51,7 @@ public class NativeUtils {
     /**
      * 已加载库的临时文件路径集合
      */
-    private static final Set<String> LOADED_PATHS = new LinkedHashSet<>();
+    private static final Set<String> LOADED_PATHS = Wraps.linkedSet();
 
     /**
      * Native 库在临时目录下的统一根目录名
@@ -143,7 +144,7 @@ public class NativeUtils {
      * @return 构建降级Arch Linux的结果
      */
     private static String[] buildFallbackArches() {
-        Set<String> arches = new LinkedHashSet<>();
+        Set<String> arches = Wraps.linkedSet();
         arches.add(OS_ARCH);
         switch (OS_ARCH) {
             case "x86_64" -> { arches.add("x86"); }
@@ -192,7 +193,7 @@ public class NativeUtils {
      * @return 获取platformdircandidates的结果
      */
     public static List<String> getPlatformDirCandidates() {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         for (String arch : FALLBACK_ARCHES) {
             result.add(OS_PREFIX + "-" + arch);
         }
@@ -449,7 +450,7 @@ public class NativeUtils {
      * @return 获取加载路径的结果
      */
     public static Set<String> getLoadedPaths() {
-        return new LinkedHashSet<>(LOADED_PATHS);
+        return Wraps.linkedSet(LOADED_PATHS);
     }
 
     /**

@@ -1,8 +1,8 @@
 package com.chua.common.support.converter.definition;
 
+import com.chua.common.support.collection.wrap.Wraps;
+
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static com.chua.common.support.constant.CommonConstant.*;
@@ -44,7 +44,7 @@ public class SetTypeConverter implements TypeConverter<Set> {
         }
 
         if (isAssignableFrom(value, Collection.class)) {
-            return new HashSet((Collection) value);
+            return Wraps.set((Collection) value);
         }
 
         if (isAssignableFrom(value, String.class)) {
@@ -52,14 +52,14 @@ public class SetTypeConverter implements TypeConverter<Set> {
             if (string.startsWith(SYMBOL_LEFT_SQUARE_BRACKET) && string.endsWith(SYMBOL_RIGHT_SQUARE_BRACKET)) {
                 String inner = string.substring(1, string.length() - 1);
                 String[] parts = inner.split(SYMBOL_COMMA);
-                Set<String> result = new LinkedHashSet<>();
+                Set<String> result = Wraps.linkedSet();
                 for (String part : parts) {
                     result.add(part.trim());
                 }
                 return result;
             }
             String[] parts = string.split(SYMBOL_COMMA);
-            Set<String> result = new LinkedHashSet<>();
+            Set<String> result = Wraps.linkedSet();
             for (String part : parts) {
                 result.add(part.trim());
             }

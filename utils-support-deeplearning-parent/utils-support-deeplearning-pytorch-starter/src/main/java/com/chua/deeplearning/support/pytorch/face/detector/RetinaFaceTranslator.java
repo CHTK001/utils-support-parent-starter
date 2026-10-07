@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.pytorch.face.detector;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -16,8 +17,6 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -136,10 +135,10 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
         long[] order = newProb.argSort(1, false).get(":" + TOP_K).toLongArray();
         prob = prob.transpose();
 
-        List<String> retNames = new ArrayList<>();
-        List<Double> retProbs = new ArrayList<>();
-        List<BoundingBox> retBB = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
+        List<String> retNames = Wraps.list();
+        List<Double> retProbs = Wraps.list();
+        List<BoundingBox> retBB = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
 
         for (long l : order) {
             long currMaxLoc = l;
@@ -158,7 +157,7 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
                 }
             }
             if (belowIoU) {
-                List<Point> keyPoints = new ArrayList<>();
+                List<Point> keyPoints = Wraps.list();
                 for (int j = 0; j < 5; j++) {
                     double x = landmsArr[j * 2];
                     double y = landmsArr[j * 2 + 1];
@@ -199,7 +198,7 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
                     (int) Math.ceil((float) height / steps[i]),
                     (int) Math.ceil((float) width / steps[i])};
         }
-        List<double[]> defaultBoxes = new ArrayList<>();
+        List<double[]> defaultBoxes = Wraps.list();
         for (int idx = 0; idx < steps.length; idx++) {
             int[] scale = scales[idx];
             for (int h = 0; h < aspectRatio[idx][0]; h++) {

@@ -1,5 +1,6 @@
 package com.chua.rocksdb.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.datasource.support.annotation.TableName;
 import com.chua.datasource.support.engine.MemoryWhereParser;
@@ -14,10 +15,7 @@ import org.rocksdb.WriteOptions;
 
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -347,7 +345,7 @@ public class RocksDbOrmStore {
      * @return 列 名 集合（保持 出现 顺序）
      */
     private static Set<String> extractColumns(String where) {
-        Set<String> columns = new LinkedHashSet<>();
+        Set<String> columns = Wraps.linkedSet();
         for (String token : where.split("[\\s()=<>!]+")) {
             String t = token.trim();
             if (t.isEmpty()) {
@@ -414,7 +412,7 @@ public class RocksDbOrmStore {
      * @return 列 名 → 字段 名 映射
      */
     private static Map<String, String> fieldMap(Class<?> entityClass) {
-        Map<String, String> map = new HashMap<>();
+        Map<String, String> map = Wraps.map();
         Class<?> clazz = entityClass;
         while (clazz != null && clazz != Object.class) {
             for (Field f : clazz.getDeclaredFields()) {
@@ -560,7 +558,7 @@ public class RocksDbOrmStore {
      * @return 实体 列表（跳过 序号 键）
      */
     private <T> List<T> scanTable(byte[] prefix, Class<T> entityClass) {
-        List<T> rows = new ArrayList<>();
+        List<T> rows = Wraps.list();
         try (RocksIterator iter = db.newIterator()) {
             for (iter.seek(prefix); iter.isValid() && startsWith(iter.key(), prefix); iter.next()) {
                 String keyStr = new String(iter.key(), StandardCharsets.UTF_8);
@@ -608,7 +606,7 @@ public class RocksDbOrmStore {
      */
     @SuppressWarnings("unchecked")
     private <T> List<Object> scanRowPairs(byte[] prefix, Class<T> entityClass) {
-        List<Object> rows = new ArrayList<>();
+        List<Object> rows = Wraps.list();
         try (RocksIterator iter = db.newIterator()) {
             for (iter.seek(prefix); iter.isValid() && startsWith(iter.key(), prefix); iter.next()) {
                 String keyStr = new String(iter.key(), StandardCharsets.UTF_8);
@@ -617,7 +615,7 @@ public class RocksDbOrmStore {
                 }
                 T entity = fromEntityJson(new String(iter.value(), StandardCharsets.UTF_8), entityClass);
                 if (entity != null) {
-                    List<Object> row = new ArrayList<>(2);
+                    List<Object> row = Wraps.list(2);
                     row.add(keyStr);
                     row.add(entity);
                     rows.add(row);

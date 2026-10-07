@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtException;
@@ -15,7 +16,6 @@ import java.io.File;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 import ai.onnxruntime.OnnxValue;
 import java.io.ByteArrayOutputStream;
@@ -301,7 +301,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
 
             String inputName = session.getInputNames().iterator().next();
             // 步骤 4：执行推理
-            Map<String, OnnxTensor> feed = new HashMap<>();
+            Map<String, OnnxTensor> feed = Wraps.map();
             feed.put(inputName, inputTensor);
             try (OrtSession.Result result = session.run(feed)) {
                 // 步骤 5：从输出张量中提取 hidden state

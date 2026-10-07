@@ -1,5 +1,6 @@
 package com.chua.common.support.network.sync.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServer;
@@ -19,9 +20,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -296,7 +295,7 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
      */
     @Override
     public List<String> getConnectedClients() {
-        return new ArrayList<>(clients.keySet());
+        return Wraps.list(clients.keySet());
     }
 
     /**
@@ -531,7 +530,7 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
         /**
          * 客户端元数据
          */
-        private final Map<String, Object> metadata = new HashMap<>();
+        private final Map<String, Object> metadata = Wraps.map();
 
         /**
          * 读取缓冲（按行切分前的原始字节）
@@ -582,7 +581,7 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
          * @return 完整行列表
          */
         List<String> drainLines() {
-            List<String> lines = new ArrayList<>();
+            List<String> lines = Wraps.list();
             synchronized (readBuffer) {
                 // 在字节层面定位换行符，整段解码，避免逐字节 char 转换破坏 UTF-8 多字节字符
                 ByteBuffer src = readBuffer.duplicate();

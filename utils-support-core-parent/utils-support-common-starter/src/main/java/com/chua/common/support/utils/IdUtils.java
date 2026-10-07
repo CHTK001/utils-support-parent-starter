@@ -1,5 +1,6 @@
 package com.chua.common.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.algorithm.KafkaSequenceGenerator;
 import com.chua.common.support.lang.algorithm.MacSequenceGenerator;
 import com.chua.common.support.lang.algorithm.SnowflakeIdGenerator;
@@ -9,7 +10,6 @@ import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Arrays;
 import java.util.Collection;
@@ -110,7 +110,7 @@ public class IdUtils {
      * @return 以点号分隔的版本号字符串
      */
     public static String createVersion(int versionNumber, long maxNumber, long currentNumber) {
-        List<Long> temp = new ArrayList<>();
+        List<Long> temp = Wraps.list();
         for (int i = 1; i < versionNumber; i++) {
             temp.add(currentNumber % maxNumber);
             currentNumber = currentNumber / maxNumber;
@@ -578,7 +578,7 @@ public class IdUtils {
      */
     private static List<Field> getAllFields(Object obj) {
         Class<?> clazz = obj.getClass();
-        List<Field> fields = new ArrayList<>();
+        List<Field> fields = Wraps.list();
         while (clazz != null && clazz != Object.class) {
             for (Field field : clazz.getDeclaredFields()) {
                 if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {

@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.benchmark;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.document.BenchmarkDocumentData;
 import com.chua.common.support.lang.document.BenchmarkHtmlProvider;
 import com.chua.common.support.lang.document.DocumentProvider;
@@ -13,7 +14,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -187,7 +187,7 @@ public class K6Benchmark implements Benchmark {
      */
     private void runK6(String k6, Path script, Path summary,
                        int vus, int iterations, String targetUrl) throws Exception {
-        List<String> cmd = new ArrayList<>();
+        List<String> cmd = Wraps.list();
         cmd.add(k6);
         cmd.add("run");
         cmd.add("--vus");

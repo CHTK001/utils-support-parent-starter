@@ -1,5 +1,6 @@
 package com.chua.ffmpeg.support.processor;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.media.ffmpeg.FFmpegOptions;
 import com.chua.common.support.media.ffmpeg.FFmpegProcessor;
 
@@ -106,7 +107,7 @@ public abstract class AbstractFFmpegProcessor implements FFmpegProcessor {
      * @return 构建codec参数的结果
      */
     protected String[] buildCodecArgs(FFmpegOptions opts) {
-        java.util.List<String> args = new java.util.ArrayList<>();
+        java.util.List<String> args = Wraps.list();
         if (opts == null) {
             return args.toArray(new String[0]);
         }

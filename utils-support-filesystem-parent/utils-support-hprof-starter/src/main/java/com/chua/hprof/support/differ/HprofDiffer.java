@@ -1,11 +1,11 @@
 package com.chua.hprof.support.differ;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.hprof.support.model.HprofHistogramRow;
 import com.chua.hprof.support.parser.HprofParser;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -174,11 +174,11 @@ public final class HprofDiffer {
         Map<String, HprofHistogramRow> a = index(after.histogram());
 
         // union of class names
-        Map<String, Long> keys = new java.util.TreeMap<>();
+        Map<String, Long> keys = Wraps.sortedMap();
         b.keySet().forEach(k -> keys.put(k, 0L));
         a.keySet().forEach(k -> keys.put(k, 0L));
 
-        List<ClassGrowth> all = new ArrayList<>(keys.size());
+        List<ClassGrowth> all = Wraps.list(keys.size());
         for (String className : keys.keySet()) {
             HprofHistogramRow br = b.get(className);
             HprofHistogramRow ar = a.get(className);
@@ -188,9 +188,9 @@ public final class HprofDiffer {
             long aRetained = ar != null ? ar.getRetainedSize() : 0L;
             all.add(new ClassGrowth(className, bCount, aCount, bRetained, aRetained));
         }
-        List<ClassGrowth> byRetained = new ArrayList<>(all);
+        List<ClassGrowth> byRetained = Wraps.list(all);
         byRetained.sort((x, y) -> Long.compare(y.retainedDelta(), x.retainedDelta()));
-        List<ClassGrowth> byInstance = new ArrayList<>(all);
+        List<ClassGrowth> byInstance = Wraps.list(all);
         byInstance.sort((x, y) -> Long.compare(y.instanceDelta(), x.instanceDelta()));
 
         long beforeTotal = before.totalRetainedBytes();
@@ -219,7 +219,7 @@ public final class HprofDiffer {
      * @return 索引
      */
     private static Map<String, HprofHistogramRow> index(List<HprofHistogramRow> rows) {
-        Map<String, HprofHistogramRow> map = new java.util.HashMap<>();
+        Map<String, HprofHistogramRow> map = Wraps.map();
         for (HprofHistogramRow row : rows) {
             if (row.getClassName() != null) {
                 map.put(row.getClassName(), row);

@@ -1,5 +1,6 @@
 package com.chua.solr.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.meta.SearchEngine;
 import com.chua.common.support.lang.datasource.meta.model.SearchFieldDef;
 import com.chua.common.support.lang.datasource.meta.model.SearchIndexDef;
@@ -11,9 +12,6 @@ import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.client.solrj.response.schema.SchemaResponse;
 import org.apache.solr.common.SolrInputField;
 import org.apache.solr.common.util.NamedList;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -73,7 +71,7 @@ public class SolrSearchEngine implements SearchEngine {
             if (names instanceof List) {
                 @SuppressWarnings("unchecked")
                 List<String> list = (List<String>) names;
-                return new ArrayList<>(list);
+                return Wraps.list(list);
             }
             return java.util.Collections.emptyList();
         } catch (Exception e) {
@@ -95,7 +93,7 @@ public class SolrSearchEngine implements SearchEngine {
             SchemaResponse.FieldsResponse response = request.process(client, indexName);
             SearchIndexDef def = new SearchIndexDef();
             def.setName(indexName);
-            List<SearchFieldDef> fields = new ArrayList<>();
+            List<SearchFieldDef> fields = Wraps.list();
             List<Map<String, Object>> fieldList = response.getFields();
             if (fieldList != null) {
                 for (Map<String, Object> fieldMap : fieldList) {
@@ -161,7 +159,7 @@ public class SolrSearchEngine implements SearchEngine {
         if (fields == null || fields.isEmpty()) {
             return;
         }
-        List<SchemaRequest.Update> updates = new ArrayList<>();
+        List<SchemaRequest.Update> updates = Wraps.list();
         for (SearchFieldDef f : fields) {
             if (f == null || f.getName() == null || f.getName().isEmpty()) {
                 continue;
@@ -169,7 +167,7 @@ public class SolrSearchEngine implements SearchEngine {
             if (!f.getName().matches("[A-Za-z0-9_.\\-]+")) {
                 throw new IllegalArgumentException("非法字段名: " + f.getName());
             }
-            Map<String, Object> def = new LinkedHashMap<>();
+            Map<String, Object> def = Wraps.linkedMap();
             def.put("name", f.getName());
             def.put("type", f.getType() == null || f.getType().isEmpty() ? "string" : f.getType());
             def.put("multiValued", false);

@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.vision.clip;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.MathUtils;
 import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.utils.ImageUtils;
@@ -16,7 +17,6 @@ import org.opencv.imgproc.Imgproc;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -236,7 +236,7 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
         long[] shape = {batch, 3, IMAGE_SIZE, IMAGE_SIZE};
 
         try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
-            Map<String, OnnxTensor> inputs = new HashMap<>();
+            Map<String, OnnxTensor> inputs = Wraps.map();
             inputs.put("pixel_values", tensor);
 
             try (OrtSession.Result result = session.run(inputs)) {

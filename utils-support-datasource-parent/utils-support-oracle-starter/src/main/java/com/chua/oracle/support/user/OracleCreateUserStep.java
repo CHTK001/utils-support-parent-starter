@@ -1,5 +1,6 @@
 package com.chua.oracle.support.user;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasource.support.user.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +9,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -97,7 +97,7 @@ public class OracleCreateUserStep implements UserManager.CreateUserStep {
         if (password == null) {
             throw new IllegalStateException("创建用户失败：未指定口令 " + user);
         }
-        List<SqlStep> steps = new ArrayList<>();
+        List<SqlStep> steps = Wraps.list();
         steps.add(new SqlStep("CREATE USER " + user + " 指定口令",
                 "CREATE USER " + user + " IDENTIFIED BY \"" + checkPassword(password) + "\""));
         steps.add(new SqlStep("GRANT CONNECT TO " + user, "GRANT CONNECT TO " + user));

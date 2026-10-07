@@ -1,5 +1,6 @@
 package com.chua.common.support.network.ipc;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.AbstractServer;
@@ -7,8 +8,6 @@ import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.filter.IpcServerFilter;
 import com.chua.common.support.network.server.handler.ServerHandlerFactory;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -64,7 +63,7 @@ public class IpcServer extends AbstractServer {
      * @return JSON 响应字符串
      */
     public String handleMessage(String source, String path, String body) {
-        Map<String, Object> response = new LinkedHashMap<>();
+        Map<String, Object> response = Wraps.linkedMap();
         response.put("source", source);
         response.put("path", path);
         response.put("body", body);

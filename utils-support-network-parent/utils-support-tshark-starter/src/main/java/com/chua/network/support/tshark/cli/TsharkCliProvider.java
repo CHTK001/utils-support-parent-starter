@@ -1,5 +1,6 @@
 package com.chua.network.support.tshark.cli;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.CliVersion;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.lang.cmd.ExecutableLocator;
@@ -13,7 +14,6 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -186,7 +186,7 @@ public final class TsharkCliProvider {
      */
     @Nonnull
     private TsharkProvisioningReport doProvision(@Nonnull TsharkCliConfig config) {
-        List<TsharkProvisioningReport.Attempt> attempts = new ArrayList<>();
+        List<TsharkProvisioningReport.Attempt> attempts = Wraps.list();
         List<TsharkCliConfig.Stage> stages = config.stages();
 
         if (stages.contains(TsharkCliConfig.Stage.LOCATE)) {
@@ -601,7 +601,7 @@ public final class TsharkCliProvider {
             throw new IllegalStateException("执行 tshark -D 失败，退出码 " + result.getExitCode()
                     + ": " + result.getStderr());
         }
-        List<String> lines = new ArrayList<>();
+        List<String> lines = Wraps.list();
         for (String line : result.getStdout().split("\\R")) {
             if (!line.isBlank()) {
                 lines.add(line.trim());

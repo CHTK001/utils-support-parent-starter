@@ -1,8 +1,8 @@
 package com.chua.common.support.task.scheduler;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -128,7 +128,7 @@ public class FixedTrigger implements Trigger {
      */
     @Override
     public List<LocalDateTime> getFireTimes(int count, LocalDateTime from) {
-        List<LocalDateTime> result = new ArrayList<>(count);
+        List<LocalDateTime> result = Wraps.list(count);
         LocalDateTime current = from;
         for (int i = 0; i < count; i++) {
             current = nextExecutionTime(current);

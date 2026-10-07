@@ -1,5 +1,6 @@
 package com.chua.network.support.tshark.session;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.network.support.tshark.PacketRecord;
 import com.chua.network.support.tshark.stream.ReassembledMessage;
 import com.chua.network.support.tshark.stream.TcpStreamKey;
@@ -7,9 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -43,7 +42,7 @@ public final class SessionAggregator {
     /**
      * 会话表，按最近访问排序以便做最近最少使用淘汰
      */
-    private final Map<TcpStreamKey, PacketConversation> conversations = new LinkedHashMap<>();
+    private final Map<TcpStreamKey, PacketConversation> conversations = Wraps.linkedMap();
 
     /**
      * 会话数量上限
@@ -78,7 +77,7 @@ public final class SessionAggregator {
     /**
      * 累计还原出的协议分布
      */
-    private final Map<String, Long> protocolPackets = new LinkedHashMap<>();
+    private final Map<String, Long> protocolPackets = Wraps.linkedMap();
 
     /**
      * 使用默认上界构造。
@@ -171,7 +170,7 @@ public final class SessionAggregator {
      */
     @Nonnull
     public List<PacketConversation> conversations() {
-        return List.copyOf(new ArrayList<>(conversations.values()));
+        return List.copyOf(Wraps.list(conversations.values()));
     }
 
     /**
@@ -182,7 +181,7 @@ public final class SessionAggregator {
      */
     @Nonnull
     public List<PacketConversation> topConversations(int limit) {
-        List<PacketConversation> all = new ArrayList<>(conversations.values());
+        List<PacketConversation> all = Wraps.list(conversations.values());
         all.sort(Comparator.comparingLong(PacketConversation::packetCount).reversed());
         return List.copyOf(all.size() > limit ? all.subList(0, limit) : all);
     }

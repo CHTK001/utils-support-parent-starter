@@ -1,5 +1,6 @@
 package com.chua.nacos.support.discovery;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
@@ -64,7 +65,7 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
         }
         List<Discovery> cached = localCache.get(path);
         if (CollectionUtils.size(cached) > 0) {
-            return new HashSet<>(cached);
+            return Wraps.set(cached);
         }
         String name = path.startsWith("/") ? path.substring(1) : path;
         if (name.isEmpty()) {
@@ -124,7 +125,7 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
             instance.setWeight(discovery.getWeight());
         }
         instance.setHealthy(true);
-        Map<String, String> meta = new HashMap<>(discovery.getMetadata());
+        Map<String, String> meta = Wraps.map(discovery.getMetadata());
         meta.put("protocol", discovery.getProtocol());
         meta.put("serverId", discovery.getServerId());
         meta.put("uriSpec", path);

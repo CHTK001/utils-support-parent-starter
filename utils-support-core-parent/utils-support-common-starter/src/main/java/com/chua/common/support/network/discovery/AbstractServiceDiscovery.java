@@ -1,5 +1,6 @@
 package com.chua.common.support.network.discovery;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.balance.LoadBalance;
 import com.chua.common.support.lang.balance.Node;
 import com.chua.common.support.spi.ServiceProvider;
@@ -8,11 +9,9 @@ import com.chua.common.support.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -168,13 +167,13 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
         // 按 serverId 幂等去重：Discovery 为 @Data 全字段 equals（含动态 weight），
         // 同 serverId 每次 weight 变化会导致 HashSet 视为不同对象、条目无限累积
         // （跨机 gossip 实测 5→12+ 膨胀）。用 LinkedHashMap 以 serverId 为键保留最新一条。
-        java.util.Map<String, Discovery> dedup = new java.util.LinkedHashMap<>();
+        java.util.Map<String, Discovery> dedup = Wraps.linkedMap();
         for (Discovery d : list) {
             if (d.getServerId() != null) {
                 dedup.put(d.getServerId(), d);
             }
         }
-        return new java.util.LinkedHashSet<>(dedup.values());
+        return Wraps.linkedSet(dedup.values());
     }
 
     // ======================== 子类后端钩子 ========================
@@ -237,7 +236,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
         Set<String> currentServices = services.stream()
                 .map(Discovery::getServerId)
                 .filter(java.util.Objects::nonNull)
-                .collect(java.util.stream.Collectors.toCollection(java.util.HashSet::new));
+                .collect(java.util.stream.Collectors.toCollection(Wraps::set));
         CachedLoadBalance cached = loadBalanceCache.get(cacheKey);
         if (cached != null && cached.isValid(currentVersion, currentServices)) {
             // 服务表未变，复用已有 LoadBalance 实例，保持 weight 衰减等状态
@@ -248,7 +247,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
         LoadBalance lb = ServiceProvider.of(LoadBalance.class).getNewExtension(balance);
         if (lb == null) {
             // 如果找不到指定的负载均衡策略，直接返回列表中的第一个
-            List<Discovery> list = new ArrayList<>(services);
+            List<Discovery> list = Wraps.list(services);
             return list.isEmpty() ? null : list.getFirst();
         }
         LoadBalance balancer = lb.create();

@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.yolo;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -12,8 +13,6 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -145,7 +144,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
         this.inputSize = inputSize;
         this.threshold = threshold;
         this.nmsThreshold = nmsThreshold;
-        this.classes = new ArrayList<>(classes);
+        this.classes = Wraps.list(classes);
         this.normalizeCoordinates = normalizeCoordinates;
 
         log.info("{}                                     ", getYoloVersion());
@@ -300,16 +299,16 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
 
         if (numFeatures < 4) {
             log.warn("                  : {}                4 (cx, cy, w, h)", numFeatures);
-            return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+            return new DetectedObjects(Wraps.list(), Wraps.list(), Wraps.list());
         }
 
         boolean hasObjectness = numFeatures == classes.size() + 5;
         int classStartIndex = hasObjectness ? 5 : 4;
 
         //                   
-        List<String> classNames = new ArrayList<>();
-        List<Double> probabilities = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
+        List<String> classNames = Wraps.list();
+        List<Double> probabilities = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
 
         //                      
         for (int i = 0; i < numBoxes; i++) {
@@ -434,9 +433,9 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
         log.info("NMS           {}             ", keepIndices.size());
 
         //                   
-        List<String> finalNames = new ArrayList<>();
-        List<Double> finalProbs = new ArrayList<>();
-        List<BoundingBox> finalBoxes = new ArrayList<>();
+        List<String> finalNames = Wraps.list();
+        List<Double> finalProbs = Wraps.list();
+        List<BoundingBox> finalBoxes = Wraps.list();
 
         for (int idx : keepIndices) {
             finalNames.add(classNames.get(idx));
@@ -458,13 +457,13 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
      * @return                      
      */
     protected List<Integer> nms(List<BoundingBox> boxes, List<Double> probabilities, float nmsThreshold) {
-        List<Integer> indices = new ArrayList<>();
+        List<Integer> indices = Wraps.list();
         if (boxes.isEmpty()) {
             return indices;
         }
 
         //                      
-        List<Integer> sortedIndices = new ArrayList<>();
+        List<Integer> sortedIndices = Wraps.list();
         for (int i = 0; i < probabilities.size(); i++) {
             sortedIndices.add(i);
         }

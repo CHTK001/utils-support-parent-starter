@@ -1,5 +1,6 @@
 package com.chua.common.support.datasource.wal;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.wal.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -88,14 +89,14 @@ public class VecWalStoreSystem implements WalStoreSystem<String> {
      */
     @Override
     public List<Map.Entry<String, byte[]>> range(String from, String to, int offset, int limit) throws IOException {
-        List<Map.Entry<String, byte[]>> entries = new ArrayList<>();
+        List<Map.Entry<String, byte[]>> entries = Wraps.list();
         for (int i = 0; i < walLogs.length; i++) {
             collectKeyRange(i, from, to, entries);
         }
         entries.sort(Map.Entry.comparingByKey());
         int begin = Math.min(Math.max(offset, 0), entries.size());
         int end = limit <= 0 || (long) begin + limit > entries.size() ? entries.size() : begin + limit;
-        return new ArrayList<>(entries.subList(begin, end));
+        return Wraps.list(entries.subList(begin, end));
     }
 
     /**
@@ -208,7 +209,7 @@ public class VecWalStoreSystem implements WalStoreSystem<String> {
     public int size() { return (int) totalRecords.get(); }
     @Override
     public List<WalSegmentInfo> listSegments() throws IOException {
-        List<WalSegmentInfo> all = new ArrayList<>();
+        List<WalSegmentInfo> all = Wraps.list();
         for (SegmentWalLog log : walLogs) {
             all.addAll(log.listSegments());
         }
@@ -301,7 +302,7 @@ public class VecWalStoreSystem implements WalStoreSystem<String> {
      */
     public List<VectorScored> search(float[] query, int topK) throws IOException {
         // 简化：暴力扫描所有段
-        List<VectorScored> candidates = new ArrayList<>();
+        List<VectorScored> candidates = Wraps.list();
         for (SegmentWalLog log : walLogs) {
             for (WalSegmentInfo seg : log.listSegments()) {
                 log.replay(seg.firstLsn(), seg.lastLsn() + 1, (lsn, op, payload) -> {
@@ -320,14 +321,14 @@ public class VecWalStoreSystem implements WalStoreSystem<String> {
         if (candidates.size() <= topK) {
             return candidates;
         }
-        PriorityQueue<VectorScored> heap = new PriorityQueue<>(topK, (a, b) -> Float.compare(a.score(), b.score()));
+        Queue<VectorScored> heap = Wraps.priorityQueue(topK, (a, b) -> Float.compare(a.score(), b.score()));
         for (VectorScored vs : candidates) {
             if (heap.size() < topK) {
                 heap.add(vs);
             }
             else if (vs.score() > heap.peek().score()) { heap.poll(); heap.add(vs); }
         }
-        List<VectorScored> r = new ArrayList<>(heap);
+        List<VectorScored> r = Wraps.list(heap);
         r.sort((a, b) -> Float.compare(b.score(), a.score()));
         return r;
     }

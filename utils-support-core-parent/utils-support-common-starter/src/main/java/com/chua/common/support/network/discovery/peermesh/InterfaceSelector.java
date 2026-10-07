@@ -1,12 +1,12 @@
 package com.chua.common.support.network.discovery.peermesh;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -60,7 +60,7 @@ public class InterfaceSelector {
         if (allIfaces == null) {
             throw new IllegalStateException("系统无可用网络接口");
         }
-        List<String> privateIps = new ArrayList<>();
+        List<String> privateIps = Wraps.list();
         for (NetworkInterface nif : Collections.list(allIfaces)) {
             if (nif.isLoopback() || !nif.isUp()) {
                 continue;

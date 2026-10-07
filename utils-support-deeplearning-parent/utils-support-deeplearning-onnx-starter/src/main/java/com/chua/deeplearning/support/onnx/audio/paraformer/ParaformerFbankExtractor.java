@@ -1,6 +1,5 @@
 package com.chua.deeplearning.support.onnx.audio.paraformer;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Objects;
 
@@ -356,7 +355,7 @@ public class ParaformerFbankExtractor {
             float centerMel = melLow + (bin + 1) * melDelta;
             float rightMel = melLow + (bin + 2) * melDelta;
 
-            List<Float> vals = new ArrayList<>(32);
+            List<Float> vals = Wraps.list(32);
             int firstIndex = -1;
             for (int i = 0; i < PADDED_WINDOW_SIZE / 2; i++) {
                 float freq = fftBinWidth * i;

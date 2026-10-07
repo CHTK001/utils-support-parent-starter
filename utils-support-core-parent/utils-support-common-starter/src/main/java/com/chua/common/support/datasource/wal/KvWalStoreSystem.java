@@ -1,5 +1,6 @@
 package com.chua.common.support.datasource.wal;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.wal.*;
 import lombok.extern.slf4j.Slf4j;
@@ -133,9 +134,9 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
      */
     @Override
     public List<Map.Entry<String, byte[]>> range(String from, String to, int offset, int limit) throws IOException {
-        List<String> keys = new ArrayList<>(memIndex.keySet());
+        List<String> keys = Wraps.list(memIndex.keySet());
         keys.sort(Comparator.naturalOrder());
-        List<Map.Entry<String, byte[]>> entries = new ArrayList<>();
+        List<Map.Entry<String, byte[]>> entries = Wraps.list();
         for (String key : keys) {
             if ((from == null || key.compareTo(from) >= 0) && (to == null || key.compareTo(to) < 0)) {
                 entries.add(Map.entry(key, memIndex.get(key)));
@@ -143,7 +144,7 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
         }
         int begin = Math.min(Math.max(offset, 0), entries.size());
         int end = limit <= 0 || (long) begin + limit > entries.size() ? entries.size() : begin + limit;
-        return new ArrayList<>(entries.subList(begin, end));
+        return Wraps.list(entries.subList(begin, end));
     }
 
     /**
@@ -175,7 +176,7 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
 
     @Override
     public List<WalSegmentInfo> listSegments() throws IOException {
-        List<WalSegmentInfo> all = new ArrayList<>();
+        List<WalSegmentInfo> all = Wraps.list();
         for (SegmentWalLog log : walLogs) {
             all.addAll(log.listSegments());
         }

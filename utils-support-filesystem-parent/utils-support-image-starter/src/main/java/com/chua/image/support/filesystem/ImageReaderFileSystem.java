@@ -1,5 +1,6 @@
 package com.chua.image.support.filesystem;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.BufferedImageUtils;
@@ -14,10 +15,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -67,7 +65,7 @@ public class ImageReaderFileSystem extends AbstractReader {
      * @return 获取支持延伸的结果
      */
     private static Set<String> getSupportedExtensions() {
-        var extensions = new HashSet<String>();
+        var extensions = Wraps.<String>set();
         extensions.addAll(Set.of(".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp", ".tiff", ".tif", ".ico", ".heic", ".heif"));
         // 尝试加载 Rust HEIF 加速库（幂等）
         com.chua.image.support.heif.HeifImageIoRegistrar.register();
@@ -191,11 +189,11 @@ public class ImageReaderFileSystem extends AbstractReader {
         }
         if (!file.exists()) {
             log.warn("[图片读取文件系统][读取]文件不存在: {}", file.getAbsolutePath());
-            return new ArrayList<>();
+            return Wraps.list();
         }
 
-        List<Map<String, Object>> result = new ArrayList<>();
-        Map<String, Object> imageInfo = new LinkedHashMap<>();
+        List<Map<String, Object>> result = Wraps.list();
+        Map<String, Object> imageInfo = Wraps.linkedMap();
 
         try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(new FileInputStream(file))) {
             Iterator<ImageReader> readers = ImageIO.getImageReaders(imageInputStream);

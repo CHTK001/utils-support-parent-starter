@@ -1,7 +1,6 @@
 package com.chua.wechat.support.bot;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedHashMap;
@@ -274,10 +273,10 @@ public class WechatAutoReplyHandler implements BotMessageListener, AutoCloseable
     private List<ChatMessage> historyOf(String conversation) {
         Deque<ChatMessage> history = histories.get(conversation);
         if (history == null) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
         synchronized (history) {
-            return new ArrayList<>(history);
+            return Wraps.list(history);
         }
     }
 
@@ -290,7 +289,7 @@ public class WechatAutoReplyHandler implements BotMessageListener, AutoCloseable
      */
     private void remember(String conversation, String question, String answer) {
         Deque<ChatMessage> history = histories.computeIfAbsent(conversation,
-                key -> new ArrayDeque<>());
+                key -> Wraps.deque());
         synchronized (history) {
             history.addLast(ChatMessage.builder().role(ROLE_USER).content(question).build());
             history.addLast(ChatMessage.builder().role(ROLE_ASSISTANT).content(answer).build());
@@ -308,7 +307,7 @@ public class WechatAutoReplyHandler implements BotMessageListener, AutoCloseable
      * @return 切分后的片段列表，全空白文本返回空列表
      */
     static List<String> split(String text, int maxLength) {
-        List<String> parts = new ArrayList<>();
+        List<String> parts = Wraps.list();
         String remaining = text;
         while (remaining.length() > maxLength) {
             int cut = breakPoint(remaining, maxLength);

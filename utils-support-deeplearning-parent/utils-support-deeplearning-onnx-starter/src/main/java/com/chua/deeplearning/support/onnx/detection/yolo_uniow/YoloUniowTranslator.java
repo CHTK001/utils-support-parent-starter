@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.detection.yolo_uniow;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -22,7 +23,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -256,9 +256,9 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
         float scaleX = (float) imageWidth / INPUT_SIZE;
         float scaleY = (float) imageHeight / INPUT_SIZE;
 
-        List<Integer> candIdx = new ArrayList<>();
-        List<Float> candScores = new ArrayList<>();
-        List<Integer> candClasses = new ArrayList<>();
+        List<Integer> candIdx = Wraps.list();
+        List<Float> candScores = Wraps.list();
+        List<Integer> candClasses = Wraps.list();
         for (int i = 0; i < numAnchors; i++) {
             float bestScore = 0f;
             int bestClass = 0;
@@ -276,7 +276,7 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
             }
         }
         if (candIdx.isEmpty()) {
-            return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+            return new DetectedObjects(Wraps.list(), Wraps.list(), Wraps.list());
         }
 
         Integer[] order = new Integer[candIdx.size()];
@@ -285,10 +285,10 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
         }
         Arrays.sort(order, (a, b) -> Float.compare(candScores.get(b), candScores.get(a)));
 
-        List<String> names = new ArrayList<>();
-        List<Double> probs = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
-        List<float[]> kept = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> probs = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
+        List<float[]> kept = Wraps.list();
 
         for (Integer oi : order) {
             int anchor = candIdx.get(oi);
@@ -347,11 +347,11 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
      * @return 加载类名称的结果
      */
     private List<String> loadClassNames() {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(CLASS_NAMES_RESOURCE)) {
             if (is == null) {
                 log.warn("classpath 未找到 {}, 使用默认类别 {}", CLASS_NAMES_RESOURCE, DEFAULT_CLASSES);
-                return new ArrayList<>(DEFAULT_CLASSES);
+                return Wraps.list(DEFAULT_CLASSES);
             }
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(is, StandardCharsets.UTF_8))) {
@@ -365,11 +365,11 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
             }
             if (result.isEmpty()) {
                 log.warn("{} 为空, 使用默认类别", CLASS_NAMES_RESOURCE);
-                return new ArrayList<>(DEFAULT_CLASSES);
+                return Wraps.list(DEFAULT_CLASSES);
             }
         } catch (IOException e) {
             log.warn("加载 {} 失败: {}, 使用默认类别", CLASS_NAMES_RESOURCE, e.getMessage());
-            return new ArrayList<>(DEFAULT_CLASSES);
+            return Wraps.list(DEFAULT_CLASSES);
         }
         return result;
     }

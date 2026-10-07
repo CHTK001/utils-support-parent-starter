@@ -1,5 +1,6 @@
 package com.chua.greptimedb.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 
 import java.sql.Connection;
@@ -8,7 +9,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -247,11 +247,11 @@ public class GreptimeJdbcClient implements AutoCloseable {
                 try (ResultSet rs = ps.executeQuery()) {
                     ResultSetMetaData md = rs.getMetaData();
                     int n = md.getColumnCount();
-                    List<String> cols = new ArrayList<>(n);
+                    List<String> cols = Wraps.list(n);
                     for (int i = 1; i <= n; i++) {
                         cols.add(md.getColumnLabel(i));
                     }
-                    List<Object[]> rows = new ArrayList<>();
+                    List<Object[]> rows = Wraps.list();
                     while (rs.next()) {
                         Object[] row = new Object[n];
                         for (int i = 1; i <= n; i++) {

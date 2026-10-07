@@ -1,5 +1,6 @@
 package com.chua.runtime.apm.storage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.runtime.protocol.DependencyEdge;
 import com.chua.runtime.protocol.Endpoint;
@@ -18,9 +19,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -309,7 +308,7 @@ public class SqliteStorage implements ApmStorage {
                         + "protocol, software, operation, status, status_code, "
                         + "start_time, end_time, duration, bytes_out, bytes_in, "
                         + "error_type, error_message, attributes FROM transmissions WHERE 1=1");
-        List<Object> params = new ArrayList<>();
+        List<Object> params = Wraps.list();
         appendTimeFilter(sql, params, "start_time", query);
         appendStringFilter(sql, params, "trace_id", query.getTraceId());
         appendStringFilter(sql, params, "source_host", query.getSourceHost());
@@ -324,7 +323,7 @@ public class SqliteStorage implements ApmStorage {
         params.add(query.getLimit());
         params.add(query.getOffset());
 
-        List<TransmissionEvent> result = new ArrayList<>();
+        List<TransmissionEvent> result = Wraps.list();
         try (Connection conn = open();
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             bindParams(ps, params);
@@ -344,7 +343,7 @@ public class SqliteStorage implements ApmStorage {
      * 查询Dependencies
     */
     public List<DependencyEdge> queryDependencies(Query query) {
-        List<DependencyEdge> result = new ArrayList<>();
+        List<DependencyEdge> result = Wraps.list();
         try (Connection conn = open();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(
@@ -366,13 +365,13 @@ public class SqliteStorage implements ApmStorage {
     public List<LeakRecord> queryLeaks(Query query) {
         StringBuilder sql = new StringBuilder(
                 "SELECT id, handle_id, kind, name, thread, created_at, closed_at, stack_trace FROM leaks WHERE 1=1");
-        List<Object> params = new ArrayList<>();
+        List<Object> params = Wraps.list();
         appendTimeFilter(sql, params, "created_at", query);
         sql.append(" ORDER BY created_at DESC LIMIT ? OFFSET ?");
         params.add(query.getLimit());
         params.add(query.getOffset());
 
-        List<LeakRecord> result = new ArrayList<>();
+        List<LeakRecord> result = Wraps.list();
         try (Connection conn = open();
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             bindParams(ps, params);
@@ -403,14 +402,14 @@ public class SqliteStorage implements ApmStorage {
     public List<LogRecord> queryLogs(Query query) {
         StringBuilder sql = new StringBuilder(
                 "SELECT id, timestamp, level, logger, class_name, method_name, message, trace_id FROM logs WHERE 1=1");
-        List<Object> params = new ArrayList<>();
+        List<Object> params = Wraps.list();
         appendTimeFilter(sql, params, "timestamp", query);
         appendStringFilter(sql, params, "level", query.getStatus());
         sql.append(" ORDER BY timestamp DESC LIMIT ? OFFSET ?");
         params.add(query.getLimit());
         params.add(query.getOffset());
 
-        List<LogRecord> result = new ArrayList<>();
+        List<LogRecord> result = Wraps.list();
         try (Connection conn = open();
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             bindParams(ps, params);
@@ -439,7 +438,7 @@ public class SqliteStorage implements ApmStorage {
      * Stats
     */
     public Map<String, Long> stats() {
-        Map<String, Long> result = new HashMap<>();
+        Map<String, Long> result = Wraps.map();
         try (Connection conn = open()) {
             result.put("transmissions", count(conn, "transmissions"));
             result.put("dependencies", count(conn, "dependencies"));
@@ -803,15 +802,15 @@ public class SqliteStorage implements ApmStorage {
      */
     private Map<String, String> fromJsonMap(String json) {
         if (json == null || json.isEmpty()) {
-            return new HashMap<>();
+            return Wraps.map();
         }
         try {
             Map<String, Object> raw = Json.fromJson(json);
-            Map<String, String> result = new HashMap<>();
+            Map<String, String> result = Wraps.map();
             raw.forEach((k, v) -> result.put(k, v == null ? null : String.valueOf(v)));
             return result;
         } catch (Exception e) {
-            return new HashMap<>();
+            return Wraps.map();
         }
     }
 }

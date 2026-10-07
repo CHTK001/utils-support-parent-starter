@@ -1,6 +1,7 @@
 package com.chua.zxing.support.qr.toolkit;
 
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.qr.QrSetting;
 import com.chua.zxing.support.qr.draw.DefaultDrawResolver;
 import com.chua.zxing.support.qr.draw.DrawResolver;
@@ -17,7 +18,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -163,7 +163,7 @@ public class QrCodeRenderUtils {
 
 
         int gifImgLen = frontImgOptions.getGifDecoder().getFrameCount();
-        java.util.List<ImmutablePair<BufferedImage, Integer>> result = new ArrayList<>(gifImgLen);
+        java.util.List<ImmutablePair<BufferedImage, Integer>> result = Wraps.list(gifImgLen);
         // 背景图缩放
         BufferedImage ftImg = frontImgOptions.getGifDecoder().getFrame(0);
         boolean needScale = frontImgOptions.getFtW() < ftImg.getWidth() || frontImgOptions.getFtH() < ftImg.getHeight();
@@ -261,7 +261,7 @@ public class QrCodeRenderUtils {
         int bgOffsetY = fillMode ? bgImgOptions.getStartY() : (bgH - qrHeight) >> 1;
 
         int gifImgLen = bgImgOptions.getGifDecoder().getFrameCount();
-        java.util.List<ImmutablePair<BufferedImage, Integer>> result = new ArrayList<>(gifImgLen);
+        java.util.List<ImmutablePair<BufferedImage, Integer>> result = Wraps.list(gifImgLen);
         // 背景图缩放
         for (int index = 0, len = bgImgOptions.getGifDecoder().getFrameCount(); index < len; index++) {
             BufferedImage bgImg = bgImgOptions.getGifDecoder().getFrame(index);
@@ -752,7 +752,7 @@ public class QrCodeRenderUtils {
             return Collections.singletonList(DotSize.create(maxRow, 1));
         }
 
-        List<DotSize> container = new ArrayList<>();
+        List<DotSize> container = Wraps.list();
 
         int col = 1;
         int lastRow = maxRow;

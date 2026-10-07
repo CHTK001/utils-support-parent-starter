@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.document;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.io.File;
@@ -9,9 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -113,16 +113,16 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
         }
 
         // 2) 按 tag 分组
-        LinkedHashMap<String, List<OpenApiEndpoint>> grouped = new LinkedHashMap<>();
+        Map<String, List<OpenApiEndpoint>> grouped = Wraps.linkedMap();
         for (OpenApiTag t : data.getTags()) {
-            grouped.put(t.getName(), new ArrayList<>());
+            grouped.put(t.getName(), Wraps.list());
         }
         for (OpenApiEndpoint ep : data.getEndpoints()) {
             String tag = ep.getTag() != null && !ep.getTag().isBlank() ? ep.getTag() : "default";
-            grouped.computeIfAbsent(tag, k -> new ArrayList<>()).add(ep);
+            grouped.computeIfAbsent(tag, k -> Wraps.list()).add(ep);
         }
         if (grouped.isEmpty()) {
-            grouped.put("default", new ArrayList<>());
+            grouped.put("default", Wraps.list());
         }
 
         for (java.util.Map.Entry<String, List<OpenApiEndpoint>> entry : grouped.entrySet()) {
@@ -163,7 +163,7 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
         // 渲染每个 tag 分组
         for (java.util.Map.Entry<String, List<OpenApiEndpoint>> entry : grouped.entrySet()) {
             String tagName = entry.getKey();
-            List<OpenApiEndpoint> endpoints = new ArrayList<>(entry.getValue());
+            List<OpenApiEndpoint> endpoints = Wraps.list(entry.getValue());
             if (endpoints.isEmpty()) {
                 continue;
             }

@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.layout;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.DetectedObjects;
 import ai.djl.modality.cv.output.Rectangle;
@@ -14,7 +15,6 @@ import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 import ai.djl.modality.cv.output.BoundingBox;
@@ -124,9 +124,9 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
         int numBoxes = (int) bshape[bshape.length - 2];
         int boxDim = (int) bshape[bshape.length - 1];
 
-        List<String> nameList = new ArrayList<>();
-        List<Double> probList = new ArrayList<>();
-        List<BoundingBox> boxList = new ArrayList<>();
+        List<String> nameList = Wraps.list();
+        List<Double> probList = Wraps.list();
+        List<BoundingBox> boxList = Wraps.list();
 
         for (int i = 0; i < numBoxes; i++) {
             if (scores[i] < scoreThreshold) {

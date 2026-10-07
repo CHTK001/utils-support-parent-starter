@@ -1,5 +1,6 @@
 package com.chua.lucene.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.ast.BTreeNode;
 import com.chua.common.support.lang.ast.parser.SqlExpressionParser;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
@@ -432,11 +433,11 @@ import java.util.concurrent.ConcurrentHashMap;
             int from = (int) Math.min(fromL, Integer.MAX_VALUE);
             int to = (int) Math.min((long) from + pageSize, total);
             ScoreDoc[] allDocs = topDocs.scoreDocs;
-            List<Document> docs = new ArrayList<>();
+            List<Document> docs = Wraps.list();
             for (int i = from; i < to && i < allDocs.length; i++) {
                 docs.add(reader.document(allDocs[i].doc));
             }
-            List<T> records = new ArrayList<>();
+            List<T> records = Wraps.list();
             for (Document doc : docs) {
                 T entity = EntityDocumentConverter.toEntity(doc, entityClass);
                 if (entity != null) {
@@ -476,7 +477,7 @@ import java.util.concurrent.ConcurrentHashMap;
         /**
          * 分组bycols
         */
-        private final List<String> groupByCols = new ArrayList<>();
+        private final List<String> groupByCols = Wraps.list();
         /**
          * Where
         */
@@ -587,14 +588,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
             if (groupByCols.size() == 1) {
                 String col = groupByCols.getFirst();
-                Map<Object, Long> counts = new TreeMap<>();
+                Map<Object, Long> counts = Wraps.sortedMap();
                 for (T entity : entities) {
                     Object val = getFieldValue(entity, col);
                     counts.merge(val, 1L, Long::sum);
                 }
-                List<Map<String, Object>> result = new ArrayList<>();
+                List<Map<String, Object>> result = Wraps.list();
                 for (Map.Entry<Object, Long> entry : counts.entrySet()) {
-                    Map<String, Object> row = new LinkedHashMap<>();
+                    Map<String, Object> row = Wraps.linkedMap();
                     row.put(col, entry.getKey());
                     row.put("count", entry.getValue());
                     result.add(row);
@@ -602,17 +603,17 @@ import java.util.concurrent.ConcurrentHashMap;
                 return result;
             }
 
-            Map<List<Object>, Long> counts = new TreeMap<>(listComparator);
+            Map<List<Object>, Long> counts = Wraps.sortedMap(listComparator);
             for (T entity : entities) {
-                List<Object> keys = new ArrayList<>();
+                List<Object> keys = Wraps.list();
                 for (String col : groupByCols) {
                     keys.add(getFieldValue(entity, col));
                 }
                 counts.merge(keys, 1L, Long::sum);
             }
-            List<Map<String, Object>> result = new ArrayList<>();
+            List<Map<String, Object>> result = Wraps.list();
             for (Map.Entry<List<Object>, Long> entry : counts.entrySet()) {
-                Map<String, Object> row = new LinkedHashMap<>();
+                Map<String, Object> row = Wraps.linkedMap();
                 List<Object> keys = entry.getKey();
                 for (int i = 0; i < groupByCols.size(); i++) {
                     row.put(groupByCols.get(i), keys.get(i));
@@ -1160,7 +1161,7 @@ import java.util.concurrent.ConcurrentHashMap;
      * @return 解析入列表的结果
      */
     private List<Object> parseInList(String list) {
-        List<Object> result = new ArrayList<>();
+        List<Object> result = Wraps.list();
         String trimmed = list.trim();
         if (trimmed.startsWith("(") && trimmed.endsWith(")")) {
             trimmed = trimmed.substring(1, trimmed.length() - 1).trim();
@@ -1324,7 +1325,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
         String setClause = sql.setClause();
         List<Object> params = sql.params();
-        Map<String, Object> setValues = new LinkedHashMap<>();
+        Map<String, Object> setValues = Wraps.linkedMap();
         java.util.regex.Matcher m = SET_ASSIGNMENT.matcher(setClause);
         int paramIdx = 0;
         while (m.find()) {
@@ -1476,7 +1477,7 @@ import java.util.concurrent.ConcurrentHashMap;
         try (DirectoryReader reader = DirectoryReader.open(directory)) {
             IndexSearcher searcher = new IndexSearcher(reader);
             TopDocs topDocs = searcher.search(query, 10000);
-            List<Document> docs = new ArrayList<>();
+            List<Document> docs = Wraps.list();
             for (ScoreDoc sd : topDocs.scoreDocs) {
                 docs.add(reader.document(sd.doc));
             }
@@ -1509,7 +1510,7 @@ import java.util.concurrent.ConcurrentHashMap;
      */
     @SuppressWarnings("unchecked")
     private <T> List<T> documentToEntities(DirectoryReader reader, ScoreDoc[] scoreDocs, Class<T> entityClass) {
-        List<T> results = new ArrayList<>(scoreDocs.length);
+        List<T> results = Wraps.list(scoreDocs.length);
         for (ScoreDoc sd : scoreDocs) {
             try {
                 Document doc = reader.document(sd.doc);

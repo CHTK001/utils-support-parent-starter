@@ -1,5 +1,6 @@
 package com.chua.huawei.support.storage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.storage.AbstractFileStorage;
 import com.chua.common.support.storage.metadata.Metadata;
@@ -21,7 +22,6 @@ import com.obs.services.model.ObjectMetadata;
 import com.obs.services.model.ObsObject;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -160,7 +160,7 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
             }
 
             ObjectListing listing = obsClient.listObjects(listReq);
-            List<Metadata> metadataList = new ArrayList<>();
+            List<Metadata> metadataList = Wraps.list();
             for (ObsObject obj : listing.getObjects()) {
                 metadataList.add(Metadata.builder()
                         .name(obj.getObjectKey())

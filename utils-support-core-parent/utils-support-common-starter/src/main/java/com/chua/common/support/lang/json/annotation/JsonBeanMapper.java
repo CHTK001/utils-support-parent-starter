@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.json.annotation;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
@@ -12,7 +13,6 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -55,19 +55,19 @@ public final class JsonBeanMapper {
         }
         if (bean instanceof Map) {
             Map<?, ?> source = (Map<?, ?>) bean;
-            Map<String, Object> result = new LinkedHashMap<>(source.size());
+            Map<String, Object> result = Wraps.linkedMap(source.size());
             source.forEach((k, v) -> result.put(String.valueOf(k), toMap(v)));
             return result;
         }
         if (bean instanceof Collection) {
-            java.util.List<Object> result = new java.util.ArrayList<>();
+            java.util.List<Object> result = Wraps.list();
             for (Object item : (Collection<?>) bean) {
                 result.add(toMap(item));
             }
             return result;
         }
 
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
         for (Field field : ClassUtils.getFields(bean.getClass())) {
             if (Modifier.isStatic(field.getModifiers()) || Modifier.isTransient(field.getModifiers())) {
                 continue;

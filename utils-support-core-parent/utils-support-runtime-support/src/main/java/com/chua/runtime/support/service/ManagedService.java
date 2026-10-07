@@ -1,12 +1,11 @@
 package com.chua.runtime.support.service;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.runtime.support.model.RuntimeArtifact;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -90,7 +89,7 @@ public class ManagedService {
     /**
      * Dependencies
     */
-    private List<String> dependencies = new ArrayList<>();
+    private List<String> dependencies = Wraps.list();
 
     /**
      * 是否在崩溃后自动重启

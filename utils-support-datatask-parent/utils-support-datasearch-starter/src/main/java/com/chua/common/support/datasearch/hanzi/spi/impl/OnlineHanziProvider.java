@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.hanzi.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.hanzi.model.HanziInfo;
 import com.chua.common.support.datasearch.hanzi.spi.HanziProvider;
 import com.chua.common.support.network.client.ClientResponse;
@@ -10,10 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -115,7 +113,7 @@ public class OnlineHanziProvider implements HanziProvider {
             return Collections.emptyList();
         }
         String kw = keyword.trim();
-        List<HanziInfo> result = new ArrayList<>();
+        List<HanziInfo> result = Wraps.list();
         for (HanziInfo info : loadIndex().values()) {
             if (contains(info.getPinyin(), kw) || contains(info.getRadicals(), kw)
                     || contains(info.getExplanation(), kw) || contains(info.getMore(), kw)) {
@@ -137,7 +135,7 @@ public class OnlineHanziProvider implements HanziProvider {
         if (idx.isEmpty()) {
             return null;
         }
-        List<HanziInfo> values = new ArrayList<>(idx.values());
+        List<HanziInfo> values = Wraps.list(idx.values());
         return values.get(ThreadLocalRandom.current().nextInt(values.size()));
     }
 
@@ -166,7 +164,7 @@ public class OnlineHanziProvider implements HanziProvider {
             if (!index.isEmpty()) {
                 return index;
             }
-            Map<String, HanziInfo> map = new LinkedHashMap<>();
+            Map<String, HanziInfo> map = Wraps.linkedMap();
             try {
                 ClientResponse resp = httpClient.get(url);
                 if (resp.isSuccess()) {
@@ -231,7 +229,7 @@ public class OnlineHanziProvider implements HanziProvider {
      * @return 构建降级的结果
      */
     private static List<HanziInfo> buildFallback() {
-        List<HanziInfo> list = new ArrayList<>();
+        List<HanziInfo> list = Wraps.list();
         add(list, "中", "zhōng", "丨", "4", "方位词，跟四周的距离相等；中心。", "中间、中心");
         add(list, "华", "huá", "十", "6", "光辉、光彩；指中华民族或中国。", "华夏、中华");
         add(list, "人", "rén", "人", "2", "能制造工具并使用工具进行劳动的高等动物。", "人民、人类");

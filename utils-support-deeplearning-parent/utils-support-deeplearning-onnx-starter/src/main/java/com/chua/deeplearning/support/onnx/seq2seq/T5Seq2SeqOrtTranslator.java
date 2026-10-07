@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.seq2seq;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.huggingface.tokenizers.Encoding;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.onnxruntime.OnnxTensor;
@@ -12,9 +13,6 @@ import java.nio.FloatBuffer;
 import java.nio.LongBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -273,12 +271,12 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
      * @throws Exception ORT 异常
      */
     private List<Long> runDecoder(long[] sourceIds, long[] sourceMask, float[] encoderHidden) throws Exception {
-        List<Long> generated = new ArrayList<>();
+        List<Long> generated = Wraps.list();
         Set<String> pastInputs = decoderPastSession.getInputNames();
         int srcLen = sourceIds.length;
 
  // 首步：解码器 起始 令牌 + 编码器上下文
-        Map<String, OnnxTensor> feed = new HashMap<>();
+        Map<String, OnnxTensor> feed = Wraps.map();
         feed.put("input_ids", OnnxTensor.createTensor(ortEnv,
                 LongBuffer.wrap(new long[]{def.decoderStartId()}), new long[]{1, 1}));
         feed.put("encoder_attention_mask", OnnxTensor.createTensor(ortEnv,
@@ -317,7 +315,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
 
  // 循环：解码器_with_past 自回归生成
             for (int step = 0; step < maxNewTokens; step++) {
-                Map<String, OnnxTensor> feedLoop = new HashMap<>();
+                Map<String, OnnxTensor> feedLoop = Wraps.map();
                 if (pastInputs.contains("input_ids")) {
                     feedLoop.put("input_ids", OnnxTensor.createTensor(ortEnv,
                             LongBuffer.wrap(new long[]{next}), new long[]{1, 1}));
@@ -397,7 +395,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
         OnnxTensor logitsTensor = (OnnxTensor) result.get("logits").get();
         float[][][] logits = (float[][][]) logitsTensor.getValue();
         float[] row = logits[0][0];
-        Set<Long> seen = new HashSet<>(gen);
+        Set<Long> seen = Wraps.set(gen);
         for (Long token : seen) {
             int idx = token.intValue();
             if (idx < 0 || idx >= row.length) {
@@ -483,7 +481,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
         Set<String> pastInputs = decoderPastSession.getInputNames();
 
  // 首步：解码器 起始 令牌 + 编码器上下文
-        Map<String, OnnxTensor> feed = new HashMap<>();
+        Map<String, OnnxTensor> feed = Wraps.map();
         feed.put("input_ids", OnnxTensor.createTensor(ortEnv,
                 LongBuffer.wrap(new long[]{def.decoderStartId()}), new long[]{1, 1}));
         feed.put("encoder_attention_mask", OnnxTensor.createTensor(ortEnv,
@@ -523,9 +521,9 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
         }
 
  // 初始化 numBeam 个候选（各自持有独立 KV 副本）
-        List<Beam> beams = new ArrayList<>();
+        List<Beam> beams = Wraps.list();
         for (long tok : topKTokens(firstRow, numBeams, List.of(), false)) {
-            List<Long> ids = new ArrayList<>();
+            List<Long> ids = Wraps.list();
             ids.add(tok);
             beams.add(new Beam(ids, firstRow[(int) tok], cloneKv(firstDKv), baseDecSeq + 1, false));
         }
@@ -533,12 +531,12 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
             return List.of();
         }
 
-        List<Beam> finished = new ArrayList<>();
+        List<Beam> finished = Wraps.list();
         for (int step = 0; step < maxNewTokens && !beams.isEmpty(); step++) {
-            List<Beam> next = new ArrayList<>();
+            List<Beam> next = Wraps.list();
             for (Beam b : beams) {
                 long last = b.ids.get(b.ids.size() - 1);
-                Map<String, OnnxTensor> f = new HashMap<>();
+                Map<String, OnnxTensor> f = Wraps.map();
                 f.put("input_ids", OnnxTensor.createTensor(ortEnv,
                         LongBuffer.wrap(new long[]{last}), new long[]{1, 1}));
                 f.put("encoder_attention_mask", OnnxTensor.createTensor(ortEnv,
@@ -583,7 +581,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
                         } else if (tok == def.decoderStartId()) {
  // 忽略重复起始 令牌
                         } else {
-                            List<Long> ids = new ArrayList<>(b.ids);
+                            List<Long> ids = Wraps.list(b.ids);
                             ids.add(tok);
                             next.add(new Beam(ids, score, newDkv, b.decSeq + 1, false));
                         }
@@ -593,7 +591,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
  // 保留分数最高的 numBeam 个活跃假设
             next.sort((a, b) -> Float.compare(b.score, a.score));
             if (next.size() > numBeams) {
-                next = new ArrayList<>(next.subList(0, numBeams));
+                next = Wraps.list(next.subList(0, numBeams));
             }
             beams = next;
         }
@@ -642,7 +640,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
             order[i] = i;
         }
         // 应用重复惩罚
-        Set<Long> set = new HashSet<>(seen);
+        Set<Long> set = Wraps.set(seen);
         for (Long token : set) {
             int idx = token.intValue();
             if (idx >= 0 && idx < row.length) {
@@ -658,7 +656,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
         }
         // 简单选择排序取 Top-K
         int count = Math.min(k, row.length);
-        List<Long> result = new ArrayList<>(count);
+        List<Long> result = Wraps.list(count);
         boolean[] picked = new boolean[row.length];
         for (int n = 0; n < count; n++) {
             int best = -1;

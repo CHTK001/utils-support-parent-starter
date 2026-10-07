@@ -1,5 +1,6 @@
 package com.chua.datasource.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.engine.Engine;
@@ -26,10 +27,7 @@ import com.chua.datasource.support.annotation.TableName;
 import com.chua.datasource.support.wrapper.EngineDeleteWrapper;
 import com.chua.datasource.support.wrapper.EngineQueryWrapper;
 import com.chua.datasource.support.wrapper.EngineUpdateWrapper;
-
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -165,7 +163,7 @@ public abstract class AbstractEngine implements Engine {
     */
     public <T> Engine store(String name, List<T> data) {
         ensureOpen("写入内存表 " + name);
-        dataStores.put(name, new ArrayList<>(data));
+        dataStores.put(name, Wraps.list(data));
         if (defaultDataSourceName == null) {
             defaultDataSourceName = name;
         }
@@ -477,7 +475,7 @@ public abstract class AbstractEngine implements Engine {
                 .toList();
  // 先全量排序，再按 limit/offset 截取当前页
         if (sql.orderBys() != null && !sql.orderBys().isEmpty() && !valid.isEmpty()) {
-            List<T> sorted = new ArrayList<>(valid);
+            List<T> sorted = Wraps.list(valid);
             sorted.sort((a, b) -> compareOrdered(a, b, sql.orderBys()));
             valid = sorted;
         }
@@ -489,7 +487,7 @@ public abstract class AbstractEngine implements Engine {
             }
             int to = Math.min(from + sql.limit(), valid.size());
             // 返回独立副本，避免 subList 试图图泄漏内存存储
-            return new ArrayList<>(valid.subList(from, to));
+            return Wraps.list(valid.subList(from, to));
         }
         return valid;
     }
@@ -588,7 +586,7 @@ public abstract class AbstractEngine implements Engine {
             return new Page<>(pn, ps, all.size(), Collections.emptyList());
         }
         // 独立副本，避免 subList 视图持有内存存储引用
-        return new Page<>(pn, ps, all.size(), new ArrayList<>(all.subList(from, to)));
+        return new Page<>(pn, ps, all.size(), Wraps.list(all.subList(from, to)));
     }
 
     /**
@@ -693,7 +691,7 @@ public abstract class AbstractEngine implements Engine {
 
  // 解析 设置 子句，分离参数：仅 "?" 占位符消费参数，字面量赋值直接取值
         List<Object> params = sql.params() == null ? Collections.emptyList() : sql.params();
-        Map<String, Object> setValues = new LinkedHashMap<>();
+        Map<String, Object> setValues = Wraps.linkedMap();
         String[] setParts = setClause.split(", ");
         int paramIdx = 0;
         for (String setPart : setParts) {
@@ -729,7 +727,7 @@ public abstract class AbstractEngine implements Engine {
 
         // 过滤并更新
         MemoryWhereParser parser = new MemoryWhereParser();
-        List<Object> whereParamList = new ArrayList<>(whereParams);
+        List<Object> whereParamList = Wraps.list(whereParams);
         var predicate = parser.parse(where, whereParamList);
         List<T> updated = data.stream().filter(predicate).toList();
         for (T item : updated) {
@@ -759,13 +757,13 @@ public abstract class AbstractEngine implements Engine {
 
         List<Object> params = sql.params();
         MemoryWhereParser parser = new MemoryWhereParser();
-        List<Object> paramList = (params != null) ? new ArrayList<>(params) : new ArrayList<>();
+        List<Object> paramList = (params != null) ? Wraps.list(params) : Wraps.list();
         var predicate = parser.parse(where, paramList);
         int before = data.size();
         List<T> remaining = data.stream().filter(predicate.negate()).toList();
         int removed = before - remaining.size();
         if (removed > 0) {
-            List<T> next = new ArrayList<>(remaining);
+            List<T> next = Wraps.list(remaining);
             for (Map.Entry<String, List<?>> entry : dataStores.entrySet()) {
                 if (entry.getValue() == data) {
                     dataStores.put(entry.getKey(), next);
@@ -917,7 +915,7 @@ public abstract class AbstractEngine implements Engine {
             return 0;
         }
         ensureOpen("批量插入 " + getTableName(entityClass));
-        List<Map<String, Object>> rows = new ArrayList<>(entities.size());
+        List<Map<String, Object>> rows = Wraps.list(entities.size());
         for (T entity : entities) {
             if (entity == null) {
                 throw new IllegalArgumentException("待插入实体列表中存在 null 元素");
@@ -968,7 +966,7 @@ public abstract class AbstractEngine implements Engine {
     @SuppressWarnings("unchecked")
     protected List<Object> mutableMemoryRows(Class<?> entityClass) {
         String table = getTableName(entityClass);
-        return (List<Object>) dataStores.computeIfAbsent(table, k -> new ArrayList<>());
+        return (List<Object>) dataStores.computeIfAbsent(table, k -> Wraps.list());
     }
 
     /**
@@ -988,7 +986,7 @@ public abstract class AbstractEngine implements Engine {
      * @return 列值映射（不可为 null，按声明顺序排列）
      */
     private Map<String, Object> entityRow(Object entity) {
-        Map<String, Object> row = new LinkedHashMap<>();
+        Map<String, Object> row = Wraps.linkedMap();
         for (java.lang.reflect.Field field : ReflectUtils.getPersistentFields(entity.getClass())) {
             row.put(SqlName.checkSimple(field.getName(), "列名"), MethodCache.getValue(entity, field.getName()));
         }
@@ -1010,7 +1008,7 @@ public abstract class AbstractEngine implements Engine {
      */
     private int executeInsert(Class<?> entityClass, List<Map<String, Object>> rows) {
         String table = SqlName.check(resolveTableName(entityClass), "表名");
-        List<String> columns = new ArrayList<>(rows.getFirst().keySet());
+        List<String> columns = Wraps.list(rows.getFirst().keySet());
         for (Map<String, Object> row : rows) {
             for (String column : row.keySet()) {
                 if (!columns.contains(column)) {
@@ -1020,7 +1018,7 @@ public abstract class AbstractEngine implements Engine {
         }
 
         StringBuilder values = new StringBuilder();
-        List<Object> params = new ArrayList<>(rows.size() * columns.size());
+        List<Object> params = Wraps.list(rows.size() * columns.size());
         for (int i = 0; i < rows.size(); i++) {
             if (i > 0) {
                 values.append(", ");
@@ -1113,7 +1111,7 @@ public abstract class AbstractEngine implements Engine {
      */
     protected List<String> ddlSpiKeys() {
         String protocol = ddlDialectProtocol();
-        List<String> keys = new ArrayList<>(2);
+        List<String> keys = Wraps.list(2);
         if (protocol != null) {
             keys.add(protocol);
         }

@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.paddle.face;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -12,8 +13,6 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -74,9 +73,9 @@ public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedO
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray result = list.singletonOrThrow();
         float[] probabilities = result.get(":,1").toFloatArray();
-        List<String> objectNames = new ArrayList<>();
-        List<Double> probabilitiesResult = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
+        List<String> objectNames = Wraps.list();
+        List<Double> probabilitiesResult = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
         for (int index = 0; index < probabilities.length; index++) {
             if (probabilities[index] < threshold) {
                 continue;

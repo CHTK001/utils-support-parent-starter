@@ -1,12 +1,12 @@
 package com.chua.crypto.support.license;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -109,7 +109,7 @@ public final class FileLicenseRegistry implements LicenseRegistry {
      */
     @Override
     public Map<String, String> snapshot() {
-        return new LinkedHashMap<>(store);
+        return Wraps.linkedMap(store);
     }
 
     /**

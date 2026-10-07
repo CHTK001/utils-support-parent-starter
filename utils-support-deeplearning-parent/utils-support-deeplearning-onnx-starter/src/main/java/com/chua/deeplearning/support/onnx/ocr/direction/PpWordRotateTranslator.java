@@ -1,4 +1,5 @@
 package com.chua.deeplearning.support.onnx.ocr.direction;
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.ocr.DirectionInfo;
 import com.chua.deeplearning.support.utils.ImageUtils;
 
@@ -14,7 +15,6 @@ import org.opencv.imgproc.Imgproc;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.chua.deeplearning.support.onnx.GpuHelper;
@@ -155,7 +155,7 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
 
                 long[] shape = {1, 3, RESIZE_HEIGHT, RESIZE_WIDTH};
                 try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
-                    Map<String, OnnxTensor> inputs = new HashMap<>();
+                    Map<String, OnnxTensor> inputs = Wraps.map();
                     inputs.put("x", tensor);
                     try (OrtSession.Result result = session.run(inputs)) {
                         Object out = result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）

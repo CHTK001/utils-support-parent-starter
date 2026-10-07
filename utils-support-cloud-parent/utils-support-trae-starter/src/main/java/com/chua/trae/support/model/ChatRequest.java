@@ -1,9 +1,9 @@
 package com.chua.trae.support.model;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -686,7 +686,7 @@ public class ChatRequest {
             public FunctionDef {
                 parameters = parameters == null
                         ? null
-                        : Collections.unmodifiableMap(new LinkedHashMap<>(parameters));
+                        : Collections.unmodifiableMap(Wraps.linkedMap(parameters));
             }
         }
 

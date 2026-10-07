@@ -1,5 +1,6 @@
 package com.chua.wechat.support.restore.memory;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.foreign.Arena;
@@ -9,7 +10,6 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -204,7 +204,7 @@ public final class WechatMemoryAccess implements AutoCloseable {
      * @return 区域列表
      */
     public List<Region> regions() {
-        List<Region> regions = new ArrayList<>(4096);
+        List<Region> regions = Wraps.list(4096);
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment mbi = arena.allocate(MBI_SIZE);
             long address = 0;

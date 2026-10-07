@@ -1,7 +1,7 @@
 package com.chua.common.support.osgi;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -50,7 +50,7 @@ import java.util.Map;
     public OsgiServiceDescriptor {
         properties = properties == null
                 ? null
-                : Collections.unmodifiableMap(new LinkedHashMap<>(properties));
+                : Collections.unmodifiableMap(Wraps.linkedMap(properties));
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.software.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.mcp.McpClient;
 import com.chua.common.support.ai.mcp.McpToolCall;
 import com.chua.common.support.ai.mcp.McpToolDescriptor;
@@ -14,9 +15,6 @@ import com.chua.common.support.lang.cmd.LineCallback;
 import com.chua.common.support.lang.cmd.PackageManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -82,7 +80,7 @@ public class PackageManagerProvider {
      * @return 列表installed的结果
      */
     public Map<String, Boolean> listInstalled() {
-        Map<String, Boolean> result = new LinkedHashMap<>();
+        Map<String, Boolean> result = Wraps.linkedMap();
         for (McpToolDescriptor td : toolDescriptors()) {
             result.put(td.getName(), detectAvailable() != null && !detectAvailable().isEmpty());
         }
@@ -203,7 +201,7 @@ public class PackageManagerProvider {
     protected McpToolResult handleSearch(Map<String, Object> args) {
         String keyword = (String) args.get("keyword");
         List<SoftwareInfo> results = searchSoftware(keyword);
-        List<Map<String, Object>> items = new ArrayList<>();
+        List<Map<String, Object>> items = Wraps.list();
         for (SoftwareInfo info : results) {
             items.add(info.toMap());
         }
@@ -243,9 +241,9 @@ public class PackageManagerProvider {
      */
     protected McpToolResult handleListManagers() {
         List<PackageManager.Type> pms = detectAvailable();
-        List<Map<String, Object>> items = new ArrayList<>();
+        List<Map<String, Object>> items = Wraps.list();
         for (PackageManager.Type pm : pms) {
-            Map<String, Object> item = new LinkedHashMap<>();
+            Map<String, Object> item = Wraps.linkedMap();
             item.put("name", pm.getCommand());
             item.put("installTemplate", pm.getInstallTemplate());
             items.add(item);
@@ -325,7 +323,7 @@ public class PackageManagerProvider {
      * @return 搜索software的结果
      */
     protected List<SoftwareInfo> searchSoftware(String keyword) {
-        List<SoftwareInfo> results = new ArrayList<>();
+        List<SoftwareInfo> results = Wraps.list();
         List<PackageManager.Type> availablePms = detectAvailable();
 
         log.info("开始搜索软件: keyword={}, 可用包管理器: {}", keyword, availablePms);
@@ -560,7 +558,7 @@ public class PackageManagerProvider {
      * @return 解析winget输出的结果
      */
     protected List<SoftwareInfo> parseWingetOutput(String output) {
-        List<SoftwareInfo> results = new ArrayList<>();
+        List<SoftwareInfo> results = Wraps.list();
         String[] lines = output.split("\\r?\\n");
         boolean headerFound = false;
         for (String line : lines) {
@@ -592,7 +590,7 @@ public class PackageManagerProvider {
      * @return 解析choco输出的结果
      */
     protected List<SoftwareInfo> parseChocoOutput(String output) {
-        List<SoftwareInfo> results = new ArrayList<>();
+        List<SoftwareInfo> results = Wraps.list();
         String[] lines = output.split("\\r?\\n");
         for (String line : lines) {
             if (line.isBlank() || line.startsWith("Chocolatey") || line.contains("packages found")) {
@@ -616,7 +614,7 @@ public class PackageManagerProvider {
      * @return 解析brew输出的结果
      */
     protected List<SoftwareInfo> parseBrewOutput(String output) {
-        List<SoftwareInfo> results = new ArrayList<>();
+        List<SoftwareInfo> results = Wraps.list();
         String[] lines = output.split("\\r?\\n");
         for (String line : lines) {
             String trimmed = line.trim();
@@ -635,7 +633,7 @@ public class PackageManagerProvider {
      * @return 解析apt输出的结果
      */
     protected List<SoftwareInfo> parseAptOutput(String output) {
-        List<SoftwareInfo> results = new ArrayList<>();
+        List<SoftwareInfo> results = Wraps.list();
         String[] lines = output.split("\\r?\\n");
         for (String line : lines) {
             String trimmed = line.trim();
@@ -660,7 +658,7 @@ public class PackageManagerProvider {
      * @return 解析yum输出的结果
      */
     protected List<SoftwareInfo> parseYumOutput(String output) {
-        List<SoftwareInfo> results = new ArrayList<>();
+        List<SoftwareInfo> results = Wraps.list();
         String[] lines = output.split("\\r?\\n");
         for (String line : lines) {
             String trimmed = line.trim();
@@ -692,7 +690,7 @@ public class PackageManagerProvider {
      * @return 解析apk输出的结果
      */
     protected List<SoftwareInfo> parseApkOutput(String output) {
-        List<SoftwareInfo> results = new ArrayList<>();
+        List<SoftwareInfo> results = Wraps.list();
         String[] lines = output.split("\\r?\\n");
         for (String line : lines) {
             String trimmed = line.trim();

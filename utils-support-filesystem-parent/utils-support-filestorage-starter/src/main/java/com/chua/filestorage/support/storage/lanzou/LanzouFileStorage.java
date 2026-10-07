@@ -1,5 +1,6 @@
 package com.chua.filestorage.support.storage.lanzou;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonArray;
 import com.chua.common.support.lang.json.JsonObject;
@@ -22,8 +23,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -108,7 +107,7 @@ public class LanzouFileStorage extends AbstractFileStorage {
     public LanzouFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         this.extra = bucketSetting.getExtraProperties() == null
-                ? new LinkedHashMap<>() : bucketSetting.getExtraProperties();
+                ? Wraps.linkedMap() : bucketSetting.getExtraProperties();
         String cookie = loadCookie(extra.get("cookiePath") != null ? extra.get("cookiePath") : extra.get("cookie"));
         this.http = new LanzouHttp(cookie, 30000, 60000);
         String u = extra.get("uid");
@@ -207,7 +206,7 @@ public class LanzouFileStorage extends AbstractFileStorage {
             byte[] content = request.getContent();
             String fileName = request.getFileName();
             String folderId = resolveFolderId(request.getFilePath());
-            Map<String, String> fields = new LinkedHashMap<>();
+            Map<String, String> fields = Wraps.linkedMap();
             fields.put("folder_id", folderId);
             fields.put("uid", uid);
             fields.put("task", "1");
@@ -355,7 +354,7 @@ public class LanzouFileStorage extends AbstractFileStorage {
             } else {
                 files = listFiles(folderId);
             }
-            List<Metadata> metadataList = new ArrayList<>(files.size());
+            List<Metadata> metadataList = Wraps.list(files.size());
             for (LanzouFile file : files) {
                 metadataList.add(Metadata.builder()
                         .name(file.getName())
@@ -382,7 +381,7 @@ public class LanzouFileStorage extends AbstractFileStorage {
      * @return 结果列表，无数据时为空列表
      */
     private List<LanzouFile> listAll(String folderId) {
-        List<LanzouFile> result = new ArrayList<>();
+        List<LanzouFile> result = Wraps.list();
         result.addAll(listFiles(folderId));
         for (LanzouFile folder : listFolders(folderId)) {
             result.addAll(listAll(folder.getId()));
@@ -397,7 +396,7 @@ public class LanzouFileStorage extends AbstractFileStorage {
      */
     private List<LanzouFile> listFiles(String folderId) {
         String resp = postTask("5", Map.of("folder_id", folderId, "pg", "1"), referer);
-        List<LanzouFile> list = new ArrayList<>();
+        List<LanzouFile> list = Wraps.list();
         JsonObject json = Json.getJsonObject(resp);
         if (json == null || json.getType("zt", 0, Integer.class) != 1) {
             return list;
@@ -413,7 +412,7 @@ public class LanzouFileStorage extends AbstractFileStorage {
      */
     private List<LanzouFile> listFolders(String folderId) {
         String resp = postTask("47", Map.of("folder_id", folderId), referer);
-        List<LanzouFile> list = new ArrayList<>();
+        List<LanzouFile> list = Wraps.list();
         JsonObject json = Json.getJsonObject(resp);
         if (json == null || json.getType("zt", 0, Integer.class) != 1) {
             return list;
@@ -472,7 +471,7 @@ public class LanzouFileStorage extends AbstractFileStorage {
      * @return 结果字符串
      */
     private String postTask(String task, Map<String, String> params, String referer) {
-        Map<String, String> body = new LinkedHashMap<>(params);
+        Map<String, String> body = Wraps.linkedMap(params);
         body.put("task", task);
         return http.post(HOST + "/doupload.php?uid=" + uid, body, referer);
     }

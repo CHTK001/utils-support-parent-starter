@@ -1,5 +1,6 @@
 package com.chua.ollama.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.audio.AudioClientSetting;
 import com.chua.common.support.ai.audio.AudioResponse;
 import com.chua.common.support.ai.audio.VirtualClient;
@@ -13,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -181,7 +181,7 @@ public class OllamaAudioClient implements VirtualClient {
     public List<ModelDefinition> models() {
         try {
             List<Model> raw = ollama.listModels();
-            List<ModelDefinition> result = new ArrayList<>();
+            List<ModelDefinition> result = Wraps.list();
             if (raw != null) {
                 for (Model m : raw) {
                     if (m == null || m.getName() == null || m.getName().isBlank()) {

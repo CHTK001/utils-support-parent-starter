@@ -1,9 +1,8 @@
 package com.chua.common.support.network.server.dht.krpc;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -74,7 +73,7 @@ public class KrpcMessage {
         } else if (msg.y == 'e') {
             @SuppressWarnings("unchecked")
             List<Object> err = (List<Object>) map.get("e");
-            msg.e = new ArrayList<>();
+            msg.e = Wraps.list();
             if (err != null) {
                 for (Object o : err) {
                     msg.e.add(o instanceof Long ? (Long) o : Long.parseLong(o.toString()));
@@ -90,14 +89,14 @@ public class KrpcMessage {
      * @return Bencode 字节数组
      */
     public byte[] encode() {
-        Map<String, Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = Wraps.linkedMap();
         map.put("t", t != null ? t : "00");
         map.put("y", String.valueOf(y));
         if (y == 'q') {
             map.put("q", q);
-            map.put("a", a != null ? a : new LinkedHashMap<>());
+            map.put("a", a != null ? a : Wraps.linkedMap());
         } else if (y == 'r') {
-            map.put("r", r != null ? r : new LinkedHashMap<>());
+            map.put("r", r != null ? r : Wraps.linkedMap());
         } else if (y == 'e') {
             map.put("e", e != null ? e : Arrays.asList(201L, "Generic Error"));
         }
@@ -159,7 +158,7 @@ public class KrpcMessage {
     public void put(String key, Object value) {
         Map<String, Object> m = y == 'q' ? a : r;
         if (m == null) {
-            m = new LinkedHashMap<>();
+            m = Wraps.linkedMap();
             if (y == 'q') {
                 a = m;
             } else {

@@ -1,9 +1,8 @@
 package com.chua.calcite.support.datasource;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasource.support.datasource.DataScheme;
 import com.chua.datasource.support.datasource.DataTable;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +32,7 @@ public class CalciteDataScheme implements DataScheme {
      */
     public CalciteDataScheme(String name) {
         this.name = name;
-        this.tables = new ArrayList<>();
+        this.tables = Wraps.list();
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.chua.common.support.ai.agent;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.memory.MemoryConfig;
 import com.chua.common.support.ai.memory.MemoryManager;
@@ -8,8 +9,6 @@ import com.chua.common.support.ai.skill.SkillDefinition;
 import com.chua.common.support.ai.skill.SkillHandler;
 import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.spi.ServiceProvider;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -174,7 +173,7 @@ public interface Agent extends AutoCloseable {
                         .timestamp(System.currentTimeMillis())
                         .build());
             }
-            List<AgentStreamEvent> events = new ArrayList<>();
+            List<AgentStreamEvent> events = Wraps.list();
             String output = response != null ? response.getOutput() : "";
             if (output != null && !output.isEmpty()) {
                 events.add(AgentStreamEvent.reasoningDelta(null, output));

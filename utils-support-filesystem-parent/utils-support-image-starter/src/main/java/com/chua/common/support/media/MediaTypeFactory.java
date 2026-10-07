@@ -1,6 +1,5 @@
 package com.chua.common.support.media;
-
-import java.util.HashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Map;
 /**
  * @author CH
@@ -12,7 +11,7 @@ public class MediaTypeFactory {
     /**
      * MEDITYPES
     */
-    private static final Map<String, MediaType> MEDIA_TYPES = new HashMap<>();
+    private static final Map<String, MediaType> MEDIA_TYPES = Wraps.map();
 
     static {
         MEDIA_TYPES.put("text", new MediaType("text", "plain", "UTF-8"));

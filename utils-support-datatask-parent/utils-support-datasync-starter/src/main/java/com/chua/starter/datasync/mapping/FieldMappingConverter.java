@@ -1,5 +1,6 @@
 package com.chua.starter.datasync.mapping;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.CollectionUtils;
 
 import java.util.List;
@@ -39,7 +40,7 @@ public interface FieldMappingConverter {
         if (record == null || CollectionUtils.isEmpty(mappings)) {
             return record;
         }
-        Map<String, Object> result = new java.util.LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
         for (DataSyncFieldMapping mapping : mappings) {
             Object value = record.get(mapping.sourceField());
             if (value != null) {

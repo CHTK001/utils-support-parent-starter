@@ -1,11 +1,11 @@
 package com.chua.crypto.support.key;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.crypto.support.CryptoException;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -95,7 +95,7 @@ public final class ServerFingerprint {
      * @return 特征列表
      */
     private static List<String> collectAttributes() {
-        List<String> attributes = new ArrayList<>();
+        List<String> attributes = Wraps.list();
         attributes.add(System.getProperty("os.name", "unknown-os"));
         attributes.add(System.getProperty("os.arch", "unknown-arch"));
         attributes.add(String.valueOf(Runtime.getRuntime().availableProcessors()));
@@ -116,7 +116,7 @@ public final class ServerFingerprint {
      * @return MAC 地址列表（可能为空，如纯容器环境）
      */
     private static List<String> collectMacAddresses() {
-        List<String> macs = new ArrayList<>();
+        List<String> macs = Wraps.list();
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {

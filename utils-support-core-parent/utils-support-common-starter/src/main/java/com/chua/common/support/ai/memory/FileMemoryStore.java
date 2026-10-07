@@ -1,5 +1,6 @@
 package com.chua.common.support.ai.memory;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import lombok.extern.slf4j.Slf4j;
 
@@ -7,7 +8,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -196,7 +196,7 @@ public class FileMemoryStore implements MemoryStore {
      * @return 结果列表，无数据时为空列表
      */
     private List<MemoryEntry> listAll(int limit) {
-        List<MemoryEntry> result = new ArrayList<>();
+        List<MemoryEntry> result = Wraps.list();
         try {
             Files.list(memoryDir)
                     .filter(p -> p.toString().endsWith(".json"))

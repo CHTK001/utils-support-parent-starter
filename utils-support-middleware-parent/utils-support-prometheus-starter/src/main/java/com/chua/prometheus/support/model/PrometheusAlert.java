@@ -1,11 +1,10 @@
 package com.chua.prometheus.support.model;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -27,13 +26,13 @@ public class PrometheusAlert {
      * 告警标签
      */
     @Builder.Default
-    private Map<String, String> labels = new LinkedHashMap<>(); // 标签
+    private Map<String, String> labels = Wraps.linkedMap(); // 标签
 
     /**
      * 注释
      */
     @Builder.Default
-    private Map<String, String> annotations = new LinkedHashMap<>(); // 注解
+    private Map<String, String> annotations = Wraps.linkedMap(); // 注解
 
     /**
      * 状态: firing / pending / inactive

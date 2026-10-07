@@ -1,5 +1,6 @@
 package com.chua.runtime.spy;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
@@ -9,7 +10,6 @@ import java.io.File;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -121,7 +121,7 @@ public class SpyBootstrap {
         if (args == null || args.isBlank()) {
             return;
         }
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = Wraps.map();
         for (String pair : args.split(",")) {
             String[] kv = pair.split("=");
             if (kv.length == 2) {

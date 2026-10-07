@@ -1,6 +1,5 @@
 package com.chua.common.support.tree;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,7 +44,7 @@ public class TreeNode<K, V> {
      * 树节点。
      */
     public TreeNode() {
-        this.children = new ArrayList<>();
+        this.children = Wraps.list();
     }
 
     /**
@@ -57,7 +56,7 @@ public class TreeNode<K, V> {
     public TreeNode(K key, V value) {
         this.key = key;
         this.value = value;
-        this.children = new ArrayList<>();
+        this.children = Wraps.list();
     }
 
     /**

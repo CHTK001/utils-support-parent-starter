@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.json;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.template.TemplateExtractResult;
 import com.chua.common.support.lang.template.TemplateVar;
 import com.chua.common.support.lang.template.TemplateExtractor;
@@ -8,10 +9,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDefault;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -256,12 +254,12 @@ public class JsonTemplateExtractor implements TemplateExtractor {
  }
  JsonNode inputRoot = readTree(inputJson, "输入");
 
- Map<String, Object> extracted = new LinkedHashMap<>();
- List<String> missing = new ArrayList<>();
- List<TemplateVar> vars = new ArrayList<>();
+ Map<String, Object> extracted = Wraps.linkedMap();
+ List<String> missing = Wraps.list();
+ List<TemplateVar> vars = Wraps.list();
 
  // 遍历模板树，收集所有占位符规则并按路径在输入中定位
- List<Object> rootPath = new ArrayList<>();
+ List<Object> rootPath = Wraps.list();
  collectAndExtract(root, inputRoot, rootPath, extracted, missing, vars);
 
  if (missing.isEmpty()) {
@@ -405,7 +403,7 @@ public class JsonTemplateExtractor implements TemplateExtractor {
  Iterator<String> fields = tpl.fieldNames();
  while (fields.hasNext()) {
  String field = fields.next();
- List<Object> childPath = new ArrayList<>(path);
+ List<Object> childPath = Wraps.list(path);
  childPath.add(field);
  JsonNode childIn = (useIn == null) ? null : useIn.get(field);
  collectAndExtract(tpl.get(field), childIn, childPath, extracted, missing, vars);
@@ -420,14 +418,14 @@ public class JsonTemplateExtractor implements TemplateExtractor {
  && tpl.size() == 1 && useIn != null) {
  JsonNode tplElem = tpl.get(0); // [P3C 四十一 豁免] JsonNode 数组下标访问（非 List 集合取首）
  for (int i = 0; i < useIn.size(); i++) {
- List<Object> childPath = new ArrayList<>(path);
+ List<Object> childPath = Wraps.list(path);
  childPath.add(i);
  collectAndExtract(tplElem, useIn.get(i), childPath, extracted, missing, vars);
  }
  return;
  }
  for (int i = 0; i < tpl.size(); i++) {
- List<Object> childPath = new ArrayList<>(path);
+ List<Object> childPath = Wraps.list(path);
  childPath.add(i);
  JsonNode childIn = (useIn == null || i >= useIn.size()) ? null : useIn.get(i);
  collectAndExtract(tpl.get(i), childIn, childPath, extracted, missing, vars);
@@ -469,7 +467,7 @@ public class JsonTemplateExtractor implements TemplateExtractor {
 
  if (in.isTextual()) {
  // 统一用正则表达式从文本中截取（整值占位符也会匹配整串）
- List<String> ordered = new ArrayList<>();
+ List<String> ordered = Wraps.list();
  Pattern pattern = buildPattern(text, ordered);
  Matcher matcher = pattern.matcher(in.asText());
  if (matcher.matches()) {
@@ -499,7 +497,7 @@ public class JsonTemplateExtractor implements TemplateExtractor {
  // 内嵌占位符需要文本输入才能截取；开启类型容忍时尝试将非文本输入转为文本处理
  if (tolerantType) {
  String asText = in.asText();
- List<String> ordered = new ArrayList<>();
+ List<String> ordered = Wraps.list();
  Pattern pattern = buildPattern(text, ordered);
  Matcher matcher = pattern.matcher(asText);
  if (matcher.matches() && ordered.size() == varNames.size()) {
@@ -565,7 +563,7 @@ public class JsonTemplateExtractor implements TemplateExtractor {
   * @return 变量名列表，可能为空
   */
  private List<String> findPlaceholders(String text) {
- List<String> vars = new ArrayList<>();
+ List<String> vars = Wraps.list();
  Matcher matcher = placeholderFinder().matcher(text);
  while (matcher.find()) {
  String name = matcher.group(1);

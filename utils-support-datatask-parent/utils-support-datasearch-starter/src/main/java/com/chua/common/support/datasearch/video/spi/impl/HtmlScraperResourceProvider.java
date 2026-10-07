@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.video.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.video.model.VideoInfoResult;
 import com.chua.common.support.datasearch.video.model.VideoSearch;
 import com.chua.common.support.datasearch.video.spi.AbstractResourceProvider;
@@ -9,7 +10,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -81,7 +81,7 @@ public abstract class HtmlScraperResourceProvider extends AbstractResourceProvid
             HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
             String html = resp.body();
 
-            List<VideoInfoResult> results = new ArrayList<>();
+            List<VideoInfoResult> results = Wraps.list();
             Matcher m = resultPattern().matcher(html);
             while (m.find() && results.size() < 10) {
                 results.add(buildResult(m, kw));

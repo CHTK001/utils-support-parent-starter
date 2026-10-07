@@ -1,5 +1,6 @@
 package com.chua.calcite.support.datasource;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDefault;
 import com.chua.datasource.support.datasource.DataScheme;
@@ -66,12 +67,12 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     /**
      * 已注册的 JDBC 数据源（名称 -> 数据源）
      */
-    private final Map<String, DataSource> dataSources = new LinkedHashMap<>();
+    private final Map<String, DataSource> dataSources = Wraps.linkedMap();
 
     /**
      * 已注册的 数据scheme 虚拟库列表
      */
-    private final List<DataScheme> schemes = new ArrayList<>();
+    private final List<DataScheme> schemes = Wraps.list();
 
     /**
      * Calcite 连接属性
@@ -169,8 +170,8 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
      */
     public DataSource create() {
         return new UnifiedCalciteDataSource(
-                new LinkedHashMap<>(this.dataSources),
-                new ArrayList<>(this.schemes),
+                Wraps.linkedMap(this.dataSources),
+                Wraps.list(this.schemes),
                 this.calciteProps
         );
     }
@@ -236,7 +237,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
                     schemaName = "scheme_" + System.identityHashCode(scheme);
                 }
 
-                List<DataTable> tables = new ArrayList<>();
+                List<DataTable> tables = Wraps.list();
                 for (String tName : scheme.getTableNames()) {
                     DataTable t = scheme.getTable(tName);
                     if (t != null) {
@@ -248,7 +249,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
                     continue;
                 }
 
-                Map<String, Table> calciteTableMap = new LinkedHashMap<>();
+                Map<String, Table> calciteTableMap = Wraps.linkedMap();
                 for (DataTable table : tables) {
                     String tableName = table.getName();
                     if (tableName == null || tableName.isEmpty()) {

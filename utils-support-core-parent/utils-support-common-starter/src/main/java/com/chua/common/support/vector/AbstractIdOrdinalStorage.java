@@ -1,6 +1,5 @@
 package com.chua.common.support.vector;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -133,7 +132,7 @@ public abstract class AbstractIdOrdinalStorage {
         if (idPrefix == null || idPrefix.isEmpty()) {
             return List.of();
         }
-        List<String> matched = new ArrayList<>();
+        List<String> matched = Wraps.list();
         for (String id : idToOrd.keySet()) {
             if (id.startsWith(idPrefix)) {
                 matched.add(id);

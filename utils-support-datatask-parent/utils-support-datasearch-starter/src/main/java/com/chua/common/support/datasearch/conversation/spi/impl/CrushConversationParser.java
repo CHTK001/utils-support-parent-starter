@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.conversation.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.conversation.ConversationMessage;
 import com.chua.common.support.datasearch.conversation.spi.ConversationParser;
 import com.chua.common.support.lang.json.Json;
@@ -13,7 +14,6 @@ import reactor.core.scheduler.Schedulers;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -94,7 +94,7 @@ public class CrushConversationParser implements ConversationParser {
      * @return 结果列表，无数据时为空列表
      */
     private List<Path> listProjectDatabases() {
-        List<Path> result = new ArrayList<>();
+        List<Path> result = Wraps.list();
         if (!Files.exists(PROJECTS_INDEX)) {
             return result;
         }
@@ -175,7 +175,7 @@ public class CrushConversationParser implements ConversationParser {
         String model = rs.getString("model");
         long ts = rs.getLong("created_at") * 1000L;
 
-        List<ConversationMessage> result = new ArrayList<>();
+        List<ConversationMessage> result = Wraps.list();
         JsonNode parts = safeParse(rs.getString("parts"));
         if (parts.isMissingValue() || !parts.isArray()) {
             return result;

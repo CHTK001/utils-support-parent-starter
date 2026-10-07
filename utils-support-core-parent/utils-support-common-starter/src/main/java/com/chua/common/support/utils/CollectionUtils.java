@@ -1,5 +1,6 @@
 package com.chua.common.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.constant.Projects;
 import com.chua.common.support.utils.BeanUtils;
 import com.google.common.base.Joiner;
@@ -99,7 +100,7 @@ public class CollectionUtils {
             throw new IllegalArgumentException("索引数组不能为空");
         }
         final int size = collection.size();
-        final ArrayList<T> result = new ArrayList<>(indexes.length);
+        final List<T> result = Wraps.list(indexes.length);
         for (int index : indexes) {
             // 负索引从末尾计数，越界时给出可定位的消息
             int real = index < 0 ? index + size : index;
@@ -156,7 +157,7 @@ public class CollectionUtils {
         int remainder = size % listCount;
         int number = size / listCount;
 
-        List<List<T>> result = new ArrayList<>(listCount);
+        List<List<T>> result = Wraps.list(listCount);
         int offset = 0;
         for (int i = 0; i < listCount; i++) {
             int from = i * number + offset;
@@ -429,7 +430,7 @@ public class CollectionUtils {
         }
 
         if (index < 0) {
-            ArrayList<T> ts = new ArrayList<>(source);
+            List<T> ts = Wraps.list(source);
             Collections.reverse(ts);
             return find(ts, Math.abs(index), defaultValue);
         }
@@ -469,12 +470,12 @@ public class CollectionUtils {
      */
     public static <T> List<T> page(int pageNo, int pageSize, List<T> list) {
         if (isEmpty(list)) {
-            return new ArrayList<>(0);
+            return Wraps.list(0);
         }
 
         // 每页大小小于 1 时分页无意义（与 PageUtils.totalPage 的口径保持一致：总页数为 0）
         if (pageSize < 1) {
-            return new ArrayList<>(0);
+            return Wraps.list(0);
         }
 
         pageNo = pageNo - 1;
@@ -486,20 +487,20 @@ public class CollectionUtils {
                 return unmodifiable(list);
             } else {
                 //
-                return new ArrayList<>(0);
+                return Wraps.list(0);
             }
         }
         //                                      long
         if (((long) (pageNo - PageUtils.getFirstPageNo()) * pageSize) > resultSize) {
             //
-            return new ArrayList<>(0);
+            return Wraps.list(0);
         }
 
         final int[] startEnd = PageUtils.transToStartEnd(pageNo, pageSize);
         if (startEnd[1] > resultSize) {
             startEnd[1] = resultSize;
             if (startEnd[0] > startEnd[1]) {
-                return new ArrayList<>(0);
+                return Wraps.list(0);
             }
         }
 
@@ -557,7 +558,7 @@ public class CollectionUtils {
      * @return 排序后的 列表
      */
     public static <T> List<T> sort(Collection<T> collection, Comparator<? super T> comparator) {
-        List<T> list = new ArrayList<>(collection);
+        List<T> list = Wraps.list(collection);
         list.sort(comparator);
         return list;
     }
@@ -621,7 +622,7 @@ public class CollectionUtils {
             step = 1;
         }
 
-        final List<T> result = new ArrayList<>();
+        final List<T> result = Wraps.list();
         for (int i = start; i < end; i += step) {
             result.add(list.get(i));
         }
@@ -643,11 +644,11 @@ public class CollectionUtils {
         }
         //                                                       ,                               ,
         if (number >= elementList.size()) {
-            List<T> result = new ArrayList<>(elementList);
+            List<T> result = Wraps.list(elementList);
             Collections.shuffle(result);
             return result;
         } else {
-            List<T> result = new ArrayList<>(number);
+            List<T> result = Wraps.list(number);
             for (int i = 0; i < number; i++) {
                 int index = ThreadLocalRandom.current().nextInt(0, elementList.size());
                 T t = elementList.get(index);
@@ -710,7 +711,7 @@ public class CollectionUtils {
      * @return 包含数组元素的 列表，数组为 空 返回空列表
      */
     public static <T> List<T> newArrayList(T... elements) {
-        return null == elements ? new ArrayList<>() : new ArrayList<>(Arrays.asList(elements));
+        return null == elements ? Wraps.list() : Wraps.list(Arrays.asList(elements));
     }
 
     /**
@@ -726,7 +727,7 @@ public class CollectionUtils {
         }
 
         if (elements instanceof Collection) {
-            return Collections.unmodifiableList(new LinkedList<>((Collection) elements));
+            return Collections.unmodifiableList(Wraps.list((Collection) elements));
         }
 
         return newArrayList(elements.iterator());
@@ -747,10 +748,10 @@ public class CollectionUtils {
         }
         E first = elements.next();
         if (!elements.hasNext()) {
-            return Collections.unmodifiableList(addAll(new ArrayList<>(), first));
+            return Collections.unmodifiableList(addAll(Wraps.list(), first));
         }
 
-        List<E> rs = new LinkedList<>();
+        List<E> rs = Wraps.list();
         rs.add(first);
 
         while (elements.hasNext()) {
@@ -767,7 +768,7 @@ public class CollectionUtils {
      * @return 包含数组元素的 链接列表，数组为 空 返回空列表
      */
     public static <T> List<T> newLinkedList(T... list) {
-        return null == list ? Collections.emptyList() : new LinkedList<>(Arrays.asList(list));
+        return null == list ? Collections.emptyList() : Wraps.list(Arrays.asList(list));
     }
 
     /**
@@ -778,7 +779,7 @@ public class CollectionUtils {
      * @return 包含数组元素的 哈希设置，数组为 空 返回空 设置
      */
     public static <T> Set<T> newHashSet(T... list) {
-        return null == list ? Collections.emptySet() : new HashSet<>(Arrays.asList(list));
+        return null == list ? Collections.emptySet() : Wraps.set(Arrays.asList(list));
     }
 
     /**
@@ -792,11 +793,11 @@ public class CollectionUtils {
      * @return 所有组合的列表集合
      */
     public static <T> List<List<T>> descartes(List<T> first, List<T>... more) {
-        List<List<T>> lists = new LinkedList<>();
+        List<List<T>> lists = Wraps.list();
         lists.add(first);
         lists.addAll(Arrays.asList(more));
-        List<List<T>> result = new LinkedList<>();
-        descartesRecursive(lists, 0, new LinkedList<>(), result);
+        List<List<T>> result = Wraps.list();
+        descartesRecursive(lists, 0, Wraps.list(), result);
         return result;
     }
 
@@ -809,9 +810,9 @@ public class CollectionUtils {
      * @param result 结果
      * @return descartesRecursive的结果
      */
-    private static <T> void descartesRecursive(List<List<T>> lists, int depth, LinkedList<T> current, List<List<T>> result) {
+    private static <T> void descartesRecursive(List<List<T>> lists, int depth, List<T> current, List<List<T>> result) {
         if (depth == lists.size()) {
-            result.add(new LinkedList<>(current));
+            result.add(Wraps.list(current));
             return;
         }
         for (T item : lists.get(depth)) {
@@ -842,8 +843,8 @@ public class CollectionUtils {
         }
 
         //
-        final List<T> result = new LinkedList<>();
-        Set<T> set = new HashSet<>(coll2);
+        final List<T> result = Wraps.list();
+        Set<T> set = Wraps.set(coll2);
         for (T t : coll1) {
             if (!set.contains(t)) {
                 result.add(t);
@@ -854,9 +855,12 @@ public class CollectionUtils {
 
 
     /**
-     * 将 集合 转为指定类型的 列表（链接列表 或 array列表）。
+     * 将 集合 转为指定类型的 列表。
      *
-     * @param isLinked   是否使用 链接列表
+     * <p>{@code isLinked} 参数自 4.0.0.42 起保留仅为兼容旧签名，两种取值均返回
+     * {@code Wraps} 分装列表。</p>
+     *
+     * @param isLinked   是否使用 链接列表（兼容参数，现无差异）
      * @param collection 源集合，为 空 时返回空 列表
      * @param <T>        元素类型
      * @return 转换后的 列表
@@ -865,18 +869,21 @@ public class CollectionUtils {
         if (null == collection) {
             return list(isLinked);
         }
-        return isLinked ? new LinkedList<>(collection) : new ArrayList<>(collection);
+        return Wraps.list(collection);
     }
 
     /**
      * 创建指定类型的空 列表（链接列表 或 array列表）。
      *
-     * @param isLinked 是否使用 链接列表
+     * <p>{@code isLinked} 参数自 4.0.0.42 起保留仅为兼容旧签名：
+     * 分装列表统一由 {@code Wraps} 工厂按 SPI 后端创建，两种取值返回同构列表。</p>
+     *
+     * @param isLinked 是否使用 链接列表（兼容参数，现无差异）
      * @param <T>      元素类型
      * @return 空 列表
      */
     public static <T> List<T> list(boolean isLinked) {
-        return isLinked ? new LinkedList<>() : new ArrayList<>();
+        return Wraps.list();
     }
 
     /**
@@ -1070,7 +1077,7 @@ public class CollectionUtils {
      * @return 二维数组
      */
     public static Object[][] toArray(Object[] args, List<String> names) {
-        List<Object[]> rs = new LinkedList<>();
+        List<Object[]> rs = Wraps.list();
         for (Object arg : args) {
             if(arg instanceof  Map) {
                 rs.add(toArray((Map)arg, names));
@@ -1149,7 +1156,7 @@ public class CollectionUtils {
         if(isEmpty(list) || null == function) {
             return Collections.emptyMap();
         }
-        Map<R, T> rs = new HashMap<>(list.size());
+        Map<R, T> rs = Wraps.map(list.size());
         for (T t : list) {
             rs.put(function.apply(t), t);
         }
@@ -1171,9 +1178,9 @@ public class CollectionUtils {
         if(isEmpty(list) || null == function) {
             return Collections.emptyMap();
         }
-        Map<R, List<T>> rs = new HashMap<>(list.size());
+        Map<R, List<T>> rs = Wraps.map(list.size());
         for (T t : list) {
-            rs.computeIfAbsent(function.apply(t), it -> new LinkedList<>()).add(t);
+            rs.computeIfAbsent(function.apply(t), it -> Wraps.list()).add(t);
         }
 
         return rs;
@@ -1236,13 +1243,13 @@ public class CollectionUtils {
      */
     public static Map<String, String> convertParameters(String[] parameters) {
         if (ArrayUtils.isEmpty(parameters)) {
-            return new HashMap<>(DEFAULT_SIZE);
+            return Wraps.map(DEFAULT_SIZE);
         }
 
         List<String> compatibleParameterArray = Arrays.stream(parameters)
                 .map(String::trim)
                 .reduce(
-                        new ArrayList<>(parameters.length),
+                        Wraps.list(parameters.length),
                         (list, parameter) -> {
                             if (list.size() % 2 == 1) {
                                 // value doesn't split
@@ -1278,7 +1285,7 @@ public class CollectionUtils {
      * @return 转换后的 映射
      */
     public static Map<String, String> toStringMap(String... pairs) {
-        Map<String, String> parameters = new HashMap<>(pairs.length);
+        Map<String, String> parameters = Wraps.map(pairs.length);
  // pairs                                          映射
         if (ArrayUtils.isEmpty(pairs)) {
             return parameters;
@@ -1312,7 +1319,7 @@ public class CollectionUtils {
         }
 
         //
-        List<K> keys = new ArrayList<>(temp.size());
+        List<K> keys = Wraps.list(temp.size());
         //
         for (Map.Entry<K, V> entry : temp.entrySet()) {
             keys.add(entry.getKey());
@@ -1472,7 +1479,7 @@ public class CollectionUtils {
             throw new IllegalArgumentException("列表长度 " + size + " 不能被 step " + step + " 整除");
         }
 
-        List<List<Integer>> newList = new ArrayList<>(size / step);
+        List<List<Integer>> newList = Wraps.list(size / step);
         for (int i = 0; i < size; i += step) {
             newList.add(originalList.subList(i, i + step));
         }

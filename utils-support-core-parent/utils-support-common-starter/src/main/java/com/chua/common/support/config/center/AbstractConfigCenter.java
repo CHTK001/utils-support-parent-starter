@@ -1,9 +1,8 @@
 package com.chua.common.support.config.center;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +35,7 @@ public abstract class AbstractConfigCenter implements ConfigCenter {
      */
     public AbstractConfigCenter(ConfigCenterSetting configCenterSetting) {
         this.configCenterSetting = configCenterSetting;
-        this.listeners = new ArrayList<>();
+        this.listeners = Wraps.list();
     }
 
     /**

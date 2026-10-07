@@ -1,5 +1,6 @@
 package com.chua.common.support.collection;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.AbstractCollection;
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -100,7 +101,7 @@ public class DefaultBoundedCollection<E> extends AbstractCollection<E> implement
         }
         this.capacity = capacity;
         this.policy = policy;
-        this.delegate = new ArrayDeque<>(capacity);
+        this.delegate = Wraps.deque(capacity);
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.classification;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.Classifications;
 import ai.djl.modality.cv.Image;
 import ai.djl.ndarray.NDArray;
@@ -11,7 +12,6 @@ import ai.djl.translate.TranslatorContext;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import com.chua.deeplearning.support.utils.ImageUtils;
 
@@ -77,7 +77,7 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
                 ? runtimeLabels
                 : defaultLabels(logits.length);
         double[] scores = softmax(logits);
-        List<Double> probabilities = new ArrayList<>(scores.length);
+        List<Double> probabilities = Wraps.list(scores.length);
         for (double score : scores) {
             probabilities.add(score);
         }
@@ -114,7 +114,7 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
             if (!Files.exists(synset)) {
                 return List.of();
             }
-            List<String> labels = new ArrayList<>();
+            List<String> labels = Wraps.list();
             for (String line : Files.readAllLines(synset)) {
                 if (line == null || line.isBlank()) {
                     continue;
@@ -134,7 +134,7 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
      * @return 默认标签的结果
      */
     private static List<String> defaultLabels(int size) {
-        List<String> labels = new ArrayList<>(size);
+        List<String> labels = Wraps.list(size);
         for (int i = 0; i < size; i++) {
             labels.add("class-" + i);
         }

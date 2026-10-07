@@ -1,5 +1,6 @@
 package com.chua.common.support.network.container;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
@@ -12,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -131,7 +131,7 @@ public abstract class AbstractWebContainer implements WebContainer {
     /**
      * 已部署单元列表
      */
-    protected final List<DeployUnitInfo> deployedUnits = new ArrayList<>();
+    protected final List<DeployUnitInfo> deployedUnits = Wraps.list();
 
     /**
      * 初始化
@@ -589,7 +589,7 @@ public abstract class AbstractWebContainer implements WebContainer {
      * @return 已部署单元信息副本列表
      */
     public List<DeployUnitInfo> getDeployedUnits() {
-        return new ArrayList<>(deployedUnits);
+        return Wraps.list(deployedUnits);
     }
 
     /**

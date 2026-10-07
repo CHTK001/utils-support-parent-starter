@@ -1,5 +1,6 @@
 package com.chua.common.support.vector;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -8,7 +9,6 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 /**
  * CUDA 运行时库环境检测器，检测 onnxruntime-gpu 所需的 CUDA 运行库是否就绪。
@@ -130,7 +130,7 @@ public class CudaRuntimeDetector implements RuntimeDetector {
      * @return detectGpus的结果
      */
     private List<String> detectGpus() {
-        List<String> gpus = new ArrayList<>();
+        List<String> gpus = Wraps.list();
         try {
             ProcessBuilder pb = new ProcessBuilder("nvidia-smi", "--query-gpu=name", "--format=csv,noheader");
             pb.redirectErrorStream(true);
@@ -176,7 +176,7 @@ public class CudaRuntimeDetector implements RuntimeDetector {
         }
 
  // 搜索 路径 目录（窗口）与常见库目录（Linux）
-        List<Path> searchDirs = new ArrayList<>();
+        List<Path> searchDirs = Wraps.list();
         String pathEnv = System.getenv(isWindows() ? "PATH" : "LD_LIBRARY_PATH");
         if (pathEnv != null) {
             for (String dir : pathEnv.split(isWindows() ? ";" : ":")) {

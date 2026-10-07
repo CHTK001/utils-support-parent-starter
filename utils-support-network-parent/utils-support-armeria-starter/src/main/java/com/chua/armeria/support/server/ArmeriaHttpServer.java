@@ -1,5 +1,6 @@
 package com.chua.armeria.support.server;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpMethod;
@@ -550,7 +551,7 @@ public class ArmeriaHttpServer extends AbstractServer {
          * 获取参数
         */
         public Map<String, String> getParams() {
-            Map<String, String> result = new java.util.LinkedHashMap<>();
+            Map<String, String> result = Wraps.linkedMap();
             ctx.queryParams().forEach((k, v) -> result.put(k, v));
             return result;
         }
@@ -668,7 +669,7 @@ public class ArmeriaHttpServer extends AbstractServer {
                 if (qs.isEmpty()) {
                     return Map.of();
                 }
-                Map<String, String> form = new java.util.LinkedHashMap<>();
+                Map<String, String> form = Wraps.linkedMap();
                 for (String pair : qs.split("&")) {
                     String[] kv = pair.split("=", 2);
                     if (kv.length > 0) {

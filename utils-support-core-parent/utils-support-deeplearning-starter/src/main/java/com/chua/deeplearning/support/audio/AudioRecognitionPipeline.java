@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.audio;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.audio.VirtualClient;
 import com.chua.common.support.utils.MathUtils;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
@@ -10,10 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -332,7 +331,7 @@ public class AudioRecognitionPipeline {
         }
 
         // 过滤空向量
-        List<Integer> validIndices = new ArrayList<>();
+        List<Integer> validIndices = Wraps.list();
         for (int i = 0; i < n; i++) {
             if (embeddings[i] != null && embeddings[i].length > 0) {
                 validIndices.add(i);
@@ -350,7 +349,7 @@ public class AudioRecognitionPipeline {
         int dim = embeddings[validIndices.getFirst()].length;
         float[][] centers = new float[K][dim];
         java.util.Random rand = new java.util.Random(42);
-        List<Integer> shuffled = new ArrayList<>(validIndices);
+        List<Integer> shuffled = Wraps.list(validIndices);
         Collections.shuffle(shuffled, rand);
         for (int k = 0; k < K && k < shuffled.size(); k++) {
             System.arraycopy(embeddings[shuffled.get(k)], 0, centers[k], 0, dim);
@@ -407,7 +406,7 @@ public class AudioRecognitionPipeline {
      * @return 去重assignments的结果
      */
     private java.util.Set<String> distinctAssignments(String[] assignments) {
-        java.util.Set<String> set = new java.util.LinkedHashSet<>();
+        java.util.Set<String> set = Wraps.linkedSet();
         for (String a : assignments) {
             if (a != null) {
                 set.add(a);
@@ -592,7 +591,7 @@ public class AudioRecognitionPipeline {
             return List.of();
         }
 
-        List<SpeakerSegment> merged = new ArrayList<>();
+        List<SpeakerSegment> merged = Wraps.list();
         int n = vadSegs.size();
         int i = 0;
         while (i < n) {

@@ -1,5 +1,6 @@
 package com.chua.mqtt.support.parser;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.annotations.ListenerParser;
 import com.chua.common.support.objects.annotation.OnClose;
 import com.chua.common.support.objects.annotation.OnError;
@@ -8,7 +9,6 @@ import com.chua.common.support.objects.annotation.OnOpen;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -31,7 +31,7 @@ public class MqttListenerParser implements ListenerParser {
      * 解析
     */
     public Map<String, Method> parse(Class<?> clazz) {
-        Map<String, Method> result = new LinkedHashMap<>();
+        Map<String, Method> result = Wraps.linkedMap();
         for (Method method : clazz.getDeclaredMethods()) {
             String event = matchAnnotation(method);
             if (event != null) {

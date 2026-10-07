@@ -1,5 +1,6 @@
 package com.chua.playwright.support.benchmark;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
@@ -14,7 +15,6 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
@@ -474,7 +474,7 @@ public class PlaywrightBusinessBenchmark {
         /**
          * 业务测试点列表
          */
-        private final List<BusinessStep> steps = new ArrayList<>();
+        private final List<BusinessStep> steps = Wraps.list();
         /**
          * 并发用户数
          */
@@ -608,7 +608,7 @@ public class PlaywrightBusinessBenchmark {
             if (steps.isEmpty()) {
                 throw new IllegalArgumentException("至少需要一个业务测试点");
             }
-            return new PlaywrightBusinessBenchmark(baseUrl, Collections.unmodifiableList(new ArrayList<>(steps)),
+            return new PlaywrightBusinessBenchmark(baseUrl, Collections.unmodifiableList(Wraps.list(steps)),
                     concurrency, iterations, reportPath, headless, executablePath, waitAfterStepMs);
         }
     }
@@ -621,7 +621,7 @@ public class PlaywrightBusinessBenchmark {
      * @return 汇总结果
      */
     public BenchmarkSummary run() {
-        List<BusinessRun> allRuns = Collections.synchronizedList(new ArrayList<>());
+        List<BusinessRun> allRuns = Collections.synchronizedList(Wraps.list());
         AtomicLong totalElapsedMs = new AtomicLong();
         try (Playwright playwright = Playwright.create()) {
             BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions().setHeadless(headless);
@@ -695,7 +695,7 @@ public class PlaywrightBusinessBenchmark {
      * @return 执行业务的结果
      */
     private BusinessRun executeBusiness(Page page, int workerIdx, int iterIdx) {
-        List<StepResult> results = new ArrayList<>();
+        List<StepResult> results = Wraps.list();
         long flowStart = System.nanoTime();
         boolean success = true;
         String shotBase64 = null;

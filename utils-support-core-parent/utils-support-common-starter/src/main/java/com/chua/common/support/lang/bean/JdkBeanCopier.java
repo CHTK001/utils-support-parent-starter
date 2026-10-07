@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.bean;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDefault;
@@ -10,8 +11,6 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -63,7 +62,7 @@ public class JdkBeanCopier implements BeanCopier {
         }
 
         Set<String> ignoreSet = ignoreProperties != null
-                ? new HashSet<>(Arrays.asList(ignoreProperties))
+                ? Wraps.set(Arrays.asList(ignoreProperties))
                 : Collections.emptySet();
 
         Class<?> sourceClass = source.getClass();
@@ -180,7 +179,7 @@ public class JdkBeanCopier implements BeanCopier {
      * @return 结果映射，无数据时为空映射
      */
     private static Map<String, PropertyDescriptor> resolveReadDescriptors(Class<?> clazz) {
-        Map<String, PropertyDescriptor> result = new LinkedHashMap<>();
+        Map<String, PropertyDescriptor> result = Wraps.linkedMap();
         for (PropertyDescriptor pd : getPropertyDescriptors(clazz)) {
             if (pd.getReadMethod() != null) {
                 result.put(pd.getName(), pd);
@@ -195,7 +194,7 @@ public class JdkBeanCopier implements BeanCopier {
      * @return 结果映射，无数据时为空映射
      */
     private static Map<String, PropertyDescriptor> resolveWriteDescriptors(Class<?> clazz) {
-        Map<String, PropertyDescriptor> result = new LinkedHashMap<>();
+        Map<String, PropertyDescriptor> result = Wraps.linkedMap();
         for (PropertyDescriptor pd : getPropertyDescriptors(clazz)) {
             if (pd.getWriteMethod() != null) {
                 result.put(pd.getName(), pd);

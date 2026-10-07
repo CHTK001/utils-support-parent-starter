@@ -1,10 +1,10 @@
 package com.chua.sqlite.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.nativesqlite.support.SqliteHookBridge;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -42,7 +42,7 @@ public final class SqliteHookConnection implements AutoCloseable {
     private final MemorySegment handle; // 处理
     private Consumer<SqliteChangeEvent> eventConsumer; // 事件consumer
     private volatile boolean closed; // 已关闭
-    private final List<SqliteChangeEvent> eventBuffer = new ArrayList<>(); // 事件缓冲
+    private final List<SqliteChangeEvent> eventBuffer = Wraps.list(); // 事件缓冲
     /**
      * 打开 CDC 钩子连接。
      *
@@ -110,7 +110,7 @@ public final class SqliteHookConnection implements AutoCloseable {
      */
     public List<SqliteChangeEvent> drain() {
         drainBufferSync();
-        List<SqliteChangeEvent> snapshot = new ArrayList<>(eventBuffer);
+        List<SqliteChangeEvent> snapshot = Wraps.list(eventBuffer);
         eventBuffer.clear();
         return snapshot;
     }

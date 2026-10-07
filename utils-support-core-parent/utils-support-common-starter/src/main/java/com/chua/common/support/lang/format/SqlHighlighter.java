@@ -1,8 +1,7 @@
 package com.chua.common.support.lang.format;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,7 +39,7 @@ public class SqlHighlighter {
     /**
      * DDL关键词（数据定义语言）
      */
-    private static final Set<String> DDL_KEYWORDS = new HashSet<>(Arrays.asList(
+    private static final Set<String> DDL_KEYWORDS = Wraps.set(Arrays.asList(
             "CREATE", "ALTER", "DROP", "TRUNCATE", "RENAME",
             "TABLE", "VIEW", "INDEX", "SEQUENCE", "DATABASE", "SCHEMA"
     ));
@@ -48,14 +47,14 @@ public class SqlHighlighter {
     /**
      * DML关键词（数据操作语言）
      */
-    private static final Set<String> DML_KEYWORDS = new HashSet<>(Arrays.asList(
+    private static final Set<String> DML_KEYWORDS = Wraps.set(Arrays.asList(
             "SELECT", "INSERT", "UPDATE", "DELETE", "MERGE"
     ));
 
     /**
      * 查询子句关键词
      */
-    private static final Set<String> CLAUSE_KEYWORDS = new HashSet<>(Arrays.asList(
+    private static final Set<String> CLAUSE_KEYWORDS = Wraps.set(Arrays.asList(
             "FROM", "WHERE", "AND", "OR", "NOT", "NULL",
             "ORDER", "BY", "GROUP", "HAVING", "LIMIT", "OFFSET",
             "JOIN", "INNER", "LEFT", "RIGHT", "FULL", "OUTER", "CROSS",
@@ -67,7 +66,7 @@ public class SqlHighlighter {
     /**
      * 数据类型关键词
      */
-    private static final Set<String> DATA_TYPE_KEYWORDS = new HashSet<>(Arrays.asList(
+    private static final Set<String> DATA_TYPE_KEYWORDS = Wraps.set(Arrays.asList(
             "INT", "INTEGER", "BIGINT", "SMALLINT", "TINYINT",
             "VARCHAR", "CHAR", "TEXT", "CLOB", "BLOB",
             "DATE", "TIME", "DATETIME", "TIMESTAMP",
@@ -79,7 +78,7 @@ public class SqlHighlighter {
     /**
      * 函数关键词
      */
-    private static final Set<String> FUNCTION_KEYWORDS = new HashSet<>(Arrays.asList(
+    private static final Set<String> FUNCTION_KEYWORDS = Wraps.set(Arrays.asList(
             "COUNT", "SUM", "AVG", "MAX", "MIN",
             "LENGTH", "UPPER", "LOWER", "TRIM", "SUBSTR", "SUBSTRING",
             "NOW", "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP",
@@ -90,7 +89,7 @@ public class SqlHighlighter {
     /**
      * 操作符关键词
      */
-    private static final Set<String> OPERATOR_KEYWORDS = new HashSet<>(Arrays.asList(
+    private static final Set<String> OPERATOR_KEYWORDS = Wraps.set(Arrays.asList(
             "IN", "EXISTS", "BETWEEN", "LIKE", "ESCAPE",
             "IS", "DISTINCT", "ALL", "ANY", "SOME"
     ));
@@ -98,7 +97,7 @@ public class SqlHighlighter {
     /**
      * 约束关键词
      */
-    private static final Set<String> CONSTRAINT_KEYWORDS = new HashSet<>(Arrays.asList(
+    private static final Set<String> CONSTRAINT_KEYWORDS = Wraps.set(Arrays.asList(
             "PRIMARY", "KEY", "FOREIGN", "REFERENCES",
             "UNIQUE", "CHECK", "DEFAULT", "CONSTRAINT",
             "CASCADE", "RESTRICT", "NO ACTION", "SET NULL"
@@ -116,7 +115,7 @@ public class SqlHighlighter {
     private static final Map<String, HighlightConfig.KeywordCategory> KEYWORD_CATEGORY_MAP;
 
     static {
-        ALL_KEYWORDS = new HashSet<>();
+        ALL_KEYWORDS = Wraps.set();
         ALL_KEYWORDS.addAll(DDL_KEYWORDS);
         ALL_KEYWORDS.addAll(DML_KEYWORDS);
         ALL_KEYWORDS.addAll(CLAUSE_KEYWORDS);
@@ -125,7 +124,7 @@ public class SqlHighlighter {
         ALL_KEYWORDS.addAll(OPERATOR_KEYWORDS);
         ALL_KEYWORDS.addAll(CONSTRAINT_KEYWORDS);
 
-        KEYWORD_CATEGORY_MAP = new HashMap<>();
+        KEYWORD_CATEGORY_MAP = Wraps.map();
         for (String kw : DDL_KEYWORDS) {
             KEYWORD_CATEGORY_MAP.put(kw, HighlightConfig.KeywordCategory.DDL);
         }

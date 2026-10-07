@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.agentscope;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.agent.AgentCompressionConfig;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatMessage;
@@ -14,8 +15,6 @@ import io.agentscope.core.model.GenerateOptions;
 import io.agentscope.core.model.Model;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -160,9 +159,9 @@ public class CompressionAwareModel implements Model {
      */
     private static List<ChatMessage> convertToChatMessages(List<Msg> messages) {
         if (messages == null) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
-        List<ChatMessage> result = new ArrayList<>();
+        List<ChatMessage> result = Wraps.list();
         for (Msg msg : messages) {
             if (msg.getRole() == MsgRole.SYSTEM) {
                 continue;
@@ -186,9 +185,9 @@ public class CompressionAwareModel implements Model {
      */
     private static List<Msg> convertToMsg(List<ChatMessage> messages) {
         if (messages == null) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
-        List<Msg> result = new ArrayList<>();
+        List<Msg> result = Wraps.list();
         for (ChatMessage msg : messages) {
             MsgRole role = "assistant".equals(msg.getRole()) ? MsgRole.ASSISTANT : MsgRole.USER;
             result.add(Msg.builder()

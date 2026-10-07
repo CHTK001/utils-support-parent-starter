@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.plugin.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.plugin.model.PluginDefinition;
 import com.chua.common.support.datasearch.plugin.spi.PluginOnlineProvider;
 import com.chua.common.support.lang.json.Json;
@@ -12,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +57,7 @@ public class OpenVsxPluginOnlineProvider implements PluginOnlineProvider {
             Map<String, Object> raw = Json.fromJson(response.getBodyString());
             List<Map<String, Object>> extensions =
                     (List<Map<String, Object>>) raw.get("extensions");
-            List<PluginDefinition> result = new ArrayList<>();
+            List<PluginDefinition> result = Wraps.list();
             if (extensions != null) {
                 for (Map<String, Object> ext : extensions) {
                     Map<String, Object> fields = (Map<String, Object>) ext.get("extension");

@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.compile;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -8,8 +9,6 @@ import javax.tools.*;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +38,7 @@ public class AsmCompiler implements Compiler {
         InMemoryClassLoader classLoader = new InMemoryClassLoader(Thread.currentThread().getContextClassLoader());
         InMemoryFileManager fileManager = new InMemoryFileManager(stdFileManager, classLoader);
 
-        List<JavaFileObject> sources = new ArrayList<>();
+        List<JavaFileObject> sources = Wraps.list();
         sources.add(new StringSource(name, source));
 
         JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, collector, null, null, sources);
@@ -57,7 +56,7 @@ public class AsmCompiler implements Compiler {
 
         Map<String, byte[]> bytecodes = classLoader.getBytecodes();
 
-        Map<String, Class<?>> result = new HashMap<>();
+        Map<String, Class<?>> result = Wraps.map();
         for (Map.Entry<String, byte[]> entry : bytecodes.entrySet()) {
             String clsName = entry.getKey();
             byte[] raw = entry.getValue();
@@ -148,7 +147,7 @@ public class AsmCompiler implements Compiler {
         /**
          * 字节码缓存映射
         */
-        private final Map<String, InMemoryByteCode> bytecodes = new HashMap<>();
+        private final Map<String, InMemoryByteCode> bytecodes = Wraps.map();
 
         InMemoryClassLoader(ClassLoader parent) {
             super(parent);
@@ -159,7 +158,7 @@ public class AsmCompiler implements Compiler {
         }
 
         Map<String, byte[]> getBytecodes() {
-            Map<String, byte[]> result = new HashMap<>();
+            Map<String, byte[]> result = Wraps.map();
             for (Map.Entry<String, InMemoryByteCode> e : bytecodes.entrySet()) {
                 result.put(e.getKey(), e.getValue().getBytes());
             }

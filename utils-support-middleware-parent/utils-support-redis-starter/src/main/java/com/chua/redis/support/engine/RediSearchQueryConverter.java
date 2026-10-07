@@ -1,6 +1,5 @@
 package com.chua.redis.support.engine;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -97,7 +96,7 @@ public class RediSearchQueryConverter {
      * @return 分割后的子表达式列表
      */
     private List<String> splitTopLevel(String expr) {
-        List<String> parts = new ArrayList<>();
+        List<String> parts = Wraps.list();
         int depth = 0;
         int start = 0;
         for (int i = 0; i < expr.length(); i++) {

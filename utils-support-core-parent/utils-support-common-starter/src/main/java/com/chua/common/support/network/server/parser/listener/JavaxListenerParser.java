@@ -1,12 +1,12 @@
 package com.chua.common.support.network.server.parser.listener;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.annotations.ListenerParser;
 
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
 
 import java.lang.reflect.Method;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -54,7 +54,7 @@ public class JavaxListenerParser implements ListenerParser {
      */
     @Override
     public Map<String, Method> parse(Class<?> clazz) {
-        Map<String, Method> result = new LinkedHashMap<>();
+        Map<String, Method> result = Wraps.linkedMap();
         for (Method method : clazz.getDeclaredMethods()) {
             String event = matchJavaxAnnotation(method);
             if (event == null) {

@@ -1,11 +1,10 @@
 package com.chua.common.support.spi.resolver;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.osgi.OsgiLauncher;
 import com.chua.common.support.osgi.OsgiLauncherHolder;
 import com.chua.common.support.spi.definition.ServiceDefinition;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,7 +36,7 @@ public class OsgiServiceResolver implements ServiceResolver {
             return Collections.emptyList();
         }
 
-        List<ServiceDefinition> result = new ArrayList<>();
+        List<ServiceDefinition> result = Wraps.list();
         for (Object service : services) {
             try {
                 ServiceDefinition definition = new ServiceDefinition();

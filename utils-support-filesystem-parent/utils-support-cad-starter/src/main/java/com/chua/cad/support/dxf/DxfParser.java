@@ -1,16 +1,13 @@
 package com.chua.cad.support.dxf;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -173,7 +170,7 @@ public final class DxfParser {
         /**
          * 回退栈：最近 push 的在最前
          */
-        private final Deque<Pair> pushback = new ArrayDeque<>();
+        private final Deque<Pair> pushback = Wraps.deque();
 
         /**
          * 构造读取器
@@ -230,9 +227,9 @@ public final class DxfParser {
      * @throws IOException 读取失败
      */
     private DxfDocument doParse(PairReader reader) throws IOException {
-        Map<String, String> headerVars = new LinkedHashMap<>();
-        List<DxfEntity> entities = new ArrayList<>();
-        Set<String> unsupported = new LinkedHashSet<>();
+        Map<String, String> headerVars = Wraps.linkedMap();
+        List<DxfEntity> entities = Wraps.list();
+        Set<String> unsupported = Wraps.linkedSet();
         double[] extMin = {Double.NaN, Double.NaN};
         double[] extMax = {Double.NaN, Double.NaN};
 
@@ -275,13 +272,13 @@ public final class DxfParser {
                 UNIT_LABELS.getOrDefault(units, "未指定"),
                 bounds.headerMinX(), bounds.headerMinY(),
                 bounds.headerMaxX(), bounds.headerMaxY());
-        Map<String, Integer> layerCount = new LinkedHashMap<>();
+        Map<String, Integer> layerCount = Wraps.linkedMap();
         for (DxfEntity e : entities) {
             layerCount.merge(e.layer(), 1, Integer::sum);
         }
         return new DxfDocument(header, entities, layerCount,
                 bounds.minX(), bounds.minY(), bounds.maxX(), bounds.maxY(),
-                new ArrayList<>(unsupported));
+                Wraps.list(unsupported));
     }
 
     /**
@@ -351,7 +348,7 @@ public final class DxfParser {
         }
 
         String layer = "0";
-        List<double[]> points = new ArrayList<>();
+        List<double[]> points = Wraps.list();
         boolean closed = false;
         double firstX = 0, firstY = 0, secondX = 0, secondY = 0;
         double radiusX = 0, radiusY = 0;

@@ -1,5 +1,6 @@
 package com.chua.quarkus.support.network;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.server.handler.ServerHandler;
 import com.chua.common.support.network.server.filter.ServerFilter;
@@ -17,8 +18,6 @@ import jakarta.ws.rs.Path;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,7 +55,7 @@ public class QuarkusServerHandlerAnnotationParser
             return List.of();
         }
 
-        List<ServerHandler> result = new ArrayList<>();
+        List<ServerHandler> result = Wraps.list();
 
         Map<String, Object> beans = objectContext.getBeansWithAnnotation(Path.class);
         if (beans == null) {
@@ -101,7 +100,7 @@ public class QuarkusServerHandlerAnnotationParser
      * @return HTTP 方法集合，空集合表示匹配所有方法，空 表示跳过
      */
     private Set<HttpMethod> resolveHttpMethods(Method method) {
-        Set<HttpMethod> result = new HashSet<>();
+        Set<HttpMethod> result = Wraps.set();
         if (method.isAnnotationPresent(GET.class)) {
             result.add(HttpMethod.GET);
         }

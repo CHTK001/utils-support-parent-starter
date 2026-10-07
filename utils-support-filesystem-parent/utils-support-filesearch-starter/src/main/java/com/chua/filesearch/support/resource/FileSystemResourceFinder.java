@@ -1,5 +1,6 @@
 package com.chua.filesearch.support.resource;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.resource.AbstractResourceFinder;
 import com.chua.common.support.file.resource.Resource;
 import com.chua.common.support.file.resource.ResourceConfiguration;
@@ -10,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -94,7 +94,7 @@ public class FileSystemResourceFinder extends AbstractResourceFinder {
         int maxResults = 1000;
         Collection<Resource> resources = configuration.isParallel()
                 ? ConcurrentHashMap.newKeySet()
-                : new HashSet<>();
+                : Wraps.set();
 
     RustFileSearchBridge.searchByPath(rootDir, pathPattern, maxResults,
             data -> {

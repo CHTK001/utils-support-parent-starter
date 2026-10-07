@@ -1,6 +1,5 @@
 package com.chua.common.support.collection;
-
-import java.util.HashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
 
@@ -129,7 +128,7 @@ public class LevelsClose implements Levels {
      */
     @Override
     public Map<String, Object> apply(Map<String, Object> stringObjectMap) {
-        Map<String, Object> properties1 = new HashMap<>(DEFAULT_BUFFER_SIZE);
+        Map<String, Object> properties1 = Wraps.map(DEFAULT_BUFFER_SIZE);
         analysisHierarchicalAnalysis(stringObjectMap, properties1);
         return properties1;
     }

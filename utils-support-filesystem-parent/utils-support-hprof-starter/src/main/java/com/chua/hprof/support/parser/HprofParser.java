@@ -1,5 +1,6 @@
 package com.chua.hprof.support.parser;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.hprof.support.model.HprofClassDetail;
 import com.chua.hprof.support.model.HprofHistogramRow;
 import com.chua.hprof.support.model.HprofObject;
@@ -7,9 +8,7 @@ import com.chua.hprof.support.model.HprofObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -162,7 +161,7 @@ public final class HprofParser {
      * @return the result
      */
     private static Result fromContext(HprofParseContext.ParsedContext ctx) {
-        List<HprofObject> objects = new ArrayList<>(ctx.objects().size());
+        List<HprofObject> objects = Wraps.list(ctx.objects().size());
         for (HprofParseContext.HprofRecord record : ctx.objects()) {
             objects.add(toObject(record));
         }
@@ -209,7 +208,7 @@ public final class HprofParser {
      * @return histogram rows sorted by retained size descending
      */
     private static List<HprofHistogramRow> buildHistogram(HprofParseContext.ParsedContext ctx) {
-        Map<String, long[]> aggregate = new HashMap<>();
+        Map<String, long[]> aggregate = Wraps.map();
         for (Map.Entry<String, Long> e : ctx.retainedByClass().entrySet()) {
             if (e.getKey() == null) {
                 continue;
@@ -225,14 +224,14 @@ public final class HprofParser {
             acc[0] = e.getValue();
         }
         // 每个类的浅堆大小：从对象列表重新累加（一次遍历）
-        Map<String, Long> shallowByClass = new HashMap<>();
+        Map<String, Long> shallowByClass = Wraps.map();
         for (HprofParseContext.HprofRecord record : ctx.objects()) {
             if (record.className() == null) {
                 continue;
             }
             shallowByClass.merge(record.className(), record.shallowSize(), Long::sum);
         }
-        List<HprofHistogramRow> rows = new ArrayList<>();
+        List<HprofHistogramRow> rows = Wraps.list();
         for (Map.Entry<String, long[]> e : aggregate.entrySet()) {
             String className = e.getKey();
             long count = e.getValue()[0];

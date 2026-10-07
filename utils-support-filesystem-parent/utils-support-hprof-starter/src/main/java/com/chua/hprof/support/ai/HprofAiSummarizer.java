@@ -1,5 +1,6 @@
 package com.chua.hprof.support.ai;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.hprof.support.analyzer.HprofAnalyzer;
@@ -132,13 +133,13 @@ public final class HprofAiSummarizer {
      */
     private static String buildPrompt(HprofAnalysis analysis, HprofParser.Result result) {
         try {
-            Map<String, Object> payload = new java.util.LinkedHashMap<>();
+            Map<String, Object> payload = Wraps.linkedMap();
             payload.put("total_retained", HprofObject.formatSize(result.totalRetainedBytes()));
             payload.put("total_objects", result.totalObjectCount());
 
-            List<Map<String, Object>> top = new java.util.ArrayList<>();
+            List<Map<String, Object>> top = Wraps.list();
             for (HprofObject o : result.topRetained().subList(0, Math.min(10, result.topRetained().size()))) {
-                Map<String, Object> m = new java.util.LinkedHashMap<>();
+                Map<String, Object> m = Wraps.linkedMap();
                 m.put("class", o.getClassName());
                 m.put("instances", o.getInstanceCount());
                 m.put("retained", HprofObject.formatSize(o.getRetainedSize()));

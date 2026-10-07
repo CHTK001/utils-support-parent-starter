@@ -1,12 +1,10 @@
 package com.chua.runtime.protocol;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -121,7 +119,7 @@ public class Span {
      * 自定义属性
      */
     @Builder.Default
-    private Map<String, String> attributes = new HashMap<>(); // attributes
+    private Map<String, String> attributes = Wraps.map(); // attributes
 
     /**
      * 生命周期事件
@@ -130,7 +128,7 @@ public class Span {
     /**
      * 事件
     */
-    private List<SpanEvent> events = new ArrayList<>();
+    private List<SpanEvent> events = Wraps.list();
 
     /**
      * 跨 追踪 关联（异步消息、批处理）
@@ -139,7 +137,7 @@ public class Span {
     /**
      * 链接
     */
-    private List<SpanLink> links = new ArrayList<>();
+    private List<SpanLink> links = Wraps.list();
 
     /**
      * 添加事件。
@@ -163,7 +161,7 @@ public class Span {
         events.add(SpanEvent.builder()
                 .eventName(eventName)
                 .timestamp(System.currentTimeMillis())
-                .attributes(attributes != null ? attributes : new HashMap<>())
+                .attributes(attributes != null ? attributes : Wraps.map())
                 .build());
     }
 
@@ -177,7 +175,7 @@ public class Span {
         this.status = StatusCode.ERROR;
         this.errorType = errorType;
         this.errorMessage = errorMessage;
-        Map<String, String> attrs = new HashMap<>();
+        Map<String, String> attrs = Wraps.map();
         attrs.put("exception.type", errorType);
         attrs.put("exception.message", errorMessage != null ? errorMessage : "");
         addEvent("exception", attrs);

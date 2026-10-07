@@ -1,5 +1,6 @@
 package com.chua.sqlite.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.meta.SearchEngine;
 import com.chua.common.support.lang.datasource.meta.model.SearchFieldDef;
@@ -9,8 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -66,7 +65,7 @@ public class SqliteSearchEngineImpl implements SearchEngine {
             String sql = "SELECT name FROM sqlite_master WHERE type='table' AND sql LIKE '%USING fts5%'";
             try (Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery(sql)) {
-                List<String> indexes = new ArrayList<>();
+                List<String> indexes = Wraps.list();
                 while (rs.next()) {
                     indexes.add(rs.getString("name"));
                 }
@@ -88,7 +87,7 @@ public class SqliteSearchEngineImpl implements SearchEngine {
                  ResultSet rs = stmt.executeQuery(sql)) {
                 SearchIndexDef def = new SearchIndexDef();
                 def.setName(indexName);
-                List<SearchFieldDef> fields = new ArrayList<>();
+                List<SearchFieldDef> fields = Wraps.list();
                 while (rs.next()) {
                     SearchFieldDef field = new SearchFieldDef();
                     field.setName(rs.getString("name"));
@@ -208,7 +207,7 @@ public class SqliteSearchEngineImpl implements SearchEngine {
      * @throws IllegalArgumentException 已知键的取值非法
      */
     private static Map<String, Object> checkSettings(String indexName, Map<String, Object> settings) {
-        Map<String, Object> options = new LinkedHashMap<>();
+        Map<String, Object> options = Wraps.linkedMap();
         if (settings == null || settings.isEmpty()) {
             return options;
         }

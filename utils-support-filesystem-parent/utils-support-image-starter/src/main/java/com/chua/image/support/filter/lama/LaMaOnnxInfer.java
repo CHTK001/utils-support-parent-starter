@@ -1,5 +1,6 @@
 package com.chua.image.support.filter.lama;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.base.reflection.ConstructorStation;
 import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -247,7 +247,7 @@ public class LaMaOnnxInfer implements AutoCloseable {
         Object maskTensor = ClassUtils.invokeMethod(createTensorMethod, null, ortEnvironment, maskData, config.getMaskShape());
 
         // 准备输入
-        Map<String, Object> inputs = new HashMap<>();
+        Map<String, Object> inputs = Wraps.map();
         
         // 获取输入名称（通常LaMa模型的输入名称是"image"和"mask"）
         Method getInputNamesMethod = ClassUtils.findMethod(ortSessionClass, "getInputNames");

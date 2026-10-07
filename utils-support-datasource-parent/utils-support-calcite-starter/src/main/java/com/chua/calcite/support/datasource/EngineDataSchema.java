@@ -1,11 +1,10 @@
 package com.chua.calcite.support.datasource;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.datasource.support.datasource.DataScheme;
 import com.chua.datasource.support.datasource.DataTable;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,7 +46,7 @@ public class EngineDataSchema implements DataScheme {
     public EngineDataSchema(String name, Engine engine) {
         this.name = name;
         this.engine = engine;
-        this.tables = new ArrayList<>();
+        this.tables = Wraps.list();
     }
 
     /**

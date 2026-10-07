@@ -1,11 +1,11 @@
 package com.chua.h2.support.cleanup;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.flyway.FlywayHistory;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -146,7 +146,7 @@ public class H2CleanupPlugin {
      * @return 掉落全部用户索引的结果
      */
     private int dropAllUserIndexes(Connection conn) throws SQLException {
-        List<String> indexes = new ArrayList<>();
+        List<String> indexes = Wraps.list();
         try (Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(
                      "SELECT DISTINCT INDEX_NAME FROM INFORMATION_SCHEMA.INDEXES "
@@ -168,7 +168,7 @@ public class H2CleanupPlugin {
      * @return 获取用户table名称的结果
      */
     private List<String> getUserTableNames(Connection conn) throws SQLException {
-        List<String> tables = new ArrayList<>();
+        List<String> tables = Wraps.list();
         try (Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(
                      "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES "

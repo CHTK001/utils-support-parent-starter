@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.document;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.document.ColumnData;
 import com.chua.common.support.lang.document.DocumentData;
 import com.chua.common.support.lang.document.DocumentExportConfig;
@@ -12,8 +13,6 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -100,20 +99,20 @@ public interface DocumentProvider {
      * @return 关系图 JSON 字符串
      */
     static String toRelationshipJson(DocumentData data) {
-        List<Map<String, Object>> nodes = new ArrayList<>();
-        List<Map<String, Object>> edges = new ArrayList<>();
+        List<Map<String, Object>> nodes = Wraps.list();
+        List<Map<String, Object>> edges = Wraps.list();
 
         if (data.getTables() != null) {
             for (TableData table : data.getTables()) {
-                Map<String, Object> node = new LinkedHashMap<>();
+                Map<String, Object> node = Wraps.linkedMap();
                 node.put("id", table.getTableName());
                 node.put("label", (table.getRemark() != null && !table.getRemark().isEmpty())
                         ? table.getRemark() : table.getTableName());
                 node.put("schema", table.getSchema());
                 node.put("type", table.getType() != null ? table.getType() : "TABLE");
 
-                List<String> pkCols = new ArrayList<>();
-                List<String> fkCols = new ArrayList<>();
+                List<String> pkCols = Wraps.list();
+                List<String> fkCols = Wraps.list();
                 if (table.getColumns() != null) {
                     for (ColumnData col : table.getColumns()) {
                         if (col.isPrimaryKey()) {
@@ -136,7 +135,7 @@ public interface DocumentProvider {
             for (TableData table : data.getTables()) {
                 if (table.getExportedKeys() != null) {
                     for (RelationshipData r : table.getExportedKeys()) {
-                        Map<String, Object> edge = new LinkedHashMap<>();
+                        Map<String, Object> edge = Wraps.linkedMap();
                         edge.put("from", r.getFkTableName());
                         edge.put("to", r.getPkTableName());
                         edge.put("fromColumn", r.getFkColumnName());
@@ -149,7 +148,7 @@ public interface DocumentProvider {
             }
         }
 
-        Map<String, Object> graph = new LinkedHashMap<>();
+        Map<String, Object> graph = Wraps.linkedMap();
         graph.put("nodes", nodes);
         graph.put("edges", edges);
         return Json.toJson(graph);

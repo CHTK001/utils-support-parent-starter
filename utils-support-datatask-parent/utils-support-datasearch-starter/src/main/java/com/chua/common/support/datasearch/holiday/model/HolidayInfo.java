@@ -1,7 +1,7 @@
 package com.chua.common.support.datasearch.holiday.model;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -91,7 +91,7 @@ public class HolidayInfo {
      * @return Map 表示
      */
     public Map<String, Object> toMap() {
-        Map<String, Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = Wraps.linkedMap();
         map.put("date", date.toString());
         map.put("name", name);
         map.put("type", type);

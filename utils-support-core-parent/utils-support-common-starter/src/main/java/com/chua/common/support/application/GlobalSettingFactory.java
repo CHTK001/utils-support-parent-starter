@@ -1,5 +1,6 @@
 package com.chua.common.support.application;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.constant.CommonConstant;
 import com.chua.common.support.function.Upgrade;
 import com.chua.common.support.utils.ClassUtils;
@@ -7,7 +8,6 @@ import com.chua.common.support.utils.MapUtils;
 import com.chua.common.support.reflection.FieldStation;
 
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -134,7 +134,7 @@ public class GlobalSettingFactory {
             return;
         }
         String groupKey = PREFIX + group;
-        List<Object> objects = GROUP.computeIfAbsent(groupKey, k -> new LinkedList<>());
+        List<Object> objects = GROUP.computeIfAbsent(groupKey, k -> Wraps.list());
         synchronized (objects) {
             for (Object object : objects) {
                 if (object.getClass().isAssignableFrom(t.getClass())) {

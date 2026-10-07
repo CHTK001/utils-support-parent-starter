@@ -1,5 +1,6 @@
 package com.chua.hbase.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
@@ -22,8 +23,6 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
 import org.apache.hadoop.hbase.util.Bytes;
-
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -80,7 +79,7 @@ public class HBaseEngine extends AbstractEngine {
      * 由引擎自建的连接名称集合（close 时仅关闭这些，外部传入的连接不归本引擎管理）。
      */
     private final java.util.Set<String> ownedDataSources =
-            java.util.Collections.synchronizedSet(new java.util.HashSet<>());
+            java.util.Collections.synchronizedSet(Wraps.set());
 
     /**
      * 便捷添加数据源（ZooKeeper 地址），由本引擎创建并负责关闭连接。
@@ -216,7 +215,7 @@ public class HBaseEngine extends AbstractEngine {
     public java.util.List<Map<String, String>> scan(String table, String family, String rowPrefix) {
         try (Table t = conn().getTable(TableName.valueOf(table));
              ResultScanner scanner = t.getScanner(buildScan(family, rowPrefix))) {
-            java.util.List<Map<String, String>> out = new java.util.ArrayList<>();
+            java.util.List<Map<String, String>> out = Wraps.list();
             for (Result r : scanner) {
                 if (r.isEmpty()) {
                     continue;
@@ -293,7 +292,7 @@ public class HBaseEngine extends AbstractEngine {
      * @return 转为映射的结果
      */
     private static Map<String, String> toMap(Result r, String family) {
-        Map<String, String> m = new LinkedHashMap<>();
+        Map<String, String> m = Wraps.linkedMap();
         if (r.isEmpty()) {
             return m;
         }

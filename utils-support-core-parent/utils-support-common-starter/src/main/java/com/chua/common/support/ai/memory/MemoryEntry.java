@@ -1,11 +1,10 @@
 package com.chua.common.support.ai.memory;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Builder;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -107,9 +106,9 @@ public record MemoryEntry(
      * @param metadata   扩展元数据，可为 null
      */
     public MemoryEntry {
-        tags = tags == null ? null : Collections.unmodifiableList(new ArrayList<>(tags));
+        tags = tags == null ? null : Collections.unmodifiableList(Wraps.list(tags));
         metadata = metadata == null ? null
-                : Collections.unmodifiableMap(new LinkedHashMap<>(metadata));
+                : Collections.unmodifiableMap(Wraps.linkedMap(metadata));
     }
 
     /**

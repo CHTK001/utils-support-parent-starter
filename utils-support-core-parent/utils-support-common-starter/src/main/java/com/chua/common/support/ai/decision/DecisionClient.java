@@ -11,8 +11,8 @@ import java.util.Objects;
  * <p>与 {@link com.chua.common.support.ai.chat.ChatClient} 对应的决策侧门面：
  * 调用方通过工厂方法按 provider 名称拿到实例，一次调用完成「同一上下文下
  * 联合求值多个问题」。实现类通过 SPI 机制按 provider 名称注册，
- * 本接口本身也是 {@link DecisionProvider}，可直接装配进
- * {@link com.chua.common.support.ai.rule.RuleExecutor#withDecision}。</p>
+ * 本接口本身也是 {@link DecisionProvider}，供
+ * {@link com.chua.common.support.ai.rule.AiRule} 的规则实现按需调用。</p>
  *
  * <p>链式配置示例：</p>
  * <pre>{@code

@@ -1,8 +1,6 @@
 package com.chua.common.support.ai.skill;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,7 +43,7 @@ public class DefaultSkillManager implements SkillManager {
      */
     @Override
     public Map<String, SkillDefinition> getAll() {
-        return Collections.unmodifiableMap(new LinkedHashMap<>(skills));
+        return Collections.unmodifiableMap(Wraps.linkedMap(skills));
     }
 
     /**
@@ -53,12 +51,12 @@ public class DefaultSkillManager implements SkillManager {
      */
     @Override
     public List<Map<String, Object>> listAllToolDescriptors() {
-        List<Map<String, Object>> list = new ArrayList<>();
+        List<Map<String, Object>> list = Wraps.list();
         for (SkillDefinition skill : skills.values()) {
-            Map<String, Object> item = new LinkedHashMap<>();
+            Map<String, Object> item = Wraps.linkedMap();
             item.put("name", skill.getName());
             item.put("description", skill.getDescription());
-            List<Map<String, Object>> args = new ArrayList<>();
+            List<Map<String, Object>> args = Wraps.list();
             if (skill.getArguments() != null) {
                 for (SkillArgumentSchema schema : skill.getArguments()) {
                     args.add(schema.toMap());

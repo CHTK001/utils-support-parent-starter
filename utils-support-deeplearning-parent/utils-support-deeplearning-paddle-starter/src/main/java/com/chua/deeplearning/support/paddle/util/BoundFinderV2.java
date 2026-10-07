@@ -1,11 +1,9 @@
 package com.chua.deeplearning.support.paddle.util;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.Point;
 import ai.djl.modality.cv.output.Rectangle;
-
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
@@ -72,7 +70,7 @@ public class BoundFinderV2 {
     public BoundFinderV2(boolean[][] grid, float limitWidth, float limitHeight) {
         this.limitWidth = limitWidth;
         this.limitHeight = limitHeight;
-        this.pointsCollection = new ArrayList<>();
+        this.pointsCollection = Wraps.list();
         this.width = grid.length;
         this.height = grid[0].length;
         boolean[][] visited = new boolean[width][height];
@@ -122,10 +120,10 @@ public class BoundFinderV2 {
      * @return bfs的结果
      */
     private List<Point> bfs(boolean[][] grid, int x, int y, boolean[][] visited) {
-        Queue<Point> queue = new ArrayDeque<>();
+        Queue<Point> queue = Wraps.deque();
         queue.offer(new Point(x, y));
         visited[x][y] = true;
-        List<Point> points = new ArrayList<>();
+        List<Point> points = Wraps.list();
         while (!queue.isEmpty()) {
             Point point = queue.poll();
             points.add(new Point(point.getX() / width, point.getY() / height));

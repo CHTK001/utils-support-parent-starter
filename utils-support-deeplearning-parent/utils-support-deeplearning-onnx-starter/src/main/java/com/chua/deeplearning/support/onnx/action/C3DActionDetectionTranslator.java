@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.action;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
@@ -17,9 +18,7 @@ import java.nio.FloatBuffer;
 import java.nio.LongBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.utils.NativeLoader;
@@ -148,12 +147,12 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
     @Override
     public List<ActionDetectionResult> translate(byte[] videoData) {
         prepare();
-        List<Mat> allFrames = new ArrayList<>();
+        List<Mat> allFrames = Wraps.list();
         try {
             Path tempVideo = Files.createTempFile("c3d_action_", ".mp4");
             try {
                 Files.write(tempVideo, videoData);
-                List<ActionDetectionResult> results = new ArrayList<>();
+                List<ActionDetectionResult> results = Wraps.list();
                 VideoCapture capture = new VideoCapture(tempVideo.toString());
                 try {
                     if (!capture.isOpened()) {
@@ -184,7 +183,7 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
                     int windowStep = (int) (STEP * fps);
                     double actualFps = fps;
                     for (int startTs = 0; startTs + INPUT_FRAMES <= allFrames.size(); startTs += windowStep) {
-                        List<Mat> windowFrames = new ArrayList<>();
+                        List<Mat> windowFrames = Wraps.list();
                         for (int j = 0; j < INPUT_FRAMES && startTs + j < allFrames.size(); j++) {
                             windowFrames.add(allFrames.get(startTs + j));
                         }
@@ -197,7 +196,7 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
                         try (OnnxTensor inputTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(inputData), shape);
                              OnnxTensor heightTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(new long[]{INPUT_HEIGHT}), new long[0]);
                              OnnxTensor widthTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(new long[]{INPUT_WIDTH}), new long[0])) {
-                            Map<String, OnnxTensor> inputs = new HashMap<>();
+                            Map<String, OnnxTensor> inputs = Wraps.map();
                             inputs.put("input_frames", inputTensor);
                             inputs.put("height", heightTensor);
                             inputs.put("width", widthTensor);
@@ -324,10 +323,10 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
      * @return 结果列表，无数据时为空列表
      */
     private List<ActionDetectionResult> postprocess(float[][] predBboxes, float[][] predScores, float timestamp) {
-        List<ActionDetectionResult> results = new ArrayList<>();
+        List<ActionDetectionResult> results = Wraps.list();
         int numDetections = Math.min(predBboxes.length, predScores.length);
         for (int c = 0; c < NUM_CLASSES; c++) {
-            List<Detection> candidates = new ArrayList<>();
+            List<Detection> candidates = Wraps.list();
             for (int i = 0; i < numDetections; i++) {
                 if (predScores[i].length <= c) {
                     continue;
@@ -373,7 +372,7 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
      * @return 结果列表，无数据时为空列表
      */
     private List<Detection> nms(List<Detection> detections, float threshold) {
-        List<Detection> result = new ArrayList<>();
+        List<Detection> result = Wraps.list();
         boolean[] suppressed = new boolean[detections.size()];
         for (int i = 0; i < detections.size(); i++) {
             if (suppressed[i]) {

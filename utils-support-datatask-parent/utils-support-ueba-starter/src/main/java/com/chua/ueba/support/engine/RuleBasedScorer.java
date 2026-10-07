@@ -1,5 +1,6 @@
 package com.chua.ueba.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.ueba.support.config.UebaConfig;
 import com.chua.ueba.support.dto.BehaviorProfile;
 import com.chua.ueba.support.dto.IpAnomalyResult;
@@ -10,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -174,7 +174,7 @@ public class RuleBasedScorer {
         }
         List<TrafficEvent> events = window == null ? List.of() : window;
         double score = 0.0d;
-        List<String> reasons = new ArrayList<>(4);
+        List<String> reasons = Wraps.list(4);
 
         double errorRate = featureExtractor.rawIpFeature(featureOf("error_rate"), events);
         if (errorRate >= ERROR_RATE_HIGH) {
@@ -345,7 +345,7 @@ public class RuleBasedScorer {
      * @return 路径列表（最多 5 条），绝不为 空
      */
     static List<String> recentPaths(List<TrafficEvent> events) {
-        List<String> paths = new ArrayList<>(5);
+        List<String> paths = Wraps.list(5);
         int size = events.size();
         for (int i = size - 1; i >= 0 && paths.size() < 5; i--) {
             String path = events.get(i).getPath();

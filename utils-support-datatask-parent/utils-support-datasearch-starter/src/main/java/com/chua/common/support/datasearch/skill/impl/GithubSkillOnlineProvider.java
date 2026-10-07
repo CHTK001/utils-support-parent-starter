@@ -1,11 +1,10 @@
 package com.chua.common.support.datasearch.skill.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.skill.SkillDefinition;
 import com.chua.common.support.datasearch.skill.model.SkillMarketListing;
 import com.chua.common.support.datasearch.skill.spi.SkillOnlineProvider;
 import com.chua.common.support.spi.annotations.Spi;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +74,7 @@ public class GithubSkillOnlineProvider extends GithubSkillProvider implements Sk
             if (items == null || items.isEmpty()) {
                 return Collections.emptyList();
             }
-            List<SkillMarketListing> listings = new ArrayList<>(size);
+            List<SkillMarketListing> listings = Wraps.list(size);
             int rank = skip + 1;
             for (int i = skip; i < items.size() && listings.size() < size; i++) {
                 Map<String, Object> item = items.get(i);

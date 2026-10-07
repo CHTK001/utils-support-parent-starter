@@ -1,5 +1,6 @@
 package com.chua.flyway.maven;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -13,7 +14,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -215,12 +215,12 @@ public class GenerateInitSqlMojo extends AbstractMojo {
      */
     private List<Path> collectScripts(final Path root, final List<Path> excludedOutputs,
                                       final List<String> effectiveIncludes, final List<String> effectiveExcludes) throws IOException {
-        final List<Path> excluded = new ArrayList<>(excludedOutputs.size());
+        final List<Path> excluded = Wraps.list(excludedOutputs.size());
         for (final Path output : excludedOutputs) {
             excluded.add(output.toAbsolutePath().normalize());
         }
         final List<Path> scanned = InitSqlMerger.scan(root, effectiveIncludes, effectiveExcludes);
-        final List<Path> filtered = new ArrayList<>(scanned.size());
+        final List<Path> filtered = Wraps.list(scanned.size());
         for (final Path script : scanned) {
             if (!excluded.contains(script.toAbsolutePath().normalize())) {
                 filtered.add(script);
@@ -310,8 +310,8 @@ public class GenerateInitSqlMojo extends AbstractMojo {
             if (versionSort) {
                 InitSqlMerger.sortByVersionThenPath(scripts, root);
             }
-            final List<Path> initScripts = new ArrayList<>();
-            final List<Path> initDataScripts = new ArrayList<>();
+            final List<Path> initScripts = Wraps.list();
+            final List<Path> initDataScripts = Wraps.list();
             for (final Path script : scripts) {
                 if (InitSqlMerger.isInitData(script)) {
                     initDataScripts.add(script);

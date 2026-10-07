@@ -1,5 +1,6 @@
 package com.chua.enhance.support.network.server.filter.security;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.server.filter.ServerFilter;
 import com.chua.common.support.network.server.filter.ServerFilterChain;
 import com.chua.common.support.network.server.filter.ServerFilterConfig;
@@ -7,12 +8,9 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,7 +48,7 @@ public class CrawlerServerFilter implements ServerFilter {
     /**
      * 默认爬虫 用户-Agent 特征关键词
      */
-    private static final Set<String> DEFAULT_UA_KEYWORDS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+    private static final Set<String> DEFAULT_UA_KEYWORDS = Collections.unmodifiableSet(Wraps.set(Arrays.asList(
             "googlebot", "bingbot", "yandexbot", "baiduspider", "sogou", "360spider", "bytespider",
             "petalbot", "duckduckbot", "ia_archiver", "mj12bot", "ahrefsbot", "semrushbot", "dotbot",
             "rogerbot", "exabot", "slurp", "crawler", "spider", "mediapartners-google", "adsbot-google",
@@ -129,7 +127,7 @@ public class CrawlerServerFilter implements ServerFilter {
     /**
      * 爬虫 用户-Agent 关键词集合（内置 + 自定义）
      */
-    private final Set<String> uaKeywords = new HashSet<>(DEFAULT_UA_KEYWORDS);
+    private final Set<String> uaKeywords = Wraps.set(DEFAULT_UA_KEYWORDS);
 
     /**
      * 客户端周期请求记录：键 = IP|方法|URI → 窗口内请求时间戳队列
@@ -309,7 +307,7 @@ public class CrawlerServerFilter implements ServerFilter {
         long now = System.currentTimeMillis();
         long windowMillis = periodWindowSeconds * 1000L;
 
-        Deque<Long> times = periodRecords.computeIfAbsent(key, k -> new ArrayDeque<>());
+        Deque<Long> times = periodRecords.computeIfAbsent(key, k -> Wraps.deque());
         synchronized (times) {
             times.addLast(now);
             while (!times.isEmpty() && now - times.peekFirst() > windowMillis) {

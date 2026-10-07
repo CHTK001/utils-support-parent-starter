@@ -16,6 +16,8 @@ import java.util.*;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
+import com.chua.common.support.collection.wrap.Wraps;
+
 import static com.chua.common.support.image.png.PNG.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -175,8 +177,8 @@ public class PNGImageReader extends ImageReader {
     //ImageReadParam lastParam = null;
 
     long imageStartPosition = -1L;
-    Map<Integer, PNGMetadata> frameMetadata = new HashMap<>();
-    Map<Integer, Long> frameImageStartPositions = new HashMap<>();
+    Map<Integer, PNGMetadata> frameMetadata = Wraps.map();
+    Map<Integer, Long> frameImageStartPositions = Wraps.map();
     int nextImageIndex = 0;
 
     Rectangle sourceRegion = null;
@@ -1876,8 +1878,8 @@ public class PNGImageReader extends ImageReader {
             throw new IndexOutOfBoundsException("imageIndex != 0!");
         }
 
-        ArrayList<ImageTypeSpecifier> l =
-            new ArrayList<ImageTypeSpecifier>(1);
+        java.util.List<ImageTypeSpecifier> l =
+            Wraps.<ImageTypeSpecifier>list(1);
 
         ColorSpace rgb;
         ColorSpace gray;

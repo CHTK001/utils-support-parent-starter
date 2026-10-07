@@ -1,10 +1,9 @@
 package com.chua.common.support.concurrent.pool;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.ThreadUtils;
-
-import java.util.ArrayList;
+import java.util.Deque;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -72,12 +71,12 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
     /**
      * 空闲对象队列（FIFO）
      */
-    private final LinkedList<PooledObject<T>> idleObjects = new LinkedList<>();
+    private final Deque<PooledObject<T>> idleObjects = Wraps.deque();
 
     /**
      * 所有对象（含借出+空闲）
      */
-    private final List<PooledObject<T>> allObjects = new ArrayList<>();
+    private final List<PooledObject<T>> allObjects = Wraps.list();
 
     /**
      * 锁

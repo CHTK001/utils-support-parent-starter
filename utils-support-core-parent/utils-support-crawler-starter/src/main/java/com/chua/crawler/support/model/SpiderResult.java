@@ -1,12 +1,11 @@
 package com.chua.crawler.support.model;
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +69,7 @@ public class SpiderResult {
      * <p>Parser 或 AiParser 从页面中提取的结构化数据，如作者、发布时间、分类等。
      */
     @Builder.Default
-    private Map<String, Object> structured = new LinkedHashMap<>(); // Structured Streaming Streaming Streaming
+    private Map<String, Object> structured = Wraps.linkedMap(); // Structured Streaming Streaming Streaming
 
     /**
      * 提取的链接列表。
@@ -99,7 +98,7 @@ public class SpiderResult {
      * <p>爬取过程中产生的附加元数据，如抓取时间、解析耗时等。
      */
     @Builder.Default
-    private Map<String, Object> metadata = new LinkedHashMap<>(); // metadata
+    private Map<String, Object> metadata = Wraps.linkedMap(); // metadata
 
     /**
      * 内容类型。

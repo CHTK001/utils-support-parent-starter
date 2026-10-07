@@ -1,5 +1,6 @@
 package com.chua.filesystem.support.config.parser;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.config.parser.ConfigParser;
 import com.chua.common.support.config.source.MapPropertySource;
@@ -9,7 +10,6 @@ import com.fasterxml.jackson.dataformat.toml.TomlFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 
@@ -61,7 +61,7 @@ public class TomlConfigParser implements ConfigParser {
      */
     @SuppressWarnings("unchecked")
     private Map<String, Object> flattenMap(Map<String, Object> map, String prefix) {
-        Map<String, Object> result = new LinkedHashMap<>();
+        Map<String, Object> result = Wraps.linkedMap();
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             String key = prefix.isEmpty() ? entry.getKey() : prefix + "." + entry.getKey();
             Object value = entry.getValue();

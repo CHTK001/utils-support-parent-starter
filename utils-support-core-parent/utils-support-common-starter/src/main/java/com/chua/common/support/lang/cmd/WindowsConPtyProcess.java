@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.cmd;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -781,7 +782,7 @@ public final class WindowsConPtyProcess implements Closeable {
      * @return 指向环境块 UTF-16LE 字符串的 MemorySegment
      */
     static MemorySegment buildEnvBlock(Arena arena) {
-        Map<String, String> env = new java.util.LinkedHashMap<>(System.getenv());
+        Map<String, String> env = Wraps.linkedMap(System.getenv());
         String proxy = env.get("HTTP_PROXY");
         if (proxy == null || proxy.isEmpty()) {
             try {

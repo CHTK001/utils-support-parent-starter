@@ -1,6 +1,5 @@
 package com.chua.common.support.concurrent.threadflow;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -74,12 +73,12 @@ public class ThreadFlow {
     /**
      * Runnable 任务列表
      */
-    private final List<Runnable> runnableTasks = new ArrayList<>();
+    private final List<Runnable> runnableTasks = Wraps.list();
 
     /**
      * Callable 任务列表
      */
-    private final List<Callable<Object>> callableTasks = new ArrayList<>();
+    private final List<Callable<Object>> callableTasks = Wraps.list();
 
     /**
      * 创建 ThreadFlow 实例

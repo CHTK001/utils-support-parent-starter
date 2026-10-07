@@ -1,5 +1,6 @@
 package com.chua.common.support.ai.rag;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.embedding.EmbeddingClient;
 import com.chua.common.support.ai.splitter.TextChunk;
@@ -16,7 +17,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -365,7 +365,7 @@ public class MemoryRagClient implements RagClient {
 
             for (TextChunk chunk : chunks) {
                 float[] vector = vectorService.embed(chunk.text());
-                Map<String, Object> metadata = new HashMap<>();
+                Map<String, Object> metadata = Wraps.map();
                 metadata.put(META_CONTENT, chunk.text());
                 metadata.put(META_DOC_ID, docId);
                 metadata.put(META_FILE_NAME, fileName);
@@ -467,7 +467,7 @@ public class MemoryRagClient implements RagClient {
             }
             for (TextChunk chunk : chunks) {
                 float[] vector = vectorService.embed(chunk.text());
-                Map<String, Object> metadata = new HashMap<>();
+                Map<String, Object> metadata = Wraps.map();
                 metadata.put(META_CONTENT, chunk.text());
                 metadata.put(META_DOC_ID, docId);
                 metadata.put(META_FILE_NAME, fileName);
@@ -540,7 +540,7 @@ public class MemoryRagClient implements RagClient {
                     List<TextChunk> chunks = textSplitter.split(text);
                     for (TextChunk chunk : chunks) {
                         float[] vector = vectorService.embed(chunk.text());
-                        Map<String, Object> metadata = new HashMap<>();
+                        Map<String, Object> metadata = Wraps.map();
                         metadata.put(META_CONTENT, chunk.text());
                         metadata.put(META_DOC_ID, doc.id());
                         metadata.put(META_FILE_NAME, doc.fileName());

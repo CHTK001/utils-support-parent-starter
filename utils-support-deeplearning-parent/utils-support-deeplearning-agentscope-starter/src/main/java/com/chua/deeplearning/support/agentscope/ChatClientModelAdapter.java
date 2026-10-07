@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.agentscope;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.openai.client.OpenAIClient;
@@ -33,11 +34,7 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -106,7 +103,7 @@ public class ChatClientModelAdapter implements Model {
     public Flux<ChatResponse> stream(List<Msg> messages, List<ToolSchema> tools, GenerateOptions options) {
         // 1. 解析 system / 历史 / 最新用户输入（最新输入不再重复加入历史，避免重复提问）
         String systemPrompt = null;
-        List<ChatMessage> history = new ArrayList<>();
+        List<ChatMessage> history = Wraps.list();
         String prompt = "";
         for (int mi = 0; mi < messages.size(); mi++) {
             Msg msg = messages.get(mi);
@@ -180,7 +177,7 @@ public class ChatClientModelAdapter implements Model {
                                           List<ToolSchema> tools, String systemPrompt) {
         String toolsPrompt = buildToolsPrompt(tools);
         final String finalPrompt = toolsPrompt.isEmpty() ? prompt : (toolsPrompt + "\n\n" + prompt);
-        final List<ChatMessage> hist = new ArrayList<>(history);
+        final List<ChatMessage> hist = Wraps.list(history);
         final String sysPrompt = systemPrompt;
 
         return Flux.create(sink -> {
@@ -251,7 +248,7 @@ public class ChatClientModelAdapter implements Model {
         return Flux.create(sink -> {
             try (com.openai.core.http.StreamResponse<ChatCompletionChunk> stream =
                          getOpenAiClient().chat().completions().createStreaming(params)) {
-                Map<Integer, ToolCallAcc> accumulators = new LinkedHashMap<>();
+                Map<Integer, ToolCallAcc> accumulators = Wraps.linkedMap();
                 final io.agentscope.core.model.ChatUsage[] usage = {null};
 
                 stream.stream().forEach(chunk -> {
@@ -287,7 +284,7 @@ public class ChatClientModelAdapter implements Model {
                 });
 
                 if (!accumulators.isEmpty()) {
-                    List<ContentBlock> blocks = new ArrayList<>();
+                    List<ContentBlock> blocks = Wraps.list();
                     for (ToolCallAcc acc : accumulators.values()) {
                         String callId = acc.id != null ? acc.id : ("call_" + UUID.randomUUID());
                         blocks.add(ToolUseBlock.builder()
@@ -365,7 +362,7 @@ public class ChatClientModelAdapter implements Model {
             paramsBuilder.addSystemMessage(systemPrompt);
         }
 
-        Set<String> pending = new LinkedHashSet<>();
+        Set<String> pending = Wraps.linkedSet();
         int turns = 0;
         for (Msg msg : messages) {
             MsgRole role = msg.getRole();
@@ -391,7 +388,7 @@ public class ChatClientModelAdapter implements Model {
             }
         }
 
-        List<ChatCompletionTool> toolDefs = new ArrayList<>();
+        List<ChatCompletionTool> toolDefs = Wraps.list();
         for (ToolSchema tool : tools) {
             FunctionDefinition.Builder fnBuilder = FunctionDefinition.builder()
                     .name(tool.getName());
@@ -618,7 +615,7 @@ public class ChatClientModelAdapter implements Model {
      * @return 结果映射，无数据为空映射
      */
     private Map<String, JsonValue> toJsonValueMap(Map<String, Object> params) {
-        Map<String, JsonValue> result = new HashMap<>();
+        Map<String, JsonValue> result = Wraps.map();
         if (params != null) {
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 if (entry.getValue() != null) {

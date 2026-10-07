@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.face;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -14,7 +15,6 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 /**
@@ -118,7 +118,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
         double[][] priors = boxRecover(width, height, SCALES, STEPS);
 
         int n = Math.min(Math.min(boxArr.length, confArr.length), landmArr.length);
-        List<Candidate> candidates = new ArrayList<>();
+        List<Candidate> candidates = Wraps.list();
         for (int i = 0; i < n; i++) {
             float[] loc = boxArr[i];
             float[] conf = confArr[i];
@@ -145,9 +145,9 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
         }
 
         candidates.sort((a, b) -> Double.compare(b.prob, a.prob));
-        List<String> names = new ArrayList<>();
-        List<Double> probs = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> probs = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
         for (Candidate c : candidates) {
             boolean keep = true;
             for (BoundingBox b : boxes) {
@@ -166,7 +166,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
             if (eyeDist < EYE_DIST_THRESHOLD) {
                 continue;
             }
-            List<Point> pts = new ArrayList<>();
+            List<Point> pts = Wraps.list();
             for (int j = 0; j < 5; j++) {
                 pts.add(new Point(c.kp[j * 2], c.kp[j * 2 + 1]));
             }
@@ -210,7 +210,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
      * @return boxRecover的结果
      */
     private double[][] boxRecover(int width, int height, int[][] scales, int[] steps) {
-        List<double[]> boxes = new ArrayList<>();
+        List<double[]> boxes = Wraps.list();
         for (int idx = 0; idx < steps.length; idx++) {
             int hCells = (int) Math.ceil((float) height / steps[idx]);
             int wCells = (int) Math.ceil((float) width / steps[idx]);

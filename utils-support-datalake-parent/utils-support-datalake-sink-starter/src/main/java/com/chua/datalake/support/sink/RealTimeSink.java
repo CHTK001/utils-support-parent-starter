@@ -1,5 +1,6 @@
 package com.chua.datalake.support.sink;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
@@ -10,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -112,7 +112,7 @@ public class RealTimeSink implements AccessSink {
             log.error("[datalake-sink] 实时通道发现失败", e);
             discovered = Collections.emptyList();
         }
-        Map<String, RealTimeChannel> distinct = new LinkedHashMap<>();
+        Map<String, RealTimeChannel> distinct = Wraps.linkedMap();
         for (RealTimeChannel channel : discovered) {
             if (channel != null) {
                 distinct.putIfAbsent(channel.getClass().getName(), channel);

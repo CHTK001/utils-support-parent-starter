@@ -1,11 +1,10 @@
 package com.chua.deeplearning.support.embedding;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -220,7 +219,7 @@ class DefaultEmbeddingService implements EmbeddingService {
     */
     public List<float[]> embedBatch(List<String> texts) {
         int size = texts.size();
-        List<float[]> result = new ArrayList<>(size);
+        List<float[]> result = Wraps.list(size);
         for (String text : texts) {
             result.add(embed(text));
         }

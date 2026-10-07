@@ -1,12 +1,12 @@
 package com.chua.filestorage.support.preview.provider;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.filestorage.support.preview.FileStoragePreviewProvider;
 import com.chua.filestorage.support.preview.PreviewResult;
 
 import java.util.Base64;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -85,7 +85,7 @@ public class UniverPreviewProvider implements FileStoragePreviewProvider {
      * @return 支持的扩展名不可变集合
      */
     private static Set<String> buildSupportedExts() {
-        Set<String> all = new LinkedHashSet<>();
+        Set<String> all = Wraps.linkedSet();
         all.addAll(SHEET_EXTS);
         all.addAll(DOC_EXTS);
         all.addAll(SLIDES_EXTS);

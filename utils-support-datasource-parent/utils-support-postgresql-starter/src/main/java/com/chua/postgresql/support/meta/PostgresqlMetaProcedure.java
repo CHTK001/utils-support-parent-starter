@@ -1,5 +1,6 @@
 package com.chua.postgresql.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.meta.ProcedureCreateBuilder;
 import com.chua.common.support.lang.datasource.meta.model.ProcedureDef;
@@ -9,8 +10,6 @@ import com.chua.datasource.support.meta.AbstractMetaProcedure;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -231,7 +230,7 @@ public class PostgresqlMetaProcedure extends AbstractMetaProcedure {
         List<RoutineRow> rows = PostgresqlMetaData.query(metaData, routineContext, routineSql,
                 name == null ? PostgresqlMetaData.args(schema) : PostgresqlMetaData.args(schema, name),
                 RoutineRow::read);
-        List<ProcedureDef> defs = new ArrayList<>();
+        List<ProcedureDef> defs = Wraps.list();
         if (rows.isEmpty()) {
             return defs;
         }
@@ -239,7 +238,7 @@ public class PostgresqlMetaProcedure extends AbstractMetaProcedure {
         List<ParamRow> params = PostgresqlMetaData.query(metaData, "查询存储过程参数" + suffix, paramSql,
                 name == null ? PostgresqlMetaData.args(schema) : PostgresqlMetaData.args(schema, name),
                 ParamRow::read);
-        Map<String, List<ProcedureParamDef>> grouped = new LinkedHashMap<>();
+        Map<String, List<ProcedureParamDef>> grouped = Wraps.linkedMap();
         for (ParamRow row : params) {
             ProcedureParamDef param = new ProcedureParamDef();
             param.setName(row.parameterName());
@@ -247,10 +246,10 @@ public class PostgresqlMetaProcedure extends AbstractMetaProcedure {
             param.setDirection(row.mode());
             param.setPosition(row.ordinalPosition());
             grouped.computeIfAbsent(row.specificSchema() + "." + row.routineType() + "." + row.specificName(),
-                    k -> new ArrayList<>()).add(param);
+                    k -> Wraps.list()).add(param);
         }
         for (RoutineRow row : rows) {
-            defs.add(row.toDef(grouped.getOrDefault(row.key(), new ArrayList<>())));
+            defs.add(row.toDef(grouped.getOrDefault(row.key(), Wraps.list())));
         }
         return defs;
     }
@@ -402,7 +401,7 @@ public class PostgresqlMetaProcedure extends AbstractMetaProcedure {
         /**
          * 参数子句
          */
-        private final List<String> params = new ArrayList<>();
+        private final List<String> params = Wraps.list();
         /**
          * 过程体
          */

@@ -1,5 +1,6 @@
 package com.chua.word.support.file.extractor;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.txtractor.TextExtractResult;
 import com.chua.common.support.file.txtractor.TextExtractor;
 import com.chua.common.support.spi.annotations.Spi;
@@ -10,7 +11,6 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,7 +37,7 @@ public class WordTextExtractor implements TextExtractor {
      * extract文本
     */
     public List<TextExtractResult> extractText(File file) {
-        List<TextExtractResult> results = new ArrayList<>();
+        List<TextExtractResult> results = Wraps.list();
         String currentSection = "";
         StringBuilder currentText = new StringBuilder();
 

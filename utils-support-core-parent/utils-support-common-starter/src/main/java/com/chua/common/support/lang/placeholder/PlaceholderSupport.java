@@ -1,12 +1,12 @@
 package com.chua.common.support.lang.placeholder;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -108,7 +108,7 @@ public class PlaceholderSupport {
     /**
      * 用户自定义函数的注册表
      */
-    private final Map<String, Function<String, String>> functions = new HashMap<>();
+    private final Map<String, Function<String, String>> functions = Wraps.map();
 
     /**
      * 创建 PlaceholderSupport 实例

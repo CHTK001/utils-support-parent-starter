@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.weka.rf;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.weka.WekaException;
 import com.chua.deeplearning.support.weka.data.FeatureColumn;
 import com.chua.deeplearning.support.weka.data.ModelDomain;
@@ -134,6 +135,7 @@ public final class RandomForestModel implements Serializable {
      */
     public Instances instancesFor(List<Map<String, Object>> rows) {
         Objects.requireNonNull(rows, "rows must not be null");
+        // Weka 的 Instances(String, ArrayList<Attribute>, int) 只收 ArrayList，不能改用 Wraps.list()
         var attrs = new ArrayList<Attribute>(domain.features().size() + 1);
         for (var feature : domain.features()) {
             if (feature.getType() == FeatureColumn.FeatureType.NUMERIC) {
@@ -209,13 +211,13 @@ public final class RandomForestModel implements Serializable {
         for (int i = 0; i < domain.features().size(); i++) {
             max = Math.max(max, raw[i]);
         }
-        var unranked = new ArrayList<FeatureImportance>(domain.features().size());
+        var unranked = Wraps.<FeatureImportance>list(domain.features().size());
         for (int i = 0; i < domain.features().size(); i++) {
             unranked.add(new FeatureImportance(domain.features().get(i).getName(), raw[i],
                     max > 0 ? raw[i] / max : 0.0, 0));
         }
         unranked.sort(Comparator.comparingDouble(FeatureImportance::importance).reversed());
-        var ranked = new ArrayList<FeatureImportance>(unranked.size());
+        var ranked = Wraps.<FeatureImportance>list(unranked.size());
         for (int i = 0; i < unranked.size(); i++) {
             var item = unranked.get(i);
             ranked.add(new FeatureImportance(item.feature(), item.importance(),

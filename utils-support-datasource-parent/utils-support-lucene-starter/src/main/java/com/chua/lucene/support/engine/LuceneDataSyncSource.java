@@ -1,5 +1,6 @@
 package com.chua.lucene.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasync.agent.support.DataSyncSource;
 import com.chua.datasync.agent.support.model.Direction;
 import com.chua.datasync.agent.support.model.SyncDataOffset;
@@ -11,7 +12,6 @@ import org.apache.lucene.store.Directory;
 import reactor.core.publisher.Flux;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -153,7 +153,7 @@ public class LuceneDataSyncSource implements DataSyncSource {
         }
         Directory directory = engine.getOrCreateDirectory(tableName);
         try (IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig())) {
-            List<Document> buffer = new ArrayList<>(batchSize);
+            List<Document> buffer = Wraps.list(batchSize);
             for (Map<String, Object> row : rows) {
                 Document doc = new Document();
                 for (Map.Entry<String, Object> entry : row.entrySet()) {

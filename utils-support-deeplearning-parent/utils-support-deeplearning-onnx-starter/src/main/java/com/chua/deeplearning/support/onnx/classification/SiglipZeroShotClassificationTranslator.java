@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.classification;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.huggingface.tokenizers.Encoding;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.djl.modality.Classifications;
@@ -19,11 +20,10 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 
 /**
@@ -199,7 +199,7 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
      * @return 构建candidate输入标识的结果
      */
     private long[][] buildCandidateInputIds(List<String> labels) {
-        List<long[]> encoded = new ArrayList<>(labels.size());
+        List<long[]> encoded = Wraps.list(labels.size());
         int maxLength = 1;
         for (String label : labels) {
             Encoding encoding = tokenizer.encode(formatPrompt(label));
@@ -227,7 +227,7 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
      */
     private List<Double> toProbabilities(float[] logits) {
         double[] softmax = softmax(logits);
-        List<Double> probabilities = new ArrayList<>(softmax.length);
+        List<Double> probabilities = Wraps.list(softmax.length);
         for (double value : softmax) {
             probabilities.add(value);
         }
@@ -283,14 +283,14 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
         if (StringUtils.isBlank(rawCandidates)) {
             return Collections.emptyList();
         }
-        LinkedHashSet<String> values = new LinkedHashSet<>();
+        Set<String> values = Wraps.linkedSet();
         for (String item : rawCandidates.split("[,|]")) {
             if (StringUtils.isBlank(item)) {
                 continue;
             }
             values.add(item.trim());
         }
-        return new ArrayList<>(values);
+        return Wraps.list(values);
     }
 
     /**

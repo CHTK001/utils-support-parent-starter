@@ -1,5 +1,6 @@
 package com.chua.rabbitmq.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.rabbitmq.client.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -666,7 +667,7 @@ public class RabbitmqClient implements AutoCloseable {
         /**
          * 参数
         */
-        private Map<String, Object> arguments = new HashMap<>();
+        private Map<String, Object> arguments = Wraps.map();
 
         QueueOperation(RabbitmqClient client) { this.client = client; }
 
@@ -1109,7 +1110,7 @@ public class RabbitmqClient implements AutoCloseable {
          */
         public PublishOperation header(String key, Object value) {
             Map<String, Object> h = propsBuilder.build().getHeaders() != null
-                    ? new HashMap<>(propsBuilder.build().getHeaders()) : new HashMap<>();
+                    ? Wraps.map(propsBuilder.build().getHeaders()) : Wraps.map();
             h.put(key, value);
             propsBuilder.headers(h);
             return this;

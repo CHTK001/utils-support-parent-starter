@@ -1,5 +1,6 @@
 package com.chua.runtime.starter;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.RuntimeType;
 import com.chua.runtime.core.model.RuntimeArtifact;
 
@@ -117,7 +118,7 @@ public final class GuacamoleArtifact {
         /**
          * 参数
          */
-        private java.util.List<String> args = new java.util.ArrayList<>();
+        private java.util.List<String> args = Wraps.list();
 
         /**
          * 启动超时

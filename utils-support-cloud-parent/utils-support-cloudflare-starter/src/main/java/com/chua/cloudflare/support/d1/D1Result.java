@@ -1,8 +1,6 @@
 package com.chua.cloudflare.support.d1;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,9 +45,9 @@ public record D1Result(Map<String, Object> meta, List<Map<String, Object>> rows,
      */
     public D1Result {
         meta = Collections.unmodifiableMap(
-                new LinkedHashMap<>(Objects.requireNonNull(meta, "meta 不能为 null")));
+                Wraps.linkedMap(Objects.requireNonNull(meta, "meta 不能为 null")));
         rows = Collections.unmodifiableList(
-                new ArrayList<>(Objects.requireNonNull(rows, "rows 不能为 null")));
+                Wraps.list(Objects.requireNonNull(rows, "rows 不能为 null")));
     }
 
     /**
@@ -64,7 +62,7 @@ public record D1Result(Map<String, Object> meta, List<Map<String, Object>> rows,
             return new D1Result(Map.of(), List.of(), false);
         }
         Object metaRaw = map.get("meta");
-        var meta = metaRaw instanceof Map<?, ?> m ? (Map<String, Object>) m : new LinkedHashMap<String, Object>();
+        var meta = metaRaw instanceof Map<?, ?> m ? (Map<String, Object>) m : Wraps.<String, Object>linkedMap();
         var success = Boolean.TRUE.equals(map.get("success"));
         var rows = parseResults(map.get("results"));
         return new D1Result(meta, rows, success);
@@ -77,7 +75,7 @@ public record D1Result(Map<String, Object> meta, List<Map<String, Object>> rows,
      * @return 每条 SQL 对应的 D1结果
      */
     public static List<D1Result> parseBatch(Object raw) {
-        var results = new ArrayList<D1Result>();
+        var results = Wraps.<D1Result>list();
         if (raw instanceof List<?> list) {
             for (var item : list) {
                 results.add(parse(item));
@@ -96,7 +94,7 @@ public record D1Result(Map<String, Object> meta, List<Map<String, Object>> rows,
      */
     @SuppressWarnings("unchecked")
     private static List<Map<String, Object>> parseResults(Object raw) {
-        var out = new ArrayList<Map<String, Object>>();
+        var out = Wraps.<Map<String, Object>>list();
         if (raw instanceof List<?> list) {
             for (var row : list) {
                 if (row instanceof Map<?, ?>) {

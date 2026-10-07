@@ -1,11 +1,10 @@
 package com.chua.deeplearning.support.tinyai;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.task.classifier.ClassifierTask;
 import java.io.Serializable;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -202,7 +201,7 @@ public class TinyAiMlpClassifier implements ClassifierTask, Serializable {
             List<Map<String, Object>> rows) {
         Objects.requireNonNull(model, "model must not be null");
         Objects.requireNonNull(rows, "rows must not be null");
-        var results = new ArrayList<TinyAiMlpModel.ClassificationResult>(rows.size());
+        var results = Wraps.<TinyAiMlpModel.ClassificationResult>list(rows.size());
         for (var row : rows) {
             results.add(predict(model, row));
         }
@@ -284,8 +283,8 @@ public class TinyAiMlpClassifier implements ClassifierTask, Serializable {
         var hits = 0;
         var total = 0;
         for (var fold = 0; fold < folds; fold++) {
-            var trainRows = new ArrayList<Map<String, Object>>();
-            var testRows = new ArrayList<Map<String, Object>>();
+            var trainRows = Wraps.<Map<String, Object>>list();
+            var testRows = Wraps.<Map<String, Object>>list();
             for (var i = 0; i < rows.size(); i++) {
                 (i % folds == fold ? testRows : trainRows).add(rows.get(i));
             }
@@ -405,7 +404,7 @@ public class TinyAiMlpClassifier implements ClassifierTask, Serializable {
         @Override
         public List<Result> predictBatch(List<Map<String, Object>> rows) {
             Objects.requireNonNull(rows, "rows must not be null");
-            var results = new ArrayList<Result>(rows.size());
+            var results = Wraps.<Result>list(rows.size());
             for (var row : task.predictBatch(model, rows)) {
                 results.add(new Result(row.label(), row.confidence(), row.probabilities()));
             }
@@ -446,7 +445,7 @@ public class TinyAiMlpClassifier implements ClassifierTask, Serializable {
          * @return 快照
          */
         public Map<String, Object> snapshot() {
-            var map = new LinkedHashMap<String, Object>();
+            var map = Wraps.<String, Object>linkedMap();
             map.put("numInstances", numInstances);
             map.put("numFolds", numFolds);
             map.put("accuracyPct", accuracyPct);

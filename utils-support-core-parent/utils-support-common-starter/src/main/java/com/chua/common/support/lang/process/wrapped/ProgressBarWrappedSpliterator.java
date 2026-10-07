@@ -1,10 +1,10 @@
 package com.chua.common.support.lang.process.wrapped;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.process.ProgressBar;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Consumer;
@@ -41,7 +41,7 @@ public class ProgressBarWrappedSpliterator<T> implements Spliterator<T>, AutoClo
      * @param pb         进度条实例
      */
     public ProgressBarWrappedSpliterator(Spliterator<T> underlying, ProgressBar pb) {
-        this(underlying, pb, Collections.synchronizedSet(new HashSet<>()));
+        this(underlying, pb, Collections.synchronizedSet(Wraps.set()));
     }
 
     /**

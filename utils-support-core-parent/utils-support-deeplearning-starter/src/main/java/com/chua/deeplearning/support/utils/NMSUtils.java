@@ -1,12 +1,11 @@
 package com.chua.deeplearning.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
-
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -41,7 +40,7 @@ public class NMSUtils {
         // 按置信度分数降序排列
         NDArray order = scores.argSort().flip(0);
 
-        List<Integer> keep = new ArrayList<>();
+        List<Integer> keep = Wraps.list();
 
         while (order.size() > 0) {
             int idx = (int) order.getLong(0);
@@ -84,7 +83,7 @@ public class NMSUtils {
      * @return 保留的候选框全局索引 ndarray
      */
     public static NDArray batchedNms(NDArray boxes, NDArray scores, NDArray idxs, float iouThreshold, NDManager manager) {
-        List<NDArray> keepList = new ArrayList<>();
+        List<NDArray> keepList = Wraps.list();
 
  // 获取唯一的 批量 标识 列表
         NDArray uniqueIdxs = idxs.unique().get(0); // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
@@ -139,7 +138,7 @@ public class NMSUtils {
         // 按分数升序排列
         NDArray order = scores.argSort();
 
-        List<Integer> keep = new ArrayList<>();
+        List<Integer> keep = Wraps.list();
 
         while (order.size() > 0) {
             int i = (int) order.getLong(-1);
@@ -189,12 +188,12 @@ public class NMSUtils {
             List<ai.djl.modality.cv.output.BoundingBox> boxes,
             List<Double> probabilities,
             float nmsThreshold) {
-        List<Integer> indices = new ArrayList<>();
+        List<Integer> indices = Wraps.list();
         if (boxes.isEmpty()) {
             return indices;
         }
 
-        List<Integer> sorted = new ArrayList<>();
+        List<Integer> sorted = Wraps.list();
         for (int i = 0; i < probabilities.size(); i++) {
             sorted.add(i);
         }

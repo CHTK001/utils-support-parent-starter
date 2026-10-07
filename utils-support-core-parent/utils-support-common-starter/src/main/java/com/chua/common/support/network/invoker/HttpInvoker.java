@@ -1,5 +1,6 @@
 package com.chua.common.support.network.invoker;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.client.HttpApiOptions;
 import com.chua.common.support.network.client.HttpClient;
 import com.chua.common.support.network.client.HttpClientFactory;
@@ -8,8 +9,6 @@ import com.chua.common.support.network.http.HttpVersion;
 import com.chua.common.support.network.invoker.filter.InjectCallback;
 import com.chua.common.support.network.invoker.filter.SharedInvocationContext;
 import com.chua.common.support.spi.annotations.Spi;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -158,7 +157,7 @@ public class HttpInvoker implements Invoker {
      * @return 注入规则列表
      */
     public List<SharedInvocationContext.InjectRule> getInjectRules() {
-        return options == null ? List.of() : new ArrayList<>(options.getInjectRules());
+        return options == null ? List.of() : Wraps.list(options.getInjectRules());
     }
 
     /**
@@ -279,7 +278,7 @@ public class HttpInvoker implements Invoker {
      * @return 应用层拦截器列表
      */
     public List<HttpInterceptor> getInterceptors() {
-        return options == null ? List.of() : new ArrayList<>(options.getInterceptors());
+        return options == null ? List.of() : Wraps.list(options.getInterceptors());
     }
 
     /**
@@ -288,7 +287,7 @@ public class HttpInvoker implements Invoker {
      * @return 网络层拦截器列表
      */
     public List<HttpInterceptor> getNetworkInterceptors() {
-        return options == null ? List.of() : new ArrayList<>(options.getNetworkInterceptors());
+        return options == null ? List.of() : Wraps.list(options.getNetworkInterceptors());
     }
 
     /**

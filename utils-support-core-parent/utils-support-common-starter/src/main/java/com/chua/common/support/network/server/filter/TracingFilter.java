@@ -1,10 +1,9 @@
 package com.chua.common.support.network.server.filter;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,8 +52,8 @@ public class TracingFilter implements ServerFilter {
         String traceId = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
         request.setAttribute(TRACE_ID_KEY, traceId);
 
-        List<FilterChainListener> listeners = new ArrayList<>();
-        List<String> traceLog = new ArrayList<>();
+        List<FilterChainListener> listeners = Wraps.list();
+        List<String> traceLog = Wraps.list();
         request.setAttribute(LISTENERS_KEY, listeners);
         request.setAttribute(TRACE_LOG_KEY, traceLog);
 

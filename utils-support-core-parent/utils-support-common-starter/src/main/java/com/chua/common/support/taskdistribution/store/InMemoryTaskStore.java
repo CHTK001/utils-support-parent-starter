@@ -1,10 +1,9 @@
 package com.chua.common.support.taskdistribution.store;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.taskdistribution.task.Task;
 import com.chua.common.support.taskdistribution.task.TaskResult;
 import com.chua.common.support.taskdistribution.task.TaskStatus;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -103,7 +102,7 @@ public class InMemoryTaskStore implements TaskStore {
 
     @Override
     public List<Task<?>> getRecoverableTasks() {
-        List<Task<?>> result = new ArrayList<>();
+        List<Task<?>> result = Wraps.list();
         for (TaskEntry entry : tasks.values()) {
             if (entry.task != null && (entry.status == TaskStatus.PENDING || entry.status == TaskStatus.RUNNING)) {
                 result.add(entry.task);

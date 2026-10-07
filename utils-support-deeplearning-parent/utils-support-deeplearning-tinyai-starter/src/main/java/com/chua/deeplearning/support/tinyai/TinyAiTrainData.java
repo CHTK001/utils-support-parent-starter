@@ -1,12 +1,10 @@
 package com.chua.deeplearning.support.tinyai;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -81,7 +79,7 @@ public final class TinyAiTrainData implements Serializable {
         if (rows.size() < 2) {
             throw new TinyAiException("样本行数不足: 至少 2 行，实际 " + rows.size());
         }
-        var featuresCopy = new ArrayList<FeatureColumn>(features.size());
+        var featuresCopy = Wraps.<FeatureColumn>list(features.size());
         for (var feature : features) {
             Objects.requireNonNull(feature, "特征列不能为 null");
             var copy = feature.isNumeric() ? FeatureColumn.numeric(feature.name())
@@ -91,7 +89,7 @@ public final class TinyAiTrainData implements Serializable {
         }
         this.features = List.copyOf(featuresCopy);
         this.labelColumn = labelColumn;
-        var copy = new ArrayList<Map<String, Object>>(rows.size());
+        var copy = Wraps.<Map<String, Object>>list(rows.size());
         for (var row : rows) {
             Objects.requireNonNull(row, "样本行不能为 null");
             copy.add(Map.copyOf(row));
@@ -158,7 +156,7 @@ public final class TinyAiTrainData implements Serializable {
         if (labelColumn.isBlank()) {
             throw new TinyAiException("标签列名不能为空白");
         }
-        var names = new LinkedHashSet<String>();
+        var names = Wraps.<String>linkedSet();
         for (var row : rows) {
             if (row != null) {
                 row.keySet().stream().filter(name -> !name.equals(labelColumn)).forEach(names::add);
@@ -239,12 +237,12 @@ public final class TinyAiTrainData implements Serializable {
         /**
          * 特征列定义。
          */
-        private final List<FeatureColumn> features = new ArrayList<>();
+        private final List<FeatureColumn> features = Wraps.list();
 
         /**
          * 行数据。
          */
-        private final List<Map<String, Object>> rows = new ArrayList<>();
+        private final List<Map<String, Object>> rows = Wraps.list();
 
         /**
          * 构造构建器。
@@ -289,7 +287,7 @@ public final class TinyAiTrainData implements Serializable {
          */
         public Builder addRow(Map<String, Object> row) {
             Objects.requireNonNull(row, "row 不能为 null");
-            rows.add(new LinkedHashMap<>(row));
+            rows.add(Wraps.linkedMap(row));
             return this;
         }
 

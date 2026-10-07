@@ -1,10 +1,10 @@
 package com.chua.common.support.serialize;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ObjectInputFilter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -168,10 +168,10 @@ public final class DeserializationGuard {
      * @return 不可变策略列表，SPI 不可用时回退到内置黑名单
      */
     private static List<DeserializationPolicy> loadPolicies() {
-        List<DeserializationPolicy> result = new ArrayList<>();
+        List<DeserializationPolicy> result = Wraps.list();
         try {
             List<DeserializationPolicy> discovered = ServiceProvider.of(DeserializationPolicy.class).collect();
-            List<Class<?>> seen = new ArrayList<>(discovered.size());
+            List<Class<?>> seen = Wraps.list(discovered.size());
             for (DeserializationPolicy policy : discovered) {
                 if (policy == null) {
                     continue;

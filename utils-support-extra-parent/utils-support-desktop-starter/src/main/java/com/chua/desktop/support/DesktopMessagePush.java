@@ -1,5 +1,6 @@
 package com.chua.desktop.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import com.chua.common.support.spi.annotations.SpiParam;
@@ -9,8 +10,6 @@ import com.chua.common.support.task.message.MessageRequest;
 import com.chua.common.support.task.message.MessageResponse;
 import com.chua.common.support.task.message.TemplateInfo;
 import com.chua.desktop.support.NativeDesktopNotifier;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -125,7 +124,7 @@ public class DesktopMessagePush implements MessagePush {
      * 列表templates
     */
     public List<TemplateInfo> listTemplates() {
-        return new ArrayList<>(templates.values());
+        return Wraps.list(templates.values());
     }
 
     @Override

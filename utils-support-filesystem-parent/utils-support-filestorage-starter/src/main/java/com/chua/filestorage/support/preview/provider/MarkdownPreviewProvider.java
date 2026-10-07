@@ -1,12 +1,12 @@
 package com.chua.filestorage.support.preview.provider;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.filestorage.support.preview.FileStoragePreviewProvider;
 import com.chua.filestorage.support.preview.PreviewResult;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -215,7 +215,7 @@ public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
      */
     private static String renderInline(String text) {
         String escaped = escapeHtml(text);
-        List<String> placeholders = new ArrayList<>();
+        List<String> placeholders = Wraps.list();
 
         Matcher codeMatcher = INLINE_CODE_PATTERN.matcher(escaped);
         StringBuffer codeBuffer = new StringBuffer();

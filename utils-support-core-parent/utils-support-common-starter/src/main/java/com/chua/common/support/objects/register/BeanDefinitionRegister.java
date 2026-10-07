@@ -1,9 +1,9 @@
 package com.chua.common.support.objects.register;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.objects.definition.BeanDefinition;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -108,7 +108,7 @@ public interface BeanDefinitionRegister {
      */
     default Collection<BeanDefinition> getAllBeanDefinitions() {
         Collection<String> names = getBeanDefinitionNames();
-        Collection<BeanDefinition> definitions = new ArrayList<>();
+        Collection<BeanDefinition> definitions = Wraps.list();
         for (String name : names) {
             BeanDefinition def = getBeanDefinition(name);
             if (def != null) {

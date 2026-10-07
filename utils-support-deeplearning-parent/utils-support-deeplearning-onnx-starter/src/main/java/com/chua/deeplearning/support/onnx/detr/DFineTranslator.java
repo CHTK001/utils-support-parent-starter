@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.detr;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.DetectedObjects;
 import ai.djl.modality.cv.output.Rectangle;
@@ -15,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.List;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 import ai.djl.modality.cv.output.BoundingBox;
@@ -124,9 +124,9 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
         int classes = (int) lshape[2];
         float[] boxArr = boxesNd.toFloatArray();
 
-        List<String> names = new ArrayList<>();
-        List<Double> probabilities = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> probabilities = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
 
         for (int q = 0; q < queries; q++) {
             int best = 0;

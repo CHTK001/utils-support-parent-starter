@@ -1,7 +1,5 @@
 package com.chua.common.support.lang.datasource.series;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
 
@@ -280,29 +278,29 @@ public interface SeriesEngine {
      * @return [[bucketStartTs, avg], ...] 升序
      */
     static List<List<Object>> downsample(List<Object[]> points, long windowMs, int maxPoints) {
-        List<List<Object>> result = new ArrayList<>();
+        List<List<Object>> result = Wraps.list();
         if (points == null || points.isEmpty()) {
             return result;
         }
-        Map<Long, double[]> buckets = new LinkedHashMap<>();
+        Map<Long, double[]> buckets = Wraps.linkedMap();
         for (Object[] point : points) {
             long bucket = ((Number) point[0]).longValue() / windowMs;
             double[] acc = buckets.computeIfAbsent(bucket, k -> new double[2]);
             acc[0] += ((Number) point[1]).doubleValue();
             acc[1] += 1;
         }
-        List<Long> keys = new ArrayList<>(buckets.keySet());
+        List<Long> keys = Wraps.list(buckets.keySet());
         keys.sort(Long::compare);
         for (Long bucket : keys) {
             double[] acc = buckets.get(bucket);
-            List<Object> pair = new ArrayList<>(2);
+            List<Object> pair = Wraps.list(2);
             pair.add(bucket * windowMs);
             pair.add(acc[1] > 0 ? acc[0] / acc[1] : 0D);
             result.add(pair);
         }
         if (maxPoints > 0 && result.size() > maxPoints) {
             int step = (int) Math.ceil((double) result.size() / maxPoints);
-            List<List<Object>> sampled = new ArrayList<>();
+            List<List<Object>> sampled = Wraps.list();
             for (int i = 0; i < result.size(); i += step) {
                 sampled.add(result.get(i));
             }

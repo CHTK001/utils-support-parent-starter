@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.spi.annotations.Spi;
@@ -12,7 +13,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -91,7 +91,7 @@ public class VscodeUsageParser extends BaseUsageParser {
             log.debug("[vscode] session store not found: {} (Copilot CLI not installed/authenticated)", DB_PATH);
             return List.of();
         }
-        List<AiUsage> result = new ArrayList<>();
+        List<AiUsage> result = Wraps.list();
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH);
              PreparedStatement stmt = conn.prepareStatement(SQL_USAGE_EVENTS);
              ResultSet rs = stmt.executeQuery()) {

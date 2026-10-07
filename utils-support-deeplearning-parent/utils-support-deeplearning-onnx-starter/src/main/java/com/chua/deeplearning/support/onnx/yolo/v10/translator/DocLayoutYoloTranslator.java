@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.yolo.v10.translator;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -11,8 +12,6 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import ai.djl.modality.cv.BufferedImageFactory;
@@ -176,7 +175,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     public DocLayoutYoloTranslator(int inputSize, float threshold, List<String> classes) {
         this.inputSize = inputSize;
         this.threshold = threshold;
-        this.classes = new ArrayList<>(classes);
+        this.classes = Wraps.list(classes);
         this.normalizeCoordinates = true;
         log.info("          DocLayout-YOLO                             -             : {}x{},       : {},          : {}",
                 inputSize, inputSize, threshold, classes.size());
@@ -253,9 +252,9 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
         long numFeatures = shape[dims - 1];
         float[] flat = output.toFloatArray();
 
-        List<String> classNames = new ArrayList<>();
-        List<Double> probabilities = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
+        List<String> classNames = Wraps.list();
+        List<Double> probabilities = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
 
         for (int i = 0; i < numBoxes; i++) {
             int base = i * (int) numFeatures;

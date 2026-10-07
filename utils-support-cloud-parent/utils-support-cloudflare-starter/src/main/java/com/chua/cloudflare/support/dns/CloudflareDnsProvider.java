@@ -1,5 +1,6 @@
 package com.chua.cloudflare.support.dns;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.cloudflare.support.CloudflareClient;
 import com.chua.cloudflare.support.CloudflareConfig;
 import com.chua.common.support.network.dns.DnsConfig;
@@ -7,8 +8,6 @@ import com.chua.common.support.network.dns.DnsProvider;
 import com.chua.common.support.network.dns.DnsRecord;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -83,7 +82,7 @@ public class CloudflareDnsProvider implements DnsProvider {
     @Override
     public DnsProvider addRecord(DnsRecord record) {
         ensureReady();
-        Map<String, Object> payload = new java.util.LinkedHashMap<>();
+        Map<String, Object> payload = Wraps.linkedMap();
         payload.put("type", record.getType());
         payload.put("name", record.getName());
         payload.put("content", record.getContent());
@@ -134,7 +133,7 @@ public class CloudflareDnsProvider implements DnsProvider {
             path.append(name != null && !name.isEmpty() ? "&" : "?").append("type=").append(type);
         }
         Object result = client.get(path.toString());
-        List<DnsRecord> records = new ArrayList<>();
+        List<DnsRecord> records = Wraps.list();
         if (result instanceof List<?> list) {
             for (Object item : list) {
                 if (item instanceof Map<?, ?> map) {

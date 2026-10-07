@@ -1,6 +1,5 @@
 package com.chua.oshi.support.cli.display;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,8 +44,8 @@ public final class Formatter {
      * @return 面板字符串
      */
     public static String panel(String title, String... rows) {
-        List<String> keys = new ArrayList<>();
-        List<String> values = new ArrayList<>();
+        List<String> keys = Wraps.list();
+        List<String> values = Wraps.list();
         for (int i = 0; i + 1 < rows.length; i += 2) {
             keys.add(rows[i]);
             values.add(rows[i + 1]);
@@ -96,7 +95,7 @@ public final class Formatter {
         for (int c = 0; c < cols; c++) {
             widths[c] = Math.max(widths[c], width(headers[c]));
         }
-        List<String[]> all = new ArrayList<>(rows);
+        List<String[]> all = Wraps.list(rows);
         if (summary != null) {
             all.add(summary);
         }

@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.yolo.v11.translator;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.BoundingBox;
@@ -18,7 +19,6 @@ import com.chua.deeplearning.support.utils.NMSUtils;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 import ai.djl.modality.cv.BufferedImageFactory;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
@@ -150,9 +150,9 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
         float[] data = output.toType(DataType.FLOAT32, false).toFloatArray();
         int features = (int) (transposed ? f0 : f1);
 
-        List<String> names = new ArrayList<>();
-        List<Double> probs = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> probs = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
         for (int i = 0; i < numBoxes; i++) {
             float cx = val(data, i, 0, transposed, numBoxes, features);
             float cy = val(data, i, 1, transposed, numBoxes, features);
@@ -176,10 +176,10 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
             probs.add((double) conf);
         }
 
-        List<Integer> keep = NMSUtils.nms(new ArrayList<>(boxes), probs, iouThreshold);
-        List<String> finalNames = new ArrayList<>(keep.size());
-        List<Double> finalProbs = new ArrayList<>(keep.size());
-        List<BoundingBox> finalBoxes = new ArrayList<>(keep.size());
+        List<Integer> keep = NMSUtils.nms(Wraps.list(boxes), probs, iouThreshold);
+        List<String> finalNames = Wraps.list(keep.size());
+        List<Double> finalProbs = Wraps.list(keep.size());
+        List<BoundingBox> finalBoxes = Wraps.list(keep.size());
         for (int idx : keep) {
             finalNames.add(names.get(idx));
             finalProbs.add(probs.get(idx));

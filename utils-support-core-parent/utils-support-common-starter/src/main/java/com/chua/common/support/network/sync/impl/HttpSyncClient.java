@@ -1,5 +1,6 @@
 package com.chua.common.support.network.sync.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.common.support.network.sync.SyncMessageHandler;
@@ -56,7 +57,7 @@ public class HttpSyncClient implements SyncClient {
     /**
      * 监听器列表
      */
-    private final java.util.List<SyncFlowListener> listeners = new java.util.ArrayList<>();
+    private final java.util.List<SyncFlowListener> listeners = Wraps.list();
 
     /**
      * 拉取线程

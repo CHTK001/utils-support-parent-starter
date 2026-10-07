@@ -1,6 +1,5 @@
 package com.chua.common.support.datasearch.phone.model;
-
-import java.util.LinkedHashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Map;
 
 /**
@@ -122,7 +121,7 @@ public class PhoneLocationInfo {
      * @return Map 表示
      */
     public Map<String, Object> toMap() {
-        Map<String, Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = Wraps.linkedMap();
         map.put("phone", phone);
         map.put("province", province);
         map.put("city", city);

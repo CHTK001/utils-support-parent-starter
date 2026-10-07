@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.arcsoft.translator;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.arcsoft.face.FaceInfo;
 import com.arcsoft.face.FaceEngine;
 import com.arcsoft.face.toolkit.ImageFactory;
@@ -10,7 +11,6 @@ import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,12 +50,12 @@ public class ArcFaceDetectorTranslator implements ITranslator<Object, List<Detec
     public List<DetectionInfo> translate(Object input) {
         BufferedImage image = Converter.convertIfNecessary(input, BufferedImage.class);
         if (image == null || faceEngine == null) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
 
         try {
             ImageInfo imageInfo = ImageFactory.bufferedImage2ImageInfo(image);
-            List<FaceInfo> faceInfoList = new ArrayList<>();
+            List<FaceInfo> faceInfoList = Wraps.list();
             faceEngine.detectFaces(
                 imageInfo.getImageData(),
                 imageInfo.getWidth(),
@@ -64,7 +64,7 @@ public class ArcFaceDetectorTranslator implements ITranslator<Object, List<Detec
                 faceInfoList
             );
 
-            List<DetectionInfo> results = new ArrayList<>(faceInfoList.size());
+            List<DetectionInfo> results = Wraps.list(faceInfoList.size());
             for (FaceInfo faceInfo : faceInfoList) {
                 var rect = faceInfo.getRect();
                 if (rect == null) {
@@ -83,7 +83,7 @@ public class ArcFaceDetectorTranslator implements ITranslator<Object, List<Detec
             
         } catch (Exception e) {
             log.warn("[ArcFaceDetector] 检测失败: {}", e.getMessage());
-            return new ArrayList<>();
+            return Wraps.list();
         }
     }
 }

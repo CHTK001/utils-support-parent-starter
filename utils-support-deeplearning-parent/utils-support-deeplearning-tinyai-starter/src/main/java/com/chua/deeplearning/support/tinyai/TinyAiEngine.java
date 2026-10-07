@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.tinyai;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import io.leavesfly.tinyai.func.Variable;
 import io.leavesfly.tinyai.ml.dataset.ArrayDataset;
 import io.leavesfly.tinyai.ml.dataset.Batch;
@@ -16,7 +17,6 @@ import io.leavesfly.tinyai.nnet.layer.dnn.Linear;
 import io.leavesfly.tinyai.util.Config;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -271,8 +271,8 @@ public final class TinyAiEngine implements Serializable {
      * @return 数据集
      */
     public DataSet toDataset(ModelDomain domain, List<Map<String, Object>> samples, int batchSize) {
-        var xs = new ArrayList<NdArray>(samples.size());
-        var ys = new ArrayList<NdArray>(samples.size());
+        var xs = Wraps.<NdArray>list(samples.size());
+        var ys = Wraps.<NdArray>list(samples.size());
         for (var row : samples) {
             if (row == null) {
                 continue;
@@ -337,8 +337,8 @@ public final class TinyAiEngine implements Serializable {
 
         @Override
         public List<Batch> getBatches() {
-            var batches = new ArrayList<Batch>();
-            var order = new ArrayList<Integer>(xs.length);
+            var batches = Wraps.<Batch>list();
+            var order = Wraps.<Integer>list(xs.length);
             for (var i = 0; i < xs.length; i++) {
                 order.add(i);
             }

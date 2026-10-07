@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.phone.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.phone.model.PhoneLocationInfo;
 import com.chua.common.support.datasearch.phone.spi.PhoneLocationProvider;
 import com.chua.common.support.network.client.ClientResponse;
@@ -10,8 +11,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -184,7 +183,7 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
      * @return 构建前缀table的结果
      */
     private static Map<String, PhoneLocationInfo> buildPrefixTable() {
-        Map<String, PhoneLocationInfo> map = new HashMap<>();
+        Map<String, PhoneLocationInfo> map = Wraps.map();
         add(map, "1380", "北京市", "北京市", "中国移动");
         add(map, "1390", "北京市", "北京市", "中国移动");
         add(map, "1880", "北京市", "北京市", "中国移动");

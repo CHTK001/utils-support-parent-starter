@@ -1,13 +1,12 @@
 package com.chua.common.support.task.taskrunner;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.ServiceProvider;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -72,7 +71,7 @@ public class TaskRunner {
     /**
      * 注册顺序保持的节点定义表
      */
-    private final Map<String, TaskDefinition> definitions = new LinkedHashMap<>();
+    private final Map<String, TaskDefinition> definitions = Wraps.linkedMap();
 
     /**
      * 全局默认单任务超时，空 表示不限时
@@ -343,7 +342,7 @@ public class TaskRunner {
         var graph = resolveGraph();
         var context = new RunnerContext(input);
 
-        var merged = new ArrayList<RunnerListener>(listeners.size() + 1);
+        var merged = Wraps.<RunnerListener>list(listeners.size() + 1);
         merged.addAll(listeners);
         merged.add(this::bridgeEvent);
         var options = new RunnerProvider.ExecutionOptions(policy, timeout, retryCount, merged);

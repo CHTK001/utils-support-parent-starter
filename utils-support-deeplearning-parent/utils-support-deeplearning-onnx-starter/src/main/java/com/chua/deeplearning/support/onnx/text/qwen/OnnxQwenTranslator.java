@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.text.qwen;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
@@ -10,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.onnxruntime.NodeInfo;
@@ -22,7 +22,6 @@ import java.net.URL;
 import java.nio.FloatBuffer;
 import java.nio.LongBuffer;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -254,7 +253,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                 + "<|im_start|>assistant\n";
         long[] ids = tokenizer.encode(chat).getIds();
         StringBuilder out = new StringBuilder();
-        List<Long> tokens = new ArrayList<>();
+        List<Long> tokens = Wraps.list();
         for (long id : ids) {
             tokens.add(id);
         }
@@ -264,13 +263,13 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         long[] attMask = ones(ids.length);
         long[] posIds = range(ids.length);
 
-        Map<String, OnnxTensor> past = new HashMap<>();
+        Map<String, OnnxTensor> past = Wraps.map();
         boolean first = true;
         int generated = 0;
         long totalSteps = ids.length;
 
         while (generated < MAX_NEW_TOKENS) {
-            Map<String, OnnxTensor> inputs = new HashMap<>();
+            Map<String, OnnxTensor> inputs = Wraps.map();
             inputs.put("input_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(inputIds), new long[]{1, inputIds.length}));
             inputs.put("attention_mask", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(attMask), new long[]{1, attMask.length}));
             inputs.put("position_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(posIds), new long[]{1, posIds.length}));
@@ -344,7 +343,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
      * @return 空past的结果
      */
     private Map<String, OnnxTensor> emptyPast() throws Exception {
-        Map<String, OnnxTensor> m = new HashMap<>();
+        Map<String, OnnxTensor> m = Wraps.map();
         for (int layer = 0; layer < nLayers; layer++) {
             long[] shape = new long[]{1, 2, 0, kvDim};
             float[] empty = new float[0];
@@ -362,7 +361,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
      * @return collectPast的结果
      */
     private Map<String, OnnxTensor> collectPast(OrtSession.Result result) throws Exception {
-        Map<String, OnnxTensor> m = new HashMap<>();
+        Map<String, OnnxTensor> m = Wraps.map();
         for (int layer = 0; layer < nLayers; layer++) {
             float[][][][] k = (float[][][][]) result.get("present." + layer + ".key").orElseThrow().getValue();
             float[][][][] v = (float[][][][]) result.get("present." + layer + ".value").orElseThrow().getValue();

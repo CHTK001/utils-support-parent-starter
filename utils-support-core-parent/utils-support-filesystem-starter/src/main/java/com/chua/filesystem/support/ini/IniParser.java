@@ -1,5 +1,6 @@
 package com.chua.filesystem.support.ini;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -59,7 +60,7 @@ public class IniParser {
      * @return 解析后的 映射（Section -> 属性映射）
      */
     public static Map<String, Map<String, String>> parseToNestedMap(String content) {
-        Map<String, Map<String, String>> result = new LinkedHashMap<>();
+        Map<String, Map<String, String>> result = Wraps.linkedMap();
         String[] lines = content.split("\n");
         String currentSection = "";
 
@@ -74,7 +75,7 @@ public class IniParser {
             // 检查是否为 Section 标题
             if (line.startsWith("[") && line.endsWith("]")) {
                 currentSection = line.substring(1, line.length() - 1).trim();
-                result.putIfAbsent(currentSection, new LinkedHashMap<>());
+                result.putIfAbsent(currentSection, Wraps.linkedMap());
             } else if (line.contains("=")) {
                 // 解析 Key=Value 对
                 int delimiterIndex = line.indexOf('=');
@@ -85,7 +86,7 @@ public class IniParser {
                     result.get(currentSection).put(key, value);
                 } else {
                     // 如果还没有 Section，使用默认 Section
-                    result.putIfAbsent("", new LinkedHashMap<>());
+                    result.putIfAbsent("", Wraps.linkedMap());
                     result.get("").put(key, value);
                 }
             }
@@ -102,11 +103,11 @@ public class IniParser {
      * @return Section 列表
      */
     public static List<Map<String, String>> parseToList(String content) {
-        List<Map<String, String>> result = new ArrayList<>();
+        List<Map<String, String>> result = Wraps.list();
         Map<String, Map<String, String>> nestedMap = parseToNestedMap(content);
 
         for (Map.Entry<String, Map<String, String>> entry : nestedMap.entrySet()) {
-            Map<String, String> section = new LinkedHashMap<>(entry.getValue());
+            Map<String, String> section = Wraps.linkedMap(entry.getValue());
             section.put("__section__", entry.getKey());
             result.add(section);
         }
@@ -182,7 +183,7 @@ public class IniParser {
      * @return Section 名称集合
      */
     public static Set<String> getSections(String content) {
-        Set<String> sections = new LinkedHashSet<>();
+        Set<String> sections = Wraps.linkedSet();
         String[] lines = content.split("\n");
 
         for (String line : lines) {
@@ -206,7 +207,7 @@ public class IniParser {
      */
     public static String propertiesToIni(Properties properties) {
         StringBuilder sb = new StringBuilder();
-        Map<String, Map<String, String>> sections = new LinkedHashMap<>();
+        Map<String, Map<String, String>> sections = Wraps.linkedMap();
 
         // 首先按 Section 分组
         for (String key : properties.stringPropertyNames()) {
@@ -218,11 +219,11 @@ public class IniParser {
             if (parts.length >= 2) {
                 String section = parts[0];
                 String propKey = key.substring(section.length() + 1);
-                sections.putIfAbsent(section, new LinkedHashMap<>());
+                sections.putIfAbsent(section, Wraps.linkedMap());
                 sections.get(section).put(propKey, properties.getProperty(key));
             } else {
                 // 全局属性
-                sections.putIfAbsent("", new LinkedHashMap<>());
+                sections.putIfAbsent("", Wraps.linkedMap());
                 sections.get("").put(key, properties.getProperty(key));
             }
         }

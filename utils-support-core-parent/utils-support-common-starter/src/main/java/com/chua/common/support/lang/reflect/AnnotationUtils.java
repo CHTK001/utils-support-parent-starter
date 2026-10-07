@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.reflect;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
@@ -11,8 +12,6 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -77,7 +76,7 @@ public final class AnnotationUtils {
      * @return 注解属性映射，键为元素名，值为元素值；未找到注解返回空 Map
      */
     public static Map<String, Object> getAnnotationAttributes(Class<?> clazz, Class<? extends Annotation> annotationClass) {
-        Map<String, Object> attributes = new LinkedHashMap<>();
+        Map<String, Object> attributes = Wraps.linkedMap();
         Annotation annotation = clazz.getAnnotation(annotationClass);
         if (annotation == null) {
             return attributes;
@@ -108,7 +107,7 @@ public final class AnnotationUtils {
         boolean inherited = isInherited(annotationClass);
         boolean documented = isDocumented(annotationClass);
 
-        List<AnnotationDefinition> metaDefinitions = new ArrayList<>();
+        List<AnnotationDefinition> metaDefinitions = Wraps.list();
         for (Annotation meta : annotationClass.getAnnotations()) {
             metaDefinitions.add(getAnnotationDefinition(meta.annotationType()));
         }
@@ -132,7 +131,7 @@ public final class AnnotationUtils {
      */
     public static MethodDefinition getMethodDefinition(Method method) {
         List<AnnotationDefinition> annotationDefs = getAnnotationsFor(method);
-        List<MethodDefinition.ParameterDefinition> paramDefs = new ArrayList<>();
+        List<MethodDefinition.ParameterDefinition> paramDefs = Wraps.list();
         java.lang.reflect.Parameter[] params = method.getParameters();
         for (java.lang.reflect.Parameter param : params) {
             List<AnnotationDefinition> paramAnnos = getAnnotationsFor(param);
@@ -178,17 +177,17 @@ public final class AnnotationUtils {
     public static ClassDefinition getClassDefinition(Class<?> clazz) {
         List<AnnotationDefinition> annotationDefs = getAnnotationsFor(clazz);
 
-        List<MethodDefinition> methodDefs = new ArrayList<>();
+        List<MethodDefinition> methodDefs = Wraps.list();
         for (Method method : clazz.getDeclaredMethods()) {
             methodDefs.add(getMethodDefinition(method));
         }
 
-        List<FieldDefinition> fieldDefs = new ArrayList<>();
+        List<FieldDefinition> fieldDefs = Wraps.list();
         for (Field field : clazz.getDeclaredFields()) {
             fieldDefs.add(getFieldDefinition(field));
         }
 
-        List<Class<?>> interfaces = new ArrayList<>();
+        List<Class<?>> interfaces = Wraps.list();
         for (Class<?> iface : clazz.getInterfaces()) {
             interfaces.add(iface);
         }
@@ -211,7 +210,7 @@ public final class AnnotationUtils {
      * @return 注解定义列表
      */
     private static List<AnnotationDefinition> getAnnotationsFor(java.lang.reflect.AnnotatedElement element) {
-        List<AnnotationDefinition> defs = new ArrayList<>();
+        List<AnnotationDefinition> defs = Wraps.list();
         for (Annotation ann : element.getDeclaredAnnotations()) {
             defs.add(getAnnotationDefinition(ann.annotationType()));
         }
@@ -225,7 +224,7 @@ public final class AnnotationUtils {
      * @return 属性名映射（初始为空）
      */
     private static Map<String, Object> extractAttributeMethods(Class<? extends Annotation> annotationClass) {
-        Map<String, Object> attributes = new LinkedHashMap<>();
+        Map<String, Object> attributes = Wraps.linkedMap();
         for (Method method : annotationClass.getDeclaredMethods()) {
             attributes.put(method.getName(), null);
         }

@@ -1,5 +1,6 @@
 package com.chua.common.support.ai.rag;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.splitter.TextChunk;
 import com.chua.common.support.ai.splitter.TextSplitter;
 import com.chua.common.support.file.txtractor.TextExtractor;
@@ -13,8 +14,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -133,7 +132,7 @@ public class RagDocumentLifeCycle implements AutoCloseable {
         // 提取文本并索引
         try {
             String text = extractText(data, fileName);
-            Map<String, Object> meta = new HashMap<>();
+            Map<String, Object> meta = Wraps.map();
             meta.put("fileName", fileName);
             meta.put("fileType", fileType);
             meta.put("fileSize", data.length);
@@ -247,7 +246,7 @@ public class RagDocumentLifeCycle implements AutoCloseable {
                 if (Files.exists(file)) {
                     byte[] data = Files.readAllBytes(file);
                     String text = extractText(data, doc.fileName());
-                    Map<String, Object> meta = new HashMap<>();
+                    Map<String, Object> meta = Wraps.map();
                     meta.put("fileName", doc.fileName());
                     meta.put("fileType", doc.fileType());
                     meta.put("docId", doc.id());
@@ -337,13 +336,13 @@ public class RagDocumentLifeCycle implements AutoCloseable {
      */
     private List<RagDocument> loadDb() {
         if (!Files.exists(dbFile)) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
         try {
             return MAPPER.readValue(dbFile.toFile(), DOC_LIST_TYPE);
         } catch (IOException e) {
             log.warn("[RagDocumentLifeCycle] 加载文档元数据失败: {}", e.getMessage(), e);
-            return new ArrayList<>();
+            return Wraps.list();
         }
     }
 

@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.opencv;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.image.ImageProcessor;
 import com.chua.common.support.image.ImageProcessorUtils;
 import com.chua.common.support.spi.annotations.Spi;
@@ -12,11 +13,8 @@ import org.opencv.imgproc.Imgproc;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-
 /**
  * 基于 打开cv 的图像处理器
  *
@@ -423,7 +421,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
             boolean drawMatch = params.get("drawMatch") == null || Boolean.parseBoolean(params.get("drawMatch").toString());
 
             // 查找匹配位置（NMS 简化版）
-            List<Map<String, Object>> matches = new ArrayList<>();
+            List<Map<String, Object>> matches = Wraps.list();
             int tw = template.cols();
             int th = template.rows();
 
@@ -444,7 +442,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
 
                 int x = (int) bestLoc.x;
                 int y = (int) bestLoc.y;
-                Map<String, Object> match = new HashMap<>();
+                Map<String, Object> match = Wraps.map();
                 match.put("x", x);
                 match.put("y", y);
                 match.put("width", tw);

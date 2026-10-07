@@ -1,5 +1,6 @@
 package com.chua.oracle.support.index;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.datasource.support.index.IndexManager;
 
@@ -7,7 +8,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -146,7 +146,7 @@ public class OracleCreateIndexStep implements IndexManager.CreateIndexStep {
     /**
      * 索引列，元素均已通过白名单校验
      */
-    private final List<String> columns = new ArrayList<>();
+    private final List<String> columns = Wraps.list();
 
     /**
      * 索引形态，默认普通 B 树索引
@@ -205,7 +205,7 @@ public class OracleCreateIndexStep implements IndexManager.CreateIndexStep {
         if (column == null || column.isBlank()) {
             throw new IllegalArgumentException("列名不能为空, 索引名: " + indexName);
         }
-        List<String> parsed = new ArrayList<>();
+        List<String> parsed = Wraps.list();
         for (String segment : column.split(COLUMN_SEPARATOR)) {
             String name = segment.trim();
             if (name.isEmpty()) {

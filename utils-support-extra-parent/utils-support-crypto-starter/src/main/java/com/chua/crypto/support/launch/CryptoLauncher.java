@@ -1,5 +1,6 @@
 package com.chua.crypto.support.launch;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.ProtectionDomain;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
@@ -211,7 +211,7 @@ public final class CryptoLauncher {
                     java.nio.file.attribute.PosixFilePermission.OWNER_READ,
                     java.nio.file.attribute.PosixFilePermission.OWNER_WRITE,
                     java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE};
-            Files.setPosixFilePermissions(dir, new java.util.HashSet<>(java.util.Arrays.asList(perms)));
+            Files.setPosixFilePermissions(dir, Wraps.set(java.util.Arrays.asList(perms)));
         } catch (UnsupportedOperationException | IOException ignored) {
             // Windows/FAT 等无 POSIX 权限语义的文件系统跳过，依赖部署环境访问控制列表
         }
@@ -290,7 +290,7 @@ public final class CryptoLauncher {
      */
     private static URLClassLoader buildExtractedLoader(JarFile jar, byte[] master, Path tempDir)
             throws IOException {
-        List<URL> urls = new ArrayList<>();
+        List<URL> urls = Wraps.list();
         Path classesDir = Files.createDirectories(tempDir.resolve("classes"));
         boolean bootLayout = jar.getEntry(BOOT_CLASSES_PREFIX) != null;
         for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements(); ) {
@@ -369,7 +369,7 @@ public final class CryptoLauncher {
     private static URLClassLoader buildLazyLoader(File self, byte[] master) throws IOException {
         Path libsDir = Files.createTempDirectory("chua-crypto-libs");
 
-        List<URL> urls = new ArrayList<>();
+        List<URL> urls = Wraps.list();
         try (JarFile jar = new JarFile(self)) {
             for (JarEntry entry : collectLibEntries(jar)) {
                 byte[] bytes = decryptEntryBytes(jar, entry, master);
@@ -391,7 +391,7 @@ public final class CryptoLauncher {
      * @return 依赖条目列表
      */
     private static List<JarEntry> collectLibEntries(JarFile jar) {
-        List<JarEntry> libs = new ArrayList<>();
+        List<JarEntry> libs = Wraps.list();
         Enumeration<JarEntry> entries = jar.entries();
         while (entries.hasMoreElements()) {
             JarEntry entry = entries.nextElement();
@@ -444,7 +444,7 @@ public final class CryptoLauncher {
             } catch (IOException ignored) {
                 // 关闭失败仍需尝试删除
             }
-            List<Path> leftovers = new ArrayList<>();
+            List<Path> leftovers = Wraps.list();
             try (var paths = Files.walk(dir)) {
                 paths.sorted(Comparator.reverseOrder()).forEach(p -> {
                     if (!p.toFile().delete()) {

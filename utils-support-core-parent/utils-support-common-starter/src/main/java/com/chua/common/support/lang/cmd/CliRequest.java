@@ -1,14 +1,13 @@
 package com.chua.common.support.lang.cmd;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -46,7 +45,7 @@ public final class CliRequest {
     /**
      * 参数列表
      */
-    private final List<String> args = new ArrayList<>();
+    private final List<String> args = Wraps.list();
     /**
      * 超时值，小于等于 0 表示不超时
      */
@@ -188,7 +187,7 @@ public final class CliRequest {
     @Nonnull
     public CliRequest env(@Nonnull String key, @Nonnull String value) {
         if (environment == null) {
-            environment = new HashMap<>();
+            environment = Wraps.map();
         }
         environment.put(key, value);
         return this;
@@ -204,7 +203,7 @@ public final class CliRequest {
     public CliRequest envs(@Nullable Map<String, String> env) {
         if (env != null) {
             if (environment == null) {
-                environment = new HashMap<>();
+                environment = Wraps.map();
             }
             environment.putAll(env);
         }
@@ -257,7 +256,7 @@ public final class CliRequest {
      */
     @Nonnull
     public List<String> args() {
-        return Collections.unmodifiableList(new ArrayList<>(args));
+        return Collections.unmodifiableList(Wraps.list(args));
     }
 
     /**

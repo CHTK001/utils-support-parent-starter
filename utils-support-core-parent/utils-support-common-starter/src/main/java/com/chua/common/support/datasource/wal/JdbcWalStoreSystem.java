@@ -1,5 +1,6 @@
 package com.chua.common.support.datasource.wal;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.wal.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -168,7 +169,7 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
     public int size() { return (int) totalRecords.get(); }
     @Override
     public List<WalSegmentInfo> listSegments() throws IOException {
-        List<WalSegmentInfo> all = new ArrayList<>();
+        List<WalSegmentInfo> all = Wraps.list();
         for (SegmentWalLog log : walLogs) {
             all.addAll(log.listSegments());
         }
@@ -221,7 +222,7 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
         if (cols == null) {
             return Collections.emptyList();
         }
-        List<ColumnDef> result = new ArrayList<>(cols.size());
+        List<ColumnDef> result = Wraps.list(cols.size());
         for (Map<String, Object> col : cols) {
             result.add(new ColumnDef(
                     (String) col.get("name"),
@@ -241,7 +242,7 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
      */
     public void createTable(String tableName, List<ColumnDef> columns) throws IOException {
         Path f = config.baseDir().resolve("_schemas").resolve(tableName + ".json");
-        Map<String, Object> schema = new LinkedHashMap<>();
+        Map<String, Object> schema = Wraps.linkedMap();
         schema.put("name", tableName);
         schema.put("columns", columns);
         Files.writeString(f, com.chua.common.support.lang.json.Json.toJson(schema));
@@ -329,7 +330,7 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
      * @return 结果值
      */
     private byte[] encodeRow(Map<String, Object> row) {
-        row = new LinkedHashMap<>(row);
+        row = Wraps.linkedMap(row);
         ByteBuffer bb = ByteBuffer.allocate(256);
         bb.putInt(row.size());
         for (Map.Entry<String, Object> e : row.entrySet()) {
@@ -360,7 +361,7 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
         }
         ByteBuffer bb = ByteBuffer.wrap(payload);
         int colCount = bb.getInt();
-        Map<String, Object> row = new LinkedHashMap<>();
+        Map<String, Object> row = Wraps.linkedMap();
         for (int i = 0; i < colCount; i++) {
             if (bb.remaining() < 4) {
                 break;

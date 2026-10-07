@@ -1,14 +1,13 @@
 package com.chua.common.support.lang.document;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -76,19 +75,19 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
      * @return 结果字符串
      */
     private String render(BenchmarkDocumentData data) {
-        List<BenchmarkDocumentData.BenchmarkRow> rows = new ArrayList<>(data.getRows());
+        List<BenchmarkDocumentData.BenchmarkRow> rows = Wraps.list(data.getRows());
         rows.sort(Comparator.comparing(BenchmarkDocumentData.BenchmarkRow::getImplementation)
                 .thenComparingInt(BenchmarkDocumentData.BenchmarkRow::getConcurrency));
 
         // 实现名列表（保持出现顺序）
-        List<String> impls = new ArrayList<>();
+        List<String> impls = Wraps.list();
         for (BenchmarkDocumentData.BenchmarkRow r : rows) {
             if (!impls.contains(r.getImplementation())) {
                 impls.add(r.getImplementation());
             }
         }
         // 并发等级列表
-        List<Integer> vus = new ArrayList<>();
+        List<Integer> vus = Wraps.list();
         for (BenchmarkDocumentData.BenchmarkRow r : rows) {
             if (!vus.contains(r.getConcurrency())) {
                 vus.add(r.getConcurrency());
@@ -122,7 +121,7 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
         // 构造 ECharts 数据
         StringBuilder jsImpls = new StringBuilder();
         StringBuilder jsVus = new StringBuilder();
-        Map<String, String> series = new LinkedHashMap<>();
+        Map<String, String> series = Wraps.linkedMap();
         series.put("rate", "successRate");
         series.put("p95", "p95");
         series.put("p99", "p99");

@@ -1,5 +1,6 @@
 package com.chua.datalake.support.executor;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.concurrent.dispatcher.ConsumerDispatcherDefinition;
 import com.chua.common.support.concurrent.dispatcher.DispatcherProvider;
 import com.chua.common.support.spi.ServiceProvider;
@@ -8,8 +9,6 @@ import com.chua.datalake.support.model.DataEnvelope;
 import com.chua.datalake.support.spi.pipeline.PipelineEngine;
 import com.chua.datalake.support.spi.sink.DataSink;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -153,7 +152,7 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
                 }
                 DataSink sink = sinkRegistry.get(sinkId);
                 if (sink != null) {
-                    sink.write(envelope, new HashMap<>());
+                    sink.write(envelope, Wraps.map());
                 }
             } catch (Exception e) {
                 log.error("[datalake-server] 发布异常: sinkId={}, error={}", sinkId, e.getMessage(), e);

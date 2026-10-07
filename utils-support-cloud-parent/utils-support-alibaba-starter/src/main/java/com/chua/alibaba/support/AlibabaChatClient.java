@@ -1,5 +1,6 @@
 package com.chua.alibaba.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.alibaba.dashscope.aigc.generation.Generation;
 import com.alibaba.dashscope.aigc.generation.GenerationOutput;
 import com.alibaba.dashscope.aigc.generation.GenerationParam;
@@ -21,8 +22,6 @@ import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.spi.annotations.Spi;
 import io.reactivex.Flowable;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -87,7 +86,7 @@ public class AlibabaChatClient implements ChatClient {
     /**
      * 对话历史消息
     */
-    private final List<ChatMessage> history = new ArrayList<>(HISTORY_CAPACITY);
+    private final List<ChatMessage> history = Wraps.list(HISTORY_CAPACITY);
     /**
      * 外部历史消息
     */
@@ -95,7 +94,7 @@ public class AlibabaChatClient implements ChatClient {
     /**
      * 图片链接列表
     */
-    private final List<String> imageUrls = new ArrayList<>(4);
+    private final List<String> imageUrls = Wraps.list(4);
     /**
      * 是否开启思考模式
     */
@@ -455,7 +454,7 @@ public class AlibabaChatClient implements ChatClient {
      * @return 构建消息的结果
      */
     private List<Message> buildMessages(String prompt, String actualSystem) {
-        var messages = new ArrayList<Message>();
+        var messages = Wraps.<Message>list();
         if (actualSystem != null && !actualSystem.isEmpty()) {
             messages.add(Message.builder()
                     .role(Role.SYSTEM.getValue())

@@ -1,5 +1,6 @@
 package com.chua.flow.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.flow.ConditionNode;
 import com.chua.common.support.task.flow.FlowContext;
 import com.chua.common.support.task.flow.FlowDefinition;
@@ -8,12 +9,8 @@ import com.chua.common.support.task.flow.FlowInstance;
 import com.chua.common.support.task.flow.FlowNode;
 import com.chua.common.support.task.flow.FlowStatus;
 import com.chua.common.support.task.pipeline.core.Action;
-
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -83,7 +80,7 @@ public class DefaultFlowInstance implements FlowInstance {
     /**
      * 待执行节点队列，挂起时冻结，恢复后继续消费
      */
-    private final Deque<String> pendingNodes = new ArrayDeque<>();
+    private final Deque<String> pendingNodes = Wraps.deque();
 
     /**
      * 创建实例时携带的初始参数
@@ -110,7 +107,7 @@ public class DefaultFlowInstance implements FlowInstance {
         this.status = FlowStatus.NEW;
         this.context = null;
         this.initialParams = initialParams != null
-                ? new LinkedHashMap<>(initialParams) : new LinkedHashMap<>();
+                ? Wraps.linkedMap(initialParams) : Wraps.linkedMap();
     }
 
     /**
@@ -249,7 +246,7 @@ public class DefaultFlowInstance implements FlowInstance {
         for (Map.Entry<String, Object> entry : params.entrySet()) {
             context.setAttribute(entry.getKey(), entry.getValue());
         }
-        context.setAttribute(PARAMS_ATTRIBUTE_KEY, new LinkedHashMap<>(params));
+        context.setAttribute(PARAMS_ATTRIBUTE_KEY, Wraps.linkedMap(params));
     }
 
     /**
@@ -307,7 +304,7 @@ public class DefaultFlowInstance implements FlowInstance {
                 }
                 if (action == Action.WAIT) {
                     // 记录挂起点与待执行快照，供恢复时查看
-                    context.snapshotPending(new ArrayList<>(pendingNodes));
+                    context.snapshotPending(Wraps.list(pendingNodes));
                     status = FlowStatus.WAITED;
                     return;
                 }
@@ -359,7 +356,7 @@ public class DefaultFlowInstance implements FlowInstance {
      * @return 目标节点 标识 列表
      */
     private List<String> targetsOf(String nodeId, String label) {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         for (FlowDefinition.FlowEdgeDef edge : flow.getDefinition().getEdges()) {
             if (edge.from().equals(nodeId) && label.equals(edge.label())) {
                 result.add(edge.to());

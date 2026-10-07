@@ -1,5 +1,6 @@
 package com.chua.quarkus.support.objects.register.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.definition.FrameworkBeanDefinition;
@@ -199,7 +200,7 @@ public class QuarkusBeanDefinitionRegister extends BeanSingletonRegistry impleme
             if (cdi == null) {
                 return Collections.emptyList();
             }
-            Set<String> names = new LinkedHashSet<>();
+            Set<String> names = Wraps.linkedSet();
             for (jakarta.enterprise.inject.spi.Bean<?> bean : cdi.getBeanManager().getBeans(Object.class)) {
                 String name = bean.getName();
                 if (name != null && !name.isEmpty()) {

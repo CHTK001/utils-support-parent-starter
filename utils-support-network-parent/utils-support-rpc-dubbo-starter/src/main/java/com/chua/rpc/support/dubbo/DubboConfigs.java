@@ -1,8 +1,7 @@
 package com.chua.rpc.support.dubbo;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import org.apache.dubbo.config.ApplicationConfig;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -99,7 +98,7 @@ final class DubboConfigs {
         ApplicationConfig config = new ApplicationConfig();
         config.setName(name);
         config.setQosEnable(false);
-        Map<String, String> params = new LinkedHashMap<>();
+        Map<String, String> params = Wraps.linkedMap();
         params.put("qos.enable", "false");
         config.setParameters(params);
         return config;

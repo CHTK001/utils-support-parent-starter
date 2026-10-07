@@ -1,10 +1,9 @@
 package com.chua.common.support.network.server.filter;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.utils.ThreadUtils;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -330,7 +329,7 @@ public class MetricsServerFilter implements ServerFilter {
 
         List<Long> snapshot;
         synchronized (latencies) {
-            snapshot = new ArrayList<>(latencies);
+            snapshot = Wraps.list(latencies);
             latencies.clear();
         }
         snapshot.sort(Long::compareTo);

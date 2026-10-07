@@ -1,8 +1,8 @@
 package com.chua.datasync.agent.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +36,8 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
      */
     protected AbstractDataSyncAgent(String agentId) {
         this.agentId = agentId;
-        this.sources = new ArrayList<>();
-        this.sinks = new ArrayList<>();
+        this.sources = Wraps.list();
+        this.sinks = Wraps.list();
     }
 
     /**

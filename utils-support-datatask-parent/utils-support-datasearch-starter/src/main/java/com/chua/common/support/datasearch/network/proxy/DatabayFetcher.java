@@ -1,10 +1,9 @@
 package com.chua.common.support.datasearch.network.proxy;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +27,7 @@ public class DatabayFetcher implements ProxyFetcher {
      * 获取代理
     */
     public List<String> fetchProxies() {
-        List<String> proxies = new ArrayList<>();
+        List<String> proxies = Wraps.list();
         try {
             String json = HttpClientFactory.of(URL).get().getBodyString();
             Map<String, Object> map = Json.fromJson(json, Map.class);

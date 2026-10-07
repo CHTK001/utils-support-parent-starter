@@ -1,5 +1,6 @@
 package com.chua.kimi.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.Attachment;
 import com.chua.common.support.ai.chat.ChatClient;
@@ -19,7 +20,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -141,17 +141,17 @@ public class KimiChatClient implements ChatClient {
     /**
      * 图片 URL 列表。
      */
-    private final List<String> imageUrls = new ArrayList<>();
+    private final List<String> imageUrls = Wraps.list();
 
     /**
      * 附件列表。
      */
-    private final List<Attachment> attachments = new ArrayList<>();
+    private final List<Attachment> attachments = Wraps.list();
 
     /**
      * 工具列表。
      */
-    private final List<ChatTool> tools = new ArrayList<>();
+    private final List<ChatTool> tools = Wraps.list();
 
     /**
      * toolchoice 参数。
@@ -176,7 +176,7 @@ public class KimiChatClient implements ChatClient {
     /**
      * 对话历史消息列表。
      */
-    private final List<ChatMessage> history = new ArrayList<>();
+    private final List<ChatMessage> history = Wraps.list();
 
     /**
      * 外部传入的完整历史记录。
@@ -591,7 +591,7 @@ public class KimiChatClient implements ChatClient {
             fullPrompt = "生成视频，比例" + ratio + "：" + prompt;
         }
         String answer = chatSync(fullPrompt);
-        List<VideoGenerationResult.GeneratedVideo> videos = new ArrayList<>();
+        List<VideoGenerationResult.GeneratedVideo> videos = Wraps.list();
         if (answer != null) {
             Matcher matcher = Pattern.compile(
                     "https?://[^\\s)\"'<>]+(?:\\.(?:mp4|webm|ogg))(?:\\?[^\\s)\"'<>]*)?"
@@ -792,7 +792,7 @@ try {
      * @return 图片列表
      */
     private static List<ImageGenerationResult.GeneratedImage> extractImagesFromText(String text, String prompt) {
-        List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();
+        List<ImageGenerationResult.GeneratedImage> images = Wraps.list();
         if (text == null || text.isEmpty()) {
             return images;
         }

@@ -1,5 +1,6 @@
 package com.chua.filestorage.support.preview;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.server.filter.ServerFilter;
 import com.chua.common.support.network.server.filter.ServerFilterChain;
 import com.chua.common.support.network.server.request.ServerRequest;
@@ -41,7 +42,7 @@ public class FileViewerStaticFilter implements ServerFilter {
     */
     private static final Map<String, String> MIME_TYPES;
     static {
-        Map<String, String> m = new java.util.HashMap<>();
+        Map<String, String> m = Wraps.map();
         m.put("js", "application/javascript");
         m.put("mjs", "application/javascript");
         m.put("wasm", "application/wasm");
@@ -72,7 +73,7 @@ public class FileViewerStaticFilter implements ServerFilter {
      */
     private static final java.util.Set<String> IMMUTABLE_EXTS;
     static {
-        java.util.Set<String> s = new java.util.HashSet<>();
+        java.util.Set<String> s = Wraps.set();
         s.add("wasm");
         s.add("js");
         s.add("mjs");

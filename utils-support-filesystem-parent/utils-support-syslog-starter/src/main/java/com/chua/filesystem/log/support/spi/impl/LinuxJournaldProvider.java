@@ -1,5 +1,6 @@
 package com.chua.filesystem.log.support.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import com.chua.filesystem.log.support.bridge.NativeFunctionRegistry;
@@ -23,7 +24,6 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -186,7 +186,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
      * @return 搜索viajournald的结果
      */
     private List<LogEntry> searchViaJournald(LogQuery query) {
-        List<LogEntry> results = new ArrayList<>();
+        List<LogEntry> results = Wraps.list();
         MemorySegment journal = null;
 
         try (Arena arena = Arena.ofConfined()) {
@@ -372,7 +372,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
      */
     private List<LogEntry> searchViaVarLog(LogQuery query) {
         log.debug("Searching /var/log files with pattern={}", query.pattern());
-        List<LogEntry> results = new ArrayList<>();
+        List<LogEntry> results = Wraps.list();
         Pattern regex = compilePattern(query.pattern());
         int maxResults = query.maxResults();
 

@@ -1,5 +1,6 @@
 package com.chua.h2.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.meta.SearchFieldBuilder;
 import com.chua.common.support.lang.datasource.meta.SearchIndexCreateBuilder;
@@ -9,9 +10,6 @@ import com.chua.datasource.support.meta.AbstractMetaData;
 import com.chua.datasource.support.meta.AbstractMetaSearch;
 import com.chua.h2.support.engine.H2Engine;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -61,7 +59,7 @@ public class H2MetaSearch extends AbstractMetaSearch {
     @Override
     public List<SearchIndexDef> list() {
         List<String> names = searchEngine.listIndexes();
-        List<SearchIndexDef> result = new ArrayList<>();
+        List<SearchIndexDef> result = Wraps.list();
         for (String name : names) {
             SearchIndexDef def = searchEngine.getIndex(name);
             if (def != null) {
@@ -143,17 +141,17 @@ public class H2MetaSearch extends AbstractMetaSearch {
         /**
          * 字段定义列表
          */
-        private final List<SearchFieldDef> fields = new ArrayList<>();
+        private final List<SearchFieldDef> fields = Wraps.list();
 
         /**
          * 索引设置
          */
-        private final Map<String, Object> settings = new LinkedHashMap<>();
+        private final Map<String, Object> settings = Wraps.linkedMap();
 
         /**
          * H2 普通索引无法落实、已在 execute() 中统一告警的选项
          */
-        private final List<String> unsupported = new ArrayList<>();
+        private final List<String> unsupported = Wraps.list();
 
         /**
          * 主分片数
@@ -272,8 +270,8 @@ public class H2MetaSearch extends AbstractMetaSearch {
             }
             SearchIndexDef def = new SearchIndexDef();
             def.setName(indexName);
-            def.setFields(new ArrayList<>(fields));
-            def.setSettings(new LinkedHashMap<>(settings));
+            def.setFields(Wraps.list(fields));
+            def.setSettings(Wraps.linkedMap(settings));
             def.setShards(shards);
             def.setReplicas(replicas);
             searchEngine.createIndex(def);
@@ -319,7 +317,7 @@ public class H2MetaSearch extends AbstractMetaSearch {
         /**
          * H2 无法落实的字段级选项，由外层构建器汇总告警
          */
-        private final List<String> unsupported = new ArrayList<>();
+        private final List<String> unsupported = Wraps.list();
 
         /**
          * 是否纳入索引列

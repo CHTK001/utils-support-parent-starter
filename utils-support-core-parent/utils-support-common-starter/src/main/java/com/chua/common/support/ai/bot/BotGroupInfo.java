@@ -1,9 +1,9 @@
 package com.chua.common.support.ai.bot;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Builder;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -70,6 +70,6 @@ public record BotGroupInfo(
     public BotGroupInfo {
         groupId = Objects.requireNonNull(groupId, "groupId 不能为 null");
         memberIds = memberIds == null ? null : List.copyOf(memberIds);
-        extra = extra == null ? null : Collections.unmodifiableMap(new LinkedHashMap<>(extra));
+        extra = extra == null ? null : Collections.unmodifiableMap(Wraps.linkedMap(extra));
     }
 }

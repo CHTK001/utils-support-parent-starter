@@ -1,8 +1,7 @@
 package com.chua.common.support.task.taskrunner;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -211,7 +210,7 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
                                              Map<String, String> skipReasons,
                                              Map<String, Long> nodeDurations,
                                              ExecutionOptions options) {
-        var results = new ArrayList<TaskResult>(ordered.size());
+        var results = Wraps.<TaskResult>list(ordered.size());
         for (var def : ordered) {
             var id = def.getId();
             if (values.containsKey(id)) {

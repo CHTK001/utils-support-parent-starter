@@ -1,5 +1,6 @@
 package com.chua.filesystem.log.support.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import com.chua.filesystem.log.support.bridge.PlatformSystems;
@@ -15,7 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -102,7 +102,7 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
      * @return 搜索via日志show的结果
      */
     private List<LogEntry> searchViaLogShow(LogQuery query) {
-        List<String> args = new ArrayList<>();
+        List<String> args = Wraps.list();
         args.add(LOG_SHOW_CMD);
         args.add("show");
 
@@ -123,7 +123,7 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
             log.debug("Executing: {}", String.join(" ", args));
         }
 
-        List<LogEntry> results = new ArrayList<>();
+        List<LogEntry> results = Wraps.list();
         int maxResults = query.maxResults();
 
         try {
@@ -238,7 +238,7 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
      * @return 搜索viavar日志的结果
      */
     private List<LogEntry> searchViaVarLog(LogQuery query) {
-        List<LogEntry> results = new ArrayList<>();
+        List<LogEntry> results = Wraps.list();
         Pattern regex = compilePattern(query.pattern());
         int maxResults = query.maxResults();
 

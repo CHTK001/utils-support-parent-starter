@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.algorithm;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 
 /**
@@ -265,7 +264,7 @@ public class KafkaSequenceGenerator {
         }
 
         synchronized (lock) {
-            List<Long> ids = new ArrayList<>(count);
+            List<Long> ids = Wraps.list(count);
             long currentTimestamp = timestamp();
 
             if (currentTimestamp < lastTimestamp) {

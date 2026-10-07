@@ -1,12 +1,12 @@
 package com.chua.word.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.builder.ReadBuilder;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -61,7 +61,7 @@ public class WordReadBuilder extends ReadBuilder {
      * @return paragraphs的结果
      */
     public List<String> paragraphs() {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         try (XWPFDocument doc = new XWPFDocument(new FileInputStream(file))) {
             for (var p : doc.getParagraphs()) {
                 String text = p.getText();
@@ -82,10 +82,10 @@ public class WordReadBuilder extends ReadBuilder {
      * @return tableRows的结果
      */
     public List<Map<String, String>> tableRows() {
-        List<Map<String, String>> result = new ArrayList<>();
+        List<Map<String, String>> result = Wraps.list();
         try (XWPFDocument doc = new XWPFDocument(new FileInputStream(file))) {
             for (var table : doc.getTables()) {
-                List<String> headerCols = new ArrayList<>();
+                List<String> headerCols = Wraps.list();
                 boolean first = true;
                 for (var row : table.getRows()) {
                     List<String> cells = row.getTableCells().stream()
@@ -98,7 +98,7 @@ public class WordReadBuilder extends ReadBuilder {
                         }
                         continue;
                     }
-                    Map<String, String> map = new java.util.LinkedHashMap<>();
+                    Map<String, String> map = Wraps.linkedMap();
                     for (int i = 0; i < cells.size() && i < headerCols.size(); i++) {
                         String key = headerCols.get(i);
                         if (columnMapping != null) {

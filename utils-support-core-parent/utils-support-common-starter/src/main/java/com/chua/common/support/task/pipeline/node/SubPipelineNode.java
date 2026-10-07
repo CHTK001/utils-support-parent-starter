@@ -1,12 +1,12 @@
 package com.chua.common.support.task.pipeline.node;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 import com.chua.common.support.task.pipeline.core.PipelineNode;
 import com.chua.common.support.task.pipeline.core.SubPipelineResult;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -200,7 +200,7 @@ public class SubPipelineNode implements PipelineNode {
      * @return this
      */
     public SubPipelineNode params(Map<String, Object> params) {
-        this.params = params != null ? new LinkedHashMap<>(params) : null;
+        this.params = params != null ? Wraps.linkedMap(params) : null;
         return this;
     }
 

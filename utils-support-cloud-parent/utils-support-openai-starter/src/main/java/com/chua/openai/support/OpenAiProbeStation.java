@@ -1,5 +1,6 @@
 package com.chua.openai.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.probe.ProbeDimension;
 import com.chua.common.support.ai.probe.ProbeReport;
@@ -13,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -112,7 +112,7 @@ public class OpenAiProbeStation {
     public ProbeReport probe() {
         long startTime = System.currentTimeMillis();
 
-        List<ProbeResult> results = new ArrayList<>(ProbeDimension.values().length);
+        List<ProbeResult> results = Wraps.list(ProbeDimension.values().length);
         results.add(probeModelsScan());
         results.add(probeModelMatrixSniff());
         results.add(probeErrorMessageAnalysis());
@@ -172,7 +172,7 @@ public class OpenAiProbeStation {
             }
 
             JsonObject json = Json.getJsonObject(response.getBodyString());
-            List<String> models = new ArrayList<>();
+            List<String> models = Wraps.list();
             for (int i = 0; i < json.getJsonArray("data").size(); i++) {
                 JsonObject obj = json.getJsonArray("data").getJsonObject(i);
                 models.add((String) obj.getObject("id"));
@@ -219,7 +219,7 @@ public class OpenAiProbeStation {
     private ProbeResult probeModelMatrixSniff() {
         String baseUrl = resolveBaseUrl();
         String apiKey = setting.getAppKey();
-        List<String> sniffModels = new ArrayList<>();
+        List<String> sniffModels = Wraps.list();
         if (scannedModels != null && !scannedModels.isEmpty()) {
             sniffModels.addAll(scannedModels);
         } else {

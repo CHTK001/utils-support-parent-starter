@@ -1,5 +1,6 @@
 package com.chua.oshi.support.cli.command;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.CommandLine;
 import com.chua.oshi.support.Oshi;
 import com.chua.oshi.support.SysFile;
@@ -8,8 +9,6 @@ import com.chua.oshi.support.cli.display.Formatter;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.HardwareAbstractionLayer;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,7 +37,7 @@ public final class DiskCommand extends AbstractCommand {
         List<HWDiskStore> disks = hw.getDiskStores();
         System.out.println();
         System.out.println("Physical Disks (" + disks.size() + "):");
-        List<String[]> rows = new ArrayList<>();
+        List<String[]> rows = Wraps.list();
         for (HWDiskStore d : disks) {
             rows.add(new String[]{
                     d.getModel() == null ? "N/A" : d.getModel(),
@@ -57,7 +56,7 @@ public final class DiskCommand extends AbstractCommand {
  // ── 分区 ──
         System.out.println();
         System.out.println("Partitions:");
-        List<String[]> prow = new ArrayList<>();
+        List<String[]> prow = Wraps.list();
         for (HWDiskStore d : disks) {
             for (HWPartition p : d.getPartitions()) {
                 prow.add(new String[]{
@@ -79,7 +78,7 @@ public final class DiskCommand extends AbstractCommand {
         System.out.println();
         List<SysFile> sysFiles = Oshi.newSysFile();
         System.out.println("File System Usage (" + sysFiles.size() + "):");
-        List<String[]> frow = new ArrayList<>();
+        List<String[]> frow = Wraps.list();
         long totalUsed = 0;
         long totalAll = 0;
         for (SysFile sf : sysFiles) {

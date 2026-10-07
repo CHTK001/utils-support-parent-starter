@@ -1,5 +1,6 @@
 package com.chua.common.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.FileSystem;
 import com.chua.common.support.file.builder.ReadBuilder;
 import com.chua.common.support.file.builder.WriteBuilder;
@@ -14,8 +15,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -118,7 +117,7 @@ public class TxtFileSystem implements FileSystem {
          * @return 行文本列表
          */
         public List<String> lines() {
-            List<String> result = new ArrayList<>();
+            List<String> result = Wraps.list();
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(new FileInputStream(file), charset))) {
                 String line;
@@ -144,8 +143,8 @@ public class TxtFileSystem implements FileSystem {
          * @return Map 行数据列表
          */
         public List<Map<String, Object>> rows() {
-            List<Map<String, Object>> result = new ArrayList<>();
-            List<String> headerRow = new ArrayList<>();
+            List<Map<String, Object>> result = Wraps.list();
+            List<String> headerRow = Wraps.list();
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(new FileInputStream(file), charset))) {
                 String line;
@@ -165,7 +164,7 @@ public class TxtFileSystem implements FileSystem {
                         }
                         continue;
                     }
-                    Map<String, Object> map = new LinkedHashMap<>();
+                    Map<String, Object> map = Wraps.linkedMap();
                     for (int i = 0; i < parts.length; i++) {
                         String col = (hasHeader && i < headerRow.size()) ? headerRow.get(i) : COLUMN_KEY_PREFIX + i;
                         String key = (columnMapping != null) ? columnMapping.getOrDefault(col, col) : col;
@@ -268,7 +267,7 @@ public class TxtFileSystem implements FileSystem {
         @Override
         public void finish() {
             txtHeaderDone = false;
-            txtHeaderCols = new ArrayList<>();
+            txtHeaderCols = Wraps.list();
             callback.onStart();
             callback.onBeginWrite();
             try (BufferedWriter writer = new BufferedWriter(
@@ -294,7 +293,7 @@ public class TxtFileSystem implements FileSystem {
          * @return 行字符串列表
          */
         private List<String> resolveLines() {
-            List<String> result = new ArrayList<>();
+            List<String> result = Wraps.list();
             for (Object entry : pending) {
                 if (entry instanceof Map) {
                     appendMapRow(result, (Map<String, Object>) entry);
@@ -325,13 +324,13 @@ public class TxtFileSystem implements FileSystem {
                 return;
             }
             if (!txtHeaderDone) {
-                txtHeaderCols = new ArrayList<>(map.keySet());
+                txtHeaderCols = Wraps.list(map.keySet());
                 if (withHeader) {
                     result.add(String.join(TAB_DELIMITER, txtHeaderCols));
                 }
                 txtHeaderDone = true;
             }
-            List<String> row = new ArrayList<>();
+            List<String> row = Wraps.list();
             for (String col : txtHeaderCols) {
                 Object val = map.get(col);
                 row.add(val != null ? val.toString() : "");

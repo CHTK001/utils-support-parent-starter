@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.video.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.code.PageResult;
 import com.chua.common.support.datasearch.network.lang.code.ReturnPageResult;
 import com.chua.common.support.spi.annotations.Spi;
@@ -20,7 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -100,7 +100,7 @@ public class MacCmsResourceProvider extends AbstractResourceProvider {
             return ReturnPageResult.error("关键词不能为空");
         }
 
-        List<VideoInfoResult> results = new ArrayList<>();
+        List<VideoInfoResult> results = Wraps.list();
         try {
             String base = getUrl();
             if (base.endsWith("?")) {

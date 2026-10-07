@@ -1,5 +1,6 @@
 package com.chua.common.support.ai.agent;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.memory.MemoryConfig;
@@ -9,8 +10,6 @@ import com.chua.common.support.lang.json.Json;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -190,7 +189,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         }
 
         int retain = Math.min(config.getRetainMessages(), fullContext.size() - 1);
-        List<ChatMessage> retained = new ArrayList<>(fullContext.subList(fullContext.size() - retain, fullContext.size()));
+        List<ChatMessage> retained = Wraps.list(fullContext.subList(fullContext.size() - retain, fullContext.size()));
 
         String summary = cachedBaselineSummary;
         if (summary == null || summary.isEmpty()) {
@@ -203,18 +202,18 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
             }
             ChatMessage compressedMsg = ChatMessage.builder().role("system")
                     .content("[COMPRESSED_CONTEXT] " + summary).build();
-            List<ChatMessage> result = new ArrayList<>(retained.size());
+            List<ChatMessage> result = Wraps.list(retained.size());
             result.add(compressedMsg);
             result.addAll(retained);
             return result;
         }
 
-        List<ChatMessage> toCompress = new ArrayList<>(fullContext.subList(0, fullContext.size() - retain));
+        List<ChatMessage> toCompress = Wraps.list(fullContext.subList(0, fullContext.size() - retain));
         String compressedText = buildCompressedText(toCompress);
         ChatMessage compressedMsg = ChatMessage.builder().role("system")
                 .content("[COMPRESSED_CONTEXT] " + compressedText).build();
 
-        List<ChatMessage> result = new ArrayList<>(retained.size());
+        List<ChatMessage> result = Wraps.list(retained.size());
         result.add(compressedMsg);
         result.addAll(retained);
         return result;
@@ -477,7 +476,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
             return fallback;
         }
 
-        List<ChatMessage> result = new ArrayList<>(); // [P3C 3.15 豁免] 文本按行解析，行数不可预判
+        List<ChatMessage> result = Wraps.list(); // [P3C 3.15 豁免] 文本按行解析，行数不可预判
         String[] lines = correctedText.split("\n");
         for (String line : lines) {
             line = line.trim();

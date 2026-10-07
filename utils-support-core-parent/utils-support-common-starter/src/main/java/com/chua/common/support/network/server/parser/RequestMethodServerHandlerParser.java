@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.parser;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.server.handler.ServerHandler;
 import com.chua.common.support.network.server.annotations.RequestMethod;
@@ -12,7 +13,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +46,7 @@ public class RequestMethodServerHandlerParser implements ServerHandlerAnnotation
             return List.of();
         }
 
-        List<ServerHandler> result = new ArrayList<>();
+        List<ServerHandler> result = Wraps.list();
 
         // 处理类级 @RequestMethod 注解的 Bean
         Map<String, Object> classBeans = objectContext.getBeansWithAnnotation(RequestMethod.class);

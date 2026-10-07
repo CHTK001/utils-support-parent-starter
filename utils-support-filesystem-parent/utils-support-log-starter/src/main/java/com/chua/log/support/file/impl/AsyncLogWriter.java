@@ -1,5 +1,6 @@
 package com.chua.log.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -9,7 +10,6 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
@@ -447,7 +447,7 @@ public class AsyncLogWriter implements AutoCloseable {
         if (ch == null) {
             return;
         }
-        List<byte[]> batch = new ArrayList<>(1024);
+        List<byte[]> batch = Wraps.list(1024);
         queue.drainTo(batch, 1024);
         if (batch.isEmpty()) {
             return;

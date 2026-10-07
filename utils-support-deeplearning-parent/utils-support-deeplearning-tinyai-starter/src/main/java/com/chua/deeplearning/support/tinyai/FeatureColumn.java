@@ -1,7 +1,7 @@
 package com.chua.deeplearning.support.tinyai;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -49,7 +49,7 @@ public final class FeatureColumn implements Serializable {
     /**
      * 类别取值表（仅类别列使用，首次出现顺序；数值列为空表）。
      */
-    private final List<String> categories = new ArrayList<>();
+    private final List<String> categories = Wraps.list();
 
     /**
      * 内部构造器。

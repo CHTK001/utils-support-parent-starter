@@ -1,6 +1,5 @@
 package com.chua.common.support.datasearch.express.model;
-
-import java.util.LinkedHashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Map;
 
 /**
@@ -73,7 +72,7 @@ public class ExpressTrace {
      * @return Map 表示
      */
     public Map<String, Object> toMap() {
-        Map<String, Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = Wraps.linkedMap();
         map.put("time", time);
         map.put("context", context);
         map.put("location", location);

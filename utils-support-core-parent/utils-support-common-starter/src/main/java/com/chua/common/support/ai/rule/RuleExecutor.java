@@ -1,13 +1,6 @@
 package com.chua.common.support.ai.rule;
-
-import com.chua.common.support.ai.decision.DecisionBatch;
-import com.chua.common.support.ai.decision.DecisionProvider;
-import com.chua.common.support.ai.decision.DecisionQuery;
-import com.chua.common.support.ai.decision.DecisionRequest;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -15,17 +8,17 @@ import java.util.Objects;
 /**
  * 规则执行器。
  *
- * <p><b>决策是可选功能，不是必需依赖</b>。用 {@link #of(RuleSet)} 构造时
- * 本类<b>完全不触碰</b> {@code ai.decision} 包：规则只做 {@code when} 条件求值。
- * 用 {@link #withDecision(RuleSet, DecisionProvider, List)} 构造时才装配决策：
- * 执行前把问题批量求值一次、展平成变量注入上下文，规则像读普通变量一样读它。
- * 两种构造方式的<b>规则定义完全相同</b>——决策只是给规则多了一批可读变量，
- * 规则作者不需要声明「这条规则要不要决策」。</p>
+ * <p>执行器<b>不装配决策</b>：决策是 {@link AiRule} 自己的事，
+ * 每条 AI 规则在 {@link AiRule#matched(RuleContext)} 里按需向自己的底座求值；
+ * 自然规则只做 {@code when} 条件求值。两种规则定义相同地跑在同一个
+ * {@link RuleSet} 语义下（这里指「谁命中、谁执行、谁跳转」的流程，见下），
+ * 不需要调用方在执行器层面声明「这次要不要决策」。</p>
  *
  * <p>执行流程：</p>
  * <ol>
- *   <li>若有决策提供者，先求值一次并展平；没有则这一步整个跳过</li>
- *   <li>按 {@link RuleSet} 的顺序（salience 降序稳定）逐条求值</li>
+ *   <li>按 {@link RuleSet} 的顺序（salience 降序稳定）逐条求值；
+ *       决策由 {@link AiRule} 在 {@link AiRule#matched(RuleContext)} 里自己处理，
+ *       执行器不做统一批量</li>
  *   <li>条件成立（顶层 OR，无条件视为成立）则执行动作，并把规则的
  *       {@code var} 声明注入 vars 层后传入</li>
  *   <li>命中的 effect 逐个聚合，取最重的一档</li>
@@ -37,9 +30,9 @@ import java.util.Objects;
  *       成环会抛 {@link RuleException} 而不是无限循环</li>
  * </ol>
  *
- * <p><b>线程安全</b>：规则集不可变，决策提供者由调用方保证线程安全，
- * 每次 {@link #execute(Object, Map)} 自建独立 {@link RuleContext}。
- * 因此本类<b>可以</b>被多线程并发复用，不需要加锁。</p>
+ * <p><b>线程安全</b>：规则集不可变，每次 {@link #execute(Object, Map)}
+ * 自建独立 {@link RuleContext}。因此本类<b>可以</b>被多线程并发复用，
+ * 不需要加锁。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -52,25 +45,12 @@ public final class RuleExecutor {
     private final RuleSet ruleSet;
 
     /**
-     * 决策提供者，为 null 表示本执行器不装配决策
-     */
-    private final DecisionProvider decisionProvider;
-
-    /**
-     * 要向决策层提出的问题
-     */
-    private final List<DecisionQuery> queries;
-
-    /**
      * 跨规则跳转的最大跳数
      */
     private final int maxHops;
 
-    private RuleExecutor(RuleSet ruleSet, DecisionProvider decisionProvider,
-                         List<DecisionQuery> queries, int maxHops) {
+    private RuleExecutor(RuleSet ruleSet, int maxHops) {
         this.ruleSet = ruleSet;
-        this.decisionProvider = decisionProvider;
-        this.queries = queries;
         this.maxHops = maxHops;
     }
 
@@ -83,9 +63,10 @@ public final class RuleExecutor {
     public static final int DEFAULT_MAX_HOPS = 8;
 
     /**
-     * 构造<b>不装配决策</b>的执行器。
+     * 构造执行器。
      *
-     * <p>这是默认用法：规则只做条件求值，不产生任何决策调用。</p>
+     * <p>默认用法：规则求值，AI 规则在命中判断里自己向底座求值，
+     * 不需要调用方装配任何决策。</p>
      *
      * @param ruleSet 规则集
      * @return 规则执行器
@@ -96,7 +77,7 @@ public final class RuleExecutor {
     }
 
     /**
-     * 构造不装配决策的执行器，并指定最大跳数。
+     * 构造执行器，并指定最大跳数。
      *
      * @param ruleSet 规则集
      * @param maxHops 跨规则跳转的最大跳数，不可为负
@@ -109,67 +90,22 @@ public final class RuleExecutor {
         if (maxHops < 0) {
             throw new IllegalArgumentException("maxHops 不能为负");
         }
-        return new RuleExecutor(ruleSet, null, List.of(), maxHops);
-    }
-
-    /**
-     * 构造装配决策的执行器。
-     *
-     * <p>问题列表<b>不可为空</b>：既然选择了装配决策，就要明确问什么。
-     * 允许空列表会让「配了决策但一个问题都没问」这种无效配置静默通过。</p>
-     *
-     * @param ruleSet          规则集
-     * @param decisionProvider 决策提供者
-     * @param queries          要批量求值的问题
-     * @return 规则执行器
-     * @throws NullPointerException     任一参数为 null 时
-     * @throws IllegalArgumentException 问题列表为空时
-     */
-    public static RuleExecutor withDecision(RuleSet ruleSet,
-                                            DecisionProvider decisionProvider,
-                                            List<DecisionQuery> queries) {
-        Objects.requireNonNull(ruleSet, "ruleSet 不能为 null");
-        Objects.requireNonNull(decisionProvider, "decisionProvider 不能为 null");
-        Objects.requireNonNull(queries, "queries 不能为 null");
-        if (queries.isEmpty()) {
-            throw new IllegalArgumentException("queries 不能为空");
-        }
-        return new RuleExecutor(ruleSet, decisionProvider, List.copyOf(queries), DEFAULT_MAX_HOPS);
-    }
-
-    /**
-     * 是否装配了决策。
-     *
-     * @return 装配了决策返回 true
-     */
-    public boolean hasDecision() {
-        return decisionProvider != null;
+        return new RuleExecutor(ruleSet, maxHops);
     }
 
     /**
      * 执行一次规则求值。
      *
-     * <p>AI 规则自动决策：集合内出现 {@link AiRule} 时，执行前自动收集
-     * 全部 {@code AiRuleQuery} 并按底座分组批量求值，展平后注入上下文；
-     * 自然规则不受影响。调用方无需显式装配决策。</p>
+     * <p>决策由 {@link AiRule} 在 {@link AiRule#matched(RuleContext)} 里
+     * 自己处理：命中判断需要 AI 结论时，规则按需向自己的底座求值。
+     * 执行器只负责「按序求值、执行动作、收集拦截原因、跳转」。</p>
      *
      * @param input       流程输入，可为 {@link Map} 或任意业务对象，可为 null
      * @param environment 环境量，可为 null
      * @return 执行结果
      */
     public RuleResult execute(Object input, Map<String, Object> environment) {
-        Map<String, Object> external = decide(input);
-        Map<String, Object> auto = decideAiRules(input);
-        if (!auto.isEmpty()) {
-            if (external == null || external.isEmpty()) {
-                external = auto;
-            } else {
-                Map<String, Object> merged = new LinkedHashMap<>(external);
-                merged.putAll(auto);
-                external = Collections.unmodifiableMap(merged);
-            }
-        }
-        RuleContext context = RuleContext.of(null, external, input, environment);
+        RuleContext context = RuleContext.of(null, null, input, environment);
         Acc result = new Acc();
 
         // 当前要评估的规则序列：首轮是整个规则集，之后是被 to 指向的单条规则
@@ -198,6 +134,10 @@ public final class RuleExecutor {
                 } else {
                     result.matched.add(rule.name());
                 }
+                // 命中即收集拦截原因：声明了 message 才收，不声明不占位
+                if (rule.message() != null) {
+                    result.messages.put(rule.id(), rule.message());
+                }
                 result.effect = RuleEffect.heavier(result.effect, rule.effect());
                 if (rule.target() != null) {
                     nextTarget = rule.target();
@@ -205,12 +145,12 @@ public final class RuleExecutor {
                 }
                 if (rule.effect() == RuleEffect.HALT) {
                     return new RuleResult(result.effect, result.fired, result.matched,
-                            result.target, true, snapshot(context));
+                            result.target, true, result.messages, snapshot(context));
                 }
             }
             if (nextTarget == null) {
                 return new RuleResult(result.effect, result.fired, result.matched,
-                        result.target, false, snapshot(context));
+                        result.target, false, result.messages, snapshot(context));
             }
             // 按标识解析下一条规则；目标不存在属于定义期错误，当场抛而不是静默忽略
             Rule next = ruleSet.byId(nextTarget);
@@ -222,7 +162,7 @@ public final class RuleExecutor {
             // 不一致说明这条链不适用当前结果，断在这里而不是硬跳。
             if (next.effect() != result.effect) {
                 return new RuleResult(result.effect, result.fired, result.matched,
-                        result.target, false, snapshot(context));
+                        result.target, false, result.messages, snapshot(context));
             }
             pass = List.of(next);
         }
@@ -245,12 +185,17 @@ public final class RuleExecutor {
         /**
          * 执行了动作的规则名
          */
-        private final List<String> fired = new ArrayList<>();
+        private final List<String> fired = Wraps.list();
 
         /**
          * 只命中无动作的规则名
          */
-        private final List<String> matched = new ArrayList<>();
+        private final List<String> matched = Wraps.list();
+
+        /**
+         * 命中规则的拦截原因，key 为规则标识
+         */
+        private final Map<String, String> messages = Wraps.linkedMap();
 
         /**
          * 最近一次指定并跟随到的下一条规则标识
@@ -266,93 +211,6 @@ public final class RuleExecutor {
      */
     public RuleResult execute(Object input) {
         return execute(input, null);
-    }
-
-    /**
-     * 求值决策并展平为变量。
-     *
-     * <p>未装配决策时返回 null，上下文那一层就是空的——
-     * 规则引擎对决策完全无感，这是「决策是可选功能」的落点。</p>
-     */
-    private Map<String, Object> decide(Object input) {
-        if (decisionProvider == null) {
-            return null;
-        }
-        DecisionRequest request = DecisionRequest.of(input, queries);
-        DecisionBatch batch = decisionProvider.decide(request);
-        batch.answers(request);
-        return batch.flatten();
-    }
-
-    /**
-     * 自动求值集合内全部 AI 规则的决策问题并展平。
-     *
-     * <p>无 AI 规则时返回空表，不产生任何决策调用；有 AI 规则时按
-     * {@code provider} 分组、每组一次批量求值。分组键取自
-     * {@link AiRuleQuery} 归属规则的底座声明。</p>
-     *
-     * @param input 流程输入
-     * @return 展平后的决策变量；无 AI 规则时返回空表
-     */
-    private Map<String, Object> decideAiRules(Object input) {
-        Map<String, List<DecisionQuery>> grouped = new LinkedHashMap<>();
-        Map<String, Object> states = new LinkedHashMap<>();
-        Map<String, DecisionProvider> providers = new LinkedHashMap<>();
-        for (Rule rule : ruleSet.rules()) {
-            if (!(rule instanceof AiRule ai)) {
-                continue;
-            }
-            List<AiRuleQuery> queries = ai.queries();
-            if (queries == null || queries.isEmpty()) {
-                continue;
-            }
-            String provider = aiProvider(ai);
-            DecisionProvider client = providers.computeIfAbsent(provider, key -> ai.client());
-            if (client == null) {
-                throw new RuleException("AI 规则 " + ai.id() + " 未提供决策底座(provider=" + provider + ")");
-            }
-            List<DecisionQuery> group = grouped.computeIfAbsent(provider, key -> new java.util.ArrayList<>());
-            for (AiRuleQuery item : queries) {
-                if (item == null || item.query() == null) {
-                    throw new RuleException("AI 规则 " + ai.id() + " 存在空决策问题");
-                }
-                group.add(item.query());
-            }
-            Object state = ai.state() == null ? input : ai.state();
-            states.putIfAbsent(provider, state);
-        }
-        if (grouped.isEmpty()) {
-            return Map.of();
-        }
-        Map<String, Object> flattened = new LinkedHashMap<>();
-        for (Map.Entry<String, List<DecisionQuery>> entry : grouped.entrySet()) {
-            String provider = entry.getKey();
-            List<DecisionQuery> queries = entry.getValue();
-            DecisionProvider client = providers.get(provider);
-            DecisionRequest request = DecisionRequest.of(states.get(provider), queries);
-            DecisionBatch batch = client.decide(request);
-            batch.answers(request);
-            flattened.putAll(batch.flatten());
-            if (client instanceof AutoCloseable closeable) {
-                try {
-                    closeable.close();
-                } catch (Exception e) {
-                    throw new RuleException("关闭 AI 决策底座失败(provider=" + provider + "): " + e.getMessage(), e);
-                }
-            }
-        }
-        return Collections.unmodifiableMap(flattened);
-    }
-
-    /**
-     * 读取 AI 规则的底座名。
-     *
-     * @param rule AI 规则
-     * @return 底座名，缺省为 laya
-     */
-    private static String aiProvider(AiRule rule) {
-        String provider = rule.provider();
-        return provider == null || provider.isBlank() ? "laya" : provider;
     }
 
     /**
@@ -382,7 +240,7 @@ public final class RuleExecutor {
      * 拍平顺序即优先级顺序，后写入的覆盖先写入的。</p>
      */
     private static Map<String, Object> snapshot(RuleContext context) {
-        Map<String, Object> all = new LinkedHashMap<>();
+        Map<String, Object> all = Wraps.linkedMap();
         if (context.input() instanceof Map<?, ?> map) {
             for (Map.Entry<?, ?> entry : map.entrySet()) {
                 all.put(String.valueOf(entry.getKey()), entry.getValue());

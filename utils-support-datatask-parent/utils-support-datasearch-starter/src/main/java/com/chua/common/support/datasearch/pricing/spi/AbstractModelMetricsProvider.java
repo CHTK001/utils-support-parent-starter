@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.pricing.spi;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.config.loader.ConfigSaveOrLoader;
 import com.chua.common.support.config.loader.FileConfigSaveOrLoader;
@@ -19,9 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -225,12 +224,12 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
      */
     protected List<ModelDefinition> scrapeTablePricing(String url, String currency) {
         String html = fetchUrl(url);
-        Map<String, ModelDefinition> result = new LinkedHashMap<>();
+        Map<String, ModelDefinition> result = Wraps.linkedMap();
         if (html != null && !html.isEmpty()) {
             collectPagePricing(html, currency, result);
         }
         if (!result.isEmpty()) {
-            return new ArrayList<>(result.values());
+            return Wraps.list(result.values());
         }
         return readClasspathPricing();
     }
@@ -315,7 +314,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
         if (cells.isEmpty()) {
             cells = headerRow.select("td");
         }
-        List<String> headers = new ArrayList<>(cells.size());
+        List<String> headers = Wraps.list(cells.size());
         for (Element cell : cells) {
             headers.add(cell.text().trim().toLowerCase());
         }

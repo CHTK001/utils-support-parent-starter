@@ -1,6 +1,5 @@
 package com.chua.common.support.task.flow;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -66,7 +65,7 @@ public record FlowNodeField(
         type = Objects.requireNonNull(type, "type 不能为 null");
         options = options == null
                 ? null
-                : Collections.unmodifiableList(new ArrayList<>(options));
+                : Collections.unmodifiableList(Wraps.list(options));
     }
 
     /**

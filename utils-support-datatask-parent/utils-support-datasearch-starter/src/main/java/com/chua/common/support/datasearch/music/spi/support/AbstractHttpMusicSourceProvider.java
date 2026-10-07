@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.music.spi.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.music.model.MusicOverview;
 import com.chua.common.support.datasearch.music.model.MusicPlaylistSummary;
 import com.chua.common.support.datasearch.music.model.MusicSearchResult;
@@ -15,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -325,7 +325,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         if (node == null || !node.isArray()) {
             return List.of();
         }
-        List<JsonNode> result = new ArrayList<>();
+        List<JsonNode> result = Wraps.list();
         node.forEach(result::add);
         return result;
     }

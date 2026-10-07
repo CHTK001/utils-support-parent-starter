@@ -1,5 +1,6 @@
 package com.chua.smb.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.hierynomus.mssmb2.SMB2CreateDisposition;
 import com.hierynomus.mssmb2.SMB2CreateOptions;
 import com.hierynomus.mssmb2.SMB2ShareAccess;
@@ -16,7 +17,6 @@ import com.hierynomus.msdtyp.AccessMask;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -275,7 +275,7 @@ public class SmbClient implements AutoCloseable {
     public List<SmbFileEntry> listFiles(String path) {
         checkShare();
         String dirPath = path != null ? normalize(path) : workPath;
-        List<SmbFileEntry> result = new ArrayList<>();
+        List<SmbFileEntry> result = Wraps.list();
         try {
             for (FileIdBothDirectoryInformation info : diskShare.list(dirPath)) {
                 String name = info.getFileName();

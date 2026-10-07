@@ -1,12 +1,11 @@
 package com.chua.crawler.support.model;
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -46,7 +45,7 @@ public class SpiderResponse {
      * <p>服务端返回的 HTTP 响应头键值对。
      */
     @Builder.Default
-    private Map<String, String> headers = new HashMap<>(); // 头部
+    private Map<String, String> headers = Wraps.map(); // 头部
 
     /**
      * 原始内容字节数组。

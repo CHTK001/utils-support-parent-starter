@@ -1,5 +1,6 @@
 package com.chua.zai.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.z.openapi.ZaiClient;
 import ai.z.openapi.service.chat.ChatService;
 import ai.z.openapi.service.model.ChatCompletionCreateParams;
@@ -17,8 +18,6 @@ import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -83,7 +82,7 @@ public class ZaiChatClient implements ChatClient {
     /**
      * 对话历史消息列表
      */
-    private final List<ChatMessage> history = new ArrayList<>();
+    private final List<ChatMessage> history = Wraps.list();
 
     /**
      * 外部传入的完整历史记录
@@ -93,7 +92,7 @@ public class ZaiChatClient implements ChatClient {
     /**
      * 图片附件 URL 列表
      */
-    private final List<String> imageUrls = new ArrayList<>();
+    private final List<String> imageUrls = Wraps.list();
 
     /**
      * 是否启用深度思考
@@ -321,7 +320,7 @@ public class ZaiChatClient implements ChatClient {
                     .state(ChatResponse.State.START)
                     .build());
 
-            List<ai.z.openapi.service.model.ChatMessage> sdkMessages = new ArrayList<>();
+            List<ai.z.openapi.service.model.ChatMessage> sdkMessages = Wraps.list();
             String actualSystem = system;
             if (skillManager != null) {
                 actualSystem = SkillPrompt.inject(system, skillManager);

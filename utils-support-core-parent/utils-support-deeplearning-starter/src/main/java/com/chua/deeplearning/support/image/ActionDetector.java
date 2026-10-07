@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.image;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
@@ -194,7 +195,7 @@ class DefaultActionDetector implements ActionDetector {
             return List.of();
         }
         if (result instanceof List<?> list) {
-            List<ActionDetectionResult> out = new java.util.ArrayList<>(list.size());
+            List<ActionDetectionResult> out = Wraps.list(list.size());
             for (Object item : list) {
                 if (item instanceof ActionDetectionResult adr) {
                     out.add(adr);

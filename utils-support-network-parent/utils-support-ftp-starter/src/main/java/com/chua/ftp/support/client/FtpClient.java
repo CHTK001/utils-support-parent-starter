@@ -1,5 +1,6 @@
 package com.chua.ftp.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTP;
@@ -600,7 +601,7 @@ public class FtpClient implements AutoCloseable {
         public List<String> exec() {
             try {
                 FTPFile[] files = client.getFtpClient().listFiles(path);
-                var result = new ArrayList<String>();
+                var result = Wraps.<String>list();
                 if (files != null) {
                     for (FTPFile file : files) {
                         result.add(file.getName());

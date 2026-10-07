@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import reactor.core.publisher.Flux;
@@ -10,8 +11,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -113,7 +112,7 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
      */
     protected List<Map<Path, String>> collectTaskFiles() {
         List<String> prefixes = extensionIdPrefixes();
-        List<Map<Path, String>> batches = new ArrayList<>();
+        List<Map<Path, String>> batches = Wraps.list();
         for (Path globalStorage : enumerateGlobalStorageRoots()) {
             Path extensionDir = resolveExtensionDir(globalStorage, prefixes);
             if (extensionDir == null) {
@@ -123,7 +122,7 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
             if (!Files.isDirectory(tasksDir)) {
                 continue;
             }
-            Map<Path, String> files = new LinkedHashMap<>();
+            Map<Path, String> files = Wraps.linkedMap();
             try (Stream<Path> stream = Files.list(tasksDir)) {
                 stream.filter(Files::isDirectory)
                         .forEach(taskDir -> {
@@ -179,7 +178,7 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
         if (appData == null || appData.isBlank()) {
             return List.of();
         }
-        List<Path> roots = new ArrayList<>();
+        List<Path> roots = Wraps.list();
         for (String ide : VSCODE_APPDATA_CANDIDATES) {
             Path globalStorage = Path.of(appData, ide, "User", "globalStorage");
             if (Files.isDirectory(globalStorage)) {
@@ -205,7 +204,7 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
      * @return 解析出的用量记录
      */
     protected List<AiUsage> parseTaskFiles(Path root, Map<Path, String> taskFiles) {
-        List<AiUsage> result = new ArrayList<>();
+        List<AiUsage> result = Wraps.list();
         for (Map.Entry<Path, String> entry : taskFiles.entrySet()) {
             Path file = entry.getKey();
             String taskId = entry.getValue();
@@ -313,10 +312,10 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
         if (arr.isMissingValue() || !arr.isArray()) {
             return List.of();
         }
-        List<Map<String, Object>> result = new ArrayList<>();
+        List<Map<String, Object>> result = Wraps.list();
         for (Object element : arr.toJsonArray()) {
             if (element instanceof com.chua.common.support.lang.json.JsonObject obj) {
-                result.add(new LinkedHashMap<>(obj.toMap()));
+                result.add(Wraps.linkedMap(obj.toMap()));
             }
         }
         return result;

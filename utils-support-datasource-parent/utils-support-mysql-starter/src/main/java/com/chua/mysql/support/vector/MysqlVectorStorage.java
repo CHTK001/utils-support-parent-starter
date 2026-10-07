@@ -1,5 +1,6 @@
 package com.chua.mysql.support.vector;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.vector.AbstractVectorStorage;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorCompareAlgorithm;
@@ -13,8 +14,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -347,7 +346,7 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
         String sql = "SELECT " + idColumn + ", " + vectorReadExpression() + " FROM " + tableName
                 + " ORDER BY DISTANCE(" + vectorColumn + ", STRING_TO_VECTOR(?), '" + metric + "') ASC"
                 + " LIMIT ?";
-        List<Vector> results = new ArrayList<>();
+        List<Vector> results = Wraps.list();
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, toTextLiteral(query));
@@ -375,7 +374,7 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
      */
     private List<Vector> searchInJvm(float[] query, int topK) {
         String sql = "SELECT " + idColumn + ", " + vectorReadExpression() + " FROM " + tableName;
-        List<Vector> all = new ArrayList<>();
+        List<Vector> all = Wraps.list();
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -390,7 +389,7 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
         }
         all.sort(Comparator.comparingDouble(
                 (Vector v) -> ((Number) v.metadata().get(SCORE_KEY)).doubleValue()).reversed());
-        return new ArrayList<>(all.subList(0, Math.min(topK, all.size())));
+        return Wraps.list(all.subList(0, Math.min(topK, all.size())));
     }
 
     /**

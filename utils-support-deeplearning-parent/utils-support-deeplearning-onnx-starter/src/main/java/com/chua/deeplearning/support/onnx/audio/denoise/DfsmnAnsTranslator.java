@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.denoise;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
@@ -12,7 +13,6 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -177,7 +177,7 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
             float[][][] spectrum = stft.stft(samples);
             int stftFrames = spectrum.length;
             try (OnnxTensor inputTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(fbankFeatures), shape)) {
-                Map<String, OnnxTensor> inputs = new HashMap<>();
+                Map<String, OnnxTensor> inputs = Wraps.map();
                 inputs.put("input", inputTensor);
                 float[][] masks;
                 try (OrtSession.Result result = session.run(inputs)) {

@@ -1,5 +1,6 @@
 package com.chua.common.support.task.pipeline.core;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -132,7 +133,7 @@ public class PipelineContext<T> {
         this.pipelineId = pipelineId;
         this.originalData = originalData;
         this.currentData = originalData;
-        this.history = new ArrayList<>();
+        this.history = Wraps.list();
         this.action = Action.NEXT;
  // attributes 使用 并发哈希映射：并行节点 等异步节点跨线程共享，需保证读写线程安全
         this.attributes = new ConcurrentHashMap<>();
@@ -453,7 +454,7 @@ public class PipelineContext<T> {
      */
     public Map<String, Object> getNodeLocalData() {
         if (nodeLocalData == null) {
-            nodeLocalData = new LinkedHashMap<>();
+            nodeLocalData = Wraps.linkedMap();
         }
         return nodeLocalData;
     }

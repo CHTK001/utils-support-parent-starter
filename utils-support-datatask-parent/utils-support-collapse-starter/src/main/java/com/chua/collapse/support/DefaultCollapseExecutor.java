@@ -1,13 +1,11 @@
 package com.chua.collapse.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.concurrent.collapse.CollapseBatchFunction;
 import com.chua.common.support.concurrent.collapse.CollapseConfig;
 import com.chua.common.support.concurrent.collapse.CollapseExecutor;
 import com.chua.common.support.concurrent.collapse.CollapseResultMapper;
-
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -182,7 +180,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     public Map<String, Object> metrics() {
         long executed = executedCount.get();
         long batches = batchExecutionCount.get();
-        Map<String, Object> result = new LinkedHashMap<>(5);
+        Map<String, Object> result = Wraps.linkedMap(5);
         result.put("executedCount", executed);
         result.put("batchExecutionCount", batches);
         result.put("avgBatchSize", batches > 0 ? (double) batchSizeAccumulator.get() / batches : 0d);
@@ -270,7 +268,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
      * @return 出队的任务列表
      */
     private List<Task<INPUT, OUTPUT>> drainOnce() {
-        List<Task<INPUT, OUTPUT>> tasks = new ArrayList<>();
+        List<Task<INPUT, OUTPUT>> tasks = Wraps.list();
         Task<INPUT, OUTPUT> task;
         while ((task = queue.poll()) != null) {
             tasks.add(task);
@@ -289,23 +287,23 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
      */
     private Collection<Collection<Task<INPUT, OUTPUT>>> grouping(Collection<Task<INPUT, OUTPUT>> tasks) {
         if (config.isMergeAll()) {
-            Collection<Collection<Task<INPUT, OUTPUT>>> whole = new ArrayList<>(1);
-            whole.add(new ArrayList<>(tasks));
+            Collection<Collection<Task<INPUT, OUTPUT>>> whole = Wraps.list(1);
+            whole.add(Wraps.list(tasks));
             return whole;
         }
-        Map<INPUT, List<Task<INPUT, OUTPUT>>> grouped = new LinkedHashMap<>();
+        Map<INPUT, List<Task<INPUT, OUTPUT>>> grouped = Wraps.linkedMap();
         List<Task<INPUT, OUTPUT>> nullGroup = null;
         for (Task<INPUT, OUTPUT> task : tasks) {
             if (task.input() == null) {
                 if (nullGroup == null) {
-                    nullGroup = new ArrayList<>(4);
+                    nullGroup = Wraps.list(4);
                 }
                 nullGroup.add(task);
                 continue;
             }
-            grouped.computeIfAbsent(task.input(), key -> new ArrayList<>(4)).add(task);
+            grouped.computeIfAbsent(task.input(), key -> Wraps.list(4)).add(task);
         }
-        Collection<Collection<Task<INPUT, OUTPUT>>> result = new ArrayList<>(grouped.size() + 1);
+        Collection<Collection<Task<INPUT, OUTPUT>>> result = Wraps.list(grouped.size() + 1);
         result.addAll(grouped.values());
         if (nullGroup != null) {
             result.add(nullGroup);
@@ -373,7 +371,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
      * @return 入参列表
      */
     private static <INPUT, OUTPUT> List<INPUT> collectInputs(Collection<Task<INPUT, OUTPUT>> group) {
-        List<INPUT> inputs = new ArrayList<>(group.size());
+        List<INPUT> inputs = Wraps.list(group.size());
         for (Task<INPUT, OUTPUT> task : group) {
             inputs.add(task.input());
         }

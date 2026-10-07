@@ -1,5 +1,6 @@
 package com.chua.common.support.task.pipeline.node;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.pipeline.core.AsyncResult;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
@@ -296,7 +297,7 @@ public class ParallelNode implements PipelineNode {
      * @return this
      */
     public ParallelNode params(Map<String, Object> params) {
-        this.params = params != null ? new LinkedHashMap<>(params) : null;
+        this.params = params != null ? Wraps.linkedMap(params) : null;
         return this;
     }
 

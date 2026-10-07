@@ -1,5 +1,6 @@
 package com.chua.ffmpeg.support.codec;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.codec.video.PixelFormat;
 import com.chua.common.support.codec.video.VideoCodecOptions;
 import com.chua.common.support.codec.video.VideoDecoder;
@@ -19,7 +20,6 @@ import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.ffmpeg.global.avutil;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -168,7 +168,7 @@ public class H264NvencVideoDecoder implements VideoDecoder {
      * @return 视频帧列表，可能为空
      */
     private List<VideoFrame> receiveFrames() {
-        List<VideoFrame> frames = new ArrayList<>();
+        List<VideoFrame> frames = Wraps.list();
         for (int i = 0; i < MAX_DRAIN_PER_CALL; i++) {
             avutil.av_frame_unref(frame);
             int ret = avcodec.avcodec_receive_frame(context, frame);

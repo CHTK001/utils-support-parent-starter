@@ -1,11 +1,10 @@
 package com.chua.common.support.network.server.filter.proxy;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.discovery.ServiceDiscovery;
 import com.chua.common.support.network.server.Server;
 import com.chua.common.support.network.server.ServerBuilder;
 import com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryServerFilter;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -70,7 +69,7 @@ public class ReverseProxyServer implements AutoCloseable {
     /**
      * 路由映射：匹配模式 -> 服务路径。
     */
-    private final Map<String, String> routes = new LinkedHashMap<>();
+    private final Map<String, String> routes = Wraps.linkedMap();
 
     /**
      * 集群标识。

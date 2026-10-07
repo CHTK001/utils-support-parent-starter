@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.nio;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.server.response.ServerResponse;
 
@@ -10,8 +11,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.TreeMap;
-
 /**
  * 基于 NIO {@link SocketChannel} 的 {@link ServerResponse} 实现。
  *
@@ -68,7 +67,7 @@ public class NioServerResponse implements ServerResponse {
     /**
      * headers
      */
-    private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private final Map<String, String> headers = Wraps.sortedMap(String.CASE_INSENSITIVE_ORDER);
     /**
      * 请求体
      */

@@ -1,9 +1,8 @@
 package com.chua.common.support.lang.document;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import lombok.Data;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +41,7 @@ public class BenchmarkDocumentData extends DocumentData {
     /**
      * 压测结果行。
      */
-    private List<BenchmarkRow> rows = new ArrayList<>();
+    private List<BenchmarkRow> rows = Wraps.list();
 
     /**
      * 压测场景行：实现 × 并发等级 × 指标。

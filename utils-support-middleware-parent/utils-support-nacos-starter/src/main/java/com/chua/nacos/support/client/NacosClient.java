@@ -1,5 +1,6 @@
 package com.chua.nacos.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.config.ConfigService;
@@ -554,7 +555,7 @@ public class NacosClient implements AutoCloseable {
         /**
          * metadata
         */
-        private Map<String, String> metadata = new HashMap<>();
+        private Map<String, String> metadata = Wraps.map();
 
         NamingOperation(NacosClient client) { this.client = client; }
 

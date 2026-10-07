@@ -1,6 +1,5 @@
 package com.chua.enhance.support.emoji;
-
-import java.util.HashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Map;
 
 /**
@@ -217,6 +216,6 @@ public class EmojiTrie {
 
     private static class Node {
         Emoji emoji; // emoji
-        Map<Character, Node> children = new HashMap<>(); // children
+        Map<Character, Node> children = Wraps.map(); // children
     }
 }

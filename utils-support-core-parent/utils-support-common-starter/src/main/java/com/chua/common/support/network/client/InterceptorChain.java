@@ -1,6 +1,5 @@
 package com.chua.common.support.network.client;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 
 /**
@@ -93,7 +92,7 @@ final class InterceptorChain implements HttpInterceptor.Chain {
     private static List<HttpInterceptor> merge(List<HttpInterceptor> appInterceptors,
                                                HttpInterceptor requestInterceptor,
                                                List<HttpInterceptor> networkInterceptors) {
-        List<HttpInterceptor> merged = new ArrayList<>();
+        List<HttpInterceptor> merged = Wraps.list();
         if (appInterceptors != null) {
             merged.addAll(appInterceptors);
         }

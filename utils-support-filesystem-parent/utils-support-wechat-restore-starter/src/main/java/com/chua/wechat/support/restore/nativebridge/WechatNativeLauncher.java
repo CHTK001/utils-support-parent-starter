@@ -1,5 +1,6 @@
 package com.chua.wechat.support.restore.nativebridge;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -10,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -104,7 +104,7 @@ public final class WechatNativeLauncher {
     private static void relaunchUnderElectron(String[] args) throws Exception {
         Path electronExe = materializeElectronExe();
 
-        List<String> command = new ArrayList<>(32);
+        List<String> command = Wraps.list(32);
         command.add(electronExe.toAbsolutePath().toString());
 
         RuntimeMXBean runtimeBean = ManagementFactory.getPlatformMXBean(RuntimeMXBean.class);

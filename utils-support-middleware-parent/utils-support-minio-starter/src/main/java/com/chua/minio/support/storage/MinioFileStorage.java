@@ -1,5 +1,6 @@
 package com.chua.minio.support.storage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.storage.AbstractFileStorage;
 import com.chua.common.support.storage.FileStorage;
@@ -14,7 +15,6 @@ import io.minio.*;
 import io.minio.messages.Item;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -218,7 +218,7 @@ public class MinioFileStorage extends AbstractFileStorage {
     */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
-            List<Metadata> metadataList = new ArrayList<>();
+            List<Metadata> metadataList = Wraps.list();
 
             Iterable<Result<Item>> results = minioClient.listObjects(
                     ListObjectsArgs.builder()

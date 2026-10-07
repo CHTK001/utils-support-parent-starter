@@ -1,8 +1,6 @@
 package com.chua.cad.support.dxf;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -49,10 +47,10 @@ public record DxfDocument(
      */
     public DxfDocument {
         entities = entities == null ? List.of() : List.copyOf(entities);
-        layers = layers == null ? Map.of() : Collections.unmodifiableMap(new LinkedHashMap<>(layers));
+        layers = layers == null ? Map.of() : Collections.unmodifiableMap(Wraps.linkedMap(layers));
         unsupportedEnts = unsupportedEnts == null
                 ? List.of()
-                : List.copyOf(new ArrayList<>(unsupportedEnts));
+                : List.copyOf(Wraps.list(unsupportedEnts));
     }
 
     /**

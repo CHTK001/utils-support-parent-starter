@@ -1,5 +1,6 @@
 package com.chua.image.support.filter;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import lombok.Data;
@@ -14,7 +15,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -109,7 +109,7 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
     /**
      * 贴图缓存
      */
-    private final Map<Path, BufferedImage> tileCache = new LinkedHashMap<>();
+    private final Map<Path, BufferedImage> tileCache = Wraps.linkedMap();
 
     /**
      * 执行圆形贴图马赛克滤镜

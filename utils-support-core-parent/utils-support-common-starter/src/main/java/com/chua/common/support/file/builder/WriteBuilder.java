@@ -1,8 +1,8 @@
 package com.chua.common.support.file.builder;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -42,7 +42,7 @@ public abstract class WriteBuilder {
     /**
      * 通用延迟写入暂存区
      */
-    protected final List<Object> pending = new ArrayList<>();
+    protected final List<Object> pending = Wraps.list();
 
     /**
      * 列名映射（字段 → 中文），写入时自动转换

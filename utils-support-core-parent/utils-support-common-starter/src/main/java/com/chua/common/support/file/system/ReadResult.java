@@ -1,6 +1,5 @@
 package com.chua.common.support.file.system;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,7 +18,7 @@ public class ReadResult<T> {
     /**
      * 解析后的数据上下文列表
      */
-    private final List<FileSystemContext<?>> contexts = new ArrayList<>();
+    private final List<FileSystemContext<?>> contexts = Wraps.list();
 
     /**
      * 创建 ReadResult 实例

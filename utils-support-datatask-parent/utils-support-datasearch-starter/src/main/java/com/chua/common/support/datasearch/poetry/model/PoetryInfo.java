@@ -1,6 +1,5 @@
 package com.chua.common.support.datasearch.poetry.model;
-
-import java.util.LinkedHashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
 
@@ -104,7 +103,7 @@ public class PoetryInfo {
      * @return Map 表示
      */
     public Map<String, Object> toMap() {
-        Map<String, Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = Wraps.linkedMap();
         map.put("title", title);
         map.put("author", author);
         map.put("dynasty", dynasty);

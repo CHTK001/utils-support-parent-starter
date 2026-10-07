@@ -1,5 +1,6 @@
 package com.chua.filesearch.support.bridge;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.filesystem.support.filesearch.model.FileInfo;
 import com.chua.filesystem.support.filesearch.model.FileSearchCriteria;
 import lombok.extern.slf4j.Slf4j;
@@ -9,8 +10,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -67,11 +66,11 @@ public class RustFileSearchHelper {
      */
     private static List<FileInfo> search0(FileSearchCriteria criteria) {
         if (!RustFileSearchBridge.isLoaded()) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
 
         String rootPath = resolveRootPath(criteria.rootPath());
-        List<FileInfo> results = new ArrayList<>();
+        List<FileInfo> results = Wraps.list();
 
         int errorCode;
         if (criteria.namePattern() != null && !criteria.namePattern().isBlank()) {
@@ -113,10 +112,10 @@ public class RustFileSearchHelper {
         String rootPath = resolveRootPath(criteria.rootPath());
         Path root = Paths.get(rootPath);
         if (Files.notExists(root) || !Files.isDirectory(root)) {
-            return new ArrayList<>();
+            return Wraps.list();
         }
 
-        List<FileInfo> results = new ArrayList<>();
+        List<FileInfo> results = Wraps.list();
         int maxResults = criteria.maxResults() > 0 ? criteria.maxResults() : Integer.MAX_VALUE;
         String namePattern = criteria.namePattern();
 
@@ -198,7 +197,7 @@ public class RustFileSearchHelper {
         }
 
         String rootPath = resolveRootPath(criteria.rootPath());
-        List<FileInfo> buffer = new ArrayList<>(STREAM_BATCH_SIZE);
+        List<FileInfo> buffer = Wraps.list(STREAM_BATCH_SIZE);
         int batchSize = STREAM_BATCH_SIZE;
 
         int errorCode;
@@ -265,24 +264,24 @@ public class RustFileSearchHelper {
      * @param results 结果
      */
     private static void postProcessTree(List<FileInfo> results) {
-        Map<String, List<FileInfo>> parentToChildren = new HashMap<>();
-        Map<String, FileInfo> dirIndex = new HashMap<>();
+        Map<String, List<FileInfo>> parentToChildren = Wraps.map();
+        Map<String, FileInfo> dirIndex = Wraps.map();
 
         for (FileInfo fi : results) {
             if (fi.isDirectory()) {
                 dirIndex.put(fi.path(), fi);
             }
-            parentToChildren.computeIfAbsent(fi.parentDir(), k -> new ArrayList<>()).add(fi);
+            parentToChildren.computeIfAbsent(fi.parentDir(), k -> Wraps.list()).add(fi);
         }
 
-        Map<String, long[]> dirTotals = new HashMap<>();
+        Map<String, long[]> dirTotals = Wraps.map();
         for (FileInfo fi : results) {
             if (fi.isDirectory()) {
                 computeDirTotals(fi.path(), parentToChildren, dirTotals);
             }
         }
 
-        Map<String, Long> parentTotalSize = new HashMap<>();
+        Map<String, Long> parentTotalSize = Wraps.map();
         for (Map.Entry<String, List<FileInfo>> e : parentToChildren.entrySet()) {
             long total = 0;
             for (FileInfo fi : e.getValue()) {
@@ -296,7 +295,7 @@ public class RustFileSearchHelper {
             parentTotalSize.put(e.getKey(), total);
         }
 
-        List<FileInfo> enriched = new ArrayList<>(results.size());
+        List<FileInfo> enriched = Wraps.list(results.size());
         for (FileInfo fi : results) {
             long fileCount = 0, dirCount = 0, dirSize = 0;
             if (fi.isDirectory()) {

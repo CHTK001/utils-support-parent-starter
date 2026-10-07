@@ -1,12 +1,10 @@
 package com.chua.prometheus.support.model;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +27,7 @@ public class PrometheusMetric {
      * 标签维度(包含 __name__)
      */
     @Builder.Default
-    private Map<String, String> metric = new LinkedHashMap<>(); // 指标
+    private Map<String, String> metric = Wraps.linkedMap(); // 指标
 
     /**
      * 即时值(vector)
@@ -45,7 +43,7 @@ public class PrometheusMetric {
      * 序列值(matrix, 有序时间戳+值)
      */
     @Builder.Default
-    private List<Sample> values = new ArrayList<>(); // 值
+    private List<Sample> values = Wraps.list(); // 值
 
     /**
      * 获取指标名(__name__)

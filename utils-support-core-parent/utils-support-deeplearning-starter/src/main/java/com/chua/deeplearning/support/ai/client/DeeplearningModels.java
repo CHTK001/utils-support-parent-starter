@@ -1,11 +1,10 @@
 package com.chua.deeplearning.support.ai.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.engine.ModelRegistry;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,7 +36,7 @@ public final class DeeplearningModels {
         if (engine == null || engine.isBlank()) {
             return List.of();
         }
-        List<ModelDefinition> result = new ArrayList<>();
+        List<ModelDefinition> result = Wraps.list();
         for (ModelDefinition def : AbstractIdentificationEngine.getInstance().getModels()) {
             if (def != null && engine.equalsIgnoreCase(def.getProvider())) {
                 result.add(def);
@@ -65,7 +64,7 @@ public final class DeeplearningModels {
      * @return 模型定义列表
      */
     public static List<ModelDefinition> models(String engine, Class<?> inputType, Class<?> outputType) {
-        List<ModelDefinition> result = new ArrayList<>();
+        List<ModelDefinition> result = Wraps.list();
         for (ModelDefinition def : AbstractIdentificationEngine.getInstance().getModels()) {
             if (def == null || !engine.equalsIgnoreCase(def.getProvider())) {
                 continue;
@@ -117,7 +116,7 @@ public final class DeeplearningModels {
      * @return 模型 标识 列表
      */
     public static List<String> modelIds(String engine) {
-        List<String> ids = new ArrayList<>();
+        List<String> ids = Wraps.list();
         for (ModelDefinition def : models(engine)) {
             if (def.getId() != null) {
                 ids.add(def.getId());

@@ -1,5 +1,6 @@
 package com.chua.baidu.support.sms;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.JsonObject;
 import com.chua.common.support.network.client.ClientRequest;
 import com.chua.common.support.network.client.ClientResponse;
@@ -19,7 +20,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -162,7 +162,7 @@ public class BaiduSmsMessagePush implements MessagePush {
      * 列表templates
     */
     public List<TemplateInfo> listTemplates() {
-        return new ArrayList<>(templates.values());
+        return Wraps.list(templates.values());
     }
 
     @Override

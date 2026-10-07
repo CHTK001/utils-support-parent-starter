@@ -1,5 +1,8 @@
 package com.chua.common.support.ai.decision;
 
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+
 /**
  * 概率决策提供者扩展接口。
  *
@@ -43,4 +46,25 @@ public interface DecisionProvider {
      * @throws DecisionException 请求非法、无法为全部问题作答或结果不自洽时
      */
     DecisionBatch decide(DecisionRequest request);
+
+    /**
+     * 异步对一批问题求值。
+     *
+     * <p>与 {@link #decide(DecisionRequest)} 同一语义，整体搬到
+     * {@code boundedElastic} 调度线程执行，以 Reactor 三个回调交付：
+     * <ul>
+     *   <li>{@code onNext}：决策结果批次</li>
+     *   <li>{@code onError}：{@link DecisionException} 等求值失败，后续问题不再求值</li>
+     *   <li>{@code onComplete}：流正常结束</li>
+     * </ul>
+     *
+     * <p>冷流：每次订阅重新求值一遍（接口约定实现必须线程安全）。
+     *
+     * @param request 决策求值请求，含上下文与全部问题
+     * @return 决策结果批次的冷流
+     */
+    default Mono<DecisionBatch> decideAsync(DecisionRequest request) {
+        return Mono.fromCallable(() -> decide(request))
+                .subscribeOn(Schedulers.boundedElastic());
+    }
 }

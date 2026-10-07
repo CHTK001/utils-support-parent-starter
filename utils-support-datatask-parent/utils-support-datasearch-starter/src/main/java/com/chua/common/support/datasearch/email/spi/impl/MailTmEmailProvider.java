@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.email.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.email.model.EmailInfo;
 import com.chua.common.support.datasearch.email.spi.EmailProvider;
 import com.chua.common.support.network.client.HttpClientFactory;
@@ -7,8 +8,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -116,7 +115,7 @@ public class MailTmEmailProvider implements EmailProvider {
             if (!members.isArray()) {
                 return Collections.emptyList();
             }
-            List<EmailInfo> result = new ArrayList<>();
+            List<EmailInfo> result = Wraps.list();
             for (JsonNode msg : members) {
                 String id = msg.path("id").asText(null);
                 String subject = msg.path("subject").asText(null);

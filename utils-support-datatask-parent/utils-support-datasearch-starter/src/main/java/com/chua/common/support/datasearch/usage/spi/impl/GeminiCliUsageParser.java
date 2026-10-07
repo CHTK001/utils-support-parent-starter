@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
@@ -11,7 +12,6 @@ import reactor.core.scheduler.Schedulers;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -194,7 +194,7 @@ public class GeminiCliUsageParser extends BaseUsageParser {
         if (!sessionId.isBlank()) {
             builder.requestId(sessionId + ":" + (timestamp > 0 ? timestamp : ""));
         }
-        return new ArrayList<>(List.of(builder.build()));
+        return Wraps.list(List.of(builder.build()));
     }
 
     /**

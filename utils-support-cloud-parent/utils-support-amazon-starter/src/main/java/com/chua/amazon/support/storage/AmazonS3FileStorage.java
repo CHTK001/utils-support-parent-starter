@@ -1,5 +1,6 @@
 package com.chua.amazon.support.storage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
@@ -22,7 +23,6 @@ import com.chua.common.support.storage.result.PutObjectResult;
 import com.chua.common.support.storage.setting.BucketSetting;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -170,7 +170,7 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
 
             ListObjectsV2Result listing = s3Client.listObjectsV2(listReq);
 
-            List<Metadata> metadataList = new ArrayList<>();
+            List<Metadata> metadataList = Wraps.list();
             for (S3ObjectSummary summary : listing.getObjectSummaries()) {
                 metadataList.add(Metadata.builder()
                         .name(summary.getKey())

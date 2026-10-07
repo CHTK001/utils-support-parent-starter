@@ -1,8 +1,7 @@
 package com.chua.deeplearning.support.face;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.model.PredictRectangle;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,12 +37,12 @@ public class FaceContext {
     /**
      * 已产出的人脸检测命中（检测管线）。
      */
-    private final List<FaceDetectionHit> detectionHits = new ArrayList<>();
+    private final List<FaceDetectionHit> detectionHits = Wraps.list();
 
     /**
      * 已产出的人脸识别命中（识别管线）。
      */
-    private final List<FaceIdentifyHit> identifyHits = new ArrayList<>();
+    private final List<FaceIdentifyHit> identifyHits = Wraps.list();
 
     /**
      * 当前人脸框。
@@ -98,7 +97,7 @@ public class FaceContext {
      */
     public FaceContext(byte[] imageData, List<PredictRectangle> boxes) {
         this.imageData = imageData;
-        this.boxes = boxes == null ? List.of() : new ArrayList<>(boxes);
+        this.boxes = boxes == null ? List.of() : Wraps.list(boxes);
     }
 
     /**

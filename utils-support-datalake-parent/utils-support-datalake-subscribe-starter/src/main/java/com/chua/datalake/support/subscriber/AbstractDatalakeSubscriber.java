@@ -1,9 +1,9 @@
 package com.chua.datalake.support.subscriber;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.concurrent.offset.OffsetFlow;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -54,7 +54,7 @@ public abstract class AbstractDatalakeSubscriber implements Subscriber {
         this.offsetFlow = offsetFlow;
         this.topics = topics == null || topics.isEmpty()
                 ? Collections.emptySet()
-                : Collections.unmodifiableSet(new LinkedHashSet<>(topics));
+                : Collections.unmodifiableSet(Wraps.linkedSet(topics));
     }
 
     /**

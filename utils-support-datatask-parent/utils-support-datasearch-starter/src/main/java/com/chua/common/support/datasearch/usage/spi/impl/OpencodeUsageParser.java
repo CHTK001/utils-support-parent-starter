@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.spi.annotations.Spi;
@@ -10,7 +11,6 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -95,7 +95,7 @@ public class OpencodeUsageParser extends BaseUsageParser {
             log.debug("[opencode] 数据库文件不存在: {}", DB_PATH);
             return List.of();
         }
-        List<AiUsage> result = new ArrayList<>();
+        List<AiUsage> result = Wraps.list();
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH)) {
             try (PreparedStatement stmt = conn.prepareStatement(SQL_MESSAGES)) {
                 try (ResultSet rs = stmt.executeQuery()) {

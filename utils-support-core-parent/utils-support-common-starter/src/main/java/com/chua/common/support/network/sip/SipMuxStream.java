@@ -1,5 +1,6 @@
 package com.chua.common.support.network.sip;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.function.Consumer;
@@ -37,7 +38,7 @@ class SipMuxStream {
     /**
      * 消费者挂载前到达的数据缓冲
      */
-    private final java.util.List<byte[]> pendingData = java.util.Collections.synchronizedList(new java.util.ArrayList<>());
+    private final java.util.List<byte[]> pendingData = java.util.Collections.synchronizedList(Wraps.list());
 
     /**
      * 是否已关闭
@@ -101,7 +102,7 @@ class SipMuxStream {
         this.dataConsumer = consumer;
         java.util.List<byte[]> early;
         synchronized (pendingData) {
-            early = new java.util.ArrayList<>(pendingData);
+            early = Wraps.list(pendingData);
             pendingData.clear();
         }
         for (byte[] data : early) {

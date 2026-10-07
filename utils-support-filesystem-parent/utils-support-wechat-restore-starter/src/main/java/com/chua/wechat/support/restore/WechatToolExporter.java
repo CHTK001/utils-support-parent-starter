@@ -1,5 +1,6 @@
 package com.chua.wechat.support.restore;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.task.restore.DataRestoreConfig;
@@ -10,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -218,7 +218,7 @@ public final class WechatToolExporter {
      */
     private static String[] buildExportCommand(File toolScript, File dataDir, File outputDir,
                                                String exportFormat, DataRestoreConfig config) {
-        List<String> cmd = new ArrayList<>(16);
+        List<String> cmd = Wraps.list(16);
         cmd.add(findPython());
         cmd.add(toolScript.getAbsolutePath());
         cmd.add("export");

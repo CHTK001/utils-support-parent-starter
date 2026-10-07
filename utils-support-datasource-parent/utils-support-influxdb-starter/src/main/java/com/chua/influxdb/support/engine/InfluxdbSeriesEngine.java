@@ -1,5 +1,6 @@
 package com.chua.influxdb.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.series.SeriesEngine;
 import com.chua.common.support.spi.annotations.Spi;
@@ -9,8 +10,6 @@ import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -183,7 +182,7 @@ public class InfluxdbSeriesEngine implements SeriesEngine, AutoCloseable {
             return List.of();
         }
         List<String> fields = discoverFields(target, monitorId);
-        List<String> sorted = new ArrayList<>(fields);
+        List<String> sorted = Wraps.list(fields);
         Collections.sort(sorted);
         return sorted;
     }
@@ -214,7 +213,7 @@ public class InfluxdbSeriesEngine implements SeriesEngine, AutoCloseable {
         // identifier 已经白名单校验，monitorId 为 Long，无注入面
         String influxQl = "SELECT \"" + field + "\" FROM \"" + target + "\" WHERE \"" + TAG_MONITOR_ID
                 + "\" = '" + monitorId + "' AND time >= " + startMs + "ms AND time <= " + nowMs + "ms";
-        List<Object[]> points = new ArrayList<>();
+        List<Object[]> points = Wraps.list();
         try {
             QueryResult result = influxDB.query(new Query(influxQl, database));
             if (result == null) {
@@ -270,7 +269,7 @@ public class InfluxdbSeriesEngine implements SeriesEngine, AutoCloseable {
         if (fields.size() == 1) {
             return fields.get(0);
         }
-        List<String> candidates = new ArrayList<>(fields);
+        List<String> candidates = Wraps.list(fields);
         Collections.sort(candidates);
         throw new IllegalArgumentException("measurement=" + target + " monitor=" + monitorId + " 下存在多个指标 "
                 + candidates + "，无法确定要查询哪条曲线；请显式传入 metricName");
@@ -295,7 +294,7 @@ public class InfluxdbSeriesEngine implements SeriesEngine, AutoCloseable {
             if (probe == null || probe.hasError() || probe.getResults() == null) {
                 return List.of();
             }
-            List<String> fields = new ArrayList<>();
+            List<String> fields = Wraps.list();
             for (QueryResult.Result resultItem : probe.getResults()) {
                 if (resultItem == null || resultItem.getSeries() == null) {
                     continue;
@@ -377,7 +376,7 @@ public class InfluxdbSeriesEngine implements SeriesEngine, AutoCloseable {
      * @return 点列表
      */
     private List<Object[]> toPoints(QueryResult.Series series) {
-        List<Object[]> points = new ArrayList<>();
+        List<Object[]> points = Wraps.list();
         List<String> columns = series.getColumns();
         List<List<Object>> values = series.getValues();
         if (columns == null || values == null || columns.size() < 2) {

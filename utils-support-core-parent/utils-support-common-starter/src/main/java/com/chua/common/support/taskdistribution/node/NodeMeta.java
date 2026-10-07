@@ -1,9 +1,8 @@
 package com.chua.common.support.taskdistribution.node;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -27,7 +26,7 @@ public class NodeMeta {
      * 能力标签（{"cap": "cpu", "群体": "prod"}）
      */
     @Builder.Default
-    private Map<String, String> tags = new HashMap<>(); // 标签
+    private Map<String, String> tags = Wraps.map(); // 标签
 
     /**
      * 节点权重（负载均衡 权重 策略使用）

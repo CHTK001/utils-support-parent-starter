@@ -1,5 +1,6 @@
 package com.chua.milvus.support.storage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.vector.AbstractVectorStorage;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorCompareAlgorithm;
@@ -27,7 +28,6 @@ import com.google.gson.JsonArray;
 import lombok.extern.slf4j.Slf4j;
 
 import com.chua.common.support.utils.CollectionUtils;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -257,7 +257,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
                 .outputFields(List.of("vector"))
                 .build();
         SearchResp resp = client.search(req);
-        List<Vector> candidates = new ArrayList<>();
+        List<Vector> candidates = Wraps.list();
         for (List<SearchResp.SearchResult> hits : resp.getSearchResults()) {
             for (SearchResp.SearchResult hit : hits) {
                 String id = String.valueOf(hit.getId());

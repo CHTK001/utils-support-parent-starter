@@ -1,5 +1,6 @@
 package com.chua.common.support.network.filepush;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.ThreadUtils;
 
 import java.io.BufferedInputStream;
@@ -14,10 +15,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -287,7 +286,7 @@ public class FilePushClient implements AutoCloseable {
      * @return this
      */
     public FilePushClient excludes(String... excludes) {
-        return excludes(new ArrayList<>(Arrays.asList(excludes)));
+        return excludes(Wraps.list(Arrays.asList(excludes)));
     }
 
     /**
@@ -308,7 +307,7 @@ public class FilePushClient implements AutoCloseable {
      * @return this
      */
     public FilePushClient includes(String... includes) {
-        return includes(new ArrayList<>(Arrays.asList(includes)));
+        return includes(Wraps.list(Arrays.asList(includes)));
     }
 
     /**
@@ -358,7 +357,7 @@ public class FilePushClient implements AutoCloseable {
         List<Path> pending = files;
         if (config.isIncremental()) {
             Map<String, long[]> remote = fetchServerManifest();
-            pending = new ArrayList<>(files.size());
+            pending = Wraps.list(files.size());
             for (Path file : files) {
                 if (isUnchanged(sourceDir, file, remote)) {
                     skipped++;
@@ -376,7 +375,7 @@ public class FilePushClient implements AutoCloseable {
                 config.effectiveClientParallelism(), config.effectiveChunkSize() / 1024, perConn);
 
         // 连接复用：perConn>1 时按轮转分组，每组一条连接承载 perConn 个文件
-        List<CompletableFuture<?>> futures = new ArrayList<>();
+        List<CompletableFuture<?>> futures = Wraps.list();
         if (perConn > 1 && pending.size() > 1) {
             // 连接数 = 按 perConn 分组所需的条数，但不超过并行度。
             // 连接内同一时刻只有一个文件在途，故「在途文件数 == 连接数」，
@@ -419,7 +418,7 @@ public class FilePushClient implements AutoCloseable {
         }
         long elapsedMs = (System.nanoTime() - startTime) / 1_000_000;
         // 连接复用路径的任务返回的是「一组文件的结果」，这里统一摊平为单文件结果
-        List<FileTaskResult> results = new ArrayList<>(pending.size());
+        List<FileTaskResult> results = Wraps.list(pending.size());
         for (CompletableFuture<?> future : futures) {
             Object value = future.join();
             if (value instanceof List<?> group) {
@@ -466,7 +465,7 @@ public class FilePushClient implements AutoCloseable {
      * @return 相对路径列表
      */
     private List<String> relativePaths(Path sourceDir, List<Path> files) {
-        List<String> paths = new ArrayList<>(files.size());
+        List<String> paths = Wraps.list(files.size());
         for (Path file : files) {
             paths.add(sourceDir.relativize(file).toString().replace('\\', '/'));
         }
@@ -523,7 +522,7 @@ public class FilePushClient implements AutoCloseable {
                 throw new IOException("期望清单响应但收到 0x" + Integer.toHexString(resp));
             }
             int count = in.readInt();
-            Map<String, long[]> manifest = new HashMap<>(Math.max(16, count * 2));
+            Map<String, long[]> manifest = Wraps.map(Math.max(16, count * 2));
             for (int i = 0; i < count; i++) {
                 int len = in.readInt();
                 byte[] bytes = new byte[len];
@@ -546,7 +545,7 @@ public class FilePushClient implements AutoCloseable {
     private List<Path> scanFiles(Path sourceDir) throws IOException {
         List<String> excludes = config.getExcludes();
         List<String> includes = config.getIncludes();
-        final List<Path> result = new ArrayList<>();
+        final List<Path> result = Wraps.list();
         try (var walk = Files.walk(sourceDir)) {
             walk.filter(Files::isRegularFile)
                     .filter(p -> matchesIncludes(sourceDir, p, includes))
@@ -619,10 +618,10 @@ public class FilePushClient implements AutoCloseable {
      */
     private static List<List<Path>> partitionRoundRobin(List<Path> files, int groups) {
         int g = Math.max(1, Math.min(groups, files.size()));
-        List<List<Path>> batches = new ArrayList<>(g);
+        List<List<Path>> batches = Wraps.list(g);
         int per = (files.size() + g - 1) / g;
         for (int i = 0; i < g; i++) {
-            batches.add(new ArrayList<>(per));
+            batches.add(Wraps.list(per));
         }
         for (int i = 0; i < files.size(); i++) {
             batches.get(i % g).add(files.get(i));
@@ -1047,7 +1046,7 @@ public class FilePushClient implements AutoCloseable {
          */
         public PushResult {
             tasks = Collections.unmodifiableList(
-                    new ArrayList<>(Objects.requireNonNull(tasks, "tasks 不能为 null")));
+                    Wraps.list(Objects.requireNonNull(tasks, "tasks 不能为 null")));
         }
 
         /**

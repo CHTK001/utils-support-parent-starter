@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.poetry.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.poetry.model.PoetryInfo;
 import com.chua.common.support.datasearch.poetry.spi.PoetryProvider;
 import com.chua.common.support.network.client.ClientResponse;
@@ -10,8 +11,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -124,7 +123,7 @@ public class OnlinePoetryProvider implements PoetryProvider {
         if (author == null || author.isBlank()) {
             return Collections.emptyList();
         }
-        List<PoetryInfo> result = new ArrayList<>();
+        List<PoetryInfo> result = Wraps.list();
         for (PoetryInfo p : load()) {
             if (author.trim().equals(p.getAuthor())) {
                 result.add(p);
@@ -145,7 +144,7 @@ public class OnlinePoetryProvider implements PoetryProvider {
             return Collections.emptyList();
         }
         String kw = keyword.trim();
-        List<PoetryInfo> result = new ArrayList<>();
+        List<PoetryInfo> result = Wraps.list();
         for (PoetryInfo p : load()) {
             if (contains(p.getTitle(), kw) || contains(p.getContent(), kw) || contains(p.getAuthor(), kw)) {
                 result.add(p);
@@ -182,7 +181,7 @@ public class OnlinePoetryProvider implements PoetryProvider {
             if (!cached.isEmpty()) {
                 return cached;
             }
-            List<PoetryInfo> list = new ArrayList<>();
+            List<PoetryInfo> list = Wraps.list();
             for (int i = 0; i < volumeCount; i++) {
                 try {
                     ClientResponse resp = httpClient.get(String.format(urlTemplate, i));
@@ -223,7 +222,7 @@ public class OnlinePoetryProvider implements PoetryProvider {
         String title = text(n, "title");
         String author = text(n, "author");
         JsonNode paragraphsNode = n.get("paragraphs");
-        List<String> paragraphs = new ArrayList<>();
+        List<String> paragraphs = Wraps.list();
         if (paragraphsNode != null && paragraphsNode.isArray()) {
             for (JsonNode p : paragraphsNode) {
                 paragraphs.add(p.asText());
@@ -252,7 +251,7 @@ public class OnlinePoetryProvider implements PoetryProvider {
      * @return 构建降级的结果
      */
     private static List<PoetryInfo> buildFallback() {
-        List<PoetryInfo> list = new ArrayList<>();
+        List<PoetryInfo> list = Wraps.list();
         add(list, "静夜思", "李白", "床前明月光，疑是地上霜。", "举头望明月，低头思故乡。");
         add(list, "登鹳雀楼", "王之涣", "白日依山尽，黄河入海流。", "欲穷千里目，更上一层楼。");
         add(list, "春晓", "孟浩然", "春眠不觉晓，处处闻啼鸟。", "夜来风雨声，花落知多少。");
@@ -273,7 +272,7 @@ public class OnlinePoetryProvider implements PoetryProvider {
      * @param lines 线
      */
     private static void add(List<PoetryInfo> list, String title, String author, String... lines) {
-        List<String> paragraphs = new ArrayList<>();
+        List<String> paragraphs = Wraps.list();
         for (String line : lines) {
             paragraphs.add(line);
         }

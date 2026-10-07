@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.template;
-
-import java.util.LinkedHashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Map;
 import java.util.Objects;
 
@@ -44,7 +43,7 @@ public record TemplateVar(String name, Object value, String path) {
      * @return 含 name/value/path 三个键的有序映射
      */
     public Map<String, Object> toMap() {
-        Map<String, Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = Wraps.linkedMap();
         map.put("name", name);
         map.put("value", value);
         map.put("path", path);

@@ -1,12 +1,12 @@
 package com.chua.datalake.support.spi.pipeline;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +47,7 @@ public class PipelineConfig {
     /**
      * Stage → 动作 映射；键 "默认" 为默认路由
      */
-    private Map<String, PipelineStageConfig> stages = new HashMap<>();
+    private Map<String, PipelineStageConfig> stages = Wraps.map();
 
     /**
      * 返回无信息时的空配置

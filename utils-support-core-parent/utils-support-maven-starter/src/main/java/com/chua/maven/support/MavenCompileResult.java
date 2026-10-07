@@ -1,7 +1,7 @@
 package com.chua.maven.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -318,7 +318,7 @@ public class MavenCompileResult {
             return List.of();
         }
 
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
 
  // 先扫描项目根目录 Target
         String rootTarget = projectDir + File.separator + "target";

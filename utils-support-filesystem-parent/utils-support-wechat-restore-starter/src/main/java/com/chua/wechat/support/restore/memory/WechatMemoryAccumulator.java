@@ -1,15 +1,13 @@
 package com.chua.wechat.support.restore.memory;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -131,7 +129,7 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
          * @param messages 合并后的可读消息（按时间升序）
          */
         public Snapshot {
-            messages = Collections.unmodifiableList(new ArrayList<>(
+            messages = Collections.unmodifiableList(Wraps.list(
                     Objects.requireNonNull(messages, "messages 不能为 null")));
         }
     }
@@ -170,8 +168,8 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
         }
         // 进程统计与库簇「以最后一次为准」：每次 add 拿到的都是「本次运行到目前为止」的完整视图，
         // 累积起来会把同一个 pid 重复算进去，直接替换才是对的
-        state.processes = new ArrayList<>(one.processes());
-        state.clusters = new ArrayList<>(one.clusters());
+        state.processes = Wraps.list(one.processes());
+        state.clusters = Wraps.list(one.clusters());
 
         log.info("已合并 pid {}：新增 记录 {} / 消息 {}，累计 记录 {} / 消息 {}",
                 one.processes().isEmpty()
@@ -238,7 +236,7 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
                 state.processes, state.records, WechatMemoryExtractor.rebuildSchema(state.records),
                 state.clusters);
         List<WechatMemoryMessages.Message> messages =
-                new ArrayList<>(state.messageByFingerprint.values());
+                Wraps.list(state.messageByFingerprint.values());
         messages.sort(Comparator.comparingLong(m -> parseLong(m.createTime(), Long.MAX_VALUE)));
         return new Snapshot(merged, messages, addedRecords, addedMessages);
     }
@@ -284,7 +282,7 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
         }
         StringBuilder sb = new StringBuilder(1 << 20);
         sb.append("# table").append(SEP).append("rowid").append(SEP).append("v0..vN").append('\n');
-        Set<String> seen = new HashSet<>();
+        Set<String> seen = Wraps.set();
         for (WechatMemoryExtractor.ExtractedRecord record : snapshot.merged().records()) {
             if (!seen.add(fingerprintOf(record))) {
                 continue;
@@ -372,12 +370,12 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
         /**
          * 全部记录
          */
-        private final List<WechatMemoryExtractor.ExtractedRecord> records = new ArrayList<>();
+        private final List<WechatMemoryExtractor.ExtractedRecord> records = Wraps.list();
 
         /**
          * 记录指纹（表名 + rowid + 各列值）
          */
-        private final Set<String> fingerprints = new HashSet<>();
+        private final Set<String> fingerprints = Wraps.set();
 
         /**
          * 全部消息：指纹 → 消息。
@@ -388,17 +386,17 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
          * 并把消息写重（实测：359 行里只有 256 个唯一指纹）。</p>
          */
         private final Map<String, WechatMemoryMessages.Message> messageByFingerprint =
-                new LinkedHashMap<>();
+                Wraps.linkedMap();
 
         /**
          * 本次运行的进程扫描统计（以最后一次为准，始终是完整视图）
          */
-        private List<WechatMemoryExtractor.ProcessScan> processes = new ArrayList<>();
+        private List<WechatMemoryExtractor.ProcessScan> processes = Wraps.list();
 
         /**
          * 本次运行的 Name2Id 库簇（以最后一次为准）
          */
-        private List<WechatMemoryExtractor.IdCluster> clusters = new ArrayList<>();
+        private List<WechatMemoryExtractor.IdCluster> clusters = Wraps.list();
     }
 
     /**
@@ -428,7 +426,7 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
      * @return 字段数组
      */
     private static String[] split(String line) {
-        List<String> parts = new ArrayList<>(16);
+        List<String> parts = Wraps.list(16);
         int start = 0;
         for (int i = 0; i < line.length(); i++) {
             if (line.charAt(i) == SEP) {
@@ -547,7 +545,7 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
             return "（无累积文件）";
         }
         Store loaded = load(store);
-        Map<String, Integer> byTable = new LinkedHashMap<>();
+        Map<String, Integer> byTable = Wraps.linkedMap();
         for (WechatMemoryExtractor.ExtractedRecord record : loaded.records) {
             byTable.merge(record.table() == null ? "?unknown" : record.table(), 1, Integer::sum);
         }

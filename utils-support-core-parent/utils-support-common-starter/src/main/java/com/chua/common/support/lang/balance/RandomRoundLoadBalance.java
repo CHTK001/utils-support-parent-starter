@@ -1,8 +1,7 @@
 package com.chua.common.support.lang.balance;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -21,7 +20,7 @@ public class RandomRoundLoadBalance implements LoadBalance {
  /**
   * 节点列表
   */
- private final List<Node> nodes = new ArrayList<>();
+ private final List<Node> nodes = Wraps.list();
 
  /**
   * 选择Node

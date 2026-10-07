@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.conversation.spi;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.datasearch.conversation.ConversationMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,7 +131,7 @@ public abstract class AbstractJsonlConversationParser implements ConversationPar
      * @return 列表transcripts的结果
      */
     private List<Path> listTranscripts() {
-        List<Path> files = new java.util.ArrayList<>();
+        List<Path> files = Wraps.list();
         for (Path root : rootDirs()) {
             if (!Files.isDirectory(root)) {
                 continue;

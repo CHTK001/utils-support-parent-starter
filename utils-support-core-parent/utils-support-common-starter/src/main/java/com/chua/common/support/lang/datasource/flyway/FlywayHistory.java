@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.datasource.flyway;
-
-import java.util.HashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
 
@@ -152,7 +151,7 @@ public final class FlywayHistory {
      * @return 脚本文件名 → {@code success} 标志映射，无记录时为空映射
      */
     public static Map<String, String> loadApplied(Runner runner) {
-        Map<String, String> applied = new HashMap<>();
+        Map<String, String> applied = Wraps.map();
         for (Map<String, Object> row : runner.select(SELECT_SQL)) {
             Object name = row.get(COL_SCRIPT_NAME);
             if (name == null) {

@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.paddle.detection;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
@@ -12,8 +13,6 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,9 +40,9 @@ public class PedestrianTranslator implements Translator<Image, DetectedObjects> 
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray result = list.singletonOrThrow();
         float[] probabilities = result.get(":,1").toFloatArray();
-        List<String> names = new ArrayList<>();
-        List<Double> prob = new ArrayList<>();
-        List<BoundingBox> boxes = new ArrayList<>();
+        List<String> names = Wraps.list();
+        List<Double> prob = Wraps.list();
+        List<BoundingBox> boxes = Wraps.list();
         for (int i = 0; i < probabilities.length; i++) {
             float[] array = result.get(i).toFloatArray();
             names.add("pedestrian");

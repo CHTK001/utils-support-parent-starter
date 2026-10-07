@@ -1,7 +1,7 @@
 package com.chua.ssh.support.server;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.process.MultiProgressBar;
-import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 
@@ -46,7 +46,7 @@ public class SshMultiProgress implements AutoCloseable {
     /**
      * pending
      */
-    private final List<TaskDef> pending = new ArrayList<>();
+    private final List<TaskDef> pending = Wraps.list();
     /**
      * 委托对象
      */

@@ -1,11 +1,11 @@
 package com.chua.starter.datasync.mapping;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.starter.datasync.config.DataSyncConfigDefinition;
 import com.chua.starter.datasync.config.FileConfigDefinition;
 import com.chua.starter.datasync.config.TextConfigDefinition;
 import com.chua.starter.datasync.model.DataSyncMapping;
 import lombok.extern.slf4j.Slf4j;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,7 +38,7 @@ public class DefaultDataSyncMappingManager implements DataSyncMappingManager {
      * 获取Mappings
     */
     public List<DataSyncMapping> getMappings() {
-        return new ArrayList<>(mappings.values());
+        return Wraps.list(mappings.values());
     }
 
     @Override
@@ -46,7 +46,7 @@ public class DefaultDataSyncMappingManager implements DataSyncMappingManager {
      * 获取mappingsby输入id
     */
     public List<DataSyncMapping> getMappingsByInputId(String inputId) {
-        List<DataSyncMapping> result = new ArrayList<>();
+        List<DataSyncMapping> result = Wraps.list();
         for (DataSyncMapping mapping : mappings.values()) {
             if (mapping.inputId().equals(inputId)) {
                 result.add(mapping);
@@ -60,7 +60,7 @@ public class DefaultDataSyncMappingManager implements DataSyncMappingManager {
      * 获取mappingsby输出id
     */
     public List<DataSyncMapping> getMappingsByOutputId(String outputId) {
-        List<DataSyncMapping> result = new ArrayList<>();
+        List<DataSyncMapping> result = Wraps.list();
         for (DataSyncMapping mapping : mappings.values()) {
             if (mapping.outputId().equals(outputId)) {
                 result.add(mapping);

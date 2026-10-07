@@ -1,6 +1,5 @@
 package com.chua.ibd.support.innodb;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 
 /**
@@ -142,7 +141,7 @@ public final class IbdTableDefinition {
      * @return 用户列列表
      */
     public List<IbdColumn> userColumns() {
-        List<IbdColumn> out = new ArrayList<>(columns.size());
+        List<IbdColumn> out = Wraps.list(columns.size());
         for (IbdColumn column : columns) {
             if (!column.systemColumn() && !column.hidden()) {
                 out.add(column);

@@ -1,5 +1,6 @@
 package com.chua.crawler.support.mapper;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.reflection.ReflectUtils;
@@ -81,7 +82,7 @@ public class SpiderFieldMapper {
     public <T> T map(SpiderResult result, Class<T> clazz) {
         try {
             T instance = ReflectUtils.instantiate(clazz);
-            Map<String, String> aiFields = new LinkedHashMap<>();
+            Map<String, String> aiFields = Wraps.linkedMap();
 
             for (Field field : clazz.getDeclaredFields()) {
                 SpiderField annotation = field.getAnnotation(SpiderField.class);
@@ -160,7 +161,7 @@ public class SpiderFieldMapper {
      */
     private Map<String, String> extractByAi(SpiderResult result, Class<?> clazz,
                                              Map<String, String> aiFields) {
-        Map<String, String> results = new LinkedHashMap<>();
+        Map<String, String> results = Wraps.linkedMap();
 
         try {
  // 读取 @蜘蛛AI 类级注解

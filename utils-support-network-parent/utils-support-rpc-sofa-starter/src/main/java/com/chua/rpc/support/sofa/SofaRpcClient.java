@@ -1,5 +1,6 @@
 package com.chua.rpc.support.sofa;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.alipay.sofa.rpc.config.ApplicationConfig;
 import com.alipay.sofa.rpc.config.ConsumerConfig;
 import com.alipay.sofa.rpc.config.RegistryConfig;
@@ -8,8 +9,6 @@ import com.chua.common.support.network.rpc.RpcClient;
 import com.chua.common.support.network.rpc.RpcConsumerConfig;
 import com.chua.common.support.network.rpc.RpcRegistryConfig;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,7 +26,7 @@ public class SofaRpcClient implements RpcClient {
     /**
      * registry 配置
      */
-    private final List<RegistryConfig> registryConfigs = new ArrayList<>();
+    private final List<RegistryConfig> registryConfigs = Wraps.list();
     /**
      * rpc Consumer 配置
      */

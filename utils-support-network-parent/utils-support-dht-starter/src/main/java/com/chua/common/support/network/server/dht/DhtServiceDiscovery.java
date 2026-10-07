@@ -1,5 +1,6 @@
 package com.chua.common.support.network.server.dht;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.discovery.AbstractServiceDiscovery;
 import com.chua.common.support.network.discovery.Discovery;
@@ -8,10 +9,7 @@ import com.chua.common.support.network.discovery.Event;
 import com.chua.common.support.network.discovery.ServiceDiscovery;
 import com.chua.common.support.network.discovery.ServiceDiscoveryListener;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -135,7 +133,7 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
             return cached;
         }
 
-        Set<Discovery> result = new HashSet<>();
+        Set<Discovery> result = Wraps.set();
         String value = protocol != null ? protocol.findValue(fullPath) : null;
         if (value != null) {
             try {
@@ -208,7 +206,7 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
         if (services.isEmpty()) {
             return null;
         }
-        List<Discovery> list = new ArrayList<>(services);
+        List<Discovery> list = Wraps.list(services);
         if ("round".equals(balance) || "weight".equals(balance)) {
             int idx = (int) (System.currentTimeMillis() % list.size());
             return list.get(idx);

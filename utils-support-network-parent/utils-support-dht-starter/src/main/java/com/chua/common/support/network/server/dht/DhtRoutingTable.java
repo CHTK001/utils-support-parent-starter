@@ -1,10 +1,8 @@
 package com.chua.common.support.network.server.dht;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -123,7 +121,7 @@ public class DhtRoutingTable {
      * @return 最近节点的列表
      */
     public synchronized List<DhtPeer> findClosestPeers(KademliaNodeId target, int count) {
-        List<DhtPeer> result = new ArrayList<>();
+        List<DhtPeer> result = Wraps.list();
         int bucketIndex = selfId.getBucketIndex(target);
         addBucketPeers(result, buckets[bucketIndex], count);
         if (result.size() < count) {
@@ -175,7 +173,7 @@ public class DhtRoutingTable {
      * @return 全部节点列表
      */
     public synchronized List<DhtPeer> getAllPeers() {
-        List<DhtPeer> all = new ArrayList<>();
+        List<DhtPeer> all = Wraps.list();
         for (KBucket bucket : buckets) {
             all.addAll(bucket.getAllPeers());
         }
@@ -201,7 +199,7 @@ public class DhtRoutingTable {
      * @return 节点 标识 的 设置
      */
     public synchronized Set<String> getAllPeerIds() {
-        Set<String> ids = new HashSet<>();
+        Set<String> ids = Wraps.set();
         for (KBucket bucket : buckets) {
             for (DhtPeer p : bucket.getAllPeers()) {
                 ids.add(p.getNodeId());

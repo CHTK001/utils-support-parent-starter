@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.text.gpt2;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.huggingface.tokenizers.Encoding;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.djl.modality.Classifications;
@@ -14,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -105,8 +105,8 @@ public class Gpt2Translator implements Translator<String, Classifications> {
         NDArray lastLogits = logits.get("{},:,", seqLen - 1);
         float[] scores = lastLogits.toFloatArray();
 
-        List<String> tokens = new ArrayList<>();
-        List<Double> probabilities = new ArrayList<>();
+        List<String> tokens = Wraps.list();
+        List<Double> probabilities = Wraps.list();
         int topK = Math.min(10, vocabSize);
         int[] indices = topKIndices(scores, topK);
         double sum = 0;

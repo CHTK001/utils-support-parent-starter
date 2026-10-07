@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.spi.annotations.Spi;
@@ -9,7 +10,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -77,7 +77,7 @@ public class JoyCodeUsageParser extends BaseUsageParser {
             log.debug("[joycode] log dir not found: {}", JOYCODE_LOG_DIR);
             return List.of();
         }
-        List<AiUsage> result = new ArrayList<>();
+        List<AiUsage> result = Wraps.list();
         AtomicInteger fileCount = new AtomicInteger(0);
         try (var stream = Files.walk(JOYCODE_LOG_DIR)) {
             stream.filter(Files::isRegularFile)

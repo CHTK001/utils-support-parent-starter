@@ -1,5 +1,6 @@
 package com.chua.qq.support.bot;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -13,10 +14,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -1428,7 +1427,7 @@ public class QqBotClient implements BotClient {
 
     @Override
     public List<BotGroupInfo> listGroups() {
-        return new ArrayList<>(observedGroups.values());
+        return Wraps.list(observedGroups.values());
     }
 
     @Override
@@ -1463,7 +1462,7 @@ public class QqBotClient implements BotClient {
         }
         observedGroups.put(chatId, BotGroupInfo.builder()
                 .groupId(chatId)
-                .memberIds(new ArrayList<>(members))
+                .memberIds(Wraps.list(members))
                 .memberCount(members.size())
                 .build());
     }
@@ -1578,9 +1577,9 @@ public class QqBotClient implements BotClient {
                                               HttpResponse<String> response) {
         String raw = response.body();
         Map<String, Object> parsed = StringUtils.isBlank(raw)
-                ? new LinkedHashMap<>() : Json.fromJson(raw, Map.class);
+                ? Wraps.linkedMap() : Json.fromJson(raw, Map.class);
         if (parsed == null) {
-            parsed = new LinkedHashMap<>();
+            parsed = Wraps.linkedMap();
         }
         int code = intValue(parsed.get("code"), 0);
         int ret = intValue(parsed.get("ret"), 0);
@@ -1651,7 +1650,7 @@ public class QqBotClient implements BotClient {
 
     @Override
     public Map<String, Object> getConfig() {
-        Map<String, Object> config = new LinkedHashMap<>();
+        Map<String, Object> config = Wraps.linkedMap();
         config.put("appId", appId);
         config.put("baseUrl", baseUrl);
         config.put("tokenUrl", tokenPath());
@@ -1799,7 +1798,7 @@ public class QqBotClient implements BotClient {
      * @return openid 列表
      */
     private static List<String> readMentions(Object mentions) {
-        List<String> ids = new ArrayList<>();
+        List<String> ids = Wraps.list();
         for (Map<String, Object> mention : mapList(mentions)) {
             String id = firstNotBlank(stringValue(mention.get("member_openid")),
                     stringValue(mention.get("user_openid")),
@@ -1832,7 +1831,7 @@ public class QqBotClient implements BotClient {
         if (!(value instanceof List<?> list)) {
             return Collections.emptyList();
         }
-        List<Map<String, Object>> maps = new ArrayList<>(list.size());
+        List<Map<String, Object>> maps = Wraps.list(list.size());
         for (Object item : list) {
             if (item instanceof Map<?, ?> map) {
                 maps.add(asMap(map));

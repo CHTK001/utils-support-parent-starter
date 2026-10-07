@@ -1,9 +1,8 @@
 package com.chua.deeplearning.support.ocr;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.model.PredictRectangle;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,7 +44,7 @@ public class OcrContext {
     /**
      * 已收集的识别结果。
      */
-    private final List<OcrResult> results = new ArrayList<>();
+    private final List<OcrResult> results = Wraps.list();
 
     /**
      * 图像是否模糊（质量门控判定），模糊时强制启用文字高清修复。

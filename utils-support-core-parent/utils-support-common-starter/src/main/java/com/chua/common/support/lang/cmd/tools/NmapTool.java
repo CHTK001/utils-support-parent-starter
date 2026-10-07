@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.cmd.tools;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.CliTool;
 import com.chua.common.support.lang.cmd.CliToolDescriptor;
 import com.chua.common.support.lang.cmd.CliVersion;
@@ -97,7 +98,7 @@ public class NmapTool extends CliTool {
      */
     @Nonnull
     public java.util.List<java.util.Map<String, String>> parseOpenPorts(@Nonnull String stdout) {
-        java.util.List<java.util.Map<String, String>> ports = new java.util.ArrayList<>();
+        java.util.List<java.util.Map<String, String>> ports = Wraps.list();
         if (stdout == null || stdout.isEmpty()) {
             return ports;
         }
@@ -131,7 +132,7 @@ public class NmapTool extends CliTool {
 
     private java.util.Map<String, String> buildPortEntry(String port, String protocol,
                                                           String service, String version) {
-        java.util.Map<String, String> entry = new java.util.LinkedHashMap<>();
+        java.util.Map<String, String> entry = Wraps.linkedMap();
         entry.put("port", port);
         entry.put("protocol", protocol);
         entry.put("service", service);

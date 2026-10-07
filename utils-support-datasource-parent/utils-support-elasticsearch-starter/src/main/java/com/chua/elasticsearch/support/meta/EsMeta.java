@@ -1,5 +1,6 @@
 package com.chua.elasticsearch.support.meta;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import com.chua.common.support.lang.datasource.meta.SearchFieldBuilder;
 import com.chua.common.support.lang.datasource.meta.SearchIndexCreateBuilder;
@@ -8,9 +9,6 @@ import com.chua.common.support.lang.datasource.meta.model.SearchIndexDef;
 import com.chua.datasource.support.meta.AbstractMetaData;
 import com.chua.datasource.support.meta.AbstractMetaSearch;
 import com.chua.elasticsearch.support.engine.ElasticsearchEngine;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -45,7 +43,7 @@ public class EsMeta extends AbstractMetaSearch {
     */
     public List<SearchIndexDef> list() {
         List<String> indexNames = searchEngine.listIndexes();
-        List<SearchIndexDef> result = new ArrayList<>();
+        List<SearchIndexDef> result = Wraps.list();
         for (String name : indexNames) {
             SearchIndexDef def = searchEngine.getIndex(name);
             if (def != null) {
@@ -121,15 +119,15 @@ public class EsMeta extends AbstractMetaSearch {
         /**
          * 字段
         */
-        private final List<SearchFieldDef> fields = new ArrayList<>();
+        private final List<SearchFieldDef> fields = Wraps.list();
         /**
          * settings
         */
-        private final Map<String, Object> settings = new LinkedHashMap<>();
+        private final Map<String, Object> settings = Wraps.linkedMap();
         /**
          * mappings
         */
-        private final Map<String, Object> mappings = new LinkedHashMap<>();
+        private final Map<String, Object> mappings = Wraps.linkedMap();
         /**
          * Shards
         */
@@ -240,9 +238,9 @@ public class EsMeta extends AbstractMetaSearch {
             def.setName(indexName);
             def.setShards(shards);
             def.setReplicas(replicas);
-            def.setFields(new ArrayList<>(fields));
-            def.setSettings(new LinkedHashMap<>(settings));
-            def.setMappings(new LinkedHashMap<>(mappings));
+            def.setFields(Wraps.list(fields));
+            def.setSettings(Wraps.linkedMap(settings));
+            def.setMappings(Wraps.linkedMap(mappings));
             searchEngine.createIndex(def);
             return def;
         }

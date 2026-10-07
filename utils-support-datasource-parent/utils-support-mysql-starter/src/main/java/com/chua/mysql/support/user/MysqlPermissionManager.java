@@ -1,5 +1,6 @@
 package com.chua.mysql.support.user;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.datasource.support.permission.PermissionInfo;
 import com.chua.datasource.support.permission.PermissionManager;
 import com.chua.datasource.support.user.DataSourceAware;
@@ -12,7 +13,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -75,7 +75,7 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
      */
     @Override
     public List<PermissionInfo> listPermissions() {
-        List<PermissionInfo> result = new ArrayList<>();
+        List<PermissionInfo> result = Wraps.list();
         try (Connection conn = dataSource.getConnection()) {
             // 全局权限
             try (Statement stmt = conn.createStatement();
@@ -89,7 +89,7 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
                 }
             }
             // 收集全部账号
-            List<String[]> users = new ArrayList<>();
+            List<String[]> users = Wraps.list();
             try (Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery("SELECT User, Host FROM mysql.user")) {
                 while (rs.next()) {
@@ -262,7 +262,7 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
         if (privileges == null || privileges.trim().isEmpty()) {
             throw new IllegalArgumentException("权限列表不能为空");
         }
-        List<String> checked = new ArrayList<>();
+        List<String> checked = Wraps.list();
         for (String item : splitTopLevel(privileges)) {
             String privilege = item.trim();
             if (privilege.isEmpty()
@@ -296,7 +296,7 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
      * @return 切分后的权限项
      */
     private static List<String> splitTopLevel(String privileges) {
-        List<String> items = new ArrayList<>();
+        List<String> items = Wraps.list();
         StringBuilder current = new StringBuilder();
         int depth = 0;
         for (int i = 0; i < privileges.length(); i++) {

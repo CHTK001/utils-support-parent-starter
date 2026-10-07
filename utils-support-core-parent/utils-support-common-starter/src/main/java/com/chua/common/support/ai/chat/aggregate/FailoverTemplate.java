@@ -1,13 +1,12 @@
 package com.chua.common.support.ai.chat.aggregate;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatResponse;
 import com.chua.common.support.ai.chat.ChatSyncResponse;
 import com.chua.common.support.ai.chat.aggregate.strategy.RouterStrategy;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
@@ -72,7 +71,7 @@ public final class FailoverTemplate {
             String prompt,
             Consumer<AiUsage> usageCallback) throws Exception {
 
-        List<RouterStrategy.WeightedClient> remaining = new ArrayList<>(clients);
+        List<RouterStrategy.WeightedClient> remaining = Wraps.list(clients);
         if (remaining.isEmpty()) {
             throw new IllegalArgumentException("No clients configured");
         }
@@ -135,7 +134,7 @@ public final class FailoverTemplate {
             String prompt,
             Consumer<ChatResponse> consumer) throws Exception {
 
-        List<RouterStrategy.WeightedClient> remaining = new ArrayList<>(clients);
+        List<RouterStrategy.WeightedClient> remaining = Wraps.list(clients);
         if (remaining.isEmpty()) {
             throw new IllegalArgumentException("No clients configured");
         }

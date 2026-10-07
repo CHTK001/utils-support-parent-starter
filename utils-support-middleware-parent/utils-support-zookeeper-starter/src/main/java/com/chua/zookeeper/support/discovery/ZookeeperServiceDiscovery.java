@@ -1,5 +1,6 @@
 package com.chua.zookeeper.support.discovery;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.discovery.AbstractServiceDiscovery;
 import com.chua.common.support.network.discovery.Discovery;
@@ -134,7 +135,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
         // 捕获删除前的 ZK 状态
         List<Discovery> preDelete = fetchAllInstances(root + path);
         if (preDelete != null && !preDelete.isEmpty()) {
-            preDeleteState.put(path, new HashSet<>(preDelete));
+            preDeleteState.put(path, Wraps.set(preDelete));
         }
         try {
             if (client.checkExists().forPath(zkPath) != null) {
@@ -262,14 +263,14 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
             try {
                 List<String> children = client.getChildren().forPath(zkPath);
                 if (children.isEmpty()) {
-                    return new LinkedList<>();
+                    return Wraps.list();
                 }
                 // 验证第一个子节点是否有数据（区分实例路径与容器路径）
                 byte[] firstData = client.getData().forPath(zkPath + "/" + children.getFirst());
                 if (firstData == null || firstData.length == 0) {
-                    return new LinkedList<>();
+                    return Wraps.list();
                 }
-                List<Discovery> list = new LinkedList<>();
+                List<Discovery> list = Wraps.list();
                 for (String child : children) {
                     byte[] data = client.getData().forPath(zkPath + "/" + child);
                     if (data == null || data.length == 0) {
@@ -304,7 +305,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
                     return null;
                 }
                 if (e.getMessage() != null && e.getMessage().contains("No such file")) {
-                    return new LinkedList<>();
+                    return Wraps.list();
                 }
                 return null;
             }
@@ -324,11 +325,11 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
         if (pathListeners == null || pathListeners.isEmpty()) {
             return;
         }
-        Set<String> oldIds = new HashSet<>();
+        Set<String> oldIds = Wraps.set();
         for (Discovery d : oldSet) {
             oldIds.add(d.getServerId());
         }
-        Set<String> newIds = new HashSet<>();
+        Set<String> newIds = Wraps.set();
         for (Discovery d : newList) {
             newIds.add(d.getServerId());
         }
@@ -362,7 +363,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     */
     public void subscribe(String serviceName, ServiceDiscoveryListener listener) {
         String path = StringUtils.startWithAppend(serviceName, "/");
-        listeners.computeIfAbsent(path, k -> new ArrayList<>()).add(listener);
+        listeners.computeIfAbsent(path, k -> Wraps.list()).add(listener);
     }
 
     @Override

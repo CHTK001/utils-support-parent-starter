@@ -1,5 +1,6 @@
 package com.chua.common.support.wal;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -12,7 +13,6 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -219,7 +219,7 @@ public class SegmentWalLog implements WalLog {
         } catch (IOException e) {
             return Collections.emptyList();
         }
-        List<WalSegmentInfo> result = new ArrayList<>();
+        List<WalSegmentInfo> result = Wraps.list();
         for (Path path : files) {
             WalSegmentInfo info = scanSingleSegment(path);
             if (info != null) {
@@ -591,7 +591,7 @@ public class SegmentWalLog implements WalLog {
     public WalReplayResult replay(long fromLsn, long toLsn, WalReplayHandler handler) throws IOException {
         ensureOpen();
         CheckpointMeta meta = loadCheckpoint();
-        List<WalRecord> records = new ArrayList<>();
+        List<WalRecord> records = Wraps.list();
         List<WalSegmentInfo> segments = scanSegments();
         for (WalSegmentInfo seg : segments) {
             if (seg.lastLsn() < fromLsn) {
@@ -666,7 +666,7 @@ public class SegmentWalLog implements WalLog {
     @Override
     public long appendChain(WalChainHandler handler) throws IOException {
         ensureOpen();
-        List<WalOp> ops = new ArrayList<>();
+        List<WalOp> ops = Wraps.list();
         WalChainImpl chain = new WalChainImpl(ops);
         try {
             handler.apply(chain);

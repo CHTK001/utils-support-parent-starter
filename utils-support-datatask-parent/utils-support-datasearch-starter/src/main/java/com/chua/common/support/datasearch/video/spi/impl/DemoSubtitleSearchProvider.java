@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.video.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.code.PageResult;
 import com.chua.common.support.datasearch.network.lang.code.ReturnPageResult;
 import com.chua.common.support.network.client.ClientResponse;
@@ -15,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -145,7 +145,7 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
             if (data == null || !data.isArray()) {
                 return ReturnPageResult.error("SubHD 响应格式异常");
             }
-            List<SubtitleSearchResult> items = new ArrayList<>();
+            List<SubtitleSearchResult> items = Wraps.list();
             for (JsonNode node : data) {
                 String lang = node.has("lang") ? node.get("lang").asText() : "unknown";
                 if (request.getLanguage() != null
@@ -209,7 +209,7 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
     private ReturnPageResult<SubtitleSearchResult> parseHtmlFallback(String html,
                                                                      String keyword,
                                                                      SubtitleSearchRequest request) {
-        List<SubtitleSearchResult> items = new ArrayList<>();
+        List<SubtitleSearchResult> items = Wraps.list();
         int regionStart = html.indexOf(RESULT_REGION_MARKER);
         // 结果区域未找到时退化为全文扫描（站点改版兜底）
         String region = regionStart >= 0

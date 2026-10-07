@@ -1,5 +1,6 @@
 package com.chua.filesystem.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.builder.WriteBuilder;
 
 import java.io.File;
@@ -119,7 +120,7 @@ public class IniWriteBuilder extends WriteBuilder {
         for (Map.Entry<String, Map<String, String>> section : sections.entrySet()) {
             String sectionName = section.getKey();
  // 将 Section 所有属性转为一行，供 测试row 过滤
-            Map<String, Object> sectionRow = new LinkedHashMap<>(section.getValue());
+            Map<String, Object> sectionRow = Wraps.linkedMap(section.getValue());
             if (!testRow(sectionRow)) {
                 continue;
             }

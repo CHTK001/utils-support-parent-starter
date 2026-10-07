@@ -1,5 +1,6 @@
 package com.chua.datasource.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.FileSystem;
 import com.chua.common.support.file.builder.ReadBuilder;
 import com.chua.common.support.file.builder.WriteBuilder;
@@ -161,7 +162,7 @@ public class FileEngine extends AbstractEngine {
         TableMeta meta = new TableMeta(file, resolved, defaultAutoPersist);
         tableMetas.put(name, meta);
 
-        dataStores.put(name, new ArrayList<>(rows));
+        dataStores.put(name, Wraps.list(rows));
         if (defaultDataSourceName == null) {
             defaultDataSourceName = name;
         }
@@ -373,7 +374,7 @@ public class FileEngine extends AbstractEngine {
         }
 
         if (!data.isEmpty() && data.getFirst() instanceof Map) {
-            List<T> entities = new ArrayList<>(data.size());
+            List<T> entities = Wraps.list(data.size());
             for (Object item : data) {
                 entities.add(mapToEntity((Map<String, Object>) item, entityClass));
             }
@@ -471,7 +472,7 @@ public class FileEngine extends AbstractEngine {
             throw new IllegalArgumentException("rowType 不能为空");
         }
         List<Map<String, Object>> rows = querySql(ql, params);
-        List<T> out = new ArrayList<>(rows.size());
+        List<T> out = Wraps.list(rows.size());
         for (Map<String, Object> row : rows) {
             out.add(MemorySqlLex.RowAccessor.toBean(row, rowType));
         }
@@ -584,9 +585,9 @@ public class FileEngine extends AbstractEngine {
         if (rows == null || rows.isEmpty()) {
             return rows;
         }
-        List<Map<String, Object>> result = new ArrayList<>(rows.size());
+        List<Map<String, Object>> result = Wraps.list(rows.size());
         for (Map<String, Object> row : rows) {
-            Map<String, Object> map = new LinkedHashMap<>();
+            Map<String, Object> map = Wraps.linkedMap();
             for (Map.Entry<String, Object> entry : row.entrySet()) {
                 Object value = entry.getValue();
                 map.put(entry.getKey(), value instanceof String s && s.isBlank() ? null : value);
@@ -655,9 +656,9 @@ public class FileEngine extends AbstractEngine {
         if (entities.isEmpty()) {
             return Collections.emptyList();
         }
-        List<Map<String, Object>> maps = new ArrayList<>(entities.size());
+        List<Map<String, Object>> maps = Wraps.list(entities.size());
         for (T entity : entities) {
-            Map<String, Object> map = new LinkedHashMap<>();
+            Map<String, Object> map = Wraps.linkedMap();
             collectFields(entity, entity.getClass(), map);
             maps.add(map);
         }

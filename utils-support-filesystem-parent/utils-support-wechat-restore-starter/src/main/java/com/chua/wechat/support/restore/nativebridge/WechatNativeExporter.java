@@ -1,5 +1,6 @@
 package com.chua.wechat.support.restore.nativebridge;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.FileSystem;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonArray;
@@ -17,11 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -117,7 +114,7 @@ public final class WechatNativeExporter {
      */
     public static DataRestoreResult export(File runtimeDir, File sessionDb, String myWxid,
                                            String key, DataRestoreConfig config) throws Exception {
-        List<File> outputFiles = new ArrayList<>(32);
+        List<File> outputFiles = Wraps.list(32);
         ExportFormat format = config.getFormat() != null ? config.getFormat() : ExportFormat.CSV;
         File outputDir = config.getOutputDir() != null ? config.getOutputDir() : sessionDb.getParentFile();
         if (!outputDir.exists() && !outputDir.mkdirs()) {
@@ -126,7 +123,7 @@ public final class WechatNativeExporter {
 
         // SQL 模式下汇总全部会话消息
         List<Map<String, Object>> sqlRows = format == ExportFormat.SQL
-                ? new ArrayList<>(4096) : null;
+                ? Wraps.list(4096) : null;
 
         try (WcdbNativeBridge bridge = WcdbNativeBridge.load(runtimeDir)) {
             long handle = bridge.openAccount(sessionDb.getAbsolutePath(), key);
@@ -134,7 +131,7 @@ public final class WechatNativeExporter {
                 List<SessionInfo> sessions = loadSessions(bridge, handle, config);
                 log.info("微信待导出会话数: {}", sessions.size());
 
-                Set<String> usedFileNames = new HashSet<>(sessions.size() * 2);
+                Set<String> usedFileNames = Wraps.set(sessions.size() * 2);
                 for (SessionInfo session : sessions) {
                     List<Map<String, Object>> messages = loadMessages(bridge, handle, session, myWxid, config);
                     if (messages.isEmpty()) {
@@ -192,7 +189,7 @@ public final class WechatNativeExporter {
         boolean skipGroups = Boolean.parseBoolean(
                 String.valueOf(config.getOptions().getOrDefault("skip.groups", Boolean.FALSE)));
 
-        List<SessionInfo> sessions = new ArrayList<>(rawSessions.size());
+        List<SessionInfo> sessions = Wraps.list(rawSessions.size());
         for (Object item : rawSessions) {
             if (!(item instanceof Map<?, ?> raw)) {
                 continue;
@@ -239,7 +236,7 @@ public final class WechatNativeExporter {
             return List.of();
         }
 
-        List<Map<String, Object>> messages = new ArrayList<>(Math.min(total, PAGE_SIZE * 8));
+        List<Map<String, Object>> messages = Wraps.list(Math.min(total, PAGE_SIZE * 8));
         int offset = 0;
         while (offset < total) {
             int pageLimit = PAGE_SIZE;
@@ -285,7 +282,7 @@ public final class WechatNativeExporter {
     private static void enrichMessages(WcdbNativeBridge bridge, long handle, SessionInfo session,
                                        List<Map<String, Object>> messages, String myWxid) {
         // 收集发送者标识
-        Set<String> senders = new LinkedHashSet<>();
+        Set<String> senders = Wraps.linkedSet();
         for (Map<String, Object> message : messages) {
             Object sender = message.get("sender_username");
             if (sender != null && !String.valueOf(sender).isBlank()) {
@@ -324,7 +321,7 @@ public final class WechatNativeExporter {
      */
     private static Map<String, String> resolveDisplayNames(WcdbNativeBridge bridge, long handle,
                                                            Set<String> senders) {
-        Map<String, String> result = new LinkedHashMap<>();
+        Map<String, String> result = Wraps.linkedMap();
         try {
             JsonArray request = new JsonArray(senders);
             String responseJson = bridge.getDisplayNames(handle, request.toJSONString());
@@ -397,7 +394,7 @@ public final class WechatNativeExporter {
     private static File writeSessionFile(File outputDir, Set<String> usedFileNames,
                                          SessionInfo session, List<Map<String, Object>> messages,
                                          ExportFormat format, DataRestoreConfig config) throws Exception {
-        List<String> headers = new ArrayList<>(WechatExportUtils.inferColumns(messages));
+        List<String> headers = Wraps.list(WechatExportUtils.inferColumns(messages));
         String safeName = WechatExportUtils.sanitizeFileName(session.displayName());
         String extension = format == ExportFormat.EXCEL ? ".xlsx" : ".csv";
         String fileName = uniqueFileName(usedFileNames, safeName, extension);
@@ -458,7 +455,7 @@ public final class WechatNativeExporter {
     private static void appendSqlRows(List<Map<String, Object>> sqlRows, SessionInfo session,
                                       List<Map<String, Object>> messages) {
         for (Map<String, Object> message : messages) {
-            Map<String, Object> row = new LinkedHashMap<>(message.size() + 2);
+            Map<String, Object> row = Wraps.linkedMap(message.size() + 2);
             // 会话标识列放在最前，便于按会话过滤
             row.put("session_username", session.username());
             row.put("session_display", session.displayName());
@@ -586,7 +583,7 @@ public final class WechatNativeExporter {
         if (value == null) {
             return Set.of();
         }
-        Set<String> result = new HashSet<>();
+        Set<String> result = Wraps.set();
         for (String item : Arrays.asList(String.valueOf(value).split(","))) {
             String trimmed = item.trim();
             if (!trimmed.isBlank()) {

@@ -1,5 +1,6 @@
 package com.chua.wechat.support.restore;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.restore.DataRestoreConfig;
 import com.chua.common.support.task.restore.ExportFormat;
 
@@ -23,23 +24,23 @@ public class WechatRestoreDemo {
      */
     public static void main(String[] args) throws Exception {
         // 模拟会话数据
-        List<Map<String, Object>> messages = new ArrayList<>();
+        List<Map<String, Object>> messages = Wraps.list();
 
-        Map<String, Object> msg1 = new HashMap<>();
+        Map<String, Object> msg1 = Wraps.map();
         msg1.put("id", 1L);
         msg1.put("sender_username", "wxid_xxx");
         msg1.put("message_content", "你好，在吗？");
         msg1.put("create_time", 1700000000L);
         messages.add(msg1);
 
-        Map<String, Object> msg2 = new HashMap<>();
+        Map<String, Object> msg2 = Wraps.map();
         msg2.put("id", 2L);
         msg2.put("sender_username", "wxid_yyy");
         msg2.put("message_content", "在的，有什么可以帮你的？");
         msg2.put("create_time", 1700000001L);
         messages.add(msg2);
 
-        Map<String, Object> msg3 = new HashMap<>();
+        Map<String, Object> msg3 = Wraps.map();
         msg3.put("id", 3L);
         msg3.put("sender_username", "wxid_xxx");
         msg3.put("message_content", "帮我看看这个文件");

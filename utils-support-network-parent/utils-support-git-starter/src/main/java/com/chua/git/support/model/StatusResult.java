@@ -1,5 +1,6 @@
 package com.chua.git.support.model;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,7 +53,7 @@ public record StatusResult(
      */
     private static Map<String, List<String>> immutableStatusMap(Map<String, List<String>> source) {
         Objects.requireNonNull(source, "状态 映射 不能为 null");
-        Map<String, List<String>> copy = new LinkedHashMap<>();
+        Map<String, List<String>> copy = Wraps.linkedMap();
         for (Map.Entry<String, List<String>> entry : source.entrySet()) {
             copy.put(entry.getKey(), List.copyOf(entry.getValue()));
         }

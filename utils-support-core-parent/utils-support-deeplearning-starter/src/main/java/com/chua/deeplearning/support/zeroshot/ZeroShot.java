@@ -1,11 +1,10 @@
 package com.chua.deeplearning.support.zeroshot;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.image.ImageClassifier;
 import com.chua.deeplearning.support.image.ImageDetector;
 import com.chua.deeplearning.support.image.ImageSegmenter;
 import com.chua.deeplearning.support.model.DetectionInfo;
-
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -186,7 +185,7 @@ public final class ZeroShot {
      * @return 模型 标识 → 类型 映射
      */
     public static Map<String, String> listAll() {
-        var result = new LinkedHashMap<String, String>();
+        var result = Wraps.<String, String>linkedMap();
         listClassifiers().forEach(id -> result.put(id, "classification"));
         listDetectors().forEach(id -> result.put(id, "detection"));
         listSegmenters().forEach(id -> result.put(id, "segmentation"));

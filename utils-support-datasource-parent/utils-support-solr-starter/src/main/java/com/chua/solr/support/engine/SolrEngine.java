@@ -1,5 +1,6 @@
 package com.chua.solr.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.Engine;
@@ -115,7 +116,7 @@ public class SolrEngine extends AbstractEngine {
             throw new IllegalStateException("Solr 客户端未初始化，无法写入: " + name);
         }
         try {
-            List<SolrInputDocument> docs = new ArrayList<>(data.size());
+            List<SolrInputDocument> docs = Wraps.list(data.size());
             for (T item : data) {
                 SolrInputDocument doc = new SolrInputDocument();
                 boolean hasId = false;
@@ -227,7 +228,7 @@ public class SolrEngine extends AbstractEngine {
             query.setRows(limit > 0 ? limit : 1000);
             QueryResponse response = sc.query(collectionName, query);
             SolrDocumentList docs = response.getResults();
-            List<T> result = new ArrayList<>(docs.size());
+            List<T> result = Wraps.list(docs.size());
             for (SolrDocument doc : docs) {
                 result.add(documentToEntity(doc, entityClass));
             }
@@ -350,19 +351,19 @@ public class SolrEngine extends AbstractEngine {
         /**
          * 分组bycols
         */
-        private final List<String> groupByCols = new ArrayList<>();
+        private final List<String> groupByCols = Wraps.list();
         /**
          * Where
         */
-        private final List<String> where = new ArrayList<>();
+        private final List<String> where = Wraps.list();
         /**
          * 参数
         */
-        private final List<Object> params = new ArrayList<>();
+        private final List<Object> params = Wraps.list();
         /**
          * Selectcols
         */
-        private final List<String> selectCols = new ArrayList<>();
+        private final List<String> selectCols = Wraps.list();
         /**
          * 偏移
         */
@@ -721,7 +722,7 @@ public class SolrEngine extends AbstractEngine {
      */
     private static List<Map<String, Object>> parseFacetsFromMap(
             Object facetsNode, List<String> groupByCols, int depth) {
-        List<Map<String, Object>> result = new ArrayList<>();
+        List<Map<String, Object>> result = Wraps.list();
         String col = groupByCols.get(depth);
         Object colFacet = child(facetsNode, col);
         if (colFacet == null) {
@@ -733,7 +734,7 @@ public class SolrEngine extends AbstractEngine {
         }
         boolean isLeaf = depth == groupByCols.size() - 1;
         for (Object b : (List<?>) bucketsObj) {
-            Map<String, Object> row = new LinkedHashMap<>();
+            Map<String, Object> row = Wraps.linkedMap();
             row.put(col, child(b, "val"));
             if (isLeaf) {
                 row.put("count", child(b, "count"));
@@ -960,7 +961,7 @@ public class SolrEngine extends AbstractEngine {
          * @param total 命中总数
          */
         private SearchResult {
-            list = Collections.unmodifiableList(new ArrayList<>(list));
+            list = Collections.unmodifiableList(Wraps.list(list));
         }
     }
 
@@ -992,7 +993,7 @@ public class SolrEngine extends AbstractEngine {
             QueryResponse response = sc.query(collectionName, solrQuery);
             SolrDocumentList docs = response.getResults();
             long total = docs.getNumFound();
-            List<T> result = new ArrayList<>(docs.size());
+            List<T> result = Wraps.list(docs.size());
             for (SolrDocument doc : docs) {
                 result.add(documentToEntity(doc, entityClass));
             }

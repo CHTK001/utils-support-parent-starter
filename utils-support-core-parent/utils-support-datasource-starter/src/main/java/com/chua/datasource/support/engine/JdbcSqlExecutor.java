@@ -1,5 +1,6 @@
 package com.chua.datasource.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.dialect.Pagination;
@@ -12,8 +13,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +56,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
 
     @Override
     public List<Map<String, Object>> query(String sql, Object... params) {
-        List<Map<String, Object>> result = new ArrayList<>();
+        List<Map<String, Object>> result = Wraps.list();
         try (Connection conn = engine.getJdbcConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             bindParams(ps, params);
@@ -65,7 +64,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
                 ResultSetMetaData meta = rs.getMetaData();
                 int columnCount = meta.getColumnCount();
                 while (rs.next()) {
-                    Map<String, Object> row = new LinkedHashMap<>();
+                    Map<String, Object> row = Wraps.linkedMap();
                     for (int i = 1; i <= columnCount; i++) {
                         String label = meta.getColumnLabel(i);
                         if (label == null || label.isEmpty()) {
@@ -84,7 +83,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
 
     @Override
     public <T> List<T> query(String sql, Class<T> rowType, Object... params) {
-        List<T> result = new ArrayList<>();
+        List<T> result = Wraps.list();
         try (Connection conn = engine.getJdbcConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             bindParams(ps, params);

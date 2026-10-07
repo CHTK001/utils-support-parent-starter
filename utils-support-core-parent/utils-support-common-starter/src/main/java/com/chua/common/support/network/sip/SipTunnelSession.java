@@ -1,5 +1,6 @@
 package com.chua.common.support.network.sip;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -67,7 +68,7 @@ public class SipTunnelSession {
     /**
      * 早期数据缓冲（bytesListeners 注册前到达的数据，注册时补发）
      */
-    private final List<byte[]> earlyData = java.util.Collections.synchronizedList(new java.util.ArrayList<>());
+    private final List<byte[]> earlyData = java.util.Collections.synchronizedList(Wraps.list());
 
     /**
      * 创建隧道会话。

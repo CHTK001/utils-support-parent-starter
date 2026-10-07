@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.dino;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.huggingface.tokenizers.Encoding;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.ImageFactory;
@@ -265,7 +266,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
             return emptyDetections();
         }
 
-        List<DetectionCandidate> merged = new ArrayList<>();
+        List<DetectionCandidate> merged = Wraps.list();
         for (int queryIndex = 0; queryIndex < numBoxes; queryIndex++) {
             double maxClassScore = Double.NEGATIVE_INFINITY;
             int bestClass = 0;
@@ -292,7 +293,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         }
 
         merged.sort(Comparator.comparingDouble(DetectionCandidate::score).reversed());
-        List<DetectionCandidate> kept = new ArrayList<>();
+        List<DetectionCandidate> kept = Wraps.list();
         for (DetectionCandidate candidate : merged) {
             boolean keep = true;
             for (DetectionCandidate existing : kept) {
@@ -306,9 +307,9 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
             }
         }
 
-        List<String> names = new ArrayList<>(kept.size());
-        List<Double> probabilities = new ArrayList<>(kept.size());
-        List<BoundingBox> boxes = new ArrayList<>(kept.size());
+        List<String> names = Wraps.list(kept.size());
+        List<Double> probabilities = Wraps.list(kept.size());
+        List<BoundingBox> boxes = Wraps.list(kept.size());
         for (DetectionCandidate candidate : kept) {
             names.add(candidate.label());
             probabilities.add(candidate.score());
@@ -348,7 +349,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
     */
     private void resolveCandidates() {
         List<String> source = requestedCandidates.isEmpty() ? List.of("person", "flower", "dog", "car") : requestedCandidates;
-        candidateOutputLabels = new ArrayList<>();
+        candidateOutputLabels = Wraps.list();
         for (String raw : source) {
             if (StringUtils.isNotBlank(raw)) {
                 candidateOutputLabels.add(raw.trim());
@@ -363,7 +364,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
      * 构建文本输入
     */
     private void buildTextInputs() throws Exception {
-        List<long[]> idsList = new ArrayList<>();
+        List<long[]> idsList = Wraps.list();
         int maxLength = 0;
         for (String candidate : candidateOutputLabels) {
             String prompt = candidate + " .";
@@ -526,13 +527,13 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         if (StringUtils.isBlank(rawCandidates)) {
             return Collections.emptyList();
         }
-        LinkedHashSet<String> values = new LinkedHashSet<>();
+        Set<String> values = Wraps.linkedSet();
         for (String item : rawCandidates.split("[,|]")) {
             if (StringUtils.isNotBlank(item)) {
                 values.add(item.trim());
             }
         }
-        return new ArrayList<>(values);
+        return Wraps.list(values);
     }
 
     /**

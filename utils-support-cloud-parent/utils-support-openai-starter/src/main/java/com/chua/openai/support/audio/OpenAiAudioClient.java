@@ -1,5 +1,6 @@
 package com.chua.openai.support.audio;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.audio.AudioClientSetting;
 import com.chua.common.support.ai.audio.AudioResponse;
 import com.chua.common.support.ai.audio.VirtualClient;
@@ -15,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -230,7 +230,7 @@ public class OpenAiAudioClient implements VirtualClient {
 
     @Override
     public List<ModelDefinition> models() {
-        List<ModelDefinition> models = new ArrayList<>(3);
+        List<ModelDefinition> models = Wraps.list(3);
         models.add(ModelDefinition.builder()
                 .id("whisper-1")
                 .name("whisper-1")

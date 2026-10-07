@@ -1,5 +1,6 @@
 package com.chua.common.support.network.ssl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.spi.annotations.Spi;
@@ -224,7 +225,7 @@ public class JdkCertificateProvider implements AcmeProvider {
      * @return keytool 命令与参数
      */
     private String[] buildKeytoolCommand(String primaryDomain, List<String> domains, String keystoreFile) {
-        List<String> cmd = new ArrayList<>();
+        List<String> cmd = Wraps.list();
         cmd.add(KEYTOOL);
         cmd.add("-genkeypair");
         cmd.add("-alias");

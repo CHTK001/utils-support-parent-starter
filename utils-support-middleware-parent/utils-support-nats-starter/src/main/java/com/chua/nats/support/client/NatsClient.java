@@ -1,5 +1,6 @@
 package com.chua.nats.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import io.nats.client.*;
 import io.nats.client.api.*;
 import lombok.Getter;
@@ -113,7 +114,7 @@ public class NatsClient implements AutoCloseable {
     /**
      * 活跃的订阅列表
     */
-    private final List<DispatchedSubscription> subscriptions = new ArrayList<>();
+    private final List<DispatchedSubscription> subscriptions = Wraps.list();
 
     /**
      * 创建 NATS客户端 实例
@@ -619,7 +620,7 @@ public class NatsClient implements AutoCloseable {
          */
         public PublishOperation header(String key, String value) {
             if (headers == null) {
-                headers = new LinkedHashMap<>();
+                headers = Wraps.linkedMap();
             }
             headers.put(key, value);
             return this;

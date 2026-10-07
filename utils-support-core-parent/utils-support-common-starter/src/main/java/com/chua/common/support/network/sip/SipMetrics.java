@@ -1,6 +1,5 @@
 package com.chua.common.support.network.sip;
-
-import java.util.LinkedHashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -111,7 +110,7 @@ public class SipMetrics {
      * @return 结果映射，无数据时为空映射
      */
     public Map<String, Object> snapshot() {
-        Map<String, Object> m = new LinkedHashMap<>();
+        Map<String, Object> m = Wraps.linkedMap();
         m.put("auth_accept_total", authAcceptTotal.get());
         m.put("auth_reject_total", authRejectTotal.get());
         m.put("service_register_total", serviceRegisterTotal.get());
@@ -126,7 +125,7 @@ public class SipMetrics {
         m.put("mux_flush_total", muxFlushTotal.get());
         m.put("mux_early_frame_buffered_total", muxEarlyFrameBufferedTotal.get());
         m.put("mux_close_marker_total", muxCloseMarkerTotal.get());
-        Map<String, Long> errs = new LinkedHashMap<>();
+        Map<String, Long> errs = Wraps.linkedMap();
         errorsByCategory.forEach((k, v) -> errs.put(k, v.get()));
         m.put("errors_by_category", errs);
         return m;

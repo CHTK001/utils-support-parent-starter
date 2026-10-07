@@ -1,5 +1,6 @@
 package com.chua.ssh.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.protocol.client.FileClient;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -359,9 +360,9 @@ public class SftpClient implements AutoCloseable {
         public List<Map<String, Object>> exec() {
             try {
                 Iterable<org.apache.sshd.sftp.client.SftpClient.DirEntry> entries = client.getSftp().readDir(path);
-                List<Map<String, Object>> result = new ArrayList<>();
+                List<Map<String, Object>> result = Wraps.list();
                 for (var entry : entries) {
-                    Map<String, Object> file = new LinkedHashMap<>();
+                    Map<String, Object> file = Wraps.linkedMap();
                     file.put("name", entry.getFilename());
                     file.put("attributes", entry.getAttributes());
                     result.add(file);
@@ -559,7 +560,7 @@ public class SftpClient implements AutoCloseable {
         public Map<String, Object> exec() {
             try {
                 var attrs = client.getSftp().stat(path);
-                Map<String, Object> result = new LinkedHashMap<>();
+                Map<String, Object> result = Wraps.linkedMap();
                 result.put("size", attrs.getSize());
                 result.put("permissions", attrs.getPermissions());
                 result.put("isDirectory", attrs.isDirectory());

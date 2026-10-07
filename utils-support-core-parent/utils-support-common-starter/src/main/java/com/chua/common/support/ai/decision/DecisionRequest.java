@@ -1,7 +1,7 @@
 package com.chua.common.support.ai.decision;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -66,7 +66,7 @@ public record DecisionRequest(Object state, List<DecisionQuery> queries) {
         if (queries.isEmpty()) {
             throw new IllegalArgumentException("queries 不能为空");
         }
-        Map<String, DecisionQuery> indexed = new LinkedHashMap<>();
+        Map<String, DecisionQuery> indexed = Wraps.linkedMap();
         for (DecisionQuery query : queries) {
             if (indexed.put(query.id(), query) != null) {
                 throw new IllegalArgumentException("queries 中存在重复的问题标识: " + query.id());

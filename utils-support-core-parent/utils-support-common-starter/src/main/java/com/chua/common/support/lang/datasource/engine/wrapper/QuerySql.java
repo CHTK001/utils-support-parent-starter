@@ -1,6 +1,5 @@
 package com.chua.common.support.lang.datasource.engine.wrapper;
-
-import java.util.ArrayList;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -85,7 +84,7 @@ public record QuerySql<T>(
         if (values == null) {
             return null;
         }
-        return Collections.unmodifiableList(new ArrayList<>(values));
+        return Collections.unmodifiableList(Wraps.list(values));
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.chua.log.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.builder.WriteCallback;
 import com.chua.common.support.file.builder.WriteBuilder;
 
@@ -10,7 +11,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -296,7 +296,7 @@ public class LogWriteBuilder extends WriteBuilder {
      */
     @SuppressWarnings("unchecked")
     private List<String> resolveLines(Object entry) {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         if (entry instanceof String s) {
             result.add(s);
         } else if (entry instanceof List) {

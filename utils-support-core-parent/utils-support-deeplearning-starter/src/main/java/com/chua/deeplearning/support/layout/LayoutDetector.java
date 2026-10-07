@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.layout;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.DetectOptions;
@@ -280,7 +281,7 @@ class DefaultLayoutDetector implements LayoutDetector {
         }
         if (result instanceof List<?> list) {
             // DetectedObjects → List<PredictRectangle> 适配为 Map<"layout", list>
-            Map<String, List<PredictRectangle>> grouped = new java.util.LinkedHashMap<>();
+            Map<String, List<PredictRectangle>> grouped = Wraps.linkedMap();
             grouped.put("layout", (List<PredictRectangle>) list);
             return grouped;
         }
@@ -309,7 +310,7 @@ class DefaultLayoutDetector implements LayoutDetector {
         if (result instanceof Map<?, ?> map) {
             regions = (Map<String, List<PredictRectangle>>) map;
         } else if (result instanceof List<?> list) {
-            Map<String, List<PredictRectangle>> grouped = new java.util.LinkedHashMap<>();
+            Map<String, List<PredictRectangle>> grouped = Wraps.linkedMap();
             grouped.put("layout", (List<PredictRectangle>) list);
             regions = grouped;
         } else {

@@ -1,5 +1,6 @@
 package com.chua.zhipu.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.skill.SkillManager;
@@ -17,9 +18,6 @@ import com.zhipu.oapi.service.v3.ModelApiResponse;
 import com.zhipu.oapi.service.v3.Choice;
 import com.zhipu.oapi.service.v3.Usage;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -81,7 +79,7 @@ public class ZhipuChatClient implements ChatClient {
     /**
      * 对话历史消息列表
      */
-    private final List<ChatMessage> history = new ArrayList<>();
+    private final List<ChatMessage> history = Wraps.list();
 
     /**
      * 外部传入的完整历史记录
@@ -91,7 +89,7 @@ public class ZhipuChatClient implements ChatClient {
     /**
      * 图片附件 URL 列表
      */
-    private final List<String> imageUrls = new ArrayList<>();
+    private final List<String> imageUrls = Wraps.list();
 
     /**
      * 是否启用深度思考
@@ -352,7 +350,7 @@ public class ZhipuChatClient implements ChatClient {
             }
             request.setRequestId(UUID.randomUUID().toString());
 
-            List<ModelApiRequest.Prompt> prompts = new ArrayList<>();
+            List<ModelApiRequest.Prompt> prompts = Wraps.list();
             String actualSystem = system;
             if (skillManager != null) {
                 actualSystem = SkillPrompt.inject(system, skillManager);
@@ -367,7 +365,7 @@ public class ZhipuChatClient implements ChatClient {
             prompts.add(new ModelApiRequest.Prompt("user", prompt));
             request.setPrompt(prompts);
 
-            Map<String, Object> ref = new HashMap<>();
+            Map<String, Object> ref = Wraps.map();
             if (thinking) {
                 ref.put("thinking", true);
             }

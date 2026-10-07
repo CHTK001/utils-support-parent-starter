@@ -1,6 +1,5 @@
 package com.chua.common.support.datasearch.software.model;
-
-import java.util.LinkedHashMap;
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Map;
 
 /**
@@ -107,7 +106,7 @@ public class SoftwareInfo {
      * @return Map 表示
      */
     public Map<String, Object> toMap() {
-        Map<String, Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = Wraps.linkedMap();
         map.put("name", name);
         map.put("version", version);
         map.put("source", source);

@@ -1,9 +1,8 @@
 package com.chua.common.support.lang.benchmark;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.document.BenchmarkDocumentData;
 import lombok.Data;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,7 +22,7 @@ public class BenchmarkResult {
     /**
      * 结果行（实现 × 并发 × 指标）。
      */
-    private List<BenchmarkDocumentData.BenchmarkRow> rows = new ArrayList<>();
+    private List<BenchmarkDocumentData.BenchmarkRow> rows = Wraps.list();
 
     /**
      * 添加一行结果。

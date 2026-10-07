@@ -1,11 +1,10 @@
 package com.chua.common.support.lang.ast.parser;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.ast.BTreeNode;
 import com.chua.common.support.lang.ast.ExpressionParser;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -471,7 +470,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         BTreeNode parseFunction() {
             String name = readIdentifier();
             expect('(');
-            List<BTreeNode> args = new ArrayList<>();
+            List<BTreeNode> args = Wraps.list();
             skipWhitespace();
             if (!match(')')) {
                 do {

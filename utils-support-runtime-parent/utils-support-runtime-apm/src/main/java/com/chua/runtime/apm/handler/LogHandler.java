@@ -1,5 +1,6 @@
 package com.chua.runtime.apm.handler;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.plugin.Plugin;
@@ -453,7 +454,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
      * @return 匹配的记录
      */
     public List<LogEntry> search(String keyword) {
-        List<LogEntry> result = new ArrayList<>();
+        List<LogEntry> result = Wraps.list();
         String kw = keyword.toLowerCase();
         for (LogEntry entry : logEntries) {
             if (entry.getMessage() != null && entry.getMessage().toLowerCase().contains(kw)) {
@@ -470,7 +471,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
      * @return 匹配的记录
      */
     public List<LogEntry> filterByLevel(String level) {
-        List<LogEntry> result = new ArrayList<>();
+        List<LogEntry> result = Wraps.list();
         String lv = level.toUpperCase();
         for (LogEntry entry : logEntries) {
             if (entry.getLevel() != null && entry.getLevel().equals(lv)) {

@@ -1,5 +1,6 @@
 package com.chua.common.support.concurrent.circuitbreaker;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.concurrent.circuitbreaker.provider.InMemoryCircuitBreakerProvider;
 import com.chua.common.support.spi.ServiceProvider;
 
@@ -214,6 +215,6 @@ public final class CircuitBreakerFlow {
      * @return 熔断器名称 → 实例映射
      */
     public static Map<String, CircuitBreakerProvider> list() {
-        return new java.util.HashMap<>(CACHE);
+        return Wraps.map(CACHE);
     }
 }

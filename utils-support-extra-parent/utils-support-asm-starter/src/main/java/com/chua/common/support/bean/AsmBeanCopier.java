@@ -1,5 +1,6 @@
 package com.chua.common.support.bean;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.bean.BeanCopier;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.bean.JdkBeanCopier;
@@ -97,13 +98,13 @@ public class AsmBeanCopier implements BeanCopier {
      */
     private BeanCopier generateCopier(Class<?> sourceClass, Class<?> targetClass) {
         try {
-            Map<String, PropertyDescriptor> sourceReads = new LinkedHashMap<>();
-            Map<String, PropertyDescriptor> targetWrites = new LinkedHashMap<>();
+            Map<String, PropertyDescriptor> sourceReads = Wraps.linkedMap();
+            Map<String, PropertyDescriptor> targetWrites = Wraps.linkedMap();
             resolveProperties(sourceClass, sourceReads, null);
             resolveProperties(targetClass, null, targetWrites);
 
             // 找出匹配的属性
-            List<PropertyPair> matched = new ArrayList<>();
+            List<PropertyPair> matched = Wraps.list();
             for (Map.Entry<String, PropertyDescriptor> entry : sourceReads.entrySet()) {
                 PropertyDescriptor targetPd = targetWrites.get(entry.getKey());
                 if (targetPd != null && entry.getValue().getReadMethod() != null && targetPd.getWriteMethod() != null) {

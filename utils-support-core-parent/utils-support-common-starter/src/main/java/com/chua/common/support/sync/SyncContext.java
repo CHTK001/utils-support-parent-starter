@@ -1,12 +1,12 @@
 package com.chua.common.support.sync;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -35,7 +35,7 @@ public class SyncContext implements Serializable {
      * 数据行（字段名 → 字段值）
      */
     @Builder.Default
-    private Map<String, Object> data = new LinkedHashMap<>(); // 数据
+    private Map<String, Object> data = Wraps.linkedMap(); // 数据
 
     /**
      * 数据对应的位点
@@ -62,7 +62,7 @@ public class SyncContext implements Serializable {
      * 扩展属性
      */
     @Builder.Default
-    private Map<String, Object> attributes = new LinkedHashMap<>(); // attributes
+    private Map<String, Object> attributes = Wraps.linkedMap(); // attributes
 
     /**
      * 创建同步上下文

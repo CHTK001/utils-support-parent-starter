@@ -1,10 +1,10 @@
 package com.chua.common.support.lang.balance;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.CollectionUtils;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -33,7 +33,7 @@ public class WeightLoadBalance implements LoadBalance {
   * 默认构造，初始化空节点列表。
   */
  public WeightLoadBalance() {
- this(new LinkedList<>());
+ this(Wraps.list());
  }
 
  /**
@@ -42,7 +42,7 @@ public class WeightLoadBalance implements LoadBalance {
   * @param nodes 节点列表，为 null 时使用空列表
   */
  public WeightLoadBalance(List<Node> nodes) {
- this.nodes = nodes == null ? new LinkedList<>() : nodes;
+ this.nodes = nodes == null ? Wraps.list() : nodes;
  }
 
  /**

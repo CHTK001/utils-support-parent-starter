@@ -1,10 +1,10 @@
 package com.chua.network.support.tshark.cli;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -302,7 +302,7 @@ public final class TsharkSettings {
      */
     @Nonnull
     public static List<String> mirrors(@Nullable DirectoryPollerEnvironment environment) {
-        List<String> result = new ArrayList<>();
+        List<String> result = Wraps.list();
         String configured = string(KEY_DOWNLOAD_MIRRORS, environment, null);
         if (!isBlank(configured)) {
             for (String part : configured.split(",")) {

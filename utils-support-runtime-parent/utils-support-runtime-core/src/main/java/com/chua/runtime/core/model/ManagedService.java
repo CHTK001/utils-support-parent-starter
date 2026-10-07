@@ -1,9 +1,8 @@
 package com.chua.runtime.core.model;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,7 +52,7 @@ public class ManagedService {
     /**
      * 参数
     */
-    private List<String> args = new ArrayList<>();
+    private List<String> args = Wraps.list();
 
     /**
      * 工作目录
@@ -86,7 +85,7 @@ public class ManagedService {
     /**
      * Dependencies
     */
-    private List<String> dependencies = new ArrayList<>();
+    private List<String> dependencies = Wraps.list();
 
     /**
      * 是否崩溃后自动重启

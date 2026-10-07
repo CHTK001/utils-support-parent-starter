@@ -1,5 +1,6 @@
 package com.chua.spring.support.network;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.server.handler.ServerHandler;
 import com.chua.common.support.network.server.filter.ServerFilter;
@@ -19,9 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,9 +56,9 @@ public class SpringServerHandlerAnnotationParser
         if(!(serverFilter instanceof UrlMappingServerFilter)) {
             return List.of();
         }
-        List<ServerHandler> result = new ArrayList<>();
+        List<ServerHandler> result = Wraps.list();
 
-        Map<String, Object> all = new LinkedHashMap<>();
+        Map<String, Object> all = Wraps.linkedMap();
         Map<String, Object> controllerBeans = objectContext.getBeansWithAnnotation(Controller.class);
         Map<String, Object> restControllerBeans = objectContext.getBeansWithAnnotation(RestController.class);
         if (controllerBeans != null) {
@@ -198,7 +196,7 @@ public class SpringServerHandlerAnnotationParser
         if (method.isAnnotationPresent(RequestMapping.class)) {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
             if (rm.method().length > 0) {
-                Set<HttpMethod> result = new HashSet<>();
+                Set<HttpMethod> result = Wraps.set();
                 for (var m : rm.method()) {
                     try {
                         result.add(HttpMethod.valueOf(m.name()));

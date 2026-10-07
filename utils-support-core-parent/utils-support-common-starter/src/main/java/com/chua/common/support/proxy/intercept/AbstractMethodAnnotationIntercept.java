@@ -1,11 +1,10 @@
 package com.chua.common.support.proxy.intercept;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.expression.ExpressionResolvers;
 import com.chua.common.support.lang.placeholder.StringValuePropertyResolver;
 import com.chua.common.support.proxy.ProxyMethod;
 import com.chua.common.support.utils.StringUtils;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -180,7 +179,7 @@ public abstract class AbstractMethodAnnotationIntercept {
      * @return 上下文变量映射
      */
     protected Map<String, Object> createVariables(ProxyMethod proxyMethod) {
-        Map<String, Object> variables = new HashMap<>(4);
+        Map<String, Object> variables = Wraps.map(4);
         if (proxyMethod != null) {
             variables.put("method", proxyMethod.getMethod());
             variables.put("args", proxyMethod.getArgs() != null ? proxyMethod.getArgs() : new Object[0]);

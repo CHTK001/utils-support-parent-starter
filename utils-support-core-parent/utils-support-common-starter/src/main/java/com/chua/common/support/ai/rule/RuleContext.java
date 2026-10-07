@@ -1,9 +1,11 @@
 package com.chua.common.support.ai.rule;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 
+import com.chua.common.support.content.ObjectContent;
+
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -40,7 +42,7 @@ import java.util.Objects;
  * @author CH
  * @since 4.0.0.42
  */
-public final class RuleContext {
+public final class RuleContext implements ObjectContent {
 
     /**
      * 路径分段符。{@code order.amount} 表示「order 的 amount 段」。
@@ -55,7 +57,7 @@ public final class RuleContext {
     /**
      * 本次执行累积的中间结果
      */
-    private final Map<String, Object> current = new LinkedHashMap<>();
+    private final Map<String, Object> current = Wraps.linkedMap();
 
     /**
      * 外部注入的计算结果，当前用于承载决策展平变量
@@ -71,6 +73,12 @@ public final class RuleContext {
      * 环境量
      */
     private final Map<String, Object> environment;
+
+    /**
+     * 本次执行的行动结论（最终处置），推荐 {@link Action} 枚举，
+     * 也允许自定义值。单槽位：后写覆盖，一次执行只有一个最终行动。
+     */
+    private Object action;
 
     /**
      * 用输入构造上下文，不带 vars 与 environment。
@@ -130,7 +138,7 @@ public final class RuleContext {
                         Object input,
                         Map<String, Object> environment) {
         // declared 可变（执行器逐条注入规则声明），其余两层在构造期就冻结
-        this.declared = new LinkedHashMap<>(nullTolerant(vars));
+        this.declared = Wraps.linkedMap(nullTolerant(vars));
         this.external = nullTolerant(external);
         this.input = input;
         this.environment = nullTolerant(environment);
@@ -153,7 +161,7 @@ public final class RuleContext {
         if (table == null) {
             return Map.of();
         }
-        return Collections.unmodifiableMap(new LinkedHashMap<>(table));
+        return Collections.unmodifiableMap(Wraps.linkedMap(table));
     }
 
     /**
@@ -177,6 +185,7 @@ public final class RuleContext {
      * @param name 变量名或路径，如 {@code vip} / {@code order.amount}
      * @return 变量值；不存在或值为 null 时均返回 null
      */
+    @Override
     public Object get(String name) {
         Objects.requireNonNull(name, "name 不能为 null");
         if (declared.containsKey(name)) {
@@ -210,6 +219,7 @@ public final class RuleContext {
      * @param name 变量名或路径
      * @return 存在返回 true
      */
+    @Override
     public boolean contains(String name) {
         Objects.requireNonNull(name, "name 不能为 null");
         if (declared.containsKey(name) || current.containsKey(name) || external.containsKey(name)
@@ -227,6 +237,7 @@ public final class RuleContext {
      * @return 变量值，值本身允许为 null
      * @throws RuleException 变量不存在时
      */
+    @Override
     public Object require(String name) {
         if (!contains(name)) {
             throw new RuleException("必需变量不存在: " + name);
@@ -242,6 +253,7 @@ public final class RuleContext {
      * @param <T>          返回值类型
      * @return 变量值或默认值
      */
+    @Override
     public <T> T getOrDefault(String name, T defaultValue) {
         Object value = get(name);
         return value == null ? defaultValue : cast(value);
@@ -309,9 +321,41 @@ public final class RuleContext {
      * @param value 变量值，允许为 null（写入后 {@link #contains(String)} 仍为 true）
      * @return 自身，便于链式调用
      */
-    public RuleContext set(String name, Object value) {
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T extends ObjectContent> T set(String name, Object value) {
         current.put(Objects.requireNonNull(name, "name 不能为 null"), value);
+        return (T) this;
+    }
+
+    /**
+     * 设置行动结论（最终处置），常用取值见 {@link Action}。
+     *
+     * <p>作用：写下本次执行最终「做什么」——放行、拒绝、转人工、升级，
+     * 执行结束后从结果侧取出驱动后续流程。与 {@code message} 配对：
+     * action 回答「做什么」，message 回答「为什么」。</p>
+     *
+     * <p>与 {@link #set(String, Object)} 的区别：{@code set} 写通用中间变量，
+     * 靠变量名约定语义；行动结论是分支/规则执行的<b>最终产出</b>，
+     * 单槽位、后写覆盖，执行结束后经 {@link #action()} 直接取出，
+     * 不必再约定 {@code "action"} 这类魔法变量名。</p>
+     *
+     * @param action 行动结论，推荐 {@link Action} 枚举，也可传自定义字符串；
+     *               允许为 null（表示清空）
+     * @return 自身，便于链式调用
+     */
+    public RuleContext action(Object action) {
+        this.action = action;
         return this;
+    }
+
+    /**
+     * 读取行动结论。
+     *
+     * @return 行动结论；未设置时为 null
+     */
+    public Object action() {
+        return action;
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.chua.osgi.support.source;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.tools.Diagnostic;
@@ -21,10 +22,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
@@ -130,7 +129,7 @@ public class SourceJavaCompiler {
     /**
      * 上一轮成功发布的扩展点，重载时据此注销。
      */
-    private final List<SourceExtensionFactory> published = new ArrayList<>();
+    private final List<SourceExtensionFactory> published = Wraps.list();
 
     /**
      * 上一轮的 ClassLoader，重载完成后丢弃引用以便回收。
@@ -187,7 +186,7 @@ public class SourceJavaCompiler {
             log.error("[osgi-source] 创建源码 ClassLoader 失败: {}", classesDir, e);
             return CompileOutcome.failed();
         }
-        List<SourceExtensionFactory> batch = new ArrayList<>();
+        List<SourceExtensionFactory> batch = Wraps.list();
         try {
             collectDeclarations(classesDir, loader, batch);
         } catch (IOException | ReflectiveOperationException | LinkageError e) {
@@ -355,7 +354,7 @@ public class SourceJavaCompiler {
      * @return 编译器参数列表
      */
     private List<String> buildCompilerOptions(Path classesDir) {
-        List<String> options = new ArrayList<>(List.of(
+        List<String> options = Wraps.list(List.of(
                 "-d", classesDir.toString(),
                 "-encoding", "UTF-8",
                 // 源码目录内的类互相引用时无需 module-info 参与
@@ -387,7 +386,7 @@ public class SourceJavaCompiler {
      * @return classpath 条目列表
      */
     private List<String> resolveClasspath() {
-        List<String> entries = new ArrayList<>();
+        List<String> entries = Wraps.list();
         // 1) 优先从 ClassLoader 取：fat jar 场景下这是唯一能拿到 BOOT-INF/lib 的途径
         ClassLoader loader = applicationClassLoader;
         while (loader != null) {
@@ -651,7 +650,7 @@ public class SourceJavaCompiler {
         }
         // getDeclaredFields 与 getFields 的交集是同一批字段，直接相加会让每个扩展点被收两遍，
         // 注册出同名两份定义（getExtension 只取到其中一份，另一份成为永不回收的垃圾）
-        Map<String, Field> byName = new LinkedHashMap<>();
+        Map<String, Field> byName = Wraps.linkedMap();
         for (Field field : clazz.getDeclaredFields()) {
             byName.put(field.getName(), field);
         }
@@ -711,7 +710,7 @@ public class SourceJavaCompiler {
      * @throws IOException 目录遍历失败
      */
     private List<String> listCompiledClasses(Path classesDir) throws IOException {
-        List<String> names = new ArrayList<>();
+        List<String> names = Wraps.list();
         Path root = classesDir.toAbsolutePath();
         try (Stream<Path> stream = Files.walk(root)) {
             for (Path path : stream.filter(Files::isRegularFile).toList()) {

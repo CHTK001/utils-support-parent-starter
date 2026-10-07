@@ -1,5 +1,6 @@
 package com.chua.common.support.vector;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +10,6 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -150,7 +150,7 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
      * @return detectGpus的结果
      */
     private List<String> detectGpus() {
-        List<String> gpus = new ArrayList<>();
+        List<String> gpus = Wraps.list();
         try {
             ProcessBuilder pb = new ProcessBuilder("nvidia-smi", "--query-gpu=name", "--format=csv,noheader");
             pb.redirectErrorStream(true);

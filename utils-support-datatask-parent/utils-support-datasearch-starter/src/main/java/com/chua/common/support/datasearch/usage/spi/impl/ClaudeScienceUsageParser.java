@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.spi.annotations.Spi;
@@ -14,11 +15,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
-
 /**
  * Claude Science (Anthropic 本地研究工平台) 用量解析器。
  *
@@ -99,7 +97,7 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
             log.debug("[claude-science] 数据库文件不存在: {}", dbPath);
             return List.of();
         }
-        List<AiUsage> result = new ArrayList<>();
+        List<AiUsage> result = Wraps.list();
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
             List<String> present = collectPresentColumns(conn);
             if (present.isEmpty()) {
@@ -129,8 +127,8 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
      * @return 结果列表，无数据时为空列表
      */
     private List<String> collectPresentColumns(Connection conn) throws SQLException {
-        List<String> present = new ArrayList<>();
-        Set<String> columns = new HashSet<>();
+        List<String> present = Wraps.list();
+        Set<String> columns = Wraps.set();
         try (PreparedStatement stmt = conn.prepareStatement("PRAGMA table_info(frames)");
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {

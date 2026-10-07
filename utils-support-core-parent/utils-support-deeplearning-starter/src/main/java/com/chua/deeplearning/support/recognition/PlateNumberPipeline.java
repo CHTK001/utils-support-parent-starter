@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.recognition;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.pipeline.builder.PipelineBuilder;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
@@ -11,11 +12,8 @@ import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.plate.PlateResult;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.Objects;
 
@@ -293,16 +291,16 @@ public class PlateNumberPipeline {
         } catch (Exception e) {
             log.warn("模型注册表发现失败: {}", e.getMessage());
         }
-        Map<String, LinkedHashSet<String>> grouped = new LinkedHashMap<>();
+        Map<String, Set<String>> grouped = Wraps.linkedMap();
         for (ModelRegistry.Entry entry : ModelRegistry.getAll()) {
             String name = entry.modelId() == null ? "" : entry.modelId().toLowerCase();
             if (RecognitionSupport.contains(name, "plate")) {
                 String group = RecognitionSupport.contains(name, "rec", "recognize") ? "recognizer" : "detector";
-                grouped.computeIfAbsent(group, k -> new LinkedHashSet<>()).add(entry.modelId());
+                grouped.computeIfAbsent(group, k -> Wraps.linkedSet()).add(entry.modelId());
             }
         }
-        Map<String, List<String>> result = new LinkedHashMap<>();
-        for (Map.Entry<String, LinkedHashSet<String>> entry : grouped.entrySet()) {
+        Map<String, List<String>> result = Wraps.linkedMap();
+        for (Map.Entry<String, Set<String>> entry : grouped.entrySet()) {
             result.put(entry.getKey(), List.copyOf(entry.getValue()));
         }
         return result;

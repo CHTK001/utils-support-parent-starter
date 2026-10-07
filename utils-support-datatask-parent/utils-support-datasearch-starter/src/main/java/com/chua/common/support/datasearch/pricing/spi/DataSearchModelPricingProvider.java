@@ -1,16 +1,14 @@
 package com.chua.common.support.datasearch.pricing.spi;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.ai.chat.pricing.ModelPricingProvider;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -206,8 +204,8 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
             if (index != null && current.equals(indexSignature)) {
                 return index;
             }
-            Map<String, ModelDefinition> map = new LinkedHashMap<>();
-            Map<String, ModelDefinition> folded = new LinkedHashMap<>();
+            Map<String, ModelDefinition> map = Wraps.linkedMap();
+            Map<String, ModelDefinition> folded = Wraps.linkedMap();
             for (ModelMetricsProvider metricsProvider : sources()) {
                 for (ModelDefinition md : safeMetrics(metricsProvider)) {
                     if (md.getId() == null) {
@@ -220,7 +218,7 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
                     }
                 }
             }
-            List<String> freeKeys = new ArrayList<>(16);
+            List<String> freeKeys = Wraps.list(16);
             for (String key : folded.keySet()) {
                 if (key.endsWith(FREE_MARK)) {
                     freeKeys.add(key);
@@ -287,7 +285,7 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
         if (providers == null || providers.isEmpty()) {
             return Collections.emptyList();
         }
-        List<ModelMetricsProvider> ordered = new ArrayList<>(providers.size());
+        List<ModelMetricsProvider> ordered = Wraps.list(providers.size());
         providers.forEach((key, value) -> ordered.add(value));
         ordered.sort(Comparator.comparing(p -> "artificialanalysis".equals(p.name()) ? 0 : 1));
         return ordered;
@@ -438,9 +436,9 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
      */
     private List<String> unionCapabilities(List<String> target, List<String> src) {
         if (target == null || target.isEmpty()) {
-            return new ArrayList<>(src);
+            return Wraps.list(src);
         }
-        List<String> merged = new ArrayList<>(target);
+        List<String> merged = Wraps.list(target);
         for (String capability : src) {
             if (capability != null && !merged.contains(capability)) {
                 merged.add(capability);

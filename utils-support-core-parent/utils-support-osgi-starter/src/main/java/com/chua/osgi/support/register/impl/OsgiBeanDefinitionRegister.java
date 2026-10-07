@@ -1,5 +1,6 @@
 package com.chua.osgi.support.register.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.objects.acceptance.BeanAcceptance;
 import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.definition.FrameworkBeanDefinition;
@@ -16,10 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -358,7 +357,7 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry
             return Collections.emptyList();
         }
         Snapshot current = currentSnapshot();
-        List<BeanDefinition> result = new ArrayList<>();
+        List<BeanDefinition> result = Wraps.list();
         for (String beanName : current.names()) {
             if (!typeName.equals(current.nameToType().get(beanName))) {
                 continue;
@@ -556,10 +555,10 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry
         }
         expireSnapshot(current);
 
-        Map<String, BeanDefinition> byName = new LinkedHashMap<>();
-        List<String> names = new ArrayList<>();
-        Map<String, String> nameToType = new LinkedHashMap<>();
-        Map<String, String> rejected = new LinkedHashMap<>();
+        Map<String, BeanDefinition> byName = Wraps.linkedMap();
+        List<String> names = Wraps.list();
+        Map<String, String> nameToType = Wraps.linkedMap();
+        Map<String, String> rejected = Wraps.linkedMap();
 
         // getServiceDescriptors 已按 service.ranking 降序，投影结果天然保持优先级顺序
         for (OsgiServiceDescriptor descriptor : launcher.getServiceDescriptors()) {
@@ -621,7 +620,7 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry
      * @return 验收器列表
      */
     private List<BeanAcceptance> loadAcceptances() {
-        List<BeanAcceptance> merged = new ArrayList<>(extraAcceptances);
+        List<BeanAcceptance> merged = Wraps.list(extraAcceptances);
         try {
             merged.addAll(ServiceProvider.of(BeanAcceptance.class).collect());
         } catch (Exception e) {
@@ -639,7 +638,7 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry
      */
     private Map<String, BeanDefinition> collectByAnnotation(Class<? extends Annotation> annotationType,
                                                             boolean methodLevel) {
-        Map<String, BeanDefinition> result = new LinkedHashMap<>();
+        Map<String, BeanDefinition> result = Wraps.linkedMap();
         if (annotationType == null || closed) {
             return result;
         }

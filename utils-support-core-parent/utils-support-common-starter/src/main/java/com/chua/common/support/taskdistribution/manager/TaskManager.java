@@ -1,5 +1,6 @@
 package com.chua.common.support.taskdistribution.manager;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.taskdistribution.dispatcher.MdcDecorator;
 import com.chua.common.support.taskdistribution.store.TaskStore;
 import com.chua.common.support.taskdistribution.task.Task;
@@ -9,8 +10,6 @@ import com.chua.common.support.taskdistribution.task.TaskStatus;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -373,7 +372,7 @@ private long cleanExpireMs = 60000;
      * @return 任务视图列表
      */
     public List<TaskView> getAllTasks() {
-        List<TaskView> views = new ArrayList<>();
+        List<TaskView> views = Wraps.list();
         for (TaskHolder holder : tasks.values()) {
             views.add(new TaskView(
                     holder.task.getTaskId(),

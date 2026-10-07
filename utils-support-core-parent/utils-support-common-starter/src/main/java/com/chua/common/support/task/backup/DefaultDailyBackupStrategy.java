@@ -1,5 +1,6 @@
 package com.chua.common.support.task.backup;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -7,7 +8,6 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -153,7 +153,7 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
      */
     @Override
     public List<Path> listBackups(BackupConfig config) {
-        List<Path> backups = new ArrayList<>();
+        List<Path> backups = Wraps.list();
         Path archiveDir = config.getBackupDir().resolve(ARCHIVE_DIR);
         if (Files.exists(archiveDir)) {
             try (var stream = Files.list(archiveDir)) {
@@ -175,7 +175,7 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
      * @return 副本目录的结果
      */
     private List<Path> copyDirectory(Path source, Path target, BackupConfig config) throws IOException {
-        List<Path> copied = new ArrayList<>();
+        List<Path> copied = Wraps.list();
         if (!Files.exists(source)) {
             return copied;
         }

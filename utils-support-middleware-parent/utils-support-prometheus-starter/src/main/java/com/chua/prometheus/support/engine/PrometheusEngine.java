@@ -1,5 +1,6 @@
 package com.chua.prometheus.support.engine;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
@@ -16,8 +17,6 @@ import com.chua.prometheus.support.model.PrometheusRule;
 import com.chua.prometheus.support.model.PrometheusTarget;
 import com.chua.prometheus.support.model.QueryResult;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -465,7 +464,7 @@ public class PrometheusEngine implements Engine {
         if (!closed.compareAndSet(false, true)) {
             return;
         }
-        List<EngineDataSource<PrometheusClient>> all = new ArrayList<>(dataSources.values());
+        List<EngineDataSource<PrometheusClient>> all = Wraps.list(dataSources.values());
         dataSources.clear();
         defaultDataSourceName = null;
         for (EngineDataSource<PrometheusClient> ds : all) {

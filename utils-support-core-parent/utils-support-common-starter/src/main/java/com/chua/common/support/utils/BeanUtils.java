@@ -1,5 +1,6 @@
 package com.chua.common.support.utils;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.annotation.FieldProperty;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.converter.FieldConverter;
@@ -172,7 +173,7 @@ public final class BeanUtils {
             return List.of();
         }
         // 预估容量：源列表大小，避免流式收集时反复扩容
-        List<T> result = new java.util.ArrayList<>(sourceList.size());
+        List<T> result = Wraps.list(sourceList.size());
         for (S source : sourceList) {
             result.add(copyProperties(source, targetClass));
         }
@@ -220,7 +221,7 @@ public final class BeanUtils {
             return (Map<String, Object>) source;
         }
   // 先通过 BeanCopier 复制所有属性到映射（LinkedHashMap 保持字段插入顺序）
-        Map<String, Object> result = new LinkedHashMap<>(16);
+        Map<String, Object> result = Wraps.linkedMap(16);
         copyProperties(source, result);
 
   // 检查 @FieldProperty 注解，进行字段映射覆盖（原生字段遍历，见方法 Javadoc 豁免说明）

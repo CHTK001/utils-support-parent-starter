@@ -1,5 +1,6 @@
 package com.chua.common.support.collection;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.util.*;
 
 /**
@@ -32,7 +33,7 @@ public class Multiset<E> extends AbstractSet<E> {
     /**
      * 内部存储 Map
      */
-    private final HashMap<E, Integer> countMap;
+    private final Map<E, Integer> countMap;
 
     /**
      * 创建空 Multiset。
@@ -63,7 +64,7 @@ public class Multiset<E> extends AbstractSet<E> {
      * 构造方法，创建空 Multiset。
      */
     public Multiset() {
-        this.countMap = new HashMap<>();
+        this.countMap = Wraps.map();
     }
 
     /**
@@ -72,7 +73,7 @@ public class Multiset<E> extends AbstractSet<E> {
      * @param initialCapacity 初始容量
      */
     public Multiset(int initialCapacity) {
-        this.countMap = new HashMap<>(initialCapacity);
+        this.countMap = Wraps.map(initialCapacity);
     }
 
     // ==================== 计数操作 ====================
@@ -326,7 +327,7 @@ public class Multiset<E> extends AbstractSet<E> {
         if (max == 0) {
             return Collections.emptySet();
         }
-        Set<E> result = new HashSet<>();
+        Set<E> result = Wraps.set();
         for (Map.Entry<E, Integer> entry : countMap.entrySet()) {
             if (entry.getValue() == max) {
                 result.add(entry.getKey());
@@ -350,7 +351,7 @@ public class Multiset<E> extends AbstractSet<E> {
                 min = count;
             }
         }
-        Set<E> result = new HashSet<>();
+        Set<E> result = Wraps.set();
         for (Map.Entry<E, Integer> entry : countMap.entrySet()) {
             if (entry.getValue() == min) {
                 result.add(entry.getKey());

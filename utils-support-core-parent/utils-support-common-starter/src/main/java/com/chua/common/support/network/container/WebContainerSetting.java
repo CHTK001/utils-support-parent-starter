@@ -1,11 +1,10 @@
 package com.chua.common.support.network.container;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -97,7 +96,7 @@ public class WebContainerSetting {
     /**
      * 部署单元列表
      */
-    private List<DeployUnit> deployUnits = new ArrayList<>();
+    private List<DeployUnit> deployUnits = Wraps.list();
 
     /**
      * SSL/TLS 配置
@@ -110,7 +109,7 @@ public class WebContainerSetting {
      */
     public void addDeployUnit(DeployUnit unit) {
         if (deployUnits == null) {
-            deployUnits = new ArrayList<>();
+            deployUnits = Wraps.list();
         }
         deployUnits.add(unit);
     }

@@ -1,5 +1,6 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.lang.json.Json;
@@ -10,7 +11,6 @@ import reactor.core.publisher.Flux;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -83,7 +83,7 @@ public class DroidUsageParser extends BaseUsageParser {
         if (!Files.isDirectory(SESSIONS_DIR)) {
             return List.of();
         }
-        List<Path> files = new ArrayList<>();
+        List<Path> files = Wraps.list();
         try (var stream = Files.walk(SESSIONS_DIR)) {
             stream.filter(Files::isRegularFile)
                     .filter(p -> {
@@ -105,7 +105,7 @@ public class DroidUsageParser extends BaseUsageParser {
      * @return 用量记录列表
      */
     private List<AiUsage> parseFile(Path file) {
-        List<AiUsage> result = new ArrayList<>();
+        List<AiUsage> result = Wraps.list();
         String fileName = file.getFileName().toString();
         if (fileName.endsWith(".settings.json")) {
             parseSettings(file).ifPresent(result::add);

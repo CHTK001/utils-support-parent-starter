@@ -1,5 +1,6 @@
 package com.chua.dbf.support.file.impl;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.file.builder.ReadBuilder;
 import com.linuxense.javadbf.DBFReader;
 
@@ -28,9 +29,9 @@ public class DbfReadBuilder extends ReadBuilder {
      * @return rows的结果
      */
     public List<Map<String, Object>> rows() {
-        List<Map<String, Object>> result = new ArrayList<>();
+        List<Map<String, Object>> result = Wraps.list();
         try (DBFReader reader = new DBFReader(new FileInputStream(file))) {
-            List<String> headers = new ArrayList<>();
+            List<String> headers = Wraps.list();
             for (int i = 0; i < reader.getFieldCount(); i++) {
                 headers.add(reader.getField(i).getName());
             }
@@ -39,7 +40,7 @@ public class DbfReadBuilder extends ReadBuilder {
             }
             Object[] row;
             while ((row = reader.nextRecord()) != null) {
-                Map<String, Object> map = new LinkedHashMap<>();
+                Map<String, Object> map = Wraps.linkedMap();
                 for (int i = 0; i < row.length && i < headers.size(); i++) {
                     String key = (columnMapping != null)
                             ? columnMapping.getOrDefault(headers.get(i), headers.get(i))

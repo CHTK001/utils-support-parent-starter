@@ -1,12 +1,12 @@
 package com.chua.kimi.support;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.JsonObject;
 import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.client.HttpClientFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -211,7 +211,7 @@ public class KimiSession implements AutoCloseable {
      * @return 请求头映射
      */
     public Map<String, String> buildHeaders() {
-        Map<String, String> headers = new HashMap<>();
+        Map<String, String> headers = Wraps.map();
         headers.put("Accept", "*/*");
         headers.put("Accept-Language", "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7");
         headers.put("Cache-Control", "no-cache");
@@ -236,7 +236,7 @@ public class KimiSession implements AutoCloseable {
      * @return 请求头映射
      */
     private Map<String, String> buildAuthHeaders() {
-        Map<String, String> headers = new HashMap<>();
+        Map<String, String> headers = Wraps.map();
         headers.put("Accept-Language", "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7");
         headers.put("Origin", baseUrl);
         headers.put("X-Msh-Device-Id", deviceId);

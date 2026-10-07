@@ -1,5 +1,6 @@
 package com.chua.common.support.network.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.http.HttpVersion;
@@ -14,7 +15,6 @@ import reactor.core.publisher.Mono;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -349,7 +349,7 @@ public class RequestSpec {
      */
     public RequestSpec query(String key, String value) {
         if (this.params == null) {
-            this.params = new LinkedHashMap<>();
+            this.params = Wraps.linkedMap();
         }
         this.params.put(key, value);
         return this;

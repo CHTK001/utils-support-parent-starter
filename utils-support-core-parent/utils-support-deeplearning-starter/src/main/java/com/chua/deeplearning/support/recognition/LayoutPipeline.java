@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.recognition;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.image.ImagePipeline;
 import com.chua.common.support.task.pipeline.builder.PipelineBuilder;
 import com.chua.common.support.task.pipeline.core.Pipeline;
@@ -10,10 +11,8 @@ import com.chua.deeplearning.support.draw.DrawerPipeline;
 import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.Objects;
 /**
@@ -269,15 +268,15 @@ public class LayoutPipeline {
         } catch (Exception e) {
             log.warn("模型注册表发现失败: {}", e.getMessage());
         }
-        Map<String, LinkedHashSet<String>> grouped = new LinkedHashMap<>();
+        Map<String, Set<String>> grouped = Wraps.linkedMap();
         for (ModelRegistry.Entry entry : ModelRegistry.getAll()) {
             String name = entry.modelId() == null ? "" : entry.modelId().toLowerCase();
             if (RecognitionSupport.contains(name, "layout", "doc-layout", "pp-doc-layout", "ocr-layout", "doclayout")) {
-                grouped.computeIfAbsent("layout", _ -> new LinkedHashSet<>()).add(entry.modelId());
+                grouped.computeIfAbsent("layout", _ -> Wraps.linkedSet()).add(entry.modelId());
             }
         }
-        Map<String, List<String>> result = new LinkedHashMap<>();
-        for (Map.Entry<String, LinkedHashSet<String>> entry : grouped.entrySet()) {
+        Map<String, List<String>> result = Wraps.linkedMap();
+        for (Map.Entry<String, Set<String>> entry : grouped.entrySet()) {
             result.put(entry.getKey(), List.copyOf(entry.getValue()));
         }
         return result;

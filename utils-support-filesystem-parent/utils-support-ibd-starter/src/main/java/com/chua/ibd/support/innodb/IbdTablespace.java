@@ -1,5 +1,6 @@
 package com.chua.ibd.support.innodb;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -7,8 +8,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -186,7 +185,7 @@ public final class IbdTablespace implements Closeable {
      * @throws IOException 读取失败
      */
     public List<Long> sdiPages() throws IOException {
-        List<Long> pages = new ArrayList<>();
+        List<Long> pages = Wraps.list();
         for (long i = 0; i < pageCount; i++) {
             byte[] page = readPage(i);
             if (IbdPageHeader.pageType(page) == IbdConstants.FIL_PAGE_SDI) {
@@ -206,7 +205,7 @@ public final class IbdTablespace implements Closeable {
         if (leafPagesByIndex != null) {
             return leafPagesByIndex;
         }
-        Map<Long, List<Long>> result = new LinkedHashMap<>();
+        Map<Long, List<Long>> result = Wraps.linkedMap();
         for (long i = 0; i < pageCount; i++) {
             byte[] page = readPage(i);
             if (IbdPageHeader.pageType(page) != IbdConstants.FIL_PAGE_INDEX) {
@@ -215,7 +214,7 @@ public final class IbdTablespace implements Closeable {
             if (IbdPageHeader.level(page) != 0) {
                 continue;
             }
-            result.computeIfAbsent(IbdPageHeader.indexId(page), k -> new ArrayList<>()).add(i);
+            result.computeIfAbsent(IbdPageHeader.indexId(page), k -> Wraps.list()).add(i);
         }
         this.leafPagesByIndex = result;
         return result;

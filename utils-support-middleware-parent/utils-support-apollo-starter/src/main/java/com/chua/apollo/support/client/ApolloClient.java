@@ -1,5 +1,6 @@
 package com.chua.apollo.support.client;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.converter.Converter;
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
@@ -162,7 +163,7 @@ public class ApolloClient implements AutoCloseable {
         /**
          * Namespaces
         */
-        private List<String> namespaces = new ArrayList<>(List.of("application"));
+        private List<String> namespaces = Wraps.list(List.of("application"));
 
         /**
          * appid
@@ -192,7 +193,7 @@ public class ApolloClient implements AutoCloseable {
          * @return namespaces的结果
          */
         public Builder namespaces(String... namespaces) {
-            this.namespaces = new ArrayList<>(List.of(namespaces));
+            this.namespaces = Wraps.list(List.of(namespaces));
             return this;
         }
 
@@ -203,7 +204,7 @@ public class ApolloClient implements AutoCloseable {
          * @return namespaces的结果
          */
         public Builder namespaces(List<String> namespaces) {
-            this.namespaces = new ArrayList<>(namespaces);
+            this.namespaces = Wraps.list(namespaces);
             return this;
         }
 
@@ -323,7 +324,7 @@ public class ApolloClient implements AutoCloseable {
          * @return 获取属性映射的结果
          */
         public Map<String, String> getPropertiesMap() {
-            Map<String, String> map = new LinkedHashMap<>();
+            Map<String, String> map = Wraps.linkedMap();
             Properties props = getProperties();
             props.forEach((k, v) -> map.put((String) k, (String) v));
             return map;
@@ -370,7 +371,7 @@ public class ApolloClient implements AutoCloseable {
         public void onChangeKeys(Consumer<Map<String, String>> listener) {
             Config config = getConfig();
             config.addChangeListener(event -> {
-                Map<String, String> changed = new LinkedHashMap<>();
+                Map<String, String> changed = Wraps.linkedMap();
                 for (String key : event.changedKeys()) {
                     changed.put(key, event.getChange(key).getNewValue());
                 }

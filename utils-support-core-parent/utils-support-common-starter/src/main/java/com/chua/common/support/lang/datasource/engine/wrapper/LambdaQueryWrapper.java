@@ -1,8 +1,7 @@
 package com.chua.common.support.lang.datasource.engine.wrapper;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.page.Page;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,7 +37,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     /**
      * 查询列列表
      */
-    private final List<String> selectColumns = new ArrayList<>();
+    private final List<String> selectColumns = Wraps.list();
     /**
      * 分组列名
      */
@@ -54,7 +53,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     /**
      * JOIN 关联子句列表
      */
-    private final List<JoinClause> joins = new ArrayList<>();
+    private final List<JoinClause> joins = Wraps.list();
     /**
      * HAVING 条件片段（不含 HAVING 关键字），null 表示无分组过滤
      */
@@ -62,7 +61,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     /**
      * HAVING 条件参数列表（与 ? 占位符顺序一致）
      */
-    private final List<Object> havingParams = new ArrayList<>();
+    private final List<Object> havingParams = Wraps.list();
 
     /**
      * 创建 LambdaQueryWrapper 实例
@@ -451,7 +450,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
      */
     public QuerySql buildSql() {
         StringBuilder where = new StringBuilder();
-        List<Object> params = new ArrayList<>();
+        List<Object> params = Wraps.list();
         buildWhere(where, params);
         return new QuerySql(entityClass, selectColumns, where.toString(), params,
                 groupByColumn, getOrderBys(), limit, offset,

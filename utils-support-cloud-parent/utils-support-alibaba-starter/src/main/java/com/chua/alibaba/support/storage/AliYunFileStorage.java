@@ -1,5 +1,6 @@
 package com.chua.alibaba.support.storage;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.*;
@@ -20,7 +21,6 @@ import com.chua.common.support.storage.setting.BucketSetting;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -160,7 +160,7 @@ public class AliYunFileStorage extends AbstractFileStorage {
             }
 
             ObjectListing listing = ossClient.listObjects(listReq);
-            List<Metadata> metadataList = new ArrayList<>();
+            List<Metadata> metadataList = Wraps.list();
             for (OSSObjectSummary summary : listing.getObjectSummaries()) {
                 metadataList.add(Metadata.builder()
                         .name(summary.getKey())

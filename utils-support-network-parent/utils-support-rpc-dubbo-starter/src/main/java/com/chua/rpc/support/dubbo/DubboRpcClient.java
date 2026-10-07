@@ -1,5 +1,6 @@
 package com.chua.rpc.support.dubbo;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.network.rpc.RpcClient;
 import com.chua.common.support.network.rpc.RpcConsumerConfig;
@@ -9,8 +10,6 @@ import org.apache.dubbo.config.ApplicationConfig;
 import org.apache.dubbo.config.ConsumerConfig;
 import org.apache.dubbo.config.ReferenceConfig;
 import org.apache.dubbo.config.RegistryConfig;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,7 +27,7 @@ public class DubboRpcClient implements RpcClient {
     /**
      * registry 配置
      */
-    private final List<RegistryConfig> registryConfigs = new ArrayList<>();
+    private final List<RegistryConfig> registryConfigs = Wraps.list();
     /**
      * application 配置
      */

@@ -1,5 +1,6 @@
 package com.chua.common.support.network.ipc.parser;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.network.http.HttpMethod;
@@ -10,7 +11,6 @@ import com.chua.common.support.objects.ObjectContext;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -82,16 +82,16 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
         }
 
         String body = request.getBodyString();
-        Map<String, Object> map = body != null ? Json.fromJson(body, Map.class) : new LinkedHashMap<>();
+        Map<String, Object> map = body != null ? Json.fromJson(body, Map.class) : Wraps.linkedMap();
         if (map == null) {
-            map = new LinkedHashMap<>();
+            map = Wraps.linkedMap();
         }
 
         Object[] args = resolveArgs(map.get("params"), method.getParameters());
 
         try {
             Object result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
-            Map<String, Object> resultMap = new LinkedHashMap<>();
+            Map<String, Object> resultMap = Wraps.linkedMap();
             resultMap.put("success", true);
             resultMap.put("result", result);
             response.setStatus(200);
@@ -160,7 +160,7 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
      * @param msg 消息，不允许为 null
      */
     private static void sendError(ServerResponse response, int status, String msg) {
-        Map<String, Object> body = new LinkedHashMap<>();
+        Map<String, Object> body = Wraps.linkedMap();
         body.put("success", false);
         body.put("error", msg);
         response.setStatus(status);

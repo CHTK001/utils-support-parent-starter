@@ -1,5 +1,6 @@
 package com.chua.starter.datasync.scheduler;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.scheduler.CronTrigger;
 import com.chua.common.support.task.scheduler.Trigger;
 import com.chua.datasync.agent.support.DataSyncAgentSink;
@@ -19,7 +20,6 @@ import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -595,7 +595,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
      * @return 构建读取参数的结果
      */
     private Map<String, Object> buildReadParams(DataSyncMapping mapping, DataSyncAgentSource source) {
-        Map<String, Object> params = mapping.params() == null ? new HashMap<>() : new HashMap<>(mapping.params());
+        Map<String, Object> params = mapping.params() == null ? Wraps.map() : Wraps.map(mapping.params());
         com.chua.datasync.agent.support.model.SyncDataOffset storedOffset = source.readOffset(params);
         if (storedOffset != null) {
             params.put("offset", storedOffset.offsetValue());

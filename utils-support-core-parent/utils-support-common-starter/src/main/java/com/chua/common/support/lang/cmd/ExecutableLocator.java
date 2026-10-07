@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.cmd;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.StringUtils;
 
 import javax.annotation.Nonnull;
@@ -8,9 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -416,10 +415,10 @@ public final class ExecutableLocator {
          * @param builder 构建器
          */
         private LocateRequest(Builder builder) {
-            this.executableNames = Collections.unmodifiableList(new ArrayList<>(builder.executableNames));
+            this.executableNames = Collections.unmodifiableList(Wraps.list(builder.executableNames));
             this.explicitPath = builder.explicitPath;
             this.envKey = builder.envKey;
-            this.candidateDirs = Collections.unmodifiableList(new ArrayList<>(builder.candidateDirs));
+            this.candidateDirs = Collections.unmodifiableList(Wraps.list(builder.candidateDirs));
             this.searchPath = builder.searchPath;
             this.systemLookup = builder.systemLookup;
         }
@@ -523,11 +522,11 @@ public final class ExecutableLocator {
             /**
              * 候选可执行文件名，去重且保持顺序
              */
-            private final Set<String> executableNames = new LinkedHashSet<>();
+            private final Set<String> executableNames = Wraps.linkedSet();
             /**
              * 候选目录，去重且保持顺序
              */
-            private final Set<String> candidateDirs = new LinkedHashSet<>();
+            private final Set<String> candidateDirs = Wraps.linkedSet();
             /**
              * 显式路径
              */

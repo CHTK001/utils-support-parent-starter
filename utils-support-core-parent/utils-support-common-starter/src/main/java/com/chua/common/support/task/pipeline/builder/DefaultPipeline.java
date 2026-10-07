@@ -1,5 +1,6 @@
 package com.chua.common.support.task.pipeline.builder;
 
+import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.task.pipeline.callback.PipelineListener;
 import com.chua.common.support.task.pipeline.core.Action;
 import com.chua.common.support.task.pipeline.core.Pipeline;
@@ -166,7 +167,7 @@ public class DefaultPipeline implements Pipeline {
         this.listeners = listeners;
         this.routeStrategy = routeStrategy != null ? routeStrategy : RouteStrategy.THROW;
         this.pipelineWal = pipelineWal;
-        this.decisionTargets = new HashSet<>();
+        this.decisionTargets = Wraps.set();
         this.flowTree = buildFlowTree();
     }
 
@@ -899,7 +900,7 @@ public class DefaultPipeline implements Pipeline {
      * @return 节点 标识 -&gt; 出边列表的映射
      */
     private Map<String, List<Edge>> buildFlowTree() {
-        Map<String, List<Edge>> tree = new LinkedHashMap<>();
+        Map<String, List<Edge>> tree = Wraps.linkedMap();
 
         decisionTargets.clear();
         for (PipelineNode node : orderedNodes) {
@@ -920,18 +921,18 @@ public class DefaultPipeline implements Pipeline {
             if (node instanceof DecisionNode) {
                 DecisionNode dn = (DecisionNode) node;
                 dn.getBranches().forEach((label, nextId) ->
-                    tree.computeIfAbsent(nid, k -> new ArrayList<>())
+                    tree.computeIfAbsent(nid, k -> Wraps.list())
                         .add(new Edge(nid, nextId, label)));
             } else if (node instanceof EndNode) {
                 continue;
             } else if (node instanceof SubPipelineNode) {
                 SubPipelineNode sn = (SubPipelineNode) node;
                 String subStart = sn.getSubPipelineStartId();
-                tree.computeIfAbsent(nid, k -> new ArrayList<>())
+                tree.computeIfAbsent(nid, k -> Wraps.list())
                     .add(new Edge(nid, subStart, "sub"));
                 if (defaultNext != null) {
                     String subEnd = sn.getSubPipelineEndId();
-                    tree.computeIfAbsent(subEnd, k -> new ArrayList<>())
+                    tree.computeIfAbsent(subEnd, k -> Wraps.list())
                         .add(new Edge(subEnd, defaultNext, ""));
                 }
             } else if (node instanceof ForkNode) {
@@ -939,23 +940,23 @@ public class DefaultPipeline implements Pipeline {
                 for (Map.Entry<String, Pipeline> entry : pn.getBranches().entrySet()) {
                     String branchName = entry.getKey();
                     String branchStartId = "fork:" + nid + ":" + branchName + ":start";
-                    tree.computeIfAbsent(nid, k -> new ArrayList<>())
+                    tree.computeIfAbsent(nid, k -> Wraps.list())
                         .add(new Edge(nid, branchStartId, "branch:" + branchName));
                 }
                 if (defaultNext != null) {
                     String forkEndId = "fork:" + nid + ":end";
-                    tree.computeIfAbsent(forkEndId, k -> new ArrayList<>())
+                    tree.computeIfAbsent(forkEndId, k -> Wraps.list())
                         .add(new Edge(forkEndId, defaultNext, ""));
                 }
             } else {
                 if (defaultNext != null && !decisionTargets.contains(nid)) {
-                    tree.computeIfAbsent(nid, k -> new ArrayList<>())
+                    tree.computeIfAbsent(nid, k -> Wraps.list())
                         .add(new Edge(nid, defaultNext, ""));
                 }
             }
 
             if (endNodeId != null && Objects.equals(nid, endNodeId)) {
-                tree.computeIfAbsent(nid, k -> new ArrayList<>());
+                tree.computeIfAbsent(nid, k -> Wraps.list());
             }
         }
         return tree;
@@ -987,7 +988,7 @@ public class DefaultPipeline implements Pipeline {
      */
     @Override
     public void printTree(List<String> history, boolean colorEnabled) {
-        Set<String> executed = history != null ? new HashSet<>(history) : Collections.emptySet();
+        Set<String> executed = history != null ? Wraps.set(history) : Collections.emptySet();
         String pipelineLabel = colorEnabled ? colorize(id, ANSI_BOLD + ANSI_CYAN, true) : id;
         treePrintln("Pipeline: " + pipelineLabel);
         printNodeTree(startNodeId, "", true, executed, colorEnabled);
