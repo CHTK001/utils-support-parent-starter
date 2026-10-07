@@ -108,6 +108,11 @@ public class OcrPipeline {
     private final ITranslator<Object, Object> enhancer;
 
     /**
+     * 中文纠错翻译器，可为 空（可选后处理：修复识别错别字，如 macbert4csc）
+     */
+    private final ITranslator<Object, Object> corrector;
+
+    /**
      * 是否在识别管线内启用文字高清化
      */
     private final boolean enhanceInPipeline;
@@ -166,7 +171,7 @@ public class OcrPipeline {
     private final Pipeline pipeline;
 
     /**
-     * 构造 OCR 管线。
+     * 构造 OCR 管线（不启用中文纠错）。
      *
      * @param detector          文字检测器
      * @param recognizer        文字识别器
@@ -180,9 +185,42 @@ public class OcrPipeline {
      * @param cropRotateThreshold 大角度矫正阈值（度），负值禁用
      * @param qualityGate         是否启用质量门控（模糊图优先进修复）
      * @param blurThreshold       清晰度阈值（低于视为模糊）
+     * @param sigmoidDetect       检测输出是否应用 sigmoid
+     * @param sigmoidRecognize    识别输出是否应用 sigmoid
      */
     public OcrPipeline(ImageDetector detector, OcrRecognizer recognizer,
                        ITranslator<Object, Object> direction, ITranslator<Object, Object> enhancer,
+                       boolean enhanceInPipeline, boolean sortReadingOrder, float minConfidence,
+                       int cropPadding, int cropMinHeight, float cropRotateThreshold,
+                       boolean qualityGate, float blurThreshold,
+                       boolean sigmoidDetect, boolean sigmoidRecognize) {
+        this(detector, recognizer, direction, enhancer, null, enhanceInPipeline, sortReadingOrder,
+                minConfidence, cropPadding, cropMinHeight, cropRotateThreshold, qualityGate,
+                blurThreshold, sigmoidDetect, sigmoidRecognize);
+    }
+
+    /**
+     * 构造 OCR 管线（含可选中文纠错后处理）。
+     *
+     * @param detector          文字检测器
+     * @param recognizer        文字识别器
+     * @param direction         方向矫正翻译器，可为 空
+     * @param enhancer          文字高清化翻译器，可为 空
+     * @param corrector         中文纠错翻译器，可为 空（如 macbert4csc；纠错失败保留原文）
+     * @param enhanceInPipeline 是否在识别管线内启用文字高清化
+     * @param sortReadingOrder  是否按阅读顺序排序
+     * @param minConfidence     最低识别置信度
+     * @param cropPadding       裁剪框四周扩展像素数
+     * @param cropMinHeight     裁剪块最小高度
+     * @param cropRotateThreshold 大角度矫正阈值（度），负值禁用
+     * @param qualityGate         是否启用质量门控（模糊图优先进修复）
+     * @param blurThreshold       清晰度阈值（低于视为模糊）
+     * @param sigmoidDetect       检测输出是否应用 sigmoid
+     * @param sigmoidRecognize    识别输出是否应用 sigmoid
+     */
+    public OcrPipeline(ImageDetector detector, OcrRecognizer recognizer,
+                       ITranslator<Object, Object> direction, ITranslator<Object, Object> enhancer,
+                       ITranslator<Object, Object> corrector,
                        boolean enhanceInPipeline, boolean sortReadingOrder, float minConfidence,
                        int cropPadding, int cropMinHeight, float cropRotateThreshold,
                        boolean qualityGate, float blurThreshold,
@@ -191,6 +229,7 @@ public class OcrPipeline {
         this.recognizer = Objects.requireNonNull(recognizer, "recognizer");
         this.direction = direction;
         this.enhancer = enhancer;
+        this.corrector = corrector;
         this.enhanceInPipeline = enhanceInPipeline;
         this.sortReadingOrder = sortReadingOrder;
         this.minConfidence = Math.max(0f, Math.min(1f, minConfidence));
@@ -239,6 +278,11 @@ public class OcrPipeline {
          * 文字高清化模型 标识，可为 空
          */
         private String enhancer;
+
+        /**
+         * 中文纠错模型 标识，可为 空（如 macbert4csc）
+         */
+        private String corrector;
 
         /**
          * 是否按阅读顺序排序
@@ -355,6 +399,17 @@ public class OcrPipeline {
          */
         public Builder enhancer(String modelId) {
             this.enhancer = modelId;
+            return this;
+        }
+
+        /**
+         * 按模型 标识 设置中文纠错器（可选，非必填；未注册的 标识优雅降级为不纠错）。
+         *
+         * @param modelId 模型 标识，如 "macbert4csc"
+         * @return this
+         */
+        public Builder corrector(String modelId) {
+            this.corrector = modelId;
             return this;
         }
 
@@ -481,7 +536,7 @@ public class OcrPipeline {
          */
         public OcrPipeline build() {
             return new OcrPipeline(detector, recognizer,
-                    createTranslator(direction), createTranslator(enhancer),
+                    createTranslator(direction), createTranslator(enhancer), createTranslator(corrector),
                     enhanceInPipeline, sortReadingOrder, minConfidence,
                     cropPadding, cropMinHeight, cropRotateThreshold,
                     qualityGate, blurThreshold,
@@ -565,6 +620,16 @@ public class OcrPipeline {
                         return null;
                     }
                     String text = recognizer.recognize(oc.currentCrop());
+                    if (corrector != null && text != null && !text.isBlank()) {
+                        try {
+                            Object fixed = corrector.translate(text);
+                            if (fixed != null) {
+                                text = fixed.toString();
+                            }
+                        } catch (Exception e) {
+                            log.debug("[ocr-pipeline] 中文纠错失败，保留原识别文本: {}", e.getMessage());
+                        }
+                    }
                     oc.addResult(new OcrResult(
                             text == null ? "" : text,
                             oc.currentBox().confidence(),
@@ -963,6 +1028,7 @@ public class OcrPipeline {
                 : nameContains(name, "svtr", "extractor", "ocr-rec", "paddle-ocr-rec", "ocr_rec", "rec_infer", "pp-ocr-rec") ? "recognizer"
                 : nameContains(name, "ocr-det", "ocr_det", "ocr-detector", "ocr-detection") ? "detector"
                 : nameContains(name, "paddleocrv6-det", "paddleocrv6-rec") ? (name.contains("det") ? "detector" : "recognizer")
+                : nameContains(name, "macbert", "csc", "corrector") ? "corrector"
                 : null;
     }
 
@@ -998,6 +1064,15 @@ public class OcrPipeline {
      */
     public OcrRecognizer recognizer() {
         return recognizer;
+    }
+
+    /**
+     * 获取中文纠错翻译器。
+     *
+     * @return ITranslator；未配置或未注册时返回 空
+     */
+    public ITranslator<Object, Object> corrector() {
+        return corrector;
     }
 
     /**
