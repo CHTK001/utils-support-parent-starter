@@ -338,7 +338,8 @@ class NativeEngineProductionTest {
         try {
             PlaywrightException notEditable = assertThrows(PlaywrightException.class,
                     () -> engine.fill(p, "#static", "x"));
-            assertEquals("Element is not an <input>, <textarea> or [contenteditable] element",
+            assertEquals("Element is not an <input>, <textarea>, <select> or [contenteditable] "
+                    + "and does not have a role allowing [aria-readonly]",
                     notEditable.getMessage());
 
             PlaywrightException badNumber = assertThrows(PlaywrightException.class,
@@ -347,7 +348,8 @@ class NativeEngineProductionTest {
 
             PlaywrightException buttonTag = assertThrows(PlaywrightException.class,
                     () -> engine.fill(p, "#btn-counter", "x"));
-            assertEquals("Element is not an <input>, <textarea> or [contenteditable] element",
+            assertEquals("Element is not an <input>, <textarea>, <select> or [contenteditable] "
+                    + "and does not have a role allowing [aria-readonly]",
                     buttonTag.getMessage());
         } finally {
             engine.close(p);
@@ -586,13 +588,13 @@ class NativeEngineProductionTest {
             assertEquals("two", map.get("y"));
             // undefined → null
             assertNull(engine.evaluate(p, "function(){}", null));
-            // 缺省参数 → null
-            assertEquals("object", engine.evaluate(p, "function(v){ return typeof v; }", null));
-            // 元素句柄 evaluate：(element, arg)
+            // 缺省参数：playwright-java 对 null 实参省略不传 → v 为 undefined（与 JavaEngine 对齐）
+            assertEquals("undefined", engine.evaluate(p, "function(v){ return typeof v; }", null));
+            // 元素句柄 evaluate：元素作为第一个参数（Playwright 语义）
             long h = engine.querySelector(p, "#text");
             assertTrue(h > 0);
-            assertEquals("text:A", engine.evaluate(h, "function(v){ return this.id + ':' + v; }", "A"));
-            assertEquals("prefilled", engine.evaluate(h, "function(){ return this.value; }", null));
+            assertEquals("text:A", engine.evaluate(h, "function(el, v){ return el.id + ':' + v; }", "A"));
+            assertEquals("prefilled", engine.evaluate(h, "function(el){ return el.value; }", null));
             engine.close(h); // 元素句柄释放（静默）
         } finally {
             engine.close(p);
