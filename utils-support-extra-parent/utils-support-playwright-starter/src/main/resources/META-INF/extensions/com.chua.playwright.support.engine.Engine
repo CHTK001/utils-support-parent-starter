@@ -1,0 +1,2 @@
+native=com.chua.playwright.support.engine.NativeEngine
+java=com.chua.playwright.support.engine.JavaEngine
