@@ -180,6 +180,11 @@ public class CliAsrAudioClient implements VirtualClient {
 
     @Override
     public String createTask(Path path) {
+        // 记录传入路径：否则 createTask(音频路径) + queryTask 会去 resolve setting，
+        // 调用方按契约传入的音频被静默丢弃并得到 FAILED
+        if (path != null && setting != null) {
+            setting.setAudioPath(path);
+        }
         return TASK_PREFIX + UUID.randomUUID();
     }
 
