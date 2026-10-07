@@ -49,7 +49,7 @@ public class Page {
      */
     public Response gotoPage(String url, Map<String, Object> options) {
         Engine.ResponseData d = engine.gotoPage(handle, url, options);
-        return new Response(d);
+        return d == null ? null : new Response(d);
     }
 
     /**

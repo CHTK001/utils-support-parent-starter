@@ -1,6 +1,7 @@
 package com.chua.playwright.support.engine;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.spi.annotations.SpiDefault;
 import com.chua.playwright.support.PlaywrightException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.playwright.Browser;
@@ -33,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 4.0.0
  */
+@SpiDefault
 public class JavaEngine implements Engine {
 
     private Playwright playwright;
@@ -363,7 +365,7 @@ public class JavaEngine implements Engine {
     @Override
     public Object evaluate(long handle, String expression, Object arg) {
         Object target = registry.get(handle);
-        return target instanceof ElementHandle element ? element.evaluate(expression) : get(handle, Page.class).evaluate(expression, arg);
+        return target instanceof ElementHandle element ? element.evaluate(expression, arg) : get(handle, Page.class).evaluate(expression, arg);
     }
 
     /**
@@ -538,7 +540,16 @@ public class JavaEngine implements Engine {
             throw new PlaywrightException("尚未创建 API 请求上下文");
         }
         HttpClient client = get(apiRequestHandle, HttpClient.class);
-        String method = action.toUpperCase(Locale.ROOT);
+        String method = switch (action.trim().toLowerCase(Locale.ROOT)) {
+            case "apiget", "get" -> "GET";
+            case "apipost", "post" -> "POST";
+            case "apiput", "put" -> "PUT";
+            case "apidelete", "delete" -> "DELETE";
+            case "apihead", "head" -> "HEAD";
+            case "apipatch", "patch" -> "PATCH";
+            case "apioptions", "options" -> "OPTIONS";
+            default -> throw new PlaywrightException("不支持的请求动作: " + action);
+        };
         HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url))
                 .timeout(Duration.ofSeconds(30));
         HttpRequest.BodyPublisher publisher = HttpRequest.BodyPublishers.noBody();
@@ -594,7 +605,7 @@ public class JavaEngine implements Engine {
      */
     @Override
     public String version() {
-        return "1.48.0-java";
+        return "1.63.0-java";
     }
 
     /**
