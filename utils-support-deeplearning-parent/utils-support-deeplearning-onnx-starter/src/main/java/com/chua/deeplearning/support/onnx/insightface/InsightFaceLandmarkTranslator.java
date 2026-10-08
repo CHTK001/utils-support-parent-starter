@@ -11,8 +11,12 @@ import com.chua.deeplearning.support.onnx.face.OnnxImageProcessor;
 /**
  * 洞见face 2D 人脸关键点 Translator（buffalo_l 2d106det）。
  *
- * <p>192×192 RGB 输入（归一化 (rgb-127.5)/128），输出 212 维（106 关键点 × 2 坐标，
+ * <p>192×192 RGB 输入，输出 212 维（106 关键点 × 2 坐标，
  * 归一化到 [0,1]）。关键点顺序：轮廓/眉毛/眼睛/鼻子/嘴，用于人脸对齐、美颜、换脸。</p>
+ *
+ * <p>注意：2d106det 的 ONNX 图内已内嵌 (p-127.5)/128 归一化，本 translator 必须喂
+ * 0..255 原始像素（等价 insightface 官方 input_mean=0、input_std=1 分支），
+ * 否则双重归一化会把输入压成近常量场、输出先验模板（点不贴脸）。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -29,8 +33,14 @@ public class InsightFaceLandmarkTranslator implements Translator<Image, float[]>
      * 处理输入
     */
     public NDList processInput(TranslatorContext ctx, Image input) {
+        // 2d106det 的 ONNX 图内已内嵌归一化（图首节点 Sub 127.5 → Mul 1/128，标量
+        // scalar_op1/scalar_op2 即为这两步）。insightface 官方 Landmark 类对这种图
+        // 走 input_mean=0、input_std=1，即喂 0..255 原始像素；若再按 (p-127.5)/128
+        // 外部归一化会造成双重归一化：图内再减一次后输入塌缩到 ≈-0.99 的近常量场，
+        // 模型看不到人脸、只输出先验模板（实测点云仅铺开人脸框 51%，轮廓点落在脸颊上，
+        // 即“特征点不贴脸、偏离离谱”）。这里必须喂原始像素，归一化交给模型图自己完成。
         return OnnxImageProcessor.toModelInput(input, INPUT_SIZE, INPUT_SIZE, 3, false,
-                127.5f, 1.0f / 128.0f, ctx.getNDManager());
+                0.0f, 1.0f, ctx.getNDManager());
     }
 
     @Override
