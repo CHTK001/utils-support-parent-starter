@@ -240,6 +240,27 @@ public class FacePipeline {
     private static final float DEFAULT_MATCH_THRESHOLD = 0.5f;
 
     /**
+     * 贴边补边重检的补边阶梯（相对图片最长边的倍数，四边等量黑边）。
+     *
+     * <p>小图（最长边 ≤1024，典型是登记裁剪图/大特写）按 0.5 → 1.5 → 3.5 逐档尝试：
+     * 0.5 档救大尺寸满框裁剪（脸占比≈0.5，conf≈0.75）；小尺寸裁剪（如 21×27）实测
+     * 0.5/1.5 档漏检、脸占比压到 ≈0.10（3.5 档，等价于原场景照片构图）才检出
+     * conf=0.83。大图只试 0.5 档——再往上补边会生成上亿像素画布。
+     * 所有档位再受 {@link #MAX_PAD_CANVAS_AREA} 面积护栏约束，防止 OOM。</p>
+     */
+    private static final double[] PAD_FACTORS_SMALL = {0.5, 1.5, 3.5};
+
+    /**
+     * 大图（最长边 &gt;1024）只补 0.5 倍——更高倍数画布面积失控。
+     */
+    private static final double[] PAD_FACTORS_LARGE = {0.5};
+
+    /**
+     * 补边画布面积上限（约 6400 万像素），超出的档位直接跳过。
+     */
+    private static final long MAX_PAD_CANVAS_AREA = 64_000_000L;
+
+    /**
      * 检测框四扩展像素数
      */
     private final int cropPadding;
@@ -1149,6 +1170,21 @@ public class FacePipeline {
      * @return detectboxes内部的结果
      */
     private List<PredictRectangle> detectBoxesInner(byte[] imageData) {
+        List<PredictRectangle> boxes = detectMergedBoxes(imageData);
+        if (!boxes.isEmpty()) {
+            return boxes;
+        }
+        // 首遍为空再尝试贴边补边重检，见 detectBoxesWithBorderPadding
+        return detectBoxesWithBorderPadding(imageData);
+    }
+
+    /**
+     * 合并常规 + 动漫双检测器的结果（首遍直检）。
+     *
+     * @param imageData 图片
+     * @return 过滤去重后的框列表（可能为空）
+     */
+    private List<PredictRectangle> detectMergedBoxes(byte[] imageData) {
  // 双检测器互补：常规模型检真人、动漫模型检动漫脸；各自异常经 分支 降级为空，
  // 合并后跨模型 NMS 去重。动漫/真人的逐脸区分在裁剪之后由 标签名称 判断。
         List<PredictRectangle> regular = Branch.ofBytes(imageData)
@@ -1178,6 +1214,85 @@ public class FacePipeline {
         merged.addAll(regular);
         merged.addAll(anime);
         return filterBoxes(crossNms(merged));
+    }
+
+    /**
+     * 贴边补边重检：脸占满画面（登记裁剪图 / 大特写）时检测器缺少上下文会漏检。
+     *
+     * <p>实测：检测框外扩 200px 真实内容仍为 0 框，给画布四边补黑边即可检出；
+     * 按 {@link #PAD_FACTORS_SMALL} / {@link #PAD_FACTORS_LARGE} 阶梯逐档尝试 —— 0.5 档救大图/满框裁剪，3.5 档
+     * 救小尺寸登记裁剪（21×27 仅脸占比 ≈0.10 档检出）。典型链路：弹窗对服务端登记裁剪图
+     * 重跑关键点、用户上传大特写。补边只用于提供上下文，检出后把框与关键点
+     * 平移回原图坐标并夹回画布内；全部落空则保持原语义返回空，不影响无脸判定。</p>
+     *
+     * @param imageData 图片
+     * @return 平移回原图坐标后的框列表（可能为空）
+     */
+    private List<PredictRectangle> detectBoxesWithBorderPadding(byte[] imageData) {
+        Mat src = ImageUtils.decode(imageData);
+        if (src == null || src.empty()) {
+            return List.of();
+        }
+        try {
+            int imgW = src.cols();
+            int imgH = src.rows();
+            // 补边阶梯：见 PAD_FACTORS_SMALL / PAD_FACTORS_LARGE / MAX_PAD_CANVAS_AREA
+            int maxdim = Math.max(imgW, imgH);
+            double[] factors = maxdim <= 1024 ? PAD_FACTORS_SMALL : PAD_FACTORS_LARGE;
+            for (double factor : factors) {
+                int pad = (int) (maxdim * factor);
+                if (pad <= 0) {
+                    continue;
+                }
+                long area = (imgW + 2L * pad) * (imgH + 2L * pad);
+                if (area > MAX_PAD_CANVAS_AREA) {
+                    continue;
+                }
+                Mat padded = new Mat();
+                List<PredictRectangle> hit;
+                try {
+                    Core.copyMakeBorder(src, padded, pad, pad, pad, pad,
+                            Core.BORDER_CONSTANT, new Scalar(0, 0, 0));
+                    hit = detectMergedBoxes(ImageUtils.encode(padded));
+                } finally {
+                    padded.release();
+                }
+                if (hit.isEmpty()) {
+                    continue;
+                }
+                List<PredictRectangle> shifted = Wraps.list(hit.size());
+                for (PredictRectangle b : hit) {
+                    float x1 = Math.max(0f, b.x() - pad);
+                    float y1 = Math.max(0f, b.y() - pad);
+                    float x2 = Math.min(imgW, b.x() - pad + b.width());
+                    float y2 = Math.min(imgH, b.y() - pad + b.height());
+                    if (x2 <= x1 || y2 <= y1) {
+                        continue;
+                    }
+                    List<float[]> keypoints = b.keypoints();
+                    if (keypoints != null && !keypoints.isEmpty()) {
+                        List<float[]> moved = Wraps.list(keypoints.size());
+                        for (float[] p : keypoints) {
+                            float kx = Math.min(imgW - 1f, Math.max(0f, p[0] - pad));
+                            float ky = Math.min(imgH - 1f, Math.max(0f, p[1] - pad));
+                            moved.add(new float[]{kx, ky});
+                        }
+                        keypoints = moved;
+                    }
+                    shifted.add(new PredictRectangle(x1, y1, x2 - x1, y2 - y1,
+                            b.confidence(), b.label(), b.labelName(), keypoints));
+                }
+                if (shifted.isEmpty()) {
+                    continue;
+                }
+                log.debug("[face-pipeline] 贴边补边重检: factor={} pad={}px 首遍空 -> 补边检出 {} 个框",
+                        factor, pad, shifted.size());
+                return shifted;
+            }
+            return List.of();
+        } finally {
+            src.release();
+        }
     }
 
     /**
@@ -1600,6 +1715,79 @@ public class FacePipeline {
             return new float[0];
         }
         return landmarkExtractor.extract(imageData);
+    }
+
+    /**
+     * 人脸关键点管线：检测 → 取最大脸 → 按框裁剪 → 关键点模型 → **映射回原图像素**。
+     *
+     * <p><b>为什么需要它。</b>{@link #landmark(byte[])} 是把<b>整图</b>直接喂给关键点模型，
+     * 而关键点模型的输出是「相对于模型输入图」的归一化坐标（insightface 2d106 为 [-1,1]、
+     * faceplugin 68 点为 [0,1]），且 translator 会把输入<b>拉伸</b>到固定尺寸
+     * （见 {@code OnnxImageProcessor#toModelInput}，注意不是等比缩放 + 补边）。因此对整图
+     * 取到的归一化点<b>无法直接落到原图像素上</b>（实测 212 个值全在 ±1，直接绘制会挤成一团）。
+     * 正确做法与 {@link #alignFace(byte[])} 一致：先按检测框裁出人脸，在<b>裁剪图</b>上取点，
+     * 再按裁剪原点/尺寸映射回原图。</p>
+     *
+     * <p>坐标系约定按「输出里是否有负值」自动区分：有负值视为 [-1,1]，否则视为 [0,1]。
+     * 两种约定下的映射都是线性的（因为 translator 做的是拉伸），故映射是精确的、
+     * 且结果可用「点是否落在人脸框内」自校验。</p>
+     *
+     * @param imageData 图片字节
+     * @return 关键点结果（坐标为**原图像素**）；未配置关键点模型 / 未检出人脸时返回 {@code null}
+     */
+    public FaceLandmarkResult landmarkPipelineLargest(byte[] imageData) {
+        if (landmarkExtractor == null || imageData == null || imageData.length == 0) {
+            return null;
+        }
+        long start = System.currentTimeMillis();
+        List<PredictRectangle> boxes = detectBoxes(imageData);
+        if (boxes.isEmpty()) {
+            return null;
+        }
+        PredictRectangle box = pickLargest(boxes);
+        // 裁剪只走 ImageCropUtils 一条路，保证「喂给模型的那张裁剪图」与这里的映射基准完全一致
+        byte[] face = ImageCropUtils.crop(imageData, box);
+        Mat cropMat = ImageUtils.decode(face);
+        if (cropMat == null || cropMat.empty()) {
+            return null;
+        }
+        int cropW = cropMat.cols();
+        int cropH = cropMat.rows();
+        cropMat.release();
+        Mat srcMat = ImageUtils.decode(imageData);
+        if (srcMat == null || srcMat.empty()) {
+            return null;
+        }
+        int imgW = srcMat.cols();
+        int imgH = srcMat.rows();
+        srcMat.release();
+        // 与 ImageUtils#cropNormalizedOrPixel 的像素分支同口径；
+        // 若这里换了算法，映射会整体偏移（小脸尤其明显）。
+        int left = Math.max(0, Math.min(imgW - 1, Math.round(box.x())));
+        int top = Math.max(0, Math.min(imgH - 1, Math.round(box.y())));
+        float[] raw = landmarkExtractor.extract(face);
+        if (raw == null || raw.length < 2) {
+            return null;
+        }
+        boolean signed = false;
+        for (float v : raw) {
+            if (v < -0.01f) {
+                signed = true;
+                break;
+            }
+        }
+        float[] points = new float[raw.length];
+        for (int i = 0; i + 1 < raw.length; i += 2) {
+            float nx = signed ? (raw[i] + 1f) / 2f : raw[i];
+            float ny = signed ? (raw[i + 1] + 1f) / 2f : raw[i + 1];
+            points[i] = left + nx * cropW;
+            points[i + 1] = top + ny * cropH;
+        }
+        long elapsed = System.currentTimeMillis() - start;
+        log.debug("[face-pipeline] 关键点管线: box=({},{},{}x{}) 裁剪={}x{} {} 点 空间={} 耗时={}ms",
+                left, top, cropW, cropH, cropW, cropH, points.length / 2,
+                signed ? "[-1,1]" : "[0,1]", elapsed);
+        return new FaceLandmarkResult(box, points, points.length / 2, signed, elapsed);
     }
 
     /**
