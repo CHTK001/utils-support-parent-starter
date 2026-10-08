@@ -37,6 +37,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
+import java.util.function.IntFunction;
 
 /**
  * JVector 向量存储门面，根据存储模式选择底层策略。
@@ -732,6 +733,10 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 return;
             }
             loadVectors();
+            if (vectors.isEmpty()) {
+                // 向量被判为过期已丢弃（或侧录文件缺失），磁盘图同样不再可信，等下次搜索重建
+                return;
+            }
             try {
                 diskGraph = OnDiskGraphIndex.load(new SimpleMappedReader.Supplier(indexPath));
             } catch (Exception e) {
@@ -750,6 +755,16 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
             try {
                 List<Map.Entry<String, float[]>> entries = readVectorData(vectorDataPath);
+                if (!dimensionsMatch(entries, dimension)) {
+                    // 历史 embedding 维度的旧索引：直接丢弃并清盘，避免检索期抛底层维度异常
+                    rawVectors.clear();
+                    vectors.clear();
+                    resetOrdinals();
+                    discardPersisted();
+                    log.warn("[jvector-storage] 持久化向量维度与当前 embedding（{} 维）不一致，已丢弃旧索引并等待重建: {}",
+                            dimension, vectorDataPath);
+                    return;
+                }
                 rawVectors.clear();
                 vectors.clear();
                 resetOrdinals();
@@ -767,6 +782,20 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 vectors.clear();
                 resetOrdinals();
                 throw new UncheckedIOException("磁盘向量数据加载失败: " + vectorDataPath, e);
+            }
+        }
+
+        /**
+         * 丢弃磁盘图索引与向量侧录文件（维度变更导致旧索引失效时调用）。
+         */
+        private void discardPersisted() {
+            try {
+                Files.deleteIfExists(vectorDataPath);
+            } catch (IOException ignored) {
+            }
+            try {
+                Files.deleteIfExists(indexPath);
+            } catch (IOException ignored) {
             }
         }
 
@@ -842,7 +871,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 }
                 return list;
             } catch (Exception e) {
-                throw new RuntimeException("磁盘图搜索失败", e);
+                // 图索引可能因维度/度量变更而失效：降级为暴力扫描并丢弃图，保证检索可用
+                log.warn("[jvector-storage] 磁盘图搜索失败，降级为暴力扫描并重建图: {}", e.getMessage());
+                diskGraph = null;
+                vectorsDirty = true;
+                return linearScan(rawVectors, algorithm, this::idOf, query, topK);
             }
         }
 
@@ -1064,6 +1097,19 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         private void loadVectors() {
             try {
                 List<Map.Entry<String, float[]>> entries = readVectorData(vectorDataPath);
+                if (!dimensionsMatch(entries, dimension)) {
+                    // 历史 embedding 维度的旧索引：直接丢弃并清盘，避免检索期抛底层维度异常
+                    rawVectors.clear();
+                    vectors.clear();
+                    resetOrdinals();
+                    try {
+                        Files.deleteIfExists(vectorDataPath);
+                    } catch (IOException ignored) {
+                    }
+                    log.warn("[jvector-storage] PQ 持久化向量维度与当前 embedding（{} 维）不一致，已丢弃旧索引并等待重建: {}",
+                            dimension, vectorDataPath);
+                    return;
+                }
                 rawVectors.clear();
                 vectors.clear();
                 resetOrdinals();
@@ -1172,7 +1218,12 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                         (Double) a.metadata().get("score")));
                 return list.subList(0, Math.min(topK, list.size()));
             } catch (Exception e) {
-                throw new RuntimeException("PQ 图搜索失败", e);
+                // PQ 图可能因维度/度量变更而失效：降级为暴力扫描并重建图
+                log.warn("[jvector-storage] PQ 图搜索失败，降级为暴力扫描并重建图: {}", e.getMessage());
+                graph = null;
+                pqVectors = null;
+                vectorsDirty = true;
+                return linearScan(rawVectors, algorithm, this::idOf, query, topK);
             }
         }
 
@@ -1326,5 +1377,97 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
         }
 
+    }
+
+    /**
+     * 校验持久化向量的维度是否与当前 embedding 期望维度一致。
+     *
+     * <p>持久化索引由历史 embedding 写入；切换 embedding 模型后维度可能变化，
+     * 直接加载会让后续检索抛出「vector dimensions differ / arraycopy out of bounds」等底层异常。
+     * 因此加载前必须校验，不一致时丢弃旧索引等待重建。</p>
+     *
+     * @param entries   持久化向量条目
+     * @param dimension 期望维度
+     * @return true 表示全部向量维度匹配
+     */
+    private static boolean dimensionsMatch(List<Map.Entry<String, float[]>> entries, int dimension) {
+        for (Map.Entry<String, float[]> entry : entries) {
+            float[] v = entry.getValue();
+            if (v == null || v.length != dimension) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 兜底暴力扫描：图索引或量化索引不可用时线性计算相似度，保证检索不因索引损坏而整体失败。
+     *
+     * @param raws      原始向量列表
+     * @param algorithm 比较算法（可 空，退化为余弦）
+     * @param idOf      序数到标识的映射
+     * @param query     查询向量
+     * @param topK      返回条数
+     * @return 相似度降序排列的 topK
+     */
+    private static List<Vector> linearScan(List<float[]> raws, VectorCompareAlgorithm algorithm,
+                                           IntFunction<String> idOf, float[] query, int topK) {
+        int n = raws.size();
+        int k = Math.min(topK, n);
+        if (k <= 0) {
+            return List.of();
+        }
+        int[] topIdx = new int[k];
+        float[] topScore = new float[k];
+        int filled = 0;
+        for (int i = 0; i < n; i++) {
+            float[] vec = raws.get(i);
+            if (vec == null || vec.length != query.length) {
+                continue;
+            }
+            float sim = algorithm == null ? cosineSimilarity(query, vec) : algorithm.compare(query, vec);
+            if (filled == k && topScore[k - 1] >= sim) {
+                continue;
+            }
+            int insert = Math.min(filled, k - 1);
+            while (insert > 0 && topScore[insert - 1] < sim) {
+                insert--;
+            }
+            for (int j = Math.min(filled, k - 1); j > insert; j--) {
+                topIdx[j] = topIdx[j - 1];
+                topScore[j] = topScore[j - 1];
+            }
+            topIdx[insert] = i;
+            topScore[insert] = sim;
+            filled = Math.min(filled + 1, k);
+        }
+        List<Vector> out = Wraps.list(filled);
+        for (int i = 0; i < filled; i++) {
+            out.add(new Vector(idOf.apply(topIdx[i]), raws.get(topIdx[i]), Map.of("score", (double) topScore[i])));
+        }
+        return out;
+    }
+
+    /**
+     * 计算余弦相似度。
+     *
+     * @param a 向量 a
+     * @param b 向量 b
+     * @return 余弦相似度，取值 -1~1
+     */
+    private static float cosineSimilarity(float[] a, float[] b) {
+        double dot = 0;
+        double na = 0;
+        double nb = 0;
+        int len = Math.min(a.length, b.length);
+        for (int i = 0; i < len; i++) {
+            dot += (double) a[i] * b[i];
+            na += (double) a[i] * a[i];
+            nb += (double) b[i] * b[i];
+        }
+        if (na == 0 || nb == 0) {
+            return 0f;
+        }
+        return (float) (dot / (Math.sqrt(na) * Math.sqrt(nb)));
     }
 }
