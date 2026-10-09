@@ -72,7 +72,13 @@
                         </manifest>
                     </archive>
                     <finalName>nmap-test</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
+                    <!--
+                      Keep the published main artifact thin: embedding dependencies here duplicates
+                      classes from utils-support-common-starter on downstream classpaths and can
+                      make the runtime load stale implementations. The standalone test assembly is
+                      attached with its own classifier instead of replacing the module artifact.
+                    -->
+                    <appendAssemblyId>true</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>
