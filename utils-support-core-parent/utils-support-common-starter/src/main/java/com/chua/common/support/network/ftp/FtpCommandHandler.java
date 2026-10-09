@@ -646,7 +646,9 @@ class FtpCommandHandler {
                         continue;
                     }
                     var line = formatUnixListEntry(entry);
-                    dataOut.println(line);
+                    // RFC 959：数据连接上的文本行同样以 CRLF 结束
+                    dataOut.print(line + "\r\n");
+                    dataOut.flush();
                 }
             }
             dataChannel.close();
@@ -686,7 +688,8 @@ class FtpCommandHandler {
                     if (name.startsWith(HIDDEN_FILE_PREFIX) && !name.equals(".") && !name.equals("..")) {
                         continue;
                     }
-                    dataOut.println(name);
+                    dataOut.print(name + "\r\n");
+                    dataOut.flush();
                 }
             }
             dataChannel.close();

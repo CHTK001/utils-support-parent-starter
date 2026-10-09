@@ -5,9 +5,14 @@ import com.chua.common.support.network.server.ServerSetting;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -141,6 +146,66 @@ class FtpServerPortBindingTest {
             assertThrows(RuntimeException.class, server::start,
                     "端口被占用时必须抛错，让调用方把节点标成 ERROR，而不是报成功却监听在别处");
         }
+    }
+
+    @Test
+    @DisplayName("FTP 应答必须以 CRLF 结束（RFC 959）；LF-only 会让严格客户端读到超时")
+    void repliesUseCrlfTermination() throws Exception {
+        int port = freePort();
+        FtpServer server = new FtpServer(setting(port));
+        try {
+            server.start();
+            try (Socket socket = new Socket("127.0.0.1", port)) {
+                socket.setSoTimeout(3_000);
+                InputStream in = socket.getInputStream();
+
+                String banner = readReplyLine(in);
+                assertTrue(banner.endsWith("\r\n"),
+                        "banner 必须以 CRLF 结束，实际: " + escapeLine(banner));
+
+                OutputStream out = socket.getOutputStream();
+                out.write("USER anonymous\r\n".getBytes(StandardCharsets.US_ASCII));
+                out.flush();
+                String login = readReplyLine(in);
+                assertTrue(login.startsWith("230"), "匿名登录应回 230，实际: " + escapeLine(login));
+                assertTrue(login.endsWith("\r\n"),
+                        "登录应答必须以 CRLF 结束，实际: " + escapeLine(login));
+            }
+        } finally {
+            server.stop();
+        }
+    }
+
+    /**
+     * 逐字节读取一行应答原文（读到 {@code \n} 止，不规整行结束符）。
+     *
+     * <p>故意不裁剪 {@code \r}：本用例要断言的正是「行尾必须带 {@code \r}」，
+     * 一旦读取时顺手剥掉，LF-only 的缺陷就会测不出来。</p>
+     *
+     * @param in 输入流
+     * @return 原始行文本
+     * @throws IOException 读取失败
+     */
+    private static String readReplyLine(InputStream in) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        int b;
+        while ((b = in.read()) != -1) {
+            buffer.write(b);
+            if (b == '\n') {
+                break;
+            }
+        }
+        return buffer.toString(StandardCharsets.US_ASCII);
+    }
+
+    /**
+     * 行文本转可视化（CR/LF 显式可见，失败消息能直接看出拿到了什么）。
+     *
+     * @param line 原始行
+     * @return 可视化文本
+     */
+    private static String escapeLine(String line) {
+        return line.replace("\r", "\\r").replace("\n", "\\n");
     }
 
     @Test

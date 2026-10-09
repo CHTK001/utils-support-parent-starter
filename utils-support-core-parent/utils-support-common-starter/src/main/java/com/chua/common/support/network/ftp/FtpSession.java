@@ -130,13 +130,17 @@ class FtpSession {
     /**
      * 发送 FTP 响应码 + 消息。
      *
+     * <p>RFC 959 要求每条应答以 {@code CRLF} 结束；{@code println} 用的是平台行分隔符
+     * （Linux 下即 {@code \n}），严格客户端会把整段应答视为未结束而挂起，故显式写出。</p>
+     *
      * @param code    响应码
      * @param message 消息
      */
     void reply(int code, String message) {
         String line = code + " " + message;
         log.debug("FTP SEND [{}]: {}", id, line);
-        controlOut.println(line);
+        controlOut.print(line + "\r\n");
+        controlOut.flush();
     }
 
     /**
@@ -148,8 +152,9 @@ class FtpSession {
     void replyMultiLine(int code, String... lines) {
         for (int i = 0; i < lines.length; i++) {
             String prefix = (i == lines.length - 1) ? " " : "-";
-            controlOut.println(code + prefix + lines[i]);
+            controlOut.print(code + prefix + lines[i] + "\r\n");
         }
+        controlOut.flush();
     }
 
     /**
