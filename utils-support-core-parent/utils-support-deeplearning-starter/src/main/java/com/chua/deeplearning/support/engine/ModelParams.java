@@ -25,6 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>参数读取优先级（后者覆盖前者）：</p>
  * <ol>
  *   <li>调用方显式传入的 {@code options}（最高优先级，用于单次调用覆盖）；</li>
+ *   <li>Provider 级设备覆盖（由应用层把 {@code provider.extra.device} 桥接进来，
+ *       覆盖原模型级持久化参数，见 {@link #setDeviceOverride(String, String)}）；</li>
  *   <li>本类保存的模型级持久化参数；</li>
  *   <li>系统属性 {@code deeplearning.device} 与 {@link DeviceSelector} 的 auto 探测；</li>
  *   <li>各 Translator 自身的硬编码默认值。</li>
@@ -53,6 +55,15 @@ public final class ModelParams {
      * 模型级参数：modelId -> 参数表。
      */
     private static final Map<String, Map<String, Object>> STORE = new ConcurrentHashMap<>();
+
+    /**
+     * Provider 级设备覆盖：modelId -> 设备名（cpu / gpu）。
+     *
+     * <p>由应用层在读取 {@code provider.extra.device} 后写入，优先级高于模型级
+     * {@link #KEY_DEVICE}，用于「ONNX provider 统一指定推理设备，并覆盖原模型参数
+     * 接口的 device 读取」。</p>
+     */
+    private static final Map<String, String> DEVICE_OVERRIDES = new ConcurrentHashMap<>();
 
     /**
      * 模型参数。
@@ -97,12 +108,60 @@ public final class ModelParams {
     /**
      * 读取某模型的设备参数。
      *
+     * <p>Provider 级设备覆盖优先；未配置覆盖时回退到模型级持久化参数。</p>
+     *
      * @param modelId 模型标识
      * @return 设备名（cpu / gpu / auto），未设置时返回 空
      */
     public static String deviceOf(String modelId) {
+        if (modelId != null) {
+            String override = DEVICE_OVERRIDES.get(modelId);
+            if (override != null && !override.isBlank()) {
+                return override;
+            }
+        }
         Object value = get(modelId, KEY_DEVICE, null);
         return value == null ? null : String.valueOf(value);
+    }
+
+    /**
+     * 设置 Provider 级设备覆盖。
+     *
+     * <p>由应用层在读取 {@code provider.extra.device} 后调用；覆盖值优先于
+     * 模型级持久化参数，并自动作用到 {@link #deviceOf(String)} 与
+     * {@link #resolveDevice(String, Map)}。传入 {@code null}、空白或
+     * {@code auto} 表示不使用 Provider 级覆盖。</p>
+     *
+     * @param modelId 模型标识
+     * @param device  设备名（cpu / gpu / cuda）；空值或 auto 清除覆盖
+     */
+    public static void setDeviceOverride(String modelId, String device) {
+        if (modelId == null || modelId.isBlank()) {
+            return;
+        }
+        if (device == null || device.isBlank() || "auto".equalsIgnoreCase(device.trim())) {
+            DEVICE_OVERRIDES.remove(modelId);
+            return;
+        }
+        DEVICE_OVERRIDES.put(modelId, device.trim());
+    }
+
+    /**
+     * 清除某模型的 Provider 级设备覆盖。
+     *
+     * @param modelId 模型标识
+     */
+    public static void clearDeviceOverride(String modelId) {
+        if (modelId != null) {
+            DEVICE_OVERRIDES.remove(modelId);
+        }
+    }
+
+    /**
+     * 清空 Provider 级设备覆盖（主要用于测试与配置全量重载）。
+     */
+    public static void clearDeviceOverrides() {
+        DEVICE_OVERRIDES.clear();
     }
 
     /**
@@ -164,6 +223,7 @@ public final class ModelParams {
      */
     public static void clear() {
         STORE.clear();
+        DEVICE_OVERRIDES.clear();
     }
 
     /**
@@ -187,7 +247,8 @@ public final class ModelParams {
     /**
      * 解析合并后参数中的设备设置，供 DJL 与裸 ONNX Runtime 两条链路共用。
      *
-     * <p>取值顺序：显式 options 的 device → 模型级参数的 device → 系统属性（{@code auto}）。</p>
+     * <p>取值顺序：显式 options 的 device → Provider 级设备覆盖（见
+     * {@link #setDeviceOverride(String, String)}）→ 模型级参数的 device → 系统属性（{@code auto}）。</p>
      *
      * @param modelId 模型标识
      * @param options 调用方显式参数，可为 {@code null}
