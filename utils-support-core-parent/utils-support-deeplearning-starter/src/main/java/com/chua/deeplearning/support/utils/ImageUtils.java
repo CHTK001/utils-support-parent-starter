@@ -698,7 +698,7 @@ public final class ImageUtils {
             javax.imageio.ImageIO.write(bi, "png", baos);
             return baos.toByteArray();
         } catch (java.io.IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("PNG 编码失败: " + e.getMessage(), e);
         }
     }
 /**
