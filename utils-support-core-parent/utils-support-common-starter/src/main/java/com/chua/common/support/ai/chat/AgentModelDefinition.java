@@ -90,7 +90,7 @@ public class AgentModelDefinition implements ChatClient {
      */
     @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
-        chat(prompt, consumer, () -> {}, e -> { throw new RuntimeException(e); });
+        chat(prompt, consumer, () -> {}, e -> { throw new RuntimeException("对话请求失败: " + e.getMessage(), e); });
     }
 
     /**

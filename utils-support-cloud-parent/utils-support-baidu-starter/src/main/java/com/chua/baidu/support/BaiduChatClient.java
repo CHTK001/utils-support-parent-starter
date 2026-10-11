@@ -282,7 +282,7 @@ public class BaiduChatClient implements ChatClient {
     public void chat(String prompt, Consumer<com.chua.common.support.ai.chat.ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {
-            throw new RuntimeException(e);
+            throw new RuntimeException("对话请求失败: " + e.getMessage(), e);
         });
     }
 

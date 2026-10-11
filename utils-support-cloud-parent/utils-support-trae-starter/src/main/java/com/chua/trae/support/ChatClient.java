@@ -306,7 +306,7 @@ public class ChatClient implements AutoCloseable {
             if (listener instanceof StreamCollector sc && sc.future != null) {
                 sc.future.completeExceptionally(e);
             }
-            throw new RuntimeException(e);
+            throw new RuntimeException("对话请求失败: " + e.getMessage(), e);
         }
     }
 
