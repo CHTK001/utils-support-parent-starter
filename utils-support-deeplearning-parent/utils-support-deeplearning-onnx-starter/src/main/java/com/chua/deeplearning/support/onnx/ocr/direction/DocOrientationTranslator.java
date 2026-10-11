@@ -78,13 +78,20 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
         Path tmpDir = Files.createTempDirectory("doc-orientation-");
         Path modelDir = tmpDir.resolve("model");
         Files.createDirectories(modelDir);
-        NativeLoader.of("doc-orientation")
-                .basePath(RESOURCE_BASE)
-                .toTarget(modelDir)
-                .glob("*.onnx")
-                .withMd5(true)
-                .extractOnly(true)
-                .load();
+        try {
+            NativeLoader.of("doc-orientation")
+                    .basePath(RESOURCE_BASE)
+                    .toTarget(modelDir)
+                    .glob("*.onnx")
+                    .withMd5(true)
+                    .extractOnly(true)
+                    .load();
+        } catch (Throwable ignore) {
+            // NativeLoader 在 jar 内资源缺失时抛的是 UnsatisfiedLinkError（属于 Error 而非
+            // Exception），必须连 Error 一起吞掉，否则会绕过下方 registry 探测直接失败。
+            // ONNX 模型资产已从 maven 依赖移除（见 eduai pom 注释），部署模型随包放在
+            // -Ddeeplearning.model.root-dir 指定目录时，走下方 ModelRegistry 回退。
+        }
         Path modelPath = modelDir.resolve(MODEL_FILE);
         if (!Files.isRegularFile(modelPath)) {
             // 回退：模型根目录直接按 modelId 命名存放的场景
