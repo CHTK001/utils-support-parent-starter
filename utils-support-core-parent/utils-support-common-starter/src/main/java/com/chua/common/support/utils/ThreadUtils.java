@@ -896,7 +896,7 @@ public class ThreadUtils {
             sleepOfUnSafe(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
+            throw new RuntimeException("线程休眠被中断: " + e.getMessage(), e);
         }
     }
 

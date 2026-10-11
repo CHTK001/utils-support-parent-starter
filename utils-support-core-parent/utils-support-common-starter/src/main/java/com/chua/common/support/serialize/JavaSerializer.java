@@ -29,7 +29,7 @@ public class JavaSerializer<T extends Serializable> implements Serializer<T> {
             }
             return bos.toByteArray();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Java 序列化失败: " + e.getMessage(), e);
         }
     }
 
@@ -48,7 +48,7 @@ public class JavaSerializer<T extends Serializable> implements Serializer<T> {
         try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
             return (T) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Java 反序列化失败: " + e.getMessage(), e);
         }
     }
 }

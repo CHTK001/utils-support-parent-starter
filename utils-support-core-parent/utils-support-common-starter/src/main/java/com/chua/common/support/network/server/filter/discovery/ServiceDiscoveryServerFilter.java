@@ -190,7 +190,7 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
             try {
                 chain.doFilter(req, res);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("过滤器链执行失败: " + e.getMessage(), e);
             }
         });
     }

@@ -150,7 +150,7 @@ public class FileTypeConverter implements TypeConverter<File> {
                     out.flush();
                     return tempFile;
                 } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("写入临时文件失败: " + e.getMessage(), e);
                 }
             } catch (Exception ignore) {
             }

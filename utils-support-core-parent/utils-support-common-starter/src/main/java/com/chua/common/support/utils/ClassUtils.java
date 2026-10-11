@@ -1748,7 +1748,7 @@ public class ClassUtils {
                 try {
                     methods = newClass.getDeclaredMethods();
                 } catch (Throwable e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("获取类方法列表失败: " + e.getMessage(), e);
                 }
                 result.addAll(Arrays.asList(methods));
                 newClass = newClass.getSuperclass();
@@ -2275,7 +2275,7 @@ public class ClassUtils {
                 } catch (NoSuchFieldException e) {
                     return false;
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("移除 final 修饰符失败: " + e.getMessage(), e);
                 }
             }
         }
@@ -2455,7 +2455,7 @@ public class ClassUtils {
                 }
                 field.set(null, value);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("设置静态字段值失败: " + e.getMessage(), e);
             }
             return;
         }
@@ -3195,7 +3195,7 @@ public class ClassUtils {
             return instantiated;
         } catch (Exception e) {
             // 构造器调用失败（参数不匹配等），继续尝试下一个构造器
-            throw new RuntimeException(e);
+            throw new RuntimeException("实例化构造调用失败: " + e.getMessage(), e);
         }
     }
     /**

@@ -56,7 +56,7 @@ public class BytesTypeConverter implements TypeConverter<byte[]> {
                 try {
                     return readBytes(Files.newInputStream(file.toPath()));
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("读取字节数据失败: " + e.getMessage(), e);
                 }
             }
 

@@ -68,7 +68,7 @@ public class BulkheadIntercept extends AbstractMethodAnnotationIntercept impleme
             try {
                 return invocation.proceed();
             } catch (Throwable e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("目标方法调用失败: " + e.getMessage(), e);
             }
         });
     }

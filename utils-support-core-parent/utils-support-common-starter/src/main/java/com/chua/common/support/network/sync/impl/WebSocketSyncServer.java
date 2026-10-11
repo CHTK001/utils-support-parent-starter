@@ -461,7 +461,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
             try {
                 this.out = socket.getOutputStream();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("获取 Socket 输出流失败: " + e.getMessage(), e);
             }
         }
 

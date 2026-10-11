@@ -305,7 +305,7 @@ public class JacksonJsonProvider implements JsonProvider {
         try {
             return createJsonObject(getMapper().readValue(bytes, Map.class));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -317,7 +317,7 @@ public class JacksonJsonProvider implements JsonProvider {
         try {
             return createJsonObject(getMapper().readValue(inputStreamReader, Map.class));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -337,7 +337,7 @@ public class JacksonJsonProvider implements JsonProvider {
         try {
             return getJsonObject(new InputStreamReader(inputStream, charset));
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -362,7 +362,7 @@ public class JacksonJsonProvider implements JsonProvider {
             // 将 JSON 数组字符串反序列化为 List（readValues 仅适用于流式多顶层值，标准数组需用 readValue）
             return (List<T>) getMapper().readerForListOf(targetType).readValue(json);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -374,7 +374,7 @@ public class JacksonJsonProvider implements JsonProvider {
         try {
             return getMapper().readValue(json, target);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -386,7 +386,7 @@ public class JacksonJsonProvider implements JsonProvider {
         try {
             return getMapper().readValue(bytes, target);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -398,7 +398,7 @@ public class JacksonJsonProvider implements JsonProvider {
         try {
             return createJsonObject(getMapper().readValue(new String(bytes, charset), Map.class));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -410,7 +410,7 @@ public class JacksonJsonProvider implements JsonProvider {
         try {
             return getMapper().readValue(inputStreamReader, target);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -422,7 +422,7 @@ public class JacksonJsonProvider implements JsonProvider {
         try {
             return getMapper().readValue(inputStream, target);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -454,7 +454,7 @@ public class JacksonJsonProvider implements JsonProvider {
                     try {
                         writer.serializeAsField(pojo, jgen, provider);
                     } catch (Exception e) {
-                        throw new RuntimeException(e);
+                        throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
                     }
                 }
 
@@ -471,7 +471,7 @@ public class JacksonJsonProvider implements JsonProvider {
                     try {
                         writer.serializeAsElement(elementValue, jgen, provider);
                     } catch (Exception e) {
-                        throw new RuntimeException(e);
+                        throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
                     }
                 }
             };
@@ -482,7 +482,7 @@ public class JacksonJsonProvider implements JsonProvider {
             // 使用配置的过滤器写入 JSON 字符串
             return getMapper().writer(filters).writeValueAsString(object);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -494,7 +494,7 @@ public class JacksonJsonProvider implements JsonProvider {
         try {
             return getPrettyFormatMapper().writeValueAsString(object);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -514,7 +514,7 @@ public class JacksonJsonProvider implements JsonProvider {
         try {
             return getMapper().writeValueAsBytes(object);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -541,7 +541,7 @@ public class JacksonJsonProvider implements JsonProvider {
             // 注意：此处使用了 getPrettyFormatMapper，通常应使用标准 getMapper，但保留原逻辑
             return getPrettyFormatMapper().readValue(string, JsonArray.class);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -582,7 +582,7 @@ public class JacksonJsonProvider implements JsonProvider {
         try {
             return getMapper().readerForMapOf(Object.class).readValue(string);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -596,7 +596,7 @@ public class JacksonJsonProvider implements JsonProvider {
             // java.lang.reflect.Type 需转换为 Jackson JavaType 后才能调用 readValue
             return mapper.readValue(stringValue, mapper.getTypeFactory().constructType(type));
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -608,7 +608,7 @@ public class JacksonJsonProvider implements JsonProvider {
         try {
             return getMapper().readValue(reader, target);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -620,7 +620,7 @@ public class JacksonJsonProvider implements JsonProvider {
         try {
             getMapper().writeValue(writer, object);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -633,7 +633,7 @@ public class JacksonJsonProvider implements JsonProvider {
             ObjectMapper mapper = getMapper();
             return mapper.readValue(stream, mapper.getTypeFactory().constructType(type));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -646,7 +646,7 @@ public class JacksonJsonProvider implements JsonProvider {
             ObjectMapper mapper = getMapper();
             return mapper.readValue(reader, mapper.getTypeFactory().constructType(type));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 }

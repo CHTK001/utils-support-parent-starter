@@ -614,7 +614,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
                 T bean = (T) serviceAutowire.createBean(implClass);
                 if(null == bean) {
                     log.error("", e);
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("SPI 服务创建失败: " + e.getMessage(), e);
                 }
                 if (bean != null && !checkSpiCondition(bean)) {
                     return null;

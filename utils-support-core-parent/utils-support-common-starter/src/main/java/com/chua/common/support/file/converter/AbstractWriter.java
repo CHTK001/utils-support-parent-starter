@@ -227,12 +227,12 @@ public abstract class AbstractWriter implements FileSystem {
         try {
             doFinish();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("写入收尾失败: " + e.getMessage(), e);
         }
         try {
             close();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("关闭写入器失败: " + e.getMessage(), e);
         }
     }
 

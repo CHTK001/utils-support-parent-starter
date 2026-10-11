@@ -52,7 +52,7 @@ public class HttpReflectiveDefaultServerHandler extends DefaultHttpServerHandler
                 try {
                     handle(request, response);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("请求处理失败: " + e.getMessage(), e);
                 }
             }, ThreadUtils.GLOBAL_EXECUTOR);
         } catch (Exception e) {

@@ -132,7 +132,7 @@ public interface Resource {
         try {
             IoUtils.copy(openStream(), out);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("资源写出失败: " + e.getMessage(), e);
         }
     }
 

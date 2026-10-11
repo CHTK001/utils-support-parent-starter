@@ -121,7 +121,7 @@ public class ReturnPreconditioning<T> {
         try {
             return of(null == callable ? null : callable.call());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("前置条件调用失败: " + e.getMessage(), e);
         }
     }
 
