@@ -162,8 +162,13 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
                 // 不要再包一层「图像转换失败」把原因盖掉。
                 throw re;
             } catch (Exception e) {
-                log.error("[deeplearning-engine] DJL 图像转换失败: {}", modelName, e);
-                throw new RuntimeException("DJL 图像转换失败: " + modelName, e);
+                // 非 RuntimeException（checked 异常）才会走到这：把 cause 的可读
+                // 信息拼进 message，否则前端只看到「DJL 图像转换失败: 模型名」，
+                // 根因（文件不存在、引擎初始化失败等）被吞掉无法自查。
+                String causeMsg = e.getMessage();
+                String detail = (causeMsg == null || causeMsg.isBlank()) ? "" : ": " + causeMsg;
+                log.error("[deeplearning-engine] DJL 图像转换失败: {}{}", modelName, detail, e);
+                throw new RuntimeException("DJL 图像转换失败: " + modelName + detail, e);
             }
         } else {
             result = factory.predict(input);
