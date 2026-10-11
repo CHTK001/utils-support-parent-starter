@@ -199,7 +199,7 @@ public class FastjsonJsonProvider implements JsonProvider {
         try {
             return createJsonObject(JSON.parseObject(new String(bytes, UTF_8), Map.class));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -211,7 +211,7 @@ public class FastjsonJsonProvider implements JsonProvider {
         try {
             return createJsonObject(JSON.parseObject(readString(inputStreamReader), Map.class));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -231,7 +231,7 @@ public class FastjsonJsonProvider implements JsonProvider {
         try {
             return getJsonObject(new InputStreamReader(inputStream, charset));
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -254,7 +254,7 @@ public class FastjsonJsonProvider implements JsonProvider {
         try {
             return JSON.parseArray(json, targetType);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -270,7 +270,7 @@ public class FastjsonJsonProvider implements JsonProvider {
             }
             return JSON.parseObject(json, target);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -290,7 +290,7 @@ public class FastjsonJsonProvider implements JsonProvider {
         try {
             return createJsonObject(JSON.parseObject(new String(bytes, charset), Map.class));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -395,7 +395,7 @@ public class FastjsonJsonProvider implements JsonProvider {
         try {
             return JSON.parseArray(string);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -436,7 +436,7 @@ public class FastjsonJsonProvider implements JsonProvider {
         try {
             return JSON.parseObject(string, Map.class);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -452,7 +452,7 @@ public class FastjsonJsonProvider implements JsonProvider {
             }
             return JSON.parseObject(stringValue, type);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -472,7 +472,7 @@ public class FastjsonJsonProvider implements JsonProvider {
         try {
             writer.write(toJson(object));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -524,7 +524,7 @@ public class FastjsonJsonProvider implements JsonProvider {
                 sb.append(buffer, 0, len);
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
         return sb.toString();
     }

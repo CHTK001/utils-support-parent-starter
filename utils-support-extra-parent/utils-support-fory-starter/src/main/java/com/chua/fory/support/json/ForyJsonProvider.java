@@ -203,7 +203,7 @@ public class ForyJsonProvider implements JsonProvider {
         try {
             return createJsonObject(FORY_JSON.fromJson(new String(bytes, UTF_8), Map.class));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -231,7 +231,7 @@ public class ForyJsonProvider implements JsonProvider {
         try {
             return getJsonObject(new InputStreamReader(inputStream, charset));
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -255,7 +255,7 @@ public class ForyJsonProvider implements JsonProvider {
             Type listType = parameterizedListType(targetType);
             return FORY_JSON.fromJson(json, TypeRef.of(listType));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -271,7 +271,7 @@ public class ForyJsonProvider implements JsonProvider {
             }
             return FORY_JSON.fromJson(json, target);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -400,7 +400,7 @@ public class ForyJsonProvider implements JsonProvider {
         try {
             return FORY_JSON.fromJson(string, List.class);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -446,7 +446,7 @@ public class ForyJsonProvider implements JsonProvider {
         try {
             return FORY_JSON.fromJson(string, Map.class);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -462,7 +462,7 @@ public class ForyJsonProvider implements JsonProvider {
             }
             return FORY_JSON.fromJson(stringValue, TypeRef.of(type));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -482,7 +482,7 @@ public class ForyJsonProvider implements JsonProvider {
         try {
             writer.write(toJson(object));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -568,7 +568,7 @@ public class ForyJsonProvider implements JsonProvider {
                 sb.append(buffer, 0, len);
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
         return sb.toString();
     }

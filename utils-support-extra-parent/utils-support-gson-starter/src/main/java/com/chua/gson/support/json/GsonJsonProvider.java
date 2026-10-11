@@ -327,7 +327,7 @@ public class GsonJsonProvider implements JsonProvider {
         try {
             return createJsonObject(gson.fromJson(new String(bytes, UTF_8), Map.class));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -339,7 +339,7 @@ public class GsonJsonProvider implements JsonProvider {
         try {
             return createJsonObject(gson.fromJson(inputStreamReader, Map.class));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -359,7 +359,7 @@ public class GsonJsonProvider implements JsonProvider {
         try {
             return getJsonObject(new InputStreamReader(inputStream, charset));
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -383,7 +383,7 @@ public class GsonJsonProvider implements JsonProvider {
             Type listType = TypeToken.getParameterized(List.class, targetType).getType();
             return gson.fromJson(json, listType);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -395,7 +395,7 @@ public class GsonJsonProvider implements JsonProvider {
         try {
             return gson.fromJson(json, target);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -407,7 +407,7 @@ public class GsonJsonProvider implements JsonProvider {
         try {
             return gson.fromJson(new String(bytes, UTF_8), target);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -427,7 +427,7 @@ public class GsonJsonProvider implements JsonProvider {
         try {
             return gson.fromJson(inputStreamReader, target);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -502,7 +502,7 @@ public class GsonJsonProvider implements JsonProvider {
         try {
             return gson.fromJson(string, List.class);
         } catch (JsonSyntaxException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -544,7 +544,7 @@ public class GsonJsonProvider implements JsonProvider {
             return gson.fromJson(string, new TypeToken<Map<String, Object>>() {
             }.getType());
         } catch (JsonSyntaxException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -556,7 +556,7 @@ public class GsonJsonProvider implements JsonProvider {
         try {
             return gson.fromJson(stringValue, type);
         } catch (JsonSyntaxException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -568,7 +568,7 @@ public class GsonJsonProvider implements JsonProvider {
         try {
             return gson.fromJson(reader, target);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -580,7 +580,7 @@ public class GsonJsonProvider implements JsonProvider {
         try {
             gson.toJson(object, writer);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -600,7 +600,7 @@ public class GsonJsonProvider implements JsonProvider {
         try {
             return gson.fromJson(reader, type);
         } catch (JsonSyntaxException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 
@@ -620,7 +620,7 @@ public class GsonJsonProvider implements JsonProvider {
             }
             return sb.toString();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 处理失败: " + e.getMessage(), e);
         }
     }
 }

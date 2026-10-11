@@ -178,7 +178,7 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
                 namingService = NacosFactory.createNamingService(discoveryOption.getAddress());
             }
         } catch (NacosException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Nacos 服务创建失败: " + e.getMessage(), e);
         }
     }
 
@@ -220,7 +220,7 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
                 }
             });
         } catch (NacosException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Nacos 服务订阅失败: " + e.getMessage(), e);
         }
     }
 

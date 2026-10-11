@@ -101,7 +101,7 @@ public class MysqlCreateIndexStep implements IndexManager.CreateIndexStep {
              var s = c.createStatement()) {
             s.execute(sb.toString());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("MySQL 索引创建失败: " + e.getMessage(), e);
         }
     }
 }
