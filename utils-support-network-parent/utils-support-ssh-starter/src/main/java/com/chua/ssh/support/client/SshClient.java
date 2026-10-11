@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.client.channel.ChannelShell;
 import org.apache.sshd.client.session.ClientSession;
+import org.apache.sshd.client.session.forward.PortForwardingTracker;
 import org.apache.sshd.common.channel.PtyChannelConfiguration;
 import org.apache.sshd.common.util.net.SshdSocketAddress;
 
@@ -588,9 +589,9 @@ public class SshClient implements AutoCloseable {
         private AutoCloseable startLocal() throws IOException {
             SshdSocketAddress bindAddr = new SshdSocketAddress(bindAddress, localPort);
             SshdSocketAddress remoteAddr = new SshdSocketAddress(remoteHost, remotePort);
-            AutoCloseable tracker = client.getSession().createLocalPortForwardingTracker(bindAddr, remoteAddr);
-            this.actualPort = localPort;
-            log.info("正向隧道启动: {}:{} → {}:{}", bindAddress, localPort, remoteHost, remotePort);
+            PortForwardingTracker tracker = client.getSession().createLocalPortForwardingTracker(bindAddr, remoteAddr);
+            this.actualPort = resolveActualPort(tracker, localPort);
+            log.info("正向隧道启动: {}:{} → {}:{}", bindAddress, actualPort, remoteHost, remotePort);
             return tracker;
         }
 
@@ -611,10 +612,42 @@ public class SshClient implements AutoCloseable {
         */
         private AutoCloseable startDynamic() throws IOException {
             SshdSocketAddress bindAddr = new SshdSocketAddress(bindAddress, localPort);
-            AutoCloseable tracker = client.getSession().createDynamicPortForwardingTracker(bindAddr);
-            this.actualPort = localPort;
-            log.info("动态隧道(SOCKS5)启动: {}:{}", bindAddress, localPort);
+            PortForwardingTracker tracker = client.getSession().createDynamicPortForwardingTracker(bindAddr);
+            this.actualPort = resolveActualPort(tracker, localPort);
+            log.info("动态隧道(SOCKS5)启动: {}:{}", bindAddress, actualPort);
             return tracker;
+        }
+
+        /**
+         * 取实际绑定的本地端口。
+         *
+         * <p>端口写 0（或负数）表示「让系统分配」。此时<b>不能</b>把 0 当成端口记下来：
+         * 调用方拿到的会是 0，随后连本地端口时必然连不上 —— 表现是
+         * 「隧道开了但用不了」，且没有任何报错。</p>
+         *
+         * <p>MINA 的 {@link PortForwardingTracker#getBoundAddress()} 给出的是真正
+         * bind 成功的地址，这里据此回填；只有它拿不到端口时才退回请求值，
+         * 并且此时如果请求值本身就是 0，就明确报错而不是静默留 0。</p>
+         *
+         * @param tracker     端口转发跟踪器
+         * @param requestedPort 调用方请求的端口（0/负数 = 自动分配）
+         * @return 实际端口
+         */
+        private static int resolveActualPort(PortForwardingTracker tracker, int requestedPort) {
+            try {
+                SshdSocketAddress bound = tracker.getBoundAddress();
+                int port = bound == null ? -1 : bound.getPort();
+                if (port > 0) {
+                    return port;
+                }
+            } catch (Exception e) {
+                log.debug("[ssh] 读取实际绑定端口失败，回退请求值", e);
+            }
+            if (requestedPort <= 0) {
+                throw new IllegalStateException(
+                        "隧道已建立但无法确定实际本地端口（请求端口=" + requestedPort + "）");
+            }
+            return requestedPort;
         }
     }
 

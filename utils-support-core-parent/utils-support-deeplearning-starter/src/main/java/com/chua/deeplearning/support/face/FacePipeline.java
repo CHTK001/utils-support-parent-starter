@@ -1431,7 +1431,9 @@ public class FacePipeline {
                 fc.currentLiveScore(),
                 feature,
                 feature == null ? 0 : feature.length,
-                System.currentTimeMillis() - t0);
+                System.currentTimeMillis() - t0,
+                // 把整张图检出的脸数带出去，供底库登记判定「是不是多脸合影」
+                boxes.size());
     }
 
     /**
