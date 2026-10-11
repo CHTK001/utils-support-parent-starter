@@ -4697,7 +4697,7 @@ public class StringUtils {
             byte[] bytes = str.getBytes("Unicode");
             return new String(bytes, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Unicode 转 UTF-8 失败: " + e.getMessage(), e);
         }
     }
 
@@ -4712,7 +4712,7 @@ public class StringUtils {
             byte[] bytes = str.getBytes("UTF-8");
             return new String(bytes, "Unicode");
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("UTF-8 转 Unicode 失败: " + e.getMessage(), e);
         }
     }
 

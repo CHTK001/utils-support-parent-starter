@@ -61,7 +61,7 @@ public class JsonSerializer<T extends Serializable> implements Serializer<T> {
         try {
             return Json.fromJson(bytes, (Class<T>) type);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 反序列化失败: " + e.getMessage(), e);
         }
     }
 }

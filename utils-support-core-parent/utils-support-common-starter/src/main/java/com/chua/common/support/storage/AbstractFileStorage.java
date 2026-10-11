@@ -225,7 +225,7 @@ public abstract class AbstractFileStorage implements FileStorage {
                 try {
                     return Files.size(ctx.tempDir.resolve(String.valueOf(p.getPartNumber())));
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("获取分片文件大小失败: " + e.getMessage(), e);
                 }
             }).sum();
             byte[] merged = new byte[(int) totalSize];

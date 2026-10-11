@@ -77,7 +77,7 @@ public class RequestTimeoutFilter implements ServerFilter {
                 try {
                     chain.doFilter(request, response);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("过滤器链执行失败: " + e.getMessage(), e);
                 }
             });
 

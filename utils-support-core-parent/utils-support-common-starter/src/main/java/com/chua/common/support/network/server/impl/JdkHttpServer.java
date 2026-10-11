@@ -72,7 +72,7 @@ public class JdkHttpServer extends AbstractServer {
             log.info("JDK HttpServer started on {}:{} (backlog={}, virtualThreads=true)",
                     setting.getHost(), setting.getPort(), Math.max(setting.getBacklog(), 8192));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("HTTP 服务启动失败: " + e.getMessage(), e);
         }
     }
 

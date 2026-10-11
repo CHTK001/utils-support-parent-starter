@@ -49,7 +49,7 @@ public class ByteSourceTypeConverter implements TypeConverter<byte[]> {
             try {
                 return readBytes((InputStream) value);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("读取字节数据失败: " + e.getMessage(), e);
             }
         }
 
@@ -57,7 +57,7 @@ public class ByteSourceTypeConverter implements TypeConverter<byte[]> {
             try {
                 return java.nio.file.Files.readAllBytes((Path) value);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("读取字节数据失败: " + e.getMessage(), e);
             }
         }
 
@@ -65,7 +65,7 @@ public class ByteSourceTypeConverter implements TypeConverter<byte[]> {
             try {
                 return java.nio.file.Files.readAllBytes(((File) value).toPath());
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("读取字节数据失败: " + e.getMessage(), e);
             }
         }
 
@@ -83,7 +83,7 @@ public class ByteSourceTypeConverter implements TypeConverter<byte[]> {
                     return readBytes(is);
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("读取字节数据失败: " + e.getMessage(), e);
             }
         }
 
@@ -93,7 +93,7 @@ public class ByteSourceTypeConverter implements TypeConverter<byte[]> {
                     return readBytes(is);
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("读取字节数据失败: " + e.getMessage(), e);
             }
         }
 

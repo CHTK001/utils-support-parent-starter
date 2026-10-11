@@ -366,7 +366,7 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
             res.setContentType(CONTENT_TYPE_JSON);
             res.end(Json.toJson(data));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("JSON 响应写出失败: " + e.getMessage(), e);
         }
     }
 

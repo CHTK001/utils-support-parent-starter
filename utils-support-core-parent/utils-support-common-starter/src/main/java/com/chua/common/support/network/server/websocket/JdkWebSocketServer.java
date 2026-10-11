@@ -89,7 +89,7 @@ public class JdkWebSocketServer extends AbstractServer {
             log.info("JDK WebSocketServer started on {}:{} (backlog={}, virtualThreads=true)",
                     setting.getHost(), setting.getPort(), Math.max(setting.getBacklog(), 2048));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("WebSocket 服务启动失败: " + e.getMessage(), e);
         }
     }
 
@@ -278,7 +278,7 @@ public class JdkWebSocketServer extends AbstractServer {
             byte[] digest = md.digest(combined.getBytes(StandardCharsets.US_ASCII));
             return Base64.getEncoder().encodeToString(digest);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("WebSocket Accept 密钥计算失败: " + e.getMessage(), e);
         }
     }
 
