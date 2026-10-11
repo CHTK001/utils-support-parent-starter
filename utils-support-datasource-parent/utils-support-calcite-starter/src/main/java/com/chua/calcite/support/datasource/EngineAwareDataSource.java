@@ -111,7 +111,7 @@ public final class EngineAwareDataSource implements DataSource {
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("数据源连接方法调用失败: " + e.getMessage(), e);
             }
         }
 
@@ -145,7 +145,7 @@ public final class EngineAwareDataSource implements DataSource {
                         } catch (RuntimeException e) {
                             throw e;
                         } catch (Exception e) {
-                            throw new RuntimeException(e);
+                            throw new RuntimeException("语句方法调用失败: " + e.getMessage(), e);
                         }
                     }
             );

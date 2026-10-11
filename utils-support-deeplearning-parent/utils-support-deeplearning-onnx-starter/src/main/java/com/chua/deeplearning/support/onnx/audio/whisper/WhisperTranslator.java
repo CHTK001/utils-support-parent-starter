@@ -192,7 +192,7 @@ public class WhisperTranslator {
                                 Files.copy(p, dest, StandardCopyOption.REPLACE_EXISTING);
                             }
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            throw new RuntimeException("Whisper 模型文件拷贝失败: " + e.getMessage(), e);
                         }
                     });
                 }

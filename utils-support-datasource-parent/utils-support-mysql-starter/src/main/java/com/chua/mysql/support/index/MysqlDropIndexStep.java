@@ -52,7 +52,7 @@ public class MysqlDropIndexStep implements IndexManager.DropIndexStep {
              var s = c.createStatement()) {
             s.execute("DROP INDEX " + indexName + " ON " + table);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("MySQL 索引删除失败: " + e.getMessage(), e);
         }
     }
 }

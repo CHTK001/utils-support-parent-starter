@@ -88,7 +88,7 @@ public class DefaultImaging implements Imaging{
             imageWriter.write(null, new IIOImage(bufferedImage, null, null), imageWriteParam);
             return image(out.toByteArray());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("图像编码写出失败: " + e.getMessage(), e);
         }
     }
 

@@ -206,7 +206,7 @@ public class DockerClient implements Closeable {
         try {
             delegate.close();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Docker 客户端关闭失败: " + e.getMessage(), e);
         }
     }
 
@@ -1794,7 +1794,7 @@ public class DockerClient implements Closeable {
                             .awaitCompletion();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("Docker 镜像拉取被中断: " + e.getMessage(), e);
                 }
             }
 
@@ -1820,7 +1820,7 @@ public class DockerClient implements Closeable {
                             .awaitCompletion();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("Docker 镜像异步拉取被中断: " + e.getMessage(), e);
                 }
             }
 

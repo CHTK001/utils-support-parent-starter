@@ -85,7 +85,7 @@ public class DefaultQrCode extends AbstractQrCode {
 
             BufferedImageUtils.writeToStream(bufferedImage, "png", outputStream);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("QR 码图像写出失败: " + e.getMessage(), e);
         }
     }
 

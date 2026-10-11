@@ -50,7 +50,7 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
             byte[] seed = (System.nanoTime() + "-" + Math.random()).getBytes(StandardCharsets.UTF_8);
             return new KademliaNodeId(md.digest(seed));
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("随机节点标识生成失败: " + e.getMessage(), e);
         }
     }
 
@@ -65,7 +65,7 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
             return new KademliaNodeId(md.digest(str.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("节点标识解析失败: " + e.getMessage(), e);
         }
     }
 

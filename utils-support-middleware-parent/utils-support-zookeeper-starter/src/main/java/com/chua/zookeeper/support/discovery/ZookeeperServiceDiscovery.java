@@ -188,7 +188,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
+            throw new RuntimeException("Zookeeper 连接等待被中断: " + e.getMessage(), e);
         }
         watchChildren(root);
     }

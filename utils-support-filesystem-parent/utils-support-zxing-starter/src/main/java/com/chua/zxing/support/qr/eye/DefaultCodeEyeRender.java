@@ -85,7 +85,7 @@ public class DefaultCodeEyeRender implements CodeEyeRender {
                 }
                 builder.setDetectImg(bufferedImage);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("码眼渲染失败: " + e.getMessage(), e);
             }
         }
     }

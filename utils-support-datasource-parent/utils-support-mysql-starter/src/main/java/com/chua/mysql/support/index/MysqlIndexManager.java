@@ -49,7 +49,7 @@ public class MysqlIndexManager implements IndexManager, com.chua.datasource.supp
                 list.add(rs.getString("Key_name"));
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("MySQL 索引查询失败: " + e.getMessage(), e);
         }
         return list;
     }
