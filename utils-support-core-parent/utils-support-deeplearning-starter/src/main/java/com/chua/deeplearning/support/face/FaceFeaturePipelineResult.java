@@ -17,6 +17,10 @@ import com.chua.deeplearning.support.model.PredictRectangle;
  * @param feature     512 维特征向量（活体失败可能为 空）
  * @param dim         特征维度
  * @param elapsedMs   端到端耗时（毫秒）
+ * @param faceCount   本次在原图中检出的**人脸总数**（不只被选中的那一张）。
+ *                    管线内部仍只取最大脸出特征，此字段用于让调用方判断
+ *                    「这张图是不是多脸合影」——底库登记需要据此拒绝多脸，
+ *                    否则用户会以为整组人都入库了、实际只进了最大的一张。
  * @author CH
  * @since 4.0.0.42
  */
@@ -28,7 +32,29 @@ public record FaceFeaturePipelineResult(
         float liveScore,
         float[] feature,
         int dim,
-        long elapsedMs) {
+        long elapsedMs,
+        int faceCount) {
+
+    /**
+     * 兼容构造器：调用方不关心脸数时按「单脸」补 1。
+     *
+     * <p>保留它是为了不把 {@code faceCount} 的加入变成一次破坏性的 API 变更 ——
+     * 外部模块（含第三方 SPI 实现）可能仍在用旧的 8 参构造器。</p>
+     *
+     * @param box        人脸框
+     * @param faceImage  裁剪后的人脸图
+     * @param alignedFace 对齐人脸图
+     * @param live       活体通过
+     * @param liveScore  活体分数
+     * @param feature    特征向量
+     * @param dim        特征维度
+     * @param elapsedMs  耗时（毫秒）
+     */
+    public FaceFeaturePipelineResult(PredictRectangle box, byte[] faceImage, byte[] alignedFace,
+                                     boolean live, float liveScore, float[] feature,
+                                     int dim, long elapsedMs) {
+        this(box, faceImage, alignedFace, live, liveScore, feature, dim, elapsedMs, 1);
+    }
 
     /**
      * 规范构造器：数组组件做防御性拷贝。

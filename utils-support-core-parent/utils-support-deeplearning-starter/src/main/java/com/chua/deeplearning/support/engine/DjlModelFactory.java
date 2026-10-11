@@ -206,13 +206,60 @@ public class DjlModelFactory implements AutoCloseable {
                         return;
                     } catch (Exception cpuError) {
                         releaseQuietly();
-                        throw new RuntimeException(
-                                "DJL 模型加载失败(GPU 已降级仍失败): " + modelName + " -> " + modelPath, cpuError);
+                        throw new RuntimeException(describeLoadFailure(modelName, cpuError), cpuError);
                     }
                 }
-                throw new RuntimeException("DJL 模型加载失败: " + modelName + " -> " + modelPath, e);
+                throw new RuntimeException(describeLoadFailure(modelName, e), e);
             }
         }
+    }
+
+    /**
+     * 把加载异常翻译成用户能照着做的说明。
+     *
+     * <p>为什么需要：原先统一抛「DJL 模型加载失败: name -> path」，前端把它显示成
+     * 「图像转换失败 / 模型加载失败」，运维看到只知道某个模型坏了，看不出是
+     * 「模型文件根本没放上去」还是「文件放了但 CUDA 起不来」。实测一次真实故障：
+     * 外部目录以 template=null 注册（{@code registerExternalDirectory} 未绑定模板），
+     * 路径解析退回 {@code root/<模型名>.onnx}，而实际布局是
+     * {@code <外部目录>/model.onnx}，于是 FileNotFoundException 被包成
+     * 「加载失败」，排查方向完全跑偏。</p>
+     *
+     * <p>这里按根因分类给出可操作提示，未识别的异常保持原样不猜。</p>
+     *
+     * @param modelName 模型名
+     * @param error     原始异常
+     * @return 面向用户的错误说明
+     */
+    private String describeLoadFailure(String modelName, Throwable error) {
+        String path = String.valueOf(modelPath);
+        Throwable root = error;
+        while (root != null && root.getCause() != null && root.getCause() != root) {
+            root = root.getCause();
+        }
+        String rootMsg = root == null ? "" : String.valueOf(root.getMessage());
+
+        // 根因是文件不存在：给出「文件在哪、期望什么、怎么修」三要素
+        if (root instanceof java.io.FileNotFoundException || rootMsg.contains("not found")) {
+            String hint;
+            Path p = modelPath;
+            if (p != null) {
+                Path parent = p.getParent();
+                hint = "模型文件不存在: " + path
+                        + "。请把模型放到该路径，或在「提供商管理 → ONNX 模型目录」中"
+                        + (parent == null ? "重新注册包含 model.onnx 的模型目录。" : "重新注册目录 " + parent + "。");
+            } else {
+                hint = "模型文件不存在: " + path + "。请在「提供商管理 → ONNX 模型目录」中注册模型目录。";
+            }
+            log.error("[deeplearning-engine] {} (model={})", hint, modelName);
+            return hint;
+        }
+        // CUDA 起不来：区分「没装 CUDA」与「模型本身坏」
+        if (rootMsg.contains("CUDA") || rootMsg.contains("cuda")) {
+            return "DJL 模型加载失败(CUDA 不可用): " + modelName + " -> " + path
+                    + "。请确认已安装 CUDA 运行库，或把该模型的推理设备改为 CPU。";
+        }
+        return "DJL 模型加载失败: " + modelName + " -> " + path + "。" + rootMsg;
     }
 
     /**

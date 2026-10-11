@@ -157,6 +157,10 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
                 imgW = img.getWidth();
                 imgH = img.getHeight();
                 result = factory.predict(img);
+            } catch (RuntimeException re) {
+                // 本方法自己抛出的（解码失败等）已经是可读原因，原样透出，
+                // 不要再包一层「图像转换失败」把原因盖掉。
+                throw re;
             } catch (Exception e) {
                 log.error("[deeplearning-engine] DJL 图像转换失败: {}", modelName, e);
                 throw new RuntimeException("DJL 图像转换失败: " + modelName, e);
