@@ -602,8 +602,13 @@ public class SshClient implements AutoCloseable {
             SshdSocketAddress remoteAddr = new SshdSocketAddress(bindAddress, remotePort);
             SshdSocketAddress localAddr = new SshdSocketAddress(remoteHost, localPort);
             AutoCloseable tracker = client.getSession().createRemotePortForwardingTracker(remoteAddr, localAddr);
+            // 反向隧道不能像 startLocal 那样回填真实端口：监听发生在**远端**，
+            // 本地拿不到 sshd 实际绑定的端口。请求传 0 时这里仍是 0，
+            // 属于「调用方要知道该去连哪」就必须自己指定固定端口的约束，
+            // 不是回填漏了 —— 日志里也照实打印请求值，不编造一个本地端口出来。
             this.actualPort = localPort;
-            log.info("反向隧道启动: 远程{}:{} → 本地{}:{}", bindAddress, remotePort, remoteHost, localPort);
+            log.info("反向隧道启动: 远程{}:{} → 本地{}:{}（反向隧道端口在远端分配，{} 不可回填）",
+                    bindAddress, remotePort, remoteHost, localPort, "actualPort");
             return tracker;
         }
 
