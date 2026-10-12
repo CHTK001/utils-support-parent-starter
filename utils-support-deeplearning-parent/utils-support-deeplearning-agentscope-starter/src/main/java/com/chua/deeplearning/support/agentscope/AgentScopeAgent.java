@@ -571,6 +571,82 @@ public class AgentScopeAgent implements Agent {
      */
     private static final Map<String, Map<String, ToolUseBlock>> PENDING_BLOCKS = new java.util.concurrent.ConcurrentHashMap<>();
 
+    /**
+     * 待批缓存条目数上限。
+     *
+     * <p>确认决策只回传一次，正常路径下每批都会被逐出；但用户中途放弃、或决策未送达时
+     * 条目会一直留着，长驻服务下逐轮累积成确定性内存泄漏。故再加一道硬上限，
+     * 超限逐出最旧的一批——宁可让极少数过期批次回传不全，也不要让堆无限涨。</p>
+     */
+    private static final int PENDING_BLOCKS_LIMIT = 256;
+
+    /**
+     * 待批批次的写入顺序，逐出时从头取最旧的一批。
+     */
+    private static final java.util.concurrent.ConcurrentLinkedQueue<String> PENDING_BLOCKS_ORDER =
+            new java.util.concurrent.ConcurrentLinkedQueue<>();
+
+    /**
+     * 写入一批待批工具块，超限则逐出最旧的批次。
+     *
+     * @param replyId 回复标识，为空不缓存
+     * @param blocks  完整工具块表
+     */
+    private static void cachePendingBlocks(String replyId, Map<String, ToolUseBlock> blocks) {
+        if (replyId == null || blocks == null || blocks.isEmpty()) {
+            return;
+        }
+        PENDING_BLOCKS.put(replyId, blocks);
+        PENDING_BLOCKS_ORDER.add(replyId);
+        while (PENDING_BLOCKS.size() > PENDING_BLOCKS_LIMIT) {
+            String oldest = PENDING_BLOCKS_ORDER.poll();
+            if (oldest == null) {
+                return;
+            }
+            PENDING_BLOCKS.remove(oldest);
+        }
+    }
+
+    /**
+     * 取走一批待批工具块并立即逐出。
+     *
+     * <p>逐出是必须的：确认决策只回传一次，缓存若只 put 不 remove，每次人工确认都会把
+     * 完整工具入参永久留在堆里。取不到时返回 null，让调用方按「无缓存」处理。
+     *
+     * @param replyId 回复标识，可为空
+     * @return 完整工具块表；无对应缓存时为 null
+     */
+    static Map<String, ToolUseBlock> takePendingBlocks(String replyId) {
+        return replyId == null ? null : PENDING_BLOCKS.remove(replyId);
+    }
+
+    /**
+     * 仅供单测：直接塞入一批待批块（绕过事件来源）。
+     *
+     * @param replyId 回复标识
+     * @param blocks  完整工具块表
+     */
+    static void cachePendingBlocksForTest(String replyId, Map<String, ToolUseBlock> blocks) {
+        cachePendingBlocks(replyId, blocks);
+    }
+
+    /**
+     * 仅供单测：当前缓存条目数。
+     *
+     * @return 条目数
+     */
+    static int pendingBlocksSize() {
+        return PENDING_BLOCKS.size();
+    }
+
+    /**
+     * 仅供单测：清空待批缓存。
+     */
+    static void clearPendingBlocks() {
+        PENDING_BLOCKS.clear();
+        PENDING_BLOCKS_ORDER.clear();
+    }
+
     @Override
     public Flux<AgentStreamEvent> resumeStream(String replyId, List<ConfirmationDecision> decisions) {
         return resumeStream(replyId, decisions, null);
@@ -588,7 +664,7 @@ public class AgentScopeAgent implements Agent {
             return Flux.error(e);
         }
         List<ConfirmResult> confirmResults = Wraps.list();
-        Map<String, ToolUseBlock> cached = replyId == null ? null : PENDING_BLOCKS.get(replyId);
+        Map<String, ToolUseBlock> cached = takePendingBlocks(replyId);
         if (decisions != null) {
             for (ConfirmationDecision d : decisions) {
                 ToolUseBlock full = cached != null && d.getToolCallId() != null
@@ -615,6 +691,61 @@ public class AgentScopeAgent implements Agent {
         // 用户修改意见：drive 在 streamEvents 前注入 Agent 上下文，模型据此重新规划
         plan.feedback = feedback;
         return drive(plan, false);
+    }
+
+    /**
+     * 生成区间配对键。
+     *
+     * <p>必须由「类别 + 唯一标识」拼成。只用类别是不够的：一次运行里会有多次同名
+     * 工具调用，只按类别配对会把它们并成一根横条，时长等于整段工具时间。</p>
+     *
+     * @param scope    区间类别（model/tool/think）
+     * @param uniqueId 该次调用的唯一标识；模型调用本身串行，传入 null 即可
+     * @return 配对键
+     */
+    private static String spanKey(String scope, String uniqueId) {
+        return scope + "|" + (uniqueId == null ? "-" : uniqueId);
+    }
+
+    /**
+     * 取出并移除待闭合的区间标识。
+     *
+     * <p>先按精确键配对；配不上、但该类别下恰好只有一个未闭合区间时，认定它就是
+     * 本次结束事件对应的区间（少数框架版本的结果事件不带调用 id）。若该类别有多个
+     * 未闭合区间则无法判定，返回 null——宁可少一根横条，也不要把不相干的区间标成
+     * 已结束、算出一个假的时长。</p>
+     *
+     * @param openSpan 未闭合区间表
+     * @param scope    区间类别
+     * @param uniqueId 该次调用的唯一标识，可空
+     * @return 区间标识；无对应区间时为 null
+     */
+    private static String takeSpan(java.util.Map<String, String> openSpan, String scope, String uniqueId) {
+        String exact = openSpan.remove(spanKey(scope, uniqueId));
+        if (exact != null) {
+            return exact;
+        }
+        String prefix = scope + "|";
+        String only = null;
+        for (java.util.Map.Entry<String, String> entry : openSpan.entrySet()) {
+            if (!entry.getKey().startsWith(prefix)) {
+                continue;
+            }
+            if (only != null) {
+                return null;
+            }
+            only = entry.getValue();
+        }
+        if (only == null) {
+            return null;
+        }
+        for (java.util.Iterator<java.util.Map.Entry<String, String>> it = openSpan.entrySet().iterator(); it.hasNext(); ) {
+            if (it.next().getValue().equals(only)) {
+                it.remove();
+                break;
+            }
+        }
+        return only;
     }
 
     /**
@@ -653,59 +784,109 @@ public class AgentScopeAgent implements Agent {
             // 模型调用前注入（activateSlotForContext 会从存储重新加载状态并覆盖此前的预注入，
             // 故不能在 streamEvents 前注入）。
 
+            /*
+             * 区间（span）配对状态：只在出现**显式开始事件**时开区间，在对应的
+             * 显式结束事件上闭合。绝不按事件先后顺序去推断区间——推断出来的时长
+             * 是编的数字，比空着更容易误导人。
+             */
+            final java.util.Map<String, String> openSpan = Wraps.map();
+            final int[] spanSeq = {0};
+
             return harnessAgent.streamEvents(plan.userMsg, ctx)
-                    .<AgentStreamEvent>handle((event, sink) -> {
+                    /*
+                     * 必须用 concatMap 而不是 handle：
+                     * handle 的 SynchronousSink 每次调用只允许发射一个信号，第二次
+                     * sink.next 会抛 IllegalStateException。而单个源事件本就要产出多条
+                     * （工具开始 = TOOL_START + trace；模型结束 = 区间 END + usage），
+                     * 用 handle 时后半段会被连带丢弃——表现为工具区间只剩 END、
+                     * 每轮 usage 全丢，且不留任何痕迹。
+                     */
+                    .concatMap(event -> {
+                        final List<AgentStreamEvent> emitted = Wraps.list();
                         try {
                             String aid = plan.agentId;
                             if (event instanceof TextBlockDeltaEvent delta) {
                                 if (delta.getDelta() != null && !delta.getDelta().isEmpty()) {
                                     // 正文增量实时下发（真实流式）；输出全文在 AgentResultEvent 统一记一条 trace
-                                    sink.next(AgentStreamEvent.reasoningDelta(aid, delta.getDelta()));
+                                    emitted.add(AgentStreamEvent.reasoningDelta(aid, delta.getDelta()));
                                     textDeltaEmitted.put(aid, Boolean.TRUE);
+                                }
+                            } else if (event instanceof ThinkingBlockStartEvent e) {
+                                String spanId = AgentTrace.newSpanId(aid, "think", ++spanSeq[0]);
+                                openSpan.put(spanKey("think", e.getBlockId()), spanId);
+                                emitted.add(AgentStreamEvent.trace(AgentTrace.spanStart(
+                                        AgentTrace.KIND_THINKING, aid, spanId, null, "深度思考")));
+                            } else if (event instanceof ThinkingBlockEndEvent e) {
+                                String spanId = takeSpan(openSpan, "think", e.getBlockId());
+                                if (spanId != null) {
+                                    emitted.add(AgentStreamEvent.trace(AgentTrace.end(
+                                            AgentTrace.KIND_THINKING, aid, spanId, "思考结束")));
                                 }
                             } else if (event instanceof ThinkingBlockDeltaEvent delta) {
                                 if (delta.getDelta() != null && !delta.getDelta().isEmpty()) {
-                                    sink.next(AgentStreamEvent.thinkingDelta(aid, delta.getDelta()));
-                                    sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                                    emitted.add(AgentStreamEvent.thinkingDelta(aid, delta.getDelta()));
+                                    emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                             AgentTrace.KIND_THINKING, aid, null, delta.getDelta())));
                                 }
                             } else if (event instanceof ToolCallStartEvent start) {
-                                sink.next(AgentStreamEvent.builder()
+                                String toolName = start.getToolCallName();
+                                String spanId = AgentTrace.newSpanId(aid, "tool", ++spanSeq[0]);
+                                // 以工具调用 id 为键：一次运行里会有多次同名工具调用，
+                                // 只用工具名会把它们并成一根横条
+                                openSpan.put(spanKey("tool", start.getToolCallId()), spanId);
+                                emitted.add(AgentStreamEvent.builder()
                                         .type(AgentStreamEvent.Type.TOOL_START)
                                         .agentId(aid)
-                                        .toolName(start.getToolCallName())
+                                        .toolName(toolName)
                                         .timestamp(System.currentTimeMillis())
                                         .build());
-                                sink.next(AgentStreamEvent.trace(AgentTrace.of(
-                                        AgentTrace.KIND_TOOL_CALL, aid, start.getToolCallName(),
-                                        "调用工具: " + start.getToolCallName())));
+                                emitted.add(AgentStreamEvent.trace(AgentTrace.spanStart(
+                                        AgentTrace.KIND_TOOL_CALL, aid, spanId, toolName,
+                                        "调用工具: " + toolName)));
+                            } else if (event instanceof ToolResultEndEvent e) {
+                                String spanId = takeSpan(openSpan, "tool", e.getToolCallId());
+                                if (spanId != null) {
+                                    emitted.add(AgentStreamEvent.trace(AgentTrace.end(
+                                            AgentTrace.KIND_TOOL_RESULT, aid, spanId, "工具执行完成")));
+                                }
                             } else if (event instanceof ToolCallDeltaEvent d) {
                                 if (d.getDelta() != null && !d.getDelta().isEmpty()) {
-                                    sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                                    emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                             AgentTrace.KIND_TOOL_ARGS, aid, d.getToolCallName(), d.getDelta())));
                                 }
                             } else if (event instanceof ToolResultTextDeltaEvent d) {
                                 if (d.getDelta() != null && !d.getDelta().isEmpty()) {
-                                    sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                                    emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                             AgentTrace.KIND_TOOL_RESULT, aid, d.getToolCallName(), d.getDelta())));
                                 }
                             } else if (event instanceof ModelCallStartEvent) {
-                                sink.next(AgentStreamEvent.trace(AgentTrace.of(
-                                        AgentTrace.KIND_TURN, aid, null, "模型调用开始")));
+                                // 模型调用区间：一次运行里模型调用严格串行，
+                                // 故用固定键 "model"，靠 takeSpan 在结束事件上取回
+                                String spanId = AgentTrace.newSpanId(aid, "turn", ++spanSeq[0]);
+                                openSpan.put(spanKey("model", null), spanId);
+                                emitted.add(AgentStreamEvent.trace(AgentTrace.spanStart(
+                                        AgentTrace.KIND_TURN, aid, spanId, null, "模型调用")));
                             } else if (event instanceof ModelCallEndEvent end) {
+                                String spanId = takeSpan(openSpan, "model", null);
+                                if (spanId != null) {
+                                    emitted.add(AgentStreamEvent.trace(AgentTrace.end(
+                                            AgentTrace.KIND_TURN, aid, spanId, "模型调用完成")));
+                                }
                                 ChatUsage usage = end.getUsage();
                                 if (usage != null) {
                                     inputTokens[0] += nonNegative(usage.getInputTokens());
                                     outputTokens[0] += nonNegative(usage.getOutputTokens());
                                     cachedTokens[0] += nonNegative(usage.getCachedTokens());
-                                    sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                                    // usage 是点事件而非区间：它是「本轮花了多少」的数字，
+                                    // 不是一段时间，塞进区间会让甘特图多出一根 0ms 横条
+                                    emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                             AgentTrace.KIND_USAGE, aid, null,
                                             "输入=" + usage.getInputTokens()
                                                     + ", 输出=" + usage.getOutputTokens()
                                                     + ", 缓存=" + usage.getCachedTokens())));
                                 }
                             } else if (event instanceof AgentStartEvent e) {
-                                sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                                emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                         AgentTrace.KIND_AGENT_START, aid, null,
                                         "Agent 启动: " + e.getName())));
                             } else if (event instanceof AgentResultEvent re) {
@@ -714,18 +895,18 @@ public class AgentScopeAgent implements Agent {
                                 Msg resultMsg = re.getResult();
                                 String fullText = resultMsg != null ? resultMsg.getTextContent() : "";
                                 if (fullText != null && !fullText.isEmpty()) {
-                                    sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                                    emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                             AgentTrace.KIND_TEXT, aid, null, fullText)));
                                     if (!Boolean.TRUE.equals(textDeltaEmitted.get(aid))) {
-                                        sink.next(AgentStreamEvent.reasoningDelta(aid, fullText));
+                                        emitted.add(AgentStreamEvent.reasoningDelta(aid, fullText));
                                         textDeltaEmitted.put(aid, Boolean.TRUE);
                                     }
                                 }
                             } else if (event instanceof AgentEndEvent) {
-                                sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                                emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                         AgentTrace.KIND_AGENT_END, aid, null, "Agent 结束")));
                             } else if (event instanceof HintBlockEvent e) {
-                                sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                                emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                         AgentTrace.KIND_HINT, aid, null,
                                         "提示[" + e.getHintSource() + "]: " + e.getHint())));
                             } else if (event instanceof RequireUserConfirmEvent e) {
@@ -746,28 +927,28 @@ public class AgentScopeAgent implements Agent {
                                                 .build());
                                     }
                                     if (e.getReplyId() != null && !blockById.isEmpty()) {
-                                        PENDING_BLOCKS.put(e.getReplyId(), blockById);
+                                        cachePendingBlocks(e.getReplyId(), blockById);
                                     }
                                 }
                                 // 下发人工确认请求：前端渲染批准/拒绝卡片，决策回传后恢复
-                                sink.next(AgentStreamEvent.confirmationRequest(
+                                emitted.add(AgentStreamEvent.confirmationRequest(
                                         aid, e.getReplyId(), confirmItems));
-                                sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                                emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                         AgentTrace.KIND_EDGE, aid, null,
                                         "等待【用户确认】(未确认会卡住), 工具数="
                                                 + (pending != null ? pending.size() : 0))));
                             } else if (event instanceof RequireExternalExecutionEvent e) {
-                                sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                                emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                         AgentTrace.KIND_EDGE, aid, null,
                                         "等待【外部执行】(未执行会卡住), 工具数="
                                                 + (e.getToolCalls() != null ? e.getToolCalls().size() : 0))));
                             } else if (event instanceof AllToolsDeniedEvent e) {
-                                sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                                emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                         AgentTrace.KIND_EDGE, aid, null,
                                         "工具调用全部被拒绝, 数量="
                                                 + (e.getDeniedToolCalls() != null ? e.getDeniedToolCalls().size() : 0))));
                             } else if (event instanceof ExceedMaxItersEvent e) {
-                                sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                                emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                         AgentTrace.KIND_EDGE, aid, null,
                                         "超过最大迭代次数: current=" + e.getCurrentIter()
                                                 + ", max=" + e.getMaxIters())));
@@ -778,9 +959,20 @@ public class AgentScopeAgent implements Agent {
                                                 ? String.valueOf(event).substring(0, 120)
                                                 : String.valueOf(event));
                             }
-                        } catch (Exception ignored) {
-                            // 单事件映射异常不中断整个流
+                        } catch (Exception e) {
+                            /*
+                             * 单事件映射异常不中断整个流，但必须留痕。
+                             * 这里曾经是 catch (Exception ignored)：第二个 sink.next 抛的
+                             * IllegalStateException 被彻底吞掉，既没有日志，也让本轮
+                             * 已经产出的信号一起消失——轨迹里就只剩孤儿 END、usage 全丢，
+                             * 排查时完全看不出来是哪一步断的。
+                             *
+                             * 注意 emitted 里已产出的信号不能因为异常丢弃：
+                             * 那正是「映射到一半出错也不该把前面的输出抹掉」的意思。
+                             */
+                            log.warn("[TraceDiag] 事件映射异常 class={}", event.getClass().getName(), e);
                         }
+                        return Flux.fromIterable(emitted);
                     })
                     .concatWith(Flux.defer(() -> {
                         long duration = System.currentTimeMillis() - startTime;
