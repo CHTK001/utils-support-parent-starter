@@ -157,19 +157,20 @@ public class CompressionAwareModel implements Model {
      * @param messages 消息
      * @return 转换转为对话消息的结果
      */
-    private static List<ChatMessage> convertToChatMessages(List<Msg> messages) {
+    static List<ChatMessage> convertToChatMessages(List<Msg> messages) {
         if (messages == null) {
             return Wraps.list();
         }
         List<ChatMessage> result = Wraps.list();
         for (Msg msg : messages) {
-            if (msg.getRole() == MsgRole.SYSTEM) {
-                continue;
-            }
             String text = msg.getTextContent();
             if (text != null && !text.isBlank()) {
+                // SYSTEM 必须保留：Harness 把 sysPrompt 作为 SYSTEM 消息放进 messages，
+                // 这里若跳过，压缩轮次下 agent 的人设与约束就被整个丢掉。
+                // 之所以此前没被发现，是因为带工具的轮次走 delegate 路径不受此转换影响，
+                // 只有无工具的压缩轮次会中招，表现为「时好时坏」。
                 result.add(ChatMessage.builder()
-                        .role(msg.getRole() == MsgRole.USER ? "user" : "assistant")
+                        .role(roleName(msg.getRole()))
                         .content(text)
                         .build());
             }
@@ -178,18 +179,47 @@ public class CompressionAwareModel implements Model {
     }
 
     /**
+     * AgentScope 角色转对话角色名。
+     *
+     * @param role AgentScope 角色
+     * @return 对话角色名
+     */
+    private static String roleName(MsgRole role) {
+        if (role == MsgRole.SYSTEM) {
+            return "system";
+        }
+        return role == MsgRole.USER ? "user" : "assistant";
+    }
+
+    /**
+     * 对话角色名转 AgentScope 角色。
+     *
+     * <p>system 必须还原为 SYSTEM 而非降级成 USER：压缩后的轮次要继续喂给模型，
+     * 把人设当成用户发言会让模型把约束当提问，行为随之漂移。</p>
+     *
+     * @param roleName 对话角色名
+     * @return AgentScope 角色
+     */
+    private static MsgRole roleOf(String roleName) {
+        if ("system".equals(roleName)) {
+            return MsgRole.SYSTEM;
+        }
+        return "assistant".equals(roleName) ? MsgRole.ASSISTANT : MsgRole.USER;
+    }
+
+    /**
      * 转换转为msg
      *
      * @param messages 消息
      * @return 转换转为msg的结果
      */
-    private static List<Msg> convertToMsg(List<ChatMessage> messages) {
+    static List<Msg> convertToMsg(List<ChatMessage> messages) {
         if (messages == null) {
             return Wraps.list();
         }
         List<Msg> result = Wraps.list();
         for (ChatMessage msg : messages) {
-            MsgRole role = "assistant".equals(msg.getRole()) ? MsgRole.ASSISTANT : MsgRole.USER;
+            MsgRole role = roleOf(msg.getRole());
             result.add(Msg.builder()
                     .role(role)
                     .content(TextBlock.builder().text(msg.getContent()).build())

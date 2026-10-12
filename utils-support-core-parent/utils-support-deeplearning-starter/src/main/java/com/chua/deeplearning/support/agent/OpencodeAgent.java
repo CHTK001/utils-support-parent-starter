@@ -12,6 +12,8 @@ import com.chua.common.support.ai.agent.AgentMode;
 import com.chua.common.support.ai.agent.AgentPlanHook;
 import com.chua.common.support.ai.agent.AgentResponse;
 import com.chua.common.support.ai.agent.AgentRetryConfig;
+import com.chua.common.support.ai.agent.AgentStreamEvent;
+import com.chua.common.support.ai.agent.AgentTrace;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.mcp.McpManager;
@@ -22,6 +24,9 @@ import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonNode;
 import com.chua.deeplearning.support.engine.CliModelRunner;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.FluxSink;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -32,6 +37,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
@@ -461,6 +468,84 @@ public class OpencodeAgent implements Agent {
      */
     public AgentResponse runStream(String input, Consumer<AgentEvent> onEvent) {
         return execute(input, onEvent);
+    }
+
+    /**
+     * 流式运行（框架标准通道）：把 opencode 的 NDJSON 事件翻译成 {@link AgentStreamEvent}。
+     *
+     * <p>本实现覆写该默认方法，使 opencode 与 agentscope 走同一条事件通道，
+     * 从而让上层（ai-starter 的会话编排）能像消费 agentscope 那样消费 opencode 的
+     * 正文增量与执行轨迹。翻译规则：</p>
+     * <ul>
+     *   <li>{@code step_start} / {@code step_finish} → 一段「模型」区间的开始 / 结束，
+     *       落成 {@link AgentTrace#spanStart} 与 {@link AgentTrace#end}，甘特图模型泳道据此计时</li>
+     *   <li>{@code text} → 正文增量（{@code reasoningDelta}）；全文在结束时另记一条
+     *       {@link AgentTrace#KIND_TEXT} 轨迹，避免逐条刷屏</li>
+     *   <li>{@code tool} → 一条工具调用轨迹点事件（opencode 未提供工具开始/结束配对事件，
+     *       故为点事件而非区间）</li>
+     *   <li>其余事件类型当前不参与轨迹展示</li>
+     * </ul>
+     *
+     * @param input 用户输入
+     * @return 流式事件 Flux
+     */
+    @Override
+    public Flux<AgentStreamEvent> runStream(String input) {
+        return Flux.<AgentStreamEvent>create(sink -> {
+            final String runSpanId = AgentTrace.newSpanId(agentId(), "run", 0);
+            final AtomicInteger seq = new AtomicInteger();
+            final AtomicReference<String> openModelSpan = new AtomicReference<>();
+            sink.next(AgentStreamEvent.trace(AgentTrace.spanStart(
+                    AgentTrace.KIND_AGENT_START, agentId(), runSpanId, null, "opencode 启动")));
+            Schedulers.boundedElastic().schedule(() -> {
+                try {
+                    AgentResponse response = execute(input, event -> {
+                        if (event == null) {
+                            return;
+                        }
+                        switch (event.type()) {
+                            case "step_start" -> {
+                                String sid = AgentTrace.newSpanId(agentId(), "model", seq.getAndIncrement());
+                                openModelSpan.set(sid);
+                                sink.next(AgentStreamEvent.trace(AgentTrace.spanStart(
+                                        AgentTrace.KIND_TURN, agentId(), sid, null, "模型调用")));
+                            }
+                            case "step_finish" -> {
+                                String sid = openModelSpan.getAndSet(null);
+                                if (sid != null) {
+                                    sink.next(AgentStreamEvent.trace(AgentTrace.end(
+                                            AgentTrace.KIND_TURN, agentId(), sid, null)));
+                                }
+                            }
+                            case "text" -> sink.next(
+                                    AgentStreamEvent.reasoningDelta(agentId(), event.message()));
+                            case "tool" -> sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                                    AgentTrace.KIND_TOOL_CALL, agentId(), event.message(),
+                                    "调用工具: " + event.message())));
+                            default -> {
+                                // opencode 的其余事件类型当前不参与轨迹展示
+                            }
+                        }
+                    });
+                    String output = response != null ? response.getOutput() : null;
+                    if (output != null && !output.isEmpty()) {
+                        sink.next(AgentStreamEvent.trace(AgentTrace.of(
+                                AgentTrace.KIND_TEXT, agentId(), null, output)));
+                    }
+                    sink.next(AgentStreamEvent.trace(AgentTrace.end(
+                            AgentTrace.KIND_AGENT_END, agentId(), runSpanId, "opencode 结束")));
+                    sink.next(AgentStreamEvent.builder()
+                            .type(AgentStreamEvent.Type.COMPLETE)
+                            .agentId(agentId())
+                            .usage(response != null ? response.getUsage() : null)
+                            .timestamp(System.currentTimeMillis())
+                            .build());
+                    sink.complete();
+                } catch (Throwable t) {
+                    sink.error(t);
+                }
+            });
+        }, FluxSink.OverflowStrategy.BUFFER).subscribeOn(Schedulers.boundedElastic());
     }
 
     /**
