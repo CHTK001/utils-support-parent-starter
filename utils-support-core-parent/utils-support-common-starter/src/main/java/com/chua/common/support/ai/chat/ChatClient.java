@@ -54,14 +54,39 @@ import java.util.function.Consumer;
 public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient> {
 
     /**
+     * 日志：静态工厂方法在兜底分支使用
+     */
+    org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ChatClient.class);
+
+    /**
+     * OpenAI 兼容协议的兜底扩展名
+     */
+    String OPENAI_EXTENSION = "openai";
+
+    /**
      * 通过完整配置创建 AI 对话客户端
+     *
+     * <p>provider 名在 SPI 中未注册（或实例化失败）时，只要设置里给出了
+     * {@code baseUrl}，就按 OpenAI 兼容协议兜底走 {@code openai} 扩展：
+     * 对端只配了 endpoint 而 SPI 清单没跟上的平台（如新接入的 OpenAI 兼容服务），
+     * 不至于静默落到「未配置主 ChatClient」。没给 baseUrl 时保持原行为返回空，
+     * 由调用方报错，避免拿缺省 endpoint 乱发请求。</p>
      *
      * @param setting 客户端配置，包含 provider、apiKey、baseUrl 等
      * @return ChatClient 实例
      */
     static ChatClient create(ChatClientSetting setting) {
-        return ServiceProvider.of(ChatClient.class)
-                .getNewExtension(setting.getProvider(), setting);
+        ServiceProvider<ChatClient> serviceProvider = ServiceProvider.of(ChatClient.class);
+        ChatClient client = serviceProvider.getNewExtension(setting.getProvider(), setting);
+        if (client == null) {
+            String baseUrl = setting.getBaseUrl();
+            if (baseUrl != null && !baseUrl.isBlank()) {
+                LOG.warn("[ChatClient] 供应商 {} 未注册 SPI 扩展，按 OpenAI 兼容协议兜底 baseUrl={}",
+                        setting.getProvider(), baseUrl);
+                client = serviceProvider.getNewExtension(OPENAI_EXTENSION, setting);
+            }
+        }
+        return client;
     }
 
     /**
