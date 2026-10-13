@@ -375,6 +375,23 @@ public class AiUsage {
      */
     private Long durationMillis;
 
+    /**
+     * 解码速度（Token / 秒）
+     *
+     * <p>输出 Token 数 ÷ 解码窗口（总耗时 - 首字耗时），即模型实际生成阶段的速率，
+     * 不受网络往返与 prefill 影响。由客户端在请求结束时填充；
+     * 未填充时 {@link #tokensPerSecond()} 按现有字段实时计算。</p>
+     */
+    private Double tokensPerSecond;
+
+    /**
+     * 端到端吞吐（Token / 秒）
+     *
+     * <p>总 Token 数 ÷ 总耗时（含首字耗时与网络延迟），反映调用方视角的整体快慢。
+     * 未填充时 {@link #totalTokensPerSecond()} 按现有字段实时计算。</p>
+     */
+    private Double totalTokensPerSecond;
+
     // ==================== 频率限制 ====================
 
     /**
@@ -402,4 +419,60 @@ public class AiUsage {
      * <p>不返回此信息的服务商该字段为 null。
      */
     private Long rateLimitReset;
+
+    // ==================== 派生性能指标 ====================
+
+    /**
+     * 解码速度（Token / 秒）。
+     *
+     * <p>计算口径：输出 Token 数 ÷ 解码窗口时长。
+     * 解码窗口 = 总耗时 - 首字耗时（TTFT），即模型实际生成阶段的速率，
+     * 不受网络往返与 prefill 影响，是衡量模型解码能力的核心指标。
+     *
+     * <p>首字耗时缺失（如未采集）或首字耗时接近总耗时
+     * （非流式请求、极短输出）时，退化为 输出 Token ÷ 总耗时 的近似口径，
+     * 避免解码窗口为零导致除零。
+     *
+     * @return 解码速度（tok/s），Token 数或总耗时缺失时返回 null
+     */
+    public Double tokensPerSecond() {
+        if (tokensPerSecond != null) {
+            return tokensPerSecond;
+        }
+        if (outputTokens == null || outputTokens <= 0
+                || durationMillis == null || durationMillis <= 0) {
+            return null;
+        }
+        long decodeWindow = durationMillis;
+        if (firstTokenLatencyMillis != null && firstTokenLatencyMillis > 0) {
+            long window = durationMillis - firstTokenLatencyMillis;
+            if (window > 0) {
+                decodeWindow = window;
+            }
+        }
+        // 毫秒转秒：除以 1000.0 保留小数精度
+        return outputTokens / (decodeWindow / 1000.0);
+    }
+
+    /**
+     * 端到端吞吐（Token / 秒）。
+     *
+     * <p>计算口径：总 Token 数 ÷ 总耗时（含首字耗时与网络延迟），
+     * 反映调用方视角的整体快慢，适合跨模型、跨服务商横向对比。
+     * totalTokens 缺失时退化为 inputTokens + outputTokens。
+     *
+     * @return 端到端吞吐（tok/s），Token 数或总耗时缺失时返回 null
+     */
+    public Double totalTokensPerSecond() {
+        if (totalTokensPerSecond != null) {
+            return totalTokensPerSecond;
+        }
+        long total = totalTokens != null ? totalTokens
+                : (inputTokens == null ? 0 : inputTokens)
+                + (outputTokens == null ? 0 : outputTokens);
+        if (total <= 0 || durationMillis == null || durationMillis <= 0) {
+            return null;
+        }
+        return total / (durationMillis / 1000.0);
+    }
 }

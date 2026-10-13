@@ -1,0 +1,7 @@
+openai=com.chua.openai.support.OpenAiTranslateClient
+siliconflow=com.chua.openai.support.OpenAiTranslateClient
+sensetime=com.chua.openai.support.OpenAiTranslateClient
+github=com.chua.openai.support.OpenAiTranslateClient
+gitee=com.chua.openai.support.OpenAiTranslateClient
+dots=com.chua.openai.support.OpenAiTranslateClient
+custom=com.chua.openai.support.OpenAiTranslateClient

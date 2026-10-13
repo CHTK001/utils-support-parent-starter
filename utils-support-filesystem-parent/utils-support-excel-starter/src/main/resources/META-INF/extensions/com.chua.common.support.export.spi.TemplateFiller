@@ -1,0 +1,3 @@
+poi=com.chua.excel.support.export.PoiTemplateFiller
+excel=com.chua.excel.support.export.PoiTemplateFiller
+xlsx=com.chua.excel.support.export.PoiTemplateFiller

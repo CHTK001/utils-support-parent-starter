@@ -1,0 +1,13 @@
+# SPI配置文件 - 图片压缩引擎
+# 接口: com.chua.common.support.image.compression.ImageCompressor
+#
+# 说明：
+# - 别名是 ServiceProvider.of(ImageCompressor.class).getNewExtension("别名") 的查找键
+# - 同一实现可注册多个别名；实现之间按 @Spi(order=...) 排序，order 越大越优先
+
+# TinyPNG 风格：有损调色板量化 + 无损 deflate 优化
+tinypng=com.chua.image.support.compression.TinyPngImageCompressor
+
+# Zipic 风格：多格式整图重编码 + 格式转换
+zipic=com.chua.image.support.compression.ZipicImageCompressor
+zippic=com.chua.image.support.compression.ZipicImageCompressor

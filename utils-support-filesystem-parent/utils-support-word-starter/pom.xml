@@ -22,5 +22,15 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
         </dependency>
+        <!--
+            Word 模板填充由 PoiWordTemplateFiller 基于 POI 原生实现，
+            不引入第三方模板引擎，避免 POI 版本耦合。
+        -->
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
