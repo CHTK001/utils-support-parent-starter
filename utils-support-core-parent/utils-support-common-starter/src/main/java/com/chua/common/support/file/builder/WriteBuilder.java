@@ -12,7 +12,7 @@ import com.chua.common.support.utils.BeanUtils;
  * 文件写入构建器抽象基类。
  *
  * <p>提供文件写入的通用配置，子类通过覆盖各方法实现具体格式的写入逻辑。
- * 支持字符集设置、模板文件和数据填充功能。</p>
+ * 支持字符集设置。</p>
  *
  * @author CH
  * @since 1.0.0
@@ -28,16 +28,6 @@ public abstract class WriteBuilder {
      * 写入时使用的字符集编码，默认使用系统编码
      */
     protected Charset charset = Charset.defaultCharset();
-
-    /**
-     * 模板文件路径，用于基于模板的写入操作
-     */
-    protected File templateFile;
-
-    /**
-     * 模板填充数据，用于带变量的模板渲染
-     */
-    protected Map<String, Object> templateData;
 
     /**
      * 通用延迟写入暂存区
@@ -101,22 +91,6 @@ public abstract class WriteBuilder {
     }
 
     /**
-     * 获取TemplateFile
-     * @return 文件 对象
-     */
-    public File getTemplateFile() {
-        return templateFile;
-    }
-
-    /**
-     * 获取TemplateData
-     * @return 结果映射，无数据时为空映射
-     */
-    public Map<String, Object> getTemplateData() {
-        return templateData;
-    }
-
-    /**
      * 设置字符集编码。
      *
      * @param charset 编码名称
@@ -135,28 +109,6 @@ public abstract class WriteBuilder {
      */
     public WriteBuilder withCharset(Charset charset) {
         this.charset = charset;
-        return this;
-    }
-
-    /**
-     * 设置模板文件。
-     *
-     * @param templateFile 模板文件
-     * @return 当前构建器
-     */
-    public WriteBuilder withTemplate(File templateFile) {
-        this.templateFile = templateFile;
-        return this;
-    }
-
-    /**
-     * 设置模板填充数据。
-     *
-     * @param data 填充数据，key 为模板变量名，value 为替换值
-     * @return 当前构建器
-     */
-    public WriteBuilder withData(Map<String, Object> data) {
-        this.templateData = data;
         return this;
     }
 

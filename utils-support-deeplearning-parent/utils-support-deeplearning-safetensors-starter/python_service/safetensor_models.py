@@ -267,19 +267,41 @@ MODEL_REGISTRY = {
                                         "source": "huggingface", "runner": "ppocrv6",
                                         "size": "medium"},
     ],
-    # ── 端到端文档解析 (OvisOCR2) ──
+    # ── 端到端文档解析 (整页图 → Markdown) ──
     "document_ocr": [
         {"id": "unlimited_ocr", "hf": "baidu/Unlimited-OCR", "source": "huggingface", "runner": "unlimited_ocr"},
         {"id": "ovisocr2",  "ms": "ATH-MaaS/OvisOCR2", "runner": "ovis_ocr"},
+        {"id": "deepseek-ocr-2", "hf": "deepseek-ai/DeepSeek-OCR-2", "source": "huggingface", "runner": "deepseek_ocr"},
+        # CPU 可用变体：官方权重内含硬编码 .cuda()，此 fork 将其改为 no-op 并放开设备约束
+        {"id": "deepseek-ocr-2-cpu", "hf": "Dogacel/Universal-DeepSeek-OCR-2", "source": "huggingface", "runner": "deepseek_ocr"},
     ],
 }
 
 
+def _norm_alias(name: str) -> str:
+    """归一化模型别名，用于连字符/下划线不敏感的匹配。
+
+    Java 侧 ModelEntry 与 Python 侧 MODEL_REGISTRY 的命名并不总一致
+    （如 ``unlimited-ocr`` vs ``unlimited_ocr``），归一化后两侧才能对上。
+    """
+    return name.lower().replace("_", "").replace("-", "")
+
+
 def resolve_model_id(alias: str, model_type: str) -> Optional[dict]:
-    """按别名查找模型注册表"""
+    """按别名查找模型注册表。
+
+    匹配优先级：精确匹配 → 归一化匹配 → 子串匹配。
+    """
     models = MODEL_REGISTRY.get(model_type, [])
     for m in models:
-        if m["id"] == alias or alias in m["id"]:
+        if m["id"] == alias:
+            return m
+    norm_alias = _norm_alias(alias)
+    for m in models:
+        if _norm_alias(m["id"]) == norm_alias:
+            return m
+    for m in models:
+        if alias in m["id"] or norm_alias in _norm_alias(m["id"]):
             return m
     # 直接作为 ModelScope ID
     return {"id": alias, "ms": alias}
@@ -305,6 +327,8 @@ def _create_runner(model_name: str, model_type: str, model_root: Path, entry: di
         return OvisOcrRunner(model_name, model_type, model_root, entry)
     if entry.get("runner") == "unlimited_ocr":
         return UnlimitedOcrRunner(model_name, model_type, model_root, entry)
+    if entry.get("runner") == "deepseek_ocr":
+        return DeepSeekOcrRunner(model_name, model_type, model_root, entry)
     if entry.get("local") and model_type in ("detection", "face_detection", "ocr"):
         return LocalVisionRunner(model_name, model_type, model_root, entry)
     if entry.get("local") and model_type == "vlm":
@@ -1846,6 +1870,197 @@ class UnlimitedOcrRunner(BaseRunner):
             return str(result)
         finally:
             os.unlink(tmp_path)
+
+
+class DeepSeekOcrRunner(BaseRunner):
+    """
+    DeepSeek-OCR-2 端到端文档解析 — 将整页文档图像转换为结构化 Markdown。
+
+    核心思路是「视觉因果流（Visual Causal Flow）」：不把版面拆成检测框逐块识别，
+    而是让模型先看标题再看正文，按语义阅读顺序一次性解码出整页 Markdown。
+    因此输出顺序由模型自身保证，不依赖「按 y/x 坐标机械重排」，
+    多栏版式、跨页表格下的阅读顺序比检测+排序式流水线可靠。
+
+    模型来源: https://huggingface.co/deepseek-ai/DeepSeek-OCR-2
+    论文: arXiv 2601.20552    许可: Apache-2.0（可商用）
+    输入:
+        image (base64): 单页文档图像
+        text (可选): 自定义提示词，默认 "<|grounding|>Convert the document to markdown."
+    输出:
+        str: 解析后的 Markdown 文本
+    参数 (params):
+        grounding: 是否带 <|grounding|> 前缀，默认 True（官方推荐，同时输出版面坐标）
+        base_size / image_size / crop_mode: 视觉编码切图参数，官方默认 1024 / 768 / True
+        max_new_tokens: 最大生成 tokens，默认 8192
+        dtype: 权重精度，默认 bfloat16（CPU 亦同，见 _load 说明）
+    环境要求:
+        官方为 CUDA 11.8 + torch 2.6.0；flash-attn 可选，缺失时自动降级到 sdpa/eager。
+        官方权重内含硬编码 .cuda()，CPU 推理需改用 Dogacel/Universal-DeepSeek-OCR-2。
+    """
+
+    DEFAULT_PROMPT = "<|grounding|>Convert the document to markdown."
+
+    def _attn_candidates(self) -> list:
+        """按可用性返回注意力后端候选顺序。
+
+        flash_attention_2 仅在 CUDA 上可用，CPU 路径必须避开它 ——
+        缺失时 from_pretrained 会直接抛错而非自动降级。
+        """
+        import importlib.util
+
+        if not self.use_gpu:
+            return ["sdpa", "eager"]
+        try:
+            has_flash = importlib.util.find_spec("flash_attn") is not None
+        except (ImportError, ValueError):
+            # 模块已在 sys.modules 但 __spec__ 为 None 等异常情况，一律按缺失处理
+            has_flash = False
+        if has_flash:
+            return ["flash_attention_2", "sdpa", "eager"]
+        return ["sdpa", "eager"]
+
+    def _load(self):
+        import torch
+        from transformers import AutoModel, AutoTokenizer
+
+        model_dir = self._auto_download()
+        device = self._device_str()
+        # CPU 也用 bfloat16：与模型原生权重格式一致，可把常驻内存从 ~11GB 压到 ~6GB。
+        # 代价是无 AVX512-BF16/AMX 的老 CPU 会走模拟，推理更慢；此时可传
+        # dtype="float32" 参数换回 fp32 保速度。
+        dtype_name = (self.entry.get("dtype") or "bfloat16").lower()
+        dtype = {
+            "bfloat16": torch.bfloat16,
+            "bf16": torch.bfloat16,
+            "float16": torch.float16,
+            "fp16": torch.float16,
+            "float32": torch.float32,
+            "fp32": torch.float32,
+        }.get(dtype_name, torch.bfloat16)
+        if device == "cpu" and dtype is torch.float16:
+            # fp16 在 CPU 上算力极差甚至溢出，统一抬到 bf16
+            log.warning("[DeepSeekOCR2] CPU 模式下 float16 不可用，回退 bfloat16")
+            dtype = torch.bfloat16
+
+        self._tokenizer = AutoTokenizer.from_pretrained(model_dir, trust_remote_code=True)
+
+        last_err = None
+        for attn in self._attn_candidates():
+            try:
+                log.info(f"[DeepSeekOCR2] 加载模型: {model_dir}, device={device}, attn={attn}")
+                self._model = AutoModel.from_pretrained(
+                    model_dir,
+                    _attn_implementation=attn,
+                    trust_remote_code=True,
+                    use_safetensors=True,
+                    torch_dtype=dtype,
+                ).to(device).eval()
+                self._attn_impl = attn
+                self._loaded = True
+                log.info(f"[DeepSeekOCR2] 加载完成, attn={attn}")
+                return
+            except Exception as e:
+                last_err = e
+                log.warning(f"[DeepSeekOCR2] attn={attn} 加载失败，尝试下一个后端: {e}")
+                # 失败的半成品可能已占用显存，显式回收，避免多轮重试累积
+                try:
+                    self._model = None
+                    if self.use_gpu:
+                        torch.cuda.empty_cache()
+                except Exception:
+                    pass
+
+        raise RuntimeError(
+            "DeepSeek-OCR-2 加载失败，已尝试全部注意力后端 "
+            f"({', '.join(self._attn_candidates())})。\n"
+            "  GPU 环境建议补装 flash-attn: pip install flash-attn==2.7.3 --no-build-isolation\n"
+            f"  原始错误: {last_err}"
+        )
+
+    def run(self, inputs: dict, params: dict) -> str:
+        if not self._loaded:
+            self._apply_gpu(params)
+            self._load()
+
+        import base64
+        import io
+        import os
+        import tempfile
+        from PIL import Image
+
+        image_b64 = inputs.get("image", "")
+        if not image_b64:
+            raise ValueError("缺少 image 输入")
+
+        image = Image.open(io.BytesIO(base64.b64decode(image_b64))).convert("RGB")
+
+        # model.infer 只接受文件路径，落临时文件并在 finally 清理
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+            image.save(tmp.name)
+            tmp_path = tmp.name
+
+        try:
+            prompt = inputs.get("text") or params.get("prompt") or self.DEFAULT_PROMPT
+            # grounding 前缀决定是否额外输出版面坐标，默认开启（官方推荐）
+            if params.get("grounding", True) and "<|grounding|>" not in prompt:
+                prompt = f"<|grounding|>{prompt}"
+            # 官方 prompt 需以 <image> 开头引导视觉编码
+            if not prompt.strip().startswith("<image>"):
+                prompt = "<image>\n" + prompt.lstrip()
+
+            base_size = int(params.get("base_size", 1024))
+            image_size = int(params.get("image_size", 768))
+            crop_mode = bool(params.get("crop_mode", True))
+            max_new_tokens = int(params.get("max_new_tokens", 8192))
+
+            try:
+                result = self._model.infer(
+                    self._tokenizer,
+                    prompt=prompt,
+                    image_file=tmp_path,
+                    output_path=params.get("output_path"),
+                    base_size=base_size,
+                    image_size=image_size,
+                    crop_mode=crop_mode,
+                    max_length=max_new_tokens,
+                    save_results=False,
+                )
+            except TypeError:
+                # trust_remote_code 的 infer 签名随模型版本漂移，退回最小参数集
+                log.warning("[DeepSeekOCR2] infer 不接受完整参数，按最小参数集重试")
+                result = self._model.infer(
+                    self._tokenizer,
+                    prompt=prompt,
+                    image_file=tmp_path,
+                    base_size=base_size,
+                    image_size=image_size,
+                    crop_mode=crop_mode,
+                )
+
+            return self._extract_markdown(result)
+        finally:
+            os.unlink(tmp_path)
+
+    def _extract_markdown(self, result) -> str:
+        """从 infer 返回值中提取 Markdown 文本。
+
+        model.infer 通常直接返回 str，但不同版本可能返回 dict（含 markdown/output 键）
+        或字符串列表，这里统一降级处理，避免调用方拿到不可预期的类型。
+        """
+        if result is None:
+            return ""
+        if isinstance(result, str):
+            return result.strip()
+        if isinstance(result, dict):
+            for key in ("markdown", "output", "text", "content"):
+                value = result.get(key)
+                if isinstance(value, str) and value.strip():
+                    return value.strip()
+            return str(result)
+        if isinstance(result, (list, tuple)) and result:
+            if isinstance(result[0], str) and result[0].strip():
+                return result[0].strip()
+        return str(result).strip()
 
 
 class LocalVisionRunner(BaseRunner):

@@ -1,8 +1,6 @@
 package com.chua.pdf.support.file.impl;
 
 import com.chua.common.support.file.builder.WriteBuilder;
-import com.chua.common.support.file.template.TemplateFileSystem;
-import com.chua.common.support.spi.ServiceProvider;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -11,12 +9,9 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +20,7 @@ import java.util.Map;
  * PDF 文件写入构建器。
  *
  * <p>基于 PDFBox 实现简单文本内容的 PDF 文件生成。
- * 支持延迟写入（多次 写入 + 饰面）和实时写入（写入和flush），
- * 设置 {@link #withTemplate(File)} 后只走模板模式。</p>
+ * 支持延迟写入（多次 写入 + 饰面）和实时写入（写入和flush）。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -42,11 +36,6 @@ public class PdfWriteBuilder extends WriteBuilder {
      * PDF 文档作者
      */
     private String author;
-
-    /**
-     * 模板文件流
-     */
-    private InputStream templateStream;
 
     /**
      * 字体大小，默认 12
@@ -143,17 +132,6 @@ public class PdfWriteBuilder extends WriteBuilder {
     }
 
     /**
-     * 设置模板文件流（设置后只走模板）。
-     *
-     * @param stream 模板文件流
-     * @return 当前构建器
-     */
-    public PdfWriteBuilder withTemplate(InputStream stream) {
-        this.templateStream = stream;
-        return this;
-    }
-
-    /**
      * 将文本行加入延迟写入队列。
      *
      * @param lines 文本行列表
@@ -192,11 +170,6 @@ public class PdfWriteBuilder extends WriteBuilder {
     public void writeAndFlush(List<String> lines) {
         callback.onStart();
         callback.onBeginWrite();
-        if (templateFile != null || templateStream != null) {
-            resolveTemplate();
-            callback.onComplete(true);
-            return;
-        }
         doWriteText(lines);
         callback.onComplete(true);
     }
@@ -209,11 +182,6 @@ public class PdfWriteBuilder extends WriteBuilder {
     public void writeAndFlushMap(List<Map<String, Object>> rows) {
         callback.onStart();
         callback.onBeginWrite();
-        if (templateFile != null || templateStream != null) {
-            resolveTemplate();
-            callback.onComplete(true);
-            return;
-        }
         doWriteMap(rows);
         callback.onComplete(true);
     }
@@ -225,11 +193,6 @@ public class PdfWriteBuilder extends WriteBuilder {
     public void finish() {
         callback.onStart();
         callback.onBeginWrite();
-        if (templateFile != null || templateStream != null) {
-            resolveTemplate();
-            callback.onComplete(true);
-            return;
-        }
         try (PDDocument doc = new PDDocument()) {
             PDPage page = new PDPage(PDRectangle.A4);
             doc.addPage(page);
@@ -356,27 +319,6 @@ public class PdfWriteBuilder extends WriteBuilder {
             doc.save(file);
         } catch (IOException e) {
             throw new RuntimeException("PDF 写入失败", e);
-        }
-    }
-
-    /**
-     * 解析Template
-    */
-    private void resolveTemplate() {
-        try {
-            TemplateFileSystem engine = ServiceProvider.of(TemplateFileSystem.class).getExtension("txt");
-            if (engine == null) {
-                throw new IllegalStateException("未找到 FileTemplateSystem 实现");
-            }
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            try (InputStream tis = templateStream != null ? templateStream : new FileInputStream(templateFile)) {
-                engine.resolve(tis, bos, templateData);
-            }
-            try (FileOutputStream fos = new FileOutputStream(file)) {
-                fos.write(bos.toByteArray());
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("PDF 模板写入失败", e);
         }
     }
 }

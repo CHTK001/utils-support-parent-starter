@@ -116,7 +116,9 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
      */
     private Map<String, Object> buildParams() {
         if ("document_ocr".equals(modelType)) {
-            return Map.of("max_new_tokens", 2048);
+            // 端到端文档解析输出整页 Markdown，2048 tokens 对长文档偏紧、容易被截断，
+            // 这里放宽到 8192；DeepSeek-OCR-2 侧的默认提示词已带 <|grounding|>，无需在此追加。
+            return Map.of("max_new_tokens", 8192);
         }
         return Map.of();
     }

@@ -117,21 +117,47 @@ public class HttpFetcher implements SpiderFetcher {
         } catch (IOException e) {
             long elapsed = System.currentTimeMillis() - startTime;
             builder.statusCode(0)
-                    .error("IO 异常: " + e.getMessage())
+                    .error("IO 异常: " + describe(e))
                     .fetchTimeMs(elapsed);
-            log.warn("[spider-fetcher] HTTP 抓取失败: {} - {}", request.getUrl(), e.getMessage());
+            // 这三个 catch 原先都只拼 e.getMessage()，而 ConnectException、ClosedChannelException
+            // 这类底层异常的 message 常常是 null，于是日志和采集任务详情里只剩「IO 异常: null」，
+            // 根因（对端在 SocketChannelImpl.connect 阶段直接关连接）完全不可见。
+            // 这里改为带上异常类名，并把堆栈一并打出。
+            log.warn("[spider-fetcher] HTTP 抓取失败: {} - {} ({}ms)",
+                    request.getUrl(), describe(e), elapsed, e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             builder.statusCode(0)
-                    .error("请求被中断: " + e.getMessage());
-            log.warn("[spider-fetcher] HTTP 请求被中断: {}", request.getUrl());
+                    .error("请求被中断: " + describe(e));
+            log.warn("[spider-fetcher] HTTP 请求被中断: {} - {}", request.getUrl(), describe(e), e);
         } catch (Exception e) {
             builder.statusCode(0)
-                    .error("未知异常: " + e.getMessage());
-            log.error("[spider-fetcher] HTTP 抓取异常: {}", request.getUrl(), e);
+                    .error("未知异常: " + describe(e));
+            log.error("[spider-fetcher] HTTP 抓取异常: {} - {}", request.getUrl(), describe(e), e);
         }
 
         return builder.build();
+    }
+
+    /**
+     * 异常的可读描述：类名 + message。
+     *
+     * <p>只用 {@code getMessage()} 是不够的——{@link java.net.ConnectException}、
+     * {@link java.nio.channels.ClosedChannelException} 这类底层异常的 message 经常是 null，
+     * 直接拼进日志只剩「null」，看不出断在哪一步。带上类名至少能指到根因那一层；
+     * 完整上下文靠调用处的堆栈参数。</p>
+     *
+     * @param e 异常
+     * @return 形如 {@code ConnectException: Connection refused} 的描述，e 为 null 时返回 {@code null}
+     */
+    private static String describe(Throwable e) {
+        if (e == null) {
+            return "null";
+        }
+        String message = e.getMessage();
+        return message == null || message.isBlank()
+                ? e.getClass().getSimpleName()
+                : e.getClass().getSimpleName() + ": " + message;
     }
 
     /**

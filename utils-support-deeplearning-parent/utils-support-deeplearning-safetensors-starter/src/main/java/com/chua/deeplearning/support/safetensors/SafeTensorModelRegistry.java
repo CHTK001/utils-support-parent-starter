@@ -130,6 +130,13 @@ public final class SafeTensorModelRegistry {
         if (name.contains("yolo") || name.contains("detect") || name.contains("damoyolo") || name.contains("dino")) {
             return "detection";
         }
+        // 端到端文档解析：整页图 → Markdown。必须排在通用 "ocr" 判定之前，
+        // 否则 ovisocr2 / unlimited-ocr / deepseek-ocr-2 都会因含 "ocr" 被误判为 "ocr"。
+        // 比较前先去掉连字符与下划线，使 deepseek-ocr-2 与 deepseek_ocr_2 都能命中。
+        String key = name.toLowerCase().replace("-", "").replace("_", "");
+        if (key.contains("unlimited") || key.contains("ovis") || key.contains("deepseekocr")) {
+            return "document_ocr";
+        }
         if (name.contains("ocr") || name.contains("ppocr")) {
             return "ocr";
         }
@@ -150,9 +157,6 @@ public final class SafeTensorModelRegistry {
         }
         if (name.contains("musicgen") || name.contains("bark")) {
             return "music_gen";
-        }
-        if (name.contains("ovisocr2") || name.contains("ovis")) {
-            return "document_ocr";
         }
         if (name.contains("florence") || name.contains("cogvlm") || name.contains("internvl")) {
             return "vlm";
@@ -354,6 +358,8 @@ list.add(new ModelEntry("gpt-4o", "vlm", "openai", "GPT-4o 在线图文理解"))
         // 文档版面解析
         list.add(new ModelEntry("unlimited-ocr", "document_ocr", "huggingface", "百度 Unlimited-OCR 端到端文档→Markdown 解析 (3B, R-SWA, CPU可行)"));
         list.add(new ModelEntry("ovisocr2", "document_ocr", "modelscope", "OvisOCR2 端到端文档→Markdown 解析 (Qwen3.5-0.8B)"));
+        list.add(new ModelEntry("deepseek-ocr-2", "document_ocr", "huggingface", "DeepSeek-OCR-2 整页图→Markdown 解析 (3B MoE, 视觉因果流，阅读顺序由模型保证，需 GPU)"));
+        list.add(new ModelEntry("deepseek-ocr-2-cpu", "document_ocr", "huggingface", "DeepSeek-OCR-2 CPU/MPS 变体 (Universal fork，解除硬编码 .cuda()，约 2-3 分钟/页)"));
 
         // LLM (HuggingFace 额外补充)
         list.add(new ModelEntry("mistral-7b", "llm", "huggingface", "Mistral-7B Instruct"));

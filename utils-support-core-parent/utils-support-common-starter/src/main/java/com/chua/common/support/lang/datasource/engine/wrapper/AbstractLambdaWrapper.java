@@ -1,7 +1,10 @@
 package com.chua.common.support.lang.datasource.engine.wrapper;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.lang.ast.ExpressionParser;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
+import com.chua.common.support.lang.datasource.engine.DefaultEngineOrm;
+import com.chua.common.support.lang.datasource.engine.EngineOrm;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -67,6 +70,13 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * 是否允许无 WHERE 条件的全表更新/删除（allowFullTable() 显式开启）
      */
     protected boolean fullTableAllowed;
+
+    /**
+     * {@link #withExpression(String)} 使用的默认表达式翻译器
+     *
+     * <p>无状态且不感知引擎与方言，所有包装器共用一份。</p>
+     */
+    private static final EngineOrm DEFAULT_ORM = new DefaultEngineOrm();
 
     /**
      * 创建 AbstractLambdaWrapper 实例
@@ -398,6 +408,81 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
     }
 
     /**
+     * AND 追加一个已构建好的条件。
+     *
+     * <p>{@link Condition#or(List)} 产出的 OR 分组若直接并入条件列表，
+     * {@link #buildWhere} 会因嵌套算子是 {@code OR} 而与前文以 OR 连接，
+     * 与本方法名不符。这里把 OR 分组再包一层 AND，使其真正以 AND 语义并入。</p>
+     *
+     * @param condition 条件，不允许为 null
+     * @return C 对象
+     */
+    public C and(Condition condition) {
+        Objects.requireNonNull(condition, "条件不能为空");
+        boolean orGroup = condition.isNested()
+                && "OR".equalsIgnoreCase(condition.getNestedOperator());
+        // 前面没有条件时不存在 OR 连接问题，无需包一层 AND
+        boolean wrap = orGroup && !conditions.isEmpty();
+        conditions.add(wrap ? new Condition(List.of(condition), "AND") : condition);
+        return (C) this;
+    }
+
+    /**
+     * OR 追加一个已构建好的条件。
+     *
+     * <p>叶子条件需要包成 OR 分组，否则 {@link #buildWhere} 会按 AND 与前文连接，
+     * 与本方法名不符。</p>
+     *
+     * @param condition 条件，不允许为 null
+     * @return C 对象
+     */
+    public C or(Condition condition) {
+        Objects.requireNonNull(condition, "条件不能为空");
+        boolean orGroup = condition.isNested()
+                && "OR".equalsIgnoreCase(condition.getNestedOperator());
+        conditions.add(orGroup ? condition : new Condition(List.of(condition), "OR"));
+        return (C) this;
+    }
+
+    /**
+     * AND 追加一段表达式文本条件。
+     *
+     * <p>是 {@code and(engine.orm().parse(expression))} 的简写：把表达式文本经
+     * {@link EngineOrm} 翻译成条件树，再以 AND 语义并入。解析器走
+     * {@value EngineOrm#DEFAULT_PARSER} SPI 扩展键。</p>
+     *
+     * <p>表达式文本是不可信输入时，列名仍会过白名单校验、值仍参数化绑定，
+     * 与逐个调用 {@code eq/gt/like} 的防护层级一致。</p>
+     *
+     * <p>需要 OR 语义时用 {@link #or(Condition)} 配合
+     * {@code engine.orm().parse(expression)}。</p>
+     *
+     * @param expression 表达式文本，不允许为 null 或空白
+     * @return C 对象
+     * @throws IllegalArgumentException   表达式为空、语法错误或含 ORM 不支持的算子时抛出
+     * @throws IllegalStateException     默认解析器未注册时抛出
+     */
+    public C withExpression(String expression) {
+        return and(DEFAULT_ORM.parse(expression));
+    }
+
+    /**
+     * AND 追加一段表达式文本条件，使用指定解析器。
+     *
+     * <p>允许用 Cypher / Lucene 等方言的解析器解析，再降级为 ORM 条件
+     * （前提是表达式只含 ORM 支持的算子）。</p>
+     *
+     * @param expression 表达式文本，不允许为 null 或空白
+     * @param parser     表达式解析器，不允许为 null
+     * @return C 对象
+     * @throws IllegalArgumentException       表达式为空、语法错误或含 ORM 不支持的算子时抛出
+     * @throws UnsupportedOperationException  解析器为 null 时抛出
+     */
+    public C withExpression(String expression, ExpressionParser parser) {
+        return and(DEFAULT_ORM.parse(expression, parser));
+    }
+
+    /**
      * AND 逻辑分组，括号包裹一组条件
      * @param andGroup and分组，不允许为 null
      * @return C 对象
@@ -488,21 +573,42 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
     /**
      * 构建 WHERE 子句和参数列表。
      * <p>遍历所有条件，普通条件之间以 AND 连接；若当前条件为 OR 嵌套分组，
-     * 则该分组与前文之间以 OR 连接（AND 嵌套分组仍以 AND 连接）。</p>
+     * 则该分组与前文之间以 OR 连接（AND 嵌套分组仍以 AND 连接）。
+     * 当 OR 分组之后又出现 AND 条件时，整段 OR 会被自动加括号，
+     * 以对齐 SQL 中 {@code AND} 优先级高于 {@code OR} 的求值规则——
+     * 否则 {@code .eq(a).or(x -> ...).and(y -> ...)} 生成的
+     * {@code a = ? OR (x) AND y = ?} 会被数据库读成 {@code a = ? OR ((x) AND y = ?)}。</p>
      *
      * @param sb     WHERE 片段缓冲
      * @param params 参数收集列表
      */
     protected void buildWhere(StringBuilder sb, List<Object> params) {
+        // OR 分组在 SQL 中优先级低于 AND：它与前文以 OR 连接，若其后又跟 AND 条件，
+        // 未加括号的 "a OR (b) AND c" 会被数据库解析成 "a OR ((b) AND c)"，
+        // 与链式书写意图不符。故记录本轮 OR 段的起点，在遇到后续 AND 条件时补左括号。
+        int orRunStart = -1;
         for (int i = 0; i < conditions.size(); i++) {
+            Condition current = conditions.get(i);
+            // OR 嵌套分组需要与前文以 OR 连接，其余条件统一 AND
+            boolean leadingOr = current.isNested()
+                    && "OR".equalsIgnoreCase(current.getNestedOperator());
             if (i > 0) {
-                Condition current = conditions.get(i);
-                // OR 嵌套分组需要与前文以 OR 连接，其余条件统一 AND
-                boolean leadingOr = current.isNested()
-                        && "OR".equalsIgnoreCase(current.getNestedOperator());
-                sb.append(leadingOr ? " OR " : " AND ");
+                if (leadingOr) {
+                    if (orRunStart < 0) {
+                        // 整段 OR 的左操作端就是已渲染的全部内容，从 0 处开口即可
+                        orRunStart = 0;
+                    }
+                    sb.append(" OR ");
+                } else {
+                    if (orRunStart >= 0) {
+                        sb.insert(orRunStart, "(");
+                        sb.append(")");
+                        orRunStart = -1;
+                    }
+                    sb.append(" AND ");
+                }
             }
-            renderCondition(sb, params, conditions.get(i));
+            renderCondition(sb, params, current);
         }
     }
 

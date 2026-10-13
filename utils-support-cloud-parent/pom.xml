@@ -39,6 +39,7 @@
         <module>utils-support-wechat-starter</module>
         <module>utils-support-webhook-starter</module>
         <module>utils-support-trae-starter</module>
+        <module>utils-support-bilibili-starter</module>
     </modules>
 </project>
 

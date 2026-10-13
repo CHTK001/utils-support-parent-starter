@@ -60,8 +60,8 @@ import java.util.function.Consumer;
  * <p>本实现覆写 {@link Agent} 的全部配置方法，按 opencode CLI 的真实能力分三档处理：</p>
  * <ul>
  *   <li><b>转发为真实 CLI 参数</b>：{@code chatClient(..)} → 派生 {@code -m provider/model}；
- *       {@link #model(String)} → {@code -m}；{@link #session(String)} → {@code -s}；
- *       {@link #workDir(String)} → {@code --dir}；{@link #agentName(String)} → {@code --agent}；
+ *       {@link #model(String)} → {@code -m}；{@link #sessionId(String)} → {@code -s}；
+ *       {@link #workspace(String)} → {@code --dir}；{@link #agentName(String)} → {@code --agent}；
  *       {@code definition(AgentDefinition)} → 把 system prompt 写进 {@code <workDir>/opencode.json}
  *       的 {@code agent.<id>.prompt} 并以 {@code --agent <id>} 注入（实测 opencode 会从 {@code --dir}
  *       加载项目 {@code opencode.json} 并生效）；{@code mcp(false)} → {@code --pure}
@@ -72,15 +72,19 @@ import java.util.function.Consumer;
  *       {@code debugHook(..)} → 在 {@code PRE_CALL / POST_CALL / ERROR} 阶段回调；
  *       {@code printConfig(true)} → 运行前打印生效配置；{@code subAgent(..)} → 存入列表并由
  *       {@link #getSubAgents()} 返回；{@code definition(..)} → 既供 {@link #getDefinition()} /
- *       {@link #getSystemPrompt()}，又在 {@link #workDir(String)} 已设且该目录无既有
+ *       {@link #getSystemPrompt()}，又在 {@link #workspace(String)} 已设且该目录无既有
  *       {@code opencode.json} 时注入 agent 配置；{@code compressionConfig(..)} → 存值供
  *       {@link #compressionConfig()}。</li>
+ *   <li><b>安全约束（fail-closed）</b>：{@code shellTool(false)} → 上层显式关闭 shell 时
+ *       <b>拒绝运行</b>。opencode 的 {@code --pure} 关的是外部插件而非 shell，CLI 没有
+ *       "保留文件工具、只禁 shell" 的组合，故表达不了的硬性约束只能拒绝，
+ *       不能静默放行（详见 {@link #ensureShellAllowed()}）。</li>
  *   <li><b>不兼容（存不下语义则记录，首次运行 WARN 一次）</b>：
  *       {@code chatClient(id,..)} / {@code mcpManager(..)} / {@code skillManager(..)} /
  *       {@code skill(..)} / {@code memoryConfig(..)} / {@code plan(..)} / {@code planMaxTask(..)} /
- *       {@code planHook(..)} —— opencode 自管工具/技能/记忆，且本实现仅 SINGLE，无法委派这些
- *       框架能力（{@code skill(..)}/{@code mcpManager(..)} 若要生效须在 opencode 侧另起 MCP 回调桥，
- *       不在本层范围）。</li>
+ *       {@code planHook(..)} / {@code startInPlanMode(true)} —— opencode 自管工具/技能/记忆，
+ *       且本实现仅 SINGLE，无法委派这些框架能力（{@code skill(..)}/{@code mcpManager(..)}
+ *       若要生效须在 opencode 侧另起 MCP 回调桥，不在本层范围）。</li>
  * </ul>
  *
  * <h3>支持范围（最小契约）</h3>
@@ -117,14 +121,32 @@ public class OpencodeAgent implements Agent {
     private String model;
 
     /**
-     * 会话 ID（透传 -s，续话）；null=新会话
-    */
-    private String session;
+     * 会话 ID（透传 {@code -s}，续话）；null=新会话。
+     *
+     * <p>接口方法 {@code sessionId(..)} 与便捷方法 {@link #session(String)} 都落到本字段：
+     * 上层（ai-starter 的会话编排）只调 {@code sessionId(..)}，若它不被覆写就会命中接口的空实现，
+     * opencode 永远收不到 {@code -s}，每轮都开新会话、多轮上下文直接断。</p>
+     */
+    private String sessionId;
 
     /**
-     * 工作目录（透传 --dir）；null=继承进程 cwd
-    */
+     * 工作目录（透传 {@code --dir}）；null=继承进程 cwd。
+     *
+     * <p>同理：{@link #workspace(String)} 与 {@link #workDir(String)} 都落到本字段。
+     * 否则上层设的「每会话独立工作目录」不生效，opencode 退回进程 cwd 读写文件，
+     * 跨会话文件冲突与越界风险都回来了。</p>
+     */
     private Path workDir;
+
+    /**
+     * 是否允许 shell 工具；null=上层未声明（沿用 opencode 默认）。
+     *
+     * <p>opencode 没有"仅关 shell"的开关（{@code --pure} 关的是外部插件，不是 shell），
+     * 故显式置 {@code false} 时以<b>拒绝运行</b>兜底而不是静默忽略——
+     * 上层正是靠它把非管理员账号的 shell 通道整个关掉，忽略等于把该账号放行到
+     * {@code cat /etc/passwd}、{@code curl} 外发这类路径白名单挡不住的命令上。</p>
+     */
+    private Boolean shellEnabled;
 
     /**
      * 进程超时（秒）
@@ -189,7 +211,15 @@ public class OpencodeAgent implements Agent {
     /**
      * WARN 是否已发出
     */
+    /**
+     * WARN 是否已发出
+     */
     private final AtomicBoolean warned = new AtomicBoolean(false);
+
+    /**
+     * shell 闸门告警是否已发出（与 {@link #warned} 分开：这条是安全策略，不是能力提示）
+     */
+    private final AtomicBoolean shellWarned = new AtomicBoolean(false);
 
     /**
      * 工具调用最大轮数（看门狗计数 step_finish）；≤0 不限制
@@ -226,22 +256,74 @@ public class OpencodeAgent implements Agent {
     /**
      * 设置会话 ID（透传 {@code -s}，续话）。
      *
+     * <p>便捷入口，与接口的 {@link #sessionId(String)} 同一字段，两者只应择一使用。</p>
+     *
      * @param session 会话标识，null 新会话
      * @return 当前实例
      */
     public OpencodeAgent session(String session) {
-        this.session = session;
+        return sessionId(session);
+    }
+
+    /**
+     * 设置会话 ID（接口 {@code sessionId} 的真实落点）。
+     *
+     * <p><b>为什么要覆写</b>：{@code Agent#sessionId(String)} 的默认实现是空操作，
+     * 而 opencode 的续话恰恰依赖它派生的 {@code -s}。不覆写的后果是静默的——
+     * 不报错、不 WARN，只是每轮都开新会话，多轮上下文全丢。</p>
+     *
+     * @param sessionId 会话标识，空值视为新会话
+     * @return 当前实例
+     */
+    @Override
+    public OpencodeAgent sessionId(String sessionId) {
+        this.sessionId = (sessionId == null || sessionId.isBlank()) ? null : sessionId.trim();
         return this;
     }
 
     /**
      * 设置工作目录（透传 {@code --dir}）。
      *
+     * <p>便捷入口，与接口的 {@link #workspace(String)} 同一字段，两者只应择一使用。</p>
+     *
      * @param workDir 目录路径，null 继承进程 cwd
      * @return 当前实例
      */
     public OpencodeAgent workDir(String workDir) {
-        this.workDir = (workDir == null || workDir.isBlank()) ? null : Paths.get(workDir.trim());
+        return workspace(workDir);
+    }
+
+    /**
+     * 设置工作目录（接口 {@code workspace} 的真实落点）。
+     *
+     * <p><b>为什么要覆写</b>：{@code Agent#workspace(String)} 默认也是空操作。
+     * 上层按「工作目录基路径 + 会话标识」算出每会话独立目录传进来，
+     * 不覆写则 opencode 退回进程 cwd 读写文件，会话之间互相覆盖。</p>
+     *
+     * @param workspace 目录路径，空值继承进程 cwd
+     * @return 当前实例
+     */
+    @Override
+    public OpencodeAgent workspace(String workspace) {
+        this.workDir = (workspace == null || workspace.isBlank()) ? null : Paths.get(workspace.trim());
+        return this;
+    }
+
+    /**
+     * 是否允许 shell 工具（接口 {@code shellTool} 的真实落点）。
+     *
+     * <p><b>为什么要覆写</b>：opencode 自带的 shell 能力没有独立开关，
+     * 而上层用本方法把「不准出工作间」的账号的 shell 通道整个关掉
+     * （文件工具有路径白名单兜底，shell 是命令字符串、绕得过前缀检查）。
+     * 默认空实现会让这个关闭<b>静默失效</b>，因此这里把它变成一道运行前闸门：
+     * 见 {@link #execute(String, Consumer)}。</p>
+     *
+     * @param enabled false 表示禁用 shell 工具
+     * @return 当前实例
+     */
+    @Override
+    public OpencodeAgent shellTool(boolean enabled) {
+        this.shellEnabled = enabled;
         return this;
     }
 
@@ -439,6 +521,24 @@ public class OpencodeAgent implements Agent {
         return this;
     }
 
+    /**
+     * 首轮即进入 Plan 只读模式（接口 {@code startInPlanMode}）。
+     *
+     * <p>opencode 没有框架意义上的 Plan/BUILD 两阶段，无法表达「首轮只读、不产生
+     * 文件写入与命令执行」。这里显式 {@link #markIgnored}，让它进首次运行的 WARN 清单——
+     * 静默空转会让上层以为规划模式生效了，实际副作用照旧发生。</p>
+     *
+     * @param active 是否首轮即进入 Plan 只读模式
+     * @return 当前实例
+     */
+    @Override
+    public OpencodeAgent startInPlanMode(boolean active) {
+        if (active) {
+            markIgnored("startInPlanMode(opencode 无框架 Plan 只读阶段，首轮副作用不会被拦住)");
+        }
+        return this;
+    }
+
     @Override
     public AgentDefinition getDefinition() {
         return definition;
@@ -564,6 +664,7 @@ public class OpencodeAgent implements Agent {
         if (input == null || input.isBlank()) {
             throw new IllegalArgumentException("输入为空");
         }
+        ensureShellAllowed();
         applyDefinition();
         warnIgnoredOnce();
         if (printConfig) {
@@ -630,8 +731,8 @@ public class OpencodeAgent implements Agent {
             if (model != null) {
                 resp.getMetadata().put("model", model);
             }
-            if (session != null) {
-                resp.getMetadata().put("session", session);
+            if (sessionId != null) {
+                resp.getMetadata().put("session", sessionId);
             }
             if (agentName != null) {
                 resp.getMetadata().put("agent", agentName);
@@ -768,9 +869,9 @@ public class OpencodeAgent implements Agent {
             a.add("-m");
             a.add(model);
         }
-        if (session != null && !session.isBlank()) {
+        if (sessionId != null && !sessionId.isBlank()) {
             a.add("-s");
-            a.add(session);
+            a.add(sessionId);
         }
         if (workDir != null) {
             a.add("--dir");
@@ -898,6 +999,32 @@ public class OpencodeAgent implements Agent {
     }
 
     /**
+     * shell 闸门：上层显式关掉 shell 时拒绝运行，而不是静默放行。
+     *
+     * <p><b>为什么是拒绝而不是尽力关</b>：opencode 的 {@code --pure} 关的是外部插件，
+     * 不是 shell；CLI 层面没有任何"保留文件工具、只禁 shell"的组合。
+     * 于是"关不掉"只剩两个选择——照旧放行（等于把关闭请求当空气），或拒绝运行。
+     * 选后者：上层用 {@code shellTool(false)} 表达的是<b>硬性安全约束</b>
+     * （非管理员账号不得执行任意命令），一个表达不了的约束被静默忽略，
+     * 比一次明确的失败危险得多。</p>
+     *
+     * <p>失败文案要点明"这是引擎能力不匹配"，否则管理员只会以为是自己填错了模型。</p>
+     *
+     * @throws IllegalStateException 上层已禁用 shell，但当前引擎无法约束 shell
+     */
+    private void ensureShellAllowed() {
+        if (!Boolean.FALSE.equals(shellEnabled)) {
+            return;
+        }
+        if (shellWarned.compareAndSet(false, true)) {
+            log.warn("[opencode] 上层已禁用 shell 工具，但 opencode 引擎无法约束 shell，本次运行被拒绝。"
+                    + "该账号的会话需要切回 agentscope / langchain4j 引擎才能使用");
+        }
+        throw new IllegalStateException("当前 Agent 引擎（opencode）无法禁用 shell 工具，"
+                + "已按安全策略拒绝本次运行；请将该会话切换为 agentscope 或 langchain4j 引擎");
+    }
+
+    /**
      * 生效配置摘要（printConfig 用）。
      *
      * @return 一行摘要
@@ -907,8 +1034,9 @@ public class OpencodeAgent implements Agent {
         sb.append("cli=").append(cli.cliId());
         sb.append(", mode=").append(mode);
         sb.append(", model=").append(model != null ? model : "<opencode-default>");
-        sb.append(", session=").append(session != null ? session : "<new>");
+        sb.append(", session=").append(sessionId != null ? sessionId : "<new>");
         sb.append(", workDir=").append(workDir != null ? workDir : "<cwd>");
+        sb.append(", shell=").append(shellEnabled == null ? "<engine-default>" : shellEnabled);
         if (agentName != null) {
             sb.append(", agent=").append(agentName);
         }

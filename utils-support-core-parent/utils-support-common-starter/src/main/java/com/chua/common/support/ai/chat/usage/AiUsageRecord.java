@@ -148,6 +148,22 @@ public class AiUsageRecord {
     private Long firstTokenLatencyMillis;
 
     /**
+     * 解码速度（Token / 秒）
+     *
+     * <p>输出 Token ÷ 解码窗口（总耗时 - 首字耗时），模型实际生成阶段的速率。
+     * 由 {@link AiUsage#tokensPerSecond()} 计算后带入。</p>
+     */
+    private Double tokensPerSecond;
+
+    /**
+     * 端到端吞吐（Token / 秒）
+     *
+     * <p>总 Token ÷ 总耗时（含首字耗时与网络延迟）。
+     * 由 {@link AiUsage#totalTokensPerSecond()} 计算后带入。</p>
+     */
+    private Double totalTokensPerSecond;
+
+    /**
      * 停止原因
      */
     private String finishReason;
@@ -195,6 +211,9 @@ public class AiUsageRecord {
         record.model = usage.getModel();
         record.durationMillis = usage.getDurationMillis();
         record.firstTokenLatencyMillis = usage.getFirstTokenLatencyMillis();
+        // 解码速度 / 端到端吞吐（派生计算，字段缺失时返回 null）
+        record.tokensPerSecond = usage.tokensPerSecond();
+        record.totalTokensPerSecond = usage.totalTokensPerSecond();
         record.finishReason = usage.getFinishReason();
 
         // 若未提供起始时间则使用当前时间
@@ -268,6 +287,8 @@ public class AiUsageRecord {
                 .model(model)
                 .durationMillis(durationMillis)
                 .firstTokenLatencyMillis(firstTokenLatencyMillis)
+                .tokensPerSecond(tokensPerSecond)
+                .totalTokensPerSecond(totalTokensPerSecond)
                 .finishReason(finishReason)
                 .estimated(false)
                 .build();
@@ -576,6 +597,28 @@ public class AiUsageRecord {
          */
         public Builder firstTokenLatencyMillis(Long firstTokenLatencyMillis) {
             record.firstTokenLatencyMillis = firstTokenLatencyMillis;
+            return this;
+        }
+
+        /**
+         * 设置解码速度（Token / 秒）
+         *
+         * @param tokensPerSecond 解码速度
+         * @return Builder
+         */
+        public Builder tokensPerSecond(Double tokensPerSecond) {
+            record.tokensPerSecond = tokensPerSecond;
+            return this;
+        }
+
+        /**
+         * 设置端到端吞吐（Token / 秒）
+         *
+         * @param totalTokensPerSecond 端到端吞吐
+         * @return Builder
+         */
+        public Builder totalTokensPerSecond(Double totalTokensPerSecond) {
+            record.totalTokensPerSecond = totalTokensPerSecond;
             return this;
         }
 

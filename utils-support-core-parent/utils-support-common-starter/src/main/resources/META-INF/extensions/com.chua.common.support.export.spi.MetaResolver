@@ -1,0 +1,3 @@
+javabean=com.chua.common.support.export.resolver.JavabeanMetaResolver
+third-party=com.chua.common.support.export.resolver.ThirdPartyMetaResolver
+export=com.chua.common.support.export.resolver.ExportAnnotationMetaResolver

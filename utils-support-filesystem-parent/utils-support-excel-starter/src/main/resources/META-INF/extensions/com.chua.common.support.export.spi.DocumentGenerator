@@ -1,0 +1,3 @@
+poi=com.chua.excel.support.export.PoiDocumentGenerator
+excel=com.chua.excel.support.export.PoiDocumentGenerator
+xlsx=com.chua.excel.support.export.PoiDocumentGenerator

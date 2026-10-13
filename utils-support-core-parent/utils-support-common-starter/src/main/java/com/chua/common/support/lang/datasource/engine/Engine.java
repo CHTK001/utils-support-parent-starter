@@ -898,6 +898,33 @@ public interface Engine extends AutoCloseable {
     }
 
     /**
+     * 获取 ORM 条件构建入口，把表达式文本翻译为 {@code Condition} 条件树。
+     *
+     * <p>这是 {@code ExpressionParser} 与 Lambda 链式查询之间的桥，用于让调用方
+     * 用一段自由文本描述筛选条件，而不必逐个调用 {@code eq/gt/like}：</p>
+     * <pre>{@code
+     *   List<User> users = engine.query(User.class)
+     *       .eq(User::getTenantId, 42L)
+     *       .and(engine.orm().parse("age > 18 AND status = 'active'"))
+     *       .list();
+     * }</pre>
+     *
+     * <p><b>为什么返回条件树而不是表达式文本</b>：条件树由
+     * {@code AbstractLambdaWrapper#buildWhere} 渲染为 {@code ?} 占位符形式，
+     * 列名过白名单校验、值参数化绑定；直接拼表达式文本会绕过这两层防护。</p>
+     *
+     * <p><b>能力入口</b>：默认实现无状态、不感知引擎与方言，所有引擎通用，
+     * 无需覆盖。{@link #supportsSql()} 为 false 的引擎同样可用——
+     * 它只构造条件，不执行语句。</p>
+     *
+     * @return ORM 条件构建入口（非 null）
+     * @see EngineOrm
+     */
+    default EngineOrm orm() {
+        return new DefaultEngineOrm();
+    }
+
+    /**
      * 通过 SPI 创建引擎实例。
      *
      * @param type SPI 扩展键（如 "jdbc"）

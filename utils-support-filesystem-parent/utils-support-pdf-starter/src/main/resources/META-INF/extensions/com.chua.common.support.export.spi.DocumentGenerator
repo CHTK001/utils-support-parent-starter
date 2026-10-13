@@ -1,0 +1,2 @@
+pdfbox=com.chua.pdf.support.export.PdfBoxDocumentGenerator
+pdf=com.chua.pdf.support.export.PdfBoxDocumentGenerator

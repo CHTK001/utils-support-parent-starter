@@ -1,18 +1,13 @@
 package com.chua.word.support.file.impl;
 
 import com.chua.common.support.file.builder.WriteBuilder;
-import com.chua.common.support.file.template.TemplateFileSystem;
-import com.chua.common.support.spi.ServiceProvider;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,35 +16,18 @@ import java.util.Map;
  * Word 文件写入构建器。
  *
  * <p>基于 Apache POI 实现 .docx 文档的文本写入。
- * 支持延迟写入（多次 写入 + 饰面）和实时写入（写入和flush），
- * 设置 {@link #withTemplate(File)} 后只走模板模式。</p>
+ * 支持延迟写入（多次 写入 + 饰面）和实时写入（写入和flush）。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 public class WordWriteBuilder extends WriteBuilder {
     /**
-     * 模板文件流
-     */
-    private InputStream templateStream;
-
-    /**
      * 创建 word写入构建器 实例
      * @param file 文件
      */
     public WordWriteBuilder(File file) {
         super(file);
-    }
-
-    /**
-     * 设置模板文件流（设置后只走模板）
-     *
-     * @param stream 模板文件流
-     * @return 当前构建器
-     */
-    public WordWriteBuilder withTemplate(InputStream stream) {
-        this.templateStream = stream;
-        return this;
     }
 
     /**
@@ -91,11 +69,6 @@ public class WordWriteBuilder extends WriteBuilder {
     public void writeAndFlush(List<String> lines) {
         callback.onStart();
         callback.onBeginWrite();
-        if (templateFile != null || templateStream != null) {
-            resolveTemplate();
-            callback.onComplete(true);
-            return;
-        }
         doWriteText(lines);
         callback.onComplete(true);
     }
@@ -108,11 +81,6 @@ public class WordWriteBuilder extends WriteBuilder {
     public void writeAndFlushMap(List<Map<String, Object>> rows) {
         callback.onStart();
         callback.onBeginWrite();
-        if (templateFile != null || templateStream != null) {
-            resolveTemplate();
-            callback.onComplete(true);
-            return;
-        }
         doWriteMap(rows);
         callback.onComplete(true);
     }
@@ -124,11 +92,6 @@ public class WordWriteBuilder extends WriteBuilder {
     public void finish() {
         callback.onStart();
         callback.onBeginWrite();
-        if (templateFile != null || templateStream != null) {
-            resolveTemplate();
-            callback.onComplete(true);
-            return;
-        }
         try (XWPFDocument doc = new XWPFDocument()) {
             int written = 0;
             for (Object entry : pending) {
@@ -220,24 +183,4 @@ public class WordWriteBuilder extends WriteBuilder {
         }
     }
 
-    /**
-     * 解析Template
-    */
-    private void resolveTemplate() {
-        try {
-            TemplateFileSystem engine = ServiceProvider.of(TemplateFileSystem.class).getExtension("txt");
-            if (engine == null) {
-                throw new IllegalStateException("未找到 FileTemplateSystem 实现");
-            }
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            try (InputStream tis = templateStream != null ? templateStream : new FileInputStream(templateFile)) {
-                engine.resolve(tis, bos, templateData);
-            }
-            try (FileOutputStream fos = new FileOutputStream(file)) {
-                fos.write(bos.toByteArray());
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Word 模板写入失败", e);
-        }
-    }
 }

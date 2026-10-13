@@ -29,6 +29,11 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
     protected static final Path USER_HOME = Paths.get(System.getProperty("user.home", "."));
 
     /**
+     * 配置根目录下可能承载技能的子目录名
+     */
+    private static final String[] SKILL_SUB_DIRS = {"skills", "rules", "commands"};
+
+    /**
      * 配置目录相对路径（如 .Cursor、.claude）。
      *
      * @return 配置目录
@@ -73,51 +78,71 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
     @Override
     public List<SkillDefinition> listAgentSkills() {
         List<SkillDefinition> result = Wraps.list();
-        for (Path base : skillRoots()) {
-            scanDirs(base, result);
+        for (Path dir : skillDirectories()) {
+            scanSkillDir(dir, result);
         }
         return result;
     }
 
     /**
-     * 扫描目录下的技能（skills/rules/命令 子目录，SKILL.md 或单文件规则）。
+     * 实际存放技能的目录列表。
      *
-     * @param base   配置根目录
-     * @param result 结果收集器
+     * <p>默认把每个 {@link #skillRoots() 配置根目录} 展开为
+     * {@code skills}、{@code rules}、{@code commands} 三个子目录。
+     * 若某 Agent 的根目录<b>本身就是</b>技能目录（如 DSH 的
+     * {@code ~/.agents/skills}），子类可覆写本方法直接返回该目录，避免多套一层。</p>
+     *
+     * @return 技能目录列表
      */
-    private void scanDirs(Path base, List<SkillDefinition> result) {
-        if (!Files.isDirectory(base)) {
-            return;
-        }
-        for (String sub : new String[]{"skills", "rules", "commands"}) {
-            Path dir = base.resolve(sub);
-            if (!Files.isDirectory(dir)) {
+    protected List<Path> skillDirectories() {
+        List<Path> dirs = Wraps.list();
+        for (Path base : skillRoots()) {
+            if (base == null || !Files.isDirectory(base)) {
                 continue;
             }
-            try (var stream = Files.list(dir)) {
-                for (Path p : stream.sorted().toList()) {
-                    if (Files.isDirectory(p)) {
-                        Path skillMd = p.resolve("SKILL.md");
-                        if (!Files.exists(skillMd)) {
-                            skillMd = p.resolve("skill.md");
-                        }
-                        if (Files.exists(skillMd)) {
-                            SkillDefinition def = parseSkillMd(skillMd, p.getFileName().toString());
-                            if (def != null) {
-                                result.add(def);
-                            }
-                        }
-                    } else if (p.toString().endsWith(".md") || p.toString().endsWith(".mdc")) {
-                        String name = p.getFileName().toString().replaceAll("\\.(md|mdc)$", "");
-                        SkillDefinition def = parseSkillMd(p, name);
+            for (String sub : SKILL_SUB_DIRS) {
+                Path dir = base.resolve(sub);
+                if (Files.isDirectory(dir)) {
+                    dirs.add(dir);
+                }
+            }
+        }
+        return dirs;
+    }
+
+    /**
+     * 扫描单个技能目录（其下为各技能的目录，或单文件规则）。
+     *
+     * @param dir    技能目录
+     * @param result 结果收集器
+     */
+    private void scanSkillDir(Path dir, List<SkillDefinition> result) {
+        if (dir == null || !Files.isDirectory(dir)) {
+            return;
+        }
+        try (var stream = Files.list(dir)) {
+            for (Path p : stream.sorted().toList()) {
+                if (Files.isDirectory(p)) {
+                    Path skillMd = p.resolve("SKILL.md");
+                    if (!Files.exists(skillMd)) {
+                        skillMd = p.resolve("skill.md");
+                    }
+                    if (Files.exists(skillMd)) {
+                        SkillDefinition def = parseSkill(skillMd, p.getFileName().toString());
                         if (def != null) {
                             result.add(def);
                         }
                     }
+                } else if (p.toString().endsWith(".md") || p.toString().endsWith(".mdc")) {
+                    String name = p.getFileName().toString().replaceAll("\\.(md|mdc)$", "");
+                    SkillDefinition def = parseSkill(p, name);
+                    if (def != null) {
+                        result.add(def);
+                    }
                 }
-            } catch (IOException e) {
-                // 忽略单个子目录扫描异常
             }
+        } catch (IOException e) {
+            // 忽略单个技能目录扫描异常
         }
     }
 
@@ -153,7 +178,7 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
      * @param skillName   技能名称（目录名）
      * @return SkillDefinition 实例；解析失败返回 空
      */
-     private SkillDefinition parseSkillMd(Path skillMdFile, String skillName) {
+     protected SkillDefinition parseSkill(Path skillMdFile, String skillName) {
          try {
              String content = Files.readString(skillMdFile, StandardCharsets.UTF_8);
              String description = extractDescription(content);
@@ -241,8 +266,8 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
     /**
      * 解析技能在本机的真实落盘位置。
      *
-     * <p>在与 {@link #listAgentSkills()} 相同的目录下（{@code skills/rules/commands}）
-     * 查找与技能名匹配的目录（含 SKILL.md/skill.md）或单文件规则（{@code <name>.md/.mdc}），
+     * <p>在与 {@link #listAgentSkills()} 相同的技能目录（{@link #skillDirectories()}）
+     * 下查找与技能名匹配的目录（含 SKILL.md/skill.md）或单文件规则（{@code <name>.md/.mdc}），
      * 供后端将 {@code agent://PROVIDER/SKILL} 虚拟地址解析为可导入路径。</p>
      *
      * @param skillName 技能名（目录名或去掉扩展名的 .md 文件名）
@@ -253,11 +278,8 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
         if (!isSingleSegmentName(skillName)) {
             return null;
         }
-        for (Path base : skillRoots()) {
-            if (base == null) {
-                continue;
-            }
-            Path result = findSkillInBase(base, skillName);
+        for (Path dir : skillDirectories()) {
+            Path result = findSkillInDir(dir, skillName);
             if (result != null) {
                 return result;
             }
@@ -289,22 +311,19 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
      * @param skillName 技能名
      * @return 匹配路径；不存在返回 null
      */
-    private Path findSkillInBase(Path base, String skillName) {
-        for (String sub : new String[]{"skills", "rules", "commands"}) {
-            Path dir = base.resolve(sub);
-            if (!Files.isDirectory(dir)) {
-                continue;
-            }
-            Path dirMatch = dir.resolve(skillName);
-            if (Files.isDirectory(dirMatch)
-                    && (Files.exists(dirMatch.resolve("SKILL.md")) || Files.exists(dirMatch.resolve("skill.md")))) {
-                return dirMatch;
-            }
-            for (String ext : new String[]{".md", ".mdc"}) {
-                Path fileMatch = dir.resolve(skillName + ext);
-                if (Files.isRegularFile(fileMatch)) {
-                    return fileMatch;
-                }
+    private Path findSkillInDir(Path dir, String skillName) {
+        if (dir == null || !Files.isDirectory(dir)) {
+            return null;
+        }
+        Path dirMatch = dir.resolve(skillName);
+        if (Files.isDirectory(dirMatch)
+                && (Files.exists(dirMatch.resolve("SKILL.md")) || Files.exists(dirMatch.resolve("skill.md")))) {
+            return dirMatch;
+        }
+        for (String ext : new String[]{".md", ".mdc"}) {
+            Path fileMatch = dir.resolve(skillName + ext);
+            if (Files.isRegularFile(fileMatch)) {
+                return fileMatch;
             }
         }
         return null;

@@ -1,0 +1,3 @@
+poi-word=com.chua.word.support.export.PoiWordDocumentGenerator
+word=com.chua.word.support.export.PoiWordDocumentGenerator
+docx=com.chua.word.support.export.PoiWordDocumentGenerator

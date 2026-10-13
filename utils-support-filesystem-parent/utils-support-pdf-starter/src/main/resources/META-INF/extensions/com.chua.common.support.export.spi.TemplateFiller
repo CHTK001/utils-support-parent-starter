@@ -1,0 +1,3 @@
+pdfbox=com.chua.pdf.support.export.PdfAcroFormTemplateFiller
+pdf-form=com.chua.pdf.support.export.PdfAcroFormTemplateFiller
+pdf=com.chua.pdf.support.export.PdfAcroFormTemplateFiller

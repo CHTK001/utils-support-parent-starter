@@ -1,0 +1,8 @@
+# SPI配置文件 - 调色板量化器（图片压缩的 native 钩子）
+# 接口: com.chua.common.support.image.compression.PaletteQuantizer
+#
+# 默认实现是纯 Java 的 Lab 空间中位切分，order = -100（兜底）。
+# 接入 libimagequant（即 pngquant 内核）时，只需新增实现类并在这里注册。
+
+median-cut=com.chua.image.support.compression.engine.MedianCutQuantizer
+libimagequant=com.chua.image.support.compression.engine.ImageQuantQuantizer

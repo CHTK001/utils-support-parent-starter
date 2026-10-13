@@ -125,6 +125,9 @@ public class CustomServiceResolver implements ServiceResolver {
      * @return 服务定义列表
      */
     protected List<ServiceDefinition> readLine(final String line, URL url, Class<?> type, ClassLoader classLoader) {
+        if (isComment(line)) {
+            return null;
+        }
         String[] aliasAndClassName = parseSpiNameAndClassName(line);
         int size = 2;
         if (aliasAndClassName == null || aliasAndClassName.length != size) {
@@ -133,7 +136,31 @@ public class CustomServiceResolver implements ServiceResolver {
         String alias = aliasAndClassName[0];
         String className = aliasAndClassName[1];
         Class<?> tmp = ReflectUtils.forName(className, classLoader);
+        if (tmp == null || !type.isAssignableFrom(tmp)) {
+            if (log.isDebugEnabled()) {
+                log.debug("[SPI] 跳过无法加载或未实现 {} 的配置行：{}", type.getTypeName(), line);
+            }
+            return null;
+        }
         return buildDefinition(type, CustomServiceResolver.class, null, tmp, StringUtils.defaultString(alias, tmp.getSimpleName().replace(type.getSimpleName(), "")), url);
+    }
+
+    /**
+     * 判断是否为注释行。
+     *
+     * <p>配置文件里允许用 {@code #} 开头写说明。此前没有跳过注释：
+     * 注释行会被当成类名去 {@code forName}，拿到 {@code null} 后在
+     * {@code buildDefinition} 里抛 NPE；该异常又被 {@link #loadFromClassLoader}
+     * 的 per-URL try 捕获，结果是<b>整个配置文件后续的实现全部丢失</b>。</p>
+     *
+     * @param line 配置行，允许为 {@code null}
+     * @return 注释行返回 {@code true}
+     */
+    protected boolean isComment(final String line) {
+        if (line == null) {
+            return false;
+        }
+        return sanitizeSpiLine(line).indexOf('#') == 0;
     }
 
     /**
