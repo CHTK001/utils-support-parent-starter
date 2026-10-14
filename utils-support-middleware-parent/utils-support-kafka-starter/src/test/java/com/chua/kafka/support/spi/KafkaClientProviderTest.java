@@ -93,6 +93,21 @@ class KafkaClientProviderTest {
     }
 
     @Test
+    @DisplayName("只读白名单：写操作在创建客户端前即被拒绝")
+    void writeQueryRejectedBeforeClientCreation() {
+        MiddlewareClientProvider kafka = collect().stream()
+                .filter(p -> "kafka".equals(p.name()))
+                .findFirst()
+                .orElseThrow();
+        var result = kafka.query(
+                com.chua.datasource.support.middleware.MiddlewareConnectRequest.of("127.0.0.1", 19091, "", "", ""),
+                "delete-topic x", 10);
+        assertNotNull(result);
+        assertTrue(result.rows().isEmpty(), "写语句不应产生行数据");
+        assertTrue(result.message().contains("不支持的查询"), "应给只读白名单提示");
+    }
+
+    @Test
     @DisplayName("不可达地址的连接测试返回失败对象（不抛异常）")
     void unreachableTestReturnsFail() {
         MiddlewareClientProvider kafka = collect().stream()

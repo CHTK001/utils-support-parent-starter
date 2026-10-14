@@ -159,6 +159,16 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
             return MiddlewareQueryResult.fail("查询表达式为空。支持：topics / brokers / groups / describe <topic> / preview <topic>");
         }
         String cmd = expression.trim();
+        String lower = cmd.toLowerCase();
+        boolean supported = cmd.equalsIgnoreCase("topics")
+                || cmd.equalsIgnoreCase("brokers")
+                || cmd.equalsIgnoreCase("groups")
+                || lower.startsWith("describe ")
+                || lower.startsWith("preview ");
+        if (!supported) {
+            return MiddlewareQueryResult.fail("不支持的查询: " + cmd
+                    + "。只读查询仅支持 topics / brokers / groups / describe <topic> / preview <topic>");
+        }
         long t0 = System.currentTimeMillis();
         try (AdminClient admin = adminClient(request)) {
             if (cmd.equalsIgnoreCase("topics")) {
@@ -170,15 +180,10 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
             if (cmd.equalsIgnoreCase("groups")) {
                 return groups(admin, t0);
             }
-            String lower = cmd.toLowerCase();
             if (lower.startsWith("describe ")) {
                 return describe(admin, t0, cmd.substring("describe ".length()).trim());
             }
-            if (lower.startsWith("preview ")) {
-                return preview(request, t0, cmd.substring("preview ".length()).trim(), limit);
-            }
-            return MiddlewareQueryResult.fail("不支持的查询: " + cmd
-                    + "。只读查询仅支持 topics / brokers / groups / describe <topic> / preview <topic>");
+            return preview(request, t0, cmd.substring("preview ".length()).trim(), limit);
         } catch (Exception e) {
             return MiddlewareQueryResult.fail(rootMessage(e));
         }
