@@ -433,6 +433,13 @@ public class AiUsage {
      * （非流式请求、极短输出）时，退化为 输出 Token ÷ 总耗时 的近似口径，
      * 避免解码窗口为零导致除零。
      *
+     * <p>2026-10-14 新增窗口下限保护：解码窗口小于 1 秒时同样退化为
+     * 输出 Token ÷ 总耗时的近似口径。原因是某些服务商以粗块批量推送
+     * 流式增量（首字与完成时刻几乎同时落定，如 283 token 只占 91ms），
+     * 此时真实速率无法从窗口反推，几千 tok/s 属于测量口径假象 ——
+     * 与「请求被缓存/回放」的异常同样表现。宁可显示偏保守的近似值，
+     * 也不展示物理上不可信的速率。
+     *
      * @return 解码速度（tok/s），Token 数或总耗时缺失时返回 null
      */
     public Double tokensPerSecond() {
@@ -446,7 +453,8 @@ public class AiUsage {
         long decodeWindow = durationMillis;
         if (firstTokenLatencyMillis != null && firstTokenLatencyMillis > 0) {
             long window = durationMillis - firstTokenLatencyMillis;
-            if (window > 0) {
+            // 窗口下限保护（见上方注释）：窄窗口弃用，退化为总耗时口径
+            if (window >= 1000) {
                 decodeWindow = window;
             }
         }

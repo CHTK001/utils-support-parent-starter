@@ -25,6 +25,16 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
         </dependency>
+        <!-- 中间件 SPI 契约：实现 MiddlewareClientProvider（管理面）。 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-datasource-starter</artifactId>
+        </dependency>
+            <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
 

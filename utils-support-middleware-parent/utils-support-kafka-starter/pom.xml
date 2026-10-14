@@ -21,6 +21,19 @@
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
         </dependency>
+        <!-- 中间件 SPI 契约：MiddlewareClientProvider 及其 VO。
+             这里引契约而不是引宿主（spring-support-datasource-hub-starter）——
+             实现方在下、宿主在上，反向依赖会把整个宿主拖进 Kafka 的使用方。 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-datasource-starter</artifactId>
+        </dependency>
+        <!-- SPI 装配自测：验证实现能被 ServiceProvider 按 name() 找到 -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
 

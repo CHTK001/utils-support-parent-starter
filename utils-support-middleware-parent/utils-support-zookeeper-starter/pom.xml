@@ -29,6 +29,23 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
         </dependency>
+        <!-- 中间件 SPI 契约：实现 MiddlewareClientProvider（管理面）。 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-datasource-starter</artifactId>
+        </dependency>
+        <!-- zookeeper 原生 API：管理面要读 Stat（czxid/mzxid/version…），
+             Curator 只传递依赖它，这里显式声明以便直接用。 -->
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+        </dependency>
+        <!-- SPI 装配自测 -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
 
