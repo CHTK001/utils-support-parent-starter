@@ -46,6 +46,7 @@ public class WhatsAppBotClientFactory implements BotClient.Factory {
         private String appSecret;
         private String verifyToken;
         private String baseUrl;
+        private String httpProxy;
         private long connectTimeoutMillis = 10_000L;
         private long readTimeoutMillis = 30_000L;
 
@@ -101,6 +102,17 @@ public class WhatsAppBotClientFactory implements BotClient.Factory {
             return this;
         }
 
+        /**
+         * 设置出站 HTTP 代理（Meta Graph API 调用走该代理）。
+         *
+         * @param httpProxy 代理地址，格式 {@code host:port}
+         * @return this
+         */
+        public BotClient.Builder httpProxy(String httpProxy) {
+            this.httpProxy = httpProxy;
+            return this;
+        }
+
         @Override
         public BotClient build() {
             WhatsAppBotClient client = new WhatsAppBotClient();
@@ -110,6 +122,9 @@ public class WhatsAppBotClientFactory implements BotClient.Factory {
             }
             if (baseUrl != null) {
                 client.baseUrl(baseUrl);
+            }
+            if (httpProxy != null) {
+                client.httpProxy(httpProxy);
             }
             client.connectTimeoutMillis(connectTimeoutMillis);
             client.readTimeoutMillis(readTimeoutMillis);
