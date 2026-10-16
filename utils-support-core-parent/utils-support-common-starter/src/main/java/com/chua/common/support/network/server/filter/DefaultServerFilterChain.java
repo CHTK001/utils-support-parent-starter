@@ -74,6 +74,18 @@ public class DefaultServerFilterChain implements ServerFilterChain {
         if (index < filters.size()) {
             ServerFilter filter = filters.get(index++);
 
+            // 契约：{@link ServerFilter#isEnabled()} 返回 false 时该过滤器必须被跳过。
+            // 链上的过滤器列表在构建时缓存（ServerFilterManager.getMergedFilters），
+            // 而服务管理「过滤器热启停」只改实例的 enabled 标志、不重建列表；若不在
+            // 此逐请求判定，热切换就形同虚设（实测：停用 file-storage 后目录页仍 200）。
+            if (!filter.isEnabled()) {
+                if (response.isEnded()) {
+                    return;
+                }
+                doFilter(request, response);
+                return;
+            }
+
             // 路径匹配检查：Endpoint Filter 仅在路径匹配时执行
             String path = filter.supportPath();
             if (path != null && !matchPath(path, request.getPath())) {
