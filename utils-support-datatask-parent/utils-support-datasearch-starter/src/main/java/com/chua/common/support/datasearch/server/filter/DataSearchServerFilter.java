@@ -1,6 +1,8 @@
 package com.chua.common.support.datasearch.server.filter;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.datasearch.emoji.model.EmojiInfo;
+import com.chua.common.support.datasearch.emoji.spi.EmojiProvider;
 import com.chua.common.support.datasearch.exchange.spi.ExchangeRateProvider;
 import com.chua.common.support.datasearch.express.model.ExpressTrace;
 import com.chua.common.support.datasearch.express.spi.ExpressProvider;
@@ -38,15 +40,17 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 数据搜索服务过滤器。
  *
  * <p>将 {@code datasearch-starter} 内全部数据提供者（成语 / 古诗词 / 汉字字典 /
  * 手机归属地 / 星座运势 / 天气 / 节假日 / 行政区划 / 汇率 / 快递 / 台风 / IP 定位 /
- * 逆地理编码）暴露为统一 REST 接口，供任何 {@link com.chua.common.support.network.server.Server}
+ * 逆地理编码 / 表情包）暴露为统一 REST 接口，供任何 {@link com.chua.common.support.network.server.Server}
  * 挂载使用。</p>
  *
  * <p>接口统一前缀为 {@code /datasearch}，路由规则如下：</p>
@@ -77,6 +81,8 @@ import java.util.Map;
  *   <li>{@code /datasearch/location/ip?ip=8.8.8.8} — IP 定位</li>
  *   <li>{@code /datasearch/geocode/reverse?lat=39.9&lon=116.4} — 逆地理编码</li>
  *   <li>{@code /datasearch/geocode/ip?ip=8.8.8.8} — IP 转地址</li>
+ *   <li>{@code /datasearch/emoji/search?keyword=狗子&page=1&source=doutula} — 表情包检索</li>
+ *   <li>{@code /datasearch/emoji/sources} — 表情包数据源列表</li>
  * </ul>
  *
  * <p>响应统一为 JSON：{@code {"code":200,"msg":"ok","data":{...}}}。
@@ -194,6 +200,10 @@ public class DataSearchServerFilter implements ServerFilter {
         }
         if (subPath.startsWith("/geocode/")) {
             handleGeocode(subPath.substring("/geocode/".length()), request, response);
+            return;
+        }
+        if (subPath.startsWith("/emoji")) {
+            handleEmoji(subPath, request, response);
             return;
         }
         switch (subPath) {
@@ -490,6 +500,72 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
+     * 表情包路由。
+     *
+     * <p>支持 {@code /emoji/search?keyword=&page=&source=} 检索、
+     * {@code /emoji/sources} 数据源列表。
+     * 未指定 {@code source} 时聚合全部数据源并按原图地址去重。</p>
+     *
+     * @param subPath sub路径
+     * @param request 请求
+     * @param response 响应
+     */
+    private void handleEmoji(String subPath, ServerRequest request, ServerResponse response) throws Exception {
+        Map<String, EmojiProvider> providers = ServiceProvider.of(EmojiProvider.class).list();
+        if (providers == null || providers.isEmpty()) {
+            write(response, 404, "emoji provider not found", null);
+            return;
+        }
+        if (subPath.startsWith("/emoji/sources")) {
+            List<String> names = Wraps.list();
+            for (EmojiProvider provider : providers.values()) {
+                String name = provider.name();
+                if (name != null && !name.isBlank() && !names.contains(name)) {
+                    names.add(name);
+                }
+            }
+            write(response, 200, "ok", names);
+            return;
+        }
+        String keyword = request.getParam("keyword");
+        if (keyword == null || keyword.isBlank()) {
+            write(response, 400, "missing param: keyword", null);
+            return;
+        }
+        int page = intParam(request, "page", 1);
+        String source = request.getParam("source");
+        List<Object> result = Wraps.list();
+        Set<String> seen = new HashSet<>();
+        for (Map.Entry<String, EmojiProvider> entry : providers.entrySet()) {
+            if (!matchesSource(source, entry)) {
+                continue;
+            }
+            for (EmojiInfo info : entry.getValue().search(keyword, page)) {
+                if (seen.add(info.getImageUrl())) {
+                    result.add(toJsonable(info));
+                }
+            }
+        }
+        write(response, 200, "ok", result);
+    }
+
+    /**
+     * 判断数据源是否命中过滤条件（按 SPI 名称或提供器名称匹配，忽略大小写）。
+     *
+     * @param source 请求指定的数据源，为空表示不过滤
+     * @param entry  SPI 注册项
+     * @return 命中返回 true
+     */
+    private static boolean matchesSource(String source, Map.Entry<String, EmojiProvider> entry) {
+        if (source == null || source.isBlank()) {
+            return true;
+        }
+        String name = entry.getValue().name();
+        return source.equalsIgnoreCase(entry.getKey())
+                || (name != null && source.equalsIgnoreCase(name));
+    }
+
+    /**
      * 手机归属地路由
      *
      * @param request 请求
@@ -659,6 +735,9 @@ public class DataSearchServerFilter implements ServerFilter {
         if (obj instanceof ExpressTrace expressTrace) {
             return expressTrace.toMap();
         }
+        if (obj instanceof EmojiInfo emojiInfo) {
+            return emojiInfo.toMap();
+        }
         return obj;
     }
 
@@ -714,6 +793,8 @@ public class DataSearchServerFilter implements ServerFilter {
         map.put("location/ip", "?ip=8.8.8.8");
         map.put("geocode/reverse", "?lat=39.9&lon=116.4");
         map.put("geocode/ip", "?ip=8.8.8.8");
+        map.put("emoji/search", "?keyword=狗子&page=1&source=doutula");
+        map.put("emoji/sources", "");
         return map;
     }
 
@@ -914,6 +995,11 @@ public class DataSearchServerFilter implements ServerFilter {
             + "    { name: 'IP 定位', path: '/location/ip', params: [{ k: 'ip', v: '8.8.8.8' }] },\n"
             + "    { name: '逆地理编码', path: '/geocode/reverse', params: [{ k: 'lat', v: '39.9' }, { k: 'lon', v: '116.4' }] },\n"
             + "    { name: 'IP 转地址', path: '/geocode/ip', params: [{ k: 'ip', v: '8.8.8.8' }] }\n"
+            + "  ]},\n"
+            + "  { group: '表情包', items: [\n"
+            + "    { name: '关键词检索', path: '/emoji/search', params: [{ k: 'keyword', v: '狗子' }, { k: 'page', v: '1' }] },\n"
+            + "    { name: '指定数据源', path: '/emoji/search', params: [{ k: 'keyword', v: '抖音' }, { k: 'source', v: 'doutula' }] },\n"
+            + "    { name: '数据源列表', path: '/emoji/sources', params: [] }\n"
             + "  ]}\n"
             + "];\n"
             + "var activePath = '/idiom/get';\n"

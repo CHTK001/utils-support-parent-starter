@@ -219,6 +219,16 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         ServiceDefinition serviceDefinition = definitionFinder.getServiceDefinition(name, args);
         T instance = (T) Optional.ofNullable(serviceDefinition.newInstance(serviceAutowire, args)).orElse(null);
         if (instance == null) {
+            // 与 getExtension(name) 的语义对齐：名字没命中任何实现时，getServiceDefinition 返回的是
+            // 空的 DEFAULT_DEFINITION（implClass 为 null，newInstance 必然得到 null），此时回落到
+            // @SpiDefault 标注的默认实现。原实现只有「名字为空」才走默认实现，非空但未注册的名字
+            // 会返回 null——调用方往往直接拿它调方法，于是把「没这个扩展」放大成 NPE/500，
+            // 而真正有用的信息（扩展名是什么）在调用栈里反而消失。
+            T fallback = getDefaultImpl(args);
+            if (null != fallback) {
+                log.debug("[ServiceProvider] 未命中扩展，回落到默认实现: name={}", name);
+                return fallback;
+            }
             // 原实现直接 orElse(getDefaultImpl(args))，实例化失败与「没有默认实现」都表现为
             // 返回 null，调用方只能报「未注册 / 实例化失败」，真实原因（构造器签名不匹配、
             // 还是构造过程抛异常）被完全丢弃。此处按 WARN 记一条，让失败可诊断。
