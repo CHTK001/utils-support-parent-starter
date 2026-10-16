@@ -92,6 +92,17 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
 
         ReactiveServerFilter filter = filters.get(index++);
 
+        // 契约：过滤器停用后必须被跳过。同步 {@link ServerFilter} 直接判定 isEnabled()；
+        // 过滤链列表被 ServerFilterManager 缓存，而「过滤器热启停」只改实例标志、不重建
+        // 列表，因此必须逐请求判定，否则热切换形同虚设。响应式原生过滤器不参与该开关，
+        // 视为恒启用（仅包装的同步过滤器与 DelegatingServerFilter 支持热启停）。
+        if (filter instanceof ServerFilter syncFilter && !syncFilter.isEnabled()) {
+            if (response.isEnded()) {
+                return CompletableFuture.completedStage(null);
+            }
+            return doFilter(request, response);
+        }
+
         // 路径匹配检查：Endpoint Filter 仅在路径匹配时执行
         String path = filter.supportPath();
         if (path != null && !matchPath(path, request.getPath())) {

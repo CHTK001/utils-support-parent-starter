@@ -301,24 +301,75 @@ public class ServerFilterManager {
      * @return 响应式过滤器实例
      */
     private static ReactiveServerFilter wrapStatic(ServerFilter filter) {
-        return new ReactiveServerFilter() {
-            @Override
-            public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response, ReactiveFilterChain chain) {
-                try {
-                    filter.doFilter(request, response, chain::doFilter);
-                    return CompletableFuture.completedStage(null);
-                } catch (Exception e) {
-                    CompletableFuture<Void> failed = new CompletableFuture<>();
-                    failed.completeExceptionally(e);
-                    return failed;
-                }
-            }
+        return new StaticReactiveFilterAdapter(filter);
+    }
 
-            @Override
-            public int getOrder() {
-                return filter.getOrder();
+    /**
+     * 同步过滤器 → 响应式过滤链的适配器。
+     *
+     * <p>刻意同时实现 {@link ServerFilter}：响应式链只有在过滤器是 {@code ServerFilter}
+     * 时才能读到 {@link ServerFilter#isEnabled()} 并据此跳过。若只包成纯
+     * {@link ReactiveServerFilter}，服务管理「过滤器热启停」把实例置为停用后，
+     * 响应式链无法感知，停用将永远不生效。</p>
+     */
+    private static final class StaticReactiveFilterAdapter implements ReactiveServerFilter, ServerFilter {
+
+        /**
+         * 被适配的同步过滤器
+         */
+        private final ServerFilter delegate;
+
+        StaticReactiveFilterAdapter(ServerFilter delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response, ReactiveFilterChain chain) {
+            try {
+                delegate.doFilter(request, response, chain::doFilter);
+                return CompletableFuture.completedStage(null);
+            } catch (Exception e) {
+                CompletableFuture<Void> failed = new CompletableFuture<>();
+                failed.completeExceptionally(e);
+                return failed;
             }
-        };
+        }
+
+        @Override
+        public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
+            delegate.doFilter(request, response, chain);
+        }
+
+        /**
+         * 两个接口都提供 getOrder() 默认实现，同时实现必须显式覆写。
+         *
+         * @return 执行顺序
+         */
+        @Override
+        public int getOrder() {
+            return delegate.getOrder();
+        }
+
+        /**
+         * 两个接口都提供 supportPath() 默认实现，同时实现必须显式覆写。
+         *
+         * @return 绑定路径
+         */
+        @Override
+        public String supportPath() {
+            return delegate.supportPath();
+        }
+
+        @Override
+        public boolean isEnabled() {
+            // 透传底层同步过滤器的启用标志：服务管理「过滤器热启停」改的就是它。
+            return delegate.isEnabled();
+        }
+
+        @Override
+        public String getFilterId() {
+            return delegate.getFilterId();
+        }
     }
 
     // ==================== 清空与替换 ====================
