@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -70,6 +72,15 @@ public class WhatsAppBotClient implements BotClient {
     private String baseUrl = DEFAULT_BASE_URL;
     private long connectTimeoutMillis = 10_000L;
     private long readTimeoutMillis = 30_000L;
+
+    /**
+     * 出站 HTTP 代理，格式 {@code host:port}。
+     *
+     * <p>Meta Graph API 在部分网络（如中国大陆）被目的地封锁，需经可达的中转/代理出站；
+     * 可用 {@link #httpProxy(String)} 显式设置，或由系统属性
+     * {@code whatsapp.http.proxy} / 环境变量 {@code WHATSAPP_HTTP_PROXY} 提供。</p>
+     */
+    private String httpProxy;
 
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final List<BotMessageListener> messageListeners = new CopyOnWriteArrayList<>();
@@ -135,6 +146,22 @@ public class WhatsAppBotClient implements BotClient {
      */
     public WhatsAppBotClient verifyToken(String verifyToken) {
         this.verifyToken = verifyToken;
+        return this;
+    }
+
+    /**
+     * 设置出站 HTTP 代理（Meta Graph API 调用走该代理）。
+     *
+     * @param httpProxy 代理地址，格式 {@code host:port}；空白表示不走代理
+     * @return this
+     */
+    public WhatsAppBotClient httpProxy(String httpProxy) {
+        this.httpProxy = httpProxy;
+        if (this.httpProxy != null && !this.httpProxy.isBlank()) {
+            synchronized (this) {
+                this.httpClient = null;
+            }
+        }
         return this;
     }
 
@@ -574,14 +601,56 @@ public class WhatsAppBotClient implements BotClient {
         if (current == null) {
             synchronized (this) {
                 if (httpClient == null) {
-                    httpClient = HttpClient.newBuilder()
-                            .connectTimeout(Duration.ofMillis(connectTimeoutMillis))
-                            .build();
+                    HttpClient.Builder builder = HttpClient.newBuilder()
+                            .connectTimeout(Duration.ofMillis(connectTimeoutMillis));
+                    ProxySelector proxySelector = resolveProxySelector();
+                    if (proxySelector != null) {
+                        builder.proxy(proxySelector);
+                    }
+                    httpClient = builder.build();
                 }
                 current = httpClient;
             }
         }
         return current;
+    }
+
+    /**
+     * 解析出站代理：显式设置优先，其次系统属性 {@code whatsapp.http.proxy}，
+     * 再次环境变量 {@code WHATSAPP_HTTP_PROXY} / {@code HTTPS_PROXY}。
+     *
+     * @return 代理选择器；未配置返回 null（直连）
+     */
+    private ProxySelector resolveProxySelector() {
+        String proxy = httpProxy;
+        if (proxy == null || proxy.isBlank()) {
+            proxy = System.getProperty("whatsapp.http.proxy");
+        }
+        if (proxy == null || proxy.isBlank()) {
+            proxy = System.getenv("WHATSAPP_HTTP_PROXY");
+        }
+        if (proxy == null || proxy.isBlank()) {
+            proxy = System.getenv("HTTPS_PROXY");
+        }
+        if (proxy == null || proxy.isBlank()) {
+            return null;
+        }
+        String value = proxy.trim();
+        int idx = value.lastIndexOf(':');
+        if (idx <= 0 || idx == value.length() - 1) {
+            log.warn("[WhatsApp] 代理格式应为 host:port，已忽略: {}", value);
+            return null;
+        }
+        String host = value.substring(0, idx);
+        int port;
+        try {
+            port = Integer.parseInt(value.substring(idx + 1));
+        } catch (NumberFormatException e) {
+            log.warn("[WhatsApp] 代理端口非法，已忽略: {}", value);
+            return null;
+        }
+        log.info("[WhatsApp] 出站将经代理 {}:{}", host, port);
+        return ProxySelector.of(new InetSocketAddress(host, port));
     }
 
     private void notifyError(Throwable e) {
