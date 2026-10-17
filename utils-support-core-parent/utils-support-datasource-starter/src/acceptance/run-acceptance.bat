@@ -54,7 +54,8 @@ javac -J-Xms32m -J-Xmx384m -J-XX:MaxMetaspaceSize=192m -J-XX:ReservedCodeCacheSi
     "harness\EngineGreptimeDb.java" ^
     "harness\EngineHBase.java" ^
     "harness\EngineDialectSql.java" ^
-    "harness\EnginePostgres.java"
+    "harness\EnginePostgres.java" ^
+    "harness\EngineSqlServer.java"
 if errorlevel 1 (
     echo [ERROR] harness compilation failed
     exit /b 3
@@ -74,7 +75,7 @@ set JOPT=-Dfile.encoding=UTF-8 --enable-native-access=ALL-UNNAMED ^
  --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
 
 set STAGES=%*
-if "%STAGES%"=="" set STAGES=1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22
+if "%STAGES%"=="" set STAGES=1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
 set FAILED=0
 
 REM exact token match: iterating avoids "10" also matching "1"
@@ -101,6 +102,7 @@ for %%S in (%STAGES%) do (
     if "%%S"=="20" call :run 20 EngineHBase
     if "%%S"=="21" call :run 21 EngineDialectSql
     if "%%S"=="22" call :run 22 EnginePostgres
+    if "%%S"=="23" call :run 23 EngineSqlServer
 )
 
 echo.

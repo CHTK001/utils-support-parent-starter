@@ -13,3 +13,5 @@
 # （2026-10-04 实际漏提交过一次：commit 只进了 8 个文件，两个脚本不在 HEAD）。
 !run-acceptance.bat
 !prepare-classpath.ps1
+!run-postgres.bat
+!run-sqlserver.bat
