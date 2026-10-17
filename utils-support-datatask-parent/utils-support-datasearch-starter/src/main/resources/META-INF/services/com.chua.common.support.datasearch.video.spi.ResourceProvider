@@ -13,3 +13,8 @@ com.chua.common.support.datasearch.video.spi.impl.BtmuluMagnetResourceProvider
 com.chua.common.support.datasearch.video.spi.impl.DmhyResourceProvider
 com.chua.common.support.datasearch.video.spi.impl.NyaaResourceProvider
 com.chua.common.support.datasearch.video.spi.impl.TorrentkittyResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.ApibayResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.MikanResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.LimetorrentsResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.ZhongzisoResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.RutorResourceProvider
