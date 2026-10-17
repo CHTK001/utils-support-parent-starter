@@ -32,6 +32,30 @@ public class VideoSource {
      * 视频来源最小值year
     */
     private Integer videoSourceMinYear;
+    /**
+     * 视频来源结果条目选择器（CSS，通用 HTML 磁力解析用）
+    */
+    private String videoSourceItemSelector;
+    /**
+     * 视频来源结果标题选择器（CSS，为空时取条目内首个非磁力链接文本）
+    */
+    private String videoSourceTitleSelector;
+    /**
+     * 视频来源磁力选择器（CSS，为空时使用 a[href^=magnet:]）
+    */
+    private String videoSourceMagnetSelector;
+    /**
+     * 视频来源详情页链接选择器（CSS，列表页无磁力时按详情页二次抓取）
+    */
+    private String videoSourceDetailSelector;
+    /**
+     * 视频来源大小选择器（CSS）
+    */
+    private String videoSourceSizeSelector;
+    /**
+     * 视频来源发布日期选择器（CSS）
+    */
+    private String videoSourceDateSelector;
 
     /**
      * 创建 视频源 实例
@@ -145,6 +169,114 @@ public class VideoSource {
      */
     public void setVideoSourceMinYear(Integer videoSourceMinYear) {
         this.videoSourceMinYear = videoSourceMinYear;
+    }
+
+    /**
+     * 获取视频来源结果条目选择器
+     *
+     * @return 结果条目选择器的结果
+     */
+    public String getVideoSourceItemSelector() {
+        return videoSourceItemSelector;
+    }
+
+    /**
+     * 设置视频来源结果条目选择器
+     *
+     * @param videoSourceItemSelector 结果条目选择器
+     */
+    public void setVideoSourceItemSelector(String videoSourceItemSelector) {
+        this.videoSourceItemSelector = videoSourceItemSelector;
+    }
+
+    /**
+     * 获取视频来源结果标题选择器
+     *
+     * @return 标题选择器的结果
+     */
+    public String getVideoSourceTitleSelector() {
+        return videoSourceTitleSelector;
+    }
+
+    /**
+     * 设置视频来源结果标题选择器
+     *
+     * @param videoSourceTitleSelector 标题选择器
+     */
+    public void setVideoSourceTitleSelector(String videoSourceTitleSelector) {
+        this.videoSourceTitleSelector = videoSourceTitleSelector;
+    }
+
+    /**
+     * 获取视频来源磁力选择器
+     *
+     * @return 磁力选择器的结果
+     */
+    public String getVideoSourceMagnetSelector() {
+        return videoSourceMagnetSelector;
+    }
+
+    /**
+     * 设置视频来源磁力选择器
+     *
+     * @param videoSourceMagnetSelector 磁力选择器
+     */
+    public void setVideoSourceMagnetSelector(String videoSourceMagnetSelector) {
+        this.videoSourceMagnetSelector = videoSourceMagnetSelector;
+    }
+
+    /**
+     * 获取视频来源详情页链接选择器
+     *
+     * @return 详情页链接选择器的结果
+     */
+    public String getVideoSourceDetailSelector() {
+        return videoSourceDetailSelector;
+    }
+
+    /**
+     * 设置视频来源详情页链接选择器
+     *
+     * @param videoSourceDetailSelector 详情页链接选择器
+     */
+    public void setVideoSourceDetailSelector(String videoSourceDetailSelector) {
+        this.videoSourceDetailSelector = videoSourceDetailSelector;
+    }
+
+    /**
+     * 获取视频来源大小选择器
+     *
+     * @return 大小选择器的结果
+     */
+    public String getVideoSourceSizeSelector() {
+        return videoSourceSizeSelector;
+    }
+
+    /**
+     * 设置视频来源大小选择器
+     *
+     * @param videoSourceSizeSelector 大小选择器
+     */
+    public void setVideoSourceSizeSelector(String videoSourceSizeSelector) {
+        this.videoSourceSizeSelector = videoSourceSizeSelector;
+    }
+
+    /**
+     * 获取视频来源发布日期选择器
+     *
+     * @return 发布日期选择器的结果
+     */
+    public String getVideoSourceDateSelector() {
+        return videoSourceDateSelector;
+    }
+
+    /**
+     * 设置视频来源发布日期选择器
+     *
+     * @param videoSourceDateSelector 发布日期选择器
+     */
+    public void setVideoSourceDateSelector(String videoSourceDateSelector) {
+        this.videoSourceDateSelector = videoSourceDateSelector;
     }
 
     /**
