@@ -6,12 +6,13 @@
 阶段十以本机 HTTP 桩真实驱动 `HttpDatalakeQueryEngine` 查询/执行路径：2026-10-17；
 阶段十一真实嵌入式 RocksDB 验收 `RocksDbSeriesEngine`；
 阶段十二以本机 HTTP 桩验收 `QuestdbSeriesEngine` 并修复其 `/exec` 鉴权缺失：2026-10-17；
-阶段十三至十六：InfluxDbEngine / 5 个外部 JDBC 引擎配置层 / Solr / RediSearchEngine：2026-10-17）
+阶段十三至十六：InfluxDbEngine / 5 个外部 JDBC 引擎配置层 / Solr / RediSearchEngine：2026-10-17；
+阶段十七以回放型假 Transport 驱动 `ElasticsearchEngine` 真实链路并修复索引名/count/异常语义：2026-10-17）
 仓库：`utils-support-parent-starter`（另用 `spring-support-parent-starter` 与 `utils-support-datalake-parent` 的制品）
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
 已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
 `03d360448`（补回被全局 ignore 规则静默剔除的两个运行器）、本轮阶段六
-验收结论：**十六阶段共 876 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
+验收结论：**十七阶段共 897 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
 
 > **本轮为何要重绑 md5**：2026-10-04 首次出报告后，本地仓库里这批制品被后续构建
 > 重新产出（`common-starter` 4,563,385 → 4,743,831 B，`monitor-starter` 1,127,261 → 922,392 B 等），
@@ -28,7 +29,7 @@
 
 | 产物 | md5（前 8 位） | 大小 | 承载的验收内容 |
 |---|---|---|---|
-| `com.chua:utils-support-common-starter:4.0.0.42` | `0896c47e` | 4,749,974 B | 缺陷 1/3/4/5/6/7 所在（阶段二/三/四）+ `Engine.query()` / `SqlQueryBuilder`（阶段七） |
+| `com.chua:utils-support-common-starter:4.0.0.42` | `cfd341ed` | 4,749,974 B | 缺陷 1/3/4/5/6/7 所在（阶段二/三/四）+ `Engine.query()` / `SqlQueryBuilder`（阶段七） |
 | `com.chua:utils-support-datasource-starter:4.0.0.42` | `91c5b9e1` | 353,307 B | 缺陷 1/2/3/4/6/7 所在（阶段一~四）+ 阶段六 `ReactorFlywayBridge` + 缺陷 12 的 `JdbcUrl.hostPort`（阶段十四） |
 | `com.chua:utils-support-redis-starter:4.0.0.42` | `112be63d` | 134,614 B | 缺陷 8/9 所在（阶段三/一）+ 缺陷 15/16/17 的修复（`RediSearchEngine` 实体 CRUD，阶段十六） |
 | `com.chua:utils-support-h2-starter:4.0.0.42` | `83ed8ee5` | 29,518 B | 阶段二/三负载 |
@@ -54,7 +55,7 @@
 | `com.chua:utils-support-hbase-starter:4.0.0.42` | `7e9eb07b` | 12,262 B | 阶段一契约面（`hbase`） |
 | `com.chua:utils-support-solr-starter:4.0.0.42` | `46b6a1c9` | 48,582 B | 阶段一契约面（`solr`）+ **阶段十五深度功能**（假 `SolrClient` 驱动真实路径）+ 缺陷 13/14 修复 |
 | `com.chua:utils-support-neo4j-starter:4.0.0.42` | `fdf22bed` | 25,466 B | 阶段一契约面（`neo4j`） |
-| `com.chua:utils-support-elasticsearch-starter:4.0.0.42` | `b2a2cb4e` | 55,833 B | 阶段一契约面（`elasticsearch`） |
+| `com.chua:utils-support-elasticsearch-starter:4.0.0.42` | `6970ab98` | 56,205 B | 阶段一契约面（`elasticsearch`）+ **阶段十七真实链路**（回放型假 `Transport`）+ 缺陷 18/19/20/21 修复 |
 | `com.chua:utils-support-greptimedb-starter:4.0.0.42` | `998edaed` | 32,785 B | 阶段一契约面（`greptimedb`） |
 
 签收前须重新核对上述 md5；不一致即本报告作废（本轮已因制品被重建而重跑过一次）。
@@ -86,6 +87,20 @@
 > **阶段十六重绑 1 个制品**：为修缺陷 15/16/17 重新构建了
 > `redis`（`abc98158` → `112be63d`，134,614 B）。其余 27 个制品字节未变。
 
+> **阶段十七重绑 2 个制品**：为修缺陷 18/19/20/21 重新构建了
+> `elasticsearch`（`b2a2cb4e` → `6970ab98`，56,205 B）；另因下述原因重建了
+> `common-starter`（`0896c47e` → `cfd341ed`，4,749,974 B）。其余 26 个制品字节未变。
+> ES jar 内含 `ElasticsearchEngine.indexName(Class)`（可用
+> `javap -p -cp … ElasticsearchEngine` 复核），`src/acceptance/lib/` 实际加载的那份
+> 经 `certutil -hashfile … MD5` 与仓库一致。
+
+> **阶段十七同步重绑 `common-starter`**：复核 md5 时发现本地仓库里的
+> `utils-support-common-starter` 是 15:58 被并发会话重建的产物（`a8693223`，4,753,379 B），
+> 其中含一个**当时未提交、随后被删除**的 `IpCidrUtils.class`——即该 jar 与源码树不一致，
+> 不能作为签收产物。已按当前源码（与 HEAD 一致）重新 `mvn -o clean install` 产出
+> `cfd341ed`（4,749,974 B，`jar tf` 已无 `IpCidrUtils`），并在此新制品上重跑十七阶段全量。
+> 注：`0896c47e` 是阶段七登记值，其 jar 早已被后续构建覆盖，本轮以 `cfd341ed` 为准。
+
 ## 2. 子类清单与覆盖状态（权威口径）
 
 ### 2.1 Engine —— SPI 注册的 24 个（阶段一全覆盖）
@@ -111,11 +126,12 @@
 tablesaw / rocksdb（阶段四）、mysql（阶段三，真实 3306）、prometheus（阶段八，本机 HTTP 桩）、
 influxdb（阶段十三，纯内存）、redis（阶段三/五：`RedisClient`/`RedisKvEngine`/`RedisSeriesEngine`；
 阶段十六：`RediSearchEngine` 的**实体 CRUD 真实读写**）、solr（阶段十五，记录型假
-`SolrClient` 驱动真实查询/写入/删除路径）；非 SPI 的 datalake-query（阶段十，本机 HTTP 桩）
+`SolrClient` 驱动真实查询/写入/删除路径）、elasticsearch（阶段十七，回放型假
+`Transport` 驱动官方客户端的真实序列化/反序列化链路）；非 SPI 的 datalake-query（阶段十，本机 HTTP 桩）
 与 ReactorFlywayBridge（阶段六，真实 SQLite）。
 另：postgresql / sqlserver（含 legacy）/ oracle / clickhouse 在阶段十四验证了
 **配置拼装、入参守卫、失败语义与关闭语义**，但**查询语义仍未验**（见 §7）。
-其余 8 个需外部服务的引擎只有契约面（见 §7）。
+其余 7 个需外部服务的引擎只有契约面（见 §7；elasticsearch 已升级到「真实链路 + 契约面」）。
 
 **非 SPI 注册的 Engine 实现**（不在 `ServiceProvider` 可发现范围内）：
 
@@ -185,12 +201,13 @@ monitor 模块的 Bean 工厂创建。
 | 十三 | `InfluxDbEngine`（SPI `influxdb`，纯内存）：能力自洽、表名解析与回退、同名覆盖、跨表隔离、条件/排序/计数、分页边界、全表守卫、带条件写真实生效 | 16 | 全绿 |
 | 十四 | 5 个无服务端 JDBC 引擎的本机可验面：URL 精确拼装、入参注入串拒绝、端口 0 契约、不可达快速失败、连接池真关闭 | 45 | 全绿 |
 | 十五 | Solr（SPI `solr`）：假 `SolrClient` 驱动真实路径——表名解析、q 构造、分页下推、numFound 计数、文档映射、写入/删除、失败语义、生命周期 | 28 | 全绿 |
-| 十六 | `RediSearchEngine`（SPI `redis`）：**真实 Redis 6379 读写**——key 前缀与 `@TableName`、store/query 一致、字段还原、回退扫描按 WHERE 过滤、条件计数、分页、能力声明、生命周期、原生命令 | 18 | 全绿 |
+| 16 | `RediSearchEngine`（SPI `redis`）：**真实 Redis 6379 读写**——key 前缀与 `@TableName`、store/query 一致、字段还原、回退扫描按 WHERE 过滤、条件计数、分页、能力声明、生命周期、原生命令 | 18 | 全绿 |
+| 十七 | `ElasticsearchEngine`（SPI `elasticsearch`）：回放型假 `Transport` 驱动官方客户端真实链路——索引名与 `@TableName`、`match_all`/`term` 构造、`one`/`page` 下推与 total、`count()`、响应→实体映射、bulk 写入与部分失败、异常语义、生命周期与能力声明 | 21 | 全绿 |
 
-**合计 876 条断言，0 失败**（`run-acceptance.bat`：十六阶段逐段 `PASS`，
+**合计 897 条断言，0 失败**（`run-acceptance.bat`：十七阶段逐段 `PASS`，
 末行 `ACCEPTANCE_RESULT=PASS`，退出码 0）。
 
-## 4. 修复的 17 处真实缺陷
+## 4. 修复的 21 处真实缺陷
 
 | # | 缺陷 | 根因 | 影响 |
 |---|---|---|---|
@@ -211,6 +228,10 @@ monitor 模块的 Bean 工厂创建。
 | 15 | **`RediSearchEngine` 绕过 `@TableName`，`store` 与 `query` 的 key 前缀不一致** | `RedisEngine.getKeyPrefix` 用 `getSimpleName().toLowerCase()` 推导，绕过 `AbstractEngine.resolveTableName`（优先 `@TableName`，否则驼峰转下划线）；`store(name, ...)` 却按调用方给的 `name` 写键 | `store("t_acc_user", rows)` 写入 `t_acc_user:1`，而 `query(AccUser.class)` 按 `accuser:*` 扫描——**写进去的数据读不出来**（回退路径静默返回空）；`@TableName` 完全失效 |
 | 16 | **`FT.SEARCH` 不可用时，回退扫描丢弃 WHERE 条件** | `RediSearchEngine.executeNewQuery` 的 `catch` 直接 `return scanAll(...)`，`scanAll` 只按前缀全量拉取，不带任何条件 | 无 RediSearch 模块的 Redis（Windows 构建默认没有）上，`query(X).eq(name,"alice")` **返回全部行**；`one()` 返回任意一行，`count()`/分页全部偏大——静默的错误结果，比抛错更危险 |
 | 17 | **`RediSearchEngine` 的 `query(X).count()` 抛 `UnsupportedOperationException`** | 与缺陷 14 同源：匿名包装器只覆写 `list/one/page`，未覆写基类要求引擎实现的 `count()` | 计数 API 不可用；即便补 `list().size()`，也会因缺陷 16 而算错 |
+| 18 | **`ElasticsearchEngine` 绕过 `@TableName`，`store` 与 `query` 的索引名不一致** | `store(name, …)` 按调用方给的 `name` 写索引，而 `search`/`searchPage`/`doSearch` 三处用 `entityClass.getSimpleName().toLowerCase()` 读索引，绕过 `AbstractEngine.resolveTableName` | `store("t_acc_user", rows)` 写入 `t_acc_user`，`query(AccUser.class)` 却查 `accuser`——**写进去的数据读不出来**；带 `@TableName` 的实体与无注解实体（驼峰转下划线）双双失效 |
+| 19 | **`ElasticsearchEngine` 的 `query(X).count()` 抛 `UnsupportedOperationException`** | 与缺陷 14/17 同源：匿名包装器只覆写 `list/one/page` | 计数 API 不可用；ES 响应里本就有 `hits.total`，属于纯粹的功能缺失 |
+| 20 | **配置缺失/已关闭被包装成「查询失败」** | `search`/`searchPage` 用宽 `catch (Exception)` 把 `IllegalStateException("请先 addDataSource")` 一并包成 `RuntimeException("Elasticsearch 查询失败…")` | 未配置数据源或 `close()` 后调用时，调用方只能看到泛化的查询失败（`cause` 里才是真相），无法区分「用法错误」与「服务端故障」，与同族引擎的 ISE 契约不一致 |
+| 21 | **批量索引的「部分失败」详情被二次包裹丢失** | `store` 把 `errors()` 的抛出写在 `try` 内，随后被自己的 `catch (Exception)` 重新包装，`失败条数` 只留在 `cause` 里 | 排障时只能看到「批量索引失败」，拿不到失败条数这类关键定位信息 |
 
 缺陷 10 的修法（`utils-support-questdb-starter`，`QuestdbSeriesEngine`）：
 
@@ -251,6 +272,26 @@ monitor 模块的 Bean 工厂创建。
 > 同理，回退 15 的修复时 24 条断言失败（`store 写入 3 行，query 只读到 0 行`），
 > 回退 17 时 `count()` 抛 UOE。
 
+缺陷 18/19/20/21 的修法（`utils-support-elasticsearch-starter`）：
+
+- **18**：抽出 `ElasticsearchEngine.indexName(Class<?>)`，内部直接委托
+  `AbstractEngine.resolveTableName`，`search` / `searchPage` / `doSearch` 三处索引名与
+  异常消息统一走它——与 Solr / Redis / JDBC / 内存引擎共用同一套表名规则；
+- **19**：匿名包装器补 `count()`，`from=0`、`size=1` 走一次 search 并开启
+  `track_total_hits`，取 `hits.total.value`（不做 `list().size()` 回退，避免默认 10 行上限）；
+- **20**：`search` / `searchPage` 在宽 `catch` 之前先 `catch (IllegalStateException |
+  UnsupportedOperationException e) { throw e; }`，把「用法错误/能力不支持」原样透出，
+  其余异常仍带索引名包装；
+- **21**：`client.bulk(...)` 与 `errors()` 判定拆开——只有请求本身失败才包装，
+  部分失败直接抛带 `index` 与 `失败条数` 的异常。
+
+> 阶段十七的隔离实验（**实际运行**）：把 ES 源码退回 HEAD、只 `mvn package` 产出
+> `target/classes` 并将其置于 classpath 最前（不污染 `D:\maven-repo`），同一套断言
+> 由 21/21 变为 **12 PASS / 9 FAIL**，失败点精确对应：
+> `/accuser/_search`（18）、`/plainuser/_search`（18）、`count()` 抛 UOE（19）、
+> `close()` 后仍抛泛化 `RuntimeException`（20）、`失败条数` 不在消息里（21）。
+> 恢复修复后重新 `mvn -o clean install`，回到 21/21 全绿。
+
 ## 5. 查证后**判定为非缺陷**的（避免后人误"修"）
 
 1. **`ParquetEngine` 不支持 `querySql`** —— 其 `supportsSql()==false`，读路径是
@@ -273,17 +314,18 @@ harness **已入库**（不再只留 `.tmp`，那里没有版本控制）：
 
 ```
 utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
-├─ run-acceptance.bat          十五阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-acceptance.bat          十七阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              十六个验收程序
+├─ harness/*.java              十七个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 十六阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 十七阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
+run-acceptance.bat 17           :: 只跑阶段十七（Elasticsearch）
 ```
 
 > **交付教训（2026-10-04 实际发生）**：仓库根 `.gitignore` 有 `*.ps1`（16 行）/
@@ -309,8 +351,8 @@ run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 
 ## 7. 尚未覆盖（如实声明）
 
-1. **需外部服务的 8 个引擎**（postgresql、sqlserver、oracle、clickhouse、hbase、
-   neo4j、elasticsearch、greptimedb）只有契约面；
+1. **需外部服务的 7 个引擎**（postgresql、sqlserver、oracle、clickhouse、hbase、
+   neo4j、greptimedb）只有契约面；
    本机无对应服务，无法做真实读写验收。**这部分是"未验"，不是"已通过"。**
    > `prometheus` **已从本清单移出**：阶段八用本机 HTTP 桩（`com.sun.net.httpserver`）
    > 打通了 8 个 `/api/v1/*` 端点，`PrometheusEngine` / `PrometheusClient` 的查询、
@@ -326,6 +368,12 @@ run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
    > 查询解析（QParser）、schema/动态字段与分布式行为——那属于服务端语义，
    > 且本引擎不自带 schema 管理。postgresql / sqlserver / oracle / clickhouse
    > 亦仅在阶段十四验了配置层，见上方 §2.1。
+   >
+   > `elasticsearch` **已从「仅契约面」升级**：阶段十七用回放型假 `Transport`
+   > 让官方客户端真实序列化请求、反序列化响应（21 条断言），索引名、查询体、
+   > 分页、计数、`_source` 映射、bulk 写入与失败语义全部真实执行。
+   > **仍未覆盖**的是真实 ES 服务端的查询语义（分词/打分/聚合）、索引与 mapping 管理、
+   > 集群与副本行为。**注意：这不等于「已完成真实读写验收」**——没有 ES 服务端参与。
 2. ~~**`InfluxdbSeriesEngine` 只有契约面**~~ → **已升级**：阶段九用 `java.lang.reflect.Proxy`
    注入一个 `InfluxDB` 桩客户端（该引擎提供了公开的注入构造器，注释即写明用于「测试或外部生命周期管理」），
    把**引擎自身逻辑**全部真实执行（26 条断言）。**仍未覆盖**的是真实 InfluxDB 的
@@ -712,6 +760,40 @@ Redis 不支持 `MODULE` 命令，即没有 RediSearch 模块——因此 `FT.SE
 >
 > **仍未覆盖**：真实 RediSearch 模块下的 `FT.SEARCH`/`FT.AGGREGATE` 语义（本机无该模块）、
 > 条件更新与条件删除（引擎明确不支持，直接抛 UOE）。
+
+### 14.7 ElasticsearchEngine：回放型假 Transport 驱动真实链路（阶段十七，21 条）
+
+本机没有 ES 服务端。但引擎的 `addDataSource` 接受**任意** `ElasticsearchClient`，
+而该客户端的唯一出站口是 `ElasticsearchTransport`——一个只有 4 个抽象方法的接口
+（`performRequest` / `performRequestAsync` / `jsonpMapper` / `options`）。因此验收里实现
+一个「回放型假 Transport」：
+
+- 引擎照常构建 `SearchRequest` / `BulkRequest`；
+- 官方客户端照常序列化请求、反序列化响应（`Endpoint.responseDeserializer()`）；
+- 假 Transport 只做两件事：**记录真实请求 URL / 请求模型**，**回放固定 JSON**。
+
+这样验到的是「本项目引擎 + 官方客户端」的真实链路，而不是口头声明。
+
+| 面 | 断言内容 |
+|---|---|
+| 索引名 | `@TableName("t_acc_user")` → 请求 URL 为 `/t_acc_user/_search`；无注解 `PlainUser` → `/plain_user/_search`；**不再出现 `accuser`**；`list`/`one`/`page` 三入口索引名一致（缺陷 18 回归锁） |
+| 查询构造 | 无条件 → `match_all`；`eq(name,"alice")` → `term/name/alice`；`one()` → `size:1`；`page(2,3)` → `from:3 / size:3` |
+| 计数 | `count()` 返回 `hits.total.value`（201）且请求体含 `track_total_hits`（缺陷 19 回归锁） |
+| 分页 | `page(1,2)` → `total=201`、当前页 2 行 |
+| 映射 | `_source` → 实体（`Long/String/Integer`）；缺失字段保持 `null` |
+| 写入 | 空列表不触达客户端；`store("t_acc_user", 2 行)` → `/_bulk` 且两条操作的 `_index` 均为 `t_acc_user`、文档类型与内容正确 |
+| 失败语义 | 未配置客户端 → `IllegalStateException`（缺陷 20 回归锁）；传输异常 → `RuntimeException` 且消息含索引名、`cause` 保留；bulk `errors=true` → 消息含索引与 `失败条数`（缺陷 21 回归锁）；`update`/`delete` → UOE |
+| 生命周期 | `close()` **不关闭注入的客户端**（所有权归调用方）；`close()` 后查询抛 ISE、重复 `close()` 不抛；能力声明自洽 |
+
+> **隔离实验（实际运行）**：把 ES 源码退回 HEAD 版本，`mvn -o clean package` 得到
+> `target/classes`，仅将该目录置于 classpath 最前（**不覆盖** `D:\maven-repo` 中的制品），
+> 同一套断言由 21/21 变为 **12 PASS / 9 FAIL**：
+> `/accuser/_search`、`/plainuser/_search`、`count()` 抛 UOE、
+> `close()` 后仍抛泛化 `RuntimeException`、`失败条数` 不在消息里。
+> 恢复修复后重新 `mvn -o clean install`，回到 21/21 全绿。
+>
+> **仍未覆盖**：真实 ES 服务端的查询语义（分词/打分/聚合）、索引与 mapping 管理、
+> 集群与副本行为——那属于服务端语义，且本引擎不自带索引管理。
 
 
 
