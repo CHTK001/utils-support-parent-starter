@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -134,6 +135,14 @@ public class QuestdbSeriesEngine implements SeriesEngine, AutoCloseable {
     private final String password;
 
     /**
+     * /exec 请求使用的 {@code Authorization} 头值，未配置鉴权时为 null。
+     *
+     * <p>写入走官方 {@link Sender}（自带鉴权），查询/指标发现/清理走 JDK HttpClient，
+     * 必须显式携带同一份凭据，否则开启鉴权的 QuestDB 上读路径会一律 401。</p>
+     */
+    private final String authHeader;
+
+    /**
      * 是否已完成必要配置
      */
     private final boolean configured;
@@ -187,6 +196,7 @@ public class QuestdbSeriesEngine implements SeriesEngine, AutoCloseable {
         this.token = emptyToNull(token);
         this.username = emptyToNull(username);
         this.password = emptyToNull(password);
+        this.authHeader = buildAuthHeader(this.token, this.username, this.password);
         String normalized = normalizeBaseUrl(url);
         if (normalized == null) {
             this.baseUrl = null;
@@ -532,10 +542,13 @@ public class QuestdbSeriesEngine implements SeriesEngine, AutoCloseable {
      */
     private JsonNode execQuery(String sql, boolean tolerantMissingTable) {
         String uri = baseUrl + EXEC_PATH + URLEncoder.encode(sql, StandardCharsets.UTF_8).replace("+", "%20");
-        HttpRequest request = HttpRequest.newBuilder(URI.create(uri))
+        HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(uri))
                 .timeout(REQUEST_TIMEOUT)
-                .GET()
-                .build();
+                .GET();
+        if (authHeader != null) {
+            builder.header("Authorization", authHeader);
+        }
+        HttpRequest request = builder.build();
         try {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             JsonNode root = parseJson(response.body());
@@ -617,6 +630,28 @@ public class QuestdbSeriesEngine implements SeriesEngine, AutoCloseable {
         } catch (RuntimeException e) {
             log.warn("[SeriesEngine] QuestDB HttpClient 关闭失败: {}", e.getMessage());
         }
+    }
+
+    /**
+     * 构造 /exec 请求的鉴权头值。
+     *
+     * <p>与写入端 {@link Sender} 的凭据配置保持一致：配置了 token 用 {@code Bearer}，
+     * 否则配置了用户名用 {@code Basic}（{@code 用户名:密码} 的 Base64）；都没配置返回 {@code null}。</p>
+     *
+     * @param token    HTTP 鉴权 token，可为空
+     * @param username HTTP 鉴权用户名，可为空
+     * @param password HTTP 鉴权密码，可为空
+     * @return Authorization 头值，未配置鉴权时为 {@code null}
+     */
+    private static String buildAuthHeader(String token, String username, String password) {
+        if (token != null) {
+            return "Bearer " + token;
+        }
+        if (username != null) {
+            String raw = username + ":" + (password == null ? "" : password);
+            return "Basic " + Base64.getEncoder().encodeToString(raw.getBytes(StandardCharsets.UTF_8));
+        }
+        return null;
     }
 
     /**
