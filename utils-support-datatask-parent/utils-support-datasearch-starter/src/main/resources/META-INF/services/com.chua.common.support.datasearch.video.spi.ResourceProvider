@@ -18,3 +18,4 @@ com.chua.common.support.datasearch.video.spi.impl.MikanResourceProvider
 com.chua.common.support.datasearch.video.spi.impl.LimetorrentsResourceProvider
 com.chua.common.support.datasearch.video.spi.impl.ZhongzisoResourceProvider
 com.chua.common.support.datasearch.video.spi.impl.RutorResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.ConfigurableMagnetResourceProvider

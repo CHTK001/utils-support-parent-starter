@@ -704,10 +704,28 @@ public class ElasticsearchEngine implements Engine {
             return response.hits().hits().stream()
                     .map(h -> mapToEntity((Map<String, Object>) h.source(), entityClass))
                     .toList();
+        } catch (IllegalStateException | UnsupportedOperationException e) {
+            // 配置缺失（未 addDataSource）/ 能力不支持必须原样透出：
+            // 包成通用「查询失败」会让调用方误判为服务端问题，也让 close() 后仍像是可用。
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Elasticsearch 查询失败: index="
-                    + entityClass.getSimpleName().toLowerCase(), e);
+                    + indexName(entityClass), e);
         }
+    }
+
+    /**
+     * 解析实体对应的 ES 索引名。
+     * <p>与其余引擎（Solr / Redis / JDBC / 内存）共用同一套规则：优先 {@code @TableName}，
+     * 未标注时把驼峰类名转为下划线小写。此前这里直接用
+     * {@code getSimpleName().toLowerCase()}，导致 {@code store("t_acc_user", ...)} 写入的
+     * 索引与 {@code query(AccUser.class)} 读取的索引（{@code accuser}）不是同一个。</p>
+     *
+     * @param entityClass 实体类
+     * @return 索引名
+     */
+    static String indexName(Class<?> entityClass) {
+        return com.chua.datasource.support.engine.AbstractEngine.resolveTableName(entityClass);
     }
 
     /**
@@ -724,7 +742,7 @@ public class ElasticsearchEngine implements Engine {
     @SuppressWarnings("unchecked")
     private <T> Page<T> searchPage(Class<T> entityClass, List<Condition> conditions,
                                    List<String> orderBys, int pageNum, int pageSize) {
-        String indexName = entityClass.getSimpleName().toLowerCase();
+        String indexName = indexName(entityClass);
         try {
             var response = doSearch(entityClass, conditions, orderBys,
                     (pageNum - 1) * pageSize, pageSize, true);
