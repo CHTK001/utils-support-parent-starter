@@ -41,7 +41,8 @@ javac -encoding UTF-8 -d "classes" -cp "lib/*" ^
     "harness\EngineRemaining.java" ^
     "harness\EngineQueryBuilder.java" ^
     "harness\EnginePrometheus.java" ^
-    "harness\EngineInfluxdb.java"
+    "harness\EngineInfluxdb.java" ^
+    "harness\EngineDatalake.java"
 if errorlevel 1 (
     echo [ERROR] harness compilation failed
     exit /b 3
@@ -59,18 +60,22 @@ set JOPT=-Dfile.encoding=UTF-8 --enable-native-access=ALL-UNNAMED ^
  --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
 
 set STAGES=%*
-if "%STAGES%"=="" set STAGES=1 2 3 4 5 6 7 8 9
+if "%STAGES%"=="" set STAGES=1 2 3 4 5 6 7 8 9 10
 set FAILED=0
 
-echo %STAGES% | findstr /C:"1" > nul && call :run 1 EngineAcceptance
-echo %STAGES% | findstr /C:"2" > nul && call :run 2 EngineFunctional
-echo %STAGES% | findstr /C:"3" > nul && call :run 3 EngineSeriesKv
-echo %STAGES% | findstr /C:"4" > nul && call :run 4 EngineEmbedded
-echo %STAGES% | findstr /C:"5" > nul && call :run 5 EngineGaps
-echo %STAGES% | findstr /C:"6" > nul && call :run 6 EngineRemaining
-echo %STAGES% | findstr /C:"7" > nul && call :run 7 EngineQueryBuilder
-echo %STAGES% | findstr /C:"8" > nul && call :run 8 EnginePrometheus
-echo %STAGES% | findstr /C:"9" > nul && call :run 9 EngineInfluxdb
+REM exact token match: iterating avoids "10" also matching "1"
+for %%S in (%STAGES%) do (
+    if "%%S"=="1" call :run 1 EngineAcceptance
+    if "%%S"=="2" call :run 2 EngineFunctional
+    if "%%S"=="3" call :run 3 EngineSeriesKv
+    if "%%S"=="4" call :run 4 EngineEmbedded
+    if "%%S"=="5" call :run 5 EngineGaps
+    if "%%S"=="6" call :run 6 EngineRemaining
+    if "%%S"=="7" call :run 7 EngineQueryBuilder
+    if "%%S"=="8" call :run 8 EnginePrometheus
+    if "%%S"=="9" call :run 9 EngineInfluxdb
+    if "%%S"=="10" call :run 10 EngineDatalake
+)
 
 echo.
 if "%FAILED%"=="1" (

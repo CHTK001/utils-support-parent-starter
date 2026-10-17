@@ -2,12 +2,13 @@
 
 日期：2026-10-04（阶段六增补与 md5 重绑：2026-10-17；阶段七新增 `Engine.query()` 构建器：2026-10-17；
 阶段八将 Prometheus 升级为本机 HTTP 桩真实执行：2026-10-17；
-阶段九以桩客户端驱动 `InfluxdbSeriesEngine` 全部引擎逻辑：2026-10-17）
+阶段九以桩客户端驱动 `InfluxdbSeriesEngine` 全部引擎逻辑：2026-10-17；
+阶段十以本机 HTTP 桩真实驱动 `HttpDatalakeQueryEngine` 查询/执行路径：2026-10-17）
 仓库：`utils-support-parent-starter`（另用 `spring-support-parent-starter` 与 `utils-support-datalake-parent` 的制品）
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
 已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
 `03d360448`（补回被全局 ignore 规则静默剔除的两个运行器）、本轮阶段六
-验收结论：**九阶段共 701 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
+验收结论：**十阶段共 722 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
 
 > **本轮为何要重绑 md5**：2026-10-04 首次出报告后，本地仓库里这批制品被后续构建
 > 重新产出（`common-starter` 4,563,385 → 4,743,831 B，`monitor-starter` 1,127,261 → 922,392 B 等），
@@ -71,7 +72,7 @@
 | `JdbcReactorEngine` / `SqliteReactorEngine` | 另一 SPI 家族（`ReactorEngine`），非 `Engine` 子类 | 阶段六经 `ReactorFlywayBridge` 以真实 SQLite 驱动其 JDBC 降级路径 |
 | `JdbcReactorEngine$R2dbcEngineAdapter` / `$UnifiedEngineAdapter` | **private 内部类**，仅由宿主实例内部创建 | 无法从外部引用，**未直接触达**（如实声明） |
 | `ReactorFlywayBridge` | Flyway 的「响应式→同步」桥接，`implements Engine` | **阶段六**：桥接契约（15 条 UOE/能力断言）+ 真实 SQLite 读写（11 条） |
-| `HttpDatalakeQueryEngine` | datalake 模块的只读查询引擎，`implements Engine` | **阶段六**：只读契约面 16 条（写入口 UOE / 方言与数据源为 null / 关闭幂等），**全部不触网** |
+| `HttpDatalakeQueryEngine` | datalake 模块的只读查询引擎，`implements Engine` | **阶段六**：只读契约面 16 条（写入口 UOE / 方言与数据源为 null / 关闭幂等），不触网；**阶段十**：本机 HTTP 桩真实驱动 `query`/`queryPage`/`execute`（21 条） |
 
 > `com.chua.playwright.support.engine.JavaEngine` / `NativeEngine` **不是** datasource Engine ——
 > 它们实现的是 playwright 自己的 `Engine`（`com.chua.playwright.support.engine.Engine`，
@@ -109,12 +110,13 @@
 | 三 | KvEngine ×3 + SeriesEngine ×2 + mysql（真实 3306） | 75 | 全绿 |
 | 四 | parquet / lucene / nitrite / tablesaw + rocksdb 文档面 | 24 | 全绿 |
 | 五 | `RedisKvEngine` + `InfluxdbSeriesEngine` + `NoopSeriesEngine` + monitor 装配路径 | 39 | 全绿 |
-| 六 | 非 SPI 注册的两个公开 `Engine` 实现者：`HttpDatalakeQueryEngine`（只读契约面）、`ReactorFlywayBridge`（桥接契约 + 真实 SQLite 读写） | 45 | 全绿 |
+| 六 | 非 SPI 注册的两个公开 `Engine` 实现者：`HttpDatalakeQueryEngine`（只读契约面，查询/执行路径见阶段十）、`ReactorFlywayBridge`（桥接契约 + 真实 SQLite 读写） | 45 | 全绿 |
 | 七 | 新增 `Engine.query()` 非 ORM SQL 文本构建器：渲染 / 守卫 + 内存 / H2 / SQLite 三引擎端到端执行 | 37 | 全绿 |
 | 八 | `PrometheusEngine` + `PrometheusClient`：本机 HTTP 桩真实读写（8 个 `/api/v1/*` 端点、Basic 认证头、scalar/vector/matrix、HTTP 500 / 非 JSON / status=error / 不支持 resultType 的失败语义） | 35 | 全绿 |
 | 九 | `InfluxdbSeriesEngine`：注入桩客户端后的引擎逻辑真实执行（标识符白名单、行协议写入、指标发现、多指标歧义拒绝、结果展平与时间解析、降采样、清理、关闭） | 26 | 全绿 |
+| 十 | `HttpDatalakeQueryEngine`：本机 HTTP 桩真实读写（`POST /query` 编码与请求体、JSON 行解析与类型映射、POJO、客户端分页、受影响行数、畸形响应拒绝） | 21 | 全绿 |
 
-**合计 701 条断言，0 失败**（`run-acceptance.bat`：九阶段逐段 `PASS`，
+**合计 722 条断言，0 失败**（`run-acceptance.bat`：十阶段逐段 `PASS`，
 末行 `ACCEPTANCE_RESULT=PASS`，退出码 0）。
 
 ## 4. 修复的 9 处真实缺陷
@@ -153,16 +155,16 @@ harness **已入库**（不再只留 `.tmp`，那里没有版本控制）：
 
 ```
 utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
-├─ run-acceptance.bat          九阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-acceptance.bat          十阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              九个验收程序
+├─ harness/*.java              十个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 九阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 十阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 ```
 
@@ -207,9 +209,13 @@ run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
    （`R2dbcEngineAdapter` / `UnifiedEngineAdapter`）无法从外部引用，未直接触达；
    其宿主 `JdbcReactorEngine` 的 JDBC 降级路径已由阶段六经 `ReactorFlywayBridge` 真实驱动
    （建表 / 插入 / 条件查询 / 类型化映射 / 计数 / 删除，全部走真实 SQLite 文件）。
-4. **`HttpDatalakeQueryEngine` 只做只读契约面**：其 `getExecutor().query/execute` 会向
-   数据湖查询服务发起 HTTP 调用，本机无该服务，故 `querySql`/`executeSql` 路径未验
-   （阶段六的 16 条断言全部不触网）。**这部分是"未验"，不是"已通过"。**
+4. ~~**`HttpDatalakeQueryEngine` 只做只读契约面**~~ → **已升级**：阶段十用本机 HTTP 桩
+   （`com.sun.net.httpserver`）真实驱动 `getExecutor().query/queryPage/execute`（21 条断言）。
+   **仍未覆盖**的是真实数据湖查询服务的 SDK/鉴权语义——协议面只有
+   `POST {baseUrl}/query` + 纯文本 SQL + 原样响应体，已全部验证。
+   **已记录的行为差异**：`close()` 后 `isClosed()` 为 true，但执行器未做关闭门控，
+   仍可发起查询（`DatalakeHttpClient.close()` 本身是 no-op，无资源可释放）。
+   接口未强制「关闭后拒绝」，故未改动产品代码，仅在此如实记录并在阶段十显式断言该行为。
 5. `SeriesEngine.purge` 契约存在**自身歧义**：`0` 既被定义为「后端不支持」，又是「成功但删了 0 条」
    的自然返回值，调用方无法区分。本报告未改接口语义，仅记录。
 6. **UI 增强已交付一部分**：`pages/datasource`（数据源中心）的死筛选缺陷已修复并入库
@@ -407,4 +413,33 @@ Prometheus SDK，因此可以用 JDK 自带 `com.sun.net.httpserver.HttpServer` 
 
 > **仍未覆盖（如实声明）**：真实 InfluxDB 的 InfluxQL 执行语义与线上 HTTP 协议
 > （由第三方 influxdb-java 客户端负责）。本阶段证明的是**本项目引擎代码**的正确性。
+
+## 13. `HttpDatalakeQueryEngine` 查询/执行路径真实化（阶段十）
+
+该引擎原先只做只读契约面。复核后确认它的协议面极窄，完全可以桩验证：
+
+- 请求：`POST {baseUrl}/query`，`Content-Type: text/plain; charset=utf-8`，**SQL 原文即请求体**；
+- 响应：**原样返回**，由 `DefaultDatalakeHttpClient.parseRows` 解析为行集合；
+- 执行：同一端点，响应体须是整数（受影响行数）。
+
+于是用 `com.sun.net.httpserver.HttpServer` 起桩，真实跑通全链路。
+
+| 面 | 断言内容 |
+|---|---|
+| 请求契约 | 方法 `POST`、路径 `/query`、`Content-Type` 含 `text/plain`、请求体与 SQL（含中文）**逐字节相等**（证明 UTF-8 原样传输） |
+| 行解析 | JSON 数组 → `List<Map>`，**保序**；标量类型映射 `int→Integer` / `1.5→Double` / `true→Boolean` / `null→null` |
+| POJO | `query(sql, Row.class)` 经 Jackson 映射为实体 |
+| 分页 | 端点无分页通道，`queryPage` 在客户端切片并回填 `total=总行数`；越界页为空、`pageSize=0` 为空、`pagination==null` 返回整表 |
+| 参数 | 带绑定参数一律 `UnsupportedOperationException`（端点无参数通道，**拒绝静默丢弃**） |
+| 受影响行数 | `execute` 解析响应体整数；非数字响应抛 `IllegalStateException`（**不得当作 0 行**） |
+| 畸形响应 | 非 JSON / 非数组 / 数组含非对象 / 空响应 → `IllegalArgumentException`，不得返回空列表冒充「无数据」 |
+| 错误 | HTTP 500 → `IOException` → 执行器转 `IllegalStateException` |
+| 地址 | `baseUrl` 空/空白/非 http(s)/无 scheme/含空格 → `IllegalArgumentException`；尾部多个 `/` 被规整，不产生 `//query` |
+| 只读 | `store` / `query(Class)` / `update` / `delete` / `meta` / `addDataSource` 全部 `UOE` |
+
+**已记录的行为差异（未改动产品代码）**：`close()` 后 `isClosed()==true`，但 `HttpSqlExecutor`
+未检查该标记，仍能发起查询。`DatalakeHttpClient.close()` 本身是 no-op（JDK `HttpClient`
+无需关闭），且 `Engine` 接口只要求 `isClosed()` 反映真实状态、未强制「关闭后拒绝调用」。
+因此判定为**一致性差异而非缺陷**：与 `AbstractEngine` 系引擎的行为不一致，但无资源泄漏、
+无错误结果。阶段十以一条显式命名的断言记录该行为，避免它被静默遗漏。
 
