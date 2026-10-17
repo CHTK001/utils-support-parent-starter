@@ -211,7 +211,10 @@ public class SolrEngine extends AbstractEngine {
         if (sc == null) {
             throw new IllegalStateException("Solr 客户端未初始化，无法查询");
         }
-        String collectionName = entityClass.getSimpleName().toLowerCase();
+        // 与其余引擎一致：优先 @TableName，未标注时按驼峰转下划线。
+        // 此前这里用 getSimpleName().toLowerCase()，导致 store("t_acc_user", ...) 写入的
+        // 集合与 query(AccUser.class) 读取的集合不是同一个（写进去的数据读不出来）。
+        String collectionName = getTableName(entityClass);
         try {
             org.apache.solr.client.solrj.SolrQuery query = new org.apache.solr.client.solrj.SolrQuery();
             if (where == null || where.isEmpty()) {
@@ -319,6 +322,18 @@ public class SolrEngine extends AbstractEngine {
                 SearchResult<T> sr = search(entityClass, getConditions(), getOrderBys(),
                         (pn - 1) * ps, ps);
                 return new Page<>(pn, ps, sr.total(), sr.list());
+            }
+
+            @Override
+            /**
+             * 统计命中总数
+             * <p>直接取 Solr 返回的 {@code numFound}（rows=0 只回总数、不传文档），
+             * 避免基类默认实现抛 UOE，也避免像 list() 那样被 1000 行上限截断。</p>
+             *
+             * @return 命中总数
+            */
+            public long count() {
+                return search(entityClass, getConditions(), null, 0, 0).total();
             }
         };
     }
@@ -589,7 +604,12 @@ public class SolrEngine extends AbstractEngine {
             if (sc == null) {
                 throw new IllegalStateException("Solr 客户端未初始化，无法执行 GROUP BY");
             }
-            String collectionName = entityClass.getSimpleName().toLowerCase();
+            // 与其余引擎一致：优先 @TableName，未标注时按驼峰转下划线。
+            // 此前这里用 getSimpleName().toLowerCase()，导致 store("t_acc_user", ...) 写入的
+            // 集合与 query(AccUser.class) 读取的集合不是同一个（写进去的数据读不出来）。
+            // 此处 entityClass 声明为 Class<?>，且 executeGroupBy 位于 static 嵌套类中，
+            // 无法调用实例方法 getTableName，改用等价的 public static resolveTableName。
+            String collectionName = AbstractEngine.resolveTableName(entityClass);
             try {
                 String query = "*:*";
                 if (!where.isEmpty()) {
@@ -803,7 +823,10 @@ public class SolrEngine extends AbstractEngine {
                 if (sc == null) {
                     throw new IllegalStateException("Solr 客户端未初始化，无法更新");
                 }
-                String collectionName = entityClass.getSimpleName().toLowerCase();
+                // 与其余引擎一致：优先 @TableName，未标注时按驼峰转下划线。
+                // 此前这里用 getSimpleName().toLowerCase()，导致 store("t_acc_user", ...) 写入的
+                // 集合与 query(AccUser.class) 读取的集合不是同一个（写进去的数据读不出来）。
+                String collectionName = getTableName(entityClass);
                 String query = buildSolrQuery(getConditions());
                 try {
                     org.apache.solr.client.solrj.SolrQuery q = new org.apache.solr.client.solrj.SolrQuery();
@@ -905,7 +928,10 @@ public class SolrEngine extends AbstractEngine {
                 if (sc == null) {
                     throw new IllegalStateException("Solr 客户端未初始化，无法删除");
                 }
-                String collectionName = entityClass.getSimpleName().toLowerCase();
+                // 与其余引擎一致：优先 @TableName，未标注时按驼峰转下划线。
+                // 此前这里用 getSimpleName().toLowerCase()，导致 store("t_acc_user", ...) 写入的
+                // 集合与 query(AccUser.class) 读取的集合不是同一个（写进去的数据读不出来）。
+                String collectionName = getTableName(entityClass);
                 String query = buildSolrQuery(getConditions());
                 try {
                     org.apache.solr.client.solrj.SolrQuery countQuery =
@@ -982,7 +1008,10 @@ public class SolrEngine extends AbstractEngine {
         if (sc == null) {
             throw new IllegalStateException("Solr 客户端未初始化，无法查询");
         }
-        String collectionName = entityClass.getSimpleName().toLowerCase();
+        // 与其余引擎一致：优先 @TableName，未标注时按驼峰转下划线。
+        // 此前这里用 getSimpleName().toLowerCase()，导致 store("t_acc_user", ...) 写入的
+        // 集合与 query(AccUser.class) 读取的集合不是同一个（写进去的数据读不出来）。
+        String collectionName = getTableName(entityClass);
         try {
             String query = buildSolrQuery(conditions);
             org.apache.solr.client.solrj.SolrQuery solrQuery = new org.apache.solr.client.solrj.SolrQuery();
