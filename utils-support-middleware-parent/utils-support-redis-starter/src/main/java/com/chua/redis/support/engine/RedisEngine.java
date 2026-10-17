@@ -400,6 +400,10 @@ public class RedisEngine {
      * @return 键前缀
      */
     protected <T> String getKeyPrefix(Class<T> entityClass) {
-        return entityClass.getSimpleName().toLowerCase();
+        // 与其余引擎一致：优先 @TableName，未标注时按驼峰转下划线。
+        // 此前这里用 getSimpleName().toLowerCase()，导致 store("t_acc_user", ...) 写入的
+        // key 前缀（t_acc_user）与 query(AccUser.class) 读取的前缀（accuser）不是同一个，
+        // FT.SEARCH 不可用时回退扫描会静默返回空结果；@TableName 也完全失效。
+        return com.chua.datasource.support.engine.AbstractEngine.resolveTableName(entityClass);
     }
 }
