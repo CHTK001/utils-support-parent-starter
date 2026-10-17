@@ -5,12 +5,13 @@
 阶段九以桩客户端驱动 `InfluxdbSeriesEngine` 全部引擎逻辑：2026-10-17；
 阶段十以本机 HTTP 桩真实驱动 `HttpDatalakeQueryEngine` 查询/执行路径：2026-10-17；
 阶段十一真实嵌入式 RocksDB 验收 `RocksDbSeriesEngine`；
-阶段十二以本机 HTTP 桩验收 `QuestdbSeriesEngine` 并修复其 `/exec` 鉴权缺失：2026-10-17）
+阶段十二以本机 HTTP 桩验收 `QuestdbSeriesEngine` 并修复其 `/exec` 鉴权缺失：2026-10-17；
+阶段十三至十六：InfluxDbEngine / 5 个外部 JDBC 引擎配置层 / Solr / RediSearchEngine：2026-10-17）
 仓库：`utils-support-parent-starter`（另用 `spring-support-parent-starter` 与 `utils-support-datalake-parent` 的制品）
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
 已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
 `03d360448`（补回被全局 ignore 规则静默剔除的两个运行器）、本轮阶段六
-验收结论：**十五阶段共 858 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
+验收结论：**十六阶段共 876 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
 
 > **本轮为何要重绑 md5**：2026-10-04 首次出报告后，本地仓库里这批制品被后续构建
 > 重新产出（`common-starter` 4,563,385 → 4,743,831 B，`monitor-starter` 1,127,261 → 922,392 B 等），
@@ -29,7 +30,7 @@
 |---|---|---|---|
 | `com.chua:utils-support-common-starter:4.0.0.42` | `0896c47e` | 4,749,974 B | 缺陷 1/3/4/5/6/7 所在（阶段二/三/四）+ `Engine.query()` / `SqlQueryBuilder`（阶段七） |
 | `com.chua:utils-support-datasource-starter:4.0.0.42` | `91c5b9e1` | 353,307 B | 缺陷 1/2/3/4/6/7 所在（阶段一~四）+ 阶段六 `ReactorFlywayBridge` + 缺陷 12 的 `JdbcUrl.hostPort`（阶段十四） |
-| `com.chua:utils-support-redis-starter:4.0.0.42` | `abc98158` | 134,252 B | 缺陷 8/9 所在（阶段三/一） |
+| `com.chua:utils-support-redis-starter:4.0.0.42` | `112be63d` | 134,614 B | 缺陷 8/9 所在（阶段三/一）+ 缺陷 15/16/17 的修复（`RediSearchEngine` 实体 CRUD，阶段十六） |
 | `com.chua:utils-support-h2-starter:4.0.0.42` | `83ed8ee5` | 29,518 B | 阶段二/三负载 |
 | `com.chua:utils-support-sqlite-starter:4.0.0.42` | `e6114489` | 43,241 B | 阶段二负载 + 阶段六 `SqliteReactorEngine` |
 | `com.chua:utils-support-mysql-starter:4.0.0.42` | `892ea6da` | 140,783 B | 阶段三负载 + 缺陷 12 修复 |
@@ -82,6 +83,9 @@
 > **阶段十五重绑 1 个制品**：为修缺陷 13/14 重新构建了
 > `solr`（`34c1847c` → `46b6a1c9`，48,582 B）。其余 27 个制品字节未变。
 
+> **阶段十六重绑 1 个制品**：为修缺陷 15/16/17 重新构建了
+> `redis`（`abc98158` → `112be63d`，134,614 B）。其余 27 个制品字节未变。
+
 ## 2. 子类清单与覆盖状态（权威口径）
 
 ### 2.1 Engine —— SPI 注册的 24 个（阶段一全覆盖）
@@ -105,7 +109,8 @@
 
 **深度功能覆盖**：memory / file / h2 / sqlite / duckdb（阶段二）、parquet / lucene / nitrite /
 tablesaw / rocksdb（阶段四）、mysql（阶段三，真实 3306）、prometheus（阶段八，本机 HTTP 桩）、
-influxdb（阶段十三，纯内存）、redis（阶段三/五，真实 6379）、solr（阶段十五，记录型假
+influxdb（阶段十三，纯内存）、redis（阶段三/五：`RedisClient`/`RedisKvEngine`/`RedisSeriesEngine`；
+阶段十六：`RediSearchEngine` 的**实体 CRUD 真实读写**）、solr（阶段十五，记录型假
 `SolrClient` 驱动真实查询/写入/删除路径）；非 SPI 的 datalake-query（阶段十，本机 HTTP 桩）
 与 ReactorFlywayBridge（阶段六，真实 SQLite）。
 另：postgresql / sqlserver（含 legacy）/ oracle / clickhouse 在阶段十四验证了
@@ -180,11 +185,12 @@ monitor 模块的 Bean 工厂创建。
 | 十三 | `InfluxDbEngine`（SPI `influxdb`，纯内存）：能力自洽、表名解析与回退、同名覆盖、跨表隔离、条件/排序/计数、分页边界、全表守卫、带条件写真实生效 | 16 | 全绿 |
 | 十四 | 5 个无服务端 JDBC 引擎的本机可验面：URL 精确拼装、入参注入串拒绝、端口 0 契约、不可达快速失败、连接池真关闭 | 45 | 全绿 |
 | 十五 | Solr（SPI `solr`）：假 `SolrClient` 驱动真实路径——表名解析、q 构造、分页下推、numFound 计数、文档映射、写入/删除、失败语义、生命周期 | 28 | 全绿 |
+| 十六 | `RediSearchEngine`（SPI `redis`）：**真实 Redis 6379 读写**——key 前缀与 `@TableName`、store/query 一致、字段还原、回退扫描按 WHERE 过滤、条件计数、分页、能力声明、生命周期、原生命令 | 18 | 全绿 |
 
-**合计 858 条断言，0 失败**（`run-acceptance.bat`：十五阶段逐段 `PASS`，
+**合计 876 条断言，0 失败**（`run-acceptance.bat`：十六阶段逐段 `PASS`，
 末行 `ACCEPTANCE_RESULT=PASS`，退出码 0）。
 
-## 4. 修复的 14 处真实缺陷
+## 4. 修复的 17 处真实缺陷
 
 | # | 缺陷 | 根因 | 影响 |
 |---|---|---|---|
@@ -202,6 +208,9 @@ monitor 模块的 Bean 工厂创建。
 | 12 | **端口 0 的「驱动默认端口」契约在 10 处拼装点上失效** | `JdbcUrl.checkPort` 的 Javadoc 明确「0 表示使用驱动默认端口」，但所有引擎无条件拼 `host + ":" + port` | 传 0 得到 `host:0`，驱动会去连 **0 端口**而不是回退默认端口；文档承诺的用法 100% 失败，且报错与其根因无关 |
 | 13 | **Solr 引擎绕过 `@TableName`，`store` 与 `query` 集合名不一致** | `SolrEngine` 5 处集合名用 `entityClass.getSimpleName().toLowerCase()` 推导，绕过了 `AbstractEngine.resolveTableName`（优先 `@TableName`，否则驼峰转下划线） | `store("t_acc_user", rows)` 写入 `t_acc_user`，而 `query(AccUser.class)` 去查 `accuser`——**写进去的数据读不出来**；无注解实体也与 H2/SQLite/内存等引擎的集合名不一致 |
 | 14 | **Solr `query(X).count()` 直接抛 `UnsupportedOperationException`** | `LambdaQueryWrapper.count()` 的基类实现要求引擎覆写，Solr 的匿名包装器只覆写了 `list/one/page` | ORM 的计数 API 完全不可用（尽管 Solr 响应里已经有 `numFound`）；若改用 `list().size()` 回退，还会被 1000 行上限截断 |
+| 15 | **`RediSearchEngine` 绕过 `@TableName`，`store` 与 `query` 的 key 前缀不一致** | `RedisEngine.getKeyPrefix` 用 `getSimpleName().toLowerCase()` 推导，绕过 `AbstractEngine.resolveTableName`（优先 `@TableName`，否则驼峰转下划线）；`store(name, ...)` 却按调用方给的 `name` 写键 | `store("t_acc_user", rows)` 写入 `t_acc_user:1`，而 `query(AccUser.class)` 按 `accuser:*` 扫描——**写进去的数据读不出来**（回退路径静默返回空）；`@TableName` 完全失效 |
+| 16 | **`FT.SEARCH` 不可用时，回退扫描丢弃 WHERE 条件** | `RediSearchEngine.executeNewQuery` 的 `catch` 直接 `return scanAll(...)`，`scanAll` 只按前缀全量拉取，不带任何条件 | 无 RediSearch 模块的 Redis（Windows 构建默认没有）上，`query(X).eq(name,"alice")` **返回全部行**；`one()` 返回任意一行，`count()`/分页全部偏大——静默的错误结果，比抛错更危险 |
+| 17 | **`RediSearchEngine` 的 `query(X).count()` 抛 `UnsupportedOperationException`** | 与缺陷 14 同源：匿名包装器只覆写 `list/one/page`，未覆写基类要求引擎实现的 `count()` | 计数 API 不可用；即便补 `list().size()`，也会因缺陷 16 而算错 |
 
 缺陷 10 的修法（`utils-support-questdb-starter`，`QuestdbSeriesEngine`）：
 
@@ -225,6 +234,22 @@ monitor 模块的 Bean 工厂创建。
   两侧共 10 处 URL 拼装全部改为调用它；
 - 端口 > 0 的输出逐字节不变（无回归风险），端口 = 0 时交由驱动补默认端口，与
   `checkPort` 的 Javadoc 对齐。阶段十四对 5 个引擎各断言一次「URL 不含 `:0` 且形态精确」。
+
+缺陷 15/16/17 的修法（`utils-support-redis-starter`）：
+
+- **15**：`RedisEngine.getKeyPrefix` 改为 `AbstractEngine.resolveTableName(entityClass)`，
+  与 Solr/JDBC/内存引擎共用同一套「`@TableName` 优先、否则驼峰转下划线」规则；
+  该前缀同时用于 `store` 的键、`scanAll` 的 `prefix:*` 匹配与 `idx:` 索引名，改动一处即三处一致。
+- **16**：`FT.SEARCH` 的 `catch` 分支不再直接返回 `scanAll(...)`，而是复用
+  `MemoryWhereParser.parse(whereClause, params)` 得到谓词，在内存里过滤后再返回；
+  无条件时仍走原来的全量返回（零额外开销）。
+- **17**：匿名包装器补 `count()`，与 `list()` 走同一条已修正的路径，计数与过滤语义一致。
+
+> 阶段十六用**隔离实验**证明这两条断言不是「为通过而写」：只修 15、不修 16 时，
+> `eq(name,"alice")` 返回 3 行（期望 1 行）、`one()` 返回任意一行、条件计数为 3——
+> 7 条断言失败并直接指出「回退扫描忽略了 WHERE 条件」；把 16 的修复放回后 18 条全绿。
+> 同理，回退 15 的修复时 24 条断言失败（`store 写入 3 行，query 只读到 0 行`），
+> 回退 17 时 `count()` 抛 UOE。
 
 ## 5. 查证后**判定为非缺陷**的（避免后人误"修"）
 
@@ -251,13 +276,13 @@ utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
 ├─ run-acceptance.bat          十五阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              十五个验收程序
+├─ harness/*.java              十六个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 十五阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 十六阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 ```
 
@@ -661,6 +686,32 @@ Solr 引擎的关键事实是：`addDataSource` 接受**任意** `SolrClient`，
 >
 > **仍未覆盖**：真实 Solr 服务端的查询解析（QParser）、schema/动态字段、
 > 分布式与副本行为——那属于服务端语义，且本引擎不自带 schema 管理。
+
+### 14.6 RediSearchEngine：真实 Redis 上的实体 CRUD（阶段十六，18 条）
+
+这是本报告里少数几个**真实服务端读写**的引擎阶段（另一个是 mysql）。本机 Windows 版
+Redis 不支持 `MODULE` 命令，即没有 RediSearch 模块——因此 `FT.SEARCH` 必然失败，
+所有查询都走 `scanAll` 回退路径。这恰好让回退路径的缺陷暴露出来。
+
+| 面 | 断言内容 |
+|---|---|
+| 表名/前缀 | `@TableName("t_redis_user")` 生效：写入后 Redis 里存在 `t_redis_user:1`；无注解 `PlainUser` → `plain_user`；**store 写入的前缀与 query 读取的前缀一致**（缺陷 15 回归锁） |
+| 字段映射 | 哈希里的字符串还原为 `Long/String/Integer` |
+| 条件过滤 | 单条件命中 1 行；多条件 AND 命中 1 / 0；无命中返回空列表；`one()` 返回唯一命中行（缺陷 16 回归锁） |
+| 计数 | 全量 3、条件 1、无命中 0（缺陷 17 回归锁） |
+| 分页 | `page(1,2)` → total=3 / 2 行；`page(2,2)` → total 仍 3 / 1 行（SCAN 顺序无关，故不断言行序） |
+| 能力声明 | `update()`/`remove()` 明确抛 UOE（不静默失败）；无执行器 → `supportsSql()==false` 且 `querySql` 抛 UOE |
+| 生命周期 | `close()` 幂等；原生命令 `execute("DEL key")` 可执行 |
+| 隔离 | 每条断言前后按前缀清理键，可重复运行 |
+
+> 三个缺陷的**独立证据**（而不是「改完就绿」）：
+> - 回退缺陷 15 → 24 条失败，其中 `store 写入 3 行，query 只读到 0 行`；
+> - 只修 15、回退 16 → 7 条失败，`eq(name,"alice")` 返回 **3 行**（期望 1），
+>   `one()` 返回任意一行，条件计数 3；
+> - 回退 17 → `count() 需由引擎实现类重写` 的 UOE。
+>
+> **仍未覆盖**：真实 RediSearch 模块下的 `FT.SEARCH`/`FT.AGGREGATE` 语义（本机无该模块）、
+> 条件更新与条件删除（引擎明确不支持，直接抛 UOE）。
 
 
 
