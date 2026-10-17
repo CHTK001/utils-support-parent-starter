@@ -1,12 +1,13 @@
 # 引擎验收与修复交付报告（Engine / KvEngine / SeriesEngine 全子类）
 
 日期：2026-10-04（阶段六增补与 md5 重绑：2026-10-17；阶段七新增 `Engine.query()` 构建器：2026-10-17；
-阶段八将 Prometheus 升级为本机 HTTP 桩真实执行：2026-10-17）
+阶段八将 Prometheus 升级为本机 HTTP 桩真实执行：2026-10-17；
+阶段九以桩客户端驱动 `InfluxdbSeriesEngine` 全部引擎逻辑：2026-10-17）
 仓库：`utils-support-parent-starter`（另用 `spring-support-parent-starter` 与 `utils-support-datalake-parent` 的制品）
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
 已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
 `03d360448`（补回被全局 ignore 规则静默剔除的两个运行器）、本轮阶段六
-验收结论：**八阶段共 675 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
+验收结论：**九阶段共 701 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
 
 > **本轮为何要重绑 md5**：2026-10-04 首次出报告后，本地仓库里这批制品被后续构建
 > 重新产出（`common-starter` 4,563,385 → 4,743,831 B，`monitor-starter` 1,127,261 → 922,392 B 等），
@@ -96,7 +97,7 @@
 |---|---|---|
 | `com.chua.common.support.lang.datasource.series.impl.DataSourceSeriesEngine` | h2 真实读写 + 全契约 | 三 |
 | `com.chua.redis.support.engine.RedisSeriesEngine` | 本机 Redis 真实读写 + 全契约 | 三 |
-| `com.chua.influxdb.support.engine.InfluxdbSeriesEngine` | **仅契约面**（本机无 InfluxDB） | 五 |
+| `com.chua.influxdb.support.engine.InfluxdbSeriesEngine` | 注入桩客户端后**引擎逻辑全量真实执行**（无真实 InfluxDB 服务） | 五、九 |
 | `com.chua.starter.monitor.support.config.SeriesEngineConfiguration$NoopSeriesEngine` | 经其唯一公开入口（Bean 工厂）驱动 + 全契约 | 五 |
 
 ## 3. 验证阶段与断言数
@@ -111,8 +112,9 @@
 | 六 | 非 SPI 注册的两个公开 `Engine` 实现者：`HttpDatalakeQueryEngine`（只读契约面）、`ReactorFlywayBridge`（桥接契约 + 真实 SQLite 读写） | 45 | 全绿 |
 | 七 | 新增 `Engine.query()` 非 ORM SQL 文本构建器：渲染 / 守卫 + 内存 / H2 / SQLite 三引擎端到端执行 | 37 | 全绿 |
 | 八 | `PrometheusEngine` + `PrometheusClient`：本机 HTTP 桩真实读写（8 个 `/api/v1/*` 端点、Basic 认证头、scalar/vector/matrix、HTTP 500 / 非 JSON / status=error / 不支持 resultType 的失败语义） | 35 | 全绿 |
+| 九 | `InfluxdbSeriesEngine`：注入桩客户端后的引擎逻辑真实执行（标识符白名单、行协议写入、指标发现、多指标歧义拒绝、结果展平与时间解析、降采样、清理、关闭） | 26 | 全绿 |
 
-**合计 675 条断言，0 失败**（`run-acceptance.bat`：八阶段逐段 `PASS`，
+**合计 701 条断言，0 失败**（`run-acceptance.bat`：九阶段逐段 `PASS`，
 末行 `ACCEPTANCE_RESULT=PASS`，退出码 0）。
 
 ## 4. 修复的 9 处真实缺陷
@@ -151,16 +153,16 @@ harness **已入库**（不再只留 `.tmp`，那里没有版本控制）：
 
 ```
 utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
-├─ run-acceptance.bat          八阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-acceptance.bat          九阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              八个验收程序
+├─ harness/*.java              九个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 八阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 九阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 ```
 
@@ -187,14 +189,20 @@ run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 
 ## 7. 尚未覆盖（如实声明）
 
-1. **需外部服务的 10 个引擎**（postgresql、sqlserver、oracle、clickhouse、hbase、solr、
-   neo4j、elasticsearch、influxdb、greptimedb）只有契约面；
+1. **需外部服务的 9 个引擎**（postgresql、sqlserver、oracle、clickhouse、hbase、solr、
+   neo4j、elasticsearch、greptimedb）只有契约面；
    本机无对应服务，无法做真实读写验收。**这部分是"未验"，不是"已通过"。**
    > `prometheus` **已从本清单移出**：阶段八用本机 HTTP 桩（`com.sun.net.httpserver`）
    > 打通了 8 个 `/api/v1/*` 端点，`PrometheusEngine` / `PrometheusClient` 的查询、
    > 模型映射、Basic 认证与失败语义均已真实执行（35 条断言）。仍未覆盖的是
    > **真实 Prometheus 服务端的 PromQL 语义**（桩只回放固定响应）。
-2. **`InfluxdbSeriesEngine` 只有契约面**（同上，无 InfluxDB 服务）。
+   >
+   > `influxdb` 也已移出「仅契约面」，但**真实 InfluxDB 服务**仍未验：
+   > 阶段九只覆盖引擎自身逻辑（见下一条）。
+2. ~~**`InfluxdbSeriesEngine` 只有契约面**~~ → **已升级**：阶段九用 `java.lang.reflect.Proxy`
+   注入一个 `InfluxDB` 桩客户端（该引擎提供了公开的注入构造器，注释即写明用于「测试或外部生命周期管理」），
+   把**引擎自身逻辑**全部真实执行（26 条断言）。**仍未覆盖**的是真实 InfluxDB 的
+   InfluxQL 执行语义与线上 HTTP 协议——那部分由第三方 influxdb-java 客户端负责，不是本项目代码。
 3. **`JdbcReactorEngine` 的两个 private 内部适配器**
    （`R2dbcEngineAdapter` / `UnifiedEngineAdapter`）无法从外部引用，未直接触达；
    其宿主 `JdbcReactorEngine` 的 JDBC 降级路径已由阶段六经 `ReactorFlywayBridge` 真实驱动
@@ -369,4 +377,34 @@ Prometheus SDK，因此可以用 JDK 自带 `com.sun.net.httpserver.HttpServer` 
 > **仍未覆盖（如实声明）**：桩是固定响应回放，因此**真实 Prometheus 的 PromQL 语义**
 > （选择器匹配、函数计算、时间对齐、告警规则求值）不在本阶段证明范围内；
 > 本阶段证明的是客户端/引擎的**协议实现、映射与失败语义**正确。
+
+## 12. `InfluxdbSeriesEngine` 从「契约面」升级为「引擎逻辑全量执行」（阶段九）
+
+`InfluxdbSeriesEngine` 原先也只有契约面。复核后确认它有**公开的注入构造器**
+`InfluxdbSeriesEngine(InfluxDB, String)`，注释写明用于「测试或外部生命周期管理」——
+这正是本项目为自己预留的接缝。于是用 `java.lang.reflect.Proxy` 动态实现
+`InfluxDB` 接口作为桩客户端，把引擎自身的逻辑全部真实跑起来。
+
+**这不是 mock 断言**：桩只做两件事——记录收到的 InfluxQL、按语句返回构造好的
+`QueryResult`。所有判定、拼装、解析、聚合都由被测引擎真实完成。
+
+覆盖点：
+
+| 面 | 断言内容 |
+|---|---|
+| 装配 | 客户端为空 / 数据库名为空 / SPI 缺 `url`+`database` 三种「不可用」，且不得发起连接 |
+| 写入 | `Point` 行协议 `measurement,monitor_id=<id> field=<v> <ns>`；毫秒→纳秒转换；`writeBatch` 逐点委托 |
+| 标识符 | `SqlName.isWord` 白名单：`a-b` / `a;drop` / `a b` / `a"` / 空 / `a.b` / 含制表符全部拒绝，**且在触达客户端之前**拒绝 |
+| 标识符（正例） | 数字开头（`1metric` / `2field`）**合法**——`isWord` 是 `[A-Za-z0-9_]{1,128}`，这是既有契约，不是放宽 |
+| 指标发现 | `SELECT * FROM "t" WHERE "monitor_id" = '<id>' LIMIT 1`；跳过 `time` 与首列；结果按字典序升序 |
+| 曲线 | 显式 `metricName` 时只查单 field（不再探测）；时间范围片段 `time >= …ms AND time <= …ms` |
+| 降采样 | 同窗口取均值（10/20 → 15）、跨窗口按桶起点升序、桶起点对齐 `floor(ts/window)*window` |
+| 时间解析 | 数字按毫秒；字符串按 RFC3339（`2024-01-01T00:00:00Z` → 1704067200000）；无法解析的点丢弃但**不影响其余点** |
+| 歧义 | `metricName == null` 且存在多个 field 时**必须抛 `IllegalArgumentException`** 并列出候选（排序后），严禁合并成一条曲线 |
+| 失败 | 结果级 `error`、序列级 `error`、客户端返回 `null`、客户端抛异常，四种都转 `IllegalStateException`，**绝不降级为空曲线** |
+| 清理 | `DELETE FROM "t" WHERE time < <ms>`，`monitorId` 为空时不加 tag 条件；成功返回 **-1**（已清理但条数不可统计），不能返回 0 |
+| 生命周期 | `close()` 关闭客户端、`isAvailable()` 转 false、可重复调用；关闭后写抛 `ISE`、读空、清理 0，且**零客户端调用** |
+
+> **仍未覆盖（如实声明）**：真实 InfluxDB 的 InfluxQL 执行语义与线上 HTTP 协议
+> （由第三方 influxdb-java 客户端负责）。本阶段证明的是**本项目引擎代码**的正确性。
 

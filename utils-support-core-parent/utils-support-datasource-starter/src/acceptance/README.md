@@ -13,7 +13,7 @@
   （`dependency:build-classpath`），不参与 reactor 构建。
 - 历史上这类工具只留在 `.tmp/`，没有版本控制，随会话结束即丢失。**工具必须入库。**
 
-## 八阶段与覆盖范围
+## 九阶段与覆盖范围
 
 | 阶段 | 程序 | 断言数 | 覆盖内容 |
 |---|---|---|---|
@@ -25,8 +25,9 @@
 | 六 | `EngineRemaining` | 45 | **非 SPI 注册**的两个公开 `Engine` 实现者：`HttpDatalakeQueryEngine`（只读契约面，不触网）、`ReactorFlywayBridge`（桥接契约 + 真实 SQLite 读写） |
 | 七 | `EngineQueryBuilder` | 37 | 新增的 `Engine.query()` **非 ORM SQL 文本构建器**：子句渲染顺序、标识符白名单、参数绑定顺序、守卫，以及在内存 / H2 / SQLite 三个真实引擎上的端到端执行（含 JOIN / GROUP BY / HAVING / VIEW / 分页 / 类型化映射 / 异步终端） |
 | 八 | `EnginePrometheus` | 35 | `PrometheusEngine` + `PrometheusClient` 对**本机 HTTP 桩**的真实执行：8 个 `/api/v1/*` 端点、Basic 认证头、scalar/vector/matrix 解析、HTTP 500 / 非 JSON / `status=error` / 不支持 resultType 的失败语义、关闭语义 |
+| 九 | `EngineInfluxdb` | 26 | `InfluxdbSeriesEngine` 注入桩客户端后的**引擎逻辑**真实执行：标识符白名单、单点写入行协议（毫秒→纳秒）、指标发现 `SELECT * ... LIMIT 1`、多指标歧义拒绝、结果展平与 RFC3339 时间解析、窗口均值降采样、`DELETE` 清理返回 -1、关闭语义 |
 
-合计 **675 条断言**。
+合计 **701 条断言**。
 
 ## 子类清单与覆盖状态（权威口径）
 
@@ -70,7 +71,7 @@ Engine / KvEngine / SeriesEngine 的全部实现者及其覆盖情况，见同�
 
 ```bat
 cd utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat            :: 八阶段全跑
+run-acceptance.bat            :: 九阶段全跑
 run-acceptance.bat 1 5        :: 只跑阶段一与阶段五
 ```
 
