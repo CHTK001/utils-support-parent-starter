@@ -13,7 +13,7 @@
   （`dependency:build-classpath`），不参与 reactor 构建。
 - 历史上这类工具只留在 `.tmp/`，没有版本控制，随会话结束即丢失。**工具必须入库。**
 
-## 二十阶段与覆盖范围
+## 二十一阶段与覆盖范围
 
 | 阶段 | 程序 | 断言数 | 覆盖内容 |
 |---|---|---|---|
@@ -39,7 +39,9 @@
 
 | 二十 | `EngineHBase` | 23 | `HBaseEngine`（SPI `hbase`）用**动态代理假 `Connection`/`Admin`/`Table`/`ResultScanner`** 驱动真实领域 API：建表幂等与列族、`Put` 的行键/列族/限定符/值、`Get` 的列族过滤与全列族 `族:限定符`、行不存在返回空 Map、`Scan` 的前缀起止行（非 ASCII 按 UTF-8 末字节 +1）、`__row` 与空 `Result` 跳过、`Delete` 行键、`store`/查询/`update`/`delete` 的 UOE、注入连接不被 `close()` 关闭、用法错误（未配置/已关闭）不被包装成操作失败 |
 
-合计 **975 条断言**。
+| 二十一 | `EngineDialectSql` | 28 | 方言分页 SQL（postgresql / clickhouse / oracle / oracle11g / oracle12c / sqlserver / sqlserver2008 / sqlserver2012 / derby / derby1014）：`supportsLimit` 能力声明（**修复前 Oracle/SQLServer/Derby 谎称支持 LIMIT**）、LIMIT 方言渲染、Oracle ROWNUM、OFFSET…FETCH、SQL Server 2008/Derby 10.14 的 ROW_NUMBER 模板、ORDER BY 回退注入与幂等、`offset=0`/`pageSize<=0` 边界、四引擎实际方言接线（注册数据源但不建连） |
+
+合计 **1003 条断言**。
 
 ## 子类清单与覆盖状态（权威口径）
 
@@ -86,7 +88,7 @@ Engine / KvEngine / SeriesEngine 的全部实现者及其覆盖情况，见同�
 
 ```bat
 cd utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat            :: 二十阶段全跑
+run-acceptance.bat            :: 二十一阶段全跑
 run-acceptance.bat 1 5        :: 只跑阶段一与阶段五
 ```
 
