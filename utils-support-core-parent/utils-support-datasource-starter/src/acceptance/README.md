@@ -13,7 +13,7 @@
   （`dependency:build-classpath`），不参与 reactor 构建。
 - 历史上这类工具只留在 `.tmp/`，没有版本控制，随会话结束即丢失。**工具必须入库。**
 
-## 十四阶段与覆盖范围
+## 十五阶段与覆盖范围
 
 | 阶段 | 程序 | 断言数 | 覆盖内容 |
 |---|---|---|---|
@@ -31,8 +31,9 @@
 | 十二 | `EngineQuestdb` | 30 | `QuestdbSeriesEngine` 对**本机 HTTP 桩**的真实执行：ILP 写入报文（measurement/tag/列/纳秒）、逐点 flush、写入失败不静默、地址归一化、`/write` 与 `/exec` 双侧鉴权头（Bearer / Basic）、探测 SQL、数值列与样本行收窄、`/exec` 500/非 JSON/空响应/表不存在、查询 SQL 与 ISO 边界、微秒时间戳归一秒、坏点丢弃、`DELETE` 清理（返回 -1 / 表不存在 0）、关闭语义 |
 | 十三 | `EngineInfluxDbEngine` | 16 | `InfluxDbEngine`（SPI `influxdb`，**纯内存实现**）：能力声明自洽（`supportsSql=false` / 无执行器 / `querySql` 抛 UOE）、表名解析与 `default` 回退、同名覆盖、跨表不串读、`eq`/`gt`/排序/计数、分页（skip 先于 limit、越界页为空、1000 行末页）、空条件写操作被全表守卫拒绝、带条件 `update`/`delete` 真实生效且只命中目标行 |
 | 十四 | `EngineExternalConfig` | 45 | 5 个无服务端可用的 JDBC 引擎（postgresql / sqlserver / sqlserver-legacy / oracle / clickhouse）的**本机可验面**：URL 逐字符精确、用户名密码透传、密码不入 URL、host/port/database 的注入串拒绝、被拒绝的注册不留半成品、端口 0 = 驱动默认（URL 不得出现 `:0`）、不可达主机抛异常而非静默空结果且 10s 内失败、`close()` 幂等并真正关闭连接池 |
+| 十五 | `EngineSolr` | 28 | Solr 引擎（SPI `solr`）用**记录型假 SolrClient** 驱动真实路径：`@TableName` 与驼峰转下划线、store/query 集合一致、q 构造（`*:*`/`field:value`/`AND`）、`one()`/`list()`/`page()` 的 start/rows 下推、`page().total` 取 numFound、`count()` 取 numFound 且不受 1000 行上限影响、文档→实体映射（类型/顺序/缺失字段/多值取首）、store 的 add+commit 与空列表 no-op、delete 的 0 命中短路与条件删除、未初始化/客户端异常的语义、`close()` 与能力声明自洽 |
 
-合计 **830 条断言**。
+合计 **858 条断言**。
 
 ## 子类清单与覆盖状态（权威口径）
 
@@ -79,7 +80,7 @@ Engine / KvEngine / SeriesEngine 的全部实现者及其覆盖情况，见同�
 
 ```bat
 cd utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat            :: 十四阶段全跑
+run-acceptance.bat            :: 十五阶段全跑
 run-acceptance.bat 1 5        :: 只跑阶段一与阶段五
 ```
 
