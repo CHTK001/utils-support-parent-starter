@@ -123,9 +123,15 @@ public class HBaseEngine extends AbstractEngine {
     }
 
     /**
-     * 连接。
+     * 取默认数据源的连接。
+     *
+     * <p>「未配置数据源」「已关闭」「多个数据源但未指定默认」都是调用方用法错误，
+     * 一律抛 {@link IllegalStateException}。各领域 API 必须<b>先把连接取出来</b>
+     * 再进入自己的 {@code try/catch}，否则这些用法错误会被包装成
+     * 「HBase put/get/scan 失败」，与同族引擎（Elasticsearch / Neo4j）的契约不一致。</p>
      *
      * @return 连接 对象
+     * @throws IllegalStateException 未配置数据源、已关闭或数据源不唯一
      */
     private Connection conn() {
         EngineDataSource<Object> ds = defaultDataSourceName == null
@@ -155,7 +161,8 @@ public class HBaseEngine extends AbstractEngine {
      * @return this
      */
     public HBaseEngine createTable(String table, String family) {
-        try (var admin = conn().getAdmin()) {
+        Connection c = conn();
+        try (var admin = c.getAdmin()) {
             TableName tn = TableName.valueOf(table);
             if (!admin.tableExists(tn)) {
                 admin.createTable(TableDescriptorBuilder.newBuilder(tn)
@@ -177,7 +184,8 @@ public class HBaseEngine extends AbstractEngine {
      * @return this
      */
     public HBaseEngine put(String table, String rowKey, String family, Map<String, String> values) {
-        try (Table t = conn().getTable(TableName.valueOf(table))) {
+        Connection c = conn();
+        try (Table t = c.getTable(TableName.valueOf(table))) {
             Put p = new Put(Bytes.toBytes(rowKey));
             values.forEach((q, v) -> p.addColumn(Bytes.toBytes(family), Bytes.toBytes(q), Bytes.toBytes(v)));
             t.put(p);
@@ -196,7 +204,8 @@ public class HBaseEngine extends AbstractEngine {
      * @return 列限定符 -> 字符串值；行不存在返回空 映射
      */
     public Map<String, String> get(String table, String rowKey, String family) {
-        try (Table t = conn().getTable(TableName.valueOf(table))) {
+        Connection c = conn();
+        try (Table t = c.getTable(TableName.valueOf(table))) {
             Result r = t.get(new Get(Bytes.toBytes(rowKey)));
             return toMap(r, family);
         } catch (Exception e) {
@@ -213,7 +222,8 @@ public class HBaseEngine extends AbstractEngine {
      * @return 行列表，每行含 {@code __row} 键为行键
      */
     public java.util.List<Map<String, String>> scan(String table, String family, String rowPrefix) {
-        try (Table t = conn().getTable(TableName.valueOf(table));
+        Connection c = conn();
+        try (Table t = c.getTable(TableName.valueOf(table));
              ResultScanner scanner = t.getScanner(buildScan(family, rowPrefix))) {
             java.util.List<Map<String, String>> out = Wraps.list();
             for (Result r : scanner) {
@@ -238,7 +248,8 @@ public class HBaseEngine extends AbstractEngine {
      * @return this
      */
     public HBaseEngine deleteRow(String table, String rowKey) {
-        try (Table t = conn().getTable(TableName.valueOf(table))) {
+        Connection c = conn();
+        try (Table t = c.getTable(TableName.valueOf(table))) {
             t.delete(new Delete(Bytes.toBytes(rowKey)));
             return this;
         } catch (Exception e) {
