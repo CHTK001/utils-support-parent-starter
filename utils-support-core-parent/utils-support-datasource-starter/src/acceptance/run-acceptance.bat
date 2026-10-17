@@ -38,7 +38,8 @@ javac -encoding UTF-8 -d "classes" -cp "lib/*" ^
     "harness\EngineSeriesKv.java" ^
     "harness\EngineEmbedded.java" ^
     "harness\EngineGaps.java" ^
-    "harness\EngineRemaining.java"
+    "harness\EngineRemaining.java" ^
+    "harness\EngineQueryBuilder.java"
 if errorlevel 1 (
     echo [ERROR] harness compilation failed
     exit /b 3
@@ -56,7 +57,7 @@ set JOPT=-Dfile.encoding=UTF-8 --enable-native-access=ALL-UNNAMED ^
  --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
 
 set STAGES=%*
-if "%STAGES%"=="" set STAGES=1 2 3 4 5 6
+if "%STAGES%"=="" set STAGES=1 2 3 4 5 6 7
 set FAILED=0
 
 echo %STAGES% | findstr /C:"1" > nul && call :run 1 EngineAcceptance
@@ -65,6 +66,7 @@ echo %STAGES% | findstr /C:"3" > nul && call :run 3 EngineSeriesKv
 echo %STAGES% | findstr /C:"4" > nul && call :run 4 EngineEmbedded
 echo %STAGES% | findstr /C:"5" > nul && call :run 5 EngineGaps
 echo %STAGES% | findstr /C:"6" > nul && call :run 6 EngineRemaining
+echo %STAGES% | findstr /C:"7" > nul && call :run 7 EngineQueryBuilder
 
 echo.
 if "%FAILED%"=="1" (

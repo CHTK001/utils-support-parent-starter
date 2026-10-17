@@ -1,16 +1,20 @@
 # 引擎验收与修复交付报告（Engine / KvEngine / SeriesEngine 全子类）
 
-日期：2026-10-04（阶段六增补与 md5 重绑：2026-10-17）
+日期：2026-10-04（阶段六增补与 md5 重绑：2026-10-17；阶段七新增 `Engine.query()` 构建器并重绑 common-starter md5：2026-10-17）
 仓库：`utils-support-parent-starter`（另用 `spring-support-parent-starter` 与 `utils-support-datalake-parent` 的制品）
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
 已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
 `03d360448`（补回被全局 ignore 规则静默剔除的两个运行器）、本轮阶段六
-验收结论：**六阶段共 603 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
+验收结论：**七阶段共 640 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
 
 > **本轮为何要重绑 md5**：2026-10-04 首次出报告后，本地仓库里这批制品被后续构建
 > 重新产出（`common-starter` 4,563,385 → 4,743,831 B，`monitor-starter` 1,127,261 → 922,392 B 等），
 > 旧表 md5 已全部失效。阶段六落地时**按新制品重跑六阶段并重新登记 md5**，
 > 下表即为本次验收实际加载的那批文件（经 `cp.txt` 逐一确认为 `D:\maven-repo` 下的路径）。
+>
+> **阶段七再次重绑**：为加入 `Engine.query()` 构建器重新 `mvn -o clean install` 了
+> `common-starter`，jar 被重新产出（`ce53c145` → `0896c47e`，大小 4,743,831 → 4,749,974 B）。
+> 七阶段随即在此新制品上重跑，全绿后登记。**其余 13 个制品字节未变**（md5 与阶段六一致）。
 
 ---
 
@@ -18,7 +22,7 @@
 
 | 产物 | md5（前 8 位） | 大小 | 承载的验收内容 |
 |---|---|---|---|
-| `com.chua:utils-support-common-starter:4.0.0.42` | `ce53c145` | 4,743,831 B | 缺陷 1/3/4/5/6/7 所在（阶段二/三/四） |
+| `com.chua:utils-support-common-starter:4.0.0.42` | `0896c47e` | 4,749,974 B | 缺陷 1/3/4/5/6/7 所在（阶段二/三/四）+ `Engine.query()` / `SqlQueryBuilder`（阶段七） |
 | `com.chua:utils-support-datasource-starter:4.0.0.42` | `8c9bac45` | 353,226 B | 缺陷 1/2/3/4/6/7 所在（阶段一~四）+ 阶段六 `ReactorFlywayBridge` |
 | `com.chua:utils-support-redis-starter:4.0.0.42` | `abc98158` | 134,252 B | 缺陷 8/9 所在（阶段三/一） |
 | `com.chua:utils-support-h2-starter:4.0.0.42` | `83ed8ee5` | 29,518 B | 阶段二/三负载 |
@@ -104,8 +108,9 @@
 | 四 | parquet / lucene / nitrite / tablesaw + rocksdb 文档面 | 24 | 全绿 |
 | 五 | `RedisKvEngine` + `InfluxdbSeriesEngine` + `NoopSeriesEngine` + monitor 装配路径 | 39 | 全绿 |
 | 六 | 非 SPI 注册的两个公开 `Engine` 实现者：`HttpDatalakeQueryEngine`（只读契约面）、`ReactorFlywayBridge`（桥接契约 + 真实 SQLite 读写） | 45 | 全绿 |
+| 七 | 新增 `Engine.query()` 非 ORM SQL 文本构建器：渲染 / 守卫 + 内存 / H2 / SQLite 三引擎端到端执行 | 37 | 全绿 |
 
-**合计 603 条断言，0 失败**（`run-acceptance.bat 1 2 3 4 5 6`：六阶段逐段 `PASS`，
+**合计 640 条断言，0 失败**（`run-acceptance.bat`：七阶段逐段 `PASS`，
 末行 `ACCEPTANCE_RESULT=PASS`，退出码 0）。
 
 ## 4. 修复的 9 处真实缺陷
@@ -144,16 +149,16 @@ harness **已入库**（不再只留 `.tmp`，那里没有版本控制）：
 
 ```
 utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
-├─ run-acceptance.bat          六阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-acceptance.bat          七阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              六个验收程序
+├─ harness/*.java              七个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 六阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 七阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 ```
 
@@ -196,6 +201,8 @@ run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 6. **UI 增强已交付一部分**：`pages/datasource`（数据源中心）的死筛选缺陷已修复并入库
    （见第 8 节）。**仍未修复的一处可访问性缺陷**记录在第 8 节末尾，因该文件当时正被
    另一并发会话修改而未动，如实声明。
+7. **`Engine.query()` 构建器只覆盖"查询"**：它只负责拼 SELECT，因此 `execute()` 的语义是
+   "查询命中行数"；不提供链式 UPDATE/DELETE（那两条仍有 Lambda 包装器与原生语句通道）。
 
 ## 8. UI 增强（pages/datasource 数据源中心）
 
@@ -228,4 +235,86 @@ run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 > 一并卷入，故只记录不动手。**注意**：本页的端到端浏览器验收需要
 > `spring-support-datasource-hub-starter` 后端，本轮以「纯逻辑单测 + 模板/类型检查」定案，
 > 未做浏览器验收。
+
+## 9. 新增能力：`Engine.query()` 非 ORM SQL 文本构建器（阶段七）
+
+需求：在 `Engine` 既有的 `update(...)`、`query(Class)` / `query(String, Object...)` 之外，
+补一条**链式拼接 SQL 文本、但不做实体映射**的通路，可按
+`select / table / view / where / orderby / groupby / innerjoin` 拼成一条语句再执行。
+
+实现（均在 `utils-support-common-starter`）：
+
+| 位置 | 内容 |
+|---|---|
+| `…engine/Engine.java` | 新增 `default SqlQueryBuilder query()`。与既有 `query(Class)`、`query(String,Object...)`、`query(String,Class,Object...)` **重载共存**（已 grep 确认无实现者声明无参 `query()`，无冲突） |
+| `…engine/wrapper/SqlQueryBuilder.java` | 新建；`final class`，与 `LambdaQueryWrapper` / `JoinClause` / `QuerySql` 同包 |
+
+能力面：
+
+- 组成：`select` / `selectFunc` / `selectCount` / `table`(±别名) / `view`(±别名) /
+  `innerJoin` / `leftJoin` / `rightJoin` / `where` / `and` / `or` / `groupBy` / `having` /
+  `orderBy`(= Asc) / `orderByAsc` / `orderByDesc` / `limit` / `offset`；
+- 终端：`list()` / `list(Class)` / `map()` / `map(Class)` / `execute()`（返回命中行数）/
+  `listAsync()` / `executeAsync()`（返回 `Mono`，`Schedulers.boundedElastic()`）；
+- 预览：`sql()` / `boundParams()`；`sql()` 未指定来源时抛 `IllegalStateException`。
+
+**它不是 ORM**：不解析实体、不读字段注解，只把调用方给的标识符与条件片段拼成语句，
+再交给引擎既有的 `querySql(String,Object...)` / `querySql(String,Class,Object...)` 通道执行。
+
+安全口径：
+
+- 会拼进 SQL **结构位**的标识符（来源表/视图、别名、投影列、分组列、排序列、JOIN 表名与别名、
+  聚合函数名）全部先过 `SqlName.isSafe` 白名单，非法即 `IllegalArgumentException`；
+  `*` 仅在投影列位点被显式放行；白名单只允许**一段** `schema.object` 限定，
+  故 `a.b` 合法而 `a.b.c` 被拒（与 `SqlName` 既有口径一致）。
+- 条件片段（`where` / `having` / JOIN `ON`）沿用 `JoinClause` 的既有约定，是**受控 SQL 片段**：
+  值必须用 `?` 占位符并随方法参数传入以完成参数化绑定；绑定顺序为 **WHERE 参数在前、HAVING 参数在后**。
+
+验证：
+
+1. 单元测试 `…/engine/wrapper/SqlQueryBuilderTest.java`（JUnit 5，**37 例**）——
+   用 `RecordingEngine implements Engine` 替身捕获实际下发的语句与参数，
+   覆盖全子句渲染、注入拒绝、参数顺序、守卫、终端与替身交互。
+   `mvn -o clean install -DskipTests=false`（common-starter）：**Tests run: 242, Failures: 0, Errors: 0**，
+   BUILD SUCCESS（该模块 `junit-jupiter` 为 test 依赖）。
+2. 阶段七 `harness/EngineQueryBuilder.java`（**37 条断言**）：
+   - `render`：纯渲染与守卫，不触库；
+   - `memory`：`InMemoryEngine` 真实执行（WHERE / ORDER BY / LIMIT+OFFSET / 类型化映射 / 异步）；
+   - `h2` / `sqlite`：**两个真实方言**端到端执行——JOIN（inner/left）、GROUP BY + HAVING、
+     `selectFunc` 聚合别名、VIEW 作为来源、分页切片、执行行数、异步终端。
+   去重说明：`schemaQualifiedNamesAreAccepted` 一类断言在单测里已覆盖，harness 只做跨引擎端到端。
+
+## 10. 查证后判定「不修改」：`Engine.create()` 的 SPI 单例缓存与 `close()` 毒化
+
+阶段七初版把「render」与「memory」两个套件各自 `Engine.create("memory")` 并**各自关闭**，
+结果第二个套件直接报 `IllegalStateException: 引擎已关闭，无法执行写入内存表 …: InMemoryEngine`。
+据此定位到如下**真实行为**（非任何 `Engine` 子类自身的缺陷）：
+
+- `Engine.create(String)` → `ServiceProvider.of(Engine.class).getExtension(type)` →
+  `DefaultServiceProvider.getExtension` → `ServiceDefinition.getObj(...)`；
+  后者按 (SPI 类型, 扩展键) **缓存单例**（`volatile Object obj` + `isLoaded`）。
+- 因此同一 JVM 内对同一键反复 `Engine.create(key)` 拿到的是**同一实例**；
+  该实例一旦 `close()`（`AbstractEngine` 用实例级 `AtomicBoolean closed` 置位并清空 dataSources/dataStores），
+  后续 `Engine.create(同一键)` 返回的仍是**已关闭**的同一实例，再用即抛 `IllegalStateException`。
+
+**为何本轮不改**（避免把一个框架级约定当成局部 bug 去"修"）：
+
+1. 这是仓库范围内的统一约定，而非 `Engine` 独有：`ReactorEngine.create` 同样用 `getExtension`。
+   只改 `Engine.create` 会让两者语义分叉。
+2. 改成 `getNewExtension`（每次新建）会改变 `Engine` 全部 24 个实现的**共享状态语义**
+   （例如先 `create` 再 `addDataSource` 后，别处再 `create` 是否还能看到该数据源），
+   属于产品级决策，不应在验收环节顺手改。
+3. 接口 Javadoc 的既有用法是**持有一个引用、末尾 `close()`**（见 `Engine` 类注释示例），
+   该用法在两种语义下都正确；没有任何文档承诺"重复 create 得到可用的新实例"。
+4. 已确认**没有**任何 Engine 实现标注 `@SpiDefault`（playwright 的 `JavaEngine` 虽标了，
+   但其未登记在 `META-INF/extensions/…engine.Engine` 中，不可被发现），
+   故未命中扩展键时的回落行为在两种实现下一致，`Engine.create("__no_such_engine__")`
+   仍返回 null（`EngineEnhanceExample` 依赖此点）。
+
+harness 侧的处置：阶段七改为**只创建一次内存引擎，两个套件共用，末尾统一关闭**，并在
+`EngineQueryBuilder.main` 就地注释说明原因。
+
+> 若产品后续决定让 `create` 每次返回新实例，改法是一行：把
+> `Engine.create(String)` 的 `getExtension(type)` 换成 `getNewExtension(type)`
+> （`ReactorEngine.create` 需同步）；届时本报告第 3 节阶段七的断言需重跑确认。
 
