@@ -1,11 +1,12 @@
 # 引擎验收与修复交付报告（Engine / KvEngine / SeriesEngine 全子类）
 
-日期：2026-10-04（阶段六增补与 md5 重绑：2026-10-17；阶段七新增 `Engine.query()` 构建器并重绑 common-starter md5：2026-10-17）
+日期：2026-10-04（阶段六增补与 md5 重绑：2026-10-17；阶段七新增 `Engine.query()` 构建器：2026-10-17；
+阶段八将 Prometheus 升级为本机 HTTP 桩真实执行：2026-10-17）
 仓库：`utils-support-parent-starter`（另用 `spring-support-parent-starter` 与 `utils-support-datalake-parent` 的制品）
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
 已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
 `03d360448`（补回被全局 ignore 规则静默剔除的两个运行器）、本轮阶段六
-验收结论：**七阶段共 640 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
+验收结论：**八阶段共 675 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
 
 > **本轮为何要重绑 md5**：2026-10-04 首次出报告后，本地仓库里这批制品被后续构建
 > 重新产出（`common-starter` 4,563,385 → 4,743,831 B，`monitor-starter` 1,127,261 → 922,392 B 等），
@@ -109,8 +110,9 @@
 | 五 | `RedisKvEngine` + `InfluxdbSeriesEngine` + `NoopSeriesEngine` + monitor 装配路径 | 39 | 全绿 |
 | 六 | 非 SPI 注册的两个公开 `Engine` 实现者：`HttpDatalakeQueryEngine`（只读契约面）、`ReactorFlywayBridge`（桥接契约 + 真实 SQLite 读写） | 45 | 全绿 |
 | 七 | 新增 `Engine.query()` 非 ORM SQL 文本构建器：渲染 / 守卫 + 内存 / H2 / SQLite 三引擎端到端执行 | 37 | 全绿 |
+| 八 | `PrometheusEngine` + `PrometheusClient`：本机 HTTP 桩真实读写（8 个 `/api/v1/*` 端点、Basic 认证头、scalar/vector/matrix、HTTP 500 / 非 JSON / status=error / 不支持 resultType 的失败语义） | 35 | 全绿 |
 
-**合计 640 条断言，0 失败**（`run-acceptance.bat`：七阶段逐段 `PASS`，
+**合计 675 条断言，0 失败**（`run-acceptance.bat`：八阶段逐段 `PASS`，
 末行 `ACCEPTANCE_RESULT=PASS`，退出码 0）。
 
 ## 4. 修复的 9 处真实缺陷
@@ -149,16 +151,16 @@ harness **已入库**（不再只留 `.tmp`，那里没有版本控制）：
 
 ```
 utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
-├─ run-acceptance.bat          七阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-acceptance.bat          八阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              七个验收程序
+├─ harness/*.java              八个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 七阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 八阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 ```
 
@@ -185,9 +187,13 @@ run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 
 ## 7. 尚未覆盖（如实声明）
 
-1. **需外部服务的 11 个引擎**（postgresql、sqlserver、oracle、clickhouse、hbase、solr、
-   neo4j、elasticsearch、influxdb、greptimedb、prometheus）只有契约面；
+1. **需外部服务的 10 个引擎**（postgresql、sqlserver、oracle、clickhouse、hbase、solr、
+   neo4j、elasticsearch、influxdb、greptimedb）只有契约面；
    本机无对应服务，无法做真实读写验收。**这部分是"未验"，不是"已通过"。**
+   > `prometheus` **已从本清单移出**：阶段八用本机 HTTP 桩（`com.sun.net.httpserver`）
+   > 打通了 8 个 `/api/v1/*` 端点，`PrometheusEngine` / `PrometheusClient` 的查询、
+   > 模型映射、Basic 认证与失败语义均已真实执行（35 条断言）。仍未覆盖的是
+   > **真实 Prometheus 服务端的 PromQL 语义**（桩只回放固定响应）。
 2. **`InfluxdbSeriesEngine` 只有契约面**（同上，无 InfluxDB 服务）。
 3. **`JdbcReactorEngine` 的两个 private 内部适配器**
    （`R2dbcEngineAdapter` / `UnifiedEngineAdapter`）无法从外部引用，未直接触达；
@@ -317,4 +323,50 @@ harness 侧的处置：阶段七改为**只创建一次内存引擎，两个套�
 > 若产品后续决定让 `create` 每次返回新实例，改法是一行：把
 > `Engine.create(String)` 的 `getExtension(type)` 换成 `getNewExtension(type)`
 > （`ReactorEngine.create` 需同步）；届时本报告第 3 节阶段七的断言需重跑确认。
+
+## 11. Prometheus 从「契约面」升级为「真实执行」（阶段八）
+
+`PrometheusEngine` 原先只做契约面，理由是「本机无 Prometheus 服务」。复核后确认：
+它的底层 `PrometheusClient` 是**纯 JDK `HttpClient` + 一组固定端点**，不依赖任何
+Prometheus SDK，因此可以用 JDK 自带 `com.sun.net.httpserver.HttpServer` 起一个桩服务，
+把整条链路真实跑通，无需外部依赖。
+
+桩覆盖的 8 个端点与对应验证点：
+
+| 端点 | 桩返回 | 验证点 |
+|---|---|---|
+| `/api/v1/query` | `resultType=vector` | 标签映射、`getName()`、值、浮点秒截断为整秒 |
+| `/api/v1/query_range` | `resultType=matrix` | `values` 多样本、`start/end/step` 查询串 |
+| `/api/v1/series` | 标签对象数组 | `match[]` 编码、Map 化 |
+| `/api/v1/label/names` | 字符串数组 | 标签名列表 |
+| `/api/v1/label/job/values` | 字符串数组 | 路径段白名单与编码 |
+| `/api/v1/targets` | `activeTargets` | RFC3339 → epoch 毫秒、`lastScrapeDuration` |
+| `/api/v1/rules` | `groups[].rules` | 分组/文件/类型/时长/标签 |
+| `/api/v1/alerts` | `alerts` | 状态/值/`activeAt`/标签 |
+
+失败语义（都由桩切换返回模式触发，断言不静默）：
+
+| 场景 | 期望 |
+|---|---|
+| HTTP 500 | `RemoteExecutionException` |
+| 响应非 JSON | `RemoteExecutionException` |
+| `status=error` | `RemoteExecutionException` |
+| `resultType=graph` | `UnsupportedOperationException` |
+| 空 promql / 非法标签名 / 缺 match / 非法 range·step·lastMinutes | `IllegalArgumentException` |
+| 不支持 http(s) 的 baseUrl、timeout≤0 | `IllegalArgumentException` |
+
+另外两条容易被漏掉的契约也覆盖了：
+
+- **Basic 认证头**：`userId:password` → `Base64`，断言桩收到的 `Authorization` 值精确匹配。
+- **关闭语义**：`PrometheusClient.close()` 与 `PrometheusEngine.close()` 均幂等；
+  关闭后 `client()` / `addDataSource(...)` / `setDefaultDataSourceName(...)` 明确抛
+  `IllegalStateException`，而不是返回 null 或静默失效。
+
+还做了**跨特性交叉验证**：`PrometheusEngine.query().table("up").list()` 必须抛
+`UnsupportedOperationException` —— 证明阶段七引入的构建器把能力判定**推迟到终端**，
+不会在拼接期假装支持，也不会在非 SQL 引擎上返回空结果掩盖问题。
+
+> **仍未覆盖（如实声明）**：桩是固定响应回放，因此**真实 Prometheus 的 PromQL 语义**
+> （选择器匹配、函数计算、时间对齐、告警规则求值）不在本阶段证明范围内；
+> 本阶段证明的是客户端/引擎的**协议实现、映射与失败语义**正确。
 
