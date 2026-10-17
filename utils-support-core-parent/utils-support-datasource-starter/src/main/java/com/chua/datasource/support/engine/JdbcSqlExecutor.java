@@ -175,7 +175,13 @@ public class JdbcSqlExecutor implements SqlExecutor {
      * @return 总记录数
      */
     private long count(String sql, Object... params) {
-        String countSql = "SELECT COUNT(*) FROM (" + trimSql(sql) + ") " + COUNT_ALIAS;
+        // 计数不依赖顺序；而 SQL Server 明确禁止派生表内出现 ORDER BY
+        // （除非同时带 TOP / OFFSET / FOR XML）。若把带 ORDER BY 的用户 SQL
+        // 直接包进子查询，统计总数这一步就会抛「ORDER BY 子句无效」，
+        // 使「带 ORDER BY 的分页查询」完全不可用。故包装前裁掉最外层的
+        // 尾部 ORDER BY，计数语义不变。
+        String countSql = "SELECT COUNT(*) FROM ("
+                + trimSql(stripTrailingOrderBy(sql)) + ") " + COUNT_ALIAS;
         try (Connection conn = engine.getJdbcConnection();
              PreparedStatement ps = conn.prepareStatement(countSql)) {
             bindParams(ps, params);
@@ -215,6 +221,143 @@ public class JdbcSqlExecutor implements SqlExecutor {
         }
         String message = root.getMessage();
         return message == null || message.isEmpty() ? root.getClass().getSimpleName() : message;
+    }
+
+    /**
+     * 去掉最外层尾部 {@code ORDER BY ...} 子句。
+     *
+     * <p>分页计数会把用户 SQL 包成 {@code SELECT COUNT(*) FROM (<sql>) t}，
+     * 而 SQL Server 禁止派生表内出现 {@code ORDER BY}（除非同时带
+     * {@code TOP} / {@code OFFSET} / {@code FOR XML}），于是「带 ORDER BY 的
+     * 分页查询」会在统计总数这一步整体失败——这恰好是分页最推荐、也最常见的
+     * 写法。计数本就不依赖顺序，故包装前裁掉该子句。</p>
+     *
+     * <p>扫描时跳过字符串常量、引号标识符与注释，且只认括号深度为 0 的
+     * {@code ORDER BY}：窗口函数 {@code OVER (ORDER BY ...)}、子查询内排序、
+     * 字面量里的 "order by" 都不会被误裁。</p>
+     *
+     * @param sql 原始 SQL
+     * @return 去掉尾部 ORDER BY 的 SQL；没有可裁子句时原样返回
+     */
+    private static String stripTrailingOrderBy(String sql) {
+        if (sql == null || sql.isEmpty()) {
+            return sql;
+        }
+        int length = sql.length();
+        int depth = 0;
+        int lastOrderBy = -1;
+        int i = 0;
+        while (i < length) {
+            char c = sql.charAt(i);
+            if (c == '\'' || c == '"' || c == '`') {
+                i = skipQuoted(sql, i, c);
+                continue;
+            }
+            if (c == '[') {
+                int end = sql.indexOf(']', i + 1);
+                i = end < 0 ? length : end + 1;
+                continue;
+            }
+            if (c == '-' && i + 1 < length && sql.charAt(i + 1) == '-') {
+                int end = sql.indexOf('\n', i + 2);
+                i = end < 0 ? length : end + 1;
+                continue;
+            }
+            if (c == '/' && i + 1 < length && sql.charAt(i + 1) == '*') {
+                int end = sql.indexOf("*/", i + 2);
+                i = end < 0 ? length : end + 2;
+                continue;
+            }
+            if (c == '(') {
+                depth++;
+                i++;
+                continue;
+            }
+            if (c == ')') {
+                if (depth > 0) {
+                    depth--;
+                }
+                i++;
+                continue;
+            }
+            if (depth == 0 && isOrderByAt(sql, i)) {
+                lastOrderBy = i;
+                i += 5;
+                continue;
+            }
+            i++;
+        }
+        if (lastOrderBy < 0) {
+            return sql;
+        }
+        String stripped = sql.substring(0, lastOrderBy).trim();
+        return stripped.isEmpty() ? sql : stripped;
+    }
+
+    /**
+     * 判断指定下标处是否为独立的关键字 {@code ORDER BY}。
+     *
+     * @param sql   待扫描 SQL
+     * @param index 候选位置
+     * @return 是则返回 true
+     */
+    private static boolean isOrderByAt(String sql, int index) {
+        if (!sql.regionMatches(true, index, "ORDER", 0, 5)) {
+            return false;
+        }
+        if (index > 0 && isSqlWordPart(sql.charAt(index - 1))) {
+            return false;
+        }
+        int i = index + 5;
+        if (i < sql.length() && isSqlWordPart(sql.charAt(i))) {
+            return false;
+        }
+        while (i < sql.length() && Character.isWhitespace(sql.charAt(i))) {
+            i++;
+        }
+        if (!sql.regionMatches(true, i, "BY", 0, 2)) {
+            return false;
+        }
+        int after = i + 2;
+        return after >= sql.length() || !isSqlWordPart(sql.charAt(after));
+    }
+
+    /**
+     * SQL 标识符/关键字可用的字符判定，用于避免把 {@code REORDER BY} 之类误判为 {@code ORDER BY}。
+     *
+     * @param c 字符
+     * @return 是否为单词组成部分
+     */
+    private static boolean isSqlWordPart(char c) {
+        return Character.isLetterOrDigit(c) || c == '_' || c == '$' || c == '#';
+    }
+
+    /**
+     * 跳过一个引号字符串/标识符，支持双写引号转义与反斜杠转义。
+     *
+     * @param sql   待扫描 SQL
+     * @param start 起始引号下标
+     * @param quote 引号字符
+     * @return 结束后的下一个下标
+     */
+    private static int skipQuoted(String sql, int start, char quote) {
+        int i = start + 1;
+        while (i < sql.length()) {
+            char c = sql.charAt(i);
+            if (c == quote) {
+                if (i + 1 < sql.length() && sql.charAt(i + 1) == quote) {
+                    i += 2;
+                    continue;
+                }
+                return i + 1;
+            }
+            if (c == '\\' && quote == '\'' && i + 1 < sql.length()) {
+                i += 2;
+                continue;
+            }
+            i++;
+        }
+        return sql.length();
     }
 
     private String buildPageSql(String sql, Pagination pagination) {
