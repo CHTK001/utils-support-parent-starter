@@ -42,13 +42,20 @@
 | `com.chua:spring-support-monitor-starter:4.0.0.42` | `0372fcec` | 922,392 B | 阶段五负载 |
 | `com.chua:utils-support-datalake-query-starter:4.0.0.42` | `4804877f` | 12,858 B | 阶段六负载（`HttpDatalakeQueryEngine`） |
 | `com.chua:utils-support-questdb-starter:4.0.0.42` | `e400dfdf` | 13,425 B | 阶段十二负载；承载缺陷 10 的修复（`/exec` 鉴权） |
+| `com.chua:utils-support-prometheus-starter:4.0.0.42` | `cc5a0a50` | 53,300 B | 阶段八被测代码所在（`PrometheusEngine` / `PrometheusClient`） |
+| `com.chua:utils-support-influxdb-starter:4.0.0.42` | `03bea1f4` | 25,078 B | 阶段九被测代码所在（`InfluxdbSeriesEngine`） |
+| `com.chua:utils-support-chronicle-starter:4.0.0.42` | `123a7ba2` | 32,048 B | 阶段三被测代码之一（`ChronicleMapKv`） |
 
 签收前须重新核对上述 md5；不一致即本报告作废（本轮已因制品被重建而重跑过一次）。
 
 > **阶段十一/十二的 md5 口径**：为修缺陷 10，`utils-support-questdb-starter` 被重新
-> `mvn -o clean install` 产出（`13,425 B`，`e400dfdf`）；**其余 14 个制品字节未变**
+> `mvn -o clean install` 产出（`13,425 B`，`e400dfdf`）；除它之外**所有制品字节未变**
 > （已逐个复核，md5 与上表一致）。`src/acceptance/lib/` 里实际加载的那份 jar
 > `certutil -hashfile … MD5` = `e400dfdfd934e9f4df56e0e2a75c7f4c`，与仓库内一致。
+>
+> **本轮补登记的 3 个制品**（`prometheus` / `influxdb` / `chronicle`）：它们的代码分别在
+> 阶段八 / 九 / 三中被直接执行，但此前**从未进入 md5 表**——等于「验了却没绑定」。
+> 本轮按实际加载的 jar 补登记，报告的证据链才闭合。
 
 ## 2. 子类清单与覆盖状态（权威口径）
 
