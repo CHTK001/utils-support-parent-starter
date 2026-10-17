@@ -7,6 +7,7 @@ import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.network.tunnel.Tunnel;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.JdbcEngine;
+import com.chua.datasource.support.url.JdbcUrl;
 import com.zaxxer.hikari.HikariDataSource;
 
 /**
@@ -20,7 +21,6 @@ import com.zaxxer.hikari.HikariDataSource;
  * OracleEngine engine = new OracleEngine();
  * engine.addDataSource(new DataSourceOptions("default", "localhost", 1521, "orcl", "system", "password", null));
  * List<User> users = engine.query(User.class).list();
- * }</pre> users = engine.query(User.class).list();
  * }</pre>
  * </p>
  *
@@ -58,6 +58,12 @@ public class OracleEngine extends JdbcEngine {
         if (options == null) {
             throw new IllegalArgumentException("options must not be null");
         }
+        // 与 postgresql / sqlserver / clickhouse 保持一致：先校验再拼 URL，
+        // 避免 null、空白或含连接串分隔符的入参被拼进 jdbc URL 后，
+        // 只在连接阶段抛出一个与根因无关的驱动异常。
+        JdbcUrl.checkHost(options.host());
+        JdbcUrl.checkPort(options.port());
+        JdbcUrl.checkDatabase(options.database());
         HikariDataSource ds = new HikariDataSource();
         final int[] tunnelPortCapture = {0};
         int targetPort = options.port();

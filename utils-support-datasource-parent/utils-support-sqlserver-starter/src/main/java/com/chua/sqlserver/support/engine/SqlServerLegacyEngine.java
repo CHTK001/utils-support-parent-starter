@@ -7,6 +7,7 @@ import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.network.tunnel.Tunnel;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.JdbcEngine;
+import com.chua.datasource.support.url.JdbcUrl;
 import com.zaxxer.hikari.HikariDataSource;
 
 import java.util.Map;
@@ -80,6 +81,12 @@ public class SqlServerLegacyEngine extends JdbcEngine {
         if (options == null) {
             throw new IllegalArgumentException("options must not be null");
         }
+        // 与 sqlserver（非 legacy）保持一致：先校验再拼 URL。jTDS URL 的
+        // host/port/database 同样是裸拼进去的，不校验会让 null 或分隔符
+        // 静默改写连接串结构。
+        JdbcUrl.checkHost(options.host());
+        JdbcUrl.checkPort(options.port());
+        JdbcUrl.checkDatabase(options.database());
         HikariDataSource ds = new HikariDataSource();
         final int[] tunnelPortCapture = {0};
         int targetPort = options.port();
