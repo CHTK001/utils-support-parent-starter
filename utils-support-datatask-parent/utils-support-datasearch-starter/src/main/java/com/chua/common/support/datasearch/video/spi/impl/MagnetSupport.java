@@ -53,6 +53,11 @@ final class MagnetSupport {
      */
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(30);
 
+    /**
+     * 最大尝试次数（网络抖动/限流时重试一次）
+     */
+    private static final int MAX_ATTEMPTS = 2;
+
     private MagnetSupport() {
     }
 
@@ -128,6 +133,9 @@ final class MagnetSupport {
     /**
      * GET 请求并返回 UTF-8 文本。
      *
+     * <p>代理链路偶发连接重置/握手中断，这里对网络异常与 429/5xx 自动重试一次，
+     * 对 4xx（除 429）直接失败，避免无意义的重试。</p>
+     *
      * @param url     请求地址
      * @param referer 来源页，可空
      * @return 响应文本
@@ -135,6 +143,31 @@ final class MagnetSupport {
      * @throws InterruptedException 线程被中断
      */
     static String get(String url, String referer) throws IOException, InterruptedException {
+        IOException last = null;
+        for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+            try {
+                return getOnce(url, referer);
+            } catch (IOException e) {
+                last = e;
+                if (attempt >= MAX_ATTEMPTS || !retryable(e)) {
+                    throw e;
+                }
+                Thread.sleep(800L * attempt);
+            }
+        }
+        throw last;
+    }
+
+    /**
+     * 单次 GET 请求。
+     *
+     * @param url     请求地址
+     * @param referer 来源页，可空
+     * @return 响应文本
+     * @throws IOException          请求失败或非 200
+     * @throws InterruptedException 线程被中断
+     */
+    private static String getOnce(String url, String referer) throws IOException, InterruptedException {
         HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url))
                 .timeout(REQUEST_TIMEOUT)
                 .header("User-Agent", USER_AGENT)
@@ -145,9 +178,52 @@ final class MagnetSupport {
         }
         HttpResponse<byte[]> response = client().send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
         if (response.statusCode() != 200) {
-            throw new IOException("HTTP " + response.statusCode());
+            throw new HttpStatusException(response.statusCode());
         }
         return new String(response.body(), StandardCharsets.UTF_8);
+    }
+
+    /**
+     * 判断异常是否值得重试。
+     *
+     * @param e 异常
+     * @return 值得重试返回 true
+     */
+    private static boolean retryable(IOException e) {
+        if (e instanceof HttpStatusException status) {
+            return status.getStatus() == 429 || status.getStatus() >= 500;
+        }
+        return true;
+    }
+
+    /**
+     * 非 200 响应异常（携带状态码，便于判断是否重试）。
+     */
+    private static final class HttpStatusException extends IOException {
+
+        /**
+         * HTTP 状态码
+         */
+        private final int status;
+
+        /**
+         * 创建 HTTP 状态异常
+         *
+         * @param status 状态码
+         */
+        private HttpStatusException(int status) {
+            super("HTTP " + status);
+            this.status = status;
+        }
+
+        /**
+         * 获取状态码
+         *
+         * @return 状态码
+         */
+        private int getStatus() {
+            return status;
+        }
     }
 
     /**
