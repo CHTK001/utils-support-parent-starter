@@ -16,12 +16,14 @@
 导致下发的 `LIMIT` 语法不被服务端接受：2026-10-17；
 阶段二十二用**官方免安装二进制**在本机 `initdb` 出真实 PostgreSQL 17.6 实例（端口 55432，
 非容器——本机无任何容器运行时）跑真实读写，并修复「已关闭引擎被报成不支持 SQL」
-与「SQL 失败消息吞掉服务端原因」：2026-10-17）
+与「SQL 失败消息吞掉服务端原因」：2026-10-17；
+阶段二十三用**原生 Microsoft SQL Server 2022 Express 实例**（`SQLEXPRESS`，TCP 1433）
+跑真实读写，并修复「分页统计总数把带 `ORDER BY` 的 SQL 塞进派生表，SQL Server 直接拒绝」：2026-10-18）
 仓库：`utils-support-parent-starter`（另用 `spring-support-parent-starter` 与 `utils-support-datalake-parent` 的制品）
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
 已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
 `03d360448`（补回被全局 ignore 规则静默剔除的两个运行器）、本轮阶段六
-验收结论：**二十二阶段共 1040 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
+验收结论：**二十三阶段共 1079 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
 
 > **本轮为何要重绑 md5**：2026-10-04 首次出报告后，本地仓库里这批制品被后续构建
 > 重新产出（`common-starter` 4,563,385 → 4,743,831 B，`monitor-starter` 1,127,261 → 922,392 B 等），
@@ -38,8 +40,8 @@
 
 | 产物 | md5（前 8 位） | 大小 | 承载的验收内容 |
 |---|---|---|---|
-| `com.chua:utils-support-common-starter:4.0.0.42` | `670cdd25` | 4,750,128 B | 缺陷 1/3/4/5/6/7 所在（阶段二/三/四）+ `Engine.query()` / `SqlQueryBuilder`（阶段七）+ **缺陷 28 的关闭态错误语义**（`Engine` 默认 SQL 入口，阶段二十二） |
-| `com.chua:utils-support-datasource-starter:4.0.0.42` | `fa4fb072` | 353,554 B | 缺陷 1/2/3/4/6/7 所在（阶段一~四）+ 阶段六 `ReactorFlywayBridge` + 缺陷 12 的 `JdbcUrl.hostPort`（阶段十四）+ **缺陷 27 的方言 `supports-limit` 声明**（阶段二十一）+ **缺陷 29 的 SQL 失败原因透出**（`JdbcSqlExecutor`，阶段二十二） |
+| `com.chua:utils-support-common-starter:4.0.0.42` | `fcbc8431` | 4,753,282 B | 缺陷 1/3/4/5/6/7 所在（阶段二/三/四）+ `Engine.query()` / `SqlQueryBuilder`（阶段七）+ **缺陷 28 的关闭态错误语义**（`Engine` 默认 SQL 入口，阶段二十二） |
+| `com.chua:utils-support-datasource-starter:4.0.0.42` | `7a961255` | 354,653 B | 缺陷 1/2/3/4/6/7 所在（阶段一~四）+ 阶段六 `ReactorFlywayBridge` + 缺陷 12 的 `JdbcUrl.hostPort`（阶段十四）+ **缺陷 27 的方言 `supports-limit` 声明**（阶段二十一）+ **缺陷 29 的 SQL 失败原因透出**（`JdbcSqlExecutor`，阶段二十二）+ **缺陷 30 的计数前裁剪尾部 `ORDER BY`**（阶段二十三） |
 | `com.chua:utils-support-redis-starter:4.0.0.42` | `112be63d` | 134,614 B | 缺陷 8/9 所在（阶段三/一）+ 缺陷 15/16/17 的修复（`RediSearchEngine` 实体 CRUD，阶段十六） |
 | `com.chua:utils-support-h2-starter:4.0.0.42` | `83ed8ee5` | 29,518 B | 阶段二/三负载 |
 | `com.chua:utils-support-sqlite-starter:4.0.0.42` | `e6114489` | 43,241 B | 阶段二负载 + 阶段六 `SqliteReactorEngine` |
@@ -142,6 +144,19 @@
 > `JdbcSqlExecutor` 的 5 处包装消息追加 ` -> <cause 消息>`。
 > `src/acceptance/lib/` 实际加载的那两份经 `certutil` 与上表一致。其余 26 个制品字节未变。
 
+> **阶段二十三重绑 2 个制品**：为修缺陷 30 重新构建了
+> `datasource`（`fa4fb072` → `7a961255`，353,554 → 354,653 B）；
+> 另因并发会话在 23:42 重建过 `common`（`670cdd25` → `fcbc8431`，4,750,128 → 4,753,282 B）
+> 而同步重绑。`common` 的这一版是在工作树上产出的，比 HEAD 多编译进一个
+> **未跟踪、且没有任何已跟踪代码引用**的 `IpCidrUtils.class`
+> （源文件 `network/net/IpCidrUtils.java` 由并发会话创建，`git grep IpCidrUtils -- '*.java'` 无结果）：
+> 它不参与任何被验收的引擎路径，但为使「报告 md5 = 实际加载 jar」这一条成立，
+> 此处按实际加载的文件登记，并如实标注该差异。其余 26 个制品字节未变。
+> 复核方式：`JdbcSqlExecutor.count(...)` 在包装前调用 `stripTrailingOrderBy(...)`
+> （可用 `javap -p -cp … JdbcSqlExecutor | findstr stripTrailingOrderBy` 复核）；
+> `src/acceptance/lib/` 实际加载的那两份经 `Get-FileHash -Algorithm MD5` 与 target、
+> `D:\maven-repo` 三处逐个比对一致（`CHECKED=28 BAD=0`）。
+
 ## 2. 子类清单与覆盖状态（权威口径）
 
 ### 2.1 Engine —— SPI 注册的 24 个（阶段一全覆盖）
@@ -176,7 +191,8 @@ influxdb（阶段十三，纯内存）、redis（阶段三/五：`RedisClient`/`
 另：postgresql / sqlserver（含 legacy）/ oracle / clickhouse 在阶段十四验证了
 **配置拼装、入参守卫、失败语义与关闭语义**，阶段二十一验证了**方言分页 SQL 渲染**
 （ROWNUM / OFFSET-FETCH / ROW_NUMBER）；**postgresql 进一步在阶段二十二用真实
-PostgreSQL 17.6 实例完成读写验收**（37 条）。sqlserver / oracle / clickhouse 的
+PostgreSQL 17.6 实例完成读写验收**（37 条），**sqlserver 在阶段二十三用真实
+SQL Server 2022 Express 实例完成读写验收**（39 条）。oracle / clickhouse 的
 **查询语义仍未验**（见 §7）。
 
 **非 SPI 注册的 Engine 实现**（不在 `ServiceProvider` 可发现范围内）：
@@ -254,11 +270,12 @@ monitor 模块的 Bean 工厂创建。
 | 二十 | `HBaseEngine`（SPI `hbase`）：动态代理假 `Connection`/`Table`/`Admin`/`ResultScanner` 驱动真实领域 API——建表幂等与列族、`Put` 行键/列族/限定符/值、`Get` 的列族过滤与全列族前缀、空结果、`Scan` 前缀起止行（含非 ASCII 字节递增）、`__row` 与空行跳过、`Delete` 行键、`store`/查询/`update`/`delete` 的 UOE、`close()` 的连接所有权与用法错误不被包装 | 23 | 全绿 |
 | 二十一 | 方言分页 SQL（postgresql / clickhouse / oracle / oracle11g / oracle12c / sqlserver / sqlserver2008 / sqlserver2012 / derby / derby1014）：`supportsLimit` 能力声明、LIMIT 方言渲染、ROWNUM / OFFSET-FETCH / ROW_NUMBER 模板、ORDER BY 回退注入与幂等、四引擎实际方言接线 | 28 | 全绿 |
 | 二十二 | **真实 PostgreSQL 17.6 实例**（官方免安装二进制 + `initdb`，端口 55432；非容器）：通用 JDBC 套件 28 条（建表/插入/查询/分页/count/Lambda/batch/全表写删拒绝/非法入参）+ 9 条 PostgreSQL 专有（`version()`、中文/emoji 往返、`JSONB` 的 `->>` 与 `::int`、`BIGSERIAL`+`TIMESTAMPTZ` 默认值、分页真实边界、不存在的表带服务端原因、主键冲突不留半条、方言 `supportsLimit` 与真实 `LIMIT/OFFSET` 一致、关闭后报「已关闭」） | 37 | 全绿 |
+| 二十三 | **真实 SQL Server 2022 Express 实例**（原生 `SQLEXPRESS`，TCP 1433）：通用 JDBC 套件 28 条 + 11 条 T-SQL 专有（`@@VERSION`、`DB_NAME()`、`NVARCHAR` 的中文/emoji/制表符往返与 `LEN(N'中文')=2`、`IDENTITY`+`DATETIME2` 默认值、分页真实边界、`TOP`/`ISNULL`/`CAST`、**计数前裁剪尾部 `ORDER BY` 的四种场景**（窗口函数 / 字面量 / 无排序 / 带参数）、不存在的表带服务端原因（兼容中英文本地化）、主键冲突不留半条、方言 `supportsLimit=false` 与真实 `OFFSET/FETCH` 一致、关闭后报「已关闭」） | 39 | 全绿 |
 
-**合计 1040 条断言，0 失败**（`run-acceptance.bat`：二十二阶段逐段 `PASS`，
-末行 `ACCEPTANCE_RESULT=PASS`，退出码 0）。
+**合计 1079 条断言，0 失败**（`run-acceptance.bat`：二十三阶段逐段 `PASS`，
+末行 `ACCEPTANCE_RESULT=PASS`，退出码 0；日志中 `[FAIL]` 与 `[SKIP]` 均为 0 条）。
 
-## 4. 修复的 29 处真实缺陷
+## 4. 修复的 30 处真实缺陷
 
 | # | 缺陷 | 根因 | 影响 |
 |---|---|---|---|
@@ -291,6 +308,7 @@ monitor 模块的 Bean 工厂创建。
 | 27 | **Oracle / SQL Server / Derby 方言从未声明 `supports-limit=false`，分页一律下发 `LIMIT`** | `SqlDialect.supportsLimit()` 读 `supports-limit`（缺省 `true`），`JdbcEngine.wrapPagination` 据此选择「追加 LIMIT/OFFSET」还是「走方言模板」；而 `oracle*.env` / `sqlserver*.env` / `derby*.env` 里虽写好了 ROWNUM / OFFSET-FETCH / ROW_NUMBER 的 `pagination-sql` 模板，却**没有**任何一个文件写过 `supports-limit=false` | 这四个引擎一旦分页（`page()` / `limit()`），下发的是 `SELECT … LIMIT n OFFSET m`——Oracle 全版本、SQL Server 全版本、Derby 都不认这条语法，**分页 100% 失败**；env 里精心写的模板成了死代码 |
 | 28 | **已关闭的引擎被报成「当前引擎不支持 SQL 查询」** | `Engine` 的默认 `executeSql` / `querySql`（两个重载）在 `getExecutor()==null` 时直接抛 UOE，消息固定为「当前引擎不支持 …」；而 `close()` 之后数据源注册表被清空，`getExecutor()` 同样返回 `null`——**「已关闭」与「不支持」走了同一条分支** | 关闭后误调用任何 SQL 入口，用户看到的是「PostgresqlEngine 不支持 SQL 查询」，会去查能力声明而不是生命周期；与已修的 HBase（26）、Neo4j（24/25）、Elasticsearch（20）同属「错误语义」缺陷族 |
 | 29 | **SQL 失败消息吞掉服务端原因** | `JdbcSqlExecutor` 的 5 处包装只写 `"执行查询失败: " + sql`，真正的诊断信息（`relation "t" does not exist`、`duplicate key value violates unique constraint`、`syntax error at or near`）只在 cause 链里 | 生产排障时必须逐层翻 cause 才知道「为什么失败」；阶段二十二第一次跑就撞上：断言只拿到「执行查询失败: SELECT * FROM t_acc_no_such_table」，服务端原因不可见 |
+| 30 | **SQL Server 上「带 `ORDER BY` 的分页查询」整体不可用** | `JdbcSqlExecutor.count(...)` 把用户 SQL 原样包成 `SELECT COUNT(*) FROM (<sql>) t`。SQL Server 明确禁止派生表内出现 `ORDER BY`（除非同时带 `TOP` / `OFFSET` / `FOR XML`），于是统计总数这一步必失败——而「分页 SQL 带 `ORDER BY`」恰恰是分页最推荐、也最常见的写法（`pagination-requires-order-by=true` 的方言还专门要求它） | `queryPage(sql, …)` 在 SQL Server 上对任何带 `ORDER BY` 的 SQL 都抛「ORDER BY 子句在 … 派生表 … 中无效」；阶段二十三首次运行即暴露（`queryPage` 3 条断言全红，而 `Lambda page()` 因不统计总数仍通过，掩盖了面更广的问题）。计数本就不依赖顺序，属于包装方式选择错误 |
 
 缺陷 10 的修法（`utils-support-questdb-starter`，`QuestdbSeriesEngine`）：
 
@@ -414,6 +432,18 @@ monitor 模块的 Bean 工厂创建。
 - 阶段二十二据此断言：查不存在的表时，消息里必须同时出现表名与服务端原因
   （PostgreSQL 为 `relation "…" does not exist`）。
 
+缺陷 30 的修法（`utils-support-datasource-starter`，`JdbcSqlExecutor`）：
+
+- 统计总数前先裁掉**最外层尾部** `ORDER BY`：
+  `SELECT COUNT(*) FROM (<stripTrailingOrderBy(sql)>) t`；
+- 扫描器跳过字符串常量、`"` / `` ` `` / `[]` 引号标识符与 `--`、`/* */` 注释，
+  且只认**括号深度为 0** 的 `ORDER BY`——因此窗口函数 `OVER (ORDER BY …)`、
+  子查询内排序、字面量里的 `"order by"` 都不会被误裁；
+- 关键字判定要求前后是词边界，避免 `REORDER BY` 之类误判；
+- 计数本就不依赖顺序，故对全部方言统一生效（不是只给 SQL Server 打补丁）；
+- 阶段二十三用四条断言钉住：普通 `ORDER BY`、窗口函数、字面量、
+  完全无 `ORDER BY`，另加一条带绑定参数的场景（裁剪后参数索引不受影响）。
+
 > **契约差异（显式声明，不是缺陷）**：`store(name, rows)` 的 `name` 参数**不参与** label 推导，
 > label 始终由实体类型决定。图数据库的 label 即实体类型，按任意 `name` 写入会产生
 > 「只写数据」（没有读路径能解析出同一 label）。该行为由阶段十八第 5 条断言显式钉住，
@@ -447,17 +477,18 @@ harness **已入库**（不再只留 `.tmp`，那里没有版本控制）：
 
 ```
 utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
-├─ run-acceptance.bat          二十二阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-acceptance.bat          二十三阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
 ├─ run-postgres.bat            临时 PostgreSQL 实例（官方免安装二进制；start / stop / status）
+├─ run-sqlserver.bat           本机 SQL Server Express 服务启停与 TCP 探测（start / stop / status）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              二十二个验收程序
+├─ harness/*.java              二十三个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 二十二阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 二十三阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 run-acceptance.bat 17           :: 只跑阶段十七（Elasticsearch）
 run-acceptance.bat 18           :: 只跑阶段十八（Neo4j）
@@ -465,8 +496,11 @@ run-acceptance.bat 19           :: 只跑阶段十九（GreptimeDB）
 run-acceptance.bat 20           :: 只跑阶段二十（HBase）
 run-acceptance.bat 21           :: 只跑阶段二十一（方言分页 SQL）
 run-acceptance.bat 22           :: 只跑阶段二十二（真实 PostgreSQL）
+run-acceptance.bat 23           :: 只跑阶段二十三（真实 SQL Server）
 run-postgres.bat start          :: 起临时 PostgreSQL 实例（阶段二十二前置）
 run-postgres.bat stop           :: 关掉临时实例
+run-sqlserver.bat start         :: 起 SQL Server Express 服务并探测 1433（阶段二十三前置）
+run-sqlserver.bat stop          :: 停掉该服务
 ```
 
 > **交付教训（2026-10-04 实际发生）**：仓库根 `.gitignore` 有 `*.ps1`（16 行）/
@@ -487,16 +521,27 @@ run-postgres.bat stop           :: 关掉临时实例
   （`127.0.0.1:3306`，`root/root`，库 `engine_accept`）。缺服务时对应套件失败，其余阶段不受影响
   ——**这正是「退出码比报告可信」的用处**：Redis 停机时阶段三/五会给出 25 条
   `Connection refused` 失败，一眼可辨是环境而非产品缺陷。
+- 阶段二十二需 `127.0.0.1:55432` 的 PostgreSQL（`run-postgres.bat start`）；
+  阶段二十三需 `127.0.0.1:1433` 的 SQL Server Express（服务 `MSSQL$SQLEXPRESS`，
+  `run-sqlserver.bat start`，账号 `sa`，库 `engine_accept`，可经
+  `MSSQL_HOST` / `MSSQL_PORT` / `MSSQL_DB` / `MSSQL_USER` / `MSSQL_PASSWORD` 覆盖）。
+  两者都实现了**实例缺失即 `[SKIP]`**：打印 `STAGE22_SKIP=1` / `STAGE23_SKIP=1` 并以退出码 0
+  结束，所以没有这两套服务端的机器也能跑完整套件（日志里能看到 SKIP，不会被当成已通过）。
 - 打开被验模块的**新构建**：`src/acceptance/pom.xml` 引用的是本地仓库制品，
   改完产品代码必须先 `mvn install` 对应模块，否则验的是旧包（**报告 md5 就是为此存在**）。
 
 ## 7. 尚未覆盖（如实声明）
 
-1. **仍需外部服务的 3 个引擎**（sqlserver、oracle、clickhouse）
+1. **仍需外部服务的 2 个引擎**（oracle、clickhouse）
    的**查询语义**只有契约面 + 方言 SQL 断言（阶段十四 / 二十一）；
-   本机没有这三个服务端，**也没有任何容器运行时**（`docker` / `podman` / `nerdctl` / `wsl`
+   本机没有这两个服务端，**也没有任何容器运行时**（`docker` / `podman` / `nerdctl` / `wsl`
    均不存在），因此无法起容器做真实读写验收。
    **这部分是"未验"，不是"已通过"。**
+   > `sqlserver` **已从本清单移出**：阶段二十三用原生 Microsoft SQL Server 2022 Express
+   > 实例（`SQLEXPRESS`，TCP 1433，SQL 身份验证）跑了 39 条断言，真的建表/插入/查询/分页/
+   > 类型映射/`NVARCHAR` 往返/`IDENTITY`/`DATETIME2`，并借它发现并修复了缺陷 30。
+   > **仍未覆盖**的是企业版特性（列存储、分区、`MERGE` 之外的 T-SQL 扩展）、
+   > 高可用/复制、权限模型与执行计划。这**不是容器**——用的是本机 Windows 服务实例。
    > `postgresql` **已从本清单移出**：阶段二十二用官方免安装二进制在本机 `initdb` 出
    > 真实 PostgreSQL 17.6 实例（端口 55432，`trust`，不注册服务、不写系统目录），
    > 真的建表、插入、查询、分页、类型映射、`JSONB`/`BIGSERIAL`/`TIMESTAMPTZ`，
@@ -515,8 +560,8 @@ run-postgres.bat stop           :: 关掉临时实例
    > 表名解析、查询构造、分页下推、`numFound` 计数、文档映射、写入/删除、
    > 失败语义与生命周期（28 条断言）。**仍未覆盖**的是真实 Solr 服务端的
    > 查询解析（QParser）、schema/动态字段与分布式行为——那属于服务端语义，
-   > 且本引擎不自带 schema 管理。postgresql / sqlserver / oracle / clickhouse
-   > 亦仅在阶段十四验了配置层，见上方 §2.1。
+   > 且本引擎不自带 schema 管理。postgresql / sqlserver 已在阶段二十二/二十三
+   > 用真实服务端验过查询语义；oracle / clickhouse 仍只在阶段十四验了配置层，见上方 §2.1。
    >
    > `elasticsearch` **已从「仅契约面」升级**：阶段十七用回放型假 `Transport`
    > 让官方客户端真实序列化请求、反序列化响应（21 条断言），索引名、查询体、
@@ -1151,6 +1196,50 @@ MySQL 与 6379 的 Redis），所以**无法起容器**。替代方案是用 Pos
 >
 > **跳过语义**：实例未启动时打印 `[SKIP]` 与 `STAGE22_SKIP=1`，退出码 0；
 > 本次全量日志中**没有** SKIP，37 条全部真实执行。
+
+
+### 14.13 真实 SQL Server 读写（阶段二十三，39 条）
+
+本机同样没有容器运行时，因此这一阶段用的是**原生 Windows 服务实例**——Microsoft SQL
+Server 2022 Express（`SQLEXPRESS`），由官方 Express 引导器静默安装：
+
+| 项 | 值 |
+|---|---|
+| 版本 | `Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64)`（`@@VERSION` 实测） |
+| 安装方式 | `SQL2022-SSEI-Expr.exe /Action=Install /Quiet /ConfigurationFile=install-config.ini`（实例选项写进 INI：`FEATURES=SQLENGINE` / `INSTANCENAME=SQLEXPRESS` / `SECURITYMODE=SQL` / `TCPENABLED=1`） |
+| 监听 | `127.0.0.1:1433`（安装后把 `SuperSocketNetLib\Tcp\IPAll` 的 `TcpDynamicPorts` 清空、`TcpPort=1433`，再重启服务） |
+| 认证 | SQL 身份验证（`LoginMode=2`，账号 `sa`，仅本机临时验收用） |
+| 数据库 | `engine_accept`（harness 先连 `master` 建库，再切到目标库） |
+| 生命周期 | `run-sqlserver.bat start` / `stop`（只控制服务，不改服务端配置） |
+
+断言（39 条 = 28 条通用 JDBC 套件 + 11 条 T-SQL 专有）：
+
+| 面 | 断言内容 |
+|---|---|
+| 通用 JDBC（28） | 与阶段二十二同一套 `sqlSuite`：建表/插入/查询/条件/`COUNT`/`MAX`/`exists`/类型化映射/`queryOne`/分页三态/`batchSql`/Lambda `eq`/`gt+orderByDesc`/`count`/`page`/`update`/`delete`/全表写删拒绝/`querySql(null)`/`removeDataSource(null)`/数据源注册/不存在的表/关闭语义 |
+| 版本与归属 | `@@VERSION` 含 `Microsoft SQL Server`；`DB_NAME()` 必须等于 `engine_accept`（证明连的是目标库，不是 master 或别的实例） |
+| Unicode | `NVARCHAR` 写入中文 + emoji（`\uD83D\uDE00`）+ 制表符后逐字符读回；`LEN(N'中文')=2`（T-SQL 语义） |
+| 默认值 | `IDENTITY(1,1)` 首值 = 1；`DATETIME2 DEFAULT SYSDATETIME()` 非空 |
+| 分页真实边界 | 5 行：第 2 页 = id `3,4`；第 3 页只剩 `5`；越界页为空（真的走了 `OFFSET … ROWS FETCH NEXT … ROWS ONLY`） |
+| T-SQL 语法 | `SELECT TOP 2 … ORDER BY id` 首行 id=1；`ISNULL(NULL, N'x')='x'`；`CAST('2020-01-02' AS DATE)` |
+| **缺陷 30 回归** | 计数前裁剪尾部 `ORDER BY` 的四类场景：普通排序、`ROW_NUMBER() OVER (ORDER BY …)` 窗口函数（不得被误裁）、字面量 `'order by'`（不得被误裁）、完全无 `ORDER BY`；另加一条**带绑定参数**的分页（裁剪后 `?` 索引不受影响） |
+| 失败语义 | 查不存在的表：消息含表名 + 服务端原因（兼容中英文本地化：`Invalid object name` / `对象名 … 无效`） |
+| 约束 | 主键冲突写入失败后行数不变，消息含 `PRIMARY KEY` / `duplicate` |
+| 方言一致 | `supportsLimit()==false`，渲染结果以 `OFFSET 3 ROWS FETCH NEXT 3 ROWS ONLY` 结尾，且与实际分页结果一致 |
+| 关闭语义 | `sqlSuite` 关闭引擎后再查询：消息必须含「已关闭」且不得含「不支持」（缺陷 28） |
+
+> **这一阶段的最大价值是「真实服务端立刻抓出真缺陷」**：首次运行 33 PASS / 5 FAIL，
+> 其中 3 条失败都指向同一个根因——`queryPage` 统计总数时把带 `ORDER BY` 的用户 SQL
+> 包进派生表，SQL Server 直接拒绝（`ORDER BY 子句在 … 派生表 … 中无效`）。
+> 修复前后对比：修复前 `queryPage` 三态断言全红，修复后 39/39 全绿。
+> 这同时说明「只靠桩/方言文本断言」不够：桩不会拒绝非法 SQL。
+>
+> **仍未覆盖**：企业版特性（列存储、分区表、`MERGE` 之外的 T-SQL 扩展）、
+> 高可用/复制、权限与角色模型、执行计划与锁隔离级别。**未验**。
+>
+> **跳过语义**：实例不可达时打印 `[SKIP]` 与 `STAGE23_SKIP=1`，退出码 0
+> （可用 `MSSQL_HOST` / `MSSQL_PORT` / `MSSQL_DB` / `MSSQL_USER` / `MSSQL_PASSWORD` 覆盖默认值）；
+> 本次全量日志中**没有** SKIP，39 条全部真实执行。
 
 
 
