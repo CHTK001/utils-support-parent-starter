@@ -222,6 +222,19 @@ import java.util.*;
             public Page<T> page(int pageNum, int pageSize) {
                 return executeRedisPage(this, entityClass, pageNum, pageSize);
             }
+
+            @Override
+            /**
+             * 统计命中总数
+             * <p>基类实现要求引擎覆写，否则直接抛 {@code UnsupportedOperationException}。
+             * RediSearch 可用时命中数由 FT.SEARCH 结果给出；模块不可用时回退扫描，
+             * 此时按条件在内存过滤后再计数（与 list() 走同一条已修正的路径）。</p>
+             *
+             * @return 命中总数
+            */
+            public long count() {
+                return executeRedisQuery(this, entityClass).size();
+            }
         };
     }
 
@@ -716,8 +729,17 @@ import java.util.*;
                 Object response = jedis.sendCommand(FT_SEARCH, rawArgs);
                 return mapFtSearchResponse(response, entityClass, jedis);
             } catch (Exception e) {
-                log.warn("FT.SEARCH失败: " + e.getMessage() + ", 回退到全量扫描");
-                return scanAll(jedis, keyPrefix, entityClass);
+                log.warn("FT.SEARCH 失败: " + e.getMessage() + "，回退到全量扫描（并按条件在内存过滤）");
+                List<T> all = scanAll(jedis, keyPrefix, entityClass);
+                if (whereClause == null || whereClause.isBlank()) {
+                    return all;
+                }
+                // 回退路径必须保持条件语义：此前直接返回全量，带条件的查询会静默返回多余行，
+                // 比抛错更危险（调用方完全无从察觉）。这里复用内存引擎同一套 WHERE 判定。
+                java.util.function.Predicate<T> predicate =
+                        new com.chua.datasource.support.engine.MemoryWhereParser()
+                                .parse(whereClause, paramList);
+                return all.stream().filter(predicate).toList();
             }
         }
     }
