@@ -27,7 +27,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-@Spi("Wanou")
+@Spi("wanou")
 public class WanouResourceProvider extends AbstractResourceProvider {
     /**
      * 创建 wanouresource提供者 实例

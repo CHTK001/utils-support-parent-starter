@@ -100,6 +100,11 @@
             <groupId>org.apache.avro</groupId>
             <artifactId>avro</artifactId>
         </dependency>
+        <!-- Java .class 反编译预览（ClassPreviewProvider，CFR；版本由父 POM 的 dependencyManagement 管理） -->
+        <dependency>
+            <groupId>org.benf</groupId>
+            <artifactId>cfr</artifactId>
+        </dependency>
           <!-- Rust native 实现已移除，仅保留 JDK 实现 -->
      </dependencies>
 </project>
