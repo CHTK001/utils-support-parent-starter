@@ -13,7 +13,7 @@
   （`dependency:build-classpath`），不参与 reactor 构建。
 - 历史上这类工具只留在 `.tmp/`，没有版本控制，随会话结束即丢失。**工具必须入库。**
 
-## 六阶段与覆盖范围
+## 七阶段与覆盖范围
 
 | 阶段 | 程序 | 断言数 | 覆盖内容 |
 |---|---|---|---|
@@ -23,8 +23,9 @@
 | 四 | `EngineEmbedded` | 24 | 嵌入式**非 SQL** 引擎：parquet / lucene / nitrite / tablesaw，以及 rocksdb 的文档与全文面 |
 | 五 | `EngineGaps` | 39 | 余下子类：`RedisKvEngine`（Spring `StringRedisTemplate`，真实读写）、`InfluxdbSeriesEngine`（无服务，仅契约）、`NoopSeriesEngine`（经 monitor 工厂驱动）+ monitor 装配路径 |
 | 六 | `EngineRemaining` | 45 | **非 SPI 注册**的两个公开 `Engine` 实现者：`HttpDatalakeQueryEngine`（只读契约面，不触网）、`ReactorFlywayBridge`（桥接契约 + 真实 SQLite 读写） |
+| 七 | `EngineQueryBuilder` | 37 | 新增的 `Engine.query()` **非 ORM SQL 文本构建器**：子句渲染顺序、标识符白名单、参数绑定顺序、守卫，以及在内存 / H2 / SQLite 三个真实引擎上的端到端执行（含 JOIN / GROUP BY / HAVING / VIEW / 分页 / 类型化映射 / 异步终端） |
 
-合计 **603 条断言**。
+合计 **640 条断言**。
 
 ## 子类清单与覆盖状态（权威口径）
 
@@ -68,7 +69,7 @@ Engine / KvEngine / SeriesEngine 的全部实现者及其覆盖情况，见同�
 
 ```bat
 cd utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat            :: 六阶段全跑
+run-acceptance.bat            :: 七阶段全跑
 run-acceptance.bat 1 5        :: 只跑阶段一与阶段五
 ```
 

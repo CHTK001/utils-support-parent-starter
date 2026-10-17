@@ -8,6 +8,7 @@ import com.chua.common.support.lang.datasource.engine.interceptor.EngineIntercep
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
+import com.chua.common.support.lang.datasource.engine.wrapper.SqlQueryBuilder;
 import com.chua.common.support.lang.datasource.flyway.DefaultFlyway;
 import com.chua.common.support.lang.datasource.flyway.Flyway;
 import com.chua.common.support.lang.datasource.meta.MetaData;
@@ -668,6 +669,44 @@ public interface Engine extends AutoCloseable {
      * @return 删除包装器
      */
     <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass);
+
+    /**
+     * 创建基于 SQL 文本拼接的查询构建器（<b>非 ORM</b>）。
+     *
+     * <p>与 {@link #query(Class)} 的 Lambda 包装器不同，本入口不做实体映射，
+     * 只把调用方给出的表 / 视图、列、条件片段按 SQL 语法拼成语句，再交给本引擎的
+     * 语句通道执行，结果直接以 Map 行返回。适用于查询目标不是实体类，或需要自由
+     * 书写 SQL 片段（函数、CASE、窗口函数等）又要保留链式手感的场景。</p>
+     *
+     * <pre>{@code
+     * List<Map<String, Object>> rows = engine.query()
+     *     .select("u.id", "u.name", "o.amount")
+     *     .table("t_user", "u")
+     *     .innerJoin("t_order o", "u.id = o.user_id")
+     *     .where("u.age > ?", 18)
+     *     .groupBy("u.id", "u.name", "o.amount")
+     *     .having("SUM(o.amount) > ?", 100)
+     *     .orderByDesc("o.amount")
+     *     .limit(20)
+     *     .list();
+     * }</pre>
+     *
+     * <p>组成能力：{@code select / table / view / innerJoin / leftJoin / rightJoin /
+     * where / and / or / groupBy / having / orderByAsc / orderByDesc / limit / offset}；
+     * 终端能力：{@code list / map / execute / listAsync / executeAsync}（见
+     * {@link SqlQueryBuilder}）。</p>
+     *
+     * <p>能力入口：实现方无需覆盖。本方法只构造构建器，实际能力由
+     * {@link #querySql(String, Object...)} / {@link #querySql(String, Class, Object...)}
+     * 决定；不支持原生语句的引擎（如 Prometheus）会在终端执行时抛出
+     * {@link UnsupportedOperationException}，与 {@link #supportsSql()} 的声明保持一致。</p>
+     *
+     * @return SQL 文本查询构建器（非 null）
+     * @see SqlQueryBuilder
+     */
+    default SqlQueryBuilder query() {
+        return new SqlQueryBuilder(this);
+    }
 
     /**
      * 执行 Lambda 查询包装器并返回结果列表。
