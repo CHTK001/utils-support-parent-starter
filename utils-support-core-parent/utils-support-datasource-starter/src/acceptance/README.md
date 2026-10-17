@@ -13,7 +13,7 @@
   （`dependency:build-classpath`），不参与 reactor 构建。
 - 历史上这类工具只留在 `.tmp/`，没有版本控制，随会话结束即丢失。**工具必须入库。**
 
-## 二十一阶段与覆盖范围
+## 二十二阶段与覆盖范围
 
 | 阶段 | 程序 | 断言数 | 覆盖内容 |
 |---|---|---|---|
@@ -40,8 +40,9 @@
 | 二十 | `EngineHBase` | 23 | `HBaseEngine`（SPI `hbase`）用**动态代理假 `Connection`/`Admin`/`Table`/`ResultScanner`** 驱动真实领域 API：建表幂等与列族、`Put` 的行键/列族/限定符/值、`Get` 的列族过滤与全列族 `族:限定符`、行不存在返回空 Map、`Scan` 的前缀起止行（非 ASCII 按 UTF-8 末字节 +1）、`__row` 与空 `Result` 跳过、`Delete` 行键、`store`/查询/`update`/`delete` 的 UOE、注入连接不被 `close()` 关闭、用法错误（未配置/已关闭）不被包装成操作失败 |
 
 | 二十一 | `EngineDialectSql` | 28 | 方言分页 SQL（postgresql / clickhouse / oracle / oracle11g / oracle12c / sqlserver / sqlserver2008 / sqlserver2012 / derby / derby1014）：`supportsLimit` 能力声明（**修复前 Oracle/SQLServer/Derby 谎称支持 LIMIT**）、LIMIT 方言渲染、Oracle ROWNUM、OFFSET…FETCH、SQL Server 2008/Derby 10.14 的 ROW_NUMBER 模板、ORDER BY 回退注入与幂等、`offset=0`/`pageSize<=0` 边界、四引擎实际方言接线（注册数据源但不建连） |
+| 二十二 | `EnginePostgres` | 37 | **PostgreSQL 真实实例**（官方免安装二进制 + `initdb`，端口 55432，非容器）上的读写与方言语义：通用 JDBC 套件 28 条（建表/插入/查询/分页/count/Lambda/batch/全表写删拒绝/非法入参）+ 9 条 PostgreSQL 专有：`version()`、中文/emoji/制表符往返、`JSONB` 与 `->>`/`::int`、`BIGSERIAL` + `TIMESTAMPTZ` 默认值、分页真实边界（第2页=3,4；末页 1 行；越界空）、不存在的表带服务端原因、主键冲突不留半条、方言 `supportsLimit=true` 与真实 `LIMIT/OFFSET` 一致、**关闭后报「引擎已关闭」而不是「不支持 SQL」** |
 
-合计 **1003 条断言**。
+合计 **1040 条断言**。
 
 ## 子类清单与覆盖状态（权威口径）
 
@@ -88,8 +89,10 @@ Engine / KvEngine / SeriesEngine 的全部实现者及其覆盖情况，见同�
 
 ```bat
 cd utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat            :: 二十一阶段全跑
+run-acceptance.bat            :: 二十二阶段全跑
 run-acceptance.bat 1 5        :: 只跑阶段一与阶段五
+run-postgres.bat start        :: 起临时 PostgreSQL 实例（阶段二十二需要）
+run-postgres.bat stop         :: 用完关掉
 ```
 
 前置条件：
@@ -99,6 +102,12 @@ run-acceptance.bat 1 5        :: 只跑阶段一与阶段五
 - JDK 21+（`javac` / `java` 在 PATH 上）。
 - 阶段三 / 五需要本机 `127.0.0.1:3306` 的 MySQL（`root/root`，库 `engine_accept`）与
   `127.0.0.1:6379` 的 Redis。缺服务时对应套件失败，其余阶段不受影响。
+- 阶段二十二需要本机 `127.0.0.1:55432` 的 PostgreSQL（`postgres`，库 `engine_accept`，
+  `trust` 认证）。用 `run-postgres.bat start` 起——它是**官方免安装二进制**在 `%TEMP%`
+  下 `initdb` 出的临时实例，不注册 Windows 服务、不写 `Program Files`；
+  本机没有容器运行时（`docker`/`podman`/`nerdctl`/`wsl` 均无），所以不是「容器」。
+  **实例未启动时阶段二十二打印 `[SKIP]` 与 `STAGE22_SKIP=1` 并以退出码 0 结束**，
+  日志里能看到跳过标记，不会被当成已通过。
 - 阶段一 / 五的 `h2` / `spring` 制品来自本地 Maven 仓库，改完产品代码必须先
   `mvn install` 对应模块，否则验的是旧包（**报告 md5 就是为此存在**）。
 - `prepare-classpath.ps1` 会从 `pom.xml` 解析 classpath，并在本目录生成 `lib\`
