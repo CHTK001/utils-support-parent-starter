@@ -76,7 +76,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
                 }
             }
         } catch (Exception e) {
-            throw new IllegalStateException("执行查询失败: " + sql, e);
+            throw new IllegalStateException("执行查询失败: " + sql + " -> " + reason(e), e);
         }
         return result;
     }
@@ -106,7 +106,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
                 }
             }
         } catch (Exception e) {
-            throw new IllegalStateException("执行类型化查询失败: " + sql, e);
+            throw new IllegalStateException("执行类型化查询失败: " + sql + " -> " + reason(e), e);
         }
         return result;
     }
@@ -129,7 +129,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
             bindParams(ps, params);
             return ps.executeUpdate();
         } catch (Exception e) {
-            throw new IllegalStateException("执行更新失败: " + sql, e);
+            throw new IllegalStateException("执行更新失败: " + sql + " -> " + reason(e), e);
         }
     }
 
@@ -163,7 +163,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
                 }
             }
         } catch (Exception e) {
-            throw new IllegalStateException("执行批量操作失败: " + sql, e);
+            throw new IllegalStateException("执行批量操作失败: " + sql + " -> " + reason(e), e);
         }
     }
 
@@ -185,7 +185,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
                 }
             }
         } catch (Exception e) {
-            throw new IllegalStateException("统计总数失败: " + countSql, e);
+            throw new IllegalStateException("统计总数失败: " + countSql + " -> " + reason(e), e);
         }
         return 0L;
     }
@@ -197,6 +197,26 @@ public class JdbcSqlExecutor implements SqlExecutor {
      * @param pagination 分页参数（含 偏移量 / 限制）
      * @return 分页 SQL
      */
+    /**
+     * 取异常链最深层的原因消息，用于把服务端/驱动给出的真实原因带进外层消息。
+     *
+     * <p>外层的 {@code 执行查询失败: <SQL>} 只说明「哪条语句失败」，
+     * 真正可诊断的信息（例如 {@code relation "t" does not exist}、
+     * {@code duplicate key value violates unique constraint}）在 cause 链里。
+     * 只写外层消息会让使用者必须翻 cause 才知道发生了什么。</p>
+     *
+     * @param t 捕获到的异常
+     * @return 最深层原因的消息（无消息时退回异常类名）
+     */
+    private static String reason(Throwable t) {
+        Throwable root = t;
+        while (root.getCause() != null && root.getCause() != root) {
+            root = root.getCause();
+        }
+        String message = root.getMessage();
+        return message == null || message.isEmpty() ? root.getClass().getSimpleName() : message;
+    }
+
     private String buildPageSql(String sql, Pagination pagination) {
         Dialect dialect = engine.getDialect(engine.getDefaultDataSourceName());
         if (dialect == null) {

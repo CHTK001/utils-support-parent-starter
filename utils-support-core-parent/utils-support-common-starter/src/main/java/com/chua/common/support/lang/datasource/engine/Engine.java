@@ -242,7 +242,9 @@ public interface Engine extends AutoCloseable {
     default int executeSql(String ql, Object... params) {
         SqlExecutor e = getExecutor();
         if (e == null) {
-            UnsupportedOperationException ex = new UnsupportedOperationException("当前引擎不支持数据操作: " + getClass().getName());
+            UnsupportedOperationException ex = new UnsupportedOperationException(
+                    (isClosed() ? "引擎已关闭，无法执行数据操作: " : "当前引擎不支持数据操作: ")
+                            + getClass().getName());
             for (EngineInterceptor interceptor : interceptors()) {
                 interceptor.onError(ql, params, ex);
             }
@@ -286,7 +288,9 @@ public interface Engine extends AutoCloseable {
     default List<Map<String, Object>> querySql(String ql, Object... params) {
         SqlExecutor e = getExecutor();
         if (e == null) {
-            UnsupportedOperationException ex = new UnsupportedOperationException("当前引擎不支持 SQL 查询: " + getClass().getName());
+            UnsupportedOperationException ex = new UnsupportedOperationException(
+                    (isClosed() ? "引擎已关闭，无法执行 SQL 查询: " : "当前引擎不支持 SQL 查询: ")
+                            + getClass().getName());
             for (EngineInterceptor interceptor : interceptors()) {
                 interceptor.onError(ql, params, ex);
             }
@@ -327,7 +331,9 @@ public interface Engine extends AutoCloseable {
     default <T> List<T> querySql(String ql, Class<T> rowType, Object... params) {
         SqlExecutor e = getExecutor();
         if (e == null) {
-            UnsupportedOperationException ex = new UnsupportedOperationException("当前引擎不支持 SQL 查询: " + getClass().getName());
+            UnsupportedOperationException ex = new UnsupportedOperationException(
+                    (isClosed() ? "引擎已关闭，无法执行 SQL 查询: " : "当前引擎不支持 SQL 查询: ")
+                            + getClass().getName());
             for (EngineInterceptor interceptor : interceptors()) {
                 interceptor.onError(ql, params, ex);
             }
