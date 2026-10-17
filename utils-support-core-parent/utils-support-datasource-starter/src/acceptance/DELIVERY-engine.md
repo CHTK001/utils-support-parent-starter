@@ -11,12 +11,14 @@
 阶段十八以动态代理假 `Driver` 驱动 `Neo4jEngine` 的真实 Cypher 生成并修复标签/count/连接所有权/异常上下文：2026-10-17；
 阶段十九以假 JDBC `Driver` 驱动 `GreptimeDbEngine` 的真实 SQL/JDBC 链路：2026-10-17；
 阶段二十以动态代理假 `Connection`/`Table`/`Admin` 驱动 `HBaseEngine` 的真实领域 API
-（建表/写入/读取/扫描/删除）并修复「用法错误被包装成操作失败」：2026-10-17）
+（建表/写入/读取/扫描/删除）并修复「用法错误被包装成操作失败」：2026-10-17；
+阶段二十一方言分页 SQL：修复 Oracle / SQL Server / Derby 从未声明 `supports-limit=false`
+导致下发的 `LIMIT` 语法不被服务端接受：2026-10-17）
 仓库：`utils-support-parent-starter`（另用 `spring-support-parent-starter` 与 `utils-support-datalake-parent` 的制品）
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
 已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
 `03d360448`（补回被全局 ignore 规则静默剔除的两个运行器）、本轮阶段六
-验收结论：**二十阶段共 975 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
+验收结论：**二十一阶段共 1003 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
 
 > **本轮为何要重绑 md5**：2026-10-04 首次出报告后，本地仓库里这批制品被后续构建
 > 重新产出（`common-starter` 4,563,385 → 4,743,831 B，`monitor-starter` 1,127,261 → 922,392 B 等），
@@ -34,7 +36,7 @@
 | 产物 | md5（前 8 位） | 大小 | 承载的验收内容 |
 |---|---|---|---|
 | `com.chua:utils-support-common-starter:4.0.0.42` | `cfd341ed` | 4,749,974 B | 缺陷 1/3/4/5/6/7 所在（阶段二/三/四）+ `Engine.query()` / `SqlQueryBuilder`（阶段七） |
-| `com.chua:utils-support-datasource-starter:4.0.0.42` | `91c5b9e1` | 353,307 B | 缺陷 1/2/3/4/6/7 所在（阶段一~四）+ 阶段六 `ReactorFlywayBridge` + 缺陷 12 的 `JdbcUrl.hostPort`（阶段十四） |
+| `com.chua:utils-support-datasource-starter:4.0.0.42` | `467f58a0` | 353,340 B | 缺陷 1/2/3/4/6/7 所在（阶段一~四）+ 阶段六 `ReactorFlywayBridge` + 缺陷 12 的 `JdbcUrl.hostPort`（阶段十四）+ **缺陷 27 的方言 `supports-limit` 声明**（阶段二十一） |
 | `com.chua:utils-support-redis-starter:4.0.0.42` | `112be63d` | 134,614 B | 缺陷 8/9 所在（阶段三/一）+ 缺陷 15/16/17 的修复（`RediSearchEngine` 实体 CRUD，阶段十六） |
 | `com.chua:utils-support-h2-starter:4.0.0.42` | `83ed8ee5` | 29,518 B | 阶段二/三负载 |
 | `com.chua:utils-support-sqlite-starter:4.0.0.42` | `e6114489` | 43,241 B | 阶段二负载 + 阶段六 `SqliteReactorEngine` |
@@ -124,6 +126,12 @@
 > `src/acceptance/lib/` 实际加载的那份经 `certutil -hashfile … MD5` 与上表一致。
 > 其余 27 个制品字节未变。
 
+> **阶段二十一重绑 1 个制品**：为修缺陷 27 重新构建了
+> `datasource`（`91c5b9e1` → `467f58a0`，353,340 B）。
+> 8 个 `.env` 新增 `supports-limit=false`（可用
+> `unzip -p …jar META-INF/dialect-env/oracle.env | findstr supports-limit` 复核）。
+> `src/acceptance/lib/` 实际加载的那份经 `certutil` 与上表一致。其余 27 个制品字节未变。
+
 ## 2. 子类清单与覆盖状态（权威口径）
 
 ### 2.1 Engine —— SPI 注册的 24 个（阶段一全覆盖）
@@ -156,7 +164,8 @@ influxdb（阶段十三，纯内存）、redis（阶段三/五：`RedisClient`/`
 驱动真实的 `Put`/`Get`/`Scan`/`Delete` 构造与 `Result` 解析）；非 SPI 的 datalake-query
 （阶段十，本机 HTTP 桩）与 ReactorFlywayBridge（阶段六，真实 SQLite）。
 另：postgresql / sqlserver（含 legacy）/ oracle / clickhouse 在阶段十四验证了
-**配置拼装、入参守卫、失败语义与关闭语义**，但**查询语义仍未验**（见 §7）。
+**配置拼装、入参守卫、失败语义与关闭语义**，阶段二十一验证了**方言分页 SQL 渲染**
+（ROWNUM / OFFSET-FETCH / ROW_NUMBER），但**查询语义仍未验**（见 §7）。
 其余 4 个需外部服务的引擎（postgresql / sqlserver / oracle / clickhouse）只有契约面
 （见 §7；elasticsearch / neo4j / solr / greptimedb / hbase 已升级到「真实链路 + 契约面」）。
 
@@ -233,11 +242,12 @@ monitor 模块的 Bean 工厂创建。
 | 十八 | `Neo4jEngine`（SPI `neo4j`）：动态代理假 `Driver` 驱动真实 Cypher 生成——label 与 `@TableName`、`WHERE` 参数化、`LIMIT`/`SKIP` 下推、`count(n)` 计数、`ORDER BY`、`UNWIND` 批量写入、`SET`/`DETACH DELETE`、属性映射、异常语义、连接所有权 | 25 | 全绿 |
 | 十九 | `GreptimeDbEngine`（SPI `greptimedb`）：假 JDBC `Driver` 驱动真实 SQL/JDBC 链路——表名与 `@TableName`、列名归一化、条件参数化、排序与分页下推、`COUNT(*)` 子查询计数、结果映射、`store`/`update` 的 UOE、无 WHERE 守卫、带条件 DELETE、执行器四个入口、JDBC URL 推导、生命周期 | 30 | 全绿 |
 | 二十 | `HBaseEngine`（SPI `hbase`）：动态代理假 `Connection`/`Table`/`Admin`/`ResultScanner` 驱动真实领域 API——建表幂等与列族、`Put` 行键/列族/限定符/值、`Get` 的列族过滤与全列族前缀、空结果、`Scan` 前缀起止行（含非 ASCII 字节递增）、`__row` 与空行跳过、`Delete` 行键、`store`/查询/`update`/`delete` 的 UOE、`close()` 的连接所有权与用法错误不被包装 | 23 | 全绿 |
+| 二十一 | 方言分页 SQL（postgresql / clickhouse / oracle / oracle11g / oracle12c / sqlserver / sqlserver2008 / sqlserver2012 / derby / derby1014）：`supportsLimit` 能力声明、LIMIT 方言渲染、ROWNUM / OFFSET-FETCH / ROW_NUMBER 模板、ORDER BY 回退注入与幂等、四引擎实际方言接线 | 28 | 全绿 |
 
-**合计 975 条断言，0 失败**（`run-acceptance.bat`：二十阶段逐段 `PASS`，
+**合计 1003 条断言，0 失败**（`run-acceptance.bat`：二十一阶段逐段 `PASS`，
 末行 `ACCEPTANCE_RESULT=PASS`，退出码 0）。
 
-## 4. 修复的 26 处真实缺陷
+## 4. 修复的 27 处真实缺陷
 
 | # | 缺陷 | 根因 | 影响 |
 |---|---|---|---|
@@ -267,6 +277,7 @@ monitor 模块的 Bean 工厂创建。
 | 24 | **`close()` 无条件关闭调用方注入的 `Driver`** | 引擎不区分「自己 new 的驱动」与「`addDataSource(Driver)` 注入的驱动」，`close()` 一律 `driver.close()` | 外部容器/连接池注入的驱动被引擎擅自关闭——同一驱动被多个消费者共享时，**关闭引擎即打断他人连接**；且 `driver` 未置空，关闭后仍会拿已关闭驱动去查询 |
 | 25 | **驱动异常被原样透出，丢失 Cypher 上下文** | `store`/查询路径把 `RuntimeException` 直接 `throw e`（4 处），不带任何查询信息 | 服务端报错时调用方只看到驱动原始消息（如语法错误、约束冲突），**无法定位是哪条 Cypher、哪个 label**；与同族引擎「带索引名/表名包装」的契约不一致 |
 | 26 | **`HBaseEngine` 把「未配置数据源 / 已关闭」包装成操作失败** | 5 个领域 API（建表/put/get/scan/deleteRow）都写成 `try { … conn().getTable(…) … } catch (Exception e) { throw new ISE("HBase xxx 失败: …") }`——`conn()` 抛出的用法错误落进同一个 `catch` | 未配置或 `close()` 后调用时，调用方看到的是「HBase put 失败: t_user/r」，只能翻 `cause` 才知道是用法错误；与已修的 Elasticsearch（缺陷 20）、Neo4j（缺陷 24/25）**同源**，同为「用法错误与故障不分」 |
+| 27 | **Oracle / SQL Server / Derby 方言从未声明 `supports-limit=false`，分页一律下发 `LIMIT`** | `SqlDialect.supportsLimit()` 读 `supports-limit`（缺省 `true`），`JdbcEngine.wrapPagination` 据此选择「追加 LIMIT/OFFSET」还是「走方言模板」；而 `oracle*.env` / `sqlserver*.env` / `derby*.env` 里虽写好了 ROWNUM / OFFSET-FETCH / ROW_NUMBER 的 `pagination-sql` 模板，却**没有**任何一个文件写过 `supports-limit=false` | 这四个引擎一旦分页（`page()` / `limit()`），下发的是 `SELECT … LIMIT n OFFSET m`——Oracle 全版本、SQL Server 全版本、Derby 都不认这条语法，**分页 100% 失败**；env 里精心写的模板成了死代码 |
 
 缺陷 10 的修法（`utils-support-questdb-starter`，`QuestdbSeriesEngine`）：
 
@@ -352,6 +363,27 @@ monitor 模块的 Bean 工厂创建。
   其中两条正是 `HBase put 失败: t_user/r` 与 `HBase get 失败: t_user/r`；
   收紧断言并修产品后为 **23/23**。这组「先失败后通过」即断言有效性的直接证据。
 
+缺陷 27 的修法（`utils-support-datasource-starter`，8 个方言 env）：
+
+- `oracle.env` / `oracle11g.env` / `oracle12c.env` / `sqlserver.env` /
+  `sqlserver2008.env` / `sqlserver2012.env` / `derby.env` / `derby1014.env`
+  各补一行 `supports-limit=false`；
+- 不改任何 Java 代码：`SqlDialect.supportsLimit()` 本就读取该键，
+  `SqlDialect.processSql()` 本就实现了模板替换（`{sql}` / `{offset}` / `{limit}` /
+  `{offset_clause}`）与 `pagination-requires-order-by` 回退（Oracle 12c 用
+  `ORDER BY NULL`，SQL Server 用 `ORDER BY (SELECT NULL)`）——**缺的只是声明**；
+- `JdbcEngine.wrapPagination` 由此在 Oracle / SQL Server / Derby 上改走模板分支：
+  Oracle 19c/11g → ROWNUM 双层包装，Oracle 12c / SQL Server 2012+ → OFFSET…FETCH，
+  SQL Server 2008 / Derby 10.14 → ROW_NUMBER 双层包装；
+- 阶段二十一的**隔离实验（实际运行）**：把这 8 个 env 与 Java 一起 `git stash`
+  （即回到 HEAD），`mvn -o clean install` 后同一套断言为 **23 PASS / 5 FAIL**，
+  失败点精确为
+  `oracle=true, oracle11g=true` / `sqlserver=true, sqlserver2008=true` /
+  `derby=true, derby1014=true` / `Dialect.require("oracle").supportsLimit 应为 false` /
+  `oracle supportsLimit=true`；恢复后重新构建回到 **28/28 全绿**。
+  该实验同时证明：模板渲染本身早已正确（模板类断言在回退状态下仍通过），
+  **唯一缺口就是能力声明**。
+
 > **契约差异（显式声明，不是缺陷）**：`store(name, rows)` 的 `name` 参数**不参与** label 推导，
 > label 始终由实体类型决定。图数据库的 label 即实体类型，按任意 `name` 写入会产生
 > 「只写数据」（没有读路径能解析出同一 label）。该行为由阶段十八第 5 条断言显式钉住，
@@ -385,21 +417,22 @@ harness **已入库**（不再只留 `.tmp`，那里没有版本控制）：
 
 ```
 utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
-├─ run-acceptance.bat          二十阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-acceptance.bat          二十一阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              二十个验收程序
+├─ harness/*.java              二十一个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 二十阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 二十一阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 run-acceptance.bat 17           :: 只跑阶段十七（Elasticsearch）
 run-acceptance.bat 18           :: 只跑阶段十八（Neo4j）
 run-acceptance.bat 19           :: 只跑阶段十九（GreptimeDB）
 run-acceptance.bat 20           :: 只跑阶段二十（HBase）
+run-acceptance.bat 21           :: 只跑阶段二十一（方言分页 SQL）
 ```
 
 > **交付教训（2026-10-04 实际发生）**：仓库根 `.gitignore` 有 `*.ps1`（16 行）/
@@ -426,8 +459,10 @@ run-acceptance.bat 20           :: 只跑阶段二十（HBase）
 ## 7. 尚未覆盖（如实声明）
 
 1. **需外部服务的 4 个引擎**（postgresql、sqlserver、oracle、clickhouse）
-   只有契约面；
-   本机无对应服务，无法做真实读写验收。**这部分是"未验"，不是"已通过"。**
+   的**查询语义**只有契约面 + 方言 SQL 断言（阶段十四 / 二十一）；
+   本机没有这四个服务端，**也没有任何容器运行时**（`docker` / `podman` / `nerdctl` / `wsl`
+   均不存在，仅 3306 上有本机 MySQL），因此无法起本地容器做真实读写验收。
+   **这部分是"未验"，不是"已通过"。**
    > `prometheus` **已从本清单移出**：阶段八用本机 HTTP 桩（`com.sun.net.httpserver`）
    > 打通了 8 个 `/api/v1/*` 端点，`PrometheusEngine` / `PrometheusClient` 的查询、
    > 模型映射、Basic 认证与失败语义均已真实执行（35 条断言）。仍未覆盖的是
@@ -1001,6 +1036,39 @@ Redis 不支持 `MODULE` 命令，即没有 RediSearch 模块——因此 `FT.SE
 > **未触达的分支（如实声明）**：`conn()` 中「存在多个数据源且未指定默认」的 ISE 分支
 > 经公开 API 不可达——`addDataSource` 在首个数据源处即固定默认名，之后既不覆盖也不清空。
 > 本阶段未对该分支做断言。
+
+### 14.11 方言分页 SQL：Oracle / SQL Server / PostgreSQL / ClickHouse（阶段二十一，28 条）
+
+**先说清楚边界**：本机没有 PostgreSQL / ClickHouse / Oracle / SQL Server 服务端，
+也没有任何容器运行时（`docker` / `podman` / `nerdctl` / `wsl` 均未安装，
+`Get-NetTCPConnection` 只看到 3306 的 MySQL），**因此本阶段不是真实查询语义验收**，
+也没有假装是。能验、且更该先验的是这四个引擎的**方言分页渲染**——它是纯函数，
+但结果会原样下发给数据库。
+
+| 面 | 断言内容 |
+|---|---|
+| 能力声明 | `postgresql` / `clickhouse` / `mysql` 为 `supportsLimit=true`；`oracle` / `oracle11g` / `oracle12c` / `sqlserver` / `sqlserver2008` / `sqlserver2012` / `derby` / `derby1014` 全部为 `false`；`Dialect.require(k)` 与直接 `new` 结果一致 |
+| LIMIT 方言 | PostgreSQL / ClickHouse / MySQL 渲染 `LIMIT n OFFSET m`；`pageNum=3,pageSize=2` → `OFFSET 4`（偏移量由 pageNum 推导） |
+| Oracle 19c / 11g | ROWNUM 双层包装：`SELECT * FROM (SELECT TMP.*, ROWNUM ROW_ID FROM (…) TMP WHERE ROWNUM <= 3 + 3) WHERE ROW_ID > 3`，且**不出现** `LIMIT` |
+| Oracle 12c | `OFFSET 3 ROWS FETCH NEXT 3 ROWS ONLY`；缺 ORDER BY 时用方言自己的回退 `ORDER BY NULL`（不是 SQL Server 的 `(SELECT NULL)`） |
+| SQL Server 2019 / 2012 | `OFFSET 3 ROWS FETCH NEXT 3 ROWS ONLY`；缺 ORDER BY 时补 `ORDER BY (SELECT NULL)` |
+| SQL Server 2008 | `ROW_NUMBER() OVER (ORDER BY (SELECT NULL))` 双层嵌套 + `ROW_NUM > 3 AND ROW_NUM <= 3 + 3` |
+| Derby / Derby 10.14 | 前者 OFFSET…FETCH；后者 `ROW_NUMBER() OVER ()` + `ROW_ID` 边界；均不含 `LIMIT` |
+| 边界 | `offset=0` 仍走模板（不是退回 LIMIT）；`pageSize<=0` 归一为 1；ORDER BY 已存在时不重复追加；大小写 `order by` 视为已排序 |
+| 与引擎接线 | `Engine.create(postgresql/clickhouse/oracle/sqlserver)` 注册数据源（不可达地址，只装配 Hikari、不建连）后取到默认方言：协议名正确，`supportsLimit` 与预期一致；`sqlserver-legacy` 用 `sqlserver2008` 方言并渲染 `ROW_NUMBER()`；方言渲染无状态；非法方言名抛异常而不是返回 null |
+
+> **隔离实验（实际运行）**：把这 8 个 env 与 Java 一起 `git stash`（回到 HEAD），
+> `mvn -o clean install` 后同一套断言为 **23 PASS / 5 FAIL**，失败点精确为
+> `oracle=true, oracle11g=true`、`sqlserver=true, sqlserver2008=true`、
+> `derby=true, derby1014=true`、`Dialect.require("oracle").supportsLimit 应为 false`、
+> `oracle supportsLimit=true`。恢复后重新构建回到 **28/28**。
+> 值得注意的是模板类断言在回退状态下**仍然通过**——说明 `SqlDialect.processSql`
+> 早就实现了模板渲染，真正缺的只是 `supports-limit` 这一行声明（见 §4 缺陷 27）。
+>
+> **仍未覆盖**：真实服务端的查询语义。具体是：PostgreSQL 的类型/事务/`RETURNING`、
+> ClickHouse 的列式存储与 `FINAL`/物化视图、Oracle 的 `NUMBER`/`VARCHAR2 CHAR` 语义与
+> 执行计划、SQL Server 的 `IDENTITY`/`DATETIME2`/锁与隔离级别。
+> 校验这些需要真实实例；本机没有容器运行时，**这部分是"未验"，不是"已通过"**。
 
 
 
