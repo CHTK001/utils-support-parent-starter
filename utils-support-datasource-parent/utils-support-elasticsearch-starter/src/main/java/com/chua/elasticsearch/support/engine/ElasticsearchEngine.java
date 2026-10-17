@@ -179,21 +179,24 @@ public class ElasticsearchEngine implements Engine {
         if (data == null || data.isEmpty()) {
             return this;
         }
+        // 请求与「部分失败」判定分开：若把 errors() 的抛出放在 try 内，
+        // 会被下面的 catch 再包一层，失败条数等详情只剩在 cause 里。
+        co.elastic.clients.elasticsearch.core.BulkResponse response;
         try {
-            var response = client.bulk(builder -> {
+            response = client.bulk(builder -> {
                 for (T entity : data) {
                     builder.operations(op -> op.index(io -> io.index(name).document(entity)));
                 }
                 return builder;
             });
-            if (response.errors()) {
-                long failed = response.items().stream()
-                        .filter(item -> item.error() != null).count();
-                throw new RuntimeException("Elasticsearch 批量索引部分失败: index=" + name
-                        + " 失败条数=" + failed);
-            }
         } catch (Exception e) {
             throw new RuntimeException("Elasticsearch 批量索引失败: index=" + name, e);
+        }
+        if (response.errors()) {
+            long failed = response.items().stream()
+                    .filter(item -> item.error() != null).count();
+            throw new RuntimeException("Elasticsearch 批量索引部分失败: index=" + name
+                    + " 失败条数=" + failed);
         }
         return this;
     }
@@ -433,6 +436,20 @@ public class ElasticsearchEngine implements Engine {
             */
             public Page<T> page(int pn, int ps) {
                 return searchPage(entityClass, getConditions(), getOrderBys(), pn, ps);
+            }
+
+            @Override
+            /**
+             * 统计命中总数
+             * <p>基类实现要求引擎覆写，否则直接抛 {@code UnsupportedOperationException}。
+             * ES 侧以 {@code from=0}、{@code size=1} 走一次 search，并开启
+             * {@code track_total_hits}，total 取自信任计数。</p>
+             *
+             * @return 命中总数
+            */
+            public long count() {
+                var response = doSearch(entityClass, getConditions(), getOrderBys(), 0, 1, true);
+                return response.hits().total() == null ? 0L : response.hits().total().value();
             }
         };
     }
@@ -752,6 +769,8 @@ public class ElasticsearchEngine implements Engine {
             long total = response.hits().total() == null
                     ? records.size() : response.hits().total().value();
             return new Page<>(pageNum, pageSize, total, records);
+        } catch (IllegalStateException | UnsupportedOperationException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Elasticsearch 分页查询失败: index=" + indexName, e);
         }
@@ -774,7 +793,7 @@ public class ElasticsearchEngine implements Engine {
         if (client == null) {
             throw new IllegalStateException("请先 addDataSource 配置 Elasticsearch 客户端");
         }
-        String indexName = entityClass.getSimpleName().toLowerCase();
+        String indexName = indexName(entityClass);
         Query query = CollectionUtils.isEmpty(conditions)
                 ? Query.of(q -> q.matchAll(m -> m)) : buildQuery(conditions);
         try {
