@@ -309,29 +309,70 @@ public class WhatsAppBotClient implements BotClient {
 
     @Override
     public BotSendResult sendImage(String toUser, String mediaPath) {
-        if (mediaPath == null || !mediaPath.startsWith("http")) {
-            return BotSendResult.fail(-1, "WhatsApp 图片发送暂只支持公网 URL（link）");
-        }
-        Map<String, Object> image = new LinkedHashMap<>();
-        image.put("link", mediaPath);
-        Map<String, Object> payload = basePayload(toUser, "image");
-        payload.put("image", image);
-        return sendPayload(payload);
+        return sendLinkMedia(toUser, "image", mediaPath, null);
     }
 
     @Override
     public BotSendResult sendVoice(String toUser, String mediaPath) {
-        return BotSendResult.fail(-1, "WhatsApp 语音发送暂未实现");
+        return sendLinkMedia(toUser, "audio", mediaPath, null);
     }
 
     @Override
     public BotSendResult sendVideo(String toUser, String mediaPath, String title, String desc) {
-        return BotSendResult.fail(-1, "WhatsApp 视频发送暂未实现");
+        String caption = desc != null && !desc.isBlank() ? desc
+                : (title != null && !title.isBlank() ? title : null);
+        return sendLinkMedia(toUser, "video", mediaPath, caption);
     }
 
     @Override
     public BotSendResult sendFile(String toUser, String mediaPath) {
-        return BotSendResult.fail(-1, "WhatsApp 文件发送暂未实现");
+        return sendLinkMedia(toUser, "document", mediaPath, null);
+    }
+
+    /**
+     * 以公网 URL（{@code link}）发送媒体。
+     *
+     * <p>Cloud API 支持 image / audio / video / document 通过 {@code link} 发送；
+     * 本地文件需先上传到云存储或用媒体上传接口，本方法只接受 http(s) 链接。</p>
+     *
+     * @param toUser  目标用户
+     * @param type    Cloud API 消息类型：image/audio/video/document
+     * @param link    媒体公网地址
+     * @param caption 可选说明文字（video/document/image 支持）
+     * @return 发送结果
+     */
+    private BotSendResult sendLinkMedia(String toUser, String type, String link, String caption) {
+        if (link == null || !link.startsWith("http")) {
+            return BotSendResult.fail(-1,
+                    "WhatsApp " + type + " 发送仅支持公网 URL（link）：" + link);
+        }
+        Map<String, Object> media = new LinkedHashMap<>();
+        media.put("link", link);
+        if (caption != null && !caption.isBlank()) {
+            media.put("caption", caption);
+        }
+        if ("document".equals(type)) {
+            media.put("filename", fileNameOf(link));
+        }
+        Map<String, Object> payload = basePayload(toUser, type);
+        payload.put(type, media);
+        return sendPayload(payload);
+    }
+
+    /**
+     * 从 URL 末段推断文件名（用于 document 消息）。
+     */
+    private static String fileNameOf(String link) {
+        try {
+            String path = URI.create(link).getPath();
+            if (path != null && path.lastIndexOf('/') >= 0
+                    && path.lastIndexOf('/') < path.length() - 1) {
+                return path.substring(path.lastIndexOf('/') + 1);
+            }
+        } catch (Exception ignored) {
+            // 非法 URL 时退化为固定名
+        }
+        return "file";
     }
 
     @Override
@@ -345,8 +386,12 @@ public class WhatsAppBotClient implements BotClient {
         return switch (message.getType()) {
             case TEXT -> sendText(message.getToUser(), message.getContent());
             case IMAGE -> sendImage(message.getToUser(), message.getMediaPath());
+            case VOICE -> sendVoice(message.getToUser(), message.getMediaPath());
+            case VIDEO -> sendVideo(message.getToUser(), message.getMediaPath(),
+                    message.getTitle(), message.getDescription());
+            case FILE -> sendFile(message.getToUser(), message.getMediaPath());
             default -> BotSendResult.fail(-1,
-                    "Unsupported message type: " + message.getType());
+                    "WhatsApp 暂不支持的消息类型: " + message.getType());
         };
     }
 
@@ -481,6 +526,56 @@ public class WhatsAppBotClient implements BotClient {
         }
     }
 
+    /**
+     * 下载入站媒体字节。
+     *
+     * <p>先 {@code GET /{media-id}} 取临时下载地址，再带 Bearer 取字节。返回内容可能较大，
+     * 调用方需自行限制大小并负责落盘/转存。</p>
+     *
+     * @param mediaId 入站消息的 {@link BotInboundMessage#getMediaId()}
+     * @return 媒体字节
+     * @throws IllegalArgumentException 参数缺失或下载失败
+     */
+    public byte[] downloadMedia(String mediaId) {
+        if (mediaId == null || mediaId.isBlank()) {
+            throw new IllegalArgumentException("mediaId 必填");
+        }
+        if (accessToken == null || accessToken.isBlank()) {
+            throw new IllegalArgumentException("access_token 未配置，无法下载媒体");
+        }
+        try {
+            String metaUrl = baseUrl + "/" + mediaId;
+            HttpResponse<String> meta = client().send(
+                    HttpRequest.newBuilder(URI.create(metaUrl))
+                            .timeout(Duration.ofMillis(readTimeoutMillis))
+                            .header("Authorization", "Bearer " + accessToken)
+                            .GET().build(),
+                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (meta.statusCode() < 200 || meta.statusCode() >= 300) {
+                throw new IllegalArgumentException("获取媒体地址失败：HTTP "
+                        + meta.statusCode() + " " + safeBody(meta));
+            }
+            Object urlObj = Json.fromJson(safeBody(meta)).get("url");
+            if (urlObj == null) {
+                throw new IllegalArgumentException("媒体地址缺失");
+            }
+            HttpResponse<byte[]> data = client().send(
+                    HttpRequest.newBuilder(URI.create(String.valueOf(urlObj)))
+                            .timeout(Duration.ofMillis(readTimeoutMillis))
+                            .header("Authorization", "Bearer " + accessToken)
+                            .GET().build(),
+                    HttpResponse.BodyHandlers.ofByteArray());
+            if (data.statusCode() < 200 || data.statusCode() >= 300) {
+                throw new IllegalArgumentException("下载媒体失败：HTTP " + data.statusCode());
+            }
+            return data.body();
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IllegalArgumentException("下载媒体异常：" + e.getMessage(), e);
+        }
+    }
+
     private void dispatchPayload(Map<String, Object> payload) {
         Object entryObj = payload.get("entry");
         if (!(entryObj instanceof List<?> entries)) {
@@ -534,8 +629,12 @@ public class WhatsAppBotClient implements BotClient {
                 String content = textObj instanceof Map<?, ?> textMap
                         ? str(asMap(textMap).get("body")) : "";
                 builder.type(BotInboundMessage.Type.TEXT).content(content);
+            } else if ("location".equals(type)) {
+                builder.type(BotInboundMessage.Type.LOCATION)
+                        .content(formatLocation(msg.get("location")));
             } else {
-                builder.type(mapType(type)).content("[" + type + "]");
+                builder.type(mapType(type));
+                applyMedia(builder, msg, type);
             }
             builder.rawField("message", msg);
             BotInboundMessage inbound = builder.build();
@@ -550,8 +649,45 @@ public class WhatsAppBotClient implements BotClient {
         }
     }
 
-    private String resolveContactName(Map<String, Object> value) {
-        Object contactsObj = value.get("contacts");
+    /**
+     * 提取入站媒体信息：媒体 ID、说明文字（caption）、MIME 类型。
+     *
+     * <p>WhatsApp 语音消息的 {@code type} 为 {@code audio}，故媒体对象键即 {@code type}。</p>
+     */
+    private void applyMedia(BotInboundMessage.BotInboundMessageBuilder builder,
+                            Map<String, Object> msg, String type) {
+        Object mediaObj = msg.get(type);
+        if (mediaObj instanceof Map<?, ?> mediaRaw) {
+            Map<String, Object> media = asMap(mediaRaw);
+            builder.mediaId(str(media.get("id")));
+            String caption = str(media.get("caption"));
+            builder.content(caption != null && !caption.isBlank()
+                    ? caption : "[" + type + "]");
+            String mimeType = str(media.get("mime_type"));
+            if (mimeType != null && !mimeType.isBlank()) {
+                builder.rawField("mimeType", mimeType);
+            }
+        } else {
+            builder.content("[" + type + "]");
+        }
+    }
+
+    /**
+     * 位置消息格式化为 {@code 纬度,经度}。
+     */
+    private static String formatLocation(Object locationObj) {
+        if (locationObj instanceof Map<?, ?> locationRaw) {
+            Map<String, Object> location = asMap(locationRaw);
+            String latitude = str(location.get("latitude"));
+            String longitude = str(location.get("longitude"));
+            if (latitude != null && longitude != null) {
+                return latitude + "," + longitude;
+            }
+        }
+        return "[location]";
+    }
+
+    private String resolveContactName(Map<String, Object> value) {        Object contactsObj = value.get("contacts");
         if (contactsObj instanceof List<?> contacts && !contacts.isEmpty()
                 && contacts.get(0) instanceof Map<?, ?> contact) {
             Object profileObj = contact.get("profile");

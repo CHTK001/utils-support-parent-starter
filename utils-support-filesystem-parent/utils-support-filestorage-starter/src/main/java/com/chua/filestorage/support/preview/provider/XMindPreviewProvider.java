@@ -201,16 +201,27 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
         }
         TopicNode node = new TopicNode(title);
         JsonNode children = topic.path("children");
-        JsonNode attached = children.path("attached");
-        if (!attached.isArray()) {
-            attached = children.path("attachments");
-        }
-        if (attached.isArray()) {
-            for (JsonNode child : attached) {
-                node.children.add(buildNodeFromJson(child));
-            }
-        }
+        // attached=子主题、detached=浮动主题，都算子节点（与前端渲染器口径一致）。
+        // 兼容历史拼写 attachments。
+        appendJsonChildren(node, children.path("attached"));
+        appendJsonChildren(node, children.path("detached"));
+        appendJsonChildren(node, children.path("attachments"));
         return node;
+    }
+
+    /**
+     * 把 JSON 数组里的子主题挂到 {@code node} 下（非数组时忽略）。
+     *
+     * @param node  父节点
+     * @param array 子主题 JSON 数组（attached / detached / attachments）
+     */
+    private void appendJsonChildren(TopicNode node, JsonNode array) {
+        if (array == null || !array.isArray()) {
+            return;
+        }
+        for (JsonNode child : array) {
+            node.children.add(buildNodeFromJson(child));
+        }
     }
 
     /**
@@ -229,7 +240,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
             return roots;
         }
         try {
- // 创建安全的 文档构建器（禁用外部实体，防止 XXE）
+            // 创建安全的 文档构建器（禁用外部实体，防止 XXE）
             javax.xml.parsers.DocumentBuilderFactory factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
             factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
@@ -239,30 +250,34 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
             org.w3c.dom.Document doc = builder.parse(
                     new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 
-            // 获取所有 sheet 元素（兼容带命名空间和不带命名空间两种情况）
-            org.w3c.dom.NodeList sheets = doc.getElementsByTagNameNS(
-                    "urn:xmind:xmap:xmlns:content:2.0", "sheet");
-            if (sheets.getLength() == 0) {
-                sheets = doc.getElementsByTagName("sheet");
+            // 根主题 = 每个 sheet 的**直接** topic 子元素。
+            //
+            // 必须用直接子元素而不是 getElementsByTagNameNS：后者是**递归**的，会把
+            // 子主题（其父节点是 <topics> 而非 <topic>）也当成根，于是同一棵子树被反复
+            // 输出（实测一份真实 XMind 8 文件 2 个 sheet / 46 个主题被解析成 46 个根）。
+            // 这与 JSON 分支当年 {json.indexOf("children")} 的缺陷同源，只是发生在 XML 上。
+            org.w3c.dom.Element root = doc.getDocumentElement();
+            if (root == null) {
+                return roots;
             }
-
-            for (int i = 0; i < sheets.getLength(); i++) {
-                org.w3c.dom.Element sheet = (org.w3c.dom.Element) sheets.item(i);
-                org.w3c.dom.NodeList topicList = sheet.getElementsByTagNameNS(
-                        "urn:xmind:xmap:xmlns:content:2.0", "topic");
-                if (topicList.getLength() == 0) {
-                    topicList = sheet.getElementsByTagName("topic");
+            List<org.w3c.dom.Element> sheets = childElements(root, "sheet");
+            if (sheets.isEmpty()) {
+                // 兼容 sheet 未直接挂在文档根下的个别写法：退化为递归找 sheet，
+                // 但每个 sheet 仍只取**直接** topic 子元素，不会重复。
+                org.w3c.dom.NodeList found = root.getElementsByTagNameNS(
+                        "urn:xmind:xmap:xmlns:content:2.0", "sheet");
+                if (found.getLength() == 0) {
+                    found = root.getElementsByTagName("sheet");
                 }
-                for (int j = 0; j < topicList.getLength(); j++) {
-                    org.w3c.dom.Element topic = (org.w3c.dom.Element) topicList.item(j);
-                    String parentId = topic.getAttribute("id");
-                    // 只处理顶级 topic（其父节点不是 topic 元素）
-                    if (parentId != null && topic.getParentNode() != null
-                            && !"topic".equals(topic.getParentNode().getLocalName())) {
-                        TopicNode node = buildNodeFromXml(topic);
-                        if (node != null) {
-                            roots.add(node);
-                        }
+                for (int i = 0; i < found.getLength(); i++) {
+                    sheets.add((org.w3c.dom.Element) found.item(i));
+                }
+            }
+            for (org.w3c.dom.Element sheet : sheets) {
+                for (org.w3c.dom.Element topic : childElements(sheet, "topic")) {
+                    TopicNode node = buildNodeFromXml(topic);
+                    if (node != null) {
+                        roots.add(node);
                     }
                 }
             }
@@ -273,43 +288,67 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
+     * 取某个元素下指定 localName 的**直接**子元素（忽略命名空间前缀）。
+     *
+     * <p>XMind 8 的子主题结构是 {@code topic > children > topics[type=attached|detached] > topic}，
+     * 兄弟层级都靠元素包裹；只有逐层取直接子元素才能得到正确的一层，递归查找会串层。</p>
+     *
+     * @param parent    父元素
+     * @param localName 目标 localName（忽略命名空间前缀，如 "sheet" / "topic" / "topics" / "title"）
+     * @return 匹配的直接子元素列表（保持文档顺序）
+     */
+    private static List<org.w3c.dom.Element> childElements(org.w3c.dom.Element parent, String localName) {
+        List<org.w3c.dom.Element> out = Wraps.list();
+        if (parent == null) {
+            return out;
+        }
+        for (org.w3c.dom.Node n = parent.getFirstChild(); n != null; n = n.getNextSibling()) {
+            if (n.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
+                continue;
+            }
+            String ln = n.getLocalName() != null ? n.getLocalName() : localNameOf(n.getNodeName());
+            if (localName.equals(ln)) {
+                out.add((org.w3c.dom.Element) n);
+            }
+        }
+        return out;
+    }
+
+    /** 去掉 {@code prefix:} 得到 localName（节点未启用命名空间感知时的兜底） */
+    private static String localNameOf(String qualifiedName) {
+        int colon = qualifiedName == null ? -1 : qualifiedName.indexOf(':');
+        return colon >= 0 ? qualifiedName.substring(colon + 1) : qualifiedName;
+    }
+
+    /**
      * 从 XML 的 topic 元素递归构建 {@link TopicNode} 树。
      *
-     * <p>遍历路径：{@code topic → title}（取标题）+ {@code topic → children → topics → topic}
-     * （取子主题列表，递归构建）。</p>
+     * <p>遍历路径（**逐层取直接子元素**）：{@code topic → title}（取标题）+
+     * {@code topic → children → topics → topic*}（取子主题列表，递归构建）。
+     * {@code topics} 无论 {@code type=attached}（子主题）还是 {@code type=detached}
+     * （浮动主题）都算子节点，与前端渲染器口径一致。</p>
      *
      * @param topicEl XML 中的 topic DOM 元素
      * @return 构建好的主题节点（title 非空，children 可能为空）
      */
     private TopicNode buildNodeFromXml(org.w3c.dom.Element topicEl) {
-        String title = getTextContent(topicEl, "title");
+        String title = directText(topicEl, "title");
         if (title == null || title.isBlank()) {
             title = "Untitled";
         }
         TopicNode node = new TopicNode(title);
 
-        // 查找 children/topics[@type="attached"]/topic（子主题列表）
-        org.w3c.dom.NodeList childrenList = topicEl.getElementsByTagNameNS(
-                "urn:xmind:xmap:xmlns:content:2.0", "children");
-        if (childrenList.getLength() == 0) {
-            childrenList = topicEl.getElementsByTagName("children");
-        }
-        if (childrenList.getLength() > 0) {
-            org.w3c.dom.Element childrenEl = (org.w3c.dom.Element) childrenList.item(0);
-            org.w3c.dom.NodeList topicsList = childrenEl.getElementsByTagNameNS(
-                    "urn:xmind:xmap:xmlns:content:2.0", "topics");
-            if (topicsList.getLength() == 0) {
-                topicsList = childrenEl.getElementsByTagName("topics");
-            }
-            if (topicsList.getLength() > 0) {
-                org.w3c.dom.Element topicsEl = (org.w3c.dom.Element) topicsList.item(0);
-                org.w3c.dom.NodeList subTopics = topicsEl.getElementsByTagNameNS(
-                        "urn:xmind:xmap:xmlns:content:2.0", "topic");
-                if (subTopics.getLength() == 0) {
-                    subTopics = topicsEl.getElementsByTagName("topic");
+        for (org.w3c.dom.Element childrenEl : childElements(topicEl, "children")) {
+            for (org.w3c.dom.Element topicsEl : childElements(childrenEl, "topics")) {
+                // 只收 子主题(attached) / 浮动主题(detached) / 无 type 的旧写法；
+                // 跳过 summary（概要）这类派生容器 —— 与前端渲染器口径一致
+                // （实测真实 XMind 8 文件：收 summary 会多出一个「幽灵」节点）。
+                String type = topicsEl.getAttribute("type");
+                if (type != null && !type.isEmpty()
+                        && !"attached".equalsIgnoreCase(type) && !"detached".equalsIgnoreCase(type)) {
+                    continue;
                 }
-                for (int i = 0; i < subTopics.getLength(); i++) {
-                    org.w3c.dom.Element child = (org.w3c.dom.Element) subTopics.item(i);
+                for (org.w3c.dom.Element child : childElements(topicsEl, "topic")) {
                     TopicNode childNode = buildNodeFromXml(child);
                     if (childNode != null) {
                         node.children.add(childNode);
@@ -321,25 +360,22 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 从 DOM Element 中获取指定子元素的文本内容。
+     * 取某个元素的**直接**子元素文本（忽略命名空间前缀）。
      *
-     * <p>优先按命名空间查找，未命中时回退为无命名空间查找。</p>
+     * <p>用直接子元素而非递归查找：topic 没有 title 时，递归查找会抓到**后代**
+     * 主题的 title 冒充自己的标题。</p>
      *
-     * @param parent   父 DOM 元素
-     * @param childName 子元素名称（如 "title"）
-     * @return 子元素的 修剪 后文本内容；不存在或为空时返回 空
+     * @param parent    父元素
+     * @param childName 直接子元素名（如 "title"）
+     * @return 修剪后的文本；不存在或为空时返回 {@code null}
      */
-    private String getTextContent(org.w3c.dom.Element parent, String childName) {
-        org.w3c.dom.NodeList list = parent.getElementsByTagNameNS(
-                "urn:xmind:xmap:xmlns:content:2.0", childName);
-        if (list.getLength() == 0) {
-            list = parent.getElementsByTagName(childName);
+    private String directText(org.w3c.dom.Element parent, String childName) {
+        List<org.w3c.dom.Element> list = childElements(parent, childName);
+        if (list.isEmpty()) {
+            return null;
         }
-        if (list.getLength() > 0) {
-            String text = list.item(0).getTextContent();
-            return text != null ? text.trim() : null;
-        }
-        return null;
+        String text = list.get(0).getTextContent();
+        return text != null ? text.trim() : null;
     }
 
     /**
@@ -382,7 +418,8 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
         // 思维导图内容区域
         sb.append("<div class=\"mindmap\">");
         if (roots.isEmpty()) {
-            sb.append("<p style=\"color:#6b7280\">无法解析思维导图内容</p>");
+            sb.append("<p style=\"color:#6b7280\">无法解析思维导图内容（文件可能已损坏、"
+                    + "已加密，或不是有效的 XMind 文件）</p>");
         } else {
             for (TopicNode root : roots) {
                 renderNode(sb, root, 0, true);

@@ -9,3 +9,7 @@ com.chua.common.support.datasearch.video.spi.impl.QuarkResourceProvider
 com.chua.common.support.datasearch.video.spi.impl.QuarktvResourceProvider
 com.chua.common.support.datasearch.video.spi.impl.WanouResourceProvider
 com.chua.common.support.datasearch.video.spi.impl.WuJiResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.BtmuluMagnetResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.DmhyResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.NyaaResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.TorrentkittyResourceProvider
