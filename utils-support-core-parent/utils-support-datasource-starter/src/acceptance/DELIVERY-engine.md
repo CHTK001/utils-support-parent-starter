@@ -13,12 +13,15 @@
 阶段二十以动态代理假 `Connection`/`Table`/`Admin` 驱动 `HBaseEngine` 的真实领域 API
 （建表/写入/读取/扫描/删除）并修复「用法错误被包装成操作失败」：2026-10-17；
 阶段二十一方言分页 SQL：修复 Oracle / SQL Server / Derby 从未声明 `supports-limit=false`
-导致下发的 `LIMIT` 语法不被服务端接受：2026-10-17）
+导致下发的 `LIMIT` 语法不被服务端接受：2026-10-17；
+阶段二十二用**官方免安装二进制**在本机 `initdb` 出真实 PostgreSQL 17.6 实例（端口 55432，
+非容器——本机无任何容器运行时）跑真实读写，并修复「已关闭引擎被报成不支持 SQL」
+与「SQL 失败消息吞掉服务端原因」：2026-10-17）
 仓库：`utils-support-parent-starter`（另用 `spring-support-parent-starter` 与 `utils-support-datalake-parent` 的制品）
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
 已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
 `03d360448`（补回被全局 ignore 规则静默剔除的两个运行器）、本轮阶段六
-验收结论：**二十一阶段共 1003 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
+验收结论：**二十二阶段共 1040 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
 
 > **本轮为何要重绑 md5**：2026-10-04 首次出报告后，本地仓库里这批制品被后续构建
 > 重新产出（`common-starter` 4,563,385 → 4,743,831 B，`monitor-starter` 1,127,261 → 922,392 B 等），
@@ -35,8 +38,8 @@
 
 | 产物 | md5（前 8 位） | 大小 | 承载的验收内容 |
 |---|---|---|---|
-| `com.chua:utils-support-common-starter:4.0.0.42` | `cfd341ed` | 4,749,974 B | 缺陷 1/3/4/5/6/7 所在（阶段二/三/四）+ `Engine.query()` / `SqlQueryBuilder`（阶段七） |
-| `com.chua:utils-support-datasource-starter:4.0.0.42` | `467f58a0` | 353,340 B | 缺陷 1/2/3/4/6/7 所在（阶段一~四）+ 阶段六 `ReactorFlywayBridge` + 缺陷 12 的 `JdbcUrl.hostPort`（阶段十四）+ **缺陷 27 的方言 `supports-limit` 声明**（阶段二十一） |
+| `com.chua:utils-support-common-starter:4.0.0.42` | `670cdd25` | 4,750,128 B | 缺陷 1/3/4/5/6/7 所在（阶段二/三/四）+ `Engine.query()` / `SqlQueryBuilder`（阶段七）+ **缺陷 28 的关闭态错误语义**（`Engine` 默认 SQL 入口，阶段二十二） |
+| `com.chua:utils-support-datasource-starter:4.0.0.42` | `fa4fb072` | 353,554 B | 缺陷 1/2/3/4/6/7 所在（阶段一~四）+ 阶段六 `ReactorFlywayBridge` + 缺陷 12 的 `JdbcUrl.hostPort`（阶段十四）+ **缺陷 27 的方言 `supports-limit` 声明**（阶段二十一）+ **缺陷 29 的 SQL 失败原因透出**（`JdbcSqlExecutor`，阶段二十二） |
 | `com.chua:utils-support-redis-starter:4.0.0.42` | `112be63d` | 134,614 B | 缺陷 8/9 所在（阶段三/一）+ 缺陷 15/16/17 的修复（`RediSearchEngine` 实体 CRUD，阶段十六） |
 | `com.chua:utils-support-h2-starter:4.0.0.42` | `83ed8ee5` | 29,518 B | 阶段二/三负载 |
 | `com.chua:utils-support-sqlite-starter:4.0.0.42` | `e6114489` | 43,241 B | 阶段二负载 + 阶段六 `SqliteReactorEngine` |
@@ -132,6 +135,13 @@
 > `unzip -p …jar META-INF/dialect-env/oracle.env | findstr supports-limit` 复核）。
 > `src/acceptance/lib/` 实际加载的那份经 `certutil` 与上表一致。其余 27 个制品字节未变。
 
+> **阶段二十二重绑 2 个制品**：为修缺陷 28/29 重新构建了
+> `common`（`cfd341ed` → `670cdd25`，4,749,974 → 4,750,128 B）与
+> `datasource`（`467f58a0` → `fa4fb072`，353,340 → 353,554 B）。
+> 复核方式：`Engine.java` 的三个 SQL 默认入口按 `isClosed()` 区分消息；
+> `JdbcSqlExecutor` 的 5 处包装消息追加 ` -> <cause 消息>`。
+> `src/acceptance/lib/` 实际加载的那两份经 `certutil` 与上表一致。其余 26 个制品字节未变。
+
 ## 2. 子类清单与覆盖状态（权威口径）
 
 ### 2.1 Engine —— SPI 注册的 24 个（阶段一全覆盖）
@@ -165,9 +175,9 @@ influxdb（阶段十三，纯内存）、redis（阶段三/五：`RedisClient`/`
 （阶段十，本机 HTTP 桩）与 ReactorFlywayBridge（阶段六，真实 SQLite）。
 另：postgresql / sqlserver（含 legacy）/ oracle / clickhouse 在阶段十四验证了
 **配置拼装、入参守卫、失败语义与关闭语义**，阶段二十一验证了**方言分页 SQL 渲染**
-（ROWNUM / OFFSET-FETCH / ROW_NUMBER），但**查询语义仍未验**（见 §7）。
-其余 4 个需外部服务的引擎（postgresql / sqlserver / oracle / clickhouse）只有契约面
-（见 §7；elasticsearch / neo4j / solr / greptimedb / hbase 已升级到「真实链路 + 契约面」）。
+（ROWNUM / OFFSET-FETCH / ROW_NUMBER）；**postgresql 进一步在阶段二十二用真实
+PostgreSQL 17.6 实例完成读写验收**（37 条）。sqlserver / oracle / clickhouse 的
+**查询语义仍未验**（见 §7）。
 
 **非 SPI 注册的 Engine 实现**（不在 `ServiceProvider` 可发现范围内）：
 
@@ -243,11 +253,12 @@ monitor 模块的 Bean 工厂创建。
 | 十九 | `GreptimeDbEngine`（SPI `greptimedb`）：假 JDBC `Driver` 驱动真实 SQL/JDBC 链路——表名与 `@TableName`、列名归一化、条件参数化、排序与分页下推、`COUNT(*)` 子查询计数、结果映射、`store`/`update` 的 UOE、无 WHERE 守卫、带条件 DELETE、执行器四个入口、JDBC URL 推导、生命周期 | 30 | 全绿 |
 | 二十 | `HBaseEngine`（SPI `hbase`）：动态代理假 `Connection`/`Table`/`Admin`/`ResultScanner` 驱动真实领域 API——建表幂等与列族、`Put` 行键/列族/限定符/值、`Get` 的列族过滤与全列族前缀、空结果、`Scan` 前缀起止行（含非 ASCII 字节递增）、`__row` 与空行跳过、`Delete` 行键、`store`/查询/`update`/`delete` 的 UOE、`close()` 的连接所有权与用法错误不被包装 | 23 | 全绿 |
 | 二十一 | 方言分页 SQL（postgresql / clickhouse / oracle / oracle11g / oracle12c / sqlserver / sqlserver2008 / sqlserver2012 / derby / derby1014）：`supportsLimit` 能力声明、LIMIT 方言渲染、ROWNUM / OFFSET-FETCH / ROW_NUMBER 模板、ORDER BY 回退注入与幂等、四引擎实际方言接线 | 28 | 全绿 |
+| 二十二 | **真实 PostgreSQL 17.6 实例**（官方免安装二进制 + `initdb`，端口 55432；非容器）：通用 JDBC 套件 28 条（建表/插入/查询/分页/count/Lambda/batch/全表写删拒绝/非法入参）+ 9 条 PostgreSQL 专有（`version()`、中文/emoji 往返、`JSONB` 的 `->>` 与 `::int`、`BIGSERIAL`+`TIMESTAMPTZ` 默认值、分页真实边界、不存在的表带服务端原因、主键冲突不留半条、方言 `supportsLimit` 与真实 `LIMIT/OFFSET` 一致、关闭后报「已关闭」） | 37 | 全绿 |
 
-**合计 1003 条断言，0 失败**（`run-acceptance.bat`：二十一阶段逐段 `PASS`，
+**合计 1040 条断言，0 失败**（`run-acceptance.bat`：二十二阶段逐段 `PASS`，
 末行 `ACCEPTANCE_RESULT=PASS`，退出码 0）。
 
-## 4. 修复的 27 处真实缺陷
+## 4. 修复的 29 处真实缺陷
 
 | # | 缺陷 | 根因 | 影响 |
 |---|---|---|---|
@@ -278,6 +289,8 @@ monitor 模块的 Bean 工厂创建。
 | 25 | **驱动异常被原样透出，丢失 Cypher 上下文** | `store`/查询路径把 `RuntimeException` 直接 `throw e`（4 处），不带任何查询信息 | 服务端报错时调用方只看到驱动原始消息（如语法错误、约束冲突），**无法定位是哪条 Cypher、哪个 label**；与同族引擎「带索引名/表名包装」的契约不一致 |
 | 26 | **`HBaseEngine` 把「未配置数据源 / 已关闭」包装成操作失败** | 5 个领域 API（建表/put/get/scan/deleteRow）都写成 `try { … conn().getTable(…) … } catch (Exception e) { throw new ISE("HBase xxx 失败: …") }`——`conn()` 抛出的用法错误落进同一个 `catch` | 未配置或 `close()` 后调用时，调用方看到的是「HBase put 失败: t_user/r」，只能翻 `cause` 才知道是用法错误；与已修的 Elasticsearch（缺陷 20）、Neo4j（缺陷 24/25）**同源**，同为「用法错误与故障不分」 |
 | 27 | **Oracle / SQL Server / Derby 方言从未声明 `supports-limit=false`，分页一律下发 `LIMIT`** | `SqlDialect.supportsLimit()` 读 `supports-limit`（缺省 `true`），`JdbcEngine.wrapPagination` 据此选择「追加 LIMIT/OFFSET」还是「走方言模板」；而 `oracle*.env` / `sqlserver*.env` / `derby*.env` 里虽写好了 ROWNUM / OFFSET-FETCH / ROW_NUMBER 的 `pagination-sql` 模板，却**没有**任何一个文件写过 `supports-limit=false` | 这四个引擎一旦分页（`page()` / `limit()`），下发的是 `SELECT … LIMIT n OFFSET m`——Oracle 全版本、SQL Server 全版本、Derby 都不认这条语法，**分页 100% 失败**；env 里精心写的模板成了死代码 |
+| 28 | **已关闭的引擎被报成「当前引擎不支持 SQL 查询」** | `Engine` 的默认 `executeSql` / `querySql`（两个重载）在 `getExecutor()==null` 时直接抛 UOE，消息固定为「当前引擎不支持 …」；而 `close()` 之后数据源注册表被清空，`getExecutor()` 同样返回 `null`——**「已关闭」与「不支持」走了同一条分支** | 关闭后误调用任何 SQL 入口，用户看到的是「PostgresqlEngine 不支持 SQL 查询」，会去查能力声明而不是生命周期；与已修的 HBase（26）、Neo4j（24/25）、Elasticsearch（20）同属「错误语义」缺陷族 |
+| 29 | **SQL 失败消息吞掉服务端原因** | `JdbcSqlExecutor` 的 5 处包装只写 `"执行查询失败: " + sql`，真正的诊断信息（`relation "t" does not exist`、`duplicate key value violates unique constraint`、`syntax error at or near`）只在 cause 链里 | 生产排障时必须逐层翻 cause 才知道「为什么失败」；阶段二十二第一次跑就撞上：断言只拿到「执行查询失败: SELECT * FROM t_acc_no_such_table」，服务端原因不可见 |
 
 缺陷 10 的修法（`utils-support-questdb-starter`，`QuestdbSeriesEngine`）：
 
@@ -384,6 +397,23 @@ monitor 模块的 Bean 工厂创建。
   该实验同时证明：模板渲染本身早已正确（模板类断言在回退状态下仍通过），
   **唯一缺口就是能力声明**。
 
+缺陷 28 的修法（`utils-support-common-starter`，`Engine` 接口的 3 个默认入口）：
+
+- `executeSql`、`querySql(String, Object...)`、`querySql(String, Class, Object...)`
+  在 `getExecutor()==null` 时，用既有的 `isClosed()` 区分两种原因：
+  已关闭 → `引擎已关闭，无法执行 …`；未关闭 → 保持 `当前引擎不支持 …`；
+- **异常类型不变**（仍是 `UnsupportedOperationException`），只修正消息，
+  以免破坏调用方按「能力缺失」捕获的既有逻辑；
+- 阶段二十二在 `sqlSuite` 关闭引擎后断言：消息必须含「已关闭」且**不得**含「不支持」。
+
+缺陷 29 的修法（`utils-support-datasource-starter`，`JdbcSqlExecutor`）：
+
+- 新增 `reason(Throwable)`：沿 cause 链取最深层原因消息（为空时退回异常类名）；
+- 5 处包装（查询 / 类型化查询 / 更新 / 批量 / 统计）统一改为
+  `"执行查询失败: " + sql + " -> " + reason(e)`，cause 仍然保留；
+- 阶段二十二据此断言：查不存在的表时，消息里必须同时出现表名与服务端原因
+  （PostgreSQL 为 `relation "…" does not exist`）。
+
 > **契约差异（显式声明，不是缺陷）**：`store(name, rows)` 的 `name` 参数**不参与** label 推导，
 > label 始终由实体类型决定。图数据库的 label 即实体类型，按任意 `name` 写入会产生
 > 「只写数据」（没有读路径能解析出同一 label）。该行为由阶段十八第 5 条断言显式钉住，
@@ -417,22 +447,26 @@ harness **已入库**（不再只留 `.tmp`，那里没有版本控制）：
 
 ```
 utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
-├─ run-acceptance.bat          二十一阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-acceptance.bat          二十二阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-postgres.bat            临时 PostgreSQL 实例（官方免安装二进制；start / stop / status）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              二十一个验收程序
+├─ harness/*.java              二十二个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 二十一阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 二十二阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 run-acceptance.bat 17           :: 只跑阶段十七（Elasticsearch）
 run-acceptance.bat 18           :: 只跑阶段十八（Neo4j）
 run-acceptance.bat 19           :: 只跑阶段十九（GreptimeDB）
 run-acceptance.bat 20           :: 只跑阶段二十（HBase）
 run-acceptance.bat 21           :: 只跑阶段二十一（方言分页 SQL）
+run-acceptance.bat 22           :: 只跑阶段二十二（真实 PostgreSQL）
+run-postgres.bat start          :: 起临时 PostgreSQL 实例（阶段二十二前置）
+run-postgres.bat stop           :: 关掉临时实例
 ```
 
 > **交付教训（2026-10-04 实际发生）**：仓库根 `.gitignore` 有 `*.ps1`（16 行）/
@@ -458,11 +492,17 @@ run-acceptance.bat 21           :: 只跑阶段二十一（方言分页 SQL）
 
 ## 7. 尚未覆盖（如实声明）
 
-1. **需外部服务的 4 个引擎**（postgresql、sqlserver、oracle、clickhouse）
+1. **仍需外部服务的 3 个引擎**（sqlserver、oracle、clickhouse）
    的**查询语义**只有契约面 + 方言 SQL 断言（阶段十四 / 二十一）；
-   本机没有这四个服务端，**也没有任何容器运行时**（`docker` / `podman` / `nerdctl` / `wsl`
-   均不存在，仅 3306 上有本机 MySQL），因此无法起本地容器做真实读写验收。
+   本机没有这三个服务端，**也没有任何容器运行时**（`docker` / `podman` / `nerdctl` / `wsl`
+   均不存在），因此无法起容器做真实读写验收。
    **这部分是"未验"，不是"已通过"。**
+   > `postgresql` **已从本清单移出**：阶段二十二用官方免安装二进制在本机 `initdb` 出
+   > 真实 PostgreSQL 17.6 实例（端口 55432，`trust`，不注册服务、不写系统目录），
+   > 真的建表、插入、查询、分页、类型映射、`JSONB`/`BIGSERIAL`/`TIMESTAMPTZ`，
+   > 37 条断言全部打真实服务端（含 28 条通用 JDBC 套件）。
+   > **仍未覆盖**的是多节点/复制、权限模型、`EXPLAIN` 计划与锁隔离级别。
+   > 这**不是容器**——本机没有容器运行时，用的是本机进程 + 临时数据目录。
    > `prometheus` **已从本清单移出**：阶段八用本机 HTTP 桩（`com.sun.net.httpserver`）
    > 打通了 8 个 `/api/v1/*` 端点，`PrometheusEngine` / `PrometheusClient` 的查询、
    > 模型映射、Basic 认证与失败语义均已真实执行（35 条断言）。仍未覆盖的是
@@ -1069,6 +1109,48 @@ Redis 不支持 `MODULE` 命令，即没有 RediSearch 模块——因此 `FT.SE
 > ClickHouse 的列式存储与 `FINAL`/物化视图、Oracle 的 `NUMBER`/`VARCHAR2 CHAR` 语义与
 > 执行计划、SQL Server 的 `IDENTITY`/`DATETIME2`/锁与隔离级别。
 > 校验这些需要真实实例；本机没有容器运行时，**这部分是"未验"，不是"已通过"**。
+
+### 14.12 真实 PostgreSQL 读写（阶段二十二，37 条）
+
+**先说清楚为什么是「本机进程」而不是「容器」**：本机没有 `docker` / `podman` / `nerdctl` /
+`wsl`（实测 `Get-Command` 全部 `MISSING`，`Get-NetTCPConnection -State Listen` 只有 3306 的
+MySQL 与 6379 的 Redis），所以**无法起容器**。替代方案是用 PostgreSQL 官方**免安装二进制**
+（`postgresql-17.6-1-windows-x64-binaries.zip`，329,891,687 B）在本机 `%TEMP%` 下
+`initdb` 出一个临时实例：
+
+| 项 | 值 |
+|---|---|
+| 版本 | `PostgreSQL 17.6 on x86_64-windows, compiled by msvc-19.44.35213, 64-bit` |
+| 监听 | `127.0.0.1:55432`（避开用户自己的 5432） |
+| 认证 | `trust`（仅本机临时实例） |
+| 数据目录 | `%TEMP%\opencode\pg\pgdata`（不写 `Program Files`、不注册 Windows 服务） |
+| 运行账号 | 普通本地账号 `pgaccept`（PostgreSQL 在 Windows 上**拒绝以管理员身份运行服务端**） |
+| 生命周期 | `run-postgres.bat start` / `stop`，验收后即停 |
+
+断言（37 条 = 28 条通用 JDBC 套件 + 9 条 PostgreSQL 专有）：
+
+| 面 | 断言内容 |
+|---|---|
+| 通用 JDBC（28） | 建表/插入/查询/条件/`COUNT`/`MAX`/`exists`/类型化映射/`queryOne`/分页三态/`batchSql`/Lambda `eq`/`gt+orderByDesc`/`count`/`page`/`update`/`delete`/全表写删拒绝/`querySql(null)`/`removeDataSource(null)`/数据源注册/不存在的表/关闭语义 |
+| 版本 | `SELECT version()` 必须含 `PostgreSQL`（证明真的连到了服务端） |
+| Unicode | 中文 + emoji（`\uD83D\uDE00`）+ 制表符写入再读回，逐字符相等 |
+| JSONB | `CAST(? AS JSONB)` 写入，`doc->>'b'` 读回 `中文`，`(doc->>'a')::int` 读回 `1` |
+| 默认值 | `BIGSERIAL` 自增首值 = 1；`TIMESTAMPTZ DEFAULT now()` 非空 |
+| 分页真实边界 | 5 行数据：第 2 页 = id `3,4`；第 3 页只剩 `5`；越界页为空（不是「最多返回 2 行」的假分页） |
+| 失败语义 | 查不存在的表：消息同时含表名与服务端原因（`relation "…" does not exist`） |
+| 约束 | 主键冲突写入失败后行数不变（不留半条） |
+| 方言一致 | `supportsLimit()==true` 且渲染 `LIMIT 3 OFFSET 3`，与实际分页结果一致 |
+| 关闭语义 | `sqlSuite` 关闭引擎后再查询：消息必须含「已关闭」且不得含「不支持」（缺陷 28） |
+
+> **为什么这组断言有分量**：它不是桩。`sqlSuite` 的 28 条是先建表、再插入、再读回、
+> 再改再删的完整往返；分页断言比对的是具体 id，不是行数；JSONB 断言走的是
+> PostgreSQL 独有的 `->>` / `::` 语法——桩无法伪造这些语义。
+>
+> **仍未覆盖**：多节点/流复制、权限与角色模型、`EXPLAIN` 计划与锁/隔离级别、
+> 大对象与 `COPY`、分区表。需要更完整的实例与更多时间，**未验**。
+>
+> **跳过语义**：实例未启动时打印 `[SKIP]` 与 `STAGE22_SKIP=1`，退出码 0；
+> 本次全量日志中**没有** SKIP，37 条全部真实执行。
 
 
 
