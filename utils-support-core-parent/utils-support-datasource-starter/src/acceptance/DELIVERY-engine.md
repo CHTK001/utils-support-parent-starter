@@ -1,31 +1,39 @@
 # 引擎验收与修复交付报告（Engine / KvEngine / SeriesEngine 全子类）
 
-日期：2026-10-04
-仓库：`utils-support-parent-starter`（阶段五另用 `spring-support-parent-starter` 的两个制品）
+日期：2026-10-04（阶段六增补与 md5 重绑：2026-10-17）
+仓库：`utils-support-parent-starter`（另用 `spring-support-parent-starter` 与 `utils-support-datalake-parent` 的制品）
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
-已提交的验收工具：`c1b77f94d`（9 文件，+1767）
-验收结论：**五阶段共 558 条断言全绿，0 失败**
+已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
+`03d360448`（补回被全局 ignore 规则静默剔除的两个运行器）、本轮阶段六
+验收结论：**六阶段共 603 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
+
+> **本轮为何要重绑 md5**：2026-10-04 首次出报告后，本地仓库里这批制品被后续构建
+> 重新产出（`common-starter` 4,563,385 → 4,743,831 B，`monitor-starter` 1,127,261 → 922,392 B 等），
+> 旧表 md5 已全部失效。阶段六落地时**按新制品重跑六阶段并重新登记 md5**，
+> 下表即为本次验收实际加载的那批文件（经 `cp.txt` 逐一确认为 `D:\maven-repo` 下的路径）。
 
 ---
 
 ## 1. 被验产物与 md5（**换包即失效，须重跑后才能引用本报告**）
 
-| 产物 | md5（前 8 位） | 大小 | 本批是否重建 |
+| 产物 | md5（前 8 位） | 大小 | 承载的验收内容 |
 |---|---|---|---|
-| `com.chua:utils-support-common-starter:4.0.0.42` | `2d8648b1` | 4,563,385 B | 是（缺陷 1/3/4/5/6/7 所在） |
-| `com.chua:utils-support-datasource-starter:4.0.0.42` | `d1fed079` | 342,996 B | 是（缺陷 1/2/3/4/6/7 所在） |
-| `com.chua:utils-support-redis-starter:4.0.0.42` | `4f50d47b` | 125,768 B | 是（缺陷 8/9 所在） |
-| `com.chua:utils-support-h2-starter:4.0.0.42` | `ba65bcc3` | 29,453 B | 否（阶段二/三负载） |
-| `com.chua:utils-support-mysql-starter:4.0.0.42` | `dff38075` | 140,011 B | 否（阶段三负载） |
-| `com.chua:utils-support-rocksdb-starter:4.0.0.42` | `d1f43707` | 31,213 B | 否（阶段三/四负载） |
-| `com.chua:utils-support-tablesaw-starter:4.0.0.42` | `293d527f` | 39,346 B | 否（阶段四负载） |
-| `com.chua:utils-support-parquet-starter:4.0.0.42` | `96db579b` | 21,193 B | 否（阶段四负载） |
-| `com.chua:utils-support-lucene-starter:4.0.0.42` | `b33fa46c` | 35,450 B | 否（阶段四负载） |
-| `com.chua:utils-support-nitrite-starter:4.0.0.42` | `e6fdd83a` | 12,584 B | 否（阶段四负载） |
-| `com.chua:spring-support-redis-starter:4.0.0.42` | `33bea63c` | 37,653 B | 否（阶段五负载） |
-| `com.chua:spring-support-monitor-starter:4.0.0.42` | `5f504ebe` | 1,127,261 B | 否（阶段五负载） |
+| `com.chua:utils-support-common-starter:4.0.0.42` | `ce53c145` | 4,743,831 B | 缺陷 1/3/4/5/6/7 所在（阶段二/三/四） |
+| `com.chua:utils-support-datasource-starter:4.0.0.42` | `8c9bac45` | 353,226 B | 缺陷 1/2/3/4/6/7 所在（阶段一~四）+ 阶段六 `ReactorFlywayBridge` |
+| `com.chua:utils-support-redis-starter:4.0.0.42` | `abc98158` | 134,252 B | 缺陷 8/9 所在（阶段三/一） |
+| `com.chua:utils-support-h2-starter:4.0.0.42` | `83ed8ee5` | 29,518 B | 阶段二/三负载 |
+| `com.chua:utils-support-sqlite-starter:4.0.0.42` | `e6114489` | 43,241 B | 阶段二负载 + 阶段六 `SqliteReactorEngine` |
+| `com.chua:utils-support-mysql-starter:4.0.0.42` | `5fad5192` | 140,317 B | 阶段三负载 |
+| `com.chua:utils-support-rocksdb-starter:4.0.0.42` | `f5fe32c1` | 38,585 B | 阶段三/四负载 |
+| `com.chua:utils-support-tablesaw-starter:4.0.0.42` | `de188bb5` | 39,304 B | 阶段一/四负载 |
+| `com.chua:utils-support-parquet-starter:4.0.0.42` | `c2eda54d` | 21,207 B | 阶段一/四负载 |
+| `com.chua:utils-support-lucene-starter:4.0.0.42` | `d3448cbf` | 35,486 B | 阶段一/四负载 |
+| `com.chua:utils-support-nitrite-starter:4.0.0.42` | `d56620b7` | 12,604 B | 阶段一/四负载 |
+| `com.chua:spring-support-redis-starter:4.0.0.42` | `c0278a4f` | 37,985 B | 阶段五负载 |
+| `com.chua:spring-support-monitor-starter:4.0.0.42` | `0372fcec` | 922,392 B | 阶段五负载 |
+| `com.chua:utils-support-datalake-query-starter:4.0.0.42` | `4804877f` | 12,858 B | 阶段六负载（`HttpDatalakeQueryEngine`） |
 
-签收前须重新核对上述 md5；不一致即本报告作废。
+签收前须重新核对上述 md5；不一致即本报告作废（本轮已因制品被重建而重跑过一次）。
 
 ## 2. 子类清单与覆盖状态（权威口径）
 
@@ -53,16 +61,22 @@
 | 实现 | 性质 | 覆盖状态 |
 |---|---|---|
 | `AbstractEngine` | 抽象基类 | 经全部子类间接覆盖 |
-| `JdbcEngine` / `JdbcReactorEngine` / `SqliteReactorEngine` | 抽象基类 + 另一 SPI 家族（`ReactorEngine`） | 阶段二经 JdbcEngine 子类间接覆盖；响应式家族未单独验 |
-| `JdbcReactorEngine$R2dbcEngineAdapter` / `$UnifiedEngineAdapter` | 私有内部降级适配器 | 未单独验（内部实现，随 `JdbcReactorEngine` 走） |
-| `ReactorFlywayBridge` | Flyway 的「响应式→同步」桥接 | 未单独验（纯委托，依赖响应式家族） |
-| `HttpDatalakeQueryEngine` | datalake 模块的查询引擎 | 契约面未纳入本 harness（跨 parent，未进 classpath） |
+| `JdbcEngine` | 抽象基类（同步 JDBC） | 经 9 个 JDBC 引擎子类间接覆盖 |
+| `JdbcReactorEngine` / `SqliteReactorEngine` | 另一 SPI 家族（`ReactorEngine`），非 `Engine` 子类 | 阶段六经 `ReactorFlywayBridge` 以真实 SQLite 驱动其 JDBC 降级路径 |
+| `JdbcReactorEngine$R2dbcEngineAdapter` / `$UnifiedEngineAdapter` | **private 内部类**，仅由宿主实例内部创建 | 无法从外部引用，**未直接触达**（如实声明） |
+| `ReactorFlywayBridge` | Flyway 的「响应式→同步」桥接，`implements Engine` | **阶段六**：桥接契约（15 条 UOE/能力断言）+ 真实 SQLite 读写（11 条） |
+| `HttpDatalakeQueryEngine` | datalake 模块的只读查询引擎，`implements Engine` | **阶段六**：只读契约面 16 条（写入口 UOE / 方言与数据源为 null / 关闭幂等），**全部不触网** |
 
-> `com.chua.playwright.support.engine.JavaEngine` **不是** datasource Engine ——
-> 它实现的是 playwright 自己的 `Engine`（浏览器自动化 SPI，同包接口）。已甄别排除。
+> `com.chua.playwright.support.engine.JavaEngine` / `NativeEngine` **不是** datasource Engine ——
+> 它们实现的是 playwright 自己的 `Engine`（`com.chua.playwright.support.engine.Engine`，
+> 浏览器自动化 SPI，同包同名接口，已确认该包内存在独立 `Engine.java`）。已甄别排除。
 > `com.chua.redis.support.engine.RedisEngine` 是 `RediSearchEngine` 的**基类且不实现 Engine**，同样排除。
 
-### 2.2 KvEngine —— 4 个（全 覆盖）
+上表的穷尽性由**全仓检索**保证：`implements Engine` / `implements com.chua…engine.Engine` /
+`extends AbstractEngine` / `extends JdbcEngine` 四种写法的匹配结果，除去 playwright 的两个
+（不同接口）、两个 private 内部类、两个抽象基类后，恰好等于 SPI 的 24 个键 + 阶段六的 2 个。
+
+### 2.2 KvEngine —— 4 个（全覆盖）
 
 | 实现 | 覆盖 | 阶段 |
 |---|---|---|
@@ -71,7 +85,7 @@
 | `com.chua.redis.support.client.RedisClient` | 全 KV 契约 + TTL 自洽 | 三 |
 | `com.chua.starter.redis.support.kv.RedisKvEngine` | **真实读写**（Spring `StringRedisTemplate` + 本机 6379） | 五 |
 
-### 2.3 SeriesEngine —— 4 个（全 覆盖）
+### 2.3 SeriesEngine —— 4 个（全覆盖）
 
 | 实现 | 覆盖 | 阶段 |
 |---|---|---|
@@ -89,8 +103,10 @@
 | 三 | KvEngine ×3 + SeriesEngine ×2 + mysql（真实 3306） | 75 | 全绿 |
 | 四 | parquet / lucene / nitrite / tablesaw + rocksdb 文档面 | 24 | 全绿 |
 | 五 | `RedisKvEngine` + `InfluxdbSeriesEngine` + `NoopSeriesEngine` + monitor 装配路径 | 39 | 全绿 |
+| 六 | 非 SPI 注册的两个公开 `Engine` 实现者：`HttpDatalakeQueryEngine`（只读契约面）、`ReactorFlywayBridge`（桥接契约 + 真实 SQLite 读写） | 45 | 全绿 |
 
-**合计 558 条断言，0 失败。**
+**合计 603 条断言，0 失败**（`run-acceptance.bat 1 2 3 4 5 6`：六阶段逐段 `PASS`，
+末行 `ACCEPTANCE_RESULT=PASS`，退出码 0）。
 
 ## 4. 修复的 9 处真实缺陷
 
@@ -128,16 +144,16 @@ harness **已入库**（不再只留 `.tmp`，那里没有版本控制）：
 
 ```
 utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
-├─ run-acceptance.bat          五阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-acceptance.bat          六阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              五个验收程序
+├─ harness/*.java              六个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 五阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 六阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 ```
 
@@ -155,7 +171,10 @@ run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 
 - **pwsh 7** 在 PATH 上（仓库禁用 PowerShell 5.1：它按 ANSI 解码无 BOM 的 UTF-8 脚本）。
 - JDK 21+。
-- 阶段三 / 五需本机 Redis；阶段三需本机 MySQL。缺服务时对应套件失败，其余阶段不受影响。
+- 阶段三 / 五需本机 Redis（Windows 服务名 `Redis`，`127.0.0.1:6379`）；阶段三需本机 MySQL
+  （`127.0.0.1:3306`，`root/root`，库 `engine_accept`）。缺服务时对应套件失败，其余阶段不受影响
+  ——**这正是「退出码比报告可信」的用处**：Redis 停机时阶段三/五会给出 25 条
+  `Connection refused` 失败，一眼可辨是环境而非产品缺陷。
 - 打开被验模块的**新构建**：`src/acceptance/pom.xml` 引用的是本地仓库制品，
   改完产品代码必须先 `mvn install` 对应模块，否则验的是旧包（**报告 md5 就是为此存在**）。
 
@@ -165,10 +184,48 @@ run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
    neo4j、elasticsearch、influxdb、greptimedb、prometheus）只有契约面；
    本机无对应服务，无法做真实读写验收。**这部分是"未验"，不是"已通过"。**
 2. **`InfluxdbSeriesEngine` 只有契约面**（同上，无 InfluxDB 服务）。
-3. **响应式家族未单独验**：`JdbcReactorEngine`（及 `SqliteReactorEngine`、
-   两个私有降级适配器、`ReactorFlywayBridge`）属另一 SPI（`ReactorEngine`），
-   本轮未纳入；阶段二经 `JdbcEngine` 子类间接覆盖了同步 JDBC 路径。
-4. **`HttpDatalakeQueryEngine`** 在 `utils-support-datalake-parent`，未进本 harness 的 classpath。
+3. **`JdbcReactorEngine` 的两个 private 内部适配器**
+   （`R2dbcEngineAdapter` / `UnifiedEngineAdapter`）无法从外部引用，未直接触达；
+   其宿主 `JdbcReactorEngine` 的 JDBC 降级路径已由阶段六经 `ReactorFlywayBridge` 真实驱动
+   （建表 / 插入 / 条件查询 / 类型化映射 / 计数 / 删除，全部走真实 SQLite 文件）。
+4. **`HttpDatalakeQueryEngine` 只做只读契约面**：其 `getExecutor().query/execute` 会向
+   数据湖查询服务发起 HTTP 调用，本机无该服务，故 `querySql`/`executeSql` 路径未验
+   （阶段六的 16 条断言全部不触网）。**这部分是"未验"，不是"已通过"。**
 5. `SeriesEngine.purge` 契约存在**自身歧义**：`0` 既被定义为「后端不支持」，又是「成功但删了 0 条」
    的自然返回值，调用方无法区分。本报告未改接口语义，仅记录。
-6. **UI 增强尚未开始**（目标中的「ui增强」）。
+6. **UI 增强已交付一部分**：`pages/datasource`（数据源中心）的死筛选缺陷已修复并入库
+   （见第 8 节）。**仍未修复的一处可访问性缺陷**记录在第 8 节末尾，因该文件当时正被
+   另一并发会话修改而未动，如实声明。
+
+## 8. UI 增强（pages/datasource 数据源中心）
+
+提交 `907ff1a2`（4 文件，+335 / −35，仅在 `vue-support-parent-starter/pages/datasource/`）：
+
+1. **修复「异常」状态页签恒为空的死筛选**：左栏渲染了「异常」页签且可点击，但
+   `filteredList` 只有 all / online / offline 三个分支，点进去永远是空列表；计数也写死为
+   `null` 不展示。原注释称「现有数据模型没有『异常』的判定来源」——而 `api/index.ts` 的
+   `DataSourceInfo` 早就有 `lastTestOk`（0 失败 / 1 连通 / null 未测试）。**错误的前提掩盖了缺陷。**
+2. 抽出纯函数模块 `src/datasourceStatus.ts`（状态口径 + 筛选/计数），三态改为**互斥可加**
+   （online + abnormal + offline === all），异常计数真实展示；详情头徽标与概览「运行状态」
+   扩展为三态，新增 `.ds-detail__badge.is-warn` 复用 `--status-warning` 令牌（暗色自动适配）。
+3. 新增 `tests/datasourceStatus.test.mjs`（`node:test`，9 例）并接入 `package.json` 的 `test` 脚本
+   ——本包未装 vitest，用 Node 原生 TS 剥离 + `node:test` 做到**零新增依赖**。
+
+验证（含敏感性对照）：
+
+- `node --test tests/datasourceStatus.test.mjs` → 9/9 pass，EXIT=0；把 abnormal 分支改回恒 `false`
+  （复现原缺陷）→ 3 例转红、EXIT=1，证明测试**真能拦住该缺陷**；
+- `vue-tsc --noEmit -p pages/datasource/tsconfig.json` → EXIT=0；在模块里植入
+  `const x: number = "s"` 探针 → EXIT=2 且精确指向该文件，证明检查器覆盖到位。
+
+> **已知未修（待办）**：同页左栏的 `.ds-status__item` 是带 `@click` 的 `<li>`，**没有**
+> `tabindex` / `role` / 键盘处理，因此键盘用户无法切换状态筛选，且 `ScDataSourceView.vue`
+> 已有的 `.ds-status__item:focus-visible` 焦点环规则**永远不会触发**（元素不可聚焦，是死规则）。
+> 修法：把 `li` 内改为 `<button type="button" :aria-pressed="...">`（或补
+> `role="button"` + `tabindex="0"` + `@keydown.enter|space`）。
+> 本轮**未改**：当时该文件已被另一并发会话加入了未提交的 elasticsearch 支持
+> （`TYPE_META` / `typeDesc` / `defaultPort` 三处 + 新页面），按路径提交会把对方半成品
+> 一并卷入，故只记录不动手。**注意**：本页的端到端浏览器验收需要
+> `spring-support-datasource-hub-starter` 后端，本轮以「纯逻辑单测 + 模板/类型检查」定案，
+> 未做浏览器验收。
+

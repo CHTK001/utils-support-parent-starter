@@ -52,6 +52,8 @@
         <!-- 阶段五：KvEngine 第 4 个实现（spring StringRedisTemplate）与 monitor 的 SeriesEngine 装配面 -->
         <dependency><groupId>com.chua</groupId><artifactId>spring-support-redis-starter</artifactId><version>${v}</version></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>spring-support-monitor-starter</artifactId><version>${v}</version></dependency>
+        <!-- 阶段六：非注册 Engine 实现者 HttpDatalakeQueryEngine（响应式桥接 ReactorFlywayBridge 已随 core 依赖进入） -->
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-datalake-query-starter</artifactId><version>${v}</version></dependency>
     </dependencies>
 
     <build>
