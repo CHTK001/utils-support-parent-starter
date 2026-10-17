@@ -13,7 +13,7 @@
   （`dependency:build-classpath`），不参与 reactor 构建。
 - 历史上这类工具只留在 `.tmp/`，没有版本控制，随会话结束即丢失。**工具必须入库。**
 
-## 五阶段与覆盖范围
+## 六阶段与覆盖范围
 
 | 阶段 | 程序 | 断言数 | 覆盖内容 |
 |---|---|---|---|
@@ -22,17 +22,20 @@
 | 三 | `EngineSeriesKv` | 75 | `KvEngine` ×3、`SeriesEngine` ×2，外加 **mysql**（真实 3306）的 SQL 面 |
 | 四 | `EngineEmbedded` | 24 | 嵌入式**非 SQL** 引擎：parquet / lucene / nitrite / tablesaw，以及 rocksdb 的文档与全文面 |
 | 五 | `EngineGaps` | 39 | 余下子类：`RedisKvEngine`（Spring `StringRedisTemplate`，真实读写）、`InfluxdbSeriesEngine`（无服务，仅契约）、`NoopSeriesEngine`（经 monitor 工厂驱动）+ monitor 装配路径 |
+| 六 | `EngineRemaining` | 45 | **非 SPI 注册**的两个公开 `Engine` 实现者：`HttpDatalakeQueryEngine`（只读契约面，不触网）、`ReactorFlywayBridge`（桥接契约 + 真实 SQLite 读写） |
 
-合计 **558 条断言**。
+合计 **603 条断言**。
 
 ## 子类清单与覆盖状态（权威口径）
 
 Engine / KvEngine / SeriesEngine 的全部实现者及其覆盖情况，见同目录
 `DELIVERY-engine.md` 第 2 节。要点：
 
-- **Engine**：SPI 注册的 24 个键对应 24 个类，全部进阶段一；非注册实现
-  （`ReactorFlywayBridge`、`HttpDatalakeQueryEngine`、`JdbcReactorEngine` 内部适配器、
-  抽象基类 `AbstractEngine` / `JdbcEngine`）按可达性处理，未获真实后端者只做契约面。
+- **Engine**：SPI 注册的 24 个键对应 24 个类，全部进阶段一（注册文件已逐文件核对，
+  与本 harness 的 `KEYS` 完全一致）；**非注册**的两个公开实现者
+  （`ReactorFlywayBridge`、`HttpDatalakeQueryEngine`）进阶段六；
+  抽象基类 `AbstractEngine` / `JdbcEngine` 经子类间接覆盖；
+  `JdbcReactorEngine` 的两个 private 内部适配器无法从外部引用，如实声明未直接触达。
 - **KvEngine 4 个**：`ChronicleMapKv` / `RocksDbEngine` / `RedisClient` / `RedisKvEngine` —— 全部覆盖。
 - **SeriesEngine 4 个**：`DataSourceSeriesEngine` / `RedisSeriesEngine` / `InfluxdbSeriesEngine` / `NoopSeriesEngine` —— 全部覆盖（influx 无服务，仅契约面）。
 
@@ -65,7 +68,7 @@ Engine / KvEngine / SeriesEngine 的全部实现者及其覆盖情况，见同�
 
 ```bat
 cd utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat            :: 五阶段全跑
+run-acceptance.bat            :: 六阶段全跑
 run-acceptance.bat 1 5        :: 只跑阶段一与阶段五
 ```
 
