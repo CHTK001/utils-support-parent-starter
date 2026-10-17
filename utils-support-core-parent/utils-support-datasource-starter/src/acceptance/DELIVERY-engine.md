@@ -10,7 +10,7 @@
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
 已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
 `03d360448`（补回被全局 ignore 规则静默剔除的两个运行器）、本轮阶段六
-验收结论：**十三阶段共 785 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
+验收结论：**十四阶段共 830 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
 
 > **本轮为何要重绑 md5**：2026-10-04 首次出报告后，本地仓库里这批制品被后续构建
 > 重新产出（`common-starter` 4,563,385 → 4,743,831 B，`monitor-starter` 1,127,261 → 922,392 B 等），
@@ -28,11 +28,11 @@
 | 产物 | md5（前 8 位） | 大小 | 承载的验收内容 |
 |---|---|---|---|
 | `com.chua:utils-support-common-starter:4.0.0.42` | `0896c47e` | 4,749,974 B | 缺陷 1/3/4/5/6/7 所在（阶段二/三/四）+ `Engine.query()` / `SqlQueryBuilder`（阶段七） |
-| `com.chua:utils-support-datasource-starter:4.0.0.42` | `8c9bac45` | 353,226 B | 缺陷 1/2/3/4/6/7 所在（阶段一~四）+ 阶段六 `ReactorFlywayBridge` |
+| `com.chua:utils-support-datasource-starter:4.0.0.42` | `91c5b9e1` | 353,307 B | 缺陷 1/2/3/4/6/7 所在（阶段一~四）+ 阶段六 `ReactorFlywayBridge` + 缺陷 12 的 `JdbcUrl.hostPort`（阶段十四） |
 | `com.chua:utils-support-redis-starter:4.0.0.42` | `abc98158` | 134,252 B | 缺陷 8/9 所在（阶段三/一） |
 | `com.chua:utils-support-h2-starter:4.0.0.42` | `83ed8ee5` | 29,518 B | 阶段二/三负载 |
 | `com.chua:utils-support-sqlite-starter:4.0.0.42` | `e6114489` | 43,241 B | 阶段二负载 + 阶段六 `SqliteReactorEngine` |
-| `com.chua:utils-support-mysql-starter:4.0.0.42` | `5fad5192` | 140,317 B | 阶段三负载 |
+| `com.chua:utils-support-mysql-starter:4.0.0.42` | `892ea6da` | 140,783 B | 阶段三负载 + 缺陷 12 修复 |
 | `com.chua:utils-support-rocksdb-starter:4.0.0.42` | `f5fe32c1` | 38,585 B | 阶段三/四负载 |
 | `com.chua:utils-support-tablesaw-starter:4.0.0.42` | `de188bb5` | 39,304 B | 阶段一/四负载 |
 | `com.chua:utils-support-parquet-starter:4.0.0.42` | `c2eda54d` | 21,207 B | 阶段一/四负载 |
@@ -46,10 +46,10 @@
 | `com.chua:utils-support-influxdb-starter:4.0.0.42` | `03bea1f4` | 25,078 B | 阶段九被测代码所在（`InfluxdbSeriesEngine`） |
 | `com.chua:utils-support-chronicle-starter:4.0.0.42` | `123a7ba2` | 32,048 B | 阶段三被测代码之一（`ChronicleMapKv`） |
 | `com.chua:utils-support-duckdb-starter:4.0.0.42` | `315a0324` | 18,270 B | 阶段二深度功能面（`DuckDBEngine`） |
-| `com.chua:utils-support-postgresql-starter:4.0.0.42` | `6d9e8995` | 94,698 B | 阶段一契约面（24 键之一 `postgresql`） |
-| `com.chua:utils-support-sqlserver-starter:4.0.0.42` | `610bef4d` | 13,898 B | 阶段一契约面（`sqlserver` / `sqlserver-legacy`） |
-| `com.chua:utils-support-oracle-starter:4.0.0.42` | `617db9a8` | 34,458 B | 阶段一契约面（`oracle`） |
-| `com.chua:utils-support-clickhouse-starter:4.0.0.42` | `6d4d428b` | 10,319 B | 阶段一契约面（`clickhouse`） |
+| `com.chua:utils-support-postgresql-starter:4.0.0.42` | `b66de85e` | 94,739 B | 阶段一契约面（24 键之一 `postgresql`）+ 阶段十四配置/失败/关闭层 |
+| `com.chua:utils-support-sqlserver-starter:4.0.0.42` | `edb4e3c6` | 14,044 B | 阶段一契约面（`sqlserver` / `sqlserver-legacy`）+ 缺陷 11 修复 + 阶段十四 |
+| `com.chua:utils-support-oracle-starter:4.0.0.42` | `28d846c7` | 34,618 B | 阶段一契约面（`oracle`）+ 缺陷 11/12 修复 + 阶段十四 |
+| `com.chua:utils-support-clickhouse-starter:4.0.0.42` | `d9763073` | 10,359 B | 阶段一契约面（`clickhouse`）+ 缺陷 12 修复 + 阶段十四 |
 | `com.chua:utils-support-hbase-starter:4.0.0.42` | `7e9eb07b` | 12,262 B | 阶段一契约面（`hbase`） |
 | `com.chua:utils-support-solr-starter:4.0.0.42` | `34c1847c` | 48,499 B | 阶段一契约面（`solr`） |
 | `com.chua:utils-support-neo4j-starter:4.0.0.42` | `fdf22bed` | 25,466 B | 阶段一契约面（`neo4j`） |
@@ -71,6 +71,13 @@
 > clickhouse / hbase / solr / neo4j / elasticsearch / greptimedb）：阶段一逐个构造这些引擎并
 > 断言其契约，等于执行了这些 jar 里的代码，不绑定就无法证明「签收的是哪一份」。
 > 至此，**凡是本验收直接执行其代码的 28 个制品，全部绑定 md5**。
+
+> **阶段十四再次重绑 6 个制品**：为修缺陷 11/12 重新构建了
+> `datasource`（`8c9bac45` → `91c5b9e1`）、`postgresql`（`6d9e8995` → `b66de85e`）、
+> `sqlserver`（`610bef4d` → `edb4e3c6`）、`oracle`（`617db9a8` → `28d846c7`）、
+> `clickhouse`（`6d4d428b` → `d9763073`）、`mysql`（`5fad5192` → `892ea6da`）。
+> 其余 22 个制品字节未变。上表已就地更新，且 6 个新值与 `src/acceptance/lib/` 内
+> 实际加载的 jar 用 `certutil` 逐个复核一致（见提交说明）。
 
 ## 2. 子类清单与覆盖状态（权威口径）
 
@@ -97,6 +104,8 @@
 tablesaw / rocksdb（阶段四）、mysql（阶段三，真实 3306）、prometheus（阶段八，本机 HTTP 桩）、
 influxdb（阶段十三，纯内存）、redis（阶段三/五，真实 6379）；非 SPI 的 datalake-query
 （阶段十，本机 HTTP 桩）与 ReactorFlywayBridge（阶段六，真实 SQLite）。
+另：postgresql / sqlserver（含 legacy）/ oracle / clickhouse 在阶段十四验证了
+**配置拼装、入参守卫、失败语义与关闭语义**，但**查询语义仍未验**（见 §7）。
 其余 9 个需外部服务的引擎只有契约面（见 §7）。
 
 **非 SPI 注册的 Engine 实现**（不在 `ServiceProvider` 可发现范围内）：
@@ -165,11 +174,12 @@ monitor 模块的 Bean 工厂创建。
 | 十一 | `RocksDbSeriesEngine`：真实嵌入式 RocksDB（装配判定、守卫、键布局与时间戳编码、降采样、范围裁剪、同戳覆盖、monitor 隔离、索引回收、清理条数、跨实例持久化） | 17 | 全绿 |
 | 十二 | `QuestdbSeriesEngine`：本机 HTTP 桩（ILP 报文、逐点 flush、写入失败不静默、地址归一化、`/write`+`/exec` 双侧鉴权、探测 SQL、列收窄、查询 SQL 与 ISO 边界、微秒归一秒、坏点丢弃、`DELETE` 语义、关闭） | 30 | 全绿 |
 | 十三 | `InfluxDbEngine`（SPI `influxdb`，纯内存）：能力自洽、表名解析与回退、同名覆盖、跨表隔离、条件/排序/计数、分页边界、全表守卫、带条件写真实生效 | 16 | 全绿 |
+| 十四 | 5 个无服务端 JDBC 引擎的本机可验面：URL 精确拼装、入参注入串拒绝、端口 0 契约、不可达快速失败、连接池真关闭 | 45 | 全绿 |
 
-**合计 785 条断言，0 失败**（`run-acceptance.bat`：十三阶段逐段 `PASS`，
+**合计 830 条断言，0 失败**（`run-acceptance.bat`：十四阶段逐段 `PASS`，
 末行 `ACCEPTANCE_RESULT=PASS`，退出码 0）。
 
-## 4. 修复的 10 处真实缺陷
+## 4. 修复的 12 处真实缺陷
 
 | # | 缺陷 | 根因 | 影响 |
 |---|---|---|---|
@@ -183,6 +193,8 @@ monitor 模块的 Bean 工厂创建。
 | 8 | Redis Series 把契约要求的 IAE 包成 ISE | `series()` 宽 catch 吞掉 `resolveSingleMetric` 抛出的 IAE | 调用方 `catch(IAE)` 失效，参数错误显示成服务异常 |
 | 9 | Redis Series `purge()` 后该 monitor 永久不可查 | 删了 ZSET 数据却未摘除指标索引 → `metrics()` 仍报「已写入」→ `series(metricName=null)` 永久抛「指标不唯一」 | 清理即自锁 |
 | 10 | **`QuestdbSeriesEngine` 开启鉴权时读路径全部 401** | `token` / `username` / `password` 只交给了写入用的官方 `Sender`；查询/指标发现/清理走的 JDK `HttpClient` **一个鉴权头都没发**（`execQuery` 只设了超时） | 配了鉴权的 QuestDB 上，写入成功但 `metrics` / `series` / `purge` 全失败；而默认无鉴权的本地实例掩盖了它 |
+| 11 | **`OracleEngine` / `SqlServerLegacyEngine` 缺 JDBC 入参校验** | 同目录的 postgresql / sqlserver / clickhouse 都调 `JdbcUrl.checkHost/checkPort/checkDatabase` 再拼 URL，这两个引擎直接裸拼 | `host=null` 拼出 `jdbc:oracle:thin:@//null:1521/db` 之类只在连接阶段报错的串；`database="db?autoDeserialize=true"` 这类串可改写驱动属性（`JdbcUrl` 的类注释写明了这条注入路径），属于注入面 |
+| 12 | **端口 0 的「驱动默认端口」契约在 10 处拼装点上失效** | `JdbcUrl.checkPort` 的 Javadoc 明确「0 表示使用驱动默认端口」，但所有引擎无条件拼 `host + ":" + port` | 传 0 得到 `host:0`，驱动会去连 **0 端口**而不是回退默认端口；文档承诺的用法 100% 失败，且报错与其根因无关 |
 
 缺陷 10 的修法（`utils-support-questdb-starter`，`QuestdbSeriesEngine`）：
 
@@ -191,6 +203,21 @@ monitor 模块的 Bean 工厂创建。
 - `execQuery` 在请求构建处按需挂上该头，与写入端 `Sender` 的凭据语义**逐字一致**；
 - 阶段十二用三条断言分别锁定：token→两侧都 `Bearer`、用户名密码→`/exec` 为预期的 `Basic`、
   未配凭据→**不发** `Authorization`（避免把空串当凭据发给服务端）。
+
+缺陷 11 的修法（`utils-support-oracle-starter` / `utils-support-sqlserver-starter`）：
+
+- 在两个 `addDataSource(DataSourceOptions)` 的**最前面**补上与同族引擎一致的三条校验，
+  位置必须在 `new HikariDataSource()` 与 `dataSources.put(...)` 之前——否则非法入参
+  会被注册成一个半成品数据源。阶段十四专门有一条断言验证「被拒绝后 `dataSourceNames()`
+  里没有 poison」。
+
+缺陷 12 的修法（`JdbcUrl.hostPort(host, port)`，10 处调用点统一替换）：
+
+- 新增单点辅助方法：`port > 0 ? host + ":" + port : host`；
+- postgresql / sqlserver / sqlserver-legacy / oracle / clickhouse / mysql 的 **同步与响应式**
+  两侧共 10 处 URL 拼装全部改为调用它；
+- 端口 > 0 的输出逐字节不变（无回归风险），端口 = 0 时交由驱动补默认端口，与
+  `checkPort` 的 Javadoc 对齐。阶段十四对 5 个引擎各断言一次「URL 不含 `:0` 且形态精确」。
 
 ## 5. 查证后**判定为非缺陷**的（避免后人误"修"）
 
@@ -214,16 +241,16 @@ harness **已入库**（不再只留 `.tmp`，那里没有版本控制）：
 
 ```
 utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
-├─ run-acceptance.bat          十三阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-acceptance.bat          十四阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              十三个验收程序
+├─ harness/*.java              十四个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 十三阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 十四阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 ```
 
@@ -575,6 +602,25 @@ RocksDB 是嵌入式库，数据落本地目录，无需外部服务——本阶
 > 该阶段**修正了两条我自己写错的断言**（`age>26` 的样例数据只有 3 行；内存引擎并非不支持
 > `update`/`delete`）——记录在此，因为它说明「验收代码也会错」，断言必须先与实现/数据对齐，
 > 不能拿别处的期望值硬套。
+
+### 14.4 5 个「无服务端」JDBC 引擎的本机可验面（阶段十四，45 条）
+
+postgresql / sqlserver / sqlserver-legacy / oracle / clickhouse 的**查询语义**仍然无法
+真实验收（没有服务端，报告 §7 已声明）。但下面四层行为不需要服务端，且每一层出错都是
+生产事故，因此被单独立为阶段十四，每个引擎 9 条、共 45 条：
+
+| 层 | 断言 |
+|---|---|
+| 连接串 | URL **逐字符**精确（5 种方言各自的 `jdbc:` 前缀、参数、jTDS 的 `;selectMethod=cursor`）；用户名/密码透传；**密码不进入 URL**（避免日志与异常栈泄漏） |
+| 入参守卫 | host 的 7 种非法形态（null / 空 / 空白 / `evil?allowLoadLocalInfile=true` / `a/b` / `host;param=1` / `u@host`）、4 种越界端口、5 种非法库名（含 `db?autoDeserialize=true`）全部抛 `IAE` |
+| 半成品 | 被拒绝的注册**不得**在 `dataSourceNames()` 里留下痕迹（校验必须先于注册） |
+| 端口 0 | 5 个引擎各断言 `URL 不含 ":0"`，且形态为 `jdbc:xxx://host/db`（缺陷 12 的回归锁） |
+| 失败语义 | 连 `127.0.0.1:1`（必然拒绝）：**必须抛异常**，返回空集合即判失败；失败须在 10s 内（实测 5ms ~ 3.1s） |
+| 关闭语义 | `close()` 后 `HikariDataSource.isClosed()==true`（线程不泄漏）、重复 `close()` 不抛、`dataSourceNames()` 清空 |
+
+> 本阶段**发现了两个真缺陷**（第 11、12 条），且都是「读代码看不出来、一测就现形」的类型：
+> Oracle 少三条校验、端口 0 的文档契约在 10 处拼装点全部失效。
+> 这 5 个引擎的真正查询语义仍未验证——不要因为本阶段全绿就认为它们「已通过」。
 
 
 

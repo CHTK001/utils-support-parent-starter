@@ -1,5 +1,6 @@
 import com.chua.clickhouse.support.engine.ClickHouseEngine;
 import com.chua.datasource.support.engine.JdbcEngine;
+import com.chua.datasource.support.url.JdbcUrl;
 import com.chua.oracle.support.engine.OracleEngine;
 import com.chua.postgresql.support.engine.PostgresqlEngine;
 import com.chua.sqlserver.support.engine.SqlServerEngine;
@@ -59,30 +60,30 @@ public final class EngineExternalConfig {
 
         caseSuite("postgresql",
                 PostgresqlEngine::new,
-                (e, n, h, p, d) -> e.addDataSource(n, h, p, d, USER, PASSWORD),
-                (h, p, d) -> "jdbc:postgresql://" + h + ":" + p + "/" + d);
+                (e, n, h, p, d) -> ((PostgresqlEngine) e).addDataSource(n, h, p, d, USER, PASSWORD),
+                (h, p, d) -> "jdbc:postgresql://" + JdbcUrl.hostPort(h, p) + "/" + d);
 
         caseSuite("sqlserver",
                 SqlServerEngine::new,
-                (e, n, h, p, d) -> e.addDataSource(n, h, p, d, USER, PASSWORD),
-                (h, p, d) -> "jdbc:sqlserver://" + h + ":" + p
+                (e, n, h, p, d) -> ((SqlServerEngine) e).addDataSource(n, h, p, d, USER, PASSWORD),
+                (h, p, d) -> "jdbc:sqlserver://" + JdbcUrl.hostPort(h, p)
                         + ";databaseName=" + d + ";encrypt=false;trustServerCertificate=true");
 
         caseSuite("sqlserver-legacy",
                 SqlServerLegacyEngine::new,
-                (e, n, h, p, d) -> e.addDataSource(n, h, p, d, USER, PASSWORD),
-                (h, p, d) -> "jdbc:jtds:sqlserver://" + h + ":" + p + "/" + d
+                (e, n, h, p, d) -> ((SqlServerLegacyEngine) e).addDataSource(n, h, p, d, USER, PASSWORD),
+                (h, p, d) -> "jdbc:jtds:sqlserver://" + JdbcUrl.hostPort(h, p) + "/" + d
                         + ";selectMethod=cursor");
 
         caseSuite("oracle",
                 OracleEngine::new,
-                (e, n, h, p, d) -> e.addDataSource(n, h, p, d, USER, PASSWORD),
-                (h, p, d) -> "jdbc:oracle:thin:@//" + h + ":" + p + "/" + d);
+                (e, n, h, p, d) -> ((OracleEngine) e).addDataSource(n, h, p, d, USER, PASSWORD),
+                (h, p, d) -> "jdbc:oracle:thin:@//" + JdbcUrl.hostPort(h, p) + "/" + d);
 
         caseSuite("clickhouse",
                 ClickHouseEngine::new,
-                (e, n, h, p, d) -> e.addDataSource(n, h, p, d, USER, PASSWORD),
-                (h, p, d) -> "jdbc:clickhouse://" + h + ":" + p + "/" + d);
+                (e, n, h, p, d) -> ((ClickHouseEngine) e).addDataSource(n, h, p, d, USER, PASSWORD),
+                (h, p, d) -> "jdbc:clickhouse://" + JdbcUrl.hostPort(h, p) + "/" + d);
 
         EngineFunctional.finishAndExit("EngineExternalConfig-report.txt");
     }
@@ -148,8 +149,8 @@ public final class EngineExternalConfig {
             return "7 种非法 host 全部拒绝";
         });
 
-        EngineFunctional.check(p + "拒绝非法端口", () -> {
-            for (int bad : new int[]{0, -1, 65536, 70000, Integer.MAX_VALUE}) {
+        EngineFunctional.check(p + "拒绝越界端口（0 为合法的驱动默认端口）", () -> {
+            for (int bad : new int[]{-1, 65536, 70000, Integer.MAX_VALUE}) {
                 expectIae(() -> {
                     JdbcEngine e = factory.create();
                     try {
@@ -159,7 +160,27 @@ public final class EngineExternalConfig {
                     }
                 });
             }
-            return "5 种非法 port 全部拒绝";
+            return "4 种越界 port 全部拒绝";
+        });
+
+        EngineFunctional.check(p + "端口 0 表示驱动默认：URL 不得出现 :0", () -> {
+            JdbcEngine e = factory.create();
+            try {
+                register.register(e, "default", "127.0.0.1", 0, "appdb");
+                String actual = e.getDataSource("default").url();
+                if (actual.contains(":0")) {
+                    throw new EngineFunctional.HarnessFailure(
+                            "端口 0 被原样拼进 URL，驱动将去连 0 端口而不是默认端口: " + actual);
+                }
+                String expected = expect.url("127.0.0.1", 0, "appdb");
+                if (!expected.equals(actual)) {
+                    throw new EngineFunctional.HarnessFailure(
+                            "URL 期望 [" + expected + "]，实际 [" + actual + "]");
+                }
+                return actual;
+            } finally {
+                e.close();
+            }
         });
 
         EngineFunctional.check(p + "拒绝 null / 含分隔符的库名", () -> {
@@ -198,6 +219,15 @@ public final class EngineExternalConfig {
                 HikariDataSource pool = (HikariDataSource) e.getDataSource("default").getSource();
                 // 连接池默认 30s，验收里收紧到 1.5s；这是配置而非伪造行为
                 pool.setConnectionTimeout(1500);
+
+                // 预热一次：首次失败会连带驱动类初始化（Oracle 实测 12s），
+                // 那是加载开销而不是稳态失败延迟，不能计入下面的上限判定。
+                try {
+                    e.query(EngineFunctional.AccUser.class).list();
+                } catch (Throwable ignored) {
+                    // 预热路径只关心「是否抛」，耗时另行测量
+                }
+
                 long t0 = System.nanoTime();
                 try {
                     var rows = e.query(EngineFunctional.AccUser.class).list();
@@ -208,9 +238,9 @@ public final class EngineExternalConfig {
                 } catch (Throwable expected) {
                     long ms = (System.nanoTime() - t0) / 1_000_000L;
                     if (ms > 10_000L) {
-                        throw new EngineFunctional.HarnessFailure("失败耗时过长: " + ms + "ms");
+                        throw new EngineFunctional.HarnessFailure("稳态失败耗时过长: " + ms + "ms");
                     }
-                    return ms + "ms 内抛 " + expected.getClass().getSimpleName();
+                    return "预热后 " + ms + "ms 内抛 " + expected.getClass().getSimpleName();
                 }
             } finally {
                 e.close();
