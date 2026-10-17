@@ -13,7 +13,7 @@
   （`dependency:build-classpath`），不参与 reactor 构建。
 - 历史上这类工具只留在 `.tmp/`，没有版本控制，随会话结束即丢失。**工具必须入库。**
 
-## 十九阶段与覆盖范围
+## 二十阶段与覆盖范围
 
 | 阶段 | 程序 | 断言数 | 覆盖内容 |
 |---|---|---|---|
@@ -37,7 +37,9 @@
 | 十八 | `EngineNeo4j` | 25 | `Neo4jEngine`（SPI `neo4j`）用**动态代理假 `Driver`** 驱动真实 Cypher 生成：`@TableName` 与驼峰转下划线决定 label（写入/读取一致）、`MATCH ... WHERE` 参数化（值不内联）、`one`/`page` 的 `LIMIT`/`SKIP` 下推、`page().total` 与 `count()` 走 `count(n)`、`ORDER BY`、`UNWIND $rows` 批量写入与空列表 no-op、`SET`/`DETACH DELETE` 与 counters、属性→实体映射（含类型转换与缺失字段）、未初始化/驱动异常语义、注入的驱动不被关闭 |
 | 十九 | `EngineGreptimeDb` | 30 | `GreptimeDbEngine`（SPI `greptimedb`）用**假 JDBC `Driver`**（`DriverManager` 注册 `jdbc:greptimefake:` 前缀 + Proxy `Connection`/`PreparedStatement`/`ResultSet`/`ResultSetMetaData`）驱动真实 SQL 生成：`@TableName` 与驼峰转下划线决定表名、`cpuUtil` → `cpu_util` 列名归一化、`eq`/`gt` 参数化、`orderBy` 下推、`limit`/`page` 的 `LIMIT`/`OFFSET`、`COUNT(*)` 子查询计数与 `page().total`、列标签 → 实体（含大小写宽松匹配与未知列/null 跳过）、`store`/`update` 的 UOE、无 WHERE 删除守卫、带条件 `DELETE` 与影响行数、执行器 `query`/`execute`/`batch`/`queryPage`、JDBC URL 推导与端点/库名校验、未配置/已关闭语义与重注册恢复 |
 
-合计 **952 条断言**。
+| 二十 | `EngineHBase` | 23 | `HBaseEngine`（SPI `hbase`）用**动态代理假 `Connection`/`Admin`/`Table`/`ResultScanner`** 驱动真实领域 API：建表幂等与列族、`Put` 的行键/列族/限定符/值、`Get` 的列族过滤与全列族 `族:限定符`、行不存在返回空 Map、`Scan` 的前缀起止行（非 ASCII 按 UTF-8 末字节 +1）、`__row` 与空 `Result` 跳过、`Delete` 行键、`store`/查询/`update`/`delete` 的 UOE、注入连接不被 `close()` 关闭、用法错误（未配置/已关闭）不被包装成操作失败 |
+
+合计 **975 条断言**。
 
 ## 子类清单与覆盖状态（权威口径）
 
@@ -84,7 +86,7 @@ Engine / KvEngine / SeriesEngine 的全部实现者及其覆盖情况，见同�
 
 ```bat
 cd utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat            :: 十九阶段全跑
+run-acceptance.bat            :: 二十阶段全跑
 run-acceptance.bat 1 5        :: 只跑阶段一与阶段五
 ```
 
