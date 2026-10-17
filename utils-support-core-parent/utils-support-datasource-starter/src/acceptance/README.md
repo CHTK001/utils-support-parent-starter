@@ -13,7 +13,7 @@
   （`dependency:build-classpath`），不参与 reactor 构建。
 - 历史上这类工具只留在 `.tmp/`，没有版本控制，随会话结束即丢失。**工具必须入库。**
 
-## 十八阶段与覆盖范围
+## 十九阶段与覆盖范围
 
 | 阶段 | 程序 | 断言数 | 覆盖内容 |
 |---|---|---|---|
@@ -35,8 +35,9 @@
 | 十六 | `EngineRedisEntity` | 18 | `RediSearchEngine`（SPI `redis`，**真实 Redis 6379 读写**）：`@TableName` 与驼峰转下划线决定 key 前缀、store/query 前缀一致（写进去读得出来）、字段 Long/String/Integer 还原、**FT.SEARCH 不可用时的回退扫描必须按 WHERE 过滤**（单条件/多条件/无命中/`one()`）、`count()` 与过滤语义一致、分页 total 与页内行数、update/delete 明确抛 UOE、无执行器声明自洽、`close()` 幂等、原生命令执行 |
 | 十七 | `EngineElasticsearch` | 21 | `ElasticsearchEngine`（SPI `elasticsearch`）用**回放型假 `Transport`** 驱动官方客户端的真实序列化/反序列化链路：`@TableName` 与驼峰转下划线决定索引名（`list`/`one`/`page` 一致）、`match_all` 与 `term` 构造、`one`/`page` 的 size/from 下推、`count()` 取 `hits.total`、`_source` → 实体映射（含缺失字段）、bulk 写入的 `_index` 与文档、bulk 部分失败带 `失败条数`、传输异常带索引名、未配置/已关闭抛 ISE、注入的客户端不被擅自关闭 |
 | 十八 | `EngineNeo4j` | 25 | `Neo4jEngine`（SPI `neo4j`）用**动态代理假 `Driver`** 驱动真实 Cypher 生成：`@TableName` 与驼峰转下划线决定 label（写入/读取一致）、`MATCH ... WHERE` 参数化（值不内联）、`one`/`page` 的 `LIMIT`/`SKIP` 下推、`page().total` 与 `count()` 走 `count(n)`、`ORDER BY`、`UNWIND $rows` 批量写入与空列表 no-op、`SET`/`DETACH DELETE` 与 counters、属性→实体映射（含类型转换与缺失字段）、未初始化/驱动异常语义、注入的驱动不被关闭 |
+| 十九 | `EngineGreptimeDb` | 30 | `GreptimeDbEngine`（SPI `greptimedb`）用**假 JDBC `Driver`**（`DriverManager` 注册 `jdbc:greptimefake:` 前缀 + Proxy `Connection`/`PreparedStatement`/`ResultSet`/`ResultSetMetaData`）驱动真实 SQL 生成：`@TableName` 与驼峰转下划线决定表名、`cpuUtil` → `cpu_util` 列名归一化、`eq`/`gt` 参数化、`orderBy` 下推、`limit`/`page` 的 `LIMIT`/`OFFSET`、`COUNT(*)` 子查询计数与 `page().total`、列标签 → 实体（含大小写宽松匹配与未知列/null 跳过）、`store`/`update` 的 UOE、无 WHERE 删除守卫、带条件 `DELETE` 与影响行数、执行器 `query`/`execute`/`batch`/`queryPage`、JDBC URL 推导与端点/库名校验、未配置/已关闭语义与重注册恢复 |
 
-合计 **922 条断言**。
+合计 **952 条断言**。
 
 ## 子类清单与覆盖状态（权威口径）
 
@@ -83,7 +84,7 @@ Engine / KvEngine / SeriesEngine 的全部实现者及其覆盖情况，见同�
 
 ```bat
 cd utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat            :: 十八阶段全跑
+run-acceptance.bat            :: 十九阶段全跑
 run-acceptance.bat 1 5        :: 只跑阶段一与阶段五
 ```
 

@@ -13,7 +13,7 @@
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
 已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
 `03d360448`（补回被全局 ignore 规则静默剔除的两个运行器）、本轮阶段六
-验收结论：**十八阶段共 922 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
+验收结论：**十九阶段共 952 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
 
 > **本轮为何要重绑 md5**：2026-10-04 首次出报告后，本地仓库里这批制品被后续构建
 > 重新产出（`common-starter` 4,563,385 → 4,743,831 B，`monitor-starter` 1,127,261 → 922,392 B 等），
@@ -57,7 +57,7 @@
 | `com.chua:utils-support-solr-starter:4.0.0.42` | `46b6a1c9` | 48,582 B | 阶段一契约面（`solr`）+ **阶段十五深度功能**（假 `SolrClient` 驱动真实路径）+ 缺陷 13/14 修复 |
 | `com.chua:utils-support-neo4j-starter:4.0.0.42` | `a5aa736a` | 25,536 B | 阶段一契约面（`neo4j`）+ **阶段十八真实 Cypher 链路**（动态代理假 `Driver`）+ 缺陷 22/23/24/25 修复 |
 | `com.chua:utils-support-elasticsearch-starter:4.0.0.42` | `6970ab98` | 56,205 B | 阶段一契约面（`elasticsearch`）+ **阶段十七真实链路**（回放型假 `Transport`）+ 缺陷 18/19/20/21 修复 |
-| `com.chua:utils-support-greptimedb-starter:4.0.0.42` | `998edaed` | 32,785 B | 阶段一契约面（`greptimedb`） |
+| `com.chua:utils-support-greptimedb-starter:4.0.0.42` | `97b72d46` | 32,785 B | 阶段一契约面（`greptimedb`）+ **阶段十九真实 SQL/JDBC 链路**（假 JDBC 驱动） |
 
 签收前须重新核对上述 md5；不一致即本报告作废（本轮已因制品被重建而重跑过一次）。
 
@@ -108,6 +108,12 @@
 > `javap -p -cp … Neo4jEngine` 复核）；`src/acceptance/lib/` 实际加载的那份
 > 经 `certutil -hashfile … MD5` 与仓库一致。
 
+> **阶段十九重绑 1 个制品**：为使 `greptimedb` 制品与源码树重新对齐、并登记本阶段
+> 实际加载的文件，重新 `mvn -o clean install` 产出了
+> `greptimedb`（`998edaed` → `97b72d46`，32,785 B，大小不变）。
+> 源码与 HEAD 逐字节一致（`git diff -- <模块>` 无输出），字节差异仅来自 jar 内时间戳。
+> 其余 27 个制品字节未变。
+
 ## 2. 子类清单与覆盖状态（权威口径）
 
 ### 2.1 Engine —— SPI 注册的 24 个（阶段一全覆盖）
@@ -139,7 +145,8 @@ influxdb（阶段十三，纯内存）、redis（阶段三/五：`RedisClient`/`
 与 ReactorFlywayBridge（阶段六，真实 SQLite）。
 另：postgresql / sqlserver（含 legacy）/ oracle / clickhouse 在阶段十四验证了
 **配置拼装、入参守卫、失败语义与关闭语义**，但**查询语义仍未验**（见 §7）。
-其余 5 个需外部服务的引擎只有契约面（见 §7；elasticsearch / neo4j / solr 已升级到「真实链路 + 契约面」）。
+其余 5 个需外部服务的引擎（postgresql / sqlserver / oracle / clickhouse / hbase）只有契约面
+（见 §7；elasticsearch / neo4j / solr / greptimedb 已升级到「真实链路 + 契约面」）。
 
 **非 SPI 注册的 Engine 实现**（不在 `ServiceProvider` 可发现范围内）：
 
@@ -212,8 +219,9 @@ monitor 模块的 Bean 工厂创建。
 | 16 | `RediSearchEngine`（SPI `redis`）：**真实 Redis 6379 读写**——key 前缀与 `@TableName`、store/query 一致、字段还原、回退扫描按 WHERE 过滤、条件计数、分页、能力声明、生命周期、原生命令 | 18 | 全绿 |
 | 十七 | `ElasticsearchEngine`（SPI `elasticsearch`）：回放型假 `Transport` 驱动官方客户端真实链路——索引名与 `@TableName`、`match_all`/`term` 构造、`one`/`page` 下推与 total、`count()`、响应→实体映射、bulk 写入与部分失败、异常语义、生命周期与能力声明 | 21 | 全绿 |
 | 十八 | `Neo4jEngine`（SPI `neo4j`）：动态代理假 `Driver` 驱动真实 Cypher 生成——label 与 `@TableName`、`WHERE` 参数化、`LIMIT`/`SKIP` 下推、`count(n)` 计数、`ORDER BY`、`UNWIND` 批量写入、`SET`/`DETACH DELETE`、属性映射、异常语义、连接所有权 | 25 | 全绿 |
+| 十九 | `GreptimeDbEngine`（SPI `greptimedb`）：假 JDBC `Driver` 驱动真实 SQL/JDBC 链路——表名与 `@TableName`、列名归一化、条件参数化、排序与分页下推、`COUNT(*)` 子查询计数、结果映射、`store`/`update` 的 UOE、无 WHERE 守卫、带条件 DELETE、执行器四个入口、JDBC URL 推导、生命周期 | 30 | 全绿 |
 
-**合计 922 条断言，0 失败**（`run-acceptance.bat`：十八阶段逐段 `PASS`，
+**合计 952 条断言，0 失败**（`run-acceptance.bat`：十九阶段逐段 `PASS`，
 末行 `ACCEPTANCE_RESULT=PASS`，退出码 0）。
 
 ## 4. 修复的 25 处真实缺陷
@@ -351,19 +359,20 @@ harness **已入库**（不再只留 `.tmp`，那里没有版本控制）：
 
 ```
 utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
-├─ run-acceptance.bat          十八阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-acceptance.bat          十九阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              十八个验收程序
+├─ harness/*.java              十九个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 十八阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 十九阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 run-acceptance.bat 17           :: 只跑阶段十七（Elasticsearch）
 run-acceptance.bat 18           :: 只跑阶段十八（Neo4j）
+run-acceptance.bat 19           :: 只跑阶段十九（GreptimeDB）
 ```
 
 > **交付教训（2026-10-04 实际发生）**：仓库根 `.gitignore` 有 `*.ps1`（16 行）/
@@ -389,8 +398,8 @@ run-acceptance.bat 18           :: 只跑阶段十八（Neo4j）
 
 ## 7. 尚未覆盖（如实声明）
 
-1. **需外部服务的 6 个引擎**（postgresql、sqlserver、oracle、clickhouse、hbase、
-   greptimedb）只有契约面；
+1. **需外部服务的 5 个引擎**（postgresql、sqlserver、oracle、clickhouse、hbase）
+   只有契约面；
    本机无对应服务，无法做真实读写验收。**这部分是"未验"，不是"已通过"。**
    > `prometheus` **已从本清单移出**：阶段八用本机 HTTP 桩（`com.sun.net.httpserver`）
    > 打通了 8 个 `/api/v1/*` 端点，`PrometheusEngine` / `PrometheusClient` 的查询、
@@ -419,6 +428,13 @@ run-acceptance.bat 18           :: 只跑阶段十八（Neo4j）
    > 服务端的 Cypher 语义（索引/约束、执行计划、事务冲突）、以及驱动自身的网络层。
    > **这不等于「已完成真实读写验收」**——没有 Neo4j 服务端参与。
    > 已显式钉住的契约差异：`store(name, rows)` 的 `name` 不参与 label 推导（见 §4）。
+   >
+   > `greptimedb` **已从本清单移出**：阶段十九向 `DriverManager` 注册只认
+   > `jdbc:greptimefake:` 的假 `Driver`，用 Proxy 实现 `Connection`/`PreparedStatement`/
+   > `ResultSet`/`ResultSetMetaData`，让引擎真实渲染 SQL、真实绑定 `?` 参数、
+   > 真实解析结果集（30 条断言）。**仍未覆盖**的是真实 GreptimeDB 服务端的
+   > SQL 语义（tag/time 索引、TTL、区域与副本、upsert 冲突判定）与 gRPC 写入通道。
+   > **这不等于「已完成真实读写验收」**——没有 GreptimeDB 服务端参与。
 2. ~~**`InfluxdbSeriesEngine` 只有契约面**~~ → **已升级**：阶段九用 `java.lang.reflect.Proxy`
    注入一个 `InfluxDB` 桩客户端（该引擎提供了公开的注入构造器，注释即写明用于「测试或外部生命周期管理」），
    把**引擎自身逻辑**全部真实执行（26 条断言）。**仍未覆盖**的是真实 InfluxDB 的
