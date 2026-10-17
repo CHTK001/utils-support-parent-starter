@@ -78,7 +78,7 @@ public class PostgresqlEngine extends JdbcEngine {
             }
         }
 
-        ds.setJdbcUrl("jdbc:postgresql://" + targetHost + ":" + targetPort + "/" + options.database());
+        ds.setJdbcUrl("jdbc:postgresql://" + JdbcUrl.hostPort(targetHost, targetPort) + "/" + options.database());
         ds.setUsername(options.username());
         ds.setPassword(options.password());
         ds.setMaximumPoolSize(10);

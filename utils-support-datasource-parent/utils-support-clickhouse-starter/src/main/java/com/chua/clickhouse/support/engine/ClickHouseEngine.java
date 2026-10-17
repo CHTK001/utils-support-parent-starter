@@ -78,7 +78,7 @@ public class ClickHouseEngine extends JdbcEngine {
             }
         }
 
-        ds.setJdbcUrl("jdbc:clickhouse://" + targetHost + ":" + targetPort + "/" + options.database());
+        ds.setJdbcUrl("jdbc:clickhouse://" + JdbcUrl.hostPort(targetHost, targetPort) + "/" + options.database());
         ds.setUsername(options.username());
         ds.setPassword(options.password());
         ds.setMaximumPoolSize(10);

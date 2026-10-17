@@ -51,7 +51,7 @@ public class SqlServerReactorEngine extends JdbcReactorEngine {
         ((SqlServerEngine) delegate).addDataSource(name, host, port, database, username, password);
         // 注册到响应式 JDBC 路径（boundedElastic 上执行），与同步引擎共用同一库
         registerJdbcDataSource(name,
-                "jdbc:sqlserver://" + host + ":" + port + ";databaseName=" + database + ";encrypt=false;trustServerCertificate=true",
+                "jdbc:sqlserver://" + JdbcUrl.hostPort(host, port) + ";databaseName=" + database + ";encrypt=false;trustServerCertificate=true",
                 username, password);
         return this;
     }

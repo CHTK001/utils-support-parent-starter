@@ -85,4 +85,19 @@ public final class JdbcUrl {
         }
         return port;
     }
+
+    /**
+     * 拼接 JDBC URL 中的 {@code host[:port]} 片段。
+     *
+     * <p>{@link #checkPort(int)} 约定 {@code 0} 表示「使用驱动默认端口」。
+     * 若把 0 直接拼成 {@code host:0}，驱动会去连 0 端口而不是回退到默认端口，
+     * 该约定就失效了。因此端口不大于 0 时只输出主机名，交由驱动补默认端口。</p>
+     *
+     * @param host 已通过 {@link #checkHost(String)} 校验的主机
+     * @param port 端口，{@code 0} 表示驱动默认
+     * @return {@code host:port} 或 {@code host}
+     */
+    public static String hostPort(String host, int port) {
+        return port > 0 ? host + ":" + port : host;
+    }
 }

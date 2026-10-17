@@ -50,7 +50,7 @@ public class ClickHouseReactorEngine extends JdbcReactorEngine {
         ((ClickHouseEngine) delegate).addDataSource(name, host, port, database, username, password);
         // 注册到响应式 JDBC 路径（boundedElastic 上执行），与同步引擎共用同一库
         registerJdbcDataSource(name,
-                "jdbc:clickhouse://" + host + ":" + port + "/" + database,
+                "jdbc:clickhouse://" + JdbcUrl.hostPort(host, port) + "/" + database,
                 username, password);
         return this;
     }
