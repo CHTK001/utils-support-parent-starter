@@ -7,12 +7,13 @@
 阶段十一真实嵌入式 RocksDB 验收 `RocksDbSeriesEngine`；
 阶段十二以本机 HTTP 桩验收 `QuestdbSeriesEngine` 并修复其 `/exec` 鉴权缺失：2026-10-17；
 阶段十三至十六：InfluxDbEngine / 5 个外部 JDBC 引擎配置层 / Solr / RediSearchEngine：2026-10-17；
-阶段十七以回放型假 Transport 驱动 `ElasticsearchEngine` 真实链路并修复索引名/count/异常语义：2026-10-17）
+阶段十七以回放型假 Transport 驱动 `ElasticsearchEngine` 真实链路并修复索引名/count/异常语义：2026-10-17；
+阶段十八以动态代理假 `Driver` 驱动 `Neo4jEngine` 的真实 Cypher 生成并修复标签/count/连接所有权/异常上下文：2026-10-17）
 仓库：`utils-support-parent-starter`（另用 `spring-support-parent-starter` 与 `utils-support-datalake-parent` 的制品）
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
 已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
 `03d360448`（补回被全局 ignore 规则静默剔除的两个运行器）、本轮阶段六
-验收结论：**十七阶段共 897 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
+验收结论：**十八阶段共 922 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
 
 > **本轮为何要重绑 md5**：2026-10-04 首次出报告后，本地仓库里这批制品被后续构建
 > 重新产出（`common-starter` 4,563,385 → 4,743,831 B，`monitor-starter` 1,127,261 → 922,392 B 等），
@@ -54,7 +55,7 @@
 | `com.chua:utils-support-clickhouse-starter:4.0.0.42` | `d9763073` | 10,359 B | 阶段一契约面（`clickhouse`）+ 缺陷 12 修复 + 阶段十四 |
 | `com.chua:utils-support-hbase-starter:4.0.0.42` | `7e9eb07b` | 12,262 B | 阶段一契约面（`hbase`） |
 | `com.chua:utils-support-solr-starter:4.0.0.42` | `46b6a1c9` | 48,582 B | 阶段一契约面（`solr`）+ **阶段十五深度功能**（假 `SolrClient` 驱动真实路径）+ 缺陷 13/14 修复 |
-| `com.chua:utils-support-neo4j-starter:4.0.0.42` | `fdf22bed` | 25,466 B | 阶段一契约面（`neo4j`） |
+| `com.chua:utils-support-neo4j-starter:4.0.0.42` | `a5aa736a` | 25,536 B | 阶段一契约面（`neo4j`）+ **阶段十八真实 Cypher 链路**（动态代理假 `Driver`）+ 缺陷 22/23/24/25 修复 |
 | `com.chua:utils-support-elasticsearch-starter:4.0.0.42` | `6970ab98` | 56,205 B | 阶段一契约面（`elasticsearch`）+ **阶段十七真实链路**（回放型假 `Transport`）+ 缺陷 18/19/20/21 修复 |
 | `com.chua:utils-support-greptimedb-starter:4.0.0.42` | `998edaed` | 32,785 B | 阶段一契约面（`greptimedb`） |
 
@@ -98,8 +99,14 @@
 > `utils-support-common-starter` 是 15:58 被并发会话重建的产物（`a8693223`，4,753,379 B），
 > 其中含一个**当时未提交、随后被删除**的 `IpCidrUtils.class`——即该 jar 与源码树不一致，
 > 不能作为签收产物。已按当前源码（与 HEAD 一致）重新 `mvn -o clean install` 产出
-> `cfd341ed`（4,749,974 B，`jar tf` 已无 `IpCidrUtils`），并在此新制品上重跑十七阶段全量。
+> `cfd341ed`（4,749,974 B，`jar tf` 已无 `IpCidrUtils`），并在此新制品上重跑全量阶段。
 > 注：`0896c47e` 是阶段七登记值，其 jar 早已被后续构建覆盖，本轮以 `cfd341ed` 为准。
+
+> **阶段十八重绑 1 个制品**：为修缺陷 22/23/24/25 重新构建了
+> `neo4j`（`fdf22bed` → `a5aa736a`，25,536 B）。其余 27 个制品字节未变。
+> 新 jar 内含 `Neo4jEngine.safeLabel(String)` 与 `ownsDriver` 字段（可用
+> `javap -p -cp … Neo4jEngine` 复核）；`src/acceptance/lib/` 实际加载的那份
+> 经 `certutil -hashfile … MD5` 与仓库一致。
 
 ## 2. 子类清单与覆盖状态（权威口径）
 
@@ -127,11 +134,12 @@ tablesaw / rocksdb（阶段四）、mysql（阶段三，真实 3306）、prometh
 influxdb（阶段十三，纯内存）、redis（阶段三/五：`RedisClient`/`RedisKvEngine`/`RedisSeriesEngine`；
 阶段十六：`RediSearchEngine` 的**实体 CRUD 真实读写**）、solr（阶段十五，记录型假
 `SolrClient` 驱动真实查询/写入/删除路径）、elasticsearch（阶段十七，回放型假
-`Transport` 驱动官方客户端的真实序列化/反序列化链路）；非 SPI 的 datalake-query（阶段十，本机 HTTP 桩）
+`Transport` 驱动官方客户端的真实序列化/反序列化链路）、neo4j（阶段十八，动态代理假
+`Driver` 驱动真实 Cypher 生成与结果映射）；非 SPI 的 datalake-query（阶段十，本机 HTTP 桩）
 与 ReactorFlywayBridge（阶段六，真实 SQLite）。
 另：postgresql / sqlserver（含 legacy）/ oracle / clickhouse 在阶段十四验证了
 **配置拼装、入参守卫、失败语义与关闭语义**，但**查询语义仍未验**（见 §7）。
-其余 7 个需外部服务的引擎只有契约面（见 §7；elasticsearch 已升级到「真实链路 + 契约面」）。
+其余 5 个需外部服务的引擎只有契约面（见 §7；elasticsearch / neo4j / solr 已升级到「真实链路 + 契约面」）。
 
 **非 SPI 注册的 Engine 实现**（不在 `ServiceProvider` 可发现范围内）：
 
@@ -203,11 +211,12 @@ monitor 模块的 Bean 工厂创建。
 | 十五 | Solr（SPI `solr`）：假 `SolrClient` 驱动真实路径——表名解析、q 构造、分页下推、numFound 计数、文档映射、写入/删除、失败语义、生命周期 | 28 | 全绿 |
 | 16 | `RediSearchEngine`（SPI `redis`）：**真实 Redis 6379 读写**——key 前缀与 `@TableName`、store/query 一致、字段还原、回退扫描按 WHERE 过滤、条件计数、分页、能力声明、生命周期、原生命令 | 18 | 全绿 |
 | 十七 | `ElasticsearchEngine`（SPI `elasticsearch`）：回放型假 `Transport` 驱动官方客户端真实链路——索引名与 `@TableName`、`match_all`/`term` 构造、`one`/`page` 下推与 total、`count()`、响应→实体映射、bulk 写入与部分失败、异常语义、生命周期与能力声明 | 21 | 全绿 |
+| 十八 | `Neo4jEngine`（SPI `neo4j`）：动态代理假 `Driver` 驱动真实 Cypher 生成——label 与 `@TableName`、`WHERE` 参数化、`LIMIT`/`SKIP` 下推、`count(n)` 计数、`ORDER BY`、`UNWIND` 批量写入、`SET`/`DETACH DELETE`、属性映射、异常语义、连接所有权 | 25 | 全绿 |
 
-**合计 897 条断言，0 失败**（`run-acceptance.bat`：十七阶段逐段 `PASS`，
+**合计 922 条断言，0 失败**（`run-acceptance.bat`：十八阶段逐段 `PASS`，
 末行 `ACCEPTANCE_RESULT=PASS`，退出码 0）。
 
-## 4. 修复的 21 处真实缺陷
+## 4. 修复的 25 处真实缺陷
 
 | # | 缺陷 | 根因 | 影响 |
 |---|---|---|---|
@@ -232,6 +241,10 @@ monitor 模块的 Bean 工厂创建。
 | 19 | **`ElasticsearchEngine` 的 `query(X).count()` 抛 `UnsupportedOperationException`** | 与缺陷 14/17 同源：匿名包装器只覆写 `list/one/page` | 计数 API 不可用；ES 响应里本就有 `hits.total`，属于纯粹的功能缺失 |
 | 20 | **配置缺失/已关闭被包装成「查询失败」** | `search`/`searchPage` 用宽 `catch (Exception)` 把 `IllegalStateException("请先 addDataSource")` 一并包成 `RuntimeException("Elasticsearch 查询失败…")` | 未配置数据源或 `close()` 后调用时，调用方只能看到泛化的查询失败（`cause` 里才是真相），无法区分「用法错误」与「服务端故障」，与同族引擎的 ISE 契约不一致 |
 | 21 | **批量索引的「部分失败」详情被二次包裹丢失** | `store` 把 `errors()` 的抛出写在 `try` 内，随后被自己的 `catch (Exception)` 重新包装，`失败条数` 只留在 `cause` 里 | 排障时只能看到「批量索引失败」，拿不到失败条数这类关键定位信息 |
+| 22 | **`Neo4jEngine` 的 `query(X).count()` 抛 `UnsupportedOperationException`** | 与缺陷 14/17/19 同源：匿名包装器只覆写 `list/one/page`，未覆写基类要求引擎实现的 `count()`；引擎内部本就有 `cypherCount` | 计数 API 完全不可用；若改用 `list().size()` 回退，在大图上会把整表拉进内存 |
+| 23 | **`Neo4jEngine` 用 `getSimpleName()` 推导 label，`@TableName` 与驼峰转下划线双双失效** | 5 处 label 拼装绕过 `AbstractEngine.resolveTableName` | `store("t_acc_user", rows)` 写入 `:AccUser`，无注解实体写成 `:PlainUser` 而非 `:plain_user`；与节点上已有数据的 label 不符时**写进去读不出来**（`MATCH` 命中 0 行） |
+| 24 | **`close()` 无条件关闭调用方注入的 `Driver`** | 引擎不区分「自己 new 的驱动」与「`addDataSource(Driver)` 注入的驱动」，`close()` 一律 `driver.close()` | 外部容器/连接池注入的驱动被引擎擅自关闭——同一驱动被多个消费者共享时，**关闭引擎即打断他人连接**；且 `driver` 未置空，关闭后仍会拿已关闭驱动去查询 |
+| 25 | **驱动异常被原样透出，丢失 Cypher 上下文** | `store`/查询路径把 `RuntimeException` 直接 `throw e`（4 处），不带任何查询信息 | 服务端报错时调用方只看到驱动原始消息（如语法错误、约束冲突），**无法定位是哪条 Cypher、哪个 label**；与同族引擎「带索引名/表名包装」的契约不一致 |
 
 缺陷 10 的修法（`utils-support-questdb-starter`，`QuestdbSeriesEngine`）：
 
@@ -292,6 +305,30 @@ monitor 模块的 Bean 工厂创建。
 > `close()` 后仍抛泛化 `RuntimeException`（20）、`失败条数` 不在消息里（21）。
 > 恢复修复后重新 `mvn -o clean install`，回到 21/21 全绿。
 
+缺陷 22/23/24/25 的修法（`utils-support-neo4j-starter`）：
+
+- **22**：匿名包装器补 `count()`，直接复用引擎已有的 `cypherCount`（`RETURN count(n) AS total`），
+  不做 `list().size()` 回退；
+- **23**：新增 `safeLabel(String)`（反引号包裹并转义），5 处 label 一律取
+  `AbstractEngine.resolveTableName(entityClass)`——`@TableName` 优先、否则驼峰转下划线，
+  与 Solr / Redis / ES / JDBC 共用同一套规则；
+- **24**：新增 `ownsDriver` 标志——`addDataSource(Driver)` 注入的驱动视为**调用方所有**，
+  `addDataSource(uri)` 与 `connect()` 建立的驱动视为**引擎所有**；`close()` 只在自有驱动时
+  真正关闭，两种情形都把 `driver` 置 `null`，关闭后查询统一抛 ISE；
+- **25**：删掉 4 处 `catch (RuntimeException e) { throw e; }`，统一包装为带
+  `Neo4j 查询失败` + 具体 Cypher 的异常，并保留原始 `cause`。
+
+> **契约差异（显式声明，不是缺陷）**：`store(name, rows)` 的 `name` 参数**不参与** label 推导，
+> label 始终由实体类型决定。图数据库的 label 即实体类型，按任意 `name` 写入会产生
+> 「只写数据」（没有读路径能解析出同一 label）。该行为由阶段十八第 5 条断言显式钉住，
+> 以免后人误改成按 `name` 写标签。
+>
+> 阶段十八的隔离实验（**实际运行**）：把 Neo4j 源码退回 HEAD、`mvn -o clean package`
+> 产出 `target/classes` 并置于 classpath 最前（**不覆盖** `D:\maven-repo`），同一套断言由
+> 25/25 变为 **15 PASS / 10 FAIL**，失败点精确对应：`(:AccUser)` / `(:PlainUser)` 标签（23）、
+> `count()` 抛 UOE（22）、`close()` 关闭了注入的驱动（24）、异常消息只剩
+> `simulated server failure`（25）。恢复修复后重新 `mvn -o clean install`，回到 25/25 全绿。
+
 ## 5. 查证后**判定为非缺陷**的（避免后人误"修"）
 
 1. **`ParquetEngine` 不支持 `querySql`** —— 其 `supportsSql()==false`，读路径是
@@ -314,18 +351,19 @@ harness **已入库**（不再只留 `.tmp`，那里没有版本控制）：
 
 ```
 utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
-├─ run-acceptance.bat          十七阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-acceptance.bat          十八阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              十七个验收程序
+├─ harness/*.java              十八个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 十七阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 十八阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 run-acceptance.bat 17           :: 只跑阶段十七（Elasticsearch）
+run-acceptance.bat 18           :: 只跑阶段十八（Neo4j）
 ```
 
 > **交付教训（2026-10-04 实际发生）**：仓库根 `.gitignore` 有 `*.ps1`（16 行）/
@@ -351,8 +389,8 @@ run-acceptance.bat 17           :: 只跑阶段十七（Elasticsearch）
 
 ## 7. 尚未覆盖（如实声明）
 
-1. **需外部服务的 7 个引擎**（postgresql、sqlserver、oracle、clickhouse、hbase、
-   neo4j、greptimedb）只有契约面；
+1. **需外部服务的 6 个引擎**（postgresql、sqlserver、oracle、clickhouse、hbase、
+   greptimedb）只有契约面；
    本机无对应服务，无法做真实读写验收。**这部分是"未验"，不是"已通过"。**
    > `prometheus` **已从本清单移出**：阶段八用本机 HTTP 桩（`com.sun.net.httpserver`）
    > 打通了 8 个 `/api/v1/*` 端点，`PrometheusEngine` / `PrometheusClient` 的查询、
@@ -374,6 +412,13 @@ run-acceptance.bat 17           :: 只跑阶段十七（Elasticsearch）
    > 分页、计数、`_source` 映射、bulk 写入与失败语义全部真实执行。
    > **仍未覆盖**的是真实 ES 服务端的查询语义（分词/打分/聚合）、索引与 mapping 管理、
    > 集群与副本行为。**注意：这不等于「已完成真实读写验收」**——没有 ES 服务端参与。
+   >
+   > `neo4j` **已从本清单移出**：阶段十八用 `java.lang.reflect.Proxy` 构建假
+   > `Driver`/`Session`/`Transaction`/`Result`/`Record`/`Value`，让引擎真实拼出 Cypher、
+   > 真实展开实体属性、真实解析回放记录（25 条断言）。**仍未覆盖**的是真实 Neo4j
+   > 服务端的 Cypher 语义（索引/约束、执行计划、事务冲突）、以及驱动自身的网络层。
+   > **这不等于「已完成真实读写验收」**——没有 Neo4j 服务端参与。
+   > 已显式钉住的契约差异：`store(name, rows)` 的 `name` 不参与 label 推导（见 §4）。
 2. ~~**`InfluxdbSeriesEngine` 只有契约面**~~ → **已升级**：阶段九用 `java.lang.reflect.Proxy`
    注入一个 `InfluxDB` 桩客户端（该引擎提供了公开的注入构造器，注释即写明用于「测试或外部生命周期管理」），
    把**引擎自身逻辑**全部真实执行（26 条断言）。**仍未覆盖**的是真实 InfluxDB 的
@@ -794,6 +839,39 @@ Redis 不支持 `MODULE` 命令，即没有 RediSearch 模块——因此 `FT.SE
 >
 > **仍未覆盖**：真实 ES 服务端的查询语义（分词/打分/聚合）、索引与 mapping 管理、
 > 集群与副本行为——那属于服务端语义，且本引擎不自带索引管理。
+
+### 14.8 Neo4jEngine：动态代理假 Driver 驱动真实 Cypher 生成（阶段十八，25 条）
+
+本机没有 Neo4j 服务端。但引擎的 `addDataSource` 接受**任意** `org.neo4j.driver.Driver`，
+而 `Driver` / `Session` / `Transaction` / `TransactionContext` / `Result` / `Record` / `Value`
+**全部是接口**——这正是可以用 `java.lang.reflect.Proxy` 精确替身的地方：
+
+- 引擎照常拼 Cypher、照常把实体展开成属性 Map、照常把 `Record` 映射回实体；
+- 假驱动**记录每一条实际执行的 Cypher 与每个参数**，并按 Cypher 形态回放固定记录
+  （`count(n) AS total` → 计数记录、`RETURN n` → 行记录、写入语句 → 空结果）；
+- 断言因此聚焦「引擎到底发了什么、又如何解释结果」，而不是第三方驱动的网络层。
+
+| 面 | 断言内容 |
+|---|---|
+| label | `@TableName("t_acc_user")` → `MATCH (n:`t_acc_user`)`；无注解 `PlainUser` → `:plain_user`；**写入与读取 label 一致**；不再出现 `AccUser`（缺陷 23 回归锁） |
+| 标签契约 | `store("whatever_name", …)` 仍写实体 label，`name` 不参与推导（行为显式钉住，见 §4 契约差异） |
+| 查询构造 | 无条件 → `MATCH (n:…) RETURN n`；`eq` → `WHERE n.name = $p0` 且值不内联；多条件 `AND` 且参数编号递增；`one()` → `LIMIT 1`；`page(2,3)` → `SKIP 3 LIMIT 3`；`orderByDesc` → `ORDER BY n.name DESC` |
+| 计数 | `page().total` 与 `count()` 均走 `count(n) AS total`，`count()` 返回真实值（缺陷 22 回归锁） |
+| 映射 | 节点属性 → 实体（`Integer`/`Number` → `Long`/`Integer`）；缺失属性保持 `null` |
+| 写入 | `UNWIND $rows AS row CREATE (n:…) SET n = row`，`rows` 为属性 Map 列表且同 getter 一致；空列表不触达驱动 |
+| 更新/删除 | `SET n.name = $set0` + `RETURN count(n) AS updated`，返回 counters；`DETACH DELETE n` + `RETURN count(n) AS deleted` |
+| 原生执行 | `execute(cypher, args…)` 不改写 Cypher，位置参数转 `$p0`，返回 `nodesCreated+nodesDeleted+relationshipsCreated+relationshipsDeleted` |
+| 失败语义 | 未初始化 → ISE（消息含「驱动未初始化」）；驱动异常 → `RuntimeException` 消息含「Neo4j 查询失败」与 label、`cause` 保留（缺陷 25 回归锁） |
+| 生命周期 | `close()` **不关闭注入的 `Driver`**（缺陷 24 回归锁）；`close()` 后查询抛 ISE、重复 `close()` 不抛；无执行器 / `supportsSql=false` / `supportsMeta=false` / `querySql` 抛 UOE |
+
+> **隔离实验（实际运行）**：把 Neo4j 源码退回 HEAD，`mvn -o clean package` 得到
+> `target/classes`，仅将该目录置于 classpath 最前（**不覆盖** `D:\maven-repo` 中的制品），
+> 同一套断言由 25/25 变为 **15 PASS / 10 FAIL**：
+> `(:AccUser)` / `(:PlainUser)` 标签、`count()` 抛 UOE、`close()` 关闭了注入的驱动、
+> 异常消息只剩 `simulated server failure`。恢复修复后重新 `mvn -o clean install`，回到 25/25 全绿。
+>
+> **仍未覆盖**：真实 Neo4j 服务端的 Cypher 语义（索引/约束、执行计划、事务冲突与重试）、
+> 驱动自身的连接池与网络层——没有 Neo4j 服务端参与，**这不等于「已完成真实读写验收」**。
 
 
 
