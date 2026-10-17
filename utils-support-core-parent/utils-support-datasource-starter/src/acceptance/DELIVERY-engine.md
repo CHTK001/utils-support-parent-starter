@@ -10,7 +10,7 @@
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
 已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
 `03d360448`（补回被全局 ignore 规则静默剔除的两个运行器）、本轮阶段六
-验收结论：**十二阶段共 769 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
+验收结论：**十三阶段共 785 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
 
 > **本轮为何要重绑 md5**：2026-10-04 首次出报告后，本地仓库里这批制品被后续构建
 > 重新产出（`common-starter` 4,563,385 → 4,743,831 B，`monitor-starter` 1,127,261 → 922,392 B 等），
@@ -78,6 +78,12 @@
 | prometheus | `PrometheusEngine` | sqlserver-legacy | `SqlServerLegacyEngine` |
 | redis | `RediSearchEngine` | tablesaw | `TablesawEngine` |
 
+**深度功能覆盖**：memory / file / h2 / sqlite / duckdb（阶段二）、parquet / lucene / nitrite /
+tablesaw / rocksdb（阶段四）、mysql（阶段三，真实 3306）、prometheus（阶段八，本机 HTTP 桩）、
+influxdb（阶段十三，纯内存）、redis（阶段三/五，真实 6379）；非 SPI 的 datalake-query
+（阶段十，本机 HTTP 桩）与 ReactorFlywayBridge（阶段六，真实 SQLite）。
+其余 9 个需外部服务的引擎只有契约面（见 §7）。
+
 **非 SPI 注册的 Engine 实现**（不在 `ServiceProvider` 可发现范围内）：
 
 | 实现 | 性质 | 覆盖状态 |
@@ -143,8 +149,9 @@ monitor 模块的 Bean 工厂创建。
 | 十 | `HttpDatalakeQueryEngine`：本机 HTTP 桩真实读写（`POST /query` 编码与请求体、JSON 行解析与类型映射、POJO、客户端分页、受影响行数、畸形响应拒绝） | 21 | 全绿 |
 | 十一 | `RocksDbSeriesEngine`：真实嵌入式 RocksDB（装配判定、守卫、键布局与时间戳编码、降采样、范围裁剪、同戳覆盖、monitor 隔离、索引回收、清理条数、跨实例持久化） | 17 | 全绿 |
 | 十二 | `QuestdbSeriesEngine`：本机 HTTP 桩（ILP 报文、逐点 flush、写入失败不静默、地址归一化、`/write`+`/exec` 双侧鉴权、探测 SQL、列收窄、查询 SQL 与 ISO 边界、微秒归一秒、坏点丢弃、`DELETE` 语义、关闭） | 30 | 全绿 |
+| 十三 | `InfluxDbEngine`（SPI `influxdb`，纯内存）：能力自洽、表名解析与回退、同名覆盖、跨表隔离、条件/排序/计数、分页边界、全表守卫、带条件写真实生效 | 16 | 全绿 |
 
-**合计 769 条断言，0 失败**（`run-acceptance.bat`：十二阶段逐段 `PASS`，
+**合计 785 条断言，0 失败**（`run-acceptance.bat`：十三阶段逐段 `PASS`，
 末行 `ACCEPTANCE_RESULT=PASS`，退出码 0）。
 
 ## 4. 修复的 10 处真实缺陷
@@ -192,16 +199,16 @@ harness **已入库**（不再只留 `.tmp`，那里没有版本控制）：
 
 ```
 utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
-├─ run-acceptance.bat          十二阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-acceptance.bat          十三阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              十二个验收程序
+├─ harness/*.java              十三个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 十二阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 十三阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 ```
 
@@ -534,5 +541,25 @@ RocksDB 是嵌入式库，数据落本地目录，无需外部服务——本阶
 > 另：`purge` 的 `metricName` 只做白名单校验、不进入 DELETE 条件——QuestDB 是宽表布局
 > （一指标一列），按时间删行必然连带同时间戳的其它指标，强行按 metric 过滤反而会留下
 > 半行数据；该语义已在阶段十二以显式断言固定下来，不是遗漏。
+
+### 14.3 `InfluxDbEngine` 从「仅契约」升级为深度功能（阶段十三，16 条）
+
+`InfluxDbEngine` 是 SPI 键 `influxdb` 指向的 **Engine**（别与阶段九的
+`InfluxdbSeriesEngine` 混淆）。它的名字容易让人以为需要 InfluxDB 服务，实际实现是
+**纯内存**：`store(name, data)` 写入 + `MemoryWhereParser` 求值，因此本机即可完整验收。
+
+| 面 | 断言内容 |
+|---|---|
+| 能力自洽 | `supportsSql()==false`、`getExecutor()==null`、`querySql` 抛 `UOE`；未注册数据源时 `dataSourceNames()` 为空 |
+| 表名解析 | 按实体 `@TableName` 命中；非 `default` 的无关表**不串读**；无表名数据回退到 `default` |
+| 覆盖语义 | 同名重复 `store` 为覆盖而非追加 |
+| 查询 | `eq` 命中唯一行且字段映射完整；`gt` + `orderByDesc` 同时生效；无匹配返回空而非全表 |
+| 分页 | `page(1,2)`/`page(2,2)` 不重叠；**skip 先于 limit**（1000 行第 500 页恰为 999/1000）；越界页为空 |
+| 写守卫 | 空条件 `update`/`delete` 被 `IllegalStateException` 拒绝且 **数据不变**；带条件时真实生效且只命中目标行 |
+
+> 该阶段**修正了两条我自己写错的断言**（`age>26` 的样例数据只有 3 行；内存引擎并非不支持
+> `update`/`delete`）——记录在此，因为它说明「验收代码也会错」，断言必须先与实现/数据对齐，
+> 不能拿别处的期望值硬套。
+
 
 
