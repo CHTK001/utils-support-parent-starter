@@ -78,7 +78,7 @@ public class SqlServerEngine extends JdbcEngine {
             }
         }
 
-        ds.setJdbcUrl("jdbc:sqlserver://" + targetHost + ":" + targetPort
+        ds.setJdbcUrl("jdbc:sqlserver://" + JdbcUrl.hostPort(targetHost, targetPort)
                 + ";databaseName=" + options.database() + ";encrypt=false;trustServerCertificate=true");
         ds.setUsername(options.username());
         ds.setPassword(options.password());

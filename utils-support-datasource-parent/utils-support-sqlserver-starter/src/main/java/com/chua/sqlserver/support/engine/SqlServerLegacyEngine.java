@@ -105,7 +105,7 @@ public class SqlServerLegacyEngine extends JdbcEngine {
         // jTDS URL 参数从 options.jtdsUrlParams() 读取，避免硬编码
         Map<String, String> jtdsParams = options.jtdsUrlParams();
         StringBuilder urlBuilder = new StringBuilder(JTDS_URL_PREFIX)
-                .append(targetHost).append(':').append(targetPort)
+                .append(JdbcUrl.hostPort(targetHost, targetPort))
                 .append('/').append(options.database());
         urlBuilder.append(";selectMethod=").append(jtdsParams.getOrDefault("selectMethod", DEFAULT_JTDS_SELECT_METHOD));
         String domain = jtdsParams.get("domain");

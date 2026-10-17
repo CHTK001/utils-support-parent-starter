@@ -50,7 +50,7 @@ public class PostgresqlReactorEngine extends JdbcReactorEngine {
         ((PostgresqlEngine) delegate).addDataSource(name, host, port, database, username, password);
         // 注册到响应式 JDBC 路径（boundedElastic 上执行），与同步引擎共用同一库
         registerJdbcDataSource(name,
-                "jdbc:postgresql://" + host + ":" + port + "/" + database,
+                "jdbc:postgresql://" + JdbcUrl.hostPort(host, port) + "/" + database,
                 username, password);
         return this;
     }

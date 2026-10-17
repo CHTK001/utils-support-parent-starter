@@ -2,6 +2,7 @@ package com.chua.oracle.support.engine;
 
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.JdbcReactorEngine;
+import com.chua.datasource.support.url.JdbcUrl;
 
 /**
  * Oracle 响应式引擎，对应同步侧 {@link OracleEngine}。
@@ -45,7 +46,7 @@ public class OracleReactorEngine extends JdbcReactorEngine {
         ((OracleEngine) delegate).addDataSource(name, host, port, database, username, password);
         // 注册到响应式 JDBC 路径（boundedElastic 上执行），与同步引擎共用同一库
         registerJdbcDataSource(name,
-                "jdbc:oracle:thin:@//" + host + ":" + port + "/" + database,
+                "jdbc:oracle:thin:@//" + JdbcUrl.hostPort(host, port) + "/" + database,
                 username, password);
         return this;
     }

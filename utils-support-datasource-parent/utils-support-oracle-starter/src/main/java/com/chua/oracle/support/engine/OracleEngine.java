@@ -80,7 +80,7 @@ public class OracleEngine extends JdbcEngine {
             }
         }
 
-        ds.setJdbcUrl("jdbc:oracle:thin:@//" + targetHost + ":" + targetPort + "/" + options.database());
+        ds.setJdbcUrl("jdbc:oracle:thin:@//" + JdbcUrl.hostPort(targetHost, targetPort) + "/" + options.database());
         ds.setUsername(options.username());
         ds.setPassword(options.password());
         ds.setMaximumPoolSize(10);
