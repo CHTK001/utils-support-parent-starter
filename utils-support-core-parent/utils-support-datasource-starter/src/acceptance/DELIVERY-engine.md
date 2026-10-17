@@ -45,6 +45,16 @@
 | `com.chua:utils-support-prometheus-starter:4.0.0.42` | `cc5a0a50` | 53,300 B | 阶段八被测代码所在（`PrometheusEngine` / `PrometheusClient`） |
 | `com.chua:utils-support-influxdb-starter:4.0.0.42` | `03bea1f4` | 25,078 B | 阶段九被测代码所在（`InfluxdbSeriesEngine`） |
 | `com.chua:utils-support-chronicle-starter:4.0.0.42` | `123a7ba2` | 32,048 B | 阶段三被测代码之一（`ChronicleMapKv`） |
+| `com.chua:utils-support-duckdb-starter:4.0.0.42` | `315a0324` | 18,270 B | 阶段二深度功能面（`DuckDBEngine`） |
+| `com.chua:utils-support-postgresql-starter:4.0.0.42` | `6d9e8995` | 94,698 B | 阶段一契约面（24 键之一 `postgresql`） |
+| `com.chua:utils-support-sqlserver-starter:4.0.0.42` | `610bef4d` | 13,898 B | 阶段一契约面（`sqlserver` / `sqlserver-legacy`） |
+| `com.chua:utils-support-oracle-starter:4.0.0.42` | `617db9a8` | 34,458 B | 阶段一契约面（`oracle`） |
+| `com.chua:utils-support-clickhouse-starter:4.0.0.42` | `6d4d428b` | 10,319 B | 阶段一契约面（`clickhouse`） |
+| `com.chua:utils-support-hbase-starter:4.0.0.42` | `7e9eb07b` | 12,262 B | 阶段一契约面（`hbase`） |
+| `com.chua:utils-support-solr-starter:4.0.0.42` | `34c1847c` | 48,499 B | 阶段一契约面（`solr`） |
+| `com.chua:utils-support-neo4j-starter:4.0.0.42` | `fdf22bed` | 25,466 B | 阶段一契约面（`neo4j`） |
+| `com.chua:utils-support-elasticsearch-starter:4.0.0.42` | `b2a2cb4e` | 55,833 B | 阶段一契约面（`elasticsearch`） |
+| `com.chua:utils-support-greptimedb-starter:4.0.0.42` | `998edaed` | 32,785 B | 阶段一契约面（`greptimedb`） |
 
 签收前须重新核对上述 md5；不一致即本报告作废（本轮已因制品被重建而重跑过一次）。
 
@@ -56,6 +66,11 @@
 > **本轮补登记的 3 个制品**（`prometheus` / `influxdb` / `chronicle`）：它们的代码分别在
 > 阶段八 / 九 / 三中被直接执行，但此前**从未进入 md5 表**——等于「验了却没绑定」。
 > 本轮按实际加载的 jar 补登记，报告的证据链才闭合。
+>
+> 同理补登记了**阶段一契约面涉及的 10 个制品**（duckdb / postgresql / sqlserver / oracle /
+> clickhouse / hbase / solr / neo4j / elasticsearch / greptimedb）：阶段一逐个构造这些引擎并
+> 断言其契约，等于执行了这些 jar 里的代码，不绑定就无法证明「签收的是哪一份」。
+> 至此，**凡是本验收直接执行其代码的 28 个制品，全部绑定 md5**。
 
 ## 2. 子类清单与覆盖状态（权威口径）
 
