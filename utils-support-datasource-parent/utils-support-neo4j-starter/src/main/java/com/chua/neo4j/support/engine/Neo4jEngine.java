@@ -59,6 +59,14 @@ public class Neo4jEngine implements Engine {
       private Driver driver;
 
       /**
+       * 驱动所有权：{@code true} 表示由本引擎创建（{@link #connect} /
+       * {@code addDataSource(uri)}），{@link #close()} 时才可关闭它。
+       * <p>由调用方注入的 {@link Driver} 实例归调用方所有——引擎擅自关闭会让外部
+       * 持有的连接失效（与 Elasticsearch / Solr 引擎的既有语义保持一致）。</p>
+       */
+      private boolean ownsDriver;
+
+      /**
        * 关闭标记：{@link #close()} 后置位，使 close() 幂等且 {@link #isClosed()} 可查询。
        * <p>Neo4jEngine 直接实现 {@code Engine} 而非继承 {@code AbstractEngine}，
        * 因此不继承基类的关闭标记，需自行维护。</p>
@@ -124,12 +132,15 @@ public class Neo4jEngine implements Engine {
         Object src = ds.getSource();
         if (src instanceof Driver d) {
             driver = d;
+            // 外部注入：所有权仍在调用方，close() 不得代为关闭
+            ownsDriver = false;
         } else if (src instanceof String uri) {
             if (uri.contains("@")) {
                 driver = GraphDatabase.driver(uri);
             } else {
                 driver = GraphDatabase.driver(uri, AuthTokens.none());
             }
+            ownsDriver = true;
         } else {
             throw new IllegalArgumentException("Neo4j 数据源仅支持 Driver 或 bolt URI 字符串，实际为: "
                     + (src == null ? "null" : src.getClass().getName()));
@@ -155,6 +166,7 @@ public class Neo4jEngine implements Engine {
                 .withMaxConnectionLifetime(30, java.util.concurrent.TimeUnit.MINUTES)
                 .build();
         driver = GraphDatabase.driver(uri, AuthTokens.basic(user, password), config);
+        ownsDriver = true;
         try (Session session = driver.session()) {
             try (Transaction tx = session.beginTransaction()) {
                 var result = tx.run("RETURN 1 AS n");
@@ -187,7 +199,8 @@ public class Neo4jEngine implements Engine {
             throw new IllegalStateException("Neo4j 驱动未初始化，请先调用 connect 或注册数据源");
         }
         Class<T> entityClass = (Class<T>) data.getFirst().getClass();
-        String label = safeLabel(entityClass.getSimpleName());
+        String label = safeLabel(com.chua.datasource.support.engine.AbstractEngine
+                .resolveTableName(entityClass));
         List<Map<String, Object>> rows = Wraps.list(data.size());
         for (T entity : data) {
             Map<String, Object> props = Wraps.linkedMap();
@@ -311,9 +324,12 @@ public class Neo4jEngine implements Engine {
           if (!closed.compareAndSet(false, true)) {
               return;
           }
-          if (driver != null) {
+          if (driver != null && ownsDriver) {
               driver.close();
           }
+          // 置空：close() 之后任何读写都必须以「驱动未初始化」快速失败，
+          // 而不是拿一个已关闭的驱动去触碰网络。
+          driver = null;
           dataSources.clear();
       }
 
@@ -410,6 +426,19 @@ public class Neo4jEngine implements Engine {
                     return new Page<>(pn, ps, all.size(), Collections.emptyList());
                 }
                 return new Page<>(pn, ps, all.size(), all.subList(from, to));
+            }
+
+            @Override
+            /**
+             * 统计满足条件的节点数
+             * <p>基类实现要求引擎覆写，否则直接抛 {@code UnsupportedOperationException}。
+             * {@code page()} 的 total 早已走 {@code cypherCount}，本方法只是把它接到
+             * {@code count()} 这个公开入口上，语义与 {@code list()} 完全一致。</p>
+             *
+             * @return 命中节点数
+            */
+            public long count() {
+                return cypherCount(entityClass, getConditions());
             }
         };
     }
@@ -529,7 +558,8 @@ public class Neo4jEngine implements Engine {
         if (driver == null) {
             throw new IllegalStateException("Neo4j 驱动未初始化，请先调用 connect 或注册数据源");
         }
-        String label = safeLabel(entityClass.getSimpleName());
+        String label = safeLabel(com.chua.datasource.support.engine.AbstractEngine
+                .resolveTableName(entityClass));
         Map<String, Object> params = Wraps.linkedMap();
         String whereClause = buildCypherWhere(conditions, params, "n");
         StringBuilder cypher = new StringBuilder("MATCH (n:").append(label).append(")");
@@ -554,9 +584,9 @@ public class Neo4jEngine implements Engine {
         try (var session = driver.session()) {
             var result = session.run(cypher.toString(), params);
             return result.list(r -> mapToEntity(r.get("n").asMap(), entityClass));
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception e) {
+            // 驱动抛出的 Neo4jException 本身是 RuntimeException；若原样透出，
+            // 调用方只能看到服务端消息，拿不到「哪条 Cypher 失败」。
             throw new RuntimeException("Neo4j 查询失败: " + cypher, e);
         }
     }
@@ -572,7 +602,8 @@ public class Neo4jEngine implements Engine {
         if (driver == null) {
             throw new IllegalStateException("Neo4j 驱动未初始化，请先调用 connect 或注册数据源");
         }
-        String label = safeLabel(entityClass.getSimpleName());
+        String label = safeLabel(com.chua.datasource.support.engine.AbstractEngine
+                .resolveTableName(entityClass));
         Map<String, Object> params = Wraps.linkedMap();
         String whereClause = buildCypherWhere(conditions, params, "n");
         StringBuilder cypher = new StringBuilder("MATCH (n:").append(label).append(")");
@@ -582,8 +613,6 @@ public class Neo4jEngine implements Engine {
         cypher.append(" RETURN count(n) AS total");
         try (var session = driver.session()) {
             return session.run(cypher.toString(), params).single().get("total").asLong();
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Neo4j 计数失败: " + cypher, e);
         }
@@ -628,7 +657,8 @@ public class Neo4jEngine implements Engine {
         if (CollectionUtils.isEmpty(setValues)) {
             return 0;
         }
-        String label = safeLabel(entityClass.getSimpleName());
+        String label = safeLabel(com.chua.datasource.support.engine.AbstractEngine
+                .resolveTableName(entityClass));
         Map<String, Object> params = Wraps.linkedMap();
         String whereClause = buildCypherWhere(conditions, params, "n");
 
@@ -653,8 +683,6 @@ public class Neo4jEngine implements Engine {
 
         try (var session = driver.session()) {
             return session.run(cypher.toString(), params).single().get("updated").asInt();
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Neo4j 更新失败: " + cypher, e);
         }
@@ -670,7 +698,8 @@ public class Neo4jEngine implements Engine {
         if (driver == null) {
             throw new IllegalStateException("Neo4j 驱动未初始化，请先调用 connect 或注册数据源");
         }
-        String label = safeLabel(entityClass.getSimpleName());
+        String label = safeLabel(com.chua.datasource.support.engine.AbstractEngine
+                .resolveTableName(entityClass));
         Map<String, Object> params = Wraps.linkedMap();
         String whereClause = buildCypherWhere(conditions, params, "n");
 
@@ -682,8 +711,6 @@ public class Neo4jEngine implements Engine {
 
         try (var session = driver.session()) {
             return session.run(cypher.toString(), params).single().get("deleted").asInt();
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Neo4j 删除失败: " + cypher, e);
         }
