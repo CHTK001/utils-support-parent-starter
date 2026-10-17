@@ -10,7 +10,7 @@
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
 已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
 `03d360448`（补回被全局 ignore 规则静默剔除的两个运行器）、本轮阶段六
-验收结论：**十四阶段共 830 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
+验收结论：**十五阶段共 858 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
 
 > **本轮为何要重绑 md5**：2026-10-04 首次出报告后，本地仓库里这批制品被后续构建
 > 重新产出（`common-starter` 4,563,385 → 4,743,831 B，`monitor-starter` 1,127,261 → 922,392 B 等），
@@ -51,7 +51,7 @@
 | `com.chua:utils-support-oracle-starter:4.0.0.42` | `28d846c7` | 34,618 B | 阶段一契约面（`oracle`）+ 缺陷 11/12 修复 + 阶段十四 |
 | `com.chua:utils-support-clickhouse-starter:4.0.0.42` | `d9763073` | 10,359 B | 阶段一契约面（`clickhouse`）+ 缺陷 12 修复 + 阶段十四 |
 | `com.chua:utils-support-hbase-starter:4.0.0.42` | `7e9eb07b` | 12,262 B | 阶段一契约面（`hbase`） |
-| `com.chua:utils-support-solr-starter:4.0.0.42` | `34c1847c` | 48,499 B | 阶段一契约面（`solr`） |
+| `com.chua:utils-support-solr-starter:4.0.0.42` | `46b6a1c9` | 48,582 B | 阶段一契约面（`solr`）+ **阶段十五深度功能**（假 `SolrClient` 驱动真实路径）+ 缺陷 13/14 修复 |
 | `com.chua:utils-support-neo4j-starter:4.0.0.42` | `fdf22bed` | 25,466 B | 阶段一契约面（`neo4j`） |
 | `com.chua:utils-support-elasticsearch-starter:4.0.0.42` | `b2a2cb4e` | 55,833 B | 阶段一契约面（`elasticsearch`） |
 | `com.chua:utils-support-greptimedb-starter:4.0.0.42` | `998edaed` | 32,785 B | 阶段一契约面（`greptimedb`） |
@@ -79,6 +79,9 @@
 > 其余 22 个制品字节未变。上表已就地更新，且 6 个新值与 `src/acceptance/lib/` 内
 > 实际加载的 jar 用 `certutil` 逐个复核一致（见提交说明）。
 
+> **阶段十五重绑 1 个制品**：为修缺陷 13/14 重新构建了
+> `solr`（`34c1847c` → `46b6a1c9`，48,582 B）。其余 27 个制品字节未变。
+
 ## 2. 子类清单与覆盖状态（权威口径）
 
 ### 2.1 Engine —— SPI 注册的 24 个（阶段一全覆盖）
@@ -102,11 +105,12 @@
 
 **深度功能覆盖**：memory / file / h2 / sqlite / duckdb（阶段二）、parquet / lucene / nitrite /
 tablesaw / rocksdb（阶段四）、mysql（阶段三，真实 3306）、prometheus（阶段八，本机 HTTP 桩）、
-influxdb（阶段十三，纯内存）、redis（阶段三/五，真实 6379）；非 SPI 的 datalake-query
-（阶段十，本机 HTTP 桩）与 ReactorFlywayBridge（阶段六，真实 SQLite）。
+influxdb（阶段十三，纯内存）、redis（阶段三/五，真实 6379）、solr（阶段十五，记录型假
+`SolrClient` 驱动真实查询/写入/删除路径）；非 SPI 的 datalake-query（阶段十，本机 HTTP 桩）
+与 ReactorFlywayBridge（阶段六，真实 SQLite）。
 另：postgresql / sqlserver（含 legacy）/ oracle / clickhouse 在阶段十四验证了
 **配置拼装、入参守卫、失败语义与关闭语义**，但**查询语义仍未验**（见 §7）。
-其余 9 个需外部服务的引擎只有契约面（见 §7）。
+其余 8 个需外部服务的引擎只有契约面（见 §7）。
 
 **非 SPI 注册的 Engine 实现**（不在 `ServiceProvider` 可发现范围内）：
 
@@ -175,11 +179,12 @@ monitor 模块的 Bean 工厂创建。
 | 十二 | `QuestdbSeriesEngine`：本机 HTTP 桩（ILP 报文、逐点 flush、写入失败不静默、地址归一化、`/write`+`/exec` 双侧鉴权、探测 SQL、列收窄、查询 SQL 与 ISO 边界、微秒归一秒、坏点丢弃、`DELETE` 语义、关闭） | 30 | 全绿 |
 | 十三 | `InfluxDbEngine`（SPI `influxdb`，纯内存）：能力自洽、表名解析与回退、同名覆盖、跨表隔离、条件/排序/计数、分页边界、全表守卫、带条件写真实生效 | 16 | 全绿 |
 | 十四 | 5 个无服务端 JDBC 引擎的本机可验面：URL 精确拼装、入参注入串拒绝、端口 0 契约、不可达快速失败、连接池真关闭 | 45 | 全绿 |
+| 十五 | Solr（SPI `solr`）：假 `SolrClient` 驱动真实路径——表名解析、q 构造、分页下推、numFound 计数、文档映射、写入/删除、失败语义、生命周期 | 28 | 全绿 |
 
-**合计 830 条断言，0 失败**（`run-acceptance.bat`：十四阶段逐段 `PASS`，
+**合计 858 条断言，0 失败**（`run-acceptance.bat`：十五阶段逐段 `PASS`，
 末行 `ACCEPTANCE_RESULT=PASS`，退出码 0）。
 
-## 4. 修复的 12 处真实缺陷
+## 4. 修复的 14 处真实缺陷
 
 | # | 缺陷 | 根因 | 影响 |
 |---|---|---|---|
@@ -195,6 +200,8 @@ monitor 模块的 Bean 工厂创建。
 | 10 | **`QuestdbSeriesEngine` 开启鉴权时读路径全部 401** | `token` / `username` / `password` 只交给了写入用的官方 `Sender`；查询/指标发现/清理走的 JDK `HttpClient` **一个鉴权头都没发**（`execQuery` 只设了超时） | 配了鉴权的 QuestDB 上，写入成功但 `metrics` / `series` / `purge` 全失败；而默认无鉴权的本地实例掩盖了它 |
 | 11 | **`OracleEngine` / `SqlServerLegacyEngine` 缺 JDBC 入参校验** | 同目录的 postgresql / sqlserver / clickhouse 都调 `JdbcUrl.checkHost/checkPort/checkDatabase` 再拼 URL，这两个引擎直接裸拼 | `host=null` 拼出 `jdbc:oracle:thin:@//null:1521/db` 之类只在连接阶段报错的串；`database="db?autoDeserialize=true"` 这类串可改写驱动属性（`JdbcUrl` 的类注释写明了这条注入路径），属于注入面 |
 | 12 | **端口 0 的「驱动默认端口」契约在 10 处拼装点上失效** | `JdbcUrl.checkPort` 的 Javadoc 明确「0 表示使用驱动默认端口」，但所有引擎无条件拼 `host + ":" + port` | 传 0 得到 `host:0`，驱动会去连 **0 端口**而不是回退默认端口；文档承诺的用法 100% 失败，且报错与其根因无关 |
+| 13 | **Solr 引擎绕过 `@TableName`，`store` 与 `query` 集合名不一致** | `SolrEngine` 5 处集合名用 `entityClass.getSimpleName().toLowerCase()` 推导，绕过了 `AbstractEngine.resolveTableName`（优先 `@TableName`，否则驼峰转下划线） | `store("t_acc_user", rows)` 写入 `t_acc_user`，而 `query(AccUser.class)` 去查 `accuser`——**写进去的数据读不出来**；无注解实体也与 H2/SQLite/内存等引擎的集合名不一致 |
+| 14 | **Solr `query(X).count()` 直接抛 `UnsupportedOperationException`** | `LambdaQueryWrapper.count()` 的基类实现要求引擎覆写，Solr 的匿名包装器只覆写了 `list/one/page` | ORM 的计数 API 完全不可用（尽管 Solr 响应里已经有 `numFound`）；若改用 `list().size()` 回退，还会被 1000 行上限截断 |
 
 缺陷 10 的修法（`utils-support-questdb-starter`，`QuestdbSeriesEngine`）：
 
@@ -241,16 +248,16 @@ harness **已入库**（不再只留 `.tmp`，那里没有版本控制）：
 
 ```
 utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
-├─ run-acceptance.bat          十四阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-acceptance.bat          十五阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              十四个验收程序
+├─ harness/*.java              十五个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 十四阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 十五阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 ```
 
@@ -277,7 +284,7 @@ run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 
 ## 7. 尚未覆盖（如实声明）
 
-1. **需外部服务的 9 个引擎**（postgresql、sqlserver、oracle、clickhouse、hbase、solr、
+1. **需外部服务的 8 个引擎**（postgresql、sqlserver、oracle、clickhouse、hbase、
    neo4j、elasticsearch、greptimedb）只有契约面；
    本机无对应服务，无法做真实读写验收。**这部分是"未验"，不是"已通过"。**
    > `prometheus` **已从本清单移出**：阶段八用本机 HTTP 桩（`com.sun.net.httpserver`）
@@ -287,6 +294,13 @@ run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
    >
    > `influxdb` 也已移出「仅契约面」，但**真实 InfluxDB 服务**仍未验：
    > 阶段九只覆盖引擎自身逻辑（见下一条）。
+   >
+   > `solr` **已从本清单移出**：阶段十五用记录型假 `SolrClient` 驱动了引擎的
+   > 表名解析、查询构造、分页下推、`numFound` 计数、文档映射、写入/删除、
+   > 失败语义与生命周期（28 条断言）。**仍未覆盖**的是真实 Solr 服务端的
+   > 查询解析（QParser）、schema/动态字段与分布式行为——那属于服务端语义，
+   > 且本引擎不自带 schema 管理。postgresql / sqlserver / oracle / clickhouse
+   > 亦仅在阶段十四验了配置层，见上方 §2.1。
 2. ~~**`InfluxdbSeriesEngine` 只有契约面**~~ → **已升级**：阶段九用 `java.lang.reflect.Proxy`
    注入一个 `InfluxDB` 桩客户端（该引擎提供了公开的注入构造器，注释即写明用于「测试或外部生命周期管理」），
    把**引擎自身逻辑**全部真实执行（26 条断言）。**仍未覆盖**的是真实 InfluxDB 的
@@ -621,6 +635,32 @@ postgresql / sqlserver / sqlserver-legacy / oracle / clickhouse 的**查询语�
 > 本阶段**发现了两个真缺陷**（第 11、12 条），且都是「读代码看不出来、一测就现形」的类型：
 > Oracle 少三条校验、端口 0 的文档契约在 10 处拼装点全部失效。
 > 这 5 个引擎的真正查询语义仍未验证——不要因为本阶段全绿就认为它们「已通过」。
+
+### 14.5 Solr 引擎：用记录型假客户端驱动真实路径（阶段十五，28 条）
+
+Solr 引擎的关键事实是：`addDataSource` 接受**任意** `SolrClient`，而 `SolrClient`
+只有一个抽象方法 `request(...)`。因此验收里实现一个「记录型假客户端」，
+覆写引擎真正调用的 `query/add/commit/deleteByQuery/close`，就能让引擎照常构建
+`SolrQuery`、照常映射返回文档——验的是**本项目代码**，不是第三方客户端。
+
+| 面 | 断言内容 |
+|---|---|
+| 表名解析 | `@TableName("t_acc_user")` 生效（此前被忽略）；无注解 `PlainUser` → `plain_user`；**`store` 写入集合与 `query` 读取集合一致**（缺陷 13 回归锁） |
+| 查询构造 | 无条件 → `*:*`；`eq(name,"alice")` → `name:alice`；两个条件 → `name:alice AND age:30` |
+| 分页下推 | `list()` 未指定时 `rows=1000`；`one()` → `rows=1`；`page(3,20)` → `start=40/rows=20`；`page().total` 取自 `numFound`（137）而非当前页行数 |
+| 计数 | `count()` 返回 `numFound`（42）；**不被 1000 行上限截断**（5000 → 5000）；以 `rows=0` 只取总数（缺陷 14 回归锁） |
+| 文档映射 | `Long/String/Integer` 正确映射；多文档顺序保持；缺失字段保持 `null`；多值字段取首值 |
+| 写入 | 空列表不触达客户端；`add`+`commit` 集合名正确且字段来自 getter；客户端异常包装为 `RuntimeException` 且带集合名 |
+| 删除 | 命中 0 行**不发** `deleteByQuery` 并返回 0；命中 3 行时集合名/条件正确且提交 |
+| 失败语义 | 未配置客户端 → `IllegalStateException`；客户端异常 → `RuntimeException` 且消息含集合名与查询、`cause` 保留；`executeUpdate/executeDelete` 抛 UOE |
+| 生命周期 | `close()` 关闭底层客户端、重复调用不抛；无执行器 → `supportsSql()==false` 且 `querySql` 抛 UOE |
+
+> 两个「一测就现形」的缺陷：集合名绕过 `@TableName`（写进去读不出来）、`count()` 直接抛 UOE。
+> 还记录一个非缺陷事实：`close()` 会把底层客户端关两次（引擎直关 + 数据源关闭），
+> `SolrClient` 与 `HikariDataSource` 的 `close` 都幂等，故不构成缺陷，断言里已显式说明。
+>
+> **仍未覆盖**：真实 Solr 服务端的查询解析（QParser）、schema/动态字段、
+> 分布式与副本行为——那属于服务端语义，且本引擎不自带 schema 管理。
 
 
 
