@@ -8,7 +8,8 @@
 阶段十二以本机 HTTP 桩验收 `QuestdbSeriesEngine` 并修复其 `/exec` 鉴权缺失：2026-10-17；
 阶段十三至十六：InfluxDbEngine / 5 个外部 JDBC 引擎配置层 / Solr / RediSearchEngine：2026-10-17；
 阶段十七以回放型假 Transport 驱动 `ElasticsearchEngine` 真实链路并修复索引名/count/异常语义：2026-10-17；
-阶段十八以动态代理假 `Driver` 驱动 `Neo4jEngine` 的真实 Cypher 生成并修复标签/count/连接所有权/异常上下文：2026-10-17）
+阶段十八以动态代理假 `Driver` 驱动 `Neo4jEngine` 的真实 Cypher 生成并修复标签/count/连接所有权/异常上下文：2026-10-17；
+阶段十九以假 JDBC `Driver` 驱动 `GreptimeDbEngine` 的真实 SQL/JDBC 链路：2026-10-17）
 仓库：`utils-support-parent-starter`（另用 `spring-support-parent-starter` 与 `utils-support-datalake-parent` 的制品）
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
 已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
@@ -141,7 +142,8 @@ influxdb（阶段十三，纯内存）、redis（阶段三/五：`RedisClient`/`
 阶段十六：`RediSearchEngine` 的**实体 CRUD 真实读写**）、solr（阶段十五，记录型假
 `SolrClient` 驱动真实查询/写入/删除路径）、elasticsearch（阶段十七，回放型假
 `Transport` 驱动官方客户端的真实序列化/反序列化链路）、neo4j（阶段十八，动态代理假
-`Driver` 驱动真实 Cypher 生成与结果映射）；非 SPI 的 datalake-query（阶段十，本机 HTTP 桩）
+`Driver` 驱动真实 Cypher 生成与结果映射）、greptimedb（阶段十九，假 JDBC `Driver` 驱动
+真实 SQL 生成与结果映射）；非 SPI 的 datalake-query（阶段十，本机 HTTP 桩）
 与 ReactorFlywayBridge（阶段六，真实 SQLite）。
 另：postgresql / sqlserver（含 legacy）/ oracle / clickhouse 在阶段十四验证了
 **配置拼装、入参守卫、失败语义与关闭语义**，但**查询语义仍未验**（见 §7）。
@@ -888,6 +890,49 @@ Redis 不支持 `MODULE` 命令，即没有 RediSearch 模块——因此 `FT.SE
 >
 > **仍未覆盖**：真实 Neo4j 服务端的 Cypher 语义（索引/约束、执行计划、事务冲突与重试）、
 > 驱动自身的连接池与网络层——没有 Neo4j 服务端参与，**这不等于「已完成真实读写验收」**。
+
+### 14.9 GreptimeDbEngine：假 JDBC 驱动驱动真实 SQL 生成（阶段十九，30 条）
+
+本机没有 GreptimeDB 服务端。该引擎的查询、分页、计数、删除全部经
+**MySQL 协议 JDBC**（`GreptimeJdbcClient`，内部为 `DriverManager.getConnection(url)`），
+而 JDBC 的 `Connection` / `PreparedStatement` / `ResultSet` / `ResultSetMetaData`
+全是接口。因此验收向 `DriverManager` 注册一个**只认 `jdbc:greptimefake:<id>:` 前缀**的
+假 `Driver`，用 Proxy 实现上述四个接口：
+
+- 引擎照常渲染 SQL、照常把条件值绑定成 `?` 参数（值绝不进 SQL 文本）；
+- 假驱动记录**实际执行的每一条 SQL 与每一个参数**，并按 SQL 形态回放结果集；
+- 断言聚焦「引擎发了什么 SQL、又如何映射结果」，真实 MySQL 驱动与服务端均不参与。
+
+| 面 | 断言内容 |
+|---|---|
+| 表名 | `@TableName("t_acc_user")` → `FROM t_acc_user` 且不再出现 `AccUser`；无注解 `PlainUser` → `FROM plain_user`；`CpuMetric` → `FROM cpu_metric` |
+| 列名归一化 | `cpuUtil` → `cpu_util`（Lambda 解析出的驼峰/去下划线变体都能映射回真实列名） |
+| 查询构造 | `eq` → `WHERE name = ?` 且值不进 SQL；`gt` → `age > ?`；`orderByDesc` → `ORDER BY age DESC` |
+| 分页 | `page(2,3)` → `LIMIT 3 OFFSET 3`；`limit(1)` → `LIMIT 1 OFFSET 0`；`page().total` 走 `SELECT COUNT(*) FROM (…) t_count` |
+| 计数 | `count()` 返回 COUNT 子查询结果（23） |
+| 映射 | 列标签 → 实体（`Long`/`String`/`Integer`）；`ID`/`NAME`/`AGE` 大小写宽松匹配；未知列与 `null` 值跳过且不影响其它字段 |
+| 写入语义 | `store` 抛 UOE（「不支持内存存储」，禁止假持久化）；`update` 抛 UOE（提示 upsert）；两者均不向驱动发 SQL |
+| 删除 | 无 WHERE → 基类守卫拦截（消息含「禁止无 WHERE」）且**不发 SQL**；带条件 → `DELETE FROM t_acc_user WHERE name = ?` 并返回服务端影响行数 |
+| 执行器 | `query` 返回列名→值；`execute` 返回影响行数；`batch` 透传多行参数并返回各行结果；`queryPage` 追加 `LIMIT 2 OFFSET 4`；`query(sql, Class)` 映射实体；未注册名称返回 `null` 执行器 + `client(name)` 抛 IAE |
+| URL 推导 | `jdbcUrlFromEndpoint` 精确到 `:4002` + 6 个固定参数；`hostOf` 剥离协议/路径、保留 IPv6 方括号；空端点与非法库名被拒绝；`setJdbcUrl` 只接受 `jdbc:` 前缀、空串表示清除 |
+| 生命周期 | 未配置数据源 → ISE（不是空结果）；`close()` 后查询抛 ISE（含「已关闭」）；重新注册数据源可恢复；数据源名不允许空白 |
+
+> **契约差异（显式声明，不是 GreptimeDB 缺陷）**：`query(X).one()` 走通用
+> `EngineQueryWrapper.one()` —— 先 `list()` 再取首行，**不下推 `LIMIT 1`**。
+> 这与其它 JDBC 引擎一致（Solr/ES/Neo4j 因各自覆写包装器才下推）。
+> 需要服务端只回一行时应显式 `limit(1)`；阶段十九对此分别断言，避免后人误判。
+>
+> **负向对照（实际运行）**：把 `GreptimeDbEngine.tableNameOf` 临时改成
+> `entityClass.getSimpleName()`（模拟「绕过 `@TableName`」的既有缺陷族），
+> `mvn -o clean package` 后仅将该 `target/classes` 置于 classpath 最前
+> （**不覆盖** `D:\maven-repo`），同一套断言由 30/30 变为 **26 PASS / 4 FAIL**：
+> `FROM AccUser`、`FROM PlainUser`、`FROM CpuMetric`、`DELETE FROM AccUser`。
+> 恢复源码并重新 `mvn -o clean install` 后回到 30/30 全绿。**该缺陷并未在本引擎真实存在**，
+> 此实验只证明断言能拦住这一类回退。
+>
+> **仍未覆盖**：真实 GreptimeDB 服务端的 SQL 语义（tag/time 索引与 TTL、区域/副本、
+> upsert 冲突判定、`DELETE` 的时间窗口约束）与 gRPC 写入通道（`write(Table)`）。
+> **这不等于「已完成真实读写验收」**——没有 GreptimeDB 服务端参与。
 
 
 
