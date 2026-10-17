@@ -34,3 +34,4 @@ com.chua.filestorage.support.preview.provider.DjvuPreviewProvider
 com.chua.filestorage.support.preview.provider.PsdPreviewProvider
 com.chua.filestorage.support.preview.provider.TiffPreviewProvider
 com.chua.filestorage.support.preview.provider.HeicPreviewProvider
+com.chua.filestorage.support.preview.provider.ClassPreviewProvider

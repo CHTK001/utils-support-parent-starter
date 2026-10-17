@@ -12,6 +12,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * 视频资源提供者状态注册表
  * 用于标记被封/过期的站点，避免重复请求
  *
+ * <p>提供者名称大小写不敏感：SPI 通过 {@code @Spi} 注册的名称会被统一转为大写
+ * （如 {@code muou} → {@code MUOU}），而封禁名单（blocked-providers.json）与各
+ * 提供者的自检使用小写。为避免两处大小写不一致导致封禁判断失效，本注册表在
+ * 存入与查询时统一归一为小写。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
@@ -130,7 +135,7 @@ public final class VideoProviderRegistry {
                             reason = BlockReason.valueOf(entry.getReason());
                         } catch (Exception ignored) {
                         }
-                        BLOCKED_PROVIDERS.put(entry.getName(), reason);
+                        BLOCKED_PROVIDERS.put(normalize(entry.getName()), reason);
                     }
                 }
             }
@@ -146,7 +151,7 @@ public final class VideoProviderRegistry {
      * @param reason ReasonMLML
      */
     public static void block(String name, BlockReason reason) {
-        BLOCKED_PROVIDERS.put(name, reason);
+        BLOCKED_PROVIDERS.put(normalize(name), reason);
     }
 
     /**
@@ -157,7 +162,7 @@ public final class VideoProviderRegistry {
      * @param detail detail
      */
     public static void block(String name, BlockReason reason, String detail) {
-        BLOCKED_PROVIDERS.put(name, reason);
+        BLOCKED_PROVIDERS.put(normalize(name), reason);
     }
 
     /**
@@ -167,7 +172,7 @@ public final class VideoProviderRegistry {
      * @return 是否blocked的结果
      */
     public static boolean isBlocked(String name) {
-        return BLOCKED_PROVIDERS.containsKey(name);
+        return name != null && BLOCKED_PROVIDERS.containsKey(normalize(name));
     }
 
     /**
@@ -177,7 +182,7 @@ public final class VideoProviderRegistry {
      * @return 获取blockReasonML的结果
      */
     public static BlockReason getBlockReason(String name) {
-        return BLOCKED_PROVIDERS.get(name);
+        return name == null ? null : BLOCKED_PROVIDERS.get(normalize(name));
     }
 
     /**
@@ -195,7 +200,9 @@ public final class VideoProviderRegistry {
      * @param name 名称
      */
     public static void unblock(String name) {
-        BLOCKED_PROVIDERS.remove(name);
+        if (name != null) {
+            BLOCKED_PROVIDERS.remove(normalize(name));
+        }
     }
 
     /**
@@ -203,6 +210,16 @@ public final class VideoProviderRegistry {
     */
     public static void clear() {
         BLOCKED_PROVIDERS.clear();
+    }
+
+    /**
+     * 归一提供者名称（大小写不敏感键）。
+     *
+     * @param name 提供者名称，可为 空
+     * @return 转小写后的名称；入参为 空 时返回 空
+     */
+    private static String normalize(String name) {
+        return name == null ? null : name.toLowerCase(Locale.ROOT);
     }
 
     public static class Root {

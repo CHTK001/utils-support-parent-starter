@@ -65,6 +65,11 @@ public class WhatsAppBotClient implements BotClient {
      */
     private static final String SIGNATURE_HEADER = "x-hub-signature-256";
 
+    /**
+     * 单条文本消息最大长度（Cloud API 限制 4096 字符）。
+     */
+    private static final int TEXT_MAX_LENGTH = 4096;
+
     private String phoneNumberId;
     private String accessToken;
     private String appSecret;
@@ -246,12 +251,60 @@ public class WhatsAppBotClient implements BotClient {
 
     @Override
     public BotSendResult sendText(String toUser, String content) {
+        if (content == null) {
+            return BotSendResult.fail(-1, "content is required");
+        }
+        if (content.length() <= TEXT_MAX_LENGTH) {
+            return sendTextChunk(toUser, content);
+        }
+        return sendLongText(toUser, content);
+    }
+
+    /**
+     * 发送单段文本。
+     */
+    private BotSendResult sendTextChunk(String toUser, String content) {
         Map<String, Object> text = new LinkedHashMap<>();
         text.put("preview_url", false);
         text.put("body", content);
         Map<String, Object> payload = basePayload(toUser, "text");
         payload.put("text", text);
         return sendPayload(payload);
+    }
+
+    /**
+     * 长文本按 Cloud API 上限分段发送，尽量在换行处断开。
+     *
+     * <p>任一段失败即返回该段失败结果（此前已发出的不回滚）。</p>
+     */
+    private BotSendResult sendLongText(String toUser, String content) {
+        BotSendResult last = null;
+        int index = 0;
+        int segments = 0;
+        while (index < content.length()) {
+            int end = Math.min(index + TEXT_MAX_LENGTH, content.length());
+            if (end < content.length()) {
+                int lineBreak = content.lastIndexOf('\n', end);
+                if (lineBreak > index) {
+                    end = lineBreak;
+                }
+            }
+            String chunk = content.substring(index, end).strip();
+            index = end;
+            if (chunk.isEmpty()) {
+                continue;
+            }
+            segments++;
+            last = sendTextChunk(toUser, chunk);
+            if (last == null || !last.isSuccess()) {
+                return last == null ? BotSendResult.fail(-1, "文本分段发送失败") : last;
+            }
+        }
+        if (segments == 0) {
+            return BotSendResult.fail(-1, "文本内容为空");
+        }
+        log.info("[WhatsApp] 长文本分 {} 段发送完成 phoneNumberId={}", segments, phoneNumberId);
+        return last;
     }
 
     @Override
