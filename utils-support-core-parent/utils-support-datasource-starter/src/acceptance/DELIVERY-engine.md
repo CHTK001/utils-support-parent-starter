@@ -9,12 +9,14 @@
 阶段十三至十六：InfluxDbEngine / 5 个外部 JDBC 引擎配置层 / Solr / RediSearchEngine：2026-10-17；
 阶段十七以回放型假 Transport 驱动 `ElasticsearchEngine` 真实链路并修复索引名/count/异常语义：2026-10-17；
 阶段十八以动态代理假 `Driver` 驱动 `Neo4jEngine` 的真实 Cypher 生成并修复标签/count/连接所有权/异常上下文：2026-10-17；
-阶段十九以假 JDBC `Driver` 驱动 `GreptimeDbEngine` 的真实 SQL/JDBC 链路：2026-10-17）
+阶段十九以假 JDBC `Driver` 驱动 `GreptimeDbEngine` 的真实 SQL/JDBC 链路：2026-10-17；
+阶段二十以动态代理假 `Connection`/`Table`/`Admin` 驱动 `HBaseEngine` 的真实领域 API
+（建表/写入/读取/扫描/删除）并修复「用法错误被包装成操作失败」：2026-10-17）
 仓库：`utils-support-parent-starter`（另用 `spring-support-parent-starter` 与 `utils-support-datalake-parent` 的制品）
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
 已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
 `03d360448`（补回被全局 ignore 规则静默剔除的两个运行器）、本轮阶段六
-验收结论：**十九阶段共 952 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
+验收结论：**二十阶段共 975 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
 
 > **本轮为何要重绑 md5**：2026-10-04 首次出报告后，本地仓库里这批制品被后续构建
 > 重新产出（`common-starter` 4,563,385 → 4,743,831 B，`monitor-starter` 1,127,261 → 922,392 B 等），
@@ -54,7 +56,7 @@
 | `com.chua:utils-support-sqlserver-starter:4.0.0.42` | `edb4e3c6` | 14,044 B | 阶段一契约面（`sqlserver` / `sqlserver-legacy`）+ 缺陷 11 修复 + 阶段十四 |
 | `com.chua:utils-support-oracle-starter:4.0.0.42` | `28d846c7` | 34,618 B | 阶段一契约面（`oracle`）+ 缺陷 11/12 修复 + 阶段十四 |
 | `com.chua:utils-support-clickhouse-starter:4.0.0.42` | `d9763073` | 10,359 B | 阶段一契约面（`clickhouse`）+ 缺陷 12 修复 + 阶段十四 |
-| `com.chua:utils-support-hbase-starter:4.0.0.42` | `7e9eb07b` | 12,262 B | 阶段一契约面（`hbase`） |
+| `com.chua:utils-support-hbase-starter:4.0.0.42` | `fc45bff5` | 12,344 B | 阶段一契约面（`hbase`）+ **阶段二十真实领域 API 链路**（动态代理假 `Connection`/`Table`/`Admin`）+ 缺陷 26 修复 |
 | `com.chua:utils-support-solr-starter:4.0.0.42` | `46b6a1c9` | 48,582 B | 阶段一契约面（`solr`）+ **阶段十五深度功能**（假 `SolrClient` 驱动真实路径）+ 缺陷 13/14 修复 |
 | `com.chua:utils-support-neo4j-starter:4.0.0.42` | `a5aa736a` | 25,536 B | 阶段一契约面（`neo4j`）+ **阶段十八真实 Cypher 链路**（动态代理假 `Driver`）+ 缺陷 22/23/24/25 修复 |
 | `com.chua:utils-support-elasticsearch-starter:4.0.0.42` | `6970ab98` | 56,205 B | 阶段一契约面（`elasticsearch`）+ **阶段十七真实链路**（回放型假 `Transport`）+ 缺陷 18/19/20/21 修复 |
@@ -115,6 +117,13 @@
 > 源码与 HEAD 逐字节一致（`git diff -- <模块>` 无输出），字节差异仅来自 jar 内时间戳。
 > 其余 27 个制品字节未变。
 
+> **阶段二十重绑 1 个制品**：为修缺陷 26 重新构建了
+> `hbase`（`7e9eb07b` → `fc45bff5`，12,262 → 12,344 B）。
+> 新 jar 内含「先取连接再进入 try」的写法（可用
+> `javap -c -p -cp … HBaseEngine` 复核：`conn()` 调用在 `try` 之外）。
+> `src/acceptance/lib/` 实际加载的那份经 `certutil -hashfile … MD5` 与上表一致。
+> 其余 27 个制品字节未变。
+
 ## 2. 子类清单与覆盖状态（权威口径）
 
 ### 2.1 Engine —— SPI 注册的 24 个（阶段一全覆盖）
@@ -143,12 +152,13 @@ influxdb（阶段十三，纯内存）、redis（阶段三/五：`RedisClient`/`
 `SolrClient` 驱动真实查询/写入/删除路径）、elasticsearch（阶段十七，回放型假
 `Transport` 驱动官方客户端的真实序列化/反序列化链路）、neo4j（阶段十八，动态代理假
 `Driver` 驱动真实 Cypher 生成与结果映射）、greptimedb（阶段十九，假 JDBC `Driver` 驱动
-真实 SQL 生成与结果映射）；非 SPI 的 datalake-query（阶段十，本机 HTTP 桩）
-与 ReactorFlywayBridge（阶段六，真实 SQLite）。
+真实 SQL 生成与结果映射）、hbase（阶段二十，动态代理假 `Connection`/`Table`/`Admin`
+驱动真实的 `Put`/`Get`/`Scan`/`Delete` 构造与 `Result` 解析）；非 SPI 的 datalake-query
+（阶段十，本机 HTTP 桩）与 ReactorFlywayBridge（阶段六，真实 SQLite）。
 另：postgresql / sqlserver（含 legacy）/ oracle / clickhouse 在阶段十四验证了
 **配置拼装、入参守卫、失败语义与关闭语义**，但**查询语义仍未验**（见 §7）。
-其余 5 个需外部服务的引擎（postgresql / sqlserver / oracle / clickhouse / hbase）只有契约面
-（见 §7；elasticsearch / neo4j / solr / greptimedb 已升级到「真实链路 + 契约面」）。
+其余 4 个需外部服务的引擎（postgresql / sqlserver / oracle / clickhouse）只有契约面
+（见 §7；elasticsearch / neo4j / solr / greptimedb / hbase 已升级到「真实链路 + 契约面」）。
 
 **非 SPI 注册的 Engine 实现**（不在 `ServiceProvider` 可发现范围内）：
 
@@ -222,11 +232,12 @@ monitor 模块的 Bean 工厂创建。
 | 十七 | `ElasticsearchEngine`（SPI `elasticsearch`）：回放型假 `Transport` 驱动官方客户端真实链路——索引名与 `@TableName`、`match_all`/`term` 构造、`one`/`page` 下推与 total、`count()`、响应→实体映射、bulk 写入与部分失败、异常语义、生命周期与能力声明 | 21 | 全绿 |
 | 十八 | `Neo4jEngine`（SPI `neo4j`）：动态代理假 `Driver` 驱动真实 Cypher 生成——label 与 `@TableName`、`WHERE` 参数化、`LIMIT`/`SKIP` 下推、`count(n)` 计数、`ORDER BY`、`UNWIND` 批量写入、`SET`/`DETACH DELETE`、属性映射、异常语义、连接所有权 | 25 | 全绿 |
 | 十九 | `GreptimeDbEngine`（SPI `greptimedb`）：假 JDBC `Driver` 驱动真实 SQL/JDBC 链路——表名与 `@TableName`、列名归一化、条件参数化、排序与分页下推、`COUNT(*)` 子查询计数、结果映射、`store`/`update` 的 UOE、无 WHERE 守卫、带条件 DELETE、执行器四个入口、JDBC URL 推导、生命周期 | 30 | 全绿 |
+| 二十 | `HBaseEngine`（SPI `hbase`）：动态代理假 `Connection`/`Table`/`Admin`/`ResultScanner` 驱动真实领域 API——建表幂等与列族、`Put` 行键/列族/限定符/值、`Get` 的列族过滤与全列族前缀、空结果、`Scan` 前缀起止行（含非 ASCII 字节递增）、`__row` 与空行跳过、`Delete` 行键、`store`/查询/`update`/`delete` 的 UOE、`close()` 的连接所有权与用法错误不被包装 | 23 | 全绿 |
 
-**合计 952 条断言，0 失败**（`run-acceptance.bat`：十九阶段逐段 `PASS`，
+**合计 975 条断言，0 失败**（`run-acceptance.bat`：二十阶段逐段 `PASS`，
 末行 `ACCEPTANCE_RESULT=PASS`，退出码 0）。
 
-## 4. 修复的 25 处真实缺陷
+## 4. 修复的 26 处真实缺陷
 
 | # | 缺陷 | 根因 | 影响 |
 |---|---|---|---|
@@ -255,6 +266,7 @@ monitor 模块的 Bean 工厂创建。
 | 23 | **`Neo4jEngine` 用 `getSimpleName()` 推导 label，`@TableName` 与驼峰转下划线双双失效** | 5 处 label 拼装绕过 `AbstractEngine.resolveTableName` | `store("t_acc_user", rows)` 写入 `:AccUser`，无注解实体写成 `:PlainUser` 而非 `:plain_user`；与节点上已有数据的 label 不符时**写进去读不出来**（`MATCH` 命中 0 行） |
 | 24 | **`close()` 无条件关闭调用方注入的 `Driver`** | 引擎不区分「自己 new 的驱动」与「`addDataSource(Driver)` 注入的驱动」，`close()` 一律 `driver.close()` | 外部容器/连接池注入的驱动被引擎擅自关闭——同一驱动被多个消费者共享时，**关闭引擎即打断他人连接**；且 `driver` 未置空，关闭后仍会拿已关闭驱动去查询 |
 | 25 | **驱动异常被原样透出，丢失 Cypher 上下文** | `store`/查询路径把 `RuntimeException` 直接 `throw e`（4 处），不带任何查询信息 | 服务端报错时调用方只看到驱动原始消息（如语法错误、约束冲突），**无法定位是哪条 Cypher、哪个 label**；与同族引擎「带索引名/表名包装」的契约不一致 |
+| 26 | **`HBaseEngine` 把「未配置数据源 / 已关闭」包装成操作失败** | 5 个领域 API（建表/put/get/scan/deleteRow）都写成 `try { … conn().getTable(…) … } catch (Exception e) { throw new ISE("HBase xxx 失败: …") }`——`conn()` 抛出的用法错误落进同一个 `catch` | 未配置或 `close()` 后调用时，调用方看到的是「HBase put 失败: t_user/r」，只能翻 `cause` 才知道是用法错误；与已修的 Elasticsearch（缺陷 20）、Neo4j（缺陷 24/25）**同源**，同为「用法错误与故障不分」 |
 
 缺陷 10 的修法（`utils-support-questdb-starter`，`QuestdbSeriesEngine`）：
 
@@ -328,6 +340,18 @@ monitor 模块的 Bean 工厂创建。
 - **25**：删掉 4 处 `catch (RuntimeException e) { throw e; }`，统一包装为带
   `Neo4j 查询失败` + 具体 Cypher 的异常，并保留原始 `cause`。
 
+缺陷 26 的修法（`utils-support-hbase-starter`，`HBaseEngine`）：
+
+- 5 个领域 API 都把 `Connection c = conn();` 提到 `try` **之前**，`try` 内改用它——
+  用法错误（未配置 / 已关闭 / 数据源不唯一）不再进入 `catch (Exception)`，
+  而是原样抛出 `IllegalStateException("未配置 HBase 数据源")`；
+- 服务端故障仍照旧包装为带表名/行键的 `HBase put 失败: …`（两类错误从此可区分）；
+- 阶段二十对两侧各断言一次：`life.*` 断言**顶层消息必须精确等于**用法错误文案
+  （不是「cause 里有」），`put/scan` 的故障断言仍要求带表名/行键。
+- **修复前对照（实际运行）**：同一套断言在修复前为 **17 PASS / 6 FAIL**，
+  其中两条正是 `HBase put 失败: t_user/r` 与 `HBase get 失败: t_user/r`；
+  收紧断言并修产品后为 **23/23**。这组「先失败后通过」即断言有效性的直接证据。
+
 > **契约差异（显式声明，不是缺陷）**：`store(name, rows)` 的 `name` 参数**不参与** label 推导，
 > label 始终由实体类型决定。图数据库的 label 即实体类型，按任意 `name` 写入会产生
 > 「只写数据」（没有读路径能解析出同一 label）。该行为由阶段十八第 5 条断言显式钉住，
@@ -361,20 +385,21 @@ harness **已入库**（不再只留 `.tmp`，那里没有版本控制）：
 
 ```
 utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
-├─ run-acceptance.bat          十九阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-acceptance.bat          二十阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              十九个验收程序
+├─ harness/*.java              二十个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 十九阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 二十阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 run-acceptance.bat 17           :: 只跑阶段十七（Elasticsearch）
 run-acceptance.bat 18           :: 只跑阶段十八（Neo4j）
 run-acceptance.bat 19           :: 只跑阶段十九（GreptimeDB）
+run-acceptance.bat 20           :: 只跑阶段二十（HBase）
 ```
 
 > **交付教训（2026-10-04 实际发生）**：仓库根 `.gitignore` 有 `*.ps1`（16 行）/
@@ -400,7 +425,7 @@ run-acceptance.bat 19           :: 只跑阶段十九（GreptimeDB）
 
 ## 7. 尚未覆盖（如实声明）
 
-1. **需外部服务的 5 个引擎**（postgresql、sqlserver、oracle、clickhouse、hbase）
+1. **需外部服务的 4 个引擎**（postgresql、sqlserver、oracle、clickhouse）
    只有契约面；
    本机无对应服务，无法做真实读写验收。**这部分是"未验"，不是"已通过"。**
    > `prometheus` **已从本清单移出**：阶段八用本机 HTTP 桩（`com.sun.net.httpserver`）
@@ -437,6 +462,13 @@ run-acceptance.bat 19           :: 只跑阶段十九（GreptimeDB）
    > 真实解析结果集（30 条断言）。**仍未覆盖**的是真实 GreptimeDB 服务端的
    > SQL 语义（tag/time 索引、TTL、区域与副本、upsert 冲突判定）与 gRPC 写入通道。
    > **这不等于「已完成真实读写验收」**——没有 GreptimeDB 服务端参与。
+   >
+   > `hbase` **已从本清单移出**：阶段二十用 `java.lang.reflect.Proxy` 构造假
+   > `Connection`/`Admin`/`Table`/`ResultScanner`，`Put`/`Get`/`Delete`/`Scan` 用 HBase
+   > 官方类（`KeyValue`/`Scan`）真实构造，`Result.create` 真实解析（23 条断言）。
+   > **仍未覆盖**的是真实 HBase 集群的服务端语义（RegionServer 路由、列族压缩/TTL、
+   > 过滤器与协处理器、行锁与多版本）。**这不等于「已完成真实读写验收」**——
+   > 没有 HBase 集群参与。
 2. ~~**`InfluxdbSeriesEngine` 只有契约面**~~ → **已升级**：阶段九用 `java.lang.reflect.Proxy`
    注入一个 `InfluxDB` 桩客户端（该引擎提供了公开的注入构造器，注释即写明用于「测试或外部生命周期管理」），
    把**引擎自身逻辑**全部真实执行（26 条断言）。**仍未覆盖**的是真实 InfluxDB 的
@@ -933,6 +965,42 @@ Redis 不支持 `MODULE` 命令，即没有 RediSearch 模块——因此 `FT.SE
 > **仍未覆盖**：真实 GreptimeDB 服务端的 SQL 语义（tag/time 索引与 TTL、区域/副本、
 > upsert 冲突判定、`DELETE` 的时间窗口约束）与 gRPC 写入通道（`write(Table)`）。
 > **这不等于「已完成真实读写验收」**——没有 GreptimeDB 服务端参与。
+
+### 14.10 HBaseEngine：动态代理假 Connection 驱动真实领域 API（阶段二十，23 条）
+
+本机没有 HBase 集群。但 `HBaseEngine` 的数据源接受**任意** `Connection`，而
+`Connection` / `Table` / `Admin` / `ResultScanner` 都是接口；`Put` / `Get` / `Delete` /
+`Scan` / `KeyValue` / `Result` 是可直接构造与检查的官方类。因此验收用
+`java.lang.reflect.Proxy` 构造假连接，让引擎真实地：
+
+- 用 `TableDescriptorBuilder` / `ColumnFamilyDescriptorBuilder` 构造建表请求；
+- 用 `Put.addColumn` 累计单元格（行键、列族、限定符、值均为真实 `byte[]`）；
+- 用 `Scan.withStartRow` / `setStopRow` 表达前缀范围；
+- 遍历 `ResultScanner`，把 `Result.rawCells()` 解析成 Map。
+
+| 面 | 断言内容 |
+|---|---|
+| 建表 | 表不存在 → `Admin.createTable` 收到 `t_user` + 列族 `info`，`Admin` 被关闭；表已存在 → **不建表**（幂等）；Admin 异常 → ISE 含「HBase 建表失败: t_user」且保留 cause |
+| 写入 | `Put` 行键 = `row-1`；`info:name=alice` / `info:city=shanghai` 逐项正确；空 Map 只写行键、不产生列；异常 → ISE 含「HBase put 失败: t_user/row-9」 |
+| 读取 | 指定列族 → 只返回该列族的 `限定符→值`；`family=null` → 全部列族以 `族:限定符` 返回；行不存在 → **空 Map**（不是 null）；`Get` 行键正确 |
+| 扫描 | 前缀 `ab` → 起始行 `ab`、停止行 `ac`；**非 ASCII 前缀**（`中`）按 UTF-8 末字节 +1（不做字符串往返）；无前缀 → 不设起止行且不设列族；结果带 `__row`，空 `Result` 被跳过；异常 → ISE 含「HBase scan 失败: t_user」 |
+| 删除 | `Delete` 行键 = `row-7`，表名正确 |
+| 显式拒绝 | `store` → UOE（提示用 `put()/scan()`）；`query(X).list()` → UOE（提示用 `scan`）；`update` → UOE（提示同键覆盖）；`delete` → UOE（提示用 `deleteRow`） |
+| 生命周期 | `close()` **不关闭**调用方注入的 `Connection`；`close()` 后 `put` 顶层即 ISE「未配置 HBase 数据源」；未配置时 `get` 同样是该 ISE；非法底层类型被拒绝 |
+
+> **断言先失败、再通过（实际运行）**：这套断言在修复前为 **17 PASS / 6 FAIL**，
+> 失败点包括「建表断言误期望 `getTable`」（套件自身问题，已改为观察 `Admin`）、
+> 自制 `Cell` 在 `Result.create` 归一化时失真（改用官方 `KeyValue`），以及
+> **两条真实产品缺陷证据**：`HBase put 失败: t_user/r`、`HBase get 失败: t_user/r`
+> ——「未配置数据源」被包装成操作失败。收紧断言 + 修产品后 23/23。
+>
+> **仍未覆盖**：真实 HBase 集群的服务端语义（RegionServer 路由与重试、列族压缩与 TTL、
+> filter/协处理器、行锁与多版本、`checkAndPut` 类原子操作）。
+> **这不等于「已完成真实读写验收」**——没有 HBase 集群参与。
+>
+> **未触达的分支（如实声明）**：`conn()` 中「存在多个数据源且未指定默认」的 ISE 分支
+> 经公开 API 不可达——`addDataSource` 在首个数据源处即固定默认名，之后既不覆盖也不清空。
+> 本阶段未对该分支做断言。
 
 
 
