@@ -50,7 +50,8 @@ javac -J-Xms32m -J-Xmx384m -J-XX:MaxMetaspaceSize=192m -J-XX:ReservedCodeCacheSi
     "harness\EngineSolr.java" ^
     "harness\EngineRedisEntity.java" ^
     "harness\EngineElasticsearch.java" ^
-    "harness\EngineNeo4j.java"
+    "harness\EngineNeo4j.java" ^
+    "harness\EngineGreptimeDb.java"
 if errorlevel 1 (
     echo [ERROR] harness compilation failed
     exit /b 3
@@ -70,7 +71,7 @@ set JOPT=-Dfile.encoding=UTF-8 --enable-native-access=ALL-UNNAMED ^
  --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
 
 set STAGES=%*
-if "%STAGES%"=="" set STAGES=1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
+if "%STAGES%"=="" set STAGES=1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
 set FAILED=0
 
 REM exact token match: iterating avoids "10" also matching "1"
@@ -93,6 +94,7 @@ for %%S in (%STAGES%) do (
     if "%%S"=="16" call :run 16 EngineRedisEntity
     if "%%S"=="17" call :run 17 EngineElasticsearch
     if "%%S"=="18" call :run 18 EngineNeo4j
+    if "%%S"=="19" call :run 19 EngineGreptimeDb
 )
 
 echo.
