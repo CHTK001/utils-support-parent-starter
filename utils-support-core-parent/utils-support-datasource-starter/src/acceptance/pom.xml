@@ -42,6 +42,7 @@
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-solr-starter</artifactId><version>${v}</version></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-hbase-starter</artifactId><version>${v}</version></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-influxdb-starter</artifactId><version>${v}</version></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-questdb-starter</artifactId><version>${v}</version></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-clickhouse-starter</artifactId><version>${v}</version></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-greptimedb-starter</artifactId><version>${v}</version></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-oracle-starter</artifactId><version>${v}</version></dependency>

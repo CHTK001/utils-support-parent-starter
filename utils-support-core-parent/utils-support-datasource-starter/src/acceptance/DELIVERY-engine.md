@@ -3,12 +3,14 @@
 日期：2026-10-04（阶段六增补与 md5 重绑：2026-10-17；阶段七新增 `Engine.query()` 构建器：2026-10-17；
 阶段八将 Prometheus 升级为本机 HTTP 桩真实执行：2026-10-17；
 阶段九以桩客户端驱动 `InfluxdbSeriesEngine` 全部引擎逻辑：2026-10-17；
-阶段十以本机 HTTP 桩真实驱动 `HttpDatalakeQueryEngine` 查询/执行路径：2026-10-17）
+阶段十以本机 HTTP 桩真实驱动 `HttpDatalakeQueryEngine` 查询/执行路径：2026-10-17；
+阶段十一真实嵌入式 RocksDB 验收 `RocksDbSeriesEngine`；
+阶段十二以本机 HTTP 桩验收 `QuestdbSeriesEngine` 并修复其 `/exec` 鉴权缺失：2026-10-17）
 仓库：`utils-support-parent-starter`（另用 `spring-support-parent-starter` 与 `utils-support-datalake-parent` 的制品）
 已提交的产品修复：`a22f42be1`（11 文件，+346 / −38）
 已提交的验收工具：`c1b77f94d`（9 文件，+1767）、`ef627b740`（阶段五 4 文件）、
 `03d360448`（补回被全局 ignore 规则静默剔除的两个运行器）、本轮阶段六
-验收结论：**十阶段共 722 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
+验收结论：**十二阶段共 769 条断言全绿，0 失败（`ACCEPTANCE_RESULT=PASS`，退出码 0）**
 
 > **本轮为何要重绑 md5**：2026-10-04 首次出报告后，本地仓库里这批制品被后续构建
 > 重新产出（`common-starter` 4,563,385 → 4,743,831 B，`monitor-starter` 1,127,261 → 922,392 B 等），
@@ -39,8 +41,14 @@
 | `com.chua:spring-support-redis-starter:4.0.0.42` | `c0278a4f` | 37,985 B | 阶段五负载 |
 | `com.chua:spring-support-monitor-starter:4.0.0.42` | `0372fcec` | 922,392 B | 阶段五负载 |
 | `com.chua:utils-support-datalake-query-starter:4.0.0.42` | `4804877f` | 12,858 B | 阶段六负载（`HttpDatalakeQueryEngine`） |
+| `com.chua:utils-support-questdb-starter:4.0.0.42` | `e400dfdf` | 13,425 B | 阶段十二负载；承载缺陷 10 的修复（`/exec` 鉴权） |
 
 签收前须重新核对上述 md5；不一致即本报告作废（本轮已因制品被重建而重跑过一次）。
+
+> **阶段十一/十二的 md5 口径**：为修缺陷 10，`utils-support-questdb-starter` 被重新
+> `mvn -o clean install` 产出（`13,425 B`，`e400dfdf`）；**其余 14 个制品字节未变**
+> （已逐个复核，md5 与上表一致）。`src/acceptance/lib/` 里实际加载的那份 jar
+> `certutil -hashfile … MD5` = `e400dfdfd934e9f4df56e0e2a75c7f4c`，与仓库内一致。
 
 ## 2. 子类清单与覆盖状态（权威口径）
 
@@ -92,14 +100,25 @@
 | `com.chua.redis.support.client.RedisClient` | 全 KV 契约 + TTL 自洽 | 三 |
 | `com.chua.starter.redis.support.kv.RedisKvEngine` | **真实读写**（Spring `StringRedisTemplate` + 本机 6379） | 五 |
 
-### 2.3 SeriesEngine —— 4 个（全覆盖）
+### 2.3 SeriesEngine —— 6 个（全覆盖：SPI 5 个 + 非注册 1 个）
+
+SPI 注册文件 `META-INF/extensions/com.chua.common.support.lang.datasource.series.SeriesEngine`
+共 5 个键：`datasource` / `influxdb` / `questdb` / `rocksdb` / `redis`；另有 1 个非注册实现由
+monitor 模块的 Bean 工厂创建。
 
 | 实现 | 覆盖 | 阶段 |
 |---|---|---|
 | `com.chua.common.support.lang.datasource.series.impl.DataSourceSeriesEngine` | h2 真实读写 + 全契约 | 三 |
 | `com.chua.redis.support.engine.RedisSeriesEngine` | 本机 Redis 真实读写 + 全契约 | 三 |
+| `com.chua.rocksdb.support.engine.RocksDbSeriesEngine` | **真实嵌入式 RocksDB 读写**（键布局、时间戳编码、索引回收、跨实例持久化） | 十一 |
+| `com.chua.questdb.support.engine.QuestdbSeriesEngine` | 本机 HTTP 桩驱动全部协议实现（ILP 写入 / `/exec` 查询与清理 / 鉴权） | 十二 |
 | `com.chua.influxdb.support.engine.InfluxdbSeriesEngine` | 注入桩客户端后**引擎逻辑全量真实执行**（无真实 InfluxDB 服务） | 五、九 |
 | `com.chua.starter.monitor.support.config.SeriesEngineConfiguration$NoopSeriesEngine` | 经其唯一公开入口（Bean 工厂）驱动 + 全契约 | 五 |
+
+> **补记（本轮纠错）**：此前版本把 SeriesEngine 写成「4 个全覆盖」，遗漏了 SPI 登记在案的
+> `rocksdb` 与 `questdb` 两个实现——它们此前**一次都没有被验过**，报告却声称全覆盖。
+> 阶段十一/十二补上后，该表才是真正的「6 个全覆盖」。这条错误本身记录在此，因为
+> 「报告说全覆盖、实际没验」比「如实声明未覆盖」危害更大。
 
 ## 3. 验证阶段与断言数
 
@@ -115,11 +134,13 @@
 | 八 | `PrometheusEngine` + `PrometheusClient`：本机 HTTP 桩真实读写（8 个 `/api/v1/*` 端点、Basic 认证头、scalar/vector/matrix、HTTP 500 / 非 JSON / status=error / 不支持 resultType 的失败语义） | 35 | 全绿 |
 | 九 | `InfluxdbSeriesEngine`：注入桩客户端后的引擎逻辑真实执行（标识符白名单、行协议写入、指标发现、多指标歧义拒绝、结果展平与时间解析、降采样、清理、关闭） | 26 | 全绿 |
 | 十 | `HttpDatalakeQueryEngine`：本机 HTTP 桩真实读写（`POST /query` 编码与请求体、JSON 行解析与类型映射、POJO、客户端分页、受影响行数、畸形响应拒绝） | 21 | 全绿 |
+| 十一 | `RocksDbSeriesEngine`：真实嵌入式 RocksDB（装配判定、守卫、键布局与时间戳编码、降采样、范围裁剪、同戳覆盖、monitor 隔离、索引回收、清理条数、跨实例持久化） | 17 | 全绿 |
+| 十二 | `QuestdbSeriesEngine`：本机 HTTP 桩（ILP 报文、逐点 flush、写入失败不静默、地址归一化、`/write`+`/exec` 双侧鉴权、探测 SQL、列收窄、查询 SQL 与 ISO 边界、微秒归一秒、坏点丢弃、`DELETE` 语义、关闭） | 30 | 全绿 |
 
-**合计 722 条断言，0 失败**（`run-acceptance.bat`：十阶段逐段 `PASS`，
+**合计 769 条断言，0 失败**（`run-acceptance.bat`：十二阶段逐段 `PASS`，
 末行 `ACCEPTANCE_RESULT=PASS`，退出码 0）。
 
-## 4. 修复的 9 处真实缺陷
+## 4. 修复的 10 处真实缺陷
 
 | # | 缺陷 | 根因 | 影响 |
 |---|---|---|---|
@@ -132,6 +153,15 @@
 | 7 | **memory/file 类型化查询把全部非 String 字段映射为 null** | `setValue` 的 `guessType` 把 Integer/Long 推断成 `int.class`/`long.class`，而 Lombok setter 形参是包装类型 → 形参不匹配 → 异常被吞 | 读路径静默数据丢失 |
 | 8 | Redis Series 把契约要求的 IAE 包成 ISE | `series()` 宽 catch 吞掉 `resolveSingleMetric` 抛出的 IAE | 调用方 `catch(IAE)` 失效，参数错误显示成服务异常 |
 | 9 | Redis Series `purge()` 后该 monitor 永久不可查 | 删了 ZSET 数据却未摘除指标索引 → `metrics()` 仍报「已写入」→ `series(metricName=null)` 永久抛「指标不唯一」 | 清理即自锁 |
+| 10 | **`QuestdbSeriesEngine` 开启鉴权时读路径全部 401** | `token` / `username` / `password` 只交给了写入用的官方 `Sender`；查询/指标发现/清理走的 JDK `HttpClient` **一个鉴权头都没发**（`execQuery` 只设了超时） | 配了鉴权的 QuestDB 上，写入成功但 `metrics` / `series` / `purge` 全失败；而默认无鉴权的本地实例掩盖了它 |
+
+缺陷 10 的修法（`utils-support-questdb-starter`，`QuestdbSeriesEngine`）：
+
+- 构造期由 `buildAuthHeader(token, username, password)` 一次性算出 `Authorization` 值：
+  配了 token 用 `Bearer <token>`，否则配了用户名用 `Basic base64(user:pass)`，都没配为 `null`；
+- `execQuery` 在请求构建处按需挂上该头，与写入端 `Sender` 的凭据语义**逐字一致**；
+- 阶段十二用三条断言分别锁定：token→两侧都 `Bearer`、用户名密码→`/exec` 为预期的 `Basic`、
+  未配凭据→**不发** `Authorization`（避免把空串当凭据发给服务端）。
 
 ## 5. 查证后**判定为非缺陷**的（避免后人误"修"）
 
@@ -155,16 +185,16 @@ harness **已入库**（不再只留 `.tmp`，那里没有版本控制）：
 
 ```
 utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
-├─ run-acceptance.bat          十阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-acceptance.bat          十二阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              十个验收程序
+├─ harness/*.java              十二个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 十阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 十二阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 ```
 
@@ -442,4 +472,60 @@ Prometheus SDK，因此可以用 JDK 自带 `com.sun.net.httpserver.HttpServer` 
 无需关闭），且 `Engine` 接口只要求 `isClosed()` 反映真实状态、未强制「关闭后拒绝调用」。
 因此判定为**一致性差异而非缺陷**：与 `AbstractEngine` 系引擎的行为不一致，但无资源泄漏、
 无错误结果。阶段十以一条显式命名的断言记录该行为，避免它被静默遗漏。
+
+## 14. 补上两个从未验收的 SeriesEngine（阶段十一 / 十二）
+
+追查「所有 `SeriesEngine` 子类」时发现：SPI 注册文件里共 5 个键
+（`datasource` / `influxdb` / `questdb` / `rocksdb` / `redis`），而报告此前只覆盖了
+`datasource` / `redis` / `influxdb` 三个 + 非注册的 `Noop`，即
+**`rocksdb` 与 `questdb` 两个实现一次都没有被验过**，却被写成「4 个全覆盖」。
+两者都可在本机做真实执行验收，故补齐。
+
+### 14.1 `RocksDbSeriesEngine`（阶段十一，17 条，真实嵌入式 RocksDB）
+
+RocksDB 是嵌入式库，数据落本地目录，无需外部服务——本阶段**没有使用任何桩**：
+真实打开数据库、真实写点、真实前缀扫描、真实删除。
+
+| 面 | 断言内容 |
+|---|---|
+| 装配 | `engine()=="rocksdb"`；`path` 为空/空白/缺省时 `isAvailable()==false` |
+| 不可用语义 | 写抛 `ISE`；`metrics` / `series` 返回空；`purge` 返回 0 |
+| 守卫 | 必填参数缺失 → `IAE`；`a-b` / `a:b` / `a;drop` / `a b` / 空 / `a.b` 全部拒绝，且**不留下索引** |
+| 键布局 | 同一 `(target, monitorId, metric)` 的点按时间字节序排列，`SER:1:…` 前缀扫描 + 范围裁剪 |
+| 降采样 | 同 1 分钟桶 10/20 → 15；跨桶按桶起点升序；桶起点 = `floor(ts/window)*window` |
+| 覆盖 | 同一时间戳重复写入 → 单点覆盖（RocksDB 键唯一），值为后写者 |
+| 隔离 | monitor 7 / 8 的同名指标互不串曲线 |
+| 范围 | 1 小时窗口裁掉 3 小时前的点；4 小时窗口保留 |
+| 指标发现 | 按 monitor 收窄、字典序升序；`metricName==null` 且唯一 → 自动推断；多指标 → `IAE` 并列出候选 |
+| 清理 | 返回**真实删除条数**（2 / 0）；清空某指标后索引被回收（`metrics` 不再报告），其它指标不受影响；`monitorId==null` 跨 monitor 清理 |
+| 持久化 | `close()` 后在同一目录新建实例，点与索引都还在 |
+| 生命周期 | `close()` 幂等；关闭后写抛 `ISE`、读空、清理 0 |
+
+### 14.2 `QuestdbSeriesEngine`（阶段十二，30 条，本机 HTTP 桩）
+
+两条链路都是 HTTP：写入走官方 `Sender`（ILP）→ `POST /write?precision=n`；
+查询/指标发现/清理走 JDK `HttpClient` → `GET /exec?query=…`。
+用 `com.sun.net.httpserver.HttpServer` 起桩即可**真实执行**，无需 QuestDB 服务。
+
+| 面 | 断言内容 |
+|---|---|
+| 写入报文 | `cpu,monitor_id=7 cpu_usage=12.5 <纳秒>` **逐字节相等**；`precision=n`；每点一次 POST（同步 flush，不攒批） |
+| 写入失败 | 桩返回 500 → `ISE` 且消息含 target/metric（**绝不静默丢点**）；恢复后自动重建 sender 并写成功 |
+| 地址 | 无 scheme / 多个尾斜杠被归一化后仍打到 `/exec`；无法解析 host → 不可用且不抛异常 |
+| 鉴权 | token → `/write` 与 `/exec` **双侧** `Bearer`；用户名密码 → `/exec` 为 `Basic base64(user:pass)`；未配凭据 → **不发** 头 |
+| 探测 SQL | `SELECT * FROM "t" WHERE "monitor_id" = 'n' LIMIT 1`；`monitorId==null` 时不加 WHERE |
+| 列收窄 | 只报数值类型列；按首行样本剔除 null 列；结果排序 |
+| 失败语义 | HTTP 500（含后端 error 文本）/ 非 JSON / 空响应 / 表不存在，各自按契约转 `ISE` 或空结果 |
+| 曲线 | 先 `SELECT * … LIMIT 1` 定位设计时间戳列，再按 `ts ∈ [now-hours, now]` 查询；ISO 边界跨度恰为 `hours`；显式指标只查该列 |
+| 时间 | RFC3339 字符串 → 毫秒；epoch 微秒 → `/1000`；无法解析的时间与非数值点被丢弃（留 warn），其余保留 |
+| 歧义 | `metricName==null` + 多指标 → `IAE` 列候选，且**不再发查询** |
+| 清理 | `DELETE` 按时间与 tag 过滤；`monitorId==null` 不加 tag；成功返回 **-1**（条数不可统计，不能返回 0）；表不存在返回 0 |
+| 生命周期 | `close()` 幂等；关闭后写抛 `ISE`、读空、清理 0，且**零 HTTP** |
+
+> **仍未覆盖（如实声明）**：QuestDB 的真实 SQL 语义、ILP 解析与列类型推断（由真实服务端负责）；
+> 桩是固定响应回放，本阶段证明的是**本项目引擎的协议编码、SQL 拼装、映射与失败语义**。
+> 另：`purge` 的 `metricName` 只做白名单校验、不进入 DELETE 条件——QuestDB 是宽表布局
+> （一指标一列），按时间删行必然连带同时间戳的其它指标，强行按 metric 过滤反而会留下
+> 半行数据；该语义已在阶段十二以显式断言固定下来，不是遗漏。
+
 

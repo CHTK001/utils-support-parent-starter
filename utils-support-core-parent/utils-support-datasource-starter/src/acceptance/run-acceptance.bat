@@ -32,7 +32,7 @@ if errorlevel 1 (
 
 if not exist "classes" mkdir "classes"
 if not exist "target" mkdir "target"
-javac -encoding UTF-8 -d "classes" -cp "lib/*" ^
+javac -J-Xms32m -J-Xmx384m -J-XX:MaxMetaspaceSize=192m -J-XX:ReservedCodeCacheSize=64m -J-XX:+UseSerialGC -encoding UTF-8 -d "classes" -cp "lib/*" ^
     "harness\EngineFunctional.java" ^
     "harness\EngineAcceptance.java" ^
     "harness\EngineSeriesKv.java" ^
@@ -42,13 +42,17 @@ javac -encoding UTF-8 -d "classes" -cp "lib/*" ^
     "harness\EngineQueryBuilder.java" ^
     "harness\EnginePrometheus.java" ^
     "harness\EngineInfluxdb.java" ^
-    "harness\EngineDatalake.java"
+    "harness\EngineDatalake.java" ^
+    "harness\EngineRocksdbSeries.java" ^
+    "harness\EngineQuestdb.java"
 if errorlevel 1 (
     echo [ERROR] harness compilation failed
     exit /b 3
 )
 
 set JOPT=-Dfile.encoding=UTF-8 --enable-native-access=ALL-UNNAMED ^
+ -Xms64m -Xmx512m -XX:MaxMetaspaceSize=384m -XX:ReservedCodeCacheSize=96m ^
+ -XX:CICompilerCount=2 -XX:+UseSerialGC ^
  --add-opens java.base/java.lang.reflect=ALL-UNNAMED ^
  --add-opens java.base/java.lang=ALL-UNNAMED ^
  --add-opens java.base/java.util=ALL-UNNAMED ^
@@ -60,7 +64,7 @@ set JOPT=-Dfile.encoding=UTF-8 --enable-native-access=ALL-UNNAMED ^
  --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
 
 set STAGES=%*
-if "%STAGES%"=="" set STAGES=1 2 3 4 5 6 7 8 9 10
+if "%STAGES%"=="" set STAGES=1 2 3 4 5 6 7 8 9 10 11 12
 set FAILED=0
 
 REM exact token match: iterating avoids "10" also matching "1"
@@ -75,6 +79,8 @@ for %%S in (%STAGES%) do (
     if "%%S"=="8" call :run 8 EnginePrometheus
     if "%%S"=="9" call :run 9 EngineInfluxdb
     if "%%S"=="10" call :run 10 EngineDatalake
+    if "%%S"=="11" call :run 11 EngineRocksdbSeries
+    if "%%S"=="12" call :run 12 EngineQuestdb
 )
 
 echo.

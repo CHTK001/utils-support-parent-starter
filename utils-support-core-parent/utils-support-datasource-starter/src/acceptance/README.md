@@ -13,7 +13,7 @@
   （`dependency:build-classpath`），不参与 reactor 构建。
 - 历史上这类工具只留在 `.tmp/`，没有版本控制，随会话结束即丢失。**工具必须入库。**
 
-## 十阶段与覆盖范围
+## 十二阶段与覆盖范围
 
 | 阶段 | 程序 | 断言数 | 覆盖内容 |
 |---|---|---|---|
@@ -26,10 +26,11 @@
 | 七 | `EngineQueryBuilder` | 37 | 新增的 `Engine.query()` **非 ORM SQL 文本构建器**：子句渲染顺序、标识符白名单、参数绑定顺序、守卫，以及在内存 / H2 / SQLite 三个真实引擎上的端到端执行（含 JOIN / GROUP BY / HAVING / VIEW / 分页 / 类型化映射 / 异步终端） |
 | 八 | `EnginePrometheus` | 35 | `PrometheusEngine` + `PrometheusClient` 对**本机 HTTP 桩**的真实执行：8 个 `/api/v1/*` 端点、Basic 认证头、scalar/vector/matrix 解析、HTTP 500 / 非 JSON / `status=error` / 不支持 resultType 的失败语义、关闭语义 |
 | 九 | `EngineInfluxdb` | 26 | `InfluxdbSeriesEngine` 注入桩客户端后的**引擎逻辑**真实执行：标识符白名单、单点写入行协议（毫秒→纳秒）、指标发现 `SELECT * ... LIMIT 1`、多指标歧义拒绝、结果展平与 RFC3339 时间解析、窗口均值降采样、`DELETE` 清理返回 -1、关闭语义 |
-
 | 十 | `EngineDatalake` | 21 | `HttpDatalakeQueryEngine` 对**本机 HTTP 桩**的真实读写：`POST /query` 的编码/请求体、JSON 行解析与类型映射、POJO 映射、客户端分页切片、受影响行数解析、畸形响应拒绝、只读入口与关闭语义 |
+| 十一 | `EngineRocksdbSeries` | 17 | `RocksDbSeriesEngine`（**嵌入式 RocksDB，真实读写**）：装配判定、参数/白名单守卫、键布局与时间戳编码、窗口均值降采样、时间范围裁剪、同戳覆盖、monitor 隔离、指标发现与索引回收、保留期清理返回真实条数、跨实例持久化、关闭语义 |
+| 十二 | `EngineQuestdb` | 30 | `QuestdbSeriesEngine` 对**本机 HTTP 桩**的真实执行：ILP 写入报文（measurement/tag/列/纳秒）、逐点 flush、写入失败不静默、地址归一化、`/write` 与 `/exec` 双侧鉴权头（Bearer / Basic）、探测 SQL、数值列与样本行收窄、`/exec` 500/非 JSON/空响应/表不存在、查询 SQL 与 ISO 边界、微秒时间戳归一秒、坏点丢弃、`DELETE` 清理（返回 -1 / 表不存在 0）、关闭语义 |
 
-合计 **722 条断言**。
+合计 **769 条断言**。
 
 ## 子类清单与覆盖状态（权威口径）
 
@@ -42,7 +43,10 @@ Engine / KvEngine / SeriesEngine 的全部实现者及其覆盖情况，见同�
   抽象基类 `AbstractEngine` / `JdbcEngine` 经子类间接覆盖；
   `JdbcReactorEngine` 的两个 private 内部适配器无法从外部引用，如实声明未直接触达。
 - **KvEngine 4 个**：`ChronicleMapKv` / `RocksDbEngine` / `RedisClient` / `RedisKvEngine` —— 全部覆盖。
-- **SeriesEngine 4 个**：`DataSourceSeriesEngine` / `RedisSeriesEngine` / `InfluxdbSeriesEngine` / `NoopSeriesEngine` —— 全部覆盖（influx 无服务，仅契约面）。
+- **SeriesEngine 6 个**（SPI 注册 5 个 + 非注册 1 个）：`DataSourceSeriesEngine` / `RedisSeriesEngine` /
+  `RocksDbSeriesEngine` / `QuestdbSeriesEngine` / `InfluxdbSeriesEngine` / `NoopSeriesEngine` —— 全部覆盖。
+  其中 `RocksDbSeriesEngine` 为真实嵌入式读写（阶段十一）；`InfluxdbSeriesEngine` 用桩客户端、
+  `QuestdbSeriesEngine` 用本机 HTTP 桩覆盖引擎侧协议实现（阶段九 / 十二）。
 
 ### 契约断言的来源
 
@@ -73,7 +77,7 @@ Engine / KvEngine / SeriesEngine 的全部实现者及其覆盖情况，见同�
 
 ```bat
 cd utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat            :: 十阶段全跑
+run-acceptance.bat            :: 十二阶段全跑
 run-acceptance.bat 1 5        :: 只跑阶段一与阶段五
 ```
 
