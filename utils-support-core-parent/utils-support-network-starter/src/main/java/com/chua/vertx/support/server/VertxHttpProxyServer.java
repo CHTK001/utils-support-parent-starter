@@ -166,18 +166,39 @@ public class VertxHttpProxyServer extends AbstractServer {
                 backend.getPort(), backend.getHostString(), front.uri());
         reqFuture.onSuccess(req -> {
  // 请求头透传（主机 保留后端）
-            front.headers().forEach(req::putHeader);
+            // 必须跳过受限/逐跳头：把 Content-Length 复制到 HttpClientRequest 上，
+            // Vert.x 会抛 "You must not set the Content-Length header"，异常在
+            // promise 回调里被吞掉，前端就永远等不到响应（实测 GET 正常、POST 必挂死）。
+            front.headers().forEach((name, value) -> {
+                if (isForwardableHeader(name)) {
+                    req.putHeader(name, value);
+                }
+            });
             HttpServerResponse resp = front.response();
-            // Vert.x 5:req.send(request) 会抛 "Request has already been read"；
-            // 无 body（GET/HEAD）直接 send()，有 body 用 pipeTo 管道透传
+            // 无 body（GET/HEAD）直接 send()；有 body 用 pipeTo 管道透传。
             if (front.isEnded()) {
                 req.send().onSuccess(backResp -> forwardResponse(resp, backResp))
-                        .onFailure(err -> resp.setStatusCode(502).end());
-            } else {
-                front.pipeTo(req);
-                req.response().onSuccess(backResp -> forwardResponse(resp, backResp))
-                        .onFailure(err -> resp.setStatusCode(502).end());
+                        .onFailure(err -> {
+                            log.debug("vertx-http-proxy 转发失败: {}", err.getMessage());
+                            if (!resp.ended()) {
+                                resp.setStatusCode(502).end();
+                            }
+                        });
+                return;
             }
+            front.pipeTo(req).onFailure(err -> {
+                log.debug("vertx-http-proxy 转发请求体失败: {}", err.getMessage());
+                if (!resp.ended()) {
+                    resp.setStatusCode(502).end();
+                }
+            });
+            req.response().onSuccess(backResp -> forwardResponse(resp, backResp))
+                    .onFailure(err -> {
+                        log.debug("vertx-http-proxy 读取后端响应失败: {}", err.getMessage());
+                        if (!resp.ended()) {
+                            resp.setStatusCode(502).end();
+                        }
+                    });
         }).onFailure(err -> {
             front.response().setStatusCode(502).end();
         });
@@ -192,8 +213,37 @@ public class VertxHttpProxyServer extends AbstractServer {
     private void forwardResponse(HttpServerResponse resp,
                                  io.vertx.core.http.HttpClientResponse backResp) {
         resp.setStatusCode(backResp.statusCode());
-        backResp.headers().forEach(resp::putHeader);
+        backResp.headers().forEach((name, value) -> {
+            // 同理：响应侧也不能复制 Content-Length/Transfer-Encoding，
+            // 由 Vert.x 依据实际写出量决定，否则响应体可能被截断或连接不结束。
+            if (isForwardableHeader(name)) {
+                resp.putHeader(name, value);
+            }
+        });
         backResp.pipeTo(resp);
+    }
+
+    /**
+     * 该头是否可原样转发到另一端。
+     *
+     * <p>{@code Content-Length} / {@code Transfer-Encoding} 由框架按实际写出量生成，
+     * 手工复制会让 Vert.x 抛错或让对端按错误长度等待；{@code Connection} / {@code Host}
+     * 是逐跳/连接级语义，必须由本端重新决定。</p>
+     *
+     * @param name 头名
+     * @return true 表示可转发
+     */
+    private boolean isForwardableHeader(String name) {
+        if (name == null) {
+            return false;
+        }
+        String lower = name.toLowerCase();
+        return !("content-length".equals(lower)
+                || "transfer-encoding".equals(lower)
+                || "connection".equals(lower)
+                || "keep-alive".equals(lower)
+                || "host".equals(lower)
+                || "upgrade".equals(lower));
     }
 
     @Override
