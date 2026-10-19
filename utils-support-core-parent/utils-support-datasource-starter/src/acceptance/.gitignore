@@ -15,3 +15,4 @@
 !prepare-classpath.ps1
 !run-postgres.bat
 !run-sqlserver.bat
+!run-oracle.bat

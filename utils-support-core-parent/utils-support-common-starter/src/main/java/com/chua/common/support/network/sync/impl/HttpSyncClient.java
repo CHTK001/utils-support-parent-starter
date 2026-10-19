@@ -174,8 +174,8 @@ public class HttpSyncClient implements SyncClient {
         }
         try {
             String body = "clientId=" + java.net.URLEncoder.encode(clientId, "UTF-8")
-                    + "&" + java.net.URLEncoder.encode(topic, "UTF-8")
-                    + "=" + java.net.URLEncoder.encode(message.toString(), "UTF-8");
+                    + "&topic=" + java.net.URLEncoder.encode(topic, "UTF-8")
+                    + "&message=" + java.net.URLEncoder.encode(message.toString(), "UTF-8");
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(serverUrl + "/api/sync/send"))
                     .header("Content-Type", "application/x-www-form-urlencoded")
