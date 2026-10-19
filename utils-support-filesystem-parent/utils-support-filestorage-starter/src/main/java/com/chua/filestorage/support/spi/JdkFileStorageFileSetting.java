@@ -20,6 +20,22 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
 
     @Override
     /**
+     * 展示名
+     */
+    public String getLabel() {
+        return "JDK 内置";
+    }
+
+    @Override
+    /**
+     * 实现说明
+     */
+    public String getDescription() {
+        return "JDK 图片处理管线，支持 size/format/quality/crop 等 URL 参数";
+    }
+
+    @Override
+    /**
      * Capabilities
     */
     public List<String> capabilities() {

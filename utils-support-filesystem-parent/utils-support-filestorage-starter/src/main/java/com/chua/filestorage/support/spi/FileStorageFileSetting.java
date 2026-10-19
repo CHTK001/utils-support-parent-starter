@@ -51,6 +51,26 @@ public interface FileStorageFileSetting {
     }
 
     /**
+     * 获取实现的展示名（供管理界面下拉选择，如「JDK 内置管线」）。
+     *
+     * <p>返回空串时前端回退到 SPI 名。展示名只用于界面，不参与配置持久化。</p>
+     *
+     * @return 展示名；无则为空串
+     */
+    default String getLabel() {
+        return "";
+    }
+
+    /**
+     * 获取实现的说明（供管理界面下拉选项描述）。
+     *
+     * @return 说明；无则为空串
+     */
+    default String getDescription() {
+        return "";
+    }
+
+    /**
      * 从 HTTP 请求中解析 URL 参数，生成操作配置。
      *
      * <p>参数来源：
