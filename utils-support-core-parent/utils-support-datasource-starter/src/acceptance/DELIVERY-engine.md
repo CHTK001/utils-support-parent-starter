@@ -477,18 +477,19 @@ harness **已入库**（不再只留 `.tmp`，那里没有版本控制）：
 
 ```
 utils-support-core-parent/utils-support-datasource-starter/src/acceptance/
-├─ run-acceptance.bat          二十三阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
+├─ run-acceptance.bat          二十四阶段运行器（自动解析 classpath → 编译 → 逐阶段执行）
 ├─ run-postgres.bat            临时 PostgreSQL 实例（官方免安装二进制；start / stop / status）
 ├─ run-sqlserver.bat           本机 SQL Server Express 服务启停与 TCP 探测（start / stop / status）
+├─ run-oracle.bat              本机 Oracle XE 服务启停与 TCP 探测（start / stop / status）
 ├─ prepare-classpath.ps1       从 pom.xml 解析 classpath 并生成 lib\（硬链接/复制）
 ├─ pom.xml                     仅用于解析 classpath，不参与 reactor 构建
-├─ harness/*.java              二十三个验收程序
+├─ harness/*.java              二十四个验收程序
 └─ README.md                   覆盖范围、前置条件、交付纪律
 ```
 
 ```bat
 cd D:\ch\project\utils-support-parent-starter\utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat              :: 二十三阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
+run-acceptance.bat              :: 二十四阶段全跑，末行 ACCEPTANCE_RESULT=PASS/FAIL
 run-acceptance.bat 1 5          :: 只跑阶段一与阶段五
 run-acceptance.bat 17           :: 只跑阶段十七（Elasticsearch）
 run-acceptance.bat 18           :: 只跑阶段十八（Neo4j）
@@ -497,10 +498,13 @@ run-acceptance.bat 20           :: 只跑阶段二十（HBase）
 run-acceptance.bat 21           :: 只跑阶段二十一（方言分页 SQL）
 run-acceptance.bat 22           :: 只跑阶段二十二（真实 PostgreSQL）
 run-acceptance.bat 23           :: 只跑阶段二十三（真实 SQL Server）
+run-acceptance.bat 24           :: 只跑阶段二十四（真实 Oracle XE）
 run-postgres.bat start          :: 起临时 PostgreSQL 实例（阶段二十二前置）
 run-postgres.bat stop           :: 关掉临时实例
 run-sqlserver.bat start         :: 起 SQL Server Express 服务并探测 1433（阶段二十三前置）
 run-sqlserver.bat stop          :: 停掉该服务
+run-oracle.bat start            :: 起 Oracle XE 服务并探测 1521（阶段二十四前置）
+run-oracle.bat stop             :: 停掉该服务
 ```
 
 > **交付教训（2026-10-04 实际发生）**：仓库根 `.gitignore` 有 `*.ps1`（16 行）/
@@ -527,6 +531,12 @@ run-sqlserver.bat stop          :: 停掉该服务
   `MSSQL_HOST` / `MSSQL_PORT` / `MSSQL_DB` / `MSSQL_USER` / `MSSQL_PASSWORD` 覆盖）。
   两者都实现了**实例缺失即 `[SKIP]`**：打印 `STAGE22_SKIP=1` / `STAGE23_SKIP=1` 并以退出码 0
   结束，所以没有这两套服务端的机器也能跑完整套件（日志里能看到 SKIP，不会被当成已通过）。
+- 阶段二十四需 `127.0.0.1:1521` 的 Oracle Database 21c XE（Windows 原生安装，
+  服务 `OracleServiceXE`，可插拔库 `XEPDB1`，DBA 账号 `system` 仅用于建验收用户，
+  业务账号 `engine_accept`）。用 `run-oracle.bat start` 起/探测；连接参数可经
+  `ORACLE_HOST` / `ORACLE_PORT` / `ORACLE_DB` / `ORACLE_SYS_USER` / `ORACLE_SYS_PASSWORD` /
+  `ORACLE_USER` / `ORACLE_PASSWORD` 覆盖。**实例不可达时打印 `[SKIP]` 与
+  `STAGE24_SKIP=1` 并以退出码 0 结束**。同样不是「容器」，是本机 Windows 服务实例。
 - 打开被验模块的**新构建**：`src/acceptance/pom.xml` 引用的是本地仓库制品，
   改完产品代码必须先 `mvn install` 对应模块，否则验的是旧包（**报告 md5 就是为此存在**）。
 

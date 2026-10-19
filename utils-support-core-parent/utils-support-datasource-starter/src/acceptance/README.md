@@ -90,12 +90,14 @@ Engine / KvEngine / SeriesEngine 的全部实现者及其覆盖情况，见同�
 
 ```bat
 cd utils-support-core-parent\utils-support-datasource-starter\src\acceptance
-run-acceptance.bat            :: 二十三阶段全跑
+run-acceptance.bat            :: 二十四阶段全跑
 run-acceptance.bat 1 5        :: 只跑阶段一与阶段五
 run-postgres.bat start        :: 起临时 PostgreSQL 实例（阶段二十二需要）
 run-sqlserver.bat start       :: 起 SQL Server Express 服务并探测 1433（阶段二十三需要）
+run-oracle.bat start          :: 起 Oracle XE 服务并探测 1521（阶段二十四需要）
 run-postgres.bat stop         :: 用完关掉
 run-sqlserver.bat stop        :: 用完关掉
+run-oracle.bat stop           :: 用完关掉
 ```
 
 前置条件：
