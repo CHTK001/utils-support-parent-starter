@@ -1,0 +1,13 @@
+# 验收用模型目录（不放 git）
+#
+# 本模块的推理需要 sherpa-onnx 格式的模型文件（几百 MB），不能随源码提交。
+# 本地验收时把模型放到 .acceptance-models/<模型名>/，然后：
+#   mvn test -Dsherpa.onnx.model.dir=<模块路径>/.acceptance-models/sensevoice
+#
+# 目录约定（每个模型一个子目录）：
+#   sensevoice/        model.int8.onnx + tokens.txt
+#   zipformer-zh-en/   encoder/decoder/joiner.int8.onnx + tokens.txt
+#   vits-zh/           model.onnx + tokens.txt + lexicon.txt + speakers.txt
+.acceptance-models/
+
+target/
