@@ -359,7 +359,9 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 图像修复(LaMa)：去除图像中不需要的物体/水印，智能填充背景；适用图片修复、水印去除、物体移除
         reg("lama-inpainting", "com.chua.deeplearning.support.onnx.inpainting.LamaInpaintingTranslator", Image.class, Image.class, Object.class, "vision/inpainting/lama/model.onnx", "https://huggingface.co/onnx-community/lama-inpainting-ONNX/resolve/main/onnx/model.onnx", false, null);
         // 图像着色(DeOldify)：给黑白照片/视频自动上色，还原真实色彩；适用老照片修复、历史影像着色
-        reg("image-colorize", "com.chua.deeplearning.support.onnx.colorize.ImageColorizeTranslator", Image.class, Image.class, Object.class, "vision/colorization/deoldify/model.onnx", "https://huggingface.co/bluefoxcreation/DeOldify-ONNX/resolve/main/DeOldify.onnx", false, null);
+        // 能力接口必须是 ImageEnhancer：上色属于「增强」能力，登记成 Object 会让
+        // 统一能力清单 / 按能力枚举（ImageEnhancer.listModels）看不到它，配置页只能靠名字兜底
+        reg("image-colorize", "com.chua.deeplearning.support.onnx.colorize.ImageColorizeTranslator", Image.class, Image.class, ImageEnhancer.class, "vision/colorization/deoldify/model.onnx", "https://huggingface.co/bluefoxcreation/DeOldify-ONNX/resolve/main/DeOldify.onnx", false, null);
         // 动漫人脸检测(YOLOv8)：YOLOv8 架构的动漫人脸检测，精度更高；适用动漫人脸检测、二次元内容分析
         reg("anime-face-yolov8", "com.chua.deeplearning.support.onnx.anime.detection.AnimeFaceDetectorTranslator", Image.class, DetectedObjects.class, ImageDetector.class, "vision/detection/anime-face/yolov8_animeface.onnx", "https://huggingface.co/Fuyucchi/yolov8_animeface/resolve/main/best.onnx", false, null);
                         // 人脸检测(YOLOv11n-face)：YOLOv11n 超轻量人脸检测，6MB；适用边缘设备人脸检测
