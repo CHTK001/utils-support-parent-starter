@@ -12,12 +12,13 @@
     <artifactId>utils-support-deeplearning-parent</artifactId>
     <packaging>pom</packaging>
     <name>Utils Support Deep Learning Parent</name>
-    <description>深度学习模块：ONNX / PyTorch / Paddle / TensorFlow / AgentScope / LangChain4j / Llama.cpp</description>
+    <description>深度学习模块：ONNX / sherpa-onnx / PyTorch / Paddle / TensorFlow / AgentScope / LangChain4j / Llama.cpp</description>
     <properties>
         <langchain4j.version>1.20.2</langchain4j.version>
     </properties>
     <modules>
         <module>utils-support-deeplearning-onnx-starter</module>
+        <module>utils-support-deeplearning-sherpa-starter</module>
         <module>utils-support-deeplearning-pytorch-starter</module>
         <module>utils-support-deeplearning-paddle-starter</module>
         <module>utils-support-deeplearning-tensorflow-starter</module>
