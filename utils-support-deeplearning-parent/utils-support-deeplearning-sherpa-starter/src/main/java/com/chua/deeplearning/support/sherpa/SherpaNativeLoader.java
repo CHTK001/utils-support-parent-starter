@@ -2,9 +2,17 @@ package com.chua.deeplearning.support.sherpa;
 
 import com.k2fsa.sherpa.onnx.LibraryLoader;
 import com.k2fsa.sherpa.onnx.LibraryUtils;
+import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 /**
  * sherpa-onnx 原生库加载器。
@@ -25,7 +33,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public final class SherpaNativeLoader {
+
+    /**
+     * sherpa-onnx 官方解压原生库时使用的临时目录前缀。
+     */
+    private static final String SHERPA_TEMP_PREFIX = "sherpa-onnx-java";
 
     /**
      * 是否已完成加载尝试。
@@ -82,11 +96,97 @@ public final class SherpaNativeLoader {
      * {@code System.load} 一次（Windows 上等于同时映射两份 DLL）。因此这里先把 autoLoad
      * 关掉，再调用一次 {@link LibraryUtils#load()}，让加载动作本进程内只发生一次、且失败可捕获。</p>
      *
+     * <p><b>顺带修复资源泄漏</b>：官方 {@code LibraryUtils.loadFromResourceInJar()} 每次调用都会
+     * 把 {@code sherpa-onnx-jni} + {@code onnxruntime} 解压到一个新的
+     * {@code sherpa-onnx-java<n>} 临时目录，且只依赖 {@code deleteOnExit}（进程退出才清）。
+     * 因此进程内多次触发加载会持续堆积（实测累积 37 份、约 791MB，直到 C 盘写满）。
+     * 这里在加载完成后立即删除「本次新产生的」临时目录：动态库一旦被 {@code System.load}
+     * 映射进地址空间，删除源文件不影响已加载的映像（Windows 允许删除已映射的 DLL，
+     * 只是目录项延迟释放），因此安全。</p>
+     *
      * @throws Throwable 加载失败
      */
     private static void loadThroughOfficialPath() throws Throwable {
-        LibraryLoader.setAutoLoadEnabled(false);
-        LibraryUtils.load();
+        Set<Path> before = listSherpaTempDirs();
+        try {
+            LibraryLoader.setAutoLoadEnabled(false);
+            LibraryUtils.load();
+        } finally {
+            cleanupNewTempDirs(before);
+        }
+    }
+
+    /**
+     * 列出当前系统中已存在的 sherpa 解压临时目录。
+     *
+     * @return 目录集合
+     */
+    private static Set<Path> listSherpaTempDirs() {
+        Set<Path> dirs = new HashSet<>();
+        Path tmp = tempRoot();
+        if (tmp == null) {
+            return dirs;
+        }
+        try (Stream<Path> stream = Files.list(tmp)) {
+            stream.filter(Files::isDirectory)
+                    .filter(path -> path.getFileName().toString().startsWith(SHERPA_TEMP_PREFIX))
+                    .forEach(dirs::add);
+        } catch (Exception e) {
+            log.debug("[sherpa] 枚举临时目录失败: {}", e.getMessage());
+        }
+        return dirs;
+    }
+
+    /**
+     * 删除本次加载新产生的临时目录（加载前已存在的不动，避免误删其它实例的）。
+     *
+     * @param before 加载前的目录集合
+     */
+    private static void cleanupNewTempDirs(Set<Path> before) {
+        Path tmp = tempRoot();
+        if (tmp == null) {
+            return;
+        }
+        try (Stream<Path> stream = Files.list(tmp)) {
+            stream.filter(Files::isDirectory)
+                    .filter(path -> path.getFileName().toString().startsWith(SHERPA_TEMP_PREFIX))
+                    .filter(path -> !before.contains(path))
+                    .forEach(SherpaNativeLoader::deleteRecursively);
+        } catch (Exception e) {
+            log.debug("[sherpa] 清理临时目录失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 获取临时目录根路径。
+     *
+     * @return 临时目录；不可用时返回 {@code null}
+     */
+    private static Path tempRoot() {
+        try {
+            return Path.of(System.getProperty("java.io.tmpdir", ""));
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    /**
+     * 递归删除目录（失败仅记录 debug，不影响主流程）。
+     *
+     * @param dir 目录
+     */
+    private static void deleteRecursively(Path dir) {
+        try (Stream<Path> stream = Files.walk(dir)) {
+            stream.sorted(Comparator.reverseOrder()).forEach(path -> {
+                try {
+                    Files.deleteIfExists(path);
+                } catch (IOException ignored) {
+                    // 已映射的 DLL / 被占用的文件删不掉属正常，交给 deleteOnExit 兜底
+                }
+            });
+        } catch (Exception ignored) {
+            // 同上
+        }
     }
 
     /**
