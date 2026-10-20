@@ -537,13 +537,24 @@ public class SherpaAudioClient implements VirtualClient {
             stream.filter(Files::isDirectory)
                     .filter(SherpaModelResolver::isUsableModelDir)
                     .sorted()
-                    .forEach(dir -> result.add(ModelDefinition.builder()
-                            .id(dir.getFileName().toString())
-                            .name(dir.getFileName().toString())
-                            .provider("sherpa")
-                            .description("sherpa-onnx 离线识别模型（" + dir + "）")
-                            .capabilities(List.of(ModelCapabilities.ASR))
-                            .build()));
+                    .forEach(dir -> {
+                        String name = dir.getFileName().toString();
+                        // 按目录名标注「离线 / 实时」：这两类模型不可互换，
+                        // 若界面只给模型名，使用者极易把流式模型选给离线识别器。
+                        SherpaUsage usage = SherpaUsage.infer(name);
+                        if (usage == SherpaUsage.TTS) {
+                            // 合成模型不属于本客户端（识别）的能力范围
+                            return;
+                        }
+                        result.add(ModelDefinition.builder()
+                                .id(name)
+                                .name(name)
+                                .provider("sherpa")
+                                .description("sherpa-onnx " + usage.label() + "识别模型（" + usage.description()
+                                        + "）: " + dir)
+                                .capabilities(List.of(ModelCapabilities.ASR))
+                                .build());
+                    });
         } catch (Exception e) {
             log.debug("[sherpa] 枚举模型目录失败: {}", e.getMessage());
         }

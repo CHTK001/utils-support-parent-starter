@@ -28,6 +28,40 @@ import java.util.List;
  * 时生效。绝大多数场景无需开启：把模型放进 {@code -Dsherpa.onnx.model.dir} 即可，
  * 两个 SPI 客户端的 {@code models()} 会直接枚举该目录。</p>
  *
+ * <h3>离线模型 vs 实时（流式）模型</h3>
+ *
+ * <p>sherpa-onnx 的模型在<b>导出阶段</b>就分成了两类，<b>不可互换</b>。登记时统一用
+ * {@link SherpaUsage} 标注，模型标识也带上前缀，避免选错：</p>
+ *
+ * <table border="1">
+ *   <caption>模型选择对照</caption>
+ *   <tr>
+ *     <th>场景</th><th>用哪个模型</th><th>模型标识前缀</th><th>驱动类</th>
+ *   </tr>
+ *   <tr>
+ *     <td>录音文件转写（要准确率）</td>
+ *     <td>Paraformer / SenseVoice / Whisper / 离线 Zipformer</td>
+ *     <td>{@code sherpa-offline-*}</td>
+ *     <td>{@link SherpaAsrPipeline}、{@link SherpaRecognizer}</td>
+ *   </tr>
+ *   <tr>
+ *     <td>麦克风实时识别（要低延迟）</td>
+ *     <td>流式 Zipformer（名字里带 {@code streaming}）</td>
+ *     <td>{@code sherpa-streaming-*}</td>
+ *     <td>{@link SherpaStreamingRecognizer}</td>
+ *   </tr>
+ *   <tr>
+ *     <td>语音合成</td>
+ *     <td>VITS / Matcha / Kokoro</td>
+ *     <td>{@code sherpa-tts-*}</td>
+ *     <td>{@link SherpaSynthesizer}、{@link SherpaTextToAudioClient}</td>
+ *   </tr>
+ * </table>
+ *
+ * <p><b>判别口诀</b>：目录／仓库名里带 {@code streaming} 就是实时模型，否则是离线模型；
+ * 两类文件名都可能是 {@code encoder/decoder/joiner.int8.onnx}，<b>不能只看文件名</b>。
+ * 把流式模型交给离线识别器会解码失败或输出乱码（{@link SherpaRecognizer} 已做拦截提示）。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
@@ -70,74 +104,72 @@ public class SherpaModelRegistrar implements ModelRegistrar {
 
     /**
      * 注册全部 sherpa-onnx 模型元数据（已注册则跳过）。
+     *
+     * <p>按 {@link SherpaUsage} 分三段登记，便于一眼看出「离线用哪个、实时用哪个」。</p>
      */
     private static void registerAll() {
-        // ASR：SenseVoice 多语言（自带语种/情感/事件）
-        regAsr("sherpa-sensevoice-small",
+        // ==================== 一、离线识别（offline）：录音文件转写，准确率优先 ====================
+        reg(SherpaUsage.OFFLINE, "sherpa-offline-sensevoice",
                 HF + "sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/model.int8.onnx",
                 List.of("model.int8.onnx", "tokens.txt"),
-                "SenseVoice 多语言语音识别（中/英/日/韩/粤，含情感与音频事件标签）");
+                "多语言（中/英/日/韩/粤），自带语种、情感与音频事件标签；约 228MB");
 
-        // ASR：Paraformer 中文
-        regAsr("sherpa-paraformer-zh-small",
+        reg(SherpaUsage.OFFLINE, "sherpa-offline-paraformer-zh",
                 HF + "sherpa-onnx-paraformer-zh-small-2024-03-09/resolve/main/model.int8.onnx",
                 List.of("model.int8.onnx", "tokens.txt"),
-                "Paraformer 中文离线语音识别（非自回归，速度快）");
+                "纯中文，非自回归单次前向，速度快；适合短语音批量转写");
 
-        // ASR：Whisper 多语言（编码器 + 解码器）
-        regAsr("sherpa-whisper-tiny",
+        reg(SherpaUsage.OFFLINE, "sherpa-offline-whisper-tiny",
                 HF + "sherpa-onnx-whisper-tiny/resolve/main/tiny-encoder.int8.onnx",
                 List.of("tiny-encoder.int8.onnx", "tiny-decoder.int8.onnx", "tiny-tokens.txt"),
-                "Whisper tiny 多语言语音识别（编码器/解码器双模型）");
+                "Whisper tiny 多语言，编码器/解码器双模型；资源占用低");
 
-        // ASR：流式 Zipformer 中英双语（供 SherpaStreamingRecognizer 使用）
-        regAsr("sherpa-streaming-zipformer-zh-en",
+        // ==================== 二、实时/流式识别（streaming）：麦克风边说边出字 ====================
+        reg(SherpaUsage.STREAMING, "sherpa-streaming-zipformer-zh-en",
                 HF + "sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20/resolve/main/encoder-epoch-99-avg-1.int8.onnx",
                 List.of("encoder-epoch-99-avg-1.int8.onnx", "decoder-epoch-99-avg-1.int8.onnx",
                         "joiner-epoch-99-avg-1.int8.onnx", "tokens.txt"),
-                "流式中英双语 Zipformer Transducer（麦克风实时识别）");
+                "中英双语 Zipformer Transducer，chunk 增量解码；约 193MB");
 
-        // TTS：中文 VITS 多说话人
-        regTts("sherpa-vits-icefall-zh",
+        reg(SherpaUsage.STREAMING, "sherpa-streaming-zipformer-zh-14M",
+                HF + "sherpa-onnx-streaming-zipformer-zh-14M/resolve/main/encoder-epoch-99-avg-1.int8.onnx",
+                List.of("encoder-epoch-99-avg-1.int8.onnx", "decoder-epoch-99-avg-1.int8.onnx",
+                        "joiner-epoch-99-avg-1.int8.onnx", "tokens.txt"),
+                "纯中文超轻量流式模型（14M 参数），适合端侧实时识别；约 31MB");
+
+        // ==================== 三、语音合成（tts）：文本转音频 ====================
+        reg(SherpaUsage.TTS, "sherpa-tts-vits-zh",
                 HF + "sherpa-onnx-vits-zh-ll/resolve/main/model.onnx",
                 List.of("model.onnx", "tokens.txt", "lexicon.txt", "speakers.txt"),
-                "中文 VITS 语音合成（多说话人，sherpa-onnx 导出）");
+                "中文 VITS，多说话人；8kHz 输出");
     }
 
     /**
-     * 注册一个 ASR 模型元数据。
+     * 登记一个模型元数据。
      *
-     * @param modelId  模型标识
+     * <p>模型标识统一加 {@link SherpaUsage#code()} 前缀，能力接口按使用形态区分：
+     * 离线/流式都用 {@link VirtualClient}（语音识别），合成用 {@link TextToAudioClient}。</p>
+     *
+     * @param usage    使用形态（离线 / 实时 / 合成）
+     * @param modelId  模型标识（需自带使用形态前缀）
      * @param mainUrl  主文件下载地址
      * @param files    附属文件清单（相对主文件同目录）
      * @param describe 描述
      */
-    private static void regAsr(String modelId, String mainUrl, List<String> files, String describe) {
+    private static void reg(SherpaUsage usage, String modelId, String mainUrl,
+                            List<String> files, String describe) {
         if (ModelRegistry.get(modelId) != null) {
             return;
         }
         String fileName = lastSegment(mainUrl);
-        ModelRegistry.register(modelId, null, byte[].class, String.class, VirtualClient.class,
+        boolean synthesis = usage == SherpaUsage.TTS;
+        ModelRegistry.register(modelId, null,
+                synthesis ? String.class : byte[].class,
+                synthesis ? byte[].class : String.class,
+                synthesis ? TextToAudioClient.class : VirtualClient.class,
                 modelId + "/" + fileName, mainUrl, List.of(mirrorOf(mainUrl)), files, false, fileName);
-        log.debug("[sherpa] 注册 ASR 模型 {} -> {}（{}）", modelId, mainUrl, describe);
-    }
-
-    /**
-     * 注册一个 TTS 模型元数据。
-     *
-     * @param modelId  模型标识
-     * @param mainUrl  主文件下载地址
-     * @param files    附属文件清单
-     * @param describe 描述
-     */
-    private static void regTts(String modelId, String mainUrl, List<String> files, String describe) {
-        if (ModelRegistry.get(modelId) != null) {
-            return;
-        }
-        String fileName = lastSegment(mainUrl);
-        ModelRegistry.register(modelId, null, String.class, byte[].class, TextToAudioClient.class,
-                modelId + "/" + fileName, mainUrl, List.of(mirrorOf(mainUrl)), files, false, fileName);
-        log.debug("[sherpa] 注册 TTS 模型 {} -> {}（{}）", modelId, mainUrl, describe);
+        // 日志带上使用形态，便于排查「选错离线/实时模型」类问题
+        log.info("[sherpa] 登记[{}]模型 {}（{}）: {}", usage.label(), modelId, usage.description(), describe);
     }
 
     /**
@@ -174,5 +206,22 @@ public class SherpaModelRegistrar implements ModelRegistrar {
         }
         Path dir = Path.of(root).resolve(modelId);
         return Files.isDirectory(dir) && SherpaModelResolver.isUsableModelDir(dir);
+    }
+
+    /**
+     * 按使用形态列出模型标识（供控制台按「离线/实时/合成」分组展示）。
+     *
+     * @param usage 使用形态
+     * @return 该形态下的模型标识列表（按 {@link SherpaUsage#code()} 前缀匹配）
+     */
+    public static List<String> modelIdsOf(SherpaUsage usage) {
+        if (usage == null) {
+            return List.of();
+        }
+        return ModelRegistry.getAll().stream()
+                .map(ModelRegistry.Entry::modelId)
+                .filter(id -> id != null && id.startsWith("sherpa-" + usage.code()))
+                .sorted()
+                .toList();
     }
 }
