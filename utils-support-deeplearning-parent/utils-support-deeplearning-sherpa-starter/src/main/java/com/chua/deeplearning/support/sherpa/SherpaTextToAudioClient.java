@@ -234,7 +234,9 @@ public class SherpaTextToAudioClient implements TextToAudioClient {
      */
     private int resolveSpeakerId(SherpaSynthesizer engine) {
         if (voice == null || voice.isBlank()) {
-            return 0;
+            // 未指定音色时用推荐音色：多说话人模型 0 号音色可懂度较差，
+            // 直接取 0 会导致下游 ASR 识别率明显偏低。
+            return engine.recommendedSpeakerId();
         }
         String candidate = voice.trim();
         try {
@@ -246,8 +248,9 @@ public class SherpaTextToAudioClient implements TextToAudioClient {
         if (index >= 0) {
             return index;
         }
-        log.warn("[sherpa] 未知说话人 {}，回退 speaker=0（可用说话人数 {}）", candidate, engine.numSpeakers());
-        return 0;
+        log.warn("[sherpa] 未知说话人 {}，回退推荐音色 {}（可用说话人数 {}）",
+                candidate, engine.recommendedSpeakerId(), engine.numSpeakers());
+        return engine.recommendedSpeakerId();
     }
 
     /**
@@ -392,13 +395,22 @@ public class SherpaTextToAudioClient implements TextToAudioClient {
             stream.filter(Files::isDirectory)
                     .filter(SherpaSynthesizer::isTtsModelDir)
                     .sorted()
-                    .forEach(dir -> result.add(ModelDefinition.builder()
-                            .id(dir.getFileName().toString())
-                            .name(dir.getFileName().toString())
-                            .provider("sherpa")
-                            .description("sherpa-onnx 语音合成模型（" + dir + "）")
-                            .capabilities(List.of(ModelCapabilities.TTS))
-                            .build()));
+                    .forEach(dir -> {
+                        String name = dir.getFileName().toString();
+                        // 只收合成模型：同一根目录下通常还放着识别模型（sensevoice /
+                        // streaming-zipformer），它们结构同样「可读」，若不按使用形态过滤
+                        // 就会混进 TTS 清单，选中后因缺 TTS 配置而失败。
+                        if (SherpaUsage.infer(name) != SherpaUsage.TTS) {
+                            return;
+                        }
+                        result.add(ModelDefinition.builder()
+                                .id(name)
+                                .name(name)
+                                .provider("sherpa")
+                                .description("sherpa-onnx 语音合成模型（VITS/Matcha/Kokoro）: " + dir)
+                                .capabilities(List.of(ModelCapabilities.TTS))
+                                .build());
+                    });
         } catch (Exception e) {
             log.debug("[sherpa] 枚举 TTS 模型目录失败: {}", e.getMessage());
         }
