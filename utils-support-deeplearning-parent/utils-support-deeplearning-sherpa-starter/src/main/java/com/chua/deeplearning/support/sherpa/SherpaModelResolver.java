@@ -81,9 +81,12 @@ public final class SherpaModelResolver {
         Path direct = safePath(text);
         if (direct != null) {
             if (Files.isDirectory(direct)) {
-                return direct;
-            }
-            if (Files.isRegularFile(direct)) {
+                // 目录本身可用则直接用；若它只是「多模型根目录」，继续往下解析，
+                // 否则会把不同模型的 encoder/decoder 混拼成一个莫须有的模型。
+                if (looksLikeModelDir(direct)) {
+                    return direct;
+                }
+            } else if (Files.isRegularFile(direct)) {
                 Path parent = direct.getParent();
                 if (parent != null && Files.isDirectory(parent)) {
                     return parent;
@@ -98,7 +101,7 @@ public final class SherpaModelResolver {
             Path candidate = safePath(root.trim());
             if (candidate != null && Files.isDirectory(candidate)) {
                 Path sub = candidate.resolve(text);
-                if (Files.isDirectory(sub)) {
+                if (Files.isDirectory(sub) && isUsableModelDir(sub)) {
                     return sub;
                 }
             }
@@ -120,15 +123,45 @@ public final class SherpaModelResolver {
             }
         }
 
-        if (root != null && !root.isBlank()) {
-            Path candidate = safePath(root.trim());
-            if (candidate != null && Files.isDirectory(candidate)) {
-                // 末级回落：把根目录本身当作模型目录（单模型部署的常见布局）
-                return candidate;
+        // 传入的是「多模型根目录」时，唯一可用子目录可直接下沉；多个则要求显式指定，
+        // 避免静默选中某个不相关的模型（这是线上最常见的选错模型场景）。
+        Path ambiguous = direct != null && Files.isDirectory(direct) ? direct
+                : root == null || root.isBlank() ? null : safePath(root.trim());
+        if (ambiguous != null && Files.isDirectory(ambiguous)) {
+            List<Path> candidates = usableSubdirectories(ambiguous);
+            if (candidates.size() == 1) {
+                return candidates.getFirst();
+            }
+            if (candidates.size() > 1) {
+                List<String> names = candidates.stream()
+                        .map(path -> path.getFileName().toString())
+                        .sorted()
+                        .toList();
+                throw new SherpaException("目录 " + ambiguous + " 下存在多个可用模型 " + names
+                        + "，请显式指定其中一个（如 model(\"" + ambiguous.resolve(names.getFirst())
+                        + "\")）");
             }
         }
         throw new SherpaException("无法定位 sherpa-onnx 模型目录: " + text
                 + "（已尝试绝对路径、-D" + PROP_MODEL_DIR + " 与 ModelRegistry）");
+    }
+
+    /**
+     * 列出根目录下结构完整的模型子目录。
+     *
+     * @param root 根目录
+     * @return 可用模型目录列表（未排序）
+     */
+    private static List<Path> usableSubdirectories(Path root) {
+        List<Path> result = new ArrayList<>();
+        try (Stream<Path> stream = Files.list(root)) {
+            stream.filter(Files::isDirectory)
+                    .filter(SherpaModelResolver::isUsableModelDir)
+                    .forEach(result::add);
+        } catch (IOException e) {
+            throw new SherpaException("遍历模型根目录失败: " + root, e);
+        }
+        return result;
     }
 
     /**
@@ -143,6 +176,22 @@ public final class SherpaModelResolver {
         } catch (RuntimeException e) {
             return null;
         }
+    }
+
+    /**
+     * 判断目录是否像「模型目录」（含 onnx 或 Pocket 特征文件）。
+     *
+     * <p>用于区分「用户直接给了一个模型目录」与「用户给了多模型根目录」。
+     * 注意不能要求 tokens.txt：Pocket-TTS 用 vocab.json / token_scores.json，没有 tokens.txt。</p>
+     *
+     * @param dir 目录
+     * @return true 表示看起来是模型目录
+     */
+    private static boolean looksLikeModelDir(Path dir) {
+        if (dir == null || !Files.isDirectory(dir)) {
+            return false;
+        }
+        return findFile(dir, ".onnx") != null || findFile(dir, "lm_main") != null;
     }
 
     /**
@@ -440,7 +489,15 @@ public final class SherpaModelResolver {
     }
 
     /**
-     * 检查模型目录是否看起来可用（存在 tokens 与至少一个 onnx）。
+     * 检查模型目录是否结构完整、可直接交给原生层。
+     *
+     * <p>判据按模型族区分，不能一律要求 {@code tokens.txt}：</p>
+     * <ul>
+     *   <li><b>识别类</b>（Paraformer / SenseVoice / Whisper / Transducer / CTC）：
+     *       必须有 {@code tokens.txt} 与至少一个 onnx；</li>
+     *   <li><b>Pocket-TTS</b>：用 {@code vocab.json} / {@code token_scores.json} 而非 tokens.txt，
+     *       判据为 {@code lm_flow} + {@code lm_main} + {@code decoder} 三件套。</li>
+     * </ul>
      *
      * @param dir 模型目录
      * @return true 表示结构完整
@@ -448,6 +505,10 @@ public final class SherpaModelResolver {
     public static boolean isUsableModelDir(Path dir) {
         if (dir == null || !Files.isDirectory(dir)) {
             return false;
+        }
+        if (findFile(dir, "lm_flow") != null && findFile(dir, "lm_main") != null
+                && findFile(dir, "decoder") != null) {
+            return true;
         }
         return findTokens(dir) != null && findFile(dir, ".onnx") != null;
     }
