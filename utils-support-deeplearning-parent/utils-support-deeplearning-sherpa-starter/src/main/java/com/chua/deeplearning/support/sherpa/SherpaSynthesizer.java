@@ -6,11 +6,14 @@ import com.k2fsa.sherpa.onnx.OfflineTtsConfig;
 import com.k2fsa.sherpa.onnx.OfflineTtsKokoroModelConfig;
 import com.k2fsa.sherpa.onnx.OfflineTtsMatchaModelConfig;
 import com.k2fsa.sherpa.onnx.OfflineTtsModelConfig;
+import com.k2fsa.sherpa.onnx.OfflineTtsPocketModelConfig;
 import com.k2fsa.sherpa.onnx.OfflineTtsVitsModelConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -51,6 +54,16 @@ public final class SherpaSynthesizer implements AutoCloseable {
      * TTS 模型族短标识：kokoro。
      */
     public static final String FAMILY_KOKORO = "kokoro";
+
+    /**
+     * TTS 模型族短标识：pocket（Kyutai Pocket-TTS，24kHz，支持零样本声音克隆）。
+     */
+    public static final String FAMILY_POCKET = "pocket";
+
+    /**
+     * 说话人列表文件名（多说话人模型与其数据文件同级）。
+     */
+    private static final String SPEAKERS_FILE = "speakers.txt";
 
     /**
      * 底层合成器。
@@ -211,6 +224,49 @@ public final class SherpaSynthesizer implements AutoCloseable {
     }
 
     /**
+     * 读取 {@code speakers.txt} 中的说话人名称列表。
+     *
+     * <p>多说话人 VITS 模型的音色差异极大：实测同一句中文，不同音色合成后交给 ASR 的
+     * 字符召回率可从 35% 到 100% 不等。因此选音色不能只看「能不能出声」，
+     * 应按实际识别效果筛选；本方法提供名称到 ID 的映射，便于逐个试听/试识别。</p>
+     *
+     * @return 说话人名称列表；模型无 {@code speakers.txt} 时返回空列表
+     */
+    public List<String> speakerNames() {
+        Path speakers = modelDir == null ? null : modelDir.resolve(SPEAKERS_FILE);
+        if (speakers == null || !Files.isRegularFile(speakers)) {
+            return List.of();
+        }
+        try {
+            List<String> names = new ArrayList<>();
+            for (String line : Files.readAllLines(speakers)) {
+                String trimmed = line.trim();
+                if (!trimmed.isEmpty()) {
+                    names.add(trimmed);
+                }
+            }
+            return names;
+        } catch (Exception e) {
+            log.debug("[sherpa] 读取 speakers.txt 失败: {}", e.getMessage());
+            return List.of();
+        }
+    }
+
+    /**
+     * 获取默认说话人 ID。
+     *
+     * <p>多说话人 VITS 各音色可懂度差异很大（实测同一句中文，不同音色交给 ASR 的字符召回率
+     * 可从 35% 到 100%），且「哪个音色清晰」<b>与音色名无关、无法静态推断</b>——
+     * 本模块不作伪推荐，统一返回 0。需要高质量输出的场景请用 {@link #speakerNames()}
+     * 拿到音色清单后逐个实测挑选，再显式传入 speaker ID。</p>
+     *
+     * @return 默认说话人 ID（固定 0）
+     */
+    public int recommendedSpeakerId() {
+        return 0;
+    }
+
+    /**
      * 模型族。
      *
      * @return vits / matcha / kokoro
@@ -251,6 +307,14 @@ public final class SherpaSynthesizer implements AutoCloseable {
         }
         if (name.contains("matcha")) {
             return FAMILY_MATCHA;
+        }
+        if (name.contains("pocket")) {
+            return FAMILY_POCKET;
+        }
+        // Pocket-TTS 用 lm_flow/lm_main 命名，特征最明确，先判它
+        if (SherpaModelResolver.findFile(dir, "lm_flow") != null
+                && SherpaModelResolver.findFile(dir, "lm_main") != null) {
+            return FAMILY_POCKET;
         }
         if (SherpaModelResolver.findFile(dir, "voices") != null) {
             return FAMILY_KOKORO;
@@ -305,6 +369,60 @@ public final class SherpaSynthesizer implements AutoCloseable {
          * 句间静音比例。
          */
         private float silenceScale = 0.2F;
+
+        /**
+         * VITS 噪声强度（0 表示确定性输出）。
+         */
+        private float noiseScale = 0.667F;
+
+        /**
+         * VITS 声学噪声强度。
+         */
+        private float noiseScaleW = 0.8F;
+
+        /**
+         * 合成语言（Kokoro 用于选择 lexicon，留空由模型推断）。
+         */
+        private String language;
+
+        /**
+         * 设置合成语言。
+         *
+         * <p>仅 Kokoro 族使用：用于选择 {@code lexicon-<lang>.txt}，留空则由 sherpa 按文本推断。
+         * 多语言模型（如 kokoro-multi-lang）显式指定可避免中英混排时选错词表。</p>
+         *
+         * @param language 语言代码（如 {@code zh}、{@code en}）
+         * @return 当前构建器
+         */
+        public Builder language(String language) {
+            this.language = language;
+            return this;
+        }
+
+        /**
+         * 设置 VITS 噪声强度。
+         *
+         * <p>默认 0.667 会让同一文本每次合成出不同的音频（音色/语调随机抖动）。
+         * 需要<b>可复现</b>的输出时设为 {@code 0}；追求自然度时保持默认。</p>
+         *
+         * @param noiseScale 噪声强度（0~1）
+         * @return 当前构建器
+         */
+        public Builder noiseScale(float noiseScale) {
+            this.noiseScale = noiseScale;
+            return this;
+        }
+
+        /**
+         * 设置 VITS 声学噪声强度。
+         *
+         * @param noiseScaleW 噪声强度
+         * @return 当前构建器
+         */
+        public Builder noiseScaleW(float noiseScaleW) {
+            this.noiseScaleW = noiseScaleW;
+            return this;
+        }
 
         /**
          * 设置模型标识或目录。
@@ -436,18 +554,44 @@ public final class SherpaSynthesizer implements AutoCloseable {
                             .setDataDir(optionalDir(dir, "espeak-ng-data"))
                             .build());
                 }
+                case FAMILY_POCKET -> {
+                    Path lmFlow = SherpaModelResolver.findFile(dir, "lm_flow");
+                    Path lmMain = SherpaModelResolver.findFile(dir, "lm_main");
+                    Path decoder = SherpaModelResolver.findFile(dir, "decoder");
+                    if (lmFlow == null || lmMain == null || decoder == null) {
+                        throw new SherpaException("Pocket-TTS 模型目录缺少 lm_flow/lm_main/decoder onnx: " + dir);
+                    }
+                    modelConfig.setPocket(OfflineTtsPocketModelConfig.builder()
+                            .setLmFlow(lmFlow.toString())
+                            .setLmMain(lmMain.toString())
+                            .setDecoder(decoder.toString())
+                            // vocoder 侧的 mimi 编码器只在零样本声音克隆时使用，缺省可空
+                            .setEncoder(optionalFile(dir, "encoder"))
+                            .setVocabJson(optionalFile(dir, "vocab.json"))
+                            .setTokenScoresJson(optionalFile(dir, "token_scores"))
+                            .build());
+                }
                 case FAMILY_KOKORO -> {
                     Path model3 = SherpaModelResolver.findFile(dir, "model");
                     Path voices = SherpaModelResolver.findFile(dir, "voices");
                     if (model3 == null || voices == null) {
                         throw new SherpaException("Kokoro 模型目录缺少 model/voices: " + dir);
                     }
+                    String dataDir = optionalDir(dir, "espeak-ng-data");
+                    if (dataDir.isEmpty()) {
+                        // Kokoro 依赖 espeak-ng 做字素→音素，缺该目录原生层会直接拒绝创建，
+                        // 这里提前给出可操作提示，避免只看到 "Invalid OfflineTtsConfig"。
+                        throw new SherpaException("Kokoro 模型目录缺少 espeak-ng-data 子目录: " + dir
+                                + "（可从模型仓库下载该目录，内含 phondata/phontab/phonindex/cmn_dict 等）");
+                    }
                     modelConfig.setKokoro(OfflineTtsKokoroModelConfig.builder()
                             .setModel(model3.toString())
                             .setVoices(voices.toString())
                             .setTokens(requireTokens(dir))
                             .setLexicon(optionalFile(dir, "lexicon"))
-                            .setDataDir(optionalDir(dir, "espeak-ng-data"))
+                            .setDataDir(dataDir)
+                            // 指定语言可让 lexicon 选择更准确；留空则由 sherpa 按文本推断
+                            .setLang(language == null ? "" : language)
                             .build());
                 }
                 default -> {
@@ -460,6 +604,11 @@ public final class SherpaSynthesizer implements AutoCloseable {
                             .setTokens(requireTokens(dir))
                             .setLexicon(optionalFile(dir, "lexicon"))
                             .setDataDir(optionalDir(dir, "espeak-ng-data"))
+                            // VITS 默认 noise_scale=0.667 会注入随机噪声：同一文本每次合成
+                            // 的音频都不同，可懂度也随之抖动（实测单句召回可在 0.5~1.0 间跳变）。
+                            // 需要可复现输出（如回归测试、字幕对齐）时把它设为 0。
+                            .setNoiseScale(noiseScale)
+                            .setNoiseScaleW(noiseScaleW)
                             .build());
                 }
             }
