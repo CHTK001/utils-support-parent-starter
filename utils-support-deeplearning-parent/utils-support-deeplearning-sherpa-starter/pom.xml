@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-deeplearning-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-deeplearning-sherpa-starter</artifactId>
+    <name>Utils Support Deep Learning Sherpa Starter</name>
+    <description>sherpa-onnx 官方 JNI 集成：离线/流式语音识别（Paraformer / SenseVoice / Whisper /
+        Zipformer-Transducer / Zipformer-CTC）、VITS/Matcha/Kokoro 语音合成与 Silero VAD 端点检测</description>
+
+    <properties>
+        <!--
+          sherpa-onnx 官方 JVM 产物发布在 JitPack（groupId 为 com.github.k2-fsa.sherpa-onnx）。
+          根 pom 的 repositories 已包含 https://jitpack.io，无需在此重复声明。
+        -->
+        <sherpa.onnx.version>v1.13.8</sherpa.onnx.version>
+        <!-- 必须显式开启：父 pom dev profile 默认 skipTests=true 会让契约用例静默跳过 -->
+        <skipTests>false</skipTests>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-deeplearning-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- 1. JVM 核心 API（com.k2fsa.sherpa.onnx.*，纯 Java 声明 + native 方法） -->
+        <dependency>
+            <groupId>com.github.k2-fsa.sherpa-onnx</groupId>
+            <artifactId>sherpa-onnx-jvm</artifactId>
+            <version>${sherpa.onnx.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.13.0-M3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.27.7</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <!--
+          平台 native 库按 os/arch 自动激活，每个 profile 只引入当前这一个平台，
+          避免把多个平台（每个含 sherpa-onnx-jni + onnxruntime）全部打进依赖树。
+
+          激活条件说明（Maven 语义差异，别随手改）：
+          - Windows：os.name 实际是 "Windows 11"/"Windows Server ..."，不是 "Windows"，
+            只能靠 <family>windows</family> 匹配；
+          - Linux：os.name 就是 "Linux"，用 <name>Linux</name> 精确匹配；不能写
+            <family>unix</family>——macOS 也属于 unix，会同时激活 linux 依赖；
+          - macOS：用 <family>mac</family>（只匹配 macOS）。
+
+          产物内部布局：sherpa-onnx/native/<os-arch>/sherpa-onnx-jni.{dll,so,dylib}
+                      + sherpa-onnx/native/<os-arch>/onnxruntime.{dll,so,dylib}
+          com.k2fsa.sherpa.onnx.LibraryUtils 会按 os.name/os.arch 自动挑选对应目录解压并加载。
+
+          如需离线构建单一 fat 包（例如发版）：mvn -Psherpa-native-all package
+        -->
+        <profile>
+            <id>sherpa-native-win-x64</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                    <arch>amd64</arch>
+                </os>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.github.k2-fsa.sherpa-onnx</groupId>
+                    <artifactId>sherpa-onnx-native-lib-win-x64</artifactId>
+                    <version>${sherpa.onnx.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>sherpa-native-win-arm64</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                    <arch>aarch64</arch>
+                </os>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.github.k2-fsa.sherpa-onnx</groupId>
+                    <artifactId>sherpa-onnx-native-lib-win-arm64</artifactId>
+                    <version>${sherpa.onnx.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>sherpa-native-linux-x64</id>
+            <activation>
+                <os>
+                    <name>Linux</name>
+                    <arch>amd64</arch>
+                </os>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.github.k2-fsa.sherpa-onnx</groupId>
+                    <artifactId>sherpa-onnx-native-lib-linux-x64</artifactId>
+                    <version>${sherpa.onnx.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>sherpa-native-linux-aarch64</id>
+            <activation>
+                <os>
+                    <name>Linux</name>
+                    <arch>aarch64</arch>
+                </os>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.github.k2-fsa.sherpa-onnx</groupId>
+                    <artifactId>sherpa-onnx-native-lib-linux-aarch64</artifactId>
+                    <version>${sherpa.onnx.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>sherpa-native-osx-arm64</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                    <arch>aarch64</arch>
+                </os>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.github.k2-fsa.sherpa-onnx</groupId>
+                    <artifactId>sherpa-onnx-native-lib-osx-aarch64</artifactId>
+                    <version>${sherpa.onnx.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>sherpa-native-osx-x64</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                    <arch>x86_64</arch>
+                </os>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.github.k2-fsa.sherpa-onnx</groupId>
+                    <artifactId>sherpa-onnx-native-lib-osx-x64</artifactId>
+                    <version>${sherpa.onnx.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>sherpa-native-all</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.github.k2-fsa.sherpa-onnx</groupId>
+                    <artifactId>sherpa-onnx-native-lib-win-x64</artifactId>
+                    <version>${sherpa.onnx.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.github.k2-fsa.sherpa-onnx</groupId>
+                    <artifactId>sherpa-onnx-native-lib-linux-x64</artifactId>
+                    <version>${sherpa.onnx.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.github.k2-fsa.sherpa-onnx</groupId>
+                    <artifactId>sherpa-onnx-native-lib-linux-aarch64</artifactId>
+                    <version>${sherpa.onnx.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.github.k2-fsa.sherpa-onnx</groupId>
+                    <artifactId>sherpa-onnx-native-lib-osx-aarch64</artifactId>
+                    <version>${sherpa.onnx.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.github.k2-fsa.sherpa-onnx</groupId>
+                    <artifactId>sherpa-onnx-native-lib-osx-x64</artifactId>
+                    <version>${sherpa.onnx.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+</project>
