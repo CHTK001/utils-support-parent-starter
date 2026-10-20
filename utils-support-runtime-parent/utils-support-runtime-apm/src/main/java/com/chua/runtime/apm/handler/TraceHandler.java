@@ -519,6 +519,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         span.setMethodName(methodName);
         span.setDescriptor(descriptor);
         span.setStartTime(System.currentTimeMillis());
+        span.setPhase(inferPhase(className));
 
         traceContext.setSpan(span);
         spans.add(span);
@@ -559,6 +560,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         if (span != null) {
             span.setEndTime(System.currentTimeMillis());
             span.setDuration(span.getEndTime() - span.getStartTime());
+            span.setSelfTime(span.getDuration());
             span.setStatus(STATUS_OK);
             LOG.log(Level.FINE, String.format("[Trace] END: %s.%s, span=%s, duration=%sms", className, methodName, span.getSpanId(), span.getDuration()));
         }
@@ -576,6 +578,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         if (span != null) {
             span.setEndTime(System.currentTimeMillis());
             span.setDuration(span.getEndTime() - span.getStartTime());
+            span.setSelfTime(span.getDuration());
             span.setStatus(STATUS_ERROR);
             String errorMsg = throwable != null ? throwable.getMessage() : UNKNOWN_ERROR;
             span.setException(errorMsg);
@@ -646,6 +649,44 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private String classNameToReadable(String internalName) {
         return internalName != null ? internalName.replace('/', '.') : "";
+    }
+
+    /**
+     * 根据类名推断 Span 阶段，用于阶段耗时拆分。
+     *
+     * @param className 类内部名
+     * @return 阶段标签
+     */
+    private String inferPhase(String className) {
+        if (className == null) {
+            return "method";
+        }
+        String c = className.toLowerCase();
+        if (c.contains("http") || c.contains("servlet") || c.contains("tomcat")
+                || c.contains("undertow") || c.contains("jetty")) {
+            return "http";
+        }
+        if (c.contains("socket") || c.contains("netty") || c.contains("channel")) {
+            return "network";
+        }
+        if (c.contains("jdbc") || c.contains("connection") || c.contains("sql")
+                || c.contains("mysql") || c.contains("postgres") || c.contains("oracle")
+                || c.contains("redis") || c.contains("jedis") || c.contains("lettuce")
+                || c.contains("mongodb") || c.contains("elasticsearch")) {
+            return "db";
+        }
+        if (c.contains("cache") || c.contains("memcached")) {
+            return "cache";
+        }
+        if (c.contains("kafka") || c.contains("rabbit") || c.contains("rocket")
+                || c.contains("pulsar") || c.contains("jms") || c.contains("mqtt")) {
+            return "mq";
+        }
+        if (c.contains("dubbo") || c.contains("grpc") || c.contains("thrift")
+                || c.contains("rpc") || c.contains("feign")) {
+            return "rpc";
+        }
+        return "method";
     }
 
     /**
@@ -925,5 +966,25 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
          * Accept 头部
          */
         private String accept;
+
+        /**
+         * 阶段（method / http / network / db / cache / mq / rpc / async）
+         */
+        private String phase = "method";
+
+        /**
+         * 子阶段耗时累计（不含嵌套子 Span 的自耗时；仅当前 Span 自身代码耗时）
+         */
+        private long selfTime;
+
+        /**
+         * 附加标签（逗号分隔，如 service=payment,method=GET /api）
+         */
+        private String tags;
+
+        /**
+         * 跨 Agent 上游链路来源（w3c / skywalking / none）
+         */
+        private String upstreamContext = "none";
     }
 }
