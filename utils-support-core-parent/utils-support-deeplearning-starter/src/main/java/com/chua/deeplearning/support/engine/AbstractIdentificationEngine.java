@@ -30,6 +30,40 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     protected final Map<String, TranslatorModelDefinition> modelMap = new ConcurrentHashMap<>();
 
     /**
+     * 模型最近一次被取用的时间戳（毫秒）：modelId → lastUsed。
+     *
+     * <p>仅用于空闲卸载判断；不参与任何推理逻辑。</p>
+     */
+    private final Map<String, Long> lastUsedAt = new ConcurrentHashMap<>();
+
+    /**
+     * 空闲卸载阈值（毫秒）：模型超过该时长未被取用即释放其推理会话。
+     *
+     * <p>取值 {@code deeplearning.model.idle-unload-ms}，默认 10 分钟；
+     * 设为 0 或负数可关闭该能力。</p>
+     *
+     * <p>为什么需要：CV 模型（如超分/上色/detection）的 ONNX 会话常驻数百 MB
+     * 到数 GB 的原生内存，且 ONNX Runtime 的 CPU arena 不会把内存还给操作系统，
+     * 空闲后 RSS 依然高企（实测上色模型加载后常驻约 3GB）。释放后下一次调用会
+     * 自动重新加载（{@code DjlModelFactory.predict → ensureInitialized}），
+     * 代价只是首个请求的加载延迟，由前端加载动画覆盖。</p>
+     */
+    private static final long IDLE_UNLOAD_MS =
+            Long.getLong("deeplearning.model.idle-unload-ms", 600_000L);
+
+    /**
+     * 空闲检查周期（毫秒）：取值 {@code deeplearning.model.idle-check-ms}，默认 60 秒。
+     */
+    private static final long IDLE_CHECK_MS =
+            Long.getLong("deeplearning.model.idle-check-ms", 60_000L);
+
+    /**
+     * 空闲回收线程是否已启动（进程内只需一个）。
+     */
+    private static final java.util.concurrent.atomic.AtomicBoolean REAPER_STARTED =
+            new java.util.concurrent.atomic.AtomicBoolean(false);
+
+    /**
      * 默认 提供者 名称
      */
     private static final String DEFAULT_PROVIDER = "onnx";
@@ -72,6 +106,118 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     public AbstractIdentificationEngine() {
         ImageUtils.load();
         discoverModels();
+        startIdleReaper();
+    }
+
+    /**
+     * 启动空闲回收守护线程（进程内只启动一次；阈值为 0 时不启动）。
+     *
+     * <p>用守护线程而非 Spring 调度：本类位于基础库，不能强依赖上层容器；
+     * 守护属性保证不阻塞 JVM 退出。</p>
+     */
+    private void startIdleReaper() {
+        if (IDLE_UNLOAD_MS <= 0 || IDLE_CHECK_MS <= 0) {
+            return;
+        }
+        if (!REAPER_STARTED.compareAndSet(false, true)) {
+            return;
+        }
+        Thread t = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    Thread.sleep(IDLE_CHECK_MS);
+                    int n = evictIdle(IDLE_UNLOAD_MS);
+                    if (n > 0) {
+                        log.info("[deeplearning-engine] 空闲卸载 {} 个模型会话，释放原生活存（阈值={}ms）", n, IDLE_UNLOAD_MS);
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                } catch (Throwable e) {
+                    // 回收失败不能影响推理：吞掉并继续下一轮
+                    log.debug("[deeplearning-engine] 空闲卸载异常: {}", e.getMessage());
+                }
+            }
+        }, "dl-idle-reaper");
+        t.setDaemon(true);
+        t.start();
+        log.info("[deeplearning-engine] 空闲卸载已启用：超过 {}ms 未使用即释放模型会话（检查周期 {}ms）",
+                IDLE_UNLOAD_MS, IDLE_CHECK_MS);
+    }
+
+    /**
+     * 记录模型被取用（刷新其空闲计时）。
+     *
+     * @param modelId 模型标识
+     */
+    private void touch(String modelId) {
+        if (modelId != null && IDLE_UNLOAD_MS > 0) {
+            lastUsedAt.put(modelId, System.currentTimeMillis());
+        }
+    }
+
+    /**
+     * 释放指定模型的推理会话并从注册表移除（下次取用会自动重建）。
+     *
+     * <p>先摘除条目再关闭：避免关闭期间新请求又拿到正在释放的实例；
+     * 即便有调用方已持有引用，其后续 {@code predict} 也会重新初始化，
+     * 不会读到半关闭状态。</p>
+     *
+     * @param modelId 模型标识
+     * @return true 表示确实释放了一个已注册模型
+     */
+    public boolean evict(String modelId) {
+        if (modelId == null) {
+            return false;
+        }
+        TranslatorModelDefinition def = modelMap.remove(modelId);
+        lastUsedAt.remove(modelId);
+        if (def == null) {
+            return false;
+        }
+        closeQuietly(def);
+        return true;
+    }
+
+    /**
+     * 释放所有空闲超时的模型会话。
+     *
+     * @param idleMillis 空闲阈值（毫秒）
+     * @return 被释放的模型数量
+     */
+    public int evictIdle(long idleMillis) {
+        if (idleMillis <= 0 || modelMap.isEmpty()) {
+            return 0;
+        }
+        long deadline = System.currentTimeMillis() - idleMillis;
+        int released = 0;
+        for (String modelId : modelMap.keySet()) {
+            Long used = lastUsedAt.get(modelId);
+            // 从未被取用过的模型没有加载会话，无需回收
+            if (used == null || used > deadline) {
+                continue;
+            }
+            if (evict(modelId)) {
+                released++;
+            }
+        }
+        return released;
+    }
+
+    /**
+     * 关闭模型定义持有的 translator（容错，不向外抛异常）。
+     *
+     * @param def 模型定义
+     */
+    private static void closeQuietly(TranslatorModelDefinition def) {
+        Object translator = def.getTranslator();
+        if (translator instanceof AutoCloseable closeable) {
+            try {
+                closeable.close();
+            } catch (Exception e) {
+                log.debug("[deeplearning-engine] 关闭 translator 失败: {}", e.getMessage());
+            }
+        }
     }
 
     /**
@@ -280,6 +426,8 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         if (def == null) {
             return null;
         }
+        // 取用即续命：空闲卸载据此判断该模型是否仍在使用中
+        touch(name);
         // 无显式 options 时，同样应用该 modelId 的模型级持久化参数
         java.util.Map<String, Object> merged = ModelParams.merge(name, null);
         Object translator = def.getTranslator();
@@ -310,6 +458,8 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         if (def == null) {
             return null;
         }
+        // 取用即续命：空闲卸载据此判断该模型是否仍在使用中
+        touch(name);
         // 合并该 modelId 的模型级持久化参数（device / threshold / 模型特有参数等）。
         // 调用方显式传入的键优先级更高；无任何配置时不产生额外开销语义。
         java.util.Map<String, Object> merged = ModelParams.merge(name, options);
@@ -332,9 +482,11 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
      * @return 获取的结果
      */
     public <T> T get(Class<T> target) {
-        for (TranslatorModelDefinition def : modelMap.values()) {
-            Object translator = def.getTranslator();
+        for (Map.Entry<String, TranslatorModelDefinition> en : modelMap.entrySet()) {
+            Object translator = en.getValue().getTranslator();
             if (target.isInstance(translator)) {
+                // 按能力遍历也视为一次取用，避免刚拿到就被空闲回收
+                touch(en.getKey());
                 return (T) translator;
             }
         }
