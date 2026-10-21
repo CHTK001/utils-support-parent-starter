@@ -206,6 +206,14 @@ public class DefaultScriptConverter implements ScriptConverter {
             }
             String converted = convert(cleaned, protocol);
             if (converted != null && !converted.isBlank()) {
+                // MySQL 风格的反斜杠转义（\' \" \\）改写为标准 SQL 的写法：
+                //   - \'  -> ''（标准 SQL 用成对单引号表示内嵌单引号）
+                //   - \"  -> ""（同理）
+                //   - \\  -> \（标准 SQL 无反斜杠转义）
+                // 其它方言（H2 / PG / Oracle / SQL Server）不认反斜杠转义，
+                // 原样送进去会直接报语法错。实测 eduai 的 16MB 中文种子数据里
+                // 有 88 处 \'（诗词里引用词句），其中 3 条 UPDATE 因此整条失败。
+                converted = rewriteBackslashEscapes(converted);
                 // MySQL 多表删除（DELETE t1 FROM ... JOIN ...）其它方言没有等价语法，改写成子查询
                 String rewritten = rewriteMultiTableDelete(converted);
                 if (rewritten != null) {
@@ -214,12 +222,141 @@ public class DefaultScriptConverter implements ScriptConverter {
                 // 多列 ALTER 在 H2 / PostgreSQL 上不合法（一条 ADD COLUMN 一个语句），
                 // MySQL 允许一次加多列。这里按列拆成多条单列 ALTER。
                 List<String> splitAlters = splitMultiColumnAlter(converted);
-                result.addAll(splitAlters.isEmpty() ? List.of(converted) : splitAlters);
+                if (splitAlters.isEmpty()) {
+                    result.add(converted);
+                } else {
+                    // 拆出来的每条单列 ALTER 再按方言处理：
+                    // MySQL 系原样保留；其它方言丢弃（列已由建表语句提供，重复 ADD COLUMN 报 Duplicate column）
+                    for (String alter : splitAlters) {
+                        String guarded = rewriteAddColumnAlter(alter, protocol);
+                        if (guarded == null) {
+                            result.add(alter);
+                        } else if (!guarded.isEmpty()) {
+                            result.add(guarded);
+                        }
+                    }
+                }
             }
         }
         return result;
     }
 
+    /**
+     * 把 MySQL 风格的反斜杠转义改写成标准 SQL 写法。
+     *
+     * <p>MySQL 允许在字符串里用反斜杠转义（{@code \'} 表示内嵌单引号、
+     * {@code \"} 表示内嵌双引号、{@code \\} 表示字面反斜杠）；
+     * 标准 SQL 只有「成对引号」这一种转义（{@code ''} / {@code ""}），
+     * 其它方言（H2 / PostgreSQL / Oracle / SQL Server）遇到反斜杠转义直接报语法错。
+     * 实测：{@code INSERT INTO t VALUES (1, 'a\'b')} 在 H2 上报
+     * {@code Syntax error ... 'a\'b[*]'}，而 {@code 'a''b'} 正常。</p>
+     *
+     * <p>只改写字符串字面量内部的反斜杠序列，字符串外的（例如路径里的反斜杠）
+     * 保持原样。</p>
+     *
+     * @param sql SQL
+     * @return 改写后的 SQL
+     */
+    private String rewriteBackslashEscapes(String sql) {
+        if (sql == null || sql.indexOf('\\') < 0) {
+            return sql;
+        }
+        StringBuilder out = new StringBuilder(sql.length());
+        int i = 0;
+        while (i < sql.length()) {
+            char c = sql.charAt(i);
+            if (c == '\'' || c == '"') {
+                int end = skipQuoted(sql, i);
+                out.append(rewriteEscapesInLiteral(sql.substring(i, end)));
+                i = end;
+                continue;
+            }
+            out.append(c);
+            i++;
+        }
+        return out.toString();
+    }
+
+    /**
+     * 改写一个字符串字面量内部的反斜杠转义。
+     *
+     * @param literal 含首尾引号的字面量
+     * @return 改写后的字面量
+     */
+    private String rewriteEscapesInLiteral(String literal) {
+        if (literal.indexOf('\\') < 0) {
+            return literal;
+        }
+        StringBuilder sb = new StringBuilder(literal.length());
+        for (int i = 0; i < literal.length(); i++) {
+            char c = literal.charAt(i);
+            if (c != '\\' || i + 1 >= literal.length()) {
+                sb.append(c);
+                continue;
+            }
+            char next = literal.charAt(i + 1);
+            switch (next) {
+                case '\'' -> sb.append("''");
+                case '"' -> sb.append("\"\"");
+                case '\\' -> sb.append('\\');
+                // 其它转义（\n \t 等）在标准 SQL 里没有对应写法，
+                // 原样保留（去掉反斜杠会让语义悄悄变化，保留至少是显式的）
+                default -> sb.append(c).append(next);
+            }
+            i++;
+        }
+        return sb.toString();
+    }
+    /**
+     * 处理「给已存在的表补列」的 ALTER。
+     *
+     * <p>本仓的建表脚本普遍是「建表语句里已含该列 + 末尾再补一条 ALTER ADD COLUMN」
+     * 的写法（后者是给存量老库补列用的）。在 MySQL 上重复执行报 1060（重复列），
+     * 由 continueOnError 逐语句忽略；但在 H2 / PostgreSQL 上这条 ALTER 是<b>硬失败</b>
+     * （Duplicate column name），会把整份脚本判为失败、每次启动重跑。
+     * 实测 datasource-hub 的 7 条存量补列语句在 H2 上全部报 Duplicate column。</p>
+     *
+     * <p>处理方式按目标方言分两种：</p>
+     * <ul>
+     *   <li><b>MySQL 系</b>：原样保留 —— 它们本来就是给 MySQL 存量库用的补列语句，
+     *       重复执行报 1060 由 continueOnError 吞掉，与既有行为一致；</li>
+     *   <li><b>其它方言</b>：<b>整条丢弃</b>。这些列已经写在建表语句里，新库一次建全；
+     *       至于「列本该由建表语句提供」的旧库，本就在本模块的迁移覆盖范围之外
+     *       （旧库补列是 MySQL 专属的历史包袱）。丢弃比改写成动态 DDL 更好：
+     *       动态 DDL（SET @var + PREPARE）本身也是 MySQL 语法，H2 / PG 同样不认
+     *       （实测 H2 报 {@code SET @ddl = (SELECT [*]IF(...)} 语法错）。</li>
+     * </ul>
+     *
+     * @param sql      转换后的单条语句
+     * @param protocol 目标方言协议名
+     * @return 改写后的语句；该方言下应丢弃时返回空串（调用方跳过）；不是补列 ALTER 时返回 null
+     */
+    private String rewriteAddColumnAlter(String sql, String protocol) {
+        String trimmed = sql.trim();
+        java.util.regex.Matcher m = Pattern.compile(
+                "(?is)^ALTER\\s+TABLE\\s+`?([A-Za-z_]\\w*)`?\\s+ADD\\s+COLUMN\\s+`?([A-Za-z_]\\w*)`?\\s+(.+)$")
+                .matcher(trimmed);
+        if (!m.find()) {
+            return null;
+        }
+        if (!MYSQL_PROTOCOLS.contains(protocol == null ? "" : protocol.toLowerCase(Locale.ROOT))) {
+            // 其它方言：列已在建表语句里，这条存量补列语句直接丢弃
+            log.info("[ui] 表 {} 的存量补列语句（列 {}）在方言 {} 下丢弃："
+                    + "该列已由建表语句提供，重复 ADD COLUMN 会报 Duplicate column",
+                    m.group(1), m.group(2), protocol);
+            return "";
+        }
+        String table = m.group(1);
+        String column = m.group(2);
+        String definition = m.group(3).trim();
+        // 去掉列定义尾部的逗号（拆列后遗留）
+        definition = definition.replaceAll(",\\s*$", "").trim();
+        return "SET @ddl = (SELECT IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS "
+                + "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" + table + "' AND COLUMN_NAME = '"
+                + column + "'), 'SELECT 1', 'ALTER TABLE " + table + " ADD COLUMN " + column + " "
+                + definition.replace("'", "''") + "'))); "
+                + "PREPARE st FROM @ddl; EXECUTE st; DEALLOCATE PREPARE st;";
+    }
     /**
      * MySQL 多表删除 → 通用子查询写法。
      *
@@ -583,7 +720,10 @@ public class DefaultScriptConverter implements ScriptConverter {
     }
 
     /**
-     * 跳过字符串字面量（含转义的成对引号），返回字面量结束后的下标。
+     * 跳过字符串字面量（含转义的成对引号与反斜杠转义），返回字面量结束后的下标。
+     *
+     * <p>字符串内的 {@code \'} 不结束字面量（MySQL 风格转义）—— 中文诗词种子里
+     * 引用词句很常见，不处理会让字面量提前闭合，后续内容的括号配平全被带偏。</p>
      *
      * @param sql  SQL
      * @param from 引号所在下标
@@ -594,6 +734,11 @@ public class DefaultScriptConverter implements ScriptConverter {
         int i = from + 1;
         while (i < sql.length()) {
             char c = sql.charAt(i);
+            if (c == '\\' && i + 1 < sql.length()) {
+                // 反斜杠转义：\' 与 \\ 都不结束字面量
+                i += 2;
+                continue;
+            }
             if (c == quote) {
                 // 成对引号是转义，不算结束
                 if (i + 1 < sql.length() && sql.charAt(i + 1) == quote) {

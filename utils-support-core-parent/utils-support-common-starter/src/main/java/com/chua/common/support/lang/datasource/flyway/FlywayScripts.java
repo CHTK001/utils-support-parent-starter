@@ -404,6 +404,13 @@ public final class FlywayScripts {
      * 字符串外的 {@code ;} 处切分。末尾非空白内容补为最后一条。空语句保留在列表中，
      * 由执行方跳过，保证与脚本结构一一对应。</p>
      *
+     * <p><b>反斜杠转义</b>：字符串内出现 {@code \'} 时不结束字符串（MySQL 风格转义），
+     * {@code \\} 也不结束字符串。否则一旦种子数据里出现 {@code \'}
+     * 这类被转义的引号（中文诗词里引用词句很常见），字符串会被提前闭合，
+     * 其后到下一个 {@code '} 之间的内容（含大量分号）会被当成 SQL 语句 ——
+     * 实测 eduai 的 16MB 种子因此被并成一条 6 万字符的「语句」，
+     * 执行时整条报语法错。</p>
+     *
      * @param sql 脚本全文
      * @return 拆分后的语句列表（不含分隔分号）；空输入返回空列表
      */
@@ -420,6 +427,12 @@ public final class FlywayScripts {
                 while (i < sql.length() && sql.charAt(i) != '\n') {
                     i++;
                 }
+                continue;
+            }
+            if (c == '\\' && inString && i + 1 < sql.length()) {
+                // 字符串内的反斜杠转义：\' 不结束字符串，\\ 也不结束
+                current.append(c).append(sql.charAt(i + 1));
+                i++;
                 continue;
             }
             if (c == '\'') {
