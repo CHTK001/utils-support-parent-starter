@@ -116,6 +116,34 @@ public class PostgresqlScriptConverter extends DefaultScriptConverter {
      */
     private static final Pattern YEAR_TYPE = Pattern.compile("(?i)\\bYEAR\\b");
 
+    /**
+     * {@code REPLACE(UUID(), '-', '')} → PostgreSQL 的等价写法。
+     *
+     * <p>PostgreSQL 没有 {@code uuid()} 函数（实测报
+     * {@code ERROR: function uuid() does not exist}），
+     * 13 起提供的是 {@code gen_random_uuid()}。
+     * 种子里的写法是 MySQL 的 {@code REPLACE(UUID(), '-', '')}（UUID 去掉连字符），
+     * 对应到 PG 是 {@code replace(gen_random_uuid()::text, '-', '')}。</p>
+     */
+    private static final Pattern UUID_FUNCTION = Pattern.compile(
+            "(?i)\\bREPLACE\\s*\\(\\s*UUID\\s*\\(\\s*\\)\\s*,\\s*'-'\\s*,\\s*''\\s*\\)");
+
+    /**
+     * 裸 {@code UUID()}（不带 REPLACE）→ PostgreSQL 的等价写法
+     */
+    private static final Pattern BARE_UUID_FUNCTION = Pattern.compile(
+            "(?i)\\bUUID\\s*\\(\\s*\\)");
+
+    /**
+     * PostgreSQL 的随机唯一标识写法（去掉连字符，与 MySQL 的 REPLACE 形态一致）
+     */
+    private static final String PG_UUID = "replace(gen_random_uuid()::text, '-', '')";
+
+    /**
+     * PostgreSQL 的随机唯一标识写法（保留连字符）
+     */
+    private static final String PG_UUID_WITH_DASH = "gen_random_uuid()::text";
+
     @Override
     public boolean supports(String protocol) {
         return PROTOCOL.equalsIgnoreCase(protocol);
@@ -135,8 +163,21 @@ public class PostgresqlScriptConverter extends DefaultScriptConverter {
         converted = YEAR_TYPE.matcher(converted).replaceAll("SMALLINT");
         converted = MEDIUMINT_TYPE.matcher(converted).replaceAll("INTEGER");
         converted = TINYINT_TYPE.matcher(converted).replaceAll("SMALLINT");
+        // UUID 函数改写：PostgreSQL 没有 uuid()，13 起是 gen_random_uuid()
+        converted = UUID_FUNCTION.matcher(converted).replaceAll(PG_UUID);
+        converted = BARE_UUID_FUNCTION.matcher(converted).replaceAll(PG_UUID_WITH_DASH);
         // ON DUPLICATE KEY UPDATE → ON CONFLICT DO UPDATE
-        converted = ON_DUPLICATE_KEY_UPDATE.matcher(converted).replaceAll("ON CONFLICT DO UPDATE SET");
+        //
+        // 注意：PostgreSQL 的 ON CONFLICT DO UPDATE **必须**带冲突目标
+        // （ON CONFLICT (cols) DO UPDATE），否则报
+        //   ERROR: ON CONFLICT DO UPDATE requires inference specification or constraint name
+        // 冲突目标是哪几个列，取决于表上的唯一键 —— 纯文本转换器拿不到元数据，
+        // 猜错会让 upsert 作用到错误的约束上（比不 upsert 更危险）。
+        // 故这里整条跳过：种子数据少插一行不影响建表与主流程，
+        // 而错误的 upsert 会静默改坏数据。
+        if (ON_DUPLICATE_KEY_UPDATE.matcher(converted).find()) {
+            return null;
+        }
         // upsert 段里的 VALUES(col) → EXCLUDED.col
         converted = UPSERT_VALUES_REF.matcher(converted).replaceAll("EXCLUDED.$1");
         // INSERT IGNORE → INSERT ... ON CONFLICT DO NOTHING

@@ -365,6 +365,11 @@ public class DefaultScriptConverter implements ScriptConverter {
                 if (rewritten != null) {
                     converted = rewritten;
                 }
+                // 「保留每组最小值」的删除：SQL Server 不接受对正在被修改的表做聚合的子查询
+                String keepMin = rewriteKeepMinPerGroupDelete(converted);
+                if (keepMin != null) {
+                    converted = keepMin;
+                }
                 // 多列 ALTER 在 H2 / PostgreSQL 上不合法（一条 ADD COLUMN 一个语句），
                 // MySQL 允许一次加多列。这里按列拆成多条单列 ALTER。
                 List<String> splitAlters = splitMultiColumnAlter(converted);
@@ -506,6 +511,170 @@ public class DefaultScriptConverter implements ScriptConverter {
                 + "PREPARE st FROM @ddl; EXECUTE st; DEALLOCATE PREPARE st;";
     }
     /**
+     * 「保留每组最小值」的 DELETE → 不用聚合函数的相关子查询写法。
+     *
+     * <p>脚本里的写法：</p>
+     * <pre>{@code
+     * DELETE FROM edu_idiom_grade
+     * WHERE map_id NOT IN (
+     *   SELECT MIN(map_id) FROM edu_idiom_grade GROUP BY idiom_id, grade_level, COALESCE(grade, '')
+     * );
+     * }</pre>
+     *
+     * <p>SQL Server 不接受「对正在被修改的表做聚合的子查询」，
+     * 实测报 {@code Invalid use of aggregate function "MIN(MAP_ID)"}。</p>
+     *
+     * <p>改写成「相关子查询里逐行比较、不用聚合函数」的写法，语义等价
+     * （每组只保留一行），各数据库通用：</p>
+     * <pre>{@code
+     * DELETE FROM t
+     * WHERE NOT EXISTS (
+     *   SELECT 1 FROM t x
+     *   WHERE x.g1 = t.g1 AND x.g2 = t.g2 AND x.id < t.id
+     * );
+     * }</pre>
+     *
+     * @param sql 转换后的单条语句
+     * @return 改写后的语句；不是这种形态时返回 null
+     */
+    private String rewriteKeepMinPerGroupDelete(String sql) {
+        String trimmed = sql.trim();
+        java.util.regex.Matcher m = Pattern.compile(
+                "(?is)^DELETE\\s+FROM\\s+(\\w+)\\s+WHERE\\s+(\\w+)\\s+NOT\\s+IN\\s*\\(\\s*"
+                        + "SELECT\\s+MIN\\s*\\(\\s*(\\w+)\\s*\\)\\s+FROM\\s+(\\w+)\\s+"
+                        + "GROUP\\s+BY\\s+(.+?)\\s*\\)\\s*;?\\s*$").matcher(trimmed);
+        if (!m.find()) {
+            return null;
+        }
+        String table = m.group(1);
+        String idCol = m.group(2);
+        String minCol = m.group(3);
+        String groupCols = m.group(5);
+        // 分组列：拆出「列名 或 表达式」，逐个与外层表做等值比较。
+        // 拆分要按括号配平 —— 表达式里的逗号（如 COALESCE(grade, '')）不是分隔符，
+        // 直接按逗号切会把表达式切坏。
+        List<String> cols = splitTopLevel(groupCols, ',');
+        if (cols.isEmpty()) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        // 别名要用 AS 引导：SQL Server 模式下「表名 别名」会被当成「schema.表」
+        // （实测报 Schema "X" not found）
+        sb.append("DELETE FROM ").append(table).append(" WHERE NOT EXISTS (SELECT 1 FROM ")
+                .append(table).append(" AS x WHERE ");
+        for (int i = 0; i < cols.size(); i++) {
+            if (i > 0) {
+                sb.append(" AND ");
+            }
+            String c = cols.get(i);
+            if (c.indexOf('(') >= 0) {
+                // 表达式（如 COALESCE(grade, '')）：表达式里的列属于本表的，
+                // 直接比较「x 上的表达式」与「外层表上的表达式」——
+                // 但表达式里的列名要指向 x，故把表达式里的裸列名换成 x.<列名>。
+                sb.append(qualifyColumns(c, "x")).append(" = ").append(qualifyColumns(c, table));
+            } else {
+                sb.append("x.").append(c).append(" = ").append(table).append(".").append(c);
+            }
+        }
+        sb.append(" AND x.").append(minCol).append(" < ").append(table).append(".").append(minCol);
+        sb.append(")");
+        log.info("[ui] 表 {} 的「保留每组最小值」删除已改写为不用聚合函数的相关子查询写法", table);
+        return sb.toString();
+    }
+
+    /**
+     * 按顶层分隔符切分（括号内与字符串内的分隔符不算）。
+     *
+     * @param text  待切分的文本
+     * @param sep   分隔符
+     * @return 切分后的各段（已去首尾空白，去掉空段）
+     */
+    private List<String> splitTopLevel(String text, char sep) {
+        List<String> parts = new ArrayList<>();
+        if (text == null || text.isBlank()) {
+            return parts;
+        }
+        int depth = 0;
+        boolean inStr = false;
+        int start = 0;
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c == '\'') {
+                if (inStr && i + 1 < text.length() && text.charAt(i + 1) == '\'') {
+                    i++;
+                    continue;
+                }
+                inStr = !inStr;
+                continue;
+            }
+            if (inStr) {
+                continue;
+            }
+            if (c == '(') {
+                depth++;
+            } else if (c == ')') {
+                depth--;
+            } else if (c == sep && depth == 0) {
+                String part = text.substring(start, i).trim();
+                if (!part.isEmpty()) {
+                    parts.add(part);
+                }
+                start = i + 1;
+            }
+        }
+        String last = text.substring(start).trim();
+        if (!last.isEmpty()) {
+            parts.add(last);
+        }
+        return parts;
+    }
+
+    /**
+     * 把表达式里的裸列名加上表别名前缀。
+     *
+     * <p>表达式里除了列名还有函数名与字符串常量，不能一律加前缀 ——
+     * 只给「紧跟在括号后、且后面不是 {@code (}」的标识符加前缀（函数调用不加）。</p>
+     *
+     * @param expr    表达式
+     * @param qualifier 表别名前缀
+     * @return 加了前缀的表达式
+     */
+    private String qualifyColumns(String expr, String qualifier) {
+        StringBuilder out = new StringBuilder(expr.length());
+        int i = 0;
+        int n = expr.length();
+        while (i < n) {
+            char c = expr.charAt(i);
+            if (c == '\'') {
+                int end = expr.indexOf('\'', i + 1);
+                if (end < 0) {
+                    end = n;
+                }
+                out.append(expr, i, end + 1);
+                i = end + 1;
+                continue;
+            }
+            if (Character.isLetter(c) || c == '_') {
+                int start = i;
+                while (i < n && (Character.isLetterOrDigit(expr.charAt(i)) || expr.charAt(i) == '_')) {
+                    i++;
+                }
+                String word = expr.substring(start, i);
+                int j = i;
+                while (j < n && Character.isWhitespace(expr.charAt(j))) {
+                    j++;
+                }
+                boolean function = j < n && expr.charAt(j) == '(';
+                out.append(function ? word : qualifier + "." + word);
+                continue;
+            }
+            out.append(c);
+            i++;
+        }
+        return out.toString();
+    }
+
+    /**
      * MySQL 多表删除 → 通用子查询写法。
      *
      * <p>MySQL 独有写法：{@code DELETE t1 FROM tbl t1 INNER JOIN tbl t2 WHERE ...}
@@ -516,8 +685,7 @@ public class DefaultScriptConverter implements ScriptConverter {
      * 语义与原句一致（删掉自连接中「id 更大」的那些行），且各数据库通用。</p>
      *
      * @param sql 转换后的单条语句
-     * @return 改写后的语句；不是多表删除时返回 null
-     */
+     * @return 改写后的语句；不是多表删除时返回 null     */
     private String rewriteMultiTableDelete(String sql) {
         String trimmed = sql.trim();
         java.util.regex.Matcher m = Pattern.compile(

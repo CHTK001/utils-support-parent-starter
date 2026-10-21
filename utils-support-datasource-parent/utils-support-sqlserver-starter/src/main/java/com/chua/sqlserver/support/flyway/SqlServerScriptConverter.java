@@ -116,6 +116,26 @@ public class SqlServerScriptConverter extends DefaultScriptConverter {
         converted = BOOLEAN_TYPE.matcher(converted).replaceAll("BIT");
         converted = YEAR_TYPE.matcher(converted).replaceAll("SMALLINT");
         converted = BINARY_TYPE.matcher(converted).replaceAll("VARBINARY(MAX)");
+        // 表别名补 AS：SQL Server 把「表名 别名」解析成「schema.表」
+        // （实测报 Schema "X" not found），加 AS 才是表的别名
+        converted = TABLE_ALIAS.matcher(converted).replaceAll("$1 AS $2");
         return converted;
     }
+
+    /**
+     * {@code FROM 表名 别名} 里的表别名（补 AS）
+     *
+     * <p>捕获组 1=FROM/JOIN 与空白，2=别名。
+     * 不补 AS 的话，SQL Server 会把别名当成 schema 名
+     * （实测报 {@code Schema "X" not found}）。</p>
+     *
+     * <p>别名排除 SQL 关键字：{@code FROM t WHERE ...} 里的 WHERE 是关键字、
+     * 不是别名，误加 AS 会变成 {@code FROM t AS WHERE}。</p>
+     */
+    private static final Pattern TABLE_ALIAS = Pattern.compile(
+            "(?i)(\\b(?:FROM|JOIN)\\s+[\"`]?[A-Za-z_]\\w*[\"`]?\\s+)"
+                    + "(?!AS\\b|WHERE\\b|SELECT\\b|AND\\b|OR\\b|ON\\b|JOIN\\b|LEFT\\b|RIGHT\\b|INNER\\b"
+                    + "|OUTER\\b|CROSS\\b|GROUP\\b|ORDER\\b|HAVING\\b|LIMIT\\b|UNION\\b|VALUES\\b"
+                    + "|SET\\b|USING\\b|WHEN\\b|THEN\\b|ELSE\\b|END\\b|CASE\\b)([A-Za-z_]\\w*)");
+
 }
