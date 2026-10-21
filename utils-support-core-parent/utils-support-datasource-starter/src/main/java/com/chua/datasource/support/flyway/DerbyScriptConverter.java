@@ -181,6 +181,34 @@ public class DerbyScriptConverter extends DefaultScriptConverter {
     private static final Pattern BINARY_TYPE = Pattern.compile("(?i)\\b(?:VAR)?BINARY\\b");
 
     /**
+     * {@code CREATE INDEX IF NOT EXISTS} → {@code CREATE INDEX}。
+     *
+     * <p>Derby 不支持 {@code CREATE INDEX IF NOT EXISTS}（实测报
+     * {@code Syntax error: Encountered "NOT" at line 1, column 17}），
+     * 而 MySQL 风格脚本里的独立索引声明普遍带这个子句（可重复执行的前提）。</p>
+     *
+     * <p>去掉之后索引语句不再幂等：重复执行会报「索引已存在」。但本仓的迁移
+     * 按版本每份脚本只执行一次（{@code needsExecution} 按「文件名+版本」查执行记录），
+     * 与本模块其它方言的处理方式一致。</p>
+     */
+    private static final Pattern CREATE_INDEX_IF_NOT_EXISTS = Pattern.compile(
+            "(?i)^(\\s*CREATE\\s+(?:UNIQUE\\s+)?INDEX\\s+)IF\\s+NOT\\s+EXISTS\\s+");
+
+    /**
+     * 列定义里的「可空标记 + 默认值」组合。
+     *
+     * <p>Derby 的列可空性是<b>默认</b>的：写 {@code NULL} 显式标注会与紧随其后的
+     * {@code DEFAULT} 冲突，报 {@code Syntax error: Encountered "NULL"}
+     * （实测 {@code TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP}、
+     * {@code varchar(255) NULL DEFAULT NULL} 两种都报）。</p>
+     *
+     * <p>MySQL 风格脚本里这两种写法都有，而「可空」本来就是默认值，
+     * 故把 {@code DEFAULT} 之前的那个 {@code NULL} 标注去掉，语义不变。</p>
+     */
+    private static final Pattern NULL_BEFORE_DEFAULT = Pattern.compile(
+            "(?i)(?<!NOT\\s)\\bNULL\\b(\\s+)DEFAULT\\b");
+
+    /**
      * MySQL {@code NOW()} → Derby {@code CURRENT_TIMESTAMP}（无括号关键字）
      */
     private static final Pattern NOW_FUNCTION = Pattern.compile("(?i)\\bNOW\\s*\\(\\s*\\)");
@@ -232,6 +260,10 @@ public class DerbyScriptConverter extends DefaultScriptConverter {
         converted = AUTO_INCREMENT_TOKEN.matcher(converted).replaceAll("");
         // Derby 不支持 CREATE TABLE IF NOT EXISTS（实测 Encountered "NOT"）
         converted = CREATE_TABLE_IF_NOT_EXISTS.matcher(converted).replaceAll("$1");
+        // Derby 不支持 CREATE INDEX IF NOT EXISTS（实测 Encountered "NOT"）
+        converted = CREATE_INDEX_IF_NOT_EXISTS.matcher(converted).replaceAll("$1");
+        // Derby 不允许「NULL DEFAULT ...」并存，去掉 DEFAULT 之前的 NULL 标注（可空本就是默认）
+        converted = NULL_BEFORE_DEFAULT.matcher(converted).replaceAll("DEFAULT");
         // 类型映射：先剥数值显示宽度（Derby 数值类型无长度修饰），再做类型名替换
         converted = NUMERIC_DISPLAY_WIDTH.matcher(converted).replaceAll("$1");
         converted = TINYINT_TYPE.matcher(converted).replaceAll("SMALLINT");
