@@ -578,6 +578,13 @@ public class DefaultScriptConverter implements ScriptConverter {
         // 表名（用于生成 CREATE INDEX）：CREATE TABLE [IF NOT EXISTS] <name>
         String tableName = extractTableName(sql);
 
+        // 建表语句里各列的「声明写法」（含定界符）：生成的 CREATE INDEX 必须用
+        // 与建表完全一致的写法引用列，否则 Oracle / SQL Server 这类库会当成另一个列 ——
+        // 未加引号的标识符会折叠成大写，加了引号的保持原样大小写。
+        // 实测：建表写 device_info_org_id（无引号）而索引写 "device_info_org_id"（有引号），
+        // Oracle 兼容模式下报 Column "device_info_org_id" not found。
+        java.util.Map<String, String> declaredColumns = collectDeclaredColumns(body);
+
         // 表体：逐行剥离行内索引声明（并收集成独立 CREATE INDEX）
         String[] lines = body.split("\n", -1);
         StringBuilder cleanedBody = new StringBuilder();
@@ -603,7 +610,7 @@ public class DefaultScriptConverter implements ScriptConverter {
                 java.util.regex.Matcher keyMatcher = INLINE_KEY_LINE.matcher(block.toString().trim());
                 if (keyMatcher.matches()) {
                     if (index != null && tableName != null) {
-                        String generated = buildCreateIndex(tableName, keyMatcher);
+                        String generated = buildCreateIndex(tableName, keyMatcher, declaredColumns);
                         if (generated != null) {
                             index.add(generated);
                         }
@@ -622,7 +629,7 @@ public class DefaultScriptConverter implements ScriptConverter {
                 // 删掉会让相邻两列粘连成 "... VARCHAR(64) col_id BIGINT ..." 而报语法错误。
                 // KEY 行位于表体末尾时残留的悬挂逗号，由本方法末尾的悬挂逗号清理统一兜底
                 if (index != null && tableName != null) {
-                    String generated = buildCreateIndex(tableName, keyMatcher);
+                    String generated = buildCreateIndex(tableName, keyMatcher, declaredColumns);
                     if (generated != null) {
                         index.add(generated);
                     }
@@ -856,11 +863,13 @@ public class DefaultScriptConverter implements ScriptConverter {
      * 而 {@code TEXT} 列在多数方言上根本不能建整列唯一索引。因此前缀唯一索引
      * <b>不生成</b>，并在日志里留痕，避免静默变成「没有约束」。</p>
      *
-     * @param tableName 表名
-     * @param matcher   已匹配到 {@link #INLINE_KEY_LINE} 的 matcher
+     * @param tableName      表名
+     * @param matcher        已匹配到 {@link #INLINE_KEY_LINE} 的 matcher
+     * @param declaredColumns 建表语句里各列的声明写法（列名 → 含定界符的列名）
      * @return CREATE INDEX 语句；无法生成时返回 null
      */
-    private String buildCreateIndex(String tableName, java.util.regex.Matcher matcher) {
+    private String buildCreateIndex(String tableName, java.util.regex.Matcher matcher,
+                                    java.util.Map<String, String> declaredColumns) {
         boolean unique = matcher.group(1) != null;
         String indexName = matcher.group(2);
         String columns = matcher.group(3);
@@ -873,11 +882,85 @@ public class DefaultScriptConverter implements ScriptConverter {
                     + "该写法在非 MySQL 方言无等价物，已跳过不生成索引", tableName, indexName);
             return null;
         }
-        String cols = columns.trim();
-        // 保留列名的原定界符：与建表语句里的列名保持一致，
-        // 否则 Derby 这类大小写敏感的库会认为索引引用的是另一个列
-        // （索引在生成阶段被 rewriteBackticks 统一改写成目标方言的定界符）。
+        String cols = alignColumnQuoting(columns.trim(), declaredColumns);
         return "CREATE " + (unique ? "UNIQUE " : "") + "INDEX " + indexName + " ON " + tableName + " (" + cols + ")";
+    }
+
+    /**
+     * 把索引的列清单改成与建表语句一致的定界写法。
+     *
+     * <p>索引声明里的列名通常带反引号（{@code `col`}），而建表语句里的列可能没带
+     * （{@code col}）。两者在 Oracle / SQL Server 这类库上是<b>不同的标识符</b>：
+     * 未加引号的折叠成大写，加了引号的保持原样，于是索引会找不到列 ——
+     * 实测报 {@code Column "device_info_org_id" not found}。</p>
+     *
+     * <p>故按建表语句里的声明写法来引用列。建表里找不到的列保持原样
+     * （让目标库自己报错，好过静默改错）。</p>
+     *
+     * @param columns         索引的列清单
+     * @param declaredColumns 建表语句里各列的声明写法
+     * @return 定界方式与建表一致的列清单
+     */
+    private String alignColumnQuoting(String columns, java.util.Map<String, String> declaredColumns) {
+        if (declaredColumns == null || declaredColumns.isEmpty()) {
+            return columns;
+        }
+        StringBuilder out = new StringBuilder(columns.length());
+        int i = 0;
+        while (i < columns.length()) {
+            char c = columns.charAt(i);
+            if (c == '`' || c == '"') {
+                int end = columns.indexOf(c, i + 1);
+                if (end < 0) {
+                    out.append(columns, i, columns.length());
+                    break;
+                }
+                String name = columns.substring(i + 1, end);
+                String declared = declaredColumns.get(name.toUpperCase(Locale.ROOT));
+                out.append(declared != null ? declared : columns.substring(i, end + 1));
+                i = end + 1;
+                continue;
+            }
+            out.append(c);
+            i++;
+        }
+        return out.toString();
+    }
+
+    /**
+     * 收集建表语句里各列的声明写法。
+     *
+     * <p>只认「列定义行」：以标识符开头、后面跟类型或约束，不带表级关键字
+     * （{@code PRIMARY KEY} / {@code KEY} / {@code UNIQUE} / {@code INDEX} /
+     * {@code CONSTRAINT} / {@code CHECK} / {@code FOREIGN}）。</p>
+     *
+     * @param body 建表语句的表体部分
+     * @return 列名（大写） → 含定界符的列名
+     */
+    private java.util.Map<String, String> collectDeclaredColumns(String body) {
+        java.util.Map<String, String> map = new java.util.LinkedHashMap<>();
+        for (String line : body.split("\n", -1)) {
+            String t = line.trim();
+            if (t.isEmpty() || t.startsWith("--") || t.startsWith("/*")) {
+                continue;
+            }
+            java.util.regex.Matcher m = Pattern.compile(
+                    "^([`\"]?[A-Za-z_]\\w*[`\"]?)\\s+\\S").matcher(t);
+            if (!m.find()) {
+                continue;
+            }
+            String raw = m.group(1);
+            String bare = raw.replace("`", "").replace("\"", "");
+            // 排除表级声明行
+            String upper = bare.toUpperCase(Locale.ROOT);
+            if (upper.equals("PRIMARY") || upper.equals("KEY") || upper.equals("UNIQUE")
+                    || upper.equals("INDEX") || upper.equals("CONSTRAINT") || upper.equals("CHECK")
+                    || upper.equals("FOREIGN") || upper.equals("FULLTEXT") || upper.equals("SPATIAL")) {
+                continue;
+            }
+            map.putIfAbsent(upper, raw);
+        }
+        return map;
     }
 
     /**
