@@ -79,11 +79,12 @@ public class DefaultScriptConverter implements ScriptConverter {
      * 不接受反引号作标识符定界的方言。
      *
      * <p>本仓脚本统一用 MySQL 风格的反引号（{@code `ms_monitor`}）写标识符。
-     * H2 / PostgreSQL / SQLite 两种定界都接受，Derby / Oracle / SQL Server 只认双引号
-     * （实测 Derby 报 {@code Encountered: "`" (96)}）。</p>
+     * SQLite / H2 两种定界都接受，而 PostgreSQL / Derby / Oracle / SQL Server 只认双引号
+     * （实测 PostgreSQL 报 {@code ERROR: syntax error at or near "`"}，
+     * Derby 报 {@code Encountered: "`" (96)}）。</p>
      */
     private static final List<String> NO_BACKTICK_PROTOCOLS =
-            List.of("derby", "oracle", "sqlserver");
+            List.of("postgresql", "derby", "oracle", "sqlserver");
 
     /**
      * 把反引号标识符改写成双引号。
