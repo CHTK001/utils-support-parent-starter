@@ -391,8 +391,10 @@ public class DefaultScriptConverter implements ScriptConverter {
      */
     private String rewriteAddColumnAlter(String sql, String protocol) {
         String trimmed = sql.trim();
+        // 标识符定界要同时认反引号与双引号：rewriteBackticks 在本方法之前执行，
+        // 反引号此时已变成双引号，只认反引号会匹配不上
         java.util.regex.Matcher m = Pattern.compile(
-                "(?is)^ALTER\\s+TABLE\\s+`?([A-Za-z_]\\w*)`?\\s+ADD\\s+COLUMN\\s+`?([A-Za-z_]\\w*)`?\\s+(.+)$")
+                "(?is)^ALTER\\s+TABLE\\s+[`\"]?([A-Za-z_]\\w*)[`\"]?\\s+ADD\\s+COLUMN\\s+[`\"]?([A-Za-z_]\\w*)[`\"]?\\s+(.+)$")
                 .matcher(trimmed);
         if (!m.find()) {
             return null;
@@ -656,6 +658,11 @@ public class DefaultScriptConverter implements ScriptConverter {
         result = result.replaceAll(",\\s*$", "");
         // 剥离列定义中的 ON UPDATE CURRENT_TIMESTAMP（MySQL 专属，PG/Oracle/H2/SQLite 不支持）
         result = result.replaceAll("(?i)\\s+ON\\s+UPDATE\\s+CURRENT_TIMESTAMP", "");
+        // 剥离列定义中的 MySQL AFTER 定位子句（列位置声明，其它方言无等价语法）
+        // 例：`col` VARCHAR(32) NULL COMMENT 'x' AFTER `other_col`
+        // 实测 PostgreSQL 报 ERROR: syntax error at or near "AFTER"
+        // 标识符定界要同时认反引号与双引号（rewriteBackticks 在本方法之前执行）
+        result = result.replaceAll("(?i)\\s+AFTER\\s+[`\"]?\\w+[`\"]?", "");
         // 整型列显示宽度剥离（TINYINT(1)/INT(11)：H2 2.x 严格模式报 42001）
         result = INTEGER_DISPLAY_WIDTH.matcher(result).replaceAll("$1");
         return result;
@@ -980,7 +987,9 @@ public class DefaultScriptConverter implements ScriptConverter {
         // 剥离内联注释（宽松模式：COMMENT 'xxx' 段后允许跟随逗号/空白）
         sql = sql.replaceAll("(?i)\\s+COMMENT\\s+'(?:[^']|'')*'", "");
         // 剥离 MySQL AFTER 定位子句
-        sql = sql.replaceAll("(?i)\\s+AFTER\\s+`?\\w+`?", "");
+        // 标识符定界要同时认反引号与双引号：改写标识符定界（rewriteBackticks）
+        // 在本方法之前执行，反引号已变成双引号，只认反引号会漏剥
+        sql = sql.replaceAll("(?i)\\s+AFTER\\s+[`\"]?\\w+[`\"]?", "");
         // 修正在注释剥离后可能遗留的悬挂逗号
         sql = sql.replaceAll(",\\s*\\)", ")");
         sql = sql.replaceAll(",\\s*$", "");
