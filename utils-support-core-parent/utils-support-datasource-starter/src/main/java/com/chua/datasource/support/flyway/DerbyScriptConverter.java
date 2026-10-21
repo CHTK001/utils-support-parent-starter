@@ -195,6 +195,20 @@ public class DerbyScriptConverter extends DefaultScriptConverter {
      */
     private static final Pattern DANGLING_COMMA = Pattern.compile(",\\s*\\)");
 
+    /**
+     * {@code CREATE TABLE IF NOT EXISTS} → {@code CREATE TABLE}。
+     *
+     * <p>Derby 不支持 {@code CREATE TABLE IF NOT EXISTS}（实测报
+     * {@code Syntax error: Encountered "NOT" at line 1, column 17}），
+     * 而 MySQL 风格脚本普遍带这个子句（可重复执行的前提）。</p>
+     *
+     * <p>去掉之后建表语句不再幂等：重复执行会报「表已存在」。但 Derby 侧
+     * 另有 {@code needsExecution}（按「文件名+版本」查执行记录）保证每个版本只跑一次，
+     * 与本仓其它方言的处理方式一致。</p>
+     */
+    private static final Pattern CREATE_TABLE_IF_NOT_EXISTS = Pattern.compile(
+            "(?i)^(\\s*CREATE\\s+(?:UNIQUE\\s+)?TABLE\\s+)IF\\s+NOT\\s+EXISTS\\s+");
+
     @Override
     public boolean supports(String protocol) {
         return PROTOCOL.equalsIgnoreCase(protocol);
@@ -216,6 +230,8 @@ public class DerbyScriptConverter extends DefaultScriptConverter {
         converted = ON_UPDATE_CURRENT_TIMESTAMP.matcher(converted).replaceAll("");
         // AUTO_INCREMENT 只剥关键字：Derby 自增须显式写 IDENTITY，本转换器只保证建表可执行
         converted = AUTO_INCREMENT_TOKEN.matcher(converted).replaceAll("");
+        // Derby 不支持 CREATE TABLE IF NOT EXISTS（实测 Encountered "NOT"）
+        converted = CREATE_TABLE_IF_NOT_EXISTS.matcher(converted).replaceAll("$1");
         // 类型映射：先剥数值显示宽度（Derby 数值类型无长度修饰），再做类型名替换
         converted = NUMERIC_DISPLAY_WIDTH.matcher(converted).replaceAll("$1");
         converted = TINYINT_TYPE.matcher(converted).replaceAll("SMALLINT");

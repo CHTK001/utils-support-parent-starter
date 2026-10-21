@@ -75,6 +75,49 @@ public class DefaultScriptConverter implements ScriptConverter {
             "^(?:\\s*,)?\\s*(UNIQUE\\s+)?(?:KEY|INDEX)\\s+(\\S+)\\s*\\((.*)\\)(?:\\s*USING\\s+\\S+)*"
                     + "(?:\\s+COMMENT\\s+'(?:[^']|'')*')?\\s*,?\\s*$",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+    /**
+     * 不接受反引号作标识符定界的方言。
+     *
+     * <p>本仓脚本统一用 MySQL 风格的反引号（{@code `ms_monitor`}）写标识符。
+     * H2 / PostgreSQL / SQLite 两种定界都接受，Derby / Oracle / SQL Server 只认双引号
+     * （实测 Derby 报 {@code Encountered: "`" (96)}）。</p>
+     */
+    private static final List<String> NO_BACKTICK_PROTOCOLS =
+            List.of("derby", "oracle", "sqlserver");
+
+    /**
+     * 把反引号标识符改写成双引号。
+     *
+     * <p>只改写标识符位置的反引号（成对出现），字符串字面量内部的反引号保持原样
+     * —— 中文种子数据里可能出现反引号，那属于数据内容而非标识符。</p>
+     *
+     * @param sql SQL
+     * @return 改写后的 SQL
+     */
+    private String rewriteBackticks(String sql) {
+        if (sql == null || sql.indexOf('`') < 0) {
+            return sql;
+        }
+        StringBuilder out = new StringBuilder(sql.length());
+        int i = 0;
+        while (i < sql.length()) {
+            char c = sql.charAt(i);
+            if (c == '\'' || c == '"') {
+                int end = skipQuoted(sql, i);
+                out.append(sql, i, end);
+                i = end;
+                continue;
+            }
+            if (c == '`') {
+                out.append('"');
+                i++;
+                continue;
+            }
+            out.append(c);
+            i++;
+        }
+        return out.toString();
+    }
     /** 前缀索引的列长度限定：{@code col(255)}（MySQL 专属，其它方言不支持前缀索引） */
     private static final Pattern INDEX_COLUMN_PREFIX_LENGTH = Pattern.compile(
             "\\(\\s*\\d+\\s*\\)");
@@ -134,16 +177,20 @@ public class DefaultScriptConverter implements ScriptConverter {
      * <p>捕获组 1=列名（含反引号/双引号），2=该列的类型与约束部分（含 PRIMARY KEY）。</p>
      */
     private static final Pattern COLUMN_AUTO_INCREMENT = Pattern.compile(
-            "(?i)(`?[A-Za-z_]\\w*`?)\\s+((?:BIGINT|INT|INTEGER|SMALLINT|TINYINT|MEDIUMINT)"
+            "(?i)([`\"]?[A-Za-z_]\\w*[`\"]?)\\s+((?:BIGINT|INT|INTEGER|SMALLINT|TINYINT|MEDIUMINT)"
                     + "(?:\\s*\\(\\s*\\d+\\s*\\))?\\s*(?:UNSIGNED\\s+)?(?:NOT\\s+NULL\\s+)?"
                     + "(?:PRIMARY\\s+KEY\\s+)?)AUTO_INCREMENT\\b");
 
     /**
      * 列级自增声明（不指定类型前缀的裸写法）：{@code `id` AUTO_INCREMENT}。
      * <p>MySQL 允许省略类型（默认 INT），剥离后须补成 {@code INT} 以免该列无类型。</p>
+     * <p>列名部分排除 SQL 关键字：否则 {@code BIGINT NOT NULL AUTO_INCREMENT} 这类
+     * 「类型在前、自增在后」的写法里，{@code NULL} 会被当成列名匹配上（{@code NULL AUTO_INCREMENT}），
+     * 产出 {@code BIGINT NOT NULL INT} 这种坏列定义。</p>
      */
     private static final Pattern COLUMN_AUTO_INCREMENT_BARE = Pattern.compile(
-            "(?i)(`?[A-Za-z_]\\w*`?)\\s+AUTO_INCREMENT\\b");
+            "(?i)([`\"]?(?!NULL\\b|NOT\\b|NULL_|PRIMARY\\b|UNIQUE\\b|KEY\\b|DEFAULT\\b|CONSTRAINT\\b)[A-Za-z_]\\w*[`\"]?)"
+                    + "\\s+AUTO_INCREMENT\\b");
 
     /**
      * 整型列的显示宽度：{@code TINYINT(1)} / {@code INT(11)} / {@code BIGINT(20)}。
@@ -187,6 +234,11 @@ public class DefaultScriptConverter implements ScriptConverter {
             // 块注释会留在语句开头 —— 不先剥掉的话，「/* ... */ CREATE TABLE ...」这种
             // 写法既认不出是建表语句，块注释正文也会被当成 SQL 行逐行处理。
             String cleaned = stripBlockComments(statement);
+            // 反引号标识符改写成双引号：Derby / Oracle / SQL Server 不接受反引号
+            // （实测 Derby 报 Encountered: "`" (96)），H2 / PG / SQLite 两种都接受
+            if (NO_BACKTICK_PROTOCOLS.contains(protocol.toLowerCase(Locale.ROOT))) {
+                cleaned = rewriteBackticks(cleaned);
+            }
             String upper = cleaned.trim().toUpperCase(Locale.ROOT);
             if (upper.startsWith("CREATE TABLE") || upper.startsWith("CREATE UNIQUE TABLE")) {
                 // 建表：剥离行内索引的同时收集成独立的 CREATE INDEX
@@ -197,10 +249,15 @@ public class DefaultScriptConverter implements ScriptConverter {
                 // 若这里直接调 applyTypeAndFunctionMapping，子类规则会被整体绕过。
                 String converted = convert(tableSql, protocol);
                 if (converted != null && !converted.isBlank()) {
+                    // 生成的 CREATE INDEX 也要改写标识符定界（表名/列名来自原脚本，带反引号）
+                    if (NO_BACKTICK_PROTOCOLS.contains(protocol.toLowerCase(Locale.ROOT))) {
+                        converted = rewriteBackticks(converted);
+                    }
                     result.add(converted);
                 }
                 for (String indexSql : indexes) {
-                    result.add(indexSql);
+                    result.add(NO_BACKTICK_PROTOCOLS.contains(protocol.toLowerCase(Locale.ROOT))
+                            ? rewriteBackticks(indexSql) : indexSql);
                 }
                 continue;
             }
@@ -755,14 +812,32 @@ public class DefaultScriptConverter implements ScriptConverter {
     /**
      * 提取 CREATE TABLE 语句的表名。
      *
+     * <p><b>保留标识符的定界符</b>：生成的 CREATE INDEX 必须用与建表语句<b>完全相同</b>的
+     * 定界方式引用表名。Derby 等库对带引号的标识符是大小写敏感的 ——
+     * 建表写的是 {@code "sys_task_store"}，而索引里若写成不带引号的
+     * {@code sys_task_store}，Derby 会当成另一个大写标识符，报
+     * {@code 'CREATE INDEX' cannot be performed on 'SYS_TASK_STORE' because it does not exist}。</p>
+     *
      * @param sql CREATE TABLE 语句，不允许为 null
-     * @return 表名（不含反引号/双引号）；解析不出时返回 null
+     * @return 表名（保留原定界符）；解析不出时返回 null
      */
     private String extractTableName(String sql) {
         java.util.regex.Matcher m = Pattern.compile(
-                "(?i)^\\s*CREATE\\s+(?:UNIQUE\\s+)?TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?[`\"]?([A-Za-z_]\\w*)[`\"]?")
+                "(?i)^\\s*CREATE\\s+(?:UNIQUE\\s+)?TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?"
+                        + "([`\"]?[A-Za-z_]\\w*[`\"]?)")
                 .matcher(sql.trim());
-        return m.find() ? m.group(1) : null;
+        if (!m.find()) {
+            return null;
+        }
+        String raw = m.group(1);
+        // 定界符成对时保留，否则去掉（原本就未加定界的表名）
+        if (raw.length() >= 2) {
+            char q = raw.charAt(0);
+            if ((q == '`' || q == '"') && raw.charAt(raw.length() - 1) == q) {
+                return raw;
+            }
+        }
+        return raw.replace("`", "").replace("\"", "");
     }
 
     /**
@@ -791,8 +866,9 @@ public class DefaultScriptConverter implements ScriptConverter {
             return null;
         }
         String cols = columns.trim();
-        // 反引号/双引号在多数方言可用，但统一去掉以免 H2 严格模式挑剔
-        cols = cols.replace("`", "").replace("\"", "");
+        // 保留列名的原定界符：与建表语句里的列名保持一致，
+        // 否则 Derby 这类大小写敏感的库会认为索引引用的是另一个列
+        // （索引在生成阶段被 rewriteBackticks 统一改写成目标方言的定界符）。
         return "CREATE " + (unique ? "UNIQUE " : "") + "INDEX " + indexName + " ON " + tableName + " (" + cols + ")";
     }
 
@@ -825,7 +901,8 @@ public class DefaultScriptConverter implements ScriptConverter {
             }
             log.warn("[ui] 目标方言 {} 不支持列级自增，列 {} 的 AUTO_INCREMENT 已剥离（该列不再自动生成值）",
                     protocol, m.group(1));
-            return m.replaceAll(m.group(1) + " " + m.group(2).trim());
+            return m.replaceFirst(java.util.regex.Matcher.quoteReplacement(
+                    m.group(1) + " " + m.group(2).trim()));
         }
         java.util.regex.Matcher bare = COLUMN_AUTO_INCREMENT_BARE.matcher(line);
         if (bare.find()) {
@@ -834,7 +911,7 @@ public class DefaultScriptConverter implements ScriptConverter {
                 return bare.replaceFirst(java.util.regex.Matcher.quoteReplacement(
                         rebuildIdentityColumn(bare.group(1), "INT", identity)));
             }
-            return bare.replaceAll("$1 INT");
+            return bare.replaceFirst(java.util.regex.Matcher.quoteReplacement(bare.group(1) + " INT"));
         }
         return line;
     }
