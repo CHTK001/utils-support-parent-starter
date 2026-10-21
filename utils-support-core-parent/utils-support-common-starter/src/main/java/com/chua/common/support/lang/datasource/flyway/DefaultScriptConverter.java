@@ -360,6 +360,15 @@ public class DefaultScriptConverter implements ScriptConverter {
                 // 原样送进去会直接报语法错。实测 eduai 的 16MB 中文种子数据里
                 // 有 88 处 \'（诗词里引用词句），其中 3 条 UPDATE 因此整条失败。
                 converted = rewriteBackslashEscapes(converted);
+                // 前缀索引（col(191)）是 MySQL 专属语法，其它方言不认：
+                //   整列唯一索引语义不同（MySQL 是「前 191 字符唯一」），
+                //   且部分方言直接报语法错（实测 H2 报 expected "ASC, DESC, NULLS, ,, )"）。
+                // 非 MySQL 方言下这条索引无法等价表达，直接丢弃并记日志，
+                // 不静默变成「没有索引」。
+                String prefixIndex = dropPrefixIndexForNonMysql(converted, protocol);
+                if (prefixIndex != null) {
+                    converted = prefixIndex;
+                }
                 // MySQL 多表删除（DELETE t1 FROM ... JOIN ...）其它方言没有等价语法，改写成子查询
                 String rewritten = rewriteMultiTableDelete(converted);
                 if (rewritten != null) {
@@ -510,6 +519,93 @@ public class DefaultScriptConverter implements ScriptConverter {
                 + definition.replace("'", "''") + "'))); "
                 + "PREPARE st FROM @ddl; EXECUTE st; DEALLOCATE PREPARE st;";
     }
+    /**
+     * 找到与给定左括号配平的右括号位置。
+     *
+     * <p>字符串字面量内的括号不参与配平。</p>
+     *
+     * @param sql  SQL 文本
+     * @param open 左括号位置
+     * @return 右括号位置；找不到时返回 -1
+     */
+    private int matchParen(String sql, int open) {
+        int depth = 0;
+        for (int i = open; i < sql.length(); i++) {
+            char c = sql.charAt(i);
+            if (c == '\'') {
+                int end = skipQuoted(sql, i);
+                if (end <= i) {
+                    return -1;
+                }
+                i = end - 1;
+                continue;
+            }
+            if (c == '(') {
+                depth++;
+            } else if (c == ')') {
+                depth--;
+                if (depth == 0) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 非 MySQL 方言下丢弃「前缀索引」语句。
+     *
+     * <p>前缀索引（{@code CREATE INDEX ix ON t (col(191))}）是 MySQL 专属语法，
+     * 用来绕开 InnoDB 单个索引键 3072 字节的上限。其它方言：</p>
+     * <ul>
+     *   <li>不认这个语法 —— 实测 H2 报
+     *       {@code Syntax error ... expected "ASC, DESC, NULLS, ,, )"}；</li>
+     *   <li>即便去掉长度限定、建成整列索引，语义也变了
+     *       （MySQL 是「前 191 字符唯一」，整列是「整列唯一」）。</li>
+     * </ul>
+     *
+     * <p>故非 MySQL 方言下整条丢弃并记日志 —— 与 {@code buildCreateIndex} 对
+     * 「表体内行内前缀索引」的处理保持一致（都是「该写法无等价物，跳过」）。</p>
+     *
+     * @param sql      转换后的单条语句
+     * @param protocol 目标方言
+     * @return 丢弃时返回空串（调用方跳过）；不是前缀索引语句时返回 null
+     */
+    private String dropPrefixIndexForNonMysql(String sql, String protocol) {
+        if (sql == null || sql.isBlank()) {
+            return null;
+        }
+        if (MYSQL_PROTOCOLS.contains(protocol == null ? "" : protocol.toLowerCase(Locale.ROOT))) {
+            return null;
+        }
+        String trimmed = sql.trim();
+        if (!trimmed.toUpperCase(Locale.ROOT).startsWith("CREATE INDEX")
+                && !trimmed.toUpperCase(Locale.ROOT).startsWith("CREATE UNIQUE INDEX")) {
+            return null;
+        }
+        // 列清单里带 (191) 这类长度限定。
+        // 列清单要用「括号配平」取 —— 前缀索引的列名自带括号（col(191)），
+        // 用 [^)]* 会在第一个右括号处截断，恰好把长度限定丢掉。
+        java.util.regex.Matcher m = Pattern.compile(
+                "(?is)^CREATE\\s+(UNIQUE\\s+)?INDEX\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?"
+                        + "[`\"]?\\w+[`\"]?\\s+ON\\s+[`\"]?\\w+[`\"]?\\s*\\(").matcher(trimmed);
+        if (!m.find()) {
+            return null;
+        }
+        int open = m.end() - 1;
+        int close = matchParen(trimmed, open);
+        if (close < 0) {
+            return null;
+        }
+        String columnList = trimmed.substring(open + 1, close);
+        if (!INDEX_COLUMN_PREFIX_LENGTH.matcher(columnList).find()) {
+            return null;
+        }
+        log.info("[ui] 前缀索引语句在方言 {} 下丢弃：前缀索引是 MySQL 专属语法，"
+                + "其它方言无法等价表达", protocol);
+        return "";
+    }
+
     /**
      * 「保留每组最小值」的 DELETE → 不用聚合函数的相关子查询写法。
      *
