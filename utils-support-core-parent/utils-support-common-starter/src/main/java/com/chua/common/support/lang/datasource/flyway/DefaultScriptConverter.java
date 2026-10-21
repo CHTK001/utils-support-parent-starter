@@ -553,6 +553,81 @@ public class DefaultScriptConverter implements ScriptConverter {
     }
 
     /**
+     * 「删除时引用自身」的子查询 → 加一层派生表。
+     *
+     * <p>MySQL 不允许 DELETE 的子查询里出现被删的表，报
+     * {@code You can't specify target table 'xxx' for update in FROM clause}。
+     * 其它方言（PG / SQLite / H2 / Oracle / SQL Server）都允许。</p>
+     *
+     * <p>改写办法是给子查询套一层派生表，让子查询结果先物化，
+     * 语义与原句一致（每组保留一行）：</p>
+     * <pre>
+     * -- 原（MySQL 报错）
+     * DELETE FROM t WHERE id NOT IN (SELECT MIN(x.id) FROM t x GROUP BY x.g);
+     * -- 改写后
+     * DELETE FROM t WHERE id NOT IN (SELECT d.m FROM (SELECT MIN(x.id) AS m FROM t x GROUP BY x.g) d);
+     * </pre>
+     *
+     * <p>识别方式：DELETE 的目标表出现在自身的子查询里。</p>
+     *
+     * @param sql 转换后的单条语句
+     * @return 改写后的语句；不是这种形态时返回 null
+     */
+    private String rewriteSelfReferencingDelete(String sql) {
+        String trimmed = sql.trim();
+        java.util.regex.Matcher head = Pattern.compile(
+                "(?is)^DELETE\\s+FROM\\s+`?([A-Za-z_]\\w*)`?\\s+(.*)$").matcher(trimmed);
+        if (!head.find()) {
+            return null;
+        }
+        String table = head.group(1);
+        String rest = head.group(2);
+        // 子查询里出现同名的表 → 自我引用
+        if (!Pattern.compile("(?i)\\bFROM\\s+`?" + table + "`?\\b").matcher(rest).find()) {
+            return null;
+        }
+        // 找第一个子查询：IN ( ... ) / NOT IN ( ... ) / EXISTS ( ... )
+        java.util.regex.Matcher sub = Pattern.compile("(?is)\\b(IN\\s*\\(|EXISTS\\s*\\()").matcher(rest);
+        if (!sub.find()) {
+            return null;
+        }
+        int open = sub.end() - 1;
+        int close = matchParen(rest, open);
+        if (close < 0) {
+            return null;
+        }
+        String inner = rest.substring(open + 1, close).trim();
+        // 已经是派生表（外面套了 FROM ( ... ) alias）就不改
+        if (inner.toUpperCase(Locale.ROOT).startsWith("SELECT")
+                && Pattern.compile("(?is)^SELECT\\s+.*\\bFROM\\s*\\(").matcher(inner).find()) {
+            return null;
+        }
+        // 只改写「子查询里直接引用目标表」的那一种
+        if (!Pattern.compile("(?i)\\bFROM\\s+`?" + table + "`?\\b").matcher(inner).find()) {
+            return null;
+        }
+        String alias = "_selfref";
+        // 内层的 MIN(...) 起个别名 m；外层引用 m。
+        // 只改内层那份：先把内层整段替换掉，再改外层 —— 顺序反了会把内层也替成 m。
+        String inner2 = inner.replaceAll("(?i)\\bMIN\\s*\\(([^()]*)\\)", "MIN($1) AS m");
+        boolean renamed = !inner2.equals(inner);
+        String derived = "SELECT " + (renamed ? alias + ".m" : "*") + " FROM (" + inner2 + ") " + alias;
+        // 外层那段（子查询括号之外）里若还有 MIN(...)，一并改成引用派生表的 m
+        String before = rest.substring(0, open);
+        String after = rest.substring(close);
+        if (renamed) {
+            before = before.replaceAll("(?i)\\bMIN\\s*\\([^()]*\\)", alias + ".m");
+            after = after.replaceAll("(?i)\\bMIN\\s*\\([^()]*\\)", alias + ".m");
+        }
+        // 括号要留着：IN ( ... ) / EXISTS ( ... ) 的括号是语法的一部分。
+        // before 不含左括号、after 含右括号，故左括号要补、右括号原样保留。
+        String rebuilt = before + "(" + derived + after;
+        log.info("[ui] 表 {} 的删除语句里子查询引用了自身，已加派生表："
+                + "MySQL 不允许对正在被修改的表做 FROM 子查询", table);
+        return "DELETE FROM " + table + " " + rebuilt;
+    }
+
+    /**
      * 非 MySQL 方言下丢弃「前缀索引」语句。
      *
      * <p>前缀索引（{@code CREATE INDEX ix ON t (col(191))}）是 MySQL 专属语法，
@@ -868,6 +943,15 @@ public class DefaultScriptConverter implements ScriptConverter {
             return statement;
         }
         String p = protocol.toLowerCase();
+        // 「删除时子查询引用自身」→ 加派生表。
+        // MySQL 不允许对正在被修改的表做 FROM 子查询，报
+        // "You can't specify target table 'xxx' for update in FROM clause"；
+        // 其它方言都允许，但加派生表后语义一致、处处可用，故统一改写。
+        // 放在 MySQL 早退之前 —— MySQL 恰恰是最需要它的方言。
+        String selfRef = rewriteSelfReferencingDelete(statement);
+        if (selfRef != null) {
+            statement = selfRef;
+        }
         // MySQL 系数据库：脚本本身按 MySQL 风格编写，原样执行
         if (MYSQL_PROTOCOLS.contains(p)) {
             return statement;
