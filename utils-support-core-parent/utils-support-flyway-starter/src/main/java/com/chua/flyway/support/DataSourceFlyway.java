@@ -300,18 +300,29 @@ public class DataSourceFlyway implements Flyway {
             }
         }
         if (expected == 0) {
-            return new ScriptResult(0, true);
+            return new ScriptResult(0, 0, 0);
         }
         int executed = 0;
+        int skipped = 0;
+        int failed = 0;
         try (Connection conn = dataSource.getConnection(); Statement st = conn.createStatement()) {
             for (String statement : statements) {
                 if (statement.isBlank()) {
+                    continue;
+                }
+                // 目标表不存在 → 跳过（不记失败、不产生噪声）
+                String target = FlywayScripts.extractTargetTable(statement);
+                if (target != null && !tableExists(conn, target)) {
+                    skipped++;
+                    log.info("迁移脚本 {} 的语句因目标表 {} 不存在而跳过（跨系统表，本库无其建表脚本）",
+                            scriptName, target);
                     continue;
                 }
                 try {
                     st.execute(statement);
                     executed++;
                 } catch (SQLException e) {
+                    failed++;
                     String truncated = FlywayScripts.truncate(statement, LOG_STATEMENT_LENGTH);
                     lastFailedStatements.add(truncated);
                     lastFailureReasons.put(truncated, e.getMessage() == null ? e.toString() : e.getMessage());
@@ -325,7 +336,52 @@ public class DataSourceFlyway implements Flyway {
         } catch (SQLException e) {
             throw new IllegalStateException("执行迁移脚本失败: " + scriptName, e);
         }
-        return new ScriptResult(executed, executed == expected);
+        if (skipped > 0) {
+            log.info("迁移脚本 {} 共跳过 {} 条「目标表不存在」的语句", scriptName, skipped);
+        }
+        return new ScriptResult(executed, skipped, failed);
+    }
+
+    /**
+     * 判断表是否存在于当前库。
+     *
+     * <p>用 JDBC 元数据而不是各库的信息模式视图 —— 后者的表名大小写规则逐库不同
+     * （H2 折叠成大写、PG 折叠成小写、SQLite 走 {@code sqlite_master}），
+     * 写成 SQL 反而要在每个方言里各写一遍。</p>
+     *
+     * <p>元数据接口查不到时按「存在」处理：宁可让语句真去执行、报真实的错，
+     * 也不要把正常的表误判成不存在而静默跳过。</p>
+     *
+     * @param conn  连接
+     * @param table 表名
+     * @return true 表示表存在（或无法判定）
+     */
+    private boolean tableExists(Connection conn, String table) {
+        if (table == null || table.isBlank()) {
+            return true;
+        }
+        try {
+            // 先按原样查（多数库未加引号时按折叠规则匹配）
+            try (ResultSet rs = conn.getMetaData()
+                    .getTables(conn.getCatalog(), null, table, new String[] { "TABLE" })) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+            // 再按大小写不敏感兜底：H2/PG 的大小写折叠规则与调用方写法可能不一致
+            try (ResultSet rs = conn.getMetaData()
+                    .getTables(conn.getCatalog(), null, "%", new String[] { "TABLE" })) {
+                while (rs.next()) {
+                    if (table.equalsIgnoreCase(rs.getString("TABLE_NAME"))) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        } catch (SQLException | RuntimeException e) {
+            // 元数据不可用（少数驱动/权限受限）：按存在处理，让语句真去执行
+            return true;
+        }
     }
 
     /**
@@ -350,9 +406,21 @@ public class DataSourceFlyway implements Flyway {
      * 单个脚本的执行结果。
      *
      * @param executed      成功执行的语句数
-     * @param allSucceeded  是否全部非空白语句都执行成功
+     * @param skipped       因目标表不存在而跳过的语句数（不算失败）
+     * @param failed        执行失败（非空白、非跳过）的语句数
      */
-    private record ScriptResult(int executed, boolean allSucceeded) {
+    private record ScriptResult(int executed, int skipped, int failed) {
+
+        /**
+         * 是否全部语句都「成功或跳过」。
+         *
+         * <p>跳过的语句（目标表不存在）不算失败：脚本在「外部表存在」与「不存在」
+         * 两种部署下都应视为执行成功，否则缺外部表的环境会把脚本标成 success=false、
+         * 每次启动都重跑一遍（而重跑的结果还是缺那张表）。</p>
+         */
+        boolean allSucceeded() {
+            return failed == 0;
+        }
     }
 
     /**
