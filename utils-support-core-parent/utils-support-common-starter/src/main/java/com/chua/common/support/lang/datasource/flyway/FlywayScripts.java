@@ -464,4 +464,66 @@ public final class FlywayScripts {
         }
         return sql.substring(0, max) + "...";
     }
+
+    /**
+     * 取出语句操作的目标表名。
+     *
+     * <p>用于「目标表不存在就跳过该语句」的判存：迁移脚本里存在操作<b>外部系统表</b>的语句
+     * （本仓没有该表的建表脚本、库也不共用），这类语句在目标库里必然失败。
+     * 先把表名取出来，用元数据接口判存在与否，不存在就跳过，
+     * 避免每次启动都刷一屏失败日志。</p>
+     *
+     * <p>支持的语句形态（只看第一处目标表）：</p>
+     * <ul>
+     *   <li>{@code INSERT INTO t} / {@code INSERT IGNORE INTO t}</li>
+     *   <li>{@code UPDATE t SET ...}</li>
+     *   <li>{@code DELETE FROM t} / {@code DELETE t1 FROM t t1 ...}</li>
+     *   <li>{@code MERGE INTO t}</li>
+     *   <li>{@code TRUNCATE TABLE t}</li>
+     * </ul>
+     *
+     * <p>只取<b>第一处</b>目标表：语句里的第二张表（自连接、子查询里的表）若也不存在，
+     * 执行时仍会失败，但那种语句本就依赖多表，判存第一处已能覆盖「表整体缺失」的场景。</p>
+     *
+     * @param sql 单条语句
+     * @return 目标表名（不含引号、大小写按原样）；取不到时返回 null
+     */
+    public static String extractTargetTable(String sql) {
+        if (sql == null || sql.isBlank()) {
+            return null;
+        }
+        String s = sql.trim();
+        Matcher m = TARGET_TABLE.matcher(s);
+        if (!m.find()) {
+            return null;
+        }
+        String raw = m.group(1);
+        if (raw == null) {
+            return null;
+        }
+        raw = raw.trim();
+        if (raw.length() >= 2) {
+            char q = raw.charAt(0);
+            if ((q == '`' || q == '"') && raw.charAt(raw.length() - 1) == q) {
+                return raw.substring(1, raw.length() - 1);
+            }
+        }
+        return raw.matches("[A-Za-z_]\\w*") ? raw : null;
+    }
+
+    /**
+     * 语句的目标表：{@code INSERT INTO} / {@code UPDATE} / {@code DELETE FROM} / {@code MERGE INTO}
+     * / {@code TRUNCATE TABLE} 之后的表名（可带反引号或双引号）
+     *
+     * <p>MySQL 的多表删除 {@code DELETE t1 FROM tbl t1 ...} 里的 {@code t1} 是<b>别名</b>、
+     * 真正的表是 {@code FROM} 后面那个，故 DELETE 分支优先取 {@code FROM} 后的表名。</p>
+     */
+    private static final Pattern TARGET_TABLE = Pattern.compile(
+            "(?is)^\\s*(?:"
+                    + "INSERT\\s+(?:IGNORE\\s+)?INTO\\s+"
+                    + "|UPDATE\\s+"
+                    + "|DELETE\\s+(?:[A-Za-z_]\\w*\\s+)?FROM\\s+"
+                    + "|MERGE\\s+INTO\\s+"
+                    + "|TRUNCATE\\s+(?:TABLE\\s+)?"
+                    + ")[`\"]?([A-Za-z_]\\w*)[`\"]?\\b");
 }
