@@ -87,6 +87,35 @@ public class PostgresqlScriptConverter extends DefaultScriptConverter {
      */
     private static final Pattern MEDIUMINT_TYPE = Pattern.compile("(?i)\\bMEDIUMINT\\b");
 
+    /**
+     * {@code DOUBLE} → {@code DOUBLE PRECISION}。
+     *
+     * <p>PostgreSQL 没有 {@code DOUBLE} 这个类型名（报
+     * {@code ERROR: type "double" does not exist}），浮点双精度的标准写法是
+     * {@code DOUBLE PRECISION}。{@code FLOAT} / {@code REAL} 在 PostgreSQL 上原生支持，
+     * 不需要改写。</p>
+     */
+    private static final Pattern DOUBLE_TYPE = Pattern.compile("(?i)\\bDOUBLE\\b(?!\\s+PRECISION)");
+
+    /**
+     * {@code BLOB} / {@code VARBINARY(n)} / {@code BINARY(n)} → {@code BYTEA}。
+     *
+     * <p>PostgreSQL 的二进制大对象类型是 {@code BYTEA}，没有 {@code BLOB} /
+     * {@code VARBINARY} / {@code BINARY} 这几个 MySQL 名字
+     * （实测均报 {@code type "blob" does not exist}）。</p>
+     */
+    private static final Pattern BINARY_TYPE = Pattern.compile(
+            "(?i)\\b(?:VAR)?BINARY\\s*\\(\\s*\\d+\\s*\\)|\\bBLOB\\b");
+
+    /**
+     * {@code YEAR} → {@code SMALLINT}。
+     *
+     * <p>PostgreSQL 没有 {@code YEAR} 类型（报 {@code type "year" does not exist}）。
+     * MySQL 的 {@code YEAR} 存的是年份整数（1901~2155），用 2 字节
+     * {@code SMALLINT} 足够且取值范围匹配。</p>
+     */
+    private static final Pattern YEAR_TYPE = Pattern.compile("(?i)\\bYEAR\\b");
+
     @Override
     public boolean supports(String protocol) {
         return PROTOCOL.equalsIgnoreCase(protocol);
@@ -100,7 +129,10 @@ public class PostgresqlScriptConverter extends DefaultScriptConverter {
         if (converted == null || converted.isBlank()) {
             return converted;
         }
-        // 文本族与整型族映射
+        // 类型映射：PostgreSQL 没有 DOUBLE / BLOB / YEAR / TINYINT / MEDIUMINT 这些 MySQL 类型名
+        converted = DOUBLE_TYPE.matcher(converted).replaceAll("DOUBLE PRECISION");
+        converted = BINARY_TYPE.matcher(converted).replaceAll("BYTEA");
+        converted = YEAR_TYPE.matcher(converted).replaceAll("SMALLINT");
         converted = MEDIUMINT_TYPE.matcher(converted).replaceAll("INTEGER");
         converted = TINYINT_TYPE.matcher(converted).replaceAll("SMALLINT");
         // ON DUPLICATE KEY UPDATE → ON CONFLICT DO UPDATE
