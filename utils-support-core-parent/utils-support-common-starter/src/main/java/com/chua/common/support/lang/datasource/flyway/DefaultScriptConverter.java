@@ -87,6 +87,92 @@ public class DefaultScriptConverter implements ScriptConverter {
             List.of("postgresql", "derby", "oracle", "sqlserver");
 
     /**
+     * 标识符大小写折叠成大写的方言（不加定界符的标识符会被折叠成大写）。
+     *
+     * <p>Oracle 与 SQL Server 都是这样：{@code SELECT * FROM edu_idiom} 里的
+     * {@code edu_idiom} 实际是 {@code EDU_IDIOM}。</p>
+     */
+    private static final List<String> UPPERCASE_FOLD_PROTOCOLS =
+            List.of("oracle", "sqlserver");
+
+    /**
+     * 标识符大小写折叠成小写的方言（不加定界符的标识符会被折叠成小写）。
+     *
+     * <p>PostgreSQL 是这样：{@code SELECT * FROM edu_idiom} 里的
+     * {@code edu_idiom} 实际是 {@code edu_idiom}。</p>
+     */
+    private static final List<String> LOWERCASE_FOLD_PROTOCOLS =
+            List.of("postgresql");
+
+    /**
+     * 把双引号标识符的大小写折叠成目标方言的默认折叠规则。
+     *
+     * <p><b>要解决的问题</b>：本仓脚本的标识符定界不统一 ——
+     * 同一个表名，建表语句里写 {@code `edu_idiom`}（加定界符）、
+     * 插入语句里写 {@code edu_idiom}（不加定界符）。反引号改写成双引号之后就变成
+     * 「一处加引号、一处不加」：加引号的保持原样大小写、不加引号的折叠成大写，
+     * 两者对不上。</p>
+     *
+     * <p>实测报错：</p>
+     * <ul>
+     *   <li>Oracle：{@code Table "edu_idiom" not found (candidates are: "EDU_IDIOM")}</li>
+     *   <li>Oracle：{@code Column "ms_monitor_alarm_policy_name" not found}</li>
+     *   <li>Oracle：{@code Column "GRADE" not found}
+     *       （{@code grade} 是保留字，脚本里有的地方加引号有的地方不加）</li>
+     * </ul>
+     *
+     * <p><b>做法</b>：把加引号的标识符也折叠成该方言对裸标识符的折叠规则 ——
+     * Oracle / SQL Server 折成大写、PostgreSQL 折成小写。
+     * 这样加引号与不加引号的写法落到同一个标识符上，口径自然统一，
+     * 不需要逐个判断「这是不是标识符位置」（那种启发式判断误伤面大）。</p>
+     *
+     * @param sql      已完成反引号改写的 SQL
+     * @param protocol 目标方言
+     * @return 折叠后��� SQL
+     */
+    private String foldQuotedIdentifierCase(String sql, String protocol) {
+        String p = protocol == null ? "" : protocol.toLowerCase(Locale.ROOT);
+        boolean upper = UPPERCASE_FOLD_PROTOCOLS.contains(p);
+        boolean lower = LOWERCASE_FOLD_PROTOCOLS.contains(p);
+        if (!upper && !lower) {
+            return sql;
+        }
+        StringBuilder out = new StringBuilder(sql.length());
+        int i = 0;
+        int n = sql.length();
+        while (i < n) {
+            char c = sql.charAt(i);
+            if (c == '\'') {
+                int end = skipQuoted(sql, i);
+                out.append(sql, i, end);
+                i = end;
+                continue;
+            }
+            if (c == '"') {
+                int end = sql.indexOf('"', i + 1);
+                if (end < 0) {
+                    out.append(sql, i, n);
+                    break;
+                }
+                String name = sql.substring(i + 1, end);
+                // 只折叠「像标识符」的内容：不含空格与标点
+                if (name.matches("[A-Za-z_]\\w*")) {
+                    out.append('"')
+                            .append(upper ? name.toUpperCase(Locale.ROOT) : name.toLowerCase(Locale.ROOT))
+                            .append('"');
+                } else {
+                    out.append(sql, i, end + 1);
+                }
+                i = end + 1;
+                continue;
+            }
+            out.append(c);
+            i++;
+        }
+        return out.toString();
+    }
+
+    /**
      * 把反引号标识符改写成双引号。
      *
      * <p>只改写标识符位置的反引号（成对出现），字符串字面量内部的反引号保持原样
@@ -239,6 +325,8 @@ public class DefaultScriptConverter implements ScriptConverter {
             // （实测 Derby 报 Encountered: "`" (96)），H2 / PG / SQLite 两种都接受
             if (NO_BACKTICK_PROTOCOLS.contains(protocol.toLowerCase(Locale.ROOT))) {
                 cleaned = rewriteBackticks(cleaned);
+                // 标识符大小写口径统一：加引号的标识符折叠成该方言对裸标识符的折叠规则
+                cleaned = foldQuotedIdentifierCase(cleaned, protocol);
             }
             String upper = cleaned.trim().toUpperCase(Locale.ROOT);
             if (upper.startsWith("CREATE TABLE") || upper.startsWith("CREATE UNIQUE TABLE")) {
