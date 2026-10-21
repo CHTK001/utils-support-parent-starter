@@ -206,7 +206,103 @@ public class DefaultScriptConverter implements ScriptConverter {
             }
             String converted = convert(cleaned, protocol);
             if (converted != null && !converted.isBlank()) {
-                result.add(converted);
+                // MySQL 多表删除（DELETE t1 FROM ... JOIN ...）其它方言没有等价语法，改写成子查询
+                String rewritten = rewriteMultiTableDelete(converted);
+                if (rewritten != null) {
+                    converted = rewritten;
+                }
+                // 多列 ALTER 在 H2 / PostgreSQL 上不合法（一条 ADD COLUMN 一个语句），
+                // MySQL 允许一次加多列。这里按列拆成多条单列 ALTER。
+                List<String> splitAlters = splitMultiColumnAlter(converted);
+                result.addAll(splitAlters.isEmpty() ? List.of(converted) : splitAlters);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * MySQL 多表删除 → 通用子查询写法。
+     *
+     * <p>MySQL 独有写法：{@code DELETE t1 FROM tbl t1 INNER JOIN tbl t2 WHERE ...}
+     * （同一个表自连接去重，本仓 device 模块的「任务名去重后建唯一索引」用它）。
+     * 其它方言没有等价语法，H2 / PostgreSQL 直接报语法错。</p>
+     *
+     * <p>改写成 {@code DELETE FROM tbl WHERE id IN (SELECT ... 同款自连接 ...)}：
+     * 语义与原句一致（删掉自连接中「id 更大」的那些行），且各数据库通用。</p>
+     *
+     * @param sql 转换后的单条语句
+     * @return 改写后的语句；不是多表删除时返回 null
+     */
+    private String rewriteMultiTableDelete(String sql) {
+        String trimmed = sql.trim();
+        java.util.regex.Matcher m = Pattern.compile(
+                "(?is)^DELETE\\s+(\\w+)\\s+FROM\\s+(\\w+)\\s+(\\w+)\\s+(.*)$").matcher(trimmed);
+        if (!m.find()) {
+            return null;
+        }
+        // MySQL 写法：DELETE t1 FROM tbl t1 INNER JOIN tbl t2 WHERE t1.c1 = t2.c1 AND t1.c2 > t2.c2
+        // 语义：删掉「同一 c1 分组里 c2 不是最小值」的那些行（每组保留一行）。
+        // 通用等价写法：DELETE FROM tbl WHERE c2 NOT IN (SELECT MIN(c2) FROM tbl GROUP BY c1)
+        String deleteAlias = m.group(1);
+        String table = m.group(2);
+        String tableAlias = m.group(3);
+        String rest = m.group(4);
+        // 分组列：形如 "<别名>.c1 = <别名2>.c1" 的等值条件
+        java.util.regex.Matcher eq = Pattern.compile(
+                "(?i)\\b\\w+\\.(\\w+)\\s*=\\s*\\w+\\.(\\w+)\\b").matcher(rest);
+        if (!eq.find()) {
+            return null;
+        }
+        String groupCol = eq.group(1);
+        // 比较列：形如 "<别名>.c2 > <别名2>.c2" 的不等条件
+        java.util.regex.Matcher gt = Pattern.compile(
+                "(?i)\\b\\w+\\.(\\w+)\\s*>\\s*\\w+\\.(\\w+)\\b").matcher(rest);
+        if (!gt.find()) {
+            return null;
+        }
+        String keepCol = gt.group(1);
+        log.info("[ui] 表 {} 的多表删除已改写为分组保留最小值写法（分组列 {}，保留列 {}）",
+                table, groupCol, keepCol);
+        return "DELETE FROM " + table + " WHERE " + keepCol + " NOT IN (SELECT MIN(" + keepCol
+                + ") FROM " + table + " GROUP BY " + groupCol + ")";
+    }
+
+    /**
+     * 把「一次加多列」的 ALTER 拆成多条单列 ALTER。
+     *
+     * <p>MySQL 允许 {@code ALTER TABLE t ADD COLUMN a ..., ADD COLUMN b ...} 一次加多列，
+     * 但 H2 与 PostgreSQL 只接受一条 ADD COLUMN（本仓脚本里这样的写法有 3 处，
+     * 见 datasource-hub 的两段存量补列与 device 的补列）。</p>
+     *
+     * <p>拆分时保留表名、其余修饰子句（{@code AFTER} 在目标库已被剥掉）与每列自己的定义。</p>
+     *
+     * @param sql 转换后的单条语句
+     * @return 拆分后的语句列表；不是多列 ALTER 时返回空列表
+     */
+    private List<String> splitMultiColumnAlter(String sql) {
+        String upper = sql.trim().toUpperCase(Locale.ROOT);
+        if (!upper.startsWith("ALTER TABLE")) {
+            return List.of();
+        }
+        // 找 ADD COLUMN 的出现次数与位置
+        java.util.regex.Matcher m = Pattern.compile("(?i)\\bADD\\s+COLUMN\\b").matcher(sql);
+        List<int[]> positions = new ArrayList<>();
+        while (m.find()) {
+            positions.add(new int[]{m.start(), m.end()});
+        }
+        if (positions.size() < 2) {
+            return List.of();
+        }
+        String head = sql.substring(0, positions.get(0)[1]);
+        List<String> result = new ArrayList<>();
+        for (int i = 0; i < positions.size(); i++) {
+            int start = positions.get(i)[1];
+            int end = (i + 1 < positions.size()) ? positions.get(i + 1)[0] : sql.length();
+            String column = sql.substring(start, end).trim();
+            // 去掉尾部逗号（列定义之间的分隔符）
+            column = column.replaceAll(",\\s*$", "").trim();
+            if (!column.isEmpty()) {
+                result.add(head + " " + column);
             }
         }
         return result;
