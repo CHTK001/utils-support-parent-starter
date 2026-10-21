@@ -3,6 +3,9 @@ package com.chua.sqlite.support.flyway;
 import com.chua.common.support.lang.datasource.flyway.DefaultScriptConverter;
 import com.chua.common.support.spi.annotations.Spi;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,9 +53,15 @@ public class SqliteScriptConverter extends DefaultScriptConverter {
     /**
      * 自增列声明行（整行）：{@code `id` BIGINT NOT NULL AUTO_INCREMENT,}
      * 捕获列名与尾随逗号，中间的 MySQL 类型在重写时被 {@code INTEGER} 取代
+     *
+     * <p>允许 {@code AUTO_INCREMENT} 之后还有列内联注释
+     * （{@code `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '成语ID',}）——
+     * 不放行这一段会漏判，表现为「自增语义丢失」：列退化成普通列、
+     * 插入时主键为 null，关联表的外键列随即报 NOT NULL 约束失败。</p>
      */
     private static final Pattern AUTO_INCREMENT_COLUMN_LINE = Pattern.compile(
-            "^(\\s*)(`[^`]+`|[A-Za-z_]\\w*)(.*\\bAUTO_INCREMENT\\b)(\\s*,?\\s*)$",
+            "^(\\s*)(`[^`]+`|[A-Za-z_]\\w*)(.*\\bAUTO_INCREMENT\\b"
+                    + "(?:\\s+COMMENT\\s+'(?:[^']|'')*')?)(\\s*,?\\s*)$",
             Pattern.CASE_INSENSITIVE);
 
     /**
@@ -67,6 +76,13 @@ public class SqliteScriptConverter extends DefaultScriptConverter {
     private static final Pattern TABLE_PRIMARY_KEY_LINE = Pattern.compile(
             "^\\s*PRIMARY\\s+KEY\\s*\\(\\s*(`[^`]+`|[A-Za-z_]\\w*)\\s*\\)\\s*,?\\s*$",
             Pattern.CASE_INSENSITIVE);
+
+    /**
+     * 行首的「缩进 + 列名」：{@code     `id` BIGINT ...}
+     * 捕获组 1=缩进，2=列名（可能带反引号）
+     */
+    private static final Pattern LEADING_COLUMN = Pattern.compile(
+            "^(\\s*)(`[^`]+`|[A-Za-z_]\\w*)");
 
     /**
      * 任意位置的 {@code AUTO_INCREMENT} 关键字（含 MySQL 的 {@code AUTO_INCREMENT=100} 表尾形式）
@@ -93,6 +109,34 @@ public class SqliteScriptConverter extends DefaultScriptConverter {
             "\\bVALUES\\s*\\(\\s*(`[^`]+`|[A-Za-z_]\\w*)\\s*\\)", Pattern.CASE_INSENSITIVE);
 
     /**
+     * {@code REPLACE(UUID(), '-', '')} → SQLite 的随机十六进制串。
+     *
+     * <p>SQLite 没有 {@code UUID()} 函数（实测报
+     * {@code [SQLITE_ERROR] SQL error or missing database (no such function: UUID)}），
+     * 也没有 {@code REPLACE} 之外能去掉连字符的必要 —— 种子数据里的 UUID 只是
+     * 拿来当唯一标识的随机串，不要求是标准 UUID 格式。</p>
+     *
+     * <p>{@code lower(hex(randomblob(16)))} 是 SQLite 原生的等价写法：
+     * {@code randomblob(16)} 产生 16 字节随机数，{@code hex} 转成 32 位十六进制，
+     * {@code lower} 统一大小写 —— 与 {@code REPLACE(UUID(), '-', '')} 的
+     * 32 位十六进制形态一致。</p>
+     */
+    private static final Pattern UUID_FUNCTION = Pattern.compile(
+            "\\bREPLACE\\s*\\(\\s*UUID\\s*\\(\\s*\\)\\s*,\\s*'-'\\s*,\\s*''\\s*\\)",
+            Pattern.CASE_INSENSITIVE);
+
+    /**
+     * 裸 {@code UUID()}（不带 REPLACE）→ 同上
+     */
+    private static final Pattern BARE_UUID_FUNCTION = Pattern.compile(
+            "\\bUUID\\s*\\(\\s*\\)", Pattern.CASE_INSENSITIVE);
+
+    /**
+     * SQLite 的随机唯一标识写法
+     */
+    private static final String SQLITE_UUID = "lower(hex(randomblob(16)))";
+
+    /**
      * SQLite 自增列写法
      */
     private static final String AUTO_INCREMENT_COLUMN = " INTEGER PRIMARY KEY AUTOINCREMENT";
@@ -102,15 +146,109 @@ public class SqliteScriptConverter extends DefaultScriptConverter {
         return PROTOCOL.equalsIgnoreCase(protocol);
     }
 
+    /**
+     * 批量转换：建表语句先把自增列下推成 SQLite 的写法，再交父类做通用剥离。
+     *
+     * <p><b>为什么必须在这里拦一道</b>：父类的 {@code convertAll} 对建表语句会先调
+     * {@code convertCreateTable}（通用剥离，会把 {@code AUTO_INCREMENT} 关键字剥掉），
+     * 再把结果交给 {@link #convert}。等本类看到语句时，自增关键字已经没了 ——
+     * SQLite 的「下推成 INTEGER PRIMARY KEY AUTOINCREMENT」就无从下手，
+     * 表现为「自增语义丢失」：列退化成普通列，插入时主键为 null，
+     * 关联表的外键列随即报 NOT NULL 约束失败
+     * （实测 edu_idiom.idiom_id → edu_idiom_grade.idiom_id）。</p>
+     */
+    @Override
+    public List<String> convertAll(List<String> statements, String protocol) {
+        if (statements == null || statements.isEmpty()) {
+            return super.convertAll(statements, protocol);
+        }
+        List<String> prepared = new ArrayList<String>(statements.size());
+        for (String statement : statements) {
+            if (statement == null || statement.isBlank()) {
+                prepared.add(statement);
+                continue;
+            }
+            prepared.add(prepareAutoIncrement(statement));
+        }
+        return super.convertAll(prepared, protocol);
+    }
+
+    /**
+     * 把建表语句里的自增列先改写成 SQLite 的写法（在父类剥离之前做）。
+     *
+     * @param statement 原语句
+     * @return 改写后的语句；不是建表语句或没有自增列时原样返回
+     */
+    private String prepareAutoIncrement(String statement) {
+        if (!statement.trim().toUpperCase(Locale.ROOT).startsWith("CREATE TABLE")) {
+            return statement;
+        }
+        String[] lines = statement.split("\n", -1);
+        String autoIncrementColumn = null;
+        int autoIncrementCount = 0;
+        for (String line : lines) {
+            Matcher matcher = AUTO_INCREMENT_COLUMN_LINE.matcher(line);
+            if (matcher.matches()) {
+                autoIncrementCount++;
+                autoIncrementColumn = matcher.group(2);
+            }
+        }
+        if (autoIncrementCount != 1 || autoIncrementColumn == null) {
+            return statement;
+        }
+        if (!canPushDown(lines, autoIncrementColumn)) {
+            return statement;
+        }
+        StringBuilder builder = new StringBuilder(statement.length());
+        for (String line : lines) {
+            if (TABLE_PRIMARY_KEY_LINE.matcher(line).matches()) {
+                continue; // 主键下推到列上，表级声明要去掉（否则双主键）
+            }
+            if (isAutoIncrementLine(line, autoIncrementColumn)) {
+                Matcher m = LEADING_COLUMN.matcher(line);
+                if (m.find()) {
+                    builder.append(m.group(1)).append(m.group(2)).append(AUTO_INCREMENT_COLUMN);
+                    // 行尾逗号必须保留：丢了会让下一列与本列粘连成语法错
+                    if (line.trim().endsWith(",")) {
+                        builder.append(',');
+                    }
+                    builder.append('\n');
+                    continue;
+                }
+            }
+            builder.append(line).append('\n');
+        }
+        return builder.toString();
+    }
+
     @Override
     public String convert(String statement, String protocol) {
+        // SQLite 的自增列必须在本类里下推成「INTEGER PRIMARY KEY AUTOINCREMENT」，
+        // 而父类的通用规则会先把 AUTO_INCREMENT 剥掉（其它方言没有 SQLite 的下推写法），
+        // 所以要先拦住建表语句、在父类处理之前把自增信息取出来。
+        boolean createTable = statement.trim().toUpperCase(Locale.ROOT).startsWith("CREATE TABLE");
+        String[] lines = createTable ? statement.split("\n", -1) : null;
+        String autoIncrementColumn = null;
+        int autoIncrementCount = 0;
+        if (lines != null) {
+            for (String line : lines) {
+                Matcher matcher = AUTO_INCREMENT_COLUMN_LINE.matcher(line);
+                if (matcher.matches()) {
+                    autoIncrementCount++;
+                    autoIncrementColumn = matcher.group(2);
+                }
+            }
+        }
         String converted = super.convert(statement, protocol);
         if (converted == null || converted.isBlank()) {
             return converted;
         }
+        // UUID 函数改写：SQLite 没有 UUID()
+        converted = UUID_FUNCTION.matcher(converted).replaceAll(SQLITE_UUID);
+        converted = BARE_UUID_FUNCTION.matcher(converted).replaceAll(SQLITE_UUID);
         String upper = converted.trim().toUpperCase();
         if (upper.startsWith("CREATE TABLE")) {
-            converted = convertCreateTable(converted);
+            converted = convertCreateTable(converted, autoIncrementCount, autoIncrementColumn);
         } else {
             converted = AUTO_INCREMENT_TOKEN.matcher(converted).replaceAll("");
         }
@@ -121,42 +259,57 @@ public class SqliteScriptConverter extends DefaultScriptConverter {
     /**
      * CREATE TABLE 体内的自增列与表级主键改写。
      *
-     * @param sql 已完成通用剥离的建表语句
+     * @param sql                已完成通用剥离的建表语句
+     * @param autoIncrementCount 原语句里的自增列数量（父类已把 AUTO_INCREMENT 剥掉，这里用它的值）
+     * @param autoIncrementColumn 原语句里的自增列名
      * @return SQLite 可执行的建表语句
      */
-    private String convertCreateTable(String sql) {
+    private String convertCreateTable(String sql, int autoIncrementCount, String autoIncrementColumn) {
         String[] lines = sql.split("\n", -1);
-        String autoIncrementColumn = null;
-        int autoIncrementCount = 0;
-        for (String line : lines) {
-            Matcher matcher = AUTO_INCREMENT_COLUMN_LINE.matcher(line);
-            if (matcher.matches()) {
-                autoIncrementCount++;
-                autoIncrementColumn = matcher.group(2);
-            }
-        }
         // 紧凑写法或多列自增无法安全下推，统一退化为剥离关键字
         boolean pushDown = autoIncrementCount == 1 && canPushDown(lines, autoIncrementColumn);
         if (autoIncrementCount == 0) {
             return AUTO_INCREMENT_TOKEN.matcher(sql).replaceAll("");
         }
+        // 自增列在父类处理后已没有 AUTO_INCREMENT 关键字可比对，
+        // 改用「列名相同」来定位那一行
         StringBuilder builder = new StringBuilder(sql.length());
         for (String line : lines) {
-            Matcher matcher = AUTO_INCREMENT_COLUMN_LINE.matcher(line);
             if (pushDown && TABLE_PRIMARY_KEY_LINE.matcher(line).matches()) {
                 continue; // 主键已下推到列上，保留表级声明会触发双主键错误
             }
-            if (pushDown && matcher.matches()) {
-                builder.append(matcher.group(1)).append(matcher.group(2))
-                        .append(AUTO_INCREMENT_COLUMN).append(matcher.group(4));
-            } else {
-                builder.append(AUTO_INCREMENT_TOKEN.matcher(line).replaceAll(""));
+            if (pushDown && isAutoIncrementLine(line, autoIncrementColumn)) {
+                // 保留缩进与列名，把类型与约束整体换成 SQLite 的自增写法
+                Matcher m = LEADING_COLUMN.matcher(line);
+                if (m.find()) {
+                    builder.append(m.group(1)).append(m.group(2))
+                            .append(AUTO_INCREMENT_COLUMN);
+                    // 行尾逗号必须保留：丢了会让下一列与本列粘连成语法错
+                    if (line.trim().endsWith(",")) {
+                        builder.append(',');
+                    }
+                    builder.append('\n');
+                    continue;
+                }
             }
+            builder.append(AUTO_INCREMENT_TOKEN.matcher(line).replaceAll(""));
             builder.append('\n');
         }
         String result = builder.toString();
         // 表级主键行删除后可能遗留悬挂逗号
         return result.replaceAll(",\\s*\\)", ")");
+    }
+
+    /**
+     * 该行是不是指定的��增列。
+     *
+     * @param line    建表语句的一行
+     * @param column  自增列名
+     * @return true 表示是
+     */
+    private boolean isAutoIncrementLine(String line, String column) {
+        Matcher m = LEADING_COLUMN.matcher(line);
+        return m.find() && sameIdentifier(m.group(2), column);
     }
 
     /**
