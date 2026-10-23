@@ -60,6 +60,15 @@ public class SpyBootstrap {
     private static volatile boolean initialized;
 
     /**
+     * 最近一次解析的 Agent options（key 已小写）。
+     *
+     * <p>agentmain 线程解析后保留在此处，供 {@code ApmBootstrap} 等启动链上的模块
+     * 读取（如 {@code storage.type} / {@code storage.retention.ms} / {@code storage.capacity} /
+     * {@code storage.path}）。未解析过或参数为空时为空 Map（永不为 null）。</p>
+     */
+    private static volatile Map<String, String> agentOptions = Wraps.map();
+
+    /**
      * 创建 spybootstrap 实例
     */
     private SpyBootstrap() {
@@ -115,20 +124,36 @@ public class SpyBootstrap {
     /**
      * 解析 智能体 参数。
      *
+     * <p>解析结果同时写入 {@link #agentOptions}，供同 classloader 内的
+     * APM 启动链（{@code ApmBootstrap}）按 key 读取生效。</p>
+     *
      * @param args 智能体 参数字符串
      */
     private static void parseAgentArgs(String args) {
         if (args == null || args.isBlank()) {
+            agentOptions = Wraps.map();
             return;
         }
         Map<String, String> params = Wraps.map();
         for (String pair : args.split(",")) {
-            String[] kv = pair.split("=");
-            if (kv.length == 2) {
-                params.put(kv[0].trim().toLowerCase(), kv[1].trim());
+            int eq = pair.indexOf('=');
+            if (eq <= 0) {
+                continue;
             }
+            // 只按首个 = 分割：value 允许再含 =（如 storage.path=/tmp/a=b）
+            params.put(pair.substring(0, eq).trim().toLowerCase(), pair.substring(eq + 1).trim());
         }
+        agentOptions = params;
         LOG.info("Agent 参数: " + params);
+    }
+
+    /**
+     * 获取最近一次解析的 Agent options（key 已小写，永不为 null）。
+     *
+     * @return options 只读快照
+     */
+    public static Map<String, String> agentOptions() {
+        return Map.copyOf(agentOptions);
     }
 
     /**

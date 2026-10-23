@@ -92,6 +92,7 @@ import com.chua.runtime.apm.storage.StorageConfig;
 import com.chua.runtime.apm.storage.StorageManager;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
+import com.chua.runtime.spy.SpyBootstrap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.nio.file.Path;
@@ -134,6 +135,14 @@ public class ApmBootstrap {
     private volatile boolean started;
 
     /**
+     * 外部显式指定的存储配置（优先级最高，覆盖 agent options 与系统属性）。
+     *
+     * <p>宿主应用（如 hotsport 的本地 APM 引擎）在 {@link #start()} 之前调用
+     * {@link #storageConfig(Map)} 注入，即可让 {@code plugin.*} 配置真正生效。</p>
+     */
+    private volatile Map<String, String> storageOverrides = java.util.Collections.emptyMap();
+
+    /**
      * 创建 APM 启动器。
      *
      * @param pluginDir 插件目录
@@ -143,6 +152,22 @@ public class ApmBootstrap {
         this.started = false;
         registerDefaults(pluginDir);
         globalInstance = this;
+    }
+
+    /**
+     * 指定存储配置（需在 {@link #start()} 之前调用）。
+     *
+     * <p>键名使用 {@code apm.storage.*}，与 agent options / 系统属性同名；</p>
+     * <p>优先级：本方法注入值 &gt; Agent options &gt; 系统属性 &gt; 默认值。</p>
+     *
+     * @param overrides 存储配置（可为空或 null）
+     * @return 自身，便于链式调用
+     */
+    public ApmBootstrap storageConfig(Map<String, String> overrides) {
+        this.storageOverrides = overrides == null
+                ? java.util.Collections.emptyMap()
+                : java.util.Collections.unmodifiableMap(new java.util.LinkedHashMap<>(overrides));
+        return this;
     }
 
     /**
@@ -278,21 +303,26 @@ public class ApmBootstrap {
             return;
         }
         // 1. 先启动存储层(Handlers 在 addRecord 时会调用 StorageManager.append)
+        // 取值优先级：Agent options > 系统属性 apm.storage.* > 默认值。
+        // Agent options 即 -javaagent:jar=storage.type=sqlite,... 或 plugin.agent.options，
+        // 部署方按环境调整存储行为时无需改系统属性。
         Map<String, String> configMap = Wraps.map();
-        configMap.put("apm.storage.type", System.getProperty("apm.storage.type", "inmemory"));
+        configMap.put("apm.storage.type",
+                resolveConfig("storage.type", "apm.storage.type", "inmemory"));
         configMap.put("apm.storage.retention.ms",
-                System.getProperty("apm.storage.retention.ms", String.valueOf(7L * 24 * 60 * 60 * 1000)));
+                resolveConfig("storage.retention.ms", "apm.storage.retention.ms",
+                        String.valueOf(7L * 24 * 60 * 60 * 1000)));
         configMap.put("apm.storage.capacity",
-                System.getProperty("apm.storage.capacity", "100000"));
-        String storagePath = System.getProperty("apm.storage.path", "");
+                resolveConfig("storage.capacity", "apm.storage.capacity", "100000"));
+        String storagePath = resolveConfig("storage.path", "apm.storage.path", "");
         if (!storagePath.isEmpty()) {
             configMap.put("apm.storage.path", storagePath);
         }
         try {
             StorageManager.init(new StorageConfig(configMap));
-        } catch (Exception e) {
-            LOG.log(Level.SEVERE, "APM 存储层启动失败, fail-fast", e);
-            throw new RuntimeException("APM 存储层启动失败", e);
+        } catch (Throwable e) {
+            // StorageManager 内部已做降级，这里再兜一层：观测组件永不阻断宿主启动
+            LOG.log(Level.SEVERE, "APM 存储层启动异常，APM 采集本次不生效（业务进程继续启动）", e);
         }
 
         // 2. 启动所有 Handler — 失败标记但不阻断(便于排查)
@@ -310,6 +340,43 @@ public class ApmBootstrap {
         if (startedCount == 0) {
             LOG.log(Level.WARNING, "APM 所有 Handler 启动失败,APM 实际不工作");
         }
+    }
+
+    /**
+     * 按优先级解析存储配置项：
+     * 宿主注入值 &gt; Agent options（短名 / 全名）&gt; 系统属性 &gt; 默认值。
+     *
+     * @param agentOptionKey Agent options 短名 key（如 storage.type）
+     * @param sysPropKey     系统属性名（如 apm.storage.type）
+     * @param defaultValue   默认值
+     * @return 生效值
+     */
+    private String resolveConfig(String agentOptionKey, String sysPropKey, String defaultValue) {
+        // 1. 宿主显式注入（plugin.* 配置）优先级最高
+        String fromHost = storageOverrides.get(sysPropKey);
+        if (fromHost != null && !fromHost.isEmpty()) {
+            return fromHost;
+        }
+        Map<String, String> options;
+        try {
+            options = SpyBootstrap.agentOptions();
+        } catch (Throwable t) {
+            // spy 模块不可见（宿主自建 ApmBootstrap 且未挂 agent）时降级为纯系统属性
+            options = java.util.Collections.emptyMap();
+        }
+        String fromAgent = options.get(agentOptionKey);
+        if (fromAgent == null || fromAgent.isEmpty()) {
+            // 兼容全名 key（用户写 apm.storage.type 而非 storage.type）
+            fromAgent = options.get("apm." + agentOptionKey);
+        }
+        if (fromAgent != null && !fromAgent.isEmpty()) {
+            return fromAgent;
+        }
+        String fromSys = System.getProperty(sysPropKey);
+        if (fromSys != null && !fromSys.isEmpty()) {
+            return fromSys;
+        }
+        return defaultValue;
     }
 
     /**

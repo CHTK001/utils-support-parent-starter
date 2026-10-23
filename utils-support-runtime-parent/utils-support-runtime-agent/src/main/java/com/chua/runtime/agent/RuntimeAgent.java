@@ -27,7 +27,14 @@ import java.util.logging.Logger;
  *   <li>plugins — 插件目录路径</li>
  *   <li>enabled — 是否启用，默认 true</li>
  *   <li>port — Shell 端口，默认 4567</li>
+ *   <li>storage.type — APM 存储实现名（inmemory/sqlite/noop），默认 inmemory</li>
+ *   <li>storage.retention.ms — 数据保留时长（毫秒），默认 7 天</li>
+ *   <li>storage.capacity — 存储容量上限，默认 100000</li>
+ *   <li>storage.path — 存储落盘目录（sqlite 等非内存实现使用，默认临时目录）</li>
  * </ul>
+ *
+ * <p>存储参数同时受系统属性 {@code apm.storage.*} 影响，优先级：
+ * Agent 参数 &gt; 系统属性 &gt; 默认值。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -81,11 +88,16 @@ public class RuntimeAgent {
             appendToClasspath(inst);
             boolean ok = SpyBootstrap.init(args, inst);
             if (!ok) {
-                LOG.severe("Runtime Agent 初始化失败");
+                LOG.severe("Runtime Agent 初始化失败（APM 不可用，业务进程继续）");
                 return;
             }
             ApmBootstrap apm = new ApmBootstrap(Paths.get(System.getProperty("java.io.tmpdir")));
-            apm.start();
+            try {
+                apm.start();
+            } catch (Throwable t) {
+                // APM 引擎启动失败不应阻断业务：agent 已注册的插桩仍可工作，只是没有采集落库
+                LOG.log(Level.SEVERE, "APM 引擎启动失败（业务进程继续启动）", t);
+            }
             // 关键：attach 场景下 Tomcat/Logback/JDBC 等目标类在本方法执行前就已加载，
             // 而 handler 的插桩规则在 apm.start() 才注册 —— 必须对已加载类补一次
             // retransform，否则规则永远命中不了已加载类，APM 采集恒为零。
@@ -98,8 +110,10 @@ public class RuntimeAgent {
             }
             started = true;
             LOG.info("Runtime Agent 启动成功");
-        } catch (Exception e) {
-            LOG.log(Level.SEVERE, "Runtime Agent 启动异常", e);
+        } catch (Throwable e) {
+            // javaagent 的 premain 抛异常会直接让 JVM 启动失败（FATAL ERROR），
+            // 任何错误都必须在此吞掉：APM 是观测组件，不允许阻断业务进程。
+            LOG.log(Level.SEVERE, "Runtime Agent 启动异常（业务进程继续启动，APM 不可用）", e);
         }
     }
 
