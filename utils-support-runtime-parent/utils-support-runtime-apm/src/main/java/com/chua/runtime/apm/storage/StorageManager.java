@@ -140,12 +140,14 @@ public final class StorageManager {
         }
 
         // 2. 需要 JDBC 的存储（sqlite）在 agent bootstrap CL 下无法链接 java.sql，
-        //    改用 parent=platform 的隔离 ClassLoader 实例化；无驱动时返回 null 沿用默认 CL
-        ClassLoader isolated = ApmStorageClassLoader.resolve(config.getProperties());
-        if (isolated != null) {
-            ApmStorage s = loadFrom(config, isolated);
-            if (s != null) {
-                return s;
+        //    改用 parent=system 的隔离 ClassLoader 实例化；无驱动时返回 null 沿用默认 CL
+        if (ApmStorageClassLoader.isolatedClassName(type) != null) {
+            ClassLoader isolated = ApmStorageClassLoader.resolve(config.getProperties());
+            if (isolated != null) {
+                ApmStorage s = loadFrom(config, isolated);
+                if (s != null) {
+                    return s;
+                }
             }
         }
 
@@ -174,23 +176,28 @@ public final class StorageManager {
     }
 
     /**
-     * 从指定 ClassLoader 加载 type 对应的 SPI 存储实现。
+     * 从隔离 ClassLoader 直接实例化 JDBC 存储实现。
+     *
+     * <p>不走 {@link ServiceLoader}：隔离加载器里的 {@code NoopStorage}/{@code InMemoryStorage}
+     * 会被桥接回调用方（与 {@link ApmStorage} 接口同源），而 {@code SqliteStorage} 由隔离加载器
+     * 自己定义，SPI 枚举会把两者混在一起。这里只按类名精确加载需要的实现。</p>
      *
      * @param config 配置
-     * @param cl     指定 ClassLoader
-     * @return 匹配的存储实现；未找到或加载失败返回 null
+     * @param cl     隔离 ClassLoader
+     * @return 存储实现；type 无对应实现或加载失败返回 null
      */
     private static ApmStorage loadFrom(StorageConfig config, ClassLoader cl) {
         String type = config.get("apm.storage.type", ApmStorage.DEFAULT_NAME);
+        String className = ApmStorageClassLoader.isolatedClassName(type);
+        if (className == null) {
+            log.warning("存储类型 " + type + " 需要隔离加载但无对应类，回退默认 ClassLoader");
+            return null;
+        }
         try {
-            for (ApmStorage s : ServiceLoader.load(ApmStorage.class, cl)) {
-                if (type.equals(s.name())) {
-                    log.info("存储实现 " + type + " 由隔离 ClassLoader 加载: " + cl);
-                    return s;
-                }
-            }
-            log.warning("隔离 ClassLoader 中未找到 " + type + "（可见: "
-                    + ApmStorageClassLoader.listStorageNames(cl) + "），回退默认 ClassLoader");
+            Class<?> storageType = Class.forName(className, true, cl);
+            ApmStorage storage = (ApmStorage) storageType.getDeclaredConstructor().newInstance();
+            log.info("存储实现 " + type + " 由隔离 ClassLoader 加载: " + cl);
+            return storage;
         } catch (Throwable e) {
             log.log(Level.WARNING, "隔离 ClassLoader 加载存储失败: " + e.getMessage(), e);
         }
