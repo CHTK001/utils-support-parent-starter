@@ -1,5 +1,6 @@
 package com.chua.common.support.network.ssl;
 
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -30,6 +31,18 @@ public interface AcmeProvider {
      */
     AcmeConnectionResult connect(String serverUrl, String email, String privateKeyPem,
                                   String eabKid, String eabHmacKey);
+
+    /**
+     * 设置网络请求超时（部分实现可配置，如 acme4j）。
+     *
+     * <p>默认 no-op：不支持超时配置的实现忽略该调用；支持方（acme4j）据此放宽
+     * 默认 10s 请求超时，避免公网 CA 握手慢导致证书申请失败。</p>
+     *
+     * @param timeout 请求超时；为 null 表示使用实现默认值
+     */
+    default void setTimeout(java.time.Duration timeout) {
+        // 默认不处理，由支持超时配置的实现覆盖
+    }
 
     /**
      * 获取域名验证信息

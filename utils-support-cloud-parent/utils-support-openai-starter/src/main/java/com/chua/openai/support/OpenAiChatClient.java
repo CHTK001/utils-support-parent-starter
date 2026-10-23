@@ -7,6 +7,7 @@ import com.chua.common.support.ai.chat.AuthHeaders;
 import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.ai.chat.ChatClient;
+import com.chua.common.support.ai.chat.ChatClientIndicator;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.chat.ChatResponse;
@@ -84,13 +85,18 @@ import java.util.function.Consumer;
  * @since 4.0.0.42
  */
 @Slf4j
-@Spi({"openai", "siliconflow", "sensetime", "github", "gitee", "dots", "custom"})
+@Spi({"openai", "siliconflow", "sensetime", "github", "gitee", "dots", "kilo", "custom"})
 public class OpenAiChatClient implements ChatClient {
 
     /**
      * 打开AI 默认 API 地址
      */
     private static final String DEFAULT_URL = "https://api.openai.com/v1";
+
+    /**
+     * Kilo 免费模型网关默认 API 地址（provider=kilo 且未配置 baseUrl 时使用）
+     */
+    private static final String KILO_DEFAULT_URL = "https://api.kilo.ai/api/gateway";
 
     /**
      * 客户端配置
@@ -1060,12 +1066,28 @@ public class OpenAiChatClient implements ChatClient {
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {
-            url = DEFAULT_URL;
+            url = defaultBaseUrlForProvider();
         }
         if (url.endsWith("/")) {
             url = url.substring(0, url.length() - 1);
         }
         return url;
+    }
+
+    /**
+     * 按 provider 返回缺省 API 基础地址
+     *
+     * <p>baseUrl 未配置时按 provider 路由到对应的官方网关；
+     * 未知 provider 回退到 OpenAI 官方地址。
+     *
+     * @return 缺省基础地址
+     */
+    private String defaultBaseUrlForProvider() {
+        String provider = setting.getProvider();
+        if ("kilo".equals(provider)) {
+            return KILO_DEFAULT_URL;
+        }
+        return DEFAULT_URL;
     }
 
     /**
@@ -1155,6 +1177,21 @@ public class OpenAiChatClient implements ChatClient {
     @Override
     public ChatClientSetting getSetting() {
         return setting;
+    }
+
+    @Override
+    /**
+     * 指标能力（价格 / 上下文窗口 / 能力标志）
+     *
+     * <p>OpenAI 兼容协议由本客户端承载多家提供商（deepseek / moonshot / groq /
+     * xai / mistral / siliconflow / qwen 等）。指标来源统一委托给
+     * {@link com.chua.common.support.ai.chat.indicator.ChatClientIndicators}：
+     * 优先使用 {@code metrics_url}，否则按 {@code provider} 路由到官方端点、
+     * Models.dev 或 Vercel AI Gateway。无法识别的提供商返回 {@code null}，
+     * 上层回退指标库快照。</p>
+     */
+    public ChatClientIndicator indicator() {
+        return ChatClient.super.indicator();
     }
 
     @Override

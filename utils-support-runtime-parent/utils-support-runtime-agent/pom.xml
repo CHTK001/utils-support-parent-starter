@@ -29,6 +29,18 @@
             <artifactId>utils-support-runtime-protocol</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- sqlite 落盘：驱动打进 agent fat jar，agent 模式（bootstrap CL）下仍可启用 apm.storage.type=sqlite -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- sqlite-jdbc 的 org.sqlite.core.DB 引用了 guava 的 Table；驱动 jar 本身不声明该依赖 -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -80,6 +92,9 @@
                                     <include>org.ow2.asm:asm-tree</include>
                                     <include>org.ow2.asm:asm-util</include>
                                     <include>org.slf4j:slf4j-api</include>
+                                    <include>org.xerial:sqlite-jdbc</include>
+                                    <include>com.google.guava:guava</include>
+                                    <include>com.google.guava:failureaccess</include>
                                 </includes>
                             </artifactSet>
                             <filters>

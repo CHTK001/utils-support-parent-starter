@@ -84,9 +84,30 @@ public class SqliteStorage implements ApmStorage {
     private static final int DEFAULT_CAPACITY = 100_000;
 
     /**
+     * 配置键：外部注入的 JDBC 驱动类名（可选）
+     */
+    private static final String KEY_DRIVER = "apm.storage.jdbc.driver";
+
+    /**
+     * 默认 sqlite JDBC 驱动类名
+     */
+    private static final String DEFAULT_DRIVER = "org.sqlite.JDBC";
+
+    /**
      * 数据库连接 URL 前缀
      */
     private static final String JDBC_PREFIX = "jdbc:sqlite:";
+
+    /**
+     * 已尝试加载的驱动类名（避免每次 open 重复反射）
+     */
+    private static final java.util.Set<String> LOADED_DRIVERS =
+            java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    /**
+     * JDBC 驱动（显式注册，用于子 ClassLoader 场景）
+     */
+    private Object driver;
 
     /**
      * 数据库文件路径
@@ -116,12 +137,15 @@ public class SqliteStorage implements ApmStorage {
         this.dbPath = config.get(KEY_PATH, DEFAULT_DB_PATH);
         this.retentionMillis = config.getLong(KEY_RETENTION_MS, DEFAULT_RETENTION_MS);
         this.capacity = config.getInt(KEY_CAPACITY, DEFAULT_CAPACITY);
+        this.driver = resolveDriver(config.get(KEY_DRIVER, DEFAULT_DRIVER));
         try {
             ensureParentDir(dbPath);
             try (Connection conn = open()) {
                 createTables(conn);
             }
-            log.info(String.format("SqliteStorage 启动: path=%s, retentionMs=%d, capacity=%d", dbPath, retentionMillis, capacity));
+            log.info(String.format("SqliteStorage 启动: path=%s, retentionMs=%d, capacity=%d, driver=%s",
+                    Paths.get(dbPath).toAbsolutePath(), retentionMillis, capacity,
+                    driver == null ? "DriverManager" : driver.getClass().getName()));
         } catch (SQLException e) {
             throw new IllegalStateException("SQLite 存储启动失败: " + dbPath, e);
         }
@@ -480,11 +504,79 @@ public class SqliteStorage implements ApmStorage {
     /**
      * 打开数据库连接。
      *
+     * <p>优先用已解析到的驱动实例直接建连：agent 场景下 {@code java.sql} 存在新旧两种
+     * 类形态，{@code DriverManager} 的调用方视角可能看不到驱动，直接
+     * {@code DriverManager.getConnection} 会报 {@code No suitable driver found}。
+     * 显式持有驱动实例可绕开该隔离。</p>
+     *
      * @return 数据库连接
      * @throws SQLException 连接失败
      */
     private Connection open() throws SQLException {
-        return DriverManager.getConnection(JDBC_PREFIX + dbPath);
+        String url = JDBC_PREFIX + dbPath;
+        Object d = this.driver;
+        if (d == null) {
+            d = ApmStorageClassLoader.driver();
+        }
+        if (d != null) {
+            try {
+                Object conn = d.getClass().getMethod("connect", String.class, java.util.Properties.class)
+                        .invoke(d, url, new java.util.Properties());
+                if (conn instanceof Connection available) {
+                    return available;
+                }
+            } catch (java.lang.reflect.InvocationTargetException e) {
+                if (e.getCause() instanceof SQLException sql) {
+                    throw sql;
+                }
+                // 其它异常回退到 DriverManager，由它给出标准错误信息
+            } catch (ReflectiveOperationException | RuntimeException ignored) {
+                // 反射不可用时回退到 DriverManager
+            }
+        }
+        return DriverManager.getConnection(url);
+    }
+
+    /**
+     * 解析 JDBC 驱动实例。
+     *
+     * <p>隔离 ClassLoader 已实例化驱动时直接复用（agent 场景）；
+     * 否则依次尝试：本类 ClassLoader → 线程上下文 ClassLoader → 系统 ClassLoader，
+     * 找到则实例化并返回；全部失败时返回 {@code null}，由 {@link DriverManager} 兜底
+     * （应用 classpath 场景下 SPI 已自动注册驱动，无需显式持有）。</p>
+     *
+     * @param driverClass 驱动类名
+     * @return 驱动实例，未找到返回 null
+     */
+    private java.sql.Driver resolveDriver(String driverClass) {
+        if (driverClass == null || driverClass.isBlank()) {
+            return null;
+        }
+        String name = driverClass.trim();
+        java.sql.Driver isolated = ApmStorageClassLoader.driver();
+        if (isolated != null) {
+            return isolated;
+        }
+        ClassLoader self = SqliteStorage.class.getClassLoader();
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        ClassLoader sys = ClassLoader.getSystemClassLoader();
+        for (ClassLoader cl : new ClassLoader[]{self, tccl, sys}) {
+            if (cl == null) {
+                continue;
+            }
+            try {
+                Class<?> type = Class.forName(name, true, cl);
+                Object instance = type.getDeclaredConstructor().newInstance();
+                if (instance instanceof java.sql.Driver) {
+                    LOADED_DRIVERS.add(name);
+                    return (java.sql.Driver) instance;
+                }
+            } catch (Throwable ignored) {
+                // 该 classloader 下不可见，继续尝试下一个
+            }
+        }
+        log.warning(String.format("未找到 JDBC 驱动 %s，将回退到 DriverManager（应用 classpath 下通常已由 SPI 注册）", name));
+        return null;
     }
 
     /**
