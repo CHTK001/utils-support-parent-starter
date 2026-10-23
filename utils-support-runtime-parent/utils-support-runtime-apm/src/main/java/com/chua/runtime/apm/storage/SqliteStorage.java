@@ -138,16 +138,18 @@ public class SqliteStorage implements ApmStorage {
         this.retentionMillis = config.getLong(KEY_RETENTION_MS, DEFAULT_RETENTION_MS);
         this.capacity = config.getInt(KEY_CAPACITY, DEFAULT_CAPACITY);
         this.driver = resolveDriver(config.get(KEY_DRIVER, DEFAULT_DRIVER));
+        Connection conn = null;
         try {
             ensureParentDir(dbPath);
-            try (Connection conn = open()) {
-                createTables(conn);
-            }
+            conn = open();
+            createTables(conn);
             log.info(String.format("SqliteStorage 启动: path=%s, retentionMs=%d, capacity=%d, driver=%s",
                     Paths.get(dbPath).toAbsolutePath(), retentionMillis, capacity,
                     driver == null ? "DriverManager" : driver.getClass().getName()));
         } catch (SQLException e) {
             throw new IllegalStateException("SQLite 存储启动失败: " + dbPath, e);
+        } finally {
+            closeQuietly(conn);
         }
     }
 
@@ -168,15 +170,18 @@ public class SqliteStorage implements ApmStorage {
             return;
         }
         synchronized (writeLock) {
-            try (Connection conn = open();
-                 PreparedStatement ps = conn.prepareStatement(
-                         "INSERT INTO transmissions (trace_id, span_id, parent_span_id, "
-                                 + "source_protocol, source_software, source_host, source_port, source_path, "
-                                 + "target_protocol, target_software, target_host, target_port, target_path, "
-                                 + "protocol, software, operation, status, status_code, "
-                                 + "start_time, end_time, duration, bytes_out, bytes_in, "
-                                 + "error_type, error_message, attributes) "
-                                 + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+            Connection conn = null;
+            PreparedStatement ps = null;
+            try {
+                conn = open();
+                ps = conn.prepareStatement(
+                        "INSERT INTO transmissions (trace_id, span_id, parent_span_id, "
+                                + "source_protocol, source_software, source_host, source_port, source_path, "
+                                + "target_protocol, target_software, target_host, target_port, target_path, "
+                                + "protocol, software, operation, status, status_code, "
+                                + "start_time, end_time, duration, bytes_out, bytes_in, "
+                                + "error_type, error_message, attributes) "
+                                + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
                 ps.setString(1, event.getTraceId());
                 ps.setString(2, event.getSpanId());
                 ps.setString(3, event.getParentSpanId());
@@ -206,6 +211,9 @@ public class SqliteStorage implements ApmStorage {
                 ps.executeUpdate();
             } catch (SQLException e) {
                 log.warning(String.format("写入传输记录失败: %s", e.getMessage()));
+            } finally {
+                closeQuietly(ps);
+                closeQuietly(conn);
             }
         }
     }
@@ -219,7 +227,9 @@ public class SqliteStorage implements ApmStorage {
             return;
         }
         synchronized (writeLock) {
-            try (Connection conn = open()) {
+            Connection conn = null;
+            try {
+                conn = open();
                 String edgeId = edge.edgeId();
                 try (PreparedStatement ps = conn.prepareStatement(
                         "SELECT call_count, total_duration, error_count FROM dependencies WHERE edge_id = ?")) {
@@ -262,6 +272,8 @@ public class SqliteStorage implements ApmStorage {
                 }
             } catch (SQLException e) {
                 log.warning(String.format("写入依赖边失败: %s", e.getMessage()));
+            } finally {
+                closeQuietly(conn);
             }
         }
     }
@@ -275,10 +287,13 @@ public class SqliteStorage implements ApmStorage {
             return;
         }
         synchronized (writeLock) {
-            try (Connection conn = open();
-                 PreparedStatement ps = conn.prepareStatement(
-                         "INSERT OR REPLACE INTO leaks (handle_id, kind, name, thread, created_at, closed_at, stack_trace) "
-                                 + "VALUES (?,?,?,?,?,?,?)")) {
+            Connection conn = null;
+            PreparedStatement ps = null;
+            try {
+                conn = open();
+                ps = conn.prepareStatement(
+                        "INSERT OR REPLACE INTO leaks (handle_id, kind, name, thread, created_at, closed_at, stack_trace) "
+                                + "VALUES (?,?,?,?,?,?,?)");
                 ps.setString(1, record.getHandleId());
                 ps.setString(2, record.getKind());
                 ps.setString(3, record.getName());
@@ -289,6 +304,9 @@ public class SqliteStorage implements ApmStorage {
                 ps.executeUpdate();
             } catch (SQLException e) {
                 log.warning(String.format("写入泄漏记录失败: %s", e.getMessage()));
+            } finally {
+                closeQuietly(ps);
+                closeQuietly(conn);
             }
         }
     }
@@ -302,10 +320,13 @@ public class SqliteStorage implements ApmStorage {
             return;
         }
         synchronized (writeLock) {
-            try (Connection conn = open();
-                 PreparedStatement ps = conn.prepareStatement(
-                         "INSERT INTO logs (timestamp, level, logger, class_name, method_name, message, trace_id) "
-                                 + "VALUES (?,?,?,?,?,?,?)")) {
+            Connection conn = null;
+            PreparedStatement ps = null;
+            try {
+                conn = open();
+                ps = conn.prepareStatement(
+                        "INSERT INTO logs (timestamp, level, logger, class_name, method_name, message, trace_id) "
+                                + "VALUES (?,?,?,?,?,?,?)");
                 ps.setLong(1, record.getTimestamp());
                 ps.setString(2, record.getLevel());
                 ps.setString(3, record.getLogger());
@@ -316,6 +337,9 @@ public class SqliteStorage implements ApmStorage {
                 ps.executeUpdate();
             } catch (SQLException e) {
                 log.warning(String.format("写入日志记录失败: %s", e.getMessage()));
+            } finally {
+                closeQuietly(ps);
+                closeQuietly(conn);
             }
         }
     }
@@ -348,8 +372,11 @@ public class SqliteStorage implements ApmStorage {
         params.add(query.getOffset());
 
         List<TransmissionEvent> result = Wraps.list();
-        try (Connection conn = open();
-             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = open();
+            ps = conn.prepareStatement(sql.toString());
             bindParams(ps, params);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -358,6 +385,9 @@ public class SqliteStorage implements ApmStorage {
             }
         } catch (SQLException e) {
             log.warning(String.format("查询传输记录失败: %s", e.getMessage()));
+        } finally {
+            closeQuietly(ps);
+            closeQuietly(conn);
         }
         return result;
     }
@@ -368,16 +398,24 @@ public class SqliteStorage implements ApmStorage {
     */
     public List<DependencyEdge> queryDependencies(Query query) {
         List<DependencyEdge> result = Wraps.list();
-        try (Connection conn = open();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(
-                     "SELECT source, target, protocol, software, call_count, total_duration, "
-                             + "error_count, last_error, last_call_time FROM dependencies")) {
+        Connection conn = null;
+        Statement st = null;
+        ResultSet rs = null;
+        try {
+            conn = open();
+            st = conn.createStatement();
+            rs = st.executeQuery(
+                    "SELECT source, target, protocol, software, call_count, total_duration, "
+                            + "error_count, last_error, last_call_time FROM dependencies");
             while (rs.next()) {
                 result.add(mapDependency(rs));
             }
         } catch (SQLException e) {
             log.warning(String.format("查询依赖边失败: %s", e.getMessage()));
+        } finally {
+            closeQuietly(rs);
+            closeQuietly(st);
+            closeQuietly(conn);
         }
         return result;
     }
@@ -396,8 +434,11 @@ public class SqliteStorage implements ApmStorage {
         params.add(query.getOffset());
 
         List<LeakRecord> result = Wraps.list();
-        try (Connection conn = open();
-             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = open();
+            ps = conn.prepareStatement(sql.toString());
             bindParams(ps, params);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -415,6 +456,9 @@ public class SqliteStorage implements ApmStorage {
             }
         } catch (SQLException e) {
             log.warning(String.format("查询泄漏记录失败: %s", e.getMessage()));
+        } finally {
+            closeQuietly(ps);
+            closeQuietly(conn);
         }
         return result;
     }
@@ -434,8 +478,11 @@ public class SqliteStorage implements ApmStorage {
         params.add(query.getOffset());
 
         List<LogRecord> result = Wraps.list();
-        try (Connection conn = open();
-             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = open();
+            ps = conn.prepareStatement(sql.toString());
             bindParams(ps, params);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -453,6 +500,9 @@ public class SqliteStorage implements ApmStorage {
             }
         } catch (SQLException e) {
             log.warning(String.format("查询日志记录失败: %s", e.getMessage()));
+        } finally {
+            closeQuietly(ps);
+            closeQuietly(conn);
         }
         return result;
     }
@@ -463,13 +513,17 @@ public class SqliteStorage implements ApmStorage {
     */
     public Map<String, Long> stats() {
         Map<String, Long> result = Wraps.map();
-        try (Connection conn = open()) {
+        Connection conn = null;
+        try {
+            conn = open();
             result.put("transmissions", count(conn, "transmissions"));
             result.put("dependencies", count(conn, "dependencies"));
             result.put("leaks", count(conn, "leaks"));
             result.put("logs", count(conn, "logs"));
         } catch (SQLException e) {
             log.warning(String.format("统计失败: %s", e.getMessage()));
+        } finally {
+            closeQuietly(conn);
         }
         return result;
     }
@@ -482,12 +536,16 @@ public class SqliteStorage implements ApmStorage {
         long cutoff = System.currentTimeMillis() - retentionMillis;
         long removed = 0;
         synchronized (writeLock) {
-            try (Connection conn = open()) {
+            Connection conn = null;
+            try {
+                conn = open();
                 removed += deleteOlder(conn, "transmissions", "start_time", cutoff);
                 removed += deleteOlder(conn, "logs", "timestamp", cutoff);
                 removed += deleteClosedLeaks(conn, cutoff);
             } catch (SQLException e) {
                 log.warning(String.format("清理过期数据失败: %s", e.getMessage()));
+            } finally {
+                closeQuietly(conn);
             }
         }
         return removed;
@@ -504,10 +562,12 @@ public class SqliteStorage implements ApmStorage {
     /**
      * 打开数据库连接。
      *
-     * <p>优先用已解析到的驱动实例直接建连：agent 场景下 {@code java.sql} 存在新旧两种
-     * 类形态，{@code DriverManager} 的调用方视角可能看不到驱动，直接
-     * {@code DriverManager.getConnection} 会报 {@code No suitable driver found}。
-     * 显式持有驱动实例可绕开该隔离。</p>
+     * <p>优先用已解析到的驱动实例直接建连：agent 场景下存储实现运行在隔离 ClassLoader，
+     * {@code DriverManager} 的调用方视角可能看不到驱动，直接
+     * {@code DriverManager.getConnection} 会报 {@code No suitable driver found}。</p>
+     *
+     * <p>驱动以 {@code java.sql.Driver} 接口调用而非反射：反射会用驱动类所在的
+     * bootstrap 命名空间重新解析方法签名，那里看不到 {@code java.sql}。</p>
      *
      * @return 数据库连接
      * @throws SQLException 连接失败
@@ -515,23 +575,24 @@ public class SqliteStorage implements ApmStorage {
     private Connection open() throws SQLException {
         String url = JDBC_PREFIX + dbPath;
         Object d = this.driver;
-        if (d != null) {
-            try {
-                Object conn = d.getClass().getMethod("connect", String.class, java.util.Properties.class)
-                        .invoke(d, url, new java.util.Properties());
-                if (conn instanceof Connection available) {
-                    return available;
-                }
-            } catch (java.lang.reflect.InvocationTargetException e) {
-                if (e.getCause() instanceof SQLException sql) {
-                    throw sql;
-                }
-                // 其它异常回退到 DriverManager，由它给出标准错误信息
-            } catch (ReflectiveOperationException | RuntimeException ignored) {
-                // 反射不可用时回退到 DriverManager
-            }
+        if (d == null) {
+            // 没有可用驱动时直接失败：DriverManager 在 agent 场景下不可用，
+            // 会抛出误导性的 NoClassDefFoundError: java/sql/Driver
+            throw new SQLException("未找到可用的 SQLite JDBC 驱动: " + url);
         }
-        return DriverManager.getConnection(url);
+        try {
+            Object conn = ((java.sql.Driver) d).connect(url, new java.util.Properties());
+            if (conn instanceof Connection available) {
+                return available;
+            }
+            throw new SQLException("SQLite 驱动返回了非 JDBC 连接: " + conn);
+        } catch (SQLException e) {
+            throw e;
+        } catch (Throwable e) {
+            SQLException ex = new SQLException("SQLite 连接失败: " + url + " (" + e + ")");
+            ex.initCause(e);
+            throw ex;
+        }
     }
 
     /**
@@ -550,10 +611,25 @@ public class SqliteStorage implements ApmStorage {
             return null;
         }
         String name = driverClass.trim();
-        Object isolated = ApmStorageClassLoader.driverInstance(name);
-        if (isolated instanceof java.sql.Driver driver) {
-            LOADED_DRIVERS.add(name);
-            return driver;
+        try {
+            Object isolated = ApmStorageClassLoader.driverInstance(name);
+            if (isolated == null) {
+                // 配置里写的是官方驱动名，而隔离加载器里实例化的可能是桥接驱动，
+                // 两者都指向同一个 sqlite-jdbc，按候选顺序取第一个可用实例
+                for (String candidate : new String[]{"com.chua.runtime.apm.storage.ApmSqliteBridgeDriver",
+                        "org.sqlite.JDBC"}) {
+                    isolated = ApmStorageClassLoader.driverInstance(candidate);
+                    if (isolated != null) {
+                        break;
+                    }
+                }
+            }
+            if (isolated instanceof java.sql.Driver driver) {
+                LOADED_DRIVERS.add(name);
+                return driver;
+            }
+        } catch (Throwable e) {
+            log.warning(String.format("隔离 ClassLoader 驱动不可用: %s", e));
         }
         ClassLoader self = SqliteStorage.class.getClassLoader();
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
@@ -575,6 +651,36 @@ public class SqliteStorage implements ApmStorage {
         }
         log.warning(String.format("未找到 JDBC 驱动 %s，将回退到 DriverManager（应用 classpath 下通常已由 SPI 注册）", name));
         return null;
+    }
+
+    /**
+     * 静默关闭 JDBC 资源。
+     *
+     * <p>不用 try-with-resources：agent 场景下存储实现运行在隔离 ClassLoader，
+     * 该 ClassLoader 无法链接 {@code javax.sql}；语法糖合成的
+     * {@code closeResource(AutoCloseable)} 会引入 {@code javax/sql/CachedRowSet} 引用，
+     * 导致方法在调用时抛 {@code NoClassDefFoundError}。这里改为显式关闭
+     * {@code java.sql} 的三个接口，不产生任何 {@code javax.sql} 引用。</p>
+     *
+     * @param closeable 待关闭资源，可为 null
+     */
+    private static void closeQuietly(AutoCloseable closeable) {
+        if (closeable == null) {
+            return;
+        }
+        try {
+            if (closeable instanceof ResultSet rs) {
+                rs.close();
+            } else if (closeable instanceof Statement st) {
+                st.close();
+            } else if (closeable instanceof Connection conn) {
+                conn.close();
+            } else {
+                closeable.close();
+            }
+        } catch (Exception e) {
+            log.fine("关闭 JDBC 资源失败: " + e.getMessage());
+        }
     }
 
     /**
