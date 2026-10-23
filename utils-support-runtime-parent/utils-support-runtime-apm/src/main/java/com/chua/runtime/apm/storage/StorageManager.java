@@ -45,16 +45,25 @@ public final class StorageManager {
 
     /**
      * 初始化全局存储。
+     *
+     * <p>任何存储实现启动失败（含 {@link NoClassDefFoundError} 这类 {@link Error}，
+     * 例如 agent classloader 下缺少 JDBC 类）都降级到 {@link NoopStorage}，
+     * 绝不让观测组件把宿主进程带崩。</p>
+     *
      * @param config 配置
      */
     public static synchronized void init(StorageConfig config) {
         ApmStorage resolved = resolve(config);
         try {
             resolved.start(config);
-        } catch (Exception e) {
-            log.log(Level.WARNING, "Storage 启动失败: " + resolved.name(), e);
+        } catch (Throwable e) {
+            log.log(Level.WARNING, "Storage 启动失败，降级为 noop: " + resolved.name(), e);
             resolved = new NoopStorage();
-            resolved.start(config);
+            try {
+                resolved.start(config);
+            } catch (Throwable ignored) {
+                // NoopStorage 自身不会失败；兜底吞掉，保持全局引用可用
+            }
         }
         GLOBAL.set(resolved);
         log.info("StorageManager 已初始化: " + resolved.name());
@@ -135,11 +144,17 @@ public final class StorageManager {
         if (cl == null) {
             cl = ClassLoader.getSystemClassLoader();
         }
-        for (ApmStorage s : ServiceLoader.load(ApmStorage.class, cl)) {
-            REGISTERED.put(s.name(), s);
-            if (type.equals(s.name())) {
-                return s;
+        try {
+            for (ApmStorage s : ServiceLoader.load(ApmStorage.class, cl)) {
+                REGISTERED.put(s.name(), s);
+                if (type.equals(s.name())) {
+                    return s;
+                }
             }
+        } catch (Throwable e) {
+            // 某些实现在 agent classloader 下类缺失（如 JDBC 依赖不可见）会抛 Error，
+            // 这里整体兜住，让上层按「未找到 type」降级到 NoopStorage
+            log.log(Level.WARNING, "存储 SPI 扫描失败: " + e.getMessage(), e);
         }
 
         // 3. 找不到指定 type — 不盲选第一个 SPI(避免用户配置 "sqlite" 但实际用 "inmemory"),
