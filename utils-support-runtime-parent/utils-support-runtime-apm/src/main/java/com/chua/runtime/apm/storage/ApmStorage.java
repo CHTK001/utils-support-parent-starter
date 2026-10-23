@@ -122,4 +122,43 @@ public interface ApmStorage {
      * @return 结果字符串
      */
     String name();
+
+    /**
+     * 当前实现的运行时状态（不含敏感信息）。
+     *
+     * <p>用于运维自检：确认「配置写了什么」与「实际生效什么」是否一致。
+     * 例如 SQLite 返回文件路径、保留期、容量、写入模式、已落盘/丢弃条数。</p>
+     *
+     * <p>默认返回空映射，实现按需覆盖；调用方必须容忍缺失键。</p>
+     *
+     * @return 状态映射，无信息时为空映射
+     */
+    default Map<String, Object> describe() {
+        return java.util.Collections.emptyMap();
+    }
+
+    /**
+     * 刷新写队列（把已提交但尚未落盘的数据写下去）。
+     *
+     * <p>异步模式下 {@link #stats()} 与各查询只看已提交的数据；调用本方法可强制
+     * 排空队列，让「刚写入就统计」的场景拿到准确数字。同步模式无操作。</p>
+     *
+     * @param timeoutMillis 最长等待时间
+     * @return 是否在超时前排空
+     */
+    default boolean flush(long timeoutMillis) {
+        return true;
+    }
+
+    /**
+     * 当前是否处于运行状态。
+     *
+     * <p>用于判断降级：存储启动失败时管理器会替换为 {@link NoopStorage}，
+     * 调用方据此区分「没有数据」与「根本没在存储」。</p>
+     *
+     * @return 运行中返回 true
+     */
+    default boolean available() {
+        return true;
+    }
 }

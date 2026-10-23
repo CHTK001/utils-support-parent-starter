@@ -96,6 +96,33 @@ public class StorageConfig {
     }
 
     /**
+     * 获取Boolean。
+     *
+     * <p>接受 {@code true/false}、{@code 1/0}、{@code yes/no}、{@code on/off}
+     * （大小写不敏感）；无法识别时返回默认值。</p>
+     *
+     * @param key 键
+     * @param defaultValue 默认值
+     * @return 获取的布尔值
+     */
+    public boolean getBoolean(String key, boolean defaultValue) {
+        String v = properties.get(key);
+        if (v == null || v.isEmpty()) {
+            return defaultValue;
+        }
+        String value = v.trim();
+        if ("true".equalsIgnoreCase(value) || "1".equals(value)
+                || "yes".equalsIgnoreCase(value) || "on".equalsIgnoreCase(value)) {
+            return true;
+        }
+        if ("false".equalsIgnoreCase(value) || "0".equals(value)
+                || "no".equalsIgnoreCase(value) || "off".equalsIgnoreCase(value)) {
+            return false;
+        }
+        return defaultValue;
+    }
+
+    /**
      * 默认配置（无操作存储）。
      * @return 默认的结果
      */

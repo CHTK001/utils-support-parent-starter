@@ -81,11 +81,19 @@ final class IsolatedStorageBridge implements ApmStorage {
                 properties.putAll(raw);
             }
         }
+        boolean ready = false;
         try {
             invoke("start", new Class<?>[]{Map.class}, new Object[]{properties});
-        } catch (Exception e) {
-            // 观测组件不得阻断宿主：启动失败按空实现继续
-            log.warning("隔离存储启动失败，降级为空实现: " + e);
+            ready = true;
+        } finally {
+            if (!ready) {
+                // 启动半途失败时隔离侧可能已开了连接，先关掉再上抛
+                try {
+                    invoke("stop", new Class<?>[0], new Object[0]);
+                } catch (Throwable ignored) {
+                    // 清理失败不影响异常上抛
+                }
+            }
         }
     }
 
@@ -320,6 +328,48 @@ final class IsolatedStorageBridge implements ApmStorage {
         return raw instanceof String ? (String) raw : "isolated";
     }
 
+    @Override
+    /**
+     * 运行状态
+     *
+     * @return 运行中返回 true
+     */
+    public boolean available() {
+        Object raw = invokeQuietly("available", new Class<?>[0], new Object[0], "读取存储状态失败");
+        return raw instanceof Boolean && (Boolean) raw;
+    }
+
+    @Override
+    /**
+     * 刷新写队列
+     *
+     * @param timeoutMillis 最长等待时间
+     * @return 是否在超时前排空
+     */
+    public boolean flush(long timeoutMillis) {
+        Object raw = invokeQuietly("flush", new Class<?>[]{long.class},
+                new Object[]{timeoutMillis}, "刷新写队列失败");
+        return raw instanceof Boolean && (Boolean) raw;
+    }
+
+    @Override
+    /**
+     * 运行时状态
+     *
+     * @return 状态映射
+     */
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> describe() {
+        Object raw = invokeQuietly("describe", new Class<?>[0], new Object[0], "读取存储详情失败");
+        if (!(raw instanceof Map)) {
+            return new HashMap<>();
+        }
+        // 隔离侧的 Map 是另一份类型，复制成父侧的普通 Map
+        Map<String, Object> copy = new HashMap<>();
+        ((Map<?, ?>) raw).forEach((k, v) -> copy.put(String.valueOf(k), v));
+        return copy;
+    }
+
     /**
      * 反射调用并写入日志。
      *
@@ -345,15 +395,18 @@ final class IsolatedStorageBridge implements ApmStorage {
      * @param types  参数类型
      * @param args   参数
      * @return 返回值
-     * @throws Exception 调用失败（含目标方法抛出的异常）
+     * @throws RuntimeException 调用失败（含目标方法抛出的异常）
      */
-    private Object invoke(String method, Class<?>[] types, Object[] args) throws Exception {
+    private Object invoke(String method, Class<?>[] types, Object[] args) {
         try {
-            Object result = delegate.getClass().getMethod(method, types).invoke(delegate, args);
-            return result;
+            return delegate.getClass().getMethod(method, types).invoke(delegate, args);
         } catch (java.lang.reflect.InvocationTargetException e) {
             Throwable cause = e.getCause() == null ? e : e.getCause();
-            throw new Exception(cause.toString(), cause);
+            // 隔离侧抛出的异常类型在父侧不可见（另一份 Class），
+            // 统一换成运行时异常上抛，避免调用方被迫处理 checked 异常时误吞失败
+            throw new IllegalStateException(String.valueOf(cause), cause);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("反射调用 " + method + " 失败: " + e, e);
         }
     }
 }

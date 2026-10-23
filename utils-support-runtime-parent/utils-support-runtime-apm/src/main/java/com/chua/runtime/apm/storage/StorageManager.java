@@ -32,6 +32,11 @@ public final class StorageManager {
      * 全局
      */
     private static final AtomicReference<ApmStorage> GLOBAL = new AtomicReference<>(new NoopStorage());
+
+    /**
+     * 当前生效的存储配置（{@link #reconfigure(StorageConfig)} 时用于比对差异）
+     */
+    private static final AtomicReference<StorageConfig> CURRENT_CONFIG = new AtomicReference<>();
     /**
      * 注册
      */
@@ -66,7 +71,116 @@ public final class StorageManager {
             }
         }
         GLOBAL.set(resolved);
+        CURRENT_CONFIG.set(copy(config));
         log.info("StorageManager 已初始化: " + resolved.name());
+    }
+
+    /**
+     * 运行时切换存储配置（热更新）。
+     *
+     * <p><b>为什么需要</b>：落盘路径、保留期、容量这类参数改完理应重启生效，
+     * 但生产环境重启一个业务进程代价很高。本方法允许在进程存活期间切换存储实例。</p>
+     *
+     * <p><b>安全边界</b>：</p>
+     * <ul>
+     *   <li>配置无差异时直接返回，不做无谓的断开重连</li>
+     *   <li>新实例先完整启动（建连 + 建表），成功后才与旧实例交换，
+     *       失败则保留旧实例继续工作 —— 热更新绝不把可用的存储换成坏的</li>
+     *   <li>新旧交替期间不丢数据：旧实例在排空写队列后才关闭</li>
+     *   <li>整个过程串行化，避免并发热更新互相踩踏</li>
+     * </ul>
+     *
+     * @param config 新的存储配置
+     * @return 切换成功（或无需切换）返回 true；新配置启动失败返回 false（旧实例保留）
+     */
+    public static synchronized boolean reconfigure(StorageConfig config) {
+        if (config == null) {
+            return false;
+        }
+        StorageConfig previous = CURRENT_CONFIG.get();
+        if (previous != null && sameConfig(previous, config)) {
+            log.info("存储配置无变化，跳过热更新");
+            return true;
+        }
+        ApmStorage old = GLOBAL.get();
+        ApmStorage fresh = resolve(config);
+        boolean started = false;
+        try {
+            fresh.start(config);
+            started = true;
+        } catch (Throwable e) {
+            log.log(Level.WARNING, "热更新：新存储启动失败，保留原存储 " + old.name(), e);
+        }
+        if (!started) {
+            try {
+                if (fresh != old) {
+                    fresh.stop();
+                }
+            } catch (Throwable ignored) {
+                // 新实例关闭失败不影响旧实例
+            }
+            return false;
+        }
+        GLOBAL.set(fresh);
+        CURRENT_CONFIG.set(copy(config));
+        if (old != null && old != fresh) {
+            try {
+                old.stop();
+            } catch (Throwable e) {
+                log.log(Level.FINE, "热更新：旧存储关闭异常: " + e.getMessage());
+            }
+        }
+        log.info(String.format("存储已热更新: %s -> %s", old == null ? "null" : old.name(),
+                fresh.name()));
+        return true;
+    }
+
+    /**
+     * 当前生效的存储配置（只读副本）。
+     *
+     * @return 配置；尚未初始化返回 null
+     */
+    public static StorageConfig currentConfig() {
+        return CURRENT_CONFIG.get();
+    }
+
+    /**
+     * 当前存储的运行时状态。
+     *
+     * @return 状态映射
+     */
+    public static Map<String, Object> describe() {
+        try {
+            return GLOBAL.get().describe();
+        } catch (Throwable e) {
+            log.log(Level.FINE, "读取存储状态失败: " + e.getMessage());
+            return java.util.Collections.emptyMap();
+        }
+    }
+
+    /**
+     * 复制配置（避免调用方之后修改原始 Map 影响比对）。
+     *
+     * @param config 配置
+     * @return 副本
+     */
+    private static StorageConfig copy(StorageConfig config) {
+        StorageConfig copy = new StorageConfig();
+        copy.setProperties(new java.util.HashMap<>(config.getProperties()));
+        return copy;
+    }
+
+    /**
+     * 两份配置是否等价。
+     *
+     * @param a 配置 A
+     * @param b 配置 B
+     * @return 等价返回 true
+     */
+    private static boolean sameConfig(StorageConfig a, StorageConfig b) {
+        Map<String, String> x = a.getProperties();
+        Map<String, String> y = b.getProperties();
+        return x == null ? y == null || y.isEmpty() : x.equals(y);
     }
 
     /**
@@ -80,6 +194,7 @@ public final class StorageManager {
             log.log(Level.WARNING, "Storage 关闭失败: " + s.name(), e);
         }
         GLOBAL.set(new NoopStorage());
+        CURRENT_CONFIG.set(null);
         REGISTERED.clear();
     }
 
@@ -134,13 +249,11 @@ public final class StorageManager {
     private static ApmStorage resolve(StorageConfig config) {
  // 1. 先按 类型 字段精确匹配
         String type = config.get("apm.storage.type", ApmStorage.DEFAULT_NAME);
-        ApmStorage explicit = REGISTERED.get(type);
-        if (explicit != null) {
-            return explicit;
-        }
 
         // 2. 需要 JDBC 的存储（sqlite）在 agent bootstrap CL 下无法链接 java.sql，
-        //    改用 parent=system 的隔离 ClassLoader 实例化；无驱动时返回 null 沿用默认 CL
+        //    改用 parent=system 的隔离 ClassLoader 实例化；无驱动时返回 null 沿用默认 CL。
+        //    注意：这一步必须早于 register() 查表，否则热更新会复用上一次的实例
+        //   （同一实例再次 start() 只会把旧连接换成新连接，旧库的队列不会被排空）。
         if (ApmStorageClassLoader.isolatedClassName(type) != null) {
             ClassLoader isolated = ApmStorageClassLoader.resolve(config.getProperties());
             if (isolated != null) {
@@ -151,6 +264,11 @@ public final class StorageManager {
             }
         }
 
+        ApmStorage explicit = REGISTERED.get(type);
+        if (explicit != null) {
+            return explicit;
+        }
+
         // 3. SPI 扫描(优先 context CL,回退 system CL,确保 agent bootstrap CL 也能加载)
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (cl == null) {
@@ -158,10 +276,12 @@ public final class StorageManager {
         }
         try {
             for (ApmStorage s : ServiceLoader.load(ApmStorage.class, cl)) {
-                REGISTERED.put(s.name(), s);
-                if (type.equals(s.name())) {
-                    return s;
+                if (!type.equals(s.name())) {
+                    continue;
                 }
+                // SPI 在部分实现下会缓存实例，这里不写回 REGISTERED：
+                // 注册表只保存 register() 显式注入的对象，避免热更新串到旧实例。
+                return s;
             }
         } catch (Throwable e) {
             // 某些实现在 agent classloader 下类缺失（如 JDBC 依赖不可见）会抛 Error，
