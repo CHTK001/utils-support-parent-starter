@@ -451,15 +451,18 @@ public class ApmBootstrap {
      * @return 生效值
      */
     private String resolveConfig(String agentOptionKey, String sysPropKey, String defaultValue) {
-        // 1. 宿主活配置源（运行时可变的 plugin.* 配置）优先级最高
-        String fromProvider = providerValue(sysPropKey);
-        if (fromProvider != null && !fromProvider.trim().isEmpty()) {
-            return fromProvider.trim();
+        // 1. 宿主活配置源（运行时可变的 plugin.* 配置）优先级最高。
+        //    「显式声明」本身就有意义：provider 里放了 key 但值为空，表示宿主主动把它改回默认，
+        //    此时不能再往下去问 Agent options / 系统属性，否则旧值会把「清空」抵消掉。
+        Map<String, String> liveValues = providerValues();
+        if (liveValues != null && liveValues.containsKey(sysPropKey)) {
+            String raw = liveValues.get(sysPropKey);
+            return raw == null ? "" : raw.trim();
         }
-        // 2. 宿主启动时注入的静态快照
-        String fromHost = storageOverrides.get(sysPropKey);
-        if (fromHost != null && !fromHost.isEmpty()) {
-            return fromHost;
+        // 2. 宿主启动时注入的静态快照（同样是「声明即接管」语义）
+        if (storageOverrides.containsKey(sysPropKey)) {
+            String raw = storageOverrides.get(sysPropKey);
+            return raw == null ? "" : raw.trim();
         }
         Map<String, String> options;
         try {
@@ -484,22 +487,20 @@ public class ApmBootstrap {
     }
 
     /**
-     * 从宿主活配置源取值。
+     * 读取宿主活配置源的全部键值。
      *
      * <p>provider 异常按「未配置」处理：配置读取失败只降级优先级，不能让观测组件抛错。
      * 每次调用都重新向 provider 取值，因此宿主改完配置后热更新即可看到新值。</p>
      *
-     * @param key 配置键
-     * @return 值；未配置返回 null
+     * @return 键值映射；无 provider 或读取失败返回 null
      */
-    private String providerValue(String key) {
+    private Map<String, String> providerValues() {
         java.util.function.Supplier<Map<String, String>> provider = this.storageConfigProvider;
         if (provider == null) {
             return null;
         }
         try {
-            Map<String, String> values = provider.get();
-            return values == null ? null : values.get(key);
+            return provider.get();
         } catch (Throwable e) {
             LOG.log(Level.FINE, "读取宿主存储配置失败，按未配置处理: " + e.getMessage());
             return null;
@@ -512,16 +513,8 @@ public class ApmBootstrap {
      * @return 键集合；无 provider 时为空
      */
     private java.util.Set<String> providerKeys() {
-        java.util.function.Supplier<Map<String, String>> provider = this.storageConfigProvider;
-        if (provider == null) {
-            return java.util.Collections.emptySet();
-        }
-        try {
-            Map<String, String> values = provider.get();
-            return values == null ? java.util.Collections.emptySet() : values.keySet();
-        } catch (Throwable e) {
-            return java.util.Collections.emptySet();
-        }
+        Map<String, String> values = providerValues();
+        return values == null ? java.util.Collections.emptySet() : values.keySet();
     }
 
     /**
