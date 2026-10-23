@@ -41,6 +41,22 @@
             <artifactId>guava</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <!--
+            存储层的属性列走 com.chua.common.support.lang.json.Json，它依赖 Jackson。
+            agent 把自身 jar 追加到 bootstrap 后，隔离加载器看不到宿主 classpath，
+            因此 Jackson 必须打进 fat jar，否则属性列只能降级为扁平文本
+            （依赖边的 host/port 保得住，但 protocol/software 等会丢）。
+        -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -95,6 +111,10 @@
                                     <include>org.xerial:sqlite-jdbc</include>
                                     <include>com.google.guava:guava</include>
                                     <include>com.google.guava:failureaccess</include>
+                                    <include>com.fasterxml.jackson.core:jackson-databind</include>
+                                    <include>com.fasterxml.jackson.core:jackson-core</include>
+                                    <include>com.fasterxml.jackson.core:jackson-annotations</include>
+                                    <include>com.fasterxml.jackson.datatype:jackson-datatype-jsr310</include>
                                 </includes>
                             </artifactSet>
                             <filters>
