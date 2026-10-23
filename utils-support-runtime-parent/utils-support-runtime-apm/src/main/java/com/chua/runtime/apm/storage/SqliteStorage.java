@@ -10,6 +10,7 @@ import com.chua.runtime.protocol.Software;
 import com.chua.runtime.protocol.StatusCode;
 import lombok.extern.java.Log;
 
+import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -1090,6 +1091,23 @@ public class SqliteStorage implements ApmStorage {
             } catch (Exception e) {
                 // 状态读取失败不影响调用方
             }
+        }
+        // 磁盘余量 — sqlite 落盘最怕磁盘耗尽，把 db 所在盘的空间装进状态，
+        // 运维接口一屏就能看到「还能写多久」
+        try {
+            Path db = Paths.get(dbPath);
+            FileStore store = Files.getFileStore(db);
+            long total = store.getTotalSpace();
+            long usable = store.getUsableSpace();
+            state.put("diskTotalBytes", total);
+            state.put("diskUsableBytes", usable);
+            state.put("diskUsedPercent", total > 0 ? Math.round(100.0 * (total - usable) / total) : 0);
+            // 磁盘接近耗尽标记：可用 < 64MB 或 < 5%（取更严）
+            state.put("diskAlmostFull", usable < Math.min(64L * 1024 * 1024, Math.max(1L, total / 20)));
+            Path wal = Paths.get(dbPath + "-wal");
+            state.put("walBytes", Files.exists(wal) ? Files.size(wal) : 0L);
+        } catch (Exception e) {
+            // 拿不到文件系统信息（如内存盘）不影响调用方
         }
         return state;
     }
