@@ -83,6 +83,11 @@ public class SqliteStorage implements ApmStorage {
     private static final String KEY_FLUSH_TIMEOUT = "apm.storage.flush.timeout.ms";
 
     /**
+     * 配置键：自维护周期（毫秒）—— 按保留期与容量自动淘汰的检查间隔
+     */
+    private static final String KEY_MAINTENANCE_INTERVAL = "apm.storage.maintenance.interval.ms";
+
+    /**
      * 默认关闭等待时间（毫秒）
      */
     private static final long DEFAULT_FLUSH_TIMEOUT = 5_000L;
@@ -181,6 +186,41 @@ public class SqliteStorage implements ApmStorage {
      */
     private final Object writeLock = new Object();
 
+    /**
+     * 自维护线程（按保留期与容量自动淘汰，detail 见 {@link #maintenanceLoop()}）
+     */
+    private volatile Thread maintainer;
+
+    /**
+     * 自维护是否已请求停止
+     */
+    private volatile boolean maintenanceStopping;
+
+    /**
+     * 自维护周期（毫秒），{@code apm.storage.maintenance.interval.ms}
+     */
+    private long maintenanceIntervalMillis = DEFAULT_MAINTENANCE_INTERVAL;
+
+    /**
+     * 默认自维护周期（1 分钟）
+     */
+    private static final long DEFAULT_MAINTENANCE_INTERVAL = 60_000L;
+
+    /**
+     * 自维护周期下限 — 再快就没有意义了，纯粹浪费 CPU
+     */
+    private static final long MIN_MAINTENANCE_INTERVAL = 5_000L;
+
+    /**
+     * 累计淘汰行数（保留期 + 容量）
+     */
+    private long totalEvicted;
+
+    /**
+     * 最近一次自维护时间
+     */
+    private volatile long lastMaintenanceTime;
+
     @Override
     /**
      * 开始
@@ -190,6 +230,8 @@ public class SqliteStorage implements ApmStorage {
         this.retentionMillis = config.getLong(KEY_RETENTION_MS, DEFAULT_RETENTION_MS);
         this.capacity = config.getInt(KEY_CAPACITY, DEFAULT_CAPACITY);
         this.flushTimeoutMillis = config.getLong(KEY_FLUSH_TIMEOUT, DEFAULT_FLUSH_TIMEOUT);
+        this.maintenanceIntervalMillis = Math.max(MIN_MAINTENANCE_INTERVAL,
+                config.getLong(KEY_MAINTENANCE_INTERVAL, DEFAULT_MAINTENANCE_INTERVAL));
         boolean async = config.getBoolean(KEY_ASYNC, true);
         ensureParentDir(dbPath);
         try {
@@ -201,8 +243,10 @@ public class SqliteStorage implements ApmStorage {
                 q.start();
                 this.queue = q;
             }
-            log.info(String.format("SqliteStorage 启动: path=%s, retentionMs=%d, capacity=%d, async=%s",
-                    Paths.get(dbPath).toAbsolutePath(), retentionMillis, capacity, async));
+            startMaintenance();
+            log.info(String.format("SqliteStorage 启动: path=%s, retentionMs=%d, capacity=%d, async=%s, 自维护周期=%dms",
+                    Paths.get(dbPath).toAbsolutePath(), retentionMillis, capacity, async,
+                    maintenanceIntervalMillis));
         } catch (Exception e) {
             // 启动失败必须把半开的连接与写线程收干净，否则热更新时旧连接会一直占着文件
             closeQuietly();
@@ -258,6 +302,7 @@ public class SqliteStorage implements ApmStorage {
      * 尽力关闭当前连接与写队列（启动失败路径使用）。
      */
     private void closeQuietly() {
+        stopMaintenance();
         SqliteWriteQueue q = this.queue;
         this.queue = null;
         if (q != null) {
@@ -448,6 +493,8 @@ public class SqliteStorage implements ApmStorage {
      * 停止
      */
     public void stop() {
+        // 先停自维护，避免它和关闭流程同时操作连接
+        stopMaintenance();
         SqliteWriteQueue q = this.queue;
         this.queue = null;
         boolean drained = true;
@@ -778,6 +825,127 @@ public class SqliteStorage implements ApmStorage {
         return result;
     }
 
+    /**
+     * 启动自维护线程。
+     *
+     * <p>保留期与容量这类配置如果只写不执行，就是一句空话：磁盘会一直涨到耗尽。
+     * 本线程按固定周期做两件事，全部在写线程内串行执行，不与业务写入抢锁：</p>
+     * <ol>
+     *   <li>按保留期删除过期记录（各表按自己的时间列）</li>
+     *   <li>按容量上限淘汰最旧记录（只对可能无限增长的表：传输、日志）</li>
+     * </ol>
+     *
+     * <p>用守护线程：宿主退出时不阻止进程结束。</p>
+     */
+    private void startMaintenance() {
+        maintenanceStopping = false;
+        Thread t = new Thread(this::maintenanceLoop, "apm-sqlite-maintenance");
+        t.setDaemon(true);
+        t.setContextClassLoader(null);
+        this.maintainer = t;
+        t.start();
+    }
+
+    /**
+     * 自维护主循环。
+     */
+    private void maintenanceLoop() {
+        while (!maintenanceStopping) {
+            try {
+                Thread.sleep(maintenanceIntervalMillis);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+            if (maintenanceStopping) {
+                return;
+            }
+            try {
+                long evicted = maintain();
+                if (evicted > 0) {
+                    log.info(String.format("SQLite 自维护: 淘汰 %d 行（保留期 %dms / 容量 %d）",
+                            evicted, retentionMillis, capacity));
+                }
+                lastMaintenanceTime = System.currentTimeMillis();
+            } catch (Throwable e) {
+                // 自维护失败绝不能拖垮存储，下次周期再试
+                log.fine(String.format("SQLite 自维护异常: %s", e.getMessage()));
+            }
+        }
+    }
+
+    /**
+     * 执行一次自维护（过期清理 + 容量淘汰）。
+     *
+     * <p>等待完成后返回淘汰行数，便于日志与 {@code describe()} 反映真实效果。</p>
+     *
+     * @return 淘汰行数
+     */
+    long maintain() {
+        final long cutoff = retentionMillis > 0
+                ? System.currentTimeMillis() - retentionMillis : Long.MIN_VALUE;
+        final AtomicLong evicted = new AtomicLong(0L);
+        final java.util.concurrent.atomic.AtomicBoolean done =
+                new java.util.concurrent.atomic.AtomicBoolean(false);
+        submit(() -> {
+            try {
+                SqliteSession s = session;
+                if (s == null) {
+                    return;
+                }
+                long n = 0;
+                if (retentionMillis > 0) {
+                    n += s.execute("DELETE FROM transmissions WHERE start_time < " + cutoff);
+                    n += s.execute("DELETE FROM logs WHERE timestamp < " + cutoff);
+                    n += s.execute("DELETE FROM leaks WHERE closed_at > 0 AND closed_at < " + cutoff);
+                }
+                if (capacity > 0) {
+                    // 只保留最新的 capacity 行；用 id 做子查询而不是 LIMIT+OFFSET，
+                    // 避免在并发写入下漏删或多删
+                    n += s.execute("DELETE FROM transmissions WHERE id NOT IN "
+                            + "(SELECT id FROM transmissions ORDER BY id DESC LIMIT " + capacity + ")");
+                    n += s.execute("DELETE FROM logs WHERE id NOT IN "
+                            + "(SELECT id FROM logs ORDER BY id DESC LIMIT " + capacity + ")");
+                }
+                synchronized (writeLock) {
+                    totalEvicted += n;
+                }
+                evicted.set(n);
+            } finally {
+                done.set(true);
+            }
+        });
+        if (queue != null) {
+            long deadline = System.currentTimeMillis() + Math.min(flushTimeoutMillis, 10_000L);
+            while (!done.get() && System.currentTimeMillis() < deadline) {
+                try {
+                    Thread.sleep(5L);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
+        return evicted.get();
+    }
+
+    /**
+     * 停止自维护线程。
+     */
+    private void stopMaintenance() {
+        maintenanceStopping = true;
+        Thread t = maintainer;
+        this.maintainer = null;
+        if (t != null) {
+            t.interrupt();
+            try {
+                t.join(Math.min(maintenanceIntervalMillis, 3_000L));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
     @Override
     /**
      * Cleanup
@@ -907,6 +1075,12 @@ public class SqliteStorage implements ApmStorage {
         state.put("flushed", q == null ? 0L : q.flushed());
         state.put("dropped", q == null ? 0L : q.dropped());
         state.put("pending", q == null ? 0 : q.pending());
+        state.put("maintenanceIntervalMs", maintenanceIntervalMillis);
+        state.put("lastMaintenanceAt", lastMaintenanceTime);
+        synchronized (writeLock) {
+            state.put("evicted", totalEvicted);
+        }
+        state.put("maintenanceActive", maintainer != null && maintainer.isAlive());
         SqliteSession s = session;
         if (s != null) {
             try {
@@ -932,10 +1106,18 @@ public class SqliteStorage implements ApmStorage {
      */
     private SqliteSession open(StorageConfig config) throws Exception {
         Object isolated = ApmStorageClassLoader.newSession();
+        // 宿主进程里 java.sql 可见，但隔离加载器不构建（SQLite driver 只在 agent 场景才需要）。
+        // 这种情况必须显式拿到本加载器里的会话，否则只有一个 null，症状是「存储一直不可用」。
+        long t0 = System.currentTimeMillis();
         SqliteSession s = isolated instanceof SqliteSession ready ? ready : new SqliteSession();
         s.open(JDBC_PREFIX + dbPath);
         if (!s.isOpen()) {
             throw new IllegalStateException("SQLite 连接未建立: " + dbPath);
+        }
+        long cost = System.currentTimeMillis() - t0;
+        if (cost > 1_000L) {
+            log.warning(String.format("SQLite 打开耗时 %dms（%s，隔离加载器=%s），"
+                    + "通常是文件锁竞争或磁盘繁忙", cost, dbPath, isolated != null));
         }
         return s;
     }

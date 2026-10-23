@@ -69,6 +69,16 @@ public class InMemoryStorage implements ApmStorage {
      */
     private volatile long retentionMillis = 7L * 24 * 60 * 60 * 1000L;
 
+    /**
+     * 自维护线程 — 按保留期自动淘汰过期记录
+     */
+    private volatile Thread maintainer;
+
+    /**
+     * 自维护是否已请求停止
+     */
+    private volatile boolean maintenanceStopping;
+
     @Override
     /**
      * 开始
@@ -76,7 +86,44 @@ public class InMemoryStorage implements ApmStorage {
     public void start(StorageConfig config) {
         this.capacity = config.getInt("apm.storage.capacity", 100_000);
         this.retentionMillis = config.getLong("apm.storage.retention.ms", 7L * 24 * 60 * 60 * 1000L);
+        startMaintenance(config.getLong("apm.storage.maintenance.interval.ms", 60_000L));
         log.info(String.format("InMemoryStorage 启动: capacity=%d, retentionMs=%d", capacity, retentionMillis));
+    }
+
+    /**
+     * 启动自维护线程。
+     *
+     * <p>容量在写入时已按 {@link #enforceCapacityLong(Map)} 淘汰，但保留期如果没人
+     * 定时触发，数据会一直留在内存里 —— 与 SQLite 实现的行为保持一致，
+     * 这里同样按周期清理过期记录。</p>
+     *
+     * @param intervalMillis 检查周期（毫秒）
+     */
+    private void startMaintenance(long intervalMillis) {
+        maintenanceStopping = false;
+        long interval = Math.max(5_000L, intervalMillis);
+        Thread t = new Thread(() -> {
+            while (!maintenanceStopping) {
+                try {
+                    Thread.sleep(interval);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+                if (maintenanceStopping) {
+                    return;
+                }
+                try {
+                    cleanup(retentionMillis);
+                } catch (Throwable e) {
+                    // 自维护失败不影响存储可用性，下个周期再试
+                }
+            }
+        }, "apm-memory-maintenance");
+        t.setDaemon(true);
+        t.setContextClassLoader(null);
+        this.maintainer = t;
+        t.start();
     }
 
     @Override
@@ -84,6 +131,12 @@ public class InMemoryStorage implements ApmStorage {
      * 停止
     */
     public void stop() {
+        maintenanceStopping = true;
+        Thread t = maintainer;
+        this.maintainer = null;
+        if (t != null) {
+            t.interrupt();
+        }
         log.info("InMemoryStorage 停止");
     }
 

@@ -58,6 +58,12 @@ public final class StorageManager {
      * @param config 配置
      */
     public static synchronized void init(StorageConfig config) {
+        // 先关掉上一轮实例：热更新外直接 init 是公开入口，反复 init 不关旧实例
+        // 会累积自维护线程与 SQLite 连接（已实测泄漏）
+        ApmStorage stale = GLOBAL.get();
+        if (stale != null && !(stale instanceof NoopStorage)) {
+            closeQuietly(stale, "init 前关闭旧存储");
+        }
         ApmStorage resolved = resolve(config);
         try {
             resolved.start(config);
@@ -73,6 +79,23 @@ public final class StorageManager {
         GLOBAL.set(resolved);
         CURRENT_CONFIG.set(copy(config));
         log.info("StorageManager 已初始化: " + resolved.name());
+    }
+
+    /**
+     * 关闭存储实例，异常只记日志。
+     *
+     * <p>关闭失败不能让流程中断：调用方通常正在进行热更新或初始化，
+     * 此时更重要的保证是「不因为清理失败而丢掉新实例」。</p>
+     *
+     * @param storage 存储实例
+     * @param scene   场景描述（用于日志）
+     */
+    private static void closeQuietly(ApmStorage storage, String scene) {
+        try {
+            storage.stop();
+        } catch (Throwable e) {
+            log.log(Level.FINE, scene + " 异常: " + e.getMessage());
+        }
     }
 
     /**
@@ -188,14 +211,12 @@ public final class StorageManager {
      */
     public static synchronized void shutdown() {
         ApmStorage s = GLOBAL.get();
-        try {
-            s.stop();
-        } catch (Exception e) {
-            log.log(Level.WARNING, "Storage 关闭失败: " + s.name(), e);
-        }
         GLOBAL.set(new NoopStorage());
         CURRENT_CONFIG.set(null);
         REGISTERED.clear();
+        if (s != null && !(s instanceof NoopStorage)) {
+            closeQuietly(s, "Storage 关闭");
+        }
     }
 
     /**
