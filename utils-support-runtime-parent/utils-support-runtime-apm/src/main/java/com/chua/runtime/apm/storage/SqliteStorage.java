@@ -1073,10 +1073,9 @@ public class SqliteStorage implements ApmStorage {
     /**
      * 探测 JSON 能力是否可用。
      *
-     * <p>{@code com.chua.common.support.lang.json.Json} 依赖第三方 Jackson；agent 场景下
-     * agent fat jar 不打包 Jackson（由宿主提供），而隔离加载器看不到宿主 classpath，
-     * 直接调用会抛 {@code NoClassDefFoundError}。因此先探测再降级，
-     * 保证观测组件在任何环境下都不会因序列化失败而丢数据。</p>
+     * <p>{@code com.chua.common.support.lang.json.Json} 依赖第三方 Jackson；agent fat jar
+     * 已打包 Jackson，正常情况下走 JSON。但宿主环境可能装配了不兼容的 JSON 提供者，
+     * 因此仍先探测再降级，保证观测组件在任何环境下都不会因序列化失败而丢数据。</p>
      *
      * @return 可用返回 true
      */
@@ -1094,8 +1093,9 @@ public class SqliteStorage implements ApmStorage {
     /**
      * 降级序列化：{@code k1=v1&k2=v2}，仅当键或值里出现 {@code &} / {@code =} 时整体改用 Base64。
      *
-     * <p>只在 agent fat jar 不带 Jackson 时使用。用 Base64 而不是字符转义，是为了让
-     * {@link #toString()} 文本（含 {@code =}、{@code ,}）能被无损还原。</p>
+     * <p>只在 JSON 提供者不可用时使用。优先输出 {@code k1=v1&k2=v2}；一旦键或值里出现
+     * {@code &} / {@code =}（例如 {@code Endpoint} 的 {@code toString()}），整体改用 Base64，
+     * 保证能无损还原。</p>
      *
      * @param value 对象
      * @return 文本
