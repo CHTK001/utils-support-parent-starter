@@ -60,15 +60,18 @@ public final class ApmStorageClassLoader {
     private static final String SQLITE = "sqlite";
 
     /**
-     * 存储 API 与数据模型的类名（同由隔离加载器自己定义）。
+     * 存储 API 与数据模型的类名（<b>必须由父加载器定义</b>，即父优先）。
      *
-     * <p>必须与实现类落在同一个加载器里：否则实现类实现的 {@code ApmStorage}
-     * 是隔离加载器里另一份，{@code (ApmStorage) instance} 会抛 {@link ClassCastException}
-     * （实测：{@code SqliteStorage cannot be cast to ... ApmStorage}）。</p>
+     * <p>{@code ApmStorage} / {@code StorageConfig} / 各类记录 / {@code Query} 以及
+     * protocol 模型（{@code DependencyEdge}、{@code Endpoint} 等）由 bootstrap 定义，
+     * 两侧共用同一份类型，桥接才能直接传递这些对象。</p>
      *
-     * <p>这些类的 JDK 依赖（{@code java.util.*}、{@code java.util.logging.*},
-     * {@code java.lang.*}）在隔离加载器里同样可见；它们的非 JDK 依赖
-     * （common-support / protocol / lombok）由父加载器提供。</p>
+     * <p>{@code NoopStorage} / {@code InMemoryStorage} <b>不在</b>本名单：它们是普通实现，
+     * 由隔离加载器定义也无妨；若与 {@code SqliteStorage} 落在不同加载器，则各自实现
+     * 各自那份 {@code ApmStorage}，互不影响。</p>
+     *
+     * <p>注意：判定顺序与 {@link #isChildFirst(String)} 一致 —— 本名单优先于包前缀规则，
+     * 否则会被 {@link #STORAGE_PACKAGE} 的包前缀规则抢先命中。</p>
      */
     private static final java.util.Set<String> STORAGE_API = new java.util.HashSet<>(java.util.Arrays.asList(
             "com.chua.runtime.apm.storage.ApmStorage",
@@ -77,9 +80,22 @@ public final class ApmStorageClassLoader {
             "com.chua.runtime.apm.storage.TransmissionEvent",
             "com.chua.runtime.apm.storage.LeakRecord",
             "com.chua.runtime.apm.storage.LogRecord",
-            "com.chua.runtime.apm.storage.NoopStorage",
-            "com.chua.runtime.apm.storage.InMemoryStorage"
+            "com.chua.runtime.protocol.DependencyEdge",
+            "com.chua.runtime.protocol.Endpoint",
+            "com.chua.runtime.protocol.EndpointKind",
+            "com.chua.runtime.protocol.Protocol",
+            "com.chua.runtime.protocol.Software",
+            "com.chua.runtime.protocol.StatusCode"
     ));
+
+    /**
+     * 通用工具包（JSON 序列化等）。
+     *
+     * <p>同样必须由隔离加载器定义：{@code com.chua.common.support.lang.json} 依赖
+     * 第三方 Jackson，而 bootstrap 看不到第三方依赖，实测会抛
+     * {@code NoClassDefFoundError: Could not initialize class ...JacksonJsonProvider}。</p>
+     */
+    private static final String COMMON_PACKAGE = "com.chua.common.";
 
     /**
      * 存储实现与会话所在的包（必须由隔离加载器自己定义）
@@ -92,11 +108,13 @@ public final class ApmStorageClassLoader {
     private static final String SESSION_CLASS = "com.chua.runtime.apm.storage.SqliteSession";
 
     /**
-     * 驱动类名候选：官方驱动优先（只依赖 {@code java.sql}），桥接驱动兜底
+     * 驱动类名候选：只需要官方驱动（只依赖 {@code java.sql}）。
+     *
+     * <p>不要再引入「桥接驱动」：agent 场景下桥接类会随本类落到 bootstrap，
+     * 它一实现 {@link java.sql.Driver} 就链接失败（实测 {@code NoClassDefFoundError: java/sql/Driver}）。</p>
      */
     private static final String[] DRIVER_CLASSES = {
-            "org.sqlite.JDBC",
-            "com.chua.runtime.apm.storage.ApmSqliteBridgeDriver"
+            "org.sqlite.JDBC"
     };
 
     /**
@@ -228,9 +246,8 @@ public final class ApmStorageClassLoader {
     private static boolean probeDriver(ClassLoader loader) {
         for (String candidate : DRIVER_CLASSES) {
             try {
-                Object instance = Class.forName(candidate, true, loader)
-                        .getDeclaredConstructor().newInstance();
-                log.info("SQLite 驱动就绪: " + candidate + " @ " + instance.getClass().getClassLoader());
+                Class.forName(candidate, true, loader).getDeclaredConstructor().newInstance();
+                log.fine("SQLite 驱动就绪: " + candidate);
                 return true;
             } catch (Throwable e) {
                 log.fine("驱动 " + candidate + " 不可用: " + e);
@@ -393,16 +410,21 @@ public final class ApmStorageClassLoader {
      * <p>注意：只在 {@link #build(List)} 里使用；宿主进程（{@link #needsIsolation()} 为 false）
      * 不会创建本加载器，因此不会出现 {@code com.chua.runtime.*} 的类型分裂。</p>
      *
+     * <p>{@code com.fasterxml.*}（Jackson）也在名单内：它被 {@code com.chua.common} 的
+     * JSON 提供者使用，一旦落到 bootstrap 就会因缺少同级依赖而链接失败（实测）。</p>
+     *
      * @param name 类名
      * @return child-first 返回 true
      */
     private static boolean isChildFirst(String name) {
         if (STORAGE_API.contains(name)) {
-            return true;
+            return false;
         }
         return name.startsWith(STORAGE_PACKAGE)
+                || name.startsWith(COMMON_PACKAGE)
                 || name.startsWith("org.sqlite.")
                 || name.startsWith("com.google.")
+                || name.startsWith("com.fasterxml.")
                 || name.startsWith("org.objectweb.asm.");
     }
 }

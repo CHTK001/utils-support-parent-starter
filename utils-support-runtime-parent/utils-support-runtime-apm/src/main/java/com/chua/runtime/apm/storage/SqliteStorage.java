@@ -4,6 +4,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.runtime.protocol.DependencyEdge;
 import com.chua.runtime.protocol.Endpoint;
+import com.chua.runtime.protocol.EndpointKind;
 import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 import com.chua.runtime.protocol.StatusCode;
@@ -84,6 +85,16 @@ public class SqliteStorage implements ApmStorage {
      * 数据库连接 URL 前缀
      */
     private static final String JDBC_PREFIX = "jdbc:sqlite:";
+
+    /**
+     * JSON 提供者是否可用（不可用时属性列降级为扁平文本）
+     */
+    private static final boolean JSON_READY = probeJson();
+
+    /**
+     * 降级文本标记：出现该前缀表示内容为 Base64 编码的键值对
+     */
+    private static final String KV_ENCODED = "#b64:";
 
     /**
      * 传输记录列名（查询与映射共用，顺序即 {@code SELECT} 顺序）
@@ -843,8 +854,8 @@ public class SqliteStorage implements ApmStorage {
      */
     private DependencyEdge mapDependency(String[] row) {
         DependencyEdge edge = new DependencyEdge();
-        edge.setSource(fromJson(row[0], Endpoint.class));
-        edge.setTarget(fromJson(row[1], Endpoint.class));
+        edge.setSource(restoreEndpoint(row[0]));
+        edge.setTarget(restoreEndpoint(row[1]));
         edge.setProtocol(parseProtocol(row[2]));
         edge.setSoftware(parseSoftware(row[3]));
         edge.setCallCount(parseLong(row[4]));
@@ -853,6 +864,80 @@ public class SqliteStorage implements ApmStorage {
         edge.setLastError(row[7]);
         edge.setLastCallTime(parseLong(row[8]));
         return edge;
+    }
+
+    /**
+     * 还原端点。
+     *
+     * <p>先按 JSON 解析；隔离环境（agent fat jar 不带 Jackson）里属性列是扁平文本，
+     * 此时 {@link #toJson(Object)} 写入的是 {@code toString()} 结果（形如
+     * {@code Endpoint(host=1.2.3.4, port=80, ...)}），按字段还原。</p>
+     *
+     * @param text 属性列内容
+     * @return 端点；无法还原返回 null
+     */
+    private Endpoint restoreEndpoint(String text) {
+        if (text == null || text.isEmpty()) {
+            return null;
+        }
+        Endpoint parsed = fromJson(text, Endpoint.class);
+        if (parsed != null) {
+            return parsed;
+        }
+        if (!text.startsWith("Endpoint(")) {
+            return null;
+        }
+        Map<String, String> fields = new java.util.HashMap<>();
+        String body = text.substring("Endpoint(".length());
+        if (body.endsWith(")")) {
+            body = body.substring(0, body.length() - 1);
+        }
+        for (String part : body.split(", ")) {
+            int index = part.indexOf('=');
+            if (index > 0) {
+                fields.put(part.substring(0, index).trim(), part.substring(index + 1).trim());
+            }
+        }
+        Endpoint endpoint = new Endpoint();
+        endpoint.setKind(parseKind(noneToNull(fields.get("kind"))));
+        endpoint.setHost(noneToNull(fields.get("host")));
+        endpoint.setPort((int) parseLong(fields.get("port")));
+        endpoint.setPath(noneToNull(fields.get("path")));
+        endpoint.setSsl(Boolean.parseBoolean(fields.get("ssl")));
+        endpoint.setInstanceId(noneToNull(fields.get("instanceId")));
+        endpoint.setProtocol(parseProtocol(noneToNull(fields.get("protocol"))));
+        endpoint.setSoftware(parseSoftware(noneToNull(fields.get("software"))));
+        return endpoint;
+    }
+
+    /**
+     * 解析端点类型枚举。
+     *
+     * <p>属性列里记录的是 {@code toString()} 文本，缺失时返回 {@code null} 而不是默认值，
+     * 避免把「未知」伪装成某个具体类型。</p>
+     *
+     * @param name 枚举名
+     * @return 端点类型；未知返回 null
+     */
+    private EndpointKind parseKind(String name) {
+        if (name == null) {
+            return null;
+        }
+        try {
+            return EndpointKind.valueOf(name);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    /**
+     * 把 {@code "null"} 文本还原为 null。
+     *
+     * @param value 文本
+     * @return 文本或 null
+     */
+    private static String noneToNull(String value) {
+        return value == null || "null".equals(value) ? null : value;
     }
 
     /**
@@ -933,10 +1018,13 @@ public class SqliteStorage implements ApmStorage {
         if (value == null) {
             return null;
         }
+        if (!JSON_READY) {
+            return fallbackJson(value);
+        }
         try {
             return Json.toJson(value);
-        } catch (Exception e) {
-            return null;
+        } catch (Throwable e) {
+            return fallbackJson(value);
         }
     }
 
@@ -949,12 +1037,12 @@ public class SqliteStorage implements ApmStorage {
      * @return 对象
      */
     private <T> T fromJson(String json, Class<T> type) {
-        if (json == null || json.isEmpty()) {
+        if (json == null || json.isEmpty() || !JSON_READY) {
             return null;
         }
         try {
             return Json.fromJson(json, type);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             return null;
         }
     }
@@ -969,14 +1057,139 @@ public class SqliteStorage implements ApmStorage {
         if (json == null || json.isEmpty()) {
             return Wraps.map();
         }
+        if (!JSON_READY) {
+            return fallbackMap(json);
+        }
         try {
             Map<String, Object> raw = Json.fromJson(json);
             Map<String, String> result = Wraps.map();
             raw.forEach((k, v) -> result.put(k, v == null ? null : String.valueOf(v)));
             return result;
-        } catch (Exception e) {
-            return Wraps.map();
+        } catch (Throwable e) {
+            return fallbackMap(json);
         }
+    }
+
+    /**
+     * 探测 JSON 能力是否可用。
+     *
+     * <p>{@code com.chua.common.support.lang.json.Json} 依赖第三方 Jackson；agent 场景下
+     * agent fat jar 不打包 Jackson（由宿主提供），而隔离加载器看不到宿主 classpath，
+     * 直接调用会抛 {@code NoClassDefFoundError}。因此先探测再降级，
+     * 保证观测组件在任何环境下都不会因序列化失败而丢数据。</p>
+     *
+     * @return 可用返回 true
+     */
+    private static boolean probeJson() {
+        try {
+            Class.forName("com.fasterxml.jackson.databind.ObjectMapper", false, StorageConfig.class.getClassLoader());
+            Json.toJson(Wraps.map());
+            return true;
+        } catch (Throwable e) {
+            log.info("JSON 提供者不可用，属性列降级为扁平文本: " + e);
+            return false;
+        }
+    }
+
+    /**
+     * 降级序列化：{@code k1=v1&k2=v2}，仅当键或值里出现 {@code &} / {@code =} 时整体改用 Base64。
+     *
+     * <p>只在 agent fat jar 不带 Jackson 时使用。用 Base64 而不是字符转义，是为了让
+     * {@link #toString()} 文本（含 {@code =}、{@code ,}）能被无损还原。</p>
+     *
+     * @param value 对象
+     * @return 文本
+     */
+    private String fallbackJson(Object value) {
+        StringBuilder sb = new StringBuilder();
+        if (value instanceof Map) {
+            boolean needEncode = false;
+            for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
+                String k = String.valueOf(entry.getKey());
+                String v = entry.getValue() == null ? "" : String.valueOf(entry.getValue());
+                if (k.indexOf('&') >= 0 || k.indexOf('=') >= 0 || v.indexOf('&') >= 0 || v.indexOf('=') >= 0) {
+                    needEncode = true;
+                    break;
+                }
+            }
+            if (needEncode) {
+                return KV_ENCODED + encodeMap((Map<?, ?>) value);
+            }
+            for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
+                if (sb.length() > 0) {
+                    sb.append('&');
+                }
+                sb.append(entry.getKey()).append('=')
+                        .append(entry.getValue() == null ? "" : entry.getValue());
+            }
+            return sb.toString();
+        }
+        return String.valueOf(value);
+    }
+
+    /**
+     * 降级反序列化：解析 {@link #fallbackJson(Object)} 的文本。
+     *
+     * @param text 文本
+     * @return Map
+     */
+    private Map<String, String> fallbackMap(String text) {
+        Map<String, String> result = Wraps.map();
+        if (text.startsWith(KV_ENCODED)) {
+            return decodeMap(text.substring(KV_ENCODED.length()));
+        }
+        for (String part : text.split("&")) {
+            if (part.isEmpty()) {
+                continue;
+            }
+            int index = part.indexOf('=');
+            if (index < 0) {
+                result.put(part, "");
+            } else {
+                result.put(part.substring(0, index), part.substring(index + 1));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Base64 编码键值对。
+     *
+     * @param map 映射
+     * @return 编码文本
+     */
+    private static String encodeMap(Map<?, ?> map) {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<?, ?> entry : map.entrySet()) {
+            sb.append(entry.getKey()).append('=')
+                    .append(entry.getValue() == null ? "" : entry.getValue()).append('\n');
+        }
+        return java.util.Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    /**
+     * Base64 解码键值对。
+     *
+     * @param text 编码文本
+     * @return 映射
+     */
+    private static Map<String, String> decodeMap(String text) {
+        Map<String, String> result = Wraps.map();
+        String raw;
+        try {
+            raw = new String(java.util.Base64.getUrlDecoder().decode(text),
+                    java.nio.charset.StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException e) {
+            return result;
+        }
+        for (String line : raw.split("\n")) {
+            int index = line.indexOf('=');
+            if (index > 0) {
+                result.put(line.substring(0, index), line.substring(index + 1));
+            }
+        }
+        return result;
     }
 
     /**
