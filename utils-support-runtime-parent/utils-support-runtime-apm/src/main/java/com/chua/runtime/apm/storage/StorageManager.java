@@ -195,9 +195,14 @@ public final class StorageManager {
         }
         try {
             Class<?> storageType = Class.forName(className, true, cl);
-            ApmStorage storage = (ApmStorage) storageType.getDeclaredConstructor().newInstance();
-            log.info("存储实现 " + type + " 由隔离 ClassLoader 加载: " + cl);
-            return storage;
+            Object instance = storageType.getDeclaredConstructor().newInstance();
+            if (!IsolatedStorageBridge.isBridgeable(className)) {
+                ApmStorage storage = (ApmStorage) instance;
+                log.info("存储实现 " + type + " 由 ClassLoader 加载: " + cl);
+                return storage;
+            }
+            log.info("存储实现 " + type + " 由隔离 ClassLoader 加载（桥接）: " + cl);
+            return new IsolatedStorageBridge(instance);
         } catch (Throwable e) {
             log.log(Level.WARNING, "隔离 ClassLoader 加载存储失败: " + e.getMessage(), e);
         }
