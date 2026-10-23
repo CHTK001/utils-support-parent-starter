@@ -73,6 +73,12 @@ public class Acme4jProvider implements AcmeProvider {
     private static final int ACCOUNT_KEY_SIZE = 2048;
 
     /**
+     * 网络请求超时（默认 60s）。公网 CA（Let's Encrypt 等）在部分网络下 TLS 握手
+     * 会超过 acme4j 默认 10s，导致申请/续签报 Network error；可由账户超时配置覆盖。
+     */
+    private java.time.Duration requestTimeout = java.time.Duration.ofSeconds(60);
+
+    /**
      * 等待 CA 域名验证与订单签发的超时时长（秒）
      */
     private static final long POLL_TIMEOUT_SECONDS = 90L;
@@ -124,6 +130,13 @@ public class Acme4jProvider implements AcmeProvider {
     private String accountPrivateKeyPem;
 
     @Override
+    public void setTimeout(java.time.Duration timeout) {
+        if (timeout != null && !timeout.isZero() && !timeout.isNegative()) {
+            this.requestTimeout = timeout;
+        }
+    }
+
+    @Override
     public AcmeConnectionResult connect(String serverUrl, String email, String privateKeyPem,
                                         String eabKid, String eabHmacKey) {
         try {
@@ -132,6 +145,12 @@ public class Acme4jProvider implements AcmeProvider {
 
             // 创建 ACME 会话
             session = new Session(URI.create(serverUrl));
+
+            // acme4j 默认请求超时仅 10s，公网 CA（Let's Encrypt 等）在部分网络下 TLS 握手
+            // 会超过 10s，直接抛 HttpTimeoutException 导致证书申请 failed（实测 Network error）。
+            // 默认放宽到 60s，账户可通过 setTimeout 配置覆盖；请求超时只保护「卡死」，
+            // 慢握手/慢 CA 正常应被容忍。
+            session.networkSettings().setTimeout(requestTimeout);
 
             // 构建账户：同意服务条款、绑定密钥、可选邮箱与 EAB 外部账户绑定
             AccountBuilder accountBuilder = new AccountBuilder()

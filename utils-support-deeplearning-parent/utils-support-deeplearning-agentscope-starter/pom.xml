@@ -15,7 +15,14 @@
         <dependency>
             <groupId>io.agentscope</groupId>
             <artifactId>agentscope-harness</artifactId>
-            <version>2.0.3</version>
+            <!--
+              2.0.3 → 2.0.4：2.0.4 才带我们需要的 shell 工作目录能力
+              （LocalFilesystemWithShell 的 shellCwd / resolveExecuteCwd，见
+              io.agentscope.harness.agent.filesystem.local），
+              以及 ShellExecuteTool(AbstractSandboxFilesystem) 这套注入点。
+              2.0.4 的 jar 已在本地仓库（D:\maven-repo\io\agentscope），离线可构建。
+            -->
+            <version>2.0.4</version>
         </dependency>
         <!-- OpenAI Java SDK：ChatClientModelAdapter 使用 com.openai.* API（版本对齐根 pom dependencyManagement 4.63.1） -->
         <dependency>

@@ -318,6 +318,15 @@ public class ApmBootstrap {
         if (!storagePath.isEmpty()) {
             configMap.put("apm.storage.path", storagePath);
         }
+        // 驱动目录：agent 场景下 sqlite-jdbc 及其依赖（guava 等）需通过独立 ClassLoader 加载
+        String jdbcLibs = resolveConfig("storage.jdbc.libs", "apm.storage.jdbc.libs", "");
+        if (!jdbcLibs.isEmpty()) {
+            configMap.put("apm.storage.jdbc.libs", jdbcLibs);
+        }
+        String jdbcDriver = resolveConfig("storage.jdbc.driver", "apm.storage.jdbc.driver", "");
+        if (!jdbcDriver.isEmpty()) {
+            configMap.put("apm.storage.jdbc.driver", jdbcDriver);
+        }
         try {
             StorageManager.init(new StorageConfig(configMap));
         } catch (Throwable e) {

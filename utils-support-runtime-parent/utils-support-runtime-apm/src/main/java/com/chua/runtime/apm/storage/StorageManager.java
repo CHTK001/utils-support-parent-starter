@@ -139,7 +139,17 @@ public final class StorageManager {
             return explicit;
         }
 
-        // 2. SPI 扫描(优先 context CL,回退 system CL,确保 agent bootstrap CL 也能加载)
+        // 2. 需要 JDBC 的存储（sqlite）在 agent bootstrap CL 下无法链接 java.sql，
+        //    改用 parent=platform 的隔离 ClassLoader 实例化；无驱动时返回 null 沿用默认 CL
+        ClassLoader isolated = ApmStorageClassLoader.resolve(config.getProperties());
+        if (isolated != null) {
+            ApmStorage s = loadFrom(config, isolated);
+            if (s != null) {
+                return s;
+            }
+        }
+
+        // 3. SPI 扫描(优先 context CL,回退 system CL,确保 agent bootstrap CL 也能加载)
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (cl == null) {
             cl = ClassLoader.getSystemClassLoader();
@@ -157,9 +167,33 @@ public final class StorageManager {
             log.log(Level.WARNING, "存储 SPI 扫描失败: " + e.getMessage(), e);
         }
 
-        // 3. 找不到指定 type — 不盲选第一个 SPI(避免用户配置 "sqlite" 但实际用 "inmemory"),
+        // 4. 找不到指定 type — 不盲选第一个 SPI(避免用户配置 "sqlite" 但实际用 "inmemory"),
  // 返回 noopstorage 让 处理器 安全退化
         log.warning("未找到 " + type + " 存储实现,使用 NoopStorage");
         return new NoopStorage();
+    }
+
+    /**
+     * 从指定 ClassLoader 加载 type 对应的 SPI 存储实现。
+     *
+     * @param config 配置
+     * @param cl     指定 ClassLoader
+     * @return 匹配的存储实现；未找到或加载失败返回 null
+     */
+    private static ApmStorage loadFrom(StorageConfig config, ClassLoader cl) {
+        String type = config.get("apm.storage.type", ApmStorage.DEFAULT_NAME);
+        try {
+            for (ApmStorage s : ServiceLoader.load(ApmStorage.class, cl)) {
+                if (type.equals(s.name())) {
+                    log.info("存储实现 " + type + " 由隔离 ClassLoader 加载: " + cl);
+                    return s;
+                }
+            }
+            log.warning("隔离 ClassLoader 中未找到 " + type + "（可见: "
+                    + ApmStorageClassLoader.listStorageNames(cl) + "），回退默认 ClassLoader");
+        } catch (Throwable e) {
+            log.log(Level.WARNING, "隔离 ClassLoader 加载存储失败: " + e.getMessage(), e);
+        }
+        return null;
     }
 }

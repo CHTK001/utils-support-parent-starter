@@ -86,6 +86,27 @@ public final class FlywayHistory {
             + "CONSTRAINT pk_" + HISTORY_TABLE + " PRIMARY KEY (" + COL_VERSION + ", " + COL_SCRIPT_NAME + "))";
 
     /**
+     * 建表语句（不带 {@code IF NOT EXISTS}）。
+     *
+     * <p>给不认 {@code CREATE TABLE IF NOT EXISTS} 的方言兜底用 —— 目前已知是真 SQL Server。
+     * 调用方需自行保证「表不存在」这一前提（{@link #ensure} 已先探测过）。</p>
+     *
+     * <p><b>注意 {@code TIMESTAMP} 在 SQL Server 里是 {@code ROWVERSION} 的同义词</b>
+     * （8 字节二进制版本号），<b>不能带 DEFAULT</b> —— 实测 SQL Server 2022 报
+     * 「不能在数据类型为 timestamp 的列上创建默认值」。
+     * 故本常量改用 {@code DATETIME2}（标准时间类型，支持 DEFAULT）。</p>
+     */
+    private static final String CREATE_SQL_PLAIN = "CREATE TABLE " + HISTORY_TABLE + " ("
+            + COL_VERSION + " VARCHAR(64) NOT NULL, "
+            + COL_DESCRIPTION + " VARCHAR(255), "
+            + COL_SCRIPT_NAME + " VARCHAR(255) NOT NULL, "
+            + COL_CHECKSUM + " VARCHAR(64), "
+            + COL_SUCCESS + " VARCHAR(8), "
+            + "sys_database_version_script_type VARCHAR(16), "
+            + "sys_database_version_executed_on DATETIME2 DEFAULT CURRENT_TIMESTAMP, "
+            + "CONSTRAINT pk_" + HISTORY_TABLE + " PRIMARY KEY (" + COL_VERSION + ", " + COL_SCRIPT_NAME + "))";
+
+    /**
      * 查询已应用脚本
      */
     private static final String SELECT_SQL = "SELECT " + COL_SCRIPT_NAME + ", " + COL_SUCCESS
@@ -138,10 +159,60 @@ public final class FlywayHistory {
     /**
      * 确保版本记录表存在。
      *
+     * <p>{@link #CREATE_SQL} 用的是 {@code CREATE TABLE IF NOT EXISTS} —— 这是 MySQL / H2 /
+     * PostgreSQL / SQLite 的写法，但<b>真 SQL Server 不支持</b>（实测 2022 报
+     * 「关键字 'IF' 附近有语法错误」；H2 的 {@code MODE=MSSQLServer} 兼容模式接受它，
+     * 所以只在兼容模式下测不出来）。</p>
+     *
+     * <p>处理顺序：</p>
+     * <ol>
+     *   <li>先按 {@code CREATE TABLE IF NOT EXISTS} 建（多数方言一次成功）；</li>
+     *   <li>失败则查表在不在 —— 在就说明只是「已存在」，当作成功；</li>
+     *   <li>不在则用不带 {@code IF NOT EXISTS} 的 {@link #CREATE_SQL_PLAIN} 再建一次 ——
+     *       覆盖 SQL Server 这类不认 {@code IF NOT EXISTS} 的方言。
+     *       若这次失败且表已存在（并发场景），同样放过；</li>
+     *   <li>两种情况都不成立才把原始异常抛出去，不把真实的结构问题吞掉。</li>
+     * </ol>
+     *
      * @param runner SQL 执行器
      */
     public static void ensure(Runner runner) {
-        runner.update(CREATE_SQL);
+        try {
+            runner.update(CREATE_SQL);
+            return;
+        } catch (RuntimeException e) {
+            if (exists(runner)) {
+                return;
+            }
+            // 该方言不认 IF NOT EXISTS：用不带该子句的建表语句再试
+            try {
+                runner.update(CREATE_SQL_PLAIN);
+                return;
+            } catch (RuntimeException ignore) {
+                if (exists(runner)) {
+                    return;
+                }
+            }
+            throw e;
+        }
+    }
+
+    /**
+     * 判断版本记录表是否存在。
+     *
+     * <p>用 {@code SELECT ... WHERE 1 = 0} 探测：语句能解析就说明表存在，
+     * 不依赖任何方言特有的元数据视图。</p>
+     *
+     * @param runner SQL 执行器
+     * @return true 表示表存在
+     */
+    private static boolean exists(Runner runner) {
+        try {
+            runner.select("SELECT " + COL_SCRIPT_NAME + " FROM " + HISTORY_TABLE + " WHERE 1 = 0");
+            return true;
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
     /**
