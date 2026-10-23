@@ -143,6 +143,18 @@ public class ApmBootstrap {
     private volatile Map<String, String> storageOverrides = java.util.Collections.emptyMap();
 
     /**
+     * 存储配置来源（宿主提供，运行时可随时更新）。
+     *
+     * <p>与 {@link #storageOverrides} 的区别：{@code overrides} 是一份静态快照，
+     * 只适合启动时注入；{@code provider} 是一个可变的活配置源，</p>
+     * {@link #reloadStorageConfig()} 每次都重新向它取值，
+     * 因此宿主改完配置后调一次热更新即可生效，无需重启进程。</p>
+     *
+     * <p>优先级最高：provider 返回值 &gt; overrides &gt; Agent options &gt; 系统属性 &gt; 默认值。</p>
+     */
+    private volatile java.util.function.Supplier<Map<String, String>> storageConfigProvider;
+
+    /**
      * 创建 APM 启动器。
      *
      * @param pluginDir 插件目录
@@ -152,6 +164,21 @@ public class ApmBootstrap {
         this.started = false;
         registerDefaults(pluginDir);
         globalInstance = this;
+    }
+
+    /**
+     * 指定存储配置的活来源（热更新时每次重新取值）。
+     *
+     * <p>返回 null 或空映射表示「宿主未配置」，此时回落到 Agent options / 系统属性 / 默认值。
+     * provider 抛出的异常会被吞掉并按「未配置」处理 —— 配置读取失败不能影响观测组件本身。</p>
+     *
+     * @param provider 配置提供者
+     * @return 自身，便于链式调用
+     */
+    public ApmBootstrap storageConfigProvider(
+            java.util.function.Supplier<Map<String, String>> provider) {
+        this.storageConfigProvider = provider;
+        return this;
     }
 
     /**
@@ -368,9 +395,12 @@ public class ApmBootstrap {
         if (!flushTimeout.isEmpty()) {
             configMap.put("apm.storage.flush.timeout.ms", flushTimeout);
         }
-        // 未显式给出的键沿用系统属性直传（便于运维临时加参数）
+        // 未显式给出的键沿用系统属性直传（便于运维临时加参数）。
+        // 但宿主已在活配置源里显式声明的键（哪怕是空值）不得被系统属性覆盖回来，
+        // 否则「运行中清空 path 回到默认目录」这类操作会被旧系统属性悄悄抵消。
+        java.util.Set<String> hostKeys = providerKeys();
         for (String key : System.getProperties().stringPropertyNames()) {
-            if (key.startsWith("apm.storage.") && !configMap.containsKey(key)) {
+            if (key.startsWith("apm.storage.") && !configMap.containsKey(key) && !hostKeys.contains(key)) {
                 configMap.put(key, System.getProperty(key));
             }
         }
@@ -421,7 +451,12 @@ public class ApmBootstrap {
      * @return 生效值
      */
     private String resolveConfig(String agentOptionKey, String sysPropKey, String defaultValue) {
-        // 1. 宿主显式注入（plugin.* 配置）优先级最高
+        // 1. 宿主活配置源（运行时可变的 plugin.* 配置）优先级最高
+        String fromProvider = providerValue(sysPropKey);
+        if (fromProvider != null && !fromProvider.trim().isEmpty()) {
+            return fromProvider.trim();
+        }
+        // 2. 宿主启动时注入的静态快照
         String fromHost = storageOverrides.get(sysPropKey);
         if (fromHost != null && !fromHost.isEmpty()) {
             return fromHost;
@@ -446,6 +481,47 @@ public class ApmBootstrap {
             return fromSys;
         }
         return defaultValue;
+    }
+
+    /**
+     * 从宿主活配置源取值。
+     *
+     * <p>provider 异常按「未配置」处理：配置读取失败只降级优先级，不能让观测组件抛错。
+     * 每次调用都重新向 provider 取值，因此宿主改完配置后热更新即可看到新值。</p>
+     *
+     * @param key 配置键
+     * @return 值；未配置返回 null
+     */
+    private String providerValue(String key) {
+        java.util.function.Supplier<Map<String, String>> provider = this.storageConfigProvider;
+        if (provider == null) {
+            return null;
+        }
+        try {
+            Map<String, String> values = provider.get();
+            return values == null ? null : values.get(key);
+        } catch (Throwable e) {
+            LOG.log(Level.FINE, "读取宿主存储配置失败，按未配置处理: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 宿主活配置源当前显式声明的键集合。
+     *
+     * @return 键集合；无 provider 时为空
+     */
+    private java.util.Set<String> providerKeys() {
+        java.util.function.Supplier<Map<String, String>> provider = this.storageConfigProvider;
+        if (provider == null) {
+            return java.util.Collections.emptySet();
+        }
+        try {
+            Map<String, String> values = provider.get();
+            return values == null ? java.util.Collections.emptySet() : values.keySet();
+        } catch (Throwable e) {
+            return java.util.Collections.emptySet();
+        }
     }
 
     /**

@@ -1,6 +1,8 @@
 package com.chua.common.support.utils;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.lang.json.JsonObject;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -135,6 +137,22 @@ public class SignUtils {
      */
     public static String signDirectKey(Map<String, ?> params, String secretKey) {
         return signDirectKey(params, secretKey, DEFAULT_KEY_VALUE_SEPARATOR, DEFAULT_PARAM_SEPARATOR);
+    }
+
+    /**
+     * 对 JSON 对象参数计算无密钥 MD5 签名。
+     *
+     * <p>{@link JsonObject} 本身是 {@code LinkedHashMap<String, Object>} 的子类，
+     * 因此可直接作为 {@code Map} 参与签名。该方法等价于
+     * {@code signDirectKey(jsonObject, null)}，为使用 JSON 承载报文的
+     * 协议层（如 OAuth 客户端）提供免转换入口。</p>
+     *
+     * @param jsonObject JSON 对象参数，可为 null（视为空参数集）
+     * @return 大写十六进制 MD5 签名字符串
+     * @since 4.0.0.42
+     */
+    public static String generateSignFromMap(JsonObject jsonObject) {
+        return signDirectKey(jsonObject, null);
     }
 
     /**

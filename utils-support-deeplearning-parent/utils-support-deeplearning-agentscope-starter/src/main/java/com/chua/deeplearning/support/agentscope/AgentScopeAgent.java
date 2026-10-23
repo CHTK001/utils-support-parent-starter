@@ -1472,16 +1472,16 @@ public class AgentScopeAgent implements Agent {
             builder.workspace(ws.toString());
 
             /*
-             * 【2026-10-23 必须显式注入】只调 builder.workspace(...) 时，
-             * **shell 工具的执行目录仍是进程 CWD** —— 实测（agentscope 2.0.4）：
-             * agent 执行 `pwd` 返回 `/opt/ai-starter/runtime`（服务的 systemd
-             * WorkingDirectory），而会话工作区是 `/opt/ai-starter/workspace/admin/agent`。
-             * 后果就是 agent 写相对路径落到应用自己的目录
-             * （`/opt/ai-starter/runtime/pelican_bike.html`），写绝对路径则任意落点。
+             * 【2026-10-23】project 必须与 workspace **同一个值**（账号级根）。
              *
-             * harness 提供了 LocalFilesystemSpec（fluent setter：project / mode /
-             * projectWritable / isolationScope / addRoot），这里显式把 project 指到
-             * 会话工作区并允许写入，shell 的 shellCwd 才会跟着走。
+             * 试过把 project 设成"workspace + 会话id"（想让 shell 也进会话目录），
+             * 实测不行：harness 会用 project 覆盖 workspace，随后它的会话目录
+             * （WorkspaceManager#getSessionDir = workspace.resolve("<sessionId>/")）
+             * 就变成 `<root>/agent/147/147/`，双嵌套（实测 acc-check.txt 落在这一层）。
+             *
+             * harness 的 shellCwd 是**固定值**（LocalFilesystemWithShell#resolveExecuteCwd
+             * 里非空即原样返回），没有按会话解析的入口，所以 shell 只能停在账号级根；
+             * 会话级隔离由 harness 自己做（文件、memory、事件都落在 `<root>/<会话id>/`）。
              */
             builder.filesystem(new LocalFilesystemSpec()
                     .project(ws)
