@@ -8,34 +8,34 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.ServiceLoader;
 import java.util.TreeMap;
 
 /**
  * 支持 JDBC 的存储实现的隔离加载器。
  *
- * <p>背景（已实测）：agent jar 会被 {@code RuntimeAgent} 追加到
- * bootstrap 搜索路径（{@code appendToBootstrapClassLoaderSearch}），
- * 之后 <b>bootstrap 能看见的类</b>（{@code com.chua.runtime.*}）
- * 一律由 bootstrap classloader 定义，而 bootstrap classloader
- * <b>无法解析 java.sql</b>（该模块由 platform classloader 定义，且
- * bootstrap 不会向 platform 委托，因为 bootstrap 无可用的父加载器兜底）。
- * 因此只要 {@link SqliteStorage} / JDBC 驱动由 bootstrap 定义，就必然抛
- * {@code NoClassDefFoundError: java/sql/Driver}（或 {@code java/sql/SQLException}）。</p>
+ * <p><b>背景（已实测，JDK 17/21/25 表现一致）</b>：{@code RuntimeAgent} 会把 agent jar
+ * 追加到 bootstrap 搜索路径（{@code appendToBootstrapClassLoaderSearch}），使插桩回调
+ * 能被 JDK 内部类（如 {@code java.net.Socket}）解析。代价是：之后凡是
+ * <b>bootstrap 能看见的类</b>（{@code com.chua.runtime.*}）都由 bootstrap 定义，
+ * 而 bootstrap <b>解析不到 {@code java.sql} / {@code javax.sql}</b>。</p>
  *
- * <p>本类因此构建 parent 为 {@link ClassLoader#getSystemClassLoader()} 的
- * child-first ClassLoader：</p>
- * <ul>
- *   <li>system 能解析 java.sql / javax.sql（由 platform 提供），所以本加载器内
- *       定义的存储实现可以正常链接 JDBC 类型；</li>
- *   <li>{@code com.chua.runtime.*} 中除存储实现外一律桥接回调用方加载器，
- *       保证 SPI 接口、事件模型、协议对象与调用方是同一份类型；</li>
- *   <li>存储实现（{@link ApmStorage} 的实现与其驱动）由本加载器自己定义，
- *       从而脱离 bootstrap 的 java.sql 盲区；</li>
- *   <li>它能加载 {@code apm.storage.jdbc.libs} 指向目录下的 JDBC 驱动与依赖（如 guava）。</li>
- * </ul>
+ * <p>由此产生三条硬约束，任何改动都必须遵守：</p>
+ * <ol>
+ *   <li><b>本类自身不得出现任何 {@code java.sql} 类型</b>（字段/参数/返回值/局部变量/方法引用）。
+ *       否则加载本类即抛 {@code NoClassDefFoundError: java/sql/Driver}。</li>
+ *   <li>SQLite 驱动、存储实现都必须由<b>本类创建的隔离加载器</b>定义，
+ *       且该加载器对 {@code com.chua.runtime.apm.storage.*}、{@code org.sqlite.*}
+ *       采用 <b>child-first</b>，否则会委托给 bootstrap 而失败。</li>
+ *   <li>真正的 JDBC 动作只能在隔离加载器内定义的类里做（见 {@link SqliteSession}）：
+ *       由 bootstrap 定义的调用方哪怕用反射触达 JDBC，也会在 sqlite 内部
+ *       触发 {@code NoClassDefFoundError: java/sql/Statement}。</li>
+ * </ol>
  *
- * <p>宿主进程（存储类本来就由 system 定义、java.sql 可见）不构建隔离加载器，
+ * <p>本类对外只提供 {@link Object}/{@code String}/{@code long}/{@code boolean} 级别的接口，
+ * 调用方（{@link SqliteStorage}，本身也在隔离加载器内）拿到 {@link Object} 后不必解析
+ * {@code java.sql}。</p>
+ *
+ * <p>宿主进程（存储类由 system 定义、{@code java.sql} 可见）不构建隔离加载器，
  * 直接沿用默认加载器，避免无谓的类型分裂。</p>
  *
  * @author CH
@@ -55,39 +55,52 @@ public final class ApmStorageClassLoader {
     private static final String SYS_JDBC_LIBS = "apm.storage.jdbc.libs";
 
     /**
-     * 需要由隔离加载器自己定义的类（会链接 java.sql，绝不能由 bootstrap 定义）。
+     * 存储类型名：sqlite（依赖 JDBC，必须在隔离加载器内定义）
+     */
+    private static final String SQLITE = "sqlite";
+
+    /**
+     * 存储 API 与数据模型的类名（同由隔离加载器自己定义）。
      *
-     * <p>不含 {@code NoopStorage} / {@code InMemoryStorage}：它们不依赖 JDBC，
-     * 交给调用方定义可保证 {@code StorageManager.get()} 的类型与调用方一致。</p>
+     * <p>必须与实现类落在同一个加载器里：否则实现类实现的 {@code ApmStorage}
+     * 是隔离加载器里另一份，{@code (ApmStorage) instance} 会抛 {@link ClassCastException}
+     * （实测：{@code SqliteStorage cannot be cast to ... ApmStorage}）。</p>
+     *
+     * <p>这些类的 JDK 依赖（{@code java.util.*}、{@code java.util.logging.*},
+     * {@code java.lang.*}）在隔离加载器里同样可见；它们的非 JDK 依赖
+     * （common-support / protocol / lombok）由父加载器提供。</p>
+     */
+    private static final java.util.Set<String> STORAGE_API = new java.util.HashSet<>(java.util.Arrays.asList(
+            "com.chua.runtime.apm.storage.ApmStorage",
+            "com.chua.runtime.apm.storage.StorageConfig",
+            "com.chua.runtime.apm.storage.Query",
+            "com.chua.runtime.apm.storage.TransmissionEvent",
+            "com.chua.runtime.apm.storage.LeakRecord",
+            "com.chua.runtime.apm.storage.LogRecord",
+            "com.chua.runtime.apm.storage.NoopStorage",
+            "com.chua.runtime.apm.storage.InMemoryStorage"
+    ));
+
+    /**
+     * 存储实现与会话所在的包（必须由隔离加载器自己定义）
      */
     private static final String STORAGE_PACKAGE = "com.chua.runtime.apm.storage.";
 
     /**
-     * 必须隔离定义的具体类（存储实现 + 桥接驱动）。
+     * 会话实现类（隔离加载器内定义，承载全部 JDBC 逻辑）
      */
-    private static final String[] ISOLATED_CLASSES = {
-            "com.chua.runtime.apm.storage.SqliteStorage",
+    private static final String SESSION_CLASS = "com.chua.runtime.apm.storage.SqliteSession";
+
+    /**
+     * 驱动类名候选：官方驱动优先（只依赖 {@code java.sql}），桥接驱动兜底
+     */
+    private static final String[] DRIVER_CLASSES = {
+            "org.sqlite.JDBC",
             "com.chua.runtime.apm.storage.ApmSqliteBridgeDriver"
     };
 
     /**
-     * 驱动类名候选：桥接驱动优先，官方驱动兜底。
-     */
-    private static final String[] DRIVER_CLASSES = {
-            "com.chua.runtime.apm.storage.ApmSqliteBridgeDriver",
-            "org.sqlite.JDBC"
-    };
-
-    /**
-     * 已实例化的驱动（键为类名，值为隔离加载器内构造的实例）。
-     *
-     * <p>必须用 {@link Object} 而非 {@code java.sql.Driver}：本类可能由 bootstrap
-     * 定义，而 bootstrap 解析不到 {@code java.sql}。</p>
-     */
-    private static final Map<String, Object> DRIVERS = new java.util.concurrent.ConcurrentHashMap<>();
-
-    /**
-     * 已构建的隔离加载器（单例，驱动与类元数据复用）
+     * 已构建的隔离加载器（单例，驱动与会话类元数据复用）
      */
     private static volatile ClassLoader isolated;
 
@@ -106,11 +119,6 @@ public final class ApmStorageClassLoader {
      * 返回用于实例化存储实现的 ClassLoader。
      *
      * <p>无 JDBC 驱动可用时返回 {@code null}，调用方沿用默认（agent）ClassLoader。</p>
-     *
-     * <p><b>注意</b>：本类由 bootstrap 定义时不能出现任何 {@code java.sql} 类型的成员
-     * （字段/参数/返回值/局部变量），否则 bootstrap 链接本类时会直接抛
-     * {@code NoClassDefFoundError: java/sql/Driver}。驱动因此只以 {@link Object}
-     * 形式存在于隔离加载器内，由存储实现自己取用。</p>
      *
      * @param config 存储配置
      * @return 隔离 ClassLoader，或 null
@@ -132,8 +140,6 @@ public final class ApmStorageClassLoader {
             }
             resolved = true;
             if (!needsIsolation()) {
-                // 存储类本身就在 java.sql 可见的命名空间（宿主进程 / 应用 classpath），
-                // 无需隔离，直接沿用默认加载器，避免与调用方类型分裂。
                 log.info("存储类由 " + SqliteStorage.class.getClassLoader()
                         + " 定义且 java.sql 可见，无需隔离加载器");
                 return null;
@@ -149,27 +155,11 @@ public final class ApmStorageClassLoader {
                 if (built == null) {
                     return null;
                 }
-                // 驱动必须能被隔离 ClassLoader 实例化，否则 getConnection 仍会失败。
-                // 优先用桥接驱动 ApmSqliteBridgeDriver（不依赖官方模板初始化，agent 场景稳定）；
-                // 它缺失时退回官方 org.sqlite.JDBC。
-                boolean available = false;
-                for (String candidate : DRIVER_CLASSES) {
-                    try {
-                        Class<?> driverType = Class.forName(candidate, true, built);
-                        Object instance = driverType.getDeclaredConstructor().newInstance();
-                        DRIVERS.put(candidate, instance);
-                        available = true;
-                        log.info("存储隔离 ClassLoader 就绪: " + urls.size() + " 个 jar, 驱动 "
-                                + candidate + " @ " + built);
-                        break;
-                    } catch (Throwable e) {
-                        log.warning("驱动 " + candidate + " 不可用: " + e);
-                    }
-                }
-                if (!available) {
+                if (!probeDriver(built)) {
                     log.warning("隔离 ClassLoader 中无可用的 SQLite 驱动，沿用默认 ClassLoader");
                     return null;
                 }
+                log.info("存储隔离 ClassLoader 就绪: " + urls.size() + " 个 jar @ " + built);
                 isolated = built;
                 return built;
             } catch (Throwable e) {
@@ -180,26 +170,73 @@ public final class ApmStorageClassLoader {
     }
 
     /**
-     * 隔离加载器内实例化的驱动。
+     * 创建会话（隔离加载器内定义的 {@code SqliteSession}）。
      *
-     * <p>用 {@link Object} 保存：本类由 bootstrap 定义，声明 {@code java.sql.Driver}
-     * 字段会导致本类链接失败。</p>
+     * <p>返回 {@link Object}：本类可能由 bootstrap 定义，不能声明会话类型
+     * （会话类不在 bootstrap 可见范围内）。</p>
      *
-     * @param className 驱动类名
-     * @return 驱动实例；未实例化返回 null
+     * @return 会话实例；隔离加载器不可用返回 null
      */
+    public static Object newSession() {
+        ClassLoader cl = isolated;
+        if (cl == null) {
+            return null;
+        }
+        try {
+            return Class.forName(SESSION_CLASS, true, cl).getDeclaredConstructor().newInstance();
+        } catch (Throwable e) {
+            log.warning("创建 SQLite 会话失败: " + e);
+            return null;
+        }
+    }
+
     /**
-     * 取隔离加载器内实例化的驱动（交给隔离加载器内的存储实现使用）。
+     * 是否有可用的隔离加载器（即 agent 场景 + 驱动就绪）。
      *
-     * <p>本方法只做 {@link Map} 读取、不引用 {@code java.sql}：本类由 bootstrap 定义，
-     * 一旦引用 {@code java.sql} 就会在链接期抛 {@code NoClassDefFoundError: java/sql/Driver}。
-     * 因此这里故意把返回类型写成 {@link Object}，由调用方（隔离加载器内）负责类型收窄。</p>
-     *
-     * @param className 驱动类名
-     * @return 驱动实例；未实例化返回 null
+     * @return 可用返回 true
      */
-    public static Object driverInstance(String className) {
-        return DRIVERS.get(className);
+    public static boolean isolated() {
+        return isolated != null;
+    }
+
+    /**
+     * 返回指定存储类型需要隔离加载的实现类名。
+     *
+     * <p>只对依赖 JDBC 的实现返回类名：这些类经过 bootstrap 追加后无法链接
+     * {@code java.sql}，必须交给隔离加载器定义。其余实现（内存/noop）留在原
+     * 命名空间，避免类型分裂。</p>
+     *
+     * @param type 存储类型名
+     * @return 实现类名；无需隔离返回 null
+     */
+    public static String isolatedClassName(String type) {
+        if (SQLITE.equals(type)) {
+            return "com.chua.runtime.apm.storage.SqliteStorage";
+        }
+        return null;
+    }
+
+    /**
+     * 校验隔离加载器里确实存在可实例化的驱动。
+     *
+     * <p>只做 {@code Class.forName + newInstance}，不调用任何 JDBC 方法：
+     * 驱动实例的真实使用由 {@link SqliteSession} 在隔离加载器内完成。</p>
+     *
+     * @param loader 隔离加载器
+     * @return 可用返回 true
+     */
+    private static boolean probeDriver(ClassLoader loader) {
+        for (String candidate : DRIVER_CLASSES) {
+            try {
+                Object instance = Class.forName(candidate, true, loader)
+                        .getDeclaredConstructor().newInstance();
+                log.info("SQLite 驱动就绪: " + candidate + " @ " + instance.getClass().getClassLoader());
+                return true;
+            } catch (Throwable e) {
+                log.fine("驱动 " + candidate + " 不可用: " + e);
+            }
+        }
+        return false;
     }
 
     /**
@@ -222,8 +259,6 @@ public final class ApmStorageClassLoader {
             // 存储类确实由 bootstrap 定义；再确认 bootstrap 解析不了 java.sql
             Class.forName("java.sql.Driver", false, null);
             return false;
-        } catch (ClassNotFoundException e) {
-            return true;
         } catch (Throwable e) {
             return true;
         }
@@ -312,6 +347,9 @@ public final class ApmStorageClassLoader {
     /**
      * 构建隔离 ClassLoader。
      *
+     * <p>parent 为 platform：它能解析 {@code java.sql}/{@code javax.sql}。
+     * 存储实现、会话与 SQLite 驱动一律 child-first，避免委托给 bootstrap。</p>
+     *
      * @param urls jar 列表
      * @return ClassLoader；无 jar 时返回 null
      */
@@ -320,96 +358,51 @@ public final class ApmStorageClassLoader {
             return null;
         }
         final ClassLoader parent = ClassLoader.getPlatformClassLoader();
-        final ClassLoader fallback = ApmStorageClassLoader.class.getClassLoader();
         return new URLClassLoader(urls.toArray(new URL[0]), parent) {
             @Override
             protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-                if (isIsolatedClass(name)) {
-                    // 存储实现与 JDBC 驱动必须在本加载器内定义：
-                    // 若交给 bootstrap，它们就落在 java.sql 不可见的命名空间里，链接必失败。
-                    // 注意：这里<b>不能</b>调用 resolveClass —— 它会以委托方式重新解析
-                    // （等价 Class.forName），触发 java.sql.Driver 的再加载而失败（实测）。
-                    // 返回未链接的 Class 即可，链接在首次使用该类时于本加载器内完成。
+                if (isChildFirst(name)) {
+                    // 存储实现/会话/驱动必须在本加载器内定义：交给父加载器（bootstrap）
+                    // 就落在 java.sql 不可见的命名空间里，链接必失败。
                     synchronized (getClassLoadingLock(name)) {
                         Class<?> loaded = findLoadedClass(name);
-                        if (loaded == null) {
-                            try {
-                                loaded = findClass(name);
-                            } catch (ClassNotFoundException e) {
-                                // 本加载器没有该类（例如与 jar 无关的扩展点），交回父加载器
-                                return parent.loadClass(name);
-                            }
+                        if (loaded != null) {
+                            return loaded;
                         }
-                        return loaded;
+                        return findClass(name);
                     }
                 }
-                if (name.startsWith("com.chua.runtime.spy.") || name.startsWith("com.chua.runtime.protocol.")
-                        || name.startsWith("com.chua.runtime.apm.")) {
-                    // spy/protocol/apm 必须与调用方同一份类型，否则插桩回调会 ClassCastException
-                    if (fallback == null) {
-                        return parent.loadClass(name);
-                    }
-                    return fallback.loadClass(name);
-                }
-                // 用 parent.loadClass 而不是 super.loadClass：后者在匿名类里会被编译成
-                // invokespecial ClassLoader.loadClass，触发 java.sql.Driver 的反射再解析，
-                // 而本加载器所在命名空间解析不到它（NoClassDefFoundError）。
                 return parent.loadClass(name);
             }
         };
     }
 
     /**
-     * 是否由隔离加载器自己定义该类。
+     * 是否需要 child-first。
+     *
+     * <p>两类类必须由本加载器自己定义，否则链接必失败：</p>
+     * <ul>
+     *   <li>{@code com.chua.runtime.apm.storage.*}：存储实现与会话本身。agent 场景下它们
+     *       由 bootstrap 定义，bootstrap 解析不到 {@code java.sql}；实测若交给父加载器，
+     *       会解析成 bootstrap 定义的那一份（同一份类被定义两次），进而在
+     *       {@code Class.forName("org.sqlite.JDBC")} 处抛 {@code NoClassDefFoundError: java/sql/Driver}。</li>
+     *   <li>{@code org.sqlite.*} 与驱动依赖（guava / failureaccess）：同理，若由 bootstrap 定义，
+     *       其内部 {@code java.sql} 引用无法解析。</li>
+     * </ul>
+     *
+     * <p>注意：只在 {@link #build(List)} 里使用；宿主进程（{@link #needsIsolation()} 为 false）
+     * 不会创建本加载器，因此不会出现 {@code com.chua.runtime.*} 的类型分裂。</p>
      *
      * @param name 类名
-     * @return 需要隔离定义返回 true
+     * @return child-first 返回 true
      */
-    private static boolean isIsolatedClass(String name) {
-        if (!name.startsWith(STORAGE_PACKAGE)) {
-            return false;
+    private static boolean isChildFirst(String name) {
+        if (STORAGE_API.contains(name)) {
+            return true;
         }
-        for (String isolated : ISOLATED_CLASSES) {
-            if (isolated.equals(name)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * 列出当前可见的存储 SPI 实现名（诊断用）。
-     *
-     * @param cl ClassLoader
-     * @return 实现名列表
-     */
-    static List<String> listStorageNames(ClassLoader cl) {
-        List<String> names = new ArrayList<>();
-        if (cl == null) {
-            return names;
-        }
-        try {
-            for (Object s : ServiceLoader.load(ApmStorage.class, cl)) {
-                names.add(((ApmStorage) s).name());
-            }
-        } catch (Throwable e) {
-            log.fine("SPI 列举失败: " + e);
-        }
-        return names;
-    }
-
-    /**
-     * 存储类型对应的隔离实现类名。
-     *
-     * <p>只有需要 JDBC 的实现（{@code sqlite}）需要在隔离加载器内定义。</p>
-     *
-     * @param type 存储类型（{@link ApmStorage#name()}）
-     * @return 类名；该类型不需要隔离时返回 null
-     */
-    public static String isolatedClassName(String type) {
-        if ("sqlite".equalsIgnoreCase(type)) {
-            return "com.chua.runtime.apm.storage.SqliteStorage";
-        }
-        return null;
+        return name.startsWith(STORAGE_PACKAGE)
+                || name.startsWith("org.sqlite.")
+                || name.startsWith("com.google.")
+                || name.startsWith("org.objectweb.asm.");
     }
 }
