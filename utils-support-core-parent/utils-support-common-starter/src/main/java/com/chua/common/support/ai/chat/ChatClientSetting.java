@@ -173,6 +173,21 @@ public class ChatClientSetting {
     private String authPrefix;
 
     /**
+     * 模型指标 / 价格数据端点 URL
+     *
+     * <p>部分服务商（如 Pollinations、OpenRouter 等）除了 {@code GET /models}
+     * 模型目录外，还提供携带价格、{@code supported_endpoints}、
+     * {@code supported_parameters} 等维度的「模型指标」端点，例如
+     * {@code https://gen.pollinations.ai/models?reliability=all}。
+     * 服务商可在 provider 的 {@code extra.metrics_url} 中配置该 URL；
+     * 非空时 {@link ChatClient#indicator()} 默认返回基于此 URL 的
+     * {@link ChatClientIndicator} 实现，为空时返回 {@code null}（不支持）。</p>
+     *
+     * <p>该 URL 的请求头（认证等）跟随 {@link #extraHeaders} 与认证方案配置。</p>
+     */
+    private String metricsUrl;
+
+    /**
      * 是否使用 GPU（本地推理引擎专用：llama.cpp / onnxruntime / pytorch 等）
      *
      * <p>null 表示跟随 {@code deeplearning.device} 系统属性（默认 auto）。</p>

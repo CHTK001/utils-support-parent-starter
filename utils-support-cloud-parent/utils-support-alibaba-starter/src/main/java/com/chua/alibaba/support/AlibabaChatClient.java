@@ -14,6 +14,7 @@ import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.protocol.ConnectionOptions;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
+import com.chua.common.support.ai.chat.ChatClientIndicator;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.chat.ChatResponse;
@@ -475,4 +476,27 @@ public class AlibabaChatClient implements ChatClient {
         return messages;
     }
 
+    @Override
+    /**
+     * 指标能力（价格 / 上下文窗口 / 能力标志）
+     *
+     * <p>优先使用用户配置的 {@link ChatClientSetting#getMetricsUrl()}（走
+     * {@link HttpChatClientIndicator}）；未配置时回退到免 Key 的 Models.dev
+     * 聚合端点（{@link ModelsDevChatClientIndicator}），按 {@code alibaba}
+     * 厂商键过滤出通义千问全系模型的定价等指标。</p>
+     */
+    public ChatClientIndicator indicator() {
+        return ChatClient.super.indicator();
+    }
+
+
+    @Override
+    /**
+     * 获取客户端配置。
+     *
+     * @return 配置
+     */
+    public ChatClientSetting getSetting() {
+        return setting;
+    }
 }
