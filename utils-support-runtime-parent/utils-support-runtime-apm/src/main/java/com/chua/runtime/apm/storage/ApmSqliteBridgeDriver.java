@@ -10,20 +10,17 @@ import java.util.logging.Logger;
 /**
  * APM 内部最小 SQLite JDBC 驱动（桥接驱动）。
  *
- * <p>用途：官方 {@code org.sqlite.JDBC}（自 3.53 起是模板基类）在 agent 场景下会在
- * initialize 阶段重新定义自身并链接 {@code java.sql.Driver}，此时抛出
- * {@code NoClassDefFoundError: java/sql/Driver}，导致驱动注册失败。
- * 本类自身直接实现 {@link Driver}，注册稳定；实际建连委托给官方
- * {@code org.sqlite.SQLiteDataSource}，因此不重复实现数据库逻辑。</p>
+ * <p>实际建连委托给官方 {@code org.sqlite.JDBC}，因此不重复实现数据库逻辑。</p>
  *
- * <p><b>命名约束</b>：本类的简单名一旦与 agent 进程里曾加载失败的旧名相同
- * （如 {@code ApmSqliteDriver}、{@code SqliteDriver}），链接 {@code java.sql.Driver}
- * 会稳定抛 {@code NoClassDefFoundError}，与字节码和 ClassLoader 无关；
- * 换名即可恢复。修改类名时务必在真实 {@code -javaagent} 场景下回归验证。</p>
+ * <p><b>禁止引用 {@code javax.sql}</b>：本类在 agent 场景下由隔离 ClassLoader 定义，
+ * 而 agent 把自身 jar 追加到 bootstrap 搜索路径后，JVM 链接任何依赖 {@code javax.sql}
+ * 的类都会失败（实测 JDK 25 + sqlite-jdbc）。官方 {@code org.sqlite.SQLiteDataSource}
+ * 正是这类类，所以这里只使用 {@code org.sqlite.JDBC}，并且只用 {@code java.sql}。</p>
  *
- * <p>本类<b>不使用</b> {@code org.sqlite} 包名：该包名会被官方驱动的 child-first
- * 规则接管，若同名会把官方 {@code JDBC} 类遮住，反而破坏 {@code SQLiteDataSource}
- * 的解析。</p>
+ * <p><b>命名约束</b>：修改类名时务必在真实 {@code -javaagent} 场景下回归验证。</p>
+ *
+ * <p>本类<b>不使用</b> {@code org.sqlite} 包名：该包名会被隔离 ClassLoader 的
+ * child-first 规则接管，若同名会把官方 {@code JDBC} 类遮住。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -36,9 +33,9 @@ public final class ApmSqliteBridgeDriver implements Driver {
     private static final String PREFIX = "jdbc:sqlite:";
 
     /**
-     * 官方数据源类名（由 {@code sqlite-jdbc} 提供）
+     * 官方驱动类名（由 {@code sqlite-jdbc} 提供，只依赖 {@code java.sql}）
      */
-    private static final String DATA_SOURCE = "org.sqlite.SQLiteDataSource";
+    private static final String OFFICIAL_DRIVER = "org.sqlite.JDBC";
 
     /**
      * 静态注册到 DriverManager（应用 classpath 场景下可直接 getConnection）
@@ -71,20 +68,10 @@ public final class ApmSqliteBridgeDriver implements Driver {
             return null;
         }
         try {
-            Class<?> type = Class.forName(DATA_SOURCE, true, ApmSqliteBridgeDriver.class.getClassLoader());
-            Object source = type.getDeclaredConstructor().newInstance();
-            type.getMethod("setUrl", String.class).invoke(source, url);
-            if (info != null) {
-                for (String key : info.stringPropertyNames()) {
-                    try {
-                        type.getMethod("setProperty", String.class, String.class)
-                                .invoke(source, key, info.getProperty(key));
-                    } catch (NoSuchMethodException ignored) {
-                        // 该配置项官方数据源不支持，交给默认值
-                    }
-                }
-            }
-            return ((javax.sql.DataSource) source).getConnection();
+            ClassLoader loader = ApmSqliteBridgeDriver.class.getClassLoader();
+            Class<?> type = Class.forName(OFFICIAL_DRIVER, true, loader);
+            Driver delegate = (Driver) type.getDeclaredConstructor().newInstance();
+            return delegate.connect(url, info == null ? new Properties() : info);
         } catch (SQLException e) {
             throw e;
         } catch (Throwable e) {

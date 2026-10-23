@@ -188,6 +188,16 @@ public final class ApmStorageClassLoader {
      * @param className 驱动类名
      * @return 驱动实例；未实例化返回 null
      */
+    /**
+     * 取隔离加载器内实例化的驱动（交给隔离加载器内的存储实现使用）。
+     *
+     * <p>本方法只做 {@link Map} 读取、不引用 {@code java.sql}：本类由 bootstrap 定义，
+     * 一旦引用 {@code java.sql} 就会在链接期抛 {@code NoClassDefFoundError: java/sql/Driver}。
+     * 因此这里故意把返回类型写成 {@link Object}，由调用方（隔离加载器内）负责类型收窄。</p>
+     *
+     * @param className 驱动类名
+     * @return 驱动实例；未实例化返回 null
+     */
     public static Object driverInstance(String className) {
         return DRIVERS.get(className);
     }
@@ -317,6 +327,9 @@ public final class ApmStorageClassLoader {
                 if (isIsolatedClass(name)) {
                     // 存储实现与 JDBC 驱动必须在本加载器内定义：
                     // 若交给 bootstrap，它们就落在 java.sql 不可见的命名空间里，链接必失败。
+                    // 注意：这里<b>不能</b>调用 resolveClass —— 它会以委托方式重新解析
+                    // （等价 Class.forName），触发 java.sql.Driver 的再加载而失败（实测）。
+                    // 返回未链接的 Class 即可，链接在首次使用该类时于本加载器内完成。
                     synchronized (getClassLoadingLock(name)) {
                         Class<?> loaded = findLoadedClass(name);
                         if (loaded == null) {
@@ -324,11 +337,8 @@ public final class ApmStorageClassLoader {
                                 loaded = findClass(name);
                             } catch (ClassNotFoundException e) {
                                 // 本加载器没有该类（例如与 jar 无关的扩展点），交回父加载器
-                                return super.loadClass(name, resolve);
+                                return parent.loadClass(name);
                             }
-                        }
-                        if (resolve) {
-                            resolveClass(loaded);
                         }
                         return loaded;
                     }
@@ -337,11 +347,14 @@ public final class ApmStorageClassLoader {
                         || name.startsWith("com.chua.runtime.apm.")) {
                     // spy/protocol/apm 必须与调用方同一份类型，否则插桩回调会 ClassCastException
                     if (fallback == null) {
-                        return super.loadClass(name, resolve);
+                        return parent.loadClass(name);
                     }
                     return fallback.loadClass(name);
                 }
-                return super.loadClass(name, resolve);
+                // 用 parent.loadClass 而不是 super.loadClass：后者在匿名类里会被编译成
+                // invokespecial ClassLoader.loadClass，触发 java.sql.Driver 的反射再解析，
+                // 而本加载器所在命名空间解析不到它（NoClassDefFoundError）。
+                return parent.loadClass(name);
             }
         };
     }
