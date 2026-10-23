@@ -16,6 +16,11 @@ import java.util.logging.Logger;
  * 本类自身直接实现 {@link Driver}，注册稳定；实际建连委托给官方
  * {@code org.sqlite.SQLiteDataSource}，因此不重复实现数据库逻辑。</p>
  *
+ * <p><b>命名约束</b>：本类的简单名一旦与 agent 进程里曾加载失败的旧名相同
+ * （如 {@code ApmSqliteDriver}、{@code SqliteDriver}），链接 {@code java.sql.Driver}
+ * 会稳定抛 {@code NoClassDefFoundError}，与字节码和 ClassLoader 无关；
+ * 换名即可恢复。修改类名时务必在真实 {@code -javaagent} 场景下回归验证。</p>
+ *
  * <p>本类<b>不使用</b> {@code org.sqlite} 包名：该包名会被官方驱动的 child-first
  * 规则接管，若同名会把官方 {@code JDBC} 类遮住，反而破坏 {@code SQLiteDataSource}
  * 的解析。</p>
@@ -23,7 +28,7 @@ import java.util.logging.Logger;
  * @author CH
  * @since 4.0.0.42
  */
-public final class ApmSqliteDriver implements Driver {
+public final class ApmSqliteBridgeDriver implements Driver {
 
     /**
      * URL 前缀
@@ -40,7 +45,7 @@ public final class ApmSqliteDriver implements Driver {
      */
     static {
         try {
-            java.sql.DriverManager.registerDriver(new ApmSqliteDriver());
+            java.sql.DriverManager.registerDriver(new ApmSqliteBridgeDriver());
         } catch (SQLException e) {
             throw new ExceptionInInitializerError(e);
         }
@@ -49,10 +54,9 @@ public final class ApmSqliteDriver implements Driver {
     /**
      * 构造器。
      */
-    public ApmSqliteDriver() {
+    public ApmSqliteBridgeDriver() {
     }
 
-    @Override
     /**
      * 建立连接
      *
@@ -61,12 +65,13 @@ public final class ApmSqliteDriver implements Driver {
      * @return 连接；URL 不被接受时返回 null
      * @throws SQLException 连接失败
      */
+    @Override
     public Connection connect(String url, Properties info) throws SQLException {
         if (!acceptsURL(url)) {
             return null;
         }
         try {
-            Class<?> type = Class.forName(DATA_SOURCE, true, ApmSqliteDriver.class.getClassLoader());
+            Class<?> type = Class.forName(DATA_SOURCE, true, ApmSqliteBridgeDriver.class.getClassLoader());
             Object source = type.getDeclaredConstructor().newInstance();
             type.getMethod("setUrl", String.class).invoke(source, url);
             if (info != null) {
@@ -89,18 +94,17 @@ public final class ApmSqliteDriver implements Driver {
         }
     }
 
-    @Override
     /**
      * 是否接受该 URL
      *
      * @param url 连接地址
      * @return 是否接受
      */
+    @Override
     public boolean acceptsURL(String url) {
         return url != null && url.startsWith(PREFIX);
     }
 
-    @Override
     /**
      * 连接属性信息
      *
@@ -108,46 +112,47 @@ public final class ApmSqliteDriver implements Driver {
      * @param info 连接属性
      * @return 属性描述
      */
+    @Override
     public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) {
         return new DriverPropertyInfo[0];
     }
 
-    @Override
     /**
      * 主版本号
      *
      * @return 版本
      */
+    @Override
     public int getMajorVersion() {
         return 3;
     }
 
-    @Override
     /**
      * 次版本号
      *
      * @return 版本
      */
+    @Override
     public int getMinorVersion() {
         return 0;
     }
 
-    @Override
     /**
      * 是否完全遵循 JDBC
      *
      * @return 恒为 false
      */
+    @Override
     public boolean jdbcCompliant() {
         return false;
     }
 
-    @Override
     /**
      * 父日志器
      *
      * @return 日志器
      */
+    @Override
     public Logger getParentLogger() {
         return Logger.getLogger("com.chua.runtime.apm.storage.sqlite");
     }

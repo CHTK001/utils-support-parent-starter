@@ -47,6 +47,8 @@ import io.agentscope.harness.agent.HarnessAgent;
 import io.agentscope.harness.agent.memory.compaction.ToolResultEvictionConfig;
 import io.agentscope.harness.agent.subagent.SubagentDeclaration;
 import io.agentscope.harness.agent.subagent.WorkspaceMode;
+import io.agentscope.harness.agent.filesystem.spec.LocalFilesystemSpec;
+import java.nio.file.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
@@ -1466,7 +1468,24 @@ public class AgentScopeAgent implements Agent {
 
         // 设置工作目录：文件类工具 / shell 工具以此为根，相对路径在此目录下解析
         if (this.workspacePath != null && !this.workspacePath.isBlank()) {
-            builder.workspace(this.workspacePath);
+            Path ws = Path.of(this.workspacePath).toAbsolutePath().normalize();
+            builder.workspace(ws.toString());
+
+            /*
+             * 【2026-10-23 必须显式注入】只调 builder.workspace(...) 时，
+             * **shell 工具的执行目录仍是进程 CWD** —— 实测（agentscope 2.0.4）：
+             * agent 执行 `pwd` 返回 `/opt/ai-starter/runtime`（服务的 systemd
+             * WorkingDirectory），而会话工作区是 `/opt/ai-starter/workspace/admin/agent`。
+             * 后果就是 agent 写相对路径落到应用自己的目录
+             * （`/opt/ai-starter/runtime/pelican_bike.html`），写绝对路径则任意落点。
+             *
+             * harness 提供了 LocalFilesystemSpec（fluent setter：project / mode /
+             * projectWritable / isolationScope / addRoot），这里显式把 project 指到
+             * 会话工作区并允许写入，shell 的 shellCwd 才会跟着走。
+             */
+            builder.filesystem(new LocalFilesystemSpec()
+                    .project(ws)
+                    .projectWritable(true));
         }
 
         // 禁用 shell 通道：文件工具由路径白名单（PathPolicy，默认 ROOTED）挡住越界，
