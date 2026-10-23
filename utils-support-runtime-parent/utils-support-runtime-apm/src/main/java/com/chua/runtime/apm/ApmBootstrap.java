@@ -395,6 +395,12 @@ public class ApmBootstrap {
         if (!flushTimeout.isEmpty()) {
             configMap.put("apm.storage.flush.timeout.ms", flushTimeout);
         }
+        // 自维护周期：按保留期/容量自动淘汰的检查间隔
+        String maintenanceInterval = resolveConfig("storage.maintenance.interval.ms",
+                "apm.storage.maintenance.interval.ms", "");
+        if (!maintenanceInterval.isEmpty()) {
+            configMap.put("apm.storage.maintenance.interval.ms", maintenanceInterval);
+        }
         // 未显式给出的键沿用系统属性直传（便于运维临时加参数）。
         // 但宿主已在活配置源里显式声明的键（哪怕是空值）不得被系统属性覆盖回来，
         // 否则「运行中清空 path 回到默认目录」这类操作会被旧系统属性悄悄抵消。
