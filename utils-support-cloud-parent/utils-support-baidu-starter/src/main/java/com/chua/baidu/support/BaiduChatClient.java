@@ -417,4 +417,14 @@ public class BaiduChatClient implements ChatClient {
         System.setProperty("https.proxyPort", String.valueOf(port));
     }
 
+
+    @Override
+    /**
+     * 获取客户端配置。
+     *
+     * @return 配置
+     */
+    public ChatClientSetting getSetting() {
+        return setting;
+    }
 }

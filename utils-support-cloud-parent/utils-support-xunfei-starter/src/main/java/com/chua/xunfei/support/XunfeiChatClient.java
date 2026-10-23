@@ -560,4 +560,14 @@ public class XunfeiChatClient implements ChatClient {
         int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 80;
         return new Proxy(proxyType, new InetSocketAddress(host, port));
     }
+
+    @Override
+    /**
+     * 获取客户端配置。
+     *
+     * @return 配置
+     */
+    public ChatClientSetting getSetting() {
+        return setting;
+    }
 }

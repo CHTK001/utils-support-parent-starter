@@ -731,6 +731,28 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     }
 
     /**
+     * 获取当前服务商的指标能力（价格 / 支持的端点 / 支持的参数等）。
+     *
+     * <p>各服务商可通过实现 {@link ChatClientIndicator} 暴露本地「模型指标端点」
+     * （如 Pollinations 的 {@code /models?reliability=all}，携带
+     * {@code supported_endpoints} 与 {@code supported_parameters}），把价格、
+     * 端点、参数等维度数据提供给上层（如 {@code pages/ai} 的模型卡片）。
+     * 没有此类端点或暂不支持的服务商，保持默认返回 {@code null}，
+     * 调用方应据此回退到后端的「模型指标库」快照，而非把缺失当成 0。</p>
+     *
+     * <p>默认实现委托给 {@link com.chua.common.support.ai.chat.indicator.ChatClientIndicators}：
+     * 优先使用 {@link ChatClientSetting#getMetricsUrl()} 配置的端点，否则按
+     * {@link ChatClientSetting#getProvider()} 路由到该服务商的官方模型 / 定价来源
+     * （OpenRouter、Pollinations、Vercel AI Gateway、Models.dev 聚合等）。
+     * 因此新增服务商时只需在此登记来源，无需逐个 {@code ChatClient} 覆写。</p>
+     *
+     * @return 指标实现；当前服务商不支持时返回 null
+     */
+    default ChatClientIndicator indicator() {
+        return com.chua.common.support.ai.chat.indicator.ChatClientIndicators.of(getSetting());
+    }
+
+    /**
      * 执行 AI 中转站真伪探测。
      *
      * <p>基于多维度交叉验证策略，探测 OpenAI 兼容 API 中转站背后真实使用的模型。

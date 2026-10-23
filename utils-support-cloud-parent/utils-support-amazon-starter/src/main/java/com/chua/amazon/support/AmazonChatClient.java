@@ -493,4 +493,14 @@ public ChatClient newChat() {
         };
     }
 
+
+    @Override
+    /**
+     * 获取客户端配置。
+     *
+     * @return 配置
+     */
+    public ChatClientSetting getSetting() {
+        return setting;
+    }
 }
