@@ -515,9 +515,6 @@ public class SqliteStorage implements ApmStorage {
     private Connection open() throws SQLException {
         String url = JDBC_PREFIX + dbPath;
         Object d = this.driver;
-        if (d == null) {
-            d = ApmStorageClassLoader.driver();
-        }
         if (d != null) {
             try {
                 Object conn = d.getClass().getMethod("connect", String.class, java.util.Properties.class)
@@ -553,9 +550,10 @@ public class SqliteStorage implements ApmStorage {
             return null;
         }
         String name = driverClass.trim();
-        java.sql.Driver isolated = ApmStorageClassLoader.driver();
-        if (isolated != null) {
-            return isolated;
+        Object isolated = ApmStorageClassLoader.driverInstance(name);
+        if (isolated instanceof java.sql.Driver driver) {
+            LOADED_DRIVERS.add(name);
+            return driver;
         }
         ClassLoader self = SqliteStorage.class.getClassLoader();
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
