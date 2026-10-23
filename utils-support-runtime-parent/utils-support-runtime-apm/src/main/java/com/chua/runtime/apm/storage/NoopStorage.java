@@ -78,4 +78,15 @@ public class NoopStorage implements ApmStorage {
     @Override public String name() {
         return DEFAULT_NAME;
     }
+
+    @Override public boolean available() {
+        return false;
+    }
+
+    @Override public Map<String, Object> describe() {
+        Map<String, Object> state = new java.util.LinkedHashMap<>();
+        state.put("type", DEFAULT_NAME);
+        state.put("available", false);
+        return state;
+    }
 }

@@ -303,9 +303,43 @@ public class ApmBootstrap {
             return;
         }
         // 1. 先启动存储层(Handlers 在 addRecord 时会调用 StorageManager.append)
-        // 取值优先级：Agent options > 系统属性 apm.storage.* > 默认值。
-        // Agent options 即 -javaagent:jar=storage.type=sqlite,... 或 plugin.agent.options，
-        // 部署方按环境调整存储行为时无需改系统属性。
+        try {
+            StorageManager.init(resolveStorageConfig());
+        } catch (Throwable e) {
+            // StorageManager 内部已做降级，这里再兜一层：观测组件永不阻断宿主启动
+            LOG.log(Level.SEVERE, "APM 存储层启动异常，APM 采集本次不生效（业务进程继续启动）", e);
+        }
+
+        // 2. 启动所有 Handler — 失败标记但不阻断(便于排查)
+        int startedCount = 0;
+        for (Plugin handler : handlers) {
+            try {
+                handler.start();
+                startedCount++;
+                LOG.log(Level.INFO, String.format("APM 处理器[%s] 启动", handler.name()));
+            } catch (Exception e) {
+                LOG.log(Level.SEVERE, String.format("APM 处理器[%s] 启动失败", handler.name()), e);
+            }
+        }
+        started = true;
+        if (startedCount == 0) {
+            LOG.log(Level.WARNING, "APM 所有 Handler 启动失败,APM 实际不工作");
+        }
+    }
+
+    /**
+     * 解析当前应使用的存储配置。
+     *
+     * <p>取值优先级（高 → 低）：宿主注入值 &gt; Agent options &gt; 系统属性 &gt; 默认值。
+     * Agent options 即 {@code -javaagent:jar=storage.type=sqlite,...} 或
+     * {@code plugin.agent.options}，部署方按环境调整存储行为时无需改系统属性。</p>
+     *
+     * <p>{@link #start()} 与 {@link #reloadStorageConfig()} 共用本方法，
+     * 保证「启动时生效的配置」与「热更新时生效的配置」口径完全一致。</p>
+     *
+     * @return 存储配置
+     */
+    public StorageConfig resolveStorageConfig() {
         Map<String, String> configMap = Wraps.map();
         configMap.put("apm.storage.type",
                 resolveConfig("storage.type", "apm.storage.type", "inmemory"));
@@ -327,28 +361,54 @@ public class ApmBootstrap {
         if (!jdbcDriver.isEmpty()) {
             configMap.put("apm.storage.jdbc.driver", jdbcDriver);
         }
-        try {
-            StorageManager.init(new StorageConfig(configMap));
-        } catch (Throwable e) {
-            // StorageManager 内部已做降级，这里再兜一层：观测组件永不阻断宿主启动
-            LOG.log(Level.SEVERE, "APM 存储层启动异常，APM 采集本次不生效（业务进程继续启动）", e);
+        // 写入模式：async=true 异步批量（默认），false 逐条同步
+        String async = resolveConfig("storage.async", "apm.storage.async", "true");
+        configMap.put("apm.storage.async", async);
+        String flushTimeout = resolveConfig("storage.flush.timeout.ms", "apm.storage.flush.timeout.ms", "");
+        if (!flushTimeout.isEmpty()) {
+            configMap.put("apm.storage.flush.timeout.ms", flushTimeout);
         }
-
-        // 2. 启动所有 Handler — 失败标记但不阻断(便于排查)
-        int startedCount = 0;
-        for (Plugin handler : handlers) {
-            try {
-                handler.start();
-                startedCount++;
-                LOG.log(Level.INFO, String.format("APM 处理器[%s] 启动", handler.name()));
-            } catch (Exception e) {
-                LOG.log(Level.SEVERE, String.format("APM 处理器[%s] 启动失败", handler.name()), e);
+        // 未显式给出的键沿用系统属性直传（便于运维临时加参数）
+        for (String key : System.getProperties().stringPropertyNames()) {
+            if (key.startsWith("apm.storage.") && !configMap.containsKey(key)) {
+                configMap.put(key, System.getProperty(key));
             }
         }
-        started = true;
-        if (startedCount == 0) {
-            LOG.log(Level.WARNING, "APM 所有 Handler 启动失败,APM 实际不工作");
+        return new StorageConfig(configMap);
+    }
+
+    /**
+     * 运行时重新加载存储配置（热更新）。
+     *
+     * <p>重新解析当前配置（含宿主注入、Agent options、系统属性）并与生效配置比对，
+     * 有差异时才切换存储实例。切换失败时保留原存储继续工作，不影响已采集的数据。</p>
+     *
+     * <p>典型用法：运维调整 {@code plugin.hotsport.apm.storage.*} 或系统属性后，
+     * 通过 HTTP 接口触发，无需重启进程。</p>
+     *
+     * @return 切换成功或无需切换返回 true；新配置不可用返回 false
+     */
+    public boolean reloadStorageConfig() {
+        StorageConfig config;
+        try {
+            config = resolveStorageConfig();
+        } catch (Throwable e) {
+            LOG.log(Level.WARNING, "热更新：解析存储配置失败，保持原配置", e);
+            return false;
         }
+        return StorageManager.reconfigure(config);
+    }
+
+    /**
+     * 当前存储的运行时状态（运维自检）。
+     *
+     * @return 状态映射
+     */
+    public Map<String, Object> storageStatus() {
+        Map<String, Object> status = new java.util.LinkedHashMap<>(StorageManager.describe());
+        status.putIfAbsent("type", StorageManager.get().name());
+        status.put("available", StorageManager.get().available());
+        return status;
     }
 
     /**
