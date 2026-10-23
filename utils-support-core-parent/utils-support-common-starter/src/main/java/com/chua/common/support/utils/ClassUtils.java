@@ -728,6 +728,31 @@ public class ClassUtils {
         return forName(name, getDefaultClassLoader());
     }
     /**
+     * 按候选类名顺序解析，返回第一个可解析的 {@link Class}。
+     *
+     * <p>典型用途：同一能力存在多个可选实现依赖时，按优先级探测哪一个在
+     * classpath 上，例如数据源探测里 {@code DruidDataSource} 与
+     * {@code HikariDataSource} 二选一。本方法等价于对 {@code names} 逐个调用
+     * {@link #forName(String)} 并取第一个非 {@code null} 结果，因此同样带缓存、
+     * 支持内部类与数组名称，失败不抛异常。</p>
+     *
+     * @param names 候选类名（按优先级从高到低排列），可为 null 或空
+     * @return 第一个成功解析的 {@link Class}；全部无法解析时返回 {@code null}
+     * @since 4.0.0.42
+     */
+    public static Class<?> forNames(String... names) {
+        if (null == names || names.length == 0) {
+            return null;
+        }
+        for (String name : names) {
+            Class<?> clazz = forName(name);
+            if (null != clazz) {
+                return clazz;
+            }
+        }
+        return null;
+    }
+    /**
      * 类                                           .
      *
      *                                                                                              

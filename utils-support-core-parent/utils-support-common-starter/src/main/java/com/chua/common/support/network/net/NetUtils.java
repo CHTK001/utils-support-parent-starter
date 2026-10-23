@@ -3,11 +3,14 @@ package com.chua.common.support.network.net;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.StringUtils;
 
+import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.Socket;
 import java.net.SocketException;
 import java.util.Enumeration;
+import java.util.List;
 
 /**
  * 网络工具类
@@ -116,8 +119,8 @@ public final class NetUtils {
      *
      * @return 本机全部 IPv4 列表（可能为空）
      */
-    public static java.util.List<String> getLocalIps() {
-        java.util.List<String> ips = Wraps.list();
+    public static List<String> getLocalIps() {
+        List<String> ips = Wraps.list();
         try {
             Enumeration<NetworkInterface> nifs = NetworkInterface.getNetworkInterfaces();
             while (nifs.hasMoreElements()) {
@@ -154,7 +157,7 @@ public final class NetUtils {
      * @return 非回环 IPv4；无可用网卡时退回 {@link #getLocalHost()}，再退回 {@code 127.0.0.1}
      */
     public static String getPreferredLocalIp() {
-        java.util.List<String> ips = getLocalIps();
+        List<String> ips = getLocalIps();
         if (!ips.isEmpty()) {
             return ips.getFirst();
         }
@@ -193,6 +196,28 @@ public final class NetUtils {
             long value = ipToLong(ip);
             return ipToLong(start) <= value && value <= ipToLong(end);
         } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * 判断本机指定端口是否已被占用。
+     *
+     * <p>实现方式：尝试与 {@code localhost:port} 建立一次 TCP 连接，
+     * 连接成功说明有进程在该端口监听；连接失败（拒绝/超时/无权限）视为未被占用。
+     * 仅用于本机端口占用探测，不适用于探测远端主机端口——远端主机不可达同样会
+     * 返回 {@code false}，语义上是"未探测到监听"而非"确认空闲"。</p>
+     *
+     * @param port 待探测端口，合法范围为 1~65535
+     * @return 本机该端口已被占用返回 true，否则返回 false
+     */
+    public static boolean isPortInUsed(int port) {
+        if (port <= 0 || port > 65535) {
+            return false;
+        }
+        try (Socket socket = new Socket(LOCALHOST, port)) {
+            return true;
+        } catch (IOException e) {
             return false;
         }
     }

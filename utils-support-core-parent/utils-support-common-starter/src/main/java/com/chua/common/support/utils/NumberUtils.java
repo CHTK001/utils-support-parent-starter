@@ -12,6 +12,7 @@ import java.util.function.IntConsumer;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import static com.chua.common.support.constant.CommonConstant.*;
+import static com.chua.common.support.constant.RegexConstant.DECIMAL_NUMBER;
 import static com.chua.common.support.constant.RegexConstant.DECIMALS;
 import static com.chua.common.support.constant.RegexConstant.INT_PATTERN;
 /**
@@ -61,6 +62,20 @@ public class NumberUtils {
      * 中文单位字符 → 数值映射（十/百/千/万/亿）
      */
     private static final Map<Character, Integer> CN_UNITS = Wraps.map();
+    /**
+     * 十进制数值预编译正则，与 {@link java.math.BigDecimal#BigDecimal(String)} 的可接受字面量一致。
+     * 用于 {@link #isDecimalNumber(CharSequence)}，避免每次判断都编译正则。
+     */
+    private static final Pattern DECIMAL_NUMBER_PATTERN =
+            Pattern.compile("^" + DECIMAL_NUMBER + "$");
+    /**
+     * 数值字面量中的空白与千分位逗号预编译正则（P3C 1.9.1 强制：正则必须预编译并使用）。
+     */
+    private static final Pattern NUMBER_NOISE_PATTERN = Pattern.compile("(\\s+|,)");
+    /**
+     * 空字符串常量，用于数值字面量规范化后的判空，避免魔法值。
+     */
+    private static final String EMPTY_TEXT = "";
     static {
         CN_DIGITS.put('零', 0);
         CN_DIGITS.put('一', 1);
@@ -708,10 +723,14 @@ public class NumberUtils {
         return INT_PATTERN.matcher(str).matches();
     }
     /**
-     *                
+     * 判断字符串是否全部由十进制数字字符组成（只认 0-9，不含符号与小数点）.
      *
-     * @param str str
-     * @return boolean
+     * <p>语义严格：{@code "123"} 返回 true，而 {@code "12.5"}、{@code "-3"}、
+     * {@code "1e5"}、{@code ""} 均返回 false。需要接受小数、负数、科学计数法时，
+     * 请改用 {@link #isDecimalNumber(CharSequence)}。</p>
+     *
+     * @param str 待判断的字符串，为 null 时返回 false
+     * @return 全部为 0-9 数字字符且长度大于 0 时返回 true
      */
     public static boolean isNumber(final CharSequence str) {
         if (null == str) {
@@ -724,6 +743,46 @@ public class NumberUtils {
             }
         }
         return true;
+    }
+    /**
+     * 判断字符串是否为十进制数值（整数、小数、负数、科学计数法均可）.
+     *
+     * <p>与 {@link #isNumber(CharSequence)} 的区别：本方法接受 {@code "12.5"}、
+     * {@code "-3"}、{@code "1e5"}、{@code "1.5e-3"} 这类可被
+     * {@link java.math.BigDecimal#BigDecimal(String)} 解析的十进制字面量，
+     * 而 {@code isNumber} 只认纯数字字符。实现走预编译正则
+     * {@code DECIMAL_NUMBER_PATTERN}，不做异常驱动解析，适合"先判断再转换"的热点路径。</p>
+     *
+     * <p>边界说明：先剔除空白与千分位逗号（如 {@code "1,234"} → {@code "1234"}），
+     * 因为调用方常直接传数据库或界面取出的格式化数字；空串、null、
+     * {@code "NaN"}、{@code "Infinity"} 均返回 false。</p>
+     *
+     * @param str 待判断的字符串，为 null 或空白时返回 false
+     * @return 可解析为十进制数值时返回 true
+     */
+    public static boolean isDecimalNumber(final CharSequence str) {
+        if (null == str) {
+            return false;
+        }
+        String decimals = normalizeNumberLiteral(str);
+        return !decimals.isEmpty() && DECIMAL_NUMBER_PATTERN.matcher(decimals).matches();
+    }
+    /**
+     * 规范化数值字面量：剔除全部空白字符与千分位逗号。
+     *
+     * <p>与 {@link #isDecimalNumber(CharSequence)} 使用同一份口径，
+     * 保证"判断通过的字面量"可以直接交给 {@link java.math.BigDecimal#BigDecimal(String)}
+     * 构造而不会因 {@code "1,234"}、{@code " 12 "} 这类格式抛 {@link NumberFormatException}。
+     * 调用方应先用本方法规范化，再判断、再转换，三步使用同一个字符串。</p>
+     *
+     * @param str 原始字面量，为 null 时返回空串
+     * @return 剔除空白与逗号后的字面量，不会为 null
+     */
+    public static String normalizeNumberLiteral(final CharSequence str) {
+        if (null == str) {
+            return EMPTY_TEXT;
+        }
+        return NUMBER_NOISE_PATTERN.matcher(str).replaceAll(EMPTY_TEXT);
     }
     /**
      *                            

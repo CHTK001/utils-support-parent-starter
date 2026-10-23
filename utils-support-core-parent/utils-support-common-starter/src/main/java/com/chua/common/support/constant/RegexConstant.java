@@ -159,6 +159,22 @@ public final class RegexConstant {
     public static final String NUMBERS = "\\d+";
 
     /**
+     * 十进制数值正则。
+     *
+     * <p>覆盖整数、小数、负数、前导小数点、科学计数法（指数可带正负号），
+     * 整体与 {@link java.math.BigDecimal#BigDecimal(String)} 可接受的字面量一致：</p>
+     * <ul>
+     *   <li>{@code 123}、{@code -3}、{@code +7} —— 整数</li>
+     *   <li>{@code 12.5}、{@code .5}、{@code 233.} —— 小数</li>
+     *   <li>{@code 1e5}、{@code 1.5e-3}、{@code 2E+10} —— 科学计数法</li>
+     * </ul>
+     *
+     * <p>不接受空串、{@code NaN}、{@code Infinity}、千分位逗号；
+     * 需要容忍千分位时请先去除 {@code ,} 再匹配。</p>
+     */
+    public static final String DECIMAL_NUMBER = "[+-]?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?";
+
+    /**
      * 纯字母正则。
      * 匹配一个或多个大小写英文字母。
      */
