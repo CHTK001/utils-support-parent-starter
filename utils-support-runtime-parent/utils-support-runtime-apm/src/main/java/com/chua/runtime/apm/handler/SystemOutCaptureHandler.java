@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,6 +61,11 @@ public class SystemOutCaptureHandler implements Plugin {
      * 环形缓冲。
      */
     private final ConcurrentLinkedDeque<SystemOutEntry> entries = new ConcurrentLinkedDeque<>();
+
+    /**
+     * 条目序号生成器 — 供实时日志流做增量游标（同一毫秒多条也能区分）。
+     */
+    private final AtomicLong seqGen = new AtomicLong(0);
 
     /**
      * 原始 stdout（恢复用）。
@@ -163,6 +169,34 @@ public class SystemOutCaptureHandler implements Plugin {
     }
 
     /**
+     * 增量拉取 — 返回序号大于 {@code afterSeq} 的全部条目（实时日志流游标）。
+     *
+     * <p>条目在环形缓冲中天然按 seq 递增排列；缓冲被淘汰后老序号永久不可达，
+     * 客户端应在上游的 {@link #lastSeq()} 处续读，缺失段落自行回退到快照。</p>
+     *
+     * @param afterSeq 游标（只返回 seq &gt; afterSeq 的条目）
+     * @return 增量条目（按 seq 升序）；无增量返回空列表
+     */
+    public List<SystemOutEntry> tailAfter(long afterSeq) {
+        List<SystemOutEntry> result = new ArrayList<>();
+        for (SystemOutEntry e : entries) {
+            if (e.getSeq() > afterSeq) {
+                result.add(e);
+            }
+        }
+        return Collections.unmodifiableList(result);
+    }
+
+    /**
+     * 当前最大序号（实时日志流续读游标）。
+     *
+     * @return 最大 seq；尚无条目返回 0
+     */
+    public long lastSeq() {
+        return seqGen.get();
+    }
+
+    /**
      * 获取全部系统输出。
      *
      * @return 输出条目
@@ -246,6 +280,7 @@ public class SystemOutCaptureHandler implements Plugin {
             }
             SystemOutEntry entry = new SystemOutEntry();
             entry.setTimestamp(System.currentTimeMillis());
+            entry.setSeq(seqGen.incrementAndGet());
             entry.setSource(source);
             entry.setLevel("STDERR".equals(source) ? "ERROR" : "INFO");
             entry.setLine(text);
@@ -262,6 +297,7 @@ public class SystemOutCaptureHandler implements Plugin {
     @Data
     public static class SystemOutEntry {
         private long timestamp;
+        private long seq;
         private String source;
         private String level;
         private String line;

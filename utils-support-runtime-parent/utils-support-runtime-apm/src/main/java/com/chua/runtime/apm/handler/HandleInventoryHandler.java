@@ -103,6 +103,21 @@ public class HandleInventoryHandler implements Plugin, RuntimeSpy.Interceptor {
     private final Map<String, HandleRecord> handles = new ConcurrentHashMap<>();
 
     /**
+     * 各类型累计打开数（增长趋势用：打开持续增长且存活同步增长 → 泄漏征兆）。
+     */
+    private final Map<HandleKind, AtomicLong> openedTotal = new ConcurrentHashMap<>();
+
+    /**
+     * 各类型累计关闭数。
+     */
+    private final Map<HandleKind, AtomicLong> closedTotal = new ConcurrentHashMap<>();
+
+    /**
+     * 记录起点时间（增长窗口计算用）。
+     */
+    private volatile long startedAt;
+
+    /**
      * handleId 生成器。
      */
     private final AtomicLong idGenerator = new AtomicLong(0);
@@ -159,6 +174,7 @@ public class HandleInventoryHandler implements Plugin, RuntimeSpy.Interceptor {
         RuntimeSpy.registerInterceptor(SOCKET, "close", "()V", InterceptPoint.EXIT, this);
         RuntimeSpy.registerInterceptor(SERVER_SOCKET, "close", "()V", InterceptPoint.EXIT, this);
         RuntimeSpy.registerInterceptor(THREAD, "start", "()V", InterceptPoint.ENTRY, this);
+        this.startedAt = System.currentTimeMillis();
         LOG.log(Level.INFO, "HandleInventoryHandler 启动完成");
     }
 
@@ -213,6 +229,7 @@ public class HandleInventoryHandler implements Plugin, RuntimeSpy.Interceptor {
         record.setStackTrace(captureStack());
         record.setClosed(false);
         handles.put(handleId, record);
+        openedTotal.computeIfAbsent(record.getKind(), k -> new AtomicLong()).incrementAndGet();
         if (handles.size() > MAX_HANDLES) {
             // 移除最老的未关闭句柄
             HandleRecord oldest = null;
@@ -247,6 +264,7 @@ public class HandleInventoryHandler implements Plugin, RuntimeSpy.Interceptor {
             oldest.setClosed(true);
             oldest.setLastUsedAt(System.currentTimeMillis());
             handles.remove(oldest.getHandleId());
+            closedTotal.computeIfAbsent(oldest.getKind(), k -> new AtomicLong()).incrementAndGet();
         }
     }
 
@@ -263,6 +281,44 @@ public class HandleInventoryHandler implements Plugin, RuntimeSpy.Interceptor {
         result.put("fileDescriptors", enumerateFileDescriptors(limit));
         result.put("threads", snapshotThreads(limit));
         result.put("summary", summary());
+        result.put("growth", growth());
+        return result;
+    }
+
+    /**
+     * 句柄增长趋势 — 判断是否在泄漏的关键指标。
+     *
+     * <p>每个类型输出三段计数：{@code opened} 累计打开、{@code closed} 累计关闭、
+     * {@code alive} 当前存活（= 打开 - 关闭）。一段时间内 {@code opened} 快速增长、
+     * {@code alive} 同步上涨而 {@code closed} 不涨，就是典型的资源泄漏征兆。</p>
+     *
+     * @return 各类型增长统计 { kind: { opened, closed, alive } }
+     */
+    public Map<String, Object> growth() {
+        Map<String, Object> result = new LinkedHashMap<>();
+        long windowMs = startedAt > 0 ? System.currentTimeMillis() - startedAt : 0L;
+        result.put("windowMs", windowMs);
+        Map<String, Map<String, Long>> perKind = new LinkedHashMap<>();
+        for (HandleKind kind : HandleKind.values()) {
+            long opened = openedTotal.getOrDefault(kind, new AtomicLong()).get();
+            long closed = closedTotal.getOrDefault(kind, new AtomicLong()).get();
+            long alive = 0L;
+            for (HandleRecord r : handles.values()) {
+                if (r.getKind() == kind) {
+                    alive++;
+                }
+            }
+            if (opened == 0L && alive == 0L) {
+                continue;
+            }
+            Map<String, Long> m = new LinkedHashMap<>();
+            m.put("opened", opened);
+            m.put("closed", closed);
+            m.put("alive", alive);
+            m.put("leakDelta", Math.max(0L, opened - closed - alive));
+            perKind.put(kind.name(), m);
+        }
+        result.put("perKind", perKind);
         return result;
     }
 
