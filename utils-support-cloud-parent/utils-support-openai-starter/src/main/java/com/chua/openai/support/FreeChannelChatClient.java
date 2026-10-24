@@ -233,6 +233,10 @@ public class FreeChannelChatClient implements RouterChatClient {
      * <p>命中后会把全局 key 补进没有单独指定 {@code apiKey} 的目标（{@code null} 表示未指定，
      * 空串表示显式免鉴权）。</p>
      *
+     * <p><b>纯路由</b>：免费渠道不持有可执行的上游地址，供应商的 baseUrl 只是占位配置，
+     * <b>不会</b>被当作请求目标。未命中任何路由（精确 / 前缀 / 显式 {@code default}）时
+     * 返回 {@code null}，由调用方报「未配置模型路由」，杜绝请求落到占位地址。</p>
+     *
      * @param model 模型标识
      * @return 路由目标；无法路由时返回 {@code null}
      */
@@ -253,13 +257,6 @@ public class FreeChannelChatClient implements RouterChatClient {
         RouteTarget fallback = routes.get(DEFAULT_ROUTE);
         if (fallback != null) {
             return withGlobalKey(fallback.withModel(model));
-        }
-        if (StringUtils.isNotBlank(setting.getBaseUrl())) {
-            return withGlobalKey(RouteTarget.builder()
-                    .baseUrl(setting.getBaseUrl())
-                    .provider(ChatClient.OPENAI_EXTENSION)
-                    .model(model)
-                    .build());
         }
         return null;
     }
@@ -333,6 +330,10 @@ public class FreeChannelChatClient implements RouterChatClient {
         RouteTarget target = route(model);
         if (target == null) {
             throw new IllegalStateException("免费渠道未配置模型路由: " + model);
+        }
+        // 命中但没配上游地址（baseUrl）时拒绝，避免 toSetting 从客户端设置复制占位 baseUrl 后真实执行
+        if (!target.available()) {
+            throw new IllegalStateException("免费渠道路由未配置上游地址: " + model);
         }
         String upstreamModel = StringUtils.isNotBlank(target.getModel()) ? target.getModel() : model;
         if (delegate != null && Objects.equals(delegateModel, upstreamModel)) {
