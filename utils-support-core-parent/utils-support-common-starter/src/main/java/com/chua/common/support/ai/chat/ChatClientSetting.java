@@ -1,5 +1,6 @@
 package com.chua.common.support.ai.chat;
 
+import com.chua.common.support.ai.chat.route.RouteTarget;
 import lombok.Builder;
 import lombok.Data;
 
@@ -186,6 +187,18 @@ public class ChatClientSetting {
      * <p>该 URL 的请求头（认证等）跟随 {@link #extraHeaders} 与认证方案配置。</p>
      */
     private String metricsUrl;
+
+    /**
+     * 路由表：模型（或上游前缀）→ 路由目标
+     *
+     * <p>仅供路由型客户端
+     * （{@link com.chua.common.support.ai.chat.route.RouterChatClient}）使用，普通客户端忽略。
+     * 键可以是完整模型名（如 {@code glm-4.7}），也可以是上游前缀（如 {@code kilo}，
+     * 用于 {@code kilo/glm-4.7} 这类带前缀的模型）；{@code default} 为兜底路由。</p>
+     *
+     * <p>数据通常来自供应商 {@code extra.routes}，由上层按数据库配置装配后下发。</p>
+     */
+    private Map<String, RouteTarget> routes;
 
     /**
      * 是否使用 GPU（本地推理引擎专用：llama.cpp / onnxruntime / pytorch 等）
