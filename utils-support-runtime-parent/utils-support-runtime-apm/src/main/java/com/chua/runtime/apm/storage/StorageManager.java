@@ -337,13 +337,13 @@ public final class StorageManager {
         try {
             Class<?> storageType = Class.forName(className, true, cl);
             Object instance = storageType.getDeclaredConstructor().newInstance();
-            if (!IsolatedStorageBridge.isBridgeable(className)) {
-                ApmStorage storage = (ApmStorage) instance;
-                log.info("存储实现 " + type + " 由 ClassLoader 加载: " + cl);
-                return storage;
-            }
-            log.info("存储实现 " + type + " 由隔离 ClassLoader 加载（桥接）: " + cl);
-            return new IsolatedStorageBridge(instance);
+            // 隔离侧实现的 ApmStorage 就是父侧接口：STORAGE_API 名单保证
+            // ApmStorage 由 bootstrap 定义（父优先），隔离加载器加载 SqliteStorage 时
+            // 其 implements 的接口仍从父链解析到同一份 —— 已实测 instanceof 为 true，
+            // 可以直接 cast，不需要反射桥接（旧架构的 ClassCastException 已不存在）。
+            ApmStorage storage = (ApmStorage) instance;
+            log.info("存储实现 " + type + " 由 ClassLoader 加载: " + cl);
+            return storage;
         } catch (Throwable e) {
             log.log(Level.WARNING, "隔离 ClassLoader 加载存储失败: " + e.getMessage(), e);
         }

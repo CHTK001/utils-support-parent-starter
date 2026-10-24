@@ -35,6 +35,13 @@ import java.util.TreeMap;
  * 调用方（{@link SqliteStorage}，本身也在隔离加载器内）拿到 {@link Object} 后不必解析
  * {@code java.sql}。</p>
  *
+ * <p><b>为什么不需要反射桥接</b>：{@code SqliteStorage} 在隔离加载器内加载时，其 {@code implements}
+ * 的 {@link ApmStorage} 接口经 {@code isChildFirst} 判定命中 {@link #STORAGE_API} 父优先名单，
+ * 由父加载器（bootstrap）定义 —— 与 {@code StorageManager} 侧拿到的是同一份接口类型。
+ * 已实测（bootstrap 追加 + 隔离加载器场景）{@code instanceof ApmStorage} 为 true，
+ * 直接 cast 即可调用，历史上「ClassCastException 必须反射桥接」的结论不再成立。
+ * 旧的 {@code IsolatedStorageBridge} 及其 Map 中转方法已移除。</p>
+ *
  * <p>宿主进程（存储类由 system 定义、{@code java.sql} 可见）不构建隔离加载器，
  * 直接沿用默认加载器，避免无谓的类型分裂。</p>
  *
