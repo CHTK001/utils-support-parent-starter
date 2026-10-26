@@ -165,7 +165,9 @@ public class SshClient implements AutoCloseable {
                     .verify(connectTimeout, TimeUnit.SECONDS)
                     .getSession();
 
-            if (password != null && !password.isEmpty()) {
+            if (password != null) {
+                // 空串也添加密码身份：免密登录（NONE）依赖空口令认证，
+                // 目标主机允许空口令时 MINA 以空密码密码认证即可通过
                 session.addPasswordIdentity(password);
             }
             if (privateKeyPath != null && !privateKeyPath.isEmpty()) {
