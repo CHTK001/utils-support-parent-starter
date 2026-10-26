@@ -9,6 +9,7 @@ import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncProtocol;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ThreadUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -31,6 +32,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author CH
  * @since 2026-07-25
  */
+@Slf4j
 @Spi("udp")
 public class UdpSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
 
@@ -259,7 +261,8 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
             byte[] bytes = payload.getBytes(StandardCharsets.UTF_8);
             DatagramPacket packet = new DatagramPacket(bytes, bytes.length, address.getAddress(), address.getPort());
             server.send(packet);
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[sync] UDP 数据报发送失败，已忽略: {}", e.getMessage());
         }
     }
 
@@ -272,7 +275,8 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
         for (SyncServerListener listener : listeners) {
             try {
                 action.accept(listener);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[sync] 监听器回调执行失败，已忽略: {}", e.getMessage());
             }
         }
     }

@@ -166,7 +166,9 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
                 is.close();
                 return tmp;
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            log.warn("[Wespeaker] 导出内置模型失败: {}", e.getMessage());
+        }
         return null;
     }
 

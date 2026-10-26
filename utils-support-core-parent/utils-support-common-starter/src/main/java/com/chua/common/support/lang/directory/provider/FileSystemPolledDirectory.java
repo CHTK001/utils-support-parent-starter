@@ -246,7 +246,8 @@ public class FileSystemPolledDirectory implements PolledDirectory {
         if (watchService != null) {
             try {
                 watchService.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[directory] 关闭 WatchService 失败，已忽略: {}", e.getMessage());
             }
         }
         if (watchThread != null) {

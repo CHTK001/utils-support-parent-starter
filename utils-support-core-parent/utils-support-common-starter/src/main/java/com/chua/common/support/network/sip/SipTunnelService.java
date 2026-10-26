@@ -270,7 +270,8 @@ public class SipTunnelService {
             OutputStream out = socket.getOutputStream();
             out.write(data);
             out.flush();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[sip] 发送数据失败，已忽略: {}", e.getMessage());
         }
     }
 
@@ -282,7 +283,8 @@ public class SipTunnelService {
     private void closeQuietly(Socket socket) {
         try {
             socket.close();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[sip] 发送数据失败，已忽略: {}", e.getMessage());
         }
     }
 }

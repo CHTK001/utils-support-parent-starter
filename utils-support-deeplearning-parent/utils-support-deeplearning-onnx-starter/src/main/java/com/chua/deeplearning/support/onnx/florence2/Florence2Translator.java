@@ -382,7 +382,9 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         if (tokenizer != null) {
             try {
                 tokenizer.close();
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                log.warn("[Florence2] 关闭资源失败: {}", e.getMessage());
+            }
             tokenizer = null;
         }
         closeS(visionSession);
@@ -398,7 +400,9 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         if (s != null) {
             try {
                 s.close();
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                log.warn("[Florence2] 关闭资源失败: {}", e.getMessage());
+            }
         }
     }
 }

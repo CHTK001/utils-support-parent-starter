@@ -548,7 +548,9 @@ public class FileResourceFinder implements ResourceFinder {
             if (!ok) {
                 p.destroyForcibly();
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            log.warn("执行命令 {} 失败: {}", String.join(" ", cmd), e.getMessage());
+        }
     }
 
     /**

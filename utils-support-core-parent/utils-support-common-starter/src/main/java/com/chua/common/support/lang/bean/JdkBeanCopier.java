@@ -39,6 +39,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class JdkBeanCopier implements BeanCopier {
 
     /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(JdkBeanCopier.class.getName());
+
+    /**
      * 属性描述信息缓存（类 -> 属性名 -> PropertyDescriptor）
      */
     private static final Map<Class<?>, Map<String, PropertyDescriptor>> READ_CACHE = new ConcurrentHashMap<>();
@@ -93,7 +98,8 @@ public class JdkBeanCopier implements BeanCopier {
                 if (value != null) {
                     ReflectUtils.invoke(target, writeMethod.getName(), void.class, writeMethod.getParameterTypes(), convertIfNeeded(value, writeMethod.getParameterTypes()[0]));
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[copier] 复制属性失败，已忽略: " + e.getMessage(), e);
             }
         }
     }
@@ -125,7 +131,8 @@ public class JdkBeanCopier implements BeanCopier {
                 if (value != null) {
                     ReflectUtils.invoke(target, writeMethod.getName(), void.class, writeMethod.getParameterTypes(), convertIfNeeded(value, writeMethod.getParameterTypes()[0]));
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[copier] 复制属性失败，已忽略: " + e.getMessage(), e);
             }
         }
     }
@@ -150,7 +157,8 @@ public class JdkBeanCopier implements BeanCopier {
                 }
                 Object value = ReflectUtils.invoke(source, readMethod.getName(), readMethod.getReturnType());
                 target.put(entry.getKey(), value);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[copier] 复制属性失败，已忽略: " + e.getMessage(), e);
             }
         }
     }

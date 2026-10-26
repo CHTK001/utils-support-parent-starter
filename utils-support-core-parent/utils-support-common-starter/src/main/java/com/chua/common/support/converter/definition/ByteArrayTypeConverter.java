@@ -34,6 +34,11 @@ import javax.annotation.Nullable;
  */
 public class ByteArrayTypeConverter implements TypeConverter<byte[]> {
 
+    /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(ByteArrayTypeConverter.class.getName());
+
 
     /**
      * 将给定值转换为 byte[]。
@@ -53,7 +58,8 @@ public class ByteArrayTypeConverter implements TypeConverter<byte[]> {
             if(file.exists() && file.isFile()) {
                 try {
                     return Files.readAllBytes(file.toPath());
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
                 }
             }
 
@@ -63,7 +69,8 @@ public class ByteArrayTypeConverter implements TypeConverter<byte[]> {
                     try (InputStream is = url.openStream()) {
                         return readBytes(is);
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
                 }
             }
 
@@ -122,20 +129,23 @@ public class ByteArrayTypeConverter implements TypeConverter<byte[]> {
         if(value instanceof File) {
             try (FileInputStream fis = new FileInputStream((File) value)) {
                 return readBytes(fis);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
             }
         }
 
         if(value instanceof Path) {
             try (InputStream fis = Files.newInputStream((Path) value)) {
                 return readBytes(fis);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
             }
         }
         if(value instanceof java.net.URL) {
             try (InputStream is = ((URL) value).openStream()) {
                 return readBytes(is);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
             }
         }
 
@@ -143,7 +153,8 @@ public class ByteArrayTypeConverter implements TypeConverter<byte[]> {
         if(value instanceof com.google.common.io.ByteSource) {
             try (InputStream fis = ((com.google.common.io.ByteSource) value).openStream()) {
                 return readBytes(fis);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
             }
         }
 

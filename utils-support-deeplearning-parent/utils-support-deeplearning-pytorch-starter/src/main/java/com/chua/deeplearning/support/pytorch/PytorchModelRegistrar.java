@@ -267,6 +267,18 @@ public class PytorchModelRegistrar implements ModelRegistrar {
 
         // ==================== 动漫标签 ====================
         reg("pytorch-wd-tagger", "com.chua.deeplearning.support.pytorch.classification.PytorchImageNetClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class, "classification/wd-swinv2-tagger.pt", "https://huggingface.co/SmilingWolf/wd-swinv2-tagger-v3/resolve/main/model.pt", false, null);
+
+        // ==================== 版面检测 ====================
+        reg("wevisdoc-layout",
+                "com.chua.deeplearning.support.pytorch.layout.WevisdocTranslator",
+                ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class,
+                ImageDetector.class, "layout/wevisdoc.pt");
+
+        // WeVisDoc 远程模式：通过 HTTP 调用 Python 推理服务，无需本地权重
+        reg("wevisdoc-layout-remote",
+                "com.chua.deeplearning.support.pytorch.layout.WevisdocRemoteTranslator",
+                ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class,
+                ImageDetector.class, null);
     }
 
     /**

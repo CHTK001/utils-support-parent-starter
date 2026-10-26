@@ -130,7 +130,8 @@ public class PidFileProcessTracker implements ServiceProcessTracker {
         }
         try {
             Files.deleteIfExists(Path.of(pidFile));
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[pid] 删除 pid 文件失败，已忽略: {}", e.getMessage());
         }
     }
 

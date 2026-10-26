@@ -350,14 +350,16 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
             if (values.length > 0) {
                 return (int) Math.min(maxCount, Math.max(0L, values[0]));
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[ppdoclayout] 读取配置失败，已忽略: {}", e.getMessage());
         }
         try {
             int[] values = countArray.toIntArray();
             if (values.length > 0) {
                 return Math.min(maxCount, Math.max(0, values[0]));
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[ppdoclayout] 读取配置失败，已忽略: {}", e.getMessage());
         }
         return maxCount;
     }

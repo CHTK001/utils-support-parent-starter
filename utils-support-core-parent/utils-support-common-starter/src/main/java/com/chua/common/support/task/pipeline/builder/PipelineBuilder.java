@@ -818,9 +818,7 @@ public class PipelineBuilder {
 
             if (node instanceof SubPipelineNode) {
                 SubPipelineNode sn = (SubPipelineNode) node;
-                try {
-                    sn.getSubPipelineId();
-                } catch (NullPointerException e) {
+                if (sn.getSubPipeline() == null) {
                     throw new IllegalStateException(
                             "SubPipeline node '" + nid + "' has null sub-pipeline");
                 }

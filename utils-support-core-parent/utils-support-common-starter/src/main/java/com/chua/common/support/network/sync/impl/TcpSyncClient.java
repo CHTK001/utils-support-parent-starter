@@ -5,6 +5,7 @@ import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.common.support.network.sync.SyncMessageHandler;
 import com.chua.common.support.spi.annotations.Spi;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Spi("tcp")
 public class TcpSyncClient implements SyncClient {
 
@@ -143,7 +145,8 @@ public class TcpSyncClient implements SyncClient {
         if (channel != null) {
             try {
                 channel.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[sync] 关闭 TCP 同步客户端通道失败，已忽略: {}", e.getMessage());
             }
             channel = null;
         }
@@ -331,7 +334,8 @@ public class TcpSyncClient implements SyncClient {
         for (SyncFlowListener listener : listeners) {
             try {
                 action.accept(listener);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[sync] 监听器回调执行失败，已忽略: {}", e.getMessage());
             }
         }
     }

@@ -219,11 +219,15 @@ public class SystemOutCaptureHandler implements Plugin {
 
         private final String source;
 
+        /** 透传目标：接管前捕获到的原始 stdout/stderr（构造器参数落成字段，方法才可见） */
+        private final PrintStream original;
+
         private final ByteArrayOutputStream lineBuffer = new ByteArrayOutputStream();
 
         private CaptureStream(PrintStream original, String source) {
             super(new ByteArrayOutputStream());
             this.source = source;
+            this.original = original;
         }
 
         @Override
@@ -232,6 +236,11 @@ public class SystemOutCaptureHandler implements Plugin {
                 lineBuffer.write(b);
                 flushLineIfNeeded();
             }
+            // 透传原始流：捕获只做「旁路记录」，必须让 stdout/stderr 继续到达原始目的地，
+            // 否则接管后宿主与控制台的常规输出（含 Spring 启动日志与异常堆栈）会被吞掉。
+            if (original != null) {
+                original.write(b);
+            }
         }
 
         @Override
@@ -239,6 +248,9 @@ public class SystemOutCaptureHandler implements Plugin {
             synchronized (lineBuffer) {
                 lineBuffer.write(buf, off, len);
                 flushLineIfNeeded();
+            }
+            if (original != null) {
+                original.write(buf, off, len);
             }
         }
 
@@ -254,6 +266,9 @@ public class SystemOutCaptureHandler implements Plugin {
 
         private void writeLine(String line) {
             addEntry(line);
+            if (original != null) {
+                original.println(line);
+            }
         }
 
         private void flushLineIfNeeded() {

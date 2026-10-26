@@ -527,9 +527,14 @@ public final class DateFormatConstant {
      */
     public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).withZone(ZONE);
     /**
-     * yyyy-MM-dd HH:mm:ss          2020-05-23 17:06:30
+     * 创建 yyyy-MM-dd HH:mm:ss 格式的日期格式化实例。
+     * <p>SimpleDateFormat 非线程安全，禁止复用静态实例，每次使用请新建。</p>
+     *
+     * @return 新的日期格式化实例
      */
-    public static final SimpleDateFormat YYYY_MM_DD_HH_MM_SS_SDF = new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS);
+    public static SimpleDateFormat newYyyyMmDdHhMmSsSdf() {
+        return new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS);
+    }
     /**
      * yyyy-M-d H:m:s          2020-5-23 17:6:30
      */

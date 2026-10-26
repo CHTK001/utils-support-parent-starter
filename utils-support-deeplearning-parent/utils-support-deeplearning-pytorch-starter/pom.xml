@@ -12,7 +12,21 @@
     <artifactId>utils-support-deeplearning-pytorch-starter</artifactId>
     <name>Utils Support Deep Learning PyTorch Starter</name>
     <description>PyTorch / DJL 推理引擎模块：图像分类、目标检测、特征提取等</description>
+    <properties>
+        <skipTests>false</skipTests>
+    </properties>
     <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.13.0-M3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ai.djl</groupId>
+            <artifactId>api</artifactId>
+            <version>0.36.0</version>
+        </dependency>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>

@@ -1,0 +1,4 @@
+# 接码号（jiemahao.com）虚拟号码接码：获取全部号码 / 随机号码，集成 PolledDirectory 回调监听
+com.chua.common.support.datasearch.sms.spi.impl.JieMaHaoSmsCodeProvider
+# FreePhoneNum（freephonenum.com）虚拟号码接码：无 Cloudflare 验证，HTTP 直连即可读取真实短信
+com.chua.common.support.datasearch.sms.spi.impl.FreePhoneNumSmsCodeProvider

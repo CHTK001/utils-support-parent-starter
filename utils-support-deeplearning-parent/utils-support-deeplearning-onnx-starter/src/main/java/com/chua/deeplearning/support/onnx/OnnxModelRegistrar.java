@@ -24,6 +24,9 @@ import com.chua.deeplearning.support.ocr.DirectionInfo;
 import com.chua.deeplearning.support.plate.LicensePlateRecognizer;
 import com.chua.deeplearning.support.plate.PlateResult;
 import com.chua.deeplearning.support.speech.SpeechEnhancer;
+import com.chua.deeplearning.support.timeseries.ForecastRequest;
+import com.chua.deeplearning.support.timeseries.ForecastResult;
+import com.chua.deeplearning.support.timeseries.TimeSeriesForecaster;
 import java.awt.image.BufferedImage;
 
 /**
@@ -687,6 +690,26 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 "nlp/embedding/wemm-embedding-9b/model.onnx",
                 wemm9bUrl, List.of(wemm9bUrl, "https://huggingface.co/chtk/wemm-embedding-onnx-9b/resolve/main/model.onnx"),
                 false, null);
+        // ==================== 时间序列预测（Timestral-5M）====================
+        // Mistral Timestral-5M：单变量时间序列预测（固定 512 步上下文，32 步 horizon，输出 21 档分位数 0.01…0.99），
+        // fp32 ~21.2MB；优先 jar 内嵌 timeseries/timestral/timestral-5m/model.onnx，缺失时走 downloadUrl 自动下载。
+        String timestralUrl = "https://hf-mirror.com/onnx-community/Timestral-5M-ONNX/resolve/main/onnx/model.onnx";
+        reg("timestral-5m", "com.chua.deeplearning.support.onnx.timeseries.TimestralTranslator",
+                ForecastRequest.class, ForecastResult.class, TimeSeriesForecaster.class,
+                "timeseries/timestral/timestral-5m/model.onnx",
+                timestralUrl, List.of(timestralUrl, "https://huggingface.co/onnx-community/Timestral-5M-ONNX/resolve/main/onnx/model.onnx"),
+                false, "model.onnx");
+        // ==================== 文档版面分析（datalab-to/indra）====================
+        // indra 段落式版面：det.onnx(LineNet 行检测) + rec.onnx(CTC 文字识别) + order.onnx(OrderNet 10 类块分类/阅读顺序/表格头)，
+        // 另有 script.onnx(语种分类) + rec_cjk.onnx(中日韩识别)：中文行自动路由到 CJK 识别器；
+        // 图像 → 版面块（Text/Section-Header/Table/List-Group/Caption/Footnote/...），支持阅读顺序与 Markdown（含 HTML 表格）；
+        // 模型内嵌 jar（utils-support-models-onnx-indra-layout）；可经 LayoutPipeline/ImageDetector/LayoutDetector 消费。
+        reg("indra-layout", "com.chua.deeplearning.support.onnx.ocr.layout.indra.IndraLayoutTranslator",
+                byte[].class, List.class, LayoutDetector.class,
+                "vision/layout/indra/det.onnx",
+                "https://huggingface.co/datalab-to/indra-ocr/resolve/main/det.onnx",
+                List.of("https://hf-mirror.com/datalab-to/indra-ocr/resolve/main/det.onnx"),
+                false, "det.onnx");
     }
 
     /**

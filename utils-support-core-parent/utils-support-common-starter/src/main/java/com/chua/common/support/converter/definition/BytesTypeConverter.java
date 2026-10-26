@@ -2,6 +2,7 @@ package com.chua.common.support.converter.definition;
 
 import com.chua.common.support.utils.ArrayUtils;
 import com.chua.common.support.utils.FileUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -29,6 +30,7 @@ import javax.annotation.Nullable;
  * @since 4.0.0.42
  * @version 1.0.0
  */
+@Slf4j
 public class BytesTypeConverter implements TypeConverter<byte[]> {
 
 
@@ -65,7 +67,8 @@ public class BytesTypeConverter implements TypeConverter<byte[]> {
                 try (InputStream is = url.openStream()) {
                     return readBytes(is);
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[converter] URL 读取字节失败，回退数组转换: {}", e.getMessage());
             }
         }
 

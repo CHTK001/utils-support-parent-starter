@@ -15,6 +15,7 @@ import com.chua.common.support.network.server.filter.ServerFilterChain;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
@@ -31,6 +32,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Spi(value = "ipc", order = 40)
 public class IpcInvoker implements Invoker {
 
@@ -102,7 +104,8 @@ public class IpcInvoker implements Invoker {
                         return v;
                     }
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[ipc] 类注解解析失败，跳过: {}", e.getMessage());
             }
         }
         RequestMethod rm = clazz.getAnnotation(RequestMethod.class);
@@ -160,7 +163,8 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
             if (r instanceof String[] a && a.length > 0) {
                 return a[0];
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[ipc] 注解 value 取值失败，返回空串: {}", e.getMessage());
         }
         return "";
     }

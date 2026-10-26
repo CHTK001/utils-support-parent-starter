@@ -42,6 +42,11 @@ import javax.annotation.Nullable;
 public class ReaderTypeConverter implements TypeConverter<Reader> {
 
     /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(ReaderTypeConverter.class.getName());
+
+    /**
      * 单例实例
      */
     private static final ReaderTypeConverter INSTANCE = new ReaderTypeConverter();
@@ -65,7 +70,8 @@ public class ReaderTypeConverter implements TypeConverter<Reader> {
         if (value instanceof File) {
             try {
                 return new FileReader((File) value);
-            } catch (FileNotFoundException ignored) {
+            } catch (FileNotFoundException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] 文件不存在，已忽略: " + e.getMessage(), e);
             }
         }
 
@@ -76,7 +82,8 @@ public class ReaderTypeConverter implements TypeConverter<Reader> {
         if (value instanceof Path) {
             try {
                 return new FileReader(((Path) value).toFile());
-            } catch (FileNotFoundException ignored) {
+            } catch (FileNotFoundException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] 文件不存在，已忽略: " + e.getMessage(), e);
             }
         }
 
@@ -84,14 +91,16 @@ public class ReaderTypeConverter implements TypeConverter<Reader> {
         if (value instanceof URL) {
             try {
                 return INSTANCE.convert(((URL) value).openStream());
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
             }
         }
 
         if (value instanceof URI) {
             try {
                 return INSTANCE.convert(((URI) value).toURL().openStream());
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
             }
         }
 
@@ -114,7 +123,8 @@ public class ReaderTypeConverter implements TypeConverter<Reader> {
         if (value instanceof PipedWriter) {
             try {
                 return new PipedReader(((PipedWriter) value));
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] IO 操作失败，已忽略: " + e.getMessage(), e);
             }
         }
         return null;

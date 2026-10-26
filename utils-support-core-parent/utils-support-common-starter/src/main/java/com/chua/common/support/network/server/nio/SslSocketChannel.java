@@ -1,5 +1,7 @@
 package com.chua.common.support.network.server.nio;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
 import javax.net.ssl.SSLException;
@@ -29,7 +31,9 @@ import java.util.Set;
  * @author CH
  * @since 2026/08/15
  */
+@Slf4j
 public class SslSocketChannel extends SocketChannel {
+
 
     /**
      * 底层原始通道（密文通道）。
@@ -457,7 +461,8 @@ public class SslSocketChannel extends SocketChannel {
                         || r.getStatus() == SSLEngineResult.Status.CLOSED) {
                     flushNetOut();
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[ssl] 发送 close_notify 失败，已忽略: {}", e.getMessage());
             }
         } finally {
             delegate.close();

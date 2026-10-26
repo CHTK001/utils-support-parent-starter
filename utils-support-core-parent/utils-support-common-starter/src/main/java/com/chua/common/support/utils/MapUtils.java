@@ -8,6 +8,7 @@ import com.chua.common.support.reflection.ReflectUtils;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -48,6 +49,7 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING
  * @since 4.0.0
  */
 @SuppressWarnings({"unchecked", "ALL"})
+@Slf4j
 public class MapUtils {
 
     /**
@@ -2491,7 +2493,8 @@ public class MapUtils {
                     result.put(pd.getName(), ReflectUtils.invoke(bean, pd.getReadMethod().getName(), pd.getReadMethod().getReturnType()));
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[map] Bean 转 Map 失败，返回已收集属性: {}", e.getMessage());
         }
         return result;
     }

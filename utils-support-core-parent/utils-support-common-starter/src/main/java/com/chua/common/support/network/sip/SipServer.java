@@ -204,7 +204,8 @@ private static ServerSetting serverSetting(SipConfig config) {
         if (tcpServer != null) {
             try {
                 tcpServer.stop();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[sip] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         for (DataChannel channel : dataChannels.values()) {
@@ -720,7 +721,8 @@ onSignalClosed(clientId);
     private void closeQuietly(SignalConnection conn) {
         try {
             conn.writer().close();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[sip] 操作失败，已忽略: {}", e.getMessage());
         }
     }
 
@@ -1132,7 +1134,8 @@ onSignalClosed(clientId);
                             target.out.flush();
                         }
                     }
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    log.debug("[sip] 关闭流失败，已忽略: {}", e.getMessage());
                 } finally {
                     close();
                 }
@@ -1188,11 +1191,13 @@ onSignalClosed(clientId);
             void close() {
                 try {
                     in.close();
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    log.debug("[sip] 关闭流失败，已忽略: {}", e.getMessage());
                 }
                 try {
                     out.close();
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    log.debug("[sip] 关闭流失败，已忽略: {}", e.getMessage());
                 }
             }
         }

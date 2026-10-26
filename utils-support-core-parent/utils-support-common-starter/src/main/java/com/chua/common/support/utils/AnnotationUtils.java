@@ -46,6 +46,11 @@ import java.util.*;
 public class AnnotationUtils {
 
     /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(AnnotationUtils.class.getName());
+
+    /**
      * 注解工具。
      */
     private AnnotationUtils() {}
@@ -101,11 +106,13 @@ public class AnnotationUtils {
                             ALIAS_SOURCE_SET.add(mapping.getNarrowName());
                             ALIAS_SOURCE_SET.add(mapping.getWideName());
                         }
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        LOG.log(System.Logger.Level.DEBUG, "读取注解失败，已忽略: " + e.getMessage(), e);
                     }
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            LOG.log(System.Logger.Level.DEBUG, "操作失败，已忽略: " + e.getMessage(), e);
         }
     }
 
@@ -264,7 +271,8 @@ public class AnnotationUtils {
                     }
                     return AnnotationDefinition.ofDirect(ann, annotationClass);
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "操作失败，已忽略: " + e.getMessage(), e);
             }
         }
 
@@ -317,7 +325,8 @@ public class AnnotationUtils {
                 if (isAnnotationPresent(clazz, (Class<? extends Annotation>) annClass)) {
                     return true;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "操作失败，已忽略: " + e.getMessage(), e);
             }
         }
         return false;
@@ -341,7 +350,8 @@ public class AnnotationUtils {
                 if (isAnnotationPresent(method, (Class<? extends Annotation>) annClass)) {
                     return true;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "操作失败，已忽略: " + e.getMessage(), e);
             }
         }
         return false;
@@ -415,7 +425,8 @@ public class AnnotationUtils {
         if (wide != null && !wide.equals(targetName)) {
             try {
                 set.add((Class<? extends Annotation>) ReflectUtils.forName(wide));
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "操作失败，已忽略: " + e.getMessage(), e);
             }
         }
  // 反向：Target 是宽注解，加入所有窄注解
@@ -423,7 +434,8 @@ public class AnnotationUtils {
             if (entry.getValue().equals(targetName) && !entry.getKey().equals(targetName)) {
                 try {
                     set.add((Class<? extends Annotation>) ReflectUtils.forName(entry.getKey().getName()));
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    LOG.log(System.Logger.Level.DEBUG, "操作失败，已忽略: " + e.getMessage(), e);
                 }
             }
         }
@@ -455,7 +467,8 @@ public class AnnotationUtils {
                     if (ann != null) {
                         return (A) ann;
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    LOG.log(System.Logger.Level.DEBUG, "操作失败，已忽略: " + e.getMessage(), e);
                 }
             }
         }
@@ -527,7 +540,8 @@ public class AnnotationUtils {
                         }
                     }
                 }
-            } catch (NoClassDefFoundError ignored) {
+            } catch (NoClassDefFoundError e) {
+                LOG.log(System.Logger.Level.DEBUG, "类缺失，已忽略: " + e.getMessage(), e);
             }
         }
         return false;
@@ -555,7 +569,8 @@ public class AnnotationUtils {
                         }
                     }
                 }
-            } catch (NoClassDefFoundError ignored) {
+            } catch (NoClassDefFoundError e) {
+                LOG.log(System.Logger.Level.DEBUG, "类缺失，已忽略: " + e.getMessage(), e);
             }
         }
         return null;
@@ -579,7 +594,8 @@ public class AnnotationUtils {
                     if (ann != null) {
                         return AnnotationDefinition.ofInherited(ann, targetAnnotation);
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    LOG.log(System.Logger.Level.DEBUG, "操作失败，已忽略: " + e.getMessage(), e);
                 }
             }
             AnnotationDefinition<A> parentResult = resolveFromHierarchy(
@@ -595,7 +611,8 @@ public class AnnotationUtils {
                     if (ann != null) {
                         return AnnotationDefinition.ofInherited(ann, targetAnnotation);
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    LOG.log(System.Logger.Level.DEBUG, "操作失败，已忽略: " + e.getMessage(), e);
                 }
             }
         }
@@ -611,7 +628,8 @@ public class AnnotationUtils {
                 if (ann != null) {
                     return AnnotationDefinition.ofDirect(ann, (Class<A>) annClass);
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "操作失败，已忽略: " + e.getMessage(), e);
             }
         }
         return null;
@@ -635,12 +653,14 @@ public class AnnotationUtils {
                                 if (ann != null) {
                                     return AnnotationDefinition.ofOverriddenMethod((A) ann, targetAnnotation);
                                 }
-                            } catch (Exception ignored) {
+                            } catch (Exception e) {
+                                LOG.log(System.Logger.Level.DEBUG, "操作失败，已忽略: " + e.getMessage(), e);
                             }
                         }
                     }
                 }
-            } catch (NoClassDefFoundError ignored) {
+            } catch (NoClassDefFoundError e) {
+                LOG.log(System.Logger.Level.DEBUG, "类缺失，已忽略: " + e.getMessage(), e);
             }
         }
         return null;

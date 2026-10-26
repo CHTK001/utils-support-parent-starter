@@ -32,6 +32,11 @@ public final class WindowsConPtyProcess implements Closeable {
      */
     private static final boolean AVAILABLE;
 
+    /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(WindowsConPtyProcess.class.getName());
+
     // region Panama FFI 绑定
 
     /**
@@ -543,7 +548,8 @@ public final class WindowsConPtyProcess implements Closeable {
                 try {
                     InitializeProcThreadAttributeList.invokeExact(
                             MemorySegment.NULL, ATTRIBUTE_COUNT, 0, attrSizeSeg);
-                } catch (Throwable ignored) {
+                } catch (Throwable e) {
+                    LOG.log(System.Logger.Level.DEBUG, "[conpty] 调用失败，已忽略: " + e.getMessage(), e);
                 }
                 long attrListSize = attrSizeSeg.get(ValueLayout.JAVA_LONG, 0);
 
@@ -571,14 +577,16 @@ public final class WindowsConPtyProcess implements Closeable {
                 } catch (Throwable t) {
                     try {
                         DeleteProcThreadAttributeList.invokeExact(attrListMem);
-                    } catch (Throwable ignored) {
+                    } catch (Throwable e) {
+                        LOG.log(System.Logger.Level.DEBUG, "[conpty] 调用失败，已忽略: " + e.getMessage(), e);
                     }
                     throw new IOException("UpdateProcThreadAttribute failed", t);
                 }
                 if (ret == 0) {
                     try {
                         DeleteProcThreadAttributeList.invokeExact(attrListMem);
-                    } catch (Throwable ignored) {
+                    } catch (Throwable e) {
+                        LOG.log(System.Logger.Level.DEBUG, "[conpty] 调用失败，已忽略: " + e.getMessage(), e);
                     }
                     throw new IOException("UpdateProcThreadAttribute failed, error=" + getLastError());
                 }
@@ -630,7 +638,8 @@ public final class WindowsConPtyProcess implements Closeable {
                 } catch (Throwable t) {
                     try {
                         DeleteProcThreadAttributeList.invokeExact(attrListMem);
-                    } catch (Throwable ignored) {
+                    } catch (Throwable e) {
+                        LOG.log(System.Logger.Level.DEBUG, "[conpty] 调用失败，已忽略: " + e.getMessage(), e);
                     }
                     closeHandle(hPC);
                     throw new IOException("CreateProcessW failed", t);
@@ -638,7 +647,8 @@ public final class WindowsConPtyProcess implements Closeable {
                 if (ret == 0) {
                     try {
                         DeleteProcThreadAttributeList.invokeExact(attrListMem);
-                    } catch (Throwable ignored) {
+                    } catch (Throwable e) {
+                        LOG.log(System.Logger.Level.DEBUG, "[conpty] 调用失败，已忽略: " + e.getMessage(), e);
                     }
                     closeHandle(hPC);
                     throw new IOException("CreateProcessW failed, error=" + getLastError());
@@ -650,7 +660,8 @@ public final class WindowsConPtyProcess implements Closeable {
                 // 清理属性列表资源
                 try {
                     DeleteProcThreadAttributeList.invokeExact(attrListMem);
-                } catch (Throwable ignored) {
+                } catch (Throwable e) {
+                    LOG.log(System.Logger.Level.DEBUG, "[conpty] 调用失败，已忽略: " + e.getMessage(), e);
                 }
 
                 // 关闭输入管道写端
@@ -736,7 +747,8 @@ public final class WindowsConPtyProcess implements Closeable {
         if (inputStream != null) {
             try {
                 inputStream.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[conpty] 操作失败，已忽略: " + e.getMessage(), e);
             }
             inputStream = null;
         }
@@ -747,7 +759,8 @@ public final class WindowsConPtyProcess implements Closeable {
         if (hProcess != null) {
             try {
                 TerminateProcess.invokeExact(hProcess, 1);
-            } catch (Throwable ignored) {
+            } catch (Throwable e) {
+                LOG.log(System.Logger.Level.DEBUG, "[conpty] 关闭资源失败，已忽略: " + e.getMessage(), e);
             }
             closeHandle(hProcess);
             hProcess = null;
@@ -763,7 +776,8 @@ public final class WindowsConPtyProcess implements Closeable {
         if (hPC != null) {
             try {
                 ClosePseudoConsole.invokeExact(hPC);
-            } catch (Throwable ignored) {
+            } catch (Throwable e) {
+                LOG.log(System.Logger.Level.DEBUG, "[conpty] 关闭资源失败，已忽略: " + e.getMessage(), e);
             }
             hPC = null;
         }
@@ -795,7 +809,8 @@ public final class WindowsConPtyProcess implements Closeable {
                     env.put("HTTP_PROXY", proxy);
                     env.put("HTTPS_PROXY", proxy);
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[conpty] 操作失败，已忽略: " + e.getMessage(), e);
             }
         }
         StringBuilder sb = new StringBuilder();

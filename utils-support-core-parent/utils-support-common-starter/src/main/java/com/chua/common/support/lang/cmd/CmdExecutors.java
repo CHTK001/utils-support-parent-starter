@@ -46,6 +46,11 @@ import java.util.concurrent.TimeUnit;
 public final class CmdExecutors {
 
     /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(CmdExecutors.class.getName());
+
+    /**
      * 默认执行器名称
      */
     private static String DEFAULT_NAME = "process";
@@ -71,7 +76,8 @@ public final class CmdExecutors {
             if (executor != null) {
                 try {
                     executor.close();
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    LOG.log(System.Logger.Level.DEBUG, "[cmd] 关闭执行器失败，已忽略: " + e.getMessage(), e);
                 }
                 executor = null;
             }
@@ -106,7 +112,8 @@ public final class CmdExecutors {
             if (executor != null) {
                 try {
                     executor.close();
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    LOG.log(System.Logger.Level.DEBUG, "[cmd] 关闭执行器失败，已忽略: " + e.getMessage(), e);
                 }
                 executor = null;
             }
@@ -123,7 +130,8 @@ public final class CmdExecutors {
             if (executor != null) {
                 try {
                     executor.close();
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    LOG.log(System.Logger.Level.DEBUG, "[cmd] 关闭执行器失败，已忽略: " + e.getMessage(), e);
                 }
                 executor = null;
             }

@@ -124,7 +124,8 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
                             Files.deleteIfExists(zip);
                             count++;
                         }
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        log.debug("[backup] 删除文件失败，已忽略: {}", e.getMessage());
                     }
                 }
             }
@@ -138,12 +139,14 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
                                 deleteDirectory(dir);
                                 count++;
                             }
-                        } catch (Exception ignored) {
+                        } catch (Exception e) {
+                            log.debug("[backup] 清理备份文件失败，已忽略: {}", e.getMessage());
                         }
                     }
                 }
             }
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[backup] IO 操作失败，已忽略: {}", e.getMessage());
         }
         return count;
     }

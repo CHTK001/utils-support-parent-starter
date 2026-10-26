@@ -5,6 +5,7 @@ import com.chua.common.support.spi.annotations.*;
 import com.chua.common.support.lang.reflect.AnnotationUtils;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.URL;
 import java.util.*;
@@ -22,6 +23,7 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class ServiceDefinitionUtils {
 
     /**
@@ -169,7 +171,8 @@ public class ServiceDefinitionUtils {
             SpiCondition.Condition condition = null;
             try {
                 condition = ClassUtils.newInstance(aClass1);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[spi] 条件类实例化失败，跳过该条件: {}", e.getMessage());
             }
 
             if (null != condition && !condition.isCondition()) {

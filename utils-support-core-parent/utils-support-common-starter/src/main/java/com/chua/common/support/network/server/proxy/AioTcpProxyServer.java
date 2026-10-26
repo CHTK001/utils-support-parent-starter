@@ -156,7 +156,8 @@ public class AioTcpProxyServer extends AbstractServer {
         activeConnections.incrementAndGet();
         try {
             client.setOption(StandardSocketOptions.TCP_NODELAY, true);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[proxy] 操作失败，已忽略: {}", e.getMessage());
         }
         InetSocketAddress addr = resolveTarget();
         AsynchronousSocketChannel backend;
@@ -278,7 +279,8 @@ public class AioTcpProxyServer extends AbstractServer {
         if (ch != null) {
             try {
                 ch.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[proxy] 关闭连接失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -291,7 +293,8 @@ public class AioTcpProxyServer extends AbstractServer {
         if (serverChannel != null) {
             try {
                 serverChannel.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[proxy] 关闭连接失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -307,7 +310,8 @@ public class AioTcpProxyServer extends AbstractServer {
         if (group != null) {
             try {
                 group.shutdownNow();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[proxy] 关闭连接失败，已忽略: {}", e.getMessage());
             }
         }
         log.info("AIO TcpProxy stopped");

@@ -477,7 +477,8 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
                 if (channel != null) {
                     channel.close();
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[wal] 关闭 WAL 文件通道失败，已忽略: {}", e.getMessage());
             }
         }
     }

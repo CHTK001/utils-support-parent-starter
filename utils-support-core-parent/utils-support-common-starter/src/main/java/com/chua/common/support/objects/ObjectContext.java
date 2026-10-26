@@ -480,12 +480,14 @@ public interface ObjectContext {
             boolean matched = false;
             try {
                 matched = def.getBean() == bean;
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LogHolder.LOG.debug("[container] 获取 Bean 实例失败，跳过比对: {}", e.getMessage());
             }
             if (matched) {
                 try {
                     def.destroyBean();
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    LogHolder.LOG.debug("[container] 销毁 Bean 失败，已忽略: {}", e.getMessage());
                 }
                 removed |= registry.unregister(def);
             }
@@ -541,5 +543,16 @@ public interface ObjectContext {
             });
         }
         return registry;
+    }
+
+    /**
+     * 日志持有者（接口无法直接声明私有静态字段，统一在此集中持有）。
+     */
+    final class LogHolder {
+        /**
+         * 日志对象
+         */
+        private static final org.slf4j.Logger LOG =
+                org.slf4j.LoggerFactory.getLogger(ObjectContext.class);
     }
 }

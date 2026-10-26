@@ -149,14 +149,16 @@ class FtpDataChannel {
             if (dataSocket != null && !dataSocket.isClosed()) {
                 dataSocket.close();
             }
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("关闭 FTP 数据连接失败，已忽略: {}", e.getMessage());
         }
         dataSocket = null;
         try {
             if (serverSocket != null && !serverSocket.isClosed()) {
                 serverSocket.close();
             }
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("关闭 FTP 被动模式监听失败，已忽略: {}", e.getMessage());
         }
         serverSocket = null;
     }

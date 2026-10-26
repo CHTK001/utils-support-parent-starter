@@ -92,7 +92,11 @@ public class CModeProbe implements ProbeStrategy {
         for (Future<?> f : futures) {
             try {
                 f.get(5, TimeUnit.SECONDS);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                if (e instanceof InterruptedException) {
+                    Thread.currentThread().interrupt();
+                }
+                log.debug("探测任务等待失败，已忽略: {}", e.getMessage());
             }
         }
         executor.shutdownNow();

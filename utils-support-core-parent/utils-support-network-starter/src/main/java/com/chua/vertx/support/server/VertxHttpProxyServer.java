@@ -254,20 +254,23 @@ public class VertxHttpProxyServer extends AbstractServer {
         if (server != null) {
             try {
                 server.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[vertx] 操作失败，已忽略: {}", e.getMessage());
             }
             log.info("Vertx HttpProxyServer stopped");
         }
         if (httpClient != null) {
             try {
                 httpClient.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[vertx] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         if (vertx != null) {
             try {
                 vertx.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[vertx] 操作失败，已忽略: {}", e.getMessage());
             }
         }
     }

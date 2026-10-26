@@ -161,7 +161,8 @@ public class SipTunnelSession {
             for (byte[] data : earlyData) {
                 try {
                     listener.accept(data);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[sip] 回调执行失败，已忽略: {}", e.getMessage());
                 }
             }
             earlyData.clear();
@@ -242,13 +243,15 @@ public class SipTunnelSession {
         for (Consumer<String> listener : dataListeners) {
             try {
                 listener.accept(data);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[sip] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         for (Consumer<byte[]> listener : bytesListeners) {
             try {
                 listener.accept(data.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[sip] 操作失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -265,7 +268,8 @@ public class SipTunnelSession {
         for (Consumer<String> listener : closeListeners) {
             try {
                 listener.accept(channelId);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[sip] 操作失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -292,7 +296,8 @@ public class SipTunnelSession {
         for (Consumer<byte[]> listener : bytesListeners) {
             try {
                 listener.accept(data);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[sip] 操作失败，已忽略: {}", e.getMessage());
             }
         }
     }

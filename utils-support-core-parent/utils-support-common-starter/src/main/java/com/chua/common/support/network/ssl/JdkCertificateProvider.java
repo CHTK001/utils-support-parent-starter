@@ -204,10 +204,12 @@ public class JdkCertificateProvider implements AcmeProvider {
                         .forEach(path -> {
                             try {
                                 Files.deleteIfExists(path);
-                            } catch (IOException ignored) {
+                            } catch (IOException e) {
+                                log.debug("删除临时文件失败，已忽略: {}", e.getMessage());
                             }
                         });
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("遍历临时目录失败，已忽略: {}", e.getMessage());
             }
             tempDir = null;
         }

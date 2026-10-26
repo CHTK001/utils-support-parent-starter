@@ -261,7 +261,8 @@ public class FtpServer extends AbstractServer implements TcpServer {
         if (controlServerSocket != null) {
             try {
                 controlServerSocket.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("关闭 FTP 控制端口失败，已忽略: {}", e.getMessage());
             }
         }
         log.info("FTP 服务器已停止");

@@ -177,7 +177,9 @@ public class QwenBrowserSession implements AutoCloseable {
                         if (listener != null) {
                             listener.accept("think".equals(phase) || "thinking".equals(phase) ? "thinking" : "content", content);
                         }
-                    } catch (Exception ignored) {}
+                    } catch (Exception e) {
+                        log.warn("解析千问 SSE 事件失败: {}", e.getMessage());
+                    }
                 }
             }
             return QwenChatResult.ok(text.toString(), thinking.toString(), "", rawEvents);
@@ -282,7 +284,9 @@ public class QwenBrowserSession implements AutoCloseable {
                     }
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            log.warn("提取千问响应内容失败: {}", e.getMessage());
+        }
         return null;
     }
 }

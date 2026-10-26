@@ -47,6 +47,11 @@ import java.util.zip.CRC32;
 public class SimpleWalLog implements WalLog {
 
     /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(SimpleWalLog.class.getName());
+
+    /**
      * WAL 文件名
      */
     private static final String WAL_FILE_NAME = "wal.log";
@@ -321,7 +326,8 @@ public class SimpleWalLog implements WalLog {
             if (result instanceof Boolean) {
  // sun.misc.Unsafe.invoke清洁剂 返回 布尔值
             }
-        } catch (ReflectiveOperationException ignored) {
+        } catch (ReflectiveOperationException e) {
+            LOG.log(System.Logger.Level.DEBUG, "[wal] 反射操作失败，已忽略: " + e.getMessage(), e);
         }
     }
 
@@ -340,7 +346,8 @@ public class SimpleWalLog implements WalLog {
             Object unsafe = f.get(null);
             m = unsafeCls.getMethod("invokeCleaner", java.nio.ByteBuffer.class); // [P3C 1.10 豁免] Wal 基础设施 JDK 内部 Unsafe.invokeCleaner 方法，无法用 ReflectUtils 替代
  // 静态调用 invoke清洁剂 时无需 unsafe 实例（因为是 静态）
-        } catch (ReflectiveOperationException ignored) {
+        } catch (ReflectiveOperationException e) {
+            LOG.log(System.Logger.Level.DEBUG, "[wal] 反射操作失败，已忽略: " + e.getMessage(), e);
         }
         mmapBufferRef = m;
     }
@@ -484,7 +491,8 @@ public class SimpleWalLog implements WalLog {
         this.checkpointOffset = 0L;
         try {
             Files.deleteIfExists(checkpointFile);
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            LOG.log(System.Logger.Level.DEBUG, "[wal] 操作 WAL 文件失败，已忽略: " + e.getMessage(), e);
         }
     }
 
@@ -685,26 +693,30 @@ public class SimpleWalLog implements WalLog {
         closed = true;
         try {
             force();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            LOG.log(System.Logger.Level.DEBUG, "[wal] 操作 WAL 文件失败，已忽略: " + e.getMessage(), e);
         }
         if (out != null) {
             try {
                 out.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[wal] 操作 WAL 文件失败，已忽略: " + e.getMessage(), e);
             }
             out = null;
         }
         if (channel != null) {
             try {
                 channel.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[wal] 操作 WAL 文件失败，已忽略: " + e.getMessage(), e);
             }
             channel = null;
         }
         if (raf != null) {
             try {
                 raf.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[wal] 操作 WAL 文件失败，已忽略: " + e.getMessage(), e);
             }
             raf = null;
         }

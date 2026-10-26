@@ -3,6 +3,8 @@ package com.chua.common.support.spi.autowire;
 import com.chua.common.support.objects.describe.MethodDescribe;
 import com.chua.common.support.objects.describe.ObjectDescribe;
 import com.chua.common.support.utils.ClassUtils;
+import lombok.extern.slf4j.Slf4j;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -13,6 +15,7 @@ import javax.annotation.Nullable;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class InitializingAwareAutoServiceAutowire implements ServiceAutowire {
 
     /**
@@ -41,7 +44,8 @@ public class InitializingAwareAutoServiceAutowire implements ServiceAutowire {
             if (methodDescribe != null) {
                 try {
                     methodDescribe.invoke();
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[autowire] afterPropertiesSet 调用失败，已忽略: {}", e.getMessage());
                 }
             }
         }

@@ -2,6 +2,8 @@ package com.chua.common.support.lang.reflect;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
+import lombok.extern.slf4j.Slf4j;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -58,6 +60,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public final class AnnotationUtils {
 
     /**
@@ -85,7 +88,8 @@ public final class AnnotationUtils {
             try {
                 Object value = ReflectUtils.invoke(annotation, method.getName(), Object.class);
                 attributes.put(method.getName(), value);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[annotation] 注解属性取值失败，跳过该属性: {}", e.getMessage());
             }
         }
         return attributes;

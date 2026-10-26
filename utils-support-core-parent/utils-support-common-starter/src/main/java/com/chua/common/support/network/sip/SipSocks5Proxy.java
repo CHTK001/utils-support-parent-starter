@@ -159,7 +159,8 @@ public class SipSocks5Proxy extends Socks5ProxyServer {
                 var out = socket.getOutputStream();
                 out.write(data);
                 out.flush();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("SOCKS5 隧道写数据失败，已忽略: {}", e.getMessage());
             }
         }
 
@@ -171,7 +172,8 @@ public class SipSocks5Proxy extends Socks5ProxyServer {
         private void closeQuietly(Socket socket) {
             try {
                 socket.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("SOCKS5 隧道关闭 Socket 失败，已忽略: {}", e.getMessage());
             }
         }
     }

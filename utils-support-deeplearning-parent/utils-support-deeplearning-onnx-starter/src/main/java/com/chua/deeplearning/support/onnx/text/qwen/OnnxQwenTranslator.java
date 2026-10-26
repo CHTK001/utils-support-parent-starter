@@ -139,7 +139,8 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                 log.warn("[QwenOnnx] 下载 {} 失败(第{}次): {}", fileName, attempt + 1, e.getMessage());
                 try {
                     Files.deleteIfExists(target);
-                } catch (Exception ignore) {
+                } catch (Exception delEx) {
+                    log.debug("[QwenOnnx] 删除下载文件失败，已忽略: {}", delEx.getMessage());
                 }
                 Thread.sleep(3000L * (attempt + 1));
             }
@@ -226,7 +227,8 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                         if (layer > maxLayer) {
                             maxLayer = layer;
                         }
-                    } catch (NumberFormatException ignore) {
+                    } catch (NumberFormatException e) {
+                        log.debug("[QwenOnnx] 解析数字失败，已忽略: {}", e.getMessage());
                     }
                     TensorInfo ti = (TensorInfo) ni.getInfo();
                     long[] s = ti.getShape();
@@ -236,7 +238,8 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                 }
             }
             nLayers = maxLayer + 1;
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.debug("[QwenOnnx] 关闭资源失败，已忽略: {}", e.getMessage());
         }
         log.info("[QwenOnnx] ORT session ready (gpu={}, kvDim={}, layers={}) model={}", useGpu, kvDim, nLayers, modelPath);
     }
@@ -288,7 +291,8 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                     for (OnnxTensor t : past.values()) {
                         try {
                             t.close();
-                        } catch (Exception ignore) {
+                        } catch (Exception e) {
+                            log.debug("[QwenOnnx] 操作失败，已忽略: {}", e.getMessage());
                         }
                     }
                     break;
@@ -298,7 +302,8 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                     for (OnnxTensor t : past.values()) {
                         try {
                             t.close();
-                        } catch (Exception ignore) {
+                        } catch (Exception e) {
+                            log.debug("[QwenOnnx] 操作失败，已忽略: {}", e.getMessage());
                         }
                     }
                     break;
@@ -318,7 +323,8 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                 for (OnnxTensor t : past.values()) {
                     try {
                         t.close();
-                    } catch (Exception ignore) {
+                    } catch (Exception e) {
+                        log.debug("[QwenOnnx] 操作失败，已忽略: {}", e.getMessage());
                     }
                 }
                 past = collectPast(result);
@@ -332,7 +338,8 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         for (OnnxTensor t : past.values()) {
             try {
                 t.close();
-            } catch (Exception ignore) {
+            } catch (Exception e) {
+                log.debug("[QwenOnnx] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         return out.toString().trim();
@@ -578,7 +585,8 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         if (session != null) {
             try {
                 session.close();
-            } catch (Exception ignore) {
+            } catch (Exception e) {
+                log.debug("[QwenOnnx] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         ortEnv = null;

@@ -206,12 +206,15 @@ public final class FailoverTemplate {
                     abandoned.set(true);
                     try {
                         wc.client().close();
-                    } catch (Exception ignore) {
+                    } catch (Exception e) {
+                        log.debug("[failover] 关闭客户端失败，已忽略: {}", e.getMessage());
                     }
                     future.cancel(true);
                     try {
                         finished.await(ABANDON_WAIT_MS, TimeUnit.MILLISECONDS);
-                    } catch (InterruptedException ignore) {
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        log.debug("[failover] 等待被中断: {}", e.getMessage());
                     }
                     lastError = new java.util.concurrent.TimeoutException(
                             wc.provider() + " 首包超时(" + firstTokenTimeoutMs + "ms)");

@@ -269,6 +269,10 @@
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-lac</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <!-- 中文拼写纠错模型（macbert4csc-base-chinese，约 474MB）：从 utils-support-models-parent 独立仓库构建；MacBertCscTranslator 与 OcrPipeline 中文纠错测试使用 -->
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-macbert4csc</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+        <!-- 时序预测模型（timestral-5m，约 18.6MB）：从 utils-support-models-parent 独立仓库构建；TimestralTranslatorTest 使用 -->
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-timestral-5m</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+        <!-- 文档版面分析模型（indra det+rec+order，约 8.6MB）：从 utils-support-models-parent 独立仓库构建；IndraLayoutTranslatorTest 使用 -->
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-indra-layout</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wespeaker</artifactId><version>${project.version}</version><scope>test</scope></dependency>
                         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-sensevoice</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-zipformer-zh</artifactId><version>${project.version}</version><scope>test</scope></dependency>

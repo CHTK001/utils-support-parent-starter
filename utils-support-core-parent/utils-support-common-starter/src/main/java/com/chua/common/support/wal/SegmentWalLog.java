@@ -51,6 +51,11 @@ public class SegmentWalLog implements WalLog {
     private static final String SEGMENT_NAME_FORMAT = "%s-%06d.wal";
 
     /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(SegmentWalLog.class.getName());
+
+    /**
      * checkpoint 文件名
      */
     private static final String CHECKPOINT_FILE_NAME = "checkpoint.meta";
@@ -355,11 +360,13 @@ public class SegmentWalLog implements WalLog {
         if (activeOut != null) {
             try {
                 activeOut.flush();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[wal] 操作 WAL 文件失败，已忽略: " + e.getMessage(), e);
             }
             try {
                 activeOut.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[wal] 操作 WAL 文件失败，已忽略: " + e.getMessage(), e);
             }
             activeOut = null;
         }
@@ -367,14 +374,16 @@ public class SegmentWalLog implements WalLog {
             try {
                 activeChannel.force(true);
                 activeChannel.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[wal] 操作 WAL 文件失败，已忽略: " + e.getMessage(), e);
             }
             activeChannel = null;
         }
         if (activeRaf != null) {
             try {
                 activeRaf.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[wal] 操作 WAL 文件失败，已忽略: " + e.getMessage(), e);
             }
             activeRaf = null;
         }
@@ -542,7 +551,8 @@ public class SegmentWalLog implements WalLog {
         this.checkpointOffset = 0L;
         try {
             Files.deleteIfExists(checkpointFile);
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            LOG.log(System.Logger.Level.DEBUG, "[wal] 操作 WAL 文件失败，已忽略: " + e.getMessage(), e);
         }
     }
 
@@ -761,7 +771,8 @@ public class SegmentWalLog implements WalLog {
             try {
                 Files.deleteIfExists(seg.path());
                 deleted++;
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[wal] 操作 WAL 文件失败，已忽略: " + e.getMessage(), e);
             }
         }
         return deleted;
@@ -796,27 +807,31 @@ public class SegmentWalLog implements WalLog {
         closed = true;
         try {
             force();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            LOG.log(System.Logger.Level.DEBUG, "[wal] 操作 WAL 文件失败，已忽略: " + e.getMessage(), e);
         }
         if (activeOut != null) {
             try {
                 activeOut.flush();
                 activeOut.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[wal] 操作 WAL 文件失败，已忽略: " + e.getMessage(), e);
             }
             activeOut = null;
         }
         if (activeChannel != null) {
             try {
                 activeChannel.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[wal] 操作 WAL 文件失败，已忽略: " + e.getMessage(), e);
             }
             activeChannel = null;
         }
         if (activeRaf != null) {
             try {
                 activeRaf.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[wal] 操作 WAL 文件失败，已忽略: " + e.getMessage(), e);
             }
             activeRaf = null;
         }

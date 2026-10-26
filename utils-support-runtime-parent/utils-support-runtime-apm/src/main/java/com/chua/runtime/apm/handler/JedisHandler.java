@@ -39,6 +39,7 @@ import java.util.logging.Logger;
  * @since 4.0.0.42
  */
 public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
+
     /**
      * 日志
      */
@@ -307,7 +308,8 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
         records.add(record);
         try {
             com.chua.runtime.apm.storage.StorageManager.appendTransmission(record);
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            LOG.log(java.util.logging.Level.FINE, "记录传输失败，已忽略", e);
         }
         try {
             DependencyGraphHandler handler = ApmBootstrap.getGlobalHandler(DependencyGraphHandler.class);
@@ -365,7 +367,8 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
                     return host.toString();
                 }
             }
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            LOG.log(java.util.logging.Level.FINE, "记录传输失败，已忽略", e);
         }
         return "redis";
     }
@@ -391,7 +394,8 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
                     return ((Number) port).intValue();
                 }
             }
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            LOG.log(java.util.logging.Level.FINE, "记录传输失败，已忽略", e);
         }
         return 6379;
     }

@@ -229,7 +229,8 @@ public class RabbitmqClient implements AutoCloseable {
                 for (Channel ch : channelCache.values()) {
                     try {
                         ch.close();
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        log.debug("[rabbitmq] 关闭 channel 失败，已忽略: {}", e.getMessage());
                     }
                 }
                 channelCache.clear();
@@ -291,7 +292,8 @@ public class RabbitmqClient implements AutoCloseable {
         if (ch != null) {
             try {
                 ch.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[rabbitmq] 操作失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -1488,7 +1490,8 @@ public class RabbitmqClient implements AutoCloseable {
             } catch (Exception e) {
                 try {
                     ch.txRollback();
-                } catch (Exception ignored) {
+                } catch (Exception rollbackEx) {
+                    log.debug("[rabbitmq] 事务回滚失败，已忽略: {}", rollbackEx.getMessage());
                 }
                 throw new RabbitmqClientException("事务执行失败", e);
             }

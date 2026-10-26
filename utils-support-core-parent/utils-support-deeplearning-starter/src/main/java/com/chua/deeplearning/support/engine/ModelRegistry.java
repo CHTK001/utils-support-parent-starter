@@ -1513,7 +1513,8 @@ public final class ModelRegistry {
                 if (delegate instanceof AutoCloseable closeable) {
                     try {
                         closeable.close();
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        log.debug("[model] 关闭资源失败，已忽略: {}", e.getMessage());
                     }
                 }
             }
@@ -1698,7 +1699,8 @@ public final class ModelRegistry {
                         return new java.io.File(url.getPath()).getAbsolutePath();
                     }
                 }
-            } catch (Throwable ignored) {
+            } catch (Throwable e) {
+                log.debug("[model] 操作失败，已忽略: {}", e.getMessage());
             }
  // 兜底：原样返回（部分 translator 支持 类路径: 前缀或工作目录相对路径）
             return configured;
@@ -1732,7 +1734,8 @@ public final class ModelRegistry {
             if (translator instanceof AutoCloseable closeable) {
                 try {
                     closeable.close();
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[model] 操作失败，已忽略: {}", e.getMessage());
                 }
             }
         }

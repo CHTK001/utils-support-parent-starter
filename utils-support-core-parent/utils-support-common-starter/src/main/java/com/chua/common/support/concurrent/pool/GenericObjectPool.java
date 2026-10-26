@@ -59,6 +59,11 @@ import java.util.concurrent.locks.ReentrantLock;
 public class GenericObjectPool<T> implements ObjectPool<T> {
 
     /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(GenericObjectPool.class.getName());
+
+    /**
      * 对象池配置
      */
     private final ObjectPoolConfig config;
@@ -381,7 +386,8 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
     private void destroyObjectQuietly(PooledObject<T> pooled) {
         try {
             factory.destroy(pooled.getObject());
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            LOG.log(System.Logger.Level.DEBUG, "[pool] 销毁对象失败，已忽略: " + e.getMessage(), e);
         }
     }
 
@@ -425,7 +431,8 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
             // 初始化失败，销毁对象
             try {
                 factory.destroy(obj);
-            } catch (Exception ignored) {
+            } catch (Exception destroyEx) {
+                LOG.log(System.Logger.Level.DEBUG, "[pool] 清理对象失败，已忽略: " + destroyEx.getMessage(), destroyEx);
             }
             throw e;
         }

@@ -47,6 +47,23 @@ public interface DataSyncAgentSource {
     }
 
     /**
+     * 按映射读取偏移量（**每目标独立水位**）。
+     *
+     * <p>一个源写多个目标时，每个目标各自的映射要读自己的水位，
+     * 否则 A 表推进水位会把 B 表的数据一起跳过。</p>
+     *
+     * <p>默认实现退回按源读取，保证既有 Source 实现不受影响；
+     * 支持多目标的 Source 应覆盖本方法。</p>
+     *
+     * @param params    读取参数
+     * @param mappingId 映射标识
+     * @return 偏移量，可能为空（首次运行时）
+     */
+    default SyncDataOffset readOffset(Map<String, Object> params, String mappingId) {
+        return readOffset(params);
+    }
+
+    /**
      * 写入偏移量（由 源 通过存储接口自行持久化）。
      *
      * @param offset 偏移量对象

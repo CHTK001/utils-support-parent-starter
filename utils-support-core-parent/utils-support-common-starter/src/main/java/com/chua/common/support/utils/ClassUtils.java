@@ -413,7 +413,8 @@ public class ClassUtils {
         ClassLoader cl = null;
         try {
             cl = Thread.currentThread().getContextClassLoader();
-        } catch (Throwable ignored) {
+        } catch (Throwable e) {
+            log.debug("[ClassUtils] 获取上下文类加载器失败: {}", e.getMessage());
         }
         if (cl == null) {
             cl = ClassUtils.class.getClassLoader();
@@ -421,7 +422,8 @@ public class ClassUtils {
         if (cl == null) {
             try {
                 cl = ClassLoader.getSystemClassLoader();
-            } catch (Throwable ignored) {
+            } catch (Throwable e) {
+                log.debug("[ClassUtils] 获取系统类加载器失败: {}", e.getMessage());
             }
         }
         return cl;
@@ -476,13 +478,15 @@ public class ClassUtils {
                 ((AutoCloseable) classLoader).close();
                 return;
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[ClassUtils] 关闭类加载器失败: {}", e.getMessage());
         }
         try {
             if (classLoader instanceof URLClassLoader) {
                 ((URLClassLoader) classLoader).close();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[ClassUtils] 关闭类加载器失败: {}", e.getMessage());
         }
     }
     /**
@@ -506,7 +510,8 @@ public class ClassUtils {
             try {
                 unregisterClassLoader(cl);
                 count++;
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[ClassUtils] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         return count;
@@ -537,13 +542,15 @@ public class ClassUtils {
                 ((AutoCloseable) classLoader).close();
                 return true;
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[ClassUtils] 关闭类加载器失败: {}", e.getMessage());
         }
         try {
             if (classLoader instanceof URLClassLoader) {
                 ((URLClassLoader) classLoader).close();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[ClassUtils] 关闭类加载器失败: {}", e.getMessage());
         }
         return true;
     }
@@ -570,7 +577,8 @@ public class ClassUtils {
                 try {
                     unregisterClassLoader(cl);
                     count++;
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[ClassUtils] 操作失败，已忽略: {}", e.getMessage());
                 }
             }
         }
@@ -1050,7 +1058,8 @@ public class ClassUtils {
             try {
                 params = createArgs(params, declaredConstructor);
                 return declaredConstructor.newInstance(params); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（forObject 实例化封装）
-            } catch (Exception ignore) {
+            } catch (Exception e) {
+                log.debug("[ClassUtils] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         return (T) createAlgorithm(tClass, params);
@@ -1530,7 +1539,8 @@ public class ClassUtils {
             if (temp.exists()) {
                 return temp.toURI().toURL();
             }
-        } catch (MalformedURLException ignored) {
+        } catch (MalformedURLException e) {
+            log.debug("[ClassUtils] URL 格式非法: {}", e.getMessage());
         }
         return ClassUtils.class.getClassLoader().getResource(source);
     }
@@ -1574,7 +1584,8 @@ public class ClassUtils {
                     throw new IllegalStateException("Not allowed to access field '" + field.getName() + "': " + ex);
                 }
             }
-        } catch (Throwable ignore) {
+        } catch (Throwable e) {
+            log.debug("[ClassUtils] 反射操作失败，已忽略: {}", e.getMessage());
         }
     }
     /**
@@ -2051,7 +2062,8 @@ public class ClassUtils {
         if (bean instanceof Callable) {
             try {
                 return ((Callable<?>) bean).call();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[ClassUtils] 操作失败，已忽略: {}", e.getMessage());
             }
             return null;
         }
@@ -2077,7 +2089,8 @@ public class ClassUtils {
         if (bean instanceof Callable) {
             try {
                 return ((Callable<?>) bean).call();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[ClassUtils] 操作失败，已忽略: {}", e.getMessage());
             }
             return null;
         }
@@ -2124,7 +2137,8 @@ public class ClassUtils {
         if (bean instanceof Callable) {
             try {
                 return ((Callable<?>) bean).call();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[ClassUtils] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         if (!method.isDefault()) {
@@ -2346,7 +2360,8 @@ public class ClassUtils {
                 setAccessible(declaredMethod);
                 return declaredMethod.invoke(value);
             }
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.debug("[ClassUtils] 反射操作失败，已忽略: {}", e.getMessage());
         }
         try {
             Method declaredMethod = target.getDeclaredMethod(field.getName()); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（getFieldValue 同名方法回退）
@@ -2354,7 +2369,8 @@ public class ClassUtils {
                 setAccessible(declaredMethod);
                 return declaredMethod.invoke(value);
             }
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.debug("[ClassUtils] 反射操作失败，已忽略: {}", e.getMessage());
         }
         try {
             setAccessible(true);
@@ -2516,7 +2532,8 @@ public class ClassUtils {
                 declaredMethod.invoke(bean, value);
                 return;
             }
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.debug("[ClassUtils] 反射操作失败，已忽略: {}", e.getMessage());
         }
         try {
             Method declaredMethod = target.getDeclaredMethod(field.getName(), field.getType()); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（setFieldValue 同名方法回退）
@@ -2525,12 +2542,14 @@ public class ClassUtils {
                 declaredMethod.invoke(bean, value);
                 return;
             }
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.debug("[ClassUtils] 反射操作失败，已忽略: {}", e.getMessage());
         }
         try {
             setAccessible(field);
             field.set(bean, value);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException ex) {
+            log.debug("[ClassUtils] 无访问权限，已忽略: {}", ex.getMessage());
         }
     }
     /**
@@ -2556,12 +2575,14 @@ public class ClassUtils {
                 method.invoke(bean, value);
                 return;
             }
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.debug("[ClassUtils] 反射操作失败，已忽略: {}", e.getMessage());
         }
         try {
             setAccessible(field);
             field.set(bean, value);
-        } catch (IllegalAccessException ignore) {
+        } catch (IllegalAccessException e) {
+            log.debug("[ClassUtils] 无访问权限，已忽略: {}", e.getMessage());
         }
     }
     /**
@@ -2786,7 +2807,8 @@ public class ClassUtils {
                     System.getProperty(SYMBOL_LEFT_SLASH))) {
                 try {
                     rs.add(new File(path).toURI().toURL());
-                } catch (Exception ignore) {
+                } catch (Exception e) {
+                    log.debug("[ClassUtils] 操作失败，已忽略: {}", e.getMessage());
                 }
             }
         }
@@ -3235,7 +3257,8 @@ public class ClassUtils {
         Method builder = null;
         try {
             builder = protoMapClass.getMethod("builder");
-        } catch (NoSuchMethodException ignored) {
+        } catch (NoSuchMethodException e) {
+            log.debug("[ClassUtils] 方法不存在，已忽略: {}", e.getMessage());
         }
         if(null != builder) {
             ClassUtils.setAccessible(builder);
@@ -3287,7 +3310,8 @@ public class ClassUtils {
             setAccessible(declaredConstructor);
             try {
                 return (T) declaredConstructor.newInstance(newArgs); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（forObjectOfMap 构造器反射实例化）
-            } catch (Exception ignore) {
+            } catch (Exception e) {
+                log.debug("[ClassUtils] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         return null;

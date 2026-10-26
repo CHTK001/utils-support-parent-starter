@@ -9,6 +9,7 @@ import com.chua.common.support.network.server.SyncServerListener;
 import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncProtocol;
 import com.chua.common.support.spi.annotations.Spi;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -27,8 +28,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 2026-07-25
  */
+@Slf4j
 @Spi("http")
 public class HttpSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
+
 
     /**
      * 获取Protocol
@@ -297,7 +300,8 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
         String encodedKey = key;
         try {
             encodedKey = java.net.URLEncoder.encode(key, "UTF-8");
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[sync] URL 编码失败，使用原始 key: {}", e.getMessage());
         }
 
         if (body.contains("=")) {
@@ -310,7 +314,8 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
                     try {
                         k = java.net.URLDecoder.decode(k, "UTF-8");
                         v = java.net.URLDecoder.decode(v, "UTF-8");
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        log.debug("[sync] URL 解码失败，使用原始值: {}", e.getMessage());
                     }
                     if (key.equals(k) || encodedKey.equals(k)) {
                         return v;

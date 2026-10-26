@@ -5,6 +5,7 @@ import com.chua.common.support.lang.algorithm.KafkaSequenceGenerator;
 import com.chua.common.support.lang.algorithm.MacSequenceGenerator;
 import com.chua.common.support.lang.algorithm.SnowflakeIdGenerator;
 import com.chua.common.support.reflection.ReflectUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
@@ -39,6 +40,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class IdUtils {
 
     /**
@@ -236,7 +238,8 @@ public class IdUtils {
     public static String createMd5(final String value) {
         try {
             return DigestUtils.md5(value);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[id] MD5 计算失败，返回 null: {}", e.getMessage());
         }
         return null;
     }

@@ -277,7 +277,8 @@ public class BeanDefinitionRegistry {
                 if (bean == instance) {
                     return true;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[registry] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         return false;
@@ -408,7 +409,8 @@ public class BeanDefinitionRegistry {
             if (type.isInstance(bean)) {
                 return type.cast(bean);
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[registry] 操作失败，已忽略: {}", e.getMessage());
         }
         return null;
     }
@@ -433,7 +435,8 @@ public class BeanDefinitionRegistry {
                 if (bean != null && type.isInstance(bean)) {
                     return type.cast(bean);
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[registry] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         return null;
@@ -460,7 +463,8 @@ public class BeanDefinitionRegistry {
                 if (bean != null && type.isInstance(bean)) {
                     result.put(def.getName(), type.cast(bean));
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[registry] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         return result;

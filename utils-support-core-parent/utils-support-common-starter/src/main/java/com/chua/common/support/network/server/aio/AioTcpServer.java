@@ -220,7 +220,8 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
         executor.submit(() -> {
             try {
                 channel.setOption(StandardSocketOptions.TCP_NODELAY, setting.isTcpNoDelay());
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[aio] 设置 socket 选项失败，已忽略: {}", e.getMessage());
             }
             if (rawPipeHandler != null) {
                 // 管道模式:无外层 finally —— 连接生命周期由 AsyncConn.close 全权控制
@@ -577,7 +578,8 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     static void closeQuietly(AsynchronousSocketChannel channel) {
         try {
             channel.close();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[aio] 操作失败，已忽略: {}", e.getMessage());
         }
     }
 
@@ -589,7 +591,8 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
         if (serverChannel != null) {
             try {
                 serverChannel.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[aio] 设置 socket 选项失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -605,7 +608,8 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
         if (group != null) {
             try {
                 group.shutdownNow();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[aio] 设置 socket 选项失败，已忽略: {}", e.getMessage());
             }
         }
         log.info("AIO TcpServer stopped");

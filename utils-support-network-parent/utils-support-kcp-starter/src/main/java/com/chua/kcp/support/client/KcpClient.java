@@ -250,7 +250,8 @@ public class KcpClient {
         if (session != null) {
             try {
                 session.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[kcp] 操作失败，已忽略: {}", e.getMessage());
             }
             session = null;
         }
@@ -587,7 +588,8 @@ public class KcpClient {
         for (Consumer<Throwable> l : errorListeners) {
             try {
                 l.accept(ex);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[kcp] 操作失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -823,7 +825,8 @@ public class KcpClient {
             for (Consumer<String> l : connectListeners) {
                 try {
                     l.accept(clientId);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[kcp] 回调执行失败，已忽略: {}", e.getMessage());
                 }
             }
         }
@@ -837,7 +840,8 @@ public class KcpClient {
             for (Consumer<String> l : disconnectListeners) {
                 try {
                     l.accept(clientId);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[kcp] 回调执行失败，已忽略: {}", e.getMessage());
                 }
             }
         }
@@ -851,7 +855,8 @@ public class KcpClient {
             for (Consumer<Throwable> l : errorListeners) {
                 try {
                     l.accept(ex);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[kcp] 回调执行失败，已忽略: {}", e.getMessage());
                 }
             }
         }

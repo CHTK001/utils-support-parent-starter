@@ -15,6 +15,13 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
         </dependency>
+        <!-- 接码短信页受 Cloudflare Turnstile 人机验证保护，HTTP 直连无法取短信原文；
+             fetchMessages 用 playwright-starter 的浏览器自动化打开短信页并点击"查看短信"。 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-playwright-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-datasource-starter</artifactId>

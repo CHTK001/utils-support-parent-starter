@@ -35,6 +35,7 @@ import com.chua.common.support.ai.embedding.EmbeddingClient;
 import com.chua.common.support.ai.audio.VirtualClient;
 import com.chua.common.support.ai.audio.TextToAudioClient;
 import com.chua.common.support.ai.feature.FeatureClient;
+import com.chua.deeplearning.support.timeseries.TimeSeriesForecaster;
 
 import java.util.List;
 import java.util.Map;
@@ -166,6 +167,10 @@ public final class ModelCapabilities {
      * 说话人分离（时间切分）
     */
     public static final String SPEAKER_DIARIZATION = "speaker-diarization";
+    /**
+     * 时间序列预测
+     */
+    public static final String TIME_SERIES_FORECAST = "timeseries-forecast";
 
     // ==================== 云端 AI 客户端能力标签 ====================
 
@@ -236,7 +241,8 @@ public final class ModelCapabilities {
             Map.entry(FeatureClient.class, FEATURE),
             Map.entry(AudioFingerprinter.class, AUDIO_FINGERPRINT),
             Map.entry(SpeakerDiarizer.class, SPEAKER_DIARIZATION),
-            Map.entry(com.chua.deeplearning.support.image.ImageInpainter.class, INPAINTING)
+            Map.entry(com.chua.deeplearning.support.image.ImageInpainter.class, INPAINTING),
+            Map.entry(TimeSeriesForecaster.class, TIME_SERIES_FORECAST)
     );
 
     /**

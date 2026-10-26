@@ -75,7 +75,8 @@ public class JdkTcpClient implements TcpClient {
             if (ch != null) {
                 try {
                     ch.close();
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    log.debug("关闭 TCP 客户端通道失败，已忽略: {}", e.getMessage());
                 }
             }
         }

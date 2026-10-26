@@ -167,7 +167,8 @@ public final class ObjectContextScanner {
                 ReflectUtils.instantiate(clazz);
                 result.add(clazz);
             }
-        } catch (Exception | LinkageError ignored) {
+        } catch (Exception | LinkageError e) {
+            log.debug("[scanner] 类实例化校验失败，跳过该类: {}", e.getMessage());
         }
     }
 }

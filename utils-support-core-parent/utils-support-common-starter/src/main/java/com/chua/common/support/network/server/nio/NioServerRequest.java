@@ -7,6 +7,7 @@ import com.chua.common.support.network.server.request.FormFile;
 import com.chua.common.support.network.server.request.MultipartParser;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.spi.ServiceProvider;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,7 +35,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * <p>每次 feed 返回:1=完整请求解析完成;0=还需更多数据;-1=解析错误。</p>
  */
+@Slf4j
 public class NioServerRequest implements ServerRequest {
+
 
     /**
      * HTTP 请求增量解析状态机的状态枚举。
@@ -516,7 +519,8 @@ public class NioServerRequest implements ServerRequest {
             if (sa instanceof InetSocketAddress addr) {
                 return addr.getHostString();
             }
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[nio] 获取远端地址失败，返回 unknown: {}", e.getMessage());
         }
         return "unknown";
     }
@@ -529,7 +533,8 @@ public class NioServerRequest implements ServerRequest {
             if (sa instanceof InetSocketAddress addr) {
                 return addr.getPort();
             }
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[nio] 获取远端端口失败，返回 0: {}", e.getMessage());
         }
         return 0;
     }

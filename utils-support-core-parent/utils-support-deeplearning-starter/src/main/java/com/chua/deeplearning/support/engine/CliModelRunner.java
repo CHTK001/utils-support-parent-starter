@@ -683,7 +683,8 @@ public final class CliModelRunner {
         // 关闭子进程 stdin：Java 起的空管道永不 EOF，避免 bun 类 CLI 阻塞等待输入
         try {
             p.getOutputStream().close();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[cli] 关闭进程输入流失败，已忽略: {}", e.getMessage());
         }
         StringBuilder err = new StringBuilder();
         Thread errThread = Thread.startVirtualThread(() -> {
@@ -697,7 +698,8 @@ public final class CliModelRunner {
                         }
                     }
                 }
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[cli] IO 操作失败，已忽略: {}", e.getMessage());
             }
         });
         String out;
@@ -770,7 +772,8 @@ public final class CliModelRunner {
         // 关闭子进程 stdin：Java 起的空管道永不 EOF，避免 bun 类 CLI 阻塞等待输入
         try {
             p.getOutputStream().close();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[cli] 关闭进程输入流失败，已忽略: {}", e.getMessage());
         }
         StringBuilder err = new StringBuilder();
         Thread errThread = Thread.startVirtualThread(() -> {
@@ -784,7 +787,8 @@ public final class CliModelRunner {
                         }
                     }
                 }
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[cli] IO 操作失败，已忽略: {}", e.getMessage());
             }
         });
         // 看门狗：到点强杀，使阻塞在 readLine 的当前线程收到 EOF/异常而解除

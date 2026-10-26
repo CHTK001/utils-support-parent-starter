@@ -5,6 +5,7 @@ import com.chua.common.support.file.FileSystem;
 import com.chua.common.support.file.builder.ReadBuilder;
 import com.chua.common.support.file.builder.WriteBuilder;
 import com.chua.common.support.spi.annotations.Spi;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Spi("xml")
 public class XmlFileSystem implements FileSystem {
 
@@ -249,7 +251,8 @@ public class XmlFileSystem implements FileSystem {
                     }
                     callback.onComplete(result.size());
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[xml] 读取回调执行失败，已忽略: {}", e.getMessage());
             }
             // 应用行过滤 + 行数据转换
             result = applyFilter(result);

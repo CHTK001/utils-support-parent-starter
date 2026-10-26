@@ -119,6 +119,18 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
 
     @Override
     /**
+     * 按映射读取偏移量（每目标独立水位）
+     *
+     * @param params 读取参数
+     * @param mappingId 映射标识
+     * @return 偏移量
+     */
+    public SyncDataOffset readOffset(Map<String, Object> params, String mappingId) {
+        return offsetStorage.read(sourceId, mappingId, null);
+    }
+
+    @Override
+    /**
      * 写入偏移量
     */
     public void writeOffset(SyncDataOffset offset) {

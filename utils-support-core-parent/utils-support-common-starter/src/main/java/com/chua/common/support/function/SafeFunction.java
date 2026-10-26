@@ -37,10 +37,15 @@ import javax.annotation.Nullable;
 public interface SafeFunction<T, R> extends Function<T, R> {
 
     /**
+     * 日志
+     */
+    System.Logger LOG = System.getLogger(SafeFunction.class.getName());
+
+    /**
      * 将此函数应用于给定参数。
      *
      * <p>该方法会捕获执行过程中抛出的所有异常，包括受检异常和非受检异常。
-     * 如果发生异常，会打印堆栈跟踪并返回 null。</p>
+     * 如果发生异常，会记录日志并返回 null。</p>
      *
      * @param t 函数参数
      * @return 函数结果，如果发生异常则返回 null
@@ -50,7 +55,7 @@ public interface SafeFunction<T, R> extends Function<T, R> {
         try {
             return safeApply(t);
         } catch (Throwable throwable) {
-            throwable.printStackTrace();
+            LOG.log(System.Logger.Level.WARNING, "安全函数执行失败", throwable);
             return null;
         }
     }

@@ -969,7 +969,8 @@ public class DateUtils {
         Date date = null;
         try {
             date = parseDateWithLeniency(str, DATE_FORMATS, false);
-        } catch (ParseException ignored) {
+        } catch (ParseException e) {
+            log.debug("[date] 解析日期失败，已忽略: {}", e.getMessage());
         }
         return null == date ? parseDateWithLeniency(str, DATE_FORMATS, Locale.US) : date;
     }
@@ -1147,7 +1148,8 @@ public class DateUtils {
             Date parse = null;
             try {
                 parse = sdf2.parse(str);
-            } catch (ParseException ignored) {
+            } catch (ParseException e) {
+                log.debug("[date] 解析日期失败，已忽略: {}", e.getMessage());
             }
             if (null != parse) {
                 return parse;

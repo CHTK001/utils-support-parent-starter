@@ -222,7 +222,8 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
         if (conn != null) {
             try {
                 conn.rollback();
-            } catch (SQLException ignored) {
+            } catch (SQLException e) {
+                log.debug("[datasync] 回滚事务失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -236,7 +237,8 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
         if (stmt != null) {
             try {
                 stmt.close();
-            } catch (SQLException ignored) {
+            } catch (SQLException e) {
+                log.debug("[datasync] 回滚事务失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -251,7 +253,8 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
             try {
                 conn.setAutoCommit(true);
                 conn.close();
-            } catch (SQLException ignored) {
+            } catch (SQLException e) {
+                log.debug("[datasync] 回滚事务失败，已忽略: {}", e.getMessage());
             }
         }
     }

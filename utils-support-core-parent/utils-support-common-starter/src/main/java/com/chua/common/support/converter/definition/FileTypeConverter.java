@@ -35,6 +35,11 @@ import static com.chua.common.support.constant.CommonConstant.FILE_PROTOCOL;
 public class FileTypeConverter implements TypeConverter<File> {
 
     /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(FileTypeConverter.class.getName());
+
+    /**
      * 操作系统默认临时目录
      */
     private static final String[] TEMP = new String[]{"Documents", "Downloads", "Desktop"};
@@ -86,7 +91,8 @@ public class FileTypeConverter implements TypeConverter<File> {
             case URI uri -> {
                 try {
                     return new File(uri.toURL().getFile());
-                } catch (MalformedURLException ignored) {
+                } catch (MalformedURLException e) {
+                    LOG.log(System.Logger.Level.DEBUG, "[converter] URL 格式非法，已忽略: " + e.getMessage(), e);
                 }
             }
             default -> {
@@ -126,13 +132,15 @@ public class FileTypeConverter implements TypeConverter<File> {
         if (str.startsWith(HTTP_PREFIX)) {
             try {
                 return new File(new URI(str).toURL().getFile());
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
             }
         }
         if (str.startsWith(FILE_PROTOCOL)) {
             try {
                 return new File(new URI(str).toURL().getFile());
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
             }
         }
 
@@ -152,7 +160,8 @@ public class FileTypeConverter implements TypeConverter<File> {
                 } catch (FileNotFoundException e) {
                     throw new RuntimeException("写入临时文件失败: " + e.getMessage(), e);
                 }
-            } catch (Exception ignore) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
             }
         }
 
@@ -212,7 +221,8 @@ public class FileTypeConverter implements TypeConverter<File> {
             if(file.exists()) {
                 return file;
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
         }
 
         return null;

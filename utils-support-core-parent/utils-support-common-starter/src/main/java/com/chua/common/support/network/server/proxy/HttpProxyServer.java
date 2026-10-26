@@ -101,7 +101,8 @@ public class HttpProxyServer extends AbstractProxyServer {
             if (pooled.isClosed() || pooled.isInputShutdown() || pooled.isOutputShutdown()) {
                 try {
                     pooled.close();
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    log.debug("[proxy] IO 操作失败，已忽略: {}", e.getMessage());
                 }
                 continue;
             }
@@ -126,7 +127,8 @@ public class HttpProxyServer extends AbstractProxyServer {
         }
         try {
             socket.close();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[proxy] 关闭服务失败，已忽略: {}", e.getMessage());
         }
     }
 
@@ -230,7 +232,8 @@ OutputStream backOut = backendSocket.getOutputStream();
                         if (backendSocket != null) {
                             try {
                                 backendSocket.close();
-                            } catch (IOException ignored) {
+                            } catch (IOException closeEx) {
+                                log.debug("[proxy] 关闭后端连接失败，已忽略: {}", closeEx.getMessage());
                             }
                             backendSocket = null;
                         }
@@ -242,7 +245,8 @@ OutputStream backOut = backendSocket.getOutputStream();
                         if (backendSocket != null) {
                             try {
                                 backendSocket.close();
-                            } catch (IOException ignored) {
+                            } catch (IOException closeEx) {
+                                log.debug("[proxy] 关闭后端连接失败，已忽略: {}", closeEx.getMessage());
                             }
                         }
                     }

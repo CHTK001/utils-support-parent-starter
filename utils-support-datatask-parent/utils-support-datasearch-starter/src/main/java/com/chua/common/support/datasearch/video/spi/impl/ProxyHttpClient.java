@@ -14,6 +14,8 @@ import java.time.Duration;
  */
 public class ProxyHttpClient {
 
+    private static final System.Logger LOG = System.getLogger(ProxyHttpClient.class.getName()); // 日志
+
     private static volatile HttpClient client; // 客户端
 
     /**
@@ -33,7 +35,9 @@ public class ProxyHttpClient {
                             String[] parts = proxy.split(":");
                             builder.proxy(ProxySelector.of(new InetSocketAddress(parts[0], Integer.parseInt(parts[1]))));
                         }
-                    } catch (Exception ignored) {}
+                    } catch (Exception e) {
+                        LOG.log(System.Logger.Level.DEBUG, "获取代理失败，使用直连: " + e.getMessage(), e);
+                    }
                     client = builder.build();
                 }
             }

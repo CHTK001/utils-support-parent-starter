@@ -430,13 +430,15 @@ public class EdgeSamSegmentTranslator {
             if (encoderSession != null) {
                 encoderSession.close();
             }
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.debug("[edgesam] 关闭会话失败，已忽略: {}", e.getMessage());
         }
         try {
             if (decoderSession != null) {
                 decoderSession.close();
             }
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.debug("[edgesam] 关闭会话失败，已忽略: {}", e.getMessage());
         }
         encoderSession = null;
         decoderSession = null;

@@ -449,7 +449,8 @@ class FtpCommandHandler {
         }
         try {
             session.getControlSocket().setSoTimeout(session.getConfig().getControlTimeout() * 1000);
-        } catch (java.net.SocketException ignored) {
+        } catch (java.net.SocketException e) {
+            log.debug("[ftp] 设置超时失败，已忽略: {}", e.getMessage());
         }
         session.setAttribute("RNFR_PATH", resolved.toString());
         session.reply(CODE_FILE_ACTION_PENDING, "File found, ready for rename.");
@@ -772,7 +773,8 @@ class FtpCommandHandler {
             }
             var attr = Files.getLastModifiedTime(path);
             lastModified = LocalDateTime.ofInstant(attr.toInstant(), java.time.ZoneId.systemDefault());
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[ftp] IO 操作失败，已忽略: {}", e.getMessage());
         }
         var perm = isDir ? "drwxr-xr-x" : "-rw-r--r--";
         var linkCount = isDir ? "2" : "1";

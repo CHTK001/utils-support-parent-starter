@@ -530,10 +530,10 @@ public class OpenAiChatClient implements ChatClient {
                     }
                 }
             });
-            // 仅当显式开启深度思考时才附带思维链，关闭思考时只返回正式回答
-            String text = thinking && reasoning.length() > 0
-                    ? reasoning + "\n---\n" + result
-                    : result.toString();
+            // 只返回正式回答；思维链（reasoning_content）绝不混入返回文本 ——
+            // 推理模型思考过程中可能输出含花括号的 JSON 片段，下游结构化解析（extractJson）
+            // 会误抓为最终结果（实测补题干因此拿到无 stems 的 JSON 而被判定「数量不符」）。
+            String text = result.toString();
             return ChatSyncResponse.builder().text(text).usage(usage[0]).build();
         } finally {
             this.stream = savedStream;

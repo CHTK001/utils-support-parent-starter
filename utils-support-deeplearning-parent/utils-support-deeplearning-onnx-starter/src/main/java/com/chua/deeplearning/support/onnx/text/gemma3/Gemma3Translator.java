@@ -630,7 +630,9 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         if (session != null) {
             try {
                 session.close();
-            } catch (Exception ignore) {}
+            } catch (Exception e) {
+                log.warn("[Gemma3] 关闭会话失败: {}", e.getMessage());
+            }
         }
         ortEnv = null;
         initialized = false;

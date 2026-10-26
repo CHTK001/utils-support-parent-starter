@@ -1,6 +1,7 @@
 package com.chua.common.support.converter.definition;
 
 import com.chua.common.support.utils.DateUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.text.ParseException;
 import java.time.Instant;
@@ -22,7 +23,10 @@ import java.util.Date;
  * @version 1.0.0
  * @since 2021/1/26
  */
+@Slf4j
 public class LocalTimeTypeConverter implements TypeConverter<LocalTime> {
+
+
 
 
     /**
@@ -64,7 +68,8 @@ public class LocalTimeTypeConverter implements TypeConverter<LocalTime> {
         if (isAssignableFrom(value, String.class)) {
             try {
                 return DateUtils.toLocalTime((String) value);
-            } catch (ParseException ignore) {
+            } catch (ParseException e) {
+                log.debug("[converter] LocalTime 字符串解析失败: {}", e.getMessage());
             }
         }
 

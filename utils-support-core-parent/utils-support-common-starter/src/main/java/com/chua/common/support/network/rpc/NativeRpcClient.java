@@ -286,12 +286,14 @@ public class NativeRpcClient implements RpcClient {
         proxyCache.clear();
         try {
             tcpClient.close();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("关闭 RPC TCP 客户端失败，已忽略: {}", e.getMessage());
         }
         if (serviceDiscovery != null) {
             try {
                 serviceDiscovery.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("关闭服务发现失败，已忽略: {}", e.getMessage());
             }
         }
     }
