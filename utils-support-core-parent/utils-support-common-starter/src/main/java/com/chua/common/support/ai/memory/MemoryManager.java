@@ -353,8 +353,9 @@ public class MemoryManager implements AutoCloseable {
         try {
             com.chua.common.support.lang.json.Json.fromJson(text, Map.class);
             return text;
-        } catch (Exception ignored) {}
-        // 提取 markdown 代码块中的 JSON
+        } catch (Exception e) {
+            log.warn("[MemoryManager] Failed to parse text as JSON", e);
+        }
         int codeBlock = text.indexOf("```");
         if (codeBlock >= 0) {
             int start = text.indexOf('{', codeBlock);
@@ -364,7 +365,9 @@ public class MemoryManager implements AutoCloseable {
                 try {
                     com.chua.common.support.lang.json.Json.fromJson(candidate, Map.class);
                     return candidate;
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.warn("[MemoryManager] Failed to parse markdown JSON block", e);
+                }
             }
         }
         // 按括号匹配提取第一个顶层 JSON 对象
@@ -383,7 +386,9 @@ public class MemoryManager implements AutoCloseable {
                         try {
                             com.chua.common.support.lang.json.Json.fromJson(candidate, Map.class);
                             return candidate;
-                        } catch (Exception ignored) {}
+                        } catch (Exception e) {
+                            log.warn("[MemoryManager] Failed to parse JSON candidate", e);
+                        }
                         break;
                     }
                 }

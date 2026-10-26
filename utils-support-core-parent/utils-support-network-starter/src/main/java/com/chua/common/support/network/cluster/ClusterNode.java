@@ -251,19 +251,22 @@ public class ClusterNode implements AutoCloseable {
         if (nodeServer != null) {
             try {
                 nodeServer.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.warn("[cluster] 关闭 nodeServer 失败: {}", e.getMessage());
             }
         }
         if (tcpProxy != null) {
             try {
                 tcpProxy.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.warn("[cluster] 关闭 tcpProxy 失败: {}", e.getMessage());
             }
         }
         if (httpServer != null) {
             try {
                 httpServer.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.warn("[cluster] 关闭 httpServer 失败: {}", e.getMessage());
             }
         }
         try {
@@ -272,11 +275,14 @@ public class ClusterNode implements AutoCloseable {
                     discovery.unregisterService(path, sid);
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            log.warn("[cluster] 注销服务失败: {}", e.getMessage());
+        }
         if (discovery != null) {
             try {
                 discovery.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.warn("[cluster] 关闭 discovery 失败: {}", e.getMessage());
             }
         }
     }

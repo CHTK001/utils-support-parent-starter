@@ -394,13 +394,15 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
         if (encoderSession != null) {
             try {
                 encoderSession.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[caption] 关闭会话失败，已忽略: {}", e.getMessage());
             }
         }
         if (decoderSession != null) {
             try {
                 decoderSession.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[caption] 关闭会话失败，已忽略: {}", e.getMessage());
             }
         }
         encoderSession = null;

@@ -35,6 +35,11 @@ import java.util.Map;
 public final class JsonBeanMapper {
 
     /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(JsonBeanMapper.class.getName());
+
+    /**
      * 创建 JsonBeanMapper 实例
      */
     private JsonBeanMapper() {
@@ -237,7 +242,8 @@ public final class JsonBeanMapper {
         if (getter != null) {
             try {
 return ReflectUtils.invoke(bean, getter, Object.class, new Class<?>[0], new Object[0], new Object[0]);
-            } catch (Exception ignore) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[json] 反射调用失败，已忽略: " + e.getMessage(), e);
             }
         }
         try {
@@ -261,13 +267,15 @@ return ReflectUtils.invoke(bean, getter, Object.class, new Class<?>[0], new Obje
             try {
                 ReflectUtils.invoke(bean, setter, void.class, new Class<?>[]{field.getType()}, Converter.convertIfNecessary(value, field.getType()));
                 return;
-            } catch (Exception ignore) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[json] 反射调用失败，已忽略: " + e.getMessage(), e);
             }
         }
         try {
             ClassUtils.setAccessible(field);
             ClassUtils.setFieldValue(field, value, bean);
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            LOG.log(System.Logger.Level.DEBUG, "[json] 反射调用失败，已忽略: " + e.getMessage(), e);
         }
     }
 
@@ -287,7 +295,8 @@ Object result = ReflectUtils.invoke(clazz, methodName, field.getType(), new Clas
                 if (result != null && field.getType().isAssignableFrom(result.getClass())) {
                     return methodName;
                 }
-            } catch (Exception ignore) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[json] 反射调用失败，已忽略: " + e.getMessage(), e);
             }
         }
         return null;

@@ -77,7 +77,8 @@ public class DiskStore {
                         if (epochStr != null) {
                             try {
                                 epoch = Integer.parseInt(epochStr);
-                            } catch (NumberFormatException ignored) {
+                            } catch (NumberFormatException e) {
+                                log.debug("epoch 解析失败，使用 0: {}", e.getMessage());
                             }
                         }
                     }

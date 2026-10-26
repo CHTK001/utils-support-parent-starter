@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 /**
  * 安全的消费者接口，继承自 {@link Consumer}。
- * 在执行消费操作时捕获并忽略所有异常。
+ * 在执行消费操作时捕获并记录所有异常。
  *
  * @param <T> 输入类型
  * @author CH
@@ -22,8 +22,20 @@ public interface SafeConsumer<T> extends Consumer<T> {
     default void accept(T t) {
         try {
             safeAccept(t);
-        } catch (Throwable ignored) {
+        } catch (Throwable e) {
+            LogHolder.LOG.debug("[function] 安全消费异常，已捕获: {}", e.getMessage(), e);
         }
+    }
+
+    /**
+     * 日志持有者。
+     */
+    final class LogHolder {
+        /**
+         * 日志对象
+         */
+        private static final org.slf4j.Logger LOG =
+                org.slf4j.LoggerFactory.getLogger(SafeConsumer.class);
     }
 
     /**

@@ -462,15 +462,34 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
                 return;
             }
 
-            String sinkId = mapping.sinkId();
-            if (sinkId == null || sinkId.isBlank()) {
+            // 一源多目标：解析全部 sink，任何一项缺失或方向不对就整条映射跳过，
+            // 避免「一部分目标写了、一部分没写」造成目标间数据不一致。
+            java.util.List<String> sinkIds = mapping.sinkIds();
+            if (sinkIds == null || sinkIds.isEmpty()) {
                 log.warn("映射缺少 sinkId: mappingId={}", mapping.mappingId());
                 return;
             }
-            DataSyncAgentSink sink = dataSyncServer.getSink(sinkId);
-            if (sink == null) {
-                log.warn("找不到Sink: mappingId={}, sinkId={}", mapping.mappingId(), sinkId);
-                return;
+            java.util.LinkedHashMap<String, DataSyncAgentSink> sinks = new java.util.LinkedHashMap<>();
+            for (String candidate : sinkIds) {
+                if (candidate == null || candidate.isBlank()) {
+                    log.warn("映射含空 sinkId: mappingId={}", mapping.mappingId());
+                    return;
+                }
+                DataSyncAgentSink resolved = dataSyncServer.getSink(candidate);
+                if (resolved == null) {
+                    log.warn("找不到Sink: mappingId={}, sinkId={}", mapping.mappingId(), candidate);
+                    return;
+                }
+                if (resolved instanceof com.chua.datasync.agent.support.model.Directional) {
+                    com.chua.datasync.agent.support.model.Direction sinkDir =
+                            ((com.chua.datasync.agent.support.model.Directional) resolved).direction();
+                    if (sinkDir != com.chua.datasync.agent.support.model.Direction.OUTPUT) {
+                        log.error("Sink 方向错误，应为 OUTPUT，已阻止执行: mappingId={}, sinkId={}, direction={}",
+                                mapping.mappingId(), candidate, sinkDir);
+                        return;
+                    }
+                }
+                sinks.put(candidate, resolved);
             }
 
  // 方向约束：源 应为 输入，sink 应为 输出
@@ -481,21 +500,25 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
                 return;
             }
         }
-        if (sink instanceof com.chua.datasync.agent.support.model.Directional) {
-            com.chua.datasync.agent.support.model.Direction sinkDir = ((com.chua.datasync.agent.support.model.Directional) sink).direction();
-            if (sinkDir != com.chua.datasync.agent.support.model.Direction.OUTPUT) {
-                log.error("Sink 方向错误，应为 OUTPUT，已阻止执行: mappingId={}, sinkId={}, direction={}", mapping.mappingId(), sinkId, sinkDir);
-                return;
-            }
-        }
 
-        log.debug("执行映射: mappingId={}, sourceId={}, sinkId={}", mapping.mappingId(), sourceId, sinkId);
+        log.debug("执行映射: mappingId={}, sourceId={}, sinks={}", mapping.mappingId(), sourceId, sinks.keySet());
 
             String outputId = mapping.outputId();
             ReactorDataSyncExecutor executor = dataSyncServer.executorManager().getExecutor(outputId);
-            String sinkKey = outputId + SINK_KEY_SEPARATOR + sinkId;
-            if (subscribedSinkKeys.add(sinkKey)) {
-                executor.subscribe(outputId, data -> sink.write(Flux.fromIterable(data)));
+            // 每个目标各自订阅：订阅键编入 sink 实例身份，换实例即重订阅。
+            // 原实现用「outputId|sinkId」做键且只 add 不 remove，改配置后
+            // 旧 sink 仍接数据、新 sink 订不上，表现为「配置改了不生效」。
+            for (Map.Entry<String, DataSyncAgentSink> entry : sinks.entrySet()) {
+                String targetSinkId = entry.getKey();
+                DataSyncAgentSink targetSink = entry.getValue();
+                String sinkKey = outputId + SINK_KEY_SEPARATOR + targetSinkId;
+                String subscriptionKey = sinkKey + SINK_KEY_SEPARATOR + System.identityHashCode(targetSink);
+                if (subscribedSinkKeys.add(subscriptionKey)) {
+                    executor.subscribe(targetSinkId, data -> targetSink.write(Flux.fromIterable(data)));
+                    // 清掉同一 sinkId 的历史订阅记录，避免集合只增不减
+                    subscribedSinkKeys.removeIf(key -> key.startsWith(sinkKey + SINK_KEY_SEPARATOR)
+                            && !key.equals(subscriptionKey));
+                }
             }
 
         List<DataSyncFieldMapping> fieldMappings = mapping.mappings() == null ? List.of() : mapping.mappings();
@@ -525,12 +548,18 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
                 .flatMap(batchData -> {
                     List<Map<String, Object>> transformedBatch = applyFieldMappings(batchData, fieldMappings);
                     try {
-                        executor.publish(outputId, transformedBatch);
-                        log.trace("已发布批次: mappingId={}, outputId={}, batchSize={}",
-                                mapping.mappingId(), outputId, transformedBatch.size());
+                        // 一源多目标：同一批数据分别投递给每个目标。
+                        // 发布键必须是 sinkId，用 outputId 会让多个目标抢同一个键，
+                        // 数据只会落到其中一个。
+                        for (String targetSinkId : sinks.keySet()) {
+                            executor.publish(targetSinkId, transformedBatch);
+                        }
+                        log.trace("已发布批次: mappingId={}, outputId={}, sinks={}, batchSize={}",
+                                mapping.mappingId(), outputId, sinks.keySet(), transformedBatch.size());
                     } catch (Exception publishEx) {
-                        log.error("发布批次异常: mappingId={}, outputId={}, batchSize={}, error={}",
-                                mapping.mappingId(), outputId, transformedBatch.size(), publishEx.getMessage(), publishEx);
+                        log.error("发布批次异常: mappingId={}, outputId={}, sinks={}, batchSize={}, error={}",
+                                mapping.mappingId(), outputId, sinks.keySet(), transformedBatch.size(),
+                                publishEx.getMessage(), publishEx);
                     }
 
                     if (!transformedBatch.isEmpty()) {
@@ -596,7 +625,13 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
      */
     private Map<String, Object> buildReadParams(DataSyncMapping mapping, DataSyncAgentSource source) {
         Map<String, Object> params = mapping.params() == null ? Wraps.map() : Wraps.map(mapping.params());
-        com.chua.datasync.agent.support.model.SyncDataOffset storedOffset = source.readOffset(params);
+        // 水位按「源 + 映射」读取：多目标时同一源对应多个映射，各目标必须各记各的水位。
+        // 若只按源读，两个目标会互相覆盖水位，导致要么重复同步、要么漏数据。
+        com.chua.datasync.agent.support.model.SyncDataOffset storedOffset =
+                source.readOffset(params, mapping.mappingId());
+        if (storedOffset == null) {
+            storedOffset = source.readOffset(params);
+        }
         if (storedOffset != null) {
             params.put("offset", storedOffset.offsetValue());
         }

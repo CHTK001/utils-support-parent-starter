@@ -200,7 +200,8 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
         if (bossSelector != null) {
             try {
                 bossSelector.wakeup();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[sync] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         if (workerSelectors != null) {
@@ -208,7 +209,8 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
                 if (worker != null) {
                     try {
                         worker.wakeup();
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        log.debug("[sync] 操作失败，已忽略: {}", e.getMessage());
                     }
                 }
             }
@@ -238,7 +240,8 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
         if (bossSelector != null) {
             try {
                 bossSelector.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[sync] 操作失败，已忽略: {}", e.getMessage());
             }
             bossSelector = null;
         }
@@ -247,7 +250,8 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
                 if (worker != null) {
                     try {
                         worker.close();
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        log.debug("[sync] 操作失败，已忽略: {}", e.getMessage());
                     }
                 }
             }
@@ -257,7 +261,8 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
         if (serverChannel != null) {
             try {
                 serverChannel.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[sync] IO 操作失败，已忽略: {}", e.getMessage());
             }
             serverChannel = null;
         }
@@ -353,7 +358,8 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
                     } catch (IOException e) {
                         try {
                             key.channel().close();
-                        } catch (IOException ignored) {
+                        } catch (IOException closeEx) {
+                            log.debug("[sync] 关闭通道失败，已忽略: {}", closeEx.getMessage());
                         }
                     }
                 }
@@ -496,7 +502,8 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
         for (SyncServerListener listener : listeners) {
             try {
                 action.accept(listener);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[sync] 操作失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -715,7 +722,8 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
                     key.cancel();
                 }
                 channel.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[sync] IO 操作失败，已忽略: {}", e.getMessage());
             }
         }
     }

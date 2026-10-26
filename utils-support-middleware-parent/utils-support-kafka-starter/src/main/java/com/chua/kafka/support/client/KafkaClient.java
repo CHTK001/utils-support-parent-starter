@@ -176,7 +176,9 @@ public class KafkaClient implements AutoCloseable {
             for (KafkaConsumer<String, String> consumer : consumerCache.values()) {
                 try {
                     consumer.close();
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.warn("[kafka] 关闭消费者失败: {}", e.getMessage());
+                }
             }
             consumerCache.clear();
 
@@ -184,14 +186,18 @@ public class KafkaClient implements AutoCloseable {
             if (producer != null) {
                 try {
                     producer.close();
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.warn("[kafka] 关闭生产者失败: {}", e.getMessage());
+                }
             }
 
  // 关闭 admin客户端
             if (adminClient != null) {
                 try {
                     adminClient.close();
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.warn("[kafka] 关闭 admin 客户端失败: {}", e.getMessage());
+                }
             }
 
             log.info("Kafka 客户端关闭");

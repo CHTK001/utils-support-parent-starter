@@ -129,7 +129,8 @@ public class SipTunnelPort {
         if (serverSocket != null) {
             try {
                 serverSocket.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[sip] 关闭 ServerSocket 失败，已忽略: {}", e.getMessage());
             }
         }
         client.close();
@@ -200,7 +201,8 @@ public class SipTunnelPort {
                 }
                 session.sendBytes(Arrays.copyOf(buffer, read));
             }
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[sip] IO 操作失败，已忽略: {}", e.getMessage());
         } finally {
             session.close();
         }
@@ -217,7 +219,8 @@ public class SipTunnelPort {
             OutputStream out = socket.getOutputStream();
             out.write(data);
             out.flush();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[sip] IO 操作失败，已忽略: {}", e.getMessage());
         }
     }
 
@@ -229,7 +232,8 @@ public class SipTunnelPort {
     private void closeQuietly(Socket socket) {
         try {
             socket.close();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[sip] IO 操作失败，已忽略: {}", e.getMessage());
         }
     }
 }

@@ -217,7 +217,8 @@ public class VertxHttpServer extends AbstractServer {
                 for (String m : methods.split(",")) {
                     try {
                         corsHandler.allowedMethod(io.vertx.core.http.HttpMethod.valueOf(m.trim()));
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        log.debug("[vertx] 设置 CORS 方法失败，已忽略: {}", e.getMessage());
                     }
                 }
             }
@@ -550,7 +551,8 @@ public class VertxHttpServer extends AbstractServer {
         if (server != null) {
             try {
                 server.close().toCompletionStage().toCompletableFuture().join();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[vertx] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         if (virtualThreadExecutor != null) {
@@ -559,7 +561,8 @@ public class VertxHttpServer extends AbstractServer {
         if (vertx != null) {
             try {
                 vertx.close().toCompletionStage().toCompletableFuture().join();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[vertx] 操作失败，已忽略: {}", e.getMessage());
             }
         }
     }

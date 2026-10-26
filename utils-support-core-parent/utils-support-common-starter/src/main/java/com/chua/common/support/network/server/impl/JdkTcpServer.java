@@ -350,7 +350,8 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             if (serverChannel != null) {
                 serverChannel.close();
             }
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("关闭 TCP 服务端通道失败，已忽略: {}", e.getMessage());
         }
         ThreadUtils.closeQuietly(virtualPool);
         log.info("JDK TcpServer stopped");
@@ -448,7 +449,8 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
                 log.warn("TCP 任务被拒绝: {}", e.getMessage());
                 try {
                     socket.close();
-                } catch (IOException ignored) {
+                } catch (IOException ioe) {
+                    log.debug("拒绝任务后关闭 socket 失败，已忽略: {}", ioe.getMessage());
                 }
             }
         }

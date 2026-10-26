@@ -326,7 +326,8 @@ class FtpSession {
         dataChannel.close();
         try {
             controlSocket.close();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("关闭 FTP 会话控制连接失败，已忽略: {}", e.getMessage());
         }
         log.debug("FTP 会话关闭: {}", id);
     }

@@ -182,7 +182,8 @@ class SipTunnelStream {
         closed = true;
         try {
             socket.close();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("关闭 SIP 隧道流失败，已忽略: {}", e.getMessage());
         }
     }
 

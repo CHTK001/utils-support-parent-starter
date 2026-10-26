@@ -5,6 +5,7 @@ import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.lang.algorithm.crypto.Hex;
 import com.chua.common.support.utils.IdUtils;
 import com.chua.common.support.utils.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
@@ -21,6 +22,7 @@ import java.util.Optional;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public final class Projects {
 
     /**
@@ -49,7 +51,8 @@ public final class Projects {
         InetAddress addr = null;
         try {
             addr = InetAddress.getLocalHost();
-        } catch (UnknownHostException ignored) {
+        } catch (UnknownHostException e) {
+            log.debug("[projects] 本机地址解析失败，使用默认值 00000000: {}", e.getMessage());
         }
 
         if (null == addr) {

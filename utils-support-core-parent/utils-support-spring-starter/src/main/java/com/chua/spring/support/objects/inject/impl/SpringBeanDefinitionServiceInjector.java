@@ -18,6 +18,12 @@ import java.util.function.Function;
 @Spi("spring")
 public class SpringBeanDefinitionServiceInjector implements BeanDefinitionServiceInjector {
 
+    /**
+     * 日志
+     */
+    private static final System.Logger LOG =
+            System.getLogger(SpringBeanDefinitionServiceInjector.class.getName());
+
     @Override
     /**
      * 是否支持
@@ -55,7 +61,8 @@ public class SpringBeanDefinitionServiceInjector implements BeanDefinitionServic
                 if (result != null) {
                     return result;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[spring] 注入失败，已忽略: " + e.getMessage(), e);
             }
         }
 
@@ -65,7 +72,8 @@ public class SpringBeanDefinitionServiceInjector implements BeanDefinitionServic
                 if (result != null) {
                     return result;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[spring] 注入失败，已忽略: " + e.getMessage(), e);
             }
         }
 
@@ -75,7 +83,8 @@ public class SpringBeanDefinitionServiceInjector implements BeanDefinitionServic
                 if (result != null) {
                     return result;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[spring] 注入失败，已忽略: " + e.getMessage(), e);
             }
         }
 

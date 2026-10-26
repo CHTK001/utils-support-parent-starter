@@ -760,7 +760,8 @@ public class SipClient {
             if (signalSocket != null) {
                 signalSocket.close();
             }
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("关闭 SIP 信令连接失败，已忽略: {}", e.getMessage());
         }
         SipMuxConnection mv = muxVisitorConn;
         SipMetrics.get().onClientDisconnect();

@@ -36,6 +36,11 @@ import java.util.function.Function;
 public class PlaceholderSupport {
 
     /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(PlaceholderSupport.class.getName());
+
+    /**
      * Default_placeholder_prefix
      */
     public static final String DEFAULT_PLACEHOLDER_PREFIX = "${";
@@ -349,7 +354,8 @@ public class PlaceholderSupport {
             double leftNum = Double.parseDouble(left);
             double rightNum = Double.parseDouble(right);
             return compareNumbers(leftNum, rightNum, operator);
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException e) {
+            LOG.log(System.Logger.Level.DEBUG, "[placeholder] 解析数字失败，已忽略: " + e.getMessage(), e);
         }
 
         // 按字符串比较
@@ -460,7 +466,8 @@ public class PlaceholderSupport {
             if (index >= 0 && index < items.length) {
                 return removeQuotes(items[index].trim());
             }
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException e) {
+            LOG.log(System.Logger.Level.DEBUG, "[placeholder] 解析数字失败，已忽略: " + e.getMessage(), e);
         }
         return null;
     }
@@ -534,7 +541,8 @@ public class PlaceholderSupport {
         try {
             String value = removeQuotes(args);
             bound = Integer.parseInt(value);
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException e) {
+            LOG.log(System.Logger.Level.DEBUG, "[placeholder] 解析数字失败，已忽略: " + e.getMessage(), e);
         }
         return String.valueOf(new Random().nextInt(bound));
     }

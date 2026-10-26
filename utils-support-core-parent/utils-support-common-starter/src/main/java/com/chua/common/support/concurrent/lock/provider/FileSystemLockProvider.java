@@ -39,6 +39,11 @@ public class FileSystemLockProvider extends AbstractLockProvider {
     private static final String DEFAULT_PATH = System.getProperty("user.dir");
 
     /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(FileSystemLockProvider.class.getName());
+
+    /**
      * 用于读写文件的随机访问文件流。
      * 在获取锁时打开，释放锁时关闭。
      */
@@ -196,7 +201,7 @@ public class FileSystemLockProvider extends AbstractLockProvider {
         try {
             file.deleteOnExit();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.log(System.Logger.Level.WARNING, "标记锁文件退出删除失败: " + file, e);
         }
     }
 
@@ -219,6 +224,6 @@ public class FileSystemLockProvider extends AbstractLockProvider {
      * @param e 捕获到的异常对象。
      */
     private void handleException(Exception e) {
-        e.printStackTrace();
+        LOG.log(System.Logger.Level.WARNING, "文件锁操作异常", e);
     }
 }

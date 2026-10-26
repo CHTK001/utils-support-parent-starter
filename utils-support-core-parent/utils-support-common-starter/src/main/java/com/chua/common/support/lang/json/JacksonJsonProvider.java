@@ -52,7 +52,7 @@ import java.util.TimeZone;
 import static com.chua.common.support.constant.DateFormatConstant.HH_MM_SS_FMT;
 import static com.chua.common.support.constant.DateFormatConstant.YYYY_MM_DD_FMT;
 import static com.chua.common.support.constant.DateFormatConstant.YYYY_MM_DD_HH_MM_SS_FMT;
-import static com.chua.common.support.constant.DateFormatConstant.YYYY_MM_DD_HH_MM_SS_SDF;
+import static com.chua.common.support.constant.DateFormatConstant.newYyyyMmDdHhMmSsSdf;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
@@ -167,7 +167,7 @@ public class JacksonJsonProvider implements JsonProvider {
         // 设置默认的属性包含策略：始终包含所有属性
         objectMapper.setDefaultPropertyInclusion(JsonInclude.Include.ALWAYS);
         // 设置 Date 类型的默认格式
-        objectMapper.setDateFormat(YYYY_MM_DD_HH_MM_SS_SDF);
+        objectMapper.setDateFormat(newYyyyMmDdHhMmSsSdf());
 
         // 注册 Java 8 Time 模块以处理 java.time 包下的类
         JavaTimeModule javaTimeModule = new JavaTimeModule();
@@ -186,7 +186,7 @@ public class JacksonJsonProvider implements JsonProvider {
         javaTimeModule.addDeserializer(LocalTime.class, new LocalTimeDeserializer(HH_MM_SS_FMT));
 
         // 添加传统 Date 类的序列化器
-        javaTimeModule.addSerializer(Date.class, new DateSerializer(true, YYYY_MM_DD_HH_MM_SS_SDF));
+        javaTimeModule.addSerializer(Date.class, new DateSerializer(true, newYyyyMmDdHhMmSsSdf()));
 
         // 设置时区为系统默认时区
         objectMapper.setTimeZone(TimeZone.getDefault());

@@ -27,6 +27,11 @@ import javax.annotation.Nullable;
 public class PathTypeConverter implements TypeConverter<Path> {
 
     /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(PathTypeConverter.class.getName());
+
+    /**
      * 将给定值转换为 Path。
      *
      * @param value 源值
@@ -48,14 +53,16 @@ public class PathTypeConverter implements TypeConverter<Path> {
         if (value instanceof String) {
             try {
                 return Paths.get(value.toString());
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
             }
         }
 
         if (value instanceof URL) {
             try {
                 return Paths.get(((URL) value).toURI());
-            } catch (URISyntaxException ignored) {
+            } catch (URISyntaxException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] URI 格式非法，已忽略: " + e.getMessage(), e);
             }
         }
 

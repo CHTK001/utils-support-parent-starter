@@ -350,7 +350,8 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
                     if (null != invoke && !Proxy.isProxyClass(invoke.getClass())) {
                         return invoke;
                     }
-                } catch (Exception ignore) {
+                } catch (Exception e) {
+                    log.debug("[spi] 默认方法调用失败，继续查找其他实现: {}", e.getMessage());
                 }
             }
             return ProxyUtils.proxy(type, classLoader, new VoidMethodIntercept<>());

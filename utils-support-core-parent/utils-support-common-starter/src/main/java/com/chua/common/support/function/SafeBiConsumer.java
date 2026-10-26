@@ -3,7 +3,7 @@ package com.chua.common.support.function;
 import java.util.function.BiConsumer;
 
 /**
- * 安全的 BiConsumer，捕获并忽略执行过程中的异常
+ * 安全的 BiConsumer，捕获并记录执行过程中的异常
  *
  * @author CH
  * @since 4.0.0.42
@@ -20,8 +20,20 @@ public interface SafeBiConsumer<T, U> extends BiConsumer<T, U> {
     default void accept(T t, U u) {
         try {
             safeAccept(t, u);
-        } catch (Throwable ignored) {
+        } catch (Throwable e) {
+            LogHolder.LOG.debug("[function] 安全消费异常，已捕获: {}", e.getMessage(), e);
         }
+    }
+
+    /**
+     * 日志持有者。
+     */
+    final class LogHolder {
+        /**
+         * 日志对象
+         */
+        private static final org.slf4j.Logger LOG =
+                org.slf4j.LoggerFactory.getLogger(SafeBiConsumer.class);
     }
 
     /**

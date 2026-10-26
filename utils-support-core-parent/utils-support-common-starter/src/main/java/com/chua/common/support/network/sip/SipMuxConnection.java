@@ -209,7 +209,8 @@ class SipMuxConnection {
         closed = true;
         try {
             socket.close();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("关闭 SIP 复用连接失败，已忽略: {}", e.getMessage());
         }
         for (SipMuxStream stream : streams.values()) {
             stream.peerClosed();

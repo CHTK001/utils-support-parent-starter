@@ -286,7 +286,9 @@ public class PandocEnvironment {
             } finally {
                 try {
                     Files.deleteIfExists(mountPoint);
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.warn("清理临时挂载点 {} 失败: {}", mountPoint, e.getMessage());
+                }
             }
 
             String pandocBin = "/usr/local/bin/pandoc";
@@ -377,7 +379,9 @@ public class PandocEnvironment {
             } finally {
                 try {
                     deleteDirectory(extractDir);
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.warn("清理解压目录 {} 失败: {}", extractDir, e.getMessage());
+                }
             }
 
             return "pandoc";
@@ -439,7 +443,9 @@ public class PandocEnvironment {
                     .forEach(p -> {
                         try {
                             Files.deleteIfExists(p);
-                        } catch (Exception ignored) {}
+                        } catch (Exception e) {
+                            log.warn("删除文件 {} 失败: {}", p, e.getMessage());
+                        }
                     });
             }
         }

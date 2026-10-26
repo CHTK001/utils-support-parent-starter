@@ -536,7 +536,9 @@ public class QwenProxyChatClient implements ChatClient {
                             images.add(new ImageGenerationResult.GeneratedImage("", url, url, "", 0, 0, ""));
                         }
                     }
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.warn("解析千问图片生成结果失败: {}", e.getMessage());
+                }
             }
         }
 

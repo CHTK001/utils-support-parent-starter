@@ -2,6 +2,7 @@ package com.chua.common.support.network.net;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.utils.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -18,6 +19,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public final class NetUtils {
 
     /**
@@ -232,7 +234,8 @@ public final class NetUtils {
             if (localHost != null) {
                 return localHost.getHostAddress();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[net] 本机地址解析失败，回退 127.0.0.1: {}", e.getMessage());
         }
         return LOCALHOST;
     }

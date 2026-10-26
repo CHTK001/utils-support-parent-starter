@@ -164,12 +164,9 @@ public class VectorPerfBench {
             if (s instanceof DefaultVectorStorage ds) {
                 ds.flush();
             }
-        } catch (Exception ignored) {}
-    /**
-     * 随机向量。
-     * @param dim dim
-     * @return 随机向量的结果
-     */
+        } catch (Exception e) {
+            System.err.println("flush 失败: " + e.getMessage());
+        }
     }
 
     /**
@@ -184,11 +181,6 @@ public class VectorPerfBench {
             v[i] = (float) (Math.random() * 2 - 1);
         }
         return v;
-    /**
-     * resolve。
-     * @param name 名称
-     * @return resolve的结果
-     */
     }
 
     /**
@@ -202,14 +194,6 @@ public class VectorPerfBench {
         Path p = benchDir.resolve(name);
         Files.createDirectories(p);
         return p;
-    /**
-     * 删除recursively。
-     * @param dir dir
-     * @author CH
-     * @since 4.0.0
-     * @param fmt fmt
-     * @param args 参数
-     */
     }
 
     /**
@@ -223,9 +207,13 @@ public class VectorPerfBench {
                     .forEach(p -> {
                         try {
                             Files.delete(p);
-                        } catch (Exception ignored) {}
+                        } catch (Exception e) {
+                            System.err.println("删除 " + p + " 失败: " + e.getMessage());
+                        }
                     });
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            System.err.println("遍历临时目录 " + dir + " 失败: " + e.getMessage());
+        }
     }
 
     private static void printf(String fmt, Object... args) { System.out.printf(fmt, args); }

@@ -1,6 +1,7 @@
 package com.chua.common.support.converter.definition;
 
 import com.chua.common.support.utils.ClassUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
@@ -28,6 +29,7 @@ import javax.annotation.Nullable;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class BufferedImageTypeConverter implements TypeConverter<BufferedImage> {
     /**
      * 图像预测结果类全限定名
@@ -102,7 +104,8 @@ public class BufferedImageTypeConverter implements TypeConverter<BufferedImage> 
             if (ClassUtils.isPresent(BUFFERED_IMAGE_CLASS)) {
                 return (BufferedImage) ClassUtils.invokeBean(value, "getBufferedImage");
             }
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[converter] 图像转换失败: {}", e.getMessage());
         }
 
         return null;

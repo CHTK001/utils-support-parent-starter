@@ -22,6 +22,12 @@ import java.util.function.Function;
 @Spi("quarkus")
 public class QuarkusBeanConstructorResolver implements BeanConstructorResolver {
 
+    /**
+     * 日志
+     */
+    private static final System.Logger LOG =
+            System.getLogger(QuarkusBeanConstructorResolver.class.getName());
+
     @Override
     /**
      * 解析
@@ -64,7 +70,8 @@ public class QuarkusBeanConstructorResolver implements BeanConstructorResolver {
                 if (result != null) {
                     return result;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[quarkus] 解析参数失败，已忽略: " + e.getMessage(), e);
             }
         }
 
@@ -74,7 +81,8 @@ public class QuarkusBeanConstructorResolver implements BeanConstructorResolver {
                 if (result != null) {
                     return result;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[quarkus] 解析参数失败，已忽略: " + e.getMessage(), e);
             }
         }
 
@@ -84,7 +92,8 @@ public class QuarkusBeanConstructorResolver implements BeanConstructorResolver {
                 if (result != null) {
                     return result;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[quarkus] 解析参数失败，已忽略: " + e.getMessage(), e);
             }
         }
 

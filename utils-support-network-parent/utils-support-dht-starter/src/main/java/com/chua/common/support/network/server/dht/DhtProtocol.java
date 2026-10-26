@@ -214,13 +214,15 @@ public class DhtProtocol implements AutoCloseable {
                                 routingTable.insert(p);
                             }
                         }
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        log.debug("[dht] 操作失败，已忽略: {}", e.getMessage());
                     }
                 }, scheduler));
             }
             try {
                 CompletableFuture.allOf(seedFutures.toArray(new CompletableFuture[0])).get(15, TimeUnit.SECONDS);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[dht] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         if (routingTable.totalPeers() > 0) {
@@ -237,13 +239,15 @@ public class DhtProtocol implements AutoCloseable {
                                 routingTable.insert(np);
                             }
                         }
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        log.debug("[dht] 操作失败，已忽略: {}", e.getMessage());
                     }
                 }, scheduler));
             }
             try {
                 CompletableFuture.allOf(peerFutures.toArray(new CompletableFuture[0])).get(15, TimeUnit.SECONDS);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[dht] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         log.debug("DHT routing table: {} peers", routingTable.totalPeers());
@@ -360,7 +364,8 @@ public class DhtProtocol implements AutoCloseable {
                             synchronized (newPeers) {
                                 newPeers.addAll(peers);
                             }
-                        } catch (Exception ignored) {
+                        } catch (Exception e) {
+                            log.debug("[dht] 操作失败，已忽略: {}", e.getMessage());
                         }
                     }))
                     .collect(Collectors.toList());
@@ -368,7 +373,8 @@ public class DhtProtocol implements AutoCloseable {
             try {
                 CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
                         .get(5000, TimeUnit.MILLISECONDS);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[dht] 操作失败，已忽略: {}", e.getMessage());
             }
 
             boolean foundCloser = false;
@@ -431,7 +437,8 @@ public class DhtProtocol implements AutoCloseable {
                         .timestamp(System.currentTimeMillis())
                         .build();
                 server.send(msg, addr, 3000);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[dht] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         log.debug("Stored key={} to {} closest peers", key, closest.size());
@@ -470,7 +477,8 @@ public class DhtProtocol implements AutoCloseable {
                 if (resp.getType() == DhtMessageType.FIND_VALUE_RESPONSE && resp.getValue() != null) {
                     return resp.getValue();
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[dht] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         return null;
@@ -808,7 +816,8 @@ public class DhtProtocol implements AutoCloseable {
                         synchronized (collected) {
                             collected.addAll(peers);
                         }
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        log.debug("[dht] 操作失败，已忽略: {}", e.getMessage());
                     }
                 }, scheduler))
                 .collect(Collectors.toList());
@@ -816,7 +825,8 @@ public class DhtProtocol implements AutoCloseable {
         try {
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
                     .get(Math.max(config.getPeerTimeoutMs(), 5000), TimeUnit.MILLISECONDS);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[dht] 关闭资源失败，已忽略: {}", e.getMessage());
         }
 
         if (!collected.isEmpty() && crawlListener != null) {
@@ -860,7 +870,8 @@ public class DhtProtocol implements AutoCloseable {
                         return result.name;
                     }
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[dht] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         return null;
@@ -898,7 +909,8 @@ public class DhtProtocol implements AutoCloseable {
             if (resp.getType() == DhtMessageType.NAT_DETECT_RESPONSE) {
                 return new InetSocketAddress(resp.getSenderHost(), resp.getSenderPort());
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[dht] 关闭资源失败，已忽略: {}", e.getMessage());
         }
         return null;
     }

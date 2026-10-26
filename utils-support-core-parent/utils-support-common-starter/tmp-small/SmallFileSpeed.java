@@ -35,7 +35,7 @@ public class SmallFileSpeed {
             }
         }
         Files.walk(root).sorted(java.util.Comparator.reverseOrder()).forEach(p -> {
-            try { Files.deleteIfExists(p); } catch (Exception ignored) { }
+            try { Files.deleteIfExists(p); } catch (Exception e) { /* cleanup failure, ignore */ }
         });
     }
 }

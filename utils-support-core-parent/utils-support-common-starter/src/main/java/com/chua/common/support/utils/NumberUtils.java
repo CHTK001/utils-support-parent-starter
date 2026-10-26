@@ -729,7 +729,7 @@ public class NumberUtils {
      * {@code "1e5"}、{@code ""} 均返回 false。需要接受小数、负数、科学计数法时，
      * 请改用 {@link #isDecimalNumber(CharSequence)}。</p>
      *
-     * @param str 待判断的字符串，为 null 时返回 false
+     * @param str 待判断的字符串，为 null 或空串时返回 false
      * @return 全部为 0-9 数字字符且长度大于 0 时返回 true
      */
     public static boolean isNumber(final CharSequence str) {
@@ -737,6 +737,9 @@ public class NumberUtils {
             return false;
         }
         int sz = str.length();
+        if (sz == 0) {
+            return false;
+        }
         for (int i = 0; i < sz; i++) {
             if (!Character.isDigit(str.charAt(i))) {
                 return false;

@@ -3,6 +3,7 @@ package com.chua.common.support.file.reactive;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class DefaultReactorFileSystem implements ReactorFileSystem {
 
     /**
@@ -190,7 +192,8 @@ public class DefaultReactorFileSystem implements ReactorFileSystem {
     private static void closeQuietly(AsynchronousFileChannel channel) {
         try {
             channel.close();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[reactor] 关闭异步文件通道失败，已忽略: {}", e.getMessage());
         }
     }
 }

@@ -354,7 +354,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (graph != null) {
                 try {
                     graph.close();
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.debug("[jvector] 关闭图资源失败: {}", e.getMessage());
+                }
                 graph = null;
             }
         }
@@ -373,7 +375,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (graph != null) {
                 try {
                     graph.close();
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.debug("[jvector] 关闭图资源失败: {}", e.getMessage());
+                }
                 graph = null;
             }
             return true;
@@ -434,7 +438,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 if (graph != null) {
                     try {
                         graph.close();
-                    } catch (Exception ignored) {}
+                    } catch (Exception closeEx) {
+                        log.debug("[jvector] 关闭图资源失败: {}", closeEx.getMessage());
+                    }
                     graph = null;
                 }
                 log.warn("[jvector] 图搜索失败，降级为暴力扫描: {}", e.getMessage());
@@ -584,7 +590,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (graph != null) {
                 try {
                     graph.close();
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.debug("[jvector] 关闭图资源失败: {}", e.getMessage());
+                }
                 graph = null;
             }
             return true;
@@ -604,7 +612,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (graph != null) {
                 try {
                     graph.close();
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.debug("[jvector] 关闭图资源失败: {}", e.getMessage());
+                }
                 graph = null;
             }
             return true;
@@ -627,7 +637,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (graph != null) {
                 try {
                     graph.close();
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.debug("[jvector] 关闭图资源失败: {}", e.getMessage());
+                }
                 graph = null;
             }
         }
@@ -640,7 +652,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (graph != null) {
                 try {
                     graph.close();
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.debug("[jvector] 关闭图资源失败: {}", e.getMessage());
+                }
                 graph = null;
             }
         }
@@ -791,11 +805,13 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         private void discardPersisted() {
             try {
                 Files.deleteIfExists(vectorDataPath);
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[jvector] 删除磁盘文件失败，已忽略: {}", e.getMessage());
             }
             try {
                 Files.deleteIfExists(indexPath);
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[jvector] 删除磁盘文件失败，已忽略: {}", e.getMessage());
             }
         }
 
@@ -941,7 +957,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (diskGraph != null) {
                 try {
                     diskGraph.close();
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.debug("[jvector] 关闭图资源失败: {}", e.getMessage());
+                }
                 diskGraph = null;
             }
             try {
@@ -967,7 +985,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 if (diskGraph != null) {
                     try {
                         diskGraph.close();
-                    } catch (Exception ignored) {}
+                    } catch (Exception e) {
+                        log.debug("[jvector] 关闭图资源失败: {}", e.getMessage());
+                    }
                     diskGraph = null;
                 }
                 if (vectorsDirty) {
@@ -988,7 +1008,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (diskGraph != null) {
                 try {
                     diskGraph.close();
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.debug("[jvector] 关闭图资源失败: {}", e.getMessage());
+                }
                 diskGraph = null;
             }
             saveVectors();
@@ -1104,7 +1126,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                     resetOrdinals();
                     try {
                         Files.deleteIfExists(vectorDataPath);
-                    } catch (IOException ignored) {
+                    } catch (IOException e) {
+                        log.debug("[jvector] 删除磁盘文件失败，已忽略: {}", e.getMessage());
                     }
                     log.warn("[jvector-storage] PQ 持久化向量维度与当前 embedding（{} 维）不一致，已丢弃旧索引并等待重建: {}",
                             dimension, vectorDataPath);
@@ -1149,7 +1172,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (graph != null) {
                 try {
                     graph.close();
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.debug("[jvector] 关闭图资源失败: {}", e.getMessage());
+                }
                 graph = null;
             }
             pqVectors = null;
@@ -1290,7 +1315,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (graph != null) {
                 try {
                     graph.close();
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.debug("[jvector] 关闭图资源失败: {}", e.getMessage());
+                }
                 graph = null;
             }
             pqVectors = null;
@@ -1310,7 +1337,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (graph != null) {
                 try {
                     graph.close();
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    log.debug("[jvector] 关闭图资源失败: {}", e.getMessage());
+                }
                 graph = null;
             }
             pqVectors = null;

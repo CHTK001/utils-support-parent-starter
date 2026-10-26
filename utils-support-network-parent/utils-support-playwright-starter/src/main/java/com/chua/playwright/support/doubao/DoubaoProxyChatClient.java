@@ -863,7 +863,8 @@ return parseImageResult(result, prompt);
                             }
                         }
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[doubao] 回调执行失败，已忽略: {}", e.getMessage());
                 }
             }
         }
@@ -942,7 +943,8 @@ return parseImageResult(result, prompt);
                             }
                         }
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[doubao] 回调执行失败，已忽略: {}", e.getMessage());
                 }
             }
         }
@@ -1009,7 +1011,8 @@ return parseImageResult(result, prompt);
                             }
                         }
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[doubao] 回调执行失败，已忽略: {}", e.getMessage());
                 }
             }
         }
@@ -1159,7 +1162,8 @@ private static JsonArray arrayOf(JsonObject obj) {
                     }
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[doubao] 操作失败，已忽略: {}", e.getMessage());
         }
         return null;
     }

@@ -1,5 +1,7 @@
 package com.chua.common.support.concurrent.pool;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -54,6 +56,7 @@ import java.util.Properties;
  * @author CH
  * @since 2026/07/16
  */
+@Slf4j
 public class ConnectionPool extends GenericObjectPool<Connection> {
 
     /**
@@ -201,7 +204,8 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
                 if (!conn.isClosed()) {
                     conn.close();
                 }
-            } catch (SQLException ignored) {
+            } catch (SQLException e) {
+                log.debug("[pool] 销毁连接失败，已忽略: {}", e.getMessage());
             }
         }
 

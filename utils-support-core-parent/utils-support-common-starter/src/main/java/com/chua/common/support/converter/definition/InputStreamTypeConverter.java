@@ -34,6 +34,11 @@ import javax.annotation.Nullable;
 public class InputStreamTypeConverter implements TypeConverter<InputStream> {
 
     /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(InputStreamTypeConverter.class.getName());
+
+    /**
      * 将给定值转换为 InputStream。
      *
      * @param value 源值
@@ -49,7 +54,8 @@ public class InputStreamTypeConverter implements TypeConverter<InputStream> {
             try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
                 ImageIO.write((RenderedImage) value, "jpg", byteArrayOutputStream);
                 return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] IO 操作失败，已忽略: " + e.getMessage(), e);
             }
             return null;
         }
@@ -57,14 +63,16 @@ public class InputStreamTypeConverter implements TypeConverter<InputStream> {
         if (value instanceof File) {
             try {
                 return new FileInputStream((File) value);
-            } catch (FileNotFoundException ignored) {
+            } catch (FileNotFoundException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] 文件不存在，已忽略: " + e.getMessage(), e);
             }
         }
 
         if (value instanceof Path) {
             try {
                 return new FileInputStream(((Path) value).toFile());
-            } catch (FileNotFoundException ignored) {
+            } catch (FileNotFoundException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] 文件不存在，已忽略: " + e.getMessage(), e);
             }
         }
 
@@ -72,14 +80,16 @@ public class InputStreamTypeConverter implements TypeConverter<InputStream> {
         if (value instanceof URL) {
             try {
                 return ((URL) value).openStream();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
             }
         }
 
         if (value instanceof URI) {
             try {
                 return ((URI) value).toURL().openStream();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
             }
         }
 
@@ -98,7 +108,8 @@ public class InputStreamTypeConverter implements TypeConverter<InputStream> {
                 }
                 byte[] bytes = sw.toString().getBytes(StandardCharsets.UTF_8);
                 return new ByteArrayInputStream(bytes);
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] IO 操作失败，已忽略: " + e.getMessage(), e);
             }
         }
 
@@ -108,12 +119,14 @@ public class InputStreamTypeConverter implements TypeConverter<InputStream> {
             if(file.exists()) {
                 try {
                     return new FileInputStream(file);
-                } catch (FileNotFoundException ignored) {
+                } catch (FileNotFoundException e) {
+                    LOG.log(System.Logger.Level.DEBUG, "[converter] 文件不存在，已忽略: " + e.getMessage(), e);
                 }
             }
             try {
                 return Files.newInputStream(Converter.convertIfNecessary(value, File.class).toPath());
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] IO 操作失败，已忽略: " + e.getMessage(), e);
             }
         }
         return null;

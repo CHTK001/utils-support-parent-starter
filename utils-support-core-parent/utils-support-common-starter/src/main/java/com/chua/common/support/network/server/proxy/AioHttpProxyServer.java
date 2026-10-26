@@ -148,7 +148,8 @@ public class AioHttpProxyServer extends AbstractServer {
         activeConnections.incrementAndGet();
         try {
             channel.setOption(StandardSocketOptions.TCP_NODELAY, true);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[proxy] 操作失败，已忽略: {}", e.getMessage());
         }
         ClientCtx ctx = new ClientCtx(channel);
         issueClientRead(ctx);
@@ -741,7 +742,8 @@ public class AioHttpProxyServer extends AbstractServer {
         if (ch != null) {
             try {
                 ch.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[proxy] 操作失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -857,7 +859,8 @@ public class AioHttpProxyServer extends AbstractServer {
                 } else if (lower.startsWith("content-length:")) {
                     try {
                         cl = Long.parseLong(h.substring(15).trim());
-                    } catch (NumberFormatException ignored) {
+                    } catch (NumberFormatException e) {
+                        log.debug("[proxy] 解析端口失败，已忽略: {}", e.getMessage());
                     }
                 } else if (lower.startsWith("connection:")) {
                     connection = h.substring(11).trim();
@@ -1000,7 +1003,8 @@ public class AioHttpProxyServer extends AbstractServer {
                 if (lower.startsWith("content-length:")) {
                     try {
                         cl = Long.parseLong(line.substring(15).trim());
-                    } catch (NumberFormatException ignored) {
+                    } catch (NumberFormatException e) {
+                        log.debug("[proxy] 解析端口失败，已忽略: {}", e.getMessage());
                     }
                 } else if (lower.startsWith("connection:")
                         && lower.contains("close")) {
@@ -1043,7 +1047,8 @@ public class AioHttpProxyServer extends AbstractServer {
         if (serverChannel != null) {
             try {
                 serverChannel.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[proxy] 操作失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -1056,7 +1061,8 @@ public class AioHttpProxyServer extends AbstractServer {
         if (group != null) {
             try {
                 group.shutdownNow();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[proxy] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         log.info("AIO HttpProxy stopped");

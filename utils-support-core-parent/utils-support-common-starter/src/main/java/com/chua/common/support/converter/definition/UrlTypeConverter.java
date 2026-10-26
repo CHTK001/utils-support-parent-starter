@@ -40,6 +40,11 @@ public class UrlTypeConverter implements TypeConverter<URL> {
     private static final String FILE_URL_PREFIX = "file:";
 
     /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(UrlTypeConverter.class.getName());
+
+    /**
      * 将给定值转换为 URL。
      *
      * @param value 源值
@@ -58,21 +63,24 @@ public class UrlTypeConverter implements TypeConverter<URL> {
         if (value instanceof File) {
             try {
                 return ((File) value).toURI().toURL();
-            } catch (MalformedURLException ignored) {
+            } catch (MalformedURLException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] URL 格式非法，已忽略: " + e.getMessage(), e);
             }
         }
 
         if (value instanceof Path) {
             try {
                 return ((Path) value).toUri().toURL();
-            } catch (MalformedURLException ignored) {
+            } catch (MalformedURLException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] URL 格式非法，已忽略: " + e.getMessage(), e);
             }
         }
 
         if (value instanceof URI) {
             try {
                 return ((URI) value).toURL();
-            } catch (MalformedURLException ignored) {
+            } catch (MalformedURLException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[converter] URL 格式非法，已忽略: " + e.getMessage(), e);
             }
         }
 
@@ -90,7 +98,8 @@ public class UrlTypeConverter implements TypeConverter<URL> {
             } catch (MalformedURLException e1) {
                 try {
                     return new URL(value.toString());
-                } catch (MalformedURLException ignored) {
+                } catch (MalformedURLException e) {
+                    LOG.log(System.Logger.Level.DEBUG, "[converter] URL 格式非法，已忽略: " + e.getMessage(), e);
                 }
             }
         }

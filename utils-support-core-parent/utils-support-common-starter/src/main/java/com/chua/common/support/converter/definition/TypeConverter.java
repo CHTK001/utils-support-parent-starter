@@ -41,6 +41,19 @@ import java.util.regex.Pattern;
 public interface TypeConverter<O> {
 
     /**
+     * 日志持有者（接口不允许私有静态字段，用嵌套类持有）
+     */
+    final class LogHolder {
+        /**
+         * 日志
+         */
+        private static final System.Logger LOG = System.getLogger(TypeConverter.class.getName());
+
+        private LogHolder() {
+        }
+    }
+
+    /**
      * 科学计数法标识字符（如 1e10 中的 e）
      */
     String E = "e";
@@ -346,14 +359,16 @@ public interface TypeConverter<O> {
             try {
                 BigInteger bigInteger = new BigInteger((byte[]) value);
                 return new BigDecimal(bigInteger);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LogHolder.LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
             }
         }
 
         if (isAssignableFrom(value, char[].class)) {
             try {
                 return new BigDecimal((char[]) value);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LogHolder.LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
             }
         }
 
@@ -397,14 +412,16 @@ public interface TypeConverter<O> {
         if (NumberUtils.isChineseNumber(value)) {
             try {
                 return new BigDecimal(NumberUtils.parseChineseNumber(value));
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LogHolder.LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
             }
         }
 
         // 遗留：原有中文数字解析（兼容旧格式）
         try {
             return new BigDecimal(NumberUtils.getNumberFromChinese(value));
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            LogHolder.LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
         }
 
         // Simple fallback: remove trailing f/F/d/D
@@ -412,7 +429,8 @@ public interface TypeConverter<O> {
         if (!trimmed.isEmpty()) {
             try {
                 return BigDecimal.valueOf(Double.parseDouble(trimmed));
-            } catch (NumberFormatException ignore) {
+            } catch (NumberFormatException e) {
+                LogHolder.LOG.log(System.Logger.Level.DEBUG, "[converter] 数字格式错误，已忽略: " + e.getMessage(), e);
             }
         }
 
@@ -423,12 +441,14 @@ public interface TypeConverter<O> {
                 } else {
                     return BigDecimal.valueOf(Double.parseDouble(value));
                 }
-            } catch (Exception ignore) {
+            } catch (Exception e) {
+                LogHolder.LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
             }
         }
         try {
             return NumberUtils.converterNumber(value, BigDecimal.class);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            LogHolder.LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
         }
         return null;
     }

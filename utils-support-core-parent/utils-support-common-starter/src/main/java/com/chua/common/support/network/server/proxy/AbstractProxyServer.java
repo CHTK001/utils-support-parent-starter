@@ -170,12 +170,14 @@ public abstract class AbstractProxyServer extends AbstractServer {
                     acceptSelector.close();
                 }
                 acceptChannel.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[proxy] 关闭连接失败，已忽略: {}", e.getMessage());
             }
         } else if (serverSocket != null && !serverSocket.isClosed()) {
             try {
                 serverSocket.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[proxy] 关闭连接失败，已忽略: {}", e.getMessage());
             }
         }
         if (proxyPool != null) {
@@ -202,7 +204,8 @@ public abstract class AbstractProxyServer extends AbstractServer {
                             setting.getMaxConnections(), clientSocket.getRemoteSocketAddress());
                     try {
                         clientSocket.close();
-                    } catch (IOException ignored) {
+                    } catch (IOException e) {
+                        log.debug("[proxy] 关闭连接失败，已忽略: {}", e.getMessage());
                     }
                     continue;
                 }
@@ -212,7 +215,8 @@ public abstract class AbstractProxyServer extends AbstractServer {
                         // 提升瞬时连接接纳能力
                         try {
                             clientSocket.setTcpNoDelay(setting.isTcpNoDelay());
-                        } catch (IOException ignored) {
+                        } catch (IOException e) {
+                            log.debug("[proxy] 关闭连接失败，已忽略: {}", e.getMessage());
                         }
                         handleConnection(clientSocket);
                     } finally {
@@ -273,7 +277,8 @@ public abstract class AbstractProxyServer extends AbstractServer {
                             try {
                                 try {
                                     clientSocket.setTcpNoDelay(setting.isTcpNoDelay());
-                                } catch (IOException ignored) {
+                                } catch (IOException e) {
+                                    log.debug("[proxy] 关闭连接失败，已忽略: {}", e.getMessage());
                                 }
                                 handleConnection(clientSocket);
                             } finally {
@@ -308,7 +313,8 @@ public abstract class AbstractProxyServer extends AbstractServer {
     private void closeSocket(Socket s) {
         try {
             s.close();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[proxy] 关闭连接失败，已忽略: {}", e.getMessage());
         }
     }
 
@@ -359,10 +365,14 @@ public abstract class AbstractProxyServer extends AbstractServer {
         // 阻塞等待两个方向都完成（shutdownNow 会中断虚拟线程解除阻塞）
         try {
             c2b.join();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            log.warn("[AbstractProxyServer] c2b join interrupted", e);
+        }
         try {
             b2c.join();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            log.warn("[AbstractProxyServer] b2c join interrupted", e);
+        }
     }
 
     /**
@@ -410,7 +420,8 @@ public abstract class AbstractProxyServer extends AbstractServer {
         if (socket != null && !socket.isClosed()) {
             try {
                 socket.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[proxy] 关闭连接失败，已忽略: {}", e.getMessage());
             }
         }
     }

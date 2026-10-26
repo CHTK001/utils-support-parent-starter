@@ -102,12 +102,14 @@ public class JdkWebSocketServer extends AbstractServer {
             if (serverSocket != null && !serverSocket.isClosed()) {
                 serverSocket.close();
             }
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[ws] 关闭连接失败，已忽略: {}", e.getMessage());
         }
         for (Connection c : connections) {
             try {
                 c.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[ws] IO 操作失败，已忽略: {}", e.getMessage());
             }
         }
         connections.clear();
@@ -176,10 +178,12 @@ public class JdkWebSocketServer extends AbstractServer {
                         c.out.write(frame.getBytes(StandardCharsets.ISO_8859_1));
                         c.out.flush();
                     }
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    log.debug("[ws] 发送消息失败，已忽略: {}", e.getMessage());
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[ws] 操作失败，已忽略: {}", e.getMessage());
         }
     }
 
@@ -221,7 +225,8 @@ public class JdkWebSocketServer extends AbstractServer {
         } finally {
             try {
                 conn.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[ws] IO 操作失败，已忽略: {}", e.getMessage());
             }
             connections.remove(conn);
             invokeAnnotatedMethods(OnClose.class);

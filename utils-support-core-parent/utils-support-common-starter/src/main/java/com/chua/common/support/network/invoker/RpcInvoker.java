@@ -9,6 +9,7 @@ import com.chua.common.support.network.rpc.RpcRegistryConfig;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.annotation.Annotation;
 import java.util.Collections;
@@ -29,6 +30,7 @@ import java.util.Collections;
  * @see RpcClient
  * @see Invoker
  */
+@Slf4j
 @Spi(value = "rpc", order = 50)
 public class RpcInvoker implements Invoker {
 
@@ -117,7 +119,8 @@ public class RpcInvoker implements Invoker {
                         return v;
                     }
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[rpc] 类注解解析失败，跳过: {}", e.getMessage());
             }
         }
         RequestMethod rm = clazz.getAnnotation(RequestMethod.class);
@@ -149,7 +152,8 @@ public class RpcInvoker implements Invoker {
             if (r instanceof String[] a && a.length > 0) {
                 return a[0];
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[rpc] 注解 value 取值失败，返回空串: {}", e.getMessage());
         }
         return "";
     }

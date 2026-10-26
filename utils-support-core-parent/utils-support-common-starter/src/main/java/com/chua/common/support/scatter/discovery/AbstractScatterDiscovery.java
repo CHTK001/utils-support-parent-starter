@@ -16,6 +16,7 @@ import com.chua.common.support.scatter.node.ScatterNodeHandler;
 import com.chua.common.support.scatter.protocol.ScatterFrame;
 import com.chua.common.support.scatter.protocol.ScatterProtocol;
 import com.chua.common.support.lang.json.Json;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -39,6 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         implements ScatterServiceDiscovery, ScatterNodeHandler {
 
@@ -216,7 +218,8 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                     long free = sun.getFreeMemorySize();
                     mem = total > 0 ? Math.max(0.05, Math.min(1.0, 1.0 - (double) free / total)) : 0.5;
                 }
-            } catch (Throwable ignored) {
+            } catch (Throwable e) {
+                log.debug("[scatter] 负载采集失败，回退默认负载: {}", e.getMessage());
             }
             double load = 1.0 - (0.6 * cpu + 0.4 * mem);
             return Math.max(0.1, Math.min(1.0, load));

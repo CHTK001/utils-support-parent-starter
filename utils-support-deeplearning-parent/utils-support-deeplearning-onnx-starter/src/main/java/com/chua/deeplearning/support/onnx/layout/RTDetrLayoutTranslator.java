@@ -84,7 +84,7 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
         }
         NDArray images = manager.create(chw, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
         images.setName("images");
-        NDArray sizes = manager.create(new long[][]{{imgHeight, imgWidth}});
+        NDArray sizes = manager.create(new long[][]{{imgWidth, imgHeight}});
         sizes.setName("orig_target_sizes");
         return new NDList(images, sizes);
     }

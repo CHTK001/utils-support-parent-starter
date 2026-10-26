@@ -378,7 +378,8 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
                 String value = entries.getFirst().getContent();
                 try {
                     return Integer.parseInt(value);
-                } catch (NumberFormatException ignored) {
+                } catch (NumberFormatException e) {
+                    log.debug("[Compression] 轮次计数解析失败，按 0 处理: {}", e.getMessage());
                 }
             }
         } catch (Exception e) {

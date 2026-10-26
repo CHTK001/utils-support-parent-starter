@@ -55,13 +55,15 @@ public class DefaultBeanDefinitionMethodInjector implements BeanDefinitionMethod
             if (typeProvider != null) {
                 try {
                     arg = typeProvider.apply(paramTypes[i]);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("按类型获取注入参数失败: {}", e.getMessage());
                 }
             }
             if (arg == null && beanProvider != null) {
                 try {
                     arg = beanProvider.apply(method.getName());
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("按名称获取注入参数失败: {}", e.getMessage());
                 }
             }
             args[i] = arg;

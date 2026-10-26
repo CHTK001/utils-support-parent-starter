@@ -44,6 +44,12 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_EMPTY;
  * @since 4.0.0
  */
 public class UrlUtils {
+
+    /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(UrlUtils.class.getName());
+
     /**
      * 创建 url工具 实例
      */
@@ -317,7 +323,7 @@ public class UrlUtils {
         try {
             return url.toURI();
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            LOG.log(System.Logger.Level.WARNING, "URL 转 URI 失败: " + url, e);
         }
         return null;
     }

@@ -126,7 +126,9 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
         }
         this.ortEnv = OrtEnvironment.getEnvironment();
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
-        opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
+        // 内存受限部署：压线程数并关闭内存模式预分配，防止多 OCR 会话 native 内存膨胀
+        opts.setIntraOpNumThreads(1);
+        opts.setMemoryPatternOptimization(false);
         // 按该模型的 device 参数尝试启用 CUDA；缺 CUDA 原生库或初始化失败时静默保持 CPU
         GpuHelper.apply(opts, modelName);
         this.session = ortEnv.createSession(modelPath.toString(), opts);

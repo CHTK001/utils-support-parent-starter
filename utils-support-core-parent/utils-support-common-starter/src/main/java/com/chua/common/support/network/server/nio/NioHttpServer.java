@@ -183,7 +183,8 @@ public class NioHttpServer extends AbstractServer {
                 if (el != null) {
                     try {
                         eventLoops = Integer.parseInt(el);
-                    } catch (NumberFormatException ignored) {
+                    } catch (NumberFormatException e) {
+                        log.debug("[nio] 解析端口失败，已忽略: {}", e.getMessage());
                     }
                 }
             }
@@ -329,7 +330,8 @@ public class NioHttpServer extends AbstractServer {
                                 t.getClass().getSimpleName(), t.getMessage());
                         try {
                             key.cancel();
-                        } catch (Exception ignored) {
+                        } catch (Exception e) {
+                            log.debug("[nio] 取消 SelectionKey 失败，已忽略: {}", e.getMessage());
                         }
                         ConnectionState st = (ConnectionState) key.attachment();
                         closeQuietly(st != null ? st.channel : null);
@@ -719,7 +721,8 @@ public class NioHttpServer extends AbstractServer {
     private void closeConn(SelectionKey key, ConnectionState st) {
         try {
             key.cancel();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[nio] 操作失败，已忽略: {}", e.getMessage());
         }
         closeQuietly(st.channel);
     }
@@ -864,7 +867,8 @@ public class NioHttpServer extends AbstractServer {
             if (out != null) {
                 try {
                     out.flush();
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    log.debug("[nio] 关闭连接失败，已忽略: {}", e.getMessage());
                 }
             }
         }
@@ -1027,7 +1031,8 @@ public class NioHttpServer extends AbstractServer {
                     out.write(frame);
                     out.flush();
                 }
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[nio] IO 操作失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -1183,7 +1188,8 @@ public class NioHttpServer extends AbstractServer {
     private static void closeQuietly(SocketChannel ch) {
         try {
             ch.close();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[nio] 关闭服务失败，已忽略: {}", e.getMessage());
         }
     }
 
@@ -1195,7 +1201,8 @@ public class NioHttpServer extends AbstractServer {
         if (serverChannel != null) {
             try {
                 serverChannel.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[nio] IO 操作失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -1209,7 +1216,8 @@ public class NioHttpServer extends AbstractServer {
             for (Selector sel : selectors) {
                 try {
                     sel.close();
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    log.debug("[nio] 关闭连接失败，已忽略: {}", e.getMessage());
                 }
             }
         }
@@ -1222,7 +1230,8 @@ public class NioHttpServer extends AbstractServer {
         if (serverChannel != null) {
             try {
                 serverChannel.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[nio] IO 操作失败，已忽略: {}", e.getMessage());
             }
         }
         wsConnections.clear();

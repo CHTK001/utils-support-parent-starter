@@ -165,7 +165,8 @@ class SipMuxStream {
         if (callback != null) {
             try {
                 callback.run();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("SIP 流关闭回调执行失败，已忽略: {}", e.getMessage());
             }
         }
     }

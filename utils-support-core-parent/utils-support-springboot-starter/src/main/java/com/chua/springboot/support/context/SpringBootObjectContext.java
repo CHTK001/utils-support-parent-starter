@@ -126,7 +126,8 @@ public class SpringBootObjectContext implements ObjectContext {
             if (bean != null) {
                 return bean;
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[SpringBootObjectContext] 操作失败，已忽略: {}", e.getMessage());
         }
 
         // 3. 本地注册表
@@ -139,7 +140,8 @@ public class SpringBootObjectContext implements ObjectContext {
         // 4. SPI 作为最后兜底
         try {
             return ServiceProvider.of(type).getDefault();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[SpringBootObjectContext] 操作失败，已忽略: {}", e.getMessage());
         }
 
         return null;
@@ -153,19 +155,22 @@ public class SpringBootObjectContext implements ObjectContext {
         // 1. Spring
         try {
             return applicationContext.getBean(type);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[SpringBootObjectContext] 操作失败，已忽略: {}", e.getMessage());
         }
 
         // 2. 本地注册表
         try {
             return localRegistry.getBeanOfType(type);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[SpringBootObjectContext] 操作失败，已忽略: {}", e.getMessage());
         }
 
         // 3. SPI
         try {
             return ServiceProvider.of(type).getDefault();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[SpringBootObjectContext] 操作失败，已忽略: {}", e.getMessage());
         }
 
         return null;
@@ -194,13 +199,15 @@ public class SpringBootObjectContext implements ObjectContext {
         // 1. Spring
         try {
             result.putAll(applicationContext.getBeansOfType(type));
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[SpringBootObjectContext] 操作失败，已忽略: {}", e.getMessage());
         }
 
         // 2. 本地注册表
         try {
             result.putAll(localRegistry.getBeansOfType(type));
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[SpringBootObjectContext] 操作失败，已忽略: {}", e.getMessage());
         }
 
         return result;
@@ -234,7 +241,8 @@ public class SpringBootObjectContext implements ObjectContext {
             for (Map.Entry<String, Object> e : springBeans.entrySet()) {
                 collectMethodDefinitions(result, e.getKey(), e.getValue(), annotationType);
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[SpringBootObjectContext] 操作失败，已忽略: {}", e.getMessage());
         }
         // 2. 本地注册表中通过方法注解查找
         Map<String, BeanDefinition> byMethod = localRegistry.getBeansWithMethodAnnotation(annotationType);
@@ -248,7 +256,8 @@ public class SpringBootObjectContext implements ObjectContext {
                 if (bean != null) {
                     collectMethodDefinitions(result, e.getKey(), bean, annotationType);
                 }
-            } catch (Exception ignored) {
+            } catch (Exception lookupEx) {
+                log.debug("[SpringBootObjectContext] 操作失败，已忽略: {}", lookupEx.getMessage());
             }
         }
         return result;
@@ -346,7 +355,8 @@ public class SpringBootObjectContext implements ObjectContext {
     public <T> boolean hasBeanOfType(Class<T> type) {
         try {
             return !applicationContext.getBeansOfType(type).isEmpty();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[SpringBootObjectContext] 操作失败，已忽略: {}", e.getMessage());
         }
         return localRegistry.hasBeanOfType(type);
     }
@@ -359,7 +369,8 @@ public class SpringBootObjectContext implements ObjectContext {
         Set<String> names = Wraps.linkedSet();
         try {
             names.addAll(Arrays.asList(applicationContext.getBeanNamesForType(type)));
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[SpringBootObjectContext] 操作失败，已忽略: {}", e.getMessage());
         }
         names.addAll(localRegistry.getBeanNames(type));
         return names;

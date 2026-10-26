@@ -3,6 +3,7 @@ package com.chua.common.support.objects.resolver.impl;
 import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.resolver.BeanConstructorResolver;
 import com.chua.common.support.spi.annotations.Spi;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
@@ -16,6 +17,7 @@ import java.util.function.Function;
  * @author CH
  * @since 2024/12/20
  */
+@Slf4j
 @Spi(value = "default", order = -1000)
 public class DefaultBeanConstructorResolver implements BeanConstructorResolver {
 
@@ -39,13 +41,15 @@ public class DefaultBeanConstructorResolver implements BeanConstructorResolver {
                 if (result != null) {
                     return result;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[resolve] 按类型解析构造参数失败: {}", e.getMessage());
             }
         }
         if (nameProvider != null) {
             try {
                 return nameProvider.apply(paramName);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[resolve] 按名称解析构造参数失败: {}", e.getMessage());
             }
         }
         return null;

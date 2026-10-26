@@ -299,9 +299,12 @@ public class VectorIOBench {
                 .forEach(p -> {
                     try {
                         Files.delete(p);
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        System.err.println("Failed to delete " + p + ": " + e.getMessage());
                     }
                 });
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            System.err.println("Failed to walk temp dir " + dir + ": " + e.getMessage());
+        }
     }
 }

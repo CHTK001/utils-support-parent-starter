@@ -121,13 +121,15 @@ public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInje
             if (arg == null && typeProvider != null) {
                 try {
                     arg = typeProvider.apply(paramTypes[i]);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[inject] 解析参数失败，已忽略: {}", e.getMessage());
                 }
             }
             if (arg == null && beanProvider != null) {
                 try {
                     arg = beanProvider.apply(method.getName());
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[inject] 解析参数失败，已忽略: {}", e.getMessage());
                 }
             }
             args[i] = arg;
@@ -151,7 +153,8 @@ Object val = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0]);
                     if (val instanceof String s && !s.isEmpty()) {
                         return s;
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[inject] 解析参数失败，已忽略: {}", e.getMessage());
                 }
             }
         }

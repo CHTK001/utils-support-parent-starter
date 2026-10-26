@@ -1,6 +1,7 @@
 package com.chua.common.support.converter.definition;
 
 import com.chua.common.support.utils.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -34,7 +35,9 @@ import java.util.Map;
  * @version 1.0.0
  * @since 2020/11/5
  */
+@Slf4j
 public class StringTypeConverter implements TypeConverter<String> {
+
 
     /**
      * 获取Type
@@ -111,7 +114,8 @@ public class StringTypeConverter implements TypeConverter<String> {
         if (value instanceof InputStream) {
             try {
                 return StringUtils.utf8Str(readBytes((InputStream) value));
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[converter] InputStream 转字符串失败: {}", e.getMessage());
             }
         }
 

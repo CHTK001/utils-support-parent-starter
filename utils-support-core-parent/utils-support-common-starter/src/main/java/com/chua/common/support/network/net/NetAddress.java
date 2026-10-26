@@ -3,6 +3,8 @@ package com.chua.common.support.network.net;
 import com.chua.common.support.utils.StringUtils;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -12,6 +14,7 @@ import java.net.URISyntaxException;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Data
 @Accessors(chain = true)
 public class NetAddress implements Serializable {
@@ -177,7 +180,8 @@ public class NetAddress implements Serializable {
                 this.host = hp[0];
                 try {
                     this.port = Integer.parseInt(hp[1]);
-                } catch (NumberFormatException ignored) {
+                } catch (NumberFormatException e) {
+                    log.debug("[net] 端口解析失败，保持为空: {}", e.getMessage());
                 }
             }
             this.path = slashIdx >= 0 ? authority.substring(slashIdx) : "";

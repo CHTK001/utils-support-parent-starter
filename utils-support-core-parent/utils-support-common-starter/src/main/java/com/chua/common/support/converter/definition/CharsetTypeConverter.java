@@ -1,5 +1,7 @@
 package com.chua.common.support.converter.definition;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.nio.charset.Charset;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -13,6 +15,7 @@ import javax.annotation.Nullable;
  * @version 1.0.0
  * @since 2020/12/31
  */
+@Slf4j
 public class CharsetTypeConverter implements TypeConverter<Charset> {
 
     /**
@@ -37,7 +40,8 @@ public class CharsetTypeConverter implements TypeConverter<Charset> {
         if (value instanceof String) {
             try {
                 return Charset.forName(value.toString());
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[converter] 字符集名称解析失败: {}", e.getMessage());
             }
         }
         return null;

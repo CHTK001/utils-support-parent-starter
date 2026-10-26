@@ -5,9 +5,11 @@ import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.DetectOptions;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
+import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.translator.ITranslator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import com.chua.common.support.spi.ServiceProvider;
@@ -277,15 +279,51 @@ class DefaultLayoutDetector implements LayoutDetector {
         }
         Object result = t.translate(imageData);
         if (result instanceof Map<?, ?> map) {
-            return (Map<String, List<PredictRectangle>>) map;
+            Map<String, List<PredictRectangle>> grouped = Wraps.linkedMap();
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                Object value = entry.getValue();
+                if (value instanceof List<?> list) {
+                    grouped.put(String.valueOf(entry.getKey()), normalizeRectangles(list));
+                }
+            }
+            return grouped;
         }
         if (result instanceof List<?> list) {
-            // DetectedObjects → List<PredictRectangle> 适配为 Map<"layout", list>
+            // DetectedObjects / DetectionInfo → List<PredictRectangle> 适配为 Map<"layout", list>。
+            // 元素可能是 DetectionInfo（indra 等新版检测器）或 PredictRectangle（doc-layout-yolo 等），
+            // 统一归一为 PredictRectangle，避免下游（textRegions 排序、OCR 联动）强转抛 ClassCastException。
             Map<String, List<PredictRectangle>> grouped = Wraps.linkedMap();
-            grouped.put("layout", (List<PredictRectangle>) list);
+            grouped.put("layout", normalizeRectangles(list));
             return grouped;
         }
         throw new IllegalStateException("模型输出不是检测结果: " + modelName + " -> " + result.getClass());
+    }
+
+    /**
+     * 把检测结果列表归一为 {@link PredictRectangle} 列表。
+     *
+     * <p>兼容两类输出：{@link DetectionInfo}（新版检测器，含旋转角/中心坐标）与
+     * {@link PredictRectangle}（传统检测框）。{@code DetectionInfo} 转换为
+     * {@code PredictRectangle} 时 label 序号取 0、labelName 保留类别字符串，
+     * 与 {@code OnnxLayoutDetector} 的适配口径一致。</p>
+     *
+     * @param list 原始检测结果列表
+     * @return 归一化后的 PredictRectangle 列表
+     */
+    private static List<PredictRectangle> normalizeRectangles(List<?> list) {
+        List<PredictRectangle> out = new ArrayList<>(list.size());
+        for (Object item : list) {
+            if (item instanceof PredictRectangle rect) {
+                out.add(rect);
+            } else if (item instanceof DetectionInfo info) {
+                String label = info.label() == null || info.label().isBlank() ? "unknown" : info.label();
+                out.add(new PredictRectangle(info.x(), info.y(), info.width(), info.height(),
+                        info.confidence(), 0, label));
+            } else {
+                out.add((PredictRectangle) item);
+            }
+        }
+        return out;
     }
 
     @Override
@@ -308,10 +346,16 @@ class DefaultLayoutDetector implements LayoutDetector {
         // 传统检测框模型 → 按区域类型名拼接
         Map<String, List<PredictRectangle>> regions;
         if (result instanceof Map<?, ?> map) {
-            regions = (Map<String, List<PredictRectangle>>) map;
+            regions = Wraps.linkedMap();
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                Object value = entry.getValue();
+                if (value instanceof List<?> list) {
+                    regions.put(String.valueOf(entry.getKey()), normalizeRectangles(list));
+                }
+            }
         } else if (result instanceof List<?> list) {
             Map<String, List<PredictRectangle>> grouped = Wraps.linkedMap();
-            grouped.put("layout", (List<PredictRectangle>) list);
+            grouped.put("layout", normalizeRectangles(list));
             regions = grouped;
         } else {
             throw new IllegalStateException("模型输出不是检测结果: " + modelName + " -> " + result.getClass());

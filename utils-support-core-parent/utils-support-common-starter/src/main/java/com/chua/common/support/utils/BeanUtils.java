@@ -10,6 +10,7 @@ import com.chua.common.support.lang.bean.BeanCopier;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
@@ -36,6 +37,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @SuppressWarnings("unchecked")
 public final class BeanUtils {
 
@@ -422,7 +424,8 @@ public final class BeanUtils {
             // JSON 字符串反序列化为目标类型；解析失败时回退到属性复制
             try {
                 return Json.fromJson((String) source, targetType);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[bean] JSON 反序列化失败，回退属性复制: {}", e.getMessage());
             }
         }
 

@@ -107,7 +107,8 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         if (serverSocket != null && !serverSocket.isClosed()) {
             try {
                 serverSocket.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[vertx] 关闭 ServerSocket 失败，已忽略: {}", e.getMessage());
             }
         }
         if (executor != null) {
@@ -213,7 +214,8 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
             }
             try {
                 socket.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[vertx] 关闭 ServerSocket 失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -398,7 +400,8 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         public void close() {
             try {
                 socket.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[vertx] 关闭 ServerSocket 失败，已忽略: {}", e.getMessage());
             }
         }
     }

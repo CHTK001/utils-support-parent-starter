@@ -2,6 +2,7 @@ package com.chua.common.support.converter.definition;
 
 
 import com.chua.common.support.utils.DateUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -25,6 +26,7 @@ import javax.annotation.Nullable;
  * @version 1.0.0
  * @since 2020/11/26
  */
+@Slf4j
 public class DateTypeConverter implements TypeConverter<Date> {
 
     /**
@@ -63,7 +65,8 @@ public class DateTypeConverter implements TypeConverter<Date> {
         String string = value.toString();
         try {
             return DateUtils.parseDate(string);
-        } catch (ParseException ignored) {
+        } catch (ParseException e) {
+            log.debug("[converter] 日期字符串解析失败: {}", e.getMessage());
         }
         return null;
     }

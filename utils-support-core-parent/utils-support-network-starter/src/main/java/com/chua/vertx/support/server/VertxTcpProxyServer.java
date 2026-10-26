@@ -147,20 +147,23 @@ public class VertxTcpProxyServer extends AbstractServer {
         if (netServer != null) {
             try {
                 netServer.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[vertx] 关闭服务失败，已忽略: {}", e.getMessage());
             }
             log.info("Vertx TcpProxyServer stopped");
         }
         if (netClient != null) {
             try {
                 netClient.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[vertx] 关闭服务失败，已忽略: {}", e.getMessage());
             }
         }
         if (vertx != null) {
             try {
                 vertx.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[vertx] 关闭服务失败，已忽略: {}", e.getMessage());
             }
         }
     }

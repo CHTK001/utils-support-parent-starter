@@ -1,6 +1,7 @@
 package com.chua.common.support.converter.definition;
 
 import com.chua.common.support.utils.DateUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.text.ParseException;
 import java.time.Instant;
@@ -22,7 +23,9 @@ import javax.annotation.Nullable;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class InstantTypeConverter implements TypeConverter<Instant>{
+
     /**
      * 获取当前转换器支持的目标类型。
      *
@@ -56,7 +59,8 @@ public class InstantTypeConverter implements TypeConverter<Instant>{
         if(value instanceof String) {
             try {
                 return DateUtils.toInstant(DateUtils.parseDate(value.toString()));
-            } catch (ParseException ignored) {
+            } catch (ParseException e) {
+                log.debug("[converter] Instant 字符串解析失败: {}", e.getMessage());
             }
         }
         return null;

@@ -206,7 +206,8 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
         if (serverSocket != null) {
             try {
                 serverSocket.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("关闭协议嗅探监听失败，已忽略: {}", e.getMessage());
             }
         }
         ThreadUtils.closeQuietly(virtualPool);
@@ -282,7 +283,8 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
         } finally {
             try {
                 socket.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("关闭嗅探连接失败，已忽略: {}", e.getMessage());
             }
         }
     }

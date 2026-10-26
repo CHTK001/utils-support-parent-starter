@@ -1,6 +1,8 @@
 package com.chua.common.support.task.backup;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -14,6 +16,7 @@ import java.util.List;
  * @author CH
  * @since 2026/07/16
  */
+@Slf4j
 public class DirectoryBackup implements BackupStrategy {
 
     /**
@@ -109,7 +112,8 @@ public class DirectoryBackup implements BackupStrategy {
                     Files.createDirectories(dest.getParent());
                     Files.copy(file, dest, StandardCopyOption.REPLACE_EXISTING);
                     changed.add(dest);
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    log.debug("[backup] 增量备份复制文件失败，跳过: {}", e.getMessage());
                 }
                 return FileVisitResult.CONTINUE;
             }

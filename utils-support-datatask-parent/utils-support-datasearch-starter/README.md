@@ -32,6 +32,7 @@
 | `MusicPlaylistCategoryGroup` | 音乐播放列表分类组 |
 | `MusicPlaylistCategoryResult` | 音乐播放列表分类结果 |
 | `MusicPlaylistDetail` | 音乐播放列表详情 |
+| `SmsCodeProvider` | 接码（虚拟号码接收短信）SPI：获取全部号码 / 随机号码 / 手动获取短信，集成 `PolledDirectory` 回调监听。实现：`jiemahao`（接码号，短信页受 Cloudflare Turnstile 保护，需可信网络）、`freephonenum`（FreePhoneNum，无验证码，HTTP 直连即可读取真实短信） |
 | ... | 共 86 个类 |
 
 ---

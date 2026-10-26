@@ -1,6 +1,7 @@
 package com.chua.common.support.task.backup;
 
 import com.chua.common.support.spi.ServiceProvider;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -32,6 +33,7 @@ import java.util.List;
  * @author CH
  * @since 2026/07/16
  */
+@Slf4j
 public class BackupManager {
 
     /**
@@ -182,7 +184,8 @@ public class BackupManager {
             if (strategy != null) {
                 return strategy;
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[backup] SPI 策略加载失败，回退内置实现: {}", e.getMessage());
         }
         // 回退到内置实现
         return switch (type) {

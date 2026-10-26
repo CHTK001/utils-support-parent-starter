@@ -1463,7 +1463,8 @@ public class AioHttpServer extends AbstractServer {
         if (serverChannel != null) {
             try {
                 serverChannel.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("关闭 serverChannel 失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -1476,7 +1477,8 @@ public class AioHttpServer extends AbstractServer {
         if (group != null) {
             try {
                 group.shutdownNow();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("关闭异步通道组失败，已忽略: {}", e.getMessage());
             }
         }
         log.info("AIO HttpServer stopped");

@@ -147,7 +147,8 @@ public class SpringBeanUtils {
                 requestMappingHandlerMappingStatic = handlerMapping;
                 return handlerMapping;
             }
-        } catch (BeansException ignored) {
+        } catch (BeansException e) {
+            log.debug("[spring] 获取 Bean 失败，已忽略: {}", e.getMessage());
         }
         return null;
     }
@@ -208,7 +209,8 @@ public class SpringBeanUtils {
     public static <T> T getBean(ApplicationContext applicationContext, Class<T> target, T defaultValue) {
         try {
             return applicationContext.getBean(target);
-        } catch (BeansException ignored) {
+        } catch (BeansException e) {
+            log.debug("[spring] 获取 Bean 失败，已忽略: {}", e.getMessage());
         }
         return defaultValue;
     }
@@ -224,7 +226,8 @@ public class SpringBeanUtils {
     public static <T> T getBean(ApplicationContext applicationContext, Class<T> target) {
         try {
             return applicationContext.getBean(target);
-        } catch (BeansException ignored) {
+        } catch (BeansException e) {
+            log.debug("[spring] 获取 Bean 失败，已忽略: {}", e.getMessage());
         }
         return null;
     }

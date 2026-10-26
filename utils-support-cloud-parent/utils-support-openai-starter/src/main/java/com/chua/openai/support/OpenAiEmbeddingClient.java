@@ -145,7 +145,8 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
             if (client != null) {
                 try {
                     client.close();
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[openai] 关闭客户端失败，已忽略: {}", e.getMessage());
                 }
             }
         }
@@ -197,7 +198,8 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
             if (client != null) {
                 try {
                     client.close();
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[openai] 关闭客户端失败，已忽略: {}", e.getMessage());
                 }
             }
         }

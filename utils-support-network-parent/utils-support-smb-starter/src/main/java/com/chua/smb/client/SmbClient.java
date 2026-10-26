@@ -339,23 +339,27 @@ public class SmbClient implements AutoCloseable {
             if (diskShare != null) {
                 diskShare.close();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[smb] 关闭资源失败，已忽略: {}", e.getMessage());
         }
         try {
             if (session != null) {
                 session.close();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[smb] 关闭资源失败，已忽略: {}", e.getMessage());
         }
         try {
             if (connection != null) {
                 connection.close();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[smb] 关闭资源失败，已忽略: {}", e.getMessage());
         }
         try {
             smbClient.close();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[smb] 关闭资源失败，已忽略: {}", e.getMessage());
         }
     }
 

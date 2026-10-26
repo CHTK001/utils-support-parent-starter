@@ -265,7 +265,8 @@ public class FtpsServer extends FtpServer {
         if (sslServerSocket != null) {
             try {
                 sslServerSocket.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("关闭 FTPS 监听端口失败，已忽略: {}", e.getMessage());
             }
         }
         getSessionMap().values().forEach(FtpSession::close);

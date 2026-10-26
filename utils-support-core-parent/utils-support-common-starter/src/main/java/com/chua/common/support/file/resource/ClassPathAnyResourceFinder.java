@@ -140,7 +140,8 @@ public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
                         } else {
                             doFindPathMatchingResources(url, subPath, result);
                         }
-                    } catch (IOException ignored) {
+                    } catch (IOException e) {
+                        log.debug("[resource] 扫描 classpath 失败，已忽略: {}", e.getMessage());
                     }
                 });
 
@@ -247,7 +248,8 @@ public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
                     return FileVisitResult.CONTINUE;
                 }
             });
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[resource] 扫描 classpath 失败，已忽略: {}", e.getMessage());
         }
     }
 

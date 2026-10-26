@@ -103,7 +103,8 @@ public class CampplusEmbedding {
                             copied = true;
                             break;
                         }
-                    } catch (Exception ignore) {
+                    } catch (Exception e) {
+                        log.debug("[campplus] 操作失败，已忽略: {}", e.getMessage());
                     }
                 }
                 if (!copied) {
@@ -387,7 +388,8 @@ public class CampplusEmbedding {
         if (session != null) {
             try {
                 session.close();
-            } catch (Exception ignore) {
+            } catch (Exception e) {
+                log.debug("[campplus] 操作失败，已忽略: {}", e.getMessage());
             }
         }
     }

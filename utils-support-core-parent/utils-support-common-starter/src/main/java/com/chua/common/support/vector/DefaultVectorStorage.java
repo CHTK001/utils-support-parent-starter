@@ -39,6 +39,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class DefaultVectorStorage implements VectorStorage {
 
     /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(DefaultVectorStorage.class.getName());
+
+    /**
      * 存储模式。
      */
     public enum Mode { MEMORY, FILE, HYBRID }
@@ -323,7 +328,8 @@ public class DefaultVectorStorage implements VectorStorage {
                     if (sb.fc().isOpen()) {
                         sb.fc().close();
                     }
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    LOG.log(System.Logger.Level.DEBUG, "[vector] 关闭文件通道失败，已忽略: " + e.getMessage(), e);
                 }
             });
             shardBuffers.clear();
@@ -382,7 +388,8 @@ public class DefaultVectorStorage implements VectorStorage {
                     if (sb.fc().isOpen()) {
                         sb.fc().close();
                     }
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    LOG.log(System.Logger.Level.DEBUG, "[vector] 关闭文件通道失败，已忽略: " + e.getMessage(), e);
                 }
             });
             shardBuffers.clear();
@@ -486,7 +493,8 @@ public class DefaultVectorStorage implements VectorStorage {
                     List<EntryLoc> entries = shardToEntries.computeIfAbsent(idx, k -> Wraps.list());
                     entries.add(new EntryLoc(shardPath, offset - entryLen, entryLen));
                 }
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[vector] IO 操作失败，已忽略: " + e.getMessage(), e);
             }
             // 归一化 centroid
             float centroidNorm = 0f;

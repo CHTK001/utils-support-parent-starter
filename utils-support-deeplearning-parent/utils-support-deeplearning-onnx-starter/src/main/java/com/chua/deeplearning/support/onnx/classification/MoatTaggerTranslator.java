@@ -83,7 +83,9 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
                     tmp.toFile().deleteOnExit();
                     csv = tmp;
                 }
-            } catch (Exception ignore) {}
+            } catch (Exception e) {
+                log.warn("[MoAT Tagger] 下载类别 CSV 失败: {}", e.getMessage());
+            }
         }
         classes = loadCsv(csv);
         log.info("[MoAT Tagger] 类别: {} (csv={})", classes.size(), csv);
