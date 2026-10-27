@@ -50,6 +50,7 @@ import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * QQ 机器人客户端，实现 {@link BotClient}。
@@ -996,7 +997,7 @@ public class QqBotClient implements BotClient {
     private void startHeartbeat(long intervalMs) {
         stopHeartbeat();
         long period = Math.max(HEARTBEAT_MIN_MS, intervalMs);
-        heartbeatExecutor = Executors.newSingleThreadScheduledExecutor(runnable -> {
+        heartbeatExecutor = new ScheduledThreadPoolExecutor(1, runnable -> {
             Thread thread = new Thread(runnable, "qq-bot-heartbeat");
             thread.setDaemon(true);
             return thread;

@@ -30,6 +30,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * scatter 发现基类：本地服务 hash 表（按 serverId 幂等去重）+ 自身注册 + 心跳剔除 + 持久化。
@@ -113,8 +114,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         started = true;
         loadPersistedNodes();
         registerSelf();
-        discoveryExecutor = Executors.newSingleThreadScheduledExecutor(
-                r -> {
+        discoveryExecutor = new ScheduledThreadPoolExecutor(1, r -> {
                     Thread t = new Thread(r, "scatter-discovery");
                     t.setDaemon(true);
                     return t;

@@ -34,6 +34,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * Trae 本地 API 聊天客户端，封装 SSE 流式调用、工具调用、模型分档降级、令牌 自动刷新与 HTTP 代理。
@@ -972,7 +973,7 @@ public class ChatClient implements AutoCloseable {
         this.modelConfig = modelConfig;
         this.maxRetries = maxRetries;
         this.defaultModel = defaultModel;
-        this.retryScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+        this.retryScheduler = new ScheduledThreadPoolExecutor(1, r -> {
             Thread t = new Thread(r, "chat-retry");
             t.setDaemon(true);
             return t;

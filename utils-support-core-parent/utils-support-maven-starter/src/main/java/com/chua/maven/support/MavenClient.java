@@ -17,6 +17,9 @@ import java.util.Properties;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Maven 链式客户端，基于 Maven Invoker 实现 pom.xml 的编译与构建。
@@ -221,9 +224,10 @@ public class MavenClient implements AutoCloseable {
      * @return Future 编译结果的 期货
      */
     public Future<MavenCompileResult> executeAsync() {
-        java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newSingleThreadExecutor(
-                Thread.ofVirtual().factory()
-        );
+        java.util.concurrent.ExecutorService executor = new java.util.concurrent.ThreadPoolExecutor(
+                1, 1, 0L, java.util.concurrent.TimeUnit.MILLISECONDS,
+                new java.util.concurrent.LinkedBlockingQueue<>(),
+                Thread.ofVirtual().factory());
         return executor.submit((java.util.concurrent.Callable<MavenCompileResult>) this::execute);
     }
 

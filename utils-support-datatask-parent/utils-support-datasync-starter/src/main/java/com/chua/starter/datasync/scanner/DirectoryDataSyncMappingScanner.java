@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * 目录映射扫描器，负责启动扫描目录下所有映射配置，
@@ -67,7 +68,7 @@ public class DirectoryDataSyncMappingScanner {
         this.mappingManager = mappingManager;
         this.config = config;
         this.parsers = parsers != null ? parsers : List.of();
-        this.executor = Executors.newSingleThreadScheduledExecutor(r -> {
+        this.executor = new ScheduledThreadPoolExecutor(1, r -> {
             Thread t = new Thread(r, "datasync-dir-scanner");
             t.setDaemon(true);
             return t;

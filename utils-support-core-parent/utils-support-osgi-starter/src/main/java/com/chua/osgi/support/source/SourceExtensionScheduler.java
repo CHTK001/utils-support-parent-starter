@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * 源码扩展点调度器：把「源码目录」变成「可随时改代码即生效的 SPI 扩展点」。
@@ -95,7 +96,7 @@ public class SourceExtensionScheduler {
         this.javaCompiler = javaCompiler;
         this.groovyLoader = groovyLoader;
         this.pollingInterval = pollingInterval > 0 ? pollingInterval : DEFAULT_POLLING_INTERVAL;
-        this.scheduler = Executors.newSingleThreadScheduledExecutor(runnable -> {
+        this.scheduler = new ScheduledThreadPoolExecutor(1, runnable -> {
             Thread thread = new Thread(runnable, "osgi-source-scheduler");
             thread.setDaemon(true);
             return thread;

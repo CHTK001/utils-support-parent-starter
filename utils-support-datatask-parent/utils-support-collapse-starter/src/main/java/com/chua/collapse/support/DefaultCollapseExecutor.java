@@ -21,6 +21,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 默认折叠执行器。
@@ -430,9 +432,9 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     private static ExecutorService createDispatcher(String name, boolean virtualThread) {
         if (virtualThread) {
             ThreadFactory factory = Thread.ofVirtual().name(name + "-collect", 0).factory();
-            return Executors.newSingleThreadExecutor(factory);
+            return new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), factory);
         }
-        return Executors.newSingleThreadExecutor(new PlatformDaemonThreadFactory(name + "-collect"));
+        return new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new PlatformDaemonThreadFactory(name + "-collect"));
     }
 
     /**
