@@ -72,12 +72,6 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
     /**
      * 创建 jdbc数据同步Agent源 实例
      * @param sourceId 源标识
-     * @param sourceId 字符串
-     * @param sourceId 字符串
-     * @param sourceId 字符串
-     * @param sourceId 字符串
-     * @param sourceId 字符串
-     * @param sourceId 字符串
      * @param columnNames column名称
      * @param inputId 输入标识
      * @param jdbcUrl jdbcurl

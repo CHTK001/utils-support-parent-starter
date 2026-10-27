@@ -66,11 +66,6 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     /**
      * 创建 jdbc数据同步Agentsink 实例
      * @param sinkId sinkid
-     * @param sinkId 字符串
-     * @param sinkId 字符串
-     * @param sinkId 字符串
-     * @param sinkId 字符串
-     * @param sinkId 字符串
      * @param columnNames column名称
      * @param jdbcUrl jdbcurl
      * @param username 用户名
@@ -84,18 +79,12 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     /**
      * 创建 jdbc数据同步Agentsink 实例
      * @param sinkId sinkid
-     * @param sinkId 字符串
-     * @param sinkId 字符串
-     * @param sinkId 字符串
-     * @param sinkId 字符串
      * @param batchSize int
-     * @param sinkId 字符串
      * @param columnNames column名称
      * @param jdbcUrl jdbcurl
      * @param username 用户名
      * @param password 密码
      * @param sql SQL
-     * @param batchSize 批量大小
      */
     public JdbcDataSyncAgentSink(String sinkId, String jdbcUrl, String username, String password, String sql, int batchSize, String... columnNames) {
         this.sinkId = sinkId;

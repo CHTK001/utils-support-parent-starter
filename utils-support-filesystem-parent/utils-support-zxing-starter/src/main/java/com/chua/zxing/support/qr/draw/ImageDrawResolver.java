@@ -31,17 +31,11 @@ public class ImageDrawResolver extends AbstractDrawResolver{
      * 创建 镜像draw解析器 实例
      * @param g2 g2
      * @param detectInnerColor Color
-     * @param detectInnerColor Color
      * @param qrCodeConfig qr编码期权
      * @param bitMatrix 钻头matrixex
-     * @param qrCodeConfig qr编码期权
      * @param drawOptions draw期权
      * @param setting qrsetting
-     * @param detectInnerColor detect内部color
      * @param detectOutColor detect出color
-     * @param qrCodeConfig qr编码配置
-     * @param bitMatrix 钻头matrix
-     * @param setting setting
      */
     public ImageDrawResolver(Graphics2D g2, Color detectInnerColor, Color detectOutColor, QrCodeOptions qrCodeConfig, BitMatrixEx bitMatrix, QrCodeOptions.DrawOptions drawOptions, QrSetting setting) {
         super(g2, detectInnerColor, detectOutColor, qrCodeConfig, bitMatrix, drawOptions, setting);
