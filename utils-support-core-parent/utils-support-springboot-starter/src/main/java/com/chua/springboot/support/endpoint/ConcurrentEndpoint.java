@@ -411,11 +411,6 @@ public class ConcurrentEndpoint {
     }
 
     /**
-     * 锁view。
-     * @param name 名称
-     * @return 锁view的结果
-     */
-    /**
      * 锁：配置 + 运行状态（名称 为空返回列表，否则单点）
      *
      * @param name 名称

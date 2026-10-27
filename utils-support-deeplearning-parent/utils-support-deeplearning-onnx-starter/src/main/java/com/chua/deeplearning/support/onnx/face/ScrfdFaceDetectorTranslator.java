@@ -47,9 +47,6 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
      * 输入尺寸
      */
     private static final int INPUT_SIZE = 640;
-    /**
-     * 步长数组
-     */
 
     /**
      * 外部阈值覆盖（-1 表示未配置，使用内置默认值）。

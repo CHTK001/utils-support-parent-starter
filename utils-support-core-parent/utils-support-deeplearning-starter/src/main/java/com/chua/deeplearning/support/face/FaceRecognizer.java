@@ -17,13 +17,6 @@ import com.chua.common.support.spi.ServiceProvider;
 public interface FaceRecognizer {
 
     /**
-     * 创建人脸识别器。
-     *
-     * @param name 模型名称
-     * @return 识别器
-     */
-
-    /**
      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
      * @param provider 提供者 名称
@@ -76,7 +69,6 @@ public interface FaceRecognizer {
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.face.FaceRecognizer.class);
     }
-
 
     /**
      * 创建人脸识别器。

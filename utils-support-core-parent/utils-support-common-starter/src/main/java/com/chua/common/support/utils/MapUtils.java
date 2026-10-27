@@ -31,7 +31,6 @@ import static com.chua.common.support.constant.NumberConstant.NUMBER_3;
 import static com.chua.common.support.constant.ValueConstant.EMPTY_PROPERTIES;
 import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING_ARRAY;
 
-
 /**
  * 映射 工具类，提供 映射 操作的核心工具方法。
  *
@@ -149,7 +148,6 @@ public class MapUtils {
         }
         if (expectedSize < MAX_POWER_OF_TWO) {
 
-
             return (int) ((float) expectedSize / 0.75F + 1.0F);
         }
         return Integer.MAX_VALUE;
@@ -224,7 +222,6 @@ public class MapUtils {
         Object v = getObject(map, key);
         return null == v || "".equals(v) ? (v = getObject(map, key2)) == null ? defaultValue : v.toString() : v.toString();
     }
-
 
     /**
      * 若 键 在 映射 中不存在则放入默认值，并返回最终的值。
@@ -763,7 +760,6 @@ public class MapUtils {
         return null == aDouble ? defaultValue : aDouble;
     }
 
-
 /**
  * 从 映射 中获取 int 基本类型值，取不到时返回 0。
  *
@@ -834,7 +830,6 @@ public class MapUtils {
         Integer integer = getInteger(map, key);
         return null == integer ? defaultValue : integer;
     }
-
 
 /**
  * 从 映射 中依次尝试多个 键 获取 Integer 值，全为空时返回默认值。
@@ -1270,7 +1265,6 @@ public class MapUtils {
         return null == aShort ? defaultValue : aShort;
     }
 
-
     /**
      * 从 映射 中获取 文件 值。
      *
@@ -1434,7 +1428,6 @@ public class MapUtils {
         }
     }
 
-
     /**
      * 获取 映射 中的第一个键值对。
      *
@@ -1464,7 +1457,6 @@ public class MapUtils {
         }
         return kvMap.entrySet().iterator().next().getValue();
     }
-
 
     /**
      * 将 映射 转为 属性 对象。
@@ -1690,7 +1682,6 @@ public class MapUtils {
         return Map.Entry::getValue;
     }
 
-
     /**
      * 创建一个默认初始容量的新 哈希映射。
      *
@@ -1800,15 +1791,6 @@ public class MapUtils {
         return rs;
     }
 
-/**
- * 比较新旧两个 映射，返回新 映射 中值与旧 映射 不同的键值对。
- *
- * @param <K>     键类型
- * @param <V>     值类型
- * @param newData 新数据 映射
- * @param oldData 旧数据 映射
- * @return 值发生变化的键值对
- */
     /**
      * 剔除 {@code newData} 中与 {@code oldData} 完全相同的条目，返回剩余差异项。
      *
@@ -1876,7 +1858,6 @@ public class MapUtils {
         if (null == v) {
             v = arg.get(CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, name));
         }
-
 
         return v;
     }
@@ -2363,7 +2344,6 @@ public class MapUtils {
     public static <V> void clearNullValue(Map<String, V> doc) {
         doc.entrySet().removeIf(entry -> entry.getValue() == null);
     }
-
 
     /**
      * 从 映射 中获取字符串值，并将其中的分隔符从 旧分割 替换为 新分割。

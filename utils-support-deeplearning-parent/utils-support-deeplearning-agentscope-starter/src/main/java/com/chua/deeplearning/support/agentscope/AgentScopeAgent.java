@@ -1422,18 +1422,6 @@ public class AgentScopeAgent implements Agent {
     }
 
     /**
-     * 构建Harness
-     * @param agentId Agent标识
-     * @param sysPrompt sys提示符
-     * @param primaryModelId primary模型标识
-     * @param declarations declarations
-     * @param effectivePlan effectiveplan
-     * @param effectivePlanMaxTask effectiveplan最大任务
-     * @param effectiveDebugHook effective调试hook
-     * @param effectivePlanHook effectiveplanhook
-     * @param effectiveMaxIters effective最大iters
-     */
-    /**
      * 构建运行时上下文，并把当前会话 ID 透传给 AgentScope。
      * 注意：{@code enterPlanMode} / {@code call} / {@code streamEvents} 等方法
      * 直接读取 {@link RuntimeContext#getSessionId()}，仅在 Builder 上设置
@@ -1576,7 +1564,6 @@ public class AgentScopeAgent implements Agent {
                 .build();
         return cfg.calculateDelayMillis(attempt);
     }
-
 
     /**
      * 解析最大值Iters
@@ -1837,8 +1824,4 @@ public class AgentScopeAgent implements Agent {
         }
     }
 }
-
-
-
-
 

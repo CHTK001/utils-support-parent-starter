@@ -19,13 +19,6 @@ import com.chua.common.support.spi.ServiceProvider;
 public interface LicensePlateRecognizer {
 
     /**
-     * 创建车牌识别器。
-     *
-     * @param name 模型名称
-     * @return 识别器
-     */
-
-    /**
      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
      * @param provider 提供者 名称
@@ -78,7 +71,6 @@ public interface LicensePlateRecognizer {
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.plate.LicensePlateRecognizer.class);
     }
-
 
     /**
      * 创建车牌识别器。
@@ -148,7 +140,6 @@ public interface LicensePlateRecognizer {
  */
 class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
 
-    
     /**
      * 默认运行设备（CPU）。
      */

@@ -23,12 +23,6 @@ import com.chua.common.support.spi.ServiceProvider;
 public interface LayoutDetector {
 
     /**
-     * 使用默认模型创建版面检测器。
-     *
-     * @return 检测器
-     */
-
-    /**
      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
      * @param provider 提供者 名称
@@ -90,7 +84,6 @@ public interface LayoutDetector {
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.layout.LayoutDetector.class);
     }
-
 
     /**
      * 创建版面检测器。
@@ -164,7 +157,6 @@ public interface LayoutDetector {
  */
 class DefaultLayoutDetector implements LayoutDetector {
 
-    
     /**
      * 默认运行设备（CPU）。
      */

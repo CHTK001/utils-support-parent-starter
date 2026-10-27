@@ -18,13 +18,6 @@ import com.chua.common.support.spi.ServiceProvider;
 public interface FaceQualityAssessor {
 
     /**
-     * 创建人脸质量评估器。
-     *
-     * @param name 模型名称
-     * @return 评估器
-     */
-
-    /**
      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
      * @param provider 提供者 名称
@@ -77,7 +70,6 @@ public interface FaceQualityAssessor {
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.face.FaceQualityAssessor.class);
     }
-
 
     /**
      * 创建人脸质量评估器。

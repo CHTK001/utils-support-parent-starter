@@ -9,10 +9,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * @author CH
- * @since 4.0.0.42
- */
-/**
  * 透明度背景移除滤镜
  *
  * 检测图像中的透明区域并将其设置为完全透明，实现背景移除效果。

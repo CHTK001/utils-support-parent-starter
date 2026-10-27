@@ -20,13 +20,6 @@ import com.chua.common.support.spi.ServiceProvider;
 public interface ImageDetector {
 
     /**
-     * 创建图像检测器。
-     *
-     * @param name 模型名称
-     * @return 检测器
-     */
-
-    /**
      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
      * @param provider 提供者 名称
@@ -79,7 +72,6 @@ public interface ImageDetector {
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageDetector.class);
     }
-
 
     /**
      * 创建图像检测器。
@@ -145,8 +137,6 @@ class DefaultImageDetector implements ImageDetector {
      * 默认运行设备（CPU）。
      */
     private static final String DEFAULT_DEVICE = "cpu";
-
-
 
     /**
      * 识别引擎。

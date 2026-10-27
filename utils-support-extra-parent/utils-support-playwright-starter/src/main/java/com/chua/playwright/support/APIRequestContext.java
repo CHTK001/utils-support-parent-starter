@@ -24,73 +24,95 @@ public class APIRequestContext {
         this.engine = engine;
         this.handle = handle;
     }
-/**
- * 获取。
- * @param url url
- * @return 获取的结果
- */
 
     /**
-     * post。
-     * @param url url
-     * @param body 主体
-     * @return post的结果
+     * 发起 GET 请求。
+     *
+     * @param url 请求地址
+     * @return 响应结果
      */
-    public ApiResponse get(String url) { return fetch("apiGet", url, null); }
-    /**
-     * 放入。
-     * @param url url
-     * @param body 主体
-     * @return 放入的结果
-     */
-    public ApiResponse post(String url, Object body) { return fetch("apiPost", url, body); }
-    /**
-     * 删除。
-     * @param url url
-     * @return 删除的结果
-     * @param body 主体
-     */
-    public ApiResponse put(String url, Object body) { return fetch("apiPut", url, body); }
-    /**
-     * 删除。
-     * @param url url
-     * @return 删除的结果
-     */
-    public ApiResponse delete(String url) { return fetch("apiDelete", url, null); }
-/**
- * 获取。
- * @param action 动作
- * @param url url
- * @param body 主体
- * @return 获取的结果
- * @author CH
- * @since 4.0.0
- */
+    public ApiResponse get(String url) {
+        return fetch("apiGet", url, null);
+    }
 
+    /**
+     * 发起 POST 请求。
+     *
+     * @param url  请求地址
+     * @param body 请求体，可为 null
+     * @return 响应结果
+     */
+    public ApiResponse post(String url, Object body) {
+        return fetch("apiPost", url, body);
+    }
+
+    /**
+     * 发起 PUT 请求。
+     *
+     * @param url  请求地址
+     * @param body 请求体，可为 null
+     * @return 响应结果
+     */
+    public ApiResponse put(String url, Object body) {
+        return fetch("apiPut", url, body);
+    }
+
+    /**
+     * 发起 DELETE 请求。
+     *
+     * @param url 请求地址
+     * @return 响应结果
+     */
+    public ApiResponse delete(String url) {
+        return fetch("apiDelete", url, null);
+    }
+
+    /**
+     * 按动作名转发到引擎侧的具体 API 请求实现。
+     *
+     * @param action 动作名（apiGet/apiPost/apiPut/apiDelete）
+     * @param url    请求地址
+     * @param body   请求体，可为 null
+     * @return 响应结果
+     */
     private ApiResponse fetch(String action, String url, Object body) {
         Engine.ApiResponseData d = engine.apiRequest(action, url, body);
         return new ApiResponse(d);
     }
 
+    /**
+     * API 响应结果的只读包装。
+     */
     public static class ApiResponse {
         private final int status;
         private final String body;
-/**
- * api响应。
- * @param d d
- * @return 状态的结果
- */
 
+        /**
+         * 基于引擎侧响应数据创建包装对象。
+         *
+         * @param d 引擎侧响应数据
+         */
         public ApiResponse(Engine.ApiResponseData d) {
             this.status = d.status;
             this.body = d.body;
         }
 
-        public int status() { return status; }
         /**
-         * 主体。
-         * @return 主体的结果
+         * 获取 HTTP 状态码。
+         *
+         * @return 状态码
          */
-        public String body() { return body; }
+        public int status() {
+            return status;
+        }
+
+        /**
+         * 获取响应体文本。
+         *
+         * @return 响应体
+         */
+        public String body() {
+            return body;
+        }
     }
 }

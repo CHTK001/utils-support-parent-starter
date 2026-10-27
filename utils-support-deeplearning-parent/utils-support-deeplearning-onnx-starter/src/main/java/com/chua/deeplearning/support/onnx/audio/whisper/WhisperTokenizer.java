@@ -212,11 +212,6 @@ public class WhisperTokenizer {
     }
 
     /**
-     * Whisper 特殊 令牌 常量（与 huggingface whisper tokenizer 一致）。
-     * 来源: 配置.json bos_令牌_标识=50257, eos_令牌_标识=50256
-     */
-
-    /**
      * 启动 的 转写
     */
     public static final int SOT = 50257;

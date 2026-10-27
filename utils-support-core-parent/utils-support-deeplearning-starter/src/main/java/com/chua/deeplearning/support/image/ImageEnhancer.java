@@ -23,13 +23,6 @@ import com.chua.common.support.spi.ServiceProvider;
 public interface ImageEnhancer {
 
     /**
-     * 创建图像增强器。
-     *
-     * @param name 模型名称
-     * @return 增强器
-     */
-
-    /**
      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
      * @param provider 提供者 名称
@@ -82,7 +75,6 @@ public interface ImageEnhancer {
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageEnhancer.class);
     }
-
 
     /**
      * 创建图像增强器。

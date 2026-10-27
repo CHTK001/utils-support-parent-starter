@@ -197,13 +197,6 @@ public class JdbcSqlExecutor implements SqlExecutor {
     }
 
     /**
-     * 使用方言生成分页 SQL，无方言时直接返回原 SQL（由调用方自行截取）。
-     *
-     * @param sql        原始 SQL
-     * @param pagination 分页参数（含 偏移量 / 限制）
-     * @return 分页 SQL
-     */
-    /**
      * 取异常链最深层的原因消息，用于把服务端/驱动给出的真实原因带进外层消息。
      *
      * <p>外层的 {@code 执行查询失败: <SQL>} 只说明「哪条语句失败」，

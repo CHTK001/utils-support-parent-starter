@@ -17,13 +17,6 @@ import com.chua.common.support.spi.ServiceProvider;
 public interface ImageGenerator {
 
     /**
-     * 创建图像生成器。
-     *
-     * @param name 模型名称
-     * @return 生成器
-     */
-
-    /**
      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
      * @param provider 提供者 名称
@@ -76,7 +69,6 @@ public interface ImageGenerator {
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageGenerator.class);
     }
-
 
     /**
      * 创建图像生成器。

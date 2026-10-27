@@ -16,13 +16,6 @@ import com.chua.common.support.spi.ServiceProvider;
 public interface FeatureExtractor {
 
     /**
-     * 创建特征提取器。
-     *
-     * @param name 模型名称
-     * @return 提取器
-     */
-
-    /**
      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
      * @param provider 提供者 名称
@@ -75,7 +68,6 @@ public interface FeatureExtractor {
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.feature.FeatureExtractor.class);
     }
-
 
     /**
      * 创建特征提取器。

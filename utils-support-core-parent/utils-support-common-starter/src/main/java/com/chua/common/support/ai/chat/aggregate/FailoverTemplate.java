@@ -36,13 +36,6 @@ public final class FailoverTemplate {
     }
 
     /**
-     * 流式首包（首个正文/思考片段）等待超时：超时未返回即判定该密钥卡顿，切换下一密钥。
-     * 上游对受限密钥可能“延迟处理��而非返回 429，仅靠异常故障转移会一直干等。
-     *
-     * <p>取值来自 {@link FailoverTimeouts}（默认与改造前的常量一致），可由上层按部署情况覆盖。</p>
-     */
-
-    /**
      * 放弃卡顿客户端后，等待其底层请求真正结束（关闭连接）的最长时间。
      */
     private static final long ABANDON_WAIT_MS = 1500L;
