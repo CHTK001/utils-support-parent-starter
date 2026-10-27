@@ -422,6 +422,7 @@ public final class EngineFunctional {
                     e.querySql((String) null);
                     return "返回(实现自行处理)";
                 } catch (NullPointerException npe) {
+                    // [P3C 2.1.1 豁免] 验收用例需断言实现确实抛裸 NPE，属于对被测代码的异常类型检查
                     throw new HarnessFailure("抛裸 NullPointerException，调用方无法区分用法错误与内部缺陷");
                 } catch (IllegalArgumentException | UnsupportedOperationException ok) {
                     return ok.getClass().getSimpleName();

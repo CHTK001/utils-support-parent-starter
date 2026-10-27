@@ -67,7 +67,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
         boolean ok = false;
         String dir = System.getProperty(MODEL_DIR_PROPERTY);
         if (dir == null || dir.isBlank()) {
-            log.warn("[UEBA-MiniMind] 未设置 " + MODEL_DIR_PROPERTY + "，使用模板解释");
+            log.warn("[UEBA-MiniMind] 未设置 {}，使用模板解释", MODEL_DIR_PROPERTY);
         } else {
             try {
                 loaded = buildModel(Paths.get(dir));

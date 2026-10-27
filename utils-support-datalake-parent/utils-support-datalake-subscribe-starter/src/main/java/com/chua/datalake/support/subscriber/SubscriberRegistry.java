@@ -128,7 +128,7 @@ public final class SubscriberRegistry {
                 subscriber.onPush(PushPayload.of(subscriber.subscriberId(), envelope));
                 delivered++;
             } catch (Exception e) {
-                log.error("[datalake-subscribe] 订阅器投递失败: subscriberId=" + subscriber.subscriberId(), e);
+                log.error("[datalake-subscribe] 订阅器投递失败: subscriberId={}", subscriber.subscriberId(), e);
             }
         }
         return delivered;

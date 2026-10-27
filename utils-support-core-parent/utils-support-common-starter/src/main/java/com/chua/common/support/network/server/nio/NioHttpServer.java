@@ -172,8 +172,8 @@ public class NioHttpServer extends AbstractServer {
             // Windows 推荐上限 4：实测 4 分片吞吐最优,超出 16+ 分片 select() 并发开销反而负优化;
             // 保留 bench.fast 绕过供实验验证其他分片数。
             if (windows && eventLoops > 4 && !"true".equals(System.getProperty("bench.fast"))) {
-                log.warn("NIO HttpServer eventLoops={} 超过 Windows 实测最优上限 4，已收敛至 4 " +
-                        "(16+ 分片 select 并发负优化)。如需更高并行度请使用 Linux+epoll", eventLoops);
+                log.warn("NIO HttpServer eventLoops={} 超过 Windows 实测最优上限 4，已收敛至 4"
+                        + "(16+ 分片 select 并发负优化)。如需更高并行度请使用 Linux+epoll", eventLoops);
                 eventLoops = 4;
             }
             if ("true".equals(System.getProperty("bench.fast"))) {

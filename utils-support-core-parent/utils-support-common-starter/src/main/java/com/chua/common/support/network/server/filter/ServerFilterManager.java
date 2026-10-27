@@ -225,7 +225,7 @@ public class ServerFilterManager {
             try {
                 filter.destroy();
             } catch (Exception e) {
-                log.warn("服务器过滤器销毁失败: " + filter.getFilterId() + ", " + e.getMessage(), e);
+                log.warn("服务器过滤器销毁失败: {}, {}", filter.getFilterId(), e.getMessage(), e);
             }
         }
     }
