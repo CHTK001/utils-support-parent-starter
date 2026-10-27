@@ -294,12 +294,6 @@ public final class ImageUtils {
     }
 
     /**
-     * 缓冲镜像 → 打开cv Mat（BGR）。
-     *
-     * @param image 图像
-     * @return Mat
-     */
-    /**
      * 缓冲镜像 → Mat（BGR）。
      *
      * <p>直接像素拷贝（避免 PNG 编解码往返），输出 CV_8UC3 BGR Mat，调用方负责 release。</p>

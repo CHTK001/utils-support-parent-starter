@@ -485,15 +485,6 @@ public class DhtProtocol implements AutoCloseable {
     }
 
     /**
-     * 处理接收到的 DHT 消息。
-     * <p>
-     * 根据消息类型路由到对应的处理方法，并自动将发送者加入路由表。
-     * </p>
-     *
-     * @param msg    接收到的消息
-     * @param sender 发送者地址
-     */
-    /**
      * 接收并处理 DHT 消息（包访问，供 dhtnetty服务端 调用）。
      *
      * @param msg    接收到的消息

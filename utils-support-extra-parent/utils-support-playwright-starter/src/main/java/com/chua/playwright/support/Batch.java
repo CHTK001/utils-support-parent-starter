@@ -7,41 +7,37 @@ import java.util.*;
 
 /**
  * 批量命令构建器。逐条命令通过 {@link Engine} 顺序执行，模拟一次批量调用的语义。
+ *
  * @author CH
  * @since 4.0.0
- * @param handle 处理
- * @param selector selector
- * @param value 值
- * @param pageHandle page处理
- * @param url url
  */
 public class Batch {
 
     /**
-     * 批量。
+     * 底层驱动引擎
      */
     private final Engine engine;
-    private final List<Map<String, Object>> commands = Wraps.list(); // 命令
-    private final List<String> names = Wraps.list(); // 名称
-    private boolean stopOnError = true; // 停止on错误
-/**
- * 停止on错误。
- * @param stop 停止
- * @return 停止on错误的结果
- */
 
     /**
-     * 大小。
-     * @return 大小的结果
+     * 待执行的命令队列，每项包含 action / handle / params
+     */
+    private final List<Map<String, Object>> commands = Wraps.list();
+
+    /**
+     * 命令名队列，与 {@link #commands} 一一对应
+     */
+    private final List<String> names = Wraps.list();
+
+    /**
+     * 遇到错误是否立即中止执行
+     */
+    private boolean stopOnError = true;
+
+    /**
+     * 创建批次构建器，绑定当前线程的驱动引擎。
      */
     public Batch() {
         this.engine = Playwright.getEngine();
-    /**
-     * launch。
-     * @param headless headless
-     * @return launch的结果
-     * @param stop 停止
-     */
     }
 
     /**
@@ -54,16 +50,21 @@ public class Batch {
         this.stopOnError = stop;
         return this;
     }
-    /**
-     * 大小。
-     * @return 大小的结果
-     */
-    public int size() { return commands.size(); }
 
     /**
-     * launch。
-     * @param headless headless
-     * @return launch的结果
+     * 获取已入队的命令数量。
+     *
+     * @return 命令数量
+     */
+    public int size() {
+        return commands.size();
+    }
+
+    /**
+     * 追加启动浏览器命令。
+     *
+     * @param headless 是否无头模式
+     * @return 当前命令在队列中的下标
      */
     public int launch(boolean headless) {
         Map<String, Object> p = Wraps.linkedMap();
@@ -71,30 +72,33 @@ public class Batch {
         return add("launch", null, p);
     }
 
-    public int newPage(int targetHandle) { return add("newPage", targetHandle, null); }
+    /**
+     * 追加新建页面命令。
+     *
+     * @param targetHandle 浏览器句柄
+     * @return 当前命令在队列中的下标
+     */
+    public int newPage(int targetHandle) {
+        return add("newPage", targetHandle, null);
+    }
 
     /**
-     * gotoPage。
-     * @param pageHandle page处理
-     * @param url url
+     * 追加页面跳转命令。
+     *
+     * @param pageHandle 页面句柄
+     * @param url        目标地址
      */
     public void gotoPage(int pageHandle, String url) {
         Map<String, Object> p = Wraps.linkedMap();
         p.put("url", url);
-        /**
-         * click。
-         * @param handle 处理
-         * @param selector selector
-         * @param value 值
-         */
         add("goto", pageHandle, p);
     }
 
     /**
-     * click。
+     * 追加元素点击命令。
      *
-     * @param handle 处理，不允许为 null
-     * @param selector 方法入参 selector
+     * @param handle   页面句柄
+     * @param selector 元素选择器
      */
     public void click(int handle, String selector) {
         Map<String, Object> p = Wraps.linkedMap();
@@ -103,11 +107,11 @@ public class Batch {
     }
 
     /**
-     * fill。
+     * 追加元素填充命令。
      *
-     * @param handle 处理，不允许为 null
-     * @param selector 方法入参 selector
-     * @param value 值，不允许为 null
+     * @param handle   页面句柄
+     * @param selector 元素选择器
+     * @param value    填充值
      */
     public void fill(int handle, String selector, String value) {
         Map<String, Object> p = Wraps.linkedMap();
@@ -116,26 +120,42 @@ public class Batch {
         add("fill", handle, p);
     }
 
-    public void screenshot(int handle) { add("screenshot", handle, null); }
-/**
- * 评估。
- * @param handle 处理
- * @param expression expression
- */
+    /**
+     * 追加页面截图命令。
+     *
+     * @param handle 页面句柄
+     */
+    public void screenshot(int handle) {
+        add("screenshot", handle, null);
+    }
 
+    /**
+     * 追加页面脚本求值命令。
+     *
+     * @param handle     页面句柄
+     * @param expression JS 表达式
+     */
     public void evaluate(int handle, String expression) {
         Map<String, Object> p = Wraps.linkedMap();
         p.put("expression", expression);
         add("evaluate", handle, p);
     }
 
-    public void close(int handle) { add("close", handle, null); }
+    /**
+     * 追加页面关闭命令。
+     *
+     * @param handle 页面句柄
+     */
+    public void close(int handle) {
+        add("close", handle, null);
+    }
 
     /**
-     * raw。
-     * @param action 动作
-     * @param handle 处理
-     * @param params 参数
+     * 追加自定义原始命令，由调用方自行约定 action 语义。
+     *
+     * @param action 动作名
+     * @param handle 句柄，可为 null
+     * @param params 参数，可为 null
      */
     public void raw(String action, Integer handle, Map<String, Object> params) {
         add(action, handle, params);
@@ -171,12 +191,12 @@ public class Batch {
     }
 
     /**
-     * dispatch。
+     * 按动作名分发到引擎的具体调用。
      *
-     * @param action 方法入参 action
-     * @param handle 处理，不允许为 null
-     * @param params 参数，不允许为 null
-     * @return 对象 对象
+     * @param action 动作名
+     * @param handle 句柄
+     * @param params 参数，可为 null
+     * @return 引擎返回结果的包装
      */
     private Object dispatch(String action, long handle, Map<String, Object> params) {
         switch (action) {
@@ -213,12 +233,12 @@ public class Batch {
     }
 
     /**
-     * 添加。
+     * 将命令加入队列并返回其下标。
      *
-     * @param action 方法入参 action
-     * @param handle 处理，不允许为 null
-     * @param params 参数，不允许为 null
-     * @return 结果数值
+     * @param action 动作名
+     * @param handle 句柄，可为 null
+     * @param params 参数，可为 null
+     * @return 当前命令在队列中的下标
      */
     private int add(String action, Integer handle, Map<String, Object> params) {
         Map<String, Object> cmd = Wraps.linkedMap();

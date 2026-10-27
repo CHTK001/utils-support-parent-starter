@@ -244,9 +244,6 @@ public final class TraceContext {
     }
 
     /**
-     * 方法出口出栈 —— 栈空时一次性输出整棵树
-     */
-    /**
      * 记录当前方法的异常信息
      *
      * @param t 捕获的异常

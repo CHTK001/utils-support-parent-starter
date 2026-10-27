@@ -24,13 +24,6 @@ import com.chua.common.support.spi.ServiceProvider;
 public interface ImageCaptioning {
 
     /**
-     * 创建图像描述器。
-     *
-     * @param name 模型名称
-     * @return 描述器
-     */
-
-    /**
      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
      * @param provider 提供者 名称

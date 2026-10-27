@@ -42,9 +42,6 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
      * 输入尺寸
     */
     private static final int INPUT_SIZE = 768;
-    /**
-     * 热力图尺寸
-    */
 
     /**
      * 外部阈值覆盖（-1 表示未配置，使用内置默认值）。

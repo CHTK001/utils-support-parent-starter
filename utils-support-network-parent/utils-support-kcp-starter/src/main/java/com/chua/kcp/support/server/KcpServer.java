@@ -63,9 +63,6 @@ public class KcpServer extends AbstractServer {
     public static final int KCP_CONV = 0x4b4350;
 
     /**
-     * KCP 最大传输单元（字节）
-     */
-    /**
      * KCP MTU（最大传输单元）
      * <p>KCP 按 MTU 分包发送：MTU 越小单条消息分包越多、ACK 次数越多、吞吐越低。
      * 512 → 1400（udp 承载上限内）减少分包与确认开销，是 tcp/udp 吞吐差距的重要来源之一。</p>

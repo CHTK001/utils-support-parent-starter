@@ -33,13 +33,6 @@ final class MemorySqlAst {
          * 对行求值。
          *
          * @param row 行对象（映射 或 Bean）
-         * @param p   参数提供器
-         * @return 布真
-         */
-        /**
-         * 对行求值。
-         *
-         * @param row 行对象（映射 或 Bean）
          * @param p   参数游标
          * @return 布真结果
          */
@@ -740,7 +733,6 @@ final class MemorySqlAst {
         }
         return applyDelete((DeletePlan) plan, rows, safeParams);
     }
-
 
     /**
      * 将解析期收集的 插入 / 更新 设置 参数占位按序绑定。

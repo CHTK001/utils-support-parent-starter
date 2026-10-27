@@ -16,13 +16,6 @@ import com.chua.common.support.spi.ServiceProvider;
 public interface ImageSegmenter {
 
     /**
-     * 创建图像分割器。
-     *
-     * @param name 模型名称
-     * @return 分割器
-     */
-
-    /**
      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
      * @param provider 提供者 名称
@@ -75,7 +68,6 @@ public interface ImageSegmenter {
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageSegmenter.class);
     }
-
 
     /**
      * 创建图像分割器。

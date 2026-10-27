@@ -225,13 +225,6 @@ public final class TsharkCliProvider {
     }
 
     /**
-     * 第一级：定位已安装的 tshark。
-     *
-     * @param config   配置快照
-     * @param attempts 过程记录
-     * @return 可执行文件路径
-     */
-    /**
      * 定位结果：可执行文件路径与探测到的版本。
      *
      * <p>把版本随路径一起返回，避免调用方二次探测：{@code tshark --version} 在 Windows 上
@@ -243,6 +236,13 @@ public final class TsharkCliProvider {
     private record Located(Path path, String version) {
     }
 
+    /**
+     * 第一级：定位已安装的 tshark。
+     *
+     * @param config   配置快照
+     * @param attempts 过程记录
+     * @return 可执行文件路径
+     */
     @Nonnull
     private Optional<Located> tryLocate(@Nonnull TsharkCliConfig config,
                                         @Nonnull List<TsharkProvisioningReport.Attempt> attempts) {

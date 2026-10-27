@@ -295,13 +295,6 @@ public class MemorySqlParser {
     }
 
     /**
-     * 尝试匹配关键字，命中则消费。
-     *
-     * @param ts 词法流
-     * @param kw 关键字（忽略大小写）
-     * @return 是否命中
-     */
-    /**
      * 若词法流当前位置是受支持的聚合函数名则返回其大写名（不消费），否则返回 null。
      *
      * <p>独立于 {@link #matchKeyword} 是因为需要在「决定走聚合分支还是普通列分支」时
@@ -318,6 +311,13 @@ public class MemorySqlParser {
         return AGGREGATES.contains(head) ? head : null;
     }
 
+    /**
+     * 尝试匹配关键字，命中则消费。
+     *
+     * @param ts 词法流
+     * @param kw 关键字（忽略大小写）
+     * @return 是否命中
+     */
     private static boolean matchKeyword(TokenStream ts, String kw) {
         if (!ts.eof() && ts.peek().equalsIgnoreCase(kw)) {
             ts.next();
