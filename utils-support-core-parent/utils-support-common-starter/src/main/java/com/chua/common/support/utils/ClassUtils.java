@@ -169,7 +169,7 @@ public class ClassUtils {
     /**
      *                            .
      * Table                                  B   I   D                                                   
-     *                                                    
+     *
      */
     public static final Table<Object, Class<?>, Class<?>> BASIC_VIRTUAL = HashBasedTable.create();
     static {
@@ -185,7 +185,7 @@ public class ClassUtils {
     }
     /**
      *                         .
-     *                                                                                     
+     *
      * CGLIB   Spring                Javassist   Apache ibatis
      */
     private static final List<String> PROXY_CLASS_NAMES = Arrays.asList("net.sf.cglib.proxy.Factory"
@@ -271,17 +271,17 @@ public class ClassUtils {
     private static final String NON_PRIMITIVE_ARRAY_PREFIX = "[L";
     /**
      *                               .
-     *                                                 
+     *
      */
     private static final Class<?>[] EMPTY_CLASS_ARRAY = {};
     /**
      *                : {@code '.'}.
-     *                                  
+     *
      */
     private static final char PACKAGE_SEPARATOR = '.';
     /**
      *                : {@code '/'}.
-     *                                        
+     *
      */
     private static final char PATH_SEPARATOR = '/';
     /**
@@ -299,7 +299,7 @@ public class ClassUtils {
     /**
      *                                                       .
      *     JVM                                "I"                               "int"   
-     *                               
+     *
      */
     private static final Map<String, String> REVERSE_ABBREVIATION_MAP;
  // Feed abbreviation 映射
@@ -401,7 +401,7 @@ public class ClassUtils {
     /**
      *                                        .
      *
-     *                               
+     *
      * 1.                                                 
      * 2.                       类工具
      * 3.                                           
@@ -700,7 +700,7 @@ public class ClassUtils {
     /**
      *                                                                            .
      *
-     *                                                                         
+     *
      *
      * @param className                   
      * @param classLoader                               
@@ -720,7 +720,7 @@ public class ClassUtils {
     /**
      * 类       .
      *
-     *                               
+     *
      * -                      com.example.用户
      * -                Java.lang.字符串[]
      * - JVM                      [Ljava.lang.字符串;
@@ -762,8 +762,8 @@ public class ClassUtils {
     /**
      * 类                                           .
      *
-     *                                                                                              
-     *                                                                                        
+     *
+     *
      *
      * @param name                   
      * @param classLoader                               
@@ -813,7 +813,7 @@ public class ClassUtils {
     /**
      * 类       .
      *
-     *                               
+     *
      * -                      com.example.用户
      * -                Java.lang.字符串[]   [[Ljava.lang.字符串;
      * -                int   布尔值
@@ -1016,7 +1016,7 @@ public class ClassUtils {
     /**
      * 类                                              .
      *
-     *                         
+     *
      * 1.                       列表   集合     设置
      * 2.                                                                            
      * 3.                                                                         
@@ -1103,7 +1103,7 @@ public class ClassUtils {
         return rs;
     }
     /**
-     *             
+     *
      *
      * @param params       
      * @return       
@@ -1265,7 +1265,7 @@ public class ClassUtils {
         return null;
     }
     /**
-     *                   
+     *
      *
      * @param collection       
      * @return class
@@ -1383,7 +1383,7 @@ public class ClassUtils {
         return target;
     }
     /**
-     *                   
+     *
      *
      * @param target    
      * @param <T>          
@@ -1402,7 +1402,7 @@ public class ClassUtils {
         return target.isPrimitive();
     }
     /**
-     *             
+     *
      *
      * @param annotations       
      * @return       
@@ -1417,7 +1417,7 @@ public class ClassUtils {
         return result;
     }
     /**
-     *             
+     *
      *
      * @param parameterTypes       
      * @return       
@@ -1466,7 +1466,7 @@ public class ClassUtils {
         });
     }
     /**
-     *                
+     *
      *
      * @param type        
      * @param includes          
@@ -1568,7 +1568,7 @@ public class ClassUtils {
     /**
      *                                           .
      *
-     *                                                                                                          
+     *
      *
      * @param aClass                
      * @param callback                                           
@@ -1590,7 +1590,7 @@ public class ClassUtils {
     /**
      *                                     .
      *
-     *                                                                   
+     *
      *
      * @param obj       
      * @param fieldName             
@@ -1637,7 +1637,7 @@ public class ClassUtils {
     /**
      *                                                             .
      *
-     *                                                                
+     *
      *
      * @param aClass                
      * @param callback                                           
@@ -1711,7 +1711,7 @@ public class ClassUtils {
         return null;
     }
     /**
-     *             
+     *
      *
      * @param aClass      
      * @param callback             
@@ -1729,7 +1729,7 @@ public class ClassUtils {
         }
     }
     /**
-     *             
+     *
      *
      * @param aClass          
      * @param callback                 
@@ -1756,7 +1756,7 @@ public class ClassUtils {
         }
     }
     /**
-     *             
+     *
      *
      * @param aClass      
      * @param callback             
@@ -1765,7 +1765,7 @@ public class ClassUtils {
         doWithMethods(aClass, callback, null);
     }
     /**
-     *                   
+     *
      *
      * @param obj       
      * @return             
@@ -1807,7 +1807,7 @@ public class ClassUtils {
         });
     }
     /**
-     *                   
+     *
      *
      * @param obj       
      * @return             
@@ -1823,7 +1823,7 @@ public class ClassUtils {
         });
     }
     /**
-     *       
+     *
      *
      * @param tClass        
      * @param classes       
@@ -1874,7 +1874,7 @@ public class ClassUtils {
         return null == clazz || Object.class.getName().equals(clazz.getName());
     }
     /**
-     *             
+     *
      *
      * @param args       
      * @return             
@@ -1888,7 +1888,7 @@ public class ClassUtils {
         return true;
     }
     /**
-     *             
+     *
      *
      * @param args       
      * @return             
@@ -1902,7 +1902,7 @@ public class ClassUtils {
         return true;
     }
     /**
-     *             
+     *
      *
      * @param parameterTypes       
      * @param params               
@@ -1918,7 +1918,7 @@ public class ClassUtils {
         return rs;
     }
     /**
-     *          
+     *
      *
      * @param o                        
      * @param aClass             
@@ -1947,7 +1947,7 @@ public class ClassUtils {
         return null;
     }
     /**
-     *             
+     *
      *
      * @param params    
      * @return             
@@ -1964,7 +1964,7 @@ public class ClassUtils {
         return rs;
     }
     /**
-     *             
+     *
      *
      * @param object           
      * @param type             
@@ -1984,7 +1984,7 @@ public class ClassUtils {
         return invokeMethod(method, object, args);
     }
     /**
-     *             
+     *
      *
      * @param bean                      
      * @param methodName                
@@ -2005,7 +2005,7 @@ public class ClassUtils {
         return invokeMethod(method, bean, args);
     }
     /**
-     *             
+     *
      *
      * @param bean             
      * @param methodName       
@@ -2125,7 +2125,7 @@ public class ClassUtils {
         }
     }
     /**
-     *             
+     *
      *
      * @param method       
      * @param bean         

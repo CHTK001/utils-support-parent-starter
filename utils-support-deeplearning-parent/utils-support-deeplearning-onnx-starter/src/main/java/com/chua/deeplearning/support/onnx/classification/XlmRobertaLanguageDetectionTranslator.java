@@ -28,13 +28,13 @@ import javax.annotation.Nullable;
  *          178                               
  * </p>
  * <p>
- *                        
+ *
  * 1.        huggingface Tokenizer
  * 2.     令牌 ids
  * 3.                                     128       
  * </p>
  * <p>
- *                            
+ *
  * -          输入_标识 (shape: [批量_大小, sequence_长度], 最大_长度=128)
  * -          attention_mask (shape: [批量_大小, sequence_长度])
  * -                         logits -> softmax -> Classifications

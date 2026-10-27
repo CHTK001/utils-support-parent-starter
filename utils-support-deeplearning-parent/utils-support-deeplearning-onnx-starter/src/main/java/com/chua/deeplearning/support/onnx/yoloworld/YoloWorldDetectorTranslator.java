@@ -29,7 +29,7 @@ import ai.djl.modality.cv.ImageFactory;
 
 /**
  * YOLO-World zero-shot detector with 打开-vocabulary 支持.
- * 
+ *
  * <p>Uses ClipTextFeatureTranslator to generate CLIP text embeddings at runtime.</p>
  *
  * @author CH

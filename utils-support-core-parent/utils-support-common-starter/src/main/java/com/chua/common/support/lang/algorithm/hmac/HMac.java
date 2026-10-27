@@ -30,11 +30,11 @@ import java.util.Base64;
  * // 示例 1: 使用字符串密钥计算十六进制摘要
  * HMac hmac = new HMac(HmacAlgorithm.HMAC_SHA256, "mySecretKey");
  * String hex = hmac.digestHex("Hello World");
- * 
+ *
  * // 示例 2: 使用字节数组密钥计算原始字节摘要
  * HMac hmac2 = new HMac(HmacAlgorithm.HMAC_SHA256, key.getBytes());
  * byte[] digest = hmac2.digest("Hello World");
- * 
+ *
  * // 示例 3: 使用静态工厂方法并获取 Base64 编码的摘要
  * HMac hmac3 = HMac.hmacSha256("myKey");
  * String base64 = hmac3.digestBase64("Hello World");

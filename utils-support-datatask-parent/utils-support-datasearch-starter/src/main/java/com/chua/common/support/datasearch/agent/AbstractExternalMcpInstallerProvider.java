@@ -40,9 +40,9 @@ public abstract class AbstractExternalMcpInstallerProvider extends AgentEditorPr
 
     /**
      * npm 包名（如 agent-browser /
-     * 
+     *
      * @playwright/mcp /
-     * 
+     *
      * @puppeteer/mcp）。
      * @return 结果字符串
      */

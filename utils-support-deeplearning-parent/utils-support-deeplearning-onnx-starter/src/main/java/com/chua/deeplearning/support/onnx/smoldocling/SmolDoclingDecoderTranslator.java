@@ -16,15 +16,15 @@ import java.util.Map;
 /**
  * smoldocling 解码器 Translator
  * <p>
- *                                        
+ *
  * <p>
- *                
+ *
  * - 输入_embeds:
  * - attention_mask:                
  * - 位置_标识:
  * - past_键_值:           KV
  * <p>
- *                
+ *
  * - logits:           令牌
  * - past_键_值:              KV
  *
@@ -207,7 +207,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
     /**
      * 解码器输入结构。
      *
-     *                
+     *
      * @author CH
      * @since 4.0.0
      */
@@ -225,7 +225,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         private Map<String, NDArray> pastKeyValues;
 
         /**
-         *             
+         *
          *
          * @param inputsEmbeds              
          * @param attentionMask                
@@ -258,7 +258,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
     /**
      * 解码器单步输出结构。
      *
-     *                      
+     *
      * @author CH
      * @since 4.0.0
      */
@@ -280,7 +280,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         private Map<String, NDArray> pastKeyValues;
 
         /**
-         *             
+         *
          *
          * @param shape  logits       
          * @param logits logits       
@@ -305,7 +305,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         }
 
         /**
-         *                   
+         *
          *
          * @return             
          */

@@ -18,10 +18,10 @@ import java.util.Arrays;
  *                    Translator
  * <p>
  *        KINETICS400              400                      
- *                               
+ *
  * </p>
  * <p>
- *                   
+ *
  * 1.                 224x224
  * 2.             镜像net
  * 3.           CHW       
@@ -109,7 +109,7 @@ public class CommonActionTranslator implements Translator<Image, Classifications
     private String[] labels;
 
     /**
-     *             
+     *
      *
      * @param width                    
      * @param height                   

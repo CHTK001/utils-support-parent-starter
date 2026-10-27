@@ -5,7 +5,7 @@ import lombok.Data;
 
 /**
  * 音乐评论信息
- * 
+ *
  * @author CH
  * @since 4.0.0.42
  */

@@ -81,14 +81,14 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
 
     /**
      * 创建 PpDocLayoutTranslator 实例。
-     *              
+     *
      */
     public PpDocLayoutTranslator() {
         this(Collections.emptyMap());
     }
 
     /**
-     *              
+     *
      *
      * @param arguments                     
      */
@@ -208,7 +208,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     }
 
     /**
-     *                           
+     *
      *
      * @return Batchifier          
      */

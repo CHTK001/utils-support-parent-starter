@@ -47,14 +47,14 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
 
     /**
      * 创建 RealEsrganTranslator 实例。
-     *                              
+     *
      */
     public RealEsrganTranslator() {
         this(4);
     }
 
     /**
-     *                              
+     *
      *
      * @param scale                   2     4   
      */

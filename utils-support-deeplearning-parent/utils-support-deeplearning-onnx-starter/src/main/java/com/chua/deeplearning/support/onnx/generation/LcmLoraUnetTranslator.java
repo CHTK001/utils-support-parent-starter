@@ -18,16 +18,16 @@ import ai.djl.modality.cv.ImageFactory;
  * LCM-lora unet
  * <p>
  * LCM-lora     unet
- *                               
+ *
  * </p>
  * <p>
- *                
+ *
  * -                       
  * -                       
  * -     unet
  * </p>
  * <p>
- *                   
+ *
  * 1.                   
  * 2.                
  * 3.                            
@@ -65,7 +65,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
     }
 
     /**
-     *                   
+     *
      *
      * @param ctx                     
      * @param input             
@@ -98,7 +98,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
     }
 
     /**
-     *                   
+     *
      *
      * @param ctx                    
      * @param list              nd列表
@@ -133,7 +133,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
     }
 
     /**
-     *                   
+     *
      *
      * @return STACK             
      */

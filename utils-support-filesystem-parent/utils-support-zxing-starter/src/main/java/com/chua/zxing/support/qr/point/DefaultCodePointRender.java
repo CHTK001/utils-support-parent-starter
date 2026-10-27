@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 
 /**
  * 码点解析器
- * 
+ *
  * @author CH
  * @since 4.0.0.42
  */

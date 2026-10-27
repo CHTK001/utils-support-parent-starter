@@ -100,7 +100,7 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         this.gradientType = gradientType;
     }
     /**
-     *                
+     *
      *
      * @param progress             
      * @param length                
@@ -354,7 +354,7 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         );
     }
     /**
-     *                                              
+     *
      *
      * @param unit             
      * @param unitName             

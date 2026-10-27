@@ -48,7 +48,7 @@ public class AntPathMatcher implements PathMatcher {
     private final Map<String, String[]> tokenizedPatternCache = new ConcurrentReferenceHashMap<>(256);
     /**
      *                                               AntPathStringMatcher
-     *                                              
+     *
      */
     private final Map<String, AntPathStringMatcher> stringMatcherCache = new ConcurrentReferenceHashMap<>(256);
     /**
@@ -70,7 +70,7 @@ public class AntPathMatcher implements PathMatcher {
         setPathSeparator(pathSeparator);
     }
     /**
-     *                      
+     *
      *
      * @param pathSeparator             {@code null}                           {@link #DEFAULT_PATH_SEPARATOR}
      * @return this
@@ -107,7 +107,7 @@ public class AntPathMatcher implements PathMatcher {
      *        {@code true}                                        
      *        {@code false}                                  
      * <p>                                                                               65536                        
-     *                                                                            
+     *
      *
      * @param cachePatterns                      
      * @return this
@@ -118,7 +118,7 @@ public class AntPathMatcher implements PathMatcher {
         return this;
     }
     /**
-     *                                                          
+     *
      *
      * @param path       
      * @return                   
@@ -148,7 +148,7 @@ public class AntPathMatcher implements PathMatcher {
         return false;
     }
     /**
-     *                                              
+     *
      *
      * @param pattern          
      * @param path          
@@ -159,7 +159,7 @@ public class AntPathMatcher implements PathMatcher {
         return doMatch(pattern, path, true, null);
     }
     /**
-     *                                              
+     *
      *
      * @param pattern          
      * @param path          
@@ -291,7 +291,7 @@ public class AntPathMatcher implements PathMatcher {
         return true;
     }
     /**
-     *                                                    
+     *
      *
      * @param path           
      * @param pattDirs                   
@@ -313,7 +313,7 @@ public class AntPathMatcher implements PathMatcher {
         return true;
     }
     /**
-     *                                  
+     *
      *
      * @param path         
      * @param pos                
@@ -338,7 +338,7 @@ public class AntPathMatcher implements PathMatcher {
         return skipped;
     }
     /**
-     *                            
+     *
      *
      * @param path            
      * @param pos                   
@@ -353,7 +353,7 @@ public class AntPathMatcher implements PathMatcher {
         return skipped;
     }
     /**
-     *                               
+     *
      *
      * @param c       
      * @return                   
@@ -403,7 +403,7 @@ public class AntPathMatcher implements PathMatcher {
         this.stringMatcherCache.clear();
     }
     /**
-     *                                                       
+     *
      *
      * @param path                   
      * @return                         
@@ -412,7 +412,7 @@ public class AntPathMatcher implements PathMatcher {
         return StringUtils.splitToArray(path, this.pathSeparator, 0, this.trimTokens, true);
     }
     /**
-     *                                        
+     *
      *
      * @param pattern                                {@code null}   
      * @param str                                                   {@code null}   
@@ -427,7 +427,7 @@ public class AntPathMatcher implements PathMatcher {
      * <p>                      AntPathMatcher                
      * (       {@link #setCachePatterns})                                              AntPathStringMatcher          
      * <p>                                                          65536         
-     *                                                                                                       
+     *
      * <p>                                                         
      *
      * @param pattern                                {@code null}   
@@ -511,7 +511,7 @@ public class AntPathMatcher implements PathMatcher {
     /**
      * <p>                                             
      *                                                       {@code *.html}      
-     *                                                                         
+     *
      *           {@code IllegalArgumentException}   
      * <p>      </p>
      * <table border="1" summary="">
@@ -580,7 +580,7 @@ public class AntPathMatcher implements PathMatcher {
         return file2 + ext;
     }
     /**
-     *                   
+     *
      *
      * @param path1       1
      * @param path2       2
@@ -601,8 +601,8 @@ public class AntPathMatcher implements PathMatcher {
      *                                                              {@link Comparator}   
      * <p>    {@code Comparator}     {@linkplain List#sort(Comparator)       }
      *                                         URI                            
-     *                                                                                     
-     *                                        
+     *
+     *
      * <ol>
      * <li>{@code /hotels/new}</li>
      * <li>{@code /hotels/{hotel}}</li>
@@ -680,7 +680,7 @@ public class AntPathMatcher implements PathMatcher {
             }
         }
         /**
-         *                                           
+         *
          *
          * @param s              
          * @param start             
@@ -694,7 +694,7 @@ public class AntPathMatcher implements PathMatcher {
             return Pattern.quote(s.substring(start, end));
         }
         /**
-         *                                                       
+         *
          *
          * @param str                           
          * @param uriTemplateVariables URI             
@@ -752,8 +752,8 @@ public class AntPathMatcher implements PathMatcher {
             this.path = path;
         }
         /**
-         *                                                                
-         *                                  
+         *
+         *
          *
          * @param pattern1          1
          * @param pattern2          2
@@ -886,7 +886,7 @@ public class AntPathMatcher implements PathMatcher {
                 return this.uriVars;
             }
             /**
-             *                         
+             *
              *
              * @return                   
              */
@@ -894,7 +894,7 @@ public class AntPathMatcher implements PathMatcher {
                 return this.singleWildcards;
             }
             /**
-             *                         
+             *
              *
              * @return                   
              */
@@ -910,7 +910,7 @@ public class AntPathMatcher implements PathMatcher {
                 return (this.pattern == null || this.catchAllPattern);
             }
             /**
-             *                      
+             *
              *
              * @return                      
              */
@@ -960,7 +960,7 @@ public class AntPathMatcher implements PathMatcher {
             this.endsOnDoubleWildCard = pathSeparator + SYMBOL_ASTERISK_ANY;
         }
         /**
-         *                                     
+         *
          *
          * @return                               
          */
@@ -968,7 +968,7 @@ public class AntPathMatcher implements PathMatcher {
             return this.endsOnWildCard;
         }
         /**
-         *                                     
+         *
          *
          * @return                               
          */

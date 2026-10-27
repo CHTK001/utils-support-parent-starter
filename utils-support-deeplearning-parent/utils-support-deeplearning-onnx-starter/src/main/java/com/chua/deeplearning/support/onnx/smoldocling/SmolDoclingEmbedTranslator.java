@@ -14,11 +14,11 @@ import lombok.extern.slf4j.Slf4j;
  * <p>
  * 令牌 ids
  * <p>
- *                
+ *
  * -     令牌 ids           ndarray
  * -        attention_mask
  * <p>
- *                
+ *
  * -                   
  *
  * @author CH

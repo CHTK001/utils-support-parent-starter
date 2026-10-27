@@ -72,7 +72,7 @@ public final class ProgressSimulator {
     }
     /**
      * <p>
-     *                                              
+     *
      *
      * @param type             
      * @param total                    > 0   
@@ -83,7 +83,7 @@ public final class ProgressSimulator {
         this.current = 0.0;
     }
     /**
-     *                      
+     *
      *
      * @return                            [0, total]                           
      */
@@ -91,7 +91,7 @@ public final class ProgressSimulator {
         return current;
     }
     /**
-     *                
+     *
      *
      * @return          
      */
@@ -99,7 +99,7 @@ public final class ProgressSimulator {
         return total;
     }
     /**
-     *                            
+     *
      *
      * @return                   0-100   
      */
@@ -111,7 +111,7 @@ public final class ProgressSimulator {
     }
     /**
      * <p>
-     *                                           
+     *
      *
      * @return true                   false                
      */
@@ -146,7 +146,7 @@ public final class ProgressSimulator {
     }
     /**
      * <p>
-     *                                                                                                                                     
+     *
      *              total                   
      *
      * @param currentProgress                [0, total]   
@@ -201,7 +201,7 @@ public final class ProgressSimulator {
         return next;
     }
     /**
-     *                               
+     *
      *
      * @param v                
      * @param min          

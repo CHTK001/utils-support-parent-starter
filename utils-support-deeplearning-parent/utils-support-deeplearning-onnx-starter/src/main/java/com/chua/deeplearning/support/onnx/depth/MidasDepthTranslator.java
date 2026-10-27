@@ -51,14 +51,14 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
 
     /**
      * 创建 MidasDepthTranslator 实例。
-     *                   
+     *
      */
     public MidasDepthTranslator() {
         this(MODEL_IMAGE_SIZE, MODEL_IMAGE_SIZE);
     }
 
     /**
-     *             
+     *
      *
      * @param detectResolution                
      * @param imageResolution                 

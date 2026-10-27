@@ -19,25 +19,25 @@ import java.util.List;
  * <p>
  * ONNX Runtime     yolov2 COCO
  * <p>
- *                
+ *
  * -                                  80 COCO          
  * -          yolov2-COCO
  * -                416x416     608x608
  * -                                        
  * <p>
- *                
+ *
  * -                416x416                608x608   
  * -                                                    
  * -             COCO   80             
  * - 锚栓 Boxes          5                 锚栓 boxes
  * <p>
- *                
+ *
  * -                [1, 3, 416, 416] - NCHW   RGB   [0, 1]          
  * -                [1, 125, 13, 13] - (5 * (5 + 80))
  * -                80
  * - 锚栓          5
  * <p>
- *                
+ *
  * -                YOLO9000: Better, Faster, Stronger
  * - ONNX          https://github.com/onnx/models/tree/main/validated/vision/object_detection_segmentation/yolov2-coco
  *
@@ -96,14 +96,14 @@ private static final float[][] ANCHORS = {
 
     /**
      * 创建 Yolov2CocoTranslator 实例。
-     *                                     
+     *
      */
     public Yolov2CocoTranslator() {
         this(416, 0.3f, 0.45f);
     }
 
     /**
-     *             
+     *
      *
      * @param inputSize                      
      * @param threshold                   
@@ -278,7 +278,7 @@ private static final float[][] ANCHORS = {
     /**
      * Non-Maximum Suppression (NMS)
      * <p>
-     *                                                 
+     *
      *
      * @param boxes                       
      * @param probabilities             
@@ -383,7 +383,7 @@ private static final float[][] ANCHORS = {
     }
 
     /**
-     *                   
+     *
      * <p>
      * STACK                    批量
      * 处理输入        [C, H, W] = [3, 416, 416]

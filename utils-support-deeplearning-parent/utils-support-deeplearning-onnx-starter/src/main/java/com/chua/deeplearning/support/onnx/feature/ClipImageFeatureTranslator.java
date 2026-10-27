@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
  * CLIP-vit-B-16-镜像     CLIP-vit-B-32-镜像
  * </p>
  * <p>
- *                  
+ *
  * 1.                                224       
  * 2.                 224x224
  * 3.           RGB       
@@ -58,7 +58,7 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     private static final int IMAGE_SIZE = 224;
 
     /**
-     *                
+     *
      * <p>
      * CLIP                                           
      * </p>
@@ -71,9 +71,9 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     }
 
     /**
-     *                   
+     *
      * <p>
-     *                                                 
+     *
      * 1.                                      224   
      * 2.                 224x224
      * 3.              [0, 1]
@@ -138,9 +138,9 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     }
 
     /**
-     *                   
+     *
      * <p>
-     *                                                       
+     *
      * CLIP vit-B/16     vit-B/32           512
      * </p>
      *
@@ -163,7 +163,7 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     }
 
     /**
-     *                   
+     *
      *
      * @return null                     
      */

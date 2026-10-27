@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * 音乐播放列表搜索结果
- * 
+ *
  * @author CH
  * @since 4.0.0.42
  */

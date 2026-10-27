@@ -22,17 +22,17 @@ import java.util.Map;
  * yolov8
  * <p>
  * yolov8 身份证检测
- *                                  
+ *
  * </p>
  * <p>
- *                
+ *
  * -                               Detection                           
  * -          yolov8-执照-铭牌                           /
  * -                640x640               
  * -                             [0, 1]
  * </p>
  * <p>
- *                
+ *
  * -                [1, 3, 640, 640] - NCHW   RGB          [0, 1]          
  * -                [1, 6, 8400] - (x_center, y_center, w, h, 类1_conf, 类2_conf)
  * -                    NMS                           
@@ -68,9 +68,9 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
     private LetterBoxUtils.ResizeResult letterBoxResult;
 
     /**
-     *                                     
+     *
      * <p>
-     *             
+     *
      * - 输入大小: 640x640
      * - 最小conf阈值: 0.3
      * - iou阈值: 0.5
@@ -105,7 +105,7 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
     }
 
     /**
-     *             
+     *
      *
      * @param inputSize                                            
      * @param minConfThreshold                       [0.0, 1.0]

@@ -581,7 +581,7 @@ public class NumberUtils {
         return v1.divide(v2, scale, roundingMode);
     }
     /**
-     *                                           
+     *
      *
      * @param numerator numerator
      * @param denominator denominator
@@ -594,7 +594,7 @@ public class NumberUtils {
         return numeratorBd.divide(denominatorBd, scale, RoundingMode.HALF_UP).doubleValue();
     }
     /**
-     *                                                                      
+     *
      *
      * @param numerator numerator
      * @param denominator denominator
@@ -604,7 +604,7 @@ public class NumberUtils {
         return divide(numerator, denominator, 2);
     }
     /**
-     *                                           
+     *
      *
      * @param numerator numerator
      * @param denominator denominator
@@ -617,7 +617,7 @@ public class NumberUtils {
         return numeratorBd.divide(denominatorBd, scale, RoundingMode.HALF_UP).doubleValue();
     }
     /**
-     *                                                                      
+     *
      *
      * @param numerator numerator
      * @param denominator denominator
@@ -677,7 +677,7 @@ public class NumberUtils {
         return factorial(n, 1);
     }
     /**
-     *       
+     *
      *
      * @param max 最大
      * @param min 最小
@@ -701,7 +701,7 @@ public class NumberUtils {
         return isDecimals(cleanedNumber);
     }
     /**
-     *                                                             
+     *
      *
      * @param decimals                0-9                           1.23   233.30
      * @return                   true                     false
@@ -788,7 +788,7 @@ public class NumberUtils {
         return NUMBER_NOISE_PATTERN.matcher(str).replaceAll(EMPTY_TEXT);
     }
     /**
-     *                            
+     *
      *
      * @param v1 v1
      * @param v2 v2
@@ -798,7 +798,7 @@ public class NumberUtils {
         return mul(Float.toString(v1), Float.toString(v2)).doubleValue();
     }
     /**
-     *                            
+     *
      *
      * @param v1 v1
      * @param v2 v2
@@ -808,7 +808,7 @@ public class NumberUtils {
         return mul(Float.toString(v1), Double.toString(v2)).doubleValue();
     }
     /**
-     *                            
+     *
      *
      * @param v1 v1
      * @param v2 v2
@@ -818,7 +818,7 @@ public class NumberUtils {
         return mul(Double.toString(v1), Float.toString(v2)).doubleValue();
     }
     /**
-     *                            
+     *
      *
      * @param v1 v1
      * @param v2 v2
@@ -870,7 +870,7 @@ public class NumberUtils {
         return result;
     }
     /**
-     *                            
+     *
      *
      * @param v1 v1
      * @param v2 v2
@@ -917,7 +917,7 @@ public class NumberUtils {
         return result;
     }
     /**
-     *                
+     *
      *
      * @param m m
      * @param n n
@@ -1136,7 +1136,7 @@ public class NumberUtils {
         return current / total * 100.0d;
     }
     /**
-     *                
+     *
      *
      * @param start 启动
      * @param end 结束
@@ -1147,7 +1147,7 @@ public class NumberUtils {
         return IntStream.range(start, end);
     }
     /**
-     *                
+     *
      *
      * @param end 结束
      * @return the 结果
@@ -1157,7 +1157,7 @@ public class NumberUtils {
         return IntStream.range(0, end);
     }
     /**
-     *                
+     *
      *
      * @param end 结束
      * @param consumer consumer
@@ -1167,7 +1167,7 @@ public class NumberUtils {
         IntStream.range(0, end).forEach(consumer);
     }
     /**
-     *                
+     *
      *
      * @param start 启动
      * @param end 结束
@@ -1178,7 +1178,7 @@ public class NumberUtils {
         IntStream.range(start, end).forEach(consumer);
     }
     /**
-     *                
+     *
      *
      * @param end 结束
      * @param consumer consumer
@@ -1188,7 +1188,7 @@ public class NumberUtils {
         IntStream.rangeClosed(0, end).forEach(consumer);
     }
     /**
-     *                
+     *
      *
      * @param start 启动
      * @param end 结束
@@ -1287,7 +1287,7 @@ public class NumberUtils {
         return number.setScale(scale, roundingMode);
     }
     /**
-     *                                              
+     *
      *
      * @param number 数字
      * @param scale scale
@@ -1298,7 +1298,7 @@ public class NumberUtils {
         return roundDown(toBigDecimal(number), scale);
     }
     /**
-     *                                              
+     *
      *
      * @param value 值
      * @param scale scale
@@ -1310,16 +1310,16 @@ public class NumberUtils {
     }
     /**
      * <p>
-     *                                                                                                          
+     *
      * </p>
      *
      * <pre>
      *             :
-     *                         
-     *                         
-     *                         
-     *                         
-     *                         
+     *
+     *
+     *
+     *
+     *
      * </pre>
      *
      * @param number 数字
@@ -1332,16 +1332,16 @@ public class NumberUtils {
     }
     /**
      * <p>
-     *                                                                                                          
+     *
      * </p>
      *
      * <pre>
      *             :
-     *                         
-     *                         
-     *                         
-     *                         
-     *                         
+     *
+     *
+     *
+     *
+     *
      * </pre>
      *
      * @param value 值
@@ -1433,7 +1433,7 @@ public class NumberUtils {
         return bigDecimal.setScale(scale < 0 ? 2 : scale, RoundingMode.HALF_UP);
     }
     /**
-     *             
+     *
      *
      * @param size 大小
      * @param realSize real大小
@@ -1484,7 +1484,7 @@ public class NumberUtils {
         return y;
     }
     /**
-     *                            
+     *
      *
      * @param v1 v1
      * @param v2 v2
@@ -1494,7 +1494,7 @@ public class NumberUtils {
         return sub(Float.toString(v1), Float.toString(v2)).doubleValue();
     }
     /**
-     *                            
+     *
      *
      * @param v1 v1
      * @param v2 v2
@@ -1504,7 +1504,7 @@ public class NumberUtils {
         return sub(Float.toString(v1), Double.toString(v2)).doubleValue();
     }
     /**
-     *                            
+     *
      *
      * @param v1 v1
      * @param v2 v2
@@ -1514,7 +1514,7 @@ public class NumberUtils {
         return sub(Double.toString(v1), Float.toString(v2)).doubleValue();
     }
     /**
-     *                            
+     *
      *
      * @param v1 v1
      * @param v2 v2
@@ -1524,7 +1524,7 @@ public class NumberUtils {
         return sub(Double.toString(v1), Double.toString(v2)).doubleValue();
     }
     /**
-     *                            
+     *
      *
      * @param v1 v1
      * @param v2 v2
@@ -1611,7 +1611,7 @@ public class NumberUtils {
         return result;
     }
     /**
-     *                                     
+     *
      *
      * @param minuend minuend
      * @param reduction 减少
@@ -1625,7 +1625,7 @@ public class NumberUtils {
         return minuendBd.subtract(reductionBd, mathContext).doubleValue();
     }
     /**
-     *          
+     *
      *
      * @param minuend minuend
      * @param reduction 减少
@@ -2322,7 +2322,7 @@ public class NumberUtils {
         return (value.startsWith(Hex.PREFIX, index) || value.startsWith(Hex.PREFIX_UPPER, index) || value.startsWith(SYMBOL_HASH, index));
     }
     /**
-     *                         
+     *
      *
      * @param x x
      * @param y y
@@ -2334,7 +2334,7 @@ public class NumberUtils {
         return Character.compare(x, y);
     }
     /**
-     *                         
+     *
      *
      * @param x x
      * @param y y
@@ -2346,7 +2346,7 @@ public class NumberUtils {
         return Double.compare(x, y);
     }
     /**
-     *                         
+     *
      *
      * @param x x
      * @param y y
@@ -2358,7 +2358,7 @@ public class NumberUtils {
         return Integer.compare(x, y);
     }
     /**
-     *                         
+     *
      *
      * @param x x
      * @param y y
@@ -2370,7 +2370,7 @@ public class NumberUtils {
         return Long.compare(x, y);
     }
     /**
-     *                         
+     *
      *
      * @param x x
      * @param y y
@@ -2382,7 +2382,7 @@ public class NumberUtils {
         return Short.compare(x, y);
     }
     /**
-     *                         
+     *
      *
      * @param x x
      * @param y y
@@ -2724,7 +2724,7 @@ public class NumberUtils {
         return false;
     }
     /**
-     *       
+     *
      *
      * @param data 数据
      * @return the 结果
@@ -2743,7 +2743,7 @@ public class NumberUtils {
         return dVar / m;
     }
     /**
-     *          
+     *
      *
      * @return the 结果
      * @param data 数据
@@ -2775,7 +2775,7 @@ public class NumberUtils {
         return Math.sqrt(dVar / m);
     }
     /**
-     *       
+     *
      *
      * @param x            x   
      * @param mean mean
@@ -2787,7 +2787,7 @@ public class NumberUtils {
         return Math.pow(Math.exp(-(((x - mean) * (x - mean)) / ((2 * variance)))), 1 / (stdDeviation * Math.sqrt(2 * Math.PI)));
     }
     /**
-     *                
+     *
      *
      * @param value 值
      * @param defaultValue 默认值

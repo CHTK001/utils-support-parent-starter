@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
  * 基于ONNX Runtime实现的lama图像修复模型推理
  * 支持CPU和GPU推理，提供图像修复功能
  * </p>
- * 
+ *
  * <p>
  * 使用此类需要添加以下依赖：
  * <pre>
