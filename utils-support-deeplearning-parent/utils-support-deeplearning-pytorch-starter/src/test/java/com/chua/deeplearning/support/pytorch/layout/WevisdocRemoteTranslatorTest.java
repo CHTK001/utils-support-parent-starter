@@ -153,10 +153,18 @@ public class WevisdocRemoteTranslatorTest {
         boolean hasFigure = false;
         boolean hasEquation = false;
         for (String label : labels) {
-            if ("paragraph_title".equals(label)) hasHeader = true;
-            if ("list".equals(label)) hasList = true;
-            if ("figure".equals(label)) hasFigure = true;
-            if ("equation".equals(label)) hasEquation = true;
+            if ("paragraph_title".equals(label)) {
+                hasHeader = true;
+            }
+            if ("list".equals(label)) {
+                hasList = true;
+            }
+            if ("figure".equals(label)) {
+                hasFigure = true;
+            }
+            if ("equation".equals(label)) {
+                hasEquation = true;
+            }
         }
         assertTrue(hasHeader, "should have paragraph_title");
         assertTrue(hasList, "should have list");
