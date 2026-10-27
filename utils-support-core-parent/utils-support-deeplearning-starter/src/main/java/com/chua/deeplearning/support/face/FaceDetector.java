@@ -96,15 +96,62 @@ public interface FaceDetector {
     }
 
     /**
+     * 人脸检测权重在模型根下的目录段。
+     *
+     * <p>刻意用 {@code face/detection/} 而不是更宽松的 {@code face/}：后者会把
+     * {@code face/attribute/genderage}、{@code face/landmark/2d106det} 一并算进来
+     * —— 它们确实是「人脸权重」，但不是检测器（写这条规则时被测试抓到过）。
+     * 本方法只服务于「人脸检测器清单」，所以按检测器实际所在的目录段判定；
+     * 本仓 6 个人脸检测器权重（SCRFD / RetinaFace / TinaFace / YOLO-Face /
+     * FacePlugin / UltraFace）全部落在 {@code face/detection/} 下。</p>
+     *
+     * <p>同时用路径段而不是子串匹配：{@code vision/face-mask-detector/} 与
+     * {@code vision/detection/anime-face/} 都不含独立的 {@code face/detection/} 段，
+     * 不会被误纳。</p>
+     */
+    String FACE_WEIGHT_SEGMENT = "face/detection/";
+
+    /**
+     * 权重路径是否是人脸检测模型。
+     *
+     * @param relativePath 注册表里声明的模型权重相对路径，可为 空
+     * @return true 表示是人脸检测权重
+     */
+    static boolean isFaceWeightPath(String relativePath) {
+        if (relativePath == null || relativePath.isBlank()) {
+            return false;
+        }
+        String normalized = relativePath.replace('\\', '/').toLowerCase();
+        // 头部与中间两种形态都要覆盖：face/detection/... 与 models/onnx/face/detection/...
+        return normalized.startsWith(FACE_WEIGHT_SEGMENT) || normalized.contains("/" + FACE_WEIGHT_SEGMENT);
+    }
+
+    /**
      * 查询该能力下全部可用模型。
      *
-     * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
-     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
+     * <p><b>为什么要补一路 {@code ImageDetector}</b>：注册表里「人脸检测」是用两个
+     * 能力位标的 —— 只有 {@code opencv-face} 声明了 {@link FaceDetector}，而真正可用的
+     * 人脸检测器（SCRFD / RetinaFace / TinaFace / YOLO-Face / FacePlugin）声明的都是
+     * {@code ImageDetector}。只按单一能力位枚举会让页面/提示词里只剩一个
+     * {@code opencv-face}：它的权重在模型仓里取不到，选中即报「模型文件不存在」，
+     * 用户看着一份「不可用清单」却无从下手。</p>
+     *
+     * <p>能力位是注册时的**标签**，与 translator 的类型继承无关（translator 实现的是
+     * {@code Translator}），所以这里只是把清单补全，不改变任何模型的创建路径。</p>
      *
      * @return 模型 标识 列表
      */
     static List<String> listModels() {
-        return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.face.FaceDetector.class);
+        java.util.LinkedHashSet<String> ids = new java.util.LinkedHashSet<>(
+                com.chua.deeplearning.support.engine.ModelRegistry
+                        .getModelIdsByCapability(com.chua.deeplearning.support.face.FaceDetector.class));
+        com.chua.deeplearning.support.engine.ModelRegistry
+                .getAllByCapability(com.chua.deeplearning.support.image.ImageDetector.class)
+                .stream()
+                .filter(entry -> isFaceWeightPath(entry.relativePath()))
+                .map(com.chua.deeplearning.support.engine.ModelRegistry.Entry::modelId)
+                .forEach(ids::add);
+        return List.copyOf(ids);
     }
 
 
