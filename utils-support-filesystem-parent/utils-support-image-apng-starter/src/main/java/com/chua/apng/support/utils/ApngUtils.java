@@ -369,10 +369,10 @@ public class ApngUtils {
             return frameCount > 1;
         }
 
-        @Override
         /**
          * 转为字符串
         */
+        @Override
         public String toString() {
         
             return String.format("ApngInfo{frames=%d, size=%dx%d, animated=%s}", 

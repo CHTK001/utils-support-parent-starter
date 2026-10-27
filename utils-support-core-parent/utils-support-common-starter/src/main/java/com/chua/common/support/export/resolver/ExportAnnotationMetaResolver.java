@@ -25,16 +25,15 @@ import java.util.List;
 @Spi(value = {"export", "chua", "annotation"}, order = MetaResolverOrders.CUSTOM)
 public class ExportAnnotationMetaResolver implements MetaResolver {
 
-    @Override
     /**
      * 优先级
      * @return 优先级 对象
      */
+    @Override
     public int order() {
         return MetaResolverOrders.CUSTOM;
     }
 
-    @Override
     /**
      * 是否支持
      *
@@ -45,16 +44,17 @@ public class ExportAnnotationMetaResolver implements MetaResolver {
      * @param type 数据行类型
      * @return 是否支持 对象
      */
+    @Override
     public boolean supports(Class<?> type) {
         return type != null && !type.isPrimitive();
     }
 
-    @Override
     /**
      * 解析
      * @param type 数据行类型
      * @param meta 元数据容器
      */
+    @Override
     public void resolve(Class<?> type, DocumentMeta meta) {
         ExportSheet sheet = type.getAnnotation(ExportSheet.class);
         if (sheet != null) {

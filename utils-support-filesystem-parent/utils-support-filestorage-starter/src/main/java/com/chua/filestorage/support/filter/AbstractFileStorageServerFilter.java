@@ -290,18 +290,18 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
         return flashService;
     }
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         return 80;
     }
 
-    @Override
     /**
      * 支持路径
     */
+    @Override
     public String supportPath() {
         return "/**";
     }

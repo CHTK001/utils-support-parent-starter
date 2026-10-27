@@ -198,145 +198,145 @@ public class KimiChatClient implements ChatClient {
         this.session = new KimiSession(setting.getAppKey(), setting.getBaseUrl());
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public ChatClient model(String model) {
         this.model = model;
         return this;
     }
 
-    @Override
     /**
      * Temperature
     */
+    @Override
     public ChatClient temperature(double temperature) {
         this.temperature = temperature;
         return this;
     }
 
-    @Override
     /**
      * 最大值令牌
     */
+    @Override
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
-    @Override
     /**
      * 系统
     */
+    @Override
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
-    @Override
     /**
      * extra主体
     */
+    @Override
     public ChatClient extraBody(Map<String, Object> extraBody) {
         this.extraBody = extraBody;
         return this;
     }
 
-    @Override
     /**
      * Thinking
     */
+    @Override
     public ChatClient thinking(boolean thinking) {
         this.thinking = thinking;
         return this;
     }
 
-    @Override
     /**
      * Smart搜索
     */
+    @Override
     public ChatClient smartSearch(boolean smartSearch) {
         this.smartSearch = smartSearch;
         return this;
     }
 
-    @Override
     /**
      * Skill
     */
+    @Override
     public ChatClient skill(SkillManager skillManager) {
         this.skillManager = skillManager;
         return this;
     }
 
-    @Override
     /**
      * topp
     */
+    @Override
     public ChatClient topP(Double topP) {
         this.topP = topP;
         return this;
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public ChatClient stop(List<String> stop) {
         this.stop = stop;
         return this;
     }
 
-    @Override
     /**
      * Seed
     */
+    @Override
     public ChatClient seed(Long seed) {
         this.seed = seed;
         return this;
     }
 
-    @Override
     /**
      * 响应格式化
     */
+    @Override
     public ChatClient responseFormat(String responseFormat) {
         this.responseFormat = responseFormat;
         return this;
     }
 
-    @Override
     /**
      * 添加镜像
     */
+    @Override
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
     }
 
-    @Override
     /**
      * 添加Attachment
     */
+    @Override
     public ChatClient addAttachment(String name, byte[] data, String mimeType) {
         this.attachments.add(Attachment.builder().name(name).data(data).mimeType(mimeType).build());
         return this;
     }
 
-    @Override
     /**
      * 添加attachmenturl
     */
+    @Override
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         this.attachments.add(Attachment.builder().name(name).url(url).mimeType(mimeType).build());
         return this;
     }
 
-    @Override
     /**
      * Tools
     */
+    @Override
     public ChatClient tools(List<ChatTool> tools) {
         this.tools.clear();
         if (tools != null) {
@@ -345,10 +345,10 @@ public class KimiChatClient implements ChatClient {
         return this;
     }
 
-    @Override
     /**
      * Tool
     */
+    @Override
     public ChatClient tool(ChatTool tool) {
         if (tool != null) {
             this.tools.add(tool);
@@ -356,55 +356,55 @@ public class KimiChatClient implements ChatClient {
         return this;
     }
 
-    @Override
     /**
      * toolchoice
     */
+    @Override
     public ChatClient toolChoice(String toolChoice) {
         this.toolChoice = toolChoice;
         return this;
     }
 
-    @Override
     /**
      * 添加用户历史
     */
+    @Override
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
-    @Override
     /**
      * 添加assistant历史
     */
+    @Override
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
-    @Override
     /**
      * 历史
     */
+    @Override
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
-    @Override
     /**
      * 会话
     */
+    @Override
     public ChatClient session(String sessionId) {
         this.conversationId = sessionId;
         return this;
     }
 
-    @Override
     /**
      * 新对话
     */
+    @Override
     public ChatClient newChat() {
         this.history.clear();
         this.externalHistory = null;
@@ -415,10 +415,10 @@ public class KimiChatClient implements ChatClient {
         return this;
     }
 
-    @Override
     /**
      * 对话同步
     */
+    @Override
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         chat(prompt, response -> {
@@ -430,10 +430,10 @@ public class KimiChatClient implements ChatClient {
         return result.toString();
     }
 
-    @Override
     /**
      * 对话
     */
+    @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         this.chat(prompt, consumer, () -> {
         }, e -> {
@@ -441,7 +441,6 @@ public class KimiChatClient implements ChatClient {
         });
     }
 
-    @Override
     /**
      * 对话
      * @param prompt 提示符
@@ -449,6 +448,7 @@ public class KimiChatClient implements ChatClient {
      * @param onComplete on完成
      * @param onError on错误
      */
+    @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         long startTime = System.currentTimeMillis();
@@ -549,7 +549,6 @@ public class KimiChatClient implements ChatClient {
         }
     }
 
-    @Override
     /**
      * generate镜像
      * @param prompt 提示符
@@ -560,6 +559,7 @@ public class KimiChatClient implements ChatClient {
      * @param quality quality
      * @param refImageKey ref镜像键
      */
+    @Override
     public ImageGenerationResult generateImage(String prompt, String ratio, int n,
                                                int width, int height, String quality,
                                                String refImageKey) {
@@ -574,7 +574,6 @@ public class KimiChatClient implements ChatClient {
         return new ImageGenerationResult(images, prompt);
     }
 
-    @Override
     /**
      * generate视频
      * @param prompt 提示符
@@ -583,6 +582,7 @@ public class KimiChatClient implements ChatClient {
      * @param refImageKey ref镜像键
      * @param timeoutSeconds 超时seconds
      */
+    @Override
     public VideoGenerationResult generateVideo(String prompt, String ratio,
                                                String cameraMovement, String refImageKey,
                                                int timeoutSeconds) {
@@ -603,10 +603,10 @@ public class KimiChatClient implements ChatClient {
         return new VideoGenerationResult(videos, prompt);
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         session.close();
     }
@@ -667,7 +667,8 @@ try {
                                 text.append(content);
                             }
                         }
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        log.debug("[kimi] 解析流式响应分片失败，跳过该分片: {}", e.getMessage());
                     }
                 }
             }

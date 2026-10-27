@@ -30,10 +30,10 @@ public class R50FaceFeatureTranslator implements Translator<Image, float[]> {
      */
     private static final int INPUT_SIZE = 448;
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         // 纯 Java 预处理：resize 到 448x448，RGB 归一化到 [0,1]，NHWC 布局
         BufferedImage src = (BufferedImage) input.getWrappedImage();
@@ -54,10 +54,10 @@ public class R50FaceFeatureTranslator implements Translator<Image, float[]> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         // 输出形状 [1, N]，取第一行作为特征向量
         NDArray output = list.singletonOrThrow();

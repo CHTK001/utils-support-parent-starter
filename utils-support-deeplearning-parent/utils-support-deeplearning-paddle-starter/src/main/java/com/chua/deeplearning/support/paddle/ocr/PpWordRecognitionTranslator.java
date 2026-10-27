@@ -51,10 +51,10 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
         this.useSpaceChar = useSpaceChar;
     }
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(TranslatorContext ctx) throws IOException {
         Model model = ctx.getModel();
         try (InputStream is = openVocabulary(model)) {
@@ -92,10 +92,10 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
         throw new IOException("OCR 字典未找到，请将 keys 文件放入模型目录");
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public String processOutput(TranslatorContext ctx, NDList list) {
         StringBuilder sb = new StringBuilder();
         NDArray tokens = list.singletonOrThrow();
@@ -120,10 +120,10 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
         return sb.toString();
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray img = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         int imgC = 3;
@@ -150,10 +150,10 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
         return new NDList(paddingIm);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

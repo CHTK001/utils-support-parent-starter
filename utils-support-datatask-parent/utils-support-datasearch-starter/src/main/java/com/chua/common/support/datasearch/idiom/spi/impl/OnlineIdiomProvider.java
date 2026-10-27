@@ -91,18 +91,18 @@ public class OnlineIdiomProvider implements IdiomProvider {
         this.httpClient = HttpClientFactory.getClient();
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "chinese-xinhua";
     }
 
-    @Override
     /**
      * 获取Idiom
     */
+    @Override
     public IdiomInfo get(String word) {
         if (word == null || word.isBlank()) {
             return null;
@@ -110,10 +110,10 @@ public class OnlineIdiomProvider implements IdiomProvider {
         return loadIndex().get(word.trim());
     }
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public List<IdiomInfo> search(String keyword, int limit) {
         if (keyword == null || keyword.isBlank()) {
             return Collections.emptyList();
@@ -131,10 +131,10 @@ public class OnlineIdiomProvider implements IdiomProvider {
         return result;
     }
 
-    @Override
     /**
      * 随机
     */
+    @Override
     public IdiomInfo random() {
         Map<String, IdiomInfo> idx = loadIndex();
         if (idx.isEmpty()) {
@@ -144,10 +144,10 @@ public class OnlineIdiomProvider implements IdiomProvider {
         return values.get(ThreadLocalRandom.current().nextInt(values.size()));
     }
 
-    @Override
     /**
      * 成语接龙
     */
+    @Override
     public List<IdiomInfo> chain(String text, int limit) {
         if (text == null || text.isBlank()) {
             return Collections.emptyList();
@@ -158,10 +158,10 @@ public class OnlineIdiomProvider implements IdiomProvider {
         return findByFirstChar(firstChar, limit);
     }
 
-    @Override
     /**
      * 按首字查找
     */
+    @Override
     public List<IdiomInfo> findByFirstChar(String firstChar, int limit) {
         if (firstChar == null || firstChar.isBlank()) {
             return Collections.emptyList();

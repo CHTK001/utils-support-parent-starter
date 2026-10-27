@@ -189,10 +189,10 @@ public class QwenBrowserSession implements AutoCloseable {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         Exception ex = null;
         try {

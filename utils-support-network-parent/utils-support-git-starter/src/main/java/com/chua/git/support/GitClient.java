@@ -208,10 +208,10 @@ public class GitClient implements AutoCloseable {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         if (git != null) {
             git.close();

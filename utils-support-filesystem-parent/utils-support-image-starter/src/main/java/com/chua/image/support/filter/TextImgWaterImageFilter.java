@@ -208,10 +208,10 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
         return width;
     }
 
-    @Override
     /**
      * 过滤
     */
+    @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         
         return waterFilter(src, dst);

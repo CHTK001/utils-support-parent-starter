@@ -83,18 +83,18 @@ public class BingEmojiProvider implements EmojiProvider {
         this.httpClient = HttpClientFactory.getClient();
     }
 
-    @Override
     /**
      * 名称
      */
+    @Override
     public String name() {
         return "bing";
     }
 
-    @Override
     /**
      * 搜索
      */
+    @Override
     public List<EmojiInfo> search(String keyword, int page) {
         if (keyword == null || keyword.isBlank()) {
             return Collections.emptyList();

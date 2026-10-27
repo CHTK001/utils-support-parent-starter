@@ -27,26 +27,26 @@ import java.util.concurrent.TimeoutException;
 @Spi("com.chua.common.support.concurrent.timeout.annotation.Timeout")
 public class TimeoutIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<Timeout> {
 
-    @Override
     /**
      * 注解类型
     */
+    @Override
     public Class<Timeout> annotationType() {
         return Timeout.class;
     }
 
-    @Override
     /**
      * 订单
     */
+    @Override
     public int order() {
         return 100;
     }
 
-    @Override
     /**
      * Intercept
     */
+    @Override
     public Object intercept(Timeout annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
  // 解析超时名称（支持 spel），未填使用 类名.方法名
         String name = resolveName(annotation.name(), proxyMethod);

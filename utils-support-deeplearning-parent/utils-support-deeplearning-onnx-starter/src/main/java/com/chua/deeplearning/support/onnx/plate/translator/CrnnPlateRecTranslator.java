@@ -55,10 +55,10 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
     */
     private static final String PROVINCES = "                                                                                             ";
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
 
@@ -79,10 +79,10 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public PlateResult processOutput(TranslatorContext ctx, NDList list) {
  // 铭牌 logits + color logits
         // (0);  // shape: [1, T, num_classes]
@@ -206,10 +206,10 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
         return PROVINCES.indexOf(c) >= 0;
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

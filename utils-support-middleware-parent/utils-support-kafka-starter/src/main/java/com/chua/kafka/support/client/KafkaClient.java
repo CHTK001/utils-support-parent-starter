@@ -229,10 +229,10 @@ public class KafkaClient implements AutoCloseable {
         return new AdminOperation(this);
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         shutdown();
     }

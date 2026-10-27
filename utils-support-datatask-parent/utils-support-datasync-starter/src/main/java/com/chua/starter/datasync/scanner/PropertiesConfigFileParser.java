@@ -16,19 +16,19 @@ import java.util.*;
  */
 public class PropertiesConfigFileParser implements ConfigFileParser {
 
-    @Override
     /**
      * 支持
     */
+    @Override
     public boolean supports(Path file) {
         String name = file.getFileName().toString().toLowerCase();
         return name.endsWith(".properties");
     }
 
-    @Override
     /**
      * 解析
     */
+    @Override
     public DataSyncConfigDefinition parse(Path file) throws Exception {
         Properties props = new Properties();
         try (InputStream is = Files.newInputStream(file)) {
@@ -42,13 +42,13 @@ public class PropertiesConfigFileParser implements ConfigFileParser {
         return new YamlConfigFileParser().mapToConfig(nested);
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 构建嵌套映射
      *
      * @param flat flat
      * @return 构建嵌套映射的结果
      */
+    @SuppressWarnings("unchecked")
     private static Map<String, Object> buildNestedMap(Map<String, Object> flat) {
         Map<String, Object> result = Wraps.linkedMap();
         for (Map.Entry<String, Object> entry : flat.entrySet()) {

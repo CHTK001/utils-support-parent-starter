@@ -269,10 +269,10 @@ public class QQWryReader implements Closeable {
         return r;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         // 无需释放资源，因为数据已加载到内存
     }

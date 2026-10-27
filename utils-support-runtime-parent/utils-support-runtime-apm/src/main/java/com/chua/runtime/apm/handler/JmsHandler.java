@@ -39,52 +39,52 @@ public class JmsHandler extends AbstractAppHandler {
      */
     private static final String[] SESSION_METHODS = {"createProducer", "createConsumer", "createDurableConsumer"};
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "jms-handler";
     }
 
-    @Override
     /**
      * 已启用键
     */
+    @Override
     protected String enabledKey() {
         return "jms.enabled";
     }
 
-    @Override
     /**
      * Software
     */
+    @Override
     protected Software software() {
         return Software.JMS_CLIENT;
     }
 
-    @Override
     /**
      * 协议
     */
+    @Override
     protected Protocol protocol() {
         return Protocol.JMS;
     }
 
-    @Override
     /**
      * 注册拦截器
     */
+    @Override
     protected void registerInterceptors() {
         registerAll(MESSAGE_PRODUCER, PRODUCER_METHODS);
         registerAll(MESSAGE_CONSUMER, CONSUMER_METHODS);
         registerAll(SESSION, SESSION_METHODS);
     }
 
-    @Override
     /**
      * 构建Target
     */
+    @Override
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

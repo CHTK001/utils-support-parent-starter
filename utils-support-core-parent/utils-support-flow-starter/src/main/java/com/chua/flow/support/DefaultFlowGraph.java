@@ -56,10 +56,10 @@ public class DefaultFlowGraph implements FlowGraph {
         this.flow = flow;
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public FlowGraph start(String nodeId) {
         checkNode(nodeId);
         this.startNodeId = nodeId;
@@ -67,10 +67,10 @@ public class DefaultFlowGraph implements FlowGraph {
         return this;
     }
 
-    @Override
     /**
      * 下一个
     */
+    @Override
     public FlowGraph next(String... nodeIds) {
         if (nodeIds == null || nodeIds.length == 0) {
             throw new FlowException("next 必须指定至少一个节点");
@@ -86,10 +86,10 @@ public class DefaultFlowGraph implements FlowGraph {
         return this;
     }
 
-    @Override
     /**
      * When.js.js.js
     */
+    @Override
     public FlowGraph when(String nodeId, boolean result, String... targets) {
         checkNode(nodeId);
         if (targets == null || targets.length == 0) {
@@ -103,10 +103,10 @@ public class DefaultFlowGraph implements FlowGraph {
         return this;
     }
 
-    @Override
     /**
      * 结束
     */
+    @Override
     public FlowGraph end(String... nodeIds) {
         String[] targets = nodeIds;
         if (targets == null || targets.length == 0) {
@@ -122,18 +122,18 @@ public class DefaultFlowGraph implements FlowGraph {
         return this;
     }
 
-    @Override
     /**
      * 创建Instance
     */
+    @Override
     public FlowInstance createInstance() {
         return createInstance(Collections.emptyMap());
     }
 
-    @Override
     /**
      * 创建Instance
     */
+    @Override
     public FlowInstance createInstance(Map<String, Object> params) {
         String resolvedStart = startNodeId != null ? startNodeId : flow.resolveStartNodeId();
         if (resolvedStart == null) {
@@ -142,10 +142,10 @@ public class DefaultFlowGraph implements FlowGraph {
         return new DefaultFlowInstance(flow, resolvedStart, params);
     }
 
-    @Override
     /**
      * 导出json
     */
+    @Override
     public String exportJson() {
         return FlowJson.toJson(flow.getDefinition());
     }

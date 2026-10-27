@@ -102,14 +102,14 @@ public class DubboRpcClient implements RpcClient {
         return config;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 获取
      *
      * @param targetType 目标类型
      * @return 获取的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> T get(Class<T> targetType) {
         ReferenceConfig<T> reference = (ReferenceConfig<T>) referenceCache.computeIfAbsent(targetType, type -> {
             ReferenceConfig<T> ref = new ReferenceConfig<>();
@@ -141,10 +141,10 @@ public class DubboRpcClient implements RpcClient {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         for (ReferenceConfig<?> reference : referenceCache.values()) {
             try {

@@ -33,10 +33,10 @@ public class OnnxLivenessDetector implements LivenessDetector {
     public OnnxLivenessDetector(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public LivenessDetector model(String model) {
         this.modelName = model;
         return this;
@@ -56,45 +56,45 @@ public class OnnxLivenessDetector implements LivenessDetector {
         return modelName;
     }
 
-    @Override
     /**
      * 阈值
     */
+    @Override
     public LivenessDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public LivenessDetector modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public LivenessDetector device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * 是否Live
     */
+    @Override
     public boolean isLive(byte[] imageData) {
         return LivenessDetector.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).isLive(imageData);
     }
 
-    @Override
     /**
      * livescore
     */
+    @Override
     public float liveScore(byte[] imageData) {
         return LivenessDetector.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).liveScore(imageData);
     }

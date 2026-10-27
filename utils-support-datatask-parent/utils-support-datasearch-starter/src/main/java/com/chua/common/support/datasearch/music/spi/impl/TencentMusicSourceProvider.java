@@ -48,10 +48,10 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     */
     private static final String MUSICU_URL = "https://u.y.qq.com/cgi-bin/musicu.fcg";
 
-    @Override
     /**
      * 获取源
     */
+    @Override
     public MusicSourceOption getSource() {
         return MusicSourceOption.builder()
                 .code("tx")
@@ -61,20 +61,20 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
                 .build();
     }
 
-    @Override
     /**
      * 获取Overview
     */
+    @Override
     public MusicOverview getOverview() {
         List<String> hotKeywords = fetchHotKeywords();
         List<MusicPlaylistSummary> featured = getCategoryPlaylists("", 1, 12).getPlaylists();
         return overviewOf(hotKeywords, featured);
     }
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public MusicSearchResult search(String keyword, int page, int pageSize) {
         Map<String, Object> request = Wraps.linkedMap();
         Map<String, Object> comm = Wraps.linkedMap();
@@ -136,10 +136,10 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
         return searchResult(keyword, page, pageSize, longValue(data, "meta", "estimate_sum"), tracks);
     }
 
-    @Override
     /**
      * 搜索Playlists
     */
+    @Override
     public MusicPlaylistSearchResult searchPlaylists(String keyword, int page, int pageSize) {
         String url = "http://c.y.qq.com/soso/fcgi-bin/client_music_search_songlist?page_no=" + Math.max(0, page - 1)
                 + "&num_per_page=" + pageSize
@@ -171,10 +171,10 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
                 .build();
     }
 
-    @Override
     /**
      * 获取playlist分类catalog
     */
+    @Override
     public MusicPlaylistCategoryCatalog getPlaylistCategoryCatalog() {
         JsonNode root = getJson("https://u.y.qq.com/cgi-bin/musicu.fcg?loginUin=0&hostUin=0&format=json&inCharset=utf-8&outCharset=utf-8&notice=0&platform=wk_v15.json&needNewCode=0&data=%7B%22tags%22%3A%7B%22method%22%3A%22get_all_categories%22%2C%22param%22%3A%7B%22qq%22%3A%22%22%7D%2C%22module%22%3A%22playlist.PlaylistAllCategoriesServer%22%7D%7D");
         List<MusicPlaylistCategoryGroup> groups = Wraps.list();
@@ -219,10 +219,10 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
                 .build();
     }
 
-    @Override
     /**
      * 获取分类playlists
     */
+    @Override
     public MusicPlaylistCategoryResult getCategoryPlaylists(String tagId, int page, int pageSize) {
         JsonNode playlist;
         if (StringUtils.hasText(tagId)) {
@@ -274,10 +274,10 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
                 .build();
     }
 
-    @Override
     /**
      * 获取playlistdetail
     */
+    @Override
     public MusicPlaylistDetail getPlaylistDetail(String playlistId) {
         String url = "https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg?type=1&json=1&utf8=1&onlysong=0&new_format=1&disstid="
                 + encode(playlistId)
@@ -305,10 +305,10 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
                 .build();
     }
 
-    @Override
     /**
      * 获取trackdetail
     */
+    @Override
     public MusicTrackDetail getTrackDetail(String trackId) {
         JsonNode item = path(postJson(MUSICU_URL, Map.of(
                 "comm", Map.of("ct", "19", "cv", "1859", "uin", "0"),

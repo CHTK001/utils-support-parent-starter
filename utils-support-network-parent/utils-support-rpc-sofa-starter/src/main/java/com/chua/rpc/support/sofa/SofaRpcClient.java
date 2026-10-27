@@ -66,14 +66,14 @@ public class SofaRpcClient implements RpcClient {
 
 
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 获取
      *
      * @param targetType 目标类型
      * @return 获取的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> T get(Class<T> targetType) {
         ConsumerConfig<T> config = (ConsumerConfig<T>) consumerCache.computeIfAbsent(targetType, type -> {
             ConsumerConfig<T> c = new ConsumerConfig<>();
@@ -99,10 +99,10 @@ public class SofaRpcClient implements RpcClient {
         return config.refer();
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() throws Exception {
         for (ConsumerConfig<?> config : consumerCache.values()) {
             try {

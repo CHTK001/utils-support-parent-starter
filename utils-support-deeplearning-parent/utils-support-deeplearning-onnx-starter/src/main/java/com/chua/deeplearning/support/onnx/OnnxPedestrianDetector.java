@@ -28,10 +28,10 @@ public class OnnxPedestrianDetector implements PedestrianDetector {
     public OnnxPedestrianDetector(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public PedestrianDetector model(String model) {
         this.modelName = model;
         return this;
@@ -50,19 +50,19 @@ public class OnnxPedestrianDetector implements PedestrianDetector {
         return modelName;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public PedestrianDetector device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * Detect
     */
+    @Override
     public List<DetectionInfo> detect(byte[] imageData) {
         return ImageDetector.create(resolveModel()).device(device).detect(imageData);
     }

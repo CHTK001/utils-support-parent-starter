@@ -165,145 +165,145 @@ public class QwenProxyChatClient implements ChatClient {
         this.session.init();
     }
 
-    @Override
     /**
      * Model
     */
+    @Override
     public ChatClient model(String model) {
         this.model = model;
         return this;
     }
 
-    @Override
     /**
      * Temperature
     */
+    @Override
     public ChatClient temperature(double temperature) {
         this.temperature = temperature;
         return this;
     }
 
-    @Override
     /**
      * 最大值Tokens
     */
+    @Override
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
-    @Override
     /**
      * System
     */
+    @Override
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
-    @Override
     /**
      * ExtraBody
     */
+    @Override
     public ChatClient extraBody(Map<String, Object> extraBody) {
         this.extraBody = extraBody;
         return this;
     }
 
-    @Override
     /**
      * Thinking
     */
+    @Override
     public ChatClient thinking(boolean thinking) {
         this.thinking = thinking;
         return this;
     }
 
-    @Override
     /**
      * Smart搜索
     */
+    @Override
     public ChatClient smartSearch(boolean smartSearch) {
         this.smartSearch = smartSearch;
         return this;
     }
 
-    @Override
     /**
      * Skill
     */
+    @Override
     public ChatClient skill(SkillManager skillManager) {
         this.skillManager = skillManager;
         return this;
     }
 
-    @Override
     /**
      * TopP
     */
+    @Override
     public ChatClient topP(Double topP) {
         this.topP = topP;
         return this;
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public ChatClient stop(List<String> stop) {
         this.stop = stop;
         return this;
     }
 
-    @Override
     /**
      * Seed
     */
+    @Override
     public ChatClient seed(Long seed) {
         this.seed = seed;
         return this;
     }
 
-    @Override
     /**
      * Response格式化
     */
+    @Override
     public ChatClient responseFormat(String responseFormat) {
         this.responseFormat = responseFormat;
         return this;
     }
 
-    @Override
     /**
      * 添加Image
     */
+    @Override
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
     }
 
-    @Override
     /**
      * 添加Attachment
     */
+    @Override
     public ChatClient addAttachment(String name, byte[] data, String mimeType) {
         this.attachments.add(Attachment.builder().name(name).data(data).mimeType(mimeType).build());
         return this;
     }
 
-    @Override
     /**
      * 添加AttachmentUrl
     */
+    @Override
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         this.attachments.add(Attachment.builder().name(name).url(url).mimeType(mimeType).build());
         return this;
     }
 
-    @Override
     /**
      * Tools
     */
+    @Override
     public ChatClient tools(List<ChatTool> tools) {
         this.tools.clear();
         if (tools != null) {
@@ -312,10 +312,10 @@ public class QwenProxyChatClient implements ChatClient {
         return this;
     }
 
-    @Override
     /**
      * Tool
     */
+    @Override
     public ChatClient tool(ChatTool tool) {
         if (tool != null) {
             this.tools.add(tool);
@@ -323,55 +323,55 @@ public class QwenProxyChatClient implements ChatClient {
         return this;
     }
 
-    @Override
     /**
      * ToolChoice
     */
+    @Override
     public ChatClient toolChoice(String toolChoice) {
         this.toolChoice = toolChoice;
         return this;
     }
 
-    @Override
     /**
      * 添加UserHistory
     */
+    @Override
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
-    @Override
     /**
      * 添加AssistantHistory
     */
+    @Override
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
-    @Override
     /**
      * History
     */
+    @Override
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
-    @Override
     /**
      * Session
     */
+    @Override
     public ChatClient session(String sessionId) {
         this.conversationId = sessionId;
         return this;
     }
 
-    @Override
     /**
      * NewChat
     */
+    @Override
     public ChatClient newChat() {
         this.history.clear();
         this.externalHistory = null;
@@ -383,10 +383,10 @@ public class QwenProxyChatClient implements ChatClient {
         return this;
     }
 
-    @Override
     /**
      * ChatSync
     */
+    @Override
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         chat(prompt, response -> {
@@ -398,10 +398,10 @@ public class QwenProxyChatClient implements ChatClient {
         return result.toString();
     }
 
-    @Override
     /**
      * Chat
     */
+    @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {
@@ -409,7 +409,6 @@ public class QwenProxyChatClient implements ChatClient {
         });
     }
 
-    @Override
     /**
      * 对话
      * @param prompt prompt
@@ -417,6 +416,7 @@ public class QwenProxyChatClient implements ChatClient {
      * @param onComplete onComplete
      * @param onError onError
      */
+    @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         long startTime = System.currentTimeMillis();
@@ -481,7 +481,6 @@ public class QwenProxyChatClient implements ChatClient {
         }
     }
 
-    @Override
     /**
      * GenerateImage
      * @param prompt prompt
@@ -492,6 +491,7 @@ public class QwenProxyChatClient implements ChatClient {
      * @param quality quality
      * @param refImageKey refImageKey
      */
+    @Override
     public ImageGenerationResult generateImage(String prompt, String ratio, int n,
                                                int width, int height, String quality,
                                                String refImageKey) {
@@ -550,7 +550,6 @@ public class QwenProxyChatClient implements ChatClient {
         return new ImageGenerationResult(images, prompt);
     }
 
-    @Override
     /**
      * GenerateVideo
      * @param prompt prompt
@@ -559,6 +558,7 @@ public class QwenProxyChatClient implements ChatClient {
      * @param refImageKey refImageKey
      * @param timeoutSeconds timeoutSeconds
      */
+    @Override
     public VideoGenerationResult generateVideo(String prompt, String ratio,
                                                String cameraMovement, String refImageKey,
                                                int timeoutSeconds) {
@@ -609,10 +609,10 @@ public class QwenProxyChatClient implements ChatClient {
         return images;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         session.close();
     }

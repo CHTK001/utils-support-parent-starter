@@ -35,10 +35,10 @@ public class FifoScheduler implements SpiderScheduler {
      */
     private final AtomicInteger count = new AtomicInteger(0);
 
-    @Override
     /**
      * 入队
     */
+    @Override
     public void enqueue(SpiderRequest request) {
         if (request == null) {
             return;
@@ -47,10 +47,10 @@ public class FifoScheduler implements SpiderScheduler {
         count.incrementAndGet();
     }
 
-    @Override
     /**
      * 出队
     */
+    @Override
     public SpiderRequest dequeue() {
         SpiderRequest request = queue.poll();
         if (request != null) {
@@ -59,26 +59,26 @@ public class FifoScheduler implements SpiderScheduler {
         return request;
     }
 
-    @Override
     /**
      * 是否拥有下一个
     */
+    @Override
     public boolean hasNext() {
         return count.get() > 0;
     }
 
-    @Override
     /**
      * 获取大小
     */
+    @Override
     public int size() {
         return count.get();
     }
 
-    @Override
     /**
      * Clear
     */
+    @Override
     public void clear() {
         queue.clear();
         count.set(0);

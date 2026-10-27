@@ -96,26 +96,26 @@ public class EngineDataSchema implements DataScheme {
         return engine;
     }
 
-    @Override
     /**
      * 获取名称
     */
+    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     /**
      * 获取table名称
     */
+    @Override
     public List<String> getTableNames() {
         return tables.stream().map(DataTable::getName).collect(Collectors.toList());
     }
 
-    @Override
     /**
      * 获取Table
     */
+    @Override
     public DataTable getTable(String name) {
         for (DataTable t : tables) {
             if (t.getName().equals(name)) {
@@ -125,10 +125,10 @@ public class EngineDataSchema implements DataScheme {
         return null;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() throws Exception {
         engine.close();
     }

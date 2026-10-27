@@ -66,10 +66,10 @@ public class DomainUrlFilter implements SpiderUrlFilter {
         return this;
     }
 
-    @Override
     /**
      * Accept
     */
+    @Override
     public boolean accept(SpiderRequest request) {
         if (request == null || request.getUrl() == null) {
             return false;

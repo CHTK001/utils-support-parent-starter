@@ -54,34 +54,34 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     */
     private HttpClient httpClient;
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         return Integer.MAX_VALUE - 50;
     }
 
-    @Override
     /**
      * 支持路径
     */
+    @Override
     public String supportPath() {
         return null;
     }
 
-    @Override
     /**
      * 支持协议
     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(ServerFilterConfig config) {
         this.vertx = Vertx.vertx();
         this.httpClient = vertx.createHttpClient(new HttpClientOptions()
@@ -90,10 +90,10 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
         log.info("[network-proxy] HttpReverseProxyFilter 初始化完成, vertx=httpClient");
     }
 
-    @Override
     /**
      * 销毁
     */
+    @Override
     public void destroy() {
         if (httpClient != null) {
             httpClient.close();
@@ -103,13 +103,13 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
         }
     }
 
-    @Override
     /**
      * 执行过滤
      * @param request 请求
      * @param response 响应
      * @param chain chain
      */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         Discovery discovery = ServerAttribute.getBackendDiscovery(request);
@@ -120,13 +120,13 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
         proxyAsync(discovery, request, response, null);
     }
 
-    @Override
     /**
      * 执行过滤
      * @param request 请求
      * @param response 响应
      * @param chain chain
      */
+    @Override
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
         Discovery discovery = ServerAttribute.getBackendDiscovery(request);

@@ -27,10 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SmolDoclingEmbedTranslator implements Translator<long[], SmolDoclingEmbedOutput> {
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, long[] input) throws Exception {
         NDManager manager = ctx.getNDManager();
 
@@ -46,10 +46,10 @@ public class SmolDoclingEmbedTranslator implements Translator<long[], SmolDoclin
         return new NDList(inputIds);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public SmolDoclingEmbedOutput processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("             Embed             : {}          ", list.size());
@@ -72,10 +72,10 @@ public class SmolDoclingEmbedTranslator implements Translator<long[], SmolDoclin
         return new SmolDoclingEmbedOutput(embeddings);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         //                   
         return null;

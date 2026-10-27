@@ -30,10 +30,10 @@ public class SafeTensorEmbeddingClient extends AbstractLocalEmbeddingClient {
         super("safetensors", setting);
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public List<ModelDefinition> models() {
         return SafeTensorModels.ofType("text_embedding");
     }

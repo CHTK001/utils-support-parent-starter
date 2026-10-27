@@ -124,34 +124,34 @@ public class DefaultFlowInstance implements FlowInstance {
         return this;
     }
 
-    @Override
     /**
      * 获取instanceid
     */
+    @Override
     public String getInstanceId() {
         return instanceId;
     }
 
-    @Override
     /**
      * 获取流标识
     */
+    @Override
     public String getFlowId() {
         return flow.getId();
     }
 
-    @Override
     /**
      * 获取状态
     */
+    @Override
     public FlowStatus getStatus() {
         return status;
     }
 
-    @Override
     /**
      * 运行
     */
+    @Override
     public FlowInstance run() {
         if (!initialParams.isEmpty()) {
             return run(initialParams);
@@ -159,10 +159,10 @@ public class DefaultFlowInstance implements FlowInstance {
         return run(Collections.emptyMap());
     }
 
-    @Override
     /**
      * 运行
     */
+    @Override
     public synchronized FlowInstance run(Map<String, Object> params) {
         checkRunnable();
         // 首次运行创建唯一上下文，并放入起始节点
@@ -177,10 +177,10 @@ public class DefaultFlowInstance implements FlowInstance {
         return this;
     }
 
-    @Override
     /**
      * 恢复
     */
+    @Override
     public synchronized FlowInstance resume() {
         if (status != FlowStatus.WAITED) {
             throw new IllegalStateException("实例未挂起，无法恢复: " + status);
@@ -190,10 +190,10 @@ public class DefaultFlowInstance implements FlowInstance {
         return this;
     }
 
-    @Override
     /**
      * Terminate
     */
+    @Override
     public synchronized void terminate() {
         if (status == FlowStatus.COMPLETED || status == FlowStatus.TERMINATED
                 || status == FlowStatus.FAILED) {
@@ -203,18 +203,18 @@ public class DefaultFlowInstance implements FlowInstance {
         status = FlowStatus.TERMINATED;
     }
 
-    @Override
     /**
      * 是否Completed
     */
+    @Override
     public boolean isCompleted() {
         return status == FlowStatus.COMPLETED;
     }
 
-    @Override
     /**
      * 获取上下文
     */
+    @Override
     public FlowContext getContext() {
         return context;
     }

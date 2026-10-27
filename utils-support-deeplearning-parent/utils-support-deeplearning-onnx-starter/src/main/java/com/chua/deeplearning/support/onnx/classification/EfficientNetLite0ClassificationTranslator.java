@@ -38,10 +38,10 @@ public class EfficientNetLite0ClassificationTranslator implements Translator<Ima
     public EfficientNetLite0ClassificationTranslator() {
     }
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(TranslatorContext ctx) throws Exception {
         List<String> labels = loadLabels(ctx.getModel().getModelPath());
         if (!labels.isEmpty()) {
@@ -49,10 +49,10 @@ public class EfficientNetLite0ClassificationTranslator implements Translator<Ima
         }
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         // OpenCV 预处理：resize 224 + CHW 归一化 → float[] → create() 喂入 djl-onnx
         float[] pixels = ImageUtils.toTensor(input, 224);
@@ -61,10 +61,10 @@ public class EfficientNetLite0ClassificationTranslator implements Translator<Ima
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
  // 转为floatarray 已扁平化（[1,1000] → 1000 元素），无需 squeeze
@@ -84,10 +84,10 @@ public class EfficientNetLite0ClassificationTranslator implements Translator<Ima
         return new Classifications(labels, probabilities);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

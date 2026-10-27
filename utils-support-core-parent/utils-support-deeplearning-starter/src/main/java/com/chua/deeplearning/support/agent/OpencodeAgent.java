@@ -211,9 +211,6 @@ public class OpencodeAgent implements Agent {
     /**
      * WARN 是否已发出
     */
-    /**
-     * WARN 是否已发出
-     */
     private final AtomicBoolean warned = new AtomicBoolean(false);
 
     /**

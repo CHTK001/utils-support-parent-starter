@@ -55,27 +55,27 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
         this.dimensions = setting != null ? setting.getDimensions() : null;
     }
 
-    @Override
     /**
      * 提供者
     */
+    @Override
     public FeatureClient provider(String provider) {
         return this;
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public FeatureClient model(String model) {
         this.model = model;
         return this;
     }
 
-    @Override
     /**
      * 维度
     */
+    @Override
     public FeatureClient dimensions(int dimensions) {
         this.dimensions = dimensions;
         return this;
@@ -104,10 +104,10 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
         return defs.getFirst().getId();
     }
 
-    @Override
     /**
      * Extract
     */
+    @Override
     public float[] extract(String text) {
         String modelName = resolveModel();
         @SuppressWarnings("unchecked")
@@ -120,10 +120,10 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
         return toFloatArray(result, modelName);
     }
 
-    @Override
     /**
      * extract镜像
     */
+    @Override
     public float[] extractImage(byte[] imageData) {
         String modelName = resolveModel();
         @SuppressWarnings("unchecked")
@@ -157,10 +157,10 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
         throw new IllegalStateException("模型输出不是向量: " + modelName + " -> " + result);
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

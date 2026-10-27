@@ -46,10 +46,10 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
     public OnnxOcrRecognizer(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public OcrRecognizer model(String model) {
         this.modelName = model;
         this.pipeline = null;
@@ -96,54 +96,54 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
         return m + "-rec";
     }
 
-    @Override
     /**
      * Lang
     */
+    @Override
     public OcrRecognizer lang(String lang) {
         this.lang = lang;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public OcrRecognizer modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
-    @Override
     /**
      * usegpu
     */
+    @Override
     public OcrRecognizer useGpu(boolean useGpu) {
         this.useGpu = useGpu;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public OcrRecognizer device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * Recognize
      */
+    @Override
     public String recognize(byte[] imageData) {
         return pipeline().recognize(imageData);
     }
 
-    @Override
     /**
      * recognizedetail
      */
+    @Override
     public List<OcrResult> recognizeDetail(byte[] imageData) {
         return pipeline().recognizeDetail(imageData);
     }

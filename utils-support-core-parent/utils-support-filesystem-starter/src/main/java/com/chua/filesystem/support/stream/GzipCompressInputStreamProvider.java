@@ -18,10 +18,10 @@ import javax.annotation.Nonnull;
 @Spi("gz")
 public class GzipCompressInputStreamProvider implements CompressInputStream {
 
-    @Override
     /**
      * 是否支持
     */
+    @Override
     public boolean isSupport(@Nonnull File file) {
         if (file == null) {
             return false;
@@ -33,18 +33,18 @@ public class GzipCompressInputStreamProvider implements CompressInputStream {
                 && !fileName.endsWith(".tgz");
     }
 
-    @Override
     /**
      * 创建输入流
     */
+    @Override
     public Object createInputStream(@Nonnull InputStream inputStream, @Nonnull File file) throws IOException {
         return new GzipCompressorInputStream(inputStream);
     }
 
-    @Override
     /**
      * 获取格式化名称
     */
+    @Override
     public String getFormatName() {
         return "gz";
     }

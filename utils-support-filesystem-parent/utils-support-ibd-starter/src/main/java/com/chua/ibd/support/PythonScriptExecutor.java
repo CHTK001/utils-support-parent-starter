@@ -52,10 +52,10 @@ public class PythonScriptExecutor implements ScriptExecutor {
         this.timeoutMillis = timeoutMillis;
     }
 
-    @Override
     /**
      * 执行
     */
+    @Override
     public String execute(Path scriptPath, Map<String, Object> context) {
         try {
             ProcessBuilder pb = new ProcessBuilder(pythonPath, scriptPath.toString());
@@ -95,10 +95,10 @@ public class PythonScriptExecutor implements ScriptExecutor {
         }
     }
 
-    @Override
     /**
      * 获取延伸
     */
+    @Override
     public String getExtension() {
         return ".py";
     }

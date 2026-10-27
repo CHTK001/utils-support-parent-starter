@@ -19,10 +19,10 @@ import javax.annotation.Nullable;
 @Spi("tar")
 public class TarCompressArchiveInputStream implements CompressArchiveInputStream {
 
-    @Override
     /**
      * 是否支持
     */
+    @Override
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -31,19 +31,19 @@ public class TarCompressArchiveInputStream implements CompressArchiveInputStream
         return fileName.endsWith(".tar") && !fileName.endsWith(".tar.gz") && !fileName.endsWith(".tgz");
     }
 
-    @Override
     /**
      * 创建输入流
     */
+    @Override
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
         var tarInputStream = new TarArchiveInputStream(inputStream);
         return new ArchiveInputStreamAdapter(tarInputStream);
     }
 
-    @Override
     /**
      * 获取格式化名称
     */
+    @Override
     public String getFormatName() {
         return "tar";
     }

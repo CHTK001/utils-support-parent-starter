@@ -466,7 +466,8 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
             if (tmp != null) {
                 try {
                     Files.deleteIfExists(tmp);
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    log.debug("[filestorage] 清理临时文件失败: {}", e.getMessage());
                 }
             }
         }

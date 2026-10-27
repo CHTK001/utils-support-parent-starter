@@ -38,10 +38,10 @@ public class FlXcLivenessTranslator implements Translator<Image, Float> {
      */
     private static final int CHANNELS = 12;
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         BufferedImage src = (BufferedImage) input.getWrappedImage();
         BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, Imgproc.INTER_LINEAR);
@@ -61,10 +61,10 @@ public class FlXcLivenessTranslator implements Translator<Image, Float> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Float processOutput(TranslatorContext ctx, NDList list) {
         NDArray out = list.getFirst();
         float[] values = out.toFloatArray();
@@ -76,10 +76,10 @@ public class FlXcLivenessTranslator implements Translator<Image, Float> {
         return Math.max(0f, Math.min(1f, values[0]));
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
  // ONNX Runtime 的 ndarray 不支持 Stack，单图推理不批处理
         return null;

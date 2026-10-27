@@ -45,51 +45,51 @@ public class NacosHandler extends AbstractAppHandler {
      */
     private static final String[] CONFIG_METHODS = {"getConfig", "publishConfig", "removeConfig"};
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "nacos-handler";
     }
 
-    @Override
     /**
      * 已启用键
     */
+    @Override
     protected String enabledKey() {
         return "nacos.enabled";
     }
 
-    @Override
     /**
      * Software
     */
+    @Override
     protected Software software() {
         return Software.NACOS;
     }
 
-    @Override
     /**
      * 协议
     */
+    @Override
     protected Protocol protocol() {
         return Protocol.NACOS;
     }
 
-    @Override
     /**
      * 注册拦截器
     */
+    @Override
     protected void registerInterceptors() {
         registerAll(NAMING_SERVICE, NAMING_METHODS);
         registerAll(CONFIG_SERVICE, CONFIG_METHODS);
     }
 
-    @Override
     /**
      * 构建Target
     */
+    @Override
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         String host = "nacos";
         int port = Protocol.NACOS.defaultPort();

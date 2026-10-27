@@ -32,34 +32,34 @@ public class StatisticSink implements AccessSink {
      */
     private final LongAdder total = new LongAdder();
 
-    @Override
     /**
      * 类型
     */
+    @Override
     public String type() {
         return "statistic";
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         log.info("[datalake-sink] StatisticSink 启动");
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() {
         log.info("[datalake-sink] StatisticSink 停止, 累计 {} 条", total.sum());
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public boolean write(DataEnvelope envelope, Map<String, Object> config) {
         if (envelope == null) {
             return false;

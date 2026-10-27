@@ -57,10 +57,10 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
         this.bucketManager = new BucketManager(auth, cfg);
     }
 
-    @Override
     /**
      * 放入对象
     */
+    @Override
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -86,10 +86,10 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 获取对象
     */
+    @Override
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -113,20 +113,20 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 获取对象
     */
+    @Override
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
         return getObject(GetObjectRequest.builder().fileName(name).filePath(path).build());
     }
 
-    @Override
     /**
      * 删除对象
     */
+    @Override
     public DeleteObjectResult deleteObject(String key) {
         try {
             bucketManager.delete(bucket, key);
@@ -141,10 +141,10 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * exist对象
     */
+    @Override
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             com.qiniu.storage.model.FileInfo info = bucketManager.stat(bucket, request.getKey());
@@ -167,10 +167,10 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 列表对象
     */
+    @Override
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
  // 使用 记号笔 作为分页起始（七牛用空字符串表示从头开始）
@@ -210,10 +210,10 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         // 七牛云客户端无需显式关闭
     }

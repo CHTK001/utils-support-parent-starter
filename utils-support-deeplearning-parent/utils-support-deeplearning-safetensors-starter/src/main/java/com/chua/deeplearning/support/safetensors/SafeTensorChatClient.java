@@ -30,10 +30,10 @@ public class SafeTensorChatClient extends AbstractLocalChatClient {
         super("safetensors", setting);
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public List<ModelDefinition> models() {
         return SafeTensorModels.ofType("llm", "vlm");
     }

@@ -2,6 +2,7 @@ package com.chua.common.support.network.server.dht.bep9;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.server.dht.krpc.BencodeCodec;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -17,6 +18,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class MetadataDownloader {
 
     /**
@@ -265,7 +267,8 @@ public class MetadataDownloader {
                     }
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[dht] 解析种子名称失败，返回 unknown: {}", e.getMessage());
         }
         return "unknown";
     }

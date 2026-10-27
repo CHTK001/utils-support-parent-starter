@@ -33,46 +33,46 @@ public class DefaultImaging implements Imaging{
     */
     private String type;
 
-    @Override
     /**
      * 镜像
     */
+    @Override
     public Imaging image(BufferedImage image) {
         this.bufferedImage = image;
         return this;
     }
 
-    @Override
     /**
      * 镜像
     */
+    @Override
     public Imaging image(byte[] image) {
         this.bufferedImage = BufferedImageUtils.toBufferedImage(image);
         return this;
     }
 
-    @Override
     /**
      * 镜像
     */
+    @Override
     public Imaging image(File file) {
         this.bufferedImage = BufferedImageUtils.toBufferedImage(file);
         return this;
     }
 
-    @Override
     /**
      * 类型
     */
+    @Override
     public Imaging type(String type) {
         this.type = type;
         return this;
     }
 
-    @Override
     /**
      * 输出quality
     */
+    @Override
     public Imaging outputQuality(float outputQuality) {
         ImageWriter imageWriter = ImageIO.getImageWritersByFormatName(type).next();
         ImageWriteParam imageWriteParam = imageWriter.getDefaultWriteParam();
@@ -93,10 +93,10 @@ public class DefaultImaging implements Imaging{
     }
 
 
-    @Override
     /**
      * media类型
     */
+    @Override
     public MediaType mediaType() {
         
         return MediaTypeFactory.getMediaTypeNullable(type);
@@ -104,10 +104,10 @@ public class DefaultImaging implements Imaging{
     }
 
 
-    @Override
     /**
      * 获取缓冲镜像
     */
+    @Override
     public BufferedImage getBufferedImage() {
         
         return this.bufferedImage;

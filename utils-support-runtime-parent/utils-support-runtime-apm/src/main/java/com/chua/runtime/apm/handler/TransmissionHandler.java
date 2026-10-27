@@ -151,36 +151,36 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         this.started = new AtomicBoolean(false);
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return HANDLER_NAME;
     }
 
-    @Override
     /**
      * 版本
     */
+    @Override
     public String version() {
         return HANDLER_VERSION;
     }
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(PluginContext context) throws Exception {
         this.context = context;
         this.enabled = DEFAULT_ENABLED.equals(context.getProperty(PROP_TRANSMISSION_ENABLED, DEFAULT_ENABLED));
         LOG.log(Level.INFO, String.format("TransmissionHandler 初始化完成，启用状态: %s", enabled));
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -192,10 +192,10 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         LOG.log(Level.INFO, "TransmissionHandler 启动完成，传输链路追踪已启用");
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() throws Exception {
         this.enabled = false;
         if (started.compareAndSet(true, false)) {
@@ -204,18 +204,18 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         LOG.log(Level.INFO, "TransmissionHandler 停止");
     }
 
-    @Override
     /**
      * 状态
     */
+    @Override
     public String status() {
         return String.format("TransmissionHandler[enabled=%s, records=%d]", enabled, records.size());
     }
 
-    @Override
     /**
      * 是否Running
     */
+    @Override
     public boolean isRunning() {
         return enabled && started.get();
     }
@@ -246,10 +246,10 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
-    @Override
     /**
      * onintercept
     */
+    @Override
     public void onIntercept(InterceptContext ctx) {
         if (!enabled) {
             return;

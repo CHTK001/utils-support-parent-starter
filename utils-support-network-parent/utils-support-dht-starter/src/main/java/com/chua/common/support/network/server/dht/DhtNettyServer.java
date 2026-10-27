@@ -112,11 +112,11 @@ public class DhtNettyServer {
                 .option(ChannelOption.SO_RCVBUF, 65536)
                 .option(ChannelOption.SO_SNDBUF, 65536)
                 .handler(new ChannelInitializer<NioDatagramChannel>() {
-                    @Override
                     /**
                      * 初始化通道
                      * @param ch ch
                      */
+                    @Override
                     protected void initChannel(NioDatagramChannel ch) {
                         ch.pipeline().addLast(new DhtPacketHandler());
                     }
@@ -292,12 +292,12 @@ public class DhtNettyServer {
      * @since 4.0.0
      */
     private class DhtPacketHandler extends SimpleChannelInboundHandler<DatagramPacket> {
-        @Override
         /**
          * 通道读取
          * @param ctx ctx
          * @param packet 数据包
          */
+        @Override
         protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
             SocketAddress sender = packet.sender();
             ByteBuf buf = packet.content();
@@ -312,12 +312,12 @@ public class DhtNettyServer {
             }
         }
 
-        @Override
         /**
          * 异常caught
          * @param ctx ctx
          * @param cause cause
          */
+        @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             log.debug("DHT Netty server error", cause);
             ctx.close();
@@ -394,7 +394,8 @@ public class DhtNettyServer {
             if (rawMessageHandler != null) {
                 rawMessageHandler.accept(data, sender);
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[dht] 处理 KRPC 报文失败，已忽略: {}", e.getMessage());
         }
     }
 }

@@ -229,7 +229,8 @@ public final class KvCacheDecoder implements AutoCloseable {
             for (OnnxTensor t : past) {
                 try {
                     t.close();
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[deeplearning] 释放 KV 缓存张量失败，已忽略: {}", e.getMessage());
                 }
             }
             past = null;

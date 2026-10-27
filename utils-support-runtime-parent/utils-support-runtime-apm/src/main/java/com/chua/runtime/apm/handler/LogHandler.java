@@ -152,36 +152,36 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
         this.streamsHijacked = new AtomicBoolean(false);
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return HANDLER_NAME;
     }
 
-    @Override
     /**
      * 版本
     */
+    @Override
     public String version() {
         return HANDLER_VERSION;
     }
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(PluginContext context) throws Exception {
         this.context = context;
         this.enabled = DEFAULT_ENABLED.equals(context.getProperty(PROP_LOG_ENABLED, DEFAULT_ENABLED));
         LOG.log(Level.INFO, String.format("LogHandler 初始化完成，启用状态: %s", enabled));
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -205,10 +205,10 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
         LOG.log(Level.INFO, "LogHandler 启动完成，已注册日志拦截点");
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() throws Exception {
         this.enabled = false;
  // 恢复 系统.出/err
@@ -223,18 +223,18 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
         LOG.log(Level.INFO, "LogHandler 停止");
     }
 
-    @Override
     /**
      * 状态
     */
+    @Override
     public String status() {
         return String.format("LogHandler[enabled=%s, logs=%d]", enabled, logEntries.size());
     }
 
-    @Override
     /**
      * 是否Running
     */
+    @Override
     public boolean isRunning() {
         return enabled;
     }
@@ -505,18 +505,18 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
             this.streamId = streamId;
         }
 
-        @Override
         /**
          * Println
         */
+        @Override
         public void println(String x) {
             super.println(x);
         }
 
-        @Override
         /**
          * Println
         */
+        @Override
         public void println(Object x) {
             super.println(x);
         }

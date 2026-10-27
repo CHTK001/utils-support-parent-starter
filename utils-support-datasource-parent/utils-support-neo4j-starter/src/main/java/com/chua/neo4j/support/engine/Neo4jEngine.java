@@ -119,8 +119,6 @@ public class Neo4jEngine implements Engine {
         return !"false".equalsIgnoreCase(v.trim());
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 添加数据源
      *
@@ -128,6 +126,8 @@ public class Neo4jEngine implements Engine {
      * @param ds ds
      * @return 添加数据源的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
         Object src = ds.getSource();
         if (src instanceof Driver d) {
@@ -177,20 +177,20 @@ public class Neo4jEngine implements Engine {
         return this;
     }
 
-    @Override
     /**
      * 设置默认数据源名称
     */
+    @Override
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 存储
     */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> Engine store(String name, List<T> data) {
         if (CollectionUtils.isEmpty(data)) {
             return this;
@@ -234,23 +234,22 @@ public class Neo4jEngine implements Engine {
         return this;
     }
 
-    @Override
     /**
      * 获取执行器
     */
+    @Override
     public SqlExecutor getExecutor(String n) {
         return null;
     }
 
-    @Override
     /**
      * 获取执行器
     */
+    @Override
     public SqlExecutor getExecutor() {
         return null;
     }
 
-    @Override
     /**
      * 执行原生 Cypher 语句。
      * <p>位置参数按 {@code p0、p1…} 转换为 Cypher {@code $pN} 命名参数；
@@ -260,6 +259,7 @@ public class Neo4jEngine implements Engine {
      * @param params 参数列表
      * @return 受影响行数
      */
+    @Override
     public int execute(String ql, Object... params) {
         if (driver == null) {
             throw new IllegalStateException("Neo4j 驱动未初始化，请先调用 connect 或注册数据源");
@@ -277,49 +277,49 @@ public class Neo4jEngine implements Engine {
         }
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 获取数据源
      *
      * @param n n
      * @return 获取数据源的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> EngineDataSource<T> getDataSource(String n) {
         return (EngineDataSource<T>) dataSources.get(n);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 获取数据源
      *
      * @return 获取数据源的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }
 
-    @Override
     /**
      * 获取Dialect
     */
+    @Override
     public Dialect getDialect(String n) {
         return Dialect.getExtension("neo4j");
     }
 
-    @Override
     /**
      * 不支持元数据操作
     */
+    @Override
     public boolean supportsMeta() {
         return false;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
       public void close() {
           if (!closed.compareAndSet(false, true)) {
               return;
@@ -333,50 +333,50 @@ public class Neo4jEngine implements Engine {
           dataSources.clear();
       }
 
-      @Override
       /**
        * 是否已关闭
        *
        * @return 已关闭返回 true
        */
+      @Override
       public boolean isClosed() {
           return closed.get();
       }
 
 
-    @Override
     /**
      * 查询
     */
+    @Override
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new LambdaQueryWrapper<T>(entityClass) {
 
-            @Override
             /**
              * 解析属性函数引用的列名。
              *
              * @param col 属性函数引用
              * @return 解析后的列名
              */
+            @Override
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
             }
 
-            @Override
             /**
              * 新instance
             */
+            @Override
             protected LambdaQueryWrapper<T> newInstance() {
                 return new LambdaQueryWrapper<T>(entityClass) {
 
-                    @Override
                     /**
                      * 解析属性函数引用的列名。
                      *
                      * @param col 属性函数引用
                      * @return 解析后的列名
                      */
+                    @Override
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -384,19 +384,19 @@ public class Neo4jEngine implements Engine {
                 };
             }
 
-            @Override
             /**
              * 列表
             */
+            @Override
             public List<T> list() {
                 return cypherQuery(entityClass, getConditions(), getOrderBys(),
                         getOffset(), getLimit());
             }
 
-            @Override
             /**
              * One
             */
+            @Override
             public T one() {
                 List<T> r = cypherQuery(entityClass, getConditions(), getOrderBys(),
                         getOffset(), 1);
@@ -406,10 +406,10 @@ public class Neo4jEngine implements Engine {
                 return r.getFirst();
             }
 
-            @Override
             /**
              * Page
             */
+            @Override
             public Page<T> page(int pn, int ps) {
                 int offset = Math.max(0, (pn - 1) * ps);
                 if (supportsNativePagination()) {
@@ -428,7 +428,6 @@ public class Neo4jEngine implements Engine {
                 return new Page<>(pn, ps, all.size(), all.subList(from, to));
             }
 
-            @Override
             /**
              * 统计满足条件的节点数
              * <p>基类实现要求引擎覆写，否则直接抛 {@code UnsupportedOperationException}。
@@ -437,45 +436,46 @@ public class Neo4jEngine implements Engine {
              *
              * @return 命中节点数
             */
+            @Override
             public long count() {
                 return cypherCount(entityClass, getConditions());
             }
         };
     }
 
-    @Override
     /**
      * 更新
     */
+    @Override
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         return new LambdaUpdateWrapper<T>(entityClass) {
 
-            @Override
             /**
              * 解析属性函数引用的列名。
              *
              * @param col 属性函数引用
              * @return 解析后的列名
              */
+            @Override
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
             }
 
-            @Override
             /**
              * 新instance
             */
+            @Override
             protected LambdaUpdateWrapper<T> newInstance() {
                 return new LambdaUpdateWrapper<T>(entityClass) {
 
-                    @Override
                     /**
                      * 解析属性函数引用的列名。
                      *
                      * @param col 属性函数引用
                      * @return 解析后的列名
                      */
+                    @Override
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -483,49 +483,49 @@ public class Neo4jEngine implements Engine {
                 };
             }
 
-            @Override
             /**
              * 更新
             */
+            @Override
             public int update() {
                 return cypherUpdate(entityClass, getConditions(), getSetValues());
             }
         };
     }
 
-    @Override
     /**
      * 删除
     */
+    @Override
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         return new LambdaDeleteWrapper<T>(entityClass) {
 
-            @Override
             /**
              * 解析属性函数引用的列名。
              *
              * @param col 属性函数引用
              * @return 解析后的列名
              */
+            @Override
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
             }
 
-            @Override
             /**
              * 新instance
             */
+            @Override
             protected LambdaDeleteWrapper<T> newInstance() {
                 return new LambdaDeleteWrapper<T>(entityClass) {
 
-                    @Override
                     /**
                      * 解析属性函数引用的列名。
                      *
                      * @param col 属性函数引用
                      * @return 解析后的列名
                      */
+                    @Override
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -533,10 +533,10 @@ public class Neo4jEngine implements Engine {
                 };
             }
 
-            @Override
             /**
              * 移除
             */
+            @Override
             public int remove() {
                 return cypherDelete(entityClass, getConditions());
             }
@@ -889,7 +889,6 @@ public class Neo4jEngine implements Engine {
         return name;
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 映射转为实体
      *
@@ -897,6 +896,7 @@ public class Neo4jEngine implements Engine {
      * @param entityClass 实体类
      * @return 映射转为实体的结果
      */
+    @SuppressWarnings("unchecked")
     private <T> T mapToEntity(Map<String, Object> props, Class<T> entityClass) {
         try {
             T instance = ReflectUtils.instantiate(entityClass);

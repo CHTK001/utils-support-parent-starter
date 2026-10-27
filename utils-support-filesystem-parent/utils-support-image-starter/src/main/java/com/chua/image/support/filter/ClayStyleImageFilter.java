@@ -129,21 +129,21 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
     */
     private Random random = new Random();
 
-    @Override
     /**
      * 获取镜像格式化
     */
+    @Override
     public String getImageFormat() {
         
         return "jpeg";
     
     }
 
-    @Override
     /**
      * 获取镜像格式化
      * @param name 名称
      */
+    @Override
     public String getImageFormat(String name) {
         if (name == null) {
             return getImageFormat();
@@ -159,12 +159,12 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
         return "jpeg";
     }
 
-    @Override
     /**
      * 过滤
      * @param src src
      * @param dst dst
      */
+    @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -435,11 +435,11 @@ if (hsv[1] > 0.1) {
         return result;
     }
 
-    @Override
     /**
      * 转换器
      * @param image 镜像
      */
+    @Override
     public OutputStream converter(InputStream image) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 

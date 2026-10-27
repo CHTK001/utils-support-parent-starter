@@ -54,9 +54,6 @@ public class JoyCodeUsageParser extends BaseUsageParser {
      *
      * @return {@code "joycode"}
      */
-    /**
-     * 响应式流式入口：订阅时才执行装载，配合 限制rate/取 可控制内存水位。
-     */
     @Override
     public reactor.core.publisher.Flux<AiUsage> streamAll() {
         return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))

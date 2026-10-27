@@ -118,10 +118,10 @@ public class SofaRpcServer implements RpcServer {
         serverConfigs.add(item);
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         state.set(false);
         for (ProviderConfig<?> config : providerConfigs) {
@@ -135,19 +135,19 @@ public class SofaRpcServer implements RpcServer {
         log.info("SofaRpcServer closed");
     }
 
-    @Override
     /**
      * 之后属性设置
     */
+    @Override
     public void afterPropertiesSet() {
         state.compareAndSet(false, true);
         log.info("SofaRpcServer initialized");
     }
 
-    @Override
     /**
      * 注册
     */
+    @Override
     public RpcServer register(String name, Object bean) {
         ProviderConfig<Object> config = new ProviderConfig<>();
         config.setApplication(applicationConfig);
@@ -160,26 +160,26 @@ public class SofaRpcServer implements RpcServer {
         return this;
     }
 
-    @Override
     /**
      * 获取协议名称
     */
+    @Override
     public String getProtocol() {
         return "sofa";
     }
 
-    @Override
     /**
      * 获取已暴露服务数
     */
+    @Override
     public int getServiceCount() {
         return providerConfigs.size();
     }
 
-    @Override
     /**
      * 获取连接信息（SOFA 内部不暴露 通道 级连接，返回监听端点）
     */
+    @Override
     public List<RpcConnectionInfo> getConnections() {
         long now = System.currentTimeMillis();
         List<RpcConnectionInfo> result = Wraps.list(serverConfigs.size());
@@ -191,10 +191,10 @@ public class SofaRpcServer implements RpcServer {
         return result;
     }
 
-    @Override
     /**
      * 获取指标快照
     */
+    @Override
     public RpcMetrics getMetrics() {
         RpcMetrics metrics = new RpcMetrics("sofa");
         metrics.setServiceCount(providerConfigs.size());

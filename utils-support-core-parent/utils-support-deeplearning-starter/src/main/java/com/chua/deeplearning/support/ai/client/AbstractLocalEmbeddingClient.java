@@ -58,27 +58,27 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
         this.dimensions = setting != null ? setting.getDimensions() : null;
     }
 
-    @Override
     /**
      * 提供者
     */
+    @Override
     public EmbeddingClient provider(String provider) {
         return this;
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public EmbeddingClient model(String model) {
         this.model = model;
         return this;
     }
 
-    @Override
     /**
      * 维度
     */
+    @Override
     public EmbeddingClient dimensions(int dimensions) {
         this.dimensions = dimensions;
         return this;
@@ -107,10 +107,10 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
         return defs.getFirst().getId();
     }
 
-    @Override
     /**
      * 嵌入
     */
+    @Override
     public float[] embedding(String text) {
         String modelName = resolveModel();
         @SuppressWarnings("unchecked")
@@ -133,10 +133,10 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
         throw new IllegalStateException("模型输出不是向量: " + modelName + " -> " + result);
     }
 
-    @Override
     /**
      * 嵌入批量
     */
+    @Override
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -148,10 +148,10 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
         return result;
     }
 
-    @Override
     /**
      * 嵌入with响应
     */
+    @Override
     public EmbeddingResponse embeddingWithResponse(String text) {
         float[] v = embedding(text);
         return EmbeddingResponse.builder()
@@ -160,10 +160,10 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
                 .build();
     }
 
-    @Override
     /**
      * 嵌入batchwith响应
     */
+    @Override
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
@@ -175,26 +175,26 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
         return EmbeddingResponse.builder().embeddings(embs).build();
     }
 
-    @Override
     /**
      * 嵌入异步
     */
+    @Override
     public CompletableFuture<float[]> embeddingAsync(String text) {
         return CompletableFuture.supplyAsync(() -> embedding(text));
     }
 
-    @Override
     /**
      * 嵌入批量异步
     */
+    @Override
     public CompletableFuture<float[][]> embeddingBatchAsync(String[] texts) {
         return CompletableFuture.supplyAsync(() -> embeddingBatch(texts));
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

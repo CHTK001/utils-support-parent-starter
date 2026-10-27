@@ -53,26 +53,26 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
      */
     private static final String DEFAULT_AGENT_CLASS = "com.chua.runtime.support.javaagent.RuntimeAgent";
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "javaagent";
     }
 
-    @Override
     /**
      * 列表pids
     */
+    @Override
     public java.util.Map<Integer, String> listPids() {
         return AgentInjector.listJavaProcesses();
     }
 
-    @Override
     /**
      * inspectjvm
     */
+    @Override
     public CmdResult inspectJvm(int pid) {
         log.info("[runtime-javaagent] 检查 JVM[{}] 的运行时信息", pid);
 
@@ -104,10 +104,10 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
         }
     }
 
-    @Override
     /**
      * Attach
     */
+    @Override
     public CmdResult attach(int pid, Path agentPath, String options) {
         return AgentInjector.builder()
                 .pid(pid)
@@ -117,19 +117,19 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
                 .inject();
     }
 
-    @Override
     /**
      * attachby端口
     */
+    @Override
     public CmdResult attachByPort(int port, Path agentPath, String options) {
         // 端口通常与 PID 相同，使用相同的注入方式
         return attach(port, agentPath, options);
     }
 
-    @Override
     /**
      * Detach
     */
+    @Override
     public CmdResult detach(int pid) {
         log.warn("[runtime-javaagent] JDK 不支持 detach，无法直接从目标 JVM 卸载 Agent");
         return CmdResult.builder()

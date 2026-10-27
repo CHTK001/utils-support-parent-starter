@@ -54,10 +54,10 @@ public class IpRateLimitServerFilter implements ServerFilter {
      */
     private volatile boolean configured;
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(ServerFilterConfig config) throws Exception {
         String capacity = config.getInitParameter("ipRateLimit.bucketCapacity");
         String rate = config.getInitParameter("ipRateLimit.refillRate");
@@ -72,18 +72,18 @@ public class IpRateLimitServerFilter implements ServerFilter {
         this.configured = present && bucketCapacity > 0 && refillRate > 0;
     }
 
-    @Override
     /**
      * 是否启用
     */
+    @Override
     public boolean isEnabled() {
         return configured;
     }
 
-    @Override
     /**
      * 执行过滤
     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String ip = resolveClientIp(request);
         TokenBucket bucket = buckets.computeIfAbsent(ip,
@@ -95,18 +95,18 @@ public class IpRateLimitServerFilter implements ServerFilter {
         chain.doFilter(request, response);
     }
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         return 25;
     }
 
-    @Override
     /**
      * 获取过滤标识
     */
+    @Override
     public String getFilterId() {
         return "IpRateLimitServerFilter";
     }

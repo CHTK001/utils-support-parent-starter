@@ -31,8 +31,6 @@ public class TomlConfigParser implements ConfigParser {
     */
     private static final ObjectMapper TOML_MAPPER = new ObjectMapper(new TomlFactory());
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 解析
      *
@@ -40,6 +38,8 @@ public class TomlConfigParser implements ConfigParser {
      * @param is 是否
      * @return 解析的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public PropertySource parse(String urlPath, InputStream is) {
         try {
             Map<String, Object> map = TOML_MAPPER.readValue(is, Map.class);

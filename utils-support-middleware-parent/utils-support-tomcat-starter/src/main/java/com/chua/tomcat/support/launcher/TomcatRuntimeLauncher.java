@@ -35,18 +35,18 @@ public class TomcatRuntimeLauncher implements RuntimeLauncher {
     */
     private volatile WebContainer container;
 
-    @Override
     /**
      * 类型
     */
+    @Override
     public String type() {
         return "TOMCAT";
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public CmdResult start(RuntimeArtifact artifact) {
         if (container != null && container.isRunning()) {
             return CmdResult.builder()
@@ -114,10 +114,10 @@ public class TomcatRuntimeLauncher implements RuntimeLauncher {
         }
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public CmdResult stop(RuntimeArtifact artifact) {
         if (container == null) {
             return CmdResult.builder().exitCode(0).command(artifact.getName() + " 未在运行").build();
@@ -137,10 +137,10 @@ public class TomcatRuntimeLauncher implements RuntimeLauncher {
         }
     }
 
-    @Override
     /**
      * 状态
     */
+    @Override
     public RuntimeStatus status() {
         if (container != null && container.isRunning()) {
             return RuntimeStatus.RUNNING;

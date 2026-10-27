@@ -254,15 +254,14 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
         return table;
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return modelName;
     }
 
-    @Override
     /**
      * Translate
      *
@@ -282,6 +281,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
      * <p>不用 {@code ThreadLocal<OrtSession>}：推理跑在虚拟线程上，线程数无界，
      * 会为每个虚拟线程各建一个原生 session 而耗尽内存。</p>
      */
+    @Override
     public synchronized String translate(byte[] imageData) {
         try {
             prepare();

@@ -118,11 +118,11 @@ public final class PNGImageWriter extends ImageWriter {
         super(originatingProvider);
     }
 
-    @Override
     /**
      * 设置输出
      * @param output 输出
      */
+    @Override
     public void setOutput(Object output) {
         super.setOutput(output);
         if (output != null) {
@@ -135,29 +135,28 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
-    @Override
     /**
      * 获取默认写入参数
     */
+    @Override
     public ImageWriteParam getDefaultWriteParam() {
         
         return new PNGImageWriteParam(getLocale());
     
     }
 
-    @Override
     /**
      * 获取默认流式输出元数据
      *
      * @param param 写入参数
      */
+    @Override
     public IIOMetadata getDefaultStreamMetadata(ImageWriteParam param) {
         
         return null;
     
     }
 
-    @Override
     /**
      * 获取默认图像元数据
      *
@@ -165,6 +164,7 @@ public final class PNGImageWriter extends ImageWriter {
      * @param param     参数
      * @return 按图像类型初始化好的 PNG 元数据
      */
+    @Override
     public IIOMetadata getDefaultImageMetadata(ImageTypeSpecifier imageType,
                                                ImageWriteParam param) {
         PNGMetadata m = new PNGMetadata();
@@ -172,13 +172,13 @@ public final class PNGImageWriter extends ImageWriter {
         return m;
     }
 
-    @Override
     /**
      * 转换流式输出元数据
      *
      * @param inData 输入元数据
      * @param param  写入参数
      */
+    @Override
     public IIOMetadata convertStreamMetadata(IIOMetadata inData,
                                              ImageWriteParam param) {
         
@@ -186,7 +186,6 @@ public final class PNGImageWriter extends ImageWriter {
     
     }
 
-    @Override
     /**
      * 转换图像元数据
      *
@@ -195,6 +194,7 @@ public final class PNGImageWriter extends ImageWriter {
      * @param param     参数
      * @return 转换后的元数据
      */
+    @Override
     public IIOMetadata convertImageMetadata(IIOMetadata inData,
                                             ImageTypeSpecifier imageType,
                                             ImageWriteParam param) {
@@ -998,7 +998,6 @@ public final class PNGImageWriter extends ImageWriter {
             scale0 = null;
     }
 
-    @Override
     /**
      * 写出单张图像。
      *
@@ -1006,6 +1005,7 @@ public final class PNGImageWriter extends ImageWriter {
      * @param image           待写图像
      * @param param           写入参数
      */
+    @Override
     public void write(IIOMetadata streamMetadata,
                       IIOImage image,
                       ImageWriteParam param) throws IIOException {
@@ -1094,22 +1094,22 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
-    @Override
     /**
      * 是否支持写入图像序列。
     */
+    @Override
     public boolean canWriteSequence() {
         
         return true;
     
     }
 
-    @Override
     /**
      * 准备写入图像序列
      *
      * @param streamMetadata 流元数据
      */
+    @Override
     public void prepareWriteSequence(IIOMetadata streamMetadata) throws IOException {
 
         if (stream == null) {
@@ -1345,21 +1345,21 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
-    @Override
     /**
      * 向序列追加一帧。
      *
      * @param image 待写图像
      * @param param 写入参数
      */
+    @Override
     public void writeToSequence(IIOImage image, ImageWriteParam param) throws IOException {
         writeToSequence0(image, param, true);
     }
 
-    @Override
     /**
      * 结束写入序列。
     */
+    @Override
     public void endWriteSequence() throws IOException {
         if (stream == null) {
             throw new IllegalStateException("output == null!");
@@ -1373,10 +1373,10 @@ public final class PNGImageWriter extends ImageWriter {
         resetStreamSettings();
     }
 
-    @Override
     /**
      * Reset
     */
+    @Override
     public void reset() {
         super.reset();
         resetStreamSettings();

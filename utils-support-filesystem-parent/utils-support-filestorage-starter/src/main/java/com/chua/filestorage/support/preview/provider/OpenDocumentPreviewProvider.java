@@ -38,10 +38,10 @@ public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
         return ext != null && SUPPORTED_EXTS.contains(ext.toLowerCase());
     }
 
-    @Override
     /**
      * Preview
     */
+    @Override
     public PreviewResult preview(byte[] content, String ext, String mime) {
         if (content.length > MAX_OD_PREVIEW_BYTES) {
             return PreviewResult.builder()

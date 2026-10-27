@@ -46,20 +46,20 @@ public class ForySerialization implements Serialization {
         return fury;
     }
 
-    @Override
-
     /**
      * Name
      */
+    @Override
+
     public String name() {
         return "fory";
     }
 
-    @Override
-
     /**
      * 序列化
      */
+    @Override
+
     public byte[] serialize(Object obj) {
         if (obj == null) {
             return new byte[0];

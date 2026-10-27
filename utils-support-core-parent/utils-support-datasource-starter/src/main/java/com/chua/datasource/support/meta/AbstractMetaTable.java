@@ -59,68 +59,68 @@ public abstract class AbstractMetaTable implements MetaTable {
         this.tableName = tableName;
     }
 
-    @Override
     /**
      * Catalog
     */
+    @Override
     public MetaTable catalog(String catalog) {
         this.metaData.catalog = catalog;
         return this;
     }
 
-    @Override
     /**
      * 模式
     */
+    @Override
     public MetaTable schema(String schema) {
         this.metaData.schema = schema;
         return this;
     }
 
-    @Override
     /**
      * 列表
     */
+    @Override
     public List<TableDef> list() {
         throw new UnsupportedOperationException("请实现 list() 方法");
     }
 
-    @Override
     /**
      * 获取
     */
+    @Override
     public TableDef get() {
         throw new UnsupportedOperationException("请实现 get() 方法");
     }
 
-    @Override
     /**
      * 创建
     */
+    @Override
     public TableCreateBuilder create(String tableName) {
         throw new UnsupportedOperationException("请实现 create() 方法");
     }
 
-    @Override
     /**
      * Alter
     */
+    @Override
     public TableAlterBuilder alter() {
         throw new UnsupportedOperationException("请实现 alter() 方法");
     }
 
-    @Override
     /**
      * 掉落
     */
+    @Override
     public boolean drop() {
         throw new UnsupportedOperationException("请实现 drop() 方法");
     }
 
-    @Override
     /**
      * 重命名
     */
+    @Override
     public boolean rename(String newName) {
         throw new UnsupportedOperationException("请实现 rename() 方法");
     }

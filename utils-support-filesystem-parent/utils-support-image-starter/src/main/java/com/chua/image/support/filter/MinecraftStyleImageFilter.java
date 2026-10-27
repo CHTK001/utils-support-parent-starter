@@ -127,20 +127,20 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
      */
     private double blockBorderStrength = 0.3;
 
-    @Override
     /**
      * 获取镜像格式化
     */
+    @Override
     public String getImageFormat() {
         
         return "png";
     
     }
 
-    @Override
     /**
      * 获取镜像格式化
     */
+    @Override
     public String getImageFormat(String name) {
         if (name == null) {
             return getImageFormat();
@@ -156,10 +156,10 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
         return "png";
     }
 
-    @Override
     /**
      * 过滤
     */
+    @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -452,10 +452,10 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
         return (alpha << 24) | (red << 16) | (green << 8) | blue;
     }
 
-    @Override
     /**
      * 转换器
     */
+    @Override
     public OutputStream converter(InputStream image) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         

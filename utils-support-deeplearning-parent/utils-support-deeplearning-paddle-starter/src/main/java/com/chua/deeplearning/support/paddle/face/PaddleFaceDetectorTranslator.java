@@ -58,18 +58,18 @@ public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedO
         this.className = Arrays.asList("Not Face", "Face");
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         return processImageInput(ctx.getNDManager(), input, shrink);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray result = list.singletonOrThrow();
         float[] probabilities = result.get(":,1").toFloatArray();
@@ -107,10 +107,10 @@ public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedO
         return new NDList(array);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

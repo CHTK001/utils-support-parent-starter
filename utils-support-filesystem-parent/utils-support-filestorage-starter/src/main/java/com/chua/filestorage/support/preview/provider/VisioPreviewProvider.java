@@ -33,10 +33,10 @@ public class VisioPreviewProvider implements FileStoragePreviewProvider {
         return ext != null && SUPPORTED.contains(ext.toLowerCase(Locale.ENGLISH));
     }
 
-    @Override
     /**
      * Preview
     */
+    @Override
     public PreviewResult preview(byte[] content, String ext, String mime) {
         String b64 = Base64.getEncoder().encodeToString(content);
         String extUpper = ext.toUpperCase(Locale.ENGLISH);

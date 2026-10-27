@@ -24,27 +24,27 @@ public class DefaultDataSyncMappingManager implements DataSyncMappingManager {
      */
     private final Map<String, DataSyncMapping> mappings = new ConcurrentHashMap<>();
 
-    @Override
     /**
      * 添加Mapping
     */
+    @Override
     public void addMapping(DataSyncMapping mapping) {
         mappings.put(mapping.mappingId(), mapping);
         log.info("添加映射: mappingId={}, inputId={}, outputId={}", mapping.mappingId(), mapping.inputId(), mapping.outputId());
     }
 
-    @Override
     /**
      * 获取Mappings
     */
+    @Override
     public List<DataSyncMapping> getMappings() {
         return Wraps.list(mappings.values());
     }
 
-    @Override
     /**
      * 获取mappingsby输入id
     */
+    @Override
     public List<DataSyncMapping> getMappingsByInputId(String inputId) {
         List<DataSyncMapping> result = Wraps.list();
         for (DataSyncMapping mapping : mappings.values()) {
@@ -55,10 +55,10 @@ public class DefaultDataSyncMappingManager implements DataSyncMappingManager {
         return result;
     }
 
-    @Override
     /**
      * 获取mappingsby输出id
     */
+    @Override
     public List<DataSyncMapping> getMappingsByOutputId(String outputId) {
         List<DataSyncMapping> result = Wraps.list();
         for (DataSyncMapping mapping : mappings.values()) {
@@ -69,18 +69,18 @@ public class DefaultDataSyncMappingManager implements DataSyncMappingManager {
         return result;
     }
 
-    @Override
     /**
      * 移除Mapping
     */
+    @Override
     public void removeMapping(String mappingId) {
         mappings.remove(mappingId);
     }
 
-    @Override
     /**
      * 创建从配置
     */
+    @Override
     public DataSyncMapping createFromConfig(String mappingId, DataSyncConfigDefinition config) {
         return new DefaultDataSyncMapping(mappingId, config);
     }

@@ -411,11 +411,11 @@ public final class DocumentMeta {
         return meta.getProperty();
     }
 
-    @Override
     /**
      * 转换为字符串
      * @return 字符串 对象
      */
+    @Override
     public String toString() {
         return "DocumentMeta{type=" + type.getName() + ", sheet='" + resolveSheetName()
                 + "', columns=" + headers() + "}";

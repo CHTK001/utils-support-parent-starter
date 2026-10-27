@@ -31,50 +31,50 @@ public class ThriftHandler extends AbstractAppHandler {
      */
     private static final String[] CLIENT_METHODS = {"sendBase", "recvBase"};
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "thrift-handler";
     }
 
-    @Override
     /**
      * 已启用键
     */
+    @Override
     protected String enabledKey() {
         return "thrift.enabled";
     }
 
-    @Override
     /**
      * Software
     */
+    @Override
     protected Software software() {
         return Software.THRIFT;
     }
 
-    @Override
     /**
      * 协议
     */
+    @Override
     protected Protocol protocol() {
         return Protocol.THRIFT;
     }
 
-    @Override
     /**
      * 注册拦截器
     */
+    @Override
     protected void registerInterceptors() {
         registerAll(T_SERVICE_CLIENT, CLIENT_METHODS);
     }
 
-    @Override
     /**
      * 构建Target
     */
+    @Override
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object transport = instance != null ? findField(instance, "iprot_") : null;
         String url = transport != null ? String.valueOf(findField(transport, "trans_")) : null;

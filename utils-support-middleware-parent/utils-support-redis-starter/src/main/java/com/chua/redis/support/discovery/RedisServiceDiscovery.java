@@ -47,20 +47,20 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
         super(discoveryOption, clusterName);
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         Config config = new Config();
         config.useSingleServer().setAddress(discoveryOption.getAddress());
         this.redissonClient = Redisson.create(config);
     }
 
-    @Override
     /**
      * 注册服务
     */
+    @Override
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         String prefixedPath = addClusterPrefix(path);
         discovery.setUriSpec(prefixedPath);
@@ -73,10 +73,10 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
         return this;
     }
 
-    @Override
     /**
      * 执行注销
     */
+    @Override
     protected void doUnregister(String path, Discovery discovery) {
         String mapKey = "discovery:" + path;
         String entryKey = discovery.getHost() + ":" + discovery.getPort();
@@ -84,10 +84,10 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
         map.remove(entryKey);
     }
 
-    @Override
     /**
      * 执行更新
     */
+    @Override
     protected void doUpdate(String path, Discovery oldDiscovery, Discovery newDiscovery) {
         String mapKey = "discovery:" + path;
         String entryKey = newDiscovery.getHost() + ":" + newDiscovery.getPort();
@@ -95,26 +95,26 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
         map.put(entryKey, Json.toJson(newDiscovery));
     }
 
-    @Override
     /**
      * 是否支持订阅
     */
+    @Override
     public boolean isSupportSubscribe() {
         return true;
     }
 
-    @Override
     /**
      * 订阅
     */
+    @Override
     public void subscribe(String serviceName, ServiceDiscoveryListener listener) {
         log.warn("RedisServiceDiscovery subscribe is not fully implemented without Pub/Sub");
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         if (redissonClient != null) {
             redissonClient.shutdown();

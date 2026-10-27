@@ -35,10 +35,10 @@ public class OnnxPoseEstimator implements PoseEstimator {
     public OnnxPoseEstimator(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public PoseEstimator model(String model) {
         this.modelName = model;
         return this;
@@ -57,45 +57,45 @@ public class OnnxPoseEstimator implements PoseEstimator {
         return modelName;
     }
 
-    @Override
     /**
      * 阈值
     */
+    @Override
     public PoseEstimator threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public PoseEstimator modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public PoseEstimator device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * Estimate
     */
+    @Override
     public List<PoseKeypoint> estimate(byte[] imageData) {
         return PoseEstimator.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).estimate(imageData);
     }
 
-    @Override
     /**
      * estimatemulti
     */
+    @Override
     public List<List<PoseKeypoint>> estimateMulti(byte[] imageData) {
         List<PoseKeypoint> single = estimate(imageData);
         return single == null ? List.of() : List.of(single);

@@ -20,10 +20,10 @@ import ai.djl.translate.TranslatorContext;
  */
 public class InsightFaceTranslator implements Translator<Image, float[]> {
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         Pipeline pipeline = new Pipeline();
@@ -36,10 +36,10 @@ public class InsightFaceTranslator implements Translator<Image, float[]> {
         return pipeline.transform(new NDList(array));
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
         while (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
@@ -52,10 +52,10 @@ public class InsightFaceTranslator implements Translator<Image, float[]> {
         return l2Normalize(features);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

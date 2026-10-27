@@ -77,34 +77,34 @@ public class CalciteDataTable implements DataTable {
         return this;
     }
 
-    @Override
     /**
      * 获取名称
     */
+    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     /**
      * 获取column名称
     */
+    @Override
     public List<String> getColumnNames() {
         return columnNames;
     }
 
-    @Override
     /**
      * 获取数据
     */
+    @Override
     public List<Map<String, Object>> getData() {
         return data;
     }
 
-    @Override
     /**
      * 获取Row计算数量
     */
+    @Override
     public long getRowCount() {
         return data.size();
     }

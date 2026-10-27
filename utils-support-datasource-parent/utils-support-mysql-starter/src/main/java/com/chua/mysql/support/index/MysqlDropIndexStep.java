@@ -34,19 +34,19 @@ public class MysqlDropIndexStep implements IndexManager.DropIndexStep {
         this.indexName = indexName;
     }
 
-    @Override
     /**
      * ontable
     */
+    @Override
     public IndexManager.DropIndexStep onTable(String table) {
         this.table = table;
         return this;
     }
 
-    @Override
     /**
      * 执行
     */
+    @Override
     public void execute() {
         try (var c = dataSource.getConnection();
              var s = c.createStatement()) {

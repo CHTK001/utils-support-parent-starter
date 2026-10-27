@@ -99,10 +99,10 @@ public class RSocketServer extends AbstractServer {
         super(setting);
     }
 
-    @Override
     /**
      * 执行开始
     */
+    @Override
     protected void doStart() {
  // 增加 Netty 工人 线程数,避免 1000 并发短连接 SETUP 握手溢出默认 4 线程
         int workers = Math.max(4, Runtime.getRuntime().availableProcessors() * 2);
@@ -110,10 +110,10 @@ public class RSocketServer extends AbstractServer {
         serverDisposable = io.rsocket.core.RSocketServer.create((setup, sendingSocket) -> {
             return Mono.just(new io.rsocket.RSocket() {
 
-                @Override
                 /**
                  * 请求响应
                 */
+                @Override
                 public Mono<io.rsocket.Payload> requestResponse(io.rsocket.Payload payload) {
                     // 虚拟线程异步派发,避免同步认证(DB/Redis)阻塞连接 event loop,
  // 否则同一条长连接的并发 流 会全部串行排队导致超时
@@ -154,10 +154,10 @@ public class RSocketServer extends AbstractServer {
                     }).subscribeOn(reactor.core.scheduler.Schedulers.fromExecutor(bizExecutor));
                 }
 
-                @Override
                 /**
                  * fire和forget
                 */
+                @Override
                 public Mono<Void> fireAndForget(io.rsocket.Payload payload) {
  // 虚拟线程异步执行,业务不阻塞连接 事件 循环
                     return Mono.<Void>fromRunnable(() -> {
@@ -188,10 +188,10 @@ public class RSocketServer extends AbstractServer {
                     }).subscribeOn(reactor.core.scheduler.Schedulers.fromExecutor(bizExecutor)).then();
                 }
 
-                @Override
                 /**
                  * 请求流
                 */
+                @Override
                 public Flux<io.rsocket.Payload> requestStream(io.rsocket.Payload payload) {
                     String topic = extractTopic(payload);
                     if (topic == null || topic.isEmpty()) {
@@ -220,10 +220,10 @@ public class RSocketServer extends AbstractServer {
         invokeAnnotatedMethods(OnOpen.class);
     }
 
-    @Override
     /**
      * 执行停止
     */
+    @Override
     protected void doStop() {
         if (serverDisposable != null) {
             serverDisposable.dispose();
@@ -245,10 +245,10 @@ public class RSocketServer extends AbstractServer {
         log.info("RSocket 服务器停止");
     }
 
-    @Override
     /**
      * 获取协议类型
     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.UNKNOWN;
     }
@@ -465,66 +465,66 @@ public class RSocketServer extends AbstractServer {
             this.body = body != null ? body.getBytes(StandardCharsets.UTF_8) : new byte[0];
         }
 
-        @Override
         /**
          * 读取主体
         */
+        @Override
         protected byte[] readBody() {
             return body;
         }
 
-        @Override
         /**
          * 获取Uri
         */
+        @Override
         public String getUri() {
             return "/" + topic;
         }
 
-        @Override
         /**
          * 获取路径
         */
+        @Override
         public String getPath() {
             return "/" + topic;
         }
 
-        @Override
         /**
          * 获取方法
         */
+        @Override
         public com.chua.common.support.network.http.HttpMethod getMethod() {
             return com.chua.common.support.network.http.HttpMethod.POST;
         }
 
-        @Override
         /**
          * 获取头部
         */
+        @Override
         public String getHeader(String name) {
             return null;
         }
 
-        @Override
         /**
          * 获取头部
         */
+        @Override
         public com.chua.common.support.network.http.HttpHeader getHeaders() {
             return com.chua.common.support.network.http.HttpHeader.create();
         }
 
-        @Override
         /**
          * 获取远程地址
         */
+        @Override
         public String getRemoteAddress() {
             return "127.0.0.1";
         }
 
-        @Override
         /**
          * 获取远程端口
         */
+        @Override
         public int getRemotePort() {
             return 0;
         }
@@ -537,18 +537,18 @@ public class RSocketServer extends AbstractServer {
      */
     private static class SimpleServerResponse extends com.chua.common.support.network.server.response.AbstractServerResponse {
 
-        @Override
         /**
          * 获取输出流
         */
+        @Override
         public java.io.OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
         }
 
-        @Override
         /**
          * 写入Raw
         */
+        @Override
         public void writeRaw(byte[] bytes) {
             this.body = bytes;
         }

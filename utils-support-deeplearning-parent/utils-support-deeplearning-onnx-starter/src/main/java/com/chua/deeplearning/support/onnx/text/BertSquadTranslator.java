@@ -52,10 +52,10 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
      */
     private static final int UNK_TOKEN_ID = 100;
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Map<String, String> input) {
         NDManager manager = ctx.getNDManager();
         
@@ -120,10 +120,10 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
         return new NDList(tokenIdsArray, attentionMaskArray, segmentIdsArray);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public String processOutput(TranslatorContext ctx, NDList list) {
         if (list.size() < 2) {
             return "";
@@ -171,10 +171,10 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
         return Math.abs(hash % 30000) + 100;
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

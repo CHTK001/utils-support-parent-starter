@@ -175,10 +175,10 @@ public class KafkaWalLog implements WalLog {
         } catch (IOException ignored) {}
     }
 
-    @Override
     /**
      * 追加
     */
+    @Override
     public long append(byte op, byte[] payload) throws IOException {
         ensureOpen();
         lock.lock();
@@ -196,36 +196,36 @@ public class KafkaWalLog implements WalLog {
         }
     }
 
-    @Override
     /**
      * 同步
     */
+    @Override
     public void sync() throws IOException {
         ensureOpen();
         producer.flush();
     }
 
-    @Override
     /**
      * 当前lsn
     */
+    @Override
     public long currentLsn() {
         return currentLsn.get();
     }
 
-    @Override
     /**
      * 加载Checkpoint
     */
+    @Override
     public CheckpointMeta loadCheckpoint() throws IOException {
         ensureOpen();
         return new CheckpointMeta(checkpointLsn.get(), 1, 0, System.currentTimeMillis());
     }
 
-    @Override
     /**
      * 标记Checkpoint
     */
+    @Override
     public void markCheckpoint(long lsn) throws IOException {
         ensureOpen();
         lock.lock();
@@ -237,10 +237,10 @@ public class KafkaWalLog implements WalLog {
         }
     }
 
-    @Override
     /**
      * 重置Checkpoint
     */
+    @Override
     public void resetCheckpoint() throws IOException {
         ensureOpen();
         lock.lock();
@@ -252,10 +252,10 @@ public class KafkaWalLog implements WalLog {
         }
     }
 
-    @Override
     /**
      * forcecheckpoint
     */
+    @Override
     public void forceCheckpoint(long lsn) throws IOException {
         ensureOpen();
         lock.lock();
@@ -267,26 +267,26 @@ public class KafkaWalLog implements WalLog {
         }
     }
 
-    @Override
     /**
      * Replay
     */
+    @Override
     public WalReplayResult replay(WalReplayHandler handler) throws IOException {
         return replay(checkpointLsn.get() + 1, Long.MAX_VALUE, handler);
     }
 
-    @Override
     /**
      * Replay
     */
+    @Override
     public WalReplayResult replay(long fromLsn, WalReplayHandler handler) throws IOException {
         return replay(fromLsn, Long.MAX_VALUE, handler);
     }
 
-    @Override
     /**
      * Replay
     */
+    @Override
     public WalReplayResult replay(long fromLsn, long toLsn, WalReplayHandler handler) throws IOException {
         ensureOpen();
         lock.lock();
@@ -333,44 +333,44 @@ public class KafkaWalLog implements WalLog {
         }
     }
 
-    @Override
     /**
      * 追加Chain
     */
+    @Override
     public long appendChain(WalChainHandler handler) throws IOException {
         ensureOpen();
         List<WalOp> ops = Wraps.list();
         try {
             handler.apply(new WalChain() {
-                @Override
                 /**
                  * 添加
                 */
+                @Override
                 public WalChain add(byte op, byte[] payload) {
                     ops.add(new WalOp(op, payload == null ? new byte[0] : payload));
                     return this;
                 }
-                @Override
                 /**
                  * 添加
                 */
+                @Override
                 public WalChain add(byte op, String s) {
                     byte[] bytes = s == null ? new byte[0] : s.getBytes(java.nio.charset.StandardCharsets.UTF_8);
                     ops.add(new WalOp(op, bytes));
                     return this;
                 }
-                @Override
                 /**
                  * 添加
                 */
+                @Override
                 public WalChain add(byte op) {
                     ops.add(new WalOp(op, new byte[0]));
                     return this;
                 }
-                @Override
                 /**
                  * 获取大小
                 */
+                @Override
                 public int size() {
                     return ops.size();
                 }
@@ -387,10 +387,10 @@ public class KafkaWalLog implements WalLog {
         return last;
     }
 
-    @Override
     /**
      * 查找bylsn
     */
+    @Override
     public Optional<WalRecord> findByLsn(long lsn) throws IOException {
         ensureOpen();
         lock.lock();
@@ -420,36 +420,36 @@ public class KafkaWalLog implements WalLog {
         }
     }
 
-    @Override
     /**
      * purgecheckpointed
     */
+    @Override
     public int purgeCheckpointed(int keepSegments) throws IOException {
         return 0;
     }
 
-    @Override
     /**
      * 当前segment
     */
+    @Override
     public WalSegmentInfo currentSegment() {
         return new WalSegmentInfo(1, checkpointLsn.get() + 1, currentLsn.get(),
                 (int) Math.max(0, currentLsn.get() - checkpointLsn.get()),
                 checkpointPath().getParent(), true);
     }
 
-    @Override
     /**
      * 列表segments
     */
+    @Override
     public List<WalSegmentInfo> listSegments() {
         return Collections.singletonList(currentSegment());
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() throws IOException {
         if (closed) {
             return;

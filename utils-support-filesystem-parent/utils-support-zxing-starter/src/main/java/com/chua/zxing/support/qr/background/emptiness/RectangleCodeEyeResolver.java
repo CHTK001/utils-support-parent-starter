@@ -34,10 +34,10 @@ public class RectangleCodeEyeResolver implements CodeEyeResolver{
         this.unitWidth = unitWidth;
     }
 
-    @Override
     /**
      * 解析
     */
+    @Override
     public void resolve(Graphics2D g, Color df, Color lf, Color lb, int qrCodeWidth, int startX, int startY, int version) {
         // 添加一层遮罩
         g.setColor(lb);

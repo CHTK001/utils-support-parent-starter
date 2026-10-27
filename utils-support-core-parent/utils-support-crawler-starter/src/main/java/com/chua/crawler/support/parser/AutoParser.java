@@ -61,10 +61,10 @@ public class AutoParser implements SpiderParser {
         log.info("[spider-parser] AutoParser 加载了 {} 个 Parser 实现", parsers.size());
     }
 
-    @Override
     /**
      * 解析
     */
+    @Override
     public SpiderResult parse(SpiderResponse response) {
         String url = response.getRequest() != null ? response.getRequest().getUrl() : "unknown";
 
@@ -112,10 +112,10 @@ public class AutoParser implements SpiderParser {
         return s.length() <= max ? s : s.substring(0, max) + "…";
     }
 
-    @Override
     /**
      * 支持内容类型
     */
+    @Override
     public String[] supportedContentTypes() {
         // 支持所有类型，由内部 Parser 决定
         return new String[] {"*/*"};

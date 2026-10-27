@@ -98,10 +98,10 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
         this.classes = (classes == null || classes.isEmpty()) ? List.of("object") : classes;
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         ctx.setAttachment("sourceWidth", input.getWidth());
         ctx.setAttachment("sourceHeight", input.getHeight());
@@ -127,10 +127,10 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         int sourceWidth = (int) ctx.getAttachment("sourceWidth");
         int sourceHeight = (int) ctx.getAttachment("sourceHeight");
@@ -234,10 +234,10 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
         return new DetectedObjects(outNames, outProbs, outBoxes);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

@@ -26,10 +26,10 @@ import javax.annotation.Nullable;
 public class ProgressiveEmptinessBackgroundResolver implements BackgroundResolver {
 
 
-    @Override
     /**
      * 解析
     */
+    @Override
     public BufferedImage resolve(QrSetting setting, BackgroundSetting backgroundSetting, BufferedImage image, QRCode qrCode, BitMatrixEx bitMatrix) {
         Color fromColor = Converter.convertIfNecessary(backgroundSetting.getFromColor(), Color.class);
         if (null == fromColor) {

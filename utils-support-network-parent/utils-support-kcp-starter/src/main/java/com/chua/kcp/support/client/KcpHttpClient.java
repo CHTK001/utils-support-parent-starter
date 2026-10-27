@@ -236,10 +236,10 @@ public class KcpHttpClient {
             return body != null ? new String(body, StandardCharsets.UTF_8) : "";
         }
 
-        @Override
         /**
          * 转为字符串
         */
+        @Override
         public String toString() {
             return "HttpResponse{status=" + status + ", body=" + getBodyString() + "}";
         }

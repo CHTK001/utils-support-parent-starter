@@ -19,26 +19,26 @@ import java.io.*;
 @Spi("ofd")
 public class OfdFileSystem implements FileSystem {
 
-    @Override
     /**
      * 获取类型
     */
+    @Override
     public String getType() {
          return "ofd"; 
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public ReadBuilder read(File file) {
          return new OfdReadBuilder(file); 
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public WriteBuilder write(File file) { throw new UnsupportedOperationException("OFD write not yet supported"); }
 }
 

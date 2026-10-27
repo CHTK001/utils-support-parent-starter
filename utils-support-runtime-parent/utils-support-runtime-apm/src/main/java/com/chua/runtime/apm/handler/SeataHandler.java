@@ -23,50 +23,50 @@ public class SeataHandler extends AbstractAppHandler {
      */
     private static final String[] TX_METHODS = {"begin", "commit", "rollback", "getStatus"};
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "seata-handler";
     }
 
-    @Override
     /**
      * 已启用键
     */
+    @Override
     protected String enabledKey() {
         return "seata.enabled";
     }
 
-    @Override
     /**
      * Software
     */
+    @Override
     protected Software software() {
         return Software.SEATA;
     }
 
-    @Override
     /**
      * 协议
     */
+    @Override
     protected Protocol protocol() {
         return Protocol.INTERNAL;
     }
 
-    @Override
     /**
      * 注册拦截器
     */
+    @Override
     protected void registerInterceptors() {
         registerAll(GLOBAL_TRANSACTION, TX_METHODS);
     }
 
-    @Override
     /**
      * 构建Target
     */
+    @Override
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

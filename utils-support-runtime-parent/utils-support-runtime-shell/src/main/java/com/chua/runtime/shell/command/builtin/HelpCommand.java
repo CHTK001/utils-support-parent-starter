@@ -28,34 +28,34 @@ public class HelpCommand implements Command {
         this.registry = registry;
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "help";
     }
 
-    @Override
     /**
      * Aliases
     */
+    @Override
     public String[] aliases() {
         return new String[]{"?", "commands"};
     }
 
-    @Override
     /**
      * Description
     */
+    @Override
     public String description() {
         return "显示所有可用命令";
     }
 
-    @Override
     /**
      * 执行
     */
+    @Override
     public int execute(String[] args, Console console) {
         if (args.length > 0) {
             String target = args[0];

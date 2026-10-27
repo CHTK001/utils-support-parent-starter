@@ -46,7 +46,6 @@ public class MiganInpaintingTranslator implements Translator<Image, Image> {
     private int height;
 
 
-    @Override
     /**
      * 构造双 uint8 输入张量（image + mask）。
      *
@@ -54,6 +53,7 @@ public class MiganInpaintingTranslator implements Translator<Image, Image> {
      * @param input 输入 RGBA 图像（RGB=图像，A=修复掩码）
      * @return 双输入 NDList（顺序：image, mask）
      */
+    @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -95,7 +95,6 @@ public class MiganInpaintingTranslator implements Translator<Image, Image> {
     }
 
 
-    @Override
     /**
      * 修复结果 NCHW uint8 [1,3,H,W] 转 RGB 图像。
      *
@@ -103,6 +102,7 @@ public class MiganInpaintingTranslator implements Translator<Image, Image> {
      * @param list 输出张量列表
      * @return 修复结果 RGB 图像
      */
+    @Override
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = list.getFirst();
         byte[] data = output.toByteArray();
@@ -124,10 +124,10 @@ public class MiganInpaintingTranslator implements Translator<Image, Image> {
     }
 
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

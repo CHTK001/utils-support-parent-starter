@@ -46,10 +46,10 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
     */
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
 
@@ -80,10 +80,10 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
         return new NDList(array, w);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         // 模型输出 3 个：y(修复图) / logits / style_feat，取第一个 y
         NDArray outputImg = list.getFirst();
@@ -148,10 +148,10 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
         return Math.round(val);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
  // 返回 空：单输入无需 批量 包装，避免 Batchifier.STACK 将 x 变为 5 维导致 rank 不匹配
         return null;

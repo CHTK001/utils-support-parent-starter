@@ -202,14 +202,14 @@ public class ZmqRpcClient implements RpcClient {
         return "tcp://" + trimmed;
     }
 
-    @Override
-    @SuppressWarnings({"rawtypes", "unchecked"})
     /**
      * 获取远程代理
      *
      * @param targetType 目标类型
      * @return 获取的结果
      */
+    @Override
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public <T> T get(Class<T> targetType) {
         return (T) proxyCache.computeIfAbsent(targetType, type ->
                 ProxyUtils.newProxy((Class<T>) type, type.getClassLoader(),
@@ -277,10 +277,10 @@ public class ZmqRpcClient implements RpcClient {
             this.targetType = targetType;
         }
 
-        @Override
         /**
          * 执行调用
         */
+        @Override
         public Object apply(ProxyMethod proxyMethod) {
             // 同 JVM 直调：目标服务已在本进程注册时直接调用，跳过网络与序列化
             Object localService = inlineEnabled ? LocalServiceRegistry.INSTANCE.get(targetType.getName()) : null;
@@ -379,10 +379,10 @@ public class ZmqRpcClient implements RpcClient {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         for (ZMQ.Socket socket : socketCache.values()) {
             try {

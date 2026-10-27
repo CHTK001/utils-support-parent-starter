@@ -72,10 +72,10 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
         this.redissonClient = redissonClient;
     }
 
-    @Override
     /**
      * 发布
     */
+    @Override
     public void publish(String topic, Object body) {
         var value = body == null ? "" : body.toString();
         var rt = getOrCreateTopic(topic);
@@ -83,20 +83,20 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
         log.debug("Redis 已发布消息到频道：{}", topic);
     }
 
-    @Override
     /**
      * 订阅
     */
+    @Override
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).add(definition);
             if (!listenerIdMap.containsKey(topic) && !closed) {
                 var rt = getOrCreateTopic(topic);
                 var listenerId = rt.addListener(String.class, new MessageListener<String>() {
-                    @Override
                     /**
                      * on消息
                     */
+                    @Override
                     public void onMessage(CharSequence channel, String msg) {
                         var definitions = definitionMap.get(topic);
                         if (definitions != null) {
@@ -116,10 +116,10 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
         }
     }
 
-    @Override
     /**
      * 取消订阅
     */
+    @Override
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var definitions = definitionMap.get(topic);
@@ -140,10 +140,10 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         closed = true;
         listenerIdMap.clear();

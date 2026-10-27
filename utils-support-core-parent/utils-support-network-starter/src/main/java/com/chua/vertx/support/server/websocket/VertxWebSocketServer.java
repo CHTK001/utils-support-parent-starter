@@ -55,10 +55,10 @@ public class VertxWebSocketServer extends AbstractServer {
         super(setting);
     }
 
-    @Override
     /**
      * 执行开始
     */
+    @Override
     protected void doStart() {
         // 事件循环数提到 CPU 核数:WebSocket 帧解析/回显都在事件循环执行,
  // bossthreads 默认 1 会让单事件循环成为高并发吞吐瓶颈
@@ -154,21 +154,23 @@ public class VertxWebSocketServer extends AbstractServer {
                 .join();
     }
 
-    @Override
     /**
      * 执行停止
     */
+    @Override
     protected void doStop() {
         if (server != null) {
             try {
                 server.close().toCompletionStage().toCompletableFuture().join();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[network] 关闭 websocket 服务端失败，已忽略: {}", e.getMessage());
             }
         }
         if (vertx != null) {
             try {
                 vertx.close().toCompletionStage().toCompletableFuture().join();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[network] 关闭 vertx 实例失败，已忽略: {}", e.getMessage());
             }
         }
         connections.clear();
@@ -176,18 +178,18 @@ public class VertxWebSocketServer extends AbstractServer {
         log.info("Vert.x WebSocketServer stopped");
     }
 
-    @Override
     /**
      * 获取协议类型
     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.WS;
     }
 
-    @Override
     /**
      * 注册Bean
     */
+    @Override
     public VertxWebSocketServer registerBean(Object handler) {
         super.registerBean(handler);
         if (handler == null) {
@@ -326,135 +328,134 @@ public class VertxWebSocketServer extends AbstractServer {
             this.body = body;
         }
 
-        @Override
         /**
          * 获取Uri
         */
+        @Override
         public String getUri() {
             return "/ws/" + topic;
         }
 
-        @Override
         /**
          * 获取路径
         */
+        @Override
         public String getPath() {
             return "/ws/" + topic;
         }
 
-        @Override
         /**
          * 获取方法
         */
+        @Override
         public com.chua.common.support.network.http.HttpMethod getMethod() {
             return com.chua.common.support.network.http.HttpMethod.POST;
         }
 
-        @Override
         /**
          * 获取头部
         */
+        @Override
         public String getHeader(String name) {
             return null;
         }
 
-        @Override
         /**
          * 获取头部
         */
+        @Override
         public com.chua.common.support.network.http.HttpHeader getHeaders() {
             return com.chua.common.support.network.http.HttpHeader.create();
         }
 
-        @Override
         /**
          * 获取参数
         */
+        @Override
         public Map<String, String> getParams() {
             return Collections.emptyMap();
         }
 
-        @Override
         /**
          * 获取参数
         */
+        @Override
         public String getParam(String name) {
             return null;
         }
 
-        @Override
         /**
          * 获取内容类型
         */
+        @Override
         public String getContentType() {
             return "text/plain";
         }
 
-        @Override
         /**
          * 获取内容获取长度
         */
+        @Override
         public long getContentLength() {
             return body != null ? body.getBytes().length : -1;
         }
 
-        @Override
         /**
          * 获取主体
         */
+        @Override
         public byte[] getBody() {
             return body != null ? body.getBytes() : new byte[0];
         }
 
-        @Override
         /**
          * 获取主体字符串
         */
+        @Override
         public String getBodyString() {
             return body;
         }
 
-        @Override
         /**
          * 获取输入流
         */
+        @Override
         public java.io.InputStream getInputStream() {
             return new java.io.ByteArrayInputStream(body != null ? body.getBytes() : new byte[0]);
         }
 
-        @Override
         /**
          * 获取远程地址
         */
+        @Override
         public String getRemoteAddress() {
             return "127.0.0.1";
         }
 
-        @Override
         /**
          * 获取远程端口
         */
+        @Override
         public int getRemotePort() {
             return 0;
         }
 
-        @Override
         /**
          * 获取Attributes
         */
+        @Override
         public Map<String, Object> getAttributes() {
             return attributes;
         }
 
-        @Override
         /**
          * 获取Attribute
         */
+        @Override
         public Object getAttribute(String name) {
             return attributes.get(name);
         }
 
-        @Override
         /**
          * 设置Attribute
          *
@@ -463,6 +464,7 @@ public class VertxWebSocketServer extends AbstractServer {
          * @author CH
          * @since 4.0.0
          */
+        @Override
         public void setAttribute(String name, Object value) {
             attributes.put(name, value);
         }
@@ -495,109 +497,109 @@ public class VertxWebSocketServer extends AbstractServer {
             this.ws = ws;
         }
 
-        @Override
         /**
          * 获取状态
         */
+        @Override
         public int getStatus() {
             return status;
         }
 
-        @Override
         /**
          * 设置状态
         */
+        @Override
         public ServerResponse setStatus(int status) {
             this.status = status;
             return this;
         }
 
-        @Override
         /**
          * 获取头部
         */
+        @Override
         public String getHeader(String name) {
             return null;
         }
 
-        @Override
         /**
          * 设置头部
         */
+        @Override
         public ServerResponse setHeader(String name, String value) {
             return this;
         }
 
-        @Override
         /**
          * 获取头部
         */
+        @Override
         public com.chua.common.support.network.http.HttpHeader getHeaders() {
             return com.chua.common.support.network.http.HttpHeader.create();
         }
 
-        @Override
         /**
          * 获取内容类型
         */
+        @Override
         public String getContentType() {
             return null;
         }
 
-        @Override
         /**
          * 设置内容类型
         */
+        @Override
         public ServerResponse setContentType(String contentType) {
             return this;
         }
 
-        @Override
         /**
          * 设置主体
         */
+        @Override
         public ServerResponse setBody(byte[] body) {
             this.result = body;
             return this;
         }
 
-        @Override
         /**
          * 设置主体
         */
+        @Override
         public ServerResponse setBody(String body) {
             this.result = body;
             return this;
         }
 
-        @Override
         /**
          * 获取主体
         */
+        @Override
         public byte[] getBody() {
             return result instanceof byte[] ? (byte[]) result : null;
         }
 
-        @Override
         /**
          * 获取输出流
         */
+        @Override
         public java.io.OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
         }
 
-        @Override
         /**
          * 发送Redirect
         */
+        @Override
         public ServerResponse sendRedirect(String location) {
             return this;
         }
 
-        @Override
         /**
          * 发送记录错误
         */
+        @Override
         public ServerResponse sendError(int code, String message) {
             this.status = code;
             this.result = message;
@@ -605,41 +607,41 @@ public class VertxWebSocketServer extends AbstractServer {
             return this;
         }
 
-        @Override
         /**
          * 刷新
         */
+        @Override
         public void flush() {
         }
 
-        @Override
         /**
          * 是否Committed
         */
+        @Override
         public boolean isCommitted() {
             return committed;
         }
 
-        @Override
         /**
          * 是否结束
         */
+        @Override
         public boolean isEnded() {
             return ended;
         }
 
-        @Override
         /**
          * 结束
         */
+        @Override
         public void end() {
             this.ended = true;
         }
 
-        @Override
         /**
          * 重置
         */
+        @Override
         public ServerResponse reset() {
             if (!committed) {
                 status = 200;
@@ -649,17 +651,17 @@ public class VertxWebSocketServer extends AbstractServer {
             return this;
         }
 
-        @Override
         /**
          * 写入Raw
         */
+        @Override
         public void writeRaw(byte[] bytes) {
         }
 
-        @Override
         /**
          * 设置结果
         */
+        @Override
         public ServerResponse setResult(Object result) {
             this.result = result;
             if (result != null && ws != null && !ws.isClosed()) {
@@ -668,10 +670,10 @@ public class VertxWebSocketServer extends AbstractServer {
             return this;
         }
 
-        @Override
         /**
          * 获取结果
         */
+        @Override
         public Object getResult() {
             return result;
         }

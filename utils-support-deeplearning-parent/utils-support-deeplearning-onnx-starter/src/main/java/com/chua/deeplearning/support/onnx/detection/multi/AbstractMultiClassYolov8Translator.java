@@ -173,10 +173,10 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
         }
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         imageWidth = input.getWidth();
         imageHeight = input.getHeight();
@@ -188,10 +188,10 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
         return new NDList(toNormalizedChw(ctx, array));
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
         NDArray output = list.getFirst();
 
@@ -301,10 +301,10 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
         return new DetectedObjects(finalNames, finalProbs, finalBoxes);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

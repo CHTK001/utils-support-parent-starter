@@ -52,10 +52,10 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
         this.tokenizerPath = tokenizerPath;
     }
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(TranslatorContext ctx) throws IOException {
         HuggingFaceTokenizer.Builder builder = HuggingFaceTokenizer.builder()
                 .optPadding(true)
@@ -90,10 +90,10 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
         return null;
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, String input) {
         Encoding encoding = tokenizer.encode(input);
         long[] ids = encoding.getIds();
@@ -106,10 +106,10 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
         return new NDList(ndArray);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public NDList processOutput(TranslatorContext ctx, NDList list) {
         list.detach();
         return list;

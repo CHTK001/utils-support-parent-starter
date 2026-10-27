@@ -56,50 +56,50 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @AutoSpi(value = "com.chua.common.support.lang.json.JsonProvider")
 public class FastjsonJsonProvider implements JsonProvider {
 
-    @Override
     /**
      * 创建json对象
     */
+    @Override
     public JsonObject createJsonObject() {
         return new FastjsonJsonObject();
     }
 
-    @Override
     /**
      * 创建json对象
     */
+    @Override
     public JsonObject createJsonObject(Map map) {
         return new FastjsonJsonObject(map);
     }
 
-    @Override
     /**
      * 创建jsonarray
     */
+    @Override
     public JsonArray createJsonArray() {
         return new FastjsonJsonArray();
     }
 
-    @Override
     /**
      * 创建jsonarray
     */
+    @Override
     public JsonArray createJsonArray(Collection collection) {
         return new FastjsonJsonArray(collection);
     }
 
-    @Override
     /**
      * 创建json节点
     */
+    @Override
     public JsonNode createJsonNode(Object value) {
         return new FastjsonJsonNode(value);
     }
 
-    @Override
     /**
      * 解析
     */
+    @Override
     public JsonNode parse(String json) {
         if (null == json) {
             return createJsonNode(createJsonObject());
@@ -115,10 +115,10 @@ public class FastjsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 解析
     */
+    @Override
     public JsonNode parse(byte[] json) {
         if (null == json) {
             return createJsonNode(createJsonObject());
@@ -126,26 +126,26 @@ public class FastjsonJsonProvider implements JsonProvider {
         return parse(new String(json, UTF_8));
     }
 
-    @Override
     /**
      * 构建
     */
+    @Override
     public JsonNode build() {
         return createJsonNode(createJsonObject());
     }
 
-    @Override
     /**
      * 构建Array
     */
+    @Override
     public JsonNode buildArray() {
         return createJsonNode(createJsonArray());
     }
 
-    @Override
     /**
      * 获取json对象
     */
+    @Override
     public JsonObject getJsonObject(String json) {
         if (null == json) {
             return createJsonObject();
@@ -157,18 +157,18 @@ public class FastjsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 获取json引用
     */
+    @Override
     public JsonReference getJsonReference(String json) {
         return new JsonReference(json);
     }
 
-    @Override
     /**
      * 获取jsonarray
     */
+    @Override
     public JsonArray getJsonArray(byte[] jsonArray) {
         if (null == jsonArray) {
             return createJsonArray();
@@ -176,10 +176,10 @@ public class FastjsonJsonProvider implements JsonProvider {
         return getJsonArray(new String(jsonArray, UTF_8));
     }
 
-    @Override
     /**
      * 获取jsonarray
     */
+    @Override
     public JsonArray getJsonArray(String json) {
         if (null == json) {
             return createJsonArray();
@@ -191,10 +191,10 @@ public class FastjsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 获取json对象
     */
+    @Override
     public JsonObject getJsonObject(byte[] bytes) {
         try {
             return createJsonObject(JSON.parseObject(new String(bytes, UTF_8), Map.class));
@@ -203,10 +203,10 @@ public class FastjsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 获取json对象
     */
+    @Override
     public JsonObject getJsonObject(InputStreamReader inputStreamReader) {
         try {
             return createJsonObject(JSON.parseObject(readString(inputStreamReader), Map.class));
@@ -215,18 +215,18 @@ public class FastjsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 获取json对象
     */
+    @Override
     public JsonObject getJsonObject(InputStream inputStream) {
         return getJsonObject(new InputStreamReader(inputStream, UTF_8));
     }
 
-    @Override
     /**
      * 获取json对象
     */
+    @Override
     public JsonObject getJsonObject(InputStream inputStream, String charset) {
         try {
             return getJsonObject(new InputStreamReader(inputStream, charset));
@@ -235,18 +235,18 @@ public class FastjsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json转为列表
     */
+    @Override
     public <T> List<T> fromJsonToList(InputStream inputStream, Class<T> targetType) {
         return fromJsonToList(readString(inputStream), targetType);
     }
 
-    @Override
     /**
      * 从json转为列表
     */
+    @Override
     public <T> List<T> fromJsonToList(String json, Class<T> targetType) {
         if (null == json) {
             return Collections.emptyList();
@@ -258,10 +258,10 @@ public class FastjsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(String json, Class<T> target) {
         try {
             if (hasUnifiedAnnotations(target)) {
@@ -274,18 +274,18 @@ public class FastjsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(byte[] bytes, Class<T> target) {
         return fromJson(new String(bytes, UTF_8), target);
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public JsonObject fromJson(byte[] bytes, Charset charset) {
         try {
             return createJsonObject(JSON.parseObject(new String(bytes, charset), Map.class));
@@ -294,26 +294,26 @@ public class FastjsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(InputStreamReader inputStreamReader, Class<T> target) {
         return fromJson(readString(inputStreamReader), target);
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(InputStream inputStream, Class<T> target) {
         return fromJson(readString(inputStream), target);
     }
 
-    @Override
     /**
      * 转为json
     */
+    @Override
     public String toJson(Object object, String... ignores) {
         if (null == object) {
             return "null";
@@ -340,10 +340,10 @@ public class FastjsonJsonProvider implements JsonProvider {
         return JSON.toJSONString(mapped, SerializerFeature.WriteDateUseDateFormat);
     }
 
-    @Override
     /**
      * Pretty格式化
     */
+    @Override
     public String prettyFormat(Object object) {
         Object mapped = object;
         if (null != object && hasUnifiedAnnotations(object.getClass())) {
@@ -352,18 +352,18 @@ public class FastjsonJsonProvider implements JsonProvider {
         return JSON.toJSONString(mapped, SerializerFeature.PrettyFormat, SerializerFeature.WriteDateUseDateFormat);
     }
 
-    @Override
     /**
      * 转为prettyjson
     */
+    @Override
     public String toPrettyJson(Object obj) {
         return prettyFormat(obj);
     }
 
-    @Override
     /**
      * 转为jsonbyte
     */
+    @Override
     public byte[] toJsonByte(Object object) {
         if (null == object) {
             return new byte[0];
@@ -374,10 +374,10 @@ public class FastjsonJsonProvider implements JsonProvider {
         return JSON.toJSONBytes(object, SerializerFeature.WriteDateUseDateFormat);
     }
 
-    @Override
     /**
      * 是否Json
     */
+    @Override
     public boolean isJson(Object ext) {
         if (null == ext) {
             return false;
@@ -399,26 +399,26 @@ public class FastjsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 转为jsonbytes
     */
+    @Override
     public byte[] toJSONBytes(Object object) {
         return toJsonByte(object);
     }
 
-    @Override
     /**
      * 转为json字符串
     */
+    @Override
     public String toJSONString(Object object) {
         return toJson(object);
     }
 
-    @Override
     /**
      * 校验
     */
+    @Override
     public boolean validate(String jsonStr) {
         try {
             JSON.parse(jsonStr);
@@ -428,10 +428,10 @@ public class FastjsonJsonProvider implements JsonProvider {
         return true;
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public Map<String, Object> fromJson(String string) {
         try {
             return JSON.parseObject(string, Map.class);
@@ -440,10 +440,10 @@ public class FastjsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(String stringValue, Type type) {
         try {
             if (type instanceof Class && hasUnifiedAnnotations((Class<?>) type)) {
@@ -456,18 +456,18 @@ public class FastjsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(Reader reader, Class<T> target) {
         return fromJson(readString(reader), target);
     }
 
-    @Override
     /**
      * 转为json
     */
+    @Override
     public void toJson(Object object, Writer writer) {
         try {
             writer.write(toJson(object));
@@ -476,18 +476,18 @@ public class FastjsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(InputStream stream, Type type) {
         return fromJson(readString(stream), type);
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(Reader reader, Type type) {
         return fromJson(readString(reader), type);
     }

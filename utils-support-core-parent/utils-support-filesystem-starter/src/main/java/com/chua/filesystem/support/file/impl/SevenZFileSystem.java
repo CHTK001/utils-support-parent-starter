@@ -32,23 +32,22 @@ import org.apache.commons.compress.utils.MultiReadOnlySeekableByteChannel;
 @Spi("7z")
 public class SevenZFileSystem implements FileSystem {
 
-    @Override
     /**
      * 获取类型
     */
+    @Override
     public String getType() {
         return "7z";
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public ReadBuilder read(File file) {
         return new SevenZReadBuilder(file);
     }
 
-    @Override
     /**
      * 写入
      *
@@ -57,6 +56,7 @@ public class SevenZFileSystem implements FileSystem {
      * @author CH
      * @since 4.0.0
      */
+    @Override
     public WriteBuilder write(File file) {
         return new SevenZWriteBuilder(file);
     }
@@ -247,10 +247,10 @@ public class SevenZFileSystem implements FileSystem {
             }
         }
 
-        @Override
         /**
          * 读取
         */
+        @Override
         public Object read() {
             return listEntries();
         }
@@ -283,7 +283,6 @@ public class SevenZFileSystem implements FileSystem {
             return null;
         }
 
-        @Override
         /**
          * as字符串
          *
@@ -291,6 +290,7 @@ public class SevenZFileSystem implements FileSystem {
          * @author CH
          * @since 4.0.0
          */
+        @Override
         public String asString() {
             return String.join("\n", listEntries());
         }
@@ -391,10 +391,10 @@ public class SevenZFileSystem implements FileSystem {
             return this;
         }
 
-        @Override
         /**
          * 饰面
         */
+        @Override
         public void finish() {
             if (file.getParentFile() != null && !file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
@@ -612,7 +612,6 @@ public class SevenZFileSystem implements FileSystem {
             in.close();
         }
 
-        @Override
         /**
          * 写入
          *
@@ -621,6 +620,7 @@ public class SevenZFileSystem implements FileSystem {
          * @author CH
          * @since 4.0.0
          */
+        @Override
         public SevenZWriteBuilder write(Object data) {
             if (data instanceof File) {
                 addFile(((File) data).getName(), (File) data);

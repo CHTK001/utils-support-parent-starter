@@ -77,13 +77,13 @@ public class QuarkResourceProvider extends AbstractResourceProvider {
         super(vs);
     }
 
-    @Override
     /**
      * 搜索resource。
      *
      * @param videoSearch 视频搜索，keyword 不能为空，为 null/空时返回错误结果
      * @return 搜索resource的结果；命中 SPA 壳页时返回不可用错误
      */
+    @Override
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String kw = videoSearch.getKeyword();
         if (!StringUtils.hasText(kw)) {

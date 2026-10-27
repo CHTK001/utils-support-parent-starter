@@ -31,10 +31,10 @@ public class TensorflowFeatureClient extends AbstractLocalFeatureClient {
         super("tensorflow", setting);
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

@@ -51,9 +51,6 @@ public class ReactorDataSyncExecutor {
      * <p>键取 sinkId：直连模式没有 topic 概念，发布方 {@code publish(sinkId, data)}
      * 的第一个参数就是 sinkId，按它路由语义最直接。</p>
      */
-    /**
-     * 直接消费器
-    */
     private final java.util.Map<String, Consumer<List<Map<String, Object>>>> directConsumers =
             new java.util.concurrent.ConcurrentHashMap<>();
 

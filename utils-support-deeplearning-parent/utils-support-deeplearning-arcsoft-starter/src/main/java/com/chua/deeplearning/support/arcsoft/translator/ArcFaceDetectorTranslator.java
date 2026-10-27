@@ -35,18 +35,18 @@ public class ArcFaceDetectorTranslator implements ITranslator<Object, List<Detec
         this.faceEngine = faceEngine;
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "arcface-detector";
     }
 
-    @Override
     /**
      * Translate
     */
+    @Override
     public List<DetectionInfo> translate(Object input) {
         BufferedImage image = Converter.convertIfNecessary(input, BufferedImage.class);
         if (image == null || faceEngine == null) {

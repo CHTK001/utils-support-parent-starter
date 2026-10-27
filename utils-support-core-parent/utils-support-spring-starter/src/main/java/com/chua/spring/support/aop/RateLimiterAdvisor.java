@@ -30,7 +30,6 @@ public class RateLimiterAdvisor extends StaticMethodMatcherPointcutAdvisor {
         super(new RateLimiterAdvice(intercept));
     }
 
-    @Override
     /**
      * Matches
      *
@@ -40,6 +39,7 @@ public class RateLimiterAdvisor extends StaticMethodMatcherPointcutAdvisor {
      * @author CH
      * @since 4.0.0
      */
+    @Override
     public boolean matches(Method method, Class<?> targetClass) {
         return method.isAnnotationPresent(RateLimiter.class);
     }
@@ -52,10 +52,10 @@ public class RateLimiterAdvisor extends StaticMethodMatcherPointcutAdvisor {
         */
         private final RateLimiterIntercept intercept;
 
-        @Override
         /**
          * 调用
         */
+        @Override
         public Object invoke(org.aopalliance.intercept.MethodInvocation invocation) throws Throwable {
             Method method = invocation.getMethod();
             RateLimiter annotation = method.getAnnotation(RateLimiter.class);

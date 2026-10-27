@@ -71,36 +71,36 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
         this.dimensions = setting != null ? setting.getDimensions() : null;
     }
 
-    @Override
     /**
      * 提供者
     */
+    @Override
     public EmbeddingClient provider(String provider) {
         return this;
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public EmbeddingClient model(String model) {
         this.model = model;
         return this;
     }
 
-    @Override
     /**
      * 维度
     */
+    @Override
     public EmbeddingClient dimensions(int dimensions) {
         this.dimensions = dimensions;
         return this;
     }
 
-    @Override
     /**
      * 嵌入
     */
+    @Override
     public float[] embedding(String text) {
         OllamaEmbedResult result = doEmbed(List.of(text));
         List<List<Double>> embeddings = result.getEmbeddings();
@@ -110,10 +110,10 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
         return toFloats(embeddings.getFirst());
     }
 
-    @Override
     /**
      * 嵌入批量
     */
+    @Override
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -130,10 +130,10 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
         return out;
     }
 
-    @Override
     /**
      * 嵌入with响应
     */
+    @Override
     public EmbeddingResponse embeddingWithResponse(String text) {
         float[] v = embedding(text);
         return EmbeddingResponse.builder()
@@ -142,10 +142,10 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
                 .build();
     }
 
-    @Override
     /**
      * 嵌入batchwith响应
     */
+    @Override
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
@@ -157,10 +157,10 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
         return EmbeddingResponse.builder().embeddings(embs).build();
     }
 
-    @Override
     /**
      * 模型列表
     */
+    @Override
     public List<ModelDefinition> models() {
         try {
             List<Model> raw = ollama.listModels();
@@ -186,10 +186,10 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         // ollama4j 客户端无状态，无需释放
     }

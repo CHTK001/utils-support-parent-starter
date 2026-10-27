@@ -144,28 +144,28 @@ public class PackageManagerProvider {
         */
         private volatile boolean initialized = false;
 
-        @Override
         /**
          * 初始化
         */
+        @Override
         public void init() {
             initialized = true;
             List<PackageManager.Type> pms = detectAvailable();
             log.info("PackageManager MCP 客户端已初始化, 可用包管理器: {}", pms);
         }
 
-        @Override
         /**
          * 列表tools
         */
+        @Override
         public List<McpToolDescriptor> listTools() {
             return toolDescriptors();
         }
 
-        @Override
         /**
          * 调用Tool
         */
+        @Override
         public McpToolResult callTool(McpToolCall toolCall) {
             try {
                 return switch (toolCall.getToolName()) {
@@ -181,10 +181,10 @@ public class PackageManagerProvider {
             }
         }
 
-        @Override
         /**
          * 是否Initialized
         */
+        @Override
         public boolean isInitialized() {
             return initialized;
         }
@@ -349,26 +349,26 @@ public class PackageManagerProvider {
     protected boolean installSoftware(String packageId) {
         log.info("开始安装软件包: {}", packageId);
         CmdResult result = PackageManager.install(packageId, new LineCallback() {
-            @Override
             /**
              * on线
             */
+            @Override
             public void onLine(String line) {
                 log.info("  [安装] {}", line);
             }
 
-            @Override
             /**
              * on完成
             */
+            @Override
             public void onComplete(int exitCode) {
                 log.info("  [安装] 完成, exitCode={}", exitCode);
             }
 
-            @Override
             /**
              * On记录错误
             */
+            @Override
             public void onError(String command, Throwable throwable) {
                 log.error("  [安装] 异常: {}", throwable.getMessage());
             }
@@ -402,26 +402,26 @@ public class PackageManagerProvider {
         Map<String, String> env = pm == PackageManager.Type.APT
                 ? Map.of("DEBIAN_FRONTEND", "noninteractive") : null;
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 300, TimeUnit.SECONDS, new LineCallback() {
-            @Override
             /**
              * on线
             */
+            @Override
             public void onLine(String line) {
                 log.info("  [卸载] {}", line);
             }
 
-            @Override
             /**
              * on完成
             */
+            @Override
             public void onComplete(int exitCode) {
                 log.info("  [卸载] 完成, exitCode={}", exitCode);
             }
 
-            @Override
             /**
              * On记录错误
             */
+            @Override
             public void onError(String command, Throwable throwable) {
                 log.error("  [卸载] 异常: {}", throwable.getMessage());
             }
@@ -457,27 +457,27 @@ public class PackageManagerProvider {
         log.info("  [{}] 执行搜索: {}", pm.getCommand(), String.join(" ", searchCmd));
         StringBuilder outputBuffer = new StringBuilder();
         CmdResult result = CmdExecutors.executeWithOutput(searchCmd, 30, TimeUnit.SECONDS, new LineCallback() {
-            @Override
             /**
              * on线
             */
+            @Override
             public void onLine(String line) {
                 outputBuffer.append(line).append("\n");
                 log.debug("  [{}] {}", pm.getCommand(), line);
             }
 
-            @Override
             /**
              * on完成
             */
+            @Override
             public void onComplete(int exitCode) {
                 log.info("  [{}] 搜索完成, exitCode={}", pm.getCommand(), exitCode);
             }
 
-            @Override
             /**
              * On记录错误
             */
+            @Override
             public void onError(String command, Throwable throwable) {
                 log.warn("  [{}] 搜索异常: {}", pm.getCommand(), throwable.getMessage());
             }

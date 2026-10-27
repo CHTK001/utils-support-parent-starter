@@ -45,10 +45,10 @@ public class TikaTextExtractor implements TextExtractor {
     */
     private final Parser parser = new AutoDetectParser();
 
-    @Override
     /**
      * ExtractText
     */
+    @Override
     public List<TextExtractResult> extractText(File file) {
         Metadata metadata = new Metadata();
         metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, file.getName());
@@ -68,7 +68,8 @@ public class TikaTextExtractor implements TextExtractor {
                 if (pages != null) {
                     pageCount = Integer.parseInt(pages);
                 }
-            } catch (Exception ignored) {
+            } catch (Exception pageEx) {
+                log.debug("[tika] 解析页数字段失败: {}", pageEx.toString());
             }
 
             // 尝试获取标题/章节
@@ -109,10 +110,10 @@ public class TikaTextExtractor implements TextExtractor {
         }
     }
 
-    @Override
     /**
      * Type
     */
+    @Override
     public String type() {
         return "tika";
     }

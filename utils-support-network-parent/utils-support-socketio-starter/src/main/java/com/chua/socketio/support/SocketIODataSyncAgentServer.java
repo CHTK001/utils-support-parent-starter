@@ -37,10 +37,10 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
         this.port = port;
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         if (running) {
             return;
@@ -72,10 +72,10 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
         log.info("[SocketIODataSyncAgentServer] 已启动，监听端口: {}", port);
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() {
         if (server != null) {
             server.stop();
@@ -84,7 +84,6 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
         log.info("[SocketIODataSyncAgentServer] 已停止");
     }
 
-    @Override
     /**
      * 转换转为源
      *
@@ -94,6 +93,7 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
      * @author CH
      * @since 4.0.0
      */
+    @Override
     public DataSyncSource convertToSource(DataSyncAgent agent, Object data) {
         if (agent == null) {
             return null;

@@ -25,10 +25,10 @@ import java.util.Set;
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
 public final class CleanNullAstProcessor extends AbstractAstProcessor {
 
-    @Override
     /**
      * 处理
     */
+    @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (roundEnv.processingOver() || !isTreeApiAvailable()) {
             return false;

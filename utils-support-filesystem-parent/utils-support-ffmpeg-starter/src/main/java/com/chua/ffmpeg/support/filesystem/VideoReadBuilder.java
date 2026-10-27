@@ -34,10 +34,10 @@ public class VideoReadBuilder extends ReadBuilder {
         this.processor = processor;
     }
 
-    @Override
     /**
      * with字符集
     */
+    @Override
     public VideoReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;

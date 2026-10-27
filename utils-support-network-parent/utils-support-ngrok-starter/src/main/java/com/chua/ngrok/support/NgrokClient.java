@@ -413,10 +413,10 @@ public class NgrokClient implements AutoCloseable {
         return session;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         for (Forwarder forwarder : forwarders) {
             try {

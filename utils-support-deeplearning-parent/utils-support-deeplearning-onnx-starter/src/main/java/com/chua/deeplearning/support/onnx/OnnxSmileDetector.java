@@ -39,10 +39,10 @@ public class OnnxSmileDetector implements SmileDetector {
     public OnnxSmileDetector(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public SmileDetector model(String model) {
         this.modelName = model;
         return this;
@@ -60,28 +60,28 @@ public class OnnxSmileDetector implements SmileDetector {
         return modelName;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public SmileDetector modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public SmileDetector device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * Detect
     */
+    @Override
     public List<PredictRectangle> detect(byte[] imageData) {
         return SmileDetector.create(resolveModel()).modelPath(modelPath).device(device).detect(imageData);
     }

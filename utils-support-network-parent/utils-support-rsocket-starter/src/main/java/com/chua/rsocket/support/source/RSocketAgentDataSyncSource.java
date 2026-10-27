@@ -67,34 +67,34 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
         this(agentId, sourceId, "localhost", 8080);
     }
 
-    @Override
     /**
      * Direction
     */
+    @Override
     public Direction direction() {
         return Direction.INPUT;
     }
 
-    @Override
     /**
      * 源id
     */
+    @Override
     public String sourceId() {
         return sourceId;
     }
 
-    @Override
     /**
      * Agentid
     */
+    @Override
     public String agentId() {
         return agentId;
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public Flux<Map<String, Object>> read(SyncDataOffset offset, Map<String, Object> params) {
         return Flux.defer(() -> {
             try {
@@ -122,18 +122,18 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
         });
     }
 
-    @Override
     /**
      * 当前偏移量
     */
+    @Override
     public SyncDataOffset currentOffset() {
         return null;
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public void write(Flux<Map<String, Object>> data) {
         try {
             List<Map<String, Object>> rows = data.collectList().block();
@@ -157,10 +157,10 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
     }
 }

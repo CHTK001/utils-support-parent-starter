@@ -101,26 +101,26 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
         this.onExitFuture = new CompletableFuture<>();
     }
 
-    @Override
     /**
      * Artifact
     */
+    @Override
     public RuntimeArtifact artifact() {
         return artifact;
     }
 
-    @Override
     /**
      * 状态
     */
+    @Override
     public RuntimeStatus status() {
         return status.get();
     }
 
-    @Override
     /**
      * Pid
     */
+    @Override
     public long pid() {
         Process p = processRef.get();
         if (p != null && p.isAlive()) {
@@ -129,10 +129,10 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
         return -1;
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public synchronized CmdResult start() {
         if (status.get() == RuntimeStatus.RUNNING) {
             return CmdResult.builder()
@@ -218,10 +218,10 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
         }
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public synchronized CmdResult stop() {
  // 优先通过 SPI runtimelauncher 停止
         RuntimeLauncher launcher = RuntimeLauncher.find(artifact.getType().name());
@@ -262,19 +262,19 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
         }
     }
 
-    @Override
     /**
      * Restart
     */
+    @Override
     public synchronized CmdResult restart() {
         stop();
         return start();
     }
 
-    @Override
     /**
      * 健康校验
     */
+    @Override
     public CmdResult healthCheck() {
         String url = artifact.getHealthCheckUrl();
         String cmd = artifact.getHealthCheckCommand();
@@ -292,26 +292,26 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
                 .build();
     }
 
-    @Override
     /**
      * 记录日志流
     */
+    @Override
     public LogStream logStream() {
         return logStream;
     }
 
-    @Override
     /**
      * onexit
     */
+    @Override
     public CompletableFuture<CmdResult> onExit() {
         return onExitFuture;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() throws Exception {
         stop();
         logStream.close();

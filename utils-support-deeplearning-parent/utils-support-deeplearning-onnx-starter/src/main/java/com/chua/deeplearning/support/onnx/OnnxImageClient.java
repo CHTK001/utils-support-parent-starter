@@ -40,10 +40,10 @@ public class OnnxImageClient extends AbstractLocalImageClient {
         super("onnx", setting);
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, String.class, Image.class);
     }

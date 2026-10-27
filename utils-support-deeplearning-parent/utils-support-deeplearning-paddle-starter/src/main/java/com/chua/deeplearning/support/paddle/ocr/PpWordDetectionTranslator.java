@@ -44,10 +44,10 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
         this.maxSideLen = maxSideLen;
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray result = list.singletonOrThrow();
         result = result.squeeze().mul(255f).toType(DataType.UINT8, true).gt(0.3);
@@ -69,10 +69,10 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
         return new DetectedObjects(names, probs, boxes);
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray img = input.toNDArray(ctx.getNDManager());
         int h = input.getHeight();
@@ -116,10 +116,10 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
         return (int) Math.floor(value / 32f) * 32;
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

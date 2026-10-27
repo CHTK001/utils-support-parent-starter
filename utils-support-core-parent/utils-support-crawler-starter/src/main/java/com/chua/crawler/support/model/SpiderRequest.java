@@ -56,9 +56,6 @@ public class SpiderRequest {
      * 内部会自动拼接为 {@code Cookie} 请求头发送。</p>
      */
     @Builder.Default
-    /**
-     * Cookie列表
-    */
     private java.util.List<SpiderCookie> cookieList = Wraps.list();
 
     /**
@@ -67,9 +64,6 @@ public class SpiderRequest {
      * <p>HTTP 请求方法，默认 GET。支持 GET、POST 等。</p>
      */
     @Builder.Default
-    /**
-     * 方法
-    */
     private String method = "GET";
 
     /**
@@ -85,9 +79,6 @@ public class SpiderRequest {
      * <p>数字越大优先级越高，调度器优先处理高优先级请求。</p>
      */
     @Builder.Default
-    /**
-     * 优先级
-    */
     private int priority = 0;
 
     /**
@@ -96,9 +87,6 @@ public class SpiderRequest {
      * <p>当前请求相对于种子 URL 的链接深度。起始 URL 深度为 0。</p>
      */
     @Builder.Default
-    /**
-     * 深度
-    */
     private int depth = 0;
 
     /**

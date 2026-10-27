@@ -36,26 +36,26 @@ public class EngineUpdateWrapper<T> extends LambdaUpdateWrapper<T> {
         this.entityClass = entityClass;
     }
 
-    @Override
     /**
      * 解析Column
     */
+    @Override
     protected String resolveColumn(SFunction<T, ?> col) {
         return LambdaUtils.resolveColumn(col);
     }
 
-    @Override
     /**
      * 新instance
     */
+    @Override
     protected LambdaUpdateWrapper<T> newInstance() {
         return new EngineUpdateWrapper<>(engine, entityClass);
     }
 
-    @Override
     /**
      * 更新
     */
+    @Override
     public int update() {
         return engine.executeUpdate(this.buildSql());
     }

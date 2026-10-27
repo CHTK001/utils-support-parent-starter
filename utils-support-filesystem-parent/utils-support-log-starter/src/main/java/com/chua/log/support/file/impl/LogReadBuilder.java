@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 日志文件读取构建器。
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class LogReadBuilder extends ReadBuilder {
 
     /**
@@ -201,10 +203,10 @@ public class LogReadBuilder extends ReadBuilder {
         return this;
     }
 
-    @Override
     /**
      * with字符集
     */
+    @Override
     public LogReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -253,26 +255,26 @@ public class LogReadBuilder extends ReadBuilder {
         return lines().stream();
     }
 
-    @Override
     /**
      * as线
     */
+    @Override
     public List<String> asLines() {
         return lines();
     }
 
-    @Override
     /**
      * as字符串
     */
+    @Override
     public String asString() {
         return String.join(System.lineSeparator(), lines());
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public Object read() {
         return lines();
     }
@@ -421,7 +423,8 @@ public class LogReadBuilder extends ReadBuilder {
                     lineHandler.accept(line);
                 }
             }
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[log] 读取日志文件失败: {}", e.getMessage());
         }
     }
 

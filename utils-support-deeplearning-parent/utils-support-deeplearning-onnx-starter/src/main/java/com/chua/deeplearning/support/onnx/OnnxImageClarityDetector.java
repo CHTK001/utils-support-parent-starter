@@ -41,10 +41,10 @@ public class OnnxImageClarityDetector implements ImageClarityDetector {
     public OnnxImageClarityDetector(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public ImageClarityDetector model(String model) {
         this.modelName = model;
         return this;
@@ -67,37 +67,37 @@ public class OnnxImageClarityDetector implements ImageClarityDetector {
         return modelName;
     }
 
-    @Override
     /**
      * blur阈值
     */
+    @Override
     public ImageClarityDetector blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public ImageClarityDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public ImageClarityDetector device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * 评定
     */
+    @Override
     public ImageQualityInfo assess(byte[] imageData) {
         return ImageClarityDetector.create(resolveModel())
                 .blurThreshold(blurThreshold)

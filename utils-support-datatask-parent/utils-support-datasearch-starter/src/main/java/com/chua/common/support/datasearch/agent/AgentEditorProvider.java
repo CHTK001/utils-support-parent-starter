@@ -468,10 +468,10 @@ public class AgentEditorProvider {
          */
         public void setType(String type) { this.type = type; }
 
-        @Override
         /**
          * 转为字符串
         */
+        @Override
         public String toString() {
             return name + " [" + (command != null ? command : url) + "]";
         }
@@ -700,7 +700,8 @@ public class AgentEditorProvider {
                                 urls.add(item);
                             }
                         }
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        log.debug("[datasearch] 检索下载地址失败，跳过该来源: {}", e.getMessage());
                     }
                 }
                 return urls;

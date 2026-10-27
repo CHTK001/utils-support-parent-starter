@@ -63,26 +63,26 @@ import java.io.File;
 @Spi("log")
 public class LogFileSystem implements FileSystem {
 
-    @Override
     /**
      * 获取类型
     */
+    @Override
     public String getType() {
         return "log";
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public ReadBuilder read(File file) {
         return new LogReadBuilder(file);
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public WriteBuilder write(File file) {
         return new LogWriteBuilder(file);
     }

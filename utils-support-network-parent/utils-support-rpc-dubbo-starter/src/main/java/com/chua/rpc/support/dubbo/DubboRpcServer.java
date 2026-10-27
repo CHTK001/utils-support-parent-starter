@@ -132,10 +132,10 @@ public class DubboRpcServer implements RpcServer {
         protocolConfigs.add(item);
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         state.set(false);
         for (ServiceConfig<?> config : serviceConfigs) {
@@ -151,19 +151,19 @@ public class DubboRpcServer implements RpcServer {
         log.info("DubboRpcServer closed");
     }
 
-    @Override
     /**
      * 之后属性设置
     */
+    @Override
     public void afterPropertiesSet() {
         state.compareAndSet(false, true);
         log.info("DubboRpcServer initialized");
     }
 
-    @Override
     /**
      * 注册
     */
+    @Override
     public RpcServer register(String name, Object bean) {
         ServiceConfig<Object> config = new ServiceConfig<>();
         config.setRegistries(registryConfigs);
@@ -176,18 +176,18 @@ public class DubboRpcServer implements RpcServer {
         return this;
     }
 
-    @Override
     /**
      * 获取协议名称
     */
+    @Override
     public String getProtocol() {
         return "dubbo";
     }
 
-    @Override
     /**
      * 获取已暴露服务数
     */
+    @Override
     public int getServiceCount() {
         try {
             return DubboProtocol.getDubboProtocol().getExporters().size();
@@ -197,10 +197,10 @@ public class DubboRpcServer implements RpcServer {
         }
     }
 
-    @Override
     /**
      * 获取连接信息
     */
+    @Override
     public List<RpcConnectionInfo> getConnections() {
         List<RpcConnectionInfo> result = Wraps.list();
         try {

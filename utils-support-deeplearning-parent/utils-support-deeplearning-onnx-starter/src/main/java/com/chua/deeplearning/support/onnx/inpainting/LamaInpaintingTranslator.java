@@ -42,10 +42,10 @@ import java.awt.image.BufferedImage;
 @Slf4j
 public class LamaInpaintingTranslator implements Translator<Image, Image> {
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         NDManager manager = ctx.getNDManager();
 
@@ -70,10 +70,10 @@ public class LamaInpaintingTranslator implements Translator<Image, Image> {
         return new NDList(rgb, mask);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = list.singletonOrThrow();
 
@@ -86,10 +86,10 @@ public class LamaInpaintingTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromNDArray(output);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

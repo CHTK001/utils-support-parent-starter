@@ -34,10 +34,10 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
      */
     private static final String UNCONFIGURED_VALUE = "org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE";
 
-    @Override
     /**
      * 是否支持
     */
+    @Override
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         if (field == null) {
             return false;
@@ -45,10 +45,10 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
         return hasConfigProperty(field.getAnnotations());
     }
 
-    @Override
     /**
      * Inject
     */
+    @Override
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (field == null || bean == null || environment == null) {
             return null;
@@ -60,10 +60,10 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
         return resolveValue(cp, field.getType(), environment);
     }
 
-    @Override
     /**
      * 是否支持
     */
+    @Override
     public boolean isSupport(Method method, BeanDefinition beanDefinition) {
         if (method == null) {
             return false;
@@ -76,10 +76,10 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
         return false;
     }
 
-    @Override
     /**
      * Inject
     */
+    @Override
     public Object[] inject(Method method, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (method == null || bean == null || environment == null) {
             return null;

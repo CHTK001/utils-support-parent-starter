@@ -63,18 +63,18 @@ public class BarcodeDetectionYolov8Translator extends AbstractMultiClassYolov8Tr
         super(inputSize, threshold, nmsThreshold);
     }
 
-    @Override
     /**
      * 类名称resource路径
     */
+    @Override
     protected String classNamesResourcePath() {
         return CLASS_NAMES_RESOURCE;
     }
 
-    @Override
     /**
      * 默认类名称
     */
+    @Override
     protected List<String> defaultClassNames() {
         return DEFAULT_CLASSES;
     }

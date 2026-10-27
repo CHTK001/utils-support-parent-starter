@@ -18,34 +18,34 @@ import java.util.Map;
 @Spi("skillsmp")
 public class SkillsmpMcpProvider extends SkillsmpProvider implements McpProvider {
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return NAME;
     }
 
-    @Override
     /**
      * 创建
     */
+    @Override
     public McpClient create() {
         return new SkillsmpMcpClient();
     }
 
-    @Override
     /**
      * Install
     */
+    @Override
     public boolean install(String clientId, String skillId) {
         return super.install(clientId, skillId);
     }
 
-    @Override
     /**
      * Uninstall
     */
+    @Override
     public boolean uninstall(String clientId, String skillId) {
         return super.uninstall(clientId, skillId);
     }
@@ -61,10 +61,10 @@ public class SkillsmpMcpProvider extends SkillsmpProvider implements McpProvider
         return result;
     }
 
-    @Override
     /**
      * 列表可用
     */
+    @Override
     public List<String> listAvailable() {
         return List.of(NAME);
     }

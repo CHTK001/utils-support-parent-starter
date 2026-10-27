@@ -112,19 +112,19 @@ public class BgeEmbeddingClient implements EmbeddingClient {
         return null;
     }
 
-    @Override
     /**
      * 提供者
     */
+    @Override
     public EmbeddingClient provider(String provider) {
         setting.setProvider(provider);
         return this;
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public EmbeddingClient model(String model) {
         setting.setModel(model);
         this.embeddedBase = resolveEmbeddedBase(model);
@@ -132,10 +132,10 @@ public class BgeEmbeddingClient implements EmbeddingClient {
         return this;
     }
 
-    @Override
     /**
      * 维度
     */
+    @Override
     public EmbeddingClient dimensions(int dimensions) {
         setting.setDimensions(dimensions);
         return this;
@@ -210,10 +210,10 @@ public class BgeEmbeddingClient implements EmbeddingClient {
         resetLoaded();
     }
 
-    @Override
     /**
      * 嵌入
     */
+    @Override
     public float[] embedding(String text) {
         try {
             if (text == null || text.isBlank()) {
@@ -234,10 +234,10 @@ public class BgeEmbeddingClient implements EmbeddingClient {
         }
     }
 
-    @Override
     /**
      * 嵌入batch
     */
+    @Override
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -249,10 +249,10 @@ public class BgeEmbeddingClient implements EmbeddingClient {
         return result;
     }
 
-    @Override
     /**
      * 嵌入with响应
     */
+    @Override
     public EmbeddingResponse embeddingWithResponse(String text) {
         float[] v = embedding(text);
         return EmbeddingResponse.builder()
@@ -261,10 +261,10 @@ public class BgeEmbeddingClient implements EmbeddingClient {
                 .build();
     }
 
-    @Override
     /**
      * 嵌入batchwith响应
     */
+    @Override
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
@@ -276,26 +276,26 @@ public class BgeEmbeddingClient implements EmbeddingClient {
         return EmbeddingResponse.builder().embeddings(embs).build();
     }
 
-    @Override
     /**
      * 嵌入异步
     */
+    @Override
     public CompletableFuture<float[]> embeddingAsync(String text) {
         return CompletableFuture.supplyAsync(() -> embedding(text));
     }
 
-    @Override
     /**
      * 嵌入batch异步
     */
+    @Override
     public CompletableFuture<float[][]> embeddingBatchAsync(String[] texts) {
         return CompletableFuture.supplyAsync(() -> embeddingBatch(texts));
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public synchronized void close() {
         if (translator != null) {
             translator.close();

@@ -39,10 +39,10 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
     public OnnxLicensePlateRecognizer(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public LicensePlateRecognizer model(String model) {
         this.modelName = model;
         return this;
@@ -93,63 +93,63 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
         return "crnn-plate-rec";
     }
 
-    @Override
     /**
      * 阈值
     */
+    @Override
     public LicensePlateRecognizer threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public LicensePlateRecognizer modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public LicensePlateRecognizer device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * Recognize
     */
+    @Override
     public String recognize(byte[] imageData) {
         PlateResult pr = recognizePlate(imageData);
         return pr == null ? "" : pr.plateNo();
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * recognizedetail
      *
      * @param imageData 镜像数据
      * @return recognizeDetail的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public List<DetectionInfo> recognizeDetail(byte[] imageData) {
         return ImageDetector.create(plateDetectModel())
                 .threshold(threshold).modelPath(modelPath).device(device).detect(imageData);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * recognize铭牌
      *
      * @param imageData 镜像数据
      * @return recognize铭牌的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public PlateResult recognizePlate(byte[] imageData) {
         ITranslator<byte[], PlateResult> t =
                 (ITranslator<byte[], PlateResult>) AbstractIdentificationEngine.getInstance()

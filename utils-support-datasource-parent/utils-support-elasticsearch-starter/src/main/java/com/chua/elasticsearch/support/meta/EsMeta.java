@@ -37,10 +37,10 @@ public class EsMeta extends AbstractMetaSearch {
         this.searchEngine = new EsSearchEngineImpl(engine);
     }
 
-    @Override
     /**
      * 列表
     */
+    @Override
     public List<SearchIndexDef> list() {
         List<String> indexNames = searchEngine.listIndexes();
         List<SearchIndexDef> result = Wraps.list();
@@ -53,34 +53,34 @@ public class EsMeta extends AbstractMetaSearch {
         return result;
     }
 
-    @Override
     /**
      * 获取
     */
+    @Override
     public SearchIndexDef get(String indexName) {
         return searchEngine.getIndex(indexName);
     }
 
-    @Override
     /**
      * 创建
     */
+    @Override
     public SearchIndexCreateBuilder create(String indexName) {
         return new EsCreateIndexBuilder(indexName);
     }
 
-    @Override
     /**
      * 掉落
     */
+    @Override
     public boolean drop(String indexName) {
         return searchEngine.deleteIndex(indexName);
     }
 
-    @Override
     /**
      * Refresh
     */
+    @Override
     public boolean refresh(String indexName) {
         try {
             ElasticsearchClient client = ((ElasticsearchEngine) engine).getClient();
@@ -91,7 +91,6 @@ public class EsMeta extends AbstractMetaSearch {
         }
     }
 
-    @Override
     /**
      * 优化
      *
@@ -100,6 +99,7 @@ public class EsMeta extends AbstractMetaSearch {
      * @author CH
      * @since 4.0.0
      */
+    @Override
     public boolean optimize(String indexName) {
         try {
             ElasticsearchClient client = ((ElasticsearchEngine) engine).getClient();
@@ -141,28 +141,28 @@ public class EsMeta extends AbstractMetaSearch {
             this.indexName = indexName;
         }
 
-        @Override
         /**
          * Shards
         */
+        @Override
         public SearchIndexCreateBuilder shards(int shards) {
             this.shards = shards;
             return this;
         }
 
-        @Override
         /**
          * Replicas
         */
+        @Override
         public SearchIndexCreateBuilder replicas(int replicas) {
             this.replicas = replicas;
             return this;
         }
 
-        @Override
         /**
          * 字段
         */
+        @Override
         public SearchIndexCreateBuilder field(String name, String type) {
             SearchFieldDef field = new SearchFieldDef();
             field.setName(name);
@@ -171,10 +171,10 @@ public class EsMeta extends AbstractMetaSearch {
             return this;
         }
 
-        @Override
         /**
          * 字段
         */
+        @Override
         public SearchIndexCreateBuilder field(String name, String type, Consumer<SearchFieldBuilder> config) {
             SearchFieldDef field = new SearchFieldDef();
             field.setName(name);
@@ -198,34 +198,33 @@ public class EsMeta extends AbstractMetaSearch {
             return this;
         }
 
-        @Override
         /**
          * 字段
         */
+        @Override
         public SearchIndexCreateBuilder fields(List<SearchFieldDef> fields) {
             this.fields.addAll(fields);
             return this;
         }
 
-        @Override
         /**
          * Settings
         */
+        @Override
         public SearchIndexCreateBuilder settings(Map<String, Object> settings) {
             this.settings.putAll(settings);
             return this;
         }
 
-        @Override
         /**
          * Mappings
         */
+        @Override
         public SearchIndexCreateBuilder mappings(Map<String, Object> mappings) {
             this.mappings.putAll(mappings);
             return this;
         }
 
-        @Override
         /**
          * 执行
          *
@@ -233,6 +232,7 @@ public class EsMeta extends AbstractMetaSearch {
          * @author CH
          * @since 4.0.0
          */
+        @Override
         public SearchIndexDef execute() {
             SearchIndexDef def = new SearchIndexDef();
             def.setName(indexName);
@@ -284,163 +284,163 @@ public class EsMeta extends AbstractMetaSearch {
          */
         private Boolean docValues;
 
-        @Override
         /**
          * Analyzer
         */
+        @Override
         public SearchFieldBuilder analyzer(String analyzer) {
             this.analyzer = analyzer;
             return this;
         }
 
-        @Override
         /**
          * 搜索Analyzer
         */
+        @Override
         public SearchFieldBuilder searchAnalyzer(String searchAnalyzer) {
             this.searchAnalyzer = searchAnalyzer;
             return this;
         }
 
-        @Override
         /**
          * 索引
         */
+        @Override
         public SearchFieldBuilder index(boolean indexed) {
             this.indexed = indexed;
             return this;
         }
 
-        @Override
         /**
          * 存储
         */
+        @Override
         public SearchFieldBuilder store(boolean stored) {
             this.stored = stored;
             return this;
         }
 
-        @Override
         /**
          * Keyword
         */
+        @Override
         public SearchFieldBuilder keyword() {
             this.typeOverride = "KEYWORD";
             return this;
         }
 
-        @Override
         /**
          * 文本
         */
+        @Override
         public SearchFieldBuilder text() {
             this.typeOverride = "TEXT";
             return this;
         }
 
-        @Override
         /**
          * Integer
         */
+        @Override
         public SearchFieldBuilder integer() {
             this.typeOverride = "INTEGER";
             return this;
         }
 
-        @Override
         /**
          * long类型
         */
+        @Override
         public SearchFieldBuilder longType() {
             this.typeOverride = "LONG";
             return this;
         }
 
-        @Override
         /**
          * float类型
         */
+        @Override
         public SearchFieldBuilder floatType() {
             this.typeOverride = "FLOAT";
             return this;
         }
 
-        @Override
         /**
          * double类型
         */
+        @Override
         public SearchFieldBuilder doubleType() {
             this.typeOverride = "DOUBLE";
             return this;
         }
 
-        @Override
         /**
          * 日期
         */
+        @Override
         public SearchFieldBuilder date() {
             this.typeOverride = "DATE";
             return this;
         }
 
-        @Override
         /**
          * Bool
         */
+        @Override
         public SearchFieldBuilder bool() {
             this.typeOverride = "BOOLEAN";
             return this;
         }
 
-        @Override
         /**
          * 对象
         */
+        @Override
         public SearchFieldBuilder object() {
             this.typeOverride = "OBJECT";
             return this;
         }
 
-        @Override
         /**
          * 嵌套
         */
+        @Override
         public SearchFieldBuilder nested() {
             this.typeOverride = "NESTED";
             return this;
         }
 
-        @Override
         /**
          * 权重
         */
+        @Override
         public SearchFieldBuilder weight(double weight) {
             this.weight = weight;
             return this;
         }
 
-        @Override
         /**
          * ignoreabove
         */
+        @Override
         public SearchFieldBuilder ignoreAbove(int ignoreAbove) {
             this.ignoreAbove = ignoreAbove;
             return this;
         }
 
-        @Override
         /**
          * doc值
         */
+        @Override
         public SearchFieldBuilder docValues(boolean docValues) {
             this.docValues = docValues;
             return this;
         }
 
-        @Override
         /**
          * 空值
         */
+        @Override
         public SearchFieldBuilder nullValue(String nullValue) {
             this.nullValue = nullValue;
             return this;

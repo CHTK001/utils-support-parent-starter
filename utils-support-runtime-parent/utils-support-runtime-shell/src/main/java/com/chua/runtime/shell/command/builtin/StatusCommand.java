@@ -15,34 +15,34 @@ import java.lang.management.RuntimeMXBean;
  */
 public class StatusCommand implements Command {
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "status";
     }
 
-    @Override
     /**
      * Aliases
     */
+    @Override
     public String[] aliases() {
         return new String[]{"stats", "uptime"};
     }
 
-    @Override
     /**
      * Description
     */
+    @Override
     public String description() {
         return "显示系统与 JVM 状态";
     }
 
-    @Override
     /**
      * 执行
     */
+    @Override
     public int execute(String[] args, Console console) {
         Runtime runtime = Runtime.getRuntime();
         RuntimeMXBean runtimeMx = ManagementFactory.getRuntimeMXBean();

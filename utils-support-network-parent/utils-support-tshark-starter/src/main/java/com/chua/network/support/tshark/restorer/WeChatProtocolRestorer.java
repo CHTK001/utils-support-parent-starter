@@ -11,26 +11,26 @@ package com.chua.network.support.tshark.restorer;
  */
 public class WeChatProtocolRestorer extends AbstractProtocolRestorer {
 
-    @Override
     /**
      * 获取协议名称
     */
+    @Override
     public String getProtocolName() {
         return "wechat";
     }
 
-    @Override
     /**
      * 获取Priority
     */
+    @Override
     public int getPriority() {
         return 130;
     }
 
-    @Override
     /**
      * 是否可以Restore
     */
+    @Override
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 4) {
             return false;
@@ -44,10 +44,10 @@ public class WeChatProtocolRestorer extends AbstractProtocolRestorer {
                 || (b0 == 0x16 && b1 == 0x03 && b2 == 0x01 && (b3 == 0x00 || b3 == 0x03));
     }
 
-    @Override
     /**
      * Restore
     */
+    @Override
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 4) {
             return "[WeChat] empty";

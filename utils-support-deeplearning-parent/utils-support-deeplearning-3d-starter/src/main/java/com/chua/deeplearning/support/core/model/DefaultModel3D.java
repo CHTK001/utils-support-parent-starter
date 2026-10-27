@@ -44,82 +44,82 @@ public class DefaultModel3D implements Model3D {
         this.data = data;
     }
 
-    @Override
     /**
      * 获取名称
     */
+    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     /**
      * 设置名称
     */
+    @Override
     public void setName(String name) {
         this.name = name;
     }
 
-    @Override
     /**
      * 获取格式化
     */
+    @Override
     public Model3DFormat getFormat() {
         return format;
     }
 
-    @Override
     /**
      * 设置格式化
     */
+    @Override
     public void setFormat(Model3DFormat format) {
         this.format = format;
     }
 
-    @Override
     /**
      * 获取数据
     */
+    @Override
     public InputStream getData() {
         return new ByteArrayInputStream(data != null ? data : new byte[0]);
     }
 
-    @Override
     /**
      * 设置数据
     */
+    @Override
     public void setData(byte[] data) {
         this.data = data;
     }
 
-    @Override
     /**
      * 获取获取大小
     */
+    @Override
     public long getSize() {
         return data != null ? data.length : 0;
     }
 
-    @Override
     /**
      * 获取Texture
     */
+    @Override
     public byte[] getTexture() {
         return texture;
     }
 
-    @Override
     /**
      * 设置Texture
     */
+    @Override
     public void setTexture(byte[] texture) {
         this.texture = texture;
     }
 
-    @Override
     /**
      * 写入转为
     */
+    @Override
     public void writeTo(OutputStream out) throws Exception {
         if (data != null) {
             out.write(data);

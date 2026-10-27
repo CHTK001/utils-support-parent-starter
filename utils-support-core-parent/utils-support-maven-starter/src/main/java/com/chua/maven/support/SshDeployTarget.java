@@ -105,26 +105,26 @@ public class SshDeployTarget implements MavenDeployTarget {
         this(host, 22, username, password, remoteRoot);
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "SSH:" + host + ":" + port + " -> " + remoteRoot;
     }
 
-    @Override
     /**
      * 是否就绪
     */
+    @Override
     public boolean isReady() {
         return ready;
     }
 
-    @Override
     /**
      * 连接
     */
+    @Override
     public void connect() {
         try {
  // 通过 reflect工具 动态加载避免编译时强依赖
@@ -148,10 +148,10 @@ public class SshDeployTarget implements MavenDeployTarget {
         }
     }
 
-    @Override
     /**
      * Upload
     */
+    @Override
     public void upload(String localPath, String targetPath) {
         ensureReady();
         try {
@@ -169,10 +169,10 @@ public class SshDeployTarget implements MavenDeployTarget {
         }
     }
 
-    @Override
     /**
      * 创建目录
     */
+    @Override
     public void createDirectory(String path) {
         if (path == null || ".".equals(path)) {
             return;
@@ -190,10 +190,10 @@ public class SshDeployTarget implements MavenDeployTarget {
         }
     }
 
-    @Override
     /**
      * 是否存在
     */
+    @Override
     public boolean exists(String path) {
         try {
             String remote = remoteRoot + "/" + path;
@@ -206,10 +206,10 @@ public class SshDeployTarget implements MavenDeployTarget {
         }
     }
 
-    @Override
     /**
      * 删除
     */
+    @Override
     public void delete(String path) {
         ensureReady();
         try {
@@ -225,10 +225,10 @@ public class SshDeployTarget implements MavenDeployTarget {
         }
     }
 
-    @Override
     /**
      * 断开
     */
+    @Override
     public void disconnect() {
         if (sftpClient != null) {
             try {
@@ -241,18 +241,18 @@ public class SshDeployTarget implements MavenDeployTarget {
         ready = false;
     }
 
-    @Override
     /**
      * 设置Callback
     */
+    @Override
     public void setCallback(MavenDeployCallback callback) {
         this.callback = callback;
     }
 
-    @Override
     /**
      * uploadbatch
     */
+    @Override
     public int uploadBatch(List<String> files, String targetDir) {
         ensureReady();
         int count = 0;

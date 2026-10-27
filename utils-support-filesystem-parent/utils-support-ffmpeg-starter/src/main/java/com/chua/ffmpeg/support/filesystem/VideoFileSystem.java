@@ -40,26 +40,26 @@ public class VideoFileSystem implements FileSystem {
         this.processor = p;
     }
 
-    @Override
     /**
      * 获取类型
     */
+    @Override
     public String getType() {
         return "video";
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public ReadBuilder read(File file) {
         return new VideoReadBuilder(file, processor);
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public WriteBuilder write(File file) {
         return new VideoWriteBuilder(file, processor);
     }

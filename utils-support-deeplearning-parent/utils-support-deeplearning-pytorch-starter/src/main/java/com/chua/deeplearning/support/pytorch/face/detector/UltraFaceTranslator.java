@@ -96,10 +96,10 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         this.steps = new int[]{8, 16, 32, 64};
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         long height = array.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
@@ -116,10 +116,10 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 2) {
             return new DetectedObjects(Wraps.list(), Wraps.list(), Wraps.list());
@@ -249,10 +249,10 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         return Math.max(0d, Math.min(1d - clip(origin), size));
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

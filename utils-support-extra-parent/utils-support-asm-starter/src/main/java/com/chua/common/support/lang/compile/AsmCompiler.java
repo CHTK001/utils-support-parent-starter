@@ -92,10 +92,10 @@ public class AsmCompiler implements Compiler {
             this.code = code;
         }
 
-        @Override
         /**
          * 获取char内容
         */
+        @Override
         public CharSequence getCharContent(boolean ignoreEncodingErrors) {
             return code;
         }
@@ -129,10 +129,10 @@ public class AsmCompiler implements Compiler {
             return baos.toByteArray();
         }
 
-        @Override
         /**
          * 打开输出流
         */
+        @Override
         public OutputStream openOutputStream() {
             return baos;
         }
@@ -196,15 +196,14 @@ public class AsmCompiler implements Compiler {
             this.classLoader = classLoader;
         }
 
-        @Override
         /**
          * 获取类加载
         */
+        @Override
         public ClassLoader getClassLoader(Location location) {
             return classLoader;
         }
 
-        @Override
         /**
          * 获取java文件for输出
          * @param location 位置
@@ -212,6 +211,7 @@ public class AsmCompiler implements Compiler {
          * @param kind 种类
          * @param sibling sibling
          */
+        @Override
         public JavaFileObject getJavaFileForOutput(Location location, String className,
                                                     JavaFileObject.Kind kind, FileObject sibling) {
             InMemoryByteCode bc = new InMemoryByteCode(className);

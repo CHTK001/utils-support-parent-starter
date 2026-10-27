@@ -67,10 +67,10 @@ public abstract class AbstractDatalakeSubscriber implements Subscriber {
         return subscriberId;
     }
 
-    @Override
     /**
      * topics
     */
+    @Override
     public Set<String> topics() {
         return topics;
     }

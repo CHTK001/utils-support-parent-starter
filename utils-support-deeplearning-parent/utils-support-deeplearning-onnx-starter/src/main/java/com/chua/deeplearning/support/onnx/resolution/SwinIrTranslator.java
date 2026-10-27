@@ -58,10 +58,10 @@ public class SwinIrTranslator implements Translator<Image, Image> {
      */
     private static final int INPUT_SIZE = 128;
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -95,10 +95,10 @@ public class SwinIrTranslator implements Translator<Image, Image> {
         return new NDList(array2);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray outputImg = list.singletonOrThrow();
         long[] shape = outputImg.getShape().getShape();
@@ -158,10 +158,10 @@ public class SwinIrTranslator implements Translator<Image, Image> {
         return out;
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

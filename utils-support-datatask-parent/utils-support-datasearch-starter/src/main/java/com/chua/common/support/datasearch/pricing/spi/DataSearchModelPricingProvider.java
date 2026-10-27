@@ -75,10 +75,10 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
     */
     private volatile List<ModelMetricsProvider> sources;
 
-    @Override
     /**
      * 获取模型pricing
     */
+    @Override
     public ModelDefinition getModelPricing(String provider, String model) {
         if (model == null) {
             return null;

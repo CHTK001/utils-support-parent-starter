@@ -36,18 +36,18 @@ public class EsSearchEngineImpl implements SearchEngine {
         this.engine = engine;
     }
 
-    @Override
     /**
      * 类型
     */
+    @Override
     public String type() {
         return "elasticsearch";
     }
 
-    @Override
     /**
      * 列表索引
     */
+    @Override
     public List<String> listIndexes() {
         try {
             var response = engine.getClient().indices().get(i -> i.index("*"));
@@ -57,10 +57,10 @@ public class EsSearchEngineImpl implements SearchEngine {
         }
     }
 
-    @Override
     /**
      * 获取索引
     */
+    @Override
     public SearchIndexDef getIndex(String indexName) {
         try {
             GetIndexResponse indexResponse = engine.getClient().indices().get(i -> i.index(indexName));
@@ -104,10 +104,10 @@ public class EsSearchEngineImpl implements SearchEngine {
         }
     }
 
-    @Override
     /**
      * 创建索引
     */
+    @Override
     public boolean createIndex(SearchIndexDef indexDef) {
         if (indexDef == null || indexDef.getName() == null) {
             throw new IllegalArgumentException("索引定义不能为空");
@@ -244,10 +244,10 @@ public class EsSearchEngineImpl implements SearchEngine {
         }
     }
 
-    @Override
     /**
      * 删除索引
     */
+    @Override
     public boolean deleteIndex(String indexName) {
         try {
             engine.getClient().indices().delete(d -> d.index(indexName));
@@ -257,10 +257,10 @@ public class EsSearchEngineImpl implements SearchEngine {
         }
     }
 
-    @Override
     /**
      * 获取客户端
     */
+    @Override
     public Object getClient() {
         return engine.getClient();
     }

@@ -52,34 +52,34 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
     */
     private WebSocketClient webSocketClient;
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         return Integer.MAX_VALUE - 45;
     }
 
-    @Override
     /**
      * 支持路径
     */
+    @Override
     public String supportPath() {
         return null;
     }
 
-    @Override
     /**
      * 支持协议
     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.WS};
     }
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(ServerFilterConfig config) {
         this.vertx = Vertx.vertx();
  // 后端 WebSocket 客户端性能配置:tcpno延迟 减小包延迟,帧大小上限放大,
@@ -92,10 +92,10 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
         log.info("[network-proxy] VertxWebSocketProxyFilter 初始化完成, vertx=true");
     }
 
-    @Override
     /**
      * 销毁
     */
+    @Override
     public void destroy() {
         if (webSocketClient != null) {
             webSocketClient.close();
@@ -106,13 +106,13 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
         log.info("[network-proxy] VertxWebSocketProxyFilter 已关闭");
     }
 
-    @Override
     /**
      * 执行过滤
      * @param request 请求
      * @param response 响应
      * @param chain chain
      */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         if (tryProxyWebSocket(request, response)) {
@@ -121,13 +121,13 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
         chain.doFilter(request, response);
     }
 
-    @Override
     /**
      * 执行过滤
      * @param request 请求
      * @param response 响应
      * @param chain chain
      */
+    @Override
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
         if (tryProxyWebSocket(request, response)) {

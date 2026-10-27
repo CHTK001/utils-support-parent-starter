@@ -5,10 +5,10 @@ package com.chua.desktop.support;
  */
 
 public class LinuxDesktopNotifier implements NativeDesktopNotifier {
-    @Override
     /**
      * 通知
     */
+    @Override
     public void notify(String title, String content, String icon) throws Exception {
         ProcessBuilder pb;
         if (icon != null && !icon.isBlank()) {

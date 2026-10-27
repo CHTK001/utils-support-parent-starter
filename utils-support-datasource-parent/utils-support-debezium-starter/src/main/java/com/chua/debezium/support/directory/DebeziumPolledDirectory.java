@@ -70,18 +70,18 @@ public class DebeziumPolledDirectory implements PolledDirectory {
         this.environment = environment;
     }
 
-    @Override
     /**
      * 添加监听器
     */
+    @Override
     public void addListener(PolledListener listener) {
         listeners.add(listener);
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start(DirectoryPollerEnvironment environment, DirectoryPollerExecutor pollerExecutor) {
  // 事件-driven, 执行器 传 空 即可
 
@@ -234,31 +234,32 @@ public class DebeziumPolledDirectory implements PolledDirectory {
         return idx + 6 < value.length() ? value.substring(idx + 6, idx + 7) : "";
     }
 
-    @Override
     /**
      * Upgrade
     */
+    @Override
     public void upgrade() {
         // 由事件驱动，无需轮询
     }
 
-    @Override
     /**
      * 是否delegatedoperating系统
     */
+    @Override
     public boolean isDelegatedOperatingSystem() {
         return true;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         if (engine != null) {
             try {
                 engine.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[debezium] 关闭引擎失败，已忽略: {}", e.getMessage());
             }
         }
         if (executor != null) {

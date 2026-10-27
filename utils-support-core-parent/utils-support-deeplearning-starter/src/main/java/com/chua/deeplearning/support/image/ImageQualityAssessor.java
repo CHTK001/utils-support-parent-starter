@@ -166,9 +166,6 @@ class DefaultImageQualityAssessor implements ImageQualityAssessor {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -205,41 +202,41 @@ class DefaultImageQualityAssessor implements ImageQualityAssessor {
         }
     }
 
-    @Override
     /**
      * blur阈值
     */
+    @Override
     public ImageQualityAssessor blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public ImageQualityAssessor modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public ImageQualityAssessor device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 评定
      *
      * @param imageData 镜像数据
      * @return 评定的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public ImageQualityInfo assess(byte[] imageData) {
         ITranslator<byte[], ImageQualityInfo> t =
                 (ITranslator<byte[], ImageQualityInfo>) engine.get(modelName, ITranslator.class);

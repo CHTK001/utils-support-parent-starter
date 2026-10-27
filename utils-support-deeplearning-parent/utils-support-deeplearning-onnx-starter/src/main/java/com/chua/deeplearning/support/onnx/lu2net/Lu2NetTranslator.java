@@ -17,10 +17,10 @@ import java.awt.image.BufferedImage;
  * @作者 CH
 */
 public class Lu2NetTranslator implements Translator<Image, Image> {
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
         // U²-Net 类模型要求尺寸对齐，统一缩放到 320x320
@@ -43,10 +43,10 @@ public class Lu2NetTranslator implements Translator<Image, Image> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray out = list.singletonOrThrow();
  // clip 和 转换 转为 [0,255]

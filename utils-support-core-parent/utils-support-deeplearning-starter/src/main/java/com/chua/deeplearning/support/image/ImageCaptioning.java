@@ -139,14 +139,14 @@ class DefaultImageCaptioning implements ImageCaptioning {
         this.modelName = modelName != null ? modelName : DEFAULT_MODEL;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Describe
      *
      * @param imageData 镜像数据
      * @return describe的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public String describe(byte[] imageData) {
         ITranslator<byte[], String> t = engine.get(modelName, ITranslator.class);
         if (t == null) {

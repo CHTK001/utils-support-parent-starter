@@ -35,10 +35,10 @@ public class OnnxImageClassifier implements ImageClassifier {
     public OnnxImageClassifier(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public ImageClassifier model(String model) {
         this.modelName = model;
         return this;
@@ -57,45 +57,45 @@ public class OnnxImageClassifier implements ImageClassifier {
         return modelName;
     }
 
-    @Override
     /**
      * topk
     */
+    @Override
     public ImageClassifier topK(int topK) {
         this.topK = topK;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public ImageClassifier modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public ImageClassifier device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * Classify
     */
+    @Override
     public String classify(byte[] imageData) {
         return ImageClassifier.create(resolveModel()).topK(topK).modelPath(modelPath).device(device).classify(imageData);
     }
 
-    @Override
     /**
      * classifytopk
     */
+    @Override
     public List<DetectionInfo> classifyTopK(byte[] imageData, int k) {
         return ImageClassifier.create(resolveModel()).topK(topK).modelPath(modelPath).device(device).classifyTopK(imageData, k);
     }

@@ -155,9 +155,6 @@ class DefaultPedestrianDetector implements PedestrianDetector {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -194,41 +191,41 @@ class DefaultPedestrianDetector implements PedestrianDetector {
         }
     }
 
-    @Override
     /**
      * 阈值
     */
+    @Override
     public PedestrianDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public PedestrianDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public PedestrianDetector device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Detect
      *
      * @param imageData 镜像数据
      * @return detect的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public List<DetectionInfo> detect(byte[] imageData) {
         ITranslator<byte[], List<DetectionInfo>> t =
                 (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class);

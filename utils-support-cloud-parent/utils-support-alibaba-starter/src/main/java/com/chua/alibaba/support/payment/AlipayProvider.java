@@ -62,10 +62,10 @@ public class AlipayProvider implements PaymentChannel {
         this.client = buildClient();
     }
 
-    @Override
     /**
      * 薪酬
     */
+    @Override
     public PaymentResponse pay(PaymentRequest request) {
         switch (request.getScene()) {
             case APP:

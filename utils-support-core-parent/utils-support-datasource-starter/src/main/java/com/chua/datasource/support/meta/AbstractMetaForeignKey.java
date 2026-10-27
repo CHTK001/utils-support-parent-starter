@@ -58,43 +58,43 @@ public abstract class AbstractMetaForeignKey implements MetaForeignKey {
         this.tableName = tableName;
     }
 
-    @Override
     /**
      * ontable
     */
+    @Override
     public MetaForeignKey onTable(String tableName) {
         this.tableName = tableName;
         return this;
     }
 
-    @Override
     /**
      * 列表
     */
+    @Override
     public List<ForeignKeyDef> list() {
         throw new UnsupportedOperationException("请实现 list() 方法");
     }
 
-    @Override
     /**
      * 获取
     */
+    @Override
     public ForeignKeyDef get(String fkName) {
         throw new UnsupportedOperationException("请实现 get() 方法");
     }
 
-    @Override
     /**
      * 添加
     */
+    @Override
     public ForeignKeyCreateBuilder add(String fkName) {
         throw new UnsupportedOperationException("请实现 add() 方法");
     }
 
-    @Override
     /**
      * 掉落
     */
+    @Override
     public boolean drop(String fkName) {
         throw new UnsupportedOperationException("请实现 drop() 方法");
     }

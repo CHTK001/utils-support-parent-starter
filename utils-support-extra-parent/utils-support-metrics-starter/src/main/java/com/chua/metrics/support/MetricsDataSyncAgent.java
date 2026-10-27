@@ -185,26 +185,26 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
             this.metricsService = metricsService;
         }
 
-        @Override
         /**
          * 源id
         */
+        @Override
         public String sourceId() {
             return sourceId;
         }
 
-        @Override
         /**
          * 输入id
         */
+        @Override
         public String inputId() {
             return "metrics";
         }
 
-        @Override
         /**
          * 读取
         */
+        @Override
         public Flux<Map<String, Object>> read(Map<String, Object> params) {
             return Flux.defer(() -> {
                 if (closed) {
@@ -298,18 +298,18 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
             return r;
         }
 
-        @Override
         /**
          * Direction
         */
+        @Override
         public Direction direction() {
             return Direction.INPUT;
         }
 
-        @Override
         /**
          * 关闭
         */
+        @Override
         public void close() {
             closed = true;
         }

@@ -134,73 +134,73 @@ public class WhisperAudioClient implements VirtualClient {
         this.translator = new WhisperTranslator();
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public VirtualClient model(String model) {
         this.model = model;
         return this;
     }
 
-    @Override
     /**
      * Language
     */
+    @Override
     public VirtualClient language(String language) {
         this.language = language;
         return this;
     }
 
-    @Override
     /**
      * 样本rate
     */
+    @Override
     public VirtualClient sampleRate(Integer sampleRate) {
         this.overrideSampleRate = sampleRate;
         return this;
     }
 
-    @Override
     /**
      * 格式化
     */
+    @Override
     public VirtualClient format(String format) {
         this.format = format;
         return this;
     }
 
-    @Override
     /**
      * 提示符
     */
+    @Override
     public VirtualClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
-    @Override
     /**
      * Temperature
     */
+    @Override
     public VirtualClient temperature(Double temperature) {
         this.temperature = temperature;
         return this;
     }
 
-    @Override
     /**
      * Seed
     */
+    @Override
     public VirtualClient seed(Long seed) {
         this.seed = seed;
         return this;
     }
 
-    @Override
     /**
      * 音频
     */
+    @Override
     public VirtualClient audio(byte[] audio) {
         this.audio = audio;
         this.audioPath = null;
@@ -208,10 +208,10 @@ public class WhisperAudioClient implements VirtualClient {
         return this;
     }
 
-    @Override
     /**
      * 音频
     */
+    @Override
     public VirtualClient audio(InputStream input) {
         this.audioInput = input;
         this.audioPath = null;
@@ -219,10 +219,10 @@ public class WhisperAudioClient implements VirtualClient {
         return this;
     }
 
-    @Override
     /**
      * 音频
     */
+    @Override
     public VirtualClient audio(Path path) {
         this.audioPath = path;
         this.audio = null;
@@ -230,10 +230,10 @@ public class WhisperAudioClient implements VirtualClient {
         return this;
     }
 
-    @Override
     /**
      * Transcribe
     */
+    @Override
     public String transcribe(Path path) {
         if (path != null) {
             this.audioPath = path;
@@ -250,10 +250,10 @@ public class WhisperAudioClient implements VirtualClient {
         }
     }
 
-    @Override
     /**
      * 创建任务
     */
+    @Override
     public String createTask(Path path) {
         if (path != null) {
             this.audioPath = path;
@@ -261,10 +261,10 @@ public class WhisperAudioClient implements VirtualClient {
         return TASK_ID_PREFIX + UUID.randomUUID();
     }
 
-    @Override
     /**
      * 查询任务
     */
+    @Override
     public AudioResponse queryTask(String taskId) {
         if (!prepared) {
             ensurePrepared();
@@ -353,10 +353,10 @@ public class WhisperAudioClient implements VirtualClient {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         translator = null;
         prepared = false;

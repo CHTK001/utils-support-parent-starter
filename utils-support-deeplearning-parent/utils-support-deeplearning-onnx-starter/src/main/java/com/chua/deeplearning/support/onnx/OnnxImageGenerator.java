@@ -27,10 +27,10 @@ public class OnnxImageGenerator implements ImageGenerator {
     public OnnxImageGenerator(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public ImageGenerator model(String model) {
         this.modelName = model;
         return this;
@@ -48,10 +48,10 @@ public class OnnxImageGenerator implements ImageGenerator {
         return modelName;
     }
 
-    @Override
     /**
      * Generate
     */
+    @Override
     public byte[] generate(long classId) {
         return ImageGenerator.create(resolveModel()).generate(classId);
     }

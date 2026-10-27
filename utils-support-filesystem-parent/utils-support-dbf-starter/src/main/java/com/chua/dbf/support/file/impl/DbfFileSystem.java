@@ -33,30 +33,30 @@ import java.io.File;
 @Spi("dbf")
 public class DbfFileSystem implements FileSystem {
 
-    @Override
     /**
      * 获取类型
     */
+    @Override
     public String getType() {
         
         return "dbf";
     
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public ReadBuilder read(File file) {
         
         return new DbfReadBuilder(file);
     
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public WriteBuilder write(File file) {
         
         return new DbfWriteBuilder(file);

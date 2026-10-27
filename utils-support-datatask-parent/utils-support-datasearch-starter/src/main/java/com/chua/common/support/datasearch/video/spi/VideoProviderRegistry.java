@@ -133,7 +133,8 @@ public final class VideoProviderRegistry {
                         BlockReason reason = BlockReason.RATE_LIMITED;
                         try {
                             reason = BlockReason.valueOf(entry.getReason());
-                        } catch (Exception ignored) {
+                        } catch (Exception e) {
+                            log.debug("[datasearch] 封禁原因枚举解析失败，回落限流原因: {}", e.getMessage());
                         }
                         BLOCKED_PROVIDERS.put(normalize(entry.getName()), reason);
                     }

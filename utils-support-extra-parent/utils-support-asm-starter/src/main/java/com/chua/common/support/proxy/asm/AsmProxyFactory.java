@@ -35,8 +35,6 @@ public class AsmProxyFactory<T> implements ProxyFactory<T> {
      */
     public static final ProxyFactory INSTANCE = new AsmProxyFactory();
 
-    @Override
-    @SneakyThrows
     /**
      * 创建代理
      * @param target Target
@@ -44,6 +42,8 @@ public class AsmProxyFactory<T> implements ProxyFactory<T> {
      * @param classLoader 类加载
      * @param intercept intercept
      */
+    @Override
+    @SneakyThrows
     public T createProxy(Class<T> target, Class<?>[] interfaces, ClassLoader classLoader,
                         MethodIntercept<T> intercept) {
         // 使用 JDK 动态代理作为 ASM 实现的回退

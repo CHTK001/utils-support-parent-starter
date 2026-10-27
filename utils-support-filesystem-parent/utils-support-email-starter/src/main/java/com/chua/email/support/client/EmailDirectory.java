@@ -105,19 +105,19 @@ public class EmailDirectory implements PolledDirectory {
 
     // ==================== PolledDirectory 实现 ====================
 
-    @Override
     /**
      * 是否DelegatedOperatingSystem
     */
+    @Override
     public boolean isDelegatedOperatingSystem() {
         // 邮件需要轮询
         return false;
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start(DirectoryPollerEnvironment environment, DirectoryPollerExecutor executor) {
         running = true;
         log.info("邮件轮询启动: host={}:{}, folder={}, interval={}s",
@@ -131,10 +131,10 @@ public class EmailDirectory implements PolledDirectory {
         }
     }
 
-    @Override
     /**
      * Upgrade
     */
+    @Override
     public void upgrade() {
         if (!running) {
             return;
@@ -194,10 +194,10 @@ public class EmailDirectory implements PolledDirectory {
         }
     }
 
-    @Override
     /**
      * 添加Listener
     */
+    @Override
     public void addListener(PolledListener listener) {
         listeners.add(listener);
     }
@@ -228,10 +228,10 @@ public class EmailDirectory implements PolledDirectory {
         thread.start();
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         running = false;
     }

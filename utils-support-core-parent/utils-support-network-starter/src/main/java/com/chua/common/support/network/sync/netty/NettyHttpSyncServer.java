@@ -47,10 +47,10 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
         super(setting);
     }
 
-    @Override
     /**
      * 执行开始
     */
+    @Override
     protected void doStart() {
         try {
             server = com.sun.net.httpserver.HttpServer.create(
@@ -101,10 +101,10 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
         }
     }
 
-    @Override
     /**
      * 执行停止
     */
+    @Override
     protected void doStop() {
         if (server != null) {
             server.stop(0);
@@ -114,19 +114,19 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
         messageQueues.clear();
     }
 
-    @Override
     /**
      * 发布
     */
+    @Override
     public void publish(String topic, Object message) {
         String payload = topic + ":" + message.toString();
         messageQueues.computeIfAbsent(topic, k -> Wraps.deque()).add(payload);
     }
 
-    @Override
     /**
      * 发送
     */
+    @Override
     public void send(String clientId, String topic, Object message) {
         Map<String, Object> meta = clients.get(clientId);
         if (meta == null) {
@@ -137,43 +137,43 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
         notifyListener(l -> l.onMessage(clientId, topic, message));
     }
 
-    @Override
     /**
      * 获取连接客户端
     */
+    @Override
     public List<String> getConnectedClients() {
         return Wraps.list(clients.keySet());
     }
 
-    @Override
     /**
      * 获取客户端metadata
     */
+    @Override
     public Map<String, Object> getClientMetadata(String clientId) {
         Map<String, Object> meta = clients.get(clientId);
         return meta != null ? Collections.unmodifiableMap(meta) : Collections.emptyMap();
     }
 
-    @Override
     /**
      * 添加监听器
     */
+    @Override
     public void addListener(SyncServerListener listener) {
         listeners.add(listener);
     }
 
-    @Override
     /**
      * 移除监听器
     */
+    @Override
     public void removeListener(SyncServerListener listener) {
         listeners.remove(listener);
     }
 
-    @Override
     /**
      * 获取协议类型
     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }

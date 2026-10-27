@@ -65,10 +65,10 @@ public class OkHttpSseClient implements SseClient {
                 .build();
     }
 
-    @Override
     /**
      * 连接
     */
+    @Override
     public SseConnection connect(SseRequest request, SseListener listener) {
         try {
             // 构建 OkHttp 请求
@@ -192,10 +192,10 @@ public class OkHttpSseClient implements SseClient {
             this.response = response;
         }
 
-        @Override
         /**
          * 关闭
         */
+        @Override
         public void close() {
             closed = true;
             if (readerThread != null) {
@@ -204,10 +204,10 @@ public class OkHttpSseClient implements SseClient {
             response.close();
         }
 
-        @Override
         /**
          * 是否连接
         */
+        @Override
         public boolean isConnected() {
             return !closed;
         }
@@ -223,17 +223,17 @@ public class OkHttpSseClient implements SseClient {
          */
         static final ClosedSseConnection INSTANCE = new ClosedSseConnection();
 
-        @Override
         /**
          * 关闭
         */
+        @Override
         public void close() {
         }
 
-        @Override
         /**
          * 是否连接
         */
+        @Override
         public boolean isConnected() {
             return false;
         }

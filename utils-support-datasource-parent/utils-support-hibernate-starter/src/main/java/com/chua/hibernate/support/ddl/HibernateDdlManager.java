@@ -30,12 +30,12 @@ import com.chua.datasource.support.ddl.DefaultDslManager;
 @Spi(value = DslManager.SPI_NAME, order = -50)
 public class HibernateDdlManager extends DefaultDslManager {
 
-    @Override
     /**
      * 类型
      *
      * @return 类型名称
      */
+    @Override
     public String type() {
         return "hibernate";
     }

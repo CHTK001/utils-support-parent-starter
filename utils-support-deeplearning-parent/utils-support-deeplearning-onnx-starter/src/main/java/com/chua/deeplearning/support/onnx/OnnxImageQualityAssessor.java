@@ -34,10 +34,10 @@ public class OnnxImageQualityAssessor implements ImageQualityAssessor {
     public OnnxImageQualityAssessor(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public ImageQualityAssessor model(String model) {
         this.modelName = model;
         return this;
@@ -60,37 +60,37 @@ public class OnnxImageQualityAssessor implements ImageQualityAssessor {
         return modelName;
     }
 
-    @Override
     /**
      * blur阈值
     */
+    @Override
     public ImageQualityAssessor blurThreshold(double blurThreshold) {
         this.blurThreshold = blurThreshold;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public ImageQualityAssessor modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public ImageQualityAssessor device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * 评定
     */
+    @Override
     public ImageQualityInfo assess(byte[] imageData) {
         return ImageQualityAssessor.create(resolveModel()).blurThreshold(blurThreshold).modelPath(modelPath).device(device).assess(imageData);
     }

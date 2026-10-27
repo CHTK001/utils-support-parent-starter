@@ -22,10 +22,10 @@ import javax.annotation.Nullable;
 @Spi("7z")
 public class SevenZCompressArchiveInputStream implements CompressArchiveInputStream {
 
-    @Override
     /**
      * 是否支持
     */
+    @Override
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -34,10 +34,10 @@ public class SevenZCompressArchiveInputStream implements CompressArchiveInputStr
         return fileName.endsWith(".7z");
     }
 
-    @Override
     /**
      * 创建输入流
     */
+    @Override
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
  // 7Z格式需要随机访问，必须使用文件对象
         if (file == null) {
@@ -47,10 +47,10 @@ public class SevenZCompressArchiveInputStream implements CompressArchiveInputStr
         return new SevenZArchiveInputStreamAdapter(sevenZFile);
     }
 
-    @Override
     /**
      * 获取格式化名称
     */
+    @Override
     public String getFormatName() {
         return "7z";
     }

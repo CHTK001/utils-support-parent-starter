@@ -63,10 +63,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
         this.instanceMap = new ConcurrentHashMap<>();
     }
 
-    @Override
     /**
      * 注册
     */
+    @Override
     public RuntimeArtifact register(RuntimeArtifact artifact) {
         String id = artifact.getId();
         if (artifactMap.containsKey(id)) {
@@ -77,10 +77,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return artifact;
     }
 
-    @Override
     /**
      * 注册或替换
     */
+    @Override
     public RuntimeArtifact registerOrReplace(RuntimeArtifact artifact) {
         String id = artifact.getId();
         RuntimeInstance oldInstance = instanceMap.get(id);
@@ -97,10 +97,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return artifact;
     }
 
-    @Override
     /**
      * 注销
     */
+    @Override
     public boolean unregister(String id) {
         RuntimeInstance instance = instanceMap.get(id);
         if (instance != null) {
@@ -119,18 +119,18 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return false;
     }
 
-    @Override
     /**
      * 获取Artifact
     */
+    @Override
     public RuntimeArtifact getArtifact(String id) {
         return artifactMap.get(id);
     }
 
-    @Override
     /**
      * Download
     */
+    @Override
     public CompletableFuture<Boolean> download(String id, LineCallback callback) {
         RuntimeArtifact artifact = artifactMap.get(id);
         if (artifact == null) {
@@ -223,10 +223,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
         });
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public RuntimeInstance start(String id) {
         RuntimeArtifact artifact = artifactMap.get(id);
         if (artifact == null) {
@@ -238,10 +238,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return instance;
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public RuntimeInstance stop(String id) {
         RuntimeInstance instance = instanceMap.get(id);
         if (instance != null) {
@@ -252,10 +252,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return instance;
     }
 
-    @Override
     /**
      * Restart
     */
+    @Override
     public RuntimeInstance restart(String id) {
         RuntimeInstance instance = instanceMap.get(id);
         if (instance != null) {
@@ -266,10 +266,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return instance;
     }
 
-    @Override
     /**
      * 状态
     */
+    @Override
     public RuntimeStatus status(String id) {
         RuntimeInstance instance = instanceMap.get(id);
         if (instance != null) {
@@ -281,10 +281,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return RuntimeStatus.UNKNOWN;
     }
 
-    @Override
     /**
      * Tail记录日志
     */
+    @Override
     public void tailLog(String id, LineCallback callback) {
         RuntimeInstance instance = instanceMap.get(id);
         if (instance == null) {
@@ -293,18 +293,18 @@ public class DefaultRuntimeManager implements RuntimeManager {
         instance.logStream().subscribe(callback);
     }
 
-    @Override
     /**
      * 获取artifact标识
     */
+    @Override
     public List<String> getArtifactIds() {
         return Wraps.list(artifactMap.keySet());
     }
 
-    @Override
     /**
      * 获取runninginstances
     */
+    @Override
     public List<RuntimeInstance> getRunningInstances() {
         List<RuntimeInstance> running = Wraps.list();
         for (RuntimeInstance instance : instanceMap.values()) {
@@ -315,18 +315,18 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return running;
     }
 
-    @Override
     /**
      * 获取Instance
     */
+    @Override
     public RuntimeInstance getInstance(String id) {
         return instanceMap.get(id);
     }
 
-    @Override
     /**
      * 获取服务管理器
     */
+    @Override
     public ServiceManager getServiceManager() {
         if (serviceManager == null) {
             synchronized (this) {
@@ -338,10 +338,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return serviceManager;
     }
 
-    @Override
     /**
      * installas服务
     */
+    @Override
     public CmdResult installAsService(String id, ManagedService service) {
         RuntimeArtifact artifact = artifactMap.get(id);
         if (artifact == null) {
@@ -386,10 +386,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return sm.install(service);
     }
 
-    @Override
     /**
      * uninstall服务
     */
+    @Override
     public CmdResult uninstallService(String serviceName) {
         ServiceManager sm = getServiceManager();
         if (sm == null) {
@@ -402,10 +402,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return sm.uninstall(serviceName);
     }
 
-    @Override
     /**
      * 开始服务
     */
+    @Override
     public CmdResult startService(String serviceName) {
         ServiceManager sm = getServiceManager();
         if (sm == null) {
@@ -418,10 +418,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return sm.start(serviceName);
     }
 
-    @Override
     /**
      * 停止服务
     */
+    @Override
     public CmdResult stopService(String serviceName) {
         ServiceManager sm = getServiceManager();
         if (sm == null) {
@@ -434,10 +434,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return sm.stop(serviceName);
     }
 
-    @Override
     /**
      * restart服务
     */
+    @Override
     public CmdResult restartService(String serviceName) {
         ServiceManager sm = getServiceManager();
         if (sm == null) {
@@ -450,10 +450,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return sm.restart(serviceName);
     }
 
-    @Override
     /**
      * 服务状态
     */
+    @Override
     public CmdResult serviceStatus(String serviceName) {
         ServiceManager sm = getServiceManager();
         if (sm == null) {
@@ -466,10 +466,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return sm.status(serviceName);
     }
 
-    @Override
     /**
      * 启用服务
     */
+    @Override
     public CmdResult enableService(String serviceName) {
         ServiceManager sm = getServiceManager();
         if (sm == null) {
@@ -482,10 +482,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return sm.enable(serviceName);
     }
 
-    @Override
     /**
      * 禁用服务
     */
+    @Override
     public CmdResult disableService(String serviceName) {
         ServiceManager sm = getServiceManager();
         if (sm == null) {
@@ -515,10 +515,10 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return null;
     }
 
-    @Override
     /**
      * 获取Java智能体管理器
     */
+    @Override
     public JavaAgentManager getJavaAgentManager() {
         if (javaAgentManager == null) {
             synchronized (this) {
@@ -530,26 +530,26 @@ public class DefaultRuntimeManager implements RuntimeManager {
         return javaAgentManager;
     }
 
-    @Override
     /**
      * attach转为jvm
     */
+    @Override
     public CmdResult attachToJvm(int pid, String options) {
         return getJavaAgentManager().attach(pid, null, options);
     }
 
-    @Override
     /**
      * 列表Java处理
     */
+    @Override
     public java.util.Map<Integer, String> listJavaProcesses() {
         return AgentInjector.listJavaProcesses();
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() throws Exception {
         log.info("[runtime] 关闭运行时管理器，停止所有实例...");
         for (RuntimeInstance instance : instanceMap.values()) {

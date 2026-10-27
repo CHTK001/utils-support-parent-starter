@@ -145,9 +145,6 @@ class DefaultEyeDetector implements EyeDetector {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -179,32 +176,32 @@ class DefaultEyeDetector implements EyeDetector {
         }
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public EyeDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public EyeDetector device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Detect
      *
      * @param imageData 镜像数据
      * @return detect的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =
                 (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class);

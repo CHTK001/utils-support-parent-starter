@@ -62,10 +62,10 @@ public class DbfReadBuilder extends ReadBuilder {
             return result;
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public Object read() {
         return rows();
     }

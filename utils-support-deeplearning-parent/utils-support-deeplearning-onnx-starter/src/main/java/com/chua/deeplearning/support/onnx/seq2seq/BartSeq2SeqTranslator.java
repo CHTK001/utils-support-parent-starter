@@ -50,10 +50,10 @@ public class BartSeq2SeqTranslator implements Translator<String, String> {
     */
     private HuggingFaceTokenizer tokenizer;
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(TranslatorContext ctx) throws IOException {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokenizerPath = modelRoot.resolve("tokenizer.json");
@@ -72,10 +72,10 @@ public class BartSeq2SeqTranslator implements Translator<String, String> {
         }
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("BartSeq2Seq tokenizer not initialized");
@@ -95,10 +95,10 @@ public class BartSeq2SeqTranslator implements Translator<String, String> {
         return new NDList(ids, mask);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public String processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
 
@@ -111,10 +111,10 @@ public class BartSeq2SeqTranslator implements Translator<String, String> {
         return text.trim();
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

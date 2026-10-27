@@ -144,10 +144,10 @@ public class CrawlerServerFilter implements ServerFilter {
      */
     private volatile boolean configured;
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(ServerFilterConfig config) throws Exception {
         String enabledVal = config.getInitParameter("crawler.enabled");
         if (enabledVal != null && !enabledVal.isEmpty()) {
@@ -199,10 +199,10 @@ public class CrawlerServerFilter implements ServerFilter {
         }
     }
 
-    @Override
     /**
      * 是否启用
     */
+    @Override
     public boolean isEnabled() {
         return configured && enabled;
     }
@@ -217,10 +217,10 @@ public class CrawlerServerFilter implements ServerFilter {
         return value != null && !value.isEmpty();
     }
 
-    @Override
     /**
      * 销毁
     */
+    @Override
     public void destroy() {
         if (cleanupExecutor != null) {
             cleanupExecutor.shutdownNow();
@@ -229,10 +229,10 @@ public class CrawlerServerFilter implements ServerFilter {
         periodRecords.clear();
     }
 
-    @Override
     /**
      * 执行过滤
     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         if (!enabled) {
             chain.doFilter(request, response);
@@ -259,19 +259,19 @@ public class CrawlerServerFilter implements ServerFilter {
         chain.doFilter(request, response);
     }
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         // 让开 XssServerFilter 的 30：爬虫拦截应在 XSS 解析之前，同序则不确定
         return 28;
     }
 
-    @Override
     /**
      * 获取过滤标识
     */
+    @Override
     public String getFilterId() {
         return "CrawlerServerFilter";
     }

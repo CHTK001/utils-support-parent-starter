@@ -120,10 +120,10 @@ public class SshProgress implements AutoCloseable {
         delegate.close();
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         delegate.close();
     }

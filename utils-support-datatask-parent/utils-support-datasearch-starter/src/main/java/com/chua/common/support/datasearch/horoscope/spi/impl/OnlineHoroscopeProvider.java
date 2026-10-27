@@ -86,18 +86,18 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
         this.httpClient = HttpClientFactory.getClient();
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "vvhan";
     }
 
-    @Override
     /**
      * 获取运势
     */
+    @Override
     public HoroscopeInfo get(String sign, String type) {
         if (sign == null || type == null) {
             return null;

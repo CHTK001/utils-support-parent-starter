@@ -55,10 +55,10 @@ class PNGImageDataEnumeration implements Enumeration<InputStream> {
         }
     }
 
-    @Override
     /**
      * NextElement
     */
+    @Override
     public InputStream nextElement() {
         try {
             firstTime = false;
@@ -69,10 +69,10 @@ class PNGImageDataEnumeration implements Enumeration<InputStream> {
         }
     }
 
-    @Override
     /**
      * 是否拥有MoreElements
     */
+    @Override
     public boolean hasMoreElements() {
         if (firstTime) {
             return true;
@@ -212,13 +212,13 @@ public class PNGImageReader extends ImageReader {
         super(originatingProvider);
     }
 
-    @Override
     /**
      * 设置Input
      * @param input input
      * @param seekForwardOnly seekForwardOnly
      * @param ignoreMetadata ignoreMetadata
      */
+    @Override
     public void setInput(Object input,
                          boolean seekForwardOnly,
                          boolean ignoreMetadata) {
@@ -1802,11 +1802,11 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
-    @Override
     /**
      * 获取NumImages
      * @param allowSearch allowSearch
      */
+    @Override
     public int getNumImages(boolean allowSearch) throws IIOException {
         if (stream == null) {
             throw new IllegalStateException("No input source set!");
@@ -1819,11 +1819,11 @@ public class PNGImageReader extends ImageReader {
         return isAnimated ? metadata.acTL_num_frames : 1;
     }
 
-    @Override
     /**
      * 获取Width
      * @param imageIndex imageIndex
      */
+    @Override
     public int getWidth(int imageIndex) throws IIOException {
 
         readMetadata();
@@ -1841,11 +1841,11 @@ public class PNGImageReader extends ImageReader {
         return metadata.IHDR_width;
     }
 
-    @Override
     /**
      * 获取Height
      * @param imageIndex imageIndex
      */
+    @Override
     public int getHeight(int imageIndex) throws IIOException {
 
         readMetadata();
@@ -1863,11 +1863,11 @@ public class PNGImageReader extends ImageReader {
         return metadata.IHDR_height;
     }
 
-    @Override
     /**
      * 获取ImageTypes
      * @param imageIndex imageIndex
      */
+    @Override
     public Iterator<ImageTypeSpecifier> getImageTypes(int imageIndex)
       throws IIOException
     {
@@ -2101,30 +2101,30 @@ public class PNGImageReader extends ImageReader {
         return raw;
     }
 
-    @Override
     /**
      * 获取Default读取Param
     */
+    @Override
     public ImageReadParam getDefaultReadParam() {
         
         return new PNGImageReadParam();
     
     }
 
-    @Override
     /**
      * 获取流式输出Metadata
     */
+    @Override
     public IIOMetadata getStreamMetadata()
         throws IIOException {
         return null;
     }
 
-    @Override
     /**
      * 获取ImageMetadata
      * @param imageIndex imageIndex
      */
+    @Override
     public IIOMetadata getImageMetadata(int imageIndex) throws IIOException {
         readMetadata();
 
@@ -2141,12 +2141,12 @@ public class PNGImageReader extends ImageReader {
         return metadata;
     }
 
-    @Override
     /**
      * 读取
      * @param imageIndex imageIndex
      * @param param param
      */
+    @Override
     public BufferedImage read(int imageIndex, ImageReadParam param)
         throws IIOException {
 
@@ -2163,10 +2163,10 @@ public class PNGImageReader extends ImageReader {
         return theImage;
     }
 
-    @Override
     /**
      * Reset
     */
+    @Override
     public void reset() {
         super.reset();
         resetStreamSettings();

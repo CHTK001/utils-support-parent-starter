@@ -24,10 +24,10 @@ import ai.djl.translate.TranslatorContext;
  */
 public class TaesdDecoderTranslator implements Translator<NDList, Image> {
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, NDList input) {
         NDArray latent = input.singletonOrThrow();
  // Batchifier.STACK                 批量                          批量 dim
@@ -37,10 +37,10 @@ public class TaesdDecoderTranslator implements Translator<NDList, Image> {
         return new NDList(latent);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         try (NDManager manager = NDManager.newBaseManager(ctx.getNDManager().getDevice(), "PyTorch")) {
             NDArray output = list.singletonOrThrow();
@@ -63,10 +63,10 @@ public class TaesdDecoderTranslator implements Translator<NDList, Image> {
         }
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

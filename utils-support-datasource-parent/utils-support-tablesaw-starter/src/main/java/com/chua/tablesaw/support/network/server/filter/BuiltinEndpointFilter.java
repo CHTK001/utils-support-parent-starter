@@ -82,26 +82,26 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
         this.latencyHistogramPath = latencyHistogramPath;
     }
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         return Integer.MIN_VALUE + 100;
     }
 
-    @Override
     /**
      * 支持协议
     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }
 
-    @Override
     /**
      * 执行过滤
     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String path = request.getPath();
         if (path == null) {

@@ -5,6 +5,7 @@ import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.utils.ImageUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
@@ -16,6 +17,7 @@ import java.io.ByteArrayOutputStream;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 class DefaultMattingService implements MattingService {
 
     /**
@@ -45,14 +47,14 @@ class DefaultMattingService implements MattingService {
         this.modelName = modelName != null ? modelName : DEFAULT_MODEL;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Matte
      *
      * @param imageData 镜像数据
      * @return matte的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public byte[] matte(byte[] imageData) {
         ITranslator<Object, Object> t = engine.get(modelName, ITranslator.class);
         if (t == null) {
@@ -89,7 +91,8 @@ class DefaultMattingService implements MattingService {
                 if (bi != null) {
                     return bi;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[deeplearning] 抠图结果字节解码失败，返回 null: {}", e.getMessage());
             }
         }
         return null;

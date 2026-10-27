@@ -295,10 +295,10 @@ public class KimiSession implements AutoCloseable {
         return baseUrl;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         // HttpClientFactory.getClient() 为全局单例，不可由单会话关闭，仅释放会话内资源
     }

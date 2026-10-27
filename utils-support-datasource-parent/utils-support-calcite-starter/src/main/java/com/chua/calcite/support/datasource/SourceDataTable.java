@@ -104,13 +104,13 @@ public class SourceDataTable extends MutableDataTable {
         return entityClass;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 获取数据
      *
      * @return 获取数据的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public List<Map<String, Object>> getData() {
         List<Map<String, Object>> rows = queryRows();
         List<Map<String, Object>> data = super.getData();
@@ -119,18 +119,18 @@ public class SourceDataTable extends MutableDataTable {
         return data;
     }
 
-    @Override
     /**
      * 获取Row计算数量
     */
+    @Override
     public long getRowCount() {
         return getData().size();
     }
 
-    @Override
     /**
      * 添加Row
     */
+    @Override
     public void addRow(Map<String, Object> row) {
         super.addRow(row);
         persistSnapshot(super.getData());
@@ -151,12 +151,12 @@ public class SourceDataTable extends MutableDataTable {
         persistSnapshot(data);
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 查询Rows
      *
      * @return 查询rows的结果
      */
+    @SuppressWarnings("unchecked")
     private List<Map<String, Object>> queryRows() {
         try {
             var results = engine.query((Class<Object>) entityClass).list();

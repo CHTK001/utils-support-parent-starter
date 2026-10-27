@@ -43,9 +43,6 @@ public class WhisperMelExtractor {
     /**
      * STFT 帧数：1 + (480000 / 160) = 3001, 但用 center padding 后实际是 3000
      */
-    /**
-     * N_帧
-    */
     public static final int N_FRAMES = 3000;
 
     /**

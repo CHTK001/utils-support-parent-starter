@@ -64,10 +64,10 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
         this.scale = scale;
     }
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(TranslatorContext ctx) {
         this.manager = ctx.getNDManager();
         if (log.isDebugEnabled()) {
@@ -75,10 +75,10 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
         }
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         BufferedImage buffered = (BufferedImage) input.getWrappedImage();
         int h = buffered.getHeight();
@@ -103,10 +103,10 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray outputImg = list.singletonOrThrow();
         long[] shape = outputImg.getShape().getShape();
@@ -148,10 +148,10 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
         return (int) Math.round(x * 255.0f);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

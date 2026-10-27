@@ -55,10 +55,10 @@ public class ZookeeperConfigCenter extends AbstractConfigCenter {
         super(configCenterSetting);
     }
 
-    @Override
     /**
      * 获取
     */
+    @Override
     public Map<String, Object> get(String dataId) {
         if (curatorFramework == null) {
             throw new IllegalStateException("ZooKeeper 未初始化，请先调用 start() 方法启动配置中心");
@@ -95,18 +95,18 @@ public class ZookeeperConfigCenter extends AbstractConfigCenter {
         }
     }
 
-    @Override
     /**
      * 获取
     */
+    @Override
     public Map<String, Object> get(String dataId, String group) {
         return get(group + ":" + dataId);
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         try {
             // 创建指数退避重试策略
@@ -155,10 +155,10 @@ public class ZookeeperConfigCenter extends AbstractConfigCenter {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() throws Exception {
         if (curatorFramework != null) {
             try {

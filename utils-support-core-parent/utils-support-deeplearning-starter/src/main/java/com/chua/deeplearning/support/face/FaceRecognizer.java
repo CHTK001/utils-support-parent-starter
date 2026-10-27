@@ -172,9 +172,6 @@ class DefaultFaceRecognizer implements FaceRecognizer {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -211,41 +208,41 @@ class DefaultFaceRecognizer implements FaceRecognizer {
         }
     }
 
-    @Override
     /**
      * 阈值
     */
+    @Override
     public FaceRecognizer threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public FaceRecognizer modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public FaceRecognizer device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * extract特征
      *
      * @param imageData 镜像数据
      * @return extract特征的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public float[] extractFeature(byte[] imageData) {
         ITranslator<byte[], float[]> t =
                 (ITranslator<byte[], float[]>) engine.get(modelName, ITranslator.class);
@@ -255,10 +252,10 @@ class DefaultFaceRecognizer implements FaceRecognizer {
         return t.translate(imageData);
     }
 
-    @Override
     /**
      * 比较
     */
+    @Override
     public float compare(float[] feature1, float[] feature2) {
         float dot = 0, n1 = 0, n2 = 0;
         for (int i = 0; i < feature1.length; i++) {
@@ -269,10 +266,10 @@ class DefaultFaceRecognizer implements FaceRecognizer {
         return dot / (float) (Math.sqrt(n1) * Math.sqrt(n2));
     }
 
-    @Override
     /**
      * Recognize
     */
+    @Override
     public List<FaceFeature> recognize(byte[] imageData, List<float[]> referenceFeatures) {
         float[] query = extractFeature(imageData);
         List<FaceFeature> result = Wraps.list();

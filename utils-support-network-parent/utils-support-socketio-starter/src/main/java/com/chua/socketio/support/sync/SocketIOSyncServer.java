@@ -24,26 +24,26 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("socketio")
 public class SocketIOSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
 
-    @Override
     /**
      * 获取协议
     */
+    @Override
     public String getProtocol() {
         return "socketio";
     }
 
-    @Override
     /**
      * 创建服务端
     */
+    @Override
     public SyncServer createServer(ServerSetting setting) {
         return new SocketIOSyncServer(setting);
     }
 
-    @Override
     /**
      * 创建客户端
     */
+    @Override
     public SyncClient createClient(Object setting) {
         String url = "http://" + (setting instanceof String ? (String) setting : "127.0.0.1:19380");
         return new SocketIOSyncClient(url);
@@ -71,78 +71,78 @@ public class SocketIOSyncServer extends com.chua.common.support.network.server.A
         this.delegate = new com.chua.socketio.support.server.SocketIOServer(setting);
     }
 
-    @Override
     /**
      * 执行开始
     */
+    @Override
     protected void doStart() {
         delegate.start();
     }
 
-    @Override
     /**
      * 执行停止
     */
+    @Override
     protected void doStop() {
         delegate.stop();
         clients.clear();
     }
 
-    @Override
     /**
      * 发布
     */
+    @Override
     public void publish(String topic, Object message) {
         delegate.publish(topic, message.toString());
         notifyListener(l -> l.onMessage("broadcast", topic, message));
     }
 
-    @Override
     /**
      * 发送
     */
+    @Override
     public void send(String clientId, String topic, Object message) {
         delegate.publish(topic, message.toString());
         notifyListener(l -> l.onMessage(clientId, topic, message));
     }
 
-    @Override
     /**
      * 获取连接客户端
     */
+    @Override
     public List<String> getConnectedClients() {
         return Wraps.list(clients.keySet());
     }
 
-    @Override
     /**
      * 获取客户端metadata
     */
+    @Override
     public Map<String, Object> getClientMetadata(String clientId) {
         Map<String, Object> meta = clients.get(clientId);
         return meta != null ? Collections.unmodifiableMap(meta) : Collections.emptyMap();
     }
 
-    @Override
     /**
      * 添加监听器
     */
+    @Override
     public void addListener(SyncServerListener listener) {
         listeners.add(listener);
     }
 
-    @Override
     /**
      * 移除监听器
     */
+    @Override
     public void removeListener(SyncServerListener listener) {
         listeners.remove(listener);
     }
 
-    @Override
     /**
      * 获取协议类型
     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.UNKNOWN;
     }

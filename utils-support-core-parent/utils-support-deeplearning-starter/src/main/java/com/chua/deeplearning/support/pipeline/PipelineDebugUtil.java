@@ -1,6 +1,7 @@
 package com.chua.deeplearning.support.pipeline;
 
 import com.chua.deeplearning.support.utils.ImageUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,6 +19,7 @@ import java.time.format.DateTimeFormatter;
  * @since 4.0.0.42
  * @param pipelineName pipeline名称
  */
+@Slf4j
 public class PipelineDebugUtil {
 
     private static final String DEBUG_ROOT = "G:/images/output/debug"; // 调试根
@@ -64,7 +66,8 @@ public class PipelineDebugUtil {
             Files.createDirectories(dir);
             Path file = dir.resolve(stepName + "_" + ts + ".png");
             Files.write(file, imageBytes);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[deeplearning] 管线调试图片落盘失败，已忽略: {}", e.getMessage());
         }
     }
 

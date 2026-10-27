@@ -142,18 +142,18 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
         log.info("[TextBSR] ONNX loaded: {}", modelPath.getFileName());
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "text-bsr";
     }
 
-    @Override
     /**
      * Translate
     */
+    @Override
     public BufferedImage translate(byte[] imageData) {
         try {
             prepare();

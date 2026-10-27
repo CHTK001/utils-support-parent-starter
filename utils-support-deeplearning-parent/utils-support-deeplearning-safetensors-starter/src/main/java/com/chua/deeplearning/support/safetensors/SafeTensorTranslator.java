@@ -57,10 +57,10 @@ public class SafeTensorTranslator implements ITranslator<byte[], List<PredictRec
         this.modelType = modelType;
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return modelName;
     }

@@ -53,10 +53,10 @@ public class CompressionChatClientModelAdapter implements Model {
         this.modelName = modelName != null ? modelName : "compression-model";
     }
 
-    @Override
     /**
      * 流
     */
+    @Override
     public Flux<ChatResponse> stream(List<Msg> messages, List<ToolSchema> tools, GenerateOptions options) {
         String prompt = extractLastUserPrompt(messages);
 
@@ -77,10 +77,10 @@ public class CompressionChatClientModelAdapter implements Model {
         return Flux.just(response);
     }
 
-    @Override
     /**
      * 获取模型名称
     */
+    @Override
     public String getModelName() {
         return modelName;
     }

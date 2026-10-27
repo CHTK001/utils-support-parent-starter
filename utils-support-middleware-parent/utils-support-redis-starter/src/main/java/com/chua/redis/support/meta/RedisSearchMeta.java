@@ -54,10 +54,10 @@ public class RedisSearchMeta extends AbstractMetaSearch {
         this.searchEngine = new RedisSearchEngineImpl(engine);
     }
 
-    @Override
     /**
      * 列表
     */
+    @Override
     public List<SearchIndexDef> list() {
         List<String> indexNames = searchEngine.listIndexes();
         List<SearchIndexDef> result = Wraps.list();
@@ -70,26 +70,26 @@ public class RedisSearchMeta extends AbstractMetaSearch {
         return result;
     }
 
-    @Override
     /**
      * 获取
     */
+    @Override
     public SearchIndexDef get(String indexName) {
         return searchEngine.getIndex(indexName);
     }
 
-    @Override
     /**
      * 创建
     */
+    @Override
     public SearchIndexCreateBuilder create(String indexName) {
         return new RedisSearchCreateIndexBuilder(indexName);
     }
 
-    @Override
     /**
      * 掉落
     */
+    @Override
     public boolean drop(String indexName) {
         return searchEngine.deleteIndex(indexName);
     }
@@ -162,10 +162,10 @@ public class RedisSearchMeta extends AbstractMetaSearch {
             this.indexName = indexName;
         }
 
-        @Override
         /**
          * Shards
         */
+        @Override
         public SearchIndexCreateBuilder shards(int shards) {
             if (shards != this.shards) {
                 unsupported.add("shards=" + shards + "（分区数由 Redis Enterprise 部署决定，FT.CREATE 不下发该参数）");
@@ -174,10 +174,10 @@ public class RedisSearchMeta extends AbstractMetaSearch {
             return this;
         }
 
-        @Override
         /**
          * Replicas
         */
+        @Override
         public SearchIndexCreateBuilder replicas(int replicas) {
             if (replicas != this.replicas) {
                 unsupported.add("replicas=" + replicas + "（副本数由 Redis Enterprise 部署决定，FT.CREATE 不下发该参数）");
@@ -186,10 +186,10 @@ public class RedisSearchMeta extends AbstractMetaSearch {
             return this;
         }
 
-        @Override
         /**
          * 字段
         */
+        @Override
         public SearchIndexCreateBuilder field(String name, String type) {
             SearchFieldDef field = new SearchFieldDef();
             field.setName(name);
@@ -198,10 +198,10 @@ public class RedisSearchMeta extends AbstractMetaSearch {
             return this;
         }
 
-        @Override
         /**
          * 字段
         */
+        @Override
         public SearchIndexCreateBuilder field(String name, String type, Consumer<SearchFieldBuilder> config) {
             SearchFieldDef field = new SearchFieldDef();
             field.setName(name);
@@ -220,10 +220,10 @@ public class RedisSearchMeta extends AbstractMetaSearch {
             return this;
         }
 
-        @Override
         /**
          * 字段
         */
+        @Override
         public SearchIndexCreateBuilder fields(List<SearchFieldDef> fields) {
             for (SearchFieldDef field : fields) {
                 if (field == null) {
@@ -247,10 +247,10 @@ public class RedisSearchMeta extends AbstractMetaSearch {
             return this;
         }
 
-        @Override
         /**
          * Settings
         */
+        @Override
         public SearchIndexCreateBuilder settings(Map<String, Object> settings) {
             if (settings != null) {
                 this.settings.putAll(settings);
@@ -258,10 +258,10 @@ public class RedisSearchMeta extends AbstractMetaSearch {
             return this;
         }
 
-        @Override
         /**
          * Mappings
         */
+        @Override
         public SearchIndexCreateBuilder mappings(Map<String, Object> mappings) {
             if (mappings != null && !mappings.isEmpty()) {
                 throw new UnsupportedOperationException(
@@ -271,7 +271,6 @@ public class RedisSearchMeta extends AbstractMetaSearch {
             return this;
         }
 
-        @Override
         /**
          * 执行
          *
@@ -279,6 +278,7 @@ public class RedisSearchMeta extends AbstractMetaSearch {
          * @author CH
          * @since 4.0.0
          */
+        @Override
         public SearchIndexDef execute() {
             for (Map.Entry<String, Object> entry : settings.entrySet()) {
                 if (!SETTINGS_PREFIX.equals(entry.getKey())) {
@@ -322,26 +322,26 @@ public class RedisSearchMeta extends AbstractMetaSearch {
             return this;
         }
 
-        @Override
         /**
          * Analyzer
         */
+        @Override
         public SearchFieldBuilder analyzer(String analyzer) {
             return drop("analyzer=" + analyzer + "（RediSearch 的分词由索引级 LANGUAGE 决定，字段级无独立分词器）");
         }
 
-        @Override
         /**
          * 搜索Analyzer
         */
+        @Override
         public SearchFieldBuilder searchAnalyzer(String searchAnalyzer) {
             return drop("searchAnalyzer=" + searchAnalyzer + "（RediSearch 没有检索期分词器）");
         }
 
-        @Override
         /**
          * 索引
         */
+        @Override
         public SearchFieldBuilder index(boolean indexed) {
             if (!indexed) {
                 return drop("index=false（FT.CREATE 不下发 NOINDEX，该列仍会建立倒排）");
@@ -349,123 +349,123 @@ public class RedisSearchMeta extends AbstractMetaSearch {
             return this;
         }
 
-        @Override
         /**
          * 存储
         */
+        @Override
         public SearchFieldBuilder store(boolean stored) {
             return drop("store=" + stored + "（RediSearch 原文始终保存在 Hash 文档中）");
         }
 
-        @Override
         /**
          * Keyword
         */
+        @Override
         public SearchFieldBuilder keyword() {
             return drop("keyword 类型（RediSearch 精确匹配请用 field(name, \"TAG\")）");
         }
 
-        @Override
         /**
          * 文本
         */
+        @Override
         public SearchFieldBuilder text() {
             return drop("text 类型（RediSearch 请在 field(name, \"TEXT\") 中直接给出）");
         }
 
-        @Override
         /**
          * Integer
         */
+        @Override
         public SearchFieldBuilder integer() {
             return drop("integer 类型（RediSearch 请用 field(name, \"NUMERIC\")）");
         }
 
-        @Override
         /**
          * long类型
         */
+        @Override
         public SearchFieldBuilder longType() {
             return drop("long 类型（RediSearch 请用 field(name, \"NUMERIC\")）");
         }
 
-        @Override
         /**
          * float类型
         */
+        @Override
         public SearchFieldBuilder floatType() {
             return drop("float 类型（RediSearch 请用 field(name, \"NUMERIC\")）");
         }
 
-        @Override
         /**
          * double类型
         */
+        @Override
         public SearchFieldBuilder doubleType() {
             return drop("double 类型（RediSearch 请用 field(name, \"NUMERIC\")）");
         }
 
-        @Override
         /**
          * 日期
         */
+        @Override
         public SearchFieldBuilder date() {
             return drop("date 类型（RediSearch 请用 field(name, \"TAG\") 或 \"NUMERIC\" 时间戳）");
         }
 
-        @Override
         /**
          * Bool
         */
+        @Override
         public SearchFieldBuilder bool() {
             return drop("boolean 类型（RediSearch 请用 field(name, \"TAG\")）");
         }
 
-        @Override
         /**
          * 对象
         */
+        @Override
         public SearchFieldBuilder object() {
             return drop("object 类型（RediSearch 用 JSON 路径作为字段名，如 $.address.city）");
         }
 
-        @Override
         /**
          * 嵌套
         */
+        @Override
         public SearchFieldBuilder nested() {
             return drop("nested 类型（RediSearch 没有嵌套映射，请用 JSON 路径字段）");
         }
 
-        @Override
         /**
          * 权重
         */
+        @Override
         public SearchFieldBuilder weight(double weight) {
             this.weight = weight;
             return this;
         }
 
-        @Override
         /**
          * ignoreabove
         */
+        @Override
         public SearchFieldBuilder ignoreAbove(int ignoreAbove) {
             return drop("ignoreAbove=" + ignoreAbove);
         }
 
-        @Override
         /**
          * doc值
         */
+        @Override
         public SearchFieldBuilder docValues(boolean docValues) {
             return drop("docValues=" + docValues + "（RediSearch 数值/标签字段默认支持排序聚合）");
         }
 
-        @Override
         /**
          * 空值
         */
+        @Override
         public SearchFieldBuilder nullValue(String nullValue) {
             return drop("nullValue=" + nullValue);
         }

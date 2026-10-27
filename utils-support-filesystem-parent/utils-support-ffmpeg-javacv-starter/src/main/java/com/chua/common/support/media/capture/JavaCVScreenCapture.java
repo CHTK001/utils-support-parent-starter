@@ -67,10 +67,10 @@ public class JavaCVScreenCapture implements ScreenCature {
      */
     private volatile Frame reusableResultFrame;
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public boolean init(int width, int height, int fps) {
         close();
         try {
@@ -110,10 +110,10 @@ public class JavaCVScreenCapture implements ScreenCature {
         }
     }
 
-    @Override
     /**
      * grab帧
     */
+    @Override
     public Frame grabFrame() {
         if (!initialized || grabber == null) {
             return null;
@@ -214,37 +214,39 @@ public class JavaCVScreenCapture implements ScreenCature {
         }
     }
 
-    @Override
     /**
      * 获取Width
     */
+    @Override
     public int getWidth() {
         return width;
     }
 
-    @Override
     /**
      * 获取Height
     */
+    @Override
     public int getHeight() {
         return height;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         initialized = false;
         try {
             if (grabber != null) {
                 try {
                     grabber.stop();
-                } catch (Exception ignored) {
+                } catch (Exception stopEx) {
+                    log.debug("[javacv] 停止屏幕采集器失败: {}", stopEx.getMessage());
                 }
                 try {
                     grabber.release();
-                } catch (Exception ignored) {
+                } catch (Exception releaseEx) {
+                    log.debug("[javacv] 释放屏幕采集器失败: {}", releaseEx.getMessage());
                 }
             }
         } catch (Exception e) {

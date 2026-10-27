@@ -46,10 +46,10 @@ public class ImageGenerationModel implements Model {
         this.modelName = modelName != null ? modelName : "image-generation";
     }
 
-    @Override
     /**
      * 流
     */
+    @Override
     public Flux<ChatResponse> stream(List<Msg> messages, List<ToolSchema> tools, GenerateOptions options) {
         String prompt = extractPrompt(messages);
         String resultText;
@@ -71,10 +71,10 @@ public class ImageGenerationModel implements Model {
         return Flux.just(response);
     }
 
-    @Override
     /**
      * 获取模型名称
     */
+    @Override
     public String getModelName() {
         return modelName;
     }

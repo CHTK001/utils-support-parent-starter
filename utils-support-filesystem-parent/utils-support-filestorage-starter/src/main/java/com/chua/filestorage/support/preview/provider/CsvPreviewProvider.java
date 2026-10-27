@@ -17,18 +17,18 @@ import java.util.Locale;
 @Spi("preview-csv")
 public class CsvPreviewProvider implements FileStoragePreviewProvider {
 
-    @Override
     /**
      * 支持
     */
+    @Override
     public boolean supports(String extension, String mimeType) {
         return "csv".equalsIgnoreCase(extension) || "text/csv".equals(mimeType);
     }
 
-    @Override
     /**
      * Preview
     */
+    @Override
     public PreviewResult preview(byte[] content, String extension, String mimeType) throws IOException {
         String csv = new String(content, StandardCharsets.UTF_8);
         String[] lines = csv.split("\n");

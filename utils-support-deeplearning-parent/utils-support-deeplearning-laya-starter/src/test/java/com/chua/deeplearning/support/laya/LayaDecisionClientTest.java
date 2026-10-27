@@ -26,10 +26,10 @@ class LayaDecisionClientTest {
      */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    @Test
     /**
      * 三型问题映射
      */
+    @Test
     void toQuestion() {
         Map<String, String> options = new LinkedHashMap<>();
         options.put("billing", "money");
@@ -49,10 +49,10 @@ class LayaDecisionClientTest {
         assertEquals("noul", noul.type());
     }
 
-    @Test
     /**
      * 答案回填三型
      */
+    @Test
     void toBatch() throws Exception {
         List<DecisionQuery> queries = List.of(
                 DecisionQuery.choice("department", "Which department?",
@@ -77,20 +77,20 @@ class LayaDecisionClientTest {
         assertEquals(0.7D, (Double) batch.flatten().get("refund.confidence"), 1e-9);
     }
 
-    @Test
     /**
      * 缺答案抛异常不静默
      */
+    @Test
     void missingAnswer() throws Exception {
         List<DecisionQuery> queries = List.of(DecisionQuery.noul("refund", "Refund?"));
         ObjectNode result = (ObjectNode) MAPPER.readTree("{\"answers\":{}}");
         assertThrows(RuntimeException.class, () -> LayaDecisionClient.toBatch(queries, result));
     }
 
-    @Test
     /**
      * SPI 接线：门面按 provider 名称解析到 Laya 实现
      */
+    @Test
     void spiResolve() {
         try (DecisionClient client = DecisionClient.create(DecisionSetting.builder()
                 .provider("laya").modelPath("no-such-dir").build())) {
@@ -98,10 +98,10 @@ class LayaDecisionClientTest {
         }
     }
 
-    @Test
     /**
      * AI 规则接线：RuleType.AI 解析到 Laya 构造器并构造规则
      */
+    @Test
     void aiRuleResolve() {
         com.chua.common.support.ai.rule.RuleBuilder builder =
                 com.chua.common.support.ai.rule.RuleType.AI.builder("refund-rule");

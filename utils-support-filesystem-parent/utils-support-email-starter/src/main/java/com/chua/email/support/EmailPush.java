@@ -82,19 +82,19 @@ public class EmailPush implements MessagePush {
         this.environment = environment;
     }
 
-    @Override
     /**
      * 获取提供者
     */
+    @Override
     public String getProvider() {
         return "email";
     }
 
-    @Override
     /**
      * 发送
      * @param request 请求
      */
+    @Override
     public MessageResponse send(MessageRequest request) throws Exception {
         long start = System.currentTimeMillis();
 
@@ -108,10 +108,10 @@ public class EmailPush implements MessagePush {
         var session = jakarta.mail.Session.getInstance(props,
                 auth && username != null && password != null
                         ? new jakarta.mail.Authenticator() {
-                            @Override
                             /**
                              * 获取密码认证
                             */
+                            @Override
                             protected jakarta.mail.PasswordAuthentication getPasswordAuthentication() {
                                 return new jakarta.mail.PasswordAuthentication(username, password);
                             }
@@ -152,19 +152,19 @@ public class EmailPush implements MessagePush {
                 .build();
     }
 
-    @Override
     /**
      * 列表templates
     */
+    @Override
     public List<TemplateInfo> listTemplates() {
         return Wraps.list(templates.values());
     }
 
-    @Override
     /**
      * 获取Template
      * @param templateId templateid
      */
+    @Override
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
     }

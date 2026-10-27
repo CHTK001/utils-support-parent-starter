@@ -15,6 +15,7 @@ import com.chua.runtime.protocol.DependencyEdge;
 import com.chua.runtime.protocol.TransmissionRecord;
 import com.chua.runtime.shell.command.Command;
 import com.chua.runtime.shell.output.Console;
+import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 
 /**
@@ -26,6 +27,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class ApmCommand implements Command {
 
     /**
@@ -107,18 +109,18 @@ public class ApmCommand implements Command {
         this.apm = apm;
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return CMD_NAME;
     }
 
-    @Override
     /**
      * Aliases
     */
+    @Override
     public String[] aliases() {
  // 动态别名：处理器 名称去除 -处理器 后缀
         List<String> aliases = Wraps.list();
@@ -130,18 +132,18 @@ public class ApmCommand implements Command {
         return aliases.toArray(new String[0]);
     }
 
-    @Override
     /**
      * Description
     */
+    @Override
     public String description() {
         return "查看 APM 拦截数据 (apm [handler])";
     }
 
-    @Override
     /**
      * 完成
     */
+    @Override
     public List<String> complete(String[] args) {
         List<String> completions = Wraps.list();
         if (args.length == 0 || args.length == 1) {
@@ -161,10 +163,10 @@ public class ApmCommand implements Command {
         return completions;
     }
 
-    @Override
     /**
      * 执行
     */
+    @Override
     public int execute(String[] args, Console console) {
         if (apm == null) {
             console.error("APM 未启动");
@@ -245,7 +247,8 @@ public class ApmCommand implements Command {
         if (args.length > 1) {
             try {
                 limit = Integer.parseInt(args[1]);
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException e) {
+                log.debug("[apm] 解析显示条数参数失败，使用默认值 {}", DEFAULT_DISPLAY_LIMIT);
             }
         }
  // instanceof 路由不可迁移至 服务提供者：上述 7 个 处理器 均为具体实现类（非可扩展 SPI 接口），

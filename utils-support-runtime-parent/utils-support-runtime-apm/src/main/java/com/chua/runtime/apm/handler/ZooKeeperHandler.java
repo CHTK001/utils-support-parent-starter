@@ -87,35 +87,35 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
         this.started = new AtomicBoolean(false);
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "zk-handler";
     }
 
-    @Override
     /**
      * 版本
     */
+    @Override
     public String version() {
         return "1.0.0";
     }
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(PluginContext context) throws Exception {
         this.enabled = "true".equals(context.getProperty("zk.enabled", "true"));
         LOG.log(Level.INFO, String.format("ZooKeeperHandler 初始化完成，启用状态: %s", enabled));
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -127,10 +127,10 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
         LOG.log(Level.INFO, "ZooKeeperHandler 启动完成，应用层 ZK 拦截已注册");
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() throws Exception {
         this.enabled = false;
         if (started.compareAndSet(true, false)) {
@@ -139,18 +139,18 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
         LOG.log(Level.INFO, "ZooKeeperHandler 停止");
     }
 
-    @Override
     /**
      * 状态
     */
+    @Override
     public String status() {
         return String.format("ZooKeeperHandler[enabled=%s, records=%d]", enabled, records.size());
     }
 
-    @Override
     /**
      * 是否Running
     */
+    @Override
     public boolean isRunning() {
         return enabled && started.get();
     }
@@ -194,10 +194,10 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
-    @Override
     /**
      * onintercept
     */
+    @Override
     public void onIntercept(InterceptContext ctx) {
         if (!enabled) {
             return;
@@ -321,7 +321,8 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
         records.add(record);
         try {
             com.chua.runtime.apm.storage.StorageManager.appendTransmission(record);
-        } catch (Exception ignore) {
+        } catch (Exception appendEx) {
+            LOG.log(Level.FINE, String.format("ZooKeeperHandler appendTransmission 异常: %s", appendEx.getMessage()));
         }
         try {
             DependencyGraphHandler handler = ApmBootstrap.getGlobalHandler(DependencyGraphHandler.class);

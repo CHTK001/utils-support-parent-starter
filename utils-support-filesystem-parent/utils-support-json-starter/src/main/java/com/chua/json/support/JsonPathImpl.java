@@ -63,10 +63,10 @@ public class JsonPathImpl implements JsonPath {
 
     // ==================== 一次性方法 ====================
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public <T> T read(String json, String jsonPath) {
         try {
             return PARSE_CTX.parse(json).read(jsonPath);
@@ -75,10 +75,10 @@ public class JsonPathImpl implements JsonPath {
         }
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public <T> T read(String json, String jsonPath, Class<T> type) {
         try {
             return PARSE_CTX.parse(json).read(jsonPath, type);
@@ -87,10 +87,10 @@ public class JsonPathImpl implements JsonPath {
         }
     }
 
-    @Override
     /**
      * 设置
     */
+    @Override
     public String set(String json, String jsonPath, Object value) {
         try {
             return PARSE_CTX.parse(json).set(jsonPath, value).jsonString();
@@ -99,10 +99,10 @@ public class JsonPathImpl implements JsonPath {
         }
     }
 
-    @Override
     /**
      * 删除
     */
+    @Override
     public String delete(String json, String jsonPath) {
         try {
             return PARSE_CTX.parse(json).delete(jsonPath).jsonString();
@@ -111,10 +111,10 @@ public class JsonPathImpl implements JsonPath {
         }
     }
 
-    @Override
     /**
      * 添加
     */
+    @Override
     public String add(String json, String jsonPath, Object value) {
         try {
             return PARSE_CTX.parse(json).add(jsonPath, value).jsonString();
@@ -123,10 +123,10 @@ public class JsonPathImpl implements JsonPath {
         }
     }
 
-    @Override
     /**
      * 放入
     */
+    @Override
     public String put(String json, String jsonPath, String key, Object value) {
         try {
             return PARSE_CTX.parse(json).put(jsonPath, key, value).jsonString();
@@ -135,10 +135,10 @@ public class JsonPathImpl implements JsonPath {
         }
     }
 
-    @Override
     /**
      * 是否Exist
     */
+    @Override
     public boolean isExist(String json, String jsonPath) {
         try {
             return PARSE_CTX.parse(json).read(jsonPath) != null;
@@ -147,10 +147,10 @@ public class JsonPathImpl implements JsonPath {
         }
     }
 
-    @Override
     /**
      * 获取长度
     */
+    @Override
     public int length(String json, String jsonPath) {
         try {
             Object value = PARSE_CTX.parse(json).read(jsonPath);
@@ -171,18 +171,18 @@ public class JsonPathImpl implements JsonPath {
 
     // ==================== 链式方法 ====================
 
-    @Override
     /**
      * 解析
     */
+    @Override
     public JsonPath parse(String json) {
         return new JsonPathImpl(PARSE_CTX.parse(json));
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public <T> T read(String jsonPath) {
         ensureParsed();
         try {
@@ -192,10 +192,10 @@ public class JsonPathImpl implements JsonPath {
         }
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public <T> T read(String jsonPath, Class<T> type) {
         ensureParsed();
         try {
@@ -205,50 +205,50 @@ public class JsonPathImpl implements JsonPath {
         }
     }
 
-    @Override
     /**
      * 设置
     */
+    @Override
     public JsonPath set(String jsonPath, Object value) {
         ensureParsed();
         documentContext.set(jsonPath, value);
         return this;
     }
 
-    @Override
     /**
      * 删除
     */
+    @Override
     public JsonPath delete(String jsonPath) {
         ensureParsed();
         documentContext.delete(jsonPath);
         return this;
     }
 
-    @Override
     /**
      * 添加
     */
+    @Override
     public JsonPath add(String jsonPath, Object value) {
         ensureParsed();
         documentContext.add(jsonPath, value);
         return this;
     }
 
-    @Override
     /**
      * 放入
     */
+    @Override
     public JsonPath put(String jsonPath, String key, Object value) {
         ensureParsed();
         documentContext.put(jsonPath, key, value);
         return this;
     }
 
-    @Override
     /**
      * 是否Exist
     */
+    @Override
     public boolean isExist(String jsonPath) {
         ensureParsed();
         try {
@@ -258,10 +258,10 @@ public class JsonPathImpl implements JsonPath {
         }
     }
 
-    @Override
     /**
      * 获取长度
     */
+    @Override
     public int length(String jsonPath) {
         ensureParsed();
         try {
@@ -281,10 +281,10 @@ public class JsonPathImpl implements JsonPath {
         }
     }
 
-    @Override
     /**
      * 转为json
     */
+    @Override
     public String toJson() {
         ensureParsed();
         return documentContext.jsonString();

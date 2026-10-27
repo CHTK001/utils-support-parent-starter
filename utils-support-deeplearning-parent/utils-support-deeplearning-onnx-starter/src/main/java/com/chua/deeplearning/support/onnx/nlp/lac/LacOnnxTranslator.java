@@ -293,18 +293,18 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
         return new int[]{dims.get(0), dims.get(1)};
     }
 
-    @Override
     /**
      * 名称
      */
+    @Override
     public String name() {
         return "lac-onnx";
     }
 
-    @Override
     /**
      * Translate
      */
+    @Override
     public String[][] translate(String text) {
         if (text == null || text.isEmpty()) {
             return new String[0][0];
@@ -470,10 +470,10 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
         return in;
     }
 
-    @Override
     /**
      * 关闭
      */
+    @Override
     public void close() {
         if (encoderSession != null) {
             try {

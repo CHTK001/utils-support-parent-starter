@@ -10,26 +10,26 @@ package com.chua.network.support.tshark.restorer;
  */
 public class NtpProtocolRestorer extends AbstractProtocolRestorer {
 
-    @Override
     /**
      * 获取协议名称
     */
+    @Override
     public String getProtocolName() {
         return "ntp";
     }
 
-    @Override
     /**
      * 获取Priority
     */
+    @Override
     public int getPriority() {
         return 90;
     }
 
-    @Override
     /**
      * 是否可以Restore
     */
+    @Override
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 48) {
             return false;
@@ -39,10 +39,10 @@ public class NtpProtocolRestorer extends AbstractProtocolRestorer {
         return version >= 1 && version <= 4;
     }
 
-    @Override
     /**
      * Restore
     */
+    @Override
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 48) {
             return "[NTP] empty";

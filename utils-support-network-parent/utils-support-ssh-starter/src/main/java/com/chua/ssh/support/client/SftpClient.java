@@ -70,6 +70,11 @@ public class SftpClient implements AutoCloseable {
      * sftp
      */
     private org.apache.sshd.sftp.client.SftpClient sftp;
+    /**
+     * 是否复用外部会话（{@link #of(ClientSession, String, String, int)} 构建）：
+     * 关闭时只关 SFTP 通道，不关闭会话/底层客户端，连接归属调用方（连接池）。
+     */
+    private boolean sharedSession;
 
     /**
      * 创建 sftp客户端 实例
@@ -84,6 +89,39 @@ public class SftpClient implements AutoCloseable {
         this.connectTimeout = b.connectTimeout;
         this.hostKeyPolicy = b.hostKeyPolicy;
         this.knownHostsPath = b.knownHostsPath;
+    }
+
+    /**
+     * 基于既有会话构建 SFTP 通道（复用已建立的 SSH 连接，不新建立连接）。
+     * <p>
+     * 通道归属当前会话，{@link #close()} 只关闭 SFTP 通道，不关闭会话；
+     * 会话生命周期由提供方（SSH 连接池）管理。未连接时抛出异常。
+     * </p>
+     *
+     * @param session  已连接（认证完成）的会话
+     * @param username 登录用户名（日志用）
+     * @param host     主机地址（日志用）
+     * @param port     SSH 端口（日志用）
+     * @return 复用会话的 SFTP 客户端（关闭时仅关通道）
+     * @throws SftpClientException SFTP 通道打开失败
+     */
+    public static SftpClient of(ClientSession session, String username, String host, int port) {
+        if (session == null || session.isClosed()) {
+            throw new IllegalStateException("SSH 会话未建立或已关闭，无法打开 SFTP 通道: " + host + ":" + port);
+        }
+        SftpClient client = new SftpClient(new Builder()
+                .host(host)
+                .username(username)
+                .port(port)
+                .hostKeyPolicy(HostKeyPolicy.ACCEPT_NEW));
+        client.session = session;
+        client.sharedSession = true;
+        try {
+            client.sftp = org.apache.sshd.sftp.client.SftpClientFactory.instance().createSftpClient(session);
+        } catch (IOException e) {
+            throw new SftpClientException("SFTP 通道打开失败: " + host + ":" + port + " - " + e.getMessage(), e);
+        }
+        return client;
     }
 
     /**
@@ -147,6 +185,11 @@ public class SftpClient implements AutoCloseable {
             if (sftp != null) {
                 sftp.close();
             }
+            if (sharedSession) {
+                // 复用外部会话：只关 SFTP 通道，会话/底层客户端由连接池管理，绝不在此关闭
+                log.info("SFTP 通道关闭（复用会话）: {}@{}:{}", username, host, port);
+                return;
+            }
             if (session != null) {
                 session.close();
             }
@@ -159,10 +202,10 @@ public class SftpClient implements AutoCloseable {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() { disconnect(); }
 
     /**

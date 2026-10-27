@@ -116,36 +116,36 @@ public class RedissonLockProvider extends AbstractLockProvider {
         }
     }
 
-    @Override
     /**
      * 执行解锁
     */
+    @Override
     protected void doUnlock() {
         if (lock.isHeldByCurrentThread()) {
             lock.unlock();
         }
     }
 
-    @Override
     /**
      * 执行获取名称
     */
+    @Override
     protected String doGetName() {
         return name;
     }
 
-    @Override
     /**
      * 执行获取类型
     */
+    @Override
     protected String doGetType() {
         return "redis";
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() throws Exception {
         super.close();
         redissonClient.shutdown();

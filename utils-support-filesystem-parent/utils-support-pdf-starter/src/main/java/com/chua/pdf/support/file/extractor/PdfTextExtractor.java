@@ -30,10 +30,10 @@ import java.util.Map;
 @Spi("pdf")
 public class PdfTextExtractor implements TextExtractor {
 
-    @Override
     /**
      * extract文本
     */
+    @Override
     public List<TextExtractResult> extractText(File file) {
         List<TextExtractResult> results = Wraps.list();
 
@@ -123,10 +123,10 @@ public class PdfTextExtractor implements TextExtractor {
         }
     }
 
-    @Override
     /**
      * 类型
     */
+    @Override
     public String type() {
         return "pdf";
     }

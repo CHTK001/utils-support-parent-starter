@@ -68,10 +68,10 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
         super(configCenterSetting);
     }
 
-    @Override
     /**
      * 获取
     */
+    @Override
     public Map<String, Object> get(String dataId) {
         if (apolloConfig == null) {
             throw new IllegalStateException("Apollo 未初始化，请先调用 start() 方法启动配置中心");
@@ -102,19 +102,19 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
         return result;
     }
 
-    @Override
     /**
      * 获取
     */
+    @Override
     public Map<String, Object> get(String dataId, String group) {
  // Apollo 中 群体 参数对应不同的 namespace
         return get(dataId);
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         // 确定命名空间
         this.namespace = StringUtils.isNotBlank(configCenterSetting.getProfile())
@@ -125,10 +125,10 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
 
         // 注册配置变更监听器
         this.apolloConfig.addChangeListener(new ConfigChangeListener() {
-            @Override
             /**
              * on改变
             */
+            @Override
             public void onChange(ConfigChangeEvent event) {
                 Set<String> changedKeys = event.changedKeys();
                 for (String key : changedKeys) {
@@ -147,10 +147,10 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
         log.info("Apollo 配置中心已启动，命名空间: {}", namespace);
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() throws Exception {
         if (apolloConfig != null) {
             apolloConfig = null;
@@ -158,27 +158,27 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
         }
     }
 
-    @Override
     /**
      * 是否支持发布
     */
+    @Override
     public boolean isSupportPublish() {
         return false;
     }
 
-    @Override
     /**
      * 发布
     */
+    @Override
     public boolean publish(String dataId, String group, String key, String value) {
         log.warn("Apollo 配置中心不支持发布操作，配置仅在本地缓存生效");
         return false;
     }
 
-    @Override
     /**
      * 移除
     */
+    @Override
     public boolean remove(String dataId, String key) {
         log.warn("Apollo 配置中心不支持删除操作");
         return false;
@@ -197,10 +197,10 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
         return ConfigService.getConfig(ns);
     }
 
-    @Override
     /**
      * 添加监听器
     */
+    @Override
     public void addListener(String dataId, ConfigListener listener) {
         super.addListener(dataId, listener);
 
@@ -209,10 +209,10 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
         Config config = getConfigForNamespace(ns);
         if (config != null) {
             config.addChangeListener(new ConfigChangeListener() {
-                @Override
                 /**
                  * on改变
                 */
+                @Override
                 public void onChange(ConfigChangeEvent event) {
                     Set<String> changedKeys = event.changedKeys();
                     for (String key : changedKeys) {

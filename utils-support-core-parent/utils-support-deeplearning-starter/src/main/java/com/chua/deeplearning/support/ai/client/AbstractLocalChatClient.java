@@ -59,10 +59,10 @@ public abstract class AbstractLocalChatClient implements ChatClient {
         this.setting = setting;
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public ChatClient model(String model) {
         this.model = model;
         return this;
@@ -91,18 +91,18 @@ public abstract class AbstractLocalChatClient implements ChatClient {
         return defs.getFirst().getId();
     }
 
-    @Override
     /**
      * 对话同步
     */
+    @Override
     public String chatSync(String prompt) {
         return chatSync(prompt, 0);
     }
 
-    @Override
     /**
      * 对话同步
     */
+    @Override
     public String chatSync(String prompt, long timeoutMillis) {
         String modelName = resolveModel();
         Map<String, Object> options = resolveOptions();
@@ -174,10 +174,10 @@ public abstract class AbstractLocalChatClient implements ChatClient {
         return opts;
     }
 
-    @Override
     /**
      * 对话同步with响应
     */
+    @Override
     public ChatSyncResponse chatSyncWithResponse(String prompt) {
         String text = chatSync(prompt);
         return ChatSyncResponse.builder()
@@ -185,18 +185,18 @@ public abstract class AbstractLocalChatClient implements ChatClient {
                 .build();
     }
 
-    @Override
     /**
      * 历史
     */
+    @Override
     public ChatClient history(List<ChatMessage> messages) {
         return this;
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

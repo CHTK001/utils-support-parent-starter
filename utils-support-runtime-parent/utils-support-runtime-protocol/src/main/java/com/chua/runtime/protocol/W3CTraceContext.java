@@ -326,10 +326,10 @@ public final class W3CTraceContext {
         return (flags & 0x01) != 0;
     }
 
-    @Override
     /**
      * 转为字符串
     */
+    @Override
     public String toString() {
         return String.format("W3C[ver=%s, traceId=%s, spanId=%s, flags=%02x]",
                 version, traceId, spanId, flags & 0xff);

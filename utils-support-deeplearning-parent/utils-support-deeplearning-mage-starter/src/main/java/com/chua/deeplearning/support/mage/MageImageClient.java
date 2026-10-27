@@ -161,56 +161,56 @@ public class MageImageClient implements ImageClient {
         }
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public ImageClient model(String model) {
         this.model = model;
         return this;
     }
 
-    @Override
     /**
      * 大小
     */
+    @Override
     public ImageClient size(int width, int height) {
         this.width = width;
         this.height = height;
         return this;
     }
 
-    @Override
     /**
      * 提示符
     */
+    @Override
     public ImageClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
-    @Override
     /**
      * negative提示符
     */
+    @Override
     public ImageClient negativePrompt(String negativePrompt) {
         this.negativePrompt = negativePrompt;
         return this;
     }
 
-    @Override
     /**
      * Seed
     */
+    @Override
     public ImageClient seed(Long seed) {
         this.seed = seed;
         return this;
     }
 
-    @Override
     /**
      * Steps
     */
+    @Override
     public ImageClient steps(Integer steps) {
         this.steps = steps;
         return this;
@@ -229,10 +229,10 @@ public class MageImageClient implements ImageClient {
         return this;
     }
 
-    @Override
     /**
      * 引用镜像
     */
+    @Override
     public ImageClient referenceImage(byte[] image) {
         if (image != null && image.length > 0) {
             this.referenceImages.add(image);
@@ -240,10 +240,10 @@ public class MageImageClient implements ImageClient {
         return this;
     }
 
-    @Override
     /**
      * 引用镜像
     */
+    @Override
     public ImageClient referenceImage(BufferedImage image) {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             ImageIO.write(image, "png", out);
@@ -253,26 +253,26 @@ public class MageImageClient implements ImageClient {
         }
     }
 
-    @Override
     /**
      * 镜像strength
     */
+    @Override
     public ImageClient imageStrength(double strength) {
         throw new UnsupportedOperationException("Mage-Flow-Edit 由指令驱动编辑强度，不支持 imageStrength");
     }
 
-    @Override
     /**
      * control类型
     */
+    @Override
     public ImageClient controlType(String controlType) {
         throw new UnsupportedOperationException("Mage-Flow 不支持 ControlNet");
     }
 
-    @Override
     /**
      * Generate
     */
+    @Override
     public BufferedImage generate(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
         if (actualPrompt == null || actualPrompt.isBlank()) {
@@ -313,34 +313,34 @@ public class MageImageClient implements ImageClient {
         return parseFirstImage(resp.getBodyString(), path);
     }
 
-    @Override
     /**
      * 创建任务
     */
+    @Override
     public String createTask(String prompt) {
         throw new UnsupportedOperationException("Mage 服务为同步接口，请使用 generate()");
     }
 
-    @Override
     /**
      * 查询任务
     */
+    @Override
     public ImageResponse queryTask(String taskId) {
         throw new UnsupportedOperationException("Mage 服务为同步接口，请使用 generate()");
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public List<ModelDefinition> models() {
         return MODELS;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         referenceImages.clear();
     }

@@ -38,34 +38,34 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
         this.sourceId = sourceId;
     }
 
-    @Override
     /**
      * Direction
     */
+    @Override
     public Direction direction() {
         return Direction.INPUT;
     }
 
-    @Override
     /**
      * 源标识
     */
+    @Override
     public String sourceId() {
         return sourceId;
     }
 
-    @Override
     /**
      * Agent标识
     */
+    @Override
     public String agentId() {
         return connection.getAgentId();
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public Flux<Map<String, Object>> read(SyncDataOffset offset, Map<String, Object> params) {
         return Flux.defer(() -> {
             try {
@@ -86,18 +86,18 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
         });
     }
 
-    @Override
     /**
      * 当前偏移量
     */
+    @Override
     public SyncDataOffset currentOffset() {
         return null;
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public void write(Flux<Map<String, Object>> data) {
         try {
             List<Map<String, Object>> rows = data.collectList().block();
@@ -116,10 +116,10 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
     }
 }

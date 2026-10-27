@@ -46,10 +46,10 @@ public class VggtTranslator implements Translator<Image, Image> {
      */
     public static final String VGGT_OUTPUT_KEY = "vggt_3d_output";
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        : {}x{}", input.getWidth(), input.getHeight());
@@ -77,10 +77,10 @@ public class VggtTranslator implements Translator<Image, Image> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Image processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        : {}          ", list.size());
@@ -135,10 +135,10 @@ public class VggtTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromNDArray(imageArray);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         //                   
         return null;

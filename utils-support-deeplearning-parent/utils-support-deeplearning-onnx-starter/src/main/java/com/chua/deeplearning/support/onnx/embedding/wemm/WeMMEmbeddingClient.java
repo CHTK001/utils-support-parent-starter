@@ -75,29 +75,29 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
         return new WeMMEmbeddingTranslator();
     }
 
-    @Override
     /**
      * Provider
     */
+    @Override
     public EmbeddingClient provider(String provider) {
         setting.setProvider(provider);
         return this;
     }
 
-    @Override
     /**
      * Model
     */
+    @Override
     public EmbeddingClient model(String model) {
         setting.setModel(model);
         this.resolvedModel = null;
         return this;
     }
 
-    @Override
     /**
      * Dimensions
     */
+    @Override
     public EmbeddingClient dimensions(int dimensions) {
         setting.setDimensions(dimensions);
         return this;
@@ -128,10 +128,10 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
         }
     }
 
-    @Override
     /**
      * Embedding
     */
+    @Override
     public float[] embedding(String text) {
         try {
             if (text == null || text.isBlank()) {
@@ -149,10 +149,10 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
         }
     }
 
-    @Override
     /**
      * EmbeddingBatch
     */
+    @Override
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -164,10 +164,10 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
         return result;
     }
 
-    @Override
     /**
      * EmbeddingWithResponse
     */
+    @Override
     public EmbeddingResponse embeddingWithResponse(String text) {
         float[] v = embedding(text);
         return EmbeddingResponse.builder()
@@ -176,10 +176,10 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
                 .build();
     }
 
-    @Override
     /**
      * EmbeddingBatchWithResponse
     */
+    @Override
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
@@ -191,26 +191,26 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
         return EmbeddingResponse.builder().embeddings(embs).build();
     }
 
-    @Override
     /**
      * EmbeddingAsync
     */
+    @Override
     public CompletableFuture<float[]> embeddingAsync(String text) {
         return CompletableFuture.supplyAsync(() -> embedding(text));
     }
 
-    @Override
     /**
      * EmbeddingBatchAsync
     */
+    @Override
     public CompletableFuture<float[][]> embeddingBatchAsync(String[] texts) {
         return CompletableFuture.supplyAsync(() -> embeddingBatch(texts));
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public synchronized void close() {
         if (translator != null) {
             translator.close();

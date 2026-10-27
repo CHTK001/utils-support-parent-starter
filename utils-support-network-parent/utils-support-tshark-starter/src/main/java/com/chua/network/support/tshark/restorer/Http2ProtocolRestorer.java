@@ -12,26 +12,26 @@ package com.chua.network.support.tshark.restorer;
  */
 public class Http2ProtocolRestorer extends AbstractProtocolRestorer {
 
-    @Override
     /**
      * 获取协议名称
     */
+    @Override
     public String getProtocolName() {
         return "http2";
     }
 
-    @Override
     /**
      * 获取Priority
     */
+    @Override
     public int getPriority() {
         return 260;
     }
 
-    @Override
     /**
      * 是否可以Restore
     */
+    @Override
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 9) {
             return false;
@@ -51,10 +51,10 @@ public class Http2ProtocolRestorer extends AbstractProtocolRestorer {
         return length > 0 && length < 16777216 && rawData.length >= 9;
     }
 
-    @Override
     /**
      * Restore
     */
+    @Override
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length == 0) {
             return "[HTTP/2] empty";

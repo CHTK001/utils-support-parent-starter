@@ -80,19 +80,19 @@ public class DesktopMessagePush implements MessagePush {
         this.environment = environment;
     }
 
-    @Override
     /**
      * 获取提供者
     */
+    @Override
     public String getProvider() {
         return "desktop";
     }
 
-    @Override
     /**
      * 发送
      * @param request 请求
      */
+    @Override
     public MessageResponse send(MessageRequest request) throws Exception {
         long start = System.currentTimeMillis();
 
@@ -119,19 +119,19 @@ public class DesktopMessagePush implements MessagePush {
                 .build();
     }
 
-    @Override
     /**
      * 列表templates
     */
+    @Override
     public List<TemplateInfo> listTemplates() {
         return Wraps.list(templates.values());
     }
 
-    @Override
     /**
      * 获取Template
      * @param templateId templateid
      */
+    @Override
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
     }

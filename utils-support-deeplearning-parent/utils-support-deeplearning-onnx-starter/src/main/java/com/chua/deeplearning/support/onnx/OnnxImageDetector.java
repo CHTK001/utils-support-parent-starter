@@ -39,10 +39,10 @@ public class OnnxImageDetector implements ImageDetector {
     public OnnxImageDetector(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public ImageDetector model(String model) {
         this.modelName = model;
         return this;
@@ -61,46 +61,46 @@ public class OnnxImageDetector implements ImageDetector {
         return modelName;
     }
 
-    @Override
     /**
      * 阈值
     */
+    @Override
     public ImageDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * Nms
     */
+    @Override
     public ImageDetector nms(float nms) {
         this.nms = nms;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public ImageDetector modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public ImageDetector device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * Detect
     */
+    @Override
     public List<DetectionInfo> detect(byte[] imageData) {
         return ImageDetector.create(resolveModel()).threshold(threshold).nms(nms).modelPath(modelPath).device(device).detect(imageData);
     }

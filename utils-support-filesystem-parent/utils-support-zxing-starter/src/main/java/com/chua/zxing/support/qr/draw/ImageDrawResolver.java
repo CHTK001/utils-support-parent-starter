@@ -47,10 +47,10 @@ public class ImageDrawResolver extends AbstractDrawResolver{
         super(g2, detectInnerColor, detectOutColor, qrCodeConfig, bitMatrix, drawOptions, setting);
     }
 
-    @Override
     /**
      * Draw
     */
+    @Override
     public void draw() {
         DrawEyeResolver drawEyeResolver = ServiceProvider.of(DrawEyeResolver.class)
                 .getNewExtension(setting.getCodeEyeSetting().getCodeEye());

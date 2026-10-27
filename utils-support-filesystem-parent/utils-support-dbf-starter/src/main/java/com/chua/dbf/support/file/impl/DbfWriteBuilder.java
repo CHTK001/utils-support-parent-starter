@@ -26,10 +26,10 @@ public class DbfWriteBuilder extends WriteBuilder {
         super(file);
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public DbfWriteBuilder write(Object data) {
         if (data instanceof Map || data instanceof List) {
             pending.add(data);
@@ -49,10 +49,10 @@ public class DbfWriteBuilder extends WriteBuilder {
         finish();
     }
 
-    @Override
     /**
      * 饰面
     */
+    @Override
     public void finish() {
         callback.onStart();
         callback.onBeginWrite();

@@ -40,90 +40,90 @@ public class NitriteEngineDataSource implements EngineDataSource<Object> {
         this.filePath = filePath;
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return name;
     }
 
-    @Override
     /**
      * 获取源
     */
+    @Override
     public Object getSource() {
         return nitrite;
     }
 
-    @Override
     /**
      * 获取源
     */
+    @Override
     public <R> R getSource(Class<R> type) {
         return type.cast(nitrite);
     }
 
-    @Override
     /**
      * 设置源
     */
+    @Override
     public EngineDataSource<Object> setSource(Object source) {
         throw new UnsupportedOperationException("运行期不支持替换数据源对象，请重新调用 addDataSource 注册新数据源");
     }
 
-    @Override
     /**
      * 获取Dialect
     */
+    @Override
     public Dialect getDialect() {
         return null;
     }
 
-    @Override
     /**
      * 设置Dialect
     */
+    @Override
     public EngineDataSource<Object> setDialect(Dialect dialect) {
         return this;
     }
 
-    @Override
     /**
      * tunnel端口
     */
+    @Override
     public int tunnelPort() {
         return 0;
     }
 
-    @Override
     /**
      * 设置tunnel端口
     */
+    @Override
     public EngineDataSource<Object> setTunnelPort(int tunnelPort) {
         return this;
     }
 
-    @Override
     /**
      * Url
     */
+    @Override
     public String url() {
         return filePath;
     }
 
-    @Override
     /**
      * 用户名
     */
+    @Override
     public String username() {
         return null;
     }
 
-    @Override
     /**
      * 密码
     */
+    @Override
     public String password() {
         return null;
     }

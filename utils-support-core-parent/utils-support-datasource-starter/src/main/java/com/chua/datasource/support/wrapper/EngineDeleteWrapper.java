@@ -36,26 +36,26 @@ public class EngineDeleteWrapper<T> extends LambdaDeleteWrapper<T> {
         this.entityClass = entityClass;
     }
 
-    @Override
     /**
      * 解析Column
     */
+    @Override
     protected String resolveColumn(SFunction<T, ?> col) {
         return LambdaUtils.resolveColumn(col);
     }
 
-    @Override
     /**
      * 新instance
     */
+    @Override
     protected LambdaDeleteWrapper<T> newInstance() {
         return new EngineDeleteWrapper<>(engine, entityClass);
     }
 
-    @Override
     /**
      * 移除
     */
+    @Override
     public int remove() {
         return engine.executeDelete(this.buildSql());
     }

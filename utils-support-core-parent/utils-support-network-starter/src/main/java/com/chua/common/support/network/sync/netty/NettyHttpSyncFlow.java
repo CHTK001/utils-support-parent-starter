@@ -63,10 +63,10 @@ public class NettyHttpSyncFlow implements SyncFlow {
         this.client = null;
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         if (running) {
             return;
@@ -81,10 +81,10 @@ public class NettyHttpSyncFlow implements SyncFlow {
         notifyListeners(SyncFlowListener::onStart);
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() {
         if (!running) {
             return;
@@ -99,66 +99,66 @@ public class NettyHttpSyncFlow implements SyncFlow {
         notifyListeners(SyncFlowListener::onStop);
     }
 
-    @Override
     /**
      * 是否Running
     */
+    @Override
     public boolean isRunning() {
         return running;
     }
 
-    @Override
     /**
      * 获取服务端
     */
+    @Override
     public SyncServer getServer() {
         return server;
     }
 
-    @Override
     /**
      * 获取客户端
     */
+    @Override
     public SyncClient getClient() {
         return client;
     }
 
-    @Override
     /**
      * 添加监听器
     */
+    @Override
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
         if (server != null) {
             server.addListener(new SyncServerListener() {
-                @Override
                 /**
                  * on客户端连接
                 */
+                @Override
                 public void onClientConnected(String clientId, Map<String, Object> metadata) {
                     listener.onClientConnected(clientId);
                 }
 
-                @Override
                 /**
                  * on客户端断开连接
                 */
+                @Override
                 public void onClientDisconnected(String clientId) {
                     listener.onClientDisconnected(clientId);
                 }
 
-                @Override
                 /**
                  * on消息
                 */
+                @Override
                 public void onMessage(String clientId, String topic, Object message) {
                     listener.onMessage(topic, message);
                 }
 
-                @Override
                 /**
                  * On记录错误
                 */
+                @Override
                 public void onError(String clientId, Throwable cause) {
                     listener.onError(clientId, cause);
                 }
@@ -169,10 +169,10 @@ public class NettyHttpSyncFlow implements SyncFlow {
         }
     }
 
-    @Override
     /**
      * 移除监听器
     */
+    @Override
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
         if (client != null) {
@@ -180,10 +180,10 @@ public class NettyHttpSyncFlow implements SyncFlow {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         stop();
     }

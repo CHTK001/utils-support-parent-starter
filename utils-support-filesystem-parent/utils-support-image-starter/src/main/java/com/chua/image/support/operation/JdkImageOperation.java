@@ -38,10 +38,10 @@ import com.chua.common.support.utils.SubImageOptions;
 @Spi("jdk")
 public class JdkImageOperation implements ImageOperation {
 
-    @Override
     /**
      * 调整大小
     */
+    @Override
     public Mono<byte[]> resize(byte[] imageBytes, String format, Integer width, Integer height, Double scale) {
         
         return Mono.fromCallable(() -> {
@@ -75,10 +75,10 @@ public class JdkImageOperation implements ImageOperation {
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    @Override
     /**
      * Crop
     */
+    @Override
     public Mono<byte[]> crop(byte[] imageBytes, String format, int x, int y, int width, int height) {
         
         return Mono.fromCallable(() -> {
@@ -109,10 +109,10 @@ public class JdkImageOperation implements ImageOperation {
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    @Override
     /**
      * Rotate
     */
+    @Override
     public Mono<byte[]> rotate(byte[] imageBytes, String format, int angle) {
         
         return Mono.fromCallable(() -> {
@@ -137,10 +137,10 @@ public class JdkImageOperation implements ImageOperation {
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    @Override
     /**
      * 过滤
     */
+    @Override
     public Mono<byte[]> filter(byte[] imageBytes, String format, String filterType, ImageOperation.FilterParams params) {
         
         return Mono.fromCallable(() -> {
@@ -185,10 +185,10 @@ public class JdkImageOperation implements ImageOperation {
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    @Override
     /**
      * 压缩
     */
+    @Override
     public Mono<Void> compress(byte[] imageBytes, String format, float quality, String outputFormat, File output) {
         
         return Mono.fromRunnable(() -> {
@@ -256,10 +256,10 @@ public class JdkImageOperation implements ImageOperation {
         }).subscribeOn(Schedulers.boundedElastic()).then();
     }
 
-    @Override
     /**
      * 翻转
      */
+    @Override
     public Mono<byte[]> flip(byte[] imageBytes, String format, String direction) {
         return Mono.fromCallable(() -> {
             if (imageBytes == null || imageBytes.length == 0) {
@@ -283,10 +283,10 @@ public class JdkImageOperation implements ImageOperation {
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    @Override
     /**
      * 按 EXIF 自动旋正
      */
+    @Override
     public Mono<byte[]> autoOrient(byte[] imageBytes, String format) {
         return Mono.fromCallable(() -> {
             if (imageBytes == null || imageBytes.length == 0) {
@@ -305,10 +305,10 @@ public class JdkImageOperation implements ImageOperation {
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    @Override
     /**
      * Watermark
     */
+    @Override
     public Mono<byte[]> watermark(byte[] imageBytes, String format, ImageOperation.WatermarkParams params) {
         
         return Mono.fromCallable(() -> {

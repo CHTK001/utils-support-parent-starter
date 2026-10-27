@@ -108,34 +108,34 @@ public class DataSearchServerFilter implements ServerFilter {
     */
     private static final String FILTER_ID = "DataSearchServerFilter";
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         return Integer.MAX_VALUE - 50;
     }
 
-    @Override
     /**
      * 支持路径
     */
+    @Override
     public String supportPath() {
         return PREFIX + "/**";
     }
 
-    @Override
     /**
      * 支持协议
     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }
 
-    @Override
     /**
      * 执行过滤
     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String path = request.getPath();
         if (path == null || !path.startsWith(PREFIX)) {

@@ -168,9 +168,6 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -207,53 +204,53 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
         }
     }
 
-    @Override
     /**
      * 阈值
     */
+    @Override
     public LicensePlateRecognizer threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public LicensePlateRecognizer modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public LicensePlateRecognizer device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Recognize
      *
      * @param imageData 镜像数据
      * @return recognize的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public String recognize(byte[] imageData) {
         return recognizePlate(imageData).plateNo();
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * recognizedetail
      *
      * @param imageData 镜像数据
      * @return recognizeDetail的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public List<DetectionInfo> recognizeDetail(byte[] imageData) {
         ITranslator<byte[], List<DetectionInfo>> t =
                 (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
@@ -263,14 +260,14 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
         return t.translate(imageData);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * recognize铭牌
      *
      * @param imageData 镜像数据
      * @return recognize铭牌的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public PlateResult recognizePlate(byte[] imageData) {
         ITranslator<byte[], PlateResult> t =
                 (ITranslator<byte[], PlateResult>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));

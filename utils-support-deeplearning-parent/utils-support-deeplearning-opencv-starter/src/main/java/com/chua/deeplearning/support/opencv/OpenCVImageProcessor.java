@@ -48,10 +48,10 @@ public class OpenCVImageProcessor implements ImageProcessor {
         }
     }
 
-    @Override
     /**
      * 处理
     */
+    @Override
     public byte[] process(byte[] imageData, String operation, Map<String, Object> params) {
         if (!loaded) {
             throw new IllegalStateException("OpenCV 原生库未加载");
@@ -511,18 +511,18 @@ public class OpenCVImageProcessor implements ImageProcessor {
         };
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "opencv";
     }
 
-    @Override
     /**
      * 可用
     */
+    @Override
     public boolean available() {
         return loaded;
     }

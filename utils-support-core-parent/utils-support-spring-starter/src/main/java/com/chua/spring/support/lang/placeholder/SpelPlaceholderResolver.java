@@ -34,10 +34,10 @@ public class SpelPlaceholderResolver implements PlaceholderResolver {
      */
     private final ExpressionParser parser = new SpelExpressionParser();
 
-    @Override
     /**
      * 解析Placeholder
     */
+    @Override
     public String resolvePlaceholder(String placeholderName) {
         if (placeholderName == null) {
             return null;
@@ -55,10 +55,10 @@ public class SpelPlaceholderResolver implements PlaceholderResolver {
         return null;
     }
 
-    @Override
     /**
      * 获取财产
     */
+    @Override
     public String getProperty(String key) {
         return null;
     }

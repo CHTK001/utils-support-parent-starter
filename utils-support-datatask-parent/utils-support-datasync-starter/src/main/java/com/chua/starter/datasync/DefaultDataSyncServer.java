@@ -98,50 +98,50 @@ public class DefaultDataSyncServer implements DataSyncServer {
         this.mappingManager = mappingManager;
     }
 
-    @Override
     /**
      * mapping管理器
     */
+    @Override
     public DataSyncMappingManager mappingManager() {
         return mappingManager;
     }
 
-    @Override
     /**
      * 调度器管理器
     */
+    @Override
     public SyncDataSchedulerManager schedulerManager() {
         return schedulerManager;
     }
 
-    @Override
     /**
      * Agent服务端管理器
     */
+    @Override
     public AgentServerManager agentServerManager() {
         return agentServerManager;
     }
 
-    @Override
     /**
      * 执行器管理器
     */
+    @Override
     public ExecutorManager executorManager() {
         return executorManager;
     }
 
-    @Override
     /**
      * 添加Mapping
     */
+    @Override
     public void addMapping(DataSyncMapping mapping) {
         mappingManager.addMapping(mapping);
     }
 
-    @Override
     /**
      * 注册源
     */
+    @Override
     public void registerSource(DataSyncAgentSource source) {
         if (source == null || source.sourceId() == null) {
             return;
@@ -150,10 +150,10 @@ public class DefaultDataSyncServer implements DataSyncServer {
         log.debug("Source 已注册: sourceId={}", source.sourceId());
     }
 
-    @Override
     /**
      * 注销源
     */
+    @Override
     public void unregisterSource(String sourceId) {
         if (sourceId == null) {
             return;
@@ -164,10 +164,10 @@ public class DefaultDataSyncServer implements DataSyncServer {
         }
     }
 
-    @Override
     /**
      * 注册Sink
     */
+    @Override
     public void registerSink(DataSyncAgentSink sink) {
         if (sink == null || sink.sinkId() == null) {
             return;
@@ -176,10 +176,10 @@ public class DefaultDataSyncServer implements DataSyncServer {
         log.debug("Sink 已注册: sinkId={}", sink.sinkId());
     }
 
-    @Override
     /**
      * 注销Sink
     */
+    @Override
     public void unregisterSink(String sinkId) {
         if (sinkId == null) {
             return;
@@ -190,42 +190,42 @@ public class DefaultDataSyncServer implements DataSyncServer {
         }
     }
 
-    @Override
     /**
      * 获取源
     */
+    @Override
     public DataSyncAgentSource getSource(String sourceId) {
         return sourceRegistry.get(sourceId);
     }
 
-    @Override
     /**
      * 获取Sink
     */
+    @Override
     public DataSyncAgentSink getSink(String sinkId) {
         return sinkRegistry.get(sinkId);
     }
 
-    @Override
     /**
      * 获取源
     */
+    @Override
     public List<DataSyncAgentSource> getSources() {
         return List.copyOf(sourceRegistry.values());
     }
 
-    @Override
     /**
      * 获取Sinks
     */
+    @Override
     public List<DataSyncAgentSink> getSinks() {
         return List.copyOf(sinkRegistry.values());
     }
 
-    @Override
     /**
      * 注册Agent
     */
+    @Override
     public void registerAgent(DataSyncAgent agent) {
         if (agent == null || agent.agentId() == null) {
             return;
@@ -234,10 +234,10 @@ public class DefaultDataSyncServer implements DataSyncServer {
         log.info("Agent 已注册: agentId={}", agent.agentId());
     }
 
-    @Override
     /**
      * 注销Agent
     */
+    @Override
     public void unregisterAgent(String agentId) {
         if (agentId == null) {
             return;
@@ -248,26 +248,26 @@ public class DefaultDataSyncServer implements DataSyncServer {
         }
     }
 
-    @Override
     /**
      * 获取Agent
     */
+    @Override
     public DataSyncAgent getAgent(String agentId) {
         return agentRegistry.get(agentId);
     }
 
-    @Override
     /**
      * 获取Agent
     */
+    @Override
     public List<DataSyncAgent> getAgents() {
         return List.copyOf(agentRegistry.values());
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         log.info("DataSync Server 启动中...");
         executorManager.start();
@@ -276,10 +276,10 @@ public class DefaultDataSyncServer implements DataSyncServer {
         log.info("DataSync Server 启动成功");
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() {
         log.info("DataSync Server 停止中...");
         schedulerManager.stop();

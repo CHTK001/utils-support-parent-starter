@@ -41,10 +41,10 @@ public class WordWriteBuilder extends WriteBuilder {
         return this;
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public WordWriteBuilder write(Object data) {
         pending.add(data);
         return this;
@@ -85,10 +85,10 @@ public class WordWriteBuilder extends WriteBuilder {
         callback.onComplete(true);
     }
 
-    @Override
     /**
      * 饰面
     */
+    @Override
     public void finish() {
         callback.onStart();
         callback.onBeginWrite();

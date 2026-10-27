@@ -27,18 +27,18 @@ public class SolrMetaData extends DefaultMetaData {
         super(engine);
     }
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public MetaSearch search() {
         return new SolrMeta(this, (SolrEngine) engine);
     }
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public MetaSearch search(String indexName) {
         return new SolrMeta(this, (SolrEngine) engine);
     }

@@ -107,10 +107,10 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         this.promptTemplate = StringUtils.isNotBlank(template) ? template : "a photo of %s";
     }
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokPath = resolveFirstExisting(modelRoot,
@@ -122,10 +122,10 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         candidates = requestedCandidates.isEmpty() ? DEFAULT_CANDIDATES : requestedCandidates;
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, IMAGE_SIZE, IMAGE_SIZE);
@@ -150,10 +150,10 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Classifications processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray imageEmbeds = list.singletonOrThrow();
         float[] imageVec = normalize(imageEmbeds.squeeze().toFloatArray());
@@ -194,10 +194,10 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         return new Classifications(classNames, probabilities);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

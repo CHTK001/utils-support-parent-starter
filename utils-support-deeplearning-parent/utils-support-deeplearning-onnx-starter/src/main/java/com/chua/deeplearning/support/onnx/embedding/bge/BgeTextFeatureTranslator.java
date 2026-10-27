@@ -153,18 +153,18 @@ public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
         loaded = true;
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "bge-text-feature";
     }
 
-    @Override
     /**
      * Translate
     */
+    @Override
     public float[] translate(String input) {
         try {
             prepare();

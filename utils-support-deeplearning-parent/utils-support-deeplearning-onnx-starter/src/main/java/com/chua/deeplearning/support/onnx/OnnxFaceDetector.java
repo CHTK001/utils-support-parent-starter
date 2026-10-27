@@ -59,46 +59,46 @@ public class OnnxFaceDetector implements FaceDetector {
         this.apiKey = apiKey;
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public FaceDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
-    @Override
     /**
      * 阈值
     */
+    @Override
     public FaceDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * Nms
     */
+    @Override
     public FaceDetector nms(float nms) {
         this.nms = nms;
         return this;
     }
 
-    @Override
     /**
      * 最小值Face获取大小
     */
+    @Override
     public FaceDetector minFaceSize(int size) {
         this.minFaceSize = size;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public FaceDetector device(String device) {
         this.device = device;
         return this;
@@ -118,10 +118,10 @@ public class OnnxFaceDetector implements FaceDetector {
         return modelName;
     }
 
-    @Override
     /**
      * Detect
     */
+    @Override
     public List<PredictRectangle> detect(byte[] imageData) {
         return FaceDetector.create(resolveModel())
                 .threshold(threshold)
@@ -131,10 +131,10 @@ public class OnnxFaceDetector implements FaceDetector {
                 .detect(imageData);
     }
 
-    @Override
     /**
      * detect信息
     */
+    @Override
     public List<DetectionInfo> detectInfo(byte[] imageData) {
         return detect(imageData).stream()
                 .map(r -> new DetectionInfo(
@@ -143,10 +143,10 @@ public class OnnxFaceDetector implements FaceDetector {
                 .toList();
     }
 
-    @Override
     /**
      * Face计算数量
     */
+    @Override
     public int faceCount(byte[] imageData) {
         return detect(imageData).size();
     }

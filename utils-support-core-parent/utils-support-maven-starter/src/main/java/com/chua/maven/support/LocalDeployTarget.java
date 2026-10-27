@@ -60,26 +60,26 @@ public class LocalDeployTarget implements MavenDeployTarget {
         this.rootDir = rootDir;
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "本地文件系统: " + rootDir;
     }
 
-    @Override
     /**
      * 是否就绪
     */
+    @Override
     public boolean isReady() {
         return ready;
     }
 
-    @Override
     /**
      * 连接
     */
+    @Override
     public void connect() {
         File dir = new File(rootDir);
         if (!dir.exists()) {
@@ -89,10 +89,10 @@ public class LocalDeployTarget implements MavenDeployTarget {
         log.info("[maven] 本地部署目标就绪: {}", rootDir);
     }
 
-    @Override
     /**
      * Upload
     */
+    @Override
     public void upload(String localPath, String targetPath) {
         ensureReady();
         try {
@@ -109,10 +109,10 @@ public class LocalDeployTarget implements MavenDeployTarget {
         }
     }
 
-    @Override
     /**
      * 创建目录
     */
+    @Override
     public void createDirectory(String path) {
         ensureReady();
         File dir = new File(rootDir, path);
@@ -122,18 +122,18 @@ public class LocalDeployTarget implements MavenDeployTarget {
         log.info("[maven] 创建目录: {}", dir.getAbsolutePath());
     }
 
-    @Override
     /**
      * 是否存在
     */
+    @Override
     public boolean exists(String path) {
         return new File(rootDir, path).exists();
     }
 
-    @Override
     /**
      * 删除
     */
+    @Override
     public void delete(String path) {
         File file = new File(rootDir, path);
         if (file.exists()) {
@@ -146,18 +146,18 @@ public class LocalDeployTarget implements MavenDeployTarget {
         }
     }
 
-    @Override
     /**
      * 断开
     */
+    @Override
     public void disconnect() {
         ready = false;
     }
 
-    @Override
     /**
      * 设置Callback
     */
+    @Override
     public void setCallback(MavenDeployCallback callback) {
         this.callback = callback;
     }

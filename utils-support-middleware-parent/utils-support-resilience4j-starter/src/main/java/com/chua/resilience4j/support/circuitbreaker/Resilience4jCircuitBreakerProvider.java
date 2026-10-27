@@ -53,10 +53,10 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
         this.circuitBreaker = CircuitBreakerRegistry.of(config).circuitBreaker(name);
     }
 
-    @Override
     /**
      * 尝试获取
     */
+    @Override
     public boolean tryAcquire() {
         boolean acquired = circuitBreaker.tryAcquirePermission();
         if (acquired) {
@@ -65,10 +65,10 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
         return acquired;
     }
 
-    @Override
     /**
      * record成功
     */
+    @Override
     public void recordSuccess() {
         long start = callStartNs.getAndSet(-1);
         if (start < 0) {
@@ -77,10 +77,10 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
         circuitBreaker.onSuccess(System.nanoTime() - start, TimeUnit.NANOSECONDS);
     }
 
-    @Override
     /**
      * record失败
     */
+    @Override
     public void recordFailure() {
         long start = callStartNs.getAndSet(-1);
         if (start < 0) {
@@ -90,26 +90,26 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
                 new RuntimeException("circuit breaker failure"));
     }
 
-    @Override
     /**
      * 重置
     */
+    @Override
     public void reset() {
         circuitBreaker.reset();
     }
 
-    @Override
     /**
      * 是否打开
     */
+    @Override
     public boolean isOpen() {
         return circuitBreaker.getState() == io.github.resilience4j.circuitbreaker.CircuitBreaker.State.OPEN;
     }
 
-    @Override
     /**
      * 获取名称
     */
+    @Override
     public String getName() {
         return circuitBreaker.getName();
     }

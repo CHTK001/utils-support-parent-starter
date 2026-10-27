@@ -107,26 +107,26 @@ public class HprofMcpProvider implements McpProvider {
         return this;
     }
 
-    @Override
     /**
      * Provider name
     */
+    @Override
     public String name() {
         return NAME;
     }
 
-    @Override
     /**
      * Create client
     */
+    @Override
     public McpClient create() {
         return new HprofMcpClient();
     }
 
-    @Override
     /**
      * List available
     */
+    @Override
     public List<String> listAvailable() {
         return List.of(NAME);
     }
@@ -144,27 +144,27 @@ public class HprofMcpProvider implements McpProvider {
          */
         private volatile boolean initialized = false;
 
-        @Override
         /**
          * Init
         */
+        @Override
         public void init() {
             initialized = true;
             log.info("[hprof] MCP client initialized");
         }
 
-        @Override
         /**
          * List tools
         */
+        @Override
         public List<McpToolDescriptor> listTools() {
             return toolDescriptors();
         }
 
-        @Override
         /**
          * Call tool
         */
+        @Override
         public McpToolResult callTool(McpToolCall toolCall) {
             try {
                 String toolName = toolCall.getToolName();
@@ -202,10 +202,10 @@ public class HprofMcpProvider implements McpProvider {
             }
         }
 
-        @Override
         /**
          * Is initialized
         */
+        @Override
         public boolean isInitialized() {
             return initialized;
         }

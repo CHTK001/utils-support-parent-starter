@@ -429,10 +429,10 @@ public class DjlModelFactory implements AutoCloseable {
         return deviceInUse;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public synchronized void close() {
         releaseQuietly();
     }

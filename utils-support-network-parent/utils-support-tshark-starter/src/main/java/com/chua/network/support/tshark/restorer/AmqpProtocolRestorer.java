@@ -41,26 +41,26 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
      */
     private static final int FRAME_OVERHEAD = 8;
 
-    @Override
     /**
      * 获取协议名称
     */
+    @Override
     public String getProtocolName() {
         return "amqp";
     }
 
-    @Override
     /**
      * 获取Priority
     */
+    @Override
     public int getPriority() {
         return 170;
     }
 
-    @Override
     /**
      * 是否可以Restore
     */
+    @Override
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < FRAME_OVERHEAD) {
             return false;
@@ -103,10 +103,10 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
         return index >= 0 && index < rawData.length && (rawData[index] & 0xff) == FRAME_END;
     }
 
-    @Override
     /**
      * Restore
     */
+    @Override
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 7) {
             return "[AMQP] empty";

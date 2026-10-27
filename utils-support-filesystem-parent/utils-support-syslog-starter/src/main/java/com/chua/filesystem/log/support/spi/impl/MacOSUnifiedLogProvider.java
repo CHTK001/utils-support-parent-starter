@@ -54,30 +54,30 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     */
     private static final String LOG_SHOW_CMD = "/usr/bin/log";
 
-    @Override
     /**
      * 是否platform支持
     */
+    @Override
     public boolean isPlatformSupported() {
         
         return PlatformSystems.isMacOs();
     
     }
 
-    @Override
     /**
      * 获取源
     */
+    @Override
     public List<String> getSources() {
         
         return SOURCES;
     
     }
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public List<LogEntry> search(LogQuery query) {
         if (!isPlatformSupported()) {
             return List.of();

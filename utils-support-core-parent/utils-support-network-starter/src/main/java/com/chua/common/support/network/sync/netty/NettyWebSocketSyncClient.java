@@ -70,10 +70,10 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
  // 客户端标识 是否 generated above
     }
 
-    @Override
     /**
      * 连接
     */
+    @Override
     public void connect() {
         if (connected) {
             return;
@@ -112,10 +112,10 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
         }
     }
 
-    @Override
     /**
      * 断开
     */
+    @Override
     public void disconnect() {
         if (!connected) {
             return;
@@ -127,26 +127,26 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
         notifyListeners(SyncFlowListener::onStop);
     }
 
-    @Override
     /**
      * 是否连接
     */
+    @Override
     public boolean isConnected() {
         return connected;
     }
 
-    @Override
     /**
      * 获取客户端标识
     */
+    @Override
     public String getClientId() {
         return clientId;
     }
 
-    @Override
     /**
      * 发送
     */
+    @Override
     public void send(String topic, Object message) {
         if (!connected) {
             throw new IllegalStateException("客户端未连接");
@@ -165,50 +165,50 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
         }
     }
 
-    @Override
     /**
      * 订阅
     */
+    @Override
     public void subscribe(String topic, SyncMessageHandler handler) {
         subscriptions.put(topic, handler);
     }
 
-    @Override
     /**
      * 取消订阅
     */
+    @Override
     public void unsubscribe(String topic) {
         subscriptions.remove(topic);
     }
 
-    @Override
     /**
      * 添加监听器
     */
+    @Override
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
     }
 
-    @Override
     /**
      * 移除监听器
     */
+    @Override
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
     }
 
-    @Override
     /**
      * 获取Metadata
     */
+    @Override
     public java.util.Map<String, Object> getMetadata() {
         return Map.of("clientId", clientId, "protocol", "websocket");
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         disconnect();
     }

@@ -68,10 +68,10 @@ public class KcpSyncClient implements SyncClient {
         this.serverUrl = serverUrl;
     }
 
-    @Override
     /**
      * 连接
     */
+    @Override
     public synchronized void connect() {
         if (connected) {
             return;
@@ -86,10 +86,10 @@ public class KcpSyncClient implements SyncClient {
         pendingSubscriptions.clear();
     }
 
-    @Override
     /**
      * 断开
     */
+    @Override
     public synchronized void disconnect() {
         if (!connected) {
             return;
@@ -103,10 +103,10 @@ public class KcpSyncClient implements SyncClient {
         kcpClient = null;
     }
 
-    @Override
     /**
      * 是否连接
     */
+    @Override
     public boolean isConnected() {
         return connected && kcpClient != null && kcpClient.isConnected();
     }
@@ -232,10 +232,10 @@ public class KcpSyncClient implements SyncClient {
         return kcpClient != null ? kcpClient.getMetadata() : Map.of();
     }
 
-    @Override
     /**
      * 订阅
     */
+    @Override
     public void subscribe(String topic, SyncMessageHandler handler) {
  // 允许连接前注册订阅（connection游泳池 在连接建立前调用 响应subscriber）
         if (topic != null && handler != null) {
@@ -246,10 +246,10 @@ public class KcpSyncClient implements SyncClient {
         }
     }
 
-    @Override
     /**
      * 取消订阅
     */
+    @Override
     public void unsubscribe(String topic) {
         pendingSubscriptions.remove(topic);
         if (kcpClient != null) {
@@ -282,10 +282,10 @@ public class KcpSyncClient implements SyncClient {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         disconnect();
     }

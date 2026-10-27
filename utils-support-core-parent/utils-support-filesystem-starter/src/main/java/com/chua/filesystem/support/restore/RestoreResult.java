@@ -45,18 +45,12 @@ public class RestoreResult {
      * 恢复的行数
      */
     @Builder.Default
-    /**
-     * 行数量
-    */
     private long rowCount = 0;
 
     /**
      * 执行耗时（毫秒）
      */
     @Builder.Default
-    /**
-     * 持续时间
-    */
     private long duration = 0;
 
     /**
@@ -88,9 +82,6 @@ public class RestoreResult {
      * 警告信息列表
      */
     @Builder.Default
-    /**
-     * 警告
-    */
     private List<String> warnings = Wraps.list();
 
     /**

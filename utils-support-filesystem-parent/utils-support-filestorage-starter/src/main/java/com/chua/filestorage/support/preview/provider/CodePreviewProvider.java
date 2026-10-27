@@ -55,10 +55,10 @@ public class CodePreviewProvider implements FileStoragePreviewProvider {
      */
     private static final String HIGHLIGHT_CSS = "/preview-vendor/hljs/atom-one-dark.min.css";
 
-    @Override
     /**
      * 支持
     */
+    @Override
     public boolean supports(String extension, String mimeType) {
         // 排除已有专门 SPI 提供者的扩展名
         if (extension != null && BYPASS_EXTS.contains(extension.toLowerCase(Locale.ENGLISH))) {
@@ -80,10 +80,10 @@ public class CodePreviewProvider implements FileStoragePreviewProvider {
         return extension != null && CODE_EXTS.contains(extension.toLowerCase(Locale.ENGLISH));
     }
 
-    @Override
     /**
      * Preview
     */
+    @Override
     public PreviewResult preview(byte[] content, String extension, String mimeType) throws IOException {
         String code = new String(content, StandardCharsets.UTF_8);
         String lang = extension != null ? extension.toLowerCase(Locale.ENGLISH) : "txt";

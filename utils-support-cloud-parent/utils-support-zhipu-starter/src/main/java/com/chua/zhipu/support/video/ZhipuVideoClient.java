@@ -78,56 +78,56 @@ public class ZhipuVideoClient implements VideoClient {
         this.style = setting.getStyle();
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public VideoClient model(String model) {
         this.model = model;
         return this;
     }
 
-    @Override
     /**
      * 获取大小
     */
+    @Override
     public VideoClient size(int width, int height) {
         this.width = width;
         this.height = height;
         return this;
     }
 
-    @Override
     /**
      * 提示符
     */
+    @Override
     public VideoClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
-    @Override
     /**
      * 持续时间
     */
+    @Override
     public VideoClient duration(Integer duration) {
         this.duration = duration;
         return this;
     }
 
-    @Override
     /**
      * Style
     */
+    @Override
     public VideoClient style(String style) {
         this.style = style;
         return this;
     }
 
-    @Override
     /**
      * 引用镜像
     */
+    @Override
     public VideoClient referenceImage(byte[] image) {
         this.referenceImage = image;
         return this;
@@ -150,27 +150,27 @@ public class ZhipuVideoClient implements VideoClient {
         return this;
     }
 
-    @Override
     /**
      * 镜像strength
     */
+    @Override
     public VideoClient imageStrength(double strength) {
         this.imageStrength = strength;
         return this;
     }
 
-    @Override
     /**
      * Seed
     */
+    @Override
     public VideoClient seed(Long seed) {
         return this;
     }
 
-    @Override
     /**
      * 创建任务
     */
+    @Override
     public String createTask(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
         if (actualPrompt == null || actualPrompt.isBlank()) {
@@ -204,14 +204,14 @@ public class ZhipuVideoClient implements VideoClient {
         return taskId;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 查询任务
      *
      * @param taskId 任务标识
      * @return 查询任务的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public VideoResponse queryTask(String taskId) {
         if (taskId == null || taskId.isBlank()) {
             throw new IllegalArgumentException("任务 ID 不能为空");

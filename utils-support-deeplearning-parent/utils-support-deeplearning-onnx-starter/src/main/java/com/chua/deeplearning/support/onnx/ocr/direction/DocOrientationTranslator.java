@@ -141,18 +141,18 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
             log.debug("[doc-orientation] 登记临时目录清理失败: {}", e.getMessage());
         }
     }
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "doc-orientation";
     }
 
-    @Override
     /**
      * Translate
     */
+    @Override
     public DirectionInfo translate(byte[] imageData) {
         try {
             prepare();

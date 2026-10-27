@@ -49,9 +49,6 @@ public class ManagedService {
      * 启动参数
      */
     @Builder.Default
-    /**
-     * 参数
-    */
     private List<String> args = Wraps.list();
 
     /**
@@ -68,9 +65,6 @@ public class ManagedService {
      * 启动类型
      */
     @Builder.Default
-    /**
-     * Startup类型
-    */
     private String startupType = "auto";
 
     /**
@@ -82,27 +76,18 @@ public class ManagedService {
      * 服务依赖
      */
     @Builder.Default
-    /**
-     * Dependencies
-    */
     private List<String> dependencies = Wraps.list();
 
     /**
      * 是否崩溃后自动重启
      */
     @Builder.Default
-    /**
-     * Autorestart
-    */
     private boolean autoRestart = true;
 
     /**
      * 重启间隔
      */
     @Builder.Default
-    /**
-     * restartsec
-    */
     private int restartSec = 10;
 
     /**

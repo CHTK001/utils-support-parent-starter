@@ -194,46 +194,46 @@ public class AgentScopeAgent implements Agent {
 
     // ==================== Agent 接口覆写 ====================
 
-    @Override
     /**
      * Mode
     */
+    @Override
     public Agent mode(AgentMode mode) {
         this.mode = mode != null ? mode : AgentMode.AUTO;
         return this;
     }
 
-    @Override
     /**
      * 对话客户端
     */
+    @Override
     public Agent chatClient(ChatClient chatClient) {
         this.chatClients.put(null, chatClient);
         return this;
     }
 
-    @Override
     /**
      * 对话客户端
     */
+    @Override
     public Agent chatClient(String agentId, ChatClient chatClient) {
         this.chatClients.put(agentId, chatClient);
         return this;
     }
 
-    @Override
     /**
      * mcp管理器
     */
+    @Override
     public Agent mcpManager(McpManager mcpManager) {
         this.globalMcpManager = mcpManager;
         return this;
     }
 
-    @Override
     /**
      * mcp管理器
     */
+    @Override
     public Agent mcpManager(String agentId, McpManager mcpManager) {
         if (this.globalMcpManager == null) {
             this.globalMcpManager = mcpManager;
@@ -241,19 +241,19 @@ public class AgentScopeAgent implements Agent {
         return this;
     }
 
-    @Override
     /**
      * skill管理器
     */
+    @Override
     public Agent skillManager(SkillManager skillManager) {
         this.globalSkillManager = skillManager;
         return this;
     }
 
-    @Override
     /**
      * skill管理器
     */
+    @Override
     public Agent skillManager(String agentId, SkillManager skillManager) {
         if (this.globalSkillManager == null) {
             this.globalSkillManager = skillManager;
@@ -261,10 +261,10 @@ public class AgentScopeAgent implements Agent {
         return this;
     }
 
-    @Override
     /**
      * subAgent
     */
+    @Override
     public Agent subAgent(AgentDefinition subAgent) {
         if (subAgent != null) {
             this.subAgentDefinitions.add(subAgent);
@@ -281,63 +281,63 @@ public class AgentScopeAgent implements Agent {
         return this;
     }
 
-    @Override
     /**
      * Mcp
     */
+    @Override
     public Agent mcp(boolean mcp) {
         this.mcpEnabled = mcp;
         return this;
     }
 
-    @Override
     /**
      * 最大值tooliterations
     */
+    @Override
     public Agent maxToolIterations(int maxIterations) {
         this.maxToolIterations = maxIterations;
         return this;
     }
 
-    @Override
     /**
      * 内存配置
     */
+    @Override
     public Agent memoryConfig(MemoryConfig memoryConfig) {
         this.memoryConfig = memoryConfig;
         return this;
     }
 
-    @Override
     /**
      * compression配置
     */
+    @Override
     public Agent compressionConfig(AgentCompressionConfig compressionConfig) {
         this.compressionConfig = compressionConfig;
         return this;
     }
 
-    @Override
     /**
      * compression配置
     */
+    @Override
     public AgentCompressionConfig compressionConfig() {
         return compressionConfig;
     }
 
-    @Override
     /**
      * Plan
     */
+    @Override
     public Agent plan(boolean plan) {
         this.planEnabled = plan;
         return this;
     }
 
-    @Override
     /**
      * 首轮即进入 Plan 只读模式
     */
+    @Override
     public Agent startInPlanMode(boolean active) {
         this.planStartActive = active;
         // 预进入 Plan 依赖 Plan 工具与中间件，置 true 时一并确保规划能力已注册
@@ -347,55 +347,55 @@ public class AgentScopeAgent implements Agent {
         return this;
     }
 
-    @Override
     /**
      * 默认会话标识
      */
+    @Override
     public Agent sessionId(String sessionId) {
         this.defaultSessionId = sessionId;
         return this;
     }
 
-    @Override
     /**
      * 工作目录
      */
+    @Override
     public Agent workspace(String workspace) {
         this.workspacePath = workspace;
         return this;
     }
 
-    @Override
     /**
      * 是否允许 shell 工具：false 时装配阶段调用 disableShellTool()
      */
+    @Override
     public Agent shellTool(boolean enabled) {
         this.shellToolEnabled = enabled;
         return this;
     }
 
-    @Override
     /**
      * Plan最大值任务
     */
+    @Override
     public Agent planMaxTask(int planMaxTask) {
         this.planMaxTask = planMaxTask;
         return this;
     }
 
-    @Override
     /**
      * 调试Hook
     */
+    @Override
     public Agent debugHook(AgentDebugHook debugHook) {
         this.debugHook = debugHook;
         return this;
     }
 
-    @Override
     /**
      * print配置
     */
+    @Override
     public Agent printConfig(boolean printConfig) {
                 this.printConfig = printConfig;
         if (printConfig) {
@@ -404,55 +404,55 @@ public class AgentScopeAgent implements Agent {
         return this;
     }
 
-    @Override
     /**
      * 调试
     */
+    @Override
     public Agent debug(boolean debug) {
         this.debugLogging = debug;
         return this;
     }
 
-    @Override
     /**
      * planhook
     */
+    @Override
     public Agent planHook(AgentPlanHook planHook) {
         this.planHook = planHook;
         return this;
     }
 
-    @Override
     /**
      * 最大值Retries
     */
+    @Override
     public Agent maxRetries(int maxRetries) {
         this.maxRetries = maxRetries;
         return this;
     }
 
-    @Override
     /**
      * 重试退避
     */
+    @Override
     public Agent retryBackoff(AgentRetryConfig.BackoffStrategy strategy) {
         this.retryStrategy = strategy;
         return this;
     }
 
-    @Override
     /**
      * 重试base延迟
     */
+    @Override
     public Agent retryBaseDelay(long baseDelayMillis) {
         this.retryBaseDelay = baseDelayMillis;
         return this;
     }
 
-    @Override
     /**
      * 重试配置
     */
+    @Override
     public Agent retryConfig(AgentRetryConfig retryConfig) {
         if (retryConfig != null) {
             this.maxRetries = retryConfig.getMaxRetries();
@@ -462,26 +462,26 @@ public class AgentScopeAgent implements Agent {
         return this;
     }
 
-    @Override
     /**
      * 获取Definition
     */
+    @Override
     public AgentDefinition getDefinition() {
         return definition;
     }
 
-    @Override
     /**
      * 获取subAgent
     */
+    @Override
     public List<AgentDefinition> getSubAgents() {
         return List.copyOf(subAgentDefinitions);
     }
 
-    @Override
     /**
      * 运行
     */
+    @Override
     public AgentResponse run(String input) {
         RunPlan plan = prepareRun(input);
 
@@ -546,10 +546,10 @@ public class AgentScopeAgent implements Agent {
         return result;
     }
 
-    @Override
     /**
      * 流式运行
     */
+    @Override
     public Flux<AgentStreamEvent> runStream(String input) {
         final RunPlan plan;
         try {
@@ -1390,10 +1390,10 @@ public class AgentScopeAgent implements Agent {
         return tracker;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         cleanupModelRegistrations();
         for (ChatClient client : chatClients.values()) {
@@ -1405,10 +1405,10 @@ public class AgentScopeAgent implements Agent {
         }
     }
 
-    @Override
     /**
      * Definition
     */
+    @Override
     public Agent definition(AgentDefinition definition) {
         this.definition = definition;
         return this;

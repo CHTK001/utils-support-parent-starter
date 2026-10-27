@@ -193,18 +193,18 @@ public class SymmetricPolledDirectory implements PolledDirectory {
         this.environment = environment;
     }
 
-    @Override
     /**
      * 添加Listener
     */
+    @Override
     public void addListener(PolledListener listener) {
         listeners.add(listener);
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start(DirectoryPollerEnvironment env, DirectoryPollerExecutor pollerExecutor) {
         if (running.get()) {
             log.warn("SymmetricPolledDirectory 已经启动，忽略重复启动请求");
@@ -548,26 +548,26 @@ public class SymmetricPolledDirectory implements PolledDirectory {
         return value;
     }
 
-    @Override
     /**
      * Upgrade
     */
+    @Override
     public void upgrade() {
         // SymmetricDS 引擎内部自动处理
     }
 
-    @Override
     /**
      * 是否DelegatedOperatingSystem
     */
+    @Override
     public boolean isDelegatedOperatingSystem() {
         return true;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         if (!running.get()) {
             return;

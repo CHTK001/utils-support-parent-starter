@@ -40,18 +40,18 @@ public class PathTraversalServerFilter implements ServerFilter {
      */
     private volatile String rootPath;
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(ServerFilterConfig config) throws Exception {
         this.rootPath = config.getInitParameter("pathTraversal.root");
     }
 
-    @Override
     /**
      * 执行过滤
     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String path = request.getPath();
         if (path == null) {
@@ -103,18 +103,18 @@ public class PathTraversalServerFilter implements ServerFilter {
         }
     }
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         return 8;
     }
 
-    @Override
     /**
      * 获取过滤标识
     */
+    @Override
     public String getFilterId() {
         return "PathTraversalServerFilter";
     }

@@ -21,10 +21,10 @@ public class OnnxTextTranslator implements TextTranslator {
     public OnnxTextTranslator(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public TextTranslator model(String model) {
         this.modelName = model;
         return this;
@@ -43,10 +43,10 @@ public class OnnxTextTranslator implements TextTranslator {
         return modelName;
     }
 
-    @Override
     /**
      * Translate
     */
+    @Override
     public String translate(String text) {
         return TextTranslator.create(resolveModel()).translate(text);
     }

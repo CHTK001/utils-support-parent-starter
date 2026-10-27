@@ -164,9 +164,6 @@ class DefaultImageClassifier implements ImageClassifier {
     /**
      * 识别引擎。
      */
-    /**
-     * 置信度阈值（空 表示使用模型默认值）。
-     */
     private Float threshold;
 
     private final IdentificationEngine engine; // engine
@@ -180,9 +177,6 @@ class DefaultImageClassifier implements ImageClassifier {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -219,50 +213,50 @@ class DefaultImageClassifier implements ImageClassifier {
         }
     }
 
-    @Override
     /**
      * 阈值
     */
+    @Override
     public ImageClassifier threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * topk
     */
+    @Override
     public ImageClassifier topK(int k) {
         this.topK = k;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public ImageClassifier modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public ImageClassifier device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Classify
      *
      * @param imageData 镜像数据
      * @return classify的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public String classify(byte[] imageData) {
         ITranslator<byte[], String> t =
                 (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
@@ -272,8 +266,6 @@ class DefaultImageClassifier implements ImageClassifier {
         return t.translate(imageData);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * classifytopk
      *
@@ -281,6 +273,8 @@ class DefaultImageClassifier implements ImageClassifier {
      * @param k k
      * @return classifyTopK的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public List<DetectionInfo> classifyTopK(byte[] imageData, int k) {
         ITranslator<byte[], List<DetectionInfo>> t =
                 (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));

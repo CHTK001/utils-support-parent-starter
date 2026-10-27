@@ -189,26 +189,26 @@ public class RSocketSyncClient implements SyncClient {
         }
     }
 
-    @Override
     /**
      * 添加监听器
     */
+    @Override
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
     }
 
-    @Override
     /**
      * 移除监听器
     */
+    @Override
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
     }
 
-    @Override
     /**
      * 获取Metadata
     */
+    @Override
     public Map<String, Object> getMetadata() {
         return Map.of("clientId", clientId, "protocol", "rsocket");
     }

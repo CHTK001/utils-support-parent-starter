@@ -57,10 +57,10 @@ public class SystemLogResourceFinder implements ResourceFinder {
      */
     private volatile SystemLogProvider provider;
 
-    @Override
     /**
      * 查找
     */
+    @Override
     public Set<Resource> find(String name) {
         LogQuery query = parseQuery(name);
         if (query == null) {
@@ -81,13 +81,13 @@ public class SystemLogResourceFinder implements ResourceFinder {
                 .collect(Collectors.toCollection(Wraps::linkedSet));
     }
 
-    @Nullable
     /**
      * 解析查询
      *
      * @param raw raw
      * @return 解析查询的结果
      */
+    @Nullable
     private LogQuery parseQuery(String raw) {
         if (raw == null) {
             return null;
@@ -198,7 +198,8 @@ public class SystemLogResourceFinder implements ResourceFinder {
         if (maxStr != null) {
             try {
                 builder.maxResults(Integer.parseInt(maxStr));
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException e) {
+                log.debug("[syslog] 解析 maxresults 失败: {}", e.getMessage());
             }
         }
 
@@ -293,28 +294,28 @@ public class SystemLogResourceFinder implements ResourceFinder {
             return content == null ? null : content.clone();
         }
 
-        @Override
         /**
          * 打开流
         */
+        @Override
         public InputStream openStream() throws IOException {
             return new ByteArrayInputStream(content);
         }
 
-        @Override
         /**
          * 获取url路径
         */
+        @Override
         public String getUrlPath() {
         
             return "syslog-" + entry.timestamp() + "-" + entry.source();
         
     }
 
-        @Override
         /**
          * 获取Url
         */
+        @Override
         public URL getUrl() {
             try {
                 return new URL("syslog", "", getUrlPath());
@@ -323,20 +324,20 @@ public class SystemLogResourceFinder implements ResourceFinder {
             }
         }
 
-        @Override
         /**
          * 最后一个modified
         */
+        @Override
         public long lastModified() {
         
             return 0;
         
     }
 
-        @Override
         /**
          * 转为字符串
         */
+        @Override
         public String toString() {
         
             return new String(content, StandardCharsets.UTF_8);

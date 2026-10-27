@@ -163,9 +163,6 @@ class DefaultOcrRecognizer implements OcrRecognizer {
     /**
      * 识别引擎。
      */
-    /**
-     * 置信度阈值（空 表示使用模型默认值）。
-     */
     private Float threshold;
 
     private final IdentificationEngine engine; // engine
@@ -219,59 +216,59 @@ class DefaultOcrRecognizer implements OcrRecognizer {
         }
     }
 
-    @Override
     /**
      * 阈值
     */
+    @Override
     public OcrRecognizer threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * Lang
     */
+    @Override
     public OcrRecognizer lang(String lang) {
         this.lang = lang;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public OcrRecognizer modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public OcrRecognizer device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * usegpu
     */
+    @Override
     public OcrRecognizer useGpu(boolean useGpu) {
         this.useGpu = useGpu;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Recognize
      *
      * @param imageData 镜像数据
      * @return recognize的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public String recognize(byte[] imageData) {
  // 优先走 字符串 路径（单行 rec 模型返回纯文本）
         try {
@@ -301,7 +298,6 @@ class DefaultOcrRecognizer implements OcrRecognizer {
         return sb.toString();
     }
 
-    @Override
     /**
      * recognizedetail
      *
@@ -312,6 +308,7 @@ class DefaultOcrRecognizer implements OcrRecognizer {
      * @param imageData 镜像数据
      * @return recognizeDetail的结果
      */
+    @Override
     public List<OcrResult> recognizeDetail(byte[] imageData) {
         // 用通配符接收，避免编译器插入 checkcast 造成误判
         ITranslator<byte[], ?> t = engine.get(modelName, ITranslator.class,

@@ -65,44 +65,44 @@ public class SshCommandResponse implements ServerResponse {
         this.outputStream = outputStream;
     }
 
-    @Override
     /**
      * 设置状态
     */
+    @Override
     public ServerResponse setStatus(int statusCode) {
         this.statusCode = statusCode;
         return this;
     }
 
-    @Override
     /**
      * 获取状态
     */
+    @Override
     public int getStatus() {
         return statusCode;
     }
 
-    @Override
     /**
      * 设置头部
     */
+    @Override
     public ServerResponse setHeader(String name, String value) {
         headers.put(name, value);
         return this;
     }
 
-    @Override
     /**
      * 获取头部
     */
+    @Override
     public String getHeader(String name) {
         return headers.get(name);
     }
 
-    @Override
     /**
      * 获取头部
     */
+    @Override
     public HttpHeader getHeaders() {
         HttpHeader result = new HttpHeader();
         for (var entry : headers.entrySet()) {
@@ -111,27 +111,27 @@ public class SshCommandResponse implements ServerResponse {
         return result;
     }
 
-    @Override
     /**
      * 设置内容类型
     */
+    @Override
     public ServerResponse setContentType(String contentType) {
         this.contentType = contentType;
         return this;
     }
 
-    @Override
     /**
      * 获取内容类型
     */
+    @Override
     public String getContentType() {
         return contentType;
     }
 
-    @Override
     /**
      * 设置主体
     */
+    @Override
     public ServerResponse setBody(byte[] body) {
         try {
             bodyBuffer.reset();
@@ -142,10 +142,10 @@ public class SshCommandResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * 设置主体
     */
+    @Override
     public ServerResponse setBody(String body) {
         try {
             bodyBuffer.reset();
@@ -157,35 +157,35 @@ public class SshCommandResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * 获取主体
     */
+    @Override
     public byte[] getBody() {
         return bodyBuffer.toByteArray();
     }
 
-    @Override
     /**
      * 获取输出流
     */
+    @Override
     public OutputStream getOutputStream() {
         return outputStream;
     }
 
-    @Override
     /**
      * 发送Redirect
     */
+    @Override
     public ServerResponse sendRedirect(String location) {
         setBody("Redirect: " + location);
         return this;
     }
 
-    @Override
     /**
      * 发送记录错误
     */
+    @Override
     public ServerResponse sendError(int statusCode, String message) {
         this.statusCode = statusCode;
         String errorMsg = "ERROR (" + statusCode + "): " + message;
@@ -198,10 +198,10 @@ public class SshCommandResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * 刷新
     */
+    @Override
     public void flush() {
         try {
             byte[] data = bodyBuffer.toByteArray();
@@ -215,43 +215,43 @@ public class SshCommandResponse implements ServerResponse {
         }
     }
 
-    @Override
     /**
      * 是否Committed
     */
+    @Override
     public boolean isCommitted() {
         return ended.get();
     }
 
-    @Override
     /**
      * 是否结束
     */
+    @Override
     public boolean isEnded() {
         return ended.get();
     }
 
-    @Override
     /**
      * 设置结果
     */
+    @Override
     public ServerResponse setResult(Object result) {
         this.result = result;
         return this;
     }
 
-    @Override
     /**
      * 获取结果
     */
+    @Override
     public Object getResult() {
         return result;
     }
 
-    @Override
     /**
      * 重置
     */
+    @Override
     public ServerResponse reset() {
         bodyBuffer.reset();
         statusCode = 200;
@@ -262,10 +262,10 @@ public class SshCommandResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * 结束
     */
+    @Override
     public void end() {
         if (ended.compareAndSet(false, true)) {
             flush();
@@ -278,10 +278,10 @@ public class SshCommandResponse implements ServerResponse {
         }
     }
 
-    @Override
     /**
      * 写入Raw
     */
+    @Override
     public void writeRaw(byte[] bytes) {
         try {
             outputStream.write(bytes);

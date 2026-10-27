@@ -91,26 +91,26 @@ public class FaceFeatureCompareAlgorithm implements VectorCompareAlgorithm, Auto
         log.info("[FaceFeatureCompareAlgorithm] 引擎初始化完成");
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         faceEngine.unInit();
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "FACE_COMPARE";
     }
 
-    @Override
     /**
      * 比较
     */
+    @Override
     public float compare(float[] feature1, float[] feature2) {
         if (feature1 == null || feature2 == null) {
             return 0.0f;

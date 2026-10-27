@@ -64,35 +64,35 @@ public class RedisDeduplicator implements Deduplicator {
         this.ttlMs = ttlMs;
     }
 
-    @Override
     /**
      * 是否重复
     */
+    @Override
     public boolean isDuplicate(String key) {
         return redisson.getBucket(KEY_PREFIX + key).isExists();
     }
 
-    @Override
     /**
      * 标记处理
     */
+    @Override
     public void markProcessed(String key) {
         RBucket<String> bucket = redisson.getBucket(KEY_PREFIX + key);
         bucket.set("1", ttlMs, TimeUnit.MILLISECONDS);
     }
 
-    @Override
     /**
      * Clear
     */
+    @Override
     public void clear() {
         // Redis 不支持批量按前缀删除的原子操作，保留为空实现
     }
 
-    @Override
     /**
      * 获取大小
     */
+    @Override
     public int size() {
         return 0;
     }

@@ -30,10 +30,10 @@ public class SafeTensorImageClient extends AbstractLocalImageClient {
         super("safetensors", setting);
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public List<ModelDefinition> models() {
         return SafeTensorModels.ofType("image_gen");
     }

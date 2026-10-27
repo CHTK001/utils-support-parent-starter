@@ -58,10 +58,10 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
         this.sinks.add(sink);
     }
 
-    @Override
     /**
      * Agentid
     */
+    @Override
     public String agentId() {
         return agentId;
     }
@@ -75,10 +75,10 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
         return Collections.unmodifiableList(sources);
     }
 
-    @Override
     /**
      * 获取源
     */
+    @Override
     public DataSyncAgentSource getSource(String sourceId) {
         for (DataSyncAgentSource source : sources) {
             if (source.sourceId().equals(sourceId)) {
@@ -97,10 +97,10 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
         return Collections.unmodifiableList(sinks);
     }
 
-    @Override
     /**
      * 获取Sink
     */
+    @Override
     public DataSyncAgentSink getSink(String sinkId) {
         for (DataSyncAgentSink sink : sinks) {
             if (sink.sinkId().equals(sinkId)) {
@@ -110,10 +110,10 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
         return null;
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         for (DataSyncAgentSource source : sources) {
             try {
@@ -131,10 +131,10 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
         }
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() {
         for (DataSyncAgentSource source : sources) {
             try {

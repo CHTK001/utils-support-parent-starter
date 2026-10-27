@@ -88,35 +88,35 @@ public class DependencyGraphHandler implements Plugin {
         this.started = new AtomicBoolean(false);
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return HANDLER_NAME;
     }
 
-    @Override
     /**
      * 版本
     */
+    @Override
     public String version() {
         return HANDLER_VERSION;
     }
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(PluginContext context) throws Exception {
         this.enabled = DEFAULT_ENABLED.equals(context.getProperty(PROP_DEP_ENABLED, DEFAULT_ENABLED));
         LOG.log(Level.INFO, String.format("DependencyGraphHandler 初始化完成，启用状态: %s", enabled));
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -125,29 +125,29 @@ public class DependencyGraphHandler implements Plugin {
         LOG.log(Level.INFO, "DependencyGraphHandler 启动完成，依赖关系追踪已启用");
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() throws Exception {
         this.enabled = false;
         started.set(false);
         LOG.log(Level.INFO, "DependencyGraphHandler 停止");
     }
 
-    @Override
     /**
      * 状态
     */
+    @Override
     public String status() {
         return String.format("DependencyGraphHandler[enabled=%s, edges=%d, nodes=%d]",
                 enabled, edges.size(), nodes.size());
     }
 
-    @Override
     /**
      * 是否Running
     */
+    @Override
     public boolean isRunning() {
         return enabled && started.get();
     }

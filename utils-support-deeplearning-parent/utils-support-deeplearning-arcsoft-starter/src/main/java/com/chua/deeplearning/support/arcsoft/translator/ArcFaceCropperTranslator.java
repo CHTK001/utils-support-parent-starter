@@ -35,18 +35,18 @@ public class ArcFaceCropperTranslator implements ITranslator<Object, BufferedIma
         this.faceEngine = faceEngine;
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "arcface-cropper";
     }
 
-    @Override
     /**
      * Translate
     */
+    @Override
     public BufferedImage translate(Object input) {
         BufferedImage image = Converter.convertIfNecessary(input, BufferedImage.class);
         if (image == null || faceEngine == null) {

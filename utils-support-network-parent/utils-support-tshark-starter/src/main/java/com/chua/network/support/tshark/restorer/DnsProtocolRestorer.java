@@ -20,26 +20,26 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
      */
     private static final int MAX_LABEL = 63;
 
-    @Override
     /**
      * 获取协议名称
     */
+    @Override
     public String getProtocolName() {
         return "dns";
     }
 
-    @Override
     /**
      * 获取Priority
     */
+    @Override
     public int getPriority() {
         return 30;
     }
 
-    @Override
     /**
      * 是否可以Restore
     */
+    @Override
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 12) {
             return false;
@@ -132,10 +132,10 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
         return ((data[offset] & 0xff) << 8) | (data[offset + 1] & 0xff);
     }
 
-    @Override
     /**
      * Restore
     */
+    @Override
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 12) {
             return "[DNS] empty payload";

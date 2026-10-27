@@ -364,7 +364,8 @@ public class ModelscopeImageClient implements ImageClient {
                 } else if (b64 != null) {
                     try {
                         builder.imageBytes(Base64.getDecoder().decode(b64.toString()));
-                    } catch (IllegalArgumentException ignored) {
+                    } catch (IllegalArgumentException e) {
+                        log.debug("[modelscope] 解析图片 b64_json 失败: {}", e.toString());
                     }
                 }
             }

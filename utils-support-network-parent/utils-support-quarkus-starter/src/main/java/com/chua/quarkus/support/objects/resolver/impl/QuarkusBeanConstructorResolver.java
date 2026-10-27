@@ -28,7 +28,6 @@ public class QuarkusBeanConstructorResolver implements BeanConstructorResolver {
     private static final System.Logger LOG =
             System.getLogger(QuarkusBeanConstructorResolver.class.getName());
 
-    @Override
     /**
      * 解析
      * @param paramType 参数类型
@@ -38,6 +37,7 @@ public class QuarkusBeanConstructorResolver implements BeanConstructorResolver {
      * @param nameProvider 名称提供者
      * @param beanDefinition Beandefinition
      */
+    @Override
     public Object resolve(Class<?> paramType, String paramName, Annotation[] annotations,
                           Function<Class<?>, Object> typeProvider,
                           Function<String, Object> nameProvider,

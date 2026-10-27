@@ -1488,26 +1488,26 @@ public final class ModelRegistry {
             return delegate;
         }
 
-        @Override
         /**
          * 名称
         */
+        @Override
         public String name() {
             return modelId;
         }
 
-        @Override
         /**
          * Translate
         */
+        @Override
         public Object translate(Object input) {
             return ensure().translate(input);
         }
 
-        @Override
         /**
          * 关闭
         */
+        @Override
         public void close() {
             if (delegate != null) {
                 if (delegate instanceof AutoCloseable closeable) {
@@ -1530,13 +1530,13 @@ public final class ModelRegistry {
         }
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 新translatorinstance
      *
      * @param translatorClassName translator类名称
      * @return 新translatorinstance的结果
      */
+    @SuppressWarnings("unchecked")
     private static Object newTranslatorInstance(String translatorClassName) {
         return newTranslatorInstance(translatorClassName, null);
     }
@@ -1706,30 +1706,30 @@ public final class ModelRegistry {
             return configured;
         }
 
-        @Override
         /**
          * 名称
         */
+        @Override
         public String name() {
             return modelId;
         }
 
-        @Override
-        @SuppressWarnings("unchecked")
         /**
          * Translate
          *
          * @param input 输入
          * @return translate的结果
          */
+        @Override
+        @SuppressWarnings("unchecked")
         public Object translate(Object input) {
             return ((ITranslator<Object, Object>) translator).translate(input);
         }
 
-        @Override
         /**
          * 关闭
         */
+        @Override
         public void close() {
             if (translator instanceof AutoCloseable closeable) {
                 try {
@@ -1774,10 +1774,10 @@ public final class ModelRegistry {
      */
     public static final class DefaultModelDownloader implements ModelDownloader {
 
-        @Override
         /**
          * Download
         */
+        @Override
         public Path download(String url, Path target) throws Exception {
             HttpURLConnection conn = null;
             try {

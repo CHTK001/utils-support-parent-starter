@@ -76,10 +76,10 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
         this.imageResolution = imageResolution;
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -98,10 +98,10 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDManager manager = ctx.getNDManager();
 
@@ -139,10 +139,10 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromImage(scaled);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return batchifier;
     }

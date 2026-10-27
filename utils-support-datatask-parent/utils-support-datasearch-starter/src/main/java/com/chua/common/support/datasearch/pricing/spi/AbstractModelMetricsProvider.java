@@ -98,10 +98,10 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
         this.configSaveOrLoader = configSaveOrLoader;
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         Spi spi = this.getClass().getAnnotation(Spi.class);
         if (spi != null && spi.value().length > 0) {
@@ -110,10 +110,10 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
         return this.getClass().getSimpleName().toLowerCase();
     }
 
-    @Override
     /**
      * 获取Pricing
     */
+    @Override
     public List<ModelDefinition> getMetrics() {
         List<ModelDefinition> cached = memoryCache;
         if (cached != null) {
@@ -140,10 +140,10 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
         return bundled;
     }
 
-    @Override
     /**
      * 同步从online
     */
+    @Override
     public void syncFromOnline() {
         List<ModelDefinition> pricing = fetchOnlinePricing();
         if (pricing == null || pricing.isEmpty()) {

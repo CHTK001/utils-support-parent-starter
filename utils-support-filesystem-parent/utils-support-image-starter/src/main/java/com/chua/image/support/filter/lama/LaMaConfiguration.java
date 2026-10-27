@@ -341,10 +341,10 @@ public class LaMaConfiguration {
         return config;
     }
 
-    @Override
     /**
      * 转为字符串
     */
+    @Override
     public String toString() {
         
         return String.format("LaMaConfiguration{modelPath='%s', inputSize=%d, threads=%d, useGpu=%s}",

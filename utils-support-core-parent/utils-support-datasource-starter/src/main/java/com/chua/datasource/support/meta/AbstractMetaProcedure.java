@@ -59,50 +59,50 @@ public abstract class AbstractMetaProcedure implements MetaProcedure {
         this.procedureName = procedureName;
     }
 
-    @Override
     /**
      * 列表
     */
+    @Override
     public List<ProcedureDef> list() {
         throw new UnsupportedOperationException("请实现 list() 方法");
     }
 
-    @Override
     /**
      * 获取
     */
+    @Override
     public ProcedureDef get(String procedureName) {
         throw new UnsupportedOperationException("请实现 get() 方法");
     }
 
-    @Override
     /**
      * 创建
     */
+    @Override
     public ProcedureCreateBuilder create(String procedureName) {
         throw new UnsupportedOperationException("请实现 create() 方法");
     }
 
-    @Override
     /**
      * 掉落
     */
+    @Override
     public boolean drop(String procedureName) {
         throw new UnsupportedOperationException("请实现 drop() 方法");
     }
 
-    @Override
     /**
      * 调用
     */
+    @Override
     public List<Map<String, Object>> call(Object... args) {
         throw new UnsupportedOperationException("请实现 call() 方法");
     }
 
-    @Override
     /**
      * 调用
     */
+    @Override
     public List<Map<String, Object>> call(String procedureName, Object... args) {
         throw new UnsupportedOperationException("请实现 call() 方法");
     }

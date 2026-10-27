@@ -53,10 +53,10 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
         this.emotionLabels = emotionLabels;
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         Object wrapped = input.getWrappedImage();
         if (!(wrapped instanceof BufferedImage bufferedImage)) {
@@ -78,10 +78,10 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public PredictResult processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
         float[] scores = logits.toFloatArray();
@@ -135,10 +135,10 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
         return expValues;
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

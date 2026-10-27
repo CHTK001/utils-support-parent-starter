@@ -73,10 +73,10 @@ public class MobilenetClassificationTranslator implements Translator<Image, Clas
         this.imageSize = imageSize;
     }
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(TranslatorContext ctx) throws IOException {
         Model model = ctx.getModel();
         for (String name : LABEL_CANDIDATES) {
@@ -89,10 +89,10 @@ public class MobilenetClassificationTranslator implements Translator<Image, Clas
         classes = List.of();
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, imageSize, imageSize);
@@ -104,10 +104,10 @@ public class MobilenetClassificationTranslator implements Translator<Image, Clas
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray probabilities = list.singletonOrThrow();
         if (classes == null || classes.isEmpty()) {
@@ -121,10 +121,10 @@ public class MobilenetClassificationTranslator implements Translator<Image, Clas
         return new Classifications(classes, probabilities);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

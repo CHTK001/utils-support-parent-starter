@@ -41,291 +41,291 @@ public class EngineQueryWrapper<T> extends LambdaQueryWrapper<T> {
         this.entityClass = entityClass;
     }
 
-    @Override
     /**
      * 解析Column
     */
+    @Override
     protected String resolveColumn(SFunction<T, ?> col) {
         return LambdaUtils.resolveColumn(col);
     }
 
-    @Override
     /**
      * 新instance
     */
+    @Override
     protected LambdaQueryWrapper<T> newInstance() {
         return new EngineQueryWrapper<>(engine, entityClass);
     }
 
-    @Override
     /**
      * Eq
     */
+    @Override
     public EngineQueryWrapper<T> eq(SFunction<T, ?> column, Object value) {
         super.eq(column, value);
         return this;
     }
 
-    @Override
     /**
      * Ne
     */
+    @Override
     public EngineQueryWrapper<T> ne(SFunction<T, ?> column, Object value) {
         super.ne(column, value);
         return this;
     }
 
-    @Override
     /**
      * Gt
     */
+    @Override
     public EngineQueryWrapper<T> gt(SFunction<T, ?> column, Object value) {
         super.gt(column, value);
         return this;
     }
 
-    @Override
     /**
      * Ge
     */
+    @Override
     public EngineQueryWrapper<T> ge(SFunction<T, ?> column, Object value) {
         super.ge(column, value);
         return this;
     }
 
-    @Override
     /**
      * Lt
     */
+    @Override
     public EngineQueryWrapper<T> lt(SFunction<T, ?> column, Object value) {
         super.lt(column, value);
         return this;
     }
 
-    @Override
     /**
      * Le
     */
+    @Override
     public EngineQueryWrapper<T> le(SFunction<T, ?> column, Object value) {
         super.le(column, value);
         return this;
     }
 
-    @Override
     /**
      * Like
     */
+    @Override
     public EngineQueryWrapper<T> like(SFunction<T, ?> column, Object value) {
         super.like(column, value);
         return this;
     }
 
-    @Override
     /**
      * likeleft
     */
+    @Override
     public EngineQueryWrapper<T> likeLeft(SFunction<T, ?> column, Object value) {
         super.likeLeft(column, value);
         return this;
     }
 
-    @Override
     /**
      * likeright
     */
+    @Override
     public EngineQueryWrapper<T> likeRight(SFunction<T, ?> column, Object value) {
         super.likeRight(column, value);
         return this;
     }
 
-    @Override
     /**
      * 入
     */
+    @Override
     public EngineQueryWrapper<T> in(SFunction<T, ?> column, Collection<?> values) {
         super.in(column, values);
         return this;
     }
 
-    @Override
     /**
      * not入
     */
+    @Override
     public EngineQueryWrapper<T> notIn(SFunction<T, ?> column, Collection<?> values) {
         super.notIn(column, values);
         return this;
     }
 
-    @Override
     /**
      * 是否空
     */
+    @Override
     public EngineQueryWrapper<T> isNull(SFunction<T, ?> column) {
         super.isNull(column);
         return this;
     }
 
-    @Override
     /**
      * 是否not空
     */
+    @Override
     public EngineQueryWrapper<T> isNotNull(SFunction<T, ?> column) {
         super.isNotNull(column);
         return this;
     }
 
-    @Override
     /**
      * Between
     */
+    @Override
     public EngineQueryWrapper<T> between(SFunction<T, ?> column, Object start, Object end) {
         super.between(column, start, end);
         return this;
     }
 
-    @Override
     /**
      * 订单byasc
     */
+    @Override
     public EngineQueryWrapper<T> orderByAsc(SFunction<T, ?> column) {
         super.orderByAsc(column);
         return this;
     }
 
-    @Override
     /**
      * 订单bydesc
     */
+    @Override
     public EngineQueryWrapper<T> orderByDesc(SFunction<T, ?> column) {
         super.orderByDesc(column);
         return this;
     }
 
-    @Override
     /**
      * table别名
     */
+    @Override
     public EngineQueryWrapper<T> tableAlias(String alias) {
         super.tableAlias(alias);
         return this;
     }
 
-    @Override
     /**
      * 限制返回行数
     */
+    @Override
     public EngineQueryWrapper<T> limit(int limit) {
         super.limit(limit);
         return this;
     }
 
-    @Override
     /**
      * 设置偏移行数
     */
+    @Override
     public EngineQueryWrapper<T> offset(int offset) {
         super.offset(offset);
         return this;
     }
 
-    @Override
     /**
      * 清除返回行数上限（恢复为不限制）。
      *
      * @return this
      */
+    @Override
     public EngineQueryWrapper<T> clearLimit() {
         super.clearLimit();
         return this;
     }
 
-    @Override
     /**
      * 清除偏移行数（恢复为不偏移）。
      *
      * @return this
      */
+    @Override
     public EngineQueryWrapper<T> clearOffset() {
         super.clearOffset();
         return this;
     }
 
-    @Override
     /**
      * Lambda 投影列
     */
+    @Override
     public EngineQueryWrapper<T> select(SFunction<T, ?> column) {
         super.select(column);
         return this;
     }
 
-    @Override
     /**
      * 字符串投影列
     */
+    @Override
     public EngineQueryWrapper<T> select(String... columns) {
         super.select(columns);
         return this;
     }
 
-    @Override
     /**
      * 聚合函数投影列
     */
+    @Override
     public EngineQueryWrapper<T> selectFunc(String function, String column, String alias) {
         super.selectFunc(function, column, alias);
         return this;
     }
 
-    @Override
     /**
      * COUNT(*) 聚合投影列
     */
+    @Override
     public EngineQueryWrapper<T> selectCount(String alias) {
         super.selectCount(alias);
         return this;
     }
 
-    @Override
     /**
      * SUM 聚合投影列
     */
+    @Override
     public EngineQueryWrapper<T> selectSum(String column, String alias) {
         super.selectSum(column, alias);
         return this;
     }
 
-    @Override
     /**
      * AVG 聚合投影列
     */
+    @Override
     public EngineQueryWrapper<T> selectAvg(String column, String alias) {
         super.selectAvg(column, alias);
         return this;
     }
 
-    @Override
     /**
      * MAX 聚合投影列
     */
+    @Override
     public EngineQueryWrapper<T> selectMax(String column, String alias) {
         super.selectMax(column, alias);
         return this;
     }
 
-    @Override
     /**
      * MIN 聚合投影列
     */
+    @Override
     public EngineQueryWrapper<T> selectMin(String column, String alias) {
         super.selectMin(column, alias);
         return this;
     }
 
-    @Override
     /**
      * 单列分组
     */
+    @Override
     public EngineQueryWrapper<T> groupBy(SFunction<T, ?> column) {
         super.groupBy(column);
         return this;
@@ -338,81 +338,81 @@ public class EngineQueryWrapper<T> extends LambdaQueryWrapper<T> {
         return this;
     }
 
-    @Override
     /**
      * HAVING 分组过滤条件
     */
+    @Override
     public EngineQueryWrapper<T> having(String condition, Object... params) {
         super.having(condition, params);
         return this;
     }
 
-    @Override
     /**
      * INNER JOIN 关联
     */
+    @Override
     public EngineQueryWrapper<T> innerJoin(String table, String onCondition) {
         super.innerJoin(table, onCondition);
         return this;
     }
 
-    @Override
     /**
      * INNER JOIN 关联（显式别名）
     */
+    @Override
     public EngineQueryWrapper<T> innerJoin(String table, String alias, String onCondition) {
         super.innerJoin(table, alias, onCondition);
         return this;
     }
 
-    @Override
     /**
      * LEFT JOIN 关联
     */
+    @Override
     public EngineQueryWrapper<T> leftJoin(String table, String onCondition) {
         super.leftJoin(table, onCondition);
         return this;
     }
 
-    @Override
     /**
      * LEFT JOIN 关联（显式别名）
     */
+    @Override
     public EngineQueryWrapper<T> leftJoin(String table, String alias, String onCondition) {
         super.leftJoin(table, alias, onCondition);
         return this;
     }
 
-    @Override
     /**
      * RIGHT JOIN 关联
     */
+    @Override
     public EngineQueryWrapper<T> rightJoin(String table, String onCondition) {
         super.rightJoin(table, onCondition);
         return this;
     }
 
-    @Override
     /**
      * RIGHT JOIN 关联（显式别名）
     */
+    @Override
     public EngineQueryWrapper<T> rightJoin(String table, String alias, String onCondition) {
         super.rightJoin(table, alias, onCondition);
         return this;
     }
 
-    @Override
     /**
      * 列表
     */
+    @Override
     public List<T> list() {
         return engine.executeQuery(this, entityClass);
     }
 
-    @Override
     /**
      * One
     */
+    @Override
     public T one() {
         List<T> list = list();
         if (list.isEmpty()) {
@@ -421,18 +421,18 @@ public class EngineQueryWrapper<T> extends LambdaQueryWrapper<T> {
         return list.getFirst();
     }
 
-    @Override
     /**
      * Page
     */
+    @Override
     public Page<T> page(int pn, int ps) {
         return engine.executePage(this, entityClass, pn, ps);
     }
 
-    @Override
     /**
      * 统计当前条件命中的总行数
     */
+    @Override
     public long count() {
         return engine.queryCount(this);
     }

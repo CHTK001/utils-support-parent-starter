@@ -137,7 +137,6 @@ public class MuouResourceProvider extends AbstractResourceProvider {
         super(vs);
     }
 
-    @Override
     /**
      * 搜索resource。
      * <p>两阶段抓取：搜索页提取视频标识，再逐条访问详情页提取网盘链接。
@@ -146,6 +145,7 @@ public class MuouResourceProvider extends AbstractResourceProvider {
      * @param videoSearch 视频搜索，keyword 不能为空，为 null/空时返回错误结果
      * @return 搜索resource的结果；无匹配网盘链接时返回空结果，站点不可用时返回错误结果
      */
+    @Override
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String kw = videoSearch.getKeyword();
         if (!StringUtils.hasText(kw)) {

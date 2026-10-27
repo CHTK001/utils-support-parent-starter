@@ -84,10 +84,10 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
         }
     }
 
-    @Override
     /**
      * 保存Bytes
     */
+    @Override
     public ConfigSaveResult saveBytes(String key, byte[] content) {
         try {
             ensureParentPath(key);
@@ -99,10 +99,10 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
         }
     }
 
-    @Override
     /**
      * 加载Bytes
     */
+    @Override
     public Optional<byte[]> loadBytes(String key) {
         try {
             InputStream is = sardine.get(fullUrl(key));
@@ -115,10 +115,10 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
         }
     }
 
-    @Override
     /**
      * 删除
     */
+    @Override
     public boolean delete(String key) {
         try {
             sardine.delete(fullUrl(key));
@@ -129,14 +129,15 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         try {
             sardine.shutdown();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[webdav] 关闭 WebDAV 客户端失败，已忽略: {}", e.getMessage());
         }
     }
 }

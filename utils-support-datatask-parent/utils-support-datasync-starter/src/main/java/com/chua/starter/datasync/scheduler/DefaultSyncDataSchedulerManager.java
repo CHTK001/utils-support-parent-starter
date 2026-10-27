@@ -124,123 +124,63 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         /**
          * flat映射 并行度
          */
-        /**
-         * flat映射 并行度
-        */
         @Builder.Default
-        /**
-         * Flat映射parallelism
-        */
         private int flatMapParallelism = 10;
 
         /**
          * 最大 缓冲 行数上限（默认无限制，设置 >0 的数值后启用上限）
          */
-        /**
-         * 最大缓冲行数
-        */
         @Builder.Default
-        /**
-         * 最大值缓冲区rows
-        */
         private long maxBufferRows = Long.MAX_VALUE;
 
         /**
          * 每秒最大请求数（默认 0 表示无限制，>0 时启用 {@link Flux#limitRate(int)}）
          */
-        /**
-         * 每秒最大速率
-        */
         @Builder.Default
-        /**
-         * 最大值比率persecond
-        */
         private int maxRatePerSecond = 0;
 
         /**
          * 最大重试次数
          */
-        /**
-         * 最大重试次数
-        */
         @Builder.Default
-        /**
-         * 重试最大值尝试
-        */
         private int retryMaxAttempts = 2;
 
         /**
          * 重试初始退避毫秒
          */
-        /**
-         * 重试退避时间（毫秒）
-        */
         @Builder.Default
-        /**
-         * 重试退避ms
-        */
         private long retryBackoffMs = 500;
 
         /**
          * 熔断阈值：连续失败超过此次数后停止重试
          */
-        /**
-         * 熔断阈值
-        */
         @Builder.Default
-        /**
-         * Circuitbreaker阈值
-        */
         private int circuitBreakerThreshold = 10;
 
         /**
          * 内存安全模式：根据 JVM 最大堆自动计算管线中最大在飞行数，防止 OOM。
          * 计算公式：{@code maxInFlightRows = (maxMemory * memoryPercent / 100) / estimatedRowBytes}
          */
-        /**
-         * 是否启用内存安全
-        */
         @Builder.Default
-        /**
-         * Memorysafe是否启用
-        */
         private boolean memorySafeEnabled = true;
 
         /**
          * 用于内存安全计算的堆内存百分比（默认 30%）
          */
-        /**
-         * 内存占用百分比
-        */
         @Builder.Default
-        /**
-         * 内存百分比
-        */
         private int memoryPercent = 30;
 
         /**
          * 估算单行数据字节数（映射 开销 + 字段值，默认 256 字节）
          */
-        /**
-         * 预估行字节数
-        */
         @Builder.Default
-        /**
-         * Estimated行bytes
-        */
         private int estimatedRowBytes = 256;
 
         /**
          * 是否启用直连派发模式（同 JVM 内 发布 直接调用 subscriber，绕过 Chronicle）。
          * 默认 false 使用 Chronicle 磁盘派发；true 时跳过 Chronicle 提高吞吐。
          */
-        /**
-         * 是否直接分发
-        */
         @Builder.Default
-        /**
-         * Directdispatch
-        */
         private boolean directDispatch = false;
 
         /**
@@ -289,28 +229,28 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         this.subscribedSinkKeys = ConcurrentHashMap.newKeySet();
     }
 
-    @Override
     /**
      * 添加Mapping
     */
+    @Override
     public void addMapping(DataSyncMapping mapping) {
         dataSyncServer.mappingManager().addMapping(mapping);
     }
 
-    @Override
     /**
      * 移除Mapping
     */
+    @Override
     public void removeMapping(String mappingId) {
         dataSyncServer.mappingManager().removeMapping(mappingId);
         triggerCache.remove(mappingId);
         lastExecutionTimeMap.remove(mappingId);
     }
 
-    @Override
     /**
      * 获取Mapping
     */
+    @Override
     public DataSyncMapping getMapping(String mappingId) {
         return dataSyncServer.mappingManager().getMappings().stream()
                 .filter(m -> m.mappingId().equals(mappingId))
@@ -318,18 +258,18 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
                 .orElse(null);
     }
 
-    @Override
     /**
      * 获取Mappings
     */
+    @Override
     public List<DataSyncMapping> getMappings() {
         return dataSyncServer.mappingManager().getMappings();
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         scheduler.scheduleAtFixedRate(
                 this::executePendingMappings,
@@ -340,10 +280,10 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         log.info("SyncDataSchedulerManager 启动成功，调度间隔: {} 秒", SCHEDULER_INTERVAL_SECONDS);
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() {
         scheduler.shutdown();
         subscribedSinkKeys.clear();
@@ -351,10 +291,10 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         log.info("SyncDataSchedulerManager 已停止");
     }
 
-    @Override
     /**
      * Trigger
     */
+    @Override
     public void trigger(String mappingId) {
         if (mappingId == null || mappingId.isBlank()) {
             log.error("手动触发失败：mappingId 为空");

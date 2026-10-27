@@ -23,50 +23,50 @@ public class TomcatHandler extends AbstractAppHandler {
      */
     private static final String[] INVOKE_METHODS = {"invoke"};
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "tomcat-handler";
     }
 
-    @Override
     /**
      * 已启用键
     */
+    @Override
     protected String enabledKey() {
         return "tomcat.enabled";
     }
 
-    @Override
     /**
      * Software
     */
+    @Override
     protected Software software() {
         return Software.TOMCAT;
     }
 
-    @Override
     /**
      * 协议
     */
+    @Override
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
-    @Override
     /**
      * 注册拦截器
     */
+    @Override
     protected void registerInterceptors() {
         registerAll(STANDARD_WRAPPER_VALVE, INVOKE_METHODS);
     }
 
-    @Override
     /**
      * 构建Target
     */
+    @Override
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

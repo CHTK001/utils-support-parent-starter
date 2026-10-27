@@ -265,7 +265,8 @@ final class CliAsrServer {
         Process process = pb.start();
         try {
             process.getOutputStream().close();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[deeplearning] 关闭子进程标准输入失败，已忽略: {}", e.getMessage());
         }
         return process;
     }

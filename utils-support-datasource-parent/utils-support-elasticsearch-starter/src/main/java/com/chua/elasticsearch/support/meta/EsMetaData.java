@@ -27,18 +27,18 @@ public class EsMetaData extends DefaultMetaData {
         super(engine);
     }
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public MetaSearch search() {
         return new EsMeta(this, (ElasticsearchEngine) engine);
     }
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public MetaSearch search(String indexName) {
         return new EsMeta(this, (ElasticsearchEngine) engine);
     }

@@ -166,10 +166,10 @@ public class MqttServer extends AbstractServer {
         super(setting);
     }
 
-    @Override
     /**
      * 执行开始
     */
+    @Override
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
@@ -208,16 +208,17 @@ public class MqttServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * 执行停止
     */
+    @Override
     protected void doStop() {
         running = false;
         if (serverSocket != null) {
             try {
                 serverSocket.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[mqtt] 关闭服务端套接字失败，已忽略: {}", e.getMessage());
             }
         }
         if (bossPool != null) {
@@ -229,7 +230,8 @@ public class MqttServer extends AbstractServer {
         for (ClientSession session : clients.values()) {
             try {
                 session.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[mqtt] 关闭客户端会话失败，已忽略: {}", e.getMessage());
             }
         }
         clients.clear();
@@ -237,10 +239,10 @@ public class MqttServer extends AbstractServer {
         log.info("MQTT 服务器停止");
     }
 
-    @Override
     /**
      * 获取协议类型
     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.MQTT;
     }
@@ -399,10 +401,10 @@ public class MqttServer extends AbstractServer {
     */
     private final List<AnnotatedMethod> onErrorMethods = new CopyOnWriteArrayList<>();
 
-    @Override
     /**
      * 注册Bean
     */
+    @Override
     public MqttServer registerBean(Object handler) {
         super.registerBean(handler);
         if (handler == null) {

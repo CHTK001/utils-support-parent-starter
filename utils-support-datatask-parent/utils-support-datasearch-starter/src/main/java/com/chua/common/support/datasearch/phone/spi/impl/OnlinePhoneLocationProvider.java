@@ -76,18 +76,18 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
         this.httpClient = HttpClientFactory.getClient();
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "tenapi";
     }
 
-    @Override
     /**
      * 获取归属地
     */
+    @Override
     public PhoneLocationInfo getLocation(String phone) {
         if (phone == null || !phone.matches("^1\\d{10}$")) {
             return null;

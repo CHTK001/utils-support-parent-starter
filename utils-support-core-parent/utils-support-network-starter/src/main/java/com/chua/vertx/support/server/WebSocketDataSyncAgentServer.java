@@ -79,10 +79,10 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         this.port = port;
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         if (running) {
             return;
@@ -99,10 +99,10 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         }
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() {
         if (serverSocket != null && !serverSocket.isClosed()) {
             try {

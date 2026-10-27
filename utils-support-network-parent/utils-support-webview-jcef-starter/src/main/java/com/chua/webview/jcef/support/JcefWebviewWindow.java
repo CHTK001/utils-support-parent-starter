@@ -79,10 +79,10 @@ public class JcefWebviewWindow implements WebViewWindow {
      */
     private IpcProtocolServer ipcServer;
 
-    @Override
     /**
      * 打开
     */
+    @Override
     public void open(String url, String title, int width, int height) {
         try {
             cefApp = new CefAppBuilder().build();
@@ -93,10 +93,10 @@ public class JcefWebviewWindow implements WebViewWindow {
             frame.add(browser.getUIComponent());
             frame.setSize(width, height);
             frame.addWindowListener(new WindowAdapter() {
-                @Override
                 /**
                  * 窗口关闭
                 */
+                @Override
                 public void windowClosing(WindowEvent e) {
                     close();
                 }
@@ -108,10 +108,10 @@ catch (Throwable e) {
         }
     }
 
-    @Override
     /**
      * 支持ipc
     */
+    @Override
     public boolean supportsIpc() {
         return true;
     }
@@ -173,10 +173,10 @@ catch (Throwable e) {
             frame.add(browser.getUIComponent());
             frame.setSize(width, height);
             frame.addWindowListener(new WindowAdapter() {
-                @Override
                 /**
                  * 窗口关闭
                 */
+                @Override
                 public void windowClosing(WindowEvent e) {
                     close();
                 }
@@ -188,10 +188,10 @@ catch (Throwable e) {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         try {
             if (browser != null) {
@@ -228,7 +228,6 @@ finally {
             this.ipcServer = ipcServer;
         }
 
-        @Override
         /**
          * On查询
          * @param browser browser
@@ -238,6 +237,7 @@ finally {
          * @param persistent persistent
          * @param callback callback
          */
+        @Override
         public boolean onQuery(CefBrowser browser, CefFrame frame, long queryId,
                                String request, boolean persistent, CefQueryCallback callback) {
             try {

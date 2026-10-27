@@ -147,18 +147,18 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
         return d.bitLength();
     }
 
-    @Override
     /**
      * 比较转为
     */
+    @Override
     public int compareTo(KademliaNodeId o) {
         return this.getInt().compareTo(o.getInt());
     }
 
-    @Override
     /**
      * 判断相等
     */
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -170,18 +170,18 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
         return Arrays.equals(id, that.id);
     }
 
-    @Override
     /**
      * 哈希编码
     */
+    @Override
     public int hashCode() {
         return Arrays.hashCode(id);
     }
 
-    @Override
     /**
      * 转为字符串
     */
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(40);
         for (byte b : id) {

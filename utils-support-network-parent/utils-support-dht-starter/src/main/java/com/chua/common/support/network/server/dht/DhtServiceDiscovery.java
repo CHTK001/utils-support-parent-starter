@@ -83,10 +83,10 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
         this.protocol = protocol;
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         if (protocol == null) {
             throw new IllegalStateException("DhtProtocol not set");
@@ -95,10 +95,10 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
         log.info("DHT ServiceDiscovery started. NodeId={}", protocol.selfId());
     }
 
-    @Override
     /**
      * 注册服务
     */
+    @Override
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         String fullPath = addClusterPrefix(DHT_PREFIX + path);
         registeredServices.computeIfAbsent(fullPath, k -> ConcurrentHashMap.newKeySet()).add(discovery);
@@ -110,10 +110,10 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
         return this;
     }
 
-    @Override
     /**
      * 获取服务
     */
+    @Override
     public Discovery getService(String path, String balance, String protocolType) {
         Set<Discovery> all = getServiceAll(path);
         if (all.isEmpty()) {
@@ -122,10 +122,10 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
         return selectByBalance(all, balance);
     }
 
-    @Override
     /**
      * 获取服务全部
     */
+    @Override
     public Set<Discovery> getServiceAll(String path) {
         String fullPath = addClusterPrefix(DHT_PREFIX + path);
         Set<Discovery> cached = registeredServices.get(fullPath);
@@ -148,18 +148,18 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
         return result;
     }
 
-    @Override
     /**
      * 是否支持订阅
     */
+    @Override
     public boolean isSupportSubscribe() {
         return true;
     }
 
-    @Override
     /**
      * 订阅
     */
+    @Override
     public void subscribe(String serviceName, ServiceDiscoveryListener listener) {
         if (listener != null) {
             listeners.add(listener);
@@ -214,10 +214,10 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
         return list.iterator().next();
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         running = false;
         registeredServices.clear();
@@ -227,10 +227,10 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
         }
     }
 
-    @Override
     /**
      * 获取
     */
+    @Override
     protected Set<Discovery> get(String path) {
         return getServiceAll(path.replace(DHT_PREFIX, ""));
     }

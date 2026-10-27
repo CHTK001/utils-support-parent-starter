@@ -25,26 +25,26 @@ public class TelnetProtocolRestorer extends AbstractProtocolRestorer {
      */
     private static final double MIN_PRINTABLE_RATIO = 0.8;
 
-    @Override
     /**
      * 获取协议名称
     */
+    @Override
     public String getProtocolName() {
         return "telnet";
     }
 
-    @Override
     /**
      * 获取Priority
     */
+    @Override
     public int getPriority() {
         return 60;
     }
 
-    @Override
     /**
      * 是否可以Restore
     */
+    @Override
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 3) {
             return false;
@@ -95,10 +95,10 @@ public class TelnetProtocolRestorer extends AbstractProtocolRestorer {
         return total == 0 || printable >= Math.ceil(total * MIN_PRINTABLE_RATIO);
     }
 
-    @Override
     /**
      * Restore
     */
+    @Override
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length == 0) {
             return "[Telnet] empty";

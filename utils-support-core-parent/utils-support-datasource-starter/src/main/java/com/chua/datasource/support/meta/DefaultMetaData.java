@@ -33,130 +33,130 @@ public class DefaultMetaData extends AbstractMetaData {
         super(engine);
     }
 
-    @Override
     /**
      * Table
     */
+    @Override
     public MetaTable table() {
         throw new UnsupportedOperationException("当前引擎不支持表元数据操作");
     }
 
-    @Override
     /**
      * Table
     */
+    @Override
     public MetaTable table(String tableName) {
         throw new UnsupportedOperationException("当前引擎不支持表元数据操作");
     }
 
-    @Override
     /**
      * View
     */
+    @Override
     public MetaView view() {
         throw new UnsupportedOperationException("当前引擎不支持视图元数据操作");
     }
 
-    @Override
     /**
      * View
     */
+    @Override
     public MetaView view(String viewName) {
         throw new UnsupportedOperationException("当前引擎不支持视图元数据操作");
     }
 
-    @Override
     /**
      * 索引
     */
+    @Override
     public MetaIndex index() {
         throw new UnsupportedOperationException("当前引擎不支持索引入口操作");
     }
 
-    @Override
     /**
      * 索引
     */
+    @Override
     public MetaIndex index(String indexName) {
         throw new UnsupportedOperationException("当前引擎不支持索引入口操作");
     }
 
-    @Override
     /**
      * Trigger
     */
+    @Override
     public MetaTrigger trigger() {
         throw new UnsupportedOperationException("当前引擎不支持触发器元数据操作");
     }
 
-    @Override
     /**
      * Trigger
     */
+    @Override
     public MetaTrigger trigger(String triggerName) {
         throw new UnsupportedOperationException("当前引擎不支持触发器元数据操作");
     }
 
-    @Override
     /**
      * Procedure
     */
+    @Override
     public MetaProcedure procedure() {
         throw new UnsupportedOperationException("当前引擎不支持存储过程元数据操作");
     }
 
-    @Override
     /**
      * Procedure
     */
+    @Override
     public MetaProcedure procedure(String procedureName) {
         throw new UnsupportedOperationException("当前引擎不支持存储过程元数据操作");
     }
 
-    @Override
     /**
      * Fk
     */
+    @Override
     public MetaForeignKey fk() {
         throw new UnsupportedOperationException("当前引擎不支持外键元数据操作");
     }
 
-    @Override
     /**
      * Fk
     */
+    @Override
     public MetaForeignKey fk(String fkName) {
         throw new UnsupportedOperationException("当前引擎不支持外键元数据操作");
     }
 
-    @Override
     /**
      * 用户
     */
+    @Override
     public MetaUser user() {
         throw new UnsupportedOperationException("当前引擎不支持用户元数据操作");
     }
 
-    @Override
     /**
      * 权限
     */
+    @Override
     public MetaPermission permission() {
         throw new UnsupportedOperationException("当前引擎不支持权限元数据操作");
     }
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public MetaSearch search() {
         throw new UnsupportedOperationException("当前引擎不支持搜索引擎索引操作");
     }
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public MetaSearch search(String indexName) {
         throw new UnsupportedOperationException("当前引擎不支持搜索引擎索引操作");
     }

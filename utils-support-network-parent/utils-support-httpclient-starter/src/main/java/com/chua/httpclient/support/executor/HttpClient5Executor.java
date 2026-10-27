@@ -16,6 +16,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.util.Timeout;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Spi("httpclient5")
 @ConditionalOnClass("org.apache.hc.client5.http.classic.methods.HttpGet")
 public class HttpClient5Executor implements HttpClientExecutor {
@@ -42,18 +44,18 @@ public class HttpClient5Executor implements HttpClientExecutor {
         this.client = HttpClients.createDefault();
     }
 
-    @Override
     /**
      * 获取名称
     */
+    @Override
     public String getName() {
         return "httpclient5";
     }
 
-    @Override
     /**
      * 是否可用
     */
+    @Override
     public boolean isAvailable() {
         try {
             ReflectUtils.forName("org.apache.hc.client5.http.classic.methods.HttpGet");
@@ -116,10 +118,10 @@ public class HttpClient5Executor implements HttpClientExecutor {
         return req;
     }
 
-    @Override
     /**
      * 执行
     */
+    @Override
     public ClientResponse execute(ClientRequest request) {
         try {
             if (client == null) {
@@ -152,21 +154,22 @@ public class HttpClient5Executor implements HttpClientExecutor {
         return cr;
     }
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() { return 1; }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         if (client != null) {
             try {
                 client.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[httpclient] 关闭 HTTP 客户端失败，已忽略: {}", e.getMessage());
             }
         }
     }

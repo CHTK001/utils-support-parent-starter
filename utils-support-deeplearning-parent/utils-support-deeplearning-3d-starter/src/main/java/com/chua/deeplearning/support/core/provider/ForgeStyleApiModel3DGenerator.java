@@ -29,10 +29,10 @@ public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
         super(config);
     }
 
-    @Override
     /**
      * 构建文本请求主体
     */
+    @Override
     protected String buildTextRequestBody(String prompt, Model3DFormat format, Model3DStyle style, String quality) {
         try {
             ObjectNode node = objectMapper.createObjectNode();
@@ -50,10 +50,10 @@ public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
         }
     }
 
-    @Override
     /**
      * 构建镜像请求主体
     */
+    @Override
     protected String buildImageRequestBody(byte[] image, Model3DFormat format, Model3DStyle style, String quality) {
         try {
             String base64 = Base64.getEncoder().encodeToString(image);
@@ -73,10 +73,10 @@ public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
         }
     }
 
-    @Override
     /**
      * 构建multiview请求主体
     */
+    @Override
     protected String buildMultiViewRequestBody(byte[][] images, Model3DFormat format, Model3DStyle style, String quality) {
         try {
             ObjectNode node = objectMapper.createObjectNode();
@@ -98,10 +98,10 @@ public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
         }
     }
 
-    @Override
     /**
      * 构建sketch请求主体
     */
+    @Override
     protected String buildSketchRequestBody(byte[] sketch, String description, Model3DFormat format, Model3DStyle style, String quality) {
         try {
             String base64 = Base64.getEncoder().encodeToString(sketch);
@@ -122,10 +122,10 @@ public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
         }
     }
 
-    @Override
     /**
      * 构建stylize请求主体
     */
+    @Override
     protected String buildStylizeRequestBody(Model3D model, Model3DStyle style, int resolution) {
         try {
             String modelBase64 = Base64.getEncoder().encodeToString(model.getData().readAllBytes());

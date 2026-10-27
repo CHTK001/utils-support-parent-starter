@@ -79,10 +79,10 @@ public class InMemoryStorage implements ApmStorage {
      */
     private volatile boolean maintenanceStopping;
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start(StorageConfig config) {
         this.capacity = config.getInt("apm.storage.capacity", 100_000);
         this.retentionMillis = config.getLong("apm.storage.retention.ms", 7L * 24 * 60 * 60 * 1000L);
@@ -126,10 +126,10 @@ public class InMemoryStorage implements ApmStorage {
         t.start();
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() {
         maintenanceStopping = true;
         Thread t = maintainer;
@@ -140,10 +140,10 @@ public class InMemoryStorage implements ApmStorage {
         log.info("InMemoryStorage 停止");
     }
 
-    @Override
     /**
      * 追加Transmission
     */
+    @Override
     public void appendTransmission(TransmissionEvent event) {
         if (event == null) {
             return;
@@ -155,10 +155,10 @@ public class InMemoryStorage implements ApmStorage {
         transmissions.put(event.getId(), event);
     }
 
-    @Override
     /**
      * 追加Dependency
     */
+    @Override
     public void appendDependency(DependencyEdge edge) {
         if (edge == null || edge.getSource() == null || edge.getTarget() == null) {
             return;
@@ -180,10 +180,10 @@ public class InMemoryStorage implements ApmStorage {
         enforceCapacityStr(dependencies);
     }
 
-    @Override
     /**
      * 追加Leak
     */
+    @Override
     public void appendLeak(LeakRecord record) {
         if (record == null) {
             return;
@@ -194,10 +194,10 @@ public class InMemoryStorage implements ApmStorage {
         leaks.put(record.getHandleId(), record);
     }
 
-    @Override
     /**
      * 追加记录日志
     */
+    @Override
     public void appendLog(LogRecord record) {
         if (record == null) {
             return;
@@ -209,10 +209,10 @@ public class InMemoryStorage implements ApmStorage {
         logs.put(record.getId(), record);
     }
 
-    @Override
     /**
      * 查询Transmissions
     */
+    @Override
     public List<TransmissionEvent> queryTransmissions(Query query) {
         return transmissions.values().stream()
                 .filter(e -> matchTime(e.getStartTime(), query))
@@ -230,18 +230,18 @@ public class InMemoryStorage implements ApmStorage {
                 .collect(java.util.stream.Collectors.toList());
     }
 
-    @Override
     /**
      * 查询Dependencies
     */
+    @Override
     public List<DependencyEdge> queryDependencies(Query query) {
         return Wraps.list(dependencies.values());
     }
 
-    @Override
     /**
      * 查询Leaks
     */
+    @Override
     public List<LeakRecord> queryLeaks(Query query) {
         return leaks.values().stream()
                 .filter(r -> matchTime(r.getCreatedAt(), query))
@@ -251,10 +251,10 @@ public class InMemoryStorage implements ApmStorage {
                 .collect(java.util.stream.Collectors.toList());
     }
 
-    @Override
     /**
      * 查询日志
     */
+    @Override
     public List<LogRecord> queryLogs(Query query) {
         return logs.values().stream()
                 .filter(r -> matchTime(r.getTimestamp(), query))
@@ -264,10 +264,10 @@ public class InMemoryStorage implements ApmStorage {
                 .collect(java.util.stream.Collectors.toList());
     }
 
-    @Override
     /**
      * Stats
     */
+    @Override
     public Map<String, Long> stats() {
         return Map.of(
                 "transmissions", (long) transmissions.size(),
@@ -276,10 +276,10 @@ public class InMemoryStorage implements ApmStorage {
                 "logs", (long) logs.size());
     }
 
-    @Override
     /**
      * Cleanup
     */
+    @Override
     public long cleanup(long retentionMillis) {
         long cutoff = System.currentTimeMillis() - retentionMillis;
         return cleanupInternal(cutoff);
@@ -321,7 +321,6 @@ public class InMemoryStorage implements ApmStorage {
         return doRemoveOlder(map, cutoff, tsExtractor);
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 执行移除旧
      * @param map 映射
@@ -329,6 +328,7 @@ public class InMemoryStorage implements ApmStorage {
      * @param tsExtractor V
      * @param tsExtractor tsextractor
      */
+    @SuppressWarnings("unchecked")
     private static <K, V> long doRemoveOlder(Map<K, V> map, long cutoff,
                                             java.util.function.Function<? super V, Long> tsExtractor) {
         long count = 0;
@@ -350,10 +350,10 @@ public class InMemoryStorage implements ApmStorage {
         return count;
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "inmemory";
     }

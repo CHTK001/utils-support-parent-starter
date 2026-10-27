@@ -10,26 +10,26 @@ package com.chua.network.support.tshark.restorer;
  */
 public class ArpProtocolRestorer extends AbstractProtocolRestorer {
 
-    @Override
     /**
      * 获取协议名称
     */
+    @Override
     public String getProtocolName() {
         return "arp";
     }
 
-    @Override
     /**
      * 获取Priority
     */
+    @Override
     public int getPriority() {
         return 100;
     }
 
-    @Override
     /**
      * 是否可以Restore
     */
+    @Override
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 28) {
             return false;
@@ -40,10 +40,10 @@ public class ArpProtocolRestorer extends AbstractProtocolRestorer {
         return hType == 0x0001 && pType == 0x0800 && (op == 1 || op == 2);
     }
 
-    @Override
     /**
      * Restore
     */
+    @Override
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 28) {
             return "[ARP] empty";

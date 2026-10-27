@@ -117,9 +117,6 @@ class DefaultEmbeddingService implements EmbeddingService {
      * 模型配置
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -161,32 +158,32 @@ class DefaultEmbeddingService implements EmbeddingService {
         }
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public EmbeddingService modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public EmbeddingService device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Embed
      *
      * @param text 文本
      * @return embed的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public float[] embed(String text) {
         ITranslator<String, float[]> t =
                 (ITranslator<String, float[]>) engine.get(modelName, ITranslator.class);
@@ -196,14 +193,14 @@ class DefaultEmbeddingService implements EmbeddingService {
         return t.translate(text);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Embed
      *
      * @param imageData 镜像数据
      * @return embed的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public float[] embed(byte[] imageData) {
         ITranslator<byte[], float[]> t =
                 (ITranslator<byte[], float[]>) engine.get(modelName, ITranslator.class);
@@ -213,10 +210,10 @@ class DefaultEmbeddingService implements EmbeddingService {
         return t.translate(imageData);
     }
 
-    @Override
     /**
      * embedbatch
     */
+    @Override
     public List<float[]> embedBatch(List<String> texts) {
         int size = texts.size();
         List<float[]> result = Wraps.list(size);

@@ -92,88 +92,88 @@ public class ZhipuImageClient implements ImageClient {
                 .build();
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public ImageClient model(String model) {
         this.model = model;
         return this;
     }
 
-    @Override
     /**
      * 获取大小
     */
+    @Override
     public ImageClient size(int width, int height) {
         this.width = width;
         this.height = height;
         return this;
     }
 
-    @Override
     /**
      * 提示符
     */
+    @Override
     public ImageClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
-    @Override
     /**
      * Quality
     */
+    @Override
     public ImageClient quality(String quality) {
         this.quality = quality;
         return this;
     }
 
-    @Override
     /**
      * Style
     */
+    @Override
     public ImageClient style(String style) {
         this.style = style;
         return this;
     }
 
-    @Override
     /**
      * 引用镜像
     */
+    @Override
     public ImageClient referenceImage(byte[] image) {
         throw new UnsupportedOperationException("该服务商不支持参考图");
     }
 
-    @Override
     /**
      * 引用镜像
     */
+    @Override
     public ImageClient referenceImage(BufferedImage image) {
         throw new UnsupportedOperationException("该服务商不支持参考图");
     }
 
-    @Override
     /**
      * 镜像strength
     */
+    @Override
     public ImageClient imageStrength(double strength) {
         throw new UnsupportedOperationException("该服务商不支持参考图强度");
     }
 
-    @Override
     /**
      * control类型
     */
+    @Override
     public ImageClient controlType(String controlType) {
         throw new UnsupportedOperationException("该服务商不支持ControlNet");
     }
 
-    @Override
 /**
  * Generate
 */
+    @Override
 public BufferedImage generate(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
         if (actualPrompt == null || actualPrompt.isBlank()) {
@@ -250,26 +250,26 @@ public BufferedImage generate(String prompt) {
         }
     }
 
-    @Override
     /**
      * 创建任务
     */
+    @Override
     public String createTask(String prompt) {
         throw new UnsupportedOperationException("智谱 CogView 不支持异步任务模式，请使用 generate() 方法同步生成");
     }
 
-    @Override
     /**
      * 查询任务
     */
+    @Override
     public ImageResponse queryTask(String taskId) {
         throw new UnsupportedOperationException("智谱 CogView 不支持异步任务模式");
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
     }
 

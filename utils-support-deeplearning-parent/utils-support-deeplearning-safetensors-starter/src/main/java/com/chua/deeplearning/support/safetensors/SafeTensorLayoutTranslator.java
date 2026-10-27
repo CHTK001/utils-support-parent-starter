@@ -48,22 +48,22 @@ public class SafeTensorLayoutTranslator implements ITranslator<byte[], String> {
         this.modelType = modelType;
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return modelName;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Translate
      *
      * @param input 输入
      * @return translate的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public String translate(byte[] input) {
         if (input == null || input.length == 0) {
             return "";

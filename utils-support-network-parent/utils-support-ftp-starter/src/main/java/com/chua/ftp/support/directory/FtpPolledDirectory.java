@@ -75,12 +75,12 @@ public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
         this.passiveMode = Boolean.parseBoolean(environment.getProperty("passiveMode", "true"));
     }
 
-    @Override
     /**
      * 开始
      * @param environment 环境
      * @param executor 执行器
      */
+    @Override
     public void start(DirectoryPollerEnvironment environment,
                       com.chua.common.support.lang.directory.executor.DirectoryPollerExecutor executor) {
         client = new FTPClient();
@@ -98,10 +98,10 @@ public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
         super.start(environment, executor);
     }
 
-    @Override
     /**
      * 列表和modified
     */
+    @Override
     protected List<FTPFile> listAndModified(String path) {
         try {
             FTPFile[] files = client.listFiles(path);
@@ -112,34 +112,35 @@ public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
         }
     }
 
-    @Override
     /**
      * 获取文件名
     */
+    @Override
     protected String getFileName(FTPFile item) {
         return item.getName();
     }
 
-    @Override
     /**
      * 获取Modified
     */
+    @Override
     protected Long getModified(FTPFile item) {
         long t = item.getTimestamp() != null ? item.getTimestamp().getTimeInMillis() : 0L;
         return t;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         super.close();
         if (client != null && client.isConnected()) {
             try {
                 client.logout();
                 client.disconnect();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[ftp] 关闭 FTP 连接失败，已忽略: {}", e.getMessage());
             }
         }
     }

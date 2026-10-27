@@ -35,10 +35,10 @@ public class BcSm4Cipher implements Sm4Cipher {
     */
     private static final String TRANSFORMATION = "SM4/ECB/PKCS7Padding";
 
-    @Override
     /**
      * Encrypt
     */
+    @Override
     public byte[] encrypt(byte[] key, byte[] data) {
         try {
             SecretKeySpec keySpec = new SecretKeySpec(validateKey(key), ALGORITHM);
@@ -50,10 +50,10 @@ public class BcSm4Cipher implements Sm4Cipher {
         }
     }
 
-    @Override
     /**
      * Decrypt
     */
+    @Override
     public byte[] decrypt(byte[] key, byte[] ciphertext) {
         try {
             SecretKeySpec keySpec = new SecretKeySpec(validateKey(key), ALGORITHM);

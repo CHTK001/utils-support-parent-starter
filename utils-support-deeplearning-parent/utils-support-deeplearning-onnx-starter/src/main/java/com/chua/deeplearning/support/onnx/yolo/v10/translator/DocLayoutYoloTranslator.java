@@ -359,10 +359,10 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
         return new DetectedObjects(classNames, probabilities, boxes);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return Batchifier.fromString("none");
     }

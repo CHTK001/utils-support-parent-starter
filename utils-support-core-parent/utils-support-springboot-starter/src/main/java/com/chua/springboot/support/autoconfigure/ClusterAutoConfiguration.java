@@ -75,12 +75,12 @@ public class ClusterAutoConfiguration {
         }
     }
 
-    @Bean
-    @ConditionalOnMissingBean
     /**
      * cluster服务端。
      * @return cluster服务端的结果
      */
+    @Bean
+    @ConditionalOnMissingBean
     public ClusterServer clusterServer() throws Exception {
         autoDetect();
         ClusterProperties props = clusterProperties;

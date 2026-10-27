@@ -263,9 +263,6 @@ class DefaultFaceDetector implements FaceDetector {
      * 模型配置
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -312,59 +309,59 @@ class DefaultFaceDetector implements FaceDetector {
         }
     }
 
-    @Override
     /**
      * 阈值
     */
+    @Override
     public FaceDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * Nms
     */
+    @Override
     public FaceDetector nms(float nms) {
         this.nms = nms;
         return this;
     }
 
-    @Override
     /**
      * 最小值Face获取大小
     */
+    @Override
     public FaceDetector minFaceSize(int size) {
         this.minFaceSize = size;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public FaceDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public FaceDetector device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Detect
      *
      * @param imageData 镜像数据
      * @return detect的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =
                 (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
@@ -374,10 +371,10 @@ class DefaultFaceDetector implements FaceDetector {
         return t.translate(imageData);
     }
 
-    @Override
     /**
      * detect信息
     */
+    @Override
     public List<DetectionInfo> detectInfo(byte[] imageData) {
         List<PredictRectangle> raw = detect(imageData);
         if (raw == null) {
@@ -396,10 +393,10 @@ class DefaultFaceDetector implements FaceDetector {
                 .collect(Collectors.toList());
     }
 
-    @Override
     /**
      * Face计算数量
     */
+    @Override
     public int faceCount(byte[] imageData) {
         return detect(imageData).size();
     }

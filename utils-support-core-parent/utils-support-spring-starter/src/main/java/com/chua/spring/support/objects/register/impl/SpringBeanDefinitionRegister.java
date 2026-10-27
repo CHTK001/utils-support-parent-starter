@@ -39,74 +39,74 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
     */
     private volatile boolean closed;
 
-    @Override
     /**
      * 获取名称
     */
+    @Override
     public String getName() {
         return "spring";
     }
 
-    @Override
     /**
      * 获取Priority
     */
+    @Override
     public int getPriority() {
         return 100;
     }
 
-    @Override
     /**
      * 是否支持
     */
+    @Override
     public boolean isSupport(BeanDefinition beanDefinition) {
         return false;
     }
 
-    @Override
     /**
      * 是否Writable
     */
+    @Override
     public boolean isWritable() {
         return false;
     }
 
-    @Override
     /**
      * 注册
     */
+    @Override
     public boolean register(BeanDefinition beanDefinition) {
         throw new UnsupportedOperationException("Spring Bean 定义注册器不支持手动注册");
     }
 
-    @Override
     /**
      * 注销
     */
+    @Override
     public boolean unregister(BeanDefinition beanDefinition) {
         throw new UnsupportedOperationException("Spring Bean 定义注册器不支持手动注销");
     }
 
-    @Override
     /**
      * 注销
     */
+    @Override
     public boolean unregister(String beanName) {
         throw new UnsupportedOperationException("Spring Bean 定义注册器不支持手动注销");
     }
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void initialize() {
         closed = false;
     }
 
-    @Override
     /**
      * 获取Beandefinition
     */
+    @Override
     public BeanDefinition getBeanDefinition(String beanName) {
         if (beanName == null || closed) {
             return null;
@@ -128,10 +128,10 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
         }
     }
 
-    @Override
     /**
      * 获取Beandefinition的类型
     */
+    @Override
     public Collection<BeanDefinition> getBeanDefinitionOfType(String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -155,10 +155,10 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
         return result;
     }
 
-    @Override
     /**
      * 获取Beandefinition的类型
     */
+    @Override
     public Collection<BeanDefinition> getBeanDefinitionOfType(String name, String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -173,10 +173,10 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
         return getBeanDefinitionOfType(typeName);
     }
 
-    @Override
     /**
      * containsBean
     */
+    @Override
     public boolean containsBean(String beanName) {
         if (beanName == null || closed) {
             return false;
@@ -185,10 +185,10 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
         return ctx != null && ctx.containsBean(beanName);
     }
 
-    @Override
     /**
      * 获取Beandefinition名称
     */
+    @Override
     public Collection<String> getBeanDefinitionNames() {
         if (closed) {
             return Collections.emptyList();
@@ -200,10 +200,10 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
         return Arrays.asList(ctx.getBeanDefinitionNames());
     }
 
-    @Override
     /**
      * 获取Beanwith注解
     */
+    @Override
     public Map<String, BeanDefinition> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed) {
             return Collections.emptyMap();
@@ -221,27 +221,27 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
         return result;
     }
 
-    @Override
     /**
      * 获取Beanwith方法注解
     */
+    @Override
     public Map<String, BeanDefinition> getBeansWithMethodAnnotation(Class<? extends Annotation> annotationType) {
         return Collections.emptyMap();
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         closed = true;
         destroySingletons();
     }
 
-    @Override
     /**
      * 是否Closed
     */
+    @Override
     public boolean isClosed() {
         return closed;
     }

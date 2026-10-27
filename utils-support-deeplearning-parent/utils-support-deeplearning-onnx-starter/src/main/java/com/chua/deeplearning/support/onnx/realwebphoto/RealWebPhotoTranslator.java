@@ -46,10 +46,10 @@ import java.awt.image.BufferedImage;
 @Slf4j
 public class RealWebPhotoTranslator implements Translator<Image, Image> {
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        : {}x{}", input.getWidth(), input.getHeight());
@@ -79,10 +79,10 @@ public class RealWebPhotoTranslator implements Translator<Image, Image> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Image processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        ");
@@ -130,10 +130,10 @@ public class RealWebPhotoTranslator implements Translator<Image, Image> {
         return (int) Math.round(x * 255.0f);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
  // batchifier                         处理输入                    批量
         return null;

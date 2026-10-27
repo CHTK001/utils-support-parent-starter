@@ -86,27 +86,27 @@ public class OnlineHolidayProvider implements HolidayProvider {
         this.httpClient = HttpClientFactory.getClient();
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "online";
     }
 
-    @Override
     /**
      * 是否假日
     */
+    @Override
     public boolean isHoliday(LocalDate date) {
         HolidayInfo info = resolve(date);
         return info != null && "holiday".equals(info.getType());
     }
 
-    @Override
     /**
      * 是否Workday
     */
+    @Override
     public boolean isWorkday(LocalDate date) {
         HolidayInfo info = resolve(date);
         if (info != null) {
@@ -116,18 +116,18 @@ public class OnlineHolidayProvider implements HolidayProvider {
         return dw != DayOfWeek.SATURDAY && dw != DayOfWeek.SUNDAY;
     }
 
-    @Override
     /**
      * 获取假日
     */
+    @Override
     public HolidayInfo getHoliday(LocalDate date) {
         return resolve(date);
     }
 
-    @Override
     /**
      * 获取假日
     */
+    @Override
     public List<HolidayInfo> getHolidays(int year) {
         return Wraps.list(load(year).values());
     }

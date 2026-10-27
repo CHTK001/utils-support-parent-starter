@@ -117,46 +117,46 @@ public class OllamaChatClient implements ChatClient {
         this.responseFormat = setting != null ? setting.getResponseFormat() : null;
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public ChatClient model(String model) {
         this.model = model;
         return this;
     }
 
-    @Override
     /**
      * 系统
     */
+    @Override
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
-    @Override
     /**
      * 温度
     */
+    @Override
     public ChatClient temperature(double temperature) {
         this.temperature = temperature;
         return this;
     }
 
-    @Override
     /**
      * 最大令牌
     */
+    @Override
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
-    @Override
     /**
      * Top-P
     */
+    @Override
     public ChatClient topP(Double topP) {
         this.topP = topP;
         return this;
@@ -174,55 +174,55 @@ public class OllamaChatClient implements ChatClient {
         return this;
     }
 
-    @Override
     /**
      * 用户历史
     */
+    @Override
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
-    @Override
     /**
      * 助手历史
     */
+    @Override
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
-    @Override
     /**
      * 历史
     */
+    @Override
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
-    @Override
     /**
      * 新会话
     */
+    @Override
     public ChatClient newChat() {
         this.history.clear();
         this.externalHistory = null;
         return this;
     }
 
-    @Override
     /**
      * 对话同步
     */
+    @Override
     public String chatSync(String prompt) {
         return chatSyncWithResponse(prompt).getText();
     }
 
-    @Override
     /**
      * 对话同步带响应
     */
+    @Override
     public ChatSyncResponse chatSyncWithResponse(String prompt) {
         OllamaChatRequest request = buildRequest(prompt);
         try {
@@ -269,10 +269,10 @@ public class OllamaChatClient implements ChatClient {
         return sb.toString();
     }
 
-    @Override
     /**
      * 模型列表
     */
+    @Override
     public List<ModelDefinition> models() {
         try {
             List<Model> raw = ollama.listModels();
@@ -298,10 +298,10 @@ public class OllamaChatClient implements ChatClient {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         newChat();
     }

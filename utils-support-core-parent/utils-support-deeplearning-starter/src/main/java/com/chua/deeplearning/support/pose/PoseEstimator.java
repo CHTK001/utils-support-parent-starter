@@ -162,9 +162,6 @@ class DefaultPoseEstimator implements PoseEstimator {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -201,41 +198,41 @@ class DefaultPoseEstimator implements PoseEstimator {
         }
     }
 
-    @Override
     /**
      * 阈值
     */
+    @Override
     public PoseEstimator threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public PoseEstimator modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public PoseEstimator device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Estimate
      *
      * @param imageData 镜像数据
      * @return estimate的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public List<PoseKeypoint> estimate(byte[] imageData) {
         ITranslator<byte[], List<PoseKeypoint>> t =
                 (ITranslator<byte[], List<PoseKeypoint>>) engine.get(modelName, ITranslator.class);
@@ -245,14 +242,14 @@ class DefaultPoseEstimator implements PoseEstimator {
         return t.translate(imageData);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * estimatemulti
      *
      * @param imageData 镜像数据
      * @return estimateMulti的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public List<List<PoseKeypoint>> estimateMulti(byte[] imageData) {
         ITranslator<byte[], List<List<PoseKeypoint>>> t =
                 (ITranslator<byte[], List<List<PoseKeypoint>>>) engine.get(modelName, ITranslator.class);

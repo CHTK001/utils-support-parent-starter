@@ -219,14 +219,15 @@ public class WinRmExecClient implements AutoCloseable {
     public void closeQuietly() {
         try {
             close();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[winrm] 关闭客户端失败，已忽略: {}", e.getMessage());
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         disconnect();
     }
@@ -466,7 +467,8 @@ public class WinRmExecClient implements AutoCloseable {
             if (shell != null) {
                 try {
                     shell.close();
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[winrm] 关闭 shell 失败，已忽略: {}", e.getMessage());
                 }
                 shell = null;
             }

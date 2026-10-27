@@ -33,10 +33,10 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     */
     private static final String SEARCH_URL = "https://music.163.com/weapi/cloudsearch/get/web?csrf_token=";
 
-    @Override
     /**
      * 获取源
     */
+    @Override
     public MusicSourceOption getSource() {
         return MusicSourceOption.builder()
                 .code("netease")
@@ -46,18 +46,18 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
                 .build();
     }
 
-    @Override
     /**
      * 获取Overview
     */
+    @Override
     public MusicOverview getOverview() {
         return overviewOf(List.of(), List.of());
     }
 
-    @Override
     /**
      * 搜索歌曲
     */
+    @Override
     public MusicSearchResult search(String keyword, int page, int pageSize) {
         Map<String, Object> payload = Wraps.linkedMap();
         payload.put("s", keyword);
@@ -76,10 +76,10 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
         return searchResult(keyword, page, pageSize, longValue(result, "songCount"), tracks);
     }
 
-    @Override
     /**
      * 搜索歌单
     */
+    @Override
     public MusicPlaylistSearchResult searchPlaylists(String keyword, int page, int pageSize) {
         Map<String, Object> payload = Wraps.linkedMap();
         payload.put("s", keyword);
@@ -105,10 +105,10 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
                 .build();
     }
 
-    @Override
     /**
      * 获取歌单详情
     */
+    @Override
     public MusicPlaylistDetail getPlaylistDetail(String playlistId) {
         return MusicPlaylistDetail.builder()
                 .playlistId(playlistId)
@@ -116,10 +116,10 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
                 .build();
     }
 
-    @Override
     /**
      * 获取歌曲播放详情
     */
+    @Override
     public MusicTrackDetail getTrackDetail(String trackId) {
         return MusicTrackDetail.builder()
                 .trackId(trackId)

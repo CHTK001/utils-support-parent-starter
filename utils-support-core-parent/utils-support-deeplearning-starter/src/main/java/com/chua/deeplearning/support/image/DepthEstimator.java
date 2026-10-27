@@ -134,9 +134,6 @@ class DefaultDepthEstimator implements DepthEstimator {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -168,32 +165,32 @@ class DefaultDepthEstimator implements DepthEstimator {
         }
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public DepthEstimator modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public DepthEstimator device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Estimate
      *
      * @param imageData 镜像数据
      * @return estimate的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public byte[] estimate(byte[] imageData) {
         ITranslator<byte[], byte[]> t =
                 (ITranslator<byte[], byte[]>) engine.get(modelName, ITranslator.class);

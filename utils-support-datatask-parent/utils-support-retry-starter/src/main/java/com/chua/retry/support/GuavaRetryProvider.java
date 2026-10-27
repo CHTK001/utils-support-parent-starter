@@ -33,10 +33,10 @@ import java.util.concurrent.TimeUnit;
 @Spi("guava-retry")
 public class GuavaRetryProvider extends AbstractRetryProvider {
 
-    @Override
     /**
      * 执行执行
     */
+    @Override
     protected <T> T doExecute(Callable<T> task, RetryConfig config) throws Exception {
         var builder = RetryerBuilder.<T>newBuilder()
                 .withStopStrategy(StopStrategies.stopAfterAttempt(config.getMaxRetries() + 1))
@@ -51,10 +51,10 @@ public class GuavaRetryProvider extends AbstractRetryProvider {
 
         if (config.getRetryListener() != null) {
             builder.withRetryListener(new com.github.rholder.retry.RetryListener() {
-                @Override
                 /**
                  * on重试
                 */
+                @Override
                 public <V> void onRetry(com.github.rholder.retry.Attempt<V> attempt) {
                     if (attempt.hasException()) {
                         config.getRetryListener().onRetry((int) attempt.getAttemptNumber(), attempt.getExceptionCause());

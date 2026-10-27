@@ -12,10 +12,10 @@ public enum ServerStatus {
      * 启动中：尚未接受请求
      */
     STARTING {
-        @Override
         /**
          * 是否可以acceptRequests
         */
+        @Override
         public boolean canAcceptRequests() {
             return false;
         }
@@ -25,10 +25,10 @@ public enum ServerStatus {
      * 运行中：接受请求
      */
     RUNNING {
-        @Override
         /**
          * 是否可以acceptRequests
         */
+        @Override
         public boolean canAcceptRequests() {
             return true;
         }
@@ -38,10 +38,10 @@ public enum ServerStatus {
      * 停止中：暂不接受新请求，等待正在处理的请求完成
      */
     STOPPING {
-        @Override
         /**
          * 是否可以acceptRequests
         */
+        @Override
         public boolean canAcceptRequests() {
             return false;
         }
@@ -51,10 +51,10 @@ public enum ServerStatus {
      * 已停止：不接受请求
      */
     STOPPED {
-        @Override
         /**
          * 是否可以acceptRequests
         */
+        @Override
         public boolean canAcceptRequests() {
             return false;
         }
@@ -64,10 +64,10 @@ public enum ServerStatus {
      * 已暂停：临时不接受请求，可恢复
      */
     PAUSED {
-        @Override
         /**
          * 是否可以acceptRequests
         */
+        @Override
         public boolean canAcceptRequests() {
             return false;
         }
@@ -77,10 +77,10 @@ public enum ServerStatus {
      * 异常状态：发生错误，拒绝请求
      */
     ERROR {
-        @Override
         /**
          * 是否可以acceptRequests
         */
+        @Override
         public boolean canAcceptRequests() {
             return false;
         }

@@ -43,8 +43,6 @@ public abstract class JdbcEngine extends AbstractEngine {
     private static final org.slf4j.Logger log =
             org.slf4j.LoggerFactory.getLogger(JdbcEngine.class);
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 执行新查询
      *
@@ -55,6 +53,8 @@ public abstract class JdbcEngine extends AbstractEngine {
      * @param offset 偏移量
      * @return 执行新查询的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     protected <T> List<T> executeNewQuery(String where, Object[] args, Class<T> clazz, int limit, int offset) {
         List<T> data = getData(clazz);
         if (!data.isEmpty()) {

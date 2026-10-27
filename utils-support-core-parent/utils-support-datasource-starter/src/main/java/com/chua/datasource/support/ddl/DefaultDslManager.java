@@ -42,22 +42,22 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
      */
     private Dialect dialect;
 
-    @Override
     /**
      * 设置数据源
      *
      * @param dataSource JDBC 数据源
      */
+    @Override
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    @Override
     /**
      * 设置方言
      *
      * @param dialect 数据库方言
      */
+    @Override
     public void setDialect(Dialect dialect) {
         this.dialect = dialect;
     }
@@ -71,7 +71,6 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
         return dialect;
     }
 
-    @Override
     /**
      * 校验必需参数
      *
@@ -80,6 +79,7 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
      *
      * @throws IllegalStateException 数据源或方言未注入时抛出
      */
+    @Override
     public void requireContext() {
         if (dataSource == null) {
             throw new IllegalStateException("DDL 管理器缺少 DataSource：请确认默认数据源已注册且为 JDBC 类型");
@@ -89,7 +89,6 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
         }
     }
 
-    @Override
     /**
      * 获取Table
      *
@@ -98,6 +97,7 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
      * @param tableName 表名
      * @return 表定义，不存在返回 空
      */
+    @Override
     public TableDef getTable(String catalogName, String schemaName, String tableName) {
         requireContext();
         try (Connection conn = dataSource.getConnection()) {
@@ -131,7 +131,6 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
         }
     }
 
-    @Override
     /**
      * 列出tables
      *
@@ -139,6 +138,7 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
      * @param schemaName 模式 名称
      * @return 表定义列表
      */
+    @Override
     public List<TableDef> listTables(String catalogName, String schemaName) {
         requireContext();
         List<TableDef> result = Wraps.list();
@@ -162,7 +162,6 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
         }
     }
 
-    @Override
     /**
      * 创建tableddl
      *
@@ -171,6 +170,7 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
      * @param tableName 表名
      * @return 建表 语句
      */
+    @Override
     public String createTableDDL(String catalogName, String schemaName, String tableName) {
         TableDef def = getTable(catalogName, schemaName, tableName);
         if (def == null) {
@@ -219,7 +219,6 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
         return sb.toString();
     }
 
-    @Override
     /**
      * 重命名Table
      *
@@ -228,13 +227,13 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
      * @param newTableName 新表名
      * @return 重命名 语句
      */
+    @Override
     public String renameTable(String schemaName, String oldTableName, String newTableName) {
         requireContext();
         String schema = schemaName == null || schemaName.isEmpty() ? null : schemaName;
         return dialect.getRenameTableString(schema, oldTableName, newTableName);
     }
 
-    @Override
     /**
      * 复制table结构
      *
@@ -243,6 +242,7 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
      * @param targetTableName 目标表名
      * @return 复制结构 语句
      */
+    @Override
     public String copyTableStructure(String schemaName, String sourceTableName, String targetTableName) {
         requireContext();
         Dialect d = dialect;
@@ -250,12 +250,12 @@ public class DefaultDslManager implements DslManager, DataSourceAware, DialectAw
                 + " AS SELECT * FROM " + d.quote(sourceTableName) + " WHERE 1=0";
     }
 
-    @Override
     /**
      * 类型
      *
      * @return 类型名称
      */
+    @Override
     public String type() {
         return DslManager.DEFAULT_ALIAS;
     }

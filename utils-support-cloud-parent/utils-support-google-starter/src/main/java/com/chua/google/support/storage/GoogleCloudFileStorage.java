@@ -98,11 +98,11 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 放入对象
      * @param request 请求
      */
+    @Override
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -124,11 +124,11 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 获取对象
      * @param request 请求
      */
+    @Override
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -158,22 +158,22 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 获取对象
      * @param key 键
      */
+    @Override
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
         return getObject(GetObjectRequest.builder().fileName(name).filePath(path).build());
     }
 
-    @Override
     /**
      * 删除对象
      * @param key 键
      */
+    @Override
     public DeleteObjectResult deleteObject(String key) {
         try {
             storage.delete(BlobId.of(bucket, key));
@@ -188,11 +188,11 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * exist对象
      * @param request 请求
      */
+    @Override
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             Blob blob = storage.get(BlobId.of(bucket, request.getKey()));
@@ -208,11 +208,11 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 列表对象
      * @param request 请求
      */
+    @Override
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             // 构建 GCS 列表选项：前缀 + 页大小
@@ -258,10 +258,10 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         // Google Cloud Storage 客户端由 SDK 内部管理连接池
     }

@@ -91,10 +91,10 @@ public class MiniMindTranslator implements Translator<String, String> {
      */
     private boolean hasAttentionMask;
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(TranslatorContext ctx) throws IOException {
         Path modelPath = ctx.getModel().getModelPath();
         Path modelRoot = resolveModelRoot(modelPath);
@@ -130,10 +130,10 @@ public class MiniMindTranslator implements Translator<String, String> {
         log.info("[MiniMind] ORT session ready (via DJL block): model={}", onnxPath);
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, String input) {
         currentInput = input;
         if (tokenizer == null) {
@@ -174,10 +174,10 @@ public class MiniMindTranslator implements Translator<String, String> {
         return new NDList(idsArray);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public String processOutput(TranslatorContext ctx, NDList list) {
         if (tokenizer == null) {
             throw new IllegalStateException("MiniMind translator not initialized");
@@ -185,10 +185,10 @@ public class MiniMindTranslator implements Translator<String, String> {
         return generateGreedy(ctx);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

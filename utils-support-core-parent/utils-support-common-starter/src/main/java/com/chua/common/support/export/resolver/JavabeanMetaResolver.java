@@ -30,31 +30,31 @@ import java.util.List;
 @Spi(value = {"javabean", "bean", "reflection"}, order = MetaResolverOrders.FALLBACK)
 public class JavabeanMetaResolver implements MetaResolver {
 
-    @Override
     /**
      * 优先级
      * @return 优先级 对象
      */
+    @Override
     public int order() {
         return MetaResolverOrders.FALLBACK;
     }
 
-    @Override
     /**
      * 是否支持
      * @param type 数据行类型
      * @return 是否支持 对象
      */
+    @Override
     public boolean supports(Class<?> type) {
         return type != null && type != Object.class && type != String.class;
     }
 
-    @Override
     /**
      * 解析
      * @param type 数据行类型
      * @param meta 元数据容器
      */
+    @Override
     public void resolve(Class<?> type, DocumentMeta meta) {
         meta.type(type);
         int index = 0;

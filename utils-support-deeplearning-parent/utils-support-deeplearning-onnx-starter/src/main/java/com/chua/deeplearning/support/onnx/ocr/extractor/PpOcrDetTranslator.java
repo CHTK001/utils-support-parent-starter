@@ -269,18 +269,18 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
         }
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return modelName;
     }
 
-    @Override
     /**
      * Translate
     */
+    @Override
     public synchronized List<DetectionInfo> translate(byte[] imageData) {
         try {
             prepare();

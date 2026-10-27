@@ -85,18 +85,18 @@ public class OnlineHanziProvider implements HanziProvider {
         this.httpClient = HttpClientFactory.getClient();
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "chinese-xinhua";
     }
 
-    @Override
     /**
      * 获取Hanzi
     */
+    @Override
     public HanziInfo get(String character) {
         if (character == null || character.isBlank()) {
             return null;
@@ -104,10 +104,10 @@ public class OnlineHanziProvider implements HanziProvider {
         return loadIndex().get(character.trim());
     }
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public List<HanziInfo> search(String keyword, int limit) {
         if (keyword == null || keyword.isBlank()) {
             return Collections.emptyList();
@@ -126,10 +126,10 @@ public class OnlineHanziProvider implements HanziProvider {
         return result;
     }
 
-    @Override
     /**
      * 随机
     */
+    @Override
     public HanziInfo random() {
         Map<String, HanziInfo> idx = loadIndex();
         if (idx.isEmpty()) {

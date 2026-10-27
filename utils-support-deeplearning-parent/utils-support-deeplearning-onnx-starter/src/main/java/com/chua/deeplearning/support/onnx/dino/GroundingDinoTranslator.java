@@ -164,10 +164,10 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         this.requestedCandidates = parseCandidates(readArgument(cfg.systemOption(), "candidates"));
     }
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokenizerPath = resolveRequiredFile(modelRoot, "tokenizer.json");
@@ -185,8 +185,6 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         buildTextInputs();
     }
 
-    @Override
-    @Nonnull
     /**
      * 处理输入
      *
@@ -194,6 +192,8 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
      * @param input 输入
      * @return 处理输入的结果
      */
+    @Override
+    @Nonnull
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         originalWidth = input.getWidth();
         originalHeight = input.getHeight();
@@ -236,8 +236,6 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         return new NDList(inputIds, pixelValues, attentionMask, tokenTypeIds, pixelMask);
     }
 
-    @Override
-    @Nonnull
     /**
      * 处理输出
      *
@@ -245,6 +243,8 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
      * @param list 列表
      * @return 处理输出的结果
      */
+    @Override
+    @Nonnull
     public DetectedObjects processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         if (list.size() < 2) {
             return emptyDetections();
@@ -318,13 +318,13 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         return new DetectedObjects(names, probabilities, boxes);
     }
 
-    @Override
-    @Nullable
     /**
      * 获取Batchifier
      *
      * @return 获取batchifier的结果
      */
+    @Override
+    @Nullable
     public Batchifier getBatchifier() {
         return null;
     }

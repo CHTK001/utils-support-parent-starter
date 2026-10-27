@@ -365,7 +365,8 @@ public class AgentInjector {
                     try {
                         int pid = Integer.parseInt(parts[0]);
                         jvms.put(pid, desc);
-                    } catch (NumberFormatException ignored) {
+                    } catch (NumberFormatException e) {
+                        log.debug("[runtime] JVM 进程号解析失败，跳过该行: {}", e.getMessage());
                     }
                 }
             }

@@ -35,50 +35,50 @@ public class RestTemplateHandler extends AbstractAppHandler {
             "optionsForAllow", "getForLocation"
     };
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "resttemplate-handler";
     }
 
-    @Override
     /**
      * 已启用键
     */
+    @Override
     protected String enabledKey() {
         return "resttemplate.enabled";
     }
 
-    @Override
     /**
      * Software
     */
+    @Override
     protected Software software() {
         return Software.REST_TEMPLATE;
     }
 
-    @Override
     /**
      * 协议
     */
+    @Override
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
-    @Override
     /**
      * 注册拦截器
     */
+    @Override
     protected void registerInterceptors() {
         registerAll(REST_TEMPLATE, TEMPLATE_METHODS);
     }
 
-    @Override
     /**
      * 构建Target
     */
+    @Override
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
  // RestTemplate 目标 主机 通常从方法参数的 URL 提取，此处无法直接获取，
         // 兜底返回本机 HTTP

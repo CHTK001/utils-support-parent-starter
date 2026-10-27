@@ -468,7 +468,6 @@ public class ModelscopeChatClient implements ChatClient {
                     .capabilities(List.of("text-embedding")).build()
     );
 
-    @Override
     /**
      * 指标能力（价格 / 上下文窗口 / 能力标志）
      *
@@ -477,16 +476,17 @@ public class ModelscopeChatClient implements ChatClient {
      * 聚合端点（{@link ModelsDevChatClientIndicator}），按 {@code modelscope}
      * 厂商键过滤出 ModelScope 全系模型的定价等指标。</p>
      */
+    @Override
     public ChatClientIndicator indicator() {
         return ChatClient.super.indicator();
     }
 
-    @Override
     /**
      * 获取客户端配置。
      *
      * @return 配置
      */
+    @Override
     public ChatClientSetting getSetting() {
         return setting;
     }

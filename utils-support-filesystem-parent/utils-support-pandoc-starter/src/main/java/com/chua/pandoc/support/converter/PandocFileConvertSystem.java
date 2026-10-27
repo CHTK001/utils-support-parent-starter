@@ -103,10 +103,10 @@ public class PandocFileConvertSystem implements FileConvertSystem {
      */
     private static final long COMMAND_TIMEOUT_SECONDS = 300L;
 
-    @Override
     /**
      * 是否支持
     */
+    @Override
     public boolean isSupported(String source, String target) {
         if (source == null || target == null) {
             return false;
@@ -119,10 +119,10 @@ public class PandocFileConvertSystem implements FileConvertSystem {
         return SOURCE_SET.contains(src) && TARGET_SET.contains(tgt);
     }
 
-    @Override
     /**
      * 转换
     */
+    @Override
     public void convert(FileSource source, FileSource target, ConvertSetting setting) {
         Path tempInput = null;
         Path tempOutput = null;
@@ -192,13 +192,15 @@ public class PandocFileConvertSystem implements FileConvertSystem {
             if (tempInput != null && !source.isPath()) {
                 try {
                     Files.deleteIfExists(tempInput);
-                } catch (Exception ignored) {
+                } catch (Exception tmpInEx) {
+                    log.debug("[pandoc] 清理临时输入文件失败: {}", tmpInEx.getMessage());
                 }
             }
             if (tempOutput != null) {
                 try {
                     Files.deleteIfExists(tempOutput);
-                } catch (Exception ignored) {
+                } catch (Exception tmpOutEx) {
+                    log.debug("[pandoc] 清理临时输出文件失败: {}", tmpOutEx.getMessage());
                 }
             }
         }

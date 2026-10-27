@@ -27,51 +27,51 @@ public class NatsHandler extends AbstractAppHandler {
      */
     private static final String[] SUBSCRIBE_METHODS = {"subscribe"};
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "nats-handler";
     }
 
-    @Override
     /**
      * 已启用键
     */
+    @Override
     protected String enabledKey() {
         return "nats.enabled";
     }
 
-    @Override
     /**
      * Software
     */
+    @Override
     protected Software software() {
         return Software.NATS;
     }
 
-    @Override
     /**
      * 协议
     */
+    @Override
     protected Protocol protocol() {
         return Protocol.NATS;
     }
 
-    @Override
     /**
      * 注册拦截器
     */
+    @Override
     protected void registerInterceptors() {
         registerAll(NATS_CONNECTION, PUBLISH_METHODS);
         registerAll(NATS_CONNECTION, SUBSCRIBE_METHODS);
     }
 
-    @Override
     /**
      * 构建Target
     */
+    @Override
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

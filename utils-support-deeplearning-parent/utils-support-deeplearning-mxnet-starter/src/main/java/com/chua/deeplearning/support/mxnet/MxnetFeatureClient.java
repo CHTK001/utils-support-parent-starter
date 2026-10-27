@@ -31,10 +31,10 @@ public class MxnetFeatureClient extends AbstractLocalFeatureClient {
         super("mxnet", setting);
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

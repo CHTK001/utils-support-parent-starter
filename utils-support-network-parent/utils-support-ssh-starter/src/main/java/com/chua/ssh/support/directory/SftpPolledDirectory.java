@@ -80,12 +80,12 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
         this.password = environment.getProperty("password");
     }
 
-    @Override
     /**
      * 开始
      * @param environment 环境
      * @param executor 执行器
      */
+    @Override
     public void start(DirectoryPollerEnvironment environment,
                       com.chua.common.support.lang.directory.executor.DirectoryPollerExecutor executor) {
         try {
@@ -107,10 +107,10 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
         super.start(environment, executor);
     }
 
-    @Override
     /**
      * 列表和modified
     */
+    @Override
     protected List<SftpClient.DirEntry> listAndModified(String path) {
         try {
             Iterable<SftpClient.DirEntry> dirEntries = sftp.readDir(path);
@@ -124,18 +124,18 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
         }
     }
 
-    @Override
     /**
      * 获取文件名
     */
+    @Override
     protected String getFileName(SftpClient.DirEntry item) {
         return item.getFilename();
     }
 
-    @Override
     /**
      * 获取Modified
     */
+    @Override
     protected Long getModified(SftpClient.DirEntry item) {
         try {
             var attrs = item.getAttributes();
@@ -145,23 +145,25 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         super.close();
         try {
             if (sftp != null) {
                 sftp.close();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[ssh] 关闭 SFTP 通道失败，已忽略: {}", e.getMessage());
         }
         try {
             if (session != null) {
                 session.close();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[ssh] 关闭 SSH 会话失败，已忽略: {}", e.getMessage());
         }
         if (client != null) {
             client.stop();

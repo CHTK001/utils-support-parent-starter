@@ -560,9 +560,6 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     * RFC1123 格式化编码。通过更新文本块的数据结构,
     * 我们也确保 png 图像写入器会在输出中写入图像创建时间。
     */
-    /**
-     * tEXtCreationTime present
-    */
     public boolean tEXt_creation_time_present;
     /**
      * 文本_创建_时间_iter

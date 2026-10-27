@@ -43,10 +43,10 @@ public class OnnxLayoutDetector implements LayoutDetector {
     public OnnxLayoutDetector(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public LayoutDetector model(String model) {
         this.modelName = model;
         return this;
@@ -66,46 +66,46 @@ public class OnnxLayoutDetector implements LayoutDetector {
         return modelName;
     }
 
-    @Override
     /**
      * 阈值
     */
+    @Override
     public LayoutDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public LayoutDetector modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
-    @Override
     /**
      * usegpu
     */
+    @Override
     public LayoutDetector useGpu(boolean useGpu) {
         this.useGpu = useGpu;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public LayoutDetector device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * Detect
     */
+    @Override
     public Map<String, List<PredictRectangle>> detect(byte[] imageData) {
         List<DetectionInfo> detections = ImageDetector.create(resolveModel())
                 .threshold(threshold).modelPath(modelPath).device(device).detect(imageData);
@@ -118,10 +118,10 @@ public class OnnxLayoutDetector implements LayoutDetector {
         return result;
     }
 
-    @Override
     /**
      * 解析
     */
+    @Override
     public String parse(byte[] imageData) {
         Map<String, List<PredictRectangle>> regions = detect(imageData);
         StringBuilder sb = new StringBuilder();

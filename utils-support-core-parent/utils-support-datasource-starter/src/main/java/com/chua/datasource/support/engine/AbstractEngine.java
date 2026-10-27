@@ -83,7 +83,6 @@ public abstract class AbstractEngine implements Engine {
      */
     private volatile List<EngineInterceptor> interceptorCache;
 
-    @Override
     /**
      * 获取引擎拦截器扩展列表（首次调用后缓存）。
      * <p>通过 SPI 查找 {@code engine-interceptor} 扩展点实现，
@@ -93,6 +92,7 @@ public abstract class AbstractEngine implements Engine {
      *
      * @return 拦截器列表（非 null，只读）
      */
+    @Override
     public List<EngineInterceptor> interceptors() {
         if (interceptorCache == null) {
             synchronized (this) {
@@ -106,32 +106,30 @@ public abstract class AbstractEngine implements Engine {
         return interceptorCache;
     }
 
-    @Override
     /**
      * 查询
     */
+    @Override
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new EngineQueryWrapper<>(this, entityClass);
     }
 
-    @Override
     /**
      * 更新
     */
+    @Override
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         return new EngineUpdateWrapper<>(this, entityClass);
     }
 
-    @Override
     /**
      * 删除
     */
+    @Override
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         return new EngineDeleteWrapper<>(this, entityClass);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 添加数据源
      *
@@ -139,6 +137,8 @@ public abstract class AbstractEngine implements Engine {
      * @param ds ds
      * @return 添加数据源的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
         ensureOpen("添加数据源 " + name);
         dataSources.put(name, (EngineDataSource<Object>) ds);
@@ -148,19 +148,19 @@ public abstract class AbstractEngine implements Engine {
         return this;
     }
 
-    @Override
     /**
      * 设置默认数据源名称
     */
+    @Override
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
     }
 
-    @Override
     /**
      * 存储
     */
+    @Override
     public <T> Engine store(String name, List<T> data) {
         ensureOpen("写入内存表 " + name);
         dataStores.put(name, Wraps.list(data));
@@ -182,24 +182,22 @@ public abstract class AbstractEngine implements Engine {
         }
     }
 
-    @Override
     /**
      * 获取执行器
     */
+    @Override
     public SqlExecutor getExecutor(String n) {
         return null;
     }
 
-    @Override
     /**
      * 获取执行器
     */
+    @Override
     public SqlExecutor getExecutor() {
         return null;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 获取数据源
      * <p>名称为 null 时返回 null：底层为 {@link ConcurrentHashMap}，
@@ -208,6 +206,8 @@ public abstract class AbstractEngine implements Engine {
      * @param n 数据源名称
      * @return 数据源封装实例，不存在时返回 null
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> EngineDataSource<T> getDataSource(String n) {
         if (n == null) {
             return null;
@@ -215,27 +215,26 @@ public abstract class AbstractEngine implements Engine {
         return (EngineDataSource<T>) dataSources.get(n);
     }
 
-    @Override
     /**
      * 获取默认数据源
      *
      * @return 获取数据源的结果
      */
+    @Override
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }
 
-    @Override
     /**
      * 列出全部已注册的数据源名称
      *
      * @return 数据源名称集合（不可变）
      */
+    @Override
     public Set<String> dataSourceNames() {
         return Set.copyOf(dataSources.keySet());
     }
 
-    @Override
     /**
      * 摘除并关闭指定数据源
      * <p>名称为 null 时抛 {@link IllegalArgumentException}：空名称是调用方用法错误，
@@ -247,6 +246,7 @@ public abstract class AbstractEngine implements Engine {
      * @return this
      * @throws IllegalArgumentException 名称为 null 时抛出
      */
+    @Override
     public Engine removeDataSource(String name) {
         if (name == null) {
             throw new IllegalArgumentException("数据源名称不能为空");
@@ -267,7 +267,6 @@ public abstract class AbstractEngine implements Engine {
         return this;
     }
 
-    @Override
     /**
      * 获取Dialect
      * <p>数据源不存在、名称为 null 或未设置方言时返回 null。</p>
@@ -275,6 +274,7 @@ public abstract class AbstractEngine implements Engine {
      * @param n 数据源名称
      * @return 方言实例，无匹配时返回 null
      */
+    @Override
     public Dialect getDialect(String n) {
         if (n == null) {
             return null;
@@ -283,43 +283,42 @@ public abstract class AbstractEngine implements Engine {
         return ds != null ? ds.getDialect() : null;
     }
 
-    @Override
     /**
      * 获取默认数据源名称
     */
+    @Override
     public String getDefaultDataSourceName() {
         return defaultDataSourceName;
     }
 
-    @Override
     /**
      * Meta
     */
+    @Override
     public com.chua.common.support.lang.datasource.meta.MetaData meta() {
         return new DefaultMetaData(this);
     }
 
-    @Override
     /**
      * 是否支持元数据操作：以 meta() 是否返回真实实现为准。
      * 默认实现 {@link DefaultMetaData} 各方法均抛异常，此时报告不支持；
      * 子类覆盖 meta() 返回真实元数据实现后自动报告支持。
      */
+    @Override
     public boolean supportsMeta() {
         return !(meta() instanceof DefaultMetaData);
     }
 
-    @Override
     /**
      * 是否已关闭
      *
      * @return 已关闭返回 true
      */
+    @Override
     public boolean isClosed() {
         return closed.get();
     }
 
-    @Override
     /**
      * 关闭引擎，释放所有已注册数据源的底层资源。
      *
@@ -327,6 +326,7 @@ public abstract class AbstractEngine implements Engine {
      * 整体幂等：重复调用直接返回，不会二次释放；关闭过程中单个数据源失败
      * 只记录日志，不阻断其余数据源的释放。</p>
      */
+    @Override
     public void close() {
         if (!closed.compareAndSet(false, true)) {
             return;
@@ -344,10 +344,10 @@ public abstract class AbstractEngine implements Engine {
         defaultDataSourceName = null;
     }
 
-    @Override
     /**
      * 设置Tunnel
     */
+    @Override
     public Engine setTunnel(String dataSourceName, com.chua.common.support.network.tunnel.Tunnel tunnel) {
         EngineDataSource<?> ds = dataSources.get(dataSourceName);
         if (ds != null) {
@@ -356,10 +356,10 @@ public abstract class AbstractEngine implements Engine {
         return this;
     }
 
-    @Override
     /**
      * 打开Tunnel
     */
+    @Override
     public int openTunnel(String dataSourceName, com.chua.common.support.network.tunnel.Tunnel tunnel) {
         EngineDataSource<?> ds = dataSources.get(dataSourceName);
         if (ds != null) {
@@ -370,10 +370,10 @@ public abstract class AbstractEngine implements Engine {
         return -1;
     }
 
-    @Override
     /**
      * 关闭Tunnel
     */
+    @Override
     public Engine closeTunnel(String dataSourceName) {
         EngineDataSource<?> ds = dataSources.get(dataSourceName);
         if (ds != null && ds.tunnelPort() > 0) {
@@ -671,13 +671,13 @@ public abstract class AbstractEngine implements Engine {
         return interceptUpdate(ql, params, () -> executeDeleteInMemory(sql));
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 执行更新入内存
      *
      * @param sql SQL
      * @return 执行更新入内存的结果
      */
+    @SuppressWarnings("unchecked")
     private <T> int executeUpdateInMemory(UpdateSql<T> sql) {
         List<T> data = getData(sql.entityClass());
         if (data.isEmpty()) {
@@ -738,13 +738,13 @@ public abstract class AbstractEngine implements Engine {
         return updated.size();
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 执行删除入内存
      *
      * @param sql SQL
      * @return 执行删除入内存的结果
      */
+    @SuppressWarnings("unchecked")
     private <T> int executeDeleteInMemory(DeleteSql<T> sql) {
         List<T> data = getData(sql.entityClass());
         if (data.isEmpty()) {
@@ -870,7 +870,6 @@ public abstract class AbstractEngine implements Engine {
 
     /* ==================== 插入（渲染 INSERT → 交由引擎语句通道执行） ==================== */
 
-    @Override
     /**
      * 插入单个实体
      *
@@ -879,6 +878,7 @@ public abstract class AbstractEngine implements Engine {
      * @param <T> 实体类型
      * @return 受影响行数
      */
+    @Override
     public <T> int insert(Class<T> entityClass, T entity) {
         if (entityClass == null) {
             throw new IllegalArgumentException("实体类不能为空");
@@ -895,7 +895,6 @@ public abstract class AbstractEngine implements Engine {
         return executeInsert(entityClass, List.of(entityRow(entity)));
     }
 
-    @Override
     /**
      * 批量插入实体
      * <p>有 JDBC 执行器的引擎渲染为单条多行
@@ -907,6 +906,7 @@ public abstract class AbstractEngine implements Engine {
      * @param <T> 实体类型
      * @return 受影响行数合计
      */
+    @Override
     public <T> int insertBatch(Class<T> entityClass, List<T> entities) {
         if (entityClass == null) {
             throw new IllegalArgumentException("实体类不能为空");

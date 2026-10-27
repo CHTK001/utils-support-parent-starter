@@ -56,9 +56,6 @@ public class JdbcSink implements DataSink {
      * @return true 表示影响行数为 1
      */
     @Override
-    /**
-     * 写入
-    */
     public boolean write(DataEnvelope envelope, Map<String, Object> config) {
         Map<String, Object> row = envelope == null ? null : envelope.getParsed();
         if (row == null || row.isEmpty()) {
@@ -139,26 +136,26 @@ public class JdbcSink implements DataSink {
         return this;
     }
 
-    @Override
     /**
      * 类型
     */
+    @Override
     public String type() {
         return "jdbc";
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         log.info("[datalake-sink] JdbcSink 启动, table={}", table);
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() {
         log.info("[datalake-sink] JdbcSink 停止");
     }

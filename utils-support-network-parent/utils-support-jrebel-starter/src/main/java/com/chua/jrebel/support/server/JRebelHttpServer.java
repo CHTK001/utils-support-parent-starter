@@ -229,10 +229,10 @@ licenseType=0
                 .end(xml);
     }
 
-    @Override
     /**
      * 执行开始
     */
+    @Override
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
@@ -289,18 +289,18 @@ licenseType=0
         }
     }
 
-    @Override
     /**
      * 获取协议类型
     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }
 
-    @Override
     /**
      * 执行停止
     */
+    @Override
     protected void doStop() {
         if (httpServer != null) {
             httpServer.stop(0);
@@ -310,12 +310,12 @@ licenseType=0
 
     // ==================== 参数解析辅助方法 ====================
 
-    @SuppressWarnings("unchecked")
     /**
      * 解析主体。
      * @param body 主体
      * @return 解析主体的结果
      */
+    @SuppressWarnings("unchecked")
     private Map<String, Object> parseBody(String body) {
         if (body == null || body.isEmpty()) {
             return Map.of();

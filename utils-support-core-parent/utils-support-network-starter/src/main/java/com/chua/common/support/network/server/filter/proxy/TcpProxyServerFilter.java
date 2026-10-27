@@ -156,26 +156,26 @@ public class TcpProxyServerFilter implements ServerFilter {
         this.targetResolver = targetResolver != null ? targetResolver : remoteAddr -> null;
     }
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         return Integer.MAX_VALUE - 30;
     }
 
-    @Override
     /**
      * 支持协议
     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.TCP};
     }
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(ServerFilterConfig config) {
         this.vertx = Vertx.vertx();
         this.netClient = vertx.createNetClient(new NetClientOptions()
@@ -186,10 +186,10 @@ public class TcpProxyServerFilter implements ServerFilter {
                 connectTimeoutMs, readTimeoutMs);
     }
 
-    @Override
     /**
      * 销毁
     */
+    @Override
     public void destroy() {
         running.set(false);
         stopProxy();
@@ -202,13 +202,13 @@ public class TcpProxyServerFilter implements ServerFilter {
         log.info("[network-proxy] TcpProxyServerFilter 已关闭");
     }
 
-    @Override
     /**
      * 执行过滤
      * @param request 请求
      * @param response 响应
      * @param chain chain
      */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         chain.doFilter(request, response);

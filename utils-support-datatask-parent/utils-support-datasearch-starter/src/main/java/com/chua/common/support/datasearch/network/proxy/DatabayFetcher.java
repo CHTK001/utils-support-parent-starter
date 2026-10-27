@@ -4,6 +4,8 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +15,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Spi("databay")
 public class DatabayFetcher implements ProxyFetcher {
 
@@ -22,10 +25,10 @@ public class DatabayFetcher implements ProxyFetcher {
     private static final String URL = "https://databay.com/api/v1/proxy-list"
             + "?protocol=http&anonymity=elite&format=json&limit=20";
 
-    @Override
     /**
      * 获取代理
     */
+    @Override
     public List<String> fetchProxies() {
         List<String> proxies = Wraps.list();
         try {
@@ -46,15 +49,16 @@ public class DatabayFetcher implements ProxyFetcher {
                     }
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[datasearch] 抓取 Databay 免费代理失败，返回已收集结果: {}", e.getMessage());
         }
         return proxies;
     }
 
-    @Override
     /**
      * 获取源名称
     */
+    @Override
     public String getSourceName() {
         return "databay";
     }

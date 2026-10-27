@@ -122,35 +122,35 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
         this.started = new AtomicBoolean(false);
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return HANDLER_NAME;
     }
 
-    @Override
     /**
      * 版本
     */
+    @Override
     public String version() {
         return HANDLER_VERSION;
     }
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(PluginContext context) throws Exception {
         this.enabled = DEFAULT_ENABLED.equals(context.getProperty(PROP_LEAK_ENABLED, DEFAULT_ENABLED));
         LOG.log(Level.INFO, String.format("HandleLeakHandler 初始化完成，启用状态: %s", enabled));
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -173,10 +173,10 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
         LOG.log(Level.INFO, "HandleLeakHandler 启动完成，句柄泄漏检测已启用");
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() throws Exception {
         this.enabled = false;
         if (started.compareAndSet(true, false)) {
@@ -185,27 +185,27 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
         LOG.log(Level.INFO, "HandleLeakHandler 停止");
     }
 
-    @Override
     /**
      * 状态
     */
+    @Override
     public String status() {
         return String.format("HandleLeakHandler[enabled=%s, handles=%d, leaks=%d]",
                 enabled, handles.size(), detectLeaks().size());
     }
 
-    @Override
     /**
      * 是否Running
     */
+    @Override
     public boolean isRunning() {
         return enabled && started.get();
     }
 
-    @Override
     /**
      * onintercept
     */
+    @Override
     public void onIntercept(com.chua.runtime.spy.InterceptContext ctx) {
         if (!enabled) {
             return;

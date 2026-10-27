@@ -18,10 +18,10 @@ import javax.annotation.Nullable;
 @Spi("zip")
 public class ZipArchiveOutputStreamProvider implements CompressArchiveOutputStream {
 
-    @Override
     /**
      * 是否支持
     */
+    @Override
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -30,18 +30,18 @@ public class ZipArchiveOutputStreamProvider implements CompressArchiveOutputStre
         return fileName.endsWith(".zip");
     }
 
-    @Override
     /**
      * 创建输出流
     */
+    @Override
     public Object createOutputStream(OutputStream outputStream, File file, @Nullable char[] password) throws IOException {
         return new ZipArchiveOutputStream(outputStream);
     }
 
-    @Override
     /**
      * 获取格式化名称
     */
+    @Override
     public String getFormatName() {
         return "zip";
     }

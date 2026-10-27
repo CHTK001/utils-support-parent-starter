@@ -28,10 +28,10 @@ public class InsightFaceLandmarkTranslator implements Translator<Image, float[]>
     */
     private static final int INPUT_SIZE = 192;
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         // 2d106det 的 ONNX 图内已内嵌归一化（图首节点 Sub 127.5 → Mul 1/128，标量
         // scalar_op1/scalar_op2 即为这两步）。insightface 官方 Landmark 类对这种图
@@ -43,19 +43,19 @@ public class InsightFaceLandmarkTranslator implements Translator<Image, float[]>
                 0.0f, 1.0f, ctx.getNDManager());
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.singletonOrThrow();
         return array.toFloatArray();
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

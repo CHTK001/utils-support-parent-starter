@@ -127,11 +127,11 @@ public class TablesawEngine implements Engine {
      */
     private final Map<Class<?>, Table> entityTables = new ConcurrentHashMap<>();
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 添加数据源
     */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> Engine addDataSource(String name, EngineDataSource<T> dataSource) {
         checkOpen();
         if (name == null || name.isBlank()) {
@@ -147,10 +147,10 @@ public class TablesawEngine implements Engine {
         return this;
     }
 
-    @Override
     /**
      * 设置默认数据源名称
     */
+    @Override
     public Engine setDefaultDataSourceName(String name) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("默认数据源名称不能为空");
@@ -232,27 +232,27 @@ public class TablesawEngine implements Engine {
         return this;
     }
 
-    @Override
     /**
      * 获取执行器
     */
+    @Override
     public SqlExecutor getExecutor(String dataSourceName) {
         return null;
     }
 
-    @Override
     /**
      * 获取执行器
     */
+    @Override
     public SqlExecutor getExecutor() {
         return null;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 获取数据源
     */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> EngineDataSource<T> getDataSource(String name) {
         if (name == null) {
             return null;
@@ -260,11 +260,11 @@ public class TablesawEngine implements Engine {
         return (EngineDataSource<T>) dataSources.get(name);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 获取数据源
     */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> EngineDataSource<T> getDataSource() {
         // 未注册数据源且未设置默认名时返回 null，避免以 null 键访问 ConcurrentHashMap 抛 NPE
         if (defaultDataSourceName == null) {
@@ -273,26 +273,26 @@ public class TablesawEngine implements Engine {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }
 
-    @Override
     /**
      * 获取Dialect
     */
+    @Override
     public Dialect getDialect(String dataSourceName) {
         return null;
     }
 
-    @Override
     /**
      * 不支持元数据操作
     */
+    @Override
     public boolean supportsMeta() {
         return false;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         if (closed) {
             return;
@@ -312,12 +312,12 @@ public class TablesawEngine implements Engine {
         defaultDataSourceName = null;
     }
 
-    @Override
     /**
      * 是否已关闭
      *
      * @return 已关闭返回 true
      */
+    @Override
     public boolean isClosed() {
         return closed;
     }
@@ -486,50 +486,50 @@ public class TablesawEngine implements Engine {
         return Set.copyOf(tables.keySet());
     }
 
-    @Override
     /**
      * 查询
     */
+    @Override
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new LambdaQueryWrapper<T>(entityClass) {
 
-            @Override
             /**
              * 解析Column
             */
+            @Override
             protected String resolveColumn(SFunction<T, ?> column) {
                 return resolveLambdaColumn(column);
             }
 
-            @Override
             /**
              * 新instance
             */
+            @Override
             protected LambdaQueryWrapper<T> newInstance() {
                 return new LambdaQueryWrapper<T>(entityClass) {
 
-                    @Override
                     /**
                      * 解析Column
                     */
+                    @Override
                     protected String resolveColumn(SFunction<T, ?> column) {
                         return resolveLambdaColumn(column);
                     }
                 };
             }
 
-            @Override
             /**
              * 列表
             */
+            @Override
             public List<T> list() {
                 return executeTableQuery(this);
             }
 
-            @Override
             /**
              * One
             */
+            @Override
             public T one() {
                 HitRows<T> hit = prepare(this);
                 List<Integer> rows = hit.rows();
@@ -541,102 +541,102 @@ public class TablesawEngine implements Engine {
                         resolveProjection(hit.table(), hit.selectColumns())).getFirst();
             }
 
-            @Override
             /**
              * Page
             */
+            @Override
             public Page<T> page(int pageNum, int pageSize) {
                 return executeTablePage(this, pageNum, pageSize);
             }
 
-            @Override
             /**
              * 统计命中行数（忽略 limit / offset 分页参数）
             */
+            @Override
             public long count() {
                 return prepare(this).rows().size();
             }
         };
     }
 
-    @Override
     /**
      * 更新
     */
+    @Override
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         return new LambdaUpdateWrapper<T>(entityClass) {
 
-            @Override
             /**
              * 解析Column
             */
+            @Override
             protected String resolveColumn(SFunction<T, ?> column) {
                 return resolveLambdaColumn(column);
             }
 
-            @Override
             /**
              * 新instance
             */
+            @Override
             protected LambdaUpdateWrapper<T> newInstance() {
                 return new LambdaUpdateWrapper<T>(entityClass) {
 
-                    @Override
                     /**
                      * 解析Column
                     */
+                    @Override
                     protected String resolveColumn(SFunction<T, ?> column) {
                         return resolveLambdaColumn(column);
                     }
                 };
             }
 
-            @Override
             /**
              * 更新内存表中命中的行
             */
+            @Override
             public int update() {
                 return executeTableUpdate(this);
             }
         };
     }
 
-    @Override
     /**
      * 删除
     */
+    @Override
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         return new LambdaDeleteWrapper<T>(entityClass) {
 
-            @Override
             /**
              * 解析Column
             */
+            @Override
             protected String resolveColumn(SFunction<T, ?> column) {
                 return resolveLambdaColumn(column);
             }
 
-            @Override
             /**
              * 新instance
             */
+            @Override
             protected LambdaDeleteWrapper<T> newInstance() {
                 return new LambdaDeleteWrapper<T>(entityClass) {
 
-                    @Override
                     /**
                      * 解析Column
                     */
+                    @Override
                     protected String resolveColumn(SFunction<T, ?> column) {
                         return resolveLambdaColumn(column);
                     }
                 };
             }
 
-            @Override
             /**
              * 删除内存表中命中的行
             */
+            @Override
             public int remove() {
                 return executeTableDelete(this);
             }

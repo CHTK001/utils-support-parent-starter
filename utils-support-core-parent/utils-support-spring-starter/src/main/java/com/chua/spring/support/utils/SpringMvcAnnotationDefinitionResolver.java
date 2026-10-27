@@ -3,6 +3,7 @@ package com.chua.spring.support.utils;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.AnnotationDefinitionResolver;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.WeakHashMap;
  * @author CH
  * @since 4.0.0.43
  */
+@Slf4j
 public class SpringMvcAnnotationDefinitionResolver implements AnnotationDefinitionResolver {
 
     /**
@@ -101,7 +103,8 @@ public class SpringMvcAnnotationDefinitionResolver implements AnnotationDefiniti
             for (String name : candidates) {
                 loadIfMappingAlias(name, requestMappingClass);
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[spring] 扫描 MVC 窄注解别名失败，跳过该类: {}", e.getMessage());
  // Spring 不在 类路径，忽略
         }
     }

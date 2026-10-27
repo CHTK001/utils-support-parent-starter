@@ -24,10 +24,10 @@ public class YamlWriteBuilder extends WriteBuilder {
         super(file);
     }
 
-    @Override
     /**
      * with字符集
     */
+    @Override
     public YamlWriteBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;

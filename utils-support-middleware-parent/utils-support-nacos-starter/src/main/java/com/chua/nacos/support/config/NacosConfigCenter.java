@@ -72,18 +72,18 @@ public class NacosConfigCenter extends AbstractConfigCenter {
         super(configCenterSetting);
     }
 
-    @Override
     /**
      * 获取
     */
+    @Override
     public Map<String, Object> get(String dataId) {
         return get(dataId, DEFAULT_GROUP);
     }
 
-    @Override
     /**
      * 获取
     */
+    @Override
     public Map<String, Object> get(String dataId, String group) {
         if (configService == null) {
             throw new IllegalStateException("Nacos 未初始化，请先调用 start() 方法启动配置中心");
@@ -101,10 +101,10 @@ public class NacosConfigCenter extends AbstractConfigCenter {
         }
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         final Properties properties = new Properties();
         String address = configCenterSetting.getAddress();
@@ -148,10 +148,10 @@ public class NacosConfigCenter extends AbstractConfigCenter {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() throws Exception {
         if (configService != null) {
             try {
@@ -165,10 +165,10 @@ public class NacosConfigCenter extends AbstractConfigCenter {
         }
     }
 
-    @Override
     /**
      * 发布
     */
+    @Override
     public boolean publish(String dataId, String group, String key, String value) {
         if (configService == null) {
             throw new IllegalStateException("Nacos 配置中心未启动");
@@ -203,10 +203,10 @@ public class NacosConfigCenter extends AbstractConfigCenter {
         }
     }
 
-    @Override
     /**
      * 移除
     */
+    @Override
     public boolean remove(String dataId, String key) {
         if (configService == null) {
             throw new IllegalStateException("Nacos 配置中心未启动");
@@ -243,20 +243,20 @@ public class NacosConfigCenter extends AbstractConfigCenter {
         }
     }
 
-    @Override
     /**
      * 添加监听器
     */
+    @Override
     public void addListener(String dataId, ConfigListener listener) {
         super.addListener(dataId, listener);
 
         // 向 Nacos 注册配置变更监听器
         try {
             configService.addListener(dataId, DEFAULT_GROUP, new Listener() {
-                @Override
                 /**
                  * 接收配置信息
                 */
+                @Override
                 public void receiveConfigInfo(String configInfo) {
                     // 配置变更时解析新内容并通知监听器
                     Map<String, Object> newConfig = parseConfigContent(configInfo, dataId);
@@ -284,10 +284,10 @@ public class NacosConfigCenter extends AbstractConfigCenter {
                     configContentCache.put(cacheKey, newConfig);
                 }
 
-                @Override
                 /**
                  * 获取执行器
                 */
+                @Override
                 public Executor getExecutor() {
                     return null;
                 }

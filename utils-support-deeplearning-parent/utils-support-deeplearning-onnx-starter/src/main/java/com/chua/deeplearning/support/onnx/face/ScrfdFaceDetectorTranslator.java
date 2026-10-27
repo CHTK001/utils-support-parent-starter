@@ -82,7 +82,6 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     /** ctx 附件键；processInput 记下 letterbox 几何参数供 processOutput 用于坐标逆映射 */
     private static final String ATTACHMENT_KEY = "scrfdLetterBox";
 
-    @Override
     /**
      * 处理输入
      *
@@ -90,6 +89,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
      * 两侧/上下空缺留黑（与 insightface 官方 SCRFD 推理一致）。缩放几何记入 ctx 附件，
      * processOutput 用它把模型画布坐标还原成原图归一化坐标。</p>
      */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         BufferedImage src = (BufferedImage) input.getWrappedImage();
         int origW = src.getWidth();
@@ -125,13 +125,13 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
      *
      * <p>从 ctx 附件读 letterbox 几何参数，传给 decodeStride 完成画布→原图归一化坐标的还原。
      * 拿不到附件时回退 {@link LetterBoxMeta#legacy()}，即旧拉伸口径。</p>
      */
+    @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 9) {
             return empty();
@@ -254,10 +254,10 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
         return new DetectedObjects(Wraps.list(), Wraps.list(), Wraps.list());
     }
 
-    @Override
     /**
      * 获取Batchifier
      */
+    @Override
     public Batchifier getBatchifier() { return null; }
 
     /**

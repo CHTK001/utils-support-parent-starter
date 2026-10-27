@@ -41,10 +41,10 @@ public class GfpganTranslator implements Translator<Image, Image> {
      */
     private static final int INPUT_SIZE = 512;
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
         NDArray array = input.toNDArray(manager).toType(DataType.FLOAT32, false);
@@ -56,10 +56,10 @@ public class GfpganTranslator implements Translator<Image, Image> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.getFirst();
         if (array.getShape().dimension() == 4 && array.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
@@ -71,10 +71,10 @@ public class GfpganTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromNDArray(array);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

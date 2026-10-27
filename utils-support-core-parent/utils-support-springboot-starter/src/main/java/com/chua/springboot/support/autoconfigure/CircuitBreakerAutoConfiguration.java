@@ -19,36 +19,36 @@ import org.springframework.context.annotation.Bean;
 @ConditionalOnClass(CircuitBreakerProvider.class)
 public class CircuitBreakerAutoConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean
     /**
      * 熔断中断提供者
      *
      * @return 熔断中断提供者的结果
      */
+    @Bean
+    @ConditionalOnMissingBean
     public CircuitBreakerProvider circuitBreakerProvider() {
         return new InMemoryCircuitBreakerProvider("default", 5, 2, 60000);
     }
 
-    @Bean
-    @ConditionalOnMissingBean
     /**
      * 熔断中断intercept
      *
      * @return 熔断中断intercept的结果
      */
+    @Bean
+    @ConditionalOnMissingBean
     public CircuitBreakerIntercept circuitBreakerIntercept() {
         return new CircuitBreakerIntercept();
     }
 
-    @Bean
-    @ConditionalOnMissingBean
     /**
      * 熔断中断advisor
      *
      * @param intercept intercept
      * @return 熔断中断advisor的结果
      */
+    @Bean
+    @ConditionalOnMissingBean
     public CircuitBreakerAdvisor circuitBreakerAdvisor(CircuitBreakerIntercept intercept) {
         return new CircuitBreakerAdvisor(intercept);
     }

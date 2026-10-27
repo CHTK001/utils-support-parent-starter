@@ -31,51 +31,51 @@ public class PlayFrameworkHandler extends AbstractAppHandler {
      */
     private static final String[] HANDLER_METHODS = {"handlerForRequest", "handleRequest"};
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "play-framework-handler";
     }
 
-    @Override
     /**
      * 已启用键
     */
+    @Override
     protected String enabledKey() {
         return "play-framework.enabled";
     }
 
-    @Override
     /**
      * Software
     */
+    @Override
     protected Software software() {
         return Software.PLAY;
     }
 
-    @Override
     /**
      * 协议
     */
+    @Override
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
-    @Override
     /**
      * 注册拦截器
     */
+    @Override
     protected void registerInterceptors() {
         registerAll(ROUTER, ROUTER_METHODS);
         registerAll(REQUEST_HANDLER, HANDLER_METHODS);
     }
 
-    @Override
     /**
      * 构建Target
     */
+    @Override
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

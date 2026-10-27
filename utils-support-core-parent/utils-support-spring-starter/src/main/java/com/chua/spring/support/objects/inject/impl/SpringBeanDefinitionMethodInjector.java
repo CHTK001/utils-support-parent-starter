@@ -21,15 +21,14 @@ import java.util.function.Function;
 @Spi("spring")
 public class SpringBeanDefinitionMethodInjector implements BeanDefinitionMethodInjector {
 
-    @Override
     /**
      * 是否支持
     */
+    @Override
     public boolean isSupport(Method method, BeanDefinition beanDefinition) {
         return method != null && method.isAnnotationPresent(Autowired.class);
     }
 
-    @Override
     /**
      * Inject
      * @param method 方法
@@ -38,6 +37,7 @@ public class SpringBeanDefinitionMethodInjector implements BeanDefinitionMethodI
      * @param beanProvider Bean提供者
      * @param typeProvider 类型提供者
      */
+    @Override
     public void inject(Method method, Object instance, BeanDefinition beanDefinition,
                        Function<String, Object> beanProvider,
                        Function<Class<?>, Object> typeProvider) {
@@ -65,13 +65,15 @@ public class SpringBeanDefinitionMethodInjector implements BeanDefinitionMethodI
             if (arg == null && typeProvider != null) {
                 try {
                     arg = typeProvider.apply(paramTypes[i]);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[spring] 按类型解析方法入参失败，已忽略: {}", e.getMessage());
                 }
             }
             if (arg == null && beanProvider != null) {
                 try {
                     arg = beanProvider.apply(method.getName());
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[spring] 按名称解析方法入参失败，已忽略: {}", e.getMessage());
                 }
             }
             args[i] = arg;

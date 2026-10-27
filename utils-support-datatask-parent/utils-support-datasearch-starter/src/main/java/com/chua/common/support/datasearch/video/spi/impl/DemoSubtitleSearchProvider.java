@@ -89,7 +89,6 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
         // 无参构造：全部状态由请求参数携带，无成员字段初始化
     }
 
-    @Override
     /**
      * 搜索Subtitles。
      * <p>主链路调用 subhd.tv API（若 API 响应含 data 数组则解析）；
@@ -98,6 +97,7 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
      * @param request 搜索请求，keyword 不能为空，为 null 时返回错误结果
      * @return 搜索Subtitles的结果；API 与 HTML 均不可用时返回带错误信息的结果
      */
+    @Override
     public ReturnPageResult<SubtitleSearchResult> searchSubtitles(SubtitleSearchRequest request) {
         String keyword = request.getKeyword();
         if (!StringUtils.hasText(keyword)) {

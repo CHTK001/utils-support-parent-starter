@@ -37,10 +37,10 @@ public class HtmlLinkExtractor implements SpiderLinkExtractor {
             "javascript:", "mailto:", "tel:", "sms:", "file:", "data:", "blob:"
     };
 
-    @Override
     /**
      * Extract
     */
+    @Override
     public List<String> extract(SpiderResponse response) {
         List<String> links = Wraps.list();
         String content = response.getContent();
@@ -75,10 +75,10 @@ public class HtmlLinkExtractor implements SpiderLinkExtractor {
         return links;
     }
 
-    @Override
     /**
      * 支持内容类型
     */
+    @Override
     public String[] supportedContentTypes() {
         return new String[]{"text/html", "application/xhtml+xml"};
     }

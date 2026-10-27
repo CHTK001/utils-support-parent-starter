@@ -84,7 +84,6 @@ public class AgnesVideoClient extends AbstractOpenAiVideosClient {
                 .fluentPut(seed != null, "seed", seed);
     }
 
-    @Override
     /**
      * 暂不支持字节入参的参考图。
      *
@@ -95,12 +94,12 @@ public class AgnesVideoClient extends AbstractOpenAiVideosClient {
      * @return 不会正常返回
      * @throws UnsupportedOperationException 始终抛出
      */
+    @Override
     public VideoClient referenceImage(byte[] image) {
         throw new UnsupportedOperationException(
                 "Agnes 图生视频需要公网可访问的参考图地址，请改用 referenceImageUrl(String)");
     }
 
-    @Override
     /**
      * 暂不支持参考图强度。
      *
@@ -108,6 +107,7 @@ public class AgnesVideoClient extends AbstractOpenAiVideosClient {
      * @return 不会正常返回
      * @throws UnsupportedOperationException 始终抛出
      */
+    @Override
     public VideoClient imageStrength(double strength) {
         throw new UnsupportedOperationException("Agnes 不支持参考图强度");
     }
@@ -124,17 +124,16 @@ public class AgnesVideoClient extends AbstractOpenAiVideosClient {
         return this;
     }
 
-    @Override
     /**
      * 声明本实现支持 URL 形态的参考图。
      *
      * @return 恒为 true
      */
+    @Override
     public boolean supportsReferenceImageUrl() {
         return true;
     }
 
-    @Override
     /**
      * 按 Agnes 站点根路径轮询。
      *
@@ -144,6 +143,7 @@ public class AgnesVideoClient extends AbstractOpenAiVideosClient {
      * @param taskId 视频 ID
      * @return 原始响应
      */
+    @Override
     ClientResponse fetchTask(String taskId) {
         StringBuilder url = new StringBuilder(siteOrigin())
                 .append("/agnesapi?video_id=").append(encode(taskId));

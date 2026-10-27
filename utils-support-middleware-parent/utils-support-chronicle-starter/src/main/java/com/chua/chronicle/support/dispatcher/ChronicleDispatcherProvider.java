@@ -122,10 +122,10 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
         }
     }
 
-    @Override
     /**
      * 发布
     */
+    @Override
     public void publish(String topic, Object body) {
         ChronicleQueue queue;
         try {
@@ -147,10 +147,10 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
         }
     }
 
-    @Override
     /**
      * 订阅
     */
+    @Override
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var isFirst = definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).isEmpty();
@@ -285,11 +285,13 @@ executor.submit(() -> {
                             }
                         }
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[chronicle] 解析泛型参数类型失败，继续向上查找: {}", e.getMessage());
                 }
                 current = current.getSuperclass();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[chronicle] 解析响应类型失败，返回 null: {}", e.getMessage());
         }
         return null;
     }
@@ -309,10 +311,10 @@ executor.submit(() -> {
         return null;
     }
 
-    @Override
     /**
      * 取消订阅
     */
+    @Override
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var definitions = definitionMap.get(topic);
@@ -325,10 +327,10 @@ executor.submit(() -> {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         closed = true;
         executor.shutdown();
