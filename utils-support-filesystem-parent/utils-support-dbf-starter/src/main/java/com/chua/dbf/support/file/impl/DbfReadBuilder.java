@@ -8,11 +8,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
+import lombok.extern.slf4j.Slf4j;
 /**
  * @author CH
  * @since 4.0.0.42
  */
 
+@Slf4j
 public class DbfReadBuilder extends ReadBuilder {
 
     /**
@@ -52,7 +54,9 @@ public class DbfReadBuilder extends ReadBuilder {
                     callback.onBody(map);
                 }
             }
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            log.debug("[Dbf] 读取记录失败: {}", e.getMessage());
+        }
         // 应用行过滤 + 行数据转换
             result = applyFilter(result);
             result = applyRowMapping(result);

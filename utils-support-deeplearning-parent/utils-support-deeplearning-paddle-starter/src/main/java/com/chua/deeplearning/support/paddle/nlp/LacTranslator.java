@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 飞桨 LAC 中文分词/词性标注 Translator。
@@ -25,6 +27,8 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 public class LacTranslator implements Translator<String, String[][]> {
+
+    private static final Logger LOG = Logger.getLogger(LacTranslator.class.getName());
 
     /**
      * 词 → 标识。
@@ -137,7 +141,8 @@ public class LacTranslator implements Translator<String, String[][]> {
         for (String name : names) {
             try {
                 return model.getArtifact(name).openStream();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(Level.FINE, "[Lac] 打开模型资源失败: " + e.getMessage());
             }
         }
         throw new IOException("LAC 词典未找到: " + String.join(",", names));
@@ -183,7 +188,8 @@ public class LacTranslator implements Translator<String, String[][]> {
                 lod[0][1] = end;
                 ReflectUtils.invoke(ndArray, "setLoD", void.class, long[][].class, lod);
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable e) {
+            LOG.log(Level.FINE, "[Lac] 设置 NDArray LoD 失败: " + e.getMessage());
         }
     }
 

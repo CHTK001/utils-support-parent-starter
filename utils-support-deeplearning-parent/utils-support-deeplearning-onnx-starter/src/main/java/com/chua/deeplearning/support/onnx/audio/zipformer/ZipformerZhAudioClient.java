@@ -319,7 +319,8 @@ public class ZipformerZhAudioClient implements VirtualClient {
         if (translator != null) {
             try {
                 translator.close();
-            } catch (Exception ignore) {
+            } catch (Exception e) {
+                log.debug("[ZipformerZh] 关闭模型会话失败: {}", e.getMessage());
             }
         }
         prepared = false;

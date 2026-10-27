@@ -339,7 +339,9 @@ public abstract class AbstractProxyServer extends AbstractServer {
         // 后端 Socket 也启用 TCP_NODELAY
         try {
             backendSocket.setTcpNoDelay(setting.isTcpNoDelay());
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            log.debug("[ProxyServer] 设置后端 Socket 的 TCP_NODELAY 失败: {}", e.getMessage());
+        }
         // 两个方向均提交到 proxyPool，通过 CompletableFuture 阻塞调用者
         // 确保 handleConnection() 的 try-finally 正确跟踪连接生命周期
         CompletableFuture<Void> c2b = CompletableFuture.runAsync(() -> {

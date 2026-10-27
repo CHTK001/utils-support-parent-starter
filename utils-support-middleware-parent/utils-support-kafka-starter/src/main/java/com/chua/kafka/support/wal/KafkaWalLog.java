@@ -24,6 +24,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Kafka 实现的无限制 WAL。
@@ -32,6 +33,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @since 4.0.0.42
  */
 @Spi("kafka")
+@Slf4j
 public class KafkaWalLog implements WalLog {
 
     /**
@@ -159,7 +161,9 @@ public class KafkaWalLog implements WalLog {
                     checkpointLsn.set(ByteBuffer.wrap(data).getLong());
                 }
             }
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            log.debug("[KafkaWAL] 读取检查点失败: {}", e.getMessage());
+        }
     }
 
     /**
@@ -172,7 +176,9 @@ public class KafkaWalLog implements WalLog {
             ByteBuffer buf = ByteBuffer.allocate(8);
             buf.putLong(checkpointLsn.get());
             Files.write(p, buf.array(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            log.debug("[KafkaWAL] 保存检查点失败: {}", e.getMessage());
+        }
     }
 
     /**

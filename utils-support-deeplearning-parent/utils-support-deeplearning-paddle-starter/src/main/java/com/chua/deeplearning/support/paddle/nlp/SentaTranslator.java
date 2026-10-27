@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 飞桨 情感分析 Senta Translator。
@@ -25,6 +27,8 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 public class SentaTranslator implements Translator<String[], float[]> {
+
+    private static final Logger LOG = Logger.getLogger(SentaTranslator.class.getName());
 
     /**
      * 词到 标识。
@@ -68,7 +72,8 @@ public class SentaTranslator implements Translator<String[], float[]> {
         for (String name : candidates) {
             try {
                 return model.getArtifact(name).openStream();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(Level.FINE, "[Senta] 打开词表资源失败: " + e.getMessage());
             }
         }
         throw new IOException("Senta vocab 未找到");

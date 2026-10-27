@@ -264,7 +264,8 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
             if (session != null) {
                 session.close();
             }
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.debug("[Yolo5PlateRec] 关闭模型会话失败: {}", e.getMessage());
         }
         session = null;
         ortEnv = null;

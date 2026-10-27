@@ -51,6 +51,7 @@ import static com.chua.common.support.constant.RegexConstant.CONTROL_CHARS;
 import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_ARRAY;
 import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING_ARRAY;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 字符串工具类，提供丰富的字符串操作方法。
@@ -62,6 +63,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * @since 4.0.0
  */
 @SuppressWarnings("ALL")
+@Slf4j
 public class StringUtils {
 
     /**
@@ -2841,13 +2843,13 @@ public class StringUtils {
                 result.add(line);
                 line = reader.readLine();
             }
-        } catch (IOException exc) {
-
+        } catch (IOException e) {
+            log.debug("[StringUtils] 读取文本行失败: {}", e.getMessage());
         } finally {
             try {
                 reader.close();
             } catch (IOException e) {
-
+                log.debug("[StringUtils] 关闭文本读取器失败: {}", e.getMessage());
             }
         }
         return result;

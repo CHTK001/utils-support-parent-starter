@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Word 文件读取构建器。
@@ -18,6 +19,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class WordReadBuilder extends ReadBuilder {
 
     /**
@@ -70,7 +72,9 @@ public class WordReadBuilder extends ReadBuilder {
                     callback.onBody(text);
                 }
             }
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            log.debug("[Word] 读取段落文本失败: {}", e.getMessage());
+        }
         if (callback != null) {
             callback.onComplete(result.size());
         }
@@ -112,7 +116,9 @@ public class WordReadBuilder extends ReadBuilder {
                     }
                 }
             }
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            log.debug("[Word] 读取表格数据失败: {}", e.getMessage());
+        }
         if (callback != null) {
             callback.onComplete(result.size());
         }

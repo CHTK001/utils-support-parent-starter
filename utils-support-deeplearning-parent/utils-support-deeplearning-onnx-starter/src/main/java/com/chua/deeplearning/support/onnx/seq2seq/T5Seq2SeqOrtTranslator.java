@@ -451,7 +451,8 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
             if (session != null) {
                 try {
                     session.close();
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[T5Seq2Seq] 关闭模型会话失败: {}", e.getMessage());
                 }
             }
         }

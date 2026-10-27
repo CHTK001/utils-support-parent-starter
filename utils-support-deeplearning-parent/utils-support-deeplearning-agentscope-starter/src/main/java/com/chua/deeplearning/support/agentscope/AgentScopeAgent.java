@@ -1601,7 +1601,8 @@ public class AgentScopeAgent implements Agent {
         String suffix = "default";
         try {
             suffix = Integer.toHexString(chatClient.hashCode());
-        } catch (Exception ig) {
+        } catch (Exception e) {
+            log.debug("[AgentScope] 计算模型标识失败, 使用默认值", e);
         }
         return "agentscope:" + prefix + ":" + suffix;
     }

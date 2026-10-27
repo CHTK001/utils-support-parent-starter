@@ -141,7 +141,8 @@ public class SipSocks5Proxy extends Socks5ProxyServer {
                         }
                         session.sendBytes(java.util.Arrays.copyOf(buffer, read));
                     }
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    log.debug("[SIP-SOCKS5] 转发数据读取失败: {}", e.getMessage());
                 } finally {
                     session.close();
                 }

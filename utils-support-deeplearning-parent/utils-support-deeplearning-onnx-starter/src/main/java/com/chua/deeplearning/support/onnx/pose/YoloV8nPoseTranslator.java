@@ -325,7 +325,8 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
             if (session != null) {
                 session.close();
             }
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.debug("[YoloV8nPose] 关闭模型会话失败: {}", e.getMessage());
         }
         session = null;
         ortEnv = null;

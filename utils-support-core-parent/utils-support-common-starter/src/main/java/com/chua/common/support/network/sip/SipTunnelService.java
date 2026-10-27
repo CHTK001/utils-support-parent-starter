@@ -252,7 +252,8 @@ public class SipTunnelService {
                     }
                     session.sendBytes(Arrays.copyOf(buffer, read));
                 }
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.debug("[SIP-Tunnel] 隧道数据读取失败: {}", e.getMessage());
             } finally {
                 session.close();
             }

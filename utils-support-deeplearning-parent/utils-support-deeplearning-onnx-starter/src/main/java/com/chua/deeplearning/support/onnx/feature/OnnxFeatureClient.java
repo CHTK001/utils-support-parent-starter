@@ -102,7 +102,8 @@ public class OnnxFeatureClient implements FeatureClient {
         if (translator != null) {
             try {
                 ((AutoCloseable) translator).close();
-            } catch (Exception ignore) {
+            } catch (Exception e) {
+                log.debug("[OnnxFeature] 关闭模型会话失败: {}", e.getMessage());
             }
         }
     }

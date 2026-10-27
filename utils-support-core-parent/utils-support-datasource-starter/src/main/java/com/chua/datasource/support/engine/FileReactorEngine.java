@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 文件响应式引擎，真响应式文件读取与内存查询。
@@ -41,6 +42,7 @@ import java.util.Map;
  * @param ps ps
  */
 @Spi("file")
+@Slf4j
 public class FileReactorEngine implements ReactorEngine {
 
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
@@ -207,11 +209,6 @@ public class FileReactorEngine implements ReactorEngine {
      */
     private static Mono<byte[]> readFileAsync(Path path) {
         return Mono.create(sink -> {
-            /**
-             * 完成。
-             * @param result 结果
-             * @param attachment attachment
-             */
             try {
                 AsynchronousFileChannel channel = AsynchronousFileChannel.open(path, StandardOpenOption.READ);
                 ByteBuffer buffer = ByteBuffer.allocate((int) channel.size());
@@ -221,14 +218,11 @@ public class FileReactorEngine implements ReactorEngine {
                         buffer.flip();
                         byte[] data = new byte[buffer.remaining()];
                         buffer.get(data);
-                        /**
-                         * 失败。
-                         * @param exc exc
-                         * @param attachment attachment
-                         */
                         try {
                             channel.close();
-                        } catch (IOException ignored) {}
+                        } catch (IOException e) {
+                            log.debug("[FileReactor] 关闭文件通道失败: {}", e.getMessage());
+                        }
                         sink.success(data);
                     }
 
@@ -236,20 +230,14 @@ public class FileReactorEngine implements ReactorEngine {
                     public void failed(Throwable exc, Void attachment) {
                         try {
                             channel.close();
-                        } catch (IOException ignored) {}
+                        } catch (IOException e) {
+                            log.debug("[FileReactor] 关闭文件通道失败: {}", e.getMessage());
+                        }
                         sink.error(exc);
                     }
                 });
             } catch (Exception e) {
                 sink.error(e);
-            /**
-             * 解析json。
-             * @param name 名称
-             * @param bytes bytes
-             * @return 解析json的结果
-             * @param line 线
-             * @param separator separator
-             */
             }
         });
     }
