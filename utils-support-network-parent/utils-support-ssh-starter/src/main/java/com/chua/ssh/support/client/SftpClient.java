@@ -462,7 +462,9 @@ public class SftpClient implements AutoCloseable {
                         }
                         try {
                             client.getSftp().mkdir(path);
-                        } catch (IOException ignored) {}
+                        } catch (IOException e) {
+                            log.debug("[SFTP] 创建远端目录失败: {}", e.getMessage());
+                        }
                     }
                 } else {
                     client.getSftp().mkdir(path);

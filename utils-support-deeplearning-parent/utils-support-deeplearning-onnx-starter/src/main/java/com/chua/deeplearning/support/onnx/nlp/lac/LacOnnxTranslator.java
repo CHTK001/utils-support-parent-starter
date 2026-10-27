@@ -478,7 +478,8 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
         if (encoderSession != null) {
             try {
                 encoderSession.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[LacOnnx] 关闭模型会话失败: {}", e.getMessage());
             }
             encoderSession = null;
         }

@@ -111,7 +111,8 @@ public class OpencvModelProvider implements BulkModelProvider {
                     if (file.exists()) {
                         size = file.length();
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[Opencv] 解析模型文件大小失败: {}", e.getMessage());
                 }
             }
             list.add(TranslatorModelDefinition.builder()

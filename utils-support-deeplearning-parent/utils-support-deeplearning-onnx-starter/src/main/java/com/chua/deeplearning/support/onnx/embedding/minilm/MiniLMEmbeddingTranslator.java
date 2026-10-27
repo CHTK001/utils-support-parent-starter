@@ -267,7 +267,8 @@ public class MiniLMEmbeddingTranslator {
             if (session != null) {
                 session.close();
             }
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.debug("[MiniLM] 关闭模型会话失败: {}", e.getMessage());
         }
         session = null;
         ortEnv = null;

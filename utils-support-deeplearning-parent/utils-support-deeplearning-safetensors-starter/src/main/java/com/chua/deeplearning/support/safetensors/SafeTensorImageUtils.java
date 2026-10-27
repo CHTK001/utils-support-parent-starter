@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Base64;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * safetensor 图像工具类。
@@ -20,6 +21,7 @@ import java.util.Base64;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 final class SafeTensorImageUtils {
 
     /**
@@ -108,7 +110,8 @@ final class SafeTensorImageUtils {
             if (ImageIO.read(new java.io.ByteArrayInputStream(bytes)) != null) {
                 return value;
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[SafeTensor] Base64 图片解码失败: {}", e.getMessage());
         }
         return null;
     }

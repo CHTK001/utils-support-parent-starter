@@ -16,6 +16,8 @@ import ai.djl.util.Utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * tensor流 mobilenet / 镜像net 分类 Translator。
@@ -24,6 +26,8 @@ import java.util.List;
  * @since 4.0.0.42
  */
 public class MobilenetClassificationTranslator implements Translator<Image, Classifications> {
+
+    private static final Logger LOG = Logger.getLogger(MobilenetClassificationTranslator.class.getName());
 
     /**
      * 默认输入图像边长（像素）
@@ -83,7 +87,8 @@ public class MobilenetClassificationTranslator implements Translator<Image, Clas
             try (InputStream is = model.getArtifact(name).openStream()) {
                 classes = Utils.readLines(is, true);
                 return;
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(Level.FINE, "[Mobilenet] 读取类别标签失败: " + e.getMessage());
             }
         }
         classes = List.of();

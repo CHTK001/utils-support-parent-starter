@@ -257,14 +257,16 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
             if (values.length > 0) {
                 return (int) Math.min(maxCount, Math.max(0L, values[0]));
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[PpDocLayout] 布局数量解析失败: {}", e.getMessage());
         }
         try {
             int[] values = countArray.toIntArray();
             if (values.length > 0) {
                 return Math.min(maxCount, Math.max(0, values[0]));
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[PpDocLayout] 布局数量解析失败: {}", e.getMessage());
         }
         return maxCount;
     }

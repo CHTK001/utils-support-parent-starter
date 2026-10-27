@@ -219,7 +219,8 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
             } finally {
                 try {
                     Files.deleteIfExists(tempVideo);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[C3D] 删除临时视频失败: {}", e.getMessage());
                 }
             }
         } catch (Exception e) {

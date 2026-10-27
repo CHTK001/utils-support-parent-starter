@@ -353,7 +353,7 @@ public class MapUtils {
                     String text = (String) answer;
                     return NumberFormat.getInstance().parse(text);
                 } catch (ParseException e) {
-
+                    log.debug("[MapUtils] 数字文本解析失败: {}", e.getMessage());
                 }
             }
         }

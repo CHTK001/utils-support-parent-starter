@@ -132,7 +132,9 @@ public class SystemLogResourceFinder implements ResourceFinder {
                         case "maxresults", "max", "size" -> {
                             try {
                                 maxResults = Integer.parseInt(val);
-                            } catch (NumberFormatException ignored) {}
+                            } catch (NumberFormatException e) {
+                                log.debug("[Syslog] 解析 maxResults 参数失败: {}", e.getMessage());
+                            }
                         }
                         case "order" -> {
                             if (LogQuery.ORDER_ASC.equalsIgnoreCase(val)

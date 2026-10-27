@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * pytorch 镜像net 分类 Translator。
@@ -28,6 +29,7 @@ import java.util.stream.IntStream;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class PytorchImageNetClassificationTranslator implements Translator<Image, Classifications> {
 
     /**
@@ -126,7 +128,8 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
             if (Files.exists(file)) {
                 try {
                     return Files.readAllLines(file);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[Pytorch-ImageNet] 读取标签文件失败: {}", e.getMessage());
                 }
             }
         }

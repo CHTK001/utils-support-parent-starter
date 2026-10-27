@@ -318,7 +318,8 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
         if (session != null) {
             try {
                 session.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[VitH14] 关闭模型会话失败: {}", e.getMessage());
             }
         }
         session = null;

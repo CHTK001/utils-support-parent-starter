@@ -410,7 +410,8 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
             if (session != null) {
                 try {
                     session.close();
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[OpusMt] 关闭模型会话失败: {}", e.getMessage());
                 }
             }
         }

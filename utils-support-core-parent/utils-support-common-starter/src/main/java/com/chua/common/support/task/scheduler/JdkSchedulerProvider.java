@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * JDK 默认调度器提供者实现
@@ -38,6 +39,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author CH
  * @since 1.0.0
  */
+@Slf4j
 public class JdkSchedulerProvider extends AbstractSchedulerProvider {
 
     /**
@@ -143,7 +145,8 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
                 try {
                     scheduledTask.setCurrentThread(Thread.currentThread());
                     scheduledTask.getTask().run();
-                } catch (Throwable ignored) {
+                } catch (Throwable e) {
+                    log.warn("[Scheduler] 定时任务执行失败: {}", e.getMessage(), e);
                 } finally {
                     scheduledTask.setCurrentThread(null);
                 }

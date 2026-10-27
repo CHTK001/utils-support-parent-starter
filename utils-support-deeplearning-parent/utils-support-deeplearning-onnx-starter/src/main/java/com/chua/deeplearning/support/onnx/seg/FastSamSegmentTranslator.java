@@ -451,7 +451,8 @@ public class FastSamSegmentTranslator implements ITranslator<byte[], byte[]> {
             if (session != null) {
                 session.close();
             }
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.debug("[FastSamSegment] 关闭模型会话失败: {}", e.getMessage());
         }
         session = null;
         ortEnv = null;

@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 飞桨 simnet BOW 文本相似度 Translator。
@@ -24,6 +26,8 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 public class SimnetBowTranslator implements Translator<String[][], float[]> {
+
+    private static final Logger LOG = Logger.getLogger(SimnetBowTranslator.class.getName());
 
     /**
      * 词表。
@@ -74,7 +78,8 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
         for (String n : names) {
             try {
                 return model.getArtifact(n).openStream();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(Level.FINE, "[SimnetBow] 打开词表资源失败: " + e.getMessage());
             }
         }
         throw new IOException("SimNet vocab 未找到");

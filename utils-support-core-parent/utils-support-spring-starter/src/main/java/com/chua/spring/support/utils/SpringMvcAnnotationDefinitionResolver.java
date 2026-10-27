@@ -132,7 +132,8 @@ public class SpringMvcAnnotationDefinitionResolver implements AnnotationDefiniti
                 aliasCache.put(annClass,
                         requestMappingClass.getName());
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[SpringMvc] 解析注解元信息失败: {}", e.getMessage());
         }
     }
 }

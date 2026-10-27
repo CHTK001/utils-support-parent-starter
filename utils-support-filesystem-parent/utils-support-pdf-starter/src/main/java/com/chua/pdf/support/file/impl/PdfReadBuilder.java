@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * PDF 文件读取构建器。
@@ -20,6 +21,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class PdfReadBuilder extends ReadBuilder {
 
     /**
@@ -108,7 +110,9 @@ public class PdfReadBuilder extends ReadBuilder {
                     callback.onBody(pageText);
                 }
             }
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            log.debug("[PDF] 提取页面文本失败: {}", e.getMessage());
+        }
         if (callback != null) {
             callback.onComplete(result.size());
         }

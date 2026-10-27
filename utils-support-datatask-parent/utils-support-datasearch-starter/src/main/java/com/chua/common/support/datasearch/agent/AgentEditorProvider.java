@@ -979,9 +979,13 @@ public class AgentEditorProvider {
                                     servers.addAll(configs);
                                 }
                             });
-                        } catch (IOException ignored) {}
+                        } catch (IOException e) {
+                            log.debug("[AgentEditor] 读取版本 MCP 配置失败: {}", e.getMessage());
+                        }
                     });
-                } catch (IOException ignored) {}
+                } catch (IOException e) {
+                    log.debug("[AgentEditor] 读取版本 MCP 配置失败: {}", e.getMessage());
+                }
             });
         } catch (IOException e) {
             log.warn("扫描 TRAE-CN MCP 配置失败: {}", e.getMessage());

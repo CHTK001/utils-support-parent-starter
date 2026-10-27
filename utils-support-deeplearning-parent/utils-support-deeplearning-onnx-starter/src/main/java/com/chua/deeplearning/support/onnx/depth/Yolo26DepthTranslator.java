@@ -265,7 +265,8 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
         if (session != null) {
             try {
                 session.close();
-            } catch (Exception ignore) {
+            } catch (Exception e) {
+                log.debug("[Yolo26Depth] 关闭模型会话失败: {}", e.getMessage());
             }
         }
         ortEnv = null;
