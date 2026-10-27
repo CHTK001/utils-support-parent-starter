@@ -8,6 +8,9 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * MavenClient 链式构建器。
@@ -474,7 +477,7 @@ public class MavenClientBuilder {
      * @return Future，可通过 get() 获取编译结果
      */
     public Future<MavenCompileResult> executeAsync() {
-        ExecutorService pool = executor != null ? executor : Executors.newSingleThreadExecutor();
+        ExecutorService pool = executor != null ? executor : new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
         return pool.submit(() -> MavenClient.execute(this));
     }
 
@@ -523,7 +526,7 @@ public class MavenClientBuilder {
      * @return Future，异步完成后可通过 get() 获取 MavenDeployClient
      */
     public Future<MavenDeployClient> compileAndDeployAsync() {
-        ExecutorService pool = executor != null ? executor : Executors.newSingleThreadExecutor();
+        ExecutorService pool = executor != null ? executor : new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
         return pool.submit((java.util.concurrent.Callable<MavenDeployClient>) this::compileAndDeploy);
     }
 

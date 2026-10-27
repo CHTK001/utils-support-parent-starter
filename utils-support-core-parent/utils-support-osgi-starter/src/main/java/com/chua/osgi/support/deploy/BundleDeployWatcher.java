@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * Bundle 目录热部署监听器。
@@ -103,7 +104,7 @@ public class BundleDeployWatcher {
         this.pollingInterval = pollingInterval > 0 ? pollingInterval : DEFAULT_POLLING_INTERVAL;
         this.uninstallOnRemoved = uninstallOnRemoved;
         this.updateOnChanged = updateOnChanged;
-        this.scheduler = Executors.newSingleThreadScheduledExecutor(runnable -> {
+        this.scheduler = new ScheduledThreadPoolExecutor(1, runnable -> {
             Thread thread = new Thread(runnable, "osgi-deploy-watcher");
             thread.setDaemon(true);
             return thread;

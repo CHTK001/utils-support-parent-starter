@@ -15,6 +15,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 预览 PDF 本地磁盘缓存（增强版）。
@@ -175,7 +178,7 @@ public class PreviewPdfCache {
         }
 
         // 后台定时清理过期文件（每小时执行一次）
-        this.cleanupScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+        this.cleanupScheduler = new ScheduledThreadPoolExecutor(1, r -> {
             Thread t = new Thread(r, "preview-pdf-cache-cleanup");
             t.setDaemon(true);
             return t;
@@ -185,7 +188,7 @@ public class PreviewPdfCache {
         }
 
         // 独立转换线程池：单线程串行执行转换，隔离于公共池，避免阻塞核心业务线程
-        this.convertExecutor = Executors.newSingleThreadExecutor(r -> {
+        this.convertExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), r -> {
             Thread t = new Thread(r, "preview-pdf-convert");
             t.setDaemon(true);
             return t;

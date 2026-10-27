@@ -18,6 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * DHT 协议引擎。
@@ -109,7 +110,7 @@ public class DhtProtocol implements AutoCloseable {
         this.routingTable = new DhtRoutingTable(selfId, config.getKBucketSize());
         this.server = new DhtNettyServer(config);
         this.valueStore = new DhtValueStore(config.getValueTtlMs());
-        this.scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+        this.scheduler = new ScheduledThreadPoolExecutor(1, r -> {
             Thread t = new Thread(r, "dht-protocol");
             t.setDaemon(true);
             return t;

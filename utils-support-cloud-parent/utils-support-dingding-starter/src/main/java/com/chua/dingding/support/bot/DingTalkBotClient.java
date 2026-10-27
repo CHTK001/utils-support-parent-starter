@@ -53,6 +53,9 @@ import com.chua.common.support.lang.json.JsonObject;
 import com.chua.common.support.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 钉钉机器人客户端，实现 {@link BotClient}。
@@ -786,7 +789,7 @@ public class DingTalkBotClient implements BotClient {
     private void startDispatch() {
         ExecutorService executor = inboundExecutor;
         if (executor == null || executor.isShutdown()) {
-            executor = Executors.newSingleThreadExecutor(runnable -> {
+            executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), runnable -> {
                 Thread thread = new Thread(runnable, "dingtalk-bot-inbound");
                 thread.setDaemon(true);
                 return thread;
@@ -1107,7 +1110,7 @@ public class DingTalkBotClient implements BotClient {
         stopIdleWatchdog();
         ScheduledExecutorService executor = scheduler;
         if (executor == null) {
-            executor = Executors.newSingleThreadScheduledExecutor(runnable -> {
+            executor = new ScheduledThreadPoolExecutor(1, runnable -> {
                 Thread thread = new Thread(runnable, "dingtalk-bot-idle");
                 thread.setDaemon(true);
                 return thread;

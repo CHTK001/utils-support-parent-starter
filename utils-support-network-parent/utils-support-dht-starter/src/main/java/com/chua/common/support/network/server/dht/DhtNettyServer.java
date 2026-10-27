@@ -25,6 +25,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * DHT 传输层，基于 Netty NIO Datagram 通道 实现。
@@ -83,7 +84,7 @@ public class DhtNettyServer {
     /**
      * 超时任务调度器（共享，避免每次创建线程池）。
      */
-    private static final ScheduledExecutorService TIMEOUT_SCHEDULER = Executors.newSingleThreadScheduledExecutor(r -> {
+    private static final ScheduledExecutorService TIMEOUT_SCHEDULER = new ScheduledThreadPoolExecutor(1, r -> {
         Thread t = new Thread(r, "dht-netty-timeout");
         t.setDaemon(true);
         return t;
