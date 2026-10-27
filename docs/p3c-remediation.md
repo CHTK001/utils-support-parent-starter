@@ -24,6 +24,8 @@
 | `62725e8f7` | 注释规约 | 删除签名中不存在的 `@param` 条目 | 195 文件 / -401 行 |
 | `3bae3dc94` | 注释规约 | 修正 5 处把类型名写成参数名的 `@param` | 4 文件 |
 | `fbdda86b1` | — | 本记录更新至最终状态 | 1 文件 |
+| `87c59c658` | 注释规约 | 为 53 个只有 `@author/@since`、无任何描述的类补写一句话摘要 | 52 文件 |
+| `af2db4176` | 注释规约 | 清除 Javadoc 中只含空格的续行尾随空白 | 54 文件 |
 
 ## 二、整改细则
 
@@ -71,7 +73,7 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
 
 ## 四、遗留项（需人工判断，未批量修改）
 
-1. **573 处仅含 `@param/@return` 的 Javadoc**：缺一句话摘要（其中 53 处为类级、只有 `@author/@since`），需按语义撰写，机械生成会降低可读性。
+1. **520 处方法级 Javadoc 缺一句话摘要**（286 处仅有 `@param/@return`、166 处仅 `@return`、68 处仅 `@param`）：类级摘要已全部补齐（53 处），方法级需按语义撰写，机械生成会降低可读性。
 2. **54 处 `Executors.newXxx()`**：P3C 要求改用 `ThreadPoolExecutor`。但其中大量为虚拟线程执行器（`newVirtualThreadPerTaskExecutor`，无队列堆积风险），改造会改变并发语义（队列容量、拒绝策略），需按场景设计。
 3. **324 处 `catch (Throwable ...)`**：框架入口、任务执行器、插件加载器属合理用途；其余应收窄为具体异常。
 4. **`new Thread(...)` 83 处**：均为具名长生命周期线程、`ThreadFactory` 实现或 `addShutdownHook`，符合「使用 ThreadFactory 创建线程」的要求。
@@ -88,7 +90,8 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
 | 连续重复 Javadoc | 0 |
 | void 方法带 `@return` | 0 |
 | `@param` 与签名不符 | 111 → 18（其中约 10 处为误判） |
-| 触及模块编译 | 57 个模块分 2 批 `EXIT=0`；末次 2 个模块 `EXIT=0` |
+| 类级 Javadoc 无摘要 | 53 → 0 |
+| 触及模块编译 | 57 个模块分 2 批 `EXIT=0`；末次 19 个模块 `EXIT=0` |
 | 本地/远端同步 | `HEAD == origin/master`（0 ahead / 0 behind） |
 
 ## 六、验证方式
