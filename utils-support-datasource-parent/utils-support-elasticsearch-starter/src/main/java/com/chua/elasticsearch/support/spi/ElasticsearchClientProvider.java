@@ -151,7 +151,7 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
         if (parentKey == null || parentKey.isEmpty()) {
             return out;
         }
-        /** 字段类型（Fields）列表：取 mapping 里的 properties */
+        /* 字段类型（Fields）列表：取 mapping 里的 properties */
         try (RestClient client = client(request)) {
             JsonNode mapping = readJson(client, new Request("GET", "/" + enc(parentKey) + "/_mapping"));
             JsonNode props = mappingProperties(mapping, parentKey);

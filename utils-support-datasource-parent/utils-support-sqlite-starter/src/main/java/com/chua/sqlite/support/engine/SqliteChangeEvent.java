@@ -40,12 +40,6 @@ public final class SqliteChangeEvent {
     private SqliteChangeEvent(Type type, String table, long rowId) {
         this.type = type;
         this.table = table;
-        /**
-         * 插入。
-         * @param table table
-         * @param rowId rowid
-         * @return 插入的结果
-         */
         this.rowId = rowId;
     }
 

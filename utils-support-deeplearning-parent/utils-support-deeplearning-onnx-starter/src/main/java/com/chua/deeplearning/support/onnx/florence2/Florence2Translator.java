@@ -86,15 +86,12 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         opts.setIntraOpNumThreads(Math.min(4, Runtime.getRuntime().availableProcessors()));
         opts.setInterOpNumThreads(2);
         visionSession = ortEnv.createSession(visionPath.toString(), opts);
-        /**
-         * download模型。
-         * @param modelDir 模型dir
-         */
         embedSession = ortEnv.createSession(embedPath.toString(), opts);
         decoderSession = ortEnv.createSession(decoderPath.toString(), opts);
         log.info("[Florence-2] Model loaded: vision={} embed={} decoder={}", visionPath, embedPath, decoderPath);
         prepared = true;
     }
+
     /**
      * downloadModels。
      *
@@ -141,11 +138,6 @@ public class Florence2Translator implements ITranslator<Object[], String> {
              */
             float[] pixels = preprocessImage(imageData);
             float[][] encoderHidden = inferVision(pixels);
-            /**
-             * preprocess镜像。
-             * @param imageData 镜像数据
-             * @return preprocess镜像的结果
-             */
             return generate(encoderHidden, taskPrompt).trim();
         } catch (Exception e) { throw new RuntimeException("Florence-2 inference failed: " + e.getMessage(), e); }
     }
@@ -180,11 +172,6 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                 }
             }
             resized.release();
-            /**
-             * inferVision。
-             * @param pixels pixels
-             * @return inferVision的结果
-             */
             return pixels;
         } finally { src.release(); }
     }

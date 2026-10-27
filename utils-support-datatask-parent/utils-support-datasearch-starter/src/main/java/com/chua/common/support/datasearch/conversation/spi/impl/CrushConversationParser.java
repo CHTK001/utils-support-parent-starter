@@ -80,10 +80,6 @@ public class CrushConversationParser implements ConversationParser {
             return Flux.empty();
         }
         log.info("[crush] scanning {} project databases", databases.size());
-        /**
-         * 列表projectdatabases。
-         * @return 列表projectdatabases的结果
-         */
         return Flux.fromIterable(databases)
                 .flatMap(this::streamDatabase, 2);
     }
@@ -149,13 +145,6 @@ public class CrushConversationParser implements ConversationParser {
         }).subscribeOn(Schedulers.boundedElastic())
           .onErrorResume(e -> {
               log.debug("[crush] stream failed {}: {}", db, e.getMessage());
-              /**
-               * 转为消息。
-               * @param rs R
-               * @param db db
-               * @return 转为消息的结果
-               * @param raw raw
-               */
               return Flux.empty();
           });
     }

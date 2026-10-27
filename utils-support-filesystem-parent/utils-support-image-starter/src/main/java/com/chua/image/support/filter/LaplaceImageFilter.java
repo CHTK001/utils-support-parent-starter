@@ -600,7 +600,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
                 mb = (mpixel) & 0XFF;
                 ob = (opixel) & 0XFF;
 
-                /**
+                /*
                  * 图像相乘 标定到0~255
                 */
                 r = (lr * mr) / 255;

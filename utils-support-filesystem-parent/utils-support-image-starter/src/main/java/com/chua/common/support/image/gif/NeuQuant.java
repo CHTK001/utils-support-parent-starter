@@ -239,29 +239,29 @@ public class NeuQuant {
             p = network[i];
             smallpos = i;
             smallval = p[1];
-/**
+/*
  * 以绿色分量定位相邻节点
 */
 
-/**
+/*
  * 查找后续范围中绿色分量最小的节点
  */
             for (j = i + 1; j < NETSIZE; j++) {
                 q = network[j];
                 if (q[1] < smallval) {
-/**
+/*
  * 以绿色分量定位相邻节点
 */
                     smallpos = j;
                     smallval = q[1];
-/**
+/*
  * 以绿色分量定位相邻节点
 */
                 }
             }
             q = network[smallpos];
 
-/**
+/*
  * 交换两个网络节点的对应分量
  */
             if (i != smallpos) {
@@ -279,7 +279,7 @@ public class NeuQuant {
                 p[3] = j;
             }
 
-/**
+/*
  * 记录最小绿色分量发生变化时的索引区间
  */
             if (smallval != previouscol) {
@@ -402,11 +402,11 @@ public class NeuQuant {
         // 允许的最大颜色距离为 256 乘 3
         best = -1;
         i = netindex[g];
-/**
+/*
  * 以绿色分量定位相邻节点
 */
         j = i - 1;
-/**
+/*
  * 从绿色分量对应的索引开始向两侧查找
  */
 
@@ -414,12 +414,12 @@ public class NeuQuant {
             if (i < NETSIZE) {
                 p = network[i];
                 dist = p[1] - g;
-/**
+/*
  * 查找正向距离
 */
                 if (dist >= bestd) {
                     i = NETSIZE;
-/**
+/*
  * 正向距离已超过当前最优值，停止当前方向查找
  */
                 } else {
@@ -448,12 +448,12 @@ public class NeuQuant {
             if (j >= 0) {
                 p = network[j];
                 dist = g - p[1];
-/**
+/*
  * 查找反向距离
 */
                 if (dist >= bestd) {
                     j = -1;
-/**
+/*
  * 正向距离已超过当前最优值，停止当前方向查找
  */
                 } else {
@@ -593,19 +593,19 @@ public class NeuQuant {
     protected int contest(int b, int g, int r) {
 
 
-/**
+/*
  * 查找颜色距离最小的节点并更新其选择频率
  */
 
-/**
+/*
  * 查找扣除偏置后的最小距离节点并返回索引
  */
 
-/**
+/*
  * 频繁选中的节点会提高频率并减小偏置
  */
 
-/**
+/*
  * 偏置值为伽马乘以理论频率与实际频率之差
  */
 

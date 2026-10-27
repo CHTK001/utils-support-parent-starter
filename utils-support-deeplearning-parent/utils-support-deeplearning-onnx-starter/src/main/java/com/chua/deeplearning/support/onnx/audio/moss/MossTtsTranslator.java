@@ -662,12 +662,6 @@ public class MossTtsTranslator implements AutoCloseable {
         }
         try {
             OnnxTensor hidden = extractLastHidden((OnnxTensor) result.get("global_hidden").get());
-            /**
-             * generate帧。
-             * @param state 状态
-             * @param maxFrames 最大帧
-             * @return generate帧的结果
-             */
             return new PrefillState(hidden, seqLen, result);
         } catch (Exception e) {
             result.close();
@@ -954,10 +948,6 @@ public class MossTtsTranslator implements AutoCloseable {
      */
     private static float clampUnit(double value) {
         double clamped = Math.max(1e-6, Math.min(value, 1.0 - 1e-6));
-        /**
-         * 关闭。
-         * @param session 会话
-         */
         return (float) clamped;
     }
 
