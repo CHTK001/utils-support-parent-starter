@@ -755,7 +755,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 diskGraph = OnDiskGraphIndex.load(new SimpleMappedReader.Supplier(indexPath));
             } catch (Exception e) {
                 log.warn("[jvector-storage] 磁盘索引加载失败，将在下次搜索时重建: path={}, err={}",
-                        indexPath, e.getMessage());
+                        indexPath, e.getMessage(), e);
                 diskGraph = null;
             }
         }

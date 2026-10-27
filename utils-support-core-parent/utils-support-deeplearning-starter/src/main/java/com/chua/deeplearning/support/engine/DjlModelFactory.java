@@ -405,7 +405,7 @@ public class DjlModelFactory implements AutoCloseable {
             } catch (Throwable e) {
                 if (!retriedAfterFallback && "gpu".equals(deviceInUse) && !forceCpu) {
                     log.warn("[deeplearning-engine] GPU 推理失败，降级 CPU 并重试: {} -> {}",
-                            modelName, e.getMessage());
+                            modelName, e.getMessage(), e);
                     synchronized (this) {
                         releaseQuietly();
                         forceCpu = true;

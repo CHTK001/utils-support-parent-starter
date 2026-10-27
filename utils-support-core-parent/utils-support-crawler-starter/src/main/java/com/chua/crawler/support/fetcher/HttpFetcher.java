@@ -276,7 +276,7 @@ public class HttpFetcher implements SpiderFetcher {
             */
             @Override
             public void connectFailed(URI uri, java.net.SocketAddress sa, java.io.IOException ioe) {
-                log.warn("[spider-fetcher] 代理连接失败: {} - {}", uri, ioe.getMessage());
+                log.warn("[spider-fetcher] 代理连接失败: {} - {}", uri, ioe.getMessage(), ioe);
             }
         };
     }

@@ -151,7 +151,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
                 }
             } catch (Exception e) {
                 log.warn("[calcite] FilterableTable [{}] 条件下推失败, 回退全量扫描: {}",
-                        dataTable.getName(), e.getMessage());
+                        dataTable.getName(), e.getMessage(), e);
             }
         }
 

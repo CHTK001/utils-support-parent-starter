@@ -761,7 +761,7 @@ public class FilePushClient implements AutoCloseable {
                 next += done;
                 if (attempt >= MAX_BATCH_ATTEMPTS) {
                     log.warn("连接复用组重试 {} 次仍失败（已完成 {}/{}），剩余 {} 个文件降级为单文件连接: {}",
-                            attempt, next, files.size(), files.size() - next, e.getMessage());
+                            attempt, next, files.size(), files.size() - next, e.getMessage(), e);
                     for (int i = next; i < files.size(); i++) {
                         slot[i] = pushFile(sourceDir, files.get(i));
                         notifyProgress(slot[i]);
@@ -769,7 +769,7 @@ public class FilePushClient implements AutoCloseable {
                     next = files.size();
                 } else {
                     log.warn("连接复用组中断（第 {} 次，已完成 {}/{}），重建连接重试剩余 {} 个文件: {}",
-                            attempt, next, files.size(), files.size() - next, e.getMessage());
+                            attempt, next, files.size(), files.size() - next, e.getMessage(), e);
                     ThreadUtils.sleep(300L * attempt);
                 }
             } finally {

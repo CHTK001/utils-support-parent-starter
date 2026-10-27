@@ -613,7 +613,7 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
                 }
                 opts.addCUDA(cuda);
             } catch (Exception providerEx) {
-                log.warn("[Gemma3] CUDA provider 参数配置失败，回退默认 addCUDA(): {}", providerEx.getMessage());
+                log.warn("[Gemma3] CUDA provider 参数配置失败，回退默认 addCUDA(): {}", providerEx.getMessage(), providerEx);
                 opts.addCUDA();
             }
         }

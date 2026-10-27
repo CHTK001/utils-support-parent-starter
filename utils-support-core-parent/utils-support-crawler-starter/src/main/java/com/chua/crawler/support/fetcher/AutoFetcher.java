@@ -86,7 +86,7 @@ public class AutoFetcher implements SpiderFetcher {
             } catch (Exception e) {
                 log.warn("[spider-fetcher] AutoFetcher 第 {} 个实现 ({}) 异常: {} - {}",
                         i + 1, fetcher.getClass().getSimpleName(),
-                        request.getUrl(), e.getMessage());
+                        request.getUrl(), e.getMessage(), e);
                 lastResponse = SpiderResponse.builder()
                         .request(request)
                         .statusCode(0)

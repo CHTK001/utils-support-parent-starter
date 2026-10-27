@@ -82,7 +82,7 @@ public class AutoParser implements SpiderParser {
                 }
             } catch (Exception e) {
                 log.warn("[spider-parser] AutoParser 第 {} 个实现 ({}) 异常: {} - {}",
-                        i + 1, parser.getClass().getSimpleName(), url, e.getMessage());
+                        i + 1, parser.getClass().getSimpleName(), url, e.getMessage(), e);
             }
         }
 

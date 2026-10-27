@@ -290,7 +290,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
                         });
                     } catch (Exception e) {
                         log.warn("{} accept handler exception: {} {}", getClass().getSimpleName(),
-                                e.getClass().getSimpleName(), e.getMessage());
+                                e.getClass().getSimpleName(), e.getMessage(), e);
                         closeSocket(ch.socket());
                     }
                 }
