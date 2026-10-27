@@ -25,11 +25,6 @@ public class RectDrawPointResolver extends AbstractDrawPointResolver {
      * @param g2 Graphics2D
      * @param bitMatrix 钻头matrixex
      * @param leftPadding int
-     * @param leftPadding int
-     * @param leftPadding int
-     * @param g2 g2
-     * @param bitMatrix 钻头matrix
-     * @param leftPadding leftpadding
      * @param topPadding toppadding
      * @param infoSize 信息大小
      */

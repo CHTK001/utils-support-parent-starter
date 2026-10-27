@@ -61,17 +61,11 @@ public class RegionInfo {
     /**
      * 创建 region信息 实例
      * @param adcode adcode
-     * @param adcode 字符串
      * @param level int
-     * @param adcode 字符串
-     * @param adcode 字符串
-     * @param lng double
      * @param lng double
      * @param name 名称
-     * @param level 级别
      * @param levelName 级别名称
      * @param parent 父
-     * @param lng lng
      * @param lat lat
      */
     public RegionInfo(String adcode, String name, int level, String levelName, String parent, double lng, double lat) {

@@ -289,54 +289,6 @@ public class ElasticsearchEngine implements Engine {
             /**
              * 解析Column
              * @param col col
-             * @param col col
-             * @param pn pn
-             * @param ps ps
-             * @param ps ps
-             * @param ps ps
-             * @param to 转为
-             * @param entityClass 实体类
-             * @param col col
-             * @param col col
-             * @param entityClass 实体类
-             * @param col col
-             * @param col col
-             * @param entityClass 实体类
-             * @param conditions 条件
-             * @param m m
-             * @param entityClass 实体类
-             * @param e e
-             * @param conditions 条件
-             * @param m m
-             * @param c c
-             * @param m m
-             * @param m m
-             * @param op op
-             * @param m m
-             * @param field 字段
-             * @param values 值
-             * @param m m
-             * @param field 字段
-             * @param values 值
-             * @param m m
-             * @param value 值
-             * @param s s
-             * @param l l
-             * @param i i
-             * @param s s
-             * @param b b
-             * @param d d
-             * @param f f
-             * @param b b
-             * @param value 值
-             * @param source 源
-             * @param entityClass 实体类
-             * @param converted 转换
-             * @param e e
-             * @param e e
-             * @param value 值
-             * @param targetType 目标类型
-             * @param num num
              */
             @Override
             protected String resolveColumn(
@@ -354,53 +306,6 @@ public class ElasticsearchEngine implements Engine {
                     /**
                      * 解析Column
                      * @param col col
-                     * @param pn pn
-                     * @param ps ps
-                     * @param ps ps
-                     * @param ps ps
-                     * @param to 转为
-                     * @param entityClass 实体类
-                     * @param col col
-                     * @param col col
-                     * @param entityClass 实体类
-                     * @param col col
-                     * @param col col
-                     * @param entityClass 实体类
-                     * @param conditions 条件
-                     * @param m m
-                     * @param entityClass 实体类
-                     * @param e e
-                     * @param conditions 条件
-                     * @param m m
-                     * @param c c
-                     * @param m m
-                     * @param m m
-                     * @param op op
-                     * @param m m
-                     * @param field 字段
-                     * @param values 值
-                     * @param m m
-                     * @param field 字段
-                     * @param values 值
-                     * @param m m
-                     * @param value 值
-                     * @param s s
-                     * @param l l
-                     * @param i i
-                     * @param s s
-                     * @param b b
-                     * @param d d
-                     * @param f f
-                     * @param b b
-                     * @param value 值
-                     * @param source 源
-                     * @param entityClass 实体类
-                     * @param converted 转换
-                     * @param e e
-                     * @param e e
-                     * @param value 值
-                     * @param targetType 目标类型
-                     * @param num num
                      */
                     @Override
                     protected String resolveColumn(
@@ -464,46 +369,6 @@ public class ElasticsearchEngine implements Engine {
             /**
              * 解析Column
              * @param col col
-             * @param col col
-             * @param entityClass 实体类
-             * @param col col
-             * @param col col
-             * @param entityClass 实体类
-             * @param conditions 条件
-             * @param m m
-             * @param entityClass 实体类
-             * @param e e
-             * @param conditions 条件
-             * @param m m
-             * @param c c
-             * @param m m
-             * @param m m
-             * @param op op
-             * @param m m
-             * @param field 字段
-             * @param values 值
-             * @param m m
-             * @param field 字段
-             * @param values 值
-             * @param m m
-             * @param value 值
-             * @param s s
-             * @param l l
-             * @param i i
-             * @param s s
-             * @param b b
-             * @param d d
-             * @param f f
-             * @param b b
-             * @param value 值
-             * @param source 源
-             * @param entityClass 实体类
-             * @param converted 转换
-             * @param e e
-             * @param e e
-             * @param value 值
-             * @param targetType 目标类型
-             * @param num num
              */
             @Override
             protected String resolveColumn(
@@ -521,45 +386,6 @@ public class ElasticsearchEngine implements Engine {
                     /**
                      * 解析Column
                      * @param col col
-                     * @param entityClass 实体类
-                     * @param col col
-                     * @param col col
-                     * @param entityClass 实体类
-                     * @param conditions 条件
-                     * @param m m
-                     * @param entityClass 实体类
-                     * @param e e
-                     * @param conditions 条件
-                     * @param m m
-                     * @param c c
-                     * @param m m
-                     * @param m m
-                     * @param op op
-                     * @param m m
-                     * @param field 字段
-                     * @param values 值
-                     * @param m m
-                     * @param field 字段
-                     * @param values 值
-                     * @param m m
-                     * @param value 值
-                     * @param s s
-                     * @param l l
-                     * @param i i
-                     * @param s s
-                     * @param b b
-                     * @param d d
-                     * @param f f
-                     * @param b b
-                     * @param value 值
-                     * @param source 源
-                     * @param entityClass 实体类
-                     * @param converted 转换
-                     * @param e e
-                     * @param e e
-                     * @param value 值
-                     * @param targetType 目标类型
-                     * @param num num
                      */
                     @Override
                     protected String resolveColumn(
@@ -589,43 +415,6 @@ public class ElasticsearchEngine implements Engine {
             /**
              * 解析Column
              * @param col col
-             * @param col col
-             * @param entityClass 实体类
-             * @param conditions 条件
-             * @param m m
-             * @param entityClass 实体类
-             * @param e e
-             * @param conditions 条件
-             * @param m m
-             * @param c c
-             * @param m m
-             * @param m m
-             * @param op op
-             * @param m m
-             * @param field 字段
-             * @param values 值
-             * @param m m
-             * @param field 字段
-             * @param values 值
-             * @param m m
-             * @param value 值
-             * @param s s
-             * @param l l
-             * @param i i
-             * @param s s
-             * @param b b
-             * @param d d
-             * @param f f
-             * @param b b
-             * @param value 值
-             * @param source 源
-             * @param entityClass 实体类
-             * @param converted 转换
-             * @param e e
-             * @param e e
-             * @param value 值
-             * @param targetType 目标类型
-             * @param num num
              */
             @Override
             protected String resolveColumn(
@@ -643,42 +432,6 @@ public class ElasticsearchEngine implements Engine {
                     /**
                      * 解析Column
                      * @param col col
-                     * @param entityClass 实体类
-                     * @param conditions 条件
-                     * @param m m
-                     * @param entityClass 实体类
-                     * @param e e
-                     * @param conditions 条件
-                     * @param m m
-                     * @param c c
-                     * @param m m
-                     * @param m m
-                     * @param op op
-                     * @param m m
-                     * @param field 字段
-                     * @param values 值
-                     * @param m m
-                     * @param field 字段
-                     * @param values 值
-                     * @param m m
-                     * @param value 值
-                     * @param s s
-                     * @param l l
-                     * @param i i
-                     * @param s s
-                     * @param b b
-                     * @param d d
-                     * @param f f
-                     * @param b b
-                     * @param value 值
-                     * @param source 源
-                     * @param entityClass 实体类
-                     * @param converted 转换
-                     * @param e e
-                     * @param e e
-                     * @param value 值
-                     * @param targetType 目标类型
-                     * @param num num
                      */
                     @Override
                     protected String resolveColumn(

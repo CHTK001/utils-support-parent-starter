@@ -674,60 +674,6 @@ public class SolrEngine extends AbstractEngine {
      * @param facets facets
      * @param groupByCols 群体bycols
      * @param depth 深度
-     * @param nf0 nf0
-     * @param nf nf
-     * @param groupByCols 群体bycols
-     * @param children children
-     * @param entityClass 实体类
-     * @param col col
-     * @param col col
-     * @param q q
-     * @param id 标识
-     * @param value 值
-     * @param newDoc 新doc
-     * @param e e
-     * @param e e
-     * @param entityClass 实体类
-     * @param col col
-     * @param col col
-     * @param query 查询
-     * @param e e
-     * @param e e
-     * @param entityClass 实体类
-     * @param conditions 条件
-     * @param conditions 条件
-     * @param 0 0
-     * @param 1000 1000
-     * @param list 列表
-     * @param total total
-     * @param entityClass 实体类
-     * @param conditions 条件
-     * @param start 启动
-     * @param rows rows
-     * @param 0 0
-     * @param collectionName 集合名称
-     * @param query 查询
-     * @param start 启动
-     * @param rows rows
-     * @param solrQuery Solr查询
-     * @param total total
-     * @param doc doc
-     * @param total total
-     * @param e e
-     * @param 0 0
-     * @param conditions 条件
-     * @param 0 0
-     * @param c c
-     * @param 0 0
-     * @param value 值
-     * @param value 值
-     * @param sc sc
-     * @param url url
-     * @param value 值
-     * @param targetType 目标类型
-     * @param num num
-     * @param str str
-     * @param ignored ignored
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static List<Map<String, Object>> parseFacetResponse(
