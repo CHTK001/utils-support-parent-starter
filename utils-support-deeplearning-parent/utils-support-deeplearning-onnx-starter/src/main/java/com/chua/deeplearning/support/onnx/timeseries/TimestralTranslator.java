@@ -195,10 +195,13 @@ public class TimestralTranslator implements TimeSeriesForecaster {
                         boolean v;
                         if (q < NP && k < NP) {
                             v = (k <= q && keyValid[k]) || q == k;
+                        } else if (q < NP) {
+                            v = false;
+                        } else if (k < NP) {
+                            v = keyValid[k];
+                        } else {
+                            v = true;
                         }
-                        else if (q < NP) v = false;
-                        else if (k < NP) v = keyValid[k];
-                        else v = true;
                         timeMask[(r * TOKENS + q) * TOKENS + k] = (byte) (v ? 1 : 0);
                     }
                 }
@@ -230,7 +233,9 @@ public class TimestralTranslator implements TimeSeriesForecaster {
                 Object val = results.get(0).getValue();
                 preds = toFlatFloat3d(val);
             }
-            for (OnnxTensor t : inputs.values()) t.close();
+            for (OnnxTensor t : inputs.values()) {
+                t.close();
+            }
 
             // 后处理：双行对称平均 → 目标分位数
             double[][] quant = finishForecast(preds, locs, scales, ctxMin, ctxMax, nonNegative);
@@ -475,9 +480,13 @@ public class TimestralTranslator implements TimeSeriesForecaster {
      * @return 可用的文件路径，找不到时返回 null
      */
     private static Path resolveModelPath(String pathStr) {
-        if (pathStr == null || pathStr.isBlank()) return null;
+        if (pathStr == null || pathStr.isBlank()) {
+            return null;
+        }
         Path abs = Path.of(pathStr);
-        if (Files.exists(abs)) return abs;
+        if (Files.exists(abs)) {
+            return abs;
+        }
         // classpath 兜底：将 jar 内资源解压到临时文件
         String resource = pathStr.startsWith("/") ? pathStr.substring(1) : pathStr;
         try {

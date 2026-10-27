@@ -10,7 +10,9 @@ public class SmallFileSpeed {
         for (int d = 0; d < 40; d++) {
             Path dir = source.resolve("dir-" + d);
             Files.createDirectories(dir);
-            for (int i = 0; i < 100; i++) Files.write(dir.resolve("f-" + i + ".dat"), payload);
+            for (int i = 0; i < 100; i++) {
+                Files.write(dir.resolve("f-" + i + ".dat"), payload);
+            }
         }
         int[] perConns = {1, 16, 64, 256};
         for (int perConn : perConns) {
