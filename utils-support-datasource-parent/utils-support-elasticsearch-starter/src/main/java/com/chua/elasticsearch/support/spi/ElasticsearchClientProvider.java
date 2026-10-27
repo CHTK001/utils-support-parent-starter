@@ -187,10 +187,10 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
         // 只读白名单：先判语句形态，命中不了就直接拒绝。
         // 这一步必须发生在建客户端之前 —— 写语句连「连不连得上」都不该试探，
         // 更不能因为构造请求而顺手把客户端建起来。
-        boolean allowed = lower.equals("nodes") || lower.equals("indices") || lower.equals("count")
-                || lower.startsWith("count ") || lower.equals("mapping") || lower.startsWith("mapping ")
-                || lower.equals("search") || lower.startsWith("search ")
-                || lower.equals("get") || lower.startsWith("get ");
+        boolean allowed = "nodes".equals(lower) || "indices".equals(lower) || "count".equals(lower)
+                || lower.startsWith("count ") || "mapping".equals(lower) || lower.startsWith("mapping ")
+                || "search".equals(lower) || lower.startsWith("search ")
+                || "get".equals(lower) || lower.startsWith("get ");
         if (!allowed) {
             return MiddlewareQueryResult.fail("不支持的查询: " + expr
                     + "。只读查询仅支持 nodes / indices / count <index> / mapping <index> / "
@@ -199,11 +199,11 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
 
         int n = Math.max(1, Math.min(limit <= 0 ? 50 : limit, MAX_ROWS));
         try (RestClient client = client(request)) {
-            if (lower.equals("nodes")) {
+            if ("nodes".equals(lower)) {
                 return MiddlewareQueryResult.of(List.of("node", "name", "roles"),
                         nodeRows(client), false, 0L, System.currentTimeMillis() - t0);
             }
-            if (lower.equals("indices")) {
+            if ("indices".equals(lower)) {
                 JsonNode rows = readJson(client, catIndices(
                         "/_cat/indices?format=json&h=index,docs.count,deleted,store.size,health,status"));
                 List<Map<String, Object>> out = new ArrayList<>();
@@ -413,7 +413,7 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
         if (tail.isEmpty()) {
             return new String[0];
         }
-        if (verb.equals("search")) {
+        if ("search".equals(verb)) {
             int sp = tail.indexOf(' ');
             if (sp < 0) {
                 return new String[]{tail};

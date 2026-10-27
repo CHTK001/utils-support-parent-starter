@@ -344,7 +344,7 @@ public class DhtPolledDirectory implements PolledDirectory {
 
             builder.host(host).port(port);
             Set<String> seeds = Wraps.linkedSet();
-            if (!host.equals("0.0.0.0") && !host.equals("127.0.0.1")) {
+            if (!"0.0.0.0".equals(host) && !"127.0.0.1".equals(host)) {
                 seeds.add(host + ":" + port);
             }
             if (url.contains("?")) {

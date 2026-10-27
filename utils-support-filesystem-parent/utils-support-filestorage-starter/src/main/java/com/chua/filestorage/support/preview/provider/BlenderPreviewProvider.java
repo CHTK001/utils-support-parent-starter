@@ -57,7 +57,7 @@ public class BlenderPreviewProvider implements FileStoragePreviewProvider {
 
         // Blender 文件以 "BLENDER" 开头
         String magic = new String(data, 0, 7, StandardCharsets.US_ASCII);
-        if (!magic.equals("BLENDER")) {
+        if (!"BLENDER".equals(magic)) {
             info.version = "未知格式";
             return info;
         }

@@ -37,7 +37,7 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
     @Override
     public PreviewResult preview(byte[] content, String ext, String mime) throws IOException {
         String lowerExt = ext.toLowerCase(Locale.ENGLISH);
-        if (!lowerExt.equals("shp")) {
+        if (!"shp".equals(lowerExt)) {
             // 只解析 .shp，其他文件直接返回基本信息
             String html = buildSimpleHtml(ext, content.length);
             return PreviewResult.builder().htmlContent(html).build();

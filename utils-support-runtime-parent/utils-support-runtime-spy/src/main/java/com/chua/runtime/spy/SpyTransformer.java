@@ -463,7 +463,7 @@ public class SpyTransformer implements ClassFileTransformer {
             Set<InterceptPoint> points = pointsOf(targetClass, name);
             boolean exact = !points.isEmpty();
             // 跳过构造器与静态块（除非有针对 <init>/<clinit> 的精确插桩规则）
-            boolean isInitLike = name.equals("<init>") || name.equals("<clinit>");
+            boolean isInitLike = "<init>".equals(name) || "<clinit>".equals(name);
             if (isInitLike && !exact) {
                 return mv;
             }

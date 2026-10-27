@@ -58,13 +58,13 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
         StringBuilder description = new StringBuilder();
 
         for (String line : lines) {
-            if (line.equals("BEGIN:VEVENT")) {
+            if ("BEGIN:VEVENT".equals(line)) {
                 current = new CalendarEvent();
                 description = new StringBuilder();
                 continue;
             }
 
-            if (line.equals("END:VEVENT")) {
+            if ("END:VEVENT".equals(line)) {
                 if (current != null) {
                     current.description = description.toString().trim();
                     events.add(current);

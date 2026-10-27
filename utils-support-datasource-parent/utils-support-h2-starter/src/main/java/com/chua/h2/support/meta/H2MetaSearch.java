@@ -296,7 +296,7 @@ public class H2MetaSearch extends AbstractMetaSearch {
                 return "text";
             }
             String t = type.toLowerCase();
-            if (t.startsWith("text") || t.equals("string") || t.equals("keyword")) {
+            if (t.startsWith("text") || "string".equals(t) || "keyword".equals(t)) {
                 return "text";
             }
             return t;

@@ -29,7 +29,7 @@ public class WevisdocLayoutBridgeTest {
         String md = "| Name | Value |\n|------|-------|\n| A | 1 |\n";
         List<WevisdocLayoutBridge.MarkdownElement> elements =
                 WevisdocLayoutBridge.parseMarkdownElements(md);
-        assertTrue(elements.stream().anyMatch(e -> e.type.equals("table") && e.label.equals("table")));
+        assertTrue(elements.stream().anyMatch(e -> "table".equals(e.type) && "table".equals(e.label)));
     }
 
     @Test
@@ -37,7 +37,7 @@ public class WevisdocLayoutBridgeTest {
         String md = "- item one\n- item two\n- item three\n";
         List<WevisdocLayoutBridge.MarkdownElement> elements =
                 WevisdocLayoutBridge.parseMarkdownElements(md);
-        assertTrue(elements.stream().allMatch(e -> e.type.equals("list")));
+        assertTrue(elements.stream().allMatch(e -> "list".equals(e.type)));
         assertEquals(3, elements.size());
     }
 
@@ -46,7 +46,7 @@ public class WevisdocLayoutBridgeTest {
         String md = "![figure](image.png)\n";
         List<WevisdocLayoutBridge.MarkdownElement> elements =
                 WevisdocLayoutBridge.parseMarkdownElements(md);
-        assertTrue(elements.stream().anyMatch(e -> e.type.equals("figure")));
+        assertTrue(elements.stream().anyMatch(e -> "figure".equals(e.type)));
     }
 
     @Test
@@ -54,7 +54,7 @@ public class WevisdocLayoutBridgeTest {
         String md = "$$E=mc^2$$\n";
         List<WevisdocLayoutBridge.MarkdownElement> elements =
                 WevisdocLayoutBridge.parseMarkdownElements(md);
-        assertTrue(elements.stream().anyMatch(e -> e.type.equals("equation")));
+        assertTrue(elements.stream().anyMatch(e -> "equation".equals(e.type)));
     }
 
     @Test

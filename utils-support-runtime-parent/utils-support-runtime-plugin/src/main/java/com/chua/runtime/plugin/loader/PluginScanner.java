@@ -134,7 +134,7 @@ public class PluginScanner {
     private boolean isPluginDirectory(Path dir) {
         String name = dir.getFileName().toString();
         // 排除系统目录
-        if (name.startsWith(".") || name.equals("lib") || name.equals("config")) {
+        if (name.startsWith(".") || "lib".equals(name) || "config".equals(name)) {
             return false;
         }
  // 有 META-INF/服务 则认为是插件

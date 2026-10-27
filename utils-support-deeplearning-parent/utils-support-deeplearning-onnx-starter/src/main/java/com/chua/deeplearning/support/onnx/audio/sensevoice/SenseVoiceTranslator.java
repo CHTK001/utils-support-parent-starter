@@ -419,7 +419,7 @@ public class SenseVoiceTranslator {
                         "Sneeze", "Breath", "Cough", "withitn", "woitn",
                         "startofcontext", "endofcontext").contains(inner)) {
                     events.add(inner);
-                } else if (inner.equals("s") || inner.equals("/s") || inner.equals("unk")) {
+                } else if ("s".equals(inner) || "/s".equals(inner) || "unk".equals(inner)) {
  // 跳过
                 }
                 continue;

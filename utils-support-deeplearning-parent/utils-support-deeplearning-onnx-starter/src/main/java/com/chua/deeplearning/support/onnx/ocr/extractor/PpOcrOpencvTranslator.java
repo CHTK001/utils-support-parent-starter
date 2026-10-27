@@ -88,7 +88,7 @@ public class PpOcrOpencvTranslator {
             boolean inDict = false;
             for (String line : content.split("\n")) {
                 String trimmed = line.trim();
-                if (trimmed.equals("character_dict:")) {
+                if ("character_dict:".equals(trimmed)) {
                     inDict = true;
                     continue;
                 }

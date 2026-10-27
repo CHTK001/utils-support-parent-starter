@@ -149,11 +149,11 @@ public final class HprofAnalyzer {
         for (HprofHistogramRow row : histogram) {
             String name = row.getClassName();
             if (name != null
-                    && (name.equals("java.lang.String")
-                    || name.equals("char[]")
-                    || name.equals("byte[]")
-                    || name.equals("java.lang.StringBuilder")
-                    || name.equals("java.lang.StringBuffer"))) {
+                    && ("java.lang.String".equals(name)
+                    || "char[]".equals(name)
+                    || "byte[]".equals(name)
+                    || "java.lang.StringBuilder".equals(name)
+                    || "java.lang.StringBuffer".equals(name))) {
                 stringBytes += row.getRetainedSize();
             }
         }
@@ -313,7 +313,7 @@ public final class HprofAnalyzer {
         if (className.startsWith("java.util.")
                 || className.startsWith("java.util.concurrent.")
                 || className.startsWith("java.util.function.")
-                || className.equals("java.util.Arrays")
+                || "java.util.Arrays".equals(className)
                 || className.endsWith("[]")
                 || className.startsWith("it.unimi.dsi.fastutil.")) {
             return true;

@@ -199,7 +199,7 @@ public class MysqlMetaSearch extends AbstractMetaSearch {
                 String type = column.getType();
                 if (type == null || type.isEmpty()) {
                     column.setType("text");
-                } else if (!type.startsWith("text") && !type.equals("string") && !type.equals("keyword")) {
+                } else if (!type.startsWith("text") && !"string".equals(type) && !"keyword".equals(type)) {
                     unsupported.add("字段 " + column.getName() + " 的类型 " + type
                             + "（全文索引只能建在 CHAR/VARCHAR/TEXT 列上）");
                     column.setType("text");

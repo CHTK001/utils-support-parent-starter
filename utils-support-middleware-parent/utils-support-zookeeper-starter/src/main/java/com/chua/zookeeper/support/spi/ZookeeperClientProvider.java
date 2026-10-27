@@ -119,7 +119,7 @@ public class ZookeeperClientProvider implements MiddlewareClientProvider {
         try (CuratorFramework client = newClient(request)) {
             client.start();
             client.blockUntilConnected(CONNECT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-            if (lower.startsWith("ls ") || lower.equals("ls")) {
+            if (lower.startsWith("ls ") || "ls".equals(lower)) {
                 return ls(client, t0, cmd.length() > 2 ? cmd.substring(3).trim() : "/");
             }
             if (lower.startsWith("get ")) {

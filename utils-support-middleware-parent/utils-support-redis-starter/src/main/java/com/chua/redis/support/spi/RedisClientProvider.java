@@ -158,16 +158,16 @@ public class RedisClientProvider implements MiddlewareClientProvider {
         String lower = cmd.toLowerCase();
         long t0 = System.currentTimeMillis();
         try (Jedis jedis = jedis(request)) {
-            if (lower.equals("dbsize")) {
+            if ("dbsize".equals(lower)) {
                 return MiddlewareQueryResult.single("dbsize", jedis.dbSize());
             }
-            if (lower.equals("info")) {
+            if ("info".equals(lower)) {
                 return MiddlewareQueryResult.single("info", jedis.info());
             }
-            if (lower.equals("clients")) {
+            if ("clients".equals(lower)) {
                 return MiddlewareQueryResult.single("clients", jedis.clientList());
             }
-            if (lower.equals("slowlog")) {
+            if ("slowlog".equals(lower)) {
                 return MiddlewareQueryResult.single("slowlog", jedis.slowlogGet(128).toString());
             }
             if (lower.startsWith("scan ")) {

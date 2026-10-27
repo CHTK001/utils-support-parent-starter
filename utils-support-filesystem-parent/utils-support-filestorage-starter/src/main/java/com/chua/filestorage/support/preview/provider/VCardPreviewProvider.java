@@ -62,12 +62,12 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
         ContactInfo current = null;
 
         for (String line : lines) {
-            if (line.equals("BEGIN:VCARD")) {
+            if ("BEGIN:VCARD".equals(line)) {
                 current = new ContactInfo();
                 continue;
             }
 
-            if (line.equals("END:VCARD")) {
+            if ("END:VCARD".equals(line)) {
                 if (current != null) {
                     contacts.add(current);
                 }

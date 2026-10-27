@@ -285,7 +285,7 @@ public class NativeRpcServer implements RpcServer {
         if (serviceDiscovery != null) {
             Discovery discovery = Discovery.builder()
                     .serverId(name)
-                    .host(host.equals("0.0.0.0") ? "127.0.0.1" : host)
+                    .host("0.0.0.0".equals(host) ? "127.0.0.1" : host)
                     .port(port)
                     .protocol("native")
                     .build();
