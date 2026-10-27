@@ -854,6 +854,10 @@ public final class PNGImageWriter extends ImageWriter {
                     }
                 }
                 break;
+
+            default:
+                // 位深只可能是 1/2/4/8/16，其余值由调用方的校验拦截
+                throw new IllegalStateException("unsupported bit depth: " + bitDepth);
             }
 
  // 执行 过滤器

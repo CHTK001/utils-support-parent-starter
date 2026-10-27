@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * tshark 命令行工具的不可变配置快照。
@@ -34,6 +35,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public final class TsharkCliConfig {
 
     /**
@@ -411,7 +413,7 @@ public final class TsharkCliConfig {
         for (String token : configured.split(",")) {
             Stage stage = Stage.of(token);
             if (stage == null) {
-                System.err.println("[TsharkCliConfig] 忽略无法识别的装配级别: " + token.trim());
+                log.warn("[TsharkCliConfig] 忽略无法识别的装配级别: {}", token.trim());
                 continue;
             }
             if (!stages.contains(stage)) {
