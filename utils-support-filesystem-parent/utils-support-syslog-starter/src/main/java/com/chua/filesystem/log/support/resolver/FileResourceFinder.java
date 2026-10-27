@@ -178,7 +178,7 @@ public class FileResourceFinder implements ResourceFinder {
         }
 
         String locateArg = matchPath.isEmpty() ? fullPath : matchPath;
-        if (fullPath != null && !fullPath.isEmpty() && !fullPath.equals("/")) {
+        if (fullPath != null && !fullPath.isEmpty() && !"/".equals(fullPath)) {
             locateArg = fullPath + "/" + matchPath;
         }
 

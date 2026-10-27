@@ -272,7 +272,7 @@ class FtpSession {
         }
         // 处理相对路径
         if (!path.startsWith("/")) {
-            if (currentDir.equals("/")) {
+            if ("/".equals(currentDir)) {
                 path = "/" + path;
             } else {
                 path = currentDir + "/" + path;

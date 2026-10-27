@@ -157,7 +157,7 @@ public class NpmSoftwareProvider implements SoftwareProvider {
  // NPM 搜索 --json 返回 JSON 数组，每项包含 名称、版本、description 等
             for (String line : output.split("\\r?\\n")) {
                 String trimmed = line.trim();
-                if (trimmed.isEmpty() || trimmed.equals("[]")) {
+                if (trimmed.isEmpty() || "[]".equals(trimmed)) {
                     continue;
                 }
                 // 简单解析：提取 "name"、"version"、"description" 字段

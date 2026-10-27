@@ -148,7 +148,7 @@ class ReturnResultContractTest {
                             + "字段名打错编译期查不出来，运行期还会被 catch 吞掉、"
                             + "静默无效。实测全仓零调用者，已删除，不应复活");
         }
-        assertTrue(getDeclaredFieldNames().stream().noneMatch(n -> n.equals("temp")),
+        assertTrue(getDeclaredFieldNames().stream().noneMatch(n -> "temp".equals(n)),
                 "temp 字段只服务于反射填充，一并删除");
     }
 

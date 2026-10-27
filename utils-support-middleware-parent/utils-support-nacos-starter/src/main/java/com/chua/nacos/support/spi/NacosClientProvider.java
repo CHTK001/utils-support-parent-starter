@@ -147,7 +147,7 @@ public class NacosClientProvider implements MiddlewareClientProvider {
         String lower = cmd.toLowerCase();
         long t0 = System.currentTimeMillis();
         try {
-            if (lower.equals("namespaces")) {
+            if ("namespaces".equals(lower)) {
                 List<Map<String, Object>> rows = new ArrayList<>();
                 for (MiddlewareTreeNode n : listTopNodes(request)) {
                     Map<String, Object> row = new LinkedHashMap<>();
@@ -158,7 +158,7 @@ public class NacosClientProvider implements MiddlewareClientProvider {
                 return MiddlewareQueryResult.of(List.of("namespace", "id"), rows, false, rows.size(),
                         System.currentTimeMillis() - t0);
             }
-            if (lower.equals("services")) {
+            if ("services".equals(lower)) {
                 return services(request, t0, "");
             }
             if (lower.startsWith("services ")) {

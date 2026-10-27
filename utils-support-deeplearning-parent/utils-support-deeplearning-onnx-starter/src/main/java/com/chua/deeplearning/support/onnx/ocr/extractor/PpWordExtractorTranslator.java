@@ -228,7 +228,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
         boolean inDict = false;
         for (String line : lines) {
             String trimmed = line.trim();
-            if (trimmed.equals("character_dict:")) {
+            if ("character_dict:".equals(trimmed)) {
                 inDict = true;
                 continue;
             }

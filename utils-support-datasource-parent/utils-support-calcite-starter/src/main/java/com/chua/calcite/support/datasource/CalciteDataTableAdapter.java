@@ -504,7 +504,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
                 continue;
             }
             String methodName = method.getName();
-            if (methodName.equals("getClass")) {
+            if ("getClass".equals(methodName)) {
                 continue;
             }
             if ((methodName.startsWith("get") && methodName.length() > 3)

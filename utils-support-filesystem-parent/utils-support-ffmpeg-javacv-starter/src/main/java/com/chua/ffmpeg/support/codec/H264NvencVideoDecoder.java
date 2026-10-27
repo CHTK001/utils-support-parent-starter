@@ -91,7 +91,7 @@ public class H264NvencVideoDecoder implements VideoDecoder {
             return false;
         }
         String name = format.toLowerCase(Locale.ROOT).replace('-', '_');
-        return name.startsWith("h264") || name.startsWith("avc") || name.equals("nvdec");
+        return name.startsWith("h264") || name.startsWith("avc") || "nvdec".equals(name);
     }
 
     @Override

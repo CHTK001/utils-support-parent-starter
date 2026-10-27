@@ -224,7 +224,7 @@ public class SqliteMetaSearch extends AbstractMetaSearch {
             if (type == null || type.isEmpty()) {
                 return true;
             }
-            return type.startsWith("text") || type.equals("string") || type.equals("keyword");
+            return type.startsWith("text") || "string".equals(type) || "keyword".equals(type);
         }
     }
 

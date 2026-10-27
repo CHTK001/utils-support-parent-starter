@@ -340,7 +340,7 @@ class FtpCommandHandler {
      */
     private boolean handleCdup(FtpSession session) {
         var currentDir = session.getCurrentDir();
-        if (currentDir.equals("/")) {
+        if ("/".equals(currentDir)) {
             session.reply(CODE_FILE_ACTION_PENDING, "Already at root directory.");
             return true;
         }
@@ -643,7 +643,7 @@ class FtpCommandHandler {
                 for (var entry : entries) {
                     // 隐藏文件不显示（除非是 . 和 ..）
                     var name = entry.getFileName().toString();
-                    if (name.startsWith(HIDDEN_FILE_PREFIX) && !name.equals(".") && !name.equals("..")) {
+                    if (name.startsWith(HIDDEN_FILE_PREFIX) && !".".equals(name) && !"..".equals(name)) {
                         continue;
                     }
                     var line = formatUnixListEntry(entry);
@@ -686,7 +686,7 @@ class FtpCommandHandler {
                 var entries = Files.list(dirPath).toList();
                 for (var entry : entries) {
                     var name = entry.getFileName().toString();
-                    if (name.startsWith(HIDDEN_FILE_PREFIX) && !name.equals(".") && !name.equals("..")) {
+                    if (name.startsWith(HIDDEN_FILE_PREFIX) && !".".equals(name) && !"..".equals(name)) {
                         continue;
                     }
                     dataOut.print(name + "\r\n");

@@ -1389,9 +1389,9 @@ public class DefaultScriptConverter implements ScriptConverter {
             String bare = raw.replace("`", "").replace("\"", "");
             // 排除表级声明行
             String upper = bare.toUpperCase(Locale.ROOT);
-            if (upper.equals("PRIMARY") || upper.equals("KEY") || upper.equals("UNIQUE")
-                    || upper.equals("INDEX") || upper.equals("CONSTRAINT") || upper.equals("CHECK")
-                    || upper.equals("FOREIGN") || upper.equals("FULLTEXT") || upper.equals("SPATIAL")) {
+            if ("PRIMARY".equals(upper) || "KEY".equals(upper) || "UNIQUE".equals(upper)
+                    || "INDEX".equals(upper) || "CONSTRAINT".equals(upper) || "CHECK".equals(upper)
+                    || "FOREIGN".equals(upper) || "FULLTEXT".equals(upper) || "SPATIAL".equals(upper)) {
                 continue;
             }
             map.putIfAbsent(upper, raw);

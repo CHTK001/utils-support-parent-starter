@@ -147,7 +147,7 @@ public class QwenBrowserSession implements AutoCloseable {
             for (String line : sse.split("\n")) {
                 if (line.startsWith("data:")) {
                     String data = line.substring(5).trim();
-                    if (data.equals("[DONE]") || data.isEmpty()) {
+                    if ("[DONE]".equals(data) || data.isEmpty()) {
                         continue;
                     }
                     try {

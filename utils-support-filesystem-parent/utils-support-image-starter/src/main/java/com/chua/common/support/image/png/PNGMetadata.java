@@ -1864,9 +1864,9 @@ public boolean tRNS_present;
         }
         String value = attr.getNodeValue();
         // Allow lower case boolean for backward compatibility, #5082756
-        if (value.equals("TRUE") || value.equals("true")) {
+        if ("TRUE".equals(value) || "true".equals(value)) {
             return true;
-        } else if (value.equals("FALSE") || value.equals("false")) {
+        } else if ("FALSE".equals(value) || "false".equals(value)) {
             return false;
         } else {
             fatal(node, "Attribute " + name + " must be 'TRUE' or 'FALSE'!");
@@ -2049,7 +2049,7 @@ public boolean tRNS_present;
         while (node != null) {
             String name = node.getNodeName();
 
-            if (name.equals("IHDR")) {
+            if ("IHDR".equals(name)) {
                 IHDR_width = getIntAttribute(node, "width");
                 IHDR_height = getIntAttribute(node, "height");
                 IHDR_bitDepth =
@@ -2070,7 +2070,7 @@ public boolean tRNS_present;
                     getEnumeratedAttribute(node, "interlaceMethod",
                                            IHDR_interlaceMethodNames);
                 IHDR_present = true;
-            } else if (name.equals("PLTE")) {
+            } else if ("PLTE".equals(name)) {
                 byte[] red = new byte[256];
                 byte[] green  = new byte[256];
                 byte[] blue = new byte[256];
@@ -2113,7 +2113,7 @@ public boolean tRNS_present;
                 System.arraycopy(green, 0, PLTE_green, 0, numEntries);
                 System.arraycopy(blue, 0, PLTE_blue, 0, numEntries);
                 PLTE_present = true;
-            } else if (name.equals("bKGD")) {
+            } else if ("bKGD".equals(name)) {
         // Guard against partial overwrite
                 // sent = false;
                 bKGD_present = true;
@@ -2122,13 +2122,13 @@ public boolean tRNS_present;
                     fatal(node, "bKGD node has no children!");
                 }
                 String bKGD_name = bKGD_node.getNodeName();
-                if (bKGD_name.equals("bKGD_Palette")) {
+                if ("bKGD_Palette".equals(bKGD_name)) {
                     bKGD_index = getIntAttribute(bKGD_node, "index");
                     bKGD_colorType = PNG.PNG_COLOR_PALETTE;
-                } else if (bKGD_name.equals("bKGD_Grayscale")) {
+                } else if ("bKGD_Grayscale".equals(bKGD_name)) {
                     bKGD_gray = getIntAttribute(bKGD_node, "gray");
                     bKGD_colorType = PNG.PNG_COLOR_GRAY;
-                } else if (bKGD_name.equals("bKGD_RGB")) {
+                } else if ("bKGD_RGB".equals(bKGD_name)) {
                     bKGD_red = getIntAttribute(bKGD_node, "red");
                     bKGD_green = getIntAttribute(bKGD_node, "green");
                     bKGD_blue = getIntAttribute(bKGD_node, "blue");
@@ -2141,7 +2141,7 @@ public boolean tRNS_present;
                 }
 
                 bKGD_present = true;
-            } else if (name.equals("cHRM")) {
+            } else if ("cHRM".equals(name)) {
                 cHRM_whitePointX = getIntAttribute(node, "whitePointX");
                 cHRM_whitePointY = getIntAttribute(node, "whitePointY");
                 cHRM_redX = getIntAttribute(node, "redX");
@@ -2152,10 +2152,10 @@ public boolean tRNS_present;
                 cHRM_blueY = getIntAttribute(node, "blueY");
 
                 cHRM_present = true;
-            } else if (name.equals("gAMA")) {
+            } else if ("gAMA".equals(name)) {
                 gAMA_gamma = getIntAttribute(node, "value");
                 gAMA_present = true;
-            } else if (name.equals("hIST")) {
+            } else if ("hIST".equals(name)) {
                 char[] hist = new char[256];
                 int maxindex = -1;
 
@@ -2189,7 +2189,7 @@ public boolean tRNS_present;
                 System.arraycopy(hist, 0, hIST_histogram, 0, numEntries);
 
                 hIST_present = true;
-            } else if (name.equals("iCCP")) {
+            } else if ("iCCP".equals(name)) {
                 iCCP_profileName = getAttribute(node, "profileName");
                 iCCP_compressionMethod =
                         getEnumeratedAttribute(node, "compressionMethod",
@@ -2206,14 +2206,14 @@ public boolean tRNS_present;
                 iCCP_compressedProfile = ((byte[])compressedProfile).clone();
 
                 iCCP_present = true;
-            } else if (name.equals("cICP")) {
+            } else if ("cICP".equals(name)) {
                 cICP_colourPrimaries = getIntAttribute(node, "colourPrimaries");
                 cICP_transferFunction = getIntAttribute(node, "transferFunction");
                 cICP_matrixCoefficients = getIntAttribute(node, "matrixCoefficients");
                 cICP_videoFullRangeFlag = getBooleanAttribute(node, "videoFullRangeFlag");
 
                 cICP_present = true;
-            } else if (name.equals("eXIf")) {
+            } else if ("eXIf".equals(name)) {
                 Object exifData = ((IIOMetadataNode)node).getUserObject();
                 if (exifData == null) {
                     fatal(node, "No Exif data in user object!");
@@ -2225,7 +2225,7 @@ public boolean tRNS_present;
                 eXIf_data = ((byte[])exifData).clone();
 
                 eXIf_present = true;
-            } else if (name.equals("iTXt")) {
+            } else if ("iTXt".equals(name)) {
                 Node iTXt_node = node.getFirstChild();
                 while (iTXt_node != null) {
                     if (!iTXt_node.getNodeName().equals("iTXtEntry")) {
@@ -2268,7 +2268,7 @@ public boolean tRNS_present;
 
                     iTXt_node = iTXt_node.getNextSibling();
                 }
-            } else if (name.equals("pHYs")) {
+            } else if ("pHYs".equals(name)) {
                 pHYs_pixelsPerUnitXAxis =
                     getIntAttribute(node, "pixelsPerUnitXAxis");
                 pHYs_pixelsPerUnitYAxis =
@@ -2278,7 +2278,7 @@ public boolean tRNS_present;
                                            unitSpecifierNames);
 
                 pHYs_present = true;
-            } else if (name.equals("sBIT")) {
+            } else if ("sBIT".equals(name)) {
         // Guard against partial overwrite
                 // sent = false;
                 sBIT_present = true;
@@ -2287,25 +2287,25 @@ public boolean tRNS_present;
                     fatal(node, "sBIT node has no children!");
                 }
                 String sBIT_name = sBIT_node.getNodeName();
-                if (sBIT_name.equals("sBIT_Grayscale")) {
+                if ("sBIT_Grayscale".equals(sBIT_name)) {
                     sBIT_grayBits = getIntAttribute(sBIT_node, "gray");
                     sBIT_colorType = PNG.PNG_COLOR_GRAY;
-                } else if (sBIT_name.equals("sBIT_GrayAlpha")) {
+                } else if ("sBIT_GrayAlpha".equals(sBIT_name)) {
                     sBIT_grayBits = getIntAttribute(sBIT_node, "gray");
                     sBIT_alphaBits = getIntAttribute(sBIT_node, "alpha");
                     sBIT_colorType = PNG.PNG_COLOR_GRAY_ALPHA;
-                } else if (sBIT_name.equals("sBIT_RGB")) {
+                } else if ("sBIT_RGB".equals(sBIT_name)) {
                     sBIT_redBits = getIntAttribute(sBIT_node, "red");
                     sBIT_greenBits = getIntAttribute(sBIT_node, "green");
                     sBIT_blueBits = getIntAttribute(sBIT_node, "blue");
                     sBIT_colorType = PNG.PNG_COLOR_RGB;
-                } else if (sBIT_name.equals("sBIT_RGBAlpha")) {
+                } else if ("sBIT_RGBAlpha".equals(sBIT_name)) {
                     sBIT_redBits = getIntAttribute(sBIT_node, "red");
                     sBIT_greenBits = getIntAttribute(sBIT_node, "green");
                     sBIT_blueBits = getIntAttribute(sBIT_node, "blue");
                     sBIT_alphaBits = getIntAttribute(sBIT_node, "alpha");
                     sBIT_colorType = PNG.PNG_COLOR_RGB_ALPHA;
-                } else if (sBIT_name.equals("sBIT_Palette")) {
+                } else if ("sBIT_Palette".equals(sBIT_name)) {
                     sBIT_redBits = getIntAttribute(sBIT_node, "red");
                     sBIT_greenBits = getIntAttribute(sBIT_node, "green");
                     sBIT_blueBits = getIntAttribute(sBIT_node, "blue");
@@ -2318,7 +2318,7 @@ public boolean tRNS_present;
                 }
 
                 sBIT_present = true;
-            } else if (name.equals("sPLT")) {
+            } else if ("sPLT".equals(name)) {
                 sPLT_paletteName = getAttribute(node, "name");
                 sPLT_sampleDepth = getIntAttribute(node, "sampleDepth");
 
@@ -2372,13 +2372,13 @@ public boolean tRNS_present;
                                  sPLT_frequency, 0, numEntries);
 
                 sPLT_present = true;
-            } else if (name.equals("sRGB")) {
+            } else if ("sRGB".equals(name)) {
                 sRGB_renderingIntent =
                     getEnumeratedAttribute(node, "renderingIntent",
                                            renderingIntentNames);
 
                 sRGB_present = true;
-            } else if (name.equals("tEXt")) {
+            } else if ("tEXt".equals(name)) {
                 Node tEXt_node = node.getFirstChild();
                 while (tEXt_node != null) {
                     if (!tEXt_node.getNodeName().equals("tEXtEntry")) {
@@ -2401,7 +2401,7 @@ public boolean tRNS_present;
                     }
                     tEXt_node = tEXt_node.getNextSibling();
                 }
-            } else if (name.equals("tIME")) {
+            } else if ("tIME".equals(name)) {
                 tIME_year = getIntAttribute(node, "year");
                 tIME_month = getIntAttribute(node, "month");
                 tIME_day = getIntAttribute(node, "day");
@@ -2410,7 +2410,7 @@ public boolean tRNS_present;
                 tIME_second = getIntAttribute(node, "second");
 
                 tIME_present = true;
-            } else if (name.equals("tRNS")) {
+            } else if ("tRNS".equals(name)) {
         // Guard against partial overwrite
                 // sent = false;
                 tRNS_present = true;
@@ -2419,7 +2419,7 @@ public boolean tRNS_present;
                     fatal(node, "tRNS node has no children!");
                 }
                 String tRNS_name = tRNS_node.getNodeName();
-                if (tRNS_name.equals("tRNS_Palette")) {
+                if ("tRNS_Palette".equals(tRNS_name)) {
                     byte[] alpha = new byte[256];
                     int maxindex = -1;
 
@@ -2454,10 +2454,10 @@ public boolean tRNS_present;
                     tRNS_alpha = new byte[numEntries];
                     tRNS_colorType = PNG.PNG_COLOR_PALETTE;
                     System.arraycopy(alpha, 0, tRNS_alpha, 0, numEntries);
-                } else if (tRNS_name.equals("tRNS_Grayscale")) {
+                } else if ("tRNS_Grayscale".equals(tRNS_name)) {
                     tRNS_gray = getIntAttribute(tRNS_node, "gray");
                     tRNS_colorType = PNG.PNG_COLOR_GRAY;
-                } else if (tRNS_name.equals("tRNS_RGB")) {
+                } else if ("tRNS_RGB".equals(tRNS_name)) {
                     tRNS_red = getIntAttribute(tRNS_node, "red");
                     tRNS_green = getIntAttribute(tRNS_node, "green");
                     tRNS_blue = getIntAttribute(tRNS_node, "blue");
@@ -2470,7 +2470,7 @@ public boolean tRNS_present;
                 }
 
                 tRNS_present = true;
-            } else if (name.equals("zTXt")) {
+            } else if ("zTXt".equals(name)) {
                 Node zTXt_node = node.getFirstChild();
                 while (zTXt_node != null) {
                     if (!zTXt_node.getNodeName().equals("zTXtEntry")) {
@@ -2498,12 +2498,12 @@ public boolean tRNS_present;
                     }
                     zTXt_node = zTXt_node.getNextSibling();
                 }
-            } else if (name.equals("acTL")) {
+            } else if ("acTL".equals(name)) {
                 acTL_num_frames = getIntAttribute(node, "num_frames");
                 acTL_num_plays = getIntAttribute(node, "num_plays");
 
                 acTL_present = true;
-            } else if (name.equals("fcTL")) {
+            } else if ("fcTL".equals(name)) {
                 fcTL_sequence_number = getIntAttribute(node,
                         "sequence_number",
                         -1, true,
@@ -2548,12 +2548,12 @@ public boolean tRNS_present;
                         fcTL_blendOperatorNames);
 
 
-            } else if (name.equals("fdAT")) {
+            } else if ("fdAT".equals(name)) {
                 fcTL_sequence_number = getIntAttribute(node,
                         "sequence_number",
                         -1, true,
                         true, 0, 2147483647);
-            } else if (name.equals("UnknownChunks")) {
+            } else if ("UnknownChunks".equals(name)) {
                 Node unknown_node = node.getFirstChild();
                 while (unknown_node != null) {
                     if (!unknown_node.getNodeName().equals("UnknownChunk")) {
@@ -2661,15 +2661,15 @@ public boolean tRNS_present;
         while (node != null) {
             String name = node.getNodeName();
 
-            if (name.equals("Chroma")) {
+            if ("Chroma".equals(name)) {
                 Node child = node.getFirstChild();
                 while (child != null) {
                     String childName = child.getNodeName();
-                    if (childName.equals("Gamma")) {
+                    if ("Gamma".equals(childName)) {
                         float gamma = getFloatAttribute(child, "value");
                         gAMA_present = true;
                         gAMA_gamma = (int)(gamma*100000 + 0.5);
-                    } else if (childName.equals("Palette")) {
+                    } else if ("Palette".equals(childName)) {
                         byte[] red = new byte[256];
                         byte[] green = new byte[256];
                         byte[] blue = new byte[256];
@@ -2700,11 +2700,11 @@ public boolean tRNS_present;
                         System.arraycopy(green, 0, PLTE_green, 0, numEntries);
                         System.arraycopy(blue, 0, PLTE_blue, 0, numEntries);
                         PLTE_present = true;
-                    } else if (childName.equals("BackgroundIndex")) {
+                    } else if ("BackgroundIndex".equals(childName)) {
                         bKGD_present = true;
                         bKGD_colorType = PNG.PNG_COLOR_PALETTE;
                         bKGD_index = getIntAttribute(child, "value");
-                    } else if (childName.equals("BackgroundColor")) {
+                    } else if ("BackgroundColor".equals(childName)) {
                         int red = getIntAttribute(child, "red");
                         int green = getIntAttribute(child, "green");
                         int blue = getIntAttribute(child, "blue");
@@ -2719,30 +2719,30 @@ public boolean tRNS_present;
                         }
                         bKGD_present = true;
                     }
-//                  } else if (childName.equals("ColorSpaceType")) {
-//                  } else if (childName.equals("NumChannels")) {
+//                  } else if ("ColorSpaceType".equals(childName)) {
+//                  } else if ("NumChannels".equals(childName)) {
 
                     child = child.getNextSibling();
                 }
-            } else if (name.equals("Compression")) {
+            } else if ("Compression".equals(name)) {
                 Node child = node.getFirstChild();
                 while (child != null) {
                     String childName = child.getNodeName();
-                    if (childName.equals("NumProgressiveScans")) {
+                    if ("NumProgressiveScans".equals(childName)) {
                         // Use Adam7 if NumProgressiveScans > 1
                         int scans = getIntAttribute(child, "value");
                         IHDR_interlaceMethod = (scans > 1) ? 1 : 0;
-//                  } else if (childName.equals("CompressionTypeName")) {
-//                  } else if (childName.equals("Lossless")) {
-//                  } else if (childName.equals("BitRate")) {
+//                  } else if ("CompressionTypeName".equals(childName)) {
+//                  } else if ("Lossless".equals(childName)) {
+//                  } else if ("BitRate".equals(childName)) {
                     }
                     child = child.getNextSibling();
                 }
-            } else if (name.equals("Data")) {
+            } else if ("Data".equals(name)) {
                 Node child = node.getFirstChild();
                 while (child != null) {
                     String childName = child.getNodeName();
-                    if (childName.equals("BitsPerSample")) {
+                    if ("BitsPerSample".equals(childName)) {
                         String s = getAttribute(child, "value");
                         StringTokenizer t = new StringTokenizer(s);
                         int maxBits = -1;
@@ -2765,7 +2765,7 @@ public boolean tRNS_present;
                             maxBits = 16;
                         }
                         IHDR_bitDepth = maxBits;
-                    } else if (childName.equals("SignificantBitsPerSample")) {
+                    } else if ("SignificantBitsPerSample".equals(childName)) {
                         String s = getAttribute(child, "value");
                         StringTokenizer t = new StringTokenizer(s);
                         int numTokens = t.countTokens();
@@ -2793,13 +2793,13 @@ public boolean tRNS_present;
                         if (numTokens >= 1 && numTokens <= 4) {
                             sBIT_present = true;
                         }
-//                      } else if (childName.equals("PlanarConfiguration")) {
-//                      } else if (childName.equals("SampleFormat")) {
-//                      } else if (childName.equals("SampleMSB")) {
+//                      } else if ("PlanarConfiguration".equals(childName)) {
+//                      } else if ("SampleFormat".equals(childName)) {
+//                      } else if ("SampleMSB".equals(childName)) {
                     }
                     child = child.getNextSibling();
                 }
-            } else if (name.equals("Dimension")) {
+            } else if ("Dimension".equals(name)) {
                 boolean gotWidth = false;
                 boolean gotHeight = false;
                 boolean gotAspectRatio = false;
@@ -2811,28 +2811,28 @@ public boolean tRNS_present;
                 Node child = node.getFirstChild();
                 while (child != null) {
                     String childName = child.getNodeName();
-                    if (childName.equals("PixelAspectRatio")) {
+                    if ("PixelAspectRatio".equals(childName)) {
                         aspectRatio = getFloatAttribute(child, "value");
                         gotAspectRatio = true;
-                    } else if (childName.equals("HorizontalPixelSize")) {
+                    } else if ("HorizontalPixelSize".equals(childName)) {
                         width = getFloatAttribute(child, "value");
                         gotWidth = true;
-                    } else if (childName.equals("VerticalPixelSize")) {
+                    } else if ("VerticalPixelSize".equals(childName)) {
                         height = getFloatAttribute(child, "value");
                         gotHeight = true;
-//                  } else if (childName.equals("ImageOrientation")) {
+//                  } else if ("ImageOrientation".equals(childName)) {
 //                  } else if
-//                      (childName.equals("HorizontalPhysicalPixelSpacing")) {
+//                      ("HorizontalPhysicalPixelSpacing".equals(childName)) {
 //                  } else if
-//                      (childName.equals("VerticalPhysicalPixelSpacing")) {
-//                  } else if (childName.equals("HorizontalPosition")) {
-//                  } else if (childName.equals("VerticalPosition")) {
-                    } if (childName.equals("HorizontalPixelOffset")) {
+//                      ("VerticalPhysicalPixelSpacing".equals(childName)) {
+//                  } else if ("HorizontalPosition".equals(childName)) {
+//                  } else if ("VerticalPosition".equals(childName)) {
+                    } if ("HorizontalPixelOffset".equals(childName)) {
                         fcTL_x_offset = getIntAttribute(child,
                                 "value",
                                 -1, true,
                                 true, 0, 2147483647);
-                    } else if (childName.equals("VerticalPixelOffset")) {
+                    } else if ("VerticalPixelOffset".equals(childName)) {
                         fcTL_y_offset = getIntAttribute(child,
                                 "value",
                                 -1, true,
@@ -2861,11 +2861,11 @@ public boolean tRNS_present;
                     pHYs_pixelsPerUnitXAxis = (int)(aspectRatio*denom);
                     pHYs_pixelsPerUnitYAxis = denom;
                 }
-            } else if (name.equals("Document")) {
+            } else if ("Document".equals(name)) {
                 Node child = node.getFirstChild();
                 while (child != null) {
                     String childName = child.getNodeName();
-                    if (childName.equals("ImageModificationTime")) {
+                    if ("ImageModificationTime".equals(childName)) {
                         tIME_present = true;
                         tIME_year = getIntAttribute(child, "year");
                         tIME_month = getIntAttribute(child, "month");
@@ -2876,8 +2876,8 @@ public boolean tRNS_present;
                             getIntAttribute(child, "minute", 0, false);
                         tIME_second =
                             getIntAttribute(child, "second", 0, false);
-//                  } else if (childName.equals("SubimageInterpretation")) {
-                    } else if (childName.equals("ImageCreationTime")) {
+//                  } else if ("SubimageInterpretation".equals(childName)) {
+                    } else if ("ImageCreationTime".equals(childName)) {
         // Extract the Creation Time value
                         int year  = getIntAttribute(child, "year");
                         int month = getIntAttribute(child, "month");
@@ -2896,11 +2896,11 @@ public boolean tRNS_present;
                     }
                     child = child.getNextSibling();
                 }
-            } else if (name.equals("Text")) {
+            } else if ("Text".equals(name)) {
                 Node child = node.getFirstChild();
                 while (child != null) {
                     String childName = child.getNodeName();
-                    if (childName.equals("TextEntry")) {
+                    if ("TextEntry".equals(childName)) {
                         String keyword =
                             getAttribute(child, "keyword", "", false);
                         String value = getAttribute(child, "value");
@@ -2912,7 +2912,7 @@ public boolean tRNS_present;
                         if (!isValidKeyword(keyword)) {
         // Just ignore this node, PNG requires keywords
                         } else if (isISOLatin(value, true)) {
-                            if (compression.equals("zip")) {
+                            if ("zip".equals(compression)) {
         // Use a zTXt node
                                 zTXt_keyword.add(keyword);
                                 zTXt_text.add(value);
@@ -2925,7 +2925,7 @@ public boolean tRNS_present;
                         } else {
         // Use an iTXt node
                             iTXt_keyword.add(keyword);
-                            iTXt_compressionFlag.add(Boolean.valueOf(compression.equals("zip")));
+                            iTXt_compressionFlag.add(Boolean.valueOf("zip".equals(compression)));
                             iTXt_compressionMethod.add(Integer.valueOf(0));
                             iTXt_languageTag.add(language);
                             // fake it
@@ -2937,15 +2937,15 @@ public boolean tRNS_present;
                     }
                     child = child.getNextSibling();
                 }
-//          } else if (name.equals("Transparency")) {
+//          } else if ("Transparency".equals(name)) {
 //              Node child = node.getFirstChild();
 //              while (child != null) {
 //                  String childName = child.getNodeName();
-//                  if (childName.equals("Alpha")) {
-//                  } else if (childName.equals("TransparentIndex")) {
-//                  } else if (childName.equals("TransparentColor")) {
-//                  } else if (childName.equals("TileTransparencies")) {
-//                  } else if (childName.equals("TileOpacities")) {
+//                  if ("Alpha".equals(childName)) {
+//                  } else if ("TransparentIndex".equals(childName)) {
+//                  } else if ("TransparentColor".equals(childName)) {
+//                  } else if ("TileTransparencies".equals(childName)) {
+//                  } else if ("TileOpacities".equals(childName)) {
 //                  }
 //                  child = child.getNextSibling();
 //              }

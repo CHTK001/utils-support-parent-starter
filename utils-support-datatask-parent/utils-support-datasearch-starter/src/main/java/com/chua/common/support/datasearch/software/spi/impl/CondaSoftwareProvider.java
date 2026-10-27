@@ -159,7 +159,7 @@ public class CondaSoftwareProvider implements SoftwareProvider {
                 if (trimmed.isEmpty()
                         || trimmed.startsWith("#")
                         || trimmed.startsWith("Loading")
-                        || trimmed.equals("done")) {
+                        || "done".equals(trimmed)) {
                     continue;
                 }
  // 列格式: 名称  版本  构建  通道

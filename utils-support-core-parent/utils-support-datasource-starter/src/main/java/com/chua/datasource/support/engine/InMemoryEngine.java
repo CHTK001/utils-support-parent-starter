@@ -111,7 +111,7 @@ public class InMemoryEngine extends AbstractEngine {
             } else if (n.startsWith("is") && n.length() > 2 && Character.isUpperCase(n.charAt(2))) {
                 fields.add(Character.toLowerCase(n.charAt(2)) + n.substring(3));
             } else if (!n.startsWith("get") && !n.startsWith("is") && !n.startsWith("set")
-                    && !n.equals("hashCode") && !n.equals("toString") && !n.equals("equals")) {
+                    && !"hashCode".equals(n) && !"toString".equals(n) && !"equals".equals(n)) {
                 fields.add(n);
             }
         }

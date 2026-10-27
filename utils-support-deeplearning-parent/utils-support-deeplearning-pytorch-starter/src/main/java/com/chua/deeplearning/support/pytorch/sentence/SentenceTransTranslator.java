@@ -71,7 +71,7 @@ public class SentenceTransTranslator implements Translator<String, float[]> {
         NDArray array = null;
         for (NDArray ndArray : list) {
             String name = ndArray.getName();
-            if (name != null && name.equals("sentence_embedding")) {
+            if (name != null && "sentence_embedding".equals(name)) {
                 array = ndArray;
                 break;
             }

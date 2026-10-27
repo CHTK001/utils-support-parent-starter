@@ -180,7 +180,7 @@ public class UnslothUsageParser extends BaseUsageParser {
                 firstNonBlank(asStr(row.get("requested_model")),
                         firstNonBlank(asStr(row.get("fallback_model")), "unsloth")));
         String providerType = asStr(row.get("provider_type"));
-        if (!providerType.isBlank() && !model.isBlank() && !model.equals("unsloth")
+        if (!providerType.isBlank() && !model.isBlank() && !"unsloth".equals(model)
                 && !model.startsWith(providerType + "/")) {
             return providerType + "/" + model;
         }

@@ -161,7 +161,7 @@ public class H264NvencVideoEncoder implements VideoEncoder {
             return false;
         }
         String name = format.toLowerCase(Locale.ROOT).replace('-', '_');
-        return name.startsWith("h264") || name.startsWith("avc") || name.equals("nvenc");
+        return name.startsWith("h264") || name.startsWith("avc") || "nvenc".equals(name);
     }
 
     @Override
