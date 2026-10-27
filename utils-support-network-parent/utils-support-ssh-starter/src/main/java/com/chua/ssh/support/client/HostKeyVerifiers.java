@@ -3,11 +3,8 @@ package com.chua.ssh.support.client;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.PublicKey;
 
 /**
  * 主机密钥校验器装配。
@@ -59,17 +56,10 @@ final class HostKeyVerifiers {
             return org.apache.sshd.client.keyverifier.AcceptAllServerKeyVerifier.INSTANCE;
         }
         prepareKnownHosts(knownHostsPath);
+        // strict=false 即 accept-new：已知密钥严格比对，未知密钥接受并写入 known_hosts
         boolean strict = policy == HostKeyPolicy.STRICT;
-        if (strict) {
-            // STRICT 策略：MINA DefaultKnownHostsServerKeyVerifier 严格比对，未知密钥拒绝
-            return new org.apache.sshd.client.keyverifier.DefaultKnownHostsServerKeyVerifier(
-                    org.apache.sshd.client.keyverifier.AcceptAllServerKeyVerifier.INSTANCE, true, knownHostsPath);
-        }
-        // ACCEPT_NEW 策略：MINA 2.20 DefaultKnownHostsServerKeyVerifier 在 strict=false 时存在
-        // bug——即使 delegate(AcceptAllServerKeyVerifier) 返回 true，verifyServerKey 仍返回 false
-        // 导致 "Server key did not validate" 连接被拒。此处手动实现等价逻辑：
-        // known_hosts 中有匹配条目时严格比对密钥，无匹配条目时放行并 WARN。
-        return new AcceptNewServerKeyVerifier(knownHostsPath);
+        return new org.apache.sshd.client.keyverifier.DefaultKnownHostsServerKeyVerifier(
+                org.apache.sshd.client.keyverifier.AcceptAllServerKeyVerifier.INSTANCE, strict, knownHostsPath);
     }
 
     /**
@@ -91,92 +81,6 @@ final class HostKeyVerifiers {
             }
         } catch (IOException e) {
             throw new IllegalStateException("无法准备 known_hosts: " + knownHostsPath + "，" + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * ACCEPT_NEW 主机密钥校验器。
-     *
-     * <p>行为等价于 OpenSSH {@code StrictHostKeyChecking=accept-new}：
-     * known_hosts 中有匹配条目时严格比对密钥，匹配则放行，不匹配则拒绝；
-     * known_hosts 中无匹配条目时接受新密钥并记录 WARN 日志。</p>
-     *
-     * <p>替代 MINA 2.20 {@code DefaultKnownHostsServerKeyVerifier}(strict=false)——
-     * 该版本存在 bug，delegate 返回 true 时仍可能返回 false。</p>
-     *
-     * @since 4.0.0.42
-     */
-    @Slf4j
-    static final class AcceptNewServerKeyVerifier
-            implements org.apache.sshd.client.keyverifier.ServerKeyVerifier {
-
-        private final Path knownHostsPath;
-
-        AcceptNewServerKeyVerifier(Path knownHostsPath) {
-            this.knownHostsPath = knownHostsPath;
-        }
-
-        @Override
-        public boolean verifyServerKey(
-                org.apache.sshd.client.session.ClientSession session,
-                SocketAddress peerAddress, PublicKey serverKey) {
-            try {
-                var entries = org.apache.sshd.client.config.hosts.KnownHostEntry
-                        .readKnownHostEntries(knownHostsPath);
-                var addr = (InetSocketAddress) peerAddress;
-                var hostName = addr.getHostString();
-                var hostPort = addr.getPort();
-                boolean foundMatchingEntry = false;
-                for (var entry : entries) {
-                    if (!entry.isHostMatch(hostName, hostPort)) {
-                        continue;
-                    }
-                    foundMatchingEntry = true;
-                    var keyEntry = entry.getKeyEntry();
-                    if (keyEntry == null) {
-                        continue;
-                    }
-                    try {
-                        var knownKey = keyEntry.resolvePublicKey(session, null);
-                        if (knownKey == null) {
-                            log.warn("resolvePublicKey 返回 null，known_hosts 条目: {}",
-                                    entry.getConfigLine());
-                        } else {
-                            var knownFp = org.apache.sshd.common.config.keys.KeyUtils
-                                    .getFingerPrint(knownKey);
-                            var serverFp = org.apache.sshd.common.config.keys.KeyUtils
-                                    .getFingerPrint(serverKey);
-                            var matched = org.apache.sshd.common.config.keys.KeyUtils
-                                    .compareKeys(serverKey, knownKey);
-                            log.info("known_hosts 密钥比对: known={} server={} matched={}",
-                                    knownFp, serverFp, matched);
-                            if (matched) {
-                                return true;
-                            }
-                        }
-                    } catch (Exception e) {
-                        log.warn("无法解析 known_hosts 密钥条目: {}", e.getMessage());
-                    }
-                }
-                if (foundMatchingEntry) {
-                    // known_hosts 中有匹配条目但密钥不同。instabox 等负载均衡 SSH 服务端
-                    // 会在不同连接上呈现不同主机密钥，严格比对无法通过。
-                    // ACCEPT_NEW 语义允许降级：记录 WARN 后放行，运维可在日志中发现密钥漂移。
-                    log.warn("SSH 主机密钥与 known_hosts 不匹配（可能负载均衡多节点），"
-                            + "已放行: {}:{} serverFp={}",
-                            hostName, hostPort,
-                            org.apache.sshd.common.config.keys.KeyUtils.getFingerPrint(
-                                    serverKey));
-                    return true;
-                }
-                log.warn("SSH 主机密钥未在 known_hosts 中验证，已接受新密钥: {}:{} fingerprint={}",
-                        hostName, hostPort,
-                        org.apache.sshd.common.config.keys.KeyUtils.getFingerPrint(serverKey));
-                return true;
-            } catch (Exception e) {
-                log.warn("SSH known_hosts 校验异常: {}，已放行（ACCEPT_NEW 降级）", e.getMessage());
-                return true;
-            }
         }
     }
 }
