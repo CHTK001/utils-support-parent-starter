@@ -1521,7 +1521,6 @@ public boolean tRNS_present;
      * Repeat
      *
      * @param s s
-     * @param s     待重复的字符串
      * @param times 重复次数
      * @return 以空格分隔重复 {@code times} 次的字符串
      */

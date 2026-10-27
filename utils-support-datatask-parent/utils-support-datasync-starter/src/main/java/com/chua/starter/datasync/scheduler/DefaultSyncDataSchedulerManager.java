@@ -214,7 +214,6 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
      * 创建 默认同步数据调度器管理器 实例
      * @param dataSyncServer 数据同步服务端
      * @param config 调度器配置
-     * @param config 配置
      * @return 默认同步数据调度器管理器的结果
      */
     public DefaultSyncDataSchedulerManager(DataSyncServer dataSyncServer, SchedulerConfig config) {

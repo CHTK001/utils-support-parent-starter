@@ -68,7 +68,6 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
      * 创建 zookeeper服务discovery 实例
      * @param discoveryOption discovery期权
      * @param clusterName 字符串
-     * @param clusterName cluster名称
      */
     public ZookeeperServiceDiscovery(DiscoveryOption discoveryOption, String clusterName) {
         super(discoveryOption, clusterName);

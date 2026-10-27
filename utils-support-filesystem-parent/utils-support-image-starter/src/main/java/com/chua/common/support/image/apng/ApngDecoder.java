@@ -412,10 +412,6 @@ public class ApngDecoder {
      * @param frame  帧图像
      * @param x      水平偏移
      * @param y      垂直偏移
-     * @param blend  混合方式（源=覆盖，OVER=Alpha 混合）
-     * @param dst dst
-     * @param src src
-     * @param srcAlpha srcalpha
      */
     private static void compositeFrame(BufferedImage canvas, BufferedImage frame,
                                        int x, int y, int blendOp) {

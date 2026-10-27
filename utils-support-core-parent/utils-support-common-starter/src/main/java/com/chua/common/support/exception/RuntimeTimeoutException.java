@@ -30,7 +30,6 @@ public class RuntimeTimeoutException extends RuntimeException {
     /**
      * 创建 RuntimeTimeoutException 实例
      * @param message message
-     * @param Throwable Throwable
      * @param cause 方法入参 cause
      */
     public RuntimeTimeoutException(String message, Throwable cause) {

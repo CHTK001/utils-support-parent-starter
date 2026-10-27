@@ -52,7 +52,6 @@ public class ConvertSupport {
     /**
      * 创建 ConvertSupport 实例
      * @param sourceType sourceType
-     * @param String String
      * @param targetType 目标类型，不允许为 null
      */
     private ConvertSupport(String sourceType, String targetType) {

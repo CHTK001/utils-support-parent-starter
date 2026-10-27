@@ -414,7 +414,6 @@ public class ConcurrentEndpoint {
      * 锁：配置 + 运行状态（名称 为空返回列表，否则单点）
      *
      * @param name 名称
-     * @param body 主体
      * @return 锁配置保存的结果
      */
     private Map<String, Object> lockView(String name) {
@@ -488,8 +487,6 @@ public class ConcurrentEndpoint {
         config.setEnabled(enabled);
 /**
  * circuitbreaker配置保存。
- * @param name 名称
- * @param body 主体
  * @return circuitbreaker配置保存的结果
  */
 

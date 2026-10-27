@@ -58,7 +58,6 @@ public class ReactorDataSyncExecutor {
      * 创建 reactor数据同步执行器 实例
      * @param agentId Agent标识
      * @param serverMode 布尔值
-     * @param serverMode 服务端mode
      */
     public ReactorDataSyncExecutor(String agentId, boolean serverMode) {
         this.agentId = agentId;

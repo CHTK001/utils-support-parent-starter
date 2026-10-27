@@ -54,8 +54,6 @@ public class SofaRpcServer implements RpcServer {
      * @param rpcRegistryConfigs rpcregistry配置
      * @param protocolConfig rpc协议配置
      * @param name 字符串
-     * @param protocolConfig 协议配置
-     * @param name 名称
      */
     public SofaRpcServer(List<RpcRegistryConfig> rpcRegistryConfigs, RpcProtocolConfig protocolConfig, String name) {
         applicationConfig.setAppName(name);

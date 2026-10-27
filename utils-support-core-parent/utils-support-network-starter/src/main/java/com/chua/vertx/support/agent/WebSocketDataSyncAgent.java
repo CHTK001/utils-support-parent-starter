@@ -74,9 +74,6 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
     /**
      * 创建 WebSocketDataSyncAgent 实例
      * @param agentId agentId
-     * @param String String
-     * @param String String
-     * @param DataSyncSource DataSyncSource
      * @param sourceId 来源ID，不允许为 null
      * @param serverUri 服务端URI，不允许为 null
      * @param source 来源，不允许为 null

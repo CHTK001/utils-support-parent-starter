@@ -163,8 +163,6 @@ public class Socks5ProxyServer extends AbstractProxyServer {
     /**
      * 创建 Socks5ProxyServer 实例
      * @param setting setting
-     * @param String String
-     * @param String String
      * @param username 用户名，不允许为 null
      * @param password 密码，不允许为 null
      */

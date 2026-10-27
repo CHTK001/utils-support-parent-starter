@@ -82,7 +82,6 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     /**
      * 创建 ultrafacetranslator 实例
      * @param confThresh confthresh
-     * @param confThresh double
      * @param nmsThresh nmsthresh
      */
     public UltraFaceTranslator(double confThresh, double nmsThresh) {

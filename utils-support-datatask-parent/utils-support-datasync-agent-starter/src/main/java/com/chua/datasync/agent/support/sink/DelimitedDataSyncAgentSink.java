@@ -47,8 +47,6 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
     /**
      * 创建 delimited数据同步Agentsink 实例
      * @param sinkId sinkid
-     * @param sinkId 字符串
-     * @param sinkId 字符串
      * @param filePath 文件路径
      * @param delimiter delimiter
      */
@@ -59,12 +57,9 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
     /**
      * 创建 delimited数据同步Agentsink 实例
      * @param sinkId sinkid
-     * @param sinkId 字符串
-     * @param sinkId 字符串
      * @param append 布尔值
      * @param filePath 文件路径
      * @param delimiter delimiter
-     * @param append 追加
      */
     public DelimitedDataSyncAgentSink(String sinkId, String filePath, String delimiter, boolean append) {
         this.sinkId = sinkId;

@@ -123,13 +123,9 @@ public class PlaywrightBusinessBenchmark {
          * 创建 业务step 实例
          * @param name 名称
          * @param type step类型
-         * @param name 字符串
-         * @param name 字符串
          * @param timeoutMs long
-         * @param type 类型
          * @param selector selector
          * @param value 值
-         * @param timeoutMs 超时ms
          * @return 业务step的结果
          */
         private BusinessStep(String name, StepType type, String selector, String value, long timeoutMs) {

@@ -43,7 +43,6 @@ public class SafeTensorModelDownloadManager {
      * 创建 safetensor模型download管理器 实例
      * @param client 客户端
      * @param modelRoot 路径
-     * @param modelRoot 模型根
      */
     public SafeTensorModelDownloadManager(SafeTensorServiceClient client, Path modelRoot) {
         this.modelRoot = modelRoot;

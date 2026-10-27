@@ -755,7 +755,6 @@ public class SftpClient implements AutoCloseable {
          * 创建 sftp客户端异常 实例
          * @param msg msg
          * @param cause Throwable
-         * @param cause cause
          */
         public SftpClientException(String msg, Throwable cause) { super(msg, cause); }
     }

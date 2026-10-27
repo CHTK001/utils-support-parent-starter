@@ -142,7 +142,6 @@ public class SipServer extends AbstractServer implements TcpServer {
      * @return 服务器配置
      *
      * 解析 token：优先 --token-file 文件，其次 SipConfig.token。
-     * @param config 配置，不允许为 null
      * @return 结果字符串
      */
     private static String resolveToken(SipConfig config) {
@@ -441,7 +440,6 @@ private static ServerSetting serverSetting(SipConfig config) {
     /**
      * 冲刷暂存帧：新复用连接注册后，补发等它的一切帧。
      *
-     * @param conn 新注册的连接
      *
      * 逐字节读取首行（遇换行停止），不预读缓冲后续字节，保证数据平面业务字节不被吞掉。
      * <p>超过 {@link #MAX_HEAD_LINE} 字节直接视为非法连接并断开，防止恶意客户端打爆内存。</p>
@@ -943,8 +941,6 @@ onSignalClosed(clientId);
         /**
          * 发送一帧。
          *
-         * @param channelId 通道标识
-         * @param payload   负载（空为关闭标记）
          *
          * 直接写出完整帧（含长度头与 channelId）。
          * @param fullFrame 完整帧

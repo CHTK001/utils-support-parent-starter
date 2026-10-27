@@ -43,11 +43,8 @@ public class SkillArgumentSchema {
     /**
      * 创建 SkillArgumentSchema 实例
      * @param name name
-     * @param name String
-     * @param name String
      * @param required boolean
      * @param enumValues List
-     * @param enumValues enumValues
      * @param description 描述，不允许为 null
      * @param type 类型，不允许为 null
      */

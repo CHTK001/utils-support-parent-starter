@@ -72,9 +72,6 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
      *
      * @param modelDir 模型目录
      * @throws Exception 加载异常
-     * @param is 是否
-     * @param dir dir
-     * @param prefix 前缀
      */
     public void prepare(Path modelDir) throws Exception {
         Path encoderPath = resolveModel(modelDir, "encoder");

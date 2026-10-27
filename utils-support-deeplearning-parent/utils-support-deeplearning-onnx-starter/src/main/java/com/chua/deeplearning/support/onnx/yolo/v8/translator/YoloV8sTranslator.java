@@ -107,9 +107,7 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     /**
      * 创建 yolov8stranslator 实例
      * @param threshold 阈值
-     * @param threshold float
      * @param classes 列表
-     * @param classes classes
      * @param nmsThreshold nms阈值
      */
     public YoloV8sTranslator(float threshold, float nmsThreshold, List<String> classes) {

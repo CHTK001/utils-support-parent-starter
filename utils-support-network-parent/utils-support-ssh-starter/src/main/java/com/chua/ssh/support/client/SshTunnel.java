@@ -49,10 +49,8 @@ public class SshTunnel implements Tunnel {
     /**
      * 创建 sshtunnel 实例
      * @param sshClient ssh客户端
-     * @param sshClient ssh客户端
      * @param definition definition
      * @param bindAddress 字符串
-     * @param bindAddress bind地址
      */
     public SshTunnel(SshClient sshClient, SshClient.TunnelDefinition definition, String bindAddress) {
         this.sshClient = sshClient;

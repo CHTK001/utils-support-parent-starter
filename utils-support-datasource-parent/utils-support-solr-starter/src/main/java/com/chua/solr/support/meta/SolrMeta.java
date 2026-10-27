@@ -30,7 +30,6 @@ public class SolrMeta extends AbstractMetaSearch {
      * 创建 Solrmeta 实例
      * @param metaData meta数据
      * @param engine Solrengine
-     * @param engine engine
      */
     public SolrMeta(AbstractMetaData metaData, SolrEngine engine) {
         super(metaData, engine);

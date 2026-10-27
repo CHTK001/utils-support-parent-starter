@@ -87,12 +87,9 @@ public final class W3CTraceContext {
     /**
      * 创建 W3c追踪上下文 实例
      * @param version 版本
-     * @param version 字符串
-     * @param version 字符串
      * @param flags byte
      * @param traceId 追踪标识
      * @param spanId spanid
-     * @param flags flags
      */
     private W3CTraceContext(String version, String traceId, String spanId, byte flags) {
         this.version = version;

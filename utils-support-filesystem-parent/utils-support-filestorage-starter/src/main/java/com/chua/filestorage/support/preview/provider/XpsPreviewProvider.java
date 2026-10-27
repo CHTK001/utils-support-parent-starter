@@ -233,7 +233,6 @@ public class XpsPreviewProvider implements FileStoragePreviewProvider {
      *
      * @param s        串
      * @param chars    字符集
-     * @param fallback 未命中时返回值
      * @return 最小下标
      */
     private static int idxOfAny(String s, String chars) {

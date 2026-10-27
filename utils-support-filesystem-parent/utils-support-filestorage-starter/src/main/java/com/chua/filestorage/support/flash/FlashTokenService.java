@@ -43,7 +43,6 @@ public class FlashTokenService {
      * 创建 flash令牌服务 实例
      * @param flashDir flashdir
      * @param expireSeconds long
-     * @param expireSeconds expireseconds
      */
     public FlashTokenService(Path flashDir, long expireSeconds) {
         this.flashDir = flashDir;

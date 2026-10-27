@@ -35,7 +35,6 @@ public class TableCache {
      * 创建 table缓存 实例
      * @param dataSources 数据源
      * @param cacheSeconds int
-     * @param cacheSeconds 缓存seconds
      */
     public TableCache(List<DataSource> dataSources, int cacheSeconds) {
         this.dataSources = dataSources;

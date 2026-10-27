@@ -964,7 +964,6 @@ public class NumberUtils {
      * 字符串         数字
      *
      * @param <T>               
-     * @param text 文本
      * @param targetClass 目标类
      * @return Number
      * @param number 数字

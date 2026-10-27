@@ -44,9 +44,6 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
      *
      * @param modelDir 含 编码器/解码器/连接 int8 onnx 与 令牌.txt
      * @throws Exception 加载异常
-     * @param tokensFile 令牌文件
-     * @param dir dir
-     * @param prefix 前缀
      */
     public void prepare(Path modelDir) throws Exception {
         encoderSession = env.createSession(
@@ -108,8 +105,6 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
      * @param wavPath WAV 路径
      * @return 识别文本
      * @throws Exception 推理异常
-     * @param encoderOut 编码器出
-     * @param features 特征
      */
     public String transcribe(Path wavPath) throws Exception {
         float[] samples = AudioUtils.loadMono16k(wavPath);

@@ -63,7 +63,6 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     /**
      * 创建 nettywebSocket同步客户端 实例
      * @param clientId 客户端标识
-     * @param clientId 字符串
      * @param serverUrl 服务端url
      */
     public NettyWebSocketSyncClient(String clientId, String serverUrl) {

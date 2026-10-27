@@ -504,8 +504,6 @@ public class NativeLoader {
          * @param name 名称
          * @param size long
          * @param supplier 流供应商
-         * @param size 大小
-         * @param supplier 供应商
          * @return ResourceItem的结果
          */
         private ResourceItem(String name, long size, StreamSupplier supplier) {

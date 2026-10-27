@@ -67,7 +67,6 @@ public class VertxHttpProxyServer extends AbstractServer {
      * 创建 vertxhttp代理服务端 实例
      * @param setting setting
      * @param targetResolver 代理Target解析器
-     * @param targetResolver Target解析器
      */
     public VertxHttpProxyServer(ServerSetting setting, ProxyTargetResolver<InetSocketAddress> targetResolver) {
         super(setting);
@@ -78,7 +77,6 @@ public class VertxHttpProxyServer extends AbstractServer {
      * 创建 vertxhttp代理服务端 实例
      * @param setting setting
      * @param backend inetSocket地址
-     * @param backend backend
      */
     public VertxHttpProxyServer(ServerSetting setting, InetSocketAddress backend) {
         super(setting);

@@ -21,7 +21,6 @@ public class BeanDefinitionException extends RuntimeException {
      * 创建 Beandefinition异常 实例
      * @param message 消息
      * @param cause Throwable
-     * @param cause cause
      */
     public BeanDefinitionException(String message, Throwable cause) {
         super(message, cause);

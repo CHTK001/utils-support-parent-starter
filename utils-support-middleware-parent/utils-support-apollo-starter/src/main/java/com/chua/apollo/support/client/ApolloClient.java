@@ -71,9 +71,7 @@ public class ApolloClient implements AutoCloseable {
     /**
      * 创建 apollo客户端 实例
      * @param appId appid
-     * @param appId 字符串
      * @param namespaces 列表
-     * @param namespaces namespaces
      * @param meta meta
      */
     private ApolloClient(String appId, String meta, List<String> namespaces) {
@@ -419,7 +417,6 @@ public class ApolloClient implements AutoCloseable {
          * 创建 apollo客户端异常 实例
          * @param message 消息
          * @param cause Throwable
-         * @param cause cause
          */
         public ApolloClientException(String message, Throwable cause) {
             super(message, cause);

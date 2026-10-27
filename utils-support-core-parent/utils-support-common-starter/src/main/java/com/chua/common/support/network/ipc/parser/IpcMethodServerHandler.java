@@ -40,10 +40,7 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
     /**
      * 创建 IpcMethodServerHandler 实例
      * @param objectContext objectContext
-     * @param Class Class
      * @param targetClass targetClass
-     * @param Method Method
-     * @param String String
      * @param method 方法，不允许为 null
      * @param path 路径，不允许为 null
      */

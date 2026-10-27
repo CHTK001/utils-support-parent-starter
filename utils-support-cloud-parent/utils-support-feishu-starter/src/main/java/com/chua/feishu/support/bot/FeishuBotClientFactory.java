@@ -115,10 +115,6 @@ public class FeishuBotClientFactory implements BotClient.Factory {
         /**
          * 连接超时millis
          * @param connectTimeoutMillis 连接超时millis
-         * @param readTimeoutMillis 读取超时millis
-         * @param configSaveOrLoader 配置保存或加载
-         * @param appId appid
-         * @param baseUrl baseurl
          */
         @Override
         public BotClient.Builder connectTimeoutMillis(
@@ -130,9 +126,6 @@ public class FeishuBotClientFactory implements BotClient.Factory {
         /**
          * 读取超时millis
          * @param readTimeoutMillis 读取超时millis
-         * @param configSaveOrLoader 配置保存或加载
-         * @param appId appid
-         * @param baseUrl baseurl
          */
         @Override
         public BotClient.Builder readTimeoutMillis(
@@ -144,8 +137,6 @@ public class FeishuBotClientFactory implements BotClient.Factory {
         /**
          * 配置保存或加载
          * @param configSaveOrLoader 配置保存或加载
-         * @param appId appid
-         * @param baseUrl baseurl
          */
         @Override
         public BotClient.Builder configSaveOrLoader(

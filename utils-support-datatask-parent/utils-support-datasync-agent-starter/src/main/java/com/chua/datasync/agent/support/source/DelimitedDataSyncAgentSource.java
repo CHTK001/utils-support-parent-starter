@@ -62,9 +62,6 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
     /**
      * 创建 delimited数据同步Agent源 实例
      * @param sourceId 源标识
-     * @param sourceId 字符串
-     * @param sourceId 字符串
-     * @param sourceId 字符串
      * @param inputId 输入标识
      * @param filePath 文件路径
      * @param delimiter delimiter
@@ -76,14 +73,10 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
     /**
      * 创建 delimited数据同步Agent源 实例
      * @param sourceId 源标识
-     * @param sourceId 字符串
-     * @param sourceId 字符串
-     * @param sourceId 字符串
      * @param offsetStorage 同步数据偏移量storage
      * @param inputId 输入标识
      * @param filePath 文件路径
      * @param delimiter delimiter
-     * @param offsetStorage 偏移量storage
      */
     public DelimitedDataSyncAgentSource(String sourceId, String inputId, String filePath, String delimiter, SyncDataOffsetStorage offsetStorage) {
         this.sourceId = sourceId;

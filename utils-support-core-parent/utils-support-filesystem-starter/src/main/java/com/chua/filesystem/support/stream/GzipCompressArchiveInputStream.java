@@ -44,7 +44,6 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
      * 创建输入流
      * @param inputStream 输入流
      * @param file 文件
-     * @param char char
      * @param password 密码
      * @return createInputStream
      */

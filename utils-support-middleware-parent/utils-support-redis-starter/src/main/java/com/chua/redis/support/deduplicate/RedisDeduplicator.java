@@ -57,7 +57,6 @@ public class RedisDeduplicator implements Deduplicator {
      * 创建 redisdeduplicator 实例
      * @param redisson redisson
      * @param ttlMs long
-     * @param ttlMs ttlms
      */
     public RedisDeduplicator(RedissonClient redisson, long ttlMs) {
         this.redisson = redisson;

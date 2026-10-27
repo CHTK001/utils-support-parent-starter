@@ -839,7 +839,6 @@ public class GuacamoleClient {
          * 创建 guacamole客户端异常 实例
          * @param message 消息
          * @param cause Throwable
-         * @param cause cause
          */
         public GuacamoleClientException(String message, Throwable cause) {
             super(message, cause);

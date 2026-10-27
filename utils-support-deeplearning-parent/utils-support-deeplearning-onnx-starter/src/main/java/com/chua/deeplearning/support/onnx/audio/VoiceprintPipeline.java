@@ -228,8 +228,6 @@ public class VoiceprintPipeline implements AutoCloseable {
      * @param minSegSec   最短语音段秒数
      * @param maxSegSec   最大段长秒数
      * @return 语音段列表
-     * @param off off
-     * @param len len
      */
     static List<float[]> splitByEnergy(float[] s, float silenceRms, float minSegSec, float maxSegSec) {
         int frame = (int) (0.03F * 16000);
@@ -534,9 +532,6 @@ public class VoiceprintPipeline implements AutoCloseable {
          *
          * @param modelId 模型 标识（对应 音频fingerprinter 注册表）
          * @return this
-         * @param dir dir
-         * @param provider 提供者
-         * @param config 配置
          */
         public Builder model(String modelId) {
             if (modelId == null || modelId.isBlank()) {
@@ -649,7 +644,6 @@ public class VoiceprintPipeline implements AutoCloseable {
          *
          * @param type VAD 类型（"energy" 等）
          * @return this
-         * @param v v
          */
         public Builder vad(String type) {
             this.vadType = type;

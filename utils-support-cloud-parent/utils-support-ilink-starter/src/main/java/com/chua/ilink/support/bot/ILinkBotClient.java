@@ -467,7 +467,6 @@ public class ILinkBotClient implements BotClient {
      * 请求体为 {@code {"msg": {...}, "基础_信息": {...}}} 包裹结构。</p>
      *
      * @param toUser 目标用户
-     * @param body   文本内容
      * @return 发送结果
      * @param content 内容
      */

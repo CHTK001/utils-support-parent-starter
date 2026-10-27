@@ -59,7 +59,6 @@ public class CompressedFileSystem implements AutoCloseable {
      * 创建 compressed文件系统 实例
      * @param zipPath 压缩路径
      * @param readOnly 布尔值
-     * @param readOnly 读取only
      */
     private CompressedFileSystem(Path zipPath, boolean readOnly) {
         this.zipPath = zipPath;

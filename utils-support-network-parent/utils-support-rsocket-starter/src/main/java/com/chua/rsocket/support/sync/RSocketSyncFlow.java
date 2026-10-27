@@ -37,7 +37,6 @@ public class RSocketSyncFlow implements SyncFlow {
      * 创建 rSocket同步流 实例
      * @param setting setting
      * @param serverUrl 字符串
-     * @param serverUrl 服务端url
      */
     public RSocketSyncFlow(com.chua.common.support.network.server.ServerSetting setting, String serverUrl) {
         this.server = new RSocketSyncServer(setting);

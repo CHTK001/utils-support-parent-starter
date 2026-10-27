@@ -47,7 +47,6 @@ public class RedisSearchMeta extends AbstractMetaSearch {
      * 创建 redis搜索meta 实例
      * @param metaData meta数据
      * @param engine redi搜索engine
-     * @param engine engine
      */
     public RedisSearchMeta(AbstractMetaData metaData, RediSearchEngine engine) {
         super(metaData, engine);

@@ -134,7 +134,6 @@ public class FceEmailProvider implements EmailProvider {
       * extractotp。
       * @param text 文本
       * @return extractOtp的结果
-      * @param length 长度
       */
     public static String extractOtp(String text) {
         if (text == null) {

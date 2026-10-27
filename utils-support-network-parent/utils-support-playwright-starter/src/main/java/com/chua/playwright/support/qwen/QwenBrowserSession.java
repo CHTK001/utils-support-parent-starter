@@ -62,7 +62,6 @@ public class QwenBrowserSession implements AutoCloseable {
     /**
      * 创建 通义千问browser会话 实例
      * @param cookieString Cookie字符串
-     * @param cookieString 字符串
      * @param userDataDir 用户数据dir
      */
     public QwenBrowserSession(String cookieString, String userDataDir) {

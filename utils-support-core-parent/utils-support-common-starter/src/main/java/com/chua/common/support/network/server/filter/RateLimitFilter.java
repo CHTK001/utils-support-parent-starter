@@ -88,9 +88,6 @@ public class RateLimitFilter implements ServerFilter {
     /**
      * 创建 RateLimitFilter 实例
      * @param providerName providerName
-     * @param double double
-     * @param KeyStrategy KeyStrategy
-     * @param String String
      * @param qps 方法入参 qps
      * @param keyStrategy 键Strategy，不允许为 null
      * @param pathPrefix 路径前缀，不允许为 null

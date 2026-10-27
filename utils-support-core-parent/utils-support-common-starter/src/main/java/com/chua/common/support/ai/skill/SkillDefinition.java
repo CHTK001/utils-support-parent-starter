@@ -39,9 +39,7 @@ public class SkillDefinition {
     /**
      * 创建 SkillDefinition 实例
      * @param name name
-     * @param name String
      * @param arguments List
-     * @param arguments arguments
      * @param handler SkillHandler
      * @param description 描述，不允许为 null
      */

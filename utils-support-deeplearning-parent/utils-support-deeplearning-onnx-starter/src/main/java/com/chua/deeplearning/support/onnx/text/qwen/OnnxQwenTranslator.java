@@ -389,11 +389,8 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
 
     /**
      * 检测已生成片段是否陷入退化解（重复/循环），用于提前终止。
-     * @param logits logits
      * @param tokens 令牌
      * @param promptLen 提示符len
-     * @param n n
-     * @param token 令牌
      * @return 是否degenerate的结果
      */
     private static boolean isDegenerate(List<Long> tokens, int promptLen) {

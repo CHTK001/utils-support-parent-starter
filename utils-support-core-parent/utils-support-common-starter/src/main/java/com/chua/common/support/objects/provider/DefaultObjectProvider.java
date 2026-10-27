@@ -27,7 +27,6 @@ public class DefaultObjectProvider<T> implements ObjectProvider<T> {
      * 创建 默认对象提供者 实例
      * @param ctx ctx
      * @param type 类
-     * @param type 类型
      */
     public DefaultObjectProvider(ObjectContext ctx, Class<T> type) {
         this.ctx = ctx;

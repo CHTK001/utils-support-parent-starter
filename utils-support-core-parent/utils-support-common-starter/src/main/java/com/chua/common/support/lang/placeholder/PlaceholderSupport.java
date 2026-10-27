@@ -130,8 +130,6 @@ public class PlaceholderSupport {
     /**
      * 创建 PlaceholderSupport 实例
      * @param placeholderPrefix placeholderPrefix
-     * @param String String
-     * @param String String
      * @param placeholderSuffix placeholder后缀，不允许为 null
      * @param valueSeparator 值分隔符，不允许为 null
      */

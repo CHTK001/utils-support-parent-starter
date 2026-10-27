@@ -65,7 +65,6 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
      * 创建 redissondispatcher提供者 实例
      * @param config 配置
      * @param redissonClient redisson客户端
-     * @param redissonClient redisson客户端
      */
     public RedissonDispatcherProvider(DispatcherConfig config, RedissonClient redissonClient) {
         super(config);

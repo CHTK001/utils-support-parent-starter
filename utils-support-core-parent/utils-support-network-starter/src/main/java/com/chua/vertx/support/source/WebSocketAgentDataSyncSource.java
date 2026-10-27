@@ -31,7 +31,6 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
      * 创建 webSocketAgent数据同步源 实例
      * @param connection connection
      * @param sourceId 字符串
-     * @param sourceId 源标识
      */
     public WebSocketAgentDataSyncSource(com.chua.vertx.support.server.WebSocketDataSyncAgentServer.Connection connection, String sourceId) {
         this.connection = connection;

@@ -258,13 +258,7 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
                         data[1 * chStride + pixelOffset] = (float) pixel[1];
                         /**
                          * 解析tensor。
-                         * @param result 结果
-                         * @param name 名称
-                         * @param expectedDims 期望dims
                          * @return 解析tensor的结果
-                         * @param predBboxes predBboxes
-                         * @param predScores predScores
-                         * @param timestamp 时间戳
                          */
                         data[2 * chStride + pixelOffset] = (float) pixel[2];
                     }

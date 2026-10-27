@@ -266,7 +266,6 @@ public class CampplusEmbedding {
       * @param frameSamples 帧样本
       * @param re re
       * @param im im
-      * @param mel mel
       */
     private static void fftRadix2(double[] frameSamples, double[] re, double[] im) {
         int n = FFT_N;

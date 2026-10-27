@@ -125,7 +125,6 @@ public class UdpProxyServerFilter implements ServerFilter {
      * 创建 udp代理服务端过滤器 实例
      * @param timeoutMs 超时ms
      * @param targetResolver 代理Target解析器
-     * @param targetResolver Target解析器
      */
     public UdpProxyServerFilter(int timeoutMs, ProxyTargetResolver targetResolver) {
         this.timeoutMs = timeoutMs;

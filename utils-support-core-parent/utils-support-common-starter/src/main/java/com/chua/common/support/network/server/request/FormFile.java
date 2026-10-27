@@ -32,9 +32,6 @@ public class FormFile {
     /**
      * 创建 FormFile 实例
      * @param fieldName fieldName
-     * @param String String
-     * @param String String
-     * @param byte byte
      * @param data data
      * @param fileName 文件名称，不允许为 null
      * @param contentType 内容类型，不允许为 null

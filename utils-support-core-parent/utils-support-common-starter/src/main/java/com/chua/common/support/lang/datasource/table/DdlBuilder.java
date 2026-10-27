@@ -107,7 +107,6 @@ public class DdlBuilder {
     /**
      * 创建 DdlBuilder 实例
      * @param mode mode
-     * @param String String
      * @param tableName 表名称，不允许为 null
      */
     private DdlBuilder(Mode mode, String tableName) {

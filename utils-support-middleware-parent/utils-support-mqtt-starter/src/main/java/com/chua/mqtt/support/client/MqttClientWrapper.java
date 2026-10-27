@@ -903,7 +903,6 @@ public class MqttClientWrapper implements AutoCloseable {
          * 创建 mqtt客户端异常 实例
          * @param message 消息
          * @param cause Throwable
-         * @param cause cause
          */
         public MqttClientException(String message, Throwable cause) { super(message, cause); }
     }

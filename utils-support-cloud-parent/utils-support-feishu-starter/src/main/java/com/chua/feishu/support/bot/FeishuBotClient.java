@@ -1191,13 +1191,6 @@ public class FeishuBotClient implements BotClient {
     /**
      * 映射消息类型
      * @param msgType msg类型
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param Number 数字
-     * @param e e
-     * @param ignored ignored
-     * @param millis millis
-     * @param e e
      */
     private static BotInboundMessage.Type mapMessageType(
             String msgType) {

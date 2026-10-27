@@ -316,7 +316,6 @@ public class RocksDbOrmStore {
      * 由 后续 反射 取 值 兜底 处理 单 词 字段（如 {@code id}、{@code name}）。</p>
      *
      * @param where WHERE 子句（可为 空）
-     * @param params 参数 列表
      * @return 列 名 已 映射 为 字段 名 的 WHERE 子句
      * @param fieldMap 字段映射，不允许为 null
      */

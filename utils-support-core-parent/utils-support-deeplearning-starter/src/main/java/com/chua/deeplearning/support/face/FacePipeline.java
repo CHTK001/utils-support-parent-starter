@@ -1569,7 +1569,6 @@ public class FacePipeline {
     /**
      * 人脸超分（辅助能力）。
      *
-     * @param imageData 图片
      * @param callback callback
      */
     public void setCallback(FacePipelineCallback callback) {

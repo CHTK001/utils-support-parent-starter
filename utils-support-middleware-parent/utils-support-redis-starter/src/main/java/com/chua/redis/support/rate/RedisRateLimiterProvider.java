@@ -38,10 +38,8 @@ public class RedisRateLimiterProvider implements RateLimiterProvider {
     /**
      * 创建 redisrate限制提供者 实例
      * @param name 名称
-     * @param name 字符串
      * @param permitsPerSecond double
      * @param redisUri redisuri
-     * @param permitsPerSecond 许可证persecond
      */
     public RedisRateLimiterProvider(String name, String redisUri, double permitsPerSecond) {
         this.name = name;
@@ -57,8 +55,6 @@ public class RedisRateLimiterProvider implements RateLimiterProvider {
      * @param name 名称
      * @param redissonClient redisson客户端
      * @param permitsPerSecond double
-     * @param redissonClient redisson客户端
-     * @param permitsPerSecond 许可证persecond
      */
     public RedisRateLimiterProvider(String name, RedissonClient redissonClient, double permitsPerSecond) {
         this.name = name;

@@ -98,7 +98,6 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     /**
      * 创建 clipsegzeroshotsegmentationtranslator 实例
      * @param prompt 字符串
-     * @param prompt 提示符
      */
     public CLIPSegZeroShotSegmentationTranslator(@Nonnull String prompt) {
         this.prompt = prompt != null ? prompt : "object";

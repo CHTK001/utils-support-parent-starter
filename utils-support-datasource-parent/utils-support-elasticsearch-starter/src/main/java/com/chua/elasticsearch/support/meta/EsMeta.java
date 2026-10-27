@@ -30,7 +30,6 @@ public class EsMeta extends AbstractMetaSearch {
      * 创建 esmeta 实例
      * @param metaData meta数据
      * @param engine elasticsearchengine
-     * @param engine engine
      */
     public EsMeta(AbstractMetaData metaData, ElasticsearchEngine engine) {
         super(metaData, engine);

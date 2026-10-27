@@ -21,7 +21,6 @@ public class DirectionInfo {
      * 创建 direction信息 实例
      * @param name 名称
      * @param probability double
-     * @param probability probability
      */
     public DirectionInfo(String name, double probability) {
         this.name = name;

@@ -53,8 +53,6 @@ public class HttpServerRequest implements ServerRequest {
     /**
      * 创建 HttpServerRequest 实例
      * @param exchange exchange
-     * @param long long
-     * @param String String
      * @param maxRequestSize 最大值请求大小，不允许为 null
      * @param charset 字符集，不允许为 null
      */

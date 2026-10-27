@@ -28,9 +28,6 @@ public class OcrBox {
     /**
      * 创建 ocrbox 实例
      * @param topLeft topleft
-     * @param topLeft Point
-     * @param topLeft Point
-     * @param topLeft Point
      * @param topRight topright
      * @param bottomRight bottomright
      * @param bottomLeft bottomleft

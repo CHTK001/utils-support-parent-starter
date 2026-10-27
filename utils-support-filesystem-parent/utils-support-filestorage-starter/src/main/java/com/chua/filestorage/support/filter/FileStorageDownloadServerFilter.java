@@ -47,7 +47,6 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     /**
      * 创建 文件storagedownload服务端过滤器 实例
      * @param setting setting
-     * @param java Java
      * @param cacheDir 缓存dir
      */
     public FileStorageDownloadServerFilter(FileStorageSetting setting, java.nio.file.Path cacheDir) {

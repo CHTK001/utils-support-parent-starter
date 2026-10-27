@@ -279,7 +279,6 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     /**
      * 根据名称选择对应后端（内部方法，不抛异常）。
      *
-     * @param properties 属性
      * @return 转为属性的结果
      * @param name 名称，不允许为 null
      */

@@ -60,9 +60,6 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
     /**
      * 创建 SocketIODataSyncAgent 实例
      * @param agentId agentId
-     * @param String String
-     * @param String String
-     * @param DataSyncSource DataSyncSource
      * @param sourceId 来源ID，不允许为 null
      * @param serverUrl 服务端URL，不允许为 null
      * @param source 来源，不允许为 null

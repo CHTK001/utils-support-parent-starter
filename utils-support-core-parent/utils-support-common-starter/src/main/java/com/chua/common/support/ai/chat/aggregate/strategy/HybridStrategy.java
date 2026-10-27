@@ -39,7 +39,6 @@ public class HybridStrategy implements RouterStrategy {
      * 创建 HybridStrategy 实例
      * @param groups groups
      * @param healthFilter Predicate
-     * @param healthFilter healthFilter
      */
     public HybridStrategy(List<GroupRouter> groups, Predicate<WeightedClient> healthFilter) {
         this.groups = groups;

@@ -74,9 +74,6 @@ public class FileSource {
     /**
      * 创建 FileSource 实例
      * @param path path
-     * @param InputStream InputStream
-     * @param OutputStream OutputStream
-     * @param String String
      * @param inputStream input流，不允许为 null
      * @param outputStream output流，不允许为 null
      * @param type 类型，不允许为 null
@@ -88,10 +85,6 @@ public class FileSource {
     /**
      * 创建 FileSource 实例
      * @param path path
-     * @param URL URL
-     * @param InputStream InputStream
-     * @param OutputStream OutputStream
-     * @param String String
      * @param url URL，不允许为 null
      * @param inputStream input流，不允许为 null
      * @param outputStream output流，不允许为 null

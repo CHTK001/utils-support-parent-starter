@@ -36,11 +36,8 @@ public class HolidayInfo {
      * 创建 假日信息 实例
      * @param date 日期
      * @param name 字符串
-     * @param name 字符串
      * @param offDay 布尔值
-     * @param name 名称
      * @param type 类型
-     * @param offDay offday
      */
     public HolidayInfo(LocalDate date, String name, String type, boolean offDay) {
         this.date = date;

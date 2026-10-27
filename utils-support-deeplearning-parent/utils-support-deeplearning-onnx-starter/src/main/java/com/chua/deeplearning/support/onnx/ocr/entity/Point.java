@@ -20,7 +20,6 @@ public class Point {
     /**
      * 创建 Point 实例
      * @param x x
-     * @param x double
      * @param y y
      */
     public Point(double x, double y) {

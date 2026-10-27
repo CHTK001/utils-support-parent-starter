@@ -171,7 +171,6 @@ public class YoloRotatedBox {
         /**
          * 创建 Point2D 实例
          * @param x x
-         * @param x float
          * @param y y
          */
         public Point2D(float x, float y) {

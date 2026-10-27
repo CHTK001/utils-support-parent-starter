@@ -53,12 +53,8 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
      * 创建 shell方法服务端处理器 实例
      * @param objectContext 对象上下文
      * @param targetClass 类
-     * @param targetClass 目标类
      * @param method 方法
      * @param path 字符串
-     * @param path 字符串
-     * @param method 方法
-     * @param path 路径
      * @param produce produce
      */
     public ShellMethodServerHandler(ObjectContext objectContext, Class<?> targetClass, Method method, String path, String produce) {

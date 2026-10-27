@@ -37,9 +37,6 @@ public class SyncDataOffset implements Serializable {
      * @param sourceId 源标识
      * @param offsetValue 对象
      * @param timestamp long
-     * @param sourceId 字符串
-     * @param offsetValue 偏移量值
-     * @param timestamp 时间戳
      * @param mappingId mappingid
      */
     public SyncDataOffset(String sourceId, Object offsetValue, long timestamp, String mappingId) {

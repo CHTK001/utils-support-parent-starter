@@ -43,8 +43,6 @@ public class SocketIOAgentDataSyncSource implements DataSyncSource {
      * 创建 SocketioAgent数据同步源 实例
      * @param client 客户端
      * @param agentId 字符串
-     * @param agentId 字符串
-     * @param agentId Agent标识
      * @param sourceId 源标识
      */
     public SocketIOAgentDataSyncSource(SocketIOClient client, String agentId, String sourceId) {

@@ -38,7 +38,6 @@ public class NettyHttpSyncFlow implements SyncFlow {
      * 创建 nettyhttp同步流 实例
      * @param setting setting
      * @param serverUrl 字符串
-     * @param serverUrl 服务端url
      */
     public NettyHttpSyncFlow(com.chua.common.support.network.server.ServerSetting setting, String serverUrl) {
         this.server = new NettyHttpSyncServer(setting);
