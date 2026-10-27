@@ -197,7 +197,7 @@ public class DefaultPipelineEngine implements PipelineEngine {
                 config = com.chua.common.support.lang.json.Json.fromJson(dslJson, PipelineConfig.class);
             } catch (Exception e) {
                 log.warn("[datalake-pipeline] 管线 DSL 解析失败: pipelineId={}, error={}",
-                        pipelineId, e.getMessage());
+                        pipelineId, e.getMessage(), e);
                 return;
             }
             if (config == null) {

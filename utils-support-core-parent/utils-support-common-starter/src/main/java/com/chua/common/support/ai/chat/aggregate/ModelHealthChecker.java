@@ -187,7 +187,7 @@ public class ModelHealthChecker {
                 health.incrementConsecutiveFailures();
                 health.setLastCheckTime(System.currentTimeMillis());
                 log.warn("[ModelHealthChecker] health check failed for {}:{}: {}",
-                        health.getProvider(), health.getModel(), e.getMessage());
+                        health.getProvider(), health.getModel(), e.getMessage(), e);
             }
         }
     }

@@ -105,7 +105,7 @@ public final class FailoverTemplate {
                 lastError = e;
                 long elapsed = System.currentTimeMillis() - start;
                 log.warn("[FailoverTemplate] {} failed after {}ms (attempt {}): {}",
-                        wc.provider(), elapsed, attempt, e.getMessage());
+                        wc.provider(), elapsed, attempt, e.getMessage(), e);
             }
         }
 
@@ -232,7 +232,7 @@ public final class FailoverTemplate {
                 // 首包前就出错（401/429/连接失败等）：快速切换下一密钥，不浪费等待
                 lastError = (t instanceof Exception e) ? e : new RuntimeException(t);
                 log.warn("[FailoverTemplate] {} 首包前失败，切换下一客户端: {}",
-                        wc.provider(), t.getMessage());
+                        wc.provider(), t.getMessage(), t);
             }
         } finally {
             pool.shutdownNow();

@@ -315,7 +315,7 @@ public class InfluxdbSeriesEngine implements SeriesEngine, AutoCloseable {
             return fields;
         } catch (Exception e) {
             log.warn("[SeriesEngine] InfluxDB 指标发现失败 target={} monitor={}: {}",
-                    target, monitorId, e.getMessage());
+                    target, monitorId, e.getMessage(), e);
             throw new IllegalStateException("InfluxDB 时序指标发现失败 target=" + target + ": " + e.getMessage(), e);
         }
     }

@@ -184,7 +184,7 @@ public class RedisReactiveKvEngine {
                         // 配合外层「移除 onErrorResume 降级」后仍能保持 Flux<Entry<..>> 的不变型匹配
                         .map(value -> Map.entry(key, value != null ? value : "")))
                 .doOnError(e -> log.warn("[RedisReactiveKvEngine] 前缀扫描失败 prefix={}: {}",
-                        prefix, e.getMessage()));
+                        prefix, e.getMessage(), e));
     }
 
     /**

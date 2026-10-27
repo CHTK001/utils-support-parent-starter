@@ -1993,7 +1993,7 @@ public class FeishuBotClient implements BotClient {
             }
         } catch (Exception e) {
             log.warn("Failed to resolve bot open_id: {}",
-                    e.getMessage());
+                    e.getMessage(), e);
         }
     }
 

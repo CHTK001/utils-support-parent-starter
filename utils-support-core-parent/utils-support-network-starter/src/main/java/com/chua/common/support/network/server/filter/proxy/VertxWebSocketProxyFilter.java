@@ -176,7 +176,7 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
                             .onSuccess(backendWs -> pipe(clientWs, backendWs))
                             .onFailure(err -> {
                                 log.warn("[network-proxy] WebSocket 后端连接失败: {}:{}: {}",
-                                        backendHost, backendPort, err.getMessage());
+                                        backendHost, backendPort, err.getMessage(), err);
                                 clientWs.close();
                             });
                 })

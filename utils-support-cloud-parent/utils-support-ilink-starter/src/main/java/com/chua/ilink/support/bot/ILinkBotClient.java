@@ -485,7 +485,7 @@ public class ILinkBotClient implements BotClient {
                 try {
                     ctx = contextTokenLoader.load(botId, toUser);
                 } catch (Exception ce) {
-                    log.warn("[ILink] 回查 context_token 异常 to={}: {}", toUser, ce.getMessage());
+                    log.warn("[ILink] 回查 context_token 异常 to={}: {}", toUser, ce.getMessage(), ce);
                 }
                 if (ctx != null) {
                     contextTokens.put(toUser, ctx);

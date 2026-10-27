@@ -304,7 +304,7 @@ public class AioHttpServer extends AbstractServer {
         public void failed(Throwable exc, Void attachment) {
             // 服务器主动关闭导致的失败不再续挂;其余异常(如瞬时内核资源不足)继续补位
             if (running && serverChannel != null && serverChannel.isOpen()) {
-                log.warn("AIO accept 异常: {}", exc.getMessage());
+                log.warn("AIO accept 异常: {}", exc.getMessage(), exc);
                 issueAccept();
             }
         }

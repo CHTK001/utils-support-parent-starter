@@ -1231,7 +1231,7 @@ public class QqBotClient implements BotClient {
             return postMessage(messagePath(target, toGroup), body);
         } catch (QqApiException e) {
             log.warn("QQ 机器人富媒体发送失败 path={} code={} message={}",
-                    mediaPath, e.getCode(), e.getMessage());
+                    mediaPath, e.getCode(), e.getMessage(), e);
             return BotSendResult.fail(e.getCode(), e.getMessage());
         } catch (Exception e) {
             notifyError(e);
@@ -1352,7 +1352,7 @@ public class QqBotClient implements BotClient {
             return BotSendResult.ok(stringValue(result.get("id")));
         } catch (QqApiException e) {
             log.warn("QQ 机器人消息发送失败 path={} code={} message={}",
-                    path, e.getCode(), e.getMessage());
+                    path, e.getCode(), e.getMessage(), e);
             return BotSendResult.fail(e.getCode(), e.getMessage());
         } catch (Exception e) {
             notifyError(e);

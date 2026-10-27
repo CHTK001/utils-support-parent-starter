@@ -327,7 +327,7 @@ public class NioHttpServer extends AbstractServer {
                         // 单个连接异常(如并发关闭导致的 CancelledKeyException/RuntimeException)
                         // 只清理该连接,不允许杀死整个事件循环线程
                         log.warn("Event loop[{}] key error: {} -> {}, closing conn", idx,
-                                t.getClass().getSimpleName(), t.getMessage());
+                                t.getClass().getSimpleName(), t.getMessage(), t);
                         try {
                             key.cancel();
                         } catch (Exception e) {

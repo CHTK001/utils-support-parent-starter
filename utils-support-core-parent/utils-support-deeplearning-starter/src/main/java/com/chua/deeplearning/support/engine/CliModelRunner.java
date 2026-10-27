@@ -448,7 +448,7 @@ public final class CliModelRunner {
                 }
             } catch (Exception e) {
                 log.warn("[cli-runner] {} 下载安装失败: {} -> {}: {}", d.cliId(), url,
-                        e.getClass().getSimpleName(), e.getMessage());
+                        e.getClass().getSimpleName(), e.getMessage(), e);
             }
         }
         return null;

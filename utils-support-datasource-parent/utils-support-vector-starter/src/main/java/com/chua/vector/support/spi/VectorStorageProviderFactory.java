@@ -166,7 +166,7 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
         } catch (Throwable t) {
             if (backend == VectorStorageProperties.Backend.CUVS) {
                 log.warn("[vector-starter] cuVS creation failed ({}), falling back to jvector CPU",
-                        t.getMessage());
+                        t.getMessage(), t);
                 if (props.requireGpu()) {
                     throw new RuntimeException("cuVS GPU 不可用且 requireGpu=true", t);
                 }
