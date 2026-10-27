@@ -83,7 +83,7 @@ public class FileTaskStore implements TaskStore {
         try {
             Files.createDirectories(this.dataDir);
         } catch (IOException e) {
-            log.warn("创建数据目录失败: {}", e.getMessage());
+            log.warn("创建数据目录失败: {}", e.getMessage(), e);
         }
         loadFromDisk();
     }

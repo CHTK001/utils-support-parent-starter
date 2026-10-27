@@ -226,7 +226,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
                     rootSchema.add(schemaName, jdbcSchema);
                     log.debug("[calcite] 注册 JDBC Schema: {}", schemaName);
                 } catch (Exception e) {
-                    log.warn("[calcite] 注册 JDBC Schema [{}] 失败: {}", schemaName, e.getMessage());
+                    log.warn("[calcite] 注册 JDBC Schema [{}] 失败: {}", schemaName, e.getMessage(), e);
                 }
             }
 

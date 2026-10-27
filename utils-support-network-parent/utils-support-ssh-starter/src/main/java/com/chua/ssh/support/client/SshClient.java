@@ -274,7 +274,7 @@ public class SshClient implements AutoCloseable {
             }
             log.info("SSH 断开: {}@{}:{}", username, host, port);
         } catch (Exception e) {
-            log.warn("SSH 断开异常: {}", e.getMessage());
+            log.warn("SSH 断开异常: {}", e.getMessage(), e);
         }
     }
 

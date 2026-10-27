@@ -284,7 +284,7 @@ public class UebaEngine implements AutoCloseable {
                         .threshold(threshold)
                         .build();
             } catch (Exception e) {
-                log.warn("[UEBA-Engine] AutoEncoder 推理失败，回退规则评分: {}", e.getMessage());
+                log.warn("[UEBA-Engine] AutoEncoder 推理失败，回退规则评分: {}", e.getMessage(), e);
             }
         }
         return ruleScorer.scoreIp(entityId, window);
@@ -444,7 +444,7 @@ public class UebaEngine implements AutoCloseable {
                         .analysisMode("ML")
                         .build();
             } catch (Exception e) {
-                log.warn("[UEBA-Engine] LSTM/GRU 推理失败，回退规则评分: {}", e.getMessage());
+                log.warn("[UEBA-Engine] LSTM/GRU 推理失败，回退规则评分: {}", e.getMessage(), e);
             }
         }
         return ruleScorer.scoreBehavior(entityId, window);

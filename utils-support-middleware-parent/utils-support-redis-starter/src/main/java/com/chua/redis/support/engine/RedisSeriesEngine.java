@@ -183,7 +183,7 @@ public class RedisSeriesEngine implements SeriesEngine, AutoCloseable {
                 sync.zremrangebyrank(key, 0, remove - 1);
             }
         } catch (Exception e) {
-            log.warn("[SeriesEngine] Redis 写入失败 metric={}: {}", metricName, e.getMessage());
+            log.warn("[SeriesEngine] Redis 写入失败 metric={}: {}", metricName, e.getMessage(), e);
             throw new IllegalStateException("Redis 时序写入失败 metric=" + metricName + ": " + e.getMessage(), e);
         }
     }
@@ -208,7 +208,7 @@ public class RedisSeriesEngine implements SeriesEngine, AutoCloseable {
             Collections.sort(sorted);
             return sorted;
         } catch (Exception e) {
-            log.warn("[SeriesEngine] Redis 指标发现失败 target={} monitor={}: {}", target, monitorId, e.getMessage());
+            log.warn("[SeriesEngine] Redis 指标发现失败 target={} monitor={}: {}", target, monitorId, e.getMessage(), e);
             throw new IllegalStateException("Redis 时序指标发现失败 target=" + target + ": " + e.getMessage(), e);
         }
     }
@@ -272,7 +272,7 @@ public class RedisSeriesEngine implements SeriesEngine, AutoCloseable {
             // 前端只能把「参数没给全」显示成「服务异常」。
             throw iae;
         } catch (Exception e) {
-            log.warn("[SeriesEngine] Redis 查询失败 target={} monitor={}: {}", target, monitorId, e.getMessage());
+            log.warn("[SeriesEngine] Redis 查询失败 target={} monitor={}: {}", target, monitorId, e.getMessage(), e);
             throw new IllegalStateException("Redis 时序曲线查询失败 target=" + target + ": " + e.getMessage(), e);
         }
         return SeriesEngine.downsample(points, SeriesEngine.windowMillis(window), MAX_SERIES_POINTS);
@@ -411,7 +411,7 @@ public class RedisSeriesEngine implements SeriesEngine, AutoCloseable {
             try {
                 conn.close();
             } catch (Exception e) {
-                log.warn("[SeriesEngine] Redis 共享连接关闭失败: {}", e.getMessage());
+                log.warn("[SeriesEngine] Redis 共享连接关闭失败: {}", e.getMessage(), e);
             }
         }
         if (ownsClient && redisClient != null) {

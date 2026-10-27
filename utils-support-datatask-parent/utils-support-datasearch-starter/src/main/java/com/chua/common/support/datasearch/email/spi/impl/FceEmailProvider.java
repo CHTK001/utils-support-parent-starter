@@ -80,7 +80,7 @@ public class FceEmailProvider implements EmailProvider {
             log.warn("[FceEmail] 创建邮箱失败: {}", body);
             return null;
         } catch (Exception e) {
-            log.warn("[FceEmail] 创建邮箱异常: {}", e.getMessage());
+            log.warn("[FceEmail] 创建邮箱异常: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -116,7 +116,7 @@ public class FceEmailProvider implements EmailProvider {
             }
             return result;
         } catch (Exception e) {
-            log.warn("[FceEmail] 收取邮件失败: {}", e.getMessage());
+            log.warn("[FceEmail] 收取邮件失败: {}", e.getMessage(), e);
             return Collections.emptyList();
         }
     }

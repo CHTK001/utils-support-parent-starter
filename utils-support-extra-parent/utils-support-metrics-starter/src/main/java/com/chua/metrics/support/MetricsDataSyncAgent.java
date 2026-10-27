@@ -133,7 +133,7 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
                 }
             }
         } catch (Exception e) {
-            log.warn("Metrics 推送异常: {}", e.getMessage());
+            log.warn("Metrics 推送异常: {}", e.getMessage(), e);
         }
     }
 

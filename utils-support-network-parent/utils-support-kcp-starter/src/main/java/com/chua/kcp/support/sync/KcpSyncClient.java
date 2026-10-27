@@ -97,7 +97,7 @@ public class KcpSyncClient implements SyncClient {
         try {
             kcpClient.disconnect();
         } catch (Exception e) {
-            log.warn("KCP 断开异常: {}", e.getMessage());
+            log.warn("KCP 断开异常: {}", e.getMessage(), e);
         }
         connected = false;
         kcpClient = null;

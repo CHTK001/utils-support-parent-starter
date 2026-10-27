@@ -653,7 +653,7 @@ public class PlaywrightBusinessBenchmark {
                                 }
                             }
                         } catch (Exception e) {
-                            log.warn("[playwright-bench] worker {} 异常: {}", workerIdx, e.getMessage());
+                            log.warn("[playwright-bench] worker {} 异常: {}", workerIdx, e.getMessage(), e);
                         } finally {
                             if (context != null) {
                                 context.close();
@@ -1103,7 +1103,7 @@ public class PlaywrightBusinessBenchmark {
             Files.writeString(path, sb.toString(), StandardCharsets.UTF_8);
             log.info("[playwright-bench] 业务压测报告已写入: {}", reportPath);
         } catch (IOException e) {
-            log.warn("[playwright-bench] 报告写入失败: {}", e.getMessage());
+            log.warn("[playwright-bench] 报告写入失败: {}", e.getMessage(), e);
         }
     }
 

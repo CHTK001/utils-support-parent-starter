@@ -45,7 +45,7 @@ public final class HeifLibraryLoader {
             loaded = true;
             log.info("[HeifLibraryLoader] HEIC native 库加载成功");
         } catch (Throwable e) {
-            log.warn("[HeifLibraryLoader] HEIC native 库未找到或加载失败: {}", e.getMessage());
+            log.warn("[HeifLibraryLoader] HEIC native 库未找到或加载失败: {}", e.getMessage(), e);
         }
     }
 

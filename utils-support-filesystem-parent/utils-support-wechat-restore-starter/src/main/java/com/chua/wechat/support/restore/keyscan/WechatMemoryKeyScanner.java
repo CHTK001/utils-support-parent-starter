@@ -373,7 +373,7 @@ public final class WechatMemoryKeyScanner {
                 pool.shutdownNow();
             }
         } catch (Throwable t) {
-            log.warn("内存扫描中断: {}", t.getMessage());
+            log.warn("内存扫描中断: {}", t.getMessage(), t);
         } finally {
             closeProcess(handle);
         }
@@ -427,7 +427,7 @@ public final class WechatMemoryKeyScanner {
             log.info("内存扫描器自检: 正样本命中={} 负样本命中={}", hitPositive, hitNegative);
             return hitPositive && !hitNegative;
         } catch (Exception e) {
-            log.warn("内存扫描器自检失败: {}", e.getMessage());
+            log.warn("内存扫描器自检失败: {}", e.getMessage(), e);
             return false;
         }
     }

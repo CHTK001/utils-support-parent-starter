@@ -114,7 +114,7 @@ public class OmpUsageParser extends BaseUsageParser {
                     .filter(p -> p.getFileName().toString().endsWith(".jsonl"))
                     .forEach(files::add);
         } catch (IOException e) {
-            log.warn("[omp] walk failed: {}", e.getMessage());
+            log.warn("[omp] walk failed: {}", e.getMessage(), e);
         }
         return files;
     }

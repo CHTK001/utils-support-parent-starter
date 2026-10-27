@@ -75,7 +75,7 @@ public class HelmSoftwareProvider implements SoftwareProvider {
             */
             @Override
             public void onError(String command, Throwable throwable) {
-                log.warn("helm 搜索异常: {}", throwable.getMessage());
+                log.warn("helm 搜索异常: {}", throwable.getMessage(), throwable);
             }
         });
 
@@ -139,7 +139,7 @@ public class HelmSoftwareProvider implements SoftwareProvider {
             */
             @Override
             public void onError(String command, Throwable throwable) {
-                log.error("  [{}] 异常: {}", action, throwable.getMessage());
+                log.error("  [{}] 异常: {}", action, throwable.getMessage(), throwable);
             }
         });
         boolean ok = result.isSuccess();
@@ -178,7 +178,7 @@ public class HelmSoftwareProvider implements SoftwareProvider {
                 }
             }
         } catch (Exception e) {
-            log.warn("解析 helm 输出失败: {}", e.getMessage());
+            log.warn("解析 helm 输出失败: {}", e.getMessage(), e);
         }
         return results;
     }

@@ -306,7 +306,7 @@ public class AudioRecognitionPipeline {
                 byte[] segmentBytes = pcmToWavBytes(segmentPcm, 16000);
                 embeddings[i] = embedTranslator.translate(segmentBytes);
             } catch (Exception e) {
-                log.warn("[AudioPipeline] 片段 {} 嵌入提取失败: {}", i, e.getMessage());
+                log.warn("[AudioPipeline] 片段 {} 嵌入提取失败: {}", i, e.getMessage(), e);
                 embeddings[i] = new float[0];
             }
         }
@@ -500,7 +500,7 @@ public class AudioRecognitionPipeline {
                         Arrays.copyOfRange(pcm, (int) startSample, (int) startSample + len), 16000);
                 transcripts[i] = asrTranslator.translate(segmentBytes);
             } catch (Exception e) {
-                log.warn("[AudioPipeline] 片段 {} ASR 转写失败: {}", i, e.getMessage());
+                log.warn("[AudioPipeline] 片段 {} ASR 转写失败: {}", i, e.getMessage(), e);
                 transcripts[i] = null;
             }
         }
@@ -518,7 +518,7 @@ public class AudioRecognitionPipeline {
         try {
             client = VirtualClient.create(asrModel, "");
         } catch (Exception e) {
-            log.warn("[AudioPipeline] VirtualClient 创建失败 {}: {}", asrModel, e.getMessage());
+            log.warn("[AudioPipeline] VirtualClient 创建失败 {}: {}", asrModel, e.getMessage(), e);
             return new String[vadSegments.size()];
         }
         try {
@@ -552,7 +552,7 @@ public class AudioRecognitionPipeline {
                         throw ex;
                     }
                 } catch (Exception e) {
-                    log.warn("[AudioPipeline] 片段 {} ASR 失败 {}: {}", i, asrModel, e.getMessage());
+                    log.warn("[AudioPipeline] 片段 {} ASR 失败 {}: {}", i, asrModel, e.getMessage(), e);
                     transcripts[i] = null;
                 }
             }

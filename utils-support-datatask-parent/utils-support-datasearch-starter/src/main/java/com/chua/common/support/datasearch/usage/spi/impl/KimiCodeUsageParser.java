@@ -233,7 +233,7 @@ public class KimiCodeUsageParser extends BaseUsageParser {
                     .filter(p -> "wire.jsonl".equals(p.getFileName().toString()))
                     .forEach(files::add);
         } catch (IOException e) {
-            log.warn("[kimi-code] walk failed: {}", e.getMessage());
+            log.warn("[kimi-code] walk failed: {}", e.getMessage(), e);
         }
         return files;
     }

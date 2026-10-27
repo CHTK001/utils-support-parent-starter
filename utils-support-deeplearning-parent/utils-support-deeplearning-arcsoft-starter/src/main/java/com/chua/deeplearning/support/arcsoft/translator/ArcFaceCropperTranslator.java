@@ -88,7 +88,7 @@ public class ArcFaceCropperTranslator implements ITranslator<Object, BufferedIma
             return ImageUtils.toBufferedImage(ImageUtils.crop(ImageUtils.toMat(image), x, y, width, height));
             
         } catch (Exception e) {
-            log.warn("[ArcFaceCropper] 裁剪失败: {}", e.getMessage());
+            log.warn("[ArcFaceCropper] 裁剪失败: {}", e.getMessage(), e);
             return image;
         }
     }

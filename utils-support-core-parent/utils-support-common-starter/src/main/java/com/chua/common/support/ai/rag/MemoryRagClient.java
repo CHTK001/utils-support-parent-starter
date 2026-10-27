@@ -407,7 +407,7 @@ public class MemoryRagClient implements RagClient {
                     Files.deleteIfExists(tempFile);
                 }
             } catch (Exception e) {
-                log.warn("[MemoryRagClient] TextExtractor 抽取失败, 降级为 UTF-8 读取: {}", e.getMessage());
+                log.warn("[MemoryRagClient] TextExtractor 抽取失败, 降级为 UTF-8 读取: {}", e.getMessage(), e);
             }
         }
         return new String(data, StandardCharsets.UTF_8);
@@ -425,14 +425,14 @@ public class MemoryRagClient implements RagClient {
         try {
             vectorStorage.removeByIdPrefix(docId + FILE_NAME_SEPARATOR);
         } catch (Exception e) {
-            log.warn("[MemoryRagClient] 清理向量失败: {}", e.getMessage());
+            log.warn("[MemoryRagClient] 清理向量失败: {}", e.getMessage(), e);
         }
 
         // 通过 UploadProvider 删除上传文件
         try {
             uploadProvider.delete(docId);
         } catch (Exception e) {
-            log.warn("[MemoryRagClient] 删除上传文件失败: {}", e.getMessage());
+            log.warn("[MemoryRagClient] 删除上传文件失败: {}", e.getMessage(), e);
         }
 
         return documents.removeIf(d -> d.id().equals(docId));

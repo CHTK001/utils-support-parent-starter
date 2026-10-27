@@ -95,7 +95,7 @@ public class JvppeteerFetcher implements SpiderFetcher {
             builder.statusCode(0)
                     .error("Jvppeteer 渲染异常: " + e.getMessage())
                     .fetchTimeMs(System.currentTimeMillis() - startTime);
-            log.warn("[jvppeteer] 渲染失败: {} - {}", request.getUrl(), e.getMessage());
+            log.warn("[jvppeteer] 渲染失败: {} - {}", request.getUrl(), e.getMessage(), e);
         } finally {
             closePage(page);
         }

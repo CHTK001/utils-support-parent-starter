@@ -122,7 +122,7 @@ public class TimerTask {
             task.run();
             return true;
         } catch (Exception e) {
-            log.warn("[TimerTask] {} 执行异常: {}", name, e.getMessage());
+            log.warn("[TimerTask] {} 执行异常: {}", name, e.getMessage(), e);
             return false;
         }
     }

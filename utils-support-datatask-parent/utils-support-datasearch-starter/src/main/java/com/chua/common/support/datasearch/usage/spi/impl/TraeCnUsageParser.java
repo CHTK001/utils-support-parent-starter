@@ -108,7 +108,7 @@ public class TraeCnUsageParser extends BaseUsageParser {
                     .filter(p -> p.getFileName().toString().endsWith(".jsonl"))
                     .forEach(files::add);
         } catch (IOException e) {
-            log.warn("[trae-cn] walk failed: {}", e.getMessage());
+            log.warn("[trae-cn] walk failed: {}", e.getMessage(), e);
         }
         return files.stream().sorted().toList();
     }

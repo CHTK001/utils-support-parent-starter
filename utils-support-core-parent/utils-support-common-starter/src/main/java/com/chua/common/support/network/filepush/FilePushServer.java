@@ -622,7 +622,7 @@ public class FilePushServer implements AutoCloseable {
                         } catch (IOException e) {
                             writeFailed.incrementAndGet();
                             errors.incrementAndGet();
-                            log.warn("写盘失败 {} @{}: {}", relativePath, offset, e.getMessage());
+                            log.warn("写盘失败 {} @{}: {}", relativePath, offset, e.getMessage(), e);
                         } finally {
                             chunksDone.countDown();
                         }

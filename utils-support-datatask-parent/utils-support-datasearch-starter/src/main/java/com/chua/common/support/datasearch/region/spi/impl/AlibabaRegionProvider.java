@@ -183,7 +183,7 @@ public class AlibabaRegionProvider implements RegionProvider {
             CACHE.put(adcode, list);
             return list;
         } catch (Exception e) {
-            log.warn("行政区划获取异常: {}", e.getMessage());
+            log.warn("行政区划获取异常: {}", e.getMessage(), e);
             return Collections.emptyList();
         }
     }
@@ -219,7 +219,7 @@ public class AlibabaRegionProvider implements RegionProvider {
                 list.add(new RegionInfo(adcode, name, mapLevel(lv), lv, parent, center[0], center[1]));
             }
         } catch (Exception e) {
-            log.warn("行政区划解析失败: {}", e.getMessage());
+            log.warn("行政区划解析失败: {}", e.getMessage(), e);
         }
         return list;
     }

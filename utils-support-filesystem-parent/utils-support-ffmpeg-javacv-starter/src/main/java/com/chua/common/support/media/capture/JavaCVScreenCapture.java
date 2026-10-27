@@ -136,7 +136,7 @@ public class JavaCVScreenCapture implements ScreenCature {
             log.warn("[JavaCVScreenCapture] 多次尝试后 frame 仍无效");
             return null;
         } catch (Exception e) {
-            log.warn("[JavaCVScreenCapture] 采集失败: {}", e.getMessage());
+            log.warn("[JavaCVScreenCapture] 采集失败: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -209,7 +209,7 @@ public class JavaCVScreenCapture implements ScreenCature {
             result.timestamp = src.timestamp;
             return result;
         } catch (Exception e) {
-            log.warn("[JavaCVScreenCapture] 复制帧失败: {}", e.getMessage());
+            log.warn("[JavaCVScreenCapture] 复制帧失败: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -250,7 +250,7 @@ public class JavaCVScreenCapture implements ScreenCature {
                 }
             }
         } catch (Exception e) {
-            log.warn("[JavaCVScreenCapture] close 异常: {}", e.getMessage());
+            log.warn("[JavaCVScreenCapture] close 异常: {}", e.getMessage(), e);
         }
         grabber = null;
         // 释放复用缓冲区

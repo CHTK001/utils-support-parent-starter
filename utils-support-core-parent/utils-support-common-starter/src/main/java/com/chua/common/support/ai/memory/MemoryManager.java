@@ -129,7 +129,7 @@ public class MemoryManager implements AutoCloseable {
                 return provider.create(config);
             }
         } catch (Exception e) {
-            log.warn("SPI MemoryStoreProvider 加载失败，使用默认 FileMemoryStore: {}", e.getMessage());
+            log.warn("SPI MemoryStoreProvider 加载失败，使用默认 FileMemoryStore: {}", e.getMessage(), e);
         }
         return new FileMemoryStore(config);
     }
@@ -267,7 +267,7 @@ public class MemoryManager implements AutoCloseable {
                 store.save(parsed);
             }
         } catch (Exception e) {
-            log.warn("AI 总结失败，回退到原始保存: {}", e.getMessage());
+            log.warn("AI 总结失败，回退到原始保存: {}", e.getMessage(), e);
             saveRaw(conversation, sessionId, agentId);
         }
     }

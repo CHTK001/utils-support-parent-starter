@@ -73,7 +73,7 @@ public class SafeTensorModelDownloadManager {
             log.info("[SafeTensor] 模型下载成功: {}", result.get("path"));
             return String.valueOf(result.get("path"));
         } catch (Exception e) {
-            log.warn("[SafeTensor] 自动下载失败，尝试 Python 直接下载: {}", e.getMessage());
+            log.warn("[SafeTensor] 自动下载失败，尝试 Python 直接下载: {}", e.getMessage(), e);
             return downloadDirect(modelName, source, revision, modelPath);
         }
     }
@@ -110,7 +110,7 @@ public class SafeTensorModelDownloadManager {
             }
             log.warn("[SafeTensor] 直接下载失败 exit={}: {}", exit, output);
         } catch (Exception e) {
-            log.warn("[SafeTensor] 直接下载失败: {}", e.getMessage());
+            log.warn("[SafeTensor] 直接下载失败: {}", e.getMessage(), e);
         }
         return targetPath.toString();
     }

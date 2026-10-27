@@ -951,7 +951,7 @@ public class RedisReactorEngine implements ReactorEngine {
             try {
                 conn.close();
             } catch (Exception e) {
-                log.warn("关闭 Redis 共享连接失败: {}", e.getMessage());
+                log.warn("关闭 Redis 共享连接失败: {}", e.getMessage(), e);
             }
         }
         connections.clear();
@@ -959,7 +959,7 @@ public class RedisReactorEngine implements ReactorEngine {
             try {
                 client.shutdown();
             } catch (Exception e) {
-                log.warn("关闭 Lettuce 客户端失败: {}", e.getMessage());
+                log.warn("关闭 Lettuce 客户端失败: {}", e.getMessage(), e);
             }
         }
         lettuceClients.clear();

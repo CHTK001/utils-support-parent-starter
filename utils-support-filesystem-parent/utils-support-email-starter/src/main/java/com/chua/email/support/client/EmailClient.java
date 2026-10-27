@@ -386,7 +386,7 @@ public class EmailClient {
                 log.info("邮件发送成功: to={}, subject={}", to, subject);
                 return new SendResult(true, message.getMessageID(), "SMTP 发送成功");
             } catch (Exception e) {
-                log.error("SMTP 发送失败: {}", e.getMessage());
+                log.error("SMTP 发送失败: {}", e.getMessage(), e);
                 return new SendResult(false, null, e.getMessage());
             }
         }
@@ -515,7 +515,7 @@ public class EmailClient {
                 store.close();
                 return result;
             } catch (Exception e) {
-                log.error("获取邮件失败: {}", e.getMessage());
+                log.error("获取邮件失败: {}", e.getMessage(), e);
                 return Wraps.list();
             }
         }
@@ -542,7 +542,7 @@ public class EmailClient {
                 store.close();
                 return unread;
             } catch (Exception e) {
-                log.error("获取未读数失败: {}", e.getMessage());
+                log.error("获取未读数失败: {}", e.getMessage(), e);
                 return 0;
             }
         }
@@ -641,7 +641,7 @@ public class EmailClient {
                         Thread.currentThread().interrupt();
                         break;
                     } catch (Exception e) {
-                        log.error("邮件轮询异常: {}", e.getMessage());
+                        log.error("邮件轮询异常: {}", e.getMessage(), e);
                         try {
                             Thread.sleep(pollInterval * 1000L);
                         } catch (InterruptedException ie) {

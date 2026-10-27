@@ -156,7 +156,7 @@ public class KcpHttpClient {
             try {
                 client.disconnect();
             } catch (Exception e) {
-                log.warn("KCP HTTP 客户端关闭异常: {}", e.getMessage());
+                log.warn("KCP HTTP 客户端关闭异常: {}", e.getMessage(), e);
             }
             client = null;
         }

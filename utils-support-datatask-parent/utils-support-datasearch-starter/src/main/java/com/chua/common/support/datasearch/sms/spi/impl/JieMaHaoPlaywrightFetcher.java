@@ -154,7 +154,7 @@ public class JieMaHaoPlaywrightFetcher implements AutoCloseable {
             }
             return extractPhoneList(page, listUrl);
         } catch (Throwable e) {
-            log.warn("[jiemahao] playwright 抓取号码列表失败: {}", String.valueOf(e.getMessage()));
+            log.warn("[jiemahao] playwright 抓取号码列表失败: {}", String.valueOf(e.getMessage()), e);
             return Collections.emptyList();
         }
     }
@@ -227,7 +227,7 @@ public class JieMaHaoPlaywrightFetcher implements AutoCloseable {
             messageCache.put(phone.getId(), messages);
             return messages;
         } catch (Throwable e) {
-            log.warn("[jiemahao] playwright 抓取短信失败: {} -> {}", phone.getPhone(), String.valueOf(e.getMessage()));
+            log.warn("[jiemahao] playwright 抓取短信失败: {} -> {}", phone.getPhone(), String.valueOf(e.getMessage()), e);
             return Collections.emptyList();
         }
     }
@@ -545,7 +545,7 @@ public class JieMaHaoPlaywrightFetcher implements AutoCloseable {
             playwright = null;
         }
         if (ex != null) {
-            log.warn("[jiemahao] 关闭 playwright 会话失败: {}", ex.getMessage());
+            log.warn("[jiemahao] 关闭 playwright 会话失败: {}", ex.getMessage(), ex);
         } else {
             log.info("[jiemahao] playwright 浏览器会话已关闭");
         }

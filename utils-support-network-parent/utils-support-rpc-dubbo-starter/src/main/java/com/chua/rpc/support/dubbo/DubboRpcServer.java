@@ -142,7 +142,7 @@ public class DubboRpcServer implements RpcServer {
             try {
                 config.unexport();
             } catch (Exception e) {
-                log.warn("Failed to unexport service: {}", e.getMessage());
+                log.warn("Failed to unexport service: {}", e.getMessage(), e);
             }
         }
         serviceConfigs.clear();
@@ -192,7 +192,7 @@ public class DubboRpcServer implements RpcServer {
         try {
             return DubboProtocol.getDubboProtocol().getExporters().size();
         } catch (Exception e) {
-            log.warn("Failed to collect Dubbo service count: {}", e.getMessage());
+            log.warn("Failed to collect Dubbo service count: {}", e.getMessage(), e);
             return serviceConfigs.size();
         }
     }
@@ -227,7 +227,7 @@ public class DubboRpcServer implements RpcServer {
                 }
             }
         } catch (Exception e) {
-            log.warn("Failed to collect Dubbo connections: {}", e.getMessage());
+            log.warn("Failed to collect Dubbo connections: {}", e.getMessage(), e);
         }
         return result;
     }

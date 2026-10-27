@@ -457,7 +457,7 @@ public final class SherpaAsrPipeline implements AutoCloseable {
                         log.warn("[sherpa] 纠错模型未注册或不是 ITranslator，已跳过纠错: {}", correctorModelId);
                     }
                 } catch (Exception e) {
-                    log.warn("[sherpa] 加载纠错模型失败，已跳过纠错: {} -> {}", correctorModelId, e.getMessage());
+                    log.warn("[sherpa] 加载纠错模型失败，已跳过纠错: {} -> {}", correctorModelId, e.getMessage(), e);
                 }
             }
         }

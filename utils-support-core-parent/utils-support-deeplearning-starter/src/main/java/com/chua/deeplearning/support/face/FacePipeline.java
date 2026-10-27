@@ -1642,7 +1642,7 @@ public class FacePipeline {
                         new Scalar(135, 133, 132));
                 affine.release();
             } catch (Exception e) {
-                log.warn("[face-pipeline] #{} 5点对齐失败: {}", i, e.getMessage());
+                log.warn("[face-pipeline] #{} 5点对齐失败: {}", i, e.getMessage(), e);
                 continue;
             }
 
@@ -1660,7 +1660,7 @@ public class FacePipeline {
                 try {
                     restoredBytes = restorer.enhance(alignedBytes);
                 } catch (Exception e) {
-                    log.warn("[face-pipeline] #{} 修复失败: {}", i, e.getMessage());
+                    log.warn("[face-pipeline] #{} 修复失败: {}", i, e.getMessage(), e);
                     restoredBytes = alignedBytes;
                 }
             }
@@ -1834,7 +1834,7 @@ public class FacePipeline {
         try {
             ModelRegistry.discoverAll();
         } catch (Exception e) {
-            log.warn("模型注册表发现失败: {}", e.getMessage());
+            log.warn("模型注册表发现失败: {}", e.getMessage(), e);
         }
         Map<String, java.util.Set<String>> grouped = Wraps.linkedMap();
         for (ModelRegistry.Entry e : ModelRegistry.getAll()) {
@@ -2042,7 +2042,7 @@ public class FacePipeline {
                 src.release();
             }
         } catch (Exception e) {
-            log.warn("[face-pipeline] 人脸对齐失败，使用原图: {}", e.getMessage());
+            log.warn("[face-pipeline] 人脸对齐失败，使用原图: {}", e.getMessage(), e);
             return face;
         }
     }
@@ -2117,7 +2117,7 @@ public class FacePipeline {
             src.release();
             return result;
         } catch (Exception e) {
-            log.warn("[face-pipeline] 活体外扩裁剪失败: {}", e.getMessage());
+            log.warn("[face-pipeline] 活体外扩裁剪失败: {}", e.getMessage(), e);
             return null;
         }
     }

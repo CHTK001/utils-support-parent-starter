@@ -159,7 +159,7 @@ public class KitesurfMcpProvider implements McpProvider {
                         return McpToolResult.error("未知工具: " + name);
                 }
             } catch (Exception e) {
-                log.warn("[kitesurf] 工具 {} 调用失败: {}", name, e.getMessage());
+                log.warn("[kitesurf] 工具 {} 调用失败: {}", name, e.getMessage(), e);
                 return McpToolResult.error("调用失败: " + e.getMessage());
             }
         }

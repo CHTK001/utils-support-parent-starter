@@ -212,7 +212,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
             log.info("[PaddleOCRv6-rec] 字符字典取自 classpath: {} dict_size={}", resource, table.size());
             return table;
         } catch (Exception e) {
-            log.warn("[PaddleOCRv6-rec] classpath 字典读取失败: {}", e.getMessage());
+            log.warn("[PaddleOCRv6-rec] classpath 字典读取失败: {}", e.getMessage(), e);
             return Wraps.list();
         }
     }

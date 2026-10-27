@@ -69,7 +69,7 @@ public class RobotScreenCapture implements ScreenCature {
             log.info("[RobotScreenCapture] 已初始化: {}x{} {}fps YUV420P", width, height, fps);
             return true;
         } catch (AWTException e) {
-            log.error("[RobotScreenCapture] 初始化失败: {}", e.getMessage());
+            log.error("[RobotScreenCapture] 初始化失败: {}", e.getMessage(), e);
             this.initialized = false;
             return false;
         }
@@ -91,7 +91,7 @@ public class RobotScreenCapture implements ScreenCature {
             scaled.getGraphics().drawImage(fullScreen, 0, 0, width, height, null);
             return frameConverter.convert(scaled);
         } catch (Exception e) {
-            log.warn("[RobotScreenCapture] 采集帧失败: {}", e.getMessage());
+            log.warn("[RobotScreenCapture] 采集帧失败: {}", e.getMessage(), e);
             return null;
         }
     }

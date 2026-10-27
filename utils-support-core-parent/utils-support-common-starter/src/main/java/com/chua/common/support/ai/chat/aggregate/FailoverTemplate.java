@@ -77,7 +77,7 @@ public final class FailoverTemplate {
             try {
                 wc = selector.select(remaining, prompt);
             } catch (Exception e) {
-                log.warn("[FailoverTemplate] select() failed on attempt {}: {}", attempt + 1, e.getMessage());
+                log.warn("[FailoverTemplate] select() failed on attempt {}: {}", attempt + 1, e.getMessage(), e);
                 break;
             }
 

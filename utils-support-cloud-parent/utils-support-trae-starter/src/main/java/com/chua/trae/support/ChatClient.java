@@ -565,7 +565,7 @@ public class ChatClient implements AutoCloseable {
                             parseToolCalls(tcNode);
                         }
                     } catch (Exception e) {
-                        log.warn("[stream] failed to parse output event: {}", e.getMessage());
+                        log.warn("[stream] failed to parse output event: {}", e.getMessage(), e);
                     }
                 }
                 case "token_usage" -> {
@@ -576,7 +576,7 @@ public class ChatClient implements AutoCloseable {
                         int total = node.path("total_tokens").asInt(prompt + completion);
                         usage = new ChatResponse.Usage(prompt, completion, total);
                     } catch (Exception e) {
-                        log.warn("[stream] failed to parse token_usage event: {}", e.getMessage());
+                        log.warn("[stream] failed to parse token_usage event: {}", e.getMessage(), e);
                     }
                 }
                 case "done" -> handleDone(data);
@@ -642,7 +642,7 @@ public class ChatClient implements AutoCloseable {
                     finishReason = "stop";
                 }
             } catch (Exception e) {
-                log.warn("[stream] failed to parse done event: {}", e.getMessage());
+                log.warn("[stream] failed to parse done event: {}", e.getMessage(), e);
                 finishReason = "stop";
             }
             completeWithBuffered();

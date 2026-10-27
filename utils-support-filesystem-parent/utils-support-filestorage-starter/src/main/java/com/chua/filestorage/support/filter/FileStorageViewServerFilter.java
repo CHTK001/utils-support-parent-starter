@@ -173,7 +173,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
                         .end(page.getBytes(java.nio.charset.StandardCharsets.UTF_8));
                 return;
             } catch (Exception e) {
-                log.warn("预览提供者 {} 失败: {}", provider.getClass().getSimpleName(), e.getMessage());
+                log.warn("预览提供者 {} 失败: {}", provider.getClass().getSimpleName(), e.getMessage(), e);
             }
         }
         if (spiHit) {
@@ -369,7 +369,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
                     Files.deleteIfExists(tempPdf);
                 }
             } catch (Exception e) {
-                log.warn("PDF 转换失败 ({}): {}", ext, e.getMessage());
+                log.warn("PDF 转换失败 ({}): {}", ext, e.getMessage(), e);
                 return null;
             }
         });

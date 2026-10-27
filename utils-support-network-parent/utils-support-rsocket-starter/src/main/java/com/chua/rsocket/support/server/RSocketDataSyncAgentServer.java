@@ -183,7 +183,7 @@ public class RSocketDataSyncAgentServer extends com.chua.starter.datasync.agent.
                 }
             }
         } catch (Exception e) {
-            log.warn("[RSocketDataSyncAgentServer] fireAndForget 异常: {}", e.getMessage());
+            log.warn("[RSocketDataSyncAgentServer] fireAndForget 异常: {}", e.getMessage(), e);
         }
     }
 

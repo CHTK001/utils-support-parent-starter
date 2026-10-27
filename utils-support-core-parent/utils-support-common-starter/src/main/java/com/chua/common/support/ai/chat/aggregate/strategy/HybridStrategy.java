@@ -92,7 +92,7 @@ public class HybridStrategy implements RouterStrategy {
                 return group.strategy().executeSync(healthy, prompt, usageCallback);
             } catch (Exception e) {
                 lastError = e;
-                log.warn("[Hybrid] group={} failed: {}", group.name(), e.getMessage());
+                log.warn("[Hybrid] group={} failed: {}", group.name(), e.getMessage(), e);
             }
         }
 
@@ -126,7 +126,7 @@ public class HybridStrategy implements RouterStrategy {
                 return;
             } catch (Exception e) {
                 lastError = e;
-                log.warn("[Hybrid] group={} stream failed: {}", group.name(), e.getMessage());
+                log.warn("[Hybrid] group={} stream failed: {}", group.name(), e.getMessage(), e);
             }
         }
 

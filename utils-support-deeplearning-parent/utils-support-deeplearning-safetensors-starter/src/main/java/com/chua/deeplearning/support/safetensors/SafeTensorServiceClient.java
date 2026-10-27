@@ -69,7 +69,7 @@ public class SafeTensorServiceClient {
             var resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
             return resp.statusCode() == 200;
         } catch (Exception e) {
-            log.warn("[SafeTensor] 健康检查失败: {}", e.getMessage());
+            log.warn("[SafeTensor] 健康检查失败: {}", e.getMessage(), e);
             return false;
         }
     }

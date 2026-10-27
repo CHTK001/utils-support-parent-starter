@@ -423,13 +423,13 @@ public class RagPipeline implements RagClient {
         try {
             vectors = vectorService.embedBatch(texts);
         } catch (Exception e) {
-            log.warn("[RagPipeline] 批量向量化失败, 逐个向量化: {}", e.getMessage());
+            log.warn("[RagPipeline] 批量向量化失败, 逐个向量化: {}", e.getMessage(), e);
             vectors = new float[texts.length][];
             for (int i = 0; i < texts.length; i++) {
                 try {
                     vectors[i] = vectorService.embed(texts[i]);
                 } catch (Exception ex) {
-                    log.warn("[RagPipeline] 向量化第{}个分块失败: {}", i, ex.getMessage());
+                    log.warn("[RagPipeline] 向量化第{}个分块失败: {}", i, ex.getMessage(), ex);
                     vectors[i] = new float[0];
                 }
             }
@@ -461,7 +461,7 @@ public class RagPipeline implements RagClient {
         try {
             vectorStorage.rebuild();
         } catch (Exception e) {
-            log.warn("[RagPipeline] 向量索引落盘失败（内存仍可用）: {}", e.getMessage());
+            log.warn("[RagPipeline] 向量索引落盘失败（内存仍可用）: {}", e.getMessage(), e);
         }
         persistChunkContentCache();
         return chunks.size();
@@ -607,7 +607,7 @@ public class RagPipeline implements RagClient {
                     Files.deleteIfExists(tempFile);
                 }
             } catch (Exception e) {
-                log.warn("[RagPipeline] TextExtractor 抽取失败, 降级为 UTF-8 读取: {}", e.getMessage());
+                log.warn("[RagPipeline] TextExtractor 抽取失败, 降级为 UTF-8 读取: {}", e.getMessage(), e);
             }
         }
         // 大文件（>1MB）无合适提取器时，跳过 UTF-8 解码以避免 OOM（二进制乱码产生海量无意义分块）
@@ -880,12 +880,12 @@ public class RagPipeline implements RagClient {
         try {
             vectorStorage.removeByIdPrefix(docId + FILE_NAME_SEPARATOR);
         } catch (Exception e) {
-            log.warn("[RagPipeline] 清理向量失败: {}", e.getMessage());
+            log.warn("[RagPipeline] 清理向量失败: {}", e.getMessage(), e);
         }
         try {
             uploadProvider.delete(docId);
         } catch (Exception e) {
-            log.warn("[RagPipeline] 删除上传文件失败: {}", e.getMessage());
+            log.warn("[RagPipeline] 删除上传文件失败: {}", e.getMessage(), e);
         }
         // 清理分块内容缓存
         chunkContentCache.keySet().removeIf(k -> k.startsWith(docId + FILE_NAME_SEPARATOR));
@@ -965,7 +965,7 @@ public class RagPipeline implements RagClient {
             byte[] data = uploadProvider.read(docId);
             return data != null ? new String(data, StandardCharsets.UTF_8) : EMPTY;
         } catch (Exception e) {
-            log.warn("[RagPipeline] 读取文档内容失败: docId={}, error={}", docId, e.getMessage());
+            log.warn("[RagPipeline] 读取文档内容失败: docId={}, error={}", docId, e.getMessage(), e);
             return EMPTY;
         }
     }
@@ -981,7 +981,7 @@ public class RagPipeline implements RagClient {
             byte[] data = uploadProvider.read(docId);
             return data != null ? data : new byte[0];
         } catch (Exception e) {
-            log.warn("[RagPipeline] 读取文档字节失败: docId={}, error={}", docId, e.getMessage());
+            log.warn("[RagPipeline] 读取文档字节失败: docId={}, error={}", docId, e.getMessage(), e);
             return new byte[0];
         }
     }
@@ -1036,7 +1036,7 @@ public class RagPipeline implements RagClient {
             }
             log.info("[RagPipeline] 载入分块内容缓存 {} 条", loaded);
         } catch (Exception e) {
-            log.warn("[RagPipeline] 载入分块内容缓存失败: {}", e.getMessage());
+            log.warn("[RagPipeline] 载入分块内容缓存失败: {}", e.getMessage(), e);
         }
     }
 
@@ -1060,7 +1060,7 @@ public class RagPipeline implements RagClient {
             }
             Files.writeString(path, sb.toString(), StandardCharsets.UTF_8);
         } catch (Exception e) {
-            log.warn("[RagPipeline] 分块内容缓存落盘失败: {}", e.getMessage());
+            log.warn("[RagPipeline] 分块内容缓存落盘失败: {}", e.getMessage(), e);
         }
     }
 
@@ -1073,7 +1073,7 @@ public class RagPipeline implements RagClient {
                 vectorStorage.close();
             }
         } catch (Exception e) {
-            log.warn("[RagPipeline] 关闭向量存储失败: {}", e.getMessage());
+            log.warn("[RagPipeline] 关闭向量存储失败: {}", e.getMessage(), e);
         }
         log.info("[RagPipeline] 已关闭");
     }

@@ -86,7 +86,7 @@ public class DiskStore {
                 }
                 return result;
             } catch (RuntimeException e) {
-                log.warn("磁盘文件解析失败，将清空重建: {}", e.getMessage());
+                log.warn("磁盘文件解析失败，将清空重建: {}", e.getMessage(), e);
                 try {
                     Files.deleteIfExists(filePath);
                 } catch (IOException ex) {
@@ -95,7 +95,7 @@ public class DiskStore {
                 return Collections.emptyList();
             }
         } catch (IOException e) {
-            log.warn("读取磁盘文件失败: {}", e.getMessage());
+            log.warn("读取磁盘文件失败: {}", e.getMessage(), e);
             return Collections.emptyList();
         } finally {
             lock.unlock();
@@ -141,7 +141,7 @@ public class DiskStore {
             Files.writeString(temp, json, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
             Files.move(temp, filePath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
         } catch (Exception e) {
-            log.warn("保存磁盘文件失败: {}", e.getMessage());
+            log.warn("保存磁盘文件失败: {}", e.getMessage(), e);
         } finally {
             lock.unlock();
         }
@@ -172,7 +172,7 @@ public class DiskStore {
             }
             save(list);
         } catch (Exception e) {
-            log.warn("保存单个条目失败: {}", e.getMessage());
+            log.warn("保存单个条目失败: {}", e.getMessage(), e);
         } finally {
             lock.unlock();
         }

@@ -494,7 +494,7 @@ public class YunxiaoClient {
             List<T> list = Json.fromJsonToList(response.getBodyString(), targetClass);
             return list == null ? Collections.emptyList() : list;
         } catch (Exception e) {
-            log.error("[yunxiao] 解析响应列表失败: {}", e.getMessage());
+            log.error("[yunxiao] 解析响应列表失败: {}", e.getMessage(), e);
             return Collections.emptyList();
         }
     }
@@ -514,7 +514,7 @@ public class YunxiaoClient {
         try {
             return Json.fromJson(response.getBodyString(), targetClass);
         } catch (Exception e) {
-            log.error("[yunxiao] 解析响应对象失败: {}", e.getMessage());
+            log.error("[yunxiao] 解析响应对象失败: {}", e.getMessage(), e);
             return null;
         }
     }

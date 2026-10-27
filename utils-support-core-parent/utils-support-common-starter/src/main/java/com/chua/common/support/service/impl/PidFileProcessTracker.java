@@ -67,7 +67,7 @@ public class PidFileProcessTracker implements ServiceProcessTracker {
             CmdExecutors.execute(cmd, PID_CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
             log.info("[service] 进程已停止: pid={}", pid);
         } catch (Exception e) {
-            log.warn("[service] 停止进程失败 pid={}: {}", pid, e.getMessage());
+            log.warn("[service] 停止进程失败 pid={}: {}", pid, e.getMessage(), e);
         } finally {
             pidCache.remove(String.valueOf(pid));
         }
@@ -119,7 +119,7 @@ public class PidFileProcessTracker implements ServiceProcessTracker {
             Files.writeString(path, String.valueOf(pid),
                     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
         } catch (IOException e) {
-            log.warn("[service] PID 文件写入失败: {}", e.getMessage());
+            log.warn("[service] PID 文件写入失败: {}", e.getMessage(), e);
         }
     }
 

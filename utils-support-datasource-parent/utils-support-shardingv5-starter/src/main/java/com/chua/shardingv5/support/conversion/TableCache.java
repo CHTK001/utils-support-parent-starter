@@ -94,7 +94,7 @@ public class TableCache {
                     }
                 }
             } catch (Exception e) {
-                log.warn("扫描表失败: {}", e.getMessage());
+                log.warn("扫描表失败: {}", e.getMessage(), e);
             }
         }
         var result = Wraps.<String>list(all);

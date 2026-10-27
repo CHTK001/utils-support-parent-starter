@@ -260,7 +260,7 @@ public class ElasticsearchEngine implements Engine {
               try {
                   restClient.close();
               } catch (Exception e) {
-                  log.warn("[elasticsearch-datasource] RestClient 关闭失败: {}", e.getMessage());
+                  log.warn("[elasticsearch-datasource] RestClient 关闭失败: {}", e.getMessage(), e);
               }
           }
           ownedRestClients.clear();

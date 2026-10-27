@@ -230,7 +230,7 @@ public class PandocEnvironment {
             }
             return "pandoc";
         } catch (Exception e) {
-            log.error("下载或安装 Pandoc 失败: {}", e.getMessage());
+            log.error("下载或安装 Pandoc 失败: {}", e.getMessage(), e);
             printWindowsManualGuide(downloadUrl);
             throw e;
         } finally {
@@ -287,7 +287,7 @@ public class PandocEnvironment {
                 try {
                     Files.deleteIfExists(mountPoint);
                 } catch (Exception e) {
-                    log.warn("清理临时挂载点 {} 失败: {}", mountPoint, e.getMessage());
+                    log.warn("清理临时挂载点 {} 失败: {}", mountPoint, e.getMessage(), e);
                 }
             }
 
@@ -297,7 +297,7 @@ public class PandocEnvironment {
             }
             return "pandoc";
         } catch (Exception e) {
-            log.error("下载或安装 Pandoc 失败: {}", e.getMessage());
+            log.error("下载或安装 Pandoc 失败: {}", e.getMessage(), e);
             printMacManualGuide(downloadUrl);
             throw e;
         } finally {
@@ -380,13 +380,13 @@ public class PandocEnvironment {
                 try {
                     deleteDirectory(extractDir);
                 } catch (Exception e) {
-                    log.warn("清理解压目录 {} 失败: {}", extractDir, e.getMessage());
+                    log.warn("清理解压目录 {} 失败: {}", extractDir, e.getMessage(), e);
                 }
             }
 
             return "pandoc";
         } catch (Exception e) {
-            log.error("下载或安装 Pandoc 失败: {}", e.getMessage());
+            log.error("下载或安装 Pandoc 失败: {}", e.getMessage(), e);
             printLinuxManualGuide(downloadUrl, archSuffix);
             throw e;
         } finally {
@@ -444,7 +444,7 @@ public class PandocEnvironment {
                         try {
                             Files.deleteIfExists(p);
                         } catch (Exception e) {
-                            log.warn("删除文件 {} 失败: {}", p, e.getMessage());
+                            log.warn("删除文件 {} 失败: {}", p, e.getMessage(), e);
                         }
                     });
             }

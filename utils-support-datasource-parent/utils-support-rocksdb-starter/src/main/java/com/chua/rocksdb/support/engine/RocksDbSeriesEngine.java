@@ -131,7 +131,7 @@ public class RocksDbSeriesEngine implements SeriesEngine, AutoCloseable {
             opened = new RocksDbEngine();
             opened.addDataSource(this.datasource, path);
         } catch (RuntimeException e) {
-            log.warn("[SeriesEngine] RocksDbSeriesEngine 打开失败 path={}: {}", path, e.getMessage());
+            log.warn("[SeriesEngine] RocksDbSeriesEngine 打开失败 path={}: {}", path, e.getMessage(), e);
             opened = null;
         }
         this.engine = opened;
@@ -196,7 +196,7 @@ public class RocksDbSeriesEngine implements SeriesEngine, AutoCloseable {
                 }
             }
         } catch (RuntimeException e) {
-            log.warn("[SeriesEngine] RocksDB 指标发现失败 target={} monitor={}: {}", target, monitorId, e.getMessage());
+            log.warn("[SeriesEngine] RocksDB 指标发现失败 target={} monitor={}: {}", target, monitorId, e.getMessage(), e);
             throw new IllegalStateException("RocksDB 时序指标发现失败 target=" + target + ": " + e.getMessage(), e);
         }
         return Wraps.list(found);
@@ -246,7 +246,7 @@ public class RocksDbSeriesEngine implements SeriesEngine, AutoCloseable {
                 }
             }
         } catch (RuntimeException e) {
-            log.warn("[SeriesEngine] RocksDB 查询失败 target={} monitor={}: {}", target, monitorId, e.getMessage());
+            log.warn("[SeriesEngine] RocksDB 查询失败 target={} monitor={}: {}", target, monitorId, e.getMessage(), e);
             throw new IllegalStateException("RocksDB 时序曲线查询失败 target=" + target + ": " + e.getMessage(), e);
         }
         // 坏点被静默丢弃会让曲线残缺却看起来像「没数据」，必须留下可观测痕迹
@@ -356,7 +356,7 @@ public class RocksDbSeriesEngine implements SeriesEngine, AutoCloseable {
             try {
                 engine.close();
             } catch (RuntimeException e) {
-                log.warn("[SeriesEngine] RocksDB 引擎关闭失败: {}", e.getMessage());
+                log.warn("[SeriesEngine] RocksDB 引擎关闭失败: {}", e.getMessage(), e);
             }
         }
     }

@@ -60,7 +60,7 @@ public class JsonApiVipParser implements VipParser {
             JsonNode node = Json.parse(response.getBodyString());
             return parseJsonResponse(node, url);
         } catch (Exception e) {
-            log.warn("[json] VIP 解析失败: url={}, err={}", url, e.getMessage());
+            log.warn("[json] VIP 解析失败: url={}, err={}", url, e.getMessage(), e);
             return VipParseResult.error("解析失败: " + e.getMessage());
         }
     }

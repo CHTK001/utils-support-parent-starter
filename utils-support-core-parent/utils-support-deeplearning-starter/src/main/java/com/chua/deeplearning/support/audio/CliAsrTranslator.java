@@ -164,7 +164,7 @@ public class CliAsrTranslator implements ITranslator<byte[], String> {
         try {
             return server.transcribe(wav, jsonOutput);
         } catch (Exception e) {
-            log.warn("[cli-asr] 常驻服务转写失败，回退单进程调用: {}", e.getMessage());
+            log.warn("[cli-asr] 常驻服务转写失败，回退单进程调用: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -219,7 +219,7 @@ public class CliAsrTranslator implements ITranslator<byte[], String> {
             }
             log.warn("[cli-asr] 模型 {} 未取得本地文件，回退 CLI 自下载", model);
         } catch (Exception e) {
-            log.warn("[cli-asr] 模型 {} 本地解析失败，回退 CLI 自下载: {}", model, e.getMessage());
+            log.warn("[cli-asr] 模型 {} 本地解析失败，回退 CLI 自下载: {}", model, e.getMessage(), e);
         }
         return model;
     }

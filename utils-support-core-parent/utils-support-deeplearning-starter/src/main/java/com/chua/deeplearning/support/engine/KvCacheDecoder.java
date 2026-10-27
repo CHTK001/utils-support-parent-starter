@@ -104,7 +104,7 @@ public final class KvCacheDecoder implements AutoCloseable {
                 }
             }
         } catch (OrtException ex) {
-            log.warn("[kv-cache] 探测模型输入失败: {}", ex.getMessage());
+            log.warn("[kv-cache] 探测模型输入失败: {}", ex.getMessage(), ex);
         }
         return false;
     }

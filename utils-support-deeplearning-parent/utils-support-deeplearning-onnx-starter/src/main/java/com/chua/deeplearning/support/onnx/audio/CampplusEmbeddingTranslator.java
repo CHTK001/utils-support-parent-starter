@@ -168,7 +168,7 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
                 return tmp;
             }
         } catch (Exception e) {
-            log.warn("[Campplus] 导出内置模型失败: {}", e.getMessage());
+            log.warn("[Campplus] 导出内置模型失败: {}", e.getMessage(), e);
         }
         return null;
     }
@@ -202,7 +202,7 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
             }
             return pcm;
         } catch (Exception e) {
-            log.warn("[CampplusEmbedding] audio decode failed: {}", e.getMessage());
+            log.warn("[CampplusEmbedding] audio decode failed: {}", e.getMessage(), e);
             return null;
         }
     }

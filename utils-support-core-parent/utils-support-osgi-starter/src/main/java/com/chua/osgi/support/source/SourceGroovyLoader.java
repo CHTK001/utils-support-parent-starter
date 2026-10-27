@@ -248,7 +248,7 @@ public class SourceGroovyLoader {
                     .sorted()
                     .toList();
         } catch (Exception e) {
-            log.warn("[osgi-source] 扫描 groovy 脚本失败: {}", e.getMessage());
+            log.warn("[osgi-source] 扫描 groovy 脚本失败: {}", e.getMessage(), e);
             return List.of();
         }
     }

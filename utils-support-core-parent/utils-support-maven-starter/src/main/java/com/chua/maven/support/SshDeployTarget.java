@@ -234,7 +234,7 @@ public class SshDeployTarget implements MavenDeployTarget {
             try {
                 ReflectUtils.invoke(sftpClient, "disconnect", void.class);
             } catch (Exception e) {
-                log.warn("[maven] SSH 断开异常: {}", e.getMessage());
+                log.warn("[maven] SSH 断开异常: {}", e.getMessage(), e);
             }
             sftpClient = null;
         }

@@ -677,7 +677,7 @@ public class OpencodeAgent implements Agent {
                     throw e;
                 }
                 long delay = retryConfig.calculateDelayMillis(attempt);
-                log.warn("[opencode] 第 {} 次失败，{}ms 后重试: {}", attempt + 1, delay, e.getMessage());
+                log.warn("[opencode] 第 {} 次失败，{}ms 后重试: {}", attempt + 1, delay, e.getMessage(), e);
                 fireDebug("ERROR", "第 " + (attempt + 1) + " 次失败，重试中: " + e.getMessage(), attempt + 1);
                 try {
                     Thread.sleep(delay);

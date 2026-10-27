@@ -247,7 +247,7 @@ public class MuouResourceProvider extends AbstractResourceProvider {
             return v;
         } catch (Exception e) {
             // 详情页抓取失败（超时/站点失效）时静默跳过，由上层按条数兜底
-            log.warn("muou 详情页抓取失败 id={}: {}", id, e.getMessage());
+            log.warn("muou 详情页抓取失败 id={}: {}", id, e.getMessage(), e);
             return null;
         }
     }

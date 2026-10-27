@@ -208,7 +208,7 @@ public class FtpClient implements AutoCloseable {
             }
             log.info("FTP 断开: {}@{}:{}", username, host, port);
         } catch (Exception e) {
-            log.warn("FTP 断开异常: {}", e.getMessage());
+            log.warn("FTP 断开异常: {}", e.getMessage(), e);
         }
     }
 

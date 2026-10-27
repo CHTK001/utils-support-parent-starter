@@ -99,7 +99,7 @@ public class QwenBrowserSession implements AutoCloseable {
                 page.waitForLoadState();
                 page.waitForTimeout(5000);
             } catch (Exception e) {
-                log.warn("新建会话失败: {}", e.getMessage());
+                log.warn("新建会话失败: {}", e.getMessage(), e);
             }
         }
     }
@@ -178,13 +178,13 @@ public class QwenBrowserSession implements AutoCloseable {
                             listener.accept("think".equals(phase) || "thinking".equals(phase) ? "thinking" : "content", content);
                         }
                     } catch (Exception e) {
-                        log.warn("解析千问 SSE 事件失败: {}", e.getMessage());
+                        log.warn("解析千问 SSE 事件失败: {}", e.getMessage(), e);
                     }
                 }
             }
             return QwenChatResult.ok(text.toString(), thinking.toString(), "", rawEvents);
         } catch (Exception e) {
-            log.warn("通义千问聊天请求失败: {}", e.getMessage());
+            log.warn("通义千问聊天请求失败: {}", e.getMessage(), e);
             return QwenChatResult.error(e.getMessage());
         }
     }
@@ -224,7 +224,7 @@ public class QwenBrowserSession implements AutoCloseable {
             }
         }
         if (ex != null) {
-            log.warn("关闭通义千问浏览器会话异常: {}", ex.getMessage());
+            log.warn("关闭通义千问浏览器会话异常: {}", ex.getMessage(), ex);
         }
     }
 
@@ -285,7 +285,7 @@ public class QwenBrowserSession implements AutoCloseable {
                 }
             }
         } catch (Exception e) {
-            log.warn("提取千问响应内容失败: {}", e.getMessage());
+            log.warn("提取千问响应内容失败: {}", e.getMessage(), e);
         }
         return null;
     }

@@ -161,7 +161,7 @@ public class DoutulaEmojiProvider implements EmojiProvider {
             }
             return Jsoup.parse(new String(response.getBody(), StandardCharsets.UTF_8), BASE_URL);
         } catch (Exception e) {
-            log.warn("[doutula] 请求异常: url={}, msg={}", url, e.getMessage());
+            log.warn("[doutula] 请求异常: url={}, msg={}", url, e.getMessage(), e);
             return null;
         }
     }

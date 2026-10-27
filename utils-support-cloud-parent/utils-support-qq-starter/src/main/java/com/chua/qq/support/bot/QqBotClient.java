@@ -671,7 +671,7 @@ public class QqBotClient implements BotClient {
                 if (!running.get() || !reconnectAllowed) {
                     return;
                 }
-                log.warn("QQ 机器人长连接中断, {}ms 后重试: {}", backoff, e.getMessage());
+                log.warn("QQ 机器人长连接中断, {}ms 后重试: {}", backoff, e.getMessage(), e);
                 backoff = sleepBackoff(backoff);
             }
         }
@@ -763,7 +763,7 @@ public class QqBotClient implements BotClient {
             webSocket = null;
             stopHeartbeat();
             notifyError(error);
-            log.error("QQ 机器人长连接异常: {}", error.getMessage());
+            log.error("QQ 机器人长连接异常: {}", error.getMessage(), error);
             endSession();
         }
 
@@ -1062,7 +1062,7 @@ public class QqBotClient implements BotClient {
             Thread.currentThread().interrupt();
         } catch (Exception e) {
             notifyError(e);
-            log.warn("QQ 机器人发送帧失败: {}", e.getMessage());
+            log.warn("QQ 机器人发送帧失败: {}", e.getMessage(), e);
         }
     }
 

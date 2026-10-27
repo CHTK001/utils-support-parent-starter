@@ -145,7 +145,7 @@ public class DataSearchServerFilter implements ServerFilter {
         try {
             dispatch(path.substring(PREFIX.length()), request, response);
         } catch (Exception e) {
-            log.warn("[datasearch] 处理失败: path={}, msg={}", path, e.getMessage());
+            log.warn("[datasearch] 处理失败: path={}, msg={}", path, e.getMessage(), e);
             write(response, 500, "internal error: " + e.getMessage(), null);
         }
     }

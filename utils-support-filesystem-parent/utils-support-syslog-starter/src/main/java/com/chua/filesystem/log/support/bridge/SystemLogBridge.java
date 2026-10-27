@@ -123,7 +123,7 @@ public final class SystemLogBridge {
         try {
             return NativeFunctionRegistry.ofLibrary("Advapi32");
         } catch (Exception e) {
-            log.warn("Failed to initialize Windows Event Log FFM bindings: {}", e.getMessage());
+            log.warn("Failed to initialize Windows Event Log FFM bindings: {}", e.getMessage(), e);
             return null;
         }
     }

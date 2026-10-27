@@ -322,7 +322,7 @@ public class PreviewPdfCache {
                     }
                     return result;
                 } catch (Exception e) {
-                    log.warn("PDF 转换失败: key={}, error={}", key, e.getMessage());
+                    log.warn("PDF 转换失败: key={}, error={}", key, e.getMessage(), e);
                     return null;
                 } finally {
                     inflightMap.remove(k);
@@ -333,7 +333,7 @@ public class PreviewPdfCache {
         try {
             return future.get(5, TimeUnit.MINUTES);
         } catch (Exception e) {
-            log.warn("等待 PDF 转换完成超时或失败: key={}, error={}", key, e.getMessage());
+            log.warn("等待 PDF 转换完成超时或失败: key={}, error={}", key, e.getMessage(), e);
             // 取消进行中的转换，避免资源泄漏
             future.cancel(true);
             inflightMap.remove(cacheKey);

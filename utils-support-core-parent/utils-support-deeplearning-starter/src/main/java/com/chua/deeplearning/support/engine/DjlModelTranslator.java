@@ -204,7 +204,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
                     return ImageUtils.encode(ImageUtils.toMat(bufferedImage));
                 }
             } catch (Exception e) {
-                log.warn("[deeplearning-engine] DJL 模型 {} 图像输出转 byte[] 失败: {}", modelName, e.getMessage());
+                log.warn("[deeplearning-engine] DJL 模型 {} 图像输出转 byte[] 失败: {}", modelName, e.getMessage(), e);
             }
             return result;
         }

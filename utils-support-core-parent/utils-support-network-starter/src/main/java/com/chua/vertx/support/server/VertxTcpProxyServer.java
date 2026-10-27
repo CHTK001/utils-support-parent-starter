@@ -189,7 +189,7 @@ public class VertxTcpProxyServer extends AbstractServer {
                     : null;
             backend = targetResolver.resolve(remote);
         } catch (Exception e) {
-            log.warn("vertx-tcp-proxy 解析后端地址失败: {}", e.getMessage());
+            log.warn("vertx-tcp-proxy 解析后端地址失败: {}", e.getMessage(), e);
             front.close();
             return;
         }

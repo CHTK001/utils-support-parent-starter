@@ -179,7 +179,7 @@ public class OnlineHanziProvider implements HanziProvider {
                     }
                 }
             } catch (Exception e) {
-                log.warn("[chinese-xinhua] 汉字在线获取失败, 将使用内置数据: {}", e.getMessage());
+                log.warn("[chinese-xinhua] 汉字在线获取失败, 将使用内置数据: {}", e.getMessage(), e);
             }
             if (map.isEmpty()) {
                 for (HanziInfo info : FALLBACK) {

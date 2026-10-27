@@ -125,7 +125,7 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
             }
             log.warn("SubHD API 无可用响应，降级为 HTML 搜索页抓取");
         } catch (Exception e) {
-            log.warn("SubHD API 检索异常: {}，降级为 HTML 搜索页抓取", e.getMessage());
+            log.warn("SubHD API 检索异常: {}，降级为 HTML 搜索页抓取", e.getMessage(), e);
         }
         return fallbackSearch(keyword, request);
     }
@@ -163,7 +163,7 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
             }
             return buildPageResult(items, request);
         } catch (Exception e) {
-            log.warn("SubHD JSON 解析失败: {}", e.getMessage());
+            log.warn("SubHD JSON 解析失败: {}", e.getMessage(), e);
             return ReturnPageResult.error("解析失败: " + e.getMessage());
         }
     }
@@ -192,7 +192,7 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
             }
             return parseHtmlFallback(resp.getBodyString(), keyword, request);
         } catch (Exception e) {
-            log.warn("SubHD fallback 检索异常: {}", e.getMessage());
+            log.warn("SubHD fallback 检索异常: {}", e.getMessage(), e);
             return ReturnPageResult.error("检索失败: " + e.getMessage());
         }
     }

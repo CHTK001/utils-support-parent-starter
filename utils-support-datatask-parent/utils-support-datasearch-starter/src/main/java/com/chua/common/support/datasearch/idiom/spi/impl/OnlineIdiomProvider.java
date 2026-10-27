@@ -216,7 +216,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
                     }
                 }
             } catch (Exception e) {
-                log.warn("[chinese-xinhua] 成语在线获取失败, 将使用内置数据: {}", e.getMessage());
+                log.warn("[chinese-xinhua] 成语在线获取失败, 将使用内置数据: {}", e.getMessage(), e);
             }
             if (map.isEmpty()) {
                 for (IdiomInfo info : FALLBACK) {

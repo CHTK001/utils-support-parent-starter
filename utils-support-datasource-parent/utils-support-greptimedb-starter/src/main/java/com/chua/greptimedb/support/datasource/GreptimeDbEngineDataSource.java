@@ -239,7 +239,7 @@ public class GreptimeDbEngineDataSource implements EngineDataSource<GreptimeDB> 
         try {
             client.shutdownGracefully();
         } catch (Exception e) {
-            log.warn("GreptimeDB 数据源关闭失败: name={}, cause={}", name, e.getMessage());
+            log.warn("GreptimeDB 数据源关闭失败: name={}, cause={}", name, e.getMessage(), e);
         }
     }
 }

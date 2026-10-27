@@ -197,7 +197,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
                 pathHandler.removePrefixPath(contextPath);
                 log.info("Undertow 卸载完成: contextPath={}", contextPath);
             } catch (Exception e) {
-                log.warn("Undertow 卸载失败: contextPath={}, error={}", contextPath, e.getMessage());
+                log.warn("Undertow 卸载失败: contextPath={}, error={}", contextPath, e.getMessage(), e);
             }
         }
     }
@@ -275,7 +275,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
                         deployWar(unit.getPath(), ctxPath);
                         deployedUnits.add(new DeployUnitInfo(unit.getPath(), ctxPath, unit.getType()));
                     } catch (Exception e) {
-                        log.warn("Undertow 部署失败: path={}, error={}", unit.getPath(), e.getMessage());
+                        log.warn("Undertow 部署失败: path={}, error={}", unit.getPath(), e.getMessage(), e);
                     }
                 }
             }
@@ -313,7 +313,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
             builder.addHttpsListener(8443, setting.getHost(), sslContext);
             log.info("Undertow SSL 已启用");
         } catch (Exception e) {
-            log.warn("Undertow SSL 配置失败: {}", e.getMessage());
+            log.warn("Undertow SSL 配置失败: {}", e.getMessage(), e);
         }
     }
 

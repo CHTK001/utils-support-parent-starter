@@ -204,12 +204,12 @@ public class MqttInboundAdapter {
                 current.disconnect();
             }
         } catch (MqttException e) {
-            log.warn("[datalake-mqtt] 断开连接异常: {}", e.getMessage());
+            log.warn("[datalake-mqtt] 断开连接异常: {}", e.getMessage(), e);
         }
         try {
             current.close();
         } catch (MqttException e) {
-            log.warn("[datalake-mqtt] 关闭客户端异常: {}", e.getMessage());
+            log.warn("[datalake-mqtt] 关闭客户端异常: {}", e.getMessage(), e);
         }
     }
 

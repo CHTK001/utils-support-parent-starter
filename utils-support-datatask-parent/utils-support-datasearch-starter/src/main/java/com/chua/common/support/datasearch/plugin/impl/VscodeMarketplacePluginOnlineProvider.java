@@ -80,7 +80,7 @@ public class VscodeMarketplacePluginOnlineProvider implements PluginOnlineProvid
             }
             return result;
         } catch (Exception e) {
-            log.warn("[vscode-marketplace] 搜索失败: keyword={}, err={}", keyword, e.getMessage());
+            log.warn("[vscode-marketplace] 搜索失败: keyword={}, err={}", keyword, e.getMessage(), e);
             return List.of();
         }
     }

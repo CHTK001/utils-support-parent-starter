@@ -365,7 +365,7 @@ public class IbdDataRestore extends AbstractDataRestore {
             if (!ENGINE_AUTO.equals(engine)) {
                 throw e;
             }
-            log.warn("纯 Java 解析失败，回退 ibd2sql: {}", e.getMessage());
+            log.warn("纯 Java 解析失败，回退 ibd2sql: {}", e.getMessage(), e);
             try {
                 return extractViaIbd2Sql(source, config);
             } catch (Exception fallback) {

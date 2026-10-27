@@ -249,11 +249,11 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
                             .build();
                     register(def);
                 } catch (Exception e) {
-                    log.warn("[deeplearning-engine] 加载模型 [{}] 失败: {}", entry.modelId(), e.getMessage());
+                    log.warn("[deeplearning-engine] 加载模型 [{}] 失败: {}", entry.modelId(), e.getMessage(), e);
                 }
             }
         } catch (Exception e) {
-            log.warn("[deeplearning-engine] ModelRegistry 发现失败: {}", e.getMessage());
+            log.warn("[deeplearning-engine] ModelRegistry 发现失败: {}", e.getMessage(), e);
         }
 
         try {
@@ -284,7 +284,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
                         }
                     } catch (Exception e) {
                         log.debug("[deeplearning-engine] load provider [{}] failed: {}", name, e.getMessage());
-                        log.warn("[deeplearning-engine] 加载模型提供者 [{}] 失败: {}", name, e.getMessage());
+                        log.warn("[deeplearning-engine] 加载模型提供者 [{}] 失败: {}", name, e.getMessage(), e);
                     }
                 }
             }
@@ -292,7 +292,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
             log.info("[deeplearning-engine] 识别引擎自动发现 {} 个模型", modelMap.size());
         } catch (Exception e) {
             log.debug("[deeplearning-engine] discovery exception: {}", e.getMessage());
-            log.warn("[deeplearning-engine] 模型自动发现失败: {}", e.getMessage());
+            log.warn("[deeplearning-engine] 模型自动发现失败: {}", e.getMessage(), e);
         }
     }
 
@@ -404,7 +404,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
             register(def);
             return def;
         } catch (Exception e) {
-            log.warn("[deeplearning-engine] 懒加载模型 [{}] 失败: {}", modelId, e.getMessage());
+            log.warn("[deeplearning-engine] 懒加载模型 [{}] 失败: {}", modelId, e.getMessage(), e);
             return null;
         }
     }
@@ -508,7 +508,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
                         ServiceProvider<IdentificationEngine> provider = ServiceProvider.of(IdentificationEngine.class);
                         INSTANCE = provider.getDefault();
                     } catch (Exception e) {
-                        log.warn("[deeplearning-engine] SPI 获取 IdentificationEngine 失败: {}", e.getMessage());
+                        log.warn("[deeplearning-engine] SPI 获取 IdentificationEngine 失败: {}", e.getMessage(), e);
                     }
                     if (INSTANCE == null) {
                         INSTANCE = new AbstractIdentificationEngine() {};

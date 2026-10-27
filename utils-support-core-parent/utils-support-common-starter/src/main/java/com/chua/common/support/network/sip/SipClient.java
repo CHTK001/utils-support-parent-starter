@@ -387,7 +387,7 @@ public class SipClient {
                 log.debug("忽略未知 SIP 信令: {}", line);
             }
         } catch (Exception e) {
-            log.warn("SIP 信令解析异常: {}", e.getMessage());
+            log.warn("SIP 信令解析异常: {}", e.getMessage(), e);
         }
     }
 

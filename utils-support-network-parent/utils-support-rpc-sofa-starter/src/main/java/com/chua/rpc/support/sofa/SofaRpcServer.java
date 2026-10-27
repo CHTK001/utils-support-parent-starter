@@ -128,7 +128,7 @@ public class SofaRpcServer implements RpcServer {
             try {
                 config.unExport();
             } catch (Exception e) {
-                log.warn("Failed to unExport provider: {}", e.getMessage());
+                log.warn("Failed to unExport provider: {}", e.getMessage(), e);
             }
         }
         providerConfigs.clear();

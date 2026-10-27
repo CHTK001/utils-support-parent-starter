@@ -141,7 +141,7 @@ public final class VideoProviderRegistry {
                 }
             }
         } catch (Exception e) {
-            log.error("[Registry] init failed: {}", e.getMessage());
+            log.error("[Registry] init failed: {}", e.getMessage(), e);
         }
     }
 

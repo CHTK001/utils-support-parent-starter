@@ -120,7 +120,7 @@ public class JdkSseClient implements SseClient {
                         try {
                             listener.onData(data);
                         } catch (Exception e) {
-                            log.warn("SSE onData 回调异常: {}", e.getMessage());
+                            log.warn("SSE onData 回调异常: {}", e.getMessage(), e);
                         }
                     }
                     if (connection.isConnected()) {

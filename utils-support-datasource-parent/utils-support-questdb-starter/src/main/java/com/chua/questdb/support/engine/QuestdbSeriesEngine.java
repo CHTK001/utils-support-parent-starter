@@ -570,7 +570,7 @@ public class QuestdbSeriesEngine implements SeriesEngine, AutoCloseable {
             }
             throw new IllegalStateException("QuestDB 查询失败(HTTP " + response.statusCode() + "): " + error);
         } catch (IOException e) {
-            log.warn("[SeriesEngine] QuestDB 请求失败: {}", e.getMessage());
+            log.warn("[SeriesEngine] QuestDB 请求失败: {}", e.getMessage(), e);
             throw new IllegalStateException("QuestDB 请求失败: " + e.getMessage(), e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -628,7 +628,7 @@ public class QuestdbSeriesEngine implements SeriesEngine, AutoCloseable {
         try {
             httpClient.close();
         } catch (RuntimeException e) {
-            log.warn("[SeriesEngine] QuestDB HttpClient 关闭失败: {}", e.getMessage());
+            log.warn("[SeriesEngine] QuestDB HttpClient 关闭失败: {}", e.getMessage(), e);
         }
     }
 

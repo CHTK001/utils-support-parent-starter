@@ -170,7 +170,7 @@ public class JdkUdpServer extends AbstractServer {
                     datagramSocket.send(responsePacket);
                 }
             } catch (Exception e) {
-                log.error("UDP 处理异常: {}", e.getMessage());
+                log.error("UDP 处理异常: {}", e.getMessage(), e);
             }
         }
     }

@@ -226,7 +226,7 @@ public class OllamaImageClient implements ImageClient {
             }
             return result;
         } catch (Exception e) {
-            log.warn("[Ollama] 获取 模型列表 异常: {}", e.getMessage());
+            log.warn("[Ollama] 获取 模型列表 异常: {}", e.getMessage(), e);
             return List.of();
         }
     }

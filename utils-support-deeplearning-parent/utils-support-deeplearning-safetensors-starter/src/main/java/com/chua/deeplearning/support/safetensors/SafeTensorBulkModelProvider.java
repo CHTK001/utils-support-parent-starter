@@ -64,13 +64,13 @@ public class SafeTensorBulkModelProvider implements BulkModelProvider {
                                     .translator(translator)
                                     .build();
                         } catch (Exception e) {
-                            log.warn("[SafeTensor] 注册模型失败 [{}]: {}", entry.id(), e.getMessage());
+                            log.warn("[SafeTensor] 注册模型失败 [{}]: {}", entry.id(), e.getMessage(), e);
                             return null;
                         }
                     })
                     .toList();
         } catch (Exception e) {
-            log.warn("[SafeTensor] getAll() failed: {}", e.getMessage());
+            log.warn("[SafeTensor] getAll() failed: {}", e.getMessage(), e);
             return List.of();
         }
     }

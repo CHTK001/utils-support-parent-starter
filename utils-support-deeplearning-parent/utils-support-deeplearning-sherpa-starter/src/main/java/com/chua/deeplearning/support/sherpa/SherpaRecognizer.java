@@ -180,7 +180,7 @@ public final class SherpaRecognizer implements AutoCloseable {
             recognizer.decode(stream);
             return recognizer.getResult(stream);
         } catch (RuntimeException e) {
-            log.warn("[sherpa] 解码失败（{} 族，{} 采样）: {}", modelType.code(), samples.length, e.getMessage());
+            log.warn("[sherpa] 解码失败（{} 族，{} 采样）: {}", modelType.code(), samples.length, e.getMessage(), e);
             return null;
         } finally {
             if (stream != null) {

@@ -198,7 +198,7 @@ public class SftpClient implements AutoCloseable {
             }
             log.info("SFTP 断开: {}@{}:{}", username, host, port);
         } catch (Exception e) {
-            log.warn("SFTP 断开异常: {}", e.getMessage());
+            log.warn("SFTP 断开异常: {}", e.getMessage(), e);
         }
     }
 

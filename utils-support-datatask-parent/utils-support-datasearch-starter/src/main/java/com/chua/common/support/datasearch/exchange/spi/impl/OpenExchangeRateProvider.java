@@ -97,7 +97,7 @@ public class OpenExchangeRateProvider implements ExchangeRateProvider {
                 return cachedRates;
             }
         } catch (Exception e) {
-            log.warn("[open-exchange-rate] 抓取失败: {}", e.getMessage());
+            log.warn("[open-exchange-rate] 抓取失败: {}", e.getMessage(), e);
         }
         return cachedRates;
     }

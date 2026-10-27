@@ -289,7 +289,7 @@ public class PlateNumberPipeline {
         try {
             ModelRegistry.discoverAll();
         } catch (Exception e) {
-            log.warn("模型注册表发现失败: {}", e.getMessage());
+            log.warn("模型注册表发现失败: {}", e.getMessage(), e);
         }
         Map<String, Set<String>> grouped = Wraps.linkedMap();
         for (ModelRegistry.Entry entry : ModelRegistry.getAll()) {

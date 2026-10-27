@@ -643,7 +643,7 @@ public class WhatsAppBotClient implements BotClient {
                     listener.onMessage(inbound);
                 } catch (Exception e) {
                     notifyError(e);
-                    log.warn("[WhatsApp] 消息监听器异常: {}", e.getMessage());
+                    log.warn("[WhatsApp] 消息监听器异常: {}", e.getMessage(), e);
                 }
             }
         }
@@ -780,7 +780,7 @@ public class WhatsAppBotClient implements BotClient {
             return MessageDigest.isEqual(expected.getBytes(StandardCharsets.UTF_8),
                     signature.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
-            log.warn("[WhatsApp] 签名校验失败: {}", e.getMessage());
+            log.warn("[WhatsApp] 签名校验失败: {}", e.getMessage(), e);
             return false;
         }
     }

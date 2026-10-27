@@ -129,7 +129,7 @@ public class OpencvModelProvider implements BulkModelProvider {
                             : Collections.singletonMap("path", modelPath))
                     .build());
         } catch (Exception e) {
-            log.warn("注册 OpenCV 模型 [{}] 失败: {}", modelId, e.getMessage());
+            log.warn("注册 OpenCV 模型 [{}] 失败: {}", modelId, e.getMessage(), e);
         }
     }
 }

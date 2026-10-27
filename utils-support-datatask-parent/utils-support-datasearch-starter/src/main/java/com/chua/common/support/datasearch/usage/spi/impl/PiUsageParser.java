@@ -193,7 +193,7 @@ public class PiUsageParser extends BaseUsageParser {
                     .filter(p -> p.getFileName().toString().endsWith(".jsonl"))
                     .forEach(files::add);
         } catch (IOException e) {
-            log.warn("[pi] walk failed: {}", e.getMessage());
+            log.warn("[pi] walk failed: {}", e.getMessage(), e);
         }
         return files.stream().sorted().toList();
     }

@@ -111,7 +111,7 @@ public class CopilotCliUsageParser extends BaseUsageParser {
                     .filter(Files::isRegularFile)
                     .forEach(files::add);
         } catch (IOException e) {
-            log.warn("[copilot-cli] list session-state failed: {}", e.getMessage());
+            log.warn("[copilot-cli] list session-state failed: {}", e.getMessage(), e);
         }
         return files;
     }

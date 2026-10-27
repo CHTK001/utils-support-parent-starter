@@ -303,7 +303,7 @@ public final class WxKeyNativeBridge implements AutoCloseable {
                 }
             }
         } catch (Throwable t) {
-            log.warn("[微信密钥] 读取图片密钥失败（不影响数据库导出）: {}", t.getMessage());
+            log.warn("[微信密钥] 读取图片密钥失败（不影响数据库导出）: {}", t.getMessage(), t);
         }
     }
 
@@ -355,7 +355,7 @@ public final class WxKeyNativeBridge implements AutoCloseable {
         try {
             cleanupHookHandle.invokeExact();
         } catch (Throwable t) {
-            log.warn("[微信密钥] CleanupHook 调用异常: {}", t.getMessage());
+            log.warn("[微信密钥] CleanupHook 调用异常: {}", t.getMessage(), t);
         }
     }
 

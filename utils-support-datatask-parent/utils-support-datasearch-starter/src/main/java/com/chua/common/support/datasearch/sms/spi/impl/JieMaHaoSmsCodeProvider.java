@@ -197,7 +197,7 @@ public class JieMaHaoSmsCodeProvider implements SmsCodeProvider, PolledDirectory
         try {
             current = fetchSnapshot();
         } catch (Exception e) {
-            log.warn("[jiemahao] 第{}轮轮询抓取失败: {}", round, e.getMessage());
+            log.warn("[jiemahao] 第{}轮轮询抓取失败: {}", round, e.getMessage(), e);
             support.fireError(BASE_URL, null, e);
             return;
         }
@@ -284,7 +284,7 @@ public class JieMaHaoSmsCodeProvider implements SmsCodeProvider, PolledDirectory
             }
             return parsePhoneList(html);
         } catch (Exception e) {
-            log.warn("[jiemahao] 抓取号码列表失败: {}", e.getMessage());
+            log.warn("[jiemahao] 抓取号码列表失败: {}", e.getMessage(), e);
             return Collections.emptyList();
         }
     }
@@ -311,7 +311,7 @@ public class JieMaHaoSmsCodeProvider implements SmsCodeProvider, PolledDirectory
                         fire(WatcherEvent.MODIFY, info, messages);
                     }
                 } catch (Throwable e) {
-                    log.warn("[jiemahao] 异步抓取短信失败: {} -> {}", info.getPhone(), String.valueOf(e.getMessage()));
+                    log.warn("[jiemahao] 异步抓取短信失败: {} -> {}", info.getPhone(), String.valueOf(e.getMessage()), e);
                 }
             });
         } catch (java.util.concurrent.RejectedExecutionException e) {

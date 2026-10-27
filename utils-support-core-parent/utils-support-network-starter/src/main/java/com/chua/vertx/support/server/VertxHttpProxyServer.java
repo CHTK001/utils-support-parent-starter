@@ -152,7 +152,7 @@ public class VertxHttpProxyServer extends AbstractServer {
         try {
             backend = targetResolver.resolve(null);
         } catch (Exception e) {
-            log.warn("vertx-http-proxy 解析后端地址失败: {}", e.getMessage());
+            log.warn("vertx-http-proxy 解析后端地址失败: {}", e.getMessage(), e);
             front.response().setStatusCode(502).end();
             return;
         }

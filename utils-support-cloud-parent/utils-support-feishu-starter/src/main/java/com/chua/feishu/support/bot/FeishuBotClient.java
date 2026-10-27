@@ -546,7 +546,7 @@ public class FeishuBotClient implements BotClient {
                 disconnect.setAccessible(true);
                 disconnect.invoke(ws);
             } catch (Exception e) {
-                log.warn("Feishu ws disconnect failed: {}", e.getMessage());
+                log.warn("Feishu ws disconnect failed: {}", e.getMessage(), e);
             }
             try {
                 java.lang.reflect.Field executorField = com.lark.oapi.ws.Client.class
@@ -557,7 +557,7 @@ public class FeishuBotClient implements BotClient {
                     pool.shutdownNow();
                 }
             } catch (Exception e) {
-                log.warn("Feishu ws executor shutdown failed: {}", e.getMessage());
+                log.warn("Feishu ws executor shutdown failed: {}", e.getMessage(), e);
             }
         }
         wsClient = null;

@@ -261,7 +261,7 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
             }
             return DoubaoChatResult.error("浏览器脚本未返回有效结果");
         } catch (Exception e) {
-            log.warn("豆包聊天请求失败: {}", e.getMessage());
+            log.warn("豆包聊天请求失败: {}", e.getMessage(), e);
             return DoubaoChatResult.error(e.getMessage());
         }
     }
@@ -287,7 +287,7 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
             Object result = page.evaluate(script, conversationId);
             return result instanceof Boolean && (Boolean) result;
         } catch (Exception e) {
-            log.warn("删除会话失败: {}", e.getMessage());
+            log.warn("删除会话失败: {}", e.getMessage(), e);
             return false;
         }
     }

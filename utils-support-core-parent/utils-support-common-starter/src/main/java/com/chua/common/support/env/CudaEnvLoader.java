@@ -140,7 +140,7 @@ public final class CudaEnvLoader {
                     }
                 }
             } catch (IOException e) {
-                log.warn("[cuda-env] 读取 {} 失败: {}", RESOURCE_PATH, e.getMessage());
+                log.warn("[cuda-env] 读取 {} 失败: {}", RESOURCE_PATH, e.getMessage(), e);
             }
             for (String name : props.stringPropertyNames()) {
                 map.put(name, props.getProperty(name).trim());

@@ -168,7 +168,7 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
                 return Files.readAllBytes(p);
             }
         } catch (IOException e) {
-            log.warn("[PocketTTS] 读取参考音频失败: {}", e.getMessage());
+            log.warn("[PocketTTS] 读取参考音频失败: {}", e.getMessage(), e);
         }
         return null;
     }

@@ -912,7 +912,7 @@ public final class ModelRegistry {
                 return finishDownload(modelId, entry, url, downloaded, downloadDir);
             } catch (Exception e) {
                 lastError = e;
-                log.warn("[deeplearning-engine] 下载模型失败（将尝试下一个地址）: {} -> {}: {}", modelId, url, e.getMessage());
+                log.warn("[deeplearning-engine] 下载模型失败（将尝试下一个地址）: {} -> {}: {}", modelId, url, e.getMessage(), e);
             }
         }
         log.warn("[deeplearning-engine] 远程下载模型全部失败: {} -> {}: {}",
@@ -959,7 +959,7 @@ public final class ModelRegistry {
                             log.warn("[deeplearning-engine] ONNX 附加文件为空，继续尝试: {}", extraUrl);
                         }
                     } catch (Exception e) {
-                        log.warn("[deeplearning-engine] 下载 ONNX 附加文件失败（部分模型不需要）: {} -> {}: {}", modelId, extraUrl, e.getMessage());
+                        log.warn("[deeplearning-engine] 下载 ONNX 附加文件失败（部分模型不需要）: {} -> {}: {}", modelId, extraUrl, e.getMessage(), e);
                     }
                 }
             }
@@ -999,7 +999,7 @@ public final class ModelRegistry {
 
             return target;
         } catch (Exception e) {
-            log.warn("[deeplearning-engine] 模型下载后处理失败: {} -> {}: {}", modelId, baseUrl, e.getMessage());
+            log.warn("[deeplearning-engine] 模型下载后处理失败: {} -> {}: {}", modelId, baseUrl, e.getMessage(), e);
             return target;
         }
     }
@@ -1130,7 +1130,7 @@ public final class ModelRegistry {
             }
             log.warn("[deeplearning-engine] 附属文件为空: {} -> {}", modelId, url);
         } catch (Exception e) {
-            log.warn("[deeplearning-engine] 下载附属文件失败（将尝试下一个地址）: {} -> {}: {}", modelId, url, e.getMessage());
+            log.warn("[deeplearning-engine] 下载附属文件失败（将尝试下一个地址）: {} -> {}: {}", modelId, url, e.getMessage(), e);
         }
         return false;
     }
@@ -1245,7 +1245,7 @@ public final class ModelRegistry {
             CLASSPATH_CACHE.put(normalized, extracted);
             return extracted;
         } catch (Exception ex) {
-            log.warn("[deeplearning-engine] classpath 模型解析失败: {} -> {}", normalized, ex.getMessage());
+            log.warn("[deeplearning-engine] classpath 模型解析失败: {} -> {}", normalized, ex.getMessage(), ex);
             return null;
         }
     }
@@ -1357,14 +1357,14 @@ public final class ModelRegistry {
                             ReflectUtils.forName(className, loader);
                             count++;
                         } catch (Throwable ex) {
-                            log.warn("[deeplearning-engine] ModelRegistrar load failed: {} -> {}", className, ex.getMessage());
+                            log.warn("[deeplearning-engine] ModelRegistrar load failed: {} -> {}", className, ex.getMessage(), ex);
                         }
                     }
                 }
             }
             log.info("[deeplearning-engine] ModelRegistry SPI loaded {} registrar class(es), entries={}", count, REGISTRY.size());
         } catch (Exception e) {
-            log.warn("[deeplearning-engine] ModelRegistrar discover error: {}", e.getMessage());
+            log.warn("[deeplearning-engine] ModelRegistrar discover error: {}", e.getMessage(), e);
         }
     }
 

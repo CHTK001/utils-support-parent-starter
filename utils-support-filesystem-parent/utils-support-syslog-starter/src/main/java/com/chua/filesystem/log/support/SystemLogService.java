@@ -90,7 +90,7 @@ public class SystemLogService {
                 p = bridge.createProvider();
                 log.info("SystemLogProvider created via bridge: {}", p.getClass().getName());
             } catch (Exception e) {
-                log.warn("Failed to create SystemLogProvider: {}", e.getMessage());
+                log.warn("Failed to create SystemLogProvider: {}", e.getMessage(), e);
             }
         }
 

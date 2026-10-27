@@ -307,7 +307,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
                     Thread.currentThread().interrupt();
                     break;
                 } catch (Exception e) {
-                    log.error("系统日志轮询线程异常: {}", e.getMessage());
+                    log.error("系统日志轮询线程异常: {}", e.getMessage(), e);
                     try {
                         Thread.sleep(intervalMs);
                     } catch (InterruptedException ie) {

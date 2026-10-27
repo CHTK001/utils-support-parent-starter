@@ -121,7 +121,7 @@ public class DefaultPipelineManager implements PipelineManager {
                 compiledCache.put(pipelineId, config);
             }
         } catch (Exception e) {
-            log.warn("[pipeline-mgr] 编译管线 DSL 失败: pipelineId={}, error={}", pipelineId, e.getMessage());
+            log.warn("[pipeline-mgr] 编译管线 DSL 失败: pipelineId={}, error={}", pipelineId, e.getMessage(), e);
         }
         // 通知引擎失效对应管线的 Sink 编译缓存，确保重新保存后新配置生效
         if (engine != null) {

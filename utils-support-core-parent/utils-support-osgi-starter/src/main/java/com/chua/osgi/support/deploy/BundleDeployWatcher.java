@@ -143,7 +143,7 @@ public class BundleDeployWatcher {
         try {
             scan();
         } catch (Exception e) {
-            log.warn("[osgi-deploy] 扫描异常: {}", e.getMessage());
+            log.warn("[osgi-deploy] 扫描异常: {}", e.getMessage(), e);
         }
     }
 
@@ -203,7 +203,7 @@ public class BundleDeployWatcher {
             OsgiBundle installed = launcher.installBundle(location);
             log.info("[osgi-deploy] 已安装: {} -> version={}", symbolicName, installed.getVersion());
         } catch (Exception e) {
-            log.warn("[osgi-deploy] 安装失败 [{}]: {}", symbolicName, e.getMessage());
+            log.warn("[osgi-deploy] 安装失败 [{}]: {}", symbolicName, e.getMessage(), e);
         }
     }
 
@@ -217,7 +217,7 @@ public class BundleDeployWatcher {
             OsgiBundle updated = launcher.updateBundle(symbolicName, locateJar(symbolicName));
             log.info("[osgi-deploy] 已升级: {} -> version={}", symbolicName, updated.getVersion());
         } catch (Exception e) {
-            log.warn("[osgi-deploy] 升级失败 [{}]: {}", symbolicName, e.getMessage());
+            log.warn("[osgi-deploy] 升级失败 [{}]: {}", symbolicName, e.getMessage(), e);
         }
     }
 
@@ -232,7 +232,7 @@ public class BundleDeployWatcher {
                 log.info("[osgi-deploy] 已卸载: {}（目录中已不存在）", symbolicName);
             }
         } catch (Exception e) {
-            log.warn("[osgi-deploy] 卸载失败 [{}]: {}", symbolicName, e.getMessage());
+            log.warn("[osgi-deploy] 卸载失败 [{}]: {}", symbolicName, e.getMessage(), e);
         }
     }
 

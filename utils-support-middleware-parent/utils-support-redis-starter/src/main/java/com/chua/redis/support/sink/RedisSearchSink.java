@@ -228,7 +228,7 @@ public class RedisSearchSink implements DataSink {
                 jedis.sendCommand(FT_CREATE, args);
                 log.info("[RedisSearchSink] index created: {}", indexName);
             } catch (Exception e2) {
-                log.warn("[RedisSearchSink] create index failed (may already exist): {}", e2.getMessage());
+                log.warn("[RedisSearchSink] create index failed (may already exist): {}", e2.getMessage(), e2);
             }
         }
     }

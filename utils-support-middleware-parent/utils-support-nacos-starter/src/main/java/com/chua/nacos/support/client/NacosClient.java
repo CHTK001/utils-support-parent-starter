@@ -186,7 +186,7 @@ public class NacosClient implements AutoCloseable {
             }
             log.info("Nacos 客户端关闭");
         } catch (Exception e) {
-            log.warn("Nacos 关闭异常: {}", e.getMessage());
+            log.warn("Nacos 关闭异常: {}", e.getMessage(), e);
         }
         return this;
     }

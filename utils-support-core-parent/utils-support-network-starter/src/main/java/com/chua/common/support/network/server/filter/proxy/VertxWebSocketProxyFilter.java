@@ -181,7 +181,7 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
                             });
                 })
                 .onFailure(err -> {
-                    log.warn("[network-proxy] WebSocket 升级失败: {}", err.getMessage());
+                    log.warn("[network-proxy] WebSocket 升级失败: {}", err.getMessage(), err);
                     sendError(response, 502, "Bad Gateway: upgrade failed");
                 });
         return true;

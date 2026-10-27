@@ -53,7 +53,7 @@ public class JsonConfigParser implements ConfigParser {
                 return new MapPropertySource(urlPath, map);
             }
         } catch (Exception e) {
-            log.error("Failed to parse JSON/JSON5 config file: {}", e.getMessage());
+            log.error("Failed to parse JSON/JSON5 config file: {}", e.getMessage(), e);
             return PropertySource.EMPTY;
         }
     }

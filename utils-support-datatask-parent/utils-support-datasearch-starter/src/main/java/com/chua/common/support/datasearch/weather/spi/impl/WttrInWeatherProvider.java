@@ -93,7 +93,7 @@ public class WttrInWeatherProvider implements WeatherProvider {
             }
             return info;
         } catch (Exception e) {
-            log.warn("[wttr-in] 查询天气失败: city={}, msg={}", key, e.getMessage());
+            log.warn("[wttr-in] 查询天气失败: city={}, msg={}", key, e.getMessage(), e);
             return cached;
         }
     }

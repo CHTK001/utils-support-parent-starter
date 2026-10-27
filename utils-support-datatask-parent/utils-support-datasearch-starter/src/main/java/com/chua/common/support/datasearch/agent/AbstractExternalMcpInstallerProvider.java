@@ -164,7 +164,7 @@ public abstract class AbstractExternalMcpInstallerProvider extends AgentEditorPr
                     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
             return true;
         } catch (IOException e) {
-            log.error("[{}] 写入 {} 配置失败: {}", mcpServerKey(), editor.getName(), e.getMessage());
+            log.error("[{}] 写入 {} 配置失败: {}", mcpServerKey(), editor.getName(), e.getMessage(), e);
             return false;
         }
     }

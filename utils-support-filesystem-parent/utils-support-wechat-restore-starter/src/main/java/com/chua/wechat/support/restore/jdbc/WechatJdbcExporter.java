@@ -149,7 +149,7 @@ public final class WechatJdbcExporter {
                                 dbBase, table, outputFile.getName(), outputFile.length());
                     }
                 } catch (Exception e) {
-                    log.warn("微信数据表导出失败，已跳过: {}.{} - {}", dbBase, table, e.getMessage());
+                    log.warn("微信数据表导出失败，已跳过: {}.{} - {}", dbBase, table, e.getMessage(), e);
                 }
             }
         }

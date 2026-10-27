@@ -216,7 +216,7 @@ public final class CudaEnvironmentInstaller {
             target.toFile().setExecutable(true);
             return target;
         } catch (Exception e) {
-            log.warn("[cuda-env] 抽取安装脚本失败: {}", e.getMessage());
+            log.warn("[cuda-env] 抽取安装脚本失败: {}", e.getMessage(), e);
             return null;
         }
     }

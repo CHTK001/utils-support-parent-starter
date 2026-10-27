@@ -191,7 +191,7 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
             scheduler.awaitTermination(2, java.util.concurrent.TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.warn("[WAL] KV 关闭时等待 fsync 调度线程被中断: {}", e.getMessage());
+            log.warn("[WAL] KV 关闭时等待 fsync 调度线程被中断: {}", e.getMessage(), e);
         }
         IOException first = null;
         for (SegmentWalLog walLog : walLogs) {

@@ -152,7 +152,7 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
             }
             return info;
         } catch (Exception e) {
-            log.warn("[open-meteo] 查询天气失败: key={}, msg={}", cacheKey, e.getMessage());
+            log.warn("[open-meteo] 查询天气失败: key={}, msg={}", cacheKey, e.getMessage(), e);
             CacheEntry stale = fallbackKey == null ? cached : cache.get(fallbackKey);
             return stale != null && now - stale.at() < 2 * CACHE_TTL_MILLIS ? stale.info() : null;
         }

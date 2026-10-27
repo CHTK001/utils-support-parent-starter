@@ -104,7 +104,7 @@ public abstract class AgentSessionUsageParser extends BaseUsageParser {
                     .filter(p -> p.getFileName().toString().endsWith(transcriptExtension()))
                     .forEach(files::add);
         } catch (IOException e) {
-            log.warn("[{}] walk {} failed: {}", name(), root, e.getMessage());
+            log.warn("[{}] walk {} failed: {}", name(), root, e.getMessage(), e);
         }
         return files;
     }

@@ -251,7 +251,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
             try {
                 membershipPropagation.sendHeartbeat();
             } catch (Exception e) {
-                log.warn("心跳发送异常: {}", e.getMessage());
+                log.warn("心跳发送异常: {}", e.getMessage(), e);
             }
         }, interval, interval, TimeUnit.SECONDS);
 
@@ -259,7 +259,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
             try {
                 evictionManager.evict();
             } catch (Exception e) {
-                log.warn("执行剔除异常: {}", e.getMessage());
+                log.warn("执行剔除异常: {}", e.getMessage(), e);
             }
         }, interval, interval, TimeUnit.SECONDS);
     }
@@ -288,7 +288,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
                     // 正常超时，继续循环
                 } catch (IOException e) {
                     if (running.get()) {
-                        log.warn("UDP 接收异常: {}", e.getMessage());
+                        log.warn("UDP 接收异常: {}", e.getMessage(), e);
                     }
                 }
             }

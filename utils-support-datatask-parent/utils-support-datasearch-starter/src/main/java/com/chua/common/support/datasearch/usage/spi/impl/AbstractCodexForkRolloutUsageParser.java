@@ -140,7 +140,7 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
                 }
             }
         } catch (IOException e) {
-            log.warn("[{}] read failed {}: {}", providerName(), file.getFileName(), e.getMessage());
+            log.warn("[{}] read failed {}: {}", providerName(), file.getFileName(), e.getMessage(), e);
         }
         return result;
     }
@@ -254,7 +254,7 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
                     .filter(p -> p.getFileName().toString().endsWith(".jsonl"))
                     .forEach(files::add);
         } catch (IOException e) {
-            log.warn("[{}] walk failed: {}", providerName(), e.getMessage());
+            log.warn("[{}] walk failed: {}", providerName(), e.getMessage(), e);
         }
     }
 }

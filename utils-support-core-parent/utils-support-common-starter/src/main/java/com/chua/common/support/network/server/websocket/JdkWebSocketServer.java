@@ -202,7 +202,7 @@ public class JdkWebSocketServer extends AbstractServer {
                 if (serverSocket.isClosed()) {
                     break;
                 }
-                log.warn("WebSocket accept failed: {}", e.getMessage());
+                log.warn("WebSocket accept failed: {}", e.getMessage(), e);
             }
         }
     }

@@ -405,7 +405,7 @@ public class Acme4jProvider implements AcmeProvider {
             try (StringReader reader = new StringReader(privateKeyPem)) {
                 return KeyPairUtils.readKeyPair(reader);
             } catch (Exception e) {
-                log.warn("解析已保存的账户私钥失败，将重新生成密钥对: {}", e.getMessage());
+                log.warn("解析已保存的账户私钥失败，将重新生成密钥对: {}", e.getMessage(), e);
             }
         }
         return KeyPairUtils.createKeyPair(ACCOUNT_KEY_SIZE);

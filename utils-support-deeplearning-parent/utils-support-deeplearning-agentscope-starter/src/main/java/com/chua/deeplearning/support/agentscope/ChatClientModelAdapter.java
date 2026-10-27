@@ -153,7 +153,7 @@ public class ChatClientModelAdapter implements Model {
             final String fallbackSystemPrompt = systemPrompt;
             return streamWithTools(messages, tools, systemPrompt, options)
                     .onErrorResume(e -> {
-                        log.warn("[ChatClientModelAdapter] 原生工具流式失败，降级文本流式: {}", e.getMessage());
+                        log.warn("[ChatClientModelAdapter] 原生工具流式失败，降级文本流式: {}", e.getMessage(), e);
                         return streamText(fallbackHistory, fallbackPrompt, tools, fallbackSystemPrompt);
                     })
                     .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
@@ -548,7 +548,7 @@ public class ChatClientModelAdapter implements Model {
         try {
             return new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(input);
         } catch (Exception e) {
-            log.warn("[ChatClientModelAdapter] Failed to serialize tool arguments: {}", e.getMessage());
+            log.warn("[ChatClientModelAdapter] Failed to serialize tool arguments: {}", e.getMessage(), e);
             return "{}";
         }
     }
@@ -603,7 +603,7 @@ public class ChatClientModelAdapter implements Model {
             Map<String, Object> result = mapper.readValue(json, Map.class);
             return result;
         } catch (Exception e) {
-            log.warn("[ChatClientModelAdapter] Failed to parse tool arguments: {}", e.getMessage());
+            log.warn("[ChatClientModelAdapter] Failed to parse tool arguments: {}", e.getMessage(), e);
             return Collections.emptyMap();
         }
     }

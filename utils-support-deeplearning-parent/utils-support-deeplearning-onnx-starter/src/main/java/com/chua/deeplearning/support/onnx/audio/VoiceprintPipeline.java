@@ -201,7 +201,7 @@ public class VoiceprintPipeline implements AutoCloseable {
             log.info("[Voiceprint] 降噪完成: {} → {} 采样", s.length, down.length);
             return down;
         } catch (Exception e) {
-            log.warn("[Voiceprint] 降噪失败，回退原始音频: {}", e.getMessage());
+            log.warn("[Voiceprint] 降噪失败，回退原始音频: {}", e.getMessage(), e);
             return s;
         }
     }
@@ -318,7 +318,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         try {
             storage.close();
         } catch (Exception e) {
-            log.warn("[Voiceprint] close storage failed: {}", e.getMessage());
+            log.warn("[Voiceprint] close storage failed: {}", e.getMessage(), e);
         }
     }
 

@@ -144,7 +144,7 @@ public class VertxWebSocketServer extends AbstractServer {
                 invokeAnnotatedMethods(OnClose.class);
             });
             ws.exceptionHandler(err -> {
-                log.warn("Vert.x WebSocket error: {}", err.getMessage());
+                log.warn("Vert.x WebSocket error: {}", err.getMessage(), err);
                 connections.remove(ws);
             });
         });

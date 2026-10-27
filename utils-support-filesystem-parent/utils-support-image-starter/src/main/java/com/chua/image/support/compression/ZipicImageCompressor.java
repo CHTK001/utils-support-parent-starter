@@ -82,7 +82,7 @@ public class ZipicImageCompressor extends AbstractImageCompressor {
         try {
             return compressLossy(image, target, options);
         } catch (IOException e) {
-            log.warn("[图片压缩][{}] 格式 {} 不可写，退回 PNG: {}", name(), target, e.getMessage());
+            log.warn("[图片压缩][{}] 格式 {} 不可写，退回 PNG: {}", name(), target, e.getMessage(), e);
             return compressPng(image, options);
         }
     }

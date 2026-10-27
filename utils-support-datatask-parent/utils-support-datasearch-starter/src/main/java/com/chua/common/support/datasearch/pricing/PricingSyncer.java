@@ -65,7 +65,7 @@ public final class PricingSyncer {
                 entry.getValue().syncFromOnline();
                 total++;
             } catch (Exception e) {
-                log.warn("[PricingSyncer] 同步厂商[{}]定价失败: {}", entry.getKey(), e.getMessage());
+                log.warn("[PricingSyncer] 同步厂商[{}]定价失败: {}", entry.getKey(), e.getMessage(), e);
             }
         }
         if (total > 0) {
@@ -98,7 +98,7 @@ public final class PricingSyncer {
                     total++;
                 }
             } catch (Exception e) {
-                log.warn("[PricingSyncer] 同步厂商[{}]定价失败: {}", name, e.getMessage());
+                log.warn("[PricingSyncer] 同步厂商[{}]定价失败: {}", name, e.getMessage(), e);
             }
         }
         if (total > 0) {
@@ -123,7 +123,7 @@ public final class PricingSyncer {
             try {
                 result.addAll(entry.getValue().getMetrics());
             } catch (Exception e) {
-                log.warn("[PricingSyncer] 加载厂商[{}]定价失败: {}", entry.getKey(), e.getMessage());
+                log.warn("[PricingSyncer] 加载厂商[{}]定价失败: {}", entry.getKey(), e.getMessage(), e);
             }
         }
         return result;

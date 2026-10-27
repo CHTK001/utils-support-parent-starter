@@ -130,7 +130,7 @@ public final class GpuHelper {
             opts.addCUDA(new OrtCUDAProviderOptions());
             log.info("[GpuHelper] CUDA provider 已启用");
         } catch (Throwable e) {
-            log.warn("[GpuHelper] CUDA provider 初始化失败，回退 CPU: {}", e.getMessage());
+            log.warn("[GpuHelper] CUDA provider 初始化失败，回退 CPU: {}", e.getMessage(), e);
         }
     }
 }

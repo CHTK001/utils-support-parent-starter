@@ -128,7 +128,7 @@ public class CollapsibleIntercept
         }
         Object fallbackResult = FallbackResolver.resolve(fallback, proxyMethod);
         if (fallbackResult != null) {
-            log.warn("折叠执行失败，已降级处理: {}", cause.getMessage());
+            log.warn("折叠执行失败，已降级处理: {}", cause.getMessage(), cause);
             return fallbackResult;
         }
         throw collapseException(cause);
@@ -389,7 +389,7 @@ public class CollapsibleIntercept
             try {
                 executor.close();
             } catch (Exception e) {
-                log.warn("关闭折叠执行器失败：{}", e.getMessage());
+                log.warn("关闭折叠执行器失败：{}", e.getMessage(), e);
             }
         }
         executors.clear();

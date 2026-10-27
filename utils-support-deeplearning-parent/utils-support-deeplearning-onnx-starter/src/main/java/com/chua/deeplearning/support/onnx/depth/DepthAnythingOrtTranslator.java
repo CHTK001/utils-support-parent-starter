@@ -192,7 +192,7 @@ public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, 
             try {
                 session.close();
             } catch (Exception e) {
-                log.warn("[DepthAnything] 关闭会话失败: {}", e.getMessage());
+                log.warn("[DepthAnything] 关闭会话失败: {}", e.getMessage(), e);
             }
         }
         ortEnv = null;

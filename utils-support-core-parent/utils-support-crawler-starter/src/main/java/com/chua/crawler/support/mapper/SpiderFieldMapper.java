@@ -195,7 +195,7 @@ public class SpiderFieldMapper {
             parseJsonResponse(response, results);
 
         } catch (Exception e) {
-            log.warn("[spider-mapper] AI 提取失败: {}", e.getMessage());
+            log.warn("[spider-mapper] AI 提取失败: {}", e.getMessage(), e);
         }
 
         return results;

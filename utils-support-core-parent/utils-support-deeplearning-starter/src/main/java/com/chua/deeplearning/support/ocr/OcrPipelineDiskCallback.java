@@ -69,7 +69,7 @@ public class OcrPipelineDiskCallback implements OcrPipelineCallback {
             Files.write(path, data);
             log.info("[ocr-callback] 已落盘: {}", path);
         } catch (Exception e) {
-            log.warn("[ocr-callback] 落盘失败 {}: {}", name, e.getMessage());
+            log.warn("[ocr-callback] 落盘失败 {}: {}", name, e.getMessage(), e);
         }
     }
 }

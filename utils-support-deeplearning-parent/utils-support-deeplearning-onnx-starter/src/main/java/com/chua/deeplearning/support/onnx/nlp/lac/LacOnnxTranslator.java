@@ -131,7 +131,7 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
                     .cacheable(false)
                     .load();
         } catch (Throwable e) {
-            log.warn("[lac-onnx] NativeLoader 抽取失败，改用 classpath 直拷: {}", e.getMessage());
+            log.warn("[lac-onnx] NativeLoader 抽取失败，改用 classpath 直拷: {}", e.getMessage(), e);
         }
         // classpath 直拷兜底（NativeLoader 枚举不到时用）
         copyFromClasspath(ENCODER_FILE, modelDir.resolve(ENCODER_FILE));
@@ -437,7 +437,7 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
                 Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (Exception e) {
-            log.warn("[lac-onnx] classpath 拷贝失败: {} -> {}", name, e.getMessage());
+            log.warn("[lac-onnx] classpath 拷贝失败: {} -> {}", name, e.getMessage(), e);
         }
     }
 
@@ -453,7 +453,7 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
             }
             Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
-            log.warn("[lac-onnx] 下载失败: {} -> {}", url, e.getMessage());
+            log.warn("[lac-onnx] 下载失败: {} -> {}", url, e.getMessage(), e);
         }
     }
 

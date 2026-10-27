@@ -132,7 +132,7 @@ public class AgentDebugMiddleware implements MiddlewareBase {
                 }
             }
         } catch (Exception e) {
-            log.warn("[AgentTrace][{}] 注入修改意见失败: {}", agentId, e.getMessage());
+            log.warn("[AgentTrace][{}] 注入修改意见失败: {}", agentId, e.getMessage(), e);
         }
         return input;
     }

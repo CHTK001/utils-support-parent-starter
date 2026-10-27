@@ -667,7 +667,7 @@ public class KcpServer extends AbstractServer {
             try {
                 sendTo(ukcp, "registered:" + initialId);
             } catch (Exception e) {
-                log.warn("KCP 发送 registered 失败: {}", e.getMessage());
+                log.warn("KCP 发送 registered 失败: {}", e.getMessage(), e);
             }
         }
 

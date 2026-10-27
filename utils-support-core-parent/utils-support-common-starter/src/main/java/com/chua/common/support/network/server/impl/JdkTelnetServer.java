@@ -218,7 +218,7 @@ public class JdkTelnetServer extends AbstractServer {
         try {
             session = new TelnetSession(clientId, socket);
         } catch (IOException e) {
-            log.error("创建会话失败: {}", e.getMessage());
+            log.error("创建会话失败: {}", e.getMessage(), e);
             try {
                 socket.close();
             } catch (IOException ignored) {

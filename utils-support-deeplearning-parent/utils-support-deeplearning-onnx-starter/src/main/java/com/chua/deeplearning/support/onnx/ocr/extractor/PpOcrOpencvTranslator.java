@@ -106,7 +106,7 @@ public class PpOcrOpencvTranslator {
                 }
             }
         } catch (Exception e) {
-            log.warn("[PpOcrOpencv] 字典加载失败: {}", e.getMessage());
+            log.warn("[PpOcrOpencv] 字典加载失败: {}", e.getMessage(), e);
         }
         List<String> table = Wraps.list(chars.size() + 1);
         table.add(0, "blank");

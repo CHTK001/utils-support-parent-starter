@@ -156,7 +156,7 @@ final class CliAsrServer {
             log.warn("[cli-asr-serve] 启动常驻服务被中断，回退单进程调用");
             return null;
         } catch (Exception e) {
-            log.warn("[cli-asr-serve] 启动常驻服务失败，回退单进程调用: {}", e.getMessage());
+            log.warn("[cli-asr-serve] 启动常驻服务失败，回退单进程调用: {}", e.getMessage(), e);
             return null;
         }
         CliAsrServer winner = SESSIONS.putIfAbsent(key, created);

@@ -516,7 +516,7 @@ public class WechatPersonalBotClient implements BotClient {
             }
         } catch (Exception e) {
             notifyError(e);
-            log.error("[WechatPersonal] 回调体解析失败: {}", e.getMessage());
+            log.error("[WechatPersonal] 回调体解析失败: {}", e.getMessage(), e);
         }
         return accepted;
     }
@@ -554,7 +554,7 @@ public class WechatPersonalBotClient implements BotClient {
             return parseSendResult(responseBody);
         } catch (Exception e) {
             notifyError(e);
-            log.error("[WechatPersonal] {} 调用失败: {}", path, e.getMessage());
+            log.error("[WechatPersonal] {} 调用失败: {}", path, e.getMessage(), e);
             return BotSendResult.fail(-1, e.getMessage());
         }
     }
@@ -632,7 +632,7 @@ public class WechatPersonalBotClient implements BotClient {
             }
             this.selfWxid = wxid;
         } catch (Exception e) {
-            log.warn("[WechatPersonal] 获取登录账号失败，将不过滤自发消息: {}", e.getMessage());
+            log.warn("[WechatPersonal] 获取登录账号失败，将不过滤自发消息: {}", e.getMessage(), e);
         }
     }
 
@@ -650,7 +650,7 @@ public class WechatPersonalBotClient implements BotClient {
             String responseBody = execute(CALLBACK_REGISTER_PATH, HttpMethod.POST, body);
             log.info("[WechatPersonal] 回调地址已注册: {} -> {}", callbackUrl, responseBody);
         } catch (Exception e) {
-            log.warn("[WechatPersonal] 回调地址注册失败，需自行调用 deliver(): {}", e.getMessage());
+            log.warn("[WechatPersonal] 回调地址注册失败，需自行调用 deliver(): {}", e.getMessage(), e);
         }
     }
 

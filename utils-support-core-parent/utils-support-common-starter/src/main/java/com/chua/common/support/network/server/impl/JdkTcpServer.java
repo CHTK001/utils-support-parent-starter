@@ -446,7 +446,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             try {
                 virtualPool.submit(() -> handleConnection(socket));
             } catch (Exception e) {
-                log.warn("TCP 任务被拒绝: {}", e.getMessage());
+                log.warn("TCP 任务被拒绝: {}", e.getMessage(), e);
                 try {
                     socket.close();
                 } catch (IOException ioe) {

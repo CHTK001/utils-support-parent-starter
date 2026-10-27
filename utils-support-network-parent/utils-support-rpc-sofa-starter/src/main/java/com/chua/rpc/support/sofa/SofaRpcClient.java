@@ -108,7 +108,7 @@ public class SofaRpcClient implements RpcClient {
             try {
                 config.unRefer();
             } catch (Exception e) {
-                log.warn("Failed to unRefer ConsumerConfig: {}", e.getMessage());
+                log.warn("Failed to unRefer ConsumerConfig: {}", e.getMessage(), e);
             }
         }
         consumerCache.clear();
