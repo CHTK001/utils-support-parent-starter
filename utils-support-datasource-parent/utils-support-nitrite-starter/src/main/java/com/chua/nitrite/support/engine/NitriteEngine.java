@@ -224,7 +224,6 @@ import java.util.concurrent.ConcurrentHashMap;
      *
      * @param entityClass 实体类
      * @param fieldNames 字段名称
-     * @return 创建fulltext索引的结果
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -311,7 +310,6 @@ import java.util.concurrent.ConcurrentHashMap;
      *
      * @param entityClass 实体类
      * @param fieldNames 字段名称
-     * @return 掉落fulltext索引的结果
      */
     @Override
     @SuppressWarnings("unchecked")

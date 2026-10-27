@@ -83,7 +83,6 @@ public class WhiteAndBlackTankUtils {
      * @param G      Green比重
      * @param B      Blue比重
      * @param Light  亮度
-     * @return
      */
     private static void GetGrayScale(Color[][] colors, float A, float R, float G, float B, float Light) {
         float r = R / (R + G + B);

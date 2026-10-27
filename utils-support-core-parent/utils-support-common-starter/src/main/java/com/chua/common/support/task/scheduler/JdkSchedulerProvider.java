@@ -94,7 +94,6 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
      * @param id      任务唯一标识
      * @param task    待执行的任务逻辑
      * @param trigger 触发策略
-     * @return 已调度的任务实例
      */
     @Override
     protected void doSchedule(String id, Runnable task, Trigger trigger) {
@@ -167,7 +166,6 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
      *
      * @param id      任务唯一标识
      * @param trigger 新的触发策略
-     * @return 重新调度后的任务实例，不存在返回 {@code null}
      */
     @Override
     protected void doReschedule(String id, Trigger trigger) {
@@ -187,7 +185,6 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
      * 取消指定 标识 的调度任务
      *
      * @param id 任务唯一标识
-     * @return 如果存在该任务并成功取消返回 {@code true}，否则返回 {@code false}
      */
     @Override
     protected void doCancel(String id) {

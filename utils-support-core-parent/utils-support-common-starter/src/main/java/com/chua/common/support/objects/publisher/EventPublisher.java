@@ -43,7 +43,6 @@ public class EventPublisher {
      * @param <T>      事件类型泛型
      * @param type     事件类型，不可为 空
      * @param listener 事件监听器，不可为 空
-     * @return 注册的结果
      */
     public <T> void register(Class<T> type, EventListener listener) {
         if (type == null || listener == null) {

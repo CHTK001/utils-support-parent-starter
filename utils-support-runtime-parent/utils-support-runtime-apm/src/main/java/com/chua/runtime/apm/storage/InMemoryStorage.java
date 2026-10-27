@@ -362,7 +362,6 @@ public class InMemoryStorage implements ApmStorage {
      * 容量超限时按主键顺序淘汰最旧 N% 数据。
      * 使用 同步 块保证 放入/evict 原子性,防止并发越界。
      * @param map 映射
-     * @return enforce容量long的结果
      */
     private <V> void enforceCapacityLong(Map<Long, V> map) {
         synchronized (map) {

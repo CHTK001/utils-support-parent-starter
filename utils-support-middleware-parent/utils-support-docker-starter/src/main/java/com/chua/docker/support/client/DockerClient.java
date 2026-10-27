@@ -192,7 +192,6 @@ public class DockerClient implements Closeable {
     /**
      * 检查 Docker 是否可用。
      *
-     * @return Void
      */
     public Void ping() {
         return delegate.pingCmd().exec();

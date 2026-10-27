@@ -416,7 +416,6 @@ public class ApngDecoder {
      * @param dst dst
      * @param src src
      * @param srcAlpha srcalpha
-     * @return blendOver的结果
      */
     private static void compositeFrame(BufferedImage canvas, BufferedImage frame,
                                        int x, int y, int blendOp) {

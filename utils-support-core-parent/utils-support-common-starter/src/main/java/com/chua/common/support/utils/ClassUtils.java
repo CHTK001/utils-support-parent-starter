@@ -657,7 +657,6 @@ public class ClassUtils {
      * @param consumer                                                             
      * @param <T>                            
      * @since 1.0
-     * @return 是否存在的结果
      */
     public static <T> void isPresent(final String className, Class<T> type, Consumer<T> consumer) {
         if (!isPresent(className)) { return; }

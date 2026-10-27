@@ -267,7 +267,6 @@ public class CampplusEmbedding {
       * @param re re
       * @param im im
       * @param mel mel
-      * @return mel转为hertz的结果
       */
     private static void fftRadix2(double[] frameSamples, double[] re, double[] im) {
         int n = FFT_N;

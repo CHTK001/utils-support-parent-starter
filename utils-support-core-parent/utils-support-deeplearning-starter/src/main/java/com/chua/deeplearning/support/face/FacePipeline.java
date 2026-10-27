@@ -1570,7 +1570,6 @@ public class FacePipeline {
      * 人脸超分（辅助能力）。
      *
      * @param imageData 图片
-     * @return 超分后图片，未配置超分模型时原样返回
      * @param callback callback
      */
     public void setCallback(FacePipelineCallback callback) {

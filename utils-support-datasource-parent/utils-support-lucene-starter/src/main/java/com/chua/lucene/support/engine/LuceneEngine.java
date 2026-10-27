@@ -256,7 +256,6 @@ import java.util.concurrent.ConcurrentHashMap;
      * @param entityClass 实体类类型
      * @param entities    实体对象列表
      * @param <T>         实体类型
-     * @return 索引的结果
      */
     @SuppressWarnings("unchecked")
     public <T> void index(Class<T> entityClass, List<T> entities) {
@@ -337,7 +336,6 @@ import java.util.concurrent.ConcurrentHashMap;
      * @param entityClass 实体类类型
      * @param fieldNames 需要建立全文索引的字段名称（Lucene 引擎暂按实体全字段索引，此参数保留以兼容接口）
      * @param <T> 实体类型
-     * @return 创建fulltext索引的结果
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -387,7 +385,6 @@ import java.util.concurrent.ConcurrentHashMap;
      * @param entityClass 实体类类型
      * @param fieldNames 需要删除索引的字段名称（Lucene 引擎按表级删除，此参数保留以兼容接口）
      * @param <T> 实体类型
-     * @return 掉落fulltext索引的结果
      */
     @Override
     @SuppressWarnings("unchecked")

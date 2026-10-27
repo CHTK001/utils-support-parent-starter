@@ -22,7 +22,6 @@ public final class HeifImageIoRegistrar {
     private HeifImageIoRegistrar() {}
 /**
  * 注册。
- * @return 是否可用的结果
  */
 
     public static void register() {

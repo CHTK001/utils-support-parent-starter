@@ -393,7 +393,6 @@ public abstract class JdbcEngine extends AbstractEngine {
      * @param instance instance
      * @param columnName column名称
      * @param value 值
-     * @return 设置字段值的结果
      */
     private static <T> void setFieldValue(T instance, String columnName, Object value) {
         if (columnName == null) {
