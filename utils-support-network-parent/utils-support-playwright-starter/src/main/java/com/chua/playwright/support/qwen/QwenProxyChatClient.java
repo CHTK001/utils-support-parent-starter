@@ -537,7 +537,7 @@ public class QwenProxyChatClient implements ChatClient {
                         }
                     }
                 } catch (Exception e) {
-                    log.warn("解析千问图片生成结果失败: {}", e.getMessage());
+                    log.warn("解析千问图片生成结果失败: {}", e.getMessage(), e);
                 }
             }
         }

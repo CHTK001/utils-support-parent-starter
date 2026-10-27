@@ -158,7 +158,7 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
                 return cached;
             }
         } catch (Exception e) {
-            log.warn("[ViT-H-14] NativeLoader 解压失败: {}", e.getMessage());
+            log.warn("[ViT-H-14] NativeLoader 解压失败: {}", e.getMessage(), e);
         }
 
         // 4. 返回默认路径（可能不存在）

@@ -174,9 +174,9 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
             handleHttpProxyAsync(request, response, host, port, scheme)
                     .get(timeoutSeconds, TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
-            log.warn("[network-proxy] HTTP 反向代理超时: {}", e.getMessage());
+            log.warn("[network-proxy] HTTP 反向代理超时: {}", e.getMessage(), e);
         } catch (Exception e) {
-            log.warn("[network-proxy] HTTP 反向代理异常: {}", e.getMessage());
+            log.warn("[network-proxy] HTTP 反向代理异常: {}", e.getMessage(), e);
         }
     }
 
@@ -277,13 +277,13 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
                             response.end();
                         }
                     } catch (Exception e) {
-                        log.warn("[network-proxy] 响应回写失败: {}", e.getMessage());
+                        log.warn("[network-proxy] 响应回写失败: {}", e.getMessage(), e);
                     } finally {
                         done.complete(null);
                     }
                 })
                 .exceptionally(ex -> {
-                    log.warn("[network-proxy] HTTP 反向代理失败: {}: {}", backendUrl, ex.getMessage());
+                    log.warn("[network-proxy] HTTP 反向代理失败: {}: {}", backendUrl, ex.getMessage(), ex);
                     if (!response.isEnded()) {
                         response.setStatus(502);
                         response.setBody("Bad Gateway".getBytes(StandardCharsets.UTF_8));

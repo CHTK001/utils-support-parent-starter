@@ -64,7 +64,7 @@ public class FacePipelineDiskCallback implements FacePipelineCallback {
             Files.write(path, data);
             log.info("[face-callback] 已落盘: {}", path);
         } catch (Exception e) {
-            log.warn("[face-callback] 落盘失败 {}: {}", name, e.getMessage());
+            log.warn("[face-callback] 落盘失败 {}: {}", name, e.getMessage(), e);
         }
     }
 }

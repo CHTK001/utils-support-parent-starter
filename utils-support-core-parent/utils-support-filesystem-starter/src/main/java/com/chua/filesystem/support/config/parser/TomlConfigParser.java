@@ -47,7 +47,7 @@ public class TomlConfigParser implements ConfigParser {
             Map<String, Object> flatMap = flattenMap(map, "");
             return new MapPropertySource(urlPath, flatMap);
         } catch (Exception e) {
-            log.error("[filesystem-parser] 解析 TOML 配置文件失败: {}", e.getMessage());
+            log.error("[filesystem-parser] 解析 TOML 配置文件失败: {}", e.getMessage(), e);
             return PropertySource.EMPTY;
         }
     }

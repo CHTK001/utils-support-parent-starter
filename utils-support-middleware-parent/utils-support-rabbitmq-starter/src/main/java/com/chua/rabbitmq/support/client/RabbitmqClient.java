@@ -239,7 +239,7 @@ public class RabbitmqClient implements AutoCloseable {
                 }
                 log.info("RabbitMQ 连接关闭");
             } catch (Exception e) {
-                log.warn("RabbitMQ 关闭异常: {}", e.getMessage());
+                log.warn("RabbitMQ 关闭异常: {}", e.getMessage(), e);
             }
         }
         return this;

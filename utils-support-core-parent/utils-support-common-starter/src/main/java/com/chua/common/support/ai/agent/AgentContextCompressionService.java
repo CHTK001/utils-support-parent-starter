@@ -528,7 +528,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
                     .build();
             return new MemoryManager(memConfig);
         } catch (Exception e) {
-            log.warn("[Compression] Create MemoryManager failed: {}", e.getMessage());
+            log.warn("[Compression] Create MemoryManager failed: {}", e.getMessage(), e);
             return null;
         }
     }

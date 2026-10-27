@@ -106,7 +106,7 @@ public class IpApiLocationProvider implements LocationProvider {
             cachedAt.put(key, System.currentTimeMillis());
             return info;
         } catch (Exception e) {
-            log.warn("[ip-api] 定位失败: key={}, msg={}", key, e.getMessage());
+            log.warn("[ip-api] 定位失败: key={}, msg={}", key, e.getMessage(), e);
             return null;
         }
     }

@@ -395,7 +395,7 @@ public class WechatDataRestore extends AbstractDataRestore {
             try {
                 return runNative(source, config, runtimeDir);
             } catch (Exception e) {
-                log.warn("FFM 原生路径失败，尝试其它路径: {}", e.getMessage());
+                log.warn("FFM 原生路径失败，尝试其它路径: {}", e.getMessage(), e);
             }
         }
         // 配了密钥就走 SQLCipher 直解：它能拿到全量数据，不受「只覆盖已缓存页」的限制，
@@ -416,7 +416,7 @@ public class WechatDataRestore extends AbstractDataRestore {
             try {
                 return runMemory(source, config);
             } catch (Exception e) {
-                log.warn("内存明文页路径失败: {}", e.getMessage());
+                log.warn("内存明文页路径失败: {}", e.getMessage(), e);
                 if (!toolConfigured) {
                     throw e;
                 }
@@ -621,7 +621,7 @@ public class WechatDataRestore extends AbstractDataRestore {
                 } catch (Exception e) {
                     // 密钥不匹配或页布局不认识：跳过这个库，
                     // 若最后一个文件都没产出，会在下面统一返回失败
-                    log.warn("SQLCipher 解密失败（{}）: {}", db.getName(), e.getMessage());
+                    log.warn("SQLCipher 解密失败（{}）: {}", db.getName(), e.getMessage(), e);
                     continue;
                 }
             }

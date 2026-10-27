@@ -299,7 +299,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
                 return;
             } catch (IOException e) {
                 if (running) {
-                    log.warn("{} 非阻塞 accept 异常: {}", getClass().getSimpleName(), e.getMessage());
+                    log.warn("{} 非阻塞 accept 异常: {}", getClass().getSimpleName(), e.getMessage(), e);
                 }
             }
         }

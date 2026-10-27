@@ -75,7 +75,7 @@ public class PacmanSoftwareProvider implements SoftwareProvider {
             */
             @Override
             public void onError(String command, Throwable throwable) {
-                log.warn("pacman 搜索异常: {}", throwable.getMessage());
+                log.warn("pacman 搜索异常: {}", throwable.getMessage(), throwable);
             }
         });
 
@@ -137,7 +137,7 @@ public class PacmanSoftwareProvider implements SoftwareProvider {
             */
             @Override
             public void onError(String command, Throwable throwable) {
-                log.error("  [{}] 异常: {}", action, throwable.getMessage());
+                log.error("  [{}] 异常: {}", action, throwable.getMessage(), throwable);
             }
         });
         boolean ok = result.isSuccess();
@@ -181,7 +181,7 @@ public class PacmanSoftwareProvider implements SoftwareProvider {
                 }
             }
         } catch (Exception e) {
-            log.warn("解析 pacman 输出失败: {}", e.getMessage());
+            log.warn("解析 pacman 输出失败: {}", e.getMessage(), e);
         }
         return results;
     }

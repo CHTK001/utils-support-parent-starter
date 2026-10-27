@@ -133,7 +133,7 @@ public class SourceExtensionScheduler {
         try {
             reloadIfChanged();
         } catch (Exception e) {
-            log.warn("[osgi-source] 热重载异常（保留上一轮状态）: {}", e.getMessage());
+            log.warn("[osgi-source] 热重载异常（保留上一轮状态）: {}", e.getMessage(), e);
         }
     }
 

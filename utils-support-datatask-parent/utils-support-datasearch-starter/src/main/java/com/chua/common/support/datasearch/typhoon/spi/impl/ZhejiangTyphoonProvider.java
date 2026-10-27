@@ -90,7 +90,7 @@ public class ZhejiangTyphoonProvider implements TyphoonProvider {
                 return list;
             }
         } catch (Exception e) {
-            log.warn("[zhejiang-typhoon] 获取活跃台风失败: {}", e.getMessage());
+            log.warn("[zhejiang-typhoon] 获取活跃台风失败: {}", e.getMessage(), e);
         }
         return cachedList;
     }
@@ -115,7 +115,7 @@ public class ZhejiangTyphoonProvider implements TyphoonProvider {
             }
             return detail;
         } catch (Exception e) {
-            log.warn("[zhejiang-typhoon] 获取台风详情失败: tfid={}, msg={}", tfid, e.getMessage());
+            log.warn("[zhejiang-typhoon] 获取台风详情失败: tfid={}, msg={}", tfid, e.getMessage(), e);
             return cachedDetail.get(tfid);
         }
     }

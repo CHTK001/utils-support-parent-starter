@@ -142,7 +142,7 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
                     text(data, "luckyColor"),
                     text(data, "summary"));
         } catch (Exception e) {
-            log.warn("[vvhan] 星座运势在线查询失败: {}", e.getMessage());
+            log.warn("[vvhan] 星座运势在线查询失败: {}", e.getMessage(), e);
             return null;
         }
     }

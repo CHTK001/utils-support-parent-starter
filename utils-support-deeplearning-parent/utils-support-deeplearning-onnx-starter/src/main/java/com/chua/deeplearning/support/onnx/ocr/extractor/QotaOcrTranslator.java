@@ -136,7 +136,7 @@ public class QotaOcrTranslator implements ITranslator<byte[], String>, AutoClose
             log.info("[Qota-OCR] 字符字典取自 classpath: {} dict_size={}", resource, table.size());
             return table;
         } catch (Exception e) {
-            log.warn("[Qota-OCR] classpath 字典读取失败: {}", e.getMessage());
+            log.warn("[Qota-OCR] classpath 字典读取失败: {}", e.getMessage(), e);
             return Wraps.list();
         }
     }

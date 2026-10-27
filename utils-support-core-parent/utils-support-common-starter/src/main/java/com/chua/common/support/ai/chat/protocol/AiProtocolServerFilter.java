@@ -544,7 +544,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
             ChatSyncResponse result = chatClient.chatSyncWithResponse(fullPrompt);
             writeJson(response, buildOpenAiChatResponse(result, model));
         } catch (Exception ex) {
-            log.error("{}chat completions failed: {}", LOG_PROTOCOL_PREFIX, ex.getMessage());
+            log.error("{}chat completions failed: {}", LOG_PROTOCOL_PREFIX, ex.getMessage(), ex);
             writeJson(response, buildOpenAiChatError(model, ex.getMessage()));
         } finally {
             clearTokenGroup();
@@ -587,7 +587,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
             response.sseClose();
             clearTokenGroup();
         }, error -> {
-            log.error("{}stream error: {}", LOG_PROTOCOL_PREFIX, error.getMessage());
+            log.error("{}stream error: {}", LOG_PROTOCOL_PREFIX, error.getMessage(), error);
             response.sseEvent(KEY_ERROR, error.getMessage());
             response.sseEvent(null, SSE_DONE);
             response.flush();
@@ -730,7 +730,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
             response.sseClose();
             clearTokenGroup();
         }, error -> {
-            log.error("{}claude stream error: {}", LOG_PROTOCOL_PREFIX, error.getMessage());
+            log.error("{}claude stream error: {}", LOG_PROTOCOL_PREFIX, error.getMessage(), error);
             response.sseEvent(KEY_ERROR, error.getMessage());
             response.flush();
             response.sseClose();
@@ -1409,7 +1409,7 @@ choice.put(KEY_INDEX, 0);
         try {
             return Json.fromJson(bodyStr, LinkedHashMap.class);
         } catch (Exception ex) {
-            log.warn("{}parse-body-failed: {}", LOG_PROTOCOL_PREFIX, ex.getMessage());
+            log.warn("{}parse-body-failed: {}", LOG_PROTOCOL_PREFIX, ex.getMessage(), ex);
             return Wraps.linkedMap(); // [P3C 3.15 豁免] 空集合归还语义，无填充，无容量需求
         }
     }

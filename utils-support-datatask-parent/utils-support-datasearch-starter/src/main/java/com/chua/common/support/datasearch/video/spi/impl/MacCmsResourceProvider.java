@@ -164,7 +164,7 @@ public class MacCmsResourceProvider extends AbstractResourceProvider {
                     .total(root.path("total").asInt(results.size()))
                     .build());
         } catch (Exception e) {
-            log.warn("MacCMS 资源站搜索失败: {}", e.getMessage());
+            log.warn("MacCMS 资源站搜索失败: {}", e.getMessage(), e);
             return ReturnPageResult.error("MacCMS 资源站搜索失败: " + e.getMessage());
         }
     }

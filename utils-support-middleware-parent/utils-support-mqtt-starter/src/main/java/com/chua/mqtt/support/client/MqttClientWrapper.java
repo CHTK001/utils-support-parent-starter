@@ -205,7 +205,7 @@ public class MqttClientWrapper implements AutoCloseable {
                 @Override
                 public void connectionLost(Throwable cause) {
                     connected.set(false);
-                    log.warn("MQTT 连接断开: {}", cause.getMessage());
+                    log.warn("MQTT 连接断开: {}", cause.getMessage(), cause);
                     for (Consumer<Throwable> listener : disconnectListeners) {
                         try {
                             listener.accept(cause);
@@ -300,7 +300,7 @@ public class MqttClientWrapper implements AutoCloseable {
 
             log.info("MQTT 客户端关闭");
         } catch (Exception e) {
-            log.warn("MQTT 关闭异常: {}", e.getMessage());
+            log.warn("MQTT 关闭异常: {}", e.getMessage(), e);
         }
         return this;
     }

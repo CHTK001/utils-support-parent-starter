@@ -161,7 +161,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
                 tomcat.getHost().removeChild(ctx);
                 log.info("Tomcat 卸载完成: contextPath={}", contextPath);
             } catch (Exception e) {
-                log.warn("Tomcat 卸载上下文失败: contextPath={}, error={}", contextPath, e.getMessage());
+                log.warn("Tomcat 卸载上下文失败: contextPath={}, error={}", contextPath, e.getMessage(), e);
             }
         }
     }
@@ -290,7 +290,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
                 }
             }
         } catch (Exception e) {
-            log.warn("Tomcat SSL 配置失败: {}", e.getMessage());
+            log.warn("Tomcat SSL 配置失败: {}", e.getMessage(), e);
         }
     }
 
@@ -324,7 +324,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
             deployWar(path, ctxPath);
             deployedUnits.add(new DeployUnitInfo(path, ctxPath, type));
         } catch (Exception e) {
-            log.warn("Tomcat 延迟部署失败: path={}, error={}", path, e.getMessage());
+            log.warn("Tomcat 延迟部署失败: path={}, error={}", path, e.getMessage(), e);
         }
     }
 

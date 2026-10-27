@@ -711,7 +711,7 @@ public class KcpClient {
                 Thread.sleep(50);
                 writeRaw(CMD_REGISTER + clientId);
             } catch (Exception e) {
-                log.warn("注册消息发送失败: {}", e.getMessage());
+                log.warn("注册消息发送失败: {}", e.getMessage(), e);
             }
         }
 

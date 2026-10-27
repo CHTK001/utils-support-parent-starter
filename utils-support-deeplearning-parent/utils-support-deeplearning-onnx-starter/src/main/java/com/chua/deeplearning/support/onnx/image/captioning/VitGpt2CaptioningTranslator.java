@@ -197,7 +197,7 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
                 return resolved;
             }
         } catch (Exception e) {
-            log.warn("[ViT-GPT2] ModelRegistry 解析 decoder 失败: {}", e.getMessage());
+            log.warn("[ViT-GPT2] ModelRegistry 解析 decoder 失败: {}", e.getMessage(), e);
         }
         return cached;
     }
@@ -361,7 +361,7 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
         try {
             return tokenizer.decode(finalIds);
         } catch (Exception e) {
-            log.warn("[ViT-GPT2] decode 失败: {}", e.getMessage());
+            log.warn("[ViT-GPT2] decode 失败: {}", e.getMessage(), e);
             return "";
         }
     }

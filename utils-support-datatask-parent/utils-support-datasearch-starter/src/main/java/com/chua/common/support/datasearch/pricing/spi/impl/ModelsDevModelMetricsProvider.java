@@ -84,7 +84,7 @@ public class ModelsDevModelMetricsProvider extends AbstractModelMetricsProvider 
             List<ModelDefinition> parsed = parseCatalog(json);
             return parsed.isEmpty() ? readClasspathPricing() : parsed;
         } catch (Exception e) {
-            log.warn("[modelsdev] 解析失败: {}", e.getMessage());
+            log.warn("[modelsdev] 解析失败: {}", e.getMessage(), e);
             return readClasspathPricing();
         }
     }

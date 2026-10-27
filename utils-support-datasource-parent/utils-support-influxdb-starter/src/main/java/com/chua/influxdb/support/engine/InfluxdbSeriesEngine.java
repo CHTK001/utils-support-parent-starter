@@ -244,7 +244,7 @@ public class InfluxdbSeriesEngine implements SeriesEngine, AutoCloseable {
         } catch (IllegalStateException e) {
             throw e;
         } catch (Exception e) {
-            log.warn("[SeriesEngine] InfluxDB 查询失败 target={} monitor={}: {}", target, monitorId, e.getMessage());
+            log.warn("[SeriesEngine] InfluxDB 查询失败 target={} monitor={}: {}", target, monitorId, e.getMessage(), e);
             throw new IllegalStateException("InfluxDB 时序曲线查询失败 target=" + target + ": " + e.getMessage(), e);
         }
         return SeriesEngine.downsample(points, SeriesEngine.windowMillis(window), MAX_SERIES_POINTS);
@@ -436,7 +436,7 @@ public class InfluxdbSeriesEngine implements SeriesEngine, AutoCloseable {
             try {
                 influxDB.close();
             } catch (Exception e) {
-                log.warn("[SeriesEngine] InfluxDB 客户端关闭失败: {}", e.getMessage());
+                log.warn("[SeriesEngine] InfluxDB 客户端关闭失败: {}", e.getMessage(), e);
             }
         }
     }

@@ -223,14 +223,14 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
                 log.info("MQTT 分发器已断开连接");
             }
         } catch (MqttException e) {
-            log.warn("MQTT 断开连接时发生异常: {}", e.getMessage());
+            log.warn("MQTT 断开连接时发生异常: {}", e.getMessage(), e);
         }
         try {
             if (client != null) {
                 client.close();
             }
         } catch (MqttException e) {
-            log.warn("MQTT 关闭客户端时发生异常: {}", e.getMessage());
+            log.warn("MQTT 关闭客户端时发生异常: {}", e.getMessage(), e);
         }
         definitionMap.clear();
         log.info("MQTT 分发器已关闭");

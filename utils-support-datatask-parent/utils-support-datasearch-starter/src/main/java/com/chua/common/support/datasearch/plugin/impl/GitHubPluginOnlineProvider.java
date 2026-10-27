@@ -61,7 +61,7 @@ public class GitHubPluginOnlineProvider implements PluginOnlineProvider {
             try {
                 result.addAll(discoverRepoPlugins(repo[0], repo[1], repo[2], kw));
             } catch (Exception e) {
-                log.warn("[github-plugins] 仓库扫描失败 {}: {}", repo[0] + "/" + repo[1], e.getMessage());
+                log.warn("[github-plugins] 仓库扫描失败 {}: {}", repo[0] + "/" + repo[1], e.getMessage(), e);
             }
         }
         return result;

@@ -333,7 +333,7 @@ public class PackageManagerProvider {
                 results.addAll(pmResults);
                 log.info("  {} 返回 {} 个结果", pm.getCommand(), pmResults.size());
             } catch (Exception e) {
-                log.warn("  {} 搜索失败: {}", pm.getCommand(), e.getMessage());
+                log.warn("  {} 搜索失败: {}", pm.getCommand(), e.getMessage(), e);
             }
         }
         log.info("软件搜索完成: keyword={}, 总结果数={}", keyword, results.size());
@@ -370,7 +370,7 @@ public class PackageManagerProvider {
             */
             @Override
             public void onError(String command, Throwable throwable) {
-                log.error("  [安装] 异常: {}", throwable.getMessage());
+                log.error("  [安装] 异常: {}", throwable.getMessage(), throwable);
             }
         });
         boolean ok = result.isSuccess();
@@ -423,7 +423,7 @@ public class PackageManagerProvider {
             */
             @Override
             public void onError(String command, Throwable throwable) {
-                log.error("  [卸载] 异常: {}", throwable.getMessage());
+                log.error("  [卸载] 异常: {}", throwable.getMessage(), throwable);
             }
         }, null, env, null);
         boolean ok = result.isSuccess();
@@ -479,7 +479,7 @@ public class PackageManagerProvider {
             */
             @Override
             public void onError(String command, Throwable throwable) {
-                log.warn("  [{}] 搜索异常: {}", pm.getCommand(), throwable.getMessage());
+                log.warn("  [{}] 搜索异常: {}", pm.getCommand(), throwable.getMessage(), throwable);
             }
         });
         if (!result.isSuccess()) {

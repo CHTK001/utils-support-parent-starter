@@ -676,7 +676,7 @@ public class MqttServer extends AbstractServer {
                     }
                 }
             } catch (MqttProtocolViolation e) {
-                log.warn("MQTT 协议违例 (clientId={}): {}", clientId, e.getMessage());
+                log.warn("MQTT 协议违例 (clientId={}): {}", clientId, e.getMessage(), e);
             } catch (EOFException | InterruptedIOException e) {
                 log.debug("MQTT 客户端 {} 连接结束: {}", clientId, e.getMessage());
             } catch (IOException e) {

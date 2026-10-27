@@ -310,7 +310,7 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
             }
             return out;
         } catch (Exception e) {
-            log.warn("解析输出 {} 失败: {}", name, e.getMessage());
+            log.warn("解析输出 {} 失败: {}", name, e.getMessage(), e);
             return new float[0][0];
         }
     }

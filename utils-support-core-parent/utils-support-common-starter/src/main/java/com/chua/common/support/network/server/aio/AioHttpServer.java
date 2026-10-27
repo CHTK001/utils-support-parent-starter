@@ -471,7 +471,7 @@ public class AioHttpServer extends AbstractServer {
             try {
                 handleRequest(state.request, response);
             } catch (Exception e) {
-                log.warn("AIO 请求处理失败: {}", e.getMessage());
+                log.warn("AIO 请求处理失败: {}", e.getMessage(), e);
                 if (!response.isCommitted()) {
                     response.sendError(500, "Internal Server Error");
                 }
@@ -493,7 +493,7 @@ public class AioHttpServer extends AbstractServer {
                 continueWrite(state);
             }
         } catch (Throwable t) {
-            log.warn("AIO worker 异常: {} -> {}", t.getClass().getSimpleName(), t.getMessage());
+            log.warn("AIO worker 异常: {} -> {}", t.getClass().getSimpleName(), t.getMessage(), t);
             closeConn(state);
         }
     }
@@ -558,7 +558,7 @@ public class AioHttpServer extends AbstractServer {
                     try {
                         tls.engine.wrap(src, netOut);
                     } catch (Exception e) {
-                        log.warn("TLS wrap 失败,关闭连接: {}", e.getMessage());
+                        log.warn("TLS wrap 失败,关闭连接: {}", e.getMessage(), e);
                         closeConn(state);
                         return;
                     }
@@ -1209,7 +1209,7 @@ public class AioHttpServer extends AbstractServer {
             try {
                 handler.handle(wsRequest, wsResponse);
             } catch (Exception e) {
-                log.warn("AIO WebSocket handler 异常: {}", e.getMessage());
+                log.warn("AIO WebSocket handler 异常: {}", e.getMessage(), e);
             }
             if (wsResponse.getResult() != null) {
                 conn.send(wsResponse.getResult().toString());

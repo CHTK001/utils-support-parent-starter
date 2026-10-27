@@ -254,7 +254,7 @@ public class VertxHttpServer extends AbstractServer {
                 ctx.request().toWebSocket().onSuccess(ws -> {
                     ws.textMessageHandler(msg -> dispatchWsMessage(ws, msg.toString()));
                 }).onFailure(err -> {
-                    log.warn("WebSocket 升级失败: {}", err.getMessage());
+                    log.warn("WebSocket 升级失败: {}", err.getMessage(), err);
                     ctx.vertx().runOnContext(v -> ctx.response().setStatusCode(500).end());
                 });
                 return;
@@ -288,7 +288,7 @@ public class VertxHttpServer extends AbstractServer {
                             });
                         });
                     } catch (Exception e) {
-                        log.warn("[vertx-http] handler execution failed: {}", e.getMessage());
+                        log.warn("[vertx-http] handler execution failed: {}", e.getMessage(), e);
                         ctx.vertx().runOnContext(v2 -> {
                             if (!response.isCommitted()) {
                                 VertxServerResponse vsr = (VertxServerResponse) response;
@@ -349,7 +349,7 @@ public class VertxHttpServer extends AbstractServer {
                     dispatchWsMessage(ws, msg.toString());
                 });
             }).onFailure(err -> {
-                log.warn("WebSocket 升级失败: {}", err.getMessage());
+                log.warn("WebSocket 升级失败: {}", err.getMessage(), err);
                 response.sendError(500, "WebSocket upgrade failed");
             });
         } else {
@@ -387,7 +387,7 @@ public class VertxHttpServer extends AbstractServer {
                     ws.writeTextMessage(wsResp.getResult().toString());
                 }
             } catch (Exception e) {
-                log.warn("WS handler 异常: {}", e.getMessage());
+                log.warn("WS handler 异常: {}", e.getMessage(), e);
             }
         }
     }

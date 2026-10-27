@@ -167,7 +167,7 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
                 return tmp;
             }
         } catch (Exception e) {
-            log.warn("[Wespeaker] 导出内置模型失败: {}", e.getMessage());
+            log.warn("[Wespeaker] 导出内置模型失败: {}", e.getMessage(), e);
         }
         return null;
     }
@@ -201,7 +201,7 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
             }
             return pcm;
         } catch (Exception e) {
-            log.warn("[WespeakerEmbedding] audio decode failed: {}", e.getMessage());
+            log.warn("[WespeakerEmbedding] audio decode failed: {}", e.getMessage(), e);
             return null;
         }
     }

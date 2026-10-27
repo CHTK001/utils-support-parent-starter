@@ -132,7 +132,7 @@ public class DatabaseUsageParser extends BaseUsageParser {
                         result.add(usage);
                     }
                 } catch (Exception e) {
-                    log.warn("[DatabaseUsageParser] 单条记录映射失败: {}", e.getMessage());
+                    log.warn("[DatabaseUsageParser] 单条记录映射失败: {}", e.getMessage(), e);
                 }
             }
             log.debug("[DatabaseUsageParser] 读取 {} 条记录", result.size());

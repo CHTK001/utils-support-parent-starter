@@ -178,7 +178,7 @@ public class ReasonixUsageParser extends BaseUsageParser {
                         .filter(p -> p.getFileName().toString().endsWith(".telemetry.json"))
                         .forEach(files::add);
             } catch (IOException e) {
-                log.warn("[reasonix] walk failed: {}", e.getMessage());
+                log.warn("[reasonix] walk failed: {}", e.getMessage(), e);
             }
         }
         return files.stream().sorted().toList();

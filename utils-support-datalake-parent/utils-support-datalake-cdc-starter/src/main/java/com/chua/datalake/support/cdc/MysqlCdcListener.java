@@ -267,7 +267,7 @@ public class MysqlCdcListener {
             current.disconnect();
             log.info("[datalake-cdc] 已停止, 共处理 {} 个事件", eventCount.get());
         } catch (Exception e) {
-            log.warn("[datalake-cdc] 停止异常: {}", e.getMessage());
+            log.warn("[datalake-cdc] 停止异常: {}", e.getMessage(), e);
         } finally {
             started = false;
             client = null;

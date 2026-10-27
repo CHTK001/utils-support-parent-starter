@@ -331,7 +331,7 @@ public class PocketTtsTranslator {
             }
             return null;
         } catch (Exception e) {
-            log.warn("[Pocket-TTS] 解析参考音频输入名异常: {}", e.getMessage());
+            log.warn("[Pocket-TTS] 解析参考音频输入名异常: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -770,7 +770,7 @@ public class PocketTtsTranslator {
             return OnnxTensor.createTensor(ortEnv,
                     LongBuffer.wrap(new long[(int) total]), shape);
         } catch (Exception e) {
-            log.warn("[Pocket-TTS] 构建 state_{} 张量失败: {}", index, e.getMessage());
+            log.warn("[Pocket-TTS] 构建 state_{} 张量失败: {}", index, e.getMessage(), e);
             return null;
         }
     }
@@ -793,7 +793,7 @@ public class PocketTtsTranslator {
                 return ((TensorInfo) info.getInfo()).getShape();
             }
         } catch (Exception e) {
-            log.warn("[Pocket-TTS] 获取 state 张量形状失败: {}", e.getMessage());
+            log.warn("[Pocket-TTS] 获取 state 张量形状失败: {}", e.getMessage(), e);
         }
         return null;
     }

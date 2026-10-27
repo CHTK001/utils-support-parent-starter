@@ -146,7 +146,7 @@ public class NativeRpcClient implements RpcClient {
                             break;
                         }
                     } catch (Exception e) {
-                        log.warn("Failed to init ServiceDiscovery: {}", e.getMessage());
+                        log.warn("Failed to init ServiceDiscovery: {}", e.getMessage(), e);
                     }
                 }
                 if (config.getAddress() != null) {

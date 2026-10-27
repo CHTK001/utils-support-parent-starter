@@ -111,7 +111,7 @@ public class CrushConversationParser implements ConversationParser {
                 }
             }
         } catch (Exception e) {
-            log.warn("[crush] index parse failed: {}", e.getMessage());
+            log.warn("[crush] index parse failed: {}", e.getMessage(), e);
         /**
          * 流database。
          * @param db db

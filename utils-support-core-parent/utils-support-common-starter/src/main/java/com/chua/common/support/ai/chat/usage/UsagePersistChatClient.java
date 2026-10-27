@@ -279,7 +279,7 @@ public class UsagePersistChatClient implements ChatClient {
             CompletableFuture.allOf(pending.toArray(new CompletableFuture[0]))
                     .join();
         } catch (Exception e) {
-            log.warn("[UsagePersistChatClient] flush failed: {}", e.getMessage());
+            log.warn("[UsagePersistChatClient] flush failed: {}", e.getMessage(), e);
         }
     }
 
@@ -332,7 +332,7 @@ public class UsagePersistChatClient implements ChatClient {
         pendingFutures.add(future);
         future.whenComplete((r, t) -> {
             if (pendingFutures.remove(future) && t != null) {
-                log.warn("[UsagePersistChatClient] async persist usage failed: {}", t.getMessage());
+                log.warn("[UsagePersistChatClient] async persist usage failed: {}", t.getMessage(), t);
             }
         });
     }

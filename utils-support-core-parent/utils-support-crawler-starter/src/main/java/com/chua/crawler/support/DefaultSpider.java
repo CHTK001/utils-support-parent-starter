@@ -407,7 +407,7 @@ public class DefaultSpider implements Spider {
             result.setLinks(extractedLinks);
             return true;
         } catch (Exception e) {
-            log.warn("[spider] 处理请求异常: {} - {}", request.getUrl(), e.getMessage());
+            log.warn("[spider] 处理请求异常: {} - {}", request.getUrl(), e.getMessage(), e);
             return false;
         }
     }

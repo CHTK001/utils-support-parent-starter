@@ -825,7 +825,7 @@ public class DingTalkBotClient implements BotClient {
                 if (!running.get() || !reconnectAllowed) {
                     return;
                 }
-                log.warn("钉钉机器人长连接中断, {}ms 后重试: {}", backoff, e.getMessage());
+                log.warn("钉钉机器人长连接中断, {}ms 后重试: {}", backoff, e.getMessage(), e);
                 backoff = sleepBackoff(backoff);
             }
         }
@@ -933,7 +933,7 @@ public class DingTalkBotClient implements BotClient {
             webSocket = null;
             stopIdleWatchdog();
             notifyError(error);
-            log.error("钉钉机器人长连接异常: {}", error.getMessage());
+            log.error("钉钉机器人长连接异常: {}", error.getMessage(), error);
             endSession();
         }
 
@@ -1066,7 +1066,7 @@ public class DingTalkBotClient implements BotClient {
             try {
                 ws.sendText(text, true);
             } catch (Exception e) {
-                log.warn("钉钉机器人写出应答帧失败: {}", e.getMessage());
+                log.warn("钉钉机器人写出应答帧失败: {}", e.getMessage(), e);
             }
         }
     }
@@ -1292,7 +1292,7 @@ public class DingTalkBotClient implements BotClient {
             Map<String, Object> result = api(MEDIA_DOWNLOAD_PATH, body, true);
             return stringValue(result.get("downloadUrl"));
         } catch (Exception e) {
-            log.warn("钉钉机器人换取下载地址失败: {}", e.getMessage());
+            log.warn("钉钉机器人换取下载地址失败: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -1965,7 +1965,7 @@ public class DingTalkBotClient implements BotClient {
      */
     private BotSendResult failure(String what, Exception e) {
         notifyError(e);
-        log.error("钉钉机器人发送{}失败: {}", what, e.getMessage());
+        log.error("钉钉机器人发送{}失败: {}", what, e.getMessage(), e);
         if (e instanceof DingTalkApiException) {
             DingTalkApiException api = (DingTalkApiException) e;
             return BotSendResult.fail(api.getCode(), api.getMessage());

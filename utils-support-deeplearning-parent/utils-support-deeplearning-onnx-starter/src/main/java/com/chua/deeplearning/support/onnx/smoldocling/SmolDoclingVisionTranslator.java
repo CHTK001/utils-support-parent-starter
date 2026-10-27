@@ -105,7 +105,7 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
                     pixelAttentionMask.getShape().dimension(),
                     pixelAttentionMask.getDataType());
         } catch (Exception e) {
-            log.warn("      1      : {}", e.getMessage());
+            log.warn("      1      : {}", e.getMessage(), e);
             //       2          ones                          bool
             try {
                 NDArray onesArray = manager.ones(maskShapeObj);
@@ -119,7 +119,7 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
                         pixelAttentionMask.getShape().dimension(),
                         pixelAttentionMask.getDataType());
             } catch (Exception e2) {
-                log.warn("      2      : {}", e2.getMessage());
+                log.warn("      2      : {}", e2.getMessage(), e2);
                 //       3         1               reshape
                 boolean[] boolData = new boolean[(int) totalSize];
                 Arrays.fill(boolData, true);

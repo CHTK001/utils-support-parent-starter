@@ -147,7 +147,7 @@ public class AggregateChatClient implements ChatClient {
                 pendingFutures.add(future);
                 future.whenComplete((r, t) -> {
                     if (pendingFutures.remove(future) && t != null) {
-                        log.warn("[Aggregate] async persist usage failed: {}", t.getMessage());
+                        log.warn("[Aggregate] async persist usage failed: {}", t.getMessage(), t);
                     }
                 });
             } else {
@@ -272,7 +272,7 @@ public class AggregateChatClient implements ChatClient {
             try {
                 loadSkillsFromPath(manager, path);
             } catch (Exception e) {
-                log.warn("[Aggregate] load skills from {} failed: {}", path, e.getMessage());
+                log.warn("[Aggregate] load skills from {} failed: {}", path, e.getMessage(), e);
             }
         }
         return manager;
@@ -305,11 +305,11 @@ public class AggregateChatClient implements ChatClient {
                                 log.debug("[Aggregate] loaded skill {} from {}", definition.getName(), p);
                             }
                         } catch (Exception e) {
-                            log.warn("[Aggregate] parse skill file {} failed: {}", p, e.getMessage());
+                            log.warn("[Aggregate] parse skill file {} failed: {}", p, e.getMessage(), e);
                         }
                     });
         } catch (Exception e) {
-            log.warn("[Aggregate] walk skill path {} failed: {}", path, e.getMessage());
+            log.warn("[Aggregate] walk skill path {} failed: {}", path, e.getMessage(), e);
         }
     }
 
@@ -673,7 +673,7 @@ public class AggregateChatClient implements ChatClient {
             CompletableFuture.allOf(pending.toArray(new CompletableFuture[0]))
                     .join();
         } catch (Exception e) {
-            log.warn("[Aggregate] flush usage persistence failed: {}", e.getMessage());
+            log.warn("[Aggregate] flush usage persistence failed: {}", e.getMessage(), e);
         }
     }
 
@@ -720,7 +720,7 @@ public class AggregateChatClient implements ChatClient {
             pendingFutures.add(future);
             future.whenComplete((r, t) -> {
                 if (pendingFutures.remove(future) && t != null) {
-                    log.warn("[Aggregate] sync persist failed: {}", t.getMessage());
+                    log.warn("[Aggregate] sync persist failed: {}", t.getMessage(), t);
                 }
             });
         }

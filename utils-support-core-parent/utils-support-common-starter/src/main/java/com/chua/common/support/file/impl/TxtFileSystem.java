@@ -129,7 +129,7 @@ public class TxtFileSystem implements FileSystem {
                 }
             } catch (IOException e) {
                 // 读取失败时返回空列表
-                log.warn("read txt lines error: {}", e.getMessage());
+                log.warn("read txt lines error: {}", e.getMessage(), e);
             }
             if (callback != null) {
                 callback.onComplete(result.size());
@@ -177,7 +177,7 @@ public class TxtFileSystem implements FileSystem {
                 }
             } catch (IOException e) {
                 // 读取失败时返回空列表
-                log.warn("read txt rows error: {}", e.getMessage());
+                log.warn("read txt rows error: {}", e.getMessage(), e);
             }
             // 应用行过滤 + 行数据转换
             result = applyFilter(result);
@@ -282,7 +282,7 @@ public class TxtFileSystem implements FileSystem {
                 callback.onComplete(true);
             } catch (IOException e) {
                 // 写入失败时通过回调通知
-                log.warn("write txt file error: {}", e.getMessage());
+                log.warn("write txt file error: {}", e.getMessage(), e);
                 callback.onComplete(false);
             }
         }

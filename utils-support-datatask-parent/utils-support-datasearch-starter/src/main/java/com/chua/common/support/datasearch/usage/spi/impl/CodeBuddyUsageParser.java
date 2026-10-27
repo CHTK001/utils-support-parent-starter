@@ -152,7 +152,7 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
                             }
                         });
             } catch (IOException e) {
-                log.warn("[codebuddy] walk failed {}: {}", projectsDir, e.getMessage());
+                log.warn("[codebuddy] walk failed {}: {}", projectsDir, e.getMessage(), e);
             }
         }
         log.info("[codebuddy] scanned {} session files, parsed {} records",

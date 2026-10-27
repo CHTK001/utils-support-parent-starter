@@ -104,7 +104,7 @@ public class JRebelSign {
             // 使用备用方式
             return generateSignature(content);
         } catch (Exception e) {
-            log.error("签名失败: {}", e.getMessage());
+            log.error("签名失败: {}", e.getMessage(), e);
             return generateSignature(content);
         }
     }
@@ -122,7 +122,7 @@ public class JRebelSign {
             BigInteger signed = message.modPow(PRIVATE_EXPONENT, MODULUS);
             return Base64.getEncoder().encodeToString(signed.toByteArray());
         } catch (Exception e) {
-            log.error("备用签名失败: {}", e.getMessage());
+            log.error("备用签名失败: {}", e.getMessage(), e);
             return "";
         }
     }

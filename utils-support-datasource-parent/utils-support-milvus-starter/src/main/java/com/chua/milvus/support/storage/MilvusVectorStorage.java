@@ -332,7 +332,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
                         .build());
             }
         } catch (Exception e) {
-            log.error("[milvus] 关闭前刷盘失败，新增向量可能未持久化: {}", e.getMessage());
+            log.error("[milvus] 关闭前刷盘失败，新增向量可能未持久化: {}", e.getMessage(), e);
         }
         try {
             client.close();

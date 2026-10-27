@@ -182,7 +182,7 @@ public final class WechatMemoryAccess implements AutoCloseable {
             }
             return new WechatMemoryAccess(address, pid);
         } catch (Throwable t) {
-            log.warn("初始化本地调用失败: {}", t.getMessage());
+            log.warn("初始化本地调用失败: {}", t.getMessage(), t);
             return null;
         }
     }
@@ -229,7 +229,7 @@ public final class WechatMemoryAccess implements AutoCloseable {
                 address = next;
             }
         } catch (Throwable t) {
-            log.warn("枚举内存区域失败（pid={}）: {}", pid, t.getMessage());
+            log.warn("枚举内存区域失败（pid={}）: {}", pid, t.getMessage(), t);
         }
         return regions;
     }

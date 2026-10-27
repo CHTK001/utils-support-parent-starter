@@ -170,7 +170,7 @@ public class MavenDeployClient {
             try {
                 target.disconnect();
             } catch (Exception ex) {
-                log.warn("[maven] 断开目标连接异常: {}", ex.getMessage());
+                log.warn("[maven] 断开目标连接异常: {}", ex.getMessage(), ex);
             }
         }
 
@@ -261,7 +261,7 @@ public class MavenDeployClient {
             try {
                 deployCallback.onDeployStart(info);
             } catch (Exception e) {
-                log.warn("[maven] 部署开始回调异常: {}", e.getMessage());
+                log.warn("[maven] 部署开始回调异常: {}", e.getMessage(), e);
             }
         }
     }
@@ -277,7 +277,7 @@ public class MavenDeployClient {
             try {
                 deployCallback.onDeployProgress(message, percent);
             } catch (Exception e) {
-                log.warn("[maven] 部署进度回调异常: {}", e.getMessage());
+                log.warn("[maven] 部署进度回调异常: {}", e.getMessage(), e);
             }
         }
     }
@@ -292,7 +292,7 @@ public class MavenDeployClient {
             try {
                 deployCallback.onDeploySuccess(deployedPaths);
             } catch (Exception e) {
-                log.warn("[maven] 部署成功回调异常: {}", e.getMessage());
+                log.warn("[maven] 部署成功回调异常: {}", e.getMessage(), e);
             }
         }
     }
@@ -307,7 +307,7 @@ public class MavenDeployClient {
             try {
                 deployCallback.onDeployFailure(exception);
             } catch (Exception ex) {
-                log.warn("[maven] 部署失败回调异常: {}", ex.getMessage());
+                log.warn("[maven] 部署失败回调异常: {}", ex.getMessage(), ex);
             }
         }
     }

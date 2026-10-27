@@ -108,7 +108,7 @@ public class RedisServer {
             delegate.stop();
             log.info("嵌入式 Redis 停止: port={}", port);
         } catch (Exception e) {
-            log.warn("嵌入式 Redis 停止异常: {}", e.getMessage());
+            log.warn("嵌入式 Redis 停止异常: {}", e.getMessage(), e);
         }
         return this;
     }

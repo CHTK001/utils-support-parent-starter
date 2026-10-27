@@ -246,7 +246,7 @@ public class NioHttpServer extends AbstractServer {
             try {
                 serverChannel.register(sel, SelectionKey.OP_ACCEPT);
             } catch (Exception e) {
-                log.warn("nio event-loop[0] 注册 OP_ACCEPT 失败: {}", e.getMessage());
+                log.warn("nio event-loop[0] 注册 OP_ACCEPT 失败: {}", e.getMessage(), e);
             }
         }
         // 关键竞态防护:doStart() 里 submit 本任务时 running 可能仍为 false(start() 在 doStart()
@@ -341,7 +341,7 @@ public class NioHttpServer extends AbstractServer {
                 // 事件循环线程绝不能死:任何未预期异常(含 Runtime/Error)都只记录并继续,
                 // 否则该分片连接的 accept/read/write 全部停摆(高并发压力下实测请求 100% 超时)
                 if (running) {
-                    log.warn("Event loop[{}] error: {} -> {}", idx, t.getClass().getSimpleName(), t.getMessage());
+                    log.warn("Event loop[{}] error: {} -> {}", idx, t.getClass().getSimpleName(), t.getMessage(), t);
                 }
             }
         }
@@ -368,7 +368,7 @@ public class NioHttpServer extends AbstractServer {
                     SocketChannel client = new SslSocketChannel(accepted, sslContext.createSSLEngine());
                     handleConnection(client);
                 } catch (IOException e) {
-                    log.warn("TLS 握手失败，关闭连接: {}", e.getMessage());
+                    log.warn("TLS 握手失败，关闭连接: {}", e.getMessage(), e);
                     closeQuietly(accepted);
                 }
             });
@@ -476,7 +476,7 @@ public class NioHttpServer extends AbstractServer {
                 finishAfterWrite(st, key);
             }
         } catch (Exception e) {
-            log.warn("Inline worker failed: {}", e.getMessage());
+            log.warn("Inline worker failed: {}", e.getMessage(), e);
             closeConn(key, st);
         }
     }
@@ -560,7 +560,7 @@ public class NioHttpServer extends AbstractServer {
             try {
                 handleRequest(st.request, response);
             } catch (Exception e) {
-                log.warn("Request handling failed: {}", e.getMessage());
+                log.warn("Request handling failed: {}", e.getMessage(), e);
                 if (!response.isCommitted()) {
                     response.sendError(500, "Internal Server Error");
                 }
@@ -579,7 +579,7 @@ public class NioHttpServer extends AbstractServer {
                 selectors[st.shard].wakeup();
             }
         } catch (Exception e) {
-            log.warn("Worker handling failed: {} -> {}", e.getClass().getSimpleName(), e.getMessage());
+            log.warn("Worker handling failed: {} -> {}", e.getClass().getSimpleName(), e.getMessage(), e);
             closeConn(key, st);
         }
     }
@@ -615,7 +615,7 @@ public class NioHttpServer extends AbstractServer {
             try {
                 handleRequest(st.request, response);
             } catch (Exception e) {
-                log.warn("Request handling failed: {}", e.getMessage());
+                log.warn("Request handling failed: {}", e.getMessage(), e);
                 if (!response.isCommitted()) {
                     response.sendError(500, "Internal Server Error");
                 }
@@ -639,7 +639,7 @@ public class NioHttpServer extends AbstractServer {
                 selectors[st.shard].wakeup();
             }
         } catch (Exception e) {
-            log.warn("DirectWrite worker failed: {} -> {}", e.getClass().getSimpleName(), e.getMessage());
+            log.warn("DirectWrite worker failed: {} -> {}", e.getClass().getSimpleName(), e.getMessage(), e);
             closeConn(key, st);
         }
     }
@@ -793,7 +793,7 @@ public class NioHttpServer extends AbstractServer {
                 try {
                     handleRequest(request, response);
                 } catch (Exception e) {
-                    log.warn("Request handling failed: {}", e.getMessage());
+                    log.warn("Request handling failed: {}", e.getMessage(), e);
                     if (!response.isCommitted()) {
                         response.sendError(500, "Internal Server Error");
                     }

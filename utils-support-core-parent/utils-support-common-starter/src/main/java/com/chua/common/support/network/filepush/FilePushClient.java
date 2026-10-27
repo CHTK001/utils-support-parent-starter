@@ -413,7 +413,7 @@ public class FilePushClient implements AutoCloseable {
                 sendCleanup(relativePaths(sourceDir, files));
                 log.info("已请求服务端清理旧文件");
             } catch (IOException e) {
-                log.warn("清理指令发送失败: {}", e.getMessage());
+                log.warn("清理指令发送失败: {}", e.getMessage(), e);
             }
         }
         long elapsedMs = (System.nanoTime() - startTime) / 1_000_000;
@@ -675,7 +675,7 @@ public class FilePushClient implements AutoCloseable {
             Thread.currentThread().interrupt();
             return new FileTaskResult(relativePath, false, 0, "被中断");
         } catch (Exception e) {
-            log.warn("文件推送失败 {} ({}): {}", relativePath, file, e.getMessage());
+            log.warn("文件推送失败 {} ({}): {}", relativePath, file, e.getMessage(), e);
             return new FileTaskResult(relativePath, false, 0, e.toString());
         } finally {
             if (acquired) {

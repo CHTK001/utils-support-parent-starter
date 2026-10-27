@@ -169,7 +169,7 @@ public class SourceDataTable extends MutableDataTable {
             }
             return rows;
         } catch (Exception e) {
-            log.warn("[calcite] SourceDataTable [{}] 查询失败: {}", getName(), e.getMessage());
+            log.warn("[calcite] SourceDataTable [{}] 查询失败: {}", getName(), e.getMessage(), e);
             return Collections.emptyList();
         }
     }

@@ -186,7 +186,7 @@ public class BtmuluMagnetResourceProvider extends AbstractResourceProvider {
             log.info("[btmulu] 关键词[{}] 第{}页 命中 {} 条（共 {} 条）", keyword, page, results.size(), total);
             return ReturnPageResult.of(pageResult);
         } catch (Exception e) {
-            log.warn("[btmulu] 检索异常: keyword={}, msg={}", keyword, e.getMessage());
+            log.warn("[btmulu] 检索异常: keyword={}, msg={}", keyword, e.getMessage(), e);
             return ReturnPageResult.error("btmulu 磁力检索失败: " + e.getMessage());
         }
     }

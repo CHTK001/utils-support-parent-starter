@@ -600,7 +600,7 @@ public class AgentEditorProvider {
                     musicProviders.put(name, provider);
                 }
             } catch (Throwable t) {
-                log.warn("加载音乐源 {} 失败: {}", name, t.getMessage());
+                log.warn("加载音乐源 {} 失败: {}", name, t.getMessage(), t);
             }
         }
         try {
@@ -612,7 +612,7 @@ public class AgentEditorProvider {
                 }
             }
         } catch (Throwable t) {
-            log.warn("列举音乐源失败: {}", t.getMessage());
+            log.warn("列举音乐源失败: {}", t.getMessage(), t);
         }
         return this;
     }
@@ -829,7 +829,7 @@ public class AgentEditorProvider {
             String json = Files.readString(file, StandardCharsets.UTF_8);
             return (Map<String, Object>) new JsonParser(json).parse();
         } catch (Exception e) {
-            log.warn("读取编辑器 MCP 配置失败: {} - {}", editor.getName(), e.getMessage());
+            log.warn("读取编辑器 MCP 配置失败: {} - {}", editor.getName(), e.getMessage(), e);
             return Collections.emptyMap();
         }
     }
@@ -849,7 +849,7 @@ public class AgentEditorProvider {
             String json = Files.readString(filePath, StandardCharsets.UTF_8);
             return (Map<String, Object>) new JsonParser(json).parse();
         } catch (Exception e) {
-            log.warn("读取 MCP 配置失败: {} - {}", filePath, e.getMessage());
+            log.warn("读取 MCP 配置失败: {} - {}", filePath, e.getMessage(), e);
             return Collections.emptyMap();
         }
     }
@@ -947,7 +947,7 @@ public class AgentEditorProvider {
                     }
                 });
             } catch (IOException e) {
-                log.warn("扫描 CodeBuddy Skills 失败: {}", e.getMessage());
+                log.warn("扫描 CodeBuddy Skills 失败: {}", e.getMessage(), e);
             }
         }
         return skills;
@@ -988,7 +988,7 @@ public class AgentEditorProvider {
                 }
             });
         } catch (IOException e) {
-            log.warn("扫描 TRAE-CN MCP 配置失败: {}", e.getMessage());
+            log.warn("扫描 TRAE-CN MCP 配置失败: {}", e.getMessage(), e);
         }
         return servers;
     }
@@ -1014,7 +1014,7 @@ public class AgentEditorProvider {
                 }
             });
         } catch (IOException e) {
-            log.warn("扫描 TRAE-CN Skills 失败: {}", e.getMessage());
+            log.warn("扫描 TRAE-CN Skills 失败: {}", e.getMessage(), e);
         }
         return skills;
     }
@@ -1075,7 +1075,7 @@ public class AgentEditorProvider {
                 return sc;
             }).collect(Collectors.toList());
         } catch (Exception e) {
-            log.warn("解析 MCP Server 配置失败: {} - {}", mcpJsonPath, e.getMessage());
+            log.warn("解析 MCP Server 配置失败: {} - {}", mcpJsonPath, e.getMessage(), e);
             return List.of();
         }
     }
@@ -1278,7 +1278,7 @@ public class AgentEditorProvider {
             log.info("已安装 datasearch MCP 到 {} : {}", editor.getName(), configFile);
             return true;
         } catch (IOException e) {
-            log.error("安装 datasearch MCP 到 {} 失败: {}", editor.getName(), e.getMessage());
+            log.error("安装 datasearch MCP 到 {} 失败: {}", editor.getName(), e.getMessage(), e);
             return false;
         }
     }
@@ -1361,7 +1361,7 @@ public class AgentEditorProvider {
             log.info("已从 {} 卸载 datasearch MCP", editor.getName());
             return true;
         } catch (IOException e) {
-            log.error("从 {} 卸载 datasearch MCP 失败: {}", editor.getName(), e.getMessage());
+            log.error("从 {} 卸载 datasearch MCP 失败: {}", editor.getName(), e.getMessage(), e);
             return false;
         }
     }

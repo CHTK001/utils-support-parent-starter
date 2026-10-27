@@ -207,7 +207,7 @@ public class FreePhoneNumSmsCodeProvider implements SmsCodeProvider, PolledDirec
             }
             return parseMessages(html, phone);
         } catch (Exception e) {
-            log.warn("[freephonenum] 抓取短信失败: {} -> {}", phone.getPhone(), String.valueOf(e.getMessage()));
+            log.warn("[freephonenum] 抓取短信失败: {} -> {}", phone.getPhone(), String.valueOf(e.getMessage()), e);
             return Collections.emptyList();
         }
     }
@@ -246,7 +246,7 @@ public class FreePhoneNumSmsCodeProvider implements SmsCodeProvider, PolledDirec
         try {
             current = fetchPhones();
         } catch (Exception e) {
-            log.warn("[freephonenum] 第{}轮轮询抓取失败: {}", round, e.getMessage());
+            log.warn("[freephonenum] 第{}轮轮询抓取失败: {}", round, e.getMessage(), e);
             support.fireError(LIST_URL, null, e);
             return;
         }
@@ -371,7 +371,7 @@ public class FreePhoneNumSmsCodeProvider implements SmsCodeProvider, PolledDirec
             }
             return parsePhoneList(html);
         } catch (Exception e) {
-            log.warn("[freephonenum] 抓取号码列表失败: {}", e.getMessage());
+            log.warn("[freephonenum] 抓取号码列表失败: {}", e.getMessage(), e);
             return Collections.emptyList();
         }
     }

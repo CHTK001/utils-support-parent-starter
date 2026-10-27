@@ -55,7 +55,7 @@ public final class CompressionEngines {
                 return candidate;
             }
         } catch (Exception e) {
-            log.warn("[图片压缩] 解析 deflate 引擎失败，回退 JDK 实现: {}", e.getMessage());
+            log.warn("[图片压缩] 解析 deflate 引擎失败，回退 JDK 实现: {}", e.getMessage(), e);
         }
         return new JdkDeflateEngine();
     }
@@ -73,7 +73,7 @@ public final class CompressionEngines {
                 return candidate;
             }
         } catch (Exception e) {
-            log.warn("[图片压缩] 解析调色板量化器失败，回退纯 Java 实现: {}", e.getMessage());
+            log.warn("[图片压缩] 解析调色板量化器失败，回退纯 Java 实现: {}", e.getMessage(), e);
         }
         return new MedianCutQuantizer();
     }

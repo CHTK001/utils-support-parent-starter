@@ -75,7 +75,7 @@ public class NpmSoftwareProvider implements SoftwareProvider {
             */
             @Override
             public void onError(String command, Throwable throwable) {
-                log.warn("npm 搜索异常: {}", throwable.getMessage());
+                log.warn("npm 搜索异常: {}", throwable.getMessage(), throwable);
             }
         });
 
@@ -137,7 +137,7 @@ public class NpmSoftwareProvider implements SoftwareProvider {
             */
             @Override
             public void onError(String command, Throwable throwable) {
-                log.error("  [{}] 异常: {}", action, throwable.getMessage());
+                log.error("  [{}] 异常: {}", action, throwable.getMessage(), throwable);
             }
         });
         boolean ok = result.isSuccess();
@@ -170,7 +170,7 @@ public class NpmSoftwareProvider implements SoftwareProvider {
                 }
             }
         } catch (Exception e) {
-            log.warn("解析 npm 输出失败: {}", e.getMessage());
+            log.warn("解析 npm 输出失败: {}", e.getMessage(), e);
         }
         return results;
     }

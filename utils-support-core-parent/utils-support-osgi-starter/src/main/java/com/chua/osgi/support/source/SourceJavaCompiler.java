@@ -310,7 +310,7 @@ public class SourceJavaCompiler {
                 log.info("[osgi-source] 已清理编译产物目录: {}", outputDirectory);
             }
         } catch (IOException e) {
-            log.warn("[osgi-source] 清理编译产物目录失败: {}", e.getMessage());
+            log.warn("[osgi-source] 清理编译产物目录失败: {}", e.getMessage(), e);
         } finally {
             currentRoundDir = null;
         }

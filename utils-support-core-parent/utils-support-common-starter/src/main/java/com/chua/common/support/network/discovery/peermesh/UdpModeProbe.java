@@ -86,7 +86,7 @@ public class UdpModeProbe implements ProbeStrategy {
                 }
             }
         } catch (Exception e) {
-            log.warn("UDP 探测异常: {}", e.getMessage());
+            log.warn("UDP 探测异常: {}", e.getMessage(), e);
         }
     }
 

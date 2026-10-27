@@ -219,7 +219,7 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
                     .setNPredict(npredict);
             return generateWithLimit(inferParams);
         } catch (Exception e) {
-            log.warn("[Llama3-GPU:{}] 推理失败: {}", modelId, e.getMessage());
+            log.warn("[Llama3-GPU:{}] 推理失败: {}", modelId, e.getMessage(), e);
             return "";
         }
     }
@@ -292,7 +292,7 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
                 model.close();
                 log.info("[Llama3-GPU:{}] 模型已关闭", modelId);
             } catch (Exception e) {
-                log.warn("[Llama3-GPU:{}] 关闭模型失败: {}", modelId, e.getMessage());
+                log.warn("[Llama3-GPU:{}] 关闭模型失败: {}", modelId, e.getMessage(), e);
             }
             model = null;
             initialized = false;

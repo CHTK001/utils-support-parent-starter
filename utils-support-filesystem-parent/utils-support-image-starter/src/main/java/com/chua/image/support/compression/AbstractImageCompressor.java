@@ -275,7 +275,7 @@ public abstract class AbstractImageCompressor implements ImageCompressor {
                 return encoder.encode(flatten(image), options.quality() / 100F);
             }
         } catch (Exception e) {
-            log.warn("[图片压缩] 原生 JPEG 编码器不可用，回退 ImageIO: {}", e.getMessage());
+            log.warn("[图片压缩] 原生 JPEG 编码器不可用，回退 ImageIO: {}", e.getMessage(), e);
         }
         return compressLossy(image, "jpeg", options);
     }

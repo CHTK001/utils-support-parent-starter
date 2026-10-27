@@ -133,7 +133,7 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
                 if (serverSocket.isClosed()) {
                     break;
                 }
-                log.warn("[WebSocketDataSyncAgentServer] accept 失败: {}", e.getMessage());
+                log.warn("[WebSocketDataSyncAgentServer] accept 失败: {}", e.getMessage(), e);
             }
         }
     }

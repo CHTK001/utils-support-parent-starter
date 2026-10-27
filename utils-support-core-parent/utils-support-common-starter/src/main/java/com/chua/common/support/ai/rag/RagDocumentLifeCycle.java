@@ -363,7 +363,7 @@ public class RagDocumentLifeCycle implements AutoCloseable {
             Files.deleteIfExists(tempFile);
             return text;
         } catch (Exception e) {
-            log.warn("[RagDocumentLifeCycle] 文本提取失败: {}, 降级为原始读取", e.getMessage());
+            log.warn("[RagDocumentLifeCycle] 文本提取失败: {}, 降级为原始读取", e.getMessage(), e);
             return new String(data, StandardCharsets.UTF_8);
         }
     }

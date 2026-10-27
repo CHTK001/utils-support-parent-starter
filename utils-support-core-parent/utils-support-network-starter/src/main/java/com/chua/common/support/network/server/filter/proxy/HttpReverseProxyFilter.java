@@ -166,13 +166,13 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
                     req.send(content)
                             .onSuccess(resp -> handleBackendResponse(resp, response, completionFuture))
                             .onFailure(err -> {
-                                log.warn("[network-proxy] HTTP 反向代理后端异常: {}", err.getMessage());
+                                log.warn("[network-proxy] HTTP 反向代理后端异常: {}", err.getMessage(), err);
                                 sendError(response, 502, "Bad Gateway");
                                 completeExceptionally(completionFuture, err);
                             });
                 })
                 .onFailure(err -> {
-                    log.warn("[network-proxy] HTTP 反向代理连接失败: {}:{}: {}", host, port, err.getMessage());
+                    log.warn("[network-proxy] HTTP 反向代理连接失败: {}:{}: {}", host, port, err.getMessage(), err);
                     sendError(response, 502, "Bad Gateway: connection failed");
                     completeExceptionally(completionFuture, err);
                 });
@@ -230,7 +230,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
                     complete(completionFuture, null);
                 })
                 .onFailure(err -> {
-                    log.warn("[network-proxy] HTTP 反向代理响应体读取失败: {}", err.getMessage());
+                    log.warn("[network-proxy] HTTP 反向代理响应体读取失败: {}", err.getMessage(), err);
                     sendError(response, 502, "Bad Gateway");
                     completeExceptionally(completionFuture, err);
                 });

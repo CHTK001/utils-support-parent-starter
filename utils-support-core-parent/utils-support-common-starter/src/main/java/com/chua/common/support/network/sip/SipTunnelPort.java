@@ -175,7 +175,7 @@ public class SipTunnelPort {
         try {
             session = client.openTunnel(serviceName);
         } catch (RuntimeException e) {
-            log.warn("SIP 隧道开启失败: {}", e.getMessage());
+            log.warn("SIP 隧道开启失败: {}", e.getMessage(), e);
             closeQuietly(socket);
             return;
         }

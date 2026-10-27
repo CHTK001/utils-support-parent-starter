@@ -243,7 +243,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                 }
                 return reRank(candidates, query, topK);
             } catch (Throwable t) {
-                log.warn("[vector-starter] CAGRA search failed, falling back to CPU: {}", t.getMessage());
+                log.warn("[vector-starter] CAGRA search failed, falling back to CPU: {}", t.getMessage(), t);
                 return fallbackSearch(query, topK);
             }
         }
@@ -311,7 +311,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                 invoke(index, "build", Object.class);
                 indexBuilt = true;
             } catch (Throwable t) {
-                log.warn("[vector-starter] CAGRA index build failed, will retry: {}", t.getMessage());
+                log.warn("[vector-starter] CAGRA index build failed, will retry: {}", t.getMessage(), t);
                 releaseResources();
             } finally {
                 building = false;
@@ -464,7 +464,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                 }
                 return reRank(candidates, query, topK);
             } catch (Throwable t) {
-                log.warn("[vector-starter] HNSW search failed, falling back to CPU: {}", t.getMessage());
+                log.warn("[vector-starter] HNSW search failed, falling back to CPU: {}", t.getMessage(), t);
                 return fallbackSearch(query, topK);
             }
         }
@@ -519,7 +519,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                 invoke(index, "build", Object.class);
                 indexBuilt = true;
             } catch (Throwable t) {
-                log.warn("[vector-starter] HNSW index build failed, will retry: {}", t.getMessage());
+                log.warn("[vector-starter] HNSW index build failed, will retry: {}", t.getMessage(), t);
                 releaseResources();
             } finally {
                 building = false;

@@ -422,7 +422,7 @@ public class NgrokClient implements AutoCloseable {
             try {
                 forwarder.close();
             } catch (Exception e) {
-                log.warn("关闭 Ngrok Forwarder 失败: {}", e.getMessage());
+                log.warn("关闭 Ngrok Forwarder 失败: {}", e.getMessage(), e);
             }
         }
         forwarders.clear();
@@ -430,7 +430,7 @@ public class NgrokClient implements AutoCloseable {
             try {
                 listener.close();
             } catch (Exception e) {
-                log.warn("关闭 Ngrok Listener 失败: {}", e.getMessage());
+                log.warn("关闭 Ngrok Listener 失败: {}", e.getMessage(), e);
             }
         }
         listeners.clear();
@@ -438,7 +438,7 @@ public class NgrokClient implements AutoCloseable {
             try {
                 session.close();
             } catch (Exception e) {
-                log.warn("关闭 Ngrok Session 失败: {}", e.getMessage());
+                log.warn("关闭 Ngrok Session 失败: {}", e.getMessage(), e);
             }
             session = null;
         }

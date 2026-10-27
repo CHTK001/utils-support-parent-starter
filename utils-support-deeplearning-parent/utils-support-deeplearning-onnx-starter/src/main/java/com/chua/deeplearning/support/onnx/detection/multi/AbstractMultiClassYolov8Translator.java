@@ -168,7 +168,7 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
             log.info("{} 从 class.names.txt 加载 {} 类", getClass().getSimpleName(), result.size());
             return result;
         } catch (IOException e) {
-            log.warn("加载 class.names.txt 失败: {}, 使用默认", e.getMessage());
+            log.warn("加载 class.names.txt 失败: {}, 使用默认", e.getMessage(), e);
             return Wraps.list(defaultClassNames());
         }
     }

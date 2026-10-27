@@ -111,14 +111,14 @@ public class BootstrapProbe {
                 try {
                     cMode.start();
                 } catch (Exception e) {
-                    log.warn("C 模式巡检失败: {}", e.getMessage());
+                    log.warn("C 模式巡检失败: {}", e.getMessage(), e);
                 }
                 all.addAll(cMode.getDiscoveredNodes());
                 SeedModeProbe seedMode = new SeedModeProbe(config, localServerId, localHost, localPort);
                 try {
                     seedMode.start();
                 } catch (Exception e) {
-                    log.warn("SEED 模式巡检失败: {}", e.getMessage());
+                    log.warn("SEED 模式巡检失败: {}", e.getMessage(), e);
                 }
                 all.addAll(seedMode.getDiscoveredNodes());
                 return new ProbeStrategy() {

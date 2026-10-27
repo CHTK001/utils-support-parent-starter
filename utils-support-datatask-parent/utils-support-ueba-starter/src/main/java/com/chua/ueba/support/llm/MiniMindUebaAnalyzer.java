@@ -74,7 +74,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
                 ok = true;
                 log.info("[UEBA-MiniMind] 模型加载成功: {}", dir);
             } catch (Exception e) {
-                log.warn("[UEBA-MiniMind] 模型加载失败，使用模板解释: {}", e.getMessage());
+                log.warn("[UEBA-MiniMind] 模型加载失败，使用模板解释: {}", e.getMessage(), e);
             }
         }
         this.model = loaded;
@@ -134,7 +134,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
             }
             return result.trim();
         } catch (Exception e) {
-            log.warn("[UEBA-MiniMind] 推理失败，回退模板解释: {}", e.getMessage());
+            log.warn("[UEBA-MiniMind] 推理失败，回退模板解释: {}", e.getMessage(), e);
             return buildTemplate(ipAnomaly, behavior, riskScore);
         }
     }

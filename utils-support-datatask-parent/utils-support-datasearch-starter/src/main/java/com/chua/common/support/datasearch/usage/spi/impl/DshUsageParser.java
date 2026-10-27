@@ -150,7 +150,7 @@ public class DshUsageParser extends BaseUsageParser {
                 }
             }
         } catch (IOException e) {
-            log.warn("[dsh] read failed {}: {}", file.getFileName(), e.getMessage());
+            log.warn("[dsh] read failed {}: {}", file.getFileName(), e.getMessage(), e);
         }
         return result;
     }
@@ -272,7 +272,7 @@ public class DshUsageParser extends BaseUsageParser {
                     .filter(p -> SESSION_FILE.equals(p.getFileName().toString()))
                     .forEach(files::add);
         } catch (IOException e) {
-            log.warn("[dsh] walk failed: {}", e.getMessage());
+            log.warn("[dsh] walk failed: {}", e.getMessage(), e);
         }
         return files.stream().sorted().toList();
     }

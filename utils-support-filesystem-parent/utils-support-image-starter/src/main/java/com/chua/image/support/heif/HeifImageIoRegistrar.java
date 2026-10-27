@@ -29,7 +29,7 @@ public final class HeifImageIoRegistrar {
             HeifLibraryLoader.load();
             log.info("[HeifImageIo] SPI registered, native={}", HeifLibraryLoader.isLoaded());
         } catch (Throwable e) {
-            log.warn("[HeifImageIo] native not available: {}", e.getMessage());
+            log.warn("[HeifImageIo] native not available: {}", e.getMessage(), e);
         }
     }
 

@@ -80,7 +80,7 @@ public class BigDataCloudGeocodeProvider implements GeocodeProvider {
             }
             return address;
         } catch (Exception e) {
-            log.warn("[bigdatacloud] 逆地理编码失败: {}, {}", key, e.getMessage());
+            log.warn("[bigdatacloud] 逆地理编码失败: {}, {}", key, e.getMessage(), e);
             return null;
         }
     }

@@ -89,7 +89,7 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
                 return result;
             }
         } catch (Exception e) {
-            log.warn("log show failed, falling back to /var/log: {}", e.getMessage());
+            log.warn("log show failed, falling back to /var/log: {}", e.getMessage(), e);
         }
 
         return searchViaVarLog(query);

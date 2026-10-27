@@ -536,7 +536,7 @@ public class SpringBootObjectContext implements ObjectContext {
         try {
             localRegistry.clear();
         } catch (Exception e) {
-            log.warn("[springboot-context] 清理本地注册表失败: {}", e.getMessage());
+            log.warn("[springboot-context] 清理本地注册表失败: {}", e.getMessage(), e);
         }
 
  // 调用接口默认实现清理 配置_HOLDER / REGISTRY_HOLDER

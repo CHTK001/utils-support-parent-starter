@@ -239,7 +239,7 @@ public class LstmAttentionBehaviorTranslator {
                     .cacheable(true)
                     .load();
         } catch (Exception e) {
-            log.warn("[UEBA-LstmAttention] classpath 资源提取失败: {}", e.getMessage());
+            log.warn("[UEBA-LstmAttention] classpath 资源提取失败: {}", e.getMessage(), e);
             return null;
         }
         return Files.isRegularFile(target) ? target : null;

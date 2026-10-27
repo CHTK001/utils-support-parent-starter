@@ -107,7 +107,7 @@ public class XmlConfigParser implements ConfigParser {
             Map<String, Object> map = parseElement(root);
             return new MapPropertySource(urlPath, map);
         } catch (Exception e) {
-            log.error("       XML                   : {}", e.getMessage());
+            log.error("       XML                   : {}", e.getMessage(), e);
             return PropertySource.EMPTY;
         }
     }

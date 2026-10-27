@@ -76,7 +76,7 @@ public class KcpHttpServer extends AbstractServer {
             try {
                 kcpServer.stop();
             } catch (Exception e) {
-                log.warn("KCP HTTP 服务器停止异常: {}", e.getMessage());
+                log.warn("KCP HTTP 服务器停止异常: {}", e.getMessage(), e);
             }
         }
         log.info("KCP HTTP 服务器停止");

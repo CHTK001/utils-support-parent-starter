@@ -181,7 +181,7 @@ public class EmailDirectory implements PolledDirectory {
                         try {
                             listener.onCreate(WatcherEvent.CREATE, observer);
                         } catch (Exception e) {
-                            log.error("邮件事件处理异常: {}", e.getMessage());
+                            log.error("邮件事件处理异常: {}", e.getMessage(), e);
                         }
                     }
                 }
@@ -190,7 +190,7 @@ public class EmailDirectory implements PolledDirectory {
             inbox.close(false);
             store.close();
         } catch (Exception e) {
-            log.error("邮件轮询异常: {}", e.getMessage());
+            log.error("邮件轮询异常: {}", e.getMessage(), e);
         }
     }
 
@@ -215,7 +215,7 @@ public class EmailDirectory implements PolledDirectory {
                     Thread.currentThread().interrupt();
                     break;
                 } catch (Exception e) {
-                    log.error("邮件轮询异常: {}", e.getMessage());
+                    log.error("邮件轮询异常: {}", e.getMessage(), e);
                     try {
                         Thread.sleep(pollIntervalSeconds * 1000L);
                     } catch (InterruptedException ie) {

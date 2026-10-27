@@ -118,7 +118,7 @@ public class FileTaskPersistence implements TaskPersistence {
                 }
             }
         } catch (IOException e) {
-            log.error("[FileTaskPersistence] Failed to load tasks from {}: {}", filePath, e.getMessage());
+            log.error("[FileTaskPersistence] Failed to load tasks from {}: {}", filePath, e.getMessage(), e);
         }
     }
 
@@ -152,7 +152,7 @@ public class FileTaskPersistence implements TaskPersistence {
                 Files.move(tmp, filePath, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException e) {
-            log.error("[FileTaskPersistence] Failed to persist tasks to {}: {}", filePath, e.getMessage());
+            log.error("[FileTaskPersistence] Failed to persist tasks to {}: {}", filePath, e.getMessage(), e);
             deleteQuietly(tmp);
         }
     }

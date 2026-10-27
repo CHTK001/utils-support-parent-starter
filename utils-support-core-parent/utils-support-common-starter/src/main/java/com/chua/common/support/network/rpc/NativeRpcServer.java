@@ -184,7 +184,7 @@ public class NativeRpcServer implements RpcServer {
                         return;
                     }
                 } catch (Exception e) {
-                    log.warn("Failed to init ServiceDiscovery: {}", e.getMessage());
+                    log.warn("Failed to init ServiceDiscovery: {}", e.getMessage(), e);
                 }
             }
         }

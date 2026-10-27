@@ -566,7 +566,7 @@ public abstract class JdbcEngine extends AbstractEngine {
                 return conn.unwrap(javax.sql.DataSource.class);
             }
         } catch (Exception e) {
-            log.warn("获取 JDBC DataSource 失败: {}", e.getMessage());
+            log.warn("获取 JDBC DataSource 失败: {}", e.getMessage(), e);
             return null;
         }
     }

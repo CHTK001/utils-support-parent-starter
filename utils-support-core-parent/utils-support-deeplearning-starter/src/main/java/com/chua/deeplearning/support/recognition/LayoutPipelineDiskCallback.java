@@ -57,7 +57,7 @@ public class LayoutPipelineDiskCallback implements LayoutPipelineCallback {
             Files.write(path, data);
             log.info("[layout-callback] 已落盘: {}", path);
         } catch (Exception e) {
-            log.warn("[layout-callback] 落盘失败 {}: {}", name, e.getMessage());
+            log.warn("[layout-callback] 落盘失败 {}: {}", name, e.getMessage(), e);
         }
     }
 }

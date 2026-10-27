@@ -150,7 +150,7 @@ public class DubboRpcClient implements RpcClient {
             try {
                 reference.destroy();
             } catch (Exception e) {
-                log.warn("Failed to destroy Dubbo reference: {}", e.getMessage());
+                log.warn("Failed to destroy Dubbo reference: {}", e.getMessage(), e);
             }
         }
         referenceCache.clear();

@@ -102,7 +102,7 @@ public class CrushUsageParser extends BaseUsageParser {
                 }
             }
         } catch (Exception e) {
-            log.warn("[crush] index parse failed: {}", e.getMessage());
+            log.warn("[crush] index parse failed: {}", e.getMessage(), e);
         }
         return result;
     }

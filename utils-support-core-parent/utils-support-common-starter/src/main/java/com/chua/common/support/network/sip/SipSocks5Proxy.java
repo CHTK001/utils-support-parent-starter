@@ -73,7 +73,7 @@ public class SipSocks5Proxy extends Socks5ProxyServer {
         try {
             session = client.openTunnel(serviceName, 5000);
         } catch (Exception e) {
-            log.warn("SIP SOCKS5 隧道开启失败: {} ({})", serviceName, e.getMessage());
+            log.warn("SIP SOCKS5 隧道开启失败: {} ({})", serviceName, e.getMessage(), e);
             writeReply(out, REP_HOST_UNREACHABLE, new InetSocketAddress(0));
             return;
         }

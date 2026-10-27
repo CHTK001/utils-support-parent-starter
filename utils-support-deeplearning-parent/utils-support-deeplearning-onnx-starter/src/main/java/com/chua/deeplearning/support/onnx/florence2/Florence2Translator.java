@@ -306,7 +306,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         try {
             return tokenizer.decode(finalIds);
         } catch (Exception e) {
-            log.warn("[Florence-2] decode failed: {}", e.getMessage());
+            log.warn("[Florence-2] decode failed: {}", e.getMessage(), e);
             return joinTokens(generatedTokens);
         }
     }
@@ -370,7 +370,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
             try {
                 tokenizer.close();
             } catch (Exception e) {
-                log.warn("[Florence2] 关闭资源失败: {}", e.getMessage());
+                log.warn("[Florence2] 关闭资源失败: {}", e.getMessage(), e);
             }
             tokenizer = null;
         }
@@ -388,7 +388,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
             try {
                 s.close();
             } catch (Exception e) {
-                log.warn("[Florence2] 关闭资源失败: {}", e.getMessage());
+                log.warn("[Florence2] 关闭资源失败: {}", e.getMessage(), e);
             }
         }
     }

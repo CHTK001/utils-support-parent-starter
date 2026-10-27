@@ -136,7 +136,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                 return;
             } catch (Exception e) {
                 last = e;
-                log.warn("[QwenOnnx] 下载 {} 失败(第{}次): {}", fileName, attempt + 1, e.getMessage());
+                log.warn("[QwenOnnx] 下载 {} 失败(第{}次): {}", fileName, attempt + 1, e.getMessage(), e);
                 try {
                     Files.deleteIfExists(target);
                 } catch (Exception delEx) {

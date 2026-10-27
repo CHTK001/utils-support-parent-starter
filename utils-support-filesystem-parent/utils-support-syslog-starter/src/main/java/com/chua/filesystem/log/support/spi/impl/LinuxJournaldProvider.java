@@ -158,7 +158,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
             try {
                 return searchViaJournald(query);
             } catch (Exception e) {
-                log.warn("libsystemd search failed, falling back to /var/log: {}", e.getMessage());
+                log.warn("libsystemd search failed, falling back to /var/log: {}", e.getMessage(), e);
             }
         }
 

@@ -161,7 +161,7 @@ public abstract class AbstractSingleClassYolov8Translator implements Translator<
                 }
             }
         } catch (IOException e) {
-            log.warn("加载 class.names.txt 失败: {}, 使用默认: {}", e.getMessage(), defaultClassName());
+            log.warn("加载 class.names.txt 失败: {}, 使用默认: {}", e.getMessage(), defaultClassName(), e);
         }
         return defaultClassName();
     }

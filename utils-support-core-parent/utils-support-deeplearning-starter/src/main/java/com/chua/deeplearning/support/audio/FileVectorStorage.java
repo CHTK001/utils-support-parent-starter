@@ -115,7 +115,7 @@ public class FileVectorStorage implements VectorStorage {
             }
             log.info("[FileVectorStorage] 已恢复 {} 条声纹自 {}", store.size(), file);
         } catch (Exception e) {
-            log.warn("[FileVectorStorage] 恢复失败（视为空库）: {}", e.getMessage());
+            log.warn("[FileVectorStorage] 恢复失败（视为空库）: {}", e.getMessage(), e);
         }
     }
 

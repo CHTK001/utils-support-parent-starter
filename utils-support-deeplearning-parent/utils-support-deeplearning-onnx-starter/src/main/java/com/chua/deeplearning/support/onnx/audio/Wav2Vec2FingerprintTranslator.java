@@ -204,7 +204,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
                 }
             }
         } catch (Exception e) {
-            log.warn("[Wav2Vec2Fingerprint] 结构推断失败，使用默认值: {}", e.getMessage());
+            log.warn("[Wav2Vec2Fingerprint] 结构推断失败，使用默认值: {}", e.getMessage(), e);
         }
     }
 

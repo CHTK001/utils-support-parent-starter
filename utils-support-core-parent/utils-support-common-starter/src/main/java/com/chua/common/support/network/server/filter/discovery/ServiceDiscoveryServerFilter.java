@@ -178,7 +178,7 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
             try {
                 serviceDiscovery.close();
             } catch (Exception e) {
-                log.warn("ServiceDiscovery 关闭异常: {}", e.getMessage());
+                log.warn("ServiceDiscovery 关闭异常: {}", e.getMessage(), e);
             }
         }
     }
@@ -201,7 +201,7 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
         try {
             executeDiscovery(request, response, (req, res) -> { /* no-op */ });
         } catch (Exception e) {
-            log.warn("服务发现异常: {}", e.getMessage());
+            log.warn("服务发现异常: {}", e.getMessage(), e);
         }
         return chain.doFilter(request, response);
     }
@@ -233,7 +233,7 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
                 }
             }
         } catch (Exception e) {
-            log.warn("服务发现异常: {}", e.getMessage());
+            log.warn("服务发现异常: {}", e.getMessage(), e);
             next.accept(request, response);
             return;
         }

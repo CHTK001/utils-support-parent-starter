@@ -197,7 +197,7 @@ public class OnlinePoetryProvider implements PoetryProvider {
                         }
                     }
                 } catch (Exception e) {
-                    log.warn("[chinese-poetry] 分卷 {} 获取失败: {}", i, e.getMessage());
+                    log.warn("[chinese-poetry] 分卷 {} 获取失败: {}", i, e.getMessage(), e);
                 }
             }
             if (list.isEmpty()) {

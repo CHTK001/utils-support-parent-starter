@@ -473,7 +473,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
                 if (!wantGpu) {
                     throw e;
                 }
-                log.warn("[Small SD v0][编排] GPU 会话创建失败，自动降级 CPU: {}", e.getMessage());
+                log.warn("[Small SD v0][编排] GPU 会话创建失败，自动降级 CPU: {}", e.getMessage(), e);
                 forceCpu = true;
                 closeSessions();
                 openSessions(base, false, false);
@@ -640,7 +640,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
                 return;
             } catch (Exception e) {
                 last = e;
-                log.warn("[Small SD v0][编排] 下载失败（{}）: {}", url, e.getMessage());
+                log.warn("[Small SD v0][编排] 下载失败（{}）: {}", url, e.getMessage(), e);
             }
         }
         throw new IOException("权重缺失且下载失败: " + target, last);

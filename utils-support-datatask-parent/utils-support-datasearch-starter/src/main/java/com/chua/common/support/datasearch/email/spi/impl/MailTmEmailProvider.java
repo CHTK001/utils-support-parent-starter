@@ -93,7 +93,7 @@ public class MailTmEmailProvider implements EmailProvider {
             log.info("[MailTM] 创建邮箱成功: {}", email);
             return email;
         } catch (Exception e) {
-            log.warn("[MailTM] 创建邮箱异常: {}", e.getMessage());
+            log.warn("[MailTM] 创建邮箱异常: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -149,7 +149,7 @@ public class MailTmEmailProvider implements EmailProvider {
             }
             return result;
         } catch (Exception e) {
-            log.warn("[MailTM] 收取邮件失败: {}", e.getMessage());
+            log.warn("[MailTM] 收取邮件失败: {}", e.getMessage(), e);
             return Collections.emptyList();
         }
     }

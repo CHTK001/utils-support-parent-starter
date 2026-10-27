@@ -279,7 +279,7 @@ public class DefaultDownloadService implements DownloadService {
                 conn.disconnect();
             }
         } catch (Exception e) {
-            log.error("[DownloadService] 分片 {} 下载失败: {}", partIndex, e.getMessage());
+            log.error("[DownloadService] 分片 {} 下载失败: {}", partIndex, e.getMessage(), e);
             throw new RuntimeException("Chunk " + partIndex + " failed", e);
         }
     }

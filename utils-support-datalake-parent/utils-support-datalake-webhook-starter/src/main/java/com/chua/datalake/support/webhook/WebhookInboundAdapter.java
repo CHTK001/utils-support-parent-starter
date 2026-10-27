@@ -489,7 +489,7 @@ public class WebhookInboundAdapter {
                 os.write(bytes);
             }
         } catch (IOException e) {
-            log.warn("[datalake-webhook] 响应写出失败: {}", e.getMessage());
+            log.warn("[datalake-webhook] 响应写出失败: {}", e.getMessage(), e);
         }
     }
 

@@ -54,7 +54,7 @@ public class JsonlConfigParser implements ConfigParser {
             }
             return new MapPropertySource(urlPath, merged);
         } catch (Exception e) {
-            log.error("Failed to parse JSONL config file: {}", e.getMessage());
+            log.error("Failed to parse JSONL config file: {}", e.getMessage(), e);
             return PropertySource.EMPTY;
         }
     }

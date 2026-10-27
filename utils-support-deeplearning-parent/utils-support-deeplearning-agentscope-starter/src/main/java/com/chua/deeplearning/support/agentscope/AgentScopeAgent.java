@@ -1513,7 +1513,7 @@ public class AgentScopeAgent implements Agent {
                     mcpTools.addAll(descriptors);
                 }
             } catch (Exception e) {
-                log.warn("[AgentScope] 列举 MCP 工具失败: {}", e.getMessage());
+                log.warn("[AgentScope] 列举 MCP 工具失败: {}", e.getMessage(), e);
             }
         }
         if (!skills.isEmpty() || !mcpTools.isEmpty()) {

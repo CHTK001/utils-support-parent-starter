@@ -817,7 +817,7 @@ public class OcrPipeline {
             }
             return ImageUtils.rotate(imageData, rotate);
         } catch (Exception e) {
-            log.warn("[ocr-pipeline] 方向矫正失败，使用原图: {}", e.getMessage());
+            log.warn("[ocr-pipeline] 方向矫正失败，使用原图: {}", e.getMessage(), e);
             return imageData;
         }
     }
@@ -842,7 +842,7 @@ public class OcrPipeline {
             }
             return imageData;
         } catch (Exception e) {
-            log.warn("[ocr-pipeline] 文字高清化失败，使用原图: {}", e.getMessage());
+            log.warn("[ocr-pipeline] 文字高清化失败，使用原图: {}", e.getMessage(), e);
             return imageData;
         }
     }
@@ -985,7 +985,7 @@ public class OcrPipeline {
         try {
             ModelRegistry.discoverAll();
         } catch (Exception e) {
-            log.warn("模型注册表发现失败: {}", e.getMessage());
+            log.warn("模型注册表发现失败: {}", e.getMessage(), e);
         }
         Map<String, Set<String>> grouped = Wraps.linkedMap();
         for (ModelRegistry.Entry entry : ModelRegistry.getAll()) {

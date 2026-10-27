@@ -170,7 +170,7 @@ public final class PortBindRetry {
                         Long.parseLong(parts[3].trim()));
             }
         } catch (IllegalArgumentException e) {
-            log.warn("{} 取值非法，已回退默认策略：{}（{}）", POLICY_PROPERTY, raw, e.getMessage());
+            log.warn("{} 取值非法，已回退默认策略：{}（{}）", POLICY_PROPERTY, raw, e.getMessage(), e);
             return defaults();
         }
         log.warn("{} 格式非法（应为 maxAttempts，或 maxAttempts:initialDelayMs:maxDelayMs:totalBudgetMs），"

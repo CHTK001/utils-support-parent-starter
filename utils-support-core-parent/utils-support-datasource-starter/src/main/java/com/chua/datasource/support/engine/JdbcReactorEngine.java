@@ -596,11 +596,11 @@ public class JdbcReactorEngine implements ReactorEngine {
             return Flux.from(result.getRowsUpdated())
                     .map(v -> v instanceof Number n ? n.longValue() : 0L)
                     .onErrorResume(ClassCastException.class, e -> {
-                        log.warn("r2dbc 驱动 getRowsUpdated 类型解析失败（语句已执行，按 1 行计）: {}", e.getMessage());
+                        log.warn("r2dbc 驱动 getRowsUpdated 类型解析失败（语句已执行，按 1 行计）: {}", e.getMessage(), e);
                         return Flux.just(1L);
                     });
         } catch (Exception e) {
-            log.warn("getRowsUpdated 装配失败，该结果按 0 行计: {}", e.getMessage());
+            log.warn("getRowsUpdated 装配失败，该结果按 0 行计: {}", e.getMessage(), e);
             return Flux.empty();
         }
     }
@@ -838,7 +838,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                     try {
                         ac.close();
                     } catch (Exception e) {
-                        log.warn("关闭数据源 {} 失败: {}", name, e.getMessage());
+                        log.warn("关闭数据源 {} 失败: {}", name, e.getMessage(), e);
                     }
                 }
             }
@@ -859,7 +859,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                 try {
                     ac.close();
                 } catch (Exception e) {
-                    log.warn("关闭 R2DBC 连接工厂失败: {}", e.getMessage());
+                    log.warn("关闭 R2DBC 连接工厂失败: {}", e.getMessage(), e);
                 }
             }
         }
@@ -868,7 +868,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                 try {
                     ac.close();
                 } catch (Exception e) {
-                    log.warn("关闭 JDBC 数据源失败: {}", e.getMessage());
+                    log.warn("关闭 JDBC 数据源失败: {}", e.getMessage(), e);
                 }
             }
         }
@@ -876,7 +876,7 @@ public class JdbcReactorEngine implements ReactorEngine {
             try {
                 delegate.close();
             } catch (Exception e) {
-                log.warn("关闭委托同步引擎失败: {}", e.getMessage());
+                log.warn("关闭委托同步引擎失败: {}", e.getMessage(), e);
             }
         }
         r2dbcFactories.clear();
@@ -1008,7 +1008,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                     }
                 }
             } catch (Exception e) {
-                log.warn("分页 count 查询失败，total 记 0: {}", e.getMessage());
+                log.warn("分页 count 查询失败，total 记 0: {}", e.getMessage(), e);
             }
             pagination.setTotal(total);
             if (dialect == null) {
@@ -1125,7 +1125,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                     }
                 }
             } catch (Exception e) {
-                log.warn("分页 count 查询失败，total 记 0: {}", e.getMessage());
+                log.warn("分页 count 查询失败，total 记 0: {}", e.getMessage(), e);
             }
             pagination.setTotal(total);
             if (dialect == null) {

@@ -36,7 +36,7 @@ public class ArcFaceModelProvider implements BulkModelProvider {
         try {
             engine = ArcFaceEngineFactory.create();
         } catch (Exception e) {
-            log.warn("[ArcFace] 引擎初始化失败: {}", e.getMessage());
+            log.warn("[ArcFace] 引擎初始化失败: {}", e.getMessage(), e);
         }
         this.faceEngine = engine;
     }

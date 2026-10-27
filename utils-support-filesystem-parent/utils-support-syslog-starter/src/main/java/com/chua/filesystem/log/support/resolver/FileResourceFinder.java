@@ -134,7 +134,7 @@ public class FileResourceFinder implements ResourceFinder {
             }
         } catch (Exception e) {
             if (log.isWarnEnabled()) {
-                log.warn("Native search failed, falling back to NIO walk: {}", e.getMessage());
+                log.warn("Native search failed, falling back to NIO walk: {}", e.getMessage(), e);
             }
         }
         return null;
@@ -549,7 +549,7 @@ public class FileResourceFinder implements ResourceFinder {
                 p.destroyForcibly();
             }
         } catch (Exception e) {
-            log.warn("执行命令 {} 失败: {}", String.join(" ", cmd), e.getMessage());
+            log.warn("执行命令 {} 失败: {}", String.join(" ", cmd), e.getMessage(), e);
         }
     }
 

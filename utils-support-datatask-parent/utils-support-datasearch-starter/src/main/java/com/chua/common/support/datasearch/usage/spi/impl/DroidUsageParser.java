@@ -93,7 +93,7 @@ public class DroidUsageParser extends BaseUsageParser {
                     })
                     .forEach(files::add);
         } catch (IOException e) {
-            log.warn("[droid] walk {} failed: {}", SESSIONS_DIR, e.getMessage());
+            log.warn("[droid] walk {} failed: {}", SESSIONS_DIR, e.getMessage(), e);
         }
         return files;
     }

@@ -143,7 +143,7 @@ public class NativeEngine implements Engine {
             } catch (Throwable e) {
                 loadError = e;
                 loaded = false;
-                log.warn("[headless] 原生库不可用，将由调用方回退 JavaEngine: {}", e.getMessage());
+                log.warn("[headless] 原生库不可用，将由调用方回退 JavaEngine: {}", e.getMessage(), e);
             }
         }
     }

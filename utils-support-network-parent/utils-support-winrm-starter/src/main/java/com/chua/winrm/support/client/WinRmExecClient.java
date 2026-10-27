@@ -188,7 +188,7 @@ public class WinRmExecClient implements AutoCloseable {
             connected = false;
             log.info("WinRM 断开: {}@{}:{}", username, host, port);
         } catch (Exception e) {
-            log.warn("WinRM 断开异常: {}", e.getMessage());
+            log.warn("WinRM 断开异常: {}", e.getMessage(), e);
         }
     }
 

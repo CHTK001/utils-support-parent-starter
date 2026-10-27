@@ -443,7 +443,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                     }
                     graph = null;
                 }
-                log.warn("[jvector] 图搜索失败，降级为暴力扫描: {}", e.getMessage());
+                log.warn("[jvector] 图搜索失败，降级为暴力扫描: {}", e.getMessage(), e);
             }
             return bruteForceSearch(query, fetchK);
         }
@@ -888,7 +888,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 return list;
             } catch (Exception e) {
                 // 图索引可能因维度/度量变更而失效：降级为暴力扫描并丢弃图，保证检索可用
-                log.warn("[jvector-storage] 磁盘图搜索失败，降级为暴力扫描并重建图: {}", e.getMessage());
+                log.warn("[jvector-storage] 磁盘图搜索失败，降级为暴力扫描并重建图: {}", e.getMessage(), e);
                 diskGraph = null;
                 vectorsDirty = true;
                 return linearScan(rawVectors, algorithm, this::idOf, query, topK);
@@ -966,7 +966,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 Files.deleteIfExists(vectorDataPath);
                 Files.deleteIfExists(indexPath);
             } catch (IOException e) {
-                log.error("[jvector-storage] 清空时删除磁盘文件失败: {}", e.getMessage());
+                log.error("[jvector-storage] 清空时删除磁盘文件失败: {}", e.getMessage(), e);
             }
         }
 
@@ -980,7 +980,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                     ensureGraphBuilt();
                 }
             } catch (Exception e) {
-                log.error("[jvector-storage] 关闭时重建磁盘图失败，未落盘: {}", e.getMessage());
+                log.error("[jvector-storage] 关闭时重建磁盘图失败，未落盘: {}", e.getMessage(), e);
             } finally {
                 if (diskGraph != null) {
                     try {
@@ -994,7 +994,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                     try {
                         saveVectors();
                     } catch (Exception e) {
-                        log.error("[jvector-storage] 关闭时向量数据落盘失败: {}", e.getMessage());
+                        log.error("[jvector-storage] 关闭时向量数据落盘失败: {}", e.getMessage(), e);
                     }
                 }
             }
@@ -1244,7 +1244,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 return list.subList(0, Math.min(topK, list.size()));
             } catch (Exception e) {
                 // PQ 图可能因维度/度量变更而失效：降级为暴力扫描并重建图
-                log.warn("[jvector-storage] PQ 图搜索失败，降级为暴力扫描并重建图: {}", e.getMessage());
+                log.warn("[jvector-storage] PQ 图搜索失败，降级为暴力扫描并重建图: {}", e.getMessage(), e);
                 graph = null;
                 pqVectors = null;
                 vectorsDirty = true;
@@ -1325,7 +1325,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             try {
                 Files.deleteIfExists(vectorDataPath);
             } catch (IOException e) {
-                log.error("[jvector-storage] 清空时删除向量侧录失败: {}", e.getMessage());
+                log.error("[jvector-storage] 清空时删除向量侧录失败: {}", e.getMessage(), e);
             }
         }
 
@@ -1347,7 +1347,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 try {
                     saveVectors();
                 } catch (Exception e) {
-                    log.error("[jvector-storage] PQ 模式关闭时向量落盘失败: {}", e.getMessage());
+                    log.error("[jvector-storage] PQ 模式关闭时向量落盘失败: {}", e.getMessage(), e);
                 }
             }
         }

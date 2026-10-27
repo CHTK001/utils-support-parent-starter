@@ -268,7 +268,7 @@ public final class WcdbNativeBridge implements AutoCloseable {
                 log.warn("wcdb_close_account 返回非零码: {}", rc);
             }
         } catch (Throwable t) {
-            log.warn("wcdb_close_account 调用异常: {}", t.getMessage());
+            log.warn("wcdb_close_account 调用异常: {}", t.getMessage(), t);
         }
     }
 
@@ -391,7 +391,7 @@ public final class WcdbNativeBridge implements AutoCloseable {
         try {
             freeStringHandle.invokeExact(pointer);
         } catch (Throwable t) {
-            log.warn("wcdb_free_string 调用异常: {}", t.getMessage());
+            log.warn("wcdb_free_string 调用异常: {}", t.getMessage(), t);
         }
     }
 

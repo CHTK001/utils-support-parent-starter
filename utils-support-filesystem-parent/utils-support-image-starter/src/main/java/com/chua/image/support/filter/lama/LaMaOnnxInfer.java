@@ -125,7 +125,7 @@ public class LaMaOnnxInfer implements AutoCloseable {
                         log.info("启用GPU加速，设备ID: {}", config.getGpuDeviceId());
                     }
                 } catch (Exception e) {
-                    log.warn("无法启用GPU加速，将使用CPU: {}", e.getMessage());
+                    log.warn("无法启用GPU加速，将使用CPU: {}", e.getMessage(), e);
                 }
             }
 

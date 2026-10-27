@@ -190,7 +190,7 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
             try {
                 l.listen(path, discovery, event);
             } catch (Exception e) {
-                log.warn("Listener error: {}", e.getMessage());
+                log.warn("Listener error: {}", e.getMessage(), e);
             }
         }
     }

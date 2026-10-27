@@ -84,7 +84,7 @@ public class VercelModelMetricsProvider extends AbstractModelMetricsProvider {
             List<ModelDefinition> parsed = parseFlightModels(html);
             return parsed.isEmpty() ? readClasspathPricing() : parsed;
         } catch (Exception e) {
-            log.warn("[vercel] 解析失败: {}", e.getMessage());
+            log.warn("[vercel] 解析失败: {}", e.getMessage(), e);
             return readClasspathPricing();
         }
     }

@@ -63,7 +63,7 @@ public final class InputOptimizer {
             }
             return optimized.trim();
         } catch (RuntimeException e) {
-            log.warn("[InputOptimizer] 优化失败，回退原输入: {}", e.getMessage());
+            log.warn("[InputOptimizer] 优化失败，回退原输入: {}", e.getMessage(), e);
             return rawInput;
         }
     }

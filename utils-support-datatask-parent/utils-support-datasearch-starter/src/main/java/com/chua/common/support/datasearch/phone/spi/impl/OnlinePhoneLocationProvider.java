@@ -122,7 +122,7 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
             return new PhoneLocationInfo(phone, province, city, carrier,
                     text(data, "areaCode"), text(data, "postCode"));
         } catch (Exception e) {
-            log.warn("[tenapi] 手机归属地在线查询失败: {}", e.getMessage());
+            log.warn("[tenapi] 手机归属地在线查询失败: {}", e.getMessage(), e);
             return null;
         }
     }

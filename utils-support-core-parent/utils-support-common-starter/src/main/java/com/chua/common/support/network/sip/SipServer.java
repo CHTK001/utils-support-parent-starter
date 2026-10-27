@@ -156,7 +156,7 @@ public class SipServer extends AbstractServer implements TcpServer {
                     return content;
                 }
             } catch (Exception e) {
-                log.warn("SIP token 文件读取失败: {} ({})", file, e.getMessage());
+                log.warn("SIP token 文件读取失败: {} ({})", file, e.getMessage(), e);
             }
         }
         return config.getToken();
@@ -563,7 +563,7 @@ onSignalClosed(clientId);
                 log.debug("忽略未知 SIP 信令: {}", line);
             }
         } catch (Exception e) {
-            log.warn("SIP 信令处理异常: {}", e.getMessage());
+            log.warn("SIP 信令处理异常: {}", e.getMessage(), e);
         }
     }
 

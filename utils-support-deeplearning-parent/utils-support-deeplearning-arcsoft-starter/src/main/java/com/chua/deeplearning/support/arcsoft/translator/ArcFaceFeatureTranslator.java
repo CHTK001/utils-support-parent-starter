@@ -83,7 +83,7 @@ public class ArcFaceFeatureTranslator implements ITranslator<Object, float[]> {
             return ArrayUtils.transToFloatArray(faceFeature.getFeatureData());
             
         } catch (Exception e) {
-            log.warn("[ArcFaceFeature] 特征提取失败: {}", e.getMessage());
+            log.warn("[ArcFaceFeature] 特征提取失败: {}", e.getMessage(), e);
             return new float[0];
         }
     }

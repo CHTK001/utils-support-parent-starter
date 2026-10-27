@@ -144,7 +144,7 @@ public class RustFileSearchHelper {
                         }
                     });
         } catch (IOException e) {
-            log.warn("JDK walkdir failed: {}", e.getMessage());
+            log.warn("JDK walkdir failed: {}", e.getMessage(), e);
         }
 
         return results;

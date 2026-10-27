@@ -315,7 +315,7 @@ public final class AsrPipeline {
             log.info("[AsrPipeline] 降噪完成: {} → {} 采样", s.length, down.length);
             return down;
         } catch (Exception e) {
-            log.warn("[AsrPipeline] 降噪失败，回退原始音频: {}", e.getMessage());
+            log.warn("[AsrPipeline] 降噪失败，回退原始音频: {}", e.getMessage(), e);
             return s;
         }
     }

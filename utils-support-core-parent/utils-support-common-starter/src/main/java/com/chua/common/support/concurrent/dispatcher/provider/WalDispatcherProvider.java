@@ -402,7 +402,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
                 mappedSize = size;
                 log.info("WAL mmap 已启用 file={}", file.getFileName());
             } catch (Throwable t) {
-                log.warn("WAL mmap 不可用，降级 I/O cause={}", t.getMessage());
+                log.warn("WAL mmap 不可用，降级 I/O cause={}", t.getMessage(), t);
                 useMmap = false;
                 mappedBuf = null;
             }
@@ -425,7 +425,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
                 mappedBuf.position(pos);
                 mappedSize = newSize;
             } catch (Throwable t) {
-                log.warn("WAL mmap 扩容失败，降级 I/O cause={}", t.getMessage());
+                log.warn("WAL mmap 扩容失败，降级 I/O cause={}", t.getMessage(), t);
                 useMmap = false;
                 mappedBuf = null;
             }

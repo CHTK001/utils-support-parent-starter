@@ -43,7 +43,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
             loaded = true;
             log.info("[OpenCVImageProcessor] OpenCV 原生库加载成功");
         } catch (Throwable e) {
-            log.warn("[OpenCVImageProcessor] OpenCV 原生库加载失败，将回退到其他实现: {}", e.getMessage());
+            log.warn("[OpenCVImageProcessor] OpenCV 原生库加载失败，将回退到其他实现: {}", e.getMessage(), e);
             loaded = false;
         }
     }

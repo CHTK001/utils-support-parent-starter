@@ -135,7 +135,7 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
                 flat.putAll(parse(content, path.getFileName().toString()));
                 loaded++;
             } catch (Exception e) {
-                log.warn("加密配置文件装载失败，跳过该文件: {} ({})", path, e.getMessage());
+                log.warn("加密配置文件装载失败，跳过该文件: {} ({})", path, e.getMessage(), e);
             }
         }
         if (loaded > 0) {

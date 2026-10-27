@@ -118,7 +118,7 @@ public class PlaywrightFetcher implements SpiderFetcher {
             builder.statusCode(0)
                     .error("Playwright 渲染异常: " + e.getMessage())
                     .fetchTimeMs(System.currentTimeMillis() - startTime);
-            log.warn("Playwright 渲染失败: {} - {}", request.getUrl(), e.getMessage());
+            log.warn("Playwright 渲染失败: {} - {}", request.getUrl(), e.getMessage(), e);
         }
 
         return builder.build();

@@ -158,7 +158,7 @@ public class ProxyMethod {
         try {
             return ClassUtils.invokeMethod(method, bean, args);
         } catch (Exception e) {
-            log.warn("方法调用失败，准备尝试刷新方法定义: {}", e.getMessage());
+            log.warn("方法调用失败，准备尝试刷新方法定义: {}", e.getMessage(), e);
             if (reloaded) {
                 return null;
             }

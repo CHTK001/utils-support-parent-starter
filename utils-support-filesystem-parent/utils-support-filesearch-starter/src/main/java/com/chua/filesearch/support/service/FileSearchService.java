@@ -49,7 +49,7 @@ public final class FileSearchService {
                 p = new com.chua.filesearch.support.spi.impl.NativeFileSearchProvider();
                 log.info("FileSearchProvider created via fallback: {}", p.getClass().getName());
             } catch (Exception e) {
-                log.warn("Failed to create NativeFileSearchProvider: {}", e.getMessage());
+                log.warn("Failed to create NativeFileSearchProvider: {}", e.getMessage(), e);
             }
         }
 

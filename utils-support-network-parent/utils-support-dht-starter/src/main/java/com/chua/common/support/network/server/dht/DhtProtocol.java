@@ -312,7 +312,7 @@ public class DhtProtocol implements AutoCloseable {
                 return fixPeers(resp.getPeers(), target);
             }
         } catch (Exception e) {
-            log.warn("KRPC find_node to {} failed: {}", target, e.getMessage());
+            log.warn("KRPC find_node to {} failed: {}", target, e.getMessage(), e);
         }
         return Collections.emptyList();
     }
@@ -772,7 +772,7 @@ public class DhtProtocol implements AutoCloseable {
                 return fixPeers(resp.getPeers(), target);
             }
         } catch (Exception e) {
-            log.warn("KRPC get_peers to {} failed: {}", target, e.getMessage());
+            log.warn("KRPC get_peers to {} failed: {}", target, e.getMessage(), e);
         }
         return Collections.emptyList();
     }

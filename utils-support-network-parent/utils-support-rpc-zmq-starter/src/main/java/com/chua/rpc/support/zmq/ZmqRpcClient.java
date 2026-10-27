@@ -177,7 +177,7 @@ public class ZmqRpcClient implements RpcClient {
                         return sd;
                     }
                 } catch (Exception e) {
-                    log.warn("Failed to init ServiceDiscovery: {}", e.getMessage());
+                    log.warn("Failed to init ServiceDiscovery: {}", e.getMessage(), e);
                 }
             }
         }

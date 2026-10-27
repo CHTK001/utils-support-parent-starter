@@ -112,7 +112,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
                 Files.createDirectories(filePath.getParent());
                 Files.createFile(filePath);
             } catch (IOException e) {
-                log.warn("[FileAiTokenProvider] 创建令牌文件失败: {}", e.getMessage());
+                log.warn("[FileAiTokenProvider] 创建令牌文件失败: {}", e.getMessage(), e);
             }
             return;
         }
@@ -151,7 +151,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
             tokenMap.putAll(newMap);
             log.info("[FileAiTokenProvider] 从文件加载 {} 个令牌: {}", count, filePath.getFileName());
         } catch (IOException e) {
-            log.error("[FileAiTokenProvider] 读取令牌文件失败: {}", e.getMessage());
+            log.error("[FileAiTokenProvider] 读取令牌文件失败: {}", e.getMessage(), e);
         }
     }
 
@@ -178,7 +178,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
             Files.write(filePath, lines, StandardCharsets.UTF_8);
             log.debug("[FileAiTokenProvider] 令牌已写回文件: {} 条", tokenMap.size());
         } catch (IOException e) {
-            log.error("[FileAiTokenProvider] 写入令牌文件失败: {}", e.getMessage());
+            log.error("[FileAiTokenProvider] 写入令牌文件失败: {}", e.getMessage(), e);
         }
         }
     }
@@ -221,7 +221,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
                     key.reset();
                 }
             } catch (Exception e) {
-                log.warn("[FileAiTokenProvider] 文件监听停止: {}", e.getMessage());
+                log.warn("[FileAiTokenProvider] 文件监听停止: {}", e.getMessage(), e);
             }
         }, "file-token-watcher");
         watcherThread.setDaemon(true);

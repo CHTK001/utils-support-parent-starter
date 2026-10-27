@@ -82,7 +82,7 @@ public class ArcFaceDetectorTranslator implements ITranslator<Object, List<Detec
             return results;
             
         } catch (Exception e) {
-            log.warn("[ArcFaceDetector] 检测失败: {}", e.getMessage());
+            log.warn("[ArcFaceDetector] 检测失败: {}", e.getMessage(), e);
             return Wraps.list();
         }
     }

@@ -124,12 +124,12 @@ public final class Seq2SeqModelResources {
                         .extractOnly(true)
                         .load();
             } catch (Exception e) {
-                log.warn("[seq2seq] {} 嵌入资源提取失败，降级 modelscope 下载: {}", def.modelId(), e.getMessage());
+                log.warn("[seq2seq] {} 嵌入资源提取失败，降级 modelscope 下载: {}", def.modelId(), e.getMessage(), e);
                 return false;
             }
             return isComplete(def, target);
         } catch (Exception e) {
-            log.warn("[seq2seq] {} 无嵌入式资源，走 modelscope 下载: {}", def.modelId(), e.getMessage());
+            log.warn("[seq2seq] {} 无嵌入式资源，走 modelscope 下载: {}", def.modelId(), e.getMessage(), e);
             return false;
         }
     }

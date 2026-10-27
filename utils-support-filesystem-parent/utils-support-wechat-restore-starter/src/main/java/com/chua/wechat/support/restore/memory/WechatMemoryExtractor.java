@@ -455,7 +455,7 @@ public final class WechatMemoryExtractor {
                 }
             }
         } catch (Exception e) {
-            log.warn("扫描进程 {} 失败: {}", pid, e.getMessage());
+            log.warn("扫描进程 {} 失败: {}", pid, e.getMessage(), e);
         }
         return new ProcessScan(pid, workingSet, readable, strict, lenient, count);
     }

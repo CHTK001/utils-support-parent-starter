@@ -176,7 +176,7 @@ public class OnlineHolidayProvider implements HolidayProvider {
                 }
             }
         } catch (Exception e) {
-            log.warn("节假日在线获取失败, 将使用内置数据: {}", e.getMessage());
+            log.warn("节假日在线获取失败, 将使用内置数据: {}", e.getMessage(), e);
         }
         // 内置兜底：2026 年官方安排始终合并，确保离线可用
         if (year == 2026) {

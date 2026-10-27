@@ -138,7 +138,7 @@ public class BingEmojiProvider implements EmojiProvider {
             }
             return Jsoup.parse(new String(response.getBody(), StandardCharsets.UTF_8));
         } catch (Exception e) {
-            log.warn("[bing] 请求异常: url={}, msg={}", url, e.getMessage());
+            log.warn("[bing] 请求异常: url={}, msg={}", url, e.getMessage(), e);
             return null;
         }
     }

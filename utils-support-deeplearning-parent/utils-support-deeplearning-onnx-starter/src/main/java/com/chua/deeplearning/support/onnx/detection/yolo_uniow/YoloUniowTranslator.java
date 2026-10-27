@@ -368,7 +368,7 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
                 return Wraps.list(DEFAULT_CLASSES);
             }
         } catch (IOException e) {
-            log.warn("加载 {} 失败: {}, 使用默认类别", CLASS_NAMES_RESOURCE, e.getMessage());
+            log.warn("加载 {} 失败: {}, 使用默认类别", CLASS_NAMES_RESOURCE, e.getMessage(), e);
             return Wraps.list(DEFAULT_CLASSES);
         }
         return result;
