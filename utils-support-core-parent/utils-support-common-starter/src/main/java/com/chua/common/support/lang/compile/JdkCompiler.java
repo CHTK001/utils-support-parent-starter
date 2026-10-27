@@ -204,7 +204,7 @@ public class JdkCompiler implements Compiler {
             if (file instanceof CustomJavaFileObject) {
                 return ((CustomJavaFileObject) file).binaryName();
             } else {
-                /**
+                /*
                  * 如果不是 CustomJavaFileObject，说明来自标准文件管理器
                  * - 让标准管理器处理文件名推断逻辑
                  */

@@ -119,14 +119,6 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
         // 移除 HTML 标签
         bodyText = bodyText.replaceAll("<[^>]+>", "");
         // 截断
-    /**
-     * email信息类。
-     *
-     * @author CH
-     * @since 4.0.0
-     * @param bytes bytes
-     * @return human大小的结果
-     */
         if (bodyText.length() > 2000) {
             bodyText = bodyText.substring(0, 2000) + "...";
         }

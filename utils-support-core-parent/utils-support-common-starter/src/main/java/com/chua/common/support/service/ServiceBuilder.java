@@ -273,36 +273,38 @@ public class ServiceBuilder implements Closeable {
                     .getExtension(SPI_SERVICE);
             if (manager == null) {
                 throw new IllegalStateException("[service] 未找到 ServiceManager 实现，请确保 classpath 包含相关依赖");
-            /**
-             * with服务。
-             * @param serviceName 服务名称
-             * @return with服务的结果
-             */
             }
         }
 
+        /**
+         * 设置服务名称。
+         *
+         * @param serviceName 服务名称
+         * @return 当前构建器
+         */
         public ServiceBuilder withService(String serviceName) {
             builder.withServiceName(serviceName);
-            /**
-             * with位置。
-             * @param jarPath jar路径
-             * @return with位置的结果
-             * @param host 主机
-             * @param port 端口
-             */
             return builder;
-        /**
-         * with位置。
-         * @param jarPath jar路径
-         * @return with位置的结果
-         */
         }
 
+        /**
+         * 设置服务 jar 路径。
+         *
+         * @param jarPath jar 路径
+         * @return 当前构建器
+         */
         public ServiceBuilder withLocation(String jarPath) {
             builder.withJar(jarPath);
             return builder;
         }
 
+        /**
+         * 设置远程主机与端口，本地模式忽略该配置。
+         *
+         * @param host 主机
+         * @param port 端口
+         * @return 当前构建器
+         */
         public ServiceBuilder withRemote(String host, int port) {
             // 本地模式忽略远程参数，供链式兼容
             return builder;
@@ -422,9 +424,6 @@ public class ServiceBuilder implements Closeable {
          *
          * @param builder  宿主构建器
          * @param protocol SPI 名称（ssh 或 winrm）
-         * @param host 主机
-         * @param port 端口
-         * @return with远程的结果
          */
         RemoteManager(ServiceBuilder builder, String protocol) {
             this.builder = builder;
@@ -433,81 +432,81 @@ public class ServiceBuilder implements Closeable {
             if (manager == null) {
                 throw new IllegalStateException("[service] 未找到 RemoteServiceManager 实现: protocol="
                         + protocol + "，请确保 classpath 包含 ssh-starter 或 winrm-starter 依赖");
-            /**
-             * with主机。
-             * @param host 主机
-             * @return with主机的结果
-             */
             }
         }
 
+        /**
+         * 设置远程主机地址。
+         *
+         * @param host 主机
+         * @return 当前管理器
+         */
         public RemoteManager withHost(String host) {
             this.sshHost = host;
-            /**
-             * with端口。
-             * @param port 端口
-             * @return with端口的结果
-             */
             return this;
         }
 
+        /**
+         * 设置远程端口。
+         *
+         * @param port 端口
+         * @return 当前管理器
+         */
         public RemoteManager withPort(int port) {
             this.sshPort = port;
-            /**
-             * with用户名。
-             * @param username 用户名
-             * @return with用户名的结果
-             */
             return this;
         }
 
+        /**
+         * 设置远程登录用户名。
+         *
+         * @param username 用户名
+         * @return 当前管理器
+         */
         public RemoteManager withUsername(String username) {
             this.sshUsername = username;
-            /**
-             * with密码。
-             * @param password 密码
-             * @return with密码的结果
-             */
             return this;
         }
 
+        /**
+         * 设置远程登录密码。
+         *
+         * @param password 密码
+         * @return 当前管理器
+         */
         public RemoteManager withPassword(String password) {
             this.sshPassword = password;
-            /**
-             * with私募键。
-             * @param privateKeyPath 私募键路径
-             * @return with私募键的结果
-             */
             return this;
         }
 
+        /**
+         * 设置远程登录私钥路径。
+         *
+         * @param privateKeyPath 私钥路径
+         * @return 当前管理器
+         */
         public RemoteManager withPrivateKey(String privateKeyPath) {
             this.sshPrivateKey = privateKeyPath;
-            /**
-             * with服务。
-             * @param serviceName 服务名称
-             * @return with服务的结果
-             */
             return this;
         }
 
+        /**
+         * 设置服务名称。
+         *
+         * @param serviceName 服务名称
+         * @return 当前构建器
+         */
         public ServiceBuilder withService(String serviceName) {
             builder.withServiceName(serviceName);
-            /**
-             * with位置。
-             * @param jarPath jar路径
-             * @return with位置的结果
-             * @param host 主机
-             * @param port 端口
-             */
             return builder;
-        /**
-         * with位置。
-         * @param jarPath jar路径
-         * @return with位置的结果
-         */
         }
 
+        /**
+         * 设置服务 jar 路径。
+         *
+         * @param jarPath jar 路径
+         * @return 当前构建器
+         */
         public ServiceBuilder withLocation(String jarPath) {
             builder.withJar(jarPath);
             return builder;

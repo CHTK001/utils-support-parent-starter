@@ -803,12 +803,6 @@ public class DefaultSpider implements Spider {
                 linkExtractor = ServiceProvider.of(SpiderLinkExtractor.class)
                         .getNewDefaultExtension();
  // SPI 加载失败时回退到 HTML链接extractor
-        /**
-         * consumerpipeline类。
-         *
-         * @author CH
-         * @since 4.0.0
-         */
                 if (linkExtractor == null) {
                     linkExtractor = new HtmlLinkExtractor();
                 }

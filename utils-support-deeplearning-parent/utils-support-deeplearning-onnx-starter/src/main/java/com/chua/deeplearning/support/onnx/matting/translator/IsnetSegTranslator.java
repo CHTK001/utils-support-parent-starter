@@ -162,12 +162,6 @@ public final class IsnetSegTranslator implements Translator<Image, Image> {
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g.drawImage(src, 0, 0, tw, th, null);
         g.dispose();
-        /**
-         * 创建alphaonly镜像。
-         * @param mask mask
-         * @return 创建alphaonly镜像的结果
-         * @param bgValue bg值
-         */
         return resized;
     }
 

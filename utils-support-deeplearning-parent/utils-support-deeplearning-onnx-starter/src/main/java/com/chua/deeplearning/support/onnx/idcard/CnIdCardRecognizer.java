@@ -139,13 +139,6 @@ public class CnIdCardRecognizer {
             return detector.translate(image);
         } catch (Exception e) {
             log.error("[CnIdCard] 检测失败: {}", e.getMessage(), e);
-            /**
-             * recognize文本。
-             * @param cropImage crop镜像
-             * @return recognize文本的结果
-             * @param cards 卡片
-             * @param modelId 模型id
-             */
             return null;
         }
     }

@@ -72,14 +72,6 @@ public class FbxPreviewProvider implements FileStoragePreviewProvider {
         int objectCount = 0;
         for (int i = 0; i < data.length - 13; i++) {
             // 寻找 "Objects\x00" 标记
-    /**
-     * fbx信息类。
-     *
-     * @author CH
-     * @since 4.0.0
-     * @param bytes bytes
-     * @return human大小的结果
-     */
             if (data[i] == 'O' && data[i + 1] == 'b' && data[i + 2] == 'j' &&
                 data[i + 3] == 'e' && data[i + 4] == 'c' && data[i + 5] == 't' &&
                 data[i + 6] == 's' && data[i + 7] == 0) {

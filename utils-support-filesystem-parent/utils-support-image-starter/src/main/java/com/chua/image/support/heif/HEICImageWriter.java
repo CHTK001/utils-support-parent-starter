@@ -43,15 +43,17 @@ public class HEICImageWriter extends ImageWriter {
     public void prepareWriteEmpty(IIOMetadata streamMetadata, ImageTypeSpecifier type,
                                    int minWidth, int minHeight, IIOMetadata imgMeta,
                                    List<? extends BufferedImage> thumbnails, ImageWriteParam param) throws IOException {
-        /**
-         * 写入。
-         * @param metadata metadata
-         * @param image 镜像
-         * @param param 参数
-         */
         throw new UnsupportedOperationException("Not supported");
     }
 
+    /**
+     * 写入 HEIC 图像。
+     *
+     * @param metadata 元数据
+     * @param image    待写入图像
+     * @param param    写入参数
+     * @throws IOException 写出失败时抛出
+     */
     @Override
     public void write(IIOMetadata metadata, javax.imageio.IIOImage image, ImageWriteParam param) throws IOException {
         if (output == null) {
@@ -69,41 +71,52 @@ public class HEICImageWriter extends ImageWriter {
         }
     }
 
+    /**
+     * 转换图像元数据。
+     *
+     * @param metadata 元数据
+     * @param type     图像类型
+     * @param param    写入参数
+     * @return 原样返回的元数据
+     */
     @Override
     public IIOMetadata convertImageMetadata(IIOMetadata metadata, ImageTypeSpecifier type, ImageWriteParam param) {
         return metadata;
-    /**
-     * 转换流metadata。
-     * @param metadata metadata
-     * @param param 参数
-     * @return 转换流metadata的结果
-     */
     }
 
+    /**
+     * 转换流元数据。
+     *
+     * @param metadata 元数据
+     * @param param    写入参数
+     * @return 原样返回的元数据
+     */
     @Override
     public IIOMetadata convertStreamMetadata(IIOMetadata metadata, ImageWriteParam param) {
         return metadata;
-    /**
-     * 获取默认流metadata。
-     * @param param 参数
-     * @return 获取默认流metadata的结果
-     */
     }
 
+    /**
+     * 获取默认流元数据。
+     *
+     * @param param 写入参数
+     * @return 当前实现不支持，固定返回 null
+     */
     @Override
     public IIOMetadata getDefaultStreamMetadata(ImageWriteParam param) {
         return null;
     }
 
+    /**
+     * 获取默认图像元数据。
+     *
+     * @param type  图像类型
+     * @param param 写入参数
+     * @return 当前实现不支持，固定返回 null
+     */
     @Override
     public IIOMetadata getDefaultImageMetadata(ImageTypeSpecifier type, ImageWriteParam param) {
         return null;
-    /**
-     * 获取镜像类型。
-     * @param index 索引
-     * @return 获取镜像类型的结果
-     * @param type 类型
-     */
     }
 
     /**

@@ -344,12 +344,6 @@ public class CampplusEmbedding {
      */
     private static void l2Normalize(float[] v) {
         double s = 0;
-        /**
-         * hz转为mel。
-         * @param hz hz
-         * @return hz转为mel的结果
-         * @param mel mel
-         */
         for (float x : v) {
             s += x * x;
         }

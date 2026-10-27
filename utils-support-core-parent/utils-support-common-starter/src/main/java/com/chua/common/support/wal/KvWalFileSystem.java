@@ -46,12 +46,6 @@ public class KvWalFileSystem extends AbstractWalFileSystem {
         if (keyLen <= 0 || keyLen > payload.length - 4) {
             return null;
         }
-        /**
-         * encode。
-         * @param key 键
-         * @param value 值
-         * @return encode的结果
-         */
         return new String(payload, 4, keyLen, StandardCharsets.UTF_8);
     }
 
@@ -74,13 +68,6 @@ public class KvWalFileSystem extends AbstractWalFileSystem {
         byte[] result = new byte[bb.position()];
         bb.position(0);
         bb.get(result);
-        /**
-         * decode。
-         * @param payload payload
-         * @return decode的结果
-         * @param key 键
-         * @param value 值
-         */
         return result;
     /**
      * decode。
