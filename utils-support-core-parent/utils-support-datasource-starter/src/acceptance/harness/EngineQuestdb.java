@@ -180,9 +180,24 @@ public final class EngineQuestdb {
         }
     }
 
+    /**
+     * 一次被拦截的 HTTP 调用记录。
+     *
+     * @param kind  调用类型（EXEC / WRITE 等）
+     * @param path  请求路径
+     * @param query 查询串
+     * @param auth  鉴权串
+     * @param body  请求体
+     */
     private record Rec(String kind, String path, String query, String auth, String body) {
     }
 
+    /**
+     * 伪造的 HTTP 响应。
+     *
+     * @param status 状态码
+     * @param body   响应体
+     */
     private record Resp(int status, String body) {
     }
 
