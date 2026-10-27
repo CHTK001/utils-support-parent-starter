@@ -119,10 +119,7 @@ public final class IsnetSegTranslator implements Translator<Image, Image> {
             case RGBA -> createRgbaImage(mask);
             /**
              * 转为缓冲镜像。
-             * @param input 输入
              * @return 转为缓冲镜像的结果
-             * @param tw tw
-             * @param th th
              */
             case RGB_BLACK_BG -> createRgbImage(mask, 0);
             case RGB_WHITE_BG -> createRgbImage(mask, 255);

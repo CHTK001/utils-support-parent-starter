@@ -87,7 +87,6 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
      * 创建 抽象文件storage服务端过滤器 实例
      * @param setting setting
      * @param pdfCache previewpdf缓存
-     * @param pdfCache pdf缓存
      */
     public AbstractFileStorageServerFilter(FileStorageSetting setting, PreviewPdfCache pdfCache) {
         this.setting = setting;

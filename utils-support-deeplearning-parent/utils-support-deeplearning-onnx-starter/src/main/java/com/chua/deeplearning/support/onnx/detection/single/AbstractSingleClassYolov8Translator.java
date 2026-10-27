@@ -97,8 +97,6 @@ public abstract class AbstractSingleClassYolov8Translator implements Translator<
      * 创建 抽象单个类yolov8Translator 实例
      * @param inputSize 输入大小
      * @param threshold float
-     * @param threshold float
-     * @param threshold 阈值
      * @param nmsThreshold nms阈值
      */
     protected AbstractSingleClassYolov8Translator(int inputSize, float threshold, float nmsThreshold) {

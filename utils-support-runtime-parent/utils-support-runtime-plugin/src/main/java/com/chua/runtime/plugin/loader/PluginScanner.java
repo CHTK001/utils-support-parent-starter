@@ -56,7 +56,6 @@ public class PluginScanner {
      * 创建 pluginscanner 实例
      * @param pluginRoot plugin根
      * @param parentLoader 类加载
-     * @param parentLoader 父加载
      */
     public PluginScanner(Path pluginRoot, ClassLoader parentLoader) {
         this.pluginRoot = pluginRoot;

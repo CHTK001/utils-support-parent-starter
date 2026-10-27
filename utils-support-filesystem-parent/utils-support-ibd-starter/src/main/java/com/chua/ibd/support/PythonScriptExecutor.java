@@ -45,7 +45,6 @@ public class PythonScriptExecutor implements ScriptExecutor {
      * 创建 pythonscript执行器 实例
      * @param pythonPath Python路径
      * @param timeoutMillis long
-     * @param timeoutMillis 超时millis
      */
     public PythonScriptExecutor(String pythonPath, long timeoutMillis) {
         this.pythonPath = pythonPath;

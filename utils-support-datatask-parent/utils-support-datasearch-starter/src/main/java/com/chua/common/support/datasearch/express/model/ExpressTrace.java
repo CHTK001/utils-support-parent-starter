@@ -28,8 +28,6 @@ public class ExpressTrace {
     /**
      * 创建 express追踪 实例
      * @param time 时间
-     * @param time 字符串
-     * @param time 字符串
      * @param context 上下文
      * @param location 位置
      */

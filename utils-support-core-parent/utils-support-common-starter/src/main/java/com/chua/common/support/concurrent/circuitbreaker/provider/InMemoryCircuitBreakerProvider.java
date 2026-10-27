@@ -69,7 +69,6 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
      * 创建 InMemoryCircuitBreakerProvider 实例
      * @param name name
      * @param failureThreshold int
-     * @param failureThreshold int
      * @param waitDuration long
      * @param successThreshold 方法入参 successThreshold
      */

@@ -50,8 +50,6 @@ public class DubboRpcClient implements RpcClient {
      * @param rpcRegistryConfigs rpcregistry配置
      * @param consumerCfg rpcconsumer配置
      * @param name 字符串
-     * @param consumerCfg consumercfg
-     * @param name 名称
      */
     public DubboRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerCfg, String name) {
         this.rpcConsumerConfig = consumerCfg;

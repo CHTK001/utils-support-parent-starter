@@ -102,7 +102,6 @@ public class TcpProxyServerFilter implements ServerFilter {
     /**
      * 创建 tcp代理服务端过滤器 实例
      * @param connectTimeoutMs 连接超时ms
-     * @param connectTimeoutMs int
      * @param readTimeoutMs 读取超时ms
      */
     public TcpProxyServerFilter(int connectTimeoutMs, int readTimeoutMs) {
@@ -145,10 +144,8 @@ public class TcpProxyServerFilter implements ServerFilter {
     /**
      * 创建 tcp代理服务端过滤器 实例
      * @param connectTimeoutMs 连接超时ms
-     * @param connectTimeoutMs int
      * @param targetResolver 代理Target解析器
      * @param readTimeoutMs 读取超时ms
-     * @param targetResolver Target解析器
      */
     public TcpProxyServerFilter(int connectTimeoutMs, int readTimeoutMs, ProxyTargetResolver targetResolver) {
         this.connectTimeoutMs = connectTimeoutMs;

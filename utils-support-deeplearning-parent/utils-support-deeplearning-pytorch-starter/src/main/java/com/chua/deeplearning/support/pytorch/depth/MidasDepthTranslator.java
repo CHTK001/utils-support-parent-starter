@@ -50,7 +50,6 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     /**
      * 创建 midas深度translator 实例
      * @param detectResolution detectresolution
-     * @param detectResolution int
      * @param imageResolution 镜像resolution
      */
     public MidasDepthTranslator(int detectResolution, int imageResolution) {

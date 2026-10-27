@@ -1398,8 +1398,6 @@ public final class ModelRegistry {
          * 创建 lazydjltranslator 实例
          * @param modelId 模型标识
          * @param modelPath 路径
-         * @param modelId 字符串
-         * @param modelPath 模型路径
          * @param translatorClassName translator类名称
          * @return LazyDjlTranslator的结果
          */
@@ -1625,8 +1623,6 @@ public final class ModelRegistry {
          * @param modelId 模型标识
          * @param modelPath 路径
          * @param translator itranslator
-         * @param translator translator
-         * @param modelPath 模型路径
          * @return ITranslatorDelegate的结果
          */
         private ITranslatorDelegate(String modelId, Path modelPath, ITranslator<?, ?> translator) {

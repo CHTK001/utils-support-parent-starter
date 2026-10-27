@@ -74,7 +74,6 @@ public interface ReactorFileSystem {
      * 追加字符串到文件末尾。
      *
      * @param path    文件路径
-     * @param content 追加内容
      * @return 完成信号
      * @param data 数据，不允许为 null
      */

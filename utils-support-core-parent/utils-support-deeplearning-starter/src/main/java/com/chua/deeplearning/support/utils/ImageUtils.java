@@ -682,7 +682,6 @@ public final class ImageUtils {
     /**
      * Mat 编码为 PNG 字节。
      *
-     * @param mat Mat
      * @return PNG 字节
      * @param bi bi
      */

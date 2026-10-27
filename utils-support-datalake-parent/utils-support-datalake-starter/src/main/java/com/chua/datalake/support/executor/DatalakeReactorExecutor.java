@@ -48,7 +48,6 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
      * 创建 数据湖reactor执行器 实例
      * @param agentId Agent标识
      * @param serverMode 布尔值
-     * @param serverMode 服务端mode
      */
     public DatalakeReactorExecutor(String agentId, boolean serverMode) {
         super(agentId, serverMode);

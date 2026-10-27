@@ -1661,7 +1661,6 @@ public class RabbitmqClient implements AutoCloseable {
          * 创建 rabbitmq客户端异常 实例
          * @param message 消息
          * @param cause Throwable
-         * @param cause cause
          */
         public RabbitmqClientException(String message, Throwable cause) { super(message, cause); }
         /**

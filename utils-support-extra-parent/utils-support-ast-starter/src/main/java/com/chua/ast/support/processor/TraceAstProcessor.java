@@ -275,11 +275,6 @@ public final class TraceAstProcessor extends AbstractProcessor {
      * @param maker maker
      * @param names 名称
      * @param qualifiedName qualified名称
-     * @param methodElement 方法element
-     * @param typeElement 类型element
-     * @param methodElement 方法element
-     * @param TypeElement 类型element
-     * @param typeElement 类型element
      */
     private com.sun.tools.javac.tree.JCTree.JCExpression buildQualifiedName(
             com.sun.tools.javac.tree.TreeMaker maker, com.sun.tools.javac.util.Names names, String qualifiedName) {

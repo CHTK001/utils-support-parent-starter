@@ -146,8 +146,6 @@ public class EmojiTrie {
         /**
          * 创建 Matches 实例
          * @param exactMatch exact匹配
-         * @param exactMatch 布尔值
-         * @param exactMatch 布尔值
          * @param prefixMatch 前缀匹配
          * @param impossibleMatch impossible匹配
          */

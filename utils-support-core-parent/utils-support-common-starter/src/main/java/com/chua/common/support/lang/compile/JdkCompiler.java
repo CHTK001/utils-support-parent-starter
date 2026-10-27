@@ -248,7 +248,6 @@ public class JdkCompiler implements Compiler {
             /**
              * 创建 IterableJoin 实例
              * @param first first
-             * @param Iterable Iterable
              * @param next next
              */
             public IterableJoin(Iterable<T> first, Iterable<T> next) {
@@ -275,7 +274,6 @@ public class JdkCompiler implements Compiler {
             /**
              * 创建 IteratorJoin 实例
              * @param first first
-             * @param Iterator Iterator
              * @param next next
              */
             public IteratorJoin(Iterator<T> first, Iterator<T> next) {
@@ -327,7 +325,6 @@ public class JdkCompiler implements Compiler {
         /**
          * 创建 IteratorJoin 实例
          * @param first first
-         * @param Iterator Iterator
          * @param next next
          */
         public IteratorJoin(Iterator<T> first, Iterator<T> next) {

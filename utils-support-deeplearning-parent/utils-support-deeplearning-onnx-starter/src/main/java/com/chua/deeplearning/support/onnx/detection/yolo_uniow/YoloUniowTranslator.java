@@ -392,7 +392,6 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
 
     /**
      * 从外部文件加载文本嵌入（float32 数组）。
-     * @param is 是否
      * @param path 路径
      * @return 加载嵌入的结果
      */

@@ -206,7 +206,6 @@ public class KcpClient {
     /**
      * 创建 kcp客户端 实例
      * @param clientId 客户端标识
-     * @param clientId 字符串
      * @param serverUrl 服务端url
      */
     public KcpClient(String clientId, String serverUrl) {

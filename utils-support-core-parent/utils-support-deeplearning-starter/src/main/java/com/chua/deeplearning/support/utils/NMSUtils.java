@@ -178,11 +178,6 @@ public class NMSUtils {
      * @param boxes boxes
      * @param probabilities probabilities
      * @param nmsThreshold nms阈值
-     * @param i2 i2
-     * @param box2 box2
-     * @param nmsThreshold nms阈值
-     * @param rect1 rect1
-     * @param rect2 rect2
      */
     public static List<Integer> nms(
             List<ai.djl.modality.cv.output.BoundingBox> boxes,

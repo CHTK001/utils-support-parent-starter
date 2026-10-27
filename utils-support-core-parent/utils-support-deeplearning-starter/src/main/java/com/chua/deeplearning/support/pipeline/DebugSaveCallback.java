@@ -29,8 +29,6 @@ public class DebugSaveCallback implements PipelineCallback {
 
     /**
      * onstep。
-     * @param stepName step名称
-     * @param stageData Stage数据
      * @param pipelineName pipeline名称
      */
     public DebugSaveCallback(String pipelineName) {

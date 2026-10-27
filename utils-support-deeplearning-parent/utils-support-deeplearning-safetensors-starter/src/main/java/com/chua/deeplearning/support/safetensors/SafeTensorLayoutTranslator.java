@@ -36,9 +36,6 @@ public class SafeTensorLayoutTranslator implements ITranslator<byte[], String> {
      * 创建 safetensorlayouttranslator 实例
      * @param host 主机
      * @param port int
-     * @param host 字符串
-     * @param host 字符串
-     * @param port 端口
      * @param modelName 模型名称
      * @param modelType 模型类型
      */

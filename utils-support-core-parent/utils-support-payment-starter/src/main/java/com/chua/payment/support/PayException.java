@@ -16,7 +16,6 @@ public class PayException extends RuntimeException {
     /**
      * 创建 薪酬异常 实例
      * @param code 编码
-     * @param code 字符串
      * @param message 消息
      */
     public PayException(String code, String message) {

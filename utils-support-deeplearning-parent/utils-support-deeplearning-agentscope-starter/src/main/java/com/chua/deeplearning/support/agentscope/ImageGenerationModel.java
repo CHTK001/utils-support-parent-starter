@@ -39,7 +39,6 @@ public class ImageGenerationModel implements Model {
      * 创建 镜像generation模型 实例
      * @param imageClient 镜像客户端
      * @param modelName 字符串
-     * @param modelName 模型名称
      */
     public ImageGenerationModel(ImageClient imageClient, String modelName) {
         this.imageClient = imageClient;

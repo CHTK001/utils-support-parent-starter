@@ -45,8 +45,6 @@ public class SofaRpcClient implements RpcClient {
      * @param rpcRegistryConfigs rpcregistry配置
      * @param consumerConfig rpcconsumer配置
      * @param name 字符串
-     * @param consumerConfig consumer配置
-     * @param name 名称
      */
     public SofaRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerConfig, String name) {
         this.rpcConsumerConfig = consumerConfig;

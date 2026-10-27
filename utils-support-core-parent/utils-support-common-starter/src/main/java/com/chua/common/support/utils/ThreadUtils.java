@@ -1293,7 +1293,6 @@ public class ThreadUtils {
          * 创建 默认thread工厂 实例
          * @param name 名称
          * @param index int
-         * @param index 索引
          * @return 默认thread工厂的结果
          */
         public DefaultThreadFactory(String name, int index) {

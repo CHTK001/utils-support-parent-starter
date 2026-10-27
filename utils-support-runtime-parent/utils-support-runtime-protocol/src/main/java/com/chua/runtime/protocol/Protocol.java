@@ -243,8 +243,6 @@ public enum Protocol {
 
     /**
      * UNKNOWN
-     * @param 0 方法入参 0
-     * @param false 方法入参 false
      */
     UNKNOWN("Unknown", 0, false);
 

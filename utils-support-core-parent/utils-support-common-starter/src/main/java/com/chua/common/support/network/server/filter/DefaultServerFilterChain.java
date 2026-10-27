@@ -44,7 +44,6 @@ public class DefaultServerFilterChain implements ServerFilterChain {
     /**
      * 创建 DefaultServerFilterChain 实例
      * @param filters filters
-     * @param ServerHandler ServerHandler
      * @param handler 处理器，不允许为 null
      */
     public DefaultServerFilterChain(List<ServerFilter> filters, ServerHandler handler) {
@@ -54,8 +53,6 @@ public class DefaultServerFilterChain implements ServerFilterChain {
     /**
      * 创建 DefaultServerFilterChain 实例
      * @param filters filters
-     * @param ServerHandler ServerHandler
-     * @param List List
      * @param listeners listeners
      * @param handler 处理器，不允许为 null
      */

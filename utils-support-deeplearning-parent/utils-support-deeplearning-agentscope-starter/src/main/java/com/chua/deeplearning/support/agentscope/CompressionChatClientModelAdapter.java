@@ -46,7 +46,6 @@ public class CompressionChatClientModelAdapter implements Model {
      * 创建 compression对话客户端模型适配器 实例
      * @param compressionChatClient compression对话客户端
      * @param modelName 字符串
-     * @param modelName 模型名称
      */
     public CompressionChatClientModelAdapter(ChatClient compressionChatClient, String modelName) {
         this.compressionChatClient = compressionChatClient;

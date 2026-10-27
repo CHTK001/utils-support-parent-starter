@@ -67,10 +67,8 @@ public class PanResource {
     /**
      * 创建 panresource 实例
      * @param title title
-     * @param title 字符串
      * @param panType pan类型
      * @param url url
-     * @param panType pan类型
      */
     public PanResource(String title, String url, PanType panType) {
         this();
@@ -82,12 +80,8 @@ public class PanResource {
     /**
      * 创建 panresource 实例
      * @param title title
-     * @param title 字符串
      * @param panType pan类型
-     * @param title 字符串
-     * @param title 字符串
      * @param url url
-     * @param panType pan类型
      * @param size 大小
      * @param source 源
      */

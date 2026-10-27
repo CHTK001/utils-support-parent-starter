@@ -98,14 +98,10 @@ public class NacosClient implements AutoCloseable {
     /**
      * 创建 nacos客户端 实例
      * @param serverAddr 服务端addr
-     * @param serverAddr 字符串
-     * @param serverAddr 字符串
-     * @param serverAddr 字符串
      * @param timeout long
      * @param namespace namespace
      * @param username 用户名
      * @param password 密码
-     * @param timeout 超时
      */
     private NacosClient(String serverAddr, String namespace, String username, String password, long timeout) {
         this.serverAddr = serverAddr;
@@ -741,7 +737,6 @@ public class NacosClient implements AutoCloseable {
          * 创建 nacos客户端异常 实例
          * @param message 消息
          * @param cause Throwable
-         * @param cause cause
          */
         public NacosClientException(String message, Throwable cause) {
             super(message, cause);

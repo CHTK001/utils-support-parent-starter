@@ -43,12 +43,9 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
     /**
      * 创建 rSocketAgent数据同步源 实例
      * @param agentId Agent标识
-     * @param agentId 字符串
-     * @param agentId 字符串
      * @param port int
      * @param sourceId 源标识
      * @param host 主机
-     * @param port 端口
      */
     public RSocketAgentDataSyncSource(String agentId, String sourceId, String host, int port) {
         this.agentId = agentId;
@@ -60,7 +57,6 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
     /**
      * 创建 rSocketAgent数据同步源 实例
      * @param agentId Agent标识
-     * @param agentId 字符串
      * @param sourceId 源标识
      */
     public RSocketAgentDataSyncSource(String agentId, String sourceId) {

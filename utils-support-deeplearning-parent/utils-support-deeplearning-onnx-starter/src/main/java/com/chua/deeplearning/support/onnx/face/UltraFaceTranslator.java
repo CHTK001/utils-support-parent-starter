@@ -90,7 +90,6 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     /**
      * 创建 ultrafacetranslator 实例
      * @param confThresh confthresh
-     * @param confThresh double
      * @param nmsThresh nmsthresh
      */
     public UltraFaceTranslator(double confThresh, double nmsThresh) {
@@ -100,8 +99,6 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     /**
      * 创建 ultrafacetranslator 实例
      * @param confThresh confthresh
-     * @param confThresh double
-     * @param int int
      * @param inputSize 输入大小
      * @param nmsThresh nmsthresh
      */
@@ -122,10 +119,8 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     /**
      * 创建 ultrafacetranslator 实例
      * @param confThresh confthresh
-     * @param confThresh double
      * @param modelName 字符串
      * @param nmsThresh nmsthresh
-     * @param modelName 模型名称
      */
     private UltraFaceTranslator(double confThresh, double nmsThresh, String modelName) {
         String normalized = modelName == null ? "" : modelName.toLowerCase(Locale.ROOT);

@@ -53,7 +53,6 @@ public class PluginManager {
      * 创建 plugin管理器 实例
      * @param pluginRoot plugin根
      * @param parentLoader 类加载
-     * @param parentLoader 父加载
      */
     public PluginManager(Path pluginRoot, ClassLoader parentLoader) {
         this.pluginRoot = pluginRoot;

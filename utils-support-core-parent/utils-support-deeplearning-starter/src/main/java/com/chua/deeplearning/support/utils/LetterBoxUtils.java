@@ -97,7 +97,6 @@ public class LetterBoxUtils {
     /**
      * 对图像执行 letterbox 等比缩放 + 填充操作，返回缩放后的图像和元数据
      *
-     * @param manager  nd管理器，用于创建新的 ndarray 张量
      * @param img      输入图像 ndarray（HWC 格式）
      * @param targetW  目标宽度（像素）
      * @param targetH  目标高度（像素）

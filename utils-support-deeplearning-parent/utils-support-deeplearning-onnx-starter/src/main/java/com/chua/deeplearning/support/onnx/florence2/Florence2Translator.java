@@ -130,11 +130,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
             prepare();
             /**
              * preprocess镜像。
-             * @param imageData 镜像数据
              * @return preprocess镜像的结果
-             * @param tokens 令牌
-             * @param encoderHidden 编码器hidden
-             * @param taskPrompt 任务提示符
              */
             float[] pixels = preprocessImage(imageData);
             float[][] encoderHidden = inferVision(pixels);

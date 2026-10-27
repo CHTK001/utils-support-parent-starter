@@ -61,9 +61,6 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
     /**
      * 创建 AbstractThreadExecutor 实例
      * @param strategy strategy
-     * @param int int
-     * @param long long
-     * @param TimeUnit TimeUnit
      * @param threshold 方法入参 threshold
      * @param timeout 超时时间，不允许为 null
      * @param timeUnit 时间Unit，不允许为 null

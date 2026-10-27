@@ -88,10 +88,8 @@ public class KafkaClient implements AutoCloseable {
     /**
      * 创建 kafka客户端 实例
      * @param bootstrapServers bootstrap服务端
-     * @param bootstrapServers 字符串
      * @param extraProps 属性
      * @param groupId 群体标识
-     * @param extraProps extraprops
      */
     private KafkaClient(String bootstrapServers, String groupId, Properties extraProps) {
         this.bootstrapServers = bootstrapServers;
@@ -765,7 +763,6 @@ public class KafkaClient implements AutoCloseable {
          * 创建 kafka客户端异常 实例
          * @param message 消息
          * @param cause Throwable
-         * @param cause cause
          */
         public KafkaClientException(String message, Throwable cause) {
             super(message, cause);

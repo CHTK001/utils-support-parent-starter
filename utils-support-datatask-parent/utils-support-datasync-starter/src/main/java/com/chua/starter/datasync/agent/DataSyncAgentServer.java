@@ -79,8 +79,6 @@ public class DataSyncAgentServer implements AgentServerManager {
      * @param dataSyncServer 数据同步服务端
      * @param syncServer 同步服务端
      * @param serverId 字符串
-     * @param syncServer 同步服务端
-     * @param serverId 服务端标识
      */
     public DataSyncAgentServer(DataSyncServer dataSyncServer, SyncServer syncServer, String serverId) {
         this.dataSyncServer = dataSyncServer;

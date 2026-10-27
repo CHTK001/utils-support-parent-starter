@@ -82,8 +82,6 @@ public final class MattingTranslator implements Translator<Image, Image> {
      * 从 detection配置 构造，自动识别模型类型。
      *
      * @param configuration 配置
-     * @param image 镜像
-     * @param input 输入
      */
     public MattingTranslator(DetectionConfiguration configuration) {
         this(resolveTargetSize(configuration), resolveTargetSize(configuration), resolveMode(configuration), resolveNormalize(configuration));

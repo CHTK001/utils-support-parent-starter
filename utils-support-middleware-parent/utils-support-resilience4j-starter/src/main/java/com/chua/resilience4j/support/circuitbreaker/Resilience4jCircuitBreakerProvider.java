@@ -37,11 +37,8 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
      * 创建 韧性4j熔断中断提供者 实例
      * @param name 名称
      * @param failureThreshold int
-     * @param failureThreshold int
      * @param waitDuration long
-     * @param failureThreshold 失败阈值
      * @param successThreshold 成功阈值
-     * @param waitDuration wait持续时间
      */
     public Resilience4jCircuitBreakerProvider(String name, int failureThreshold, int successThreshold, long waitDuration) {
         CircuitBreakerConfig config = CircuitBreakerConfig.custom()

@@ -158,8 +158,6 @@ public class NioServerRequest implements ServerRequest {
     /**
      * 创建 NioServerRequest 实例(NIO 场景,远端地址从 channel 动态获取)
      * @param channel channel
-     * @param long long
-     * @param String String
      * @param maxRequestSize 最大值请求大小，不允许为 null
      * @param charset 字符集，不允许为 null
      */

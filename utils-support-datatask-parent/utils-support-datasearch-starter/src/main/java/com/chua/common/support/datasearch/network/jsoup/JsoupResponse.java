@@ -38,7 +38,6 @@ public class JsoupResponse {
      * 创建 jsoup响应 实例
      * @param html HTML
      * @param mappings Mappings
-     * @param mappings mappings
      */
     public JsoupResponse(String html, Mappings mappings) {
         this.document = Jsoup.parse(html);

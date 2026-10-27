@@ -29,7 +29,6 @@ public class GeoSetting {
     /**
      * 创建 GeoSetting 实例
      * @param databaseFile databaseFile
-     * @param String String
      * @param licenseKey license键，不允许为 null
      */
     public GeoSetting(String databaseFile, String licenseKey) {

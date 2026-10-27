@@ -65,14 +65,10 @@ public class RSocketDataSyncAgent implements DataSyncAgent {
     /**
      * 创建 rSocket数据同步Agent 实例
      * @param agentId Agent标识
-     * @param agentId 字符串
-     * @param agentId 字符串
      * @param port int
      * @param source 数据同步源
      * @param sourceId 源标识
      * @param host 主机
-     * @param port 端口
-     * @param source 源
      */
     public RSocketDataSyncAgent(String agentId, String sourceId, String host, int port, DataSyncSource source) {
         this.agentId = agentId;

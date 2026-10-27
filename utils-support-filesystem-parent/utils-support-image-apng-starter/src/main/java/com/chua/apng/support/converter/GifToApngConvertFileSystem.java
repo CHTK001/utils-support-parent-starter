@@ -375,7 +375,6 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
          * 创建 animation帧 实例
          * @param image 镜像
          * @param delay int
-         * @param delay 延迟
          */
         public AnimationFrame(BufferedImage image, int delay) {
             this.image = image;

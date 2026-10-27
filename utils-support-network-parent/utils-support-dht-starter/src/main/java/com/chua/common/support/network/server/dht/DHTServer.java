@@ -66,7 +66,6 @@ public class DHTServer extends AbstractServer {
      * 创建 dht服务端 实例
      * @param config 配置
      * @param selfId kademlia节点标识
-     * @param selfId selfid
      */
     private DHTServer(DhtConfig config, KademliaNodeId selfId) {
         super(createSetting(config));

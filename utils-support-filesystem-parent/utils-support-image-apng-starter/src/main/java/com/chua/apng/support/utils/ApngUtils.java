@@ -322,8 +322,6 @@ public class ApngUtils {
         /**
          * 创建 apng信息 实例
          * @param frameCount 帧数量
-         * @param frameCount int
-         * @param frameCount int
          * @param width width
          * @param height height
          */

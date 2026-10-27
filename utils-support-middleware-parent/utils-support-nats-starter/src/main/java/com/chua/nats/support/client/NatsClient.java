@@ -1412,7 +1412,6 @@ public class NatsClient implements AutoCloseable {
          * 创建 NATS客户端异常 实例
          * @param message 消息
          * @param cause Throwable
-         * @param cause cause
          */
         public NatsClientException(String message, Throwable cause) {
             super(message, cause);

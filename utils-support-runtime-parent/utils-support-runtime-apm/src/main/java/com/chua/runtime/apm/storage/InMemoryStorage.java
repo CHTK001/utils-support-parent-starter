@@ -326,7 +326,6 @@ public class InMemoryStorage implements ApmStorage {
      * @param map 映射
      * @param cutoff cutoff
      * @param tsExtractor V
-     * @param tsExtractor tsextractor
      */
     @SuppressWarnings("unchecked")
     private static <K, V> long doRemoveOlder(Map<K, V> map, long cutoff,

@@ -97,8 +97,6 @@ public class BTreeNode {
     /**
      * 创建 BTreeNode 实例
      * @param type type
-     * @param String String
-     * @param Object Object
      * @param operator 方法入参 operator
      * @param value 值，不允许为 null
      */

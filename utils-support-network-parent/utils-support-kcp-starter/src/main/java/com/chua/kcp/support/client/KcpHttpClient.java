@@ -44,7 +44,6 @@ public class KcpHttpClient {
      * 创建 kcphttp客户端 实例
      * @param host 主机
      * @param port int
-     * @param port 端口
      */
     public KcpHttpClient(String host, int port) {
         this(host, port, 5000L);
@@ -55,8 +54,6 @@ public class KcpHttpClient {
      * @param host 主机
      * @param port int
      * @param timeoutMs long
-     * @param port 端口
-     * @param timeoutMs 超时ms
      */
     public KcpHttpClient(String host, int port, long timeoutMs) {
         this.host = host;

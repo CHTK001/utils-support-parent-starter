@@ -36,7 +36,6 @@ public class SshProgressBarConsumer implements ProgressBarConsumer {
      * 创建 ssh进步barconsumer 实例
      * @param response 响应
      * @param maxRenderedLength int
-     * @param maxRenderedLength 最大rendered长度
      */
     public SshProgressBarConsumer(SshCommandResponse response, int maxRenderedLength) {
         this.response = response;

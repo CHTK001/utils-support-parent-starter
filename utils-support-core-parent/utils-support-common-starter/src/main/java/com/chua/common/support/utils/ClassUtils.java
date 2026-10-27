@@ -2956,7 +2956,6 @@ public class ClassUtils {
      * <p>例如 {@code List<String>} 返回 {@code [String.class]}，
      * {@code Map<String, Integer>} 返回 {@code [String.class, Integer.class]}。</p>
      *
-     * @param clazz 目标类，为 null 时返回空数组
      * @return 泛型类型参数数组，无泛型信息或解析失败时返回空数组
      * @since 2024/12/21
      *

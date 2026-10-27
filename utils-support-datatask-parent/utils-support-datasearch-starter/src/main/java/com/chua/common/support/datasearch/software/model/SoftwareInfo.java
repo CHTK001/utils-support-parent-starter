@@ -38,10 +38,6 @@ public class SoftwareInfo {
     /**
      * 创建 software信息 实例
      * @param name 名称
-     * @param name 字符串
-     * @param name 字符串
-     * @param name 字符串
-     * @param name 字符串
      * @param version 版本
      * @param source 源
      * @param description description

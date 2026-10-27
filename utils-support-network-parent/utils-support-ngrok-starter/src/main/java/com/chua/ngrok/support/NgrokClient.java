@@ -493,7 +493,6 @@ public class NgrokClient implements AutoCloseable {
          * 创建 http构建器Stage 实例
          * @param owner owner
          * @param builder http构建器
-         * @param builder 构建器
          * @return http构建器Stage的结果
          */
         private HttpBuilderStage(NgrokClient owner, HttpBuilder builder) {
@@ -749,7 +748,6 @@ public class NgrokClient implements AutoCloseable {
          * 创建 tcp构建器Stage 实例
          * @param owner owner
          * @param builder tcp构建器
-         * @param builder 构建器
          * @return tcp构建器Stage的结果
          */
         private TcpBuilderStage(NgrokClient owner, TcpBuilder builder) {
@@ -862,7 +860,6 @@ public class NgrokClient implements AutoCloseable {
          * 创建 tls构建器Stage 实例
          * @param owner owner
          * @param builder tls构建器
-         * @param builder 构建器
          * @return tls构建器Stage的结果
          */
         private TlsBuilderStage(NgrokClient owner, TlsBuilder builder) {

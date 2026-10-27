@@ -68,7 +68,6 @@ public class MossTtsTranslator implements AutoCloseable {
      * @param ttsDir   MOSS-TTS-nano-100M-ONNX 目录
      * @param codecDir MOSS-音频-Tokenizer-nano-ONNX 目录
      * @throws Exception 加载异常
-     * @param manifest manifest
      */
     public void prepare(Path ttsDir, Path codecDir) throws Exception {
         JsonNode manifest = mapper.readTree(ttsDir.resolve("browser_poc_manifest.json").toFile());
@@ -206,7 +205,6 @@ public class MossTtsTranslator implements AutoCloseable {
 
     /**
      * 参考音频 → 提示码。任意采样率/声道统一转为 48khz 双声道。
-     * @param stereo 立体
      * @param refWav refwav
      * @return 立体flat的结果
      */
@@ -254,9 +252,6 @@ public class MossTtsTranslator implements AutoCloseable {
      * 加载stereo48k。任意 WAV → 48k 双声道 float[2][N]。
      * @param path 路径
      * @return 加载stereo48k的结果
-     * @param in 入
-     * @param srcRate srcrate
-     * @param dstRate dstrate
      */
     private float[][] loadStereo48k(Path path) throws Exception {
         try (var ais = AudioSystem.getAudioInputStream(path.toFile())) {
@@ -414,8 +409,6 @@ public class MossTtsTranslator implements AutoCloseable {
       * 分割chunks。按句末标点切分，超长句再按句内标点二次切分并合并碎段。
       * @param text 文本
       * @return 分割chunks的结果
-      * @param list 列表
-      * @param s s
       */
     private List<String> splitChunks(String text) {
         List<String> sentences = splitBy(text, SENTENCE_END);
@@ -522,11 +515,8 @@ public class MossTtsTranslator implements AutoCloseable {
      * 构建请求行序列：文本前缀 + 音色提示音频行 + 后缀文本行。
      *
      * <p>行宽 n_vq+1=17：通道 0 承载文本/slot token，通道 1..16 承载音频码。</p>
-     * @param rows rows
      * @param promptCodes 提示符编码
      * @param textTokens 文本令牌
-     * @param codes 编码
-     * @param rowWidth rowwidth
      * @return 构建输入rows的结果
      */
     private int[][] buildInputRows(List<int[]> promptCodes, int[] textTokens) {

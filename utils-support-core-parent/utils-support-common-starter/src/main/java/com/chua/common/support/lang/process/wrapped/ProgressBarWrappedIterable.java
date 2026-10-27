@@ -25,7 +25,6 @@ public class ProgressBarWrappedIterable<T> implements Iterable<T> {
     /**
      * 创建 ProgressBarWrappedIterable 实例
      * @param underlying underlying
-     * @param ProgressBarBuilder ProgressBarBuilder
      * @param pbb 方法入参 pbb
      */
     public ProgressBarWrappedIterable(Iterable<T> underlying, ProgressBarBuilder pbb) {

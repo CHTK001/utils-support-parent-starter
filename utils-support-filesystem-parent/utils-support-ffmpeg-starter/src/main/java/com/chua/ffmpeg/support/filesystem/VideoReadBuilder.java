@@ -27,7 +27,6 @@ public class VideoReadBuilder extends ReadBuilder {
      * 创建 视频读取构建器 实例
      * @param file 文件
      * @param processor ffmpeg处理器
-     * @param processor 处理器
      */
     public VideoReadBuilder(File file, FFmpegProcessor processor) {
         super(file);

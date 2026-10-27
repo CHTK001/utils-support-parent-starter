@@ -142,7 +142,6 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      * 创建 默认服务提供者 实例
      * @param type 类型
      * @param classLoader 类加载
-     * @param classLoader 类加载
      */
     public DefaultServiceProvider(Class<T> type, ClassLoader classLoader) {
         this.type = type;

@@ -67,7 +67,6 @@ public class ZookeeperClient implements AutoCloseable {
      * 创建 zookeeper客户端 实例
      * @param curator curator
      * @param connectString 字符串
-     * @param connectString 连接字符串
      */
     private ZookeeperClient(CuratorFramework curator, String connectString) {
         this.curator = curator;

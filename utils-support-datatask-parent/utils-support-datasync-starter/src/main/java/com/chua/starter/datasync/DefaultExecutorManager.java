@@ -53,7 +53,6 @@ public class DefaultExecutorManager implements ExecutorManager {
      * 创建 默认执行器管理器 实例
      * @param serverId 服务端标识
      * @param directDispatch 布尔值
-     * @param directDispatch directdispatch
      */
     public DefaultExecutorManager(String serverId, boolean directDispatch) {
         this.serverId = serverId;
