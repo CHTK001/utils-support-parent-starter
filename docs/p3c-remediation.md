@@ -17,6 +17,12 @@
 | `1bbc5e899` | OOP 规约 | 155 处 `xxx.equals("字面量")` 改为 `"字面量".equals(xxx)` | 36 文件 |
 | `952c104c5` | 控制语句 | 11 处 `if/for/else` 单语句补大括号 | 3 文件 |
 | `025f8b524` | 控制语句 | `PNGImageWriter` 位深分支补 `default`；`TsharkCliConfig` 告警改用日志 | 2 文件 |
+| `cac2e0cba` | — | 回退上一提交误入的并发开发者文件 `HostKeyVerifiers.java` | 1 文件 |
+| `ef12abd4c` | — | 新增本整改记录 | 1 文件 |
+| `e559ca48a` | 注释规约 | 补全 record 组件的 `@param`（`SettingItem`/`ColorPoint`/`Rec`/`Resp`/`RecOut`/`Outcome`） | 5 文件 |
+| `08617ba6a` | 注释规约 | 清理 41 个失控膨胀的 Javadoc 块（单块累积 10~102 条 `@param`） | 24 文件 / -1332 行 |
+| `62725e8f7` | 注释规约 | 删除签名中不存在的 `@param` 条目 | 195 文件 / -401 行 |
+| `3bae3dc94` | 注释规约 | 修正 5 处把类型名写成参数名的 `@param` | 4 文件 |
 
 ## 二、整改细则
 
@@ -64,14 +70,27 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
 
 ## 四、遗留项（需人工判断，未批量修改）
 
-1. **527 处仅含 `@param/@return` 的 Javadoc**：缺一句话摘要，需按方法语义撰写，机械生成会降低可读性。
+1. **573 处仅含 `@param/@return` 的 Javadoc**：缺一句话摘要（其中 53 处为类级、只有 `@author/@since`），需按语义撰写，机械生成会降低可读性。
 2. **54 处 `Executors.newXxx()`**：P3C 要求改用 `ThreadPoolExecutor`。但其中大量为虚拟线程执行器（`newVirtualThreadPerTaskExecutor`，无队列堆积风险），改造会改变并发语义（队列容量、拒绝策略），需按场景设计。
 3. **324 处 `catch (Throwable ...)`**：框架入口、任务执行器、插件加载器属合理用途；其余应收窄为具体异常。
 4. **`new Thread(...)` 83 处**：均为具名长生命周期线程、`ThreadFactory` 实现或 `addShutdownHook`，符合「使用 ThreadFactory 创建线程」的要求。
-5. **`System.out/err` 372 处（51 文件）**：复查后剩余均为 CLI 子命令（oshi 系列）、基准测试/演示 `main`、`TraceContext` 与 `SelfDefense` 的「日志系统不可用」兜底输出，属合理用途。
-6. **62 处 `throw new RuntimeException("msg")`**：均为参数校验或上游返回为空抛出的新异常（无 cause 可传），是否改为 `IllegalArgumentException` / `IllegalStateException` 待定。
+5. **`System.out/err` 真实代码调用 372 处（51 文件）**：复查后剩余均为 CLI 子命令（oshi 系列）、基准测试/演示 `main`、`TraceContext` 与 `SelfDefense` 的「日志系统不可用」兜底输出，属合理用途。
+6. **62 处 `throw new RuntimeException("msg")`**：均位于正常流程（无 catch 上下文），属参数校验或上游返回为空抛出的新异常（无 cause 可传），是否改为 `IllegalArgumentException` / `IllegalStateException` 待定。
+7. **18 处 `@param` 名称与签名不符的残留**：经人工核对，其中约 10 处为扫描器误判（枚举常量、lambda、`new X(...)` 被当作方法签名），其余已修完。
 
-## 五、验证方式
+## 五、最终状态（本轮结束时）
+
+| 校验项 | 结果 |
+| --- | --- |
+| 空 catch 块（真实代码） | 0（6 处命中均为注释或 JSS 字符串中的 `catch(e){}`） |
+| 注解位于 Javadoc 之前 | 0 |
+| 连续重复 Javadoc | 0 |
+| void 方法带 `@return` | 0 |
+| `@param` 与签名不符 | 111 → 18（其中约 10 处为误判） |
+| 触及模块编译 | 57 个模块分 2 批 `EXIT=0`；末次 2 个模块 `EXIT=0` |
+| 本地/远端同步 | `HEAD == origin/master`（0 ahead / 0 behind） |
+
+## 六、验证方式
 
 ```powershell
 # 1. 受影响模块编译（全量重编译，避免增量缓存掩盖问题）
