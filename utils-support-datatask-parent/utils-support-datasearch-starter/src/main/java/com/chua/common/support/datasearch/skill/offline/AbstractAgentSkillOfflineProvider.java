@@ -307,7 +307,7 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
     /**
      * 在单个配置根目录下查找指定技能。
      *
-     * @param base      配置根目录
+     * @param dir       配置根目录
      * @param skillName 技能名
      * @return 匹配路径；不存在返回 null
      */

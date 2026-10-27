@@ -156,7 +156,7 @@ public class JdkCompiler implements Compiler {
         /**
          * 创建 DynamicJavaFileManager 实例
          * @param fileManager fileManager
-         * @param DynamicClassLoader DynamicClassLoader
+         * @param classLoader 类加载器
          */
         public DynamicJavaFileManager(JavaFileManager fileManager, DynamicClassLoader classLoader) {
             super(fileManager);
@@ -786,7 +786,7 @@ public class JdkCompiler implements Compiler {
         /**
          * 创建 StringSource 实例
          * @param className className
-         * @param String String
+         * @param contents  源码内容
          */
         public StringSource(String className, String contents) {
             super(URI.create("string:///" + className.replace('.', '/') + Kind.SOURCE.extension), Kind.SOURCE);

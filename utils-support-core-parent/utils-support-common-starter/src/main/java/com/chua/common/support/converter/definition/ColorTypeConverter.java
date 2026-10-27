@@ -215,9 +215,9 @@ public class ColorTypeConverter implements TypeConverter<Color> {
         /**
          * 创建 ColorName 实例
          * @param name name
-         * @param int int
-         * @param int int
-         * @param int int
+         * @param r 红色分量
+         * @param g 绿色分量
+         * @param b 蓝色分量
          */
         public ColorName(String name, int r, int g, int b) {
             this.r = r;
