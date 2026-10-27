@@ -80,10 +80,10 @@ public class ImageWidthFilter extends AbstractImageFilter {
         this.height = height;
     }
 
-    @Override
     /**
      * 过滤
     */
+    @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         
         return zoomBySize(width, height, src);

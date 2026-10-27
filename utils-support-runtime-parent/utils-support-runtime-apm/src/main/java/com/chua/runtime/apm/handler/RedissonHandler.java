@@ -32,50 +32,50 @@ public class RedissonHandler extends AbstractAppHandler {
      */
     private static final String[] COMMAND_METHODS = {"writeAsync", "readAsync", "executorAsync"};
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "redisson-handler";
     }
 
-    @Override
     /**
      * 已启用键
     */
+    @Override
     protected String enabledKey() {
         return "redisson.enabled";
     }
 
-    @Override
     /**
      * Software
     */
+    @Override
     protected Software software() {
         return Software.REDISSON;
     }
 
-    @Override
     /**
      * 协议
     */
+    @Override
     protected Protocol protocol() {
         return Protocol.REDIS;
     }
 
-    @Override
     /**
      * 注册拦截器
     */
+    @Override
     protected void registerInterceptors() {
         registerAll(COMMAND_SERVICE_CLASS, COMMAND_METHODS);
     }
 
-    @Override
     /**
      * 构建Target
     */
+    @Override
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object config = findField(instance, "config");
         String url = config != null ? String.valueOf(findField(config, "address")) : null;

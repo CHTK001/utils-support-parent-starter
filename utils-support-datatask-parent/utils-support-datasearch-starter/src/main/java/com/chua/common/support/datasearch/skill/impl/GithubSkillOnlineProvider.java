@@ -21,38 +21,37 @@ import java.util.Map;
 @Spi("github")
 public class GithubSkillOnlineProvider extends GithubSkillProvider implements SkillOnlineProvider {
 
-    @Override
     /**
      * 名称。
      *
      * @return 提供者名称
      */
+    @Override
     public String name() {
         return NAME;
     }
 
-    @Override
     /**
      * 获取该市场源注册的全部技能定义。
      *
      * @return 技能定义列表
      */
+    @Override
     public List<SkillDefinition> getSkills() {
         return List.of(discoverSkill());
     }
 
-    @Override
     /**
      * 按关键词搜索在线技能。
      *
      * @param keyword 搜索关键词
      * @return 搜索结果技能定义列表
      */
+    @Override
     public List<SkillDefinition> search(String keyword) {
         return List.of(discoverSkill());
     }
 
-    @Override
     /**
      * 搜索 GitHub 技能仓库清单。
      *
@@ -64,6 +63,7 @@ public class GithubSkillOnlineProvider extends GithubSkillProvider implements Sk
      * @param sortBy  排序方式，该源忽略
      * @return 市场技能条目列表
      */
+    @Override
     @SuppressWarnings("unchecked")
     public List<SkillMarketListing> searchMarket(String keyword, int page, int limit, String sortBy) {
         int size = Math.max(1, limit);
@@ -95,7 +95,6 @@ public class GithubSkillOnlineProvider extends GithubSkillProvider implements Sk
         }
     }
 
-    @Override
     /**
      * 安装技能。
      *
@@ -103,11 +102,11 @@ public class GithubSkillOnlineProvider extends GithubSkillProvider implements Sk
      * @param skillId  技能标识
      * @return 是否安装成功
      */
+    @Override
     public boolean install(String clientId, String skillId) {
         return super.install(clientId, skillId);
     }
 
-    @Override
     /**
      * 卸载技能。
      *
@@ -115,6 +114,7 @@ public class GithubSkillOnlineProvider extends GithubSkillProvider implements Sk
      * @param skillId  技能标识
      * @return 是否卸载成功
      */
+    @Override
     public boolean uninstall(String clientId, String skillId) {
         return super.uninstall(clientId, skillId);
     }

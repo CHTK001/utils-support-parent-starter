@@ -56,34 +56,34 @@ public class AnimeRealClsTranslator implements Translator<Image, Classifications
                 .build();
     }
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(TranslatorContext ctx) throws Exception {
         delegate.prepare(ctx);
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         return delegate.processInput(ctx, input);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         return delegate.processOutput(ctx, list);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return delegate.getBatchifier();
     }

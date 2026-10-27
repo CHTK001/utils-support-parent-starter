@@ -38,13 +38,13 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
         this.sevenZFile = sevenZFile;
     }
 
-    @Override
-    @Nullable
     /**
      * 获取下一个entry
      *
      * @return 获取下一个entry的结果
      */
+    @Override
+    @Nullable
     public ArchiveEntry getNextEntry() throws IOException {
         currentEntry = sevenZFile.getNextEntry();
         if (currentEntry == null) {
@@ -53,10 +53,10 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
         return new ArchiveEntryAdapter(currentEntry);
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public int read() throws IOException {
         if (currentEntry == null) {
             return -1;
@@ -64,10 +64,10 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
         return sevenZFile.read();
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public int read(byte[] b) throws IOException {
         if (currentEntry == null) {
             return -1;
@@ -75,10 +75,10 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
         return sevenZFile.read(b);
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public int read(byte[] b, int off, int len) throws IOException {
         if (currentEntry == null) {
             return -1;
@@ -86,10 +86,10 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
         return sevenZFile.read(b, off, len);
     }
 
-    @Override
     /**
      * 跳过
     */
+    @Override
     public long skip(long n) throws IOException {
         if (currentEntry == null) {
             return 0;
@@ -109,10 +109,10 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
         return n - remaining;
     }
 
-    @Override
     /**
      * 可用
     */
+    @Override
     public int available() throws IOException {
         if (currentEntry == null) {
             return 0;
@@ -121,34 +121,34 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
         return (int) Math.min(remaining, Integer.MAX_VALUE);
     }
 
-    @Override
     /**
      * 标记
     */
+    @Override
     public void mark(int readlimit) {
         // 7Z格式不支持标记
     }
 
-    @Override
     /**
      * 重置
     */
+    @Override
     public void reset() throws IOException {
         throw new IOException("7Z格式不支持重置操作");
     }
 
-    @Override
     /**
      * 标记支持
     */
+    @Override
     public boolean markSupported() {
         return false;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() throws IOException {
         sevenZFile.close();
     }

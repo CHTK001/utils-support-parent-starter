@@ -53,10 +53,10 @@ import java.util.Map;
 public class YamlConfigParser implements ConfigParser {
 
 
-    @Override
     /**
      * 解析
     */
+    @Override
     public PropertySource parse(String urlPath, InputStream is) {
         Map<String, Object> result = Wraps.linkedMap();
         try {

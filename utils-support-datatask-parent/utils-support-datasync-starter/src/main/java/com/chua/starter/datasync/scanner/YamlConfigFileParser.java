@@ -7,6 +7,7 @@ import com.chua.starter.datasync.config.DirectoryConfigDefinition;
 import com.chua.starter.datasync.config.FileConfigDefinition;
 import com.chua.starter.datasync.config.TextConfigDefinition;
 import com.chua.starter.datasync.mapping.DataSyncFieldMapping;
+import lombok.extern.slf4j.Slf4j;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStream;
@@ -24,21 +25,22 @@ import java.util.Objects;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class YamlConfigFileParser implements ConfigFileParser {
 
-    @Override
     /**
      * 支持
     */
+    @Override
     public boolean supports(Path file) {
         String name = file.getFileName().toString().toLowerCase();
         return name.endsWith(".yaml") || name.endsWith(".yml");
     }
 
-    @Override
     /**
      * 解析
     */
+    @Override
     public DataSyncConfigDefinition parse(Path file) throws Exception {
         Yaml yaml = new Yaml();
         try (InputStream is = Files.newInputStream(file)) {
@@ -154,7 +156,8 @@ public class YamlConfigFileParser implements ConfigFileParser {
         if (v instanceof String s) {
             try {
                 return Integer.parseInt(s);
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException e) {
+                log.debug("[datasync] YAML 整数值解析失败，使用默认值: {}", e.getMessage());
             }
         }
         return defaultValue;
@@ -194,26 +197,26 @@ public class YamlConfigFileParser implements ConfigFileParser {
             converter = Objects.requireNonNull(converter, "converter 不能为 null");
         }
 
-        @Override
         /**
          * 源字段
         */
+        @Override
         public String sourceField() {
             return sourceField;
         }
 
-        @Override
         /**
          * Target字段
         */
+        @Override
         public String targetField() {
             return targetField;
         }
 
-        @Override
         /**
          * 转换器
         */
+        @Override
         public String converter() {
             return converter;
         }
@@ -290,74 +293,74 @@ public class YamlConfigFileParser implements ConfigFileParser {
             directoryPath = Objects.requireNonNull(directoryPath, "directoryPath 不能为 null");
         }
 
-        @Override
         /**
          * 源id
         */
+        @Override
         public String sourceId() {
             return sourceId;
         }
 
-        @Override
         /**
          * 输出id
         */
+        @Override
         public String outputId() {
             return outputId;
         }
 
-        @Override
         /**
          * sinkid
         */
+        @Override
         public String sinkId() {
             return sinkId;
         }
 
-        @Override
         /**
          * Mappings
         */
+        @Override
         public List<DataSyncFieldMapping> mappings() {
             return mappings;
         }
 
-        @Override
         /**
          * 批量
         */
+        @Override
         public int batch() {
             return batch;
         }
 
-        @Override
         /**
          * cron类型
         */
+        @Override
         public String cronType() {
             return cronType;
         }
 
-        @Override
         /**
          * Cron
         */
+        @Override
         public String cron() {
             return cron;
         }
 
-        @Override
         /**
          * 参数
         */
+        @Override
         public Map<String, Object> params() {
             return params;
         }
 
-        @Override
         /**
          * 目录路径
         */
+        @Override
         public String directoryPath() {
             return directoryPath;
         }
@@ -433,74 +436,74 @@ public class YamlConfigFileParser implements ConfigFileParser {
             filePath = Objects.requireNonNull(filePath, "filePath 不能为 null");
         }
 
-        @Override
         /**
          * 源id
         */
+        @Override
         public String sourceId() {
             return sourceId;
         }
 
-        @Override
         /**
          * 输出id
         */
+        @Override
         public String outputId() {
             return outputId;
         }
 
-        @Override
         /**
          * sinkid
         */
+        @Override
         public String sinkId() {
             return sinkId;
         }
 
-        @Override
         /**
          * Mappings
         */
+        @Override
         public List<DataSyncFieldMapping> mappings() {
             return mappings;
         }
 
-        @Override
         /**
          * 批量
         */
+        @Override
         public int batch() {
             return batch;
         }
 
-        @Override
         /**
          * cron类型
         */
+        @Override
         public String cronType() {
             return cronType;
         }
 
-        @Override
         /**
          * Cron
         */
+        @Override
         public String cron() {
             return cron;
         }
 
-        @Override
         /**
          * 参数
         */
+        @Override
         public Map<String, Object> params() {
             return params;
         }
 
-        @Override
         /**
          * 文件路径
         */
+        @Override
         public String filePath() {
             return filePath;
         }
@@ -577,74 +580,74 @@ public class YamlConfigFileParser implements ConfigFileParser {
             text = Objects.requireNonNull(text, "text 不能为 null");
         }
 
-        @Override
         /**
          * 源id
         */
+        @Override
         public String sourceId() {
             return sourceId;
         }
 
-        @Override
         /**
          * 输出id
         */
+        @Override
         public String outputId() {
             return outputId;
         }
 
-        @Override
         /**
          * sinkid
         */
+        @Override
         public String sinkId() {
             return sinkId;
         }
 
-        @Override
         /**
          * Mappings
         */
+        @Override
         public List<DataSyncFieldMapping> mappings() {
             return mappings;
         }
 
-        @Override
         /**
          * 批量
         */
+        @Override
         public int batch() {
             return batch;
         }
 
-        @Override
         /**
          * cron类型
         */
+        @Override
         public String cronType() {
             return cronType;
         }
 
-        @Override
         /**
          * Cron
         */
+        @Override
         public String cron() {
             return cron;
         }
 
-        @Override
         /**
          * 参数
         */
+        @Override
         public Map<String, Object> params() {
             return params;
         }
 
-        @Override
         /**
          * 文本
         */
+        @Override
         public String text() {
             return text;
         }
@@ -712,66 +715,66 @@ public class YamlConfigFileParser implements ConfigFileParser {
                     Objects.requireNonNull(params, "params 不能为 null")));
         }
 
-        @Override
         /**
          * 源id
         */
+        @Override
         public String sourceId() {
             return sourceId;
         }
 
-        @Override
         /**
          * 输出id
         */
+        @Override
         public String outputId() {
             return outputId;
         }
 
-        @Override
         /**
          * sinkid
         */
+        @Override
         public String sinkId() {
             return sinkId;
         }
 
-        @Override
         /**
          * Mappings
         */
+        @Override
         public List<DataSyncFieldMapping> mappings() {
             return mappings;
         }
 
-        @Override
         /**
          * 批量
         */
+        @Override
         public int batch() {
             return batch;
         }
 
-        @Override
         /**
          * cron类型
         */
+        @Override
         public String cronType() {
             return cronType;
         }
 
-        @Override
         /**
          * Cron
         */
+        @Override
         public String cron() {
             return cron;
         }
 
-        @Override
         /**
          * 参数
         */
+        @Override
         public Map<String, Object> params() {
             return params;
         }

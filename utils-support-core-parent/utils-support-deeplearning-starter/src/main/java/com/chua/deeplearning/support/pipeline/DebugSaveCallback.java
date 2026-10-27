@@ -1,5 +1,7 @@
 package com.chua.deeplearning.support.pipeline;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -19,6 +21,7 @@ import java.nio.file.Path;
  * @param stageData Stage数据
  * @param pipelineName pipeline名称
  */
+@Slf4j
 public class DebugSaveCallback implements PipelineCallback {
 
     private static final String DEBUG_ROOT = "G:/images/output/debug"; // 调试根
@@ -68,7 +71,8 @@ public class DebugSaveCallback implements PipelineCallback {
             Path dir = Path.of(DEBUG_ROOT, pipelineName);
             Files.createDirectories(dir);
             Files.write(dir.resolve(name + ".png"), bytes);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[deeplearning] 调试图片落盘失败，已忽略: {}", e.getMessage());
         }
     }
 

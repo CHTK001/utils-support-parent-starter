@@ -56,122 +56,122 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
         this.httpClient = new DefaultDatalakeHttpClient(baseUrl);
     }
 
-    @Override
     /**
      * 添加数据源
     */
+    @Override
     public <T> com.chua.common.support.lang.datasource.engine.Engine addDataSource(String name, EngineDataSource<T> dataSource) {
         throw new UnsupportedOperationException("[datalake-query] HttpDatalakeQueryEngine 只读，不接受本地数据源注册");
     }
 
-    @Override
     /**
      * 存储
     */
+    @Override
     public <T> com.chua.common.support.lang.datasource.engine.Engine store(String name, List<T> data) {
         throw new UnsupportedOperationException("[datalake-query] HttpDatalakeQueryEngine 只读，不接受写入");
     }
 
-    @Override
     /**
      * 设置默认数据源名称
     */
+    @Override
     public com.chua.common.support.lang.datasource.engine.Engine setDefaultDataSourceName(String name) {
         return this;
     }
 
-    @Override
     /**
      * 获取执行器
     */
+    @Override
     public SqlExecutor getExecutor(String dataSourceName) {
         return new HttpSqlExecutor();
     }
 
-    @Override
     /**
      * 获取执行器
     */
+    @Override
     public SqlExecutor getExecutor() {
         return getExecutor(defaultName);
     }
 
-    @Override
     /**
      * 获取数据源
     */
+    @Override
     public <T> EngineDataSource<T> getDataSource(String name) {
         return null;
     }
 
-    @Override
     /**
      * 获取数据源
     */
+    @Override
     public <T> EngineDataSource<T> getDataSource() {
         return getDataSource(defaultName);
     }
 
-    @Override
     /**
      * 查询
     */
+    @Override
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         throw new UnsupportedOperationException("[datalake-query] HttpDatalakeQueryEngine 不支持 Lambda 查询，请使用 getExecutor()");
     }
 
-    @Override
     /**
      * 更新
     */
+    @Override
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         throw new UnsupportedOperationException("[datalake-query] HttpDatalakeQueryEngine 不支持 Lambda 更新");
     }
 
-    @Override
     /**
      * 删除
     */
+    @Override
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         throw new UnsupportedOperationException("[datalake-query] HttpDatalakeQueryEngine 不支持 Lambda 删除");
     }
 
-    @Override
     /**
      * 获取Dialect
     */
+    @Override
     public com.chua.common.support.lang.datasource.dialect.Dialect getDialect(String dataSourceName) {
         return null;
     }
 
-    @Override
     /**
      * 获取默认数据源名称
     */
+    @Override
     public String getDefaultDataSourceName() {
         return defaultName;
     }
 
-    @Override
     /**
      * Meta
     */
+    @Override
     public MetaData meta() {
         throw new UnsupportedOperationException("[datalake-query] HttpDatalakeQueryEngine 不支持元数据操作");
     }
 
-    @Override
     /**
      * 不支持元数据操作
     */
+    @Override
     public boolean supportsMeta() {
         return false;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
       public void close() {
           if (!closed.compareAndSet(false, true)) {
               return;
@@ -179,12 +179,12 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
           httpClient.close();
       }
 
-      @Override
       /**
        * 是否已关闭
        *
        * @return 已关闭返回 true
        */
+      @Override
       public boolean isClosed() {
           return closed.get();
       }
@@ -197,10 +197,10 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
      */
     private class HttpSqlExecutor implements SqlExecutor {
 
-        @Override
         /**
          * 查询
         */
+        @Override
         public List<Map<String, Object>> query(String sql, Object... params) {
             try {
                 return httpClient.queryAsList(sql, params);
@@ -211,10 +211,10 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
             }
         }
 
-        @Override
         /**
          * 查询
         */
+        @Override
         public <T> List<T> query(String sql, Class<T> rowType, Object... params) {
             List<Map<String, Object>> rows = query(sql, params);
             List<T> result = Wraps.list(rows.size());
@@ -224,10 +224,10 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
             return result;
         }
 
-        @Override
         /**
          * 查询Page
         */
+        @Override
         public List<Map<String, Object>> queryPage(String sql, Pagination pagination, Object... params) {
             List<Map<String, Object>> rows = query(sql, params);
             if (pagination == null) {
@@ -241,10 +241,10 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
             return Wraps.list(rows.subList(from, to));
         }
 
-        @Override
         /**
          * 执行
         */
+        @Override
         public int execute(String sql, Object... params) {
             String body;
             try {
@@ -257,10 +257,10 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
             return parseAffected(body);
         }
 
-        @Override
         /**
          * 批量
         */
+        @Override
         public int[] batch(String sql, List<Object[]> batchParams) {
             throw new UnsupportedOperationException(
                     "[datalake-query] 查询端点未定义参数通道，不支持批量执行");

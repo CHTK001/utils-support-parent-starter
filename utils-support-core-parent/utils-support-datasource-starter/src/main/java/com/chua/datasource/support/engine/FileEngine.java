@@ -10,6 +10,7 @@ import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.FileUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -56,6 +57,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Spi("file")
 public class FileEngine extends AbstractEngine {
 
@@ -311,8 +313,6 @@ public class FileEngine extends AbstractEngine {
 
     // ==================== 查询 ====================
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 执行新查询
      *
@@ -323,6 +323,8 @@ public class FileEngine extends AbstractEngine {
      * @param offset 偏移量
      * @return 执行新查询的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     protected <T> List<T> executeNewQuery(String where, Object[] args, Class<T> clazz, int limit, int offset) {
         List<T> data = getData(clazz);
         if (data.isEmpty()) {
@@ -391,14 +393,14 @@ public class FileEngine extends AbstractEngine {
 
     // ==================== 更新 / 删除（自动持久化） ====================
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 执行更新
      *
      * @param sql SQL
      * @return 执行更新的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> int executeUpdate(UpdateSql<T> sql) {
         int rows = super.executeUpdate(sql);
         if (rows > 0) {
@@ -407,14 +409,14 @@ public class FileEngine extends AbstractEngine {
         return rows;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 执行删除
      *
      * @param sql SQL
      * @return 执行删除的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> int executeDelete(DeleteSql<T> sql) {
         int rows = super.executeDelete(sql);
         if (rows > 0) {
@@ -509,7 +511,6 @@ public class FileEngine extends AbstractEngine {
         });
     }
 
-    @Override
     /**
      * 是否支持原生语句执行
      * <p>文件引擎自带完整 SQL 解析与求值链路（{@link MemorySqlParser}），
@@ -518,11 +519,11 @@ public class FileEngine extends AbstractEngine {
      *
      * @return 恒为 true
      */
+    @Override
     public boolean supportsSql() {
         return true;
     }
 
-    @Override
     /**
      * 内存通道插入后的收尾
      * <p>文件引擎的内存表是源文件的投影，插入后需按 autopersist 配置写回，
@@ -531,6 +532,7 @@ public class FileEngine extends AbstractEngine {
      * @param entityClass 实体类类型
      * @param affected 本次插入行数
      */
+    @Override
     protected void afterMemoryInsert(Class<?> entityClass, int affected) {
         if (affected > 0) {
             persistIfAuto(entityClass);
@@ -701,7 +703,8 @@ public class FileEngine extends AbstractEngine {
             }
             String isGetter = "is" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
             return ReflectUtils.invoke(bean, isGetter, Object.class);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[datasource] 反射读取属性值失败，返回 null: {}", e.getMessage());
         }
         return null;
     }

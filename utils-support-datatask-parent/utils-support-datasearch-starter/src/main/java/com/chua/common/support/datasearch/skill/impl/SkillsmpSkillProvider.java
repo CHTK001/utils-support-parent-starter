@@ -20,31 +20,30 @@ import java.util.Map;
 @Spi("skillsmp")
 public class SkillsmpSkillProvider extends SkillsmpProvider implements SkillOnlineProvider {
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return NAME;
     }
 
-    @Override
     /**
      * 获取Skills
     */
+    @Override
     public List<SkillDefinition> getSkills() {
         return List.of(searchSkill());
     }
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public List<SkillDefinition> search(String keyword) {
         return List.of(searchSkill());
     }
 
-    @Override
     /**
      * 搜索 skillsmp 技能清单。
      *
@@ -54,6 +53,7 @@ public class SkillsmpSkillProvider extends SkillsmpProvider implements SkillOnli
      * @param sortBy  排序方式
      * @return 市场技能条目列表
      */
+    @Override
     @SuppressWarnings("unchecked")
     public List<SkillMarketListing> searchMarket(String keyword, int page, int limit, String sortBy) {
         try {
@@ -128,18 +128,18 @@ public class SkillsmpSkillProvider extends SkillsmpProvider implements SkillOnli
         return value instanceof Number ? ((Number) value).longValue() : 0L;
     }
 
-    @Override
     /**
      * Install
     */
+    @Override
     public boolean install(String clientId, String skillId) {
         return super.install(clientId, skillId);
     }
 
-    @Override
     /**
      * Uninstall
     */
+    @Override
     public boolean uninstall(String clientId, String skillId) {
         return super.uninstall(clientId, skillId);
     }

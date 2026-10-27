@@ -232,10 +232,10 @@ public class CompressedFileSystem implements AutoCloseable {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
  // 压缩 操作完成后无需特殊关闭
     }

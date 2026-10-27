@@ -46,7 +46,6 @@ public class CnClipImageFeatureTranslator implements Translator<Image, float[]> 
      */
     private static final float[] STD = new float[]{0.26862954f, 0.26130258f, 0.27577711f};
 
-    @Override
     /**
      * 处理输入
      *
@@ -54,6 +53,7 @@ public class CnClipImageFeatureTranslator implements Translator<Image, float[]> 
      * @param input 输入图像
      * @return NCHW 输入张量 {@code [1,3,224,224]}
      */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         Image resized = input.resize(IMAGE_SIZE, IMAGE_SIZE, false);
         NDArray hwc = resized.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
@@ -82,7 +82,6 @@ public class CnClipImageFeatureTranslator implements Translator<Image, float[]> 
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
      *
@@ -90,6 +89,7 @@ public class CnClipImageFeatureTranslator implements Translator<Image, float[]> 
      * @param list 模型输出
      * @return 图像特征向量
      */
+    @Override
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.getFirst();
         if (!DataType.FLOAT32.equals(output.getDataType())) {
@@ -98,12 +98,12 @@ public class CnClipImageFeatureTranslator implements Translator<Image, float[]> 
         return output.toFloatArray();
     }
 
-    @Override
     /**
      * 获取Batchifier
      *
      * @return 批处理器
      */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

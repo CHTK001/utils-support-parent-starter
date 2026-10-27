@@ -70,10 +70,10 @@ public class DatalakeExecutorManager implements ExecutorManager {
         executor.setPipelineEngine(engine);
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         if (started.compareAndSet(false, true)) {
             executor.start();
@@ -81,10 +81,10 @@ public class DatalakeExecutorManager implements ExecutorManager {
         log.info("[datalake-server] ExecutorManager 启动，agentId={}", executor.getAgentId());
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() {
         started.set(false);
         try {
@@ -95,10 +95,10 @@ public class DatalakeExecutorManager implements ExecutorManager {
         log.info("[datalake-server] ExecutorManager 停止");
     }
 
-    @Override
     /**
      * 获取执行器
     */
+    @Override
     public ReactorDataSyncExecutor getExecutor(String topic) {
         return executor;
     }

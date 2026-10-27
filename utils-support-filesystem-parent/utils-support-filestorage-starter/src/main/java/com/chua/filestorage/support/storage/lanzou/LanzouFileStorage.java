@@ -196,11 +196,11 @@ public class LanzouFileStorage extends AbstractFileStorage {
         return m.find() ? m.group(1) : "";
     }
 
-    @Override
     /**
      * PutObject
      * @param request request
      */
+    @Override
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             byte[] content = request.getContent();
@@ -235,11 +235,11 @@ public class LanzouFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 获取Object
      * @param request request
      */
+    @Override
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String fileId = resolveFileId(request.getKey());
@@ -279,22 +279,22 @@ public class LanzouFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 获取Object
      * @param key key
      */
+    @Override
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
         return getObject(GetObjectRequest.builder().fileName(name).filePath(path).key(key).build());
     }
 
-    @Override
     /**
      * 删除Object
      * @param key key
      */
+    @Override
     public DeleteObjectResult deleteObject(String key) {
         try {
             String fileId = resolveFileId(key);
@@ -317,11 +317,11 @@ public class LanzouFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * ExistObject
      * @param request request
      */
+    @Override
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             String fileId = resolveFileId(request.getKey());
@@ -340,11 +340,11 @@ public class LanzouFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * ListObject
      * @param request request
      */
+    @Override
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             String folderId = request.getFilePath();

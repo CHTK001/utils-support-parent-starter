@@ -20,10 +20,10 @@ import java.util.Map;
 @Slf4j
 public class TomlStringToConfigConverter implements StringToConfigConverter {
 
-    @Override
     /**
      * 转换
     */
+    @Override
     public Map<String, Object> convert(String value) {
         try {
  // 使用 Jackson 的 toml工厂 解析 TOML

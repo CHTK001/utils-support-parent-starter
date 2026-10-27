@@ -51,10 +51,10 @@ public class AutoFetcher implements SpiderFetcher {
         log.info("[spider-fetcher] AutoFetcher 加载了 {} 个 Fetcher 实现", fetchers.size());
     }
 
-    @Override
     /**
      * 获取
     */
+    @Override
     public SpiderResponse fetch(SpiderRequest request) {
         if (fetchers.isEmpty()) {
             return SpiderResponse.builder()

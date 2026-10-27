@@ -238,10 +238,10 @@ public class TsharkPolledDirectory implements PolledDirectory {
         return processExisting;
     }
 
-    @Override
     /**
      * 添加监听器
      */
+    @Override
     public void addListener(PolledListener listener) {
         support.addListener(listener);
     }
@@ -256,10 +256,10 @@ public class TsharkPolledDirectory implements PolledDirectory {
         return support.removeListener(listener);
     }
 
-    @Override
     /**
      * 开始
      */
+    @Override
     public void start(DirectoryPollerEnvironment environment, DirectoryPollerExecutor executor) {
         if (!support.markRunning()) {
             log.warn("TShark 轮询目录已在运行，忽略重复启动: {}", listenPath);
@@ -287,10 +287,10 @@ public class TsharkPolledDirectory implements PolledDirectory {
         log.info("TShark 轮询目录已启动: {}", listenPath);
     }
 
-    @Override
     /**
      * Upgrade
      */
+    @Override
     public void upgrade() {
         File dir = new File(listenPath);
         if (!dir.exists() || !dir.isDirectory()) {
@@ -338,18 +338,18 @@ public class TsharkPolledDirectory implements PolledDirectory {
         }
     }
 
-    @Override
     /**
      * 停止
      */
+    @Override
     public void stop() {
         close();
     }
 
-    @Override
     /**
      * 关闭
      */
+    @Override
     public void close() {
         support.markStopped();
         if (executor != null) {
@@ -361,10 +361,10 @@ public class TsharkPolledDirectory implements PolledDirectory {
         log.info("TShark 轮询目录已停止: {}", listenPath);
     }
 
-    @Override
     /**
      * 是否处于运行中
      */
+    @Override
     public boolean isRunning() {
         return support.isRunning();
     }

@@ -187,10 +187,10 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
         this.requestedCandidates = parseCandidates(readArgument(cfg.systemOption(), "candidates"));
     }
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         tokenizer = HuggingFaceTokenizer.builder()
@@ -203,8 +203,6 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
         buildTextInputs();
     }
 
-    @Override
-    @Nonnull
     /**
      * 处理输入
      *
@@ -212,6 +210,8 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
      * @param input 输入
      * @return 处理输入的结果
      */
+    @Override
+    @Nonnull
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         BufferedImage original = (BufferedImage) input.getWrappedImage();
         originalWidth = original.getWidth();
@@ -243,8 +243,6 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
         return new NDList(inputIds, pixelValues, attentionMask);
     }
 
-    @Override
-    @Nonnull
     /**
      * 处理输出
      *
@@ -252,6 +250,8 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
      * @param list 列表
      * @return 处理输出的结果
      */
+    @Override
+    @Nonnull
     public DetectedObjects processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         if (lowInformationImage) {
             return emptyDetections();
@@ -312,13 +312,13 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
         return new DetectedObjects(names, probabilities, boxes);
     }
 
-    @Override
-    @Nullable
     /**
      * 获取Batchifier
      *
      * @return 获取batchifier的结果
      */
+    @Override
+    @Nullable
     public Batchifier getBatchifier() {
         return null;
     }

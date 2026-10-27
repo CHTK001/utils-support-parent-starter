@@ -31,10 +31,10 @@ public class PaddleFeatureClient extends AbstractLocalFeatureClient {
         super("paddle", setting);
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, null, float[].class);
     }

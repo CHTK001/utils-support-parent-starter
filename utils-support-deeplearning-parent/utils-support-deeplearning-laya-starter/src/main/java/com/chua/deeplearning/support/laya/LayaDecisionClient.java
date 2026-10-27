@@ -113,10 +113,10 @@ public class LayaDecisionClient implements DecisionClient {
                 ? null : setting.getCalibrationPath().trim();
     }
 
-    @Override
     /**
      * 决策求值
      */
+    @Override
     public DecisionBatch decide(Object state, List<DecisionQuery> queries) {
         Objects.requireNonNull(queries, "queries 不能为 null");
         if (queries.isEmpty()) {
@@ -363,10 +363,10 @@ public class LayaDecisionClient implements DecisionClient {
         }
     }
 
-    @Override
     /**
      * 关闭客户端
      */
+    @Override
     public void close() {
         closed = true;
         engine = null;

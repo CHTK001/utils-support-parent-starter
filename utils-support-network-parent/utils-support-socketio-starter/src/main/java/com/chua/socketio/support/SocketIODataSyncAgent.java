@@ -74,10 +74,10 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
         this.source = source;
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         if (running) {
             return;
@@ -93,10 +93,10 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
         }
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() {
         running = false;
         if (socket != null) {
@@ -105,28 +105,28 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
         }
     }
 
-    @Override
     /**
      * AgentId
     */
+    @Override
     public String agentId() { return agentId; }
 
-    @Override
     /**
      * ToSource
     */
+    @Override
     public DataSyncSource toSource() { return source; }
 
-    @Override
     /**
      * 是否Running
     */
+    @Override
     public boolean isRunning() { return running; }
 
-    @Override
     /**
      * DataUrl
     */
+    @Override
     public String dataUrl() { return ""; }
 
     /**

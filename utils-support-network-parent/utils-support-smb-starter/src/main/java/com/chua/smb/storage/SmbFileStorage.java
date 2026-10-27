@@ -91,10 +91,10 @@ public class SmbFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 放入对象
     */
+    @Override
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = normalizeKey(request.getKey());
@@ -119,10 +119,10 @@ public class SmbFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 获取对象
     */
+    @Override
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = normalizeKey(request.getKey());
@@ -142,20 +142,20 @@ public class SmbFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 获取对象
     */
+    @Override
     public GetObjectResult getObject(String key) {
         String name = extractName(key);
         String path = extractPath(key);
         return getObject(GetObjectRequest.builder().fileName(name).filePath(path).build());
     }
 
-    @Override
     /**
      * 删除对象
     */
+    @Override
     public DeleteObjectResult deleteObject(String key) {
         try {
             ensureConnected();
@@ -171,10 +171,10 @@ public class SmbFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * exist对象
     */
+    @Override
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             ensureConnected();
@@ -193,10 +193,10 @@ public class SmbFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 列表对象
     */
+    @Override
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             String path = request.getFilePath() != null ? request.getFilePath() : "/";
@@ -224,16 +224,17 @@ public class SmbFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         try {
             if (smbClient != null) {
                 smbClient.close();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[smb] 关闭 SMB 客户端失败，已忽略: {}", e.getMessage());
         }
     }
 

@@ -90,10 +90,10 @@ public class OpencvCascadeDetector extends OpencvModelTranslator {
         log.info("OpencvCascadeDetector 初始化完成: name={}, model={}", modelName, modelFile.getAbsolutePath());
     }
 
-    @Override
     /**
      * 执行translate
     */
+    @Override
     protected Object doTranslate(Object input) {
         if (!(input instanceof byte[] imageBytes)) {
             throw new IllegalArgumentException("仅支持 byte[] 输入，实际: "

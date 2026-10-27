@@ -125,19 +125,19 @@ public class ChronicleMapKv implements KvEngine, AutoCloseable {
         return builder.create();
     }
 
-    @Override
     /**
      * 获取
     */
+    @Override
     public String get(String key) {
         ensureOpen();
         return map.get(key);
     }
 
-    @Override
     /**
      * 放入（value 为 空 时 等效 删除，KvEngine 契约；ChronicleMap 本身 拒绝 null 值）
     */
+    @Override
     public void put(String key, String value) {
         ensureOpen();
         if (value == null) {
@@ -147,28 +147,28 @@ public class ChronicleMapKv implements KvEngine, AutoCloseable {
         map.put(key, value);
     }
 
-    @Override
     /**
      * contains键
     */
+    @Override
     public boolean containsKey(String key) {
         ensureOpen();
         return map.containsKey(key);
     }
 
-    @Override
     /**
      * 删除
     */
+    @Override
     public boolean delete(String key) {
         ensureOpen();
         return map.remove(key) != null;
     }
 
-    @Override
     /**
      * Incr（ChronicleMap 重写 了 compute，条 目 级 锁 内 读-改-写 原子；非 数值 旧 值 显式 抛）
     */
+    @Override
     public long incr(String key) {
         ensureOpen();
         String updated = map.compute(key, (k, v) -> {
@@ -209,10 +209,10 @@ public class ChronicleMapKv implements KvEngine, AutoCloseable {
         return result;
     }
 
-    @Override
     /**
      * 关闭（释放 ChronicleMap 堆外 内存 与 文件 锁，重复 调用 无 害）
      */
+    @Override
     public void close() {
         if (closed) {
             return;

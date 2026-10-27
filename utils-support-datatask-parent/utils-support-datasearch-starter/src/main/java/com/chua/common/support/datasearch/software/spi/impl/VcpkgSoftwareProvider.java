@@ -35,18 +35,18 @@ public class VcpkgSoftwareProvider implements SoftwareProvider {
     */
     private static final String NAME = "vcpkg";
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return NAME;
     }
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public List<SoftwareInfo> search(String keyword) {
         List<SoftwareInfo> results = Wraps.list();
         String[] cmd = {"vcpkg", "search", keyword};
@@ -54,26 +54,26 @@ public class VcpkgSoftwareProvider implements SoftwareProvider {
         log.info("vcpkg 搜索: keyword={}", keyword);
         StringBuilder outputBuffer = new StringBuilder();
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 30, TimeUnit.SECONDS, new LineCallback() {
-            @Override
             /**
              * on线
             */
+            @Override
             public void onLine(String line) {
                 outputBuffer.append(line).append("\n");
             }
 
-            @Override
             /**
              * on完成
             */
+            @Override
             public void onComplete(int exitCode) {
                 log.info("vcpkg 搜索完成, exitCode={}", exitCode);
             }
 
-            @Override
             /**
              * On记录错误
             */
+            @Override
             public void onError(String command, Throwable throwable) {
                 log.warn("vcpkg 搜索异常: {}", throwable.getMessage());
             }
@@ -86,20 +86,20 @@ public class VcpkgSoftwareProvider implements SoftwareProvider {
         return parseVcpkgOutput(outputBuffer.toString());
     }
 
-    @Override
     /**
      * Install
     */
+    @Override
     public boolean install(String packageId) {
         String[] cmd = {"vcpkg", "install", packageId};
         log.info("vcpkg 安装: {}", packageId);
         return executeCommand(cmd, "安装", packageId);
     }
 
-    @Override
     /**
      * Uninstall
     */
+    @Override
     public boolean uninstall(String packageId) {
         String[] cmd = {"vcpkg", "remove", packageId};
         log.info("vcpkg 卸载: {}", packageId);
@@ -116,26 +116,26 @@ public class VcpkgSoftwareProvider implements SoftwareProvider {
      */
     private boolean executeCommand(String[] cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
-            @Override
             /**
              * on线
             */
+            @Override
             public void onLine(String line) {
                 log.info("  [{}] {}", action, line);
             }
 
-            @Override
             /**
              * on完成
             */
+            @Override
             public void onComplete(int exitCode) {
                 log.info("  [{}] 完成, exitCode={}", action, exitCode);
             }
 
-            @Override
             /**
              * On记录错误
             */
+            @Override
             public void onError(String command, Throwable throwable) {
                 log.error("  [{}] 异常: {}", action, throwable.getMessage());
             }

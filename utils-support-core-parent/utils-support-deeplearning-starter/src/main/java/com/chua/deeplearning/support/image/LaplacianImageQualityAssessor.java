@@ -58,35 +58,35 @@ public class LaplacianImageQualityAssessor implements ImageQualityAssessor {
         this.maxBrightness = maxBrightness;
     }
 
-    @Override
     /**
      * blur阈值
     */
+    @Override
     public ImageQualityAssessor blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public ImageQualityAssessor modelPath(String path) {
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public ImageQualityAssessor device(String device) {
         return this;
     }
 
-    @Override
     /**
      * 评定
     */
+    @Override
     public ImageQualityInfo assess(byte[] imageData) {
         double blurScore = ImageUtils.blurScore(imageData);
         double brightness = ImageUtils.meanGray(imageData);

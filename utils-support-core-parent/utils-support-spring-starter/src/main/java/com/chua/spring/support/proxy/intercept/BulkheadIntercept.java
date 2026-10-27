@@ -27,26 +27,26 @@ import java.lang.reflect.Method;
 @Spi("com.chua.common.support.concurrent.bulkhead.annotation.Bulkhead")
 public class BulkheadIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<Bulkhead> {
 
-    @Override
     /**
      * 注解类型
     */
+    @Override
     public Class<Bulkhead> annotationType() {
         return Bulkhead.class;
     }
 
-    @Override
     /**
      * 订单
     */
+    @Override
     public int order() {
         return 100;
     }
 
-    @Override
     /**
      * Intercept
     */
+    @Override
     public Object intercept(Bulkhead annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
  // 解析隔离名称（支持 spel），未填使用 类名.方法名
         String name = resolveName(annotation.name(), proxyMethod);

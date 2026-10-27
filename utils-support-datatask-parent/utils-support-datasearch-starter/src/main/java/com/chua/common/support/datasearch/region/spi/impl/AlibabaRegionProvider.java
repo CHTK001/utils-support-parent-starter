@@ -79,26 +79,26 @@ public class AlibabaRegionProvider implements RegionProvider {
         this.httpClient = HttpClientFactory.getClient();
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "alibaba";
     }
 
-    @Override
     /**
      * 获取Regions
     */
+    @Override
     public List<RegionInfo> getRegions() {
         return getRegions(defaultLevel);
     }
 
-    @Override
     /**
      * 获取Regions
     */
+    @Override
     public List<RegionInfo> getRegions(int maxLevel) {
         RegionInfo root = getTree(maxLevel);
         List<RegionInfo> flat = Wraps.list();
@@ -106,19 +106,19 @@ public class AlibabaRegionProvider implements RegionProvider {
         return flat;
     }
 
-    @Override
     /**
      * 获取Children
     */
+    @Override
     public List<RegionInfo> getChildren(String parentAdcode) {
         String code = (parentAdcode == null || parentAdcode.isEmpty()) ? "100000" : parentAdcode;
         return fetchChildren(code);
     }
 
-    @Override
     /**
      * 获取树
     */
+    @Override
     public RegionInfo getTree(int maxLevel) {
         RegionInfo root = new RegionInfo("100000", "中国", 0, "country", null, 0, 0);
         build(root, 0, Math.max(1, maxLevel));

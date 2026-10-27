@@ -79,26 +79,26 @@ public abstract class AbstractDialect implements Dialect {
         return props;
     }
 
-    @Override
     /**
      * 支持限制
     */
+    @Override
     public boolean supportsLimit() {
         return true;
     }
 
-    @Override
     /**
      * 处理SQL
     */
+    @Override
     public String processSql(String sql, Pagination pagination) {
         return sql + " LIMIT " + pagination.getLimit() + " OFFSET " + pagination.getOffset();
     }
 
-    @Override
     /**
      * 获取类型名称
     */
+    @Override
     public String getTypeName(int jdbcType, long length, int precision, int scale) {
  // 1. 优先读外部 属性（application.属性 等）
         String configured = config("type." + jdbcTypeName(jdbcType), null);
@@ -153,18 +153,18 @@ public abstract class AbstractDialect implements Dialect {
         };
     }
 
-    @Override
     /**
      * Driver
     */
+    @Override
     public String driver() {
         return config("driver", null);
     }
 
-    @Override
     /**
      * Url
     */
+    @Override
     public String url() {
         return config("url", null);
     }

@@ -49,10 +49,10 @@ public class FaceSegTranslator implements Translator<Image, Image> {
      */
     private static final int THRESHOLD = 10;
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
         NDArray array = input.toNDArray(manager).toType(DataType.FLOAT32, false);
@@ -63,10 +63,10 @@ public class FaceSegTranslator implements Translator<Image, Image> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDManager manager = ctx.getNDManager();
         NDArray out = list.getFirst();
@@ -120,10 +120,10 @@ public class FaceSegTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromNDArray(rgbArr);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

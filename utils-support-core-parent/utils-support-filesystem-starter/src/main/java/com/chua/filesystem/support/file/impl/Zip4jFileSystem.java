@@ -26,23 +26,22 @@ import java.util.List;
 @Spi("zip4j")
 public class Zip4jFileSystem implements FileSystem {
 
-    @Override
     /**
      * 获取类型
     */
+    @Override
     public String getType() {
         return "zip4j";
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public ReadBuilder read(File file) {
         return new Zip4jReadBuilder(file);
     }
 
-    @Override
     /**
      * 写入
      *
@@ -51,6 +50,7 @@ public class Zip4jFileSystem implements FileSystem {
      * @author CH
      * @since 4.0.0
      */
+    @Override
     public WriteBuilder write(File file) {
         return new Zip4jWriteBuilder(file);
     }
@@ -206,15 +206,14 @@ public class Zip4jFileSystem implements FileSystem {
             return zf;
         }
 
-        @Override
         /**
          * 读取
         */
+        @Override
         public Object read() {
             return listEntries();
         }
 
-        @Override
         /**
          * as字符串
          *
@@ -222,6 +221,7 @@ public class Zip4jFileSystem implements FileSystem {
          * @author CH
          * @since 4.0.0
          */
+        @Override
         public String asString() {
             return String.join("\n", listEntries());
         }
@@ -365,10 +365,10 @@ public class Zip4jFileSystem implements FileSystem {
             return this;
         }
 
-        @Override
         /**
          * 饰面
         */
+        @Override
         public void finish() {
             if (file.getParentFile() != null && !file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
@@ -405,7 +405,6 @@ public class Zip4jFileSystem implements FileSystem {
             }
         }
 
-        @Override
         /**
          * 写入
          *
@@ -414,6 +413,7 @@ public class Zip4jFileSystem implements FileSystem {
          * @author CH
          * @since 4.0.0
          */
+        @Override
         public Zip4jWriteBuilder write(Object data) {
             if (data instanceof File) {
                 addFile(((File) data).getName(), (File) data);

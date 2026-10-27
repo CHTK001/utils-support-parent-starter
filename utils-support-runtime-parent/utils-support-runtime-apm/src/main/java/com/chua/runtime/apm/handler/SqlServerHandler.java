@@ -48,52 +48,52 @@ public class SqlServerHandler extends AbstractAppHandler {
      */
     private static final String[] CONNECTION_METHODS = {"prepareStatement", "prepareCall", "createStatement"};
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "sqlserver-handler";
     }
 
-    @Override
     /**
      * 已启用键
     */
+    @Override
     protected String enabledKey() {
         return "sqlserver.enabled";
     }
 
-    @Override
     /**
      * Software
     */
+    @Override
     protected Software software() {
         return Software.SQLSERVER_DRIVER;
     }
 
-    @Override
     /**
      * 协议
     */
+    @Override
     protected Protocol protocol() {
         return Protocol.SQLSERVER;
     }
 
-    @Override
     /**
      * 注册拦截器
     */
+    @Override
     protected void registerInterceptors() {
         registerAllEntryExit(SQLSERVER_STATEMENT_CLASS, SQL_METHODS);
         registerAllEntryExit(SQLSERVER_PREPARED_STATEMENT_CLASS, SQL_METHODS);
         registerAllEntryExit(SQLSERVER_CONNECTION_CLASS, CONNECTION_METHODS);
     }
 
-    @Override
     /**
      * 构建Target
     */
+    @Override
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object conn = resolveConnection(instance);
         String url = conn != null ? String.valueOf(findField(conn, "url")) : null;

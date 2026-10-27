@@ -84,10 +84,10 @@ public class VertxTcpProxyServer extends AbstractServer {
         this.targetResolver = remote -> backend;
     }
 
-    @Override
     /**
      * 执行开始
     */
+    @Override
     protected void doStart() {
         try {
             VertxOptions opts = new VertxOptions()
@@ -139,10 +139,10 @@ public class VertxTcpProxyServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * 执行停止
     */
+    @Override
     protected void doStop() {
         if (netServer != null) {
             try {
@@ -168,10 +168,10 @@ public class VertxTcpProxyServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * 获取协议类型
     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }

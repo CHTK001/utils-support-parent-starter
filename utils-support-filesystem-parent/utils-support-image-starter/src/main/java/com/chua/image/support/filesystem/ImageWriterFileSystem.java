@@ -66,10 +66,10 @@ public class ImageWriterFileSystem extends AbstractWriter {
         super(filePath);
     }
 
-    @Override
     /**
      * 获取类型
     */
+    @Override
     public String getType() {
         
         return "image";
@@ -110,10 +110,10 @@ public class ImageWriterFileSystem extends AbstractWriter {
                 || name.endsWith(".rw2");
     }
 
-    @Override
     /**
      * 执行初始化
     */
+    @Override
     protected void doInitialize() throws IOException {
         if (file == null) {
             throw new IOException("文件对象为null");
@@ -123,18 +123,18 @@ public class ImageWriterFileSystem extends AbstractWriter {
         }
     }
 
-    @Override
     /**
      * 执行写入线
     */
+    @Override
     protected void doWriteLine(String line) throws IOException {
         throw new UnsupportedOperationException("图片文件系统不支持按行写入");
     }
 
-    @Override
     /**
      * 执行写入文本
     */
+    @Override
     protected void doWriteText(String text) throws IOException {
         if (text == null || text.isEmpty()) {
             return;
@@ -143,10 +143,10 @@ public class ImageWriterFileSystem extends AbstractWriter {
         doWrite(Map.of(KEY_BASE64, text));
     }
 
-    @Override
     /**
      * 执行写入Bytes
     */
+    @Override
     protected void doWriteBytes(byte[] bytes) throws IOException {
         if (bytes == null || bytes.length == 0) {
             return;
@@ -154,10 +154,10 @@ public class ImageWriterFileSystem extends AbstractWriter {
         Files.write(file.toPath(), bytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
-    @Override
     /**
      * 执行写入
     */
+    @Override
     protected void doWrite(Map<String, Object> data) throws IOException {
         if (data == null || data.isEmpty()) {
             return;
@@ -189,18 +189,18 @@ public class ImageWriterFileSystem extends AbstractWriter {
         throw new UnsupportedOperationException("图片文件系统不支持当前写入数据格式");
     }
 
-    @Override
     /**
      * 执行刷新
     */
+    @Override
     protected void doFlush() throws IOException {
         // 文件写入为一次性覆盖，flush 由底层 NIO 处理
     }
 
-    @Override
     /**
      * 执行饰面
     */
+    @Override
     protected void doFinish() throws IOException {
         // 无需额外收尾
     }

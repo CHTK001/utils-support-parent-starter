@@ -147,94 +147,94 @@ public class OpenAiTranslateClient implements TranslateClient {
         this.topP = setting.getTopP();
     }
 
-    @Override
     /**
      * 模型
      */
+    @Override
     public TranslateClient model(String model) {
         this.model = model;
         return this;
     }
 
-    @Override
     /**
      * 源语言
      */
+    @Override
     public TranslateClient sourceLang(String sourceLanguage) {
         this.sourceLanguage = sourceLanguage;
         return this;
     }
 
-    @Override
     /**
      * 目标语言
      */
+    @Override
     public TranslateClient targetLang(String targetLanguage) {
         this.targetLanguage = targetLanguage;
         return this;
     }
 
-    @Override
     /**
      * 翻译指令
      */
+    @Override
     public TranslateClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
-    @Override
     /**
      * Temperature
      */
+    @Override
     public TranslateClient temperature(double temperature) {
         this.temperature = temperature;
         return this;
     }
 
-    @Override
     /**
      * 最大值令牌
      */
+    @Override
     public TranslateClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
-    @Override
     /**
      * topp
      */
+    @Override
     public TranslateClient topP(double topP) {
         this.topP = topP;
         return this;
     }
 
-    @Override
     /**
      * 流
      */
+    @Override
     public TranslateClient stream(boolean stream) {
         this.stream = stream;
         return this;
     }
 
-    @Override
     /**
      * 翻译同步
      */
+    @Override
     public String translateSync(String text) {
         TranslateSyncResponse response = translateSyncWithResponse(text);
         return response == null ? null : response.getText();
     }
 
-    @Override
     /**
      * 翻译同步（携带用量信息）
      *
      * @param text 待翻译文本
      * @return 同步响应
      */
+    @Override
     public TranslateSyncResponse translateSyncWithResponse(String text) {
         // 同步方法强制使用非流式，不受外部 stream(true) 影响
         boolean savedStream = this.stream;
@@ -261,7 +261,6 @@ public class OpenAiTranslateClient implements TranslateClient {
         }
     }
 
-    @Override
     /**
      * 翻译
      *
@@ -270,6 +269,7 @@ public class OpenAiTranslateClient implements TranslateClient {
      * @param onComplete 完成回调
      * @param onError 错误回调
      */
+    @Override
     public void translate(String text, Consumer<TranslateResponse> consumer,
                           Runnable onComplete, Consumer<Throwable> onError) {
         String actualBaseUrl = normalizeBaseUrl();

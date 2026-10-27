@@ -129,18 +129,18 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
         return new HikariDataSource(config);
     }
 
-    @Override
     /**
      * sinkid
     */
+    @Override
     public String sinkId() {
         return sinkId;
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public void write(Flux<Map<String, Object>> data) {
         log.info("[JdbcDataSyncAgentSink] 开始写入数据, sinkId={}, batchSize={}, sql={}", sinkId, batchSize, sql);
 
@@ -259,10 +259,10 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
@@ -270,10 +270,10 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
         }
     }
 
-    @Override
     /**
      * Direction
     */
+    @Override
     public Direction direction() {
         return Direction.OUTPUT;
     }

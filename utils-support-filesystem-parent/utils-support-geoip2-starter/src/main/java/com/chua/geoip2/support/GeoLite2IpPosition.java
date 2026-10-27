@@ -74,10 +74,10 @@ public class GeoLite2IpPosition implements IpPosition {
         }
     }
 
-    @Override
     /**
      * 查询
     */
+    @Override
     public IpLocation query(String ip) {
         if (ip == null || ip.isBlank()) {
             return null;

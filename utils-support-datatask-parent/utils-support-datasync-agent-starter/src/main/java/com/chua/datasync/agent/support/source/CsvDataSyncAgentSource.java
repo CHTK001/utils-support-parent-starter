@@ -40,10 +40,10 @@ public class CsvDataSyncAgentSource extends DelimitedDataSyncAgentSource impleme
         super(sourceId, inputId, filePath, delimiter);
     }
 
-    @Override
     /**
      * Direction
     */
+    @Override
     public Direction direction() {
         return Direction.INPUT;
     }

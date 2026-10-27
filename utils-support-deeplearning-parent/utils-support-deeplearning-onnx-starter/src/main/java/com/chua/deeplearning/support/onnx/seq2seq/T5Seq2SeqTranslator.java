@@ -60,10 +60,10 @@ public class T5Seq2SeqTranslator implements Translator<String, String> {
     */
     private Path modelRoot;
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(TranslatorContext ctx) throws IOException {
         modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokenizerPath = findFile(modelRoot, "tokenizer.json");
@@ -79,10 +79,10 @@ public class T5Seq2SeqTranslator implements Translator<String, String> {
         }
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("T5Seq2Seq tokenizer not initialized");
@@ -102,10 +102,10 @@ public class T5Seq2SeqTranslator implements Translator<String, String> {
         return new NDList(ids, mask);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public String processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
         NDArray tokenIds = logits.argMax(2);
@@ -124,10 +124,10 @@ public class T5Seq2SeqTranslator implements Translator<String, String> {
         return text.trim();
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

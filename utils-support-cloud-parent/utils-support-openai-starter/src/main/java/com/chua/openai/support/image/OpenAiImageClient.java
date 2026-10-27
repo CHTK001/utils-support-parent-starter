@@ -116,63 +116,63 @@ public class OpenAiImageClient implements ImageClient {
         this.height = setting.getHeight();
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public ImageClient model(String model) {
         this.model = model;
         return this;
     }
-    @Override
     /**
      * 获取大小
     */
+    @Override
     public ImageClient size(int width, int height) {
         this.width = width;
         this.height = height;
         return this;
     }
-    @Override
     /**
      * 提示符
     */
+    @Override
     public ImageClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
-    @Override
     /**
      * Quality
     */
+    @Override
     public ImageClient quality(String quality) {
         this.quality = quality;
         return this;
     }
-    @Override
     /**
      * Style
     */
+    @Override
     public ImageClient style(String style) {
         this.style = style;
         return this;
     }
-    @Override
     /**
      * 引用镜像：以 {@code image} 数组携带（图生图）。
      *
      * <p>OpenAI 兼容渠道（如 Agnes）的图生图在 {@code /images/generations} 的请求体里
      * 直接带 {@code image: [DataURI]}，不是 multipart，也不需要另起 edit 接口。</p>
      */
+    @Override
     public ImageClient referenceImage(byte[] image) {
         this.referenceImage = image == null ? null : image.clone();
         this.referenceImageMime = "image/png";
         return this;
     }
-    @Override
     /**
      * 引用镜像：编码为 PNG 后同上。
      */
+    @Override
     public ImageClient referenceImage(BufferedImage image) {
         if (image == null) {
             this.referenceImage = null;
@@ -188,15 +188,15 @@ public class OpenAiImageClient implements ImageClient {
         }
         return this;
     }
-    @Override
     /**
      * 镜像strength
     */
-    public ImageClient imageStrength(double strength) { throw new UnsupportedOperationException("该服务商不支持参考图强度"); }
     @Override
+    public ImageClient imageStrength(double strength) { throw new UnsupportedOperationException("该服务商不支持参考图强度"); }
     /**
      * control类型
     */
+    @Override
     public ImageClient controlType(String controlType) { throw new UnsupportedOperationException("该服务商不支持ControlNet"); }
 
     /**
@@ -216,10 +216,10 @@ public class OpenAiImageClient implements ImageClient {
                 + Base64.getEncoder().encodeToString(referenceImage));
     }
 
-    @Override
     /**
      * Generate
     */
+    @Override
     public BufferedImage generate(String prompt) {
         // 优先使用方法参数，其次使用链式设置的值
         String actualPrompt = prompt != null ? prompt : this.prompt;
@@ -292,26 +292,26 @@ public class OpenAiImageClient implements ImageClient {
         }
     }
 
-    @Override
     /**
      * 创建任务
     */
+    @Override
     public String createTask(String prompt) {
         throw new UnsupportedOperationException("请使用 generate() 方法同步生成图片");
     }
 
-    @Override
     /**
      * 查询任务
     */
+    @Override
     public ImageResponse queryTask(String taskId) {
         throw new UnsupportedOperationException("不支持异步任务查询，请使用 generate() 方法同步生成");
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
  // 使用 http客户端工厂 创建的 HTTP 客户端由框架自动管理，无需手动关闭
     }

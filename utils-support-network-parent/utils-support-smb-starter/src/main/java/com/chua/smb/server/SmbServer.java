@@ -78,18 +78,18 @@ public class SmbServer extends AbstractServer {
         this.rootPath = rootPath != null ? rootPath : "/tmp/smbroot";
     }
 
-    @Override
     /**
      * 获取协议类型
     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.SMB;
     }
 
-    @Override
     /**
      * 执行开始
     */
+    @Override
     protected void doStart() {
         try {
             RustSmbServerBridge.loadLibrary();
@@ -108,10 +108,10 @@ public class SmbServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * 执行停止
     */
+    @Override
     protected void doStop() {
         if (serverHandle > 0) {
             try {

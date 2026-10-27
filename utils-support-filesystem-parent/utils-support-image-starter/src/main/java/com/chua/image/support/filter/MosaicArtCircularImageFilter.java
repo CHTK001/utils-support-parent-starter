@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -63,6 +64,7 @@ import java.util.stream.Collectors;
 @Setter
 @Spi("mosaic-art-circular")
 @SpiDescribe("圆形贴图马赛克滤镜")
+@Slf4j
 @Accessors(chain = true)
 public class MosaicArtCircularImageFilter extends AbstractImageFilter {
 
@@ -231,10 +233,12 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
                     .forEach(p -> {
                         try {
                             tileCache.put(p, ImageIORead(p));
-                        } catch (IOException ignored) {
+                        } catch (IOException e) {
+                            log.debug("[image] 读取贴图失败: {}", e.getMessage());
                         }
                     });
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            log.debug("[image] 扫描贴图目录失败: {}", e.getMessage());
         }
     }
 

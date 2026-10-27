@@ -363,10 +363,10 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     private static final java.util.regex.Pattern SET_ASSIGNMENT =
             java.util.regex.Pattern.compile("([A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*\\?");
 
-    @Override
     /**
      * 获取（RocksDB 真实 读取，重启 后 仍可 读 回）
     */
+    @Override
     public String get(String key) {
         RocksDB db = currentDB();
         if (db == null) {
@@ -380,10 +380,10 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         }
     }
 
-    @Override
     /**
      * 放入（value 为 空 时 等效 删除，RocksDB 真实 写入）
     */
+    @Override
     public void put(String key, String value) {
         RocksDB db = currentDB();
         if (db == null) {
@@ -400,18 +400,18 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         }
     }
 
-    @Override
     /**
      * 判断键 是否 存在（RocksDB 真实 读取）
     */
+    @Override
     public boolean containsKey(String key) {
         return get(key) != null;
     }
 
-    @Override
     /**
      * 删除（RocksDB 真实 删除）
     */
+    @Override
     public boolean delete(String key) {
         if (get(key) == null) {
             return false;
@@ -425,13 +425,13 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         }
     }
 
-    @Override
     /**
      * 递增（键 级 锁 串行化 读-改-写，并 发 下 计数 不 丢失；RocksDB 真实 存储）。
      *
      * @param key 键
      * @return 递增 后 的 最新 值
      */
+    @Override
     public long incr(String key) {
         RocksDB db = currentDB();
         if (db == null) {
@@ -457,10 +457,10 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         }
     }
 
-    @Override
     /**
      * 查找 前缀（RocksDB 前缀 扫描，仅 返回 字符串 KV 键 空间 内 键）
      */
+    @Override
     public Map<String, String> findAllByPrefix(String prefix) {
         RocksDB db = currentDB();
         Map<String, String> result = Wraps.linkedMap();
@@ -501,10 +501,10 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
 
     // ==================== DocumentStore 文档实现 ====================
 
-    @Override
     /**
      * 插入（文档 与 FTS 索引 条目 同 批 原子 写 入，集合 级 锁 串行化，崩溃 不 产生 孤 文档）
      */
+    @Override
     public <T> T insert(String collection, T document) {
         RocksDB db = currentDB();
         if (db == null) {
@@ -524,10 +524,10 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         return document;
     }
 
-    @Override
     /**
      * 查找byid
     */
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T findById(String collection, Object id, Class<T> documentClass) {
         RocksDB db = currentDB();
@@ -546,10 +546,10 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         }
     }
 
-    @Override
     /**
      * 更新（旧 索引 移除 + 新 文档 + 新 索引 同 批 原子 写 入，集合 级 锁 串行化）
      */
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T update(String collection, Object id, T document) {
         RocksDB db = currentDB();
@@ -577,10 +577,10 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         }
     }
 
-    @Override
     /**
      * 删除（文档 + FTS 索引 条目 同 批 原子 移除，集合 级 锁 串行化）
     */
+    @Override
     public boolean delete(String collection, Object id) {
         RocksDB db = currentDB();
         if (db == null) {
@@ -604,10 +604,10 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         }
     }
 
-    @Override
     /**
      * 查找全部
     */
+    @Override
     @SuppressWarnings("unchecked")
     public <T> List<T> findAll(String collection, Class<T> documentClass) {
         RocksDB db = currentDB();
@@ -630,26 +630,26 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
 
     // ==================== FulltextSearch 全文检索实现 ====================
 
-    @Override
     /**
      * 创建全文索引（索引 在 insert/update 时 自动 维护，此 方法 为空 操作）
      */
+    @Override
     public <T> void createFulltextIndex(Class<T> entityClass, String... fieldNames) {
         // no-op
     }
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public <T> List<T> search(String query, Class<T> entityClass) {
         return search(query, entityClass, Integer.MAX_VALUE);
     }
 
-    @Override
     /**
      * 搜索（FTS 单 值 键 布局：FTS_<collection>:<token>:<docId> → 文档 键 字节，按 token 段 匹配）
      */
+    @Override
     @SuppressWarnings("unchecked")
     public <T> List<T> search(String query, Class<T> entityClass, int limit) {
         RocksDB db = currentDB();
@@ -699,10 +699,10 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         return results;
     }
 
-    @Override
     /**
      * 删除全文索引（集合 级 锁 内 前缀 批量 删除）
     */
+    @Override
     public <T> void dropFulltextIndex(Class<T> entityClass, String... fieldNames) {
         RocksDB db = currentDB();
         if (db == null) {

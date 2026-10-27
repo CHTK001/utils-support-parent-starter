@@ -811,7 +811,8 @@ public class OpenAiProbeStation {
                 String finishReason = null;
                 try {
                     finishReason = (String) choice.getObject("finish_reason");
-                } catch (Exception ignore) {
+                } catch (Exception parseEx) {
+                    log.debug("[openai] 解析 finish_reason 失败: {}", parseEx.getMessage());
                 }
                 double confidence = 0.2;
                 String detail = "响应内容为空";

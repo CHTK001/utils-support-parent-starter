@@ -123,7 +123,8 @@ public class GoogleColabClient implements AutoCloseable {
                 try {
                     return ServiceAccountCredentials.fromStream(
                             new ByteArrayInputStream(trimmed.getBytes(StandardCharsets.UTF_8)));
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[google] 从服务账号 JSON 创建凭据失败，降级为 ADC 凭据链: {}", e.getMessage());
                 }
             }
         }
@@ -405,10 +406,10 @@ public class GoogleColabClient implements AutoCloseable {
         }
     }
 
-    @Override
     /**
      * 关闭客户端并释放底层资源
     */
+    @Override
     public void close() {
         if (client != null) {
             client.close();

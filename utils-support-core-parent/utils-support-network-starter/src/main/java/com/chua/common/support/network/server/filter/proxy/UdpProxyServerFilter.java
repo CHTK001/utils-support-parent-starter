@@ -132,36 +132,36 @@ public class UdpProxyServerFilter implements ServerFilter {
         this.targetResolver = targetResolver != null ? targetResolver : remoteAddr -> null;
     }
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         return Integer.MAX_VALUE - 25;
     }
 
-    @Override
     /**
      * 支持协议
     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.UDP};
     }
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(ServerFilterConfig config) {
         this.vertx = Vertx.vertx();
         running.set(true);
         log.info("[network-proxy] UdpProxyServerFilter 初始化完成, timeout={}ms, vertx=true", timeoutMs);
     }
 
-    @Override
     /**
      * 销毁
     */
+    @Override
     public void destroy() {
         running.set(false);
         stopProxy();
@@ -171,13 +171,13 @@ public class UdpProxyServerFilter implements ServerFilter {
         log.info("[network-proxy] UdpProxyServerFilter 已关闭");
     }
 
-    @Override
     /**
      * 执行过滤
      * @param request 请求
      * @param response 响应
      * @param chain chain
      */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         chain.doFilter(request, response);

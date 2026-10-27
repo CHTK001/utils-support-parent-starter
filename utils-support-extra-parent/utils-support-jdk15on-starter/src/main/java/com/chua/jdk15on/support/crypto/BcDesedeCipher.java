@@ -42,10 +42,10 @@ public class BcDesedeCipher implements DesedeCipher {
         }
     }
 
-    @Override
     /**
      * Encrypt
     */
+    @Override
     public byte[] encrypt(byte[] key, byte[] data) {
         try {
             byte[] iv = new byte[8];
@@ -65,10 +65,10 @@ public class BcDesedeCipher implements DesedeCipher {
         }
     }
 
-    @Override
     /**
      * Decrypt
     */
+    @Override
     public byte[] decrypt(byte[] key, byte[] ciphertext) {
         if (ciphertext == null || ciphertext.length <= 8) {
             throw new IllegalArgumentException("3DES 密文长度不足，缺少 IV 头或密文体");

@@ -43,10 +43,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         registerAll();
     }
 
-    @Override
     /**
      * 注册
     */
+    @Override
     public void register(ModelRegistry registry) {
         registerAll();
     }

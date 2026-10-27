@@ -689,11 +689,11 @@ public final class ColumnMeta {
         return getter;
     }
 
-    @Override
     /**
      * 转换为字符串
      * @return 字符串 对象
      */
+    @Override
     public String toString() {
         return "ColumnMeta{field=" + field + ", name='" + name + "', order=" + order
                 + ", type=" + type + ", align=" + align + "}";

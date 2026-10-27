@@ -62,9 +62,6 @@ public class MultipartBody {
      *  获取当前使用的 boundary 分隔符。
 
      */
-    /**
-     * Boundary
-     */
     @Getter
     private final String boundary;
 

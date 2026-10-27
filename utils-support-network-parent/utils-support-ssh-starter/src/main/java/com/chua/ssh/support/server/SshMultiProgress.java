@@ -134,10 +134,10 @@ public class SshMultiProgress implements AutoCloseable {
         return this;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         if (delegate != null) {
             delegate.close();

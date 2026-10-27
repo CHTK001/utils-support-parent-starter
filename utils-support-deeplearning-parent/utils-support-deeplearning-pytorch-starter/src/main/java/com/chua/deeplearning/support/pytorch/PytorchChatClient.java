@@ -31,10 +31,10 @@ public class PytorchChatClient extends AbstractLocalChatClient {
         super("pytorch", setting);
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, String.class, String.class);
     }

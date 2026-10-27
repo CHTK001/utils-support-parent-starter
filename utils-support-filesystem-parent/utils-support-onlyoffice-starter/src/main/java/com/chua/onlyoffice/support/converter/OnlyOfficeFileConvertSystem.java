@@ -31,10 +31,10 @@ public class OnlyOfficeFileConvertSystem implements FileConvertSystem {
      */
     private static final List<String> SOURCES = List.of("doc", "docx", "xls", "xlsx", "ppt", "pptx");
 
-    @Override
     /**
      * 是否支持
     */
+    @Override
     public boolean isSupported(String source, String target) {
         if (!"pdf".equals(target)) {
             return false;
@@ -42,10 +42,10 @@ public class OnlyOfficeFileConvertSystem implements FileConvertSystem {
         return SOURCES.contains(source);
     }
 
-    @Override
     /**
      * 转换
     */
+    @Override
     public void convert(FileSource source, FileSource target, ConvertSetting setting) {
         String serverUrl = System.getProperty("onlyoffice.url", "http://localhost:8088");
         try {

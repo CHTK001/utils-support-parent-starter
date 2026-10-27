@@ -28,26 +28,26 @@ import java.util.concurrent.TimeUnit;
 @Spi("com.chua.common.support.concurrent.rate.annotation.RateLimiter")
 public class RateLimiterIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<RateLimiter> {
 
-    @Override
     /**
      * 注解类型
     */
+    @Override
     public Class<RateLimiter> annotationType() {
         return RateLimiter.class;
     }
 
-    @Override
     /**
      * 订单
     */
+    @Override
     public int order() {
         return 100;
     }
 
-    @Override
     /**
      * Intercept
     */
+    @Override
     public Object intercept(RateLimiter annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
  // 解析限流器名称（支持 spel），未填使用 类名.方法名
         String name = resolveName(annotation.name(), proxyMethod);

@@ -92,10 +92,10 @@ public class SpiderMappingPipeline<T> implements SpiderPipeline {
                 : new SpiderFieldMapper();
     }
 
-    @Override
     /**
      * 处理
     */
+    @Override
     public void process(SpiderResult result) {
         if (result == null || targetClass == null) {
             return;

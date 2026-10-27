@@ -27,10 +27,10 @@ public class OnnxEyeDetector implements EyeDetector {
     public OnnxEyeDetector(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public EyeDetector model(String model) {
         this.modelName = model;
         return this;
@@ -49,19 +49,19 @@ public class OnnxEyeDetector implements EyeDetector {
         return modelName;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public EyeDetector device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * Detect
     */
+    @Override
     public List<PredictRectangle> detect(byte[] imageData) {
         return EyeDetector.create(resolveModel()).device(device).detect(imageData);
     }

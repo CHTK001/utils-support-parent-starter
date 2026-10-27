@@ -50,10 +50,10 @@ public class RectDrawEyeResolver extends AbstractDrawEyeResolver{
         super(qrCodeConfig, g2, bitMatrix, matrixW, matrixH, leftPadding, topPadding, infoSize, detectCornerSize, detectOutColor, detectInnerColor, codeEyeSetting);
     }
 
-    @Override
     /**
      * 饰面
     */
+    @Override
     public void finish() {
 
     }

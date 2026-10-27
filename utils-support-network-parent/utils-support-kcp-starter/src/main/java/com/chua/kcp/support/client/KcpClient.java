@@ -643,10 +643,10 @@ public class KcpClient {
      */
     private final class OAuthKcpListener implements KcpListener {
 
-        @Override
         /**
          * on连接
         */
+        @Override
         public void onConnected(Ukcp ukcp) {
  // 服务端会收到 注册:客户端标识 的第一帧作为注册请求
  // 这里仅触发连接事件，回写 注册: 让服务端把 客户端标识 绑定
@@ -655,10 +655,10 @@ public class KcpClient {
             dispatchAnnotatedMethods(onOpenMethods);
         }
 
-        @Override
         /**
          * 处理接收
         */
+        @Override
         public void handleReceive(ByteBuf byteBuf, Ukcp ukcp) {
  // kcp-基础 1.6.2 读取任务 自行管理 bytebuf 引用计数，此处不可 release（双重释放会 illegal引用数量异常）
             // 服务端批量聚合 + KCP 分包：追加到跨包缓冲，按 \n 切出完整行分发，未完成行保留
@@ -684,20 +684,20 @@ public class KcpClient {
             }
         }
 
-        @Override
         /**
          * 处理异常
         */
+        @Override
         public void handleException(Throwable ex, Ukcp ukcp) {
             log.error("KCP 客户端异常: {}", ex.getMessage(), ex);
             notifyError(ex);
             dispatchAnnotatedMethods(onErrorMethods, ex);
         }
 
-        @Override
         /**
          * 处理关闭
         */
+        @Override
         public void handleClose(Ukcp ukcp) {
             notifyDisconnect(clientId);
             dispatchAnnotatedMethods(onCloseMethods);

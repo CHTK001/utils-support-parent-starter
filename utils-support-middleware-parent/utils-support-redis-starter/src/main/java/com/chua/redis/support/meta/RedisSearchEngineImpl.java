@@ -75,18 +75,18 @@ public class RedisSearchEngineImpl implements SearchEngine {
         this.engine = engine;
     }
 
-    @Override
     /**
      * 类型
     */
+    @Override
     public String type() {
         return "redis";
     }
 
-    @Override
     /**
      * 列表索引
     */
+    @Override
     public List<String> listIndexes() {
         List<String> indexes = Wraps.list();
         try (Jedis jedis = engine.getPoolPublic(engine.getDefaultDataSourceName()).getResource()) {
@@ -111,10 +111,10 @@ public class RedisSearchEngineImpl implements SearchEngine {
         return indexes;
     }
 
-    @Override
     /**
      * 获取索引
     */
+    @Override
     public SearchIndexDef getIndex(String indexName) {
         requireIndexName(indexName);
         Object response = ftInfo(indexName);
@@ -238,10 +238,10 @@ public class RedisSearchEngineImpl implements SearchEngine {
         return ftInfo(indexName) != null;
     }
 
-    @Override
     /**
      * 创建索引
     */
+    @Override
     public boolean createIndex(SearchIndexDef indexDef) {
         if (indexDef == null || indexDef.getName() == null || indexDef.getName().isBlank()) {
             throw new IllegalArgumentException("索引定义与索引名不能为空");
@@ -269,10 +269,10 @@ public class RedisSearchEngineImpl implements SearchEngine {
         }
     }
 
-    @Override
     /**
      * 删除索引
     */
+    @Override
     public boolean deleteIndex(String indexName) {
         requireIndexName(indexName);
         if (!indexExists(indexName)) {
@@ -565,10 +565,10 @@ public class RedisSearchEngineImpl implements SearchEngine {
         return map;
     }
 
-    @Override
     /**
      * 获取客户端
     */
+    @Override
     public Object getClient() {
         return engine.getPoolPublic(engine.getDefaultDataSourceName());
     }

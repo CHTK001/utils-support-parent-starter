@@ -71,8 +71,6 @@ import java.util.concurrent.ConcurrentHashMap;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 添加数据源：支持 Nitrite 实例与文件路径两种数据源形态。
      *
@@ -81,6 +79,8 @@ import java.util.concurrent.ConcurrentHashMap;
      * @param <T> 底层源类型
      * @return 当前引擎实例
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> com.chua.common.support.lang.datasource.engine.Engine addDataSource(
             String name, EngineDataSource<T> dataSource) {
         Object src = dataSource.getSource();
@@ -125,8 +125,6 @@ import java.util.concurrent.ConcurrentHashMap;
         return nitrite.getRepository(entityClass);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 执行新查询
      *
@@ -137,6 +135,8 @@ import java.util.concurrent.ConcurrentHashMap;
      * @param offset 偏移量
      * @return 执行新查询的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         List<T> memoryData = getData(entityClass);
         if (!memoryData.isEmpty()) {
@@ -185,8 +185,6 @@ import java.util.concurrent.ConcurrentHashMap;
         return Wraps.list(data.subList(from, to));
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 存储：注入内存视图的同时持久化到 Nitrite 仓库（若已连接数据库）。
      *
@@ -195,6 +193,8 @@ import java.util.concurrent.ConcurrentHashMap;
      * @param <T>  实体类型
      * @return 当前引擎实例
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> com.chua.common.support.lang.datasource.engine.Engine store(
             String name, List<T> data) {
         super.store(name, data);
@@ -219,8 +219,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
     // ==================== FulltextSearch 实现 ====================
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 创建fulltext索引
      *
@@ -228,6 +226,8 @@ import java.util.concurrent.ConcurrentHashMap;
      * @param fieldNames 字段名称
      * @return 创建fulltext索引的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> void createFulltextIndex(Class<T> entityClass, String... fieldNames) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -244,8 +244,6 @@ import java.util.concurrent.ConcurrentHashMap;
         }
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 搜索
      *
@@ -253,12 +251,12 @@ import java.util.concurrent.ConcurrentHashMap;
      * @param entityClass 实体类
      * @return 搜索的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> List<T> search(String query, Class<T> entityClass) {
         return search(query, entityClass, Integer.MAX_VALUE);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 搜索
      *
@@ -267,6 +265,8 @@ import java.util.concurrent.ConcurrentHashMap;
      * @param limit 限制
      * @return 搜索的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> List<T> search(String query, Class<T> entityClass, int limit) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -306,8 +306,6 @@ import java.util.concurrent.ConcurrentHashMap;
         }
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 掉落fulltext索引
      *
@@ -315,6 +313,8 @@ import java.util.concurrent.ConcurrentHashMap;
      * @param fieldNames 字段名称
      * @return 掉落fulltext索引的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> void dropFulltextIndex(Class<T> entityClass, String... fieldNames) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -330,8 +330,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
     // ==================== DocumentStore 实现 ====================
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 插入
      *
@@ -339,6 +337,8 @@ import java.util.concurrent.ConcurrentHashMap;
      * @param document 文档
      * @return 插入的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> T insert(String collection, T document) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -350,8 +350,6 @@ import java.util.concurrent.ConcurrentHashMap;
         return (T) fromDocument(doc, document.getClass());
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 查找byid
      *
@@ -360,6 +358,8 @@ import java.util.concurrent.ConcurrentHashMap;
      * @param documentClass 文档类
      * @return findById的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> T findById(String collection, Object id, Class<T> documentClass) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -375,8 +375,6 @@ import java.util.concurrent.ConcurrentHashMap;
         return found == null ? null : fromDocument(found, documentClass);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 更新
      *
@@ -385,6 +383,8 @@ import java.util.concurrent.ConcurrentHashMap;
      * @param document 文档
      * @return 更新的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> T update(String collection, Object id, T document) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -413,10 +413,10 @@ import java.util.concurrent.ConcurrentHashMap;
         return (T) fromDocument(newDoc, document.getClass());
     }
 
-    @Override
     /**
      * 删除
     */
+    @Override
     public boolean delete(String collection, Object id) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -455,8 +455,6 @@ import java.util.concurrent.ConcurrentHashMap;
         return null;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 查找全部
      *
@@ -464,6 +462,8 @@ import java.util.concurrent.ConcurrentHashMap;
      * @param documentClass 文档类
      * @return find全部的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> List<T> findAll(String collection, Class<T> documentClass) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -586,10 +586,10 @@ import java.util.concurrent.ConcurrentHashMap;
         return entity;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         for (Map.Entry<String, Nitrite> entry : databases.entrySet()) {
             try {

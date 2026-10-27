@@ -81,31 +81,31 @@ public class ThirdPartyMetaResolver implements MetaResolver {
         this.easyExcel = ClassUtils.isPresent(EASY_EXCEL_PROPERTY);
     }
 
-    @Override
     /**
      * 优先级
      * @return 优先级 对象
      */
+    @Override
     public int order() {
         return MetaResolverOrders.THIRD_PARTY;
     }
 
-    @Override
     /**
      * 是否支持
      * @param type 数据行类型
      * @return 是否支持 对象
      */
+    @Override
     public boolean supports(Class<?> type) {
         return (fastExcel || easyExcel) && type != null && !type.isPrimitive();
     }
 
-    @Override
     /**
      * 解析
      * @param type 数据行类型
      * @param meta 元数据容器
      */
+    @Override
     public void resolve(Class<?> type, DocumentMeta meta) {
         for (Field field : allFields(type)) {
             Annotation[] annotations = annotations(field);

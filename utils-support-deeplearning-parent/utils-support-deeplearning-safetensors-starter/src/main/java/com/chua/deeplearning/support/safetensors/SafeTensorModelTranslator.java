@@ -48,10 +48,10 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         this.modelType = modelType;
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return modelName;
     }

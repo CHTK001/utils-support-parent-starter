@@ -112,14 +112,14 @@ class DefaultImageInpainter implements ImageInpainter {
         this.setting = setting;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 修复
      *
      * @param imageData 镜像数据
      * @return 修复的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public byte[] inpaint(byte[] imageData) {
         ITranslator<byte[], Object> t =
                 (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);

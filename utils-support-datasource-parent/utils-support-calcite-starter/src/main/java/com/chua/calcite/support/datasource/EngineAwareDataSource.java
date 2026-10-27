@@ -44,18 +44,18 @@ public final class EngineAwareDataSource implements DataSource {
         this.updateExecutor = new EngineUpdateSqlExecutor(schemes);
     }
 
-    @Override
     /**
      * 获取Connection
     */
+    @Override
     public Connection getConnection() throws SQLException {
         return wrapConnection(delegate.getConnection());
     }
 
-    @Override
     /**
      * 获取Connection
     */
+    @Override
     public Connection getConnection(String username, String password) throws SQLException {
         return wrapConnection(delegate.getConnection(username, password));
     }
@@ -89,10 +89,10 @@ public final class EngineAwareDataSource implements DataSource {
             this.updateExecutor = updateExecutor;
         }
 
-        @Override
         /**
          * 调用
         */
+        @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             String name = method.getName();
             if ("createStatement".equals(name)) {
@@ -207,50 +207,50 @@ public final class EngineAwareDataSource implements DataSource {
         }
     }
 
-    @Override
     /**
      * 获取记录日志Writer
     */
+    @Override
     public PrintWriter getLogWriter() throws SQLException {
         return delegate.getLogWriter();
     }
 
-    @Override
     /**
      * 设置记录日志Writer
     */
+    @Override
     public void setLogWriter(PrintWriter out) throws SQLException {
         delegate.setLogWriter(out);
     }
 
-    @Override
     /**
      * 设置login超时
     */
+    @Override
     public void setLoginTimeout(int seconds) throws SQLException {
         delegate.setLoginTimeout(seconds);
     }
 
-    @Override
     /**
      * 获取login超时
     */
+    @Override
     public int getLoginTimeout() throws SQLException {
         return delegate.getLoginTimeout();
     }
 
-    @Override
     /**
      * 获取父日志记录器
     */
+    @Override
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         return delegate.getParentLogger();
     }
 
-    @Override
     /**
      * Unwrap
     */
+    @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
         if (iface.isInstance(this)) {
             return iface.cast(this);
@@ -258,10 +258,10 @@ public final class EngineAwareDataSource implements DataSource {
         return delegate.unwrap(iface);
     }
 
-    @Override
     /**
      * 是否包装器for
     */
+    @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return iface.isInstance(this) || delegate.isWrapperFor(iface);
     }

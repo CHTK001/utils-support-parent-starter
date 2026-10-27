@@ -96,18 +96,18 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
         log.info("[PP-OCR-cls] ONNX loaded: {}", modelPath.getFileName());
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "pp-word-rotate";
     }
 
-    @Override
     /**
      * Translate
     */
+    @Override
     public DirectionInfo translate(byte[] imageData) {
         try {
             prepare();

@@ -95,18 +95,18 @@ public class OnlinePoetryProvider implements PoetryProvider {
         this.httpClient = HttpClientFactory.getClient();
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "chinese-poetry";
     }
 
-    @Override
     /**
      * 随机
     */
+    @Override
     public PoetryInfo random() {
         List<PoetryInfo> list = load();
         if (list.isEmpty()) {
@@ -115,10 +115,10 @@ public class OnlinePoetryProvider implements PoetryProvider {
         return list.get(ThreadLocalRandom.current().nextInt(list.size()));
     }
 
-    @Override
     /**
      * by作者
     */
+    @Override
     public List<PoetryInfo> byAuthor(String author, int limit) {
         if (author == null || author.isBlank()) {
             return Collections.emptyList();
@@ -135,10 +135,10 @@ public class OnlinePoetryProvider implements PoetryProvider {
         return result;
     }
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public List<PoetryInfo> search(String keyword, int limit) {
         if (keyword == null || keyword.isBlank()) {
             return Collections.emptyList();

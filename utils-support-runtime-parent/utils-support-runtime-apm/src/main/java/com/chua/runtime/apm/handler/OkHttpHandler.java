@@ -23,50 +23,50 @@ public class OkHttpHandler extends AbstractAppHandler {
      */
     private static final String[] EXECUTE_METHODS = {"execute", "enqueue"};
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "okhttp-handler";
     }
 
-    @Override
     /**
      * 已启用键
     */
+    @Override
     protected String enabledKey() {
         return "okhttp.enabled";
     }
 
-    @Override
     /**
      * Software
     */
+    @Override
     protected Software software() {
         return Software.OKHTTP;
     }
 
-    @Override
     /**
      * 协议
     */
+    @Override
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
-    @Override
     /**
      * 注册拦截器
     */
+    @Override
     protected void registerInterceptors() {
         registerAll(CALL, EXECUTE_METHODS);
     }
 
-    @Override
     /**
      * 构建Target
     */
+    @Override
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

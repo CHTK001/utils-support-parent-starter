@@ -85,10 +85,10 @@ public class BcHpkeCipher implements HpkeCipher {
     */
     private final SecureRandom random = new SecureRandom();
 
-    @Override
     /**
      * generate键pair
     */
+    @Override
     public byte[][] generateKeyPair() {
         byte[] seed = new byte[KEY_SIZE];
         random.nextBytes(seed);
@@ -97,10 +97,10 @@ public class BcHpkeCipher implements HpkeCipher {
         return new byte[][]{pk.getEncoded(), sk.getEncoded()};
     }
 
-    @Override
     /**
      * Encap
     */
+    @Override
     public byte[][] encap(byte[] receiverPublicKey, byte[] ikm) {
         byte[] seed = new byte[KEY_SIZE];
         random.nextBytes(seed);
@@ -110,19 +110,19 @@ public class BcHpkeCipher implements HpkeCipher {
         return new byte[][]{ePk.getEncoded(), ek};
     }
 
-    @Override
     /**
      * recover键
     */
+    @Override
     public byte[] recoverKey(byte[] receiverPrivateKey, byte[] enc, byte[] ikm) {
         X25519PrivateKeyParameters sk = new X25519PrivateKeyParameters(receiverPrivateKey);
         return deriveSharedKey(sk, enc, ikm);
     }
 
-    @Override
     /**
      * Seal
     */
+    @Override
     public byte[] seal(byte[] ek, byte[] aad, byte[] plaintext) {
         try {
             byte[] nonce = new byte[GCM_NONCE_LEN];
@@ -144,10 +144,10 @@ public class BcHpkeCipher implements HpkeCipher {
         }
     }
 
-    @Override
     /**
      * 打开
     */
+    @Override
     public byte[] open(byte[] ek, byte[] aad, byte[] ciphertext) {
         if (ciphertext == null || ciphertext.length < GCM_NONCE_LEN) {
             throw new IllegalArgumentException("HPKE 密文缺少 nonce 头");

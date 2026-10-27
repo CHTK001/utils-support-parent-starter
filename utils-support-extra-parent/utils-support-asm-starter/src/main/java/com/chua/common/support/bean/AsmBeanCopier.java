@@ -10,6 +10,7 @@ import com.chua.common.support.reflection.ReflectUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import lombok.extern.slf4j.Slf4j;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -32,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 1.0.0
  */
+@Slf4j
 @Spi("asm")
 @SuppressWarnings("ALL")
 public class AsmBeanCopier implements BeanCopier {
@@ -46,18 +48,18 @@ public class AsmBeanCopier implements BeanCopier {
     */
     private static final BeanCopier FALLBACK = new JdkBeanCopier();
 
-    @Override
     /**
      * 复制属性
     */
+    @Override
     public void copyProperties(Object source, Object target) {
         copyProperties(source, target, (String[]) null);
     }
 
-    @Override
     /**
      * 复制属性
     */
+    @Override
     public void copyProperties(Object source, Object target, String... ignoreProperties) {
         if (source == null || target == null) {
             return;
@@ -73,18 +75,18 @@ public class AsmBeanCopier implements BeanCopier {
         }
     }
 
-    @Override
     /**
      * 复制属性
     */
+    @Override
     public void copyProperties(Map<String, Object> sourceMap, Object target) {
         FALLBACK.copyProperties(sourceMap, target);
     }
 
-    @Override
     /**
      * 复制属性
     */
+    @Override
     public void copyProperties(Object source, Map<String, Object> target) {
         FALLBACK.copyProperties(source, target);
     }
@@ -351,7 +353,8 @@ public class AsmBeanCopier implements BeanCopier {
                     writes.put(pd.getName(), pd);
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[asm] 解析属性描述符失败: {}", e.getMessage());
         }
     }
 
@@ -399,10 +402,10 @@ public class AsmBeanCopier implements BeanCopier {
         }
     }
 
-    @Override
     /**
      * 判断相等
     */
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -410,10 +413,10 @@ public class AsmBeanCopier implements BeanCopier {
         return o != null && getClass() == o.getClass();
     }
 
-    @Override
     /**
      * 哈希编码
     */
+    @Override
     public int hashCode() {
         return getClass().hashCode();
     }

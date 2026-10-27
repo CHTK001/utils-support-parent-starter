@@ -148,10 +148,10 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
         return JacksonSerialization.INSTANCE;
     }
 
-    @Override
     /**
      * 启动
     */
+    @Override
     public void start() {
         if (closed.get()) {
             return;
@@ -212,10 +212,10 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
         }
     }
 
-    @Override
     /**
      * 发布
     */
+    @Override
     public void publish(String topic, Object body) {
         if (closed.get() || topic == null) {
             return;
@@ -228,10 +228,10 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
         pubSocket.send(bodyBytes, 0);
     }
 
-    @Override
     /**
      * 订阅
     */
+    @Override
     public void subscribe(DispatcherDefinition definition) {
         for (String topic : definition.getTopics()) {
             if (topic == null) {
@@ -245,10 +245,10 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
         }
     }
 
-    @Override
     /**
      * 注销订阅
     */
+    @Override
     public void unsubscribe(DispatcherDefinition definition) {
         for (String topic : definition.getTopics()) {
             if (topic == null) {
@@ -310,10 +310,10 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         if (!closed.compareAndSet(false, true)) {
             return;

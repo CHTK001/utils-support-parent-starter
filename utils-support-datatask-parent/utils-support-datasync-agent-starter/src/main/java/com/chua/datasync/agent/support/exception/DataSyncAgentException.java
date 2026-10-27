@@ -112,10 +112,10 @@ public class DataSyncAgentException extends RuntimeException {
         return errorCode.codeString();
     }
 
-    @Override
     /**
      * 转为字符串
     */
+    @Override
     public String toString() {
         return errorCode.codeString() + " " + getMessage();
     }

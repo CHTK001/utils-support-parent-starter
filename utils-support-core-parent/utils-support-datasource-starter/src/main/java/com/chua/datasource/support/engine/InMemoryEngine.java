@@ -16,6 +16,7 @@ import com.chua.datasource.support.engine.MemorySqlAst.UpdatePlan;
 import com.chua.datasource.support.wrapper.EngineDeleteWrapper;
 import com.chua.datasource.support.wrapper.EngineQueryWrapper;
 import com.chua.datasource.support.wrapper.EngineUpdateWrapper;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -35,6 +36,7 @@ import java.util.function.Predicate;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Spi("memory")
 public class InMemoryEngine extends AbstractEngine {
 
@@ -43,10 +45,10 @@ public class InMemoryEngine extends AbstractEngine {
     */
     private final Map<String, Map<String, Map<Object, List<Object>>>> indexes = new ConcurrentHashMap<>();
 
-    @Override
     /**
      * 存储
     */
+    @Override
     public <T> Engine store(String name, List<T> data) {
         super.store(name, data);
         return this;
@@ -117,34 +119,34 @@ public class InMemoryEngine extends AbstractEngine {
         return fields;
     }
 
-    @Override
     /**
      * 查询
     */
+    @Override
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new InMemQueryWrapper<>(entityClass);
     }
 
-    @Override
     /**
      * 更新
     */
+    @Override
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         return new InMemUpdateWrapper<>(entityClass);
     }
 
-    @Override
     /**
      * 删除
     */
+    @Override
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         return new InMemDeleteWrapper<>(entityClass);
     }
 
-    @Override
     /**
      * 执行新查询
     */
+    @Override
     protected <T> List<T> executeNewQuery(String where, Object[] args, Class<T> clazz, int limit, int offset) {
         throw new UnsupportedOperationException();
     }
@@ -228,7 +230,6 @@ public class InMemoryEngine extends AbstractEngine {
         });
     }
 
-    @Override
     /**
      * 是否支持原生语句执行
      * <p>内存引擎自带完整 SQL 解析与求值链路（{@link MemorySqlParser}），
@@ -237,6 +238,7 @@ public class InMemoryEngine extends AbstractEngine {
      *
      * @return 恒为 true
      */
+    @Override
     public boolean supportsSql() {
         return true;
     }
@@ -302,7 +304,6 @@ public class InMemoryEngine extends AbstractEngine {
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 尝试索引lookup
      *
@@ -311,6 +312,7 @@ public class InMemoryEngine extends AbstractEngine {
      * @param data 数据
      * @return 尝试索引lookup的结果
      */
+    @SuppressWarnings("unchecked")
     private <T> List<T> tryIndexLookup(Class<T> clazz, List<Condition> conditions, List<T> data) {
         Condition first = conditions.getFirst();
         if (!"=".equals(first.getOperator())) {
@@ -336,13 +338,13 @@ public class InMemoryEngine extends AbstractEngine {
         return (List<T>) matched;
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 查找索引for数据
      *
      * @param data 数据
      * @return find索引for数据的结果
      */
+    @SuppressWarnings("unchecked")
     private <T> Map<String, Map<Object, List<Object>>> findIndexForData(List<T> data) {
         for (Map.Entry<String, Map<String, Map<Object, List<Object>>>> e : indexes.entrySet()) {
             for (Map.Entry<String, Map<Object, List<Object>>> fe : e.getValue().entrySet()) {
@@ -447,13 +449,13 @@ public class InMemoryEngine extends AbstractEngine {
         return result;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     /**
      * 转为predicate
      *
      * @param c c
      * @return 转为predicate的结果
      */
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static <T> Predicate<T> toPredicate(Condition c) {
         String field = c.getColumnName();
         String op = c.getOperator();
@@ -485,7 +487,6 @@ public class InMemoryEngine extends AbstractEngine {
         };
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     /**
      * 比较
      *
@@ -493,6 +494,7 @@ public class InMemoryEngine extends AbstractEngine {
      * @param paramVal 参数val
      * @return compare的结果
      */
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static int compare(Comparable fieldVal, Object paramVal) {
         if (fieldVal == null) {
             return -1;
@@ -552,7 +554,8 @@ public class InMemoryEngine extends AbstractEngine {
                 if (fieldValue instanceof Byte) {
                     return Byte.valueOf(s);
                 }
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException e) {
+                log.debug("[datasource] 参数值数值转换失败，回退后续分支: {}", e.getMessage());
             }
         }
         if (fieldValue instanceof String) {
@@ -561,7 +564,6 @@ public class InMemoryEngine extends AbstractEngine {
         return paramValue;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     /**
      * 比较订单
      *
@@ -572,6 +574,7 @@ public class InMemoryEngine extends AbstractEngine {
      * @author CH
      * @since 4.0.0
      */
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static <T> int compareOrdered(T a, T b, List<String> orderBys) {
         for (String ob : orderBys) {
             String[] parts = ob.trim().split("\\s+");
@@ -603,24 +606,23 @@ public class InMemoryEngine extends AbstractEngine {
             super(InMemoryEngine.this, clazz);
         }
 
-        @Override
         /**
          * 列表
         */
+        @Override
         public List<T> list() {
             return evaluateQuery(this);
         }
 
-        @Override
         /**
          * One
         */
+        @Override
         public T one() {
             List<T> list = list();
             return list.isEmpty() ? null : list.getFirst();
         }
 
-        @Override
         /**
          * Page
          *
@@ -630,11 +632,11 @@ public class InMemoryEngine extends AbstractEngine {
          * @author CH
          * @since 4.0.0
          */
+        @Override
         public Page<T> page(int pn, int ps) {
             return evaluatePage(this, pn, ps);
         }
 
-        @Override
         /**
          * Count
          * <p>内存引擎无物理 COUNT 可下推，直接复用 {@link #list()} 的内存求值结果计数，
@@ -642,6 +644,7 @@ public class InMemoryEngine extends AbstractEngine {
          *
          * @return 命中行数
          */
+        @Override
         public long count() {
             return list().size();
         }
@@ -652,7 +655,6 @@ public class InMemoryEngine extends AbstractEngine {
             super(InMemoryEngine.this, clazz);
         }
 
-        @Override
         /**
          * 更新
          *
@@ -660,6 +662,7 @@ public class InMemoryEngine extends AbstractEngine {
          * @author CH
          * @since 4.0.0
          */
+        @Override
         public int update() {
             return evaluateUpdate(this);
         }
@@ -670,10 +673,10 @@ public class InMemoryEngine extends AbstractEngine {
             super(InMemoryEngine.this, clazz);
         }
 
-        @Override
         /**
          * 移除
         */
+        @Override
         public int remove() {
             return evaluateDelete(this);
         }

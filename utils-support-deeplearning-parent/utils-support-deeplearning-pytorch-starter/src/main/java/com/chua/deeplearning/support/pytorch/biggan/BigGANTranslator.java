@@ -55,10 +55,10 @@ public class BigGANTranslator implements Translator<Long, Image> {
         this.truncation = truncation;
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Long classId) {
         NDArray noise = ctx.getNDManager().randomNormal(new Shape(1, noiseSize));
         // truncation trick
@@ -68,10 +68,10 @@ public class BigGANTranslator implements Translator<Long, Image> {
         return new NDList(noise, label, truncationArr);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray ndArray = list.getFirst();
         NDArray output = ctx.getNDManager().create(ndArray.toFloatArray(), ndArray.getShape());
@@ -80,10 +80,10 @@ public class BigGANTranslator implements Translator<Long, Image> {
         return ImageFactory.getInstance().fromNDArray(output.squeeze());
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

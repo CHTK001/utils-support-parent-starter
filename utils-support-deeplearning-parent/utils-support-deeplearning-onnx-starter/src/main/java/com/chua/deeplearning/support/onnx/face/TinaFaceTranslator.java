@@ -239,10 +239,10 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
         return new DetectedObjects(Wraps.list(), Wraps.list(), Wraps.list());
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
  // ONNX Runtime 的 ndarray 不支持 Stack，单图推理不批处理
         return null;

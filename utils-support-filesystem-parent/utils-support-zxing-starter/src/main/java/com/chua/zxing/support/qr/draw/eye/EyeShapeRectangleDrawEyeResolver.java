@@ -53,10 +53,10 @@ public class EyeShapeRectangleDrawEyeResolver extends AbstractDrawEyeResolver {
     }
 
 
-    @Override
     /**
      * Draw
     */
+    @Override
     public void draw(int x, int y, QrCodeRenderHelper.DetectLocation detectLocation) {
         int x1 =  leftPadding + x * infoSize;
         int y1 =  topPadding + y * infoSize;
@@ -143,10 +143,10 @@ public class EyeShapeRectangleDrawEyeResolver extends AbstractDrawEyeResolver {
         }
     }
 
-    @Override
     /**
      * 饰面
     */
+    @Override
     public void finish() {
         //绘制LT
     }

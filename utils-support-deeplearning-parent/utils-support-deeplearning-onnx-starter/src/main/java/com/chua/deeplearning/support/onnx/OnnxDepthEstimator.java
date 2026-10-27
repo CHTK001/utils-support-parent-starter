@@ -21,10 +21,10 @@ public class OnnxDepthEstimator implements DepthEstimator {
     public OnnxDepthEstimator(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public DepthEstimator model(String model) {
         this.modelName = model;
         return this;
@@ -43,10 +43,10 @@ public class OnnxDepthEstimator implements DepthEstimator {
         return modelName;
     }
 
-    @Override
     /**
      * Estimate
     */
+    @Override
     public byte[] estimate(byte[] imageData) {
         return DepthEstimator.create(resolveModel()).estimate(imageData);
     }

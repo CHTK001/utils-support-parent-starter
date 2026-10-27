@@ -135,13 +135,13 @@ public class FeishuBotClient implements BotClient {
      */
     private BotUserStore userStore = new InMemoryBotUserStore();
 
-    @Override
     /**
      * 配置
      * @param token 令牌
      * @param secret secret
      * @param encodingAesKey 编码aes键
      */
+    @Override
     public BotClient configure(String token, String secret,
             String encodingAesKey) {
         if (token != null && !token.isEmpty()) {
@@ -156,38 +156,38 @@ public class FeishuBotClient implements BotClient {
         return this;
     }
 
-    @Override
     /**
      * 令牌
     */
+    @Override
     public BotClient token(String token) {
         this.appId = token;
         return this;
     }
 
-    @Override
     /**
      * Secret
     */
+    @Override
     public BotClient secret(String secret) {
         this.appSecret = secret;
         return this;
     }
 
-    @Override
     /**
      * 编码aes键，对应飞书事件订阅的 Encrypt Key
      * @param encodingAesKey 编码aes键
     */
+    @Override
     public BotClient encodingAesKey(String encodingAesKey) {
         this.webhookEncryptKey = encodingAesKey;
         return this;
     }
 
-    @Override
     /**
      * baseurl
     */
+    @Override
     public BotClient baseUrl(String baseUrl) {
         if (baseUrl != null && !baseUrl.isEmpty()) {
             this.baseUrl = baseUrl;
@@ -195,7 +195,6 @@ public class FeishuBotClient implements BotClient {
         return this;
     }
 
-    @Override
     /**
      * 连接超时millis
      * @param connectTimeoutMillis 连接超时millis
@@ -301,22 +300,22 @@ public class FeishuBotClient implements BotClient {
      * @param millis millis
      * @param e e
      */
+    @Override
     public BotClient connectTimeoutMillis(
             long connectTimeoutMillis) {
         this.connectTimeoutMillis = connectTimeoutMillis;
         return this;
     }
 
-    @Override
     /**
      * 读取超时millis
     */
+    @Override
     public BotClient readTimeoutMillis(long readTimeoutMillis) {
         this.readTimeoutMillis = readTimeoutMillis;
         return this;
     }
 
-    @Override
     /**
      * 配置保存或加载
      * @param configSaveOrLoader 配置保存或加载
@@ -420,6 +419,7 @@ public class FeishuBotClient implements BotClient {
      * @param millis millis
      * @param e e
      */
+    @Override
     public BotClient configSaveOrLoader(
             ConfigSaveOrLoader configSaveOrLoader) {
         return this;
@@ -449,10 +449,10 @@ public class FeishuBotClient implements BotClient {
         return this;
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public BotClient start() {
         if (appId == null || appId.isBlank()) {
             throw new IllegalStateException("appId is required");
@@ -530,10 +530,10 @@ public class FeishuBotClient implements BotClient {
                 .build();
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() {
         running.set(false);
         // SDK 2.4.19 的 ws.Client 只暴露 start()，disconnect() 为 protected 且不关闭线程池，
@@ -614,23 +614,22 @@ public class FeishuBotClient implements BotClient {
         }
     }
 
-    @Override
     /**
      * 是否Running
     */
+    @Override
     public boolean isRunning() {
         return running.get();
     }
 
-    @Override
     /**
      * 发送文本
     */
+    @Override
     public BotSendResult sendText(String toUser, String content) {
         return send(BotOutboundMessage.text(toUser, content));
     }
 
-    @Override
     /**
      * 发送文本异步
      * @param toUser 转为用户
@@ -728,24 +727,24 @@ public class FeishuBotClient implements BotClient {
      * @param millis millis
      * @param e e
      */
+    @Override
     public CompletableFuture<BotSendResult> sendTextAsync(
             String toUser, String content) {
         return CompletableFuture.supplyAsync(
                 () -> sendText(toUser, content));
     }
 
-    @Override
     /**
      * 发送镜像
      * @param toUser 转为用户
      * @param mediaPath media路径
      */
+    @Override
     public BotSendResult sendImage(String toUser,
             String mediaPath) {
         return send(BotOutboundMessage.image(toUser, mediaPath));
     }
 
-    @Override
     /**
      * 发送镜像异步
      * @param toUser 转为用户
@@ -837,18 +836,19 @@ public class FeishuBotClient implements BotClient {
      * @param millis millis
      * @param e e
      */
+    @Override
     public CompletableFuture<BotSendResult> sendImageAsync(
             String toUser, String mediaPath) {
         return CompletableFuture.supplyAsync(
                 () -> sendImage(toUser, mediaPath));
     }
 
-    @Override
     /**
      * 发送Voice
      * @param toUser 转为用户
      * @param mediaPath media路径
      */
+    @Override
     public BotSendResult sendVoice(String toUser,
             String mediaPath) {
         log.warn("Feishu bot does not support voice messages");
@@ -856,7 +856,6 @@ public class FeishuBotClient implements BotClient {
                 "Feishu bot does not support voice messages");
     }
 
-    @Override
     /**
      * 发送视频
      * @param toUser 转为用户
@@ -864,6 +863,7 @@ public class FeishuBotClient implements BotClient {
      * @param title title
      * @param desc desc
      */
+    @Override
     public BotSendResult sendVideo(String toUser,
             String mediaPath, String title, String desc) {
         log.warn(
@@ -873,12 +873,12 @@ public class FeishuBotClient implements BotClient {
                 "Feishu bot does not support video messages via webhook");
     }
 
-    @Override
     /**
      * 发送文件
      * @param toUser 转为用户
      * @param mediaPath media路径
      */
+    @Override
     public BotSendResult sendFile(String toUser,
             String mediaPath) {
         log.warn(
@@ -888,10 +888,10 @@ public class FeishuBotClient implements BotClient {
                 "Feishu bot does not support file messages via webhook");
     }
 
-    @Override
     /**
      * 发送
     */
+    @Override
     public BotSendResult send(BotOutboundMessage message) {
         if (client == null) {
             return BotSendResult.fail(-1, "Client not started");
@@ -932,7 +932,6 @@ public class FeishuBotClient implements BotClient {
         }
     }
 
-    @Override
     /**
      * 发送异步
      * @param message 消息
@@ -1010,15 +1009,16 @@ public class FeishuBotClient implements BotClient {
      * @param millis millis
      * @param e e
      */
+    @Override
     public CompletableFuture<BotSendResult> sendAsync(
             BotOutboundMessage message) {
         return CompletableFuture.supplyAsync(() -> send(message));
     }
 
-    @Override
     /**
      * 获取配置
     */
+    @Override
     public Map<String, Object> getConfig() {
         Map<String, Object> config = new ConcurrentHashMap<>();
         config.put("appId", appId != null ? appId : "");
@@ -1028,10 +1028,10 @@ public class FeishuBotClient implements BotClient {
         return config;
     }
 
-    @Override
     /**
      * 用户存储
     */
+    @Override
     public BotClient userStore(BotUserStore userStore) {
         if (userStore != null) {
             this.userStore = userStore;
@@ -1039,18 +1039,18 @@ public class FeishuBotClient implements BotClient {
         return this;
     }
 
-    @Override
     /**
      * 列表用户
     */
+    @Override
     public List<BotUserInfo> listUsers() {
         return userStore.findAll();
     }
 
-    @Override
     /**
      * 列表群体
     */
+    @Override
     public List<BotGroupInfo> listGroups() {
         if (client == null) {
             return Collections.emptyList();
@@ -1081,18 +1081,17 @@ public class FeishuBotClient implements BotClient {
         }
     }
 
-    @Override
     /**
      * 发送转为分组
      * @param groupId 群体标识
      * @param content 内容
      */
+    @Override
     public BotSendResult sendToGroup(String groupId,
             String content) {
         return send(BotOutboundMessage.groupText(groupId, content));
     }
 
-    @Override
     /**
      * 发送转为分组异步
      * @param groupId 群体标识
@@ -1161,13 +1160,13 @@ public class FeishuBotClient implements BotClient {
      * @param millis millis
      * @param e e
      */
+    @Override
     public CompletableFuture<BotSendResult> sendToGroupAsync(
             String groupId, String content) {
         return CompletableFuture.supplyAsync(
                 () -> sendToGroup(groupId, content));
     }
 
-    @Override
     /**
      * 发送转为分组提及
      * @param groupId 群体标识
@@ -1233,6 +1232,7 @@ public class FeishuBotClient implements BotClient {
      * @param millis millis
      * @param e e
      */
+    @Override
     public BotSendResult sendToGroupMention(
             String groupId,
             String content,
@@ -1252,7 +1252,6 @@ public class FeishuBotClient implements BotClient {
                         mentionedUserIds));
     }
 
-    @Override
     /**
      * 添加消息监听器
      * @param listener 监听器
@@ -1308,6 +1307,7 @@ public class FeishuBotClient implements BotClient {
      * @param millis millis
      * @param e e
      */
+    @Override
     public BotClient addMessageListener(
             BotMessageListener listener) {
         if (listener != null) {
@@ -1316,7 +1316,6 @@ public class FeishuBotClient implements BotClient {
         return this;
     }
 
-    @Override
     /**
      * 移除消息监听器
      * @param listener 监听器
@@ -1371,16 +1370,17 @@ public class FeishuBotClient implements BotClient {
      * @param millis millis
      * @param e e
      */
+    @Override
     public BotClient removeMessageListener(
             BotMessageListener listener) {
         messageListeners.remove(listener);
         return this;
     }
 
-    @Override
     /**
      * 添加记录错误监听器
     */
+    @Override
     public BotClient addErrorListener(BotErrorListener listener) {
         if (listener != null) {
             errorListeners.add(listener);

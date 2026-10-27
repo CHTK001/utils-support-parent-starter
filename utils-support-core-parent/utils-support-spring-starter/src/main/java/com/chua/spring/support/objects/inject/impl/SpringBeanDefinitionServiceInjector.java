@@ -24,15 +24,14 @@ public class SpringBeanDefinitionServiceInjector implements BeanDefinitionServic
     private static final System.Logger LOG =
             System.getLogger(SpringBeanDefinitionServiceInjector.class.getName());
 
-    @Override
     /**
      * 是否支持
     */
+    @Override
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         return field != null && field.isAnnotationPresent(Autowired.class);
     }
 
-    @Override
     /**
      * Inject
      * @param field 字段
@@ -41,6 +40,7 @@ public class SpringBeanDefinitionServiceInjector implements BeanDefinitionServic
      * @param beanProvider Bean提供者
      * @param typeProvider 类型提供者
      */
+    @Override
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition,
                          Function<String, Object> beanProvider,
                          Function<Class<?>, Object> typeProvider) {

@@ -21,10 +21,10 @@ public class OnnxImageEnhancer implements ImageEnhancer {
     public OnnxImageEnhancer(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public ImageEnhancer model(String model) {
         this.modelName = model;
         return this;
@@ -43,10 +43,10 @@ public class OnnxImageEnhancer implements ImageEnhancer {
         return modelName;
     }
 
-    @Override
     /**
      * 增强
     */
+    @Override
     public byte[] enhance(byte[] imageData) {
         return ImageEnhancer.create(resolveModel()).enhance(imageData);
     }

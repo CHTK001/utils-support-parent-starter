@@ -98,9 +98,6 @@ public class ConfigValueBinding {
      * @param value 要设置的配置值对象
 
      */
-    /**
-     * 当前值
-     */
     @Setter
     private Object currentValue;
 

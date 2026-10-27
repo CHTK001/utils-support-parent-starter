@@ -57,31 +57,31 @@ public class PoiDocumentGenerator implements DocumentGenerator {
      */
     private static final String ILLEGAL_CHARS = "[\\\\/*?:\\[\\]]";
 
-    @Override
     /**
      * 支持的格式
      * @return 格式 对象
      */
+    @Override
     public Set<String> formats() {
         return Set.of(ExportFormats.XLSX);
     }
 
-    @Override
     /**
      * 引擎名
      * @return 引擎名 对象
      */
+    @Override
     public String engine() {
         return "poi";
     }
 
-    @Override
     /**
      * 生成文档
      * @param context 导出上下文
      * @param out     输出流
      * @throws IOException 写出异常
      */
+    @Override
     public void generate(ExportContext context, OutputStream out) throws IOException {
         List<ColumnMeta> columns = context.columns();
         if (columns.isEmpty()) {

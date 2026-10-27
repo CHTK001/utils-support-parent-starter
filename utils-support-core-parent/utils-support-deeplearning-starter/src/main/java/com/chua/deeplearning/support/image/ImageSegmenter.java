@@ -149,9 +149,6 @@ class DefaultImageSegmenter implements ImageSegmenter {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -183,32 +180,32 @@ class DefaultImageSegmenter implements ImageSegmenter {
         }
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public ImageSegmenter modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public ImageSegmenter device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Segment
      *
      * @param imageData 镜像数据
      * @return segment的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public byte[] segment(byte[] imageData) {
         ITranslator<byte[], byte[]> t =
                 (ITranslator<byte[], byte[]>) engine.get(modelName, ITranslator.class);
@@ -218,8 +215,6 @@ class DefaultImageSegmenter implements ImageSegmenter {
         return t.translate(imageData);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Segment
      *
@@ -227,6 +222,8 @@ class DefaultImageSegmenter implements ImageSegmenter {
      * @param targetClass 目标类
      * @return segment的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public byte[] segment(byte[] imageData, int targetClass) {
         return segment(imageData);
     }

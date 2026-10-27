@@ -60,50 +60,50 @@ public class ForyJsonProvider implements JsonProvider {
      */
     private static final ForyJson FORY_JSON = ForyJson.builder().build();
 
-    @Override
     /**
      * 创建json对象
     */
+    @Override
     public JsonObject createJsonObject() {
         return new ForyJsonObject();
     }
 
-    @Override
     /**
      * 创建json对象
     */
+    @Override
     public JsonObject createJsonObject(Map map) {
         return new ForyJsonObject(map);
     }
 
-    @Override
     /**
      * 创建jsonarray
     */
+    @Override
     public JsonArray createJsonArray() {
         return new ForyJsonArray();
     }
 
-    @Override
     /**
      * 创建jsonarray
     */
+    @Override
     public JsonArray createJsonArray(Collection collection) {
         return new ForyJsonArray(collection);
     }
 
-    @Override
     /**
      * 创建json节点
     */
+    @Override
     public JsonNode createJsonNode(Object value) {
         return new ForyJsonNode(value);
     }
 
-    @Override
     /**
      * 解析
     */
+    @Override
     public JsonNode parse(String json) {
         if (null == json) {
             return createJsonNode(createJsonObject());
@@ -119,10 +119,10 @@ public class ForyJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 解析
     */
+    @Override
     public JsonNode parse(byte[] json) {
         if (null == json) {
             return createJsonNode(createJsonObject());
@@ -130,26 +130,26 @@ public class ForyJsonProvider implements JsonProvider {
         return parse(new String(json, UTF_8));
     }
 
-    @Override
     /**
      * 构建
     */
+    @Override
     public JsonNode build() {
         return createJsonNode(createJsonObject());
     }
 
-    @Override
     /**
      * 构建Array
     */
+    @Override
     public JsonNode buildArray() {
         return createJsonNode(createJsonArray());
     }
 
-    @Override
     /**
      * 获取json对象
     */
+    @Override
     public JsonObject getJsonObject(String json) {
         if (null == json) {
             return createJsonObject();
@@ -161,18 +161,18 @@ public class ForyJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 获取json引用
     */
+    @Override
     public JsonReference getJsonReference(String json) {
         return new JsonReference(json);
     }
 
-    @Override
     /**
      * 获取jsonarray
     */
+    @Override
     public JsonArray getJsonArray(byte[] jsonArray) {
         if (null == jsonArray) {
             return createJsonArray();
@@ -180,10 +180,10 @@ public class ForyJsonProvider implements JsonProvider {
         return getJsonArray(new String(jsonArray, UTF_8));
     }
 
-    @Override
     /**
      * 获取jsonarray
     */
+    @Override
     public JsonArray getJsonArray(String json) {
         if (null == json) {
             return createJsonArray();
@@ -195,10 +195,10 @@ public class ForyJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 获取json对象
     */
+    @Override
     public JsonObject getJsonObject(byte[] bytes) {
         try {
             return createJsonObject(FORY_JSON.fromJson(new String(bytes, UTF_8), Map.class));
@@ -207,26 +207,26 @@ public class ForyJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 获取json对象
     */
+    @Override
     public JsonObject getJsonObject(InputStreamReader inputStreamReader) {
         return getJsonObject(readString(inputStreamReader));
     }
 
-    @Override
     /**
      * 获取json对象
     */
+    @Override
     public JsonObject getJsonObject(InputStream inputStream) {
         return getJsonObject(new InputStreamReader(inputStream, UTF_8));
     }
 
-    @Override
     /**
      * 获取json对象
     */
+    @Override
     public JsonObject getJsonObject(InputStream inputStream, String charset) {
         try {
             return getJsonObject(new InputStreamReader(inputStream, charset));
@@ -235,18 +235,18 @@ public class ForyJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json转为列表
     */
+    @Override
     public <T> List<T> fromJsonToList(InputStream inputStream, Class<T> targetType) {
         return fromJsonToList(readString(inputStream), targetType);
     }
 
-    @Override
     /**
      * 从json转为列表
     */
+    @Override
     public <T> List<T> fromJsonToList(String json, Class<T> targetType) {
         if (null == json) {
             return Collections.emptyList();
@@ -259,10 +259,10 @@ public class ForyJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(String json, Class<T> target) {
         try {
             if (hasUnifiedAnnotations(target)) {
@@ -275,42 +275,42 @@ public class ForyJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(byte[] bytes, Class<T> target) {
         return fromJson(new String(bytes, UTF_8), target);
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public JsonObject fromJson(byte[] bytes, Charset charset) {
         return createJsonObject(FORY_JSON.fromJson(new String(bytes, charset), Map.class));
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(InputStreamReader inputStreamReader, Class<T> target) {
         return fromJson(readString(inputStreamReader), target);
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(InputStream inputStream, Class<T> target) {
         return fromJson(readString(inputStream), target);
     }
 
-    @Override
     /**
      * 转为json
     */
+    @Override
     public String toJson(Object object, String... ignores) {
         if (null == object) {
             return "null";
@@ -348,27 +348,27 @@ public class ForyJsonProvider implements JsonProvider {
         });
     }
 
-    @Override
     /**
      * Pretty格式化
     */
+    @Override
     public String prettyFormat(Object object) {
         // fory-json 无内置缩进美化，回退为紧凑输出（格式语义一致）
         return toJson(object);
     }
 
-    @Override
     /**
      * 转为prettyjson
     */
+    @Override
     public String toPrettyJson(Object obj) {
         return prettyFormat(obj);
     }
 
-    @Override
     /**
      * 转为jsonbyte
     */
+    @Override
     public byte[] toJsonByte(Object object) {
         if (null == object) {
             return new byte[0];
@@ -379,10 +379,10 @@ public class ForyJsonProvider implements JsonProvider {
         return FORY_JSON.toJsonBytes(object);
     }
 
-    @Override
     /**
      * 是否Json
     */
+    @Override
     public boolean isJson(Object ext) {
         if (null == ext) {
             return false;
@@ -404,26 +404,26 @@ public class ForyJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 转为jsonbytes
     */
+    @Override
     public byte[] toJSONBytes(Object object) {
         return toJsonByte(object);
     }
 
-    @Override
     /**
      * 转为json字符串
     */
+    @Override
     public String toJSONString(Object object) {
         return toJson(object);
     }
 
-    @Override
     /**
      * 校验
     */
+    @Override
     public boolean validate(String jsonStr) {
         try {
             String trimmed = jsonStr.trim();
@@ -438,10 +438,10 @@ public class ForyJsonProvider implements JsonProvider {
         return true;
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public Map<String, Object> fromJson(String string) {
         try {
             return FORY_JSON.fromJson(string, Map.class);
@@ -450,10 +450,10 @@ public class ForyJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(String stringValue, Type type) {
         try {
             if (type instanceof Class && hasUnifiedAnnotations((Class<?>) type)) {
@@ -466,18 +466,18 @@ public class ForyJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(Reader reader, Class<T> target) {
         return fromJson(readString(reader), target);
     }
 
-    @Override
     /**
      * 转为json
     */
+    @Override
     public void toJson(Object object, Writer writer) {
         try {
             writer.write(toJson(object));
@@ -486,18 +486,18 @@ public class ForyJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(InputStream stream, Type type) {
         return fromJson(readString(stream), type);
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(Reader reader, Type type) {
         return fromJson(readString(reader), type);
     }
@@ -527,26 +527,26 @@ public class ForyJsonProvider implements JsonProvider {
      */
     private static Type parameterizedListType(Class<?> elementType) {
         return new ParameterizedType() {
-            @Override
             /**
              * 获取actual类型参数
             */
+            @Override
             public Type[] getActualTypeArguments() {
                 return new Type[]{elementType};
             }
 
-            @Override
             /**
              * 获取raw类型
             */
+            @Override
             public Type getRawType() {
                 return List.class;
             }
 
-            @Override
             /**
              * 获取owner类型
             */
+            @Override
             public Type getOwnerType() {
                 return null;
             }

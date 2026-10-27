@@ -27,7 +27,6 @@ public class CircuitBreakerAdvisor extends StaticMethodMatcherPointcutAdvisor {
         super(new CircuitBreakerAdvice(intercept));
     }
 
-    @Override
     /**
      * Matches
      *
@@ -37,6 +36,7 @@ public class CircuitBreakerAdvisor extends StaticMethodMatcherPointcutAdvisor {
      * @author CH
      * @since 4.0.0
      */
+    @Override
     public boolean matches(Method method, Class<?> targetClass) {
         return method.isAnnotationPresent(CircuitBreaker.class);
     }
@@ -49,10 +49,10 @@ public class CircuitBreakerAdvisor extends StaticMethodMatcherPointcutAdvisor {
         */
         private final CircuitBreakerIntercept intercept;
 
-        @Override
         /**
          * 调用
         */
+        @Override
         public Object invoke(org.aopalliance.intercept.MethodInvocation invocation) throws Throwable {
             Method method = invocation.getMethod();
             CircuitBreaker annotation = method.getAnnotation(CircuitBreaker.class);

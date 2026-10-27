@@ -30,10 +30,10 @@ public class AnimalTranslator implements Translator<Image, Classifications> {
      */
     private List<String> classes;
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(TranslatorContext ctx) throws IOException {
         Model model = ctx.getModel();
         try (InputStream is = model.getArtifact("label_list.txt").openStream()) {
@@ -41,19 +41,19 @@ public class AnimalTranslator implements Translator<Image, Classifications> {
         }
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray prob = list.singletonOrThrow();
         return new Classifications(this.classes, prob);
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         float percent = 256f / Math.min(input.getWidth(), input.getHeight());
@@ -71,10 +71,10 @@ public class AnimalTranslator implements Translator<Image, Classifications> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

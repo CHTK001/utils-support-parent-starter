@@ -53,10 +53,10 @@ public class ImageDrawEyeResolver extends AbstractDrawEyeResolver{
         super(qrCodeConfig, g2, bitMatrix, matrixW, matrixH, leftPadding, topPadding, infoSize, detectCornerSize, detectOutColor, detectInnerColor, codeEyeSetting);
     }
 
-    @Override
     /**
      * Draw
     */
+    @Override
     public void draw(int x, int y, QrCodeRenderHelper.DetectLocation detectLocation) {
         BufferedImage detectedImg = qrCodeConfig.getDetectOptions().chooseDetectedImg(detectLocation);
         if (detectedImg != null) {
@@ -82,10 +82,10 @@ public class ImageDrawEyeResolver extends AbstractDrawEyeResolver{
 
     }
 
-    @Override
     /**
      * 饰面
     */
+    @Override
     public void finish() {
 
     }

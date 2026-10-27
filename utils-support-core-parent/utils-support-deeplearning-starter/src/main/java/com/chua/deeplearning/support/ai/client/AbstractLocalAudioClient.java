@@ -70,48 +70,48 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
         this.language = setting != null ? setting.getLanguage() : null;
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public VirtualClient model(String model) {
         this.model = model;
         return this;
     }
 
-    @Override
     /**
      * Language
     */
+    @Override
     public VirtualClient language(String language) {
         this.language = language;
         return this;
     }
 
-    @Override
     /**
      * 音频
     */
+    @Override
     public VirtualClient audio(Path path) {
         this.audioPath = path;
         this.audio = null;
         return this;
     }
 
-    @Override
     /**
      * 音频
     */
+    @Override
     public VirtualClient audio(byte[] audio) {
         this.audio = audio;
         this.audioPath = null;
         return this;
     }
 
-    @Override
     /**
      * 音频
     */
+    @Override
     public VirtualClient audio(InputStream input) {
         try {
             this.audio = input != null ? input.readAllBytes() : null;
@@ -145,10 +145,10 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
         return defs.getFirst().getId();
     }
 
-    @Override
     /**
      * Transcribe
     */
+    @Override
     public String transcribe(Path path) {
         if (path != null) {
             this.audioPath = path;
@@ -185,18 +185,18 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
         throw new IllegalStateException("未配置音频输入 (调用 audio(path|bytes|stream) 先)");
     }
 
-    @Override
     /**
      * 创建任务
     */
+    @Override
     public String createTask(Path path) {
         return "asr-" + UUID.randomUUID();
     }
 
-    @Override
     /**
      * 查询任务
     */
+    @Override
     public AudioResponse queryTask(String taskId) {
         try {
             String transcript = transcribe(audioPath);
@@ -214,10 +214,10 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
         }
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

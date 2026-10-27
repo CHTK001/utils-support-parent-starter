@@ -71,15 +71,14 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
         super(filePath);
     }
 
-    @Override
     /**
      * 类型
     */
+    @Override
     public String type() {
         return "image";
     }
 
-    @Override
     /**
      * 执行转换
      * @param inputStream 输入流
@@ -87,6 +86,7 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
      * @param sourceFile 源文件
      * @param targetFile Target文件
      */
+    @Override
     protected void doConvert(InputStream inputStream, OutputStream outputStream,
                              File sourceFile, File targetFile) throws IOException {
         try {
@@ -132,10 +132,10 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
                 && ImageSupportUtils.isWritable(normalizedTarget);
     }
 
-    @Override
     /**
      * 支持类型
     */
+    @Override
     public ConvertFileSystem.ConvertSupport[] supportedTypes() {
         Set<String> formats = ImageSupportUtils.getAllSupportedFormats();
         List<String> formatList = Wraps.list(formats);

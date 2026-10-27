@@ -450,7 +450,6 @@ import java.util.concurrent.ConcurrentHashMap;
         }
     }
 
-    @SafeVarargs
     /**
      * 分组By
      *
@@ -458,6 +457,7 @@ import java.util.concurrent.ConcurrentHashMap;
      * @param groupByCols 群体bycols
      * @return 群体by的结果
      */
+    @SafeVarargs
     public final <T> GroupByQueryWrapper<T> groupBy(Class<T> entityClass, String... groupByCols) {
         return new GroupByQueryWrapper<>(this, entityClass, groupByCols);
     }
@@ -659,13 +659,13 @@ import java.util.concurrent.ConcurrentHashMap;
             return null;
         }
 
-        @SuppressWarnings({"unchecked", "rawtypes"})
         /**
          * 转为comparable
          *
          * @param value 值
          * @return 转为comparable的结果
          */
+        @SuppressWarnings({"unchecked", "rawtypes"})
         private static Comparable toComparable(Object value) {
             if (value == null) {
                 return null;
@@ -676,7 +676,6 @@ import java.util.concurrent.ConcurrentHashMap;
             return value.toString();
         }
 
-        @SuppressWarnings({"unchecked", "rawtypes"})
         /**
          * 比较Nullable
          *
@@ -684,6 +683,7 @@ import java.util.concurrent.ConcurrentHashMap;
          * @param b b
          * @return compare空的结果
          */
+        @SuppressWarnings({"unchecked", "rawtypes"})
         private static int compareNullable(Comparable a, Comparable b) {
             if (a == null && b == null) {
                 return 0;
@@ -1314,10 +1314,10 @@ import java.util.concurrent.ConcurrentHashMap;
         });
     }
 
-    @Override
     /**
      * 执行更新
     */
+    @Override
     public <T> int executeUpdate(UpdateSql<T> sql) {
         if (sql == null || !sql.hasSet() || !sql.hasWhere()) {
             return 0;
@@ -1409,10 +1409,10 @@ import java.util.concurrent.ConcurrentHashMap;
         ReflectUtils.setField(entity, fieldName, converted);
     }
 
-    @Override
     /**
      * 执行删除
     */
+    @Override
     public <T> int executeDelete(DeleteSql<T> sql) {
         if (sql == null || !sql.hasWhere()) {
             return 0;

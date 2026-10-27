@@ -58,27 +58,27 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
         this.started = new AtomicBoolean(false);
     }
 
-    @Override
     /**
      * 版本
     */
+    @Override
     public String version() {
         return "1.0.0";
     }
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(PluginContext context) throws Exception {
         this.enabled = "true".equals(context.getProperty(enabledKey(), "true"));
         LOG.log(Level.INFO, String.format("%s 初始化完成，启用状态: %s", name(), enabled));
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -90,10 +90,10 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
         LOG.log(Level.INFO, String.format("%s 启动完成，应用层拦截已注册", name()));
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() throws Exception {
         this.enabled = false;
         if (started.compareAndSet(true, false)) {
@@ -102,26 +102,26 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
         LOG.log(Level.INFO, String.format("%s 停止", name()));
     }
 
-    @Override
     /**
      * 状态
     */
+    @Override
     public String status() {
         return String.format("%s[enabled=%s, records=%d]", name(), enabled, records.size());
     }
 
-    @Override
     /**
      * 是否Running
     */
+    @Override
     public boolean isRunning() {
         return enabled && started.get();
     }
 
-    @Override
     /**
      * onintercept
     */
+    @Override
     public void onIntercept(InterceptContext ctx) {
         if (!enabled) {
             return;
@@ -228,7 +228,8 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
         records.add(record);
         try {
             com.chua.runtime.apm.storage.StorageManager.appendTransmission(record);
-        } catch (Exception ignore) {
+        } catch (Exception appendEx) {
+            LOG.log(Level.FINE, String.format("%s appendTransmission 异常: %s", name(), appendEx.getMessage()));
         }
         try {
             DependencyGraphHandler handler = ApmBootstrap.getGlobalHandler(DependencyGraphHandler.class);

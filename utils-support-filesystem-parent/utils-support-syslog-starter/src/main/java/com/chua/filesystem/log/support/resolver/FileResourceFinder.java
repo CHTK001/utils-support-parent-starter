@@ -69,10 +69,10 @@ public class FileResourceFinder implements ResourceFinder {
     */
     private static final String PROTOCOL = "file";
 
-    @Override
     /**
      * 查找
     */
+    @Override
     public Set<Resource> find(String name) {
         name = name.replace("\\", "/");
         if (name.startsWith(PROTOCOL + ":")) {
@@ -593,10 +593,10 @@ public class FileResourceFinder implements ResourceFinder {
             this.scannedCount = scannedCount;
         }
 
-        @Override
         /**
          * visit文件
         */
+        @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
             scannedCount.incrementAndGet();
             String realName = getRealName(file.toString(), fullPath);
@@ -609,10 +609,10 @@ public class FileResourceFinder implements ResourceFinder {
             return FileVisitResult.CONTINUE;
         }
 
-        @Override
         /**
          * visit文件失败
         */
+        @Override
         public FileVisitResult visitFileFailed(Path file, IOException exc) {
             if (log.isDebugEnabled()) { log.debug("Failed to access: {}", file, exc); }
             return FileVisitResult.CONTINUE;

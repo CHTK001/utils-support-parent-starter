@@ -22,10 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 @Spi("console")
 public class ConsolePipeline implements SpiderPipeline {
 
-    @Override
     /**
      * 处理
     */
+    @Override
     public void process(SpiderResult result) {
         if (result == null) {
             return;

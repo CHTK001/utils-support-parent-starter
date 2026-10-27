@@ -123,20 +123,20 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
      */
     private double dreamyEffectStrength = 0.2;
 
-    @Override
     /**
      * 获取镜像格式化
     */
+    @Override
     public String getImageFormat() {
         
         return "jpeg";
     
     }
 
-    @Override
     /**
      * 获取镜像格式化
     */
+    @Override
     public String getImageFormat(String name) {
         if (name == null) {
             return getImageFormat();
@@ -152,10 +152,10 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
         return "jpeg";
     }
 
-    @Override
     /**
      * 过滤
     */
+    @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -424,10 +424,10 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
         return result;
     }
 
-    @Override
     /**
      * 转换器
     */
+    @Override
     public OutputStream converter(InputStream image) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         

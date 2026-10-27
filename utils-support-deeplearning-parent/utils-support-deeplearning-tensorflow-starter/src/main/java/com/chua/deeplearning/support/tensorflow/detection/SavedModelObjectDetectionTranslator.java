@@ -86,10 +86,10 @@ public class SavedModelObjectDetectionTranslator implements NoBatchifyTranslator
         this.classes = classes == null ? DEFAULT_COCO_CLASSES : classes;
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, inputSize, inputSize);
@@ -98,10 +98,10 @@ public class SavedModelObjectDetectionTranslator implements NoBatchifyTranslator
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         int[] classIds = null;
         float[] probabilities = null;

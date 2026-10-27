@@ -31,26 +31,26 @@ import java.io.File;
 @Spi("ini")
 public class IniFileSystem implements FileSystem {
 
-    @Override
     /**
      * 获取类型
     */
+    @Override
     public String getType() {
         return "ini";
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public ReadBuilder read(File file) {
         return new IniReadBuilder(file);
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public WriteBuilder write(File file) {
         return new IniWriteBuilder(file);
     }

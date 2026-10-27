@@ -242,10 +242,10 @@ public class JsoupResponse {
          * 父级xpath
         */
         private String parentXpath;
-        @Singular("addMapping")
         /**
          * Mapping
         */
+        @Singular("addMapping")
         private List<MappingsPath> mapping;
     }
 

@@ -22,15 +22,14 @@ import java.util.function.Function;
 @Spi("quarkus")
 public class QuarkusBeanDefinitionMethodInjector implements BeanDefinitionMethodInjector {
 
-    @Override
     /**
      * 是否支持
     */
+    @Override
     public boolean isSupport(Method method, BeanDefinition beanDefinition) {
         return method != null && method.isAnnotationPresent(Inject.class);
     }
 
-    @Override
     /**
      * Inject
      * @param method 方法
@@ -39,6 +38,7 @@ public class QuarkusBeanDefinitionMethodInjector implements BeanDefinitionMethod
      * @param beanProvider Bean提供者
      * @param typeProvider 类型提供者
      */
+    @Override
     public void inject(Method method, Object instance, BeanDefinition beanDefinition,
                        Function<String, Object> beanProvider,
                        Function<Class<?>, Object> typeProvider) {
@@ -65,13 +65,15 @@ public class QuarkusBeanDefinitionMethodInjector implements BeanDefinitionMethod
             if (arg == null && typeProvider != null) {
                 try {
                     arg = typeProvider.apply(paramTypes[i]);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[quarkus] 按类型解析方法入参失败，已忽略: {}", e.getMessage());
                 }
             }
             if (arg == null && beanProvider != null) {
                 try {
                     arg = beanProvider.apply(method.getName());
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[quarkus] 按名称解析方法入参失败，已忽略: {}", e.getMessage());
                 }
             }
             args[i] = arg;

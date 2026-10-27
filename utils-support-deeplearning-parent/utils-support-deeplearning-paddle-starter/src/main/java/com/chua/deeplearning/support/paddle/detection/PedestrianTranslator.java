@@ -33,10 +33,10 @@ public class PedestrianTranslator implements Translator<Image, DetectedObjects> 
      */
     private int height;
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray result = list.singletonOrThrow();
         float[] probabilities = result.get(":,1").toFloatArray();
@@ -56,10 +56,10 @@ public class PedestrianTranslator implements Translator<Image, DetectedObjects> 
         return new DetectedObjects(names, prob, boxes);
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, 608, 608);
@@ -77,10 +77,10 @@ public class PedestrianTranslator implements Translator<Image, DetectedObjects> 
         return new NDList(array, imageSize);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

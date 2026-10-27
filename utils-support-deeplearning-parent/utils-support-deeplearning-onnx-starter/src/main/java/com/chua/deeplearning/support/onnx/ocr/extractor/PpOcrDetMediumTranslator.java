@@ -20,10 +20,10 @@ public class PpOcrDetMediumTranslator extends PpOcrDetTranslator {
         super("ocr/PP-OCRv6/medium/det_infer/", "paddleocrv6-medium-det");
     }
 
-    @Override
     /**
      * 获取阈值
     */
+    @Override
     protected float getThreshold() {
         return effectiveThreshold(0.25f);
     }

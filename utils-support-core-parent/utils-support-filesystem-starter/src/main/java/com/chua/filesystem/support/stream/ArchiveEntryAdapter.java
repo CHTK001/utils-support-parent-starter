@@ -29,29 +29,29 @@ public class ArchiveEntryAdapter implements ArchiveEntry {
         this.delegate = delegate;
     }
 
-    @Override
-    @Nonnull
     /**
      * 获取名称
      *
      * @return 获取名称的结果
      */
+    @Override
+    @Nonnull
     public String getName() {
         return delegate.getName();
     }
 
-    @Override
     /**
      * 是否目录
     */
+    @Override
     public boolean isDirectory() {
         return delegate.isDirectory();
     }
 
-    @Override
     /**
      * 获取获取大小
     */
+    @Override
     public long getSize() {
         return delegate.getSize();
     }

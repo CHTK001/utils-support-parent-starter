@@ -16,10 +16,10 @@ import java.util.Arrays;
  */
 public class EncoderTranslator implements NoBatchifyTranslator<long[], NDArray> {
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, long[] input) {
         NDManager manager = ctx.getNDManager();
         NDArray inputIdArray = manager.create(input).expandDims(0);
@@ -35,10 +35,10 @@ public class EncoderTranslator implements NoBatchifyTranslator<long[], NDArray> 
         return new NDList(inputIdArray, attentionMaskArray, placeholder);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public NDArray processOutput(TranslatorContext ctx, NDList list) {
         NDArray encoderHiddenStates = list.getFirst();
         encoderHiddenStates.detach();

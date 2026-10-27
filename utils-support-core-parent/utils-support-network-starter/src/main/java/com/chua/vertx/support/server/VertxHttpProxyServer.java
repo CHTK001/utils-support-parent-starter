@@ -85,10 +85,10 @@ public class VertxHttpProxyServer extends AbstractServer {
         this.targetResolver = remote -> backend;
     }
 
-    @Override
     /**
      * 执行开始
     */
+    @Override
     protected void doStart() {
         try {
             VertxOptions opts = new VertxOptions()
@@ -246,10 +246,10 @@ public class VertxHttpProxyServer extends AbstractServer {
                 || "upgrade".equals(lower));
     }
 
-    @Override
     /**
      * 执行停止
     */
+    @Override
     protected void doStop() {
         if (server != null) {
             try {
@@ -275,10 +275,10 @@ public class VertxHttpProxyServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * 获取协议类型
     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }

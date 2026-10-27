@@ -1,6 +1,7 @@
 package com.chua.datasync.agent.support.offset;
 
 import com.chua.datasync.agent.support.model.SyncDataOffset;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,6 +13,7 @@ import java.nio.file.StandardOpenOption;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
 
     /**
@@ -39,10 +41,10 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
         }
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public SyncDataOffset read(String sourceId, SyncDataOffset defaultValue) {
         return read(sourceId, null, defaultValue);
     }
@@ -103,10 +105,10 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
         return sourceId + "__" + mappingId + ".offset";
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public void write(SyncDataOffset offset) {
         if (offset == null || offset.sourceId() == null) {
             return;
@@ -121,10 +123,10 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
         }
     }
 
-    @Override
     /**
      * 删除
     */
+    @Override
     public void delete(String sourceId) {
         if (sourceId == null) {
             return;
@@ -132,14 +134,15 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
         Path file = storageDir.resolve(sourceId + ".offset");
         try {
             Files.deleteIfExists(file);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[datasync] 删除偏移量文件失败，已忽略: {}", e.getMessage());
         }
     }
 
-    @Override
     /**
      * 列表全部
     */
+    @Override
     public java.util.List<SyncDataOffset> listAll() {
         try {
             return Files.list(storageDir)

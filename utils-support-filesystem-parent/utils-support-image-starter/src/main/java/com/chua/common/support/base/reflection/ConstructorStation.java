@@ -10,18 +10,17 @@ import java.lang.reflect.Constructor;
 
 public class ConstructorStation {
 
-    @SuppressWarnings("unchecked")
     /**
      * 新instance
      *
      * @param constructor constructor
      * @return 新instance的结果
      */
+    @SuppressWarnings("unchecked")
     public static <T> T newInstance(Constructor<T> constructor) {
         return newInstance(constructor, new Object[0]);
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 新instance
      *
@@ -29,6 +28,7 @@ public class ConstructorStation {
      * @param args 参数
      * @return 新instance的结果
      */
+    @SuppressWarnings("unchecked")
     public static <T> T newInstance(Constructor<T> constructor, Object... args) {
         if (constructor == null) {
             throw new IllegalArgumentException("constructor 不能为 null");

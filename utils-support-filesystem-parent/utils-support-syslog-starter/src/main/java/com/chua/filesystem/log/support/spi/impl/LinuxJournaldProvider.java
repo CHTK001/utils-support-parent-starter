@@ -125,30 +125,30 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         }
     }
 
-    @Override
     /**
      * 是否platform支持
     */
+    @Override
     public boolean isPlatformSupported() {
         
         return PlatformSystems.isLinux();
     
     }
 
-    @Override
     /**
      * 获取源
     */
+    @Override
     public List<String> getSources() {
         
         return SOURCES;
     
     }
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public List<LogEntry> search(LogQuery query) {
         if (!isPlatformSupported()) {
             return List.of();
@@ -475,10 +475,10 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         }
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 绑定Functions
     */
+    @SuppressWarnings("unchecked")
     private void bindFunctions() {
         if (sdJournalOpen == null) {
             synchronized (this) {

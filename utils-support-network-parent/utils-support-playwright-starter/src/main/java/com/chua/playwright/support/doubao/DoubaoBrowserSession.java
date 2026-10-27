@@ -292,10 +292,10 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         Exception ex = null;
         try {

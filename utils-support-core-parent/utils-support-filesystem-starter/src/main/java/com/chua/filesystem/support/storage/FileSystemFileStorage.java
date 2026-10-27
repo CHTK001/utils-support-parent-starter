@@ -10,6 +10,7 @@ import com.chua.common.support.storage.request.ListObjectRequest;
 import com.chua.common.support.storage.request.PutObjectRequest;
 import com.chua.common.support.storage.result.*;
 import com.chua.common.support.storage.setting.BucketSetting;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.nio.file.*;
@@ -53,6 +54,7 @@ import java.util.stream.Stream;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Spi({"filesystem", "file", "local"})
 public class FileSystemFileStorage extends AbstractFileStorage {
 
@@ -140,10 +142,10 @@ public class FileSystemFileStorage extends AbstractFileStorage {
         return name;
     }
 
-    @Override
     /**
      * 放入对象
     */
+    @Override
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = buildKey(request);
@@ -169,10 +171,10 @@ public class FileSystemFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 获取对象
     */
+    @Override
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = buildKey(request);
@@ -208,20 +210,20 @@ public class FileSystemFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 获取对象
     */
+    @Override
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
         return getObject(GetObjectRequest.builder().fileName(name).filePath(path).build());
     }
 
-    @Override
     /**
      * 删除对象
     */
+    @Override
     public DeleteObjectResult deleteObject(String key) {
         try {
             Path target = resolvePath(key);
@@ -237,10 +239,10 @@ public class FileSystemFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * exist对象
     */
+    @Override
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             String key = request.getKey();
@@ -257,10 +259,10 @@ public class FileSystemFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 列表对象
     */
+    @Override
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             String filePath = request.getFilePath();
@@ -299,7 +301,8 @@ public class FileSystemFileStorage extends AbstractFileStorage {
                                         .directory(attrs.isDirectory())
                                         .lastModified(attrs.lastModifiedTime().toInstant().toEpochMilli())
                                         .build());
-                            } catch (IOException ignored) {
+                            } catch (IOException e) {
+                                log.debug("[fs] 读取文件属性失败，跳过该条目: {}", e.getMessage());
                             }
                         });
             }

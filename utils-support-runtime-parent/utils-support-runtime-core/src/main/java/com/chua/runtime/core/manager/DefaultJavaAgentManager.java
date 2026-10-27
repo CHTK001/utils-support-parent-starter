@@ -29,18 +29,18 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
      */
     private static final int CMD_TIMEOUT = 30;
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "default";
     }
 
-    @Override
     /**
      * 列表pids
     */
+    @Override
     public Map<Integer, String> listPids() {
         Map<Integer, String> jvms = Wraps.map();
         try {
@@ -58,7 +58,8 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
                     if (parts.length >= 2) {
                         try {
                             jvms.put(Integer.parseInt(parts[0]), trimmed);
-                        } catch (NumberFormatException ignored) {
+                        } catch (NumberFormatException nfEx) {
+                            LOG.log(Level.FINE, String.format("未识别的进程行: %s", nfEx.getMessage()));
                         }
                     }
                 }
@@ -69,10 +70,10 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
         return jvms;
     }
 
-    @Override
     /**
      * inspectjvm
     */
+    @Override
     public CmdResult inspectJvm(int pid) {
         try {
             Class<?> vmClass = ReflectUtils.forName("com.sun.tools.attach.VirtualMachine");
@@ -87,10 +88,10 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
         }
     }
 
-    @Override
     /**
      * Attach
     */
+    @Override
     public CmdResult attach(int pid, Path agentPath, String options) {
         LOG.log(Level.INFO, String.format("正在注入 Agent 到 PID[%s]", pid));
         try {
@@ -104,18 +105,18 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
         }
     }
 
-    @Override
     /**
      * attachby端口
     */
+    @Override
     public CmdResult attachByPort(int port, Path agentPath, String options) {
         return attach(port, agentPath, options);
     }
 
-    @Override
     /**
      * Detach
     */
+    @Override
     public CmdResult detach(int pid) {
         return CmdResult.builder()
                 .exitCode(1)

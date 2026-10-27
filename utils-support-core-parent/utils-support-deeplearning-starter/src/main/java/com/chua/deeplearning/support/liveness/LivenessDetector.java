@@ -158,9 +158,6 @@ class DefaultLivenessDetector implements LivenessDetector {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -197,41 +194,41 @@ class DefaultLivenessDetector implements LivenessDetector {
         }
     }
 
-    @Override
     /**
      * 阈值
     */
+    @Override
     public LivenessDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public LivenessDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public LivenessDetector device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 是否Live
      *
      * @param imageData 镜像数据
      * @return 是否live的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public boolean isLive(byte[] imageData) {
         ITranslator<byte[], Object> t =
                 (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
@@ -254,14 +251,14 @@ class DefaultLivenessDetector implements LivenessDetector {
         return false;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * livescore
      *
      * @param imageData 镜像数据
      * @return liveScore的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public float liveScore(byte[] imageData) {
         ITranslator<byte[], Object> t =
                 (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));

@@ -59,10 +59,10 @@ public class DosServerFilter implements ServerFilter {
      */
     private volatile boolean configured;
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(ServerFilterConfig config) throws Exception {
         String max = config.getInitParameter("dos.maxRequests");
         String window = config.getInitParameter("dos.windowSeconds");
@@ -77,18 +77,18 @@ public class DosServerFilter implements ServerFilter {
         this.configured = present && maxRequests > 0 && windowSeconds > 0;
     }
 
-    @Override
     /**
      * 是否启用
     */
+    @Override
     public boolean isEnabled() {
         return configured;
     }
 
-    @Override
     /**
      * 执行过滤
     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String ip = resolveClientIp(request);
         long now = System.currentTimeMillis();
@@ -110,18 +110,18 @@ public class DosServerFilter implements ServerFilter {
         chain.doFilter(request, response);
     }
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         return 20;
     }
 
-    @Override
     /**
      * 获取过滤标识
     */
+    @Override
     public String getFilterId() {
         return "DosServerFilter";
     }

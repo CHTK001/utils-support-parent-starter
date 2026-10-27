@@ -12,26 +12,26 @@ package com.chua.network.support.tshark.restorer;
  */
 public class MongoDbProtocolRestorer extends AbstractProtocolRestorer {
 
-    @Override
     /**
      * 获取协议名称
     */
+    @Override
     public String getProtocolName() {
         return "mongodb";
     }
 
-    @Override
     /**
      * 获取Priority
     */
+    @Override
     public int getPriority() {
         return 210;
     }
 
-    @Override
     /**
      * 是否可以Restore
     */
+    @Override
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 16) {
             return false;
@@ -43,10 +43,10 @@ public class MongoDbProtocolRestorer extends AbstractProtocolRestorer {
         return messageLength == rawData.length && opCode >= 0 && opCode <= 8000;
     }
 
-    @Override
     /**
      * Restore
     */
+    @Override
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 16) {
             return "[MongoDB] empty";

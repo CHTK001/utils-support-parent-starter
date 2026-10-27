@@ -101,19 +101,19 @@ public class WebhookMessagePush implements MessagePush {
         this.environment = environment;
     }
 
-    @Override
     /**
      * 获取提供者
     */
+    @Override
     public String getProvider() {
         return "webhook";
     }
 
-    @Override
     /**
      * 发送
      * @param request 请求
      */
+    @Override
     public MessageResponse send(MessageRequest request) {
         long start = System.currentTimeMillis();
         String webhookUrl = environment.get("webhook.url");
@@ -227,19 +227,19 @@ public class WebhookMessagePush implements MessagePush {
         }
     }
 
-    @Override
     /**
      * 列表templates
     */
+    @Override
     public List<TemplateInfo> listTemplates() {
         return Wraps.list(templates.values());
     }
 
-    @Override
     /**
      * 获取Template
      * @param templateId templateid
      */
+    @Override
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
     }

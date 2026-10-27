@@ -245,10 +245,10 @@ public class RabbitmqClient implements AutoCloseable {
         return this;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() { shutdown(); }
 
     // ==================== Channel 管理 ====================
@@ -1184,17 +1184,17 @@ public class RabbitmqClient implements AutoCloseable {
                     ch.confirmSelect();
                     long seqNo = ch.getNextPublishSeqNo();
                     ch.addConfirmListener(new ConfirmListener() {
-                        @Override
                         /**
                          * 处理ACK
                         */
+                        @Override
                         public void handleAck(long deliveryTag, boolean multiple) {
                             callback.accept(true);
                         }
-                        @Override
                         /**
                          * 处理Nack
                         */
+                        @Override
                         public void handleNack(long deliveryTag, boolean multiple) {
                             callback.accept(false);
                         }
@@ -1229,7 +1229,6 @@ public class RabbitmqClient implements AutoCloseable {
                 final CountDownLatch latch = new CountDownLatch(1);
 
                 ch.basicConsume(replyQueue, true, new DefaultConsumer(ch) {
-                    @Override
                     /**
                      * 处理Delivery
                      * @param tag 标签
@@ -1237,6 +1236,7 @@ public class RabbitmqClient implements AutoCloseable {
                      * @param properties 属性
                      * @param body 主体
                      */
+                    @Override
                     public void handleDelivery(String tag, Envelope envelope,
                                                AMQP.BasicProperties properties, byte[] body) {
                         if (properties.getCorrelationId().equals(corrId)) {

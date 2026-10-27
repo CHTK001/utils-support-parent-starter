@@ -247,10 +247,10 @@ public class MavenClient implements AutoCloseable {
         return doExecute(List.of(goals));
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         // 无需清理特殊资源
     }

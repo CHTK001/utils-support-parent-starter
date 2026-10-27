@@ -45,10 +45,10 @@ public class SentinelRateLimiterProvider implements RateLimiterProvider {
         this.resourceName = name;
     }
 
-    @Override
     /**
      * 尝试获取
     */
+    @Override
     public boolean tryAcquire() {
         try (Entry ignored = SphU.entry(resourceName)) {
             return true;
@@ -57,10 +57,10 @@ public class SentinelRateLimiterProvider implements RateLimiterProvider {
         }
     }
 
-    @Override
     /**
      * 尝试获取
     */
+    @Override
     public boolean tryAcquire(long timeout, TimeUnit timeUnit) {
         long deadline = System.currentTimeMillis() + timeUnit.toMillis(timeout);
         for (;;) {
@@ -80,10 +80,10 @@ public class SentinelRateLimiterProvider implements RateLimiterProvider {
         }
     }
 
-    @Override
     /**
      * 获取名称
     */
+    @Override
     public String getName() {
         return name;
     }

@@ -3,6 +3,7 @@ package com.chua.ssh.support.client;
 import com.chua.common.support.network.protocol.ClientSetting;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Linux 命令执行客户端，兼容 服务端指标服务impl 调用方式
@@ -11,6 +12,7 @@ import lombok.Setter;
  * @since 4.0.0.42
  */
 @Getter
+@Slf4j
 @Setter
 public class LinuxExecClient implements AutoCloseable {
 
@@ -82,14 +84,15 @@ public class LinuxExecClient implements AutoCloseable {
     public void closeQuietly() {
         try {
             close();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[ssh] 关闭客户端失败，已忽略: {}", e.getMessage());
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() throws Exception {
         if (sshClient != null) {
             sshClient.close();

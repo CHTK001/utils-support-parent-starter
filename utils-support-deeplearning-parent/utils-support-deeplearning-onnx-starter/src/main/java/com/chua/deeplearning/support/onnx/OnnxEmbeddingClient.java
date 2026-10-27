@@ -39,10 +39,10 @@ public class OnnxEmbeddingClient extends AbstractLocalEmbeddingClient {
         super("onnx", setting);
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, String.class, float[].class);
     }

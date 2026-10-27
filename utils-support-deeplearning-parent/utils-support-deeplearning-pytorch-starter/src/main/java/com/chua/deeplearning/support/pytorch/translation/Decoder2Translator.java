@@ -25,10 +25,10 @@ public class Decoder2Translator implements NoBatchifyTranslator<NDList, CausalLM
         this.tupleName = "past_key_values(" + 12 + ',' + 4 + ')';
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, NDList input) {
         NDArray placeholder = ctx.getNDManager().create(0);
         placeholder.setName("module_method:decoder2");
@@ -36,10 +36,10 @@ public class Decoder2Translator implements NoBatchifyTranslator<NDList, CausalLM
         return input;
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public CausalLMOutput processOutput(TranslatorContext ctx, NDList output) {
         NDArray logitsOutput = output.get(0); // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
         NDList pastKeyValuesOutput = output.subNDList(1, 12 * 4 + 1);

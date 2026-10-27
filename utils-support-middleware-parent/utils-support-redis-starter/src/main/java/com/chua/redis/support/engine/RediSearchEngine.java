@@ -39,28 +39,28 @@ import java.util.*;
   public class RediSearchEngine extends RedisEngine implements Engine {
 
 
-    @Override
     /**
      * 添加数据源
     */
+    @Override
     public <T> Engine addDataSource(String name, EngineDataSource<T> dataSource) {
         super.doAddDataSource(name, dataSource);
         return this;
     }
 
-    @Override
     /**
      * 设置默认数据源名称
     */
+    @Override
     public Engine setDefaultDataSourceName(String name) {
         super.doSetDefaultDataSourceName(name);
         return this;
     }
 
-    @Override
     /**
      * 存储
     */
+    @Override
     public <T> Engine store(String name, List<T> data) {
         String keyPrefix = name != null ? name.toLowerCase() : "default";
         try (Jedis jedis = getPool(defaultDataSourceName).getResource()) {
@@ -98,23 +98,22 @@ import java.util.*;
         return this;
     }
 
-    @Override
     /**
      * 获取执行器
     */
+    @Override
     public SqlExecutor getExecutor(String dataSourceName) {
         return null;
     }
 
-    @Override
     /**
      * 获取执行器
     */
+    @Override
     public SqlExecutor getExecutor() {
         return null;
     }
 
-    @Override
     /**
      * 执行原生 Redis 命令。
      * <p>将语句按空白拆分为命令与参数（{@code params} 追加为尾部参数），
@@ -125,6 +124,7 @@ import java.util.*;
      * @param params 附加参数列表
      * @return 受影响行数
      */
+    @Override
     public int execute(String ql, Object... params) {
         if (ql == null || ql.isBlank()) {
             throw new IllegalArgumentException("Redis 命令不能为空");
@@ -151,46 +151,46 @@ import java.util.*;
         }
     }
 
-    @Override
     /**
      * 获取数据源
     */
+    @Override
     public <T> EngineDataSource<T> getDataSource(String name) {
         return super.getDataSource(name);
     }
 
-    @Override
     /**
      * 获取数据源
     */
+    @Override
     public <T> EngineDataSource<T> getDataSource() {
         return super.getDataSource();
     }
 
-    @Override
     /**
      * 查询
     */
+    @Override
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new LambdaQueryWrapper<T>(entityClass) {
-            @Override
             /**
              * 解析Column
             */
+            @Override
             protected String resolveColumn(SFunction<T, ?> column) {
                 return LambdaUtils.resolveObject(column);
             }
 
-            @Override
             /**
              * 新instance
             */
+            @Override
             protected LambdaQueryWrapper<T> newInstance() {
                 LambdaQueryWrapper<T> sub = new LambdaQueryWrapper<T>(entityClass) {
-                    @Override
                     /**
                      * 解析Column
                     */
+                    @Override
                     protected String resolveColumn(SFunction<T, ?> column) {
                         return LambdaUtils.resolveObject(column);
                     }
@@ -198,32 +198,31 @@ import java.util.*;
                 return sub;
             }
 
-            @Override
             /**
              * 列表
             */
+            @Override
             public List<T> list() {
                 return executeRedisQuery(this, entityClass);
             }
 
-            @Override
             /**
              * One
             */
+            @Override
             public T one() {
                 List<T> r = executeRedisQuery(this, entityClass);
                 return r.isEmpty() ? null : r.getFirst();
             }
 
-            @Override
             /**
              * Page
             */
+            @Override
             public Page<T> page(int pageNum, int pageSize) {
                 return executeRedisPage(this, entityClass, pageNum, pageSize);
             }
 
-            @Override
             /**
              * 统计命中总数
              * <p>基类实现要求引擎覆写，否则直接抛 {@code UnsupportedOperationException}。
@@ -232,93 +231,93 @@ import java.util.*;
              *
              * @return 命中总数
             */
+            @Override
             public long count() {
                 return executeRedisQuery(this, entityClass).size();
             }
         };
     }
 
-    @Override
     /**
      * 更新
     */
+    @Override
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         return new LambdaUpdateWrapper<T>(entityClass) {
-            @Override
             /**
              * 解析Column
             */
+            @Override
             protected String resolveColumn(SFunction<T, ?> column) {
                 return LambdaUtils.resolveObject(column);
             }
 
-            @Override
             /**
              * 新instance
             */
+            @Override
             protected LambdaUpdateWrapper<T> newInstance() {
                 return new LambdaUpdateWrapper<T>(entityClass) {
-                    @Override
                     /**
                      * 解析Column
                     */
+                    @Override
                     protected String resolveColumn(SFunction<T, ?> column) {
                         return LambdaUtils.resolveObject(column);
                     }
                 };
             }
 
-            @Override
             /**
              * 更新
             */
+            @Override
             public int update() {
                 return executeRedisUpdate(this);
             }
         };
     }
 
-    @Override
     /**
      * 删除
     */
+    @Override
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         return new LambdaDeleteWrapper<T>(entityClass) {
-            @Override
             /**
              * 解析Column
             */
+            @Override
             protected String resolveColumn(SFunction<T, ?> column) {
                 return LambdaUtils.resolveObject(column);
             }
 
-            @Override
             /**
              * 新instance
             */
+            @Override
             protected LambdaDeleteWrapper<T> newInstance() {
                 return new LambdaDeleteWrapper<T>(entityClass) {
-                    @Override
                     /**
                      * 解析Column
                     */
+                    @Override
                     protected String resolveColumn(SFunction<T, ?> column) {
                         return LambdaUtils.resolveObject(column);
                     }
                 };
             }
 
-            @Override
             /**
              * 移除
             */
+            @Override
             public int remove() {
                 return executeRedisDelete(this);
             }
         };
     }
 
-    @SafeVarargs
     /**
      * 分组By
      *
@@ -326,6 +325,7 @@ import java.util.*;
      * @param groupByCols 群体bycols
      * @return 群体by的结果
      */
+    @SafeVarargs
     public final <T> GroupByQueryWrapper<T> groupBy(Class<T> entityClass, String... groupByCols) {
         return new GroupByQueryWrapper<>(this, entityClass, groupByCols);
     }
@@ -556,12 +556,12 @@ import java.util.*;
             return new Page<>(pn, ps, all.size(), all.subList(from, to));
         }
 
-        @SuppressWarnings({"unchecked", "rawtypes"})
         /**
          * 执行分组By
          *
          * @return 执行群体by的结果
          */
+        @SuppressWarnings({"unchecked", "rawtypes"})
         private List<Map<String, Object>> executeGroupBy() {
             try (Jedis jedis = engine.getPool(engine.getDefaultDataSourceName()).getResource()) {
                 String indexName = "idx:" + engine.getKeyPrefix(entityClass);
@@ -579,54 +579,54 @@ import java.util.*;
         }
     }
 
-    @Override
     /**
      * 获取Dialect
     */
+    @Override
     public Dialect getDialect(String dataSourceName) {
         return null;
     }
 
-    @Override
       /**
        * 关闭：委托父类释放连接池，关闭标记由父类维护。
        */
+    @Override
       public void close() {
           super.close();
       }
 
-      @Override
       /**
        * 是否已关闭
        * <p>关闭状态由父类 {@link RedisEngine} 统一维护，此处如实透传。</p>
        *
        * @return 已关闭返回 true
        */
+      @Override
       public boolean isClosed() {
           return super.isClosed();
       }
 
 
-    @Override
     /**
      * 获取默认数据源名称
     */
+    @Override
     public String getDefaultDataSourceName() {
         return defaultDataSourceName;
     }
 
-    @Override
     /**
      * Meta
     */
+    @Override
     public MetaData meta() {
         return new RedisSearchMetaData(this);
     }
 
-    @Override
     /**
      * 支持元数据操作（meta() 返回真实实现）
     */
+    @Override
     public boolean supportsMeta() {
         return true;
     }
@@ -829,7 +829,6 @@ import java.util.*;
         };
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 映射ft搜索响应
      *
@@ -838,6 +837,7 @@ import java.util.*;
      * @param jedis jedis
      * @return 映射ft搜索响应的结果
      */
+    @SuppressWarnings("unchecked")
     private <T> List<T> mapFtSearchResponse(Object response, Class<T> entityClass, Jedis jedis) {
         List<T> result = Wraps.list();
         if (!(response instanceof List<?> reply) || reply.isEmpty()) {
@@ -933,13 +933,13 @@ import java.util.*;
         return args.toArray(new byte[][]{});
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     /**
      * 解析aggregate响应
      *
      * @param response 响应
      * @return 解析aggregate响应的结果
      */
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static List<Map<String, Object>> parseAggregateResponse(Object response) {
         List<Map<String, Object>> result = Wraps.list();
         if (response == null) {

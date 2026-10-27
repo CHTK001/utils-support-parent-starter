@@ -40,10 +40,10 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
      */
     private static final int INPUT_IMAGE_SIZE = 512;
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        : {}x{}", input.getWidth(), input.getHeight());
@@ -264,10 +264,10 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
         return new NDList(array, pixelAttentionMask);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public SmolDoclingVisionOutput processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("             Vision             : {}          ", list.size());
@@ -290,10 +290,10 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
         return new SmolDoclingVisionOutput(imageFeatures);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         //                   
         return null;

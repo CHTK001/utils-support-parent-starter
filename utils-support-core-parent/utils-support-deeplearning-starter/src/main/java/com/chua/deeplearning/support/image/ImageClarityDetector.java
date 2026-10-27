@@ -207,41 +207,41 @@ class DefaultImageClarityDetector implements ImageClarityDetector {
         }
     }
 
-    @Override
     /**
      * blur阈值
     */
+    @Override
     public ImageClarityDetector blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public ImageClarityDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public ImageClarityDetector device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 评定
      *
      * @param imageData 镜像数据
      * @return 评定的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public ImageQualityInfo assess(byte[] imageData) {
         ITranslator<byte[], ImageQualityInfo> t =
                 (ITranslator<byte[], ImageQualityInfo>) engine.get(modelName, ITranslator.class);

@@ -42,10 +42,10 @@ public class XssServerFilter implements ServerFilter {
             "\\bon\\w+\\s*=\\s*[\"'][^\"']*[\"']",
             Pattern.CASE_INSENSITIVE);
 
-    @Override
     /**
      * 执行过滤
     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         byte[] body = request.getBody();
         if (body != null && body.length > 0) {
@@ -61,18 +61,18 @@ public class XssServerFilter implements ServerFilter {
         chain.doFilter(request, response);
     }
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         return 30;
     }
 
-    @Override
     /**
      * 获取过滤标识
     */
+    @Override
     public String getFilterId() {
         return "XssServerFilter";
     }

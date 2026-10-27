@@ -79,14 +79,14 @@ public class JsonRpcClient implements RpcClient {
         }
     }
 
-    @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
     /**
      * 获取
      *
      * @param targetType 目标类型
      * @return 获取的结果
      */
+    @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public <T> T get(Class<T> targetType) {
         return (T) proxyCache.computeIfAbsent(targetType, type -> {
             Class<T> t = (Class<T>) type;
@@ -147,10 +147,10 @@ public class JsonRpcClient implements RpcClient {
             this.targetType = targetType;
         }
 
-        @Override
         /**
          * 应用
         */
+        @Override
         public Object apply(ProxyMethod proxyMethod) {
             int maxRetries = consumerConfig != null && Boolean.FALSE.equals(consumerConfig.getRetryEnabled())
                     ? 0 : (consumerConfig != null && consumerConfig.getRetries() != null ? consumerConfig.getRetries() : 0);
@@ -238,10 +238,10 @@ public class JsonRpcClient implements RpcClient {
         return headers;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         clientCache.clear();
         proxyCache.clear();

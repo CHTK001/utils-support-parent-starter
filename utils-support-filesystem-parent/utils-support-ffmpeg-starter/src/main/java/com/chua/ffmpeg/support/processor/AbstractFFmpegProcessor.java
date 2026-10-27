@@ -157,9 +157,9 @@ public abstract class AbstractFFmpegProcessor implements FFmpegProcessor {
         return args.toArray(new String[0]);
     }
 
-    @Override
     /**
      * 是否可用
     */
+    @Override
     public boolean isAvailable() { return available; }
 }

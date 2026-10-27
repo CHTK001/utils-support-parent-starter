@@ -42,51 +42,51 @@ public class DubboHandler extends AbstractAppHandler {
      */
     private static final String[] PROTOCOL_METHODS = {"refer", "export", "request"};
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "dubbo-handler";
     }
 
-    @Override
     /**
      * 已启用键
     */
+    @Override
     protected String enabledKey() {
         return "dubbo.enabled";
     }
 
-    @Override
     /**
      * Software
     */
+    @Override
     protected Software software() {
         return Software.DUBBO;
     }
 
-    @Override
     /**
      * 协议
     */
+    @Override
     protected Protocol protocol() {
         return Protocol.DUBBO;
     }
 
-    @Override
     /**
      * 注册拦截器
     */
+    @Override
     protected void registerInterceptors() {
         registerAll(DUBBO_INVOKER, INVOKER_METHODS);
         registerAll(DUBBO_PROTOCOL, PROTOCOL_METHODS);
     }
 
-    @Override
     /**
      * 构建Target
     */
+    @Override
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         String host = "dubbo";
         int port = Protocol.DUBBO.defaultPort();

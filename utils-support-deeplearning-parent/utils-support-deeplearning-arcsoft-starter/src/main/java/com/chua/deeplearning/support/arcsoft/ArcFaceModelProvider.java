@@ -41,10 +41,10 @@ public class ArcFaceModelProvider implements BulkModelProvider {
         this.faceEngine = engine;
     }
 
-    @Override
     /**
      * 获取全部
     */
+    @Override
     public List<TranslatorModelDefinition> getAll() {
         List<TranslatorModelDefinition> definitions = Wraps.list();
 
@@ -85,10 +85,10 @@ public class ArcFaceModelProvider implements BulkModelProvider {
         return definitions;
     }
 
-    @Override
     /**
      * 获取Definition
     */
+    @Override
     public TranslatorModelDefinition getDefinition() {
         List<TranslatorModelDefinition> all = getAll();
         return all != null && !all.isEmpty() ? all.getFirst() : null;

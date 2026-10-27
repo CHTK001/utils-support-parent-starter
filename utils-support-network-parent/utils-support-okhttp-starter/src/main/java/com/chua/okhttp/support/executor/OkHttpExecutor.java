@@ -41,26 +41,26 @@ public class OkHttpExecutor implements HttpClientExecutor {
                 .build();
     }
 
-    @Override
     /**
      * 获取名称
     */
+    @Override
     public String getName() {
         return "okhttp";
     }
 
-    @Override
     /**
      * 是否可用
     */
+    @Override
     public boolean isAvailable() {
         return ReflectUtils.forName("okhttp3.OkHttpClient") != null;
     }
 
-    @Override
     /**
      * 执行
     */
+    @Override
     public ClientResponse execute(ClientRequest request) {
         try {
             Builder builder = new Request.Builder().url(request.getUrl());
@@ -126,16 +126,16 @@ public class OkHttpExecutor implements HttpClientExecutor {
         return resp;
     }
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() { return 0; }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         client.dispatcher().executorService().shutdown();
         client.connectionPool().evictAll();

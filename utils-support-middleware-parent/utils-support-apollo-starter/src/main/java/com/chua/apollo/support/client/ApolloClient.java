@@ -134,10 +134,10 @@ public class ApolloClient implements AutoCloseable {
         return new ConfigOperation(this);
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         configCache.clear();
         log.info("Apollo 客户端关闭");

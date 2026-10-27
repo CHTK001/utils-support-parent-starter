@@ -97,18 +97,18 @@ public class DHTServer extends AbstractServer {
         return setting;
     }
 
-    @Override
     /**
      * 获取协议类型
     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.UDP;
     }
 
-    @Override
     /**
      * 执行开始
     */
+    @Override
     protected void doStart() {
         try {
             this.bridge = new KrpcDhtBridge();
@@ -131,10 +131,10 @@ public class DHTServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * 执行停止
     */
+    @Override
     protected void doStop() {
         if (protocol != null) {
             protocol.close();

@@ -24,28 +24,28 @@ public class InsightFace3d68Translator implements Translator<Image, float[]> {
     */
     private static final int INPUT_SIZE = 192;
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         return OnnxImageProcessor.toModelInput(input, INPUT_SIZE, INPUT_SIZE, 3, false,
                 127.5f, 1.0f / 128.0f, ctx.getNDManager());
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.singletonOrThrow();
         return array.toFloatArray();
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

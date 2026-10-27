@@ -59,10 +59,10 @@ public class SignatureServerFilter implements ServerFilter {
     */
     private final Set<String> excludePaths = Wraps.set();
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(ServerFilterConfig config) throws Exception {
         this.secret = config.getInitParameter("signature.secret");
         String alg = config.getInitParameter("signature.algorithm");
@@ -84,18 +84,18 @@ public class SignatureServerFilter implements ServerFilter {
         }
     }
 
-    @Override
     /**
      * 是否启用：缺少 signature.secret 时无法计算签名，配置到位前不介入业务流量
     */
+    @Override
     public boolean isEnabled() {
         return secret != null && !secret.isEmpty();
     }
 
-    @Override
     /**
      * 执行过滤
     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         if (secret == null || isExcluded(request.getPath())) {
             chain.doFilter(request, response);
@@ -115,18 +115,18 @@ public class SignatureServerFilter implements ServerFilter {
         chain.doFilter(request, response);
     }
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         return 15;
     }
 
-    @Override
     /**
      * 获取过滤标识
     */
+    @Override
     public String getFilterId() {
         return "SignatureServerFilter";
     }

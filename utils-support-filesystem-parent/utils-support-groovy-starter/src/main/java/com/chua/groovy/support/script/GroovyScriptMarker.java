@@ -95,7 +95,6 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
         this.config = config != null ? new CompilerConfiguration(config) : new CompilerConfiguration(DEFAULT_CONFIG);
     }
 
-    @Override
     /**
      * 创建脚本对象实例（线程安全）。
      *
@@ -103,6 +102,7 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
      * 否则新建 groovy类加载。每次创建新 类加载 时，
      * 旧的 类加载 被保存到 {@link #previousClassLoader} 供后续清理。</p>
      */
+    @Override
     public synchronized Object createObject(Listener listener, ClassLoader classLoader, Object[] args) {
         if (listener == null) {
             return null;
@@ -145,10 +145,10 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
         return compiledClass;
     }
 
-    @Override
     /**
      * 获取script类加载
     */
+    @Override
     public ClassLoader getScriptClassLoader() {
         return lastClassLoader;
     }

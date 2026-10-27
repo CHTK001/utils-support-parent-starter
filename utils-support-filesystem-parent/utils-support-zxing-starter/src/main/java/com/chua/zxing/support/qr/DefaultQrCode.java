@@ -56,10 +56,10 @@ public class DefaultQrCode extends AbstractQrCode {
         super(setting);
     }
 
-    @Override
     /**
      * 出
     */
+    @Override
     public void out(String content, OutputStream outputStream) {
         QrCodeGenWrapper.Builder builder = QrCodeGenWrapper.of(content);
 

@@ -60,19 +60,19 @@ public class DefaultExecutorManager implements ExecutorManager {
         this.directDispatch = directDispatch;
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         started.set(true);
         log.info("ExecutorManager 已启动，serverId={}, 执行器数量={}, directDispatch={}", serverId, executors.size(), directDispatch);
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() {
         started.set(false);
         executors.values().forEach(executor -> {
@@ -86,10 +86,10 @@ public class DefaultExecutorManager implements ExecutorManager {
         log.info("ExecutorManager 已停止");
     }
 
-    @Override
     /**
      * 获取执行器
     */
+    @Override
     public ReactorDataSyncExecutor getExecutor(String topic) {
         return executors.computeIfAbsent(topic, t -> {
             ReactorDataSyncExecutor executor = new ReactorDataSyncExecutor(t, true);

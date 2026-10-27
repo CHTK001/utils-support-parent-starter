@@ -51,10 +51,10 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
         super();
     }
 
-    @Override
     /**
      * 类型
     */
+    @Override
     public String type() {
         
         return "webp";
@@ -79,10 +79,10 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
         super(filePath);
     }
 
-    @Override
     /**
      * 执行转换
     */
+    @Override
     protected void doConvert(InputStream inputStream, OutputStream outputStream, File sourceFile, File targetFile) throws IOException {
         try {
             // 读取图片
@@ -129,10 +129,10 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
         return ImageSupportUtils.isWritable(normalized) || ImageSupportUtils.isReadable(normalized);
     }
 
-    @Override
     /**
      * 支持类型
     */
+    @Override
     public ConvertFileSystem.ConvertSupport[] supportedTypes() {
         List<ConvertFileSystem.ConvertSupport> supports = Wraps.list();
         

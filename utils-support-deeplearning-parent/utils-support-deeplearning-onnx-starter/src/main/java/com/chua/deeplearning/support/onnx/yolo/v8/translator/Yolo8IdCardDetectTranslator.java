@@ -139,10 +139,10 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
         log.info("  -             :           [0, 1]");
     }
 
-    @Override
     /**
      * 澶勭悊输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         var manager = ctx.getNDManager();
         var array = input.toNDArray(manager, Image.Flag.COLOR);
@@ -158,10 +158,10 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
         return new NDList(array.expandDims(0));
     }
 
-    @Override
     /**
      * 澶勭悊输出
     */
+    @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         var manager = ctx.getNDManager();
 
@@ -248,10 +248,10 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
         return new DetectedObjects(classNames, probabilities, boundingBoxes);
     }
 
-    @Override
     /**
      * 鑾峰彇Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

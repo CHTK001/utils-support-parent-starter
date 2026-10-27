@@ -33,10 +33,10 @@ public class OnnxFeatureExtractor implements FeatureExtractor {
     public OnnxFeatureExtractor(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public FeatureExtractor model(String model) {
         this.modelName = model;
         return this;
@@ -58,45 +58,45 @@ public class OnnxFeatureExtractor implements FeatureExtractor {
         return modelName;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public FeatureExtractor modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
-    @Override
     /**
      * Normalize
     */
+    @Override
     public FeatureExtractor normalize(boolean normalize) {
         this.normalize = normalize;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public FeatureExtractor device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * Extract
     */
+    @Override
     public float[] extract(byte[] imageData) {
         return FeatureExtractor.create(resolveModel()).modelPath(modelPath).normalize(normalize).device(device).extract(imageData);
     }
 
-    @Override
     /**
      * Extract
     */
+    @Override
     public float[] extract(String text) {
         return FeatureExtractor.create(resolveModel()).modelPath(modelPath).normalize(normalize).device(device).extract(text);
     }

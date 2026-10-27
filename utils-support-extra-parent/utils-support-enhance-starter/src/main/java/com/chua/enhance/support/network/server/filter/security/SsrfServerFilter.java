@@ -43,10 +43,10 @@ public class SsrfServerFilter implements ServerFilter {
      */
     private volatile boolean configured;
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(ServerFilterConfig config) throws Exception {
         String domains = config.getInitParameter("ssrf.allowedDomains");
         String block = config.getInitParameter("ssrf.blockInternal");
@@ -65,18 +65,18 @@ public class SsrfServerFilter implements ServerFilter {
         }
     }
 
-    @Override
     /**
      * 是否启用
     */
+    @Override
     public boolean isEnabled() {
         return configured;
     }
 
-    @Override
     /**
      * 执行过滤
     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String referer = request.getHeader("Referer");
         if (referer != null && !referer.isEmpty() && !isAllowedHost(referer)) {
@@ -91,18 +91,18 @@ public class SsrfServerFilter implements ServerFilter {
         chain.doFilter(request, response);
     }
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         return 12;
     }
 
-    @Override
     /**
      * 获取过滤标识
     */
+    @Override
     public String getFilterId() {
         return "SsrfServerFilter";
     }

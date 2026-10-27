@@ -140,13 +140,13 @@ public class JVectorVectorStorageProvider implements VectorStorageProvider {
         return props;
     }
 
-    @Override
     /**
      * 创建
      * @param dimension 维度
      * @param algorithm algorithm
      * @param properties 属性
      */
+    @Override
     public VectorStorage create(int dimension,
                                 VectorCompareAlgorithm algorithm,
                                 Object properties) {

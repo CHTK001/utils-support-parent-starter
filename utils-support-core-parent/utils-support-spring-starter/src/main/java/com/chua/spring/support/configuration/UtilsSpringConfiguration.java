@@ -25,48 +25,48 @@ import org.springframework.context.annotation.Import;
 @Import({DateConvertConfiguration.class, FormatterConfiguration.class})
 public class UtilsSpringConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBeanDefinition({"distributedLockIntercept", "distributedLockAdvisor"})
     /**
      * Distributed锁Intercept
      *
      * @return distributed锁intercept的结果
      */
+    @Bean
+    @ConditionalOnMissingBeanDefinition({"distributedLockIntercept", "distributedLockAdvisor"})
     public DistributedLockIntercept distributedLockIntercept() {
         return new DistributedLockIntercept();
     }
 
-    @Bean
-    @ConditionalOnMissingBeanDefinition({"distributedLockIntercept", "distributedLockAdvisor"})
     /**
      * Distributed锁Advisor
      *
      * @param intercept intercept
      * @return distributed锁advisor的结果
      */
+    @Bean
+    @ConditionalOnMissingBeanDefinition({"distributedLockIntercept", "distributedLockAdvisor"})
     public DistributedLockAdvisor distributedLockAdvisor(DistributedLockIntercept intercept) {
         return new DistributedLockAdvisor(intercept);
     }
 
-    @Bean
-    @ConditionalOnMissingBeanDefinition({"collapsibleIntercept", "collapsibleAdvisor"})
     /**
      * Collapse拦截
      *
      * @return collapsibleIntercept的结果
      */
+    @Bean
+    @ConditionalOnMissingBeanDefinition({"collapsibleIntercept", "collapsibleAdvisor"})
     public CollapsibleIntercept collapsibleIntercept() {
         return new CollapsibleIntercept();
     }
 
-    @Bean
-    @ConditionalOnMissingBeanDefinition({"collapsibleIntercept", "collapsibleAdvisor"})
     /**
      * collapseadvisor
      *
      * @param intercept intercept
      * @return collapsibleAdvisor的结果
      */
+    @Bean
+    @ConditionalOnMissingBeanDefinition({"collapsibleIntercept", "collapsibleAdvisor"})
     public CollapsibleAdvisor collapsibleAdvisor(CollapsibleIntercept intercept) {
         return new CollapsibleAdvisor(intercept);
     }

@@ -187,10 +187,10 @@ public class MqttClientWrapper implements AutoCloseable {
         try {
             mqttClient = new MqttClient(broker, clientId, new MemoryPersistence());
             mqttClient.setCallback(new MqttCallbackExtended() {
-                @Override
                 /**
                  * connect完成
                 */
+                @Override
                 public void connectComplete(boolean reconnect, String serverURI) {
                     connected.set(true);
                     if (reconnect && !subscriptions.isEmpty()) {
@@ -199,10 +199,10 @@ public class MqttClientWrapper implements AutoCloseable {
                     }
                 }
 
-                @Override
                 /**
                  * connectionlost
                 */
+                @Override
                 public void connectionLost(Throwable cause) {
                     connected.set(false);
                     log.warn("MQTT 连接断开: {}", cause.getMessage());
@@ -216,10 +216,10 @@ public class MqttClientWrapper implements AutoCloseable {
                     notifyError(cause);
                 }
 
-                @Override
                 /**
                  * 消息arrived
                 */
+                @Override
                 public void messageArrived(String topic, MqttMessage message) {
                     String payload = new String(message.getPayload(), StandardCharsets.UTF_8);
                     // 精确主题与通配符过滤器统一按 matches 判定，一个过滤器最多投递一次
@@ -238,10 +238,10 @@ public class MqttClientWrapper implements AutoCloseable {
                     }
                 }
 
-                @Override
                 /**
                  * delivery完成
                 */
+                @Override
                 public void deliveryComplete(IMqttDeliveryToken token) {}
             });
 
@@ -305,10 +305,10 @@ public class MqttClientWrapper implements AutoCloseable {
         return this;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() { shutdown(); }
 
     // ==================== 操作入口 ====================

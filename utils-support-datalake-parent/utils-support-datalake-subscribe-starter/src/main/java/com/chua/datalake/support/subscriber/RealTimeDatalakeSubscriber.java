@@ -60,20 +60,20 @@ public class RealTimeDatalakeSubscriber extends AbstractDatalakeSubscriber {
         this.consumer = consumer;
     }
 
-    @Override
     /**
      * 订阅
     */
+    @Override
     public void subscribe() {
         SubscriberRegistry.getInstance().register(this);
         log.info("[datalake-subscribe] 订阅器已订阅: subscriberId={}, topics={}, offset={}",
                 subscriberId, topics, currentOffset());
     }
 
-    @Override
     /**
      * on推送
     */
+    @Override
     public void onPush(PushPayload payload) {
         if (payload == null || payload.getEnvelope() == null) {
             return;

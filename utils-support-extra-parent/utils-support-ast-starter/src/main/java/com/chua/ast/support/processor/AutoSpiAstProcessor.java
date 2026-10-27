@@ -94,20 +94,20 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
      */
     private javax.lang.model.util.Elements elementUtils;
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.messager = processingEnv.getMessager();
         this.elementUtils = processingEnv.getElementUtils();
     }
 
-    @Override
     /**
      * 处理
     */
+    @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (roundEnv.processingOver()) {
             generateIndexFiles();

@@ -330,10 +330,10 @@ public class SmbClient implements AutoCloseable {
         return this;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         try {
             if (diskShare != null) {

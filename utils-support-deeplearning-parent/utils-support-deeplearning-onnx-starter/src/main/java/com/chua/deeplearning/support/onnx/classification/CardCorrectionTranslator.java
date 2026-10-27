@@ -157,18 +157,18 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
         log.info("[CardCorrection] ONNX loaded: {}", modelPath.getFileName());
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "card-correction-detector";
     }
 
-    @Override
     /**
      * Translate
     */
+    @Override
     public List<DetectionInfo> translate(byte[] imageData) {
         try {
             prepare();

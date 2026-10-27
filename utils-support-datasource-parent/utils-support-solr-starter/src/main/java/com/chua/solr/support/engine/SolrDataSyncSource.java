@@ -87,50 +87,50 @@ public class SolrDataSyncSource implements DataSyncSource {
         return new SolrDataSyncSource(engine, collectionName, sourceId, agentId, batchSize);
     }
 
-    @Override
     /**
      * Direction
     */
+    @Override
     public Direction direction() {
         return Direction.OUTPUT;
     }
 
-    @Override
     /**
      * 源id
     */
+    @Override
     public String sourceId() {
         return sourceId;
     }
 
-    @Override
     /**
      * Agentid
     */
+    @Override
     public String agentId() {
         return agentId;
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public Flux<Map<String, Object>> read(SyncDataOffset offset, Map<String, Object> params) {
         return Flux.empty();
     }
 
-    @Override
     /**
      * 当前偏移量
     */
+    @Override
     public SyncDataOffset currentOffset() {
         return null;
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public void write(Flux<Map<String, Object>> data) {
         List<Map<String, Object>> rows = data.collectList().block();
         if (rows == null || rows.isEmpty()) {
@@ -167,10 +167,10 @@ public class SolrDataSyncSource implements DataSyncSource {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
     }
 }

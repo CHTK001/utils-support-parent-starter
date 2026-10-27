@@ -37,19 +37,19 @@ public class HprofToJsonFileConvertSystem implements FileConvertSystem {
      */
     private static final String TARGET_TYPE = "json";
 
-    @Override
     /**
      * 是否支持该源/目标格式组合
     */
+    @Override
     public boolean isSupported(String sourceType, String targetType) {
         return SOURCE_TYPE.equalsIgnoreCase(sourceType)
                 && TARGET_TYPE.equalsIgnoreCase(targetType);
     }
 
-    @Override
     /**
      * 执行转换
     */
+    @Override
     public void convert(FileSource source, FileSource target, ConvertSetting setting) {
         try {
             HprofParser.Result result = HprofParser.parse(toInputStream(source), source.getPath());

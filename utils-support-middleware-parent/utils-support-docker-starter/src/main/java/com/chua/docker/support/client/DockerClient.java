@@ -198,10 +198,10 @@ public class DockerClient implements Closeable {
         return delegate.pingCmd().exec();
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         try {
             delegate.close();
@@ -1377,41 +1377,41 @@ public class DockerClient implements Closeable {
                         .withStdErr(stderr)
                         .withTail(tail)
                         .exec(new com.github.dockerjava.api.async.ResultCallback<Frame>() {
-                            @Override
                             /**
                              * on下一个
                             */
+                            @Override
                             public void onNext(Frame frame) {
                                 sb.append(new String(frame.getPayload(), UTF_8));
                             }
 
-                            @Override
                             /**
                              * On开始
                             */
+                            @Override
                             public void onStart(java.io.Closeable closeable) {
                             }
 
-                            @Override
                             /**
                              * on完成
                             */
+                            @Override
                             public void onComplete() {
                                 latch.countDown();
                             }
 
-                            @Override
                             /**
                              * On记录错误
                             */
+                            @Override
                             public void onError(Throwable throwable) {
                                 latch.countDown();
                             }
 
-                            @Override
                             /**
                              * 关闭
                             */
+                            @Override
                             public void close() {
                             }
                         });
@@ -1506,41 +1506,41 @@ public class DockerClient implements Closeable {
                 StringBuilder sb = new StringBuilder();
                 client.delegate.execStartCmd(execId)
                         .exec(new com.github.dockerjava.api.async.ResultCallback<Frame>() {
-                            @Override
                             /**
                              * on下一个
                             */
+                            @Override
                             public void onNext(Frame frame) {
                                 sb.append(new String(frame.getPayload(), UTF_8));
                             }
 
-                            @Override
                             /**
                              * On开始
                             */
+                            @Override
                             public void onStart(java.io.Closeable closeable) {
                             }
 
-                            @Override
                             /**
                              * on完成
                             */
+                            @Override
                             public void onComplete() {
                                 latch.countDown();
                             }
 
-                            @Override
                             /**
                              * On记录错误
                             */
+                            @Override
                             public void onError(Throwable throwable) {
                                 latch.countDown();
                             }
 
-                            @Override
                             /**
                              * 关闭
                             */
+                            @Override
                             public void close() {
                             }
                         });
@@ -1807,10 +1807,10 @@ public class DockerClient implements Closeable {
                 try {
                     client.delegate.pullImageCmd(name + ":" + tag)
                             .exec(new PullImageResultCallback() {
-                                @Override
                                 /**
                                  * on下一个
                                 */
+                                @Override
                                 public void onNext(PullResponseItem item) {
                                     if (item.getStatus() != null) {
                                         onProgress.accept(item.getStatus());

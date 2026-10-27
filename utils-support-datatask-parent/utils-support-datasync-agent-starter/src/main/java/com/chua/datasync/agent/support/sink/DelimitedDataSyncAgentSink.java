@@ -73,18 +73,18 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
         this.append = append;
     }
 
-    @Override
     /**
      * sinkid
     */
+    @Override
     public String sinkId() {
         return sinkId;
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public void write(Flux<Map<String, Object>> data) {
         try (BufferedWriter writer = openWriter()) {
             log.info("[DelimitedDataSyncAgentSink] 开始写入, sinkId={}, path={}, append={}", sinkId, filePath, append);
@@ -122,18 +122,18 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
                 java.nio.file.StandardOpenOption.TRUNCATE_EXISTING);
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
  // 每次 写入 都是 尝试-with-resources，无需额外关闭
     }
 
-    @Override
     /**
      * Direction
     */
+    @Override
     public Direction direction() {
         return Direction.OUTPUT;
     }

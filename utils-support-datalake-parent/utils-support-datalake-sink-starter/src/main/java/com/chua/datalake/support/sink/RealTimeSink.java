@@ -33,34 +33,34 @@ public class RealTimeSink implements AccessSink {
      */
     private volatile List<RealTimeChannel> channels = Collections.emptyList();
 
-    @Override
     /**
      * 类型
     */
+    @Override
     public String type() {
         return "realtime";
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         log.info("[datalake-sink] RealTimeSink 启动，实时通道 {} 个", refreshChannels().size());
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() {
         log.info("[datalake-sink] RealTimeSink 停止");
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public boolean write(DataEnvelope envelope, Map<String, Object> config) {
         if (envelope == null) {
             return false;

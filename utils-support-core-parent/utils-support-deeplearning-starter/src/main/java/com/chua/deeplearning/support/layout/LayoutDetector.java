@@ -184,9 +184,6 @@ class DefaultLayoutDetector implements LayoutDetector {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -228,50 +225,50 @@ class DefaultLayoutDetector implements LayoutDetector {
         }
     }
 
-    @Override
     /**
      * 阈值
     */
+    @Override
     public LayoutDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public LayoutDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public LayoutDetector device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * usegpu
     */
+    @Override
     public LayoutDetector useGpu(boolean useGpu) {
         this.useGpu = useGpu;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Detect
      *
      * @param imageData 镜像数据
      * @return detect的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public Map<String, List<PredictRectangle>> detect(byte[] imageData) {
         ITranslator<byte[], Object> t = (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
         if (t == null) {
@@ -326,14 +323,14 @@ class DefaultLayoutDetector implements LayoutDetector {
         return out;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 解析
      *
      * @param imageData 镜像数据
      * @return 解析的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public String parse(byte[] imageData) {
         ITranslator<byte[], Object> t = (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
         if (t == null) {

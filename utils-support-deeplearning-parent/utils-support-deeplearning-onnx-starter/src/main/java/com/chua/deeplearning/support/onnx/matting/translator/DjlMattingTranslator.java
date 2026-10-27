@@ -42,8 +42,6 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
      */
     private BufferedImage originalImage;
 
-    @Override
-    @Nonnull
     /**
      * 处理输入
      *
@@ -51,6 +49,8 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
      * @param input 输入
      * @return 处理输入的结果
      */
+    @Override
+    @Nonnull
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
  // 打开cv 预处理：镜像 → 缓冲镜像 → Mat → 缩放 → CHW 归一化 → float[]
         ImageUtils.load();
@@ -99,8 +99,6 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
         }
     }
 
-    @Override
-    @Nonnull
     /**
      * 处理输出
      *
@@ -108,6 +106,8 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
      * @param list 列表
      * @return 处理输出的结果
      */
+    @Override
+    @Nonnull
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray alpha = list.singletonOrThrow();
         float[] flat = alpha.toFloatArray();
@@ -133,11 +133,11 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
         return BufferedImageFactory.getInstance().fromImage(rgba);
     }
 
-    @Nullable
-    @Override
     /**
      * 获取Batchifier
     */
+    @Nullable
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

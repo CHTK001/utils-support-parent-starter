@@ -357,10 +357,10 @@ public class EmailClient {
                 props.setProperty("mail.smtp.timeout", "30000");
 
                 Session session = Session.getInstance(props, new Authenticator() {
-                    @Override
                     /**
                      * 获取密码认证
                     */
+                    @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(client.username, client.password);
                     }

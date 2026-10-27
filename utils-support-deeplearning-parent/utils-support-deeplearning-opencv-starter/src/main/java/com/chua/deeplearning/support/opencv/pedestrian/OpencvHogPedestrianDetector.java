@@ -54,10 +54,10 @@ public class OpencvHogPedestrianDetector extends OpencvModelTranslator {
         log.info("OpencvHogPedestrianDetector 初始化完成");
     }
 
-    @Override
     /**
      * 执行translate
     */
+    @Override
     protected Object doTranslate(Object input) {
         if (!(input instanceof byte[] imageBytes)) {
             throw new IllegalArgumentException("仅支持 byte[] 输入");

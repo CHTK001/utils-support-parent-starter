@@ -44,18 +44,18 @@ public class TomcatWebContainer extends AbstractWebContainer {
     */
     private final Map<String, Context> contexts = new ConcurrentHashMap<>();
 
-    @Override
     /**
      * 获取名称
     */
+    @Override
     public String getName() {
         return "tomcat";
     }
 
-    @Override
     /**
      * 获取端口
     */
+    @Override
     public int getPort() {
         if (tomcat != null && tomcat.getConnector() != null) {
             return tomcat.getConnector().getLocalPort();
@@ -63,10 +63,10 @@ public class TomcatWebContainer extends AbstractWebContainer {
         return setting != null ? setting.getPort() : 0;
     }
 
-    @Override
     /**
      * 执行deploy
     */
+    @Override
     protected void doDeploy(String archivePath, String contextPath, DeployUnitType type) {
         if (tomcat == null) {
             log.warn("Tomcat 引擎尚未初始化，部署将延迟到启动时执行");
@@ -150,10 +150,10 @@ public class TomcatWebContainer extends AbstractWebContainer {
         log.info("Tomcat 部署完成: contextPath={}, path={}", contextPath, deployDir);
     }
 
-    @Override
     /**
      * 执行undeploy
     */
+    @Override
     protected void doUndeploy(String contextPath) {
         Context ctx = contexts.remove(contextPath);
         if (ctx != null && tomcat != null && tomcat.getHost() != null) {
@@ -166,10 +166,10 @@ public class TomcatWebContainer extends AbstractWebContainer {
         }
     }
 
-    @Override
     /**
      * 执行开始
     */
+    @Override
     protected void doStart() {
         try {
             tomcat = new Tomcat();
@@ -188,10 +188,10 @@ public class TomcatWebContainer extends AbstractWebContainer {
         }
     }
 
-    @Override
     /**
      * 执行停止
     */
+    @Override
     protected void doStop() {
         try {
             if (tomcat != null) {

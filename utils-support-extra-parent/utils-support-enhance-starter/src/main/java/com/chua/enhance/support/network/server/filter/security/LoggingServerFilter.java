@@ -25,26 +25,26 @@ public class LoggingServerFilter implements ServerFilter {
      */
     private volatile boolean configured;
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(ServerFilterConfig config) throws Exception {
         this.configured = null != config && "true".equalsIgnoreCase(config.getInitParameter("requestlog.enabled"));
     }
 
-    @Override
     /**
      * 是否启用
     */
+    @Override
     public boolean isEnabled() {
         return configured;
     }
 
-    @Override
     /**
      * 执行过滤
     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         long startTime = System.currentTimeMillis();
         String method = request.getMethod() != null ? request.getMethod().name() : "UNKNOWN";
@@ -60,19 +60,19 @@ public class LoggingServerFilter implements ServerFilter {
         }
     }
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         // StaticResourceServerFilter 占 0，同序会让请求日志与静态资源短路的先后不确定
         return 7;
     }
 
-    @Override
     /**
      * 获取过滤标识
     */
+    @Override
     public String getFilterId() {
         return "LoggingServerFilter";
     }

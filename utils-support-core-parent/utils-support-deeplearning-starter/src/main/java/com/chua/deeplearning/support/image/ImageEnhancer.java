@@ -146,9 +146,6 @@ class DefaultImageEnhancer implements ImageEnhancer {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -180,32 +177,32 @@ class DefaultImageEnhancer implements ImageEnhancer {
         }
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public ImageEnhancer modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public ImageEnhancer device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 增强
      *
      * @param imageData 镜像数据
      * @return 增强的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public byte[] enhance(byte[] imageData) {
         ITranslator<byte[], Object> t =
                 (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);

@@ -23,10 +23,10 @@ public class NativeFileSearchProvider implements FileSearchProvider {
     public NativeFileSearchProvider() {
     }
 
-    @Override
     /**
      * 搜索文件
     */
+    @Override
     public List<FileInfo> searchFiles(FileSearchCriteria criteria) {
         return RustFileSearchHelper.search(criteria);
     }

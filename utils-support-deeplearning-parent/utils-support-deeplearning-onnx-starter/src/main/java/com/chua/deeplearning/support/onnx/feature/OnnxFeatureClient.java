@@ -40,10 +40,10 @@ public class OnnxFeatureClient implements FeatureClient {
         this.setting = setting;
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public FeatureClient model(String model) {
         setting.setModel(model);
         translator = null;
@@ -70,18 +70,18 @@ public class OnnxFeatureClient implements FeatureClient {
         return translator;
     }
 
-    @Override
     /**
      * Extract
     */
+    @Override
     public float[] extract(String text) {
         throw new UnsupportedOperationException("文本特征提取请使用 EmbeddingClient");
     }
 
-    @Override
     /**
      * extract镜像
     */
+    @Override
     public float[] extractImage(byte[] imageData) {
         try {
             BufferedImage img = ImageUtils.toBufferedImage(imageData);
@@ -94,10 +94,10 @@ public class OnnxFeatureClient implements FeatureClient {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         if (translator != null) {
             try {

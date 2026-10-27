@@ -1,6 +1,8 @@
 package com.chua.common.support.network.server.dht.bep9;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,6 +23,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class PeerWireClient implements AutoCloseable {
 
     /**
@@ -346,7 +349,8 @@ public class PeerWireClient implements AutoCloseable {
     public void close() {
         try {
             socket.close();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[dht] 关闭对等体套接字失败，已忽略: {}", e.getMessage());
         }
     }
 

@@ -55,10 +55,10 @@ public class TenpayProvider implements PaymentChannel {
         this.wxPayService = buildService();
     }
 
-    @Override
     /**
      * 薪酬
     */
+    @Override
     public PaymentResponse pay(PaymentRequest request) {
         switch (request.getScene()) {
             case JSAPI:

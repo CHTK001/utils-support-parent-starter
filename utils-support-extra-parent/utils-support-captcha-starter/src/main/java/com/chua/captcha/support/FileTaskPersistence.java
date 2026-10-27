@@ -58,29 +58,29 @@ public class FileTaskPersistence implements TaskPersistence {
         this.filePath = Paths.get(filePath);
     }
 
-    @Override
     /**
      * 保存
     */
+    @Override
     public synchronized void save(String taskId, CaptchaResponse response) {
         ensureLoaded();
         cache.put(taskId, response);
         persist();
     }
 
-    @Override
     /**
      * 查询
     */
+    @Override
     public synchronized Optional<CaptchaResponse> query(String taskId) {
         ensureLoaded();
         return Optional.ofNullable(cache.get(taskId));
     }
 
-    @Override
     /**
      * 删除
     */
+    @Override
     public synchronized void delete(String taskId) {
         ensureLoaded();
         cache.remove(taskId);

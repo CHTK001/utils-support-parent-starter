@@ -47,14 +47,14 @@ public class RetrofitHttpInvoker implements Invoker {
             "org.springframework.web.bind.annotation.RequestMapping"
     };
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 创建
      *
      * @param apiClass api类
      * @return 创建的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> T create(Class<T> apiClass) {
         if (!apiClass.isInterface()) {
             throw new IllegalArgumentException("只支持接口类型: " + apiClass.getName());
@@ -62,14 +62,14 @@ public class RetrofitHttpInvoker implements Invoker {
         return (T) PROXY_CACHE.computeIfAbsent(apiClass, this::createProxy);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 创建新
      *
      * @param apiClass api类
      * @return 创建新的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> T createNew(Class<T> apiClass) {
         if (!apiClass.isInterface()) {
             throw new IllegalArgumentException("只支持接口类型: " + apiClass.getName());
@@ -155,7 +155,8 @@ public class RetrofitHttpInvoker implements Invoker {
             if (r instanceof String[] a && a.length > 0) {
                 return a[0];
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[retrofit] 提取注解 value 失败，返回空串: {}", e.getMessage());
         }
         return "";
     }

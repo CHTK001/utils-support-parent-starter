@@ -13,6 +13,7 @@ import com.chua.common.support.storage.result.*;
 import com.chua.common.support.storage.setting.BucketSetting;
 import io.minio.*;
 import io.minio.messages.Item;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
@@ -55,6 +56,7 @@ import java.util.Objects;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Spi({"minio", "minio-s3"})
 public class MinioFileStorage extends AbstractFileStorage {
 
@@ -86,14 +88,15 @@ public class MinioFileStorage extends AbstractFileStorage {
             if (!exists) {
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[minio] 校验或创建存储桶失败，已忽略: {}", e.getMessage());
         }
     }
 
-    @Override
     /**
      * 放入对象
     */
+    @Override
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -122,10 +125,10 @@ public class MinioFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 获取对象
     */
+    @Override
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -158,20 +161,20 @@ public class MinioFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 获取对象
     */
+    @Override
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
         return getObject(GetObjectRequest.builder().fileName(name).filePath(path).build());
     }
 
-    @Override
     /**
      * 删除对象
     */
+    @Override
     public DeleteObjectResult deleteObject(String key) {
         try {
             minioClient.removeObject(RemoveObjectArgs.builder()
@@ -189,10 +192,10 @@ public class MinioFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * exist对象
     */
+    @Override
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             minioClient.statObject(StatObjectArgs.builder()
@@ -212,10 +215,10 @@ public class MinioFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 列表对象
     */
+    @Override
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             List<Metadata> metadataList = Wraps.list();
@@ -259,10 +262,10 @@ public class MinioFileStorage extends AbstractFileStorage {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
  // minio客户端 实现了 auto关闭，调用其 关闭 方法释放资源
         if (minioClient != null) {

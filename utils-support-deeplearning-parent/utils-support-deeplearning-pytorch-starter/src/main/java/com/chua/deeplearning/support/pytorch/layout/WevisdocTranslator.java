@@ -98,7 +98,6 @@ public class WevisdocTranslator implements Translator<Image, DetectedObjects> {
         this.threshold = threshold;
     }
 
-    @Override
     /**
      * 处理输入
      * <p>
@@ -110,6 +109,7 @@ public class WevisdocTranslator implements Translator<Image, DetectedObjects> {
      * @param input 输入图像
      * @return NDList（视觉塔输入）
      */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         ctx.setAttachment("sourceWidth", input.getWidth());
         ctx.setAttachment("sourceHeight", input.getHeight());
@@ -132,7 +132,6 @@ public class WevisdocTranslator implements Translator<Image, DetectedObjects> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
      * <p>
@@ -144,18 +143,19 @@ public class WevisdocTranslator implements Translator<Image, DetectedObjects> {
      * @param list 模型输出
      * @return DetectedObjects（11 类版面块）
      */
+    @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         int sourceWidth = (int) ctx.getAttachment("sourceWidth");
         int sourceHeight = (int) ctx.getAttachment("sourceHeight");
         return parseOutput(list.singletonOrThrow(), sourceWidth, sourceHeight, threshold);
     }
 
-    @Override
     /**
      * 获取Batchifier
      *
      * @return Batchifier
      */
+    @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

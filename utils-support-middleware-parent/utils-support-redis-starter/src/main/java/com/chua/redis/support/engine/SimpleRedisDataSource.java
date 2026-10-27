@@ -35,30 +35,30 @@ public class SimpleRedisDataSource implements EngineDataSource<JedisPool> {
             this.pool = pool;
         }
 
-        @Override
         /**
          * 名称
         */
+        @Override
         public String name() {
             return name;
         }
 
-        @Override
         /**
          * 获取源
         */
+        @Override
         public JedisPool getSource() {
             return pool;
         }
 
-        @Override
-        @SuppressWarnings("unchecked")
         /**
          * 获取源
          *
          * @param type 类型
          * @return 获取源的结果
          */
+        @Override
+        @SuppressWarnings("unchecked")
         public <T> T getSource(Class<T> type) {
             // 类型与底层源一致时直接返回
             if (type.isInstance(pool)) {
@@ -72,59 +72,59 @@ public class SimpleRedisDataSource implements EngineDataSource<JedisPool> {
             return null;
         }
 
-        @Override
         /**
          * 设置源
         */
+        @Override
         public EngineDataSource<JedisPool> setSource(Object source) {
             throw new UnsupportedOperationException("运行期不支持替换数据源对象，请重新调用 addDataSource 注册新数据源");
         }
 
-        @Override
         /**
          * 获取Dialect
         */
+        @Override
         public Dialect getDialect() {
             return dialect;
         }
 
-        @Override
         /**
          * 设置Dialect
         */
+        @Override
         public EngineDataSource<JedisPool> setDialect(Dialect dialect) {
             this.dialect = dialect;
             return this;
         }
 
-        @Override
         /**
          * Url
         */
+        @Override
         public String url() {
             return null;
         }
 
-        @Override
         /**
          * 用户名
         */
+        @Override
         public String username() {
             return null;
         }
 
-        @Override
         /**
          * 密码
         */
+        @Override
         public String password() {
             return null;
         }
 
-        @Override
         /**
          * 关闭
         */
+        @Override
         public void close() {
             pool.close();
         }

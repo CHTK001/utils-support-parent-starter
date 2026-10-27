@@ -960,10 +960,10 @@ public class DhtProtocol implements AutoCloseable {
         void onChange(String path, String value);
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         scheduler.shutdown();
         server.close();

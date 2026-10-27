@@ -35,10 +35,10 @@ public class FacePluginLandmarkTranslator implements Translator<Image, float[]> 
     public FacePluginLandmarkTranslator() {
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         if (input.getHeight() != INPUT_SIZE || input.getWidth() != INPUT_SIZE) {
             input = input.resize(INPUT_SIZE, INPUT_SIZE, false);
@@ -50,19 +50,19 @@ public class FacePluginLandmarkTranslator implements Translator<Image, float[]> 
                 ctx.getNDManager());
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.singletonOrThrow();
         return array.toFloatArray();
     }
 
-@Override
     /**
      * 获取Batchifier
     */
+@Override
     public Batchifier getBatchifier() {
  // 输入已包含 批量 维（shape [1, C, H, W]），无需 batchifier 再次叠加
         return null;

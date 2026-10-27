@@ -55,35 +55,35 @@ public class EnhanceBackupStrategyProvider implements BackupStrategy {
     */
     private static final DefaultDailyBackupStrategy delegate = new DefaultDailyBackupStrategy();
 
-    @Override
     /**
      * 类型
     */
+    @Override
     public String type() {
         return TYPE;
     }
 
-    @Override
     /**
      * 执行
     */
+    @Override
     public BackupResult execute(BackupConfig config) {
  // 委托给 默认dailybackupstrategy 处理核心逻辑
         return delegate.execute(config);
     }
 
-    @Override
     /**
      * cleanexpired
     */
+    @Override
     public int cleanExpired(BackupConfig config) {
         return delegate.cleanExpired(config);
     }
 
-    @Override
     /**
      * 列表backups
     */
+    @Override
     public List<Path> listBackups(BackupConfig config) {
         return delegate.listBackups(config);
     }

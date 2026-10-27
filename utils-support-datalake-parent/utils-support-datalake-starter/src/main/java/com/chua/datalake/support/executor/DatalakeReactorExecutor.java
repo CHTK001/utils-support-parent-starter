@@ -82,10 +82,10 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
         this.sinkRegistry = sinkRegistry == null ? new ConcurrentHashMap<>() : sinkRegistry;
     }
 
-    @Override
     /**
      * 订阅
     */
+    @Override
     public void subscribe(String sinkId, Consumer<List<Map<String, Object>>> consumer) {
         if (chronicleProvider == null) {
             log.warn("[datalake-server] ReactorExecutor 订阅跳过: chronicleProvider 未初始化");
@@ -133,10 +133,10 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
                 : "consumer-" + getAgentId() + "-" + sinkId;
     }
 
-    @Override
     /**
      * 发布
     */
+    @Override
     public void publish(String sinkId, List<Map<String, Object>> data) {
         if (data == null) {
             return;

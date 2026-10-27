@@ -32,50 +32,50 @@ public class LettuceHandler extends AbstractAppHandler {
      */
     private static final String[] WRITE_METHODS = {"write", "writeFlush"};
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "lettuce-handler";
     }
 
-    @Override
     /**
      * 已启用键
     */
+    @Override
     protected String enabledKey() {
         return "lettuce.enabled";
     }
 
-    @Override
     /**
      * Software
     */
+    @Override
     protected Software software() {
         return Software.LETTUCE;
     }
 
-    @Override
     /**
      * 协议
     */
+    @Override
     protected Protocol protocol() {
         return Protocol.REDIS;
     }
 
-    @Override
     /**
      * 注册拦截器
     */
+    @Override
     protected void registerInterceptors() {
         registerAll(COMMAND_HANDLER_CLASS, WRITE_METHODS);
     }
 
-    @Override
     /**
      * 构建Target
     */
+    @Override
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object connection = findField(instance, "connection");
         String url = connection != null ? String.valueOf(findField(connection, "url")) : null;

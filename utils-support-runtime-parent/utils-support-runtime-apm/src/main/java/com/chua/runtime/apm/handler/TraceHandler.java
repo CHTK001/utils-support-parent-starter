@@ -259,26 +259,26 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         this.started = new AtomicBoolean(false);
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return HANDLER_NAME;
     }
 
-    @Override
     /**
      * 版本
     */
+    @Override
     public String version() {
         return HANDLER_VERSION;
     }
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(PluginContext context) throws Exception {
         this.context = context;
         this.enabled = DEFAULT_TRACE_ENABLED.equals(context.getProperty(PROP_TRACE_ENABLED, DEFAULT_TRACE_ENABLED));
@@ -286,10 +286,10 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         LOG.log(Level.INFO, String.format("TraceHandler 初始化完成，启用状态: trace=%s http=%s", enabled, httpTracingEnabled));
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -316,10 +316,10 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         LOG.log(Level.INFO, String.format("TraceHandler 启动完成，注册追踪类: %s", context.getProperty(PROP_TRACE_CLASSES, "")));
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() throws Exception {
         this.enabled = false;
         if (started.compareAndSet(true, false)) {
@@ -328,18 +328,18 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         LOG.log(Level.INFO, "TraceHandler 停止");
     }
 
-    @Override
     /**
      * 状态
     */
+    @Override
     public String status() {
         return String.format("TraceHandler[enabled=%s, spans=%d, http=%s]", enabled, spans.size(), httpTracingEnabled);
     }
 
-    @Override
     /**
      * 是否Running
     */
+    @Override
     public boolean isRunning() {
         return enabled && started.get();
     }

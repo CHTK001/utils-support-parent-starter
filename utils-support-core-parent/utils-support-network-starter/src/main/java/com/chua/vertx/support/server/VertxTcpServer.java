@@ -73,19 +73,19 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         super(setting);
     }
 
-    @Override
     /**
      * 注册帧处理器（tcp服务端 接口）
     */
+    @Override
     public VertxTcpServer setHandler(com.chua.common.support.network.tcp.callback.TcpServerHandler handler) {
         this.frameHandler = handler;
         return this;
     }
 
-    @Override
     /**
      * 执行开始
     */
+    @Override
     protected void doStart() {
         try {
             VertxOptions opts = new VertxOptions()
@@ -135,15 +135,16 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         }
     }
 
-    @Override
     /**
      * 执行停止
     */
+    @Override
     protected void doStop() {
         if (netServer != null) {
             try {
                 netServer.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[network] 关闭 net 服务端失败，已忽略: {}", e.getMessage());
             }
             log.info("Vertx TcpServer stopped");
         }
@@ -153,15 +154,16 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         if (vertx != null) {
             try {
                 vertx.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[network] 关闭 vertx 实例失败，已忽略: {}", e.getMessage());
             }
         }
     }
 
-    @Override
     /**
      * 获取协议类型
     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }
@@ -390,19 +392,19 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
             });
         }
 
-        @Override
         /**
          * 读取
         */
+        @Override
         public int read() throws IOException {
             byte[] b = new byte[1];
             return read(b, 0, 1) == -1 ? -1 : b[0] & 0xFF;
         }
 
-        @Override
         /**
          * 读取
         */
+        @Override
         public int read(byte[] b, int off, int len) throws IOException {
             if (len == 0) {
                 return 0;
@@ -429,10 +431,10 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
             return n;
         }
 
-        @Override
         /**
          * 可用
         */
+        @Override
         public int available() {
             Segment c = current;
             int avail = (c == null || c.pos >= c.data.length) ? 0 : (c.data.length - c.pos);
@@ -459,10 +461,10 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
             this.socket = socket;
         }
 
-        @Override
         /**
          * 写入
         */
+        @Override
         public void write(int b) {
             if (pos >= buf.length) {
                 flush();
@@ -470,10 +472,10 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
             buf[pos++] = (byte) b;
         }
 
-        @Override
         /**
          * 写入
         */
+        @Override
         public void write(byte[] b, int off, int len) {
             if (len >= buf.length) {
                 // 大块直接写，避免缓冲中转（Vert.x 无 buffer(byte[],off,len) 重载，需拷贝）
@@ -489,10 +491,10 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
             pos += len;
         }
 
-        @Override
         /**
          * 刷写
         */
+        @Override
         public void flush() {
             if (pos > 0) {
  // 拷贝后写：避免 缓冲 共享内部攒批数组（后续覆写会影响异步发送）

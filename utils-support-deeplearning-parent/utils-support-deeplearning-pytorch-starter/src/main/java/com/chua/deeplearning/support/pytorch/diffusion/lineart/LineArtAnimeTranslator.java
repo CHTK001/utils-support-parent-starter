@@ -49,10 +49,10 @@ public class LineArtAnimeTranslator implements Translator<Image, Image> {
         this.imageResolution = imageResolution;
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -64,10 +64,10 @@ public class LineArtAnimeTranslator implements Translator<Image, Image> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray line = list.singletonOrThrow();
         if (line.getShape().dimension() == 4 && line.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
@@ -84,10 +84,10 @@ public class LineArtAnimeTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromNDArray(line);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

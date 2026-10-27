@@ -3,6 +3,8 @@ package com.chua.common.support.datasearch.network.proxy;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,6 +17,7 @@ import java.util.regex.Pattern;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Spi("netvortex")
 public class NetVortexFetcher implements ProxyFetcher {
 
@@ -29,10 +32,10 @@ public class NetVortexFetcher implements ProxyFetcher {
     private static final Pattern PATTERN = Pattern.compile(
             "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{2,5})");
 
-    @Override
     /**
      * 获取代理
     */
+    @Override
     public List<String> fetchProxies() {
         List<String> proxies = Wraps.list();
         try {
@@ -41,15 +44,16 @@ public class NetVortexFetcher implements ProxyFetcher {
             while (matcher.find()) {
                 proxies.add(matcher.group(1) + ":" + matcher.group(2));
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[datasearch] 抓取 net-vortex 免费代理失败，返回已收集结果: {}", e.getMessage());
         }
         return proxies;
     }
 
-    @Override
     /**
      * 获取源名称
     */
+    @Override
     public String getSourceName() {
         return "netvortex";
     }

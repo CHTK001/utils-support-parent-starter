@@ -540,13 +540,13 @@ public class SpringBeanUtils {
             return this;
         }
 
-        @SafeVarargs
         /**
          * 发布全部
          *
          * @param events 事件
          * @return 发布全部的结果
          */
+        @SafeVarargs
         public final EventPublisher publishAll(Object... events) {
             for (Object event : events) {
                 applicationContext.publishEvent(event);

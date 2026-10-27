@@ -113,10 +113,10 @@ public class GsonJsonProvider implements JsonProvider {
     @SuppressWarnings("unchecked")
     private static <T> TypeAdapter<T> dateTimeAdapter(DateTimeFormatter formatter) {
         return new TypeAdapter<T>() {
-            @Override
             /**
              * 写入
             */
+            @Override
             public void write(JsonWriter out, T value) throws IOException {
                 if (value == null) {
                     out.nullValue();
@@ -125,10 +125,10 @@ public class GsonJsonProvider implements JsonProvider {
                 out.value(formatter.format((java.time.temporal.TemporalAccessor) value));
             }
 
-            @Override
             /**
              * 读取
             */
+            @Override
             public T read(JsonReader in) throws IOException {
                 if (in.peek() == com.google.gson.stream.JsonToken.NULL) {
                     in.nextNull();
@@ -150,10 +150,10 @@ public class GsonJsonProvider implements JsonProvider {
      */
     static class JsonNameFieldNamingStrategy implements FieldNamingStrategy {
 
-        @Override
         /**
          * translate名称
         */
+        @Override
         public String translateName(Field field) {
             JsonName jsonName = field.getAnnotation(JsonName.class);
             if (null != jsonName && !jsonName.value().isEmpty()) {
@@ -170,67 +170,67 @@ public class GsonJsonProvider implements JsonProvider {
      */
     static class JsonIgnoreExclusionStrategy implements ExclusionStrategy {
 
-        @Override
         /**
          * 是否应该跳过字段
         */
+        @Override
         public boolean shouldSkipField(FieldAttributes fieldAttributes) {
             return null != fieldAttributes.getAnnotation(JsonIgnore.class);
         }
 
-        @Override
         /**
          * 是否应该跳过类
         */
+        @Override
         public boolean shouldSkipClass(Class<?> clazz) {
             return false;
         }
     }
 
-    @Override
     /**
      * 创建json对象
     */
+    @Override
     public JsonObject createJsonObject() {
         return new GsonJsonObject();
     }
 
-    @Override
     /**
      * 创建json对象
     */
+    @Override
     public JsonObject createJsonObject(Map map) {
         return new GsonJsonObject(map);
     }
 
-    @Override
     /**
      * 创建jsonarray
     */
+    @Override
     public JsonArray createJsonArray() {
         return new GsonJsonArray();
     }
 
-    @Override
     /**
      * 创建jsonarray
     */
+    @Override
     public JsonArray createJsonArray(Collection collection) {
         return new GsonJsonArray(collection);
     }
 
-    @Override
     /**
      * 创建json节点
     */
+    @Override
     public JsonNode createJsonNode(Object value) {
         return new GsonJsonNode(value);
     }
 
-    @Override
     /**
      * 解析
     */
+    @Override
     public JsonNode parse(String json) {
         if (null == json) {
             return createJsonNode(createJsonObject());
@@ -243,10 +243,10 @@ public class GsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 解析
     */
+    @Override
     public JsonNode parse(byte[] json) {
         if (null == json) {
             return createJsonNode(createJsonObject());
@@ -254,26 +254,26 @@ public class GsonJsonProvider implements JsonProvider {
         return parse(new String(json, UTF_8));
     }
 
-    @Override
     /**
      * 构建
     */
+    @Override
     public JsonNode build() {
         return createJsonNode(createJsonObject());
     }
 
-    @Override
     /**
      * 构建Array
     */
+    @Override
     public JsonNode buildArray() {
         return createJsonNode(createJsonArray());
     }
 
-    @Override
     /**
      * 获取json对象
     */
+    @Override
     public JsonObject getJsonObject(String json) {
         if (null == json) {
             return createJsonObject();
@@ -285,18 +285,18 @@ public class GsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 获取json引用
     */
+    @Override
     public JsonReference getJsonReference(String json) {
         return new JsonReference(json);
     }
 
-    @Override
     /**
      * 获取jsonarray
     */
+    @Override
     public JsonArray getJsonArray(byte[] jsonArray) {
         if (null == jsonArray) {
             return createJsonArray();
@@ -304,10 +304,10 @@ public class GsonJsonProvider implements JsonProvider {
         return getJsonArray(new String(jsonArray, UTF_8));
     }
 
-    @Override
     /**
      * 获取jsonarray
     */
+    @Override
     public JsonArray getJsonArray(String json) {
         if (null == json) {
             return createJsonArray();
@@ -319,10 +319,10 @@ public class GsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 获取json对象
     */
+    @Override
     public JsonObject getJsonObject(byte[] bytes) {
         try {
             return createJsonObject(gson.fromJson(new String(bytes, UTF_8), Map.class));
@@ -331,10 +331,10 @@ public class GsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 获取json对象
     */
+    @Override
     public JsonObject getJsonObject(InputStreamReader inputStreamReader) {
         try {
             return createJsonObject(gson.fromJson(inputStreamReader, Map.class));
@@ -343,18 +343,18 @@ public class GsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 获取json对象
     */
+    @Override
     public JsonObject getJsonObject(InputStream inputStream) {
         return getJsonObject(new InputStreamReader(inputStream, UTF_8));
     }
 
-    @Override
     /**
      * 获取json对象
     */
+    @Override
     public JsonObject getJsonObject(InputStream inputStream, String charset) {
         try {
             return getJsonObject(new InputStreamReader(inputStream, charset));
@@ -363,18 +363,18 @@ public class GsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json转为列表
     */
+    @Override
     public <T> List<T> fromJsonToList(InputStream inputStream, Class<T> targetType) {
         return fromJsonToList(readString(inputStream), targetType);
     }
 
-    @Override
     /**
      * 从json转为列表
     */
+    @Override
     public <T> List<T> fromJsonToList(String json, Class<T> targetType) {
         if (null == json) {
             return Collections.emptyList();
@@ -387,10 +387,10 @@ public class GsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(String json, Class<T> target) {
         try {
             return gson.fromJson(json, target);
@@ -399,10 +399,10 @@ public class GsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(byte[] bytes, Class<T> target) {
         try {
             return gson.fromJson(new String(bytes, UTF_8), target);
@@ -411,18 +411,18 @@ public class GsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public JsonObject fromJson(byte[] bytes, Charset charset) {
         return createJsonObject(gson.fromJson(new String(bytes, charset), Map.class));
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(InputStreamReader inputStreamReader, Class<T> target) {
         try {
             return gson.fromJson(inputStreamReader, target);
@@ -431,18 +431,18 @@ public class GsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(InputStream inputStream, Class<T> target) {
         return fromJson(readString(inputStream), target);
     }
 
-    @Override
     /**
      * 转为json
     */
+    @Override
     public String toJson(Object object, String... ignores) {
         if (null == ignores || ignores.length == 0) {
             return gson.toJson(object);
@@ -457,34 +457,34 @@ public class GsonJsonProvider implements JsonProvider {
         return gson.toJson(tree);
     }
 
-    @Override
     /**
      * Pretty格式化
     */
+    @Override
     public String prettyFormat(Object object) {
         return prettyGson.toJson(object);
     }
 
-    @Override
     /**
      * 转为prettyjson
     */
+    @Override
     public String toPrettyJson(Object obj) {
         return prettyFormat(obj);
     }
 
-    @Override
     /**
      * 转为jsonbyte
     */
+    @Override
     public byte[] toJsonByte(Object object) {
         return gson.toJson(object).getBytes(UTF_8);
     }
 
-    @Override
     /**
      * 是否Json
     */
+    @Override
     public boolean isJson(Object ext) {
         if (null == ext) {
             return false;
@@ -506,26 +506,26 @@ public class GsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 转为jsonbytes
     */
+    @Override
     public byte[] toJSONBytes(Object object) {
         return toJsonByte(object);
     }
 
-    @Override
     /**
      * 转为json字符串
     */
+    @Override
     public String toJSONString(Object object) {
         return toJson(object);
     }
 
-    @Override
     /**
      * 校验
     */
+    @Override
     public boolean validate(String jsonStr) {
         try {
             gson.fromJson(jsonStr, Object.class);
@@ -535,10 +535,10 @@ public class GsonJsonProvider implements JsonProvider {
         return true;
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public Map<String, Object> fromJson(String string) {
         try {
             return gson.fromJson(string, new TypeToken<Map<String, Object>>() {
@@ -548,10 +548,10 @@ public class GsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(String stringValue, Type type) {
         try {
             return gson.fromJson(stringValue, type);
@@ -560,10 +560,10 @@ public class GsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(Reader reader, Class<T> target) {
         try {
             return gson.fromJson(reader, target);
@@ -572,10 +572,10 @@ public class GsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 转为json
     */
+    @Override
     public void toJson(Object object, Writer writer) {
         try {
             gson.toJson(object, writer);
@@ -584,18 +584,18 @@ public class GsonJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(InputStream stream, Type type) {
         return fromJson(readString(stream), type);
     }
 
-    @Override
     /**
      * 从json
     */
+    @Override
     public <T> T fromJson(Reader reader, Type type) {
         try {
             return gson.fromJson(reader, type);

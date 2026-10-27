@@ -22,26 +22,26 @@ import java.math.BigInteger;
 @Spi("word")
 public class WordDocumentRenderer implements DocumentProvider {
 
-    @Override
     /**
      * 获取类型
     */
+    @Override
     public String getType() {
         return "word";
     }
 
-    @Override
     /**
      * 获取延伸
     */
+    @Override
     public String[] getExtensions() {
         return new String[]{".docx", ".doc"};
     }
 
-    @Override
     /**
      * 导出
     */
+    @Override
     public void export(DocumentData data, File outputFile, DocumentExportConfig config) {
         try (XWPFDocument doc = new XWPFDocument()) {
             writeTitle(doc, data);

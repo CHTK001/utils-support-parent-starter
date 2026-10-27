@@ -60,10 +60,10 @@ public class SshTunnel implements Tunnel {
         this.bindAddress = bindAddress != null ? bindAddress : "127.0.0.1";
     }
 
-    @Override
     /**
      * 打开
     */
+    @Override
     public int open() {
         if (open) {
             return actualPort;
@@ -105,10 +105,10 @@ public class SshTunnel implements Tunnel {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         if (!open) {
             return;
@@ -136,10 +136,10 @@ public class SshTunnel implements Tunnel {
         }
     }
 
-    @Override
     /**
      * 获取信息
     */
+    @Override
     public TunnelInfo getInfo() {
         return TunnelInfo.of(
                 actualPort,
@@ -151,18 +151,18 @@ public class SshTunnel implements Tunnel {
         );
     }
 
-    @Override
     /**
      * on信息
     */
+    @Override
     public void onInfo(Consumer<TunnelInfo> callback) {
         this.callback = callback;
     }
 
-    @Override
     /**
      * 是否打开
     */
+    @Override
     public boolean isOpen() {
         return open;
     }

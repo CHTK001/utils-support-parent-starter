@@ -20,10 +20,10 @@ import javax.annotation.Nullable;
 @Spi({"tar.gz", "tgz"})
 public class TarGzCompressArchiveInputStream implements CompressArchiveInputStream {
 
-    @Override
     /**
      * 是否支持
     */
+    @Override
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -32,20 +32,20 @@ public class TarGzCompressArchiveInputStream implements CompressArchiveInputStre
         return fileName.endsWith(".tar.gz") || fileName.endsWith(".tgz");
     }
 
-    @Override
     /**
      * 创建输入流
     */
+    @Override
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
         var gzipInputStream = new GzipCompressorInputStream(inputStream);
         var tarInputStream = new TarArchiveInputStream(gzipInputStream);
         return new ArchiveInputStreamAdapter(tarInputStream);
     }
 
-    @Override
     /**
      * 获取格式化名称
     */
+    @Override
     public String getFormatName() {
         return "tar.gz";
     }

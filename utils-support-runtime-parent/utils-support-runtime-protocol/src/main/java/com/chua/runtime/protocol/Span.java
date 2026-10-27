@@ -49,9 +49,6 @@ public class Span {
      * Span 类型
      */
     @Builder.Default
-    /**
-     * 种类
-    */
     private SpanKind kind = SpanKind.INTERNAL;
 
     /**
@@ -93,9 +90,6 @@ public class Span {
      * 状态
      */
     @Builder.Default
-    /**
-     * 状态
-    */
     private StatusCode status = StatusCode.UNSET;
 
     /**
@@ -125,18 +119,12 @@ public class Span {
      * 生命周期事件
      */
     @Builder.Default
-    /**
-     * 事件
-    */
     private List<SpanEvent> events = Wraps.list();
 
     /**
      * 跨 追踪 关联（异步消息、批处理）
      */
     @Builder.Default
-    /**
-     * 链接
-    */
     private List<SpanLink> links = Wraps.list();
 
     /**

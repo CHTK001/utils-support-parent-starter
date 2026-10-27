@@ -51,50 +51,50 @@ public class SqliteEngine extends JdbcEngine {
         EngineDataSource<Object> dataSource = new EngineDataSource<Object>() {
             private com.chua.common.support.lang.datasource.dialect.Dialect dialect =
                     com.chua.common.support.lang.datasource.dialect.Dialect.require("sqlite");
-            @Override
             /**
              * 名称
             */
+            @Override
             public String name() {
                 return name;
             }
 
-            @Override
             /**
              * 获取源
             */
+            @Override
             public Object getSource() {
                 return ds;
             }
 
-            @Override
             /**
              * 获取源
             */
+            @Override
             public <R> R getSource(Class<R> type) {
                 return type.cast(ds);
             }
 
-            @Override
             /**
              * 设置源
             */
+            @Override
             public EngineDataSource<Object> setSource(Object source) {
                 throw new UnsupportedOperationException("运行期不支持替换数据源对象，请重新调用 addDataSource 注册新数据源");
             }
 
-            @Override
             /**
              * 获取Dialect
             */
+            @Override
             public com.chua.common.support.lang.datasource.dialect.Dialect getDialect() {
                 return dialect;
             }
 
-            @Override
             /**
              * 设置Dialect
             */
+            @Override
             public EngineDataSource<Object> setDialect(com.chua.common.support.lang.datasource.dialect.Dialect dialect) {
                 if (dialect != null) {
                     this.dialect = dialect;
@@ -102,26 +102,26 @@ public class SqliteEngine extends JdbcEngine {
                 return this;
             }
 
-            @Override
             /**
              * Url
             */
+            @Override
             public String url() {
                 return ds.getJdbcUrl();
             }
 
-            @Override
             /**
              * 用户名
             */
+            @Override
             public String username() {
                 return ds.getUsername();
             }
 
-            @Override
             /**
              * 密码
             */
+            @Override
             public String password() {
                 return ds.getPassword();
             }

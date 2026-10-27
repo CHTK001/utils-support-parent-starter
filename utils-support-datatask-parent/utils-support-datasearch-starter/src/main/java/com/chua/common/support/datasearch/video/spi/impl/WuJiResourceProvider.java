@@ -84,7 +84,6 @@ public class WuJiResourceProvider extends AbstractResourceProvider {
         return DEFAULT_SEARCH_URL;
     }
 
-    @Override
     /**
      * 搜索resource。
      * <p>抓取资源站搜索页，按 result-title 标记分段提取 标题/大小/详情页 链接；
@@ -93,6 +92,7 @@ public class WuJiResourceProvider extends AbstractResourceProvider {
      * @param videoSearch 视频搜索，keyword 不能为空，为 null/空时抛出异常
      * @return 搜索resource的结果；无匹配时返回错误结果，检索异常时返回错误结果
      */
+    @Override
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         // 已封禁站点直接跳过，避免无效请求
         ReturnPageResult<VideoInfoResult> blocked = checkBlocked("wuji");

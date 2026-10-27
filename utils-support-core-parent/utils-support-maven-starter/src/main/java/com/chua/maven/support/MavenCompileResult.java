@@ -375,10 +375,10 @@ public class MavenCompileResult {
                 || lower.endsWith(".ear");
     }
 
-    @Override
     /**
      * 转为字符串
     */
+    @Override
     public String toString() {
         return "MavenCompileResult{" +
                 "success=" + success +

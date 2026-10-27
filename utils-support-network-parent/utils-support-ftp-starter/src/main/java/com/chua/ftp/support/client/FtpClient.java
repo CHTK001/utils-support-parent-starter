@@ -212,10 +212,10 @@ public class FtpClient implements AutoCloseable {
         }
     }
 
-    @Override
     /**
      * 关闭连接（auto关闭 实现）。
      */
+    @Override
     public void close() {
         disconnect();
     }

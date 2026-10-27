@@ -156,9 +156,6 @@ class DefaultFeatureExtractor implements FeatureExtractor {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -195,41 +192,41 @@ class DefaultFeatureExtractor implements FeatureExtractor {
         }
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public FeatureExtractor modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public FeatureExtractor device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * Normalize
     */
+    @Override
     public FeatureExtractor normalize(boolean normalize) {
         this.normalize = normalize;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Extract
      *
      * @param imageData 镜像数据
      * @return extract的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public float[] extract(byte[] imageData) {
         ITranslator<byte[], float[]> t =
                 (ITranslator<byte[], float[]>) engine.get(modelName, ITranslator.class);
@@ -239,14 +236,14 @@ class DefaultFeatureExtractor implements FeatureExtractor {
         return t.translate(imageData);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Extract
      *
      * @param text 文本
      * @return extract的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public float[] extract(String text) {
         ITranslator<String, float[]> t =
                 (ITranslator<String, float[]>) engine.get(modelName, ITranslator.class);

@@ -134,9 +134,6 @@ class DefaultTextTranslator implements TextTranslator {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -168,32 +165,32 @@ class DefaultTextTranslator implements TextTranslator {
         }
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public TextTranslator modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public TextTranslator device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Translate
      *
      * @param text 文本
      * @return translate的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public String translate(String text) {
         ITranslator<String, String> t =
                 (ITranslator<String, String>) engine.get(modelName, ITranslator.class);

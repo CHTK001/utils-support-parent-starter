@@ -1,5 +1,7 @@
 package com.chua.datasource.support.engine;
 import com.chua.common.support.collection.wrap.Wraps;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
@@ -16,6 +18,7 @@ import java.util.regex.Pattern;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class MemoryWhereParser {
 
     /**
@@ -39,7 +42,6 @@ public class MemoryWhereParser {
         return parseConditions(whereClause.trim(), params, new int[]{0});
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 解析条件
      *
@@ -48,6 +50,7 @@ public class MemoryWhereParser {
      * @param idxHolder 参数索引持有者（int[0]），子分组递归时共享推进
      * @return 解析条件的结果
      */
+    @SuppressWarnings("unchecked")
     private <T> Predicate<T> parseConditions(String where, List<Object> params, int[] idxHolder) {
         Predicate<T> result = t -> true;
         String remaining = where.trim();
@@ -325,7 +328,8 @@ public class MemoryWhereParser {
                 if (fieldValue instanceof Byte) {
                     return Byte.valueOf(s);
                 }
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException e) {
+                log.debug("[datasource] WHERE 条件数值转换失败，回退字符串比较: {}", e.getMessage());
             }
         }
  // 字符串

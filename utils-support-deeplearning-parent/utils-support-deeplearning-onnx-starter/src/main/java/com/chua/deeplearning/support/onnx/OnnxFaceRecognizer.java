@@ -35,10 +35,10 @@ public class OnnxFaceRecognizer implements FaceRecognizer {
     public OnnxFaceRecognizer(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public FaceRecognizer model(String model) {
         this.modelName = model;
         return this;
@@ -58,53 +58,53 @@ public class OnnxFaceRecognizer implements FaceRecognizer {
         return modelName;
     }
 
-    @Override
     /**
      * 阈值
     */
+    @Override
     public FaceRecognizer threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public FaceRecognizer modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public FaceRecognizer device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * extract特征
     */
+    @Override
     public float[] extractFeature(byte[] imageData) {
         return FaceRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).extractFeature(imageData);
     }
 
-    @Override
     /**
      * 比较
     */
+    @Override
     public float compare(float[] feature1, float[] feature2) {
         return FaceRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).compare(feature1, feature2);
     }
 
-    @Override
     /**
      * Recognize
     */
+    @Override
     public List<FaceFeature> recognize(byte[] imageData, List<float[]> referenceFeatures) {
         return FaceRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).recognize(imageData, referenceFeatures);
     }

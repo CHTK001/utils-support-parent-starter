@@ -175,9 +175,6 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -219,50 +216,50 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
         }
     }
 
-    @Override
     /**
      * Lang
     */
+    @Override
     public SpeechRecognizer lang(String lang) {
         this.lang = lang;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public SpeechRecognizer modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public SpeechRecognizer device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * 样本rate
     */
+    @Override
     public SpeechRecognizer sampleRate(int rate) {
         this.sampleRate = rate;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Recognize
      *
      * @param audioData 音频数据
      * @return recognize的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public String recognize(byte[] audioData) {
         ITranslator<byte[], String> t =
                 (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class);
@@ -272,8 +269,6 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
         return t.translate(audioData);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Recognize
      *
@@ -281,6 +276,8 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
      * @param language language
      * @return recognize的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public String recognize(byte[] audioData, String language) {
         this.lang = language;
         return recognize(audioData);

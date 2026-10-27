@@ -56,10 +56,10 @@ public class LogStream implements LineCallback, AutoCloseable {
         this.subscribers = new CopyOnWriteArrayList<>();
     }
 
-    @Override
     /**
      * on线
     */
+    @Override
     public synchronized void onLine(String line) {
         if (closed) {
             return;
@@ -73,10 +73,10 @@ public class LogStream implements LineCallback, AutoCloseable {
         }
     }
 
-    @Override
     /**
      * on完成
     */
+    @Override
     public synchronized void onComplete(int exitCode) {
         if (closed) {
             return;
@@ -86,10 +86,10 @@ public class LogStream implements LineCallback, AutoCloseable {
         }
     }
 
-    @Override
     /**
      * On记录错误
     */
+    @Override
     public synchronized void onError(String command, Throwable throwable) {
         if (closed) {
             return;
@@ -149,10 +149,10 @@ public class LogStream implements LineCallback, AutoCloseable {
         buffer.clear();
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public synchronized void close() {
         this.closed = true;
         subscribers.clear();

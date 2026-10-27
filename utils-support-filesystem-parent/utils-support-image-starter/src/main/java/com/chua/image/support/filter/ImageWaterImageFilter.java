@@ -200,10 +200,10 @@ public class ImageWaterImageFilter extends AbstractImageFilter {
         }
     }
 
-    @Override
     /**
      * 过滤
     */
+    @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         
         return waterFilter(src, dst);

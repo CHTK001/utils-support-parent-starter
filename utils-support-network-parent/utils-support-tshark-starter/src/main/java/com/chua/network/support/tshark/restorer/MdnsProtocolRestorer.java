@@ -12,26 +12,26 @@ package com.chua.network.support.tshark.restorer;
  */
 public class MdnsProtocolRestorer extends DnsProtocolRestorer {
 
-    @Override
     /**
      * 获取协议名称
     */
+    @Override
     public String getProtocolName() {
         return "mdns";
     }
 
-    @Override
     /**
      * 获取Priority
     */
+    @Override
     public int getPriority() {
         return 35;
     }
 
-    @Override
     /**
      * 是否可以Restore
     */
+    @Override
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 12) {
             return false;
@@ -40,10 +40,10 @@ public class MdnsProtocolRestorer extends DnsProtocolRestorer {
         return super.canRestore(protocolInfo, rawData);
     }
 
-    @Override
     /**
      * Restore
     */
+    @Override
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         return "[mDNS] " + super.restore(protocolInfo, rawData);
     }

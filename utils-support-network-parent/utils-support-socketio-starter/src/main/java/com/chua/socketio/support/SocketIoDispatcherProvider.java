@@ -88,10 +88,10 @@ public class SocketIoDispatcherProvider extends AbstractDispatcherProvider {
         socket.connect();
     }
 
-    @Override
     /**
      * 发布
     */
+    @Override
     public void publish(String topic, Object body) {
         if (socket == null || !socket.connected()) {
             log.warn("[SocketIO] 未连接远程服务，无法发布消息: topic={}", topic);
@@ -102,10 +102,10 @@ public class SocketIoDispatcherProvider extends AbstractDispatcherProvider {
         log.debug("[SocketIO] 已发布消息: topic={}, body={}", topic, message);
     }
 
-    @Override
     /**
      * 订阅
     */
+    @Override
     public void subscribe(DispatcherDefinition definition) {
         for (String topic : definition.getTopics()) {
             definitionMap.computeIfAbsent(topic, k -> new CopyOnWriteArrayList<>()).add(definition);
@@ -116,10 +116,10 @@ public class SocketIoDispatcherProvider extends AbstractDispatcherProvider {
         }
     }
 
-    @Override
     /**
      * 取消订阅
     */
+    @Override
     public void unsubscribe(DispatcherDefinition definition) {
         for (String topic : definition.getTopics()) {
             List<DispatcherDefinition> defs = definitionMap.get(topic);
@@ -133,10 +133,10 @@ public class SocketIoDispatcherProvider extends AbstractDispatcherProvider {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         if (socket != null) {
             socket.disconnect();

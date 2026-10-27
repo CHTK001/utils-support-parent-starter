@@ -21,10 +21,10 @@ public interface Detector extends AutoCloseable {
      */
     PredictResultObject<?> detect(Object input);
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     default void close() throws Exception {
     }
 }

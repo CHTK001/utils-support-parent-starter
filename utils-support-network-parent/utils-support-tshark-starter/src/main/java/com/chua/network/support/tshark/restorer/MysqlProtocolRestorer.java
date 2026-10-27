@@ -12,26 +12,26 @@ package com.chua.network.support.tshark.restorer;
  */
 public class MysqlProtocolRestorer extends AbstractProtocolRestorer {
 
-    @Override
     /**
      * 获取协议名称
     */
+    @Override
     public String getProtocolName() {
         return "mysql";
     }
 
-    @Override
     /**
      * 获取Priority
     */
+    @Override
     public int getPriority() {
         return 180;
     }
 
-    @Override
     /**
      * 是否可以Restore
     */
+    @Override
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 5) {
             return false;
@@ -53,10 +53,10 @@ public class MysqlProtocolRestorer extends AbstractProtocolRestorer {
         return true;
     }
 
-    @Override
     /**
      * Restore
     */
+    @Override
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 5) {
             return "[MySQL] empty";

@@ -217,7 +217,6 @@ public class SpyTransformer implements ClassFileTransformer {
         return !rulesOf(className).isEmpty();
     }
 
-    @Override
     /**
      * 转换
      * @param loader loader
@@ -226,6 +225,7 @@ public class SpyTransformer implements ClassFileTransformer {
      * @param protectionDomain protectiondomain
      * @param classfileBuffer classfile缓冲
      */
+    @Override
     public byte[] transform(ClassLoader loader,
                             String className,
                             Class<?> classBeingRedefined,
@@ -305,10 +305,10 @@ public class SpyTransformer implements ClassFileTransformer {
             this.targetLoader = targetLoader;
         }
 
-        @Override
         /**
          * 获取通用父类
         */
+        @Override
         protected String getCommonSuperClass(String type1, String type2) {
             ClassLoader loader = targetLoader != null
                     ? targetLoader : ClassLoader.getSystemClassLoader();
@@ -443,7 +443,6 @@ public class SpyTransformer implements ClassFileTransformer {
             this.classRules = rulesOf(targetClass);
         }
 
-        @Override
         /**
          * visit方法
          * @param access access
@@ -452,6 +451,7 @@ public class SpyTransformer implements ClassFileTransformer {
          * @param signature 签名
          * @param exceptions 异常
          */
+        @Override
         public MethodVisitor visitMethod(int access, String name, String descriptor,
                                          String signature, String[] exceptions) {
             MethodVisitor mv = cv.visitMethod(access, name, descriptor, signature, exceptions);
@@ -554,10 +554,10 @@ public class SpyTransformer implements ClassFileTransformer {
             this.isStatic = isStatic;
         }
 
-        @Override
         /**
          * on方法enter
         */
+        @Override
         protected void onMethodEnter() {
  // 标记 尝试 范围起点（异常插桩需要）
             if (points.contains(InterceptPoint.EXCEPTION)) {
@@ -572,10 +572,10 @@ public class SpyTransformer implements ClassFileTransformer {
             }
         }
 
-        @Override
         /**
          * on方法exit
         */
+        @Override
         protected void onMethodExit(int opcode) {
  // 非 Void Linux Linux 返回值方法：先把返回值存入临时 本地，插入插桩调用后再恢复，
  // 否则 long/double 等两槽返回值会与 onintercept 参数压栈冲突导致 验证错误
@@ -618,10 +618,10 @@ public class SpyTransformer implements ClassFileTransformer {
                     || opcode == Opcodes.ARETURN;
         }
 
-        @Override
         /**
          * visit最大
         */
+        @Override
         public void visitMaxs(int maxStack, int maxLocals) {
  // 异常处理：插入 异常 插桩后重新抛出
             if (points.contains(InterceptPoint.EXCEPTION)) {

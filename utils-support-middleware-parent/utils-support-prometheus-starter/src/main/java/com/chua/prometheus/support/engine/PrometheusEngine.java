@@ -472,12 +472,12 @@ public class PrometheusEngine implements Engine {
         }
     }
 
-    @Override
     /**
      * 是否已关闭
      *
      * @return 已关闭返回 true
      */
+    @Override
     public boolean isClosed() {
         return closed.get();
     }

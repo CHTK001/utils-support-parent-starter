@@ -62,10 +62,10 @@ public class ApngToGifConvertFileSystem extends AbstractConvertFileSystem {
         super(filePath);
     }
 
-    @Override
     /**
      * 执行转换
     */
+    @Override
     protected void doConvert(InputStream inputStream, OutputStream outputStream, File sourceFile, File targetFile) throws IOException {
         try {
             // 读取 APNG 文件
@@ -311,10 +311,10 @@ if (metadata != null) {
         attributes.setNamedItem(attr);
     }
 
-    @Override
     /**
      * 类型
     */
+    @Override
     public String type() {
         
         return "gif";
@@ -333,10 +333,10 @@ if (metadata != null) {
                 "gif".equalsIgnoreCase(targetFormat);
     }
 
-    @Override
     /**
      * 支持类型
     */
+    @Override
     public ConvertFileSystem.ConvertSupport[] supportedTypes() {
         return new ConvertFileSystem.ConvertSupport[]{
                 new ConvertFileSystem.ConvertSupport("apng", "gif"),

@@ -86,10 +86,10 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
         this.promptTemplate = StringUtils.isNotBlank(template) ? template : "a photo of %s";
     }
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         tokenizer = HuggingFaceTokenizer.builder()
@@ -100,10 +100,10 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
         candidateInputIds = buildCandidateInputIds(candidates);
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, IMAGE_SIZE, IMAGE_SIZE);
@@ -124,10 +124,10 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
         return new NDList(inputIds, array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Classifications processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         if (list == null || list.isEmpty() || candidates.isEmpty()) {
             return new Classifications(List.of(), List.of());
@@ -153,11 +153,11 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
         return new Classifications(candidates, toProbabilities(values));
     }
 
-    @Nullable
-    @Override
     /**
      * 获取Batchifier
     */
+    @Nullable
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

@@ -66,36 +66,36 @@ public class OllamaFeatureClient implements FeatureClient {
         this.dimensions = setting != null ? setting.getDimensions() : null;
     }
 
-    @Override
     /**
      * 提供者
     */
+    @Override
     public FeatureClient provider(String provider) {
         return this;
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public FeatureClient model(String model) {
         this.model = model;
         return this;
     }
 
-    @Override
     /**
      * 维度
     */
+    @Override
     public FeatureClient dimensions(int dimensions) {
         this.dimensions = dimensions;
         return this;
     }
 
-    @Override
     /**
      * 特征提取
     */
+    @Override
     public float[] extract(String text) {
         if (text == null || text.isBlank()) {
             return new float[0];
@@ -122,10 +122,10 @@ public class OllamaFeatureClient implements FeatureClient {
         }
     }
 
-    @Override
     /**
      * 模型列表
     */
+    @Override
     public List<ModelDefinition> models() {
         try {
             List<Model> raw = ollama.listModels();
@@ -151,10 +151,10 @@ public class OllamaFeatureClient implements FeatureClient {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         // ollama4j 客户端无状态，无需释放
     }

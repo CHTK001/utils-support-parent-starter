@@ -74,10 +74,10 @@ public class SocketIOSyncClient implements SyncClient {
         this.serverUrl = serverUrl;
     }
 
-    @Override
     /**
      * 连接
     */
+    @Override
     public void connect() {
         if (connected) {
             return;
@@ -89,10 +89,10 @@ public class SocketIOSyncClient implements SyncClient {
         }
     }
 
-    @Override
     /**
      * 断开
     */
+    @Override
     public void disconnect() {
         if (!connected) {
             return;
@@ -106,26 +106,26 @@ public class SocketIOSyncClient implements SyncClient {
         notifyListeners(SyncFlowListener::onStop);
     }
 
-    @Override
     /**
      * 是否连接
     */
+    @Override
     public boolean isConnected() {
         return connected && socket != null && socket.connected();
     }
 
-    @Override
     /**
      * 获取客户端id
     */
+    @Override
     public String getClientId() {
         return clientId;
     }
 
-    @Override
     /**
      * 发送
     */
+    @Override
     public void send(String topic, Object message) {
         if (!connected || socket == null) {
             throw new IllegalStateException("客户端未连接");
@@ -133,10 +133,10 @@ public class SocketIOSyncClient implements SyncClient {
         socket.emit(topic, message);
     }
 
-    @Override
     /**
      * 订阅
     */
+    @Override
     public void subscribe(String topic, SyncMessageHandler handler) {
         subscriptions.put(topic, handler);
         if (connected && socket != null) {
@@ -144,10 +144,10 @@ public class SocketIOSyncClient implements SyncClient {
         }
     }
 
-    @Override
     /**
      * 取消订阅
     */
+    @Override
     public void unsubscribe(String topic) {
         SyncMessageHandler removed = subscriptions.remove(topic);
         if (removed != null && socket != null) {
@@ -155,34 +155,34 @@ public class SocketIOSyncClient implements SyncClient {
         }
     }
 
-    @Override
     /**
      * 添加监听器
     */
+    @Override
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
     }
 
-    @Override
     /**
      * 移除监听器
     */
+    @Override
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
     }
 
-    @Override
     /**
      * 获取Metadata
     */
+    @Override
     public Map<String, Object> getMetadata() {
         return Map.of("clientId", clientId, "protocol", "socketio");
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         disconnect();
     }

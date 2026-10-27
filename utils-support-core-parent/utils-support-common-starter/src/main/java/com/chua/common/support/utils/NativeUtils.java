@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 本地库工具类。
@@ -21,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class NativeUtils {
 
     /**
@@ -264,7 +266,9 @@ public class NativeUtils {
             System.loadLibrary(libraryName);
             markLoaded(key, libraryName, "System.loadLibrary");
             return true;
-        } catch (UnsatisfiedLinkError ignored) {}
+        } catch (UnsatisfiedLinkError e) {
+            log.debug("[native] System.loadLibrary 失败: {}", e.getMessage());
+        }
 
  // 2. 类路径 /NAT/{platformdir}/{lib}（含架构回退）
         for (String dir : getPlatformDirCandidates()) {
@@ -272,7 +276,9 @@ public class NativeUtils {
                 loadFromClasspathInternal(libraryName, dir, libFileName);
                 markLoaded(key, libraryName, "classpath:/native/" + dir + "/" + libFileName);
                 return true;
-            } catch (UnsatisfiedLinkError ignored) {}
+            } catch (UnsatisfiedLinkError e) {
+                    log.debug("[native] 加载本地库失败: {}", e.getMessage());
+                }
         }
 
  // 3. 类路径 /NAT/{lib}
@@ -280,7 +286,9 @@ public class NativeUtils {
             loadFromClasspathInternal(libraryName, null, libFileName);
             markLoaded(key, libraryName, "classpath:/native/" + libFileName);
             return true;
-        } catch (UnsatisfiedLinkError ignored) {}
+        } catch (UnsatisfiedLinkError e) {
+                    log.debug("[native] 加载本地库失败: {}", e.getMessage());
+                }
 
  // 4. basedir 下的目录
         if (baseDir != null) {
@@ -290,14 +298,18 @@ public class NativeUtils {
                     loadFromPathInternal(libraryName, path);
                     markLoaded(key, libraryName, path);
                     return true;
-                } catch (UnsatisfiedLinkError ignored) {}
+                } catch (UnsatisfiedLinkError e) {
+                    log.debug("[native] 加载本地库失败: {}", e.getMessage());
+                }
             }
             try {
                 String path = baseDir + "/" + libFileName;
                 loadFromPathInternal(libraryName, path);
                 markLoaded(key, libraryName, path);
                 return true;
-            } catch (UnsatisfiedLinkError ignored) {}
+            } catch (UnsatisfiedLinkError e) {
+                    log.debug("[native] 加载本地库失败: {}", e.getMessage());
+                }
         }
 
  // 5. NAT.图书馆.路径 系统属性
@@ -313,14 +325,18 @@ public class NativeUtils {
                         loadFromPathInternal(libraryName, path);
                         markLoaded(key, libraryName, path);
                         return true;
-                    } catch (UnsatisfiedLinkError ignored) {}
+                    } catch (UnsatisfiedLinkError e) {
+                    log.debug("[native] 加载本地库失败: {}", e.getMessage());
+                }
                 }
                 try {
                     String path = d + "/" + libFileName;
                     loadFromPathInternal(libraryName, path);
                     markLoaded(key, libraryName, path);
                     return true;
-                } catch (UnsatisfiedLinkError ignored) {}
+                } catch (UnsatisfiedLinkError e) {
+                    log.debug("[native] 加载本地库失败: {}", e.getMessage());
+                }
             }
         }
 
@@ -332,7 +348,9 @@ public class NativeUtils {
                 loadFromPathInternal(libraryName, path);
                 markLoaded(key, libraryName, path);
                 return true;
-            } catch (UnsatisfiedLinkError ignored) {}
+            } catch (UnsatisfiedLinkError e) {
+                    log.debug("[native] 加载本地库失败: {}", e.getMessage());
+                }
         }
 
         StringBuilder tried = new StringBuilder();

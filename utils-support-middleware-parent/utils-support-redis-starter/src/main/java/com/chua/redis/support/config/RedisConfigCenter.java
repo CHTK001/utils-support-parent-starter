@@ -90,10 +90,10 @@ public class RedisConfigCenter extends AbstractConfigCenter {
         return get(dataId);
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         try {
             // 解析 Redis 地址
@@ -131,10 +131,10 @@ public class RedisConfigCenter extends AbstractConfigCenter {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() throws Exception {
         if (jedisPool != null) {
             try {
@@ -218,9 +218,6 @@ public class RedisConfigCenter extends AbstractConfigCenter {
 
      * * 测试 Redis 连接是否正常。
 
-     */
-    /**
-     * 测试connection。
      */
     private void testConnection() {
         try (Jedis jedis = jedisPool.getResource()) {

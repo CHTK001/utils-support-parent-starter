@@ -105,10 +105,10 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     public FacePluginDetectTranslator() {
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         if (input.getHeight() != INPUT_HEIGHT || input.getWidth() != INPUT_WIDTH) {
             input = input.resize(INPUT_WIDTH, INPUT_HEIGHT, false);
@@ -120,10 +120,10 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
                 ctx.getNDManager());
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 2) {
             return new DetectedObjects(Wraps.list(), Wraps.list(), Wraps.list());
@@ -253,10 +253,10 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
         return result;
     }
 
-@Override
     /**
      * 获取Batchifier
     */
+@Override
     public Batchifier getBatchifier() {
  // 输入已包含 批量 维（shape [1, C, H, W]），无需 batchifier 再次叠加
         return null;

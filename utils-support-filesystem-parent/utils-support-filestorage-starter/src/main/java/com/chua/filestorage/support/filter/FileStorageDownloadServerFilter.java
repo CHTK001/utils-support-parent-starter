@@ -54,10 +54,10 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
         super(setting, new PreviewPdfCache(cacheDir));
     }
 
-    @Override
     /**
      * 执行过滤
     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String download = request.getParam("download");
         String flash = request.getParam("flash");

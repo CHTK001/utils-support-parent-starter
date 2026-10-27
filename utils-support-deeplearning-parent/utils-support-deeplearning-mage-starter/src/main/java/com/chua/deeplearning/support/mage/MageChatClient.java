@@ -124,28 +124,28 @@ public class MageChatClient implements ChatClient {
         this.system = setting.getSystem();
     }
 
-    @Override
     /**
      * Model
     */
+    @Override
     public ChatClient model(String model) {
         this.model = model;
         return this;
     }
 
-    @Override
     /**
      * System
     */
+    @Override
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
-    @Override
     /**
      * 添加Image
     */
+    @Override
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
@@ -162,55 +162,55 @@ public class MageChatClient implements ChatClient {
         return this;
     }
 
-    @Override
     /**
      * 添加Attachment
     */
+    @Override
     public ChatClient addAttachment(String name, byte[] data, String mimeType) {
         this.attachments.add(Attachment.builder().name(name).data(data).mimeType(mimeType).build());
         return this;
     }
 
-    @Override
     /**
      * 添加AttachmentUrl
     */
+    @Override
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         this.attachments.add(Attachment.builder().name(name).url(url).mimeType(mimeType).build());
         return this;
     }
 
-    @Override
     /**
      * 添加UserHistory
     */
+    @Override
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
-    @Override
     /**
      * 添加AssistantHistory
     */
+    @Override
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
-    @Override
     /**
      * History
     */
+    @Override
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
-    @Override
     /**
      * NewChat
     */
+    @Override
     public ChatClient newChat() {
         this.history.clear();
         this.imageUrls.clear();
@@ -220,10 +220,10 @@ public class MageChatClient implements ChatClient {
         return this;
     }
 
-    @Override
     /**
      * ChatSync
     */
+    @Override
     public String chatSync(String prompt) {
         Map<String, Object> root = postChatCompletions(prompt);
         try {
@@ -244,10 +244,10 @@ public class MageChatClient implements ChatClient {
         }
     }
 
-    @Override
     /**
      * ChatSyncWithResponse
     */
+    @Override
     public ChatSyncResponse chatSyncWithResponse(String prompt) {
         Map<String, Object> root = postChatCompletions(prompt);
         String text;
@@ -265,18 +265,18 @@ public class MageChatClient implements ChatClient {
         return ChatSyncResponse.builder().text(text).usage(usage).build();
     }
 
-    @Override
     /**
      * Models
     */
+    @Override
     public List<ModelDefinition> models() {
         return MODELS;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         newChat();
     }

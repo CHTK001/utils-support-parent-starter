@@ -179,9 +179,6 @@ class DefaultSpeechSynthesizer implements SpeechSynthesizer {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -228,59 +225,59 @@ class DefaultSpeechSynthesizer implements SpeechSynthesizer {
         }
     }
 
-    @Override
     /**
      * Lang
     */
+    @Override
     public SpeechSynthesizer lang(String lang) {
         this.lang = lang;
         return this;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public SpeechSynthesizer modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public SpeechSynthesizer device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * 速度
     */
+    @Override
     public SpeechSynthesizer speed(float speed) {
         this.speed = speed;
         return this;
     }
 
-    @Override
     /**
      * Pitch
     */
+    @Override
     public SpeechSynthesizer pitch(float pitch) {
         this.pitch = pitch;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 综合
      *
      * @param text 文本
      * @return 综合的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public byte[] synthesize(String text) {
         ITranslator<String, byte[]> t =
                 (ITranslator<String, byte[]>) engine.get(modelName, ITranslator.class);

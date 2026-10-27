@@ -31,30 +31,30 @@ import java.io.File;
 @Spi("pdf")
 public class PdfFileSystem implements FileSystem {
 
-    @Override
     /**
      * 获取Type
     */
+    @Override
     public String getType() {
         
         return "pdf";
     
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public ReadBuilder read(File file) {
         
         return new PdfReadBuilder(file);
     
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public WriteBuilder write(File file) {
         
         return new PdfWriteBuilder(file);

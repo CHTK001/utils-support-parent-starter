@@ -162,18 +162,18 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
         }
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "yolov8n-pose";
     }
 
-    @Override
     /**
      * Translate
     */
+    @Override
     public List<PoseKeypoint> translate(byte[] imageData) {
         List<PoseResult> results = detectBytes(imageData);
         if (results.isEmpty()) {

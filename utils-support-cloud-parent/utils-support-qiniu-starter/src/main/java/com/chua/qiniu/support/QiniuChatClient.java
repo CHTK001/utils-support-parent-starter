@@ -48,94 +48,93 @@ public class QiniuChatClient implements ChatClient {
      */
     private SkillManager skillManager;
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public ChatClient model(String model) {
         return this;
     }
 
-    @Override
     /**
      * Temperature
     */
+    @Override
     public ChatClient temperature(double temperature) {
         return this;
     }
 
-    @Override
     /**
      * 最大值令牌
     */
+    @Override
     public ChatClient maxTokens(int maxTokens) {
         return this;
     }
 
-    @Override
     /**
      * 系统
     */
+    @Override
     public ChatClient system(String system) {
         return this;
     }
 
-    @Override
     /**
      * Thinking
     */
+    @Override
     public ChatClient thinking(boolean thinking) {
         this.thinking = thinking;
         return this;
     }
 
-    @Override
     /**
      * thinkingeffort
     */
+    @Override
     public ChatClient thinkingEffort(String effort) {
         this.thinkingEffort = effort;
         return this;
     }
 
-    @Override
     /**
      * Smart搜索
     */
+    @Override
     public ChatClient smartSearch(boolean smartSearch) {
         this.smartSearch = smartSearch;
         return this;
     }
 
-    @Override
     /**
      * Skill
     */
+    @Override
     public ChatClient skill(SkillManager skillManager) {
         this.skillManager = skillManager;
         return this;
     }
 
-    @Override
     /**
      * 对话同步
     */
+    @Override
     public String chatSync(String prompt) {
         log.warn("七牛云暂不支持 AI 对话，调用 chatSync 返回固定提示");
         return NOT_SUPPORTED_MSG;
     }
 
-    @Override
     /**
      * 对话
     */
+    @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {
         });
     }
 
-    @Override
     /**
      * 对话
      * @param prompt 提示符
@@ -143,6 +142,7 @@ public class QiniuChatClient implements ChatClient {
      * @param onComplete on完成
      * @param onError on错误
      */
+    @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {

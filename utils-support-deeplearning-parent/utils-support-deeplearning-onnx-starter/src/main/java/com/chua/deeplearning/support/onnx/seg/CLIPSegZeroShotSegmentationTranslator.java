@@ -104,10 +104,10 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
         this.prompt = prompt != null ? prompt : "object";
     }
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(TranslatorContext ctx) throws IOException {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokenizerPath = findFile(modelRoot, "tokenizer.json");
@@ -123,10 +123,10 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
         }
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         if (tokenizer == null) {
             throw new IllegalStateException("CLIPSeg tokenizer not initialized");
@@ -156,10 +156,10 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
         return new NDList(array, text);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray logits = list.singletonOrThrow();
 
@@ -173,10 +173,10 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
         return ImageFactory.getInstance().fromNDArray(mask);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

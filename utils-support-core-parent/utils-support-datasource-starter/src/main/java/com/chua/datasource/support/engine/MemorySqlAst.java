@@ -899,7 +899,6 @@ final class MemorySqlAst {
         throw new IllegalArgumentException("无法作为值求值: " + n.getClass().getSimpleName());
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     /**
      * 通用比较：数值按 double 比较，可比对象直接比较，否则退化字符串比较。
      *
@@ -907,6 +906,7 @@ final class MemorySqlAst {
      * @param b 右值
      * @return 比较结果
      */
+    @SuppressWarnings({"unchecked", "rawtypes"})
     static int compare(Object a, Object b) {
         if (a instanceof Number && b instanceof Number) {
             double da = ((Number) a).doubleValue();

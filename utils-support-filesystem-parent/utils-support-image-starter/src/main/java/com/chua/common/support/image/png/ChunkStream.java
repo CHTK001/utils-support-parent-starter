@@ -54,35 +54,35 @@ final class ChunkStream extends ImageOutputStreamImpl {
         writeInt(type);
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public int read() throws IOException {
         throw new RuntimeException("Method not available");
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public int read(byte[] b, int off, int len) throws IOException {
         throw new RuntimeException("Method not available");
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public void write(byte[] b, int off, int len) throws IOException {
         crc.update(b, off, len);
         stream.write(b, off, len);
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public void write(int b) throws IOException {
         crc.update(b);
         stream.write(b);

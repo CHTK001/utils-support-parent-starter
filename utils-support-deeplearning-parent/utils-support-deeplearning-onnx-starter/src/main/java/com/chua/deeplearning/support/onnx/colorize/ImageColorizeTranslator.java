@@ -42,10 +42,10 @@ import java.util.Arrays;
 @Slf4j
 public class ImageColorizeTranslator implements Translator<Image, Image> {
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         NDManager manager = ctx.getNDManager();
 
@@ -94,10 +94,10 @@ public class ImageColorizeTranslator implements Translator<Image, Image> {
         return new NDList(batch);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = list.singletonOrThrow();
         long[] shape = output.getShape().getShape();
@@ -155,10 +155,10 @@ public class ImageColorizeTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromNDArray(output);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         // 必须是 "none"：processInput 已产出完整 [1,3,H,W]，
         // 再让框架 STACK 一次就变成 [1,1,3,H,W]（rank 5）。

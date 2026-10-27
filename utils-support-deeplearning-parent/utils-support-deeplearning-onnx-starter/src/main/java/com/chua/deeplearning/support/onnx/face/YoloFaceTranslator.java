@@ -105,10 +105,10 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
      */
     private int imageHeight;
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         imageWidth = input.getWidth();
         imageHeight = input.getHeight();
@@ -141,10 +141,10 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.getFirst();
         long[] shape = output.getShape().getShape();
@@ -367,10 +367,10 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
         return result;
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
  // ONNX Runtime 的 ndarray 不支持 Stack，单图推理不批处理
         return null;

@@ -164,18 +164,18 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
         loaded = true;
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "opus-mt-zh-en";
     }
 
-    @Override
     /**
      * Translate
     */
+    @Override
     public String translate(String text) {
         if (text == null || text.isBlank()) {
             return text;
@@ -338,10 +338,10 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
         return best;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         for (OrtSession session : List.of(encoderSession, decoderSession, decoderPastSession)) {
             if (session != null) {

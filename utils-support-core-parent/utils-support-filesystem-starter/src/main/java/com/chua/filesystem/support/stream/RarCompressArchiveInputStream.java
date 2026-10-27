@@ -29,10 +29,10 @@ import javax.annotation.Nullable;
 @Spi("rar")
 public class RarCompressArchiveInputStream implements CompressArchiveInputStream {
 
-    @Override
     /**
      * 是否支持
     */
+    @Override
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -41,10 +41,10 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
         return fileName.endsWith(".rar");
     }
 
-    @Override
     /**
      * 创建输入流
     */
+    @Override
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
  // RAR格式需要文件对象，不能使用输入流
         if (file == null) {
@@ -53,10 +53,10 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
         return new RarArchiveInputStreamAdapter(file, password);
     }
 
-    @Override
     /**
      * 获取格式化名称
     */
+    @Override
     public String getFormatName() {
         return "rar";
     }
@@ -103,13 +103,13 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
             }
         }
 
-        @Override
-        @Nullable
         /**
          * 获取下一个entry
          *
          * @return 获取下一个entry的结果
          */
+        @Override
+        @Nullable
         public ArchiveEntry getNextEntry() throws IOException {
             // 关闭当前条目流
             if (currentEntryStream != null) {
@@ -144,10 +144,10 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
             return null;
         }
 
-        @Override
         /**
          * 读取
         */
+        @Override
         public int read() throws IOException {
             if (currentEntryStream == null) {
                 return -1;
@@ -156,18 +156,18 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
             return currentEntryStream.read();
         }
 
-        @Override
         /**
          * 读取
         */
+        @Override
         public int read(byte[] b) throws IOException {
             return read(b, 0, b.length);
         }
 
-        @Override
         /**
          * 读取
         */
+        @Override
         public int read(byte[] b, int off, int len) throws IOException {
             if (currentEntryStream == null) {
                 return -1;
@@ -182,10 +182,10 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
             return result;
         }
 
-        @Override
         /**
          * 跳过
         */
+        @Override
         public long skip(long n) throws IOException {
             if (currentEntryStream == null) {
                 return 0;
@@ -195,10 +195,10 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
             return skipped;
         }
 
-        @Override
         /**
          * 可用
         */
+        @Override
         public int available() throws IOException {
             if (currentEntryStream == null) {
                 return 0;
@@ -206,20 +206,20 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
             return currentEntryStream.available();
         }
 
-        @Override
         /**
          * 标记
         */
+        @Override
         public void mark(int readlimit) {
             if (currentEntryStream != null) {
                 currentEntryStream.mark(readlimit);
             }
         }
 
-        @Override
         /**
          * 重置
         */
+        @Override
         public void reset() throws IOException {
             if (currentEntryStream == null) {
                 throw new IOException("没有可重置的流");
@@ -228,18 +228,18 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
             currentEntryPosition = 0;
         }
 
-        @Override
         /**
          * 标记支持
         */
+        @Override
         public boolean markSupported() {
             return currentEntryStream != null && currentEntryStream.markSupported();
         }
 
-        @Override
         /**
          * 关闭
         */
+        @Override
         public void close() throws IOException {
             if (currentEntryStream != null) {
                 try {
@@ -274,26 +274,26 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
             this.fileHeader = fileHeader;
         }
 
-        @Override
         /**
          * 获取名称
         */
+        @Override
         public String getName() {
             return fileHeader.getFileName();
         }
 
-        @Override
         /**
          * 是否目录
         */
+        @Override
         public boolean isDirectory() {
             return fileHeader.isDirectory();
         }
 
-        @Override
         /**
          * 获取获取大小
         */
+        @Override
         public long getSize() {
             return fileHeader.getUnpSize();
         }

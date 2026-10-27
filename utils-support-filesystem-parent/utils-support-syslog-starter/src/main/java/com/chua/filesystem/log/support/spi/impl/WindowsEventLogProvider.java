@@ -114,30 +114,30 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         }
     }
 
-    @Override
     /**
      * 是否platform支持
     */
+    @Override
     public boolean isPlatformSupported() {
         
         return PlatformSystems.isWindows() && registry != null;
     
     }
 
-    @Override
     /**
      * 获取源
     */
+    @Override
     public List<String> getSources() {
         
         return SOURCES;
     
     }
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public List<LogEntry> search(LogQuery query) {
         if (!isPlatformSupported()) {
             log.warn("WindowsEventLogProvider not supported on current platform");
@@ -373,10 +373,10 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         }
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 绑定Functions
     */
+    @SuppressWarnings("unchecked")
     private void bindFunctions() {
         if (openEventLog == null) {
             synchronized (this) {

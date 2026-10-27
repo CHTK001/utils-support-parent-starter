@@ -6,6 +6,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * IBD（智能业务数据）管理器
@@ -29,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class IbdManager {
 
     /**
@@ -168,17 +170,18 @@ public class IbdManager {
                 return;
             }
             Files.walkFileTree(root, new SimpleFileVisitor<>() {
-                @Override
                 /**
                  * visit文件
                 */
+                @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                     try {
                         Path target = workDir.resolve(root.relativize(file).toString());
                         Files.createDirectories(target.getParent());
                         Files.copy(file, target, StandardCopyOption.REPLACE_EXISTING);
                         extractedResources.put(root.relativize(file).toString(), target);
-                    } catch (IOException ignored) {
+                    } catch (IOException e) {
+                        log.debug("[ibd] 复制资源文件失败: {}", e.getMessage());
                     }
                     return FileVisitResult.CONTINUE;
                 }

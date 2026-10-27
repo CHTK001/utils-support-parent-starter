@@ -119,10 +119,10 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
         log.info("YOLOv8s 初始化: input={}, threshold={}, nms={}, classes={}", INPUT_SIZE, threshold, nmsThreshold, classes.size());
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         imageWidth = input.getWidth();
         imageHeight = input.getHeight();
@@ -134,10 +134,10 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
         NDArray output = list.getFirst();
 
@@ -245,10 +245,10 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
         return new DetectedObjects(finalNames, finalProbs, finalBoxes);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

@@ -42,10 +42,10 @@ public class HtmlConvertFileSystem implements FileConvertSystem {
      */
     private static final Set<String> SOURCE_SET = Set.copyOf(SOURCES);
 
-    @Override
     /**
      * 是否支持
     */
+    @Override
     public boolean isSupported(String sourceType, String targetType) {
         if (!TARGET.equalsIgnoreCase(targetType)) {
             return false;
@@ -56,10 +56,10 @@ public class HtmlConvertFileSystem implements FileConvertSystem {
         return SOURCE_SET.contains(sourceType.toLowerCase());
     }
 
-    @Override
     /**
      * 转换
     */
+    @Override
     public void convert(FileSource source, FileSource target, ConvertSetting setting) {
         Path tempInput = null;
         Path tempOutput = null;

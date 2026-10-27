@@ -40,18 +40,18 @@ public class SentenceTransTranslator implements Translator<String, float[]> {
      */
     private BertFullTokenizer tokenizer;
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return new StackBatchifier();
     }
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(TranslatorContext ctx) throws IOException {
         Model model = ctx.getModel();
         URL url = model.getArtifact("vocab.txt");
@@ -63,10 +63,10 @@ public class SentenceTransTranslator implements Translator<String, float[]> {
         tokenizer = new BertFullTokenizer(vocabulary, false);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = null;
         for (NDArray ndArray : list) {
@@ -82,10 +82,10 @@ public class SentenceTransTranslator implements Translator<String, float[]> {
         return array.toFloatArray();
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, String input) {
         List<String> tokens = tokenizer.tokenize(input);
         if (tokens.size() > maxSequenceLength - 2) {

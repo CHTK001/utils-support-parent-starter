@@ -187,10 +187,10 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         this.steps = steps;
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         Object wrapped = input.getWrappedImage();
         if (!(wrapped instanceof BufferedImage bufferedImage)) {
@@ -215,10 +215,10 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 2) {
             return new DetectedObjects(Wraps.list(), Wraps.list(), Wraps.list());
@@ -366,10 +366,10 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         return Math.max(0d, Math.min(1d - clip(origin), size));
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
  // ONNX Runtime 的 ndarray 不支持 Stack，单图推理不批处理
         return null;

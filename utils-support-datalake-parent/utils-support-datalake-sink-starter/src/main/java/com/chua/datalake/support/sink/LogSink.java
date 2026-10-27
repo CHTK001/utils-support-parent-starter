@@ -20,34 +20,34 @@ import java.util.Map;
 @Spi("log")
 public class LogSink implements AccessSink {
 
-    @Override
     /**
      * 类型
     */
+    @Override
     public String type() {
         return "log";
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         log.info("[datalake-sink] LogSink 启动");
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public void stop() {
         log.info("[datalake-sink] LogSink 停止");
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public boolean write(DataEnvelope envelope, Map<String, Object> config) {
         if (envelope == null) {
             log.warn("[datalake-sink] LogSink 接收到空 envelope");

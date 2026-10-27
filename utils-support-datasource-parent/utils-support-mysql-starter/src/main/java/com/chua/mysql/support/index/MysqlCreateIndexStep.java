@@ -42,55 +42,55 @@ public class MysqlCreateIndexStep implements IndexManager.CreateIndexStep {
         this.indexName = indexName;
     }
 
-    @Override
     /**
      * ontable
     */
+    @Override
     public IndexManager.CreateIndexStep onTable(String table) {
         this.table = table;
         return this;
     }
 
-    @Override
     /**
      * oncolumn
     */
+    @Override
     public IndexManager.CreateIndexStep onColumn(String column) {
         this.column = column;
         return this;
     }
 
-    @Override
     /**
      * 字段
     */
+    @Override
     public IndexManager.CreateIndexStep field(String field) {
         this.column = field;
         return this;
     }
 
-    @Override
     /**
      * 类型
     */
+    @Override
     public IndexManager.CreateIndexStep type(String type) {
         this.algorithm = type;
         return this;
     }
 
-    @Override
     /**
      * 使用
     */
+    @Override
     public IndexManager.CreateIndexStep using(String algorithm) {
         this.algorithm = algorithm;
         return this;
     }
 
-    @Override
     /**
      * 执行
     */
+    @Override
     public void execute() {
         StringBuilder sb = new StringBuilder("CREATE INDEX ").append(indexName).append(" ON ").append(table);
         if (algorithm != null && !algorithm.isEmpty()) {

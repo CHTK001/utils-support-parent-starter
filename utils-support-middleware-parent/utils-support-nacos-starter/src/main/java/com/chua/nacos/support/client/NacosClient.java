@@ -174,7 +174,8 @@ public class NacosClient implements AutoCloseable {
                     try {
                         String[] parts = entry.getKey().split(":", 2);
                         configService.removeListener(parts[0], parts[1], entry.getValue());
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        log.debug("[nacos] 移除配置监听器失败，已忽略: {}", e.getMessage());
                     }
                 }
                 configListeners.clear();
@@ -206,10 +207,10 @@ public class NacosClient implements AutoCloseable {
         return new NamingOperation(this);
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         shutdown();
     }
@@ -492,18 +493,18 @@ public class NacosClient implements AutoCloseable {
         public void onChange(Consumer<String> listener) {
             try {
                 Listener nacosListener = new Listener() {
-                    @Override
                     /**
                      * 接收配置信息
                     */
+                    @Override
                     public void receiveConfigInfo(String configInfo) {
                         listener.accept(configInfo);
                     }
 
-                    @Override
                     /**
                      * 获取执行器
                     */
+                    @Override
                     public Executor getExecutor() {
                         return null;
                     }

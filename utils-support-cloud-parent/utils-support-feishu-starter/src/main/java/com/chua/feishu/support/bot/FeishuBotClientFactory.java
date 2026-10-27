@@ -17,19 +17,19 @@ import lombok.extern.slf4j.Slf4j;
 @Spi("feishu")
 public class FeishuBotClientFactory implements BotClient.Factory {
 
-    @Override
     /**
      * 创建
     */
+    @Override
     public BotClient create() {
         log.debug("Creating Feishu Bot client");
         return new FeishuBotClient();
     }
 
-    @Override
     /**
      * 构建器
     */
+    @Override
     public BotClient.Builder builder() {
         log.debug("Creating Feishu Bot client builder");
         return new FeishuBuilder();
@@ -73,46 +73,45 @@ public class FeishuBotClientFactory implements BotClient.Factory {
          */
         private long readTimeoutMillis = 30_000;
 
-        @Override
         /**
          * 令牌
         */
+        @Override
         public BotClient.Builder token(String token) {
             this.appId = token;
             return this;
         }
 
-        @Override
         /**
          * Secret
         */
+        @Override
         public BotClient.Builder secret(String secret) {
             this.appSecret = secret;
             return this;
         }
 
-        @Override
         /**
          * 编码aes键，对应飞书事件订阅的 Encrypt Key
          * @param encodingAesKey 编码aes键
          * @return 构建器
          */
+        @Override
         public BotClient.Builder encodingAesKey(
                 String encodingAesKey) {
             this.webhookEncryptKey = encodingAesKey;
             return this;
         }
 
-        @Override
         /**
          * baseurl
         */
+        @Override
         public BotClient.Builder baseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
             return this;
         }
 
-        @Override
         /**
          * 连接超时millis
          * @param connectTimeoutMillis 连接超时millis
@@ -121,13 +120,13 @@ public class FeishuBotClientFactory implements BotClient.Factory {
          * @param appId appid
          * @param baseUrl baseurl
          */
+        @Override
         public BotClient.Builder connectTimeoutMillis(
                 long connectTimeoutMillis) {
             this.connectTimeoutMillis = connectTimeoutMillis;
             return this;
         }
 
-        @Override
         /**
          * 读取超时millis
          * @param readTimeoutMillis 读取超时millis
@@ -135,28 +134,29 @@ public class FeishuBotClientFactory implements BotClient.Factory {
          * @param appId appid
          * @param baseUrl baseurl
          */
+        @Override
         public BotClient.Builder readTimeoutMillis(
                 long readTimeoutMillis) {
             this.readTimeoutMillis = readTimeoutMillis;
             return this;
         }
 
-        @Override
         /**
          * 配置保存或加载
          * @param configSaveOrLoader 配置保存或加载
          * @param appId appid
          * @param baseUrl baseurl
          */
+        @Override
         public BotClient.Builder configSaveOrLoader(
                 ConfigSaveOrLoader configSaveOrLoader) {
             return this;
         }
 
-        @Override
         /**
          * 构建
         */
+        @Override
         public BotClient build() {
             FeishuBotClient client = new FeishuBotClient();
             if (appId != null) {

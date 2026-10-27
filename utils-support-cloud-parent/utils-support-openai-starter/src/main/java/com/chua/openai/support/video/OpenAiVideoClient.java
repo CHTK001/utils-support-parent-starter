@@ -60,7 +60,6 @@ public class OpenAiVideoClient extends AbstractOpenAiVideosClient {
      */
     private volatile AgnesVideoClient degraded;
 
-    @Override
     /**
      * 按 OpenAI 标准路径轮询，404 时降级到非标准实现。
      *
@@ -78,6 +77,7 @@ public class OpenAiVideoClient extends AbstractOpenAiVideosClient {
      * @param taskId 任务标识
      * @return 原始响应
      */
+    @Override
     ClientResponse fetchTask(String taskId) {
         ClientResponse standard = HttpClientFactory.of(normalizeBaseUrl() + "/videos/" + encode(taskId))
                 .header("Authorization", authHeader())
@@ -137,7 +137,6 @@ public class OpenAiVideoClient extends AbstractOpenAiVideosClient {
         return cached;
     }
 
-    @Override
     /**
      * 暂不支持图生视频。
      *
@@ -145,12 +144,12 @@ public class OpenAiVideoClient extends AbstractOpenAiVideosClient {
      * @return 不会正常返回
      * @throws UnsupportedOperationException 始终抛出
      */
+    @Override
     public VideoClient referenceImage(byte[] image) {
         throw new UnsupportedOperationException(
                 "该协议的参考图需要公网可访问的地址，当前暂不支持图生视频，请改用文生视频");
     }
 
-    @Override
     /**
      * 暂不支持参考图强度。
      *
@@ -158,6 +157,7 @@ public class OpenAiVideoClient extends AbstractOpenAiVideosClient {
      * @return 不会正常返回
      * @throws UnsupportedOperationException 始终抛出
      */
+    @Override
     public VideoClient imageStrength(double strength) {
         throw new UnsupportedOperationException("该渠道不支持参考图强度");
     }

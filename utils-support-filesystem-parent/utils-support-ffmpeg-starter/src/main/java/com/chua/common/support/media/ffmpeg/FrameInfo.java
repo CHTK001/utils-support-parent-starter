@@ -165,10 +165,10 @@ public class FrameInfo {
      */
     public void setImageData(byte[] imageData) { this.imageData = imageData; }
 
-    @Override
     /**
      * 转为字符串
     */
+    @Override
     public String toString() {
         return "FrameInfo{frame=" + frameNumber + ", ts=" + timestampMs + "ms, " +
                 width + "x" + height + ", key=" + keyFrame +

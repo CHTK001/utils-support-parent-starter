@@ -250,10 +250,10 @@ public class SshClient implements AutoCloseable {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() { disconnect(); }
 
     // ==================== 操作入口 ====================
@@ -277,6 +277,20 @@ public class SshClient implements AutoCloseable {
      * 隧道操作（正向/反向/动态）
      */
     public ForwardOperation forward() { return new ForwardOperation(this); }
+
+    /**
+     * 在既有连接上新开 SFTP 通道（复用当前已认证会话，不新建立连接）。
+     * <p>
+     * 返回的通道 {@code close} 只关闭 SFTP 通道，不关闭会话本身；
+     * 会话生命周期由调用方（SSH 连接池）统一管理，适用于批量操作复用同一连接。
+     * </p>
+     *
+     * @return SFTP 客户端（复用会话）
+     * @throws IllegalStateException 会话未建立或已关闭
+     */
+    public SftpClient sftp() {
+        return SftpClient.of(getSession(), username, host, port);
+    }
 
     /**
      * 是否已建立有效连接（会话存在且未关闭）
@@ -479,7 +493,8 @@ public class SshClient implements AutoCloseable {
         public void close() {
             try {
                 channel.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[ssh] 关闭通道失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -1023,8 +1038,9 @@ public class SshClient implements AutoCloseable {
             buffer.reset();
             try {
                 consumer.accept(line);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
                 // 回调异常不影响通道读取
+                log.debug("[ssh] 行回调消费失败，已忽略: {}", e.getMessage());
             }
         }
 
@@ -1100,7 +1116,8 @@ public class SshClient implements AutoCloseable {
                 if (channel != null && !channel.isClosed()) {
                     channel.close(false);
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[ssh] 关闭通道失败，已忽略: {}", e.getMessage());
             }
         }
     }

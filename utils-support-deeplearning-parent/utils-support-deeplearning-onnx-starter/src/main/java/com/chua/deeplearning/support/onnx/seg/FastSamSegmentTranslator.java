@@ -502,13 +502,13 @@ public class FastSamSegmentTranslator implements ITranslator<byte[], byte[]> {
         this.injectedPath = path.trim();
     }
 
-    @Override
     /**
      * 执行分割。
      *
      * @param input 编码后的图片字节（PNG / JPEG 等）
      * @return 编码后的分割结果（PNG）
      */
+    @Override
     public byte[] translate(byte[] input) {
         try {
             prepare();

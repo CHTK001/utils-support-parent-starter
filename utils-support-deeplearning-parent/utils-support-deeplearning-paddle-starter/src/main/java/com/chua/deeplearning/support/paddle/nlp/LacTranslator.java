@@ -51,10 +51,10 @@ public class LacTranslator implements Translator<String, String[][]> {
      */
     private String input;
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(TranslatorContext ctx) throws IOException {
         Model model = ctx.getModel();
         loadWordDic(model);
@@ -143,10 +143,10 @@ public class LacTranslator implements Translator<String, String[][]> {
         throw new IOException("LAC 词典未找到: " + String.join(",", names));
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, String input) {
         this.input = input == null ? "" : input;
         NDManager manager = ctx.getNDManager();
@@ -187,10 +187,10 @@ public class LacTranslator implements Translator<String, String[][]> {
         }
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public String[][] processOutput(TranslatorContext ctx, NDList list) {
         NDArray tags = list.getFirst();
         long[] tagIds = tags.toLongArray();
@@ -228,10 +228,10 @@ public class LacTranslator implements Translator<String, String[][]> {
         return result;
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

@@ -29,10 +29,10 @@ public class OnnxImageSegmenter implements ImageSegmenter {
     public OnnxImageSegmenter(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public ImageSegmenter model(String model) {
         this.modelName = model;
         return this;
@@ -54,36 +54,36 @@ public class OnnxImageSegmenter implements ImageSegmenter {
         return modelName;
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public ImageSegmenter modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public ImageSegmenter device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
     /**
      * Segment
     */
+    @Override
     public byte[] segment(byte[] imageData) {
         return ImageSegmenter.create(resolveModel()).modelPath(modelPath).device(device).segment(imageData);
     }
 
-    @Override
     /**
      * Segment
     */
+    @Override
     public byte[] segment(byte[] imageData, int targetClass) {
         return ImageSegmenter.create(resolveModel()).modelPath(modelPath).device(device).segment(imageData, targetClass);
     }

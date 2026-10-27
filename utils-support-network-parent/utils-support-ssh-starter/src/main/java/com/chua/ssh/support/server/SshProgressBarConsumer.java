@@ -43,26 +43,26 @@ public class SshProgressBarConsumer implements ProgressBarConsumer {
         this.maxRenderedLength = maxRenderedLength;
     }
 
-    @Override
     /**
      * 获取最大值Rendered获取长度
     */
+    @Override
     public int getMaxRenderedLength() {
         return maxRenderedLength;
     }
 
-    @Override
     /**
      * Accept
     */
+    @Override
     public void accept(String rendered) {
         response.writeRaw(rendered.getBytes());
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         response.writeRaw("\n".getBytes());
     }

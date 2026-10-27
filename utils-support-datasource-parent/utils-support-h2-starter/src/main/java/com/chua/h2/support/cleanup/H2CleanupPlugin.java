@@ -130,11 +130,11 @@ public class H2CleanupPlugin {
         return ds.getConnection();
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 获取数据源。
      * @return 获取数据源的结果
      */
+    @SuppressWarnings("unchecked")
     private DataSource getDataSource() {
         var dsObj = engine.getDataSource();
         return dsObj != null ? (DataSource) dsObj.getSource() : null;

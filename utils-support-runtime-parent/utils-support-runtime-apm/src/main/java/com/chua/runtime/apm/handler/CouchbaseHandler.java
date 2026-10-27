@@ -31,51 +31,51 @@ public class CouchbaseHandler extends AbstractAppHandler {
      */
     private static final String[] COLLECTION_METHODS = {"get", "insert", "upsert", "replace", "remove", "query"};
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "couchbase-handler";
     }
 
-    @Override
     /**
      * 已启用键
     */
+    @Override
     protected String enabledKey() {
         return "couchbase.enabled";
     }
 
-    @Override
     /**
      * Software
     */
+    @Override
     protected Software software() {
         return Software.COUCHBASE;
     }
 
-    @Override
     /**
      * 协议
     */
+    @Override
     protected Protocol protocol() {
         return Protocol.COUCHBASE;
     }
 
-    @Override
     /**
      * 注册拦截器
     */
+    @Override
     protected void registerInterceptors() {
         registerAll(BUCKET, BUCKET_METHODS);
         registerAll(COLLECTION, COLLECTION_METHODS);
     }
 
-    @Override
     /**
      * 构建Target
     */
+    @Override
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

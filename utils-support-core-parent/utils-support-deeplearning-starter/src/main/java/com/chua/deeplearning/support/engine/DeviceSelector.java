@@ -181,7 +181,8 @@ public final class DeviceSelector {
                             if (parts.length > 1) {
                                 try {
                                     vramMb = Long.parseLong(parts[1].trim().replaceAll("[^0-9]", ""));
-                                } catch (NumberFormatException ignored) {
+                                } catch (NumberFormatException e) {
+                                    log.debug("[deeplearning] 显存数值解析失败，保持 -1: {}", e.getMessage());
                                 }
                             }
                             GpuInfo info = new GpuInfo(name, vramMb);

@@ -116,143 +116,143 @@ public class BaiduChatClient implements ChatClient {
         this.qianfan = new Qianfan(setting.getAppKey(), setting.getAppSecret(), baseUrl);
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public ChatClient model(String model) {
         this.model = model;
         return this;
     }
 
-    @Override
     /**
      * Temperature
     */
+    @Override
     public ChatClient temperature(double temperature) {
         this.temperature = temperature;
         return this;
     }
 
-    @Override
     /**
      * 最大值令牌
     */
+    @Override
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
-    @Override
     /**
      * 系统
     */
+    @Override
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
-    @Override
     /**
      * Thinking
     */
+    @Override
     public ChatClient thinking(boolean thinking) {
         this.thinking = thinking;
         return this;
     }
 
-    @Override
     /**
      * thinkingeffort
     */
+    @Override
     public ChatClient thinkingEffort(String effort) {
         this.thinkingEffort = effort;
         return this;
     }
 
-    @Override
     /**
      * Smart搜索
     */
+    @Override
     public ChatClient smartSearch(boolean smartSearch) {
         this.smartSearch = smartSearch;
         return this;
     }
 
-    @Override
     /**
      * Skill
     */
+    @Override
     public ChatClient skill(SkillManager skillManager) {
         this.skillManager = skillManager;
         return this;
     }
 
-    @Override
     /**
      * 添加镜像
     */
+    @Override
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
     }
 
-    @Override
     /**
      * 添加用户历史
     */
+    @Override
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
-    @Override
     /**
      * 添加assistant历史
     */
+    @Override
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
-    @Override
     /**
      * 历史
     */
+    @Override
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
-    @Override
     /**
      * 会话
     */
+    @Override
     public ChatClient session(String sessionId) {
         this.sessionId = sessionId;
         return this;
     }
 
-    @Override
     /**
      * 添加Attachment
     */
+    @Override
     public ChatClient addAttachment(String name, byte[] data, String mimeType) {
         throw new UnsupportedOperationException("该服务商不支持文件附件");
     }
 
-    @Override
     /**
      * 添加attachmenturl
     */
+    @Override
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         throw new UnsupportedOperationException("该服务商不支持远程文件附件");
     }
 
-    @Override
     /**
      * 新对话
     */
+    @Override
     public ChatClient newChat() {
         this.history.clear();
         this.imageUrls.clear();
@@ -260,10 +260,10 @@ public class BaiduChatClient implements ChatClient {
         return this;
     }
 
-    @Override
     /**
      * 对话同步
     */
+    @Override
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         chat(prompt, response -> {
@@ -275,10 +275,10 @@ public class BaiduChatClient implements ChatClient {
         return result.toString();
     }
 
-    @Override
     /**
      * 对话
     */
+    @Override
     public void chat(String prompt, Consumer<com.chua.common.support.ai.chat.ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {
@@ -286,7 +286,6 @@ public class BaiduChatClient implements ChatClient {
         });
     }
 
-    @Override
     /**
      * 对话
      * @param prompt 提示符
@@ -294,6 +293,7 @@ public class BaiduChatClient implements ChatClient {
      * @param onComplete on完成
      * @param onError on错误
      */
+    @Override
     public void chat(String prompt, Consumer<com.chua.common.support.ai.chat.ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {
@@ -418,12 +418,12 @@ public class BaiduChatClient implements ChatClient {
     }
 
 
-    @Override
     /**
      * 获取客户端配置。
      *
      * @return 配置
      */
+    @Override
     public ChatClientSetting getSetting() {
         return setting;
     }

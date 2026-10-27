@@ -42,18 +42,18 @@ public class SystemdServiceManager implements ServiceManager {
      */
     private static final String[] SYSTEMCTL_RELOAD = {"systemctl", "daemon-reload"};
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "systemd";
     }
 
-    @Override
     /**
      * 是否支持
     */
+    @Override
     public boolean isSupported() {
         String osName = System.getProperty("os.name", "").toLowerCase();
         if (!osName.contains("nix") && !osName.contains("nux") && !osName.contains("aix")) {
@@ -63,10 +63,10 @@ public class SystemdServiceManager implements ServiceManager {
         return result.isSuccess();
     }
 
-    @Override
     /**
      * Install
     */
+    @Override
     public CmdResult install(ManagedService service) {
         log.info("[runtime-service] 正在安装 systemd 服务[{}]: {}", service.getServiceName(), service.getDisplayName());
 
@@ -127,10 +127,10 @@ public class SystemdServiceManager implements ServiceManager {
         }
     }
 
-    @Override
     /**
      * Uninstall
     */
+    @Override
     public CmdResult uninstall(String serviceName) {
         log.info("[runtime-service] 正在卸载 systemd 服务[{}]", serviceName);
         Path servicePath = unitFile(serviceName);
@@ -159,37 +159,37 @@ public class SystemdServiceManager implements ServiceManager {
         return result;
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public CmdResult start(String serviceName) {
         log.info("[runtime-service] 正在启动 systemd 服务[{}]", serviceName);
         return CmdExecutors.execute(systemctl("start", serviceName), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
-    @Override
     /**
      * 停止
     */
+    @Override
     public CmdResult stop(String serviceName) {
         log.info("[runtime-service] 正在停止 systemd 服务[{}]", serviceName);
         return CmdExecutors.execute(systemctl("stop", serviceName), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
-    @Override
     /**
      * Restart
     */
+    @Override
     public CmdResult restart(String serviceName) {
         log.info("[runtime-service] 正在重启 systemd 服务[{}]", serviceName);
         return CmdExecutors.execute(systemctl("restart", serviceName), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
-    @Override
     /**
      * 状态
     */
+    @Override
     public CmdResult status(String serviceName) {
         // 状态输出含错误流，走已合并 stderr 的实时输出通道
         return CmdExecutors.executeWithOutput(systemctl("status", serviceName),
@@ -197,28 +197,28 @@ public class SystemdServiceManager implements ServiceManager {
                 });
     }
 
-    @Override
     /**
      * 启用
     */
+    @Override
     public CmdResult enable(String serviceName) {
         log.info("[runtime-service] 设置 systemd 服务[{}] 开机自启", serviceName);
         return CmdExecutors.execute(systemctl("enable", serviceName), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
-    @Override
     /**
      * 禁用
     */
+    @Override
     public CmdResult disable(String serviceName) {
         log.info("[runtime-service] 禁用 systemd 服务[{}] 开机自启", serviceName);
         return CmdExecutors.execute(systemctl("disable", serviceName), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
-    @Override
     /**
      * 是否已启用
     */
+    @Override
     public boolean isEnabled(String serviceName) {
         CmdResult result = CmdExecutors.executeWithOutput(systemctl("is-enabled", serviceName),
                 CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS, new LineCallback() {
@@ -226,10 +226,10 @@ public class SystemdServiceManager implements ServiceManager {
         return result.isSuccess() && "enabled".equals(result.getStdout().trim());
     }
 
-    @Override
     /**
      * 是否Installed
     */
+    @Override
     public boolean isInstalled(String serviceName) {
         Path servicePath = unitFile(serviceName);
         return Files.isRegularFile(servicePath);

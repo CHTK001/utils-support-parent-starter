@@ -93,31 +93,30 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
         this.offsetStorage = offsetStorage != null ? offsetStorage : new FileSyncDataOffsetStorage();
     }
 
-    @Override
     /**
      * 源id
     */
+    @Override
     public String sourceId() {
         return sourceId;
     }
 
-    @Override
     /**
      * 输入id
     */
+    @Override
     public String inputId() {
         return inputId;
     }
 
-    @Override
     /**
      * 读取偏移量
     */
+    @Override
     public SyncDataOffset readOffset(Map<String, Object> params) {
         return offsetStorage.read(sourceId, null);
     }
 
-    @Override
     /**
      * 按映射读取偏移量（每目标独立水位）
      *
@@ -125,14 +124,15 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
      * @param mappingId 映射标识
      * @return 偏移量
      */
+    @Override
     public SyncDataOffset readOffset(Map<String, Object> params, String mappingId) {
         return offsetStorage.read(sourceId, mappingId, null);
     }
 
-    @Override
     /**
      * 写入偏移量
     */
+    @Override
     public void writeOffset(SyncDataOffset offset) {
         if (offset == null) {
             return;
@@ -140,10 +140,10 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
         offsetStorage.write(offset);
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public Flux<Map<String, Object>> read(Map<String, Object> params) {
         return Flux.<Map<String, Object>>create(sink -> {
             long skip = 0;
@@ -201,25 +201,25 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
         });
     }
 
-    @Override
     /**
      * 获取最后一个读取偏移量
     */
+    @Override
     public Object getLastReadOffset() {
         return lastLineNumber;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
     }
 
-    @Override
     /**
      * Direction
     */
+    @Override
     public Direction direction() {
         return Direction.INPUT;
     }

@@ -78,38 +78,38 @@ public abstract class AbstractLocalImageClient implements ImageClient {
         this.seed = setting != null ? setting.getSeed() : null;
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public ImageClient model(String model) {
         this.model = model;
         return this;
     }
 
-    @Override
     /**
      * 获取大小
     */
+    @Override
     public ImageClient size(int width, int height) {
         this.width = width;
         this.height = height;
         return this;
     }
 
-    @Override
     /**
      * 提示符
     */
+    @Override
     public ImageClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
-    @Override
     /**
      * Seed
     */
+    @Override
     public ImageClient seed(Long seed) {
         this.seed = seed;
         return this;
@@ -138,10 +138,10 @@ public abstract class AbstractLocalImageClient implements ImageClient {
         return defs.getFirst().getId();
     }
 
-    @Override
     /**
      * Generate
     */
+    @Override
     public BufferedImage generate(String prompt) {
         if (prompt != null) {
             this.prompt = prompt;
@@ -184,26 +184,26 @@ public abstract class AbstractLocalImageClient implements ImageClient {
         throw new IllegalStateException("模型输出不是图像: " + modelName + " -> " + result);
     }
 
-    @Override
     /**
      * 创建任务
     */
+    @Override
     public String createTask(String prompt) {
         throw new UnsupportedOperationException("本地图像生成不支持异步任务模式");
     }
 
-    @Override
     /**
      * 查询任务
     */
+    @Override
     public ImageResponse queryTask(String taskId) {
         throw new UnsupportedOperationException("本地图像生成不支持异步任务模式");
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

@@ -296,10 +296,10 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         }
     }
 
-    @Override
     /**
      * 获取模型
     */
+    @Override
     public List<ModelDefinition> getModels() {
         List<ModelDefinition> result = Wraps.list();
         for (TranslatorModelDefinition def : modelMap.values()) {
@@ -310,18 +310,18 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         return result;
     }
 
-    @Override
     /**
      * 获取translator模型
     */
+    @Override
     public List<TranslatorModelDefinition> getTranslatorModels() {
         return Wraps.list(modelMap.values());
     }
 
-    @Override
     /**
      * 注册
     */
+    @Override
     public void register(TranslatorModelDefinition definition) {
         if (definition == null) {
             return;
@@ -334,10 +334,10 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         log.debug("[deeplearning-engine] 注册模型: {} ({})", definition.getName(), definition.getProvider());
     }
 
-    @Override
     /**
      * 获取模型名称bycapability
     */
+    @Override
     public List<String> getModelNamesByCapability(Class<?> capabilityInterface) {
         String label = com.chua.deeplearning.support.capability.ModelCapabilities.labelOf(capabilityInterface);
         if (label != null) {
@@ -347,10 +347,10 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         return ModelRegistry.getModelIdsByCapability(capabilityInterface);
     }
 
-    @Override
     /**
      * 获取模型名称bycapability
     */
+    @Override
     public List<String> getModelNamesByCapability(String capability) {
         if (capability == null || capability.isBlank()) {
             List<String> all = Wraps.list();
@@ -409,8 +409,6 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         }
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 获取
      *
@@ -418,6 +416,8 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
      * @param target Target
      * @return 获取的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> T get(String name, Class<T> target) {
         TranslatorModelDefinition def = modelMap.get(name);
         if (def == null) {
@@ -440,8 +440,6 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         return null;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 获取并注入运行参数
      *
@@ -450,6 +448,8 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
      * @param options 期权
      * @return 获取的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> T get(String name, Class<T> target, java.util.Map<String, Object> options) {
         TranslatorModelDefinition def = modelMap.get(name);
         if (def == null) {
@@ -473,14 +473,14 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         return null;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 获取
      *
      * @param target Target
      * @return 获取的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> T get(Class<T> target) {
         for (Map.Entry<String, TranslatorModelDefinition> en : modelMap.entrySet()) {
             Object translator = en.getValue().getTranslator();
@@ -606,10 +606,10 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         return DEFAULT_PROVIDER;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         modelMap.clear();
         INSTANCE = null;

@@ -161,10 +161,10 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
         }
     }
 
-    @Override
     /**
      * 执行添加
     */
+    @Override
     protected synchronized boolean doAdd(String id, float[] vector) {
         com.google.gson.JsonObject entity = new com.google.gson.JsonObject();
         entity.addProperty("id", id);
@@ -236,10 +236,10 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
         return true;
     }
 
-    @Override
     /**
      * 执行搜索
     */
+    @Override
     protected synchronized List<Vector> doSearch(float[] query, int topK) {
         if (topK <= 0) {
             return List.of();
@@ -290,10 +290,10 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
         return new float[0];
     }
 
-    @Override
     /**
      * 获取大小
     */
+    @Override
     public int size() {
         var resp = client.getCollectionStats(
                 io.milvus.v2.service.collection.request.GetCollectionStatsReq.builder()
@@ -306,10 +306,10 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
         return num != null ? num.intValue() : 0;
     }
 
-    @Override
     /**
      * Clear
     */
+    @Override
     public synchronized void clear() {
         checkNotClosed();
         client.dropCollection(io.milvus.v2.service.collection.request.DropCollectionReq.builder()
@@ -320,10 +320,10 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
         released = false;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         try {
             if (!released) {
@@ -336,7 +336,8 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
         }
         try {
             client.close();
-        } catch (Exception ignored) {
+        } catch (Exception closeEx) {
+            log.debug("[milvus] 关闭客户端失败，已忽略: {}", closeEx.getMessage());
         }
         released = true;
         super.close();

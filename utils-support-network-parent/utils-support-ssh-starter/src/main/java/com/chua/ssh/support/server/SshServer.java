@@ -92,18 +92,18 @@ public class SshServer extends AbstractServer {
         addFilter(shellFilter);
     }
 
-    @Override
     /**
      * 获取协议类型
     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.SSH;
     }
 
-    @Override
     /**
      * 注册Bean
     */
+    @Override
     public Server registerBean(Object bean) {
         if (bean == null) {
             return this;
@@ -158,10 +158,10 @@ public class SshServer extends AbstractServer {
         return Wraps.list(shellFilter.getCommandNames());
     }
 
-    @Override
     /**
      * 执行开始
     */
+    @Override
     protected void doStart() {
         try {
             sshd = org.apache.sshd.server.SshServer.setUpDefaultServer();
@@ -191,10 +191,10 @@ public class SshServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * 执行停止
     */
+    @Override
     protected void doStop() {
         try {
             if (sshd != null) {
@@ -238,61 +238,61 @@ public class SshServer extends AbstractServer {
          */
         private Thread thread;
 
-        @Override
         /**
          * 设置输入流
         */
+        @Override
         public void setInputStream(InputStream in) {
             this.in = in;
         }
 
-        @Override
         /**
          * 设置输出流
         */
+        @Override
         public void setOutputStream(OutputStream out) {
             this.out = out;
         }
 
-        @Override
         /**
          * 设置记录错误流
         */
+        @Override
         public void setErrorStream(OutputStream err) {
             this.err = err;
         }
 
-        @Override
         /**
          * 设置exitcallback
         */
+        @Override
         public void setExitCallback(ExitCallback callback) {
             this.exitCallback = callback;
         }
 
-        @Override
         /**
          * 开始
         */
+        @Override
         public void start(ChannelSession channel, Environment env) throws IOException {
             thread = new Thread(this, "ssh-shell-" + channel.getSession().getIoSession().getRemoteAddress());
             thread.start();
         }
 
-        @Override
         /**
          * 销毁
         */
+        @Override
         public void destroy(ChannelSession channel) {
             if (thread != null) {
                 thread.interrupt();
             }
         }
 
-        @Override
         /**
          * 运行
         */
+        @Override
         public void run() {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
                  PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), true)) {
@@ -332,7 +332,8 @@ public class SshServer extends AbstractServer {
             } catch (IOException e) {
                 try {
                     err.write(("IO error: " + e.getMessage() + "\n").getBytes(StandardCharsets.UTF_8));
-                } catch (Exception ignored) {
+                } catch (Exception writeEx) {
+                    log.debug("[ssh] 回写 IO 错误提示失败，已忽略: {}", writeEx.getMessage());
                 }
                 exitCallback.onExit(1);
             }
@@ -361,10 +362,10 @@ public class SshServer extends AbstractServer {
      */
     private class InteractiveShellFactory implements ShellFactory {
 
-        @Override
         /**
          * 创建Shell
         */
+        @Override
         public Command createShell(ChannelSession channel) throws IOException {
             return new InteractiveShell();
         }

@@ -21,10 +21,10 @@ public class OnnxImageCaptioning implements ImageCaptioning {
     public OnnxImageCaptioning(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public ImageCaptioning model(String model) {
         this.modelName = model;
         return this;
@@ -43,10 +43,10 @@ public class OnnxImageCaptioning implements ImageCaptioning {
         return modelName;
     }
 
-    @Override
     /**
      * Describe
     */
+    @Override
     public String describe(byte[] imageData) {
         return ImageCaptioning.create(resolveModel()).describe(imageData);
     }

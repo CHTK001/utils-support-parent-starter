@@ -68,10 +68,10 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
         super(config);
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         if (config.getUrl() == null || config.getUrl().isBlank()) {
             throw new IllegalStateException("MQTT 分发器缺少 url 配置，无法连接 Broker");
@@ -81,18 +81,18 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
             client = new MqttClient(config.getUrl(), clientId, new MemoryPersistence());
             // 回调必须在 connect 之前注册，否则握手完成瞬间到达的消息会被 Paho 默认处理器丢弃
             client.setCallback(new MqttCallback() {
-                @Override
                 /**
                  * connectionlost
                 */
+                @Override
                 public void connectionLost(Throwable cause) {
                     log.warn("MQTT 连接已断开: {}", cause.getMessage(), cause);
                 }
 
-                @Override
                 /**
                  * 消息arrived
                 */
+                @Override
                 public void messageArrived(String topic, MqttMessage message) {
                     String payload = new String(message.getPayload(), StandardCharsets.UTF_8);
                     // 订阅登记的是主题过滤器（可含 +/#），按匹配规则投递
@@ -106,10 +106,10 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
                     }
                 }
 
-                @Override
                 /**
                  * delivery完成
                 */
+                @Override
                 public void deliveryComplete(IMqttDeliveryToken token) {
                 }
             });

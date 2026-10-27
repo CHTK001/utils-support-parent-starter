@@ -55,10 +55,10 @@ public class NatsDispatcherProvider extends AbstractDispatcherProvider {
         super(config);
     }
 
-    @Override
     /**
      * 开始
     */
+    @Override
     public void start() {
         try {
             var options = new Options.Builder()
@@ -85,10 +85,10 @@ public class NatsDispatcherProvider extends AbstractDispatcherProvider {
         }
     }
 
-    @Override
     /**
      * 发布
     */
+    @Override
     public void publish(String topic, Object body) {
         if (connection == null || connection.getStatus() != Connection.Status.CONNECTED) {
             log.warn("NATS 未连接，无法发布消息到: {}", topic);
@@ -98,10 +98,10 @@ public class NatsDispatcherProvider extends AbstractDispatcherProvider {
         connection.publish(topic, value.getBytes(StandardCharsets.UTF_8));
     }
 
-    @Override
     /**
      * 订阅
     */
+    @Override
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).add(definition);
@@ -111,10 +111,10 @@ public class NatsDispatcherProvider extends AbstractDispatcherProvider {
         }
     }
 
-    @Override
     /**
      * 取消订阅
     */
+    @Override
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var definitions = definitionMap.get(topic);
@@ -130,10 +130,10 @@ public class NatsDispatcherProvider extends AbstractDispatcherProvider {
         }
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         closed = true;
         try {

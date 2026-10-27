@@ -47,10 +47,10 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
     */
     private HuggingFaceTokenizer tokenizer;
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(@Nonnull TranslatorContext ctx) throws IOException {
         Path modelPath = ctx.getModel().getModelPath();
         if (modelPath == null) {
@@ -68,8 +68,6 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
         log.debug("[DistilBERT-SST2] Tokenizer             : {}", tokenizerPath);
     }
 
-    @Override
-    @Nonnull
     /**
      * 处理输入
      *
@@ -77,6 +75,8 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
      * @param input 输入
      * @return 处理输入的结果
      */
+    @Override
+    @Nonnull
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("HuggingFaceTokenizer             ");
@@ -97,8 +97,6 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
         return ndList;
     }
 
-    @Override
-    @Nonnull
     /**
      * 处理输出
      *
@@ -106,6 +104,8 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
      * @param list 列表
      * @return 处理输出的结果
      */
+    @Override
+    @Nonnull
     public Classifications processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray logits = list.singletonOrThrow();
         if (logits.getShape().dimension() == 2 && logits.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
@@ -117,13 +117,13 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
         return new Classifications(LABELS, probabilities);
     }
 
-    @Override
-    @Nullable
     /**
      * 获取Batchifier
      *
      * @return 获取batchifier的结果
      */
+    @Override
+    @Nullable
     public Batchifier getBatchifier() {
         return null;
     }

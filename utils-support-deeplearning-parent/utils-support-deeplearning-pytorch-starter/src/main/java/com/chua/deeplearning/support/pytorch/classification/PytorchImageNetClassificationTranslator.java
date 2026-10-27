@@ -50,10 +50,10 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
      */
     private List<String> runtimeLabels = Collections.emptyList();
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(TranslatorContext ctx) throws Exception {
         List<String> labels = loadLabels(ctx.getModel().getModelPath());
         if (!labels.isEmpty()) {
@@ -61,10 +61,10 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
         }
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, IMAGE_SIZE, IMAGE_SIZE);
@@ -75,10 +75,10 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
         if (logits.getShape().dimension() > 1 && logits.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
@@ -99,10 +99,10 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
         return new Classifications(labels, probs);
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

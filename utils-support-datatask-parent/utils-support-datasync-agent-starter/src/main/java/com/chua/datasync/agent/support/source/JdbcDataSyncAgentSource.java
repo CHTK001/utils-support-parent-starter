@@ -156,26 +156,26 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
         return dataSource;
     }
 
-    @Override
     /**
      * 源id
     */
+    @Override
     public String sourceId() {
         return sourceId;
     }
 
-    @Override
     /**
      * 输入id
     */
+    @Override
     public String inputId() {
         return inputId;
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public Flux<Map<String, Object>> read(Map<String, Object> params) {
         Object offsetObj = null;
         if (params != null) {
@@ -217,10 +217,10 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
         });
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
@@ -228,10 +228,10 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
         }
     }
 
-    @Override
     /**
      * Direction
     */
+    @Override
     public Direction direction() {
         return Direction.INPUT;
     }
@@ -329,7 +329,6 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
         return count == 1 ? java.util.List.of(text) : java.util.List.of();
     }
 
-    @Override
     /**
      * 按映射读取偏移量（每目标独立水位）
      *
@@ -337,27 +336,28 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
      * @param mappingId 映射标识
      * @return 偏移量
      */
+    @Override
     public com.chua.datasync.agent.support.model.SyncDataOffset readOffset(Map<String, Object> params, String mappingId) {
         return offsetStorage.read(sourceId, mappingId, null);
     }
 
-    @Override
     /**
      * 读取偏移量
      *
      * @param params 读取参数
      * @return 偏移量
      */
+    @Override
     public com.chua.datasync.agent.support.model.SyncDataOffset readOffset(Map<String, Object> params) {
         return offsetStorage.read(sourceId, null);
     }
 
-    @Override
     /**
      * 写入偏移量
      *
      * @param offset 偏移量
      */
+    @Override
     public void writeOffset(com.chua.datasync.agent.support.model.SyncDataOffset offset) {
         if (offset == null) {
             return;

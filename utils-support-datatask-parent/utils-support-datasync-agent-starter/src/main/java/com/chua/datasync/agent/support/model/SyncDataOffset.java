@@ -85,10 +85,10 @@ public class SyncDataOffset implements Serializable {
         return mappingId;
     }
 
-    @Override
     /**
      * 转为字符串
     */
+    @Override
     public String toString() {
         return "SyncDataOffset{sourceId=" + sourceId + ", offset=" + offsetValue + ", ts=" + timestamp + ", mapping=" + mappingId + "}";
     }

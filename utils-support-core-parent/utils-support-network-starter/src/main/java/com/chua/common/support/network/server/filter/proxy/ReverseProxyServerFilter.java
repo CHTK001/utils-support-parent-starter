@@ -81,36 +81,36 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
         this.timeoutSeconds = timeoutSeconds;
     }
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         return Integer.MAX_VALUE - 40;
     }
 
-    @Override
     /**
      * 支持路径
     */
+    @Override
     public String supportPath() {
  // 服务端过滤器 与 响应式服务端过滤器 均有同名 默认 方法,显式覆写消除接口冲突;
         // 返回 null = Access Filter,每次请求都触发代理判断
         return null;
     }
 
-    @Override
     /**
      * 支持协议
     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP, ProtocolType.WS};
     }
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(ServerFilterConfig config) throws Exception {
         this.asyncExecutor = Executors.newVirtualThreadPerTaskExecutor();
         this.httpClient = HttpClient.newBuilder()
@@ -122,10 +122,10 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
         log.info("[network-proxy] ReverseProxyServerFilter 初始化完成, timeout={}s, async=true", timeoutSeconds);
     }
 
-    @Override
     /**
      * 销毁
     */
+    @Override
     public void destroy() {
         if (asyncExecutor != null) {
             asyncExecutor.shutdown();
@@ -137,13 +137,13 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
         }
     }
 
-    @Override
     /**
      * 执行过滤
      * @param request 请求
      * @param response 响应
      * @param chain chain
      */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         Discovery discovery = ServerAttribute.getBackendDiscovery(request);

@@ -122,20 +122,20 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
      */
     private double sharpenStrength = 0.5;
 
-    @Override
     /**
      * 获取镜像格式化
     */
+    @Override
     public String getImageFormat() {
         
         return "jpeg";
     
     }
 
-    @Override
     /**
      * 获取镜像格式化
     */
+    @Override
     public String getImageFormat(String name) {
         if (name == null) {
             return getImageFormat();
@@ -151,10 +151,10 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
         return "jpeg";
     }
 
-    @Override
     /**
      * 过滤
     */
+    @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -344,10 +344,10 @@ hsv[1] = Math.min(1.0f, (float) (hsv[1] * saturationEnhancement));
         return result;
     }
 
-    @Override
     /**
      * 转换器
     */
+    @Override
     public OutputStream converter(InputStream image) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         

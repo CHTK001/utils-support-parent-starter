@@ -28,10 +28,10 @@ public class WordReadBuilder extends ReadBuilder {
         super(file);
     }
 
-    @Override
     /**
      * with字符集
     */
+    @Override
     public WordReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -119,10 +119,10 @@ public class WordReadBuilder extends ReadBuilder {
         return result;
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public Object read() {
         return text();
     }
@@ -139,18 +139,18 @@ public class WordReadBuilder extends ReadBuilder {
         } catch (IOException e) { return null; }
     }
 
-    @Override
     /**
      * as线
     */
+    @Override
     public List<String> asLines() {
          return paragraphs(); 
     }
 
-    @Override
     /**
      * as字符串
     */
+    @Override
     public String asString() {
          return text(); 
     }

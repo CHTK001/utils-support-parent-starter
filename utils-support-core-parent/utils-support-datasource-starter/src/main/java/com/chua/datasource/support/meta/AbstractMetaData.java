@@ -48,100 +48,100 @@ public abstract class AbstractMetaData implements MetaData {
         this.engine = engine;
     }
 
-    @Override
     /**
      * Table
     */
+    @Override
     public abstract MetaTable table();
 
-    @Override
     /**
      * Table
     */
+    @Override
     public abstract MetaTable table(String tableName);
 
-    @Override
     /**
      * View
     */
+    @Override
     public abstract MetaView view();
 
-    @Override
     /**
      * View
     */
+    @Override
     public abstract MetaView view(String viewName);
 
-    @Override
     /**
      * 索引
     */
+    @Override
     public abstract MetaIndex index();
 
-    @Override
     /**
      * 索引
     */
+    @Override
     public abstract MetaIndex index(String indexName);
 
-    @Override
     /**
      * Trigger
     */
+    @Override
     public abstract MetaTrigger trigger();
 
-    @Override
     /**
      * Trigger
     */
+    @Override
     public abstract MetaTrigger trigger(String triggerName);
 
-    @Override
     /**
      * Procedure
     */
+    @Override
     public abstract MetaProcedure procedure();
 
-    @Override
     /**
      * Procedure
     */
+    @Override
     public abstract MetaProcedure procedure(String procedureName);
 
-    @Override
     /**
      * Fk
     */
+    @Override
     public abstract MetaForeignKey fk();
 
-    @Override
     /**
      * Fk
     */
+    @Override
     public abstract MetaForeignKey fk(String fkName);
 
-    @Override
     /**
      * 用户
     */
+    @Override
     public abstract MetaUser user();
 
-    @Override
     /**
      * 权限
     */
+    @Override
     public abstract MetaPermission permission();
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public abstract MetaSearch search();
 
-    @Override
     /**
      * 搜索
     */
+    @Override
     public abstract MetaSearch search(String indexName);
 
     /**

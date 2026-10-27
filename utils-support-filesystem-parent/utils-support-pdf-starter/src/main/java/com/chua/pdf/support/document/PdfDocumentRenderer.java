@@ -20,26 +20,26 @@ import java.nio.charset.StandardCharsets;
 @Spi("pdf")
 public class PdfDocumentRenderer implements DocumentProvider {
 
-    @Override
     /**
      * 获取类型
     */
+    @Override
     public String getType() {
         return "pdf";
     }
 
-    @Override
     /**
      * 获取延伸
     */
+    @Override
     public String[] getExtensions() {
         return new String[]{".pdf"};
     }
 
-    @Override
     /**
      * 导出
     */
+    @Override
     public void export(DocumentData data, File outputFile, DocumentExportConfig config) {
         DocumentExportConfig resolved = config == null
                 ? DocumentExportConfig.builder().format("pdf").templateType(DocumentTemplateType.DEFAULT).build()
@@ -91,7 +91,8 @@ public class PdfDocumentRenderer implements DocumentProvider {
                     log.info("PDF 转换成功: {}", pdfFile.getAbsolutePath());
                     return true;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[pdf] 执行 PDF 转换命令失败: {}", e.getMessage());
             }
         }
         try {
@@ -104,7 +105,8 @@ public class PdfDocumentRenderer implements DocumentProvider {
                 log.info("PDF 转换成功: {}", pdfFile.getAbsolutePath());
                 return true;
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[pdf] 执行 wkhtmltopdf 转换失败: {}", e.getMessage());
         }
         return false;
     }

@@ -82,19 +82,19 @@ public class DingdingMessagePush implements MessagePush {
         this.environment = environment;
     }
 
-    @Override
     /**
      * 获取提供者
     */
+    @Override
     public String getProvider() {
         return "dingding";
     }
 
-    @Override
     /**
      * 发送
      * @param request 请求
      */
+    @Override
     public MessageResponse send(MessageRequest request) throws Exception {
         long start = System.currentTimeMillis();
 
@@ -160,13 +160,13 @@ public class DingdingMessagePush implements MessagePush {
         }
     }
 
-    @Override
     /**
      * 发送Template
      * @param templateId templateid
      * @param to 转为
      * @param params 参数
      */
+    @Override
     public MessageResponse sendTemplate(String templateId, String to, Map<String, String> params) throws Exception {
         MessageRequest request = MessageRequest.builder()
                 .to(to)
@@ -176,19 +176,19 @@ public class DingdingMessagePush implements MessagePush {
         return send(request);
     }
 
-    @Override
     /**
      * 列表templates
     */
+    @Override
     public List<TemplateInfo> listTemplates() {
         return Wraps.list(templates.values());
     }
 
-    @Override
     /**
      * 获取Template
      * @param templateId templateid
      */
+    @Override
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
     }

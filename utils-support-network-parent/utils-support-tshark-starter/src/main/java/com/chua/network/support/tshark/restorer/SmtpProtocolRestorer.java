@@ -10,26 +10,26 @@ package com.chua.network.support.tshark.restorer;
  */
 public class SmtpProtocolRestorer extends EmailProtocolRestorer {
 
-    @Override
     /**
      * 获取协议名称
     */
+    @Override
     public String getProtocolName() {
         return "smtp";
     }
 
-    @Override
     /**
      * 获取Priority
     */
+    @Override
     public int getPriority() {
         return 105;
     }
 
-    @Override
     /**
      * 是否可以Restore
     */
+    @Override
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (!super.canRestore(protocolInfo, rawData)) {
             return false;
@@ -41,10 +41,10 @@ public class SmtpProtocolRestorer extends EmailProtocolRestorer {
                 || text.startsWith("220 ") || text.startsWith("250 ") || text.startsWith("354 ");
     }
 
-    @Override
     /**
      * Restore
     */
+    @Override
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         String text = utf8(rawData).trim();
         if (text.startsWith("220 ") || text.startsWith("250 ") || text.startsWith("354 ")) {

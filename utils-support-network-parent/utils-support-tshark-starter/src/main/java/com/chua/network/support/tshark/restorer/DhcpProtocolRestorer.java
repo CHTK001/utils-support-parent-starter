@@ -10,26 +10,26 @@ package com.chua.network.support.tshark.restorer;
  */
 public class DhcpProtocolRestorer extends AbstractProtocolRestorer {
 
-    @Override
     /**
      * 获取协议名称
     */
+    @Override
     public String getProtocolName() {
         return "dhcp";
     }
 
-    @Override
     /**
      * 获取Priority
     */
+    @Override
     public int getPriority() {
         return 80;
     }
 
-    @Override
     /**
      * 是否可以Restore
     */
+    @Override
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 240) {
             return false;
@@ -42,10 +42,10 @@ public class DhcpProtocolRestorer extends AbstractProtocolRestorer {
         return m1 == 99 && m2 == 130 && m3 == 83 && m4 == 99;
     }
 
-    @Override
     /**
      * Restore
     */
+    @Override
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 240) {
             return "[DHCP] empty";

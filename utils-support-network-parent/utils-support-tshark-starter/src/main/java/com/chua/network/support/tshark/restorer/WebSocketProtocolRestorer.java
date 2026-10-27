@@ -58,26 +58,26 @@ public class WebSocketProtocolRestorer extends AbstractProtocolRestorer {
      */
     private static final int LEN_EXTENDED_64 = 127;
 
-    @Override
     /**
      * 获取协议名称
     */
+    @Override
     public String getProtocolName() {
         return "websocket";
     }
 
-    @Override
     /**
      * 获取Priority
     */
+    @Override
     public int getPriority() {
         return 250;
     }
 
-    @Override
     /**
      * 是否可以Restore
     */
+    @Override
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 2) {
             return false;
@@ -126,10 +126,10 @@ public class WebSocketProtocolRestorer extends AbstractProtocolRestorer {
                 || opcode == OP_CLOSE || opcode == OP_PING || opcode == OP_PONG;
     }
 
-    @Override
     /**
      * Restore
     */
+    @Override
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 2) {
             return "[WebSocket] empty";

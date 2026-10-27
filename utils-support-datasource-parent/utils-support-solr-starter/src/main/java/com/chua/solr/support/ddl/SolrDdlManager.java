@@ -69,13 +69,13 @@ public class SolrDdlManager implements DslManager, EngineAware {
     public SolrDdlManager() {
     }
 
-    @Override
     /**
      * 注入 所属 引擎
      *
      * @param engine 所属 引擎
      * @throws IllegalArgumentException 引擎类型不匹配时抛出
      */
+    @Override
     public void setEngine(Engine engine) {
         if (!(engine instanceof SolrEngine solrEngine)) {
             throw new IllegalArgumentException("SolrDdlManager 需要 SolrEngine，实际为: "
@@ -84,12 +84,12 @@ public class SolrDdlManager implements DslManager, EngineAware {
         this.client = solrEngine.getClient();
     }
 
-    @Override
     /**
      * 校验 必需 参数
      *
      * @throws IllegalStateException 客户端未注入时抛出
      */
+    @Override
     public void requireContext() {
         if (client == null) {
             throw new IllegalStateException("SolrDdlManager 缺少 SolrClient：请通过 Engine#ddl() 获取，"
@@ -98,10 +98,10 @@ public class SolrDdlManager implements DslManager, EngineAware {
     }
 
 
-    @Override
     /**
      * 类型标识
     */
+    @Override
     public String type() {
         return "solr";
     }

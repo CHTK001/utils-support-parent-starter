@@ -185,10 +185,10 @@ public class NatsClient implements AutoCloseable {
                         }
                     })
                     .errorListener(new ErrorListener() {
-                        @Override
                         /**
                          * 记录错误Occurred
                         */
+                        @Override
                         public void errorOccurred(Connection conn, String error) {
                             log.error("NATS 错误: error={}", error);
                         }
@@ -227,7 +227,8 @@ public class NatsClient implements AutoCloseable {
                     } else {
                         sub.coreSubscription.unsubscribe();
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[nats] 取消订阅失败，已忽略: {}", e.getMessage());
                 }
             }
             subscriptions.clear();
@@ -246,10 +247,10 @@ public class NatsClient implements AutoCloseable {
         return this;
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         shutdown();
     }
@@ -1033,7 +1034,8 @@ public class NatsClient implements AutoCloseable {
                     } finally {
                         try {
                             sub.unsubscribe();
-                        } catch (Exception ignored) {
+                        } catch (Exception closeEx) {
+                            log.debug("[nats] 取消订阅失败，已忽略: {}", closeEx.getMessage());
                         }
                     }
                 });

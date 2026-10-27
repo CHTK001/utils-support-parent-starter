@@ -46,18 +46,18 @@ public class SolrSearchEngine implements SearchEngine {
         this.engine = engine;
     }
 
-    @Override
     /**
      * 类型
     */
+    @Override
     public String type() {
         return "solr";
     }
 
-    @Override
     /**
      * 列表索引
     */
+    @Override
     public List<String> listIndexes() {
         SolrClient client = engine.getClient();
         if (client == null) {
@@ -79,10 +79,10 @@ public class SolrSearchEngine implements SearchEngine {
         }
     }
 
-    @Override
     /**
      * 获取索引
     */
+    @Override
     public SearchIndexDef getIndex(String indexName) {
         SolrClient client = engine.getClient();
         if (client == null) {
@@ -113,10 +113,10 @@ public class SolrSearchEngine implements SearchEngine {
         }
     }
 
-    @Override
     /**
      * 创建索引
     */
+    @Override
     public boolean createIndex(SearchIndexDef indexDef) {
         SolrClient client = engine.getClient();
         if (client == null) {
@@ -205,10 +205,10 @@ public class SolrSearchEngine implements SearchEngine {
         throw last;
     }
 
-    @Override
     /**
      * 删除索引
     */
+    @Override
     public boolean deleteIndex(String indexName) {
         SolrClient client = engine.getClient();
         if (client == null) {
@@ -222,10 +222,10 @@ public class SolrSearchEngine implements SearchEngine {
         }
     }
 
-    @Override
     /**
      * 获取客户端
     */
+    @Override
     public Object getClient() {
         return engine.getClient();
     }

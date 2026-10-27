@@ -124,10 +124,10 @@ private static final float[][] ANCHORS = {
         log.info("  -             : {}", NUM_CLASSES);
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         //                         
         imageWidth = input.getWidth();
@@ -158,10 +158,10 @@ private static final float[][] ANCHORS = {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        ");

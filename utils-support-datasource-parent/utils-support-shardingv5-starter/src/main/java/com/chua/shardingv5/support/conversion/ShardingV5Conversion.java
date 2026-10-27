@@ -216,10 +216,10 @@ public class ShardingV5Conversion implements DataSourceConversion {
         return this;
     }
 
-    @Override
     /**
      * 转换
     */
+    @Override
     public DataSource convert(List<DataSource> dataSources, DataSourceEnvironment env) {
         if (dataSources.isEmpty()) {
             throw new IllegalArgumentException("至少需要一个实际数据源");

@@ -25,10 +25,10 @@ public class YamlReadBuilder extends ReadBuilder {
         super(file);
     }
 
-    @Override
     /**
      * with字符集
     */
+    @Override
     public YamlReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;

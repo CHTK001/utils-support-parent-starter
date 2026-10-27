@@ -30,10 +30,10 @@ public class GpuLlama3ChatClient extends AbstractLocalChatClient {
         super("gpu-llama3", setting);
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, String.class, String.class);
     }

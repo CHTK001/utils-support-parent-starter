@@ -64,10 +64,10 @@ public class ShellSession implements Runnable {
         this.registry = registry;
     }
 
-    @Override
     /**
      * 运行
     */
+    @Override
     public void run() {
         try (Socket s = socket;
              BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));

@@ -41,17 +41,16 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
     */
     private volatile org.springframework.core.env.Environment springEnv;
 
-    @Override
     /**
      * 是否支持
      * @param field 字段
      * @param beanDefinition Beandefinition
      */
+    @Override
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         return field != null && field.isAnnotationPresent(Value.class);
     }
 
-    @Override
     /**
      * Inject
      * @param field 字段
@@ -59,6 +58,7 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
      * @param beanDefinition Beandefinition
      * @param environment 环境
      */
+    @Override
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (field == null || bean == null) {
             return null;
@@ -70,12 +70,12 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
         return resolveValue(value.value(), field.getType(), environment);
     }
 
-    @Override
     /**
      * 是否支持
      * @param method 方法
      * @param beanDefinition Beandefinition
      */
+    @Override
     public boolean isSupport(Method method, BeanDefinition beanDefinition) {
         if (method == null) {
             return false;
@@ -88,7 +88,6 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
         return false;
     }
 
-    @Override
     /**
      * Inject
      * @param method 方法
@@ -96,6 +95,7 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
      * @param beanDefinition Beandefinition
      * @param environment 环境
      */
+    @Override
     public Object[] inject(Method method, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (method == null || bean == null) {
             return null;
@@ -132,7 +132,6 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
         return env;
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 解析值
      * @param expression expression
@@ -140,6 +139,7 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
      * @param frameworkEnv 框架env
      * @return resolve值的结果
      */
+    @SuppressWarnings("unchecked")
     private Object resolveValue(String expression, Class<?> targetType, Environment frameworkEnv) {
         if (expression == null) {
             return null;

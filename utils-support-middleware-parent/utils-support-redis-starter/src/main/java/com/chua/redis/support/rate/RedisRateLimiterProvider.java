@@ -67,26 +67,26 @@ public class RedisRateLimiterProvider implements RateLimiterProvider {
         this.rateLimiter.trySetRate(RateType.OVERALL, (long) permitsPerSecond, 1, RateIntervalUnit.SECONDS);
     }
 
-    @Override
     /**
      * 尝试获取
     */
+    @Override
     public boolean tryAcquire() {
         return rateLimiter.tryAcquire();
     }
 
-    @Override
     /**
      * 尝试获取
     */
+    @Override
     public boolean tryAcquire(long timeout, TimeUnit timeUnit) {
         return rateLimiter.tryAcquire(timeout, timeUnit);
     }
 
-    @Override
     /**
      * 获取名称
     */
+    @Override
     public String getName() {
         return name;
     }

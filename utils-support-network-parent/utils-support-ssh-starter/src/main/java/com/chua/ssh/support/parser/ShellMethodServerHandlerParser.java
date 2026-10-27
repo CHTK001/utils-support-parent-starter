@@ -27,18 +27,18 @@ import java.util.*;
 @Spi("shell-method")
 public class ShellMethodServerHandlerParser implements ServerHandlerAnnotationParser {
 
-    @Override
     /**
      * 获取Priority
     */
+    @Override
     public int getPriority() {
         return 0;
     }
 
-    @Override
     /**
      * 解析
     */
+    @Override
     public List<ServerHandler> parse(ObjectContext objectContext, ServerFilter serverFilter) {
         if (!(serverFilter instanceof ShellUrlServerFilter)) {
             return List.of();

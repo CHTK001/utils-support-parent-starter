@@ -129,11 +129,11 @@ public final class ExportResult {
         return elapsed;
     }
 
-    @Override
     /**
      * 转换为字符串
      * @return 字符串 对象
      */
+    @Override
     public String toString() {
         return "ExportResult{format='" + format + "', engine='" + engine + "', rows=" + rows
                 + ", bytes=" + (data == null ? 0 : data.length) + ", templated=" + templated

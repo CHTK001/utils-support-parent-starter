@@ -56,10 +56,10 @@ public class OsnetReidTranslator implements Translator<Image, float[]> {
     */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
         NDArray array = input.toNDArray(manager, Image.Flag.COLOR);
@@ -90,10 +90,10 @@ public class OsnetReidTranslator implements Translator<Image, float[]> {
         return new NDList(array);
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
 
@@ -134,10 +134,10 @@ public class OsnetReidTranslator implements Translator<Image, float[]> {
         return features;
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

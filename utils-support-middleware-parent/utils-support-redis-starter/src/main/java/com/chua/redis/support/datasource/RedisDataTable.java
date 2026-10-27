@@ -137,20 +137,20 @@ public class RedisDataTable implements DataTable {
  // 数据table 接口
     // ---------------------------------------------------------------
 
-    @Override
     /**
      * 获取名称
     */
+    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     /**
      * 获取column名称
      *
      * @return column名称列表
      */
+    @Override
     public List<String> getColumnNames() {
         ensureLoaded();
         return Collections.unmodifiableList(columnNames);
@@ -166,28 +166,28 @@ public class RedisDataTable implements DataTable {
         return Collections.unmodifiableList(columnTypes);
     }
 
-    @Override
     /**
      * 获取数据
     */
+    @Override
     public List<Map<String, Object>> getData() {
         ensureLoaded();
         return Collections.unmodifiableList(rows);
     }
 
-    @Override
     /**
      * 获取Row计算数量
     */
+    @Override
     public long getRowCount() {
         ensureLoaded();
         return rows.size();
     }
 
-    @Override
     /**
      * 转为字符串
     */
+    @Override
     public String toString() {
         return "RedisDataTable{" +
                 "name='" + name + '\'' +

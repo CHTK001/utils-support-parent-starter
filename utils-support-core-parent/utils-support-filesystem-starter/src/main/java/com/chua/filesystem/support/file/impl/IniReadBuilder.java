@@ -35,10 +35,10 @@ public class IniReadBuilder extends ReadBuilder {
         super(file);
     }
 
-    @Override
     /**
      * with字符集
     */
+    @Override
     public IniReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -130,10 +130,10 @@ public class IniReadBuilder extends ReadBuilder {
         return nested.getOrDefault(sectionName, Map.of());
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public Object read() {
         return rows();
     }

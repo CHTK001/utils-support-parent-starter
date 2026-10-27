@@ -77,13 +77,13 @@ public class CompressionAwareModel implements Model {
         this.compressor = ContextCompressor.fromAgent(compressionConfig, fallbackChatClient, ws);
     }
 
-    @Override
     /**
      * 流式输出
      * @param messages 消息
      * @param tools tools
      * @param options 期权
      */
+    @Override
     public Flux<ChatResponse> stream(List<Msg> messages, List<io.agentscope.core.model.ToolSchema> tools,
                                      GenerateOptions options) {
         if (hasToolBlocks(messages)) {
@@ -96,10 +96,10 @@ public class CompressionAwareModel implements Model {
         return delegate.stream(adaptedMessages, tools, options);
     }
 
-    @Override
     /**
      * 获取模型名称
     */
+    @Override
     public String getModelName() {
         return modelName;
     }

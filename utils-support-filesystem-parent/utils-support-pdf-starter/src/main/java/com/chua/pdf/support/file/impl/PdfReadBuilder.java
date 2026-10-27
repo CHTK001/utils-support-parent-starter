@@ -59,10 +59,10 @@ public class PdfReadBuilder extends ReadBuilder {
         return this;
     }
 
-    @Override
     /**
      * with字符集
     */
+    @Override
     public PdfReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -115,10 +115,10 @@ public class PdfReadBuilder extends ReadBuilder {
         return result;
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public Object read() {
         return text();
     }
@@ -152,18 +152,18 @@ public class PdfReadBuilder extends ReadBuilder {
         } catch (IOException e) { return 0; }
     }
 
-    @Override
     /**
      * as线
     */
+    @Override
     public List<String> asLines() {
          return List.of(text().split("\\n")); 
     }
 
-    @Override
     /**
      * as字符串
     */
+    @Override
     public String asString() {
          return text(); 
     }

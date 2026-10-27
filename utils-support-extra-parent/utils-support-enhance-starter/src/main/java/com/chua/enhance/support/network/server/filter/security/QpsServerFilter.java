@@ -49,10 +49,10 @@ public class QpsServerFilter implements ServerFilter {
      */
     private volatile boolean configured;
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(ServerFilterConfig config) throws Exception {
         String max = config.getInitParameter("qps.max");
         if (max != null && !max.isEmpty()) {
@@ -64,18 +64,18 @@ public class QpsServerFilter implements ServerFilter {
         }
     }
 
-    @Override
     /**
      * 是否启用
     */
+    @Override
     public boolean isEnabled() {
         return configured;
     }
 
-    @Override
     /**
      * 执行过滤
     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         long now = System.currentTimeMillis();
         if (now - windowStartTime >= 1000) {
@@ -93,18 +93,18 @@ public class QpsServerFilter implements ServerFilter {
         chain.doFilter(request, response);
     }
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         return 22;
     }
 
-    @Override
     /**
      * 获取过滤标识
     */
+    @Override
     public String getFilterId() {
         return "QpsServerFilter";
     }

@@ -35,18 +35,18 @@ public class ArcFaceFeatureTranslator implements ITranslator<Object, float[]> {
         this.faceEngine = faceEngine;
     }
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "arcface-feature";
     }
 
-    @Override
     /**
      * Translate
     */
+    @Override
     public float[] translate(Object input) {
         BufferedImage image = Converter.convertIfNecessary(input, BufferedImage.class);
         if (image == null || faceEngine == null) {

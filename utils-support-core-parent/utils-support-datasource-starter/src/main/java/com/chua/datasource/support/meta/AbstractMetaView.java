@@ -59,42 +59,42 @@ public abstract class AbstractMetaView implements MetaView {
         this.viewName = viewName;
     }
 
-    @Override
     /**
      * 列表
     */
+    @Override
     public List<ViewDef> list() {
         throw new UnsupportedOperationException("请实现 list() 方法");
     }
 
-    @Override
     /**
      * 获取
     */
+    @Override
     public ViewDef get() {
         throw new UnsupportedOperationException("请实现 get() 方法");
     }
 
-    @Override
     /**
      * 创建
     */
+    @Override
     public ViewCreateBuilder create(String viewName) {
         throw new UnsupportedOperationException("请实现 create() 方法");
     }
 
-    @Override
     /**
      * Alter
     */
+    @Override
     public ViewAlterBuilder alter() {
         throw new UnsupportedOperationException("请实现 alter() 方法");
     }
 
-    @Override
     /**
      * 掉落
     */
+    @Override
     public boolean drop() {
         throw new UnsupportedOperationException("请实现 drop() 方法");
     }

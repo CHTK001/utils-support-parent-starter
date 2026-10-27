@@ -142,10 +142,10 @@ public class PdfWriteBuilder extends WriteBuilder {
         return this;
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public PdfWriteBuilder write(Object data) {
         pending.add(data);
         return this;
@@ -186,10 +186,10 @@ public class PdfWriteBuilder extends WriteBuilder {
         callback.onComplete(true);
     }
 
-    @Override
     /**
      * 饰面
     */
+    @Override
     public void finish() {
         callback.onStart();
         callback.onBeginWrite();

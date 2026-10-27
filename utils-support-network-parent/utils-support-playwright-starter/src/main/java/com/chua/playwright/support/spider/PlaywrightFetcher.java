@@ -71,10 +71,10 @@ public class PlaywrightFetcher implements SpiderFetcher {
         this.browser = browser;
     }
 
-    @Override
     /**
      * 获取
     */
+    @Override
     public SpiderResponse fetch(SpiderRequest request) {
         long startTime = System.currentTimeMillis();
         SpiderResponse.SpiderResponseBuilder builder = SpiderResponse.builder()

@@ -119,10 +119,10 @@ public class SudokuImageFilter extends AbstractImageFilter{
         return new SudokuImageFilter(solid);
     }
 
-    @Override
     /**
      * 过滤
     */
+    @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int smallWidth = width / 3 ;
         int smallHeight = height / 3 ;

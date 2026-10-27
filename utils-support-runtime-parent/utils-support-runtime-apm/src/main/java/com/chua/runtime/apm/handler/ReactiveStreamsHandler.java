@@ -39,52 +39,52 @@ public class ReactiveStreamsHandler extends AbstractAppHandler {
      */
     private static final String[] REQUEST_METHODS = {"request", "cancel"};
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "reactive-streams-handler";
     }
 
-    @Override
     /**
      * 已启用键
     */
+    @Override
     protected String enabledKey() {
         return "reactive-streams.enabled";
     }
 
-    @Override
     /**
      * Software
     */
+    @Override
     protected Software software() {
         return Software.REACTIVE_STREAMS;
     }
 
-    @Override
     /**
      * 协议
     */
+    @Override
     protected Protocol protocol() {
         return Protocol.MESSAGE;
     }
 
-    @Override
     /**
      * 注册拦截器
     */
+    @Override
     protected void registerInterceptors() {
         registerAll(PUBLISHER, SUBSCRIBE_METHODS);
         registerAll(SUBSCRIBER, ON_METHODS);
         registerAll(SUBSCRIPTION, REQUEST_METHODS);
     }
 
-    @Override
     /**
      * 构建Target
     */
+    @Override
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

@@ -18,26 +18,26 @@ import com.chua.common.support.spi.annotations.Spi;
 @Spi("com.chua.common.support.concurrent.lock.annotation.DistributedLock")
 public class DistributedLockIntercept implements MethodAnnotationIntercept<DistributedLock> {
 
-    @Override
     /**
      * 注解类型
     */
+    @Override
     public Class<DistributedLock> annotationType() {
         return DistributedLock.class;
     }
 
-    @Override
     /**
      * 订单
     */
+    @Override
     public int order() {
         return 100;
     }
 
-    @Override
     /**
      * Intercept
     */
+    @Override
     public Object intercept(DistributedLock annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
         return LockFlow.of(annotation.name())
                 .lockType(annotation.lockType())

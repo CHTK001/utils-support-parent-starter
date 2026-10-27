@@ -26,14 +26,14 @@ public class SubtitleSearchRequest {
      * 语言
     */
     private String language;
-    @Builder.Default
     /**
      * 页
     */
-    private int page = 1;
     @Builder.Default
+    private int page = 1;
     /**
      * 每页大小
     */
+    @Builder.Default
     private int pageSize = 10;
 }

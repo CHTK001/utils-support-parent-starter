@@ -32,30 +32,30 @@ import java.io.File;
 @Spi({"yaml", "yml"})
 public class YamlFileSystem implements FileSystem {
 
-    @Override
     /**
      * 获取类型
     */
+    @Override
     public String getType() {
         
         return "yaml";
     
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public ReadBuilder read(File file) {
         
         return new YamlReadBuilder(file);
     
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public WriteBuilder write(File file) {
         
         return new YamlWriteBuilder(file);

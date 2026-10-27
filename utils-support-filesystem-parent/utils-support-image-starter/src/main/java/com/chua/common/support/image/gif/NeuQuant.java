@@ -2,6 +2,7 @@ package com.chua.common.support.image.gif;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 基于 Anthony Dekker 神经网络的颜色量化实现。
@@ -13,6 +14,7 @@ import javax.annotation.Nullable;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class NeuQuant {
 
     /**
@@ -542,7 +544,8 @@ public class NeuQuant {
                     p[0] -= (a * (p[0] - b)) / ALPHARADBIAS;
                     p[1] -= (a * (p[1] - g)) / ALPHARADBIAS;
                     p[2] -= (a * (p[2] - r)) / ALPHARADBIAS;
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[image] 调整神经元失败: {}", e.getMessage());
                 }
             }
             if (k > lo) {
@@ -551,7 +554,8 @@ public class NeuQuant {
                     p[0] -= (a * (p[0] - b)) / ALPHARADBIAS;
                     p[1] -= (a * (p[1] - g)) / ALPHARADBIAS;
                     p[2] -= (a * (p[2] - r)) / ALPHARADBIAS;
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[image] 调整神经元失败: {}", e.getMessage());
                 }
             }
         }

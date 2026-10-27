@@ -127,10 +127,10 @@ public class ImageReaderFileSystem extends AbstractReader {
         }
     }
 
-    @Override
     /**
      * 获取类型
     */
+    @Override
     public String getType() {
         if (file == null) {
             return DEFAULT_TYPE;
@@ -159,10 +159,10 @@ public class ImageReaderFileSystem extends AbstractReader {
         return supportedExtensions.stream().anyMatch(fileName::endsWith);
     }
 
-    @Override
     /**
      * with文件
     */
+    @Override
     public ImageReaderFileSystem withFile(File file) {
         super.withFile(file);
         return this;
@@ -179,10 +179,10 @@ public class ImageReaderFileSystem extends AbstractReader {
         return lastDot > 0 ? fileName.substring(lastDot) : "";
     }
 
-    @Override
     /**
      * 执行读取映射
     */
+    @Override
     protected List<Map<String, Object>> doReadMaps() throws IOException {
         if (file == null) {
             throw new IOException("文件对象为null");

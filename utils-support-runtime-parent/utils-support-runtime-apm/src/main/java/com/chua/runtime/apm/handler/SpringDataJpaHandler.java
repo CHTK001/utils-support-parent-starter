@@ -23,50 +23,50 @@ public class SpringDataJpaHandler extends AbstractAppHandler {
      */
     private static final String[] REPOSITORY_METHODS = {"save", "findById", "findAll", "deleteById", "count"};
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "spring-data-jpa-handler";
     }
 
-    @Override
     /**
      * 已启用键
     */
+    @Override
     protected String enabledKey() {
         return "spring-data-jpa.enabled";
     }
 
-    @Override
     /**
      * Software
     */
+    @Override
     protected Software software() {
         return Software.SPRING_DATA_JPA;
     }
 
-    @Override
     /**
      * 协议
     */
+    @Override
     protected Protocol protocol() {
         return Protocol.SQL;
     }
 
-    @Override
     /**
      * 注册拦截器
     */
+    @Override
     protected void registerInterceptors() {
         registerAll(JPA_REPOSITORY, REPOSITORY_METHODS);
     }
 
-    @Override
     /**
      * 构建Target
     */
+    @Override
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

@@ -53,10 +53,10 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
         this.excludeExtensions = buildExcludeExtensions();
     }
 
-    @Override
     /**
      * Capabilities
     */
+    @Override
     public List<String> capabilities() {
         return List.of(
                 "size", "resize",
@@ -72,18 +72,18 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
         );
     }
 
-    @Override
     /**
      * 获取过滤Chain
     */
+    @Override
     public List<FileStorageFilterSetting.ImageFilterConfig> getFilterChain() {
         return filterChain;
     }
 
-    @Override
     /**
      * 是否Excluded
     */
+    @Override
     public boolean isExcluded(String path, String extension) {
         if (extension != null && excludeExtensions.contains(extension.toLowerCase())) {
             return true;

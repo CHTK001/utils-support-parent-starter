@@ -222,10 +222,10 @@ public class SqliteStorage implements ApmStorage {
      */
     private volatile long lastMaintenanceTime;
 
-    @Override
     /**
      * 开始
      */
+    @Override
     public void start(StorageConfig config) {
         this.dbPath = config.get(KEY_PATH, DEFAULT_DB_PATH);
         this.retentionMillis = config.getLong(KEY_RETENTION_MS, DEFAULT_RETENTION_MS);
@@ -324,10 +324,10 @@ public class SqliteStorage implements ApmStorage {
         }
     }
 
-    @Override
     /**
      * 停止
      */
+    @Override
     public void stop() {
         // 先停自维护，避免它和关闭流程同时操作连接
         stopMaintenance();
@@ -354,10 +354,10 @@ public class SqliteStorage implements ApmStorage {
         }
     }
 
-    @Override
     /**
      * 追加Transmission
      */
+    @Override
     public void appendTransmission(TransmissionEvent event) {
         if (event == null) {
             return;
@@ -400,10 +400,10 @@ public class SqliteStorage implements ApmStorage {
         executeWrite(sql, "写入传输记录失败");
     }
 
-    @Override
     /**
      * 追加Dependency
      */
+    @Override
     public void appendDependency(DependencyEdge edge) {
         if (edge == null || edge.getSource() == null || edge.getTarget() == null) {
             return;
@@ -467,10 +467,10 @@ public class SqliteStorage implements ApmStorage {
         session.execute(sql);
     }
 
-    @Override
     /**
      * 追加Leak
      */
+    @Override
     public void appendLeak(LeakRecord record) {
         if (record == null) {
             return;
@@ -489,10 +489,10 @@ public class SqliteStorage implements ApmStorage {
         executeWrite(sql, "写入泄漏记录失败");
     }
 
-    @Override
     /**
      * 追加记录日志
      */
+    @Override
     public void appendLog(LogRecord record) {
         if (record == null) {
             return;
@@ -511,10 +511,10 @@ public class SqliteStorage implements ApmStorage {
         executeWrite(sql, "写入日志记录失败");
     }
 
-    @Override
     /**
      * 查询Transmissions
      */
+    @Override
     public List<TransmissionEvent> queryTransmissions(Query query) {
         StringBuilder sql = new StringBuilder("SELECT ")
                 .append(StringList.join(TRANSMISSION_COLUMNS)).append(" FROM transmissions WHERE 1=1");
@@ -546,10 +546,10 @@ public class SqliteStorage implements ApmStorage {
         return result;
     }
 
-    @Override
     /**
      * 查询Dependencies
      */
+    @Override
     public List<DependencyEdge> queryDependencies(Query query) {
         List<DependencyEdge> result = Wraps.list();
         SqliteSession s = session;
@@ -567,10 +567,10 @@ public class SqliteStorage implements ApmStorage {
         return result;
     }
 
-    @Override
     /**
      * 查询Leaks
      */
+    @Override
     public List<LeakRecord> queryLeaks(Query query) {
         StringBuilder sql = new StringBuilder("SELECT ")
                 .append(StringList.join(LEAK_COLUMNS)).append(" FROM leaks WHERE 1=1");
@@ -602,10 +602,10 @@ public class SqliteStorage implements ApmStorage {
         return result;
     }
 
-    @Override
     /**
      * 查询日志
      */
+    @Override
     public List<LogRecord> queryLogs(Query query) {
         StringBuilder sql = new StringBuilder("SELECT ")
                 .append(StringList.join(LOG_COLUMNS)).append(" FROM logs WHERE 1=1");
@@ -638,10 +638,10 @@ public class SqliteStorage implements ApmStorage {
         return result;
     }
 
-    @Override
     /**
      * Stats
      */
+    @Override
     public Map<String, Long> stats() {
         Map<String, Long> result = Wraps.map();
         // 异步模式下先排空队列，否则「刚写完就读」会读到尚未落盘的旧数字
@@ -782,10 +782,10 @@ public class SqliteStorage implements ApmStorage {
         }
     }
 
-    @Override
     /**
      * Cleanup
      */
+    @Override
     public long cleanup(long retentionMillis) {
         final long cutoff = System.currentTimeMillis() - retentionMillis;
         final AtomicLong removed = new AtomicLong(0L);
@@ -823,13 +823,13 @@ public class SqliteStorage implements ApmStorage {
         return removed.get();
     }
 
-    @Override
     /**
      * 刷新写队列
      *
      * @param timeoutMillis 最长等待时间
      * @return 是否在超时前排空
      */
+    @Override
     public boolean flush(long timeoutMillis) {
         SqliteWriteQueue q = queue;
         if (q == null) {
@@ -871,31 +871,31 @@ public class SqliteStorage implements ApmStorage {
         }
     }
 
-    @Override
     /**
      * 名称
      */
+    @Override
     public String name() {
         return "sqlite";
     }
 
-    @Override
     /**
      * 运行状态
      *
      * @return 运行中返回 true
      */
+    @Override
     public boolean available() {
         SqliteSession s = session;
         return s != null && s.isOpen();
     }
 
-    @Override
     /**
      * 运行时状态（运维自检用）
      *
      * @return 状态映射
      */
+    @Override
     public Map<String, Object> describe() {
         Map<String, Object> state = new java.util.LinkedHashMap<>();
         state.put("type", name());

@@ -48,52 +48,52 @@ public class H2Handler extends AbstractAppHandler {
      */
     private static final String[] CONNECTION_METHODS = {"prepareStatement", "prepareCall", "createStatement"};
 
-    @Override
     /**
      * 名称
     */
+    @Override
     public String name() {
         return "h2-handler";
     }
 
-    @Override
     /**
      * 已启用键
     */
+    @Override
     protected String enabledKey() {
         return "h2.enabled";
     }
 
-    @Override
     /**
      * Software
     */
+    @Override
     protected Software software() {
         return Software.H2_DRIVER;
     }
 
-    @Override
     /**
      * 协议
     */
+    @Override
     protected Protocol protocol() {
         return Protocol.H2;
     }
 
-    @Override
     /**
      * 注册拦截器
     */
+    @Override
     protected void registerInterceptors() {
         registerAllEntryExit(H2_STATEMENT_CLASS, SQL_METHODS);
         registerAllEntryExit(H2_PREPARED_STATEMENT_CLASS, SQL_METHODS);
         registerAllEntryExit(H2_CONNECTION_CLASS, CONNECTION_METHODS);
     }
 
-    @Override
     /**
      * 构建Target
     */
+    @Override
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object conn = resolveConnection(instance);
         String url = conn != null ? String.valueOf(findField(conn, "url")) : null;

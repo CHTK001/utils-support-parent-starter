@@ -140,9 +140,6 @@ class DefaultImageGenerator implements ImageGenerator {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /**
-     * 设置
-    */
     private final ModelSetting setting;
 
     /**
@@ -174,32 +171,32 @@ class DefaultImageGenerator implements ImageGenerator {
         }
     }
 
-    @Override
     /**
      * 模型路径
     */
+    @Override
     public ImageGenerator modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
-    @Override
     /**
      * Device
     */
+    @Override
     public ImageGenerator device(String device) {
         this.device = device;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * Generate
      *
      * @param classId 类标识
      * @return generate的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public byte[] generate(long classId) {
         ITranslator<Long, byte[]> t =
                 (ITranslator<Long, byte[]>) engine.get(modelName, ITranslator.class);

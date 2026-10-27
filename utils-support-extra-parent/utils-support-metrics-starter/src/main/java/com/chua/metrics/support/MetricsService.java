@@ -76,18 +76,18 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
         super.start(environment, null);
     }
 
-    @Override
     /**
      * 是否delegatedoperating系统
     */
+    @Override
     public boolean isDelegatedOperatingSystem() {
         return false;
     }
 
-    @Override
     /**
      * 列表和modified
     */
+    @Override
     protected List<SnapshotWrapper> listAndModified(String path) {
         String json = nativeLib.poll();
         if (json == null || json.isEmpty()) {
@@ -108,18 +108,18 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
         return list;
     }
 
-    @Override
     /**
      * 获取文件名
     */
+    @Override
     protected String getFileName(SnapshotWrapper item) {
         return String.valueOf(item.getTimestamp());
     }
 
-    @Override
     /**
      * 获取Modified
     */
+    @Override
     protected Long getModified(SnapshotWrapper item) {
         return item.getTimestamp();
     }
@@ -137,10 +137,10 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
         return dataList.getFirst().getSnapshot();
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         if (nativeLib != null) {
             nativeLib.close();

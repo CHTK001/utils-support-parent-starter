@@ -79,26 +79,26 @@ public class VertxHttpServer extends AbstractServer {
         super(setting);
     }
 
-    @Override
     /**
      * 支持reactor
     */
+    @Override
     public boolean supportsReactor() {
         return true;
     }
 
-    @Override
     /**
      * 获取协议类型
     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }
 
-    @Override
     /**
      * 执行开始
     */
+    @Override
     protected void doStart() {
         this.reactive = setting.isReactor();
         int eventLoopPoolSize = Math.max(Runtime.getRuntime().availableProcessors(), 2);
@@ -543,10 +543,10 @@ public class VertxHttpServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * 执行停止
     */
+    @Override
     protected void doStop() {
         if (server != null) {
             try {
@@ -619,10 +619,10 @@ public class VertxHttpServer extends AbstractServer {
             this.ctx = ctx;
         }
 
-        @Override
         /**
          * 设置状态
         */
+        @Override
         public ServerResponse setStatus(int code) {
             if (!committed) {
                 this.status = code;
@@ -630,18 +630,18 @@ public class VertxHttpServer extends AbstractServer {
             return this;
         }
 
-        @Override
         /**
          * 获取状态
         */
+        @Override
         public int getStatus() {
             return status;
         }
 
-        @Override
         /**
          * 设置头部
         */
+        @Override
         public ServerResponse setHeader(String name, String value) {
             if (!committed) {
                 headers.put(name, value);
@@ -649,45 +649,45 @@ public class VertxHttpServer extends AbstractServer {
             return this;
         }
 
-        @Override
         /**
          * 获取头部
         */
+        @Override
         public String getHeader(String name) {
             return headers.get(name);
         }
 
-        @Override
         /**
          * 获取头部
         */
+        @Override
         public HttpHeader getHeaders() {
             HttpHeader h = HttpHeader.create();
             headers.forEach(h::add);
             return h;
         }
 
-        @Override
         /**
          * 设置内容类型
         */
+        @Override
         public ServerResponse setContentType(String ct) {
             this.contentType = ct;
             return this;
         }
 
-        @Override
         /**
          * 获取内容类型
         */
+        @Override
         public String getContentType() {
             return contentType;
         }
 
-        @Override
         /**
          * 设置主体
         */
+        @Override
         public ServerResponse setBody(byte[] b) {
             if (!committed) {
                 this.body = b;
@@ -695,10 +695,10 @@ public class VertxHttpServer extends AbstractServer {
             return this;
         }
 
-        @Override
         /**
          * 设置主体
         */
+        @Override
         public ServerResponse setBody(String b) {
             if (!committed) {
                 this.body = b != null ? b.getBytes(StandardCharsets.UTF_8) : null;
@@ -706,18 +706,18 @@ public class VertxHttpServer extends AbstractServer {
             return this;
         }
 
-        @Override
         /**
          * 获取主体
         */
+        @Override
         public byte[] getBody() {
             return body;
         }
 
-        @Override
         /**
          * 获取输出流
         */
+        @Override
         public OutputStream getOutputStream() {
             if (outStream == null) {
                 outStream = new java.io.ByteArrayOutputStream();
@@ -725,27 +725,27 @@ public class VertxHttpServer extends AbstractServer {
             return outStream;
         }
 
-        @Override
         /**
          * 设置结果
         */
+        @Override
         public ServerResponse setResult(Object result) {
             this.result = result;
             return this;
         }
 
-        @Override
         /**
          * 获取结果
         */
+        @Override
         public Object getResult() {
             return result;
         }
 
-        @Override
         /**
          * 发送Redirect
         */
+        @Override
         public ServerResponse sendRedirect(String location) {
             setStatus(302);
             headers.put("Location", location);
@@ -754,10 +754,10 @@ public class VertxHttpServer extends AbstractServer {
             return this;
         }
 
-        @Override
         /**
          * 发送记录错误
         */
+        @Override
         public ServerResponse sendError(int code, String msg) {
             if (ended) {
                 return this;
@@ -769,33 +769,33 @@ public class VertxHttpServer extends AbstractServer {
             return this;
         }
 
-        @Override
         /**
          * 刷新
         */
+        @Override
         public void flush() {
         }
 
-        @Override
         /**
          * 是否Committed
         */
+        @Override
         public boolean isCommitted() {
             return committed;
         }
 
-        @Override
         /**
          * 是否结束
         */
+        @Override
         public boolean isEnded() {
             return ended;
         }
 
-        @Override
         /**
          * 结束
         */
+        @Override
         public void end() {
             if (ended) {
                 return;
@@ -803,10 +803,10 @@ public class VertxHttpServer extends AbstractServer {
             ended = true;
         }
 
-        @Override
         /**
          * 重置
         */
+        @Override
         public ServerResponse reset() {
             if (!committed) {
                 status = 200;
@@ -818,10 +818,10 @@ public class VertxHttpServer extends AbstractServer {
             return this;
         }
 
-        @Override
         /**
          * 写入Raw
         */
+        @Override
         public void writeRaw(byte[] bytes) {
             if (committed) {
                 return;
@@ -829,10 +829,10 @@ public class VertxHttpServer extends AbstractServer {
             ctx.response().write(Buffer.buffer(bytes));
         }
 
-        @Override
         /**
          * Sse
         */
+        @Override
         public ServerResponse sse() {
             this.sseMode = true;
             setContentType("text/event-stream; charset=utf-8");
@@ -854,10 +854,10 @@ public class VertxHttpServer extends AbstractServer {
             return this;
         }
 
-        @Override
         /**
          * sse事件
         */
+        @Override
         public void sseEvent(String event, String data) {
             if (!sseMode) {
                 return;
@@ -875,10 +875,10 @@ public class VertxHttpServer extends AbstractServer {
             ctx.response().write(Buffer.buffer(sb.toString(), StandardCharsets.UTF_8.name()));
         }
 
-        @Override
         /**
          * Sse关闭
         */
+        @Override
         public void sseClose() {
             sseEvent(null, "[DONE]");
             this.ended = true;
@@ -947,150 +947,150 @@ public class VertxHttpServer extends AbstractServer {
             }
         }
 
-        @Override
         /**
          * 获取Uri
         */
+        @Override
         public String getUri() {
             return ctx.request().uri();
         }
 
-        @Override
         /**
          * 获取路径
         */
+        @Override
         public String getPath() {
             return ctx.request().path();
         }
 
-        @Override
         /**
          * 获取方法
         */
+        @Override
         public HttpMethod getMethod() {
             return HttpMethod.valueOf(ctx.request().method().name());
         }
 
-        @Override
         /**
          * 获取头部
         */
+        @Override
         public String getHeader(String name) {
             return ctx.request().getHeader(name);
         }
 
-        @Override
         /**
          * 获取头部
         */
+        @Override
         public HttpHeader getHeaders() {
             HttpHeader h = HttpHeader.create();
             ctx.request().headers().forEach(e -> h.add(e.getKey(), e.getValue()));
             return h;
         }
 
-        @Override
         /**
          * 获取参数
         */
+        @Override
         public Map<String, String> getParams() {
             Map<String, String> params = Wraps.map();
             ctx.request().params().forEach(e -> params.put(e.getKey(), e.getValue()));
             return params;
         }
 
-        @Override
         /**
          * 获取参数
         */
+        @Override
         public String getParam(String name) {
             return ctx.request().getParam(name);
         }
 
-        @Override
         /**
          * 获取内容类型
         */
+        @Override
         public String getContentType() {
             return ctx.request().getHeader("Content-Type");
         }
 
-        @Override
         /**
          * 获取内容获取长度
         */
+        @Override
         public long getContentLength() {
             return bodyBytes != null ? bodyBytes.length : 0;
         }
 
-        @Override
         /**
          * 获取主体
         */
+        @Override
         public byte[] getBody() {
             return bodyBytes;
         }
 
-        @Override
         /**
          * 获取主体字符串
         */
+        @Override
         public String getBodyString() {
             return bodyBytes != null ? new String(bodyBytes, StandardCharsets.UTF_8) : "";
         }
 
-        @Override
         /**
          * 获取输入流
         */
+        @Override
         public InputStream getInputStream() {
             return new java.io.ByteArrayInputStream(getBody());
         }
 
-        @Override
         /**
          * 获取远程地址
         */
+        @Override
         public String getRemoteAddress() {
             return ctx.request().remoteAddress().host();
         }
 
-        @Override
         /**
          * 获取远程端口
         */
+        @Override
         public int getRemotePort() {
             return ctx.request().remoteAddress().port();
         }
 
-        @Override
         /**
          * 获取Attributes
         */
+        @Override
         public Map<String, Object> getAttributes() {
             return attributes;
         }
 
-        @Override
         /**
          * 获取Attribute
         */
+        @Override
         public Object getAttribute(String name) {
             return attributes.get(name);
         }
 
-        @Override
         /**
          * 设置Attribute
         */
+        @Override
         public void setAttribute(String name, Object value) {
             attributes.put(name, value);
         }
 
-        @Override
         /**
          * 获取form数据
         */
+        @Override
         public Map<String, String> getFormData() {
             Map<String, String> form = Wraps.linkedMap();
             var req = ctx.request();
@@ -1100,10 +1100,10 @@ public class VertxHttpServer extends AbstractServer {
             return form;
         }
 
-        @Override
         /**
          * 获取文件
         */
+        @Override
         public List<FormFile> getFiles() {
             List<io.vertx.ext.web.FileUpload> uploads = ctx.fileUploads();
             log.debug("[VF] ct={} uploads={} bodyLen={}",

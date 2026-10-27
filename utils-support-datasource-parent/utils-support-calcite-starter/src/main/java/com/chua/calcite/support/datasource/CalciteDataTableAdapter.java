@@ -97,10 +97,10 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         this.filterable = dataTable instanceof SourceDataTable;
     }
 
-    @Override
     /**
      * 获取row类型
     */
+    @Override
     public RelDataType getRowType(RelDataTypeFactory typeFactory) {
         if (rowType == null) {
             List<String> names = dataTable.getColumnNames();
@@ -119,8 +119,6 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
  // 过滤器table — 条件下推读取
     // ---------------------------------------------------------------
 
-    @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
     /**
      * 扫描
      *
@@ -128,6 +126,8 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
      * @param filters 过滤器
      * @return 扫描的结果
      */
+    @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public Enumerable<Object[]> scan(DataContext root, List<RexNode> filters) {
         if (filterable && CollectionUtils.isNotEmpty(filters)) {
             SourceDataTable source = (SourceDataTable) dataTable;
@@ -555,15 +555,14 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
             super(dataTable);
         }
 
-        @Override
         /**
          * 获取modifiable集合
         */
+        @Override
         public Collection getModifiableCollection() {
             return new ObjectArrayMutableCollection(dataTable);
         }
 
-        @Override
         /**
          * 转为修改rel
          * @param cluster cluster
@@ -620,6 +619,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
          * @param true true
          * @param data 数据
          */
+        @Override
         public TableModify toModificationRel(
                 RelOptCluster cluster,
                 RelOptTable table,
@@ -634,8 +634,6 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
                     updateColumnList, sourceExpressionList, flattened);
         }
 
-        @Override
-        @SuppressWarnings("unchecked")
         /**
          * as查询
          *
@@ -644,13 +642,15 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
          * @param tableName table名称
          * @return as查询的结果
          */
+        @Override
+        @SuppressWarnings("unchecked")
         public <T> Queryable<T> asQueryable(QueryProvider queryProvider, SchemaPlus schema, String tableName) {
             final DataTable source = this.dataTable;
             return new AbstractTableQueryable<T>(queryProvider, schema, this, tableName) {
-                @Override
                 /**
                  * Enumerator
                 */
+                @Override
                 public Enumerator<T> enumerator() {
                     List<String> names = source.getColumnNames();
                     List<Object[]> rows = Wraps.list();
@@ -666,18 +666,18 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
             };
         }
 
-        @Override
         /**
          * 获取element类型
         */
+        @Override
         public Type getElementType() {
             return Object[].class;
         }
 
-        @Override
         /**
          * 获取Expression
         */
+        @Override
         public Expression getExpression(SchemaPlus schema, String tableName, Class clazz) {
  // 第 4 参必须是调用方传入的 clazz（查询/Enumerable），不能写死 对象[]
             return Schemas.tableExpression(schema, getElementType(), tableName, clazz);
@@ -718,55 +718,55 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
             }
         }
 
-        @Override
         /**
          * 获取
         */
+        @Override
         public Object get(int index) {
             return rows.get(index).values;
         }
 
-        @Override
         /**
          * 获取大小
         */
+        @Override
         public int size() {
             return rows.size();
         }
 
-        @Override
         /**
          * 添加
         */
+        @Override
         public boolean add(Object element) {
             rows.add(toRow(element));
             flush();
             return true;
         }
 
-        @Override
         /**
          * 添加
         */
+        @Override
         public void add(int index, Object element) {
             rows.add(index, toRow(element));
             flush();
         }
 
-        @Override
         /**
          * 移除
         */
+        @Override
         public Object remove(int index) {
             Row removed = rows.remove(index);
             flush();
             return removed.values;
         }
 
-        @Override
         /**
          * 移除
         */
+        @Override
         public boolean remove(Object o) {
             boolean ok = rows.remove(toRow(o));
             if (ok) {
@@ -775,10 +775,10 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
             return ok;
         }
 
-        @Override
         /**
          * 移除全部
         */
+        @Override
         public boolean removeAll(Collection<?> c) {
             boolean changed = false;
             for (Object o : c) {
@@ -792,20 +792,20 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
             return changed;
         }
 
-        @Override
         /**
          * 设置
         */
+        @Override
         public Object set(int index, Object element) {
             Row old = rows.set(index, toRow(element));
             flush();
             return old.values;
         }
 
-        @Override
         /**
          * Clear
         */
+        @Override
         public void clear() {
             rows.clear();
             flush();
@@ -861,10 +861,10 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
             this.values = values != null ? values : new Object[0];
         }
 
-        @Override
         /**
          * 判断相等
         */
+        @Override
         public boolean equals(Object o) {
             if (this == o) {
                 return true;
@@ -875,10 +875,10 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
             return Arrays.equals(values, other.values);
         }
 
-        @Override
         /**
          * 哈希编码
         */
+        @Override
         public int hashCode() {
             return Arrays.hashCode(values);
         }

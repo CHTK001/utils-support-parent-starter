@@ -32,10 +32,10 @@ public class WordTextExtractor implements TextExtractor {
     private static final String[] HEADING_STYLES = {"Heading1", "Heading2", "Heading3",
             "Heading4", "Heading5", "Heading6", "heading1", "heading2", "heading3"};
 
-    @Override
     /**
      * extract文本
     */
+    @Override
     public List<TextExtractResult> extractText(File file) {
         List<TextExtractResult> results = Wraps.list();
         String currentSection = "";
@@ -113,10 +113,10 @@ public class WordTextExtractor implements TextExtractor {
         return false;
     }
 
-    @Override
     /**
      * 类型
     */
+    @Override
     public String type() {
         return "docx";
     }

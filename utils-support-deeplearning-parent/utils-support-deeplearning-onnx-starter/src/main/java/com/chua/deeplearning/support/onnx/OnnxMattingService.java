@@ -21,10 +21,10 @@ public class OnnxMattingService implements MattingService {
     public OnnxMattingService(String apiKey) {
     }
 
-    @Override
     /**
      * 模型
     */
+    @Override
     public MattingService model(String model) {
         this.modelName = model;
         return this;
@@ -43,10 +43,10 @@ public class OnnxMattingService implements MattingService {
         return modelName;
     }
 
-    @Override
     /**
      * Matte
     */
+    @Override
     public byte[] matte(byte[] imageData) {
         return MattingService.create(resolveModel()).matte(imageData);
     }

@@ -53,10 +53,10 @@ public class CorsServerFilter implements ServerFilter {
      */
     private volatile boolean configured;
 
-    @Override
     /**
      * 初始化
     */
+    @Override
     public void init(ServerFilterConfig config) throws Exception {
         String origin = config.getInitParameter("cors.allowOrigin");
         String methods = config.getInitParameter("cors.allowMethods");
@@ -82,10 +82,10 @@ public class CorsServerFilter implements ServerFilter {
         }
     }
 
-    @Override
     /**
      * 是否启用
     */
+    @Override
     public boolean isEnabled() {
         return configured;
     }
@@ -100,10 +100,10 @@ public class CorsServerFilter implements ServerFilter {
         return value != null && !value.isEmpty();
     }
 
-    @Override
     /**
      * 执行过滤
     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         response.setHeader("Access-Control-Allow-Origin", allowOrigin);
         response.setHeader("Access-Control-Allow-Methods", allowMethods);
@@ -120,26 +120,26 @@ public class CorsServerFilter implements ServerFilter {
         chain.doFilter(request, response);
     }
 
-    @Override
     /**
      * 获取订单
     */
+    @Override
     public int getOrder() {
         return 5;
     }
 
-    @Override
     /**
      * 获取过滤标识
     */
+    @Override
     public String getFilterId() {
         return "CorsServerFilter";
     }
 
-    @Override
     /**
      * 支持协议
     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }

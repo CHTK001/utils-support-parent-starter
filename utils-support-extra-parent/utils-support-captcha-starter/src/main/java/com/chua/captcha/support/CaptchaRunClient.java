@@ -75,10 +75,10 @@ public class CaptchaRunClient implements CaptchaParser {
         return this;
     }
 
-    @Override
     /**
      * 提交Captcha
     */
+    @Override
     public String submitCaptcha(byte[] imageData, Map<String, String> options) {
         Map<String, String> opts = options == null ? Map.of() : options;
         String captchaType = opts.getOrDefault("captchaType", CaptchaType.RECAPTCHA_V2.getType());
@@ -120,10 +120,10 @@ public class CaptchaRunClient implements CaptchaParser {
         return createTask(body);
     }
 
-    @Override
     /**
      * 查询结果
     */
+    @Override
     public CaptchaResponse queryResult(String taskId) {
         if (taskPersistence != null) {
             var cached = taskPersistence.query(taskId);
@@ -151,12 +151,12 @@ public class CaptchaRunClient implements CaptchaParser {
         return java.util.Collections.emptyMap();
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 获取Balance
      *
      * @return 获取balance的结果
      */
+    @SuppressWarnings("unchecked")
     public double getBalance() {
         try {
             String json = doGet("/v2/users/self/wallet");

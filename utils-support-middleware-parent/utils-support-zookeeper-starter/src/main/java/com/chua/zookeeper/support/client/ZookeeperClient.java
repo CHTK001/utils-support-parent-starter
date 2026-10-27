@@ -185,10 +185,10 @@ public class ZookeeperClient implements AutoCloseable {
         return new GetChildrenBuilder(curator);
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
         if (curator != null) {
             curator.close();

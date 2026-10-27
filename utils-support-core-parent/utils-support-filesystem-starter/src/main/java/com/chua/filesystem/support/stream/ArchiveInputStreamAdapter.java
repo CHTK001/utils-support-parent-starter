@@ -31,13 +31,13 @@ public class ArchiveInputStreamAdapter implements ArchiveInputStream {
         this.delegate = delegate;
     }
 
-    @Override
-    @Nullable
     /**
      * 获取下一个entry
      *
      * @return 获取下一个entry的结果
      */
+    @Override
+    @Nullable
     public ArchiveEntry getNextEntry() throws IOException {
         var entry = delegate.getNextEntry();
         if (entry == null) {
@@ -46,74 +46,74 @@ public class ArchiveInputStreamAdapter implements ArchiveInputStream {
         return new ArchiveEntryAdapter(entry);
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public int read() throws IOException {
         return delegate.read();
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public int read(byte[] b) throws IOException {
         return delegate.read(b);
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public int read(byte[] b, int off, int len) throws IOException {
         return delegate.read(b, off, len);
     }
 
-    @Override
     /**
      * 跳过
     */
+    @Override
     public long skip(long n) throws IOException {
         return delegate.skip(n);
     }
 
-    @Override
     /**
      * 可用
     */
+    @Override
     public int available() throws IOException {
         return delegate.available();
     }
 
-    @Override
     /**
      * 标记
     */
+    @Override
     public void mark(int readlimit) {
         delegate.mark(readlimit);
     }
 
-    @Override
     /**
      * 重置
     */
+    @Override
     public void reset() throws IOException {
         delegate.reset();
     }
 
-    @Override
     /**
      * 标记支持
     */
+    @Override
     public boolean markSupported() {
         return delegate.markSupported();
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() throws IOException {
         delegate.close();
     }

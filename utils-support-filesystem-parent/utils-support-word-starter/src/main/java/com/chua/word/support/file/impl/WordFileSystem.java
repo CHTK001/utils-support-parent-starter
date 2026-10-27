@@ -30,30 +30,30 @@ import java.io.File;
 @Spi({"docx", "doc"})
 public class WordFileSystem implements FileSystem {
 
-    @Override
     /**
      * 获取Type
     */
+    @Override
     public String getType() {
         
         return "docx";
     
     }
 
-    @Override
     /**
      * 读取
     */
+    @Override
     public ReadBuilder read(File file) {
         
         return new WordReadBuilder(file);
     
     }
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public WriteBuilder write(File file) {
         
         return new WordWriteBuilder(file);

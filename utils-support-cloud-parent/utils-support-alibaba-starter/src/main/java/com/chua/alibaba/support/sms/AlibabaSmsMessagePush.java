@@ -83,19 +83,19 @@ public class AlibabaSmsMessagePush implements MessagePush {
         this.environment = environment;
     }
 
-    @Override
     /**
      * 获取提供者
      */
+    @Override
     public String getProvider() {
         return "alibaba-sms";
     }
 
-    @Override
     /**
      * 发送
      * @param request 请求
      */
+    @Override
     public MessageResponse send(MessageRequest request) throws Exception {
         long start = System.currentTimeMillis();
 
@@ -149,9 +149,6 @@ public class AlibabaSmsMessagePush implements MessagePush {
      * @return 运营商已审核模板列表
      */
     @Override
-    /**
-     * 列表templates
-     */
     public List<TemplateInfo> listTemplates() {
         List<TemplateInfo> result = Wraps.list();
         try {
@@ -200,11 +197,11 @@ public class AlibabaSmsMessagePush implements MessagePush {
         return result;
     }
 
-    @Override
     /**
      * 获取Template
      * @param templateId templateid
      */
+    @Override
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
     }
@@ -217,13 +214,13 @@ public class AlibabaSmsMessagePush implements MessagePush {
         templates.put(template.id(), template);
     }
 
-    @Override
     /**
      * 发送Template
      * @param templateId templateid
      * @param to 转为
      * @param params 参数
      */
+    @Override
     public MessageResponse sendTemplate(String templateId, String to, Map<String, String> params) throws Exception {
         MessageRequest request = MessageRequest.builder()
                 .to(to)

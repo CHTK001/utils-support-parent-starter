@@ -92,50 +92,50 @@ public class SshCommandRequest implements ServerRequest {
         }
     }
 
-    @Override
     /**
      * 获取Uri
     */
+    @Override
     public String getUri() {
         return commandLine;
     }
 
-    @Override
     /**
      * 获取路径
     */
+    @Override
     public String getPath() {
         return commandName;
     }
 
-    @Override
     /**
      * 获取方法
     */
+    @Override
     public HttpMethod getMethod() {
         return HttpMethod.GET;
     }
 
-    @Override
     /**
      * 获取头部
     */
+    @Override
     public String getHeader(String name) {
         return null;
     }
 
-    @Override
     /**
      * 获取头部
     */
+    @Override
     public HttpHeader getHeaders() {
         return new HttpHeader();
     }
 
-    @Override
     /**
      * 获取参数
     */
+    @Override
     public Map<String, String> getParams() {
         Map<String, String> result = Wraps.linkedMap();
         for (int i = 0; i < args.length; i++) {
@@ -144,10 +144,10 @@ public class SshCommandRequest implements ServerRequest {
         return result;
     }
 
-    @Override
     /**
      * 获取参数
     */
+    @Override
     public String getParam(String name) {
         if (name == null) {
             return null;
@@ -169,98 +169,98 @@ public class SshCommandRequest implements ServerRequest {
         return args.clone();
     }
 
-    @Override
     /**
      * 获取内容类型
     */
+    @Override
     public String getContentType() {
         return "text/plain";
     }
 
-    @Override
     /**
      * 获取内容获取长度
     */
+    @Override
     public long getContentLength() {
         return commandLine.length();
     }
 
-    @Override
     /**
      * 获取主体
     */
+    @Override
     public byte[] getBody() {
         return commandLine.getBytes(StandardCharsets.UTF_8);
     }
 
-    @Override
     /**
      * 获取主体字符串
     */
+    @Override
     public String getBodyString() {
         return commandLine;
     }
 
-    @Override
     /**
      * 获取输入流
     */
+    @Override
     public InputStream getInputStream() {
         return new ByteArrayInputStream(getBody());
     }
 
-    @Override
     /**
      * 获取远程地址
     */
+    @Override
     public String getRemoteAddress() {
         return null;
     }
 
-    @Override
     /**
      * 获取远程端口
     */
+    @Override
     public int getRemotePort() {
         return 0;
     }
 
-    @Override
     /**
      * 获取Attributes
     */
+    @Override
     public Map<String, Object> getAttributes() {
         return attributes;
     }
 
-    @Override
     /**
      * 获取Attribute
     */
+    @Override
     public Object getAttribute(String name) {
         return attributes.get(name);
     }
 
-    @Override
     /**
      * 设置Attribute
     */
+    @Override
     public void setAttribute(String name, Object value) {
         attributes.put(name, value);
     }
 
-    @Override
     /**
      * 获取form数据
     */
+    @Override
     public Map<String, String> getFormData() {
         return Map.of();
     }
 
-    @Override
     /**
      * 获取文件
     */
+    @Override
     public List<FormFile> getFiles() {
         return List.of();
     }

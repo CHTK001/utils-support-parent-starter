@@ -561,7 +561,8 @@ public class AudioRecognitionPipeline {
             if (client != null) {
                 try {
                     client.close();
-                } catch (Exception ignore) {
+                } catch (Exception closeEx) {
+                    log.debug("[deeplearning] 关闭识别客户端失败，已忽略: {}", closeEx.getMessage());
                 }
             }
         }

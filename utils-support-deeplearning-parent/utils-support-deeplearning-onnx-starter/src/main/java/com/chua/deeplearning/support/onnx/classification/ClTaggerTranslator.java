@@ -119,10 +119,10 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
         }
     }
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(TranslatorContext ctx) throws IOException {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tagMappingPath = modelRoot.resolve("tag_mapping.json");

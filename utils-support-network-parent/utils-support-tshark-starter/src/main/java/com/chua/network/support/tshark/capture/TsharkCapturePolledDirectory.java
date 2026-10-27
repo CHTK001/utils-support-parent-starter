@@ -214,34 +214,34 @@ public class TsharkCapturePolledDirectory implements PolledDirectory {
         return captureListeners.remove(listener);
     }
 
-    @Override
     /**
      * 是否委托操作系统
      */
+    @Override
     public boolean isDelegatedOperatingSystem() {
         return true;
     }
 
-    @Override
     /**
      * 添加监听器
      */
+    @Override
     public void addListener(PolledListener listener) {
         support.addListener(listener);
     }
 
-    @Override
     /**
      * Upgrade
      */
+    @Override
     public void upgrade() {
         // 抓包由 tshark 进程的输出流驱动，不需要定时快照对比
     }
 
-    @Override
     /**
      * 开始
      */
+    @Override
     public void start(@Nonnull DirectoryPollerEnvironment environment,
                       @Nullable DirectoryPollerExecutor executor) {
         this.environment = environment;
@@ -287,18 +287,18 @@ public class TsharkCapturePolledDirectory implements PolledDirectory {
         }
     }
 
-    @Override
     /**
      * 停止
      */
+    @Override
     public void stop() {
         close();
     }
 
-    @Override
     /**
      * 关闭
      */
+    @Override
     public void close() {
         CaptureSessionState previous = state.getAndSet(CaptureSessionState.STOPPED);
         if (previous == CaptureSessionState.STOPPED || previous == CaptureSessionState.IDLE) {
@@ -334,10 +334,10 @@ public class TsharkCapturePolledDirectory implements PolledDirectory {
         }
     }
 
-    @Override
     /**
      * 是否处于运行中
      */
+    @Override
     public boolean isRunning() {
         return state.get() == CaptureSessionState.RUNNING || state.get() == CaptureSessionState.PAUSED;
     }

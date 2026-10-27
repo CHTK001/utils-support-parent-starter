@@ -7,6 +7,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetSocket;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -22,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class VertxTcpClient implements TcpClient {
 
     private Vertx vertx; // vertx
@@ -92,12 +94,14 @@ public class VertxTcpClient implements TcpClient {
     public void close() {
         try {
             netClient.close();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[network] 关闭 net 客户端失败，已忽略: {}", e.getMessage());
         }
         if (vertx != null) {
             try {
                 vertx.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[network] 关闭 vertx 实例失败，已忽略: {}", e.getMessage());
             }
             vertx = null;
         }

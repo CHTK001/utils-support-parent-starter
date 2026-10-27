@@ -86,10 +86,10 @@ public class ElasticsearchEngine implements Engine {
               new java.util.concurrent.atomic.AtomicBoolean(false);
 
 
-    @Override
     /**
      * 添加数据源
     */
+    @Override
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
         Object src = ds.getSource();
         if (src instanceof ElasticsearchClient esClient) {
@@ -126,35 +126,35 @@ public class ElasticsearchEngine implements Engine {
         return new ElasticsearchClient(transport);
     }
 
-    @Override
     /**
      * 设置默认数据源名称
     */
+    @Override
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
     }
 
-    @Override
     /**
      * 获取默认数据源名称
     */
+    @Override
     public String getDefaultDataSourceName() {
         return defaultDataSourceName;
     }
 
-    @Override
     /**
      * Meta
     */
+    @Override
     public MetaData meta() {
         return new EsMetaData(this);
     }
 
-    @Override
     /**
      * 支持元数据操作（meta() 返回真实实现）
     */
+    @Override
     public boolean supportsMeta() {
         return true;
     }
@@ -168,10 +168,10 @@ public class ElasticsearchEngine implements Engine {
         return client;
     }
 
-    @Override
     /**
      * 存储
     */
+    @Override
     public <T> Engine store(String name, List<T> data) {
         if (client == null) {
             throw new IllegalStateException("请先 addDataSource 配置 Elasticsearch 客户端");
@@ -201,57 +201,57 @@ public class ElasticsearchEngine implements Engine {
         return this;
     }
 
-    @Override
     /**
      * 获取执行器
     */
+    @Override
     public SqlExecutor getExecutor(String n) {
         return null;
     }
 
-    @Override
     /**
      * 获取执行器
     */
+    @Override
     public SqlExecutor getExecutor() {
         return null;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 获取数据源
      *
      * @param n n
      * @return 获取数据源的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> EngineDataSource<T> getDataSource(String n) {
         return (EngineDataSource<T>) dataSources.get(n);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 获取数据源
      *
      * @return 获取数据源的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }
 
-    @Override
     /**
      * 获取Dialect
     */
+    @Override
     public Dialect getDialect(String n) {
         return Dialect.getExtension("elasticsearch");
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
       public void close() {
           if (!closed.compareAndSet(false, true)) {
               return;
@@ -268,25 +268,24 @@ public class ElasticsearchEngine implements Engine {
           dataSources.clear();
       }
 
-      @Override
       /**
        * 是否已关闭
        *
        * @return 已关闭返回 true
        */
+      @Override
       public boolean isClosed() {
           return closed.get();
       }
 
 
-    @Override
     /**
      * 查询
     */
+    @Override
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new LambdaQueryWrapper<T>(entityClass) {
 
-            @Override
             /**
              * 解析Column
              * @param col col
@@ -339,19 +338,19 @@ public class ElasticsearchEngine implements Engine {
              * @param targetType 目标类型
              * @param num num
              */
+            @Override
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
             }
 
-            @Override
             /**
              * 新instance
             */
+            @Override
             protected LambdaQueryWrapper<T> newInstance() {
                 return new LambdaQueryWrapper<T>(entityClass) {
 
-                    @Override
                     /**
                      * 解析Column
                      * @param col col
@@ -403,6 +402,7 @@ public class ElasticsearchEngine implements Engine {
                      * @param targetType 目标类型
                      * @param num num
                      */
+                    @Override
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -410,18 +410,18 @@ public class ElasticsearchEngine implements Engine {
                 };
             }
 
-            @Override
             /**
              * 列表
             */
+            @Override
             public List<T> list() {
                 return search(entityClass, getConditions(), getOrderBys(), getOffset(), getLimit());
             }
 
-            @Override
             /**
              * One
             */
+            @Override
             public T one() {
                 List<T> results = search(entityClass, getConditions(), getOrderBys(), 0, 1);
                 if (results.isEmpty()) {
@@ -430,15 +430,14 @@ public class ElasticsearchEngine implements Engine {
                 return results.getFirst();
             }
 
-            @Override
             /**
              * Page
             */
+            @Override
             public Page<T> page(int pn, int ps) {
                 return searchPage(entityClass, getConditions(), getOrderBys(), pn, ps);
             }
 
-            @Override
             /**
              * 统计命中总数
              * <p>基类实现要求引擎覆写，否则直接抛 {@code UnsupportedOperationException}。
@@ -447,6 +446,7 @@ public class ElasticsearchEngine implements Engine {
              *
              * @return 命中总数
             */
+            @Override
             public long count() {
                 var response = doSearch(entityClass, getConditions(), getOrderBys(), 0, 1, true);
                 return response.hits().total() == null ? 0L : response.hits().total().value();
@@ -454,14 +454,13 @@ public class ElasticsearchEngine implements Engine {
         };
     }
 
-    @Override
     /**
      * 更新
     */
+    @Override
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         return new LambdaUpdateWrapper<T>(entityClass) {
 
-            @Override
             /**
              * 解析Column
              * @param col col
@@ -506,19 +505,19 @@ public class ElasticsearchEngine implements Engine {
              * @param targetType 目标类型
              * @param num num
              */
+            @Override
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
             }
 
-            @Override
             /**
              * 新instance
             */
+            @Override
             protected LambdaUpdateWrapper<T> newInstance() {
                 return new LambdaUpdateWrapper<T>(entityClass) {
 
-                    @Override
                     /**
                      * 解析Column
                      * @param col col
@@ -562,6 +561,7 @@ public class ElasticsearchEngine implements Engine {
                      * @param targetType 目标类型
                      * @param num num
                      */
+                    @Override
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -569,24 +569,23 @@ public class ElasticsearchEngine implements Engine {
                 };
             }
 
-            @Override
             /**
              * 更新
             */
+            @Override
             public int update() {
                 throw new UnsupportedOperationException("Elasticsearch 引擎不支持条件更新");
             }
         };
     }
 
-    @Override
     /**
      * 删除
     */
+    @Override
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         return new LambdaDeleteWrapper<T>(entityClass) {
 
-            @Override
             /**
              * 解析Column
              * @param col col
@@ -628,19 +627,19 @@ public class ElasticsearchEngine implements Engine {
              * @param targetType 目标类型
              * @param num num
              */
+            @Override
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
             }
 
-            @Override
             /**
              * 新instance
             */
+            @Override
             protected LambdaDeleteWrapper<T> newInstance() {
                 return new LambdaDeleteWrapper<T>(entityClass) {
 
-                    @Override
                     /**
                      * 解析Column
                      * @param col col
@@ -681,6 +680,7 @@ public class ElasticsearchEngine implements Engine {
                      * @param targetType 目标类型
                      * @param num num
                      */
+                    @Override
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -688,10 +688,10 @@ public class ElasticsearchEngine implements Engine {
                 };
             }
 
-            @Override
             /**
              * 移除
             */
+            @Override
             public int remove() {
                 throw new UnsupportedOperationException("Elasticsearch 引擎不支持条件删除");
             }

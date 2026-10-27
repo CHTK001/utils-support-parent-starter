@@ -42,10 +42,10 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
     public CnClipTextFeatureTranslator() {
     }
 
-    @Override
     /**
      * Prepare
     */
+    @Override
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokPath = resolveFirstExisting(modelRoot,
@@ -55,29 +55,29 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
                 .build();
     }
 
-    @Override
     /**
      * 处理输入
     */
+    @Override
     public NDList processInput(TranslatorContext ctx, String input) {
         Encoding encoding = tokenizer.encode(input);
         long[] inputIds = truncate(encoding.getIds(), TEXT_MAX_LENGTH);
         return new NDList(ctx.getNDManager().create(inputIds).expandDims(0));
     }
 
-    @Override
     /**
      * 处理输出
     */
+    @Override
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray textEmbeds = list.singletonOrThrow();
         return textEmbeds.squeeze().toFloatArray();
     }
 
-    @Override
     /**
      * 获取Batchifier
     */
+    @Override
     public Batchifier getBatchifier() {
         return null;
     }

@@ -113,12 +113,12 @@ public class VitH14TextTranslator implements Translator<String, float[]> {
         return NDArrayUtils.safeToFloatArray(textEmbeds);
     }
 
-    @Override
-    @Nullable
     /**
      * 获取batchifier。
      * @return 获取batchifier的结果
      */
+    @Override
+    @Nullable
     public Batchifier getBatchifier() {
         return null;
     }

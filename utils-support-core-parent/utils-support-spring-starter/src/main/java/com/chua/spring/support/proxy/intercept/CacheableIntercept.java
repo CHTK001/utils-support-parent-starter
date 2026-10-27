@@ -17,26 +17,26 @@ import org.springframework.cache.annotation.Cacheable;
 @Spi("org.springframework.cache.annotation.Cacheable")
 public class CacheableIntercept implements MethodAnnotationIntercept<Cacheable> {
 
-    @Override
     /**
      * 注解类型
     */
+    @Override
     public Class<Cacheable> annotationType() {
         return Cacheable.class;
     }
 
-    @Override
     /**
      * 订单
     */
+    @Override
     public int order() {
         return 200;
     }
 
-    @Override
     /**
      * Intercept
     */
+    @Override
     public Object intercept(Cacheable annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
         return invocation.proceed();
     }

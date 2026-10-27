@@ -166,10 +166,10 @@ public class LogWriteBuilder extends WriteBuilder {
         return this;
     }
 
-    @Override
     /**
      * WithCharset
     */
+    @Override
     public LogWriteBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -177,10 +177,10 @@ public class LogWriteBuilder extends WriteBuilder {
 
     // ==================== 写入方法 ====================
 
-    @Override
     /**
      * 写入
     */
+    @Override
     public LogWriteBuilder write(Object data) {
         pending.add(data);
         return this;
@@ -244,10 +244,10 @@ public class LogWriteBuilder extends WriteBuilder {
         }
     }
 
-    @Override
     /**
      * Finish
     */
+    @Override
     public void finish() {
         if (file == null) {
             return;

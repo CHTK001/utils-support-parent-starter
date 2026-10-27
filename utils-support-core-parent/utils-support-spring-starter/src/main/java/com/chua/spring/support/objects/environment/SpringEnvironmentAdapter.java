@@ -34,26 +34,23 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
      * 被委托的框架环境
      */
     @Getter
-    /**
-     * Delegate
-    */
     private final Environment delegate;
 
-    @Override
     /**
      * 获取财产
      * @param key 键
      */
+    @Override
     public String getProperty(String key) {
         return delegate.getProperty(key);
     }
 
-    @Override
     /**
      * 获取财产
      * @param key 键
      * @param defaultValue 默认值
      */
+    @Override
     public String getProperty(String key, String defaultValue) {
         return delegate.getProperty(key, defaultValue);
     }
@@ -68,11 +65,11 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
         return delegate.getProperty(key, targetType, defaultValue);
     }
 
-    @Override
     /**
      * 获取required财产
      * @param key 键
      */
+    @Override
     public String getRequiredProperty(String key) throws IllegalStateException {
         String value = delegate.getProperty(key);
         if (value == null) {
@@ -90,11 +87,11 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
         return value;
     }
 
-    @Override
     /**
      * 解析Placeholders
      * @param text 文本
      */
+    @Override
     public String resolvePlaceholders(String text) {
         return HELPER.replacePlaceholders(text, key -> {
             Object value = delegate.getProperty(key);
@@ -102,11 +99,11 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
         });
     }
 
-    @Override
     /**
      * 解析requiredplaceholders
      * @param text 文本
      */
+    @Override
     public String resolveRequiredPlaceholders(String text) throws IllegalArgumentException {
         String resolved = resolvePlaceholders(text);
         if (resolved != null && resolved.contains("${")) {
@@ -115,47 +112,47 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
         return resolved;
     }
 
-    @Override
     /**
      * contains财产
      * @param key 键
      */
+    @Override
     public boolean containsProperty(String key) {
         return delegate.containsProperty(key);
     }
 
-    @Override
     /**
      * 获取活跃配置文件
     */
+    @Override
     public String[] getActiveProfiles() {
         return new String[0];
     }
 
-    @Override
     /**
      * 获取默认配置文件
     */
+    @Override
     public String[] getDefaultProfiles() {
         return new String[0];
     }
 
-    @Override
     /**
      * accepts配置文件
      * @param profiles 配置文件
      */
+    @Override
     public boolean acceptsProfiles(String... profiles) {
         return false;
     }
 
-    @Override
-    @SuppressWarnings("deprecation")
     /**
      * accepts配置文件
      * @param profiles 配置文件
      * @return accepts配置文件的结果
      */
+    @Override
+    @SuppressWarnings("deprecation")
     public boolean acceptsProfiles(org.springframework.core.env.Profiles profiles) {
         return false;
     }

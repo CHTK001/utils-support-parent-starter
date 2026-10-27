@@ -19,65 +19,65 @@ import java.util.List;
 @Slf4j
 public class SafeTensorIdentificationEngine implements IdentificationEngine {
 
-    @Override
     /**
      * 获取
     */
+    @Override
     public <T> T get(String modelId, Class<T> target) {
         return null;
     }
 
-    @Override
     /**
      * 获取
     */
+    @Override
     public <T> T get(Class<T> target) {
         return null;
     }
 
-    @Override
     /**
      * 注册
     */
+    @Override
     public void register(TranslatorModelDefinition definition) {
     }
 
-    @Override
     /**
      * 获取模型
     */
+    @Override
     public List<ModelDefinition> getModels() {
         return Wraps.list();
     }
 
-    @Override
     /**
      * 获取translator模型
     */
+    @Override
     public List<TranslatorModelDefinition> getTranslatorModels() {
         return Wraps.list();
     }
 
-    @Override
     /**
      * 按能力接口查询模型名称（Safetensors 引擎暂无注册模型，返回空列表）
     */
+    @Override
     public List<String> getModelNamesByCapability(Class<?> capabilityInterface) {
         return Wraps.list();
     }
 
-    @Override
     /**
      * 按能力标签查询模型名称（Safetensors 引擎暂无注册模型，返回空列表）
     */
+    @Override
     public List<String> getModelNamesByCapability(String capability) {
         return Wraps.list();
     }
 
-    @Override
     /**
      * 关闭
     */
+    @Override
     public void close() {
     }
 }
