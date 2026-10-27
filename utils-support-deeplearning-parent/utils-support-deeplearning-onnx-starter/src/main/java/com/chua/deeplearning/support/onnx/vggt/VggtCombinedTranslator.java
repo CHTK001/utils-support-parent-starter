@@ -33,9 +33,6 @@ import java.io.IOException;
 @Slf4j
 public class VggtCombinedTranslator implements Translator<Image, VggtOutput> {
 
-    /**
-     *                                        
-     */
     private VggtOutputTranslator outputTranslator;
 
     /**

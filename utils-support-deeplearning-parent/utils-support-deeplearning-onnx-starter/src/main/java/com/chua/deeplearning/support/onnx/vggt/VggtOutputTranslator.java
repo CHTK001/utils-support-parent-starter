@@ -23,9 +23,6 @@ import java.util.Arrays;
 @Slf4j
 public class VggtOutputTranslator implements Translator<Image, VggtOutput> {
 
-    /**
-     *                         
-     */
     private static final int INPUT_SIZE = 518;
 
     /**

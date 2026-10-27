@@ -93,14 +93,8 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
             "toothbrush"
     );
 
-    /**
-     *                                        
-     */
     protected final int inputSize;
 
-    /**
-     *                
-     */
     protected final float threshold;
 
     /**
@@ -108,9 +102,6 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
      */
     protected final float nmsThreshold;
 
-    /**
-     *                   
-     */
     protected final List<String> classes;
 
     /**
@@ -120,14 +111,8 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
      */
     protected final boolean normalizeCoordinates;
 
-    /**
-     *                                     
-     */
     protected int imageWidth;
 
-    /**
-     *                                     
-     */
     protected int imageHeight;
 
     /**

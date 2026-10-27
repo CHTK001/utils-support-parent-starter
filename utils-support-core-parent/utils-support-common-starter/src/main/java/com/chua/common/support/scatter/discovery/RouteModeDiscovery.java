@@ -15,6 +15,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 路由模式发现：subnet 网段内 gossip 探测扩散。
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class RouteModeDiscovery extends AbstractScatterDiscovery {
 
     /**

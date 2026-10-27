@@ -47,14 +47,8 @@ import java.util.List;
 @Slf4j
 public class Yolov2CocoTranslator implements Translator<Image, DetectedObjects> {
 
-    /**
-     *                                        
-     */
     private final int inputSize;
 
-    /**
-     *                
-     */
     private final float threshold;
 
     /**
@@ -94,9 +88,6 @@ private static final float[][] ANCHORS = {
      */
     private final List<String> classes;
 
-    /**
-     *                                     
-     */
     private int imageWidth;
     /**
      * 图像高度
@@ -104,6 +95,7 @@ private static final float[][] ANCHORS = {
     private int imageHeight;
 
     /**
+     * 创建 Yolov2CocoTranslator 实例。
      *                                     
      */
     public Yolov2CocoTranslator() {

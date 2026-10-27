@@ -93,34 +93,16 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
      */
     private static final int DEFAULT_INPUT_SIZE = 1280;
 
-    /**
-     *                      
-     */
     private static final float DEFAULT_THRESHOLD = 0.2f;
 
-    /**
-     *                   
-     */
     private final int inputSize;
 
-    /**
-     *                
-     */
     private final float threshold;
 
-    /**
-     *             
-     */
     private final List<String> classes;
 
-    /**
-     *                      
-     */
     private final boolean normalizeCoordinates;
 
-    /**
-     *                   
-     */
     private int imageWidth;
     /**
      * 图像高度

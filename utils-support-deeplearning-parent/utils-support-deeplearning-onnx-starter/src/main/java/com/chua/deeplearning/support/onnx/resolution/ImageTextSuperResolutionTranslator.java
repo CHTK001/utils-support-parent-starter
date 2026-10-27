@@ -38,9 +38,6 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
      */
     private NDManager manager;
 
-    /**
-     *                                                                
-     */
     private final int detectResolution = 512;
 
     /**

@@ -39,9 +39,6 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
      */
     private static final int NUM_LAYERS = 30;
 
-    /**
-     *                   
-     */
     private static final int NUM_ATTENTION_HEADS = 9;
 
     /**
@@ -49,9 +46,6 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
      */
     private static final int NUM_KEY_VALUE_HEADS = 3;
 
-    /**
-     *                   
-     */
     private static final int HEAD_DIM = 64;
 
     /**
@@ -217,19 +211,10 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
      */
     @Data
     public static class DecoderInput {
-        /**
-         *                                                       
-         */
         private NDArray inputsEmbeds;
 
-        /**
-         *                
-         */
         private NDArray attentionMask;
 
-        /**
-         *             
-         */
         private NDArray positionIds;
 
         /**

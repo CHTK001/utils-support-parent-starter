@@ -39,14 +39,8 @@ import ai.djl.modality.cv.ImageFactory;
 @Slf4j
 public class LcmLoraUnetTranslator implements Translator<Image, Image> {
 
-    /**
-     *                   
-     */
     private final int width;
 
-    /**
-     *                   
-     */
     private final int height;
 
     /**

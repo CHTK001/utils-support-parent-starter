@@ -32,29 +32,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
 
-    /**
-     *                                        
-     */
     private static final int INPUT_SIZE = 512;
 
-    /**
-     *                      
-     */
     private static final float NORMALIZE_MAX = 255.0f;
 
-    /**
-     *                         
-     */
     private static final float DENORMALIZE_MULTIPLIER = 127.5f;
 
-    /**
-     *                                                 
-     */
     private int originalWidth;
 
-    /**
-     *                                                 
-     */
     private int originalHeight;
 
     /**

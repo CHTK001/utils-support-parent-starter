@@ -44,9 +44,6 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     */
     private static final Logger LOGGER = LoggerFactory.getLogger(AgeRaceGenderTranslator.class);
 
-    /**
-     *                   
-     */
     private static final int INPUT_SIZE = 256;
 
     /**
@@ -59,14 +56,8 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
      */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
-    /**
-     *             
-     */
     private static final String[] GENDER_CLASSES = {"Male", "Female"};
 
-    /**
-     *             
-     */
     private static final String[] RACE_CLASSES = {
             // White",   //
            

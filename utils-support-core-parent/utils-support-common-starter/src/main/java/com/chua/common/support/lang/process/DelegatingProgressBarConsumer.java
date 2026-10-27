@@ -58,6 +58,7 @@ public class DelegatingProgressBarConsumer implements ProgressBarConsumer {
         this.consumer.accept(str);
     }
     /**
+     * 关闭。
      * <p>
      *                                           
      */

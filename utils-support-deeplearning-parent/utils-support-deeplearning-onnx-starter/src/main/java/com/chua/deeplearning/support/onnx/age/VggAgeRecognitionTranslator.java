@@ -41,14 +41,8 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
     */
     private static final Logger LOGGER = LoggerFactory.getLogger(VggAgeRecognitionTranslator.class);
 
-    /**
-     *                   
-     */
     private static final int IMAGE_SIZE = 224;
 
-    /**
-     *                
-     */
     private static final int CHANNELS = 3;
 
     /**

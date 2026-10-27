@@ -174,9 +174,6 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
      */
     @Data
     public static class CombinedInput {
-        /**
-         *             
-         */
         private Image image;
 
         /**

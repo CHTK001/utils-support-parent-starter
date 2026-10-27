@@ -31,13 +31,7 @@ public class ConfigCenterEntity {
      *                          dev   prod   DEFAULT_GROUP   
      */
     private String groupName;
-    /**
-     */
     private String configKey;
-    /**
-     */
     private String configValue;
-    /**
-     */
     private LocalDateTime updateTime;
 }

@@ -35,19 +35,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class VggGenderRecognitionTranslator implements Translator<Image, PredictResult> {
 
-    /**
-     *                   
-     */
     private static final int IMAGE_SIZE = 224;
 
-    /**
-     *                
-     */
     private static final int CHANNELS = 3;
 
-    /**
-     *             
-     */
     private static final String[] GENDER_LABELS = {"Female", "Male"};
 
     /**

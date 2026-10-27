@@ -166,8 +166,6 @@ public class SshClient implements AutoCloseable {
                     .getSession();
 
             if (password != null) {
-                // 空串也添加密码身份：免密登录（NONE）依赖空口令认证，
-                // 目标主机允许空口令时 MINA 以空密码密码认证即可通过
                 session.addPasswordIdentity(password);
             }
             if (privateKeyPath != null && !privateKeyPath.isEmpty()) {
@@ -182,6 +180,36 @@ public class SshClient implements AutoCloseable {
                     // 库层加载失败只打一条 WARN 便返回空集合，不显式抛错会退化成 "No more authentication methods available"
                     throw new SshClientException("私钥无法加载: " + privateKeyPath
                             + "（不支持的密钥类型、口令错误或缺少 eddsa 依赖）", null);
+                }
+            } else if (password == null) {
+                // 免密登录（NONE 认证）：未提供密码和私钥时，尝试加载默认身份文件走公钥认证。
+                // 目标主机 SSH 配置 PasswordAuthentication no 时，"none" 认证方法会被拒绝，
+                // 必须依赖 authorized_keys 中已配置的公钥授权。
+                String userHome = System.getProperty("user.home");
+                String[] defaultKeys = {".ssh/id_ed25519", ".ssh/id_rsa", ".ssh/id_ecdsa", ".ssh/id_dsa"};
+                boolean loadedAny = false;
+                for (String key : defaultKeys) {
+                    java.nio.file.Path keyPath = java.nio.file.Path.of(userHome, key);
+                    if (java.nio.file.Files.exists(keyPath)) {
+                        try {
+                            var provider = new org.apache.sshd.common.keyprovider.FileKeyPairProvider(keyPath);
+                            for (java.security.KeyPair kp : provider.loadKeys(session)) {
+                                session.addPublicKeyIdentity(kp);
+                                loadedAny = true;
+                                log.info("免密登录：加载默认身份文件 {}", keyPath);
+                                break;
+                            }
+                        } catch (Exception e) {
+                            // 跳过无法加载的密钥
+                        }
+                        if (loadedAny) {
+                            break;
+                        }
+                    }
+                }
+                if (!loadedAny) {
+                    log.warn("免密登录：未找到可用的默认 SSH 身份文件（{}），将尝试 none 认证",
+                            String.join(", ", defaultKeys));
                 }
             }
 

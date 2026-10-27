@@ -26,42 +26,22 @@ import java.util.Map;
 @Slf4j
 public final class Rmbg20Translator implements Translator<Image, Image> {
 
-    /**
-     *                              
-     */
     private static final int DEFAULT_TARGET_SIZE = 1024;
 
-    /**
-     *              
-     */
     private final MattingTranslator.MattingMode mode;
 
-    /**
-     *              
-     */
     private final int targetWidth;
 
-    /**
-     *              
-     */
     private final int targetHeight;
 
-    /**
-     *              
-     */
     private int width;
 
-    /**
-     *              
-     */
     private int height;
 
-    /**
-     *                              
-     */
     private BufferedImage originalImage;
 
     /**
+     * 创建 Rmbg20Translator 实例。
      *              
      */
     public Rmbg20Translator() {
