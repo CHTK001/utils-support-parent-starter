@@ -461,7 +461,12 @@ public class IndraLayoutTranslator implements ITranslator<byte[], List<Detection
         }
     }
 
-    /** 单行识别结果。 */
+    /**
+     * 单行识别结果。
+     *
+     * @param text 识别文本
+     * @param conf 置信度（0-1）
+     */
     private record RecOut(String text, double conf) {
     }
 

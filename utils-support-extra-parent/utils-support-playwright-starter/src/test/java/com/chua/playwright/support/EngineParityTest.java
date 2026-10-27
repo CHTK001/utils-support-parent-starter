@@ -52,6 +52,9 @@ class EngineParityTest {
 
     /**
      * 单次操作的结果：值或错误消息。
+     *
+     * @param value 操作返回值，失败时为 null
+     * @param error 错误消息，成功时为 null
      */
     private record Outcome(Object value, String error) {
     }

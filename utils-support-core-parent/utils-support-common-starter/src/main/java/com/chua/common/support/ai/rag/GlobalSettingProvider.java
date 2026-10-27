@@ -41,6 +41,7 @@ public interface GlobalSettingProvider {
      * @param valueType    值类型：STRING / NUMBER / BOOLEAN
      * @param description  描述
      * @param sort         排序序号
+     * @param adminOnly    是否仅管理员可见
      */
     record SettingItem(
             String field,

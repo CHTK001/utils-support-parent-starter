@@ -478,6 +478,15 @@ public class MedianCutQuantizer implements PaletteQuantizer {
 
     /**
      * 一个带权重的颜色采样点，内部以 CIE L*a*b* 表示。
+     *
+     * @param l      CIE L* 分量（亮度）
+     * @param a      CIE a* 分量（绿-红）
+     * @param b      CIE b* 分量（蓝-黄）
+     * @param r      原始红色分量（0-255）
+     * @param g      原始绿色分量（0-255）
+     * @param blue   原始蓝色分量（0-255）
+     * @param alpha  原始透明度（0-255）
+     * @param weight 该颜色在图像中出现的次数
      */
     private record ColorPoint(double l, double a, double b, int r, int g, int blue, int alpha, long weight) {
 
