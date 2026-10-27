@@ -1751,7 +1751,7 @@ public class ClassUtils {
             try {
                 callback.accept(method);
             } catch (Throwable throwable) {
-                log.warn("Not allowed to access method '" + method.getName() + "': " + throwable);
+                log.warn("Not allowed to access method '{}'", method.getName(), throwable);
             }
         }
     }
@@ -2160,9 +2160,11 @@ public class ClassUtils {
                     .unreflectSpecial(method, declaringClass)
                     .bindTo(bean)
                     .invokeWithArguments(method.getParameterCount() == 0 ? SYMBOL_EMPTY_OBJECT_ARRAY : args);
-        } catch (ClassCastException e1) {
-            throw e1;
         } catch (Throwable e) {
+            // 类型转换失败属于调用方错误，直接抛出；其余异常（反射不可用等）返回 null
+            if (e instanceof ClassCastException cce) {
+                throw cce;
+            }
             return null;
         }
     }

@@ -141,7 +141,7 @@ public class SeedModeProbe implements ProbeStrategy {
                     MessageProtocol.TYPE_NEW_PEER, Json.toJson(myEntry));
             MessageProtocol.write(out, newPeer);
             out.flush();
-            log.debug("已向种子节点发送 NEW_PEER: {}", host + ":" + port);
+            log.debug("已向种子节点发送 NEW_PEER: {}:{}", host, port);
 
             MessageProtocol.PeerMeshMessage response;
             try {

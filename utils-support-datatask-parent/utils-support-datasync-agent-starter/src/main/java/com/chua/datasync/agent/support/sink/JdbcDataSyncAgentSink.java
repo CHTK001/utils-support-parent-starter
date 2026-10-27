@@ -173,7 +173,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
             totalCount.addAndGet(count);
             log.debug("[JdbcDataSyncAgentSink] 批次提交成功, sinkId={}, count={}", sinkId, count);
         } catch (SQLException e) {
-            log.error("[JdbcDataSyncAgentSink] " + DataSyncErrorCode.DB_WRITE_FAILED.formatWithCode(sinkId, sql, e.getMessage()), e);
+            log.error("[JdbcDataSyncAgentSink] {}", DataSyncErrorCode.DB_WRITE_FAILED.formatWithCode(sinkId, sql, e.getMessage()), e);
             rollbackQuietly(conn);
         }
     }
@@ -185,7 +185,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
      * @param conn conn
      */
     private void handleError(Throwable error, Connection conn) {
-        log.error("[JdbcDataSyncAgentSink] " + DataSyncErrorCode.DB_WRITE_FAILED.formatWithCode(sinkId, sql, error.getMessage()), error);
+        log.error("[JdbcDataSyncAgentSink] {}", DataSyncErrorCode.DB_WRITE_FAILED.formatWithCode(sinkId, sql, error.getMessage()), error);
         rollbackQuietly(conn);
     }
 

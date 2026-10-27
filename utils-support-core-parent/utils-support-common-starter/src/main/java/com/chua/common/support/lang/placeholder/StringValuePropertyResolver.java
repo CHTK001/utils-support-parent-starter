@@ -139,7 +139,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
                     // 替换原始字符串中的占位符部分为解析后的值
                     result.replace(startIndex, endIndex + placeholderSupport.getPlaceholderSuffix().length(), StringUtils.defaultString(propVal, ""));
                     if (log.isTraceEnabled()) {
-                        log.trace("Resolved placeholder '" + placeholder + "'");
+                        log.trace("Resolved placeholder '{}'", placeholder);
                     }
                     // 更新起始索引，继续搜索后续占位符
                     startIndex = result.indexOf(placeholderSupport.getPlaceholderPrefix(), startIndex + propVal.length());
@@ -249,7 +249,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
                     propVal = parseStringValue(propVal, placeholderResolver, visitedPlaceholders);
                     result.replace(startIndex, endIndex + placeholderSupport.getPlaceholderSuffix().length(), propVal);
                     if (log.isTraceEnabled()) {
-                        log.trace("Resolved placeholder '" + placeholder + "'");
+                        log.trace("Resolved placeholder '{}'", placeholder);
                     }
                     startIndex = result.indexOf(placeholderSupport.getPlaceholderPrefix(), startIndex + propVal.length());
                 } else if (placeholderSupport.isIgnoreUnresolvablePlaceholders()) {

@@ -90,14 +90,14 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
                             writer.write(System.lineSeparator());
                             return 1;
                         } catch (Exception e) {
-                            log.error("[DelimitedDataSyncAgentSink] " + DataSyncErrorCode.FILE_WRITE_FAILED.formatWithCode(sinkId, e.getMessage()), e);
+                            log.error("[DelimitedDataSyncAgentSink] {}", DataSyncErrorCode.FILE_WRITE_FAILED.formatWithCode(sinkId, e.getMessage()), e);
                             return 0;
                         }
                     })
                     .sum();
             log.info("[DelimitedDataSyncAgentSink] 写入完成, sinkId={}, count={}", sinkId, count);
         } catch (Exception e) {
-            log.error("[DelimitedDataSyncAgentSink] " + DataSyncErrorCode.FILE_WRITE_FAILED.formatWithCode(sinkId, e.getMessage()), e);
+            log.error("[DelimitedDataSyncAgentSink] {}", DataSyncErrorCode.FILE_WRITE_FAILED.formatWithCode(sinkId, e.getMessage()), e);
         }
     }
 

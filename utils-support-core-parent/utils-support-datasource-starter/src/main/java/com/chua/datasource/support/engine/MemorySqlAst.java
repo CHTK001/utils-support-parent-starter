@@ -905,12 +905,10 @@ final class MemorySqlAst {
             double db = ((Number) b).doubleValue();
             return Double.compare(da, db);
         }
-        if (a instanceof Comparable && b instanceof Comparable) {
-            try {
-                return ((Comparable) a).compareTo(b);
-            } catch (ClassCastException e) {
-                return String.valueOf(a).compareTo(String.valueOf(b));
-            }
+        // 仅当两者类型一致时才用 Comparable 比较，避免 ClassCastException
+        if (a instanceof Comparable && b instanceof Comparable
+                && a.getClass() == b.getClass()) {
+            return ((Comparable) a).compareTo(b);
         }
         return String.valueOf(a).compareTo(String.valueOf(b));
     }

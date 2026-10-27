@@ -82,7 +82,7 @@ public class RealTimeSink implements AccessSink {
             try {
                 delivered |= channel.deliver(envelope);
             } catch (Exception e) {
-                log.error("[datalake-sink] 实时通道投递异常: channel=" + channel.name(), e);
+                log.error("[datalake-sink] 实时通道投递异常: channel={}", channel.name(), e);
             }
         }
         if (!delivered) {

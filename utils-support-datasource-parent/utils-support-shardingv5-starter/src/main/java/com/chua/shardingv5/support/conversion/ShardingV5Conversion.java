@@ -132,7 +132,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
         try {
             ReflectUtils.instantiate(implClass);
         } catch (Exception e) {
-            log.warn("算法类 " + implClass.getName() + " 缺少无参构造器，CLASS_BASED 运行时可能失败");
+            log.warn("算法类 {} 缺少无参构造器，CLASS_BASED 运行时可能失败", implClass.getName());
         }
         algorithms.put(name, new AlgorithmHolder("CLASS_BASED", Map.of(
                 "class-name", implClass.getName(), "strategy", "STANDARD")));
@@ -267,7 +267,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
         var seenPrefixes = Wraps.<String>set();
         for (var tc : tableConfigs) {
             if (!seenPrefixes.add(tc.prefix)) {
-                log.warn("发现重复的分片表前缀: " + tc.prefix + "，后者将覆盖前者");
+                log.warn("发现重复的分片表前缀: {}，后者将覆盖前者", tc.prefix);
             }
         }
 
@@ -308,7 +308,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
                         .collect(Collectors.toList());
             }
             if (matched.isEmpty()) {
-                log.warn("未匹配到表: " + tc.prefix);
+                log.warn("未匹配到表: {}", tc.prefix);
                 continue;
             }
 
@@ -378,7 +378,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
             return;
         }
         if (!isBuiltinAlgo(algoName)) {
-            log.warn("算法 '" + algoName + "' 未注册，自动使用 MOD");
+            log.warn("算法 '{}' 未注册，自动使用 MOD", algoName);
             ensureAlgo("MOD", count);
             return;
         }
@@ -390,7 +390,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
             log.warn("INTERVAL 算法需要配置 datetime-lower/upper/pattern，请在 .algo() 中提供");
         }
         algorithms.put(algoName, new AlgorithmHolder(algoName.toUpperCase(), toMap(props)));
-        log.debug("自动注册算法: " + algoName + " (count=" + count + ")");
+        log.debug("自动注册算法: {} (count={})", algoName, count);
     }
 
     /**
@@ -405,7 +405,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
         if ("INTERVAL".equalsIgnoreCase(h.type) && h.props != null) {
             if (!h.props.containsKey("datetime-lower") || !h.props.containsKey("datetime-upper")
                     || !h.props.containsKey("datetime-partition-pattern")) {
-                log.warn("INTERVAL 算法 '" + name + "' 缺少 datetime-lower/upper/pattern 参数");
+                log.warn("INTERVAL 算法 '{}' 缺少 datetime-lower/upper/pattern 参数", name);
             }
         }
     }
@@ -450,7 +450,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
                     tables.add(rs.getString("TABLE_NAME"));
                 }
             }
-        } catch (Exception e) { log.warn("扫描表失败: " + e.getMessage()); }
+        } catch (Exception e) { log.warn("扫描表失败: {}", e.getMessage(), e); }
         return tables;
     }
 

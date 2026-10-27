@@ -42,7 +42,7 @@ public class SinkManager {
                 started++;
             } catch (Exception e) {
                 // 单个 Sink 启动失败（如数据源地址不可达）不得影响其余通道
-                log.error("[datalake-server] sink 启动失败: type=" + sink.type(), e);
+                log.error("[datalake-server] sink 启动失败: type={}", sink.type(), e);
             }
         }
         if (started < sinkMap.size()) {
@@ -59,7 +59,7 @@ public class SinkManager {
                 sink.stop();
             } catch (Exception e) {
                 // 停机阶段同样隔离，保证每个 sink 都有释放资源的机会
-                log.error("[datalake-server] sink 停止失败: type=" + sink.type(), e);
+                log.error("[datalake-server] sink 停止失败: type={}", sink.type(), e);
             }
         }
     }
