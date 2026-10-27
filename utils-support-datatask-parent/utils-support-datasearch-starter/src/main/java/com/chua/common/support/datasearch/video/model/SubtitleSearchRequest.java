@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
+ * 字幕搜索请求参数。
+ *
  * @author CH
  * @since 4.0.0.42
  */

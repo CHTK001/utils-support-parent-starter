@@ -2,6 +2,8 @@ package com.chua.shardingv5.support.conversion;
 
 import java.util.List;
 /**
+ * 时间范围分片配置（分片列与起止时间）。
+ *
  * @author CH
  * @since 4.0.0.42
  */

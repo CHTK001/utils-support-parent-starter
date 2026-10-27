@@ -2,6 +2,8 @@ package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.translator.ITranslator;
 /**
+ * ONNX Translator 抽象基类，统一会话与张量的生命周期管理。
+ *
  * @author CH
  * @since 4.0.0
  */

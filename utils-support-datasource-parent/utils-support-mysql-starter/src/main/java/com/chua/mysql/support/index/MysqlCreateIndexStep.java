@@ -4,6 +4,8 @@ import com.chua.datasource.support.index.IndexManager;
 
 import javax.sql.DataSource;
 /**
+ * MySQL 创建索引语句的构建步骤。
+ *
  * @author CH
  * @since 4.0.0.42
  */

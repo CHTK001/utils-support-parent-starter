@@ -1,5 +1,7 @@
 package com.chua.shardingv5.support.conversion;
 /**
+ * 分表配置（表前缀、分片列、表数量与分片算法）。
+ *
  * @author CH
  * @since 4.0.0.42
  */

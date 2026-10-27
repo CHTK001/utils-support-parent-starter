@@ -1,6 +1,8 @@
 package com.chua.common.support.file.builder;
 
 /**
+ * 文件写入回调接口。
+ *
  * @author CH
  * @since 4.0.0.42
  */

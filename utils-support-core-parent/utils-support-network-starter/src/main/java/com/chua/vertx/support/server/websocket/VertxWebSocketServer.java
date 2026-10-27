@@ -23,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
+ * 基于 Vert.x 的 WebSocket 服务端。
+ *
  * @author CH
  * @since 4.0.0
  */

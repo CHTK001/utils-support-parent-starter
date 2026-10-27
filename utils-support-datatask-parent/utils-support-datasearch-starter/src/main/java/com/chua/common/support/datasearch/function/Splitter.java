@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 /**
+ * 按分隔符切分字符串的工具类。
+ *
  * @author CH
  * @since 4.0.0.42
  */

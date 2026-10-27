@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 /**
+ * DBF 文件读取构建器。
+ *
  * @author CH
  * @since 4.0.0.42
  */

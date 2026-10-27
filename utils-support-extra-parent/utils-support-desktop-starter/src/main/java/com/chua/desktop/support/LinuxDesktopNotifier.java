@@ -1,5 +1,7 @@
 package com.chua.desktop.support;
 /**
+ * Linux 桌面通知实现。
+ *
  * @author CH
  * @since 4.0.0
  */

@@ -14,6 +14,8 @@ import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * 真实文本图像超分辨率 Translator（ONNX）。
+ *
  *                                  
  *                                                             
  *

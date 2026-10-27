@@ -5,6 +5,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 /**
+ * 文件写入选项（字符集、追加模式等）。
+ *
  * @author CH
  * @since 4.0.0.42
  */

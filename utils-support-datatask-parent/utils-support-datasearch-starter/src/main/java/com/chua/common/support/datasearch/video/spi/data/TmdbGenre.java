@@ -1,6 +1,8 @@
 package com.chua.common.support.datasearch.video.spi.data;
 
 /**
+ * TMDB 影片类型枚举。
+ *
  * @author CH
  * @since 4.0.0.42
  */

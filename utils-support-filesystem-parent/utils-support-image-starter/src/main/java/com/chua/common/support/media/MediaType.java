@@ -2,6 +2,8 @@ package com.chua.common.support.media;
 
 import java.io.Serializable;
 /**
+ * 媒体类型（MIME）值对象。
+ *
  * @author CH
  * @since 4.0.0.42
  */

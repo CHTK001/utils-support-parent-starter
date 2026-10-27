@@ -2,6 +2,8 @@ package com.chua.common.support.image;
 
 import java.awt.image.BufferedImage;
 /**
+ * 图像处理能力接口。
+ *
  * @author CH
  * @since 4.0.0.42
  */

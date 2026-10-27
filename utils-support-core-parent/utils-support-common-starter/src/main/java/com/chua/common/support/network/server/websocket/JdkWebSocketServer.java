@@ -37,6 +37,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Base64;
 
 /**
+ * 基于 JDK 内置 HttpServer 的 WebSocket 服务端。
+ *
  * @author CH
  * @since 4.0.0.42
  */

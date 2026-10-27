@@ -9,6 +9,8 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
 /**
+ * MySQL 索引管理器，负责索引语句的组装与执行。
+ *
  * @author CH
  * @since 4.0.0.42
  */

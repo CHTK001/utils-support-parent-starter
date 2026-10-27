@@ -205,6 +205,8 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
     }
 
     /**
+     * 解码器输入结构。
+     *
      *                
      * @author CH
      * @since 4.0.0
@@ -254,6 +256,8 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
     }
 
     /**
+     * 解码器单步输出结构。
+     *
      *                      
      * @author CH
      * @since 4.0.0

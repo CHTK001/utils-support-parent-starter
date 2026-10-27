@@ -4,6 +4,8 @@ import com.chua.common.support.datasearch.network.lang.code.ReturnPageResult;
 import com.chua.common.support.datasearch.video.model.SubtitleSearchRequest;
 import com.chua.common.support.datasearch.video.model.SubtitleSearchResult;
 /**
+ * 字幕搜索提供者接口。
+ *
  * @author CH
  * @since 4.0.0.42
  */

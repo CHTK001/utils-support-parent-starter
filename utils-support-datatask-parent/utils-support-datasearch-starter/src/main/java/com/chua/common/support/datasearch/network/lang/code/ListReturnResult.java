@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * 列表型统一返回结果。
+ *
  * @author CH
  * @since 4.0.0.42
  */

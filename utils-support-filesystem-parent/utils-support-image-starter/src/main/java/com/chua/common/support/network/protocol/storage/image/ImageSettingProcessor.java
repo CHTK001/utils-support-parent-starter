@@ -3,6 +3,8 @@ package com.chua.common.support.network.protocol.storage.image;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 /**
+ * 图像设置处理器接口（按设置项处理图像数据）。
+ *
  * @author CH
  * @since 4.0.0.42
  */

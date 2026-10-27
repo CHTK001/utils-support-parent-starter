@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 /**
+ * 分页型统一返回结果。
+ *
  * @author CH
  * @since 4.0.0.42
  */

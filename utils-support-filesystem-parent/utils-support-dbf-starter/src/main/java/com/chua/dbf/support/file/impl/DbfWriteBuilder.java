@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 /**
+ * DBF 文件写入构建器。
+ *
  * @author CH
  * @since 4.0.0
  */

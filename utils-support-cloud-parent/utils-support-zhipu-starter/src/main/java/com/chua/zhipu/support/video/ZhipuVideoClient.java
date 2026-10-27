@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 智谱（CogVideoX）视频生成客户端。
+ *
  * @author CH
  * @since 4.0.0.42
  */

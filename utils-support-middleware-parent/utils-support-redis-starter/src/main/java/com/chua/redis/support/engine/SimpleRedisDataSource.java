@@ -6,6 +6,8 @@ import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.kv.KvEngine;
 import redis.clients.jedis.JedisPool;
 /**
+ * 基于 Jedis 的简单 Redis 数据源。
+ *
  * @author CH
  * @since 4.0.0.42
  */

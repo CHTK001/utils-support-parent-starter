@@ -7,6 +7,8 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 基于 Semaphore 的锁提供者实现。
+ *
  * @author CH
  * @since 4.0.0.42
  */

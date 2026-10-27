@@ -24,6 +24,8 @@ import java.text.ParseException;
 import java.util.List;
 
 /**
+ * Wanou 磁力资源提供者实现。
+ *
  * @author CH
  * @since 4.0.0.42
  */
