@@ -603,7 +603,6 @@ public class FileEngine extends AbstractEngine {
      * persistifauto
      *
      * @param clazz clazz
-     * @return persistIfAuto的结果
      */
     private <T> void persistIfAuto(Class<T> clazz) {
         String tableName = getTableName(clazz);
@@ -619,7 +618,6 @@ public class FileEngine extends AbstractEngine {
      *
      * @param meta meta
      * @param maps 映射
-     * @return 写入文件的结果
      */
     private <T> void writeFile(TableMeta meta, List<Map<String, Object>> maps) {
         FileSystem fs = FileSystem.create(meta.fileType);

@@ -220,7 +220,6 @@ public class PipelineWal implements AutoCloseable {
      * @param input 输入数据
      * @param <T>   数据类型
      * @throws IOException IO 异常
-     * @return 追加启动的结果
      */
     public <T> void appendStart(T input) throws IOException {
         ensureOpen();

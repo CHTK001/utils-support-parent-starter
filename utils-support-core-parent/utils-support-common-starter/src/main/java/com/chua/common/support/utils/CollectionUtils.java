@@ -46,7 +46,6 @@ public class CollectionUtils {
      * @param collection 待遍历的集合，可能为 空
      * @param consumer   每个元素执行的回调，可能为 空
      * @param <T>        集合元素类型
-     * @return forEach的结果
      */
     public static <T> void forEach(@Nullable Collection<T> collection, @Nullable Consumer<T> consumer) {
         if(isEmpty(collection) || ObjectUtils.isNull(consumer)) {
@@ -528,7 +527,6 @@ public class CollectionUtils {
      * @param pageSize           每页大小
      * @param pageListConsumer   每页数据的消费回调
      * @param <T>                元素类型
-     * @return page的结果
      */
     public static <T> void page(List<T> list, int pageSize, Consumer<List<T>> pageListConsumer) {
         if (isEmpty(list) || pageSize <= 0) {
@@ -808,7 +806,6 @@ public class CollectionUtils {
      * @param depth 深度
      * @param current 当前
      * @param result 结果
-     * @return descartesRecursive的结果
      */
     private static <T> void descartesRecursive(List<List<T>> lists, int depth, List<T> current, List<List<T>> result) {
         if (depth == lists.size()) {
@@ -1557,7 +1554,6 @@ public class CollectionUtils {
      * @param list     源列表，为空时直接返回
      * @param function 元素到字符串的转换函数
      * @param <T>      元素类型
-     * @return print的结果
      */
     public static <T> void print(List<T> list, Function<T, String> function) {
         if(isEmpty(list) || null == function) {
@@ -1580,7 +1576,6 @@ public class CollectionUtils {
      * @param maxLines 最大显示行数
      * @param function 元素到字符串的转换函数
      * @param <T>      元素类型
-     * @return printtable格式化的结果
      */
     public static <T> void printTableFormat(String title, List<T> list, int maxLines, Function<T, String> function) {
         if (isEmpty(list) || null == function) {
@@ -1618,7 +1613,6 @@ public class CollectionUtils {
      * @param list     源列表
      * @param function 元素到字符串的转换函数
      * @param <T>      元素类型
-     * @return printtable格式化的结果
      */
     public static <T> void printTableFormat(String title, List<T> list, Function<T, String> function) {
         printTableFormat(title, list, 5, function);

@@ -71,7 +71,6 @@ public class InMemoryEngine extends AbstractEngine {
      *
      * @param name 名称
      * @param data 数据
-     * @return 构建索引的结果
      */
     private <T> void buildIndex(String name, List<T> data) {
         if (data == null || data.isEmpty()) {

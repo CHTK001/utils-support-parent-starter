@@ -203,7 +203,6 @@ public class MossTextToAudioClient implements TextToAudioClient {
     /**
      * ensureprepared。确保模型目录就绪：优先系统属性指定目录，否则缓存目录缺失时自动下载。
      *
-     * @return 缓存根的结果
      */
     private void ensurePrepared() {
         if (prepared) {

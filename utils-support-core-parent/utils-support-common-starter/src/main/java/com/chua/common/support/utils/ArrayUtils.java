@@ -818,7 +818,6 @@ public class ArrayUtils {
      *
      * @param target Target
      * @param source 源
-     * @return 添加element的结果
      */
     public static <E> void addElement(E[] target, Collection<E> source) {
         addElement(target, source.toArray(target));
@@ -968,7 +967,6 @@ public class ArrayUtils {
      *
      * @param target Target
      * @param source 源
-     * @return 插入element的结果
      */
     public static <E> void insertElement(E[] target, Collection<E> source) {
         insertElement(target, source.toArray((E[]) Array.newInstance(CollectionUtils.findLast(source).getClass(), 0)));
@@ -980,7 +978,6 @@ public class ArrayUtils {
      * @param target Target
      * @param source 源
      * @param offset 偏移量
-     * @return 插入element的结果
      */
     public static <E> void insertElement(E[] target, int offset, Collection<E> source) {
         insertElement(target, offset, source.toArray((E[]) Array.newInstance(CollectionUtils.findLast(source).getClass(), 0)));
@@ -991,7 +988,6 @@ public class ArrayUtils {
      *
      * @param target Target
      * @param source 源
-     * @return 插入element的结果
      */
     public static <E> void insertElement(E[] target, E[] source) {
         insertElement(target, 0, source);
@@ -1002,7 +998,6 @@ public class ArrayUtils {
      *
      * @param target Target
      * @param source 源
-     * @return 插入element的结果
      */
     public static <E> void insertElement(E[] target, E source) {
         insertElement(target, 0, Collections.singletonList(source));
@@ -1014,7 +1009,6 @@ public class ArrayUtils {
      * @param target Target
      * @param source 源
      * @param offset 偏移量
-     * @return 插入element的结果
      */
     public static <E> void insertElement(E[] target, int offset, E source) {
         insertElement(target, offset, Collections.singletonList(source));
@@ -1026,7 +1020,6 @@ public class ArrayUtils {
      * @param target Target
      * @param source 源
      * @param offset 偏移量
-     * @return 插入element的结果
      */
     public static <E> void insertElement(E[] target, int offset, E[] source) {
         if (target.length == 0 && source.length == 0) {

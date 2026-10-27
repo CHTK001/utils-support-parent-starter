@@ -74,7 +74,6 @@ public class ImgRgbUtils {
      *
      * @param colors
      * @param Light  亮度
-     * @return
      */
     public static void GetGrayScaleHalf(Color[][] colors, float Light) {
         for (int x = 0; x < colors.length; x++) {

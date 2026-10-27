@@ -349,7 +349,6 @@ public class DefaultPipeline implements Pipeline {
      *
      * @param ctx 流水线上下文
      * @param <T> 数据类型
-     * @return 运行的结果
      */
     @SuppressWarnings("unchecked")
     private <T> void run(PipelineContext<T> ctx) {

@@ -1590,7 +1590,6 @@ public class MapUtils {
      * @param map      映射
      * @param consumer 处理非 空 值的回调
      * @param name     要查询的键列表
-     * @return 过滤器无的结果
      */
     public static <V> void filterNone(Map<String, V> map, Consumer<V> consumer, String... name) {
         for (String s : name) {
@@ -1910,7 +1909,6 @@ public class MapUtils {
      * @param kvMap 映射，允许为 空
      * @param name  键，允许为 空
      * @param value 值，允许为 空
-     * @return 放入ifabsent的结果
      */
     public static <K, V> void putIfAbsent(Map<K, V> kvMap, K name, V value) {
  // 空         空
@@ -1984,7 +1982,6 @@ public class MapUtils {
      * @param key   键
      * @param vType 类的全限定名
      * @param args  构造参数
-     * @return 放入的结果
      */
     public static <K, V> void put(Map<K, V> map, K key, String vType, Object... args) {
         if (null == map || null == key || StringUtils.isEmpty(vType)) {
@@ -2008,7 +2005,6 @@ public class MapUtils {
      * @param key   键
      * @param vType 目标类型
      * @param args  构造参数
-     * @return 放入的结果
      */
     public static <K, V> void put(Map<K, V> map, K key, Class<V> vType, Object... args) {
         if (null == map || null == key || null == vType) {
@@ -2339,7 +2335,6 @@ public class MapUtils {
      *
      * @param doc 待清理的 映射，键为 字符串 类型
      * @param <V> 映射 的值类型
-     * @return clear空值的结果
      */
     public static <V> void clearNullValue(Map<String, V> doc) {
         doc.entrySet().removeIf(entry -> entry.getValue() == null);

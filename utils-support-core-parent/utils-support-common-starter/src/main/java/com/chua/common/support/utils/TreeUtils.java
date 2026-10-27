@@ -279,7 +279,6 @@ public final class TreeUtils {
      * 逆序压栈以保持 DFS 前序顺序。
      * @param stack stack
      * @param children children
-     * @return pushReversed的结果
      */
     private static <T> void pushReversed(Deque<T> stack, List<T> children) {
         for (var i = children.size() - 1; i >= 0; i--) {
