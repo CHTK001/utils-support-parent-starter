@@ -3,6 +3,8 @@ package com.chua.common.support.datasearch.network.core.utils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 /**
+ * 正则表达式工具类。
+ *
  * @author CH
  * @since 4.0.0.42
  */

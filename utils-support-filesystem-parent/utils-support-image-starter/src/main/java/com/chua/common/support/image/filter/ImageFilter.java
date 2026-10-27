@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.io.OutputStream;
 /**
+ * 图像滤镜接口。
+ *
  * @author CH
  * @since 4.0.0.42
  */

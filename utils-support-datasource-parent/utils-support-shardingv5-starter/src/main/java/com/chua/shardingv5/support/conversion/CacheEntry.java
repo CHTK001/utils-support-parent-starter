@@ -2,6 +2,8 @@ package com.chua.shardingv5.support.conversion;
 
 import java.util.List;
 /**
+ * 分片解析结果缓存条目（涉及表名与过期时间）。
+ *
  * @author CH
  * @since 4.0.0.42
  */

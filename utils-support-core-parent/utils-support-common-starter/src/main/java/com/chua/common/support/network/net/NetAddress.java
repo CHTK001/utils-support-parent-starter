@@ -11,6 +11,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
+ * 网络地址值对象，承载主机与端口。
+ *
  * @author CH
  * @since 4.0.0.42
  */

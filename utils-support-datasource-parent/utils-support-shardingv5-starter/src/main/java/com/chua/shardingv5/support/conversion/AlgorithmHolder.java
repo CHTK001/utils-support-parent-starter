@@ -2,6 +2,8 @@ package com.chua.shardingv5.support.conversion;
 
 import java.util.Map;
 /**
+ * 分片算法配置持有者（算法类型与属性表）。
+ *
  * @author CH
  * @since 4.0.0.42
  */

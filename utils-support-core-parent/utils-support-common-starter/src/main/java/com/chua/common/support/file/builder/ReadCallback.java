@@ -2,6 +2,8 @@ package com.chua.common.support.file.builder;
 
 import java.util.List;
 /**
+ * 文件读取回调接口。
+ *
  * @author CH
  * @since 4.0.0.42
  */

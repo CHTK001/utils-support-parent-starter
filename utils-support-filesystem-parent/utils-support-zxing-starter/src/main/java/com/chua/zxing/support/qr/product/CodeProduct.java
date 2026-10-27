@@ -12,6 +12,8 @@ import javax.annotation.Nullable;
 
 
 /**
+ * 二维码产物接口。
+ *
  * @author CH
  * @since 4.0.0.42
  */

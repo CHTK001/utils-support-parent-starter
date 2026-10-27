@@ -4,6 +4,8 @@ import com.chua.common.support.reflection.ReflectUtils;
 
 import java.lang.reflect.Constructor;
 /**
+ * 构造器反射站点，按构造器创建实例。
+ *
  * @author CH
  * @since 4.0.0.42
  */

@@ -2,6 +2,8 @@ package com.chua.common.support.media;
 import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Map;
 /**
+ * 媒体类型工厂，负责 MIME 类型的解析与匹配。
+ *
  * @author CH
  * @since 4.0.0.42
  */

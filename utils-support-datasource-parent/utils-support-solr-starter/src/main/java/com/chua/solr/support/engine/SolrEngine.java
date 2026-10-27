@@ -55,6 +55,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * 基于 Solr 的检索引擎实现。
+ *
  * @author CH
  * @since 4.0.0.42
  */

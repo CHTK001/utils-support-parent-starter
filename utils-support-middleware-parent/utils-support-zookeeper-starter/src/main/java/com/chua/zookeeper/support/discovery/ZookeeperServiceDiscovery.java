@@ -28,6 +28,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
+ * 基于 ZooKeeper 的服务发现实现。
+ *
  * @author CH
  * @since 4.0.0.42
  */

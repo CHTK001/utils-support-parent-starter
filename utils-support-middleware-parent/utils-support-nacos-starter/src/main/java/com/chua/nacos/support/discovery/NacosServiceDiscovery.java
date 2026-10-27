@@ -17,6 +17,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * 基于 Nacos 的服务发现实现。
+ *
  * @author CH
  * @since 4.0.0.42
  */

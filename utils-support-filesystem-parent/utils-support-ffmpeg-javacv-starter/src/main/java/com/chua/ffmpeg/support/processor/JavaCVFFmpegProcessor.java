@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
+ * 基于 JavaCV 的 FFmpeg 处理器实现。
+ *
  * @author CH
  * @since 4.0.0.42
  */

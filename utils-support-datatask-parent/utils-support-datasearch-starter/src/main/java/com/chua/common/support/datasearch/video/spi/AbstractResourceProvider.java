@@ -5,6 +5,8 @@ import com.chua.common.support.datasearch.video.model.VideoInfoResult;
 import com.chua.common.support.datasearch.video.model.VideoSearch;
 import com.chua.common.support.datasearch.video.model.VideoSource;
 /**
+ * 资源提供者抽象基类，复用请求与解析流程。
+ *
  * @author CH
  * @since 4.0.0.42
  */

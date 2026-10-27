@@ -168,6 +168,8 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
     }
 
     /**
+     * 组合推理的输入结构。
+     *
      *             
      * @author CH
      * @since 4.0.0

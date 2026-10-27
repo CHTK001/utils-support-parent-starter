@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 文件系统写入器抽象基类，统一写入参数与回调处理。
+ *
  * @author CH
  * @since 4.0.0.42
  */
