@@ -148,7 +148,7 @@ public class BotOutboundMessage {
     private boolean toGroup;
 
     /**
-     * @ 提及的用户 ID 列表
+     * 提及的用户 ID 列表
      */
     private List<String> mentionedUsers;
 

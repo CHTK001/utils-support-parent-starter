@@ -132,7 +132,7 @@ public class BotInboundMessage {
     private boolean fromGroup;
 
     /**
-     * @ 提及的用户 ID 列表
+     * 提及的用户 ID 列表
      *
      * Mentioned列表
      */

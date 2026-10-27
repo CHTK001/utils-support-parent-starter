@@ -51,9 +51,6 @@ public class Yolo5PlateDetectTranslator implements Translator<Image, DetectedObj
      */
     private final int inputSize;
 
-    /**
-     *                      
-     */
     private final float minConfThreshold;
 
     /**
@@ -61,24 +58,12 @@ public class Yolo5PlateDetectTranslator implements Translator<Image, DetectedObj
      */
     private final float iouThreshold;
 
-    /**
-     *                      
-     */
     private final float confThreshold;
 
-    /**
-     *                   
-     */
     private final int topK;
 
-    /**
-     *                   
-     */
     private int imageWidth;
 
-    /**
-     *                   
-     */
     private int imageHeight;
 
     /**

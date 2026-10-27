@@ -30,14 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class LcmLoraVaeEncoderTranslator implements Translator<Image, NDList> {
 
-    /**
-     *                   
-     */
     private final int width;
 
-    /**
-     *                   
-     */
     private final int height;
 
     /**

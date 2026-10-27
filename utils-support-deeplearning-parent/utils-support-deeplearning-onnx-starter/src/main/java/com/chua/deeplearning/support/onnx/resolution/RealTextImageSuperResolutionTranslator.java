@@ -28,9 +28,6 @@ public class RealTextImageSuperResolutionTranslator implements Translator<Image,
      */
     private NDManager manager;
 
-    /**
-     *                                                    
-     */
     private final int detectResolution = 512;
 
     /**

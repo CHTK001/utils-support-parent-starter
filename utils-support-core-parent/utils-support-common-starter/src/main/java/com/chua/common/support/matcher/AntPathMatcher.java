@@ -22,8 +22,6 @@ public class AntPathMatcher implements PathMatcher {
      *                      : "/".
      */
     public static final String DEFAULT_PATH_SEPARATOR = "/";
-    /**
-     */
     private static final int CACHE_TURNOFF_THRESHOLD = 65536;
     /**
      *                                      {variable}                
@@ -33,11 +31,7 @@ public class AntPathMatcher implements PathMatcher {
      *                                '*', '?', '{'
      */
     private static final char[] WILDCARD_CHARS = {'*', '?', '{'};
-    /**
-     */
     private String pathSeparator;
-    /**
-     */
     private PathSeparatorPatternCache pathSeparatorPatternCache;
     /**
      *                                   true
@@ -51,10 +45,6 @@ public class AntPathMatcher implements PathMatcher {
      *                                null                           
      */
     private volatile Boolean cachePatterns;
-    /**
-     *                                              
-     *                                              
-     */
     private final Map<String, String[]> tokenizedPatternCache = new ConcurrentReferenceHashMap<>(256);
     /**
      *                                               AntPathStringMatcher
@@ -405,6 +395,7 @@ public class AntPathMatcher implements PathMatcher {
         return tokenized;
     }
     /**
+     * 停用正则缓存。
      */
     private void deactivatePatternCache() {
         this.cachePatterns = false;
@@ -636,23 +627,11 @@ public class AntPathMatcher implements PathMatcher {
          *                                      ?, *, {variable}             
          */
         private static final Pattern GLOB_PATTERN = Pattern.compile("\\?|\\*|\\{((?:\\{[^/]+?}|[^/{}]|\\\\[{}])+?)}");
-        /**
-         */
         private static final String DEFAULT_VARIABLE_PATTERN = "((?s).*)";
-        /**
-         */
         private final String rawPattern;
-        /**
-         */
         private final boolean caseSensitive;
-        /**
-         */
         private final boolean exactMatch;
-        /**
-         */
         private final Pattern pattern;
-        /**
-         */
         private final List<String> variableNames = Wraps.list();
         /**
          *        AntPathStringMatcher
@@ -763,8 +742,6 @@ public class AntPathMatcher implements PathMatcher {
      * </ul>
      */
     protected static class AntPatternComparator implements Comparator<String> {
-        /**
-         */
         private final String path;
         /**
          *        AntPatternComparator
@@ -831,8 +808,6 @@ public class AntPathMatcher implements PathMatcher {
          *                                               "*"   SYMBOL_ASTERISK_ANY     "{"                               
          */
         private static class PatternInfo {
-            /**
-             */
             private final String pattern;
             
             /**
@@ -860,8 +835,6 @@ public class AntPathMatcher implements PathMatcher {
              */
             private boolean prefixPattern;
             
-            /**
-             */
             private Integer length;
             /**
              *        PatternInfo

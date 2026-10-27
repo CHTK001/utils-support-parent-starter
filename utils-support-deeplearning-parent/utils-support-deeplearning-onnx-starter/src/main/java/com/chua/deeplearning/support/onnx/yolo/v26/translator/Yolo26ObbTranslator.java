@@ -37,14 +37,8 @@ import java.util.List;
 @Spi("yolo26_obb")
 public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
 
-    /**
-     *                   
-     */
     private static final int DEFAULT_SIZE = 640;
 
-    /**
-     *                      
-     */
     private static final float DEFAULT_THRESHOLD = 0.25f;
 
     /**
@@ -52,14 +46,8 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
      */
     private static final float DEFAULT_NMS_THRESHOLD = 0.45f;
 
-    /**
-     *                            
-     */
     private static final int DEFAULT_MAX_BOXES = 8400;
 
-    /**
-     *                
-     */
     private final float threshold;
 
     /**
@@ -67,27 +55,16 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
      */
     private final float nmsThreshold;
 
-    /**
-     *                   
-     */
     private final List<String> classes;
 
-    /**
-     *                   
-     */
     private final int width;
 
-    /**
-     *                   
-     */
     private final int height;
 
-    /**
-     *                      
-     */
     private final int maxBoxes;
 
     /**
+     * 创建 Yolo26ObbTranslator 实例。
      *                                           
      */
     public Yolo26ObbTranslator() {

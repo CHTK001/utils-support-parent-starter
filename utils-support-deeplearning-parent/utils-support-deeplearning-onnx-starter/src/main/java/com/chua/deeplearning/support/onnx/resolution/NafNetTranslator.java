@@ -46,14 +46,8 @@ public class NafNetTranslator implements Translator<Image, Image> {
      */
     private NDManager manager;
 
-    /**
-     *                                                      
-     */
     private int origWidth;
 
-    /**
-     *                                                      
-     */
     private int origHeight;
 
     /**

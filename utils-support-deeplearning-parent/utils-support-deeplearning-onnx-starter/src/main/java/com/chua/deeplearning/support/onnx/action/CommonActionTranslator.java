@@ -102,19 +102,10 @@ public class CommonActionTranslator implements Translator<Image, Classifications
             "'water_skiing','water_sliding','watering_plants','waxing_back','waxing_chest','waxing_eyebrows','waxing_legs'," +
             "'weaving_basket','welding','whistling','windsurfing','wrapping_present','wrestling','writing','yawning','yoga','zumba'";
 
-    /**
-     *                   
-     */
     private final int width;
 
-    /**
-     *                   
-     */
     private final int height;
 
-    /**
-     *                         
-     */
     private String[] labels;
 
     /**

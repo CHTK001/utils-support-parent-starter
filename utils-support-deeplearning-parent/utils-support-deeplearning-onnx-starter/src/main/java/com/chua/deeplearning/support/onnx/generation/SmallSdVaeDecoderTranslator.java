@@ -34,14 +34,8 @@ import javax.annotation.Nonnull;
 @Slf4j
 public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList, Image> {
 
-    /**
-     *                   
-     */
     private final int width;
 
-    /**
-     *                   
-     */
     private final int height;
 
     /**

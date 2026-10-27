@@ -31,14 +31,8 @@ import ai.djl.modality.cv.ImageFactory;
 @Slf4j
 public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
 
-    /**
-     *                   
-     */
     private final int width;
 
-    /**
-     *                   
-     */
     private final int height;
 
     /**

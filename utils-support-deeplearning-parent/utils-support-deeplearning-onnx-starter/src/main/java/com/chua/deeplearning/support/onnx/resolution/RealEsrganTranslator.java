@@ -38,9 +38,6 @@ import java.awt.image.BufferedImage;
 @Slf4j
 public class RealEsrganTranslator implements Translator<Image, Image> {
 
-    /**
-     *                                                             
-     */
     private final int scale;
 
     /**
@@ -49,6 +46,7 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     private NDManager manager;
 
     /**
+     * 创建 RealEsrganTranslator 实例。
      *                              
      */
     public RealEsrganTranslator() {

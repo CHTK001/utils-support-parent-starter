@@ -62,6 +62,7 @@ class ProgressUpdateAction implements Runnable {
         this.first = true;
     }
     /**
+     * 刷新。
      * <p>
      *                                                                                     
      */
@@ -72,6 +73,7 @@ class ProgressUpdateAction implements Runnable {
         //                                                                               #91   
     }
     /**
+     * 强制刷新。
      * <p>
      *                                                                
      */
@@ -81,6 +83,7 @@ class ProgressUpdateAction implements Runnable {
         last = progress.current;
     }
     /**
+     * 执行。
      * <p>
      *                                                                                        
      *                                                                   

@@ -51,19 +51,10 @@ import java.util.stream.IntStream;
 @Spi("yolo_cls")
 public class YoloClsTranslator implements Translator<Image, Classifications> {
 
-    /**
-     *                   
-     */
     private final List<String> classes;
 
-    /**
-     *                   
-     */
     private final int width;
 
-    /**
-     *                   
-     */
     private final int height;
 
     /**

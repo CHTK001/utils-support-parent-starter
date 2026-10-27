@@ -33,19 +33,10 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     */
     private static final int MODEL_IMAGE_SIZE = 256;
     
-    /**
-     *             
-     */
     protected Batchifier batchifier = Batchifier.STACK;
 
-    /**
-     *                   
-     */
     private int width;
 
-    /**
-     *                   
-     */
     private int height;
 
     /**
@@ -59,6 +50,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     private int imageResolution = 512;
 
     /**
+     * 创建 MidasDepthTranslator 实例。
      *                   
      */
     public MidasDepthTranslator() {

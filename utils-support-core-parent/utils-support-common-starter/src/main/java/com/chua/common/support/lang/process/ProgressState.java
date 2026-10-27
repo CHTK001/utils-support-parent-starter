@@ -190,11 +190,13 @@ public class ProgressState {
         return paused;
     }
     /**
+     * 设置为确定状态。
      */
     synchronized void setAsDefinite() {
         indefinite = false;
     }
     /**
+     * 设置为不确定状态。
      */
     synchronized void setAsIndefinite() {
         indefinite = true;
@@ -238,6 +240,7 @@ public class ProgressState {
         extraMessage = msg;
     }
     /**
+     * 暂停。
      * <p>
      *                                              
      */
@@ -247,6 +250,7 @@ public class ProgressState {
         elapsedBeforeStart = elapsedBeforeStart.plus(Duration.between(startInstant, Instant.now()));
     }
     /**
+     * 恢复。
      * <p>
      *                               
      */
@@ -255,6 +259,7 @@ public class ProgressState {
         startInstant = Instant.now();
     }
     /**
+     * 重置。
      * <p>
      *                                                 
      */

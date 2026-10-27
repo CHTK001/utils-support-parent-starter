@@ -32,14 +32,8 @@ import java.awt.image.BufferedImage;
 @Slf4j
 public class AnimeGanV3Translator implements Translator<Image, Image> {
 
-    /**
-     *                   
-     */
     private static final int INPUT_SIZE = 512;
 
-    /**
-     *                                           
-     */
     private int originalWidth;
     /**
      * 原始高度

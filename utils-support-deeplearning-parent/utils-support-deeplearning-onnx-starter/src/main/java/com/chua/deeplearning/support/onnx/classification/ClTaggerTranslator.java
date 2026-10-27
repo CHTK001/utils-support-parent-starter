@@ -67,9 +67,6 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     */
     private static final Logger log = LoggerFactory.getLogger(ClTaggerTranslator.class);
 
-    /**
-     *                   
-     */
     private static final int INPUT_SIZE = 448;
 
     /**
@@ -77,9 +74,6 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
      */
     private final int topk;
 
-    /**
-     *                   
-     */
     private List<String> classes;
 
     /**

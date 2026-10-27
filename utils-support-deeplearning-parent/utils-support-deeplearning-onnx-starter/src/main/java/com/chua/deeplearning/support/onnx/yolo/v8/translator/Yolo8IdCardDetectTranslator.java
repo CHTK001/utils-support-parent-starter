@@ -49,9 +49,6 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
      */
     private final int inputSize;
 
-    /**
-     *                      
-     */
     private final float minConfThreshold;
 
     /**
@@ -59,19 +56,10 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
      */
     private final float iouThreshold;
 
-    /**
-     *                   
-     */
     private final int topK;
 
-    /**
-     *                   
-     */
     private int imageWidth;
 
-    /**
-     *                   
-     */
     private int imageHeight;
 
     /**

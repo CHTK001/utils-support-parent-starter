@@ -34,14 +34,8 @@ import javax.annotation.Nonnull;
 @Slf4j
 public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDList> {
 
-    /**
-     *                   
-     */
     private final int width;
 
-    /**
-     *                   
-     */
     private final int height;
 
     /**

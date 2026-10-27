@@ -34,14 +34,8 @@ import java.awt.image.BufferedImage;
 @Slf4j
 public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects> {
 
-    /**
-     *              
-     */
     private static final int INPUT_SIZE = 800;
 
-    /**
-     *                                      
-     */
     private static final List<String> LABELS = List.of(
             "abstract",
             "algorithm",
@@ -70,24 +64,12 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
             "vision_footnote"
     );
 
-    /**
-     *                          
-     */
     private final Float configuredScoreThreshold;
 
-    /**
-     *              
-     */
     private float scoreThreshold;
 
-    /**
-     *                              
-     */
     private int width;
 
-    /**
-     *                              
-     */
     private int height;
 
     /**
@@ -95,12 +77,10 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
      */
     private int scale;
 
-    /**
-     *                              
-     */
     private boolean lowInformationInput;
 
     /**
+     * 创建 PpDocLayoutTranslator 实例。
      *              
      */
     public PpDocLayoutTranslator() {

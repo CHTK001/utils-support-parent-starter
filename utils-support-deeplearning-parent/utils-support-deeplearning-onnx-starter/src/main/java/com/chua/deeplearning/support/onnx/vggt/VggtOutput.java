@@ -37,9 +37,6 @@ public class VggtOutput {
      */
     private int numGaussians;
 
-    /**
-     *                            
-     */
     private int featureDimension;
 
     /**

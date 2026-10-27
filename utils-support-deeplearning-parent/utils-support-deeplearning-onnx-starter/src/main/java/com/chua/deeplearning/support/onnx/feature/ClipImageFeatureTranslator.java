@@ -55,9 +55,6 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
      */
     private static final float[] IMAGE_STD = {0.26862954f, 0.26130258f, 0.27577711f};
 
-    /**
-     *                         
-     */
     private static final int IMAGE_SIZE = 224;
 
     /**

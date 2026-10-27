@@ -27,29 +27,14 @@ public class YoloRotatedBox {
      */
     private float cy;
 
-    /**
-     *       
-     */
     private float w;
 
-    /**
-     *       
-     */
     private float h;
 
-    /**
-     *                         
-     */
     private float angle;
 
-    /**
-     *             
-     */
     private String className;
 
-    /**
-     *                
-     */
     private float score;
 
     /**

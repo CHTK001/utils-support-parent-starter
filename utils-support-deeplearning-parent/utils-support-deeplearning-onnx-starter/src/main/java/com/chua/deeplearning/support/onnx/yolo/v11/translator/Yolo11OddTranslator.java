@@ -53,14 +53,8 @@ import java.util.stream.IntStream;
 @Spi("yolo11_obb")
 public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
 
-    /**
-     *                      
-     */
     private final int maxBoxes;
 
-    /**
-     *                
-     */
     private final float threshold;
 
     /**
@@ -68,19 +62,10 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
      */
     private final float nmsThreshold;
 
-    /**
-     *                   
-     */
     private final List<String> classes;
 
-    /**
-     *                   
-     */
     private final int width;
 
-    /**
-     *                   
-     */
     private final int height;
 
     /**

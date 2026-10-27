@@ -19,6 +19,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * seed 引导模式发现：仅与 seed 同步 hash + 新节点扩散 + 最小 nodeId 选举 + 全掉线降级。
@@ -35,6 +36,7 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class SeedModeDiscovery extends AbstractScatterDiscovery {
 
     /**
