@@ -210,8 +210,8 @@ public interface WebContainer {
 
         /**
          * 创建 ContainerException 实例
-         * @param message message
-         * @param Throwable Throwable
+         * @param message 异常信息
+         * @param cause   原始异常
          */
         public ContainerException(String message, Throwable cause) {
             super(message, cause);
