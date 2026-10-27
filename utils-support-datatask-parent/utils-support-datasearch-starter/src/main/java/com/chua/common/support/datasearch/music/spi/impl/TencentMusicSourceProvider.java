@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 /**
  * QQ音乐（腾讯音乐）源提供者
  * 实现QQ音乐平台的搜索、歌单、歌曲详情等功能
- * 
+ *
  * @author CH
  * @since 4.0.0.42
  */

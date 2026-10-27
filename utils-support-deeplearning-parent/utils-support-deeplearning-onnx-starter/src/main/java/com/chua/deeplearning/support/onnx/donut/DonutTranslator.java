@@ -57,7 +57,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
     /**
-     *                
+     *
      *
      * @param ctx                   
      * @throws Exception                         
@@ -68,9 +68,9 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
     }
 
     /**
-     *             
+     *
      * <p>
-     *                                                 
+     *
      * 1.                 2560x1920
      * 2.           RGB       
      * 3.              [0, 1]
@@ -93,7 +93,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
     }
 
     /**
-     *             
+     *
      * <p>
      * 令牌                 JSON
      * </p>
@@ -184,7 +184,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
     }
 
     /**
-     *                   
+     *
      * <p>
      *        Donut                            
      * -                 2560x1920                            letterbox   

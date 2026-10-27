@@ -307,7 +307,7 @@ public class ByteUtils extends BitUtils {
 
 
     /**
-     *       
+     *
      *
      * @param b       
      * @return       
@@ -325,7 +325,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *       
+     *
      *
      * @param b       
      * @return       
@@ -343,7 +343,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *       
+     *
      *
      * @param b       
      * @return       
@@ -361,7 +361,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *       
+     *
      *
      * @param b       
      * @return       
@@ -379,7 +379,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *          
+     *
      *
      * @param b       
      * @return       
@@ -390,7 +390,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *          
+     *
      *
      * @param b       
      * @return       
@@ -401,7 +401,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *          
+     *
      *
      * @param b       
      * @return       
@@ -412,7 +412,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *          
+     *
      *
      * @param b       
      * @return       
@@ -568,7 +568,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *                            
+     *
      *
      * @param bytes             
      * @return          
@@ -578,7 +578,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *                            
+     *
      *
      * @param bytes             
      * @return          
@@ -589,7 +589,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *                            
+     *
      *
      * @param bytes             
      * @return          
@@ -600,7 +600,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *                   
+     *
      *
      * @param size        
      * @param bytes          
@@ -620,7 +620,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *             
+     *
      *
      * @param source          
      * @return          
@@ -635,7 +635,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *                
+     *
      *
      * @param str          
      * @return                      
@@ -645,7 +645,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *                
+     *
      *
      * @param str              
      * @param charset                                                                      

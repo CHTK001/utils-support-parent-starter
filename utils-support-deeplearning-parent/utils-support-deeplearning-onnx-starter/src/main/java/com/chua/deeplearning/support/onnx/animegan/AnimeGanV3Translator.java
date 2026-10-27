@@ -21,7 +21,7 @@ import java.awt.image.BufferedImage;
  * <p>
  * animeganv3
  *
- *                
+ *
  * 1.                                                    
  * 2.                                                       
  * 3.                                  
@@ -41,7 +41,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     private int originalHeight;
 
     /**
-     *                      
+     *
      *
      * @param ctx                   
      * @param input             
@@ -136,7 +136,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     }
 
     /**
-     *                      
+     *
      *
      * @param ctx                   
      * @param list                         
@@ -206,7 +206,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     }
 
     /**
-     *                   
+     *
      *
      * @return              -        无                    处理输入
      */
@@ -216,7 +216,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     }
 
     /**
-     *                   
+     *
      *
      * @return             
      */
@@ -225,7 +225,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     }
 
     /**
-     *                         
+     *
      *
      * @return                    [width, height]
      */

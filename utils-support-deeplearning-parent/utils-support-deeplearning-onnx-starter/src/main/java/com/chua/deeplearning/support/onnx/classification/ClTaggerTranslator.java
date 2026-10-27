@@ -29,16 +29,16 @@ import java.util.stream.IntStream;
  * CL Tagger                            
  * <p>
  *        CL Tagger                                     
- *                                                                      
+ *
  * </p>
  * <p>
- *                
+ *
  * -                          
  * -                             Resize + Normalize   
  * -            Top-K       
  * </p>
  * <p>
- *                   
+ *
  * 1.           448x448
  * 2.              [0, 1]
  * 3.           CHW       
@@ -135,7 +135,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     }
 
     /**
-     *                   
+     *
      *
      * @param ctx                     
      * @param input             
@@ -170,7 +170,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     }
 
     /**
-     *                   
+     *
      *
      * @param ctx                    
      * @param list              nd列表
@@ -199,7 +199,7 @@ finally {
     }
 
     /**
-     *                   
+     *
      *
      * @return STACK             
      */

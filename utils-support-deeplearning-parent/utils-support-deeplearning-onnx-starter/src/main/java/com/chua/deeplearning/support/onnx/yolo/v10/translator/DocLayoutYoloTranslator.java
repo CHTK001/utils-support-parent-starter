@@ -30,7 +30,7 @@ import org.opencv.imgproc.Imgproc;
  * docstructbench
  * <p>
  * doclayout-YOLO                                                                    yolov10
- *                                                                                     
+ *
  * <p>
  * yolov10
  * -        shape: [1, num_boxes, 6]        [1, 300, 6]
@@ -50,13 +50,13 @@ import org.opencv.imgproc.Imgproc;
  * - isolate_formula:             
  * - formula_caption:             
  * <p>
- *                
+ *
  * -                                   1024x1024   
  * -        docstructbench
  * -                                                                                     
  * -        NMS                  
  * <p>
- *                
+ *
  * - PDF             
  * -                      
  * -                   
@@ -164,7 +164,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
     /**
-     *                   
+     *
      *
      * @param ctx                     
      * @param input             
@@ -208,7 +208,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
     /**
-     *                   
+     *
      * <p>
      * yolov10                       NMS
      * -        shape: [1, num_boxes, 6]        [1, 300, 6]
@@ -359,7 +359,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
     /**
-     *                   
+     *
      *
      * @return                   
      */
@@ -370,7 +370,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
     /**
-     *                            
+     *
      *
      * @return                   
      */
@@ -379,7 +379,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
     /**
-     *                            
+     *
      *
      * @return DocStructBench                         
      */

@@ -136,7 +136,7 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
     }
 
     /**
-     *                               
+     *
      * <p>
      * "This example 是否 about {标签}.",        NLI,
      *     ENTAILMENT score                      

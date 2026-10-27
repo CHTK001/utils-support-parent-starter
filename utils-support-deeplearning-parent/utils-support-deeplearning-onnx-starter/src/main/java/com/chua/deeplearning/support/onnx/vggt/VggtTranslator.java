@@ -18,14 +18,14 @@ import java.util.Arrays;
 /**
  * VGGT Translator
  * <p>
- *                                                                                  
+ *
  * <p>
- *                
+ *
  * -                 512x512
  * -                      
  * -           NCHW       
  * <p>
- *                
+ *
  * -        3D                   
  * -                    translator上下文
  * -              镜像                      上下文
@@ -116,7 +116,7 @@ public class VggtTranslator implements Translator<Image, Image> {
     }
 
     /**
-     *                   
+     *
      * <p>
      *        3D                                                                
      * 3D              translator上下文

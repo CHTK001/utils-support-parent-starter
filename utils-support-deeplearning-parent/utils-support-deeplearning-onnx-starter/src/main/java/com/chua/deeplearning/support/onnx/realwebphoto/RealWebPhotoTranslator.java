@@ -19,22 +19,22 @@ import java.awt.image.BufferedImage;
  * 4xrealwebphoto_v4
  * <p>
  * realwebphoto
- *                                                                                     
+ *
  * <p>
- *                
+ *
  * -           float32       
  * -              [0, 1]
  * -           CHW          通道, Height, Width
  * -        批量          [1, C, H, W]
  * <p>
- *                
+ *
  * -        批量          [1, C, H, W]     [C, H, W]
  * -           [0, 1]       
  * -           [0, 255]
  * -           UINT8       
  * -           镜像
  * <p>
- *                
+ *
  * -        ESRGAN       
  * -                                     
  * -     JPEG                                              

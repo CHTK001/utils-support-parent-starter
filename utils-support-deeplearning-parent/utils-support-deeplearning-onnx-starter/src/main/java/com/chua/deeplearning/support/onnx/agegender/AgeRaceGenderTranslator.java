@@ -17,18 +17,18 @@ import org.slf4j.LoggerFactory;
  * age竞争gendernet
  * <p>
  * age竞争gendernet
- *                                                          
+ *
  * -                            0-116      117            
  * -                            
  * -                            
  * <p>
- *                
+ *
  * -                       256x256
  * -              [0, 1]
  * - 镜像net             mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
  * -           NCHW       
  * <p>
- *                
+ *
  * -                                                 
  * -          softmax                         0-116   
  * -          softmax                   Male/Female   
@@ -253,9 +253,9 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     }
 
     /**
-     *                      
+     *
      * <p>
-     *                                              
+     *
      *
      * @param age                
      * @return           [0.0, 1.0]

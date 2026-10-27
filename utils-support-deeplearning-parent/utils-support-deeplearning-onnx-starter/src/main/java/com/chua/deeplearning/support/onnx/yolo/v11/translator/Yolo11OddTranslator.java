@@ -20,23 +20,23 @@ import java.util.stream.IntStream;
  * yolov11 OBB
  * <p>
  * yolov11                               OBB - Oriented Bounding Box
- *                                                                                              
+ *
  * <p>
- *                
+ *
  * -                                       +        +          
  * -            probiou                 NMS
  * -                          
  * -                                
  * -     letterbox
  * <p>
- *                
+ *
  * [cx, cy, w, h, 类_scores..., angle]
  * - cx, cy:                
  * - w, h:                
  * - 类_scores:
  * - angle:                         
  * <p>
- *                
+ *
  * ```Java
  * //                   
  * 列表<String> 类 = Arrays.as列表("文本", "vehicle");
@@ -99,7 +99,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
-     *                   
+     *
      *
      * @param width                          
      * @param height                         
@@ -121,7 +121,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
-     *                   
+     *
      *
      * @param ctx                     
      * @param input             
@@ -159,7 +159,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
-     *                   
+     *
      *
      * @param ctx                    
      * @param list              nd列表
@@ -294,7 +294,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
-     *                   
+     *
      *
      * @return STACK             
      * @param size 大小

@@ -18,7 +18,7 @@ import java.util.List;
  * CRNN              Translator
  * <p>
  * smartjavaAI     crnn铭牌rectranslator
- *                                                          
+ *
  * </p>
  *
  * @author CH

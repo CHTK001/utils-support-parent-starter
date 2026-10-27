@@ -70,7 +70,7 @@ import java.util.Map;
  *     </item>
  * </configs>
  * }</pre>
- *                                                             
+ *
  *
  * @author CH
  * @since 2023-09-05
@@ -112,8 +112,8 @@ public class XmlConfigParser implements ConfigParser {
         }
     }
     /**
-     *                            
-     *                                                       
+     *
+     *
      *
      * @param root          
      * @return                                            null
@@ -151,7 +151,7 @@ public class XmlConfigParser implements ConfigParser {
     /**
      *                 property       
      * <p>
-     *                      
+     *
      * <ul>
      *     <li>{@code <property name="key" value="value"/>}</li>
      *     <li>{@code <property name="key">value</property>}</li>
