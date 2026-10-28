@@ -18,7 +18,7 @@ import ai.djl.modality.cv.output.Rectangle;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
- * yolov8s COCO ͨ用Ŀ标检测 Translator。
+ * yolov8s COCO 通用目标检测 Translator。
  *
  * @author CH
  * @since 4.0.0.42
