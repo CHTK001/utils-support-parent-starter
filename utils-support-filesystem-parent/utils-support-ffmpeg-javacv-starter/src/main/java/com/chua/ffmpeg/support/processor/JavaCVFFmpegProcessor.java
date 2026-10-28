@@ -187,8 +187,12 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
 
             grabber.start();
             recorder.setFormat(targetFormat);
-            recorder.setAudioChannels(options.getAudioChannels() != null ? options.getAudioChannels() : grabber.getAudioChannels());
-            recorder.setSampleRate(options.getAudioSampleRate() != null ? options.getAudioSampleRate() : grabber.getSampleRate());
+            recorder.setAudioChannels(options.getAudioChannels() != null
+                    ? options.getAudioChannels()
+                    : grabber.getAudioChannels());
+            recorder.setSampleRate(options.getAudioSampleRate() != null
+                    ? options.getAudioSampleRate()
+                    : grabber.getSampleRate());
             if (options.getAudioCodec() != null) {
                 recorder.setAudioCodecName(options.getAudioCodec());
             }
@@ -561,9 +565,15 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
             grabber.start();
 
             recorder.setFormat(streamUrl.startsWith("rtmp://") ? "flv" : FileUtils.getSimpleExtension(streamUrl));
-            recorder.setImageWidth(options != null && options.getWidth() != null ? options.getWidth() : grabber.getImageWidth());
-            recorder.setImageHeight(options != null && options.getHeight() != null ? options.getHeight() : grabber.getImageHeight());
-            recorder.setFrameRate(options != null && options.getFps() != null ? options.getFps() : grabber.getFrameRate());
+            recorder.setImageWidth(options != null && options.getWidth() != null
+                    ? options.getWidth()
+                    : grabber.getImageWidth());
+            recorder.setImageHeight(options != null && options.getHeight() != null
+                    ? options.getHeight()
+                    : grabber.getImageHeight());
+            recorder.setFrameRate(options != null && options.getFps() != null
+                    ? options.getFps()
+                    : grabber.getFrameRate());
             recorder.setAudioChannels(grabber.getAudioChannels());
             recorder.setSampleRate(grabber.getSampleRate());
             if (options != null && options.getVideoCodec() != null) {
@@ -636,9 +646,15 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
             grabber.start();
 
             recorder.setFormat(streamUrl.startsWith("rtmp://") ? "flv" : FileUtils.getSimpleExtension(streamUrl));
-            recorder.setImageWidth(options != null && options.getWidth() != null ? options.getWidth() : grabber.getImageWidth());
-            recorder.setImageHeight(options != null && options.getHeight() != null ? options.getHeight() : grabber.getImageHeight());
-            recorder.setFrameRate(options != null && options.getFps() != null ? options.getFps() : grabber.getFrameRate());
+            recorder.setImageWidth(options != null && options.getWidth() != null
+                    ? options.getWidth()
+                    : grabber.getImageWidth());
+            recorder.setImageHeight(options != null && options.getHeight() != null
+                    ? options.getHeight()
+                    : grabber.getImageHeight());
+            recorder.setFrameRate(options != null && options.getFps() != null
+                    ? options.getFps()
+                    : grabber.getFrameRate());
             recorder.setAudioChannels(grabber.getAudioChannels());
             recorder.setSampleRate(grabber.getSampleRate());
             if (options != null && options.getVideoCodec() != null) {

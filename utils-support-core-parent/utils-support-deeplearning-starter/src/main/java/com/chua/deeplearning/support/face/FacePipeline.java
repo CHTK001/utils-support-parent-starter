@@ -906,7 +906,9 @@ public class FacePipeline {
                     fc.currentLive(lr.live(), lr.score());
                     return null;
                 }).taskEnd()
-                .decision("isLive", ctx -> !requireLive || liveness == null || current(ctx).currentLive() ? NODE_COLLECT : NODE_END)
+                .decision("isLive", ctx -> !requireLive || liveness == null || current(ctx).currentLive()
+                        ? NODE_COLLECT
+                        : NODE_END)
                 .task(NODE_COLLECT, ctx -> {
                     FaceContext fc = current(ctx);
                     fc.addDetectionHit(new FaceDetectionHit(
@@ -947,7 +949,9 @@ public class FacePipeline {
                     fc.currentLive(lr.live(), lr.score());
                     return null;
                 }).taskEnd()
-                .decision("isLive", ctx -> !requireLive || liveness == null || current(ctx).currentLive() ? NODE_ALIGN : NODE_END)
+                .decision("isLive", ctx -> !requireLive || liveness == null || current(ctx).currentLive()
+                        ? NODE_ALIGN
+                        : NODE_END)
                 .task(NODE_ALIGN, ctx -> {
                     // 人脸对齐：基于关键点摆正（旋转到两眼水平），提升后续特征提取精度
                     FaceContext fc = current(ctx);
@@ -992,7 +996,9 @@ public class FacePipeline {
                     }
                     return null;
                 }).taskEnd()
-                .decision("hasFeature", ctx -> current(ctx).currentFeature() != null && vectorStorage != null ? NODE_SEARCH : NODE_COLLECT_IDENTIFY)
+                .decision("hasFeature", ctx -> current(ctx).currentFeature() != null && vectorStorage != null
+                        ? NODE_SEARCH
+                        : NODE_COLLECT_IDENTIFY)
                 .task(NODE_SEARCH, ctx -> {
                     FaceContext fc = current(ctx);
                     fc.currentHits(searchFeature(fc.currentFeature(), topK));

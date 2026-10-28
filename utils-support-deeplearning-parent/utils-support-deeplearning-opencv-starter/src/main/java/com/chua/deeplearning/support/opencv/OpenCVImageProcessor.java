@@ -300,7 +300,9 @@ public class OpenCVImageProcessor implements ImageProcessor {
     private Mat border(Mat src, Map<String, Object> params) {
         int width = ImageProcessorUtils.toInt(params.get("width"), 1);
         width = Math.max(0, width);
-        int[] rgb = ImageProcessorUtils.parseColor(params.get("color") != null ? params.get("color").toString() : "#000000");
+        int[] rgb = ImageProcessorUtils.parseColor(params.get("color") != null
+                ? params.get("color").toString()
+                : "#000000");
         Scalar color = new Scalar(rgb[2], rgb[1], rgb[0]); // 打开cv 使用 BGR 顺序
         Mat dst = new Mat();
         Core.copyMakeBorder(src, dst, width, width, width, width, Core.BORDER_CONSTANT, color);
@@ -409,7 +411,9 @@ public class OpenCVImageProcessor implements ImageProcessor {
 
         try {
             // 匹配方法
-            int method = parseMatchMethod(params.get("method") != null ? params.get("method").toString() : "ccoeff_normed");
+            int method = parseMatchMethod(params.get("method") != null
+                    ? params.get("method").toString()
+                    : "ccoeff_normed");
 
             // 执行模板匹配
             Mat result = new Mat();

@@ -231,7 +231,9 @@ public class SystemdServiceManager implements ServiceManager {
     private String generateServiceFile(ManagedService service) {
         StringBuilder sb = new StringBuilder();
         sb.append("[Unit]\n");
-        sb.append("Description=").append(service.getDisplayName() != null ? service.getDisplayName() : service.getServiceName()).append("\n");
+        sb.append("Description=").append(service.getDisplayName() != null
+                ? service.getDisplayName()
+                : service.getServiceName()).append("\n");
         for (String dep : service.getDependencies()) {
             sb.append("After=").append(dep).append("\n");
         }
