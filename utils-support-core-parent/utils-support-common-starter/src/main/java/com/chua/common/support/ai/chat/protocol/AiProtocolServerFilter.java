@@ -860,7 +860,9 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
      */
     private void handleGemini(ServerRequest request, ServerResponse response) throws Exception {
         String fullPath = request.getPath();
-        String rest = fullPath.startsWith(GEMINI_PATH_PREFIX) ? fullPath.substring(GEMINI_PATH_PREFIX.length()) : fullPath;
+        String rest = fullPath.startsWith(GEMINI_PATH_PREFIX)
+                ? fullPath.substring(GEMINI_PATH_PREFIX.length())
+                : fullPath;
         int colonIdx = rest.lastIndexOf(':');
         if (colonIdx < 0) {
             writeJson(response,

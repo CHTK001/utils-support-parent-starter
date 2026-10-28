@@ -180,8 +180,12 @@ public abstract class AbstractImageCompressor implements ImageCompressor {
         if (targetWidth <= 0 && targetHeight <= 0) {
             return image;
         }
-        int width = targetWidth > 0 ? targetWidth : (int) Math.round(image.getWidth() * (targetHeight / (double) image.getHeight()));
-        int height = targetHeight > 0 ? targetHeight : (int) Math.round(image.getHeight() * (targetWidth / (double) image.getWidth()));
+        int width = targetWidth > 0
+                ? targetWidth
+                : (int) Math.round(image.getWidth() * (targetHeight / (double) image.getHeight()));
+        int height = targetHeight > 0
+                ? targetHeight
+                : (int) Math.round(image.getHeight() * (targetWidth / (double) image.getWidth()));
         BufferedImage scaled = new BufferedImage(Math.max(1, width), Math.max(1, height), BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = scaled.createGraphics();
         try {

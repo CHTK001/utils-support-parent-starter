@@ -220,7 +220,9 @@ public class MapUtils {
         }
 
         Object v = getObject(map, key);
-        return null == v || "".equals(v) ? (v = getObject(map, key2)) == null ? defaultValue : v.toString() : v.toString();
+        return null == v || "".equals(v)
+                ? (v = getObject(map, key2)) == null ? defaultValue : v.toString()
+                : v.toString();
     }
 
     /**

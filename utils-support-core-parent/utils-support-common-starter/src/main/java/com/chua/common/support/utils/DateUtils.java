@@ -714,7 +714,9 @@ public class DateUtils {
         if (null == date) {
             return null;
         }
-        DateFormat df = null == dateFormat ? createDefaultDateFormat(DateFormatConstant.YYYY_MM_DD_HH_MM_SS) : dateFormat;
+        DateFormat df = null == dateFormat
+                ? createDefaultDateFormat(DateFormatConstant.YYYY_MM_DD_HH_MM_SS)
+                : dateFormat;
         return df.format(date);
     }
     /**
@@ -745,7 +747,9 @@ public class DateUtils {
      * @return 格式化后的字符串
      */
     public static String format(long time, DateFormat dateFormat) {
-        DateFormat df = null == dateFormat ? createDefaultDateFormat(DateFormatConstant.YYYY_MM_DD_HH_MM_SS) : dateFormat;
+        DateFormat df = null == dateFormat
+                ? createDefaultDateFormat(DateFormatConstant.YYYY_MM_DD_HH_MM_SS)
+                : dateFormat;
         return df.format(time);
     }
     /**

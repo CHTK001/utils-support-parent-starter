@@ -248,7 +248,9 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
             return null;
         }
         ServiceDefinition serviceDefinition = definitionFinder.getServiceDefinition(type, args);
-        return null == serviceDefinition ? getDefaultImpl(args) : (T) Optional.ofNullable(serviceDefinition.newInstance(serviceAutowire, args)).orElse(defaultImpl);
+        return null == serviceDefinition
+                ? getDefaultImpl(args)
+                : (T) Optional.ofNullable(serviceDefinition.newInstance(serviceAutowire, args)).orElse(defaultImpl);
     }
 
     /**
@@ -367,7 +369,9 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     @Override
     public Optional<T> getIfPresent(String name) {
         if (null == name) {
-            return definitions.size() == 1 ? Optional.ofNullable(definitions.values().iterator().next().first().getObj(serviceAutowire)) : Optional.empty();
+            return definitions.size() == 1
+                    ? Optional.ofNullable(definitions.values().iterator().next().first().getObj(serviceAutowire))
+                    : Optional.empty();
         }
 
         return Optional.ofNullable(definitionFinder.getServiceDefinition(name).newInstance(serviceAutowire));

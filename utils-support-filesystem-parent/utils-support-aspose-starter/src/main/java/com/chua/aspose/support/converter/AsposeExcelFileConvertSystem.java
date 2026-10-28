@@ -71,7 +71,9 @@ public class AsposeExcelFileConvertSystem implements FileConvertSystem {
     @Override
     public void convert(FileSource source, FileSource target, ConvertSetting setting) {
         try (InputStream in = source.isInputStream() ? source.getInputStream() : new FileInputStream(source.getPath());
-             OutputStream out = target.isOutputStream() ? target.getOutputStream() : new FileOutputStream(target.getPath())) {
+             OutputStream out = target.isOutputStream()
+                     ? target.getOutputStream()
+                     : new FileOutputStream(target.getPath())) {
             Workbook wb = new Workbook(in);
             String ext = target.isPath() ? target.getPath().replaceAll(".*\\.", "") : target.getType();
             Integer fmt = FORMAT_MAP.get(ext);

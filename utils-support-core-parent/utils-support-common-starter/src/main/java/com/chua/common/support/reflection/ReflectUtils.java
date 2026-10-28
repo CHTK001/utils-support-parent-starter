@@ -134,7 +134,9 @@ public final class ReflectUtils {
                 String clsName = it.substring(0, idx);
                 ClassLoader cl = idx >= 0 ? classLoader : Thread.currentThread().getContextClassLoader();
                 // initialize=true：触发静态块（SPI 注册器依赖类初始化执行 registerAll 等逻辑）
-                return cl != null ? Class.forName(clsName, true, cl) : Class.forName(clsName); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（Class 加载封装）
+                return cl != null
+                        ? Class.forName(clsName, true, cl)
+                        : Class.forName(clsName); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（Class 加载封装）
             } catch (ClassNotFoundException e) {
                 log.debug("[ReflectUtils] 类加载失败: {}", className);
                 return null;
