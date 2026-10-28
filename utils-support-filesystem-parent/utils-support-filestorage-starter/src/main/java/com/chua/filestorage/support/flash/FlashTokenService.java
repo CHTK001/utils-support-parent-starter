@@ -63,7 +63,7 @@ public class FlashTokenService {
         String token = UUID.randomUUID().toString().replace("-", "");
         Path marker = flashDir.resolve(token);
         Files.writeString(marker, "", StandardOpenOption.CREATE_NEW);
-        log.debug("[FlashToken] 创建 token: {}", token);
+        log.debug("[FlashToken] 创建 token: {}", maskToken(token));
         return token;
     }
 
@@ -102,11 +102,11 @@ public class FlashTokenService {
         Path marker = flashDir.resolve(token);
         try {
             if (Files.deleteIfExists(marker)) {
-                log.debug("[FlashToken] 消费 token: {}", token);
+                log.debug("[FlashToken] 消费 token: {}", maskToken(token));
                 return true;
             }
         } catch (IOException e) {
-            log.warn("[FlashToken] 删除 marker 文件失败: {}", token, e);
+            log.warn("[FlashToken] 删除 marker 文件失败: {}", maskToken(token), e);
         }
         return false;
     }
@@ -130,5 +130,18 @@ public class FlashTokenService {
         } catch (IOException e) {
             log.warn("[FlashToken] 扫描闪图目录失败: {}", flashDir, e);
         }
+    }
+
+    /**
+     * 对 token 做脱敏处理，仅保留前 4 位与后 4 位。
+     *
+     * @param token 原始 token
+     * @return 脱敏后的字符串
+     */
+    private static String maskToken(String token) {
+        if (token == null || token.length() <= 8) {
+            return "****";
+        }
+        return token.substring(0, 4) + "****" + token.substring(token.length() - 4);
     }
 }
