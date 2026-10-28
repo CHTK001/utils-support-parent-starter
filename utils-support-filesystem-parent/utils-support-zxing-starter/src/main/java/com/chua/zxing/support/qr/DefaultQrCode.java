@@ -80,10 +80,13 @@ public class DefaultQrCode extends AbstractQrCode {
 
             if (setting.hasBackgroundStyle()) {
                 BackgroundSetting backgroundSetting = setting.getBackgroundSetting();
-                bufferedImage = ServiceProvider.of(BackgroundResolver.class).getNewExtension(backgroundSetting.getBgImgStyle()).resolve(setting, setting.getBackgroundSetting(), bufferedImage, qrCode, bitMatrix);
+                bufferedImage = ServiceProvider.of(BackgroundResolver.class).getNewExtension(backgroundSetting.getBgImgStyle()).resolve(setting,
+                        setting.getBackgroundSetting(), bufferedImage, qrCode, bitMatrix);
             }
-            bufferedImage = ServiceProvider.of(LogoResolver.class).getNewExtension(DEFAULT).resolve(bufferedImage, setting.getLogoSetting(), setting);
-            bufferedImage = ServiceProvider.of(FrontResolver.class).getNewExtension(DEFAULT).resolve(bufferedImage, setting.getFrontSetting(), setting);
+            bufferedImage = ServiceProvider.of(LogoResolver.class).getNewExtension(DEFAULT).resolve(bufferedImage,
+                    setting.getLogoSetting(), setting);
+            bufferedImage = ServiceProvider.of(FrontResolver.class).getNewExtension(DEFAULT).resolve(bufferedImage,
+                    setting.getFrontSetting(), setting);
 
             BufferedImageUtils.writeToStream(bufferedImage, "png", outputStream);
         } catch (Exception e) {

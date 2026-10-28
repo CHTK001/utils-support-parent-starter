@@ -74,7 +74,8 @@ public class SystemdServiceManager implements ServiceManager {
             Files.writeString(Path.of(tmp), content);
             CmdResult r = CmdExecutors.execute(new String[]{"cp", tmp, svc.toString()}, CMD_TIMEOUT, TimeUnit.SECONDS);
             if (!r.isSuccess()) {
-                r = CmdExecutors.execute(new String[]{"sudo", "cp", tmp, svc.toString()}, CMD_TIMEOUT, TimeUnit.SECONDS);
+                r = CmdExecutors.execute(new String[]{"sudo", "cp", tmp, svc.toString()}, CMD_TIMEOUT,
+                        TimeUnit.SECONDS);
             }
             CmdExecutors.execute(new String[]{"rm", "-f", tmp}, 5, TimeUnit.SECONDS);
             if (!r.isSuccess()) {

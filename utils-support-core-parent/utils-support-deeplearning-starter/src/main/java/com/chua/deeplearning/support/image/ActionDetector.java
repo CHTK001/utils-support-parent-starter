@@ -40,7 +40,8 @@ public interface ActionDetector {
      * @return 检测器
      */
     static ActionDetector create(String name) {
-        return new DefaultActionDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultActionDetector(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

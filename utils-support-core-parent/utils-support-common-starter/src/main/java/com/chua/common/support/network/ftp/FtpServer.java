@@ -191,7 +191,8 @@ public class FtpServer extends AbstractServer implements TcpServer {
             log.info("FTP 服务器启动成功: {}:{}", controlServerSocket.getInetAddress().getHostAddress(),
                     controlServerSocket.getLocalPort());
         } catch (IOException e) {
-            throw new IllegalStateException("FTP 服务器启动失败: " + ftpConfig.getHost() + ":" + ftpConfig.getControlPort(), e);
+            throw new IllegalStateException("FTP 服务器启动失败: " + ftpConfig.getHost() + ":" + ftpConfig.getControlPort(),
+                    e);
         }
     }
 

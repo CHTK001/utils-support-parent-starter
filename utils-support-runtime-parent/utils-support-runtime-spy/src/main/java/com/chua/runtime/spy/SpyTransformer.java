@@ -477,7 +477,8 @@ public class SpyTransformer implements ClassFileTransformer {
                 return mv;
             }
             boolean isStatic = (access & Opcodes.ACC_STATIC) != 0;
-            return new SpyMethodVisitor(ASM_API, mv, access, targetClass, name, descriptor, points, exact, spyClass, isStatic);
+            return new SpyMethodVisitor(ASM_API, mv, access, targetClass, name, descriptor, points, exact, spyClass,
+                                        isStatic);
         }
     }
 

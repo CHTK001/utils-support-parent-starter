@@ -58,7 +58,8 @@ public class ThreadUtils {
     /**
      * 调度_执行器_服务
      */
-    private static final ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE = newScheduledThreadPoolExecutor(200, "com-ch-scheduled-thread-pool");
+    private static final ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE = newScheduledThreadPoolExecutor(200,
+            "com-ch-scheduled-thread-pool");
 
     static {
         Runtime.getRuntime().addShutdownHook(newThread(THREAD_POOL::shutdownNow));

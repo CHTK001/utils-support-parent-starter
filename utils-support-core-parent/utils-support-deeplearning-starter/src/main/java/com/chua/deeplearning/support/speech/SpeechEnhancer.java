@@ -40,7 +40,8 @@ public interface SpeechEnhancer {
      * @return 增强器
      */
     static SpeechEnhancer create(String name) {
-        return new DefaultSpeechEnhancer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultSpeechEnhancer(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

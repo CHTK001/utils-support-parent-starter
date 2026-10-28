@@ -254,7 +254,8 @@ public class UdpSyncClient implements SyncClient {
     private void sendData(String payload) {
         try {
             byte[] bytes = payload.getBytes(StandardCharsets.UTF_8);
-            DatagramPacket packet = new DatagramPacket(bytes, bytes.length, serverAddress.getAddress(), serverAddress.getPort());
+            DatagramPacket packet = new DatagramPacket(bytes, bytes.length, serverAddress.getAddress(),
+                    serverAddress.getPort());
             socket.send(packet);
         } catch (IOException e) {
             throw new RuntimeException("UDP SyncClient 发送失败", e);

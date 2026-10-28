@@ -256,8 +256,10 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
      * @throws Exception ORT 异常
      */
     private float[] runEncoder(long[] sourceIds, long[] sourceMask) throws Exception {
-        try (OnnxTensor tIds = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(sourceIds), new long[]{1, sourceIds.length});
-             OnnxTensor tMask = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(sourceMask), new long[]{1, sourceIds.length});
+        try (OnnxTensor tIds = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(sourceIds), new long[]{1,
+                sourceIds.length});
+             OnnxTensor tMask = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(sourceMask), new long[]{1,
+                     sourceIds.length});
              OrtSession.Result r = encoderSession.run(Map.of("input_ids", tIds, "attention_mask", tMask))) {
             OnnxTensor encOut = (OnnxTensor) r.get("last_hidden_state").orElse(r.iterator().next().getValue());
             return encOut.getFloatBuffer().array().clone();

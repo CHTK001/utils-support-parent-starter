@@ -54,7 +54,8 @@ public interface SpeechSynthesizer {
      * @return 创建的结果
      */
     static SpeechSynthesizer create(String name) {
-        return new DefaultSpeechSynthesizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultSpeechSynthesizer(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

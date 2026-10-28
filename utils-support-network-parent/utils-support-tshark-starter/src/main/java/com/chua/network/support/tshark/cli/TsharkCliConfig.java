@@ -189,9 +189,12 @@ public final class TsharkCliConfig {
         this.packageManager = blankToNull(builder.packageManager);
         this.stages = resolveStages(builder.stages);
         this.execTimeoutSeconds = positive(builder.execTimeoutSeconds, TsharkSettings.DEFAULT_EXEC_TIMEOUT_SECONDS);
-        this.versionTimeoutSeconds = positive(builder.versionTimeoutSeconds, TsharkSettings.DEFAULT_VERSION_TIMEOUT_SECONDS);
-        this.downloadTimeoutSeconds = positive(builder.downloadTimeoutSeconds, TsharkSettings.DEFAULT_DOWNLOAD_TIMEOUT_SECONDS);
-        this.installTimeoutSeconds = positive(builder.installTimeoutSeconds, TsharkSettings.DEFAULT_INSTALL_TIMEOUT_SECONDS);
+        this.versionTimeoutSeconds = positive(builder.versionTimeoutSeconds,
+                TsharkSettings.DEFAULT_VERSION_TIMEOUT_SECONDS);
+        this.downloadTimeoutSeconds = positive(builder.downloadTimeoutSeconds,
+                TsharkSettings.DEFAULT_DOWNLOAD_TIMEOUT_SECONDS);
+        this.installTimeoutSeconds = positive(builder.installTimeoutSeconds,
+                TsharkSettings.DEFAULT_INSTALL_TIMEOUT_SECONDS);
     }
 
     /**

@@ -60,7 +60,8 @@ public interface LayoutDetector {
      * @return 创建的结果
      */
     static LayoutDetector create() {
-        return new DefaultLayoutDetector(AbstractIdentificationEngine.getInstance(), "", ModelSetting.builder().build());
+        return new DefaultLayoutDetector(AbstractIdentificationEngine.getInstance(), "",
+                ModelSetting.builder().build());
     }
 
     /**
@@ -70,7 +71,8 @@ public interface LayoutDetector {
      * @return 检测器
      */
     static LayoutDetector create(String name) {
-        return new DefaultLayoutDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultLayoutDetector(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**
@@ -262,7 +264,8 @@ class DefaultLayoutDetector implements LayoutDetector {
     @Override
     @SuppressWarnings("unchecked")
     public Map<String, List<PredictRectangle>> detect(byte[] imageData) {
-        ITranslator<byte[], Object> t = (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
+        ITranslator<byte[], Object> t = (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class,
+                DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }
@@ -324,7 +327,8 @@ class DefaultLayoutDetector implements LayoutDetector {
     @Override
     @SuppressWarnings("unchecked")
     public String parse(byte[] imageData) {
-        ITranslator<byte[], Object> t = (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
+        ITranslator<byte[], Object> t = (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class,
+                DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }

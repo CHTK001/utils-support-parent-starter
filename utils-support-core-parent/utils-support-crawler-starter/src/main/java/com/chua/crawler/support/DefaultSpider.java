@@ -181,7 +181,9 @@ public class DefaultSpider implements Spider {
             return;
         }
 
-        executor = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(1024), Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
+        executor = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(1024), Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.CallerRunsPolicy());
         try {
             initPipelines();
             enqueueSeedUrls();

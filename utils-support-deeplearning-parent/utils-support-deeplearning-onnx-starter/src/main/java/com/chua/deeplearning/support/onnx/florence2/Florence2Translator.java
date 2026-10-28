@@ -213,7 +213,8 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         List<Long> generatedTokens = Wraps.list(tokens);
         try {
             long[] currentIds = tokens.stream().mapToLong(Long::longValue).toArray();
-            OnnxTensor idsTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(currentIds), new long[]{1, currentIds.length});
+            OnnxTensor idsTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(currentIds), new long[]{1,
+                    currentIds.length});
             try (OrtSession.Result embedResult = embedSession.run(Map.of("input_ids", idsTensor))) {
                 OnnxTensor embedOut = (OnnxTensor) embedResult.get("inputs_embeds").get();
                 int embedSeqLen = (int) embedOut.getInfo().getShape()[1];
@@ -222,8 +223,10 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                 for (int i = 0; i < embedSeqLen; i++) {
                     System.arraycopy(embedFlat, i * HIDDEN_SIZE, embeds[i], 0, HIDDEN_SIZE);
                 }
-                OnnxTensor embedsTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(floatArrayFrom2D(embeds)), new long[]{1, embedSeqLen, HIDDEN_SIZE});
-                OnnxTensor encoderHiddenTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(floatArrayFrom2D(encoderHidden)), new long[]{1, seqLen, HIDDEN_SIZE});
+                OnnxTensor embedsTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(floatArrayFrom2D(embeds)),
+                        new long[]{1, embedSeqLen, HIDDEN_SIZE});
+                OnnxTensor encoderHiddenTensor = OnnxTensor.createTensor(ortEnv,
+                        FloatBuffer.wrap(floatArrayFrom2D(encoderHidden)), new long[]{1, seqLen, HIDDEN_SIZE});
                 Map<String, OnnxTensor> decoderInputs = Wraps.map();
                 decoderInputs.put("inputs_embeds", embedsTensor);
                 decoderInputs.put("encoder_hidden_states", encoderHiddenTensor);
@@ -246,7 +249,8 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                     }
                     for (int step = 1; step < MAX_NEW_TOKENS; step++) {
                         long[] stepIds = generatedTokens.stream().mapToLong(Long::longValue).toArray();
-                        OnnxTensor stepIdsTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(stepIds), new long[]{1, stepIds.length});
+                        OnnxTensor stepIdsTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(stepIds),
+                                new long[]{1, stepIds.length});
                         try (OrtSession.Result stepEmbedResult = embedSession.run(Map.of("input_ids", stepIdsTensor))) {
                             OnnxTensor stepEmbedOut = (OnnxTensor) stepEmbedResult.get("inputs_embeds").get();
                             int stepSeqLen = (int) stepEmbedOut.getInfo().getShape()[1];
@@ -255,8 +259,12 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                             for (int i = 0; i < stepSeqLen; i++) {
                                 System.arraycopy(stepEmbedFlat, i * HIDDEN_SIZE, stepEmbeds[i], 0, HIDDEN_SIZE);
                             }
-                            OnnxTensor stepEmbedsTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(floatArrayFrom2D(stepEmbeds)), new long[]{1, stepSeqLen, HIDDEN_SIZE});
-                            OnnxTensor stepEncoderHiddenTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(floatArrayFrom2D(encoderHidden)), new long[]{1, seqLen, HIDDEN_SIZE});
+                            OnnxTensor stepEmbedsTensor = OnnxTensor.createTensor(ortEnv,
+                                    FloatBuffer.wrap(floatArrayFrom2D(stepEmbeds)), new long[]{1, stepSeqLen,
+                                    HIDDEN_SIZE});
+                            OnnxTensor stepEncoderHiddenTensor = OnnxTensor.createTensor(ortEnv,
+                                    FloatBuffer.wrap(floatArrayFrom2D(encoderHidden)), new long[]{1, seqLen,
+                                    HIDDEN_SIZE});
                             Map<String, OnnxTensor> stepDecoderInputs = Wraps.map();
                             stepDecoderInputs.put("inputs_embeds", stepEmbedsTensor);
                             stepDecoderInputs.put("encoder_hidden_states", stepEncoderHiddenTensor);

@@ -341,7 +341,8 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
                 String sourceHost = resolveLocalHost();
                 int sourcePort = 0;
                 try {
-                    java.net.InetSocketAddress local = (java.net.InetSocketAddress) ReflectUtils.invoke(instance, "getLocalSocketAddress", java.net.InetSocketAddress.class);
+                    java.net.InetSocketAddress local = (java.net.InetSocketAddress) ReflectUtils.invoke(instance,
+                            "getLocalSocketAddress", java.net.InetSocketAddress.class);
                     if (local != null) {
                         sourcePort = local.getPort();
                     }
@@ -467,7 +468,8 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
                 String host = "?";
                 int port = 0;
                 try {
-                    java.net.InetSocketAddress remote = (java.net.InetSocketAddress) ReflectUtils.invoke(socket, "getRemoteSocketAddress", java.net.InetSocketAddress.class);
+                    java.net.InetSocketAddress remote = (java.net.InetSocketAddress) ReflectUtils.invoke(socket,
+                            "getRemoteSocketAddress", java.net.InetSocketAddress.class);
                     if (remote != null) {
                         host = remote.getHostString();
                         port = remote.getPort();

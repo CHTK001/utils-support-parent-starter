@@ -102,16 +102,19 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
         Object result;
         if (streaming) {
             Object[] invokeArgs = buildArgs(paramTypes, args, (SshCommandResponse) response);
-            result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), invokeArgs);
+            result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(),
+                    invokeArgs);
             return;
         }
 
         if (paramTypes.length == 1 && paramTypes[0] == String[].class) {
-            result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), new Class[]{String[].class}, args);
+            result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), new Class[]{String[].class},
+                    args);
         } else if (paramTypes.length == 0) {
             result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType());
         } else {
-            result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), new Class[]{String[].class}, args);
+            result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), new Class[]{String[].class},
+                    args);
         }
 
         if (result != null) {

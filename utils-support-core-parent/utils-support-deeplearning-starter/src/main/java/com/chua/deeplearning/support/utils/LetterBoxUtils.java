@@ -126,7 +126,8 @@ public class LetterBoxUtils {
                 int rv = (int) (pixels[idx] * 255f);
                 int gv = (int) (pixels[len + idx] * 255f);
                 int bv = (int) (pixels[2 * len + idx] * 255f);
-                int rgb = (Math.min(255, Math.max(0, rv)) << 16) | (Math.min(255, Math.max(0, gv)) << 8) | Math.min(255, Math.max(0, bv));
+                int rgb = (Math.min(255, Math.max(0, rv)) << 16) | (Math.min(255, Math.max(0, gv)) << 8) | Math.min(255,
+                        Math.max(0, bv));
                 bi.setRGB(x, y, rgb);
             }
         }

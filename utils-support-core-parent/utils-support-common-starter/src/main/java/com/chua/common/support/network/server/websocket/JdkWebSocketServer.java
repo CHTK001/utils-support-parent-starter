@@ -431,7 +431,8 @@ public class JdkWebSocketServer extends AbstractServer {
                         throw new IllegalArgumentException("Unsupported param: " + type.getName());
                     }
                 }
-                Object result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
+                Object result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(),
+                        method.getParameterTypes(), args);
                 if (result != null) {
                     response.setResult(result);
                 }

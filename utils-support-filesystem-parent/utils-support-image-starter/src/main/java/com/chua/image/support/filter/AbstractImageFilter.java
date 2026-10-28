@@ -260,7 +260,9 @@ public abstract class AbstractImageFilter implements ImageFilter {
         if (colorModel == null) {
             colorModel = src.getColorModel();
         }
-        return new BufferedImage(colorModel, colorModel.createCompatibleWritableRaster(src.getWidth(), src.getHeight()), colorModel.isAlphaPremultiplied(), null);
+        return new BufferedImage(colorModel,
+                                 colorModel.createCompatibleWritableRaster(src.getWidth(), src.getHeight()),
+                                 colorModel.isAlphaPremultiplied(), null);
     }
 
     /**

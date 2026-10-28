@@ -109,7 +109,8 @@ public class RustNmapScanner implements NmapScanner {
         } catch (CompletionException e) {
             // native 抛出的错误经 join 包装，脱壳后原样上报，空端口列表只可能是"没扫成"
             Throwable cause = e.getCause() == null ? e : e.getCause();
-            throw cause instanceof RuntimeException re ? re : new IllegalStateException("TCP端口扫描失败: host=" + host, cause);
+            throw cause instanceof RuntimeException re ? re : new IllegalStateException("TCP端口扫描失败: host=" + host,
+                    cause);
         }
     }
 

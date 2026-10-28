@@ -77,7 +77,8 @@ public final class NeteaseCryptoSupport {
     public static Map<String, String> weapi(Object payload) {
         byte[] secretKey = randomSecretKey();
         String text = toJson(payload);
-        byte[] first = aes("AES/CBC/PKCS5Padding", text.getBytes(StandardCharsets.UTF_8), PRESET_KEY, IV, Cipher.ENCRYPT_MODE);
+        byte[] first = aes("AES/CBC/PKCS5Padding", text.getBytes(StandardCharsets.UTF_8), PRESET_KEY, IV,
+                           Cipher.ENCRYPT_MODE);
         byte[] second = aes("AES/CBC/PKCS5Padding",
                 Base64.getEncoder().encode(first),
                 secretKey,

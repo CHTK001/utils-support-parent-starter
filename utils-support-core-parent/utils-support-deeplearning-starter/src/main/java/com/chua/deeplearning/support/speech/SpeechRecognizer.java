@@ -54,7 +54,8 @@ public interface SpeechRecognizer {
      * @return 创建的结果
      */
     static SpeechRecognizer create(String name) {
-        return new DefaultSpeechRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultSpeechRecognizer(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

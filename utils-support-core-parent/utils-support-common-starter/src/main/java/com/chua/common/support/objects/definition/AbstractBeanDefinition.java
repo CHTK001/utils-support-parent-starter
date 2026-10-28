@@ -753,7 +753,8 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
                             Parameter[] params = method.getParameters();
                             for (int i = 0; i < args.length; i++) {
                                 if (args[i] instanceof String str) {
-                                    Object resolved = ConfigValueResolvers.resolve(str, params[i].getType(), environment);
+                                    Object resolved = ConfigValueResolvers.resolve(str, params[i].getType(),
+                                            environment);
                                     if (resolved != null) {
                                         args[i] = resolved;
                                     } else {

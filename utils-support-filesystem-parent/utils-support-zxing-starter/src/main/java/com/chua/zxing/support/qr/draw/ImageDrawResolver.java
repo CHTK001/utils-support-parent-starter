@@ -57,7 +57,8 @@ public class ImageDrawResolver extends AbstractDrawResolver{
         RenderImgResourcesV2 imgResourcesV2 = drawOptions.getImgResourcesForV2();
         for (int x = 0; x < matrixW; x++) {
             for (int y = 0; y < matrixH; y++) {
-                QrCodeRenderHelper.DetectLocation detectLocation = inDetectCornerArea(x, y, matrixW, matrixH, detectCornerSize);
+                QrCodeRenderHelper.DetectLocation detectLocation = inDetectCornerArea(x, y, matrixW, matrixH,
+                        detectCornerSize);
                 if (detectLocation.detectedArea()) {
                     // 若探测图形特殊绘制，则单独处理
                     if (qrCodeConfig.getDetectOptions().getSpecial()) {

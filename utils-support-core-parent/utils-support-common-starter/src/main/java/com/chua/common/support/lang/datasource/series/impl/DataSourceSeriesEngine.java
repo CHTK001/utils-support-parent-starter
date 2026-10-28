@@ -151,7 +151,8 @@ public class DataSourceSeriesEngine implements SeriesEngine {
 
         List<Object[]> points = Wraps.list();
         try {
-            List<Map<String, Object>> rows = executor.query(querySql, monitorId, new Timestamp(startMs), new Timestamp(nowMs));
+            List<Map<String, Object>> rows = executor.query(querySql, monitorId, new Timestamp(startMs),
+                    new Timestamp(nowMs));
             int dropped = 0;
             for (Map<String, Object> row : rows) {
                 Long ts = toEpochMillis(pick(row, timeCol));

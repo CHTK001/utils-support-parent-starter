@@ -177,7 +177,8 @@ public class NativeRpcServer implements RpcServer {
                 try {
                     DiscoveryOption option = new DiscoveryOption();
                     option.setAddress(config.getAddress());
-                    this.serviceDiscovery = ServiceProvider.of(ServiceDiscovery.class).getNewExtension(protocol, option);
+                    this.serviceDiscovery = ServiceProvider.of(ServiceDiscovery.class).getNewExtension(protocol,
+                            option);
                     if (serviceDiscovery != null) {
                         serviceDiscovery.start();
                         log.info("ServiceDiscovery initialized: {}", protocol);
@@ -205,7 +206,8 @@ public class NativeRpcServer implements RpcServer {
                 return response;
             }
             java.lang.reflect.Method method = resolveMethod(service, request);
-            Object result = ReflectUtils.invoke(service, request.getMethod(), Object.class, method.getParameterTypes(), request.getArgs());
+            Object result = ReflectUtils.invoke(service, request.getMethod(), Object.class,
+                    method.getParameterTypes(), request.getArgs());
             response.setSuccess(true);
             response.setResult(result);
         } catch (Exception e) {

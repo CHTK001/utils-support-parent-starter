@@ -75,12 +75,14 @@ public class WevisdocMarkdownParser {
     /**
      * HTML 图注正则。
      */
-    private static final Pattern HTML_FIGURE_CAPTION_PATTERN = Pattern.compile("<figcaption[^>]*>.*?</figcaption>", Pattern.DOTALL);
+    private static final Pattern HTML_FIGURE_CAPTION_PATTERN = Pattern.compile("<figcaption[^>]*>.*?</figcaption>",
+            Pattern.DOTALL);
 
     /**
      * HTML 表注正则。
      */
-    private static final Pattern HTML_TABLE_CAPTION_PATTERN = Pattern.compile("<caption[^>]*>.*?</caption>", Pattern.DOTALL);
+    private static final Pattern HTML_TABLE_CAPTION_PATTERN = Pattern.compile("<caption[^>]*>.*?</caption>",
+            Pattern.DOTALL);
 
     /**
      * 解析 Markdown 文本，统计各类版面元素数量。

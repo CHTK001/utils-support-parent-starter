@@ -1236,7 +1236,8 @@ public static byte[] encode(Mat mat) {
      */
     public static byte[] drawDetectionsWithLabels(byte[] imageData, List<DetectionInfo> boxes, List<String> labels) {
         load();
-        Mat src = org.opencv.imgcodecs.Imgcodecs.imdecode(new MatOfByte(imageData), org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
+        Mat src = org.opencv.imgcodecs.Imgcodecs.imdecode(new MatOfByte(imageData),
+                org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
         if (src == null) {
             return imageData;
         }
@@ -1320,7 +1321,8 @@ public static byte[] encode(Mat mat) {
      */
     public static byte[] drawDetections(byte[] imageData, List<DetectionInfo> boxes) {
         load();
-        Mat src = org.opencv.imgcodecs.Imgcodecs.imdecode(new MatOfByte(imageData), org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
+        Mat src = org.opencv.imgcodecs.Imgcodecs.imdecode(new MatOfByte(imageData),
+                org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
         if (src == null) {
             return imageData;
         }

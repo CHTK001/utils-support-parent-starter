@@ -57,7 +57,8 @@ public interface LicensePlateRecognizer {
      * @return 创建的结果
      */
     static LicensePlateRecognizer create(String name) {
-        return new DefaultLicensePlateRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultLicensePlateRecognizer(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**
@@ -244,7 +245,8 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
     @SuppressWarnings("unchecked")
     public List<DetectionInfo> recognizeDetail(byte[] imageData) {
         ITranslator<byte[], List<DetectionInfo>> t =
-                (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
+                (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class,
+                        DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }
@@ -261,7 +263,8 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
     @SuppressWarnings("unchecked")
     public PlateResult recognizePlate(byte[] imageData) {
         ITranslator<byte[], PlateResult> t =
-                (ITranslator<byte[], PlateResult>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
+                (ITranslator<byte[], PlateResult>) engine.get(modelName, ITranslator.class,
+                        DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }

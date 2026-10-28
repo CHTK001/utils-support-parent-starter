@@ -119,7 +119,8 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
             System.arraycopy(ids, 0, flattened, offset, ids.length);
             offset += ids.length;
         }
-        NDArray inputIds = ctx.getNDManager().create(flattened, new Shape(candidateInputIds.length, candidateInputIds[0].length));
+        NDArray inputIds = ctx.getNDManager().create(flattened,
+                new Shape(candidateInputIds.length, candidateInputIds[0].length));
         inputIds.setName("input_ids");
         return new NDList(inputIds, array);
     }

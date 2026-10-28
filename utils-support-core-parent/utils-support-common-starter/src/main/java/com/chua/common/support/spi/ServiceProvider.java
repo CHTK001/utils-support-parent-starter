@@ -74,7 +74,8 @@ public interface ServiceProvider<T> {
      * 空的服务提供者实例。
      * 用于在无法找到有效服务时返回的默认值。
      */
-    ServiceProvider<Void> EMPTY = new DefaultServiceProvider<>(Void.class, Thread.currentThread().getContextClassLoader());
+    ServiceProvider<Void> EMPTY = new DefaultServiceProvider<>(Void.class,
+            Thread.currentThread().getContextClassLoader());
 
     /**
      * 缓存已创建的服务提供者实例。
@@ -139,13 +140,15 @@ public interface ServiceProvider<T> {
             return (ServiceProvider<T>) CACHE.computeIfAbsent(type, new Function<Class<?>, ServiceProvider<?>>() {
                 @Override
                 public ServiceProvider<?> apply(Class<?> aClass) {
-                    return new DefaultServiceProvider<>(type, Optional.ofNullable(classLoader).orElse(Thread.currentThread().getContextClassLoader()));
+                    return new DefaultServiceProvider<>(type,
+                            Optional.ofNullable(classLoader).orElse(Thread.currentThread().getContextClassLoader()));
                 }
             });
         } catch (Exception e) {
             // 忽略异常，直接返回新的实例
         }
-        return new DefaultServiceProvider<>(type, Optional.ofNullable(classLoader).orElse(Thread.currentThread().getContextClassLoader()));
+        return new DefaultServiceProvider<>(type,
+                Optional.ofNullable(classLoader).orElse(Thread.currentThread().getContextClassLoader()));
     }
 
     /**
@@ -731,7 +734,8 @@ public interface ServiceProvider<T> {
             return true;
         }
         try {
-Boolean result = (Boolean) ReflectUtils.invoke(instance, "available", Object.class, new Class<?>[0], new Object[0], new Object[0]);
+Boolean result = (Boolean) ReflectUtils.invoke(instance, "available", Object.class, new Class<?>[0], new Object[0],
+        new Object[0]);
             if (Boolean.TRUE.equals(result)) {
                 return true;
             }

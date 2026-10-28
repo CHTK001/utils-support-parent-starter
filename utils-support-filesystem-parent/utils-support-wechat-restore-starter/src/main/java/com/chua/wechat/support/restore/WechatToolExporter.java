@@ -121,7 +121,8 @@ public final class WechatToolExporter {
 
         // 执行导出命令
         String[] command = buildExportCommand(toolScript, dataDir, outputDir, exportFormat, config);
-        CmdResult result = CmdExecutors.execute(command, COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS, toolDir, null, null);
+        CmdResult result = CmdExecutors.execute(command, COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS, toolDir, null,
+                null);
         if (!result.isSuccess()) {
             throw new RuntimeException("Wechat-Export 导出失败, exit=" + result.getExitCode()
                     + ", error: " + result.getStderr());
@@ -156,7 +157,8 @@ public final class WechatToolExporter {
 
         // 先导出 JSON 中间格式
         String[] command = buildExportCommand(toolScript, dataDir, outputDir, EXPORT_FORMAT_JSON, config);
-        CmdResult result = CmdExecutors.execute(command, COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS, toolDir, null, null);
+        CmdResult result = CmdExecutors.execute(command, COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS, toolDir, null,
+                null);
         if (!result.isSuccess()) {
             throw new RuntimeException("Wechat-Export 导出 JSON 失败, exit=" + result.getExitCode()
                     + ", error: " + result.getStderr());
@@ -198,7 +200,8 @@ public final class WechatToolExporter {
      */
     private static void captureDatabaseKey(File toolScript, File toolDir) throws Exception {
         String[] command = {findPython(), toolScript.getAbsolutePath(), "key"};
-        CmdResult result = CmdExecutors.execute(command, COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS, toolDir, null, null);
+        CmdResult result = CmdExecutors.execute(command, COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS, toolDir, null,
+                null);
         if (!result.isSuccess()) {
             throw new RuntimeException("微信数据库密钥捕获失败（需管理员权限且微信已登录）, exit=" + result.getExitCode()
                     + ", error: " + result.getStderr());

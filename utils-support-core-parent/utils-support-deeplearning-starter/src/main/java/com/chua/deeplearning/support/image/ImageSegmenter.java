@@ -54,7 +54,8 @@ public interface ImageSegmenter {
      * @return 创建的结果
      */
     static ImageSegmenter create(String name) {
-        return new DefaultImageSegmenter(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultImageSegmenter(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

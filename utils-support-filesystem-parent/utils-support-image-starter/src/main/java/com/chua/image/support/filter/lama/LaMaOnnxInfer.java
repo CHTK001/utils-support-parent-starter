@@ -95,7 +95,8 @@ public class LaMaOnnxInfer implements AutoCloseable {
             Object sessionOptions = ConstructorStation.newInstance(constructor);
 
             // 设置线程数
-            Method setInterOpNumThreadsMethod = ClassUtils.findMethod(sessionOptionsClass, "setInterOpNumThreads", int.class);
+            Method setInterOpNumThreadsMethod = ClassUtils.findMethod(sessionOptionsClass, "setInterOpNumThreads",
+                    int.class);
             if (setInterOpNumThreadsMethod != null) {
                 ClassUtils.invokeMethod(setInterOpNumThreadsMethod, sessionOptions, config.getThreads());
             }
@@ -103,7 +104,8 @@ public class LaMaOnnxInfer implements AutoCloseable {
             // 设置优化级别
             var basicOptField = ClassUtils.findField(optLevelClass, "BASIC_OPT");
             Object basicOpt = ClassUtils.getFieldValue(basicOptField, null);
-            Method setOptimizationLevelMethod = ClassUtils.findMethod(sessionOptionsClass, "setOptimizationLevel", optLevelClass);
+            Method setOptimizationLevelMethod = ClassUtils.findMethod(sessionOptionsClass, "setOptimizationLevel",
+                    optLevelClass);
             if (setOptimizationLevelMethod != null && basicOpt != null) {
                 ClassUtils.invokeMethod(setOptimizationLevelMethod, sessionOptions, basicOpt);
             }
@@ -111,7 +113,8 @@ public class LaMaOnnxInfer implements AutoCloseable {
             // 设置日志级别
             var errorLevelField = ClassUtils.findField(logLevelClass, "ORT_LOGGING_LEVEL_ERROR");
             Object errorLevel = ClassUtils.getFieldValue(errorLevelField, null);
-            Method setSessionLogLevelMethod = ClassUtils.findMethod(sessionOptionsClass, "setSessionLogLevel", logLevelClass);
+            Method setSessionLogLevelMethod = ClassUtils.findMethod(sessionOptionsClass, "setSessionLogLevel",
+                    logLevelClass);
             if (setSessionLogLevelMethod != null && errorLevel != null) {
                 ClassUtils.invokeMethod(setSessionLogLevelMethod, sessionOptions, errorLevel);
             }
@@ -135,9 +138,11 @@ public class LaMaOnnxInfer implements AutoCloseable {
             }
 
             // 创建会话
-            Method createSessionMethod = ClassUtils.findMethod(ortEnvClass, "createSession", String.class, sessionOptionsClass);
+            Method createSessionMethod = ClassUtils.findMethod(ortEnvClass, "createSession", String.class,
+                    sessionOptionsClass);
             if (createSessionMethod != null) {
-                ortSession = ClassUtils.invokeMethod(createSessionMethod, ortEnvironment, config.getModelPath(), sessionOptions);
+                ortSession = ClassUtils.invokeMethod(createSessionMethod, ortEnvironment, config.getModelPath(),
+                        sessionOptions);
             }
 
             initialized = true;
@@ -243,8 +248,10 @@ public class LaMaOnnxInfer implements AutoCloseable {
         if (createTensorMethod == null) {
             throw new IllegalStateException("createTensor 方法未找到");
         }
-        Object imageTensor = ClassUtils.invokeMethod(createTensorMethod, null, ortEnvironment, imageData, config.getInputShape());
-        Object maskTensor = ClassUtils.invokeMethod(createTensorMethod, null, ortEnvironment, maskData, config.getMaskShape());
+        Object imageTensor = ClassUtils.invokeMethod(createTensorMethod, null, ortEnvironment, imageData,
+                config.getInputShape());
+        Object maskTensor = ClassUtils.invokeMethod(createTensorMethod, null, ortEnvironment, maskData,
+                config.getMaskShape());
 
         // 准备输入
         Map<String, Object> inputs = Wraps.map();

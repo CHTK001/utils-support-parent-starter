@@ -440,7 +440,8 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
             ThreadFactory factory = Thread.ofVirtual().name(name + "-collect", 0).factory();
             return new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), factory);
         }
-        return new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new PlatformDaemonThreadFactory(name + "-collect"));
+        return new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(),
+                                      new PlatformDaemonThreadFactory(name + "-collect"));
     }
 
     /**

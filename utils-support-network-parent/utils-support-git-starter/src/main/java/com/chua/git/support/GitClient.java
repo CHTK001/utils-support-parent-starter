@@ -458,7 +458,8 @@ public class GitClient implements AutoCloseable {
 
             boolean hasUpdate = beforeHead == null || !beforeHead.equals(afterHead);
             log.info("Git pull 完成: {}, 有更新={}", localPath, hasUpdate);
-            return new com.chua.git.support.model.PullResult(hasUpdate, 0, hasUpdate ? "Updated." : "Already up to date.");
+            return new com.chua.git.support.model.PullResult(hasUpdate, 0,
+                    hasUpdate ? "Updated." : "Already up to date.");
         } catch (Exception e) {
             throw new GitClientException("Pull 失败: " + e.getMessage(), e);
         } finally {

@@ -63,7 +63,8 @@ public record RagDocument(
      * @return RagDocument 对象
      */
     public static RagDocument processing(String id, String fileName, String fileType, long fileSize) {
-        return new RagDocument(id, fileName, fileType, fileSize, 0, "PROCESSING", null, System.currentTimeMillis(), Map.of());
+        return new RagDocument(id, fileName, fileType, fileSize, 0, "PROCESSING", null, System.currentTimeMillis(),
+                               Map.of());
     }
 
     /**
@@ -72,7 +73,8 @@ public record RagDocument(
      * @return RagDocument 对象
      */
     public RagDocument withError(String errorMessage) {
-        return new RagDocument(id, fileName, fileType, fileSize, chunkCount, "FAILED", errorMessage, createTime, metadata);
+        return new RagDocument(id, fileName, fileType, fileSize, chunkCount, "FAILED", errorMessage, createTime,
+                               metadata);
     }
 
     /**
@@ -90,6 +92,7 @@ public record RagDocument(
      * @return RagDocument 对象
      */
     public RagDocument withStatus(String status) {
-        return new RagDocument(id, fileName, fileType, fileSize, chunkCount, status, errorMessage, createTime, metadata);
+        return new RagDocument(id, fileName, fileType, fileSize, chunkCount, status, errorMessage, createTime,
+                               metadata);
     }
 }

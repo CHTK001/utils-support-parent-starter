@@ -127,7 +127,8 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
     public List<MiddlewareTreeNode> listTopNodes(MiddlewareConnectRequest request) {
         List<MiddlewareTreeNode> out = new ArrayList<>();
         try (RestClient client = client(request)) {
-            JsonNode rows = readJson(client, catIndices("/_cat/indices?format=json&h=index,docs.count,store.size,health,status"));
+            JsonNode rows = readJson(client,
+                                     catIndices("/_cat/indices?format=json&h=index,docs.count,store.size,health,status"));
             for (JsonNode r : rows) {
                 String index = r.path("index").asText("");
                 if (index.isEmpty()) {

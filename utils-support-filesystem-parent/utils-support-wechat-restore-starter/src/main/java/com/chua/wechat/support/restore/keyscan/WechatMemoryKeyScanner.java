@@ -323,7 +323,9 @@ public final class WechatMemoryKeyScanner {
 
             // 第二遍：逐字节穷举
             int threads = Math.max(1, Runtime.getRuntime().availableProcessors());
-            ExecutorService pool = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(1024), Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
+            ExecutorService pool = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(1024), Executors.defaultThreadFactory(),
+                    new ThreadPoolExecutor.CallerRunsPolicy());
             Semaphore slots = new Semaphore(threads * 2);
             List<Future<Long>> futures = Wraps.list(64);
             AtomicLong counter = new AtomicLong();

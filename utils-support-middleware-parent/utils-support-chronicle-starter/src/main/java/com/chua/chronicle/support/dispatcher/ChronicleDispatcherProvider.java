@@ -119,7 +119,8 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
                 return builder.build();
             });
         } catch (Throwable e) {
-            throw new RuntimeException("Chronicle Queue 初始化失败。请添加 --add-opens 相关 JVM 参数，或使用 directDispatch=true 绕过。topic=" + topic, e);
+            throw new RuntimeException("Chronicle Queue 初始化失败。请添加 --add-opens 相关 JVM 参数，或使用 directDispatch=true 绕过。topic=" + topic,
+                                       e);
         }
     }
 

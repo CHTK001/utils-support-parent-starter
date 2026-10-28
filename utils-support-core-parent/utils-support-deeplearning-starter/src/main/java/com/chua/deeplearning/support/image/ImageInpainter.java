@@ -43,7 +43,8 @@ public interface ImageInpainter {
      * @return 创建的结果
      */
     static ImageInpainter create(String name) {
-        return new DefaultImageInpainter(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultImageInpainter(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

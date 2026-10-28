@@ -25,7 +25,8 @@ class Util {
      * <p>
      * 单线程调度池，用于定时刷新进度条显示。
      */
-    static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, ThreadUtils.newDaemonThreadFactory("ProgressBar"));
+    static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1,
+            ThreadUtils.newDaemonThreadFactory("ProgressBar"));
     /**
      *                                                    
      *

@@ -57,7 +57,8 @@ public interface SmileDetector {
      * @return 检测器
      */
     static SmileDetector create(String name) {
-        return new DefaultSmileDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultSmileDetector(AbstractIdentificationEngine.getInstance(), name,
+                                        ModelSetting.builder().build());
     }
 
     /**

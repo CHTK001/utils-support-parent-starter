@@ -165,7 +165,8 @@ public class TenpayProvider implements PaymentChannel {
         }
 
         try {
-            String responseXml = wxPayService.post("https://api.mch.weixin.qq.com/pay/unifiedorder", orderRequest.toXML(), false);
+            String responseXml = wxPayService.post("https://api.mch.weixin.qq.com/pay/unifiedorder",
+                    orderRequest.toXML(), false);
             WxPayUnifiedOrderResult result = BaseWxPayResult.fromXML(responseXml, WxPayUnifiedOrderResult.class);
             checkResult(result);
             return PaymentResponse.builder()
@@ -193,7 +194,8 @@ public class TenpayProvider implements PaymentChannel {
         }
 
         try {
-            String responseXml = wxPayService.post("https://api.mch.weixin.qq.com/pay/unifiedorder", orderRequest.toXML(), false);
+            String responseXml = wxPayService.post("https://api.mch.weixin.qq.com/pay/unifiedorder",
+                    orderRequest.toXML(), false);
             WxPayUnifiedOrderResult result = BaseWxPayResult.fromXML(responseXml, WxPayUnifiedOrderResult.class);
             checkResult(result);
             return PaymentResponse.builder()
@@ -224,7 +226,8 @@ public class TenpayProvider implements PaymentChannel {
         micropayRequest.setSpbillCreateIp("127.0.0.1");
 
         try {
-            String responseXml = wxPayService.post("https://api.mch.weixin.qq.com/pay/micropay", micropayRequest.toXML(), false);
+            String responseXml = wxPayService.post("https://api.mch.weixin.qq.com/pay/micropay",
+                    micropayRequest.toXML(), false);
             WxPayMicropayResult result = BaseWxPayResult.fromXML(responseXml, WxPayMicropayResult.class);
             checkResult(result);
             return PaymentResponse.builder()

@@ -101,7 +101,8 @@ public class StringValuePropertyResolver implements PropertyResolver {
             int endIndex = findPlaceholderEndIndex(result, startIndex);
             if (endIndex != -1) {
                 // 提取占位符内容（不包含前后缀）
-                String placeholder = result.substring(startIndex + placeholderSupport.getPlaceholderPrefix().length(), endIndex);
+                String placeholder = result.substring(startIndex + placeholderSupport.getPlaceholderPrefix().length(),
+                        endIndex);
                 String originalPlaceholder = placeholder;
                 
                 // 初始化循环引用检查集合
@@ -143,10 +144,12 @@ public class StringValuePropertyResolver implements PropertyResolver {
                         log.trace("Resolved placeholder '{}'", placeholder);
                     }
                     // 更新起始索引，继续搜索后续占位符
-                    startIndex = result.indexOf(placeholderSupport.getPlaceholderPrefix(), startIndex + propVal.length());
+                    startIndex = result.indexOf(placeholderSupport.getPlaceholderPrefix(),
+                            startIndex + propVal.length());
                 } else if (placeholderSupport.isIgnoreUnresolvablePlaceholders()) {
                     // 如果忽略未解析的占位符，跳过当前占位符继续搜索
-                    startIndex = result.indexOf(placeholderSupport.getPlaceholderPrefix(), endIndex + placeholderSupport.getPlaceholderSuffix().length());
+                    startIndex = result.indexOf(placeholderSupport.getPlaceholderPrefix(),
+                            endIndex + placeholderSupport.getPlaceholderSuffix().length());
                 } else {
                     // 抛出异常，表示无法解析占位符
                     throw new IllegalArgumentException("Could not resolve placeholder '" +
@@ -221,7 +224,8 @@ public class StringValuePropertyResolver implements PropertyResolver {
         while (startIndex != -1) {
             int endIndex = findPlaceholderEndIndex(result, startIndex);
             if (endIndex != -1) {
-                String placeholder = result.substring(startIndex + placeholderSupport.getPlaceholderPrefix().length(), endIndex);
+                String placeholder = result.substring(startIndex + placeholderSupport.getPlaceholderPrefix().length(),
+                        endIndex);
                 String originalPlaceholder = placeholder;
                 if (visitedPlaceholders == null) {
                     visitedPlaceholders = Wraps.set(4);
@@ -252,10 +256,12 @@ public class StringValuePropertyResolver implements PropertyResolver {
                     if (log.isTraceEnabled()) {
                         log.trace("Resolved placeholder '{}'", placeholder);
                     }
-                    startIndex = result.indexOf(placeholderSupport.getPlaceholderPrefix(), startIndex + propVal.length());
+                    startIndex = result.indexOf(placeholderSupport.getPlaceholderPrefix(),
+                            startIndex + propVal.length());
                 } else if (placeholderSupport.isIgnoreUnresolvablePlaceholders()) {
                     // 跳过未解析的占位符
-                    startIndex = result.indexOf(placeholderSupport.getPlaceholderPrefix(), endIndex + placeholderSupport.getPlaceholderSuffix().length());
+                    startIndex = result.indexOf(placeholderSupport.getPlaceholderPrefix(),
+                            endIndex + placeholderSupport.getPlaceholderSuffix().length());
                 } else {
                     throw new IllegalArgumentException("Could not resolve placeholder '" +
                             placeholder + "'" + " in value \"" + value + "\"");

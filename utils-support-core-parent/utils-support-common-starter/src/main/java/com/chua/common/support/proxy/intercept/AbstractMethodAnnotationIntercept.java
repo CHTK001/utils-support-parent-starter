@@ -147,7 +147,8 @@ public abstract class AbstractMethodAnnotationIntercept {
             int end = text.indexOf("}", start);
             if (start >= 0 && end > start) {
                 String expr = text.substring(start, end + 1);
-                String resolved = ExpressionResolvers.resolve(expr, createRoot(proxyMethod), createVariables(proxyMethod));
+                String resolved = ExpressionResolvers.resolve(expr, createRoot(proxyMethod),
+                        createVariables(proxyMethod));
                 if (resolved != null) {
                     return resolved;
                 }

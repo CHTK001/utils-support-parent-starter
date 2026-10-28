@@ -30,7 +30,8 @@ public class LibreOfficeFileConvertSystem implements FileConvertSystem {
     /**
      * 支持的源文件格式列表
      */
-    private static final List<String> SOURCES = List.of("doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp");
+    private static final List<String> SOURCES = List.of("doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods",
+            "odp");
 
     /**
      * 是否支持
@@ -49,7 +50,8 @@ public class LibreOfficeFileConvertSystem implements FileConvertSystem {
     @Override
     public void convert(FileSource source, FileSource target, ConvertSetting setting) {
         try {
-            String src = source.isPath() ? source.getPath() : writeTemp(source.getInputStream(), "." + source.getType());
+            String src = source.isPath() ? source.getPath() : writeTemp(source.getInputStream(),
+                    "." + source.getType());
             String outDir = target.isPath()
                     ? new File(target.getPath()).getParent()
                     : System.getProperty("java.io.tmpdir");

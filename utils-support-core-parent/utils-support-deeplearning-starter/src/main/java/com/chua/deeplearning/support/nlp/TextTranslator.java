@@ -56,7 +56,8 @@ public interface TextTranslator {
      * @return 翻译器
      */
     static TextTranslator create(String name) {
-        return new DefaultTextTranslator(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultTextTranslator(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

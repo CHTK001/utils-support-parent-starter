@@ -113,7 +113,8 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
 
         // 由执行器驱动定时轮询；支持 null（使用默认 VirtualThreadPollerExecutor）
         if (executor == null) {
-            executor = new com.chua.common.support.lang.directory.executor.VirtualThreadPollerExecutor(this, environment);
+            executor = new com.chua.common.support.lang.directory.executor.VirtualThreadPollerExecutor(this,
+                    environment);
         }
         executor.start();
     }

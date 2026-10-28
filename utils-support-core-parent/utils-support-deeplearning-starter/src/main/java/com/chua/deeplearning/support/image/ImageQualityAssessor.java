@@ -56,7 +56,8 @@ public interface ImageQualityAssessor {
      * @return 创建的结果
      */
     static ImageQualityAssessor create(String name) {
-        return new DefaultImageQualityAssessor(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultImageQualityAssessor(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

@@ -140,7 +140,8 @@ public class Yolo5PlateDetectTranslator implements Translator<Image, DetectedObj
         imageHeight = (int) array.getShape().get(0); // [P3C 3.7 豁免] 张量形状维度下标
 
         // Letter box resize 640x640 with padding (                        )
-        var letterBoxResult = LetterBoxUtils.letterbox(manager, array, inputSize, inputSize, 114f, LetterBoxUtils.PaddingPosition.CENTER);
+        var letterBoxResult = LetterBoxUtils.letterbox(manager, array, inputSize, inputSize, 114f,
+                LetterBoxUtils.PaddingPosition.CENTER);
         ctx.setAttachment("letterBoxResult", letterBoxResult);
         array = letterBoxResult.image;
 
@@ -202,7 +203,8 @@ public class Yolo5PlateDetectTranslator implements Translator<Image, DetectedObj
             System.arraycopy(keepIndices, 0, topkIndices, 0, topK);
             keepIndices = topkIndices;
         }
-        var restored = LetterBoxUtils.restoreBox(kept, letterBoxResult.r, letterBoxResult.left, letterBoxResult.top, 5, 8);
+        var restored = LetterBoxUtils.restoreBox(kept, letterBoxResult.r, letterBoxResult.left, letterBoxResult.top,
+                5, 8);
 
         var classNames = Wraps.<String>list();
         var probabilities = Wraps.<Double>list();

@@ -46,7 +46,8 @@ public class PreviewPdfCache {
     /**
      * 默认缓存根目录（位于系统临时目录下）
     */
-    private static final Path DEFAULT_CACHE_DIR = Path.of(System.getProperty("java.io.tmpdir"), "file-storage-preview-cache");
+    private static final Path DEFAULT_CACHE_DIR = Path.of(System.getProperty("java.io.tmpdir"),
+            "file-storage-preview-cache");
 
     /**
      * 默认 TTL：1 天（秒）

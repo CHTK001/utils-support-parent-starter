@@ -38,7 +38,8 @@ public class MysqlAlterUserStep implements UserManager.AlterUserStep {
     /**
      * {@code ALL} 与 {@code ALL PRIVILEGES} 的整体写法
      */
-    private static final Pattern ALL_PRIVILEGES_PATTERN = Pattern.compile("ALL(\\s+PRIVILEGES)?", Pattern.CASE_INSENSITIVE);
+    private static final Pattern ALL_PRIVILEGES_PATTERN = Pattern.compile("ALL(\\s+PRIVILEGES)?",
+            Pattern.CASE_INSENSITIVE);
     /**
      * 授权目标白名单：{@code *}、库名、{@code 库.*}、{@code 库.表}
      */

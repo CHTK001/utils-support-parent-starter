@@ -255,7 +255,8 @@ public class AgentInjector {
     private CmdResult injectByVirtualMachine(int pid, String agentJarPath) {
         try {
             Class<?> vmClass = ReflectUtils.forName(VM_CLASS_NAME);
-            Object vm = ReflectUtils.invokeStatic(vmClass, "attach", Object.class, new Class<?>[]{String.class}, String.valueOf(pid));
+            Object vm = ReflectUtils.invokeStatic(vmClass, "attach", Object.class, new Class<?>[]{String.class},
+                    String.valueOf(pid));
             String agentClass = getAgentClass(agentJarPath);
             if (agentClass == null) {
                 agentClass = "com.chua.runtime.support.javaagent.RuntimeAgent";

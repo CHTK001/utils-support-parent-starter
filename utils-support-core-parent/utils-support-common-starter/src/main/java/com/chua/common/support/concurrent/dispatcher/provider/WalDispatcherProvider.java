@@ -386,7 +386,8 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
                 if (!Files.exists(file)) {
                     Files.createFile(file);
                 }
-                channel = FileChannel.open(file, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.READ);
+                channel = FileChannel.open(file, StandardOpenOption.WRITE, StandardOpenOption.CREATE,
+                        StandardOpenOption.READ);
                 tryMmap();
             } catch (Exception e) {
                 throw new RuntimeException("WAL 文件打开失败: " + file, e);

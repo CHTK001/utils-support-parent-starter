@@ -26,7 +26,8 @@ public interface PlateDetector {
      * @return 检测器
      */
     static PlateDetector create(String name) {
-        return new DefaultPlateDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultPlateDetector(AbstractIdentificationEngine.getInstance(), name,
+                                        ModelSetting.builder().build());
     }
 
     /**
@@ -207,7 +208,8 @@ class DefaultPlateDetector implements PlateDetector {
     @SuppressWarnings("unchecked")
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =
-                (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
+                (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class,
+                        DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }

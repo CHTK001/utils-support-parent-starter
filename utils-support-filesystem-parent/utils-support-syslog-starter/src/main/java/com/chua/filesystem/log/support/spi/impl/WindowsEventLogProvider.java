@@ -204,7 +204,8 @@ public class WindowsEventLogProvider implements SystemLogProvider {
                     break;
                 }
 
-                int parsed = parseEventLogRecords(buffer, read, source, regex, minLevel, maxResults - results.size(), results);
+                int parsed = parseEventLogRecords(buffer, read, source, regex, minLevel, maxResults - results.size(),
+                        results);
                 offset += read;
                 if (parsed == 0) {
                     break;

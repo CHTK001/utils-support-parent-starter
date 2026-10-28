@@ -58,7 +58,8 @@ public interface ImageDetector {
      * @return 创建的结果
      */
     static ImageDetector create(String name) {
-        return new DefaultImageDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultImageDetector(AbstractIdentificationEngine.getInstance(), name,
+                                        ModelSetting.builder().build());
     }
 
     /**

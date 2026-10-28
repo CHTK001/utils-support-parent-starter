@@ -59,7 +59,8 @@ public class MembershipPropagation {
     public void sendHeartbeat() {
         List<NodeTable.NodeEntry> known = Wraps.list(nodeTable.getAllEntries().values());
         String payload = Json.toJson(known);
-        MessageProtocol.PeerMeshMessage msg = new MessageProtocol.PeerMeshMessage(MessageProtocol.TYPE_HEARTBEAT, payload);
+        MessageProtocol.PeerMeshMessage msg = new MessageProtocol.PeerMeshMessage(MessageProtocol.TYPE_HEARTBEAT,
+                payload);
         for (NodeTable.NodeEntry entry : known) {
             if (localServerId.equals(entry.getDiscovery().getServerId())) {
                 continue;
@@ -86,7 +87,8 @@ public class MembershipPropagation {
             return;
         }
         String payload = Json.toJson(newEntry);
-        MessageProtocol.PeerMeshMessage msg = new MessageProtocol.PeerMeshMessage(MessageProtocol.TYPE_NEW_PEER, payload);
+        MessageProtocol.PeerMeshMessage msg = new MessageProtocol.PeerMeshMessage(MessageProtocol.TYPE_NEW_PEER,
+                payload);
         for (NodeTable.NodeEntry entry : nodeTable.getAllEntries().values()) {
             if (localServerId.equals(entry.getDiscovery().getServerId())) {
                 continue;

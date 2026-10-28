@@ -61,7 +61,8 @@ public interface ImageEnhancer {
      * @return 创建的结果
      */
     static ImageEnhancer create(String name) {
-        return new DefaultImageEnhancer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultImageEnhancer(AbstractIdentificationEngine.getInstance(), name,
+                                        ModelSetting.builder().build());
     }
 
     /**

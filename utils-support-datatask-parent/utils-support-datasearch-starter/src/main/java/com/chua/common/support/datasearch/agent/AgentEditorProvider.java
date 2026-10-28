@@ -178,12 +178,14 @@ public class AgentEditorProvider {
         /**
          * Cursor 编辑器配置，配置目录为 .Cursor，MCP 配置文件为 mcp.json
          */
-        public static final AgentEditor CURSOR = new AgentEditor("Cursor", ".cursor", "mcp.json", false, "CURSOR_CONFIG_DIR");
+        public static final AgentEditor CURSOR = new AgentEditor("Cursor", ".cursor", "mcp.json", false,
+                "CURSOR_CONFIG_DIR");
 
         /**
          * Claude 编码 编辑器配置，配置目录为 .claude，MCP 配置文件为 settings.json
          */
-        public static final AgentEditor CLAUDE = new AgentEditor("Claude Code", ".claude", "settings.json", false, "CLAUDE_CONFIG_DIR");
+        public static final AgentEditor CLAUDE = new AgentEditor("Claude Code", ".claude", "settings.json", false,
+                "CLAUDE_CONFIG_DIR");
 
         /**
          * Codex 编辑器配置，配置目录为 .codex，MCP 配置文件为 配置.json
@@ -193,12 +195,14 @@ public class AgentEditorProvider {
         /**
          * Windsurf 编辑器配置，配置目录为 .codeium/Windsurf，MCP 配置文件为 mcp_配置.json
          */
-        public static final AgentEditor WINDSURF = new AgentEditor("Windsurf", ".codeium/windsurf", "mcp_config.json", false, null);
+        public static final AgentEditor WINDSURF = new AgentEditor("Windsurf", ".codeium/windsurf", "mcp_config.json",
+                false, null);
 
         /**
          * Cline 编辑器配置，配置目录为 .cline，MCP 配置文件为 cline_mcp_settings.json
          */
-        public static final AgentEditor CLINE = new AgentEditor("Cline", ".cline", "cline_mcp_settings.json", false, "CLINE_DATA_DIR");
+        public static final AgentEditor CLINE = new AgentEditor("Cline", ".cline", "cline_mcp_settings.json", false,
+                "CLINE_DATA_DIR");
 
         /**
          * Roo 编码 编辑器配置，配置目录为 .roo，MCP 配置文件为 mcp.json
@@ -223,7 +227,8 @@ public class AgentEditorProvider {
         /**
          * Gemini CLI 编辑器配置，配置目录为 .gemini，MCP 配置文件为 settings.json
          */
-        public static final AgentEditor GEMINI_CLI = new AgentEditor("Gemini CLI", ".gemini", "settings.json", false, "GEMINI_CLI_HOME");
+        public static final AgentEditor GEMINI_CLI = new AgentEditor("Gemini CLI", ".gemini", "settings.json", false,
+                "GEMINI_CLI_HOME");
 
         /**
          * Cody（Sourcegraph）编辑辑器配置，配置目录为 .cody，MCP 配置文件为 mcp.json
@@ -246,7 +251,8 @@ public class AgentEditorProvider {
          * mimo 编码 编辑器配置，配置目录为 .mimocode，MCP 配置文件为 mimocode.json。
          * 支持 MIMOCODE_Home 环境变量覆盖默认配置目录。
          */
-        public static final AgentEditor MIMO = new AgentEditor("MiMo Code", ".mimocode", "mcp.json", false, "MIMOCODE_HOME");
+        public static final AgentEditor MIMO = new AgentEditor("MiMo Code", ".mimocode", "mcp.json", false,
+                "MIMOCODE_HOME");
 
         /**
          * Atom编码 编辑器配置，配置目录为 .atomcode，MCP 配置文件为 mcp.json。

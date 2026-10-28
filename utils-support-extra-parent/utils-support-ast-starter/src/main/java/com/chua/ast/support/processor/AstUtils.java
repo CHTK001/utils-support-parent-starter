@@ -161,13 +161,15 @@ public final class AstUtils {
             TypeMirror type) {
         TypeKind kind = type.getKind();
         return switch (kind) {
-            case BOOLEAN -> maker.Literal(com.sun.tools.javac.code.TypeTag.BOOLEAN, Boolean.parseBoolean(value) ? 1 : 0);
+            case BOOLEAN -> maker.Literal(com.sun.tools.javac.code.TypeTag.BOOLEAN,
+                    Boolean.parseBoolean(value) ? 1 : 0);
             case BYTE -> maker.Literal(com.sun.tools.javac.code.TypeTag.BYTE, Byte.parseByte(stripSuffix(value)));
             case SHORT -> maker.Literal(com.sun.tools.javac.code.TypeTag.SHORT, Short.parseShort(stripSuffix(value)));
             case INT -> maker.Literal(com.sun.tools.javac.code.TypeTag.INT, Integer.parseInt(stripSuffix(value)));
             case LONG -> maker.Literal(com.sun.tools.javac.code.TypeTag.LONG, Long.parseLong(stripSuffix(value)));
             case FLOAT -> maker.Literal(com.sun.tools.javac.code.TypeTag.FLOAT, Float.parseFloat(stripSuffix(value)));
-            case DOUBLE -> maker.Literal(com.sun.tools.javac.code.TypeTag.DOUBLE, Double.parseDouble(stripSuffix(value)));
+            case DOUBLE -> maker.Literal(com.sun.tools.javac.code.TypeTag.DOUBLE,
+                    Double.parseDouble(stripSuffix(value)));
             case CHAR -> maker.Literal(com.sun.tools.javac.code.TypeTag.CHAR, value.charAt(0));
             default -> {
                 String typeStr = type.toString();

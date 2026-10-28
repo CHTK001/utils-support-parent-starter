@@ -197,7 +197,8 @@ public class CircularArrayList<E> implements CircularArray<E> {
      */
     @Override
     public <T> T[] toArray(T[] a) {
-        T[] result = a.length >= size ? a : (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
+        T[] result = a.length >= size ? a : (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(),
+                size);
         for (int i = 0; i < size; i++) {
             result[i] = (T) get(i);
         }

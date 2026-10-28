@@ -74,7 +74,8 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
             return false;
         }
         if (type == FRAME_HEARTBEAT) {
-            return rawData.length == FRAME_OVERHEAD && readSize(rawData) == 0 && isFrameEnd(rawData, FRAME_OVERHEAD - 1);
+            return rawData.length == FRAME_OVERHEAD && readSize(rawData) == 0 && isFrameEnd(rawData,
+                    FRAME_OVERHEAD - 1);
         }
         long size = readSize(rawData);
         return size >= 0 && FRAME_OVERHEAD + size <= rawData.length

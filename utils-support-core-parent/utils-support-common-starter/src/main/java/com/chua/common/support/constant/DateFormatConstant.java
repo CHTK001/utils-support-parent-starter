@@ -414,7 +414,8 @@ public final class DateFormatConstant {
     /**
      * Date              EEE MMM dd HH:mm:ss zzz yyyy            Sat May 23 17:06:30 CST 2020
      */
-    public static final DateTimeFormatter EEE_MMM_DD_HH_MM_SS_ZZZ_YYYY_FMT = DateTimeFormatter.ofPattern(EEE_MMM_DD_HH_MM_SS_ZZZ_YYYY, Locale.ENGLISH);
+    public static final DateTimeFormatter EEE_MMM_DD_HH_MM_SS_ZZZ_YYYY_FMT = DateTimeFormatter.ofPattern(EEE_MMM_DD_HH_MM_SS_ZZZ_YYYY,
+            Locale.ENGLISH);
     public static final ZoneId ZONE = ZoneId.systemDefault();
     /**
      * yyyy-MM-dd            2020-05-23

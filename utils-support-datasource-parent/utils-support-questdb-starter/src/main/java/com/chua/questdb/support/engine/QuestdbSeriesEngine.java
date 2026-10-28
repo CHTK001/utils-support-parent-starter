@@ -550,7 +550,8 @@ public class QuestdbSeriesEngine implements SeriesEngine, AutoCloseable {
         }
         HttpRequest request = builder.build();
         try {
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            HttpResponse<String> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             JsonNode root = parseJson(response.body());
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
                 if (root != null && root.hasNonNull("error")) {
