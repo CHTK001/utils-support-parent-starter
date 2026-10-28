@@ -119,7 +119,8 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
      * @param version 版本
      * @param fillPositionDetectionShapeModel fill位置detectionshape模型
      */
-    private static void fillPositionDetectionShape(Graphics2D g, Color eyeDf,Color lf, Color lb, int qrCodeWidth, int startX, int startY, int version,
+    private static void fillPositionDetectionShape(Graphics2D g, Color eyeDf, Color lf, Color lb,
+                                                   int qrCodeWidth, int startX, int startY, int version,
                                                    CodeEyeStyle fillPositionDetectionShapeModel) {
         ServiceProvider.of(CodeEyeResolver.class).getNewExtension(fillPositionDetectionShapeModel)
                     .resolve(g, eyeDf, lf, lb, qrCodeWidth, startX, startY, version);

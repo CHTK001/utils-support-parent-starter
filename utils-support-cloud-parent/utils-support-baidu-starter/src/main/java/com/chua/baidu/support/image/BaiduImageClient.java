@@ -3,21 +3,19 @@ package com.chua.baidu.support.image;
 import com.chua.common.support.ai.image.ImageClient;
 import com.chua.common.support.ai.image.ImageClientSetting;
 import com.chua.common.support.ai.image.ImageResponse;
+import com.chua.common.support.network.client.ClientResponse;
+import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.CollectionUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -39,11 +37,6 @@ public class BaiduImageClient implements ImageClient {
      * 百度文心一格默认 API 地址
      */
     private static final String DEFAULT_URL = "https://aip.baidubce.com";
-
-    /**
-     * HTTP 客户端
-     */
-    private final HttpClient httpClient;
 
     /**
      * 客户端配置
@@ -85,9 +78,6 @@ public class BaiduImageClient implements ImageClient {
         this.model = setting.getModel();
         this.width = setting.getWidth();
         this.height = setting.getHeight();
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(30))
-                .build();
     }
 
     /**
@@ -168,30 +158,27 @@ public class BaiduImageClient implements ImageClient {
         if (actualPrompt == null || actualPrompt.isBlank()) {
             throw new IllegalArgumentException("提示词不能为空");
         }
+        String accessToken = getAccessToken();
+        String sizeStr = buildSize();
+        String requestBody = "{\"prompt\":\"" + escapeJson(actualPrompt)
+                + "\",\"size\":\"" + sizeStr + "\"}";
+        String path = "/rpc/2.0/ai_custom/v1/text-to-image?access_token="
+                + URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
+        ClientResponse response = HttpClientFactory.of(normalizeBaseUrl())
+                .path(path)
+                .connectTimeout(30000)
+                .readTimeout(120000)
+                .json()
+                .body(requestBody)
+                .post();
+        if (response.getStatusCode() != 200) {
+            throw new RuntimeException("文心一格图片生成请求失败: " + response.getStatusCode()
+                    + " - " + response.getBodyString());
+        }
         try {
-            String accessToken = getAccessToken();
-            String sizeStr = buildSize();
-            String requestBody = "{\"prompt\":\"" + escapeJson(actualPrompt)
-                    + "\",\"size\":\"" + sizeStr + "\"}";
-            String url = normalizeBaseUrl() + "/rpc/2.0/ai_custom/v1/text-to-image?access_token="
-                    + URLEncoder.encode(accessToken, StandardCharsets.UTF_8.name());
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(120))
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200) {
-                throw new RuntimeException("文心一格图片生成请求失败: " + response.statusCode() + " - " + response.body());
-            }
-            String body = response.body();
-            return parseAndDownloadImage(body);
+            return parseAndDownloadImage(response.getBodyString());
         } catch (IOException e) {
             throw new RuntimeException("文心一格图片生成请求失败", e);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("文心一格图片生成请求被中断", e);
         }
     }
 
@@ -199,24 +186,23 @@ public class BaiduImageClient implements ImageClient {
      * 获取百度 OAuth 2.0 access_令牌
      *
      * @return access_token 字符串
-     * @throws IOException 网络请求异常
-     * @throws InterruptedException 请求被中断
      */
-    private String getAccessToken() throws IOException, InterruptedException {
-        String tokenUrl = normalizeBaseUrl() + "/oauth/2.0/token?grant_type=client_credentials"
-                + "&client_id=" + URLEncoder.encode(setting.getAppKey(), StandardCharsets.UTF_8.name())
+    private String getAccessToken() {
+        String path = "/oauth/2.0/token?grant_type=client_credentials"
+                + "&client_id=" + URLEncoder.encode(setting.getAppKey(), StandardCharsets.UTF_8)
                 + "&client_secret=" + URLEncoder.encode(
-                        setting.getSecretKey() != null ? setting.getSecretKey() : "", StandardCharsets.UTF_8.name());
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(tokenUrl))
-                .timeout(Duration.ofSeconds(30))
-                .GET()
-                .build();
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        if (response.statusCode() != 200) {
-            throw new RuntimeException("获取百度 access_token 失败: " + response.statusCode() + " - " + response.body());
+                        setting.getSecretKey() != null ? setting.getSecretKey() : "", StandardCharsets.UTF_8);
+        ClientResponse response = HttpClientFactory.of(normalizeBaseUrl())
+                .path(path)
+                .connectTimeout(30000)
+                .readTimeout(30000)
+                .get();
+        if (response.getStatusCode() != 200) {
+            throw new RuntimeException("获取百度 access_token 失败: " + response.getStatusCode()
+                    + " - " + response.getBodyString());
         }
-        Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(response.body(), Map.class);
+        Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(
+                response.getBodyString(), Map.class);
         String accessToken = (String) root.get("access_token");
         if (accessToken == null || accessToken.isBlank()) {
             throw new RuntimeException("百度返回的 access_token 为空");
@@ -242,18 +228,19 @@ public class BaiduImageClient implements ImageClient {
         if (imageUrl == null || imageUrl.isBlank()) {
             throw new RuntimeException("文心一格返回的图片 URL 为空");
         }
-        HttpRequest imageRequest = HttpRequest.newBuilder()
-                .uri(URI.create(imageUrl))
-                .timeout(Duration.ofSeconds(60))
-                .GET()
-                .build();
-        try {
-            HttpResponse<InputStream> imageResponse = httpClient.send(imageRequest,
-                    HttpResponse.BodyHandlers.ofInputStream());
-            return ImageIO.read(imageResponse.body());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException("下载图片被中断", e);
+        ClientResponse imageResponse = HttpClientFactory.of(imageUrl)
+                .connectTimeout(30000)
+                .readTimeout(60000)
+                .get();
+        if (!imageResponse.isSuccess()) {
+            throw new IOException("下载文心一格图片失败: HTTP " + imageResponse.getStatusCode());
+        }
+        byte[] bytes = imageResponse.getBody();
+        if (bytes == null || bytes.length == 0) {
+            throw new IOException("下载文心一格图片失败: 响应体为空");
+        }
+        try (InputStream in = new ByteArrayInputStream(bytes)) {
+            return ImageIO.read(in);
         }
     }
 

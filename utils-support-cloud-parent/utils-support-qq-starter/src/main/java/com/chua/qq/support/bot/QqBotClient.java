@@ -4,8 +4,6 @@ import com.chua.common.support.collection.wrap.Wraps;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.net.http.WebSocket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -46,6 +44,10 @@ import com.chua.common.support.ai.bot.InMemoryBotUserStore;
 import com.chua.common.support.config.loader.ConfigSaveOrLoader;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonObject;
+import com.chua.common.support.network.client.ClientResponse;
+import com.chua.common.support.network.client.HttpClientBuilder;
+import com.chua.common.support.network.client.HttpClientFactory;
+import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.StringUtils;
 
@@ -342,7 +344,7 @@ public class QqBotClient implements BotClient {
     private int shardCount = 1;
 
     /**
-     * HTTP 客户端
+     * WebSocket 专用 JDK 客户端（仅用于建立长连接，REST 请求走 HttpClientFactory）
      */
     private volatile HttpClient httpClient;
 
@@ -1319,24 +1321,15 @@ public class QqBotClient implements BotClient {
         if (StringUtils.isBlank(presignedUrl)) {
             throw new QqApiException(-1, "分片上传响应缺少 presigned_url");
         }
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(presignedUrl))
-                .timeout(Duration.ofMillis(readTimeoutMillis))
+        ClientResponse response = HttpClientFactory.of(presignedUrl)
                 .header("Content-Type", "application/octet-stream")
-                .PUT(HttpRequest.BodyPublishers.ofByteArray(chunk))
-                .build();
-        try {
-            HttpResponse<String> response = httpClient.send(request,
-                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            if (response.statusCode() >= 300) {
-                throw new QqApiException(response.statusCode(),
-                        "分片上传失败 HTTP " + response.statusCode() + ": " + response.body());
-            }
-        } catch (IOException e) {
-            throw new QqApiException(-1, "分片上传失败: " + e.getMessage());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new QqApiException(-1, "分片上传被中断");
+                .connectTimeout(connectTimeoutMillis)
+                .readTimeout(readTimeoutMillis)
+                .body(chunk)
+                .put();
+        if (response.getStatusCode() >= 300) {
+            throw new QqApiException(response.getStatusCode(),
+                    "分片上传失败 HTTP " + response.getStatusCode() + ": " + response.getBodyString());
         }
     }
 
@@ -1547,26 +1540,41 @@ public class QqBotClient implements BotClient {
      */
     private Map<String, Object> request(String method, String path, JsonObject body,
                                         String authorization) {
-        HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(absolute(path)))
-                .timeout(Duration.ofMillis(readTimeoutMillis))
-                .header("Content-Type", "application/json;charset=utf-8");
+        String url = absolute(path);
+        HttpClientBuilder builder = HttpClientFactory.of(url)
+                .connectTimeout(connectTimeoutMillis)
+                .readTimeout(readTimeoutMillis)
+                .header("Content-Type", "application/json;charset=utf-8")
+                .method(toHttpMethod(method));
         if (StringUtils.isNotBlank(authorization)) {
             builder.header("Authorization", authorization);
         }
-        HttpRequest.BodyPublisher publisher = body == null
-                ? HttpRequest.BodyPublishers.noBody()
-                : HttpRequest.BodyPublishers.ofString(Json.toJson(body), StandardCharsets.UTF_8);
+        if (body != null) {
+            builder.json().body(Json.toJson(body));
+        }
         try {
-            HttpResponse<String> response = httpClient.send(
-                    builder.method(method, publisher).build(),
-                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            return unwrap(method, path, response);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new QqApiException(-1, "请求被中断: " + method + " " + path);
-        } catch (IOException e) {
+            return unwrap(method, path, builder.execute());
+        } catch (QqApiException e) {
+            throw e;
+        } catch (RuntimeException e) {
             throw new QqApiException(-1, "请求失败: " + method + " " + path + " " + e.getMessage());
+        }
+    }
+
+    /**
+     * 方法名转枚举
+     *
+     * @param method 方法名
+     * @return HTTP 方法枚举
+     */
+    private static HttpMethod toHttpMethod(String method) {
+        if (StringUtils.isBlank(method)) {
+            return HttpMethod.GET;
+        }
+        try {
+            return HttpMethod.valueOf(method.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            return HttpMethod.GET;
         }
     }
 
@@ -1579,8 +1587,8 @@ public class QqBotClient implements BotClient {
      * @return 响应体
      */
     private static Map<String, Object> unwrap(String method, String path,
-                                              HttpResponse<String> response) {
-        String raw = response.body();
+                                              ClientResponse response) {
+        String raw = response.getBodyString();
         Map<String, Object> parsed = StringUtils.isBlank(raw)
                 ? Wraps.linkedMap() : Json.fromJson(raw, Map.class);
         if (parsed == null) {
@@ -1588,14 +1596,14 @@ public class QqBotClient implements BotClient {
         }
         int code = intValue(parsed.get("code"), 0);
         int ret = intValue(parsed.get("ret"), 0);
-        if (response.statusCode() < 300 && code == 0 && ret == 0) {
+        if (response.getStatusCode() < 300 && code == 0 && ret == 0) {
             return parsed;
         }
-        int bizCode = code != 0 ? code : (ret != 0 ? ret : response.statusCode());
+        int bizCode = code != 0 ? code : (ret != 0 ? ret : response.getStatusCode());
         String message = firstNotBlank(stringValue(parsed.get("message")),
                 stringValue(parsed.get("error")), raw);
         throw new QqApiException(bizCode, "QQ 平台返回错误 " + method + " " + path
-                + " (HTTP " + response.statusCode() + "): " + message);
+                + " (HTTP " + response.getStatusCode() + "): " + message);
     }
 
     /**

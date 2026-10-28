@@ -125,7 +125,9 @@ public class VideoSyncConfig {
      *
      * @param videoSyncConfigEnabled 视频同步配置已启用
      */
-    public void setVideoSyncConfigEnabled(Boolean videoSyncConfigEnabled) { this.videoSyncConfigEnabled = videoSyncConfigEnabled; }
+    public void setVideoSyncConfigEnabled(Boolean videoSyncConfigEnabled) {
+        this.videoSyncConfigEnabled = videoSyncConfigEnabled;
+    }
 
     /**
      * 获取视频同步间隔
@@ -151,7 +153,9 @@ public class VideoSyncConfig {
      *
      * @param videoSyncConfigLastAsyncTime 视频同步配置最后一个异步时间
      */
-    public void setVideoSyncConfigLastAsyncTime(LocalDateTime videoSyncConfigLastAsyncTime) { this.videoSyncConfigLastAsyncTime = videoSyncConfigLastAsyncTime; }
+    public void setVideoSyncConfigLastAsyncTime(LocalDateTime videoSyncConfigLastAsyncTime) {
+        this.videoSyncConfigLastAsyncTime = videoSyncConfigLastAsyncTime;
+    }
 
     /**
      * 获取视频同步配置头部
@@ -164,7 +168,9 @@ public class VideoSyncConfig {
      *
      * @param videoSyncConfigHeaders 视频同步配置头部
      */
-    public void setVideoSyncConfigHeaders(String videoSyncConfigHeaders) { this.videoSyncConfigHeaders = videoSyncConfigHeaders; }
+    public void setVideoSyncConfigHeaders(String videoSyncConfigHeaders) {
+        this.videoSyncConfigHeaders = videoSyncConfigHeaders;
+    }
 
     /**
      * 获取视频同步配置评论
@@ -177,7 +183,9 @@ public class VideoSyncConfig {
      *
      * @param videoSyncConfigRemark 视频同步配置评论
      */
-    public void setVideoSyncConfigRemark(String videoSyncConfigRemark) { this.videoSyncConfigRemark = videoSyncConfigRemark; }
+    public void setVideoSyncConfigRemark(String videoSyncConfigRemark) {
+        this.videoSyncConfigRemark = videoSyncConfigRemark;
+    }
 
     /**
      * 获取视频同步配置状态

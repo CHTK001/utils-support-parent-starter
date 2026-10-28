@@ -86,7 +86,10 @@ public class PostgresqlEngine extends JdbcEngine {
             private Dialect dialect = Dialect.require("postgresql");
             @Override public String name() { return options.name(); }
             @Override public HikariDataSource getSource() { return ds; }
-            @Override public EngineDataSource<HikariDataSource> setSource(Object source) { throw new UnsupportedOperationException("运行期不支持替换数据源对象，请重新调用 addDataSource 注册新数据源"); }
+            @Override
+            public EngineDataSource<HikariDataSource> setSource(Object source) {
+                throw new UnsupportedOperationException("运行期不支持替换数据源对象，请重新调用 addDataSource 注册新数据源");
+            }
             @Override public Dialect getDialect() { return dialect; }
             @Override public EngineDataSource<HikariDataSource> setDialect(Dialect d) {
                 if (d != null) {

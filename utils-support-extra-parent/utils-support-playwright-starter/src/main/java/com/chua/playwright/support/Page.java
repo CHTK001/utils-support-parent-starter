@@ -253,7 +253,9 @@ public class Page {
      * @param selector selector
      * @param timeoutMs 超时ms
      */
-    public void waitForSelector(String selector, long timeoutMs) { engine.waitForSelector(handle, selector, timeoutMs); }
+    public void waitForSelector(String selector, long timeoutMs) {
+        engine.waitForSelector(handle, selector, timeoutMs);
+    }
 
     /**
      * 选择期权。

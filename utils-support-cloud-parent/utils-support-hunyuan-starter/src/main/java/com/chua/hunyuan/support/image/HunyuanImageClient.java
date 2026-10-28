@@ -3,6 +3,8 @@ package com.chua.hunyuan.support.image;
 import com.chua.common.support.ai.image.ImageClient;
 import com.chua.common.support.ai.image.ImageClientSetting;
 import com.chua.common.support.ai.image.ImageResponse;
+import com.chua.common.support.network.client.ClientResponse;
+import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,11 +13,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -38,11 +35,6 @@ public class HunyuanImageClient implements ImageClient {
      * 腾讯混元默认 API 地址
      */
     private static final String DEFAULT_URL = "https://api.hunyuan.cloud.tencent.com/v1";
-
-    /**
-     * HTTP 客户端
-     */
-    private final HttpClient httpClient;
 
     /**
      * 客户端配置
@@ -89,9 +81,6 @@ public class HunyuanImageClient implements ImageClient {
         this.model = setting.getModel();
         this.width = setting.getWidth();
         this.height = setting.getHeight();
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(30))
-                .build();
     }
 
     /**
@@ -182,30 +171,26 @@ public BufferedImage generate(String prompt) {
             throw new IllegalArgumentException("提示词不能为空");
         }
         String actualModel = model != null ? model : "hunyuan-pro";
+        String requestBody = "{\"model\":\"" + actualModel
+                + "\",\"messages\":[{\"role\":\"user\",\"content\":\""
+                + escapeJson(actualPrompt) + "\"}]"
+                + ",\"stream\":false,\"max_tokens\":2048}";
+        ClientResponse response = HttpClientFactory.of(normalizeBaseUrl())
+                .path("/chat/completions")
+                .header("Authorization", "Bearer " + setting.getAppKey())
+                .json()
+                .connectTimeout(30000)
+                .readTimeout(120000)
+                .body(requestBody)
+                .post();
+        if (response.getStatusCode() != 200) {
+            throw new RuntimeException("混元生图请求失败: " + response.getStatusCode()
+                    + " - " + response.getBodyString());
+        }
         try {
-            String requestBody = "{\"model\":\"" + actualModel
-                    + "\",\"messages\":[{\"role\":\"user\",\"content\":\""
-                    + escapeJson(actualPrompt) + "\"}]"
-                    + ",\"stream\":false,\"max_tokens\":2048}";
-            String url = normalizeBaseUrl() + "/chat/completions";
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header("Authorization", "Bearer " + setting.getAppKey())
-                    .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(120))
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200) {
-                throw new RuntimeException("混元生图请求失败: " + response.statusCode() + " - " + response.body());
-            }
-            String body = response.body();
-            return parseAndDownloadImage(body);
+            return parseAndDownloadImage(response.getBodyString());
         } catch (IOException e) {
             throw new RuntimeException("混元生图请求失败", e);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("混元生图请求被中断", e);
         }
     }
 
@@ -244,18 +229,19 @@ public BufferedImage generate(String prompt) {
             return ImageIO.read(new ByteArrayInputStream(imageBytes));
         }
         // URL 格式
-        HttpRequest imageRequest = HttpRequest.newBuilder()
-                .uri(URI.create(content))
-                .timeout(Duration.ofSeconds(60))
-                .GET()
-                .build();
-        try {
-            HttpResponse<InputStream> imageResponse = httpClient.send(imageRequest,
-                    HttpResponse.BodyHandlers.ofInputStream());
-            return ImageIO.read(imageResponse.body());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException("下载图片被中断", e);
+        ClientResponse imageResponse = HttpClientFactory.of(content)
+                .connectTimeout(30000)
+                .readTimeout(60000)
+                .get();
+        if (!imageResponse.isSuccess()) {
+            throw new IOException("下载混元图片失败: HTTP " + imageResponse.getStatusCode());
+        }
+        byte[] bytes = imageResponse.getBody();
+        if (bytes == null || bytes.length == 0) {
+            throw new IOException("下载混元图片失败: 响应体为空");
+        }
+        try (InputStream in = new ByteArrayInputStream(bytes)) {
+            return ImageIO.read(in);
         }
     }
 

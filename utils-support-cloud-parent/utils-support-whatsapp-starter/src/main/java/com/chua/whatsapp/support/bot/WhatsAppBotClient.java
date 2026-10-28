@@ -12,20 +12,17 @@ import com.chua.common.support.ai.bot.BotUserStore;
 import com.chua.common.support.ai.bot.InMemoryBotUserStore;
 import com.chua.common.support.config.loader.ConfigSaveOrLoader;
 import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.network.client.ClientResponse;
+import com.chua.common.support.network.client.HttpClientBuilder;
+import com.chua.common.support.network.client.HttpClientFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.net.InetSocketAddress;
-import java.net.ProxySelector;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HexFormat;
@@ -91,7 +88,6 @@ public class WhatsAppBotClient implements BotClient {
     private final List<BotMessageListener> messageListeners = new CopyOnWriteArrayList<>();
     private final List<BotErrorListener> errorListeners = new CopyOnWriteArrayList<>();
     private BotUserStore userStore = new InMemoryBotUserStore();
-    private volatile HttpClient httpClient;
 
     @Override
     public BotClient configure(String token, String secret, String encodingAesKey) {
@@ -162,11 +158,6 @@ public class WhatsAppBotClient implements BotClient {
      */
     public WhatsAppBotClient httpProxy(String httpProxy) {
         this.httpProxy = httpProxy;
-        if (this.httpProxy != null && !this.httpProxy.isBlank()) {
-            synchronized (this) {
-                this.httpClient = null;
-            }
-        }
         return this;
     }
 
@@ -208,17 +199,15 @@ public class WhatsAppBotClient implements BotClient {
             throw new IllegalArgumentException("WhatsApp access_token 必填");
         }
         try {
-            String url = baseUrl + "/" + phoneNumberId
+            String path = "/" + phoneNumberId
                     + "?fields=display_phone_number,verified_name";
-            HttpResponse<String> response = client().send(
-                    HttpRequest.newBuilder(URI.create(url))
-                            .timeout(Duration.ofMillis(readTimeoutMillis))
-                            .header("Authorization", "Bearer " + accessToken)
-                            .GET().build(),
-                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            ClientResponse response = newBuilder(path)
+                    .header("Authorization", "Bearer " + accessToken)
+                    .readTimeout(readTimeoutMillis)
+                    .get();
+            if (response.getStatusCode() < 200 || response.getStatusCode() >= 300) {
                 throw new IllegalArgumentException("WhatsApp 凭据校验失败：HTTP "
-                        + response.statusCode() + " " + safeBody(response));
+                        + response.getStatusCode() + " " + safeBody(response));
             }
         } catch (IllegalArgumentException e) {
             throw e;
@@ -544,31 +533,28 @@ public class WhatsAppBotClient implements BotClient {
             throw new IllegalArgumentException("access_token 未配置，无法下载媒体");
         }
         try {
-            String metaUrl = baseUrl + "/" + mediaId;
-            HttpResponse<String> meta = client().send(
-                    HttpRequest.newBuilder(URI.create(metaUrl))
-                            .timeout(Duration.ofMillis(readTimeoutMillis))
-                            .header("Authorization", "Bearer " + accessToken)
-                            .GET().build(),
-                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            if (meta.statusCode() < 200 || meta.statusCode() >= 300) {
+            String metaPath = "/" + mediaId;
+            ClientResponse meta = newBuilder(metaPath)
+                    .header("Authorization", "Bearer " + accessToken)
+                    .readTimeout(readTimeoutMillis)
+                    .get();
+            if (meta.getStatusCode() < 200 || meta.getStatusCode() >= 300) {
                 throw new IllegalArgumentException("获取媒体地址失败：HTTP "
-                        + meta.statusCode() + " " + safeBody(meta));
+                        + meta.getStatusCode() + " " + safeBody(meta));
             }
             Object urlObj = Json.fromJson(safeBody(meta)).get("url");
             if (urlObj == null) {
                 throw new IllegalArgumentException("媒体地址缺失");
             }
-            HttpResponse<byte[]> data = client().send(
-                    HttpRequest.newBuilder(URI.create(String.valueOf(urlObj)))
-                            .timeout(Duration.ofMillis(readTimeoutMillis))
-                            .header("Authorization", "Bearer " + accessToken)
-                            .GET().build(),
-                    HttpResponse.BodyHandlers.ofByteArray());
-            if (data.statusCode() < 200 || data.statusCode() >= 300) {
-                throw new IllegalArgumentException("下载媒体失败：HTTP " + data.statusCode());
+            ClientResponse data = HttpClientFactory.of(String.valueOf(urlObj))
+                    .header("Authorization", "Bearer " + accessToken)
+                    .connectTimeout(connectTimeoutMillis)
+                    .readTimeout(readTimeoutMillis)
+                    .get();
+            if (data.getStatusCode() < 200 || data.getStatusCode() >= 300) {
+                throw new IllegalArgumentException("下载媒体失败：HTTP " + data.getStatusCode());
             }
-            return data.body();
+            return data.getBody();
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {
@@ -717,24 +703,21 @@ public class WhatsAppBotClient implements BotClient {
             return BotSendResult.fail(-1, "WhatsApp client not configured");
         }
         try {
-            String url = baseUrl + "/" + phoneNumberId + "/messages";
-            HttpResponse<String> response = client().send(
-                    HttpRequest.newBuilder(URI.create(url))
-                            .timeout(Duration.ofMillis(readTimeoutMillis))
-                            .header("Authorization", "Bearer " + accessToken)
-                            .header("Content-Type", "application/json; charset=utf-8")
-                            .POST(HttpRequest.BodyPublishers.ofString(
-                                    Json.toJson(payload), StandardCharsets.UTF_8))
-                            .build(),
-                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            String path = "/" + phoneNumberId + "/messages";
+            ClientResponse response = newBuilder(path)
+                    .header("Authorization", "Bearer " + accessToken)
+                    .json()
+                    .readTimeout(readTimeoutMillis)
+                    .body(Json.toJson(payload))
+                    .post();
             String body = safeBody(response);
-            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
                 BotSendResult result = BotSendResult.ok(extractMessageId(body));
                 result.setRawResponse(body);
                 return result;
             }
             notifyError(new IllegalStateException("WhatsApp send failed: " + body));
-            return BotSendResult.fail(response.statusCode(), body);
+            return BotSendResult.fail(response.getStatusCode(), body);
         } catch (Exception e) {
             notifyError(e);
             log.error("[WhatsApp] 发送失败: {}", e.getMessage(), e);
@@ -785,32 +768,40 @@ public class WhatsAppBotClient implements BotClient {
         }
     }
 
-    private HttpClient client() {
-        HttpClient current = httpClient;
-        if (current == null) {
-            synchronized (this) {
-                if (httpClient == null) {
-                    HttpClient.Builder builder = HttpClient.newBuilder()
-                            .connectTimeout(Duration.ofMillis(connectTimeoutMillis));
-                    ProxySelector proxySelector = resolveProxySelector();
-                    if (proxySelector != null) {
-                        builder.proxy(proxySelector);
-                    }
-                    httpClient = builder.build();
+    /**
+     * 创建带公共配置的 HTTP 请求构建器。
+     *
+     * @param path API 路径（含前导斜杠）
+     * @return 请求构建器
+     */
+    private HttpClientBuilder newBuilder(String path) {
+        HttpClientBuilder builder = HttpClientFactory.of(baseUrl)
+                .path(path)
+                .connectTimeout(connectTimeoutMillis);
+        String proxy = resolveProxy();
+        if (proxy != null) {
+            int idx = proxy.lastIndexOf(':');
+            if (idx > 0 && idx < proxy.length() - 1) {
+                String host = proxy.substring(0, idx);
+                try {
+                    builder.proxy(host, Integer.parseInt(proxy.substring(idx + 1)));
+                } catch (NumberFormatException e) {
+                    log.warn("[WhatsApp] 代理端口非法，已忽略: {}", proxy);
                 }
-                current = httpClient;
+            } else {
+                log.warn("[WhatsApp] 代理格式应为 host:port，已忽略: {}", proxy);
             }
         }
-        return current;
+        return builder;
     }
 
     /**
      * 解析出站代理：显式设置优先，其次系统属性 {@code whatsapp.http.proxy}，
      * 再次环境变量 {@code WHATSAPP_HTTP_PROXY} / {@code HTTPS_PROXY}。
      *
-     * @return 代理选择器；未配置返回 null（直连）
+     * @return 代理地址 {@code host:port}；未配置返回 null（直连）
      */
-    private ProxySelector resolveProxySelector() {
+    private String resolveProxy() {
         String proxy = httpProxy;
         if (proxy == null || proxy.isBlank()) {
             proxy = System.getProperty("whatsapp.http.proxy");
@@ -825,21 +816,11 @@ public class WhatsAppBotClient implements BotClient {
             return null;
         }
         String value = proxy.trim();
-        int idx = value.lastIndexOf(':');
-        if (idx <= 0 || idx == value.length() - 1) {
-            log.warn("[WhatsApp] 代理格式应为 host:port，已忽略: {}", value);
-            return null;
+        int sep = value.indexOf("://");
+        if (sep >= 0) {
+            value = value.substring(sep + 3);
         }
-        String host = value.substring(0, idx);
-        int port;
-        try {
-            port = Integer.parseInt(value.substring(idx + 1));
-        } catch (NumberFormatException e) {
-            log.warn("[WhatsApp] 代理端口非法，已忽略: {}", value);
-            return null;
-        }
-        log.info("[WhatsApp] 出站将经代理 {}:{}", host, port);
-        return ProxySelector.of(new InetSocketAddress(host, port));
+        return value;
     }
 
     private void notifyError(Throwable e) {
@@ -866,8 +847,9 @@ public class WhatsAppBotClient implements BotClient {
         return null;
     }
 
-    private static String safeBody(HttpResponse<String> response) {
-        return response.body() == null ? "" : response.body();
+    private static String safeBody(ClientResponse response) {
+        String body = response.getBodyString();
+        return body == null ? "" : body;
     }
 
     @SuppressWarnings("unchecked")

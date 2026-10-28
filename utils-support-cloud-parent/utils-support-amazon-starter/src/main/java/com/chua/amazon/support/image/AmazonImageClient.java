@@ -4,6 +4,8 @@ import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.ai.image.ImageClient;
 import com.chua.common.support.ai.image.ImageClientSetting;
 import com.chua.common.support.ai.image.ImageResponse;
+import com.chua.common.support.network.client.ClientResponse;
+import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.CollectionUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -12,11 +14,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -38,11 +35,6 @@ public class AmazonImageClient implements ImageClient {
      * 亚马逊 Bedrock 默认 API 地址
      */
     private static final String DEFAULT_URL = "https://bedrock-runtime.us-east-1.amazonaws.com";
-
-    /**
-     * HTTP 客户端
-     */
-    private final HttpClient httpClient;
 
     /**
      * 客户端配置
@@ -104,9 +96,6 @@ public class AmazonImageClient implements ImageClient {
         this.model = setting.getModel();
         this.width = setting.getWidth();
         this.height = setting.getHeight();
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(30))
-                .build();
     }
 
     /**
@@ -227,45 +216,40 @@ public BufferedImage generate(String prompt) {
         int w = width != null ? width : 1024;
         int h = height != null ? height : 1024;
         String q = quality != null ? quality : "standard";
+        // 构建请求体
+        StringBuilder bodyBuilder = new StringBuilder();
+        bodyBuilder.append("{\"textToImageParams\":{\"text\":\"")
+                .append(escapeJson(actualPrompt)).append("\"");
+        if (negativePrompt != null && !negativePrompt.isBlank()) {
+            bodyBuilder.append(",\"negativeText\":\"")
+                    .append(escapeJson(negativePrompt)).append("\"");
+        }
+        bodyBuilder.append("},\"taskType\":\"TEXT_IMAGE\"")
+                .append(",\"imageGenerationConfig\":{\"numberOfImages\":1")
+                .append(",\"quality\":\"").append(q).append("\"")
+                .append(",\"width\":").append(w)
+                .append(",\"height\":").append(h);
+        if (seed != null) {
+            bodyBuilder.append(",\"seed\":").append(seed);
+        }
+        bodyBuilder.append("}}");
+        String requestBody = bodyBuilder.toString();
+        ClientResponse response = HttpClientFactory.of(normalizeBaseUrl())
+                .path("/model/" + actualModel + "/invoke")
+                .header("Authorization", "Bearer " + setting.getAppKey())
+                .json()
+                .connectTimeout(30000)
+                .readTimeout(120000)
+                .body(requestBody)
+                .post();
+        if (response.getStatusCode() != 200) {
+            throw new RuntimeException("Amazon Bedrock 图片生成请求失败: " + response.getStatusCode() + " - " +
+                    response.getBodyString());
+        }
         try {
-            // 构建请求体
-            StringBuilder bodyBuilder = new StringBuilder();
-            bodyBuilder.append("{\"textToImageParams\":{\"text\":\"")
-                    .append(escapeJson(actualPrompt)).append("\"");
-            if (negativePrompt != null && !negativePrompt.isBlank()) {
-                bodyBuilder.append(",\"negativeText\":\"")
-                        .append(escapeJson(negativePrompt)).append("\"");
-            }
-            bodyBuilder.append("},\"taskType\":\"TEXT_IMAGE\"")
-                    .append(",\"imageGenerationConfig\":{\"numberOfImages\":1")
-                    .append(",\"quality\":\"").append(q).append("\"")
-                    .append(",\"width\":").append(w)
-                    .append(",\"height\":").append(h);
-            if (seed != null) {
-                bodyBuilder.append(",\"seed\":").append(seed);
-            }
-            bodyBuilder.append("}}");
-            String requestBody = bodyBuilder.toString();
-            String url = normalizeBaseUrl() + "/model/" + actualModel + "/invoke";
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header("Authorization", "Bearer " + setting.getAppKey())
-                    .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(120))
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200) {
-                throw new RuntimeException("Amazon Bedrock 图片生成请求失败: " + response.statusCode() + " - " +
-                        response.body());
-            }
-            String body = response.body();
-            return parseAndDecodeImage(body);
+            return parseAndDecodeImage(response.getBodyString());
         } catch (IOException e) {
             throw new RuntimeException("Amazon Bedrock 图片生成请求失败", e);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("Amazon Bedrock 图片生成请求被中断", e);
         }
     }
 

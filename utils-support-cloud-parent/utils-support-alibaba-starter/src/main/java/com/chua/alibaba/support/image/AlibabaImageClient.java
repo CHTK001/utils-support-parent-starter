@@ -3,18 +3,16 @@ package com.chua.alibaba.support.image;
 import com.chua.common.support.ai.image.ImageClient;
 import com.chua.common.support.ai.image.ImageClientSetting;
 import com.chua.common.support.ai.image.ImageResponse;
+import com.chua.common.support.network.client.ClientResponse;
+import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -85,11 +83,6 @@ public class AlibabaImageClient implements ImageClient {
     private static final int MAX_POLL_COUNT = 60;
 
     /**
-     * HTTP 客户端
-     */
-    private final HttpClient httpClient;
-
-    /**
      * 客户端配置
      */
     private final ImageClientSetting setting;
@@ -144,9 +137,6 @@ public class AlibabaImageClient implements ImageClient {
         this.model = setting.getModel();
         this.width = setting.getWidth();
         this.height = setting.getHeight();
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(CONNECT_TIMEOUT_SECONDS))
-                .build();
     }
 
     /**
@@ -254,27 +244,28 @@ public class AlibabaImageClient implements ImageClient {
         if (actualPrompt == null || actualPrompt.isBlank()) {
             throw new IllegalArgumentException("提示词不能为空");
         }
-        try {
-            String taskId = createTask(actualPrompt);
-            ImageResponse response = pollTask(taskId);
-            if (response.getStatus() == ImageResponse.Status.SUCCESS) {
-                String imageUrl = response.getImageUrl();
-                HttpRequest imageRequest = HttpRequest.newBuilder()
-                        .uri(URI.create(imageUrl))
-                        .timeout(Duration.ofSeconds(60))
-                        .GET()
-                        .build();
-                HttpResponse<InputStream> imageResponse = httpClient.send(imageRequest,
-                        HttpResponse.BodyHandlers.ofInputStream());
-                return ImageIO.read(imageResponse.body());
+        String taskId = createTask(actualPrompt);
+        ImageResponse response = pollTask(taskId);
+        if (response.getStatus() == ImageResponse.Status.SUCCESS) {
+            String imageUrl = response.getImageUrl();
+            ClientResponse imageResponse = HttpClientFactory.of(imageUrl)
+                    .connectTimeout(CONNECT_TIMEOUT_SECONDS * 1000)
+                    .readTimeout(60000)
+                    .get();
+            if (!imageResponse.isSuccess()) {
+                throw new RuntimeException("下载通义万相图片失败: HTTP " + imageResponse.getStatusCode());
             }
-            throw new RuntimeException("通义万相图片生成失败: " + response.getErrorMessage());
-        } catch (IOException e) {
-            throw new RuntimeException("通义万相图片生成请求失败", e);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("通义万相图片生成请求被中断", e);
+            byte[] bytes = imageResponse.getBody();
+            if (bytes == null || bytes.length == 0) {
+                throw new RuntimeException("下载通义万相图片失败: 响应体为空");
+            }
+            try (InputStream in = new ByteArrayInputStream(bytes)) {
+                return ImageIO.read(in);
+            } catch (IOException e) {
+                throw new RuntimeException("通义万相图片生成请求失败", e);
+            }
         }
+        throw new RuntimeException("通义万相图片生成失败: " + response.getErrorMessage());
     }
 
     /**
@@ -289,41 +280,34 @@ public class AlibabaImageClient implements ImageClient {
         String actualModel = model != null ? model : DEFAULT_MODEL;
         String sizeStr = buildSize();
         int actualSteps = steps != null ? steps : DEFAULT_STEPS;
-        try {
-            String requestBody = "{\"model\":\"" + actualModel
-                    + "\",\"input\":{\"messages\":[{\"role\":\"user\",\"content\":\""
-                    + escapeJson(actualPrompt) + "\"}]}"
-                    + ",\"parameters\":{\"size\":\"" + sizeStr + "\",\"steps\":" + actualSteps + "}}";
-            String url = normalizeBaseUrl() + "/api/v1/services/aigc/text-generation/generation";
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header(HEADER_AUTHORIZATION, TOKEN_PREFIX + setting.getAppKey())
-                    .header("Content-Type", CONTENT_TYPE_JSON)
-                    .timeout(Duration.ofSeconds(60))
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200) {
-                throw new RuntimeException("通义万相提交任务失败: " + response.statusCode() + " - " + response.body());
-            }
-            String body = response.body();
-            Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(body, Map.class);
-            Map<String, Object> output = (Map<String, Object>) root.get("output");
-            if (output == null) {
-                throw new RuntimeException("通义万相返回的任务 ID 为空");
-            }
-            String taskId = (String) output.get("task_id");
-            if (taskId == null || taskId.isBlank()) {
-                throw new RuntimeException("通义万相返回的任务 ID 为空");
-            }
-            log.debug("通义万相任务已提交，taskId: {}", taskId);
-            return taskId;
-        } catch (IOException e) {
-            throw new RuntimeException("通义万相提交任务失败", e);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("通义万相提交任务被中断", e);
+        String requestBody = "{\"model\":\"" + actualModel
+                + "\",\"input\":{\"messages\":[{\"role\":\"user\",\"content\":\""
+                + escapeJson(actualPrompt) + "\"}]}"
+                + ",\"parameters\":{\"size\":\"" + sizeStr + "\",\"steps\":" + actualSteps + "}}";
+        ClientResponse response = HttpClientFactory.of(normalizeBaseUrl())
+                .path("/api/v1/services/aigc/text-generation/generation")
+                .header(HEADER_AUTHORIZATION, TOKEN_PREFIX + setting.getAppKey())
+                .json()
+                .connectTimeout(CONNECT_TIMEOUT_SECONDS * 1000)
+                .readTimeout(60000)
+                .body(requestBody)
+                .post();
+        if (response.getStatusCode() != 200) {
+            throw new RuntimeException("通义万相提交任务失败: " + response.getStatusCode()
+                    + " - " + response.getBodyString());
         }
+        String body = response.getBodyString();
+        Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(body, Map.class);
+        Map<String, Object> output = (Map<String, Object>) root.get("output");
+        if (output == null) {
+            throw new RuntimeException("通义万相返回的任务 ID 为空");
+        }
+        String taskId = (String) output.get("task_id");
+        if (taskId == null || taskId.isBlank()) {
+            throw new RuntimeException("通义万相返回的任务 ID 为空");
+        }
+        log.debug("通义万相任务已提交，taskId: {}", taskId);
+        return taskId;
     }
 
     /**
@@ -332,22 +316,20 @@ public class AlibabaImageClient implements ImageClient {
     @Override
     public ImageResponse queryTask(String taskId) {
         try {
-            String url = normalizeBaseUrl() + "/api/v1/tasks/" + taskId;
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
+            ClientResponse response = HttpClientFactory.of(normalizeBaseUrl())
+                    .path("/api/v1/tasks/" + taskId)
                     .header(HEADER_AUTHORIZATION, TOKEN_PREFIX + setting.getAppKey())
-                    .timeout(Duration.ofSeconds(30))
-                    .GET()
-                    .build();
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200) {
+                    .connectTimeout(CONNECT_TIMEOUT_SECONDS * 1000)
+                    .readTimeout(30000)
+                    .get();
+            if (response.getStatusCode() != 200) {
                 return ImageResponse.builder()
                         .taskId(taskId)
                         .status(ImageResponse.Status.FAILED)
-                        .errorMessage("查询任务失败: " + response.statusCode())
+                        .errorMessage("查询任务失败: " + response.getStatusCode())
                         .build();
             }
-            String body = response.body();
+            String body = response.getBodyString();
             Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(body, Map.class);
             Map<String, Object> output = (Map<String, Object>) root.get("output");
             if (output == null) {
@@ -386,18 +368,11 @@ public class AlibabaImageClient implements ImageClient {
                         .status(ImageResponse.Status.RUNNING)
                         .build();
             }
-        } catch (IOException e) {
+        } catch (RuntimeException e) {
             return ImageResponse.builder()
                     .taskId(taskId)
                     .status(ImageResponse.Status.FAILED)
                     .errorMessage("查询任务失败: " + e.getMessage())
-                    .build();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return ImageResponse.builder()
-                    .taskId(taskId)
-                    .status(ImageResponse.Status.FAILED)
-                    .errorMessage("查询任务被中断")
                     .build();
         }
     }

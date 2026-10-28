@@ -399,18 +399,15 @@ public class FeishuBotClient implements BotClient {
         try {
             String payload = "{\"app_id\":\"" + appId
                     + "\",\"app_secret\":\"" + appSecret + "\"}";
-            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
-                    .uri(java.net.URI.create(
-                            "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"))
-                    .timeout(java.time.Duration.ofSeconds(10))
-                    .header("Content-Type", "application/json; charset=utf-8")
-                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString(payload,
-                            java.nio.charset.StandardCharsets.UTF_8))
-                    .build();
-            java.net.http.HttpResponse<String> response = java.net.http.HttpClient.newHttpClient()
-                    .send(request, java.net.http.HttpResponse.BodyHandlers.ofString(
-                            java.nio.charset.StandardCharsets.UTF_8));
-            String body = response.body() == null ? "" : response.body();
+            com.chua.common.support.network.client.ClientResponse response =
+                    com.chua.common.support.network.client.HttpClientFactory
+                            .of("https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal")
+                            .json()
+                            .connectTimeout(10000)
+                            .readTimeout(10000)
+                            .body(payload)
+                            .post();
+            String body = response.getBodyString() == null ? "" : response.getBodyString();
             boolean ok = CODE_OK_PATTERN.matcher(body).find();
             if (ok) {
                 java.util.regex.Matcher tokenMatcher = TENANT_TOKEN_PATTERN.matcher(body);

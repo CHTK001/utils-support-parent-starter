@@ -96,7 +96,8 @@ public final class AnnotationDefinition<A extends Annotation> {
      * @param annotationClass 方法入参 annotationClass
      * @return AnnotationDefinition 对象
      */
-    public static <A extends Annotation> AnnotationDefinition<A> ofAliasResolved(A annotation, Class<A> annotationClass) {
+    public static <A extends Annotation> AnnotationDefinition<A> ofAliasResolved(A annotation,
+            Class<A> annotationClass) {
         return new AnnotationDefinition<>(annotation, Source.ALIAS_RESOLVED, annotationClass, false);
     }
 
@@ -107,7 +108,8 @@ public final class AnnotationDefinition<A extends Annotation> {
      * @param annotationClass 方法入参 annotationClass
      * @return AnnotationDefinition 对象
      */
-    public static <A extends Annotation> AnnotationDefinition<A> ofOverriddenMethod(A annotation, Class<A> annotationClass) {
+    public static <A extends Annotation> AnnotationDefinition<A> ofOverriddenMethod(A annotation,
+            Class<A> annotationClass) {
         return new AnnotationDefinition<>(annotation, Source.OVERRIDDEN_METHOD, annotationClass, false);
     }
 
@@ -117,7 +119,8 @@ public final class AnnotationDefinition<A extends Annotation> {
      * @param annotation 注解
      * @return subclassOverrides的结果
      */
-    public static <A extends Annotation> AnnotationDefinition<A> subclassOverrides(Class<A> annotationClass, A annotation) {
+    public static <A extends Annotation> AnnotationDefinition<A> subclassOverrides(Class<A> annotationClass,
+            A annotation) {
         return new AnnotationDefinition<>(annotation, Source.DIRECT, annotationClass, true);
     }
 
