@@ -187,6 +187,7 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
         private long[] textTokens;
 
         /**
+         * 构造 CombinedInput 实例。
          *             
          *
          * @param image                  

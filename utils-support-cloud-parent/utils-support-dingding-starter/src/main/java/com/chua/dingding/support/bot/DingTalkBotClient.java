@@ -2339,6 +2339,8 @@ public class DingTalkBotClient implements BotClient {
         private final String conversationId;
 
         /**
+         * 构造 SessionContext 实例。
+         *
          * @param sessionWebhook 被动回复地址
          * @param expireAt       过期时间戳
          * @param fromGroup      是否群聊
@@ -2380,6 +2382,8 @@ public class DingTalkBotClient implements BotClient {
         private final int code;
 
         /**
+         * 构造 DingTalkApiException 实例。
+         *
          * @param code    错误码
          * @param message 错误描述
          */

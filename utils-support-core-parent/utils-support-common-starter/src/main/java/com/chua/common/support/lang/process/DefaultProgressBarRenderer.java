@@ -70,6 +70,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     private final Function<ProgressState, Optional<Duration>> eta;
 
     /**
+     * 构造 DefaultProgressBarRenderer 实例。
      *             
      *
      * @param style                
@@ -91,6 +92,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 构造 DefaultProgressBarRenderer 实例。
      *             
      *
      * @param style                

@@ -149,6 +149,7 @@ public class CommonActionTranslator implements Translator<Image, Classifications
     private String[] labels;
 
     /**
+     * 构造 CommonActionTranslator 实例。
      *
      *
      * @param width                    

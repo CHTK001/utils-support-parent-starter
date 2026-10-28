@@ -58,6 +58,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     /**
+     * 构造 MidasDepthTranslator 实例。
      *
      *
      * @param detectResolution                

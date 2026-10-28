@@ -103,6 +103,7 @@ private static final float[][] ANCHORS = {
     }
 
     /**
+     * 构造 Yolov2CocoTranslator 实例。
      *
      *
      * @param inputSize                      

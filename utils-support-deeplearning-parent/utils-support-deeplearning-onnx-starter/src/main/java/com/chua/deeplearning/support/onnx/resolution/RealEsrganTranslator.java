@@ -54,6 +54,7 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     }
 
     /**
+     * 构造 RealEsrganTranslator 实例。
      *
      *
      * @param scale                   2     4   

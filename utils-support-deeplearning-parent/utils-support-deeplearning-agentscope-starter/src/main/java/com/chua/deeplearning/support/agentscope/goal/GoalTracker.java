@@ -30,6 +30,8 @@ public final class GoalTracker {
     private String lastReason = "";
 
     /**
+     * 构造 GoalTracker 实例。
+     *
      * @param goal 初始目标，不能为 null
      */
     public GoalTracker(SessionGoal goal) {

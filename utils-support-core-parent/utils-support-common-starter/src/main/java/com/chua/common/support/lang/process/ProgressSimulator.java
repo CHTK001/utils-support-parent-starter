@@ -74,6 +74,7 @@ public final class ProgressSimulator {
         this(type, 100);
     }
     /**
+     * 构造 ProgressSimulator 实例。
      * <p>
      *
      *

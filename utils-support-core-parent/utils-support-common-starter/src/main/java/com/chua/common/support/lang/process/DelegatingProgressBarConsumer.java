@@ -22,6 +22,7 @@ public class DelegatingProgressBarConsumer implements ProgressBarConsumer {
      */
     private final Consumer<String> consumer;
     /**
+     * 构造 DelegatingProgressBarConsumer 实例。
      *             
      *
      * @param consumer                   
@@ -30,6 +31,7 @@ public class DelegatingProgressBarConsumer implements ProgressBarConsumer {
         this(consumer, TerminalUtils.getTerminalWidth());
     }
     /**
+     * 构造 DelegatingProgressBarConsumer 实例。
      *             
      *
      * @param consumer                   

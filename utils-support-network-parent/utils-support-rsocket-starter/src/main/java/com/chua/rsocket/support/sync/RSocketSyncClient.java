@@ -78,6 +78,8 @@ public class RSocketSyncClient implements SyncClient {
     private static final long RECONNECT_INTERVAL = 3000;
 
     /**
+     * 构造 RSocketSyncClient 实例。
+     *
      * @param serverUrl 服务端 URL
      */
     public RSocketSyncClient(String serverUrl) {

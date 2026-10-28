@@ -88,6 +88,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     }
 
     /**
+     * 构造 PpDocLayoutTranslator 实例。
      *
      *
      * @param arguments                     

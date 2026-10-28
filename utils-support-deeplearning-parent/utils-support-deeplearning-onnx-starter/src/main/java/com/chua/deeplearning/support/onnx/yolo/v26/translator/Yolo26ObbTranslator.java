@@ -73,6 +73,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
+     * 构造 Yolo26ObbTranslator 实例。
      *                               
      *
      * @param classes                   
@@ -82,6 +83,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
+     * 构造 Yolo26ObbTranslator 实例。
      *                                  
      *
      * @param size                                       
@@ -94,6 +96,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
+     * 构造 Yolo26ObbTranslator 实例。
      *                   
      *
      * @param width                          

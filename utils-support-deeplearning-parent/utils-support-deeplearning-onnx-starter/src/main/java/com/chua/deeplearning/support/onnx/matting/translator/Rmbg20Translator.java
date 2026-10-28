@@ -49,6 +49,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     }
 
     /**
+     * 构造 Rmbg20Translator 实例。
      *                              
      *
      * @param arguments                     
@@ -58,6 +59,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     }
 
     /**
+     * 构造 Rmbg20Translator 实例。
      *                              
      *
      * @param mode          

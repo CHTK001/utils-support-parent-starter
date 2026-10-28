@@ -110,6 +110,7 @@ public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObj
     }
 
     /**
+     * 构造 Yolo7PlateDetectTranslator 实例。
      *
      *
      * @param inputSize                                          

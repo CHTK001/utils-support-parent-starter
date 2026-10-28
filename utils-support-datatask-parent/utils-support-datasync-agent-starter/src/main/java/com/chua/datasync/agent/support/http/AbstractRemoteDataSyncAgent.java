@@ -36,6 +36,8 @@ public abstract class AbstractRemoteDataSyncAgent extends AbstractDataSyncAgent 
     protected ReactorDataSyncExecutor executor;
 
     /**
+     * 构造 AbstractRemoteDataSyncAgent 实例。
+     *
      * @param agentId    Agent 标识
      * @param syncClient 同步协议客户端
      */
