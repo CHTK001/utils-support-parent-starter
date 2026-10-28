@@ -431,7 +431,8 @@ public class ConfigValueBindingManager implements ConfigListener {
                 return;
             }
             ClassUtils.setAccessible(callback);
-            ReflectUtils.invoke(binding.getBean(), callback.getName(), callback.getReturnType(), callback.getParameterTypes(),
+            ReflectUtils.invoke(binding.getBean(), callback.getName(), callback.getReturnType(),
+                    callback.getParameterTypes(),
                 binding.getConfigKey(), oldValue, newValue);
         } catch (Exception e) {
             log.error("调用回调方法失败: {}.{}", binding.getBeanName(), callbackName, e);

@@ -997,7 +997,8 @@ public class JdbcReactorEngine implements ReactorEngine {
             }
             return Mono.from(Flux.usingWhen(Mono.from(factory.create()),
                     conn -> Flux.from(executeStatement(conn, sql, params))
-                            .flatMap(r -> Flux.from(r.map((row, meta) -> JdbcReactorEngine.this.toObject(row, rowType))))
+                            .flatMap(r -> Flux.from(
+                                    r.map((row, meta) -> JdbcReactorEngine.this.toObject(row, rowType))))
                             .collectList(),
                     conn -> Mono.from(conn.close()))).block();
         }

@@ -801,7 +801,8 @@ public class DingTalkBotClient implements BotClient {
     private void startDispatch() {
         ExecutorService executor = inboundExecutor;
         if (executor == null || executor.isShutdown()) {
-            executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), runnable -> {
+            executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(), runnable -> {
                 Thread thread = new Thread(runnable, "dingtalk-bot-inbound");
                 thread.setDaemon(true);
                 return thread;
