@@ -301,7 +301,7 @@ public class SqliteScriptConverter extends DefaultScriptConverter {
     }
 
     /**
-     * 该行是不是指定的��增列。
+     * 该行是不是指定的自增列。
      *
      * @param line    建表语句的一行
      * @param column  自增列名

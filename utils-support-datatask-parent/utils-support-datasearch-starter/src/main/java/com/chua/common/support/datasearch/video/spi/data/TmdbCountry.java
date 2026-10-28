@@ -14,10 +14,10 @@ public class TmdbCountry {
     }
 
     /**
-     * ͨ过 ISO-3166-1 两λ字ĸ代码获ȡ NAT_名称
+     * 通过 ISO-3166-1 两位字母代码获取本地名称
      *
-     * @param iso 大Сд不敏感
-     * @return 对Ӧ的本地名称，δ找到返?null
+     * @param iso 大小写不敏感
+     * @return 对应的本地名称，未找到返回 null
      */
     public static String getNativeName(String iso) {
         if (iso == null) {
@@ -31,7 +31,7 @@ public class TmdbCountry {
     }
 
     /**
-     * 与国家代码һһ对Ӧ的ö举，按需ɾ减
+     * 与国家代码一一对应的枚举，按需增减
      * @author CH
      * @since 4.0.0
      */
