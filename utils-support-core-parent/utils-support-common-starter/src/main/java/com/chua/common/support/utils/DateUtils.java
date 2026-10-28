@@ -2181,6 +2181,7 @@ public class DateUtils {
         return LocalDateTime.of(LocalDate.now(), localTime);
     }
     /**
+     * 生成秒级时间戳。
      *
      *
      * @param negate the negate

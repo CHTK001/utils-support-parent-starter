@@ -1,11 +1,12 @@
 package com.chua.datasource.support.slowquery;
 
 /**
- * 慢查询条目（语句摘要维度）。
+ * 慢查询条目（语句摘要维度或逐条事件维度）。
  *
- * <p>数据来自各内核的聚合视图：MySQL 8 用 {@code performance_schema.events_statements_summary_by_digest}，
- * PostgreSQL 用 {@code pg_stat_statements}。因此这里给的是「同一类语句按摘要聚合后」的统计，
- * 不是逐条日志。</p>
+ * <p>实现可以给「按摘要聚合后」的统计（MySQL 的
+ * {@code events_statements_summary_by_digest}），也可以给逐条慢事件
+ * （{@code events_statements_history_long} / {@code slow_log}），由各内核决定。
+ * 逐条来源自带客户端 IP / 主机（{@code host}），聚合来源没有则为 null。</p>
  *
  * <p>时间统一为毫秒（double，保留小数），时间戳统一为 {@code yyyy-MM-dd HH:mm:ss} 字符串，
  * 时区由驱动 / 服务器决定，接口不做转换。</p>
@@ -21,6 +22,7 @@ package com.chua.datasource.support.slowquery;
  * @param rowsSent     返回行数合计
  * @param firstSeen    首次出现时间
  * @param lastSeen     最近出现时间
+ * @param host         来源客户端 IP / 主机；逐条事件来源可见，聚合来源为 null
  * @author CH
  * @since 4.0.0.44
  */
@@ -35,6 +37,7 @@ public record SlowQueryInfo(
         long rowsExamined,
         long rowsSent,
         String firstSeen,
-        String lastSeen
+        String lastSeen,
+        String host
 ) {
 }

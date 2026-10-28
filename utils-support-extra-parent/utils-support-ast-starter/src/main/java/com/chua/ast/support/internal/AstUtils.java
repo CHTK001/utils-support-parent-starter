@@ -442,6 +442,8 @@ public final class AstUtils {
     }
 
     /**
+     * 构造标识符节点。
+     *
      * @deprecated 已废弃，请使用 {@link #ident(TreeMaker, Names, String)}
      */
     @Deprecated
@@ -464,6 +466,8 @@ public final class AstUtils {
     }
 
     /**
+     * 构造等值比较节点。
+     *
      * @deprecated 已废弃，请使用 {@link #eq(TreeMaker, JCExpression, JCExpression)}
      */
     @Deprecated
@@ -504,6 +508,8 @@ public final class AstUtils {
     }
 
     /**
+     * 构造字面量节点。
+     *
      * @deprecated 已废弃，请使用 {@link #makeLiteral(TreeMaker, Names, String, TypeMirror)}
      */
     @Deprecated
@@ -514,6 +520,8 @@ public final class AstUtils {
     }
 
     /**
+     * 构造赋值语句节点。
+     *
      * @deprecated 已废弃，请使用 {@link #assign(TreeMaker, JCExpression, JCExpression)} + exec
      */
     @Deprecated
@@ -524,6 +532,8 @@ public final class AstUtils {
     }
 
     /**
+     * 在方法体开头插入代码。
+     *
      * @deprecated 已废弃，请使用 {@link #prependToBody(JCMethodDecl, JCStatement...)}
      */
     @Deprecated

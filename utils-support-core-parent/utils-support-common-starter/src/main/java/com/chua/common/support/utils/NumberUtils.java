@@ -2216,6 +2216,8 @@ public class NumberUtils {
         return toScaledBigDecimal(value, 2, RoundingMode.HALF_EVEN);
     }
     /**
+     * 转换为指定精度的 BigDecimal。
+     *
      * @param value 值
      * @param scale scale
      * @param roundingMode roundingmode
