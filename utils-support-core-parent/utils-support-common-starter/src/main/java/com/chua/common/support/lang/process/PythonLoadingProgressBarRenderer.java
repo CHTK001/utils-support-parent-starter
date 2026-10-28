@@ -287,6 +287,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 获取 EtaString。
      *                                  
      *
      * @param progress             
@@ -306,6 +307,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 获取 SpeedString。
      *                      
      *
      * @param progress             

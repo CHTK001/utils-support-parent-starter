@@ -60,6 +60,8 @@ public class MethodDescribe {
     }
 
     /**
+     * 获取 Name。
+     *
      * @return 方法名
      */
     public String getName() {
@@ -67,6 +69,8 @@ public class MethodDescribe {
     }
 
     /**
+     * 获取 ReturnType。
+     *
      * @return 返回类型
      */
     public Class<?> getReturnType() {
@@ -74,6 +78,8 @@ public class MethodDescribe {
     }
 
     /**
+     * 获取 ParameterTypes。
+     *
      * @return 参数类型数组
      */
     public Class<?>[] getParameterTypes() {
@@ -81,6 +87,8 @@ public class MethodDescribe {
     }
 
     /**
+     * 获取 ParameterNames。
+     *
      * @return 参数名数组
      */
     public String[] getParameterNames() {

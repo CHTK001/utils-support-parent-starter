@@ -28,6 +28,7 @@ class Util {
     static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1,
             ThreadUtils.newDaemonThreadFactory("ProgressBar"));
     /**
+     * 创建实例。
      *                                                    
      *
      * @param predefinedWidth                
@@ -38,6 +39,7 @@ class Util {
         return createConsoleConsumer(real, predefinedWidth);
     }
     /**
+     * 创建实例。
      *                                                    
      *
      * @param out          
@@ -47,6 +49,7 @@ class Util {
         return createConsoleConsumer(out, -1);
     }
     /**
+     * 创建实例。
      * <p>
      *                                                                                        
      *

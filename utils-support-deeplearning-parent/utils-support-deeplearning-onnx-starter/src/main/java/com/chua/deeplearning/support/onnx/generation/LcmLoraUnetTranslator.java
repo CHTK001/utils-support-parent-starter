@@ -65,6 +65,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
     }
 
     /**
+     * 执行 Input。
      *
      *
      * @param ctx                     
@@ -98,6 +99,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
     }
 
     /**
+     * 执行 Output。
      *
      *
      * @param ctx                    
@@ -133,6 +135,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
     }
 
     /**
+     * 获取 Batchifier。
      *
      *
      * @return STACK             

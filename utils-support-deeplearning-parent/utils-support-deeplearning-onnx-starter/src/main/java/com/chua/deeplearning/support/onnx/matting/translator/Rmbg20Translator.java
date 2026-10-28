@@ -312,6 +312,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     }
 
     /**
+     * 获取 Batchifier。
      *                           
      *
      * @return Batchifier          

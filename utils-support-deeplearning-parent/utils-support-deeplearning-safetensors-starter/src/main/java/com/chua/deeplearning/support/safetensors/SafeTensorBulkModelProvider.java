@@ -43,6 +43,8 @@ public class SafeTensorBulkModelProvider implements BulkModelProvider {
     }
 
     /**
+     * 获取 All。
+     *
      * @return SafeTensorModelRegistry 中所有模型对应的 translator模型definition 列表
      */
     @Override

@@ -41,6 +41,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     private int originalHeight;
 
     /**
+     * 执行 Input。
      *
      *
      * @param ctx                   
@@ -137,6 +138,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     }
 
     /**
+     * 执行 Output。
      *
      *
      * @param ctx  Translator 上下文
@@ -207,6 +209,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     }
 
     /**
+     * 获取 Batchifier。
      *
      *
      * @return              -        无                    处理输入
@@ -217,6 +220,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     }
 
     /**
+     * 获取 InputSize。
      *
      *
      * @return             
@@ -226,6 +230,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     }
 
     /**
+     * 获取 OriginalSize。
      *
      *
      * @return                    [width, height]

@@ -65,6 +65,7 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
     }
 
     /**
+     * 初始化。
      *             
      *
      * @param ctx                   

@@ -60,6 +60,7 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
     }
 
     /**
+     * 初始化。
      *             
      *
      * @param ctx                   

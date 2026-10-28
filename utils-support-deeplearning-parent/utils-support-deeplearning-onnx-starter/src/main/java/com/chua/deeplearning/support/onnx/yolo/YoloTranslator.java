@@ -153,6 +153,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
+     * 执行 Input。
      *                   
      *
      * @param ctx                     
@@ -508,6 +509,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
+     * 获取 Batchifier。
      *                   
      *
      * @return STACK             

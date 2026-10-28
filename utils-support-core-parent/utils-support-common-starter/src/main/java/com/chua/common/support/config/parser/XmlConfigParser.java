@@ -112,6 +112,7 @@ public class XmlConfigParser implements ConfigParser {
         }
     }
     /**
+     * 解析 AsList。
      *
      *
      *
@@ -247,6 +248,8 @@ public class XmlConfigParser implements ConfigParser {
         return result;
     }
     /**
+     * 是否包含 OnlyTextContent。
+     *
      * @param element 元素，不允许为 null
      * @return 是否成功（true 表示成功）
      */

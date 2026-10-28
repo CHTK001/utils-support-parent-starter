@@ -33,6 +33,7 @@ public class RealTextImageSuperResolutionTranslator implements Translator<Image,
     private final int detectResolution = 512;
 
     /**
+     * 初始化。
      *                                           
      *
      * @param ctx                   
@@ -123,6 +124,7 @@ public class RealTextImageSuperResolutionTranslator implements Translator<Image,
     }
 
     /**
+     * 获取 Batchifier。
      *                      
      *
      * @return                               STACK      

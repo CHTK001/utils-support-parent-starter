@@ -138,6 +138,8 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
     }
 
     /**
+     * 是否为 Running。
+     *
      * @return true 表示 Agent 正在运行
      */
     @Override
@@ -156,6 +158,7 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
 
     /**
      * 内部 源，将 指标服务 的快照转为结构化行数据。
+     *
      * @author CH
      * @since 4.0.0
      */

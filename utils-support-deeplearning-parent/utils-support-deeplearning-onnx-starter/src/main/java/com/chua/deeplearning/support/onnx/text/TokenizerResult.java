@@ -124,6 +124,7 @@ public record TokenizerResult(
     }
 
     /**
+     * 是否为 Valid。
      *                   
      *
      * @return true                       

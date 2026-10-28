@@ -86,6 +86,7 @@ public final class ProgressSimulator {
         this.current = 0.0;
     }
     /**
+     * 获取 CurrentProgress。
      *
      *
      * @return                            [0, total]                           
@@ -94,6 +95,7 @@ public final class ProgressSimulator {
         return current;
     }
     /**
+     * 获取 Total。
      *
      *
      * @return          
@@ -102,6 +104,7 @@ public final class ProgressSimulator {
         return total;
     }
     /**
+     * 获取 Percentage。
      *
      *
      * @return                   0-100   
@@ -113,6 +116,7 @@ public final class ProgressSimulator {
         return Math.min(100.0, (current / total) * 100.0);
     }
     /**
+     * 是否为 Finish。
      * <p>
      *
      *

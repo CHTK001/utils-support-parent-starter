@@ -250,6 +250,8 @@ public class RedisSearchSink implements DataSink {
     }
 
     /**
+     * 获取 DataSource。
+     *
      * @return 始终返回 空（Redis 不接入 Engine）
      */
     @Override

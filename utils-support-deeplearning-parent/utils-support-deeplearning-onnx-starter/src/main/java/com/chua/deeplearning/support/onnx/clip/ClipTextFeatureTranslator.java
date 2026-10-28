@@ -204,6 +204,7 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     }
 
     /**
+     * 获取 Batchifier。
      *                   
      *
      * @return null                     

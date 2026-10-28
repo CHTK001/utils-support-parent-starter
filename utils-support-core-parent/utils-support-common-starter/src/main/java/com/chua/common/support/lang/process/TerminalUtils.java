@@ -112,6 +112,8 @@ public class TerminalUtils {
     }
 
     /**
+     * 获取 TerminalWidthFromEnv。
+     *
      * @return 终端宽度，无法获取时返回 -1
      */
     private static int getTerminalWidthFromEnv() {

@@ -174,6 +174,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * 获取 GrayToOrangeColor。
+     *
      * @param ratio 比率，不允许为 null
      * @return 结果字符串
      */
@@ -189,6 +191,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * 获取 GrayToGreenColor。
+     *
      * @param ratio 比率，不允许为 null
      * @return 结果字符串
      */
@@ -204,6 +208,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * 获取 BlueToCyanColor。
+     *
      * @param ratio 比率，不允许为 null
      * @return 结果字符串
      */
@@ -215,6 +221,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * 获取 RedToYellowColor。
+     *
      * @param ratio 比率，不允许为 null
      * @return 结果字符串
      */
@@ -226,6 +234,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * 获取 RainbowColor。
+     *
      * @param ratio 比率，不允许为 null
      * @return 结果字符串
      */
@@ -245,6 +255,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * 获取 MatrixColor。
+     *
      * @param ratio 比率，不允许为 null
      * @return 结果字符串
      */
@@ -262,6 +274,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * 获取 FireColor。
+     *
      * @param ratio 比率，不允许为 null
      * @return 结果字符串
      */
@@ -277,6 +291,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * 获取 OceanColor。
+     *
      * @param ratio 比率，不允许为 null
      * @return 结果字符串
      */
@@ -292,6 +308,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * 获取 NeonColor。
+     *
      * @param ratio 比率，不允许为 null
      * @return 结果字符串
      */
@@ -305,6 +323,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * 获取 SunsetColor。
+     *
      * @param ratio 比率，不允许为 null
      * @return 结果字符串
      */

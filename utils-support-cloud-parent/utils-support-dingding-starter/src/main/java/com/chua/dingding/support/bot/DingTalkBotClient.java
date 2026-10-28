@@ -645,6 +645,8 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
+     * 获取 Topics。
+     *
      * @return 已订阅主题列表
      */
     public List<String> getTopics() {
@@ -731,6 +733,8 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
+     * 是否为 Running。
+     *
      * @return 客户端是否已启动
      */
     @Override
@@ -739,6 +743,8 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
+     * 是否为 StreamMode。
+     *
      * @return 是否以 Stream 长连接模式运行
      */
     public boolean isStreamMode() {
@@ -746,6 +752,8 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
+     * 是否为 WebhookMode。
+     *
      * @return 是否以 Webhook 接收模式运行
      */
     public boolean isWebhookMode() {
@@ -753,6 +761,8 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
+     * 是否为 WebSocketConnected。
+     *
      * @return 长连接是否已建立
      */
     public boolean isWebSocketConnected() {
@@ -761,6 +771,8 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
+     * 获取 GatewayEndpoint。
+     *
      * @return 网关下发的 wss 接入点，未连接时为 null
      */
     public String getGatewayEndpoint() {
@@ -1810,6 +1822,8 @@ public class DingTalkBotClient implements BotClient {
     // ==================== 令牌与 REST ====================
 
     /**
+     * 是否包含 Credentials。
+     *
      * @return 是否具备开放平台凭证
      */
     private boolean hasCredentials() {
@@ -1991,6 +2005,8 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
+     * 查询 Users。
+     *
      * @return 已知的用户列表
      */
     @Override
@@ -1999,6 +2015,8 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
+     * 查询 Groups。
+     *
      * @return 长连接期间观测到的群会话，钉钉未提供群列表接口
      */
     @Override
@@ -2047,6 +2065,8 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
+     * 获取 Config。
+     *
      * @return 当前运行配置快照，敏感字段已脱敏
      */
     @Override
@@ -2109,6 +2129,8 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
+     * 是否为 Url。
+     *
      * @param value 待判定字符串
      * @return 是否为 http(s) 地址
      */
@@ -2367,6 +2389,8 @@ public class DingTalkBotClient implements BotClient {
         }
 
         /**
+         * 获取 Code。
+         *
          * @return 错误码
          */
         public int getCode() {

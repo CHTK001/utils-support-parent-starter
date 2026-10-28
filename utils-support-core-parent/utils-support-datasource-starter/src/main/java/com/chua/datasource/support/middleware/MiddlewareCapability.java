@@ -88,6 +88,8 @@ public final class MiddlewareCapability {
     }
 
     /**
+     * 转换为pNodeSupported。
+     *
      * @return 是否支持列出顶层节点
      */
     public boolean topNodeSupported() {
@@ -102,6 +104,8 @@ public final class MiddlewareCapability {
     }
 
     /**
+     * 查询 Supported。
+     *
      * @return 是否支持只读查询
      */
     public boolean querySupported() {
@@ -116,6 +120,8 @@ public final class MiddlewareCapability {
     }
 
     /**
+     * 转换为pNodeLabel。
+     *
      * @return 顶层节点称呼
      */
     public String topNodeLabel() {
@@ -130,6 +136,8 @@ public final class MiddlewareCapability {
     }
 
     /**
+     * 查询 Hint。
+     *
      * @return 查询占位提示
      */
     public String queryHint() {
@@ -137,6 +145,8 @@ public final class MiddlewareCapability {
     }
 
     /**
+     * 查询 Description。
+     *
      * @return 查询语法说明
      */
     public String queryDescription() {

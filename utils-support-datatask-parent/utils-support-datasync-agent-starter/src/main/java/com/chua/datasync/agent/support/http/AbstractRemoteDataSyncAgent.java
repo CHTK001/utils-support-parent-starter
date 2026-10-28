@@ -202,6 +202,8 @@ public abstract class AbstractRemoteDataSyncAgent extends AbstractDataSyncAgent 
     }
 
     /**
+     * 获取 SourceIds。
+     *
      * @return 所有已注册 源 的 标识 列表
      */
     private List<String> getSourceIds() {
@@ -213,6 +215,8 @@ public abstract class AbstractRemoteDataSyncAgent extends AbstractDataSyncAgent 
     }
 
     /**
+     * 获取 SinkIds。
+     *
      * @return 所有已注册 sink 的 标识 列表
      */
     private List<String> getSinkIds() {

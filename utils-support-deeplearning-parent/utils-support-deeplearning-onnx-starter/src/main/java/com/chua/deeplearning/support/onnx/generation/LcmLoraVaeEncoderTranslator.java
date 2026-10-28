@@ -56,6 +56,7 @@ public class LcmLoraVaeEncoderTranslator implements Translator<Image, NDList> {
     }
 
     /**
+     * 执行 Input。
      *                   
      *
      * @param ctx                     
@@ -87,6 +88,7 @@ public class LcmLoraVaeEncoderTranslator implements Translator<Image, NDList> {
     }
 
     /**
+     * 执行 Output。
      *                   
      *
      * @param ctx                    
@@ -112,6 +114,7 @@ public class LcmLoraVaeEncoderTranslator implements Translator<Image, NDList> {
     }
 
     /**
+     * 获取 Batchifier。
      *                   
      *
      * @return STACK             
