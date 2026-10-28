@@ -50,6 +50,7 @@ public class DelegatingProgressBarConsumer implements ProgressBarConsumer {
         return maxProgressLength;
     }
     /**
+     * 接收并处理输入。
      *                                  
      *
      * @param str                               

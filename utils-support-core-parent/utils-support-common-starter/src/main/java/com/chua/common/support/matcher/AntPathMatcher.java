@@ -318,6 +318,7 @@ public class AntPathMatcher implements PathMatcher {
         return true;
     }
     /**
+     * 跳过路径片段。
      *
      *
      * @param path         
@@ -687,6 +688,7 @@ public class AntPathMatcher implements PathMatcher {
             }
         }
         /**
+         * 为字符串加引号。
          *
          *
          * @param s              
@@ -759,6 +761,7 @@ public class AntPathMatcher implements PathMatcher {
             this.path = path;
         }
         /**
+         * 比较两个值。
          *
          *
          *

@@ -68,6 +68,8 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     private static final int MAX_EXTRACT_ENTRY_BYTES = 128 * 1024 * 1024;
 
     /**
+     * 判断是否支持指定目标。
+     *
      * @param ext  文件扩展名
      * @param mime MIME 类型（当前忽略）
      * @return true 表示支持预览

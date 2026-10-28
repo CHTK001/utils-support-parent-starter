@@ -100,6 +100,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 渲染输出。
      *                
      *
      * @param progress             
