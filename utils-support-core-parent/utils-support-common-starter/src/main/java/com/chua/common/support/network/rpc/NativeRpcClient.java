@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 import java.util.function.Function;
+import com.chua.common.support.lang.balance.LoadBalance;
 
 /**
  * 原生 TCP NIO RPC 客户端，复用 {@link TcpClient} 长度帧传输层。
@@ -97,7 +98,7 @@ public class NativeRpcClient implements RpcClient {
     /**
      * 负载均衡器（SPI 实例，为空时回退顺序调用）
      */
-    private final com.chua.common.support.lang.balance.LoadBalance loadBalance;
+    private final LoadBalance loadBalance;
 
     /**
      * 请求/响应编解码器（SPI 序列化，Fury 优先）
@@ -305,11 +306,11 @@ public class NativeRpcClient implements RpcClient {
      * @param consumerConfig 消费者配置，可为空
      * @return 负载均衡器实例，SPI 未找到时返回 {@code null}
      */
-    private static com.chua.common.support.lang.balance.LoadBalance createLoadBalancer(RpcConsumerConfig consumerConfig) {
+    private static LoadBalance createLoadBalancer(RpcConsumerConfig consumerConfig) {
         String type = consumerConfig != null && consumerConfig.getLoadBalance() != null
                 ? consumerConfig.getLoadBalance() : "random";
         try {
-            return com.chua.common.support.lang.balance.LoadBalance.auto(type,
+            return LoadBalance.auto(type,
                     com.chua.common.support.lang.balance.BalanceConfig.builder().build());
         } catch (Exception e) {
             log.warn("Load balance '{}' not available, fallback to sequential: {}", type, e.toString());

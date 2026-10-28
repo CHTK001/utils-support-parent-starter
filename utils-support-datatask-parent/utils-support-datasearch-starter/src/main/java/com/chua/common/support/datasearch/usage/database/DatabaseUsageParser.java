@@ -13,6 +13,7 @@ import reactor.core.publisher.Flux;
 import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * 数据库用量解析器 — 从关系型数据库读取 AI 用量数据。
@@ -107,8 +108,8 @@ public class DatabaseUsageParser extends BaseUsageParser {
      */
     public DatabaseUsageParser(
             DataSource dataSource,
-            @org.springframework.beans.factory.annotation.Value("${ai.usage.database.query-sql:}") String querySql,
-            @org.springframework.beans.factory.annotation.Value("#{${ai.usage.database.field-mapping:{}}}") Map<String, String> fieldMapping) {
+            @Value("${ai.usage.database.query-sql:}") String querySql,
+            @Value("#{${ai.usage.database.field-mapping:{}}}") Map<String, String> fieldMapping) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.querySql = querySql != null && !querySql.isBlank() ? querySql : DEFAULT_QUERY_SQL;
         this.fieldMapping = fieldMapping != null && !fieldMapping.isEmpty() ? fieldMapping : DEFAULT_FIELD_MAPPING;

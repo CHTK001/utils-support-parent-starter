@@ -7,6 +7,7 @@ import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.deeplearning.support.engine.ModelRegistry;
 
 /**
  * 人脸识别器，提供人脸特征提取、特征比对和识别功能。
@@ -62,13 +63,13 @@ public interface FaceRecognizer {
     /**
      * 查询该能力下全部可用模型。
      *
-     * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
+     * <p>按能力接口从 {@link ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
      * @return 模型 标识 列表
      */
     static List<String> listModels() {
-        return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.face.FaceRecognizer.class);
+        return ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.face.FaceRecognizer.class);
     }
 
     /**

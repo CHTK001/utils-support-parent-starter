@@ -7,6 +7,7 @@ import com.chua.datasource.support.engine.JdbcEngine;
 import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.DataSource;
+import com.chua.common.support.lang.datasource.dialect.Dialect;
 
 /**
  * sqlite 嵌入式数据库引擎。
@@ -49,8 +50,8 @@ public class SqliteEngine extends JdbcEngine {
         // sqlite 是单写者模型，池内并发写会让后到的连接立刻 SQLITE_BUSY，busy_timeout 使其排队等待
         ds.addDataSourceProperty("busy_timeout", 5000);
         EngineDataSource<Object> dataSource = new EngineDataSource<Object>() {
-            private com.chua.common.support.lang.datasource.dialect.Dialect dialect =
-                    com.chua.common.support.lang.datasource.dialect.Dialect.require("sqlite");
+            private Dialect dialect =
+                    Dialect.require("sqlite");
             /**
              * 名称
             */
@@ -87,7 +88,7 @@ public class SqliteEngine extends JdbcEngine {
              * 获取Dialect
             */
             @Override
-            public com.chua.common.support.lang.datasource.dialect.Dialect getDialect() {
+            public Dialect getDialect() {
                 return dialect;
             }
 
@@ -95,7 +96,7 @@ public class SqliteEngine extends JdbcEngine {
              * 设置Dialect
             */
             @Override
-            public EngineDataSource<Object> setDialect(com.chua.common.support.lang.datasource.dialect.Dialect dialect) {
+            public EngineDataSource<Object> setDialect(Dialect dialect) {
                 if (dialect != null) {
                     this.dialect = dialect;
                 }

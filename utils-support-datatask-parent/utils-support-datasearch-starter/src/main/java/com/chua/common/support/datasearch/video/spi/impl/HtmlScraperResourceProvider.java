@@ -13,6 +13,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.chua.common.support.datasearch.network.lang.code.ReturnPageResult;
 
 /**
  * HTML 抓取型视频搜索提供器基类
@@ -67,10 +68,10 @@ public abstract class HtmlScraperResourceProvider extends AbstractResourceProvid
     public HtmlScraperResourceProvider(com.chua.common.support.datasearch.video.model.VideoSource vs) { super(vs); }
 
     @Override
-    public com.chua.common.support.datasearch.network.lang.code.ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
+    public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String kw = videoSearch.getKeyword();
         if (!com.chua.common.support.utils.StringUtils.hasText(kw)) {
-            return com.chua.common.support.datasearch.network.lang.code.ReturnPageResult.error("关键词不能为空");
+            return ReturnPageResult.error("关键词不能为空");
         }
         try {
             String encoded = java.net.URLEncoder.encode(kw, java.nio.charset.StandardCharsets.UTF_8);
@@ -87,13 +88,13 @@ public abstract class HtmlScraperResourceProvider extends AbstractResourceProvid
                 results.add(buildResult(m, kw));
             }
             if (results.isEmpty()) {
-                return com.chua.common.support.datasearch.network.lang.code.ReturnPageResult.empty();
+                return ReturnPageResult.empty();
             }
-            return com.chua.common.support.datasearch.network.lang.code.ReturnPageResult.of(
+            return ReturnPageResult.of(
                     com.chua.common.support.lang.code.PageResult.<VideoInfoResult>builder()
                             .data(results).total(results.size()).build());
         } catch (Exception e) {
-            return com.chua.common.support.datasearch.network.lang.code.ReturnPageResult.error("搜索失败: " +
+            return ReturnPageResult.error("搜索失败: " +
                     e.getMessage());
         }
     }
