@@ -53,7 +53,8 @@ public class Florence2Translator implements ITranslator<Object[], String> {
     private static final long EOS_ID = 2L; // EOS_标识
     private static final int MAX_NEW_TOKENS = 100; // 最大新令牌
     private static final String MODEL_DIR = "vision/florence2/"; // 模型dir
-    private static final String CACHE_ROOT = System.getProperty("deeplearning.model.cache-dir", System.getProperty("java.io.tmpdir")); // 缓存根
+    // 缓存根
+    private static final String CACHE_ROOT = System.getProperty("deeplearning.model.cache-dir", System.getProperty("java.io.tmpdir"));
     private HuggingFaceTokenizer tokenizer; // tokenizer
     private OrtEnvironment ortEnv; // ortenv
     /**
