@@ -39,11 +39,15 @@ public interface MappingParser {
     boolean supports(Method method);
 
     /**
+     * 获取 Priority。
+     *
      * @return 解析器优先级（数值越大优先级越高）
      */
     int getPriority();
 
     /**
+     * 获取 Name。
+     *
      * @return 解析器名称
      */
     String getName();

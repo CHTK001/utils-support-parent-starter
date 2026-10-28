@@ -15,60 +15,88 @@ import java.util.Map;
  */
 public interface ServerRequest {
     /**
+     * 获取 Uri。
+     *
      * @return 完整 URI，包含路径和查询参数
      */
     String getUri();
     /**
+     * 获取 Path。
+     *
      * @return 请求路径，不含查询参数
      */
     String getPath();
     /**
+     * 获取 Method。
+     *
      * @return HTTP 请求方法（GET、POST 等）
      */
     HttpMethod getMethod();
     /**
+     * 获取 Header。
+     *
      * @param name 请求头名称
      * @return 请求头值，不存在返回 null
      */
     String getHeader(String name);
     /**
+     * 获取 Headers。
+     *
      * @return 所有请求头
      */
     HttpHeader getHeaders();
     /**
+     * 获取 Params。
+     *
      * @return 查询参数 Map
      */
     Map<String, String> getParams();
     /**
+     * 获取 Param。
+     *
      * @param name 参数名
      * @return 参数值，不存在返回 null
      */
     String getParam(String name);
     /**
+     * 获取 ContentType。
+     *
      * @return Content-Type 头值
      */
     String getContentType();
     /**
+     * 获取 ContentLength。
+     *
      * @return 请求体长度，-1 表示未知
      */
     long getContentLength();
     /**
+     * 获取 Body。
+     *
      * @return 请求体字节数组
      */
     byte[] getBody();
     /**
+     * 获取 BodyString。
+     *
      * @return 请求体字符串（UTF-8 编码）
      */
     String getBodyString();
     /**
+     * 获取 InputStream。
+     *
      * @return 请求体输入流
      */
     InputStream getInputStream();
     /**
+     * 获取 RemoteAddress。
+     *
      * @return 客户端地址
      */
     String getRemoteAddress();
     /**
+     * 获取 RemotePort。
+     *
      * @return 客户端端口
      */
     int getRemotePort();
@@ -79,6 +107,8 @@ public interface ServerRequest {
      */
     Map<String, Object> getAttributes();
     /**
+     * 获取 Attribute。
+     *
      * @param name 属性名
      * @return 属性值
      */
