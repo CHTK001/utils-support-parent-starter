@@ -123,7 +123,7 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
    | 其他（FQN 签名、位运算表达式等） | 约 110 | 需按语义重排 |
 
    上述类别均已确认**无法在不改变语义或可读性的前提下机械处理**，如需要可后续逐个精修。
-9. **129 处方法级 Javadoc 仍只有标签无摘要**：已完成 349 处（前缀规则 + 精确名称词典），剩余多为业务特有命名（`subArray`、`renderProgressBar`、`utf8Bytes` 等），机械生成会产出空话，需人工撰写。
+9. **方法级 Javadoc 摘要已全部补齐**：478 处标签-only 注释全部补上描述（前缀规则 315 处、精确词典 140 处、逐个人工撰写 23 处），复查剩余为 0。
 10. **79 处 `createStatement(...)`**：集中在 JDBC 元数据查询（`show tables`、`desc xxx`、DDL 下发等），表名/列名/DDL 无法用 `PreparedStatement` 参数化，属合理用法；涉及用户输入的查询已使用预编译参数。
 11. **日志敏感信息**：复查 7 处可能打印 token/password 的日志，`FlashTokenService` 3 处直接打印完整 token 已改为脱敏输出（保留前 4 后 4 位），其余为「token 数量」「已 mask 的 token」等安全用法。
 12. **1.9.2 随机数**：11 处 `Math.random()` 已统一改为 `ThreadLocalRandom.current().nextDouble()`（9 个文件），语义等价且无锁竞争。
@@ -152,7 +152,7 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
 | 包装类 `==` 误用（1.4.7） | 扫描 33 处候选，经类型核对无可信违规 |
 | `@Override` 可静态验证的缺失（1.4.2） | 补 4 处，复查 0（其余需编译器级类型解析） |
 | 超长行（1.3.7） | 2251 → 483（文本块与长字面量除外） |
-| 方法级 Javadoc 摘要（1.8.1） | 478 → 129（补 349，含 41 个构造器） |
+| 方法级 Javadoc 摘要（1.8.1） | 478 → 0（累计补 478，含 41 个构造器与 29 个接口方法） |
 | POJO `toString`（1.4.12） | 57 补 `@ToString`，20 个含敏感字段类跳过 |
 | 日志敏感信息（4.x） | `FlashTokenService` 3 处 token 已脱敏 |
 | 触及模块编译 | 57 个模块分 2 批 `EXIT=0` |
