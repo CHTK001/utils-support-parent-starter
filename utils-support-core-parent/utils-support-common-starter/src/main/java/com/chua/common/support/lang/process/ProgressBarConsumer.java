@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
  */
 public interface ProgressBarConsumer extends Consumer<String>, Appendable, AutoCloseable {
     /**
+     * 获取 MaxRenderedLength。
      *                                                 
      *
      * @return                                     
@@ -20,6 +21,7 @@ public interface ProgressBarConsumer extends Consumer<String>, Appendable, AutoC
      */
     int getMaxRenderedLength();
     /**
+     * 接收并处理输入。
      *                                              
      *
      * @param rendered                                         "[#####-----] 50% Completed"
@@ -78,6 +80,7 @@ public interface ProgressBarConsumer extends Consumer<String>, Appendable, AutoC
         return this;
     }
     /**
+     * 关闭并释放资源。
      *                                              
      * 
      * @throws RuntimeException
