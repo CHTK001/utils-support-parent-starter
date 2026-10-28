@@ -46,7 +46,7 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
     /**
      * 并发同步线程池实例。
      */
-    private static final ThreadPoolExecutor syncExecutor = new ThreadPoolExecutor(
+    private static final ThreadPoolExecutor SYNC_EXECUTOR = new ThreadPoolExecutor(
             SYNC_POOL_SIZE,
             SYNC_POOL_SIZE,
             0L,
@@ -92,7 +92,7 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
 
         // 并发拉取，等待所有目标完成（任一失败不中断其他）
         List<CompletableFuture<Void>> futures = targets.stream()
-                .map(node -> CompletableFuture.runAsync(() -> syncWith(node), syncExecutor))
+                .map(node -> CompletableFuture.runAsync(() -> syncWith(node), SYNC_EXECUTOR))
                 .collect(Collectors.toList());
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
     }

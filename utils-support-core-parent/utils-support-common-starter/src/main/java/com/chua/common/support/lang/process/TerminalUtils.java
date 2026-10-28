@@ -32,7 +32,7 @@ public class TerminalUtils {
     /**
      * Cursormovementsupported
      */
-    private static final boolean cursorMovementSupported = false;
+    private static final boolean CURSOR_MOVEMENT_SUPPORTED = false;
 
     static Queue<ProgressBarConsumer> activeConsumers = new ConcurrentLinkedQueue<>();
 
@@ -188,7 +188,7 @@ public class TerminalUtils {
      * @return 是否成功（true 表示成功）
      */
     static boolean hasCursorMovementSupport() {
-        return cursorMovementSupported;
+        return CURSOR_MOVEMENT_SUPPORTED;
     }
 
     /**
