@@ -118,7 +118,8 @@ public class SavedModelObjectDetectionTranslator implements NoBatchifyTranslator
                 probabilities = (array.getShape().dimension() > 1 ? array.get(0) : array)
                         .toFloatArray(); // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
             } else if ("detection_classes".equals(name)) {
-                classIds = (array.getShape().dimension() > 1 ? array.get(0) : array) // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
+                // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
+                classIds = (array.getShape().dimension() > 1 ? array.get(0) : array)
                         .toType(DataType.INT32, true).toIntArray();
             }
         }
@@ -129,7 +130,8 @@ public class SavedModelObjectDetectionTranslator implements NoBatchifyTranslator
                         .get(0) : list.getFirst(); // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
                 probabilities = (list.get(1).getShape().dimension() > 1 ? list.get(1).get(0) : list.get(1))
                         .toFloatArray(); // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
-                classIds = (list.get(2).getShape().dimension() > 1 ? list.get(2).get(0) : list.get(2)) // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
+                // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
+                classIds = (list.get(2).getShape().dimension() > 1 ? list.get(2).get(0) : list.get(2))
                         .toType(DataType.INT32, true).toIntArray();
             } else {
                 return new DetectedObjects(Wraps.list(), Wraps.list(), Wraps.list());

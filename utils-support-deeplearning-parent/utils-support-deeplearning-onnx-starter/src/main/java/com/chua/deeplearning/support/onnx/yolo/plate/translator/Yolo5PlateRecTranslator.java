@@ -170,7 +170,8 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
                 inputs.put(session.getInputInfo().keySet().iterator().next(), tensor);
                 try (OrtSession.Result result = session.run(inputs)) {
                     float[][] ctcLogits =
-                            toMat2D(result.get(0).getValue()); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+                            // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+                            toMat2D(result.get(0).getValue());
                     float[] colorLogits = toVector(result.get(1).getValue());
                     return new PlateResult(decodeCtc(ctcLogits), decodeColor(colorLogits));
                 }

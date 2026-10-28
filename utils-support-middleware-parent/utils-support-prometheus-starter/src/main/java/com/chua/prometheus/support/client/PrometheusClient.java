@@ -692,7 +692,8 @@ public class PrometheusClient implements AutoCloseable {
                 throw new RemoteExecutionException("[Prometheus] " + path + " 的 scalar 结果不是值对: " + brief(str(raw)));
             }
             PrometheusMetric metric = new PrometheusMetric();
-            metric.setTimestamp(epochSeconds(pair.get(0), "result 时间位", path)); // [P3C 四十一 豁免] <原因: JsonArray 元素下标访问，非 java.util.List>
+            // [P3C 四十一 豁免] <原因: JsonArray 元素下标访问，非 java.util.List>
+            metric.setTimestamp(epochSeconds(pair.get(0), "result 时间位", path));
             metric.setValue(parseSampleValue(pair));
             result.getResult().add(metric);
             return result;
@@ -713,7 +714,8 @@ public class PrometheusClient implements AutoCloseable {
             m.setMetric(toStringMap(asObject(item.get("metric"))));
             if (TYPE_VECTOR.equals(resultType)) {
                 JsonArray pair = requireArray(item, "value", path + ".result[" + i + "]");
-                m.setTimestamp(epochSeconds(pair.get(0), "value 时间位", path)); // [P3C 四十一 豁免] <原因: JsonArray 元素下标访问，非 java.util.List>
+                // [P3C 四十一 豁免] <原因: JsonArray 元素下标访问，非 java.util.List>
+                m.setTimestamp(epochSeconds(pair.get(0), "value 时间位", path));
                 m.setValue(parseSampleValue(pair));
             } else {
                 m.setValues(parseSamples(requireArray(item, "values", path + ".result[" + i + "]"), path));

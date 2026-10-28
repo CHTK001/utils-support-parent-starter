@@ -628,7 +628,8 @@ public final class TraceContext {
      */
     private static void initMdcHandles() {
         try {
-            Class<?> c = Class.forName("org.slf4j.MDC"); // [P3C 1.10 豁免] 可选依赖 SLF4J 软探测加载，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
+            // [P3C 1.10 豁免] 可选依赖 SLF4J 软探测加载，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
+            Class<?> c = Class.forName("org.slf4j.MDC");
             MethodHandles.Lookup l = MethodHandles.lookup();
             mdcPutHandle = l.unreflect(c.getMethod("put", String.class, String.class));
             mdcRemoveHandle = l.unreflect(c.getMethod("remove", String.class));
@@ -644,12 +645,15 @@ public final class TraceContext {
      */
     private static Object getLogger() throws Throwable {
         if (logger == null && slf4jAvailable) {
-            Class<?> fc = Class.forName("org.slf4j.LoggerFactory"); // [P3C 1.10 豁免] 可选依赖 SLF4J 软探测加载，本模块无 ReflectUtils 可用
+            // [P3C 1.10 豁免] 可选依赖 SLF4J 软探测加载，本模块无 ReflectUtils 可用
+            Class<?> fc = Class.forName("org.slf4j.LoggerFactory");
             MethodHandle fh = MethodHandles.lookup().findStatic(fc, "getLogger",
-                    MethodType.methodType(Class.forName("org.slf4j.Logger"), Class.class)); // [P3C 1.10 豁免] 可选依赖 SLF4J 软探测加载，本模块无 ReflectUtils 可用
+                    // [P3C 1.10 豁免] 可选依赖 SLF4J 软探测加载，本模块无 ReflectUtils 可用
+                    MethodType.methodType(Class.forName("org.slf4j.Logger"), Class.class));
             logger = fh.invoke(TraceContext.class);
             loggerInfoHandle = MethodHandles.lookup().unreflect(
-                    logger.getClass().getMethod("info", String.class)); // [P3C 1.10 豁免] 可选依赖 Logger 实例为运行时类型，需按名取 info 方法句柄
+                    // [P3C 1.10 豁免] 可选依赖 Logger 实例为运行时类型，需按名取 info 方法句柄
+                    logger.getClass().getMethod("info", String.class));
         }
         return logger;
     }
@@ -658,7 +662,8 @@ public final class TraceContext {
      * 初始化slf4j处理。
      */
     private static void initSlf4jHandle() {
-        try { Class.forName("org.slf4j.LoggerFactory"); } // [P3C 1.10 豁免] 仅探测 SLF4J 是否在classpath 上（可选依赖），本模块无 ReflectUtils 可用
+        // [P3C 1.10 豁免] 仅探测 SLF4J 是否在classpath 上（可选依赖），本模块无 ReflectUtils 可用
+        try { Class.forName("org.slf4j.LoggerFactory"); }
         catch (Exception ignored) { slf4jAvailable = false; }
     }
 

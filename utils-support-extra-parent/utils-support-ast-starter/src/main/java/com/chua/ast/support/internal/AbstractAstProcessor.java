@@ -120,7 +120,8 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
                 return (Context) getContextMethod.invoke(processingEnv);
             } catch (NoSuchMethodException nsme) {
                 Field contextField =
-                        javacEnvClass.getDeclaredField("context"); // [P3C 1.10 豁免] javac 内部 Context 私有字段，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
+                        // [P3C 1.10 豁免] javac 内部 Context 私有字段，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
+                        javacEnvClass.getDeclaredField("context");
                 contextField.setAccessible(true);
                 return (Context) contextField.get(processingEnv);
             }
@@ -146,7 +147,8 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
         for (String fieldName : fieldNames) {
             try {
                 Field contextField =
-                        JavacTrees.class.getDeclaredField(fieldName); // [P3C 1.10 豁免] javac 内部 JavacTrees 私有字段，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
+                        // [P3C 1.10 豁免] javac 内部 JavacTrees 私有字段，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
+                        JavacTrees.class.getDeclaredField(fieldName);
                 contextField.setAccessible(true);
                 return (Context) contextField.get(javacTrees);
             } catch (Exception e) {
@@ -172,7 +174,8 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
 
         try {
             Field contextField = maker.getClass()
-                    .getDeclaredField("context"); // [P3C 1.10 豁免] javac 内部 TreeMaker 私有字段，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
+                    // [P3C 1.10 豁免] javac 内部 TreeMaker 私有字段，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
+                    .getDeclaredField("context");
             contextField.setAccessible(true);
             return Names.instance((Context) contextField.get(maker));
         } catch (Exception e) {

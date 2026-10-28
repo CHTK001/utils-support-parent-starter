@@ -96,7 +96,8 @@ public class Gpt2Translator implements Translator<String, Classifications> {
     @Override
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
-        if (logits.getShape().dimension() == 2 && logits.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        if (logits.getShape().dimension() == 2 && logits.getShape().get(0) == 1) {
             logits = logits.squeeze(0);
         }
         long[] shape = logits.getShape().getShape();

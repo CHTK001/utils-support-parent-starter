@@ -158,7 +158,8 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
         if (rows == null || rows.isEmpty()) {
             return new DetectedObjects(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
         }
-        if (rows.getShape().dimension() == 3 && rows.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        if (rows.getShape().dimension() == 3 && rows.getShape().get(0) == 1) {
             rows = rows.squeeze(0);
         }
         if (rows.getShape().dimension() == 1) {

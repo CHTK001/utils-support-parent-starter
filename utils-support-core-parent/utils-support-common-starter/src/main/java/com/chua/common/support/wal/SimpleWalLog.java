@@ -323,7 +323,8 @@ public class SimpleWalLog implements WalLog {
             return;
         }
         try {
-            Object result = mmapBufferRef.invoke(null, mmapBuffer); // [P3C 1.10 豁免] Wal 基础设施 sun.misc.Unsafe.invokeCleaner 静态方法，无法用 ReflectUtils 替代
+            // [P3C 1.10 豁免] Wal 基础设施 sun.misc.Unsafe.invokeCleaner 静态方法，无法用 ReflectUtils 替代
+            Object result = mmapBufferRef.invoke(null, mmapBuffer);
             if (result instanceof Boolean) {
  // sun.misc.Unsafe.invoke清洁剂 返回 布尔值
             }
@@ -343,10 +344,12 @@ public class SimpleWalLog implements WalLog {
             // [P3C 1.10 豁免] JDK 内部 Unsafe 反射，无法用 ReflectUtils 替代
             Class<?> unsafeCls =
                     Class.forName("sun.misc.Unsafe"); // [P3C 1.10 豁免] Wal 基础设施 JDK 内部 Unsafe 类加载，无法用 ReflectUtils 替代
-            Field f = unsafeCls.getDeclaredField("theUnsafe"); // [P3C 1.10 豁免] Wal 基础设施 JDK 内部 Unsafe 单例字段，无法用 ReflectUtils 替代
+            // [P3C 1.10 豁免] Wal 基础设施 JDK 内部 Unsafe 单例字段，无法用 ReflectUtils 替代
+            Field f = unsafeCls.getDeclaredField("theUnsafe");
             f.setAccessible(true); // [P3C 1.10 豁免] Wal 基础设施 JDK 内部 Unsafe 字段放开访问，无法用 ReflectUtils 替代
             Object unsafe = f.get(null);
-            m = unsafeCls.getMethod("invokeCleaner", java.nio.ByteBuffer.class); // [P3C 1.10 豁免] Wal 基础设施 JDK 内部 Unsafe.invokeCleaner 方法，无法用 ReflectUtils 替代
+            // [P3C 1.10 豁免] Wal 基础设施 JDK 内部 Unsafe.invokeCleaner 方法，无法用 ReflectUtils 替代
+            m = unsafeCls.getMethod("invokeCleaner", java.nio.ByteBuffer.class);
  // 静态调用 invoke清洁剂 时无需 unsafe 实例（因为是 静态）
         } catch (ReflectiveOperationException e) {
             LOG.log(System.Logger.Level.DEBUG, "[wal] 反射操作失败，已忽略: " + e.getMessage(), e);

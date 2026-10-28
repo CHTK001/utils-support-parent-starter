@@ -1154,7 +1154,8 @@ public class ClassUtils {
                 setAccessible(constructor);
                 try {
                     Object newInstance =
-                            constructor.newInstance(entry.getValue()); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（全空参构造器兜底实例化）
+                            // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（全空参构造器兜底实例化）
+                            constructor.newInstance(entry.getValue());
                     if (null != newInstance) {
                         return (T) newInstance;
                     }
@@ -2153,10 +2154,12 @@ public class ClassUtils {
             Constructor<?> constructor = null;
             try {
                 constructor = MethodHandles.Lookup.class
-                        .getDeclaredConstructor(Class.class, Class.class, int.class); // [P3C 1.10 豁免] JDK 内部 MethodHandles.Lookup 私有构造器 + ClassUtils 为反射基础设施本体
+                        // [P3C 1.10 豁免] JDK 内部 MethodHandles.Lookup 私有构造器 + ClassUtils 为反射基础设施本体
+                        .getDeclaredConstructor(Class.class, Class.class, int.class);
             } catch (NoSuchMethodException e) {
                 constructor = MethodHandles.Lookup.class
-                        .getDeclaredConstructor(Class.class, int.class); // [P3C 1.10 豁免] JDK 内部 MethodHandles.Lookup 私有构造器 + ClassUtils 为反射基础设施本体
+                        // [P3C 1.10 豁免] JDK 内部 MethodHandles.Lookup 私有构造器 + ClassUtils 为反射基础设施本体
+                        .getDeclaredConstructor(Class.class, int.class);
             }
             setAccessible(constructor);
             Class<?> declaringClass = method.getDeclaringClass();
@@ -2216,7 +2219,8 @@ public class ClassUtils {
      */
     public static Method findDeclaredMethod(Class<?> clazz, String name, Class<?>... paramTypes) {
         try {
-            return clazz.getDeclaredMethod(name, paramTypes); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（findDeclaredMethod 封装）
+            // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（findDeclaredMethod 封装）
+            return clazz.getDeclaredMethod(name, paramTypes);
         } catch (NoSuchMethodException e) {
             return null;
         }
@@ -2317,7 +2321,8 @@ public class ClassUtils {
                     Modifier.isFinal(((Field) object).getModifiers())) {
                 try {
                     Field modifiersField =
-                            Field.class.getDeclaredField("modifiers"); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（移除 final 修饰需触碰修饰符元字段）
+                            // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（移除 final 修饰需触碰修饰符元字段）
+                            Field.class.getDeclaredField("modifiers");
                     modifiersField.setAccessible(true); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（反射基础设施）
                     modifiersField.setInt( ((Field) object),  ((Field) object).getModifiers() & ~Modifier.FINAL);
                     return true;
@@ -2376,7 +2381,8 @@ public class ClassUtils {
         }
         try {
             Method declaredMethod =
-                    target.getDeclaredMethod(field.getName()); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（getFieldValue 同名方法回退）
+                    // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（getFieldValue 同名方法回退）
+                    target.getDeclaredMethod(field.getName());
             if (null != declaredMethod) {
                 setAccessible(declaredMethod);
                 return declaredMethod.invoke(value);
@@ -2503,7 +2509,8 @@ public class ClassUtils {
             try {
                 if (Modifier.isFinal(field.getModifiers())) {
                     Field modifiers =
-                            Field.class.getDeclaredField("modifiers"); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（静态 final 字段需移除 final 修饰）
+                            // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（静态 final 字段需移除 final 修饰）
+                            Field.class.getDeclaredField("modifiers");
                     setAccessible(modifiers);
                     modifiers.setInt(field, field.getModifiers() & ~Modifier.FINAL);
                 }
@@ -2550,7 +2557,8 @@ public class ClassUtils {
         }
         try {
             Method declaredMethod =
-                    target.getDeclaredMethod(field.getName(), field.getType()); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（setFieldValue 同名方法回退）
+                    // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（setFieldValue 同名方法回退）
+                    target.getDeclaredMethod(field.getName(), field.getType());
             if (null != declaredMethod) {
                 setAccessible(declaredMethod);
                 declaredMethod.invoke(bean, value);
@@ -2583,7 +2591,8 @@ public class ClassUtils {
         value = Converter.convertIfNecessary(value, type1);
         String name = field.getName();
         try {
-            Method method = type.getMethod("set" + Character.toUpperCase(name.charAt(0)) + name.substring(1), type1); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（setter 方法定位）
+            // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（setter 方法定位）
+            Method method = type.getMethod("set" + Character.toUpperCase(name.charAt(0)) + name.substring(1), type1);
             if (null != method) {
                 setAccessible(method);
                 method.invoke(bean, value);
@@ -3201,7 +3210,8 @@ public class ClassUtils {
         LAST_INSTANTIATION_FAILURE.remove();
         try {
             setAccessible(declaredConstructor);
-            return (T) declaredConstructor.newInstance(args); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（newInstance(Constructor) 对外封装）
+            // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（newInstance(Constructor) 对外封装）
+            return (T) declaredConstructor.newInstance(args);
         } catch (Exception e) {
             // 这是 SPI 实例化实现的主要入口（ServiceDefinition 直接调用本方法），
             // 此前吞掉异常返回 null，调用方只能看到「实例化结果为 null」，
@@ -3236,7 +3246,8 @@ public class ClassUtils {
                 if (declaredConstructor.getParameterCount() == args.length) {
                     try {
                         setAccessible(declaredConstructor);
-                        return (T) declaredConstructor.newInstance(args); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（newInstance(Class) 构造器匹配实例化）
+                        // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（newInstance(Class) 构造器匹配实例化）
+                        return (T) declaredConstructor.newInstance(args);
                     } catch (Exception e) {
                         lastError = e;
                     }
@@ -3324,7 +3335,8 @@ public class ClassUtils {
             }
             setAccessible(declaredConstructor);
             try {
-                return (T) declaredConstructor.newInstance(newArgs); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（forObjectOfMap 构造器反射实例化）
+                // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（forObjectOfMap 构造器反射实例化）
+                return (T) declaredConstructor.newInstance(newArgs);
             } catch (Exception e) {
                 log.debug("[ClassUtils] 操作失败，已忽略: {}", e.getMessage());
             }
