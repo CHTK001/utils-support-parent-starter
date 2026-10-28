@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.gpu_llama3.translator;
+package com.chua.deeplearning.support.gpu.llama3.translator;
 
 import com.chua.deeplearning.support.engine.DetectionConfigurable;
 import com.chua.deeplearning.support.engine.DeviceSelector;

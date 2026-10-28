@@ -3,7 +3,7 @@
 ## 快速开始
 
 ```java
-import com.chua.deeplearning.support.gpu_llama3.GpuLlama3ChatClient;
+import com.chua.deeplearning.support.gpu.llama3.GpuLlama3ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 
 // 创建 GPU Llama3 对话客户端
