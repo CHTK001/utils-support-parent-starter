@@ -22,6 +22,11 @@ import java.util.regex.Pattern;
 public class MemoryWhereParser {
 
     /**
+     * 字段与占位符的二元比较（如 age > ?）
+     */
+    private static final Pattern BINARY_WHERE_PATTERN = Pattern.compile("^(\\w+)\\s*(!=|<>|>=|<=|>|<|=)\\s*\\?");
+
+    /**
      * 数值常量比较（如 1 = 0），用于空集合 IN/NOT IN 渲染出的恒假/恒真条件
     */
     private static final Pattern CONSTANT_PATTERN =
@@ -247,7 +252,7 @@ public class MemoryWhereParser {
             }
 
             // 二元操作符 (col op ?)
-            Pattern binPattern = Pattern.compile("^(\\w+)\\s*(!=|<>|>=|<=|>|<|=)\\s*\\?");
+            Pattern binPattern = BINARY_WHERE_PATTERN;
             var m = binPattern.matcher(remaining);
             if (m.find()) {
                 String field = m.group(1);

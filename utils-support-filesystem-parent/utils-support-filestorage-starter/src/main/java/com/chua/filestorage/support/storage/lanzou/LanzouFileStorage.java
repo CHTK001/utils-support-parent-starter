@@ -66,6 +66,22 @@ import java.util.regex.Pattern;
 public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
+     * 页面中的隐藏字段 name/value 对
+     */
+    private static final Pattern HIDDEN_FIELD_PATTERN =
+            Pattern.compile("\"name\"\\s*:\\s*\"([^\"]+)\"[^}]*?\"value\"\\s*:\\s*\"([^\"]*)\"");
+
+    /**
+     * Cookie 中的 ylogin 标记
+     */
+    private static final Pattern YLOGIN_PATTERN = Pattern.compile("ylogin=([^;]+)");
+
+    /**
+     * 文件大小文本（数值 + 单位）
+     */
+    private static final Pattern SIZE_TEXT_PATTERN = Pattern.compile("([\\d.]+)\\s*([BKMGT]?)");
+
+    /**
      * 网盘主接口域名。
      */
     private static final String HOST = "https://pc.woozooo.com";
@@ -172,7 +188,7 @@ public class LanzouFileStorage extends AbstractFileStorage {
     private String parseJsonCookie(String raw) {
         StringBuilder builder = new StringBuilder();
         // 轻量解析：匹配 "name":"xxx","value":"yyy" 成对出现
-        Matcher m = Pattern.compile("\"name\"\\s*:\\s*\"([^\"]+)\"[^}]*?\"value\"\\s*:\\s*\"([^\"]*)\"")
+        Matcher m = HIDDEN_FIELD_PATTERN
                 .matcher(raw);
         while (m.find()) {
             if (builder.length() > 0) {
@@ -192,7 +208,7 @@ public class LanzouFileStorage extends AbstractFileStorage {
         if (cookie == null) {
             return "";
         }
-        Matcher m = Pattern.compile("ylogin=([^;]+)").matcher(cookie);
+        Matcher m = YLOGIN_PATTERN.matcher(cookie);
         return m.find() ? m.group(1) : "";
     }
 
@@ -514,7 +530,7 @@ public class LanzouFileStorage extends AbstractFileStorage {
         if (sizeText == null || sizeText.isEmpty()) {
             return 0;
         }
-        Matcher m = Pattern.compile("([\\d.]+)\\s*([BKMGT]?)").matcher(sizeText.trim());
+        Matcher m = SIZE_TEXT_PATTERN.matcher(sizeText.trim());
         if (!m.find()) {
             return 0;
         }
