@@ -109,6 +109,8 @@ public final class MiddlewareQueryResult {
     }
 
     /**
+     * 获取结果列名集合。
+     *
      * @return 列名列表
      */
     public List<String> columns() {

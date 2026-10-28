@@ -211,6 +211,7 @@ public final class ProgressSimulator {
         return next;
     }
     /**
+     * 将取值限制在上下界之间。
      *
      *
      * @param v                

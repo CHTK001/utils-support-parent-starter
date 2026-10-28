@@ -100,6 +100,7 @@ public class YoloRotatedBox {
     }
 
     /**
+     * 计算旋转框的协方差矩阵。
      *                      
      *
      * @param w       

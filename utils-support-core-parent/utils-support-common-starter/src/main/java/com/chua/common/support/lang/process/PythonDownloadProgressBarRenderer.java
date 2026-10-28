@@ -151,6 +151,7 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 格式化下载信息文本。
      *                                  /            
      *
      * @param progress             

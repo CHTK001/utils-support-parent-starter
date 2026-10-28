@@ -593,6 +593,7 @@ public class AntPathMatcher implements PathMatcher {
         return file2 + ext;
     }
     /**
+     * 拼接两段路径并处理分隔符。
      *
      *
      * @param path1       1

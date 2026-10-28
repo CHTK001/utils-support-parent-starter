@@ -253,6 +253,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     }
 
     /**
+     * 计算年龄预测置信度。
      *
      * <p>
      *

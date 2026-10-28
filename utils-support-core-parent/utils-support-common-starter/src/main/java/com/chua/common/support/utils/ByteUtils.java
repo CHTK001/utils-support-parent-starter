@@ -642,6 +642,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
+     * 装箱为 Byte 数组。
      *
      *
      * @param source          
@@ -668,6 +669,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
+     * 将字符串解码为字节数组。
      *
      *
      * @param str              

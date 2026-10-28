@@ -375,6 +375,7 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         );
     }
     /**
+     * 创建彩虹渐变进度条样式。
      *
      *
      * @param unit             
