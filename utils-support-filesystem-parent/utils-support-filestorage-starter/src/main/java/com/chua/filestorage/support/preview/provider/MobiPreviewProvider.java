@@ -776,7 +776,8 @@ public class MobiPreviewProvider implements FileStoragePreviewProvider {
                 .append(".header{background:#fff;border:1px solid " +
                         "#e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}")
                 .append("h1{margin:0 0 12px;font-size:20px;font-weight:600;line-height:1.4}")
-                .append(".grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;font-size:13px}")
+                .append(".grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px," +
+                        "1fr));gap:8px;font-size:13px}")
                 .append(".k{color:#9ca3af}.v{color:#1f2937;word-break:break-all}")
                 .append(".desc{margin-top:12px;font-size:13px;color:#6b7280;line-height:1.7}")
                 .append(".notice{margin-top:12px;padding:8px 12px;background:#fffbeb;border:1px solid " +

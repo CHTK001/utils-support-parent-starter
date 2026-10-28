@@ -28,7 +28,8 @@ public class CnIdCardParser {
     private static final Pattern VALID_PATTERN =
             Pattern.compile("有效期限\\s*[:：]\\s*([^原]+)(?:\\s*至\\s*([^\n\r]*))?(?:\\s*原)?");
     private static final Pattern VALID_LONG_PATTERN =
-            Pattern.compile("有效期限\\s*[:：]\\s*(\\d{4})\\s*年\\s*(\\d{1,2})\\s*月\\s*(\\d{1,2})\\s*日\\s*至\\s*(\\d{4})\\s*年\\s*(\\d{1,2})\\s*月\\s*(\\d{1,2})\\s*日");
+            Pattern.compile("有效期限\\s*[:：]\\s*(\\d{4})\\s*年\\s*(\\d{1,2})\\s*月\\s*(\\d{1," +
+                    "2})\\s*日\\s*至\\s*(\\d{4})\\s*年\\s*(\\d{1,2})\\s*月\\s*(\\d{1,2})\\s*日");
     private static final Pattern VALID_SIMPLE_PATTERN =
             Pattern.compile("有效期限\\s*[:：]\\s*(\\d{4})[^\\d]{1,3}(\\d{1,2})[^\\d]{1,3}(\\d{1,2})");
 

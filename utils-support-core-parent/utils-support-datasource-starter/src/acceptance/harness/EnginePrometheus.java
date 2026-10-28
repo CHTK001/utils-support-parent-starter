@@ -104,7 +104,8 @@ public final class EnginePrometheus {
                 case "unsupported" -> respond(ex, 200,
                         "{\"status\":\"success\",\"data\":{\"resultType\":\"graph\",\"result\":[]}}");
                 case "scalar" -> respond(ex, 200,
-                        "{\"status\":\"success\",\"data\":{\"resultType\":\"scalar\",\"result\":[1701261657.078,\"42\"]}}");
+                        "{\"status\":\"success\",\"data\":{\"resultType\":\"scalar\",\"result\":[1701261657.078," +
+                                "\"42\"]}}");
                 default -> respond(ex, 200, VECTOR_JSON);
             }
         });
@@ -547,7 +548,8 @@ public final class EnginePrometheus {
 
     private static final String MATRIX_JSON =
             "{\"status\":\"success\",\"data\":{\"resultType\":\"matrix\",\"result\":["
-                    + "{\"metric\":{\"__name__\":\"up\"},\"values\":[[1701261657.078,\"1\"],[1701261717.078,\"0\"]]}]}}";
+                    + "{\"metric\":{\"__name__\":\"up\"},\"values\":[[1701261657.078,\"1\"],[1701261717.078," +
+                            "\"0\"]]}]}}";
 
     private static final String SERIES_JSON =
             "{\"status\":\"success\",\"data\":[{\"__name__\":\"up\",\"job\":\"node\"}]}";

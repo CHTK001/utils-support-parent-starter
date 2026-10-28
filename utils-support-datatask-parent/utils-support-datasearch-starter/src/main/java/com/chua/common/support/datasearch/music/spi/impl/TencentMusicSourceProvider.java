@@ -229,7 +229,8 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
         if (StringUtils.hasText(tagId)) {
             String url = "https://u.y.qq.com/cgi-bin/" +
                     "musicu.fcg?loginUin=0&hostUin=0&format=json&inCharset=utf-8&outCharset=utf-8&notice=0&platform=wk_v15.json&needNewCode=0&data="
-                    + encode("{\"comm\":{\"cv\":1602,\"ct\":20},\"playlist\":{\"method\":\"get_category_content\",\"param\":{\"titleid\":"
+                    + encode("{\"comm\":{\"cv\":1602,\"ct\":20},\"playlist\":{\"method\":\"get_category_content\"," +
+                            "\"param\":{\"titleid\":"
                     + Integer.parseInt(tagId)
                     + ",\"caller\":\"0\",\"category_id\":"
                     + Integer.parseInt(tagId)
@@ -242,7 +243,8 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
         } else {
             String url = "https://u.y.qq.com/cgi-bin/" +
                     "musicu.fcg?loginUin=0&hostUin=0&format=json&inCharset=utf-8&outCharset=utf-8&notice=0&platform=wk_v15.json&needNewCode=0&data="
-                    + encode("{\"comm\":{\"cv\":1602,\"ct\":20},\"playlist\":{\"method\":\"get_playlist_by_tag\",\"param\":{\"id\":10000000,\"sin\":"
+                    + encode("{\"comm\":{\"cv\":1602,\"ct\":20},\"playlist\":{\"method\":\"get_playlist_by_tag\"," +
+                            "\"param\":{\"id\":10000000,\"sin\":"
                     + (pageSize * Math.max(0, page - 1))
                     + ",\"size\":"
                     + pageSize

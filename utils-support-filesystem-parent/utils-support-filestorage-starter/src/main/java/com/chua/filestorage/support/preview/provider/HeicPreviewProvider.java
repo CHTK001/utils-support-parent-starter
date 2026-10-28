@@ -785,7 +785,8 @@ public class HeicPreviewProvider implements FileStoragePreviewProvider {
                         "#e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}")
                 .append("h1{margin:0 0 12px;font-size:20px;font-weight:600}")
                 .append("h2{margin:20px 0 8px;font-size:15px;font-weight:600}")
-                .append(".grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;font-size:13px}")
+                .append(".grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px," +
+                        "1fr));gap:8px;font-size:13px}")
                 .append(".k{color:#9ca3af}.v{color:#1f2937;word-break:break-all}")
                 .append(".shot{background:#fff;border:1px solid " +
                         "#e5e7eb;border-radius:12px;padding:16px;text-align:center;margin-bottom:20px}")

@@ -178,7 +178,8 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
                 "if(g.c===20)pys.push(parseFloat(g.v));if(g.c===30)pzs.push(parseFloat(g.v)||0);" +
                 "if(g.c===70)cl=!!(parseInt(g.v)&1)});" +
                 "for(var k=0;k<pxs.length-1;k++){pts.push(pxs[k],pys[k],pzs[k],pxs[k+1],pys[k+1],pzs[k+1])}" +
-                "if(cl&&pxs.length>0)pts.push(pxs[pxs.length-1],pys[pys.length-1],pzs[pzs.length-1],pxs[0],pys[0],pzs[0])" +
+                "if(cl&&pxs.length>0)pts.push(pxs[pxs.length-1],pys[pys.length-1],pzs[pzs.length-1]," +
+                        "pxs[0],pys[0],pzs[0])" +
                 "}else if(et==='CIRCLE'){" +
                 "var cx=0,cy=0,cz=0,cr=1;" +
                 "eg.forEach(function(g){if(g.c===10)cx=parseFloat(g.v);if(g.c===20)cy=parseFloat(g.v);" +
@@ -194,7 +195,8 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
                 "if(g.c===51)aend=parseFloat(g.v)*Math.PI/180});" +
                 "for(var aa=0;aa<=64;aa++){var aang=ast+(aend-ast)*aa/64;" +
                 "pts.push(acx+Math.cos(aang)*acr,acy+Math.sin(aang)*acr,acz);" +
-                "if(aa>0)pts.push(acx+Math.cos(ast+(aend-ast)*(aa-1)/64)*acr,acy+Math.sin(ast+(aend-ast)*(aa-1)/64)*acr,acz)}}}" +
+                "if(aa>0)pts.push(acx+Math.cos(ast+(aend-ast)*(aa-1)/64)*acr," +
+                        "acy+Math.sin(ast+(aend-ast)*(aa-1)/64)*acr,acz)}}}" +
  // 创建 线 segments
                 "var geom=new TH.BufferGeometry();geom.setAttribute('position',new TH.Float32BufferAttribute(pts,3));" +
                 "var mat=new TH.LineBasicMaterial({color:0x4488ff,linewidth:1});" +

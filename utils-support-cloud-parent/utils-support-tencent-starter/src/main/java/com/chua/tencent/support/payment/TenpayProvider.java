@@ -160,7 +160,8 @@ public class TenpayProvider implements PaymentChannel {
             if (sceneInfo != null) {
                 orderRequest.setSceneInfo(sceneInfo);
             } else {
-                orderRequest.setSceneInfo("{\"h5_info\":{\"type\":\"Wap\",\"wap_url\":\"https://example.com\",\"wap_name\":\"订单支付\"}}");
+                orderRequest.setSceneInfo("{\"h5_info\":{\"type\":\"Wap\",\"wap_url\":\"https://example.com\"," +
+                        "\"wap_name\":\"订单支付\"}}");
             }
         }
 
