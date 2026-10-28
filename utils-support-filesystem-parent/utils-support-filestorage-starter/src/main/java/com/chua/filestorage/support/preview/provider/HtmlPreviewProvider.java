@@ -30,6 +30,7 @@ public class HtmlPreviewProvider implements FileStoragePreviewProvider {
     private static final String SANDBOX_STYLE = "<style>" +
             "html,body{margin:0;padding:12px;height:100%;box-sizing:border-box;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe " +
                     "" +
+                    "" +
                     "UI,sans-serif}" +
             "</style>";
 
