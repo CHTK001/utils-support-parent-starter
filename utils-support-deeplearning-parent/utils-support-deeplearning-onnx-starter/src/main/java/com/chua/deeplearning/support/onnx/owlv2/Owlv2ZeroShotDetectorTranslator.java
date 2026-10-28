@@ -257,7 +257,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
             return emptyDetections();
         }
         if (list.size() < 2) {
-            throw new IllegalStateException("OWLv2                                         logits     pred_boxes");
+            throw new IllegalStateException("OWLv2 模型输出不足，至少需要 logits 与 pred_boxes 两个张量");
         }
 
         NDArray logitsArray = list.getFirst();
@@ -353,7 +353,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
             normalized.putIfAbsent(detectionLabel, label);
         }
         if (normalized.isEmpty()) {
-            throw new IllegalArgumentException("OWLv2                      ");
+            throw new IllegalArgumentException("OWLv2 候选标签不能为空");
         }
         candidateModelLabels = Wraps.list(normalized.keySet());
         candidateOutputLabels = Wraps.list(normalized.values());
@@ -371,7 +371,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
         }
         String mapped = CHINESE_TO_ENGLISH.get(label.trim());
         if (mapped == null) {
-            throw new IllegalArgumentException("OWLv2                                        : " + label);
+            throw new IllegalArgumentException("OWLv2 无法映射到模型标签: " + label);
         }
         return mapped;
     }
@@ -386,7 +386,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
             Encoding encoding = tokenizer.encode(formatPrompt(candidate));
             long[] ids = encoding.getIds();
             if (ids == null || ids.length == 0) {
-                throw new IllegalStateException("OWLv2                      : " + candidate);
+                throw new IllegalStateException("OWLv2 候选标签编码为空: " + candidate);
             }
             idsList.add(ids);
             maxLength = Math.max(maxLength, ids.length);
@@ -663,7 +663,7 @@ finally {
         if (Files.exists(file)) {
             return file;
         }
-        throw new IOException("          OWLv2             : " + file);
+        throw new IOException("未找到所需的 OWLv2 模型文件: " + file);
     }
 
     /**
