@@ -76,7 +76,8 @@ public class RoundRectangleCodeEyeResolver implements CodeEyeResolver{
 
         g.setStroke(new BasicStroke(thick, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
         g.setColor(lf);
-        g.drawRoundRect(startX + unitWidth / 2 + (size(version) - 8) * unitWidth, startY + unitWidth / 2 - unitWidth, 8 * unitWidth, 8 * unitWidth, (int) (unitWidth * 3.8),
+        g.drawRoundRect(startX + unitWidth / 2 + (size(version) - 8) * unitWidth, startY
+                + unitWidth / 2 - unitWidth, 8 * unitWidth, 8 * unitWidth, (int) (unitWidth * 3.8),
                 (int) (unitWidth * 3.8));
         g.setColor(df);
         g.drawRoundRect(startX + unitWidth / 2 + (size(version) - 7) * unitWidth, startY + unitWidth / 2,
@@ -93,7 +94,8 @@ public class RoundRectangleCodeEyeResolver implements CodeEyeResolver{
 
         g.setStroke(new BasicStroke(thick, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
         g.setColor(lf);
-        g.drawRoundRect(startX + unitWidth / 2 - unitWidth, startY + unitWidth / 2 + (size(version) - 8) * unitWidth, 8 * unitWidth, 8 * unitWidth, (int) (unitWidth * 3.8),
+        g.drawRoundRect(startX + unitWidth / 2 - unitWidth, startY + unitWidth / 2
+                + (size(version) - 8) * unitWidth, 8 * unitWidth, 8 * unitWidth, (int) (unitWidth * 3.8),
                 (int) (unitWidth * 3.8));
         g.setColor(df);
         g.drawRoundRect(startX + unitWidth / 2, startY + unitWidth / 2 + (size(version) - 7) * unitWidth,
@@ -110,7 +112,8 @@ public class RoundRectangleCodeEyeResolver implements CodeEyeResolver{
 
         g.setStroke(new BasicStroke(thick, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
         g.setColor(df);
-        g.drawRoundRect(startX + unitWidth / 2 + (size(version) - 9) * unitWidth, startY + unitWidth / 2 + (size(version) - 9) * unitWidth, 4 * unitWidth, 4 * unitWidth,
+        g.drawRoundRect(startX + unitWidth / 2 + (size(version) - 9) * unitWidth, startY + unitWidth / 2
+                + (size(version) - 9) * unitWidth, 4 * unitWidth, 4 * unitWidth,
                 unitWidth, unitWidth);
         g.setStroke(stroke);
     }

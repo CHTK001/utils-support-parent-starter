@@ -183,7 +183,8 @@ public class AuthManager {
         try {
             String[] parts = token.split("\\.");
             if (parts.length < 2) {
-                throw new AuthException("Invalid JWT token format: " + token.substring(0, Math.min(20, token.length())) + "...");
+                throw new AuthException("Invalid JWT token format: "
+                        + token.substring(0, Math.min(20, token.length())) + "...");
             }
             byte[] decoded = Base64.getUrlDecoder().decode(padBase64(parts[1]));
             JsonNode payload = MAPPER.readTree(decoded);

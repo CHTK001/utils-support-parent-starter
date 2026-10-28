@@ -276,7 +276,8 @@ public class HttpSyncClient implements SyncClient {
     private void sendHeartbeat() {
         try {
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(serverUrl + "/api/sync/pull?clientId=" + java.net.URLEncoder.encode(clientId, "UTF-8") + "&topics=__heartbeat__&timeout=5"))
+                    .uri(URI.create(serverUrl + "/api/sync/pull?clientId="
+                            + java.net.URLEncoder.encode(clientId, "UTF-8") + "&topics=__heartbeat__&timeout=5"))
                     .GET()
                     .timeout(Duration.ofSeconds(10))
                     .build();

@@ -350,7 +350,8 @@ public ChatClient newChat() {
                     + extraFlags.toString() + "}";
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(actualBaseUrl + "/model/" + (model != null ? model : "anthropic.claude-3-sonnet-20240229") + "/converse"))
+                    .uri(URI.create(actualBaseUrl + "/model/"
+                            + (model != null ? model : "anthropic.claude-3-sonnet-20240229") + "/converse"))
                     .header("Authorization", "Bearer " + actualApiKey)
                     .header("Content-Type", "application/json")
                     .header("Accept", "application/json")

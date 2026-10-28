@@ -167,7 +167,8 @@ public final class Seq2SeqModelResources {
                 try {
                     download(client, url, local);
                 } catch (Exception e) {
-                    throw new IllegalStateException("[seq2seq] 模型[" + def.modelId() + "] 下载失败: " + url + ", " + e.getMessage(),
+                    throw new IllegalStateException("[seq2seq] 模型[" + def.modelId() + "] 下载失败: " + url + ", "
+                            + e.getMessage(),
                             e);
                 }
             }

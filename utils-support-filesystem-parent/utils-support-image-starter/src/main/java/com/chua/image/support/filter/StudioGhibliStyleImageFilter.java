@@ -277,9 +277,12 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
 
                 // 柔光效果：混合原色和高亮色
                 double softFactor = softLightIntensity;
-                red = ImageProcessorUtils.clamp((int) (red * (1 - softFactor) + 255 * softFactor * (red / 255.0) * (red / 255.0)));
-                green = ImageProcessorUtils.clamp((int) (green * (1 - softFactor) + 255 * softFactor * (green / 255.0) * (green / 255.0)));
-                blue = ImageProcessorUtils.clamp((int) (blue * (1 - softFactor) + 255 * softFactor * (blue / 255.0) * (blue / 255.0)));
+                red = ImageProcessorUtils.clamp((int) (red * (1 - softFactor)
+                        + 255 * softFactor * (red / 255.0) * (red / 255.0)));
+                green = ImageProcessorUtils.clamp((int) (green * (1 - softFactor)
+                        + 255 * softFactor * (green / 255.0) * (green / 255.0)));
+                blue = ImageProcessorUtils.clamp((int) (blue * (1 - softFactor)
+                        + 255 * softFactor * (blue / 255.0) * (blue / 255.0)));
 
                 int newRgb = (alpha << 24) | (red << 16) | (green << 8) | blue;
                 result.setRGB(x, y, newRgb);
@@ -364,9 +367,12 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
                 int originalGreen = (originalRgb >> 8) & 0xFF;
                 int originalBlue = originalRgb & 0xFF;
 
-                int newRed = ImageProcessorUtils.clamp((int) (originalRed * (1 - edgeSofteningStrength) + redSum * edgeSofteningStrength));
-                int newGreen = ImageProcessorUtils.clamp((int) (originalGreen * (1 - edgeSofteningStrength) + greenSum * edgeSofteningStrength));
-                int newBlue = ImageProcessorUtils.clamp((int) (originalBlue * (1 - edgeSofteningStrength) + blueSum * edgeSofteningStrength));
+                int newRed = ImageProcessorUtils.clamp((int) (originalRed * (1 - edgeSofteningStrength)
+                        + redSum * edgeSofteningStrength));
+                int newGreen = ImageProcessorUtils.clamp((int) (originalGreen * (1 - edgeSofteningStrength)
+                        + greenSum * edgeSofteningStrength));
+                int newBlue = ImageProcessorUtils.clamp((int) (originalBlue * (1 - edgeSofteningStrength)
+                        + blueSum * edgeSofteningStrength));
 
                 int newRgb = (alpha << 24) | (newRed << 16) | (newGreen << 8) | newBlue;
                 result.setRGB(x, y, newRgb);
@@ -412,9 +418,12 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
                 double maxDistance = Math.sqrt(centerX * centerX + centerY * centerY);
                 double vignette = 1.0 - (distance / maxDistance) * dreamyEffectStrength;
 
-                red = ImageProcessorUtils.clamp((int) (red * vignette + 255 * (1 - vignette) * dreamyEffectStrength * 0.3));
-                green = ImageProcessorUtils.clamp((int) (green * vignette + 255 * (1 - vignette) * dreamyEffectStrength * 0.2));
-                blue = ImageProcessorUtils.clamp((int) (blue * vignette + 255 * (1 - vignette) * dreamyEffectStrength * 0.1));
+                red = ImageProcessorUtils.clamp((int) (red * vignette
+                        + 255 * (1 - vignette) * dreamyEffectStrength * 0.3));
+                green = ImageProcessorUtils.clamp((int) (green * vignette
+                        + 255 * (1 - vignette) * dreamyEffectStrength * 0.2));
+                blue = ImageProcessorUtils.clamp((int) (blue * vignette
+                        + 255 * (1 - vignette) * dreamyEffectStrength * 0.1));
 
                 int newRgb = (alpha << 24) | (red << 16) | (green << 8) | blue;
                 result.setRGB(x, y, newRgb);

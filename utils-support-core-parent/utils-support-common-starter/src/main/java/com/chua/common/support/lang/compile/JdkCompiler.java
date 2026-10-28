@@ -918,7 +918,8 @@ public class JdkCompiler implements Compiler {
         @Override
         public boolean isNameCompatible(String simpleName, Kind kind) {
             String baseName = simpleName + kind.extension;
-            return kind.equals(this.getKind()) && (baseName.equals(this.getName()) || this.getName().endsWith("/" + baseName));
+            return kind.equals(this.getKind()) && (baseName.equals(this.getName()) || this.getName().endsWith("/"
+                    + baseName));
         }
 
         /**

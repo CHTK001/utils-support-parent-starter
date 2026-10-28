@@ -244,7 +244,8 @@ public class MqttProtocolRestorer extends AbstractProtocolRestorer {
                 if (tLen <= 0 || topicIdx + 2 + tLen > rawData.length) {
                     break;
                 }
-                sb.append(", topic=").append(utf8(java.util.Arrays.copyOfRange(rawData, topicIdx + 2, topicIdx + 2 + tLen)));
+                sb.append(", topic=").append(utf8(java.util.Arrays.copyOfRange(rawData, topicIdx + 2, topicIdx + 2
+                        + tLen)));
                 topicIdx += 2 + tLen;
             }
         }

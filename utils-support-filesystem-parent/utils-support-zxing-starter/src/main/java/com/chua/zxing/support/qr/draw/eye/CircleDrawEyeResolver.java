@@ -54,9 +54,11 @@ public class CircleDrawEyeResolver extends AbstractDrawEyeResolver {
         g2.fill(shape);
 //        // 清除中心的形状，以模拟二维码码眼的效果
         g2.setColor(Color.WHITE);
-        g2.fill(new Ellipse2D.Double(leftPadding + x * infoSize + infoSize, topPadding + y * infoSize + infoSize,infoSize * detectCornerSize - 2 * infoSize, infoSize * detectCornerSize - 2 * infoSize));
+        g2.fill(new Ellipse2D.Double(leftPadding + x * infoSize + infoSize, topPadding + y * infoSize
+                + infoSize,infoSize * detectCornerSize - 2 * infoSize, infoSize * detectCornerSize - 2 * infoSize));
         g2.setColor(Converter.convertIfNecessary(codeEyeSetting.getCodeEyeColor(), Color.class));
-        g2.fill(new Ellipse2D.Double(leftPadding + x * infoSize + infoSize * 2, topPadding + y * infoSize + infoSize * 2,infoSize * detectCornerSize - 4 * infoSize, infoSize * detectCornerSize - 4 * infoSize));
+        g2.fill(new Ellipse2D.Double(leftPadding + x * infoSize + infoSize * 2, topPadding + y * infoSize
+                + infoSize * 2,infoSize * detectCornerSize - 4 * infoSize, infoSize * detectCornerSize - 4 * infoSize));
         // 图片直接渲染完毕之后，将其他探测图形的点设置为0，表示不需要再次渲染
         for (int addX = 0; addX < detectCornerSize; addX++) {
             for (int addY = 0; addY < detectCornerSize; addY++) {

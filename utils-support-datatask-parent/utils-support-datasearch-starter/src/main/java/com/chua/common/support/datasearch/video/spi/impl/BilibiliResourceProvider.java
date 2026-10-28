@@ -166,7 +166,8 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
                     .pageNo(videoSearch.getPage())
                     .pageSize(videoSearch.getPageSize())
                     .total(size)
-                    .totalPages(videoSearch.getPageSize() > 0 ? (size + videoSearch.getPageSize() - 1) / videoSearch.getPageSize() : 0)
+                    .totalPages(videoSearch.getPageSize() > 0 ? (size
+                            + videoSearch.getPageSize() - 1) / videoSearch.getPageSize() : 0)
                     .build());
         } catch (Exception e) {
             log.error("B站资源检索失败", e);

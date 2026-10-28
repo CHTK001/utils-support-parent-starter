@@ -142,7 +142,8 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
                 ep.setTag(tagName);
                 sb.append("<li class=\"tree-file\"><a href=\"#").append(docId);
                 sb.append("\" class=\"tree-link\" data-search=\"");
-                sb.append(escape((tagName == null ? "" : tagName) + " " + ep.getMethod() + " " + ep.getPath() + " " + safeStr(ep.getSummary())).toLowerCase());
+                sb.append(escape((tagName == null ? "" : tagName) + " " + ep.getMethod() + " " + ep.getPath() + " "
+                        + safeStr(ep.getSummary())).toLowerCase());
                 sb.append("\">").append(escape(safeStr(ep.getSummary()).isEmpty() ? ep.getPath() : ep.getSummary()))
                         .append("</a></li>");
             }

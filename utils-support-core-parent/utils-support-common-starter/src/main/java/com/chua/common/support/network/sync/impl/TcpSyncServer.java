@@ -181,7 +181,8 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
                 workerSelectors[i] = worker;
                 pendingRegistrations.add(new java.util.concurrent.ConcurrentLinkedQueue<>());
                 final int idx = i;
-                Thread wt = ThreadUtils.newThread(() -> workerLoop(idx, worker), "tcp-sync-worker-" + setting.getPort() + "-" + i);
+                Thread wt = ThreadUtils.newThread(() -> workerLoop(idx, worker), "tcp-sync-worker-"
+                        + setting.getPort() + "-" + i);
                 wt.setDaemon(true);
                 wt.start();
                 workerThreads[i] = wt;

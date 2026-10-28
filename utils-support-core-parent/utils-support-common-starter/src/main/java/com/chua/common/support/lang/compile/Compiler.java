@@ -135,7 +135,8 @@ public interface Compiler {
             throw t;
         } catch (Throwable t) {
             // 捕获其他异常并包装为带有详细信息的 IllegalStateException
-            throw new IllegalStateException("Failed to compile class, cause: " + t.getMessage() + ", class: " + className + ", code: \n" + code);
+            throw new IllegalStateException("Failed to compile class, cause: " + t.getMessage() + ", class: "
+                    + className + ", code: \n" + code);
         }
     }
 
