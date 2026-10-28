@@ -80,7 +80,7 @@ public final class DateFormatConstant {
      */
     public static final String M_D_YY_EN = "M/d/yy";
     /**
-     * yyyy-MM-dd E           2020-05-23          
+     * yyyy-MM-dd E           2020-05-23
      */
     public static final String YYYY_MM_DD_E = "yyyy-MM-dd E";
     /**
@@ -189,7 +189,7 @@ public final class DateFormatConstant {
      */
     public static final String YYYY_M_D_H_M_EN = "yyyy/M/d H:m";
     /**
-     * yyyy/M/d h:m a          2020/5/23 5:6       
+     * yyyy/M/d h:m a          2020/5/23 5:6
      */
     public static final String YYYY_M_D_H_M_A_EN = "yyyy/M/d h:m a";
     /**
@@ -455,7 +455,7 @@ public final class DateFormatConstant {
      */
     public static final DateTimeFormatter YYYY_MM_DD_CN_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_CN).withZone(ZONE);
     /**
-     * yyyy   M   d               2020   5   23   
+     * yyyy   M   d               2020   5   23
      */
     public static final DateTimeFormatter YYYY_M_D_CN_FMT = DateTimeFormatter.ofPattern(YYYY_M_D_CN).withZone(ZONE);
     /**
@@ -485,7 +485,7 @@ public final class DateFormatConstant {
      */
     public static final DateTimeFormatter M_D_YY_EN_FMT = DateTimeFormatter.ofPattern(M_D_YY_EN).withZone(ZONE);
     /**
-     * yyyy-MM-dd E       0           2020-05-23          
+     * yyyy-MM-dd E       0           2020-05-23
      */
     public static final DateTimeFormatter YYYY_MM_DD_E_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_E).withZone(ZONE);
     /**
@@ -613,7 +613,7 @@ public final class DateFormatConstant {
     public static final DateTimeFormatter YYYY_M_D_H_M_EN_FMT = DateTimeFormatter.ofPattern(YYYY_M_D_H_M_EN)
             .withZone(ZONE);
     /**
-     * yyyy/M/d h:m a          2020/5/23 5:6                    
+     * yyyy/M/d h:m a          2020/5/23 5:6
      */
     public static final DateTimeFormatter YYYY_M_D_H_M_A_EN_FMT = DateTimeFormatter.ofPattern(YYYY_M_D_H_M_A_EN)
             .withZone(ZONE);
@@ -782,7 +782,7 @@ public final class DateFormatConstant {
      */
     public static final DateTimeFormatter HH_MM_CN_FMT = DateTimeFormatter.ofPattern(HH_MM_CN).withZone(ZONE);
     /**
-     * hh:mm a          05:06       
+     * hh:mm a          05:06
      */
     public static final DateTimeFormatter HH_MM_A_FMT = DateTimeFormatter.ofPattern(HH_MM_A).withZone(ZONE);
     /**

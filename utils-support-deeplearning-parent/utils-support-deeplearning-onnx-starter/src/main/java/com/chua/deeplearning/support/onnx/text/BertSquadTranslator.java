@@ -19,12 +19,12 @@ import java.util.Map;
  * : 启动_logits, 结束_logits
  * <p>
  *          :
- * -        BERT tokenizer                                  
+ * -        BERT tokenizer
  * -        令牌_标识, attention_mask, segment_标识
  * <p>
  *          :
  * -     启动_logits     结束_logits
- * -                   
+ * -
  *
  * @author CH
  * @since 2025-01-20
@@ -58,27 +58,27 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
     @Override
     public NDList processInput(TranslatorContext ctx, Map<String, String> input) {
         NDManager manager = ctx.getNDManager();
-        
+
         String question = input.getOrDefault("question", "");
         String context = input.getOrDefault("context", "");
-        
-        //           tokenization                      BERT tokenizer   
-        //                                           
+
+        //           tokenization                      BERT tokenizer
+        //
         String[] questionTokens = question.toLowerCase().split("\\s+");
         String[] contextTokens = context.toLowerCase().split("\\s+");
-        
+
  // : [CLS] question [SEP] 上下文 [SEP]
         int maxTokens = Math.min(MAX_LENGTH - 2, questionTokens.length + contextTokens.length + 3);
         long[] tokenIds = new long[maxTokens];
         long[] attentionMask = new long[maxTokens];
         long[] segmentIds = new long[maxTokens];
-        
+
         int pos = 0;
         tokenIds[pos] = CLS_TOKEN_ID;
         attentionMask[pos] = 1;
         segmentIds[pos] = 0;
         pos++;
-        
+
  // 令牌
         for (int i = 0; i < questionTokens.length && pos < maxTokens - 1; i++) {
             tokenIds[pos] = hashToken(questionTokens[i]);
@@ -86,12 +86,12 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
             segmentIds[pos] = 0;
             pos++;
         }
-        
+
         tokenIds[pos] = SEP_TOKEN_ID;
         attentionMask[pos] = 1;
         segmentIds[pos] = 0;
         pos++;
-        
+
  // 令牌
         for (int i = 0; i < contextTokens.length && pos < maxTokens - 1; i++) {
             tokenIds[pos] = hashToken(contextTokens[i]);
@@ -99,24 +99,24 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
             segmentIds[pos] = 1;
             pos++;
         }
-        
+
         tokenIds[pos] = SEP_TOKEN_ID;
         attentionMask[pos] = 1;
         segmentIds[pos] = 1;
         pos++;
-        
-        //                      
+
+        //
         while (pos < maxTokens) {
             tokenIds[pos] = 0;
             attentionMask[pos] = 0;
             segmentIds[pos] = 0;
             pos++;
         }
-        
+
         NDArray tokenIdsArray = manager.create(tokenIds).expandDims(0);
         NDArray attentionMaskArray = manager.create(attentionMask).expandDims(0);
         NDArray segmentIdsArray = manager.create(segmentIds).expandDims(0);
-        
+
         return new NDList(tokenIdsArray, attentionMaskArray, segmentIdsArray);
     }
 
@@ -128,18 +128,18 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
         if (list.size() < 2) {
             return "";
         }
-        
+
         NDArray startLogits = list.getFirst();
         NDArray endLogits = list.get(1);
-        
+
         float[] startScores = startLogits.toFloatArray();
         float[] endScores = endLogits.toFloatArray();
-        
-        //                                        
+
+        //
         int startIdx = 0;
         int endIdx = 0;
         float maxScore = Float.NEGATIVE_INFINITY;
-        
+
         for (int i = 0; i < startScores.length; i++) {
             for (int j = i; j < endScores.length && j < i + 30; j++) {
                 float score = startScores[i] + endScores[j];
@@ -150,7 +150,7 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
                 }
             }
         }
-        
+
  // 令牌_标识
         return String.format("预测区间: %d-%d (置信度: %.2f)", startIdx, endIdx, maxScore);
     }
@@ -158,14 +158,14 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
     /**
      * 令牌 哈希                             BERT vocab
      *
-     * @param token                   
+     * @param token
      * @return                             BERT vocab 标识
      */
     private long hashToken(String token) {
         if (StringUtils.isEmpty(token)) {
             return UNK_TOKEN_ID;
         }
-        
+
  // 哈希                      BERT vocab
         long hash = token.hashCode();
         return Math.abs(hash % 30000) + 100;

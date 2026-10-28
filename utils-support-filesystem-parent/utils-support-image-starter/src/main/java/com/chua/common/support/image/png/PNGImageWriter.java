@@ -140,9 +140,9 @@ public final class PNGImageWriter extends ImageWriter {
     */
     @Override
     public ImageWriteParam getDefaultWriteParam() {
-        
+
         return new PNGImageWriteParam(getLocale());
-    
+
     }
 
     /**
@@ -152,9 +152,9 @@ public final class PNGImageWriter extends ImageWriter {
      */
     @Override
     public IIOMetadata getDefaultStreamMetadata(ImageWriteParam param) {
-        
+
         return null;
-    
+
     }
 
     /**
@@ -181,9 +181,9 @@ public final class PNGImageWriter extends ImageWriter {
     @Override
     public IIOMetadata convertStreamMetadata(IIOMetadata inData,
                                              ImageWriteParam param) {
-        
+
         return null;
-    
+
     }
 
     /**
@@ -479,7 +479,7 @@ public final class PNGImageWriter extends ImageWriter {
                        colorType == PNG.PNG_COLOR_GRAY_ALPHA) {
                 cs.writeShort(metadata.bKGD_gray);
             // } else { // colorType == PNG.PNG_COLOR_RGB ||
-         
+
                      // colorType == PNG.PNG_COLOR_RGB_ALPHA
                 cs.writeShort(chunkRed);
                 cs.writeShort(chunkGreen);
@@ -528,7 +528,7 @@ public final class PNGImageWriter extends ImageWriter {
                     cs.writeShort(metadata.sPLT_frequency[i]);
                 }
             // } else { // sampleDepth == 16
-         
+
                 for (int i = 0; i < numEntries; i++) {
                     cs.writeShort(metadata.sPLT_red[i]);
                     cs.writeShort(metadata.sPLT_green[i]);
@@ -1103,9 +1103,9 @@ public final class PNGImageWriter extends ImageWriter {
     */
     @Override
     public boolean canWriteSequence() {
-        
+
         return true;
-    
+
     }
 
     /**

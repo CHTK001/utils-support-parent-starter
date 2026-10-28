@@ -16,17 +16,17 @@ import org.opencv.imgproc.Imgproc;
 /**
  * 情绪 ferplus
  * <p>
- *             : [1, 3, 224, 224] RGB       
- *             : [1, 7]                   
+ *             : [1, 3, 224, 224] RGB
+ *             : [1, 7]
  * <p>
  *          :
  * -                 224x224
  * -              镜像net
- * -           CHW       
+ * -           CHW
  * <p>
  *          :
- * -        softmax             
- * -                                  
+ * -        softmax
+ * -
  *
  * @author CH
  * @since 2025-01-20
@@ -85,11 +85,11 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
     public PredictResult processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
         float[] scores = logits.toFloatArray();
-        
+
         //        softmax
         float[] probabilities = softmax(scores);
-        
-        //                            
+
+        //
         int maxIndex = 0;
         float maxProb = probabilities[0];
         for (int i = 1; i < probabilities.length; i++) {
@@ -98,9 +98,9 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
                 maxIndex = i;
             }
         }
-        
+
         String emotion = maxIndex < emotionLabels.length ? emotionLabels[maxIndex] : "Unknown";
-        
+
         return PredictResult.builder()
                 .value(emotion)
                 .confidence(maxProb)
@@ -108,7 +108,7 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
     }
 
     /**
-     *        softmax       
+     *        softmax
      * @param logits logits
      * @return softmax的结果
      */
@@ -122,16 +122,16 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
         }
         float sum = 0.0f;
         float[] expValues = new float[logits.length];
-        
+
         for (int i = 0; i < logits.length; i++) {
             expValues[i] = (float) Math.exp(logits[i] - max);
             sum += expValues[i];
         }
-        
+
         for (int i = 0; i < expValues.length; i++) {
             expValues[i] = expValues[i] / sum;
         }
-        
+
         return expValues;
     }
 

@@ -98,9 +98,9 @@ public class DefaultImaging implements Imaging{
     */
     @Override
     public MediaType mediaType() {
-        
+
         return MediaTypeFactory.getMediaTypeNullable(type);
-    
+
     }
 
 
@@ -109,9 +109,9 @@ public class DefaultImaging implements Imaging{
     */
     @Override
     public BufferedImage getBufferedImage() {
-        
+
         return this.bufferedImage;
-    
+
     }
 }
 

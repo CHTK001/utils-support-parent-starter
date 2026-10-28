@@ -74,7 +74,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      * SPI 名称缓存
      * 使用弱引用的 类 作为键
      */
-    private static final Map<Class<?>, String> SPI_NAME = 
+    private static final Map<Class<?>, String> SPI_NAME =
         new ConcurrentReferenceHashMap<>(64, ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
     /**
@@ -659,7 +659,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     @Override
     public void register(ServiceResolver resolver) {
         List<ServiceDefinition> resolve = resolver.resolve(type, classLoader);
-        //                   
+        //
         registerDefinition(resolve);
     }
 

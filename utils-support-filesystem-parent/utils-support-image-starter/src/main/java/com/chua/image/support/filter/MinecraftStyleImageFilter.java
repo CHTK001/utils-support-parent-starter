@@ -132,9 +132,9 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     */
     @Override
     public String getImageFormat() {
-        
+
         return "png";
-    
+
     }
 
     /**
@@ -170,19 +170,19 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
 
         // 第一步：像素化处理
         BufferedImage pixelated = applyPixelation(src);
-        
+
         // 第二步：颜色量化
         BufferedImage quantized = applyColorQuantization(pixelated);
-        
+
         // 第三步：对比度和饱和度调整
         BufferedImage enhanced = enhanceContrastAndSaturation(quantized);
-        
+
         // 第四步：边缘锐化（可选）
         BufferedImage sharpened = enhanced;
         if (edgeSharpening) {
             sharpened = applySharpen(enhanced);
         }
-        
+
         // 第五步：方块效果（可选）
         BufferedImage finalImage = sharpened;
         if (blockEffect) {
@@ -256,7 +256,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int rgb = src.getRGB(x, y);
-                
+
                 int alpha = (rgb >> 24) & 0xFF;
                 int red = (rgb >> 16) & 0xFF;
                 int green = (rgb >> 8) & 0xFF;
@@ -292,7 +292,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int rgb = src.getRGB(x, y);
-                
+
                 int alpha = (rgb >> 24) & 0xFF;
                 int red = (rgb >> 16) & 0xFF;
                 int green = (rgb >> 8) & 0xFF;
@@ -311,7 +311,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
 
                 // 转换回RGB
                 int[] newRgb = hsvToRgb(hsv[0], hsv[1], hsv[2]);
-                
+
                 int finalRgb = (alpha << 24) | (newRgb[0] << 16) | (newRgb[1] << 8) | newRgb[2];
                 result.setRGB(x, y, finalRgb);
             }
@@ -414,7 +414,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
                         result.setRGB(x + dx, y + pixelBlockSize - 1, darkerRgb);
                     }
                 }
-                
+
                 for (int dy = 0; dy < pixelBlockSize && y + dy < height; dy++) {
                     if (x < width) {
                         // 左边框
@@ -460,14 +460,14 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     @Override
     public OutputStream converter(InputStream image) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        
+
         byte[] buffer = new byte[1024];
         int bytesRead;
         ByteArrayOutputStream tempOutput = new ByteArrayOutputStream();
         while ((bytesRead = image.read(buffer)) != -1) {
             tempOutput.write(buffer, 0, bytesRead);
         }
-        
+
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(tempOutput.toByteArray())) {
             BufferedImage bufferedImage = javax.imageio.ImageIO.read(inputStream);
             if (bufferedImage != null) {
@@ -475,7 +475,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
                 javax.imageio.ImageIO.write(filteredImage, getImageFormat(), outputStream);
             }
         }
-        
+
         return outputStream;
     }
 
@@ -499,7 +499,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
 
         if (delta != 0) {
             s = delta / max;
-            
+
             if (max == rf) {
                 h = ((gf - bf) / delta) % 6;
             } else if (max == gf) {

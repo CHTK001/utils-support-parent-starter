@@ -22,9 +22,9 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 import org.opencv.imgproc.Imgproc;
 
 /**
- * SCRFD 2.5G BNKPS              Translator   
+ * SCRFD 2.5G BNKPS              Translator
  *
- * <p>                            stride   8/16/32       score + bbox + kps   
+ * <p>                            stride   8/16/32       score + bbox + kps
  * SCRFD        距离2bbox                          score/bbox   </p>
  *
  * <p>模型输出 9 个 tensor：score×3 + bbox×3 + kps×3（每点 10 维 = 5 关键点 × 2 坐标），

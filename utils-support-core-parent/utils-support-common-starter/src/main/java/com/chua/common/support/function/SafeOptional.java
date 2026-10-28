@@ -17,12 +17,12 @@ import java.util.function.Supplier;
 public class SafeOptional<T, R> {
 
     private static final SafeOptional<?, ?> EMPTY = new SafeOptional<>(false, null);
-    
+
     /**
      * 标识当前是否已获取到有效值（true表示已匹配/有值，false表示空/未匹配）
      */
     private final boolean isNone;
-    
+
     /**
      * 存储转换后的结果值
      */

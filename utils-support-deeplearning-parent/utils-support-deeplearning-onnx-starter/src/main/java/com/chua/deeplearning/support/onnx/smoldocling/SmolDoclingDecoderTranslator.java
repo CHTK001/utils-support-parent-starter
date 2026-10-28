@@ -20,7 +20,7 @@ import java.util.Map;
  * <p>
  *
  * - 输入_embeds:
- * - attention_mask:                
+ * - attention_mask:
  * - 位置_标识:
  * - past_键_值:           KV
  * <p>
@@ -35,14 +35,14 @@ import java.util.Map;
 public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecoderTranslator.DecoderInput, SmolDoclingDecoderTranslator.DecoderStepOutput> {
 
     /**
-     *                                               30       
+     *                                               30
      */
     private static final int NUM_LAYERS = 30;
 
     private static final int NUM_ATTENTION_HEADS = 9;
 
     /**
-     * KV                
+     * KV
      */
     private static final int NUM_KEY_VALUE_HEADS = 3;
 
@@ -75,7 +75,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
  // past_键_值
  // 30                 键     值
  // past_键_值                    [批量_大小, num_heads, past_seq_len, head_dim]
-            //                         past_seq_len = 0                                                
+            //                         past_seq_len = 0
             long[] embedsShape = inputsEmbeds.getShape().getShape();
             int batchSize = (int) embedsShape[0];
             int hiddenSize = (int) embedsShape[2];
@@ -89,7 +89,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
             int headDim = HEAD_DIM;
             int kvHeads = NUM_KEY_VALUE_HEADS;
 
-            //              past_key_values   past_seq_len = 0   
+            //              past_key_values   past_seq_len = 0
             for (int i = 0; i < NUM_LAYERS; i++) {
  // 键: [批量_大小, num_键_值_heads, 0, head_dim]
                 NDArray pastKey = manager.zeros(new Shape(batchSize, kvHeads, 0, headDim));
@@ -154,7 +154,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         int seqLen = (int) logitsShape[1];
         NDArray lastLogits = logits.get(":, {}, :", seqLen - 1);
 
-        //              logits           Java          
+        //              logits           Java
         long[] shape = lastLogits.getShape().getShape();
         float[] logitsData = lastLogits.toFloatArray();
 
@@ -162,7 +162,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
                 logitsShape, shape, logitsData.length);
 
  // past_键_值
-        //                logits + 30       (key, value) = 1 + 60 = 61          
+        //                logits + 30       (key, value) = 1 + 60 = 61
         Map<String, NDArray> pastKeyValues = null;
         if (list.size() > 1) {
             pastKeyValues = Wraps.map();
@@ -200,7 +200,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
     */
     @Override
     public Batchifier getBatchifier() {
-        //                   
+        //
         return null;
     }
 
@@ -228,9 +228,9 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
          * 构造 DecoderInput 实例。
          *
          *
-         * @param inputsEmbeds              
-         * @param attentionMask                
-         * @param positionIds               
+         * @param inputsEmbeds
+         * @param attentionMask
+         * @param positionIds
          */
         public DecoderInput(NDArray inputsEmbeds, NDArray attentionMask, NDArray positionIds) {
             this.inputsEmbeds = inputsEmbeds;
@@ -240,12 +240,12 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         }
 
         /**
-         *                    KV          
+         *                    KV
          *
-         * @param inputsEmbeds              
-         * @param attentionMask                
-         * @param positionIds               
-         * @param pastKeyValues KV       
+         * @param inputsEmbeds
+         * @param attentionMask
+         * @param positionIds
+         * @param pastKeyValues KV
          */
         public DecoderInput(NDArray inputsEmbeds, NDArray attentionMask, NDArray positionIds,
                             Map<String, NDArray> pastKeyValues) {
@@ -266,17 +266,17 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
     @Data
     public static class DecoderStepOutput {
         /**
-         * logits       
+         * logits
          */
         private long[] shape;
 
         /**
-         * logits       
+         * logits
          */
         private float[] logits;
 
         /**
-         *              KV                   
+         *              KV
          */
         private Map<String, NDArray> pastKeyValues;
 
@@ -284,8 +284,8 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
          * 构造 DecoderStepOutput 实例。
          *
          *
-         * @param shape  logits       
-         * @param logits logits       
+         * @param shape  logits
+         * @param logits logits
          */
         public DecoderStepOutput(long[] shape, float[] logits) {
             this.shape = shape;
@@ -294,11 +294,11 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         }
 
         /**
-         *                    KV          
+         *                    KV
          *
-         * @param shape        logits       
-         * @param logits       logits       
-         * @param pastKeyValues              KV       
+         * @param shape        logits
+         * @param logits       logits
+         * @param pastKeyValues              KV
          */
         public DecoderStepOutput(long[] shape, float[] logits, Map<String, NDArray> pastKeyValues) {
             this.shape = shape;
@@ -310,7 +310,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
          * 获取 VocabSize。
          *
          *
-         * @return             
+         * @return
          */
         public int getVocabSize() {
             return (int) shape[shape.length - 1];

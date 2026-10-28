@@ -38,9 +38,9 @@ public class DbfFileSystem implements FileSystem {
     */
     @Override
     public String getType() {
-        
+
         return "dbf";
-    
+
     }
 
     /**
@@ -48,9 +48,9 @@ public class DbfFileSystem implements FileSystem {
     */
     @Override
     public ReadBuilder read(File file) {
-        
+
         return new DbfReadBuilder(file);
-    
+
     }
 
     /**
@@ -58,9 +58,9 @@ public class DbfFileSystem implements FileSystem {
     */
     @Override
     public WriteBuilder write(File file) {
-        
+
         return new DbfWriteBuilder(file);
-    
+
     }
 }
 

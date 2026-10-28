@@ -312,8 +312,8 @@ public class ByteUtils extends BitUtils {
      * 执行补码运算。
      *
      *
-     * @param b       
-     * @return       
+     * @param b
+     * @return
      */
     public static byte[] complementArithmetic(int b) {
         int bit = INT_SIZE * BIT_LENGTH;
@@ -333,8 +333,8 @@ public class ByteUtils extends BitUtils {
      * 执行补码运算。
      *
      *
-     * @param b       
-     * @return       
+     * @param b
+     * @return
      */
     public static byte[] complementArithmetic(long b) {
         int bit = INT_SIZE * BIT_LENGTH;
@@ -354,8 +354,8 @@ public class ByteUtils extends BitUtils {
      * 执行补码运算。
      *
      *
-     * @param b       
-     * @return       
+     * @param b
+     * @return
      */
     public static byte[] complementArithmetic(short b) {
         int bit = SHORT_SIZE * BIT_LENGTH;
@@ -375,8 +375,8 @@ public class ByteUtils extends BitUtils {
      * 执行补码运算。
      *
      *
-     * @param b       
-     * @return       
+     * @param b
+     * @return
      */
     public static byte[] complementArithmetic(byte b) {
         int bit = BYTE_SIZE * BIT_LENGTH;
@@ -396,8 +396,8 @@ public class ByteUtils extends BitUtils {
      * 计算补码值。
      *
      *
-     * @param b       
-     * @return       
+     * @param b
+     * @return
      */
     public static BigInteger complementArithmeticValue(int b) {
         Byte[] bytes = asBytes(complementArithmetic(b));
@@ -408,8 +408,8 @@ public class ByteUtils extends BitUtils {
      * 计算补码值。
      *
      *
-     * @param b       
-     * @return       
+     * @param b
+     * @return
      */
     public static BigInteger complementArithmeticValue(long b) {
         Byte[] bytes = asBytes(complementArithmetic(b));
@@ -420,8 +420,8 @@ public class ByteUtils extends BitUtils {
      * 计算补码值。
      *
      *
-     * @param b       
-     * @return       
+     * @param b
+     * @return
      */
     public static BigInteger complementArithmeticValue(short b) {
         Byte[] bytes = asBytes(complementArithmetic(b));
@@ -432,8 +432,8 @@ public class ByteUtils extends BitUtils {
      * 计算补码值。
      *
      *
-     * @param b       
-     * @return       
+     * @param b
+     * @return
      */
     public static BigInteger complementArithmeticValue(byte b) {
         Byte[] bytes = asBytes(complementArithmetic(b));
@@ -444,9 +444,9 @@ public class ByteUtils extends BitUtils {
      *             <br />
      *                         0
      *
-     * @param bytes              
-     * @param offset       
-     * @param length             
+     * @param bytes
+     * @param offset
+     * @param length
      * @return                         0
      */
     public static BigDecimal toBigDecimal(byte[] bytes, int offset, int length) {
@@ -589,8 +589,8 @@ public class ByteUtils extends BitUtils {
      * 转换为String。
      *
      *
-     * @param bytes             
-     * @return          
+     * @param bytes
+     * @return
      */
     public static String toString(byte[] bytes) {
         return new String(bytes, UTF_8);
@@ -600,8 +600,8 @@ public class ByteUtils extends BitUtils {
      * 转换为String。
      *
      *
-     * @param bytes             
-     * @return          
+     * @param bytes
+     * @return
      * @param charset 字符集
      */
     public static String toString(byte[] bytes, Charset charset) {
@@ -612,8 +612,8 @@ public class ByteUtils extends BitUtils {
      * 转换为String。
      *
      *
-     * @param bytes             
-     * @return          
+     * @param bytes
+     * @return
      * @param charset 字符集
      */
     public static String toString(byte[] bytes, String charset) {
@@ -624,9 +624,9 @@ public class ByteUtils extends BitUtils {
      * 创建实例。
      *
      *
-     * @param size        
-     * @param bytes          
-     * @return                   
+     * @param size
+     * @param bytes
+     * @return
      */
     private static byte[] createBytes(int size, byte[] bytes) {
         byte[] item = new byte[size];
@@ -645,8 +645,8 @@ public class ByteUtils extends BitUtils {
      * 装箱为 Byte 数组。
      *
      *
-     * @param source          
-     * @return          
+     * @param source
+     * @return
      */
     private static Byte[] asBytes(byte[] source) {
         Byte[] result = new Byte[source.length];
@@ -661,8 +661,8 @@ public class ByteUtils extends BitUtils {
      * 按 UTF-8 编码为字节数组。
      *
      *
-     * @param str          
-     * @return                      
+     * @param str
+     * @return
      */
     public static byte[] utf8Bytes(CharSequence str) {
         return bytes(str, UTF_8);
@@ -672,9 +672,9 @@ public class ByteUtils extends BitUtils {
      * 将字符串解码为字节数组。
      *
      *
-     * @param str              
-     * @param charset                                                                      
-     * @return                      
+     * @param str
+     * @param charset
+     * @return
      */
     public static byte[] bytes(CharSequence str, Charset charset) {
         if (str == null) {
@@ -691,8 +691,8 @@ public class ByteUtils extends BitUtils {
      *                         <br>
      * 1   Byte         byte缓冲                                        2                        Arrays.转为字符串
      *
-     * @param obj       
-     * @return          
+     * @param obj
+     * @return
      */
     public static String utf8Str(Object obj) {
         return str(obj, UTF_8);
@@ -702,9 +702,9 @@ public class ByteUtils extends BitUtils {
      *                         <br>
      * 1   Byte         byte缓冲                                        2                        Arrays.转为字符串
      *
-     * @param obj           
-     * @param charset          
-     * @return          
+     * @param obj
+     * @param charset
+     * @return
      */
     public static String str(Object obj, Charset charset) {
         if (null == obj) {
@@ -730,7 +730,7 @@ public class ByteUtils extends BitUtils {
     /**
      *          Hex
      *
-     * @param b       
+     * @param b
      * @return hex
      */
     public static String asHex(byte b) {
@@ -740,7 +740,7 @@ public class ByteUtils extends BitUtils {
     /**
      *                Hex
      *
-     * @param bytes             
+     * @param bytes
      * @return hex
      */
     public static String asHex(byte[] bytes) {
@@ -748,7 +748,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *    int                                          byte                  
+     *    int                                          byte
      *
      * @param n int
      * @return byte[]
@@ -763,7 +763,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *    int                                          byte                  
+     *    int                                          byte
      *
      * @param n int
      * @return byte[]
@@ -808,7 +808,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *    short                                          byte                  
+     *    short                                          byte
      *
      * @param n short
      * @return byte[]

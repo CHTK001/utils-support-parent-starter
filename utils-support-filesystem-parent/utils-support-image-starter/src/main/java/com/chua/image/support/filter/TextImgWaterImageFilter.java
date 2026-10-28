@@ -214,9 +214,9 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
-        
+
         return waterFilter(src, dst);
-    
+
     }
 
     /**

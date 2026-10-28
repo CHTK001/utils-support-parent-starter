@@ -380,7 +380,7 @@ private static ServerSetting serverSetting(SipConfig config) {
         boolean fromVisitor = "visitor".equals(from.role);
         String peerKey = (fromVisitor ? channel.bId() : channel.aId()) + "|" + (fromVisitor ? "provider" : "visitor");
         from.channels.add(channelId);
-       
+
 
         // 通道关闭标记
         if (payload.length == 0) {

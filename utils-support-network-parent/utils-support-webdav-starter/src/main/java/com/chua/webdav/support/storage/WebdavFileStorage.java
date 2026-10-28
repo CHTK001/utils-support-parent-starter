@@ -86,7 +86,7 @@ public class WebdavFileStorage extends AbstractFileStorage {
             String url = fullUrl(key);
             // 确保父目录存在
             ensureParentPath(key);
-            sardine.put(url, request.getContent(), request.getMetadata() != null ? 
+            sardine.put(url, request.getContent(), request.getMetadata() != null ?
                     request.getMetadata().getContentType() : "application/octet-stream");
 
             return PutObjectResult.builder()
@@ -212,7 +212,7 @@ public class WebdavFileStorage extends AbstractFileStorage {
                         .name(resource.getName())
                         .size(resource.getContentLength())
                         .contentType(resource.getContentType())
-                        .lastModified(resource.getModified() != null ? 
+                        .lastModified(resource.getModified() != null ?
                                 resource.getModified().getTime() : 0)
                         .directory(resource.isDirectory())
                         .path(request.getFilePath())

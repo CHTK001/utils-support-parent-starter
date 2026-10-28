@@ -105,7 +105,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
                 String placeholder = result.substring(startIndex + placeholderSupport.getPlaceholderPrefix().length(),
                         endIndex);
                 String originalPlaceholder = placeholder;
-                
+
                 // 初始化循环引用检查集合
                 if (visitedPlaceholders == null) {
                     visitedPlaceholders = Wraps.set(4);
@@ -115,13 +115,13 @@ public class StringValuePropertyResolver implements PropertyResolver {
                     throw new IllegalArgumentException(
                             "Circular placeholder reference '" + originalPlaceholder + "' in property definitions");
                 }
-                
+
                 // 递归解析占位符键中可能包含的其他占位符
                 placeholder = parseStringValue(placeholder, placeholderSupport.getResolver(), visitedPlaceholders);
-                
+
                 // 尝试获取解析后的值
                 String propVal = placeholderResolver.resolvePlaceholder(placeholder);
-                
+
                 // 如果值为空且配置了分隔符，尝试解析默认值
                 if (propVal == null && placeholderSupport.getValueSeparator() != null) {
                     int separatorIndex = placeholder.indexOf(placeholderSupport.getValueSeparator());
@@ -135,7 +135,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
                         }
                     }
                 }
-                
+
                 if (propVal != null) {
                     // 递归解析解析后的值中可能包含的其他占位符
                     propVal = parseStringValue(propVal, placeholderResolver, visitedPlaceholders);

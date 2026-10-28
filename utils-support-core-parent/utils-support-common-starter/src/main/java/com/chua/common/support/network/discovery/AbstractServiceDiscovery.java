@@ -369,7 +369,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
         log.debug("getPath: {} ", path);
         Set<Discovery> netAddresses = get(path);
         log.debug("getPath result: {} size={}", path, CollectionUtils.size(netAddresses));
-        
+
         List<String> strings = Arrays.asList(path.replaceFirst("^/", "").split("/"));
         // 如果路径层级过浅且没找到，尝试根路径
         if (strings.size() <= 1 && CollectionUtils.size(netAddresses) == 0) {
@@ -379,7 +379,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
         if (CollectionUtils.size(netAddresses) > 0) {
             return netAddresses;
         }
-        
+
         // 向上回溯查找父级路径
         int index = strings.size() - 1;
         while (CollectionUtils.size(netAddresses) == 0 && index > 0) {

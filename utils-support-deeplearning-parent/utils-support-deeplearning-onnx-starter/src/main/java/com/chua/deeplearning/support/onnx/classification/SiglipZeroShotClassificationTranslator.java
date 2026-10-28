@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * siglip                 Translator
  *
- * <p>SigLIP        unified image-text ONNX                       CLIP                      
+ * <p>SigLIP        unified image-text ONNX                       CLIP
  *                                                                    logits          </p>
  *
  * @author CH

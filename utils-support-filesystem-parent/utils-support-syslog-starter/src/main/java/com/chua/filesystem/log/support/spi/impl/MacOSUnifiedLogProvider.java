@@ -59,9 +59,9 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     */
     @Override
     public boolean isPlatformSupported() {
-        
+
         return PlatformSystems.isMacOs();
-    
+
     }
 
     /**
@@ -69,9 +69,9 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     */
     @Override
     public List<String> getSources() {
-        
+
         return SOURCES;
-    
+
     }
 
     /**

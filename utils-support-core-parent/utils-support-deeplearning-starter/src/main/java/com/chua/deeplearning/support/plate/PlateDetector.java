@@ -111,7 +111,7 @@ public interface PlateDetector {
  */
 class DefaultPlateDetector implements PlateDetector {
 
-    
+
     /**
      * 默认运行设备（CPU）。
      */

@@ -16,9 +16,9 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 /**
- * XML                
+ * XML
  * <p>
- *           XML                      
+ *           XML
  * </p>
  * <h3>1.                   </h3>
  * <pre>{@code
@@ -43,7 +43,7 @@ import java.util.Map;
  *     <property name="app.name">MyApp</property>
  * </config>
  * }</pre>
- *        value                                  
+ *        value
  *                server.host=localhost, server.port=8080, app.name=MyApp
  *
  * <h3>3.                   </h3>
@@ -88,21 +88,21 @@ public class XmlConfigParser implements ConfigParser {
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(is);
             document.getDocumentElement().normalize();
-            
+
             Element root = document.getDocumentElement();
-            
+
             // 优先按列表格式解析
             List<Map<String, Object>> listItems = parseAsList(root);
             if (listItems != null) {
                 return new PropertiesMutiPropertySource(urlPath, listItems);
             }
-            
+
             // 其次按 property 键值格式解析
             Map<String, Object> propertyMap = parsePropertyFormat(root);
             if (propertyMap != null) {
                 return new MapPropertySource(urlPath, propertyMap);
             }
-            
+
             // 最后按普通元素结构解析
             Map<String, Object> map = parseElement(root);
             return new MapPropertySource(urlPath, map);
@@ -116,14 +116,14 @@ public class XmlConfigParser implements ConfigParser {
      *
      *
      *
-     * @param root          
+     * @param root
      * @return                                            null
      */
     private List<Map<String, Object>> parseAsList(Element root) {
         NodeList children = root.getChildNodes();
         List<Element> elements = Wraps.list();
         String firstTagName = null;
-        
+
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
             if (child.getNodeType() == Node.ELEMENT_NODE) {
@@ -131,18 +131,18 @@ public class XmlConfigParser implements ConfigParser {
                 if (firstTagName == null) {
                     firstTagName = elem.getTagName();
                 } else if (!firstTagName.equals(elem.getTagName())) {
-                    //                                     
+                    //
                     return null;
                 }
                 elements.add(elem);
             }
         }
-        
-        //          2                              
+
+        //          2
         if (elements.size() < 2) {
             return null;
         }
-        
+
         List<Map<String, Object>> result = Wraps.list();
         for (Element elem : elements) {
             result.add(parseElement(elem));
@@ -150,7 +150,7 @@ public class XmlConfigParser implements ConfigParser {
         return result;
     }
     /**
-     *                 property       
+     *                 property
      * <p>
      *
      * <ul>
@@ -160,35 +160,35 @@ public class XmlConfigParser implements ConfigParser {
      *     <li>{@code <entry key="key">value</entry>}</li>
      * </ul>
      *
-     * @param root          
+     * @param root
      * @return Map                property                 null
      */
     private Map<String, Object> parsePropertyFormat(Element root) {
         NodeList children = root.getChildNodes();
         Map<String, Object> result = Wraps.linkedMap();
         boolean isPropertyFormat = false;
-        
+
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
             if (child.getNodeType() == Node.ELEMENT_NODE) {
                 Element elem = (Element) child;
                 String tagName = elem.getTagName();
-                
-                //        <property>     <entry>       
+
+                //        <property>     <entry>
                 if ("property".equalsIgnoreCase(tagName) || "entry".equalsIgnoreCase(tagName)) {
                     //        name/key
                     String name = elem.getAttribute("name");
                     if (name.isEmpty()) {
                         name = elem.getAttribute("key");
                     }
-                    
+
                     if (!name.isEmpty()) {
                         isPropertyFormat = true;
-                        
-                        //              value                                           
+
+                        //              value
                         String value = elem.getAttribute("value");
                         if (value.isEmpty()) {
-                            //                                     
+                            //
                             value = elem.getTextContent().trim();
                         }
                         result.put(name, value);
@@ -196,46 +196,46 @@ public class XmlConfigParser implements ConfigParser {
                 }
             }
         }
-        
+
         return isPropertyFormat ? result : null;
     }
     /**
-     *              XML       
+     *              XML
      * @param element 元素，不允许为 null
      * @return 结果映射，无数据时为空映射
      */
     private Map<String, Object> parseElement(Element element) {
         Map<String, Object> result = Wraps.linkedMap();
-        
-        //             
+
+        //
         NamedNodeMap attributes = element.getAttributes();
         for (int i = 0; i < attributes.getLength(); i++) {
             Node attr = attributes.item(i);
             result.put(attr.getNodeName(), attr.getNodeValue());
         }
-        
-        //                                              
+
+        //
         NodeList children = element.getChildNodes();
         Map<String, List<Object>> childMap = Wraps.linkedMap();
-        
+
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
             if (child.getNodeType() == Node.ELEMENT_NODE) {
                 Element childElement = (Element) child;
                 String tagName = childElement.getTagName();
-                
+
                 Object value;
                 if (hasOnlyTextContent(childElement)) {
                     value = childElement.getTextContent().trim();
                 } else {
                     value = parseElement(childElement);
                 }
-                
+
                 childMap.computeIfAbsent(tagName, k -> Wraps.list()).add(value);
             }
         }
-        
-        //                                                          
+
+        //
         for (Map.Entry<String, List<Object>> entry : childMap.entrySet()) {
             List<Object> values = entry.getValue();
             if (values.size() == 1) {
@@ -244,7 +244,7 @@ public class XmlConfigParser implements ConfigParser {
                 result.put(entry.getKey(), values);
             }
         }
-        
+
         return result;
     }
     /**

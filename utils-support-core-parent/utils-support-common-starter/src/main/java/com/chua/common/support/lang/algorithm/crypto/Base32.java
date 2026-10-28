@@ -97,7 +97,7 @@ public class Base32 {
  // 将有符号字节转换为无符号值 (0-255)
  currByte = (data[i] >= 0) ? data[i] : (data[i] + 256);
 
- /* 
+ /*
  * 判断当前的 5 位数字是否跨越了字节边界
  * 当 index > 3 时，剩余的位数不足以构成完整的 5 位，需要借用下一个字节的部分位
  */
@@ -164,7 +164,7 @@ public class Base32 {
  int digit;
 
  final String base32 = encoded.toString();
- 
+
  // 计算解码后的字节长度
  // 如果有填充符 '='，则根据第一个填充符的位置计算；否则按总长度计算
  int len = base32.endsWith("=") ? base32.indexOf("=") * 5 / 8 : base32.length() * 5 / 8;

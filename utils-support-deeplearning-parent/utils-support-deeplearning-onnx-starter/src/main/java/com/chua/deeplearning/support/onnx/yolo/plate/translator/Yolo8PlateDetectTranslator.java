@@ -26,16 +26,16 @@ import java.util.Map;
  * </p>
  * <p>
  *
- * -                               Detection                           
+ * -                               Detection
  * -          yolov8-执照-铭牌                           /
- * -                640x640               
+ * -                640x640
  * -                             [0, 1]
  * </p>
  * <p>
  *
- * -                [1, 3, 640, 640] - NCHW   RGB          [0, 1]          
+ * -                [1, 3, 640, 640] - NCHW   RGB          [0, 1]
  * -                [1, 6, 8400] - (x_center, y_center, w, h, 类1_conf, 类2_conf)
- * -                    NMS                           
+ * -                    NMS
  * </p>
  *
  * @author CH
@@ -45,14 +45,14 @@ import java.util.Map;
 public class Yolo8PlateDetectTranslator implements Translator<Image, DetectedObjects> {
 
     /**
-     *                             640x640   
+     *                             640x640
      */
     private final int inputSize;
 
     private final float minConfThreshold;
 
     /**
-     * IOU       
+     * IOU
      */
     private final float iouThreshold;
 
@@ -84,7 +84,7 @@ public class Yolo8PlateDetectTranslator implements Translator<Image, DetectedObj
     /**
      * 映射
      *
-     * @param arguments             
+     * @param arguments
      */
     public Yolo8PlateDetectTranslator(Map<String, ?> arguments) {
         this.minConfThreshold = arguments.containsKey("confThreshold")
@@ -108,10 +108,10 @@ public class Yolo8PlateDetectTranslator implements Translator<Image, DetectedObj
      * 构造 Yolo8PlateDetectTranslator 实例。
      *
      *
-     * @param inputSize                                            
+     * @param inputSize
      * @param minConfThreshold                       [0.0, 1.0]
      * @param iouThreshold     IOU        [0.0, 1.0]
-     * @param topK                                
+     * @param topK
      */
     public Yolo8PlateDetectTranslator(int inputSize, float minConfThreshold, float iouThreshold, int topK) {
         this.inputSize = inputSize;
@@ -167,7 +167,7 @@ public class Yolo8PlateDetectTranslator implements Translator<Image, DetectedObj
         // mask   score > conf
         var confMask = maxScores.gt(minConfThreshold);
 
-        // mask       
+        // mask
         preds = preds.get(confMask);
 
         if (preds.isEmpty()) {
@@ -183,10 +183,10 @@ public class Yolo8PlateDetectTranslator implements Translator<Image, DetectedObj
         var scores = scoresAndClasses.max(new int[]{1}, true);
         var index = scoresAndClasses.argMax(1).expandDims(1);
 
-        // 4.       
+        // 4.
         var result = NDArrays.concat(new NDList(boxes, scores, index), 1);
 
-        // NMS                   
+        // NMS
         int[] keepIndices = NMSUtils.nms(boxes, scores.squeeze(), iouThreshold);
         var kept = result.get(manager.create(keepIndices));
  // topk
@@ -207,7 +207,7 @@ public class Yolo8PlateDetectTranslator implements Translator<Image, DetectedObj
         int rows = (int) shape[0];
         int cols = (int) shape[1];
 
-        //                                     
+        //
         float[][] data = new float[rows][cols];
         for (int i = 0; i < rows; i++) {
             System.arraycopy(flatData, i * cols, data[i], 0, cols);
@@ -225,7 +225,7 @@ public class Yolo8PlateDetectTranslator implements Translator<Image, DetectedObj
             double prob = score;
             String className = classIndex == 0 ? "single" : "double";
 
-            //                   DJL   Rectangle                  0~1   
+            //                   DJL   Rectangle                  0~1
             double rectX = x1 / imageWidth;
             double rectY = y1 / imageHeight;
             double rectW = (x2 - x1) / imageWidth;
@@ -250,8 +250,8 @@ public class Yolo8PlateDetectTranslator implements Translator<Image, DetectedObj
     /**
      *                          (x_center, y_center, w, h)                             (x1, y1, x2, y2)
      *
-     * @param xywh                                  
-     * @return                               
+     * @param xywh
+     * @return
      */
     public static NDArray xywh2xyxy(NDArray xywh) {
         var x = xywh.get(":, 0");

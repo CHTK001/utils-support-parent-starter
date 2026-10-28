@@ -128,9 +128,9 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     */
     @Override
     public String getImageFormat() {
-        
+
         return "jpeg";
-    
+
     }
 
     /**
@@ -166,19 +166,19 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
 
         // 第一步：暖色调调整
         BufferedImage warmToned = applyWarmTone(src);
-        
+
         // 第二步：饱和度增强
         BufferedImage saturated = enhanceSaturation(warmToned);
-        
+
         // 第三步：柔光效果
         BufferedImage softLit = applySoftLight(saturated);
-        
+
         // 第四步：对比度和亮度调整
         BufferedImage contrastAdjusted = adjustContrastAndBrightness(softLit);
-        
+
         // 第五步：边缘柔化
         BufferedImage edgeSoftened = applySoftEdges(contrastAdjusted);
-        
+
         // 第六步：梦幻效果（可选）
         BufferedImage finalImage = edgeSoftened;
         if (dreamyEffectEnabled) {
@@ -203,7 +203,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int rgb = src.getRGB(x, y);
-                
+
                 int alpha = (rgb >> 24) & 0xFF;
                 int red = (rgb >> 16) & 0xFF;
                 int green = (rgb >> 8) & 0xFF;
@@ -235,7 +235,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int rgb = src.getRGB(x, y);
-                
+
                 int alpha = (rgb >> 24) & 0xFF;
                 int red = (rgb >> 16) & 0xFF;
                 int green = (rgb >> 8) & 0xFF;
@@ -247,7 +247,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
 
                 // 转换回RGB
                 int[] newRgb = hsvToRgb(hsv[0], hsv[1], hsv[2]);
-                
+
                 int finalRgb = (alpha << 24) | (newRgb[0] << 16) | (newRgb[1] << 8) | newRgb[2];
                 result.setRGB(x, y, finalRgb);
             }
@@ -269,7 +269,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int rgb = src.getRGB(x, y);
-                
+
                 int alpha = (rgb >> 24) & 0xFF;
                 int red = (rgb >> 16) & 0xFF;
                 int green = (rgb >> 8) & 0xFF;
@@ -305,7 +305,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int rgb = src.getRGB(x, y);
-                
+
                 int alpha = (rgb >> 24) & 0xFF;
                 int red = (rgb >> 16) & 0xFF;
                 int green = (rgb >> 8) & 0xFF;
@@ -405,7 +405,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int rgb = src.getRGB(x, y);
-                
+
                 int alpha = (rgb >> 24) & 0xFF;
                 int red = (rgb >> 16) & 0xFF;
                 int green = (rgb >> 8) & 0xFF;
@@ -439,14 +439,14 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     @Override
     public OutputStream converter(InputStream image) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        
+
         byte[] buffer = new byte[1024];
         int bytesRead;
         ByteArrayOutputStream tempOutput = new ByteArrayOutputStream();
         while ((bytesRead = image.read(buffer)) != -1) {
             tempOutput.write(buffer, 0, bytesRead);
         }
-        
+
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(tempOutput.toByteArray())) {
             BufferedImage bufferedImage = javax.imageio.ImageIO.read(inputStream);
             if (bufferedImage != null) {
@@ -454,7 +454,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
                 javax.imageio.ImageIO.write(filteredImage, getImageFormat(), outputStream);
             }
         }
-        
+
         return outputStream;
     }
 
@@ -478,7 +478,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
 
         if (delta != 0) {
             s = delta / max;
-            
+
             if (max == rf) {
                 h = ((gf - bf) / delta) % 6;
             } else if (max == gf) {

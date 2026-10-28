@@ -23,26 +23,26 @@ import java.util.stream.IntStream;
  *
  * <p>
  *
- * -                                       +        +          
+ * -                                       +        +
  * -            probiou                 NMS
- * -                          
- * -                                
+ * -
+ * -
  * -     letterbox
  * <p>
  *
  * [cx, cy, w, h, 类_scores..., angle]
- * - cx, cy:                
- * - w, h:                
+ * - cx, cy:
+ * - w, h:
  * - 类_scores:
- * - angle:                         
+ * - angle:
  * <p>
  *
  * ```Java
- * //                   
+ * //
  * 列表<String> 类 = Arrays.as列表("文本", "vehicle");
  * Yolo11oddtranslator translator = 新 Yolo11oddtranslator(类);
  *
- * //                
+ * //
  * Yolo11oddtranslator translator = 新 Yolo11oddtranslator(640, 0.25f, 0.45f, 类);
  * ```
  *
@@ -58,7 +58,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     private final float threshold;
 
     /**
-     * NMS       
+     * NMS
      */
     private final float nmsThreshold;
 
@@ -69,9 +69,9 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     private final int height;
 
     /**
-     *              -                   
+     *              -
      *
-     * @param classes                   
+     * @param classes
      */
     public Yolo11OddTranslator() {
         this(defaultClasses(1024));
@@ -86,13 +86,13 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
-     *              -                
+     *              -
      *
-     * @param width                          
-     * @param height                         
-     * @param threshold                   
-     * @param nmsThreshold NMS       
-     * @param classes                        
+     * @param width
+     * @param height
+     * @param threshold
+     * @param nmsThreshold NMS
+     * @param classes
      */
     public Yolo11OddTranslator(int width, int height, float threshold, float nmsThreshold, List<String> classes) {
         this(width, height, threshold, nmsThreshold, classes, 8400);
@@ -102,12 +102,12 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
      * 构造 Yolo11OddTranslator 实例。
      *
      *
-     * @param width                          
-     * @param height                         
-     * @param threshold                   
-     * @param nmsThreshold NMS       
-     * @param classes                        
-     * @param maxBoxes                          
+     * @param width
+     * @param height
+     * @param threshold
+     * @param nmsThreshold NMS
+     * @param classes
+     * @param maxBoxes
      */
     public Yolo11OddTranslator(int width, int height, float threshold, float nmsThreshold,
                                 List<String> classes, int maxBoxes) {
@@ -125,8 +125,8 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
      * 执行 Input。
      *
      *
-     * @param ctx                     
-     * @param input             
+     * @param ctx
+     * @param input
      * @return              NDList
      */
     @Override
@@ -164,9 +164,9 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
      * 执行 Output。
      *
      *
-     * @param ctx                    
+     * @param ctx
      * @param list              nd列表
-     * @return OBB             
+     * @return OBB
      */
     @Override
     public ObbResult processOutput(TranslatorContext ctx, NDList list) {
@@ -182,17 +182,17 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
-     *     Box                         
+     *     Box
      *
-     * @param imageWidth                        
-     * @param imageHeight                       
-     * @param processedWidth                          
-     * @param processedHeight                         
-     * @param scale                      
+     * @param imageWidth
+     * @param imageHeight
+     * @param processedWidth
+     * @param processedHeight
+     * @param scale
      * @param left                  padding
      * @param top                   padding
-     * @param list                       
-     * @return OBB             
+     * @param list
+     * @return OBB
      */
     private ObbResult processFromBoxOutput(int imageWidth, int imageHeight, int processedWidth, int processedHeight,
                                            float scale, int left, int top, NDList list) {
@@ -204,14 +204,14 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
         var numberRows = Math.toIntExact(shape.get(0)); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         var nClasses = Math.toIntExact(shape.get(1));
 
-        //                   
+        //
         List<YoloRotatedBox> rotatedBoxes = Wraps.list();
 
-        //                                                       
+        //
         for (int i = numberRows - 1; i >= Math.max(0, numberRows - maxBoxes); i--) {
             var index = i * nClasses;
 
-            //                      
+            //
             var maxClassProb = -1f;
             var maxIndex = -1;
             // 1; c++) { //           4          -1     angle
@@ -251,15 +251,15 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     /**
      * NMS          probiou
      *
-     * @param boxes                       
+     * @param boxes
      * @param iouThreshold iou
-     * @return                         
+     * @return
      */
     private List<YoloRotatedBox> rotatedNMS(List<YoloRotatedBox> boxes, double iouThreshold) {
         var keep = Wraps.<YoloRotatedBox>list();
         var removed = new boolean[boxes.size()];
 
-        //                      
+        //
         List<Integer> sortedIndices = Wraps.list();
         for (int i = 0; i < boxes.size(); i++) {
             sortedIndices.add(i);
@@ -300,7 +300,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
      * 获取 Batchifier。
      *
      *
-     * @return STACK             
+     * @return STACK
      * @param size 大小
      */
     @Override

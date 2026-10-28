@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
  *                            ONNX          Translator
  * <p>
  * 模型scope        {@code msocoder/image-to-line-drawing-onnx}
- *                                                                   
+ *
  * </p>
  * <p>
  * <ul>
@@ -43,10 +43,10 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
     private int originalHeight;
 
     /**
-     *                                                   {@link NDList}   
+     *                                                   {@link NDList}
      *
-     * @param ctx                               {@code NDManager}          
-     * @param input                                RGB          
+     * @param ctx                               {@code NDManager}
+     * @param input                                RGB
      * @return                                            {@code [1, 3, INPUT_SIZE, INPUT_SIZE]}
      */
     @Override
@@ -64,7 +64,7 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
  // ndarray   HWC   RGB
         NDArray array = input.toNDArray(manager, Image.Flag.COLOR);
 
-        //                            
+        //
         array = NDImageUtils.resize(array, INPUT_SIZE, INPUT_SIZE, Image.Interpolation.BILINEAR);
 
         //        float32                 [-1, 1]
@@ -85,12 +85,12 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
     }
 
     /**
-     *                                                  {@link Image}   
+     *                                                  {@link Image}
      *
-     * @param ctx                    
+     * @param ctx
      * @param list                                                                 {@code [1, C, H, W]}     {@code [C,
      * H, W}
-     * @return                                                 
+     * @return
      */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
@@ -107,7 +107,7 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
             output = output.squeeze(0);
         }
 
-        //                                                       
+        //
         if (output.getShape().dimension() == 3) {
             long channelSize = output.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             if (channelSize == 1L) {
@@ -121,11 +121,11 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
             }
         }
 
-        //                 [0, 255]            
+        //                 [0, 255]
         output = output.add(1.0f).mul(DENORMALIZE_MULTIPLIER);
         output = output.clip(0.0f, NORMALIZE_MAX).toType(DataType.UINT8, false);
 
-        //                      
+        //
         output = NDImageUtils.resize(
                 output, originalWidth, originalHeight, Image.Interpolation.BILINEAR);
 
@@ -138,12 +138,12 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
     }
 
     /**
-     *                      
+     *
      * <p>
-     *              {@link Batchifier#STACK}                                                      
+     *              {@link Batchifier#STACK}
      * </p>
      *
-     * @return                   
+     * @return
      */
     @Override
     public Batchifier getBatchifier() {

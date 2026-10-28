@@ -96,9 +96,9 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
     */
     @Override
     public String type() {
-        
+
         return "apng";
-    
+
     }
 
     /**

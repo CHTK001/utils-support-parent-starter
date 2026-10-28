@@ -72,9 +72,9 @@ public class ImageWriterFileSystem extends AbstractWriter {
     */
     @Override
     public String getType() {
-        
+
         return "image";
-    
+
     }
 
     /**

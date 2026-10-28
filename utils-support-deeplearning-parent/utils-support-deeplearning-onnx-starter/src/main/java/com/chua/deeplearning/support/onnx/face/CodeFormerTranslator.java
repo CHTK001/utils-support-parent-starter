@@ -19,8 +19,8 @@ import org.opencv.imgproc.Imgproc;
  * 编码former ONNX
  * <p>
  * 编码former
- *       face restoration / enhancement                                 
- *       blurry / low-quality / damaged face -> restored face               
+ *       face restoration / enhancement
+ *       blurry / low-quality / damaged face -> restored face
  * </p>
  * <p>
  * : 512x512 RGB 镜像

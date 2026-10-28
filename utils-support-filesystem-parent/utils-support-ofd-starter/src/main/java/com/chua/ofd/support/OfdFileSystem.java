@@ -24,7 +24,7 @@ public class OfdFileSystem implements FileSystem {
     */
     @Override
     public String getType() {
-         return "ofd"; 
+         return "ofd";
     }
 
     /**
@@ -32,7 +32,7 @@ public class OfdFileSystem implements FileSystem {
     */
     @Override
     public ReadBuilder read(File file) {
-         return new OfdReadBuilder(file); 
+         return new OfdReadBuilder(file);
     }
 
     /**

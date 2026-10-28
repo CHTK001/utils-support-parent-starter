@@ -161,7 +161,7 @@ public class PdfReadBuilder extends ReadBuilder {
     */
     @Override
     public List<String> asLines() {
-         return List.of(text().split("\\n")); 
+         return List.of(text().split("\\n"));
     }
 
     /**
@@ -169,7 +169,7 @@ public class PdfReadBuilder extends ReadBuilder {
     */
     @Override
     public String asString() {
-         return text(); 
+         return text();
     }
 }
 

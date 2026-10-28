@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  * -        attention_mask
  * <p>
  *
- * -                   
+ * -
  *
  * @author CH
  * @since 2025/01/22
@@ -60,7 +60,7 @@ public class SmolDoclingEmbedTranslator implements Translator<long[], SmolDoclin
             return null;
         }
 
-        //                   
+        //
         NDArray embeddings = list.getFirst();
         long[] outputShape = embeddings.getShape().getShape();
 
@@ -77,7 +77,7 @@ public class SmolDoclingEmbedTranslator implements Translator<long[], SmolDoclin
     */
     @Override
     public Batchifier getBatchifier() {
-        //                   
+        //
         return null;
     }
 }

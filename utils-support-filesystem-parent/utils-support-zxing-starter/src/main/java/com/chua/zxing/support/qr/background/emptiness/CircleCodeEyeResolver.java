@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
  * @since 4.0.0.42
  */
 public class CircleCodeEyeResolver implements CodeEyeResolver{
-    
+
     /**
      * 单位宽度
     */

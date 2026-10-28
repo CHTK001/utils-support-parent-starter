@@ -56,9 +56,9 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
     */
     @Override
     public String type() {
-        
+
         return "webp";
-    
+
     }
 
     /**
@@ -96,8 +96,8 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
             String targetFormat = ImageSupportUtils.getFormatFromFile(targetFile);
             ImageSupportUtils.saveToStream(image, targetFormat, outputStream);
         } catch (Exception e) {
-            log.error("[WebP转换][Java实现]转换失败: {} -> {}", 
-                sourceFile != null ? sourceFile.getName() : "流", 
+            log.error("[WebP转换][Java实现]转换失败: {} -> {}",
+                sourceFile != null ? sourceFile.getName() : "流",
                 targetFile != null ? targetFile.getName() : "流", e);
             throw new IOException("WebP 格式转换失败", e);
         }
@@ -119,7 +119,7 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
         // 必须有一个是 webp
         boolean sourceIsWebp = "webp".equalsIgnoreCase(sourceFormat);
         boolean targetIsWebp = "webp".equalsIgnoreCase(targetFormat);
-        
+
         if (!sourceIsWebp && !targetIsWebp) {
             return false;
         }
@@ -136,17 +136,17 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
     @Override
     public ConvertFileSystem.ConvertSupport[] supportedTypes() {
         List<ConvertFileSystem.ConvertSupport> supports = Wraps.list();
-        
+
  // webp 转其他格式
         for (String format : SUPPORTED_FORMATS) {
             supports.add(new ConvertFileSystem.ConvertSupport("webp", format));
         }
-        
+
  // 其他格式转 webp
         for (String format : SUPPORTED_FORMATS) {
             supports.add(new ConvertFileSystem.ConvertSupport(format, "webp"));
         }
-        
+
         return supports.toArray(new ConvertFileSystem.ConvertSupport[0]);
     }
 

@@ -13,7 +13,7 @@ import ai.djl.translate.TranslatorContext;
 /**
  * TAESD (Tiny Auto 编码器 for st Diffusion) VAE
  *
- * <p>    Stable Diffusion              latents           RGB          
+ * <p>    Stable Diffusion              latents           RGB
  *              SD VAE (~350MB)   TAESD     ~10MB                      5-10       </p>
  *
  * <p>         (1, 4, latent_h, latent_w) latents</p>
@@ -46,13 +46,13 @@ public class TaesdDecoderTranslator implements Translator<NDList, Image> {
         try (NDManager manager = NDManager.newBaseManager(ctx.getNDManager().getDevice(), "PyTorch")) {
             NDArray output = list.singletonOrThrow();
 
-            // TAESD           (1, 3, h*8, w*8)          batch       
+            // TAESD           (1, 3, h*8, w*8)          batch
             // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             if (output.getShape().dimension() >= 4 && output.getShape().get(0) == 1) {
                 output = output.squeeze(0);
             }
 
-            // TAESD                 [0, 1]             SD VAE           mul(0.5).add(0.5)             
+            // TAESD                 [0, 1]             SD VAE           mul(0.5).add(0.5)
             output = output.clip(0, 1);
 
             //        uint8 [0, 255]

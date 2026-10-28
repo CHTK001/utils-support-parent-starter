@@ -50,7 +50,7 @@ public class RoundedCircleDrawPointResolver extends AbstractDrawPointResolver {
         int h = m.getHeight();
 
         // 以“中心圆 + 直边连接矩形”的方式形成流体融合
-                
+
         float thickness = 5.00f;
         float s = infoSize * thickness;
         float r = s / 2f;

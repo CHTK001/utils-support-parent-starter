@@ -14,14 +14,14 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 
 /**
- * Real-ESRGAN ONNX                      
+ * Real-ESRGAN ONNX
  *
- * <p>       RRDBNet                                     
+ * <p>       RRDBNet
  *
  * <p>         :
  * <ul>
- *   <li>HWC     CHW                       [0, 1]          255.0   
- *   <li>          mean/std             RRDBNet              [0, 1]          
+ *   <li>HWC     CHW                       [0, 1]          255.0
+ *   <li>          mean/std             RRDBNet              [0, 1]
  * </ul>
  *
  * <p>         :
@@ -57,7 +57,7 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
      * 构造 RealEsrganTranslator 实例。
      *
      *
-     * @param scale                   2     4   
+     * @param scale                   2     4
      */
     public RealEsrganTranslator(int scale) {
         this.scale = scale;

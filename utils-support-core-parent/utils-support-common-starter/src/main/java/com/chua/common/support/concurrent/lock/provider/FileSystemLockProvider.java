@@ -102,13 +102,13 @@ public class FileSystemLockProvider extends AbstractLockProvider {
         try {
             // 初始化并打开文件资源
             openResources();
-            
+
             // 将超时时间转换为毫秒
             long timeUnitMillis = timeUnit.toMillis(timeout);
-            
+
             // 尝试立即获取独占锁（从文件开头到最大长度）
             fileLock = fileChannel.tryLock(0, Long.MAX_VALUE, false);
-            
+
             // 如果立即获取失败，进入等待循环
             if (fileLock == null) {
                 long startTime = System.currentTimeMillis();

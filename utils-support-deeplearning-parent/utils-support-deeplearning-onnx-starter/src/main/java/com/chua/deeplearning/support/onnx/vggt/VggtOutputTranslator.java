@@ -14,8 +14,8 @@ import java.util.Arrays;
 /**
  * VGGT              Translator
  * <p>
- *              {@link VggtOutput}                    Image   
- *           3D                             Translator   
+ *              {@link VggtOutput}                    Image
+ *           3D                             Translator
  *
  * @author CH
  * @since 2024/11/08
@@ -36,13 +36,13 @@ public class VggtOutputTranslator implements Translator<Image, VggtOutput> {
 
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
 
-        //                                        
+        //
         array = NDImageUtils.resize(array, INPUT_SIZE, INPUT_SIZE);
 
         //              [0, 1]
         array = array.div(255.0f);
 
-        // DJL     normalize        CHW                                             
+        // DJL     normalize        CHW
         array = array.transpose(2, 0, 1);
 
  // 镜像net
@@ -70,14 +70,14 @@ public class VggtOutputTranslator implements Translator<Image, VggtOutput> {
             return new VggtOutput(new float[0], new long[]{0});
         }
 
-        //                      3D                
+        //                      3D
         NDArray output = list.getFirst();
         long[] outputShape = output.getShape().getShape();
 
         log.info("VGGT 输出: shape={}, dtype={}",
                 output.getShape(), output.getDataType());
 
-        //        3D                 Java          
+        //        3D                 Java
         float[] gaussianData = output.toFloatArray();
 
         log.info("转 3D 高斯数据完成: {} 个 float 值, 形状: {}",
@@ -97,7 +97,7 @@ public class VggtOutputTranslator implements Translator<Image, VggtOutput> {
     */
     @Override
     public Batchifier getBatchifier() {
-        //                   
+        //
         return null;
     }
 }

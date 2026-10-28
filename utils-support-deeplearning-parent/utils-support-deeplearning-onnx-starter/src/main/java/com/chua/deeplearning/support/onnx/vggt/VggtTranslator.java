@@ -22,11 +22,11 @@ import java.util.Arrays;
  * <p>
  *
  * -                 512x512
- * -                      
- * -           NCHW       
+ * -
+ * -           NCHW
  * <p>
  *
- * -        3D                   
+ * -        3D
  * -                    translator上下文
  * -              镜像                      上下文
  *
@@ -54,7 +54,7 @@ public class VggtTranslator implements Translator<Image, Image> {
 
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
 
-        //                                        
+        //
         array = NDImageUtils.resize(array, INPUT_SIZE, INPUT_SIZE);
 
         //              [0, 1]
@@ -88,14 +88,14 @@ public class VggtTranslator implements Translator<Image, Image> {
             return createPlaceholderImage(ctx.getNDManager());
         }
 
-        //                      3D                
+        //                      3D
         NDArray output = list.getFirst();
         long[] outputShape = output.getShape().getShape();
 
         log.info("VGGT 输出: shape={}, dtype={}",
                 output.getShape(), output.getDataType());
 
-        //        3D                 Java          
+        //        3D                 Java
         float[] gaussianData = output.toFloatArray();
 
         log.info("转 3D 高斯数据完成: {} 个 float 值, 形状: {}",
@@ -118,15 +118,15 @@ public class VggtTranslator implements Translator<Image, Image> {
     /**
      *
      * <p>
-     *        3D                                                                
+     *        3D
      * 3D              translator上下文
      *
      * @param manager nd管理器
-     * @return             
+     * @return
      */
     private Image createPlaceholderImage(NDManager manager) {
-        //                                              
-        //        uint8                    [0, 255]   HWC       
+        //
+        //        uint8                    [0, 255]   HWC
         NDArray imageArray = manager.zeros(new Shape(INPUT_SIZE, INPUT_SIZE, 3))
                 .toType(DataType.UINT8, false);
         return ImageFactory.getInstance().fromNDArray(imageArray);
@@ -137,7 +137,7 @@ public class VggtTranslator implements Translator<Image, Image> {
     */
     @Override
     public Batchifier getBatchifier() {
-        //                   
+        //
         return null;
     }
 }

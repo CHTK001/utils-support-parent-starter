@@ -209,14 +209,14 @@ public class LaMaOnnxInfer implements AutoCloseable {
             result = LaMaImageUtils.applyPostProcessing(result, config);
 
             // 如果需要保持原始尺寸
-            if (config.isKeepOriginalSize() && 
+            if (config.isKeepOriginalSize() &&
                 (originalWidth != config.getInputSize() || originalHeight != config.getInputSize())) {
                 result = LaMaImageUtils.resizeImage(result, originalWidth, originalHeight);
             }
 
             // 应用边缘羽化
             if (config.getFeatherRadius() > 0) {
-                BufferedImage originalResized = config.isKeepOriginalSize() ? 
+                BufferedImage originalResized = config.isKeepOriginalSize() ?
                     image : LaMaImageUtils.resizeImage(image, config.getInputSize(), config.getInputSize());
                 result = LaMaImageUtils.applyFeathering(originalResized, result, maskData, config.getFeatherRadius());
             }
@@ -255,7 +255,7 @@ public class LaMaOnnxInfer implements AutoCloseable {
 
         // 准备输入
         Map<String, Object> inputs = Wraps.map();
-        
+
         // 获取输入名称（通常LaMa模型的输入名称是"image"和"mask"）
         Method getInputNamesMethod = ClassUtils.findMethod(ortSessionClass, "getInputNames");
         if (getInputNamesMethod == null) {
@@ -336,13 +336,13 @@ if (tensorValue instanceof float[][][]) {
     private float[] flatten3DArray(float[][][] array3D) {
         int channels = array3D[0].length;
         int spatial = array3D[0][0].length;
-        
+
         float[] flattened = new float[channels * spatial];
-        
+
         for (int c = 0; c < channels; c++) {
             System.arraycopy(array3D[0][c], 0, flattened, c * spatial, spatial);
         }
-        
+
         return flattened;
     }
 
@@ -354,13 +354,13 @@ if (tensorValue instanceof float[][][]) {
     private float[] flatten2DArray(float[][] array2D) {
         int height = array2D.length;
         int width = array2D[0].length;
-        
+
         float[] flattened = new float[height * width];
-        
+
         for (int h = 0; h < height; h++) {
             System.arraycopy(array2D[h], 0, flattened, h * width, width);
         }
-        
+
         return flattened;
     }
 
@@ -397,7 +397,7 @@ if (tensorValue instanceof float[][][]) {
             if (ortSessionClass == null) {
                 return "ONNX Runtime 类未找到";
             }
-            
+
             Method getInputNamesMethod = ClassUtils.findMethod(ortSessionClass, "getInputNames");
             Method getOutputNamesMethod = ClassUtils.findMethod(ortSessionClass, "getOutputNames");
             if (getInputNamesMethod == null || getOutputNamesMethod == null) {
@@ -405,11 +405,11 @@ if (tensorValue instanceof float[][][]) {
             }
             Object inputNames = ClassUtils.invokeMethod(getInputNamesMethod, ortSession);
             Object outputNames = ClassUtils.invokeMethod(getOutputNamesMethod, ortSession);
-            
-            return String.format("LaMa模型信息 - 输入: %s, 输出: %s, 尺寸: %dx%d", 
-                inputNames.toString(), outputNames.toString(), 
+
+            return String.format("LaMa模型信息 - 输入: %s, 输出: %s, 尺寸: %dx%d",
+                inputNames.toString(), outputNames.toString(),
                 config.getInputSize(), config.getInputSize());
-                
+
         } catch (Exception e) {
             return "无法获取模型信息: " + e.getMessage();
         }

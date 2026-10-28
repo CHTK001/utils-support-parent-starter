@@ -18,7 +18,7 @@ import java.util.Map;
 
 
 /**
- * BRIA RMBG-2.0                                  
+ * BRIA RMBG-2.0
  *
  * @author CH
  * @since 2026/04/04
@@ -42,7 +42,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
 
     /**
      * 创建 Rmbg20Translator 实例。
-     *              
+     *
      */
     public Rmbg20Translator() {
         this(MattingTranslator.MattingMode.RGBA, resolveTargetSize(null));
@@ -50,9 +50,9 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
 
     /**
      * 构造 Rmbg20Translator 实例。
-     *                              
      *
-     * @param arguments                     
+     *
+     * @param arguments
      */
     public Rmbg20Translator(Map<String, ?> arguments) {
         this(resolveMode(arguments), resolveTargetSize(arguments));
@@ -60,10 +60,10 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
 
     /**
      * 构造 Rmbg20Translator 实例。
-     *                              
      *
-     * @param mode          
-     * @param targetSize          
+     *
+     * @param mode
+     * @param targetSize
      */
     private Rmbg20Translator(MattingTranslator.MattingMode mode, int targetSize) {
         this.mode = mode;
@@ -72,10 +72,10 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     }
 
     /**
-     *                                                   {@link NDList}   
+     *                                                   {@link NDList}
      *
-     * @param ctx                               {@code NDManager}          
-     * @param input                                RGB          
+     * @param ctx                               {@code NDManager}
+     * @param input                                RGB
      * @return                                            {@code [1, 3, H, W]}
      */
     @Override
@@ -125,12 +125,12 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     }
 
     /**
-     *                                                  {@link Image}   
+     *                                                  {@link Image}
      *
-     * @param ctx                    
+     * @param ctx
      * @param list                                                                 {@code [1, C, H, W]}     {@code [C,
      * H, W}
-     * @return                                                 
+     * @return
      */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
@@ -315,9 +315,9 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
 
     /**
      * 获取 Batchifier。
-     *                           
      *
-     * @return Batchifier          
+     *
+     * @return Batchifier
      */
     @Override
     public Batchifier getBatchifier() {

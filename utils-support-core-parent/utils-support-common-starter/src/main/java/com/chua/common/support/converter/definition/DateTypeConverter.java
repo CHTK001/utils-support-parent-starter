@@ -62,7 +62,7 @@ public class DateTypeConverter implements TypeConverter<Date> {
         if (value instanceof java.sql.Date) {
             return (Date) value;
         }
-        //                     
+        //
         String string = value.toString();
         try {
             return DateUtils.parseDate(string);

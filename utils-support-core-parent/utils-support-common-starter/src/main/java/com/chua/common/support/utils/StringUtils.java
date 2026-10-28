@@ -1185,7 +1185,7 @@ public class StringUtils {
         int handledPosition = 0;
 
         for (int argIndex = 0; argIndex < argArray.length; argIndex++) {
-            //                                        
+            //
             int delimindex = strPattern.indexOf(SYMBOL_LEFT_BIG_PARANTHESES_CHAR, handledPosition);
             if (delimindex == -1) {
                 if (handledPosition == 0) {
@@ -1195,36 +1195,36 @@ public class StringUtils {
                 return sbuf.toString();
             }
 
-            //                   
+            //
             if (delimindex > 0 && strPattern.charAt(delimindex - 1) == SYMBOL_RIGHT_SLASH_CHAR) {
                 if (delimindex > 1 && strPattern.charAt(delimindex - 2) == SYMBOL_RIGHT_SLASH_CHAR) {
-                    //                            
+                    //
                     sbuf.append(strPattern, handledPosition, delimindex - 1);
                     sbuf.append(utf8Str(argArray[argIndex]));
                     handledPosition = findPlaceholderEnd(strPattern, delimindex) + 1;
                 } else {
-                    //                               
+                    //
                     argIndex--;
                     sbuf.append(strPattern, handledPosition, delimindex - 1);
                     sbuf.append(SYMBOL_LEFT_BIG_PARANTHESES_CHAR);
                     handledPosition = delimindex + 1;
                 }
             } else {
-                //                      
+                //
                 sbuf.append(strPattern, handledPosition, delimindex);
 
-                //                            
+                //
                 int endIndex = findPlaceholderEnd(strPattern, delimindex);
                 if (endIndex == -1) {
-                    //                                              
+                    //
                     sbuf.append(SYMBOL_LEFT_BIG_PARANTHESES_CHAR);
                     handledPosition = delimindex + 1;
                     argIndex--;
                 } else {
-                    //                      
+                    //
                     String placeholder = strPattern.substring(delimindex + 1, endIndex);
 
-                    //                         
+                    //
                     String formattedValue = formatPlaceholder(placeholder, argArray[argIndex]);
                     sbuf.append(formattedValue);
                     handledPosition = endIndex + 1;
@@ -1232,7 +1232,7 @@ public class StringUtils {
             }
         }
 
-        //                   
+        //
         sbuf.append(strPattern, handledPosition, strPattern.length());
         return sbuf.toString();
     }
@@ -1293,18 +1293,18 @@ public class StringUtils {
      * @return 格式化后的字符串
      */
     private static String formatPlaceholder(String placeholder, Object arg) {
-        //                            
+        //
         if (isEmpty(placeholder)) {
             return utf8Str(createValue(arg));
         }
 
-        //                                         :.2f   
+        //                                         :.2f
         if (placeholder.startsWith(":")) {
             String formatSpec = placeholder.substring(1);
             return formatWithSpec(formatSpec, arg);
         }
 
-        //                         
+        //
         return utf8Str(createValue(arg));
     }
 
@@ -1326,7 +1326,7 @@ public class StringUtils {
      */
     private static String formatWithSpec(String formatSpec, Object arg) {
         try {
-            //                   .2f, .3f    
+            //                   .2f, .3f
             if (formatSpec.matches("\\.\\d+f")) {
                 int precision = Integer.parseInt(formatSpec.substring(1, formatSpec.length() - 1));
                 double value = convertToDouble(arg);
@@ -1358,10 +1358,10 @@ public class StringUtils {
                 return String.format("%." + precision + "f%%", value * 100);
             }
 
-            //                                        
+            //
             return utf8Str(createValue(arg));
         } catch (Exception e) {
-            //                               
+            //
             return utf8Str(createValue(arg));
         }
     }
@@ -2743,10 +2743,10 @@ public class StringUtils {
         int displayCount = 0;
 
         for (char c : buffer) {
-            //                                  
+            //
             int charWidth = isDoubleByteChar(c) ? 2 : 1;
 
-            //                                                    
+            //
             if (displayCount + charWidth > width && displayCount > 0) {
                 sb.append('\n');
                 displayCount = 0;
@@ -2836,7 +2836,7 @@ public class StringUtils {
      * @return 如果为双字节字符返回 true
      */
     public static boolean isDoubleByteChar(char c) {
-        //                      ASCII                                 
+        //                      ASCII
         return c > 0xFF;
     }
 
@@ -3425,15 +3425,15 @@ public class StringUtils {
      * @return 移除开头和结尾子串后的字符串
      */
     public static String removeStartEnd(String str, String remove) {
-        //                                                                                                    
+        //
         if (isEmpty(str) || isEmpty(remove)) {
             return str;
         }
-        //                                                                                                                               
+        //
         if (str.startsWith(remove)) {
             return removeEnd(str.substring(remove.length()), remove);
         }
-        //                                                                                     
+        //
         return removeEnd(str, remove);
     }
 
@@ -4829,13 +4829,13 @@ public class StringUtils {
             return null;
         }
 
-        //                                                             
+        //
         String[] res = new String[strArr.length];
         for (int i = 0; i < strArr.length; i++) {
-            //                                                          
+            //
             res[i] = strArr[i].toLowerCase();
         }
-        //                                        
+        //
         return res;
     }
 

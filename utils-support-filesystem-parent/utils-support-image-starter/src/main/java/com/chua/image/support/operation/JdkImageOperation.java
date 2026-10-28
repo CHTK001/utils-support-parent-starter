@@ -43,11 +43,11 @@ public class JdkImageOperation implements ImageOperation {
     */
     @Override
     public Mono<byte[]> resize(byte[] imageBytes, String format, Integer width, Integer height, Double scale) {
-        
+
         return Mono.fromCallable(() -> {
             if (imageBytes == null || imageBytes.length == 0) {
                 throw new IOException("图片数据不能为空");
-            
+
     }
             if (format == null || format.trim().isEmpty()) {
                 throw new IOException("图片格式不能为空");
@@ -80,11 +80,11 @@ public class JdkImageOperation implements ImageOperation {
     */
     @Override
     public Mono<byte[]> crop(byte[] imageBytes, String format, int x, int y, int width, int height) {
-        
+
         return Mono.fromCallable(() -> {
             if (imageBytes == null || imageBytes.length == 0) {
                 throw new IOException("图片数据不能为空");
-            
+
     }
             if (format == null || format.trim().isEmpty()) {
                 throw new IOException("图片格式不能为空");
@@ -114,11 +114,11 @@ public class JdkImageOperation implements ImageOperation {
     */
     @Override
     public Mono<byte[]> rotate(byte[] imageBytes, String format, int angle) {
-        
+
         return Mono.fromCallable(() -> {
             if (imageBytes == null || imageBytes.length == 0) {
                 throw new IOException("图片数据不能为空");
-            
+
     }
             if (format == null || format.trim().isEmpty()) {
                 throw new IOException("图片格式不能为空");
@@ -143,11 +143,11 @@ public class JdkImageOperation implements ImageOperation {
     @Override
     public Mono<byte[]> filter(byte[] imageBytes, String format, String filterType,
                                ImageOperation.FilterParams params) {
-        
+
         return Mono.fromCallable(() -> {
             if (imageBytes == null || imageBytes.length == 0) {
                 throw new IOException("图片数据不能为空");
-            
+
     }
             if (format == null || format.trim().isEmpty()) {
                 throw new IOException("图片格式不能为空");
@@ -191,11 +191,11 @@ public class JdkImageOperation implements ImageOperation {
     */
     @Override
     public Mono<Void> compress(byte[] imageBytes, String format, float quality, String outputFormat, File output) {
-        
+
         return Mono.fromRunnable(() -> {
             if (imageBytes == null || imageBytes.length == 0) {
                 throw new IllegalArgumentException("图片数据不能为空");
-            
+
     }
             if (format == null || format.trim().isEmpty()) {
                 throw new IllegalArgumentException("输入图片格式不能为空");
@@ -311,11 +311,11 @@ public class JdkImageOperation implements ImageOperation {
     */
     @Override
     public Mono<byte[]> watermark(byte[] imageBytes, String format, ImageOperation.WatermarkParams params) {
-        
+
         return Mono.fromCallable(() -> {
             if (imageBytes == null || imageBytes.length == 0) {
                 throw new IOException("图片数据不能为空");
-            
+
     }
             if (format == null || format.trim().isEmpty()) {
                 throw new IOException("图片格式不能为空");

@@ -26,22 +26,22 @@ import java.util.stream.IntStream;
 
 
 /**
- * CL Tagger                            
+ * CL Tagger
  * <p>
- *        CL Tagger                                     
+ *        CL Tagger
  *
  * </p>
  * <p>
  *
- * -                          
- * -                             Resize + Normalize   
- * -            Top-K       
+ * -
+ * -                             Resize + Normalize
+ * -            Top-K
  * </p>
  * <p>
  *
  * 1.           448x448
  * 2.              [0, 1]
- * 3.           CHW       
+ * 3.           CHW
  * 4. 镜像net
  * </p>
  *
@@ -70,7 +70,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     private static final int INPUT_SIZE = 448;
 
     /**
-     * Top-K             
+     * Top-K
      */
     private final int topk;
 
@@ -84,7 +84,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     /**
      *              -              Top-K
      *
-     * @param classes                   
+     * @param classes
      */
     public ClTaggerTranslator() {
         this(defaultClasses(DEFAULT_CLASS_COUNT), 10);
@@ -101,8 +101,8 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     /**
      *              -           Top-K
      *
-     * @param classes                   
-     * @param topk    Top-K             
+     * @param classes
+     * @param topk    Top-K
      */
     public ClTaggerTranslator(List<String> classes, int topk) {
         this.classes = Wraps.list(classes);
@@ -138,10 +138,10 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
      * 执行 Input。
      *
      *
-     * @param ctx                     
-     * @param input             
+     * @param ctx
+     * @param input
      * @return              NDList
-     * @throws Exception             
+     * @throws Exception
      */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
@@ -149,7 +149,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
         var array = input.toNDArray(manager, Image.Flag.COLOR);
         lowInformationInput.set(isLowInformation(array));
 
-        //                      
+        //
         array = NDImageUtils.resize(array, INPUT_SIZE, INPUT_SIZE);
 
         //        float32                 0~1
@@ -174,10 +174,10 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
      * 执行 Output。
      *
      *
-     * @param ctx                    
+     * @param ctx
      * @param list              nd列表
-     * @return             
-     * @throws Exception             
+     * @return
+     * @throws Exception
      */
     @Override
     public Classifications processOutput(TranslatorContext ctx, NDList list) throws Exception {
@@ -193,7 +193,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
                   probabilitiesNd.getDataType());
             }
 
-            //                                   Top-K   
+            //                                   Top-K
             return new Classifications(classes, probabilitiesNd, Math.min(topk, classes.size()));
         }
 finally {
@@ -205,7 +205,7 @@ finally {
      * 获取 Batchifier。
      *
      *
-     * @return STACK             
+     * @return STACK
      */
     @Override
     public Batchifier getBatchifier() {

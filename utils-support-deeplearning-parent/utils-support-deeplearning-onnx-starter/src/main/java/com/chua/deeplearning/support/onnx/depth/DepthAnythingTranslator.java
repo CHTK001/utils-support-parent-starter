@@ -26,7 +26,7 @@ import org.opencv.imgproc.Imgproc;
  * </p>
  * <p>
  * : 518x518 RGB  镜像net normalize
- *      : [1, 3, 518, 518] -> [1, 1, H/14, W/14]                
+ *      : [1, 3, 518, 518] -> [1, 1, H/14, W/14]
  * : 镜像
  * </p>
  *

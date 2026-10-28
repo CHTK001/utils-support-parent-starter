@@ -22,9 +22,9 @@ import java.awt.image.BufferedImage;
  * animeganv3
  *
  *
- * 1.                                                    
- * 2.                                                       
- * 3.                                  
+ * 1.
+ * 2.
+ * 3.
  *
  * @author CH
  * @since 2024/12/20
@@ -44,9 +44,9 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
      * 执行 Input。
      *
      *
-     * @param ctx                   
-     * @param input             
-     * @return                            
+     * @param ctx
+     * @param input
+     * @return
      */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
@@ -223,7 +223,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
      * 获取 InputSize。
      *
      *
-     * @return             
+     * @return
      */
     public int getInputSize() {
         return INPUT_SIZE;

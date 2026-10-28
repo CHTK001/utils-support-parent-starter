@@ -419,7 +419,7 @@ public class JdkTelnetServer extends AbstractServer {
                     if (cmd == TELNET_WILL || cmd == TELNET_WONT ||
                         cmd == TELNET_DO || cmd == TELNET_DONT) {
                         // reader.read(); // 跳过选项字节
-               
+
                     }
                     continue;
                 }

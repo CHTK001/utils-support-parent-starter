@@ -130,9 +130,9 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     */
     @Override
     public boolean isPlatformSupported() {
-        
+
         return PlatformSystems.isLinux();
-    
+
     }
 
     /**
@@ -140,9 +140,9 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     */
     @Override
     public List<String> getSources() {
-        
+
         return SOURCES;
-    
+
     }
 
     /**

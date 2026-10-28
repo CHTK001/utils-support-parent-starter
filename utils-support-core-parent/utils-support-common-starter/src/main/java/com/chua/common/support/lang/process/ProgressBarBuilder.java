@@ -191,7 +191,7 @@ public class ProgressBarBuilder {
         this.style = style;
         return this;
     }
-    
+
     /**
      * 设置为 Python 下载风格
      * 使用 Python 风格的下载进度条渲染
@@ -212,7 +212,7 @@ public class ProgressBarBuilder {
         );
         return this;
     }
-    
+
     /**
      * 设置为彩虹风格
      * @return ProgressBarBuilder 对象
@@ -224,7 +224,7 @@ public class ProgressBarBuilder {
         );
         return this;
     }
-    
+
     /**
      * 设置渐变色风格
      *
@@ -267,14 +267,14 @@ public class ProgressBarBuilder {
             default:
                 gradientStyle = ProgressBarStyle.PYTHON_DOWNLOAD;
         }
-        
+
         this.style = gradientStyle;
         this.renderer = new GradientProgressBarRenderer(
                 gradientStyle, unit, unitName, unitSize, showSpeed, speedFormat, speedUnit, !hideEta, eta, gradientType
         );
         return this;
     }
-    
+
     /**
      * 设置为矩阵风格
      * @return ProgressBarBuilder 对象
@@ -282,7 +282,7 @@ public class ProgressBarBuilder {
     public ProgressBarBuilder setMatrixStyle() {
         return setGradientStyle(GradientProgressBarRenderer.GradientType.MATRIX);
     }
-    
+
     /**
      * 设置为火焰风格
      * @return ProgressBarBuilder 对象
@@ -290,7 +290,7 @@ public class ProgressBarBuilder {
     public ProgressBarBuilder setFireStyle() {
         return setGradientStyle(GradientProgressBarRenderer.GradientType.FIRE);
     }
-    
+
     /**
      * 设置为海洋风格
      * @return ProgressBarBuilder 对象
@@ -298,7 +298,7 @@ public class ProgressBarBuilder {
     public ProgressBarBuilder setOceanStyle() {
         return setGradientStyle(GradientProgressBarRenderer.GradientType.OCEAN);
     }
-    
+
     /**
      * 设置为霓虹风格
      * @return ProgressBarBuilder 对象
@@ -306,7 +306,7 @@ public class ProgressBarBuilder {
     public ProgressBarBuilder setNeonStyle() {
         return setGradientStyle(GradientProgressBarRenderer.GradientType.NEON);
     }
-    
+
     /**
      * 设置为日落风格
      * @return ProgressBarBuilder 对象

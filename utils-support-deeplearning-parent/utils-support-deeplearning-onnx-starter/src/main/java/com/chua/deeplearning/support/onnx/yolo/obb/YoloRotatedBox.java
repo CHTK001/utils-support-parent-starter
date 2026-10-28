@@ -6,10 +6,10 @@ import java.util.List;
 
 
 /**
- * YOLO          
+ * YOLO
  * <p>
- *                                  OBB - Oriented Bounding Box            
- *                                                       
+ *                                  OBB - Oriented Bounding Box
+ *
  *
  * @author CH
  * @since 2025-01-22
@@ -18,12 +18,12 @@ import java.util.List;
 public class YoloRotatedBox {
 
     /**
-     *           X       
+     *           X
      */
     private float cx;
 
     /**
-     *           Y       
+     *           Y
      */
     private float cy;
 
@@ -39,15 +39,15 @@ public class YoloRotatedBox {
 
     /**
      * 构造 YoloRotatedBox 实例。
-     *             
      *
-     * @param cx                  X       
-     * @param cy                  Y       
-     * @param w               
-     * @param h               
-     * @param angle                             
-     * @param className             
-     * @param score                    
+     *
+     * @param cx                  X
+     * @param cy                  Y
+     * @param w
+     * @param h
+     * @param angle
+     * @param className
+     * @param score
      */
     public YoloRotatedBox(float cx, float cy, float w, float h, float angle, String className, float score) {
         this.cx = cx;
@@ -66,8 +66,8 @@ public class YoloRotatedBox {
      *
      * @param b1             1
      * @param b2             2
-     * @param eps                          
-     * @return ProbIoU    
+     * @param eps
+     * @return ProbIoU
      */
     public static double probiou(YoloRotatedBox b1, YoloRotatedBox b2, double eps) {
         var c1 = covarianceMatrix(b1.w, b1.h, b1.angle);
@@ -101,11 +101,11 @@ public class YoloRotatedBox {
 
     /**
      * 计算旋转框的协方差矩阵。
-     *                      
      *
-     * @param w       
-     * @param h       
-     * @param r                         
+     *
+     * @param w
+     * @param h
+     * @param r
      * @return                       [a, b, c]
      */
     private static double[] covarianceMatrix(double w, double h, double r) {
@@ -121,9 +121,9 @@ public class YoloRotatedBox {
     }
 
     /**
-     *           4                
+     *           4
      *
-     * @return                                                                      
+     * @return
      */
     public List<Point2D> toPoints() {
         var cos = Math.cos(angle);
@@ -155,7 +155,7 @@ public class YoloRotatedBox {
     }
 
     /**
-     * 2D       
+     * 2D
      * @author CH
      * @since 4.0.0
      */

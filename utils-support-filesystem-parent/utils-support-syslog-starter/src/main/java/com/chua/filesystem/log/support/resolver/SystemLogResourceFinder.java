@@ -309,9 +309,9 @@ public class SystemLogResourceFinder implements ResourceFinder {
         */
         @Override
         public String getUrlPath() {
-        
+
             return "syslog-" + entry.timestamp() + "-" + entry.source();
-        
+
     }
 
         /**
@@ -331,9 +331,9 @@ public class SystemLogResourceFinder implements ResourceFinder {
         */
         @Override
         public long lastModified() {
-        
+
             return 0;
-        
+
     }
 
         /**
@@ -341,9 +341,9 @@ public class SystemLogResourceFinder implements ResourceFinder {
         */
         @Override
         public String toString() {
-        
+
             return new String(content, StandardCharsets.UTF_8);
-        
+
     }
     }
 

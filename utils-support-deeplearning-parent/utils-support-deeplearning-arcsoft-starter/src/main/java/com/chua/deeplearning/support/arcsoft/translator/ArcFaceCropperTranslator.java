@@ -71,22 +71,22 @@ public class ArcFaceCropperTranslator implements ITranslator<Object, BufferedIma
 
             FaceInfo faceInfo = faceInfoList.getFirst();
             var rect = faceInfo.getRect();
-            
+
             if (rect == null) {
                 return image;
             }
-            
+
             int x = Math.max(0, rect.getLeft());
             int y = Math.max(0, rect.getTop());
             int width = Math.min(rect.getRight() - rect.getLeft(), image.getWidth() - x);
             int height = Math.min(rect.getBottom() - rect.getTop(), image.getHeight() - y);
-            
+
             if (width <= 0 || height <= 0) {
                 return image;
             }
-            
+
             return ImageUtils.toBufferedImage(ImageUtils.crop(ImageUtils.toMat(image), x, y, width, height));
-            
+
         } catch (Exception e) {
             log.warn("[ArcFaceCropper] 裁剪失败: {}", e.getMessage(), e);
             return image;

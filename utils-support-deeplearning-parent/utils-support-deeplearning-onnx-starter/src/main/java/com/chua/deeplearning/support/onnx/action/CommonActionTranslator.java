@@ -17,14 +17,14 @@ import java.util.Arrays;
 /**
  *                    Translator
  * <p>
- *        KINETICS400              400                      
+ *        KINETICS400              400
  *
  * </p>
  * <p>
  *
  * 1.                 224x224
  * 2.             镜像net
- * 3.           CHW       
+ * 3.           CHW
  * </p>
  *
  * @author CH
@@ -35,7 +35,7 @@ import java.util.Arrays;
 public class CommonActionTranslator implements Translator<Image, Classifications> {
 
     /**
-     * KINETICS400                      400      
+     * KINETICS400                      400
      */
     public static final String RAW_LABELS =
             "'abseiling','air_drumming','answering_questions','applauding','applying_cream','archery'," +
@@ -152,8 +152,8 @@ public class CommonActionTranslator implements Translator<Image, Classifications
      * 构造 CommonActionTranslator 实例。
      *
      *
-     * @param width                    
-     * @param height                   
+     * @param width
+     * @param height
      */
     public CommonActionTranslator(int width, int height) {
         this.width = width;
@@ -161,7 +161,7 @@ public class CommonActionTranslator implements Translator<Image, Classifications
     }
 
     /**
-     *                      224x224   
+     *                      224x224
      */
     public CommonActionTranslator() {
         this(224, 224);
@@ -172,7 +172,7 @@ public class CommonActionTranslator implements Translator<Image, Classifications
     */
     @Override
     public void prepare(TranslatorContext ctx) {
-        //                         
+        //
         labels = RAW_LABELS.replace("'", "").split(",");
         labels = Arrays.stream(labels)
                 .map(String::trim)

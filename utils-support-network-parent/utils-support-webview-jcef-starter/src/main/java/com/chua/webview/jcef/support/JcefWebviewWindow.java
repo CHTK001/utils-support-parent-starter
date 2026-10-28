@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * JCEF (Java 铬 Embedded 框架) webview
  * <p>
- *        <a href="https://github.com/jcefmaven/jcefmaven">JCEF Maven</a>   
+ *        <a href="https://github.com/jcefmaven/jcefmaven">JCEF Maven</a>
  * 铬
  * <ul>
  *   <li>          HTML5 / CSS3 / JavaScript       </li>
@@ -37,8 +37,8 @@ import java.util.Map;
  * JCEF                 铬
  * </p>
  * <p>
- *        {@link ConditionalOnClass}                       classpath          
- * {@code org.cef.CefApp}       SPI                         
+ *        {@link ConditionalOnClass}                       classpath
+ * {@code org.cef.CefApp}       SPI
  * </p>
  *
  * @author CH
@@ -141,7 +141,7 @@ catch (Throwable e) {
      * <p>
      * IPC                 cef消息router        {@code javaBridge} JS
      *              {@code window.javaBridge.send(JSON.stringify({path, method, body}), callback)}
-     *     {@link IpcProtocolServer#handleMessage}                            
+     *     {@link IpcProtocolServer#handleMessage}
      * </p>
      * @param server 服务端
      * @param title title
@@ -160,7 +160,7 @@ catch (Throwable e) {
             cefApp = new CefAppBuilder().build();
             client = cefApp.createClient();
 
-            //        JS   Java       
+            //        JS   Java
             CefMessageRouterConfig config = new CefMessageRouterConfig("javaBridge", "javaBridgeCancel");
             CefMessageRouter router = CefMessageRouter.create(config);
             router.addHandler(new IpcMessageRouterHandler(this.ipcServer), true);

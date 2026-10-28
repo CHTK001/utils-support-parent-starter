@@ -37,9 +37,9 @@ public class YamlFileSystem implements FileSystem {
     */
     @Override
     public String getType() {
-        
+
         return "yaml";
-    
+
     }
 
     /**
@@ -47,9 +47,9 @@ public class YamlFileSystem implements FileSystem {
     */
     @Override
     public ReadBuilder read(File file) {
-        
+
         return new YamlReadBuilder(file);
-    
+
     }
 
     /**
@@ -57,9 +57,9 @@ public class YamlFileSystem implements FileSystem {
     */
     @Override
     public WriteBuilder write(File file) {
-        
+
         return new YamlWriteBuilder(file);
-    
+
     }
 }
 

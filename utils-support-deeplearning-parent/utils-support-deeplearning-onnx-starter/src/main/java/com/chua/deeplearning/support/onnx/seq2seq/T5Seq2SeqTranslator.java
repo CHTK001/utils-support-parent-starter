@@ -20,7 +20,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 /**
- * T5 Seq2Seq ONNX                 
+ * T5 Seq2Seq ONNX
  * <p>
  * T5 (文本-转为-文本 调动 转换)
  * 翻译、summarization、QA、文本 generation

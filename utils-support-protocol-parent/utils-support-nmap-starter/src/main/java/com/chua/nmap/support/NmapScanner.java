@@ -157,7 +157,7 @@ public interface NmapScanner {
      * @param progressCallback 进度回调
      * @return 异步结果
      */
-    CompletableFuture<ScanResult> scanWithProgress(String host, int[] ports, 
+    CompletableFuture<ScanResult> scanWithProgress(String host, int[] ports,
                                                     Consumer<ScanProgress> progressCallback);
 
     // ==================== 配置 ====================

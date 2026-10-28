@@ -243,9 +243,9 @@ public abstract class AbstractImageFilter implements ImageFilter {
      */
     @Override
     public String getImageFormat() {
-        
+
         return name;
-    
+
     }
 
     /**

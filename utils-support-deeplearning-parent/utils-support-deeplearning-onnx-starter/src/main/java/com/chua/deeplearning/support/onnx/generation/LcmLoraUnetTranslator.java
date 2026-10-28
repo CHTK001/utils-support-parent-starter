@@ -22,15 +22,15 @@ import ai.djl.modality.cv.ImageFactory;
  * </p>
  * <p>
  *
- * -                       
- * -                       
+ * -
+ * -
  * -     unet
  * </p>
  * <p>
  *
- * 1.                   
- * 2.                
- * 3.                            
+ * 1.
+ * 2.
+ * 3.
  * </p>
  *
  * @author CH
@@ -44,17 +44,17 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
     private final int height;
 
     /**
-     *              -                   
+     *              -
      */
     public LcmLoraUnetTranslator() {
         this(512, 512);
     }
 
     /**
-     *              -                
+     *              -
      *
-     * @param width                    
-     * @param height                   
+     * @param width
+     * @param height
      */
     public LcmLoraUnetTranslator(int width, int height) {
         this.width = width;
@@ -68,8 +68,8 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
      * 执行 Input。
      *
      *
-     * @param ctx                     
-     * @param input             
+     * @param ctx
+     * @param input
      * @return              NDList
      */
     @Override
@@ -77,7 +77,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
         var manager = ctx.getNDManager();
         var array = input.toNDArray(manager, Image.Flag.COLOR);
 
-        //                      
+        //
         array = NDImageUtils.resize(array, width, height);
 
         //        float32                 0~1
@@ -102,22 +102,22 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
      * 执行 Output。
      *
      *
-     * @param ctx                    
+     * @param ctx
      * @param list              nd列表
-     * @return                
+     * @return
      */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         try (NDManager manager = NDManager.newBaseManager(ctx.getNDManager().getDevice(), "PyTorch")) {
             var output = list.singletonOrThrow();
 
-            //             
+            //
             output = output.mul(0.5f).add(0.5f);
 
-            //                   0-1         
+            //                   0-1
             output = output.clip(0, 1);
 
-            //          0-255                  UINT8      
+            //          0-255                  UINT8
             output = output.mul(255.0f).round().toType(DataType.UINT8, false);
 
             // CHW -> HWC
@@ -138,7 +138,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
      * 获取 Batchifier。
      *
      *
-     * @return STACK             
+     * @return STACK
      */
     @Override
     public Batchifier getBatchifier() {

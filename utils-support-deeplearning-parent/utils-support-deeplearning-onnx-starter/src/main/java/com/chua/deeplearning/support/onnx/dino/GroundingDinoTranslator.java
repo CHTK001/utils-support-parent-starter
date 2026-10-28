@@ -38,9 +38,9 @@ import java.io.InputStream;
 import java.nio.file.StandardCopyOption;
 
 /**
- * Grounding DINO Tiny ONNX                 
+ * Grounding DINO Tiny ONNX
  * <p>
- * Grounding DINO                                  
+ * Grounding DINO
  * 打开-vocabulary 对象 detection
  * 文本 提示符 -> bounding box + 分类
  * </p>

@@ -20,9 +20,9 @@ import ai.djl.modality.cv.ImageFactory;
  * </p>
  * <p>
  *
- * -                       
- * -                                
- * -                       
+ * -
+ * -
+ * -
  * </p>
  *
  * @author CH
@@ -36,17 +36,17 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
     private final int height;
 
     /**
-     *              -                   
+     *              -
      */
     public LcmLoraVaeDecoderTranslator() {
         this(512, 512);
     }
 
     /**
-     *              -                
+     *              -
      *
-     * @param width                    
-     * @param height                   
+     * @param width
+     * @param height
      */
     public LcmLoraVaeDecoderTranslator(int width, int height) {
         this.width = width;
@@ -60,13 +60,13 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
      * 执行 Input。
      *
      *
-     * @param ctx                     
+     * @param ctx
      * @param input        nd列表
-     * @return                         
+     * @return
      */
     @Override
     public NDList processInput(TranslatorContext ctx, NDList input) {
-        // VAE                                           
+        // VAE
         var modelInput = new NDList();
 
         //                          latent
@@ -86,22 +86,22 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
      * 执行 Output。
      *
      *
-     * @param ctx                    
+     * @param ctx
      * @param list              nd列表
-     * @return                   
+     * @return
      */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         try (NDManager manager = NDManager.newBaseManager(ctx.getNDManager().getDevice(), "PyTorch")) {
             var output = list.singletonOrThrow();
 
-            //                               
+            //
             output = output.mul(0.5f).add(0.5f);
 
-            //                   0-1         
+            //                   0-1
             output = output.clip(0, 1);
 
-            //          0-255                  UINT8      
+            //          0-255                  UINT8
             output = output.mul(255.0f).round().toType(DataType.UINT8, false);
 
             // CHW -> HWC
@@ -122,7 +122,7 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
      * 获取 Batchifier。
      *
      *
-     * @return STACK             
+     * @return STACK
      */
     @Override
     public Batchifier getBatchifier() {
