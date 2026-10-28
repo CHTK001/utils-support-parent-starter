@@ -190,7 +190,8 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
                         boolean useGpu = "gpu".equals(resolvedDevice) || "cuda".equals(resolvedDevice);
 
                         log.info("[Llama3-GPU:{}] 开始加载 GGUF 模型（device={} gpuLayers={} ctxSize={} threads={}）: {}",
-                                modelId, resolvedDevice, resolvedGpuLayers, resolvedCtxSize, resolvedThreads, modelPath);
+                                modelId, resolvedDevice, resolvedGpuLayers, resolvedCtxSize, resolvedThreads,
+                                        modelPath);
 
                         ModelParameters parameters = new ModelParameters()
                                 .setModel(modelPath.toString())

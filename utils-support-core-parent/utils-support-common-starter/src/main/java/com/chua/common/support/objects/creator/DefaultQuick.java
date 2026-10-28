@@ -987,7 +987,8 @@ public class DefaultQuick implements Quick {
      * @author CH
      * @since 4.0.0
      */
-    static class DefaultTableBuilder<R extends Comparable<? super R>, C extends Comparable<? super C>, V> implements TableBuilder<R, C, V> {
+    static class DefaultTableBuilder<R extends Comparable<? super R>, C extends Comparable<? super C>,
+            V> implements TableBuilder<R, C, V> {
 
         /**
          * 目标实现类型

@@ -26,7 +26,8 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 4.0.0.42
  */
-public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, TextTo3DGenerator, ImageTo3DGenerator, SketchTo3DGenerator, Model3DStylizer {
+public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, TextTo3DGenerator, ImageTo3DGenerator,
+        SketchTo3DGenerator, Model3DStylizer {
 
     /**
      * 日志记录器
