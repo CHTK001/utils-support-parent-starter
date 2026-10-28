@@ -93,7 +93,7 @@ public class YoloClsTranslator implements Translator<Image, Classifications> {
         this.height = height;
         this.classes = Wraps.list(classes);
         this.topk = topk;
-        log.info("          YOLO                 -             : {}x{},          : {}, Top-K: {}",
+        log.info("YOLO 分类器初始化 - 输入尺寸: {}x{}, 类别数: {}, Top-K: {}",
                 width, height, classes.size(), topk);
     }
 
@@ -123,7 +123,7 @@ public class YoloClsTranslator implements Translator<Image, Classifications> {
         array = array.transpose(2, 0, 1);
 
         if (log.isDebugEnabled()) {
-            log.debug("                  : shape={}, dtype={}", array.getShape(), array.getDataType());
+            log.debug("模型输入: shape={}, dtype={}", array.getShape(), array.getDataType());
         }
 
         return new NDList(array);
@@ -151,7 +151,7 @@ public class YoloClsTranslator implements Translator<Image, Classifications> {
         int effectiveTopK = Math.max(1, Math.min(topk, classCount));
 
         if (log.isDebugEnabled()) {
-            log.debug("       shape: {}, dtype: {}, classCount={}",
+        log.debug("输出 shape: {}, dtype: {}, classCount={}",
                     probabilitiesNd.getShape(), probabilitiesNd.getDataType(), classCount);
         }
 
