@@ -123,7 +123,8 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
         }
 
         Shape shape = array.getShape();
-        if (shape.get(0) != 1 || shape.get(1) != INPUT_SIZE || shape.get(2) != INPUT_SIZE || shape.get(3) != 3) { // [P3C 3.7 豁免] 张量形状维度下标
+        // [P3C 3.7 豁免] 张量形状维度下标
+        if (shape.get(0) != 1 || shape.get(1) != INPUT_SIZE || shape.get(2) != INPUT_SIZE || shape.get(3) != 3) {
             log.warn("AnimeGANv3 输入形状与期望不符，期望 [1, {}, {}, 3]，实际: {}",
                     INPUT_SIZE, INPUT_SIZE, shape);
         }

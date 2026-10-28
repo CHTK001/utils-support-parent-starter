@@ -33,7 +33,8 @@ public class SuperResolutionTranslator implements Translator<Image, Image> {
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.getFirst().clip(0, 255).toType(DataType.UINT8, false);
-        if (output.getShape().dimension() == 4 && output.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        if (output.getShape().dimension() == 4 && output.getShape().get(0) == 1) {
             output = output.squeeze(0);
         }
         return ImageFactory.getInstance().fromNDArray(output);

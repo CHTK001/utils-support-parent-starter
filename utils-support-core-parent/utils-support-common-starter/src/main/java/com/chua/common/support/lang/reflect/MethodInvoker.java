@@ -199,7 +199,8 @@ public final class MethodInvoker {
      */
     private static Object invokeWithReflection(Method method, Object target, Object... args) {
         try {
-            return method.invoke(target, args); // [P3C 1.10 豁免] MethodInvoker 为反射调用基础设施（JDK8 反射兜底路径），需保留原生 Method.invoke
+            // [P3C 1.10 豁免] MethodInvoker 为反射调用基础设施（JDK8 反射兜底路径），需保留原生 Method.invoke
+            return method.invoke(target, args);
         } catch (Exception e) {
             log.error("反射调用失败：{}", method.getName(), e);
             throw new RuntimeException("反射调用失败：" + method.getName(), e);

@@ -81,7 +81,8 @@ public class DiffusionDepthTranslator implements Translator<Image, Image> {
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray depthPt = list.singletonOrThrow();
-        if (depthPt.getShape().dimension() == 4 && depthPt.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        if (depthPt.getShape().dimension() == 4 && depthPt.getShape().get(0) == 1) {
             depthPt = depthPt.squeeze(0);
         }
         NDArray min = depthPt.min();
@@ -103,16 +104,19 @@ public class DiffusionDepthTranslator implements Translator<Image, Image> {
      */
     private NDArray toDisplay(NDArray depthPt) {
         NDArray normalized = depthPt;
-        while (normalized.getShape().dimension() > 3 && normalized.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        while (normalized.getShape().dimension() > 3 && normalized.getShape().get(0) == 1) {
             normalized = normalized.squeeze(0);
         }
-        if (normalized.getShape().dimension() == 3 && normalized.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        if (normalized.getShape().dimension() == 3 && normalized.getShape().get(0) == 1) {
             normalized = normalized.squeeze(0);
         }
         if (normalized.getShape().dimension() == 2) {
             return NDArrays.stack(new NDList(normalized, normalized, normalized), 2);
         }
-        if (normalized.getShape().dimension() == 3 && normalized.getShape().get(0) == 3) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        if (normalized.getShape().dimension() == 3 && normalized.getShape().get(0) == 3) {
             return normalized.transpose(1, 2, 0);
         }
         if (normalized.getShape().dimension() == 3 && normalized.getShape().get(2) == 3) {

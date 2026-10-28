@@ -75,7 +75,8 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
     @Override
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
-        if (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        if (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) {
             output = output.squeeze(0);
         }
         NDArray probs = output.softmax(-1);

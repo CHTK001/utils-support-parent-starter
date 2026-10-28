@@ -59,7 +59,8 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray outputImg = list.singletonOrThrow();
-        if (outputImg.getShape().dimension() == 4 && outputImg.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        if (outputImg.getShape().dimension() == 4 && outputImg.getShape().get(0) == 1) {
             outputImg = outputImg.squeeze(0);
         }
         outputImg = outputImg.clip(0.0f, 1.0f);

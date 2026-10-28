@@ -62,7 +62,8 @@ public class GfpganTranslator implements Translator<Image, Image> {
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.getFirst();
-        if (array.getShape().dimension() == 4 && array.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+        if (array.getShape().dimension() == 4 && array.getShape().get(0) == 1) {
             array = array.squeeze(0);
         }
         array = array.clip(MIN_MAX[0], MIN_MAX[1]);

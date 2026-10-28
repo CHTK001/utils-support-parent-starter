@@ -617,7 +617,8 @@ public final class ReflectUtils {
         }
         java.util.List<java.lang.reflect.Field> fields = Wraps.list();
         for (Class<?> c : hierarchy) {
-            for (java.lang.reflect.Field f : c.getDeclaredFields()) { // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（getPersistentFields 对外封装）
+            // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（getPersistentFields 对外封装）
+            for (java.lang.reflect.Field f : c.getDeclaredFields()) {
                 int mods = f.getModifiers();
                 if (Modifier.isStatic(mods) || Modifier.isTransient(mods) || f.isSynthetic()) {
                     continue;
@@ -766,7 +767,8 @@ public final class ReflectUtils {
             return null;
         }
         try {
-            return clazz.getDeclaredMethod(methodName, paramTypes); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（findDeclaredMethod 对外封装）
+            // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（findDeclaredMethod 对外封装）
+            return clazz.getDeclaredMethod(methodName, paramTypes);
         } catch (NoSuchMethodException e) {
             log.debug("[ReflectUtils] 未找到声明方法: {}.{}({})", clazz.getSimpleName(), methodName);
             return null;

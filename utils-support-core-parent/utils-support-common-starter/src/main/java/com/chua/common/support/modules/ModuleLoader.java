@@ -117,11 +117,13 @@ public class ModuleLoader {
         try {
             for (Module target : targets) {
                 if (target != null && target != source) {
-                    addExports.invoke(source, pkg, target); // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
+                    // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
+                    addExports.invoke(source, pkg, target);
                 }
             }
             if (unnamed != null) {
-                addExports.invoke(source, pkg, unnamed); // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
+                // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
+                addExports.invoke(source, pkg, unnamed);
             }
         } catch (Exception e) {
             log.trace("导出包 {} 失败: {}", pkg, e.getMessage());
@@ -142,11 +144,13 @@ public class ModuleLoader {
         try {
             for (Module target : targets) {
                 if (target != null && target != source) {
-                    addOpens.invoke(source, pkg, target); // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
+                    // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
+                    addOpens.invoke(source, pkg, target);
                 }
             }
             if (unnamed != null) {
-                addOpens.invoke(source, pkg, unnamed); // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
+                // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
+                addOpens.invoke(source, pkg, unnamed);
             }
         } catch (Exception e) {
             log.trace("开放包 {} 失败: {}", pkg, e.getMessage());
@@ -261,7 +265,8 @@ public class ModuleLoader {
     private static void exportPackageToUnnamed(Module source, String pkg,
                                                Module unnamed, Method addExports) {
         try {
-            addExports.invoke(source, pkg, unnamed); // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
+            // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
+            addExports.invoke(source, pkg, unnamed);
         } catch (Exception e) {
             log.trace("导出包 {} 到未命名模块失败: {}", pkg, e.getMessage());
         }
@@ -279,8 +284,10 @@ public class ModuleLoader {
     private static void invokeReflectively(Module source, String pkg, Module target,
                                            Method addExports, Method addOpens) {
         try {
-            addExports.invoke(source, pkg, target); // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
-            addOpens.invoke(source, pkg, target); // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
+            // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
+            addExports.invoke(source, pkg, target);
+            // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
+            addOpens.invoke(source, pkg, target);
         } catch (Exception e) {
             log.trace("对模块 {} 导出/开放包 {} 失败: {}", target, pkg, e.getMessage());
         }
@@ -373,7 +380,8 @@ public class ModuleLoader {
                 if (implAddExportsMethod == null) {
                     try {
                         implAddExportsMethod =
-                                Module.class.getDeclaredMethod( // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports），ReflectUtils 不覆盖 JDK 内部适配
+                                // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports），ReflectUtils 不覆盖 JDK 内部适配
+                                Module.class.getDeclaredMethod(
                                 "implAddExports", String.class, Module.class);
                         implAddExportsMethod.setAccessible(true);
                     } catch (NoSuchMethodException e) {
@@ -401,7 +409,8 @@ public class ModuleLoader {
                 if (implAddOpensMethod == null) {
                     try {
                         implAddOpensMethod =
-                                Module.class.getDeclaredMethod( // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddOpens），ReflectUtils 不覆盖 JDK 内部适配
+                                // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddOpens），ReflectUtils 不覆盖 JDK 内部适配
+                                Module.class.getDeclaredMethod(
                                 "implAddOpens", String.class, Module.class);
                         implAddOpensMethod.setAccessible(true);
                     } catch (NoSuchMethodException e) {

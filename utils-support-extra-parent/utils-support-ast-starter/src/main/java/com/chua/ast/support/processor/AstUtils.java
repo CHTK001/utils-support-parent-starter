@@ -38,7 +38,8 @@ public final class AstUtils {
         // 方式 1：从 JavacProcessingEnvironment 获取 Context（JDK 25+ 支持 getContext() 方法）
         try {
             Class<?> javacEnvClass =
-                    Class.forName("com.sun.tools.javac.processing.JavacProcessingEnvironment"); // [P3C 1.10 豁免] javac 编译器内部实现类，本模块未依赖 utils-support-common-starter，无 ReflectUtils 可用
+                    // [P3C 1.10 豁免] javac 编译器内部实现类，本模块未依赖 utils-support-common-starter，无 ReflectUtils 可用
+                    Class.forName("com.sun.tools.javac.processing.JavacProcessingEnvironment");
             if (javacEnvClass.isInstance(processingEnv)) {
                 try {
                     java.lang.reflect.Method getContextMethod = javacEnvClass.getMethod("getContext");
@@ -47,7 +48,8 @@ public final class AstUtils {
                     // JDK 25 以下版本没有 getContext() 方法，尝试直接反射 context 字段
                     try {
                         Field contextField =
-                                javacEnvClass.getDeclaredField("context"); // [P3C 1.10 豁免] javac 内部类私有字段（JDK 版本差异适配），无法收敛到 ReflectUtils
+                                // [P3C 1.10 豁免] javac 内部类私有字段（JDK 版本差异适配），无法收敛到 ReflectUtils
+                                javacEnvClass.getDeclaredField("context");
                         contextField.setAccessible(true);
                         return (com.sun.tools.javac.util.Context) contextField.get(processingEnv);
                     } catch (NoSuchFieldException nsfe) {
@@ -66,7 +68,8 @@ public final class AstUtils {
             for (String fieldName : new String[]{"context", "treeContext"}) {
                 try {
                     Field contextField =
-                            com.sun.tools.javac.api.JavacTrees.class.getDeclaredField(fieldName); // [P3C 1.10 豁免] javac 内部类 JavacTrees 私有字段，本模块未依赖 utils-support-common-starter，无 ReflectUtils 可用
+                            // [P3C 1.10 豁免] javac 内部类 JavacTrees 私有字段，本模块未依赖 utils-support-common-starter，无 ReflectUtils 可用
+                            com.sun.tools.javac.api.JavacTrees.class.getDeclaredField(fieldName);
                     contextField.setAccessible(true);
                     return (com.sun.tools.javac.util.Context) contextField.get(javacTrees);
                 } catch (NoSuchFieldException nsfe) {
@@ -360,7 +363,8 @@ public final class AstUtils {
  // 通过 父 字段向上遍历 AST 树
             try {
                 Field parentField =
-                        com.sun.tools.javac.tree.JCTree.class.getDeclaredField("parent"); // [P3C 1.10 豁免] javac 内部 JCTree.parent 私有字段，官方未提供向上访问 API，本模块无 ReflectUtils 可用
+                        // [P3C 1.10 豁免] javac 内部 JCTree.parent 私有字段，官方未提供向上访问 API，本模块无 ReflectUtils 可用
+                        com.sun.tools.javac.tree.JCTree.class.getDeclaredField("parent");
                 parentField.setAccessible(true);
                 parent = (com.sun.tools.javac.tree.JCTree) parentField.get(parent);
             } catch (Exception e) {
