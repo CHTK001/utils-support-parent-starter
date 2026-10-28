@@ -132,6 +132,9 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
 15. **1.6.3 ThreadLocal**：66 个使用 ThreadLocal 的文件中，`new ThreadLocal` 后未调用 `remove()` 的为 0。
 16. **1.1.2 包名规范**：全仓扫描出 4 个含下划线的包名（`gpu_llama3` ×3 类、`yolo_uniow` ×1 类），已改为 `gpu.llama3` 与 `yolo.uniow`，并同步 SPI 注册文件与 README；旧包名残留 0。
 17. **6.x 工程结构**：`pom.xml` 中无 SNAPSHOT 依赖版本；所有 `artifactId` 均为小写连字符；类名与文件名一致（0 处不匹配）。
+18. **1.8.2 补漏**：此前接口方法扫描只匹配带 `{` 的具体方法，漏掉以 `);` 结尾的接口声明共 29 处（ServerRequest 15、MappingDefinition 7、ProgressBarConsumer 3、MappingParser 2、ProtocolServer 2），已全部补齐描述；复查归零。
+19. **1.2 魔法值（强制）未做批量整改**：全仓重复字面量主要集中在测试用例（`abc`、`Hello`、`cam-A`）与领域标签（`cpu`、`memory`、`value`），在缺少语义信息时机械提取常量反而降低可读性，且极易引入错误；建议在后续迭代中随功能改动就地整改。
+20. **4.3 XSS 复查**：主要 HTML 生成类（OpenApiHtmlProvider、BenchmarkHtmlProvider、FileStorageViewServerFilter）均已使用 `StringUtils.escapeAttr`/`escapeHtml` 对动态内容转义；其余匹配到 `<div>` 等字符串的文件为提示词模板、JSON 片段或静态片段，不构成注入面。
 
 ## 五、最终状态（本轮结束时）
 
@@ -144,7 +147,7 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
 | 空 Javadoc 块 | 2 → 0 |
 | `@param` 与签名不符 | 111 → 18（其中约 10 处为误判） |
 | 类级 Javadoc 无摘要 | 53 → 0 |
-| 接口/抽象方法无可读描述（1.8.2） | 0 |
+| 接口/抽象方法无可读描述（1.8.2） | 0（含 29 处接口方法补漏） |
 | 枚举常量缺注释（1.8.5） | 368 → 0 |
 | 包装类 `==` 误用（1.4.7） | 扫描 33 处候选，经类型核对无可信违规 |
 | `@Override` 可静态验证的缺失（1.4.2） | 补 4 处，复查 0（其余需编译器级类型解析） |
