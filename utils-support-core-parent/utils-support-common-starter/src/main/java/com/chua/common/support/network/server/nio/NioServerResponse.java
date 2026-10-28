@@ -47,7 +47,8 @@ public class NioServerResponse implements ServerResponse {
     // echo 场景固定结构:HTTP/1.1 200 OK + Content-Type + Content-Length + Connection,
     // 预拼前缀+长度数字+后缀,避免每请求 StringBuilder 分配与 US_ASCII 编码拷贝。
     private static final byte[] STATUS_200_PREFIX =
-            "HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Length: ".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+            "HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Length: "
+                    .getBytes(java.nio.charset.StandardCharsets.US_ASCII);
     private static final byte[] KEEPALIVE_SUFFIX =
             "\r\nConnection: keep-alive\r\n\r\n".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
     // 单字节数字 ASCII 表

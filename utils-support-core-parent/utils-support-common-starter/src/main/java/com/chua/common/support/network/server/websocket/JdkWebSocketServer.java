@@ -439,7 +439,8 @@ public class JdkWebSocketServer extends AbstractServer {
                 if (response instanceof SimpleServerResponse wsResp && wsResp.getCloseMessage() != null) {
                     String frame = buildCloseFrame(wsResp.getCloseMessage());
                     synchronized (((SimpleServerResponse) response).getConnection()) {
-                        ((SimpleServerResponse) response).getConnection().out.write(frame.getBytes(StandardCharsets.ISO_8859_1));
+                        ((SimpleServerResponse) response).getConnection()
+                                .out.write(frame.getBytes(StandardCharsets.ISO_8859_1));
                         ((SimpleServerResponse) response).getConnection().out.flush();
                     }
                 }

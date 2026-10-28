@@ -1038,7 +1038,8 @@ public class JdbcReactorEngine implements ReactorEngine {
                             .concatMap(p -> {
                                 Statement s = conn.createStatement(sql);
                                 bindParams(s, p);
-                                return Flux.from(s.execute()).flatMap(JdbcReactorEngine.this::safeGetRowsUpdated).reduce(0L,
+                                return Flux.from(s.execute()).flatMap(JdbcReactorEngine.this::safeGetRowsUpdated)
+                                        .reduce(0L,
                                                  Long::sum);
                             })
                             .map((Long l) -> l.intValue()).collectList(),

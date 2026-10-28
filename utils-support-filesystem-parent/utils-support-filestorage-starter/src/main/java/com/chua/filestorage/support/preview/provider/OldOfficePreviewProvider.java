@@ -632,7 +632,8 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
             body.append("<div class=\"meta\">幻灯片: ").append(slides.size()).append("</div>");
             int index = 1;
             for (HSLFSlide slide : slides) {
-                body.append("<div class=\"slide\"><div class=\"slide-head\">第 ").append(index++).append(" 页</div><div class=\"slide-body\">");
+                body.append("<div class=\"slide\"><div class=\"slide-head\">第 ").append(index++)
+                        .append(" 页</div><div class=\"slide-body\">");
                 List<String> texts = Wraps.list();
                 for (HSLFShape shape : slide.getShapes()) {
                     if (shape instanceof HSLFTextShape textShape) {

@@ -125,8 +125,10 @@ public class FbxPreviewProvider implements FileStoragePreviewProvider {
 
         sb.append("<div class=\"info\">");
         sb.append("<div class=\"icon\">3D</div>");
-        sb.append("<div class=\"field\"><span class=\"label\">格式</span><span class=\"value\">").append(escapeHtml(info.version)).append("</span></div>");
-        sb.append("<div class=\"field\"><span class=\"label\">文件大小</span><span class=\"value\">").append(humanSize(fileSize)).append("</span></div>");
+        sb.append("<div class=\"field\"><span class=\"label\">格式</span><span class=\"value\">")
+                .append(escapeHtml(info.version)).append("</span></div>");
+        sb.append("<div class=\"field\"><span class=\"label\">文件大小</span><span class=\"value\">")
+                .append(humanSize(fileSize)).append("</span></div>");
         sb.append("<div class=\"field\"><span class=\"label\">说明</span><span class=\"value\">FBX 是 Autodesk 的 " +
                 "3D 模型格式，支持动画、骨骼和材质。请使用专业 3D 软件打开。</span></div>");
         sb.append("</div></body></html>");

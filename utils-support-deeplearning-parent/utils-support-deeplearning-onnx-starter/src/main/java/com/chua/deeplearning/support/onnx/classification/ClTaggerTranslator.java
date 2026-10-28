@@ -230,7 +230,8 @@ finally {
     private static boolean looksLikeDefaultClasses(List<String> classes) {
         return classes != null
                 && !classes.isEmpty()
-                && classes.stream().limit(Math.min(16, classes.size())).allMatch(value -> value != null && value.startsWith("tag-"));
+                && classes.stream().limit(Math.min(16, classes.size()))
+                        .allMatch(value -> value != null && value.startsWith("tag-"));
     }
 
     /**

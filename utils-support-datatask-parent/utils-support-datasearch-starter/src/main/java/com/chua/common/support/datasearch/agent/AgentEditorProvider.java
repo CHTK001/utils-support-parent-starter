@@ -1175,7 +1175,8 @@ public class AgentEditorProvider {
         sb.append("{\n  \"mcpServers\": {\n    \"").append(NAME).append("\": {\n");
         if (mode == McpMode.STDIO) {
             sb.append("      \"command\": \"java\",\n");
-            sb.append("      \"args\": [\"-jar\", \"").append(jarPath != null ? jarPath : DEFAULT_JAR_PATH).append("\"],\n");
+            sb.append("      \"args\": [\"-jar\", \"").append(jarPath != null ? jarPath : DEFAULT_JAR_PATH)
+                    .append("\"],\n");
             sb.append("      \"env\": {\"DATASEARCH_PORT\": \"").append(DEFAULT_DATASEARCH_PORT).append("\"}\n");
         } else {
             sb.append("      \"url\": \"").append(serverUrl != null ? serverUrl : DEFAULT_SERVER_URL).append("\",\n");

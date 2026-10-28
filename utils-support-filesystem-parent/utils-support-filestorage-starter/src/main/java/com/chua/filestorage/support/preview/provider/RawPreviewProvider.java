@@ -373,7 +373,8 @@ public class RawPreviewProvider implements FileStoragePreviewProvider {
                 .append("<div class=\"header\"><h1>RAW 照片预览</h1><div class=\"grid\">");
         fields.forEach((k, v) -> sb.append("<div><span class=\"k\">").append(escape(k))
                 .append("</span><br><span class=\"v\">").append(escape(v)).append("</span></div>"));
-        sb.append("<div><span class=\"k\">文件大小</span><br><span class=\"v\">").append(humanSize(size)).append("</span></div>");
+        sb.append("<div><span class=\"k\">文件大小</span><br><span class=\"v\">").append(humanSize(size))
+                .append("</span></div>");
         if (image != null && image.height > 0) {
             sb.append("<div><span class=\"k\">原图尺寸</span><br><span class=\"v\">")
                     .append(image.width).append(" × ").append(image.height).append("</span></div>");

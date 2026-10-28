@@ -173,16 +173,20 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
         sb.append("<div class=\"email\">");
 
         if (info.subject != null) {
-            sb.append("<div class=\"field\"><span class=\"label\">主题</span><span class=\"value\">").append(escapeHtml(info.subject)).append("</span></div>");
+            sb.append("<div class=\"field\"><span class=\"label\">主题</span><span class=\"value\">")
+                    .append(escapeHtml(info.subject)).append("</span></div>");
         }
         if (info.from != null) {
-            sb.append("<div class=\"field\"><span class=\"label\">发件人</span><span class=\"value\">").append(escapeHtml(info.from)).append("</span></div>");
+            sb.append("<div class=\"field\"><span class=\"label\">发件人</span><span class=\"value\">")
+                    .append(escapeHtml(info.from)).append("</span></div>");
         }
         if (info.to != null) {
-            sb.append("<div class=\"field\"><span class=\"label\">收件人</span><span class=\"value\">").append(escapeHtml(info.to)).append("</span></div>");
+            sb.append("<div class=\"field\"><span class=\"label\">收件人</span><span class=\"value\">")
+                    .append(escapeHtml(info.to)).append("</span></div>");
         }
         if (info.date != null) {
-            sb.append("<div class=\"field\"><span class=\"label\">日期</span><span class=\"value\">").append(escapeHtml(info.date)).append("</span></div>");
+            sb.append("<div class=\"field\"><span class=\"label\">日期</span><span class=\"value\">")
+                    .append(escapeHtml(info.date)).append("</span></div>");
         }
 
         if (!info.body.isEmpty()) {

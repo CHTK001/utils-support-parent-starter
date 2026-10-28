@@ -158,7 +158,8 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
                     Map<String, OnnxTensor> inputs = Wraps.map();
                     inputs.put("x", tensor);
                     try (OrtSession.Result result = session.run(inputs)) {
-                        Object out = result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+                        Object out = result.get(0)
+                                .getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                         float[][] probs;
                         if (out instanceof float[][]) {
                             probs = (float[][]) out;

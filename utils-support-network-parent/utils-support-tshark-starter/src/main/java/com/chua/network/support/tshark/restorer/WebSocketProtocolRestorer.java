@@ -173,7 +173,8 @@ public class WebSocketProtocolRestorer extends AbstractProtocolRestorer {
         StringBuilder sb = new StringBuilder("[WebSocket] ");
         sb.append("FIN=").append(fin);
         sb.append(", RSV=").append(rsv);
-        sb.append(", opcode=").append(String.format("0x%x", opcode)).append(" (").append(toOpcodeName(opcode)).append(')');
+        sb.append(", opcode=").append(String.format("0x%x", opcode)).append(" (").append(toOpcodeName(opcode))
+                .append(')');
         sb.append(", MASK=").append(masked);
         sb.append(", payload=").append(payloadLen).append("B");
 

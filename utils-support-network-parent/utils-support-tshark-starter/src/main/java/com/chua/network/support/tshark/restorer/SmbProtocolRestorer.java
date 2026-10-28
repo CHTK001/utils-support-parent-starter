@@ -62,7 +62,8 @@ public class SmbProtocolRestorer extends AbstractProtocolRestorer {
                     | ((rawData[6] & 0xff) << 8) | (rawData[7] & 0xff);
             sb.append(", magic=0x").append(Integer.toHexString(magic));
             int command = rawData[11] & 0xff;
-            sb.append(", command=0x").append(Integer.toHexString(command)).append(" (").append(toCommandName(magic, command)).append(')');
+            sb.append(", command=0x").append(Integer.toHexString(command)).append(" (")
+                    .append(toCommandName(magic, command)).append(')');
         }
         return sb.toString();
     }

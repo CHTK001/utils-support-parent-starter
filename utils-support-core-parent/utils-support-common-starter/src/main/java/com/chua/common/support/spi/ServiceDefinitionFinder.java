@@ -188,7 +188,8 @@ public class ServiceDefinitionFinder {
                 } catch (Exception e) {
                     if (log.isDebugEnabled()) {
                         log.debug("[SPI] 实例化 {} 失败：{}",
-                            serviceDefinition.getImplClass() != null ? serviceDefinition.getImplClass().getName() : "unknown",
+                            serviceDefinition.getImplClass() != null ? serviceDefinition.getImplClass()
+                                    .getName() : "unknown",
                             e.getMessage());
                     }
                     continue;

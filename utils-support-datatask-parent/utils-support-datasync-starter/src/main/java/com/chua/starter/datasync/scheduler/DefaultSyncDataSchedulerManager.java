@@ -505,7 +505,8 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
 
                     if (!transformedBatch.isEmpty()) {
                         Object lastOffset = transformedBatch.get(transformedBatch.size() - 1).getOrDefault("id",
-                                transformedBatch.get(transformedBatch.size() - 1).values().stream().findFirst().orElse(null));
+                                transformedBatch.get(transformedBatch.size() - 1).values().stream().findFirst()
+                                        .orElse(null));
                         persistOffset(source, mapping, lastOffset);
                     }
                     return Flux.empty();

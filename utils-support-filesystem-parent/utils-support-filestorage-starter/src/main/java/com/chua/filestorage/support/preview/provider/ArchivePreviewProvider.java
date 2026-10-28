@@ -583,7 +583,8 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
         sb.append("，总计 ").append(FileUtils.readableFileSize(scan.totalSize())).append("</div></div>");
         sb.append("<div class=\"tree\">");
         for (Map.Entry<String, List<ArchiveEntryItem>> de : dirMap.entrySet()) {
-            sb.append("<div class=\"dir\" data-path=\"").append(StringUtils.escapeHtml(de.getKey())).append("\"><span class=\"icon\">📁</span>")
+            sb.append("<div class=\"dir\" data-path=\"").append(StringUtils.escapeHtml(de.getKey()))
+                    .append("\"><span class=\"icon\">📁</span>")
                     .append(StringUtils.escapeHtml(de.getKey())).append("</div>");
             for (ArchiveEntryItem fe : de.getValue()) {
                 String fname = fe.path().substring(de.getKey().length() + 1);
@@ -606,7 +607,8 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
      */
     private void renderFile(StringBuilder sb, String name, ArchiveEntryItem fe) {
         String eExt = extFromName(name);
-        sb.append("<div class=\"file\" data-path=\"").append(StringUtils.escapeAttr(fe.path())).append("\"><span class=\"icon\">");
+        sb.append("<div class=\"file\" data-path=\"").append(StringUtils.escapeAttr(fe.path()))
+                .append("\"><span class=\"icon\">");
         sb.append(eExt != null ? StringUtils.escapeHtml(eExt) : "📄");
         sb.append("</span>").append(StringUtils.escapeHtml(name));
         sb.append("<span class=\"meta-right\">");

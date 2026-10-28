@@ -39,7 +39,8 @@ public class SpringBeanScopeDetector implements BeanScopeDetector {
             if ("org.springframework.context.annotation.Scope".equals(name)) {
                 String value = getAnnotationValue(ann, "value", "");
                 if ("prototype".equals(value)
-                        || "org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE".equals(value)) {
+                        || "org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE"
+                                .equals(value)) {
                     return BeanScope.PROTOTYPE;
                 }
                 return BeanScope.SINGLETON;

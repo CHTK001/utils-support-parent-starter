@@ -989,7 +989,8 @@ public interface NmapScanner {
          * thorough。
          * @return thorough的结果
          */
-        public static ScanOptions thorough() { return new ScanOptions().setTimeout(3000).setRetries(3).setServiceDetection(true); }
+        public static ScanOptions thorough() { return new ScanOptions().setTimeout(3000).setRetries(3)
+                .setServiceDetection(true); }
     }
 
     /**

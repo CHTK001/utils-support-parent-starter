@@ -1065,7 +1065,8 @@ public class StringUtils {
      */
     public static String startWithMove(CharSequence str, CharSequence prefix) {
         str = null == str ? "" : str;
-        return !startWith(str, prefix, false) ? str.toString() : str.subSequence(prefix.length(), str.length()).toString();
+        return !startWith(str, prefix, false) ? str.toString() : str.subSequence(prefix.length(), str.length())
+                .toString();
     }
 
     /**
@@ -2345,7 +2346,8 @@ public class StringUtils {
      */
     public static String[] splitToArray(CharSequence str, String separator, int limit, boolean isTrim,
                                         boolean ignoreEmpty) {
-        return Optional.ofNullable(ArrayUtils.toArray(split(str, separator, limit, isTrim, ignoreEmpty))).orElse(SYMBOL_EMPTY_STRING_ARRAY);
+        return Optional.ofNullable(ArrayUtils.toArray(split(str, separator, limit, isTrim, ignoreEmpty)))
+                .orElse(SYMBOL_EMPTY_STRING_ARRAY);
     }
 
     /**
@@ -2377,7 +2379,8 @@ public class StringUtils {
             return new String[]{};
         }
 
-        return Splitter.on(separator.toString()).trimResults().omitEmptyStrings().splitToList(String.valueOf(str)).toArray(SYMBOL_EMPTY_ARRAY);
+        return Splitter.on(separator.toString()).trimResults().omitEmptyStrings().splitToList(String.valueOf(str))
+                .toArray(SYMBOL_EMPTY_ARRAY);
     }
 
     /**
@@ -2400,7 +2403,8 @@ public class StringUtils {
      * @return 拆分后的字符串数组
      */
     public static String[] splitToArray(CharSequence text, char separator, int limit) {
-        return Splitter.on(separator).trimResults().omitEmptyStrings().limit(limit).splitToList(String.valueOf(text)).toArray(SYMBOL_EMPTY_ARRAY);
+        return Splitter.on(separator).trimResults().omitEmptyStrings().limit(limit).splitToList(String.valueOf(text))
+                .toArray(SYMBOL_EMPTY_ARRAY);
     }
 
     /**

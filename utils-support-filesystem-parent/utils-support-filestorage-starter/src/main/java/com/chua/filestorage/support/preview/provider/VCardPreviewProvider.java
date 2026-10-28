@@ -172,7 +172,8 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
 
         sb.append("<div class=\"header\">");
         sb.append("<h1>联系人预览</h1>");
-        sb.append("<div class=\"meta\">文件大小: ").append(humanSize(fileSize)).append(" · 联系人: ").append(contacts.size()).append("</div>");
+        sb.append("<div class=\"meta\">文件大小: ").append(humanSize(fileSize)).append(" · 联系人: ")
+                .append(contacts.size()).append("</div>");
         sb.append("</div>");
 
         sb.append("<div class=\"contacts\">");

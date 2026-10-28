@@ -727,7 +727,8 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
              OrtSession.Result result = textEncoderSession.run(
                      Map.of("input_ids", t),
                      Set.of(textEncoderOutput))) {
-            float[][][] out = (float[][][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+            float[][][] out = (float[][][]) result.get(0)
+                    .getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
             float[] flat = new float[out[0].length * out[0][0].length];
             int k = 0;
             for (float[] row : out[0]) {
@@ -761,7 +762,8 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
                      new long[]{1, MAX_SEQUENCE_LENGTH, emb.length / MAX_SEQUENCE_LENGTH});
              OrtSession.Result r = unetSession.run(Map.of(
                      "sample", x, "timestep", tT, "encoder_hidden_states", e))) {
-            float[][][][] out = (float[][][][]) r.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+            float[][][][] out = (float[][][][]) r.get(0)
+                    .getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
             float[] flat = new float[LATENT_CHANNELS * latentH * latentW];
             int k = 0;
             for (int c = 0; c < LATENT_CHANNELS; c++) {

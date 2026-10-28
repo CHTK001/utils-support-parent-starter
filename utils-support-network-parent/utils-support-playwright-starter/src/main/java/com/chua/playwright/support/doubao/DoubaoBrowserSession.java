@@ -67,7 +67,8 @@ public class DoubaoBrowserSession implements AutoCloseable {
     private static final String CHAT_SCRIPT = """
             async (args) => {
                 const extractMsg = (obj) => { try { return obj.content?.text || obj.text || JSON.stringify(obj); } catch(e) { return String(obj); } };
-                const csrfToken = document.cookie.split('; ').find(c => c.startsWith('passport_csrf_token='))?.split('=')[1] || '';
+                const csrfToken = document.cookie.split('; ')
+                        .find(c => c.startsWith('passport_csrf_token='))?.split('=')[1] || '';
                 const headers = { 'Content-Type': 'application/json' };
                 if (csrfToken) { headers['a-csrf-token'] = csrfToken; }
                 const resp = await fetch(args.url, {

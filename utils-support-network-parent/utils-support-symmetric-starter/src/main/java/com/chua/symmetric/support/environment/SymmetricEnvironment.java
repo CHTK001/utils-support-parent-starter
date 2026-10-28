@@ -183,7 +183,8 @@ public class SymmetricEnvironment {
      * @param engineName engine名称
      * @return sqlanywhere的结果
      */
-    public static Builder sqlanywhere(String engineName) { return builder().engineName(engineName).dbType("sqlanywhere"); }
+    public static Builder sqlanywhere(String engineName) { return builder().engineName(engineName)
+            .dbType("sqlanywhere"); }
     /**
      * 创建 Vertica 环境的 构建器。
      * @param engineName engine名称
@@ -195,7 +196,8 @@ public class SymmetricEnvironment {
      * @param engineName engine名称
      * @return clickhouse的结果
      */
-    public static Builder clickhouse(String engineName) { return builder().engineName(engineName).dbType("clickhouse"); }
+    public static Builder clickhouse(String engineName) { return builder().engineName(engineName)
+            .dbType("clickhouse"); }
 
     /**
      * symmetricds 环境配置 构建器。

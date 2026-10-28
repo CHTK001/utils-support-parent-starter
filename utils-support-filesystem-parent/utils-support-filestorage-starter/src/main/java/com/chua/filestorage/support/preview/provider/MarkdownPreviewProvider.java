@@ -120,7 +120,8 @@ public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
             if (t.startsWith("```")) {
                 if (inCodeBlock) {
                     listType = closeList(sb, listType);
-                    sb.append("<pre><code").append(codeLang.isEmpty() ? "" : " class=\"language-" + escapeAttr(codeLang) + "\"")
+                    sb.append("<pre><code")
+                            .append(codeLang.isEmpty() ? "" : " class=\"language-" + escapeAttr(codeLang) + "\"")
                             .append(">").append(escapeHtml(codeBuffer.toString())).append("</code></pre>\n");
                     codeBuffer.setLength(0);
                     codeLang = "";

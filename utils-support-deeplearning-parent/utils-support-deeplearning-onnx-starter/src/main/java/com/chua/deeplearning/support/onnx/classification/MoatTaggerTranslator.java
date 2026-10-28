@@ -74,7 +74,8 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
         if (!Files.exists(csv)) {
             // 尝试 jar 内资源
             try {
-                URL url = MoatTaggerTranslator.class.getClassLoader().getResource("vision/tagging/wd-v1-4-moat/wd-v1-4-moat-tagger-v2.csv");
+                URL url = MoatTaggerTranslator.class.getClassLoader()
+                        .getResource("vision/tagging/wd-v1-4-moat/wd-v1-4-moat-tagger-v2.csv");
                 if (url != null) {
                     InputStream is = url.openStream();
                     Path tmp = Files.createTempFile("moat-csv", ".csv");

@@ -93,7 +93,8 @@ public class OnnxFaceRecognizer implements FaceRecognizer {
     */
     @Override
     public float[] extractFeature(byte[] imageData) {
-        return FaceRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).extractFeature(imageData);
+        return FaceRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device)
+                .extractFeature(imageData);
     }
 
     /**
@@ -101,7 +102,8 @@ public class OnnxFaceRecognizer implements FaceRecognizer {
     */
     @Override
     public float compare(float[] feature1, float[] feature2) {
-        return FaceRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).compare(feature1,
+        return FaceRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device)
+                .compare(feature1,
                                      feature2);
     }
 
@@ -110,7 +112,8 @@ public class OnnxFaceRecognizer implements FaceRecognizer {
     */
     @Override
     public List<FaceFeature> recognize(byte[] imageData, List<float[]> referenceFeatures) {
-        return FaceRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).recognize(imageData,
+        return FaceRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device)
+                .recognize(imageData,
                                      referenceFeatures);
     }
 

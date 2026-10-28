@@ -231,7 +231,8 @@ public class MqttProtocolRestorer extends AbstractProtocolRestorer {
                 sb.append(", topic=").append(topic);
                 int bodyIdx = idx + 2 + topicLen + (qos > 0 ? 2 : 0);
                 if (bodyIdx < rawData.length) {
-                    sb.append(", payload=").append(preview(utf8(java.util.Arrays.copyOfRange(rawData, bodyIdx, rawData.length))));
+                    sb.append(", payload=")
+                            .append(preview(utf8(java.util.Arrays.copyOfRange(rawData, bodyIdx, rawData.length))));
                 }
             }
         } else if (packetType == TYPE_SUBSCRIBE && idx + 2 < rawData.length) {

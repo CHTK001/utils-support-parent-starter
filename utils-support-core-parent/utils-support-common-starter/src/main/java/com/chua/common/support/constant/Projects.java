@@ -44,7 +44,8 @@ public final class Projects {
     static String randomIdSign() {
         String randomId = IdUtils.timeId();
         String tempToken = System.getProperty("SERVER_TEMP_TOKEN");
-        return Optional.ofNullable(tempToken).orElseGet(() -> Hex.encodeHexString(DigestUtils.sha1Bytes(getPid() + randomId)));
+        return Optional.ofNullable(tempToken)
+                .orElseGet(() -> Hex.encodeHexString(DigestUtils.sha1Bytes(getPid() + randomId)));
     }
 
     static {

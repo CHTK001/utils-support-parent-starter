@@ -75,7 +75,8 @@ class KitesurfMcpProviderTest {
                 .mapping("/pdf", HttpMethod.GET,
                         (req, resp) -> resp.setStatus(200).setContentType("application/pdf").setBody(PDF_BYTES).end())
                 .mapping("/html", HttpMethod.GET,
-                        (req, resp) -> resp.setStatus(200).setContentType("text/plain;charset=utf-8").setBody(HTML_BODY).end())
+                        (req, resp) -> resp.setStatus(200).setContentType("text/plain;charset=utf-8")
+                                .setBody(HTML_BODY).end())
                 .build();
         stub.start();
         assertTrue(stub.isRunning(), "桩服务应启动成功");

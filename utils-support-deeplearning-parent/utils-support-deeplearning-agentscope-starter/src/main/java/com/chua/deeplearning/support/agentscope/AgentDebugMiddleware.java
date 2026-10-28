@@ -68,7 +68,8 @@ public class AgentDebugMiddleware implements MiddlewareBase {
         return next.apply(input).doOnEach(signal -> {
             if (signal.isOnError()) {
                 log.error("[AgentTrace][{}] ✗ Agent 流异常: {}", agentId,
-                        signal.getThrowable() != null ? signal.getThrowable().getMessage() : "unknown", signal.getThrowable());
+                        signal.getThrowable() != null ? signal.getThrowable()
+                                .getMessage() : "unknown", signal.getThrowable());
             } else if (signal.get() != null) {
                 onEvent(signal.get());
             }

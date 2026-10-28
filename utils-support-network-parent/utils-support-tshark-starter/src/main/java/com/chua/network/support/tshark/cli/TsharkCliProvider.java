@@ -553,7 +553,8 @@ public final class TsharkCliProvider {
         } else if (TsharkArtifactResolver.isMacOs()) {
             sb.append(System.lineSeparator()).append("     brew install --cask wireshark");
         } else {
-            sb.append(System.lineSeparator()).append("     apt-get install -y tshark   # 或 dnf install -y wireshark-cli");
+            sb.append(System.lineSeparator())
+                    .append("     apt-get install -y tshark   # 或 dnf install -y wireshark-cli");
             sb.append(System.lineSeparator()).append(
                     "     实时抓包需要 root 或授予 CAP_NET_RAW/CAP_NET_ADMIN 能力");
         }

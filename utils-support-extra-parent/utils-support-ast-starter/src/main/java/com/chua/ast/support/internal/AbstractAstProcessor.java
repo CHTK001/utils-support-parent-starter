@@ -168,7 +168,8 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
         }
 
         try {
-            Field contextField = maker.getClass().getDeclaredField("context"); // [P3C 1.10 豁免] javac 内部 TreeMaker 私有字段，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
+            Field contextField = maker.getClass()
+                    .getDeclaredField("context"); // [P3C 1.10 豁免] javac 内部 TreeMaker 私有字段，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
             contextField.setAccessible(true);
             return Names.instance((Context) contextField.get(maker));
         } catch (Exception e) {

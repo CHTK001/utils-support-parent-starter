@@ -520,7 +520,8 @@ final class MemorySqlAst {
                 case "COUNT" -> result = (long) values.size();
                 case "MAX" -> result = values.stream().max(SelectStmt::compareValues).orElse(null);
                 case "MIN" -> result = values.stream().min(SelectStmt::compareValues).orElse(null);
-                case "SUM" -> result = values.isEmpty() ? null : values.stream().mapToDouble(SelectStmt::asDouble).sum();
+                case "SUM" -> result = values.isEmpty() ? null : values.stream().mapToDouble(SelectStmt::asDouble)
+                        .sum();
                 case "AVG" -> result = values.isEmpty() ? null
                         : values.stream().mapToDouble(SelectStmt::asDouble).average().orElse(0d);
                 default -> throw new IllegalStateException("不支持的聚合函数: " + aggFunc);

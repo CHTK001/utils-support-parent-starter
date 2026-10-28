@@ -2698,7 +2698,8 @@ public class NumberUtils {
                         chinese.append(NumberValue.NUMBER.get(number));
                         zeroflag = true;
                     } else if (number != 0) {
-                        chinese.append(NumberValue.NUMBER.get(number)).append(NumberValue.LEVEL.get(singleNumList.size() - j - 1));
+                        chinese.append(NumberValue.NUMBER.get(number))
+                                .append(NumberValue.LEVEL.get(singleNumList.size() - j - 1));
                     }
                 }
                 if (index == lists.size() && chinese.substring(0, 1).equals(NumberValue.NUMBER.getFirst())) {

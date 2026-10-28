@@ -186,7 +186,8 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     @Override
     public T getExtension(String name) {
         if (StringUtils.isEmpty(name)) {
-            return definitions.size() == 1 ? definitions.values().iterator().next().first().getObj(serviceAutowire) : getDefaultImpl();
+            return definitions.size() == 1 ? definitions.values().iterator().next().first()
+                    .getObj(serviceAutowire) : getDefaultImpl();
         }
         ServiceDefinition serviceDefinition = definitionFinder.getServiceDefinition(name);
         return (T) Optional.ofNullable(serviceDefinition.getObj(serviceAutowire)).orElse(getDefaultImpl());
@@ -269,7 +270,8 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
             name = name.toUpperCase();
             definition = definitionFinder.getServiceDefinition(name);
             if (ServiceDefinitionFinder.DEFAULT_DEFINITION != definition) {
-                return (T) Optional.ofNullable(definition.newInstance(serviceAutowire, args)).orElse(getDefaultImpl(args));
+                return (T) Optional.ofNullable(definition.newInstance(serviceAutowire, args))
+                        .orElse(getDefaultImpl(args));
             }
         }
 

@@ -345,7 +345,8 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
                     Map<String, OnnxTensor> inputs = Wraps.map();
                     inputs.put("x", tensor);
                     try (OrtSession.Result result = session.run(inputs)) {
-                        Object out = result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+                        Object out = result.get(0)
+                                .getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                         float[][][] probMap;
                         if (out instanceof float[][][][]) {
                             probMap = ((float[][][][]) out)[0];
