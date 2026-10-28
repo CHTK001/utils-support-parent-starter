@@ -87,7 +87,8 @@ public final class MattingTranslator implements Translator<Image, Image> {
      * @param configuration 配置
      */
     public MattingTranslator(DetectionConfiguration configuration) {
-        this(resolveTargetSize(configuration), resolveTargetSize(configuration), resolveMode(configuration), resolveNormalize(configuration));
+        this(resolveTargetSize(configuration), resolveTargetSize(configuration), resolveMode(configuration),
+             resolveNormalize(configuration));
     }
 
     @Override

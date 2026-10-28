@@ -160,10 +160,12 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
         }
         // 拦截文件流构造（句柄创建）
         RuntimeSpy.registerInterceptor(FILE_INPUT_STREAM, "<init>", "()V", InterceptPoint.ENTRY, this);
-        RuntimeSpy.registerInterceptor(FILE_INPUT_STREAM, "<init>", "(Ljava/lang/String;)V", InterceptPoint.ENTRY, this);
+        RuntimeSpy.registerInterceptor(FILE_INPUT_STREAM, "<init>", "(Ljava/lang/String;)V", InterceptPoint.ENTRY,
+                                       this);
         RuntimeSpy.registerInterceptor(FILE_INPUT_STREAM, "<init>", "(Ljava/io/File;)V", InterceptPoint.ENTRY, this);
         RuntimeSpy.registerInterceptor(FILE_OUTPUT_STREAM, "<init>", "()V", InterceptPoint.ENTRY, this);
-        RuntimeSpy.registerInterceptor(FILE_OUTPUT_STREAM, "<init>", "(Ljava/lang/String;)V", InterceptPoint.ENTRY, this);
+        RuntimeSpy.registerInterceptor(FILE_OUTPUT_STREAM, "<init>", "(Ljava/lang/String;)V", InterceptPoint.ENTRY,
+                                       this);
         RuntimeSpy.registerInterceptor(FILE_OUTPUT_STREAM, "<init>", "(Ljava/io/File;)V", InterceptPoint.ENTRY, this);
         // 拦截关闭（句柄释放）
         RuntimeSpy.registerInterceptor(FILE_INPUT_STREAM, "close", "()V", InterceptPoint.EXIT, this);
@@ -259,7 +261,8 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
         } catch (Exception e) {
             LOG.log(Level.FINE, "appendLeak(open) 异常: " + e.getMessage());
         }
-        LOG.log(Level.FINE, String.format("[Handle] OPEN: kind=%s id=%s thread=%s", kind, handleId, record.getOwnerThread()));
+        LOG.log(Level.FINE,
+                String.format("[Handle] OPEN: kind=%s id=%s thread=%s", kind, handleId, record.getOwnerThread()));
     }
 
     /**
@@ -307,7 +310,8 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
             } catch (Exception e) {
                 LOG.log(Level.FINE, "appendLeak(close) 异常: " + e.getMessage());
             }
-            LOG.log(Level.FINE, String.format("[Handle] CLOSE: kind=%s id=%s age=%sms", kind, oldest.getHandleId(), oldest.getLastUsedAt() - oldest.getCreatedAt()));
+            LOG.log(Level.FINE,
+                    String.format("[Handle] CLOSE: kind=%s id=%s age=%sms", kind, oldest.getHandleId(), oldest.getLastUsedAt() - oldest.getCreatedAt()));
         }
     }
 

@@ -167,7 +167,8 @@ public class JsonRpcClient implements RpcClient {
                     }
                     lastError = e;
                     if (attempt < maxRetries) {
-                        log.warn("JSON-RPC retry {}/{}, method={}", attempt + 1, maxRetries, proxyMethod.getMethod().getName());
+                        log.warn("JSON-RPC retry {}/{}, method={}", attempt + 1, maxRetries,
+                                 proxyMethod.getMethod().getName());
                         try {
                             Thread.sleep(retryDelay);
                         } catch (InterruptedException ie) {

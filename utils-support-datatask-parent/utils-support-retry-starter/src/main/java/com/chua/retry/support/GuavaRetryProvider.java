@@ -57,7 +57,8 @@ public class GuavaRetryProvider extends AbstractRetryProvider {
                 @Override
                 public <V> void onRetry(com.github.rholder.retry.Attempt<V> attempt) {
                     if (attempt.hasException()) {
-                        config.getRetryListener().onRetry((int) attempt.getAttemptNumber(), attempt.getExceptionCause());
+                        config.getRetryListener().onRetry((int) attempt.getAttemptNumber(),
+                                                attempt.getExceptionCause());
                     }
                 }
             });

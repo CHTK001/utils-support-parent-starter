@@ -41,7 +41,8 @@ public class BeanDefinitionLifecycleManager {
                 try {
                     lifecycle.init(beanDefinition, bean);
                 } catch (Exception e) {
-                    log.error("初始化 Bean 失败：{} Bean: {}", lifecycle.getClass().getSimpleName(), beanDefinition.getName(), e);
+                    log.error("初始化 Bean 失败：{} Bean: {}", lifecycle.getClass().getSimpleName(),
+                              beanDefinition.getName(), e);
                 }
             }
         }
@@ -62,7 +63,8 @@ public class BeanDefinitionLifecycleManager {
                 try {
                     lifecycle.destroy(beanDefinition, bean);
                 } catch (Exception e) {
-                    log.error("销毁 Bean 失败：{} Bean: {}", lifecycle.getClass().getSimpleName(), beanDefinition.getName(), e);
+                    log.error("销毁 Bean 失败：{} Bean: {}", lifecycle.getClass().getSimpleName(),
+                              beanDefinition.getName(), e);
                 }
             }
         }

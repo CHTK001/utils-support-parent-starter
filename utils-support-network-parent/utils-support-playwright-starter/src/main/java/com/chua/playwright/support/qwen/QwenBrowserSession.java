@@ -174,7 +174,8 @@ public class QwenBrowserSession implements AutoCloseable {
                             text.append(content);
                         }
                         if (listener != null) {
-                            listener.accept("think".equals(phase) || "thinking".equals(phase) ? "thinking" : "content", content);
+                            listener.accept("think".equals(phase) || "thinking".equals(phase) ? "thinking" : "content",
+                                            content);
                         }
                     } catch (Exception e) {
                         log.warn("解析千问 SSE 事件失败: {}", e.getMessage(), e);

@@ -30,7 +30,8 @@ public class DefaultDataSyncMappingManager implements DataSyncMappingManager {
     @Override
     public void addMapping(DataSyncMapping mapping) {
         mappings.put(mapping.mappingId(), mapping);
-        log.info("添加映射: mappingId={}, inputId={}, outputId={}", mapping.mappingId(), mapping.inputId(), mapping.outputId());
+        log.info("添加映射: mappingId={}, inputId={}, outputId={}", mapping.mappingId(), mapping.inputId(),
+                 mapping.outputId());
     }
 
     /**

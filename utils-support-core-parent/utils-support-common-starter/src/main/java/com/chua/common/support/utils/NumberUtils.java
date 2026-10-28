@@ -1453,9 +1453,11 @@ public class NumberUtils {
             if (result.isEmpty()) {
                 item.put(size + (long) it * cols, Math.min(size + (long) (it + 1) * cols + less1, realSize));
             } else if (it == thread - 1) {
-                item.put(result.get(result.size() - 1).getValue() + 1, Math.min(size + (long) (it + 1) * cols + less1 + less, realSize));
+                item.put(result.get(result.size() - 1).getValue() + 1,
+                         Math.min(size + (long) (it + 1) * cols + less1 + less, realSize));
             } else {
-                item.put(result.get(result.size() - 1).getValue() + 1, Math.min(size + (long) (it + 1) * cols + less1, realSize));
+                item.put(result.get(result.size() - 1).getValue() + 1,
+                         Math.min(size + (long) (it + 1) * cols + less1, realSize));
             }
             result.addAll(item.entrySet());
         });
@@ -2785,7 +2787,8 @@ public class NumberUtils {
      * @return the 结果
      */
     public static double getY(double x, double mean, double variance, double stdDeviation) {
-        return Math.pow(Math.exp(-(((x - mean) * (x - mean)) / ((2 * variance)))), 1 / (stdDeviation * Math.sqrt(2 * Math.PI)));
+        return Math.pow(Math.exp(-(((x - mean) * (x - mean)) / ((2 * variance)))),
+                        1 / (stdDeviation * Math.sqrt(2 * Math.PI)));
     }
     /**
      *

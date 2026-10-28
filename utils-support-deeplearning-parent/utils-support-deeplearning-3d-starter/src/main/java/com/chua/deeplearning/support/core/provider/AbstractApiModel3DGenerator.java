@@ -88,7 +88,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     @Override
     public Model3D generate(byte[] image, Model3DFormat format, Model3DStyle style, String quality) throws IOException {
         if (logger.isInfoEnabled()) {
-            logger.info("[3D] Image-to-3D: imageSize={}, format={}, style={}, quality={}", image.length, format, style, quality);
+            logger.info("[3D] Image-to-3D: imageSize={}, format={}, style={}, quality={}", image.length, format,
+                        style, quality);
         }
         String requestBody = buildImageRequestBody(image, format, style, quality);
         byte[] result = doPost(requestBody);
@@ -102,7 +103,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     public Model3D generate(byte[][] images, Model3DFormat format, Model3DStyle style,
                             String quality) throws IOException {
         if (logger.isInfoEnabled()) {
-            logger.info("[3D] MultiView-to-3D: imageCount={}, format={}, style={}, quality={}", images.length, format, style, quality);
+            logger.info("[3D] MultiView-to-3D: imageCount={}, format={}, style={}, quality={}", images.length, format,
+                        style, quality);
         }
         String requestBody = buildMultiViewRequestBody(images, format, style, quality);
         byte[] result = doPost(requestBody);

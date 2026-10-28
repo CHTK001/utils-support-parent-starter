@@ -315,7 +315,8 @@ public class ByteUtils extends BitUtils {
     public static byte[] complementArithmetic(int b) {
         int bit = INT_SIZE * BIT_LENGTH;
         List<String> split = Arrays.stream(asBitIntString(Integer.toBinaryString(-b)).split("")).filter(item -> !StringUtils.isNullOrEmpty(item)).collect(Collectors.toList());
-        log.info("\n{}(原值) \n-> {}(原码) \n-> {}(按位取反) \n-> {}(补码)", b, asBitIntString(Integer.toBinaryString(b)), asBitIntString(Integer.toBinaryString(~b)), asBitIntString(Joiner.on("").join(split)));
+        log.info("\n{}(原值) \n-> {}(原码) \n-> {}(按位取反) \n-> {}(补码)", b, asBitIntString(Integer.toBinaryString(b)),
+                 asBitIntString(Integer.toBinaryString(~b)), asBitIntString(Joiner.on("").join(split)));
         byte[] bytes = new byte[bit];
         for (int i = 0; i < split.size(); i++) {
             String s = split.get(i);
@@ -333,7 +334,8 @@ public class ByteUtils extends BitUtils {
     public static byte[] complementArithmetic(long b) {
         int bit = INT_SIZE * BIT_LENGTH;
         List<String> split = Arrays.stream(asBitLongString(Long.toBinaryString(-b)).split("")).filter(item -> !StringUtils.isNullOrEmpty(item)).collect(Collectors.toList());
-        log.info("\n{}(原值) \n-> {}(原码) \n-> {}(按位取反) \n-> {}(补码)", b, asBitLongString(Long.toBinaryString(b)), asBitLongString(Long.toBinaryString(~b)), asBitLongString(Joiner.on("").join(split)));
+        log.info("\n{}(原值) \n-> {}(原码) \n-> {}(按位取反) \n-> {}(补码)", b, asBitLongString(Long.toBinaryString(b)),
+                 asBitLongString(Long.toBinaryString(~b)), asBitLongString(Joiner.on("").join(split)));
         byte[] bytes = new byte[bit];
         for (int i = 0; i < split.size(); i++) {
             String s = split.get(i);
@@ -351,7 +353,8 @@ public class ByteUtils extends BitUtils {
     public static byte[] complementArithmetic(short b) {
         int bit = SHORT_SIZE * BIT_LENGTH;
         List<String> split = Arrays.stream(asBitShortString(Integer.toBinaryString(-b)).split("")).filter(item -> !StringUtils.isNullOrEmpty(item.trim())).collect(Collectors.toList());
-        log.info("\n{}(原值) \n-> {}(原码) \n-> {}(按位取反) \n-> {}(补码)", b, asBitShortString(Integer.toBinaryString(b)), asBitShortString(Integer.toBinaryString(~b)), asBitShortString(Joiner.on("").join(split)));
+        log.info("\n{}(原值) \n-> {}(原码) \n-> {}(按位取反) \n-> {}(补码)", b, asBitShortString(Integer.toBinaryString(b)),
+                 asBitShortString(Integer.toBinaryString(~b)), asBitShortString(Joiner.on("").join(split)));
         byte[] bytes = new byte[bit];
         for (int i = 0; i < split.size(); i++) {
             String s = split.get(i);
@@ -369,7 +372,8 @@ public class ByteUtils extends BitUtils {
     public static byte[] complementArithmetic(byte b) {
         int bit = BYTE_SIZE * BIT_LENGTH;
         List<String> split = Arrays.stream(asBitByteString(Integer.toBinaryString(-b)).split("")).filter(item -> !StringUtils.isNullOrEmpty(item)).collect(Collectors.toList());
-        log.info("\n{}(原值) \n-> {}(原码) \n-> {}(按位取反) \n-> {}(补码)", b, asBitByteString(Integer.toBinaryString(b)), asBitByteString(Integer.toBinaryString(~b)), asBitByteString(Joiner.on("").join(split)));
+        log.info("\n{}(原值) \n-> {}(原码) \n-> {}(按位取反) \n-> {}(补码)", b, asBitByteString(Integer.toBinaryString(b)),
+                 asBitByteString(Integer.toBinaryString(~b)), asBitByteString(Joiner.on("").join(split)));
         byte[] bytes = new byte[bit];
         for (int i = 0; i < split.size(); i++) {
             String s = split.get(i);

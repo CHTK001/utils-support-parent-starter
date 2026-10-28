@@ -35,7 +35,8 @@ public class WhiteAndBlackTankUtils {
             if (hl!=outside.length||wl != outside[0].length){
                 outside = ImgRgbUtils.getPixels(ImgRgbUtils.resizeImage(ImageIO.read(outsideImg), wl, hl));
             }
-            GetGrayScale(outside, OutsideConfig.A, OutsideConfig.R, OutsideConfig.G, OutsideConfig.B, OutsideConfig.light);
+            GetGrayScale(outside, OutsideConfig.A, OutsideConfig.R, OutsideConfig.G, OutsideConfig.B,
+                         OutsideConfig.light);
             GetGrayScale(inside, InsideConfig.A, InsideConfig.R, InsideConfig.G, InsideConfig.B, InsideConfig.light);
             Color[][] colors = GrayMerge(outside, inside);
             BufferedImage bufferedImage = ImgRgbUtils.toImage(colors);

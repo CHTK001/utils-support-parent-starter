@@ -232,41 +232,98 @@ public class PytorchModelRegistrar implements ModelRegistrar {
                 FeatureExtractor.class, "feature/clip_image.pt");
 
         // ==================== 人脸检测 ====================
-        reg("pytorch-yolo-face", "com.chua.deeplearning.support.pytorch.face.detector.UltraFaceTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, ImageDetector.class, "face/yolo11n-face.pt", "https://huggingface.co/AdamCodd/YOLOv11n-face-detection/resolve/main/model.pt", false, null);
-        reg("pytorch-retinaface", "com.chua.deeplearning.support.pytorch.face.detector.RetinaFaceTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, ImageDetector.class, "face/detection/retinaface/retinaface_traced_model.pt");
+        reg("pytorch-yolo-face", "com.chua.deeplearning.support.pytorch.face.detector.UltraFaceTranslator",
+            ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, ImageDetector.class,
+            "face/yolo11n-face.pt", "https://huggingface.co/AdamCodd/YOLOv11n-face-detection/resolve/main/model.pt",
+            false, null);
+        reg("pytorch-retinaface", "com.chua.deeplearning.support.pytorch.face.detector.RetinaFaceTranslator",
+            ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, ImageDetector.class,
+            "face/detection/retinaface/retinaface_traced_model.pt");
 
         // ==================== 年龄推算 ====================
-        reg("pytorch-age-gender", "com.chua.deeplearning.support.pytorch.face.expression.DenseNetExpressionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class, "face/age_gender.pt", "https://huggingface.co/onnx-community/age-gender-prediction-ONNX/resolve/main/onnx/model.pt", false, null);
+        reg("pytorch-age-gender",
+            "com.chua.deeplearning.support.pytorch.face.expression.DenseNetExpressionTranslator",
+            ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class,
+            "face/age_gender.pt",
+            "https://huggingface.co/onnx-community/age-gender-prediction-ONNX/resolve/main/onnx/model.pt", false,
+            null);
 
         // ==================== 特征值提取 ====================
-        reg("pytorch-bge-embedding", "com.chua.deeplearning.support.pytorch.feature.PytorchTextFeatureTranslator", String.class, float[].class, FeatureExtractor.class, "feature/bge-small.pt", "https://huggingface.co/onnx-community/bge-small-en-v1.5-ONNX/resolve/main/onnx/model.pt", false, null);
-        reg("pytorch-all-MiniLM", "com.chua.deeplearning.support.pytorch.feature.PytorchTextFeatureTranslator", String.class, float[].class, FeatureExtractor.class, "feature/all-MiniLM-L6-v2.pt", "https://huggingface.co/onnx-community/all-MiniLM-L6-v2-ONNX/resolve/main/onnx/model.pt", false, null);
+        reg("pytorch-bge-embedding", "com.chua.deeplearning.support.pytorch.feature.PytorchTextFeatureTranslator",
+            String.class, float[].class, FeatureExtractor.class, "feature/bge-small.pt",
+            "https://huggingface.co/onnx-community/bge-small-en-v1.5-ONNX/resolve/main/onnx/model.pt", false, null);
+        reg("pytorch-all-MiniLM", "com.chua.deeplearning.support.pytorch.feature.PytorchTextFeatureTranslator",
+            String.class, float[].class, FeatureExtractor.class, "feature/all-MiniLM-L6-v2.pt",
+            "https://huggingface.co/onnx-community/all-MiniLM-L6-v2-ONNX/resolve/main/onnx/model.pt", false, null);
 
         // ==================== 零样本分类 ====================
-        reg("pytorch-clip-zero-shot", "com.chua.deeplearning.support.pytorch.classification.PytorchImageNetClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class, "classification/clip-vit.pt", "https://huggingface.co/onnx-community/clip-vit-base-patch32-ONNX/resolve/main/onnx/model.pt", false, null);
+        reg("pytorch-clip-zero-shot",
+            "com.chua.deeplearning.support.pytorch.classification.PytorchImageNetClassificationTranslator",
+            ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class,
+            "classification/clip-vit.pt",
+            "https://huggingface.co/onnx-community/clip-vit-base-patch32-ONNX/resolve/main/onnx/model.pt", false,
+            null);
 
         // ==================== 动物分类 ====================
-        reg("pytorch-animals-10", "com.chua.deeplearning.support.pytorch.classification.PytorchImageNetClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class, "classification/animals-10.pt", "https://huggingface.co/onnx-community/10-animals-classification-ONNX/resolve/main/onnx/model.pt", false, null);
+        reg("pytorch-animals-10",
+            "com.chua.deeplearning.support.pytorch.classification.PytorchImageNetClassificationTranslator",
+            ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class,
+            "classification/animals-10.pt",
+            "https://huggingface.co/onnx-community/10-animals-classification-ONNX/resolve/main/onnx/model.pt", false,
+            null);
 
         // ==================== 食物分类 ====================
-        reg("pytorch-food101", "com.chua.deeplearning.support.pytorch.classification.PytorchImageNetClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class, "classification/food101.pt", "https://huggingface.co/nateraw/vit-base-food101/resolve/main/model.pt", false, null);
+        reg("pytorch-food101",
+            "com.chua.deeplearning.support.pytorch.classification.PytorchImageNetClassificationTranslator",
+            ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class,
+            "classification/food101.pt", "https://huggingface.co/nateraw/vit-base-food101/resolve/main/model.pt",
+            false, null);
 
         // ==================== 植物分类 ====================
-        reg("pytorch-plant", "com.chua.deeplearning.support.pytorch.classification.PytorchImageNetClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class, "classification/plant.pt", "https://huggingface.co/onnx-community/house-plant-image-detection-ONNX/resolve/main/onnx/model.pt", false, null);
+        reg("pytorch-plant",
+            "com.chua.deeplearning.support.pytorch.classification.PytorchImageNetClassificationTranslator",
+            ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class,
+            "classification/plant.pt",
+            "https://huggingface.co/onnx-community/house-plant-image-detection-ONNX/resolve/main/onnx/model.pt",
+            false, null);
 
         // ==================== MobileNet / EfficientNet ====================
-        reg("pytorch-mobilenetv3", "com.chua.deeplearning.support.pytorch.classification.PytorchImageNetClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class, "classification/mobilenetv3.pt", "https://huggingface.co/onnx-community/mobilenetv3_small_100.lamb_in1k/resolve/main/onnx/model.pt", false, null);
-        reg("pytorch-mobilenetv4", "com.chua.deeplearning.support.pytorch.classification.PytorchImageNetClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class, "classification/mobilenetv4.pt", "https://huggingface.co/onnx-community/mobilenetv4_conv_small.e2400_r224_in1k/resolve/main/onnx/model.pt", false, null);
+        reg("pytorch-mobilenetv3",
+            "com.chua.deeplearning.support.pytorch.classification.PytorchImageNetClassificationTranslator",
+            ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class,
+            "classification/mobilenetv3.pt",
+            "https://huggingface.co/onnx-community/mobilenetv3_small_100.lamb_in1k/resolve/main/onnx/model.pt", false,
+            null);
+        reg("pytorch-mobilenetv4",
+            "com.chua.deeplearning.support.pytorch.classification.PytorchImageNetClassificationTranslator",
+            ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class,
+            "classification/mobilenetv4.pt",
+            "https://huggingface.co/onnx-community/mobilenetv4_conv_small.e2400_r224_in1k/resolve/main/onnx/model.pt",
+            false, null);
 
         // ==================== 特征提取 (视觉) ====================
-        reg("pytorch-dinov3", "com.chua.deeplearning.support.pytorch.feature.PytorchImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, FeatureExtractor.class, "feature/dinov3.pt", "https://huggingface.co/onnx-community/dinov3-vits16-pretrain-lvd1689m-ONNX/resolve/main/onnx/model.pt", false, null);
-        reg("pytorch-granite-embedding", "com.chua.deeplearning.support.pytorch.feature.PytorchTextFeatureTranslator", String.class, float[].class, FeatureExtractor.class, "feature/granite-embedding.pt", "https://huggingface.co/onnx-community/granite-embedding-small-english-r2-ONNX/resolve/main/onnx/model.pt", false, null);
+        reg("pytorch-dinov3", "com.chua.deeplearning.support.pytorch.feature.PytorchImageFeatureTranslator",
+            ai.djl.modality.cv.Image.class, float[].class, FeatureExtractor.class, "feature/dinov3.pt",
+            "https://huggingface.co/onnx-community/dinov3-vits16-pretrain-lvd1689m-ONNX/resolve/main/onnx/model.pt",
+            false, null);
+        reg("pytorch-granite-embedding", "com.chua.deeplearning.support.pytorch.feature.PytorchTextFeatureTranslator",
+            String.class, float[].class, FeatureExtractor.class, "feature/granite-embedding.pt",
+            "https://huggingface.co/onnx-community/granite-embedding-small-english-r2-ONNX/resolve/main/onnx/model.pt",
+            false, null);
 
         // ==================== 情绪识别 ====================
-        reg("pytorch-face-emotion", "com.chua.deeplearning.support.pytorch.face.expression.DenseNetExpressionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class, "face/yolo11-face-emotion.pt", "https://huggingface.co/leeyunjai/yolo11-face-emotion-fer2013-cls/resolve/main/model.pt", false, null);
+        reg("pytorch-face-emotion",
+            "com.chua.deeplearning.support.pytorch.face.expression.DenseNetExpressionTranslator",
+            ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class,
+            "face/yolo11-face-emotion.pt",
+            "https://huggingface.co/leeyunjai/yolo11-face-emotion-fer2013-cls/resolve/main/model.pt", false, null);
 
         // ==================== 动漫标签 ====================
-        reg("pytorch-wd-tagger", "com.chua.deeplearning.support.pytorch.classification.PytorchImageNetClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class, "classification/wd-swinv2-tagger.pt", "https://huggingface.co/SmilingWolf/wd-swinv2-tagger-v3/resolve/main/model.pt", false, null);
+        reg("pytorch-wd-tagger",
+            "com.chua.deeplearning.support.pytorch.classification.PytorchImageNetClassificationTranslator",
+            ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, ImageClassifier.class,
+            "classification/wd-swinv2-tagger.pt",
+            "https://huggingface.co/SmilingWolf/wd-swinv2-tagger-v3/resolve/main/model.pt", false, null);
 
         // ==================== 版面检测 ====================
         reg("wevisdoc-layout",
@@ -317,7 +374,8 @@ public class PytorchModelRegistrar implements ModelRegistrar {
                             String downloadUrl, boolean compress, String downloadFileName) {
         if (ModelRegistry.get(modelId) == null) {
             String path = relativePath == null ? null : "pytorch/" + relativePath;
-            ModelRegistry.register(modelId, translatorClassName, inputType, outputType, capability, path, downloadUrl, compress, downloadFileName);
+            ModelRegistry.register(modelId, translatorClassName, inputType, outputType, capability, path, downloadUrl,
+                                   compress, downloadFileName);
         }
     }
 }

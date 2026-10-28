@@ -1072,7 +1072,8 @@ public class AgentScopeAgent implements Agent {
             if (subDef instanceof ImageDefinition imgDef) {
                 subModelId = "agentscope:" + subId + ":image:" + imgDef.getImageModel();
                 try {
-                    ModelRegistry.register(subModelId, new ImageGenerationModel(imgDef.getImageClient(), imgDef.getImageModel()));
+                    ModelRegistry.register(subModelId,
+                                           new ImageGenerationModel(imgDef.getImageClient(), imgDef.getImageModel()));
                 } catch (Exception e) {
                     log.warn("[AgentScope] ImageModel注册冲突: modelId={}", subModelId);
                 }

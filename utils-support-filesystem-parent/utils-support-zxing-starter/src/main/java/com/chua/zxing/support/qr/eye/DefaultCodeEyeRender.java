@@ -81,7 +81,8 @@ public class DefaultCodeEyeRender implements CodeEyeRender {
                 byte[] byteArray = IoUtils.asBytes(inputStream);
                 BufferedImage bufferedImage = BufferedImageUtils.toBufferedImage(byteArray);
                 if (StringUtils.isNotBlank(setting.getCodeEyeColor())) {
-                    BufferedImageUtils.changeColor(bufferedImage, Converter.convertIfNecessary(setting.getCodeEyeColor(), Color.class));
+                    BufferedImageUtils.changeColor(bufferedImage,
+                                                   Converter.convertIfNecessary(setting.getCodeEyeColor(), Color.class));
                 }
                 builder.setDetectImg(bufferedImage);
             } catch (IOException e) {

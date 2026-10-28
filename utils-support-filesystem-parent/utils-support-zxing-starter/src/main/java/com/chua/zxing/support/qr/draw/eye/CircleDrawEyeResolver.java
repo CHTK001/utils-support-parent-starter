@@ -38,7 +38,8 @@ public class CircleDrawEyeResolver extends AbstractDrawEyeResolver {
     public CircleDrawEyeResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int matrixW,
                                  int matrixH, int leftPadding, int topPadding, int infoSize, int detectCornerSize,
                                  Color detectOutColor, Color detectInnerColor, CodeEyeSetting codeEyeSetting) {
-        super(qrCodeConfig, g2, bitMatrix, matrixW, matrixH, leftPadding, topPadding, infoSize, detectCornerSize, detectOutColor, detectInnerColor, codeEyeSetting);
+        super(qrCodeConfig, g2, bitMatrix, matrixW, matrixH, leftPadding, topPadding, infoSize, detectCornerSize,
+              detectOutColor, detectInnerColor, codeEyeSetting);
     }
 
 

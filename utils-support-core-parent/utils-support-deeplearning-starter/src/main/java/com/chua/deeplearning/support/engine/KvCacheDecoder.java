@@ -159,8 +159,10 @@ public final class KvCacheDecoder implements AutoCloseable {
      */
     public float[] step(long[] inputIds, long[] attentionMask) throws OrtException {
         Map<String, OnnxTensor> inputs = Wraps.linkedMap();
-        inputs.put("input_ids", OnnxTensor.createTensor(env, LongBuffer.wrap(inputIds), new long[]{BATCH, inputIds.length}));
-        inputs.put("attention_mask", OnnxTensor.createTensor(env, LongBuffer.wrap(attentionMask), new long[]{BATCH, attentionMask.length}));
+        inputs.put("input_ids",
+                   OnnxTensor.createTensor(env, LongBuffer.wrap(inputIds), new long[]{BATCH, inputIds.length}));
+        inputs.put("attention_mask",
+                   OnnxTensor.createTensor(env, LongBuffer.wrap(attentionMask), new long[]{BATCH, attentionMask.length}));
 
         long[] pastShape = {BATCH, kvHeads, pastSeqLen, headDim};
         for (int l = 0; l < numLayers; l++) {

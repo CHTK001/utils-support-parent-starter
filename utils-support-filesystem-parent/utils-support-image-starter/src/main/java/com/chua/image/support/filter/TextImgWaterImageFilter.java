@@ -279,10 +279,12 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
                 g.drawImage(image, width - image.getWidth(), 0, image.getWidth(), image.getHeight(), null);
                 break;
             case RIGHT_BOTTOM:
-                g.drawImage(image, width - image.getWidth(), height - image.getHeight() - fontSize / 2 * 3, image.getWidth(), image.getHeight(), null);
+                g.drawImage(image, width - image.getWidth(), height - image.getHeight() - fontSize / 2 * 3,
+                            image.getWidth(), image.getHeight(), null);
                 break;
             case LEFT_BOTTOM:
-                g.drawImage(image, 0, height - image.getHeight() - fontSize / 2 * 3, image.getWidth(), image.getHeight(), null);
+                g.drawImage(image, 0, height - image.getHeight() - fontSize / 2 * 3, image.getWidth(),
+                            image.getHeight(), null);
                 break;
             default:
                 break;

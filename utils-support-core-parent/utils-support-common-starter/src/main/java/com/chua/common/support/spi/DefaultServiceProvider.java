@@ -213,7 +213,8 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     @Override
     public T getNewExtension(String name, Object... args) {
         if (StringUtils.isEmpty(name)) {
-            return definitions.size() == 1 ? definitions.values().iterator().next().first().newInstance(serviceAutowire, args) : getDefaultImpl(args);
+            return definitions.size() == 1 ? definitions.values().iterator().next().first().newInstance(serviceAutowire,
+                                    args) : getDefaultImpl(args);
         }
         ServiceDefinition serviceDefinition = definitionFinder.getServiceDefinition(name, args);
         T instance = (T) Optional.ofNullable(serviceDefinition.newInstance(serviceAutowire, args)).orElse(null);
@@ -929,17 +930,20 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         /**
          * 动态加载扩展解析器：script加载服务解析器 (utils-support-extension-starter)
          */
-        ClassUtils.isPresent("com.chua.extension.support.spi.resolver.ScriptLoaderServiceResolver", ServiceResolver.class, defaultResolvers::add);
+        ClassUtils.isPresent("com.chua.extension.support.spi.resolver.ScriptLoaderServiceResolver",
+                             ServiceResolver.class, defaultResolvers::add);
 
         /**
          * 动态加载 Spring 解析器：spring服务解析器 (utils-support-spring-starter)
          */
-        ClassUtils.isPresent("com.chua.spring.support.configuration.spi.SpringServiceResolver", ServiceResolver.class, defaultResolvers::add);
+        ClassUtils.isPresent("com.chua.spring.support.configuration.spi.SpringServiceResolver", ServiceResolver.class,
+                             defaultResolvers::add);
 
         /**
          * 动态加载 OSGI 解析器：osgi服务解析器 (utils-support-osgi-starter)
          */
-        ClassUtils.isPresent("com.chua.common.support.spi.resolver.OsgiServiceResolver", ServiceResolver.class, defaultResolvers::add);
+        ClassUtils.isPresent("com.chua.common.support.spi.resolver.OsgiServiceResolver", ServiceResolver.class,
+                             defaultResolvers::add);
 
         for (ServiceResolver defaultResolver : Collections.unmodifiableList(defaultResolvers)) {
             if (defaultResolver.isDynamic()) {

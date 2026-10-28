@@ -100,7 +100,8 @@ public class OnnxImageClassifier implements ImageClassifier {
     */
     @Override
     public List<DetectionInfo> classifyTopK(byte[] imageData, int k) {
-        return ImageClassifier.create(resolveModel()).topK(topK).modelPath(modelPath).device(device).classifyTopK(imageData, k);
+        return ImageClassifier.create(resolveModel()).topK(topK).modelPath(modelPath).device(device).classifyTopK(imageData,
+                                      k);
     }
 
 }

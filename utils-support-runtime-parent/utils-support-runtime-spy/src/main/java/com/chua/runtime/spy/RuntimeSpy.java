@@ -177,7 +177,8 @@ public class RuntimeSpy {
         INTERCEPTOR_MAP.put(key, interceptor);
  // 同步精确插桩规则到 spy转换
         syncTransformerRule(className, methodName, point, true);
-        LOG.log(Level.FINE, String.format("注册拦截器: %s -> %s[%s]", key, interceptor.getClass().getSimpleName(), point.getKey()));
+        LOG.log(Level.FINE,
+                String.format("注册拦截器: %s -> %s[%s]", key, interceptor.getClass().getSimpleName(), point.getKey()));
     }
 
     /**
@@ -391,13 +392,15 @@ public class RuntimeSpy {
             if (spyCtx != null) {
                 long duration = System.currentTimeMillis() - spyCtx.startTime;
                 if (point == InterceptPoint.EXCEPTION) {
-                    LOG.log(Level.FINE, String.format("[Spy] %s.%s, duration=%sms [EXCEPTION]", className, methodName, duration));
+                    LOG.log(Level.FINE,
+                            String.format("[Spy] %s.%s, duration=%sms [EXCEPTION]", className, methodName, duration));
                 } else {
                     LOG.log(Level.FINE, String.format("[Spy] %s.%s, duration=%sms", className, methodName, duration));
                 }
             }
             if (popped != null && LOG.isLoggable(java.util.logging.Level.FINE)) {
-                LOG.log(Level.FINE, String.format("[Trace] exit span=%s traceId=%s", popped.spanId(), popped.traceId()));
+                LOG.log(Level.FINE,
+                        String.format("[Trace] exit span=%s traceId=%s", popped.spanId(), popped.traceId()));
             }
  // 无条件清理 ENTRY_THIS — 即使栈未空,当前方法的 thisref 也应被释放
             // (防 Socket/File 等大对象引用残留,防止线程池复用时脏数据)

@@ -160,7 +160,8 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
                 .optTokenizerPath(tokenizerPath)
                 .optPadding(false)
                 .build();
-        log.info("[opus-mt-zh-en] 模型加载完成: encoder={} decoder={} decoder_past={}", encoderPath.getFileName(), decoderPath.getFileName(), decoderPastPath.getFileName());
+        log.info("[opus-mt-zh-en] 模型加载完成: encoder={} decoder={} decoder_past={}", encoderPath.getFileName(),
+                 decoderPath.getFileName(), decoderPastPath.getFileName());
         loaded = true;
     }
 
@@ -204,8 +205,10 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
 
  // 2. 解码器 首步：解码器_启动_令牌 + 编码器_hidden_状态
             Map<String, OnnxTensor> feed = Wraps.map();
-            feed.put("input_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(new long[]{DECODER_START_ID}), new long[]{1, 1}));
-            feed.put("encoder_attention_mask", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(encMask), new long[]{1, ids.length}));
+            feed.put("input_ids",
+                     OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(new long[]{DECODER_START_ID}), new long[]{1, 1}));
+            feed.put("encoder_attention_mask",
+                     OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(encMask), new long[]{1, ids.length}));
             feed.put("encoder_hidden_states", OnnxTensor.createTensor(ortEnv,
                     FloatBuffer.wrap(encoderHidden), new long[]{1, ids.length, 512}));
             try (OrtSession.Result first = decoderSession.run(feed)) {
@@ -228,8 +231,10 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
  // 3. 解码器_with_past 循环：自回归生成
                 for (int step = 0; step < MAX_GENERATE_STEPS; step++) {
                     Map<String, OnnxTensor> f2 = Wraps.map();
-                    f2.put("input_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(new long[]{next}), new long[]{1, 1}));
-                    f2.put("encoder_attention_mask", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(encMask), new long[]{1, ids.length}));
+                    f2.put("input_ids",
+                           OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(new long[]{next}), new long[]{1, 1}));
+                    f2.put("encoder_attention_mask",
+                           OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(encMask), new long[]{1, ids.length}));
                     long[] dShape = {1, NUM_HEADS, decSeq, HEAD_DIM};
                     for (int layer = 0; layer < NUM_LAYERS; layer++) {
                         f2.put("past_key_values." + layer + ".decoder.key",

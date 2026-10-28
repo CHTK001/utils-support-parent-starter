@@ -346,7 +346,8 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
         fillIfNull(target::getTau2Score, src.getTau2Score(), target::setTau2Score);
         fillIfNull(target::getTauBankingScore, src.getTauBankingScore(), target::setTauBankingScore);
         fillIfNull(target::getLcrScore, src.getLcrScore(), target::setLcrScore);
-        fillIfNull(target::getTerminalbenchHardScore, src.getTerminalbenchHardScore(), target::setTerminalbenchHardScore);
+        fillIfNull(target::getTerminalbenchHardScore, src.getTerminalbenchHardScore(),
+                   target::setTerminalbenchHardScore);
         fillIfNull(target::getTerminalBench21Score, src.getTerminalBench21Score(), target::setTerminalBench21Score);
         fillIfNull(target::getTerminalBench40Score, src.getTerminalBench40Score(), target::setTerminalBench40Score);
         fillIfNull(target::getAutomationBenchScore, src.getAutomationBenchScore(), target::setAutomationBenchScore);
@@ -356,22 +357,28 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
         fillIfNull(target::getApexAgentsScore, src.getApexAgentsScore(), target::setApexAgentsScore);
         fillIfNull(target::getItbenchSreScore, src.getItbenchSreScore(), target::setItbenchSreScore);
         fillIfNull(target::getOmniscienceAccuracy, src.getOmniscienceAccuracy(), target::setOmniscienceAccuracy);
-        fillIfNull(target::getOmniscienceNonHallucination, src.getOmniscienceNonHallucination(), target::setOmniscienceNonHallucination);
+        fillIfNull(target::getOmniscienceNonHallucination, src.getOmniscienceNonHallucination(),
+                   target::setOmniscienceNonHallucination);
         fillIfNull(target::getElo, src.getElo(), target::setElo);
         fillIfNull(target::getCostPerTask, src.getCostPerTask(), target::setCostPerTask);
         fillIfNull(target::getJsonMode, src.getJsonMode(), target::setJsonMode);
         fillIfNull(target::getOpenaiCompatible, src.getOpenaiCompatible(), target::setOpenaiCompatible);
-        fillIfNull(target::getIntelligenceIndexEstimated, src.getIntelligenceIndexEstimated(), target::setIntelligenceIndexEstimated);
-        fillIfNull(target::getOutputSpeedTokensPerSecond, src.getOutputSpeedTokensPerSecond(), target::setOutputSpeedTokensPerSecond);
-        fillIfNull(target::getLatencyFirstTokenSeconds, src.getLatencyFirstTokenSeconds(), target::setLatencyFirstTokenSeconds);
+        fillIfNull(target::getIntelligenceIndexEstimated, src.getIntelligenceIndexEstimated(),
+                   target::setIntelligenceIndexEstimated);
+        fillIfNull(target::getOutputSpeedTokensPerSecond, src.getOutputSpeedTokensPerSecond(),
+                   target::setOutputSpeedTokensPerSecond);
+        fillIfNull(target::getLatencyFirstTokenSeconds, src.getLatencyFirstTokenSeconds(),
+                   target::setLatencyFirstTokenSeconds);
         fillIfNull(target::getContextWindowTokens, src.getContextWindowTokens(), target::setContextWindowTokens);
         fillIfNull(target::getActiveParams, src.getActiveParams(), target::setActiveParams);
         mergeBoolean(target::getReasoning, src.getReasoning(), target::setReasoning);
         mergeBoolean(target::getImageInput, src.getImageInput(), target::setImageInput);
         mergeBoolean(target::getWebSearch, src.getWebSearch(), target::setWebSearch);
         mergeBoolean(target::getFunctionCalling, src.getFunctionCalling(), target::setFunctionCalling);
-        fillIfNull(target::getEndToEndResponseTimeSeconds, src.getEndToEndResponseTimeSeconds(), target::setEndToEndResponseTimeSeconds);
-        fillIfNull(target::getInternalReasoningPrice, src.getInternalReasoningPrice(), target::setInternalReasoningPrice);
+        fillIfNull(target::getEndToEndResponseTimeSeconds, src.getEndToEndResponseTimeSeconds(),
+                   target::setEndToEndResponseTimeSeconds);
+        fillIfNull(target::getInternalReasoningPrice, src.getInternalReasoningPrice(),
+                   target::setInternalReasoningPrice);
         fillIfNull(target::getOutputModalities, src.getOutputModalities(), target::setOutputModalities);
         fillIfNull(target::getDeprecated, src.getDeprecated(), target::setDeprecated);
         if (src.getCapabilities() != null && !src.getCapabilities().isEmpty()) {

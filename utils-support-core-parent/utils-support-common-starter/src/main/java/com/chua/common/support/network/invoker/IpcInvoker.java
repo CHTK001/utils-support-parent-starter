@@ -209,7 +209,8 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
         public Object invoke(Object proxy, Method method, Object[] args) {
             if (method.getDeclaringClass() == Object.class) {
                 try {
-                    return ReflectUtils.invoke(this, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
+                    return ReflectUtils.invoke(this, method.getName(), method.getReturnType(),
+                                               method.getParameterTypes(), args);
                 } catch (Exception e) {
                     return null;
                 }

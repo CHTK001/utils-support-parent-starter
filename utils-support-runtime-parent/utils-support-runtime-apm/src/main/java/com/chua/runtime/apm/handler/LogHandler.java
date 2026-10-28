@@ -274,7 +274,8 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
             // 日志方法调用后：补充处理
             String level = mapMethodToLevel(methodName);
             if (level != null) {
-                LOG.log(Level.FINE, String.format("[LogPost] %s.%s level=%s", context.getReadableClassName(), methodName, level));
+                LOG.log(Level.FINE,
+                        String.format("[LogPost] %s.%s level=%s", context.getReadableClassName(), methodName, level));
             }
         }
     }
@@ -293,7 +294,8 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
                         InterceptPoint.LOG_POST, this);
             }
         }
-        LOG.log(Level.FINE, String.format("已注册 SLF4J 拦截点: %s 方法 × %s 描述符", LOG_METHODS.length, LOG_METHOD_DESCS.length));
+        LOG.log(Level.FINE,
+                String.format("已注册 SLF4J 拦截点: %s 方法 × %s 描述符", LOG_METHODS.length, LOG_METHOD_DESCS.length));
     }
 
     /**

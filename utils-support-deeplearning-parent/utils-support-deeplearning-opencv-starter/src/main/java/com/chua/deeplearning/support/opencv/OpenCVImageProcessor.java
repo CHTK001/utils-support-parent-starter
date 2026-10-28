@@ -480,7 +480,8 @@ public class OpenCVImageProcessor implements ImageProcessor {
                     int my = (int) match.get("y");
                     Imgproc.rectangle(output, new Point(mx, my), new Point(mx + tw, my + th), boxColor, 2);
                     String label = String.format("%.2f", ((Number) match.get("score")).doubleValue());
-                    Imgproc.putText(output, label, new Point(mx, my - 5), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, textColor, 1);
+                    Imgproc.putText(output, label, new Point(mx, my - 5), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5,
+                                    textColor, 1);
                 }
             } else {
                 src.copyTo(output);

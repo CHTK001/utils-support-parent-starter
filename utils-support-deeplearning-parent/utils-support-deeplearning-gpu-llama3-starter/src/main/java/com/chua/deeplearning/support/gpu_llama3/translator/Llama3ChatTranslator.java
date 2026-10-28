@@ -136,7 +136,8 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
         }
         synchronized (this) {
             if (model != null) {
-                log.warn("[Llama3-GPU:{}]{}: 模型已初始化，参数注入被忽略: {}", modelId, System.currentTimeMillis(), options.keySet());
+                log.warn("[Llama3-GPU:{}]{}: 模型已初始化，参数注入被忽略: {}", modelId, System.currentTimeMillis(),
+                         options.keySet());
                 return;
             }
             Object v = options.get("useGpu");

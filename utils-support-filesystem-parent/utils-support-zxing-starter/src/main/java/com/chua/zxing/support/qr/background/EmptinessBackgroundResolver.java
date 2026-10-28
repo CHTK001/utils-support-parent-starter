@@ -59,7 +59,8 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
         // 设置不要齿（画出的图形会圆滑）
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        fillPositionDetectionShape(g, eyeDf, lf, lb, width, UNIT_WIDTH, UNIT_WIDTH, version, setting.getCodeEyeSetting().getCodeEye());
+        fillPositionDetectionShape(g, eyeDf, lf, lb, width, UNIT_WIDTH, UNIT_WIDTH, version,
+                                   setting.getCodeEyeSetting().getCodeEye());
         for (int i = 0; i < rect.length; i++) {
             for (int j = 0; j < rect.length; j++) {
                 Color f = rect[i][j] == 1 ? pointDf : lf;

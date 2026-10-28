@@ -1277,9 +1277,11 @@ public class BufferedImageUtils {
         BufferedImage image = options.image();
         int type = image.getType();
         if (type == BufferedImage.TYPE_INT_ARGB || type == BufferedImage.TYPE_INT_RGB) {
-            return (int[]) image.getRaster().getDataElements(options.x(), options.y(), options.width(), options.height(), options.pixels());
+            return (int[]) image.getRaster().getDataElements(options.x(), options.y(), options.width(),
+                    options.height(), options.pixels());
         }
-        return image.getRGB(options.x(), options.y(), options.width(), options.height(), options.pixels(), 0, options.width());
+        return image.getRGB(options.x(), options.y(), options.width(), options.height(), options.pixels(), 0,
+                            options.width());
     }
 
     /**

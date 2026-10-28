@@ -102,7 +102,8 @@ public class MiniMindTranslator implements Translator<String, String> {
         // 加载 tokenizer
         Path tokenizerPath = findFile(modelRoot, "tokenizer.json");
         if (tokenizerPath == null || !Files.exists(tokenizerPath)) {
-            log.debug("[MiniMind] tokenizer.json not found in {}, extracting from classpath via NativeLoader...", modelRoot);
+            log.debug("[MiniMind] tokenizer.json not found in {}, extracting from classpath via NativeLoader...",
+                      modelRoot);
             NativeLoader.of("minimind-resources")
                     .from(MiniMindTranslator.class.getClassLoader())
                     .basePath("models/minimind/")

@@ -242,7 +242,8 @@ public class DataSearchServerFilter implements ServerFilter {
                 write(response, 200, "ok", toJsonable(provider.get(request.getParam("word"))));
                 return;
             case "search":
-                write(response, 200, "ok", toJsonableList(provider.search(request.getParam("keyword"), limit(request))));
+                write(response, 200, "ok",
+                      toJsonableList(provider.search(request.getParam("keyword"), limit(request))));
                 return;
             case "random":
                 write(response, 200, "ok", toJsonable(provider.random()));
@@ -251,7 +252,8 @@ public class DataSearchServerFilter implements ServerFilter {
                 write(response, 200, "ok", toJsonableList(provider.chain(request.getParam("word"), limit(request))));
                 return;
             case "first-char":
-                write(response, 200, "ok", toJsonableList(provider.findByFirstChar(request.getParam("char"), limit(request))));
+                write(response, 200, "ok",
+                      toJsonableList(provider.findByFirstChar(request.getParam("char"), limit(request))));
                 return;
             default:
                 write(response, 404, "not found: " + action, null);
@@ -276,10 +278,12 @@ public class DataSearchServerFilter implements ServerFilter {
                 write(response, 200, "ok", toJsonable(provider.random()));
                 return;
             case "author":
-                write(response, 200, "ok", toJsonableList(provider.byAuthor(request.getParam("author"), limit(request))));
+                write(response, 200, "ok",
+                      toJsonableList(provider.byAuthor(request.getParam("author"), limit(request))));
                 return;
             case "search":
-                write(response, 200, "ok", toJsonableList(provider.search(request.getParam("keyword"), limit(request))));
+                write(response, 200, "ok",
+                      toJsonableList(provider.search(request.getParam("keyword"), limit(request))));
                 return;
             default:
                 write(response, 404, "not found: " + action, null);
@@ -304,7 +308,8 @@ public class DataSearchServerFilter implements ServerFilter {
                 write(response, 200, "ok", toJsonable(provider.get(request.getParam("character"))));
                 return;
             case "search":
-                write(response, 200, "ok", toJsonableList(provider.search(request.getParam("keyword"), limit(request))));
+                write(response, 200, "ok",
+                      toJsonableList(provider.search(request.getParam("keyword"), limit(request))));
                 return;
             case "random":
                 write(response, 200, "ok", toJsonable(provider.random()));

@@ -194,9 +194,12 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
                 .optTokenizerPath(tokenizerPath)
                 .optPadding(false)
                 .build();
-        log.debug("[t5-seq2seq] encoder inputs={} outputs={}", encoderSession.getInputNames(), encoderSession.getOutputNames());
-        log.debug("[t5-seq2seq] decoder inputs={} outputs={}", decoderSession.getInputNames(), decoderSession.getOutputNames());
-        log.debug("[t5-seq2seq] decoder_past inputs={} outputs={}", decoderPastSession.getInputNames(), decoderPastSession.getOutputNames());
+        log.debug("[t5-seq2seq] encoder inputs={} outputs={}", encoderSession.getInputNames(),
+                  encoderSession.getOutputNames());
+        log.debug("[t5-seq2seq] decoder inputs={} outputs={}", decoderSession.getInputNames(),
+                  decoderSession.getOutputNames());
+        log.debug("[t5-seq2seq] decoder_past inputs={} outputs={}", decoderPastSession.getInputNames(),
+                  decoderPastSession.getOutputNames());
         log.info("[t5-seq2seq] 模型加载完成: encoder={} decoder={} decoder_past={}",
                 encoderPath.getFileName(), decoderPath.getFileName(), decoderPastPath.getFileName());
         loaded = true;

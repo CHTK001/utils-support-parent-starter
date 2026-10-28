@@ -134,7 +134,8 @@ public class SipTunnelSession {
                 close();
             }
         } else {
-            log.debug("SIP sendBytes skipped: channel={}, streamActive={}", channelId, stream != null && !stream.isClosed());
+            log.debug("SIP sendBytes skipped: channel={}, streamActive={}", channelId,
+                      stream != null && !stream.isClosed());
         }
     }
 

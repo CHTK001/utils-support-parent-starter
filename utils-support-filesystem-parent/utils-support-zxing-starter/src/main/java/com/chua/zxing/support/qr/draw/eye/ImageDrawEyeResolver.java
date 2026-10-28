@@ -41,7 +41,8 @@ public class ImageDrawEyeResolver extends AbstractDrawEyeResolver{
     public ImageDrawEyeResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int matrixW,
                                 int matrixH, int leftPadding, int topPadding, int infoSize, int detectCornerSize,
                                 Color detectOutColor, Color detectInnerColor, CodeEyeSetting codeEyeSetting) {
-        super(qrCodeConfig, g2, bitMatrix, matrixW, matrixH, leftPadding, topPadding, infoSize, detectCornerSize, detectOutColor, detectInnerColor, codeEyeSetting);
+        super(qrCodeConfig, g2, bitMatrix, matrixW, matrixH, leftPadding, topPadding, infoSize, detectCornerSize,
+              detectOutColor, detectInnerColor, codeEyeSetting);
     }
 
     /**
@@ -52,7 +53,8 @@ public class ImageDrawEyeResolver extends AbstractDrawEyeResolver{
         BufferedImage detectedImg = qrCodeConfig.getDetectOptions().chooseDetectedImg(detectLocation);
         if (detectedImg != null) {
             if (StringUtils.isNotBlank(codeEyeSetting.getCodeEyeColor())) {
-                BufferedImageUtils.changeColor(detectedImg, Converter.convertIfNecessary(codeEyeSetting.getCodeEyeColor(), Color.class));
+                BufferedImageUtils.changeColor(detectedImg,
+                                               Converter.convertIfNecessary(codeEyeSetting.getCodeEyeColor(), Color.class));
             }
             // 使用探测图形的图片来渲染
             g2.drawImage(detectedImg

@@ -241,7 +241,8 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         } catch (Exception e) {
             log.debug("[QwenOnnx] 关闭资源失败，已忽略: {}", e.getMessage());
         }
-        log.info("[QwenOnnx] ORT session ready (gpu={}, kvDim={}, layers={}) model={}", useGpu, kvDim, nLayers, modelPath);
+        log.info("[QwenOnnx] ORT session ready (gpu={}, kvDim={}, layers={}) model={}", useGpu, kvDim, nLayers,
+                 modelPath);
     }
 
     /**
@@ -273,9 +274,12 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
 
         while (generated < MAX_NEW_TOKENS) {
             Map<String, OnnxTensor> inputs = Wraps.map();
-            inputs.put("input_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(inputIds), new long[]{1, inputIds.length}));
-            inputs.put("attention_mask", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(attMask), new long[]{1, attMask.length}));
-            inputs.put("position_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(posIds), new long[]{1, posIds.length}));
+            inputs.put("input_ids",
+                       OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(inputIds), new long[]{1, inputIds.length}));
+            inputs.put("attention_mask",
+                       OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(attMask), new long[]{1, attMask.length}));
+            inputs.put("position_ids",
+                       OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(posIds), new long[]{1, posIds.length}));
             if (!first) {
                 inputs.putAll(past);
             } else {

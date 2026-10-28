@@ -119,7 +119,8 @@ public final class W3CTraceContext {
      */
     private static String readCurrentTraceId() {
         try {
-            return (String) ReflectUtils.invokeStatic("com.chua.runtime.spy.RuntimeSpy", "getCurrentTraceId", String.class);
+            return (String) ReflectUtils.invokeStatic("com.chua.runtime.spy.RuntimeSpy", "getCurrentTraceId",
+                    String.class);
         } catch (Exception e) {
             return null;
         }
@@ -131,7 +132,8 @@ public final class W3CTraceContext {
      */
     private static String readCurrentSpanId() {
         try {
-            return (String) ReflectUtils.invokeStatic("com.chua.runtime.spy.RuntimeSpy", "getCurrentSpanId", String.class);
+            return (String) ReflectUtils.invokeStatic("com.chua.runtime.spy.RuntimeSpy", "getCurrentSpanId",
+                    String.class);
         } catch (Exception e) {
             return null;
         }

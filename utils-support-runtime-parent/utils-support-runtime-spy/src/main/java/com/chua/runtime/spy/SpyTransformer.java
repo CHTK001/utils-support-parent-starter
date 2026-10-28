@@ -251,7 +251,8 @@ public class SpyTransformer implements ClassFileTransformer {
             return transformClass(className, classfileBuffer, loader);
 
         } catch (Exception e) {
-            LOG.log(Level.WARNING, String.format("插桩失败: %s — %s: %s", className, e.getClass().getName(), e.getMessage()), e);
+            LOG.log(Level.WARNING,
+                    String.format("插桩失败: %s — %s: %s", className, e.getClass().getName(), e.getMessage()), e);
             return null;
         }
     }

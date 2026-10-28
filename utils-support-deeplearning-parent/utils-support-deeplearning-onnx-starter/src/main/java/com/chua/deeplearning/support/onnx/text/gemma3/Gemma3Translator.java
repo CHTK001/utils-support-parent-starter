@@ -315,9 +315,12 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
             while (stepCount < MAX_NEW_TOKENS) {
                 long[] ids = toLongArray(tokens);
                 Map<String, OnnxTensor> inputs = Wraps.map();
-                inputs.put("input_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ids), new long[]{1, ids.length}));
-                inputs.put("attention_mask", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ones(ids.length)), new long[]{1, ids.length}));
-                inputs.put("position_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(range(ids.length)), new long[]{1, ids.length}));
+                inputs.put("input_ids",
+                           OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ids), new long[]{1, ids.length}));
+                inputs.put("attention_mask",
+                           OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ones(ids.length)), new long[]{1, ids.length}));
+                inputs.put("position_ids",
+                           OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(range(ids.length)), new long[]{1, ids.length}));
 
                 try (OrtSession.Result result = session.run(inputs)) {
                     float[][][] logits = (float[][][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）

@@ -40,7 +40,8 @@ public class FireSmokeDetectorTranslator extends YoloTranslator {
      * @param arguments 方法入参 arguments
      */
     public FireSmokeDetectorTranslator(Map<String, ?> arguments) {
-        super(resolveInputSize(arguments), resolveThreshold(arguments), resolveNmsThreshold(arguments), FIRE_SMOKE_2_CLASSES, true);
+        super(resolveInputSize(arguments), resolveThreshold(arguments), resolveNmsThreshold(arguments),
+              FIRE_SMOKE_2_CLASSES, true);
     }
 
     /**

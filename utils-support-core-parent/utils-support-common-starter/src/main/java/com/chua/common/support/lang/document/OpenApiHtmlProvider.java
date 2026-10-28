@@ -416,7 +416,8 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
               }
               const back = document.getElementById('backTop');
               if (back) {
-                window.addEventListener('scroll', function() { back.classList.toggle('visible', window.scrollY > 200); });
+                window.addEventListener('scroll',
+                                        function() { back.classList.toggle('visible', window.scrollY > 200); });
                 back.addEventListener('click', function() { window.scrollTo({ top: 0, behavior: 'smooth' }); });
               }
             })();

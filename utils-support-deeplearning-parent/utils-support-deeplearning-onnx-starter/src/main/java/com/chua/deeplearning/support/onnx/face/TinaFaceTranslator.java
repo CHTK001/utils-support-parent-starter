@@ -122,7 +122,8 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
         }
         var candidates = Wraps.<Candidate>list();
         for (var level = 0; level < STRIDES.length; level++) {
-            decodeLevel(candidates, list.get(level * 3), list.get(level * 3 + 1), list.get(level * 3 + 2), STRIDES[level]);
+            decodeLevel(candidates, list.get(level * 3), list.get(level * 3 + 1), list.get(level * 3 + 2),
+                        STRIDES[level]);
         }
         candidates.sort((left, right) -> Double.compare(right.score(), left.score()));
         var names = Wraps.<String>list();

@@ -190,7 +190,8 @@ public class ImageWaterImageFilter extends AbstractImageFilter {
                 g.drawImage(image, w - image.getWidth(), 0, image.getWidth(), image.getHeight(), null);
                 break;
             case RIGHT_BOTTOM:
-                g.drawImage(image, w - image.getWidth(), h - image.getHeight(), image.getWidth(), image.getHeight(), null);
+                g.drawImage(image, w - image.getWidth(), h - image.getHeight(), image.getWidth(), image.getHeight(),
+                            null);
                 break;
             case LEFT_BOTTOM:
                 g.drawImage(image, 0, h - image.getHeight(), image.getWidth(), image.getHeight(), null);

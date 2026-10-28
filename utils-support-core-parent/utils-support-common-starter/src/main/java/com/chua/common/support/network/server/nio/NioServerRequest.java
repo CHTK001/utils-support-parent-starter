@@ -267,7 +267,8 @@ public class NioServerRequest implements ServerRequest {
                     } else {
                         int colon = line.indexOf(':');
                         if (colon > 0) {
-                            headers.put(line.substring(0, colon).trim().toLowerCase(), line.substring(colon + 1).trim());
+                            headers.put(line.substring(0, colon).trim().toLowerCase(),
+                                        line.substring(colon + 1).trim());
                         }
                     }
                 }

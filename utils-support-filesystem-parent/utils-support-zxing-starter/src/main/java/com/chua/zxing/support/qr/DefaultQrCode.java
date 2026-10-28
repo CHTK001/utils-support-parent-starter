@@ -68,8 +68,10 @@ public class DefaultQrCode extends AbstractQrCode {
         builder.setErrorCorrection(ErrorCorrectionLevel.valueOf(setting.getCodeLevel().name()));
 
         try {
-            ServiceProvider.of(CodePointRender.class).getNewExtension(DEFAULT).render(builder, setting.getCodePointSetting());
-            ServiceProvider.of(CodeEyeRender.class).getNewExtension(DEFAULT).render(builder, setting.getCodeEyeSetting());
+            ServiceProvider.of(CodePointRender.class).getNewExtension(DEFAULT).render(builder,
+                               setting.getCodePointSetting());
+            ServiceProvider.of(CodeEyeRender.class).getNewExtension(DEFAULT).render(builder,
+                               setting.getCodeEyeSetting());
 
             QrCodeOptions codeOptions = builder.build();
             QRCode qrCode = code(codeOptions);
@@ -102,7 +104,8 @@ public class DefaultQrCode extends AbstractQrCode {
     private BufferedImage getBufferedImage(QrCodeOptions codeOptions, QrSetting setting, QRCode qrCode,
                                            BitMatrixEx bitMatrix) throws IOException {
         // 如果未设置背景风格，使用默认风格生成QR码图像
-        return ServiceProvider.of(CodeProduct.class).getNewExtension(DEFAULT).create(codeOptions, bitMatrix, qrCode, setting);
+        return ServiceProvider.of(CodeProduct.class).getNewExtension(DEFAULT).create(codeOptions, bitMatrix, qrCode,
+                                  setting);
     }
 
 

@@ -87,7 +87,8 @@ public final class ModelSelector {
                 HardwareConfig hw = hwOf(id);
                 if (hw != null && hw.recommended() && hw.isGpu()
                         && (hw.minVramMb() <= 0 || vramMb < 0 || hw.minVramMb() <= vramMb)) {
-                    log.debug("[deeplearning-engine] ModelSelector GPU 推荐选中: {} (device={}, vram={}MB)", id, device, vramMb);
+                    log.debug("[deeplearning-engine] ModelSelector GPU 推荐选中: {} (device={}, vram={}MB)", id, device,
+                              vramMb);
                     return id;
                 }
             }
@@ -96,13 +97,15 @@ public final class ModelSelector {
         for (String id : candidates) {
             HardwareConfig hw = hwOf(id);
             if (hw != null && hw.recommended() && !hw.isGpu()) {
-                log.debug("[deeplearning-engine] ModelSelector CPU 推荐选中: {} (device={}, vram={}MB)", id, device, vramMb);
+                log.debug("[deeplearning-engine] ModelSelector CPU 推荐选中: {} (device={}, vram={}MB)", id, device,
+                          vramMb);
                 return id;
             }
         }
         // 阶段3：无推荐命中，退化候选列表第一个（注册顺序）
         String fallback = candidates.getFirst();
-        log.debug("[deeplearning-engine] ModelSelector 无推荐命中，退化首选: {} (device={}, vram={}MB)", fallback, device, vramMb);
+        log.debug("[deeplearning-engine] ModelSelector 无推荐命中，退化首选: {} (device={}, vram={}MB)", fallback, device,
+                  vramMb);
         return fallback;
     }
 

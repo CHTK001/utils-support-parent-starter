@@ -221,7 +221,8 @@ public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
         StringBuffer codeBuffer = new StringBuffer();
         while (codeMatcher.find()) {
             String replacement = "<code>" + codeMatcher.group(1) + "</code>";
-            codeMatcher.appendReplacement(codeBuffer, Matcher.quoteReplacement(toPlaceholder(placeholders, replacement)));
+            codeMatcher.appendReplacement(codeBuffer,
+                                          Matcher.quoteReplacement(toPlaceholder(placeholders, replacement)));
         }
         codeMatcher.appendTail(codeBuffer);
 
@@ -231,7 +232,8 @@ public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
             String url = safeUrl(linkMatcher.group(2));
             String replacement = "<a href=\"" + escapeAttr(url) + "\" rel=\"noopener nofollow\">"
                     + linkMatcher.group(1) + "</a>";
-            linkMatcher.appendReplacement(linkBuffer, Matcher.quoteReplacement(toPlaceholder(placeholders, replacement)));
+            linkMatcher.appendReplacement(linkBuffer,
+                                          Matcher.quoteReplacement(toPlaceholder(placeholders, replacement)));
         }
         linkMatcher.appendTail(linkBuffer);
 

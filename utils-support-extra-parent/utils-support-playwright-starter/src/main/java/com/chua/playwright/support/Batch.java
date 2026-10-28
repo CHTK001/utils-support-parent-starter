@@ -223,7 +223,8 @@ public class Batch {
             case "screenshot":
                 return engine.screenshot(handle, params);
             case "evaluate":
-                return engine.evaluate(handle, (String) params.get("expression"), params != null ? params.get("arg") : null);
+                return engine.evaluate(handle, (String) params.get("expression"),
+                                       params != null ? params.get("arg") : null);
             case "close":
                 engine.close(handle);
                 return Map.of();

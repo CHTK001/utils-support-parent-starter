@@ -115,7 +115,8 @@ public abstract class AbstractProxyServer extends AbstractServer {
                 acceptChannel = ServerSocketChannel.open();
                 acceptChannel.configureBlocking(false);
                 acceptChannel.setOption(java.net.StandardSocketOptions.SO_REUSEADDR, setting.isSoReuseAddr());
-                acceptChannel.setOption(java.net.StandardSocketOptions.SO_RCVBUF, Math.max(setting.getBufferSize(), 16384));
+                acceptChannel.setOption(java.net.StandardSocketOptions.SO_RCVBUF,
+                                        Math.max(setting.getBufferSize(), 16384));
                 acceptChannel.bind(addr, backlog);
                 setting.setPort(((InetSocketAddress) acceptChannel.getLocalAddress()).getPort());
                 acceptSelector = Selector.open();
@@ -258,7 +259,8 @@ public abstract class AbstractProxyServer extends AbstractServer {
                     try {
                         ch = acceptChannel.accept();
                     } catch (java.nio.channels.ClosedChannelException e2) {
-                        log.info("{} nonBlockingAcceptLoop: ClosedChannelException, exiting", getClass().getSimpleName());
+                        log.info("{} nonBlockingAcceptLoop: ClosedChannelException, exiting",
+                                 getClass().getSimpleName());
                         return;
                     }
                     if (ch == null) {

@@ -246,7 +246,8 @@ public class WhisperTranslator {
         long start = System.currentTimeMillis();
         log.info("[Whisper] loadAudio start");
         float[] audio = loadAudio(audioPath);
-        log.info("[Whisper] audio samples={} duration={}s", audio.length, String.format("%.2f", audio.length / (float) SAMPLE_RATE));
+        log.info("[Whisper] audio samples={} duration={}s", audio.length,
+                 String.format("%.2f", audio.length / (float) SAMPLE_RATE));
         log.info("[Whisper] mel extract start");
         try {
             float[][] mel = melExtractor.extract(audio);

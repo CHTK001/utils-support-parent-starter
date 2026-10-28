@@ -222,7 +222,8 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
                             Iterable<ai.djl.modality.cv.output.Point> path = box.getPath();
                             if (path != null) {
                                 for (ai.djl.modality.cv.output.Point p : path) {
-                                    keypoints.add(new float[]{(float) (p.getX() * scaleX), (float) (p.getY() * scaleY)});
+                                    keypoints.add(new float[]{(float) (p.getX() * scaleX),
+                                                  (float) (p.getY() * scaleY)});
                                 }
                             }
                             return new PredictRectangle(

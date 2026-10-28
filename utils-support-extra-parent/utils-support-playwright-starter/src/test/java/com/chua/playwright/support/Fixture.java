@@ -199,7 +199,8 @@ final class Fixture {
                   });
                 });
                 var tip = document.getElementById('tip');
-                document.getElementById('hov').addEventListener('mouseover', function(){ tip.style.display = 'block'; });
+                document.getElementById('hov').addEventListener('mouseover',
+                                        function(){ tip.style.display = 'block'; });
                 document.getElementById('hov').addEventListener('mouseout', function(){ tip.style.display = 'none'; });
                 document.getElementById('form').addEventListener('submit', function(e){ e.preventDefault(); });
                 document.getElementById('navlink').addEventListener('click', function(e){ /* 允许默认跳转 */ });

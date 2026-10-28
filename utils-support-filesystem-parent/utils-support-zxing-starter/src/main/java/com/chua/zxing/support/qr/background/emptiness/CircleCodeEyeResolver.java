@@ -60,7 +60,8 @@ public class CircleCodeEyeResolver implements CodeEyeResolver{
 
         g.setStroke(new BasicStroke(thick, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER));
         g.setColor(df);
-        g.drawOval(startX + unitWidth / 2 + (size(version) - 7) * unitWidth, startY + unitWidth / 2 , 6 * unitWidth, 6 * unitWidth);
+        g.drawOval(startX + unitWidth / 2 + (size(version) - 7) * unitWidth, startY + unitWidth / 2, 6 * unitWidth,
+                   6 * unitWidth);
         g.setStroke(stroke);
 
         // 左下角
@@ -70,17 +71,20 @@ public class CircleCodeEyeResolver implements CodeEyeResolver{
 
         g.setStroke(new BasicStroke(thick, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER));
         g.setColor(df);
-        g.drawOval(startX + unitWidth / 2 , startY + unitWidth / 2 + (size(version) - 7) * unitWidth, 6 * unitWidth, 6 * unitWidth);
+        g.drawOval(startX + unitWidth / 2, startY + unitWidth / 2 + (size(version) - 7) * unitWidth, 6 * unitWidth,
+                   6 * unitWidth);
         g.setStroke(stroke);
 
         // 右下角
         g.setStroke(new BasicStroke(thick, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER));
         g.setColor(df);
-        g.fillOval(startX + (size(version) - 7) * unitWidth, startY + (size(version) - 7) * unitWidth, unitWidth, unitWidth);
+        g.fillOval(startX + (size(version) - 7) * unitWidth, startY + (size(version) - 7) * unitWidth, unitWidth,
+                   unitWidth);
 
         g.setStroke(new BasicStroke(thick, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER));
         g.setColor(df);
-        g.drawOval(startX + unitWidth / 2 + (size(version) - 9) * unitWidth, startY + unitWidth / 2 + (size(version) - 9) * unitWidth, 4 * unitWidth, 4 * unitWidth);
+        g.drawOval(startX + unitWidth / 2 + (size(version) - 9) * unitWidth,
+                   startY + unitWidth / 2 + (size(version) - 9) * unitWidth, 4 * unitWidth, 4 * unitWidth);
         g.setStroke(stroke);
     }
 }

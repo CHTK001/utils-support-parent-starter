@@ -44,7 +44,8 @@ public class RoundRectangleCodeEyeResolver implements CodeEyeResolver{
         g.setColor(lb);
         // g.fillRect(startXTemp, startYTemp, QRCodeWidthTemp,
         // QRCodeWidthTemp);
-        g.fillRoundRect(startX - unitWidth, startY - unitWidth, qrCodeWidth, qrCodeWidth, (int) (unitWidth * 4.5), (int) (unitWidth * 4.5));
+        g.fillRoundRect(startX - unitWidth, startY - unitWidth, qrCodeWidth, qrCodeWidth, (int) (unitWidth * 4.5),
+                        (int) (unitWidth * 4.5));
 
         // 画四个圆滑的大码眼
         Stroke stroke = g.getStroke();
@@ -53,48 +54,59 @@ public class RoundRectangleCodeEyeResolver implements CodeEyeResolver{
         g.setColor(lf);
         g.fillRoundRect(startX + unitWidth, startY + unitWidth, 5 * unitWidth, 5 * unitWidth, unitWidth, unitWidth);
         g.setColor(df);
-        g.fillRoundRect(startX + 2 * unitWidth, startY + 2 * unitWidth, 3 * unitWidth, 3 * unitWidth, unitWidth, unitWidth);
+        g.fillRoundRect(startX + 2 * unitWidth, startY + 2 * unitWidth, 3 * unitWidth, 3 * unitWidth, unitWidth,
+                        unitWidth);
 
         g.setStroke(new BasicStroke(thick, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
         g.setColor(lf);
-        g.drawRoundRect(startX + unitWidth / 2 - unitWidth, startY + unitWidth / 2 - unitWidth, 8 * unitWidth, 8 * unitWidth, (int) (unitWidth * 3.8), (int) (unitWidth * 3.8));
+        g.drawRoundRect(startX + unitWidth / 2 - unitWidth, startY + unitWidth / 2 - unitWidth, 8 * unitWidth,
+                        8 * unitWidth, (int) (unitWidth * 3.8), (int) (unitWidth * 3.8));
         g.setColor(df);
-        g.drawRoundRect(startX + unitWidth / 2, startY + unitWidth / 2, 6 * unitWidth, 6 * unitWidth, unitWidth * 2, unitWidth * 2);
+        g.drawRoundRect(startX + unitWidth / 2, startY + unitWidth / 2, 6 * unitWidth, 6 * unitWidth, unitWidth * 2,
+                        unitWidth * 2);
         g.setStroke(stroke);
 
         // 右上角
         g.setColor(lf);
-        g.fillRoundRect(startX + (size(version) - 6) * unitWidth, startY + unitWidth, 5 * unitWidth, 5 * unitWidth, unitWidth, unitWidth);
+        g.fillRoundRect(startX + (size(version) - 6) * unitWidth, startY + unitWidth, 5 * unitWidth, 5 * unitWidth,
+                        unitWidth, unitWidth);
         g.setColor(df);
-        g.fillRoundRect(startX + (size(version) - 5) * unitWidth, startY + 2 * unitWidth, 3 * unitWidth, 3 * unitWidth, unitWidth, unitWidth);
+        g.fillRoundRect(startX + (size(version) - 5) * unitWidth, startY + 2 * unitWidth, 3 * unitWidth,
+                        3 * unitWidth, unitWidth, unitWidth);
 
         g.setStroke(new BasicStroke(thick, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
         g.setColor(lf);
         g.drawRoundRect(startX + unitWidth / 2 + (size(version) - 8) * unitWidth, startY + unitWidth / 2 - unitWidth, 8 * unitWidth, 8 * unitWidth, (int) (unitWidth * 3.8),
                 (int) (unitWidth * 3.8));
         g.setColor(df);
-        g.drawRoundRect(startX + unitWidth / 2 + (size(version) - 7) * unitWidth, startY + unitWidth / 2, 6 * unitWidth, 6 * unitWidth, unitWidth * 2, unitWidth * 2);
+        g.drawRoundRect(startX + unitWidth / 2 + (size(version) - 7) * unitWidth, startY + unitWidth / 2,
+                        6 * unitWidth, 6 * unitWidth, unitWidth * 2, unitWidth * 2);
         g.setStroke(stroke);
 
         // 左下角
         g.setColor(lf);
-        g.fillRoundRect(startX + unitWidth, startY + (size(version) - 6) * unitWidth, 5 * unitWidth, 5 * unitWidth, unitWidth, unitWidth);
+        g.fillRoundRect(startX + unitWidth, startY + (size(version) - 6) * unitWidth, 5 * unitWidth, 5 * unitWidth,
+                        unitWidth, unitWidth);
         g.setColor(df);
-        g.fillRoundRect(startX + 2 * unitWidth, startY + (size(version) - 5) * unitWidth, 3 * unitWidth, 3 * unitWidth, unitWidth, unitWidth);
+        g.fillRoundRect(startX + 2 * unitWidth, startY + (size(version) - 5) * unitWidth, 3 * unitWidth,
+                        3 * unitWidth, unitWidth, unitWidth);
 
         g.setStroke(new BasicStroke(thick, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
         g.setColor(lf);
         g.drawRoundRect(startX + unitWidth / 2 - unitWidth, startY + unitWidth / 2 + (size(version) - 8) * unitWidth, 8 * unitWidth, 8 * unitWidth, (int) (unitWidth * 3.8),
                 (int) (unitWidth * 3.8));
         g.setColor(df);
-        g.drawRoundRect(startX + unitWidth / 2, startY + unitWidth / 2 + (size(version) - 7) * unitWidth, 6 * unitWidth, 6 * unitWidth, unitWidth * 2, unitWidth * 2);
+        g.drawRoundRect(startX + unitWidth / 2, startY + unitWidth / 2 + (size(version) - 7) * unitWidth,
+                        6 * unitWidth, 6 * unitWidth, unitWidth * 2, unitWidth * 2);
         g.setStroke(stroke);
 
         // 右下角
         g.setColor(lf);
-        g.fillRoundRect(startX + (size(version) - 8) * unitWidth, startY + (size(version) - 8) * unitWidth, 3 * unitWidth, 3 * unitWidth, unitWidth, unitWidth);
+        g.fillRoundRect(startX + (size(version) - 8) * unitWidth, startY + (size(version) - 8) * unitWidth,
+                        3 * unitWidth, 3 * unitWidth, unitWidth, unitWidth);
         g.setColor(df);
-        g.fillRoundRect(startX + (size(version) - 7) * unitWidth, startY + (size(version) - 7) * unitWidth, unitWidth, unitWidth, unitWidth, unitWidth);
+        g.fillRoundRect(startX + (size(version) - 7) * unitWidth, startY + (size(version) - 7) * unitWidth, unitWidth,
+                        unitWidth, unitWidth, unitWidth);
 
         g.setStroke(new BasicStroke(thick, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
         g.setColor(df);

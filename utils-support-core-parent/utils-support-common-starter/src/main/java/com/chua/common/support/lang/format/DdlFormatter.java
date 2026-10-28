@@ -103,7 +103,8 @@ public class DdlFormatter extends SqlFormatter {
      * 匹配 CREATE INDEX 语句的正则表达式。
      */
     private static final Pattern CREATE_INDEX_PATTERN =
-            Pattern.compile("(?i)CREATE\\s+(UNIQUE\\s+)?INDEX\\s+(\\w+)\\s+ON\\s+(\\w+)\\s*\\((.*?)\\)\\s*;?\\s*$", Pattern.DOTALL);
+            Pattern.compile("(?i)CREATE\\s+(UNIQUE\\s+)?INDEX\\s+(\\w+)\\s+ON\\s+(\\w+)\\s*\\((.*?)\\)\\s*;?\\s*$",
+                            Pattern.DOTALL);
 
     /**
      * 用于判断是否为约束的预定义模式。
@@ -118,7 +119,8 @@ public class DdlFormatter extends SqlFormatter {
      * </ul>
      */
     private static final Pattern CONSTRAINT_PATTERN =
-            Pattern.compile("(?i)(CONSTRAINT\\s+\\w+\\s+)?(PRIMARY\\s+KEY|FOREIGN\\s+KEY|UNIQUE|CHECK)", Pattern.CASE_INSENSITIVE);
+            Pattern.compile("(?i)(CONSTRAINT\\s+\\w+\\s+)?(PRIMARY\\s+KEY|FOREIGN\\s+KEY|UNIQUE|CHECK)",
+                            Pattern.CASE_INSENSITIVE);
 
     /**
      * Constraint_keywords

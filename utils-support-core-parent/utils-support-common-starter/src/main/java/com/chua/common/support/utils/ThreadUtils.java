@@ -483,7 +483,8 @@ public class ThreadUtils {
      */
     public static ScheduledFuture<?> newScheduleWithFixedDelay(final Runnable runnable, long initialDelay,
                                                                 long delay, TimeUnit unit) {
-        return newScheduleWithFixedDelay("GLOBAL-" + DEFAULT + "-SCHEDULED-2-POOL", runnable, initialDelay, delay, unit);
+        return newScheduleWithFixedDelay("GLOBAL-" + DEFAULT + "-SCHEDULED-2-POOL", runnable, initialDelay, delay,
+                                         unit);
     }
 
     /**

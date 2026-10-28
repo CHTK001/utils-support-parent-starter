@@ -1377,7 +1377,8 @@ public class MapUtils {
         Map<String, String> result = Wraps.map(source.size());
         for (Map.Entry<String, Object> entry : source.entrySet()) {
             Object value1 = entry.getValue();
-            result.put(entry.getKey(), value1 instanceof Collection && ((Collection<?>) value1).size() == 1 ? CollectionUtils.findFirst((Collection) value1).toString() : value1.toString());
+            result.put(entry.getKey(),
+                       value1 instanceof Collection && ((Collection<?>) value1).size() == 1 ? CollectionUtils.findFirst((Collection) value1).toString() : value1.toString());
         }
         return Collections.unmodifiableMap(result);
     }
@@ -2465,7 +2466,8 @@ public class MapUtils {
             java.beans.BeanInfo beanInfo = java.beans.Introspector.getBeanInfo(bean.getClass());
             for (java.beans.PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
                 if (!"class".equals(pd.getName()) && pd.getReadMethod() != null) {
-                    result.put(pd.getName(), ReflectUtils.invoke(bean, pd.getReadMethod().getName(), pd.getReadMethod().getReturnType()));
+                    result.put(pd.getName(),
+                               ReflectUtils.invoke(bean, pd.getReadMethod().getName(), pd.getReadMethod().getReturnType()));
                 }
             }
         } catch (Exception e) {

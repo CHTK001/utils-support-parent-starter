@@ -41,7 +41,8 @@ public class SingleSidedFilletRectangleDrawEyeResolver extends AbstractDrawEyeRe
                                                      int matrixW, int matrixH, int leftPadding, int topPadding,
                                                      int infoSize, int detectCornerSize, Color detectOutColor,
                                                      Color detectInnerColor, CodeEyeSetting codeEyeSetting) {
-        super(qrCodeConfig, g2, bitMatrix, matrixW, matrixH, leftPadding, topPadding, infoSize, detectCornerSize, detectOutColor, detectInnerColor, codeEyeSetting);
+        super(qrCodeConfig, g2, bitMatrix, matrixW, matrixH, leftPadding, topPadding, infoSize, detectCornerSize,
+              detectOutColor, detectInnerColor, codeEyeSetting);
     }
 
 

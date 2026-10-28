@@ -148,7 +148,8 @@ public final class RetryAstProcessor extends AbstractAstProcessor {
         if (strategy == Retry.RetryStrategy.EXPONENTIAL) {
             JCTree.JCExpression exponentialDelay = maker.Binary(JCTree.Tag.MUL,
                     maker.Literal(com.sun.tools.javac.code.TypeTag.LONG, delay),
-                    maker.Binary(JCTree.Tag.SL, maker.Literal(com.sun.tools.javac.code.TypeTag.INT, 1), retryCountIdent));
+                    maker.Binary(JCTree.Tag.SL, maker.Literal(com.sun.tools.javac.code.TypeTag.INT, 1),
+                                 retryCountIdent));
 
             JCTree.JCExpression minCall = maker.Apply(
                     com.sun.tools.javac.util.List.nil(),

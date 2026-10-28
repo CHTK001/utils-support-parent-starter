@@ -143,7 +143,9 @@ public class CustomServiceResolver implements ServiceResolver {
             }
             return null;
         }
-        return buildDefinition(type, CustomServiceResolver.class, null, tmp, StringUtils.defaultString(alias, tmp.getSimpleName().replace(type.getSimpleName(), "")), url);
+        return buildDefinition(type, CustomServiceResolver.class, null, tmp,
+                               StringUtils.defaultString(alias, tmp.getSimpleName().replace(type.getSimpleName(), "")),
+                               url);
     }
 
     /**

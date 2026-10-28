@@ -276,7 +276,8 @@ public class SpringBeanUtils {
         try {
             Method method = findMethod(requestMappingHandlerMapping.getClass(), "detectHandlerMethods", Object.class);
             if (method != null) {
-                ReflectUtils.invoke(requestMappingHandlerMapping, method.getName(), method.getReturnType(), controllerBeanName);
+                ReflectUtils.invoke(requestMappingHandlerMapping, method.getName(), method.getReturnType(),
+                                    controllerBeanName);
             }
         } catch (Exception e) {
             throw new RuntimeException("注册控制器失败: " + controllerBeanName, e);

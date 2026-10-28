@@ -207,9 +207,11 @@ public class VertxTcpProxyServer extends AbstractServer {
             front.pipeTo(back);
             back.pipeTo(front);
             front.resume();
-            log.debug("vertx-tcp-proxy: {} -> {}:{}", front.remoteAddress(), backend.getHostString(), backend.getPort());
+            log.debug("vertx-tcp-proxy: {} -> {}:{}", front.remoteAddress(), backend.getHostString(),
+                      backend.getPort());
         }).onFailure(err -> {
-            log.debug("vertx-tcp-proxy 连接后端 {}:{} 失败: {}", backend.getHostString(), backend.getPort(), err.getMessage());
+            log.debug("vertx-tcp-proxy 连接后端 {}:{} 失败: {}", backend.getHostString(), backend.getPort(),
+                      err.getMessage());
             front.close();
         });
     }

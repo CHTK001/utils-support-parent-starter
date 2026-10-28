@@ -76,7 +76,8 @@ public class ModelHealthChecker {
      */
     public void start() {
         if (running.compareAndSet(false, true)) {
-            scheduler.scheduleFixedRate("model-health-check", this::checkAllClientsHealth, checkIntervalMs, java.util.concurrent.TimeUnit.MILLISECONDS);
+            scheduler.scheduleFixedRate("model-health-check", this::checkAllClientsHealth, checkIntervalMs,
+                                        java.util.concurrent.TimeUnit.MILLISECONDS);
             log.info("[ModelHealthChecker] started with interval {}ms", checkIntervalMs);
         }
     }

@@ -52,7 +52,8 @@ public class WanouResourceProvider extends AbstractResourceProvider {
      * @return
      */
     protected String getUrl() {
-        return StringUtils.defaultString(videoSource.getVideoSourceUrl(), "https://woog.nxog.eu.org/api.php/provide/vod?ac=detail&wd=%s");
+        return StringUtils.defaultString(videoSource.getVideoSourceUrl(),
+                                         "https://woog.nxog.eu.org/api.php/provide/vod?ac=detail&wd=%s");
     }
 
     /**
