@@ -702,7 +702,8 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
             }
         }
         Class<T> service = type;
-        return ProxyUtils.newProxy(service, classLoader, new DelegateMethodIntercept<>(service, new SafeFunction<ProxyMethod, Object>() {
+        return ProxyUtils.newProxy(service, classLoader,
+                new DelegateMethodIntercept<>(service, new SafeFunction<ProxyMethod, Object>() {
             /**
              * Safe应用
              */

@@ -327,7 +327,8 @@ public class GoogleChatClient implements ChatClient {
         try {
             GenerateContentConfig.Builder configBuilder = GenerateContentConfig.builder();
             if (actualSystem != null && !actualSystem.isEmpty()) {
-                configBuilder.systemInstruction(Content.builder().parts(List.of(Part.builder().text(actualSystem).build())).build());
+                configBuilder.systemInstruction(
+                        Content.builder().parts(List.of(Part.builder().text(actualSystem).build())).build());
             }
             configBuilder.temperature(temperature != null ? temperature.floatValue() : 0.3f);
             configBuilder.maxOutputTokens(maxTokens != null ? maxTokens : 2048);

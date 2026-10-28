@@ -96,7 +96,8 @@ public class BufferedImageTypeConverter implements TypeConverter<BufferedImage> 
             }
 
             if (value instanceof ByteArrayOutputStream byteArrayOutputStream) {
-                try (ByteArrayInputStream arrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray())) {
+                try (ByteArrayInputStream arrayInputStream =
+                        new ByteArrayInputStream(byteArrayOutputStream.toByteArray())) {
                     return ImageIO.read(arrayInputStream);
                 }
             }

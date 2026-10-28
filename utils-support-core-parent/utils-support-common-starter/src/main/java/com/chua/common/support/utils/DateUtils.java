@@ -1377,7 +1377,9 @@ public class DateUtils {
         if (null == localDate) {
             return null;
         }
-        return Date.from(localDate.atStartOfDay().atZone(Optional.ofNullable(zoneId).orElse(DEFAULT_ZONE_ID)).toInstant());
+        return Date.from(localDate.atStartOfDay()
+                .atZone(Optional.ofNullable(zoneId).orElse(DEFAULT_ZONE_ID))
+                .toInstant());
     }
     /**
      * Java.SQL.日期 直接返回（类型兼容转换）。

@@ -598,7 +598,8 @@ public interface ServiceProvider<T> {
         if (collect.isEmpty()) {
             return null;
         }
-        return ProxyUtils.newProxy(getType(), getClassLoader(), new DelegateMethodIntercept<>(getType(), new Function<ProxyMethod, Object>() {
+        return ProxyUtils.newProxy(getType(), getClassLoader(),
+                new DelegateMethodIntercept<>(getType(), new Function<ProxyMethod, Object>() {
             /**
              * 应用
              */
