@@ -49,6 +49,8 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
+     * 构造 MetricsDataSyncAgent 实例。
+     *
      * @param agentId       Agent 标识
      * @param metricsService 系统指标服务
      * @param intervalMs    推送间隔（小于等于 0 视为 1000）
@@ -180,6 +182,8 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
         private volatile boolean closed;
 
         /**
+         * 构造 MetricsAgentSource 实例。
+         *
          * @param sourceId       源 标识
          * @param metricsService 系统指标服务
          */

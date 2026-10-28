@@ -36,6 +36,8 @@ public final class InputOptimizer {
     private final ChatClient chatClient;
 
     /**
+     * 构造 InputOptimizer 实例。
+     *
      * @param chatClient 用于改写输入的对话客户端，不能为 null
      */
     public InputOptimizer(ChatClient chatClient) {

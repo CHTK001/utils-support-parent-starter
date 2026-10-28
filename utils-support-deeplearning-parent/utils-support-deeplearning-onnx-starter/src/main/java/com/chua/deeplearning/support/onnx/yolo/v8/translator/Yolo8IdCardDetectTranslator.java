@@ -105,6 +105,7 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
     }
 
     /**
+     * 构造 Yolo8IdCardDetectTranslator 实例。
      *
      *
      * @param inputSize                                            

@@ -40,6 +40,7 @@ public class VggtOutput {
     private int featureDimension;
 
     /**
+     * 构造 VggtOutput 实例。
      *             
      *
      * @param gaussianData                   

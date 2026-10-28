@@ -58,6 +58,7 @@ public class ProgressState {
      */
     volatile boolean paused = false;
     /**
+     * 构造 ProgressState 实例。
      *             
      *
      * @param taskName             

@@ -37,6 +37,8 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
     private final String modelType;
 
     /**
+     * 构造 SafeTensorModelTranslator 实例。
+     *
      * @param host      safetensor服务 主机
      * @param port      safetensor服务 端口
      * @param modelName 模型名称

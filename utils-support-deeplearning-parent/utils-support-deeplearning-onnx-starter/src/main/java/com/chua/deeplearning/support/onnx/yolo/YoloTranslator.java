@@ -116,6 +116,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
     protected int imageHeight;
 
     /**
+     * 构造 YoloTranslator 实例。
      *                               
      *
      * @param inputSize                               

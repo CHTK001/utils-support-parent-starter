@@ -46,6 +46,8 @@ public class SafeTensorTranslator implements ITranslator<byte[], List<PredictRec
     }
 
     /**
+     * 构造 SafeTensorTranslator 实例。
+     *
      * @param host      safetensor服务 主机
      * @param port      safetensor服务 端口
      * @param modelName 模型名称

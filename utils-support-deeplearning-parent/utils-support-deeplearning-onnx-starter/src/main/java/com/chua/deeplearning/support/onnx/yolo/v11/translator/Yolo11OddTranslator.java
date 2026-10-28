@@ -99,6 +99,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
+     * 构造 Yolo11OddTranslator 实例。
      *
      *
      * @param width                          

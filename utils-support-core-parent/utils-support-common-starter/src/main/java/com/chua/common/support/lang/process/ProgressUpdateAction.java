@@ -38,6 +38,7 @@ class ProgressUpdateAction implements Runnable {
      */
     volatile private boolean first;
     /**
+     * 构造 ProgressUpdateAction 实例。
      *             
      *
      * @param progress                      

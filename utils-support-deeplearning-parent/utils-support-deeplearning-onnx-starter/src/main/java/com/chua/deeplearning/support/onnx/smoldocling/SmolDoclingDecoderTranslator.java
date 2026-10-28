@@ -225,6 +225,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         private Map<String, NDArray> pastKeyValues;
 
         /**
+         * 构造 DecoderInput 实例。
          *
          *
          * @param inputsEmbeds              
@@ -280,6 +281,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         private Map<String, NDArray> pastKeyValues;
 
         /**
+         * 构造 DecoderStepOutput 实例。
          *
          *
          * @param shape  logits       

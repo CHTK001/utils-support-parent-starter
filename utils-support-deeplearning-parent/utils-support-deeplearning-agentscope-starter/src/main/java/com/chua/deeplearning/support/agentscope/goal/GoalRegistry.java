@@ -40,6 +40,8 @@ public final class GoalRegistry {
     }
 
     /**
+     * 构造 GoalRegistry 实例。
+     *
      * @param maxGoals 容量上限，至少 1
      */
     public GoalRegistry(int maxGoals) {

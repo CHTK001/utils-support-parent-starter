@@ -38,6 +38,7 @@ public class YoloRotatedBox {
     private float score;
 
     /**
+     * 构造 YoloRotatedBox 实例。
      *             
      *
      * @param cx                  X       
