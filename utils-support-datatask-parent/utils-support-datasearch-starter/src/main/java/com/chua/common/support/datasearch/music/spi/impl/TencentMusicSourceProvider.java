@@ -176,7 +176,8 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     */
     @Override
     public MusicPlaylistCategoryCatalog getPlaylistCategoryCatalog() {
-        JsonNode root = getJson("https://u.y.qq.com/cgi-bin/musicu.fcg?loginUin=0&hostUin=0&format=json&inCharset=utf-8&outCharset=utf-8&notice=0&platform=wk_v15.json&needNewCode=0&data=%7B%22tags%22%3A%7B%22method%22%3A%22get_all_categories%22%2C%22param%22%3A%7B%22qq%22%3A%22%22%7D%2C%22module%22%3A%22playlist.PlaylistAllCategoriesServer%22%7D%7D");
+        JsonNode root = getJson("https://u.y.qq.com/cgi-bin/" +
+                "musicu.fcg?loginUin=0&hostUin=0&format=json&inCharset=utf-8&outCharset=utf-8&notice=0&platform=wk_v15.json&needNewCode=0&data=%7B%22tags%22%3A%7B%22method%22%3A%22get_all_categories%22%2C%22param%22%3A%7B%22qq%22%3A%22%22%7D%2C%22module%22%3A%22playlist.PlaylistAllCategoriesServer%22%7D%7D");
         List<MusicPlaylistCategoryGroup> groups = Wraps.list();
         List<MusicPlaylistCategory> hotTags = Wraps.list();
         int groupIndex = 0;
@@ -226,7 +227,8 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     public MusicPlaylistCategoryResult getCategoryPlaylists(String tagId, int page, int pageSize) {
         JsonNode playlist;
         if (StringUtils.hasText(tagId)) {
-            String url = "https://u.y.qq.com/cgi-bin/musicu.fcg?loginUin=0&hostUin=0&format=json&inCharset=utf-8&outCharset=utf-8&notice=0&platform=wk_v15.json&needNewCode=0&data="
+            String url = "https://u.y.qq.com/cgi-bin/" +
+                    "musicu.fcg?loginUin=0&hostUin=0&format=json&inCharset=utf-8&outCharset=utf-8&notice=0&platform=wk_v15.json&needNewCode=0&data="
                     + encode("{\"comm\":{\"cv\":1602,\"ct\":20},\"playlist\":{\"method\":\"get_category_content\",\"param\":{\"titleid\":"
                     + Integer.parseInt(tagId)
                     + ",\"caller\":\"0\",\"category_id\":"
@@ -238,7 +240,8 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
                     + ",\"use_page\":1},\"module\":\"playlist.PlayListCategoryServer\"}}");
             playlist = path(getJson(url), "playlist", "data", "content");
         } else {
-            String url = "https://u.y.qq.com/cgi-bin/musicu.fcg?loginUin=0&hostUin=0&format=json&inCharset=utf-8&outCharset=utf-8&notice=0&platform=wk_v15.json&needNewCode=0&data="
+            String url = "https://u.y.qq.com/cgi-bin/" +
+                    "musicu.fcg?loginUin=0&hostUin=0&format=json&inCharset=utf-8&outCharset=utf-8&notice=0&platform=wk_v15.json&needNewCode=0&data="
                     + encode("{\"comm\":{\"cv\":1602,\"ct\":20},\"playlist\":{\"method\":\"get_playlist_by_tag\",\"param\":{\"id\":10000000,\"sin\":"
                     + (pageSize * Math.max(0, page - 1))
                     + ",\"size\":"
@@ -279,7 +282,8 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     */
     @Override
     public MusicPlaylistDetail getPlaylistDetail(String playlistId) {
-        String url = "https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg?type=1&json=1&utf8=1&onlysong=0&new_format=1&disstid="
+        String url = "https://c.y.qq.com/qzone/fcg-bin/" +
+                "fcg_ucc_getcdinfo_byids_cp.fcg?type=1&json=1&utf8=1&onlysong=0&new_format=1&disstid="
                 + encode(playlistId)
                 + "&loginUin=0&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq.json&needNewCode=0";
         JsonNode root = getJson(url, builder -> builder
