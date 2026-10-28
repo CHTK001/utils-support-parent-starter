@@ -9,6 +9,7 @@ package com.chua.deeplearning.support.translator;
  * @param <O> 输出类型
  * @author CH
  * @since 4.0.0.42
+     * @deprecated 请改用 {@link ITranslator}，本接口仅作旧版本兼容保留
  */
 @Deprecated
 public interface CompatibleTranslator<I, O> extends ITranslator<I, O> {

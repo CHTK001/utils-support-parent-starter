@@ -314,6 +314,7 @@ public class PrometheusEngine implements Engine {
      *
      * @param dataSourceName 数据源名称
      * @return 恒为 null
+     * @deprecated 该引擎不支持 SQL 执行，请改用 {@link #supportsSql()} 判断能力
      */
     @Override
     @Deprecated
@@ -326,6 +327,7 @@ public class PrometheusEngine implements Engine {
      * <p>按 {@link Engine#getExecutor()} 约定, 非 SQL 数据源返回 null。</p>
      *
      * @return 恒为 null
+     * @deprecated 该引擎不支持 SQL 执行，请改用 {@link #supportsSql()} 判断能力
      */
     @Override
     @Deprecated
