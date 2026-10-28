@@ -202,7 +202,7 @@ public class RedisEngine {
             try {
                 eds.getSource().close();
             } catch (Exception e) {
-                log.warn("关闭Redis连接池失败: " + e.getMessage(), e);
+                log.warn("关闭Redis连接池失败: {}", e.getMessage(), e);
             }
         }
         dataSources.clear();

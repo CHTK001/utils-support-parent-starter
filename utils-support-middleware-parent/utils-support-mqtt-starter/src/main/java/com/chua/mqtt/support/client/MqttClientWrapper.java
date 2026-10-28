@@ -856,7 +856,7 @@ public class MqttClientWrapper implements AutoCloseable {
                 client.subscribe(entry.getKey(), entry.getValue());
                 log.info("MQTT 重新订阅: topic={}, qos={}", entry.getKey(), entry.getValue());
             } catch (MqttException e) {
-                log.error("MQTT 重新订阅失败: topic=" + entry.getKey(), e);
+                log.error("MQTT 重新订阅失败: topic={}", entry.getKey(), e);
             }
         }
     }
