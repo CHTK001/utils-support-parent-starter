@@ -1724,7 +1724,8 @@ public class ClassUtils {
             try {
                 callback.accept(method);
             } catch (Throwable throwable) {
-                throw new IllegalStateException("Not allowed to access method '" + method.getName() + "': " + throwable);
+                throw new IllegalStateException("Not allowed to access method '" + method.getName() + "': " +
+                        throwable);
             }
         }
     }

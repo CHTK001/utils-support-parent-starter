@@ -72,7 +72,8 @@ public class RpcInvoker implements Invoker {
     private <T> T createProxy(Class<T> apiClass, boolean isNew) {
         String baseUrl = resolveBaseUrl(apiClass);
         if (StringUtils.isEmpty(baseUrl)) {
-            throw new IllegalArgumentException("接口 " + apiClass.getName() + " 缺少 baseUrl，请标注 @RequestMethod 或 @RequestMapping");
+            throw new IllegalArgumentException("接口 " + apiClass.getName() +
+                    " 缺少 baseUrl，请标注 @RequestMethod 或 @RequestMapping");
         }
 
         RpcRegistryConfig registryConfig = new RpcRegistryConfig();

@@ -249,7 +249,8 @@ public BufferedImage generate(String prompt) {
                     .build();
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {
-                throw new RuntimeException("Google Imagen 图片生成请求失败: " + response.statusCode() + " - " + response.body());
+                throw new RuntimeException("Google Imagen 图片生成请求失败: " + response.statusCode() + " - " +
+                        response.body());
             }
             String body = response.body();
             return parseAndDecodeImage(body);

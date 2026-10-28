@@ -93,7 +93,8 @@ public abstract class HtmlScraperResourceProvider extends AbstractResourceProvid
                     com.chua.common.support.lang.code.PageResult.<VideoInfoResult>builder()
                             .data(results).total(results.size()).build());
         } catch (Exception e) {
-            return com.chua.common.support.datasearch.network.lang.code.ReturnPageResult.error("搜索失败: " + e.getMessage());
+            return com.chua.common.support.datasearch.network.lang.code.ReturnPageResult.error("搜索失败: " +
+                    e.getMessage());
         }
     }
 }

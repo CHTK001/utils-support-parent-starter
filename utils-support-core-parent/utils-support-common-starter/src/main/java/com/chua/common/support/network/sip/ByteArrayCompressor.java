@@ -108,7 +108,8 @@ public final class ByteArrayCompressor {
         int compressedLen = buf.getInt();
         int originalLen = buf.getInt();
         if (compressedLen != frame.length - HEADER_LEN) {
-            throw new IOException("SIP 压缩帧长度不匹配: header=" + compressedLen + " actual_data=" + (frame.length - HEADER_LEN));
+            throw new IOException("SIP 压缩帧长度不匹配: header=" + compressedLen + " actual_data=" +
+                    (frame.length - HEADER_LEN));
         }
         if (originalLen <= 0 || originalLen > MAX_PLAIN_LEN) {
             throw new IOException("SIP 原始长度非法: " + originalLen);

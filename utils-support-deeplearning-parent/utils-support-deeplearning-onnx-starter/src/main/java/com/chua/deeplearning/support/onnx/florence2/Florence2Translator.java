@@ -78,7 +78,8 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         Path decoderPath = modelDir.resolve("decoder_model_merged.onnx");
         Path tokenizerPath = modelDir.resolve("tokenizer.json");
         if (!Files.exists(visionPath) || !Files.exists(decoderPath) || !Files.exists(tokenizerPath)) {
-            throw new IllegalStateException("Florence-2 model files missing: vision=" + visionPath + " decoder=" + decoderPath);
+            throw new IllegalStateException("Florence-2 model files missing: vision=" + visionPath + " decoder=" +
+                    decoderPath);
         }
         tokenizer = HuggingFaceTokenizer.builder().optTokenizerPath(tokenizerPath).optPadding(false)
                 .optMaxLength(128).build();

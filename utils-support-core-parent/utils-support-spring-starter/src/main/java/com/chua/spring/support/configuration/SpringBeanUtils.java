@@ -653,7 +653,8 @@ public class SpringBeanUtils {
         T instance = org.springframework.beans.BeanUtils.instantiateClass(type);
         org.springframework.beans.BeanWrapper bw = new org.springframework.beans.BeanWrapperImpl(instance);
         Environment env = getEnvironment();
-        String targetPrefix = (null == prefix || prefix.isBlank()) ? "" : (prefix.endsWith(".") ? prefix : prefix + ".");
+        String targetPrefix = (null == prefix || prefix.isBlank()) ? "" : (prefix.endsWith(".") ? prefix : prefix +
+                ".");
         for (java.beans.PropertyDescriptor pd : bw.getPropertyDescriptors()) {
             String propName = pd.getName();
             if (!bw.isWritableProperty(propName)) {

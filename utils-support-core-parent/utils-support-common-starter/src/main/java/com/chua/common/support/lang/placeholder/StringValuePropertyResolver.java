@@ -126,7 +126,8 @@ public class StringValuePropertyResolver implements PropertyResolver {
                     int separatorIndex = placeholder.indexOf(placeholderSupport.getValueSeparator());
                     if (separatorIndex != -1) {
                         String actualPlaceholder = placeholder.substring(0, separatorIndex);
-                        String defaultValue = placeholder.substring(separatorIndex + placeholderSupport.getValueSeparator().length());
+                        String defaultValue = placeholder.substring(separatorIndex +
+                                placeholderSupport.getValueSeparator().length());
                         propVal = placeholderResolver.resolvePlaceholder(actualPlaceholder);
                         if (propVal == null) {
                             propVal = defaultValue;
@@ -242,7 +243,8 @@ public class StringValuePropertyResolver implements PropertyResolver {
                     int separatorIndex = placeholder.indexOf(placeholderSupport.getValueSeparator());
                     if (separatorIndex != -1) {
                         String actualPlaceholder = placeholder.substring(0, separatorIndex);
-                        String defaultValue = placeholder.substring(separatorIndex + placeholderSupport.getValueSeparator().length());
+                        String defaultValue = placeholder.substring(separatorIndex +
+                                placeholderSupport.getValueSeparator().length());
                         propVal = placeholderResolver.resolvePlaceholder(actualPlaceholder);
                         if (propVal == null) {
                             propVal = defaultValue;

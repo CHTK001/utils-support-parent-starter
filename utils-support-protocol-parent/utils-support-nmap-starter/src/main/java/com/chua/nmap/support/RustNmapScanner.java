@@ -219,7 +219,8 @@ public class RustNmapScanner implements NmapScanner {
         }
         long count = end - start + 1;
         if (count > MAX_HOSTS_PER_SWEEP) {
-            throw new IllegalArgumentException("IP 范围过大: " + count + " 台，上限 " + MAX_HOSTS_PER_SWEEP + " 台，请改用 scanSubnet 或分段调用");
+            throw new IllegalArgumentException("IP 范围过大: " + count + " 台，上限 " + MAX_HOSTS_PER_SWEEP +
+                    " 台，请改用 scanSubnet 或分段调用");
         }
         ScanOptions cfg = options;
         Semaphore permits = new Semaphore(Math.max(1, cfg.getConcurrency()));

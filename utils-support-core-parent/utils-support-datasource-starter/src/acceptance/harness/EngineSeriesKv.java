@@ -163,7 +163,8 @@ public final class EngineSeriesKv {
                 boolean ex = kv.key(ck).exists();
                 boolean del = kv.key(ck).delete();
                 if (!"cv".equals(got) || !ex || !del) {
-                    throw new EngineFunctional.HarnessFailure("链式结果异常: get=" + got + " exists=" + ex + " delete=" + del);
+                    throw new EngineFunctional.HarnessFailure("链式结果异常: get=" + got + " exists=" + ex + " delete=" +
+                            del);
                 }
                 return "cv/true/true";
             });
