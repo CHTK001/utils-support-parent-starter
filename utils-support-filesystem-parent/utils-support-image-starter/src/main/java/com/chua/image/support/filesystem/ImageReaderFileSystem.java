@@ -57,7 +57,8 @@ import java.util.Set;
  * @since 4.0.0.42
  */
 @Slf4j
-@Spi({"jpg", "jpeg", "png", "bmp", "webp", "tiff", "tif", "ico", "apng", "heic", "heif", "cr2", "nef", "arw", "raf", "orf", "rw2", "image"})
+@Spi({"jpg", "jpeg", "png", "bmp", "webp", "tiff", "tif", "ico", "apng", "heic", "heif", "cr2", "nef", "arw", "raf",
+        "orf", "rw2", "image"})
 public class ImageReaderFileSystem extends AbstractReader {
 
     /**
