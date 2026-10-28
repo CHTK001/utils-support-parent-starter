@@ -128,7 +128,7 @@ public class DefaultScriptConverter implements ScriptConverter {
      *
      * @param sql      已完成反引号改写的 SQL
      * @param protocol 目标方言
-     * @return 折叠后��� SQL
+     * @return 折叠后的 SQL
      */
     private String foldQuotedIdentifierCase(String sql, String protocol) {
         String p = protocol == null ? "" : protocol.toLowerCase(Locale.ROOT);
