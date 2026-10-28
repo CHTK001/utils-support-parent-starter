@@ -286,7 +286,9 @@ public class JdkImageProcessor implements ImageProcessor {
     private BufferedImage border(BufferedImage image, Map<String, Object> params) {
         int width = ImageProcessorUtils.toInt(params.get("width"), 1);
         width = Math.max(0, width);
-        int[] rgb = ImageProcessorUtils.parseColor(params.get("color") != null ? params.get("color").toString() : "#000000");
+        int[] rgb = ImageProcessorUtils.parseColor(params.get("color") != null
+                ? params.get("color").toString()
+                : "#000000");
         Color color = new Color(rgb[0], rgb[1], rgb[2]);
         int outW = image.getWidth() + width * 2;
         int outH = image.getHeight() + width * 2;

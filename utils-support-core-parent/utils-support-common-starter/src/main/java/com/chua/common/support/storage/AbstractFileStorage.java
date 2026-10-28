@@ -181,7 +181,9 @@ public abstract class AbstractFileStorage implements FileStorage {
                         .fileName(ctx.request.getFileName())
                         .filePath(ctx.request.getFilePath())
                         .metadata(com.chua.common.support.storage.metadata.Metadata.builder()
-                                .contentType(ctx.request.getMetadata() != null ? ctx.request.getMetadata().getContentType() : null)
+                                .contentType(ctx.request.getMetadata() != null
+                                        ? ctx.request.getMetadata().getContentType()
+                                        : null)
                                 .build())
                         .content(merged)
                         .build();

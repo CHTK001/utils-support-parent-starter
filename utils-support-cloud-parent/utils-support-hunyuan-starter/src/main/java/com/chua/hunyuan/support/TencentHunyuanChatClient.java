@@ -336,7 +336,9 @@ public class TencentHunyuanChatClient implements ChatClient {
             if (usage != null) {
                 usageBuilder
                         .inputTokens(usage.getPromptTokens() != null ? usage.getPromptTokens().intValue() : null)
-                        .outputTokens(usage.getCompletionTokens() != null ? usage.getCompletionTokens().intValue() : null)
+                        .outputTokens(usage.getCompletionTokens() != null
+                                ? usage.getCompletionTokens().intValue()
+                                : null)
                         .totalTokens(usage.getTotalTokens() != null ? usage.getTotalTokens().intValue() : null);
             }
 
