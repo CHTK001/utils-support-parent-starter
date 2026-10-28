@@ -122,9 +122,10 @@ public class LocaleTypeConverter implements TypeConverter<Locale> {
         if (map.containsKey(key)) {
             return map.get(key);
         }
-        for (Object k : map.keySet()) {
+        for (Object entry : map.entrySet()) {
+            Object k = ((Map.Entry<?, ?>) entry).getKey();
             if (k != null && key.equalsIgnoreCase(String.valueOf(k))) {
-                return map.get(k);
+                return ((Map.Entry<?, ?>) entry).getValue();
             }
         }
         return null;
