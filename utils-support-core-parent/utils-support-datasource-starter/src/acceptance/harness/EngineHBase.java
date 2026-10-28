@@ -42,6 +42,9 @@ import java.util.Map;
  *
  * <p>断言聚焦「引擎到底构造了什么请求、又如何解释结果」。
  * 仍然<b>不是</b>真实 HBase 读写验收（没有 RegionServer 参与）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineHBase {
 

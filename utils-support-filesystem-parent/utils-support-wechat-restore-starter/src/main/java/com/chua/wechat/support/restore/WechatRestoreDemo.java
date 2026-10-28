@@ -13,6 +13,9 @@ import java.util.*;
  * 微信聊天记录还原端到端演示.
  *
  * <p>使用模拟数据演示完整还原管道，输出 CSV / SQL / Excel 文件。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class WechatRestoreDemo {
 

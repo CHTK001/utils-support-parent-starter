@@ -15,6 +15,9 @@ import java.util.List;
  * JDK 证书生成器的参数数组化验证：keytool 必须收到完整参数，域名载荷不得被 shell 执行。
  *
  * <p>直接 {@code main()} 运行，不依赖 JUnit。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class JdkCertificateProviderTest {
 

@@ -2,6 +2,9 @@ package com.chua.datasource.support.dialect;
 import java.util.Properties;
 /**
  * mariadb 10.3 方言。
+*
+* @author CH
+* @since 4.0.0.42
 */
 public class MariaDb103Dialect extends SqlDialect {
     public static final String VERSION = "MariaDB 10.3"; // 版本

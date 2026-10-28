@@ -35,6 +35,9 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 /**
  * @作者 CH
+*
+* @author CH
+* @since 4.0.0.42
 */
 
 @Spi("chronicle")

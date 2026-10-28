@@ -11,6 +11,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 向量存储引擎（基础版）。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class VecWalStoreSystem implements WalStoreSystem<String> {
 

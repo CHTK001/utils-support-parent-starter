@@ -2,6 +2,12 @@ package com.chua.playwright.support;
 
 import com.chua.common.support.utils.NativeUtils;
 
+/**
+ * SimpleTest。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class SimpleTest {
     public static void main(String[] args) throws Exception {
         System.out.println("=== Simple Test ===");

@@ -19,6 +19,9 @@ import java.util.Objects;
  * {@code Upgrade: websocket} 时将连接升级为 WebSocket。</p>
  *
  * @since 2026/08/15
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class WebSocketProtocol {
 

@@ -8,6 +8,12 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * ModelParamsProviderDeviceTest。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 class ModelParamsProviderDeviceTest {
 
     @BeforeEach

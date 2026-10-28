@@ -10,6 +10,9 @@ import java.util.Map;
  *
  * <p>逐一探查：点击全部可点击元素后的 data-count、checkbox/radio/aria 勾选状态时间线、
  * 元素解析与命中测试、hover 与 tooltip 布局。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class DebugProbe {
 

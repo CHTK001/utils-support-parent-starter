@@ -26,6 +26,9 @@ import java.util.Map;
  * </ul>
  *
  * <p>本机无外部服务依赖：H2 用内存库，SQLite 用文件库，内存引擎进程内。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineQueryBuilder {
 

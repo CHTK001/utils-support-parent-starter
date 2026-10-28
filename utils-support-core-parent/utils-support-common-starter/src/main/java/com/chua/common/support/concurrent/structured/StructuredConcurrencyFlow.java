@@ -52,6 +52,9 @@ import java.util.stream.IntStream;
  * }</pre>
  *
  * @since 2026/07/24
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @SuppressWarnings("unchecked")
 public final class StructuredConcurrencyFlow {

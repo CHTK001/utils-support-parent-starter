@@ -27,6 +27,9 @@ import java.util.Map;
  * private 内部类，只能由其宿主实例在内部创建，无法从外部引用；抽象基类
  * {@code AbstractEngine} / {@code JdbcEngine} 不可实例化，其行为已由全部 24 个子类
  * 间接覆盖。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineRemaining {
 

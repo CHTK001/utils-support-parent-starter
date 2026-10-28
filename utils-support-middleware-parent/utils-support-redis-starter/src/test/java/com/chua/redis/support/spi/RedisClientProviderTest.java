@@ -14,6 +14,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Redis 缓存 SPI 装配自测。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class RedisClientProviderTest {
 

@@ -22,6 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 同步与异步只在执行层：{@code decide} 当前线程直接求值，
  * {@code decideAsync} 交给 {@code boundedElastic} 调度线程求值并以三个回调
  * {@code subscribe(onNext, onError, onComplete)} 交付结果。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class DecisionAsyncTest {
 

@@ -17,6 +17,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * WAL 存储系统抽象基类，亿级数据分片架构。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements WalStoreSystem<K>, Closeable {

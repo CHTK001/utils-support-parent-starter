@@ -17,6 +17,9 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * <p>使用 {@link ConcurrentHashMap} 支持并发安全的多维度错误计数，
  * 指标读取使用 {@link #snapshot()} 返回一致性弱快照。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SipMetrics {
 

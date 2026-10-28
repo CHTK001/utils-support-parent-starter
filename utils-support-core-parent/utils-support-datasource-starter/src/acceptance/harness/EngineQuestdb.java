@@ -33,6 +33,9 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * <p><b>本阶段能证明与不能证明的边界</b>：证明本引擎的协议编码、SQL 拼装、JSON 映射、
  * 降采样与失败语义；不证明真实 QuestDB 的 SQL 语义、ILP 解析与列类型推断。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineQuestdb {
 

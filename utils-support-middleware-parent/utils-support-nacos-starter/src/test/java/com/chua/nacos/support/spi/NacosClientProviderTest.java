@@ -14,6 +14,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Nacos 注册配置中心 SPI 装配自测。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class NacosClientProviderTest {
 

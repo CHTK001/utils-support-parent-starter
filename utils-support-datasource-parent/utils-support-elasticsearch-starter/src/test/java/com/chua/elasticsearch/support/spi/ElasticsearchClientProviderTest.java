@@ -28,6 +28,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * </ol>
  *
  * <p>真实集群的数据面验收（索引/字段/检索）不在这里 —— 那需要一台可达的 ES。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class ElasticsearchClientProviderTest {
 

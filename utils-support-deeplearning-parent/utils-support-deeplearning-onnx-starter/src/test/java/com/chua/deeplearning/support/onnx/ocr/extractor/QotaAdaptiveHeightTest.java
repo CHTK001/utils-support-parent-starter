@@ -17,6 +17,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * {@code 面积 * unclipRatio / 周长} 计算，本身随轮廓尺寸缩放，因此框高/字号
  * 比例应稳定在一个区间（字形上下留白余量），而非固定像素。此用例锁死该性质，
  * 若有人改回固定 cropPadding 补丁，三种字号的比例会离散，用例即失败。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class QotaAdaptiveHeightTest {
 

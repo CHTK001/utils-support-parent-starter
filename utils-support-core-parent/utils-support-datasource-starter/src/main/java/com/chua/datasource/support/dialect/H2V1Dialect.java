@@ -2,6 +2,9 @@ package com.chua.datasource.support.dialect;
 import java.util.Properties;
 /**
  * H2 1.x 方言。
+*
+* @author CH
+* @since 4.0.0.42
 */
 public class H2V1Dialect extends SqlDialect {
     public static final String VERSION = "H2 1.x"; // 版本

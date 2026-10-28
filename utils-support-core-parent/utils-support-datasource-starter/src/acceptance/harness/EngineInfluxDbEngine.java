@@ -12,6 +12,9 @@ import java.util.List;
  *
  * <p>注意与阶段九区分：{@code InfluxdbSeriesEngine}（时序 SPI）在阶段九验证，
  * 本类验证的是 {@code Engine} 接口上的 {@code InfluxDbEngine}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineInfluxDbEngine {
 

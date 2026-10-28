@@ -16,6 +16,9 @@ import java.util.Map;
  *
  * <p>引擎差异按能力适配而非硬编码期望：{@code DataSourceSeriesEngine} 是「一表一指标」
  * 模型（{@code metrics()} 恒返回 1 个），多指标场景对它不适用，断言会自动降级为「不适用」。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineSeriesKv {
 

@@ -41,6 +41,9 @@ import java.util.function.Function;
  *   <li>缺陷 24：{@code close()} 无条件关闭<b>调用方注入</b>的驱动，外部持有的连接被擅自释放；</li>
  *   <li>缺陷 25：驱动抛出的 {@code RuntimeException}（服务端错误）被原样透出，丢失 Cypher 上下文。</li>
  * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineNeo4j {
 

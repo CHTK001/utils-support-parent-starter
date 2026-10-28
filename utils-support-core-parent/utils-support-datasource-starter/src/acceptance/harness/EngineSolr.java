@@ -36,6 +36,9 @@ import java.util.List;
  *       与 {@code query(AccUser.class)} 读取的集合不是同一个；</li>
  *   <li>缺陷 14：{@code query(X).count()} 未覆写，直接抛 {@code UnsupportedOperationException}。</li>
  * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineSolr {
 

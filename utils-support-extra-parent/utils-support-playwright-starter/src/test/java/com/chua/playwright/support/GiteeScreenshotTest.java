@@ -7,6 +7,9 @@ import java.util.Map;
 
 /**
  * 本地 Chrome 截图冒烟测试（main 方法入口，非 JUnit 用例）。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class GiteeScreenshotTest {
 

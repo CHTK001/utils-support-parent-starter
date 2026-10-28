@@ -21,6 +21,9 @@ import java.util.Properties;
  *       {@code SeriesEngineConfiguration.seriesEngine(...)} 驱动，验其兜底语义；</li>
  *   <li>monitor 的引擎装配路径（SPI 发现 + 连接参数拼装 / 不可用兜底）。</li>
  * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineGaps {
 

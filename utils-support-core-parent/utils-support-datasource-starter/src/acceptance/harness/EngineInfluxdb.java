@@ -29,6 +29,9 @@ import java.util.function.Function;
  *
  * <p><b>明确不覆盖</b>：真实 InfluxDB 的 InfluxQL 执行语义与线上 HTTP 协议
  * （由官方 influxdb-java 客户端负责，非本项目代码）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineInfluxdb {
 

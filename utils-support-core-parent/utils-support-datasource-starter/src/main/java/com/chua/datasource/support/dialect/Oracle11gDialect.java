@@ -2,6 +2,9 @@ package com.chua.datasource.support.dialect;
 import java.util.Properties;
 /**
  * Oracle 11g 方言（ROWNUM 分页，无 偏移量...获取）。
+*
+* @author CH
+* @since 4.0.0.42
 */
 public class Oracle11gDialect extends SqlDialect {
     public static final String VERSION = "Oracle 11g"; // 版本

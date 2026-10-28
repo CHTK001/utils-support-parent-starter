@@ -26,6 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 同步与异步只在执行层：{@code execute} 当前线程直接执行返回，
  * {@code executeAsync} 交给异步提供者执行并以三个回调
  * {@code subscribe(onNext, onError, onComplete)} 交付结果。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class AsyncFlowChainTest {
 
