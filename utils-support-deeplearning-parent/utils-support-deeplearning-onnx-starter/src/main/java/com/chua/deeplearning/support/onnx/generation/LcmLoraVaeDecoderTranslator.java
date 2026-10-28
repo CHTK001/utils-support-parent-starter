@@ -52,7 +52,7 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
         this.width = width;
         this.height = height;
         if (log.isDebugEnabled()) {
-            log.debug("[LCM-LoRA VAE Decoder][Translator]                -             : {}x{}", width, height);
+        log.debug("[LCM-LoRA VAE Decoder][Translator] 初始化 - 输入尺寸: {}x{}", width, height);
         }
     }
 
@@ -75,7 +75,7 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("[LCM-LoRA VAE Decoder][Translator]                  : input size={}", modelInput.size());
+        log.debug("[LCM-LoRA VAE Decoder][Translator] 模型输入: input size={}", modelInput.size());
         }
 
         return modelInput;
@@ -109,7 +109,7 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
             var img = ImageFactory.getInstance().fromNDArray(output);
 
             if (log.isDebugEnabled()) {
-                log.debug("[LCM-LoRA VAE Decoder][Translator]                  : width={}, height={}", img.getWidth(), img.getHeight());
+        log.debug("[LCM-LoRA VAE Decoder][Translator] 输出图像尺寸: width={}, height={}", img.getWidth(), img.getHeight());
             }
 
             return img;

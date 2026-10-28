@@ -60,7 +60,7 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
         this.width = width;
         this.height = height;
         if (log.isDebugEnabled()) {
-            log.debug("[Small SD v0][VAE Decoder]                 -             : {}x{}", width, height);
+        log.debug("[Small SD v0][VAE Decoder] 初始化 - 输入尺寸: {}x{}", width, height);
         }
     }
 
@@ -72,7 +72,7 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
     @Override
     public void prepare(@Nonnull TranslatorContext ctx) {
         if (log.isDebugEnabled()) {
-            log.debug("[Small SD v0][VAE Decoder] Translator             ");
+            log.debug("[Small SD v0][VAE Decoder] Translator 初始化完成");
         }
     }
 
@@ -102,7 +102,7 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("[Small SD v0][VAE Decoder]                   : input shape={}", 
+        log.debug("[Small SD v0][VAE Decoder] 模型输入: input shape={}",
                     input.size() > 0 ? input.getFirst().getShape() : "empty");
         }
 
@@ -148,7 +148,7 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
         var img = ImageFactory.getInstance().fromNDArray(output);
 
         if (log.isDebugEnabled()) {
-            log.debug("[Small SD v0][VAE Decoder]                   : width={}, height={}", 
+        log.debug("[Small SD v0][VAE Decoder] 输出图像尺寸: width={}, height={}",
                     img.getWidth(), img.getHeight());
         }
 

@@ -136,7 +136,7 @@ public class CommonActionTranslator implements Translator<Image, Classifications
         labels = Arrays.stream(labels)
                 .map(String::trim)
                 .toArray(String[]::new);
-        log.debug("[            ]           {}                ", labels.length);
+        log.debug("[动作识别] 解析到 {} 个动作标签", labels.length);
     }
 
     /**

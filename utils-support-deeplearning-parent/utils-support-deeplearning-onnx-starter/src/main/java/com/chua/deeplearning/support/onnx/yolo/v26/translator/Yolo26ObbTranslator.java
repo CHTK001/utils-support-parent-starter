@@ -109,7 +109,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
         this.nmsThreshold = nmsThreshold;
         this.classes = Wraps.list(classes);
         this.maxBoxes = maxBoxes;
-        log.info("          YOLO26 OBB                 -             : {}x{},       : {}, NMS: {},          : {},             : {}",
+        log.info("YOLO26 OBB 检测器初始化 - 输入尺寸: {}x{}, 置信度阈值: {}, NMS: {}, 类别数: {}, 最大框数: {}",
                 width, height, threshold, nmsThreshold, this.classes.size(), maxBoxes);
     }
 
@@ -217,7 +217,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
         }
 
         var rotatedBoxList = rotatedNms(rotatedBoxes, nmsThreshold);
-        log.info("          {}                NMS    : {}   ", rotatedBoxList.size(), rotatedBoxes.size());
+        log.info("筛选后候选框数量: {}，NMS 后保留: {}", rotatedBoxList.size(), rotatedBoxes.size());
         return new ObbResult(rotatedBoxList);
     }
 
@@ -240,7 +240,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
         }
 
         if (shape.dimension() != 3) {
-            throw new IllegalArgumentException("YOLO26 OBB                      : " + shape);
+            throw new IllegalArgumentException("YOLO26 OBB 输入张量维度不符合预期: " + shape);
         }
 
         // [1, a, b]

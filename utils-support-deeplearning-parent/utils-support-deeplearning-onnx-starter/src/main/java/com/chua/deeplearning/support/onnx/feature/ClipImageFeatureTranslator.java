@@ -67,7 +67,7 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
      */
     @Override
     public void prepare(@Nonnull TranslatorContext ctx) {
-        log.debug("[CLIP][      ] Translator             ");
+        log.debug("[CLIP][准备] Translator 初始化完成");
     }
 
     /**
