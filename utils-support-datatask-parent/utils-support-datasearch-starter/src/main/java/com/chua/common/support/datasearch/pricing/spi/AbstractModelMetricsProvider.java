@@ -44,6 +44,16 @@ import java.util.regex.Pattern;
 public abstract class AbstractModelMetricsProvider implements ModelMetricsProvider {
 
     /**
+     * 美元金额起始标记（$ 紧跟数字）
+     */
+    private static final java.util.regex.Pattern DOLLAR_AMOUNT_PATTERN = java.util.regex.Pattern.compile("\\$\\s*[0-9]");
+
+    /**
+     * 十进制数字（含可选小数部分）
+     */
+    private static final java.util.regex.Pattern DECIMAL_NUMBER_PATTERN = java.util.regex.Pattern.compile("[0-9]+(?:\\.[0-9]+)?");
+
+    /**
      * 本地缓存键前缀
      */
     protected static final String PRICING_KEY_PREFIX = "pricing/";
@@ -430,7 +440,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
         if (text == null || text.isEmpty()) {
             return false;
         }
-        boolean dollar = Pattern.compile("\\$\\s*[0-9]").matcher(text).find();
+        boolean dollar = DOLLAR_AMOUNT_PATTERN.matcher(text).find();
         boolean yuan = text.contains("￥") || text.contains("\u00A5") || text.contains("元");
         if ("CNY".equalsIgnoreCase(currency)) {
             return dollar;
@@ -462,7 +472,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
         if ("free".equalsIgnoreCase(cleaned) || cleaned.contains("免费")) {
             return BigDecimal.ZERO;
         }
-        Matcher matcher = Pattern.compile("[0-9]+(?:\\.[0-9]+)?").matcher(cleaned);
+        Matcher matcher = DECIMAL_NUMBER_PATTERN.matcher(cleaned);
         try {
             return matcher.find() ? new BigDecimal(matcher.group()) : null;
         } catch (NumberFormatException ignored) {

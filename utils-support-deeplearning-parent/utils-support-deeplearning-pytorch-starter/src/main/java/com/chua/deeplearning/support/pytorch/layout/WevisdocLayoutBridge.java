@@ -26,6 +26,21 @@ import java.util.regex.Pattern;
 public class WevisdocLayoutBridge {
 
     /**
+     * Markdown 标题行：# ~ ###### + 空格 + 文本
+     */
+    private static final Pattern MARKDOWN_HEADER_PATTERN = Pattern.compile("^(#{1,6})\\s+(.+)$");
+
+    /**
+     * Markdown 列表项：- / * / + / 数字序号 + 空格 + 文本
+     */
+    private static final Pattern MARKDOWN_LIST_PATTERN = Pattern.compile("^(?:[-*+]|\\d+[.)])\\s+(.+)$");
+
+    /**
+     * Markdown 图片：![alt](url)
+     */
+    private static final Pattern MARKDOWN_IMAGE_PATTERN = Pattern.compile("!\\[([^\\]]*)\\]\\([^)]+\\)");
+
+    /**
      * Markdown 元素行：记录元素类型、文本内容、行号。
      */
     public static class MarkdownElement {
@@ -108,7 +123,7 @@ public class WevisdocLayoutBridge {
             }
 
             // 标题
-            Matcher header = Pattern.compile("^(#{1,6})\\s+(.+)$").matcher(trimmed);
+            Matcher header = MARKDOWN_HEADER_PATTERN.matcher(trimmed);
             if (header.find()) {
                 elements.add(new MarkdownElement("header", header.group(2), lineNo));
                 lineNo++;
@@ -123,7 +138,7 @@ public class WevisdocLayoutBridge {
             }
 
             // 列表项
-            Matcher list = Pattern.compile("^(?:[-*+]|\\d+[.)])\\s+(.+)$").matcher(trimmed);
+            Matcher list = MARKDOWN_LIST_PATTERN.matcher(trimmed);
             if (list.find()) {
                 elements.add(new MarkdownElement("list", list.group(1), lineNo));
                 lineNo++;
@@ -131,7 +146,7 @@ public class WevisdocLayoutBridge {
             }
 
             // 图片
-            Matcher figure = Pattern.compile("!\\[([^\\]]*)\\]\\([^)]+\\)").matcher(trimmed);
+            Matcher figure = MARKDOWN_IMAGE_PATTERN.matcher(trimmed);
             if (figure.find()) {
                 elements.add(new MarkdownElement("figure", figure.group(1), lineNo));
                 lineNo++;

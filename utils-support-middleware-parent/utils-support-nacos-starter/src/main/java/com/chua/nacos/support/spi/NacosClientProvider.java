@@ -97,8 +97,8 @@ public class NacosClientProvider implements MiddlewareClientProvider {
         try {
             String body = send(request, GET, API + "/namespaces", null, null).body();
             // 响应形如 {"code":0,"data":[{"namespace":"","namespaceShowName":"public"},...]}
-            Matcher ns = Pattern.compile("\"namespace\"\\s*:\\s*\"([^\"]*)\"").matcher(body);
-            Matcher show = Pattern.compile("\"namespaceShowName\"\\s*:\\s*\"([^\"]*)\"").matcher(body);
+            Matcher ns = NAMESPACE_PATTERN.matcher(body);
+            Matcher show = NAMESPACE_SHOW_NAME_PATTERN.matcher(body);
             while (ns.find()) {
                 String id = ns.group(1);
                 String name = show.find() ? show.group(1) : id;
@@ -122,8 +122,8 @@ public class NacosClientProvider implements MiddlewareClientProvider {
                     API + "/configurations?dataId=&group=&appName=&namespaceId=" + url(ns)
                             + "&pageNo=1&pageSize=200&search=accurate",
                     null, null).body();
-            Matcher id = Pattern.compile("\"dataId\"\\s*:\\s*\"([^\"]*)\"").matcher(body);
-            Matcher grp = Pattern.compile("\"group\"\\s*:\\s*\"([^\"]*)\"").matcher(body);
+            Matcher id = DATA_ID_PATTERN.matcher(body);
+            Matcher grp = GROUP_PATTERN.matcher(body);
             int i = 0;
             while (id.find() && i < 200) {
                 String d = id.group(1);
@@ -209,6 +209,25 @@ public class NacosClientProvider implements MiddlewareClientProvider {
     private static final String GET = "GET";
     private static final String POST = "POST";
 
+    /** 命名空间 id 字段 */
+    private static final Pattern NAMESPACE_PATTERN = Pattern.compile("\"namespace\"\\s*:\\s*\"([^\"]*)\"");
+    /** 命名空间展示名字段 */
+    private static final Pattern NAMESPACE_SHOW_NAME_PATTERN = Pattern.compile("\"namespaceShowName\"\\s*:\\s*\"([^\"]*)\"");
+    /** 配置 dataId 字段 */
+    private static final Pattern DATA_ID_PATTERN = Pattern.compile("\"dataId\"\\s*:\\s*\"([^\"]*)\"");
+    /** 配置 group 字段 */
+    private static final Pattern GROUP_PATTERN = Pattern.compile("\"group\"\\s*:\\s*\"([^\"]*)\"");
+    /** 服务名字段 */
+    private static final Pattern NAME_PATTERN = Pattern.compile("\"name\"\\s*:\\s*\"([^\"]*)\"");
+    /** 服务集群数字段 */
+    private static final Pattern CLUSTER_COUNT_PATTERN = Pattern.compile("\"clusterCount\"\\s*:\\s*\"?([0-9]+)\"?");
+    /** 实例 IP 字段 */
+    private static final Pattern IP_PATTERN = Pattern.compile("\"ip\"\\s*:\\s*\"([^\"]*)\"");
+    /** 实例端口字段 */
+    private static final Pattern PORT_PATTERN = Pattern.compile("\"port\"\\s*:\\s*\"?([0-9]+)\"?");
+    /** 实例健康状态字段 */
+    private static final Pattern HEALTHY_PATTERN = Pattern.compile("\"healthy\"\\s*:\\s*(true|false)");
+
     /** 服务列表 */
     private MiddlewareQueryResult services(MiddlewareConnectRequest request, long t0, String ns) throws Exception {
         String namespaceId = ns.isEmpty() || "public".equals(ns) ? "" : ns;
@@ -216,8 +235,8 @@ public class NacosClientProvider implements MiddlewareClientProvider {
                 "/nacos/v1/ns/service/list?pageNo=1&pageSize=200&namespaceId=" + url(namespaceId) + "&ignoreEmptyService=true",
                 null, null).body();
         List<Map<String, Object>> rows = new ArrayList<>();
-        Matcher name = Pattern.compile("\"name\"\\s*:\\s*\"([^\"]*)\"").matcher(body);
-        Matcher cnt = Pattern.compile("\"clusterCount\"\\s*:\\s*\"?([0-9]+)\"?").matcher(body);
+        Matcher name = NAME_PATTERN.matcher(body);
+        Matcher cnt = CLUSTER_COUNT_PATTERN.matcher(body);
         int i = 0;
         while (name.find() && i < 200) {
             Map<String, Object> row = new LinkedHashMap<>();
@@ -239,9 +258,9 @@ public class NacosClientProvider implements MiddlewareClientProvider {
                 "/nacos/v1/ns/instance/list?serviceName=" + url(service) + "&healthyOnly=false",
                 null, null).body();
         List<Map<String, Object>> rows = new ArrayList<>();
-        Matcher ip = Pattern.compile("\"ip\"\\s*:\\s*\"([^\"]*)\"").matcher(body);
-        Matcher port = Pattern.compile("\"port\"\\s*:\\s*\"?([0-9]+)\"?").matcher(body);
-        Matcher healthy = Pattern.compile("\"healthy\"\\s*:\\s*(true|false)").matcher(body);
+        Matcher ip = IP_PATTERN.matcher(body);
+        Matcher port = PORT_PATTERN.matcher(body);
+        Matcher healthy = HEALTHY_PATTERN.matcher(body);
         int i = 0;
         while (ip.find() && i < 200) {
             Map<String, Object> row = new LinkedHashMap<>();
