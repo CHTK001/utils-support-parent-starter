@@ -288,7 +288,8 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
         Map<String, BigDecimal> result = Wraps.linkedMap();
         String esc = html.replace("\\\"", "\"");
         Matcher m = Pattern.compile(
-                "\\{\"label\":\"[^\"]*\",\"activeParams\":(-?[0-9]+(?:\\.[0-9]+)?),\"passiveParams\":[0-9]+,\"detailsUrl\":\"/models/([^\"]+)\"")
+                "\\{\"label\":\"[^\"]*\",\"activeParams\":(-?[0-9]+(?:\\.[0-9]+)?)," +
+                        "\"passiveParams\":[0-9]+,\"detailsUrl\":\"/models/([^\"]+)\"")
                 .matcher(esc);
         while (m.find()) {
             result.putIfAbsent(m.group(2), new BigDecimal(m.group(1)));
