@@ -318,9 +318,11 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
                 inputs.put("input_ids",
                            OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ids), new long[]{1, ids.length}));
                 inputs.put("attention_mask",
-                           OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ones(ids.length)), new long[]{1, ids.length}));
+                           OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ones(ids.length)), new long[]{1,
+                                                   ids.length}));
                 inputs.put("position_ids",
-                           OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(range(ids.length)), new long[]{1, ids.length}));
+                           OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(range(ids.length)), new long[]{1,
+                                                   ids.length}));
 
                 try (OrtSession.Result result = session.run(inputs)) {
                     float[][][] logits = (float[][][]) result.get(0)

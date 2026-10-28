@@ -691,6 +691,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
         return "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
                 + "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>"
                 + "body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +
+                        "" +
                         "UI',sans-serif;padding:20px}"
                 + ".header{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}"
                 + "h1{margin:0;font-size:20px;font-weight:600}"

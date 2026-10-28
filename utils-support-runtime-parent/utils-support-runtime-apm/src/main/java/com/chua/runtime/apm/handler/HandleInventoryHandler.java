@@ -245,7 +245,8 @@ public class HandleInventoryHandler implements Plugin, RuntimeSpy.Interceptor {
             }
         }
         LOG.log(Level.FINE,
-                String.format("[HandleInventory] OPEN: kind=%s id=%s thread=%s", record.getKind(), handleId, record.getOwnerThread()));
+                String.format("[HandleInventory] OPEN: kind=%s id=%s thread=%s", record.getKind(), handleId,
+                              record.getOwnerThread()));
     }
 
     /**

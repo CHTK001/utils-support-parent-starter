@@ -865,7 +865,8 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
         if (colonIdx < 0) {
             writeJson(response,
                       Map.of(KEY_ERROR,
-                             Map.of(KEY_CODE, HTTP_BAD_REQUEST, KEY_MESSAGE_ERROR, "Invalid Gemini path: " + fullPath, KEY_ERROR_STATUS, GEMINI_STATUS_INVALID_ARGUMENT)));
+                             Map.of(KEY_CODE, HTTP_BAD_REQUEST, KEY_MESSAGE_ERROR, "Invalid Gemini path: " + fullPath,
+                                    KEY_ERROR_STATUS, GEMINI_STATUS_INVALID_ARGUMENT)));
             return;
         }
         String model = rest.substring(0, colonIdx);
@@ -901,7 +902,8 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
         } catch (Exception ex) {
             writeJson(response,
                       Map.of(KEY_ERROR,
-                             Map.of(KEY_CODE, HTTP_INTERNAL_ERROR, KEY_MESSAGE_ERROR, ex.getMessage(), KEY_ERROR_STATUS, GEMINI_STATUS_INTERNAL)));
+                             Map.of(KEY_CODE, HTTP_INTERNAL_ERROR, KEY_MESSAGE_ERROR, ex.getMessage(),
+                                    KEY_ERROR_STATUS, GEMINI_STATUS_INTERNAL)));
         } finally {
             clearTokenGroup();
         }

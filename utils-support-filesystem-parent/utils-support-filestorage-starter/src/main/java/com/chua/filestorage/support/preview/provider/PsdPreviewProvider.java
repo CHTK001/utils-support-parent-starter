@@ -56,6 +56,7 @@ public class PsdPreviewProvider implements FileStoragePreviewProvider {
         String html = "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
                 + "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>"
                 + "body{margin:0;background:#1a1a1a;color:#d4d4d4;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +
+                        "" +
                         "UI',sans-serif}"
                 + ".header{padding:16px 24px;background:#fff;color:#1a1a2e;border-bottom:1px solid #e5e7eb}"
                 + ".header h1{margin:0;font-size:16px;font-weight:600}"

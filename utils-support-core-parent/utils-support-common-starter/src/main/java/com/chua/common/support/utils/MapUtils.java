@@ -1379,7 +1379,8 @@ public class MapUtils {
             Object value1 = entry.getValue();
             result.put(entry.getKey(),
                        value1 instanceof Collection && ((Collection<?>) value1)
-                               .size() == 1 ? CollectionUtils.findFirst((Collection) value1).toString() : value1.toString());
+                               .size() == 1 ? CollectionUtils.findFirst((Collection) value1)
+                                       .toString() : value1.toString());
         }
         return Collections.unmodifiableMap(result);
     }
@@ -2469,7 +2470,8 @@ public class MapUtils {
             for (java.beans.PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
                 if (!"class".equals(pd.getName()) && pd.getReadMethod() != null) {
                     result.put(pd.getName(),
-                               ReflectUtils.invoke(bean, pd.getReadMethod().getName(), pd.getReadMethod().getReturnType()));
+                               ReflectUtils.invoke(bean, pd.getReadMethod().getName(),
+                                                   pd.getReadMethod().getReturnType()));
                 }
             }
         } catch (Exception e) {
