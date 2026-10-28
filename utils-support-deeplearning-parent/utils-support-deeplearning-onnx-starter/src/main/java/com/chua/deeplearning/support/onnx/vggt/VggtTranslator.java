@@ -49,7 +49,7 @@ public class VggtTranslator implements Translator<Image, Image> {
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         if (log.isDebugEnabled()) {
-            log.debug("                        : {}x{}", input.getWidth(), input.getHeight());
+            log.debug("原始图像尺寸: {}x{}", input.getWidth(), input.getHeight());
         }
 
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
@@ -69,7 +69,7 @@ public class VggtTranslator implements Translator<Image, Image> {
         array = array.transpose(2, 0, 1).expandDims(0);
 
         if (log.isDebugEnabled()) {
-            log.debug("                  : shape={}", array.getShape());
+            log.debug("模型输入: shape={}", array.getShape());
         }
         return new NDList(array);
     }
@@ -80,11 +80,11 @@ public class VggtTranslator implements Translator<Image, Image> {
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
-            log.debug("                        : {}          ", list.size());
+            log.debug("模型输出 {} 个张量", list.size());
         }
 
         if (list.isEmpty()) {
-            log.warn("                  ");
+            log.warn("模型输出为空");
             return createPlaceholderImage(ctx.getNDManager());
         }
 
@@ -92,13 +92,13 @@ public class VggtTranslator implements Translator<Image, Image> {
         NDArray output = list.getFirst();
         long[] outputShape = output.getShape().getShape();
 
-        log.info("VGGT             : shape={}, dtype={}",
+        log.info("VGGT 输出: shape={}, dtype={}",
                 output.getShape(), output.getDataType());
 
         //        3D                 Java          
         float[] gaussianData = output.toFloatArray();
 
-        log.info("       3D             : {}    float   ,       : {}",
+        log.info("转 3D 高斯数据完成: {} 个 float 值, 形状: {}",
                 gaussianData.length, Arrays.toString(outputShape));
 
  // vggt输出
@@ -108,7 +108,7 @@ public class VggtTranslator implements Translator<Image, Image> {
  // Translator                          镜像
         ctx.setAttachment(VGGT_OUTPUT_KEY, vggtOutput);
 
-        log.info("3D                : {}                ,                   : {}",
+        log.info("3D 高斯结果: {} 个高斯点, 特征维度: {}",
                 vggtOutput.getNumGaussians(), vggtOutput.getFeatureDimension());
 
  // 上下文

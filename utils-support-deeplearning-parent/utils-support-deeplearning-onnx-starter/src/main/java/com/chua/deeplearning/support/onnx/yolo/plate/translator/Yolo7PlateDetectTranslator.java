@@ -124,13 +124,13 @@ public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObj
         this.iouThreshold = iouThreshold;
         this.topK = topK;
 
-        log.info("YOLOv7                               ");
-        log.info("  -       :                      Detection   ");
-        log.info("  -             : {}x{}", inputSize, inputSize);
-        log.info("  -                : {}", confThreshold);
-        log.info("  - IOU       : {}", iouThreshold);
-        log.info("  -                   : {}", topK);
-        log.info("  -             :           [0, 1]");
+        log.info("YOLOv7 车牌检测器初始化");
+        log.info("  - 任务类型: 目标检测 Detection 任务");
+        log.info("  - 输入尺寸: {}x{}", inputSize, inputSize);
+        log.info("  - 置信度阈值: {}", confThreshold);
+        log.info("  - IOU 阈值: {}", iouThreshold);
+        log.info("  - 最大保留框数 (topK): {}", topK);
+        log.info("  - 坐标归一化: 启用 [0, 1]");
     }
 
     /**
