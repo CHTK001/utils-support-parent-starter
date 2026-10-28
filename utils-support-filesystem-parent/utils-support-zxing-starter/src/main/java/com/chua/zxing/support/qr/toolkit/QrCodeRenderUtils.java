@@ -533,7 +533,8 @@ public class QrCodeRenderUtils {
      * @param detectInnerColor 探测图形内部圈的颜色
      */
     public static void drawDetectImg(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int matrixW,
-                                     int matrixH, int leftPadding, int topPadding, int infoSize, int detectCornerSize, int x, int y,
+                                     int matrixH, int leftPadding, int topPadding, int infoSize, int detectCornerSize,
+                                             int x, int y,
                                      Color detectOutColor, Color detectInnerColor, QrCodeRenderHelper.DetectLocation detectLocation) {
 
         BufferedImage detectedImg = qrCodeConfig.getDetectOptions().chooseDetectedImg(detectLocation);

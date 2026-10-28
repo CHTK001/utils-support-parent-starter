@@ -89,7 +89,8 @@ public class StringUtils {
      * memoised padding up 转为 21 (blocks 0 转为 20 spaces)
      */
     static final String[] PADDING = {"", " ", "  ", "   ", "    ", "     ", "      ", "       ", "        ",
-            "         ", "          ", "           ", "            ", "             ", "              ", "               ",
+            "         ", "          ", "           ", "            ", "             ", "              ",
+                    "               ",
             "                ", "                 ", "                  ", "                   ", "                    "};
     /**
      * Thread_本地_构建器
