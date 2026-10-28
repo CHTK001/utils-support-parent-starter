@@ -59,7 +59,8 @@ public class CadPreviewProvider implements FileStoragePreviewProvider {
                 ".card{background:#fff;border:1px solid " +
                         "#e5e7eb;border-radius:12px;padding:32px;max-width:480px;width:100%;" +
                 "box-shadow:0 1px 3px rgba(0,0,0,.08)}" +
-                ".icon{width:64px;height:64px;background:#eff6ff;border-radius:12px;display:flex;align-items:center;justify-content:center;" +
+                ".icon{width:64px;height:64px;background:#eff6ff;border-radius:12px;display:flex;" +
+                        "align-items:center;justify-content:center;" +
                 "margin:0 auto 20px}" +
                 ".icon svg{width:32px;height:32px;color:#3b82f6}" +
                 "h2{margin:0 0 8px;font-size:18px;font-weight:600;text-align:center}" +

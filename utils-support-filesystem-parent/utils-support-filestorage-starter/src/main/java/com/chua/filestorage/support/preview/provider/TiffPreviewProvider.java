@@ -210,7 +210,8 @@ public class TiffPreviewProvider implements FileStoragePreviewProvider {
                 .append(".hdr .meta{font-size:12px;color:#909399;margin-top:3px}")
                 .append(".warn{margin-top:6px;font-size:12px;color:#b88230;background:#fdf6ec;border:1px solid " +
                         "#f5dab1;border-radius:4px;padding:5px 8px}")
-                .append(".stage{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:16px}")
+                .append(".stage{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;" +
+                        "padding:16px}")
                 .append(".stage img{max-width:100%;height:auto;background:#fff;box-shadow:0 1px 6px " +
                         "rgba(0,0,0,.10);border:1px solid #e4e7ed;border-radius:3px}")
                 .append(".pages{flex-shrink:0;display:flex;gap:6px;overflow-x:auto;padding:8px " +

@@ -123,7 +123,8 @@ public class AsmProxyFactory<T> implements ProxyFactory<T> {
             // 调用 intercept.invoke()
             mv.visitMethodInsn(Opcodes.INVOKEINTERFACE,
                     Type.getInternalName(MethodIntercept.class), "invoke",
-                    "(Ljava/lang/Object;Ljava/lang/reflect/Method;[Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", true);
+                    "(Ljava/lang/Object;Ljava/lang/reflect/Method;[Ljava/lang/Object;Ljava/lang/Object;" +
+                            ")Ljava/lang/Object;", true);
 
             // 处理返回类型
             if (returnType == void.class) {

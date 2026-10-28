@@ -263,7 +263,8 @@ public class AvroPreviewProvider implements FileStoragePreviewProvider {
      */
     private String unavailableHtml(String message) {
         return "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\"><style>"
-                + "body{margin:0;background:#f8f9fa;color:#666;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:sans-serif}"
+                + "body{margin:0;background:#f8f9fa;color:#666;display:flex;justify-content:center;" +
+                        "align-items:center;min-height:100vh;font-family:sans-serif}"
                 + ".box{text-align:center;padding:40px;border:2px dashed #ddd;border-radius:12px}"
                 + "</style></head><body><div class=\"box\">" + escape(message) + "</div></body></html>";
     }

@@ -448,7 +448,8 @@ public class XpsPreviewProvider implements FileStoragePreviewProvider {
                 .append(".page{background:#fff;border:1px solid " +
                         "#e5e7eb;border-radius:12px;padding:24px;margin-bottom:16px}")
                 .append(".page-title{font-size:13px;font-weight:600;color:#6b7280;margin-bottom:12px}")
-                .append(".text{font-size:15px;line-height:1.8;white-space:pre-wrap;word-break:break-word;color:#374151}")
+                .append(".text{font-size:15px;line-height:1.8;white-space:pre-wrap;word-break:break-word;" +
+                        "color:#374151}")
                 .append(".empty{color:#6b7280;text-align:center;padding:40px}")
                 .append("</style></head><body>")
                 .append("<div class=\"header\"><h1>XPS 固定版式文档预览</h1>")
@@ -488,7 +489,8 @@ public class XpsPreviewProvider implements FileStoragePreviewProvider {
      */
     private String unavailableHtml(String message) {
         return "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\"><style>"
-                + "body{margin:0;background:#f8f9fa;color:#666;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:sans-serif}"
+                + "body{margin:0;background:#f8f9fa;color:#666;display:flex;justify-content:center;" +
+                        "align-items:center;min-height:100vh;font-family:sans-serif}"
                 + ".box{text-align:center;padding:40px;border:2px dashed #ddd;border-radius:12px}"
                 + "</style></head><body><div class=\"box\">" + escape(message) + "</div></body></html>";
     }

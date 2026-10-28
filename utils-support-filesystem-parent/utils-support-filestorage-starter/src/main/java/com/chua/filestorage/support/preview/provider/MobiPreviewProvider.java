@@ -783,7 +783,8 @@ public class MobiPreviewProvider implements FileStoragePreviewProvider {
                 .append(".notice{margin-top:12px;padding:8px 12px;background:#fffbeb;border:1px solid " +
                         "#fde68a;border-radius:8px;color:#92400e;font-size:13px}")
                 .append(".article{background:#fff;border:1px solid " +
-                        "#e5e7eb;border-radius:12px;padding:24px;font-size:15px;line-height:1.9;white-space:pre-wrap;word-break:break-word}")
+                        "#e5e7eb;border-radius:12px;padding:24px;font-size:15px;line-height:1.9;" +
+                                "white-space:pre-wrap;word-break:break-word}")
                 .append(".foot{color:#9ca3af;font-size:12px;margin-top:12px}")
                 .append("</style></head><body>")
                 .append("<div class=\"header\"><h1>")
@@ -819,7 +820,8 @@ public class MobiPreviewProvider implements FileStoragePreviewProvider {
      */
     private String unavailableHtml(String message) {
         return "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\"><style>"
-                + "body{margin:0;background:#f8f9fa;color:#666;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:sans-serif}"
+                + "body{margin:0;background:#f8f9fa;color:#666;display:flex;justify-content:center;" +
+                        "align-items:center;min-height:100vh;font-family:sans-serif}"
                 + ".box{text-align:center;padding:40px;border:2px dashed #ddd;border-radius:12px}"
                 + "</style></head><body><div class=\"box\">" + escape(message) + "</div></body></html>";
     }

@@ -107,7 +107,8 @@ public class SvgPreviewProvider implements FileStoragePreviewProvider {
 
         // SVG 容器
         sb.append("<div id=\"svg-container\" " +
-                "style=\"flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;background:#fafafa\">");
+                "style=\"flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;" +
+                        "background:#fafafa\">");
         sb.append("<div id=\"svg-wrapper\" style=\"padding:40px;transform-origin:center center\">");
         sb.append("<img src=\"data:image/svg+xml;base64,").append(b64).append("\" " +
                 "style=\"max-width:none;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-radius:4px;\" " +
