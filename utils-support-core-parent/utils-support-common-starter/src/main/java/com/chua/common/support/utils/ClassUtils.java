@@ -780,7 +780,7 @@ public class ClassUtils {
                 return Class.forName(name); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体
             } catch (ClassNotFoundException ex) {
                 try {
-                    throw new ClassNotFoundException("                  class                               class                   ", e);
+                    throw new ClassNotFoundException("无法加载类: " + name, e);
                 } catch (ClassNotFoundException exc) {
                     throw new RuntimeException(exc);
                 }
@@ -3264,7 +3264,7 @@ public class ClassUtils {
             ClassUtils.setAccessible(builder);
             return (T) ClassUtils.invokeBean(ClassUtils.invokeMethod(builder, null), "build");
         }
-        throw new RuntimeException(String.format("               %s", protoMapClass.getName()));
+        throw new RuntimeException(String.format("无法构建目标类型实例: %s", protoMapClass.getName()));
     }
     /**
      * 将 Map 数据映射到目标类型对象（先实例化目标对象，再复制属性）。
