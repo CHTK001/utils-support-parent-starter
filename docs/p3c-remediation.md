@@ -135,6 +135,7 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
 18. **1.8.2 补漏**：此前接口方法扫描只匹配带 `{` 的具体方法，漏掉以 `);` 结尾的接口声明共 29 处（ServerRequest 15、MappingDefinition 7、ProgressBarConsumer 3、MappingParser 2、ProtocolServer 2），已全部补齐描述；复查归零。
 19. **1.2 魔法值（强制）未做批量整改**：全仓重复字面量主要集中在测试用例（`abc`、`Hello`、`cam-A`）与领域标签（`cpu`、`memory`、`value`），在缺少语义信息时机械提取常量反而降低可读性，且极易引入错误；建议在后续迭代中随功能改动就地整改。
 20. **4.3 XSS 复查**：主要 HTML 生成类（OpenApiHtmlProvider、BenchmarkHtmlProvider、FileStorageViewServerFilter）均已使用 `StringUtils.escapeAttr`/`escapeHtml` 对动态内容转义；其余匹配到 `<div>` 等字符串的文件为提示词模板、JSON 片段或静态片段，不构成注入面。
+21. **1.4.8 `@Deprecated` 说明**：全仓 5 处 `@Deprecated` 缺少废弃原因与替代接口指引，已补充 `@deprecated` 标签（CompatibleTranslator、GreptimeDbEngine ×2、PrometheusEngine ×2）；复查归零。
 
 ## 五、最终状态（本轮结束时）
 
@@ -184,7 +185,7 @@ mvn -o -q compile -pl "module-a,module-b" -DskipTests "-Dpmd.skip=true" `
 | 1.1 命名 | 类/方法/变量/常量/包/artifactId 命名 | ✅ 已合规 | 包名 4699→4695（4 处下划线已改）；常量 236 处排查后仅 7 处私有常量改名，其余为 serialVersionUID / Logger / API 兼容项 |
 | 1.2 常量 | 魔法值不得直接出现 | ⚠️ 记录豁免 | 重复字面量集中于测试与领域标签，机械提取会降低可读性；已写入遗留项 |
 | 1.3 格式 | 缩进/空格/换行/120 列 | ✅ 已合规 | 关键字括号空格 149、括号内空格 3、注释折行 109、制表符 0、行尾空白 2529→0；超长行 2251→165（其中 47 处为文本块内模板、118 处为长正则/URL/字符表，均不可语义无损拆分） |
-| 1.4 OOP | `@Override`、包装类 `==`、POJO `toString` | ✅ 已合规 | 可静态验证的 `@Override` 补 4 处；57 个 POJO 补 `@ToString`（20 个含敏感字段主动跳过）；包装类 `==` 复查无可信违规 |
+| 1.4 OOP | `@Override`、包装类 `==`、POJO `toString`、`@Deprecated` 说明 | ✅ 已合规 | 可静态验证的 `@Override` 补 4 处；57 个 POJO 补 `@ToString`（20 个含敏感字段主动跳过）；包装类 `==` 复查无可信违规 |
 | 1.5 集合 | `toArray`、`entrySet`、`subList` | ✅ 已合规 | 34 处 `toArray(new Object[0])`；3 处 `keySet+get` 改 `entrySet` |
 | 1.6 并发 | 线程池、ThreadLocal、SimpleDateFormat | ✅ 已合规 | 10+7+5+3 个 Executors 改显式线程池并设拒绝策略；66 个 ThreadLocal 类均调用 remove；无 static SimpleDateFormat |
 | 1.7 日期 | 日期格式化 | ✅ 已合规 | DateFormatConstant 12 个中文格式常量修复（原值被空格覆盖） |
