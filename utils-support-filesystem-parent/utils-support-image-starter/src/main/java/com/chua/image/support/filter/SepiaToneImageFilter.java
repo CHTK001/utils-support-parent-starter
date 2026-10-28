@@ -93,7 +93,8 @@ tb = inPixels[index] & 0xff;
 
                 // 重新组合ARGB值，确保颜色值在有效范围内
                 outPixels[index] =
-                        (ta << 24) | (ImageProcessorUtils.clamp(fr) << 16) | (ImageProcessorUtils.clamp(fg) << 8) | ImageProcessorUtils.clamp(fb);
+                        (ta << 24) | (ImageProcessorUtils.clamp(fr) << 16) | (ImageProcessorUtils.clamp(fg) << 8) |
+                                ImageProcessorUtils.clamp(fb);
             }
         }
 

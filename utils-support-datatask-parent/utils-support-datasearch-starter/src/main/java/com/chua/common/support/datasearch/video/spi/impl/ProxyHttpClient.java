@@ -33,7 +33,8 @@ public class ProxyHttpClient {
                         String proxy = ProxyFetcherFlow.of().roundRobin().fetchOne();
                         if (proxy != null && proxy.contains(":")) {
                             String[] parts = proxy.split(":");
-                            builder.proxy(ProxySelector.of(new InetSocketAddress(parts[0], Integer.parseInt(parts[1]))));
+                            builder.proxy(ProxySelector.of(
+                new InetSocketAddress(parts[0], Integer.parseInt(parts[1]))));
                         }
                     } catch (Exception e) {
                         LOG.log(System.Logger.Level.DEBUG, "获取代理失败，使用直连: " + e.getMessage(), e);

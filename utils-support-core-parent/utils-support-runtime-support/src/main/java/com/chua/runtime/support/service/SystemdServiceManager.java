@@ -304,7 +304,8 @@ public class SystemdServiceManager implements ServiceManager {
             sb.append("RestartSec=").append(service.getRestartSec()).append("\n");
         }
         if (service.getEnv() != null && !service.getEnv().isEmpty()) {
-            service.getEnv().forEach((k, v) -> sb.append("Environment=\"").append(k).append("=").append(v).append("\"\n"));
+            service.getEnv().forEach((k, v) -> sb.append("Environment=\"").append(k)
+                    .append("=").append(v).append("\"\n"));
         }
         sb.append("\n");
 
