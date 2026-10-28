@@ -83,17 +83,21 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("anime-gan-v3", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV3Translator", Image.class,
             Image.class, Object.class, "models/onnx/animegan/AnimeGANv3_Hayao_36.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/onnx/animegan/AnimeGANv3_Hayao_36.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/animegan/AnimeGANv3_Hayao_36.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/animegan/" +
+                    "AnimeGANv3_Hayao_36.onnx"),
             false, null);
         reg("anime-gan-v3-shinkai", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV3Translator", Image.class,
             Image.class, Object.class, "models/onnx/animegan/AnimeGANv3_Shinkai_37.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/onnx/animegan/AnimeGANv3_Shinkai_37.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/animegan/AnimeGANv3_Shinkai_37.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/animegan/" +
+                    "AnimeGANv3_Shinkai_37.onnx"),
             false, null);
         reg("anime-gan-v3-ghibli", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV3Translator", Image.class,
             Image.class, Object.class, "models/onnx/animegan/AnimeGANv3_large_Ghibli_c1_e299.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/onnx/animegan/AnimeGANv3_large_Ghibli_c1_e299.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/animegan/AnimeGANv3_large_Ghibli_c1_e299.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/onnx/animegan/" +
+                    "AnimeGANv3_large_Ghibli_c1_e299.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/animegan/" +
+                    "AnimeGANv3_large_Ghibli_c1_e299.onnx"),
             false, null);
         // 水下图像增强(LU2Net)：基于轻量级U-Net的水下图像增强，改善水下颜色失真和对比度，适用于水下摄影、水下监控
                 reg("lu2net", "com.chua.deeplearning.support.onnx.lu2net.Lu2NetTranslator", Image.class, Image.class,
@@ -110,13 +114,16 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("anime-gan-v2-paprika", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV2Translator", Image.class,
             Image.class, Object.class, "vision/style_transfer/animegan2/paprika.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/style_transfer/animegan2/paprika.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/style_transfer/animegan2/paprika.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/style_transfer/animegan2/" +
+                    "paprika.onnx"),
             false, null);
         // 动漫风格迁移(AnimeGANv2-FacePortrait)：专为人像优化的动漫化模型，人脸细节保留更好；适用人像动漫化、头像制作
         reg("anime-gan-v2-face-portrait", "com.chua.deeplearning.support.onnx.animegan.AnimeGanV2NchwTranslator",
             Image.class, Image.class, Object.class, "vision/style_transfer/animegan2/face_portrait_v2.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/style_transfer/animegan2/face_portrait_v2.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/style_transfer/animegan2/face_portrait_v2.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/style_transfer/animegan2/" +
+                    "face_portrait_v2.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/style_transfer/animegan2/" +
+                    "face_portrait_v2.onnx"),
             false, null);
         // 图像质量评估(NIMA)：对图片美学质量打分（1-10分），评分越高越美观；适用图片筛选、封面推荐、摄影评分
         reg("nima", "com.chua.deeplearning.support.onnx.assessment.NimaTranslator", Image.class, float[].class,
@@ -149,8 +156,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
             "com.chua.deeplearning.support.onnx.classification.EfficientNetLite4ClassificationTranslator",
             Image.class, Classifications.class, ImageClassifier.class,
             "vision/classification/efficientnet/efficientnet-lite4-11.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/classification/efficientnet/efficientnet-lite4-11.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/classification/efficientnet/efficientnet-lite4-11.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/classification/" +
+                    "efficientnet/efficientnet-lite4-11.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/classification/" +
+                    "efficientnet/efficientnet-lite4-11.onnx"),
             false, null);
         // 零样本分类(SigLIP)：无需训练，任意文本类别列表即可分类（如"猫/狗/鸟"），基于 SigLIP 视觉语言模型；适用动态类别、开放词汇分类
         reg("siglip-zero-shot-classification",
@@ -180,14 +189,17 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 中文CLIP-RN50图像特征(CN-CLIP)：提取中文 CLIP RN50 的图像特征向量（1024维），与文本特征比对；适用中文图文检索、跨模态匹配
         reg("cn-clip-rn50-image", "com.chua.deeplearning.support.onnx.clip.CnClipImageFeatureTranslator", Image.class,
             float[].class, FeatureExtractor.class, "vision/zeroshot/cn-clip-rn50/rn50.img.b1.fp16.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/zeroshot/cn-clip-rn50/rn50.img.b1.fp16.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/zeroshot/cn-clip-rn50/rn50.img.b1.fp16.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/zeroshot/cn-clip-rn50/" +
+                    "rn50.img.b1.fp16.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/zeroshot/cn-clip-rn50/" +
+                    "rn50.img.b1.fp16.onnx"),
             false, null);
         // 中文CLIP-RN50文本特征(CN-CLIP)：提取中文 CLIP RN50 的文本特征向量（1024维），与图像特征比对；适用中文图文检索、跨模态匹配
         reg("cn-clip-rn50-text", "com.chua.deeplearning.support.onnx.clip.CnClipTextFeatureTranslator", String.class,
             float[].class, Object.class, "vision/zeroshot/cn-clip-rn50/rn50.txt.fp16.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/zeroshot/cn-clip-rn50/rn50.txt.fp16.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/zeroshot/cn-clip-rn50/rn50.txt.fp16.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/zeroshot/cn-clip-rn50/" +
+                    "rn50.txt.fp16.onnx"),
             false, null);
         // 中文CLIP-ViT-H/14图像特征(CN-CLIP)：提取中文 CLIP ViT-H/14 的图像特征向量（1024维，最准模型），与文本特征比对；适用高精度中文图文检索、跨模态匹配
         reg("cn-clip-vit-h-14-image", "com.chua.deeplearning.support.onnx.clip.CnClipImageFeatureTranslator",
@@ -267,26 +279,31 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("insightface-adaface", "com.chua.deeplearning.support.onnx.insightface.InsightFaceAdaFaceTranslator",
             Image.class, float[].class, FeatureExtractor.class, "models/onnx/face/recognition/adaface/adaface.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/onnx/face/recognition/adaface/adaface.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/recognition/adaface/adaface.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/recognition/" +
+                    "adaface/adaface.onnx"),
             false, null);
         // 人脸关键点(InsightFace 2D106)：buffalo_l 2d106det，192 输入 106 点；适用人脸对齐、美颜、换脸
         reg("insightface-landmark-2d106",
             "com.chua.deeplearning.support.onnx.insightface.InsightFaceLandmarkTranslator", Image.class,
             float[].class, FeatureExtractor.class, "models/onnx/face/landmark/2d106/2d106det.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/onnx/face/landmark/2d106/2d106det.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/landmark/2d106/2d106det.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/landmark/2d106/" +
+                    "2d106det.onnx"),
             false, null);
         // 性别年龄(InsightFace)：buffalo_l genderage，96 输入，输出 [女性,男性,年龄]；适用人脸属性分析
         reg("insightface-genderage", "com.chua.deeplearning.support.onnx.insightface.InsightFaceGenderAgeTranslator",
             Image.class, float[].class, FeatureExtractor.class, "models/onnx/face/attribute/genderage/genderage.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/onnx/face/attribute/genderage/genderage.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/attribute/genderage/genderage.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/onnx/face/attribute/" +
+                    "genderage/genderage.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/attribute/" +
+                    "genderage/genderage.onnx"),
             false, null);
         // 3D关键点(InsightFace 1K3D68)：buffalo_l 1k3d68，192 输入 1103 顶点；适用 3D 人脸重建、姿态估计
         reg("insightface-3d68", "com.chua.deeplearning.support.onnx.insightface.InsightFace3d68Translator",
             Image.class, float[].class, FeatureExtractor.class, "models/onnx/face/landmark/3d68/1k3d68.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/onnx/face/landmark/3d68/1k3d68.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/landmark/3d68/1k3d68.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/landmark/3d68/" +
+                    "1k3d68.onnx"),
             false, null);
         
         // 人脸特征提取(R50FaceFeature)：ResNet50 架构的人脸特征提取，精度更高；适用高精度人脸识别
@@ -306,13 +323,15 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("insightface-scrfd", "com.chua.deeplearning.support.onnx.face.ScrfdFaceDetectorTranslator", Image.class,
             DetectedObjects.class, ImageDetector.class, "models/onnx/face/detection/scrfd/scrfd.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/onnx/face/detection/scrfd/scrfd.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/detection/scrfd/scrfd.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/detection/scrfd/" +
+                    "scrfd.onnx"),
             false, null);
         // 人脸检测(RetinaFace R34)：ResNet34 骨干，输出人脸框+5 点关键点；适用人脸检测/对齐
         reg("retinaface-r34", "com.chua.deeplearning.support.onnx.face.OnnxRetinaFaceTranslator", Image.class,
             DetectedObjects.class, ImageDetector.class, "face/detection/retinaface/retinaface_r34.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/face/detection/retinaface/retinaface_r34.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/face/detection/retinaface/retinaface_r34.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/face/detection/retinaface/" +
+                    "retinaface_r34.onnx"),
             false, null);
         // 人脸检测(TinaFace R50)：ResNet50+GN+DCN 骨干，IoU-aware 评分，6 级 FPN+Inception 颈部；适用高精度人脸检测
         reg("tinaface", "com.chua.deeplearning.support.onnx.face.TinaFaceTranslator", Image.class,
@@ -328,7 +347,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
             Image.class, float[].class, FeatureExtractor.class,
             "vision/enhancement/CLIP-ViT-B-32-IMAGE/CLIP-ViT-B-32-IMAGE.onnx",
             "https://huggingface.co/onnx-community/clip-vit-base-patch32-ONNX/resolve/main/onnx/image_model.onnx",
-            List.of("https://hf-mirror.com/onnx-community/clip-vit-base-patch32-ONNX/resolve/main/onnx/image_model.onnx"),
+            List.of("https://hf-mirror.com/onnx-community/clip-vit-base-patch32-ONNX/resolve/main/onnx/" +
+                    "image_model.onnx"),
             false, null);
         // #禁用# MobileCLIP 图像特征：Translator 类 MobileClipImageFeatureTranslator 在当前源码树中不存在，
         // 注册后首次推理即抛 IllegalStateException("Translator 类不可用")。权重与下载地址已就绪，待 Translator 补齐后恢复。
@@ -364,17 +384,21 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 文本编码器(Small-SD)：小型 Stable Diffusion 文本编码器，将文本提示编码为条件向量；适用轻量级文生图
         // 权重：subpixel/small-stable-diffusion-v0-onnx-ort-web（OFA-Sys/small-stable-diffusion-v0 的 ONNX 转换）
         reg("small-sd-text-encoder", "SmallSdTextEncoderTranslator", String.class, NDList.class, Object.class, "vision/detection/small-sd/text_encoder/model.onnx",
-                "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/text_encoder/model.onnx", false, null);
+                "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/" +
+                        "text_encoder/model.onnx", false, null);
         // 图像生成(Small-SD UNet)：小型 Stable Diffusion 的 UNet 去噪网络；注意需将 unet/weights.pb（外部权重）手动放置到同目录
         reg("small-sd-unet", "SmallSdUnetTranslator", NDList.class, NDList.class, Object.class, "vision/detection/small-sd/unet/model.onnx",
-                "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/unet/model.onnx", false, null);
+                "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/unet/" +
+                        "model.onnx", false, null);
         // 图像生成(Small-SD VAE Decoder)：小型 SD 的 VAE 解码器，将潜变量解码为图像；适用轻量级文生图后处理
         reg("small-sd-vae-decoder", "SmallSdVaeDecoderTranslator", NDList.class, Image.class, Object.class, "vision/detection/small-sd/vae_decoder/model.onnx",
-                "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/vae_decoder/model.onnx", false, null);
+                "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/" +
+                        "vae_decoder/model.onnx", false, null);
         // 文本到图像生成(Small-SD Combined 全流程编排)：文本编码 → CFG 引导 DDIM 去噪 → VAE 解码；
  // 主模型为文本编码器，unet/VAE/tokenizer.json 由编排器自动下载（fp32 约 3GB，含 unet 外部权重 权重.pb）
         reg("small-stable-diffusion-combined", "SmallStableDiffusionCombinedTranslator", String.class, Image.class, Object.class, "vision/detection/small-sd/text_encoder/model.onnx",
-                "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/text_encoder/model.onnx", false, null);
+                "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/" +
+                        "text_encoder/model.onnx", false, null);
         // 图像生成(TAESD Decoder)：微型 VAE 解码器，极轻量级，用于快速解码潜变量；适用快速图像预览
         reg("taesd-decoder", "com.chua.deeplearning.support.onnx.generation.TaesdDecoderTranslator", NDList.class,
             Image.class, Object.class, "vision/detection/taesd/decoder.onnx");
@@ -418,8 +442,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 抠图(RMBG-1.4)：BRIA 背景移除 v1.4，42MB 嵌入式，效果接近 2.0；适用离线抠图、嵌入式设备
         reg("rmbg14", "com.chua.deeplearning.support.onnx.matting.translator.Rmbg20Translator", Image.class,
             Image.class, Object.class, "vision/enhancement/RMBG-1.4/onnx/model_quantized.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/enhancement/RMBG-1.4/onnx/model_quantized.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/enhancement/RMBG-1.4/onnx/model_quantized.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/enhancement/RMBG-1.4/onnx/" +
+                    "model_quantized.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/enhancement/RMBG-1.4/onnx/" +
+                    "model_quantized.onnx"),
             false, null);
         // 抠图(U2Net 嵌入)：F:\models/u2net.onnx，通用前景抠图；320×320
         reg("matting-u2net", "com.chua.deeplearning.support.onnx.matting.translator.U2netSegTranslator", Image.class,
@@ -477,29 +503,36 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 版面分析(PP-DocLayoutV3)：PaddleOCR 官方文档版面分析（DETR，25 类区域），模型内嵌 jar（utils-support-models-onnx-ppdoclayoutv3）
         reg("pp-doc-layout", "com.chua.deeplearning.support.onnx.ocr.layout.PpDocLayoutTranslator", Image.class,
             DetectedObjects.class, LayoutDetector.class, "vision/detection/pp_doc_layoutv3/PP-DocLayoutV3.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/pp_doc_layoutv3/PP-DocLayoutV3.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/pp_doc_layoutv3/PP-DocLayoutV3.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/pp_doc_layoutv3/" +
+                    "PP-DocLayoutV3.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/pp_doc_layoutv3/" +
+                    "PP-DocLayoutV3.onnx"),
             false, null);
         // 版面分析(PP-DocLayout-L)：RT-DETR-L，23 类区域，640×640 输入，mAP 90.4% 最高精度；模型内嵌
         // jar（utils-support-models-onnx-ppdoclayout-l）
         reg("pp-doc-layout-l", "com.chua.deeplearning.support.onnx.ocr.layout.PpDocLayoutLTranslator", Image.class,
             DetectedObjects.class, LayoutDetector.class, "vision/detection/pp_doc_layout_l/PP-DocLayout-L.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/pp_doc_layout_l/PP-DocLayout-L.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/pp_doc_layout_l/PP-DocLayout-L.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/pp_doc_layout_l/" +
+                    "PP-DocLayout-L.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/pp_doc_layout_l/" +
+                    "PP-DocLayout-L.onnx"),
             false, null);
         // 版面分析(PP-DocLayout_plus-L)：RT-DETR-L，21 类区域，800×800 输入，mAP 83.2%；模型内嵌
         // jar（utils-support-models-onnx-ppdoclayout-plus-l）
         reg("pp-doc-layout-plus-l", "com.chua.deeplearning.support.onnx.ocr.layout.PpDocLayoutLTranslator",
             Image.class, DetectedObjects.class, LayoutDetector.class,
             "vision/detection/pp_doc_layout_plus_l/PP-DocLayout_plus-L.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/pp_doc_layout_plus_l/PP-DocLayout_plus-L.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/pp_doc_layout_plus_l/PP-DocLayout_plus-L.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/" +
+                    "pp_doc_layout_plus_l/PP-DocLayout_plus-L.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/" +
+                    "pp_doc_layout_plus_l/PP-DocLayout_plus-L.onnx"),
             false, null);
         // 版面分析(DocLayout-YOLO)：YOLOv10 文档版面检测（DocStructBench 10 类，含 title），模型内嵌 jar；适用试卷/文档版面分析
         reg("doc-layout-yolo", "com.chua.deeplearning.support.onnx.yolo.v10.translator.DocLayoutYoloTranslator",
             Image.class, DetectedObjects.class, LayoutDetector.class, "vision/detection/doclayout-yolo/model.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/doclayout-yolo/model.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/doclayout-yolo/model.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/doclayout-yolo/" +
+                    "model.onnx"),
             false, null);
         // YOLO-UniOW 通用开世界目标检测（THU-MIG，arxiv 2412.20645）：基于 YOLO-World+YOLOv10 的通用开世界检测，支持动态词表/未知目标(wildcard)；S/M/L
         // 三档（7.5M/16.2M/29.4M）；ONNX 资产需由官方 .pth 经社区 export_onnx.py（AXERA-TECH/YOLO-UniOW）reparameterize
@@ -536,8 +569,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("real-web-photo", "com.chua.deeplearning.support.onnx.realwebphoto.RealWebPhotoTranslator", Image.class,
             Image.class, ImageEnhancer.class,
             "vision/enhancement/4xRealWebPhoto_v4/4xRealWebPhoto_v4_fp32_opset17.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/enhancement/4xRealWebPhoto_v4/4xRealWebPhoto_v4_fp32_opset17.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/enhancement/4xRealWebPhoto_v4/4xRealWebPhoto_v4_fp32_opset17.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/enhancement/" +
+                    "4xRealWebPhoto_v4/4xRealWebPhoto_v4_fp32_opset17.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/enhancement/" +
+                    "4xRealWebPhoto_v4/4xRealWebPhoto_v4_fp32_opset17.onnx"),
             false, null);
         // 手势关键点(HandPose)：检测手部 21 个关键点坐标，用于手势识别；适用手势控制、手语识别
         reg("hand-pose", "com.chua.deeplearning.support.onnx.reid.HandPoseTranslator", Image.class, float[].class,
@@ -550,14 +585,16 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("onnx-gfpgan", "com.chua.deeplearning.support.onnx.resolution.GfpganFaceSuperResolutionTranslator",
             Image.class, Image.class, ImageEnhancer.class, "face/restoration/gfpgan/GFPGANv1.3_clean.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/face/restoration/gfpgan/GFPGANv1.3_clean.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/face/restoration/gfpgan/GFPGANv1.3_clean.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/face/restoration/gfpgan/" +
+                    "GFPGANv1.3_clean.onnx"),
             false, null);
         // 人脸超分(GFPGAN 别名)：指向 GFPGAN v1.3 clean，用于 ImagePipeline.superResolution() 等场景
         reg("gfpgan-face-super-resolution",
             "com.chua.deeplearning.support.onnx.resolution.GfpganFaceSuperResolutionTranslator", Image.class,
             Image.class, ImageEnhancer.class, "face/restoration/gfpgan/GFPGANv1.3_clean.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/face/restoration/gfpgan/GFPGANv1.3_clean.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/face/restoration/gfpgan/GFPGANv1.3_clean.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/face/restoration/gfpgan/" +
+                    "GFPGANv1.3_clean.onnx"),
             false, null);
         // 文字超分(TextBSR)：针对文字图片的超分辨率，增强文字清晰度；适用 OCR 预处理、文檔增强
         reg("image-text-super-resolution",
@@ -566,14 +603,17 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 图像去模糊(NAFNet)：去除运动模糊/对焦模糊，恢复清晰图像；适用照片修复、监控图像增强
         reg("naf-net", "com.chua.deeplearning.support.onnx.resolution.NafNetTranslator", Image.class, Image.class,
             ImageEnhancer.class, "vision/enhancement/nafnet/nafnet_deblur_gopro.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/enhancement/nafnet/nafnet_deblur_gopro.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/enhancement/nafnet/nafnet_deblur_gopro.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/enhancement/nafnet/" +
+                    "nafnet_deblur_gopro.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/enhancement/nafnet/" +
+                    "nafnet_deblur_gopro.onnx"),
             false, null);
         // 超分辨率(Real-ESRGAN)：通用 4x 超分辨率，增强图像细节；适用图片放大、老照片修复
         reg("real-esrgan", "com.chua.deeplearning.support.onnx.resolution.RealEsrganTranslator", Image.class,
             Image.class, ImageEnhancer.class, "vision/enhancement/esrgan/realesrgan_x4plus.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/enhancement/esrgan/realesrgan_x4plus.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/enhancement/esrgan/realesrgan_x4plus.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/enhancement/esrgan/" +
+                    "realesrgan_x4plus.onnx"),
             false, null);
         // 文字超分(TextBSR)：文字图片专用超分辨率；适用文档扫描增强
         reg("real-text-image-super-resolution",
@@ -586,7 +626,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("waifu2x", "com.chua.deeplearning.support.onnx.resolution.Waifu2xTranslator", Image.class, Image.class,
             ImageEnhancer.class, "vision/enhancement/waifu2x/waifu2x_noise.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/enhancement/waifu2x/waifu2x_noise.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/enhancement/waifu2x/waifu2x_noise.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/enhancement/waifu2x/" +
+                    "waifu2x_noise.onnx"),
             false, null);
         // 文档理解(SmolDocling Combined)：端到端文档理解，输入文档图片输出结构化文本（Markdown）；适用发票、报表、合同解析
         reg("smol-docling-combined", "com.chua.deeplearning.support.onnx.smoldocling.SmolDoclingCombinedTranslator",
@@ -664,13 +705,16 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("yolov8n-pose", "com.chua.deeplearning.support.onnx.pose.YoloV8nPoseTranslator", Image.class,
             Object.class, Object.class, "vision/pose/yolov8n/onnx/model_quantized.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/pose/yolov8n/onnx/model_quantized.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/pose/yolov8n/onnx/model_quantized.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/pose/yolov8n/onnx/" +
+                    "model_quantized.onnx"),
             false, null);
         // 图像修复(SwinIR)：去噪/超分辨率，Swin Transformer 架构；适用图像去噪、修复
         reg("swinir", "com.chua.deeplearning.support.onnx.resolution.SwinIrTranslator", Image.class, Image.class,
             ImageEnhancer.class, "vision/enhancement/swinir/swinir_denoising_color_25.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/enhancement/swinir/swinir_denoising_color_25.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/enhancement/swinir/swinir_denoising_color_25.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/enhancement/swinir/" +
+                    "swinir_denoising_color_25.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/enhancement/swinir/" +
+                    "swinir_denoising_color_25.onnx"),
             false, null);
         // 人脸修复(CodeFormer)：人脸修复/增强，基于 CodeFormer 架构，修复模糊人脸；适用老照片修复、人脸增强
         reg("codeformer", "com.chua.deeplearning.support.onnx.face.CodeFormerTranslator", Image.class, Image.class,
@@ -682,8 +726,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
             "https://huggingface.co/vietanhdev/segment-anything-onnx-models/resolve/main/sam_vit_h_4b8939.zip", true,
             "encoder.onnx");
         // 开放词汇检测(GroundingDINO)：用任意文本描述检测图像中的物体，比 OWLv2 更准确；适用零样本检测、开放词汇目标检测
-        reg("grounding-dino", "GroundingDinoTranslator", Image.class, DetectedObjects.class, ImageDetector.class, "vision/detection/grounding-dino-tiny/model.onnx", "https://huggingface.co/onnx-community/grounding-dino-tiny-ONNX/resolve/main/onnx/model.onnx",
-                List.of("https://hf-mirror.com/onnx-community/grounding-dino-tiny-ONNX/resolve/main/onnx/model.onnx"), false, "model.onnx");
+        reg("grounding-dino", "GroundingDinoTranslator", Image.class, DetectedObjects.class, ImageDetector.class, "vision/detection/grounding-dino-tiny/model.onnx", "https://huggingface.co/onnx-community/grounding-dino-tiny-ONNX/resolve/main/onnx/" +
+                "model.onnx",
+                List.of("https://hf-mirror.com/onnx-community/grounding-dino-tiny-ONNX/resolve/main/onnx/" +
+                        "model.onnx"), false, "model.onnx");
         // 文本摘要(T5-small)：英文摘要/生成/翻译，多任务 seq2seq；modelscope 下载
  // 注意：T5 为 编码器-解码器 自回归多文件模型（编码器/解码器/解码器_with_past + tokenizer），
         // 由 T5Seq2SeqOrtTranslator 按"嵌入/缓存/modelscope 下载"自行组装，注册不设 downloadUrl 避免单文件预下载。
@@ -709,15 +755,19 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("opus-mt-zh-en", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtZhEnTranslationTranslator",
             String.class, String.class, TextTranslator.class,
             "nlp/translation/opus_mt_zh_en/encoder_model_quantized.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/nlp/translation/opus_mt_zh_en/encoder_model_quantized.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/nlp/translation/opus_mt_zh_en/encoder_model_quantized.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/nlp/translation/opus_mt_zh_en/" +
+                    "encoder_model_quantized.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/nlp/translation/opus_mt_zh_en/" +
+                    "encoder_model_quantized.onnx"),
             false, null);
         // 机器翻译(opus-mt-en-zh)：Helsinki-NLP 英译中 MarianMT，嵌入式模型 jar 提供，无需下载；适用英文翻译中文
         reg("opus-mt-en-zh", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtEnZhTranslationTranslator",
             String.class, String.class, TextTranslator.class,
             "nlp/translation/opus_mt_en_zh/encoder_model_quantized.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/nlp/translation/opus_mt_en_zh/encoder_model_quantized.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/nlp/translation/opus_mt_en_zh/encoder_model_quantized.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/nlp/translation/opus_mt_en_zh/" +
+                    "encoder_model_quantized.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/nlp/translation/opus_mt_en_zh/" +
+                    "encoder_model_quantized.onnx"),
             false, null);
         // 动漫人脸检测(YOLOv8n)：检测动漫/二次元图片中的人脸（YOLOv8 v1.4_n）；适用动漫人脸检测、二次元内容分析。模型内嵌 jar（utils-support-models-onnx-anime-face）
         reg("anime-face-detector", "com.chua.deeplearning.support.onnx.anime.detection.AnimeFaceDetectorTranslator",
@@ -733,13 +783,16 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("edgesam", "com.chua.deeplearning.support.onnx.seg.EdgeSamSegmentTranslator", Image.class, Image.class,
             Object.class, "vision/seg/edge-sam/onnx/edge_sam_encoder.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/seg/edge-sam/onnx/edge_sam_encoder.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/seg/edge-sam/onnx/edge_sam_encoder.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/seg/edge-sam/onnx/" +
+                    "edge_sam_encoder.onnx"),
             false, null);
         // 提示分割(EfficientSAM)：SAM 的蒸馏高效版（~40MB），用 bbox 或点提示分割物体；适用轻量级分割
         reg("efficientsam", "com.chua.deeplearning.support.onnx.seg.EfficientSamSegmentTranslator", Image.class,
             Image.class, Object.class, "vision/seg/efficient-sam/onnx/efficientsam_ti_encoder.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/seg/efficient-sam/onnx/efficientsam_ti_encoder.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/seg/efficient-sam/onnx/efficientsam_ti_encoder.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/seg/efficient-sam/onnx/" +
+                    "efficientsam_ti_encoder.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/seg/efficient-sam/onnx/" +
+                    "efficientsam_ti_encoder.onnx"),
             false, null);
         // 自动分割(FastSAM-s)：YOLOv8-seg 架构，自动检测并分割所有物体（~45MB，类无关）；适用全自动物体分割
         reg("fastsam", "com.chua.deeplearning.support.onnx.seg.FastSamSegmentTranslator", byte[].class, byte[].class,
@@ -782,25 +835,30 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("bge-small-embedding", "com.chua.deeplearning.support.onnx.clip.ClipTextFeatureTranslator", String.class,
             float[].class, Object.class, "nlp/embedding/bge-small-en-v1.5/model.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/nlp/embedding/bge-small-en-v1.5/model.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/nlp/embedding/bge-small-en-v1.5/model.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/nlp/embedding/bge-small-en-v1.5/" +
+                    "model.onnx"),
             false, null);
         // 文本嵌入(BGE-small-en embedded)：嵌入式版英文句向量（~63MB FP16），jar 内嵌，384维；适用离线英文语义搜索
         reg("bge-small-en-embedding", "com.chua.deeplearning.support.onnx.embedding.bge.BgeTextFeatureTranslator",
             String.class, float[].class, Object.class, "nlp/embedding/bge-small-en-v1.5/onnx/model_fp16.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/nlp/embedding/bge-small-en-v1.5/onnx/model_fp16.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/nlp/embedding/bge-small-en-v1.5/onnx/model_fp16.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/nlp/embedding/bge-small-en-v1.5/" +
+                    "onnx/model_fp16.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/nlp/embedding/bge-small-en-v1.5/" +
+                    "onnx/model_fp16.onnx"),
             false, null);
         // 文本嵌入(BGE-small-zh)：中文句向量（512维），BGE 系列中文版，离线 jar 版；适用中文语义搜索、向量检索
         reg("bge-small-zh-embedding", "com.chua.deeplearning.support.onnx.embedding.bge.BgeTextFeatureTranslator",
             String.class, float[].class, Object.class, "nlp/embedding/bge-small-zh-v1.5/model.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/nlp/embedding/bge-small-zh-v1.5/model.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/nlp/embedding/bge-small-zh-v1.5/model.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/nlp/embedding/bge-small-zh-v1.5/" +
+                    "model.onnx"),
             false, null);
         // 文本嵌入(BGE-large-zh embedded)：中文句向量（1024维），BGE 系列中文 large 版，INT8 量化，jar 内嵌，326MB；适用高精度中文语义搜索、向量检索
         reg("bge-large-zh-embedding", "com.chua.deeplearning.support.onnx.embedding.bge.BgeTextFeatureTranslator",
             String.class, float[].class, Object.class, "nlp/embedding/bge-large-zh-v1.5/model.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/nlp/embedding/bge-large-zh-v1.5/model.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/nlp/embedding/bge-large-zh-v1.5/model.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/nlp/embedding/bge-large-zh-v1.5/" +
+                    "model.onnx"),
             false, null);
         // 文本嵌入(BGE-base-zh)：中文句向量（768维），BGE 系列中文 base 版，自动下载；适用高精度中文语义搜索
         reg("bge-base-zh-embedding", "com.chua.deeplearning.support.onnx.embedding.bge.BgeTextFeatureTranslator",
@@ -817,7 +875,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 文本嵌入(Granite-embedding-small)：IBM Granite 英文句向量；适用英文语义搜索
         reg("granite-embedding", "com.chua.deeplearning.support.onnx.clip.ClipTextFeatureTranslator", String.class,
             float[].class, Object.class, "nlp/embedding/granite-embedding-small/model.onnx",
-            "https://huggingface.co/onnx-community/granite-embedding-small-english-r2-ONNX/resolve/main/onnx/model.onnx",
+            "https://huggingface.co/onnx-community/granite-embedding-small-english-r2-ONNX/resolve/" +
+                    "main/onnx/model.onnx",
             false, null);
         // 文本嵌入(BGE-M3)：多语言句向量（1024维），支持中英等多语言，自动下载；适用多语言语义搜索、跨语言检索
         reg("bge-m3-embedding", "com.chua.deeplearning.support.onnx.embedding.bge.BgeTextFeatureTranslator",
@@ -897,18 +956,30 @@ public class OnnxModelRegistrar implements ModelRegistrar {
             Object.class, Object.class, "vision/detection/v26/yolo26n.onnx",
             "https://huggingface.co/onnx-community/yolo26n-ONNX/resolve/main/onnx/model.onnx", false, null);
         // 深度估计(YOLO26-Depth)：YOLO26 单目深度估计，letterbox 768 输入，五档尺寸；适用背景虚化、3D 场景理解
-        reg("yolo26-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26n-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26n-depth.onnx",
-                List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26n-depth.onnx"), false, null);
-        reg("yolo26n-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26n-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26n-depth.onnx",
-                List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26n-depth.onnx"), false, null);
-        reg("yolo26s-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26s-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26s-depth.onnx",
-                List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26s-depth.onnx"), false, null);
-        reg("yolo26m-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26m-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26m-depth.onnx",
-                List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26m-depth.onnx"), false, null);
-        reg("yolo26l-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26l-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26l-depth.onnx",
-                List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26l-depth.onnx"), false, null);
-        reg("yolo26x-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26x-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26x-depth.onnx",
-                List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26x-depth.onnx"), false, null);
+        reg("yolo26-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26n-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/" +
+                "yolo26n-depth.onnx",
+                List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/" +
+                        "yolo26n-depth.onnx"), false, null);
+        reg("yolo26n-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26n-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/" +
+                "yolo26n-depth.onnx",
+                List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/" +
+                        "yolo26n-depth.onnx"), false, null);
+        reg("yolo26s-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26s-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/" +
+                "yolo26s-depth.onnx",
+                List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/" +
+                        "yolo26s-depth.onnx"), false, null);
+        reg("yolo26m-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26m-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/" +
+                "yolo26m-depth.onnx",
+                List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/" +
+                        "yolo26m-depth.onnx"), false, null);
+        reg("yolo26l-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26l-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/" +
+                "yolo26l-depth.onnx",
+                List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/" +
+                        "yolo26l-depth.onnx"), false, null);
+        reg("yolo26x-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26x-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/" +
+                "yolo26x-depth.onnx",
+                List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/" +
+                        "yolo26x-depth.onnx"), false, null);
         // 目标检测(YOLOv10m)：YOLOv10m 通用 COCO 检测，精度较高；适用通用物体检测
         reg("yolov10m", "com.chua.deeplearning.support.onnx.yolo.v10.translator.YoloV10DetectTranslator", Image.class, DetectedObjects.class, ImageDetector.class, "vision/detection/v10/yolov10m.onnx", "https://huggingface.co/onnx-community/yolov10m/resolve/main/onnx/model.onnx",
                 List.of("https://hf-mirror.com/onnx-community/yolov10m/resolve/main/onnx/model.onnx"), false, "model.onnx");
@@ -939,7 +1010,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("sensevoice", null, byte[].class, String.class, Object.class,
                 "audio/asr/sensevoice-small/model.int8.onnx",
                 "https://huggingface.co/chtk/chua-dl-models/resolve/main/audio/asr/sensevoice-small/model.int8.onnx",
-                List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/audio/asr/sensevoice-small/model.int8.onnx"), false, null);
+                List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/audio/asr/sensevoice-small/" +
+                        "model.int8.onnx"), false, null);
         // 情感分析(RoBERTa-go-emotions)：28 种细粒度情感分类（如"兴奋"、"悲伤"、"愤怒"等）；适用细粒度情感分析、用户评论分析
         reg("roberta-go-emotions", "com.chua.deeplearning.support.onnx.classification.DistilBertSentimentTranslator",
             String.class, Classifications.class, ImageClassifier.class,
@@ -962,7 +1034,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 HardwareConfig.builder().device("gpu").recommended(true)
                         .description("Gemma-3-270M it 版（fp16 KV-cache），downloadUrl 自动下载（含 onnx_data 权重）").build());
         // 本地大模型(Qwen2.5-1.5B-Instruct ONNX int8)：中文大模型对话（int8 单文件 ~1.5GB），downloadUrl 自动下载；适用本地对话（GPU 需 ≥2GB 显存）
-        String qwenUrl = "https://huggingface.co/onnx-community/Qwen2.5-1.5B-Instruct/resolve/main/onnx/model_quantized.onnx";
+        String qwenUrl = "https://huggingface.co/onnx-community/Qwen2.5-1.5B-Instruct/resolve/main/onnx/" +
+                "model_quantized.onnx";
         reg("qwen2-1.5b-onnx", "OnnxQwenTranslator", String.class, String.class, Object.class,
                 "models/qwen2.5-1.5b-instruct/model.onnx",
                 qwenUrl, List.of(qwenUrl), false, "model.onnx",
@@ -986,8 +1059,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("faceplugin-face-detect-slim", "com.chua.deeplearning.support.onnx.face.FacePluginDetectTranslator",
             Image.class, DetectedObjects.class, ImageDetector.class,
             "models/onnx/face/detection/faceplugin/face_detect_slim.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/onnx/face/detection/faceplugin/face_detect_slim.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/detection/faceplugin/face_detect_slim.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/onnx/face/detection/" +
+                    "faceplugin/face_detect_slim.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/detection/" +
+                    "faceplugin/face_detect_slim.onnx"),
             false, null);
         // 小目标检测(VisDrone/DAMO-YOLO-TinyNAS)：无人机小目标检测（VisDrone 10
         // 类：pedestrian/people/bicycle/car/van/truck/tricycle/awning-tricycle/bus/motor），YOLO 解码兼容；嵌入式目标
@@ -1013,35 +1088,43 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("reflective-clothes", "com.chua.deeplearning.support.onnx.yolo.ReflectiveClothesDetectorTranslator",
             Image.class, DetectedObjects.class, ImageDetector.class, "vision/reflective-clothes/yolov8n/model.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/reflective-clothes/yolov8n/model.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/reflective-clothes/yolov8n/model.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/reflective-clothes/yolov8n/" +
+                    "model.onnx"),
             false, null);
         // 口罩检测(FaceMask-YOLOv8)：YOLOv8 640 检测，2 类 cloth/surgical（能画口罩框）
         reg("face-mask-detector", "com.chua.deeplearning.support.onnx.yolo.FaceMaskDetectorTranslator", Image.class,
             DetectedObjects.class, ImageDetector.class, "vision/face-mask-detector/yolov8/model.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/face-mask-detector/yolov8/model.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/face-mask-detector/yolov8/model.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/face-mask-detector/yolov8/" +
+                    "model.onnx"),
             false, null);
         // 人脸关键点(FacePlugin-Landmark)：人脸 68 关键点检测；适用人脸对齐、表情识别
         reg("faceplugin-face-landmark", "com.chua.deeplearning.support.onnx.face.FacePluginLandmarkTranslator",
             Image.class, float[].class, FeatureExtractor.class,
             "models/onnx/face/landmark/faceplugin/face_landmark.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/onnx/face/landmark/faceplugin/face_landmark.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/landmark/faceplugin/face_landmark.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/onnx/face/landmark/" +
+                    "faceplugin/face_landmark.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/landmark/" +
+                    "faceplugin/face_landmark.onnx"),
             false, null);
         // 人脸特征(FacePlugin-Feature)：人脸特征向量提取，配合 FacePlugin 检测/关键点使用；适用人脸识别
         reg("faceplugin-face-feature", "com.chua.deeplearning.support.onnx.face.FacePluginFeatureTranslator",
             Image.class, float[].class, FeatureExtractor.class,
             "models/onnx/face/feature/faceplugin/face_feature.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/onnx/face/feature/faceplugin/face_feature.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/feature/faceplugin/face_feature.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/onnx/face/feature/" +
+                    "faceplugin/face_feature.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/feature/" +
+                    "faceplugin/face_feature.onnx"),
             false, null);
         // 图像分类(EfficientNet-B1)：EfficientNet-B1 1000 类 ImageNet 分类，精度较高；适用通用分类
         reg("efficientnet-b1-classification",
             "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator",
             Image.class, Classifications.class, ImageClassifier.class,
             "vision/classification/efficientnet/efficientnet-lite4-11.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/classification/efficientnet/efficientnet-lite4-11.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/classification/efficientnet/efficientnet-lite4-11.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/classification/" +
+                    "efficientnet/efficientnet-lite4-11.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/classification/" +
+                    "efficientnet/efficientnet-lite4-11.onnx"),
             false, null);
         // 情绪识别(FER+)：通用人脸情绪识别（7 种基础情绪）；适用情感分析
         reg("fer-plus", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator",
@@ -1071,8 +1154,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("yolo11-plate-detect",
             "com.chua.deeplearning.support.onnx.yolo.v11.translator.Yolo11PlateDetectTranslator", Image.class,
             DetectedObjects.class, ImageDetector.class, "vision/detection/yolo11_plate/yolo11_plate_detect.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/yolo11_plate/yolo11_plate_detect.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/yolo11_plate/yolo11_plate_detect.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/yolo11_plate/" +
+                    "yolo11_plate_detect.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/yolo11_plate/" +
+                    "yolo11_plate_detect.onnx"),
             false, null);
         // ID card detection (YOLOv8): YOLOv8 general ID card detection, supports CN/foreign standard/non-standard
         // IDs, 9.8MB ONNX model
@@ -1084,41 +1169,49 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("yolov5-plate-detect",
             "com.chua.deeplearning.support.onnx.yolo.plate.translator.Yolo5PlateDetectTranslator", Image.class,
             DetectedObjects.class, ImageDetector.class, "vision/detection/yolov5_plate/yolov5_plate_detect.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/yolov5_plate/yolov5_plate_detect.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/yolov5_plate/yolov5_plate_detect.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/yolov5_plate/" +
+                    "yolov5_plate_detect.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/yolov5_plate/" +
+                    "yolov5_plate_detect.onnx"),
             false, null);
         // 车牌识别(YOLOv5)：YOLOv5 车牌字符识别，配合检测使用；适用完整车牌识别流水线
         reg("yolov5-plate-recognize",
             "com.chua.deeplearning.support.onnx.yolo.plate.translator.Yolo5PlateRecTranslator", byte[].class,
             PlateResult.class, LicensePlateRecognizer.class,
             "vision/detection/yolov5_plate/yolov5_plate_rec_color.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/yolov5_plate/yolov5_plate_rec_color.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/yolov5_plate/yolov5_plate_rec_color.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/yolov5_plate/" +
+                    "yolov5_plate_rec_color.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/yolov5_plate/" +
+                    "yolov5_plate_rec_color.onnx"),
             false, null);
         // OCR检测(PP-OCRv6-tiny)：PaddleOCR v6 超轻量文字检测；适用移动端 OCR
         reg("paddleocrv6-det", "com.chua.deeplearning.support.onnx.ocr.extractor.PpOcrDetTranslator", byte[].class,
             List.class, ImageDetector.class, "ocr/PP-OCRv6/tiny/det_infer/inference.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/ocr/PP-OCRv6/tiny/det_infer/inference.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/PP-OCRv6/tiny/det_infer/inference.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/PP-OCRv6/tiny/det_infer/" +
+                    "inference.onnx"),
             false, null);
         // OCR识别(PP-OCRv6-tiny)：PaddleOCR v6 超轻量文字识别；适用移动端 OCR
         reg("paddleocrv6-rec", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorTranslator",
             Image.class, String.class, Object.class, "ocr/PP-OCRv6/tiny/rec_infer/inference.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/ocr/PP-OCRv6/tiny/rec_infer/inference.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/PP-OCRv6/tiny/rec_infer/inference.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/PP-OCRv6/tiny/rec_infer/" +
+                    "inference.onnx"),
             false, null);
         // OCR检测(PP-OCRv6-medium)：PaddleOCR v6 中量文字检测，精度更高；适用高精度 OCR
         reg("paddleocrv6-medium-det", "com.chua.deeplearning.support.onnx.ocr.extractor.PpOcrDetMediumTranslator",
             byte[].class, List.class, ImageDetector.class, "ocr/PP-OCRv6/medium/det_infer/inference.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/ocr/PP-OCRv6/medium/det_infer/inference.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/PP-OCRv6/medium/det_infer/inference.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/PP-OCRv6/medium/det_infer/" +
+                    "inference.onnx"),
             false, null);
         // OCR识别(PP-OCRv6-medium)：PaddleOCR v6 中量文字识别，精度更高；适用高精度 OCR
         reg("paddleocrv6-medium-rec",
             "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorMediumTranslator", byte[].class,
             String.class, Object.class, "ocr/PP-OCRv6/medium/rec_infer/inference.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/ocr/PP-OCRv6/medium/rec_infer/inference.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/PP-OCRv6/medium/rec_infer/inference.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/PP-OCRv6/medium/rec_infer/" +
+                    "inference.onnx"),
             false, null);
         // OCR识别(Qota-OCR)：PP-OCRv6_small_rec 架构加训韩文后的多语（韩/中/日/英）行识别器，float32 ~26MB；适用韩中日英混排文档行识别
         reg("qota-ocr", "com.chua.deeplearning.support.onnx.ocr.extractor.QotaOcrTranslator", byte[].class,
@@ -1174,8 +1267,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
             null);
         reg("dfine-l-obj2coco", "com.chua.deeplearning.support.onnx.detr.DFineTranslator", Image.class,
             DetectedObjects.class, ImageDetector.class, "vision/detection/dfine_l_obj2coco/model_quantized.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/dfine_l_obj2coco/model_quantized.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/dfine_l_obj2coco/model_quantized.onnx"),
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/" +
+                    "dfine_l_obj2coco/model_quantized.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/dfine_l_obj2coco/" +
+                    "model_quantized.onnx"),
             false, null);
         reg("seal-inspection", "com.chua.deeplearning.support.onnx.yolo.SealInspectionTranslator", Image.class,
             DetectedObjects.class, ImageDetector.class, "vision/detection/seal/model.onnx",
@@ -1188,7 +1283,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("mms-tts-eng", null, String.class, byte[].class, Object.class,
             "audio/tts/mms-tts-eng/model_quantized.onnx",
             "https://huggingface.co/chtk/chua-dl-models/resolve/main/audio/tts/mms-tts-eng/model_quantized.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/audio/tts/mms-tts-eng/model_quantized.onnx"),
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/audio/tts/mms-tts-eng/" +
+                    "model_quantized.onnx"),
             false, null);
 
  // Pocket-TTS（Kyutai 100M 流匹配 TTS）：多语言语音合成（含零样本声音克隆），24khz WAV；
@@ -1217,8 +1313,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 byte[].class, float[].class,
                 AudioFingerprinter.class,
                 "audio/fingerprint/wav2vec2-zh/model.onnx",
-                "https://huggingface.co/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx",
-                List.of("https://hf-mirror.com/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx"),
+                "https://huggingface.co/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/" +
+                        "main/model.onnx",
+                List.of("https://hf-mirror.com/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/" +
+                        "main/model.onnx"),
                 false, null);
  // wav2vec2-基础 backbone（Wav2Vec2forpre培训假，768维 hidden 状态）：正宗的 wav2vec2 预训练
  // 主干模型，输出真正的 768 维语音表征（mean 游泳池 over 时间）。适用于音频指纹匹配、相似
@@ -1283,8 +1381,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("vit-gpt2-captioning", "com.chua.deeplearning.support.onnx.image.captioning.VitGpt2CaptioningTranslator",
                 Image.class, String.class, Object.class,
                 "vision/captioning/vit-gpt2/decoder_model_quantized.onnx",
-                "https://modelscope.cn/models/Xenova/vit-gpt2-image-captioning/resolve/master/onnx/decoder_model_quantized.onnx",
-                List.of("https://huggingface.co/Xenova/vit-gpt2-image-captioning/resolve/main/onnx/decoder_model_quantized.onnx"),
+                "https://modelscope.cn/models/Xenova/vit-gpt2-image-captioning/resolve/master/onnx/" +
+                        "decoder_model_quantized.onnx",
+                List.of("https://huggingface.co/Xenova/vit-gpt2-image-captioning/resolve/main/onnx/" +
+                        "decoder_model_quantized.onnx"),
                 false, null);
         // ==================== Florence-2 多模态理解 ====================
         // Florence-2：微软开源多模态理解模型，支持图像描述/OCR/物体检测等任务，3 个 ONNX 模型
@@ -1292,7 +1392,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 Object[].class, String.class, Object.class,
                 "vision/florence2/decoder_model_merged.onnx",
                 "https://huggingface.co/onnx-community/Florence-2-base-ft/resolve/main/onnx/decoder_model_merged.onnx",
-                List.of("https://hf-mirror.com/onnx-community/Florence-2-base-ft/resolve/main/onnx/decoder_model_merged.onnx"),
+                List.of("https://hf-mirror.com/onnx-community/Florence-2-base-ft/resolve/main/onnx/" +
+                        "decoder_model_merged.onnx"),
                 false, "decoder_model_merged.onnx");
         // ==================== ViT-H-14 图像特征 ====================
         // ViT-H-14 (Chinese-CLIP)：提取图像特征向量（1024维），与文本特征比对；适用图文检索、图像匹配
