@@ -1475,6 +1475,7 @@ public class ClassUtils {
         });
     }
     /**
+     * 获取底层容器。
      *
      *
      * @param type        

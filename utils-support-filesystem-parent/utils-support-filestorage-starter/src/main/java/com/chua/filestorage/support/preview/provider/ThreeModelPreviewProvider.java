@@ -34,6 +34,8 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
     private static final Set<String> SUPPORTED = Set.of("glb", "gltf", "obj", "stl", "dxf");
 
     /**
+     * 判断是否支持指定目标。
+     *
      * @param ext  文件扩展名
      * @param mime MIME 类型（当前忽略）
      * @return true 表示支持预览

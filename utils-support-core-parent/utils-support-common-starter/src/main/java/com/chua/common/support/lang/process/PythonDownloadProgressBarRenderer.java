@@ -100,6 +100,7 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 渲染输出。
      *                
      *
      * @param progress             

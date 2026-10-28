@@ -233,6 +233,7 @@ public class ProgressState {
         }
     }
     /**
+     * 分步转换。
      *                         
      *
      * @param n                

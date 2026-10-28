@@ -100,6 +100,7 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         this.gradientType = gradientType;
     }
     /**
+     * 渲染输出。
      *
      *
      * @param progress             

@@ -308,6 +308,7 @@ public class ByteUtils extends BitUtils {
 
 
     /**
+     * 执行补码运算。
      *
      *
      * @param b       
@@ -328,6 +329,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
+     * 执行补码运算。
      *
      *
      * @param b       
@@ -348,6 +350,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
+     * 执行补码运算。
      *
      *
      * @param b       
@@ -368,6 +371,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
+     * 执行补码运算。
      *
      *
      * @param b       
@@ -388,6 +392,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
+     * 计算补码值。
      *
      *
      * @param b       
@@ -399,6 +404,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
+     * 计算补码值。
      *
      *
      * @param b       
@@ -410,6 +416,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
+     * 计算补码值。
      *
      *
      * @param b       
@@ -421,6 +428,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
+     * 计算补码值。
      *
      *
      * @param b       

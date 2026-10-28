@@ -581,6 +581,7 @@ public class NumberUtils {
         return v1.divide(v2, scale, roundingMode);
     }
     /**
+     * 执行除法运算。
      *
      *
      * @param numerator numerator
@@ -594,6 +595,7 @@ public class NumberUtils {
         return numeratorBd.divide(denominatorBd, scale, RoundingMode.HALF_UP).doubleValue();
     }
     /**
+     * 执行除法运算。
      *
      *
      * @param numerator numerator
@@ -604,6 +606,7 @@ public class NumberUtils {
         return divide(numerator, denominator, 2);
     }
     /**
+     * 执行除法运算。
      *
      *
      * @param numerator numerator
@@ -617,6 +620,7 @@ public class NumberUtils {
         return numeratorBd.divide(denominatorBd, scale, RoundingMode.HALF_UP).doubleValue();
     }
     /**
+     * 执行除法运算。
      *
      *
      * @param numerator numerator
@@ -789,6 +793,7 @@ public class NumberUtils {
         return NUMBER_NOISE_PATTERN.matcher(str).replaceAll(EMPTY_TEXT);
     }
     /**
+     * 执行乘法运算。
      *
      *
      * @param v1 v1
@@ -799,6 +804,7 @@ public class NumberUtils {
         return mul(Float.toString(v1), Float.toString(v2)).doubleValue();
     }
     /**
+     * 执行乘法运算。
      *
      *
      * @param v1 v1
@@ -809,6 +815,7 @@ public class NumberUtils {
         return mul(Float.toString(v1), Double.toString(v2)).doubleValue();
     }
     /**
+     * 执行乘法运算。
      *
      *
      * @param v1 v1
@@ -819,6 +826,7 @@ public class NumberUtils {
         return mul(Double.toString(v1), Float.toString(v2)).doubleValue();
     }
     /**
+     * 执行乘法运算。
      *
      *
      * @param v1 v1
@@ -871,6 +879,7 @@ public class NumberUtils {
         return result;
     }
     /**
+     * 执行乘法运算。
      *
      *
      * @param v1 v1
@@ -1137,6 +1146,7 @@ public class NumberUtils {
         return current / total * 100.0d;
     }
     /**
+     * 生成数值区间。
      *
      *
      * @param start 启动
@@ -1148,6 +1158,7 @@ public class NumberUtils {
         return IntStream.range(start, end);
     }
     /**
+     * 生成数值区间。
      *
      *
      * @param end 结束
@@ -1158,6 +1169,7 @@ public class NumberUtils {
         return IntStream.range(0, end);
     }
     /**
+     * 生成数值区间。
      *
      *
      * @param end 结束
@@ -1168,6 +1180,7 @@ public class NumberUtils {
         IntStream.range(0, end).forEach(consumer);
     }
     /**
+     * 生成数值区间。
      *
      *
      * @param start 启动
@@ -1487,6 +1500,7 @@ public class NumberUtils {
         return y;
     }
     /**
+     * 执行减法运算。
      *
      *
      * @param v1 v1
@@ -1497,6 +1511,7 @@ public class NumberUtils {
         return sub(Float.toString(v1), Float.toString(v2)).doubleValue();
     }
     /**
+     * 执行减法运算。
      *
      *
      * @param v1 v1
@@ -1507,6 +1522,7 @@ public class NumberUtils {
         return sub(Float.toString(v1), Double.toString(v2)).doubleValue();
     }
     /**
+     * 执行减法运算。
      *
      *
      * @param v1 v1
@@ -1517,6 +1533,7 @@ public class NumberUtils {
         return sub(Double.toString(v1), Float.toString(v2)).doubleValue();
     }
     /**
+     * 执行减法运算。
      *
      *
      * @param v1 v1
@@ -1527,6 +1544,7 @@ public class NumberUtils {
         return sub(Double.toString(v1), Double.toString(v2)).doubleValue();
     }
     /**
+     * 执行减法运算。
      *
      *
      * @param v1 v1
@@ -2329,6 +2347,7 @@ public class NumberUtils {
         return (value.startsWith(Hex.PREFIX, index) || value.startsWith(Hex.PREFIX_UPPER, index) || value.startsWith(SYMBOL_HASH, index));
     }
     /**
+     * 比较两个值。
      *
      *
      * @param x x
@@ -2341,6 +2360,7 @@ public class NumberUtils {
         return Character.compare(x, y);
     }
     /**
+     * 比较两个值。
      *
      *
      * @param x x
@@ -2353,6 +2373,7 @@ public class NumberUtils {
         return Double.compare(x, y);
     }
     /**
+     * 比较两个值。
      *
      *
      * @param x x
@@ -2365,6 +2386,7 @@ public class NumberUtils {
         return Integer.compare(x, y);
     }
     /**
+     * 比较两个值。
      *
      *
      * @param x x
@@ -2377,6 +2399,7 @@ public class NumberUtils {
         return Long.compare(x, y);
     }
     /**
+     * 比较两个值。
      *
      *
      * @param x x
@@ -2389,6 +2412,7 @@ public class NumberUtils {
         return Short.compare(x, y);
     }
     /**
+     * 比较两个值。
      *
      *
      * @param x x

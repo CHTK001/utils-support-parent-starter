@@ -308,6 +308,7 @@ public class CharUtils {
         return SYMBOL_LEFT_SLASH_CHAR == c || SYMBOL_RIGHT_SLASH_CHAR == c;
     }
     /**
+     * 判断是否相等。
      *
      *
      * @param c1

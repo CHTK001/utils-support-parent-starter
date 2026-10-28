@@ -380,6 +380,7 @@ public class DataExportBuilder {
     }
 
     /**
+     * 按模板生成内容。
      * <b>切换到模板模式</b> —— 由文件加载模板。
      *
      * @param template 模板文件
@@ -390,6 +391,7 @@ public class DataExportBuilder {
     }
 
     /**
+     * 按模板生成内容。
      * <b>切换到模板模式</b> —— 由字节加载模板。
      *
      * @param template 模板字节
@@ -400,6 +402,7 @@ public class DataExportBuilder {
     }
 
     /**
+     * 按模板生成内容。
      * <b>切换到模板模式</b> —— 由输入流加载模板。
      *
      * @param template 模板输入流
