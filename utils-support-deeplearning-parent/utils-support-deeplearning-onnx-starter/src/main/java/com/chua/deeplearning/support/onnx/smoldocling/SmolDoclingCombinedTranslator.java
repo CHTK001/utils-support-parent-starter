@@ -74,11 +74,11 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
             embedTranslator.prepare(ctx);
             decoderTranslator.prepare(ctx);
         } catch (Exception e) {
-            throw new IOException("                           ", e);
+            throw new IOException("SmolDocling 组合翻译器初始化失败", e);
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("[SmolDocling Combined][Translator]               ");
+            log.debug("[SmolDocling Combined][Translator] 初始化完成");
         }
     }
 
@@ -122,21 +122,21 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
         // 3.              +              -> decoder ->                   
 
         if (list == null || list.isEmpty()) {
-            log.warn("[SmolDocling Combined][Translator]Vision                   ");
+            log.warn("[SmolDocling Combined][Translator]Vision 输出为空");
             return "";
         }
 
         //                               
         var textTokens = (long[]) ctx.getAttachment("text_input");
         if (textTokens == null) {
-            log.warn("[SmolDocling Combined][Translator]                        ");
+            log.warn("[SmolDocling Combined][Translator] 未获取到文本输入 token");
             return "";
         }
 
         //        Vision       
         var visionOutput = visionTranslator.processOutput(ctx, list);
         if (visionOutput == null) {
-            log.warn("[SmolDocling Combined][Translator]Vision                   ");
+            log.warn("[SmolDocling Combined][Translator]Vision 输出处理失败");
             return "";
         }
 
@@ -149,7 +149,7 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
  // 解码器
 
         if (log.isDebugEnabled()) {
-            log.debug("[SmolDocling Combined][Translator]                  :              shape={}",
+            log.debug("[SmolDocling Combined][Translator] 视觉特征形状: shape={}",
                     visionOutput.getShapeString());
         }
 
