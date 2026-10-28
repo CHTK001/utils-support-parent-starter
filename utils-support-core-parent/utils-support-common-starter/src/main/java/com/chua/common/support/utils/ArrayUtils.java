@@ -1747,7 +1747,7 @@ public class ArrayUtils {
     public static <T> T[][] generatePairArray(T[] originalArray, int step) {
  // 群体大小
         if (originalArray.length % step != 0) {
-            throw new IllegalArgumentException("                           groupSize      ");
+            throw new IllegalArgumentException("数组长度必须是 groupSize 的整数倍: length=" + originalArray.length + ", groupSize=" + step);
         }
 
  // 群体大小

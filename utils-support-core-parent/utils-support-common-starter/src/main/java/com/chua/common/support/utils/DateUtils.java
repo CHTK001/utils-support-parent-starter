@@ -2541,12 +2541,12 @@ public class DateUtils {
             return inputTime.format(DateFormatConstant.MM_DD_EN_FMT);
         }
         if (hours > 0) {
-            return hours + "         ";
+            return hours + "小时前";
         }
         if (minutes > 0) {
-            return minutes + "         ";
+            return minutes + "分钟前";
         }
-        return seconds + "      ";
+        return seconds + "秒前";
     }
     /**
      * 向日期添加指定天数，支持 日期 / 本地日期 / 本地日期时间。
@@ -2571,11 +2571,11 @@ public class DateUtils {
             } else if (date instanceof LocalDateTime localDateTime) {
                 return (T) localDateTime.plusDays(days);
             } else {
-                log.warn("                        : {}", date.getClass().getName());
+                log.warn("不支持的时间类型，原样返回: {}", date.getClass().getName());
                 return date;
             }
         } catch (Exception e) {
-            log.error("                  ", e);
+            log.error("日期按天偏移失败", e);
             return date;
         }
     }
@@ -2602,11 +2602,11 @@ public class DateUtils {
             } else if (date instanceof LocalTime localTime) {
                 return (T) localTime.plusHours(hours);
             } else {
-                log.warn("                        : {}", date.getClass().getName());
+                log.warn("不支持的时间类型，原样返回: {}", date.getClass().getName());
                 return date;
             }
         } catch (Exception e) {
-            log.error("                     ", e);
+            log.error("日期按时间单位偏移失败", e);
             return date;
         }
     }
@@ -2633,11 +2633,11 @@ public class DateUtils {
             } else if (date instanceof LocalTime localTime) {
                 return (T) localTime.plusMinutes(minutes);
             } else {
-                log.warn("                        : {}", date.getClass().getName());
+                log.warn("不支持的时间类型，原样返回: {}", date.getClass().getName());
                 return date;
             }
         } catch (Exception e) {
-            log.error("                     ", e);
+            log.error("日期按时间单位偏移失败", e);
             return date;
         }
     }
@@ -2664,7 +2664,7 @@ public class DateUtils {
             }
             return !checkDateTime.isBefore(start) && !checkDateTime.isAfter(end);
         } catch (Exception e) {
-            log.warn("                        ", e);
+            log.warn("日期区间判断失败", e);
             return false;
         }
     }
