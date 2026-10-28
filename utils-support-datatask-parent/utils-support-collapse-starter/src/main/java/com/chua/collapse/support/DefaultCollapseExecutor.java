@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -46,6 +47,11 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @since 2026/09/03
  */
 public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<INPUT, OUTPUT> {
+
+    /**
+     * 平台线程模式下批量执行池的最大线程数
+     */
+    private static final int MAX_WORKER_THREADS = 200;
 
     /**
      * 折叠配置
@@ -447,9 +453,13 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     private static ExecutorService createBatchExecutor(String name, boolean virtualThread) {
         if (virtualThread) {
             ThreadFactory factory = Thread.ofVirtual().name(name + "-batch", 0).factory();
+            // [P3C 1.6.4 豁免] 虚拟线程执行器由 JVM 调度，不存在平台线程/排队任务堆积导致 OOM 的风险
             return Executors.newThreadPerTaskExecutor(factory);
         }
-        return Executors.newCachedThreadPool(new PlatformDaemonThreadFactory(name + "-batch"));
+        // 有界线程数 + 同步移交 + 调用方执行：避免无界线程创建（原 newCachedThreadPool 的风险点）
+        return new ThreadPoolExecutor(0, MAX_WORKER_THREADS, 60L, TimeUnit.SECONDS,
+                new SynchronousQueue<>(), new PlatformDaemonThreadFactory(name + "-batch"),
+                new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
     /**
