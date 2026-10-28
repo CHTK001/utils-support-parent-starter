@@ -89,6 +89,7 @@ public class HashedWheelTimer implements Timer {
         for (int i = 0; i < slots; i++) {
             wheel[i] = new Slot();
         }
+        // [P3C 1.6.4 豁免] 虚拟线程执行器，由 JVM 调度，不存在平台线程/任务队列堆积导致 OOM 的风险
         this.taskExecutor = Executors.newThreadPerTaskExecutor(
                 Thread.ofVirtual().name("wheel-task-", 0).factory());
         this.running = true;

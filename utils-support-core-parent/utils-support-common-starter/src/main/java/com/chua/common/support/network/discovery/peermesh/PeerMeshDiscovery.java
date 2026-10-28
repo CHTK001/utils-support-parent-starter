@@ -31,6 +31,8 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -92,6 +94,11 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     /**
      * 连接处理线程池
      */
+    /**
+     * 连接接受与处理线程池的最大线程数
+     */
+    private static final int MAX_CONNECTION_THREADS = 200;
+
     private ExecutorService executor;
 
     /**
@@ -222,7 +229,10 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
      * 启动连接接受线程。
      */
     private void startAcceptor() {
-        executor = Executors.newThreadPerTaskExecutor(ThreadUtils.newDaemonThreadFactory("peer-mesh-acceptor"));
+        // 有界线程数 + 同步移交 + 调用方执行：连接数超限时由接受线程执行，天然形成背压（P3C 1.6.4）
+        executor = new ThreadPoolExecutor(0, MAX_CONNECTION_THREADS, 60L, TimeUnit.SECONDS,
+                new SynchronousQueue<>(), ThreadUtils.newDaemonThreadFactory("peer-mesh-acceptor"),
+                new ThreadPoolExecutor.CallerRunsPolicy());
         executor.submit(() -> {
             while (running.get() && serverSocket != null && !serverSocket.isClosed()) {
                 try {

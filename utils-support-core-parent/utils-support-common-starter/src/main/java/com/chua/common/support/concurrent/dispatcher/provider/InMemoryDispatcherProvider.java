@@ -36,6 +36,7 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
     /**
      * 线程池执行器
      */
+    // [P3C 1.6.4 豁免] 虚拟线程执行器，由 JVM 调度，不存在平台线程/任务队列堆积导致 OOM 的风险
     private final ExecutorService executor = java.util.concurrent.Executors.newThreadPerTaskExecutor(
             Thread.ofVirtual().name("inmem-dispatcher-", 0).factory());
     /**
