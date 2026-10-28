@@ -23,6 +23,7 @@ import com.qcloud.cos.region.Region;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import com.chua.common.support.storage.request.GetObjectRequest;
 
 /**
  * 腾讯云 COS（Cloud 对象 Storage）文件存储实现。
@@ -111,7 +112,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
      * 获取对象
     */
     @Override
-    public GetObjectResult getObject(com.chua.common.support.storage.request.GetObjectRequest request) {
+    public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
             com.qcloud.cos.model.GetObjectRequest cosGetReq = new com.qcloud.cos.model.GetObjectRequest(bucket, key);
@@ -143,7 +144,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
-        return getObject(com.chua.common.support.storage.request.GetObjectRequest.builder().fileName(name).filePath(path).build());
+        return getObject(GetObjectRequest.builder().fileName(name).filePath(path).build());
     }
 
     /**

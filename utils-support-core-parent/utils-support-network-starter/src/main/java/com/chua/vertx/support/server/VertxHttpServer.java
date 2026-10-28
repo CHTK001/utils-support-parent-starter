@@ -33,6 +33,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import com.chua.common.support.network.server.ServerAttribute;
+import com.chua.common.support.network.server.response.ServerResponse;
 
 /**
  * 基于 Vert.x 的 HTTP 服务器实现，支持同步阻塞和响应式两种模式。
@@ -61,7 +64,7 @@ public class VertxHttpServer extends AbstractServer {
     /**
      * WebSocket 主题处理器映射
     */
-    private final Map<String, java.util.List<com.chua.common.support.network.server.handler.ServerHandler>> wsTopicHandlers =
+    private final Map<String, List<com.chua.common.support.network.server.handler.ServerHandler>> wsTopicHandlers =
             new java.util.concurrent.ConcurrentHashMap<>();
     /**
      * 基准测试模式:跳过虚拟线程,直接在 事件 循环 执行
@@ -343,7 +346,7 @@ public class VertxHttpServer extends AbstractServer {
      * @param response 响应
      */
     private void handleWebSocketUpgrade(VertxServerRequest request, VertxServerResponse response) {
-        var routingCtx = request.getAttribute(com.chua.common.support.network.server.ServerAttribute.VERTX_ROUTING_CONTEXT);
+        var routingCtx = request.getAttribute(ServerAttribute.VERTX_ROUTING_CONTEXT);
         if (routingCtx instanceof io.vertx.ext.web.RoutingContext rc) {
             rc.request().toWebSocket().onSuccess(ws -> {
                 ws.textMessageHandler(msg -> {
@@ -451,7 +454,7 @@ public class VertxHttpServer extends AbstractServer {
     /**
      * WebSocket 消息响应（持有 Vert.x 服务端webSocket 引用用于回写）。
      */
-    private static final class VertxWsResponse implements com.chua.common.support.network.server.response.ServerResponse {
+    private static final class VertxWsResponse implements ServerResponse {
         /**
          * WebSocket 连接
         */
@@ -478,27 +481,27 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override public int getStatus() { return status; }
-        @Override public com.chua.common.support.network.server.response.ServerResponse setStatus(int statusCode) {
+        @Override public ServerResponse setStatus(int statusCode) {
             this.status = statusCode;
             return this;
         }
-        @Override public com.chua.common.support.network.server.response.ServerResponse setBody(byte[] body) {
+        @Override public ServerResponse setBody(byte[] body) {
             this.result = body;
             return this;
         }
-        @Override public com.chua.common.support.network.server.response.ServerResponse setBody(String body) {
+        @Override public ServerResponse setBody(String body) {
             this.result = body;
             return this;
         }
-        @Override public com.chua.common.support.network.server.response.ServerResponse setHeader(String name, String value) { return this; }
+        @Override public ServerResponse setHeader(String name, String value) { return this; }
         @Override public String getHeader(String name) { return null; }
         @Override public HttpHeader getHeaders() { return HttpHeader.create(); }
         @Override public String getContentType() { return null; }
-        @Override public com.chua.common.support.network.server.response.ServerResponse setContentType(String contentType) { return this; }
+        @Override public ServerResponse setContentType(String contentType) { return this; }
         @Override public byte[] getBody() { return result instanceof byte[] b ? b : null; }
         @Override public OutputStream getOutputStream() { return new java.io.ByteArrayOutputStream(); }
-        @Override public com.chua.common.support.network.server.response.ServerResponse sendRedirect(String location) { return this; }
-        @Override public com.chua.common.support.network.server.response.ServerResponse sendError(int code, String message) {
+        @Override public ServerResponse sendRedirect(String location) { return this; }
+        @Override public ServerResponse sendError(int code, String message) {
             this.status = code;
             this.result = message;
             this.ended = true;
@@ -508,7 +511,7 @@ public class VertxHttpServer extends AbstractServer {
         @Override public boolean isCommitted() { return committed; }
         @Override public boolean isEnded() { return ended; }
         @Override public void end() { this.ended = true; }
-        @Override public com.chua.common.support.network.server.response.ServerResponse reset() {
+        @Override public ServerResponse reset() {
             if (!committed) {
                 status = 200;
                 result = null;
@@ -519,12 +522,12 @@ public class VertxHttpServer extends AbstractServer {
         @Override public void writeRaw(byte[] bytes) {
             ws.writeBinaryMessage(io.vertx.core.buffer.Buffer.buffer(bytes));
         }
-        @Override public com.chua.common.support.network.server.response.ServerResponse setResult(Object result) {
+        @Override public ServerResponse setResult(Object result) {
             this.result = result;
             return this;
         }
         @Override public Object getResult() { return result; }
-        @Override public com.chua.common.support.network.server.response.ServerResponse sse() { return this; }
+        @Override public ServerResponse sse() { return this; }
         @Override public void sseEvent(String event, String data) { }
         @Override public void sseClose() { }
     }

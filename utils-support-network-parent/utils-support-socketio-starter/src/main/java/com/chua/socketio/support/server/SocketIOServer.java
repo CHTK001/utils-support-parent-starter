@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.network.server.response.ServerResponse;
 
 /**
  * Socket.IO 嵌入式服务器，轻量级实现。
@@ -280,7 +281,7 @@ public class SocketIOServer extends AbstractServer {
                 for (int i = 0; i < paramTypes.length; i++) {
                     if (paramTypes[i] == com.chua.common.support.network.server.request.ServerRequest.class) {
                         args[i] = request;
-                    } else if (paramTypes[i] == com.chua.common.support.network.server.response.ServerResponse.class) {
+                    } else if (paramTypes[i] == ServerResponse.class) {
                         args[i] = response;
                     } else if (paramTypes[i] == String.class) {
                         args[i] = body;
@@ -472,7 +473,7 @@ public class SocketIOServer extends AbstractServer {
      * @author CH
      * @since 4.0.0
      */
-    private static class SimpleServerResponse implements com.chua.common.support.network.server.response.ServerResponse {
+    private static class SimpleServerResponse implements ServerResponse {
 
         /**
          * 结束
