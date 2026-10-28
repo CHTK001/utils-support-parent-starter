@@ -215,6 +215,7 @@ public class ProgressState {
         indefinite = true;
     }
     /**
+     * 获取最大提示长度。
      *                            
      *
      * @param n                
@@ -223,6 +224,7 @@ public class ProgressState {
         max = n;
     }
     /**
+     * 按步长推进。
      *                   
      *
      * @param n             

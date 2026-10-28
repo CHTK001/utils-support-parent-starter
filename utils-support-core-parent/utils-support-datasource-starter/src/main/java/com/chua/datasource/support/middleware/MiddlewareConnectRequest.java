@@ -88,6 +88,8 @@ public final class MiddlewareConnectRequest {
     }
 
     /**
+     * 获取主机地址。
+     *
      * @return 服务地址，永不为 {@code null}
      */
     public String host() {

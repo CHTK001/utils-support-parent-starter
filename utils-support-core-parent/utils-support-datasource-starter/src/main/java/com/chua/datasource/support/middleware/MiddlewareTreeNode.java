@@ -62,6 +62,8 @@ public final class MiddlewareTreeNode {
     }
 
     /**
+     * 获取键。
+     *
      * @return 节点标识
      */
     public String key() {
@@ -69,6 +71,8 @@ public final class MiddlewareTreeNode {
     }
 
     /**
+     * 获取标签。
+     *
      * @return 展示名
      */
     public String label() {

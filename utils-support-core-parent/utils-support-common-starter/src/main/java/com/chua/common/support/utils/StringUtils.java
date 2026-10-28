@@ -2843,6 +2843,7 @@ public class StringUtils {
 
     /**
      * 转为线。
+     *
      * @param text 文本
      * @return 转为线的结果
      */
@@ -3249,6 +3250,7 @@ public class StringUtils {
      * @param prefix     The prefix to prepend to the start of the string.
      * @param ignoreCase Indicates whether the compare should ignore case.
      * @param prefixes   其他合法的前缀（可选）。
+     *
      * @return A new string if prefix was prepended, the same string otherwise.
      */
     private static String prependIfMissing(final String str, final CharSequence prefix, final boolean ignoreCase,
@@ -3295,6 +3297,7 @@ public class StringUtils {
      * @param str      The 字符串.
      * @param prefix   The 前缀 转为 prepend 转为 the 启动 的 the 字符串.
      * @param prefixes 其他合法的前缀。
+     *
      * @return A 新 字符串 if 前缀 was prepended, the same 字符串 otherwise.
      * @since 3.2
      */
@@ -3331,6 +3334,7 @@ public class StringUtils {
      * @param str      The 字符串.
      * @param prefix   The 前缀 转为 prepend 转为 the 启动 的 the 字符串.
      * @param prefixes 其他合法的前缀（可选）。
+     *
      * @return A 新 字符串 if 前缀 was prepended, the same 字符串 otherwise.
      * @since 3.2
      */
@@ -3341,6 +3345,7 @@ public class StringUtils {
 
 
     /**
+     * 按 UTF-8 编码为字节数组。
      *
      *
      * @param str the 输入 字符串

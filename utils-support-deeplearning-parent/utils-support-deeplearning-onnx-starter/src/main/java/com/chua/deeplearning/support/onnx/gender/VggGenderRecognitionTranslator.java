@@ -183,6 +183,7 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
     }
 
     /**
+     * 取最大值下标。
      *                                  
      *
      * @param array             

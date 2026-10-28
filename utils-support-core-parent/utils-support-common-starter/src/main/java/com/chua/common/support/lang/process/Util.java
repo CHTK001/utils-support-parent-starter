@@ -92,6 +92,7 @@ class Util {
         return String.format("%d:%02d:%02d", s / 3600, (s % 3600) / 60, s % 60);
     }
     /**
+     * 线性计算学习率。
      * <p>
      *                                                                   
      *

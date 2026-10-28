@@ -150,6 +150,7 @@ public class AntPathMatcher implements PathMatcher {
         return false;
     }
     /**
+     * 执行模式匹配。
      *
      *
      * @param pattern          
@@ -161,6 +162,7 @@ public class AntPathMatcher implements PathMatcher {
         return doMatch(pattern, path, true, null);
     }
     /**
+     * 判断是否以指定模式开头。
      *
      *
      * @param pattern          
@@ -344,6 +346,7 @@ public class AntPathMatcher implements PathMatcher {
         return skipped;
     }
     /**
+     * 跳过分隔符。
      *
      *
      * @param path            
@@ -420,6 +423,7 @@ public class AntPathMatcher implements PathMatcher {
         return StringUtils.splitToArray(path, this.pathSeparator, 0, this.trimTokens, true);
     }
     /**
+     * 匹配不符合模式的字符串。
      *
      *
      * @param pattern                                {@code null}   
@@ -703,6 +707,7 @@ public class AntPathMatcher implements PathMatcher {
             return Pattern.quote(s.substring(start, end));
         }
         /**
+         * 匹配字符串模式。
          *
          *
          * @param str                           
