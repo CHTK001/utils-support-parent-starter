@@ -81,7 +81,7 @@ public class LaMaOnnxInfer implements AutoCloseable {
             Class<?> logLevelClass = ClassUtils.forName("ai.onnxruntime.OrtLoggingLevel");
 
             if (ortEnvClass == null || sessionOptionsClass == null || optLevelClass == null || logLevelClass == null) {
-                throw new RuntimeException("未找到ONNX Runtime依赖，请添加相应的Maven依赖");
+                throw new IllegalStateException("未找到ONNX Runtime依赖，请添加相应的Maven依赖");
             }
 
             // 获取环境实例
