@@ -166,20 +166,24 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
                 InterceptPoint.ENTRY, this);
         // 节点操作
         String[][] methods = {
-                {"getData", "(Ljava/lang/String;ZLorg/apache/zookeeper/Watcher;Lorg/apache/zookeeper/data/Stat;)Lorg/apache/zookeeper/data/Stat;)" +
+                {"getData", "(Ljava/lang/String;ZLorg/apache/zookeeper/Watcher;Lorg/apache/zookeeper/data/Stat;" +
+                        ")Lorg/apache/zookeeper/data/Stat;)" +
                         "([B"},
                 {"getData", "(Ljava/lang/String;ZLorg/apache/zookeeper/Watcher;)Lorg/apache/zookeeper/data/Stat;)" +
                         "([B"},
                 {"exists", "(Ljava/lang/String;Z)Lorg/apache/zookeeper/data/Stat;"},
-                {"exists", "(Ljava/lang/String;ZLorg/apache/zookeeper/Watcher;Lorg/apache/zookeeper/data/Stat;)Lorg/apache/zookeeper/data/Stat;"},
+                {"exists", "(Ljava/lang/String;ZLorg/apache/zookeeper/Watcher;Lorg/apache/zookeeper/data/Stat;" +
+                        ")Lorg/apache/zookeeper/data/Stat;"},
                 {"create", "(Ljava/lang/String;[Bjava/util/List;Lorg/apache/zookeeper/CreateMode;)Ljava/lang/String;"},
-                {"create", "(Ljava/lang/String;[Bjava/util/List;Lorg/apache/zookeeper/CreateMode;Lorg/apache/zookeeper/data/Stat;)" +
+                {"create", "(Ljava/lang/String;[Bjava/util/List;Lorg/apache/zookeeper/CreateMode;" +
+                        "Lorg/apache/zookeeper/data/Stat;)" +
                         "Ljava/lang/String;"},
                 {"delete", "(Ljava/lang/String;ILorg/apache/zookeeper/data/Stat;)V"},
                 {"setData", "(Ljava/lang/String;[BILorg/apache/zookeeper/data/Stat;)Lorg/apache/zookeeper/data/Stat;"},
                 {"getChildren", "(Ljava/lang/String;ZLorg/apache/zookeeper/Watcher;Lorg/apache/zookeeper/data/Stat;)" +
                         "Ljava/util/List;"},
-                {"setACL", "(Ljava/lang/String;Ljava/util/List;ILorg/apache/zookeeper/data/Stat;)Lorg/apache/zookeeper/data/Stat;"},
+                {"setACL", "(Ljava/lang/String;Ljava/util/List;ILorg/apache/zookeeper/data/Stat;" +
+                        ")Lorg/apache/zookeeper/data/Stat;"},
                 {"getACL", "(Ljava/lang/String;Lorg/apache/zookeeper/data/Stat;)Ljava/util/List;"}
         };
         for (String[] pair : methods) {
