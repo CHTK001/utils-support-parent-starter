@@ -22,6 +22,11 @@ import java.util.regex.Pattern;
 public class EmojiManager {
 
     /**
+     * 空表情正则（无自定义表情时的占位）
+     */
+    private static final Pattern EMPTY_PATTERN = Pattern.compile("");
+
+    /**
      * Emoji 字典树
      */
     public static final EmojiTrie EMOJI_TRIE = new EmojiTrie(10);
@@ -60,7 +65,7 @@ public class EmojiManager {
      * @return Pattern
      */
     public static Pattern getEmoticonRegexPattern() {
-        return Pattern.compile("");
+        return EMPTY_PATTERN;
     }
 
     /**

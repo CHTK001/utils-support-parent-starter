@@ -30,6 +30,11 @@ import java.util.regex.Pattern;
 @Spi("preview-email")
 public class EmailPreviewProvider implements FileStoragePreviewProvider {
 
+    /**
+     * multipart 段边界标记
+     */
+    private static final Pattern BOUNDARY_PATTERN = Pattern.compile("boundary=\"?([^\";]+)\"?");
+
     private static final Set<String> SUPPORTED_EXTS = Set.of("eml", "msg"); // 支持exts
 
     /**
@@ -102,7 +107,7 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
             } else if (line.startsWith("Content-Type:")) {
                 if (line.toLowerCase(Locale.ROOT).contains("multipart")) {
                     isMultipart = true;
-                    Matcher m = Pattern.compile("boundary=\"?([^\";]+)\"?").matcher(line);
+                    Matcher m = BOUNDARY_PATTERN.matcher(line);
                     if (m.find()) {
                         boundary = m.group(1);
                     }

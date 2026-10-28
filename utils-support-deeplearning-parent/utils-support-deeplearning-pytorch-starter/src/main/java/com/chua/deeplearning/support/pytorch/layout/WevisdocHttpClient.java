@@ -28,6 +28,11 @@ import java.util.regex.Pattern;
 public class WevisdocHttpClient {
 
     /**
+     * 响应中的 markdown 字段
+     */
+    private static final java.util.regex.Pattern MARKDOWN_FIELD_PATTERN = java.util.regex.Pattern.compile("\"markdown\"\\s*:\\s*\"(.*?)\"\\s*,");
+
+    /**
      * 默认服务地址。
      */
     private static final String DEFAULT_URL = "http://localhost:8765";
@@ -128,7 +133,7 @@ public class WevisdocHttpClient {
      * 从 JSON 响应中解析 Markdown 文本。
      */
     static String parseMarkdown(String jsonBody) {
-        Matcher m = Pattern.compile("\"markdown\"\\s*:\\s*\"(.*?)\"\\s*,").matcher(jsonBody);
+        Matcher m = MARKDOWN_FIELD_PATTERN.matcher(jsonBody);
         if (m.find()) {
             // 处理 JSON 转义
             String md = m.group(1)
