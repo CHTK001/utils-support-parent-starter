@@ -23,7 +23,8 @@ import org.springframework.context.annotation.Bean;
  */
 @AutoConfiguration
 @ConditionalOnClass(RateLimiterProvider.class)
-@ConditionalOnProperty(prefix = RateLimiterProperties.PRE, name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = RateLimiterProperties.PRE, name = "enabled", havingValue = "true",
+                       matchIfMissing = true)
 @EnableConfigurationProperties(RateLimiterProperties.class)
 public class RateLimiterAutoConfiguration {
 

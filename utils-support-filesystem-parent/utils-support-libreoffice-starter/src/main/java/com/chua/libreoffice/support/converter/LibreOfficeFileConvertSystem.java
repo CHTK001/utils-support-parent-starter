@@ -57,7 +57,8 @@ public class LibreOfficeFileConvertSystem implements FileConvertSystem {
                     : System.getProperty("java.io.tmpdir");
 
             String targetExt = target.isPath() ? target.getPath().replaceAll(".*\\.", "") : target.getType();
-            Process proc = new ProcessBuilder("soffice", "--headless", "--convert-to", targetExt, "--outdir", outDir, src)
+            Process proc = new ProcessBuilder("soffice", "--headless", "--convert-to", targetExt, "--outdir", outDir,
+                    src)
                     .redirectErrorStream(true).start();
             int exit = proc.waitFor();
             if (exit != 0) {
