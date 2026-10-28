@@ -23,8 +23,8 @@ import static com.chua.common.support.lang.date.enums.ZoneIdEnum.CTT;
  */
 public final class DateFormatConstant {
     private DateFormatConstant() {}
-    public static final String[] MONTHS_OF_CHINESE = {"      ", "      ", "      ", "      ", "      ", "      ",
-            "      ", "      ", "      ", "      ", "         ", "         "};
+    public static final String[] MONTHS_OF_CHINESE = {"一月", "二月", "三月", "四月", "五月", "六月",
+            "七月", "八月", "九月", "十月", "十一月", "十二月"};
     // ==================================yyyy-MM-dd      Pattern==================================
     /**
      * yyyy-MM-dd            2020-05-23
@@ -47,13 +47,13 @@ public final class DateFormatConstant {
      */
     public static final String YYYY_M_D_EN = "yyyy/M/d";
     /**
-     * yyyy   MM   dd               2020   05   23   
+     * yyyy年MM月dd日，示例：2020年05月23日
      */
-    public static final String YYYY_MM_DD_CN = "yyyy   MM   dd   ";
+    public static final String YYYY_MM_DD_CN = "yyyy年MM月dd日";
     /**
-     * yyyy   M   d          0            2020   5   23   
+     * yyyy年M月d日，示例：2020年5月23日
      */
-    public static final String YYYY_M_D_CN = "yyyy   M   d   ";
+    public static final String YYYY_M_D_CN = "yyyy年M月d日";
     public static final String ISO8601 = "yyyy-MM-dd'T'HH:mm:ss.SSS+08:00";
     /**
      * yyyy.MM.dd           2020.05.23
@@ -104,13 +104,13 @@ public final class DateFormatConstant {
      */
     public static final String YYYY_MM_EN = "yyyy/MM";
     /**
-     * yyyy   MM              2020   05   
+     * yyyy年MM月，示例：2020年05月
      */
-    public static final String YYYY_MM_CN = "yyyy   MM   ";
+    public static final String YYYY_MM_CN = "yyyy年MM月";
     /**
-     * yyyy   M              2020   5   
+     * yyyy年M月，示例：2020年5月
      */
-    public static final String YYYY_M_CN = "yyyy   M   ";
+    public static final String YYYY_M_CN = "yyyy年M月";
     /**
      * MM-dd           05-23
      */
@@ -128,13 +128,13 @@ public final class DateFormatConstant {
      */
     public static final String M_D_EN = "M/d";
     /**
-     * MM   dd              05   23   
+     * MM月dd日，示例：05月23日
      */
-    public static final String MM_DD_CN = "MM   dd   ";
+    public static final String MM_DD_CN = "MM月dd日";
     /**
-     * M   d          0           5   23   
+     * M月d日，示例：5月23日
      */
-    public static final String M_D_CN = "M   d   ";
+    public static final String M_D_CN = "M月d日";
     // ==================================HH:mm:ss       Pattern==================================
     /**
      * yyyy-MM-dd HH:mm:ss          2020-05-23 17:06:30
@@ -157,13 +157,13 @@ public final class DateFormatConstant {
      */
     public static final String YYYY_M_D_H_M_S_EN = "yyyy/M/d H:m:s";
     /**
-     * yyyy   MM   dd    HH:mm:ss          2020   05   23    17:06:30
+     * yyyy年MM月dd日 HH:mm:ss，示例：2020年05月23日 17:06:30
      */
-    public static final String YYYY_MM_DD_HH_MM_SS_CN = "yyyy   MM   dd    HH:mm:ss";
+    public static final String YYYY_MM_DD_HH_MM_SS_CN = "yyyy年MM月dd日 HH:mm:ss";
     /**
-     * yyyy   MM   dd    HH   mm   ss             2020   05   23    17   06   30   
+     * yyyy年MM月dd日 HH时mm分ss秒，示例：2020年05月23日 17时06分30秒
      */
-    public static final String YYYY_MM_DD_HH_MM_SS_CN_ALL = "yyyy   MM   dd    HH   mm   ss   ";
+    public static final String YYYY_MM_DD_HH_MM_SS_CN_ALL = "yyyy年MM月dd日 HH时mm分ss秒";
     /**
      * yyyy-MM-dd HH:mm          2020-05-23 17:06
      */
@@ -197,27 +197,27 @@ public final class DateFormatConstant {
      */
     public static final String MM_DD_HH_MM = "MM-dd HH:mm";
     /**
-     * MM   dd    HH:mm          05   23    17:06
+     * MM月dd日 HH:mm，示例：05月23日 17:06
      */
-    public static final String MM_DD_HH_MM_CN = "MM   dd    HH:mm";
+    public static final String MM_DD_HH_MM_CN = "MM月dd日 HH:mm";
     /**
      * MM-dd HH:mm:ss          05-23 17:06:30
      */
     public static final String MM_DD_HH_MM_SS = "MM-dd HH:mm:ss";
     /**
-     * MM   dd    HH:mm:ss          05   23    17:06:30
+     * MM月dd日 HH:mm:ss，示例：05月23日 17:06:30
      */
-    public static final String MM_DD_HH_MM_SS_CN = "MM   dd    HH:mm:ss";
+    public static final String MM_DD_HH_MM_SS_CN = "MM月dd日 HH:mm:ss";
     /**
-     * yyyy   MM   dd    hh:mm:ss a          2020   05   23    05:06:30                            PM
+     * yyyy年MM月dd日 hh:mm:ss a（12 小时制），示例：2020年05月23日 05:06:30 PM
      * Locale.ENGLISH
      */
-    public static final String YYYY_MM_DD_HH_MM_SS_A_CN = "yyyy   MM   dd    hh:mm:ss a";
+    public static final String YYYY_MM_DD_HH_MM_SS_A_CN = "yyyy年MM月dd日 hh:mm:ss a";
     /**
-     * yyyy   MM   dd    hh   mm   ss    a          2020   05   23    17   06   30                               PM
+     * yyyy年MM月dd日 hh时mm分ss秒 a（12 小时制），示例：2020年05月23日 17时06分30秒 PM
      * Locale.ENGLISH
      */
-    public static final String YYYY_MM_DD_HH_MM_SS_A_CN_ALL = "yyyy   MM   dd    hh   mm   ss    a";
+    public static final String YYYY_MM_DD_HH_MM_SS_A_CN_ALL = "yyyy年MM月dd日 hh时mm分ss秒 a";
     /**
      * yyyy-MM-dd HH:mm:ss.SSS          2020-05-23 17:06:30.272
      */
@@ -437,7 +437,7 @@ public final class DateFormatConstant {
      */
     public static final DateTimeFormatter YYYY_M_D_EN_FMT = DateTimeFormatter.ofPattern(YYYY_M_D_EN).withZone(ZONE);
     /**
-     * yyyy   MM   dd               2020   05   23   
+     * yyyy年MM月dd日，示例：2020年05月23日
      */
     public static final DateTimeFormatter YYYY_MM_DD_CN_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_CN).withZone(ZONE);
     /**
@@ -494,11 +494,11 @@ public final class DateFormatConstant {
      */
     public static final DateTimeFormatter YYYY_MM_EN_FMT = DateTimeFormatter.ofPattern(YYYY_MM_EN).withZone(ZONE);
     /**
-     * yyyy   MM              2020   05   
+     * yyyy年MM月，示例：2020年05月
      */
     public static final DateTimeFormatter YYYY_MM_CN_FMT = DateTimeFormatter.ofPattern(YYYY_MM_CN).withZone(ZONE);
     /**
-     * yyyy   M              2020   5   
+     * yyyy年M月，示例：2020年5月
      */
     public static final DateTimeFormatter YYYY_M_CN_FMT = DateTimeFormatter.ofPattern(YYYY_M_CN).withZone(ZONE);
     /**
@@ -520,12 +520,12 @@ public final class DateFormatConstant {
     public static final DateTimeFormatter M_D_EN_FMT = DateTimeFormatter.ofPattern(M_D_EN).withZone(ZONE);
     // ==================================HH:mm:ss.SSSSSS       formatters==================================
     /**
-     * MM   dd              05   23   
+     * MM月dd日，示例：05月23日
      */
     public static final DateTimeFormatter MM_DD_CN_FMT = DateTimeFormatter.ofPattern(MM_DD_CN).withZone(ZONE);
     // ==================================HH:mm:ss.SSSSSSSSS       formatters==================================
     /**
-     * M   d          0           5   23   
+     * M月d日，示例：5月23日
      */
     public static final DateTimeFormatter M_D_CN_FMT = DateTimeFormatter.ofPattern(M_D_CN).withZone(ZONE);
     // ==================================yyyy-MM-dd HH:mm:ss       formatters==================================
@@ -559,11 +559,11 @@ public final class DateFormatConstant {
      */
     public static final DateTimeFormatter YYYY_M_D_H_M_S_EN_FMT = DateTimeFormatter.ofPattern(YYYY_M_D_H_M_S_EN).withZone(ZONE);
     /**
-     * yyyy   MM   dd    HH:mm:ss          2020   05   23    17:06:30
+     * yyyy年MM月dd日 HH:mm:ss，示例：2020年05月23日 17:06:30
      */
     public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_CN_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS_CN).withZone(ZONE);
     /**
-     * yyyy   MM   dd    HH   mm   ss             2020   05   23    17   06   30   
+     * yyyy年MM月dd日 HH时mm分ss秒，示例：2020年05月23日 17时06分30秒
      */
     public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_CN_ALL_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS_CN_ALL).withZone(ZONE);
     /**
@@ -599,7 +599,7 @@ public final class DateFormatConstant {
      */
     public static final DateTimeFormatter MM_DD_HH_MM_FMT = DateTimeFormatter.ofPattern(MM_DD_HH_MM).withZone(ZONE);
     /**
-     * MM   dd    HH:mm          05   23    17:06
+     * MM月dd日 HH:mm，示例：05月23日 17:06
      */
     public static final DateTimeFormatter MM_DD_HH_MM_CN_FMT = DateTimeFormatter.ofPattern(MM_DD_HH_MM_CN).withZone(ZONE);
     /**
@@ -607,23 +607,23 @@ public final class DateFormatConstant {
      */
     public static final DateTimeFormatter MM_DD_HH_MM_SS_FMT = DateTimeFormatter.ofPattern(MM_DD_HH_MM_SS).withZone(ZONE);
     /**
-     * MM   dd    HH:mm:ss          05   23    17:06:30
+     * MM月dd日 HH:mm:ss，示例：05月23日 17:06:30
      */
     public static final DateTimeFormatter MM_DD_HH_MM_SS_CN_FMT = DateTimeFormatter.ofPattern(MM_DD_HH_MM_SS_CN).withZone(ZONE);
     /**
-     * yyyy   MM   dd    hh:mm:ss a          2020   05   23    05:06:30       
+     * yyyy年MM月dd日 hh:mm:ss a（12 小时制），示例：2020年05月23日 05:06:30
      */
     public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_A_CN_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS_A_CN).withZone(ZONE);
     /**
-     * yyyy   MM   dd    hh:mm:ss a          2020   05   23    05:06:30 PM
+     * yyyy年MM月dd日 hh:mm:ss a（12 小时制，英文 Locale），示例：2020年05月23日 05:06:30 PM
      */
     public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_A_AM_PM_CN_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS_A_CN, Locale.ENGLISH).withZone(ZONE);
     /**
-     * yyyy   MM   dd    hh   mm   ss    a          2020   05   23    17   06   30          
+     * yyyy年MM月dd日 hh时mm分ss秒 a（12 小时制），示例：2020年05月23日 17时06分30秒
      */
     public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_A_CN_ALL_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS_A_CN_ALL).withZone(ZONE);
     /**
-     * yyyy   MM   dd    hh   mm   ss    a          2020   05   23    17   06   30    PM
+     * yyyy年MM月dd日 hh时mm分ss秒 a（12 小时制，英文 Locale），示例：2020年05月23日 17时06分30秒 PM
      */
     public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_A_AM_PM_CN_ALL_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS_A_CN_ALL, Locale.ENGLISH).withZone(ZONE);
     // ==================================yyyy-MM-dd HH:mm:ss.SSS       formatters==================================
@@ -686,9 +686,9 @@ public final class DateFormatConstant {
      */
     public static final DateTimeFormatter HHMMSS_FMT = DateTimeFormatter.ofPattern(HHMMSS).withZone(ZONE);
     /**
-     * HH   mm   ss              17   06   30   
+     * HH时mm分ss秒，示例：17时06分30秒
      */
-    public static final String HH_MM_SS_CN = "HH   mm   ss   ";
+    public static final String HH_MM_SS_CN = "HH时mm分ss秒";
     /**
      * HH:mm           17:06
      */
@@ -698,11 +698,11 @@ public final class DateFormatConstant {
      */
     public static final String H_M = "H:m";
     /**
-     * HH   mm             17   06   
+     * HH时mm分，示例：17时06分
      */
-    public static final String HH_MM_CN = "HH   mm   ";
+    public static final String HH_MM_CN = "HH时mm分";
     /**
-     * hh:mm a          05:06                           PM              Locale.ENGLISH
+     * hh:mm a（12 小时制，英文 Locale），示例：05:06 PM
      */
     public static final String HH_MM_A = "hh:mm a";
     /**
@@ -723,7 +723,7 @@ public final class DateFormatConstant {
      */
     public static final DateTimeFormatter H_M_S_FMT = DateTimeFormatter.ofPattern(H_M_S).withZone(ZONE);
     /**
-     * HH   mm   ss              17   06   30   
+     * HH时mm分ss秒，示例：17时06分30秒
      */
     public static final DateTimeFormatter HH_MM_SS_CN_FMT = DateTimeFormatter.ofPattern(HH_MM_SS_CN).withZone(ZONE);
     /**
@@ -735,7 +735,7 @@ public final class DateFormatConstant {
      */
     public static final DateTimeFormatter H_M_FMT = DateTimeFormatter.ofPattern(H_M).withZone(ZONE);
     /**
-     * HH   mm             17   06   
+     * HH时mm分，示例：17时06分
      */
     public static final DateTimeFormatter HH_MM_CN_FMT = DateTimeFormatter.ofPattern(HH_MM_CN).withZone(ZONE);
     /**
