@@ -148,7 +148,7 @@ public class KimiSession implements AutoCloseable {
      */
     private void doRefresh() {
         if (rawToken.isEmpty()) {
-            throw new RuntimeException("Kimi token 未配置");
+            throw new IllegalStateException("Kimi token 未配置");
         }
         try {
             Map<String, String> headers = buildAuthHeaders();

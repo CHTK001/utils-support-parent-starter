@@ -74,7 +74,7 @@ public class SocketIoDispatcherProvider extends AbstractDispatcherProvider {
         try {
             socket = IO.socket(url, options);
         } catch (java.net.URISyntaxException e) {
-            throw new RuntimeException("SocketIO 连接地址非法: " + url, e);
+            throw new IllegalArgumentException("SocketIO 连接地址非法: " + url, e);
         }
         socket.on(Socket.EVENT_CONNECT, args -> {
             log.info("[SocketIO] 已连接远程服务: {}", url);

@@ -194,23 +194,23 @@ public class JdkImageOperation implements ImageOperation {
         
         return Mono.fromRunnable(() -> {
             if (imageBytes == null || imageBytes.length == 0) {
-                throw new RuntimeException("图片数据不能为空");
+                throw new IllegalArgumentException("图片数据不能为空");
             
     }
             if (format == null || format.trim().isEmpty()) {
-                throw new RuntimeException("输入图片格式不能为空");
+                throw new IllegalArgumentException("输入图片格式不能为空");
             }
 
             if (quality < 0.0f || quality > 1.0f) {
-                throw new RuntimeException("压缩质量必须在0.0到1.0之间");
+                throw new IllegalArgumentException("压缩质量必须在0.0到1.0之间");
             }
 
             if (outputFormat == null || outputFormat.trim().isEmpty()) {
-                throw new RuntimeException("输出格式不能为空");
+                throw new IllegalArgumentException("输出格式不能为空");
             }
 
             if (output == null) {
-                throw new RuntimeException("输出文件不能为空");
+                throw new IllegalArgumentException("输出文件不能为空");
             }
 
             // 确保输出目录存在

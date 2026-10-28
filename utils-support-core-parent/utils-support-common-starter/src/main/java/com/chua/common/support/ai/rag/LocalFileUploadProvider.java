@@ -70,7 +70,7 @@ public class LocalFileUploadProvider implements UploadProvider {
             throw new RuntimeException("写入文件失败: " + e.getMessage(), e);
         } catch (IllegalArgumentException e) {
             log.error("[LocalFileUploadProvider] docId 非法: docId={}", docId, e);
-            throw new RuntimeException("docId 非法: " + e.getMessage(), e);
+            throw new IllegalArgumentException("docId 非法: " + e.getMessage(), e);
         }
         return docId;
     }
