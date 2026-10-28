@@ -97,9 +97,9 @@ public class LaplaceImageFilter extends AbstractImageFilter{
      */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
-        
+
         return laplaceAddProcess(src);
-    
+
     }
 
     /**

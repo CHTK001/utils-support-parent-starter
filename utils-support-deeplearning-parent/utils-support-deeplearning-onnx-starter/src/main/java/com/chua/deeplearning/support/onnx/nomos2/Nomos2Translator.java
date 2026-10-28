@@ -18,17 +18,17 @@ import java.awt.image.BufferedImage;
 /**
  * 4xnomos2 ESRGAN
  * <p>
- *                                                                   
+ *
  * <p>
- *                
- * -           float32       
+ *
+ * -           float32
  * -              [0, 1]
  * -           CHW          通道, Height, Width
  * <p>
- *                
- * -           [0, 1]       
+ *
+ * -           [0, 1]
  * -           [0, 255]
- * -           UINT8       
+ * -           UINT8
  * -           镜像
  *
  * @author CH
@@ -38,12 +38,12 @@ import java.awt.image.BufferedImage;
 public class Nomos2Translator implements Translator<Image, Image> {
 
     /**
-     *                                                    {@link NDList}   
+     *                                                    {@link NDList}
      *
      * @param ctx translator上下文
-     * @param input                       
-     * @return NDList               
-     * @throws Exception                
+     * @param input
+     * @return NDList
+     * @throws Exception
      */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
@@ -76,12 +76,12 @@ public class Nomos2Translator implements Translator<Image, Image> {
     }
 
     /**
-     *                                                  {@link Image}   
+     *                                                  {@link Image}
      *
      * @param ctx translator上下文
      * @param list nd列表
-     * @return Image               
-     * @throws Exception                
+     * @return Image
+     * @throws Exception
      */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) throws Exception {
@@ -132,12 +132,12 @@ public class Nomos2Translator implements Translator<Image, Image> {
     }
 
     /**
-     *                           
+     *
      * <p>
-     *        STACK             
+     *        STACK
      * </p>
      *
-     * @return Batchifier          
+     * @return Batchifier
      */
     @Override
     public Batchifier getBatchifier() {

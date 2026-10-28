@@ -1,7 +1,7 @@
 package com.chua.deeplearning.support.onnx.text;
 
 /**
- * tokenizer                       
+ * tokenizer
  * <p>
  * 令牌 ids         attention mask
  * <p>
@@ -108,7 +108,7 @@ public record TokenizerResult(
     /**
      * 令牌
      *
-     * @return validTokenCount         
+     * @return validTokenCount
      */
     public int getValidTokenCount() {
         return validTokenCount;
@@ -117,7 +117,7 @@ public record TokenizerResult(
     /**
      * 输入标识
      *
-     * @return                     
+     * @return
      */
     public int getSequenceLength() {
         return inputIds != null ? inputIds.length : 0;
@@ -125,9 +125,9 @@ public record TokenizerResult(
 
     /**
      * 是否为 Valid。
-     *                   
      *
-     * @return true                       
+     *
+     * @return true
      */
     public boolean isValid() {
         return validTokenCount > 0;

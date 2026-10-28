@@ -75,7 +75,7 @@ public class ServiceDefinitionFinder {
      * @param definitions 服务定义映射
      * @param serviceAutowire 自动装配器
      */
-    public ServiceDefinitionFinder(Map<String, SortedList<ServiceDefinition>> definitions, 
+    public ServiceDefinitionFinder(Map<String, SortedList<ServiceDefinition>> definitions,
                                    ServiceAutowire serviceAutowire) {
         this.definitions = definitions;
         this.serviceAutowire = serviceAutowire;
@@ -121,7 +121,7 @@ public class ServiceDefinitionFinder {
         for (Map.Entry<String, SortedList<ServiceDefinition>> entry : this.definitions.entrySet()) {
             SortedList<ServiceDefinition> entryValue = entry.getValue();
             for (ServiceDefinition serviceDefinition : entryValue) {
-                if ((null == type || type.equalsIgnoreCase(serviceDefinition.getDescribeType())) 
+                if ((null == type || type.equalsIgnoreCase(serviceDefinition.getDescribeType()))
                         && name1.equalsIgnoreCase(serviceDefinition.getName())) {
                     definitions.add(serviceDefinition);
                 }
@@ -307,8 +307,8 @@ public class ServiceDefinitionFinder {
      * @param args 构造参数
      * @return 匹配的服务定义集合
      */
-    private <T> Collection<? extends ServiceDefinition> createNameAware(String name, 
-                                                                        SortedList<ServiceDefinition> definitions, 
+    private <T> Collection<? extends ServiceDefinition> createNameAware(String name,
+                                                                        SortedList<ServiceDefinition> definitions,
                                                                         Object[] args) {
         List<ServiceDefinition> rs = Wraps.list(definitions.size());
         for (ServiceDefinition definition : definitions) {

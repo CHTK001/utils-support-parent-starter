@@ -36,7 +36,7 @@ public class BigDecimalTypeConverter implements TypeConverter<BigDecimal> {
             return null;
         }
 
-        //                                                    
+        //
         if (value instanceof String) {
             String text = ((String) value).trim();
             if (text.isEmpty()) {
@@ -47,7 +47,7 @@ public class BigDecimalTypeConverter implements TypeConverter<BigDecimal> {
                 percent = true;
                 text = text.substring(0, text.length() - 1);
             }
-            //                                        
+            //
             text = text.replaceAll("[\\u00A0\\s]+", "").trim();
             try {
                 BigDecimal bd = TypeConverter.stringTransToBigDecimal(text);

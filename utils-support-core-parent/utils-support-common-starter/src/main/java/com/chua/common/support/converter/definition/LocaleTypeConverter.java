@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 
 
 /**
- * Locale       
+ * Locale
  *
  * <p>                     </p>
  * <ul>
@@ -27,7 +27,7 @@ public class LocaleTypeConverter implements TypeConverter<Locale> {
 
     /**
      * 获取 Type。
-     *             
+     *
      *
      * @return Locale.class
      */
@@ -39,7 +39,7 @@ public class LocaleTypeConverter implements TypeConverter<Locale> {
     /**
      *           Locale
      *
-     * @param value    
+     * @param value
      * @return Locale     null
      */
     @Override
@@ -56,15 +56,15 @@ public class LocaleTypeConverter implements TypeConverter<Locale> {
                 return null;
             }
             try {
-                //              IETF BCP 47                    zh-Hans-CN / en-US    
+                //              IETF BCP 47                    zh-Hans-CN / en-US
                 if (text.contains("-")) {
                     Locale loc = Locale.forLanguageTag(text);
-                    // forLanguageTag                                      Locale(""),                      
+                    // forLanguageTag                                      Locale(""),
                     if (!loc.getLanguage().isEmpty()) {
                         return loc;
                     }
                 }
-                //        zh_CN / en_US / zh / zh__#Hans          
+                //        zh_CN / en_US / zh / zh__#Hans
                 String normalized = text.replace('-', '_');
                 String[] parts = normalized.split("_");
                 if (parts.length == 1) {
@@ -112,11 +112,11 @@ public class LocaleTypeConverter implements TypeConverter<Locale> {
     }
 
     /**
-     * Map                      
+     * Map
      *
      * @param map   map
-     * @param key      
-     * @return    
+     * @param key
+     * @return
      */
     private Object getIgnoreCase(Map map, String key) {
         if (map.containsKey(key)) {

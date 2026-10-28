@@ -101,11 +101,11 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
 
     /**
      * 渲染输出。
-     *                
      *
-     * @param progress             
-     * @param maxLength             
-     * @return                               
+     *
+     * @param progress
+     * @param maxLength
+     * @return
      */
     @Override
     public String render(ProgressState progress, int maxLength) {
@@ -113,22 +113,22 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
             return "";
         }
 
-        //                                                 
+        //
         String taskName = progress.getTaskName();
         String downloadInfo = formatDownloadInfo(progress);
         String percentage = String.format("%.1f%%", progress.getNormalizedProgress() * 100);
-        
-        //                      
+
+        //
         String prefix = taskName + " " + downloadInfo + " ";
         String suffix = " " + percentage;
-        
-        //                                                             
+
+        //
         if (isSpeedShown) {
             String speedString = getDownloadSpeedString(progress);
             suffix += " " + speedString;
         }
-        
-        //                   
+
+        //
         if (isEtaShown) {
             String etaString = getEtaString(progress);
             String elapsedString = Util.formatDuration(progress.getTotalElapsed());
@@ -141,21 +141,21 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
 
         StringBuilder sb = new StringBuilder();
         sb.append(prefix);
-        
-        //                      
+
+        //
         sb.append(renderProgressBar(progress, progressBarLength));
-        
+
         sb.append(suffix);
-        
+
         return sb.toString();
     }
 
     /**
      * 格式化下载信息文本。
-     *                                  /            
+     *                                  /
      *
-     * @param progress             
-     * @return                         
+     * @param progress
+     * @return
      */
     private String formatDownloadInfo(ProgressState progress) {
         if (progress.max <= 0) {
@@ -166,10 +166,10 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
 
     /**
      * 格式化文件大小。
-     *                      
      *
-     * @param bytes          
-     * @return                                  
+     *
+     * @param bytes
+     * @return
      */
     private String formatFileSize(long bytes) {
         if (bytes < 1024) {
@@ -185,110 +185,110 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
 
     /**
      * 渲染进度条。
-     *                            
      *
-     * @param progress             
-     * @param length                
-     * @return                   
+     *
+     * @param progress
+     * @param length
+     * @return
      */
     private String renderProgressBar(ProgressState progress, int length) {
         StringBuilder sb = new StringBuilder();
-        
+
         if (progress.indefinite) {
-            //                                                                
+            //
             double pos = (progress.current * 0.5) % length;
             for (int i = 0; i < length; i++) {
                 double distance = Math.abs(i - pos);
                 if (distance <= 1.0) {
-                    //                            
+                    //
                     sb.append("\u001b[95m   \u001b[0m");
                 } else if (distance <= 2.5) {
-                    //                            
+                    //
                     sb.append("\u001b[35m   \u001b[0m");
                 } else if (distance <= 4.0) {
-                    //                         
+                    //
                     sb.append("\u001b[90m   \u001b[0m");
                 } else {
-                    //                   
+                    //
                     sb.append("\u001b[90m   \u001b[0m");
                 }
             }
         } else {
-            //                                           
+            //
             double progressRatio = progress.getNormalizedProgress();
             int filledLength = (int) (length * progressRatio);
-            
-            //                                     
-            //          
+
+            //
+            //
             sb.append("\u001b[95m");
             for (int i = 0; i < filledLength; i++) {
                 if (i < filledLength - 1) {
-                    //          
+                    //
                     sb.append("   ");
                 } else {
-                    //                                     
+                    //
                     double fraction = (length * progressRatio) - filledLength;
                     if (fraction > 0.75) {
-                        //             
+                        //
                         sb.append("   ");
                     } else if (fraction > 0.5) {
-                        //          
+                        //
                         sb.append("   ");
                     } else if (fraction > 0.25) {
-                        //          
+                        //
                         sb.append("   ");
                     } else {
-                        //             
+                        //
                         sb.append("   ");
                     }
                 }
             }
-            
-            //                               
-            //          
+
+            //
+            //
             sb.append("\u001b[90m");
             for (int i = filledLength; i < length; i++) {
-                //                
+                //
                 sb.append("   ");
             }
-            
-            //             
+
+            //
             sb.append("\u001b[0m");
         }
-        
+
         return sb.toString();
     }
 
     /**
      * 获取 DownloadSpeedString。
-     *                            
      *
-     * @param progress             
-     * @return                      
+     *
+     * @param progress
+     * @return
      */
     private String getDownloadSpeedString(ProgressState progress) {
         Duration elapsed = progress.getTotalElapsed();
         if (elapsed.isZero() || elapsed.toMillis() < 100) {
             return "0B/s";
         }
-        
-        //                            /      
+
+        //                            /
         double bytesPerSecond = (double) progress.current / elapsed.toMillis() * 1000;
         return formatFileSize((long) bytesPerSecond) + "/s";
     }
 
     /**
      * 获取 EtaString。
-     *                                  
      *
-     * @param progress             
-     * @return                            
+     *
+     * @param progress
+     * @return
      */
     private String getEtaString(ProgressState progress) {
         if (eta == null) {
             return "--:--:--";
         }
-        
+
         Optional<Duration> etaOpt = eta.apply(progress);
         if (etaOpt.isPresent()) {
             return Util.formatDuration(etaOpt.get());
@@ -298,32 +298,32 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
-     *                                     ANSI               
+     *                                     ANSI
      *
-     * @param str          
-     * @return             
+     * @param str
+     * @return
      */
     private int getStringDisplayLength(String str) {
         if (str == null) {
             return 0;
         }
-        //       ANSI                           
+        //       ANSI
         String cleaned = str.replaceAll("\\u001b\\[[0-9;]*m", "");
         return cleaned.length();
     }
 
     /**
-     *       Python Download                           
+     *       Python Download
      *
-     * @param unit             
-     * @param unitName             
-     * @param unitSize             
-     * @param showSpeed                   
-     * @param speedFormat             
-     * @param speedUnit             
-     * @param showEta                               
-     * @param eta                               
-     * @return Python Download                     
+     * @param unit
+     * @param unitName
+     * @param unitSize
+     * @param showSpeed
+     * @param speedFormat
+     * @param speedUnit
+     * @param showEta
+     * @param eta
+     * @return Python Download
      */
     public static PythonDownloadProgressBarRenderer create(
             ProgressUnit unit,

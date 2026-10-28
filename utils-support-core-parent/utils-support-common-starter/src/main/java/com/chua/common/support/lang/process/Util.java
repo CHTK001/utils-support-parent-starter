@@ -29,10 +29,10 @@ class Util {
             ThreadUtils.newDaemonThreadFactory("ProgressBar"));
     /**
      * 创建实例。
-     *                                                    
      *
-     * @param predefinedWidth                
-     * @return                   
+     *
+     * @param predefinedWidth
+     * @return
      */
     static ConsoleProgressBarConsumer createConsoleConsumer(int predefinedWidth) {
         PrintStream real = new PrintStream(new FileOutputStream(FileDescriptor.out));
@@ -40,10 +40,10 @@ class Util {
     }
     /**
      * 创建实例。
-     *                                                    
      *
-     * @param out          
-     * @return                   
+     *
+     * @param out
+     * @return
      */
     static ConsoleProgressBarConsumer createConsoleConsumer(PrintStream out) {
         return createConsoleConsumer(out, -1);
@@ -51,11 +51,11 @@ class Util {
     /**
      * 创建实例。
      * <p>
-     *                                                                                        
      *
-     * @param out          
-     * @param predefinedWidth                   -1                        
-     * @return                   
+     *
+     * @param out
+     * @param predefinedWidth                   -1
+     * @return
      */
     static ConsoleProgressBarConsumer createConsoleConsumer(PrintStream out, int predefinedWidth) {
         return TerminalUtils.hasCursorMovementSupport()
@@ -64,11 +64,11 @@ class Util {
     }
     /**
      * 重复生成内容。
-     *                         
      *
-     * @param c                   
-     * @param n             
-     * @return                      
+     *
+     * @param c
+     * @param n
+     * @return
      */
     static String repeat(char c, int n) {
         if (n <= 0) {
@@ -82,10 +82,10 @@ class Util {
     }
     /**
      * <p>
-     *    Duration             "   :   :   "       
+     *    Duration             "   :   :   "
      *
-     * @param d             
-     * @return                                           HH:MM:SS   
+     * @param d
+     * @return                                           HH:MM:SS
      */
     static String formatDuration(Duration d) {
         long s = d.getSeconds();
@@ -94,10 +94,10 @@ class Util {
     /**
      * 线性计算学习率。
      * <p>
-     *                                                                   
      *
-     * @param progress             
-     * @return                                                    
+     *
+     * @param progress
+     * @return
      */
     static Optional<Duration> linearEta(ProgressState progress) {
         if (progress.getMax() <= 0 || progress.isIndefinite()) {
@@ -114,9 +114,9 @@ class Util {
     }
     /**
      * <p>
-     *                                                                                  available()            
+     *                                                                                  available()
      *
-     * @param is          
+     * @param is
      * @return                                                       -1
      */
     static long getInputStreamSize(InputStream is) {
@@ -124,21 +124,21 @@ class Util {
             if (is instanceof FileInputStream) {
                 return ((FileInputStream) is).getChannel().size();
             }
-            //        InputStream::available                      
+            //        InputStream::available
             int available = is.available();
             if (available > 0) {
                 return available;
             }
         } catch (IOException ignored) {
-            //             
+            //
         }
         return -1;
     }
     /**
-     *       Spliterator         
+     *       Spliterator
      *
-     * @param sp Spliterator      
-     * @param <T>             
+     * @param sp Spliterator
+     * @param <T>
      * @return Spliterator                                    Long.MAX_VALUE         -1
      */
     static <T> long getSpliteratorSize(Spliterator<T> sp) {
@@ -146,7 +146,7 @@ class Util {
             long size = sp.estimateSize();
             return size != Long.MAX_VALUE ? size : -1;
         } catch (Exception ignored) {
-            //             
+            //
         }
         return -1;
     }

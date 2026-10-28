@@ -126,9 +126,9 @@ public class ImagePixelImageFilter extends AbstractImageFilter{
      */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
-        
+
         return getPixelImage(src, stepValue);
-    
+
     }
 
     /**

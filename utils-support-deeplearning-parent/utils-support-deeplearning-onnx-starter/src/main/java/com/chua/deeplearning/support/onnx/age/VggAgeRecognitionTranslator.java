@@ -16,17 +16,17 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * VGG-16              Translator       
+ * VGG-16              Translator
  *
  *          https://github.com/onnx/models/tree/main/validated/vision/body_analysis/age_gender
  *
- *                                                                                                          
+ *
  *
  *              (vgg_ilsvrc_16_age_imdb_wiki):
  * -       : [批量_大小=1, 通道=3, height=224, width=224] float32
  * -       : [批量_大小, 101] float32 (0-100                   )
  *
- *                      
+ *
  * age = sum(probability[i] * i for i 入 范围(0, 101))
  *                 age                    [0.01, 0.05, ..., 0.8, 0.1, ...]
  *                 = 0*0.01 + 1*0.05 + ... + 25*0.8 + 26*0.1 + ...
@@ -46,14 +46,14 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
     private static final int CHANNELS = 3;
 
     /**
-     *                0-100       
+     *                0-100
      */
     private static final int AGE_RANGE = 101;
 
     /**
-     *                 -                
+     *                 -
      *
-     * @param ctx                   
+     * @param ctx
      */
     @Override
     public void prepare(TranslatorContext ctx) {
@@ -66,13 +66,13 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
      *             :
      * 1.     镜像           ndarray
      * 2.           224  224
-     * 3.           CHW       
+     * 3.           CHW
      * 4.           float32
-     * 5.                          127,           128   
+     * 5.                          127,           128
      *
-     * @param ctx                   
-     * @param input             
-     * @return NDList                   
+     * @param ctx
+     * @param input
+     * @return NDList
      */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
@@ -128,13 +128,13 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
      *
      *             :
      * 1.     nd列表                         0-100
-     * 2.                      
-     * 3.                         
-     * 4.                         
+     * 2.
+     * 3.
+     * 4.
      *
-     * @param ctx                   
+     * @param ctx
      * @param list                 nd列表
-     * @return                          "25.5    "   
+     * @return                          "25.5    "
      */
     @Override
     public PredictResult processOutput(TranslatorContext ctx, NDList list) {
@@ -144,27 +144,27 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
                 return PredictResult.empty();
             }
 
-            //                   
+            //
             NDArray output = list.getFirst();
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("模型输出张量形状: {}", output.getShape());
             }
 
-            //                   
+            //
             float[] probs = null;
 
-            //           2D        [1, 101]               
+            //           2D        [1, 101]
             if (output.getShape().dimension() == 2) {
                 NDArray firstRow = output.get(0); // [P3C 3.7 豁免] NDArray 张量下标访问
                 probs = firstRow.toFloatArray();
             }
-            //           1D        [101]               
+            //           1D        [101]
             else if (output.getShape().dimension() == 1) {
                 probs = output.toFloatArray();
             }
 
             if (probs != null && probs.length == AGE_RANGE) {
-                //                         
+                //
                 double predictedAge = calculateWeightedAge(probs);
 
                     LOGGER.info("年龄识别结果: {} 岁", predictedAge);
@@ -187,15 +187,15 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
     }
 
     /**
-     *                         
+     *
      *
      * : age = sum(probability[i] * i for i 入 范围(0, 101))
      *
-     * @param probs 0-100                         
-     * @return                   
+     * @param probs 0-100
+     * @return
      */
     private double calculateWeightedAge(float[] probs) {
-        //                            
+        //
         int maxIndex = 0;
         float maxProb = probs[0];
 
@@ -206,7 +206,7 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
             }
         }
 
-        //                                  
+        //
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("年龄识别结果: {} (置信度: {})", maxIndex, String.format("%.4f", maxProb));
         }
@@ -215,10 +215,10 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
 
     /**
      * 获取 MaxProbability。
-     *                      
      *
-     * @param probs             
-     * @return                
+     *
+     * @param probs
+     * @return
      */
     private double getMaxProbability(float[] probs) {
         float max = 0f;

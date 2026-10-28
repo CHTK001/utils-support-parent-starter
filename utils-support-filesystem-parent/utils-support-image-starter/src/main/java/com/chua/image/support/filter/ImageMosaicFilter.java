@@ -112,7 +112,7 @@ public class ImageMosaicFilter extends AbstractImageFilter {
         // 验证马赛克块大小的有效性
         if (src.getWidth() < size || src.getHeight() < size || size <= 0) {
             // turn src; // 参数无效时返回原图像
-            
+
         }
 
         // 计算水平方向的网格数量

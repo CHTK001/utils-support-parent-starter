@@ -21,38 +21,38 @@ public interface Compiler {
      * 捕获组 1 将包含父类的全限定名或简单名。
      */
     Pattern PARENT_PATTERN = Pattern.compile("extends\\s+([a-zA-z][$_a-zA-z0-9.]*)");
-    
+
     /**
      * 匹配 "implements" 关键字后跟随的接口名称的正则表达式模式。
      * 捕获组 1 将包含接口的全限定名或简单名。
      */
     Pattern INTERFACE_PATTERN = Pattern.compile("implements\\s+([a-zA-z][$_a-zA-z0-9.]*)");
-    
+
     /**
      * 匹配 "package" 声明后的包名的正则表达式模式。
      * 捕获组 1 将包含包名。
      */
     Pattern PACKAGE_PATTERN = Pattern.compile("package\\s+([a-zA-z][$_a-zA-z0-9.]*)");
-    
+
     /**
      * 匹配 "class" 关键字后跟随的类名的正则表达式模式。
      * 捕获组 1 将包含类名（不包含泛型参数）。
      */
     Pattern CLASS_PATTERN = Pattern.compile("class\\s+([$_a-zA-z][$_a-zA-z0-9]*)");
-    
+
     /**
      * 匹配 "import" 语句的正则表达式模式。
      * 捕获组 1 将包含导入的完整路径（不含分号）。
      */
     Pattern IMPORT_PATTERN = Pattern.compile("import\\s+(.*);");
-    
+
     /**
      * 匹配字段声明（private, public, protected）的正则表达式模式。
      * 捕获组 1 为访问修饰符，捕获组 2 为字段类型和名称。
      * 注意：原模式中 "protect" 应为 "protected"，此处保留原逻辑。
      */
     Pattern FIELD_PATTERN = Pattern.compile("(private|public|protect)\\s+(.*);");
-    
+
     /**
      * 匹配方法声明的正则表达式模式。
      * 结构复杂，旨在捕获访问修饰符、返回类型（含泛型）、方法名、参数列表及方法体。
@@ -94,7 +94,7 @@ public interface Compiler {
     default Class<?> compiler(String code, final ClassLoader classLoader, final String suffix) {
         // 去除首尾空白字符
         code = code.trim();
-        
+
         // 尝试提取包名
         Matcher matcher = PACKAGE_PATTERN.matcher(code);
         String pkg;
@@ -103,7 +103,7 @@ public interface Compiler {
         } else {
             pkg = "";
         }
-        
+
         // 尝试提取类名
         matcher = CLASS_PATTERN.matcher(code);
         String cls;
@@ -112,10 +112,10 @@ public interface Compiler {
         } else {
             throw new IllegalArgumentException("No such class name in " + code);
         }
-        
+
         // 组合完整的类名：包名 + "." + 类名 + 后缀
         String className = (pkg != null && pkg.length() > 0 ? pkg + "." + cls : cls) + suffix;
-        
+
         // 首先尝试通过 Class.forName 查找是否已存在该类（通常用于缓存命中）。
         // ReflectUtils.forName 不抛 checked 异常（加载失败返回 null），因此用判空替代 catch
         Class<?> cachedClass = ReflectUtils.forName(className, getClass().getClassLoader());
@@ -126,7 +126,7 @@ public interface Compiler {
         if (!code.endsWith(CommonConstant.SYMBOL_RIGHT_BIG_PARENTHESES)) {
             throw new IllegalStateException("The java code not endsWith \"}\", code: \n" + code + "\n");
         }
-        
+
         // 调用子实现进行实际的动态编译操作
         try {
             return doCompile(className, code);

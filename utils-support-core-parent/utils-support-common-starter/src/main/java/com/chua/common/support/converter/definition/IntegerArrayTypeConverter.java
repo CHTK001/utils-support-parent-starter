@@ -44,7 +44,7 @@ public class IntegerArrayTypeConverter implements TypeConverter<Integer[]> {
                     stringValue.endsWith(SYMBOL_RIGHT_SQUARE_BRACKET)) {
                     stringValue = stringValue.substring(1, stringValue.length() - 1);
                 }
-            //             
+            //
             String[] parts = stringValue.split("[\\n\\r\\t ,;|]+");
             return transToArray(parts, Integer.class);
         }

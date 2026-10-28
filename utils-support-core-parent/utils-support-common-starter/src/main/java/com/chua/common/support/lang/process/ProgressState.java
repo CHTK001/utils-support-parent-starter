@@ -59,12 +59,12 @@ public class ProgressState {
     volatile boolean paused = false;
     /**
      * 构造 ProgressState 实例。
-     *             
      *
-     * @param taskName             
-     * @param initialMax                               0                     
-     * @param startFrom                
-     * @param elapsedBeforeStart                      
+     *
+     * @param taskName
+     * @param initialMax                               0
+     * @param startFrom
+     * @param elapsedBeforeStart
      */
     ProgressState(String taskName, long initialMax, long startFrom, Duration elapsedBeforeStart) {
         this.taskName = taskName;
@@ -80,53 +80,53 @@ public class ProgressState {
     }
     /**
      * 获取 TaskName。
-     *                   
      *
-     * @return             
+     *
+     * @return
      */
     public String getTaskName() {
         return taskName;
     }
     /**
      * 获取 ExtraMessage。
-     *                   
      *
-     * @return             
+     *
+     * @return
      */
     public synchronized String getExtraMessage() {
         return extraMessage;
     }
     /**
      * 获取 Start。
-     *                      
      *
-     * @return                
+     *
+     * @return
      */
     public synchronized long getStart() {
         return start;
     }
     /**
      * 获取 Current。
-     *                      
      *
-     * @return                
+     *
+     * @return
      */
     public synchronized long getCurrent() {
         return current;
     }
     /**
      * 获取 Max。
-     *                      
      *
-     * @return                
+     *
+     * @return
      */
     public synchronized long getMax() {
         return max;
     }
     /**
-     *                         0.0-1.0   
+     *                         0.0-1.0
      *
-     * @return                               0.0   1.0      
+     * @return                               0.0   1.0
      */
     public synchronized double getNormalizedProgress() {
         if (max <= 0) {
@@ -139,27 +139,27 @@ public class ProgressState {
     }
     /**
      * 获取 StartInstant。
-     *                   
      *
-     * @return             
+     *
+     * @return
      */
     public synchronized Instant getStartInstant() {
         return startInstant;
     }
     /**
      * 获取 ElapsedBeforeStart。
-     *                            
      *
-     * @return                      
+     *
+     * @return
      */
     public synchronized Duration getElapsedBeforeStart() {
         return elapsedBeforeStart;
     }
     /**
      * 获取 ElapsedAfterStart。
-     *                            
      *
-     * @return                      
+     *
+     * @return
      */
     public synchronized Duration getElapsedAfterStart() {
         return (startInstant == null)
@@ -168,36 +168,36 @@ public class ProgressState {
     }
     /**
      * 获取 TotalElapsed。
-     *                      
      *
-     * @return                                   +                   
+     *
+     * @return                                   +
      */
     public synchronized Duration getTotalElapsed() {
         return getElapsedBeforeStart().plus(getElapsedAfterStart());
     }
     /**
      * 是否为 Indefinite。
-     *                      
      *
-     * @return true                      false                   
+     *
+     * @return true                      false
      */
     public synchronized boolean isIndefinite() {
         return indefinite;
     }
     /**
      * 是否为 Alive。
-     *             
      *
-     * @return true                      false                
+     *
+     * @return true                      false
      */
     public synchronized boolean isAlive() {
         return alive;
     }
     /**
      * 是否为 Paused。
-     *             
      *
-     * @return true                   false                
+     *
+     * @return true                   false
      */
     public synchronized boolean isPaused() {
         return paused;
@@ -216,18 +216,18 @@ public class ProgressState {
     }
     /**
      * 获取最大提示长度。
-     *                            
      *
-     * @param n                
+     *
+     * @param n
      */
     synchronized void maxHint(long n) {
         max = n;
     }
     /**
      * 按步长推进。
-     *                   
      *
-     * @param n             
+     *
+     * @param n
      */
     synchronized void stepBy(long n) {
         current += n;
@@ -237,9 +237,9 @@ public class ProgressState {
     }
     /**
      * 分步转换。
-     *                         
      *
-     * @param n                
+     *
+     * @param n
      */
     synchronized void stepTo(long n) {
         current = n;
@@ -249,9 +249,9 @@ public class ProgressState {
     }
     /**
      * 设置ExtraMessage。
-     *                   
      *
-     * @param msg             
+     *
+     * @param msg
      */
     synchronized void setExtraMessage(String msg) {
         extraMessage = msg;
@@ -259,7 +259,7 @@ public class ProgressState {
     /**
      * 暂停。
      * <p>
-     *                                              
+     *
      */
     synchronized void pause() {
         paused = true;
@@ -269,7 +269,7 @@ public class ProgressState {
     /**
      * 恢复。
      * <p>
-     *                               
+     *
      */
     synchronized void resume() {
         paused = false;
@@ -278,7 +278,7 @@ public class ProgressState {
     /**
      * 重置。
      * <p>
-     *                                                 
+     *
      */
     synchronized void reset() {
         start = 0;
@@ -288,7 +288,7 @@ public class ProgressState {
     }
     /**
      * <p>
-     *                         false                        
+     *                         false
      */
     synchronized void kill() {
         alive = false;

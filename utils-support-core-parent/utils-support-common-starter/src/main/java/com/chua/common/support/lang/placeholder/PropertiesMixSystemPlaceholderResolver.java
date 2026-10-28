@@ -23,7 +23,7 @@ public class PropertiesMixSystemPlaceholderResolver implements PlaceholderResolv
      * 存储自定义属性的核心容器。
      */
     private final Properties props;
-    
+
     /**
      * 用于解析系统属性的辅助解析器实例。
      */

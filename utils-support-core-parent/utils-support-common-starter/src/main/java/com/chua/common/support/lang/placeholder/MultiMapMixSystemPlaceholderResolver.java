@@ -64,7 +64,7 @@ public class MultiMapMixSystemPlaceholderResolver implements PlaceholderResolver
         }
 
         Collection<Object> objects = props.get(placeholderName);
-        
+
         // 如果自定义映射中存在该键且有值，则序列化为 JSON
         if (objects != null && !objects.isEmpty()) {
             return Json.toJson(objects);

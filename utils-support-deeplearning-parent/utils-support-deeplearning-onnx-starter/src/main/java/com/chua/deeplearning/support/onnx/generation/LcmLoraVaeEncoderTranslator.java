@@ -15,13 +15,13 @@ import lombok.extern.slf4j.Slf4j;
  * LCM-lora VAE
  * <p>
  * LCM-lora           VAE
- *                                     
+ *
  * </p>
  * <p>
- *                
- * -                       
- * -                       
- * -                       
+ *
+ * -
+ * -
+ * -
  * </p>
  *
  * @author CH
@@ -35,17 +35,17 @@ public class LcmLoraVaeEncoderTranslator implements Translator<Image, NDList> {
     private final int height;
 
     /**
-     *              -                   
+     *              -
      */
     public LcmLoraVaeEncoderTranslator() {
         this(512, 512);
     }
 
     /**
-     *              -                
+     *              -
      *
-     * @param width                    
-     * @param height                   
+     * @param width
+     * @param height
      */
     public LcmLoraVaeEncoderTranslator(int width, int height) {
         this.width = width;
@@ -57,10 +57,10 @@ public class LcmLoraVaeEncoderTranslator implements Translator<Image, NDList> {
 
     /**
      * 执行 Input。
-     *                   
      *
-     * @param ctx                     
-     * @param input             
+     *
+     * @param ctx
+     * @param input
      * @return              NDList
      */
     @Override
@@ -68,7 +68,7 @@ public class LcmLoraVaeEncoderTranslator implements Translator<Image, NDList> {
         var manager = ctx.getNDManager();
         var array = input.toNDArray(manager, Image.Flag.COLOR);
 
-        //                      
+        //
         array = NDImageUtils.resize(array, width, height);
 
         //        float32                 0~1
@@ -89,15 +89,15 @@ public class LcmLoraVaeEncoderTranslator implements Translator<Image, NDList> {
 
     /**
      * 执行 Output。
-     *                   
      *
-     * @param ctx                    
+     *
+     * @param ctx
      * @param list              nd列表
-     * @return VAE                                        
+     * @return VAE
      */
     @Override
     public NDList processOutput(TranslatorContext ctx, NDList list) {
-        // VAE                                           
+        // VAE
         var output = new NDList();
 
         //                          latent
@@ -115,9 +115,9 @@ public class LcmLoraVaeEncoderTranslator implements Translator<Image, NDList> {
 
     /**
      * 获取 Batchifier。
-     *                   
      *
-     * @return STACK             
+     *
+     * @return STACK
      */
     @Override
     public Batchifier getBatchifier() {

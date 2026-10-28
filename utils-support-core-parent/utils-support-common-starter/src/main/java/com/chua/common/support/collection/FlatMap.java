@@ -26,7 +26,7 @@ import java.util.Map;
  * @version 1.0.0
  */
 public interface FlatMap extends Map<String, Object> {
-    
+
     /**
      * 将实体对象的属性通过 {@link BeanUtils} 展平后放入当前 Map 中。
      * <p>实体对象的每个属性会被转换为一个键值对，键名为属性路径（如 "user.name"）。</p>

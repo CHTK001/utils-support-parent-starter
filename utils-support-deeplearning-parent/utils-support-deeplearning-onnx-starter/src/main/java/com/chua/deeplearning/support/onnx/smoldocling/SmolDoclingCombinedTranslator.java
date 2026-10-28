@@ -16,19 +16,19 @@ import java.io.IOException;
  * smoldocling
  * </p>
  * <p>
- *                
- * 1.              -> Vision ->             
- * 2.              -> Embed ->             
+ *
+ * 1.              -> Vision ->
+ * 2.              -> Embed ->
  * 3.              +              -> 解码器 ->
  * </p>
  * <p>
- *                
- * -                          
+ *
+ * -
  * -                          vision   embed   解码器
- * -                          
+ * -
  * </p>
  * <p>
- *                                                                   
+ *
  * Translator           smoldocling
  * </p>
  *
@@ -39,12 +39,12 @@ import java.io.IOException;
 public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingCombinedTranslator.CombinedInput, String> {
 
     /**
-     * Vision          
+     * Vision
      */
     private SmolDoclingVisionTranslator visionTranslator;
 
     /**
-     * Embed          
+     * Embed
      */
     private SmolDoclingEmbedTranslator embedTranslator;
 
@@ -55,13 +55,13 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
 
     /**
      * 初始化。
-     *             
+     *
      * <p>
-     *                                  
+     *
      * </p>
      *
-     * @param ctx                   
-     * @throws IOException IO      
+     * @param ctx
+     * @throws IOException IO
      */
     @Override
     public void prepare(TranslatorContext ctx) throws IOException {
@@ -69,7 +69,7 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
         embedTranslator = new SmolDoclingEmbedTranslator();
         decoderTranslator = new SmolDoclingDecoderTranslator();
 
-        //                      
+        //
         try {
             visionTranslator.prepare(ctx);
             embedTranslator.prepare(ctx);
@@ -84,70 +84,70 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
     }
 
     /**
-     *                   
+     *
      * <p>
-     *                                   Vision                   
+     *                                   Vision
      * </p>
      *
-     * @param ctx                     
-     * @param input                                        
+     * @param ctx
+     * @param input
      * @return Vision              nd列表
-     * @throws Exception             
+     * @throws Exception
      */
     @Override
     public NDList processInput(TranslatorContext ctx, CombinedInput input) throws Exception {
-        //        Vision                            
-        //                                        
+        //        Vision
+        //
         ctx.setAttachment("text_input", input.getTextTokens());
         return visionTranslator.processInput(ctx, input.getImage());
     }
 
     /**
      * 执行 Output。
-     *                   
+     *
      * <p>
-     *                                                             
-     *                                                 
+     *
+     *
      * </p>
      *
-     * @param ctx                    
+     * @param ctx
      * @param list              nd列表          Vision
-     * @return                         
-     * @throws Exception             
+     * @return
+     * @throws Exception
      */
     @Override
     public String processOutput(TranslatorContext ctx, NDList list) throws Exception {
-        //                                           
-        //                
-        // 1.        -> vision ->                list   
-        // 2.        -> embed ->             
-        // 3.              +              -> decoder ->                   
+        //
+        //
+        // 1.        -> vision ->                list
+        // 2.        -> embed ->
+        // 3.              +              -> decoder ->
 
         if (list == null || list.isEmpty()) {
             log.warn("[SmolDocling Combined][Translator]Vision 输出为空");
             return "";
         }
 
-        //                               
+        //
         var textTokens = (long[]) ctx.getAttachment("text_input");
         if (textTokens == null) {
             log.warn("[SmolDocling Combined][Translator] 未获取到文本输入 token");
             return "";
         }
 
-        //        Vision       
+        //        Vision
         var visionOutput = visionTranslator.processOutput(ctx, list);
         if (visionOutput == null) {
             log.warn("[SmolDocling Combined][Translator]Vision 输出处理失败");
             return "";
         }
 
-        //        Embed       
+        //        Embed
         var embedInput = embedTranslator.processInput(ctx, textTokens);
-        //                                embed             
+        //                                embed
         // var embedOutput = embedTranslator.processOutput(ctx, embedModelOutput);
 
-        //                                  
+        //
  // 解码器
 
         if (log.isDebugEnabled()) {
@@ -161,9 +161,9 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
 
     /**
      * 获取 Batchifier。
-     *                   
      *
-     * @return null                        
+     *
+     * @return null
      */
     @Override
     public Batchifier getBatchifier() {
@@ -173,7 +173,7 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
     /**
      * 组合推理的输入结构。
      *
-     *             
+     *
      * @author CH
      * @since 4.0.0
      */
@@ -188,9 +188,9 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
 
         /**
          * 构造 CombinedInput 实例。
-         *             
          *
-         * @param image                  
+         *
+         * @param image
          * @param textTokens        令牌 标识
          */
         public CombinedInput(Image image, long[] textTokens) {
