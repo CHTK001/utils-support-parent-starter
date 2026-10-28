@@ -27,7 +27,8 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 @Slf4j
-@Spi({"jpg", "jpeg", "png", "bmp", "gif", "webp", "tiff", "tif", "ico", "apng", "heic", "heif", "cr2", "nef", "arw", "raf", "orf", "rw2", "image"})
+@Spi({"jpg", "jpeg", "png", "bmp", "gif", "webp", "tiff", "tif", "ico", "apng", "heic", "heif", "cr2", "nef", "arw",
+        "raf", "orf", "rw2", "image"})
 public class ImageWriterFileSystem extends AbstractWriter {
 
     /**
