@@ -38,7 +38,8 @@ public class PackageManagerArgvTest {
         check("apk 模板拆分为 3 个参数", Arrays.equals(apk, new String[]{"apk", "add", "bash"}));
 
         String[] apt = PackageManager.installArgs(PackageManager.Type.APT, "vim");
-        System.out.println("      apt argv=" + Arrays.toString(apt) + " env=" + PackageManager.installEnv(PackageManager.Type.APT));
+        System.out.println("      apt argv=" + Arrays.toString(apt) + " env=" +
+                PackageManager.installEnv(PackageManager.Type.APT));
         check("apt 的 DEBIAN_FRONTEND 前缀不留在参数里", Arrays.equals(apt, new String[]{"apt", "install", "-y", "vim"}));
         Map<String, String> aptEnv = PackageManager.installEnv(PackageManager.Type.APT);
         check("apt 的不交互改为环境变量下传", aptEnv != null && "noninteractive".equals(aptEnv.get("DEBIAN_FRONTEND")));

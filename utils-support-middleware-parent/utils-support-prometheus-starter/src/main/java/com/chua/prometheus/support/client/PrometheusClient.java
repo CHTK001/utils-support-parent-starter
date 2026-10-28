@@ -679,7 +679,8 @@ public class PrometheusClient implements AutoCloseable {
         JsonObject data = requireData(root, path);
         String resultType = str(data.get("resultType"));
         if (resultType == null) {
-            throw new RemoteExecutionException("[Prometheus] " + path + " 的 data 缺少 resultType: " + brief(data.toJSONString()));
+            throw new RemoteExecutionException("[Prometheus] " + path + " 的 data 缺少 resultType: " +
+                    brief(data.toJSONString()));
         }
         QueryResult result = new QueryResult();
         result.setResultType(resultType);
@@ -702,7 +703,8 @@ public class PrometheusClient implements AutoCloseable {
         }
         JsonArray items = asArray(raw);
         if (items == null) {
-            throw new RemoteExecutionException("[Prometheus] " + path + " 的 " + resultType + " 结果不是数组: " + brief(str(raw)));
+            throw new RemoteExecutionException("[Prometheus] " + path + " 的 " + resultType + " 结果不是数组: " +
+                    brief(str(raw)));
         }
         for (int i = 0; i < items.size(); i++) {
             JsonObject item = requireObject(items.get(i), path, i);

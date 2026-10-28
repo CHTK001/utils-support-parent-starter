@@ -54,7 +54,8 @@ public class OnnxFaceQualityAssessor implements FaceQualityAssessor {
      */
     private String resolveModel() {
         if (modelName == null) {
-            throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 显式指定，可用模型: " + FaceQualityAssessor.listModels());
+            throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 显式指定，可用模型: " +
+                    FaceQualityAssessor.listModels());
         }
         return modelName;
     }
