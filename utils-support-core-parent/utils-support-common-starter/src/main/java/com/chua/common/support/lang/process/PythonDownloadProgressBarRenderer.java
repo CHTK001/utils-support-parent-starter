@@ -164,6 +164,7 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 格式化文件大小。
      *                      
      *
      * @param bytes          

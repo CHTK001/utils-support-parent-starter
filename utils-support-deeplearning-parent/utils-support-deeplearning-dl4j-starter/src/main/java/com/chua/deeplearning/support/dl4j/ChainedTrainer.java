@@ -334,6 +334,8 @@ public final class ChainedTrainer {
     }
 
     /**
+     * 获取参数列表。
+     *
      * @return 当前超参数副本
      */
     public TrainArgument arguments() {

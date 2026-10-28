@@ -334,6 +334,7 @@ public class CharUtils {
         return Character.getType(c);
     }
     /**
+     * 转为十六进制字符。
      *
      *
      * @param b
