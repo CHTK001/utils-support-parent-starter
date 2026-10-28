@@ -168,7 +168,9 @@ public class FileTypeConverter implements TypeConverter<File> {
         File temp = null;
         if (str.startsWith(CLASSPATH_URL_PREFIX) || str.startsWith(CLASSPATH_URL_ALL_PREFIX)) {
             URL resourceUrl = Thread.currentThread().getContextClassLoader().getResource(
-                str.startsWith(CLASSPATH_URL_PREFIX) ? str.substring(CLASSPATH_URL_PREFIX.length()) : str.substring(CLASSPATH_URL_ALL_PREFIX.length())
+                str.startsWith(CLASSPATH_URL_PREFIX)
+                        ? str.substring(CLASSPATH_URL_PREFIX.length())
+                        : str.substring(CLASSPATH_URL_ALL_PREFIX.length())
             );
             if (resourceUrl != null && FILE_PROTOCOL.equals(resourceUrl.getProtocol())) {
                 temp = new File(resourceUrl.getFile());

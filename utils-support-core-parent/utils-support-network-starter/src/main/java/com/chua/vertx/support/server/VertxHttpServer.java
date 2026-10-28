@@ -1120,7 +1120,9 @@ public class VertxHttpServer extends AbstractServer {
                 String filePath = fu.uploadedFileName();
                 byte[] data;
                 try {
-                    data = filePath != null ? java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(filePath)) : new byte[0];
+                    data = filePath != null
+                            ? java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(filePath))
+                            : new byte[0];
                 } catch (java.io.IOException e) {
                     data = new byte[0];
                 }

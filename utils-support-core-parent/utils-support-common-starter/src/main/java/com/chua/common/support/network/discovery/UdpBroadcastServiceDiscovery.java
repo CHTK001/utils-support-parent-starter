@@ -126,7 +126,9 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
         running.set(true);
 
         // 设置端口，优先使用配置中的超时时间作为端口，否则使用默认端口
-        port = discoveryOption.getConnectionTimeoutMillis() > 0 ? discoveryOption.getConnectionTimeoutMillis() : DEFAULT_PORT;
+        port = discoveryOption.getConnectionTimeoutMillis() > 0
+                ? discoveryOption.getConnectionTimeoutMillis()
+                : DEFAULT_PORT;
 
         String addr = discoveryOption.getAddress();
         // 解析广播地址，如果未配置则使用全局广播地址

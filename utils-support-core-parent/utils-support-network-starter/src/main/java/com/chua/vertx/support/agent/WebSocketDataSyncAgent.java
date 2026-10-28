@@ -214,7 +214,9 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
             String type = (String) map.get("type");
             if ("pull".equals(type)) {
                 String offsetValue = (String) map.get("offset");
-                SyncDataOffset offset = offsetValue != null ? new SyncDataOffset(agentId, offsetValue, System.currentTimeMillis(), null) : null;
+                SyncDataOffset offset = offsetValue != null
+                        ? new SyncDataOffset(agentId, offsetValue, System.currentTimeMillis(), null)
+                        : null;
                 List<Map<String, Object>> rows = source.read(offset, Map.of()).collectList().block();
                 sendJson(Map.of(
                         "type", "pull_result",

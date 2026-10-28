@@ -65,7 +65,9 @@ public class FileSystemResourceFinder extends AbstractResourceFinder {
     private Set<Resource> findPathMatchingResources(String fullName) {
         Set<Resource> result = ConcurrentHashMap.newKeySet();
 
-        String protocol = fullName.contains(FILESYSTEM_URL_ALL_PREFIX) ? FILESYSTEM_URL_ALL_PREFIX : FILESYSTEM_URL_PREFIX;
+        String protocol = fullName.contains(FILESYSTEM_URL_ALL_PREFIX)
+                ? FILESYSTEM_URL_ALL_PREFIX
+                : FILESYSTEM_URL_PREFIX;
         String pattern = fullName.substring(protocol.length());
 
         int slashIndex = pattern.indexOf('/');

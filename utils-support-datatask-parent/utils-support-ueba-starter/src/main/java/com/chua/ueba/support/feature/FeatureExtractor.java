@@ -200,7 +200,9 @@ public class FeatureExtractor {
             case "avg_response_time" -> avgResponseTime(window);
             case "max_response_time" -> maxResponseTime(window);
             case "avg_body_size" -> avgBodySize(window);
-            case "time_of_day" -> window == null || window.isEmpty() ? 0.0d : hourPhase(window.get(window.size() - 1).getTimestamp());
+            case "time_of_day" -> window == null || window.isEmpty()
+                    ? 0.0d
+                    : hourPhase(window.get(window.size() - 1).getTimestamp());
             default -> {
                 log.debug("[UEBA-Feature] 未知特征名: {}, 按 0 处理", def.getName());
                 yield 0.0d;

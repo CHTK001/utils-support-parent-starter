@@ -424,7 +424,9 @@ public class DefaultQuick implements Quick {
         String className = DYNAMIC_PACKAGE + ".Dynamic" + SCRIPT_SEQ.incrementAndGet();
         String keyword = superType.isInterface() ? "implements" : "extends";
  // 使用 canonical 名称（嵌套类为 外部.内部），二进制名（外部$内部）无法被 javac 源码引用
-        String superTypeName = superType.getCanonicalName() != null ? superType.getCanonicalName() : superType.getName();
+        String superTypeName = superType.getCanonicalName() != null
+                ? superType.getCanonicalName()
+                : superType.getName();
         String fullSource = "package " + DYNAMIC_PACKAGE + ";\n"
                 + buildImports()
                 + "public class " + className.substring(className.lastIndexOf('.') + 1)

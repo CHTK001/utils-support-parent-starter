@@ -125,7 +125,9 @@ public class RSocketDataSyncAgentServer extends com.chua.starter.datasync.agent.
                     return Mono.just(DefaultPayload.create(Json.toJson(Map.of("error", "Source not found"))));
                 }
                 String offsetValue = (String) map.get("offset");
-                SyncDataOffset offset = offsetValue != null ? new SyncDataOffset("", offsetValue, System.currentTimeMillis(), null) : null;
+                SyncDataOffset offset = offsetValue != null
+                        ? new SyncDataOffset("", offsetValue, System.currentTimeMillis(), null)
+                        : null;
                 List<Map<String, Object>> rows = source.read(offset, Map.of()).collectList().block();
                 return Mono.just(DefaultPayload.create(Json.toJson(Map.of(
                         "type", "pull_result",
@@ -154,7 +156,9 @@ public class RSocketDataSyncAgentServer extends com.chua.starter.datasync.agent.
                 return Flux.empty();
             }
             String offsetValue = (String) map.get("offset");
-            SyncDataOffset offset = offsetValue != null ? new SyncDataOffset("", offsetValue, System.currentTimeMillis(), null) : null;
+            SyncDataOffset offset = offsetValue != null
+                    ? new SyncDataOffset("", offsetValue, System.currentTimeMillis(), null)
+                    : null;
             return source.read(offset, Map.of())
                     .map(row -> DefaultPayload.create(Json.toJson(row)));
         } catch (Exception e) {

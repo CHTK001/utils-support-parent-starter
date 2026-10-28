@@ -1869,7 +1869,9 @@ public class FacePipeline {
                 return "landmark";
             }
             // 仅人脸特征模型，通用特征（clip/reid/hand-pose 等）不属于人脸能力
-            return nameContains(name, "face-feature", "face_feature", "arc-face", "ada-face", "face-rec", "faceplugin-face-feature", "r50-face") ? "feature" : null;
+            return nameContains(name, "face-feature", "face_feature", "arc-face", "ada-face", "face-rec", "faceplugin-face-feature", "r50-face")
+                    ? "feature"
+                    : null;
         }
         if (cap == com.chua.deeplearning.support.liveness.LivenessDetector.class) {
             return "liveness";

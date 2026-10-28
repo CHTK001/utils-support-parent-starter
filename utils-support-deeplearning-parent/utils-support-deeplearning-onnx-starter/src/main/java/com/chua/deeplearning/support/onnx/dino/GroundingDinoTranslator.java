@@ -348,7 +348,9 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
      * 解析Candidates
     */
     private void resolveCandidates() {
-        List<String> source = requestedCandidates.isEmpty() ? List.of("person", "flower", "dog", "car") : requestedCandidates;
+        List<String> source = requestedCandidates.isEmpty()
+                ? List.of("person", "flower", "dog", "car")
+                : requestedCandidates;
         candidateOutputLabels = Wraps.list();
         for (String raw : source) {
             if (StringUtils.isNotBlank(raw)) {

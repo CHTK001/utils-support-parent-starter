@@ -504,7 +504,9 @@ public final class TraceContext {
             // 填充到最大宽度
             int currentLen = sb.length();
             // 减去 ANSI 转义序列的长度
-            int ansiLen = (percent >= COLOR_THRESHOLD_PERCENT && node.elapsed > 1_000_000) ? (RED.length() + RESET.length()) : 0;
+            int ansiLen = (percent >= COLOR_THRESHOLD_PERCENT && node.elapsed > 1_000_000)
+                    ? (RED.length() + RESET.length())
+                    : 0;
             int visibleLen = currentLen - ansiLen;
             while (visibleLen < maxLeftWidth) {
                 sb.append(' ');

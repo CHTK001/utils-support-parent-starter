@@ -1936,7 +1936,9 @@ public class StringUtils {
      * @return 处理后的字符串
      */
     public static String defaultString(String source, Function<String, String> noneValueFunction, String defaultValue) {
-        return isBlank(source) ? defaultValue : null == noneValueFunction ? defaultValue : noneValueFunction.apply(source);
+        return isBlank(source)
+                ? defaultValue
+                : null == noneValueFunction ? defaultValue : noneValueFunction.apply(source);
     }
 
     /**

@@ -216,7 +216,9 @@ public class Ip2regionIpPosition implements IpPosition {
             return "";
         }
         String value = parts[index];
-        return StringUtils.isBlank(value) || UNKNOWN_PLACEHOLDER.equals(value) || RESERVED_REGION.equals(value) ? "" : value;
+        return StringUtils.isBlank(value) || UNKNOWN_PLACEHOLDER.equals(value) || RESERVED_REGION.equals(value)
+                ? ""
+                : value;
     }
 
     /**

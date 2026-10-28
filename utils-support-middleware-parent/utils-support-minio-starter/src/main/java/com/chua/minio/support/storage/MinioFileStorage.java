@@ -147,7 +147,9 @@ public class MinioFileStorage extends AbstractFileStorage {
                     .metadata(Metadata.builder()
                             .name(request.getFileName())
                             .size(response.headers().get("Content-Length") != null
-                                    ? Long.parseLong(Objects.requireNonNull(response.headers().get("Content-Length"))) : null)
+
+                                            ? Long.parseLong(Objects.requireNonNull(response.headers().get("Content-Length")))
+                                            : null)
                             .contentType(contentType)
                             .etag(response.headers().get("ETag") != null
                                     ? Objects.requireNonNull(response.headers().get("ETag")).replace("\"", "") : null)

@@ -136,7 +136,9 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
         }
         Map<String, Object> request = (Map<String, Object>) args[0];
         String offsetValue = (String) request.get("offset");
-        SyncDataOffset offset = offsetValue != null ? new SyncDataOffset(agentId, offsetValue, System.currentTimeMillis(), null) : null;
+        SyncDataOffset offset = offsetValue != null
+                ? new SyncDataOffset(agentId, offsetValue, System.currentTimeMillis(), null)
+                : null;
         List<Map<String, Object>> rows = source.read(offset, Map.of()).collectList().block();
         emit(Map.of(
                 "type", "pull_result",

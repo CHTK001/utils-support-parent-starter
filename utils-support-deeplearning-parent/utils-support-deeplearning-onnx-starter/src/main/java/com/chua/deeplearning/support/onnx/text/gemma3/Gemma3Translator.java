@@ -167,7 +167,9 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
      */
     public Gemma3Translator(DetectionConfiguration configuration) {
         this(
-                configuration == null ? DEFAULT_MODEL_ID : configuration.loadModelName() != null ? configuration.loadModelName() : DEFAULT_MODEL_ID,
+                configuration == null
+                        ? DEFAULT_MODEL_ID
+                        : configuration.loadModelName() != null ? configuration.loadModelName() : DEFAULT_MODEL_ID,
                 configuration != null && configuration.deviceIsGpu(),
                 configuration == null ? 0f : configuration.optFloat("temperature", 0f),
                 configuration == null ? 1.2f : configuration.optFloat("repeatPenalty", 1.2f),

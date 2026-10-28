@@ -41,7 +41,9 @@ public class DubboRpcMetricsFilter implements Filter {
             long duration = System.currentTimeMillis() - start;
             if (result.hasException()) {
                 Throwable e = result.getException();
-                String errorMsg = e != null ? (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()) : "null exception";
+                String errorMsg = e != null
+                        ? (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName())
+                        : "null exception";
                 DubboRpcMetricsHolder.onFailure(methodKey, duration, errorMsg);
             } else {
                 DubboRpcMetricsHolder.onSuccess(methodKey, duration);
