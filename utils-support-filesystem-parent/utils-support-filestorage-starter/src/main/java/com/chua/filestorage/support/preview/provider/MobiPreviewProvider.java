@@ -771,6 +771,7 @@ public class MobiPreviewProvider implements FileStoragePreviewProvider {
                 .append("<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>")
                 .append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +
                         "" +
+                        "" +
                         "UI',sans-serif;padding:20px}")
                 .append(".header{background:#fff;border:1px solid " +
                         "#e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}")
