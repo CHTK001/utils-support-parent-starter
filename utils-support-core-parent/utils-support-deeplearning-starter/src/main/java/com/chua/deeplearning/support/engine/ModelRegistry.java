@@ -941,7 +941,8 @@ public final class ModelRegistry {
                 String fileName = target.getFileName().toString();
                 String[] extraSuffixes = {
                         fileName + ONNX_DATA_SUFFIX,          // model.onnx -> model.onnx_data
-                        fileName.substring(0, fileName.length() - MODEL_SUFFIXES[0].length()) + ONNX_DATA_SUFFIX + ".onnx", // 模型.onnx_数据（兜底）
+                        fileName.substring(0, fileName.length() - MODEL_SUFFIXES[0].length()) + ONNX_DATA_SUFFIX +
+                                ".onnx", // 模型.onnx_数据（兜底）
                         fileName + ONNX_EXTRA_FILE_SUFFIX, // 模型.onnx.extra_文件（兼容）
                 };
                 for (String extraName : extraSuffixes) {

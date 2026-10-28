@@ -48,7 +48,8 @@ public class MysqlReactorEngine extends JdbcReactorEngine {
         ((MysqlEngine) delegate).addDataSource(name, host, port, database, username, password);
         // 注册到响应式 JDBC 路径（boundedElastic 上执行），与同步引擎共用同一库
         registerJdbcDataSource(name,
-                "jdbc:mysql://" + JdbcUrl.hostPort(host, port) + "/" + database + "?useSSL=false&allowPublicKeyRetrieval=true",
+                "jdbc:mysql://" + JdbcUrl.hostPort(host, port) + "/" + database +
+                        "?useSSL=false&allowPublicKeyRetrieval=true",
                 username, password);
         return this;
     }

@@ -184,8 +184,10 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
                     for (int x = 0; x < RESIZE_WIDTH; x++) {
                         double[] bgr = resized.get(y, x);
                         pixels[y * RESIZE_WIDTH + x] = ((float) bgr[2] / 255.0f - 0.5f) / 0.5f;
-                        pixels[RESIZE_WIDTH * RESIZE_HEIGHT + y * RESIZE_WIDTH + x] = ((float) bgr[1] / 255.0f - 0.5f) / 0.5f;
-                        pixels[2 * RESIZE_WIDTH * RESIZE_HEIGHT + y * RESIZE_WIDTH + x] = ((float) bgr[0] / 255.0f - 0.5f) / 0.5f;
+                        pixels[RESIZE_WIDTH * RESIZE_HEIGHT + y * RESIZE_WIDTH +
+                                x] = ((float) bgr[1] / 255.0f - 0.5f) / 0.5f;
+                        pixels[2 * RESIZE_WIDTH * RESIZE_HEIGHT + y * RESIZE_WIDTH +
+                                x] = ((float) bgr[0] / 255.0f - 0.5f) / 0.5f;
                     }
                 }
                 resized.release();

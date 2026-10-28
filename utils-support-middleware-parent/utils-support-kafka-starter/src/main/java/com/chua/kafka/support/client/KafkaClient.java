@@ -620,7 +620,8 @@ public class KafkaClient implements AutoCloseable {
          */
         public String subscribe() {
             String group = groupId != null ? groupId : client.groupId;
-            String threadName = "kafka-consumer-" + (group != null ? group : "default") + "-" + System.currentTimeMillis();
+            String threadName = "kafka-consumer-" + (group != null ? group : "default") + "-" +
+                    System.currentTimeMillis();
 
             Properties consumerProps = new Properties();
             consumerProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, client.bootstrapServers);

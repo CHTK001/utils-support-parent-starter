@@ -232,7 +232,8 @@ public class NacosClientProvider implements MiddlewareClientProvider {
     private MiddlewareQueryResult services(MiddlewareConnectRequest request, long t0, String ns) throws Exception {
         String namespaceId = ns.isEmpty() || "public".equals(ns) ? "" : ns;
         String body = send(request, GET,
-                "/nacos/v1/ns/service/list?pageNo=1&pageSize=200&namespaceId=" + url(namespaceId) + "&ignoreEmptyService=true",
+                "/nacos/v1/ns/service/list?pageNo=1&pageSize=200&namespaceId=" + url(namespaceId) +
+                        "&ignoreEmptyService=true",
                 null, null).body();
         List<Map<String, Object>> rows = new ArrayList<>();
         Matcher name = NAME_PATTERN.matcher(body);

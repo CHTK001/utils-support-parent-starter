@@ -192,7 +192,8 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
             int location = idx / NUM_ANCHORS;
             int y = location / featureSize;
             int x = location % featureSize;
-            float l = boxes[idx * 4] * stride, t = boxes[idx * 4 + 1] * stride, r = boxes[idx * 4 + 2] * stride, b = boxes[idx * 4 + 3] * stride;
+            float l = boxes[idx * 4] * stride, t = boxes[idx * 4 + 1] * stride, r = boxes[idx * 4 +
+                    2] * stride, b = boxes[idx * 4 + 3] * stride;
             // 官方 insightface SCRFD 解码约定：anchor 中心 = 网格左上角 (x*stride, y*stride)，不加半格偏移。
             // 实测（onnxruntime 直跑同模型对照）：加 +stride/2 会使框与 5 点整体平移 4-16 输入像素，
             // 在非等比图上放大成原图数十像素的系统性偏移（眼睛点落到下眼睑/脸颊）。

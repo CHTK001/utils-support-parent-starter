@@ -114,7 +114,8 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
             throw new IllegalStateException("客户端未连接");
         }
         try {
-            String body = java.net.URLEncoder.encode(topic, "UTF-8") + "=" + java.net.URLEncoder.encode(message.toString(),
+            String body = java.net.URLEncoder.encode(topic, "UTF-8") + "=" +
+                    java.net.URLEncoder.encode(message.toString(),
                     "UTF-8");
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(serverUrl + "/api/sync/send"))

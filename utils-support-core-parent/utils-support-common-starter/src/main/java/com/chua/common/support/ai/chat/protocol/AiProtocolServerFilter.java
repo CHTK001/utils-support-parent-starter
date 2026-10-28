@@ -1180,7 +1180,8 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     private Map<String, Object> buildOpenAiStreamDelta(String chunk, String model) {
         Map<String, Object> delta = Wraps.linkedMap(6);
         delta.put(KEY_ID,
-                  PREFIX_CHAT_COMPLETION + UUID.randomUUID().toString().replace("-", "").substring(0, ID_TRUNCATE_LENGTH));
+                  PREFIX_CHAT_COMPLETION +
+                          UUID.randomUUID().toString().replace("-", "").substring(0, ID_TRUNCATE_LENGTH));
         delta.put(KEY_OBJECT, OBJECT_CHAT_COMPLETION_CHUNK);
         delta.put(KEY_CREATED, (int) (System.currentTimeMillis() / 1000));
         delta.put(KEY_MODEL, model != null ? model : DEFAULT_MODEL);
