@@ -132,14 +132,14 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
         this.classes = Wraps.list(classes);
         this.normalizeCoordinates = normalizeCoordinates;
 
-        log.info("{}                                     ", getYoloVersion());
-        log.info("  -             : {}x{}", inputSize, inputSize);
-        log.info("  -                : {}", threshold);
-        log.info("  - NMS       : {}", nmsThreshold);
-        log.info("  -             : {}", this.classes.size());
-        log.info("  -             : {}", normalizeCoordinates ? "          [0, 1]" : "            ");
+        log.info("{} 检测器初始化", getYoloVersion());
+        log.info("  - 输入尺寸: {}x{}", inputSize, inputSize);
+        log.info("  - 置信度阈值: {}", threshold);
+        log.info("  - NMS 阈值: {}", nmsThreshold);
+        log.info("  - 类别数: {}", this.classes.size());
+        log.info("  - 坐标归一化: {}", normalizeCoordinates ? "启用 [0, 1]" : "未启用（像素坐标）");
         if (log.isDebugEnabled()) {
-            log.debug("  -             : {}", this.classes);
+            log.debug("  - 类别标签: {}", this.classes);
         }
     }
 
@@ -167,7 +167,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
         imageHeight = input.getHeight();
 
         if (log.isDebugEnabled()) {
-            log.debug("                  : {}x{}", imageWidth, imageHeight);
+            log.debug("原图尺寸: {}x{}", imageWidth, imageHeight);
         }
 
         //                                        
@@ -179,7 +179,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
         array = toNormalizedChw(ctx, array);
 
         if (log.isDebugEnabled()) {
-            log.debug("                  : shape={}, dtype={}", array.getShape(), array.getDataType());
+            log.debug("模型输入: shape={}, dtype={}", array.getShape(), array.getDataType());
         }
         return new NDList(array);
     }
@@ -194,7 +194,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
     private NDArray toNormalizedChw(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();
         if (shape.dimension() != 3) {
-            throw new IllegalArgumentException("YOLO                          HWC                       shape=" + shape);
+            throw new IllegalArgumentException("YOLO 输入张量必须是 3 维 HWC，实际 shape=" + shape);
         }
 
         int height = Math.toIntExact(shape.get(0)); // [P3C 3.7 豁免] 张量形状维度下标
@@ -239,15 +239,15 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
     @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
-            log.debug("             {}             ", getYoloVersion());
+            log.debug("开始处理 {} 模型输出", getYoloVersion());
         }
 
         //             
         NDArray output = list.getFirst();
         Shape outputShape = output.getShape();
-        log.info("       shape: {}", outputShape);
+            log.info("模型输出形状: {}", outputShape);
         if (log.isDebugEnabled()) {
-            log.debug("                  : {}", output.getDataType());
+            log.debug("输出数据类型: {}", output.getDataType());
         }
 
         int rows;
@@ -259,7 +259,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
             rows = Math.toIntExact(outputShape.get(0)); // [P3C 3.7 豁免] 张量形状维度下标
             cols = Math.toIntExact(outputShape.get(1));
         } else {
-            throw new IllegalArgumentException("YOLO                 [1, F, N]     [N, F]                 shape=" + outputShape);
+            throw new IllegalArgumentException("YOLO 输出张量形状应为 [1, F, N] 或 [N, F]，实际 shape=" + outputShape);
         }
         float[] outputData = output.toFloatArray();
 
@@ -271,7 +271,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
         //        dim0 < dim1             [num_features, num_boxes]                          [num_boxes, num_features]
         if (dim0 < dim1) {
             if (log.isDebugEnabled()) {
-                log.debug("          [num_features={}, num_boxes={}]                      ", dim0, dim1);
+                log.debug("检测到转置布局 [num_features={}, num_boxes={}]，按列优先读取", dim0, dim1);
             }
             transposedView = true;
             long temp = dim0;
@@ -281,10 +281,10 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
 
         long numBoxes = dim0;
         long numFeatures = dim1;
-        log.info("          -                : {},             : {}", numBoxes, numFeatures);
+        log.info("解析输出 - 候选框数: {}, 特征数: {}", numBoxes, numFeatures);
 
         if (numFeatures < 4) {
-            log.warn("                  : {}                4 (cx, cy, w, h)", numFeatures);
+            log.warn("输出特征数不足: {}，至少需要 4 (cx, cy, w, h)", numFeatures);
             return new DetectedObjects(Wraps.list(), Wraps.list(), Wraps.list());
         }
 
@@ -328,7 +328,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
             String className = resolveClassName(classId, numFeatures, classStartIndex);
             if (className == null) {
                 if (log.isDebugEnabled()) {
-                    log.debug("                  ID: classId={},             ={},             ={}",
+                    log.debug("未知类别 ID: classId={}, 类别表大小={}, 特征数={}",
                             classId, classes.size(), numFeatures);
                 }
                 continue;
@@ -337,7 +337,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
  // 输入大小
             if (cx < 0 || cy < 0 || w <= 0 || h <= 0) {
                 if (log.isDebugEnabled()) {
-                    log.debug("                  : cx={}, cy={}, w={}, h={}", cx, cy, w, h);
+                log.debug("边界框(中心宽高): cx={}, cy={}, w={}, h={}", cx, cy, w, h);
                 }
                 continue;
             }
@@ -372,7 +372,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
             //                   
             if (origW <= 0 || origH <= 0) {
                 if (log.isDebugEnabled()) {
-                    log.debug("                              : w={}, h={}", origW, origH);
+                log.debug("原图宽高用于还原: w={}, h={}", origW, origH);
                 }
                 continue;
             }
@@ -400,7 +400,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
                 finalH = origH;
             }
 
-            log.debug("               [{}]: class={}, confidence={},       ({}, {}, {}, {})",
+            log.debug("检测结果 [{}]: class={}, confidence={}, 框 ({}, {}, {}, {})",
                     i, className,
                     String.format("%.3f", confidence),
                     String.format("%.1f", finalX), String.format("%.1f", finalY),
@@ -412,11 +412,11 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
             probabilities.add((double) confidence);
         }
 
-        log.info("          {}                       NMS       ", boxes.size());
+        log.info("筛选后候选框数量: {}，进入 NMS", boxes.size());
 
         //        NMS
         List<Integer> keepIndices = nms(boxes, probabilities, nmsThreshold);
-        log.info("NMS           {}             ", keepIndices.size());
+        log.info("NMS 后保留框数量: {}", keepIndices.size());
 
         //                   
         List<String> finalNames = Wraps.list();
@@ -538,7 +538,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
     protected NDArray transpose2d(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();
         if (shape.dimension() != 2) {
-            throw new IllegalArgumentException("                                     shape=" + shape);
+            throw new IllegalArgumentException("YOLO 输出张量必须是 2 维 [N, F]，实际 shape=" + shape);
         }
 
         int rows = Math.toIntExact(shape.get(0)); // [P3C 3.7 豁免] 张量形状维度下标
