@@ -116,7 +116,8 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         Path tokenizerPath = modelDir.resolve("tokenizer.json");
         if (!Files.exists(tokenizerPath)) {
             try {
-                URI uri = new URI("https://huggingface.co/onnx-community/Florence-2-base-ft/resolve/main/tokenizer.json");
+                URI uri = new URI("https://huggingface.co/onnx-community/Florence-2-base-ft/" +
+                        "resolve/main/tokenizer.json");
                 Files.copy(uri.toURL().openStream(), tokenizerPath, StandardCopyOption.REPLACE_EXISTING);
             } catch (Exception e) { log.warn("[Florence-2] Tokenizer download failed: {}", e.getMessage(), e); }
         }
