@@ -113,6 +113,8 @@ public final class MiddlewareConnectRequest {
     }
 
     /**
+     * 获取用户名。
+     *
      * @return 账号，无认证时为空串
      */
     public String username() {

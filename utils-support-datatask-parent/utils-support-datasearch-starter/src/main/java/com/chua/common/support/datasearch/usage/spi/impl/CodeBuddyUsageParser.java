@@ -261,6 +261,8 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
         }
 
         /**
+         * 获取耗时毫秒数。
+         *
          * @return 整段耗时毫秒数；未记录时 null
          */
         Long durationMillis() {
@@ -268,6 +270,8 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
         }
 
         /**
+         * 获取首令牌耗时毫秒数。
+         *
          * @return 首字延迟毫秒数；未记录时 null
          */
         Long firstTokenMillis() {

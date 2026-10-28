@@ -154,6 +154,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 获取剩余时间文本。
      *                                  
      *
      * @param progress             

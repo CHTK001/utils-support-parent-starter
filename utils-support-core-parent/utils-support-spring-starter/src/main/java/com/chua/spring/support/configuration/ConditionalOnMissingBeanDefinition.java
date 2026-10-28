@@ -29,6 +29,8 @@ import java.lang.annotation.Target;
 public @interface ConditionalOnMissingBeanDefinition {
 
     /**
+     * 获取值。
+     *
      * @return 需要检查的 Bean 定义名称；任一已存在则跳过注册
      */
     String[] value();

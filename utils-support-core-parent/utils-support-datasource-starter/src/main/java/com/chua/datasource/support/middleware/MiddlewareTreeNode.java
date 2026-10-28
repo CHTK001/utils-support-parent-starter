@@ -87,6 +87,8 @@ public final class MiddlewareTreeNode {
     }
 
     /**
+     * 获取预估数量。
+     *
      * @return 预估条目数，未知时为 {@code null}
      */
     public Long estimatedCount() {

@@ -152,6 +152,8 @@ public final class MiddlewareQueryResult {
     }
 
     /**
+     * 获取执行耗时毫秒数。
+     *
      * @return 执行耗时（毫秒）
      */
     public long executionTimeMs() {

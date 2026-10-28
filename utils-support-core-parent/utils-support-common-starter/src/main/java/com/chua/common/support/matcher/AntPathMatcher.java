@@ -468,6 +468,7 @@ public class AntPathMatcher implements PathMatcher {
         return matcher;
     }
     /**
+     * 从模式中提取路径部分。
      * <p>         
      * <ul>
      * <li>'{@code /docs/cvs/commit.html}'     '{@code /docs/cvs/commit.html} &rarr; ''</li>

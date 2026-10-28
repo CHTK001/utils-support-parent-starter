@@ -207,6 +207,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     }
     
     /**
+     * 格式化下载速度。
      *                                                    
      * 
      * @param bytesPerSecond                
@@ -346,6 +347,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 截断字符串。
      *                               
      *
      * @param str                

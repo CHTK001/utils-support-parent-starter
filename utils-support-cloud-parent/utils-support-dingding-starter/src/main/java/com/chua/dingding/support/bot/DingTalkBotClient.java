@@ -2355,6 +2355,8 @@ public class DingTalkBotClient implements BotClient {
         }
 
         /**
+         * 判断是否可用。
+         *
          * @return 被动回复地址是否仍在有效期内
          */
         boolean usable() {

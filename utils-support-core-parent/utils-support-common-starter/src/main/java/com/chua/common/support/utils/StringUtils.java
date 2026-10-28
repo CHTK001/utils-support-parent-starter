@@ -4506,6 +4506,7 @@ public class StringUtils {
     }
 
     /**
+     * 判断是否以指定后缀结尾。
      * <p>检查 CharSequence 是否以指定后缀结尾（可选是否忽略大小写）。</p>
      *
      * @param str        待检查的 charsequence，可能为 空
