@@ -305,6 +305,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         }
 
         /**
+         * 获取 VocabSize。
          *
          *
          * @return             

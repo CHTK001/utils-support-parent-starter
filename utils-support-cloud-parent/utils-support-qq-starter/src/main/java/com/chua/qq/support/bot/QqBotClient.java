@@ -1509,6 +1509,8 @@ public class QqBotClient implements BotClient {
     }
 
     /**
+     * 转换为kenPath。
+     *
      * @return 令牌接口地址
      */
     private String tokenPath() {
@@ -1929,6 +1931,8 @@ public class QqBotClient implements BotClient {
     }
 
     /**
+     * 是否为 RemoteUrl。
+     *
      * @param value 资源地址
      * @return 是否为远程资源
      */
@@ -2008,6 +2012,8 @@ public class QqBotClient implements BotClient {
         }
 
         /**
+         * 获取 Code。
+         *
          * @return 平台错误码
          */
         private int getCode() {

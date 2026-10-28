@@ -54,6 +54,7 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
     private SmolDoclingDecoderTranslator decoderTranslator;
 
     /**
+     * 初始化。
      *             
      * <p>
      *                                  
@@ -102,6 +103,7 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
     }
 
     /**
+     * 执行 Output。
      *                   
      * <p>
      *                                                             
@@ -158,6 +160,7 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
     }
 
     /**
+     * 获取 Batchifier。
      *                   
      *
      * @return null                        

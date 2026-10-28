@@ -2168,6 +2168,7 @@ public class DateUtils {
         return LocalDateTime.from(temporal).atZone(DEFAULT_ZONE_ID);
     }
     /**
+     * 转换为Day。
      *
      *
      * @param localTime the 本地时间
@@ -2193,6 +2194,7 @@ public class DateUtils {
         return negate ? -1 * exact : exact;
     }
     /**
+     * 解析 Number。
      *
      *
      * @param text the 文本
@@ -2314,6 +2316,7 @@ public class DateUtils {
         return c;
     }
     /**
+     * 转换为Calendar。
      *
      *
      * @param year the year
@@ -2328,6 +2331,7 @@ public class DateUtils {
         return toCalendar(year, month, day, hour, minute, second, 0);
     }
     /**
+     * 转换为Calendar。
      *
      *
      * @param year the year
@@ -2341,6 +2345,7 @@ public class DateUtils {
         return toCalendar(year, month, day, hour, minute, 0, 0);
     }
     /**
+     * 转换为Calendar。
      *
      *
      * @param year the year
@@ -2353,6 +2358,7 @@ public class DateUtils {
         return toCalendar(year, month, day, hour, 0, 0, 0);
     }
     /**
+     * 转换为Calendar。
      *
      *
      * @param year the year
@@ -2364,6 +2370,7 @@ public class DateUtils {
         return toCalendar(year, month, day, 0, 0, 0);
     }
     /**
+     * 转换为Calendar。
      *
      *
      * @param year the year
@@ -2374,6 +2381,7 @@ public class DateUtils {
         return toCalendar(year, month, 1, 0, 0, 0);
     }
     /**
+     * 转换为Calendar。
      *
      *
      * @param date the 日期
@@ -2455,6 +2463,7 @@ public class DateUtils {
         return INDEX_NOT_FOUND;
     }
     /**
+     * 获取 ShotName。
      *
      *
      * @param unit the unit
@@ -2479,6 +2488,7 @@ public class DateUtils {
         }
     }
     /**
+     * 是否为 LeapYear。
      *
      *
      * @param year the year

@@ -137,6 +137,8 @@ public final class MiddlewareQueryResult {
     }
 
     /**
+     * 转换为talRows。
+     *
      * @return 截断前的真实行数
      */
     public long totalRows() {

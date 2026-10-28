@@ -40,6 +40,7 @@ public class DelegatingProgressBarConsumer implements ProgressBarConsumer {
         this.consumer = consumer;
     }
     /**
+     * 获取 MaxRenderedLength。
      *                         
      *
      * @return                   

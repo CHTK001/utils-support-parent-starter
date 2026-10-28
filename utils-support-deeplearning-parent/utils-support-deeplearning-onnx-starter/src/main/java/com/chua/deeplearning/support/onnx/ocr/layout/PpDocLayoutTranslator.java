@@ -209,6 +209,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     }
 
     /**
+     * 获取 Batchifier。
      *
      *
      * @return Batchifier          

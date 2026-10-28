@@ -124,6 +124,8 @@ public class RSocketSyncClient implements SyncClient {
     }
 
     /**
+     * 是否为 Connected。
+     *
      * @return 连接状态
      */
     @Override
@@ -132,6 +134,8 @@ public class RSocketSyncClient implements SyncClient {
     }
 
     /**
+     * 获取 ClientId。
+     *
      * @return 当前客户端标识
      */
     @Override

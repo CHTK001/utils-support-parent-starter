@@ -418,6 +418,8 @@ public final class AstUtils {
     }
 
     /**
+     * 获取 TreeMaker。
+     *
      * @deprecated 已废弃，请使用 {@link #treeMaker(ProcessingEnvironment)}
      * @param env env
      * @return 获取树maker的结果
@@ -428,6 +430,8 @@ public final class AstUtils {
     }
 
     /**
+     * 获取 Names。
+     *
      * @deprecated 已废弃，请使用 {@link #names(ProcessingEnvironment)}
      * @param env env
      * @return 获取名称的结果

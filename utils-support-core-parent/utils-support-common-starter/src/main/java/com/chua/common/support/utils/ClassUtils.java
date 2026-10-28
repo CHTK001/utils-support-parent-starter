@@ -1269,6 +1269,7 @@ public class ClassUtils {
         return null;
     }
     /**
+     * 转换为Type。
      *
      *
      * @param collection       
@@ -1387,6 +1388,7 @@ public class ClassUtils {
         return target;
     }
     /**
+     * 是否为 Primitive。
      *
      *
      * @param target    
@@ -1406,6 +1408,7 @@ public class ClassUtils {
         return target.isPrimitive();
     }
     /**
+     * 转换为TypeName。
      *
      *
      * @param annotations       
@@ -1421,6 +1424,7 @@ public class ClassUtils {
         return result;
     }
     /**
+     * 转换为TypeName。
      *
      *
      * @param parameterTypes       
@@ -1436,6 +1440,7 @@ public class ClassUtils {
         return result;
     }
     /**
+     * 获取 ActualTypeArguments。
      * <p>1.                     </p>
      * <p>2.                  </p>
      *
@@ -1771,6 +1776,7 @@ public class ClassUtils {
         doWithMethods(aClass, callback, null);
     }
     /**
+     * 获取 Methods。
      *
      *
      * @param obj       
@@ -1813,6 +1819,7 @@ public class ClassUtils {
         });
     }
     /**
+     * 获取 LocalMethods。
      *
      *
      * @param obj       
@@ -1881,6 +1888,7 @@ public class ClassUtils {
         return null == clazz || Object.class.getName().equals(clazz.getName());
     }
     /**
+     * 是否包含 None。
      *
      *
      * @param args       
@@ -1895,6 +1903,7 @@ public class ClassUtils {
         return true;
     }
     /**
+     * 是否为 AllNull。
      *
      *
      * @param args       
@@ -1909,6 +1918,7 @@ public class ClassUtils {
         return true;
     }
     /**
+     * 获取 Args。
      *
      *
      * @param parameterTypes       
@@ -1925,6 +1935,7 @@ public class ClassUtils {
         return rs;
     }
     /**
+     * 创建实例。
      *
      *
      * @param o                        
@@ -1954,6 +1965,7 @@ public class ClassUtils {
         return null;
     }
     /**
+     * 创建实例。
      *
      *
      * @param params    
@@ -1971,6 +1983,7 @@ public class ClassUtils {
         return rs;
     }
     /**
+     * 执行 MethodChain。
      *
      *
      * @param object           
@@ -1991,6 +2004,7 @@ public class ClassUtils {
         return invokeMethod(method, object, args);
     }
     /**
+     * 执行 Bean。
      *
      *
      * @param bean                      
@@ -2012,6 +2026,7 @@ public class ClassUtils {
         return invokeMethod(method, bean, args);
     }
     /**
+     * 执行 Bean。
      *
      *
      * @param bean             
@@ -2132,6 +2147,7 @@ public class ClassUtils {
         }
     }
     /**
+     * 执行 DefaultMethod。
      *
      *
      * @param method       
@@ -2984,6 +3000,7 @@ public class ClassUtils {
      * @since 2024/12/21
      *
      * 获取对象的泛型实际类型参数（按索引）。
+     *
      * @param declaredClass 目标类，其泛型父类必须是 {@link ParameterizedType}
      * @param index         泛型参数索引（0-based）
      * @param <T>           目标类型泛型

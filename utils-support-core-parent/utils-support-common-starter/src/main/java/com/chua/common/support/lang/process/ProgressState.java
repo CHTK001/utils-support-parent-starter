@@ -78,6 +78,7 @@ public class ProgressState {
         this.elapsedBeforeStart = elapsedBeforeStart;
     }
     /**
+     * 获取 TaskName。
      *                   
      *
      * @return             
@@ -86,6 +87,7 @@ public class ProgressState {
         return taskName;
     }
     /**
+     * 获取 ExtraMessage。
      *                   
      *
      * @return             
@@ -94,6 +96,7 @@ public class ProgressState {
         return extraMessage;
     }
     /**
+     * 获取 Start。
      *                      
      *
      * @return                
@@ -102,6 +105,7 @@ public class ProgressState {
         return start;
     }
     /**
+     * 获取 Current。
      *                      
      *
      * @return                
@@ -110,6 +114,7 @@ public class ProgressState {
         return current;
     }
     /**
+     * 获取 Max。
      *                      
      *
      * @return                
@@ -132,6 +137,7 @@ public class ProgressState {
         }
     }
     /**
+     * 获取 StartInstant。
      *                   
      *
      * @return             
@@ -140,6 +146,7 @@ public class ProgressState {
         return startInstant;
     }
     /**
+     * 获取 ElapsedBeforeStart。
      *                            
      *
      * @return                      
@@ -148,6 +155,7 @@ public class ProgressState {
         return elapsedBeforeStart;
     }
     /**
+     * 获取 ElapsedAfterStart。
      *                            
      *
      * @return                      
@@ -158,6 +166,7 @@ public class ProgressState {
                 : Duration.between(startInstant, Instant.now());
     }
     /**
+     * 获取 TotalElapsed。
      *                      
      *
      * @return                                   +                   
@@ -166,6 +175,7 @@ public class ProgressState {
         return getElapsedBeforeStart().plus(getElapsedAfterStart());
     }
     /**
+     * 是否为 Indefinite。
      *                      
      *
      * @return true                      false                   
@@ -174,6 +184,7 @@ public class ProgressState {
         return indefinite;
     }
     /**
+     * 是否为 Alive。
      *             
      *
      * @return true                      false                
@@ -182,6 +193,7 @@ public class ProgressState {
         return alive;
     }
     /**
+     * 是否为 Paused。
      *             
      *
      * @return true                   false                
@@ -232,6 +244,7 @@ public class ProgressState {
         }
     }
     /**
+     * 设置ExtraMessage。
      *                   
      *
      * @param msg             

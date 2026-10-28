@@ -256,6 +256,7 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 获取 DownloadSpeedString。
      *                            
      *
      * @param progress             
@@ -273,6 +274,7 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 获取 EtaString。
      *                                  
      *
      * @param progress             

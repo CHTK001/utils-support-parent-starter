@@ -57,6 +57,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
     /**
+     * 初始化。
      *
      *
      * @param ctx                   

@@ -36,6 +36,7 @@ public class VggtCombinedTranslator implements Translator<Image, VggtOutput> {
     private VggtOutputTranslator outputTranslator;
 
     /**
+     * 初始化。
      *             
      * <p>
      *                         
@@ -59,6 +60,7 @@ public class VggtCombinedTranslator implements Translator<Image, VggtOutput> {
     }
 
     /**
+     * 执行 Input。
      *                   
      * <p>
      *                                           
@@ -91,6 +93,7 @@ public class VggtCombinedTranslator implements Translator<Image, VggtOutput> {
     }
 
     /**
+     * 获取 Batchifier。
      *                   
      *
      * @return null                        

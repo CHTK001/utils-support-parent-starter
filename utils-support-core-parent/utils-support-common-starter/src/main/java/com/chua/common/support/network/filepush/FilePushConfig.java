@@ -323,12 +323,16 @@ public class FilePushConfig {
         return new FilePushConfig();
     }
     /**
+     * 获取 FileCount。
+     *
      * @return 文件总数
      */
     public int getFileCount() {
         return fileCount;
     }
     /**
+     * 设置FileCount。
+     *
      * @param fileCount 文件总数
      * @return this
      */
@@ -337,12 +341,16 @@ public class FilePushConfig {
         return this;
     }
     /**
+     * 获取 SourceDir。
+     *
      * @return 源目录
      */
     public Path getSourceDir() {
         return sourceDir;
     }
     /**
+     * 设置SourceDir。
+     *
      * @param sourceDir 源目录
      * @return this
      */
@@ -351,12 +359,16 @@ public class FilePushConfig {
         return this;
     }
     /**
+     * 获取 TargetDir。
+     *
      * @return 目标目录
      */
     public Path getTargetDir() {
         return targetDir;
     }
     /**
+     * 设置TargetDir。
+     *
      * @param targetDir 目标目录
      * @return this
      */
@@ -365,12 +377,16 @@ public class FilePushConfig {
         return this;
     }
     /**
+     * 获取 Host。
+     *
      * @return 主机
      */
     public String getHost() {
         return host;
     }
     /**
+     * 设置Host。
+     *
      * @param host 主机
      * @return this
      */
@@ -379,12 +395,16 @@ public class FilePushConfig {
         return this;
     }
     /**
+     * 获取 Port。
+     *
      * @return 端口
      */
     public int getPort() {
         return port;
     }
     /**
+     * 设置Port。
+     *
      * @param port 端口
      * @return this
      */
@@ -393,12 +413,16 @@ public class FilePushConfig {
         return this;
     }
     /**
+     * 获取 ConnectTimeoutMs。
+     *
      * @return 连接超时（毫秒）
      */
     public int getConnectTimeoutMs() {
         return connectTimeoutMs;
     }
     /**
+     * 设置ConnectTimeoutMs。
+     *
      * @param connectTimeoutMs 连接超时（毫秒）
      * @return this
      */
@@ -407,12 +431,16 @@ public class FilePushConfig {
         return this;
     }
     /**
+     * 获取 ReadTimeoutMs。
+     *
      * @return 读超时（毫秒）
      */
     public int getReadTimeoutMs() {
         return readTimeoutMs;
     }
     /**
+     * 设置ReadTimeoutMs。
+     *
      * @param readTimeoutMs 读超时（毫秒）
      * @return this
      */
@@ -421,12 +449,16 @@ public class FilePushConfig {
         return this;
     }
     /**
+     * 获取 ChunkSize。
+     *
      * @return 分片大小
      */
     public int getChunkSize() {
         return chunkSize;
     }
     /**
+     * 设置ChunkSize。
+     *
      * @param chunkSize 分片大小
      * @return this
      */
@@ -435,12 +467,16 @@ public class FilePushConfig {
         return this;
     }
     /**
+     * 获取 ClientFileParallelism。
+     *
      * @return 客户端并发文件数
      */
     public int getClientFileParallelism() {
         return clientFileParallelism;
     }
     /**
+     * 设置ClientFileParallelism。
+     *
      * @param clientFileParallelism 客户端并发文件数
      * @return this
      */
@@ -449,12 +485,16 @@ public class FilePushConfig {
         return this;
     }
     /**
+     * 获取 ServerConnectionParallelism。
+     *
      * @return 服务端并发连接数
      */
     public int getServerConnectionParallelism() {
         return serverConnectionParallelism;
     }
     /**
+     * 设置ServerConnectionParallelism。
+     *
      * @param serverConnectionParallelism 服务端并发连接数
      * @return this
      */
@@ -463,12 +503,16 @@ public class FilePushConfig {
         return this;
     }
     /**
+     * 获取 ServerWriteParallelism。
+     *
      * @return 服务端写盘并发数
      */
     public int getServerWriteParallelism() {
         return serverWriteParallelism;
     }
     /**
+     * 设置ServerWriteParallelism。
+     *
      * @param serverWriteParallelism 服务端写盘并发数
      * @return this
      */
@@ -477,12 +521,16 @@ public class FilePushConfig {
         return this;
     }
     /**
+     * 获取 IoBufferSize。
+     *
      * @return 客户端 IO 缓冲大小
      */
     public int getIoBufferSize() {
         return ioBufferSize;
     }
     /**
+     * 设置IoBufferSize。
+     *
      * @param ioBufferSize 客户端 IO 缓冲大小
      * @return this
      */
@@ -491,6 +539,8 @@ public class FilePushConfig {
         return this;
     }
     /**
+     * 获取 FilesPerConnection。
+     *
      * @return 每条连接承载的文件数（1 = 一文件一连接）
      */
     public int getFilesPerConnection() {
@@ -507,12 +557,16 @@ public class FilePushConfig {
         return this;
     }
     /**
+     * 是否为 Cleanup。
+     *
      * @return 是否清理旧文件
      */
     public boolean isCleanup() {
         return cleanup;
     }
     /**
+     * 设置Cleanup。
+     *
      * @param cleanup 是否清理旧文件
      * @return this
      */
@@ -521,12 +575,16 @@ public class FilePushConfig {
         return this;
     }
     /**
+     * 是否为 Incremental。
+     *
      * @return 是否启用增量同步
      */
     public boolean isIncremental() {
         return incremental;
     }
     /**
+     * 设置Incremental。
+     *
      * @param incremental 是否启用增量同步
      * @return this
      */
@@ -535,12 +593,16 @@ public class FilePushConfig {
         return this;
     }
     /**
+     * 获取 Excludes。
+     *
      * @return 排除模式列表
      */
     public List<String> getExcludes() {
         return excludes;
     }
     /**
+     * 设置Excludes。
+     *
      * @param excludes 排除模式列表
      * @return this
      */
@@ -549,12 +611,16 @@ public class FilePushConfig {
         return this;
     }
     /**
+     * 获取 Includes。
+     *
      * @return 包含模式列表
      */
     public List<String> getIncludes() {
         return includes;
     }
     /**
+     * 设置Includes。
+     *
      * @param includes 包含模式列表
      * @return this
      */

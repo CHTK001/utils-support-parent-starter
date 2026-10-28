@@ -70,6 +70,7 @@ public class AntPathMatcher implements PathMatcher {
         setPathSeparator(pathSeparator);
     }
     /**
+     * 设置PathSeparator。
      *
      *
      * @param pathSeparator             {@code null}                           {@link #DEFAULT_PATH_SEPARATOR}
@@ -118,6 +119,7 @@ public class AntPathMatcher implements PathMatcher {
         return this;
     }
     /**
+     * 是否为 Pattern。
      *
      *
      * @param path       
@@ -293,6 +295,7 @@ public class AntPathMatcher implements PathMatcher {
         return true;
     }
     /**
+     * 是否为 PotentialMatch。
      *
      *
      * @param path           
@@ -355,6 +358,7 @@ public class AntPathMatcher implements PathMatcher {
         return skipped;
     }
     /**
+     * 是否为 WildcardChar。
      *
      *
      * @param c       
@@ -405,6 +409,7 @@ public class AntPathMatcher implements PathMatcher {
         this.stringMatcherCache.clear();
     }
     /**
+     * 转换为kenizePath。
      *
      *
      * @param path                   
@@ -890,6 +895,7 @@ public class AntPathMatcher implements PathMatcher {
                 return this.uriVars;
             }
             /**
+             * 获取 SingleWildcards。
              *
              *
              * @return                   
@@ -898,6 +904,7 @@ public class AntPathMatcher implements PathMatcher {
                 return this.singleWildcards;
             }
             /**
+             * 获取 DoubleWildcards。
              *
              *
              * @return                   
@@ -914,6 +921,7 @@ public class AntPathMatcher implements PathMatcher {
                 return (this.pattern == null || this.catchAllPattern);
             }
             /**
+             * 是否为 PrefixPattern。
              *
              *
              * @return                      
@@ -965,6 +973,7 @@ public class AntPathMatcher implements PathMatcher {
             this.endsOnDoubleWildCard = pathSeparator + SYMBOL_ASTERISK_ANY;
         }
         /**
+         * 获取 EndsOnWildCard。
          *
          *
          * @return                               
@@ -973,6 +982,7 @@ public class AntPathMatcher implements PathMatcher {
             return this.endsOnWildCard;
         }
         /**
+         * 获取 EndsOnDoubleWildCard。
          *
          *
          * @return                               

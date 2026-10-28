@@ -163,6 +163,7 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     }
 
     /**
+     * 获取 Batchifier。
      *
      *
      * @return null                     

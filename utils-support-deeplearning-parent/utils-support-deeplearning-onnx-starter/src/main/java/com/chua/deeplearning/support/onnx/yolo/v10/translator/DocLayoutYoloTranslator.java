@@ -164,6 +164,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
     /**
+     * 执行 Input。
      *
      *
      * @param ctx                     
@@ -359,6 +360,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
     /**
+     * 获取 ModelDescription。
      *
      *
      * @return                   
@@ -371,6 +373,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
     /**
+     * 获取 RecommendedSizes。
      *
      *
      * @return                   
@@ -380,6 +383,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
     /**
+     * 获取 SupportedClasses。
      *
      *
      * @return DocStructBench                         

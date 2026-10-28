@@ -135,6 +135,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     }
 
     /**
+     * 执行 Input。
      *
      *
      * @param ctx                     
@@ -170,6 +171,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     }
 
     /**
+     * 执行 Output。
      *
      *
      * @param ctx                    
@@ -200,6 +202,7 @@ finally {
     }
 
     /**
+     * 获取 Batchifier。
      *
      *
      * @return STACK             

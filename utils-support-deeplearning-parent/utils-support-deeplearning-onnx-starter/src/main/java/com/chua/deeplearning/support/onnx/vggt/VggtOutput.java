@@ -65,6 +65,7 @@ public class VggtOutput {
     }
 
     /**
+     * 是否为 Valid。
      *             
      *
      * @return true                       3D       
@@ -74,6 +75,7 @@ public class VggtOutput {
     }
 
     /**
+     * 获取 DataSizeBytes。
      *                               
      *
      * @return             

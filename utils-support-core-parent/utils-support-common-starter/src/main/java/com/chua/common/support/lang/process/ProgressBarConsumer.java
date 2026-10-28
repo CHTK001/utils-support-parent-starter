@@ -28,6 +28,7 @@ public interface ProgressBarConsumer extends Consumer<String>, Appendable, AutoC
     @Override
     void accept(String rendered);
     /**
+     * 移除。
      *                            
      * 
      * @example clear()                                                       
@@ -36,6 +37,7 @@ public interface ProgressBarConsumer extends Consumer<String>, Appendable, AutoC
         accept("\r" + Util.repeat(' ', getMaxRenderedLength()) + "\r");
     }
     /**
+     * 添加。
      *                               
      *
      * @param csq                                   "Processing..."
@@ -48,6 +50,7 @@ public interface ProgressBarConsumer extends Consumer<String>, Appendable, AutoC
         return this;
     }
     /**
+     * 添加。
      *                                              
      *
      * @param csq                                     "Processing data..."
@@ -62,6 +65,7 @@ public interface ProgressBarConsumer extends Consumer<String>, Appendable, AutoC
         return this;
     }
     /**
+     * 添加。
      *                               
      *
      * @param c                             '.'

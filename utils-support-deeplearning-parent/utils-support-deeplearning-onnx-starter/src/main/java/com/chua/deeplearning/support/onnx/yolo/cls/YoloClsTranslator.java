@@ -98,6 +98,7 @@ public class YoloClsTranslator implements Translator<Image, Classifications> {
     }
 
     /**
+     * 执行 Input。
      *                   
      *
      * @param ctx                     
@@ -130,6 +131,7 @@ public class YoloClsTranslator implements Translator<Image, Classifications> {
     }
 
     /**
+     * 执行 Output。
      *                   
      *
      * @param ctx                    
@@ -161,6 +163,7 @@ public class YoloClsTranslator implements Translator<Image, Classifications> {
     }
 
     /**
+     * 获取 Batchifier。
      *                   
      *
      * @return STACK             

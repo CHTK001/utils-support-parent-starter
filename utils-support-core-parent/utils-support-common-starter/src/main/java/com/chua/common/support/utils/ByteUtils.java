@@ -577,6 +577,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
+     * 转换为String。
      *
      *
      * @param bytes             
@@ -587,6 +588,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
+     * 转换为String。
      *
      *
      * @param bytes             
@@ -598,6 +600,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
+     * 转换为String。
      *
      *
      * @param bytes             
@@ -609,6 +612,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
+     * 创建实例。
      *
      *
      * @param size        

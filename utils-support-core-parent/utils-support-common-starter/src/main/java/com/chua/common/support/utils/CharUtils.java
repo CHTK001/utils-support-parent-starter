@@ -250,6 +250,7 @@ public class CharUtils {
         return value instanceof Character || value.getClass() == char.class;
     }
     /**
+     * 是否为 BlankChar。
      *
      *
      * @param c
@@ -262,6 +263,7 @@ public class CharUtils {
         return isBlankChar((int) c);
     }
     /**
+     * 是否为 BlankChar。
      *
      *
      * @param c

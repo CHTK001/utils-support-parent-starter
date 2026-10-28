@@ -41,6 +41,7 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
     private final int detectResolution = 512;
 
     /**
+     * 初始化。
      *                                           
      *
      * @param ctx                   
@@ -156,6 +157,7 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
     }
 
     /**
+     * 获取 Batchifier。
      *                      
      *
      * @return                               STACK      

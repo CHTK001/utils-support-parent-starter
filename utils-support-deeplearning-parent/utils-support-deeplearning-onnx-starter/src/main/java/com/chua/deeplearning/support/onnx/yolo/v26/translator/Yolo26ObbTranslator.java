@@ -116,6 +116,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
+     * 执行 Input。
      *                   
      *
      * @param ctx                     
@@ -146,6 +147,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
+     * 执行 Output。
      *                   
      *
      * @param ctx                    
@@ -303,6 +305,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
+     * 获取 Batchifier。
      *                   
      *
      * @return STACK             

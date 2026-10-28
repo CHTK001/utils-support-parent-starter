@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 public class LocaleTypeConverter implements TypeConverter<Locale> {
 
     /**
+     * 获取 Type。
      *             
      *
      * @return Locale.class

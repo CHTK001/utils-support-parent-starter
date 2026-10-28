@@ -214,6 +214,7 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
     }
 
     /**
+     * 获取 MaxProbability。
      *                      
      *
      * @param probs             

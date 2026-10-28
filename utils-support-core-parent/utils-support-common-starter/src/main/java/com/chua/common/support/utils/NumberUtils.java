@@ -701,6 +701,7 @@ public class NumberUtils {
         return isDecimals(cleanedNumber);
     }
     /**
+     * 是否为 Decimals。
      *
      *
      * @param decimals                0-9                           1.23   233.30
@@ -1826,6 +1827,7 @@ public class NumberUtils {
      * @param value the <code>bigdecimal</code> to convert, may be <code>null</code>.
      * @return <code>bigdecimal</code> 所表示的 double 值，若
      * <code>BigDecimal</code> 为 <code>null</code> 则返回 <code>0.0d</code>。
+     *
      * @since 3.8
      */
     public static double toDouble(final BigDecimal value) {
@@ -2161,6 +2163,8 @@ public class NumberUtils {
         }
     }
     /**
+     * 转换为ScaledBigDecimal。
+     *
      * @param value 值
      * @since 3.8
      * @return 转为指定精度 BigDecimal 的结果
@@ -2728,6 +2732,7 @@ public class NumberUtils {
         return false;
     }
     /**
+     * 获取 Variance。
      *
      *
      * @param data 数据
@@ -2747,6 +2752,7 @@ public class NumberUtils {
         return dVar / m;
     }
     /**
+     * 获取 Average。
      *
      *
      * @return the 结果
@@ -2779,6 +2785,7 @@ public class NumberUtils {
         return Math.sqrt(dVar / m);
     }
     /**
+     * 获取 Y。
      *
      *
      * @param x            x   
@@ -2792,6 +2799,7 @@ public class NumberUtils {
                         1 / (stdDeviation * Math.sqrt(2 * Math.PI)));
     }
     /**
+     * 是否为 Positive。
      *
      *
      * @param value 值
@@ -2828,6 +2836,8 @@ public class NumberUtils {
         return Converter.convertIfNecessary(data, Number.class);
     }
     /**
+     * 是否为 Digits。
+     *
      * @param value 值
      * @return  boolean
      */

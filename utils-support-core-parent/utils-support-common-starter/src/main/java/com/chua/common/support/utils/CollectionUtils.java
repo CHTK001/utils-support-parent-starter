@@ -1095,6 +1095,7 @@ public class CollectionUtils {
     }
 
     /**
+     * 转换为Array。
      *
      *
      * @param arg
@@ -1117,6 +1118,7 @@ public class CollectionUtils {
     }
 
     /**
+     * 转换为Array。
      *
      *
      * @param arg
