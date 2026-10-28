@@ -32,6 +32,13 @@
 | `436b1b68a` | 1.9.1 强制 | 第四批（InfluxDB 版本字段、Spy 织入前缀） | 2 文件 / 7 处 |
 | `c40e79ccc` | 1.8.2 强制 | 为 69 个接口方法补写 Javadoc（描述 + 参数 + 返回值） | 19 文件 |
 | `ef947ca7c` | 3.2 强制 | 3 个测试类的 `System.out` 输出改为 JUL 日志 | 3 文件 |
+| `b1b0904c8` | 编码 | 修复 3 处 U+FFFD 与 TmdbCountry 乱码注释 | 4 文件 |
+| `799ff636b` | 1.8.5 强制 | TmdbCountry.Code 251 个常量补注释 | 1 文件 |
+| `85aef6c8d` | 1.8.5 / 编码 | PanType、YoloV8sTranslator 乱码修复；ImageType、StorageEngine 常量注释 | 4 文件 |
+| `d7b574f7a` | 1.8.5 强制 | 101 个枚举常量补注释（22 文件） | 22 文件 |
+| `497785517` | 1.8.5 | ManagedService 剩余常量注释 + 去重 | 1 文件 |
+| `591feb297` | 1.3.3 / 1.3.2 / 1.1.7 | 149 处关键字括号空格、3 处括号内侧空格、1 处数组声明位置 | 40 文件 |
+| `286445b06` | 1.1.5 强制 | 7 个私有静态常量改为全大写命名 | 6 文件 |
 | `87c59c658` | 注释规约 | 为 53 个只有 `@author/@since`、无任何描述的类补写一句话摘要 | 52 文件 |
 | `af2db4176` | 注释规约 | 清除 Javadoc 中只含空格的续行尾随空白 | 54 文件 |
 | `6b0316a4d` | 1.3.5 / 2.1.1 / 2.2.4 | tab 缩进改空格（417 行）、消除捕获 JDK 运行时异常（5 处）、日志占位符替代拼接（20 处） | 19 文件 |
@@ -87,7 +94,7 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
 
 1. **520 处方法级 Javadoc 缺一句话摘要**（286 处仅有 `@param/@return`、166 处仅 `@return`、68 处仅 `@param`）：类级摘要已全部补齐（53 处），方法级需按语义撰写，机械生成会降低可读性。
 2. **54 处 `Executors.newXxx()`**：P3C 要求改用 `ThreadPoolExecutor`。但其中大量为虚拟线程执行器（`newVirtualThreadPerTaskExecutor`，无队列堆积风险），改造会改变并发语义（队列容量、拒绝策略），需按场景设计。
-3. **324 处 `catch (Throwable ...)`**：框架入口、任务执行器、插件加载器属合理用途；其余应收窄为具体异常。
+3. **324 处 `catch (Throwable ...)`**：**经复核不属于 P3C 强制项**（手册 2.1 节无「禁止捕获 Throwable」条款），且多数位于线程池/插件加载/Agent 织入等必须拦截 Error 的入口，维持现状。
 4. **`new Thread(...)` 83 处**：均为具名长生命周期线程、`ThreadFactory` 实现或 `addShutdownHook`，符合「使用 ThreadFactory 创建线程」的要求。
 5. **`System.out/err` 真实代码调用 372 处（51 文件）**：复查后剩余均为 CLI 子命令（oshi 系列）、基准测试/演示 `main`、`TraceContext` 与 `SelfDefense` 的「日志系统不可用」兜底输出，属合理用途。
 6. **62 处 `throw new RuntimeException("msg")`**：均位于正常流程（无 catch 上下文），属参数校验或上游返回为空抛出的新异常（无 cause 可传），是否改为 `IllegalArgumentException` / `IllegalStateException` 待定。
