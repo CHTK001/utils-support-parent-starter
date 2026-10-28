@@ -195,7 +195,8 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
         }
         try {
             FFmpeg.atPath(getBinDir())
-                    .addInput(UrlInput.fromPath(listFile.toPath()).addArguments("-f", "concat").addArguments("-safe", "0"))
+                    .addInput(UrlInput.fromPath(listFile.toPath())
+                            .addArguments("-f", "concat").addArguments("-safe", "0"))
                     .addOutput(buildOutput(output.toPath(), resolvFormat(output), "-c", "copy"))
                     .execute();
         } finally { listFile.delete(); }

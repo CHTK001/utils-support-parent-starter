@@ -262,7 +262,8 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
                     .source(getSource().getCode())
                     .title(firstNonBlank(text(basic, "title"), text(basic, "dissname")))
                     .description(text(basic, "desc").replace("<br>", "\n"))
-                    .coverUrl(firstNonBlank(text(basic, "cover", "medium_url"), text(basic, "cover_url_medium"), text(basic, "imgurl")))
+                    .coverUrl(firstNonBlank(text(basic, "cover", "medium_url"),
+                        text(basic, "cover_url_medium"), text(basic, "imgurl")))
                     .author(firstNonBlank(text(basic, "creator", "nick"), text(basic, "creator_info", "nick")))
                     .trackCount(integer(basic, "song_count"))
                     .accentColor("linear-gradient(135deg, #382419 0%, #a86d44 100%)")

@@ -201,7 +201,8 @@ public class TextDirectionPipeline {
             // 排除通用分类模型（anime-real-cls / yolo-cls 等含 "cls" 但不属于文字方向）
             boolean direction = RecognitionSupport.contains(name, "word-rotate", "pp-word-rotate", "word_rotate")
                     || (RecognitionSupport.contains(name, "direction") && !RecognitionSupport.contains(name, "cls"))
-                    || (RecognitionSupport.contains(name, "ocrv6-det") || RecognitionSupport.contains(name, "paddleocrv6-det"));
+                    || (RecognitionSupport.contains(name, "ocrv6-det")
+                || RecognitionSupport.contains(name, "paddleocrv6-det"));
             if (direction) {
                 grouped.computeIfAbsent("direction", k -> Wraps.linkedSet()).add(entry.modelId());
             }

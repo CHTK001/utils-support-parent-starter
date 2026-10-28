@@ -103,7 +103,8 @@ public class CustomServiceResolver implements ServiceResolver {
                             log.trace("读取到配置行 {}：{}", type.getTypeName(), line);
                         }
                         allExtensionClass.addAll(
-                                Optional.ofNullable(readLine(line, url, type, classLoader)).orElse(Collections.emptyList()));
+                                Optional.ofNullable(readLine(line, url, type, classLoader))
+                                        .orElse(Collections.emptyList()));
                     }
                 } catch (Throwable t) {
                     if (log.isTraceEnabled()) {

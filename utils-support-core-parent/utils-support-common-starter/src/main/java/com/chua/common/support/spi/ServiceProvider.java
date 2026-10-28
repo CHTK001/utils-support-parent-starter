@@ -676,7 +676,8 @@ public interface ServiceProvider<T> {
         }
         // 记录「实现类 → 失败方法名集合」，用于实现内部避让
         Map<Class<?>, Set<String>> failedMethods = new ConcurrentHashMap<>();
-        return ProxyUtils.newProxy(getType(), getClassLoader(), new DelegateMethodIntercept<>(getType(), new Function<ProxyMethod, Object>() {
+        return ProxyUtils.newProxy(getType(), getClassLoader(),
+                new DelegateMethodIntercept<>(getType(), new Function<ProxyMethod, Object>() {
             /**
              * 应用
              */
