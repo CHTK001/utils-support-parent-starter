@@ -153,7 +153,8 @@ public final class ZeroShot {
      */
     public static List<String> listClassifiers() {
         return ImageClassifier.listModels().stream()
-                .filter(id -> id.contains("zero-shot") || id.contains("clip-vit") || id.contains("siglip") || id.contains("mobileclip"))
+                .filter(id -> id.contains("zero-shot") || id.contains("clip-vit") || id.contains("siglip") ||
+                        id.contains("mobileclip"))
                 .toList();
     }
 
@@ -164,7 +165,8 @@ public final class ZeroShot {
      */
     public static List<String> listDetectors() {
         return ImageDetector.listModels().stream()
-                .filter(id -> id.contains("zero-shot") || id.contains("world") || id.contains("owlv2") || id.contains("grounding"))
+                .filter(id -> id.contains("zero-shot") || id.contains("world") || id.contains("owlv2") ||
+                        id.contains("grounding"))
                 .toList();
     }
 

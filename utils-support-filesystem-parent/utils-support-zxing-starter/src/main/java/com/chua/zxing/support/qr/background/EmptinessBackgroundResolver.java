@@ -157,7 +157,8 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
         } else if (x < 8 && y > (size(size) - 1) - 8) {
             return true;
         } else {
-            return size != 1 && (x > (size(size) - 1) - 9 && x < (size(size) - 1) - 3 && y > (size(size) - 1) - 9 && y < (size(size) - 1) - 3);
+            return size != 1 &&
+                    (x > (size(size) - 1) - 9 && x < (size(size) - 1) - 3 && y > (size(size) - 1) - 9 && y < (size(size) - 1) - 3);
         }
     }
 

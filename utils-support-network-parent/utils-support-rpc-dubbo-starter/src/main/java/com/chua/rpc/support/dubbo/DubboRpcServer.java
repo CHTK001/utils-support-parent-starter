@@ -89,7 +89,8 @@ public class DubboRpcServer implements RpcServer {
             if (config.getFile() != null) { item.setFile(config.getFile()); }
             if (config.getRegister() != null) { item.setRegister(config.getRegister()); }
             if (config.getDynamic() != null) { item.setDynamic(config.getDynamic()); }
-            if (config.getParameters() != null && !config.getParameters().isEmpty()) { item.setParameters(config.getParameters()); }
+            if (config.getParameters() != null &&
+                    !config.getParameters().isEmpty()) { item.setParameters(config.getParameters()); }
             registryConfigs.add(item);
         }
     }

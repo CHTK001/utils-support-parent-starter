@@ -2371,7 +2371,8 @@ public class NumberUtils {
      */
     private static boolean isHexNumber(final String value) {
         int index = (value.startsWith("-") ? 1 : 0);
-        return (value.startsWith(Hex.PREFIX, index) || value.startsWith(Hex.PREFIX_UPPER, index) || value.startsWith(SYMBOL_HASH, index));
+        return (value.startsWith(Hex.PREFIX, index) || value.startsWith(Hex.PREFIX_UPPER, index) ||
+                value.startsWith(SYMBOL_HASH, index));
     }
     /**
      * 比较两个值。

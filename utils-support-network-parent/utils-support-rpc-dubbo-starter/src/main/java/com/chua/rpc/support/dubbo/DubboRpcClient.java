@@ -70,7 +70,8 @@ public class DubboRpcClient implements RpcClient {
             if (cfg.getDynamic() != null) { item.setDynamic(cfg.getDynamic()); }
             if (cfg.getGroup() != null) { item.setGroup(cfg.getGroup()); }
             if (cfg.getVersion() != null) { item.setVersion(cfg.getVersion()); }
-            if (cfg.getParameters() != null && !cfg.getParameters().isEmpty()) { item.setParameters(cfg.getParameters()); }
+            if (cfg.getParameters() != null &&
+                    !cfg.getParameters().isEmpty()) { item.setParameters(cfg.getParameters()); }
             registryConfigs.add(item);
         }
         this.consumerConfig = buildConsumerConfig(consumerCfg);
