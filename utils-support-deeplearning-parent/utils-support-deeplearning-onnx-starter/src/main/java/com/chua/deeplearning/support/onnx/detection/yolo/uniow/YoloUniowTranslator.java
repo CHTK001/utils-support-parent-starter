@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.onnx.detection.yolo_uniow;
+package com.chua.deeplearning.support.onnx.detection.yolo.uniow;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import ai.djl.modality.cv.Image;
@@ -79,13 +79,13 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
      * 文本嵌入 类路径 资源路径（LVIS 1203 类，1203×512）
     */
     private static final String EMBEDDINGS_RESOURCE =
-            "vision/detection/yolo_uniow/class_embeddings_1203x512.f32";
+            "vision/detection/yolo.uniow/class_embeddings_1203x512.f32";
 
     /**
      * 类别名 类路径 资源路径
     */
     private static final String CLASS_NAMES_RESOURCE =
-            "vision/detection/yolo_uniow/class.names.txt";
+            "vision/detection/yolo.uniow/class.names.txt";
 
     /**
      * 回退类别

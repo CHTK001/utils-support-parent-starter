@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.gpu_llama3;
+package com.chua.deeplearning.support.gpu.llama3;
 
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;

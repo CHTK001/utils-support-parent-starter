@@ -537,10 +537,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // YOLO-UniOW 通用开世界目标检测（THU-MIG，arxiv 2412.20645）：基于 YOLO-World+YOLOv10 的通用开世界检测，支持动态词表/未知目标(wildcard)；S/M/L
         // 三档（7.5M/16.2M/29.4M）；ONNX 资产需由官方 .pth 经社区 export_onnx.py（AXERA-TECH/YOLO-UniOW）reparameterize
         // 后导出；类别由导出时固化词表决定（object_tuned wildcard 模式默认单类 object）
-        reg("yolo-uniow", "com.chua.deeplearning.support.onnx.detection.yolo_uniow.YoloUniowTranslator", Image.class,
-            DetectedObjects.class, ImageDetector.class, "vision/detection/yolo_uniow/model.onnx",
-            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/yolo_uniow/model.onnx",
-            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/yolo_uniow/model.onnx"),
+        reg("yolo-uniow", "com.chua.deeplearning.support.onnx.detection.yolo.uniow.YoloUniowTranslator", Image.class,
+            DetectedObjects.class, ImageDetector.class, "vision/detection/yolo.uniow/model.onnx",
+            "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/yolo.uniow/model.onnx",
+            List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/yolo.uniow/model.onnx"),
             false, null);
         // #禁用# OCR文字识别(PP-OCRv5 Server)：Translator 类 PaddleOcrRecognitionTranslator 在当前源码树中不存在，
         // 注册后首次推理必抛 IllegalStateException("Translator 类不可用")。可用替代：paddleocrv6-medium-rec。待 Translator 补齐后恢复。
