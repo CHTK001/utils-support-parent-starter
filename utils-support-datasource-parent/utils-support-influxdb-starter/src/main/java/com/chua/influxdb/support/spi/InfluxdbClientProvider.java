@@ -42,6 +42,11 @@ import java.util.regex.Pattern;
 @Spi(value = "influxdb", order = 200)
 public class InfluxdbClientProvider implements MiddlewareClientProvider {
 
+    /**
+     * 响应中的 version 字段
+     */
+    private static final Pattern VERSION_FIELD_PATTERN = Pattern.compile("\"version\"\\s*:\\s*\"([^\"]+)\"");
+
     /** SPI 名称，同时是注册文件名 */
     public static final String SPI_NAME = "com.chua.datasource.support.middleware.MiddlewareClientProvider";
 
@@ -299,7 +304,7 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
         if (body == null) {
             return "";
         }
-        Matcher m = Pattern.compile("\"version\"\\s*:\\s*\"([^\"]+)\"").matcher(body);
+        Matcher m = VERSION_FIELD_PATTERN.matcher(body);
         return m.find() ? m.group(1) : "";
     }
 

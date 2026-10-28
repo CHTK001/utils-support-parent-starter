@@ -35,6 +35,24 @@ import java.util.regex.Pattern;
 public class SpyBootstrap {
 
     /**
+     * 需要织入的类名前缀
+     */
+    private static final List<Pattern> INCLUDE_PATTERNS = Arrays.asList(
+            Pattern.compile("com\\.example\\..*"),
+            Pattern.compile("org\\..*"),
+            Pattern.compile("java\\.net\\..*"),
+            Pattern.compile("java\\.io\\..*")
+    );
+
+    /**
+     * 需要排除的类名前缀
+     */
+    private static final List<Pattern> EXCLUDE_PATTERNS = Arrays.asList(
+            Pattern.compile("java\\.lang\\..*"),
+            Pattern.compile("com\\.chua\\..*")
+    );
+
+    /**
      * JUL 日志记录器 — 不依赖 slf4j，避免与外部 日志记录器 框架冲突
      */
     private static final Logger LOG = Logger.getLogger(SpyBootstrap.class.getName());
@@ -168,18 +186,7 @@ public class SpyBootstrap {
      * @param inst Instrumentation 实例
      */
     private static void initTransformer(Instrumentation inst) throws Exception {
-        List<Pattern> includes = Arrays.asList(
-                Pattern.compile("com\\.example\\..*"),
-                Pattern.compile("org\\..*"),
-                Pattern.compile("java\\.net\\..*"),
-                Pattern.compile("java\\.io\\..*")
-        );
-        List<Pattern> excludes = Arrays.asList(
-                Pattern.compile("java\\.lang\\..*"),
-                Pattern.compile("com\\.chua\\..*")
-        );
-
-        transformer = new SpyTransformer(null, includes, excludes);
+        transformer = new SpyTransformer(null, INCLUDE_PATTERNS, EXCLUDE_PATTERNS);
         inst.addTransformer(transformer, true);
         LOG.info("字节码转换器已注册（attach 模式：仅对未来加载的类织入，"
                 + "不做全量 retransform 以避免 invalid class/挂起）");
