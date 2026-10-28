@@ -8,9 +8,9 @@
 | --- | --- | --- | --- |
 | literal | 51 | 单条字符串超过 120 字符（HTML/CSS 片段、提示词、错误消息） | 长字符串字面量：可提取为 `private static final String` 常量，或按 `+` 拼接拆分（值不变，但可读性下降） |
 | other | 51 | 深层调用/长表达式（builder 链、三元、try-with-resources） | 深层表达式：需按语义重排（提取局部变量或拆分调用链） |
-| signature | 24 | 方法签名参数多或含全限定类型名 | 超长签名：多为泛型/长类型名，建议把全限定名改 import 简写，或按参数逐个换行 |
+| signature | 0 | 方法签名参数多或含全限定类型名 | 超长签名：多为泛型/长类型名，建议把全限定名改 import 简写，或按参数逐个换行 |
 | regex | 13 | 正则表达式字面量 | 正则字面量：建议保留原样，或提取为 `static final Pattern` 常量以便复用与预编译 |
-| **合计** | **139** | — | — |
+| **合计** | **115** | — | — |
 
 ## 二、完整清单
 
@@ -85,8 +85,8 @@
 | 9 | `com.chua.common.support.spi.resolver.CustomServiceResolver.java:105` | 142 | `allExtensionClass.addAll(Optional.ofNullable(readLine(line, url, type, classLoader)).orElse(Collections.emptyList()));` |
 | 10 | `com.chua.common.support.spi.ServiceProvider.java:601` | 142 | `return ProxyUtils.newProxy(getType(), getClassLoader(), new DelegateMethodIntercept<>(getType(), new Function<ProxyMetho…` |
 | 11 | `com.chua.common.support.spi.ServiceProvider.java:678` | 142 | `return ProxyUtils.newProxy(getType(), getClassLoader(), new DelegateMethodIntercept<>(getType(), new Function<ProxyMetho…` |
-| 12 | `com.chua.common.support.utils.ClassUtils.java:2187` | 150 | `int allModes = MethodHandles.Lookup.PUBLIC \| MethodHandles.Lookup.PRIVATE \| MethodHandles.Lookup.PROTECTED \| MethodHa…` |
-| 13 | `com.chua.common.support.utils.ClassUtils.java:2189` | 135 | `return (constructor.getParameterCount() == 2 ? ((MethodHandles.Lookup) constructor.newInstance(declaringClass, allModes)…` |
+| 12 | `com.chua.common.support.utils.ClassUtils.java:2188` | 150 | `int allModes = MethodHandles.Lookup.PUBLIC \| MethodHandles.Lookup.PRIVATE \| MethodHandles.Lookup.PROTECTED \| MethodHa…` |
+| 13 | `com.chua.common.support.utils.ClassUtils.java:2190` | 135 | `return (constructor.getParameterCount() == 2 ? ((MethodHandles.Lookup) constructor.newInstance(declaringClass, allModes)…` |
 | 14 | `com.chua.common.support.utils.DateUtils.java:1380` | 123 | `return Date.from(localDate.atStartOfDay().atZone(Optional.ofNullable(zoneId).orElse(DEFAULT_ZONE_ID)).toInstant());` |
 | 15 | `com.chua.common.support.utils.NumberUtils.java:2374` | 138 | `return (value.startsWith(Hex.PREFIX, index) \|\| value.startsWith(Hex.PREFIX_UPPER, index) \|\| value.startsWith(SYMBOL_…` |
 | 16 | `com.chua.common.support.utils.StringUtils.java:94` | 122 | `"                ", "                 ", "                  ", "                   ", "                    "};` |
@@ -108,7 +108,7 @@
 | 32 | `com.chua.filestorage.support.preview.provider.VCardPreviewProvider.java:218` | 180 | `sb.append("<div class=\"field\"><span class=\"field-label\">地址</span><span class=\"field-value\">").append(escapeHtml(co…` |
 | 33 | `com.chua.image.support.filter.BscAdjustImageFilter.java:228` | 146 | `(ta << 24) \| (ImageProcessorUtils.clamp(tr) << 16) \| (ImageProcessorUtils.clamp(tg) << 8) \| ImageProcessorUtils.clamp…` |
 | 34 | `com.chua.image.support.filter.SepiaToneImageFilter.java:96` | 146 | `(ta << 24) \| (ImageProcessorUtils.clamp(fr) << 16) \| (ImageProcessorUtils.clamp(fg) << 8) \| ImageProcessorUtils.clamp…` |
-| 35 | `com.chua.zxing.support.qr.background.EmptinessBackgroundResolver.java:159` | 143 | `return size != 1 && (x > (size(size) - 1) - 9 && x < (size(size) - 1) - 3 && y > (size(size) - 1) - 9 && y < (size(size)…` |
+| 35 | `com.chua.zxing.support.qr.background.EmptinessBackgroundResolver.java:160` | 143 | `return size != 1 && (x > (size(size) - 1) - 9 && x < (size(size) - 1) - 3 && y > (size(size) - 1) - 9 && y < (size(size)…` |
 | 36 | `com.chua.zxing.support.qr.draw.eye.ImageDrawEyeResolver.java:62` | 125 | `.getScaledInstance(infoSize * detectCornerSize, infoSize * detectCornerSize, Image.SCALE_SMOOTH),` |
 | 37 | `com.chua.zxing.support.qr.toolkit.QrCodeRenderUtils.java:150` | 136 | `QrCodeOptions.FrontImgOptions frontImgOptions) {` |
 | 38 | `com.chua.zxing.support.qr.toolkit.QrCodeRenderUtils.java:252` | 132 | `QrCodeOptions.BgImgOptions bgImgOptions) {` |
@@ -126,34 +126,10 @@
 | 50 | `com.chua.rpc.support.sofa.SofaRpcClient.java:94` | 129 | `if (rpcConsumerConfig.getConnectTimeout() != null){ c.setConnectTimeout(rpcConsumerConfig.getConnectTimeout()); }` |
 | 51 | `com.chua.runtime.core.service.SystemdServiceManager.java:259` | 123 | `service.getEnv().forEach((k, v) -> sb.append("Environment=\"").append(k).append("=").append(v).append("\"\n"));` |
 
-### signature（24 处）
+### signature（0 处）
 
 | # | 文件:行 | 字符数 | 代码片段 |
 | --- | --- | --- | --- |
-| 1 | `com.chua.common.support.network.server.http.HttpReflectiveDefaultServerHandler.java:22` | 128 | `public class HttpReflectiveDefaultServerHandler extends DefaultHttpServerHandler implements ReflectiveHttpDefaultServerH…` |
-| 2 | `com.chua.common.support.utils.AnnotationDefinition.java:99` | 122 | `public static <A extends Annotation> AnnotationDefinition<A> ofAliasResolved(A annotation, Class<A> annotationClass) {` |
-| 3 | `com.chua.common.support.utils.AnnotationDefinition.java:110` | 125 | `public static <A extends Annotation> AnnotationDefinition<A> ofOverriddenMethod(A annotation, Class<A> annotationClass) …` |
-| 4 | `com.chua.common.support.utils.AnnotationDefinition.java:120` | 124 | `public static <A extends Annotation> AnnotationDefinition<A> subclassOverrides(Class<A> annotationClass, A annotation) {` |
-| 5 | `com.chua.common.support.utils.ClassUtils.java:1252` | 142 | `private static <T> T createAlgorithm(Constructor<?> declaredConstructor, Map<Class<?>, Object> params, Map<Constructor<?…` |
-| 6 | `com.chua.filesystem.support.stream.ArchiveInputStreamAdapter.java:23` | 146 | `private final org.apache.commons.compress.archivers.ArchiveInputStream<? extends org.apache.commons.compress.archivers.A…` |
-| 7 | `com.chua.filesystem.support.stream.ArchiveInputStreamAdapter.java:30` | 167 | `public ArchiveInputStreamAdapter(org.apache.commons.compress.archivers.ArchiveInputStream<? extends org.apache.commons.c…` |
-| 8 | `com.chua.spring.support.configuration.ApplicationAwareApplicationContextInitializer.java:13` | 133 | `public class ApplicationAwareApplicationContextInitializer implements ApplicationContextInitializer<ConfigurableApplicat…` |
-| 9 | `com.chua.spring.support.proxy.intercept.BulkheadIntercept.java:28` | 121 | `public class BulkheadIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<Bulkhead> …` |
-| 10 | `com.chua.spring.support.proxy.intercept.CircuitBreakerIntercept.java:28` | 133 | `public class CircuitBreakerIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<Circ…` |
-| 11 | `com.chua.spring.support.proxy.intercept.RateLimiterIntercept.java:29` | 127 | `public class RateLimiterIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<RateLim…` |
-| 12 | `com.chua.clickhouse.support.engine.ClickHouseEngine.java:89` | 177 | `@Override public EngineDataSource<HikariDataSource> setSource(Object source) { throw new UnsupportedOperationException("…` |
-| 13 | `com.chua.h2.support.engine.H2Engine.java:67` | 157 | `public EngineDataSource<Object> setSource(Object source) { throw new UnsupportedOperationException("运行期不支持替换数据源对象，请重新调用 …` |
-| 14 | `com.chua.mysql.support.engine.MysqlEngine.java:92` | 177 | `@Override public EngineDataSource<HikariDataSource> setSource(Object source) { throw new UnsupportedOperationException("…` |
-| 15 | `com.chua.oracle.support.engine.OracleEngine.java:91` | 177 | `@Override public EngineDataSource<HikariDataSource> setSource(Object source) { throw new UnsupportedOperationException("…` |
-| 16 | `com.chua.postgresql.support.engine.PostgresqlEngine.java:89` | 177 | `@Override public EngineDataSource<HikariDataSource> setSource(Object source) { throw new UnsupportedOperationException("…` |
-| 17 | `com.chua.sqlserver.support.engine.SqlServerEngine.java:90` | 177 | `@Override public EngineDataSource<HikariDataSource> setSource(Object source) { throw new UnsupportedOperationException("…` |
-| 18 | `com.chua.sqlserver.support.engine.SqlServerLegacyEngine.java:131` | 177 | `@Override public EngineDataSource<HikariDataSource> setSource(Object source) { throw new UnsupportedOperationException("…` |
-| 19 | `com.chua.common.support.datasearch.video.model.VideoSyncConfig.java:128` | 131 | `public void setVideoSyncConfigEnabled(Boolean videoSyncConfigEnabled) { this.videoSyncConfigEnabled = videoSyncConfigEna…` |
-| 20 | `com.chua.common.support.datasearch.video.model.VideoSyncConfig.java:154` | 161 | `public void setVideoSyncConfigLastAsyncTime(LocalDateTime videoSyncConfigLastAsyncTime) { this.videoSyncConfigLastAsyncT…` |
-| 21 | `com.chua.common.support.datasearch.video.model.VideoSyncConfig.java:167` | 130 | `public void setVideoSyncConfigHeaders(String videoSyncConfigHeaders) { this.videoSyncConfigHeaders = videoSyncConfigHead…` |
-| 22 | `com.chua.common.support.datasearch.video.model.VideoSyncConfig.java:180` | 126 | `public void setVideoSyncConfigRemark(String videoSyncConfigRemark) { this.videoSyncConfigRemark = videoSyncConfigRemark;…` |
-| 23 | `com.chua.playwright.support.Page.java:256` | 121 | `public void waitForSelector(String selector, long timeoutMs) { engine.waitForSelector(handle, selector, timeoutMs); }` |
-| 24 | `com.chua.zxing.support.qr.background.EmptinessBackgroundResolver.java:122` | 150 | `private static void fillPositionDetectionShape(Graphics2D g, Color eyeDf,Color lf, Color lb, int qrCodeWidth, int startX…` |
 
 ### regex（13 处）
 
