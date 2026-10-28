@@ -602,10 +602,15 @@ public class Version implements Comparable<Version> {
          * </pre>
          */
         enum ReleaseType {
+            /** 快照版本（开发中） */
             SNAPSHOT,
+            /** 预览版（Alpha 之前） */
             PRE_ALPHA,
+            /** 内测版 */
             ALPHA,
+            /** 公测版 */
             BETA,
+            /** 候选发布版 */
             RC,
             STABLE
         }

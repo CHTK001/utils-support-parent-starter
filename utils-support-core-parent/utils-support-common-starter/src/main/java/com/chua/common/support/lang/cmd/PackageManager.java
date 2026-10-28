@@ -21,12 +21,19 @@ public class PackageManager {
   * 包管理器类型枚举
   */
  public enum Type {
+ /** Windows 包管理器 winget */
  WINGET("winget", "winget install --id %s --silent --accept-package-agreements", true),
+ /** Chocolatey 包管理器 */
  CHOCO("choco", "choco install -y %s", true),
+ /** Homebrew 包管理器 */
  BREW("brew", "brew install %s", true),
+ /** Debian/Ubuntu apt */
  APT("apt", "DEBIAN_FRONTEND=noninteractive apt install -y %s", true),
+ /** CentOS yum */
  YUM("yum", "yum install -y %s", true),
+ /** Fedora dnf */
  DNF("dnf", "dnf install -y %s", true),
+ /** Alpine apk */
  APK("apk", "apk add %s", true);
 
  /**

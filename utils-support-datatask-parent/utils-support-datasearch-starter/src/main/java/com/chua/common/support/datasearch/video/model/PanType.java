@@ -9,17 +9,29 @@ package com.chua.common.support.datasearch.video.model;
  */
 public enum PanType {
 
+    /** 百度网盘 */
     BAIDU("baidu", "百度网盘"),
+    /** 阿里云盘 */
     ALIYUN("aliyun", "阿里云盘"),
+    /** 夸克网盘 */
     QUARK("quark", "夸克网盘"),
+    /** 天翼云盘 */
     TIANYI("tianyi", "天翼云盘"),
+    /** UC 网盘 */
     UC("uc", "UC网盘"),
+    /** 移动云盘 */
     MOBILE("mobile", "移动云盘"),
+    /** 115 网盘 */
     PAN_115("115", "115网盘"),
+    /** PikPak 网盘 */
     PIKPAK("pikpak", "PikPak"),
+    /** 迅雷网盘 */
     XUNLEI("xunlei", "迅雷网盘"),
+    /** 123 网盘 */
     PAN_123("123", "123网盘"),
+    /** 磁力链接 */
     MAGNET("magnet", "磁力链接"),
+    /** 电驴链接 */
     ED2K("ed2k", "电驴链接"),
     /**
      * 其他网盘/未知来源

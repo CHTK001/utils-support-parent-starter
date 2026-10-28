@@ -7,9 +7,13 @@ package com.chua.common.support.constant;
  */
 
 public enum Position {
+    /** 左上 */
     LEFT_TOP,
+    /** 右上 */
     RIGHT_TOP,
+    /** 右下 */
     RIGHT_BOTTOM,
+    /** 左下 */
     LEFT_BOTTOM,
     CENTER
 }

@@ -44,7 +44,20 @@ public class BenchmarkConfig {
      * 报告指标项。
      */
     public enum Metric {
-        SUCCESS_RATE, RPS, P50, P95, P99, P999, MAX
+        /** 成功率指标 */
+        SUCCESS_RATE,
+        /** RPS */
+        RPS,
+        /** P50 */
+        P50,
+        /** P95 */
+        P95,
+        /** P99 */
+        P99,
+        /** P999 */
+        P999,
+        /** MAX */
+        MAX
     }
 
     /**

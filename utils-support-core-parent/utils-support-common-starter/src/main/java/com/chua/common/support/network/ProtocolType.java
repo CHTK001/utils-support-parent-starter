@@ -50,16 +50,27 @@ public enum ProtocolType {
      * TCP 协议，面向连接的可靠传输应用层协议。
      */
     TCP(ServerCategory.APPLICATION),
+    /** UDP 协议 */
     UDP(ServerCategory.APPLICATION),
+    /** KCP 协议 */
     KCP(ServerCategory.MESSAGE),
+    /** WebSocket 协议 */
     WS(ServerCategory.MESSAGE),
+    /** MQTT 协议 */
     MQTT(ServerCategory.MESSAGE),
+    /** RSocket 协议 */
     RSOCKET(ServerCategory.MESSAGE),
+    /** Socket.IO 协议 */
     SOCKET_IO(ServerCategory.MESSAGE),
+    /** FTP 协议 */
     FTP(ServerCategory.APPLICATION),
+    /** SFTP 协议 */
     SFTP(ServerCategory.APPLICATION),
+    /** 进程间通信 */
     IPC(ServerCategory.APPLICATION),
+    /** SSH 协议 */
     SSH(ServerCategory.APPLICATION),
+    /** SMB 文件共享协议 */
     SMB(ServerCategory.APPLICATION),
     /**
      * 构造方法，创建 UNKNOWN 实例。

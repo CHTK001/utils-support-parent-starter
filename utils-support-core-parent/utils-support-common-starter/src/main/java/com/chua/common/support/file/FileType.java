@@ -62,16 +62,19 @@ public enum FileType {
      * Word 文档
      */
     DOC("doc", Category.DOCUMENT),
+    /** Word 文档 */
     DOCX("docx", Category.DOCUMENT),
     /**
      * Excel 表格
      */
     XLS("xls", Category.DOCUMENT),
+    /** Excel 工作簿 */
     XLSX("xlsx", Category.DOCUMENT),
     /**
      * PPT 演示
      */
     PPT("ppt", Category.DOCUMENT),
+    /** PowerPoint 演示文稿 */
     PPTX("pptx", Category.DOCUMENT),
     /**
      * 纯文本

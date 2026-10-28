@@ -60,6 +60,15 @@ public class IpAnomalyResult implements Serializable {
      * @since 4.0.0
      */
     public enum AnomalyLevel {
-        NORMAL, LOW, MEDIUM, HIGH, CRITICAL
+        /** 正常 */
+        NORMAL,
+        /** 低 */
+        LOW,
+        /** 中 */
+        MEDIUM,
+        /** 高 */
+        HIGH,
+        /** 严重 */
+        CRITICAL
     }
 }

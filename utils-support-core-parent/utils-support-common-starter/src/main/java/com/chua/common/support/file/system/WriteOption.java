@@ -93,6 +93,9 @@ public class WriteOption {
     }
 
     public enum WriteType {
-        MAP, LINE
+        /** 按 Map 逐条输出 */
+        MAP,
+        /** 按行输出 */
+        LINE
     }
 }
