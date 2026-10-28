@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.ToString;
 
 /**
  * SSH 命令响应，{@link ServerResponse} 实现。
@@ -19,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 4.0.0.42
  */
 @Slf4j
+@ToString
 public class SshCommandResponse implements ServerResponse {
 
     /**

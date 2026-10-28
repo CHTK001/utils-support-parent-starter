@@ -2,6 +2,7 @@ package com.chua.common.support.export;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import lombok.ToString;
 
 /**
  * 导出配置。
@@ -11,6 +12,7 @@ import java.nio.charset.StandardCharsets;
  * @author CH
  * @since 4.0.0.42
  */
+@ToString
 public final class ExportConfig {
 
     /**

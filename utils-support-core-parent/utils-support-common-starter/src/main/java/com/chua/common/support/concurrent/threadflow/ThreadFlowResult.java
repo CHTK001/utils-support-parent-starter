@@ -3,6 +3,7 @@ package com.chua.common.support.concurrent.threadflow;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.ToString;
 
 /**
  * {@link ThreadFlow} 执行结果。
@@ -13,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 2026/08/15
  */
+@ToString
 public class ThreadFlowResult<T> {
 
     /**

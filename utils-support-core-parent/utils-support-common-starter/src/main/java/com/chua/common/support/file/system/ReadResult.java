@@ -2,6 +2,7 @@ package com.chua.common.support.file.system;
 import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Collections;
 import java.util.List;
+import lombok.ToString;
 
 /**
  * 文件读取结果，封装解析后的数据集合。
@@ -13,6 +14,7 @@ import java.util.List;
  * @author CH
  * @since 1.0.0
  */
+@ToString
 public class ReadResult<T> {
 
     /**

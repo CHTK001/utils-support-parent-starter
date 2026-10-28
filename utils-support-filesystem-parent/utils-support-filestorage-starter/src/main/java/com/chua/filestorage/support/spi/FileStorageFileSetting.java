@@ -6,6 +6,7 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.Collections;
 import java.util.List;
+import lombok.ToString;
 
 /**
  * 文件存储 URL 参数设置 SPI。

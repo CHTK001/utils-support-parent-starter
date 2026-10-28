@@ -4,6 +4,7 @@ import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpStatus;
 import com.chua.common.support.network.http.HttpVersion;
 import java.nio.charset.StandardCharsets;
+import lombok.ToString;
 
 /**
  * HTTP 客户端响应封装，包含状态码、响应头和响应体。
@@ -38,6 +39,7 @@ import java.nio.charset.StandardCharsets;
  * @see HttpClientBuilder
  * @see com.chua.common.support.network.client.spi.HttpClientExecutor
  */
+@ToString
 public class ClientResponse {
 
     /**

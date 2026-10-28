@@ -4,6 +4,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import lombok.ToString;
 /**
  * 文件写入选项（字符集、追加模式等）。
  *
@@ -11,6 +12,7 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 
+@ToString
 public class WriteOption {
     /**
      * 写入类型

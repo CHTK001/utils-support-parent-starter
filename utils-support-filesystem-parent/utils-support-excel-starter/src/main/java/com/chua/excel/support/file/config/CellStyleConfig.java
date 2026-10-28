@@ -14,6 +14,7 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.awt.Color;
+import lombok.ToString;
 
 /**
  * Excel 单元格样式配置 — 流式构建器。
@@ -36,6 +37,7 @@ import java.awt.Color;
  * @author CH
  * @since 4.0.0.42
  */
+@ToString
 public class CellStyleConfig {
 
     // ==================== 字体属性 ====================

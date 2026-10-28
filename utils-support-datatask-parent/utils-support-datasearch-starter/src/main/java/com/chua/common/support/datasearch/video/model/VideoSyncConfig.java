@@ -1,6 +1,7 @@
 package com.chua.common.support.datasearch.video.model;
 
 import java.time.LocalDateTime;
+import lombok.ToString;
 
 /**
  * 视频同步配置
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
  * @author CH
  * @since 4.0.0.42
  */
+@ToString
 public class VideoSyncConfig {
 
     /**

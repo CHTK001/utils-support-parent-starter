@@ -1,6 +1,7 @@
 package com.chua.common.support.image.phnatom;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import lombok.ToString;
 
 
 /**
@@ -9,6 +10,7 @@ import javax.annotation.Nullable;
  * @author CH
  * @since 4.0.0.42
  */
+@ToString
 public class InsideConfig {
 
     /**

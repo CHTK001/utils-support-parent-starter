@@ -4,6 +4,7 @@ import com.chua.common.support.network.http.HttpHeader;
 
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import lombok.ToString;
 
 /**
  * 服务器响应抽象基类，提供 {@link ServerResponse} 常用方法的默认实现。
@@ -21,6 +22,7 @@ import java.nio.charset.StandardCharsets;
  * @author CH
  * @since 2026/07/16
  */
+@ToString
 public abstract class AbstractServerResponse implements ServerResponse {
 
     /**

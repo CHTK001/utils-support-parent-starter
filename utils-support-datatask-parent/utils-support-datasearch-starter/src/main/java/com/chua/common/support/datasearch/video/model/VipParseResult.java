@@ -2,6 +2,7 @@ package com.chua.common.support.datasearch.video.model;
 
 import java.util.Collections;
 import java.util.List;
+import lombok.ToString;
 
 /**
  * VIP 解析结果模型。
@@ -11,6 +12,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.45
  */
+@ToString
 public class VipParseResult {
 
     /**

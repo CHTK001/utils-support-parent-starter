@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import lombok.ToString;
 
 /**
  * 统一返回结果
@@ -23,6 +24,7 @@ import java.util.function.Supplier;
 @Getter
 @Setter
 @Accessors(chain = true)
+@ToString
 public class ReturnResult<T> implements Serializable {
 
     /**

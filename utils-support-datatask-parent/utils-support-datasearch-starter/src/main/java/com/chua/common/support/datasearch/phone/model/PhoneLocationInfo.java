@@ -1,6 +1,7 @@
 package com.chua.common.support.datasearch.phone.model;
 import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Map;
+import lombok.ToString;
 
 /**
  * 手机号码归属地信息模型。
@@ -10,6 +11,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@ToString
 public class PhoneLocationInfo {
 
     /**

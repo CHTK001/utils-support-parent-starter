@@ -4,6 +4,7 @@ import com.chua.common.support.storage.MultipartStorage;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import lombok.ToString;
 
 /**
  * 分片上传结果。
@@ -14,6 +15,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @SuperBuilder
+@ToString
 public class MultipartPartResult extends ObjectResult {
 
     /**

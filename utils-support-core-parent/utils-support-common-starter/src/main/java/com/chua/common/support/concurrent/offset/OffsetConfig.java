@@ -1,6 +1,7 @@
 package com.chua.common.support.concurrent.offset;
 
 import java.nio.file.Path;
+import lombok.ToString;
 
 /**
  * offset 配置。
@@ -8,6 +9,7 @@ import java.nio.file.Path;
  * @author CH
  * @since 4.0.0.43
  */
+@ToString
 public class OffsetConfig {
 
     /**

@@ -1,6 +1,7 @@
 package com.chua.common.support.datasource.wal;
 
 import java.nio.file.Path;
+import lombok.ToString;
 
 /**
  * WAL 存储系统自动检测配置。
@@ -11,6 +12,7 @@ import java.nio.file.Path;
  * @author CH
  * @since 4.0.0.42
  */
+@ToString
 public class WalStoreConfig {
 
     private final int shardCount;

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import lombok.ToString;
 
 /**
  * JDK 默认的图片全局滤镜设置实现。
@@ -24,6 +25,7 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 @Spi("jdk")
+@ToString
 public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
 
     /**

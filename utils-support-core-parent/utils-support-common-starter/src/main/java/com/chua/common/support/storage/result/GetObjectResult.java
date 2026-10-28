@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.io.InputStream;
+import lombok.ToString;
 
 /**
  * 获取/下载文件结果对象。
@@ -18,6 +19,7 @@ import java.io.InputStream;
 @Getter
 @Setter
 @SuperBuilder
+@ToString
 public class GetObjectResult extends ObjectResult {
 
     /**

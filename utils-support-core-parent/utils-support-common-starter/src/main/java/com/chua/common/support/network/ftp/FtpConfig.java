@@ -4,6 +4,7 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.io.File;
 import java.util.List;
+import lombok.ToString;
 
 /**
  * FTP 服务器配置。
@@ -14,6 +15,7 @@ import java.util.List;
  * @since 4.0.0.43
  */
 @Spi("ftp-config")
+@ToString
 public class FtpConfig {
 
     /**

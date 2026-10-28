@@ -4,6 +4,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import lombok.Getter;
 
 import java.util.*;
+import lombok.ToString;
 
 /**
  * SQL高亮配置类，用于定义关键词的颜色和样式。
@@ -11,6 +12,7 @@ import java.util.*;
  * @author CH
  * @since 1.0.0
  */
+@ToString
 public class HighlightConfig {
 
     /**

@@ -7,6 +7,7 @@ import com.chua.common.support.network.http.HttpVersion;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
+import lombok.ToString;
 
 /**
  * HTTP 客户端预配置构建器，由 {@link HttpClient} 的便利方法创建。
@@ -60,6 +61,7 @@ import java.util.Map;
  * @see RequestSpec
  * @since 4.0
  */
+@ToString
 public class ClientConfig {
 
     /**

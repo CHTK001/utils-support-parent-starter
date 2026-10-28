@@ -1,6 +1,7 @@
 package com.chua.deeplearning.support.ai.result;
 
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * 通用预测结果。
@@ -13,6 +14,7 @@ import lombok.Getter;
  * @since 4.0.0.42
  */
 @Getter
+@ToString
 public class PredictResult {
 
     /**

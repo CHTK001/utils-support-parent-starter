@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.timeseries;
 
 import java.util.Arrays;
 import java.util.Objects;
+import lombok.ToString;
 
 /**
  * 时间序列预测结果。
@@ -27,6 +28,7 @@ import java.util.Objects;
  * @author CH
  * @since 4.0.0.42
  */
+@ToString
 public final class ForecastResult {
 
     /** 预测步长。 */

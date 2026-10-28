@@ -3,6 +3,7 @@ package com.chua.common.support.storage.result;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import lombok.ToString;
 
 /**
  * 删除文件结果对象。
@@ -13,5 +14,6 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @SuperBuilder
+@ToString
 public class DeleteObjectResult extends ObjectResult {
 }

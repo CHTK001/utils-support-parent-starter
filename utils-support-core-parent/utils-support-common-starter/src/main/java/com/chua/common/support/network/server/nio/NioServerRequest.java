@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.ToString;
 
 /**
  * 非阻塞增量 HTTP 请求解析器(真响应式)。
@@ -36,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>每次 feed 返回:1=完整请求解析完成;0=还需更多数据;-1=解析错误。</p>
  */
 @Slf4j
+@ToString
 public class NioServerRequest implements ServerRequest {
 
 

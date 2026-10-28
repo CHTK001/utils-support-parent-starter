@@ -5,6 +5,7 @@ import com.chua.common.support.scatter.ScatterSetting;
 import lombok.Getter;
 import lombok.Setter;
 import java.util.List;
+import lombok.ToString;
 
 /**
  * 集群配置：封装 scatter 配置 + HTTP/TCP 双协议开关 + 服务元数据声明。
@@ -17,6 +18,7 @@ import java.util.List;
  */
 @Getter
 @Setter
+@ToString
 public class ClusterSetting {
 
     /**

@@ -3,6 +3,7 @@ package com.chua.common.support.storage.result;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import lombok.ToString;
 
 /**
  * 对象操作结果基类。
@@ -15,6 +16,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @SuperBuilder
+@ToString
 public class ObjectResult {
 
     /**
