@@ -176,11 +176,13 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
                 continue;
             }
             // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
-            if (array.getShape().dimension() == 2 && array.getShape().get(0) == 1 && array.getShape().get(1) == candidateCount) {
+            if (array.getShape().dimension() == 2 && array.getShape().get(0) == 1 &&
+                    array.getShape().get(1) == candidateCount) {
                 return array.squeeze(0);
             }
             // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
-            if (array.getShape().dimension() == 2 && array.getShape().get(0) == candidateCount && array.getShape().get(1) == 1) {
+            if (array.getShape().dimension() == 2 && array.getShape().get(0) == candidateCount &&
+                    array.getShape().get(1) == 1) {
                 return array.squeeze(1);
             }
             if (array.getShape().dimension() == 1 && array.getShape().get(0) == candidateCount) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
