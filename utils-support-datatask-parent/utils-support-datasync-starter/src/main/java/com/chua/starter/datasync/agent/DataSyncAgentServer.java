@@ -295,7 +295,8 @@ public class DataSyncAgentServer implements AgentServerManager {
      * @param syncServer 同步服务端
      * @return 远程Agent代理的结果
      */
-    private record RemoteAgentProxy(String agentId, List<String> sourceIds, List<String> sinkIds, SyncServer syncServer) implements DataSyncAgent {
+    private record RemoteAgentProxy(String agentId, List<String> sourceIds, List<String> sinkIds,
+            SyncServer syncServer) implements DataSyncAgent {
 
         /**
          * 规范构造器：源/Sink 标识列表做防御性拷贝。

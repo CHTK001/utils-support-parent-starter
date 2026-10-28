@@ -93,7 +93,8 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         try {
             serverSocket = new ServerSocket();
             serverSocket.bind(new InetSocketAddress(port));
-            executor = new ThreadPoolExecutor(0, 200, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), r -> new Thread(r, "ws-agent-server-" + r.hashCode()), new ThreadPoolExecutor.CallerRunsPolicy());
+            executor = new ThreadPoolExecutor(0, 200, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
+                    r -> new Thread(r, "ws-agent-server-" + r.hashCode()), new ThreadPoolExecutor.CallerRunsPolicy());
             executor.submit(this::acceptLoop);
             running = true;
             log.info("[WebSocketDataSyncAgentServer] 已启动，监听端口: {}", port);

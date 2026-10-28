@@ -61,7 +61,8 @@ public final class NetworkCommand extends AbstractCommand {
         if (rows.isEmpty()) {
             System.out.println("  (none)");
         } else {
-            System.out.println(Formatter.table("", new String[]{"Name", "Display", "IPv4", "MAC", "RX", "TX", "Speed", "Status"}, rows));
+            System.out.println(Formatter.table("",
+                    new String[]{"Name", "Display", "IPv4", "MAC", "RX", "TX", "Speed", "Status"}, rows));
         }
     }
 

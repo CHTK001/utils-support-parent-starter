@@ -94,7 +94,8 @@ public class CustomServiceResolver implements ServiceResolver {
                     log.trace("类加载器 {} 找到资源 {}，正在加载类型 {}", classLoader, url, type.getTypeName());
                 }
 
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(),
+                        StandardCharsets.UTF_8))) {
                     String line;
 
                     while ((line = reader.readLine()) != null) {

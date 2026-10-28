@@ -164,7 +164,8 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
      */
     private static List<String> loadCsv(Path csv) throws Exception {
         List<String> names = Wraps.list();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(csv), StandardCharsets.UTF_8))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(csv),
+                StandardCharsets.UTF_8))) {
             String line;
             boolean first = true;
             while ((line = br.readLine()) != null) {

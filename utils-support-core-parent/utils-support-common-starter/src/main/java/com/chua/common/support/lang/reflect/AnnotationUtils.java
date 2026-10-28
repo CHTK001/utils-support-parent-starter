@@ -78,7 +78,8 @@ public final class AnnotationUtils {
      * @param annotationClass 注解类
      * @return 注解属性映射，键为元素名，值为元素值；未找到注解返回空 Map
      */
-    public static Map<String, Object> getAnnotationAttributes(Class<?> clazz, Class<? extends Annotation> annotationClass) {
+    public static Map<String, Object> getAnnotationAttributes(Class<?> clazz,
+            Class<? extends Annotation> annotationClass) {
         Map<String, Object> attributes = Wraps.linkedMap();
         Annotation annotation = clazz.getAnnotation(annotationClass);
         if (annotation == null) {

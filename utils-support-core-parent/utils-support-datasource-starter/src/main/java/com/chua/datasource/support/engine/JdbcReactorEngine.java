@@ -941,7 +941,8 @@ public class JdbcReactorEngine implements ReactorEngine {
         @Override
         public Engine setDefaultDataSourceName(String name) { return this; }
         @Override
-        public SqlExecutor getExecutor(String dataSourceName) { return new JdbcSqlExecutorWrapper(ds, dialects.get(defaultDataSourceName)); }
+        public SqlExecutor getExecutor(String dataSourceName) { return new JdbcSqlExecutorWrapper(ds,
+                dialects.get(defaultDataSourceName)); }
         @Override
         public SqlExecutor getExecutor() { return new JdbcSqlExecutorWrapper(ds, dialects.get(defaultDataSourceName)); }
         @Override
@@ -997,7 +998,8 @@ public class JdbcReactorEngine implements ReactorEngine {
                     conn -> Mono.from(conn.close()))).block();
         }
         @Override
-        public List<Map<String, Object>> queryPage(String sql, com.chua.common.support.lang.datasource.dialect.Pagination pagination, Object... params) {
+        public List<Map<String, Object>> queryPage(String sql,
+                com.chua.common.support.lang.datasource.dialect.Pagination pagination, Object... params) {
             long total = 0;
             try {
                 String countSql = "SELECT COUNT(*) FROM (" + trimSql(sql) + ") t";
@@ -1116,7 +1118,8 @@ public class JdbcReactorEngine implements ReactorEngine {
             } catch (Exception e) { throw new IllegalStateException("查询失败: " + sql, e); }
         }
         @Override
-        public List<Map<String, Object>> queryPage(String sql, com.chua.common.support.lang.datasource.dialect.Pagination pagination, Object... params) {
+        public List<Map<String, Object>> queryPage(String sql,
+                com.chua.common.support.lang.datasource.dialect.Pagination pagination, Object... params) {
             long total = 0;
             try {
                 String countSql = "SELECT COUNT(*) FROM (" + trimSql(sql) + ") t";

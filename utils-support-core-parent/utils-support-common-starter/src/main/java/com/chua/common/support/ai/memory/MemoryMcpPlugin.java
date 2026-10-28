@@ -97,7 +97,8 @@ public class MemoryMcpPlugin {
                         Map.of("type", "object",
                             "properties", Map.of(
                                 "content", Map.of("type", "string", "description", "记忆内容"),
-                                "type", Map.of("type", "string", "description", "记忆类型: fact/preference/decision/context"),
+                                "type", Map.of("type", "string", "description",
+                                        "记忆类型: fact/preference/decision/context"),
                                 "importance", Map.of("type", "number", "description", "重要性 0.0-1.0"),
                                 "tags", Map.of("type", "array", "items", Map.of("type", "string"), "description",
                                         "检索标签")
@@ -115,7 +116,8 @@ public class MemoryMcpPlugin {
                         "按类型列出记忆条目",
                         Map.of("type", "object",
                             "properties", Map.of(
-                                "type", Map.of("type", "string", "description", "记忆类型: fact/preference/decision/context/raw/summary"),
+                                "type", Map.of("type", "string", "description",
+                                        "记忆类型: fact/preference/decision/context/raw/summary"),
                                 "limit", Map.of("type", "integer", "description", "最大返回数量", "default", 20)
                             ),
                             "required", List.of("type"))),

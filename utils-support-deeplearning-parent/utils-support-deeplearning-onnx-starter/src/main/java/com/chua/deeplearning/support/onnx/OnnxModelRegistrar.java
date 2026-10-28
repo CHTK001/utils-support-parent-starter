@@ -1029,7 +1029,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         String gemmaItUrl = "https://huggingface.co/chtk/chua-dl-models/resolve/main/gemma-3-270m-it/model_fp16.onnx";
         reg("gemma-3-270m", "Gemma3Translator", String.class, String.class, Object.class,
                 null,
-                gemmaItUrl, List.of(gemmaItUrl, "https://hf-mirror.com/chtk/chua-dl-models/resolve/main/gemma-3-270m-it/model_fp16.onnx"),
+                gemmaItUrl, List.of(gemmaItUrl,
+                        "https://hf-mirror.com/chtk/chua-dl-models/resolve/main/gemma-3-270m-it/model_fp16.onnx"),
                 false, "model_fp16.onnx",
                 HardwareConfig.builder().device("gpu").recommended(true)
                         .description("Gemma-3-270M it 版（fp16 KV-cache），downloadUrl 自动下载（含 onnx_data 权重）").build());
@@ -1428,21 +1429,24 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("wemm-embedding-2b", "com.chua.deeplearning.support.onnx.embedding.wemm.WeMMEmbeddingClient",
                 String.class, float[].class, FeatureExtractor.class,
                 "nlp/embedding/wemm-embedding-2b/model.onnx",
-                wemm2bUrl, List.of(wemm2bUrl, "https://huggingface.co/chtk/wemm-embedding-onnx/resolve/main/model.onnx"),
+                wemm2bUrl, List.of(wemm2bUrl,
+                        "https://huggingface.co/chtk/wemm-embedding-onnx/resolve/main/model.onnx"),
                 false, null);
         // 多模态文本嵌入(WeMM-4B)：腾讯 WeMM-Embedding-4B 文本分支，2560维 Matryoshka（64/128/256/512/1024/2560）
         String wemm4bUrl = "https://hf-mirror.com/chtk/wemm-embedding-onnx-4b/resolve/main/model.onnx";
         reg("wemm-embedding-4b", "com.chua.deeplearning.support.onnx.embedding.wemm.WeMMEmbeddingClient",
                 String.class, float[].class, FeatureExtractor.class,
                 "nlp/embedding/wemm-embedding-4b/model.onnx",
-                wemm4bUrl, List.of(wemm4bUrl, "https://huggingface.co/chtk/wemm-embedding-onnx-4b/resolve/main/model.onnx"),
+                wemm4bUrl, List.of(wemm4bUrl,
+                        "https://huggingface.co/chtk/wemm-embedding-onnx-4b/resolve/main/model.onnx"),
                 false, null);
         // 多模态文本嵌入(WeMM-9B)：腾讯 WeMM-Embedding-9B 文本分支，4096维 Matryoshka（64/128/256/512/1024/2048/4096）
         String wemm9bUrl = "https://hf-mirror.com/chtk/wemm-embedding-onnx-9b/resolve/main/model.onnx";
         reg("wemm-embedding-9b", "com.chua.deeplearning.support.onnx.embedding.wemm.WeMMEmbeddingClient",
                 String.class, float[].class, FeatureExtractor.class,
                 "nlp/embedding/wemm-embedding-9b/model.onnx",
-                wemm9bUrl, List.of(wemm9bUrl, "https://huggingface.co/chtk/wemm-embedding-onnx-9b/resolve/main/model.onnx"),
+                wemm9bUrl, List.of(wemm9bUrl,
+                        "https://huggingface.co/chtk/wemm-embedding-onnx-9b/resolve/main/model.onnx"),
                 false, null);
         // ==================== 时间序列预测（Timestral-5M）====================
         // Mistral Timestral-5M：单变量时间序列预测（固定 512 步上下文，32 步 horizon，输出 21 档分位数 0.01…0.99），
@@ -1451,7 +1455,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("timestral-5m", "com.chua.deeplearning.support.onnx.timeseries.TimestralTranslator",
                 ForecastRequest.class, ForecastResult.class, TimeSeriesForecaster.class,
                 "timeseries/timestral/timestral-5m/model.onnx",
-                timestralUrl, List.of(timestralUrl, "https://huggingface.co/onnx-community/Timestral-5M-ONNX/resolve/main/onnx/model.onnx"),
+                timestralUrl, List.of(timestralUrl,
+                        "https://huggingface.co/onnx-community/Timestral-5M-ONNX/resolve/main/onnx/model.onnx"),
                 false, "model.onnx");
         // ==================== 文档版面分析（datalab-to/indra）====================
         // indra 段落式版面：det.onnx(LineNet 行检测) + rec.onnx(CTC 文字识别) + order.onnx(OrderNet 10 类块分类/阅读顺序/表格头)，

@@ -250,7 +250,8 @@ public class SipClient {
             // 认证握手：AUTH|clientId|host|port|signature
             String signature = HMacUtils.hmacSha256Hex(token, clientId + serverHost + serverPort);
             PrintWriter writer = signalWriter;
-            writer.println(SipProtocol.line(SipProtocol.PREFIX_AUTH, clientId, serverHost, String.valueOf(serverPort), signature));
+            writer.println(SipProtocol.line(SipProtocol.PREFIX_AUTH, clientId, serverHost, String.valueOf(serverPort),
+                    signature));
             writer.flush();
             // 读响应，等待 TOKEN
             BufferedReader reader = new BufferedReader(new InputStreamReader(rawIn, StandardCharsets.UTF_8));

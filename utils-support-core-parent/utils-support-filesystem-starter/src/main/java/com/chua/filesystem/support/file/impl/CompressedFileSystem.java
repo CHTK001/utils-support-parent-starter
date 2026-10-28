@@ -95,7 +95,8 @@ public class CompressedFileSystem implements AutoCloseable {
      */
     public CompressedFileSystem addFile(Path source, String entryName) throws IOException {
         checkWritable();
-        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath, StandardOpenOption.CREATE, StandardOpenOption.APPEND))) {
+        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath, StandardOpenOption.CREATE,
+                StandardOpenOption.APPEND))) {
             zos.putNextEntry(new ZipEntry(entryName));
             Files.copy(source, zos);
             zos.closeEntry();
@@ -113,7 +114,8 @@ public class CompressedFileSystem implements AutoCloseable {
      */
     public CompressedFileSystem addBytes(byte[] data, String entryName) throws IOException {
         checkWritable();
-        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath, StandardOpenOption.CREATE, StandardOpenOption.APPEND))) {
+        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath, StandardOpenOption.CREATE,
+                StandardOpenOption.APPEND))) {
             zos.putNextEntry(new ZipEntry(entryName));
             zos.write(data);
             zos.closeEntry();

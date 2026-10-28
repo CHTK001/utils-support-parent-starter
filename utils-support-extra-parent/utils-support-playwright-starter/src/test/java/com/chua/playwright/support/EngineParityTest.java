@@ -408,21 +408,34 @@ class EngineParityTest {
         long jp = page(javaEngine, javaBrowser);
         try {
             Supplier<Object> checks = () -> Map.of(
-                    "cb", nativeEngine.evaluate(np, "function(){ return document.getElementById('cb').checked; }", null),
-                    "cb2", nativeEngine.evaluate(np, "function(){ return document.getElementById('cb2').checked; }", null),
-                    "r1", nativeEngine.evaluate(np, "function(){ return document.getElementById('r1').checked; }", null),
-                    "r2", nativeEngine.evaluate(np, "function(){ return document.getElementById('r2').checked; }", null),
-                    "sw", nativeEngine.evaluate(np, "function(){ return document.getElementById('sw').getAttribute('aria-checked'); }", null),
-                    "mi", nativeEngine.evaluate(np, "function(){ return document.getElementById('mi').getAttribute('aria-checked'); }", null),
-                    "tree", nativeEngine.evaluate(np, "function(){ return document.getElementById('tree1').getAttribute('aria-checked'); }", null));
+                    "cb", nativeEngine.evaluate(np, "function(){ return document.getElementById('cb').checked; }",
+                            null),
+                    "cb2", nativeEngine.evaluate(np, "function(){ return document.getElementById('cb2').checked; }",
+                            null),
+                    "r1", nativeEngine.evaluate(np, "function(){ return document.getElementById('r1').checked; }",
+                            null),
+                    "r2", nativeEngine.evaluate(np, "function(){ return document.getElementById('r2').checked; }",
+                            null),
+                    "sw", nativeEngine.evaluate(np,
+                            "function(){ return document.getElementById('sw').getAttribute('aria-checked'); }", null),
+                    "mi", nativeEngine.evaluate(np,
+                            "function(){ return document.getElementById('mi').getAttribute('aria-checked'); }", null),
+                    "tree", nativeEngine.evaluate(np,
+                            "function(){ return document.getElementById('tree1').getAttribute('aria-checked'); }",
+                            null));
             Supplier<Object> checksJava = () -> Map.of(
                     "cb", javaEngine.evaluate(jp, "function(){ return document.getElementById('cb').checked; }", null),
-                    "cb2", javaEngine.evaluate(jp, "function(){ return document.getElementById('cb2').checked; }", null),
+                    "cb2", javaEngine.evaluate(jp, "function(){ return document.getElementById('cb2').checked; }",
+                            null),
                     "r1", javaEngine.evaluate(jp, "function(){ return document.getElementById('r1').checked; }", null),
                     "r2", javaEngine.evaluate(jp, "function(){ return document.getElementById('r2').checked; }", null),
-                    "sw", javaEngine.evaluate(jp, "function(){ return document.getElementById('sw').getAttribute('aria-checked'); }", null),
-                    "mi", javaEngine.evaluate(jp, "function(){ return document.getElementById('mi').getAttribute('aria-checked'); }", null),
-                    "tree", javaEngine.evaluate(jp, "function(){ return document.getElementById('tree1').getAttribute('aria-checked'); }", null));
+                    "sw", javaEngine.evaluate(jp,
+                            "function(){ return document.getElementById('sw').getAttribute('aria-checked'); }", null),
+                    "mi", javaEngine.evaluate(jp,
+                            "function(){ return document.getElementById('mi').getAttribute('aria-checked'); }", null),
+                    "tree", javaEngine.evaluate(jp,
+                            "function(){ return document.getElementById('tree1').getAttribute('aria-checked'); }",
+                            null));
 
             // checkbox
             nativeEngine.check(np, "#cb", false);

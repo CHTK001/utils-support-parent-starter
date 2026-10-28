@@ -30,5 +30,6 @@ public interface CodeProduct {
      * @return 返回BufferedImage对象，代表生成的QR码图像
      * @throws IOException io异常
      */
-    BufferedImage create(QrCodeOptions qrCodeOptions, BitMatrixEx bitMatrix, QRCode qrCode, QrSetting setting) throws IOException;
+    BufferedImage create(QrCodeOptions qrCodeOptions, BitMatrixEx bitMatrix, QRCode qrCode,
+            QrSetting setting) throws IOException;
 }

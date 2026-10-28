@@ -384,7 +384,8 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
      */
     @Override
     public boolean replace(K key, final V oldValue, final V newValue) {
-        Boolean result = doTask(key, new AbstractTask<Boolean>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.SKIP_IF_EMPTY) {
+        Boolean result = doTask(key, new AbstractTask<Boolean>(TaskOption.RESTRUCTURE_BEFORE,
+                TaskOption.SKIP_IF_EMPTY) {
             /**
              * 执行
              */

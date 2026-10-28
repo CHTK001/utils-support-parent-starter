@@ -401,7 +401,8 @@ public class ByteUtils extends BitUtils {
      */
     public static BigInteger complementArithmeticValue(int b) {
         Byte[] bytes = asBytes(complementArithmetic(b));
-        return BigInteger.valueOf(((b > Integer.MAX_VALUE || b < Integer.MIN_VALUE) ? -1 : 1) * Long.parseLong(Joiner.on("").join((Object[]) bytes), 2));
+        return BigInteger.valueOf(((b > Integer.MAX_VALUE || b < Integer.MIN_VALUE) ? -1 : 1) * Long.parseLong(Joiner.on("").join((Object[]) bytes),
+                2));
     }
 
     /**
@@ -413,7 +414,8 @@ public class ByteUtils extends BitUtils {
      */
     public static BigInteger complementArithmeticValue(long b) {
         Byte[] bytes = asBytes(complementArithmetic(b));
-        return BigInteger.valueOf(((b > Long.MAX_VALUE || b < Long.MIN_VALUE) ? -1 : 1) * Long.parseLong(Joiner.on("").join((Object[]) bytes), 2));
+        return BigInteger.valueOf(((b > Long.MAX_VALUE || b < Long.MIN_VALUE) ? -1 : 1) * Long.parseLong(Joiner.on("").join((Object[]) bytes),
+                2));
     }
 
     /**
@@ -425,7 +427,8 @@ public class ByteUtils extends BitUtils {
      */
     public static BigInteger complementArithmeticValue(short b) {
         Byte[] bytes = asBytes(complementArithmetic(b));
-        return BigInteger.valueOf(((b > Short.MAX_VALUE || b < Short.MIN_VALUE) ? -1 : 1) * Long.parseLong(Joiner.on("").join((Object[]) bytes), 2));
+        return BigInteger.valueOf(((b > Short.MAX_VALUE || b < Short.MIN_VALUE) ? -1 : 1) * Long.parseLong(Joiner.on("").join((Object[]) bytes),
+                2));
     }
 
     /**

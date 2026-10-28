@@ -60,7 +60,8 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
      * 添加数据源
     */
     @Override
-    public <T> com.chua.common.support.lang.datasource.engine.Engine addDataSource(String name, EngineDataSource<T> dataSource) {
+    public <T> com.chua.common.support.lang.datasource.engine.Engine addDataSource(String name,
+            EngineDataSource<T> dataSource) {
         throw new UnsupportedOperationException("[datalake-query] HttpDatalakeQueryEngine 只读，不接受本地数据源注册");
     }
 

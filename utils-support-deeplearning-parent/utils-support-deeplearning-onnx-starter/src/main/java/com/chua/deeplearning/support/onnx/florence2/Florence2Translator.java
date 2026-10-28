@@ -183,7 +183,8 @@ public class Florence2Translator implements ITranslator<Object[], String> {
      * @throws Exception 当执行过程不满足前置条件时
      */
     private float[][] inferVision(float[] pixels) throws Exception {
-        try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), new long[]{1, 3, IMAGE_SIZE, IMAGE_SIZE})) {
+        try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels),
+                new long[]{1, 3, IMAGE_SIZE, IMAGE_SIZE})) {
             try (OrtSession.Result result = visionSession.run(Map.of("pixel_values", tensor))) {
                 OnnxTensor features = (OnnxTensor) result.get("image_features").get();
                 long[] s = features.getInfo().getShape();
@@ -213,7 +214,8 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                 LongBuffer.wrap(encMask), new long[]{1, seqLen});
         List<Long> tokens = Wraps.list();
         try { Encoding enc = tokenizer.encode(taskPrompt); for (long t : enc.getIds()) tokens.add(t); }
-        catch (Exception e) { log.warn("[Florence-2] tokenizer failed: {}", e.getMessage(), e); for (char c : taskPrompt.toCharArray()) tokens.add((long) c); }
+        catch (Exception e) { log.warn("[Florence-2] tokenizer failed: {}", e.getMessage(),
+                e); for (char c : taskPrompt.toCharArray()) tokens.add((long) c); }
         List<Long> generatedTokens = Wraps.list(tokens);
         try {
             long[] currentIds = tokens.stream().mapToLong(Long::longValue).toArray();

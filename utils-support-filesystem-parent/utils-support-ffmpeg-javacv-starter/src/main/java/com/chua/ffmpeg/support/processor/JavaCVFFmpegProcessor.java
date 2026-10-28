@@ -528,7 +528,8 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
 
         BufferedImage firstImage = ImageIO.read(images[0]);
 
-        try (FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(videoOutput, firstImage.getWidth(), firstImage.getHeight())) {
+        try (FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(videoOutput, firstImage.getWidth(),
+                firstImage.getHeight())) {
             recorder.setFormat(FileUtils.getSimpleExtension(videoOutput.getName()));
             recorder.setFrameRate(fps);
             recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);

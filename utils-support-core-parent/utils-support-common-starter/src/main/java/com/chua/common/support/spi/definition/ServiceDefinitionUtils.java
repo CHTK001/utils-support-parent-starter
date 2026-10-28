@@ -196,7 +196,8 @@ public class ServiceDefinitionUtils {
      * @param url 服务定义来源地址
      * @return 构造得到的服务定义集合
      */
-    private static Collection<? extends ServiceDefinition> buildDefinitionType(Class<?> service, Class<?> resolverType, Object obj, Class<?> implType, URL url) {
+    private static Collection<? extends ServiceDefinition> buildDefinitionType(Class<?> service,
+            Class<?> resolverType, Object obj, Class<?> implType, URL url) {
         if (!isCondition(implType)) {
             return Collections.emptyList();
         }

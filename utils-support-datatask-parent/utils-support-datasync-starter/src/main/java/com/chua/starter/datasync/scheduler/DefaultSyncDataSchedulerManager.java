@@ -551,7 +551,8 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
      * @param mappings 字段映射列表
      * @return 转换后的数据列表
      */
-    private List<Map<String, Object>> applyFieldMappings(List<Map<String, Object>> batchData, List<DataSyncFieldMapping> mappings) {
+    private List<Map<String, Object>> applyFieldMappings(List<Map<String, Object>> batchData,
+            List<DataSyncFieldMapping> mappings) {
         if (mappings.isEmpty()) {
             return batchData;
         }

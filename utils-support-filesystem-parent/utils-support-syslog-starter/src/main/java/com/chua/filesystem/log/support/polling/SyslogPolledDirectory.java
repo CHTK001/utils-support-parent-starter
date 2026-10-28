@@ -129,7 +129,8 @@ public class SyslogPolledDirectory implements PolledDirectory {
      * @param pollIntervalSeconds 轮询间隔（秒）
      * @param logService          系统日志服务实例
      */
-    SyslogPolledDirectory(String source, String pattern, LogLevel minLevel, int pollIntervalSeconds, SystemLogService logService) {
+    SyslogPolledDirectory(String source, String pattern, LogLevel minLevel, int pollIntervalSeconds,
+            SystemLogService logService) {
         this.source = source;
         this.pattern = pattern;
         this.minLevel = minLevel;

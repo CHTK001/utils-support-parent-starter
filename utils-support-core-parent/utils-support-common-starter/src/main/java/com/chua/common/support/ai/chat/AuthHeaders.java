@@ -129,7 +129,8 @@ public final class AuthHeaders {
      * @param apiKey     API Key
      * @return 认证头键值对；免鉴权或无 Key 时返回 null
      */
-    public static Map.Entry<String, String> resolve(String authScheme, String authHeader, String authPrefix, String apiKey) {
+    public static Map.Entry<String, String> resolve(String authScheme, String authHeader, String authPrefix,
+            String apiKey) {
         if (isNone(authScheme)) {
             return null;
         }
@@ -206,7 +207,8 @@ public final class AuthHeaders {
      * @param apiKey     API Key
      * @return 请求头容器（永不为 null，可能为空）
      */
-    public static Map<String, String> newHeaders(String authScheme, String authHeader, String authPrefix, String apiKey) {
+    public static Map<String, String> newHeaders(String authScheme, String authHeader, String authPrefix,
+            String apiKey) {
         Map<String, String> headers = Wraps.linkedMap();
         apply(headers, authScheme, authHeader, authPrefix, apiKey);
         return headers;

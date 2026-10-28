@@ -47,7 +47,8 @@ final class PNGfdATOutputStream extends PNGImageOutputStream {
      * @param sequenceNumber 方法入参 sequenceNumber
      * @throws IOException 当执行过程不满足前置条件时
      */
-    PNGfdATOutputStream(ImageOutputStream stream, int chunkLength, int deflaterLevel, int sequenceNumber) throws IOException {
+    PNGfdATOutputStream(ImageOutputStream stream, int chunkLength, int deflaterLevel,
+            int sequenceNumber) throws IOException {
         super(stream, chunkLength, deflaterLevel);
         this.sequenceNumber = sequenceNumber;
 

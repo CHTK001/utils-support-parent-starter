@@ -1025,9 +1025,11 @@ public class OcrPipeline {
         return nameContains(name, "doc-layout", "ocr-layout", "pp-doc-layout", "layout-lmv3") ? "layout"
                 : nameContains(name, "pp-structure", "table-struct", "table-structure") ? "table"
                 : nameContains(name, "pp-word-rotate", "word-rotate", "doc-orientation") ? "direction"
-                : nameContains(name, "svtr", "extractor", "ocr-rec", "paddle-ocr-rec", "ocr_rec", "rec_infer", "pp-ocr-rec") ? "recognizer"
+                : nameContains(name, "svtr", "extractor", "ocr-rec", "paddle-ocr-rec", "ocr_rec", "rec_infer",
+                        "pp-ocr-rec") ? "recognizer"
                 : nameContains(name, "ocr-det", "ocr_det", "ocr-detector", "ocr-detection") ? "detector"
-                : nameContains(name, "paddleocrv6-det", "paddleocrv6-rec") ? (name.contains("det") ? "detector" : "recognizer")
+                : nameContains(name, "paddleocrv6-det",
+                        "paddleocrv6-rec") ? (name.contains("det") ? "detector" : "recognizer")
                 : nameContains(name, "macbert", "csc", "corrector") ? "corrector"
                 : null;
     }

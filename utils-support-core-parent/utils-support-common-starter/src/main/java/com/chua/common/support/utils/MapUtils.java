@@ -214,7 +214,8 @@ public class MapUtils {
      * @param <V>          值类型
      * @return 取到的字符串值，若都为空则返回 默认值
      */
-    public static <K, V> String getStringForEmpty(final Map<K, V> map, final K key, final K key2, final String defaultValue) {
+    public static <K, V> String getStringForEmpty(final Map<K, V> map, final K key, final K key2,
+            final String defaultValue) {
         if (null == map) {
             return defaultValue;
         }

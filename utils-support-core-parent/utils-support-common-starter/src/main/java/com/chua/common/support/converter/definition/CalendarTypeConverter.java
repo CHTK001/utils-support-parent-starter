@@ -61,7 +61,8 @@ public class CalendarTypeConverter implements TypeConverter<Calendar> {
 
         if (value instanceof LocalTime) {
             Calendar calendar = new GregorianCalendar();
-            calendar.setTime(Date.from(Instant.ofEpochSecond(((LocalTime) value).getSecond(), ((LocalTime) value).getNano())));
+            calendar.setTime(Date.from(Instant.ofEpochSecond(((LocalTime) value).getSecond(),
+                    ((LocalTime) value).getNano())));
             return calendar;
         }
 

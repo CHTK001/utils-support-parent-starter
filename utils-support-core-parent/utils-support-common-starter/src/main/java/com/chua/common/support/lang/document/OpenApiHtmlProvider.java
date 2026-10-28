@@ -171,7 +171,8 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
             if (endpoints.isEmpty()) {
                 continue;
             }
-            endpoints.sort(Comparator.comparing(OpenApiEndpoint::getPath, Comparator.nullsLast(Comparator.naturalOrder()))
+            endpoints.sort(Comparator.comparing(OpenApiEndpoint::getPath,
+                    Comparator.nullsLast(Comparator.naturalOrder()))
                     .thenComparing(OpenApiEndpoint::getMethod, Comparator.nullsLast(Comparator.naturalOrder())));
             String nodeId = "node-" + ID_GEN.incrementAndGet();
             sb.append("<h1 class=\"cat-heading\" id=\"").append(nodeId).append("\">");

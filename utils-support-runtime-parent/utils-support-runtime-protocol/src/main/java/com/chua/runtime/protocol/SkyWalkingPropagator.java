@@ -144,7 +144,8 @@ public final class SkyWalkingPropagator {
         if (ctx == null) {
             return false;
         }
-        return W3CTraceContext.extractAndRestore(W3CTraceContext.inject(ctx.getTraceId(), ctx.getSpanId(), (byte) 0x01));
+        return W3CTraceContext.extractAndRestore(W3CTraceContext.inject(ctx.getTraceId(), ctx.getSpanId(),
+                (byte) 0x01));
     }
 
     /**

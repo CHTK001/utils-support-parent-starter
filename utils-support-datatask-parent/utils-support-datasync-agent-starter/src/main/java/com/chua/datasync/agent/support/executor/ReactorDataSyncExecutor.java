@@ -146,7 +146,8 @@ public class ReactorDataSyncExecutor {
             directConsumers.put(sinkId, consumer);
             return;
         }
-        chronicleProvider.subscribe(new ConsumerDispatcherDefinition<>(consumer, List.class, List.of(buildTopic(sinkId))));
+        chronicleProvider.subscribe(new ConsumerDispatcherDefinition<>(consumer, List.class,
+                List.of(buildTopic(sinkId))));
     }
 
     /**

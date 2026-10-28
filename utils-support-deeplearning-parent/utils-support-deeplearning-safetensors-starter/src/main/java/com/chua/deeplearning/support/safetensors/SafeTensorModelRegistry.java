@@ -356,10 +356,13 @@ list.add(new ModelEntry("gpt-4o", "vlm", "openai", "GPT-4o 在线图文理解"))
         list.add(new ModelEntry("bark", "music_gen", "huggingface", "Bark Small 文本到音频"));
 
         // 文档版面解析
-        list.add(new ModelEntry("unlimited-ocr", "document_ocr", "huggingface", "百度 Unlimited-OCR 端到端文档→Markdown 解析 (3B, R-SWA, CPU可行)"));
+        list.add(new ModelEntry("unlimited-ocr", "document_ocr", "huggingface",
+                "百度 Unlimited-OCR 端到端文档→Markdown 解析 (3B, R-SWA, CPU可行)"));
         list.add(new ModelEntry("ovisocr2", "document_ocr", "modelscope", "OvisOCR2 端到端文档→Markdown 解析 (Qwen3.5-0.8B)"));
-        list.add(new ModelEntry("deepseek-ocr-2", "document_ocr", "huggingface", "DeepSeek-OCR-2 整页图→Markdown 解析 (3B MoE, 视觉因果流，阅读顺序由模型保证，需 GPU)"));
-        list.add(new ModelEntry("deepseek-ocr-2-cpu", "document_ocr", "huggingface", "DeepSeek-OCR-2 CPU/MPS 变体 (Universal fork，解除硬编码 .cuda()，约 2-3 分钟/页)"));
+        list.add(new ModelEntry("deepseek-ocr-2", "document_ocr", "huggingface",
+                "DeepSeek-OCR-2 整页图→Markdown 解析 (3B MoE, 视觉因果流，阅读顺序由模型保证，需 GPU)"));
+        list.add(new ModelEntry("deepseek-ocr-2-cpu", "document_ocr", "huggingface",
+                "DeepSeek-OCR-2 CPU/MPS 变体 (Universal fork，解除硬编码 .cuda()，约 2-3 分钟/页)"));
 
         // LLM (HuggingFace 额外补充)
         list.add(new ModelEntry("mistral-7b", "llm", "huggingface", "Mistral-7B Instruct"));
@@ -386,8 +389,10 @@ list.add(new ModelEntry("gpt-4o", "vlm", "openai", "GPT-4o 在线图文理解"))
         list.add(new ModelEntry("bert-large-uncased", "text_embedding", "huggingface", "BERT Large 1024 dim"));
         list.add(new ModelEntry("roberta-base", "text_embedding", "huggingface", "RoBERTa Base 768 dim"));
         list.add(new ModelEntry("roberta-large", "text_embedding", "huggingface", "RoBERTa Large 1024 dim"));
-        list.add(new ModelEntry("sentence-transformers/all-MiniLM-L6-v2", "text_embedding", "huggingface", "Sentence Transformers MiniLM L6 v2"));
-        list.add(new ModelEntry("intfloat/multilingual-e5-large", "text_embedding", "huggingface", "Multilingual E5 Large"));
+        list.add(new ModelEntry("sentence-transformers/all-MiniLM-L6-v2", "text_embedding", "huggingface",
+                "Sentence Transformers MiniLM L6 v2"));
+        list.add(new ModelEntry("intfloat/multilingual-e5-large", "text_embedding", "huggingface",
+                "Multilingual E5 Large"));
 
         return Collections.unmodifiableList(list);
     }

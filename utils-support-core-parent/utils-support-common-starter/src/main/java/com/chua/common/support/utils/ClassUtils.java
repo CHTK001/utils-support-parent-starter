@@ -1382,7 +1382,8 @@ public class ClassUtils {
             String all = name.replaceAll("\\[", "");
             if (BASIC_VIRTUAL.containsRow(all)) {
                 Map<Class<?>, Class<?>> immutableMap = BASIC_VIRTUAL.row(all);
-                return (Class<T>) ClassUtils.forName(name.replace(all, immutableMap.values().iterator().next().getName()));
+                return (Class<T>) ClassUtils.forName(name.replace(all,
+                        immutableMap.values().iterator().next().getName()));
             }
         }
         return target;
@@ -2186,7 +2187,8 @@ public class ClassUtils {
             int allModes = MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED | MethodHandles.Lookup.PACKAGE;
             // [P3C 1.10 豁免] JDK 内部 MethodHandles.Lookup 构造器调用 + ClassUtils 为反射基础设施本体
             return (constructor.getParameterCount() == 2 ? ((MethodHandles.Lookup) constructor.newInstance(declaringClass, allModes)) :
-                    ((MethodHandles.Lookup) constructor.newInstance(declaringClass, declaringClass.getSuperclass(), allModes)))
+                    ((MethodHandles.Lookup) constructor.newInstance(declaringClass, declaringClass.getSuperclass(),
+                            allModes)))
                     .unreflectSpecial(method, declaringClass)
                     .bindTo(bean)
                     .invokeWithArguments(method.getParameterCount() == 0 ? SYMBOL_EMPTY_OBJECT_ARRAY : args);

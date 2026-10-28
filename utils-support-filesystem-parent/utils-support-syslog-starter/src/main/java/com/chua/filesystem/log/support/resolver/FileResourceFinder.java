@@ -444,7 +444,8 @@ public class FileResourceFinder implements ResourceFinder {
                 p.destroyForcibly();
                 return false;
             }
-            try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
+            try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream(),
+                    StandardCharsets.UTF_8))) {
                 return r.readLine() != null;
             }
         } catch (Exception e) {

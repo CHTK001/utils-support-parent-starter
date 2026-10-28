@@ -103,7 +103,8 @@ public class TikaTextExtractor implements TextExtractor {
             }
 
             // 无页码信息，返回单一结果
-            return Collections.singletonList(new TextExtractResult(text.trim(), title != null ? title : "", 0, file.getName()));
+            return Collections.singletonList(new TextExtractResult(text.trim(), title != null ? title : "", 0,
+                    file.getName()));
         } catch (IOException | SAXException | TikaException e) {
             log.warn("Tika 提取文本失败: {}", file.getAbsolutePath(), e);
             return Collections.emptyList();

@@ -1331,7 +1331,8 @@ public final class ModelRegistry {
      * @param options  运行参数（阈值/iou阈值/输入大小/candidates 等，可空）
      * @return 懒加载 Translator
      */
-    public static ITranslator<Object, Object> createTranslator(String modelId, Path modelPath, Map<String, Object> options) {
+    public static ITranslator<Object, Object> createTranslator(String modelId, Path modelPath, Map<String,
+            Object> options) {
         Entry entry = REGISTRY.get(modelId);
         if (entry == null) {
             throw new IllegalStateException("Model not registered: " + modelId);

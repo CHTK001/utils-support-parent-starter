@@ -81,7 +81,8 @@ public class TinyPngImageCompressor extends AbstractImageCompressor {
         } else {
             encoder.setQuality(Math.max(1, 10 - options.level().getIndex()));
         }
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream(Math.max(1024, image.getWidth() * image.getHeight() / 4))) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream(Math.max(1024,
+                image.getWidth() * image.getHeight() / 4))) {
             if (!encoder.start(out)) {
                 throw new IOException("GIF 编码器启动失败");
             }

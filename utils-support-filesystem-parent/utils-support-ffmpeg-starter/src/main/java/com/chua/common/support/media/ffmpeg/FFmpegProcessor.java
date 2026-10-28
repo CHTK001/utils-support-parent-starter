@@ -143,7 +143,8 @@ public interface FFmpegProcessor {
      * @param width 宽度，不允许为 null
      * @param fps 方法入参 fps
      */
-    void videoToGif(File videoInput, File gifOutput, double startTime, double duration, int width, int fps) throws IOException;
+    void videoToGif(File videoInput, File gifOutput, double startTime, double duration, int width,
+            int fps) throws IOException;
 
     /**
      * 图片序列转视频
