@@ -99,7 +99,8 @@ public class MemoryMcpPlugin {
                                 "content", Map.of("type", "string", "description", "记忆内容"),
                                 "type", Map.of("type", "string", "description", "记忆类型: fact/preference/decision/context"),
                                 "importance", Map.of("type", "number", "description", "重要性 0.0-1.0"),
-                                "tags", Map.of("type", "array", "items", Map.of("type", "string"), "description", "检索标签")
+                                "tags", Map.of("type", "array", "items", Map.of("type", "string"), "description",
+                                        "检索标签")
                             ),
                             "required", List.of("content"))),
                     new McpToolDescriptor(PREFIX + "search",

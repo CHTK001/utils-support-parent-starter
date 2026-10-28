@@ -86,7 +86,8 @@ public class GsonJsonProvider implements JsonProvider {
                 .setFieldNamingStrategy(new JsonNameFieldNamingStrategy())
                 .addSerializationExclusionStrategy(new JsonIgnoreExclusionStrategy())
                 .addDeserializationExclusionStrategy(new JsonIgnoreExclusionStrategy())
-                .registerTypeAdapter(LocalDateTime.class, dateTimeAdapter(DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)))
+                .registerTypeAdapter(LocalDateTime.class,
+                                     dateTimeAdapter(DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)))
                 .registerTypeAdapter(LocalDate.class, dateTimeAdapter(DateTimeFormatter.ofPattern(YYYY_MM_DD)))
                 .registerTypeAdapter(LocalTime.class, dateTimeAdapter(DateTimeFormatter.ofPattern(HH_MM_SS)))
                 .setDateFormat(YYYY_MM_DD_HH_MM_SS);
@@ -95,7 +96,8 @@ public class GsonJsonProvider implements JsonProvider {
                 .setFieldNamingStrategy(new JsonNameFieldNamingStrategy())
                 .addSerializationExclusionStrategy(new JsonIgnoreExclusionStrategy())
                 .addDeserializationExclusionStrategy(new JsonIgnoreExclusionStrategy())
-                .registerTypeAdapter(LocalDateTime.class, dateTimeAdapter(DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)))
+                .registerTypeAdapter(LocalDateTime.class,
+                                     dateTimeAdapter(DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)))
                 .registerTypeAdapter(LocalDate.class, dateTimeAdapter(DateTimeFormatter.ofPattern(YYYY_MM_DD)))
                 .registerTypeAdapter(LocalTime.class, dateTimeAdapter(DateTimeFormatter.ofPattern(HH_MM_SS)))
                 .setDateFormat(YYYY_MM_DD_HH_MM_SS)

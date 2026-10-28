@@ -32,7 +32,8 @@ public class GenerationApiModel3DGenerator {
      * @return 文生 3D 生成器
      */
     @Bean
-    @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "text-to-3d-enable", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "text-to-3d-enable", havingValue = "true",
+                           matchIfMissing = true)
     public TextTo3DGenerator textTo3DGenerator(Model3DConfig config) {
         return new ForgeStyleApiModel3DGenerator(config);
     }
@@ -44,7 +45,8 @@ public class GenerationApiModel3DGenerator {
      * @return 图生 3D 生成器
      */
     @Bean
-    @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "image-to-3d-enable", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "image-to-3d-enable", havingValue = "true",
+                           matchIfMissing = true)
     public ImageTo3DGenerator imageTo3DGenerator(Model3DConfig config) {
         return new ForgeStyleApiModel3DGenerator(config);
     }
@@ -56,7 +58,8 @@ public class GenerationApiModel3DGenerator {
      * @return 草图生 3D 生成器
      */
     @Bean
-    @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "sketch-to-3d-enable", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "sketch-to-3d-enable", havingValue = "true",
+                           matchIfMissing = true)
     public SketchTo3DGenerator sketchTo3DGenerator(Model3DConfig config) {
         return new ForgeStyleApiModel3DGenerator(config);
     }
@@ -68,7 +71,8 @@ public class GenerationApiModel3DGenerator {
      * @return 通用 3D 生成器
      */
     @Bean
-    @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "generator-enable", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "generator-enable", havingValue = "true",
+                           matchIfMissing = true)
     public Model3DGenerator model3DGenerator(Model3DConfig config) {
         return new ForgeStyleApiModel3DGenerator(config);
     }
@@ -80,7 +84,8 @@ public class GenerationApiModel3DGenerator {
      * @return 3D 模型风格化器
      */
     @Bean
-    @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "stylizer-enable", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "stylizer-enable", havingValue = "true",
+                           matchIfMissing = true)
     public Model3DStylizer model3DStylizer(Model3DConfig config) {
         return new ForgeStyleApiModel3DGenerator(config);
     }

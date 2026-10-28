@@ -325,13 +325,16 @@ public class RagPipeline implements RagClient {
                     RagContext rc = current(ctx);
                     RagDocument doc;
                     if (rc.currentError() != null) {
-                        doc = RagDocument.processing(rc.docId(), rc.fileName(), rc.fileType(), rc.data() != null ? rc.data().length : 0)
+                        doc = RagDocument.processing(rc.docId(), rc.fileName(), rc.fileType(),
+                                rc.data() != null ? rc.data().length : 0)
                                 .withError(rc.currentError());
                     } else if (StringUtils.isBlank(rc.currentText())) {
-                        doc = RagDocument.processing(rc.docId(), rc.fileName(), rc.fileType(), rc.data() != null ? rc.data().length : 0)
+                        doc = RagDocument.processing(rc.docId(), rc.fileName(), rc.fileType(),
+                                rc.data() != null ? rc.data().length : 0)
                                 .withError("提取文本为空");
                     } else if (rc.currentChunks() == null || rc.currentChunks().isEmpty()) {
-                        doc = RagDocument.processing(rc.docId(), rc.fileName(), rc.fileType(), rc.data() != null ? rc.data().length : 0)
+                        doc = RagDocument.processing(rc.docId(), rc.fileName(), rc.fileType(),
+                                rc.data() != null ? rc.data().length : 0)
                                 .withError("分块为空");
                     } else {
                         doc = RagDocument.processing(rc.docId(), rc.fileName(), rc.fileType(), rc.data().length)

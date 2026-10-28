@@ -152,7 +152,8 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
         g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
         java.awt.BasicStroke stroke = borderWidth > 0
-                ? new java.awt.BasicStroke((float) Math.max(1, borderWidth), java.awt.BasicStroke.CAP_ROUND, java.awt.BasicStroke.JOIN_ROUND)
+                ? new java.awt.BasicStroke((float) Math.max(1, borderWidth), java.awt.BasicStroke.CAP_ROUND,
+                        java.awt.BasicStroke.JOIN_ROUND)
                 : null;
 
         for (int ry = 0; ry < rows; ry++) {

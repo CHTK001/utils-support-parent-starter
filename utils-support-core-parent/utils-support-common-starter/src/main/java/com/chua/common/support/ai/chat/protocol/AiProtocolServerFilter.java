@@ -835,7 +835,8 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
         response.sseEvent("response.content_part.done", Json.toJson(Map.of(
                 KEY_TYPE, "response.content_part.done",
                 "item_id", messageId, "output_index", 0, "content_index", 0,
-                "part", Map.of(KEY_TYPE, CONTENT_OUTPUT_TEXT, KEY_TEXT, text != null ? text : "", "annotations", List.of())
+                "part", Map.of(KEY_TYPE, CONTENT_OUTPUT_TEXT, KEY_TEXT, text != null ? text : "", "annotations",
+                               List.of())
         )));
         response.sseEvent("response.output_item.done", Json.toJson(Map.of(
                 KEY_TYPE, "response.output_item.done", "output_index", 0,
