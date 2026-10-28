@@ -274,9 +274,9 @@ public class NacosConfigCenter extends AbstractConfigCenter {
                             }
                         }
                         // 检查已删除的键
-                        for (String oldKey : oldConfig.keySet()) {
-                            if (!newConfig.containsKey(oldKey)) {
-                                notifyListenerDelete(oldKey, oldConfig.get(oldKey).toString());
+                        for (Map.Entry<String, Object> oldEntry : oldConfig.entrySet()) {
+                            if (!newConfig.containsKey(oldEntry.getKey())) {
+                                notifyListenerDelete(oldEntry.getKey(), oldEntry.getValue().toString());
                             }
                         }
                     }

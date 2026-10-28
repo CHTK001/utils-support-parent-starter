@@ -209,8 +209,9 @@ public class RedisSearchSink implements DataSink {
         } catch (Exception e) {
             StringBuilder schema = new StringBuilder();
             schema.append("ON HASH PREFIX 1 ").append(DOC_PREFIX).append(" SCHEMA");
-            for (String key : sample.keySet()) {
-                Object val = sample.get(key);
+            for (Map.Entry<String, Object> entry : sample.entrySet()) {
+                String key = entry.getKey();
+                Object val = entry.getValue();
                 if (val instanceof Number) {
                     schema.append(" ").append(key).append(" NUMERIC");
                 } else {
