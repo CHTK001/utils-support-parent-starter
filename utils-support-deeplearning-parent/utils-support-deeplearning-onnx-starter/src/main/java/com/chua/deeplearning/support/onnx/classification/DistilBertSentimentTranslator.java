@@ -54,18 +54,18 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
     public void prepare(@Nonnull TranslatorContext ctx) throws IOException {
         Path modelPath = ctx.getModel().getModelPath();
         if (modelPath == null) {
-            throw new IOException("                                  tokenizer");
+            throw new IOException("模型路径为空，无法定位 tokenizer");
         }
         Path tokenizerPath = findTokenizerPath(modelPath);
         if (tokenizerPath == null || !Files.exists(tokenizerPath)) {
-            throw new IOException("          tokenizer.json               : " + modelPath);
+            throw new IOException("缺少 tokenizer.json，模型目录: " + modelPath);
         }
         tokenizer = HuggingFaceTokenizer.builder()
                 .optTokenizerPath(tokenizerPath)
                 .optPadding(true)
                 .optMaxLength(MAX_LENGTH)
                 .build();
-        log.debug("[DistilBERT-SST2] Tokenizer             : {}", tokenizerPath);
+        log.debug("[DistilBERT-SST2] Tokenizer 加载自: {}", tokenizerPath);
     }
 
     /**
@@ -79,7 +79,7 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
     @Nonnull
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull String input) {
         if (tokenizer == null) {
-            throw new IllegalStateException("HuggingFaceTokenizer             ");
+            throw new IllegalStateException("HuggingFaceTokenizer 未初始化，请先调用 prepare");
         }
         Encoding encoding = tokenizer.encode(input);
         long[] ids = encoding.getIds();

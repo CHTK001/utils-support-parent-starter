@@ -108,7 +108,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
         this.classes = Wraps.list(classes);
         this.topk = topk;
         if (log.isDebugEnabled()) {
-            log.debug("[CL Tagger][Translator]                -             : {}x{},          : {}, Top-K: {}",
+            log.debug("[CL Tagger][Translator] 初始化 - 输入尺寸: {}x{}, 类别数: {}, Top-K: {}",
                     INPUT_SIZE, INPUT_SIZE, classes.size(), topk);
         }
     }
@@ -130,7 +130,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("[CL Tagger][Translator]prepare        - modelRoot={}, classes={}", modelRoot, this.classes.size());
+            log.debug("[CL Tagger][Translator] prepare 完成 - modelRoot={}, classes={}", modelRoot, this.classes.size());
         }
     }
 
@@ -163,7 +163,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
         array = array.sub(mean).div(std);
 
         if (log.isDebugEnabled()) {
-            log.debug("[CL Tagger][Translator]                  : shape={}, dtype={}", array.getShape(), array.getDataType());
+            log.debug("[CL Tagger][Translator] 归一化后输入: shape={}, dtype={}", array.getShape(), array.getDataType());
         }
 
         return new NDList(array);
@@ -187,7 +187,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
             var probabilitiesNd = list.singletonOrThrow();
 
             if (log.isDebugEnabled()) {
-                log.debug("[CL Tagger][Translator]       shape: {}, dtype: {}", probabilitiesNd.getShape(), probabilitiesNd.getDataType());
+        log.debug("[CL Tagger][Translator] 输出 shape: {}, dtype: {}", probabilitiesNd.getShape(), probabilitiesNd.getDataType());
             }
 
             //                                   Top-K   

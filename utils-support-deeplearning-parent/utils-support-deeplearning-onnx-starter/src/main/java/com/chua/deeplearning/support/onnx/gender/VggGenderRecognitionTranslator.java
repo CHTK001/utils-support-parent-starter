@@ -48,7 +48,7 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
      */
     @Override
     public void prepare(TranslatorContext ctx) {
-        log.info("VggGenderRecognitionTranslator                ");
+        log.info("VggGenderRecognitionTranslator 初始化完成");
     }
 
     /**
@@ -69,7 +69,7 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
     public NDList processInput(TranslatorContext ctx, Image input) {
         try {
             if (log.isDebugEnabled()) {
-                log.debug("                                 : {}x{}", input.getWidth(), input.getHeight());
+                log.debug("原始图像尺寸: {}x{}", input.getWidth(), input.getHeight());
             }
 
             NDManager manager = ctx.getNDManager();
@@ -80,13 +80,13 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
             //           224  224
             array = NDImageUtils.resize(array, IMAGE_SIZE, IMAGE_SIZE, Image.Interpolation.AREA);
             if (log.isDebugEnabled()) {
-                log.debug("                  : {}x{}", IMAGE_SIZE, IMAGE_SIZE);
+                log.debug("缩放后尺寸: {}x{}", IMAGE_SIZE, IMAGE_SIZE);
             }
 
             //           CHW        (HWC -> CHW)
             array = array.transpose(2, 0, 1);
             if (log.isDebugEnabled()) {
-                log.debug("          CHW       ");
+                log.debug("已转置为 CHW 布局");
             }
 
             //           float32
@@ -103,14 +103,14 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
             array = array.div(128f);
 
             if (log.isDebugEnabled()) {
-                log.debug("                                    : {}", array.getShape());
+                log.debug("归一化后张量形状: {}", array.getShape());
             }
 
             return new NDList(array);
 
         } catch (Exception e) {
-            log.error("                  : {}", e.getMessage(), e);
-            throw new RuntimeException("                  ", e);
+            log.error("性别识别输入预处理失败: {}", e.getMessage(), e);
+            throw new RuntimeException("性别识别输入预处理失败", e);
         }
     }
 
@@ -131,14 +131,14 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
     public PredictResult processOutput(TranslatorContext ctx, NDList list) {
         try {
             if (list.isEmpty()) {
-                log.warn("                  ");
+                log.warn("模型输出为空，返回空结果");
                 return PredictResult.empty();
             }
 
             //                   
             NDArray output = list.getFirst();
             if (log.isDebugEnabled()) {
-                log.debug("                        : {}", output.getShape());
+                log.debug("模型输出张量形状: {}", output.getShape());
             }
 
             //                   
@@ -162,7 +162,7 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
                     String gender = GENDER_LABELS[maxIdx];
                     double confidence = (double) probs[maxIdx];
 
-                    log.info("                  : {} (         : {})", gender, confidence);
+                    log.info("识别结果: {} (置信度: {})", gender, confidence);
 
                     return PredictResult
                         .builder()
@@ -171,13 +171,13 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
                         .build();
                 }
             } else {
-                log.warn("                     : {}", probs != null ? probs.length : "null");
+                log.warn("输出维度不足，无法判定性别: {}", probs != null ? probs.length : "null");
             }
 
             return PredictResult.empty();
 
         } catch (Exception e) {
-            log.error("                  : {}", e.getMessage(), e);
+            log.error("性别识别输出处理失败: {}", e.getMessage(), e);
             return PredictResult.empty();
         }
     }
