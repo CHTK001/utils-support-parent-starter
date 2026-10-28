@@ -68,7 +68,7 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         if (log.isDebugEnabled()) {
-            log.debug("                                 : {}x{}", input.getWidth(), input.getHeight());
+            log.debug("原始图像尺寸: {}x{}", input.getWidth(), input.getHeight());
         }
 
  // ndarray         FLOAT32
@@ -79,7 +79,7 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
         int resizedWidth = (int) (upScale * input.getWidth());
 
         if (log.isDebugEnabled()) {
-            log.debug("            : {}x{} -> {}x{}", input.getWidth(), input.getHeight(), resizedWidth, detectResolution);
+            log.debug("缩放尺寸: {}x{} -> {}x{}", input.getWidth(), input.getHeight(), resizedWidth, detectResolution);
         }
 
         //                   
@@ -100,7 +100,7 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
         array.subi(mean).divi(std);
 
         if (log.isDebugEnabled()) {
-            log.debug("                                    : {}", array.getShape());
+            log.debug("模型输入张量形状: {}", array.getShape());
         }
 
         return new NDList(array);
@@ -123,14 +123,14 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         if (log.isDebugEnabled()) {
-            log.debug("                  ");
+            log.debug("开始处理模型输出");
         }
 
         //                               
         NDArray outputImg = list.singletonOrThrow();
 
         if (log.isDebugEnabled()) {
-            log.debug("                  : {}", outputImg.getShape());
+            log.debug("输出图像形状: {}", outputImg.getShape());
         }
 
  // 输出 * 0.5 + 0.5
@@ -146,7 +146,7 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
         Image img = ImageFactory.getInstance().fromNDArray(outputImg);
 
         if (log.isDebugEnabled()) {
-            log.debug("                  : {}x{}", img.getWidth(), img.getHeight());
+            log.debug("输出图像尺寸: {}x{}", img.getWidth(), img.getHeight());
         }
 
         //             

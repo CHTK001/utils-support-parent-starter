@@ -63,7 +63,7 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
             var modelPath = model.getModelPath();
             
             if (modelPath == null) {
-                log.warn("[Small SD v0][Text Encoder]                                   tokenizer");
+                log.warn("[Small SD v0][Text Encoder] 模型路径为空，跳过 tokenizer 加载");
                 return;
             }
 
@@ -82,13 +82,13 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
                         .optPadding(true)
                         .optMaxLength(MAX_SEQUENCE_LENGTH)
                         .build();
-                log.debug("[Small SD v0][Text Encoder] Translator                Tokenizer             : {}", tokenizerPath);
+            log.debug("[Small SD v0][Text Encoder] Translator 使用的 Tokenizer 路径: {}", tokenizerPath);
             } else {
-                log.warn("[Small SD v0][Text Encoder]           tokenizer.json         : {}", tokenizerPath);
+                log.warn("[Small SD v0][Text Encoder] 未找到 tokenizer.json，路径: {}", tokenizerPath);
             }
         } catch (Exception e) {
-            log.error("[Small SD v0][Text Encoder] Tokenizer             ", e);
-            throw new IOException("Tokenizer             : " + e.getMessage(), e);
+            log.error("[Small SD v0][Text Encoder] Tokenizer 初始化失败", e);
+            throw new IOException("Tokenizer 初始化失败: " + e.getMessage(), e);
         }
     }
 
@@ -107,7 +107,7 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
     @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull String input) throws Exception {
         if (tokenizer == null) {
-            throw new IllegalStateException("HuggingFaceTokenizer                                                     tokenizer.json");
+            throw new IllegalStateException("HuggingFaceTokenizer 未初始化，请确认模型目录包含 tokenizer.json");
         }
 
         //        Tokenizer             
@@ -124,7 +124,7 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
         inputIds.setName("input_ids");
 
         if (log.isDebugEnabled()) {
-            log.debug("[Small SD v0][Text Encoder]                   : input size={}, sequence length={}", 
+        log.debug("[Small SD v0][Text Encoder] 输入: input size={}, sequence length={}",
                     inputIds.getShape(), tokenIds.length);
         }
 
@@ -155,7 +155,7 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("[Small SD v0][Text Encoder]                   : output shape={}", 
+        log.debug("[Small SD v0][Text Encoder] 输出: output shape={}",
                     list.size() > 0 ? list.getFirst().getShape() : "empty");
         }
 

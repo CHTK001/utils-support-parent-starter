@@ -118,13 +118,13 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
         this.iouThreshold = iouThreshold;
         this.topK = topK;
 
-        log.info("YOLOv8 身份证检测                          ");
-        log.info("  -       :                      Detection   ");
-        log.info("  -             : {}x{}", inputSize, inputSize);
-        log.info("  -                      : {}", minConfThreshold);
-        log.info("  - IOU       : {}", iouThreshold);
-        log.info("  -                   : {}", topK);
-        log.info("  -             :           [0, 1]");
+        log.info("YOLOv8 身份证检测器初始化");
+        log.info("  - 任务类型: 目标检测 Detection 任务");
+        log.info("  - 输入尺寸: {}x{}", inputSize, inputSize);
+        log.info("  - 最低置信度阈值: {}", minConfThreshold);
+        log.info("  - IOU 阈值: {}", iouThreshold);
+        log.info("  - 最大保留框数 (topK): {}", topK);
+        log.info("  - 坐标归一化: 启用 [0, 1]");
     }
 
     /**

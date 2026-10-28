@@ -52,7 +52,7 @@ public class RealWebPhotoTranslator implements Translator<Image, Image> {
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         if (log.isDebugEnabled()) {
-            log.debug("                        : {}x{}", input.getWidth(), input.getHeight());
+            log.debug("原始图像尺寸: {}x{}", input.getWidth(), input.getHeight());
         }
 
         NDManager manager = ctx.getNDManager();
@@ -74,7 +74,7 @@ public class RealWebPhotoTranslator implements Translator<Image, Image> {
         NDArray array = manager.create(pixels, new Shape(1, 3, h, w));
 
         if (log.isDebugEnabled()) {
-            log.debug("                  : shape={}, dtype={}", array.getShape(), array.getDataType());
+            log.debug("模型输入: shape={}, dtype={}", array.getShape(), array.getDataType());
         }
         return new NDList(array);
     }
@@ -85,13 +85,13 @@ public class RealWebPhotoTranslator implements Translator<Image, Image> {
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
-            log.debug("                        ");
+            log.debug("开始处理模型输出");
         }
 
         NDArray array = list.getFirst();
         long[] shape = array.getShape().getShape();
         if (log.isDebugEnabled()) {
-            log.debug("       shape: {}, dtype: {}", array.getShape(), array.getDataType());
+            log.debug("输出 shape: {}, dtype: {}", array.getShape(), array.getDataType());
         }
 
  // 兼容 [1, C, H, W] 与 [C, H, W]，不调用 squeeze（ONNX ndarray 会递归崩溃）
@@ -114,7 +114,7 @@ public class RealWebPhotoTranslator implements Translator<Image, Image> {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("                  : {}x{}", w, h);
+            log.debug("输出图像尺寸: {}x{}", w, h);
         }
         return ImageFactory.getInstance().fromImage(img);
     }
