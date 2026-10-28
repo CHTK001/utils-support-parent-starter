@@ -605,7 +605,8 @@ public class DefaultObjectContext implements ObjectContext {
 
     /**
      * 关闭容器，销毁所有 Bean 并清理相关状态。
-     * <p>幂等：重复调用安全。关闭后所有查找类方法返回 null/empty，注册类方法抛出 {@link com.chua.common.support.objects.exception.BeanDefinitionException}。</p>
+     * <p>幂等：重复调用安全。关闭后所有查找类方法返回 null/empty，注册类方法抛出 {@link
+     * com.chua.common.support.objects.exception.BeanDefinitionException}。</p>
      */
     @Override
     public void close() {

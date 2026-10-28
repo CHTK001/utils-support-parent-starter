@@ -302,7 +302,8 @@ public interface TypeConverter<O> {
      * <p>支持以下类型的转换：</p>
      * <ul>
      *   <li>{@link Number} — 直接通过 toString 构造</li>
-     *   <li>{@link Date}/{@link java.time.LocalDateTime}/{@link java.time.LocalDate}/{@link java.time.LocalTime} — 转为时间戳</li>
+     *   <li>{@link Date}/{@link java.time.LocalDateTime}/{@link java.time.LocalDate}/{@link java.time.LocalTime} —
+     *   转为时间戳</li>
      *   <li>{@link java.awt.Color} — 转为 RGB 整数值</li>
      *   <li>{@link File} — 转为文件长度</li>
      *   <li>{@link String} — 通过 {@link #stringTransToBigDecimal(String)} 解析数字字符串、千分位、容量单位、中文数字等</li>

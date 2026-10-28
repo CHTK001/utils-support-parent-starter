@@ -11,7 +11,8 @@ import com.chua.runtime.protocol.Software;
  *
  * <p>拦截目标：</p>
  * <ul>
- *   <li>{@code com.mongodb.client.internal.MongoDatabaseImpl} — createCollection / dropCollection / listCollections</li>
+ *   <li>{@code com.mongodb.client.internal.MongoDatabaseImpl} — createCollection / dropCollection /
+ *   listCollections</li>
  *   <li>{@code com.mongodb.client.internal.MongoCollectionImpl} — insertOne / find / updateOne / deleteOne 等 CRUD</li>
  * </ul>
  *

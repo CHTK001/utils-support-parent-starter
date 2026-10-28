@@ -19,7 +19,8 @@ import java.util.*;
  * <p>从 {@link ObjectContext} 中查找标注了 {@link ShellMethod} 的 Bean，
  * 生成 Shell 命令路由处理器。类级注解作为命令前缀，方法级注解定义具体命令名。</p>
  *
- * <p>命令名拼接规则：类级前缀与方法级名用 {@code .} 连接，如 {@code @ShellMethod("/api")} + {@code @ShellMethod("user")} → {@code api.user}。</p>
+ * <p>命令名拼接规则：类级前缀与方法级名用 {@code .} 连接，如 {@code @ShellMethod("/api")} + {@code @ShellMethod("user")} → {@code
+ * api.user}。</p>
  *
  * @author CH
  * @since 4.0.0.42

@@ -173,7 +173,8 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
         //                                        
         Image resized = input.resize(inputSize, inputSize, true);
 
-        // OpenCVImage                    transpose/div     NDArrayAdapter                                           HWC->CHW          
+        // OpenCVImage                    transpose/div     NDArrayAdapter
+        // HWC->CHW          
         NDArray array = resized.toNDArray(ctx.getNDManager(), Image.Flag.COLOR).toType(DataType.FLOAT32, false);
         array = toNormalizedChw(ctx, array);
 

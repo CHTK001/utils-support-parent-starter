@@ -170,7 +170,8 @@ public final class ProgressSimulator {
         double speedFactor;
         switch (type) {
             case SLOW_FAST_SLOW -> {
-                //        sin(  t)                      0->1->0               /2                                     baseStep
+                //        sin(  t)                      0->1->0               /2
+                //        baseStep
                 speedFactor = PI_OVER_2 * Math.sin(PI * t);
             }
             case FAST_SLOW -> {
@@ -188,7 +189,8 @@ public final class ProgressSimulator {
                 speedFactor = 1.0;
             }
         }
-        //                   t      0   1                  0                                                               
+        //                   t      0   1                  0
+        //                   
         double minFactor = 1.0 / total;
         if (speedFactor < minFactor) {
             speedFactor = minFactor;

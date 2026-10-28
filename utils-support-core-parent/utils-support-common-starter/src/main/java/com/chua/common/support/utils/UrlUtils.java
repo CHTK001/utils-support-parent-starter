@@ -426,9 +426,12 @@ public class UrlUtils {
          * <p><b>添加的安全字符及依据（RFC 3986）</b>：
          * <table border="1">
          *   <tr><th>分组</th><th>字符</th><th>依据</th><th>说明</th></tr>
-         *   <tr><td>unreserved</td><td>{@code - . _ ~}</td><td>RFC 3986 §2.3</td><td>这些字符在 URI 所有组件中均可直接使用，无需编码</td></tr>
-         *   <tr><td>sub-delims</td><td>{@code ! $ & ' ( ) * + , ; =}</td><td>RFC 3986 §2.2</td><td>子分隔符，在 URI 的 query 和 fragment 组件中具有特殊语义，但本身无需编码</td></tr>
-         *   <tr><td>gen-delims 子集</td><td>{@code : @}</td><td>RFC 3986 §2.2</td><td>冒号用于分隔 scheme 和 authority，at 符号用于 authority 中的用户信息，
+         *   <tr><td>unreserved</td><td>{@code - . _ ~}</td><td>RFC 3986 §2.3</td><td>这些字符在 URI
+         *   所有组件中均可直接使用，无需编码</td></tr>
+         *   <tr><td>sub-delims</td><td>{@code ! $ & ' ( ) * + , ; =}</td><td>RFC 3986 §2.2</td><td>子分隔符，在 URI 的 query
+         *   和 fragment 组件中具有特殊语义，但本身无需编码</td></tr>
+         *   <tr><td>gen-delims 子集</td><td>{@code : @}</td><td>RFC 3986 §2.2</td><td>冒号用于分隔 scheme 和 authority，at 符号用于
+         *   authority 中的用户信息，
          *       在路径上下文中需要被视为安全字符</td></tr>
          *   <tr><td>额外字符</td><td>{@code /}</td><td>路径特殊需求</td><td>路径分隔符，编码后变为 {@code %2F} 会改变路径结构，
          *       因此必须保留其字面形式</td></tr>

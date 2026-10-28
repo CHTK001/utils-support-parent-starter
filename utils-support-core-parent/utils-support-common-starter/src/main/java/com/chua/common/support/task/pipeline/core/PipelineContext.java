@@ -353,7 +353,8 @@ public class PipelineContext<T> {
      * <ul>
      *   <li>普通节点：返回 currentData</li>
      *   <li>分叉节点：返回 {@link ForkResult}，可通过 {@code getData(nodeId, ForkResult.class).getBranch("branchA")} 获取分支数据</li>
-     *   <li>子流水线节点：返回 {@link SubPipelineResult}，可通过 {@code getData(nodeId, SubPipelineResult.class).getOutput()} 获取子流程输出</li>
+     *   <li>子流水线节点：返回 {@link SubPipelineResult}，可通过 {@code getData(nodeId, SubPipelineResult.class).getOutput()}
+     *   获取子流程输出</li>
      *   <li>并行节点：返回 {@link AsyncResult}，可通过 {@code getData(nodeId, AsyncResult.class).await()} 阻塞等待完成</li>
      * </ul>
      *

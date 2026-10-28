@@ -35,7 +35,8 @@ import java.util.Map;
  *   <tr><td>{@code erode}</td><td>kernel（核尺寸）</td><td>腐蚀（形态学）</td></tr>
  *   <tr><td>{@code dilate}</td><td>kernel（核尺寸）</td><td>膨胀（形态学）</td></tr>
  *   <tr><td>{@code edge}</td><td>direction（h/v/both）</td><td>边缘检测（Sobel 算子）</td></tr>
- *   <tr><td>{@code templateMatch}</td><td>template, method, threshold, maxCount, drawMatch</td><td>模板匹配（仅 OpenCV）</td></tr>
+ *   <tr><td>{@code templateMatch}</td><td>template, method, threshold, maxCount, drawMatch</td><td>模板匹配（仅
+ *   OpenCV）</td></tr>
  * </table>
  *
  * <h3>通用参数</h3>

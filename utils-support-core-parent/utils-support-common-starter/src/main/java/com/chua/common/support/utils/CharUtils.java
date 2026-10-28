@@ -375,10 +375,13 @@ public class CharUtils {
      * @param number                               1-20
      * @return
      * @throws IllegalArgumentException                   1-20
-     * @see <a href="https://en.wikipedia.org/wiki/List_of_Unicode_characters#Unicode_symbols">            wikipedia-Unicode_symbols</a>
-     * @see <a href="https://zh.wikipedia.org/wiki/Unicode%E5%AD%97%E7%AC%A6%E5%88%97%E8%A1%A8">            wikipedia-Unicode            </a>
+     * @see <a href="https://en.wikipedia.org/wiki/List_of_Unicode_characters#Unicode_symbols">
+     * wikipedia-Unicode_symbols</a>
+     * @see <a href="https://zh.wikipedia.org/wiki/Unicode%E5%AD%97%E7%AC%A6%E5%88%97%E8%A1%A8">
+     * wikipedia-Unicode            </a>
      * @see <a href="https://coolsymbol.com/">coolsymbol</a>
-     * @see <a href="https://baike.baidu.com/item/%E7%89%B9%E6%AE%8A%E5%AD%97%E7%AC%A6/112715?fr=aladdin">                         </a>
+     * @see <a href="https://baike.baidu.com/item/%E7%89%B9%E6%AE%8A%E5%AD%97%E7%AC%A6/112715?fr=aladdin">
+     * </a>
      * @since 5.6.2
      */
     public static char toCloseByNumber(int number) {

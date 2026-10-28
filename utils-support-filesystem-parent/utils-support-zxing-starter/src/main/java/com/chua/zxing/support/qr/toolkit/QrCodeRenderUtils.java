@@ -277,7 +277,8 @@ public class QrCodeRenderUtils {
                 bgGraphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 1.0f));
                 bgGraphic.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
  // bggraphic
-//                        .drawImage(qrImg.getScaledInstance(qrWidth, qrHeight, Image.SCALE_SMOOTH), bgOffsetX, bgOffsetY,
+//                        .drawImage(qrImg.getScaledInstance(qrWidth, qrHeight, Image.SCALE_SMOOTH), bgOffsetX,
+//                        bgOffsetY,
 //                                null);
                 // 实验功能，gif生成时缩放
                 int add = 2 * Math.abs(index - len / 2);

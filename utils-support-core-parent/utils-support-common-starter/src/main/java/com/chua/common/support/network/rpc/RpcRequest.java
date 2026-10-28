@@ -15,7 +15,8 @@ import java.io.Serializable;
  * <table>
  *   <tr><th>字段</th><th>类型</th><th>说明</th></tr>
  *   <tr><td>{@code service}</td><td>{@code String}</td><td>远程服务接口的全限定类名，服务端通过此名称查找已注册的服务实现</td></tr>
- *   <tr><td>{@code method}</td><td>{@code String}</td><td>要调用的方法名，服务端通过反射匹配对应的 {@code java.lang.reflect.Method}</td></tr>
+ *   <tr><td>{@code method}</td><td>{@code String}</td><td>要调用的方法名，服务端通过反射匹配对应的 {@code
+ *   java.lang.reflect.Method}</td></tr>
  *   <tr><td>{@code paramTypes}</td><td>{@code String[]}</td><td>方法参数类型的全限定类名数组，用于区分重载方法</td></tr>
  *   <tr><td>{@code args}</td><td>{@code Object[]}</td><td>方法实际传入的参数值数组，必须与 {@code paramTypes} 一一对应</td></tr>
  * </table>

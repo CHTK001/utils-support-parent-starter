@@ -27,7 +27,8 @@ import java.util.regex.Pattern;
  * <p><b>格式化示例：</b>
  * <pre>
  * 输入：
- * CREATE TABLE users (id INT PRIMARY KEY AUTO_INCREMENT, username VARCHAR(50) NOT NULL, email VARCHAR(100) UNIQUE, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+ * CREATE TABLE users (id INT PRIMARY KEY AUTO_INCREMENT, username VARCHAR(50) NOT NULL, email VARCHAR(100) UNIQUE,
+ * created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
  *
  * 输出：
  * CREATE TABLE users (

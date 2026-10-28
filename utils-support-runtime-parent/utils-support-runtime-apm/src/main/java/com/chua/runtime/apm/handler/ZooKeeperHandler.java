@@ -34,7 +34,8 @@ import java.util.logging.Logger;
  * <p>采用零依赖策略：</p>
  * <ul>
  *   <li>不引入 zookeeper / curator 编译期依赖</li>
- *   <li>通过 {@link RuntimeSpy#registerInterceptor(String, String, String, InterceptPoint, RuntimeSpy.Interceptor)} 注册精确规则，
+ *   <li>通过 {@link RuntimeSpy#registerInterceptor(String, String, String, InterceptPoint, RuntimeSpy.Interceptor)}
+ *   注册精确规则，
  * spy转换 会按需 retransform 已加载的 ZK 类（若 类路径 缺失则不生效）</li>
  *   <li>从 ctx 参数（反射调用现场）解析 path/znode/scheme</li>
  * </ul>

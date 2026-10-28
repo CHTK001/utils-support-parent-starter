@@ -5,7 +5,8 @@ import java.util.function.Consumer;
 /**
  * SSE 协议行级解析器
  *
- * <p>基于 <a href="https://html.spec.whatwg.org/multipage/server-sent-events.html#event-stream-interpretation">W3C SSE 规范</a>
+ * <p>基于 <a href="https://html.spec.whatwg.org/multipage/server-sent-events.html#event-stream-interpretation">W3C SSE
+ * 规范</a>
  * 实现的状态机解析器，逐行处理 SSE 事件流并正确组装事件。
  *
  * <h3>处理的字段</h3>

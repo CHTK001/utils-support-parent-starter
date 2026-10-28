@@ -38,7 +38,8 @@ import java.util.jar.JarFile;
  *   <tr><td>字符串口令(pepper)</td><td>chua.crypto.pin</td><td>CHUA_CRYPTO_PIN</td></tr>
  *   <tr><td>主机指纹固定值</td><td>chua.crypto.server-id</td><td>CHUA_CRYPTO_SERVER_ID</td></tr>
  *   <tr><td>私钥文件</td><td>chua.crypto.key-file</td><td>CHUA_CRYPTO_KEY_FILE</td></tr>
- *   <tr><td>校验服务器</td><td>chua.crypto.license-url / app-id</td><td>CHUA_CRYPTO_LICENSE_URL / CHUA_CRYPTO_APP_ID</td></tr>
+ *   <tr><td>校验服务器</td><td>chua.crypto.license-url / app-id</td><td>CHUA_CRYPTO_LICENSE_URL /
+ *   CHUA_CRYPTO_APP_ID</td></tr>
  * </table>
  *
  * @author CH

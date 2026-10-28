@@ -37,7 +37,8 @@ public final class Bootstrap {
      * 拦截入口（ENTRY / EXIT / 日志_PRE / ...）。
      *
      * <p>由 SpyTransformer 注入的字节码调用，签名为
-     * {@code static void onIntercept(Object thisRef, String className, String methodName, String descriptor, String point)}，
+     * {@code static void onIntercept(Object thisRef, String className, String methodName, String descriptor, String
+     * point)}，
      * thisref 是受拦截实例（套接字/htturlconnection/文件输入流 等），静态方法或 JDK 内部时为 空。
      * 该方法转发到 {@link RuntimeSpy#onIntercept(String, String, String, String, Object)}，
      * 由其把 thisref 写入 intercept上下文.用户数据 供 处理器 使用。</p>

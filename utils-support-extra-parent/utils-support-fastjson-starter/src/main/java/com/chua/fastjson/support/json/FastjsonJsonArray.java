@@ -7,7 +7,8 @@ import java.util.Collection;
 /**
  * Fastjson 实现的 {@link JsonArray} 节点子类。
  *
- * <p>由 {@link FastjsonJsonProvider} 的 SPI 节点工厂（{@link com.chua.common.support.lang.json.JsonProvider#createJsonArray()}）
+ * <p>由 {@link FastjsonJsonProvider} 的 SPI 节点工厂（{@link
+ * com.chua.common.support.lang.json.JsonProvider#createJsonArray()}）
  * 返回，使 {@code Json.createJsonArray()} / {@code JsonArray.of()} 等创建路径的
  * 节点类型随当前实现切换。</p>
  *

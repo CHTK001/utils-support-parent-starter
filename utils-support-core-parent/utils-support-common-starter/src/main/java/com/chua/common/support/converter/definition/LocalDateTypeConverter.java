@@ -16,7 +16,8 @@ import java.util.Date;
  * LocalDate 类型转换器。
  * <p>将各种类型的值转换为 {@link LocalDate}，支持以下输入类型：</p>
  * <ul>
- *   <li>{@link java.time.LocalDateTime} / {@link Date} / {@link java.time.LocalTime} / {@link Long} / {@link java.util.Calendar} / {@link java.time.Instant} — 通过 DateUtils 转换</li>
+ *   <li>{@link java.time.LocalDateTime} / {@link Date} / {@link java.time.LocalTime} / {@link Long} / {@link
+ *   java.util.Calendar} / {@link java.time.Instant} — 通过 DateUtils 转换</li>
  *   <li>{@link String} — 通过 DateUtils.toLocalDate 解析日期字符串</li>
  * </ul>
  *

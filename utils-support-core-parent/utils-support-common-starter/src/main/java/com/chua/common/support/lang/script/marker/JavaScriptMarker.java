@@ -21,7 +21,8 @@ import java.util.concurrent.atomic.AtomicReference;
  *   <li>从 {@link Listener} 获取 Java 源代码</li>
  *   <li>使用 {@link JdkCompiler} 在内存中编译源码为字节码</li>
  *   <li>通过反射创建对象实例</li>
- *   <li>暴露最后一次使用的 {@link JdkCompiler.DynamicClassLoader}，供 {@link com.chua.common.support.objects.definition.AbstractScriptDefinition} 管理生命周期</li>
+ *   <li>暴露最后一次使用的 {@link JdkCompiler.DynamicClassLoader}，供 {@link
+ *   com.chua.common.support.objects.definition.AbstractScriptDefinition} 管理生命周期</li>
  * </ol>
  *
  * <h3>类加载器生命周期</h3>

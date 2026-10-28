@@ -622,7 +622,8 @@ public class PipelineBuilder {
      * <ul>
      *   <li><strong>返回节点 ID</strong> — 引擎路由到该节点继续执行（错误恢复路由），
      *       异常已存入 {@code ctx.getLastError()}，恢复节点可据此做条件判断</li>
-     *   <li><strong>返回 null</strong> — 终止流水线，抛出 {@link com.chua.common.support.task.pipeline.exception.PipelineException}</li>
+     *   <li><strong>返回 null</strong> — 终止流水线，抛出 {@link
+     *   com.chua.common.support.task.pipeline.exception.PipelineException}</li>
      * </ul>
      *
      * <p>用法示例：</p>

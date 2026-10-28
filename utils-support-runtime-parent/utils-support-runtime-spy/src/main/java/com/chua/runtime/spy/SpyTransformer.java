@@ -648,7 +648,8 @@ public class SpyTransformer implements ClassFileTransformer {
         /**
          * 插入单个插桩点调用。
          *
-         * <p>签名：{@code static void onIntercept(Object thisRef, String className, String methodName, String descriptor, String pointKey)}</p>
+         * <p>签名：{@code static void onIntercept(Object thisRef, String className, String methodName, String
+         * descriptor, String pointKey)}</p>
          * <p>静态方法传入 null 作为 thisRef。</p>
          *
          * @param point 插桩点

@@ -209,11 +209,13 @@ public final class DateFormatConstant {
      */
     public static final String MM_DD_HH_MM_SS_CN = "MM   dd    HH:mm:ss";
     /**
-     * yyyy   MM   dd    hh:mm:ss a          2020   05   23    05:06:30                            PM              Locale.ENGLISH
+     * yyyy   MM   dd    hh:mm:ss a          2020   05   23    05:06:30                            PM
+     * Locale.ENGLISH
      */
     public static final String YYYY_MM_DD_HH_MM_SS_A_CN = "yyyy   MM   dd    hh:mm:ss a";
     /**
-     * yyyy   MM   dd    hh   mm   ss    a          2020   05   23    17   06   30                               PM              Locale.ENGLISH
+     * yyyy   MM   dd    hh   mm   ss    a          2020   05   23    17   06   30                               PM
+     * Locale.ENGLISH
      */
     public static final String YYYY_MM_DD_HH_MM_SS_A_CN_ALL = "yyyy   MM   dd    hh   mm   ss    a";
     /**
@@ -270,7 +272,8 @@ public final class DateFormatConstant {
      */
     public static final String YYYY_MM_DD_T_HH_MM_SS_SSS_XXX = "yyyy-MM-dd'T'HH:mm:ss.SSSxxx";
     /**
-     * yyyy-MM-dd'T'HH:mm:ss.SSSXXX          2020-05-23T17:06:30.272+08:00 2020-05-23T09:06:30.272Z 0                   Z
+     * yyyy-MM-dd'T'HH:mm:ss.SSSXXX          2020-05-23T17:06:30.272+08:00 2020-05-23T09:06:30.272Z 0
+     * Z
      */
     public static final String YYYY_MM_DD_T_HH_MM_SS_SSS_XXX_Z = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
     /**
@@ -282,7 +285,8 @@ public final class DateFormatConstant {
      */
     public static final String YYYY_MM_DD_T_HH_MM_SS_SSSSSS_XXX = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSxxx";
     /**
-     * yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX          2020-05-23T17:06:30.272150+08:00 2020-05-23T09:06:30.272150Z 0                   Z
+     * yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX          2020-05-23T17:06:30.272150+08:00 2020-05-23T09:06:30.272150Z 0
+     * Z
      */
     public static final String YYYY_MM_DD_T_HH_MM_SS_SSSSSS_XXX_Z = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX";
     // ==================================yyyy-MM-dd HH:mm:ss.SSSSSS       Pattern==================================
@@ -292,12 +296,14 @@ public final class DateFormatConstant {
     public static final String YYYY_MM_DD_T_HH_MM_SS_SSSSSSSSS_Z = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSZ";
     // ==================================yyyy-MM-dd HH:mm:ss.SSSSSSSSS       Pattern==================================
     /**
-     * yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSxxx          2020-05-23T17:06:30.272150620+08:00 2020-05-23T09:06:30.272150620+00:00
+     * yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSxxx          2020-05-23T17:06:30.272150620+08:00
+     * 2020-05-23T09:06:30.272150620+00:00
      */
     public static final String YYYY_MM_DD_T_HH_MM_SS_SSSSSSSSS_XXX = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSxxx";
     // ==================================Iso      Pattern        T==================================
     /**
-     * yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX          2020-05-23T17:06:30.272150620+08:00 2020-05-23T09:06:30.272150620Z 0                   Z
+     * yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX          2020-05-23T17:06:30.272150620+08:00 2020-05-23T09:06:30.272150620Z
+     * 0                   Z
      */
     public static final String YYYY_MM_DD_T_HH_MM_SS_SSSSSSSSS_XXX_Z = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX";
     /**
@@ -346,7 +352,8 @@ public final class DateFormatConstant {
     public static final DateTimeFormatter YYYY_MM_DD_T_HH_MM_SS_SSSSSS_XXX_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_T_HH_MM_SS_SSSSSS_XXX);
     // ==================================             Pattern==================================
     /**
-     * yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX          2020-05-23T17:06:30.272150+08:00 2020-05-23T09:06:30.272150Z 0                   Z
+     * yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX          2020-05-23T17:06:30.272150+08:00 2020-05-23T09:06:30.272150Z 0
+     * Z
      */
     public static final DateTimeFormatter YYYY_MM_DD_T_HH_MM_SS_SSSSSS_XXX_Z_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_T_HH_MM_SS_SSSSSS_XXX_Z);
     /**
@@ -354,11 +361,13 @@ public final class DateFormatConstant {
      */
     public static final DateTimeFormatter YYYY_MM_DD_T_HH_MM_SS_SSSSSSSSS_Z_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_T_HH_MM_SS_SSSSSSSSS_Z);
     /**
-     * yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSxxx          2020-05-23T17:06:30.272150620+08:00 2020-05-23T09:06:30.272150620+00:00
+     * yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSxxx          2020-05-23T17:06:30.272150620+08:00
+     * 2020-05-23T09:06:30.272150620+00:00
      */
     public static final DateTimeFormatter YYYY_MM_DD_T_HH_MM_SS_SSSSSSSSS_XXX_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_T_HH_MM_SS_SSSSSSSSS_XXX);
     /**
-     * yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX          2020-05-23T17:06:30.272150620+08:00 2020-05-23T09:06:30.272150620Z 0                   Z
+     * yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX          2020-05-23T17:06:30.272150620+08:00 2020-05-23T09:06:30.272150620Z
+     * 0                   Z
      */
     public static final DateTimeFormatter YYYY_MM_DD_T_HH_MM_SS_SSSSSSSSS_XXX_Z_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_T_HH_MM_SS_SSSSSSSSS_XXX_Z);
     // ==================================yyyy-MM-dd      formatters==================================
@@ -628,7 +637,8 @@ public final class DateFormatConstant {
     public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_SSS_COMMA_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS_SSS_COMMA).withZone(ZONE);
     /**
      * yyyyMMddHHmmssSSS          20200523170630272 <br>
-     * Jdk8        yyyyMMddHHmmssSSS bug                      :https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8031085
+     * Jdk8        yyyyMMddHHmmssSSS bug
+     * :https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8031085
      */
     public static final DateTimeFormatter YYYYMMDDHHMMSSSSS_FMT = new DateTimeFormatterBuilder().appendPattern(YYYYMMDDHHMMSS).appendValue(ChronoField.MILLI_OF_SECOND, 3).toFormatter().withZone(ZONE);
     /**
@@ -648,7 +658,8 @@ public final class DateFormatConstant {
      * yyyy-MM-dd HH:mm:ss.SSSSSS          2020-05-23 17:06:30.272150
      */
     public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_SSSSSS_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS_SSSSSS).withZone(ZONE);
-    // ==================================yyyy-MM-dd HH:mm:ss.SSSSSSSSS       formatters==================================
+    // ==================================yyyy-MM-dd HH:mm:ss.SSSSSSSSS
+    // formatters==================================
     /**
      * yyyy-MM-dd HH:mm:ss.SSSSSSSSS          2020-05-23 17:06:30.272150620
      */
