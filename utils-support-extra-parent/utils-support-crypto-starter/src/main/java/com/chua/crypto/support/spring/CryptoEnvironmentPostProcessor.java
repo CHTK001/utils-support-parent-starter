@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.springframework.boot.context.properties.bind.Bindable;
 
 /**
  * 加密配置文件启动期装载器（SpringBoot 环境透明解密）
@@ -153,7 +154,7 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
     private CryptoProperties bindProperties(ConfigurableEnvironment environment) {
         return org.springframework.boot.context.properties.bind.Binder
                 .get(environment)
-                .bind("chua.crypto", org.springframework.boot.context.properties.bind.Bindable.of(CryptoProperties.class))
+                .bind("chua.crypto", Bindable.of(CryptoProperties.class))
                 .orElseGet(CryptoProperties::new);
     }
 

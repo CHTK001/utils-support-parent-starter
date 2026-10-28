@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import com.openai.models.chat.completions.ChatCompletionFunctionTool;
 
 /**
  * 对话客户端模型适配器类。
@@ -400,7 +401,7 @@ public class ChatClientModelAdapter implements Model {
                         .additionalProperties(toJsonValueMap(tool.getParameters()))
                         .build());
             }
-            toolDefs.add(ChatCompletionTool.ofFunction(com.openai.models.chat.completions.ChatCompletionFunctionTool.builder()
+            toolDefs.add(ChatCompletionTool.ofFunction(ChatCompletionFunctionTool.builder()
                     .function(fnBuilder.build())
                     .build()));
         }

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import com.chua.common.support.network.server.AbstractServer;
 
 /**
  * 基于 JDK DatagramSocket 的 UDP 同步服务端实现。
@@ -34,7 +35,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 @Slf4j
 @Spi("udp")
-public class UdpSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
+public class UdpSyncServer extends AbstractServer implements SyncServer, SyncProtocol {
 
     /**
      * 客户端注册表（clientId -> 地址与元数据）

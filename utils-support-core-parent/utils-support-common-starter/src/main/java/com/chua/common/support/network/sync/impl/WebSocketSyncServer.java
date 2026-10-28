@@ -18,6 +18,7 @@ import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.chua.common.support.network.server.AbstractServer;
 
 /**
  * 基于 JDK Socket 的 WebSocket 同步服务端实现。
@@ -29,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 2026-07-25
  */
 @Spi("websocket")
-public class WebSocketSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
+public class WebSocketSyncServer extends AbstractServer implements SyncServer, SyncProtocol {
 
     /**
      * 获取Protocol

@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.network.server.AbstractServer;
 
 /**
  * 基于 JDK HttpServer 的 HTTP 同步服务端实现。
@@ -30,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Spi("http")
-public class HttpSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
+public class HttpSyncServer extends AbstractServer implements SyncServer, SyncProtocol {
 
 
     /**

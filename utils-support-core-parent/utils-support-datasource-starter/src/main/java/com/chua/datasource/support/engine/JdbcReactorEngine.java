@@ -25,6 +25,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.r2dbc.spi.ConnectionFactoryOptions.*;
+import java.sql.SQLFeatureNotSupportedException;
 
 /**
  * JDBC 统一响应式引擎，根据数据源数量和类型自动选择执行路径。
@@ -420,7 +421,7 @@ public class JdbcReactorEngine implements ReactorEngine {
             @Override
             public int getLoginTimeout() throws java.sql.SQLException { return 0; }
             @Override
-            public java.util.logging.Logger getParentLogger() throws java.sql.SQLFeatureNotSupportedException { return null; }
+            public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException { return null; }
         };
     }
 

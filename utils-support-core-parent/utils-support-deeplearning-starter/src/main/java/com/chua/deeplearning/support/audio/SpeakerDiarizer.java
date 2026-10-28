@@ -5,6 +5,7 @@ import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import java.util.List;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.deeplearning.support.engine.ModelRegistry;
 
 /**
  * 说话人分离（Speaker Diarization）接口，将多说话人音频按说话人归属切分为带时间戳的片段。
@@ -112,7 +113,7 @@ public interface SpeakerDiarizer {
      * @return 模型 标识 列表
      */
     static List<String> listModels() {
-        return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.audio.SpeakerDiarizer.class);
+        return ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.audio.SpeakerDiarizer.class);
     }
 
     /**

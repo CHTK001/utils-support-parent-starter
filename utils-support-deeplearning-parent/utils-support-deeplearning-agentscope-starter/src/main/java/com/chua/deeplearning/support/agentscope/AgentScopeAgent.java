@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 
 import reactor.core.publisher.Flux;
+import java.util.Iterator;
 
 /**
  * Agentscope 实现：将项目通用 {@link ChatClient} 桥接到 Agentscope Harness，
@@ -741,7 +742,7 @@ public class AgentScopeAgent implements Agent {
         if (only == null) {
             return null;
         }
-        for (java.util.Iterator<java.util.Map.Entry<String, String>> it = openSpan.entrySet().iterator(); it.hasNext(); ) {
+        for (Iterator<java.util.Map.Entry<String, String>> it = openSpan.entrySet().iterator(); it.hasNext(); ) {
             if (it.next().getValue().equals(only)) {
                 it.remove();
                 break;

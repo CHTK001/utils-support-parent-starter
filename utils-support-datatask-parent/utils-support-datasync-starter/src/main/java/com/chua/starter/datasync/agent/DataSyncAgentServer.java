@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.lang.json.Json;
 
 /**
  * 数据同步 Agent 服务器，统一管理本地与远程 Agent 的注册、数据推送。
@@ -459,7 +460,7 @@ public class DataSyncAgentServer implements AgentServerManager {
                                 sink.complete();
                             } else if (message instanceof String) {
                                 try {
-                                    List<Map<String, Object>> data = com.chua.common.support.lang.json.Json.fromJson((String) message,
+                                    List<Map<String, Object>> data = Json.fromJson((String) message,
                                             List.class);
                                     if (data != null) {
                                         for (Map<String, Object> row : data) {

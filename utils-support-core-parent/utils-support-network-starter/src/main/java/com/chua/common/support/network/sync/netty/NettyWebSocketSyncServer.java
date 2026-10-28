@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
+import com.chua.common.support.network.server.AbstractServer;
 
 /**
  * 基于 Netty 的 WebSocket 同步服务端实现。
@@ -25,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * @since 4.0.0.42
  */
 @Spi("netty-websocket")
-public class NettyWebSocketSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer {
+public class NettyWebSocketSyncServer extends AbstractServer implements SyncServer {
 
     /**
      * 服务器Socket

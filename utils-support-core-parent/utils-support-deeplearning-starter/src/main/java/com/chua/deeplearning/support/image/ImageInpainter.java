@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import javax.imageio.ImageIO;
+import com.chua.deeplearning.support.engine.ModelRegistry;
 
 /**
  * 图像修复器（Inpainting）。
@@ -64,7 +65,7 @@ public interface ImageInpainter {
      * @return 模型 标识 列表
      */
     static List<String> listModels() {
-        return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageInpainter.class);
+        return ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageInpainter.class);
     }
 
     /**

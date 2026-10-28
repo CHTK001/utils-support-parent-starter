@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.network.server.AbstractServer;
 
 /**
  * 基于 NIO + Reactor + 虚拟线程的 TCP 同步服务端实现。
@@ -43,7 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Slf4j
 @Spi("tcp")
-public class TcpSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
+public class TcpSyncServer extends AbstractServer implements SyncServer, SyncProtocol {
 
     /**
      * 读取缓冲大小

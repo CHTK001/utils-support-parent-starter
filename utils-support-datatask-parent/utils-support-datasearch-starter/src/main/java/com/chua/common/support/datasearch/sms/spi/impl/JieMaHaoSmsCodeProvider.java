@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.concurrent.ExecutorService;
 
 /**
  * 「接码号」平台虚拟号码接码实现。
@@ -133,7 +134,7 @@ public class JieMaHaoSmsCodeProvider implements SmsCodeProvider, PolledDirectory
     /**
      * 短信异步抓取执行器（避免 playwright 抓短信阻塞轮询）
      */
-    private final java.util.concurrent.ExecutorService smsExecutor = ThreadUtils.newVirtualThreadPerTaskExecutor("SmsFetch");
+    private final ExecutorService smsExecutor = ThreadUtils.newVirtualThreadPerTaskExecutor("SmsFetch");
 
     /**
      * 轮询计数，仅用于日志

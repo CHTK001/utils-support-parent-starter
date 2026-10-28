@@ -11,6 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 /**
  * 基于 NIO {@link SocketChannel} 的 {@link ServerResponse} 实现。
  *
@@ -55,7 +56,7 @@ public class NioServerResponse implements ServerResponse {
     private static final byte[] DIGITS = {'0','1','2','3','4','5','6','7','8','9'};
     // 完整预拼 echo header:状态行 + 固定头 + keepalive + 空行(动态长度后续追加 Content-Length)
     // 由 buildEchoHeaderFast() 在首次调用时按 content-length 缓存
-    private static final java.util.Map<Integer, byte[]> ECHO_HEADER_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.Map<Integer, byte[]> ECHO_HEADER_CACHE = new ConcurrentHashMap<>();
 
     /**
      * 通道

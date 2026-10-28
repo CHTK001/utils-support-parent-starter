@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+import com.chua.common.support.network.server.response.AbstractServerResponse;
+import com.chua.common.support.network.server.request.AbstractServerRequest;
 
 /**
  * rSocket 嵌入式服务器，轻量级实现。
@@ -450,7 +452,7 @@ public class RSocketServer extends AbstractServer {
      * @author CH
      * @since 4.0.0
      */
-    private static class SimpleServerRequest extends com.chua.common.support.network.server.request.AbstractServerRequest {
+    private static class SimpleServerRequest extends AbstractServerRequest {
 
         /**
          * topic
@@ -536,7 +538,7 @@ public class RSocketServer extends AbstractServer {
      * @author CH
      * @since 4.0.0
      */
-    private static class SimpleServerResponse extends com.chua.common.support.network.server.response.AbstractServerResponse {
+    private static class SimpleServerResponse extends AbstractServerResponse {
 
         /**
          * 获取输出流

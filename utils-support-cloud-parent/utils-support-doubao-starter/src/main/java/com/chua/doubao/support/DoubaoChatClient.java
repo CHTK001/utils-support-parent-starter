@@ -23,6 +23,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import com.volcengine.ark.runtime.model.completion.chat.ChatTool;
 
 /**
  * 豆包/火山引擎大模型对话客户端
@@ -310,7 +311,7 @@ public class DoubaoChatClient implements ChatClient {
                 requestBuilder.thinking(new com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest.ChatCompletionRequestThinking("enabled"));
             }
             if (smartSearch) {
-                requestBuilder.tools(List.of(new com.volcengine.ark.runtime.model.completion.chat.ChatTool("web_search", null)));
+                requestBuilder.tools(List.of(new ChatTool("web_search", null)));
             }
 
             Flowable<ChatCompletionChunk> flowable = arkService.streamChatCompletion(requestBuilder.build());

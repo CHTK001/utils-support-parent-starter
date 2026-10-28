@@ -23,6 +23,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.concurrent.rate.RateLimiterProvider;
 
 /**
  * 并发工具 Actuator 端点
@@ -347,7 +348,7 @@ public class ConcurrentEndpoint {
             }
         }
         List<Map<String, Object>> status = Wraps.list();
-        for (Map.Entry<String, com.chua.common.support.concurrent.rate.RateLimiterProvider> e : RateLimiterFlow.list().entrySet()) {
+        for (Map.Entry<String, RateLimiterProvider> e : RateLimiterFlow.list().entrySet()) {
             var p = e.getValue();
             Map<String, Object> item = Wraps.map();
             item.put("name", p.getName());

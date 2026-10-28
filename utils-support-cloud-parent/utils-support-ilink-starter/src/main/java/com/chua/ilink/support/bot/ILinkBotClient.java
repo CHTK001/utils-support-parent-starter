@@ -27,6 +27,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.chua.common.support.config.loader.ConfigSaveOrLoader;
 
 /**
  * 微信 i链接 机器人 客户端。
@@ -342,7 +343,7 @@ public class ILinkBotClient implements BotClient {
     }
 
     @Override
-    public ILinkBotClient configSaveOrLoader(com.chua.common.support.config.loader.ConfigSaveOrLoader loader) { return this; }
+    public ILinkBotClient configSaveOrLoader(ConfigSaveOrLoader loader) { return this; }
 
     @Override
     public ILinkBotClient start() {

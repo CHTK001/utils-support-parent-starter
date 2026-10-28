@@ -22,6 +22,7 @@ import com.google.cloud.storage.*;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Google Cloud Storage 文件存储实现。
@@ -81,7 +82,7 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
                 String trimmed = secret.trim();
                 if (trimmed.startsWith("{")) {
                     return ServiceAccountCredentials
-                            .fromStream(new ByteArrayInputStream(secret.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+                            .fromStream(new ByteArrayInputStream(secret.getBytes(StandardCharsets.UTF_8)));
                 }
             } catch (Exception ignored) {
                 // JSON 解析失败，降级到 ADC

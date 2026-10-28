@@ -28,6 +28,13 @@ import com.chua.deeplearning.support.timeseries.ForecastRequest;
 import com.chua.deeplearning.support.timeseries.ForecastResult;
 import com.chua.deeplearning.support.timeseries.TimeSeriesForecaster;
 import java.awt.image.BufferedImage;
+import com.chua.deeplearning.support.onnx.dino.GroundingDinoTranslator;
+import com.chua.deeplearning.support.onnx.text.gemma3.Gemma3Translator;
+import com.chua.deeplearning.support.onnx.generation.SmallStableDiffusionCombinedTranslator;
+import com.chua.deeplearning.support.onnx.text.qwen.OnnxQwenTranslator;
+import com.chua.deeplearning.support.onnx.generation.SmallSdTextEncoderTranslator;
+import com.chua.deeplearning.support.onnx.generation.SmallSdVaeDecoderTranslator;
+import com.chua.deeplearning.support.onnx.generation.SmallSdUnetTranslator;
 
 /**
  * ONNX 模块模型集中注册器。
@@ -356,17 +363,17 @@ public class OnnxModelRegistrar implements ModelRegistrar {
             Image.class, NDList.class, Object.class, "vision/detection/lcm/lora/vae_encoder.onnx");
         // 文本编码器(Small-SD)：小型 Stable Diffusion 文本编码器，将文本提示编码为条件向量；适用轻量级文生图
         // 权重：subpixel/small-stable-diffusion-v0-onnx-ort-web（OFA-Sys/small-stable-diffusion-v0 的 ONNX 转换）
-        reg("small-sd-text-encoder", "com.chua.deeplearning.support.onnx.generation.SmallSdTextEncoderTranslator", String.class, NDList.class, Object.class, "vision/detection/small-sd/text_encoder/model.onnx",
+        reg("small-sd-text-encoder", "SmallSdTextEncoderTranslator", String.class, NDList.class, Object.class, "vision/detection/small-sd/text_encoder/model.onnx",
                 "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/text_encoder/model.onnx", false, null);
         // 图像生成(Small-SD UNet)：小型 Stable Diffusion 的 UNet 去噪网络；注意需将 unet/weights.pb（外部权重）手动放置到同目录
-        reg("small-sd-unet", "com.chua.deeplearning.support.onnx.generation.SmallSdUnetTranslator", NDList.class, NDList.class, Object.class, "vision/detection/small-sd/unet/model.onnx",
+        reg("small-sd-unet", "SmallSdUnetTranslator", NDList.class, NDList.class, Object.class, "vision/detection/small-sd/unet/model.onnx",
                 "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/unet/model.onnx", false, null);
         // 图像生成(Small-SD VAE Decoder)：小型 SD 的 VAE 解码器，将潜变量解码为图像；适用轻量级文生图后处理
-        reg("small-sd-vae-decoder", "com.chua.deeplearning.support.onnx.generation.SmallSdVaeDecoderTranslator", NDList.class, Image.class, Object.class, "vision/detection/small-sd/vae_decoder/model.onnx",
+        reg("small-sd-vae-decoder", "SmallSdVaeDecoderTranslator", NDList.class, Image.class, Object.class, "vision/detection/small-sd/vae_decoder/model.onnx",
                 "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/vae_decoder/model.onnx", false, null);
         // 文本到图像生成(Small-SD Combined 全流程编排)：文本编码 → CFG 引导 DDIM 去噪 → VAE 解码；
  // 主模型为文本编码器，unet/VAE/tokenizer.json 由编排器自动下载（fp32 约 3GB，含 unet 外部权重 权重.pb）
-        reg("small-stable-diffusion-combined", "com.chua.deeplearning.support.onnx.generation.SmallStableDiffusionCombinedTranslator", String.class, Image.class, Object.class, "vision/detection/small-sd/text_encoder/model.onnx",
+        reg("small-stable-diffusion-combined", "SmallStableDiffusionCombinedTranslator", String.class, Image.class, Object.class, "vision/detection/small-sd/text_encoder/model.onnx",
                 "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/text_encoder/model.onnx", false, null);
         // 图像生成(TAESD Decoder)：微型 VAE 解码器，极轻量级，用于快速解码潜变量；适用快速图像预览
         reg("taesd-decoder", "com.chua.deeplearning.support.onnx.generation.TaesdDecoderTranslator", NDList.class,
@@ -675,7 +682,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
             "https://huggingface.co/vietanhdev/segment-anything-onnx-models/resolve/main/sam_vit_h_4b8939.zip", true,
             "encoder.onnx");
         // 开放词汇检测(GroundingDINO)：用任意文本描述检测图像中的物体，比 OWLv2 更准确；适用零样本检测、开放词汇目标检测
-        reg("grounding-dino", "com.chua.deeplearning.support.onnx.dino.GroundingDinoTranslator", Image.class, DetectedObjects.class, ImageDetector.class, "vision/detection/grounding-dino-tiny/model.onnx", "https://huggingface.co/onnx-community/grounding-dino-tiny-ONNX/resolve/main/onnx/model.onnx",
+        reg("grounding-dino", "GroundingDinoTranslator", Image.class, DetectedObjects.class, ImageDetector.class, "vision/detection/grounding-dino-tiny/model.onnx", "https://huggingface.co/onnx-community/grounding-dino-tiny-ONNX/resolve/main/onnx/model.onnx",
                 List.of("https://hf-mirror.com/onnx-community/grounding-dino-tiny-ONNX/resolve/main/onnx/model.onnx"), false, "model.onnx");
         // 文本摘要(T5-small)：英文摘要/生成/翻译，多任务 seq2seq；modelscope 下载
  // 注意：T5 为 编码器-解码器 自回归多文件模型（编码器/解码器/解码器_with_past + tokenizer），
@@ -948,7 +955,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
  // 中文对话/文本生成；downloadurl 自动下载（不再内嵌模型文件，tokenizer 仍从 模型 jar 抽取）。
  // 文件位于仓库 gemma-3-270m-it/ 子目录（模型_fp16.onnx + 模型_fp16.onnx_数据 权重）
         String gemmaItUrl = "https://huggingface.co/chtk/chua-dl-models/resolve/main/gemma-3-270m-it/model_fp16.onnx";
-        reg("gemma-3-270m", "com.chua.deeplearning.support.onnx.text.gemma3.Gemma3Translator", String.class, String.class, Object.class,
+        reg("gemma-3-270m", "Gemma3Translator", String.class, String.class, Object.class,
                 null,
                 gemmaItUrl, List.of(gemmaItUrl, "https://hf-mirror.com/chtk/chua-dl-models/resolve/main/gemma-3-270m-it/model_fp16.onnx"),
                 false, "model_fp16.onnx",
@@ -956,7 +963,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                         .description("Gemma-3-270M it 版（fp16 KV-cache），downloadUrl 自动下载（含 onnx_data 权重）").build());
         // 本地大模型(Qwen2.5-1.5B-Instruct ONNX int8)：中文大模型对话（int8 单文件 ~1.5GB），downloadUrl 自动下载；适用本地对话（GPU 需 ≥2GB 显存）
         String qwenUrl = "https://huggingface.co/onnx-community/Qwen2.5-1.5B-Instruct/resolve/main/onnx/model_quantized.onnx";
-        reg("qwen2-1.5b-onnx", "com.chua.deeplearning.support.onnx.text.qwen.OnnxQwenTranslator", String.class, String.class, Object.class,
+        reg("qwen2-1.5b-onnx", "OnnxQwenTranslator", String.class, String.class, Object.class,
                 "models/qwen2.5-1.5b-instruct/model.onnx",
                 qwenUrl, List.of(qwenUrl), false, "model.onnx",
                 HardwareConfig.builder().device("gpu").minVramMb(2048).recommended(true)
