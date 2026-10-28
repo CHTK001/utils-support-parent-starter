@@ -48,7 +48,7 @@ public class CollectionUtils {
      * @param <T>        集合元素类型
      */
     public static <T> void forEach(@Nullable Collection<T> collection, @Nullable Consumer<T> consumer) {
-        if(isEmpty(collection) || ObjectUtils.isNull(consumer)) {
+        if (isEmpty(collection) || ObjectUtils.isNull(consumer)) {
             return;
         }
         collection.forEach(consumer);
@@ -321,7 +321,7 @@ public class CollectionUtils {
      * @return 第一个元素，null 返回 空
      */
     public static <T> T findFirst(final Iterable<T> source) {
-        if(null == source) {
+        if (null == source) {
             return null;
         }
         Iterator<T> iterator = source.iterator();
@@ -891,12 +891,12 @@ public class CollectionUtils {
      * @return 存在返回 true
      */
     public static boolean contains(String source, Collection<String> target) {
-        if(StringUtils.isEmpty(source)) {
+        if (StringUtils.isEmpty(source)) {
             return false;
         }
 
         for (String s : target) {
-            if(s.equals(source)) {
+            if (s.equals(source)) {
                 return true;
             }
         }
@@ -911,12 +911,12 @@ public class CollectionUtils {
      * @return 存在返回 true
      */
     public static boolean containsIgnoreCase(Collection<String> target, String source) {
-        if(StringUtils.isEmpty(source)) {
+        if (StringUtils.isEmpty(source)) {
             return false;
         }
 
         for (String s : target) {
-            if(s.equalsIgnoreCase(source)) {
+            if (s.equalsIgnoreCase(source)) {
                 return true;
             }
         }
@@ -931,13 +931,13 @@ public class CollectionUtils {
      * @return 全部包含返回 true
      */
     public static boolean containsAllIgnoreCase(Collection<String> target, String... source) {
-        if(ArrayUtils.isEmpty(source)) {
+        if (ArrayUtils.isEmpty(source)) {
             return true;
         }
 
         for (String s : target) {
             for (String s1 : source) {
-                if(!s.equalsIgnoreCase(s1)) {
+                if (!s.equalsIgnoreCase(s1)) {
                     return false;
                 }
             }
@@ -1076,12 +1076,12 @@ public class CollectionUtils {
     public static Object[][] toArray(Object[] args, List<String> names) {
         List<Object[]> rs = Wraps.list();
         for (Object arg : args) {
-            if(arg instanceof  Map) {
+            if (arg instanceof  Map) {
                 rs.add(toArray((Map)arg, names));
                 continue;
             }
 
-            if(arg instanceof Collection) {
+            if (arg instanceof Collection) {
                 rs.add(toArray((Collection)arg, names));
                 continue;
             }
@@ -1103,12 +1103,12 @@ public class CollectionUtils {
      */
     private static Object[] toArray(Collection arg, List<String> names) {
         Object[] rs = new Object[names.size()];
-        if(CollectionUtils.isEmpty(arg)) {
+        if (CollectionUtils.isEmpty(arg)) {
             return rs;
         }
         for (int i = 0; i < names.size(); i++) {
             rs[i] = null;
-            if(arg.size() < i) {
+            if (arg.size() < i) {
                 rs[i] = CollectionUtils.find(arg, i);
             }
         }
@@ -1125,7 +1125,7 @@ public class CollectionUtils {
      */
     private static Object[] toArray(Map arg, List<String> names) {
         Object[] rs = new Object[names.size()];
-        if(MapUtils.isEmpty(arg)) {
+        if (MapUtils.isEmpty(arg)) {
             return rs;
         }
 
@@ -1150,7 +1150,7 @@ public class CollectionUtils {
      * @return Map 结果
      */
     public static <R, T>Map<R, T> convertMap(List<T> list, Function<T, R> function) {
-        if(isEmpty(list) || null == function) {
+        if (isEmpty(list) || null == function) {
             return Collections.emptyMap();
         }
         Map<R, T> rs = Wraps.map(list.size());
@@ -1172,7 +1172,7 @@ public class CollectionUtils {
      * @return 分组后的 映射 结果
      */
     public static <R, T>Map<R, List<T>> convertMaps(List<T> list, Function<T, R> function) {
-        if(isEmpty(list) || null == function) {
+        if (isEmpty(list) || null == function) {
             return Collections.emptyMap();
         }
         Map<R, List<T>> rs = Wraps.map(list.size());
@@ -1201,7 +1201,7 @@ public class CollectionUtils {
      * @return 包含该元素的单例列表，null 返回空列表
      */
     public static <T>List<T> wrapper(T element) {
-        if(null == element) {
+        if (null == element) {
             return Collections.emptyList();
         }
         return Collections.singletonList(element);
@@ -1311,7 +1311,7 @@ public class CollectionUtils {
      */
     public static <K, V> Collection<? extends K> keySet(Map<K, V> temp) {
         //
-        if(isEmpty(temp)) {
+        if (isEmpty(temp)) {
             return Collections.emptyList();
         }
 
@@ -1348,13 +1348,13 @@ public class CollectionUtils {
      */
     public static <T> T firstValidate(List<T> s) {
         //
-        if(isEmpty(s)) {
+        if (isEmpty(s)) {
             return null;
         }
 
         //
         for (T t : s) {
-            if(ObjectUtils.isNotEmpty(t)) {
+            if (ObjectUtils.isNotEmpty(t)) {
                 return t;
             }
         }
@@ -1439,7 +1439,7 @@ public class CollectionUtils {
      * @return 连接后的字符串
      */
     public static String join(List<String> eles, int step, String seq) {
-        if(isEmpty(eles)) {
+        if (isEmpty(eles)) {
             return SYMBOL_EMPTY;
         }
         StringBuilder sb = new StringBuilder();
@@ -1493,7 +1493,7 @@ public class CollectionUtils {
      * @throws IllegalArgumentException 如果列表为空
      */
     public static <E>E singletonOrThrow(List<E> elements) {
-        if(isEmpty(elements)) {
+        if (isEmpty(elements)) {
             throw new IllegalArgumentException("列表为空，无法取唯一元素");
         }
         return elements.getFirst();
@@ -1556,7 +1556,7 @@ public class CollectionUtils {
      * @param <T>      元素类型
      */
     public static <T> void print(List<T> list, Function<T, String> function) {
-        if(isEmpty(list) || null == function) {
+        if (isEmpty(list) || null == function) {
             log.info("list is empty");
             return;
         }

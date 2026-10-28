@@ -60,7 +60,7 @@ public class Base32 {
  // 将大写字母映射到查找表中
  lookupTable[c - BASE_CHAR] = (byte) i;
  // 同时支持小写字母，忽略大小写处理
- if(c >= 'A' && c <= 'Z'){
+ if (c >= 'A' && c <= 'Z'){
  lookupTable[Character.toLowerCase(c) - BASE_CHAR] = (byte) i;
  }
  }

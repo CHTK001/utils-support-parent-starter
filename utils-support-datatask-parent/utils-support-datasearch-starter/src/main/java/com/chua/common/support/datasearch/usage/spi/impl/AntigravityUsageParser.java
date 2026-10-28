@@ -53,7 +53,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
 
     private static final String PROVIDER_ANTIGRAVITY = "antigravity";
 
-    private static final String VARIANT_SUBDIRS[] =
+    private static final String[] VARIANT_SUBDIRS =
             {"antigravity", "antigravity-ide", "antigravity-cli"};
 
     private static final Pattern MODEL_SELECTION = Pattern.compile(

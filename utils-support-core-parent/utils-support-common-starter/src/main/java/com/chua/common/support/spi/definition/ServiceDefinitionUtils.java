@@ -222,7 +222,7 @@ public class ServiceDefinitionUtils {
      * @return 服务名称数组
      */
     private static String[] getName(Class<?> implType) {
-        if(null == implType) {
+        if (null == implType) {
             return SYMBOL_EMPTY_STRING_ARRAY;
         }
         Set<String> name = Wraps.linkedSet();

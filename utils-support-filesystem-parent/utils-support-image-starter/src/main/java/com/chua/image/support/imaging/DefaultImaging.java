@@ -76,7 +76,7 @@ public class DefaultImaging implements Imaging{
     public Imaging outputQuality(float outputQuality) {
         ImageWriter imageWriter = ImageIO.getImageWritersByFormatName(type).next();
         ImageWriteParam imageWriteParam = imageWriter.getDefaultWriteParam();
-        if(!imageWriteParam.canWriteCompressed()) {
+        if (!imageWriteParam.canWriteCompressed()) {
             return this;
         }
         imageWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);

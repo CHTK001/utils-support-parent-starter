@@ -184,7 +184,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
                 LOGGER.debug("            : {},          : {}", race, raceConfidence);
             }
 
-        } else if(list.size() == 1) {
+        } else if (list.size() == 1) {
             //                                                          
             NDArray output = list.getFirst();
             if (LOGGER.isDebugEnabled()) {

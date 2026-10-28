@@ -28,8 +28,8 @@ public class DefaultBackgroundResolver implements BackgroundResolver{
         
         return QrCodeRenderHelper.drawBackground(image,
                 QrCodeOptions.BgImgOptions.builder()
-                        .bgImg( BufferedImageUtils.toBufferedImage(backgroundSetting.getBackgroundImage()))
-                        .bgW( setting.getWidth())
+                        .bgImg(BufferedImageUtils.toBufferedImage(backgroundSetting.getBackgroundImage()))
+                        .bgW(setting.getWidth())
                         .bgH(setting.getHeight())
                         .opacity(backgroundSetting.getBgAlpha())
                         .build()

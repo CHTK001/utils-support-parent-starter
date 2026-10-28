@@ -960,7 +960,7 @@ public class DateUtils {
      * @throws IllegalArgumentException 若 str 为 空 或空字符串
      */
     public static Date parseDate(String str) throws ParseException {
-        if(StringUtils.isNullOrEmpty(str)) {
+        if (StringUtils.isNullOrEmpty(str)) {
             throw new IllegalArgumentException("str is null");
         }
         if (str.length() > NUMBER_10 && NumberUtils.isNumber(str)) {
@@ -1301,10 +1301,10 @@ public class DateUtils {
         if (null == temporalAccessor) {
             return null;
         }
-        if(temporalAccessor instanceof LocalDateTime) {
+        if (temporalAccessor instanceof LocalDateTime) {
             return toDate((LocalDateTime)temporalAccessor);
         }
-        if(temporalAccessor instanceof LocalDate) {
+        if (temporalAccessor instanceof LocalDate) {
             return toDate((LocalDate)temporalAccessor);
         }
         return null;
@@ -1830,7 +1830,7 @@ public class DateUtils {
         if (null == date) {
             return null;
         }
-        if(date instanceof java.sql.Date) {
+        if (date instanceof java.sql.Date) {
             return toLocalDateTime(date.getTime());
         }
         Instant instant = date.toInstant();

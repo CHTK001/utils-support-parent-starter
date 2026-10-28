@@ -44,19 +44,19 @@ public class InstantTypeConverter implements TypeConverter<Instant>{
      */
     @Override
     public Instant convert(Object value) {
-        if(value instanceof Date) {
+        if (value instanceof Date) {
             return DateUtils.toInstant((Date) value);
         }
 
-        if(value instanceof LocalDate) {
+        if (value instanceof LocalDate) {
             return DateUtils.toInstant((LocalDate) value);
         }
 
-        if(value instanceof LocalTime) {
+        if (value instanceof LocalTime) {
             return DateUtils.toInstant((LocalTime) value);
         }
 
-        if(value instanceof String) {
+        if (value instanceof String) {
             try {
                 return DateUtils.toInstant(DateUtils.parseDate(value.toString()));
             } catch (ParseException e) {

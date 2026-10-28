@@ -71,11 +71,11 @@ public class StringTypeConverter implements TypeConverter<String> {
             return f.getAbsolutePath();
         }
 
-        if(value instanceof Path path) {
+        if (value instanceof Path path) {
             return path.toAbsolutePath().toString();
         }
 
-        if(value instanceof URI uri) {
+        if (value instanceof URI uri) {
             return uri.toString();
         }
 

@@ -51,7 +51,7 @@ public class QuarkusServerHandlerAnnotationParser
     */
     @Override
     public List<ServerHandler> parse(ObjectContext objectContext, ServerFilter serverFilter) {
-        if(!(serverFilter instanceof UrlMappingServerFilter)) {
+        if (!(serverFilter instanceof UrlMappingServerFilter)) {
             return List.of();
         }
 

@@ -116,7 +116,7 @@ public class InputStreamTypeConverter implements TypeConverter<InputStream> {
         if (value instanceof String) {
             String s = value.toString();
             File file = new File(s);
-            if(file.exists()) {
+            if (file.exists()) {
                 try {
                     return new FileInputStream(file);
                 } catch (FileNotFoundException e) {

@@ -46,7 +46,7 @@ public class BytesTypeConverter implements TypeConverter<byte[]> {
             return new byte[0];
         }
 
-        if(value instanceof String) {
+        if (value instanceof String) {
             String stringValue = value.toString();
             if (stringValue.startsWith(SYMBOL_LEFT_SQUARE_BRACKET) && stringValue.endsWith(SYMBOL_RIGHT_SQUARE_BRACKET)) {
                 stringValue = stringValue.substring(1, stringValue.length() - 1);
@@ -54,7 +54,7 @@ public class BytesTypeConverter implements TypeConverter<byte[]> {
             }
 
             File file = new File(stringValue);
-            if(file.exists()) {
+            if (file.exists()) {
                 try {
                     return readBytes(Files.newInputStream(file.toPath()));
                 } catch (IOException e) {

@@ -130,8 +130,8 @@ public class SudokuImageFilter extends AbstractImageFilter{
         Graphics graphics = newBufferedImage.getGraphics();
         graphics.setColor(new Color(255, 255, 255));
         graphics.fillRect(0, 0, width, height);
-        for(int i = 0 ; i < 3; i++) {
-            for(int j = 0 ; j < 3; j++) {
+        for (int i = 0 ; i < 3; i++) {
+            for (int j = 0 ; j < 3; j++) {
                 int startX = j * smallWidth;
                 int startY = i * smallHeight;
                 BufferedImage subimage = src.getSubimage(startX, startY, smallWidth - solid, smallHeight - solid);

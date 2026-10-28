@@ -57,7 +57,7 @@ public class ListTypeConverter implements TypeConverter<List> {
             return Wraps.list((Collection) value);
         }
 
-        if(value instanceof Iterable) {
+        if (value instanceof Iterable) {
             List<Object> tpl = Wraps.list();
             ((Iterable<?>) value).forEach(tpl::add);
             return tpl;

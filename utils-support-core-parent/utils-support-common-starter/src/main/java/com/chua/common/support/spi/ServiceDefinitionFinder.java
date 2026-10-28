@@ -235,7 +235,7 @@ public class ServiceDefinitionFinder {
      * @return 服务定义列表
      */
     public SortedList<ServiceDefinition> getDefinitions(String name, Object... args) {
-        if(null == name && definitions.size() == 1) {
+        if (null == name && definitions.size() == 1) {
             return definitions.values().iterator().next();
         }
         name =  null == name ? DEFAULT : name.toUpperCase();

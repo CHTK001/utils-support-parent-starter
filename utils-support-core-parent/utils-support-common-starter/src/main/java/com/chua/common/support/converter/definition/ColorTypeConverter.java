@@ -59,7 +59,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
         if (value instanceof String) {
             String str = value.toString().toLowerCase();
 
-            if(str.startsWith(HEX_16)) {
+            if (str.startsWith(HEX_16)) {
                 return hexRgba(str.replace(HEX_16, ""));
             }
 
@@ -71,7 +71,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
                 return rgb(str.replace("rgb(", "").replace(")", ""));
             }
 
-            if(str.startsWith(SYMBOL_HASH)) {
+            if (str.startsWith(SYMBOL_HASH)) {
                 return hexStringToColor(str);
             }
         }
@@ -91,14 +91,14 @@ public class ColorTypeConverter implements TypeConverter<Color> {
         }
 
         int length = hexColor.length();
-        if(length == 3) {
+        if (length == 3) {
             return new Color(
                     Integer.parseInt(String.valueOf(hexColor.charAt(0) + hexColor.charAt(0)), 16),
                     Integer.parseInt(String.valueOf(hexColor.charAt(1) + hexColor.charAt(1)), 16),
                     Integer.parseInt(String.valueOf(hexColor.charAt(2) + hexColor.charAt(2)), 16)
             );
         }
-        if(length < 6) {
+        if (length < 6) {
             hexColor = hexColor  + StringUtils.repeat("0", 6 - length);
         }
         int r = Integer.parseInt(hexColor.substring(0, 2), 16);
@@ -116,7 +116,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
      */
     private Color hexRgba(String str) {
         boolean hasA = str.length() >= 8;
-        if(hasA) {
+        if (hasA) {
             String str1 = str.substring(0, 2);
             String str2 = str.substring(2, 4);
             String str3 = str.substring(4, 6);

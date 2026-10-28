@@ -26,7 +26,7 @@ public class DefaultFrontResolver implements FrontResolver {
     */
     @Override
     public BufferedImage resolve(BufferedImage bufferedImage, FrontSetting frontSetting, QrSetting setting) throws IOException {
-        if(null == frontSetting) {
+        if (null == frontSetting) {
             return bufferedImage;
         }
 

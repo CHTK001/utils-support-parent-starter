@@ -76,7 +76,7 @@ public class DefaultQrCode extends AbstractQrCode {
             BitMatrixEx bitMatrix = encode(qrCode, codeOptions);
             BufferedImage bufferedImage = getBufferedImage(codeOptions, setting, qrCode, bitMatrix);
 
-            if(setting.hasBackgroundStyle()) {
+            if (setting.hasBackgroundStyle()) {
                 BackgroundSetting backgroundSetting = setting.getBackgroundSetting();
                 bufferedImage = ServiceProvider.of(BackgroundResolver.class).getNewExtension(backgroundSetting.getBgImgStyle()).resolve(setting, setting.getBackgroundSetting(), bufferedImage, qrCode, bitMatrix);
             }

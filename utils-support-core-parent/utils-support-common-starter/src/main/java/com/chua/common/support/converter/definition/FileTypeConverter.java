@@ -103,7 +103,7 @@ public class FileTypeConverter implements TypeConverter<File> {
             int length = Array.getLength(value);
             for (int i = 0; i < length; i++) {
                 Object o = Array.get(value, i);
-                if(null != o && o instanceof File) {
+                if (null != o && o instanceof File) {
                     return (File) o;
                 }
             }
@@ -166,7 +166,7 @@ public class FileTypeConverter implements TypeConverter<File> {
         }
 
         File temp = null;
-        if(str.startsWith(CLASSPATH_URL_PREFIX) || str.startsWith(CLASSPATH_URL_ALL_PREFIX)) {
+        if (str.startsWith(CLASSPATH_URL_PREFIX) || str.startsWith(CLASSPATH_URL_ALL_PREFIX)) {
             URL resourceUrl = Thread.currentThread().getContextClassLoader().getResource(
                 str.startsWith(CLASSPATH_URL_PREFIX) ? str.substring(CLASSPATH_URL_PREFIX.length()) : str.substring(CLASSPATH_URL_ALL_PREFIX.length())
             );
@@ -179,7 +179,7 @@ public class FileTypeConverter implements TypeConverter<File> {
             return temp;
         }
 
-        if(str.startsWith(CLASSPATH_URL_PREFIX)) {
+        if (str.startsWith(CLASSPATH_URL_PREFIX)) {
             temp = new File("src/main/resources", str.substring(CLASSPATH_URL_PREFIX.length()));
         } else {
             temp = new File("src/main/resources", str);
@@ -190,7 +190,7 @@ public class FileTypeConverter implements TypeConverter<File> {
         }
 
         URL resource = null;
-        if(str.startsWith(CLASSPATH_URL_PREFIX)) {
+        if (str.startsWith(CLASSPATH_URL_PREFIX)) {
             resource = ClassLoader.getSystemClassLoader().getResource(str.substring(CLASSPATH_URL_PREFIX.length()));
         } else {
             resource = ClassLoader.getSystemClassLoader().getResource(str);
@@ -198,7 +198,7 @@ public class FileTypeConverter implements TypeConverter<File> {
 
         if (null != resource && FILE_PROTOCOL.equals(resource.getProtocol())) {
             temp = new File(resource.getFile());
-            if(temp.exists()) {
+            if (temp.exists()) {
                 return temp;
             }
         }
@@ -218,7 +218,7 @@ public class FileTypeConverter implements TypeConverter<File> {
 
         try {
             File file = new File(str);
-            if(file.exists()) {
+            if (file.exists()) {
                 return file;
             }
         } catch (Exception e) {
