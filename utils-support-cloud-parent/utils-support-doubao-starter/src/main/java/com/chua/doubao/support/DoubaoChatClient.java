@@ -408,7 +408,8 @@ public class DoubaoChatClient implements ChatClient {
             }
             String[] parts = hostPort.split(":");
             return new java.net.Proxy(proxyType,
-                                      new InetSocketAddress(parts[0], parts.length > 1 ? Integer.parseInt(parts[1]) : 80));
+                                      new InetSocketAddress(parts[0],
+                                                            parts.length > 1 ? Integer.parseInt(parts[1]) : 80));
         } catch (Exception e) {
             return null;
         }

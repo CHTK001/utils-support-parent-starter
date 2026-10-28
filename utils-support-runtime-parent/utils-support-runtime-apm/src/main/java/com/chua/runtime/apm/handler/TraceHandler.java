@@ -493,7 +493,8 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
                 span.setAccept(httpCtx.getAccept());
 
                 LOG.log(Level.FINE,
-                        String.format("[Trace-HTTP] %s status=%s duration=%sms clientIp=%s", httpCtx.getRequestPath(), status, duration, httpCtx.getClientIp()));
+                        String.format("[Trace-HTTP] %s status=%s duration=%sms clientIp=%s", httpCtx.getRequestPath(),
+                                      status, duration, httpCtx.getClientIp()));
             }
         } catch (Exception e) {
             LOG.log(Level.FINE, String.format("TraceHandler.handleHttpExit 处理异常: %s", e.getMessage()));
@@ -532,7 +533,8 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         }
 
         LOG.log(Level.FINE,
-                String.format("[Trace] BEGIN: traceId=%s, parent=%s, span=%s, class=%s.%s", span.getTraceId(), parentSpanId != null ? parentSpanId : "root", span.getSpanId(), className, methodName));
+                String.format("[Trace] BEGIN: traceId=%s, parent=%s, span=%s, class=%s.%s", span.getTraceId(),
+                              parentSpanId != null ? parentSpanId : "root", span.getSpanId(), className, methodName));
         return span.getSpanId();
     }
 
@@ -565,7 +567,8 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
             span.setSelfTime(span.getDuration());
             span.setStatus(STATUS_OK);
             LOG.log(Level.FINE,
-                    String.format("[Trace] END: %s.%s, span=%s, duration=%sms", className, methodName, span.getSpanId(), span.getDuration()));
+                    String.format("[Trace] END: %s.%s, span=%s, duration=%sms", className, methodName,
+                                  span.getSpanId(), span.getDuration()));
         }
     }
 
@@ -586,7 +589,8 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
             String errorMsg = throwable != null ? throwable.getMessage() : UNKNOWN_ERROR;
             span.setException(errorMsg);
             LOG.log(Level.FINE,
-                    String.format("[Trace] ERROR: %s.%s, span=%s, error=%s", className, methodName, span.getSpanId(), errorMsg));
+                    String.format("[Trace] ERROR: %s.%s, span=%s, error=%s", className, methodName, span.getSpanId(),
+                                  errorMsg));
         }
     }
 

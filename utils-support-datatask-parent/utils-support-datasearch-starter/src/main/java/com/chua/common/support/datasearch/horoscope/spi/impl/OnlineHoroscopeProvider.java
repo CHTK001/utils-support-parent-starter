@@ -228,11 +228,14 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
                             int career, int wealth, int health, String luckyNumber, String luckyColor, String description) {
         Map<String, HoroscopeInfo> inner = Wraps.map();
         inner.put("today",
-                  new HoroscopeInfo(sign, "today", overall, love, career, wealth, health, luckyNumber, luckyColor, description));
+                  new HoroscopeInfo(sign, "today", overall, love, career, wealth, health, luckyNumber, luckyColor,
+                                    description));
         inner.put("week",
-                  new HoroscopeInfo(sign, "week", overall, love, career, wealth, health, luckyNumber, luckyColor, description));
+                  new HoroscopeInfo(sign, "week", overall, love, career, wealth, health, luckyNumber, luckyColor,
+                                    description));
         inner.put("month",
-                  new HoroscopeInfo(sign, "month", overall, love, career, wealth, health, luckyNumber, luckyColor, description));
+                  new HoroscopeInfo(sign, "month", overall, love, career, wealth, health, luckyNumber, luckyColor,
+                                    description));
         map.put(sign, inner);
     }
 }

@@ -30,6 +30,7 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
      * 车牌名称
     */
     private static final String PLATE_NAME = "#                                                                                          " +
+            "" +
             "                                 0123456789ABCDEFGHJKLMNPQRSTUVWXYZ      ";
     /**
      * 车牌颜色数组
@@ -55,6 +56,7 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
      * 省份名称
     */
     private static final String PROVINCES = "                                                                                           " +
+            "" +
             "  ";
 
     /**

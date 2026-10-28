@@ -142,7 +142,8 @@ public class EmojiUtils extends AbstractEmoji {
                     String lowSurrogate1 = matcher.group("L1");
                     String lowSurrogate2 = matcher.group("L2");
                     matcher.appendReplacement(sb,
-                                              processStringWithRegex(highSurrogate1 + highSurrogate2, SHORT_CODE_OR_HTML_ENTITY_PATTERN, 0, false));
+                                              processStringWithRegex(highSurrogate1 + highSurrogate2,
+                                                      SHORT_CODE_OR_HTML_ENTITY_PATTERN, 0, false));
 
                     if (sb.toString().endsWith(highSurrogate2)) {
                         resetIndex = sb.length() - highSurrogate2.length();

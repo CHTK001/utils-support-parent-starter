@@ -311,7 +311,8 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
                 LOG.log(Level.FINE, "appendLeak(close) 异常: " + e.getMessage());
             }
             LOG.log(Level.FINE,
-                    String.format("[Handle] CLOSE: kind=%s id=%s age=%sms", kind, oldest.getHandleId(), oldest.getLastUsedAt() - oldest.getCreatedAt()));
+                    String.format("[Handle] CLOSE: kind=%s id=%s age=%sms", kind, oldest.getHandleId(),
+                                  oldest.getLastUsedAt() - oldest.getCreatedAt()));
         }
     }
 

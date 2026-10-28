@@ -395,7 +395,8 @@ public final class ModelRegistry {
                                 Class<?> inputType, Class<?> outputType,
                                 Class<?> capabilityInterface, String relativePath) {
         REGISTRY.put(modelId,
-                     new Entry(modelId, translatorClassName, inputType, outputType, capabilityInterface, relativePath, null, null, null, false, null, null));
+                     new Entry(modelId, translatorClassName, inputType, outputType, capabilityInterface, relativePath,
+                               null, null, null, false, null, null));
         log.debug("[deeplearning-engine] ModelRegistry register: {} -> {}", modelId, translatorClassName);
     }
 

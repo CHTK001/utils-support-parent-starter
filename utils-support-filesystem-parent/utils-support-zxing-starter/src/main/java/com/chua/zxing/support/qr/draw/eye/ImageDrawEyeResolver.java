@@ -54,7 +54,8 @@ public class ImageDrawEyeResolver extends AbstractDrawEyeResolver{
         if (detectedImg != null) {
             if (StringUtils.isNotBlank(codeEyeSetting.getCodeEyeColor())) {
                 BufferedImageUtils.changeColor(detectedImg,
-                                               Converter.convertIfNecessary(codeEyeSetting.getCodeEyeColor(), Color.class));
+                                               Converter.convertIfNecessary(codeEyeSetting.getCodeEyeColor(),
+                                                       Color.class));
             }
             // 使用探测图形的图片来渲染
             g2.drawImage(detectedImg
