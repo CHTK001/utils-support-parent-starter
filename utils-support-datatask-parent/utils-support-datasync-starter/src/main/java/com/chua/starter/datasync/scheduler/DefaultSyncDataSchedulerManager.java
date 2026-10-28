@@ -434,7 +434,8 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
 
  // 方向约束：源 应为 输入，sink 应为 输出
         if (source instanceof com.chua.datasync.agent.support.model.Directional) {
-            com.chua.datasync.agent.support.model.Direction srcDir = ((com.chua.datasync.agent.support.model.Directional) source).direction();
+            com.chua.datasync.agent.support.model.Direction srcDir =
+                    ((com.chua.datasync.agent.support.model.Directional) source).direction();
             if (srcDir != com.chua.datasync.agent.support.model.Direction.INPUT) {
                 log.error("Source 方向错误，应为 INPUT，已阻止执行: mappingId={}, sourceId={}, direction={}", mapping.mappingId(),
                           sourceId, srcDir);

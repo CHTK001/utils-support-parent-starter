@@ -320,7 +320,8 @@ public class CollapsibleIntercept
                 continue;
             }
             for (InvocationKey owner : entry.getValue()) {
-                Map<Object, Object> sub = (Map<Object, Object>) result.computeIfAbsent(owner, ignored -> Wraps.linkedMap());
+                Map<Object, Object> sub =
+                        (Map<Object, Object>) result.computeIfAbsent(owner, ignored -> Wraps.linkedMap());
                 sub.put(collapseKey, full.get(collapseKey));
             }
         }

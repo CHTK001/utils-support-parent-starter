@@ -62,15 +62,18 @@ public class MuouResourceProvider extends AbstractResourceProvider {
     /**
      * 百度网盘链接模式
     */
-    private static final Pattern BAIDU = Pattern.compile("https?://pan\\.baidu\\.com/s/[0-9a-zA-Z_\\-]+(?:\\?pwd=[0-9a-zA-Z]+)?");
+    private static final Pattern BAIDU =
+            Pattern.compile("https?://pan\\.baidu\\.com/s/[0-9a-zA-Z_\\-]+(?:\\?pwd=[0-9a-zA-Z]+)?");
     /**
      * 阿里云盘链接模式
     */
-    private static final Pattern ALIYUN = Pattern.compile("https?://(?:www\\.)?(aliyundrive\\.com|alipan\\.com)/s/[0-9a-zA-Z]+");
+    private static final Pattern ALIYUN =
+            Pattern.compile("https?://(?:www\\.)?(aliyundrive\\.com|alipan\\.com)/s/[0-9a-zA-Z]+");
     /**
      * 迅雷网盘链接模式
     */
-    private static final Pattern XUNLEI = Pattern.compile("https?://pan\\.xunlei\\.com/s/[0-9a-zA-Z_\\-]+(?:\\?pwd=[0-9a-zA-Z]+)?");
+    private static final Pattern XUNLEI =
+            Pattern.compile("https?://pan\\.xunlei\\.com/s/[0-9a-zA-Z_\\-]+(?:\\?pwd=[0-9a-zA-Z]+)?");
     /**
      * 天翼云盘链接模式
     */

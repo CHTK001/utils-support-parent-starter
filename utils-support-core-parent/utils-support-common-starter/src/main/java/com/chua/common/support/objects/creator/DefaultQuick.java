@@ -967,7 +967,8 @@ public class DefaultQuick implements Quick {
             return switch (type) {
                 case "linked" -> Wraps.list(values);
                 case "sorted" -> {
-                    SortedArrayList<E> sorted = new SortedArrayList<>((Comparator<? super E>) Comparator.naturalOrder());
+                    SortedArrayList<E> sorted =
+                            new SortedArrayList<>((Comparator<? super E>) Comparator.naturalOrder());
                     sorted.addAll(values);
                     yield sorted;
                 }

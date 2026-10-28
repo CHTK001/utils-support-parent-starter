@@ -32,7 +32,8 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
     /**
      * unconfigured 值
      */
-    private static final String UNCONFIGURED_VALUE = "org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE";
+    private static final String UNCONFIGURED_VALUE =
+            "org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE";
 
     /**
      * 是否支持

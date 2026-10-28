@@ -54,7 +54,8 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
     /**
      * IO 缓冲线程本地实例（worker 复用一个，避免每事件 new 导致 GC 压力）
      */
-    private static final ThreadLocal<ByteBuffer> IO_BUFFER = ThreadLocal.withInitial(() -> ByteBuffer.allocateDirect(READ_BUFFER_SIZE));
+    private static final ThreadLocal<ByteBuffer> IO_BUFFER =
+            ThreadLocal.withInitial(() -> ByteBuffer.allocateDirect(READ_BUFFER_SIZE));
 
     /**
      * 客户端连接表（clientId -> connection）
@@ -105,7 +106,8 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
     /**
      * Worker 轮询索引
      */
-    private final java.util.concurrent.atomic.AtomicInteger workerIndex = new java.util.concurrent.atomic.AtomicInteger();
+    private final java.util.concurrent.atomic.AtomicInteger workerIndex =
+            new java.util.concurrent.atomic.AtomicInteger();
 
     /**
      * 运行状态

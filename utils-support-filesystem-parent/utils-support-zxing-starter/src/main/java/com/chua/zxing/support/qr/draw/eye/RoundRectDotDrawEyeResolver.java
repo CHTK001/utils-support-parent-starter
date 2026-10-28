@@ -74,7 +74,8 @@ public class RoundRectDotDrawEyeResolver extends AbstractDrawEyeResolver {
         // 清除中间留白
         int ring = infoSize;
         g2.setColor(Color.WHITE);
-        RoundRectangle2D.Double innerBlank = new RoundRectangle2D.Double(sx + ring, sy + ring, sw - 2 * ring, sh - 2 * ring,
+        RoundRectangle2D.Double innerBlank =
+                new RoundRectangle2D.Double(sx + ring, sy + ring, sw - 2 * ring, sh - 2 * ring,
                 (sw - 2 * ring) / 2D, (sh - 2 * ring) / 2D);
         g2.fill(innerBlank);
 

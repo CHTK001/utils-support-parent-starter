@@ -86,7 +86,8 @@ tb = inPixels[index] & 0xff;
                 int fb = (int) colorBlend(noise(), (tr * 0.272) + (tg * 0.534) + (tb * 0.131), tb);
 
                 // 重新组合ARGB值，确保颜色值在有效范围内
-                outPixels[index] = (ta << 24) | (ImageProcessorUtils.clamp(fr) << 16) | (ImageProcessorUtils.clamp(fg) << 8) | ImageProcessorUtils.clamp(fb);
+                outPixels[index] =
+                        (ta << 24) | (ImageProcessorUtils.clamp(fr) << 16) | (ImageProcessorUtils.clamp(fg) << 8) | ImageProcessorUtils.clamp(fb);
             }
         }
 

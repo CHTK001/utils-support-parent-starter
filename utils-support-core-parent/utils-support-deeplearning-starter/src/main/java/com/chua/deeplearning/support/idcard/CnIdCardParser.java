@@ -18,14 +18,19 @@ public class CnIdCardParser {
     private static final Pattern NAME_PATTERN = Pattern.compile("姓名\\s*[:：]\\s*(\\S+)"); // 名称模式
     private static final Pattern GENDER_PATTERN = Pattern.compile("性别\\s*[:：]\\s*(\\S+)"); // gender模式
     private static final Pattern ETHNICITY_PATTERN = Pattern.compile("民族\\s*[:：]\\s*(\\S+)"); // ethnicity模式
-    private static final Pattern BIRTH_PATTERN = Pattern.compile("出生\\s*[:：]\\s*(\\d{4})\\s*年\\s*(\\d{1,2})\\s*月\\s*(\\d{1,2})\\s*日");
-    private static final Pattern BIRTH_SHORT_PATTERN = Pattern.compile("出生\\s*[:：]\\s*(\\d{4})[^\\d]{1,3}(\\d{1,2})[^\\d]{1,3}(\\d{1,2})");
+    private static final Pattern BIRTH_PATTERN =
+            Pattern.compile("出生\\s*[:：]\\s*(\\d{4})\\s*年\\s*(\\d{1,2})\\s*月\\s*(\\d{1,2})\\s*日");
+    private static final Pattern BIRTH_SHORT_PATTERN =
+            Pattern.compile("出生\\s*[:：]\\s*(\\d{4})[^\\d]{1,3}(\\d{1,2})[^\\d]{1,3}(\\d{1,2})");
     private static final Pattern ID_PATTERN = Pattern.compile("公民身份号码\\s*[:：]\\s*([0-9Xx]{17}[0-9Xx])");
     private static final Pattern ADDRESS_PATTERN = Pattern.compile("住址\\s*[:：]\\s*([^\n\r]+)");
     private static final Pattern ISSUE_PATTERN = Pattern.compile("签发机关\\s*[:：]\\s*([^\n\r]+)");
-    private static final Pattern VALID_PATTERN = Pattern.compile("有效期限\\s*[:：]\\s*([^原]+)(?:\\s*至\\s*([^\n\r]*))?(?:\\s*原)?");
-    private static final Pattern VALID_LONG_PATTERN = Pattern.compile("有效期限\\s*[:：]\\s*(\\d{4})\\s*年\\s*(\\d{1,2})\\s*月\\s*(\\d{1,2})\\s*日\\s*至\\s*(\\d{4})\\s*年\\s*(\\d{1,2})\\s*月\\s*(\\d{1,2})\\s*日");
-    private static final Pattern VALID_SIMPLE_PATTERN = Pattern.compile("有效期限\\s*[:：]\\s*(\\d{4})[^\\d]{1,3}(\\d{1,2})[^\\d]{1,3}(\\d{1,2})");
+    private static final Pattern VALID_PATTERN =
+            Pattern.compile("有效期限\\s*[:：]\\s*([^原]+)(?:\\s*至\\s*([^\n\r]*))?(?:\\s*原)?");
+    private static final Pattern VALID_LONG_PATTERN =
+            Pattern.compile("有效期限\\s*[:：]\\s*(\\d{4})\\s*年\\s*(\\d{1,2})\\s*月\\s*(\\d{1,2})\\s*日\\s*至\\s*(\\d{4})\\s*年\\s*(\\d{1,2})\\s*月\\s*(\\d{1,2})\\s*日");
+    private static final Pattern VALID_SIMPLE_PATTERN =
+            Pattern.compile("有效期限\\s*[:：]\\s*(\\d{4})[^\\d]{1,3}(\\d{1,2})[^\\d]{1,3}(\\d{1,2})");
 
     /**
      * 从识别文本中解析身份证信息

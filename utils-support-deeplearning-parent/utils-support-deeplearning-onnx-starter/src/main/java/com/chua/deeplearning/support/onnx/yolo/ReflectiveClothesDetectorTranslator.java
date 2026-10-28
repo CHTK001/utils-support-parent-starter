@@ -12,7 +12,8 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 public class ReflectiveClothesDetectorTranslator extends YoloTranslator {
 
-    private static final List<String> REFLECTIVE_CLOTHES_2_CLASSES = Arrays.asList("safe", "unsafe"); // reflectiveclothes2类
+    private static final List<String> REFLECTIVE_CLOTHES_2_CLASSES =
+            Arrays.asList("safe", "unsafe"); // reflectiveclothes2类
 
     /**
      * reflectiveclothesdetectortranslator。

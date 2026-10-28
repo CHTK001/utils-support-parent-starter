@@ -30,7 +30,8 @@ public class WevisdocHttpClient {
     /**
      * 响应中的 markdown 字段
      */
-    private static final java.util.regex.Pattern MARKDOWN_FIELD_PATTERN = java.util.regex.Pattern.compile("\"markdown\"\\s*:\\s*\"(.*?)\"\\s*,");
+    private static final java.util.regex.Pattern MARKDOWN_FIELD_PATTERN =
+            java.util.regex.Pattern.compile("\"markdown\"\\s*:\\s*\"(.*?)\"\\s*,");
 
     /**
      * 默认服务地址。

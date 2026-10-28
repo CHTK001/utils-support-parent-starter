@@ -54,7 +54,8 @@ public class Florence2Translator implements ITranslator<Object[], String> {
     private static final int MAX_NEW_TOKENS = 100; // 最大新令牌
     private static final String MODEL_DIR = "vision/florence2/"; // 模型dir
     // 缓存根
-    private static final String CACHE_ROOT = System.getProperty("deeplearning.model.cache-dir", System.getProperty("java.io.tmpdir"));
+    private static final String CACHE_ROOT =
+            System.getProperty("deeplearning.model.cache-dir", System.getProperty("java.io.tmpdir"));
     private HuggingFaceTokenizer tokenizer; // tokenizer
     private OrtEnvironment ortEnv; // ortenv
     /**
@@ -292,10 +293,12 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                                 for (int l = 0; l < NUM_LAYERS; l++) {
                                     pastKV[l][0] = (OnnxTensor) stepDecodeResult.get("present." + l + ".decoder.key")
                                             .get();
-                                    pastKV[l][1] = (OnnxTensor) stepDecodeResult.get("present." + l + ".decoder.value").get();
+                                    pastKV[l][1] =
+                                            (OnnxTensor) stepDecodeResult.get("present." + l + ".decoder.value").get();
                                     pastKV[l][2] = (OnnxTensor) stepDecodeResult.get("present." + l + ".encoder.key")
                                             .get();
-                                    pastKV[l][3] = (OnnxTensor) stepDecodeResult.get("present." + l + ".encoder.value").get();
+                                    pastKV[l][3] =
+                                            (OnnxTensor) stepDecodeResult.get("present." + l + ".encoder.value").get();
                                 }
                             }
                             stepEmbedsTensor.close();

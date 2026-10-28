@@ -224,7 +224,8 @@ public class BscAdjustImageFilter extends AbstractImageFilter {
                 tb = (int) ((cb + 0.5f) * 255.0f);
 
                 // 重新组合 ARGB 值
-                outPixels[index] = (ta << 24) | (ImageProcessorUtils.clamp(tr) << 16) | (ImageProcessorUtils.clamp(tg) << 8) | ImageProcessorUtils.clamp(tb);
+                outPixels[index] =
+                        (ta << 24) | (ImageProcessorUtils.clamp(tr) << 16) | (ImageProcessorUtils.clamp(tg) << 8) | ImageProcessorUtils.clamp(tb);
             }
         }
 

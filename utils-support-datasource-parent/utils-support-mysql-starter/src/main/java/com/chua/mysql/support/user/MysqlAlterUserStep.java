@@ -34,7 +34,8 @@ public class MysqlAlterUserStep implements UserManager.AlterUserStep {
     /**
      * 单个权限白名单：权限名 + 可选列清单
      */
-    private static final Pattern PRIVILEGE_PATTERN = Pattern.compile("[A-Za-z_]+(\\([A-Za-z_]+(\\s*,\\s*[A-Za-z_]+)*\\))?");
+    private static final Pattern PRIVILEGE_PATTERN =
+            Pattern.compile("[A-Za-z_]+(\\([A-Za-z_]+(\\s*,\\s*[A-Za-z_]+)*\\))?");
     /**
      * {@code ALL} 与 {@code ALL PRIVILEGES} 的整体写法
      */

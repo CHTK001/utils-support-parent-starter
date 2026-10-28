@@ -289,7 +289,8 @@ public class BufferedImageUtils {
      *   <tr><td>15</td><td>空格</td><td>240-255</td><td>最亮，纯空白区域</td></tr>
      * </table>
      */
-    private static final char[] CHARS_16 = {'@', '#', '8', '&', 'O', 'o', '*', '+', '=', '-', ':', ';', '.', ',', ' ', ' '};
+    private static final char[] CHARS_16 =
+            {'@', '#', '8', '&', 'O', 'o', '*', '+', '=', '-', ':', ';', '.', ',', ' ', ' '};
 
     /**
      * 将图片转为字符画（16 级灰度映射），自动缩放并灰度化。

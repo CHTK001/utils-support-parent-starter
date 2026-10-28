@@ -22,7 +22,8 @@ public class AnimeRealClsTranslator implements Translator<Image, Classifications
     static final List<String> LABELS = List.of("anime", "real"); // 标签
     static final String MODEL_NAME = "anime_real_cls"; // 模型名称
     // 模型relative路径
-    static final String MODEL_RELATIVE_PATH = "vision/classification/anime/anime_real_cls/mobilenetv3_v1.4_dist/model.onnx";
+    static final String MODEL_RELATIVE_PATH =
+            "vision/classification/anime/anime_real_cls/mobilenetv3_v1.4_dist/model.onnx";
 
     /**
      * 委托对象

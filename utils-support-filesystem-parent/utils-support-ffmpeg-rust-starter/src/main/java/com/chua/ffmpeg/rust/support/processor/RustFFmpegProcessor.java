@@ -547,7 +547,8 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     */
     @Override
     public com.chua.common.support.media.ffmpeg.FFmpegResult execute(String... args) throws IOException {
-        com.chua.common.support.media.ffmpeg.FFmpegResult result = new com.chua.common.support.media.ffmpeg.FFmpegResult();
+        com.chua.common.support.media.ffmpeg.FFmpegResult result =
+                new com.chua.common.support.media.ffmpeg.FFmpegResult();
         if (!isAvailable()) {
             result.setSuccess(false);
             result.setStderr("Rust native libraries not loaded: " + NativeFFmpeg.getLoadError());

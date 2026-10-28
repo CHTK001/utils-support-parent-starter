@@ -180,7 +180,8 @@ public class WevisdocRemoteTranslatorTest {
 
     @Test
     void testConstructorWithClient() {
-        WevisdocRemoteTranslator translator = new WevisdocRemoteTranslator(new WevisdocHttpClient("http://localhost:9999"));
+        WevisdocRemoteTranslator translator =
+                new WevisdocRemoteTranslator(new WevisdocHttpClient("http://localhost:9999"));
         assertNotNull(translator);
     }
 }

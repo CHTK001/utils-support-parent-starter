@@ -62,7 +62,8 @@ public class PropertiesConfigFileParser implements ConfigFileParser {
                 if (next == null) {
                     current.put(part, value);
                 } else {
-                    Map<String, Object> child = (Map<String, Object>) current.computeIfAbsent(part, k -> Wraps.linkedMap());
+                    Map<String, Object> child =
+                            (Map<String, Object>) current.computeIfAbsent(part, k -> Wraps.linkedMap());
                     current = child;
                 }
             }

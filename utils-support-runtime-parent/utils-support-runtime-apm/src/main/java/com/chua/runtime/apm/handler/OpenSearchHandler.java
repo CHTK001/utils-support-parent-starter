@@ -21,7 +21,8 @@ public class OpenSearchHandler extends AbstractAppHandler {
     /**
      * 客户端 方法
      */
-    private static final String[] CLIENT_METHODS = {"search", "get", "index", "delete", "update", "bulk", "count", "exists"};
+    private static final String[] CLIENT_METHODS =
+            {"search", "get", "index", "delete", "update", "bulk", "count", "exists"};
 
     /**
      * 名称

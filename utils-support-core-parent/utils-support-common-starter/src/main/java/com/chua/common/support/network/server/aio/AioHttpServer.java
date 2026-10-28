@@ -1554,7 +1554,8 @@ public class AioHttpServer extends AbstractServer {
         /**
          * 待写队列:ArrayDeque + synchronized,NIO 版实测同构下吞吐最优
          */
-        final java.util.concurrent.ConcurrentLinkedQueue<ByteBuffer> writeQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
+        final java.util.concurrent.ConcurrentLinkedQueue<ByteBuffer> writeQueue =
+                new java.util.concurrent.ConcurrentLinkedQueue<>();
 
         /**
          * 懒分配 direct 读缓冲(首次读到数据才分配)

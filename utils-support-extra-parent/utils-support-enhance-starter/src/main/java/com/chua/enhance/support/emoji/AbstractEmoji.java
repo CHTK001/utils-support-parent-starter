@@ -25,7 +25,8 @@ public abstract class AbstractEmoji {
     /**
      * HTML_surrogate_实体_模式_2
     */
-    protected static final Pattern HTML_SURROGATE_ENTITY_PATTERN_2 = Pattern.compile("(?<H1>&#x?\\w+;)(?<H2>&#x?\\w+;)(?<L1>&#x?\\w+;)(?<L2>&#x?\\w+;)");
+    protected static final Pattern HTML_SURROGATE_ENTITY_PATTERN_2 =
+            Pattern.compile("(?<H1>&#x?\\w+;)(?<H2>&#x?\\w+;)(?<L1>&#x?\\w+;)(?<L2>&#x?\\w+;)");
     /**
      * HTML_实体_模式
     */

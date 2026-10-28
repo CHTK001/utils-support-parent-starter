@@ -71,7 +71,8 @@ public abstract class AbstractEngine implements Engine {
     /**
      * 引擎关闭标记，保证 {@link #close()} 幂等。
      */
-    private final java.util.concurrent.atomic.AtomicBoolean closed = new java.util.concurrent.atomic.AtomicBoolean(false);
+    private final java.util.concurrent.atomic.AtomicBoolean closed =
+            new java.util.concurrent.atomic.AtomicBoolean(false);
 
     /**
      * DDL 管理器解析结果缓存，首次解析后持有（含已注入的上下文参数）。

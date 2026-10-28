@@ -23,7 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public final class VideoProviderRegistry {
 
-    private static final ConcurrentHashMap<String, BlockReason> BLOCKED_PROVIDERS = new ConcurrentHashMap<>(); // blocked提供者
+    private static final ConcurrentHashMap<String, BlockReason> BLOCKED_PROVIDERS =
+            new ConcurrentHashMap<>(); // blocked提供者
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
     /**

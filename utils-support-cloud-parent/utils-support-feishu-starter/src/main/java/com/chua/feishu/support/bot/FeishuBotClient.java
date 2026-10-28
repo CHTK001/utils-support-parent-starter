@@ -59,17 +59,20 @@ public class FeishuBotClient implements BotClient {
     /**
      * 飞书接口返回 code 为 0（成功）
      */
-    private static final java.util.regex.Pattern CODE_OK_PATTERN = java.util.regex.Pattern.compile("\"code\"\\s*:\\s*0\\b");
+    private static final java.util.regex.Pattern CODE_OK_PATTERN =
+            java.util.regex.Pattern.compile("\"code\"\\s*:\\s*0\\b");
 
     /**
      * 租户访问令牌字段
      */
-    private static final java.util.regex.Pattern TENANT_TOKEN_PATTERN = java.util.regex.Pattern.compile("\"tenant_access_token\"\\s*:\\s*\"([^\"]+)\"");
+    private static final java.util.regex.Pattern TENANT_TOKEN_PATTERN =
+            java.util.regex.Pattern.compile("\"tenant_access_token\"\\s*:\\s*\"([^\"]+)\"");
 
     /**
      * 错误消息字段
      */
-    private static final java.util.regex.Pattern MESSAGE_PATTERN = java.util.regex.Pattern.compile("\"msg\"\\s*:\\s*\"([^\"]+)\"");
+    private static final java.util.regex.Pattern MESSAGE_PATTERN =
+            java.util.regex.Pattern.compile("\"msg\"\\s*:\\s*\"([^\"]+)\"");
 
     /**
      * 应用 标识

@@ -289,7 +289,8 @@ public class DefaultObjectContext implements ObjectContext {
         }
 
         if (!registered) {
-            com.chua.common.support.objects.definition.TypeBeanDefinition def = com.chua.common.support.objects.definition.TypeBeanDefinition.of(bean.getClass());
+            com.chua.common.support.objects.definition.TypeBeanDefinition def =
+                    com.chua.common.support.objects.definition.TypeBeanDefinition.of(bean.getClass());
             if (def != null) {
                 SingletonBeanDefinition singletonDef = new SingletonBeanDefinition(def, bean);
                 singletonDef.setBeanNameProvider(name -> getBean(name, null));

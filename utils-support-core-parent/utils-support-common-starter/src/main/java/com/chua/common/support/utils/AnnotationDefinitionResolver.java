@@ -59,7 +59,8 @@ public interface AnnotationDefinitionResolver {
         String name = narrowAnnotation.getName();
         for (AnnotationAliasMapping mapping : getAliasMappings()) {
             if (mapping.getNarrowName().equals(name)) {
-                Class<? extends Annotation> cls = (Class<? extends Annotation>) ReflectUtils.forName(mapping.getWideName());
+                Class<? extends Annotation> cls =
+                        (Class<? extends Annotation>) ReflectUtils.forName(mapping.getWideName());
                 return cls != null ? cls : narrowAnnotation;
             }
         }

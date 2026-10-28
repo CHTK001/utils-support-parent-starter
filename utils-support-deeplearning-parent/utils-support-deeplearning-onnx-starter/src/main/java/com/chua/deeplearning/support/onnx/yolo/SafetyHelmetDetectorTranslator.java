@@ -12,7 +12,8 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 public class SafetyHelmetDetectorTranslator extends YoloTranslator {
 
-    private static final List<String> SAFETY_HELMET_3_CLASSES = Arrays.asList("person", "head", "helmet"); // safetyhelmet3类
+    private static final List<String> SAFETY_HELMET_3_CLASSES =
+            Arrays.asList("person", "head", "helmet"); // safetyhelmet3类
 
     /**
      * safetyhelmetdetectortranslator。

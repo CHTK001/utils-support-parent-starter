@@ -37,7 +37,8 @@ public class SqlServerHandler extends AbstractAppHandler {
     /**
      * sql服务端prepared对账单 类内部名
      */
-    private static final String SQLSERVER_PREPARED_STATEMENT_CLASS = "com/microsoft/sqlserver/jdbc/SQLServerPreparedStatement";
+    private static final String SQLSERVER_PREPARED_STATEMENT_CLASS =
+            "com/microsoft/sqlserver/jdbc/SQLServerPreparedStatement";
 
     /**
      * SQL 执行方法集合（对账单 / prepared对账单 共有）

@@ -212,7 +212,8 @@ public class NacosClientProvider implements MiddlewareClientProvider {
     /** 命名空间 id 字段 */
     private static final Pattern NAMESPACE_PATTERN = Pattern.compile("\"namespace\"\\s*:\\s*\"([^\"]*)\"");
     /** 命名空间展示名字段 */
-    private static final Pattern NAMESPACE_SHOW_NAME_PATTERN = Pattern.compile("\"namespaceShowName\"\\s*:\\s*\"([^\"]*)\"");
+    private static final Pattern NAMESPACE_SHOW_NAME_PATTERN =
+            Pattern.compile("\"namespaceShowName\"\\s*:\\s*\"([^\"]*)\"");
     /** 配置 dataId 字段 */
     private static final Pattern DATA_ID_PATTERN = Pattern.compile("\"dataId\"\\s*:\\s*\"([^\"]*)\"");
     /** 配置 group 字段 */

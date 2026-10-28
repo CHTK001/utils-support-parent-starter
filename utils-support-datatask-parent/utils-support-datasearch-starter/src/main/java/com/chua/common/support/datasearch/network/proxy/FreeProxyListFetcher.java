@@ -27,7 +27,8 @@ public class FreeProxyListFetcher implements ProxyFetcher {
     /**
      * IP 和端口正则
      */
-    private static final Pattern PROXY_PATTERN = Pattern.compile("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})</td><td>(\\d{2,5})");
+    private static final Pattern PROXY_PATTERN =
+            Pattern.compile("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})</td><td>(\\d{2,5})");
 
     /**
      * 获取代理

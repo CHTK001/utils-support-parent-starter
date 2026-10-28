@@ -511,7 +511,8 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     public T getSpiService() {
         String s = SPI_NAME.get(type);
         if (StringUtils.isEmpty(s)) {
-            com.chua.common.support.spi.annotations.Spi spi = type.getDeclaredAnnotation(com.chua.common.support.spi.annotations.Spi.class);
+            com.chua.common.support.spi.annotations.Spi spi =
+                    type.getDeclaredAnnotation(com.chua.common.support.spi.annotations.Spi.class);
             if (null == spi) {
                 throw new IllegalStateException("The " + type.getName() + " must contain the [@Spi] annotation!");
             }

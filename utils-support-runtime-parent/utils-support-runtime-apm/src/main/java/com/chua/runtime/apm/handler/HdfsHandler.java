@@ -21,7 +21,8 @@ public class HdfsHandler extends AbstractAppHandler {
     /**
      * fs 方法
      */
-    private static final String[] FS_METHODS = {"open", "create", "delete", "rename", "listStatus", "mkdirs", "exists", "getFileStatus"};
+    private static final String[] FS_METHODS =
+            {"open", "create", "delete", "rename", "listStatus", "mkdirs", "exists", "getFileStatus"};
 
     /**
      * 名称
