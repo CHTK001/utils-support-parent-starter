@@ -115,12 +115,12 @@ private static final float[][] ANCHORS = {
         this.nmsThreshold = nmsThreshold;
         this.classes = loadCocoClasses();
 
-        log.info("YOLOv2-COCO                               ");
-        log.info("  -       :                         COCO 80          ");
-        log.info("  -             : {}x{}", inputSize, inputSize);
-        log.info("  -                : {}", threshold);
-        log.info("  - NMS       : {}", nmsThreshold);
-        log.info("  -             : {}", NUM_CLASSES);
+        log.info("YOLOv2-COCO 检测器初始化");
+        log.info("  - 任务类型: COCO 80 类目标检测");
+        log.info("  - 输入尺寸: {}x{}", inputSize, inputSize);
+        log.info("  - 置信度阈值: {}", threshold);
+        log.info("  - NMS 阈值: {}", nmsThreshold);
+        log.info("  - 类别数: {}", NUM_CLASSES);
     }
 
     /**
@@ -133,7 +133,7 @@ private static final float[][] ANCHORS = {
         imageHeight = input.getHeight();
 
         if (log.isDebugEnabled()) {
-            log.debug("                  : {}x{}", imageWidth, imageHeight);
+            log.debug("原图尺寸: {}x{}", imageWidth, imageHeight);
         }
 
         //                                        
@@ -152,7 +152,7 @@ private static final float[][] ANCHORS = {
         // array = array.expandDims(0);  //                                   batch       
 
         if (log.isDebugEnabled()) {
-            log.debug("                  : shape={}, dtype={}", array.getShape(), array.getDataType());
+            log.debug("模型输入: shape={}, dtype={}", array.getShape(), array.getDataType());
         }
         return new NDList(array);
     }
@@ -163,14 +163,14 @@ private static final float[][] ANCHORS = {
     @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
-            log.debug("                        ");
+            log.debug("开始处理模型输出");
         }
 
         //                [1, 125, 13, 13]
         // 125 = 5 anchors * (5 + 80) = 5 * (tx, ty, tw, th, confidence + 80 classes)
         NDArray output = list.getFirst();
         if (log.isDebugEnabled()) {
-            log.debug("       shape: {}", output.getShape());
+            log.debug("输出 shape: {}", output.getShape());
         }
 
  // 批量          [125, 13, 13]
@@ -242,13 +242,13 @@ private static final float[][] ANCHORS = {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("          {}                       NMS       ", boxes.size());
+            log.debug("筛选后候选框数量: {}，进入 NMS", boxes.size());
         }
 
         //        NMS
         List<Integer> keepIndices = nms(boxes, probabilities, nmsThreshold);
         if (log.isDebugEnabled()) {
-            log.debug("NMS           {}             ", keepIndices.size());
+            log.debug("NMS 后保留框数量: {}", keepIndices.size());
         }
 
         //                   
@@ -377,7 +377,7 @@ private static final float[][] ANCHORS = {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("          {}     COCO       ", classList.size());
+            log.debug("已加载 {} 个 COCO 类别", classList.size());
         }
         return classList;
     }

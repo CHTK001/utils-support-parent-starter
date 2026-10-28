@@ -57,7 +57,7 @@ public class NafNetTranslator implements Translator<Image, Image> {
     public void prepare(TranslatorContext ctx) {
         this.manager = ctx.getNDManager();
         if (log.isDebugEnabled()) {
-            log.debug("NAFNet ONNX                   ");
+        log.debug("NAFNet ONNX 模型初始化完成");
         }
     }
 
@@ -90,7 +90,7 @@ public class NafNetTranslator implements Translator<Image, Image> {
         NDArray array = manager.create(pixels, new Shape(1, 3, h, w));
 
         if (log.isDebugEnabled()) {
-            log.debug("NAFNet       : {}x{} -> {}x{}, shape={}", origWidth, origHeight, targetW, targetH, array.getShape());
+        log.debug("NAFNet 输入张量: {}x{} -> {}x{}, shape={}", origWidth, origHeight, targetW, targetH, array.getShape());
         }
         return new NDList(array);
     }
@@ -128,7 +128,7 @@ public class NafNetTranslator implements Translator<Image, Image> {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("NAFNet       : {}x{}", img.getWidth(), img.getHeight());
+        log.debug("NAFNet 输出图像尺寸: {}x{}", img.getWidth(), img.getHeight());
         }
         return ImageFactory.getInstance().fromImage(img);
     }

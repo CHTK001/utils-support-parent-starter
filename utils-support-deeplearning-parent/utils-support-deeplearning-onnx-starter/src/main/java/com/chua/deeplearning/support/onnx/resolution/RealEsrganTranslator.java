@@ -69,7 +69,7 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     public void prepare(TranslatorContext ctx) {
         this.manager = ctx.getNDManager();
         if (log.isDebugEnabled()) {
-            log.debug("Real-ESRGAN ONNX                   : scale={}x", scale);
+        log.debug("Real-ESRGAN ONNX 模型初始化: scale={}x", scale);
         }
     }
 
@@ -96,7 +96,7 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
         NDArray array = manager.create(pixels, new Shape(1, 3, h, w));
 
         if (log.isDebugEnabled()) {
-            log.debug("                  : shape={}", array.getShape());
+        log.debug("模型输入: shape={}", array.getShape());
         }
         return new NDList(array);
     }
@@ -130,7 +130,7 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("                  : {}x{}", w, h);
+        log.debug("输出图像尺寸: {}x{}", w, h);
         }
         return ImageFactory.getInstance().fromImage(img);
     }

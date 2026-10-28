@@ -46,7 +46,7 @@ public class Waifu2xTranslator implements Translator<Image, Image> {
     public void prepare(TranslatorContext ctx) {
         this.manager = ctx.getNDManager();
         if (log.isDebugEnabled()) {
-            log.debug("waifu2x ONNX                   ");
+        log.debug("waifu2x ONNX 模型初始化完成");
         }
     }
 
@@ -81,7 +81,7 @@ public class Waifu2xTranslator implements Translator<Image, Image> {
         NDArray array = manager.create(pixels, new Shape(1, 3, ph, pw));
 
         if (log.isDebugEnabled()) {
-            log.debug("waifu2x                   : shape={} (pad h={} w={})", array.getShape(), padH, padW);
+        log.debug("waifu2x 输入张量: shape={} (pad h={} w={})", array.getShape(), padH, padW);
         }
         return new NDList(array);
     }
@@ -118,7 +118,7 @@ public class Waifu2xTranslator implements Translator<Image, Image> {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("waifu2x                   : {}x{}", w, h);
+        log.debug("waifu2x 输出图像尺寸: {}x{}", w, h);
         }
         return ImageFactory.getInstance().fromImage(img);
     }
