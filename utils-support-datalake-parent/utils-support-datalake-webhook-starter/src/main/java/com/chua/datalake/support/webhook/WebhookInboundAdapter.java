@@ -27,6 +27,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Webhook 入站适配器：HTTP POST → JSON → 数据envelope → pipelineengine。
@@ -192,7 +194,7 @@ public class WebhookInboundAdapter {
         ExecutorService pool = null;
         try {
             created = HttpServer.create(new InetSocketAddress(InetAddress.getByName(host), port), 0);
-            pool = Executors.newFixedThreadPool(WORKER_THREADS);
+            pool = new ThreadPoolExecutor(WORKER_THREADS, WORKER_THREADS, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(1024), Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
             created.createContext(CONTEXT_PREFIX, this::handleRequest);
             created.setExecutor(pool);
             created.start();

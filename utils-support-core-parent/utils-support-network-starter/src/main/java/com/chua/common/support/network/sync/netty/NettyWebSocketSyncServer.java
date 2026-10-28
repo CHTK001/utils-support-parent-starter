@@ -14,6 +14,9 @@ import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 基于 Netty 的 WebSocket 同步服务端实现。
@@ -69,7 +72,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
         try {
             serverSocket = new ServerSocket();
             serverSocket.bind(new InetSocketAddress(setting.getHost(), setting.getPort()));
-            executor = Executors.newCachedThreadPool(r -> new Thread(r, "netty-ws-" + r.hashCode()));
+            executor = new ThreadPoolExecutor(0, 200, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), r -> new Thread(r, "netty-ws-" + r.hashCode()), new ThreadPoolExecutor.CallerRunsPolicy());
             executor.submit(this::acceptLoop);
         } catch (Exception e) {
             throw new RuntimeException("Netty WebSocket SyncServer 启动失败", e);

@@ -20,6 +20,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Telnet Shell 服务器 — 提供远程字符界面。
@@ -172,11 +175,11 @@ public class TelnetServer {
         this.bindAddress = host;
         this.serverSocket = new ServerSocket(port, 16, bind);
         this.sessions = new Semaphore(maxSessions);
-        this.executor = Executors.newCachedThreadPool(r -> {
+        this.executor = new ThreadPoolExecutor(0, 200, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), r -> {
             Thread t = new Thread(r, "runtime-shell");
             t.setDaemon(true);
             return t;
-        });
+        }, new ThreadPoolExecutor.CallerRunsPolicy());
         if (!bind.isLoopbackAddress()) {
             LOG.log(Level.WARNING, "Telnet Shell 监听在非回环地址 {0}:{1}，该端口无鉴权，请自行确保网络隔离",
                     new Object[]{bind.getHostAddress(), port});
