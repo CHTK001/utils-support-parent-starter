@@ -59,7 +59,8 @@ public class AuthenticationException extends RuntimeException {
      * @param enableSuppression     指定是否启用异常抑制（即是否允许调用 suppressedExceptions）
      * @param writableStackTrace    指定是否生成可写的堆栈跟踪（如果为 false，则不生成堆栈信息以节省性能）
      */
-    public AuthenticationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public AuthenticationException(String message, Throwable cause, boolean enableSuppression,
+                                   boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

@@ -44,7 +44,8 @@ public class SqlServerReactorEngine extends JdbcReactorEngine {
      * @param password 密码
      * @return 当前引擎实例
      */
-    public SqlServerReactorEngine addDataSource(String name, String host, int port, String database, String username, String password) {
+    public SqlServerReactorEngine addDataSource(String name, String host, int port, String database, String username,
+                                                String password) {
         JdbcUrl.checkHost(host);
         JdbcUrl.checkPort(port);
         JdbcUrl.checkDatabase(database);

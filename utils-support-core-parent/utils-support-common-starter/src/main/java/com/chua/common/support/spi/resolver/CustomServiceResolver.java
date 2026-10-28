@@ -83,7 +83,8 @@ public class CustomServiceResolver implements ServiceResolver {
      * @return SPI 扩展类列表
      * @throws Throwable 加载异常
      */
-    private List<ServiceDefinition> loadFromClassLoader(final String fullFileName, Class<?> type, ClassLoader classLoader) throws Throwable {
+    private List<ServiceDefinition> loadFromClassLoader(final String fullFileName, Class<?> type,
+                                                        ClassLoader classLoader) throws Throwable {
         Enumeration<URL> urls = classLoader.getResources(fullFileName);
         List<ServiceDefinition> allExtensionClass = Wraps.list();
         if (urls != null) {

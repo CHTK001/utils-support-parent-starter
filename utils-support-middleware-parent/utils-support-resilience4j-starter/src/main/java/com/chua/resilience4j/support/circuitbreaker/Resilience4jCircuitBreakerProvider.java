@@ -40,7 +40,8 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
      * @param waitDuration long
      * @param successThreshold 成功阈值
      */
-    public Resilience4jCircuitBreakerProvider(String name, int failureThreshold, int successThreshold, long waitDuration) {
+    public Resilience4jCircuitBreakerProvider(String name, int failureThreshold, int successThreshold,
+                                              long waitDuration) {
         CircuitBreakerConfig config = CircuitBreakerConfig.custom()
                 .failureRateThreshold((float) failureThreshold / 100)
                 .slidingWindowSize(failureThreshold * 2)

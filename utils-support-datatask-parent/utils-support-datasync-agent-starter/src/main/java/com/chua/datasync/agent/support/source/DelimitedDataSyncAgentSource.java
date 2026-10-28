@@ -78,7 +78,8 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
      * @param filePath 文件路径
      * @param delimiter delimiter
      */
-    public DelimitedDataSyncAgentSource(String sourceId, String inputId, String filePath, String delimiter, SyncDataOffsetStorage offsetStorage) {
+    public DelimitedDataSyncAgentSource(String sourceId, String inputId, String filePath, String delimiter,
+                                        SyncDataOffsetStorage offsetStorage) {
         this.sourceId = sourceId;
         this.inputId = inputId;
         this.filePath = Paths.get(filePath);

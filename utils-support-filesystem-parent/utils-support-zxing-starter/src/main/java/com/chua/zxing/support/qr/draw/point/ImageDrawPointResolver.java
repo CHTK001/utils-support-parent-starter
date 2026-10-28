@@ -29,7 +29,8 @@ public class ImageDrawPointResolver extends AbstractDrawPointResolver {
      * @param topPadding toppadding
      * @param infoSize 信息大小
      */
-    public ImageDrawPointResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int leftPadding, int topPadding, int infoSize) {
+    public ImageDrawPointResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int leftPadding,
+                                  int topPadding, int infoSize) {
         super(qrCodeConfig, g2, bitMatrix, leftPadding, topPadding, infoSize);
     }
 

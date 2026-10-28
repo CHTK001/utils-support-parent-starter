@@ -1108,7 +1108,8 @@ public class StringUtils {
      * @param ignoreEmptyTokens 是否忽略空 令牌
      * @return 拆分后的字符串数组
      */
-    public static String[] tokenizeToStringArray(String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
+    public static String[] tokenizeToStringArray(String str, String delimiters, boolean trimTokens,
+                                                 boolean ignoreEmptyTokens) {
 
         if (str == null) {
             return null;
@@ -2325,7 +2326,8 @@ public class StringUtils {
      * @return 拆分后的字符串数组
      * @since 3.0.8
      */
-    public static String[] splitToArray(CharSequence str, char separator, int limit, boolean isTrim, boolean ignoreEmpty) {
+    public static String[] splitToArray(CharSequence str, char separator, int limit, boolean isTrim,
+                                        boolean ignoreEmpty) {
         return ArrayUtils.toArray(split(str, separator, limit, isTrim, ignoreEmpty));
     }
 
@@ -2341,7 +2343,8 @@ public class StringUtils {
      * @return 拆分后的字符串数组
      * @since 3.0.8
      */
-    public static String[] splitToArray(CharSequence str, String separator, int limit, boolean isTrim, boolean ignoreEmpty) {
+    public static String[] splitToArray(CharSequence str, String separator, int limit, boolean isTrim,
+                                        boolean ignoreEmpty) {
         return Optional.ofNullable(ArrayUtils.toArray(split(str, separator, limit, isTrim, ignoreEmpty))).orElse(SYMBOL_EMPTY_STRING_ARRAY);
     }
 
@@ -2551,7 +2554,8 @@ public class StringUtils {
      * @return 拆分后的列表
      * @since 3.0.8
      */
-    public static List<String> split(CharSequence str, String separator, int limit, boolean isTrim, boolean ignoreEmpty) {
+    public static List<String> split(CharSequence str, String separator, int limit, boolean isTrim,
+                                     boolean ignoreEmpty) {
         return split(str, separator, limit, isTrim, ignoreEmpty, false);
     }
 
@@ -2567,7 +2571,8 @@ public class StringUtils {
      * @return 拆分后的列表
      * @since 3.2.1
      */
-    public static List<String> split(CharSequence text, String separator, int limit, boolean isTrim, boolean ignoreEmpty, boolean ignoreCase) {
+    public static List<String> split(CharSequence text, String separator, int limit, boolean isTrim,
+                                     boolean ignoreEmpty, boolean ignoreCase) {
         if (null == text) {
             return Wraps.list(0);
         }
@@ -3239,7 +3244,8 @@ public class StringUtils {
      * @param prefixes   其他合法的前缀（可选）。
      * @return A new string if prefix was prepended, the same string otherwise.
      */
-    private static String prependIfMissing(final String str, final CharSequence prefix, final boolean ignoreCase, final CharSequence... prefixes) {
+    private static String prependIfMissing(final String str, final CharSequence prefix, final boolean ignoreCase,
+                                           final CharSequence... prefixes) {
         if (str == null || isEmpty(prefix) || startsWith(str, prefix, ignoreCase)) {
             return str;
         }
@@ -3321,7 +3327,8 @@ public class StringUtils {
      * @return A 新 字符串 if 前缀 was prepended, the same 字符串 otherwise.
      * @since 3.2
      */
-    public static String prependIfMissingIgnoreCase(final String str, final CharSequence prefix, final CharSequence... prefixes) {
+    public static String prependIfMissingIgnoreCase(final String str, final CharSequence prefix,
+                                                    final CharSequence... prefixes) {
         return prependIfMissing(str, prefix, true, prefixes);
     }
 

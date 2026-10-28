@@ -79,7 +79,8 @@ public final class AstUtils {
      * @param messager      消息处理器
      * @return JCMethodDecl 实例，转换失败返回 空
      */
-    public static com.sun.tools.javac.tree.JCTree.JCMethodDecl asJcMethod(Element methodElement, ProcessingEnvironment env, Messager messager) {
+    public static com.sun.tools.javac.tree.JCTree.JCMethodDecl asJcMethod(Element methodElement,
+            ProcessingEnvironment env, Messager messager) {
         com.sun.source.util.Trees trees = com.sun.source.util.Trees.instance(env);
         com.sun.source.tree.Tree methodTree = trees.getTree(methodElement);
         if (methodTree instanceof com.sun.tools.javac.tree.JCTree.JCMethodDecl jc) {
@@ -534,7 +535,8 @@ public final class AstUtils {
      * @param value 字面量值
      * @return JCLiteral 实例
      */
-    public static com.sun.tools.javac.tree.JCTree.JCLiteral literal(com.sun.tools.javac.tree.TreeMaker maker, Object value) {
+    public static com.sun.tools.javac.tree.JCTree.JCLiteral literal(com.sun.tools.javac.tree.TreeMaker maker,
+            Object value) {
         if (value instanceof Boolean) {
             return maker.Literal(com.sun.tools.javac.code.TypeTag.BOOLEAN, value);
         } else if (value instanceof Integer) {

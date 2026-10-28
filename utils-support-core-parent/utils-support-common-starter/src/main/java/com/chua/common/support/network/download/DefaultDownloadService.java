@@ -172,7 +172,8 @@ public class DefaultDownloadService implements DownloadService {
      * @param resumeOffset 断点续传起始偏移（当前不支持并发+断点续传混合）
      * @throws DownloadException 当并发下载或合并分片失败时
      */
-    private void downloadWithConcurrency(Path targetFile, DownloadConfig config, long resumeOffset) throws DownloadException {
+    private void downloadWithConcurrency(Path targetFile, DownloadConfig config,
+                                         long resumeOffset) throws DownloadException {
         try {
             HttpURLConnection headConn = openConnection(config);
             headConn.setRequestMethod("HEAD");

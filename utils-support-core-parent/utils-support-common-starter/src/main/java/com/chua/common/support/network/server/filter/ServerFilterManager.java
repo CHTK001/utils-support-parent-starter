@@ -324,7 +324,8 @@ public class ServerFilterManager {
         }
 
         @Override
-        public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response, ReactiveFilterChain chain) {
+        public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
+                                              ReactiveFilterChain chain) {
             try {
                 delegate.doFilter(request, response, chain::doFilter);
                 return CompletableFuture.completedStage(null);

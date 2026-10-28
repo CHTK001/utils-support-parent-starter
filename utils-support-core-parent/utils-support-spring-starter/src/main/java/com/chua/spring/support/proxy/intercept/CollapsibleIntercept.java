@@ -80,7 +80,8 @@ public class CollapsibleIntercept
     }
 
     @Override
-    public Object intercept(Collapsible annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
+    public Object intercept(Collapsible annotation, ProxyMethod proxyMethod,
+                            MethodInvocation invocation) throws Throwable {
         Method method = proxyMethod.getMethod();
         Object[] args = proxyMethod.getArgs();
         if (args.length != 1 || !(args[0] instanceof Collection)) {

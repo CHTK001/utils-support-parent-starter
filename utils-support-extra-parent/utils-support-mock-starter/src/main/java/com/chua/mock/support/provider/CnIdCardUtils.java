@@ -58,7 +58,8 @@ final class CnIdCardUtils {
      * @return 18 位身份证号
      */
     @Nonnull
-    static String generate(@Nonnull MockEnvironment environment, @Nonnull String birthdayMin, @Nonnull String birthdayMax) {
+    static String generate(@Nonnull MockEnvironment environment, @Nonnull String birthdayMin,
+                           @Nonnull String birthdayMax) {
         StringBuilder builder = new StringBuilder(18);
         builder.append(environment.randomOf(REGION_CODES));
         builder.append(randomBirthday(environment, birthdayMin, birthdayMax));

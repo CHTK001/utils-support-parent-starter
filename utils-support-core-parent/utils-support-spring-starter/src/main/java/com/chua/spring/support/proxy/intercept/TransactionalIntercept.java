@@ -36,7 +36,8 @@ public class TransactionalIntercept implements MethodAnnotationIntercept<Transac
      * Intercept
     */
     @Override
-    public Object intercept(Transactional annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
+    public Object intercept(Transactional annotation, ProxyMethod proxyMethod,
+                            MethodInvocation invocation) throws Throwable {
         boolean hasTransaction = TransactionSynchronizationManager.isActualTransactionActive();
         if (hasTransaction) {
             return invocation.proceed();

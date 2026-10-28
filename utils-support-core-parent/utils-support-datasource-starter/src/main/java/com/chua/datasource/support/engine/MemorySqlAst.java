@@ -709,7 +709,8 @@ final class MemorySqlAst {
      * @param tableResolver 表行引用解析器（惰性调用一次；内存引擎可在此建空表）
      * @return 影响行数
      */
-    public static int executeDml(DmlPlan plan, List<Object> params, java.util.function.Supplier<List<Object>> tableResolver) {
+    public static int executeDml(DmlPlan plan, List<Object> params,
+                                 java.util.function.Supplier<List<Object>> tableResolver) {
         java.util.Objects.requireNonNull(plan, "plan must not be null");
         List<Object> safeParams = params == null ? List.of() : params;
         /* SET ? 占位计数必须在 bindPlanParams 之前（绑定会替换占位符） */

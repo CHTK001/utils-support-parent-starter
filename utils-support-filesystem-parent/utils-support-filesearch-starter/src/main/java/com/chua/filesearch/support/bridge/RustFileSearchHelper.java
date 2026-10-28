@@ -336,7 +336,8 @@ public class RustFileSearchHelper {
      * @param cache 缓存
      * @return computeDirTotals的结果
      */
-    private static long[] computeDirTotals(String dirPath, Map<String, List<FileInfo>> children, Map<String, long[]> cache) {
+    private static long[] computeDirTotals(String dirPath, Map<String, List<FileInfo>> children,
+                                           Map<String, long[]> cache) {
         long[] cached = cache.get(dirPath);
         if (cached != null) {
             return cached;

@@ -292,7 +292,8 @@ public class RedisSeriesEngine implements SeriesEngine, AutoCloseable {
      * @param metricName 显式指定的指标名，可为 null
      * @return 唯一指标名；无数据时返回 {@code null}
      */
-    private String resolveSingleMetric(RedisCommands<String, String> sync, String target, Long monitorId, String metricName) {
+    private String resolveSingleMetric(RedisCommands<String, String> sync, String target, Long monitorId,
+                                       String metricName) {
         if (metricName != null) {
             return metricName;
         }
@@ -370,7 +371,8 @@ public class RedisSeriesEngine implements SeriesEngine, AutoCloseable {
      * @param beforeMillis 删除该毫秒时间戳之前的点
      * @return 删除点总数
      */
-    private int purgeAllTargets(RedisCommands<String, String> sync, String target, String metricName, long beforeMillis) {
+    private int purgeAllTargets(RedisCommands<String, String> sync, String target, String metricName,
+                                long beforeMillis) {
         int deleted = 0;
         // 必须用 SCAN 而非 KEYS：KEYS 会遍历全库键空间并阻塞 Redis 事件循环。
         // Lettuce 7 的同步命令接口不再提供 scan(...)，SCAN 统一走 ScanIterator。

@@ -72,7 +72,8 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
      * @param password 密码
      * @param sql SQL
      */
-    public JdbcDataSyncAgentSink(String sinkId, String jdbcUrl, String username, String password, String sql, String... columnNames) {
+    public JdbcDataSyncAgentSink(String sinkId, String jdbcUrl, String username, String password, String sql,
+                                 String... columnNames) {
         this(sinkId, jdbcUrl, username, password, sql, 100, columnNames);
     }
 
@@ -86,7 +87,8 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
      * @param password 密码
      * @param sql SQL
      */
-    public JdbcDataSyncAgentSink(String sinkId, String jdbcUrl, String username, String password, String sql, int batchSize, String... columnNames) {
+    public JdbcDataSyncAgentSink(String sinkId, String jdbcUrl, String username, String password, String sql,
+                                 int batchSize, String... columnNames) {
         this.sinkId = sinkId;
         this.jdbcUrl = jdbcUrl;
         this.username = username;
@@ -157,7 +159,8 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
      * @param conn conn
      * @param totalCount total数量
      */
-    private void processBatch(java.util.List<Map<String, Object>> batch, PreparedStatement ps, Connection conn, AtomicLong totalCount) {
+    private void processBatch(java.util.List<Map<String, Object>> batch, PreparedStatement ps, Connection conn,
+                              AtomicLong totalCount) {
         try {
             for (Map<String, Object> row : batch) {
                 for (int i = 0; i < columnNames.length; i++) {

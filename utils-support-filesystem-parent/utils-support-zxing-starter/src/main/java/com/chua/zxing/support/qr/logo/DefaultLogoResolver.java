@@ -28,7 +28,8 @@ public class DefaultLogoResolver implements LogoResolver {
      * 解析
     */
     @Override
-    public BufferedImage resolve(BufferedImage bufferedImage, LogoSetting logoSetting, QrSetting setting) throws IOException {
+    public BufferedImage resolve(BufferedImage bufferedImage, LogoSetting logoSetting,
+                                 QrSetting setting) throws IOException {
         if (null == logoSetting) {
             return bufferedImage;
         }

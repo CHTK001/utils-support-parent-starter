@@ -30,7 +30,8 @@ public class TxtDrawPointResolver extends AbstractDrawPointResolver {
      * @param topPadding toppadding
      * @param infoSize 信息大小
      */
-    public TxtDrawPointResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int leftPadding, int topPadding, int infoSize) {
+    public TxtDrawPointResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int leftPadding,
+                                int topPadding, int infoSize) {
         super(qrCodeConfig, g2, bitMatrix, leftPadding, topPadding, infoSize);
     }
 

@@ -99,7 +99,8 @@ public class BackupManager {
      * @param transformer 记录转换器
      * @return 备份结果
      */
-    public BackupResult backupPolledDirectory(BackupConfig config, PolledDirectoryBackup.RecordTransformer transformer) {
+    public BackupResult backupPolledDirectory(BackupConfig config,
+                                              PolledDirectoryBackup.RecordTransformer transformer) {
         PolledDirectoryBackup strategy = new PolledDirectoryBackup(transformer);
         return strategy.execute(config);
     }

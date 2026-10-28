@@ -429,7 +429,8 @@ public class ILinkBotClient implements BotClient {
     }
 
     @Override
-    public CompletableFuture<BotSendResult> sendToGroupMentionAsync(String groupId, String content, List<String> mentionedUserIds) {
+    public CompletableFuture<BotSendResult> sendToGroupMentionAsync(String groupId, String content,
+            List<String> mentionedUserIds) {
         return CompletableFuture.supplyAsync(() -> sendToGroupMention(groupId, content, mentionedUserIds));
     }
 

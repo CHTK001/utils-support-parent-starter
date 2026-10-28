@@ -141,7 +141,8 @@ public class JdkImageOperation implements ImageOperation {
      * 过滤
     */
     @Override
-    public Mono<byte[]> filter(byte[] imageBytes, String format, String filterType, ImageOperation.FilterParams params) {
+    public Mono<byte[]> filter(byte[] imageBytes, String format, String filterType,
+                               ImageOperation.FilterParams params) {
         
         return Mono.fromCallable(() -> {
             if (imageBytes == null || imageBytes.length == 0) {
@@ -391,7 +392,8 @@ public class JdkImageOperation implements ImageOperation {
      * @param watermarkImage 水印图片（可为空）
      * @return 水印位置坐标
      */
-    private Point calculateWatermarkPosition(BufferedImage image, ImageOperation.WatermarkParams params, BufferedImage watermarkImage) {
+    private Point calculateWatermarkPosition(BufferedImage image, ImageOperation.WatermarkParams params,
+                                             BufferedImage watermarkImage) {
         var width = image.getWidth();
         var height = image.getHeight();
         var position = params.getPosition() != null ? params.getPosition().toUpperCase() : "BOTTOM_RIGHT";

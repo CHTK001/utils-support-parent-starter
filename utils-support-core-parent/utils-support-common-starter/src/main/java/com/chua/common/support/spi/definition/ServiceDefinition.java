@@ -696,7 +696,8 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
      * @throws InstantiationException 实例化失败时抛出
      * @throws IllegalAccessException 无权访问构造器时抛出
      */
-    private Object newInstance(Constructor<?> constructor, Object[] args) throws InstantiationException, IllegalAccessException {
+    private Object newInstance(Constructor<?> constructor,
+                               Object[] args) throws InstantiationException, IllegalAccessException {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
         Object[] args1 = new Object[parameterTypes.length];
         for (int i = 0; i < parameterTypes.length; i++) {

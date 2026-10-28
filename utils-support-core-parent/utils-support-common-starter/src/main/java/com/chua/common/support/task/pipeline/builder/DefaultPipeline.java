@@ -1008,7 +1008,8 @@ public class DefaultPipeline implements Pipeline {
      * @param executed     已执行节点 标识 集合
      * @param colorEnabled 是否启用 ANSI 颜色
      */
-    private void printNodeTree(String nodeId, String prefix, boolean isLast, Set<String> executed, boolean colorEnabled) {
+    private void printNodeTree(String nodeId, String prefix, boolean isLast, Set<String> executed,
+                               boolean colorEnabled) {
         if (nodeId == null) {
             return;
         }

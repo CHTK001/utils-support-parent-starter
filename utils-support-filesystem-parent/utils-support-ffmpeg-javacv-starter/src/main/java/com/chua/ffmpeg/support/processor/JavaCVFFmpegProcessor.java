@@ -234,7 +234,8 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
      * capture帧
     */
     @Override
-    public File[] captureFrames(File videoInput, File outputDir, double interval, String imageFormat) throws IOException {
+    public File[] captureFrames(File videoInput, File outputDir, double interval,
+                                String imageFormat) throws IOException {
         if (!available) {
             throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
         }

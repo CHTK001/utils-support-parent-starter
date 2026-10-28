@@ -99,7 +99,8 @@ public class DefaultQrCode extends AbstractQrCode {
      * @return QR码图像
      * @throws IOException 生成图像时发生IO错误
      */
-    private BufferedImage getBufferedImage(QrCodeOptions codeOptions, QrSetting setting, QRCode qrCode, BitMatrixEx bitMatrix) throws IOException {
+    private BufferedImage getBufferedImage(QrCodeOptions codeOptions, QrSetting setting, QRCode qrCode,
+                                           BitMatrixEx bitMatrix) throws IOException {
         // 如果未设置背景风格，使用默认风格生成QR码图像
         return ServiceProvider.of(CodeProduct.class).getNewExtension(DEFAULT).create(codeOptions, bitMatrix, qrCode, setting);
     }

@@ -77,7 +77,8 @@ public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
      * 构建multiview请求主体
     */
     @Override
-    protected String buildMultiViewRequestBody(byte[][] images, Model3DFormat format, Model3DStyle style, String quality) {
+    protected String buildMultiViewRequestBody(byte[][] images, Model3DFormat format, Model3DStyle style,
+                                               String quality) {
         try {
             ObjectNode node = objectMapper.createObjectNode();
             node.put("format", format.getExtension());
@@ -102,7 +103,8 @@ public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
      * 构建sketch请求主体
     */
     @Override
-    protected String buildSketchRequestBody(byte[] sketch, String description, Model3DFormat format, Model3DStyle style, String quality) {
+    protected String buildSketchRequestBody(byte[] sketch, String description, Model3DFormat format,
+                                            Model3DStyle style, String quality) {
         try {
             String base64 = Base64.getEncoder().encodeToString(sketch);
             ObjectNode node = objectMapper.createObjectNode();

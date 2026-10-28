@@ -23,7 +23,8 @@ public class DefaultCodeProduct implements CodeProduct{
      * 创建
     */
     @Override
-    public BufferedImage create(QrCodeOptions qrCodeOptions, BitMatrixEx bitMatrix, QRCode qrCode, QrSetting setting) throws IOException {
+    public BufferedImage create(QrCodeOptions qrCodeOptions, BitMatrixEx bitMatrix, QRCode qrCode,
+                                QrSetting setting) throws IOException {
         return toBufferedImage(qrCodeOptions, bitMatrix, setting);
     }
 
@@ -36,7 +37,8 @@ public class DefaultCodeProduct implements CodeProduct{
      * @return 背景图、logo和前景图的BufferedImage对象
      * @throws IOException 如果读取背景图、logo或前景图时发生错误。
      */
-    BufferedImage toBufferedImage(QrCodeOptions qrCodeConfig, BitMatrixEx bitMatrix, QrSetting setting) throws IOException {
+    BufferedImage toBufferedImage(QrCodeOptions qrCodeConfig, BitMatrixEx bitMatrix,
+                                  QrSetting setting) throws IOException {
         // 绘制二维码基本图形
         return QrCodeRenderUtils.drawQrInfo(qrCodeConfig, bitMatrix, setting);
     }

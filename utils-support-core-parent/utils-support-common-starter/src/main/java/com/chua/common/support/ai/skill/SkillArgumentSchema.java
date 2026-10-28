@@ -48,7 +48,8 @@ public class SkillArgumentSchema {
      * @param description 描述，不允许为 null
      * @param type 类型，不允许为 null
      */
-    public SkillArgumentSchema(String name, String description, String type, boolean required, List<String> enumValues) {
+    public SkillArgumentSchema(String name, String description, String type, boolean required,
+                               List<String> enumValues) {
         this.name = name;
         this.description = description;
         this.type = type;

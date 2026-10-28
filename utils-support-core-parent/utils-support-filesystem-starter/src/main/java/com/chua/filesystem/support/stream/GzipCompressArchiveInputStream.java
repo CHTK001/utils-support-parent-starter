@@ -48,7 +48,8 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
      * @return createInputStream
      */
     @Override
-    public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
+    public ArchiveInputStream createInputStream(InputStream inputStream, File file,
+                                                @Nullable char[] password) throws IOException {
         // GZ 格式不支持密码
         if (password != null) {
             throw new UnsupportedOperationException("GZ 格式不支持密码保护");

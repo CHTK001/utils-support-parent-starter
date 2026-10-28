@@ -399,7 +399,8 @@ public class VertxHttpServer extends AbstractServer {
      * @param handler 处理器
      * @return on订阅的结果
      */
-    public VertxHttpServer onSubscribe(String topic, com.chua.common.support.network.server.handler.ServerHandler handler) {
+    public VertxHttpServer onSubscribe(String topic,
+                                       com.chua.common.support.network.server.handler.ServerHandler handler) {
         wsTopicHandlers.computeIfAbsent(topic, k -> new java.util.concurrent.CopyOnWriteArrayList<>()).add(handler);
         return this;
     }

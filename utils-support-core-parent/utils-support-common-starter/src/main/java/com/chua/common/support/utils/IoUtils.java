@@ -248,7 +248,8 @@ public class IoUtils {
      * @param bufferSize 缓冲大小
      * @return 副本的结果
      */
-    public static long copy(final InputStream input, final OutputStream output, final int bufferSize) throws IOException {
+    public static long copy(final InputStream input, final OutputStream output,
+                            final int bufferSize) throws IOException {
         return copyLarge(input, output, new byte[bufferSize]);
     }
 
@@ -319,7 +320,8 @@ public class IoUtils {
      * @param buffer 缓冲
      * @return 副本large的结果
      */
-    public static long copyLarge(final InputStream input, final OutputStream output, final byte[] buffer) throws IOException {
+    public static long copyLarge(final InputStream input, final OutputStream output,
+                                 final byte[] buffer) throws IOException {
         try (InputStream is = input;
              OutputStream os = output
         ) {

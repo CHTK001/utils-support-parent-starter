@@ -72,7 +72,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
      * Generate
     */
     @Override
-    public Model3D generate(String prompt, Model3DFormat format, Model3DStyle style, String quality) throws IOException {
+    public Model3D generate(String prompt, Model3DFormat format, Model3DStyle style,
+                            String quality) throws IOException {
         if (logger.isInfoEnabled()) {
             logger.info("[3D] Text-to-3D: prompt={}, format={}, style={}, quality={}", prompt, format, style, quality);
         }
@@ -98,7 +99,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
      * Generate
     */
     @Override
-    public Model3D generate(byte[][] images, Model3DFormat format, Model3DStyle style, String quality) throws IOException {
+    public Model3D generate(byte[][] images, Model3DFormat format, Model3DStyle style,
+                            String quality) throws IOException {
         if (logger.isInfoEnabled()) {
             logger.info("[3D] MultiView-to-3D: imageCount={}, format={}, style={}, quality={}", images.length, format, style, quality);
         }
@@ -111,7 +113,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
      * generate从sketch
     */
     @Override
-    public Model3D generateFromSketch(byte[] sketch, String description, Model3DFormat format, Model3DStyle style, String quality) throws IOException {
+    public Model3D generateFromSketch(byte[] sketch, String description, Model3DFormat format, Model3DStyle style,
+                                      String quality) throws IOException {
         if (logger.isInfoEnabled()) {
             logger.info("[3D] Sketch-to-3D: description={}, sketchSize={}, format={}, style={}, quality={}",
                     description, sketch.length, format, style, quality);
@@ -125,7 +128,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
      * Generate
     */
     @Override
-    public Model3D generate(byte[] sketch, String description, Model3DFormat format, Model3DStyle style, String quality) throws IOException {
+    public Model3D generate(byte[] sketch, String description, Model3DFormat format, Model3DStyle style,
+                            String quality) throws IOException {
         return generateFromSketch(sketch, description, format, style, quality);
     }
 

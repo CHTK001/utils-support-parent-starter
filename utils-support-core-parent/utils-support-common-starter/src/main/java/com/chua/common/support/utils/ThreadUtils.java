@@ -529,7 +529,8 @@ public class ThreadUtils {
      * @param threadFactory 线程工厂
      * @return 定时任务线程池
      */
-    public static ScheduledExecutorService newScheduledThreadPoolExecutor(final int thread, final ThreadFactory threadFactory) {
+    public static ScheduledExecutorService newScheduledThreadPoolExecutor(final int thread,
+            final ThreadFactory threadFactory) {
         return new ScheduledThreadPoolExecutor(thread, threadFactory);
     }
 
@@ -1139,7 +1140,8 @@ public class ThreadUtils {
             return e.scheduleAtFixedRate(command, initialDelay, period, unit);
         }
         @Override
-        public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
+        public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
+                                                         TimeUnit unit) {
             return e.scheduleWithFixedDelay(command, initialDelay, delay, unit);
         }
     }

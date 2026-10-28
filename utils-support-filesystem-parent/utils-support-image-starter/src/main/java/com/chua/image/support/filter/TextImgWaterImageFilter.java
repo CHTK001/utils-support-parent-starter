@@ -169,7 +169,8 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
      * @param font font
      * @param imagePoint 镜像point
      */
-    public TextImgWaterImageFilter(String text, byte[] imageBytes, Position position, int fontSize, Color color, Font font, ImagePoint imagePoint) {
+    public TextImgWaterImageFilter(String text, byte[] imageBytes, Position position, int fontSize, Color color,
+                                   Font font, ImagePoint imagePoint) {
         this.text = text;
         this.imageBytes = imageBytes;
         this.position = position;

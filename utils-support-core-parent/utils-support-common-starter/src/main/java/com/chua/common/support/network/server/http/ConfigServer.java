@@ -224,7 +224,8 @@ public interface ConfigServer extends Server {
      * @param response 响应，不允许为 null
      * @return 对象 对象
      */
-    private Object invokeMethod(Object target, Method method, ServerRequest request, ServerResponse response) throws Exception {
+    private Object invokeMethod(Object target, Method method, ServerRequest request,
+                                ServerResponse response) throws Exception {
         Parameter[] params = method.getParameters();
         Object[] args = new Object[params.length];
 

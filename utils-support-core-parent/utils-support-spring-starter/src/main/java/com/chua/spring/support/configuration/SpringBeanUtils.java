@@ -267,7 +267,8 @@ public class SpringBeanUtils {
      * @deprecated 依赖 Spring 内部 API，建议使用 Spring 官方动态注册机制
      */
     @Deprecated(since = "4.0.0.42", forRemoval = true)
-    public static void registerController(String controllerBeanName, RequestMappingHandlerMapping requestMappingHandlerMapping) {
+    public static void registerController(String controllerBeanName,
+                                          RequestMappingHandlerMapping requestMappingHandlerMapping) {
         Object controller = getApplicationContext().getBean(controllerBeanName);
         if (controller == null) {
             return;
@@ -294,7 +295,8 @@ public class SpringBeanUtils {
      * @deprecated 依赖 Spring 内部 API，建议使用 Spring 官方动态注册机制
      */
     @Deprecated(since = "4.0.0.42", forRemoval = true)
-    public static void unregisterController(String controllerBeanName, RequestMappingHandlerMapping requestMappingHandlerMapping) {
+    public static void unregisterController(String controllerBeanName,
+                                            RequestMappingHandlerMapping requestMappingHandlerMapping) {
         Object controller = getApplicationContext().getBean(controllerBeanName);
         if (controller == null) {
             return;

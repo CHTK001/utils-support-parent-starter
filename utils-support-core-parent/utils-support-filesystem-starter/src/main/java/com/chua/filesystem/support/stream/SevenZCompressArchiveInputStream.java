@@ -38,7 +38,8 @@ public class SevenZCompressArchiveInputStream implements CompressArchiveInputStr
      * 创建输入流
     */
     @Override
-    public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
+    public ArchiveInputStream createInputStream(InputStream inputStream, File file,
+                                                @Nullable char[] password) throws IOException {
  // 7Z格式需要随机访问，必须使用文件对象
         if (file == null) {
             throw new IOException("7Z格式需要File对象，不能使用InputStream");

@@ -38,7 +38,8 @@ public class JarCompressArchiveInputStream implements CompressArchiveInputStream
      * 创建输入流
     */
     @Override
-    public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
+    public ArchiveInputStream createInputStream(InputStream inputStream, File file,
+                                                @Nullable char[] password) throws IOException {
         var jarInputStream = new JarArchiveInputStream(inputStream);
         return new ArchiveInputStreamAdapter(jarInputStream);
     }

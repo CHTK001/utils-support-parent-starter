@@ -137,7 +137,8 @@ public class TimeScheduler {
      * @param timeUnit     时间单位
      * @return 已调度的任务实例
      */
-    public ScheduledTask scheduleFixedRate(String id, Runnable task, long initialDelay, long interval, TimeUnit timeUnit) {
+    public ScheduledTask scheduleFixedRate(String id, Runnable task, long initialDelay, long interval,
+                                           TimeUnit timeUnit) {
         return provider.schedule(id, task, new FixedTrigger(initialDelay, interval, timeUnit));
     }
 

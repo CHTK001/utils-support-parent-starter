@@ -102,7 +102,8 @@ public interface MetaTrigger {
      * @param sequenceName 序列名
      * @return 创建触发器构建器（body 已由方言填充）
      */
-    default TriggerCreateBuilder createAutoIncrement(String triggerName, String tableName, String columnName, String sequenceName) {
+    default TriggerCreateBuilder createAutoIncrement(String triggerName, String tableName, String columnName,
+                                                     String sequenceName) {
         String safeTriggerName = SqlName.checkSimple(triggerName, "触发器名");
         String safeTableName = SqlName.checkSimple(tableName, "表名");
         String safeColumnName = SqlName.checkSimple(columnName, "列名");

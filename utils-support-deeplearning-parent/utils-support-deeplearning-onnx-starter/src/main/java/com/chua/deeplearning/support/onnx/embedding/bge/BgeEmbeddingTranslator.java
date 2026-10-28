@@ -53,7 +53,8 @@ public class BgeEmbeddingTranslator {
      * @return tokenizer（HuggingFace tokenizer 由 DJL 加载）
      * @throws Exception 加载异常
      */
-    public synchronized Path extractFromClasspath(String basePath, String modelFile, String tokenizerFile) throws Exception {
+    public synchronized Path extractFromClasspath(String basePath, String modelFile,
+                                                  String tokenizerFile) throws Exception {
         if (session != null) {
             return null;
         }

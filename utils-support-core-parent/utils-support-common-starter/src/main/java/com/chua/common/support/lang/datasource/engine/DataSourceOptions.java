@@ -66,7 +66,8 @@ public record DataSourceOptions(
      * @param password 密码，不允许为 null
      * @param tunnel 方法入参 tunnel
      */
-    public DataSourceOptions(String name, String host, int port, String database, String username, String password, Tunnel tunnel) {
+    public DataSourceOptions(String name, String host, int port, String database, String username, String password,
+                             Tunnel tunnel) {
         this(name, host, port, database, username, password, tunnel, null);
     }
 

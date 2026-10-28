@@ -102,7 +102,8 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
      * @param classes                        
      * @param maxBoxes                          
      */
-    public Yolo26ObbTranslator(int width, int height, float threshold, float nmsThreshold, List<String> classes, int maxBoxes) {
+    public Yolo26ObbTranslator(int width, int height, float threshold, float nmsThreshold, List<String> classes,
+                               int maxBoxes) {
         this.width = width;
         this.height = height;
         this.threshold = threshold;

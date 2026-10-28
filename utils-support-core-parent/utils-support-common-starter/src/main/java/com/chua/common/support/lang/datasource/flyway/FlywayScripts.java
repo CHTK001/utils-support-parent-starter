@@ -177,7 +177,8 @@ public final class FlywayScripts {
      * @param classLoader 类加载器
      * @param found       结果集合
      */
-    private static void scanClasspath(String glob, Pattern pattern, ClassLoader classLoader, Map<String, Script> found) {
+    private static void scanClasspath(String glob, Pattern pattern, ClassLoader classLoader,
+                                      Map<String, Script> found) {
         ResourceConfiguration configuration = ResourceConfiguration.builder()
                 .classLoader(resolveClassLoader(classLoader))
                 .build();

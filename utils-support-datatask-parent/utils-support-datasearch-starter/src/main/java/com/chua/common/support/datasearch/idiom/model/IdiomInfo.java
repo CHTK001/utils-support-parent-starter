@@ -53,7 +53,8 @@ public class IdiomInfo {
      * @param explanation  释义
      * @param example      例句
      */
-    public IdiomInfo(String word, String pinyin, String abbreviation, String derivation, String explanation, String example) {
+    public IdiomInfo(String word, String pinyin, String abbreviation, String derivation, String explanation,
+                     String example) {
         this.word = word;
         this.pinyin = pinyin;
         this.abbreviation = abbreviation;

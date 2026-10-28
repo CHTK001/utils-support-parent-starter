@@ -178,7 +178,8 @@ public class AntPathMatcher implements PathMatcher {
      * @param uriTemplateVariables             
      * @return {@code true}                 {@code path}       , {@code false}                
      */
-    protected boolean doMatch(String pattern, String path, boolean fullMatch, Map<String, String> uriTemplateVariables) {
+    protected boolean doMatch(String pattern, String path, boolean fullMatch,
+                              Map<String, String> uriTemplateVariables) {
         if (path == null || path.startsWith(this.pathSeparator) != pattern.startsWith(this.pathSeparator)) {
             return false;
         }

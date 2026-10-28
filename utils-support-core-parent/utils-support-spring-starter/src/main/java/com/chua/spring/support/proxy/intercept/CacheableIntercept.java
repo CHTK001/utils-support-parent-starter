@@ -37,7 +37,8 @@ public class CacheableIntercept implements MethodAnnotationIntercept<Cacheable> 
      * Intercept
     */
     @Override
-    public Object intercept(Cacheable annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
+    public Object intercept(Cacheable annotation, ProxyMethod proxyMethod,
+                            MethodInvocation invocation) throws Throwable {
         return invocation.proceed();
     }
 }

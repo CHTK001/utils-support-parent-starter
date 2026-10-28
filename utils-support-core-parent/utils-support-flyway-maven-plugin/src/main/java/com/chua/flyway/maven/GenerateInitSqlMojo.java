@@ -253,7 +253,8 @@ public class GenerateInitSqlMojo extends AbstractMojo {
      * @param charset 字符集
      * @throws IOException 读写失败时抛出
      */
-    private void writeMerged(final Path root, final Path output, final List<Path> scripts, final Charset charset) throws IOException {
+    private void writeMerged(final Path root, final Path output, final List<Path> scripts,
+                             final Charset charset) throws IOException {
         writeMergedFile(root, output, scripts, charset, null);
     }
 

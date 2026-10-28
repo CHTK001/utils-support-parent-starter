@@ -158,7 +158,8 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
      * @param chain 方法入参 chain
      * @return CompletionStage 对象
      */
-    private CompletionStage<Void> doReactiveFilter(ServerRequest request, ServerResponse response, ReactiveFilterChain chain) {
+    private CompletionStage<Void> doReactiveFilter(ServerRequest request, ServerResponse response,
+                                                   ReactiveFilterChain chain) {
         String path = request.getPath();
         if (path == null || !path.startsWith(urlPrefix)) {
             return chain == null
@@ -313,7 +314,8 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
      * @param chain 方法入参 chain
      * @return CompletionStage 对象
      */
-    private static CompletionStage<Void> passthrough(ServerRequest request, ServerResponse response, ReactiveFilterChain chain) {
+    private static CompletionStage<Void> passthrough(ServerRequest request, ServerResponse response,
+                                                     ReactiveFilterChain chain) {
         try {
             return chain.doFilter(request, response);
         } catch (Exception e) {

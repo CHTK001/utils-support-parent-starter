@@ -57,7 +57,8 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
      * @param path 字符串
      * @param produce produce
      */
-    public ShellMethodServerHandler(ObjectContext objectContext, Class<?> targetClass, Method method, String path, String produce) {
+    public ShellMethodServerHandler(ObjectContext objectContext, Class<?> targetClass, Method method, String path,
+                                    String produce) {
         this.objectContext = objectContext;
         this.targetClass = targetClass;
         this.method = method;

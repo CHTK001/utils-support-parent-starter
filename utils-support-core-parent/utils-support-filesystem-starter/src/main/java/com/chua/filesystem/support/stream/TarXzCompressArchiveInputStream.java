@@ -36,7 +36,8 @@ public class TarXzCompressArchiveInputStream implements CompressArchiveInputStre
      * 创建输入流
     */
     @Override
-    public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
+    public ArchiveInputStream createInputStream(InputStream inputStream, File file,
+                                                @Nullable char[] password) throws IOException {
         var xzInputStream = new XZCompressorInputStream(inputStream);
         var tarInputStream = new TarArchiveInputStream(xzInputStream);
         return new ArchiveInputStreamAdapter(tarInputStream);

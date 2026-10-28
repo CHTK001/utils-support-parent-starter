@@ -77,7 +77,8 @@ public class LevelsClose implements Levels {
      * @param valueObject 值对象
      * @param result      结果 Map
      */
-    private void dataFormatProfileHierarchicalAnalysis(String parentName, Object valueObject, Map<String, Object> result) {
+    private void dataFormatProfileHierarchicalAnalysis(String parentName, Object valueObject,
+                                                       Map<String, Object> result) {
         if (valueObject instanceof Map) {
 @SuppressWarnings("unchecked")
             Map<String, Object> mapValue = (Map<String, Object>) valueObject;
@@ -98,7 +99,8 @@ public class LevelsClose implements Levels {
      * @param map        Map 类型的值
      * @param result     结果 Map
      */
-    private void doAnalysisMapValueHierarchicalAnalysis(String parentName, Map<String, Object> map, Map<String, Object> result) {
+    private void doAnalysisMapValueHierarchicalAnalysis(String parentName, Map<String, Object> map,
+                                                        Map<String, Object> result) {
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             String key = String.valueOf(entry.getKey());
             Object value = entry.getValue();
@@ -114,7 +116,8 @@ public class LevelsClose implements Levels {
      * @param source     List 类型的值
      * @param result     结果 Map
      */
-    private void doAnalysisListValueHierarchicalAnalysis(String parentName, List<Object> source, Map<String, Object> result) {
+    private void doAnalysisListValueHierarchicalAnalysis(String parentName, List<Object> source,
+                                                         Map<String, Object> result) {
         for (int i = 0; i < source.size(); i++) {
             dataFormatProfileHierarchicalAnalysis(parentName + "[" + i + "]", source.get(i), result);
         }

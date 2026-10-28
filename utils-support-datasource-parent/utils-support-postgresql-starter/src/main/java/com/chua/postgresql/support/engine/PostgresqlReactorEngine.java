@@ -43,7 +43,8 @@ public class PostgresqlReactorEngine extends JdbcReactorEngine {
      * @param password 密码
      * @return 当前引擎实例
      */
-    public PostgresqlReactorEngine addDataSource(String name, String host, int port, String database, String username, String password) {
+    public PostgresqlReactorEngine addDataSource(String name, String host, int port, String database, String username,
+                                                 String password) {
         JdbcUrl.checkHost(host);
         JdbcUrl.checkPort(port);
         JdbcUrl.checkDatabase(database);

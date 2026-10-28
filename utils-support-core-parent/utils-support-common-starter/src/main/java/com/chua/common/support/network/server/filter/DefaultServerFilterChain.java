@@ -56,7 +56,8 @@ public class DefaultServerFilterChain implements ServerFilterChain {
      * @param listeners listeners
      * @param handler 处理器，不允许为 null
      */
-    public DefaultServerFilterChain(List<ServerFilter> filters, ServerHandler handler, List<FilterChainListener> listeners) {
+    public DefaultServerFilterChain(List<ServerFilter> filters, ServerHandler handler,
+                                    List<FilterChainListener> listeners) {
         this.filters = filters;
         this.handler = handler;
         this.listeners = listeners;
