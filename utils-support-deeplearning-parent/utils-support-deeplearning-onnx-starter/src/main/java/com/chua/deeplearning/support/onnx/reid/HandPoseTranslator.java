@@ -14,17 +14,17 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 打开cv media管道 handpose                       Translator
  *
- * <p>            : [1, 224, 224, 3] NHWC RGB       
+ * <p>            : [1, 224, 224, 3] NHWC RGB
  * <p>            :
- * - Identity: [1, 63]     21                       x,y,z                         
- * - Identity_1: [1, 1]                    
- * - Identity_2: [1, 1]                 0=      , 1=         
- * - Identity_3: [1, 63]                       
+ * - Identity: [1, 63]     21                       x,y,z
+ * - Identity_1: [1, 1]
+ * - Identity_2: [1, 1]                 0=      , 1=
+ * - Identity_3: [1, 63]
  *
  * <p>         :
  * -                       224x224
  * -              [0, 1]
- * -        HWC                    NHWC   
+ * -        HWC                    NHWC
  *
  * <p>         :
  * -        float[65]: [63                   ,          ,          ]
@@ -82,11 +82,11 @@ public class HandPoseTranslator implements Translator<Image, float[]> {
         NDArray landmarks = list.getFirst();
         float[] landmarkData = landmarks.toFloatArray();
 
-        // Identity_1: [1, 1]              
+        // Identity_1: [1, 1]
         NDArray confidenceArr = list.get(1);
         float confidence = confidenceArr.toFloatArray()[0];
 
-        // Identity_2: [1, 1]              
+        // Identity_2: [1, 1]
         NDArray handednessArr = list.get(2);
         float handedness = handednessArr.toFloatArray()[0];
 

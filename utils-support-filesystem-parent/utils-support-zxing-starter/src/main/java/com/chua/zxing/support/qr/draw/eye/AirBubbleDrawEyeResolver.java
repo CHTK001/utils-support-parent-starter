@@ -68,7 +68,7 @@ public class AirBubbleDrawEyeResolver extends AbstractDrawEyeResolver {
         path.lineTo(x1 + arcw1, y1 + h1);
         path.quadTo(x1, y1 + h1, x1, y1 + h1 - arch1);
         path.closePath();
-        
+
         g2.setColor(Converter.convertIfNecessary(codeEyeSetting.getCodeEyeColor(), Color.class));
         g2.draw(path);
         int x2 =  leftPadding + x * infoSize + infoSize * 2;

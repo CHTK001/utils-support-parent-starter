@@ -30,12 +30,12 @@ import java.util.Map;
 import ai.djl.training.ParameterStore;
 
 /**
- * CN-CLIP                 Translator   
+ * CN-CLIP                 Translator
  *
- * <p>CN-CLIP        Chinese-CLIP ONNX                       CLIP                      
+ * <p>CN-CLIP        Chinese-CLIP ONNX                       CLIP
  *                                                                    logits          </p>
  *
- * <p>        gficcg/clip_cn_vit-onnx              
+ * <p>        gficcg/clip_cn_vit-onnx
  * 镜像 编码器 + 文本 编码器 + vocab.txt
  * ONNX   unnorm_镜像_特征 / unnorm_文本_特征
  *  L2      cosine * logit_scale  softmax             </p>

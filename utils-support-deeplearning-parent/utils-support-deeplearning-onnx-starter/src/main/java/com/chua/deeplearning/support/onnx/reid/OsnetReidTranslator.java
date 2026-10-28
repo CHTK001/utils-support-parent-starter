@@ -15,19 +15,19 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * youtu reid                 Translator
  *
- * <p>            : [batch, 3, 256, 128] RGB       
- * <p>            : [batch, 768, 1, 1]             
+ * <p>            : [batch, 3, 256, 128] RGB
+ * <p>            : [batch, 768, 1, 1]
  *
  * <p>         :
- * -                       256x128   H x W   
+ * -                       256x128   H x W
  * -              [0, 1]
  * - 镜像net
- * -           NCHW       
+ * -           NCHW
  *
  * <p>         :
  * -                    (1x1)
- * -        768                
- * - L2          
+ * -        768
+ * - L2
  *
  * @author CH
  * @since 2026-05-10
@@ -64,7 +64,7 @@ public class OsnetReidTranslator implements Translator<Image, float[]> {
         NDManager manager = ctx.getNDManager();
         NDArray array = input.toNDArray(manager, Image.Flag.COLOR);
 
-        //                 256x128   H x W   
+        //                 256x128   H x W
         array = NDImageUtils.resize(array, INPUT_W, INPUT_H);
 
         //           FLOAT32
@@ -106,7 +106,7 @@ public class OsnetReidTranslator implements Translator<Image, float[]> {
         //                    [768, 1, 1]     [768]
         if (output.getShape().dimension() > 1) {
             int dim = output.getShape().dimension();
-            //              squeeze           1       
+            //              squeeze           1
             for (int i = dim - 1; i >= 0; i--) {
                 if (output.getShape().get(i) == 1) {
                     output = output.squeeze(i);
@@ -116,7 +116,7 @@ public class OsnetReidTranslator implements Translator<Image, float[]> {
 
         float[] features = output.toFloatArray();
 
-        // L2          
+        // L2
         float norm = 0.0f;
         for (float f : features) {
             norm += f * f;

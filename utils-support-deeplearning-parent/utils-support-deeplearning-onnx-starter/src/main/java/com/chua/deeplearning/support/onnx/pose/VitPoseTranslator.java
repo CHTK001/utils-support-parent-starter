@@ -18,7 +18,7 @@ import ai.djl.ndarray.types.Shape;
  * : onnx-社区/vitpose-基础-简单
  * </p>
  * <p>
- *      : 17                COCO                   
+ *      : 17                COCO
  * </p>
  * <p>
  * : float[17][3]  (x, y, 信心)

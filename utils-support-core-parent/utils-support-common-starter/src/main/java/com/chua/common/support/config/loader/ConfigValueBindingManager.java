@@ -154,7 +154,7 @@ public class ConfigValueBindingManager implements ConfigListener {
 
         addBinding(binding);
 
-        //             
+        //
         String value = resolveValue(parsed.key, parsed.defaultValue);
         injectFieldValue(binding, value);
 
@@ -189,7 +189,7 @@ public class ConfigValueBindingManager implements ConfigListener {
 
         addBinding(binding);
 
-        //             
+        //
         String value = resolveValue(parsed.key, parsed.defaultValue);
         injectMethodValue(binding, value);
 

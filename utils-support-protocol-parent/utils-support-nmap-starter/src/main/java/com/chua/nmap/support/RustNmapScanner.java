@@ -118,19 +118,19 @@ public class RustNmapScanner implements NmapScanner {
     public ScanResult scanTcpPorts(String host, int startPort, int endPort) {
         RustNmapBridge.ensureLoaded();
         long startTime = System.currentTimeMillis();
-        
-        String result = RustNmapBridge.scanTcpPortRange(host, startPort, endPort, 
+
+        String result = RustNmapBridge.scanTcpPortRange(host, startPort, endPort,
                 options.getTimeout(), options.getConcurrency());
         List<PortInfo> portInfos = parsePortRangeResult(result, "TCP");
         long duration = System.currentTimeMillis() - startTime;
-        
+
         int openCount = 0;
         for (PortInfo portInfo : portInfos) {
             if (portInfo.getState() == PortState.OPEN) {
                 openCount++;
             }
         }
-        
+
         ScanResult scanResult = new ScanResult();
         scanResult.setHost(host);
         scanResult.setPorts(portInfos);
@@ -307,7 +307,7 @@ public class RustNmapScanner implements NmapScanner {
             List<PortInfo> results = Wraps.list();
             int openCount = 0;
             long startTime = System.currentTimeMillis();
-            
+
             for (int i = 0; i < ports.length; i++) {
                 int port = ports[i];
                 int result = RustNmapBridge.scanSingleTcpPort(host, port, options.getTimeout());
@@ -316,10 +316,10 @@ public class RustNmapScanner implements NmapScanner {
                 if (portInfo.getState() == PortState.OPEN) {
                     openCount++;
                 }
-                
+
                 int current = i + 1;
                 double progress = (double) current / total * 100;
-                
+
                 ScanProgress scanProgress = new ScanProgress();
                 scanProgress.setCurrentPort(port);
                 scanProgress.setScannedPorts(current);
@@ -328,7 +328,7 @@ public class RustNmapScanner implements NmapScanner {
                 scanProgress.setOpenPorts(openCount);
                 progressCallback.accept(scanProgress);
             }
-            
+
             ScanResult scanResult = new ScanResult();
             scanResult.setHost(host);
             scanResult.setPorts(results);
@@ -364,14 +364,14 @@ public class RustNmapScanner implements NmapScanner {
         portInfo.setPort(port);
         portInfo.setProtocol(protocol);
         portInfo.setServiceName("unknown");
-        
+
         switch (stateCode) {
             case 0 -> portInfo.setState(PortState.OPEN);
             case 1 -> portInfo.setState(PortState.CLOSED);
             case 2 -> portInfo.setState(PortState.FILTERED);
             default -> portInfo.setState(PortState.UNKNOWN);
         }
-        
+
         return portInfo;
     }
 

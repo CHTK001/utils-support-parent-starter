@@ -67,7 +67,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     /**
      * yoloworlddetectortranslator。
      */
-    
+
     private ClipTextFeatureTranslator clipTextTranslator; // clip文本translator
     /**
      * yoloworlddetectortranslator。
@@ -94,7 +94,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     @Override
     public void prepare(TranslatorContext ctx) throws Exception {
 
-        
+
         if (customClasses.isEmpty()) {
             log.info("[YOLO-World] COCO-80 classes, threshold={}, iou={}", threshold, nmsThreshold);
         } else {
@@ -132,7 +132,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         NDManager manager = ctx.getNDManager();
         int numClasses = classes.isEmpty() ? 80 : classes.size();
         float[][] embeds = new float[numClasses][];
-        
+
         for (int i = 0; i < numClasses; i++) {
             String className = classes.isEmpty() ? COCO_80[i] : classes.get(i);
             NDList input = clipTextTranslator.processInput(ctx, className);
@@ -144,7 +144,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
                 embeds[i] = new float[512];
             }
         }
-        
+
  // Normalize 嵌入
         for (int i = 0; i < embeds.length; i++) {
             float norm = 0f;
@@ -158,12 +158,12 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
                 }
             }
         }
-        
+
         float[] flat = new float[numClasses * 512];
         for (int i = 0; i < numClasses; i++) {
             System.arraycopy(embeds[i], 0, flat, i * 512, 512);
         }
-        
+
         return manager.create(flat, new Shape(1, numClasses, 512));
     }
 
@@ -194,13 +194,13 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         }
         NDArray images = ctx.getNDManager().create(chw, new Shape(1, c, h, w));
         images.setName("images");
-        
+
  // Generate CLIP 文本 嵌入
-        List<String> classes = customClasses.isEmpty() ? 
+        List<String> classes = customClasses.isEmpty() ?
             Arrays.asList(COCO_80) : customClasses;
         NDArray txtFeats = generateTextEmbeddings(ctx, classes);
         txtFeats.setName("txt_feats");
-        
+
         NDList result = new NDList(images, txtFeats);
         return result;
     }

@@ -26,7 +26,7 @@ public class DefaultBackgroundResolver implements BackgroundResolver{
     @Override
     public BufferedImage resolve(QrSetting setting, BackgroundSetting backgroundSetting, BufferedImage image,
                                  QRCode qrCode, BitMatrixEx bitMatrix) {
-        
+
         return QrCodeRenderHelper.drawBackground(image,
                 QrCodeOptions.BgImgOptions.builder()
                         .bgImg(BufferedImageUtils.toBufferedImage(backgroundSetting.getBackgroundImage()))
@@ -35,7 +35,7 @@ public class DefaultBackgroundResolver implements BackgroundResolver{
                         .opacity(backgroundSetting.getBgAlpha())
                         .build()
                 );
-    
+
     }
 }
 

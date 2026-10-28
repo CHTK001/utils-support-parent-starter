@@ -16,21 +16,21 @@ import javax.annotation.Nonnull;
 /**
  * NIMA (Neural 镜像 评定)                    Translator
  *
- * <p>       VGG16                                            10                          1-10          
+ * <p>       VGG16                                            10                          1-10
  * Softmax             ,                          Mean 观点 Score (MOS)
  *
  * <p>         :
  * <ul>
  *   <li>          224x224
- *   <li>             [0, 1]          255.0   
- *   <li>ImageNet                                        
- *   <li>HWC     CHW       
+ *   <li>             [0, 1]          255.0
+ *   <li>ImageNet
+ *   <li>HWC     CHW
  * </ul>
  *
  * <p>         :
  * <ul>
- *   <li>Softmax                            
- *   <li>       float[10]          1-10             
+ *   <li>Softmax
+ *   <li>       float[10]          1-10
  * </ul>
  *
  * @author CH

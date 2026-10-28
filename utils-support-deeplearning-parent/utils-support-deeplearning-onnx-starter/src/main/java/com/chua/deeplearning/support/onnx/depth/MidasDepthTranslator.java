@@ -32,7 +32,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
      * 模型图像尺寸
     */
     private static final int MODEL_IMAGE_SIZE = 256;
-    
+
     protected Batchifier batchifier = Batchifier.STACK;
 
     private int width;
@@ -61,8 +61,8 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
      * 构造 MidasDepthTranslator 实例。
      *
      *
-     * @param detectResolution                
-     * @param imageResolution                 
+     * @param detectResolution
+     * @param imageResolution
      */
     public MidasDepthTranslator(int detectResolution, int imageResolution) {
         this.detectResolution = detectResolution;
@@ -83,10 +83,10 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
         if (!array.getDataType().equals(DataType.FLOAT32)) {
             array = array.toType(DataType.FLOAT32, false);
         }
-        
+
         //              [-1, 1]
         array = array.div(127.5f).sub(1.0f);
-        //           CHW       
+        //           CHW
         array = array.transpose(2, 0, 1);
         return new NDList(array);
     }
@@ -103,7 +103,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
         if (depthPt.getShape().dimension() > 2 && depthPt.getShape().get(0) == 1) {
             depthPt = depthPt.squeeze(0);
         }
-        
+
         //                       [0, 255]
         NDArray min = depthPt.min();
         depthPt = depthPt.sub(min);

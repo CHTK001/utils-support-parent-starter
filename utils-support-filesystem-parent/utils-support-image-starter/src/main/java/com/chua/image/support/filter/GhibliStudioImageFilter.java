@@ -144,9 +144,9 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     */
     @Override
     public String getImageFormat() {
-        
+
         return "jpeg";
-    
+
     }
 
     /**

@@ -27,16 +27,16 @@ import java.util.Map;
  * </p>
  * <p>
  *
- * -                               Detection                                       
+ * -                               Detection
  * -          yolov7-执照-铭牌                           /
- * -                640x640               
+ * -                640x640
  * -                             [0, 1]
  * </p>
  * <p>
  *
- * -                [1, 3, 640, 640] - NCHW   RGB          [0, 1]          
+ * -                [1, 3, 640, 640] - NCHW   RGB          [0, 1]
  * -                [1, 25200, 18] - (x_center, y_center, w, h, obj_conf, 类1_conf, 类2_conf, 8            )
- * -                    NMS                           
+ * -                    NMS
  * </p>
  *
  * @author CH
@@ -46,14 +46,14 @@ import java.util.Map;
 public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObjects> {
 
     /**
-     *                             640x640   
+     *                             640x640
      */
     private final int inputSize;
 
     private final float minConfThreshold;
 
     /**
-     * IOU       
+     * IOU
      */
     private final float iouThreshold;
 
@@ -87,7 +87,7 @@ public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObj
     /**
      * 映射
      *
-     * @param arguments             
+     * @param arguments
      */
     public Yolo7PlateDetectTranslator(Map<String, ?> arguments) {
         this.confThreshold = arguments.containsKey("confThreshold")
@@ -113,10 +113,10 @@ public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObj
      * 构造 Yolo7PlateDetectTranslator 实例。
      *
      *
-     * @param inputSize                                          
+     * @param inputSize
      * @param confThreshold                  [0.0, 1.0]
      * @param iouThreshold   IOU        [0.0, 1.0]
-     * @param topK                             
+     * @param topK
      */
     public Yolo7PlateDetectTranslator(int inputSize, float confThreshold, float iouThreshold, int topK) {
         this.inputSize = inputSize;
@@ -197,7 +197,7 @@ public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObj
                 detsFiltered.get(":, 16:17"),
                 detsFiltered.get(":, 17:18")
         ), 1);
-       
+
 
         var output = NDArrays.concat(new NDList(boxes, scores, keyPoints, indices), 1);
 
@@ -220,7 +220,7 @@ public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObj
         int rows = (int) shape[0];
         int cols = (int) shape[1];
 
-        //                                     
+        //
         float[][] data = new float[rows][cols];
         for (int i = 0; i < rows; i++) {
             System.arraycopy(flatData, i * cols, data[i], 0, cols);
@@ -238,13 +238,13 @@ public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObj
             double prob = score;
             String className = classIndex == 0 ? "single" : "double";
 
-            //                   DJL   Rectangle                  0~1   
+            //                   DJL   Rectangle                  0~1
             double rectX = x1 / imageWidth;
             double rectY = y1 / imageHeight;
             double rectW = (x2 - x1) / imageWidth;
             double rectH = (y2 - y1) / imageHeight;
 
-            //        Polygon             
+            //        Polygon
             List<Point> pointsSrc = Wraps.list();
             pointsSrc.add(new Point(row[5], row[6]));
             pointsSrc.add(new Point(row[7], row[8]));

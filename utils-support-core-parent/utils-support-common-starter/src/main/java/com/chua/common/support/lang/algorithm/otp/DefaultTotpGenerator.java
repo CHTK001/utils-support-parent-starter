@@ -34,7 +34,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     /**
      * HmacSHA1 算法名称
      */
-    private static final String HMAC_SHA1 = "HmacSHA1"; 
+    private static final String HMAC_SHA1 = "HmacSHA1";
     /**
      * 默认 OTP 验证码长度
      */
@@ -124,13 +124,13 @@ public class DefaultTotpGenerator implements TotpGenerator {
             SecretKeySpec signKey = new SecretKeySpec(secret, HMAC_SHA1);
             Mac mac = Mac.getInstance(HMAC_SHA1);
             mac.init(signKey);
-            
+
             // 计算 HMAC 哈希值
             byte[] hash = mac.doFinal(data);
 
             // 动态截断算法：确定偏移量
             int offset = hash[hash.length - 1] & 0xF;
-            
+
             // 从偏移位置提取 4 个字节，并掩码最高位以确保为正数
             int binaryCode = ((hash[offset] & 0x7f) << 24)
                     | ((hash[offset + 1] & 0xff) << 16)
@@ -139,7 +139,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
 
             // 计算 OTP 值并对 10 的 otpLength 次方取模
             int otp = binaryCode % (int) Math.pow(10, otpLength);
-            
+
             // 格式化为指定位数的字符串，不足补零
             StringBuilder result = new StringBuilder(Integer.toString(otp));
             while (result.length() < otpLength) {

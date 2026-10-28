@@ -321,7 +321,7 @@ public class DdlFormatter extends SqlFormatter {
 
         // 状态变量
         // // 当前括号嵌套深度
-        int parenDepth = 0;  
+        int parenDepth = 0;
         // alse; // 是否在单引号字符串内
         boolean inSingleQuote = false;
         // alse; // 是否在双引号字符串内
@@ -353,11 +353,11 @@ public class DdlFormatter extends SqlFormatter {
             // ----- 处理括号（不在字符串内） -----
             if (c == '(') {
                 // parenDepth++; // 进入更深一层括号
-              
+
                 current.append(c);
             } else if (c == ')') {
                 // parenDepth--; // 退出当前括号层
-              
+
                 current.append(c);
             }
             // ----- 处理逗号分隔符（核心逻辑） -----

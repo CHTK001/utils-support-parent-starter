@@ -150,7 +150,7 @@ public class WordReadBuilder extends ReadBuilder {
     */
     @Override
     public List<String> asLines() {
-         return paragraphs(); 
+         return paragraphs();
     }
 
     /**
@@ -158,7 +158,7 @@ public class WordReadBuilder extends ReadBuilder {
     */
     @Override
     public String asString() {
-         return text(); 
+         return text();
     }
 }
 

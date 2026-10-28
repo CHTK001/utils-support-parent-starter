@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
  * distilbert SST-2              Translator
  * <p>
  *
- *          POSITIVE / NEGATIVE             
+ *          POSITIVE / NEGATIVE
  * </p>
  *
  * @author CH

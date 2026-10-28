@@ -15,19 +15,19 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * CLIP                      
+ * CLIP
  * <p>
  * CLIP vit-B/16     vit-B/32 Vision
  * CLIP-vit-B-16-镜像     CLIP-vit-B-32-镜像
  * </p>
  * <p>
  *
- * 1.                                224       
+ * 1.                                224
  * 2.                 224x224
- * 3.           RGB       
- * 4.              [0, 1]       
- * 5.                                        
- * 6.           NCHW       
+ * 3.           RGB
+ * 4.              [0, 1]
+ * 5.
+ * 6.           NCHW
  * </p>
  * <p>
  * 打开AI CLIP
@@ -44,13 +44,13 @@ import javax.annotation.Nullable;
 public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
 
     /**
-     * CLIP                            
+     * CLIP
      * 打开AI CLIP
      */
     private static final float[] IMAGE_MEAN = {0.48145466f, 0.4578275f, 0.40821073f};
 
     /**
-     * CLIP                               
+     * CLIP
      * 打开AI CLIP
      */
     private static final float[] IMAGE_STD = {0.26862954f, 0.26130258f, 0.27577711f};
@@ -60,10 +60,10 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     /**
      *
      * <p>
-     * CLIP                                           
+     * CLIP
      * </p>
      *
-     * @param ctx                   
+     * @param ctx
      */
     @Override
     public void prepare(@Nonnull TranslatorContext ctx) {
@@ -74,17 +74,17 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
      *
      * <p>
      *
-     * 1.                                      224   
+     * 1.                                      224
      * 2.                 224x224
      * 3.              [0, 1]
-     * 4.                                        
-     * 5.           NCHW                            
+     * 4.
+     * 5.           NCHW
      * </p>
      *
-     * @param ctx                     
-     * @param input             
-     * @return              NDList                   [1, 3, 224, 224]          
-     * @throws Exception                         
+     * @param ctx
+     * @param input
+     * @return              NDList                   [1, 3, 224, 224]
+     * @throws Exception
      */
     @Override
     @Nonnull
@@ -144,9 +144,9 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
      * CLIP vit-B/16     vit-B/32           512
      * </p>
      *
-     * @param ctx                    
+     * @param ctx
      * @param list                 nd列表
-     * @return                         
+     * @return
      */
     @Override
     @Nonnull
@@ -166,7 +166,7 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
      * 获取 Batchifier。
      *
      *
-     * @return null                     
+     * @return null
      */
     @Override
     @Nullable

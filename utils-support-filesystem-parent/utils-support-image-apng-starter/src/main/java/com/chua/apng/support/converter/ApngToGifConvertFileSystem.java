@@ -317,9 +317,9 @@ if (metadata != null) {
     */
     @Override
     public String type() {
-        
+
         return "gif";
-    
+
     }
 
     /**

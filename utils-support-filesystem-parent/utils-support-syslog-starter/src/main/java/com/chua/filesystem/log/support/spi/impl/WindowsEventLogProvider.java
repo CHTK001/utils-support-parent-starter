@@ -119,9 +119,9 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     */
     @Override
     public boolean isPlatformSupported() {
-        
+
         return PlatformSystems.isWindows() && registry != null;
-    
+
     }
 
     /**
@@ -129,9 +129,9 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     */
     @Override
     public List<String> getSources() {
-        
+
         return SOURCES;
-    
+
     }
 
     /**

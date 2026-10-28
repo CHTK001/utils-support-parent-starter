@@ -18,21 +18,21 @@ import org.slf4j.LoggerFactory;
  * <p>
  * age竞争gendernet
  *
- * -                            0-116      117            
- * -                            
- * -                            
+ * -                            0-116      117
+ * -
+ * -
  * <p>
  *
  * -                       256x256
  * -              [0, 1]
  * - 镜像net             mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
- * -           NCHW       
+ * -           NCHW
  * <p>
  *
- * -                                                 
- * -          softmax                         0-116   
- * -          softmax                   Male/Female   
- * -          softmax                   White/Black/Asian/Indian/Others   
+ * -
+ * -          softmax                         0-116
+ * -          softmax                   Male/Female
+ * -          softmax                   White/Black/Asian/Indian/Others
  *
  * @author CH
  * @since 2024/11/08
@@ -60,15 +60,15 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
 
     private static final String[] RACE_CLASSES = {
             // White",   //
-           
+
             // Black",   //
-           
+
             // Asian",   //
-           
+
             // Indian",  //
-           
+
             // Others"   //
-           
+
     };
 
     /**
@@ -116,9 +116,9 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
 
         long startTime = System.currentTimeMillis();
 
-        //                               
-        //                                                                      
-        //                                                    
+        //
+        //
+        //
 
         int age = 0;
         float ageConfidence = 0.0f;
@@ -129,9 +129,9 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
 
         if (list.size() >= 3) {
  // [age, gender, 竞争]
-            //                                              
+            //
 
-            // 1.                                                             
+            // 1.
             NDArray ageOutput = list.getFirst();
             if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("年龄输出 shape: {}", ageOutput.getShape());
@@ -142,7 +142,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
             NDArray ageLogits = ageOutput.squeeze(0);
             NDArray ageProbs = ageLogits.softmax(-1);
 
-            //                               
+            //
             int ageIdx = (int) ageProbs.argMax().getLong();
             age = ageIdx;
             ageConfidence = ageProbs.getFloat(ageIdx);
@@ -150,7 +150,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
         LOGGER.debug("年龄结果: {} 岁, 置信度: {}", age, ageConfidence);
             }
 
-            // 2.                            
+            // 2.
             NDArray genderOutput = list.get(1);
             if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("性别输出 shape: {}", genderOutput.getShape());
@@ -167,7 +167,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
         LOGGER.debug("性别结果: {}, 置信度: {}", gender, genderConfidence);
             }
 
-            // 3.                            
+            // 3.
             NDArray raceOutput = list.get(2);
             if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("种族输出 shape: {}", raceOutput.getShape());
@@ -185,21 +185,21 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
             }
 
         } else if (list.size() == 1) {
-            //                                                          
+            //
             NDArray output = list.getFirst();
             if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("输出 shape: {}", output.getShape());
             }
 
-            //                               
-            //                               
+            //
+            //
             long[] shape = output.getShape().getShape();
 
             if (shape.length >= 2 && shape[1] >= 7) {
  // [批量, 特征]
-                // features                1          + 2          + 5          = 8         
+                // features                1          + 2          + 5          = 8
 
-                //             
+                //
                 age = Math.round(output.getFloat(0, 0));
                 ageConfidence = calculateAgeConfidence(age);
 
@@ -233,18 +233,18 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
                 .value(String.format("Age: %d, Gender: %s, Race: %s", age, gender, race))
                 .build();
 
-        //                                  
-        //                0-116          age >= 0              > 0       
+        //
+        //                0-116          age >= 0              > 0
         if (age >= 0 && ageConfidence > 0) {
             result.setAgeDetected(age, ageConfidence);
         }
 
-        //                                  
+        //
         if (gender != null && !"Unknown".equals(gender) && genderConfidence > 0) {
             result.setGenderDetected(gender, genderConfidence);
         }
 
-        //                                  
+        //
         if (race != null && !"Unknown".equals(race) && raceConfidence > 0) {
             result.setRaceDetected(race, raceConfidence);
         }
@@ -258,21 +258,21 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
      * <p>
      *
      *
-     * @param age                
+     * @param age
      * @return           [0.0, 1.0]
      */
     private float calculateAgeConfidence(int age) {
-        //                      0-116                               
+        //                      0-116
         if (age < 0 || age > 116) {
             return 0.0f;
         }
 
-        //           0-100                            
+        //           0-100
         if (age <= 100) {
             return 0.9f;
         }
 
-        // 100-116                      
+        // 100-116
         return 0.5f;
     }
 

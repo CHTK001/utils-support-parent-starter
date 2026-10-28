@@ -17,16 +17,16 @@ import java.util.Arrays;
 /**
  * smoldocling Vision Translator
  * <p>
- *                                                                    Vision                
+ *                                                                    Vision
  * <p>
  *
  * -                                   (512x512)
- * -                      
+ * -
  * -           5          : [批量, num_镜像, 通道, height, width]
  * -        pixel_attention_mask: [批量, num_镜像, height, width] (512x512)
  * <p>
  *
- * -                   
+ * -
  *
  * @author CH
  * @since 2025/01/22
@@ -52,7 +52,7 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
         NDManager manager = ctx.getNDManager();
         NDArray array = input.toNDArray(manager, Image.Flag.COLOR);
 
-        //                                        
+        //
         array = NDImageUtils.resize(array, INPUT_IMAGE_SIZE, INPUT_IMAGE_SIZE);
 
         //              [0, 1]
@@ -63,7 +63,7 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
         array = array.transpose(2, 0, 1);
 
  // 镜像net
-        //     CHW                         
+        //     CHW
         float[] mean = {0.485f, 0.456f, 0.406f};
         float[] std = {0.229f, 0.224f, 0.225f};
         array = NDImageUtils.normalize(array, mean, std);
@@ -79,7 +79,7 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
             log.debug("pixel_values 形状: {}", array.getShape());
         }
 
-        //        pixel_attention_mask                      true   bool          
+        //        pixel_attention_mask                      true   bool
  // pixel_attention_mask                    pixel_值                   512x512
  // 4     mask: [批量, num_镜像, height, width]
         long batchSize = 1; //           1
@@ -278,7 +278,7 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
             return null;
         }
 
-        //                   
+        //
         NDArray imageFeatures = list.getFirst();
         long[] outputShape = imageFeatures.getShape().getShape();
 
@@ -295,7 +295,7 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
     */
     @Override
     public Batchifier getBatchifier() {
-        //                   
+        //
         return null;
     }
 }

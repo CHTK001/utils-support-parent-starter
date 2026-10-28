@@ -100,9 +100,9 @@ public class BitUtils {
         byte[] byteArr = new byte[8];
         int size = BYTE_BIT_SIZE - 1;
         for (int i = size; i >= 0; i--) {
-            //               
+            //
             byteArr[i] = (byte) (b & 0x01);
-            //                  
+            //
             b = (byte) (b >> 1);
         }
         return byteArr;

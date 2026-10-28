@@ -452,9 +452,9 @@ public class QrCodeRenderUtils {
             */
             @Override
             public boolean detectedArea() {
-        
+
                 return false;
-            
+
     }
         };
 

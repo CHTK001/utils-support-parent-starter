@@ -36,9 +36,9 @@ public class PdfFileSystem implements FileSystem {
     */
     @Override
     public String getType() {
-        
+
         return "pdf";
-    
+
     }
 
     /**
@@ -46,9 +46,9 @@ public class PdfFileSystem implements FileSystem {
     */
     @Override
     public ReadBuilder read(File file) {
-        
+
         return new PdfReadBuilder(file);
-    
+
     }
 
     /**
@@ -56,9 +56,9 @@ public class PdfFileSystem implements FileSystem {
     */
     @Override
     public WriteBuilder write(File file) {
-        
+
         return new PdfWriteBuilder(file);
-    
+
     }
 }
 

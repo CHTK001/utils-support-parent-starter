@@ -94,9 +94,9 @@ public final class PNGImageWriteParam extends ImageWriteParam {
      */
     @Override
     public boolean isCompressionLossless() {
-        
+
         return true;
-    
+
     }
 
     /**

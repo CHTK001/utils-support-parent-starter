@@ -25,13 +25,13 @@ import javax.annotation.Nullable;
  * XLM-roberta                      Translator
  * <p>
  * XLM-roberta                        20
- *          178                               
+ *          178
  * </p>
  * <p>
  *
  * 1.        huggingface Tokenizer
  * 2.     令牌 ids
- * 3.                                     128       
+ * 3.                                     128
  * </p>
  * <p>
  *
@@ -151,7 +151,7 @@ public class XlmRobertaLanguageDetectionTranslator implements Translator<String,
     /**
      *                        tokenizer.json
      *
-     * @param modelPath             
+     * @param modelPath
      * @return                        path，       空
      */
     private static Path findTokenizerPath(Path modelPath) {
@@ -173,10 +173,10 @@ public class XlmRobertaLanguageDetectionTranslator implements Translator<String,
     }
 
     /**
-     * softmax                  
+     * softmax
      *
-     * @param logits                      
-     * @return softmax              
+     * @param logits
+     * @return softmax
      */
     private static double[] softmax(float[] logits) {
         double max = Double.NEGATIVE_INFINITY;

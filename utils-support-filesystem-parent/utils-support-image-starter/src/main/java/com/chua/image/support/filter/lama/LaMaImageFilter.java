@@ -168,12 +168,12 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
      */
     public LaMaImageFilter setConfig(LaMaConfiguration config) {
         this.config = config;
-        
+
         // 关闭旧的推理器
         if (inferEngine != null) {
             inferEngine.close();
         }
-        
+
         // 创建新的推理器
         try {
             this.inferEngine = new LaMaOnnxInfer(config);
@@ -182,7 +182,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
             log.error("LaMa图像滤镜初始化失败", e);
             throw new RuntimeException("LaMa图像滤镜初始化失败", e);
         }
-        
+
         return this;
     }
 
@@ -288,16 +288,16 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
             if (log.isDebugEnabled()) {
                 log.debug("开始LaMa图像修复，输入尺寸: {}x{}", src.getWidth(), src.getHeight());
             }
-            
+
             // 执行图像修复
             BufferedImage result = inferEngine.infer(src, customMask);
-            
+
             if (log.isDebugEnabled()) {
                 log.debug("LaMa图像修复完成，输出尺寸: {}x{}", result.getWidth(), result.getHeight());
             }
-            
+
             return result;
-            
+
         } catch (Exception e) {
             log.error("LaMa图像修复失败", e);
             // 如果修复失败，返回原图
@@ -327,9 +327,9 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     */
     @Override
     public String getImageFormat(String name) {
-        
+
         return name != null ? name : getImageFormat();
-    
+
     }
 
     /**
@@ -373,15 +373,15 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
 
         try {
             log.info("开始预热LaMa模型...");
-            
+
             // 创建一个小的测试图像
             BufferedImage testImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_RGB);
-            
+
             // 执行一次推理
             inferEngine.infer(testImage);
-            
+
             log.info("LaMa模型预热完成");
-            
+
         } catch (Exception e) {
             log.warn("模型预热失败，但不影响正常使用", e);
         }

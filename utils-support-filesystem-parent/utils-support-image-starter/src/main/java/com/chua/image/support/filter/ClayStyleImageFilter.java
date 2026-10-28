@@ -134,9 +134,9 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
     */
     @Override
     public String getImageFormat() {
-        
+
         return "jpeg";
-    
+
     }
 
     /**

@@ -86,7 +86,7 @@ final class ReaderUtils {
             if (!gotPixel) {
                 // Record smallest valid pixel
                 // rstDst = dst;
-                
+
                 gotPixel = true;
             } else if (secondDst == -1) {
                 // Record second smallest valid pixel

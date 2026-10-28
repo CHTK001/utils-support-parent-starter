@@ -74,9 +74,9 @@ public class ImageSizedFilter extends AbstractImageFilter {
     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
-        
+
         return zoomByScale(size, src);
-    
+
     }
 
 

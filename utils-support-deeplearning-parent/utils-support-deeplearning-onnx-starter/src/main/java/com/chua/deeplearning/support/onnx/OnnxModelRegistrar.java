@@ -305,7 +305,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
             List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/landmark/3d68/" +
                     "1k3d68.onnx"),
             false, null);
-        
+
         // 人脸特征提取(R50FaceFeature)：ResNet50 架构的人脸特征提取，精度更高；适用高精度人脸识别
         reg("r50-face-feature", "com.chua.deeplearning.support.onnx.face.R50FaceFeatureTranslator", Image.class,
             float[].class, FeatureExtractor.class, "face/recognition/face_feature_sdk/face_feature_r50.onnx",

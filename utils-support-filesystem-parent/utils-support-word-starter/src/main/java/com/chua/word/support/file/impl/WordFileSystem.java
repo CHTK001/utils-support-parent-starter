@@ -35,9 +35,9 @@ public class WordFileSystem implements FileSystem {
     */
     @Override
     public String getType() {
-        
+
         return "docx";
-    
+
     }
 
     /**
@@ -45,9 +45,9 @@ public class WordFileSystem implements FileSystem {
     */
     @Override
     public ReadBuilder read(File file) {
-        
+
         return new WordReadBuilder(file);
-    
+
     }
 
     /**
@@ -55,9 +55,9 @@ public class WordFileSystem implements FileSystem {
     */
     @Override
     public WriteBuilder write(File file) {
-        
+
         return new WordWriteBuilder(file);
-    
+
     }
 }
 

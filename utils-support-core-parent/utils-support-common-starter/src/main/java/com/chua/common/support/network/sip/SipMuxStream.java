@@ -82,7 +82,7 @@ class SipMuxStream {
      * @param payload 负载
      */
     void send(byte[] payload) {
-       
+
         if (!closed) {
             try {
                 connection.sendFrame(channelId, payload);
@@ -136,7 +136,7 @@ class SipMuxStream {
      * @param data 数据
      */
     void dispatch(byte[] data) {
-       
+
         Consumer<byte[]> consumer = dataConsumer;
         if (consumer == null) {
             synchronized (pendingData) {

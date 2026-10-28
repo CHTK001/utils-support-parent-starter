@@ -145,19 +145,19 @@ public class PNGImageReader extends ImageReader {
     // PNG 颜色类型对应的 band 数量
     static final int[] inputBandsForColorType = {
          // 1, // gray
-   
+
         // -1, // unused
-    
+
          // 3, // rgb
-   
+
          // 1, // palette
-   
+
          // 2, // gray + alpha
-   
+
         // -1, // unused
-    
+
          // 4  // rgb + alpha
-   
+
     };
 
     static final int[] adam7XOffset = { 0, 4, 0, 2, 0, 1, 0 };
@@ -2106,9 +2106,9 @@ public class PNGImageReader extends ImageReader {
     */
     @Override
     public ImageReadParam getDefaultReadParam() {
-        
+
         return new PNGImageReadParam();
-    
+
     }
 
     /**

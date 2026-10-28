@@ -16,7 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * BART Seq2Seq ONNX                 
+ * BART Seq2Seq ONNX
  * <p>
  * BART (Bidirectional 和 Auto-Regressive Transformers)
  * 文本 summarization、machine 翻译、抽象 QA、释义
@@ -26,7 +26,7 @@ import java.nio.file.Path;
  * : 输入_标识 + attention_mask -> logits [批量, seq_len, vocab_大小]
  * </p>
  * <p>
- *      :       
+ *      :
  * <ol>
  *   <li>Tokenizer      input_ids / attention_mask</li>
  *   <li>ONNX      logits</li>

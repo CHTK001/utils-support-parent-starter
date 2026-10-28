@@ -167,8 +167,8 @@ public class NafNetTranslator implements Translator<Image, Image> {
     /**
      * 最小_大小          大小_ALIGN
      *
-     * @param size                       
-     * @return                                
+     * @param size
+     * @return
      */
     private static int alignSize(int size) {
         if (size < MIN_SIZE) {

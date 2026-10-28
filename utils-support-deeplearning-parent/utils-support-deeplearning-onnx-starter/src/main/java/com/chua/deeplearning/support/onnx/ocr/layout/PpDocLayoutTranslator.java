@@ -91,7 +91,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
      * 构造 PpDocLayoutTranslator 实例。
      *
      *
-     * @param arguments                     
+     * @param arguments
      */
     public PpDocLayoutTranslator(Map<String, ?> arguments) {
         this.configuredScoreThreshold = extractThreshold(arguments);
@@ -99,11 +99,11 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     }
 
     /**
-     *                                                   {@link NDList}   
+     *                                                   {@link NDList}
      *
      * @param ctx translator上下文
-     * @param input                       
-     * @return NDList               
+     * @param input
+     * @return NDList
      */
     @Override
     @Nonnull
@@ -139,11 +139,11 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     }
 
     /**
-     *                                                  {@link DetectedObjects}   
+     *                                                  {@link DetectedObjects}
      *
      * @param ctx translator上下文
      * @param list nd列表
-     * @return DetectedObjects          
+     * @return DetectedObjects
      */
     @Override
     @Nonnull
@@ -213,7 +213,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
      * 获取 Batchifier。
      *
      *
-     * @return Batchifier          
+     * @return Batchifier
      */
     @Override
     @Nullable

@@ -16,9 +16,9 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
- * CN-CLIP                 Translator   
+ * CN-CLIP                 Translator
  *
- * <p>CN-CLIP        Chinese-CLIP ViT-B/16 text encoder ONNX                       
+ * <p>CN-CLIP        Chinese-CLIP ViT-B/16 text encoder ONNX
  * 输入 输入_标识 [1,52] + attention_mask [1,52]  unnorm_文本_特征 [1,512]           </p>
  *
  * @author CH

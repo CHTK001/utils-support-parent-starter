@@ -22,23 +22,23 @@ import java.awt.image.BufferedImage;
  *
  * <p>
  *
- * -           float32       
+ * -           float32
  * -              [0, 1]
  * -           CHW          通道, Height, Width
  * -        批量          [1, C, H, W]
  * <p>
  *
  * -        批量          [1, C, H, W]     [C, H, W]
- * -           [0, 1]       
+ * -           [0, 1]
  * -           [0, 255]
- * -           UINT8       
+ * -           UINT8
  * -           镜像
  * <p>
  *
- * -        ESRGAN       
- * -                                     
- * -     JPEG                                              
- * -                                        
+ * -        ESRGAN
+ * -
+ * -     JPEG
+ * -
  *
  * @author CH
  * @since 2024/11/08

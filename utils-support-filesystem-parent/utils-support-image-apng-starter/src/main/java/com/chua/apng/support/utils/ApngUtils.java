@@ -49,19 +49,19 @@ public class ApngUtils {
             inputStream.mark(64);
             int bytesRead = inputStream.read(header);
             inputStream.reset();
-            
+
             if (bytesRead < 8) {
                 return false;
             }
-            
+
             // 检查 PNG 文件签名
             if (!isPngSignature(header)) {
                 return false;
             }
-            
+
  // 检查是否包含 actl 块（APNG 控制块）
             return containsActlChunk(header);
-            
+
         } catch (Exception e) {
             if (log.isDebugEnabled()) {
                 log.debug("检查 APNG 格式失败", e);
@@ -79,7 +79,7 @@ public class ApngUtils {
         if (header.length < 8) {
             return false;
         }
-        
+
         // PNG 文件签名: 89 50 4E 47 0D 0A 1A 0A
         return header[0] == (byte) 0x89 &&
                header[1] == 0x50 &&
@@ -117,21 +117,21 @@ public class ApngUtils {
                     return null;
                 }
             }
-            
+
             ImageReader reader = readers.next();
             reader.setInput(imageInputStream);
-            
+
             try {
                 int numImages = reader.getNumImages(true);
                 int width = reader.getWidth(0);
                 int height = reader.getHeight(0);
-                
+
                 return new ApngInfo(numImages, width, height);
-                
+
             } finally {
                 reader.dispose();
             }
-            
+
         } catch (Exception e) {
             log.error("获取 APNG 信息失败", e);
             return null;
@@ -146,7 +146,7 @@ public class ApngUtils {
      */
     public static List<BufferedImage> extractFrames(InputStream inputStream) {
         List<BufferedImage> frames = Wraps.list();
-        
+
         try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream)) {
             Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName("APNG");
             if (!readers.hasNext()) {
@@ -155,26 +155,26 @@ public class ApngUtils {
                     return frames;
                 }
             }
-            
+
             ImageReader reader = readers.next();
             reader.setInput(imageInputStream);
-            
+
             try {
                 int numImages = reader.getNumImages(true);
-                
+
                 for (int i = 0; i < numImages; i++) {
                     BufferedImage image = reader.read(i);
                     frames.add(image);
                 }
-                
+
             } finally {
                 reader.dispose();
             }
-            
+
         } catch (Exception e) {
             log.error("提取 APNG 帧失败", e);
         }
-        
+
         return frames;
     }
 
@@ -189,10 +189,10 @@ public class ApngUtils {
         if (frames.isEmpty()) {
             return new byte[0];
         }
-        
+
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(outputStream)) {
-            
+
             Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("APNG");
             if (!writers.hasNext()) {
                 writers = ImageIO.getImageWritersByFormatName("PNG");
@@ -200,10 +200,10 @@ public class ApngUtils {
                     return new byte[0];
                 }
             }
-            
+
             ImageWriter writer = writers.next();
             writer.setOutput(imageOutputStream);
-            
+
             try {
                 if (frames.size() == 1) {
                     // 单帧
@@ -211,27 +211,27 @@ public class ApngUtils {
                 } else {
                     // 多帧动画
                     writer.prepareWriteSequence(null);
-                    
+
                     for (int i = 0; i < frames.size(); i++) {
                         BufferedImage frame = frames.get(i);
                         int delay = delays != null && i < delays.size() ? delays.get(i) : 100;
-                        
+
                         javax.imageio.ImageWriteParam writeParam = writer.getDefaultWriteParam();
                         IIOMetadata metadata = writer.getDefaultImageMetadata(
                                 new javax.imageio.ImageTypeSpecifier(frame), writeParam);
-                        
+
                         writer.writeToSequence(new javax.imageio.IIOImage(frame, null, metadata), writeParam);
                     }
-                    
+
                     writer.endWriteSequence();
                 }
-                
+
             } finally {
                 writer.dispose();
             }
-            
+
             return outputStream.toByteArray();
-            
+
         } catch (Exception e) {
             log.error("创建 APNG 失败", e);
             return new byte[0];
@@ -248,16 +248,16 @@ public class ApngUtils {
         if (image == null) {
             return null;
         }
-        
+
         // 如果已经是最佳格式，直接返回
         if (image.getType() == BufferedImage.TYPE_INT_ARGB) {
             return image;
         }
-        
+
         // 转换为 ARGB 格式
         BufferedImage optimizedImage = new BufferedImage(
                 image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        
+
         optimizedImage.getGraphics().drawImage(image, 0, 0, null);
         return optimizedImage;
     }
@@ -274,11 +274,11 @@ public class ApngUtils {
         if (image == null || width <= 0 || height <= 0) {
             return image;
         }
-        
+
         BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         resizedImage.getGraphics().drawImage(
                 image.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
-        
+
         return resizedImage;
     }
 
@@ -292,7 +292,7 @@ public class ApngUtils {
         if (data == null || data.length < 8) {
             return false;
         }
-        
+
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
             return isApngFormat(inputStream);
         } catch (Exception e) {
@@ -372,10 +372,10 @@ public class ApngUtils {
         */
         @Override
         public String toString() {
-        
-            return String.format("ApngInfo{frames=%d, size=%dx%d, animated=%s}", 
+
+            return String.format("ApngInfo{frames=%d, size=%dx%d, animated=%s}",
                     frameCount, width, height, isAnimated());
-        
+
     }
     }
 }

@@ -123,26 +123,26 @@ public class TerminalUtils {
                 return Integer.parseInt(columns);
             }
         } catch (Exception e) {
-            //                                        
+            //
         }
         return -1;
     }
 
     /**
-     *     Windows                            
+     *     Windows
      *
-     * @return             
+     * @return
      */
     private static int getTerminalWidthWindows() {
         try {
-            //              Windows CMD                            
+            //              Windows CMD
             Process process = Runtime.getRuntime().exec("cmd /c mode con");
             java.io.BufferedReader reader = new java.io.BufferedReader(
                 new InputStreamReader(process.getInputStream(), java.nio.charset.Charset.defaultCharset()));
 
             String line;
             while ((line = reader.readLine()) != null) {
-                //        "Columns:"    
+                //        "Columns:"
                 if (line.contains("Columns:") || line.contains("   :")) {
                     String[] parts = line.split(":");
                     if (parts.length > 1) {
@@ -153,19 +153,19 @@ public class TerminalUtils {
             }
             reader.close();
         } catch (Exception e) {
-            //                               
+            //
         }
         return DEFAULT_TERMINAL_WIDTH;
     }
 
     /**
-     *     Unix/Linux/Mac                            
+     *     Unix/Linux/Mac
      *
-     * @return             
+     * @return
      */
     private static int getTerminalWidthUnix() {
         try {
-            //        stty                         
+            //        stty
             Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", "stty size < /dev/tty"});
             java.io.BufferedReader reader = new java.io.BufferedReader(
                 new InputStreamReader(process.getInputStream()));
@@ -180,7 +180,7 @@ public class TerminalUtils {
             }
             reader.close();
         } catch (Exception e) {
-            //                               
+            //
         }
         return DEFAULT_TERMINAL_WIDTH;
     }

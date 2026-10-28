@@ -127,9 +127,9 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
     */
     @Override
     public String getImageFormat() {
-        
+
         return "jpeg";
-    
+
     }
 
     /**
@@ -165,13 +165,13 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
 
         // 第一步：颜色校正和增强
         BufferedImage colorCorrected = performColorCorrection(src);
-        
+
         // 第二步：对比度和亮度调整
         BufferedImage contrastAdjusted = adjustContrastAndBrightness(colorCorrected);
-        
+
         // 第三步：饱和度增强
         BufferedImage saturationEnhanced = enhanceSaturation(contrastAdjusted);
-        
+
         // 第四步：锐化处理（可选）
         BufferedImage finalImage = saturationEnhanced;
         if (sharpenEnabled) {
@@ -197,7 +197,7 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int rgb = src.getRGB(x, y);
-                
+
                 // 提取RGB分量
                 int alpha = (rgb >> 24) & 0xFF;
                 int red = (rgb >> 16) & 0xFF;
@@ -231,7 +231,7 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int rgb = src.getRGB(x, y);
-                
+
                 int alpha = (rgb >> 24) & 0xFF;
                 int red = (rgb >> 16) & 0xFF;
                 int green = (rgb >> 8) & 0xFF;
@@ -265,7 +265,7 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int rgb = src.getRGB(x, y);
-                
+
                 int alpha = (rgb >> 24) & 0xFF;
                 int red = (rgb >> 16) & 0xFF;
                 int green = (rgb >> 8) & 0xFF;
@@ -278,7 +278,7 @@ hsv[1] = Math.min(1.0f, (float) (hsv[1] * saturationEnhancement));
 
                 // 转换回RGB
                 int[] newRgb = hsvToRgb(hsv[0], hsv[1], hsv[2]);
-                
+
                 int finalRgb = (alpha << 24) | (newRgb[0] << 16) | (newRgb[1] << 8) | newRgb[2];
                 result.setRGB(x, y, finalRgb);
             }
@@ -352,7 +352,7 @@ hsv[1] = Math.min(1.0f, (float) (hsv[1] * saturationEnhancement));
     @Override
     public OutputStream converter(InputStream image) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        
+
         // 读取输入流到字节数组
         byte[] buffer = new byte[1024];
         int bytesRead;
@@ -360,7 +360,7 @@ hsv[1] = Math.min(1.0f, (float) (hsv[1] * saturationEnhancement));
         while ((bytesRead = image.read(buffer)) != -1) {
             tempOutput.write(buffer, 0, bytesRead);
         }
-        
+
  // 转换为缓冲镜像并应用滤镜
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(tempOutput.toByteArray())) {
             BufferedImage bufferedImage = javax.imageio.ImageIO.read(inputStream);
@@ -369,7 +369,7 @@ hsv[1] = Math.min(1.0f, (float) (hsv[1] * saturationEnhancement));
                 javax.imageio.ImageIO.write(filteredImage, getImageFormat(), outputStream);
             }
         }
-        
+
         return outputStream;
     }
 
@@ -393,7 +393,7 @@ hsv[1] = Math.min(1.0f, (float) (hsv[1] * saturationEnhancement));
 
         if (delta != 0) {
             s = delta / max;
-            
+
             if (max == rf) {
                 h = ((gf - bf) / delta) % 6;
             } else if (max == gf) {

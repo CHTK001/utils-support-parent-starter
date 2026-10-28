@@ -1415,7 +1415,7 @@ public class ArrayUtils {
         } else if (obj instanceof double[]) {
             return Arrays.toString((double[]) obj);
         } else if (ArrayUtils.isArray(obj)) {
-            //             
+            //
             try {
                 return Arrays.deepToString((Object[]) obj);
             } catch (Exception ignore) {
@@ -1711,10 +1711,10 @@ public class ArrayUtils {
      * @return the 结果
      */
     public static <E> E[] of(E... ele) {
-        //                                                                                        
+        //
         E[] rs = (E[]) Array.newInstance(ele.getClass().getComponentType(), ele.length);
 
-        //                                              
+        //
         System.arraycopy(ele, 0, rs, 0, ele.length);
 
         return rs;
@@ -1730,20 +1730,20 @@ public class ArrayUtils {
      * @return true               false
      */
     public static boolean containsAny(Set<String> source, String[] ele, boolean ignoreCase) {
-        //                                                                               false                                       
+        //                                                                               false
         if (isEmpty(ele) || CollectionUtils.isEmpty(source)) {
             return false;
         }
 
-        //                                                                         
+        //
         for (String s : ele) {
-            //                                        true                                                            
+            //                                        true
             if ((!ignoreCase && source.contains(s)) || (ignoreCase && CollectionUtils.containsIgnoreCase(source, s))) {
                 return true;
             }
         }
         //                                                             false
-        //                                                             
+        //
         return false;
     }
 
@@ -1821,7 +1821,7 @@ public class ArrayUtils {
  // 群体大小
         T[][] newArray = (T[][]) Array.newInstance(originalArray[0].getClass(), originalArray.length / step);
 
-        //                             N                                                 
+        //                             N
         for (int i = 0; i < originalArray.length; i += step) {
             T[] group = (T[]) Array.newInstance(originalArray[0].getClass(), step);
             System.arraycopy(originalArray, i, group, 0, step);
@@ -1976,29 +1976,29 @@ public class ArrayUtils {
             return values.clone();
         }
 
-        // 1.                    Map<         ,       >                        
+        // 1.                    Map<         ,       >
         Map<String, Integer> order = Wraps.map(sortedFields.length);
         int idx = 0;
         for (String k : sortedFields) {
-            //                                  
+            //
             order.putIfAbsent(k, idx++);
         }
 
-        // 2.                                                             
+        // 2.
         List<String> inDict = Wraps.list(values.length);
         List<String> outDict = Wraps.list(values.length);
         for (String v : values) {
             (order.containsKey(v) ? inDict : outDict).add(v);
         }
 
-        // 3.                                                 /   
+        // 3.                                                 /
         Comparator<String> cmp = Comparator.comparingInt(order::get);
         if (direction == SortDirection.DESC) {
             cmp = cmp.reversed();
         }
         inDict.sort(cmp);
 
-        // 4.                    +          
+        // 4.                    +
         inDict.addAll(outDict);
         return inDict.toArray(new String[0]);
     }
@@ -2018,27 +2018,27 @@ public class ArrayUtils {
             return new String[0];
         }
         if (sortedFields == null || sortedFields.length == 0) {
-            //                               
+            //
             sortedFields = new String[0];
         }
 
-        // 1.                   
+        // 1.
         Map<String, Integer> order = Wraps.map(sortedFields.length);
         int idx = 0;
         for (String k : sortedFields) {
             order.putIfAbsent(k, idx++);
         }
 
-        // 2.                                                       
+        // 2.
         List<String> inDict = Wraps.list(values.length);
         List<String> outDict = Wraps.list(values.length);
         for (String v : values) {
             (order.containsKey(v) ? inDict : outDict).add(v);
         }
 
-        // 3.                            
+        // 3.
         inDict.sort(Comparator.comparingInt(order::get));
-        // 4.                    +          
+        // 4.                    +
         inDict.addAll(outDict);
 
  // 5.     偏移量element
@@ -2047,7 +2047,7 @@ public class ArrayUtils {
             return new String[0];
         }
 
-        // 6.                
+        // 6.
         return inDict.subList(pos + 1, inDict.size())
                 .toArray(new String[0]);
     }

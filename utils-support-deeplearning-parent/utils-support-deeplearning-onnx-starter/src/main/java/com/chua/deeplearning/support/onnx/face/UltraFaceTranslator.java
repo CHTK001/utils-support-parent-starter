@@ -21,7 +21,7 @@ import org.opencv.imgproc.Imgproc;
 /**
  * ultraface/ultralight        ONNX Translator
  *
- * <p>             `face_detection_sdk`        `slim / RFB / mobilenet`                            
+ * <p>             `face_detection_sdk`        `slim / RFB / mobilenet`
  * raw boxes + 类 scores (+ landmarks)             锚栓
  * 输出0     scores          </p>
  *

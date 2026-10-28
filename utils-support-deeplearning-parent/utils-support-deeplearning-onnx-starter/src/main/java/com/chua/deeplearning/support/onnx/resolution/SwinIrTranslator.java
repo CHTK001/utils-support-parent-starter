@@ -23,8 +23,8 @@ import java.awt.image.BufferedImage;
  * <p>
  *      :
  * <ul>
- *   <li>HWC     CHW                       [0, 1]          
- *   <li>          mean/std                    
+ *   <li>HWC     CHW                       [0, 1]
+ *   <li>          mean/std
  * </ul>
  * <p>
  *      : Heliosoph/swinir-onnx

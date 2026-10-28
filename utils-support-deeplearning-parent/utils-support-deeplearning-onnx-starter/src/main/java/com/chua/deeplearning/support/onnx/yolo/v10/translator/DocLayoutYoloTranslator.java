@@ -35,32 +35,32 @@ import org.opencv.imgproc.Imgproc;
  * yolov10
  * -        shape: [1, num_boxes, 6]        [1, 300, 6]
  * -                : [x1, y1, x2, y2, 信心, 类_标识]
- * -                                              
+ * -
  * - yolov10        NMS
  * <p>
- *                         10         
- * - title:       
+ *                         10
+ * - title:
  * - plain 文本:       /
- * - abandon:             /      
- * - figure:       
- * - figure_caption:             
- * - table:       
- * - table_caption:             
- * - table_footnote:             
- * - isolate_formula:             
- * - formula_caption:             
+ * - abandon:             /
+ * - figure:
+ * - figure_caption:
+ * - table:
+ * - table_caption:
+ * - table_footnote:
+ * - isolate_formula:
+ * - formula_caption:
  * <p>
  *
- * -                                   1024x1024   
+ * -                                   1024x1024
  * -        docstructbench
- * -                                                                                     
- * -        NMS                  
+ * -
+ * -        NMS
  * <p>
  *
- * - PDF             
- * -                      
- * -                   
- * -        OCR          
+ * - PDF
+ * -
+ * -
+ * -        OCR
  *
  * @author CH
  * @since 2025/11/28
@@ -73,7 +73,7 @@ public class DocLayoutYoloTranslator implements Translator<Image, DetectedObject
      *          https://github.com/RapidAI/RapidLayout
      *          https://github.com/opendatalab/DocLayout-YOLO
      * <p>
-     * 10                            
+     * 10
      */
 public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
             "title", // 0 -
@@ -122,37 +122,37 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
 /**
- *                    -                   
+ *                    -
  */
     public DocLayoutYoloTranslator() {
         this(DEFAULT_INPUT_SIZE, DEFAULT_THRESHOLD, DOCSTRUCTBENCH_CLASSES);
     }
 
     /**
-     *              -                      
+     *              -
      *
-     * @param inputSize                                  
+     * @param inputSize
      */
     public DocLayoutYoloTranslator(int inputSize) {
         this(inputSize, DEFAULT_THRESHOLD, DOCSTRUCTBENCH_CLASSES);
     }
 
     /**
-     *              -                
+     *              -
      *
-     * @param inputSize                   
-     * @param threshold                
+     * @param inputSize
+     * @param threshold
      */
     public DocLayoutYoloTranslator(int inputSize, float threshold) {
         this(inputSize, threshold, DOCSTRUCTBENCH_CLASSES);
     }
 
     /**
-     *                    -                         
+     *                    -
      *
-     * @param inputSize                   
-     * @param threshold                
-     * @param classes               
+     * @param inputSize
+     * @param threshold
+     * @param classes
      */
     public DocLayoutYoloTranslator(int inputSize, float threshold, List<String> classes) {
         this.inputSize = inputSize;
@@ -167,14 +167,14 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
      * 执行 Input。
      *
      *
-     * @param ctx                     
-     * @param input             
+     * @param ctx
+     * @param input
      * @return              NDList
-     * @throws Exception             
+     * @throws Exception
      */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
-        //                         
+        //
         imageWidth = input.getWidth();
         imageHeight = input.getHeight();
 
@@ -214,12 +214,12 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
      * yolov10                       NMS
      * -        shape: [1, num_boxes, 6]        [1, 300, 6]
      * -                : [x1, y1, x2, y2, 信心, 类_标识]
-     * -                                              
+     * -
      *
-     * @param ctx                    
+     * @param ctx
      * @param list              nd列表
-     * @return             
-     * @throws Exception             
+     * @return
+     * @throws Exception
      */
     @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
@@ -249,7 +249,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
             float confidence = flat[base + 4];
             int classId = (int) flat[base + 5];
 
-            //                      
+            //
             if (confidence < threshold) {
                 continue;
             }
@@ -262,7 +262,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
                 continue;
             }
 
-            //                      
+            //
             if (x1 < 0 || y1 < 0 || x2 <= x1 || y2 <= y1) {
                 if (log.isDebugEnabled()) {
                 log.debug("边界框坐标: x1={}, y1={}, x2={}, y2={}", x1, y1, x2, y2);
@@ -276,11 +276,11 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
             x2 = Math.max(0, Math.min(inputSize, x2));
             y2 = Math.max(0, Math.min(inputSize, y2));
 
-            //             
+            //
             float w = x2 - x1;
             float h = y2 - y1;
 
-            //                                                    
+            //
             double scaleX = (double) imageWidth / inputSize;
             double scaleY = (double) imageHeight / inputSize;
 
@@ -289,13 +289,13 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
             double origW = w * scaleX;
             double origH = h * scaleY;
 
-            //                            
+            //
             origX = Math.max(0, Math.min(imageWidth - 1, origX));
             origY = Math.max(0, Math.min(imageHeight - 1, origY));
             origW = Math.min(imageWidth - origX, origW);
             origH = Math.min(imageHeight - origY, origH);
 
-            //                   
+            //
             if (origW <= 0 || origH <= 0) {
                 if (log.isDebugEnabled()) {
                 log.debug("原图宽高用于还原: w={}, h={}", origW, origH);
@@ -303,7 +303,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
                 continue;
             }
 
-            //                            
+            //
             double finalX, finalY, finalW, finalH;
 
             if (normalizeCoordinates) {
@@ -313,13 +313,13 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
                 finalW = origW / imageWidth;
                 finalH = origH / imageHeight;
 
-                //                          [0, 1]          
+                //                          [0, 1]
                 finalX = Math.max(0.0, Math.min(1.0, finalX));
                 finalY = Math.max(0.0, Math.min(1.0, finalY));
                 finalW = Math.max(0.0, Math.min(1.0 - finalX, finalW));
                 finalH = Math.max(0.0, Math.min(1.0 - finalY, finalH));
             } else {
-                //             
+                //
                 finalX = origX;
                 finalY = origY;
                 finalW = origW;
@@ -331,7 +331,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
                     String.format("%.3f", finalX), String.format("%.3f", finalY),
                     String.format("%.3f", finalW), String.format("%.3f", finalH));
 
-            //                   
+            //
             boxes.add(new Rectangle(finalX, finalY, finalW, finalH));
             classNames.add(classes.get(classId));
             probabilities.add((double) confidence);
@@ -351,7 +351,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
     /**
-     *        YOLO       
+     *        YOLO
      *
      * @return "DocLayout-YOLO"
      */
@@ -363,7 +363,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
      * 获取 ModelDescription。
      *
      *
-     * @return                   
+     * @return
      */
     public String getModelDescription() {
         return "DocLayout-YOLO Document Layout Detection (DocStructBench) - " +
@@ -376,7 +376,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
      * 获取 RecommendedSizes。
      *
      *
-     * @return                   
+     * @return
      */
     public static int[] getRecommendedSizes() {
         return new int[]{640, 800, 1024, 1280};
@@ -386,7 +386,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
      * 获取 SupportedClasses。
      *
      *
-     * @return DocStructBench                         
+     * @return DocStructBench
      */
     public static List<String> getSupportedClasses() {
         return DOCSTRUCTBENCH_CLASSES;

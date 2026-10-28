@@ -20,9 +20,9 @@ import java.util.List;
  * ONNX Runtime     yolov2 COCO
  * <p>
  *
- * -                416x416                608x608   
- * -                                                    
- * -             COCO   80             
+ * -                416x416                608x608
+ * -
+ * -             COCO   80
  * - 锚栓 Boxes          5                 锚栓 boxes
  * <p>
  *
@@ -46,12 +46,12 @@ public class Yolov2CocoTranslator implements Translator<Image, DetectedObjects> 
     private final float threshold;
 
     /**
-     * NMS (Non-Maximum Suppression)       
+     * NMS (Non-Maximum Suppression)
      */
     private final float nmsThreshold;
 
     /**
-     * COCO                      
+     * COCO
      */
     private static final int NUM_CLASSES = 80;
 
@@ -61,7 +61,7 @@ public class Yolov2CocoTranslator implements Translator<Image, DetectedObjects> 
     private static final int NUM_ANCHORS = 5;
 
     /**
-     *                      13x13   
+     *                      13x13
      */
     private static final int GRID_SIZE = 13;
 
@@ -78,7 +78,7 @@ private static final float[][] ANCHORS = {
 };
 
     /**
-     * COCO                      
+     * COCO
      */
     private final List<String> classes;
 
@@ -100,9 +100,9 @@ private static final float[][] ANCHORS = {
      * 构造 Yolov2CocoTranslator 实例。
      *
      *
-     * @param inputSize                      
-     * @param threshold                   
-     * @param nmsThreshold NMS       
+     * @param inputSize
+     * @param threshold
+     * @param nmsThreshold NMS
      */
     public Yolov2CocoTranslator(int inputSize, float threshold, float nmsThreshold) {
         this.inputSize = inputSize;
@@ -170,38 +170,38 @@ private static final float[][] ANCHORS = {
  // 去掉批量维 [125, 13, 13]
         output = output.squeeze(0);
 
-        //                   
+        //
         List<String> classNames = Wraps.list();
         List<Double> probabilities = Wraps.list();
         List<BoundingBox> boxes = Wraps.list();
 
-        //                               
+        //
         for (int cy = 0; cy < GRID_SIZE; cy++) {
             for (int cx = 0; cx < GRID_SIZE; cx++) {
  // 锚栓 box
                 for (int b = 0; b < NUM_ANCHORS; b++) {
-                    //           125                         
+                    //           125
                     int baseIndex = b * (5 + NUM_CLASSES);
 
-                    //                      
+                    //
                     float tx = output.get(baseIndex + 0, cy, cx).getFloat();
                     float ty = output.get(baseIndex + 1, cy, cx).getFloat();
                     float tw = output.get(baseIndex + 2, cy, cx).getFloat();
                     float th = output.get(baseIndex + 3, cy, cx).getFloat();
                     float confidence = sigmoid(output.get(baseIndex + 4, cy, cx).getFloat());
 
-                    //                      
+                    //
                     if (confidence < threshold) {
                         continue;
                     }
 
-                    //                            
+                    //
                     float bx = (sigmoid(tx) + cx) / GRID_SIZE;
                     float by = (sigmoid(ty) + cy) / GRID_SIZE;
                     float bw = (float) (Math.exp(tw) * ANCHORS[b][0] / GRID_SIZE);
                     float bh = (float) (Math.exp(th) * ANCHORS[b][1] / GRID_SIZE);
 
-                    //                   
+                    //
                     int bestClass = -1;
                     float bestClassProb = 0.0f;
 
@@ -213,21 +213,21 @@ private static final float[][] ANCHORS = {
                         }
                     }
 
-                    //                   
+                    //
                     float score = confidence * bestClassProb;
 
-                    //                   
+                    //
                     if (score < threshold || bestClass == -1) {
                         continue;
                     }
 
-                    //                                     
+                    //
                     float xmin = Math.max(0, bx - bw / 2);
                     float ymin = Math.max(0, by - bh / 2);
                     float width = Math.min(1 - xmin, bw);
                     float height = Math.min(1 - ymin, bh);
 
-                    //                   
+                    //
                     boxes.add(new Rectangle(xmin, ymin, width, height));
                     classNames.add(classes.get(bestClass));
                     probabilities.add((double) score);
@@ -260,9 +260,9 @@ private static final float[][] ANCHORS = {
     }
 
     /**
-     * Sigmoid             
+     * Sigmoid
      *
-     * @param x          
+     * @param x
      * @return sigmoid(x)
      */
     private float sigmoid(float x) {
@@ -274,10 +274,10 @@ private static final float[][] ANCHORS = {
      * <p>
      *
      *
-     * @param boxes                       
-     * @param probabilities             
-     * @param nmsThreshold  NMS       
-     * @return                      
+     * @param boxes
+     * @param probabilities
+     * @param nmsThreshold  NMS
+     * @return
      */
     private List<Integer> nms(List<BoundingBox> boxes, List<Double> probabilities, float nmsThreshold) {
         List<Integer> indices = Wraps.list();
@@ -285,14 +285,14 @@ private static final float[][] ANCHORS = {
             return indices;
         }
 
-        //                      
+        //
         List<Integer> sortedIndices = Wraps.list();
         for (int i = 0; i < probabilities.size(); i++) {
             sortedIndices.add(i);
         }
         sortedIndices.sort((i1, i2) -> Double.compare(probabilities.get(i2), probabilities.get(i1)));
 
-        // NMS       
+        // NMS
         boolean[] suppressed = new boolean[boxes.size()];
 
         for (int idx : sortedIndices) {
@@ -325,7 +325,7 @@ private static final float[][] ANCHORS = {
      *
      * @param box1           1
      * @param box2           2
-     * @return IoU    
+     * @return IoU
      */
     private double calculateIoU(BoundingBox box1, BoundingBox box2) {
         Rectangle rect1 = box1.getBounds();
@@ -345,12 +345,12 @@ private static final float[][] ANCHORS = {
     }
 
     /**
-     *        COCO                      
+     *        COCO
      *
-     * @return                   
+     * @return
      */
     private List<String> loadCocoClasses() {
-        // COCO           80          
+        // COCO           80
         String[] cocoClasses = {
                 "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat",
                 "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat",
@@ -383,7 +383,7 @@ private static final float[][] ANCHORS = {
      * 处理输入        [C, H, W] = [3, 416, 416]
      * Batchifier.STACK                    [1, C, H, W] = [1, 3, 416, 416]
      *
-     * @return STACK             
+     * @return STACK
      */
     @Override
     public Batchifier getBatchifier() {

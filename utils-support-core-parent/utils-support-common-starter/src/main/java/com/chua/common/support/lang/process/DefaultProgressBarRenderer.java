@@ -71,9 +71,9 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
 
     /**
      * 构造 DefaultProgressBarRenderer 实例。
-     *             
      *
-     * @param style                
+     *
+     * @param style
      */
     protected DefaultProgressBarRenderer(
             ProgressBarStyle style
@@ -93,17 +93,17 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
 
     /**
      * 构造 DefaultProgressBarRenderer 实例。
-     *             
      *
-     * @param style                
-     * @param unit             
-     * @param unitName             
-     * @param unitSize             
-     * @param isSpeedShown                   
-     * @param speedFormat                   
-     * @param speedUnit             
-     * @param isEtaShown                               
-     * @param eta                               
+     *
+     * @param style
+     * @param unit
+     * @param unitName
+     * @param unitSize
+     * @param isSpeedShown
+     * @param speedFormat
+     * @param speedUnit
+     * @param isEtaShown
+     * @param eta
      */
     protected DefaultProgressBarRenderer(
             ProgressBarStyle style,
@@ -129,11 +129,11 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
 
     /**
      * 获取进度整数部分。
-     *                                     
      *
-     * @param progress             
-     * @param length          
-     * @return                   
+     *
+     * @param progress
+     * @param length
+     * @return
      */
     protected int progressIntegralPart(ProgressState progress, int length) {
         return (int) (progress.getNormalizedProgress() * length);
@@ -141,11 +141,11 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
 
     /**
      * 获取进度小数部分。
-     *                                     
      *
-     * @param progress             
-     * @param length          
-     * @return                                           
+     *
+     * @param progress
+     * @param length
+     * @return
      */
     protected int progressFractionalPart(ProgressState progress, int length) {
         double p = progress.getNormalizedProgress() * length;
@@ -155,9 +155,9 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
 
     /**
      * 获取剩余时间文本。
-     *                                  
      *
-     * @param progress             
+     *
+     * @param progress
      * @return                                                           "?"
      */
     protected String etaString(ProgressState progress) {
@@ -167,10 +167,10 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
 
     /**
      * 计算百分比。
-     *                         
      *
-     * @param progress             
-     * @return                                  4                  
+     *
+     * @param progress
+     * @return                                  4
      */
     protected String percentage(ProgressState progress) {
         String res;
@@ -184,10 +184,10 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
 
     /**
      * 计算进度比例。
-     *                                  /            
+     *                                  /
      *
-     * @param progress             
-     * @return                                        NONE                     
+     * @param progress
+     * @return                                        NONE
      */
     protected String ratio(ProgressState progress) {
         if (unit == ProgressUnitType.NONE) {
@@ -200,10 +200,10 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
 
     /**
      * 获取速率。
-     *                      
      *
-     * @param progress             
-     * @return                               
+     *
+     * @param progress
+     * @return
      */
     protected String speed(ProgressState progress) {
         String suffix = "/s";
@@ -237,11 +237,11 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
 
     /**
      * 渲染输出。
-     *                
      *
-     * @param progress             
-     * @param maxLength             
-     * @return                               
+     *
+     * @param progress
+     * @param maxLength
+     * @return
      */
     @Override
     public String render(ProgressState progress, int maxLength) {
@@ -267,7 +267,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
                 + ") "
                 + speedString + progress.extraMessage;
         int suffixLength = getStringDisplayLength(suffix);
-        //                      
+        //
         if (suffixLength > maxSuffixLength) {
             suffix = trimDisplayLength(suffix, maxSuffixLength);
             suffixLength = maxSuffixLength;
@@ -278,14 +278,14 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
         StringBuilder sb = new StringBuilder(maxLength);
         sb.append(prefix);
 
-        //                         
+        //
         if (progress.indefinite) {
             int pos = (int) (progress.current % length);
             sb.append(Util.repeat(style.space, pos));
             sb.append(style.block);
             sb.append(Util.repeat(style.space, length - pos - 1));
         }
-        //                         
+        //
         else {
             sb.append(Util.repeat(style.block, progressIntegralPart(progress, length)));
             if (progress.current < progress.max) {

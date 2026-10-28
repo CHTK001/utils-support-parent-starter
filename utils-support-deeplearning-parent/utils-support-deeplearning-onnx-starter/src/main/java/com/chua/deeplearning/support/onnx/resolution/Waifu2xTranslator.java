@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 
 /**
- * waifu2x ONNX                   /                        
+ * waifu2x ONNX                   /
  *
  * <p>         : HWC     CHW                       [0, 1]
  *

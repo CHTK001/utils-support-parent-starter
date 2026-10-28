@@ -70,17 +70,17 @@ public class ArcFaceDetectorTranslator implements ITranslator<Object, List<Detec
                 if (rect == null) {
                     continue;
                 }
-                
+
                 float x = rect.getLeft();
                 float y = rect.getTop();
                 float width = rect.getRight() - rect.getLeft();
                 float height = rect.getBottom() - rect.getTop();
-                
+
                 results.add(new DetectionInfo("face", 1.0f, x, y, width, height));
             }
-            
+
             return results;
-            
+
         } catch (Exception e) {
             log.warn("[ArcFaceDetector] 检测失败: {}", e.getMessage(), e);
             return Wraps.list();

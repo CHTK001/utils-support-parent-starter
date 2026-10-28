@@ -28,10 +28,10 @@ import ai.djl.inference.Predictor;
  * mobilebert MNLI                       Translator
  * <p>
  * 映射("premise" ->             , "假设" ->             )
- *   CONTRADICTION / ENTAILMENT / NEUTRAL                
+ *   CONTRADICTION / ENTAILMENT / NEUTRAL
  * </p>
  * <p>
- *                                                premise                                 
+ *                                                premise
  * "This example 是否 about {标签}."        假设       ENTAILMENT score
  * </p>
  *
@@ -47,7 +47,7 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
     private static final int MAX_LENGTH = 128;
 
     /**
-     * MNLI                          
+     * MNLI
      *   ENTAILMENT / NEUTRAL / CONTRADICTION
      */
     private static final List<String> NLI_LABELS = List.of("ENTAILMENT", "NEUTRAL", "CONTRADICTION");
@@ -140,14 +140,14 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
      *
      * <p>
      * "This example 是否 about {标签}.",        NLI,
-     *     ENTAILMENT score                      
+     *     ENTAILMENT score
      * zoo模型        Predictor
      * </p>
      *
      * @param predictor                      Predictor
-     * @param text                          
-     * @param candidateLabels                   
-     * @return                                        
+     * @param text
+     * @param candidateLabels
+     * @return
      */
     public static Classifications zeroShotClassify(
             Predictor<Map<String, String>, Classifications> predictor,
@@ -159,7 +159,7 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
             String hypothesis = "This example is about " + label + ".";
             Map<String, String> pair = Map.of("premise", text, "hypothesis", hypothesis);
             Classifications result = predictor.predict(pair);
-            // topK(3)              3                            
+            // topK(3)              3
             var topItems = result.topK(3);
             double entailmentScore = 0.0;
             for (var item : topItems) {
@@ -192,7 +192,7 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
     /**
      *                        tokenizer.json
      *
-     * @param modelPath             
+     * @param modelPath
      * @return                        path，       空
      */
     private static Path findTokenizerPath(Path modelPath) {
@@ -214,10 +214,10 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
     }
 
     /**
-     * softmax                  
+     * softmax
      *
-     * @param logits                      
-     * @return softmax              
+     * @param logits
+     * @return softmax
      */
     private static double[] softmax(float[] logits) {
         double max = Double.NEGATIVE_INFINITY;

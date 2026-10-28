@@ -415,7 +415,7 @@ public class NumberUtils {
         return div(v1, v2, 10);
     }
     /**
-     *       (      )                     ,                              ,   scale               ,                     
+     *       (      )                     ,                              ,   scale               ,
      *
      * @param v1 v1
      * @param v2 v2
@@ -426,7 +426,7 @@ public class NumberUtils {
         return div(v1, v2, scale, RoundingMode.HALF_UP);
     }
     /**
-     *       (      )                     ,                              ,   scale               ,                     
+     *       (      )                     ,                              ,   scale               ,
      *
      * @param v1 v1
      * @param v2 v2
@@ -437,7 +437,7 @@ public class NumberUtils {
         return div(v1, v2, scale, RoundingMode.HALF_UP);
     }
     /**
-     *       (      )                     ,                              ,   scale               ,                     
+     *       (      )                     ,                              ,   scale               ,
      *
      * @param v1 v1
      * @param v2 v2
@@ -448,7 +448,7 @@ public class NumberUtils {
         return div(v1, v2, scale, RoundingMode.HALF_UP);
     }
     /**
-     *       (      )                     ,                              ,   scale               ,                     
+     *       (      )                     ,                              ,   scale               ,
      *
      * @param v1 v1
      * @param v2 v2
@@ -459,7 +459,7 @@ public class NumberUtils {
         return div(v1, v2, scale, RoundingMode.HALF_UP);
     }
     /**
-     *       (      )                     ,                              ,   scale               ,                     
+     *       (      )                     ,                              ,   scale               ,
      *
      * @param v1 v1
      * @param v2 v2
@@ -470,7 +470,7 @@ public class NumberUtils {
         return div(v1, v2, scale, RoundingMode.HALF_UP);
     }
     /**
-     *       (      )                     ,                              ,   scale               ,                     
+     *       (      )                     ,                              ,   scale               ,
      *
      * @param v1 v1
      * @param v2 v2
@@ -482,7 +482,7 @@ public class NumberUtils {
         return div(v1, v2, scale, RoundingMode.HALF_UP);
     }
     /**
-     *       (      )                     ,                              ,   scale               ,                     
+     *       (      )                     ,                              ,   scale               ,
      *
      * @param v1 v1
      * @param v2 v2
@@ -493,7 +493,7 @@ public class NumberUtils {
         return div(v1, v2, scale, RoundingMode.HALF_UP);
     }
     /**
-     *       (      )                     ,                              ,   scale               
+     *       (      )                     ,                              ,   scale
      *
      * @param v1 v1
      * @param v2 v2
@@ -505,7 +505,7 @@ public class NumberUtils {
         return div(Float.toString(v1), Float.toString(v2), scale, roundingMode).doubleValue();
     }
     /**
-     *       (      )                     ,                              ,   scale               
+     *       (      )                     ,                              ,   scale
      *
      * @param v1 v1
      * @param v2 v2
@@ -517,7 +517,7 @@ public class NumberUtils {
         return div(Float.toString(v1), Double.toString(v2), scale, roundingMode).doubleValue();
     }
     /**
-     *       (      )                     ,                              ,   scale               
+     *       (      )                     ,                              ,   scale
      *
      * @param v1 v1
      * @param v2 v2
@@ -529,7 +529,7 @@ public class NumberUtils {
         return div(Double.toString(v1), Float.toString(v2), scale, roundingMode).doubleValue();
     }
     /**
-     *       (      )                     ,                              ,   scale               
+     *       (      )                     ,                              ,   scale
      *
      * @param v1 v1
      * @param v2 v2
@@ -541,7 +541,7 @@ public class NumberUtils {
         return div(Double.toString(v1), Double.toString(v2), scale, roundingMode).doubleValue();
     }
     /**
-     *       (      )                     ,                              ,   scale               
+     *       (      )                     ,                              ,   scale
      *
      * @param v1 v1
      * @param v2 v2
@@ -553,7 +553,7 @@ public class NumberUtils {
         return div(v1, (Number) v2, scale, roundingMode).doubleValue();
     }
     /**
-     *       (      )                     ,                              ,   scale               
+     *       (      )                     ,                              ,   scale
      *
      * @param v1 v1
      * @param v2 v2
@@ -566,7 +566,7 @@ public class NumberUtils {
         return div(v1.toString(), v2.toString(), scale, roundingMode);
     }
     /**
-     *       (      )                     ,                              ,   scale               
+     *       (      )                     ,                              ,   scale
      *
      * @param v1 v1
      * @param v2 v2
@@ -578,7 +578,7 @@ public class NumberUtils {
         return div(new BigDecimal(v1), new BigDecimal(v2), scale, roundingMode);
     }
     /**
-     *       (      )                     ,                              ,   scale               
+     *       (      )                     ,                              ,   scale
      *
      * @param v1 v1
      * @param v2 v2
@@ -711,13 +711,13 @@ public class NumberUtils {
         return (int) sum;
     }
     /**
-     *                                                                                                 1000            
+     *                                                                                                 1000
      *
      * @param numberAsString 数字as字符串
-     * @return                                     1000         
+     * @return                                     1000
      */
     public static boolean isThousandSeparator(String numberAsString) {
-        //                                        
+        //
         String cleanedNumber = numberAsString.replace(",", "");
         return isDecimals(cleanedNumber);
     }
@@ -955,7 +955,7 @@ public class NumberUtils {
         return m * n / divisor(m, n);
     }
     /**
-     *    int                                                               
+     *    int
      *
      * @param num1       1
      * @param num2       2
@@ -965,7 +965,7 @@ public class NumberUtils {
         return multiply((double) num1, num2);
     }
     /**
-     *    long                                                               
+     *    long
      *
      * @param num1       1
      * @param num2       2
@@ -976,7 +976,7 @@ public class NumberUtils {
         return multiply(num1D, num2);
     }
     /**
-     *    double                                                         
+     *    double
      *
      * @param num1       1
      * @param num2       2
@@ -991,7 +991,7 @@ public class NumberUtils {
     /**
      * 字符串         数字
      *
-     * @param <T>               
+     * @param <T>
      * @param targetClass 目标类
      * @return Number
      * @param number 数字
@@ -1075,7 +1075,7 @@ public class NumberUtils {
     /**
      * 字符串         数字
      *
-     * @param <T>               
+     * @param <T>
      * @param text 文本
      * @param targetClass 目标类
      * @return Number
@@ -1440,7 +1440,7 @@ public class NumberUtils {
         return round(numberStr, scale, roundingMode).toString();
     }
     /**
-     *          Integer      
+     *          Integer
      *
      * @param value 值
      * @return the 结果
@@ -1455,7 +1455,7 @@ public class NumberUtils {
         return (int) value;
     }
     /**
-     *                   {scale}      
+     *                   {scale}
      *
      * @param value 值
      * @param scale scale
@@ -1814,10 +1814,10 @@ public class NumberUtils {
     }
     /**
      * 数字            double<br>
-     * float                                                            
+     * float
      *
-     * @param value             float   
-     * @return double   
+     * @param value             float
+     * @return double
      * @since 5.7.8
      */
     public static double toDouble(Number value) {
@@ -2061,7 +2061,7 @@ public class NumberUtils {
      * </pre>
      *
      * @param longValue long值
-     * @return int       
+     * @return int
      */
     public static Integer toInt(final Long longValue) {
         return null == longValue ? null : longValue.intValue();
@@ -2094,7 +2094,7 @@ public class NumberUtils {
      * </pre>
      *
      * @param longValue long值
-     * @return int       
+     * @return int
      */
     public static int toIntValue(final Long longValue) {
         return null == longValue ? 0 : longValue.intValue();
@@ -2364,10 +2364,10 @@ public class NumberUtils {
         return (negative ? result.negate() : result);
     }
     /**
-     *          Hex         
+     *          Hex
      *
      * @param value 值
-     * @return          Hex         
+     * @return          Hex
      */
     private static boolean isHexNumber(final String value) {
         int index = (value.startsWith("-") ? 1 : 0);
@@ -2379,7 +2379,7 @@ public class NumberUtils {
      *
      * @param x x
      * @param y y
-     * @return x==y      0   x&lt;y            0         x&gt;y            0      
+     * @return x==y      0   x&lt;y            0         x&gt;y            0
      * @see Character#compare(char, char)
      * @since 3.0.1
      */
@@ -2392,7 +2392,7 @@ public class NumberUtils {
      *
      * @param x x
      * @param y y
-     * @return x==y      0   x&lt;y            0         x&gt;y            0      
+     * @return x==y      0   x&lt;y            0         x&gt;y            0
      * @see Double#compare(double, double)
      * @since 3.0.1
      */
@@ -2405,7 +2405,7 @@ public class NumberUtils {
      *
      * @param x x
      * @param y y
-     * @return x==y      0   x&lt;y            0         x&gt;y            0      
+     * @return x==y      0   x&lt;y            0         x&gt;y            0
      * @see Integer#compare(int, int)
      * @since 3.0.1
      */
@@ -2418,7 +2418,7 @@ public class NumberUtils {
      *
      * @param x x
      * @param y y
-     * @return x==y      0   x&lt;y            0         x&gt;y            0      
+     * @return x==y      0   x&lt;y            0         x&gt;y            0
      * @see Long#compare(long, long)
      * @since 3.0.1
      */
@@ -2431,7 +2431,7 @@ public class NumberUtils {
      *
      * @param x x
      * @param y y
-     * @return x==y      0   x&lt;y            0         x&gt;y            0      
+     * @return x==y      0   x&lt;y            0         x&gt;y            0
      * @see Short#compare(short, short)
      * @since 3.0.1
      */
@@ -2583,7 +2583,7 @@ public class NumberUtils {
         return Double.compare(0.0d, value) == 0 ? defaultValue : value;
     }
     /**
-     * excel         
+     * excel
      *
      * @param value 值
      * @return the 结果
@@ -2839,7 +2839,7 @@ public class NumberUtils {
      * 获取 Y。
      *
      *
-     * @param x            x   
+     * @param x            x
      * @param mean mean
      * @param variance variance
      * @param stdDeviation stddeviation

@@ -58,7 +58,7 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
-            obsClient.putObject(bucket, key, 
+            obsClient.putObject(bucket, key,
                     new ByteArrayInputStream(request.getContent()));
 
             return PutObjectResult.builder()

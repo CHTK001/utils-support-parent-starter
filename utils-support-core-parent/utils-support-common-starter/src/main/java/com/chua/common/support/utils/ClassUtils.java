@@ -125,7 +125,7 @@ public class ClassUtils {
     public static final char PACKAGE_SEPARATOR_CHAR = '.';
     /**
      *           JDK                .
-     *        Java                                            JDK                                  
+     *        Java                                            JDK
      * Java   javax   jdk   oracle     sun
      */
     private static final String[] RT_PACKAGE = new String[]{
@@ -138,7 +138,7 @@ public class ClassUtils {
     /**
      *                         .
      * 并发引用哈希映射          键             值
-     *                 256                                          
+     *                 256
      */
     private static final Map<Class<?>, Method[]> DECLARED_METHODS_CACHE = new ConcurrentReferenceHashMap<>(256);
     /**
@@ -168,12 +168,12 @@ public class ClassUtils {
     }
     /**
      *                            .
-     * Table                                  B   I   D                                                   
+     * Table                                  B   I   D
      *
      */
     public static final Table<Object, Class<?>, Class<?>> BASIC_VIRTUAL = HashBasedTable.create();
     static {
-        //                                                             
+        //
         BASIC_VIRTUAL.put("B", byte.class, Byte.class);
         BASIC_VIRTUAL.put("I", int.class, Integer.class);
         BASIC_VIRTUAL.put("D", double.class, Double.class);
@@ -291,14 +291,14 @@ public class ClassUtils {
     private static final char NESTED_CLASS_SEPARATOR = '$';
     /**
      * Java                   .
-     *        Java                                                                                     
-     *          Serializable   Cloneable   Comparable    
+     *        Java
+     *          Serializable   Cloneable   Comparable
     private static final long serialVersionUID = 1L;
      */
     private static final Set<Class<?>> JAVA_LANGUAGE_INTERFACES;
     /**
      *                                                       .
-     *     JVM                                "I"                               "int"   
+     *     JVM                                "I"                               "int"
      *
      */
     private static final Map<String, String> REVERSE_ABBREVIATION_MAP;
@@ -402,9 +402,9 @@ public class ClassUtils {
      *                                        .
      *
      *
-     * 1.                                                 
+     * 1.
      * 2.                       类工具
-     * 3.                                           
+     * 3.
      *
      * @return                                                                    null
      * @since 1.0
@@ -652,10 +652,10 @@ public class ClassUtils {
     /**
      *                                                                                     .
      *
-     * @param className                   
-     * @param type                                                                   
-     * @param consumer                                                             
-     * @param <T>                            
+     * @param className
+     * @param type
+     * @param consumer
+     * @param <T>
      * @since 1.0
      */
     public static <T> void isPresent(final String className, Class<T> type, Consumer<T> consumer) {
@@ -702,8 +702,8 @@ public class ClassUtils {
      *
      *
      *
-     * @param className                   
-     * @param classLoader                               
+     * @param className
+     * @param classLoader
      * @return                          true                false
      * @since 1.0
      */
@@ -765,10 +765,10 @@ public class ClassUtils {
      *
      *
      *
-     * @param name                   
-     * @param classLoader                               
-     * @return              Class       
-     * @throws ClassNotFoundException                                  
+     * @param name
+     * @param classLoader
+     * @return              Class
+     * @throws ClassNotFoundException
      * @throws RuntimeException     类notfound异常
      * @since 1.0
      */
@@ -819,25 +819,25 @@ public class ClassUtils {
      * -                int   布尔值
      * -             Java.util.映射.Entry                      Java.util.映射$Entry
      *
-     * @param name                   
+     * @param name
      * @param classLoader                                         空
      * @return              Class                                                  空
      * @since 1.0
      */
     public static Class<?> forName(String name, ClassLoader classLoader) {
         if (null == name) { return null; }
-        //                
+        //
         Class<?> clazz = CLASS_NAME_CACHE.get(name);
         if (clazz != null) {
             return clazz;
         }
-        //                   
+        //
         clazz = resolvePrimitiveClassName(name);
         if (clazz != null) {
             CLASS_NAME_CACHE.put(name, clazz);
             return clazz;
         }
-        //                      
+        //
         clazz = COMMON_CLASS_CACHE.get(name);
         if (clazz != null) {
             CLASS_NAME_CACHE.put(name, clazz);
@@ -963,9 +963,9 @@ public class ClassUtils {
     /**
      *                                     .
      *
-     * @param name                   
-     * @param params                                                 
-     * @param <T>                               
+     * @param name
+     * @param params
+     * @param <T>
      * @return                                                     null
      * @since 1.0
      */
@@ -979,10 +979,10 @@ public class ClassUtils {
     /**
      *                                                                   .
      *
-     * @param typeName                   
-     * @param type                                                                
-     * @param params                                                 
-     * @param <T>                               
+     * @param typeName
+     * @param type
+     * @param params
+     * @param <T>
      * @return                                                                             null
      * @since 1.0
      */
@@ -1018,19 +1018,19 @@ public class ClassUtils {
      *
      *
      * 1.                       列表   集合     设置
-     * 2.                                                                            
-     * 3.                                                                         
-     * 4.                                                                                  
+     * 2.
+     * 3.
+     * 4.
      *
-     *       /                     
+     *       /
      * 1.                          空
      *
-     * @param tClass                   
-     * @param classLoader                               
-     * @param params                                                 
-     * @param <T>                               
+     * @param tClass
+     * @param classLoader
+     * @param params
+     * @param <T>
      * @return                                                     null
-     * @throws Exception                                  
+     * @throws Exception
      * @since 1.0
      */
     public static <T> T forObject(Class<T> tClass, ClassLoader classLoader, Object... params) throws Exception {
@@ -1105,8 +1105,8 @@ public class ClassUtils {
     /**
      *
      *
-     * @param params       
-     * @return       
+     * @param params
+     * @return
      * @param tClass t类
      *
      * <p>豁免说明：本类为反射基础设施，按构造器匹配创建实例是工具类核心职责，
@@ -1272,7 +1272,7 @@ public class ClassUtils {
      * 转换为Type。
      *
      *
-     * @param collection       
+     * @param collection
      * @return class
      * @throws NullPointerException ex
      */
@@ -1391,9 +1391,9 @@ public class ClassUtils {
      * 是否为 Primitive。
      *
      *
-     * @param target    
-     * @param <T>          
-     * @return          
+     * @param target
+     * @param <T>
+     * @return
      * @see Boolean#TYPE
      * @see Character#TYPE
      * @see Byte#TYPE
@@ -1411,8 +1411,8 @@ public class ClassUtils {
      * 转换为TypeName。
      *
      *
-     * @param annotations       
-     * @return       
+     * @param annotations
+     * @return
      */
     public static String[] toTypeName(Annotation[] annotations) {
         if (null == annotations || annotations.length == 0) { return SYMBOL_EMPTY_STRING_ARRAY; }
@@ -1427,8 +1427,8 @@ public class ClassUtils {
      * 转换为TypeName。
      *
      *
-     * @param parameterTypes       
-     * @return       
+     * @param parameterTypes
+     * @return
      */
     public static String[] toTypeName(Class<?>[] parameterTypes) {
         if (null == parameterTypes || parameterTypes.length == 0) { return SYMBOL_EMPTY_STRING_ARRAY; }
@@ -1444,8 +1444,8 @@ public class ClassUtils {
      * <p>1.                     </p>
      * <p>2.                  </p>
      *
-     * @param value    
-     * @return             
+     * @param value
+     * @return
      * @param includes includes
      */
     public static Type[] getActualTypeArguments(final Class<?> value, final Class<?>... includes) {
@@ -1478,8 +1478,8 @@ public class ClassUtils {
      * 获取底层容器。
      *
      *
-     * @param type        
-     * @param includes          
+     * @param type
+     * @param includes
      * @return       true
      */
     private static boolean container(Type type, Class<?>[] includes) {
@@ -1510,7 +1510,7 @@ public class ClassUtils {
     /**
      * 类路径         类路径
      *
-     * @param isEncoded                               
+     * @param isEncoded
      * @return ClassPath
      * @since 3.2.1
      */
@@ -1556,8 +1556,8 @@ public class ClassUtils {
     /**
      * Java
      *
-     * @param type       
-     * @return java   
+     * @param type
+     * @return java
      */
     public static boolean isJavaType(Class<?> type) {
         return type.getTypeName().startsWith("java.") ||
@@ -1565,10 +1565,10 @@ public class ClassUtils {
                 ;
     }
     /**
-     * spring   
+     * spring
      *
-     * @param type       
-     * @return java   
+     * @param type
+     * @return java
      */
     public static boolean isSpringType(Class<?> type) {
         return type.getTypeName().startsWith("org.springframework.") ||
@@ -1580,8 +1580,8 @@ public class ClassUtils {
      *
      *
      *
-     * @param aClass                
-     * @param callback                                           
+     * @param aClass
+     * @param callback
      * @since 1.0
      */
     public static void doWithFields(final Class<?> aClass, final Consumer<Field> callback) {
@@ -1602,8 +1602,8 @@ public class ClassUtils {
      *
      *
      *
-     * @param obj       
-     * @param fieldName             
+     * @param obj
+     * @param fieldName
      * @return           Field                                   空
      * @since 1.0
      */
@@ -1621,7 +1621,7 @@ public class ClassUtils {
      *
      * 对象
      *
-     * @param obj       
+     * @param obj
      * @return                 List                   空              列表
      * @since 1.0
      */
@@ -1649,8 +1649,8 @@ public class ClassUtils {
      *
      *
      *
-     * @param aClass                
-     * @param callback                                           
+     * @param aClass
+     * @param callback
      * @since 1.0
      */
     public static void doWithLocalFields(final Class<?> aClass, final Consumer<Field> callback) {
@@ -1665,7 +1665,7 @@ public class ClassUtils {
     /**
      *                                                             .
      *
-     * @param obj       
+     * @param obj
      * @return                                   List
      * @since 1.0
      */
@@ -1680,7 +1680,7 @@ public class ClassUtils {
     /**
      *                                                                   .
      *
-     * @param aClass                
+     * @param aClass
      * @return                 List                               列表
      * @since 1.0
      */
@@ -1706,8 +1706,8 @@ public class ClassUtils {
      *
      * 对象
      *
-     * @param type                
-     * @param name             
+     * @param type
+     * @param name
      * @return           Field                                   空
      * @since 1.0
      */
@@ -1724,8 +1724,8 @@ public class ClassUtils {
      * 遍历并处理本地方法。
      *
      *
-     * @param aClass      
-     * @param callback             
+     * @param aClass
+     * @param callback
      */
     public static void doWithLocalMethods(final Class<?> aClass, final Consumer<Method> callback) {
         if (null == aClass || null == callback) {
@@ -1744,9 +1744,9 @@ public class ClassUtils {
      * 遍历并处理类中的方法。
      *
      *
-     * @param aClass          
-     * @param callback                 
-     * @param methodFilter          
+     * @param aClass
+     * @param callback
+     * @param methodFilter
      */
     public static void doWithMethods(final Class<?> aClass, final Consumer<Method> callback,
                                      MethodFilter methodFilter) {
@@ -1773,8 +1773,8 @@ public class ClassUtils {
      * 遍历并处理类中的方法。
      *
      *
-     * @param aClass      
-     * @param callback             
+     * @param aClass
+     * @param callback
      */
     public static void doWithMethods(final Class<?> aClass, final Consumer<Method> callback) {
         doWithMethods(aClass, callback, null);
@@ -1783,8 +1783,8 @@ public class ClassUtils {
      * 获取 Methods。
      *
      *
-     * @param obj       
-     * @return             
+     * @param obj
+     * @return
      */
     public static List<Method> getMethods(final Object obj) {
         if (null == obj) {
@@ -1826,8 +1826,8 @@ public class ClassUtils {
      * 获取 LocalMethods。
      *
      *
-     * @param obj       
-     * @return             
+     * @param obj
+     * @return
      */
     public static List<Method> getLocalMethods(final Object obj) {
         if (null == obj) {
@@ -1842,10 +1842,10 @@ public class ClassUtils {
     /**
      *
      *
-     * @param tClass        
-     * @param classes       
-     * @param <T>           
-     * @return       
+     * @param tClass
+     * @param classes
+     * @param <T>
+     * @return
      *
      * <p>豁免说明：本类为反射基础设施，按参数可赋值性挑选构造器是工具类核心职责，
      * 允许在内部实现中直接使用 java.lang.reflect API。</p>
@@ -1885,7 +1885,7 @@ public class ClassUtils {
     /**
      * 对象.类
      *
-     * @param clazz    
+     * @param clazz
      * @return        Object.class       空       true
      */
     public static boolean isObject(Class<?> clazz) {
@@ -1895,8 +1895,8 @@ public class ClassUtils {
      * 是否包含 None。
      *
      *
-     * @param args       
-     * @return             
+     * @param args
+     * @return
      */
     private static boolean hasNone(Object[] args) {
         for (Object arg : args) {
@@ -1910,8 +1910,8 @@ public class ClassUtils {
      * 是否为 AllNull。
      *
      *
-     * @param args       
-     * @return             
+     * @param args
+     * @return
      */
     private static boolean isAllNull(Object[] args) {
         for (Object arg : args) {
@@ -1925,9 +1925,9 @@ public class ClassUtils {
      * 获取 Args。
      *
      *
-     * @param parameterTypes       
-     * @param params               
-     * @return       
+     * @param parameterTypes
+     * @param params
+     * @return
      */
     private static Object[] getArgs(Class<?>[] parameterTypes, Map<Class<?>, Object> params) {
         Object[] rs = new Object[parameterTypes.length];
@@ -1942,10 +1942,10 @@ public class ClassUtils {
      * 创建实例。
      *
      *
-     * @param o                        
-     * @param aClass             
-     * @param params             
-     * @return    
+     * @param o
+     * @param aClass
+     * @param params
+     * @return
      */
     private static Object createValue(Object o, Class<?> aClass, Map<Class<?>, Object> params) {
         if (null != o) {
@@ -1972,8 +1972,8 @@ public class ClassUtils {
      * 创建实例。
      *
      *
-     * @param params    
-     * @return             
+     * @param params
+     * @return
      */
     private static Map<Class<?>, Object> createTypeAndValue(Object[] params) {
         Map<Class<?>, Object> rs = Wraps.map(params.length);
@@ -1990,11 +1990,11 @@ public class ClassUtils {
      * 执行 MethodChain。
      *
      *
-     * @param object           
-     * @param type             
-     * @param methodName       
-     * @param args             
-     * @return       
+     * @param object
+     * @param type
+     * @param methodName
+     * @param args
+     * @return
      */
     public static Object invokeMethodChain(Object object, Class<?> type, String methodName, Object... args) {
         if (null == type) {
@@ -2011,11 +2011,11 @@ public class ClassUtils {
      * 执行 Bean。
      *
      *
-     * @param bean                      
-     * @param methodName                
-     * @param methodParameterType             
-     * @param args                      
-     * @return       
+     * @param bean
+     * @param methodName
+     * @param methodParameterType
+     * @param args
+     * @return
      */
     public static Object invokeBean(Object bean, String methodName, Class<?>[] methodParameterType, Object... args) {
         if (null == bean) {
@@ -2033,10 +2033,10 @@ public class ClassUtils {
      * 执行 Bean。
      *
      *
-     * @param bean             
-     * @param methodName       
-     * @param args             
-     * @return       
+     * @param bean
+     * @param methodName
+     * @param args
+     * @return
      */
     public static Object invokeBean(Object bean, String methodName, Object... args) {
         if (null == bean) {
@@ -2154,10 +2154,10 @@ public class ClassUtils {
      * 执行 DefaultMethod。
      *
      *
-     * @param method       
-     * @param bean         
-     * @param args         
-     * @return       
+     * @param method
+     * @param bean
+     * @param args
+     * @return
      */
     public static Object invokeDefaultMethod(Method method, Object bean, Object... args) {
         if (bean instanceof Callable) {
@@ -2564,7 +2564,7 @@ public class ClassUtils {
         if (null == field) {
             return;
         }
-        //                    setter                      
+        //                    setter
         String name = "set" + Character.toUpperCase(field.getName().charAt(0)) + field.getName().substring(1);
         try {
             Method declaredMethod = findMethod(target, name, field.getType());
