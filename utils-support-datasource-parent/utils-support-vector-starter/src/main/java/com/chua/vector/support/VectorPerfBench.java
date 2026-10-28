@@ -1,11 +1,17 @@
 package com.chua.vector.support;
 
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.vector.*;
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.jvector.support.configuration.JVectorStorageProperties;
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.vector.support.spi.VectorStorageProviderFactory;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.nio.file.Files;
+import java.util.concurrent.ThreadLocalRandom;
 import java.nio.file.Path;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.Random;
 
 /**
@@ -178,7 +184,7 @@ public class VectorPerfBench {
     private static float[] randomVector(int dim) {
         float[] v = new float[dim];
         for (int i = 0; i < dim; i++) {
-            v[i] = (float) (Math.random() * 2 - 1);
+            v[i] = (float) (ThreadLocalRandom.current().nextDouble() * 2 - 1);
         }
         return v;
     }

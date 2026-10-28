@@ -1,11 +1,17 @@
 package com.chua.image.support.filter;
 
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.image.ImageProcessorUtils;
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.spi.annotations.Spi;
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.ThreadLocalRandom;
 import javax.annotation.Nonnull;
+import java.util.concurrent.ThreadLocalRandom;
 import javax.annotation.Nullable;
 
 
@@ -104,7 +110,7 @@ tb = inPixels[index] & 0xff;
      * @return 随机噪声值，范围[0.5, 1.0]
      */
     private double noise() {
-        return Math.random() * 0.5 + 0.5;
+        return ThreadLocalRandom.current().nextDouble() * 0.5 + 0.5;
     }
 
     /**

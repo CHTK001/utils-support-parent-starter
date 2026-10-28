@@ -1,19 +1,35 @@
 package com.chua.common.support.utils;
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.collection.wrap.Wraps;
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.converter.Converter;
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.lang.algorithm.crypto.Hex;
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.value.NumberValue;
+import java.util.concurrent.ThreadLocalRandom;
 import java.math.BigDecimal;
+import java.util.concurrent.ThreadLocalRandom;
 import java.math.BigInteger;
+import java.util.concurrent.ThreadLocalRandom;
 import java.math.MathContext;
+import java.util.concurrent.ThreadLocalRandom;
 import java.math.RoundingMode;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.IntConsumer;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
+import java.util.concurrent.ThreadLocalRandom;
 import static com.chua.common.support.constant.CommonConstant.*;
+import java.util.concurrent.ThreadLocalRandom;
 import static com.chua.common.support.constant.RegexConstant.DECIMAL_NUMBER;
+import java.util.concurrent.ThreadLocalRandom;
 import static com.chua.common.support.constant.RegexConstant.DECIMALS;
+import java.util.concurrent.ThreadLocalRandom;
 import static com.chua.common.support.constant.RegexConstant.INT_PATTERN;
 /**
  * 数字工具类，提供数值计算、类型转换、格式化、比较等操作。
@@ -178,7 +194,7 @@ public class NumberUtils {
         int hi = Math.max(start, end);
         // 用 long 计算区间长度，防止 Integer.MAX_VALUE 端点溢出
         long span = (long) hi - (long) lo + 1L;
-        return (int) ((long) (Math.random() * span) + lo);
+        return (int) ((long) (ThreadLocalRandom.current().nextDouble() * span) + lo);
     }
     /**
      * 加法运算（float + float）。

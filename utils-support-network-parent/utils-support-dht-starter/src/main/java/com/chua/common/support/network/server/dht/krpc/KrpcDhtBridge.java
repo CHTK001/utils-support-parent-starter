@@ -1,20 +1,35 @@
 package com.chua.common.support.network.server.dht.krpc;
 
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.collection.wrap.Wraps;
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.network.server.dht.DhtMessage;
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.network.server.dht.DhtMessageType;
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.network.server.dht.DhtPeer;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.net.InetSocketAddress;
+import java.util.concurrent.ThreadLocalRandom;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ThreadLocalRandom;
 import java.security.MessageDigest;
+import java.util.concurrent.ThreadLocalRandom;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.Arrays;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.Collections;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -94,7 +109,7 @@ public class KrpcDhtBridge {
     public static byte[] generateNodeId() {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
-            md.update(("krpc-" + System.nanoTime() + "-" + Math.random()).getBytes(StandardCharsets.UTF_8));
+            md.update(("krpc-" + System.nanoTime() + "-" + ThreadLocalRandom.current().nextDouble()).getBytes(StandardCharsets.UTF_8));
             return md.digest();
         } catch (NoSuchAlgorithmException e) {
             byte[] id = new byte[20];

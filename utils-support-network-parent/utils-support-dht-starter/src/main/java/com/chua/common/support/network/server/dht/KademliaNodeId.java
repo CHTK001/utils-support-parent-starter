@@ -1,9 +1,14 @@
 package com.chua.common.support.network.server.dht;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.math.BigInteger;
+import java.util.concurrent.ThreadLocalRandom;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ThreadLocalRandom;
 import java.security.MessageDigest;
+import java.util.concurrent.ThreadLocalRandom;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.Arrays;
 
 /**
@@ -47,7 +52,7 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     public static KademliaNodeId random() {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
-            byte[] seed = (System.nanoTime() + "-" + Math.random()).getBytes(StandardCharsets.UTF_8);
+            byte[] seed = (System.nanoTime() + "-" + ThreadLocalRandom.current().nextDouble()).getBytes(StandardCharsets.UTF_8);
             return new KademliaNodeId(md.digest(seed));
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("随机节点标识生成失败: " + e.getMessage(), e);

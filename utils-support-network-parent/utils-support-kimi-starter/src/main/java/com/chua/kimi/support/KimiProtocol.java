@@ -1,7 +1,9 @@
 package com.chua.kimi.support;
 
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.lang.json.JsonObject;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -62,7 +64,7 @@ public final class KimiProtocol {
      * @return 随机 16 位数字字符串
      */
     public static String generateDeviceId() {
-        long base = 7000000000000000000L + (long) (Math.random() * 999999999999999999L);
+        long base = 7000000000000000000L + (long) (ThreadLocalRandom.current().nextDouble() * 999999999999999999L);
         return Long.toString(base);
     }
 
@@ -72,7 +74,7 @@ public final class KimiProtocol {
      * @return 随机 16 位数字字符串
      */
     public static String generateSessionId() {
-        long base = 1700000000000000000L + (long) (Math.random() * 99999999999999999L);
+        long base = 1700000000000000000L + (long) (ThreadLocalRandom.current().nextDouble() * 99999999999999999L);
         return Long.toString(base);
     }
 
