@@ -81,7 +81,8 @@ public class FontPreviewProvider implements FileStoragePreviewProvider {
         String html = "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">" +
                 "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
                 "<style>" +
-                "@font-face{font-family:'" + familyName + "';src:url('" + dataUri + "') format('" + getFormat(e) + "');font-display:swap}" +
+                "@font-face{font-family:'" + familyName + "';src:url('" + dataUri + "') format('" + getFormat(e) +
+                        "');font-display:swap}" +
                 "body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +
                         "UI',sans-serif;" +
                 "display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px}" +
@@ -96,7 +97,8 @@ public class FontPreviewProvider implements FileStoragePreviewProvider {
                 ".preview{margin:20px 0;padding:24px;background:#f9fafb;border:1px solid " +
                         "#e5e7eb;border-radius:8px;text-align:center}" +
                 ".preview-text{font-family:'" + familyName + "';font-size:32px;line-height:1.5;color:#111827}" +
-                ".preview-chars{font-family:'" + familyName + "';font-size:24px;letter-spacing:4px;color:#374151;margin-top:12px}" +
+                ".preview-chars{font-family:'" + familyName +
+                        "';font-size:24px;letter-spacing:4px;color:#374151;margin-top:12px}" +
                 "table{width:100%;border-collapse:collapse}" +
                 "td{padding:8px 0;font-size:13px;border-bottom:1px solid #f3f4f6}" +
                 "td:first-child{color:#6b7280;width:100px}" +

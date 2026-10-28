@@ -37,8 +37,10 @@ public final class CpuCommand extends AbstractCommand {
         System.out.println("CPU: " + processor.getProcessorIdentifier().getName().trim());
         System.out.println(
                 Formatter.panel("oshc cpu",
-                        "Cores", processor.getPhysicalProcessorCount() + " physical / " + processor.getLogicalProcessorCount() + " logical",
-                        "Frequency", formatHz(currentFreq(processor)) + " (max " + formatHz(processor.getMaxFreq()) + ")",
+                        "Cores", processor.getPhysicalProcessorCount() + " physical / " +
+                                processor.getLogicalProcessorCount() + " logical",
+                        "Frequency", formatHz(currentFreq(processor)) + " (max " + formatHz(processor.getMaxFreq()) +
+                                ")",
                         "Vendor", processor.getProcessorIdentifier().getVendor(),
                         "Family", processor.getProcessorIdentifier().getFamily(),
                         "Model", processor.getProcessorIdentifier().getModel(),

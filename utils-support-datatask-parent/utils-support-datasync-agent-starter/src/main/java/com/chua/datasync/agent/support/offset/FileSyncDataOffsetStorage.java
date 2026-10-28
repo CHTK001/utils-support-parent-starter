@@ -115,7 +115,8 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
         }
         // 写入同样按「源 + 映射」分文件，与 read 的键保持一致
         Path file = storageDir.resolve(fileNameOf(offset.sourceId(), offset.mappingId()));
-        String line = offset.sourceId() + "," + offset.offsetValue() + "," + offset.timestamp() + "," + offset.mappingId();
+        String line = offset.sourceId() + "," + offset.offsetValue() + "," + offset.timestamp() + "," +
+                offset.mappingId();
         try {
             Files.writeString(file, line, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (Exception e) {

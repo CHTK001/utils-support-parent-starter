@@ -181,7 +181,8 @@ public class MysqlAlterUserStep implements UserManager.AlterUserStep {
      * @return 已转义的账号字面量
      */
     private String accountLiteral() {
-        return quoteLiteral(MysqlSqlNames.checkUserName(username)) + "@" + quoteLiteral(checkHost(host == null ? "%" : host));
+        return quoteLiteral(MysqlSqlNames.checkUserName(username)) + "@" +
+                quoteLiteral(checkHost(host == null ? "%" : host));
     }
 
     /**

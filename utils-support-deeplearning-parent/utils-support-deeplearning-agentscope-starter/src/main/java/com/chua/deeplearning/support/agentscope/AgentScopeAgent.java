@@ -948,7 +948,8 @@ public class AgentScopeAgent implements Agent {
                                 emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                         AgentTrace.KIND_EDGE, aid, null,
                                         "工具调用全部被拒绝, 数量="
-                                                + (e.getDeniedToolCalls() != null ? e.getDeniedToolCalls().size() : 0))));
+ +
+                                                        (e.getDeniedToolCalls() != null ? e.getDeniedToolCalls().size() : 0))));
                             } else if (event instanceof ExceedMaxItersEvent e) {
                                 emitted.add(AgentStreamEvent.trace(AgentTrace.of(
                                         AgentTrace.KIND_EDGE, aid, null,

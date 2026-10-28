@@ -77,7 +77,8 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
             throw new IllegalStateException("MQTT 分发器缺少 url 配置，无法连接 Broker");
         }
         try {
-            String clientId = config.getClientId() != null ? config.getClientId() : DEFAULT_CLIENT_ID_PREFIX + System.currentTimeMillis();
+            String clientId = config.getClientId() != null ? config.getClientId() : DEFAULT_CLIENT_ID_PREFIX +
+                    System.currentTimeMillis();
             client = new MqttClient(config.getUrl(), clientId, new MemoryPersistence());
             // 回调必须在 connect 之前注册，否则握手完成瞬间到达的消息会被 Paho 默认处理器丢弃
             client.setCallback(new MqttCallback() {

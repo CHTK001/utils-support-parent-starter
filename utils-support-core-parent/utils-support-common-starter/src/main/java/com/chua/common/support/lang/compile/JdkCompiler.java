@@ -948,7 +948,8 @@ public class JdkCompiler implements Compiler {
          */
         @Override
         public String toString() {
-            return this.getClass().getName() + CommonConstant.SYMBOL_LEFT_SQUARE_BRACKET + this.toUri() + CommonConstant.SYMBOL_RIGHT_SQUARE_BRACKET;
+            return this.getClass().getName() + CommonConstant.SYMBOL_LEFT_SQUARE_BRACKET + this.toUri() +
+                    CommonConstant.SYMBOL_RIGHT_SQUARE_BRACKET;
         }
     }
 }

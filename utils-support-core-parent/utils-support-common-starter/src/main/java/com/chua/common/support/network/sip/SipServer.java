@@ -981,7 +981,8 @@ onSignalClosed(clientId);
                     continue;
                 }
                 boolean fromVisitor = "visitor".equals(role);
-                String peerKey = (fromVisitor ? channel.bId() : channel.aId()) + "|" + (fromVisitor ? "provider" : "visitor");
+                String peerKey = (fromVisitor ? channel.bId() : channel.aId()) + "|" +
+                        (fromVisitor ? "provider" : "visitor");
                 muxPending.remove(ch + "|" + peerKey);
                 MuxServerConn peer = muxConns.get(peerKey);
                 if (peer != null && peer != this) {

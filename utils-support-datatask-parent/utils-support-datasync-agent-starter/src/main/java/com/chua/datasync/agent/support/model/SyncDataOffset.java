@@ -87,6 +87,7 @@ public class SyncDataOffset implements Serializable {
     */
     @Override
     public String toString() {
-        return "SyncDataOffset{sourceId=" + sourceId + ", offset=" + offsetValue + ", ts=" + timestamp + ", mapping=" + mappingId + "}";
+        return "SyncDataOffset{sourceId=" + sourceId + ", offset=" + offsetValue + ", ts=" + timestamp +
+                ", mapping=" + mappingId + "}";
     }
 }

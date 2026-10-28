@@ -93,7 +93,8 @@ public abstract class AbstractRemoteDataSyncAgent extends AbstractDataSyncAgent 
      */
     private void sendRegister() {
         try {
-            String body = "{\"agentId\":\"" + agentId() + "\",\"sources\":" + getSourceIds() + ",\"sinks\":" + getSinkIds() + "}";
+            String body = "{\"agentId\":\"" + agentId() + "\",\"sources\":" + getSourceIds() + ",\"sinks\":" +
+                    getSinkIds() + "}";
             syncClient.send("register:" + agentId(), body);
             log.info("Agent 注册成功: agentId={}", agentId());
         } catch (Exception e) {
