@@ -44,7 +44,8 @@ public class PlatformThreadExecutor extends AbstractThreadExecutor {
      */
     public PlatformThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit,
                                   int maxConcurrent) {
-        this(strategy, threshold, timeout, timeUnit, maxConcurrent, ThreadUtils.newCachedThreadPool("platform-thread-executor"));
+        this(strategy, threshold, timeout, timeUnit, maxConcurrent,
+             ThreadUtils.newCachedThreadPool("platform-thread-executor"));
     }
 
     /**

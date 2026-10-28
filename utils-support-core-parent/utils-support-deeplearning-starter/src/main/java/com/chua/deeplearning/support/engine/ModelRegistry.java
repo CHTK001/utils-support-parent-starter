@@ -394,7 +394,8 @@ public final class ModelRegistry {
     public static void register(String modelId, String translatorClassName,
                                 Class<?> inputType, Class<?> outputType,
                                 Class<?> capabilityInterface, String relativePath) {
-        REGISTRY.put(modelId, new Entry(modelId, translatorClassName, inputType, outputType, capabilityInterface, relativePath, null, null, null, false, null, null));
+        REGISTRY.put(modelId,
+                     new Entry(modelId, translatorClassName, inputType, outputType, capabilityInterface, relativePath, null, null, null, false, null, null));
         log.debug("[deeplearning-engine] ModelRegistry register: {} -> {}", modelId, translatorClassName);
     }
 
@@ -959,7 +960,8 @@ public final class ModelRegistry {
                             log.warn("[deeplearning-engine] ONNX 附加文件为空，继续尝试: {}", extraUrl);
                         }
                     } catch (Exception e) {
-                        log.warn("[deeplearning-engine] 下载 ONNX 附加文件失败（部分模型不需要）: {} -> {}: {}", modelId, extraUrl, e.getMessage(), e);
+                        log.warn("[deeplearning-engine] 下载 ONNX 附加文件失败（部分模型不需要）: {} -> {}: {}", modelId, extraUrl,
+                                 e.getMessage(), e);
                     }
                 }
             }
@@ -974,7 +976,8 @@ public final class ModelRegistry {
                         downloader.download(indexUrl, indexFile);
                         log.info("[deeplearning-engine] Safetensors 索引文件下载完成: {} -> {}", modelId, indexFile);
                     } catch (Exception e) {
-                        log.debug("[deeplearning-engine] 下载 Safetensors 索引文件失败（单文件模型无索引）: {} -> {}: {}", modelId, indexUrl, e.getMessage());
+                        log.debug("[deeplearning-engine] 下载 Safetensors 索引文件失败（单文件模型无索引）: {} -> {}: {}", modelId,
+                                  indexUrl, e.getMessage());
                     }
                 }
             }
@@ -1357,12 +1360,14 @@ public final class ModelRegistry {
                             ReflectUtils.forName(className, loader);
                             count++;
                         } catch (Throwable ex) {
-                            log.warn("[deeplearning-engine] ModelRegistrar load failed: {} -> {}", className, ex.getMessage(), ex);
+                            log.warn("[deeplearning-engine] ModelRegistrar load failed: {} -> {}", className,
+                                     ex.getMessage(), ex);
                         }
                     }
                 }
             }
-            log.info("[deeplearning-engine] ModelRegistry SPI loaded {} registrar class(es), entries={}", count, REGISTRY.size());
+            log.info("[deeplearning-engine] ModelRegistry SPI loaded {} registrar class(es), entries={}", count,
+                     REGISTRY.size());
         } catch (Exception e) {
             log.warn("[deeplearning-engine] ModelRegistrar discover error: {}", e.getMessage(), e);
         }

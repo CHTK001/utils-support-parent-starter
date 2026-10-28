@@ -117,7 +117,8 @@ public class OnnxSpeechRecognizer implements SpeechRecognizer {
     */
     @Override
     public String recognize(byte[] audioData, String language) {
-        return SpeechRecognizer.create(resolveModel()).lang(lang).modelPath(modelPath).sampleRate(sampleRate).device(device).recognize(audioData, language);
+        return SpeechRecognizer.create(resolveModel()).lang(lang).modelPath(modelPath).sampleRate(sampleRate).device(device).recognize(audioData,
+                                       language);
     }
 
 }

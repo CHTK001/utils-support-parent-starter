@@ -162,7 +162,8 @@ public class DataSyncAgentServer implements AgentServerManager {
             agent.onDataReceived(data);
             log.debug("推送数据到本地 Agent: agentId={}, sinkId={}, size={}", agentId, sinkId, data.size());
         } else {
-            syncServer.publish(TOPIC_SINK_PREFIX + agentId, Map.of(TOPIC_SINK_PREFIX.substring(0, TOPIC_SINK_PREFIX.length()-1), sinkId, "data", data));
+            syncServer.publish(TOPIC_SINK_PREFIX + agentId,
+                               Map.of(TOPIC_SINK_PREFIX.substring(0, TOPIC_SINK_PREFIX.length()-1), sinkId, "data", data));
             log.debug("推送数据到远程 Agent: agentId={}, sinkId={}, size={}", agentId, sinkId, data.size());
         }
     }

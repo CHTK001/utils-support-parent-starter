@@ -220,7 +220,8 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, request.address());
         props.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, (int) TimeUnit.SECONDS.toMillis(ADMIN_TIMEOUT_SECONDS));
-        props.put(AdminClientConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, (int) TimeUnit.SECONDS.toMillis(ADMIN_TIMEOUT_SECONDS));
+        props.put(AdminClientConfig.DEFAULT_API_TIMEOUT_MS_CONFIG,
+                  (int) TimeUnit.SECONDS.toMillis(ADMIN_TIMEOUT_SECONDS));
         String username = request.username();
         if (username != null && !username.isBlank()) {
             props.put("security.protocol", "SASL_PLAINTEXT");

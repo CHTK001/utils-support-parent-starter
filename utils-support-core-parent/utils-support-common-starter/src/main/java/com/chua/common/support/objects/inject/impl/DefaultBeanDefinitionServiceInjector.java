@@ -58,7 +58,8 @@ public class DefaultBeanDefinitionServiceInjector implements BeanDefinitionServi
             if (value != null) { return value; }
             if (required) {
                 throw new IllegalStateException(
-                        String.format("无法注入 Bean 字段 %s.%s (类型: %s)", bean.getClass().getName(), field.getName(), fieldType.getName()));
+                        String.format("无法注入 Bean 字段 %s.%s (类型: %s)", bean.getClass().getName(), field.getName(),
+                                      fieldType.getName()));
             }
             return null;
         } catch (IllegalStateException e) {

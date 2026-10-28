@@ -403,7 +403,8 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             // 持久化（SPI 接入存储层）
             StorageManager.appendTransmission(record);
 
-            LOG.log(Level.FINE, String.format("[Transmission] %s %s -> %s %sms software=%s", record.getProtocol(), record.getOperation(), record.getTarget() != null ? record.getTarget().displayLabel() : "?", record.getDuration(), record.getSoftware()));
+            LOG.log(Level.FINE,
+                    String.format("[Transmission] %s %s -> %s %sms software=%s", record.getProtocol(), record.getOperation(), record.getTarget() != null ? record.getTarget().displayLabel() : "?", record.getDuration(), record.getSoftware()));
         } catch (Exception e) {
             LOG.log(Level.FINE, String.format("TransmissionHandler.exit 处理异常: %s", e.getMessage()));
         }

@@ -634,7 +634,8 @@ public class DefaultQuick implements Quick {
             }
             Method main = ReflectUtils.findMethod(clazz, "main", String[].class);
             if (main != null && Modifier.isStatic(main.getModifiers())) {
-                ReflectUtils.invokeStatic(clazz, "main", void.class, new Class<?>[]{String[].class}, (Object) new String[0]);
+                ReflectUtils.invokeStatic(clazz, "main", void.class, new Class<?>[]{String[].class},
+                                          (Object) new String[0]);
             }
             return null;
         } catch (Exception e) {

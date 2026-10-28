@@ -980,7 +980,8 @@ public class ArrayUtils {
      * @param offset 偏移量
      */
     public static <E> void insertElement(E[] target, int offset, Collection<E> source) {
-        insertElement(target, offset, source.toArray((E[]) Array.newInstance(CollectionUtils.findLast(source).getClass(), 0)));
+        insertElement(target, offset,
+                      source.toArray((E[]) Array.newInstance(CollectionUtils.findLast(source).getClass(), 0)));
     }
 
     /**
@@ -1693,7 +1694,8 @@ public class ArrayUtils {
      * @return the 结果
      */
     public static byte[] range(byte[] responseBody, Integer start, Integer end) {
-        return ArrayUtils.subArray(responseBody, (start == null || start < 0 ? 0 : start), (null == end || end < 0 ? responseBody.length : end));
+        return ArrayUtils.subArray(responseBody,
+                                   (start == null || start < 0 ? 0 : start), (null == end || end < 0 ? responseBody.length : end));
     }
 
     /**

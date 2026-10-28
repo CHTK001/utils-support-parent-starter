@@ -356,7 +356,8 @@ public class MqttClientWrapper implements AutoCloseable {
             } else if (method.isAnnotationPresent(OnError.class)) {
                 errorListeners.add(t -> {
                     try {
-                        ReflectUtils.invoke(handler, method.getName(), method.getReturnType(), method.getParameterTypes(), t);
+                        ReflectUtils.invoke(handler, method.getName(), method.getReturnType(),
+                                            method.getParameterTypes(), t);
                     } catch (Exception e) {
                         log.error("MQTT 客户端 @OnError 方法执行异常", e);
                     }

@@ -195,7 +195,8 @@ public class DependencyGraphHandler implements Plugin {
         } catch (Exception e) {
             LOG.log(Level.FINE, "appendDependency 异常: " + e.getMessage());
         }
-        LOG.log(Level.FINE, String.format("[Dependency] %s -> %s (%sms, calls=%s, errors=%s)", source.displayLabel(), target.displayLabel(), duration, edge.getCallCount(), edge.getErrorCount()));
+        LOG.log(Level.FINE,
+                String.format("[Dependency] %s -> %s (%sms, calls=%s, errors=%s)", source.displayLabel(), target.displayLabel(), duration, edge.getCallCount(), edge.getErrorCount()));
     }
 
     /**

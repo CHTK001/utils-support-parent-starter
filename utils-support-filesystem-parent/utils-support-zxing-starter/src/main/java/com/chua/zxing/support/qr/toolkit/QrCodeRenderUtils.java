@@ -285,7 +285,8 @@ public class QrCodeRenderUtils {
                 int newQrW = qrWidth + add;
                 int newQrH = qrHeight + add;
 
-                bgGraphic.drawImage(qrImg.getScaledInstance(newQrW, newQrH, Image.SCALE_SMOOTH), bgOffsetX - add / 2, bgOffsetY - add / 2, null);
+                bgGraphic.drawImage(qrImg.getScaledInstance(newQrW, newQrH, Image.SCALE_SMOOTH), bgOffsetX - add / 2,
+                                    bgOffsetY - add / 2, null);
             } else {
                 // 全覆盖模式, 设置透明度， 避免看不到背景
                 bgGraphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, bgImgOptions.getOpacity()));

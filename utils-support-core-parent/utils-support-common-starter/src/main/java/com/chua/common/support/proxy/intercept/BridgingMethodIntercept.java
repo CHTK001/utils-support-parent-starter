@@ -43,7 +43,8 @@ public class BridgingMethodIntercept<T> implements MethodIntercept<T> {
         }
 
         if (MethodIntercept.isEquals(method)) {
-            return ObjectUtils.withNull(bridging, () -> false, a -> a.equals(args != null && args.length > 0 ? args[0] : null));
+            return ObjectUtils.withNull(bridging, () -> false,
+                                        a -> a.equals(args != null && args.length > 0 ? args[0] : null));
         }
 
         if (MethodIntercept.isHashCode(method)) {

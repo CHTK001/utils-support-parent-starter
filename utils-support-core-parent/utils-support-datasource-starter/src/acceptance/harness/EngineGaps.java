@@ -102,10 +102,14 @@ public final class EngineGaps {
             return "false";
         });
 
-        EngineFunctional.check(p + "writePoint 缺必填 → IAE", () -> expectIae(() -> se.writePoint(null, 1L, "cpu", 1.0, 0L)));
-        EngineFunctional.check(p + "writePoint 缺 monitorId → IAE", () -> expectIae(() -> se.writePoint("t", null, "cpu", 1.0, 0L)));
-        EngineFunctional.check(p + "writePoint 缺 metric → IAE", () -> expectIae(() -> se.writePoint("t", 1L, null, 1.0, 0L)));
-        EngineFunctional.check(p + "writePoint 非法标识符 → IAE", () -> expectIae(() -> se.writePoint("t;drop", 1L, "cpu", 1.0, 0L)));
+        EngineFunctional.check(p + "writePoint 缺必填 → IAE",
+                               () -> expectIae(() -> se.writePoint(null, 1L, "cpu", 1.0, 0L)));
+        EngineFunctional.check(p + "writePoint 缺 monitorId → IAE",
+                               () -> expectIae(() -> se.writePoint("t", null, "cpu", 1.0, 0L)));
+        EngineFunctional.check(p + "writePoint 缺 metric → IAE",
+                               () -> expectIae(() -> se.writePoint("t", 1L, null, 1.0, 0L)));
+        EngineFunctional.check(p + "writePoint 非法标识符 → IAE",
+                               () -> expectIae(() -> se.writePoint("t;drop", 1L, "cpu", 1.0, 0L)));
         EngineFunctional.check(p + "writePoint 不可用 → ISE（拒绝静默丢弃）",
                 () -> expectState(() -> se.writePoint("acc_t", 1L, "cpu", 1.0, 0L)));
 
@@ -118,10 +122,14 @@ public final class EngineGaps {
             return "empty";
         });
 
-        EngineFunctional.check(p + "series(null target) → IAE", () -> expectIae(() -> se.series(null, 1L, "cpu", 2, "1m")));
-        EngineFunctional.check(p + "series(null monitorId) → IAE", () -> expectIae(() -> se.series("acc_t", null, "cpu", 2, "1m")));
-        EngineFunctional.check(p + "series(hours<=0) → IAE", () -> expectIae(() -> se.series("acc_t", 1L, "cpu", 0, "1m")));
-        EngineFunctional.check(p + "series(hours<0) → IAE", () -> expectIae(() -> se.series("acc_t", 1L, "cpu", -1, "1m")));
+        EngineFunctional.check(p + "series(null target) → IAE",
+                               () -> expectIae(() -> se.series(null, 1L, "cpu", 2, "1m")));
+        EngineFunctional.check(p + "series(null monitorId) → IAE",
+                               () -> expectIae(() -> se.series("acc_t", null, "cpu", 2, "1m")));
+        EngineFunctional.check(p + "series(hours<=0) → IAE",
+                               () -> expectIae(() -> se.series("acc_t", 1L, "cpu", 0, "1m")));
+        EngineFunctional.check(p + "series(hours<0) → IAE",
+                               () -> expectIae(() -> se.series("acc_t", 1L, "cpu", -1, "1m")));
         EngineFunctional.check(p + "series 非法标识符 → IAE", () -> expectIae(() -> se.series("acc-t", 1L, "cpu", 2, "1m")));
         EngineFunctional.check(p + "series 不可用 → 空非 null", () -> {
             List<List<Object>> s = se.series("acc_t", 1L, "cpu", 2, "1m");

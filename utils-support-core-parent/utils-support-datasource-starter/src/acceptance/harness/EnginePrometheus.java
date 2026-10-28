@@ -148,7 +148,8 @@ public final class EnginePrometheus {
         });
 
         EngineFunctional.check(p + "builder 非 http/https 协议被拒", () -> {
-            expectType(IllegalArgumentException.class, () -> PrometheusClient.builder().baseUrl("ftp://x:9090").build());
+            expectType(IllegalArgumentException.class,
+                       () -> PrometheusClient.builder().baseUrl("ftp://x:9090").build());
             return "已拒绝";
         });
 

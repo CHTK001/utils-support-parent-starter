@@ -137,7 +137,8 @@ public class StringValuePropertyResolver implements PropertyResolver {
                     // 递归解析解析后的值中可能包含的其他占位符
                     propVal = parseStringValue(propVal, placeholderResolver, visitedPlaceholders);
                     // 替换原始字符串中的占位符部分为解析后的值
-                    result.replace(startIndex, endIndex + placeholderSupport.getPlaceholderSuffix().length(), StringUtils.defaultString(propVal, ""));
+                    result.replace(startIndex, endIndex + placeholderSupport.getPlaceholderSuffix().length(),
+                                   StringUtils.defaultString(propVal, ""));
                     if (log.isTraceEnabled()) {
                         log.trace("Resolved placeholder '{}'", placeholder);
                     }

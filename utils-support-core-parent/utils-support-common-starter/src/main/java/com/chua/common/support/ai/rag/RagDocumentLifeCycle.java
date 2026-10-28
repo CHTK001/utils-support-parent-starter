@@ -255,7 +255,8 @@ public class RagDocumentLifeCycle implements AutoCloseable {
                         List<TextChunk> chunks = textSplitter.split(text);
                         knowledgeClient.upsert(doc.id(), text, meta, chunks);
                     } else {
-                        knowledgeClient.upsert(doc.id(), text != null ? text : new String(data, StandardCharsets.UTF_8), meta);
+                        knowledgeClient.upsert(doc.id(),
+                                               text != null ? text : new String(data, StandardCharsets.UTF_8), meta);
                     }
                     count++;
                 }

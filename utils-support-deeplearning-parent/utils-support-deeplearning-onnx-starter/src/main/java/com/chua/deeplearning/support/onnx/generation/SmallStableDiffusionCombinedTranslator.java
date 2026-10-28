@@ -224,7 +224,8 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
         this(optInt(config, "width", Integer.getInteger("small.sd.width", 512)),
                 optInt(config, "height", Integer.getInteger("small.sd.height", 512)),
                 optInt(config, "steps", Integer.getInteger("small.sd.steps", LCM_MODE ? 4 : 20)),
-                optDbl(config, "guidance", Double.parseDouble(System.getProperty("small.sd.guidance", LCM_MODE ? "1.0" : "7.5"))));
+                optDbl(config, "guidance",
+                       Double.parseDouble(System.getProperty("small.sd.guidance", LCM_MODE ? "1.0" : "7.5"))));
         this.negative = optStr(config, "negative", System.getProperty("small.sd.negative", ""));
         this.deviceSetting = optStr(config, "device", System.getProperty("deeplearning.device"));
         this.unetDeviceSetting = optStr(config, "unetDevice", System.getProperty("small.sd.unetDevice"));

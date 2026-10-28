@@ -135,10 +135,12 @@ public class WordDocumentRenderer implements DocumentProvider {
                     setCellValue(xwpfTable.getRow(i + 1), 1, col.getColumnName());
                     setCellValue(xwpfTable.getRow(i + 1), 2, col.getTypeName());
                     setCellValue(xwpfTable.getRow(i + 1), 3, String.valueOf(col.getColumnSize()));
-                    setCellValue(xwpfTable.getRow(i + 1), 4, col.getDecimalDigits() != null ? String.valueOf(col.getDecimalDigits()) : "");
+                    setCellValue(xwpfTable.getRow(i + 1), 4,
+                                 col.getDecimalDigits() != null ? String.valueOf(col.getDecimalDigits()) : "");
                     setCellValue(xwpfTable.getRow(i + 1), 5, col.isNullable() ? "是" : "否");
                     setCellValue(xwpfTable.getRow(i + 1), 6, col.isPrimaryKey() ? "是" : "否");
-                    setCellValue(xwpfTable.getRow(i + 1), 7, col.getDefaultValue() != null ? col.getDefaultValue() : "");
+                    setCellValue(xwpfTable.getRow(i + 1), 7,
+                                 col.getDefaultValue() != null ? col.getDefaultValue() : "");
                     setCellValue(xwpfTable.getRow(i + 1), 8, col.getRemark() != null ? col.getRemark() : "");
                 }
             }

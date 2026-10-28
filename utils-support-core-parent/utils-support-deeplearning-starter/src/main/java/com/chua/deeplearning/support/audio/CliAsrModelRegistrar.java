@@ -41,7 +41,8 @@ public class CliAsrModelRegistrar implements ModelRegistrar {
         // 语音识别(Parakeet-TDT-0.6B-v3)：NVIDIA 多语言 ASR（25 语言，自带标点），GGUF q8_0 约 681MB
         // 无 translator：由 CliAsrAudioClient 经外部 CLI 推理，本条目仅提供模型文件下载与能力清单展示
         String url = "https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3/resolve/main/" + PARAKEET_FILE;
-        reg("parakeet-v3", url, List.of("https://hf-mirror.com/nvidia/parakeet-tdt-0.6b-v3/resolve/main/" + PARAKEET_FILE));
+        reg("parakeet-v3", url,
+            List.of("https://hf-mirror.com/nvidia/parakeet-tdt-0.6b-v3/resolve/main/" + PARAKEET_FILE));
     }
 
     /**

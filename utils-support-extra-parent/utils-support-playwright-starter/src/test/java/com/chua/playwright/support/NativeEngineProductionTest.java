@@ -466,7 +466,8 @@ class NativeEngineProductionTest {
     void hoverTriggersMouseoverHandler() {
         long p = newPage();
         try {
-            assertEquals("none", ev(p, "function(){ return getComputedStyle(document.getElementById('tip')).display; }"));
+            assertEquals("none",
+                         ev(p, "function(){ return getComputedStyle(document.getElementById('tip')).display; }"));
             engine.hover(p, "#hov");
             assertEquals("block", ev(p, "function(){ return getComputedStyle(document.getElementById('tip')).display; }"),
                     "hover 后提示应显示");
@@ -493,7 +494,8 @@ class NativeEngineProductionTest {
 
             // 空数组 → 取消全部选择
             assertEquals(List.of(), engine.selectOption(p, "#msel", new String[0]));
-            assertEquals(0, num(ev(p, "function(){ return document.getElementById('msel').selectedOptions.length; }")).intValue());
+            assertEquals(0,
+                         num(ev(p, "function(){ return document.getElementById('msel').selectedOptions.length; }")).intValue());
 
             PlaywrightException e = assertThrows(PlaywrightException.class,
                     () -> engine.selectOption(p, "#text", new String[]{"x"}));

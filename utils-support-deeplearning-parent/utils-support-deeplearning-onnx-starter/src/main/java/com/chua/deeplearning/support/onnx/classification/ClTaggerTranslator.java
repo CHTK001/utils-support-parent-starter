@@ -187,7 +187,8 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
             var probabilitiesNd = list.singletonOrThrow();
 
             if (log.isDebugEnabled()) {
-        log.debug("[CL Tagger][Translator] 输出 shape: {}, dtype: {}", probabilitiesNd.getShape(), probabilitiesNd.getDataType());
+        log.debug("[CL Tagger][Translator] 输出 shape: {}, dtype: {}", probabilitiesNd.getShape(),
+                  probabilitiesNd.getDataType());
             }
 
             //                                   Top-K   

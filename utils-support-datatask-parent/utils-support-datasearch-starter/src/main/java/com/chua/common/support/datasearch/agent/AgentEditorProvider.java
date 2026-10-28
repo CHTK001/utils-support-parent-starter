@@ -1604,7 +1604,8 @@ public class AgentEditorProvider {
         Map<String, Object> results = Wraps.linkedMap();
         results.put("keyword", keyword);
         if (videoSearchHandler != null) {
-            results.put("video", videoSearchHandler.search(keyword, SEARCH_ALL_VIDEO_SOURCE, DEFAULT_PAGE, SEARCH_ALL_LIMIT));
+            results.put("video",
+                        videoSearchHandler.search(keyword, SEARCH_ALL_VIDEO_SOURCE, DEFAULT_PAGE, SEARCH_ALL_LIMIT));
         }
         Map<String, Object> musicResults = Wraps.linkedMap();
         for (Map.Entry<String, MusicSourceProvider> entry : musicProviders.entrySet()) {

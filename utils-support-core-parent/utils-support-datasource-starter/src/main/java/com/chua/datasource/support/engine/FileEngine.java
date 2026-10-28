@@ -742,7 +742,8 @@ public class FileEngine extends AbstractEngine {
             String setterName = "set"
                     + Character.toUpperCase(camelField.charAt(0))
                     + camelField.substring(1);
-            ReflectUtils.invoke(obj, setterName, void.class, new Class<?>[]{Object.class}, convertValue(value, Object.class));
+            ReflectUtils.invoke(obj, setterName, void.class, new Class<?>[]{Object.class},
+                                convertValue(value, Object.class));
         } catch (Exception ignored) {
             // silent
         }

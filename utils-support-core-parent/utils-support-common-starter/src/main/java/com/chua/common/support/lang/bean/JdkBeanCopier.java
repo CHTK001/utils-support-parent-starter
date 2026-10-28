@@ -96,7 +96,8 @@ public class JdkBeanCopier implements BeanCopier {
 
                 Object value = ReflectUtils.invoke(source, readMethod.getName(), readMethod.getReturnType());
                 if (value != null) {
-                    ReflectUtils.invoke(target, writeMethod.getName(), void.class, writeMethod.getParameterTypes(), convertIfNeeded(value, writeMethod.getParameterTypes()[0]));
+                    ReflectUtils.invoke(target, writeMethod.getName(), void.class, writeMethod.getParameterTypes(),
+                                        convertIfNeeded(value, writeMethod.getParameterTypes()[0]));
                 }
             } catch (Exception e) {
                 LOG.log(System.Logger.Level.DEBUG, "[copier] 复制属性失败，已忽略: " + e.getMessage(), e);
@@ -129,7 +130,8 @@ public class JdkBeanCopier implements BeanCopier {
                 }
                 Object value = entry.getValue();
                 if (value != null) {
-                    ReflectUtils.invoke(target, writeMethod.getName(), void.class, writeMethod.getParameterTypes(), convertIfNeeded(value, writeMethod.getParameterTypes()[0]));
+                    ReflectUtils.invoke(target, writeMethod.getName(), void.class, writeMethod.getParameterTypes(),
+                                        convertIfNeeded(value, writeMethod.getParameterTypes()[0]));
                 }
             } catch (Exception e) {
                 LOG.log(System.Logger.Level.DEBUG, "[copier] 复制属性失败，已忽略: " + e.getMessage(), e);

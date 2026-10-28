@@ -169,7 +169,8 @@ public class OnlineHolidayProvider implements HolidayProvider {
                     String name = text(v, "name");
                     String type = text(v, "type");
                     try {
-                        map.put(e.getKey(), new HolidayInfo(LocalDate.parse(e.getKey()), name, type, "holiday".equals(type)));
+                        map.put(e.getKey(),
+                                new HolidayInfo(LocalDate.parse(e.getKey()), name, type, "holiday".equals(type)));
                     } catch (Exception ignore) {
                         // 跳过非法日期键
                     }

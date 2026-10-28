@@ -50,7 +50,8 @@ public abstract class AbstractDrawPointResolver implements DrawPointResolver{
     public void draw(int x, int y) {
         if (!qrCodeConfig.getDrawOptions().isEnableScale()) {
             // 用几何图形进行填充时，如果不支持多个像素点渲染一个几何图形时，直接返回即可
-            draw(g2, leftPadding + x * infoSize, topPadding + y * infoSize, infoSize, infoSize, qrCodeConfig.getDrawOptions().getImage(1, 1), qrCodeConfig.getDrawOptions().getDrawQrTxt());
+            draw(g2, leftPadding + x * infoSize, topPadding + y * infoSize, infoSize, infoSize,
+                 qrCodeConfig.getDrawOptions().getImage(1, 1), qrCodeConfig.getDrawOptions().getDrawQrTxt());
             return;
         }
 
@@ -63,7 +64,8 @@ public abstract class AbstractDrawPointResolver implements DrawPointResolver{
             }
 
             // 开始绘制，并将已经绘制过得地方置空
-            draw(g2, leftPadding + x * infoSize, topPadding + y * infoSize, infoSize, infoSize, qrCodeConfig.getDrawOptions().getImage(1, 1), qrCodeConfig.getDrawOptions().getDrawQrTxt());
+            draw(g2, leftPadding + x * infoSize, topPadding + y * infoSize, infoSize, infoSize,
+                 qrCodeConfig.getDrawOptions().getImage(1, 1), qrCodeConfig.getDrawOptions().getDrawQrTxt());
             for (int col = 0; col < dotSize.getCol(); col++) {
                 for (int row = 0; row < dotSize.getRow(); row++) {
                     bitMatrix.getByteMatrix().set(x + col, y + row, 0);
@@ -72,7 +74,8 @@ public abstract class AbstractDrawPointResolver implements DrawPointResolver{
             return;
 
         }
-        draw(g2,leftPadding + x * infoSize, topPadding + y * infoSize, infoSize, infoSize, qrCodeConfig.getDrawOptions().getImage(1, 1), qrCodeConfig.getDrawOptions().getDrawQrTxt());
+        draw(g2, leftPadding + x * infoSize, topPadding + y * infoSize, infoSize, infoSize,
+             qrCodeConfig.getDrawOptions().getImage(1, 1), qrCodeConfig.getDrawOptions().getDrawQrTxt());
     }
     /**
      * 该抽象方法用于绘制图形。

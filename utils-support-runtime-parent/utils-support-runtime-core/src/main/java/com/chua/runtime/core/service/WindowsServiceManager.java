@@ -68,7 +68,8 @@ public class WindowsServiceManager implements ServiceManager {
                         CMD_TIMEOUT, TimeUnit.SECONDS);
             }
         } else {
-            LOG.log(Level.SEVERE, String.format("Windows 服务[%s] 安装失败: %s", service.getServiceName(), result.getStderr()));
+            LOG.log(Level.SEVERE,
+                    String.format("Windows 服务[%s] 安装失败: %s", service.getServiceName(), result.getStderr()));
         }
         return result;
     }

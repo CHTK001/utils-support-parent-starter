@@ -2032,7 +2032,8 @@ public class FacePipeline {
             try {
                 Mat out = new Mat();
                 Mat rot = Imgproc.getRotationMatrix2D(new Point(src.cols() / 2.0, src.rows() / 2.0), angle, 1.0);
-                Imgproc.warpAffine(src, out, rot, new Size(src.cols(), src.rows()), Imgproc.INTER_CUBIC, Core.BORDER_REPLICATE);
+                Imgproc.warpAffine(src, out, rot, new Size(src.cols(), src.rows()), Imgproc.INTER_CUBIC,
+                                   Core.BORDER_REPLICATE);
                 byte[] result = ImageUtils.encode(out);
                 rot.release();
                 out.release();

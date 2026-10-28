@@ -596,7 +596,8 @@ public class ILinkBotClient implements BotClient {
             }
             if (ret != 0 || errcode != 0) {
                 // ret=-1 表示 token 无效（认证失败），同样需重新扫码；不再无限空转
-                log.warn("[ILink] getupdates 返回错误 ret={} errcode={} errmsg={}，停止轮询", ret, errcode, getString(resp, "errmsg"));
+                log.warn("[ILink] getupdates 返回错误 ret={} errcode={} errmsg={}，停止轮询", ret, errcode,
+                         getString(resp, "errmsg"));
                 if (ret == -1) {
                     running.set(false);
                     if (qrcodeListener != null) { qrcodeListener.error("Bot 凭证已失效，请重新扫码绑定", null); }

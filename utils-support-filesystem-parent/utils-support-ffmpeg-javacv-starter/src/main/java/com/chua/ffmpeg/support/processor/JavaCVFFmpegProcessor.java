@@ -283,7 +283,8 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
                 Java2DFrameConverter converter = new Java2DFrameConverter();
                 BufferedImage image = converter.convert(frame);
                 BufferedImage thumbnail = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-                thumbnail.getGraphics().drawImage(image.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
+                thumbnail.getGraphics().drawImage(image.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH),
+                                      0, 0, null);
 
                 String format = FileUtils.getSimpleExtension(imageOutput.getName());
                 ImageIO.write(thumbnail, format != null ? format : "jpg", imageOutput);

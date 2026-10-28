@@ -218,7 +218,8 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
             for (TableData table : data.getTables()) {
                 Map<String, Object> node = Wraps.linkedMap();
                 node.put("id", table.getTableName());
-                node.put("label", (table.getRemark() != null && !table.getRemark().isEmpty()) ? table.getRemark() : table.getTableName());
+                node.put("label",
+                         (table.getRemark() != null && !table.getRemark().isEmpty()) ? table.getRemark() : table.getTableName());
                 node.put("schema", table.getSchema());
                 node.put("type", table.getType() != null ? table.getType() : "TABLE");
 

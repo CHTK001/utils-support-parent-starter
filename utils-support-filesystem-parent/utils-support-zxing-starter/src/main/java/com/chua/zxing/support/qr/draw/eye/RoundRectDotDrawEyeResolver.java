@@ -51,7 +51,8 @@ public class RoundRectDotDrawEyeResolver extends AbstractDrawEyeResolver {
                                        Color detectOutColor,
                                        Color detectInnerColor,
                                        CodeEyeSetting codeEyeSetting) {
-        super(qrCodeConfig, g2, bitMatrix, matrixW, matrixH, leftPadding, topPadding, infoSize, detectCornerSize, detectOutColor, detectInnerColor, codeEyeSetting);
+        super(qrCodeConfig, g2, bitMatrix, matrixW, matrixH, leftPadding, topPadding, infoSize, detectCornerSize,
+              detectOutColor, detectInnerColor, codeEyeSetting);
     }
 
     /**

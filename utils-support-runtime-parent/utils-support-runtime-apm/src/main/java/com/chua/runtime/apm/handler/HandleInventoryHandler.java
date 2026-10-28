@@ -164,10 +164,12 @@ public class HandleInventoryHandler implements Plugin, RuntimeSpy.Interceptor {
         }
         // 文件/Socket/线程 打开关闭插桩
         RuntimeSpy.registerInterceptor(FILE_INPUT_STREAM, "<init>", "()V", InterceptPoint.ENTRY, this);
-        RuntimeSpy.registerInterceptor(FILE_INPUT_STREAM, "<init>", "(Ljava/lang/String;)V", InterceptPoint.ENTRY, this);
+        RuntimeSpy.registerInterceptor(FILE_INPUT_STREAM, "<init>", "(Ljava/lang/String;)V", InterceptPoint.ENTRY,
+                                       this);
         RuntimeSpy.registerInterceptor(FILE_INPUT_STREAM, "<init>", "(Ljava/io/File;)V", InterceptPoint.ENTRY, this);
         RuntimeSpy.registerInterceptor(FILE_OUTPUT_STREAM, "<init>", "()V", InterceptPoint.ENTRY, this);
-        RuntimeSpy.registerInterceptor(FILE_OUTPUT_STREAM, "<init>", "(Ljava/lang/String;)V", InterceptPoint.ENTRY, this);
+        RuntimeSpy.registerInterceptor(FILE_OUTPUT_STREAM, "<init>", "(Ljava/lang/String;)V", InterceptPoint.ENTRY,
+                                       this);
         RuntimeSpy.registerInterceptor(FILE_OUTPUT_STREAM, "<init>", "(Ljava/io/File;)V", InterceptPoint.ENTRY, this);
         RuntimeSpy.registerInterceptor(FILE_INPUT_STREAM, "close", "()V", InterceptPoint.EXIT, this);
         RuntimeSpy.registerInterceptor(FILE_OUTPUT_STREAM, "close", "()V", InterceptPoint.EXIT, this);
@@ -242,7 +244,8 @@ public class HandleInventoryHandler implements Plugin, RuntimeSpy.Interceptor {
                 handles.remove(oldest.getHandleId());
             }
         }
-        LOG.log(Level.FINE, String.format("[HandleInventory] OPEN: kind=%s id=%s thread=%s", record.getKind(), handleId, record.getOwnerThread()));
+        LOG.log(Level.FINE,
+                String.format("[HandleInventory] OPEN: kind=%s id=%s thread=%s", record.getKind(), handleId, record.getOwnerThread()));
     }
 
     /**

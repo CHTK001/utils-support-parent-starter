@@ -80,7 +80,8 @@ public class ImageDrawResolver extends AbstractDrawResolver{
                 }
             }
         }
-        ImgRenderV2Helper.drawImg(g2, bitMatrix.getByteMatrix(), drawOptions.getImgResourcesForV2(), leftPadding, topPadding, infoSize);
+        ImgRenderV2Helper.drawImg(g2, bitMatrix.getByteMatrix(), drawOptions.getImgResourcesForV2(), leftPadding,
+                                  topPadding, infoSize);
     }
 }
 

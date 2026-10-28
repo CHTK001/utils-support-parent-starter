@@ -39,7 +39,8 @@ public class SealInspectionTranslator extends YoloTranslator {
      * @param arguments 方法入参 arguments
      */
     public SealInspectionTranslator(Map<String, ?> arguments) {
-        super(resolveInputSize(arguments), resolveThreshold(arguments), resolveNmsThreshold(arguments), SEAL_4_CLASSES, true);
+        super(resolveInputSize(arguments), resolveThreshold(arguments), resolveNmsThreshold(arguments),
+              SEAL_4_CLASSES, true);
     /**
      * resolve输入大小。
      * @param arguments 参数

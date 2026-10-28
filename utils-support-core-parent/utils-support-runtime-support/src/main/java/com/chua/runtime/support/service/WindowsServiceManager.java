@@ -159,7 +159,8 @@ public class WindowsServiceManager implements ServiceManager {
     @Override
     public CmdResult disable(String serviceName) {
         log.info("[runtime-service] 禁用 Windows 服务[{}] 开机自启", serviceName);
-        return CmdExecutors.execute(sc("config", serviceName, "start=", "disabled"), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        return CmdExecutors.execute(sc("config", serviceName, "start=", "disabled"), CMD_TIMEOUT_SECONDS,
+                                    TimeUnit.SECONDS);
     }
 
     /**

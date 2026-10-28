@@ -68,7 +68,8 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
      *                                           
      */
     public Yolo26ObbTranslator() {
-        this(DEFAULT_SIZE, DEFAULT_SIZE, DEFAULT_THRESHOLD, DEFAULT_NMS_THRESHOLD, Arrays.asList("object"), DEFAULT_MAX_BOXES);
+        this(DEFAULT_SIZE, DEFAULT_SIZE, DEFAULT_THRESHOLD, DEFAULT_NMS_THRESHOLD, Arrays.asList("object"),
+             DEFAULT_MAX_BOXES);
     }
 
     /**

@@ -351,7 +351,8 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
                     try {
                         return new CronTrigger(cron);
                     } catch (Exception e) {
-                        log.warn("Cron 表达式构造失败: mappingId={}, cron={}，使用默认 SimpleTrigger", mapping.mappingId(), cron, e);
+                        log.warn("Cron 表达式构造失败: mappingId={}, cron={}，使用默认 SimpleTrigger", mapping.mappingId(), cron,
+                                 e);
                         return new com.chua.common.support.task.scheduler.SimpleTrigger(java.time.Duration.ofMinutes(1));
                     }
                 }
@@ -435,7 +436,8 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         if (source instanceof com.chua.datasync.agent.support.model.Directional) {
             com.chua.datasync.agent.support.model.Direction srcDir = ((com.chua.datasync.agent.support.model.Directional) source).direction();
             if (srcDir != com.chua.datasync.agent.support.model.Direction.INPUT) {
-                log.error("Source 方向错误，应为 INPUT，已阻止执行: mappingId={}, sourceId={}, direction={}", mapping.mappingId(), sourceId, srcDir);
+                log.error("Source 方向错误，应为 INPUT，已阻止执行: mappingId={}, sourceId={}, direction={}", mapping.mappingId(),
+                          sourceId, srcDir);
                 return;
             }
         }

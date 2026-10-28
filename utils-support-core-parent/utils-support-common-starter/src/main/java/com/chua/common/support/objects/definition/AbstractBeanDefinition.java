@@ -766,7 +766,8 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
                             }
                             try {
                                 ClassUtils.setAccessible(method);
-                                ReflectUtils.invoke(instance, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
+                                ReflectUtils.invoke(instance, method.getName(), method.getReturnType(),
+                                                    method.getParameterTypes(), args);
                             } catch (Exception e) {
                                 log.warn("配置方法注入失败: {}.{}", instance.getClass().getSimpleName(), method.getName(), e);
                             }

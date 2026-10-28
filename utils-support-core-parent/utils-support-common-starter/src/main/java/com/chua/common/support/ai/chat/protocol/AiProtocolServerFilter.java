@@ -863,7 +863,9 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
         String rest = fullPath.startsWith(GEMINI_PATH_PREFIX) ? fullPath.substring(GEMINI_PATH_PREFIX.length()) : fullPath;
         int colonIdx = rest.lastIndexOf(':');
         if (colonIdx < 0) {
-            writeJson(response, Map.of(KEY_ERROR, Map.of(KEY_CODE, HTTP_BAD_REQUEST, KEY_MESSAGE_ERROR, "Invalid Gemini path: " + fullPath, KEY_ERROR_STATUS, GEMINI_STATUS_INVALID_ARGUMENT)));
+            writeJson(response,
+                      Map.of(KEY_ERROR,
+                             Map.of(KEY_CODE, HTTP_BAD_REQUEST, KEY_MESSAGE_ERROR, "Invalid Gemini path: " + fullPath, KEY_ERROR_STATUS, GEMINI_STATUS_INVALID_ARGUMENT)));
             return;
         }
         String model = rest.substring(0, colonIdx);
@@ -897,7 +899,9 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
             geminiResp.put("usageMetadata", usage);
             writeJson(response, geminiResp);
         } catch (Exception ex) {
-            writeJson(response, Map.of(KEY_ERROR, Map.of(KEY_CODE, HTTP_INTERNAL_ERROR, KEY_MESSAGE_ERROR, ex.getMessage(), KEY_ERROR_STATUS, GEMINI_STATUS_INTERNAL)));
+            writeJson(response,
+                      Map.of(KEY_ERROR,
+                             Map.of(KEY_CODE, HTTP_INTERNAL_ERROR, KEY_MESSAGE_ERROR, ex.getMessage(), KEY_ERROR_STATUS, GEMINI_STATUS_INTERNAL)));
         } finally {
             clearTokenGroup();
         }
@@ -1173,7 +1177,8 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
      */
     private Map<String, Object> buildOpenAiStreamDelta(String chunk, String model) {
         Map<String, Object> delta = Wraps.linkedMap(6);
-        delta.put(KEY_ID, PREFIX_CHAT_COMPLETION + UUID.randomUUID().toString().replace("-", "").substring(0, ID_TRUNCATE_LENGTH));
+        delta.put(KEY_ID,
+                  PREFIX_CHAT_COMPLETION + UUID.randomUUID().toString().replace("-", "").substring(0, ID_TRUNCATE_LENGTH));
         delta.put(KEY_OBJECT, OBJECT_CHAT_COMPLETION_CHUNK);
         delta.put(KEY_CREATED, (int) (System.currentTimeMillis() / 1000));
         delta.put(KEY_MODEL, model != null ? model : DEFAULT_MODEL);

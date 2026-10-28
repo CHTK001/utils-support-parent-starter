@@ -102,7 +102,8 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
                                         envelope.setTimestamp(now);
                                         pipelineEngine.execute(sinkId, envelope);
                                     } catch (Exception e) {
-                                        log.error("[datalake-server] 管线处理异常: sinkId={}, error={}", sinkId, e.getMessage(), e);
+                                        log.error("[datalake-server] 管线处理异常: sinkId={}, error={}", sinkId,
+                                                  e.getMessage(), e);
                                     }
                                 }
                             }

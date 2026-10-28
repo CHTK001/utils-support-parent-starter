@@ -101,7 +101,8 @@ public class RustImageProcessor implements ImageProcessor {
                 // v0.1 库可能没有此函数，回退到 malloc 版
             }
             LOADED.set(true);
-            log.info("[RustImageProcessor] 原生库加载成功{}（{}模式）", useSharedBuffer ? "，共享内存" : "", useSharedBuffer ? "共享内存" : "malloc");
+            log.info("[RustImageProcessor] 原生库加载成功{}（{}模式）", useSharedBuffer ? "，共享内存" : "",
+                     useSharedBuffer ? "共享内存" : "malloc");
         } catch (Throwable e) {
             log.warn("[RustImageProcessor] 原生库加载失败，回退到 AWT: {}", e.getMessage(), e);
         }

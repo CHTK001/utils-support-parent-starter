@@ -88,7 +88,8 @@ public class OnnxImageSegmenter implements ImageSegmenter {
     */
     @Override
     public byte[] segment(byte[] imageData, int targetClass) {
-        return ImageSegmenter.create(resolveModel()).modelPath(modelPath).device(device).segment(imageData, targetClass);
+        return ImageSegmenter.create(resolveModel()).modelPath(modelPath).device(device).segment(imageData,
+                                     targetClass);
     }
 
 }

@@ -204,9 +204,11 @@ final class MemorySqlLex {
                 String n = m.getName();
                 try {
                     if (n.startsWith("get") && n.length() > 3) {
-                        out.put(Character.toLowerCase(n.charAt(3)) + n.substring(4), ReflectUtils.invoke(row, n, Object.class));
+                        out.put(Character.toLowerCase(n.charAt(3)) + n.substring(4),
+                                ReflectUtils.invoke(row, n, Object.class));
                     } else if (n.startsWith("is") && n.length() > 2) {
-                        out.put(Character.toLowerCase(n.charAt(2)) + n.substring(3), ReflectUtils.invoke(row, n, Object.class));
+                        out.put(Character.toLowerCase(n.charAt(2)) + n.substring(3),
+                                ReflectUtils.invoke(row, n, Object.class));
                     }
                 } catch (Exception ignored) {
                     // 单个属性读取失败不影响整体投影

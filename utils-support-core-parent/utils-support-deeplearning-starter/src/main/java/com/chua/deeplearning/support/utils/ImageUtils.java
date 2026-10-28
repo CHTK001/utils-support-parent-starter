@@ -1261,7 +1261,8 @@ public static byte[] encode(Mat mat) {
                 BufferedImage bi = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(mob.toArray()));
                 if (bi != null) {
                     java.awt.Graphics2D g = bi.createGraphics();
-                    g.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING, java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                    g.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING,
+                                       java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
                     g.setFont(new java.awt.Font("Microsoft YaHei", java.awt.Font.PLAIN, 18));
                     for (int i = 0; i < boxes.size(); i++) {
                         DetectionInfo box = boxes.get(i);

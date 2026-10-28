@@ -50,7 +50,8 @@ public class ImageAntiAliasingImageFilter extends AbstractImageFilter {
             graphics2d = distImage.createGraphics();
             graphics2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             graphics2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            graphics2d.drawImage(src.getScaledInstance(src.getWidth(), src.getHeight(), Image.SCALE_SMOOTH), 0, 0, null);
+            graphics2d.drawImage(src.getScaledInstance(src.getWidth(), src.getHeight(), Image.SCALE_SMOOTH), 0, 0,
+                                 null);
         } finally {
             IoUtils.closeQuietly(graphics2d);
 

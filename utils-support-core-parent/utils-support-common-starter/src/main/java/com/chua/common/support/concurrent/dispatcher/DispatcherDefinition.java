@@ -71,7 +71,8 @@ public class DispatcherDefinition {
             // 订阅者可能为 package-private/内部类，需放开访问权限（与 KcpClient.safeInvoke 一致）
             // [P3C 1.10 豁免] ReflectUtils.invoke 基于 MethodHandles，无法访问非公开方法，需原生 setAccessible
             method.setAccessible(true);
-            ReflectUtils.invoke(subscriber, method.getName(), method.getReturnType(), method.getParameterTypes(), converted);
+            ReflectUtils.invoke(subscriber, method.getName(), method.getReturnType(), method.getParameterTypes(),
+                                converted);
         } catch (Exception e) {
             log.error("反射调用订阅方法失败，方法：{}", method.getName(), e);
         }

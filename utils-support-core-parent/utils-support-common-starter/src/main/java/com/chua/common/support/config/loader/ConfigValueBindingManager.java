@@ -254,7 +254,8 @@ public class ConfigValueBindingManager implements ConfigListener {
             Method method = binding.getMethod();
             ClassUtils.setAccessible(method);
             Object convertedValue = convertValue(value, binding.getTargetType());
-            ReflectUtils.invoke(binding.getBean(), method.getName(), method.getReturnType(), method.getParameterTypes(), convertedValue);
+            ReflectUtils.invoke(binding.getBean(), method.getName(), method.getReturnType(),
+                                method.getParameterTypes(), convertedValue);
             binding.setCurrentValue(convertedValue);
         } catch (Exception e) {
             log.error("注入方法配置值失败: {}", binding, e);

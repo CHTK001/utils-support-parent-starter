@@ -123,7 +123,8 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         if (!config.isEnabled() || baselineSaved) {
             return;
         }
-        log.info("[Compression] First compression trigger, saving baseline snapshot, messageCount={}", fullContext.size());
+        log.info("[Compression] First compression trigger, saving baseline snapshot, messageCount={}",
+                 fullContext.size());
         saveBaseline(fullContext);
         ChatClient client = resolveCompressionClient();
         if (client != null) {

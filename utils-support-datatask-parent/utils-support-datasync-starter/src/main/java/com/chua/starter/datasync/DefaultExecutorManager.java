@@ -65,7 +65,8 @@ public class DefaultExecutorManager implements ExecutorManager {
     @Override
     public void start() {
         started.set(true);
-        log.info("ExecutorManager 已启动，serverId={}, 执行器数量={}, directDispatch={}", serverId, executors.size(), directDispatch);
+        log.info("ExecutorManager 已启动，serverId={}, 执行器数量={}, directDispatch={}", serverId, executors.size(),
+                 directDispatch);
     }
 
     /**

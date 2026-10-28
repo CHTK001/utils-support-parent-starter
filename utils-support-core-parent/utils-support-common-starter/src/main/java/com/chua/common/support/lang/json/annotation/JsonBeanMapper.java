@@ -265,7 +265,8 @@ return ReflectUtils.invoke(bean, getter, Object.class, new Class<?>[0], new Obje
         String setter = findSetterName(field);
         if (setter != null) {
             try {
-                ReflectUtils.invoke(bean, setter, void.class, new Class<?>[]{field.getType()}, Converter.convertIfNecessary(value, field.getType()));
+                ReflectUtils.invoke(bean, setter, void.class, new Class<?>[]{field.getType()},
+                                    Converter.convertIfNecessary(value, field.getType()));
                 return;
             } catch (Exception e) {
                 LOG.log(System.Logger.Level.DEBUG, "[json] 反射调用失败，已忽略: " + e.getMessage(), e);

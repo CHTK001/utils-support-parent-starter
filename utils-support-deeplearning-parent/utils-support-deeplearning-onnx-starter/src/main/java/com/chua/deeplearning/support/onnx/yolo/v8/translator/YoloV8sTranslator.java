@@ -114,7 +114,8 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
         this.threshold = threshold;
         this.nmsThreshold = nmsThreshold;
         this.classes = Wraps.list(classes);
-        log.info("YOLOv8s 初始化: input={}, threshold={}, nms={}, classes={}", INPUT_SIZE, threshold, nmsThreshold, classes.size());
+        log.info("YOLOv8s 初始化: input={}, threshold={}, nms={}, classes={}", INPUT_SIZE, threshold, nmsThreshold,
+                 classes.size());
     }
 
     /**
