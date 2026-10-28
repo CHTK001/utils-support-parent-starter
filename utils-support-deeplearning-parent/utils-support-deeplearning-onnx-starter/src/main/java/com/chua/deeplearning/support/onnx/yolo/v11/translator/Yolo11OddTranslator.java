@@ -116,7 +116,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
         this.nmsThreshold = nmsThreshold;
         this.classes = Wraps.list(classes);
         this.maxBoxes = maxBoxes;
-        log.info("          YOLOv11 OBB                 -             : {}x{},       : {}, NMS: {},          : {},             : {}",
+        log.info("YOLOv11 OBB 检测器初始化 - 输入尺寸: {}x{}, 置信度阈值: {}, NMS: {}, 类别数: {}, 最大框数: {}",
                  width, height, threshold, nmsThreshold, classes.size(), maxBoxes);
     }
 
@@ -152,7 +152,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
         ctx.setAttachment("top", letterBoxResult.top);
 
         if (log.isDebugEnabled()) {
-            log.debug("                  : shape={}, dtype={}", array.getShape(), array.getDataType());
+            log.debug("模型输入: shape={}, dtype={}", array.getShape(), array.getDataType());
         }
 
         return new NDList(array);
@@ -240,7 +240,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
         //           NMS
         var rotatedBoxList = rotatedNMS(rotatedBoxes, nmsThreshold);
 
-        log.info("          {}                NMS    : {}   ", rotatedBoxList.size(), rotatedBoxes.size());
+        log.info("筛选后候选框数量: {}，NMS 后保留: {}", rotatedBoxList.size(), rotatedBoxes.size());
 
         return new ObbResult(rotatedBoxList);
     }

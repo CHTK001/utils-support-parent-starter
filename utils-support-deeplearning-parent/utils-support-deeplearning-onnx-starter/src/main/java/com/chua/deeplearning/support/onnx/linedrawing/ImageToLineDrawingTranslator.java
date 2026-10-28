@@ -55,7 +55,7 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
         originalHeight = input.getHeight();
 
         if (log.isDebugEnabled()) {
-            log.debug("[LineDrawing][Translator]                      ,             : {}x{}",
+            log.debug("[LineDrawing][Translator] 输入预处理, 原始尺寸: {}x{}",
                     originalWidth, originalHeight);
         }
 
@@ -77,7 +77,7 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
         array = array.transpose(2, 0, 1);
 
         if (log.isDebugEnabled()) {
-            log.debug("[LineDrawing][Translator]                ,             : {}",
+            log.debug("[LineDrawing][Translator] 预处理完成, 输入张量: {}",
                     array.getShape());
         }
 
@@ -98,7 +98,7 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
         NDArray output = list.singletonOrThrow();
 
         if (log.isDebugEnabled()) {
-            log.debug("[LineDrawing][Translator]                      ,                   : {}",
+            log.debug("[LineDrawing][Translator] 推理完成, 输出张量: {}",
                     output.getShape());
         }
 
@@ -130,7 +130,7 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
                 output, originalWidth, originalHeight, Image.Interpolation.BILINEAR);
 
         if (log.isDebugEnabled()) {
-            log.debug("[LineDrawing][Translator]                      ,             : {}",
+            log.debug("[LineDrawing][Translator] 后处理完成, 输出张量: {}",
                     output.getShape());
         }
 

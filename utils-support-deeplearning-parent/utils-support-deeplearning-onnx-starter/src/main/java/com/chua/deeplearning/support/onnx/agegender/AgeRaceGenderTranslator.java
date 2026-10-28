@@ -77,7 +77,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("                        : {}x{}", input.getWidth(), input.getHeight());
+            LOGGER.debug("原始图像尺寸: {}x{}", input.getWidth(), input.getHeight());
         }
 
         NDManager manager = ctx.getNDManager();
@@ -100,7 +100,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
         array = array.expandDims(0);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("                  : shape={}, dtype={}", array.getShape(), array.getDataType());
+            LOGGER.debug("模型输入: shape={}, dtype={}", array.getShape(), array.getDataType());
         }
         return new NDList(array);
     }
@@ -111,7 +111,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     @Override
     public HumanPredictResult processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("                        : {}          ", list.size());
+            LOGGER.debug("模型输出 {} 个张量", list.size());
         }
 
         long startTime = System.currentTimeMillis();
@@ -134,7 +134,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
             // 1.                                                             
             NDArray ageOutput = list.getFirst();
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("             shape: {}", ageOutput.getShape());
+        LOGGER.debug("年龄输出 shape: {}", ageOutput.getShape());
             }
 
             //                                     shape     (1, num_ages)
@@ -147,13 +147,13 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
             age = ageIdx;
             ageConfidence = ageProbs.getFloat(ageIdx);
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("            : {}    ,          : {}", age, ageConfidence);
+        LOGGER.debug("年龄结果: {} 岁, 置信度: {}", age, ageConfidence);
             }
 
             // 2.                            
             NDArray genderOutput = list.get(1);
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("             shape: {}", genderOutput.getShape());
+        LOGGER.debug("性别输出 shape: {}", genderOutput.getShape());
             }
 
  // 批量                 softmax
@@ -164,13 +164,13 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
             gender = GENDER_CLASSES[Math.min(genderIdx, GENDER_CLASSES.length - 1)];
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("            : {},          : {}", gender, genderConfidence);
+        LOGGER.debug("性别结果: {}, 置信度: {}", gender, genderConfidence);
             }
 
             // 3.                            
             NDArray raceOutput = list.get(2);
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("             shape: {}", raceOutput.getShape());
+        LOGGER.debug("种族输出 shape: {}", raceOutput.getShape());
             }
 
  // 批量                 softmax
@@ -181,14 +181,14 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
             race = RACE_CLASSES[Math.min(raceIdx, RACE_CLASSES.length - 1)];
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("            : {},          : {}", race, raceConfidence);
+        LOGGER.debug("种族结果: {}, 置信度: {}", race, raceConfidence);
             }
 
         } else if (list.size() == 1) {
             //                                                          
             NDArray output = list.getFirst();
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("             shape: {}", output.getShape());
+        LOGGER.debug("输出 shape: {}", output.getShape());
             }
 
             //                               
@@ -223,7 +223,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
 
         long processingTime = System.currentTimeMillis() - startTime;
 
-        LOGGER.info("            :       ={},       ={},       ={},       ={}ms",
+        LOGGER.info("识别结果: 年龄={}, 性别={}, 种族={}, 耗时={}ms",
                 age, gender, race, processingTime);
 
  // humanpredict结果

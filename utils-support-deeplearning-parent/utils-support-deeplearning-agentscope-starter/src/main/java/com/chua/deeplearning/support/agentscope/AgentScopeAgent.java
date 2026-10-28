@@ -1688,7 +1688,7 @@ public class AgentScopeAgent implements Agent {
             AgentDefinition subDef = subAgentDefinitions.get(i);
             String subId = StringUtils.defaultString(subDef.getId(), "sub-" + i);
             int subIter = resolveMaxIters(subDef.getMaxToolIterations(), effectiveMaxIters);
-            log.info("[Agent]   [{}] id={}, name={}, maxIters={}", i + 1, subId,
+        log.info("[Agent] 子 Agent [{}] id={}, name={}, maxIters={}", i + 1, subId,
                     StringUtils.defaultString(subDef.getName(), "Unnamed"), subIter);
         }
         log.info("[Agent] ChatClient映射: {} 个", chatClients.size());

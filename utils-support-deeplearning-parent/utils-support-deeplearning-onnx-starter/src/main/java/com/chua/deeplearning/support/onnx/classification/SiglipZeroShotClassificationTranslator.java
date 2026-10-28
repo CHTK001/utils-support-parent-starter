@@ -340,7 +340,7 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
         if (Files.exists(file)) {
             return file;
         }
-        throw new IOException("          SigLIP             : " + file);
+            throw new IOException("未找到所需的 SigLIP 模型文件: " + file);
     }
 }
 

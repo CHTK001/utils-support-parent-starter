@@ -356,7 +356,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
             }
         }
         if (candidateOutputLabels.isEmpty()) {
-            throw new IllegalArgumentException("Grounding DINO          ");
+            throw new IllegalArgumentException("Grounding DINO 候选标签不能为空");
         }
     }
 
@@ -620,7 +620,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         } catch (Exception ignore) {
             // 回退失败，继续抛出原异常
         }
-        throw new IOException("          Grounding DINO            : " + file);
+        throw new IOException("未找到所需的 Grounding DINO 模型文件: " + file);
     }
 
     /**

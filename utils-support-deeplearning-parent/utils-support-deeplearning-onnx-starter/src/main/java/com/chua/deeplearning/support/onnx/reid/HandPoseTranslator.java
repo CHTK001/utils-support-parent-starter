@@ -67,7 +67,7 @@ public class HandPoseTranslator implements Translator<Image, float[]> {
         array = array.expandDims(0);
 
         if (log.isDebugEnabled()) {
-            log.debug("HandPose                   : shape={}", array.getShape());
+            log.debug("HandPose 模型输入: shape={}", array.getShape());
         }
 
         return new NDList(array);
@@ -97,7 +97,7 @@ public class HandPoseTranslator implements Translator<Image, float[]> {
         result[landmarkData.length + 1] = handedness;
 
         if (log.isDebugEnabled()) {
-            log.debug("HandPose       : confidence={}, handedness={}, keypoints={}",
+        log.debug("HandPose 输出: confidence={}, handedness={}, keypoints={}",
                     confidence, handedness, NUM_KEYPOINTS);
         }
 

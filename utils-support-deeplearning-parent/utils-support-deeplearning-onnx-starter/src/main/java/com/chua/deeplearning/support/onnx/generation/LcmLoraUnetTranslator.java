@@ -60,7 +60,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
         this.width = width;
         this.height = height;
         if (log.isDebugEnabled()) {
-            log.debug("[LCM-LoRA][Translator]                -             : {}x{}", width, height);
+        log.debug("[LCM-LoRA][Translator] 初始化 - 输入尺寸: {}x{}", width, height);
         }
     }
 
@@ -91,7 +91,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
         array = array.sub(mean).div(std);
 
         if (log.isDebugEnabled()) {
-            log.debug("[LCM-LoRA][Translator]                  : shape={}, dtype={}", array.getShape(), array.getDataType());
+            log.debug("[LCM-LoRA][Translator] 模型输入: shape={}, dtype={}", array.getShape(), array.getDataType());
         }
 
         return new NDList(array);
@@ -125,7 +125,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
             var img = ImageFactory.getInstance().fromNDArray(output);
 
             if (log.isDebugEnabled()) {
-                log.debug("[LCM-LoRA][Translator]                  : width={}, height={}", img.getWidth(), img.getHeight());
+        log.debug("[LCM-LoRA][Translator] 输出图像尺寸: width={}, height={}", img.getWidth(), img.getHeight());
             }
 
             return img;

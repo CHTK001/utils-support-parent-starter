@@ -84,7 +84,7 @@ public class OsnetReidTranslator implements Translator<Image, float[]> {
         array = array.expandDims(0);
 
         if (log.isDebugEnabled()) {
-            log.debug("YouTu ReID                   : shape={}", array.getShape());
+            log.debug("YouTu ReID 模型输入: shape={}", array.getShape());
         }
 
         return new NDList(array);
@@ -128,7 +128,7 @@ public class OsnetReidTranslator implements Translator<Image, float[]> {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("YouTu ReID             : dim={}, norm={}", features.length, norm);
+        log.debug("YouTu ReID 特征: dim={}, norm={}", features.length, norm);
         }
 
         return features;

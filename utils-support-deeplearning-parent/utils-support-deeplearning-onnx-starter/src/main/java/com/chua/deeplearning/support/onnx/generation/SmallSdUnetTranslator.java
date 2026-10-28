@@ -55,7 +55,7 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
         this.width = width;
         this.height = height;
         if (log.isDebugEnabled()) {
-            log.debug("[Small SD v0][UNet]                 -             : {}x{}", width, height);
+        log.debug("[Small SD v0][UNet] 初始化 - 输入尺寸: {}x{}", width, height);
         }
     }
 
@@ -67,7 +67,7 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
     @Override
     public void prepare(@Nonnull TranslatorContext ctx) {
         if (log.isDebugEnabled()) {
-            log.debug("[Small SD v0][UNet] Translator             ");
+            log.debug("[Small SD v0][UNet] Translator 初始化完成");
         }
     }
 
@@ -110,7 +110,7 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("[Small SD v0][UNet]                   : input size={}", modelInput.size());
+        log.debug("[Small SD v0][UNet] 模型输入: input size={}", modelInput.size());
         }
 
         return modelInput;
@@ -138,7 +138,7 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("[Small SD v0][UNet]                   : output shape={}", 
+        log.debug("[Small SD v0][UNet] 输出: output shape={}",
                     list.size() > 0 ? list.getFirst().getShape() : "empty");
         }
 
