@@ -136,6 +136,8 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
 19. **1.2 魔法值（强制）未做批量整改**：全仓重复字面量主要集中在测试用例（`abc`、`Hello`、`cam-A`）与领域标签（`cpu`、`memory`、`value`），在缺少语义信息时机械提取常量反而降低可读性，且极易引入错误；建议在后续迭代中随功能改动就地整改。
 20. **4.3 XSS 复查**：主要 HTML 生成类（OpenApiHtmlProvider、BenchmarkHtmlProvider、FileStorageViewServerFilter）均已使用 `StringUtils.escapeAttr`/`escapeHtml` 对动态内容转义；其余匹配到 `<div>` 等字符串的文件为提示词模板、JSON 片段或静态片段，不构成注入面。
 21. **1.4.8 `@Deprecated` 说明**：全仓 5 处 `@Deprecated` 缺少废弃原因与替代接口指引，已补充 `@deprecated` 标签（CompatibleTranslator、GreptimeDbEngine ×2、PrometheusEngine ×2）；复查归零。
+22. **5.1.9 存储过程**：`MysqlMetaProcedure` / `PostgresqlMetaProcedure` 提供的是「建过程」DDL 能力（工具库职责），全仓无业务侧存储过程调用——4 处 `prepareCall` 均为元数据/DDL 通用执行或测试透传断言，业务 SQL 不含 `CALL`。
+23. **1.5.1 集合初始容量（推荐）**：全仓 768 处 `new HashMap<>()/ArrayList<>()` 等无参构造，多数场景无法预知元素数量，强行估算容量反而可能浪费内存；建议在已知规模的批量场景就地补充，不做批量改写。
 
 ## 五、最终状态（本轮结束时）
 
