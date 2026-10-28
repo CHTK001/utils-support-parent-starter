@@ -40,7 +40,7 @@ public class SmolDoclingEmbedTranslator implements Translator<long[], SmolDoclin
         inputIds.setName("input_ids");
 
         if (log.isDebugEnabled()) {
-            log.debug("Embed                   : input_ids shape={}", inputIds.getShape());
+            log.debug("Embed 输入: input_ids shape={}", inputIds.getShape());
         }
 
         return new NDList(inputIds);
@@ -52,11 +52,11 @@ public class SmolDoclingEmbedTranslator implements Translator<long[], SmolDoclin
     @Override
     public SmolDoclingEmbedOutput processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
-            log.debug("             Embed             : {}          ", list.size());
+            log.debug("Embed 模型输出 {} 个张量", list.size());
         }
 
         if (list.isEmpty()) {
-            log.warn("Embed                   ");
+            log.warn("Embed 模型输出为空");
             return null;
         }
 
@@ -65,7 +65,7 @@ public class SmolDoclingEmbedTranslator implements Translator<long[], SmolDoclin
         long[] outputShape = embeddings.getShape().getShape();
 
         if (log.isDebugEnabled()) {
-            log.debug("Embed             : embeddings shape={}", embeddings.getShape());
+        log.debug("Embed 输出: embeddings shape={}", embeddings.getShape());
         }
 
  // ndarray           float

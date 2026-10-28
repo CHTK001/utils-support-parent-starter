@@ -50,11 +50,11 @@ public class VggtCombinedTranslator implements Translator<Image, VggtOutput> {
         try {
             outputTranslator.prepare(ctx);
         } catch (Exception e) {
-            throw new IOException("                           ", e);
+            throw new IOException("VGGT 组合翻译器初始化失败", e);
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("[VGGT Combined][Translator]               ");
+            log.debug("[VGGT Combined][Translator] 初始化完成");
         }
     }
 

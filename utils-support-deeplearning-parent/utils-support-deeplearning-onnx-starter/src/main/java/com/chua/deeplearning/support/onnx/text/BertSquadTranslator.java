@@ -152,7 +152,7 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
         }
         
  // 令牌_标识
-        return String.format("            : %d-%d (      : %.2f)", startIdx, endIdx, maxScore);
+        return String.format("预测区间: %d-%d (置信度: %.2f)", startIdx, endIdx, maxScore);
     }
 
     /**
