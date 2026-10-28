@@ -1,32 +1,59 @@
 package com.chua.rocksdb.support.engine;
 
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.lang.datasource.dialect.SqlName;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.lang.datasource.engine.Engine;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.lang.datasource.kv.KvEngine;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.lang.datasource.search.DocumentStore;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.lang.datasource.search.FulltextSearch;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.datasource.support.engine.AbstractEngine;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.rocksdb.support.datasource.RocksDbEngineDataSource;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import org.rocksdb.Options;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import org.rocksdb.RocksDB;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import org.rocksdb.RocksDBException;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import org.rocksdb.RocksIterator;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import org.rocksdb.WriteBatch;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import org.rocksdb.WriteOptions;
 
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import java.nio.charset.StandardCharsets;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import java.util.Collections;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import java.util.List;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import java.util.Map;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import java.util.Set;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -1046,18 +1073,18 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     public <T> int executeUpdate(UpdateSql<T> sql) {
         String ql = sql.whereClause();
         Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray(new Object[0]);
-        List<com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor> interceptorList = interceptors();
-        for (com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor interceptor : interceptorList) {
+        List<EngineInterceptor> interceptorList = interceptors();
+        for (EngineInterceptor interceptor : interceptorList) {
             interceptor.beforeUpdate(ql, params);
         }
         try {
             int affected = executeUpdateInRocks(sql);
-            for (com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor interceptor : interceptorList) {
+            for (EngineInterceptor interceptor : interceptorList) {
                 interceptor.afterUpdate(ql, params, affected);
             }
             return affected;
         } catch (RuntimeException re) {
-            for (com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor interceptor : interceptorList) {
+            for (EngineInterceptor interceptor : interceptorList) {
                 interceptor.onError(ql, params, re);
             }
             throw re;
@@ -1118,18 +1145,18 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     public <T> int executeDelete(DeleteSql<T> sql) {
         String ql = sql.whereClause();
         Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray(new Object[0]);
-        List<com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor> interceptorList = interceptors();
-        for (com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor interceptor : interceptorList) {
+        List<EngineInterceptor> interceptorList = interceptors();
+        for (EngineInterceptor interceptor : interceptorList) {
             interceptor.beforeUpdate(ql, params);
         }
         try {
             int affected = executeDeleteInRocks(sql);
-            for (com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor interceptor : interceptorList) {
+            for (EngineInterceptor interceptor : interceptorList) {
                 interceptor.afterUpdate(ql, params, affected);
             }
             return affected;
         } catch (RuntimeException re) {
-            for (com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor interceptor : interceptorList) {
+            for (EngineInterceptor interceptor : interceptorList) {
                 interceptor.onError(ql, params, re);
             }
             throw re;
