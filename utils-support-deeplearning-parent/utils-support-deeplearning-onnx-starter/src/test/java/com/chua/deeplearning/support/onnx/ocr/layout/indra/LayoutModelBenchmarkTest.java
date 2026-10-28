@@ -32,6 +32,12 @@ import java.util.List;
 @EnabledIfSystemProperty(named = "layout.bench", matches = "true")
 class LayoutModelBenchmarkTest {
 
+    /**
+     * 测试日志（避免使用 System.out 输出）
+     */
+    private static final java.util.logging.Logger LOG =
+            java.util.logging.Logger.getLogger(LayoutModelBenchmarkTest.class.getName());
+
     /** 待评测模型（注册标识）。DJL 模型须排在原生 ORT 模型之前：
      * DJL 的 onnxruntime 引擎要求独占 OrtEnvironment，反过来会报
      * “Tried to specify the thread pool when creating an OrtEnvironment”。 */
@@ -63,7 +69,7 @@ class LayoutModelBenchmarkTest {
                 try {
                     dets = ImageDetector.create(model).detect(png);
                 } catch (Throwable e) {
-                    System.out.println("[bench] " + model + " / " + page + " 失败: " + e);
+                    LOG.info("[bench] " + model + " / " + page + " 失败: " + e);
                     continue;
                 }
                 long ms = System.currentTimeMillis() - t0;
@@ -89,7 +95,7 @@ class LayoutModelBenchmarkTest {
                     json = json.substring(0, json.length() - 1) + "," + indraTexts(png) + "}";
                 }
                 Files.writeString(dir.resolve(page + ".json"), json, StandardCharsets.UTF_8);
-                System.out.println("[bench] " + model + " / " + page + " -> " + dets.size()
+                LOG.info("[bench] " + model + " / " + page + " -> " + dets.size()
                         + " boxes, " + ms + " ms");
             }
         }
