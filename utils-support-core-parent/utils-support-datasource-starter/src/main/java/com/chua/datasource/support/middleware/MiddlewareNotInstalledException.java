@@ -26,6 +26,8 @@ public final class MiddlewareNotInstalledException extends RuntimeException {
     }
 
     /**
+     * 获取类型。
+     *
      * @return 数据源类型标识
      */
     public String type() {

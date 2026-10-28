@@ -697,6 +697,7 @@ public class NumberUtils {
         return factorial(n, 1);
     }
     /**
+     * 按区间生成围栏数值。
      *
      *
      * @param max 最大
@@ -943,6 +944,7 @@ public class NumberUtils {
         return result;
     }
     /**
+     * 判断是否为倍数。
      *
      *
      * @param m m
@@ -1208,6 +1210,7 @@ public class NumberUtils {
         IntStream.range(start, end).forEach(consumer);
     }
     /**
+     * 生成闭区间数值流。
      *
      *
      * @param end 结束
@@ -1218,6 +1221,7 @@ public class NumberUtils {
         IntStream.rangeClosed(0, end).forEach(consumer);
     }
     /**
+     * 生成闭区间数值流。
      *
      *
      * @param start 启动
@@ -1317,6 +1321,7 @@ public class NumberUtils {
         return number.setScale(scale, roundingMode);
     }
     /**
+     * 向下取整。
      *
      *
      * @param number 数字
@@ -1328,6 +1333,7 @@ public class NumberUtils {
         return roundDown(toBigDecimal(number), scale);
     }
     /**
+     * 向下取整。
      *
      *
      * @param value 值
@@ -1463,6 +1469,7 @@ public class NumberUtils {
         return bigDecimal.setScale(scale < 0 ? 2 : scale, RoundingMode.HALF_UP);
     }
     /**
+     * 按分隔符拆分。
      *
      *
      * @param size 大小
@@ -1648,6 +1655,7 @@ public class NumberUtils {
         return result;
     }
     /**
+     * 执行减法运算。
      *
      *
      * @param minuend minuend
@@ -1662,6 +1670,7 @@ public class NumberUtils {
         return minuendBd.subtract(reductionBd, mathContext).doubleValue();
     }
     /**
+     * 执行减法运算。
      *
      *
      * @param minuend minuend

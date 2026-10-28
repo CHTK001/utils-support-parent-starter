@@ -95,6 +95,8 @@ public final class MiddlewareConnectRequest {
     }
 
     /**
+     * 获取端口。
+     *
      * @return 服务端口
      */
     public int port() {
@@ -116,6 +118,8 @@ public final class MiddlewareConnectRequest {
     }
 
     /**
+     * 获取密码。
+     *
      * @return 密码，未配置时为空串
      */
     public String password() {
