@@ -294,6 +294,7 @@ public class KcpSyncClient implements SyncClient {
      *
      * @return 获取客户端id的结果
      */
+    @Override
     public String getClientId() {
         return clientId;
     }

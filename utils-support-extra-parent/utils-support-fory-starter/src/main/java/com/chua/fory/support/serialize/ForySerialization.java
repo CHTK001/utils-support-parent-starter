@@ -50,7 +50,6 @@ public class ForySerialization implements Serialization {
      * Name
      */
     @Override
-
     public String name() {
         return "fory";
     }
@@ -59,7 +58,6 @@ public class ForySerialization implements Serialization {
      * 序列化
      */
     @Override
-
     public byte[] serialize(Object obj) {
         if (obj == null) {
             return new byte[0];
