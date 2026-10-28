@@ -671,7 +671,7 @@ import java.util.*;
      */
     public <T> List<T> execute(LambdaQueryWrapper<T> wrapper) {
         QuerySql<T> sql = wrapper.buildSql();
-        return executeNewQuery(sql.whereClause(), sql.params().toArray(), wrapper.getEntityClass());
+        return executeNewQuery(sql.whereClause(), sql.params().toArray(new Object[0]), wrapper.getEntityClass());
     }
 
     /**
@@ -682,7 +682,7 @@ import java.util.*;
      */
     public int execute(LambdaUpdateWrapper<?> wrapper) {
         com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql<?> sql = wrapper.buildSql();
-        return executeNewUpdate(sql.whereClause(), sql.params().toArray());
+        return executeNewUpdate(sql.whereClause(), sql.params().toArray(new Object[0]));
     }
 
     /**
@@ -693,7 +693,7 @@ import java.util.*;
      */
     public int execute(LambdaDeleteWrapper<?> wrapper) {
         com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql<?> sql = wrapper.buildSql();
-        return executeNewDelete(sql.whereClause(), sql.params().toArray());
+        return executeNewDelete(sql.whereClause(), sql.params().toArray(new Object[0]));
     }
 
     // ==================== 旧版执行 ====================
@@ -707,7 +707,7 @@ import java.util.*;
      */
     private <T> List<T> executeRedisQuery(LambdaQueryWrapper<T> wrapper, Class<T> entityClass) {
         QuerySql<T> sql = wrapper.buildSql();
-        return executeNewQuery(sql.whereClause(), sql.params().toArray(), entityClass);
+        return executeNewQuery(sql.whereClause(), sql.params().toArray(new Object[0]), entityClass);
     }
 
     /**

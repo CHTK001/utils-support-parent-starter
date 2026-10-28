@@ -151,7 +151,7 @@ public abstract class JdbcEngine extends AbstractEngine {
         if (sql.hasHaving()) {
             all.addAll(sql.havingParams());
         }
-        return all.toArray();
+        return all.toArray(new Object[0]);
     }
 
     /**
@@ -594,7 +594,7 @@ public abstract class JdbcEngine extends AbstractEngine {
             sqlBuilder.append(" WHERE ").append(sql.whereClause());
         }
         String updateSql = sqlBuilder.toString();
-        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray();
+        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray(new Object[0]);
         return interceptUpdate(sql.whereClause(), params, () -> {
             try (Connection conn = getJdbcConnection();
                  PreparedStatement ps = conn.prepareStatement(updateSql)) {
@@ -624,7 +624,7 @@ public abstract class JdbcEngine extends AbstractEngine {
             sqlBuilder.append(" WHERE ").append(sql.whereClause());
         }
         String deleteSql = sqlBuilder.toString();
-        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray();
+        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray(new Object[0]);
         return interceptUpdate(sql.whereClause(), params, () -> {
             try (Connection conn = getJdbcConnection();
                  PreparedStatement ps = conn.prepareStatement(deleteSql)) {

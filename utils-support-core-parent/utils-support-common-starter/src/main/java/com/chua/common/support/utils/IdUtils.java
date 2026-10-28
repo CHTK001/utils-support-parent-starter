@@ -638,7 +638,7 @@ public class IdUtils {
             return Arrays.toString((Object[]) value);
         }
         if (value instanceof Collection) {
-            return Arrays.toString(((Collection<?>) value).toArray());
+            return Arrays.toString(((Collection<?>) value).toArray(new Object[0]));
         }
         return value.toString();
     }

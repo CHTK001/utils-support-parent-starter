@@ -498,7 +498,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
         if (sql.hasHaving()) {
             all.addAll(sql.havingParams());
         }
-        return all.toArray();
+        return all.toArray(new Object[0]);
     }
 
     /**

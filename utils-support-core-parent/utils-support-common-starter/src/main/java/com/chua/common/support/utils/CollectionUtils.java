@@ -1062,7 +1062,7 @@ public class CollectionUtils {
      * @return 二维数组
      */
     public static Object[][] toArray(List<Object> args, List<String> names) {
-        return toArray(args.toArray(), names);
+        return toArray(args.toArray(new Object[0]), names);
     }
     /**
      * 将对象数组的每个元素转为与列名对应的行记录（二维数组）。

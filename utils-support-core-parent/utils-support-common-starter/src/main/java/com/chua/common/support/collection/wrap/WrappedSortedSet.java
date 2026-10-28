@@ -124,7 +124,7 @@ public class WrappedSortedSet<E> extends AbstractSet<E> implements SortedSet<E>,
 
     @Override
     public Object[] toArray() {
-        return delegate.toArray();
+        return delegate.toArray(new Object[0]);
     }
 
     @Override
