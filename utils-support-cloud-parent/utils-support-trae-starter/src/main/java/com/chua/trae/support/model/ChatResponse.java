@@ -3,6 +3,7 @@ package com.chua.trae.support.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+import lombok.ToString;
 
 /**
  * 聊天响应，打开AI 风格，包含 choices 列表与 令牌 用量。
@@ -11,6 +12,7 @@ import java.util.List;
  * @since 4.0.0.42
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@ToString
 public class ChatResponse {
 
     /**

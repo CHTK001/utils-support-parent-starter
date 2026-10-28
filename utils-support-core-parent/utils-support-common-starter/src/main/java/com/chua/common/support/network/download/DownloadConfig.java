@@ -3,6 +3,7 @@ package com.chua.common.support.network.download;
 import java.net.Proxy;
 import java.nio.file.Path;
 import java.util.Map;
+import lombok.ToString;
 
 /**
  * 下载任务配置 — 不可变值对象，传给 {@link DownloadService#execute}。
@@ -12,6 +13,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@ToString
 public class DownloadConfig {
 
     /**

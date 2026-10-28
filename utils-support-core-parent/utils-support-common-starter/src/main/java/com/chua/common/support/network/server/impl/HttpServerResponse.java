@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import lombok.ToString;
 
 /**
  * 基于 JDK {@link HttpExchange} 的 {@link ServerResponse} 实现。
@@ -22,6 +23,7 @@ import java.nio.charset.StandardCharsets;
  * @author CH
  * @since 2026/07/16
  */
+@ToString
 public class HttpServerResponse implements ServerResponse {
 
     /**

@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.ai.result;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * 人像分析预测结果。
@@ -14,6 +15,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@ToString
 public class HumanPredictResult {
 
     /**

@@ -2,6 +2,7 @@ package com.chua.common.support.wal;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import lombok.ToString;
 
 /**
  * WAL 配置。
@@ -11,6 +12,7 @@ import java.nio.file.Paths;
  * @since 4.0.0.42
  * @author CH
  */
+@ToString
 public final class WalConfig {
 
     /**

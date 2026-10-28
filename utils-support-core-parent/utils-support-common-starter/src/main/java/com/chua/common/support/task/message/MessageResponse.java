@@ -3,6 +3,7 @@ package com.chua.common.support.task.message;
 import lombok.Getter;
 
 import java.util.Map;
+import lombok.ToString;
 
 /**
  * 消息响应对象
@@ -13,6 +14,7 @@ import java.util.Map;
  * @since 2026/07/17
  */
 @Getter
+@ToString
 public class MessageResponse {
 
     /**

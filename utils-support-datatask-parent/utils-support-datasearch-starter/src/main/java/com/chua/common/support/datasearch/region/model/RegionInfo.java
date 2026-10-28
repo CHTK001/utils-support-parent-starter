@@ -3,6 +3,7 @@ package com.chua.common.support.datasearch.region.model;
 import com.chua.common.support.collection.wrap.Wraps;
 import java.util.List;
 import java.util.Map;
+import lombok.ToString;
 /**
  * 行政区划信息模型。
  *
@@ -16,6 +17,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@ToString
 public class RegionInfo {
 
     /**

@@ -1,6 +1,7 @@
 package com.chua.playwright.support;
 
 import java.util.Map;
+import lombok.ToString;
 
 /**
  * 双模式 {@code Response}。
@@ -8,6 +9,7 @@ import java.util.Map;
  * @since 4.0.0
  * @return 状态的结果
  */
+@ToString
 public class Response {
 
     private final int status; // 状态

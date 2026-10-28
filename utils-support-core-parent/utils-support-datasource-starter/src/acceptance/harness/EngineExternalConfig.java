@@ -6,6 +6,7 @@ import com.chua.postgresql.support.engine.PostgresqlEngine;
 import com.chua.sqlserver.support.engine.SqlServerEngine;
 import com.chua.sqlserver.support.engine.SqlServerLegacyEngine;
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.ToString;
 
 /**
  * 引擎验收运行器 —— 阶段十四：外部服务 JDBC 引擎的「本机可验面」。
@@ -30,6 +31,7 @@ import com.zaxxer.hikari.HikariDataSource;
  * @author CH
  * @since 4.0.0.42
  */
+@ToString
 public final class EngineExternalConfig {
 
     /** 引擎构造器。 */

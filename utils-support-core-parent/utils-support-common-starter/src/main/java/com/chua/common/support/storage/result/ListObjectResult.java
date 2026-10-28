@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import lombok.ToString;
 
 /**
  * 文件列表结果对象。
@@ -18,6 +19,7 @@ import java.util.List;
 @Getter
 @Setter
 @SuperBuilder
+@ToString
 public class ListObjectResult extends ObjectResult {
 
     /**

@@ -3,6 +3,7 @@ package com.chua.common.support.storage.result;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import lombok.ToString;
 
 /**
  * 文件存在性检查结果对象。
@@ -13,6 +14,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @SuperBuilder
+@ToString
 public class ExistObjectResult extends ObjectResult {
 
     /**

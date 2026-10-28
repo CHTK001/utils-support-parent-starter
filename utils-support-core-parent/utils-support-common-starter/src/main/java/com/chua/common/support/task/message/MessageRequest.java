@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
+import lombok.ToString;
 
 /**
  * 消息请求对象
@@ -16,6 +17,7 @@ import java.util.Map;
  * @since 2026/07/17
  */
 @Getter
+@ToString
 public class MessageRequest {
 
     /**

@@ -1,6 +1,7 @@
 package com.chua.common.support.file.converter;
 
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * 文件转换参数设置，控制转换过程中的可选行为。
@@ -21,6 +22,7 @@ import lombok.Getter;
  * @since 1.0.0
  */
 @Getter
+@ToString
 public class ConvertSetting {
 
     /**

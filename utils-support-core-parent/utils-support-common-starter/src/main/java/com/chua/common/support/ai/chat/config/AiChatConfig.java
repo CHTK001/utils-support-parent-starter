@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.ToString;
 
 /**
  * AI 对话配置链式 Builder — 以 fluent API 替代 JSON/YAML 配置。
@@ -48,6 +49,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Getter
+@ToString
 public class AiChatConfig {
 
     /**

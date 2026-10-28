@@ -5,6 +5,7 @@ import redis.clients.jedis.Jedis;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import lombok.ToString;
 
 /**
  * 引擎验收运行器 —— 阶段十六：{@code RediSearchEngine}（SPI {@code redis}）。
@@ -29,6 +30,7 @@ import java.util.Set;
  * @author CH
  * @since 4.0.0.42
  */
+@ToString
 public final class EngineRedisEntity {
 
     /** 无 {@code @TableName} 的实体：用于验证驼峰转下划线。 */

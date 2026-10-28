@@ -3,6 +3,7 @@ package com.chua.common.support.datasearch.video.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.ToString;
 
 /**
  * 视频信息结果 ?视Ƶ搜索结果 POJO?
@@ -12,6 +13,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@ToString
 public class VideoInfoResult {
 
     /**

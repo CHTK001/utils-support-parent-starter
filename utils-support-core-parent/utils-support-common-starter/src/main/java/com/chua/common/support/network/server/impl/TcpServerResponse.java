@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import lombok.ToString;
 /**
  * TCP 帧式协议的 {@link ServerResponse} 实现。
  *
@@ -29,6 +30,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@ToString
 public class TcpServerResponse implements ServerResponse {
 
     /**

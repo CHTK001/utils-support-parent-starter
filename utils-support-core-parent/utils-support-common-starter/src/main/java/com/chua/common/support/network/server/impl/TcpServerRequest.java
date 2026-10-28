@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.ToString;
 
 /**
  * 将 TCP 帧中的 HTTP 请求体包装为 {@link ServerRequest}。
@@ -33,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 4.0.0.42
  */
+@ToString
 public class TcpServerRequest implements ServerRequest {
 
     /**

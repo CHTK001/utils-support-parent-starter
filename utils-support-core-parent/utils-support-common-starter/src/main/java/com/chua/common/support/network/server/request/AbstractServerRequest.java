@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.ToString;
 
 /**
  * 服务器请求抽象基类，提供 {@link ServerRequest} 常用方法的默认实现。
@@ -24,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 2026/07/16
  */
+@ToString
 public abstract class AbstractServerRequest implements ServerRequest {
 
     /**

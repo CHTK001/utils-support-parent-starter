@@ -1,6 +1,7 @@
 package com.chua.shardingv5.support.conversion;
 
 import java.util.List;
+import lombok.ToString;
 /**
  * 时间范围分片配置（分片列与起止时间）。
  *
@@ -8,6 +9,7 @@ import java.util.List;
  * @since 4.0.0.42
  */
 
+@ToString
 public class TimeRangeConfig {
     final String shardingColumn; // 分库分表column
     final String start;
