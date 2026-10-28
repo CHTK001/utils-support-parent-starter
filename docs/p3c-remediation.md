@@ -126,6 +126,10 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
 9. **129 处方法级 Javadoc 仍只有标签无摘要**：已完成 349 处（前缀规则 + 精确名称词典），剩余多为业务特有命名（`subArray`、`renderProgressBar`、`utf8Bytes` 等），机械生成会产出空话，需人工撰写。
 10. **79 处 `createStatement(...)`**：集中在 JDBC 元数据查询（`show tables`、`desc xxx`、DDL 下发等），表名/列名/DDL 无法用 `PreparedStatement` 参数化，属合理用法；涉及用户输入的查询已使用预编译参数。
 11. **日志敏感信息**：复查 7 处可能打印 token/password 的日志，`FlashTokenService` 3 处直接打印完整 token 已改为脱敏输出（保留前 4 后 4 位），其余为「token 数量」「已 mask 的 token」等安全用法。
+12. **1.9.2 随机数**：11 处 `Math.random()` 已统一改为 `ThreadLocalRandom.current().nextDouble()`（9 个文件），语义等价且无锁竞争。
+13. **1.5.5 Map 遍历**：3 处 `keySet()` + `get()` 二次查找已改为 `entrySet()` 一次遍历（LocaleTypeConverter、NacosConfigCenter、RedisSearchSink）。
+14. **2.2.1 日志占位符**：SLF4J 日志中的字符串拼接已改为 `{}` 占位符；JUL（`java.util.logging`）不支持占位符，相关文件整体排除，避免把 `{0}` 语义写坏。
+15. **1.6.3 ThreadLocal**：66 个使用 ThreadLocal 的文件中，`new ThreadLocal` 后未调用 `remove()` 的为 0。
 
 ## 五、最终状态（本轮结束时）
 
