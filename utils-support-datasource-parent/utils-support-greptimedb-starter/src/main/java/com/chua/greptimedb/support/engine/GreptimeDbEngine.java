@@ -677,6 +677,7 @@ public class GreptimeDbEngine extends AbstractEngine {
      * 获取默认数据源的真实 SQL 执行器（MySQL 协议 JDBC）。
      *
      * @return SQL 执行器；未配置数据源时返回 空
+     * @deprecated 请改用 {@link #getExecutor(String)} 显式指定数据源
      */
     @Deprecated
     @Override
@@ -690,6 +691,7 @@ public class GreptimeDbEngine extends AbstractEngine {
      *
      * @param n 数据源名称，为 空 时取默认数据源
      * @return SQL 执行器；数据源不存在时返回 空
+     * @deprecated 请改用 {@link Engine#getExecutor(String)} 统一入口
      */
     @Deprecated
     @Override
