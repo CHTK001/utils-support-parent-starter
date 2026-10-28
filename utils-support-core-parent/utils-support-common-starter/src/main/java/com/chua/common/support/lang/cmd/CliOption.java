@@ -63,11 +63,17 @@ public final class CliOption {
      * 选项的值类型枚举
      */
     public enum OptionType {
+        /** 字符串类型 */
         STRING,
+        /** 整数类型 */
         INTEGER,
+        /** 长整数类型 */
         LONG,
+        /** 双精度浮点类型 */
         DOUBLE,
+        /** 布尔类型 */
         BOOLEAN,
+        /** 枚举类型 */
         ENUM,
         PATH
     }

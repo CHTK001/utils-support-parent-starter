@@ -278,8 +278,11 @@ public class ModelHealthChecker {
         }
 
         public enum IssueType {
+            /** 未检查 */
             NONE,
+            /** 被限流 */
             RATE_LIMITED,
+            /** 配额耗尽 */
             QUOTA_EXHAUSTED,
             OTHER_ERROR
         }

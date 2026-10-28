@@ -96,8 +96,12 @@ public class ManagedService {
      * @since 4.0.0
      */
     public enum ServiceType {
+        /** Windows 服务 */
+        /** Windows 服务 */
         WINDOWS_SERVICE,
+        /** systemd 单元 */
         SYSTEMD,
+        /** SysV init.d 脚本 */
         INIT_D,
         LAUNCHD,
         AUTO

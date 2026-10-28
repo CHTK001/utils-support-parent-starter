@@ -229,7 +229,9 @@ public class JsoupResponse {
     }
 
     public enum PathType {
+        /** XPath 选择器 */
         XPATH,
+        /** XPath 函数 */
         XPATH_FUNCTION,
         CSS
     }

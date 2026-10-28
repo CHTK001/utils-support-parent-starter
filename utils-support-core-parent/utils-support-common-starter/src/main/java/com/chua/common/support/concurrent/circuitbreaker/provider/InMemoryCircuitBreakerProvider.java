@@ -22,7 +22,12 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
      * 熔断器状态
      */
     private enum State {
-        CLOSED, OPEN, HALF_OPEN
+        /** 关闭（正常放行） */
+        CLOSED,
+        /** 打开（熔断中） */
+        OPEN,
+        /** 半开（试探恢复） */
+        HALF_OPEN
     }
 
     /**

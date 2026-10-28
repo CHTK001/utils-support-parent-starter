@@ -47,8 +47,11 @@ public final class MattingTranslator implements Translator<Image, Image> {
      */
 
     public enum MattingMode {
+        /** 仅输出透明通道 */
         ALPHA_ONLY,
+        /** 输出 RGBA 四通道 */
         RGBA,
+        /** RGB 配黑色背景 */
         RGB_BLACK_BG,
         RGB_WHITE_BG
     }

@@ -455,10 +455,15 @@ public class HandleInventoryHandler implements Plugin, RuntimeSpy.Interceptor {
      * 句柄类型。
      */
     public enum HandleKind {
+        /** 文件句柄 */
         FILE,
+        /** 套接字 */
         SOCKET,
+        /** 线程 */
         THREAD,
+        /** 锁 */
         LOCK,
+        /** JDBC 连接 */
         JDBC_CONN,
         UNKNOWN
     }

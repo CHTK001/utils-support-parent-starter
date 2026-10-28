@@ -7,29 +7,43 @@ package com.chua.common.support.datasearch.video.spi.data;
  * @since 4.0.0.42
  */
 public enum TmdbGenre {
+    /** 动作片 */
     ACTION(28, "动作"),
+    /** 冒险片 */
     ADVENTURE(12, "冒险"),
+    /** 动画片 */
     ANIMATION(16, "动画"),
+    /** 喜剧片 */
     COMEDY(35, "喜剧"),
+    /** 犯罪片 */
     CRIME(80, "犯罪"),
+    /** 纪录片 */
     DOCUMENTARY(99, "纪录"),
+    /** 剧情片 */
     DRAMA(18, "剧情"),
+    /** 家庭片 */
     FAMILY(10751, "家庭"),
+    /** 奇幻片 */
     FANTASY(14, "奇幻"),
+    /** 历史片 */
     HISTORY(36, "历史"),
+    /** 恐怖片 */
     HORROR(27, "恐怖"),
+    /** 音乐片 */
     MUSIC(10402, "音乐"),
+    /** 悬疑片 */
     MYSTERY(9648, "悬疑"),
+    /** 爱情片 */
     ROMANCE(10749, "爱情"),
+    /** 科幻片 */
     SCIENCE_FICTION(878, "科幻"),
+    /** 电视电影 */
     TV_MOVIE(10770, "电视电影"),
+    /** 惊悚片 */
     THRILLER(53, "惊悚"),
+    /** 战争片 */
     WAR(10752, "战争"),
-    /**
-     * 构造方法，创建 WESTERN 实例。
-     *
-     * @param 37 方法入参 37
-     */
+    /** 西部片 */
     WESTERN(37, "西部");
 
     /**

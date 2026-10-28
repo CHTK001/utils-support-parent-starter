@@ -45,10 +45,15 @@ public final class VideoProviderRegistry {
      */
 
     public enum BlockReason {
+        /** 被封禁 */
         BLOCKED("被封禁"),
+        /** 被限流 */
         RATE_LIMITED("频率限制"),
+        /** API 变更 */
         API_CHANGED("API变更"),
+        /** 超时 */
         TIMEOUT("超时"),
+        /** 不可达 */
         UNREACHABLE("不可达");
 
         private final String label;

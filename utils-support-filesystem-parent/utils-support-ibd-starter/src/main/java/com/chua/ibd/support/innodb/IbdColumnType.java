@@ -181,7 +181,24 @@ public enum IbdColumnType {
      * 在记录里以「长度前缀 + 内容」形式存储的类型。
      */
     private static final Set<IbdColumnType> VARIABLE = EnumSet.of(
-            VARCHAR, VAR_STRING, STRING, TINY_BLOB, MEDIUM_BLOB, LONG_BLOB, BLOB, GEOMETRY, JSON);
+            /** 可变长字符串 */
+            VARCHAR,
+            /** 可变长字符串 */
+            VAR_STRING,
+            /** 字符串类型 */
+            STRING,
+            /** TINY_BLOB */
+            TINY_BLOB,
+            /** MEDIUM_BLOB */
+            MEDIUM_BLOB,
+            /** LONG_BLOB */
+            LONG_BLOB,
+            /** 二进制大对象 */
+            BLOB,
+            /** 几何类型 */
+            GEOMETRY,
+            /** JSON); */
+            JSON);
 
     /**
      * SDI 里的类型序号。

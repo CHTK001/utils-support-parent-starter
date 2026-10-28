@@ -441,6 +441,7 @@ public class QrCodeRenderUtils {
          * 右上角
          */
         RT,
+        /** 未检查 */
         NONE {
             /**
              * detectedarea
