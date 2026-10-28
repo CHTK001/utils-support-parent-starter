@@ -856,6 +856,7 @@ public class AntPathMatcher implements PathMatcher {
                 }
             }
             /**
+             * 重置匹配计数器（用于按位置回溯匹配）。
              */
             protected void initCounters() {
                 int pos = 0;
@@ -943,6 +944,7 @@ public class AntPathMatcher implements PathMatcher {
         }
     }
     /**
+     * 路径分隔符模式缓存。
      */
     private static class PathSeparatorPatternCache {
         /**
