@@ -138,7 +138,8 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
      * capture帧
     */
     @Override
-    public File[] captureFrames(File videoInput, File outputDir, double interval, String imageFormat) throws IOException {
+    public File[] captureFrames(File videoInput, File outputDir, double interval,
+                                String imageFormat) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
         }

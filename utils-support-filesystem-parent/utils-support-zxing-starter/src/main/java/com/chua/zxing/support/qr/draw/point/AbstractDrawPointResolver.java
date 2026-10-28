@@ -33,7 +33,8 @@ public abstract class AbstractDrawPointResolver implements DrawPointResolver{
      * @param topPadding toppadding
      * @param infoSize 信息大小
      */
-    public AbstractDrawPointResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int leftPadding, int topPadding, int infoSize) {
+    public AbstractDrawPointResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix,
+                                     int leftPadding, int topPadding, int infoSize) {
         this.qrCodeConfig = qrCodeConfig;
         this.g2 = g2;
         this.bitMatrix = bitMatrix;

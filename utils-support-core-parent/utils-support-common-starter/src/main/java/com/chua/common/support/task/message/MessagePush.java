@@ -69,7 +69,8 @@ public interface MessagePush {
      * @return 消息响应
      * @throws Exception 发送失败时抛出
      */
-    default MessageResponse sendTemplate(String templateId, java.util.Map<String, String> params, MessageRequest request) throws Exception {
+    default MessageResponse sendTemplate(String templateId, java.util.Map<String, String> params,
+                                         MessageRequest request) throws Exception {
         TemplateInfo template = getTemplate(templateId);
         if (template == null) {
             throw new IllegalArgumentException("模板不存在: " + templateId);
@@ -93,7 +94,8 @@ public interface MessagePush {
      * @return 消息响应
      * @throws Exception 发送失败时抛出
      */
-    default MessageResponse sendTemplate(String templateId, String to, java.util.Map<String, String> params) throws Exception {
+    default MessageResponse sendTemplate(String templateId, String to,
+                                         java.util.Map<String, String> params) throws Exception {
         MessageRequest request = MessageRequest.builder()
                 .to(to)
                 .templateId(templateId)

@@ -153,7 +153,8 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
      * capture帧
     */
     @Override
-    public File[] captureFrames(File videoInput, File outputDir, double interval, String imageFormat) throws IOException {
+    public File[] captureFrames(File videoInput, File outputDir, double interval,
+                                String imageFormat) throws IOException {
         checkStreamAvailable();
         double duration = getDuration(videoInput);
         if (duration <= 0) {

@@ -1237,7 +1237,8 @@ public class AgentEditorProvider {
      * @return 安装成功返回 true
      */
     @SuppressWarnings("unchecked")
-    private boolean installToWorkspace(AgentEditor editor, Path basePath, McpMode mode, String jarPath, String serverUrl) {
+    private boolean installToWorkspace(AgentEditor editor, Path basePath, McpMode mode, String jarPath,
+                                       String serverUrl) {
         try {
  // 优先使用环境变量指定的路径，否则使用 基础路径/配置dir
             Path configDir;

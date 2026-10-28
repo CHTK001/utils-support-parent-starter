@@ -34,7 +34,8 @@ public class ZipArchiveOutputStreamProvider implements CompressArchiveOutputStre
      * 创建输出流
     */
     @Override
-    public Object createOutputStream(OutputStream outputStream, File file, @Nullable char[] password) throws IOException {
+    public Object createOutputStream(OutputStream outputStream, File file,
+                                     @Nullable char[] password) throws IOException {
         return new ZipArchiveOutputStream(outputStream);
     }
 

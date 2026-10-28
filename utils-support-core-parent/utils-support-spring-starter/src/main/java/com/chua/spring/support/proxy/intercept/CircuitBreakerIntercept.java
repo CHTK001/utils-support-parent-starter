@@ -47,7 +47,8 @@ public class CircuitBreakerIntercept extends AbstractMethodAnnotationIntercept i
      * Intercept
     */
     @Override
-    public Object intercept(CircuitBreaker annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
+    public Object intercept(CircuitBreaker annotation, ProxyMethod proxyMethod,
+                            MethodInvocation invocation) throws Throwable {
  // 解析熔断器名称：优先使用注解 名称（支持 spel），未填则使用 类名.方法名
         String name = resolveName(annotation.name(), proxyMethod);
 

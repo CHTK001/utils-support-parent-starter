@@ -45,7 +45,8 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
      * 创建输入流
     */
     @Override
-    public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
+    public ArchiveInputStream createInputStream(InputStream inputStream, File file,
+                                                @Nullable char[] password) throws IOException {
  // RAR格式需要文件对象，不能使用输入流
         if (file == null) {
             throw new IOException("RAR格式需要File对象，不能使用InputStream");

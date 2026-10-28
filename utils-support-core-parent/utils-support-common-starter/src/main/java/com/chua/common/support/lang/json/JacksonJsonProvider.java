@@ -445,7 +445,8 @@ public class JacksonJsonProvider implements JsonProvider {
                  * 判断字段是否应该作为属性序列化
                  */
                 @Override
-                public void serializeAsField(Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) throws IOException {
+                public void serializeAsField(Object pojo, JsonGenerator jgen, SerializerProvider provider,
+                                             PropertyWriter writer) throws IOException {
                     // 如果字段名在忽略列表中，则跳过该字段
                     if (ignoreFields.contains(writer.getName())) {
                         return;
@@ -462,7 +463,8 @@ public class JacksonJsonProvider implements JsonProvider {
                  * 判断元素是否应该作为数组元素序列化
                  */
                 @Override
-                public void serializeAsElement(Object elementValue, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) throws IOException {
+                public void serializeAsElement(Object elementValue, JsonGenerator jgen, SerializerProvider provider,
+                                               PropertyWriter writer) throws IOException {
                     // 如果字段名在忽略列表中，则跳过该元素
                     if (ignoreFields.contains(writer.getName())) {
                         return;

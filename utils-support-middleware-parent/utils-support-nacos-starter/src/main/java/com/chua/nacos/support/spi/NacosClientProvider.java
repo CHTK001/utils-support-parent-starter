@@ -250,7 +250,8 @@ public class NacosClientProvider implements MiddlewareClientProvider {
     }
 
     /** 服务实例列表（含健康状态） */
-    private MiddlewareQueryResult instances(MiddlewareConnectRequest request, long t0, String service) throws Exception {
+    private MiddlewareQueryResult instances(MiddlewareConnectRequest request, long t0,
+                                            String service) throws Exception {
         if (service.isEmpty()) {
             return MiddlewareQueryResult.fail("instances 需要服务名，如 instances my-service");
         }

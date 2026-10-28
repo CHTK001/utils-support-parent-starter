@@ -32,7 +32,9 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
      * @param connection connection
      * @param sourceId 字符串
      */
-    public WebSocketAgentDataSyncSource(com.chua.vertx.support.server.WebSocketDataSyncAgentServer.Connection connection, String sourceId) {
+    public WebSocketAgentDataSyncSource(
+                                        com.chua.vertx.support.server.WebSocketDataSyncAgentServer.Connection connection,
+                                        String sourceId) {
         this.connection = connection;
         this.sourceId = sourceId;
     }

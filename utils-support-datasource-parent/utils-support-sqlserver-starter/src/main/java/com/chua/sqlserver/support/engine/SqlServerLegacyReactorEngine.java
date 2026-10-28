@@ -34,7 +34,8 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
      * @param password 密码
      * @return 当前引擎实例（链式调用）
      */
-    public SqlServerLegacyReactorEngine addDataSource(String name, String host, int port, String database, String username, String password) {
+    public SqlServerLegacyReactorEngine addDataSource(String name, String host, int port, String database,
+                                                      String username, String password) {
         delegate.addDataSource(name, host, port, database, username, password);
         EngineDataSource<?> ds = delegate.getDataSource(name);
         if (ds != null) {

@@ -196,7 +196,8 @@ public class TiffPreviewProvider implements FileStoragePreviewProvider {
      * @param pageError 转码过程中的告警（可为 null）
      * @return 完整 HTML
      */
-    private String buildHtml(List<String> pages, List<Integer> widths, List<Integer> heights, int total, String pageError) {
+    private String buildHtml(List<String> pages, List<Integer> widths, List<Integer> heights, int total,
+                             String pageError) {
         StringBuilder sb = new StringBuilder(1024 + pages.size() * 4096);
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">")
                 .append("<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>")

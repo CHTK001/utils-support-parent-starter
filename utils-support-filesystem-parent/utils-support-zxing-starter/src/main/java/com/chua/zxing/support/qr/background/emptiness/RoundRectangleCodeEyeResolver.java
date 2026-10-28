@@ -38,7 +38,8 @@ public class RoundRectangleCodeEyeResolver implements CodeEyeResolver{
      * 解析
     */
     @Override
-    public void resolve(Graphics2D g, Color df, Color lf, Color lb, int qrCodeWidth, int startX, int startY, int version) {
+    public void resolve(Graphics2D g, Color df, Color lf, Color lb, int qrCodeWidth, int startX, int startY,
+                        int version) {
         // 添加一层遮罩
         g.setColor(lb);
         // g.fillRect(startXTemp, startYTemp, QRCodeWidthTemp,

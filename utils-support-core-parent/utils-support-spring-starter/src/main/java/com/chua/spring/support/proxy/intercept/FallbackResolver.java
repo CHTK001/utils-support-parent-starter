@@ -144,7 +144,8 @@ public final class FallbackResolver {
      * @return 降级方法返回值，方法不存在时返回 空
      * @throws Exception 降级方法调用异常
      */
-    private static Object resolveMethod(Object owner, String methodName, Object[] args, Class<?>[] paramTypes) throws Exception {
+    private static Object resolveMethod(Object owner, String methodName, Object[] args,
+                                        Class<?>[] paramTypes) throws Exception {
         if (owner == null) {
             return null;
         }

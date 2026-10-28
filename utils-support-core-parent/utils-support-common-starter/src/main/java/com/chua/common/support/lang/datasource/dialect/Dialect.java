@@ -457,7 +457,8 @@ public interface Dialect {
      * @param sequenceName 序列名
      * @return 触发器体 SQL
      */
-    default String getAutoIncrementTriggerBody(String triggerName, String tableName, String columnName, String sequenceName) {
+    default String getAutoIncrementTriggerBody(String triggerName, String tableName, String columnName,
+                                               String sequenceName) {
         throw new UnsupportedOperationException("当前数据库不需要触发器实现自增: " + protocol());
     }
 
@@ -529,7 +530,8 @@ public interface Dialect {
      * @param partitionCol  分区列元数据
      * @return 分区 SQL 片段
      */
-    default String doFormatPartitionSql(TableMetadata tableMetadata, String partitionType, ColumnMetadata partitionCol) {
+    default String doFormatPartitionSql(TableMetadata tableMetadata, String partitionType,
+                                        ColumnMetadata partitionCol) {
         return "";
     }
 

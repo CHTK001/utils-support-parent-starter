@@ -297,7 +297,8 @@ public class RustNmapScanner implements NmapScanner {
     }
 
     @Override
-    public CompletableFuture<ScanResult> scanWithProgress(String host, int[] ports, Consumer<ScanProgress> progressCallback) {
+    public CompletableFuture<ScanResult> scanWithProgress(String host, int[] ports,
+                                                          Consumer<ScanProgress> progressCallback) {
         RustNmapBridge.ensureLoaded();
         return CompletableFuture.supplyAsync(() -> {
             int total = ports.length;

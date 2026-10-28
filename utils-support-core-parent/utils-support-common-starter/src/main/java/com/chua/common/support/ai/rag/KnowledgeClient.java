@@ -95,7 +95,8 @@ public interface KnowledgeClient extends AutoCloseable {
      * @param textSplitter   文本分块器
      * @return KnowledgeClient 实例
      */
-    static KnowledgeClient assemble(VectorService vectorService, VectorStorage vectorStorage, TextSplitter textSplitter) {
+    static KnowledgeClient assemble(VectorService vectorService, VectorStorage vectorStorage,
+                                    TextSplitter textSplitter) {
         return ServiceProvider.of(Factory.class).getDefault().assemble(vectorService, vectorStorage, textSplitter);
     }
 

@@ -52,7 +52,8 @@ public class PhoneLocationInfo {
      * @param areaCode 区号
      * @param postCode 邮编
      */
-    public PhoneLocationInfo(String phone, String province, String city, String carrier, String areaCode, String postCode) {
+    public PhoneLocationInfo(String phone, String province, String city, String carrier, String areaCode,
+                             String postCode) {
         this.phone = phone;
         this.province = province;
         this.city = city;

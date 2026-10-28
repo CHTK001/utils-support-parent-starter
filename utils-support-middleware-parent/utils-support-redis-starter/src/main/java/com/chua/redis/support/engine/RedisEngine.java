@@ -86,7 +86,8 @@ public class RedisEngine {
      * @param tunnel 隧道实例
      * @return this
      */
-    public RedisEngine addDataSource(String name, String host, int port, com.chua.common.support.network.tunnel.Tunnel tunnel) {
+    public RedisEngine addDataSource(String name, String host, int port,
+                                     com.chua.common.support.network.tunnel.Tunnel tunnel) {
         int targetPort = port;
         String targetHost = host;
 

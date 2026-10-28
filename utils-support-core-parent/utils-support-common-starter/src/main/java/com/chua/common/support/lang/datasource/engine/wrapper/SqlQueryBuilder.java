@@ -462,7 +462,8 @@ public final class SqlQueryBuilder {
      * @param requireExisting 是否要求已存在首个条件
      * @return this
      */
-    private SqlQueryBuilder appendCondition(String operator, String condition, Object[] values, boolean requireExisting) {
+    private SqlQueryBuilder appendCondition(String operator, String condition, Object[] values,
+                                            boolean requireExisting) {
         if (condition == null || condition.isBlank()) {
             throw new IllegalArgumentException("WHERE 条件不能为空");
         }

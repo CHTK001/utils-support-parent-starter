@@ -207,7 +207,8 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
      * @param ext ext
      * @return apply镜像过滤器的结果
      */
-    protected byte[] applyImageFilter(byte[] imageBytes, FileOperationSetting ops, String path, String ext) throws Exception {
+    protected byte[] applyImageFilter(byte[] imageBytes, FileOperationSetting ops, String path,
+                                      String ext) throws Exception {
         if (imageOperation == null) {
             log.warn("[FileStorageFilter] 未找到 ImageOperation SPI，跳过滤镜");
             return imageBytes;

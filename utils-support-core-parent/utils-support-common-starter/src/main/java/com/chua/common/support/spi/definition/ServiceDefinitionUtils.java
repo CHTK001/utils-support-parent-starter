@@ -53,7 +53,8 @@ public class ServiceDefinitionUtils {
      * @param resolverType 发现该服务定义的解析器类型
      * @return 构建得到的服务定义列表
      */
-    public static List<ServiceDefinition> buildDefinition(String name, Class<?> service, Object obj, Class<?> resolverType) {
+    public static List<ServiceDefinition> buildDefinition(String name, Class<?> service, Object obj,
+                                                          Class<?> resolverType) {
         Class<?> aClass = ClassUtils.toType(obj);
         List<ServiceDefinition> serviceDefinitions = buildDefinition(service, resolverType, obj, aClass, null, null);
         if (CollectionUtils.isEmpty(serviceDefinitions)) {
@@ -87,7 +88,8 @@ public class ServiceDefinitionUtils {
      * @param url 服务定义来源地址
      * @return 构建得到的服务定义列表
      */
-    public static List<ServiceDefinition> buildDefinition(Class<?> service, Class<?> resolverType, Object obj, Class<?> implType, String alias, URL url) {
+    public static List<ServiceDefinition> buildDefinition(Class<?> service, Class<?> resolverType, Object obj,
+                                                          Class<?> implType, String alias, URL url) {
         if (null == implType) {
             implType = ClassUtils.toType(obj);
         }
@@ -125,7 +127,8 @@ public class ServiceDefinitionUtils {
      * @param url 服务定义来源地址
      * @return 枚举对应的服务定义列表
      */
-    private static List<ServiceDefinition> buildEnumDefinition(Class<?> service, Class<?> resolverType, Object obj, Class<?> implType, String alias, URL url) {
+    private static List<ServiceDefinition> buildEnumDefinition(Class<?> service, Class<?> resolverType, Object obj,
+            Class<?> implType, String alias, URL url) {
         if (StringUtils.isEmpty(alias)) {
             return Collections.emptyList();
         }
@@ -258,7 +261,8 @@ public class ServiceDefinitionUtils {
      * @return 构建得到的服务定义对象
      */
     @SuppressWarnings("ALL")
-    public static ServiceDefinition buildDefinitionAlias(Class<?> service, Class<?> resolverType, Object obj, Class<?> implType, URL url, String alias, int order) {
+    public static ServiceDefinition buildDefinitionAlias(Class<?> service, Class<?> resolverType, Object obj,
+                                                         Class<?> implType, URL url, String alias, int order) {
         ServiceDefinition serviceDefinition = new ServiceDefinition();
         serviceDefinition.setClassLoader(implType.getClassLoader());
         serviceDefinition.setLoadTime(System.currentTimeMillis());

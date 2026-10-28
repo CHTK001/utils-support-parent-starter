@@ -75,7 +75,8 @@ public class ProgressBarStyle {
      * @param fractionSymbols       分数符号字符串，默认为 "                      "
      * @param rightSideFractionSymbol 右侧分数符号，默认为 ' '
      */
-    public ProgressBarStyle(String refreshPrompt, String leftBracket, String delimitingSequence, String rightBracket, char block, char space, String fractionSymbols, char rightSideFractionSymbol) {
+    public ProgressBarStyle(String refreshPrompt, String leftBracket, String delimitingSequence, String rightBracket,
+                            char block, char space, String fractionSymbols, char rightSideFractionSymbol) {
         this.refreshPrompt = refreshPrompt;
         this.leftBracket = leftBracket;
         this.delimitingSequence = delimitingSequence;

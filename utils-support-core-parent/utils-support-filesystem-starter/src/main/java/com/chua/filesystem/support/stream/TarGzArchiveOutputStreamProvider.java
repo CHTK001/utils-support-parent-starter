@@ -35,7 +35,8 @@ public class TarGzArchiveOutputStreamProvider implements CompressArchiveOutputSt
      * 创建输出流
     */
     @Override
-    public Object createOutputStream(OutputStream outputStream, File file, @Nullable char[] password) throws IOException {
+    public Object createOutputStream(OutputStream outputStream, File file,
+                                     @Nullable char[] password) throws IOException {
         var gzipOutputStream = new GzipCompressorOutputStream(outputStream);
         return new TarArchiveOutputStream(gzipOutputStream);
     }

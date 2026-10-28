@@ -394,7 +394,8 @@ public class RocksDbOrmStore {
      * @param params  参数 列表
      * @return 是否 命中
      */
-    private static boolean entityPredicate(Object entity, Map<String, String> fieldMap, String where, List<Object> params) {
+    private static boolean entityPredicate(Object entity, Map<String, String> fieldMap, String where,
+                                           List<Object> params) {
         String mapped = mapWhereColumns(where, fieldMap);
         MemoryWhereParser parser = new MemoryWhereParser();
         List<Object> paramList = params != null ? params : Collections.emptyList();

@@ -53,7 +53,8 @@ public class HanziInfo {
      * @param explanation 释义
      * @param more        更多信息
      */
-    public HanziInfo(String character, String pinyin, String radicals, String strokes, String explanation, String more) {
+    public HanziInfo(String character, String pinyin, String radicals, String strokes, String explanation,
+                     String more) {
         this.character = character;
         this.pinyin = pinyin;
         this.radicals = radicals;

@@ -182,7 +182,8 @@ public class AvroPreviewProvider implements FileStoragePreviewProvider {
      * @param hasSchema 是否读到 schema
      * @return 完整 HTML
      */
-    private String buildHtml(long size, List<String> fields, List<List<String>> rows, long totalRows, boolean hasSchema) {
+    private String buildHtml(long size, List<String> fields, List<List<String>> rows, long totalRows,
+                             boolean hasSchema) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">")
                 .append("<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>")

@@ -38,7 +38,8 @@ public class CircleCodeEyeResolver implements CodeEyeResolver{
      * 解析
     */
     @Override
-    public void resolve(Graphics2D g, Color df, Color lf, Color lb, int qrCodeWidth, int startX, int startY, int version) {
+    public void resolve(Graphics2D g, Color df, Color lf, Color lb, int qrCodeWidth, int startX, int startY,
+                        int version) {
         // 画四个圆滑的大码眼
         Stroke stroke = g.getStroke();
         float thick = unitWidth * 1f;

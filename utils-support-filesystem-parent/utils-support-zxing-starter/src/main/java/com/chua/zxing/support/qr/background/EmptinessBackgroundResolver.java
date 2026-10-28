@@ -30,7 +30,8 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
      * 解析
     */
     @Override
-    public BufferedImage resolve(QrSetting setting, BackgroundSetting backgroundSetting, BufferedImage image, QRCode qrCode, BitMatrixEx bitMatrix) {
+    public BufferedImage resolve(QrSetting setting, BackgroundSetting backgroundSetting, BufferedImage image,
+                                 QRCode qrCode, BitMatrixEx bitMatrix) {
         int width = setting.getWidth();
         int height = setting.getHeight();
 
@@ -87,7 +88,8 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
      * @param j j
      * @param codePointStyle 编码pointstyle
      */
-    private void render(Graphics2D g, Color whiteColor, Color blackColor, BufferedImage bufferedImage, byte[][] rect, int i, int j, CodePointStyle codePointStyle) {
+    private void render(Graphics2D g, Color whiteColor, Color blackColor, BufferedImage bufferedImage, byte[][] rect,
+                        int i, int j, CodePointStyle codePointStyle) {
         if (rect[i][j] == 1) {
             // 画黑色的点
             g.setColor(whiteColor);

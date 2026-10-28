@@ -97,7 +97,8 @@ public record TemplateExtractResult(
      * @param vars      已成功提取的变量列表，可为空
      * @return 提取结果实例
      */
-    public static TemplateExtractResult partial(Map<String, Object> extracted, List<String> missing, List<TemplateVar> vars) {
+    public static TemplateExtractResult partial(Map<String, Object> extracted, List<String> missing,
+                                                List<TemplateVar> vars) {
         return new TemplateExtractResult(
                 extracted == null ? Collections.emptyMap() : Wraps.linkedMap(extracted),
                 missing == null ? Collections.emptyList() : Wraps.list(missing),

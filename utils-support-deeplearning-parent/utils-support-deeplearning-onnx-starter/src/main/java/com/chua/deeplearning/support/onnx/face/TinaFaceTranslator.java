@@ -155,7 +155,8 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
      * @param iouArray iou数组，不允许为 null
      * @param stride 方法入参 stride
      */
-    private void decodeLevel(List<Candidate> candidates, NDArray clsArray, NDArray regArray, NDArray iouArray, int stride) {
+    private void decodeLevel(List<Candidate> candidates, NDArray clsArray, NDArray regArray, NDArray iouArray,
+                             int stride) {
         var cls = clsArray.toFloatArray();
         var reg = regArray.toFloatArray();
         var iou = iouArray.toFloatArray();

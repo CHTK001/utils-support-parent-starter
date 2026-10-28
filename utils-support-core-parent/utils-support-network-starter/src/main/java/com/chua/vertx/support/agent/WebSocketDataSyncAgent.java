@@ -109,7 +109,8 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
                     }
 
                     @Override
-                    public java.util.concurrent.CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
+                    public java.util.concurrent.CompletionStage<?> onText(WebSocket webSocket, CharSequence data,
+                            boolean last) {
                         messageQueue.offer(data.toString());
                         return CompletableFuture.completedFuture(null);
                     }

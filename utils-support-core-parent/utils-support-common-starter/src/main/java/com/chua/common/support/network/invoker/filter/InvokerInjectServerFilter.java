@@ -63,7 +63,8 @@ public class InvokerInjectServerFilter implements ServerFilter {
      * @param ctx 上下文，不允许为 null
      * @param shared 方法入参 shared
      */
-    private static void applyTarget(String target, String value, InvocationContext ctx, SharedInvocationContext shared) {
+    private static void applyTarget(String target, String value, InvocationContext ctx,
+                                    SharedInvocationContext shared) {
         if (target.startsWith("headers.")) {
             ctx.addHeader(target.substring(8), value);
             shared.addDefaultHeader(target.substring(8), value);

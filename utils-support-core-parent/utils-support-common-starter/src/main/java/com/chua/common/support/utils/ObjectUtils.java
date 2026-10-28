@@ -725,7 +725,8 @@ public class ObjectUtils {
      * @param function    值非空时的转换函数
      * @return 回调或转换结果
      */
-    public static Object withNull(Object value, SafeSupplier<Object> nullCallback, SafeFunction<Object, Object> function) {
+    public static Object withNull(Object value, SafeSupplier<Object> nullCallback,
+                                  SafeFunction<Object, Object> function) {
         if (null == value) {
             return nullCallback.get();
         }

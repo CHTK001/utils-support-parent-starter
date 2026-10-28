@@ -56,7 +56,8 @@ public final class ExportResult {
      * @param templated 是否使用模板
      * @param elapsed   耗时
      */
-    public ExportResult(String format, String engine, int rows, byte[] data, File file, boolean templated, long elapsed) {
+    public ExportResult(String format, String engine, int rows, byte[] data, File file, boolean templated,
+                        long elapsed) {
         this.format = format;
         this.engine = engine;
         this.rows = rows;

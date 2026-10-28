@@ -79,7 +79,8 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
      * @param password 密码
      * @param sql SQL
      */
-    public JdbcDataSyncAgentSource(String sourceId, String inputId, String jdbcUrl, String username, String password, String sql, String... columnNames) {
+    public JdbcDataSyncAgentSource(String sourceId, String inputId, String jdbcUrl, String username, String password,
+                                   String sql, String... columnNames) {
         this(sourceId, inputId, jdbcUrl, username, password, sql, java.util.List.of(), null, columnNames);
     }
 
@@ -331,7 +332,8 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
      * @return 偏移量
      */
     @Override
-    public com.chua.datasync.agent.support.model.SyncDataOffset readOffset(Map<String, Object> params, String mappingId) {
+    public com.chua.datasync.agent.support.model.SyncDataOffset readOffset(Map<String, Object> params,
+            String mappingId) {
         return offsetStorage.read(sourceId, mappingId, null);
     }
 

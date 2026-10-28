@@ -105,7 +105,8 @@ public class LetterBoxUtils {
      * @return 包含缩放后图像和元数据的 resize结果 对象
      * @param ndManager nd管理器
      */
-    public static ResizeResult letterbox(NDManager ndManager, NDArray img, int targetW, int targetH, float padColor, PaddingPosition position) {
+    public static ResizeResult letterbox(NDManager ndManager, NDArray img, int targetW, int targetH, float padColor,
+                                         PaddingPosition position) {
         long origH = img.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         long origW = img.getShape().get(1);
 
@@ -186,7 +187,8 @@ public class LetterBoxUtils {
      * @param keypointDim      关键点维度，取 0 表示没有关键点
      * @return 还原到原始图像坐标系后的边界框 ndarray
      */
-    public static NDArray restoreBox(NDArray boxes, float scaleRatio, float left, float top, int keypointStart, int keypointDim) {
+    public static NDArray restoreBox(NDArray boxes, float scaleRatio, float left, float top, int keypointStart,
+                                     int keypointDim) {
         // 还原 bbox 坐标
         var x1 = boxes.get(":, 0").sub(left).div(scaleRatio);
         var y1 = boxes.get(":, 1").sub(top).div(scaleRatio);
@@ -222,7 +224,8 @@ public class LetterBoxUtils {
      * @param inputHeight                       模型输入高度（像素），即 letterbox 的目标高度
      * @return 还原后的归一化 Rectangle 对象
      */
-    public static Rectangle restoreBox(Rectangle rectangle, float scale, int origImageWidth, int origImageHeight, int inputWidth, int inputHeight) {
+    public static Rectangle restoreBox(Rectangle rectangle, float scale, int origImageWidth, int origImageHeight,
+                                       int inputWidth, int inputHeight) {
         double paddingWidth = (inputWidth - origImageWidth * scale) / 2;
         double paddingHeight = (inputHeight - origImageHeight * scale) / 2;
 
@@ -250,7 +253,8 @@ public class LetterBoxUtils {
      * @param isNormalized             关键点坐标是否为归一化坐标（0-1 范围）
      * @return 还原后的 Landmark 对象
      */
-    public static Landmark restoreBox(Landmark landmark, float scale, int origImageWidth, int origImageHeight, int inputWidth, int inputHeight, boolean isNormalized) {
+    public static Landmark restoreBox(Landmark landmark, float scale, int origImageWidth, int origImageHeight,
+                                      int inputWidth, int inputHeight, boolean isNormalized) {
         double x = 0;
         double y = 0;
         double width = 0;
@@ -319,7 +323,8 @@ public class LetterBoxUtils {
      * @param origH                         原始图像高度（像素）
      * @return 还原后的坐标数组 [x1, y1, x2, y2]
      */
-    public static float[] scaleCoords(int targetW, int targetH, float x1, float y1, float x2, float y2, ResizeResult result, int origW, int origH) {
+    public static float[] scaleCoords(int targetW, int targetH, float x1, float y1, float x2, float y2,
+                                      ResizeResult result, int origW, int origH) {
         float scale = result.r;
         float scaledX1 = (x1 - result.left) / scale;
         float scaledY1 = (y1 - result.top) / scale;

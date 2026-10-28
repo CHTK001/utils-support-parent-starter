@@ -2173,7 +2173,8 @@ public class NumberUtils {
      * @since 3.8
      * @return 转为指定精度 BigDecimal 的结果
      */
-    public static BigDecimal toScaledBigDecimal(final BigDecimal value, final int scale, final RoundingMode roundingMode) {
+    public static BigDecimal toScaledBigDecimal(final BigDecimal value, final int scale,
+                                                final RoundingMode roundingMode) {
         if (value == null) {
             return BigDecimal.ZERO;
         }

@@ -68,7 +68,8 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
      * 执行转换
     */
     @Override
-    protected void doConvert(InputStream inputStream, OutputStream outputStream, File sourceFile, File targetFile) throws IOException {
+    protected void doConvert(InputStream inputStream, OutputStream outputStream, File sourceFile,
+                             File targetFile) throws IOException {
         try {
             // 读取 GIF 文件
             List<AnimationFrame> frames = readGifFrames(inputStream);

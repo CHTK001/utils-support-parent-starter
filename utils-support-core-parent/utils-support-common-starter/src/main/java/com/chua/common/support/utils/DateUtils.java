@@ -1171,7 +1171,8 @@ public class DateUtils {
      * @throws ParseException
      * @see Calendar
      */
-    public static Date parseDateWithLeniency(String str, String[] parsePatterns, boolean lenient) throws ParseException {
+    public static Date parseDateWithLeniency(String str, String[] parsePatterns,
+                                             boolean lenient) throws ParseException {
         return parseDateWithLeniency(str, parsePatterns, lenient, null);
     }
     /**
@@ -1189,7 +1190,8 @@ public class DateUtils {
      * @throws ParseException
      * @see Calendar
      */
-    public static Date parseDateWithLeniency(String str, String[] parsePatterns, boolean lenient, Locale loc) throws ParseException {
+    public static Date parseDateWithLeniency(String str, String[] parsePatterns, boolean lenient,
+                                             Locale loc) throws ParseException {
         if (str == null || parsePatterns == null) {
             throw new IllegalArgumentException("Date and Patterns must not be null");
         }
@@ -2181,7 +2183,8 @@ public class DateUtils {
      * @param nanos the nano
      * @return the 结果
      */
-    private static long createSeconds(boolean negate, long daysAsSecs, long hoursAsSecs, long minsAsSecs, long secs, int nanos) {
+    private static long createSeconds(boolean negate, long daysAsSecs, long hoursAsSecs, long minsAsSecs, long secs,
+                                      int nanos) {
         long exact = Math.addExact(daysAsSecs, Math.addExact(hoursAsSecs, Math.addExact(minsAsSecs, secs)));
         return negate ? -1 * exact : exact;
     }

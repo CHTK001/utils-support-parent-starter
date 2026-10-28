@@ -38,7 +38,8 @@ public class DistributedLockIntercept implements MethodAnnotationIntercept<Distr
      * Intercept
     */
     @Override
-    public Object intercept(DistributedLock annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
+    public Object intercept(DistributedLock annotation, ProxyMethod proxyMethod,
+                            MethodInvocation invocation) throws Throwable {
         return LockFlow.of(annotation.name())
                 .lockType(annotation.lockType())
                 .fair(annotation.fair())

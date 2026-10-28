@@ -1735,7 +1735,8 @@ public class ClassUtils {
      * @param callback                 
      * @param methodFilter          
      */
-    public static void doWithMethods(final Class<?> aClass, final Consumer<Method> callback, MethodFilter methodFilter) {
+    public static void doWithMethods(final Class<?> aClass, final Consumer<Method> callback,
+                                     MethodFilter methodFilter) {
         if (null == aClass || null == callback) {
             return;
         }

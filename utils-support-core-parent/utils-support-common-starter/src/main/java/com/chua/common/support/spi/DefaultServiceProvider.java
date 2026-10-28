@@ -608,7 +608,9 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      * @param serviceDefinition 服务definition
      * @param key 键
      */
-    private void doRegisterRemoveCollection(Map<String, List<ServiceDefinition>> remove, String baseName, Class<? extends ServiceResolver> resolverType, ServiceDefinition serviceDefinition, String key) {
+    private void doRegisterRemoveCollection(Map<String, List<ServiceDefinition>> remove, String baseName,
+                                            Class<? extends ServiceResolver> resolverType,
+                                            ServiceDefinition serviceDefinition, String key) {
         Class<?> finderType = serviceDefinition.getFinderType();
         if (null != finderType && resolverType.isAssignableFrom(finderType)) {
             doRegisterRemoveCollectionItem(baseName, key, remove, serviceDefinition);
@@ -623,7 +625,9 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
      * @param remove 移除
      * @param serviceDefinition 服务definition
      */
-    private void doRegisterRemoveCollectionItem(String baseName, String key, Map<String, List<ServiceDefinition>> remove, ServiceDefinition serviceDefinition) {
+    private void doRegisterRemoveCollectionItem(String baseName, String key,
+                                                Map<String, List<ServiceDefinition>> remove,
+                                                ServiceDefinition serviceDefinition) {
         if (StringUtils.isBlank(baseName)) {
             remove.computeIfAbsent(key, it -> Wraps.list()).add(serviceDefinition);
         }

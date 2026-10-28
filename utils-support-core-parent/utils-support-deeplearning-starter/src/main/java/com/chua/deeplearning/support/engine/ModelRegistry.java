@@ -1414,7 +1414,8 @@ public final class ModelRegistry {
          * @param options 运行参数（可空）
          * @return LazyDjlTranslator的结果
          */
-        private LazyDjlTranslator(String modelId, Path modelPath, String translatorClassName, Map<String, Object> options) {
+        private LazyDjlTranslator(String modelId, Path modelPath, String translatorClassName,
+                                  Map<String, Object> options) {
             this.modelId = modelId;
             this.modelPath = modelPath;
             this.translatorClassName = translatorClassName;

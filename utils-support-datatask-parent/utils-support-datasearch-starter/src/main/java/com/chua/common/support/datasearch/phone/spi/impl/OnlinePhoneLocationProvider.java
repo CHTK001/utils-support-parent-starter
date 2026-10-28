@@ -233,7 +233,8 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
      * @param city city
      * @param carrier carrier
      */
-    private static void add(Map<String, PhoneLocationInfo> map, String prefix, String province, String city, String carrier) {
+    private static void add(Map<String, PhoneLocationInfo> map, String prefix, String province, String city,
+                            String carrier) {
         map.put(prefix, new PhoneLocationInfo("", province, city, carrier, "", ""));
     }
 }

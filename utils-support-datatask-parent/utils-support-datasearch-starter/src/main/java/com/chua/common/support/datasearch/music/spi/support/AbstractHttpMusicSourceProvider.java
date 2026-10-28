@@ -250,7 +250,8 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
      * @param tracks tracks
      * @return 搜索结果的结果
      */
-    protected MusicSearchResult searchResult(String keyword, int page, int pageSize, long total, List<MusicTrackSummary> tracks) {
+    protected MusicSearchResult searchResult(String keyword, int page, int pageSize, long total,
+                                             List<MusicTrackSummary> tracks) {
         return MusicSearchResult.builder()
                 .source(getSource().getCode())
                 .keyword(keyword)

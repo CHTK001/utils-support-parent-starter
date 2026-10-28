@@ -87,7 +87,8 @@ public final class InitSqlMerger {
      * @return 命中的脚本文件列表（稳定顺序）
      * @throws IOException 目录遍历失败时抛出
      */
-    public static List<Path> scan(final Path root, final List<String> includes, final List<String> excludes) throws IOException {
+    public static List<Path> scan(final Path root, final List<String> includes,
+                                  final List<String> excludes) throws IOException {
         final List<Pattern> includePatterns = toPatterns(includes);
         final List<Pattern> excludePatterns = toPatterns(excludes);
         try (Stream<Path> stream = Files.walk(root)) {
@@ -149,7 +150,8 @@ public final class InitSqlMerger {
      * @param timestamp 是否写入时间戳
      * @param title     头部标题
      */
-    private static void appendHeader(final StringBuilder builder, final int count, final boolean timestamp, final String title) {
+    private static void appendHeader(final StringBuilder builder, final int count, final boolean timestamp,
+                                     final String title) {
         divider(builder);
         builder.append("-- ").append(title).append('\n');
         if (timestamp) {
@@ -170,7 +172,8 @@ public final class InitSqlMerger {
      * @param charset 字符集
      * @throws IOException 读取失败时抛出
      */
-    private static void appendScript(final StringBuilder builder, final Path root, final Path script, final Charset charset) throws IOException {
+    private static void appendScript(final StringBuilder builder, final Path root, final Path script,
+                                     final Charset charset) throws IOException {
         final String relative = toUnixPath(root.relativize(script));
         final String content = new String(Files.readAllBytes(script), charset).trim();
         builder.append("-- source: ").append(relative).append('\n');

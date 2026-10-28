@@ -83,7 +83,8 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
      * 执行转换
     */
     @Override
-    protected void doConvert(InputStream inputStream, OutputStream outputStream, File sourceFile, File targetFile) throws IOException {
+    protected void doConvert(InputStream inputStream, OutputStream outputStream, File sourceFile,
+                             File targetFile) throws IOException {
         try {
             // 读取图片
             BufferedImage image = ImageIO.read(inputStream);

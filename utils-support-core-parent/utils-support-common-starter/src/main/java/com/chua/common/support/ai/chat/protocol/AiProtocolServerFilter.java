@@ -560,7 +560,8 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
      * @param model    模型名
      * @throws Exception 处理异常
      */
-    private void handleOpenAiStream(ServerRequest request, ServerResponse response, Map<String, Object> body, String model) throws Exception {
+    private void handleOpenAiStream(ServerRequest request, ServerResponse response, Map<String, Object> body,
+                                    String model) throws Exception {
         response.sse();
         String prompt = extractOpenAiPrompt(body);
         String system = extractOpenAiSystem(body);
@@ -695,7 +696,8 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
      * @param model    模型名
      * @throws Exception 处理异常
      */
-    private void handleClaudeStream(ServerRequest request, ServerResponse response, Map<String, Object> body, String model) throws Exception {
+    private void handleClaudeStream(ServerRequest request, ServerResponse response, Map<String, Object> body,
+                                    String model) throws Exception {
         response.sse();
         String prompt = extractClaudePrompt(body);
 

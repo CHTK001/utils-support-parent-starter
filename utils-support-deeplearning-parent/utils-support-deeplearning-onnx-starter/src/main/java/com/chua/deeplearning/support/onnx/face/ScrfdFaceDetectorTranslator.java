@@ -173,7 +173,8 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
      * @param stride stride
      * @param meta    letterbox 几何（用于画布→原图归一化坐标的还原）
      */
-    private void decodeStride(List<Candidate> candidates, NDArray scoreArray, NDArray bboxArray, NDArray kpsArray, int stride, LetterBoxMeta meta) {
+    private void decodeStride(List<Candidate> candidates, NDArray scoreArray, NDArray bboxArray, NDArray kpsArray,
+                              int stride, LetterBoxMeta meta) {
         float[] scores = scoreArray.toFloatArray();
         float[] boxes = bboxArray.toFloatArray();
         float[] kps = kpsArray == null ? null : kpsArray.toFloatArray();

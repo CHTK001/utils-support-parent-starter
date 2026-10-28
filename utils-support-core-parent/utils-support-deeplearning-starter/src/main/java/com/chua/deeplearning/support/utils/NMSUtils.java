@@ -82,7 +82,8 @@ public class NMSUtils {
      * @param manager nd管理器 用于创建临时 ndarray
      * @return 保留的候选框全局索引 ndarray
      */
-    public static NDArray batchedNms(NDArray boxes, NDArray scores, NDArray idxs, float iouThreshold, NDManager manager) {
+    public static NDArray batchedNms(NDArray boxes, NDArray scores, NDArray idxs, float iouThreshold,
+                                     NDManager manager) {
         List<NDArray> keepList = Wraps.list();
 
  // 获取唯一的 批量 标识 列表

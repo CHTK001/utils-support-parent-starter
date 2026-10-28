@@ -22,7 +22,8 @@ public class EmptinessCodeProduct implements CodeProduct{
      * 创建
     */
     @Override
-    public BufferedImage create(QrCodeOptions qrCodeOptions, BitMatrixEx bitMatrix, QRCode qrCode, QrSetting setting) throws IOException {
+    public BufferedImage create(QrCodeOptions qrCodeOptions, BitMatrixEx bitMatrix, QRCode qrCode,
+                                QrSetting setting) throws IOException {
         return null;
     }
 

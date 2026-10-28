@@ -475,7 +475,8 @@ public class QrCodeRenderUtils {
      * @param detectCornerSize 探测图形的大小
      * @return
      */
-    public static QrCodeRenderHelper.DetectLocation inDetectCornerArea(int x, int y, int matrixW, int matrixH, int detectCornerSize) {
+    public static QrCodeRenderHelper.DetectLocation inDetectCornerArea(int x, int y, int matrixW, int matrixH,
+            int detectCornerSize) {
         if (x < detectCornerSize && y < detectCornerSize) {
             // 左上角
             return QrCodeRenderHelper.DetectLocation.LT;

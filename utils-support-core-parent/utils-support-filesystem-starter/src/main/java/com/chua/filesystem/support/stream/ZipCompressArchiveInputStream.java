@@ -35,7 +35,8 @@ public class ZipCompressArchiveInputStream implements CompressArchiveInputStream
      * 创建输入流
     */
     @Override
-    public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
+    public ArchiveInputStream createInputStream(InputStream inputStream, File file,
+                                                @Nullable char[] password) throws IOException {
         var zipInputStream = new ZipArchiveInputStream(inputStream);
         return new ArchiveInputStreamAdapter(zipInputStream);
     }
