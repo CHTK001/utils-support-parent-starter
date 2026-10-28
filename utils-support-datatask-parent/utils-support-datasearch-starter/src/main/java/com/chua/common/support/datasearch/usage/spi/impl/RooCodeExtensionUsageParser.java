@@ -24,6 +24,12 @@ import java.util.Map;
 @Spi("roo-code")
 public class RooCodeExtensionUsageParser extends VscodeExtensionTaskUsageParser {
 
+    /**
+     * history 文件中的 model 标签
+     */
+    private static final java.util.regex.Pattern MODEL_TAG_PATTERN =
+            java.util.regex.Pattern.compile("<model>\\s*([^<\\s][^<]*?)\\s*</model>");
+
     @Override
     protected List<String> extensionIdPrefixes() {
         return List.of("rooveterinaryinc");
@@ -100,9 +106,7 @@ public class RooCodeExtensionUsageParser extends VscodeExtensionTaskUsageParser 
         }
         try {
             String raw = java.nio.file.Files.readString(historyFile, java.nio.charset.StandardCharsets.UTF_8);
-            java.util.regex.Pattern p =
-                    java.util.regex.Pattern.compile("<model>\\s*([^<\\s][^<]*?)\\s*</model>");
-            java.util.regex.Matcher m = p.matcher(raw);
+            java.util.regex.Matcher m = MODEL_TAG_PATTERN.matcher(raw);
             String last = null;
             while (m.find()) {
                 last = m.group(1);

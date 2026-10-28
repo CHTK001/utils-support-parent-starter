@@ -57,6 +57,21 @@ import lombok.extern.slf4j.Slf4j;
 public class FeishuBotClient implements BotClient {
 
     /**
+     * 飞书接口返回 code 为 0（成功）
+     */
+    private static final java.util.regex.Pattern CODE_OK_PATTERN = java.util.regex.Pattern.compile("\"code\"\\s*:\\s*0\\b");
+
+    /**
+     * 租户访问令牌字段
+     */
+    private static final java.util.regex.Pattern TENANT_TOKEN_PATTERN = java.util.regex.Pattern.compile("\"tenant_access_token\"\\s*:\\s*\"([^\"]+)\"");
+
+    /**
+     * 错误消息字段
+     */
+    private static final java.util.regex.Pattern MESSAGE_PATTERN = java.util.regex.Pattern.compile("\"msg\"\\s*:\\s*\"([^\"]+)\"");
+
+    /**
      * 应用 标识
      */
     private String appId;
@@ -393,18 +408,15 @@ public class FeishuBotClient implements BotClient {
                     .send(request, java.net.http.HttpResponse.BodyHandlers.ofString(
                             java.nio.charset.StandardCharsets.UTF_8));
             String body = response.body() == null ? "" : response.body();
-            boolean ok = java.util.regex.Pattern.compile("\"code\"\\s*:\\s*0\\b")
-                    .matcher(body).find();
+            boolean ok = CODE_OK_PATTERN.matcher(body).find();
             if (ok) {
-                java.util.regex.Matcher tokenMatcher = java.util.regex.Pattern.compile(
-                        "\"tenant_access_token\"\\s*:\\s*\"([^\"]+)\"").matcher(body);
+                java.util.regex.Matcher tokenMatcher = TENANT_TOKEN_PATTERN.matcher(body);
                 if (tokenMatcher.find()) {
                     return tokenMatcher.group(1);
                 }
                 return "ok";
             }
-            java.util.regex.Matcher msgMatcher = java.util.regex.Pattern.compile(
-                    "\"msg\"\\s*:\\s*\"([^\"]+)\"").matcher(body);
+            java.util.regex.Matcher msgMatcher = MESSAGE_PATTERN.matcher(body);
             String message = msgMatcher.find() ? msgMatcher.group(1) : body;
             throw new IllegalArgumentException("飞书凭据校验失败：" + message);
         } catch (IllegalArgumentException e) {
