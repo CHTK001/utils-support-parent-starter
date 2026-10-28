@@ -53,7 +53,8 @@ import java.lang.annotation.Annotation;
  *     }
  *
  *     @Override
- *     public Object intercept(Cacheable annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
+ *     public Object intercept(Cacheable annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws
+ *     Throwable {
  *         String key = annotation.value();
  *         Object cached = cache.get(key);
  *         if (cached != null) {

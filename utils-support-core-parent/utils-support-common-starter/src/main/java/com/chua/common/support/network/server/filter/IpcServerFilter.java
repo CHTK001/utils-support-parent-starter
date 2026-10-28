@@ -19,7 +19,8 @@ import java.util.Map;
  * IPC 服务器过滤器，拦截 /ipc/* 请求路由到处理器。
  *
  * <p>使用 {@link ServerHandlerFactory} 统一管理 IPC 方法路由，
- * 通过 {@link com.chua.common.support.network.ipc.parser.IpcMethodServerHandlerParser} 扫描 {@link com.chua.common.support.network.ipc.annotations.IpcMethod} 注解。</p>
+ * 通过 {@link com.chua.common.support.network.ipc.parser.IpcMethodServerHandlerParser} 扫描 {@link
+ * com.chua.common.support.network.ipc.annotations.IpcMethod} 注解。</p>
  *
  * @author CH
  * @since 2026/07/18

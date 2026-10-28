@@ -62,7 +62,8 @@ import java.lang.annotation.Target;
  *
  * // 4. 多 pattern + 指定匹配策略
  * @Spi("repo-write-trace")
- * @Around(value = {"com.foo.*Repository#save*", "com.foo.*Repository#update*"}, matchType = MatchUtils.MatchType.WILDCARD)
+ * @Around(value = {"com.foo.*Repository#save*", "com.foo.*Repository#update*"}, matchType =
+ * MatchUtils.MatchType.WILDCARD)
  * public class RepoWriteIntercept implements MethodArroundIntercept { ... }
  * }</pre>= 匹配工具.匹配类型.WILDCARD)
  * 公共 类 repo写入intercept implements 方法arroundintercept { ... }

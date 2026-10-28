@@ -31,7 +31,8 @@ import java.net.URL;
  *   <li><b>输出</b>：last_hidden_state [batch, seq_len, hidden_size]，对时间维度做 mean pooling 后得到固定维度向量。</li>
  *   <li><b>维度</b>：取决于模型变体：
  *     <ul>
- *       <li><b>backbone-only</b>（onnx-community/wav2vec2-base-ONNX，Wav2Vec2ForPreTraining）：768 维 hidden state — <b>推荐</b></li>
+ *       <li><b>backbone-only</b>（onnx-community/wav2vec2-base-ONNX，Wav2Vec2ForPreTraining）：768 维 hidden state —
+ *       <b>推荐</b></li>
  *       <li><b>ASR head</b>（wav2vec2-base-960h）：32 维 vocab logits（英文字符 + 特殊 token）</li>
  *       <li><b>large / 中文 XLSR</b>：1024 维 hidden 或 ~10k 维中文 vocab</li>
  *     </ul>
@@ -69,7 +70,8 @@ import java.net.URL;
  * <ul>
  *   <li>推理时使用静态形状（static shapes），因此输入音频长度应控制在合理范围内（建议 ≤ 30 秒）。</li>
  *   <li>超出模型最大序列长度时，将对输入进行截断（仅保留前 N 秒）。</li>
- *   <li>模型输出的 hidden state 未做 L2 归一化；归一化由 {@link com.chua.deeplearning.support.audio.DefaultAudioFingerprinter} 负责。</li>
+ *   <li>模型输出的 hidden state 未做 L2 归一化；归一化由 {@link com.chua.deeplearning.support.audio.DefaultAudioFingerprinter}
+ *   负责。</li>
  * </ul>
  *
  * @author CH

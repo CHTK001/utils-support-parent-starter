@@ -16,7 +16,8 @@ import java.util.List;
  * <h3>内置能力（DefaultScriptConverter 提供，无需额外实现）</h3>
  * <ul>
  *   <li>剥离 MySQL 专属前导语句：{@code SET NAMES}、{@code SET FOREIGN_KEY_CHECKS}</li>
- *   <li>剥离 CREATE TABLE 尾部 MySQL 专属属性：{@code ENGINE=InnoDB}/{@code CHARSET=utf8mb4}/{@code ROW_FORMAT}/{@code AUTO_INCREMENT} 等</li>
+ *   <li>剥离 CREATE TABLE 尾部 MySQL 专属属性：{@code ENGINE=InnoDB}/{@code CHARSET=utf8mb4}/{@code ROW_FORMAT}/{@code
+ *   AUTO_INCREMENT} 等</li>
  *   <li>剥离内联 {@code COMMENT 'xxx'}（MySQL 专属；其他方言可用独立 COMMENT ON 语句替代）</li>
  *   <li>剥离 {@code USING BTREE}、{@code KEY idx ON} 行内索引声明（改由 {@code CREATE INDEX} 承载）</li>
  *   <li>函数方言映射：{@code NOW()→CURRENT_TIMESTAMP}、{@code REPLACE(UUID(),'-','')→SYS_GUID()} 等</li>

@@ -11,7 +11,8 @@ import com.chua.runtime.protocol.Software;
  *
  * <p>拦截目标：</p>
  * <ul>
- *   <li>{@code com.ecwid.consul.v1.ConsulClient} — setKVValue / getKVValue / registerService / agentServiceRegister</li>
+ *   <li>{@code com.ecwid.consul.v1.ConsulClient} — setKVValue / getKVValue / registerService /
+ *   agentServiceRegister</li>
  * </ul>
  *
  * <p>采用零编译期依赖策略：Consul 客户端不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>

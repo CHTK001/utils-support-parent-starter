@@ -11,7 +11,8 @@ import com.chua.runtime.protocol.Software;
  *
  * <p>拦截目标：</p>
  * <ul>
- *   <li>{@code com.alibaba.nacos.client.naming.NacosNamingService} — registerInstance / deregisterInstance / getAllInstances</li>
+ *   <li>{@code com.alibaba.nacos.client.naming.NacosNamingService} — registerInstance / deregisterInstance /
+ *   getAllInstances</li>
  *   <li>{@code com.alibaba.nacos.client.config.NacosConfigService} — getConfig / publishConfig</li>
  * </ul>
  *

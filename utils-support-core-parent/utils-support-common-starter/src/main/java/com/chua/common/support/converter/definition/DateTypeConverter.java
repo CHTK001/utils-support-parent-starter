@@ -17,7 +17,8 @@ import javax.annotation.Nullable;
  * Date 类型转换器。
  * <p>将各种类型的值转换为 {@link Date}，支持以下输入类型：</p>
  * <ul>
- *   <li>{@link java.time.LocalDate} / {@link java.time.LocalDateTime} / {@link java.util.Calendar} / {@link Long} — 通过 DateUtils 转换</li>
+ *   <li>{@link java.time.LocalDate} / {@link java.time.LocalDateTime} / {@link java.util.Calendar} / {@link Long} —
+ *   通过 DateUtils 转换</li>
  *   <li>{@link java.sql.Date} — 直接返回（子类）</li>
  *   <li>{@link String} — 通过 DateUtils.parseDate 解析日期字符串</li>
  * </ul>

@@ -352,7 +352,8 @@ public class SqlServerScriptConverter extends DefaultScriptConverter {
 
     /**
      * {@code CREATE [UNIQUE] INDEX IF NOT EXISTS ix ON t (...)}
-     * → {@code IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='ix' AND object_id=OBJECT_ID('t')) CREATE INDEX ix ON t (...)}。
+     * → {@code IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='ix' AND object_id=OBJECT_ID('t')) CREATE INDEX ix
+     * ON t (...)}。
      *
      * @param sql 转换后的语句
      * @return 改写后的语句；不是该形态时原样返回

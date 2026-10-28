@@ -76,7 +76,8 @@ public interface ProgressBarConsumer extends Consumer<String>, Appendable, AutoC
     /**
      *                                              
      * 
-     * @throws RuntimeException                                                                                           
+     * @throws RuntimeException
+     * 
      * @example close()                         
      */
     @Override

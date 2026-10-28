@@ -11,7 +11,8 @@ import java.util.Collection;
  * <h3>实现</h3>
  * <ul>
  *   <li>{@link OnHeapDataStore} — 基于 {@link java.util.ArrayList} 的堆内存储</li>
- *   <li>{@link OffHeapDataStore} — 基于 {@link java.lang.foreign.Arena} + {@link java.lang.foreign.MemorySegment} 的堆外存储</li>
+ *   <li>{@link OffHeapDataStore} — 基于 {@link java.lang.foreign.Arena} + {@link java.lang.foreign.MemorySegment}
+ *   的堆外存储</li>
  * </ul>
  *
  * @param <E> 元素类型

@@ -74,7 +74,8 @@ import java.util.concurrent.CompletableFuture;
  *   <li>每次调用 {@code HttpClientFactory.of(url)} 都会创建新的构建器实例，不是线程安全的，每个线程应使用自己的构建器实例。</li>
  *   <li>如果 {@code baseUrl} 以 '/' 结尾，{@code path} 开头的 '/' 会被自动去除以避免双重斜杠。</li>
  *   <li>纯文本字段 {@code formData(key, value)} 在未混入文件上传时，会序列化为 {@code key1=value1&amp;key2=value2} 格式；</li>
- *   <li>一旦调用含文件的 {@code formData(key, bytes, contentType, filename)}，会自动切换到 multipart 模式，所有已有和新加的字段均使用 RFC 1341 multipart 格式（含 boundary 分隔符），并自动设置 Content-Type 头。</li>
+ *   <li>一旦调用含文件的 {@code formData(key, bytes, contentType, filename)}，会自动切换到 multipart 模式，所有已有和新加的字段均使用 RFC 1341
+ *   multipart 格式（含 boundary 分隔符），并自动设置 Content-Type 头。</li>
  * </ul>
  *
  * @author CH

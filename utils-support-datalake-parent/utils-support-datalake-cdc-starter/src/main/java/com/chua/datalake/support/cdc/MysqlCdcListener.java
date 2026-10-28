@@ -24,7 +24,8 @@ import java.util.function.BiConsumer;
  * <p>前置条件：</p>
  * <ul>
  *   <li>MySQL 开启 binlog：{@code log-bin=mysql-bin}、{@code binlog-format=ROW}</li>
- *   <li>创建复制用户：{@code CREATE USER 'datalake'@'%' IDENTIFIED BY 'xxx'; GRANT REPLICATION SLAVE ON *.* TO 'datalake'@'%';}</li>
+ *   <li>创建复制用户：{@code CREATE USER 'datalake'@'%' IDENTIFIED BY 'xxx'; GRANT REPLICATION SLAVE ON *.* TO
+ *   'datalake'@'%';}</li>
  * </ul>
  *
  * <p>生命周期：{@link #start()} 在守护线程内建立 binlog 流，最多等待 {@code connectTimeout} 毫秒；

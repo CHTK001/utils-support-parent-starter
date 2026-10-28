@@ -116,15 +116,44 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // #禁用# DINOv2/DINOv3 视觉特征：Translator 类 com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator
         // 在当前源码树中不存在，注册后首次推理即抛 IllegalStateException("Translator 类不可用")。
         // 权重与下载地址均已就绪，待 Translator 补齐后恢复以下 6 条注册。
-        // reg("dino-v2", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov2-small/onnx/model.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/feature/dinov2-small/onnx/model.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/feature/dinov2-small/onnx/model.onnx"), false, null);
+        // reg("dino-v2", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator",
+        // ai.djl.modality.cv.Image.class, float[].class,
+        // com.chua.deeplearning.support.feature.FeatureExtractor.class,
+        // "vision/feature/dinov2-small/onnx/model.onnx",
+        // "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/feature/dinov2-small/onnx/model.onnx",
+        // java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/feature/dinov2-small/onnx/model.onnx"),
+        // false, null);
         // #禁用# 视觉特征提取(DINOv2-small emb)：DINOv2-small，384维特征；优先 jar 内嵌，缺失时自动下载
-        // reg("dino-v2-small-embedding", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov2-small/onnx/model.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/feature/dinov2-small/onnx/model.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/feature/dinov2-small/onnx/model.onnx"), false, null);
+        // reg("dino-v2-small-embedding", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator",
+        // ai.djl.modality.cv.Image.class, float[].class,
+        // com.chua.deeplearning.support.feature.FeatureExtractor.class,
+        // "vision/feature/dinov2-small/onnx/model.onnx",
+        // "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/feature/dinov2-small/onnx/model.onnx",
+        // java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/feature/dinov2-small/onnx/model.onnx"),
+        // false, null);
         // #禁用# 视觉特征提取(DINOv2-small fp16)：DINOv2 ViT-S/14，384维特征，fp16 半精度，内存减半、推理更快；适用内存受限的以图搜图、特征比对
-        // reg("dino-v2-small-embedding-fp16", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov2-small/onnx/model_fp16.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/feature/dinov2-small/onnx/model_fp16.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/feature/dinov2-small/onnx/model_fp16.onnx"), false, null);
+        // reg("dino-v2-small-embedding-fp16", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator",
+        // ai.djl.modality.cv.Image.class, float[].class,
+        // com.chua.deeplearning.support.feature.FeatureExtractor.class,
+        // "vision/feature/dinov2-small/onnx/model_fp16.onnx",
+        // "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/feature/dinov2-small/onnx/model_fp16.onnx",
+        // java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/feature/dinov2-small/onnx/model_fp16.onnx"),
+        // false, null);
         // #禁用# 视觉特征提取(DINOv2-base)：DINOv2 ViT-B/14，768维特征，精度更高；适用高精度以图搜图、特征比对
-        // reg("dino-v2-base-embedding", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov2-base/onnx/model.onnx", "https://huggingface.co/onnx-community/dinov2-base-ONNX/resolve/main/onnx/model.onnx", java.util.List.of("https://hf-mirror.com/onnx-community/dinov2-base-ONNX/resolve/main/onnx/model.onnx"), false, null);
+        // reg("dino-v2-base-embedding", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator",
+        // ai.djl.modality.cv.Image.class, float[].class,
+        // com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov2-base/onnx/model.onnx",
+        // "https://huggingface.co/onnx-community/dinov2-base-ONNX/resolve/main/onnx/model.onnx",
+        // java.util.List.of("https://hf-mirror.com/onnx-community/dinov2-base-ONNX/resolve/main/onnx/model.onnx"),
+        // false, null);
         // #禁用# 视觉特征提取(DINOv2-large)：DINOv2 ViT-L/14，1024维特征，最高精度；适用高精度检索/匹配
-        // reg("dino-v2-large-embedding", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov2-large/onnx/model.onnx", "https://huggingface.co/onnx-community/dinov2-large-ONNX/resolve/main/onnx/model.onnx", java.util.List.of("https://hf-mirror.com/onnx-community/dinov2-large-ONNX/resolve/main/onnx/model.onnx"), false, null);
+        // reg("dino-v2-large-embedding", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator",
+        // ai.djl.modality.cv.Image.class, float[].class,
+        // com.chua.deeplearning.support.feature.FeatureExtractor.class,
+        // "vision/feature/dinov2-large/onnx/model.onnx",
+        // "https://huggingface.co/onnx-community/dinov2-large-ONNX/resolve/main/onnx/model.onnx",
+        // java.util.List.of("https://hf-mirror.com/onnx-community/dinov2-large-ONNX/resolve/main/onnx/model.onnx"),
+        // false, null);
         // 文档理解(Donut)：端到端文档理解模型，输入文档图片输出结构化文本；适用发票识别、表单解析、文档 OCR
         reg("donut", "com.chua.deeplearning.support.onnx.donut.DonutTranslator", Image.class, Object.class, Object.class, "vision/donut/donut.onnx");
         // 情绪识别(FER+)：识别面部表情（开心、难过、生气等 7 种基础情绪）；适用情感分析、用户反馈、安防监控
@@ -160,9 +189,22 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("clip-image-feature", "com.chua.deeplearning.support.onnx.feature.ClipImageFeatureTranslator", Image.class, float[].class, FeatureExtractor.class, "vision/enhancement/CLIP-ViT-B-32-IMAGE/CLIP-ViT-B-32-IMAGE.onnx", "https://huggingface.co/onnx-community/clip-vit-base-patch32-ONNX/resolve/main/onnx/image_model.onnx", List.of("https://hf-mirror.com/onnx-community/clip-vit-base-patch32-ONNX/resolve/main/onnx/image_model.onnx"), false, null);
         // #禁用# MobileCLIP 图像特征：Translator 类 MobileClipImageFeatureTranslator 在当前源码树中不存在，
         // 注册后首次推理即抛 IllegalStateException("Translator 类不可用")。权重与下载地址已就绪，待 Translator 补齐后恢复。
-        // reg("mobile-clip-image-feature", "com.chua.deeplearning.support.onnx.feature.MobileClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/zeroshot/mobileclip_s0/onnx/vision_model.onnx", "https://huggingface.co/onnx-community/mobileclip_s0-ONNX/resolve/main/onnx/vision_model.onnx", java.util.List.of("https://hf-mirror.com/onnx-community/mobileclip_s0-ONNX/resolve/main/onnx/vision_model.onnx"), false, null);
+        // reg("mobile-clip-image-feature",
+        // "com.chua.deeplearning.support.onnx.feature.MobileClipImageFeatureTranslator",
+        // ai.djl.modality.cv.Image.class, float[].class,
+        // com.chua.deeplearning.support.feature.FeatureExtractor.class,
+        // "vision/zeroshot/mobileclip_s0/onnx/vision_model.onnx",
+        // "https://huggingface.co/onnx-community/mobileclip_s0-ONNX/resolve/main/onnx/vision_model.onnx",
+        // java.util.List.of("https://hf-mirror.com/onnx-community/mobileclip_s0-ONNX/resolve/main/onnx/vision_model.onnx"),
+        // false, null);
         // #禁用# MobileCLIP-S0 embedded（~11MB quantized），同样缺 Translator 类，待补齐后恢复
-        // reg("mobileclip-s0-vision", "com.chua.deeplearning.support.onnx.feature.MobileClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/zeroshot/mobileclip_s0/onnx/vision_model_quantized.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/zeroshot/mobileclip_s0/onnx/vision_model_quantized.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/zeroshot/mobileclip_s0/onnx/vision_model_quantized.onnx"), false, null);
+        // reg("mobileclip-s0-vision", "com.chua.deeplearning.support.onnx.feature.MobileClipImageFeatureTranslator",
+        // ai.djl.modality.cv.Image.class, float[].class,
+        // com.chua.deeplearning.support.feature.FeatureExtractor.class,
+        // "vision/zeroshot/mobileclip_s0/onnx/vision_model_quantized.onnx",
+        // "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/zeroshot/mobileclip_s0/onnx/vision_model_quantized.onnx",
+        // java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/zeroshot/mobileclip_s0/onnx/vision_model_quantized.onnx"),
+        // false, null);
         // 性别识别(GoogleNet)：根据人脸图像识别性别（男/女）；适用人脸属性分析、安防系统
         // 性别识别(VGG)：VGG 架构的人脸性别识别，精度更高；适用高精度人脸属性分析
         reg("vgg-gender-recognition", "com.chua.deeplearning.support.onnx.gender.VggGenderRecognitionTranslator", Image.class, Object.class, Object.class, "vision/enhancement/gender/vgg_ilsvrc_16_gender_imdb_wiki.onnx");
@@ -190,7 +232,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("taesd-decoder", "com.chua.deeplearning.support.onnx.generation.TaesdDecoderTranslator", NDList.class, Image.class, Object.class, "vision/detection/taesd/decoder.onnx");
         // 素描转换(ImageToLineDrawing)：将照片转换为线条素描风格；适用艺术创作、素描特效
         reg("image-to-line-drawing", "com.chua.deeplearning.support.onnx.linedrawing.ImageToLineDrawingTranslator", Image.class, Image.class, Object.class, "vision/enhancement/image-to-line-drawing-onnx/image-to-line-drawing-onnx.onnx");
-                        // 活体检测(FLRGB)：ModelScope 官方 RGB 活体模型，112x112 输入，输出活体概率；模型内嵌 jar（utils-support-models-onnx-face-liveness）
+                        // 活体检测(FLRGB)：ModelScope 官方 RGB 活体模型，112x112 输入，输出活体概率；模型内嵌
+                        // jar（utils-support-models-onnx-face-liveness）
         reg("face-liveness-flrgb", "com.chua.deeplearning.support.onnx.liveness.FlRgbLivenessTranslator", Image.class, Float.class, LivenessDetector.class, "face/liveness/flrgb/model.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/face/liveness/flrgb/model.onnx", List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/face/liveness/flrgb/model.onnx"), false, null);
         // 活体检测(FLXC)：ModelScope 官方炫彩活体模型，12通道多帧序列，对3D面具/头模攻击鲁棒；模型内嵌 jar（utils-support-models-onnx-face-liveness-flxc）
         reg("face-liveness-flxc", "com.chua.deeplearning.support.onnx.liveness.FlXcLivenessTranslator", Image.class, Float.class, LivenessDetector.class, "face/liveness/flxc/model.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/face/liveness/flxc/model.onnx", List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/face/liveness/flxc/model.onnx"), false, null);
@@ -225,31 +268,44 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("doc-orientation", "com.chua.deeplearning.support.onnx.ocr.direction.DocOrientationTranslator", byte[].class, DirectionInfo.class, Object.class, "ocr/direction/doc_ori/model.onnx");
         // #已禁用# pp-word-rotate 已禁用：0/180 两类方向模型未随 jar 分发，注册后首次推理必失败。
         // 方向矫正请使用上面的 doc-orientation（4 类，覆盖 90/270）。
-        // reg("pp-word-rotate", "com.chua.deeplearning.support.onnx.ocr.direction.PpWordRotateTranslator", byte[].class, com.chua.deeplearning.support.ocr.DirectionInfo.class, Object.class, "ocr/direction/ppocr_cls/model.onnx");
+        // reg("pp-word-rotate", "com.chua.deeplearning.support.onnx.ocr.direction.PpWordRotateTranslator",
+        // byte[].class, com.chua.deeplearning.support.ocr.DirectionInfo.class, Object.class,
+        // "ocr/direction/ppocr_cls/model.onnx");
         // OCR文字识别(PP-OCR Server)：PP-OCRv5 服务器版文字识别，精度高但较慢；适用高精度 OCR
         reg("pp-word-extractor", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorTranslator", Image.class, String.class, Object.class, "ocr/recognition/PP-OCRv5_server_rec_infer/PP-OCRv5_server_rec.onnx");
         // #禁用# OCR文字识别(SVTR)：Translator 类 SvtrExtractorTranslator 在当前源码树中不存在，注册后首次推理必抛
         // IllegalStateException("Translator 类不可用")。可用替代：paddleocrv6-rec / paddleocrv6-medium-rec。待 Translator 补齐后恢复。
-        // reg("svtr-extractor", "com.chua.deeplearning.support.onnx.ocr.extractor.SvtrExtractorTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/recognition/PP-OCRv5_mobile_rec_infer/PP-OCRv5_mobile_rec_infer.onnx");
+        // reg("svtr-extractor", "com.chua.deeplearning.support.onnx.ocr.extractor.SvtrExtractorTranslator",
+        // ai.djl.modality.cv.Image.class, String.class, Object.class,
+        // "ocr/recognition/PP-OCRv5_mobile_rec_infer/PP-OCRv5_mobile_rec_infer.onnx");
         // 版面分析(PP-DocLayoutV3)：PaddleOCR 官方文档版面分析（DETR，25 类区域），模型内嵌 jar（utils-support-models-onnx-ppdoclayoutv3）
         reg("pp-doc-layout", "com.chua.deeplearning.support.onnx.ocr.layout.PpDocLayoutTranslator", Image.class, DetectedObjects.class, LayoutDetector.class, "vision/detection/pp_doc_layoutv3/PP-DocLayoutV3.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/pp_doc_layoutv3/PP-DocLayoutV3.onnx", List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/pp_doc_layoutv3/PP-DocLayoutV3.onnx"), false, null);
-        // 版面分析(PP-DocLayout-L)：RT-DETR-L，23 类区域，640×640 输入，mAP 90.4% 最高精度；模型内嵌 jar（utils-support-models-onnx-ppdoclayout-l）
+        // 版面分析(PP-DocLayout-L)：RT-DETR-L，23 类区域，640×640 输入，mAP 90.4% 最高精度；模型内嵌
+        // jar（utils-support-models-onnx-ppdoclayout-l）
         reg("pp-doc-layout-l", "com.chua.deeplearning.support.onnx.ocr.layout.PpDocLayoutLTranslator", Image.class, DetectedObjects.class, LayoutDetector.class, "vision/detection/pp_doc_layout_l/PP-DocLayout-L.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/pp_doc_layout_l/PP-DocLayout-L.onnx", List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/pp_doc_layout_l/PP-DocLayout-L.onnx"), false, null);
-        // 版面分析(PP-DocLayout_plus-L)：RT-DETR-L，21 类区域，800×800 输入，mAP 83.2%；模型内嵌 jar（utils-support-models-onnx-ppdoclayout-plus-l）
+        // 版面分析(PP-DocLayout_plus-L)：RT-DETR-L，21 类区域，800×800 输入，mAP 83.2%；模型内嵌
+        // jar（utils-support-models-onnx-ppdoclayout-plus-l）
         reg("pp-doc-layout-plus-l", "com.chua.deeplearning.support.onnx.ocr.layout.PpDocLayoutLTranslator", Image.class, DetectedObjects.class, LayoutDetector.class, "vision/detection/pp_doc_layout_plus_l/PP-DocLayout_plus-L.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/pp_doc_layout_plus_l/PP-DocLayout_plus-L.onnx", List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/pp_doc_layout_plus_l/PP-DocLayout_plus-L.onnx"), false, null);
         // 版面分析(DocLayout-YOLO)：YOLOv10 文档版面检测（DocStructBench 10 类，含 title），模型内嵌 jar；适用试卷/文档版面分析
         reg("doc-layout-yolo", "com.chua.deeplearning.support.onnx.yolo.v10.translator.DocLayoutYoloTranslator", Image.class, DetectedObjects.class, LayoutDetector.class, "vision/detection/doclayout-yolo/model.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/doclayout-yolo/model.onnx", List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/doclayout-yolo/model.onnx"), false, null);
-        // YOLO-UniOW 通用开世界目标检测（THU-MIG，arxiv 2412.20645）：基于 YOLO-World+YOLOv10 的通用开世界检测，支持动态词表/未知目标(wildcard)；S/M/L 三档（7.5M/16.2M/29.4M）；ONNX 资产需由官方 .pth 经社区 export_onnx.py（AXERA-TECH/YOLO-UniOW）reparameterize 后导出；类别由导出时固化词表决定（object_tuned wildcard 模式默认单类 object）
+        // YOLO-UniOW 通用开世界目标检测（THU-MIG，arxiv 2412.20645）：基于 YOLO-World+YOLOv10 的通用开世界检测，支持动态词表/未知目标(wildcard)；S/M/L
+        // 三档（7.5M/16.2M/29.4M）；ONNX 资产需由官方 .pth 经社区 export_onnx.py（AXERA-TECH/YOLO-UniOW）reparameterize
+        // 后导出；类别由导出时固化词表决定（object_tuned wildcard 模式默认单类 object）
         reg("yolo-uniow", "com.chua.deeplearning.support.onnx.detection.yolo_uniow.YoloUniowTranslator", Image.class, DetectedObjects.class, ImageDetector.class, "vision/detection/yolo_uniow/model.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/yolo_uniow/model.onnx", List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/yolo_uniow/model.onnx"), false, null);
         // #禁用# OCR文字识别(PP-OCRv5 Server)：Translator 类 PaddleOcrRecognitionTranslator 在当前源码树中不存在，
         // 注册后首次推理必抛 IllegalStateException("Translator 类不可用")。可用替代：paddleocrv6-medium-rec。待 Translator 补齐后恢复。
-        // reg("paddle-ocr-recognition", "com.chua.deeplearning.support.onnx.ocr.paddleocr.PaddleOcrRecognitionTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/ppocrv5-server-rec.onnx");
+        // reg("paddle-ocr-recognition",
+        // "com.chua.deeplearning.support.onnx.ocr.paddleocr.PaddleOcrRecognitionTranslator",
+        // ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/ppocrv5-server-rec.onnx");
         // #禁用# OCR文字识别(PP-OCRv4 Mobile)：Translator 类 PpOcrRecTranslator 在当前源码树中不存在，注册后首次推理必抛
         // IllegalStateException("Translator 类不可用")。可用替代：paddleocrv6-rec。待 Translator 补齐后恢复。
-        // reg("pp-ocr-rec", "com.chua.deeplearning.support.onnx.ocr.PpOcrRecTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/ch_PP-OCRv4_rec_infer.onnx");
+        // reg("pp-ocr-rec", "com.chua.deeplearning.support.onnx.ocr.PpOcrRecTranslator",
+        // ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/ch_PP-OCRv4_rec_infer.onnx");
         // #禁用# 表格结构识别(TableStruct)：Translator 类 TableStructTranslator 在当前源码树中不存在，注册后首次推理必抛
         // IllegalStateException("Translator 类不可用")。表格检测仍可用 yolov8n-table-detection。待 Translator 补齐后恢复。
-        // reg("table-struct", "com.chua.deeplearning.support.onnx.ocr.table.TableStructTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "ocr/table_structure/pp_structure_v2/inference.onnx");
+        // reg("table-struct", "com.chua.deeplearning.support.onnx.ocr.table.TableStructTranslator",
+        // ai.djl.modality.cv.Image.class, Object.class, Object.class,
+        // "ocr/table_structure/pp_structure_v2/inference.onnx");
         // 开放词汇检测(OWLv2)：用任意文本描述检测图像中的物体（如"红色汽车"），无需训练；适用零样本检测、开放词汇目标检测
         reg("owlv2-zero-shot-detector", "com.chua.deeplearning.support.onnx.owlv2.Owlv2ZeroShotDetectorTranslator", Image.class, DetectedObjects.class, ImageDetector.class, "vision/detection/owlv2_base_patch16/onnx/model.onnx", "https://huggingface.co/onnx-community/owlv2-base-patch16-ONNX/resolve/main/onnx/model.onnx", false, "owlv2-base-patch16.onnx");
         // 车牌识别(CRNN)：基于 CRNN 的车牌字符识别；适用停车场、交通监控
@@ -415,7 +471,11 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 视觉特征提取(DINOv3-ViT-S)：DINOv3 自监督视觉特征（384维），比 DINOv2 更强；适用图像相似度、以图搜图
         // #禁用# 视觉特征提取(DINOv3)：复用同样已停用的 DinoV2Translator（类不存在），注册后首次推理必抛
         // IllegalStateException("Translator 类不可用")。待 Translator 补齐后与上面 5 条一并恢复。
-        // reg("dinov3-feature", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov3-vits16/model.onnx", "https://huggingface.co/onnx-community/dinov3-vits16-pretrain-lvd1689m-ONNX/resolve/main/onnx/model.onnx", false, null);
+        // reg("dinov3-feature", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator",
+        // ai.djl.modality.cv.Image.class, float[].class,
+        // com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov3-vits16/model.onnx",
+        // "https://huggingface.co/onnx-community/dinov3-vits16-pretrain-lvd1689m-ONNX/resolve/main/onnx/model.onnx",
+        // false, null);
         // 视觉特征提取(ResNet50)：ResNet50 图像特征提取（2048维）；适用图像检索、特征比对
         reg("resnet50-feature", "com.chua.deeplearning.support.onnx.feature.ClipImageFeatureTranslator", Image.class, float[].class, FeatureExtractor.class, "vision/feature/resnet50/model.onnx", "https://modelscope.cn/models/Xenova/resnet-50/resolve/master/onnx/model.onnx", false, null);
         // 目标检测(YOLOv26n)：YOLOv26 通用检测，最新版；适用通用物体检测
@@ -483,7 +543,9 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("deepfake-detector", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", Image.class, Classifications.class, ImageClassifier.class, "vision/classification/deepfake-detector/model.onnx", "https://huggingface.co/onnx-community/Deep-Fake-Detector-v2-Model-ONNX/resolve/main/onnx/model.onnx", false, null);
         // 人脸检测(FacePlugin-Slim)：轻量级人脸检测插件，超小模型；适用轻量人脸检测
         reg("faceplugin-face-detect-slim", "com.chua.deeplearning.support.onnx.face.FacePluginDetectTranslator", Image.class, DetectedObjects.class, ImageDetector.class, "models/onnx/face/detection/faceplugin/face_detect_slim.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/onnx/face/detection/faceplugin/face_detect_slim.onnx", List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/onnx/face/detection/faceplugin/face_detect_slim.onnx"), false, null);
-        // 小目标检测(VisDrone/DAMO-YOLO-TinyNAS)：无人机小目标检测（VisDrone 10 类：pedestrian/people/bicycle/car/van/truck/tricycle/awning-tricycle/bus/motor），YOLO 解码兼容；嵌入式目标 damoyolo_tinynasL25_S_640.pt 125.4MB 已下载，待 torch.onnx.export 转 ONNX 替换
+        // 小目标检测(VisDrone/DAMO-YOLO-TinyNAS)：无人机小目标检测（VisDrone 10
+        // 类：pedestrian/people/bicycle/car/van/truck/tricycle/awning-tricycle/bus/motor），YOLO 解码兼容；嵌入式目标
+        // damoyolo_tinynasL25_S_640.pt 125.4MB 已下载，待 torch.onnx.export 转 ONNX 替换
         reg("visdrone-small-detector", "com.chua.deeplearning.support.onnx.yolo.VisDroneSmallDetectorTranslator", Image.class, DetectedObjects.class, ImageDetector.class, "vision/visdrone/damoyolo_visdrone.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/visdrone/damoyolo_visdrone.onnx", List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/visdrone/damoyolo_visdrone.onnx"), false, null);
         // 火灾烟雾检测(CCCCTV fire-smoke)：YOLOv8n 320 检测，cctv-ai-fire-smoke 嵌入式
         reg("fire-smoke", "com.chua.deeplearning.support.onnx.yolo.FireSmokeDetectorTranslator", Image.class, DetectedObjects.class, ImageDetector.class, "vision/fire-smoke/yolov8n/model.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/fire-smoke/yolov8n/model.onnx", List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/fire-smoke/yolov8n/model.onnx"), false, null);
@@ -509,7 +571,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("card-correction-detector", "com.chua.deeplearning.support.onnx.classification.CardCorrectionTranslator", byte[].class, List.class, ImageDetector.class, "cv/card_correction/card_detection.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/cv/card_correction/card_detection.onnx", List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/cv/card_correction/card_detection.onnx"), false, null);
         // 车牌检测(YOLOv11)：YOLOv11 架构的车牌检测（morsetechlab），内嵌模型，更高精度
         reg("yolo11-plate-detect", "com.chua.deeplearning.support.onnx.yolo.v11.translator.Yolo11PlateDetectTranslator", Image.class, DetectedObjects.class, ImageDetector.class, "vision/detection/yolo11_plate/yolo11_plate_detect.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/yolo11_plate/yolo11_plate_detect.onnx", List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/yolo11_plate/yolo11_plate_detect.onnx"), false, null);
-        // ID card detection (YOLOv8): YOLOv8 general ID card detection, supports CN/foreign standard/non-standard IDs, 9.8MB ONNX model
+        // ID card detection (YOLOv8): YOLOv8 general ID card detection, supports CN/foreign standard/non-standard
+        // IDs, 9.8MB ONNX model
         reg("id-card-detect", "com.chua.deeplearning.support.onnx.yolo.v8.translator.Yolo8IdCardDetectTranslator", Image.class, DetectedObjects.class, ImageDetector.class, "vision/detection/id_card/yolo_id_card_detect.onnx", "https://huggingface.co/MiguelEscamilla/id-card-yolo/resolve/main/model.onnx", false, null);
         // 车牌检测(YOLOv5)：YOLOv5 架构的车牌检测，适用于 PlateNumberPipeline 等场景
         reg("yolov5-plate-detect", "com.chua.deeplearning.support.onnx.yolo.plate.translator.Yolo5PlateDetectTranslator", Image.class, DetectedObjects.class, ImageDetector.class, "vision/detection/yolov5_plate/yolov5_plate_detect.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/yolov5_plate/yolov5_plate_detect.onnx", List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/yolov5_plate/yolov5_plate_detect.onnx"), false, null);
@@ -530,10 +593,30 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 权重已内嵌 utils-support-models-onnx-duguang-ocr（small ~13MB / large ~120MB，含 config.json 与 vocab.txt），
         // 缺的是 Java 侧 Translator 实现。待补齐（DBNet 检测 + LightweightEdge/ConvNeXT 识别，img_height=32、img_width=640）后恢复。
         // 可用替代：paddleocrv6-det + paddleocrv6-rec。
-        // reg("duguang-ocr-small", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangOcrTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.ocr.OcrRecognizer.class, "ocr/duguang/small/det_512.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/ocr/duguang/small/det_512.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/duguang/small/det_512.onnx"), false, null);
-        // reg("duguang-det-small", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangDetTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "ocr/duguang/small/det_512.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/ocr/duguang/small/det_512.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/duguang/small/det_512.onnx"), false, null);
-        // reg("duguang-ocr-large", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangOcrTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.ocr.OcrRecognizer.class, "ocr/duguang/large/det_512.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/ocr/duguang/large/det_512.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/duguang/large/det_512.onnx"), false, null);
-        // reg("duguang-det-large", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangDetTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "ocr/duguang/large/det_512.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/ocr/duguang/large/det_512.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/duguang/large/det_512.onnx"), false, null);
+        // reg("duguang-ocr-small", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangOcrTranslator",
+        // byte[].class, java.util.List.class, com.chua.deeplearning.support.ocr.OcrRecognizer.class,
+        // "ocr/duguang/small/det_512.onnx",
+        // "https://huggingface.co/chtk/chua-dl-models/resolve/main/ocr/duguang/small/det_512.onnx",
+        // java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/duguang/small/det_512.onnx"),
+        // false, null);
+        // reg("duguang-det-small", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangDetTranslator",
+        // byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class,
+        // "ocr/duguang/small/det_512.onnx",
+        // "https://huggingface.co/chtk/chua-dl-models/resolve/main/ocr/duguang/small/det_512.onnx",
+        // java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/duguang/small/det_512.onnx"),
+        // false, null);
+        // reg("duguang-ocr-large", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangOcrTranslator",
+        // byte[].class, java.util.List.class, com.chua.deeplearning.support.ocr.OcrRecognizer.class,
+        // "ocr/duguang/large/det_512.onnx",
+        // "https://huggingface.co/chtk/chua-dl-models/resolve/main/ocr/duguang/large/det_512.onnx",
+        // java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/duguang/large/det_512.onnx"),
+        // false, null);
+        // reg("duguang-det-large", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangDetTranslator",
+        // byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class,
+        // "ocr/duguang/large/det_512.onnx",
+        // "https://huggingface.co/chtk/chua-dl-models/resolve/main/ocr/duguang/large/det_512.onnx",
+        // java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/duguang/large/det_512.onnx"),
+        // false, null);
 
         // ==================== 语音合成 TTS ====================
  // DFSMN 语音降噪（单麦 48k 实时近场，PSM）：输入带噪 48khz 单声道 wav/pcm，输出降噪后音频。

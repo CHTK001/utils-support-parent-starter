@@ -9,7 +9,8 @@ package com.chua.common.support.task.pipeline.core;
  *
  * <p><strong>策略说明：</strong></p>
  * <ul>
- *   <li><strong>THROW</strong> — 抛出 {@link com.chua.common.support.task.pipeline.exception.PipelineException}（默认，最安全）</li>
+ *   <li><strong>THROW</strong> — 抛出 {@link
+ *   com.chua.common.support.task.pipeline.exception.PipelineException}（默认，最安全）</li>
  *   <li><strong>EXIT</strong> — 优雅终止流水线，触发 onComplete 回调</li>
  *   <li><strong>NEXT</strong> — 跳过不存在的节点，按定义顺序继续执行下一个节点</li>
  * </ul>

@@ -24,7 +24,8 @@ import java.nio.charset.StandardCharsets;
  *   <li>{@code int wcdb_open_account(const char* path, const char* key, int64* h)} — 打开账号库</li>
  *   <li>{@code int wcdb_close_account(int64 h)} — 关闭账号库句柄</li>
  *   <li>{@code int wcdb_get_sessions(int64 h, void** out)} — 获取会话列表 JSON</li>
- *   <li>{@code int wcdb_get_messages(int64 h, const char* username, int limit, int offset, void** out)} — 分页获取消息 JSON</li>
+ *   <li>{@code int wcdb_get_messages(int64 h, const char* username, int limit, int offset, void** out)} — 分页获取消息
+ *   JSON</li>
  *   <li>{@code int wcdb_get_message_count(int64 h, const char* username, int* out)} — 获取消息总数</li>
  *   <li>{@code int wcdb_get_display_names(int64 h, const char* json, void** out)} — 批量解析发送者显示名</li>
  *   <li>{@code void wcdb_free_string(void* p)} — 释放原生层分配的字符串</li>

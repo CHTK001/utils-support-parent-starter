@@ -22,7 +22,8 @@ import java.util.UUID;
 /**
  * jrebel 许可证 HTTP 服务器。
  * <p>
- * 基于 JDK http服务端 实现，通过 {@link AbstractServer#registerMapping(String, HttpMethod, com.chua.common.support.network.server.ServerHandler)}
+ * 基于 JDK http服务端 实现，通过 {@link AbstractServer#registerMapping(String, HttpMethod,
+ * com.chua.common.support.network.server.ServerHandler)}
  * 直接注册 jrebel/xrebel 许可证服务端点。
  * </p>
  *

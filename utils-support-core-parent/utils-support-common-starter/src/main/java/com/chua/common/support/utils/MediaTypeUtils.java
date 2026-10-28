@@ -33,11 +33,15 @@ import java.util.Optional;
  * <h3>方法选择指南</h3>
  * <table border="1">
  *   <tr><th>方法</th><th>输入</th><th>失败行为</th><th>适用场景</th></tr>
- *   <tr><td>{@link #getMediaType(String)}</td><td>MIME 字符串</td><td>返回 Optional.empty()（实际不会失败，Guava 强制解析）</td><td>已知合法 MIME 字符串的解析</td></tr>
- *   <tr><td>{@link #getMediaTypeNullable(String)}</td><td>文件名</td><td>返回 {@link MediaType#ANY_TYPE}</td><td>需要空安全的文件名推断</td></tr>
- *   <tr><td>{@link #getNoneMediaType(String)}</td><td>文件名</td><td>返回 {@link MediaType#ANY_TYPE}</td><td>与 getMediaTypeNullable 行为等价，内部实现路径不同</td></tr>
+ *   <tr><td>{@link #getMediaType(String)}</td><td>MIME 字符串</td><td>返回 Optional.empty()（实际不会失败，Guava
+ *   强制解析）</td><td>已知合法 MIME 字符串的解析</td></tr>
+ *   <tr><td>{@link #getMediaTypeNullable(String)}</td><td>文件名</td><td>返回 {@link
+ *   MediaType#ANY_TYPE}</td><td>需要空安全的文件名推断</td></tr>
+ *   <tr><td>{@link #getNoneMediaType(String)}</td><td>文件名</td><td>返回 {@link MediaType#ANY_TYPE}</td><td>与
+ *   getMediaTypeNullable 行为等价，内部实现路径不同</td></tr>
  *   <tr><td>{@link #getMediaTypes(String)}</td><td>文件名</td><td>返回包含单个元素的列表（不是空列表）</td><td>需以 List 形式消费结果时使用</td></tr>
- *   <tr><td>{@link #parse(String)}</td><td>文件名</td><td>返回 {@link MediaType#ANY_TYPE}</td><td>{@link #getMediaTypeNullable(String)} 的快捷别名</td></tr>
+ *   <tr><td>{@link #parse(String)}</td><td>文件名</td><td>返回 {@link MediaType#ANY_TYPE}</td><td>{@link
+ *   #getMediaTypeNullable(String)} 的快捷别名</td></tr>
  * </table>
  *
  * @author CH

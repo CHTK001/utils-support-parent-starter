@@ -88,7 +88,8 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
      *                                                  {@link Image}   
      *
      * @param ctx                    
-     * @param list                                                                 {@code [1, C, H, W]}     {@code [C, H, W}
+     * @param list                                                                 {@code [1, C, H, W]}     {@code [C,
+     * H, W}
      * @return                                                 
      */
     @Override

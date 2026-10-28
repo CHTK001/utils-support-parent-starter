@@ -20,11 +20,13 @@ import java.util.stream.Stream;
  * <p>
  * 该接口定义了从值容器中安全获取各种类型数据的契约，支持以下特性：
  * <ul>
- *   <li><b>类型转换</b>：通过 {@link #getValue(Class)} 获取指定类型的值，底层使用 {@link com.chua.common.support.converter.Converter} 进行自动类型转换</li>
+ *   <li><b>类型转换</b>：通过 {@link #getValue(Class)} 获取指定类型的值，底层使用 {@link com.chua.common.support.converter.Converter}
+ *   进行自动类型转换</li>
  *   <li><b>默认值</b>：所有 {@code asXXX(defaultValue)} 方法在值为 null 时返回指定的默认值</li>
  *   <li><b>空值安全</b>：{@link #of(Object)} 工厂方法在值 null 时返回 {@link NullValue} 单例，避免空指针</li>
  *   <li><b>异常承载</b>：{@link #getThrowable()} 支持携带转换过程中产生的异常信息</li>
- *   <li><b>函数式增强</b>：{@link #orElse}, {@link #orElseGet}, {@link #orElseThrow}, {@link #map}, {@link #flatMap}, {@link #ifPresent}, {@link #filter}, {@link #peek} 提供安全的链式操作，避免空指针</li>
+ *   <li><b>函数式增强</b>：{@link #orElse}, {@link #orElseGet}, {@link #orElseThrow}, {@link #map}, {@link #flatMap},
+ *   {@link #ifPresent}, {@link #filter}, {@link #peek} 提供安全的链式操作，避免空指针</li>
  *   <li><b>空值安全集合/流</b>：{@link #asList}, {@link #asSet}, {@link #stream} 在值为 null 时返回空集合/空流而非 null</li>
  *   <li><b>Optional 桥接</b>：{@link #toOptional} / {@link #ofOptional} 与 JDK {@link Optional} 互转</li>
  *   <li><b>空判断</b>：{@link #isEmpty} 判断是否为空值</li>

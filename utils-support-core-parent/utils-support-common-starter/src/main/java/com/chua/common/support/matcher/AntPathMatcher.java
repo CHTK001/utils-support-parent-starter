@@ -805,7 +805,8 @@ public class AntPathMatcher implements PathMatcher {
             return 0;
         }
         /**
-         *                                               "*"   SYMBOL_ASTERISK_ANY     "{"                               
+         *                                               "*"   SYMBOL_ASTERISK_ANY     "{"
+         *                                               
          */
         private static class PatternInfo {
             private final String pattern;

@@ -33,9 +33,12 @@ public interface AnnotationDefinitionResolver {
      * <pre>
      * // Spring MVC 示例：
      * {
-     *   "org.springframework.web.bind.annotation.GetMapping"  = "org.springframework.web.bind.annotation.RequestMapping",
-     *   "org.springframework.web.bind.annotation.PostMapping" = "org.springframework.web.bind.annotation.RequestMapping",
-     *   "org.springframework.web.bind.annotation.RequestMapping" = "org.springframework.web.bind.annotation.RequestMapping"
+     *   "org.springframework.web.bind.annotation.GetMapping"  =
+     *   "org.springframework.web.bind.annotation.RequestMapping",
+     *   "org.springframework.web.bind.annotation.PostMapping" =
+     *   "org.springframework.web.bind.annotation.RequestMapping",
+     *   "org.springframework.web.bind.annotation.RequestMapping" =
+     *   "org.springframework.web.bind.annotation.RequestMapping"
      * }
      * </pre>
      *

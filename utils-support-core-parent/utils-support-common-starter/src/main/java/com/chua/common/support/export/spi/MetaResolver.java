@@ -13,7 +13,8 @@ import com.chua.common.support.export.meta.DocumentMeta;
  *     <tr><th>order</th><th>解析器</th><th>作用</th></tr>
  *     <tr><td>{@code -100}</td><td>{@code JavabeanMetaResolver}</td><td>反射字段推断兜底</td></tr>
  *     <tr><td>{@code 0}</td><td>{@code ThirdPartyMetaResolver}</td><td>读取三方注解（EasyExcel / FastExcel）</td></tr>
- *     <tr><td>{@code 100}</td><td>{@code ExportAnnotationMetaResolver}</td><td>读取 {@code @ExportColumn} / {@code @ExportSheet}，最终覆盖</td></tr>
+ *     <tr><td>{@code 100}</td><td>{@code ExportAnnotationMetaResolver}</td><td>读取 {@code @ExportColumn} / {@code
+ *     @ExportSheet}，最终覆盖</td></tr>
  * </table>
  *
  * <p>三方注解以反射方式探测，<b>不引入任何编译期依赖</b>；未引入对应库时

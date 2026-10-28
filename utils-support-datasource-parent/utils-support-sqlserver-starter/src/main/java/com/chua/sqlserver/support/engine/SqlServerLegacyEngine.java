@@ -28,7 +28,8 @@ import java.util.Map;
  *
  * // NTLM 域认证
  * Map<String, String> params = Map.of("domain", "MYDOMAIN");
- * DataSourceOptions opts = new DataSourceOptions("default", "localhost", 1433, "master", "DOMAIN\\sa", "password", null, params);
+ * DataSourceOptions opts = new DataSourceOptions("default", "localhost", 1433, "master", "DOMAIN\\sa", "password",
+ * null, params);
  * engine.addDataSource(opts);
  * }</pre>"DOMAIN\\sa", "password", null, params);
  * engine.addDataSource(opts);

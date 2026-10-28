@@ -15,7 +15,8 @@ import java.util.Map;
  * 远程数据同步 Agent 抽象基类，封装与 数据同步 服务端 的注册、心跳、收发协议。
  * <p>
  * 启动后通过 {@link SyncClient} 连接远端、注册 Agentid 并按 {@code source:agentId} / {@code sink:agentId} 两个 topic 订阅。
- * 子类提供 {@link com.chua.datasync.agent.support.DataSyncAgentSource} 与 {@link com.chua.datasync.agent.support.DataSyncAgentSink} 实现。
+ * 子类提供 {@link com.chua.datasync.agent.support.DataSyncAgentSource} 与 {@link
+ * com.chua.datasync.agent.support.DataSyncAgentSink} 实现。
  * </p>
  *
  * @author CH

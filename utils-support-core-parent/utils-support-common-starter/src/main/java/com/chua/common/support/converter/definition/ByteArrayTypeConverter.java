@@ -24,7 +24,8 @@ import javax.annotation.Nullable;
  *   <li>{@link String} — 尝试作为文件读取；HTTP/HTTPS URL 下载；否则按 UTF-8 编码</li>
  *   <li>{@link Map} / {@link java.util.Collection} — toString().getBytes() 或遍历取 byteValue</li>
  *   <li>{@code byte[]} / {@link Byte} — 直接返回或包装</li>
- *   <li>{@link Short} / {@link Character} / {@link Integer} / {@link Long} / {@link Float} / {@link Double} / {@link Number} — 通过 ByteBuffer 转换</li>
+ *   <li>{@link Short} / {@link Character} / {@link Integer} / {@link Long} / {@link Float} / {@link Double} / {@link
+ *   Number} — 通过 ByteBuffer 转换</li>
  *   <li>{@link File} / {@link Path} / {@link URL} / {@link com.google.common.io.ByteSource} — 读取全部字节</li>
  * </ul>
  *

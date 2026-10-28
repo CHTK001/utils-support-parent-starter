@@ -25,7 +25,8 @@ import java.util.*;
  * <p><b>格式化示例：</b>
  * <pre>
  * 输入：
- * SELECT u.id, u.username, u.email, r.name FROM users u INNER JOIN roles r ON u.role_id = r.id WHERE u.status = 'active' ORDER BY u.username ASC LIMIT 10
+ * SELECT u.id, u.username, u.email, r.name FROM users u INNER JOIN roles r ON u.role_id = r.id WHERE u.status =
+ * 'active' ORDER BY u.username ASC LIMIT 10
  *
  * 输出：
  * SELECT
