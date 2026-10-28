@@ -10,6 +10,9 @@ import java.nio.file.Paths;
  * Windows 服务管理器（runtime-support 副本）的参数数组化验证。
  *
  * <p>直接 {@code main()} 运行，不依赖 JUnit。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class WindowsServiceManagerArgvTest {
 

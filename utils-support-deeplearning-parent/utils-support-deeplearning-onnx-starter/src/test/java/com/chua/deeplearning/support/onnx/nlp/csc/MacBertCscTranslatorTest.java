@@ -22,6 +22,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * <p>覆盖全部公开入口：{@code name} / {@code translate}（含 null、空白、纠错、
  * 保文本、混合文本、超长分段、阈值属性）/ {@code setModelPath} / {@code close}，
  * 以及注册表条目与内嵌资源完整性。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class MacBertCscTranslatorTest {
 

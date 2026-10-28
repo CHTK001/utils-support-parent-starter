@@ -34,6 +34,9 @@ import java.util.Map;
  *
  * <p>断言口径：方言的公开约定 + {@code META-INF/dialect-env/*.env} 里已声明的
  * {@code pagination-sql} 模板。全部为纯函数调用，不需要任何服务端。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineDialectSql {
 

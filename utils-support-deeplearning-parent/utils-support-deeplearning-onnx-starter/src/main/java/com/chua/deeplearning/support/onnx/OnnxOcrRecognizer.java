@@ -9,6 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import com.chua.deeplearning.support.engine.DeviceSelector;
 /**
  * @作者 CH
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 
 @Slf4j

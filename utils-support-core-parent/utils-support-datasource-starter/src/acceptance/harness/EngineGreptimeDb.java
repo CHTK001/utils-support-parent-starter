@@ -37,6 +37,9 @@ import java.util.logging.Logger;
  *
  * <p>这样把该引擎从「仅契约面」升级为「真实 SQL 生成 + 真实 JDBC 调用链」，
  * 但仍<b>不是</b>真实 GreptimeDB 读写验收（没有服务端参与）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineGreptimeDb {
 

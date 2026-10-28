@@ -18,6 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * ZooKeeper SPI 装配自测。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class ZookeeperClientProviderTest {
 

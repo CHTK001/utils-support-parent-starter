@@ -16,6 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  *
  * <p>重点是 {@code OR} 分组与 {@code AND} 条件混排时的括号：SQL 中 {@code AND} 优先级
  * 高于 {@code OR}，不加括号会让链式书写的意图与数据库的实际求值分叉。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class AbstractLambdaWrapperWhereTest {
 

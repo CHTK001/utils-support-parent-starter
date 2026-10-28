@@ -21,6 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@link DefaultEngineOrm} 的表达式翻译测试。
  *
  * <p>重点覆盖三处容易出错的地方：IN 列表拆分、BETWEEN 边界拆包、NOT 的德摩根下推。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class DefaultEngineOrmTest {
 

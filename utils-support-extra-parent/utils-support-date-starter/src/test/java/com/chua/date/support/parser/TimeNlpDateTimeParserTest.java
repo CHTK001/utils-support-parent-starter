@@ -12,6 +12,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * DateTimeParser SPI 与 Time-NLP 解析验证。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class TimeNlpDateTimeParserTest {
 

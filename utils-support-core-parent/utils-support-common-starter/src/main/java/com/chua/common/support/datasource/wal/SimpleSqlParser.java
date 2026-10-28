@@ -13,6 +13,9 @@ import java.util.*;
  *
  * <p>只支持 {@code SELECT ... FROM 表} 的全分段扫描与 {@code INSERT INTO 表 (列) VALUES (值)} 写入。
  * 回放或解码任一条记录失败都会中止整次操作，不把残缺结果当作成功返回。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SimpleSqlParser {
 

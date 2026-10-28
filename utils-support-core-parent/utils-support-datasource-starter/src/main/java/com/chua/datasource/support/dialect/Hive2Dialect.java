@@ -2,6 +2,9 @@ package com.chua.datasource.support.dialect;
 import java.util.Properties;
 /**
  * Hive 2.x 方言。
+*
+* @author CH
+* @since 4.0.0.42
 */
 public class Hive2Dialect extends SqlDialect {
     public static final String VERSION = "Apache Hive 2.x"; // 版本

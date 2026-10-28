@@ -18,6 +18,9 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * <p>本阶段不使用任何桩：真实打开 RocksDB、真实写点、真实前缀扫描、真实删除，
  * 因此覆盖的是键布局、时间戳编码、索引维护、降采样与清理语义的端到端行为。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineRocksdbSeries {
 

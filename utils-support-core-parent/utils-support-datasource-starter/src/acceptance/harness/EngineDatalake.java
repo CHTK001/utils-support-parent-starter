@@ -23,6 +23,9 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p>覆盖：请求方法/路径/Content-Type/请求体编码、JSON 行解析与类型映射、
  * 客户端分页切片、受影响行数解析、错误响应、非数组/非对象/空响应的拒绝，
  * 以及只读入口与关闭语义。桩只回放响应体，解析与判定全部由被测代码完成。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineDatalake {
 

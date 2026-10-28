@@ -8,6 +8,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * 分支门面冒烟测试：独占语义 + else 兜底 + 不可达校验。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class BranchChainTest {
 

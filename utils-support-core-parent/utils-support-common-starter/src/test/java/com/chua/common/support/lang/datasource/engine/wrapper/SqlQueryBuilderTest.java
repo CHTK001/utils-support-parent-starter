@@ -23,6 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  *
  * <p>本类用 {@link RecordingEngine} 捕获构建器真正下发给引擎的语句与参数，
  * 断言的是"拼接即执行"的端到端链路，而非孤立的字符串拼装。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class SqlQueryBuilderTest {
 

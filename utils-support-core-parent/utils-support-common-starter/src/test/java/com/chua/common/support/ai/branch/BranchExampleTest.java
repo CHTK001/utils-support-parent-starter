@@ -26,6 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * }</pre>
  *
  * <p>规则写法见下方各用例。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class BranchExampleTest {
 

@@ -14,6 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * InfluxDB SPI 装配自测（v2 与 v3 两条口径）。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class InfluxdbClientProviderTest {
 

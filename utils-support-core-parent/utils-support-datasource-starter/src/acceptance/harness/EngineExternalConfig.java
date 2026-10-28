@@ -26,6 +26,9 @@ import com.zaxxer.hikari.HikariDataSource;
  *
  * <p>本阶段不声称验证了这 5 个引擎的查询语义；那部分仍只有阶段一的契约面，
  * 报告 §7 已如实声明。此处证明的是「配置与生命周期」这一层没有缺陷。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineExternalConfig {
 

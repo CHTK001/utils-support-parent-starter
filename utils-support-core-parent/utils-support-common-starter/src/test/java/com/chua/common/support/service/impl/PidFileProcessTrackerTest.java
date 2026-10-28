@@ -4,6 +4,9 @@ package com.chua.common.support.service.impl;
  * PID 进程追踪器验证：tasklist / taskkill 以参数数组下传后的真实语义。
  *
  * <p>直接 {@code main()} 运行，不依赖 JUnit。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class PidFileProcessTrackerTest {
 

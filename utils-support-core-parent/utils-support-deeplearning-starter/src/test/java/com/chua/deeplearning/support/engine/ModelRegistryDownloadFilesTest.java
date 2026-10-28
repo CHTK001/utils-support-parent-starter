@@ -34,6 +34,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * <p>通过 {@link ModelRegistry#setDownloader} 注入假下载器，全部用例离线可跑；
  * 测试结束恢复 extractRoot / modelRootDir / downloader 默认值，避免污染同 JVM
  * 其他测试类（本模块 surefire 未配置 reuseForks=false）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class ModelRegistryDownloadFilesTest {
 

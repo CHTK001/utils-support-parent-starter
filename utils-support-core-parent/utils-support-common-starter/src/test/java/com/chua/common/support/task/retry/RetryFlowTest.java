@@ -21,6 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>链式配置只有一套，执行分两种：{@code execute} 当前线程阻塞执行，
  * {@code executeAsync} 交给 {@code boundedElastic} 调度线程执行并以三个回调
  * {@code subscribe(onNext, onError, onComplete)} 交付结果。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class RetryFlowTest {
 

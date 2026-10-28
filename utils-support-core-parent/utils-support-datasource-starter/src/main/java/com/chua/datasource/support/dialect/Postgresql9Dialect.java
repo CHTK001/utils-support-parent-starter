@@ -2,6 +2,9 @@ package com.chua.datasource.support.dialect;
 import java.util.Properties;
 /**
  * PostgreSQL 9.x 方言（trigger/procedure SQL 兼容老版本）。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class Postgresql9Dialect extends SqlDialect {
     public static final String VERSION = "PostgreSQL 9.x"; // 版本

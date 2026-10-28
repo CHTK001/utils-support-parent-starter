@@ -20,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>这是整套「宿主不依赖具体中间件」架构的关键验证点 ——
  * 如果这里失败，宿主侧永远拿不到实现，功能必然「未开放」。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class KafkaClientProviderTest {
 

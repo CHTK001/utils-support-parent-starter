@@ -2,6 +2,9 @@ package com.chua.datasource.support.dialect;
 import java.util.Properties;
 /**
  * duckdb 方言。
+*
+* @author CH
+* @since 4.0.0.42
 */
 public class DuckdbDialect extends SqlDialect {
     public static final String VERSION = "DuckDB 0.8+"; // 版本

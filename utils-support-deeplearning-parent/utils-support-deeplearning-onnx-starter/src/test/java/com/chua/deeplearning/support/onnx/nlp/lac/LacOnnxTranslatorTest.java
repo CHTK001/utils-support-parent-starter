@@ -20,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.*;
  *   <li>jar 内嵌资源：word/tag/q2b.dic + npy + encoder 全部存在且格式正确</li>
  *   <li>内部解码：BIO 合并/Viterbi/npy 解析（反射覆盖私有分支）</li>
  * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class LacOnnxTranslatorTest {
 

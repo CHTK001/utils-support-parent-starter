@@ -646,6 +646,9 @@ public class WinRmExecClient implements AutoCloseable {
  * @param stdout stdout
  * @param stderr stderr
  * @return 执行结果的结果
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public record ExecResult(int exitCode, String stdout, String stderr) {
     /**

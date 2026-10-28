@@ -17,6 +17,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * <p>覆盖 Tokenizer 契约的全部可调用入口：SPI 按别名获取、静态
  * {@code segment(word,type)}、默认方法、Word offset 连续性、NER 标签、空输入，
  * 以及 JVM 级共享会话的创建/复用/释放。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class LacTokenizerTest {

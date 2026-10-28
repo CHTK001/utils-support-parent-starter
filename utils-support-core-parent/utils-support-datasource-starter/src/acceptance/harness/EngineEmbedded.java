@@ -14,6 +14,9 @@ import java.util.Set;
  * <p>覆盖 parquet / lucene / nitrite / tablesaw，以及 rocksdb 的文档与全文面。
  * 这些引擎的能力面各不相同（列式文件、全文检索、文档存储、内存表），
  * 因此按各自接口契约断言，不套用 SQL 面。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineEmbedded {
 

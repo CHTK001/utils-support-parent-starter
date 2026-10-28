@@ -2,6 +2,9 @@ package com.chua.datasource.support.dialect;
 import java.util.Properties;
 /**
  * Oracle 12C 方言（偏移量...获取 分页）。
+*
+* @author CH
+* @since 4.0.0.42
 */
 public class Oracle12cDialect extends SqlDialect {
     public static final String VERSION = "Oracle 12c"; // 版本

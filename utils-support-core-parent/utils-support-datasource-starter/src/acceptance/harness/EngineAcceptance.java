@@ -10,6 +10,9 @@ import java.util.Set;
  *
  * 覆盖 META-INF/extensions 中登记的全部 24 个 engine 键。
  * 每个键独立判定，失败互不影响；退出码 = 失败数（0 表示全通过）。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineAcceptance {
 

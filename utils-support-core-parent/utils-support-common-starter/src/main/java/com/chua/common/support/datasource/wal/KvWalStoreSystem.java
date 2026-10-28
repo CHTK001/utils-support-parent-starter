@@ -15,6 +15,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * KV 存储引擎。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class KvWalStoreSystem implements WalStoreSystem<String> {

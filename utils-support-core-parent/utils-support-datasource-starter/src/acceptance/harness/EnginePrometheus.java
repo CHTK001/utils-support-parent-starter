@@ -32,6 +32,9 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * <p>两条通道都验：直接使用 {@link PrometheusClient}（含 Basic 认证头与关闭语义），
  * 以及经 SPI {@code Engine.create("prometheus")} 的 {@link PrometheusEngine}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EnginePrometheus {
 

@@ -2,6 +2,9 @@ package com.chua.datasource.support.dialect;
 import java.util.Properties;
 /**
  * ClickHouse 20.x 方言（旧驱动）。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ClickHouse20Dialect extends SqlDialect {
     /**

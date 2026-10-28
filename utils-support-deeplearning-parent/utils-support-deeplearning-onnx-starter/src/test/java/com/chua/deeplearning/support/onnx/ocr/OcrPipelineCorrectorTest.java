@@ -26,6 +26,9 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * OcrPipeline 中文纠错（macbert4csc）验收：corrector 为可选非必填后处理，
  * 仅中文用例，端到端渲染错别字图片验证纠错生效且不影响原管线。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class OcrPipelineCorrectorTest {
 

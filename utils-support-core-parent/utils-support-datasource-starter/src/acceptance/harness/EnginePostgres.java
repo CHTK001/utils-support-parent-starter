@@ -22,6 +22,9 @@ import java.util.Map;
  * <p><b>跳过语义</b>：实例未启动时打印 {@code [SKIP]} 与 {@code STAGE22_SKIP=1}
  * 并以退出码 0 结束——其他机器不装 PostgreSQL 也能跑完整个套件；
  * 日志里能看到 SKIP 标记，不会被误当成「已通过」。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EnginePostgres {
 

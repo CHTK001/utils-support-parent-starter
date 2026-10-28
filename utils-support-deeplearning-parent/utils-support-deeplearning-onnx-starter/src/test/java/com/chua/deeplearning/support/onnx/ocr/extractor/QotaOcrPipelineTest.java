@@ -19,6 +19,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * <p>覆盖管线全部公开入口：{@code recognize} / {@code recognizeDetail} /
  * {@code recognizeDetailWithImage}，以及 {@link OcrRecognizer} 的链式入口
  * （lang/modelPath/device/useGpu/threshold）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class QotaOcrPipelineTest {
 

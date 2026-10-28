@@ -9,6 +9,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * 规则接口化冒烟测试：SPI 装配 + 单构造器单规则 + 规则集类型隔离。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class RuleSpiTest {
 

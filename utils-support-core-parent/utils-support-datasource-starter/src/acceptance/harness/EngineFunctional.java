@@ -22,6 +22,9 @@ import java.util.Set;
  * </p>
  *
  * <p>退出码 = 失败数（0 表示全通过）。输出同时以 UTF-8 落盘，避免 shell 重定向的编码与长度陷阱。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineFunctional {
 

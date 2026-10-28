@@ -12,6 +12,9 @@ import java.util.concurrent.atomic.AtomicLong;
  *   <li><b>帧速率</b>：单连接最小帧间隔（纳秒），用于防洪水攻击；默认 100µs ≈ 10000 frames/s/conn</li>
  *   <li><b>认证速率</b>：单源 IP 每分钟最大 AUTH 次数（防爆破），0 表示禁用</li>
  * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SipRateLimiter {
 

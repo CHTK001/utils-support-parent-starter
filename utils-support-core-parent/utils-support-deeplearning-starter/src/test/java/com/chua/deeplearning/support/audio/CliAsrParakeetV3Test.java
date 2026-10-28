@@ -27,6 +27,9 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * <p>前置就绪判定：CLI 位于 {@code clis/nemo-speech/bin/nemo-speech[.exe]}，
  * 模型位于 {@code download/parakeet-v3/*.gguf}，音频为 {@code %TEMP%/parakeet-test.wav}
  * （三者均在 {@code %TEMP%/chua-dl-models} 或 tmp 下，可由 {@code deeplearning.model.cache-dir} 重定向）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class CliAsrParakeetV3Test {
 

@@ -22,6 +22,9 @@ import static org.junit.jupiter.api.Assertions.*;
  *   <li>jar 内嵌资源：model.onnx + preprocessor_config.json 全部存在且格式正确</li>
  *   <li>字符表解析：character_list 30246 项、首项 blank、末项空格、含中文</li>
  * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class QotaOcrTranslatorTest {
 
