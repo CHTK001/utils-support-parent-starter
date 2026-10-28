@@ -11,6 +11,7 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.network.server.AbstractServer;
 
 /**
  * Socket.IO 同步服务端实现。
@@ -22,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 4.0.0.42
  */
 @Spi("socketio")
-public class SocketIOSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
+public class SocketIOSyncServer extends AbstractServer implements SyncServer, SyncProtocol {
 
     /**
      * 获取协议

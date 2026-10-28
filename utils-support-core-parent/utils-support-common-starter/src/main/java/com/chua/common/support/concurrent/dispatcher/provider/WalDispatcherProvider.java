@@ -22,6 +22,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import com.chua.common.support.spi.ServiceProvider;
 
 /**
  * WAL（Write-Ahead log）分发器提供者。
@@ -159,7 +160,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
         try {
             com.chua.common.support.base.serialize.Serialization serialization =
-                    com.chua.common.support.spi.ServiceProvider.of(com.chua.common.support.base.serialize.Serialization.class)
+                    ServiceProvider.of(com.chua.common.support.base.serialize.Serialization.class)
                             .getNewExtension(name);
             if (serialization != null) {
                 log.info("WAL 序列化器已加载: {} -> {}", name, serialization.getClass().getName());

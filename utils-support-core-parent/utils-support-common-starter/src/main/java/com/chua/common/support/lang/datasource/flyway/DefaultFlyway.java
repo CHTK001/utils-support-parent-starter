@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.file.resource.Resource;
 
 /**
  * 默认数据库迁移实现，基于 {@link Engine#execute(String, Object...)} 执行 SQL。
@@ -151,7 +152,7 @@ public class DefaultFlyway implements Flyway {
             throw new IllegalArgumentException("脚本路径不能为空");
         }
         return executeScript(FlywayScripts.readContent(
-                com.chua.common.support.file.resource.Resource.create(script.toFile()), script.toString()), script.getFileName().toString());
+                Resource.create(script.toFile()), script.toString()), script.getFileName().toString());
     }
 
     /**

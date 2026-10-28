@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import com.chua.common.support.network.server.dht.krpc.BencodeCodec;
 
 /**
  * DHT 传输层，基于 Netty NIO Datagram 通道 实现。
@@ -371,7 +372,7 @@ public class DhtNettyServer {
     private void handleKrpcMessage(byte[] data, InetSocketAddress sender) {
         try {
             @SuppressWarnings("unchecked")
-            Map<String, Object> decoded = (Map<String, Object>) com.chua.common.support.network.server.dht.krpc.BencodeCodec.decode(data);
+            Map<String, Object> decoded = (Map<String, Object>) BencodeCodec.decode(data);
 
             Object tObj = decoded.get("t");
             String txId = null;

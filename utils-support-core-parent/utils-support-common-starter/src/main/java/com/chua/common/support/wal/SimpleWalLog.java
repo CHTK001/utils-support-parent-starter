@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.CRC32;
+import java.lang.reflect.Field;
 
 /**
  * 单文件 WAL 实现，不分片。
@@ -341,7 +342,7 @@ public class SimpleWalLog implements WalLog {
         try {
             // [P3C 1.10 豁免] JDK 内部 Unsafe 反射，无法用 ReflectUtils 替代
             Class<?> unsafeCls = Class.forName("sun.misc.Unsafe"); // [P3C 1.10 豁免] Wal 基础设施 JDK 内部 Unsafe 类加载，无法用 ReflectUtils 替代
-            java.lang.reflect.Field f = unsafeCls.getDeclaredField("theUnsafe"); // [P3C 1.10 豁免] Wal 基础设施 JDK 内部 Unsafe 单例字段，无法用 ReflectUtils 替代
+            Field f = unsafeCls.getDeclaredField("theUnsafe"); // [P3C 1.10 豁免] Wal 基础设施 JDK 内部 Unsafe 单例字段，无法用 ReflectUtils 替代
             f.setAccessible(true); // [P3C 1.10 豁免] Wal 基础设施 JDK 内部 Unsafe 字段放开访问，无法用 ReflectUtils 替代
             Object unsafe = f.get(null);
             m = unsafeCls.getMethod("invokeCleaner", java.nio.ByteBuffer.class); // [P3C 1.10 豁免] Wal 基础设施 JDK 内部 Unsafe.invokeCleaner 方法，无法用 ReflectUtils 替代

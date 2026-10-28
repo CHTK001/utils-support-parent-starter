@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import com.chua.common.support.datasearch.plugin.spi.PluginOfflineProvider;
 
 /**
  * VS Code 风格扩展目录本地提供者抽象基类。
@@ -21,7 +22,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.45
  */
-public abstract class AbstractExtensionsOfflineProvider implements com.chua.common.support.datasearch.plugin.spi.PluginOfflineProvider {
+public abstract class AbstractExtensionsOfflineProvider implements PluginOfflineProvider {
 
     /**
      * 日志
