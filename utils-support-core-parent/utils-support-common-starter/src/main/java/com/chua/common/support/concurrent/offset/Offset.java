@@ -49,6 +49,9 @@ public interface Offset extends AutoCloseable {
      */
     void flush();
 
+    /**
+     * 关闭并释放底层资源。
+     */
     @Override
     void close();
 }

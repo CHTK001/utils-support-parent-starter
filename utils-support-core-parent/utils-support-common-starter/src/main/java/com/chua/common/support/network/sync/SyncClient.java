@@ -81,6 +81,9 @@ public interface SyncClient extends AutoCloseable {
      */
     Map<String, Object> getMetadata();
 
+    /**
+     * 关闭并释放底层资源。
+     */
     @Override
     void close();
 }

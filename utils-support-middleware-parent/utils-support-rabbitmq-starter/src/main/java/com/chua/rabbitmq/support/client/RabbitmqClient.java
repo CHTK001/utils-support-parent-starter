@@ -1513,6 +1513,12 @@ public class RabbitmqClient implements AutoCloseable {
 
     @FunctionalInterface
     public interface TransactionCallback<T> {
+    /**
+     * 在给定通道上执行事务逻辑。
+     *
+     * @param channel AMQP 通道
+     * @return 执行结果
+     */
         T doInTransaction(Channel channel) throws Exception;
     }
 

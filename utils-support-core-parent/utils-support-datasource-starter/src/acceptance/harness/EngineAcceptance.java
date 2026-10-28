@@ -191,6 +191,11 @@ public final class EngineAcceptance {
     // ---------------- 断言与统计 ----------------
 
     interface Probe {
+    /**
+     * 执行并返回结果。
+     *
+     * @return 结果字符串
+     */
         String run() throws Exception;
     }
 

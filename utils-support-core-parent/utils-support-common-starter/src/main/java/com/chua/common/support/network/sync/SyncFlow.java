@@ -58,6 +58,9 @@ public interface SyncFlow extends AutoCloseable {
      */
     void removeListener(SyncFlowListener listener);
 
+    /**
+     * 关闭并释放底层资源。
+     */
     @Override
     void close();
 }

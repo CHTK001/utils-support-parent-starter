@@ -18,16 +18,49 @@ public interface IndexManager {
      */
     interface CreateIndexStep {
 
+    /**
+     * 指定操作的表。
+     *
+     * @param table 表名
+     * @return 当前步骤，便于链式调用
+     */
         CreateIndexStep onTable(String table);
 
+    /**
+     * 指定索引字段。
+     *
+     * @param field 字段名
+     * @return 当前步骤，便于链式调用
+     */
         CreateIndexStep field(String field);
 
+    /**
+     * 指定操作的列。
+     *
+     * @param column 列名
+     * @return 当前步骤，便于链式调用
+     */
         CreateIndexStep onColumn(String column);
 
+    /**
+     * 指定索引类型。
+     *
+     * @param type 索引类型
+     * @return 当前步骤，便于链式调用
+     */
         CreateIndexStep type(String type);
 
+    /**
+     * 指定索引算法。
+     *
+     * @param algorithm 索引算法
+     * @return 当前步骤，便于链式调用
+     */
         CreateIndexStep using(String algorithm);
 
+    /**
+     * 执行已配置的操作。
+     */
         void execute();
     }
 
@@ -39,8 +72,17 @@ public interface IndexManager {
      */
     interface DropIndexStep {
 
+    /**
+     * 指定操作的表。
+     *
+     * @param table 表名
+     * @return 当前步骤，便于链式调用
+     */
         DropIndexStep onTable(String table);
 
+    /**
+     * 执行已配置的操作。
+     */
         void execute();
     }
 

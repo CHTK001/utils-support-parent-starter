@@ -35,18 +35,40 @@ public final class EngineExternalConfig {
     /** 引擎构造器。 */
     @FunctionalInterface
     interface Factory {
+    /**
+     * 创建实例。
+     *
+     * @return 新建的引擎实例
+     */
         JdbcEngine create();
     }
 
     /** 数据源注册器：各引擎的 addDataSource 重载是子类私有的，只能逐个绑定。 */
     @FunctionalInterface
     interface Register {
+    /**
+     * 注册连接信息。
+     *
+     * @param engine 引擎实例
+     * @param name 名称
+     * @param host 主机
+     * @param port 端口
+     * @param database 数据库名
+     */
         void register(JdbcEngine engine, String name, String host, int port, String database);
     }
 
     /** 期望的 JDBC URL。 */
     @FunctionalInterface
     interface UrlExpect {
+    /**
+     * 拼接连接地址。
+     *
+     * @param host 主机
+     * @param port 端口
+     * @param database 数据库名
+     * @return 结果字符串
+     */
         String url(String host, int port, String database);
     }
 

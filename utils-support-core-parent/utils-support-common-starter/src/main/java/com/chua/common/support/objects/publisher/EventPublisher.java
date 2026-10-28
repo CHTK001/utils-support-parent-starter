@@ -151,6 +151,11 @@ public class EventPublisher {
      */
     @FunctionalInterface
     public interface EventListener {
+    /**
+     * 接收事件回调。
+     *
+     * @param event 事件对象
+     */
         void onEvent(Object event);
     }
 }
