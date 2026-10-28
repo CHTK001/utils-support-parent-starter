@@ -70,6 +70,11 @@ import lombok.extern.slf4j.Slf4j;
 public class ShardingV5Conversion implements DataSourceConversion {
 
     /**
+     * 表名末尾数字后缀
+     */
+    private static final java.util.regex.Pattern NUMERIC_SUFFIX_PATTERN = java.util.regex.Pattern.compile("\\d+$");
+
+    /**
      * 表配置
     */
     private final List<TableConfig> tableConfigs = Wraps.list();
@@ -531,7 +536,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
      * @return extract后缀的结果
      */
     private String extractSuffix(String name) {
-        var m = java.util.regex.Pattern.compile("\\d+$").matcher(name);
+        var m = NUMERIC_SUFFIX_PATTERN.matcher(name);
         if (m.find()) {
             return m.group();
         }

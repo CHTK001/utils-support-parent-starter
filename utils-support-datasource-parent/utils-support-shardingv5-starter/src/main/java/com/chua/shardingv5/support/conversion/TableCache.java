@@ -19,6 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 public class TableCache {
 
     /**
+     * 表名末尾数字后缀
+     */
+    private static final Pattern NUMERIC_SUFFIX_PATTERN = Pattern.compile("\\d+$");
+
+    /**
      * 数据源
     */
     private final List<DataSource> dataSources;
@@ -56,8 +61,8 @@ public class TableCache {
         // 缓存过期或不存在 → 重新扫描，按后缀降序（最新在前）
         var tables = scanTables(prefix);
         tables.sort((a, b) -> {
-            var ma = Pattern.compile("\\d+$").matcher(a);
-            var mb = Pattern.compile("\\d+$").matcher(b);
+            var ma = NUMERIC_SUFFIX_PATTERN.matcher(a);
+            var mb = NUMERIC_SUFFIX_PATTERN.matcher(b);
             if (ma.find() && mb.find()) {
                 return Long.compare(Long.parseLong(mb.group()), Long.parseLong(ma.group()));
             }
@@ -98,8 +103,8 @@ public class TableCache {
         }
         var result = Wraps.<String>list(all);
         result.sort((a, b) -> {
-            var ma = Pattern.compile("\\d+$").matcher(a);
-            var mb = Pattern.compile("\\d+$").matcher(b);
+            var ma = NUMERIC_SUFFIX_PATTERN.matcher(a);
+            var mb = NUMERIC_SUFFIX_PATTERN.matcher(b);
             if (ma.find() && mb.find()) {
                 return Long.compare(Long.parseLong(ma.group()), Long.parseLong(mb.group()));
             }
