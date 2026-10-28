@@ -729,7 +729,7 @@ import java.util.*;
                 Object response = jedis.sendCommand(FT_SEARCH, rawArgs);
                 return mapFtSearchResponse(response, entityClass, jedis);
             } catch (Exception e) {
-                log.warn("FT.SEARCH 失败: " + e.getMessage() + "，回退到全量扫描（并按条件在内存过滤）", e);
+                log.warn("FT.SEARCH 失败: {}，回退到全量扫描（并按条件在内存过滤）", e.getMessage(), e);
                 List<T> all = scanAll(jedis, keyPrefix, entityClass);
                 if (whereClause == null || whereClause.isBlank()) {
                     return all;
