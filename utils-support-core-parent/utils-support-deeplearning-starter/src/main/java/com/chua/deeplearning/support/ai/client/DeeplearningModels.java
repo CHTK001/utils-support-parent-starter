@@ -73,8 +73,10 @@ public final class DeeplearningModels {
             if (entry == null) {
                 continue;
             }
-            boolean inputOk = inputType == null || entry.inputType() == null || inputType.isAssignableFrom(entry.inputType());
-            boolean outputOk = outputType == null || entry.outputType() == null || outputType.isAssignableFrom(entry.outputType());
+            boolean inputOk = inputType == null || entry.inputType() == null ||
+                    inputType.isAssignableFrom(entry.inputType());
+            boolean outputOk = outputType == null || entry.outputType() == null ||
+                    outputType.isAssignableFrom(entry.outputType());
             if (inputOk && outputOk) {
                 result.add(def);
             }

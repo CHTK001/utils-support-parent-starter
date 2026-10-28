@@ -64,7 +64,8 @@ public class CorsServerFilter implements ServerFilter {
         String age = config.getInitParameter("cors.maxAge");
         String credentials = config.getInitParameter("cors.allowCredentials");
         // 默认值是通配 *，未显式配置时不挂载，避免对所有响应广播跨域头
-        this.configured = present(origin) || present(methods) || present(headers) || present(age) || present(credentials);
+        this.configured = present(origin) || present(methods) || present(headers) || present(age) ||
+                present(credentials);
         if (present(origin)) {
             this.allowOrigin = origin;
         }

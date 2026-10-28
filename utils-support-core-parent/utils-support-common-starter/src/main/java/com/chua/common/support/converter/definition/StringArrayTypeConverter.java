@@ -51,7 +51,8 @@ public class StringArrayTypeConverter implements TypeConverter<String[]> {
                 String inner = stringValue.substring(1, stringValue.length() - 1);
                 String[] parts = inner.split(SYMBOL_COMMA);
                 return transToArray(parts, String.class);
-            } else if (stringValue.startsWith(SYMBOL_LEFT_BIG_PARENTHESES) && stringValue.endsWith(SYMBOL_RIGHT_BIG_PARENTHESES)) {
+            } else if (stringValue.startsWith(SYMBOL_LEFT_BIG_PARENTHESES) &&
+                    stringValue.endsWith(SYMBOL_RIGHT_BIG_PARENTHESES)) {
                 String[] split = PATTERN.split(stringValue);
                 List<String> result = Wraps.list(split.length);
                 for (String it : split) {

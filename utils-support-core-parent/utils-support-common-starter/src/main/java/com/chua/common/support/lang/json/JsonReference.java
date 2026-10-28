@@ -42,7 +42,8 @@ public class JsonReference {
  if (json == null) {
  return true;
  }
- return StringUtils.isBlank(json) || !json.startsWith(SYMBOL_LEFT_SQUARE_BRACKET) && !json.startsWith(SYMBOL_LEFT_BIG_PARENTHESES);
+ return StringUtils.isBlank(json) || !json.startsWith(SYMBOL_LEFT_SQUARE_BRACKET) &&
+         !json.startsWith(SYMBOL_LEFT_BIG_PARENTHESES);
  }
 
  /**

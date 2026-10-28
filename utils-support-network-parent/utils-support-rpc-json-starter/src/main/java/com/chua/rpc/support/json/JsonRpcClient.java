@@ -151,7 +151,8 @@ public class JsonRpcClient implements RpcClient {
         @Override
         public Object apply(ProxyMethod proxyMethod) {
             int maxRetries = consumerConfig != null && Boolean.FALSE.equals(consumerConfig.getRetryEnabled())
-                    ? 0 : (consumerConfig != null && consumerConfig.getRetries() != null ? consumerConfig.getRetries() : 0);
+                    ? 0 : (consumerConfig != null &&
+                            consumerConfig.getRetries() != null ? consumerConfig.getRetries() : 0);
             int retryDelay = consumerConfig != null && consumerConfig.getRetryDelay() != null
                     ? consumerConfig.getRetryDelay() : DEFAULT_RETRY_DELAY;
             Throwable lastError = null;
