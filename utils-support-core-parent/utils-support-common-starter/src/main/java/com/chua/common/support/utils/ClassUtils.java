@@ -2308,7 +2308,8 @@ public class ClassUtils {
         }
         if (object instanceof Field && !((Field) object).isAccessible()) {
             ((Field) object).setAccessible(true); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（反射基础设施）
-            if (Modifier.isPrivate(((Field) object).getModifiers()) && Modifier.isFinal(((Field) object).getModifiers())) {
+            if (Modifier.isPrivate(((Field) object).getModifiers()) &&
+                    Modifier.isFinal(((Field) object).getModifiers())) {
                 try {
                     Field modifiersField = Field.class.getDeclaredField("modifiers"); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（移除 final 修饰需触碰修饰符元字段）
                     modifiersField.setAccessible(true); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（反射基础设施）

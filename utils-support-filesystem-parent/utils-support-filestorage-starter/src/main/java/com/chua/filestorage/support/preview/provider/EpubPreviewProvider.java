@@ -127,7 +127,8 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
                 }
             }
 
-            if (inScript && c == '>' && html.substring(Math.max(0, i - 7), i + 1).toLowerCase(Locale.ROOT).contains("</script")) {
+            if (inScript && c == '>' &&
+                    html.substring(Math.max(0, i - 7), i + 1).toLowerCase(Locale.ROOT).contains("</script")) {
                 inScript = false;
             }
         }

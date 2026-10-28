@@ -1192,7 +1192,8 @@ import java.util.concurrent.ConcurrentHashMap;
                     i++;
                 } else if (!Character.isWhitespace(c)) {
                     int end = i;
-                    while (end < trimmed.length() && trimmed.charAt(end) != ',' && !Character.isWhitespace(trimmed.charAt(end))) {
+                    while (end < trimmed.length() && trimmed.charAt(end) != ',' &&
+                            !Character.isWhitespace(trimmed.charAt(end))) {
                         end++;
                     }
                     String token = trimmed.substring(i, end).trim();

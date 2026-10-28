@@ -98,7 +98,8 @@ public class SamePackageServiceResolver implements ServiceResolver {
 
         for (Class<?> aClass : subTypeByPackage) {
             foundCount++;
-            if (!service.isAssignableFrom(aClass) || aClass.isInterface() || Modifier.isAbstract(aClass.getModifiers())) {
+            if (!service.isAssignableFrom(aClass) || aClass.isInterface() ||
+                    Modifier.isAbstract(aClass.getModifiers())) {
                 continue;
             }
 

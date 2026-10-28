@@ -82,7 +82,8 @@ public class DatabaseDocumentParser implements DocumentParser {
                         if (tableName == null) {
                             continue;
                         }
-                        if (!"TABLE".equals(tableType) && !"VIEW".equals(tableType) && !"SYSTEM TABLE".equals(tableType)) {
+                        if (!"TABLE".equals(tableType) && !"VIEW".equals(tableType) &&
+                                !"SYSTEM TABLE".equals(tableType)) {
                             continue;
                         }
 

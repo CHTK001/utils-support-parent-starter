@@ -87,7 +87,8 @@ public class UrlTypeConverter implements TypeConverter<URL> {
         if (value instanceof String) {
             String str = value.toString();
             try {
-                if (str.startsWith(HTTP_PROTOCOL) || str.startsWith(HTTPS_PROTOCOL) || str.startsWith(FILE_URL_PREFIX)) {
+                if (str.startsWith(HTTP_PROTOCOL) || str.startsWith(HTTPS_PROTOCOL) ||
+                        str.startsWith(FILE_URL_PREFIX)) {
                     return new URL(str);
                 }
 

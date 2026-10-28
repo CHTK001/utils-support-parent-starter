@@ -62,7 +62,8 @@ public class StringValuePropertyResolver implements PropertyResolver {
         // 根据配置的占位符前缀，查找对应的简化前缀（如从 "}" 获取 "{"）
         String simplePrefixForSuffix = STRING_STRING_HASH_MAP.get(placeholderSupport.getPlaceholderPrefix());
         // 如果存在映射且前缀以该字符结尾，则使用简化前缀；否则直接使用原始前缀
-        if (simplePrefixForSuffix != null && placeholderSupport.getPlaceholderPrefix().endsWith(simplePrefixForSuffix)) {
+        if (simplePrefixForSuffix != null &&
+                placeholderSupport.getPlaceholderPrefix().endsWith(simplePrefixForSuffix)) {
             this.simplePrefix = simplePrefixForSuffix;
         } else {
             this.simplePrefix = placeholderSupport.getPlaceholderPrefix();

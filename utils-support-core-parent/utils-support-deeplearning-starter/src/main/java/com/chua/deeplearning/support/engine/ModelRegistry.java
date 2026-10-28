@@ -540,7 +540,8 @@ public final class ModelRegistry {
      */
     private static List<String> resolveMirrors(String downloadUrl, List<String> downloadMirrors) {
         List<String> mirrors = downloadMirrors == null ? Wraps.list() : Wraps.list(downloadMirrors);
-        if (downloadUrl != null && downloadUrl.contains("huggingface.co") && mirrors.stream().noneMatch(m -> m != null && m.contains("hf-mirror.com"))) {
+        if (downloadUrl != null && downloadUrl.contains("huggingface.co") &&
+                mirrors.stream().noneMatch(m -> m != null && m.contains("hf-mirror.com"))) {
             mirrors.add(downloadUrl.replace("huggingface.co", "hf-mirror.com"));
         }
         return mirrors.isEmpty() ? null : List.copyOf(mirrors);

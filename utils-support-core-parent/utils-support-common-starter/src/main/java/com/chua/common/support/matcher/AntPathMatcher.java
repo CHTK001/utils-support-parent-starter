@@ -212,7 +212,8 @@ public class AntPathMatcher implements PathMatcher {
             if (!fullMatch) {
                 return true;
             }
-            if (pattIdxStart == pattIdxEnd && SYMBOL_ASTERISK.equals(pattDirs[pattIdxStart]) && path.endsWith(this.pathSeparator)) {
+            if (pattIdxStart == pattIdxEnd && SYMBOL_ASTERISK.equals(pattDirs[pattIdxStart]) &&
+                    path.endsWith(this.pathSeparator)) {
                 return true;
             }
             for (int i = pattIdxStart; i <= pattIdxEnd; i++) {
