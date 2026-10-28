@@ -9,16 +9,12 @@ import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.chat.ChatResponse;
 import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.network.client.ClientResponse;
+import com.chua.common.support.network.client.HttpClientBuilder;
+import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.InetSocketAddress;
-import java.net.ProxySelector;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -40,11 +36,6 @@ public class AmazonChatClient implements ChatClient {
      * AWS Bedrock 默认 API 地址
      */
     private static final String DEFAULT_URL = "https://bedrock-runtime.us-east-1.amazonaws.com";
-
-    /**
-     * HTTP 客户端
-     */
-    private final HttpClient httpClient;
 
     /**
      * 客户端配置
@@ -122,10 +113,6 @@ public class AmazonChatClient implements ChatClient {
         this.temperature = setting.getTemperature();
         this.maxTokens = setting.getMaxTokens();
         this.system = setting.getSystem();
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(30))
-                .proxy(proxySelector(setting.getProxy()))
-                .build();
     }
 
     /**
@@ -308,7 +295,6 @@ public ChatClient newChat() {
     @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
-        String actualBaseUrl = normalizeBaseUrl();
         String actualApiKey = setting.getAppKey();
 
         try {
@@ -349,18 +335,15 @@ public ChatClient newChat() {
                     + ",\"maxTokens\":" + (maxTokens != null ? maxTokens : 2048) + "}"
                     + extraFlags.toString() + "}";
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(actualBaseUrl + "/model/"
-                            + (model != null ? model : "anthropic.claude-3-sonnet-20240229") + "/converse"))
+            ClientResponse response = newBuilder("/model/"
+                    + (model != null ? model : "anthropic.claude-3-sonnet-20240229") + "/converse")
                     .header("Authorization", "Bearer " + actualApiKey)
-                    .header("Content-Type", "application/json")
                     .header("Accept", "application/json")
-                    .timeout(Duration.ofSeconds(90))
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            String body = response.body();
+                    .json()
+                    .readTimeout(90000)
+                    .body(requestBody)
+                    .post();
+            String body = response.getBodyString();
 
             AiUsage.AiUsageBuilder usageBuilder = AiUsage.builder()
                     .model(model != null ? model : "anthropic.claude-3-sonnet-20240229")
@@ -380,7 +363,7 @@ public ChatClient newChat() {
                 log.debug("[amazon] 解析用量统计失败，已忽略: {}", e.getMessage());
             }
 
-            if (response.statusCode() == 200) {
+            if (response.getStatusCode() == 200) {
                 consumer.accept(ChatResponse.builder()
                         .state(ChatResponse.State.STOP)
                         .content(body)
@@ -390,7 +373,7 @@ public ChatClient newChat() {
             } else {
                 consumer.accept(ChatResponse.builder()
                         .state(ChatResponse.State.ERROR)
-                        .errorMessage("Bedrock API 返回错误: " + response.statusCode() + " - " + body)
+                        .errorMessage("Bedrock API 返回错误: " + response.getStatusCode() + " - " + body)
                         .build());
             }
             onComplete.run();
@@ -449,50 +432,28 @@ public ChatClient newChat() {
     }
 
     /**
-     * 代理selector
+     * 创建带公共配置的 HTTP 请求构建器。
      *
-     * @param proxyStr 代理str
-     * @return 代理selector的结果
+     * @param path API 路径（含前导斜杠）
+     * @return 请求构建器
      */
-    private static ProxySelector proxySelector(String proxyStr) {
-        if (proxyStr == null || proxyStr.isBlank()) {
-            return null;
-        }
-        java.net.Proxy.Type proxyType;
-        String hostPort;
-        if (proxyStr.startsWith("socks5://") || proxyStr.startsWith("socks://")) {
-            proxyType = java.net.Proxy.Type.SOCKS;
-            hostPort = proxyStr.substring(proxyStr.indexOf("://") + 3);
-        } else if (proxyStr.startsWith("http://")) {
-            proxyType = java.net.Proxy.Type.HTTP;
-            hostPort = proxyStr.substring(7);
-        } else if (proxyStr.startsWith("https://")) {
-            proxyType = java.net.Proxy.Type.HTTP;
-            hostPort = proxyStr.substring(8);
-        } else {
-            proxyType = java.net.Proxy.Type.HTTP;
-            hostPort = proxyStr;
-        }
-        String[] parts = hostPort.split(":");
-        String host = parts[0];
-        int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 80;
-        final java.net.Proxy proxy = new java.net.Proxy(proxyType, new InetSocketAddress(host, port));
-        return new ProxySelector() {
-            /**
-             * 选择
-            */
-            @Override
-            public java.util.List<java.net.Proxy> select(URI uri) {
-                return java.util.List.of(proxy);
+    private HttpClientBuilder newBuilder(String path) {
+        HttpClientBuilder builder = HttpClientFactory.of(normalizeBaseUrl())
+                .path(path)
+                .connectTimeout(30000);
+        String proxyStr = setting.getProxy();
+        if (proxyStr != null && !proxyStr.isBlank()) {
+            String hostPort = proxyStr;
+            int sep = hostPort.indexOf("://");
+            if (sep >= 0) {
+                hostPort = hostPort.substring(sep + 3);
             }
-
-            /**
-             * 连接失败
-            */
-            @Override
-            public void connectFailed(URI uri, java.net.SocketAddress sa, java.io.IOException ioe) {
+            String[] parts = hostPort.split(":");
+            if (parts.length == 2) {
+                builder.proxy(parts[0], Integer.parseInt(parts[1]));
             }
-        };
+        }
+        return builder;
     }
 
 

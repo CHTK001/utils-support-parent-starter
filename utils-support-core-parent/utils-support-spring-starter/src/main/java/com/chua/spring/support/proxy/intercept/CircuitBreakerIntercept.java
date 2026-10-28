@@ -25,7 +25,8 @@ import java.lang.reflect.Method;
  * @since 4.0.0.42
  */
 @Spi("com.chua.common.support.concurrent.circuitbreaker.annotation.CircuitBreaker")
-public class CircuitBreakerIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<CircuitBreaker> {
+public class CircuitBreakerIntercept extends AbstractMethodAnnotationIntercept
+        implements MethodAnnotationIntercept<CircuitBreaker> {
 
     /**
      * 注解类型

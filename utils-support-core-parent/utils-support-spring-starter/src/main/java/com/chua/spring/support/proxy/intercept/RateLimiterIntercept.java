@@ -26,7 +26,8 @@ import java.util.concurrent.TimeUnit;
  * @since 4.0.0
  */
 @Spi("com.chua.common.support.concurrent.rate.annotation.RateLimiter")
-public class RateLimiterIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<RateLimiter> {
+public class RateLimiterIntercept extends AbstractMethodAnnotationIntercept
+        implements MethodAnnotationIntercept<RateLimiter> {
 
     /**
      * 注解类型

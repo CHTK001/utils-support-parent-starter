@@ -25,7 +25,8 @@ import java.lang.reflect.Method;
  * @since 4.0.0.42
  */
 @Spi("com.chua.common.support.concurrent.bulkhead.annotation.Bulkhead")
-public class BulkheadIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<Bulkhead> {
+public class BulkheadIntercept extends AbstractMethodAnnotationIntercept
+        implements MethodAnnotationIntercept<Bulkhead> {
 
     /**
      * 注解类型

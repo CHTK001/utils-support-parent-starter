@@ -1249,8 +1249,9 @@ public class ClassUtils {
      * @param <T> 返回类型泛型
      * @return 创建成功的实例，失败时返回 {@code null}
      */
-    private static <T> T createAlgorithm(Constructor<?> declaredConstructor, Map<Class<?>, Object> params, Map<Constructor<?>, Object[]> loss,
-                                         Map<Constructor<?>, Object[]> allNull) throws Exception {
+    private static <T> T createAlgorithm(Constructor<?> declaredConstructor, Map<Class<?>, Object> params,
+                                         Map<Constructor<?>, Object[]> loss, Map<Constructor<?>, Object[]> allNull)
+            throws Exception {
         Class<?>[] parameterTypes = declaredConstructor.getParameterTypes();
         if (parameterTypes.length == 0) {
             setAccessible(declaredConstructor);

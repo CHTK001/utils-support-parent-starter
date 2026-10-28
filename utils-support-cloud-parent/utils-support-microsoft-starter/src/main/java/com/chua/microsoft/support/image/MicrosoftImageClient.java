@@ -4,17 +4,16 @@ import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.ai.image.ImageClient;
 import com.chua.common.support.ai.image.ImageClientSetting;
 import com.chua.common.support.ai.image.ImageResponse;
+import com.chua.common.support.network.client.ClientResponse;
+import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -40,11 +39,6 @@ public class MicrosoftImageClient implements ImageClient {
      * API 版本参数
      */
     private static final String API_VERSION = "2024-02-01";
-
-    /**
-     * HTTP 客户端
-     */
-    private final HttpClient httpClient;
 
     /**
      * 客户端配置
@@ -106,9 +100,6 @@ public class MicrosoftImageClient implements ImageClient {
         this.model = setting.getModel();
         this.width = setting.getWidth();
         this.height = setting.getHeight();
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(30))
-                .build();
     }
 
     /**
@@ -227,40 +218,36 @@ public BufferedImage generate(String prompt) {
         }
         String actualModel = model != null ? model : "dall-e-3";
         String sizeStr = buildSize();
+        // 构建请求体
+        StringBuilder bodyBuilder = new StringBuilder();
+        bodyBuilder.append("{\"model\":\"").append(actualModel)
+                .append("\",\"prompt\":\"").append(escapeJson(actualPrompt))
+                .append("\",\"n\":1")
+                .append(",\"size\":\"").append(sizeStr).append("\"");
+        if (quality != null && !quality.isBlank()) {
+            bodyBuilder.append(",\"quality\":\"").append(quality).append("\"");
+        }
+        if (style != null && !style.isBlank()) {
+            bodyBuilder.append(",\"style\":\"").append(style).append("\"");
+        }
+        bodyBuilder.append(",\"response_format\":\"url\"}");
+        String requestBody = bodyBuilder.toString();
+        ClientResponse response = HttpClientFactory.of(normalizeBaseUrl())
+                .path("/openai/images/generations?api-version=" + API_VERSION)
+                .header("api-key", setting.getAppKey())
+                .json()
+                .connectTimeout(30000)
+                .readTimeout(120000)
+                .body(requestBody)
+                .post();
+        if (response.getStatusCode() != 200) {
+            throw new RuntimeException("Azure OpenAI 图片生成请求失败: " + response.getStatusCode()
+                    + " - " + response.getBodyString());
+        }
         try {
-            // 构建请求体
-            StringBuilder bodyBuilder = new StringBuilder();
-            bodyBuilder.append("{\"model\":\"").append(actualModel)
-                    .append("\",\"prompt\":\"").append(escapeJson(actualPrompt))
-                    .append("\",\"n\":1")
-                    .append(",\"size\":\"").append(sizeStr).append("\"");
-            if (quality != null && !quality.isBlank()) {
-                bodyBuilder.append(",\"quality\":\"").append(quality).append("\"");
-            }
-            if (style != null && !style.isBlank()) {
-                bodyBuilder.append(",\"style\":\"").append(style).append("\"");
-            }
-            bodyBuilder.append(",\"response_format\":\"url\"}");
-            String requestBody = bodyBuilder.toString();
-            String url = normalizeBaseUrl() + "/openai/images/generations?api-version=" + API_VERSION;
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header("api-key", setting.getAppKey())
-                    .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(120))
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200) {
-                throw new RuntimeException("Azure OpenAI 图片生成请求失败: " + response.statusCode() + " - " + response.body());
-            }
-            String body = response.body();
-            return parseAndDownloadImage(body);
+            return parseAndDownloadImage(response.getBodyString());
         } catch (IOException e) {
             throw new RuntimeException("Azure OpenAI 图片生成请求失败", e);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("Azure OpenAI 图片生成请求被中断", e);
         }
     }
 
@@ -282,18 +269,19 @@ public BufferedImage generate(String prompt) {
         if (imageUrl == null || imageUrl.isBlank()) {
             throw new RuntimeException("Azure OpenAI 返回的图片 URL 为空");
         }
-        HttpRequest imageRequest = HttpRequest.newBuilder()
-                .uri(URI.create(imageUrl))
-                .timeout(Duration.ofSeconds(60))
-                .GET()
-                .build();
-        try {
-            HttpResponse<java.io.InputStream> imageResponse = httpClient.send(imageRequest,
-                    HttpResponse.BodyHandlers.ofInputStream());
-            return ImageIO.read(imageResponse.body());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException("下载图片被中断", e);
+        ClientResponse imageResponse = HttpClientFactory.of(imageUrl)
+                .connectTimeout(30000)
+                .readTimeout(60000)
+                .get();
+        if (!imageResponse.isSuccess()) {
+            throw new IOException("下载 Azure 图片失败: HTTP " + imageResponse.getStatusCode());
+        }
+        byte[] bytes = imageResponse.getBody();
+        if (bytes == null || bytes.length == 0) {
+            throw new IOException("下载 Azure 图片失败: 响应体为空");
+        }
+        try (InputStream in = new ByteArrayInputStream(bytes)) {
+            return ImageIO.read(in);
         }
     }
 

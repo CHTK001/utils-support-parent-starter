@@ -20,14 +20,17 @@ public class ArchiveInputStreamAdapter implements ArchiveInputStream {
     /**
      * 原始Arch Linux Linux输入流（commons-compress）
      */
-    private final org.apache.commons.compress.archivers.ArchiveInputStream<? extends org.apache.commons.compress.archivers.ArchiveEntry> delegate;
+    private final org.apache.commons.compress.archivers.ArchiveInputStream<
+            ? extends org.apache.commons.compress.archivers.ArchiveEntry> delegate;
 
     /**
      * 构造函数
      *
      * @param delegate commons-compress的Arch Linux Linux Linux输入流
      */
-    public ArchiveInputStreamAdapter(org.apache.commons.compress.archivers.ArchiveInputStream<? extends org.apache.commons.compress.archivers.ArchiveEntry> delegate) {
+    public ArchiveInputStreamAdapter(
+            org.apache.commons.compress.archivers.ArchiveInputStream<
+                    ? extends org.apache.commons.compress.archivers.ArchiveEntry> delegate) {
         this.delegate = delegate;
     }
 
