@@ -38,7 +38,8 @@ public class DoubleArrayTypeConverter implements TypeConverter<Double[]> {
 
         if (value instanceof String) {
             String stringValue = value.toString();
-            if (stringValue.startsWith(SYMBOL_LEFT_SQUARE_BRACKET) && stringValue.endsWith(SYMBOL_RIGHT_SQUARE_BRACKET)) {
+            if (stringValue.startsWith(SYMBOL_LEFT_SQUARE_BRACKET) &&
+                    stringValue.endsWith(SYMBOL_RIGHT_SQUARE_BRACKET)) {
                 stringValue = stringValue.substring(1, stringValue.length() - 1);
             }
             return transToArray(stringValue.split(SYMBOL_COMMA), Double.class);

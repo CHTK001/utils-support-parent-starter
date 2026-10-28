@@ -348,7 +348,8 @@ public class InMemoryEngine extends AbstractEngine {
         for (Map.Entry<String, Map<String, Map<Object, List<Object>>>> e : indexes.entrySet()) {
             for (Map.Entry<String, Map<Object, List<Object>>> fe : e.getValue().entrySet()) {
                 for (List<Object> rows : fe.getValue().values()) {
-                    if (!rows.isEmpty() && rows.getFirst() != null && rows.getFirst().getClass() == data.getFirst().getClass()) {
+                    if (!rows.isEmpty() && rows.getFirst() != null &&
+                            rows.getFirst().getClass() == data.getFirst().getClass()) {
                         return e.getValue();
                     }
                 }

@@ -505,7 +505,8 @@ public class GifEncoder {
             int i = index * 3;
 
 
-            if (usedEntry[index] && r == (colorTab[i] & 0xff) && g == (colorTab[i + 1] & 0xff) && b == (colorTab[i + 2] & 0xff)) {
+            if (usedEntry[index] && r == (colorTab[i] & 0xff) && g == (colorTab[i + 1] & 0xff) &&
+                    b == (colorTab[i + 2] & 0xff)) {
                 return index;
             }
         }

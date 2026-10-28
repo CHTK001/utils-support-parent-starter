@@ -323,7 +323,8 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
         if (candidate != null && Files.exists(candidate.resolve("tokenizer.json"))) {
             return candidate;
         }
-        if (candidate != null && "onnx".equalsIgnoreCase(candidate.getFileName().toString()) && candidate.getParent() != null) {
+        if (candidate != null && "onnx".equalsIgnoreCase(candidate.getFileName().toString()) &&
+                candidate.getParent() != null) {
             return candidate.getParent();
         }
         return candidate == null ? Path.of(".") : candidate;

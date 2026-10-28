@@ -158,7 +158,8 @@ public class DjlModelFactory implements AutoCloseable {
         if (name.endsWith(".pdmodel") || name.endsWith(".pdiparams") || full.contains("/paddle/")) {
             return "PaddlePaddle";
         }
-        if (name.endsWith(".pb") || name.endsWith(".savedmodel") || full.contains("/tensorflow/") || full.contains("/tf/")) {
+        if (name.endsWith(".pb") || name.endsWith(".savedmodel") || full.contains("/tensorflow/") ||
+                full.contains("/tf/")) {
             return "TensorFlow";
         }
         return "OnnxRuntime";

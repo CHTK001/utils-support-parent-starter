@@ -600,7 +600,8 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         if (lower.endsWith(".pdmodel") || lower.endsWith(".pdiparams") || lower.contains("/paddle/")) {
             return PROVIDER_PADDLE;
         }
-        if (lower.endsWith(".pb") || lower.endsWith(".savedmodel") || lower.contains("/tensorflow/") || lower.contains("/tf/")) {
+        if (lower.endsWith(".pb") || lower.endsWith(".savedmodel") || lower.contains("/tensorflow/") ||
+                lower.contains("/tf/")) {
             return PROVIDER_TENSORFLOW;
         }
         return DEFAULT_PROVIDER;

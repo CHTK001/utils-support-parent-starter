@@ -511,7 +511,8 @@ public class JdkCompiler implements Compiler {
                     JarEntry jarEntry = entryEnum.nextElement();
                     String name = jarEntry.getName();
                     // 筛选条件：在根目录下且以 .class 结尾
-                    if (name.startsWith(rootEntryName) && name.indexOf('/', rootEnd) == -1 && name.endsWith(CLASS_FILE_EXTENSION)) {
+                    if (name.startsWith(rootEntryName) && name.indexOf('/', rootEnd) == -1 &&
+                            name.endsWith(CLASS_FILE_EXTENSION)) {
                         URI uri = URI.create(jarUri + JAR_URL_SEPARATOR + name);
                         String binaryName = name.replaceAll("/", ".");
                         binaryName = binaryName.replaceAll(CLASS_FILE_EXTENSION + "$", "");

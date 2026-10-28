@@ -82,7 +82,8 @@ public class OkHttpExecutor implements HttpClientExecutor {
                 }
             }
 
-            if (body == null && ("POST".equals(request.getMethod().name()) || "PUT".equals(request.getMethod().name()))) {
+            if (body == null &&
+                    ("POST".equals(request.getMethod().name()) || "PUT".equals(request.getMethod().name()))) {
                 body = RequestBody.create("", MediaType.parse("text/plain"));
             }
 

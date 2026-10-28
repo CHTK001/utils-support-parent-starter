@@ -347,7 +347,8 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
             String header = headers.get(i);
             boolean cached = header.contains("缓存") || header.contains("cache") || header.contains("storage");
             boolean hit = header.contains("命中") || header.contains("hit");
-            if ((header.contains("输入") || header.contains("input")) && !header.contains("输出") && !header.contains("output")) {
+            if ((header.contains("输入") || header.contains("input")) && !header.contains("输出") &&
+                    !header.contains("output")) {
                 if (header.contains("未命中") || header.contains("miss")) {
                     inputCol = i;
                 } else if (!cached && !hit && fallbackInputCol < 0) {

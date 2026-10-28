@@ -323,7 +323,8 @@ public class Crypto implements AutoCloseable {
                 && (setting.getSecret() == null || setting.getSecret().length == 0)) {
             throw new CryptoException("CUSTOM 密钥策略要求通过 secret(...) 提供口令");
         }
-        if (setting.getConfigFiles() != null && !setting.getConfigFiles().isEmpty() && !setting.isEncryptConfigFiles()) {
+        if (setting.getConfigFiles() != null && !setting.getConfigFiles().isEmpty() &&
+                !setting.isEncryptConfigFiles()) {
             log.warn("已配置 config-files 但 encrypt-config=false，配置文件不会参与加密");
         }
     }

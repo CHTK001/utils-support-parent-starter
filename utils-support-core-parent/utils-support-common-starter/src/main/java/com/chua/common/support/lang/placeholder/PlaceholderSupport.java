@@ -277,7 +277,8 @@ public class PlaceholderSupport {
         }
 
         // 处理比较运算符 (==, !=, >, <, >=, <=)
-        if (condition.contains(">") || condition.contains("<") || condition.contains("==") || condition.contains("!=")) {
+        if (condition.contains(">") || condition.contains("<") || condition.contains("==") ||
+                condition.contains("!=")) {
             return evaluateComparison(condition);
         }
 

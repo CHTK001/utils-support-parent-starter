@@ -1965,8 +1965,10 @@ public class AgentEditorProvider {
             if (pos < json.length() && json.charAt(pos) == '-') {
                 pos++;
             }
-            while (pos < json.length() && (Character.isDigit(json.charAt(pos)) || ".eE+-".indexOf(json.charAt(pos)) >= 0)) {
-                if ((json.charAt(pos) == '-' || json.charAt(pos) == '+') && pos > start && "eE".indexOf(json.charAt(pos - 1)) < 0) {
+            while (pos < json.length() &&
+                    (Character.isDigit(json.charAt(pos)) || ".eE+-".indexOf(json.charAt(pos)) >= 0)) {
+                if ((json.charAt(pos) == '-' || json.charAt(pos) == '+') && pos > start &&
+                        "eE".indexOf(json.charAt(pos - 1)) < 0) {
                     break;
                 }
                 pos++;
