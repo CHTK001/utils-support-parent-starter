@@ -202,15 +202,20 @@ public class TiffPreviewProvider implements FileStoragePreviewProvider {
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">")
                 .append("<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>")
                 .append("html,body{margin:0;height:100%}")
-                .append("body{background:#f5f7fa;color:#303133;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;flex-direction:column}")
+                .append("body{background:#f5f7fa;color:#303133;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +
+                        "UI',sans-serif;display:flex;flex-direction:column}")
                 .append(".hdr{padding:10px 16px;background:#fff;border-bottom:1px solid #e4e7ed;flex-shrink:0}")
                 .append(".hdr h1{margin:0;font-size:15px;font-weight:600}")
                 .append(".hdr .meta{font-size:12px;color:#909399;margin-top:3px}")
-                .append(".warn{margin-top:6px;font-size:12px;color:#b88230;background:#fdf6ec;border:1px solid #f5dab1;border-radius:4px;padding:5px 8px}")
+                .append(".warn{margin-top:6px;font-size:12px;color:#b88230;background:#fdf6ec;border:1px solid " +
+                        "#f5dab1;border-radius:4px;padding:5px 8px}")
                 .append(".stage{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:16px}")
-                .append(".stage img{max-width:100%;height:auto;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.10);border:1px solid #e4e7ed;border-radius:3px}")
-                .append(".pages{flex-shrink:0;display:flex;gap:6px;overflow-x:auto;padding:8px 16px;background:#fff;border-top:1px solid #e4e7ed}")
-                .append(".pages button{min-width:34px;height:28px;border:1px solid #dcdfe6;background:#fff;border-radius:4px;cursor:pointer;font-size:12px;color:#606266}")
+                .append(".stage img{max-width:100%;height:auto;background:#fff;box-shadow:0 1px 6px " +
+                        "rgba(0,0,0,.10);border:1px solid #e4e7ed;border-radius:3px}")
+                .append(".pages{flex-shrink:0;display:flex;gap:6px;overflow-x:auto;padding:8px " +
+                        "16px;background:#fff;border-top:1px solid #e4e7ed}")
+                .append(".pages button{min-width:34px;height:28px;border:1px solid " +
+                        "#dcdfe6;background:#fff;border-radius:4px;cursor:pointer;font-size:12px;color:#606266}")
                 .append(".pages button.on{background:#409eff;border-color:#409eff;color:#fff}")
                 .append("</style></head><body>");
 
@@ -248,7 +253,8 @@ public class TiffPreviewProvider implements FileStoragePreviewProvider {
             sb.append("'data:image/png;base64,").append(pages.get(i)).append("'");
         }
         sb.append("];var v=document.getElementById('v');var bs=document.querySelectorAll('.pages button');")
-                .append("for(var i=0;i<bs.length;i++){bs[i].onclick=function(){var k=+this.getAttribute('data-i');v.src=P[k];")
+                .append("for(var i=0;i<bs.length;i++){bs[i].onclick=function(){var " +
+                        "k=+this.getAttribute('data-i');v.src=P[k];")
                 .append("for(var j=0;j<bs.length;j++){bs[j].className=(j===k?'on':'');}};}")
                 .append("</script></body></html>");
         return sb.toString();
@@ -265,7 +271,8 @@ public class TiffPreviewProvider implements FileStoragePreviewProvider {
         return "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\"><style>"
                 + "html,body{margin:0;height:100%}body{display:flex;align-items:center;justify-content:center;"
                 + "background:#f5f7fa;color:#303133;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}"
-                + ".box{max-width:520px;padding:24px 28px;background:#fff;border:1px solid #e4e7ed;border-radius:6px;text-align:center}"
+                + ".box{max-width:520px;padding:24px 28px;background:#fff;border:1px solid " +
+                        "#e4e7ed;border-radius:6px;text-align:center}"
                 + ".box h1{margin:0 0 10px;font-size:16px}.box p{margin:0;font-size:13px;line-height:1.7;color:#606266}"
                 + "</style></head><body><div class=\"box\"><h1>" + escapeHtml(title) + "</h1><p>"
                 + escapeHtml(detail) + "</p></div></body></html>";

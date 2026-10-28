@@ -290,7 +290,8 @@ public final class HprofToHtmlSerializer {
                 .append("                           margin-bottom: 6px; }\n")
                 .append("  .root-cause .rc-text { font-size: 14px; color: #7f1d1d; line-height: 1.8; }\n")
                 .append("  .crash { background: #fff; border: 2px solid #fca5a5; margin-bottom: 12px; }\n")
-                .append("  .crash.oom { border-color: #ef4444; background: linear-gradient(135deg,#fef2f2 0%,#fee2e2 100%); }\n")
+                .append("  .crash.oom { border-color: #ef4444; background: linear-gradient(135deg,#fef2f2 " +
+                        "0%,#fee2e2 100%); }\n")
                 .append("  .crash .crash-item { font-size: 14px; color: #1f2937; margin: 6px 0 2px; }\n")
                 .append("  .crash .crash-kind { display: inline-block; font-size: 11px; font-weight: 700;")
                 .append("                          background: #fee2e2; color: #b91c1c; padding: 1px 8px;")
@@ -321,7 +322,8 @@ public final class HprofToHtmlSerializer {
                 .append("  .checklist input { margin-right: 8px; transform: scale(1.1); }\n")
                 .append("  .checklist .check-label { color: #111827; }\n")
                 .append("  .checklist .check-verify { font-size: 12px; color: #059669; margin: 2px 0 0 24px; }\n")
-                .append("  .checklist input:checked + .check-label { text-decoration: line-through; color: #9ca3af; }\n")
+                .append("  .checklist input:checked + .check-label { text-decoration: line-through; color: #9ca3af; " +
+                        "}\n")
                 .append("  .concl { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px;")
                 .append("           padding: 14px; font-size: 14px; }\n")
                 .append("  .concl li { margin-bottom: 6px; }\n")

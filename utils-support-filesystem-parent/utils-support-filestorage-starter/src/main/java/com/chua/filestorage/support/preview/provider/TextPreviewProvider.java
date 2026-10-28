@@ -32,7 +32,8 @@ public class TextPreviewProvider implements FileStoragePreviewProvider {
     @Override
     public PreviewResult preview(byte[] content, String extension, String mimeType) throws IOException {
         String text = new String(content, StandardCharsets.UTF_8);
-        String css = "body{margin:0;padding:16px;font-family:'Georgia',serif;line-height:1.8;color:#333;max-width:720px;margin:0 auto}"
+        String css = "body{margin:0;padding:16px;font-family:'Georgia',serif;line-height:1.8;color:#333;max-width:720px;margin:0 " +
+                "auto}"
                 + "pre{white-space:pre-wrap;word-wrap:break-word;font-family:inherit;margin:0}";
         String html = "<pre>" + escapeHtml(text) + "</pre>";
         return PreviewResult.builder().htmlContent(html).embeddedCss(css).build();

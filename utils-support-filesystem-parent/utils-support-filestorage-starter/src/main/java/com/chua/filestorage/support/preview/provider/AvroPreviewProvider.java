@@ -187,11 +187,14 @@ public class AvroPreviewProvider implements FileStoragePreviewProvider {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">")
                 .append("<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>")
-                .append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:20px}")
-                .append(".header{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}")
+                .append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +
+                        "UI',sans-serif;padding:20px}")
+                .append(".header{background:#fff;border:1px solid " +
+                        "#e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}")
                 .append("h1{margin:0 0 8px;font-size:20px;font-weight:600}")
                 .append(".meta{color:#6b7280;font-size:13px}")
-                .append("table{background:#fff;border:1px solid #e5e7eb;border-collapse:collapse;width:100%;font-size:13px}")
+                .append("table{background:#fff;border:1px solid " +
+                        "#e5e7eb;border-collapse:collapse;width:100%;font-size:13px}")
                 .append("th,td{border:1px solid #eee;padding:6px 12px;text-align:left;white-space:nowrap}")
                 .append("th{background:#f3f4f6;position:sticky;top:0}")
                 .append("tr:nth-child(even) td{background:#fafafa}")
@@ -238,8 +241,11 @@ public class AvroPreviewProvider implements FileStoragePreviewProvider {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">")
                 .append("<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>")
-                .append("body{margin:0;background:#1e1e1e;color:#d4d4d4;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:13px;line-height:1.5}")
-                .append(".badge{position:sticky;top:0;display:inline-block;padding:4px 12px;font-size:12px;background:#007acc;color:#fff;border-radius:0 0 6px 0;font-family:sans-serif}")
+                .append("body{margin:0;background:#1e1e1e;color:#d4d4d4;font-family:'Cascadia Code','Fira " +
+                        "Code',Consolas,monospace;font-size:13px;line-height:1.5}")
+                .append(".badge{position:sticky;top:0;display:inline-block;padding:4px " +
+                        "12px;font-size:12px;background:#007acc;color:#fff;border-radius:0 0 6px " +
+                        "0;font-family:sans-serif}")
                 .append("pre{margin:0;padding:16px;overflow:auto}")
                 .append("</style></head><body>")
                 .append("<div class=\"badge\">avro-schema · ").append(readableSize(size)).append("</div>")

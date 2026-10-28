@@ -353,16 +353,22 @@ public class RawPreviewProvider implements FileStoragePreviewProvider {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">")
                 .append("<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>")
-                .append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:20px}")
-                .append(".header{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}")
+                .append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +
+                        "UI',sans-serif;padding:20px}")
+                .append(".header{background:#fff;border:1px solid " +
+                        "#e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}")
                 .append("h1{margin:0 0 12px;font-size:20px;font-weight:600}")
                 .append(".grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;font-size:13px}")
                 .append(".k{color:#9ca3af}.v{color:#1f2937;word-break:break-all}")
-                .append(".shot{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;text-align:center;margin-bottom:20px}")
-                .append(".shot img{max-width:100%;max-height:75vh;height:auto;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.12)}")
+                .append(".shot{background:#fff;border:1px solid " +
+                        "#e5e7eb;border-radius:12px;padding:16px;text-align:center;margin-bottom:20px}")
+                .append(".shot img{max-width:100%;max-height:75vh;height:auto;border-radius:8px;box-shadow:0 2px " +
+                        "12px rgba(0,0,0,.12)}")
                 .append(".cap{margin-top:10px;font-size:12px;color:#6b7280}")
-                .append(".notice{padding:8px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;color:#92400e;font-size:13px}")
-                .append(".empty{color:#6b7280;text-align:center;padding:32px;background:#fff;border:1px dashed #d1d5db;border-radius:12px}")
+                .append(".notice{padding:8px 12px;background:#fffbeb;border:1px solid " +
+                        "#fde68a;border-radius:8px;color:#92400e;font-size:13px}")
+                .append(".empty{color:#6b7280;text-align:center;padding:32px;background:#fff;border:1px dashed " +
+                        "#d1d5db;border-radius:12px}")
                 .append("</style></head><body>")
                 .append("<div class=\"header\"><h1>RAW 照片预览</h1><div class=\"grid\">");
         fields.forEach((k, v) -> sb.append("<div><span class=\"k\">").append(escape(k))

@@ -689,11 +689,13 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     private String page(String body) {
         return "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
                 + "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>"
-                + "body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:20px}"
+                + "body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +
+                        "UI',sans-serif;padding:20px}"
                 + ".header{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}"
                 + "h1{margin:0;font-size:20px;font-weight:600}"
                 + ".meta{color:#6b7280;font-size:13px;margin:12px 0}"
-                + ".doc{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:24px;max-width:860px;line-height:1.7}"
+                + ".doc{background:#fff;border:1px solid " +
+                        "#e5e7eb;border-radius:10px;padding:24px;max-width:860px;line-height:1.7}"
                 + ".doc p{margin:0 0 10px}"
                 // WordToHtmlConverter 输出的富文本排版：标题层级、列表、表格、内联图片
                 + ".doc h1{font-size:24px;font-weight:700;margin:20px 0 12px}"
@@ -702,27 +704,33 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
                 + ".doc h4,.doc h5,.doc h6{font-size:15px;font-weight:600;margin:14px 0 6px}"
                 + ".doc ul,.doc ol{margin:0 0 10px;padding-left:28px}"
                 + ".doc img{max-width:100%;height:auto;border-radius:4px}"
-                + ".doc blockquote{margin:0 0 10px;padding:6px 14px;border-left:3px solid #d1d5db;color:#4b5563;background:#f9fafb}"
+                + ".doc blockquote{margin:0 0 10px;padding:6px 14px;border-left:3px solid " +
+                        "#d1d5db;color:#4b5563;background:#f9fafb}"
                 + ".doc a{color:#2563eb}"
                 + ".doc table{border-collapse:collapse;margin:12px 0;font-size:13px}"
                 + ".doc td,.doc th{border:1px solid #e5e7eb;padding:6px 10px;vertical-align:top}"
                 + ".doc pre{background:#f3f4f6;border-radius:6px;padding:12px;overflow:auto}"
-                + ".warn{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:8px;padding:10px 14px;margin:0 0 14px;font-size:13px}"
+                + ".warn{background:#fffbeb;border:1px solid " +
+                        "#fde68a;color:#92400e;border-radius:8px;padding:10px 14px;margin:0 0 14px;font-size:13px}"
                 // Excel / PPT 内嵌图片与内嵌对象（附件）
                 + ".images{padding:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}"
-                + ".images img{max-width:220px;max-height:220px;border:1px solid #e5e7eb;border-radius:6px;background:#fff}"
+                + ".images img{max-width:220px;max-height:220px;border:1px solid " +
+                        "#e5e7eb;border-radius:6px;background:#fff}"
                 + ".attach{padding:8px 16px 14px}"
                 + ".attach-item{padding:6px 0;border-bottom:1px dashed #f0f0f0;font-size:13px}"
                 + ".attach-size{color:#9ca3af;font-size:12px;margin-left:6px}"
                 + ".attach-dl{margin-left:8px;color:#2563eb;font-size:12px;text-decoration:underline;cursor:pointer}"
-                + ".sheet,.slide{background:#fff;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:16px;overflow:hidden}"
-                + ".sheet-head,.slide-head{padding:10px 16px;font-weight:600;border-bottom:1px solid #f0f0f0;background:#f9fafb}"
+                + ".sheet,.slide{background:#fff;border:1px solid " +
+                        "#e5e7eb;border-radius:10px;margin-bottom:16px;overflow:hidden}"
+                + ".sheet-head,.slide-head{padding:10px 16px;font-weight:600;border-bottom:1px solid " +
+                        "#f0f0f0;background:#f9fafb}"
                 + "table{border-collapse:collapse;width:100%;font-size:13px}"
                 + "th,td{border:1px solid #eee;padding:6px 12px;text-align:left;white-space:nowrap}"
                 + "tr:nth-child(even) td{background:#fafafa}"
                 + ".slide-body{padding:16px}.slide-body p{margin:0 0 8px}"
                 + ".more{color:#9ca3af;font-size:12px;padding:8px 16px}"
-                + ".unavail{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:40px;text-align:center;color:#6b7280}"
+                + ".unavail{background:#fff;border:1px solid " +
+                        "#e5e7eb;border-radius:10px;padding:40px;text-align:center;color:#6b7280}"
                 + "</style></head><body>" + body + "</body></html>";
     }
 

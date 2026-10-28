@@ -826,28 +826,41 @@ public class DataSearchServerFilter implements ServerFilter {
             + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
             + "<title>数据搜索服务</title>\n"
             + "<style>\n"
-            + "  :root { --bg:#f4f6fb; --panel:#fff; --border:#e5e7eb; --border2:#d1d5db; --text:#1f2937; --muted:#6b7280; --accent:#6366f1; --accent-bg:#eef2ff; --accent-2:#4f46e5; --code-bg:#111827; --code:#d1fae5; --ok:#059669; --err:#dc2626; --warn:#d97706; --radius:10px; }\n"
+            + "  :root { --bg:#f4f6fb; --panel:#fff; --border:#e5e7eb; --border2:#d1d5db; --text:#1f2937; " +
+                    "--muted:#6b7280; --accent:#6366f1; --accent-bg:#eef2ff; --accent-2:#4f46e5; " +
+                    "--code-bg:#111827; --code:#d1fae5; --ok:#059669; --err:#dc2626; --warn:#d97706; " +
+                    "--radius:10px; }\n"
             + "  * { box-sizing: border-box; margin: 0; padding: 0; }\n"
-            + "  body { font-family: 'Cascadia Code', 'Segoe UI', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); }\n"
+            + "  body { font-family: 'Cascadia Code', 'Segoe UI', 'Microsoft YaHei', sans-serif; " +
+                    "background: var(--bg); color: var(--text); }\n"
             + "  .app { display: flex; height: 100vh; }\n"
             + "  /* ===== 左侧菜单 ===== */\n"
-            + "  .sidebar { width: 240px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; }\n"
+            + "  .sidebar { width: 240px; flex-shrink: 0; background: var(--panel); border-right: 1px " +
+                    "solid var(--border); display: flex; flex-direction: column; }\n"
             + "  .brand { padding: 16px; border-bottom: 1px solid var(--border); }\n"
             + "  .brand h1 { font-size: 16px; display: flex; align-items: center; gap: 8px; }\n"
-            + "  .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); display: inline-block; }\n"
+            + "  .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); " +
+                    "display: inline-block; }\n"
             + "  .brand .sub { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 400; }\n"
             + "  .menu { flex: 1; overflow-y: auto; padding: 8px 0; }\n"
-            + "  .group > .group-name { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; cursor: pointer; user-select: none; }\n"
+            + "  .group > .group-name { display: flex; align-items: center; justify-content: " +
+                    "space-between; padding: 8px 16px; font-size: 12px; font-weight: 700; color: var(--muted); " +
+                    "text-transform: uppercase; letter-spacing: .4px; cursor: pointer; user-select: none; }\n"
             + "  .group > .group-name:hover { color: var(--text); }\n"
             + "  .group > .group-name .chev { transition: transform .15s ease; font-size: 10px; }\n"
             + "  .group.collapsed > .group-name .chev { transform: rotate(-90deg); }\n"
             + "  .group-items { overflow: hidden; }\n"
             + "  .group.collapsed > .group-items { display: none; }\n"
-            + "  .item { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 7px 16px 7px 24px; border: none; background: transparent; font-size: 13px; color: var(--text); cursor: pointer; transition: background .15s ease, color .15s ease; font-family: inherit; }\n"
+            + "  .item { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; " +
+                    "padding: 7px 16px 7px 24px; border: none; background: transparent; font-size: 13px; color: " +
+                    "var(--text); cursor: pointer; transition: background .15s ease, color .15s ease; " +
+                    "font-family: inherit; }\n"
             + "  .item:hover { background: #f3f4f6; }\n"
             + "  .item.active { background: var(--accent-bg); color: var(--accent-2); font-weight: 600; }\n"
-            + "  .item .method { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: #dbeafe; color: #1d4ed8; }\n"
-            + "  .foot { padding: 12px 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); }\n"
+            + "  .item .method { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; " +
+                    "background: #dbeafe; color: #1d4ed8; }\n"
+            + "  .foot { padding: 12px 16px; border-top: 1px solid var(--border); font-size: 12px; color: " +
+                    "var(--muted); }\n"
             + "  .foot a { color: var(--accent-2); text-decoration: none; }\n"
             + "  .foot a:hover { text-decoration: underline; }\n"
             + "  /* ===== 主区域 ===== */\n"
@@ -855,27 +868,39 @@ public class DataSearchServerFilter implements ServerFilter {
             + "  .request { background: var(--panel); border-bottom: 1px solid var(--border); padding: 14px 18px; }\n"
             + "  .req-row { display: flex; gap: 8px; }\n"
             + "  .method { flex: 0 0 auto; }\n"
-            + "  .url-bar { display: flex; flex: 1; border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; }\n"
+            + "  .url-bar { display: flex; flex: 1; border: 1px solid var(--border2); border-radius: 8px; " +
+                    "overflow: hidden; }\n"
             + "  .url-bar:focus-within { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(99,102,241,.15); }\n"
-            + "  .url-prefix { display: flex; align-items: center; padding: 0 10px; background: #f3f4f6; color: var(--muted); font-size: 12px; border-right: 1px solid var(--border); }\n"
-            + "  .url-bar input { flex: 1; border: none; outline: none; padding: 9px 12px; font-size: 13px; font-family: inherit; color: var(--text); background: transparent; }\n"
-            + "  .send { padding: 9px 20px; border: none; border-radius: 8px; background: var(--accent); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s ease; font-family: inherit; }\n"
+            + "  .url-prefix { display: flex; align-items: center; padding: 0 10px; background: #f3f4f6; " +
+                    "color: var(--muted); font-size: 12px; border-right: 1px solid var(--border); }\n"
+            + "  .url-bar input { flex: 1; border: none; outline: none; padding: 9px 12px; font-size: " +
+                    "13px; font-family: inherit; color: var(--text); background: transparent; }\n"
+            + "  .send { padding: 9px 20px; border: none; border-radius: 8px; background: var(--accent); " +
+                    "color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; transition: background " +
+                    ".15s ease; font-family: inherit; }\n"
             + "  .send:hover { background: var(--accent-2); }\n"
             + "  .send:disabled { opacity: .6; cursor: not-allowed; }\n"
-            + "  .req-meta { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; color: var(--muted); }\n"
+            + "  .req-meta { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: " +
+                    "12px; color: var(--muted); }\n"
             + "  .req-meta .tag { padding: 2px 8px; border-radius: 999px; background: #f3f4f6; }\n"
             + "  /* 参数编辑 */\n"
             + "  .params { background: var(--panel); border-bottom: 1px solid var(--border); padding: 12px 18px; }\n"
-            + "  .params .p-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }\n"
+            + "  .params .p-head { display: flex; align-items: center; justify-content: space-between; " +
+                    "margin-bottom: 8px; }\n"
             + "  .params .p-title { font-size: 13px; font-weight: 600; }\n"
             + "  .p-table { width: 100%; border-collapse: collapse; }\n"
-            + "  .p-table th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 500; padding: 4px 8px; border-bottom: 1px solid var(--border); }\n"
+            + "  .p-table th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 500; " +
+                    "padding: 4px 8px; border-bottom: 1px solid var(--border); }\n"
             + "  .p-table td { padding: 4px 8px; }\n"
-            + "  .p-table input { width: 100%; padding: 6px 10px; border: 1px solid var(--border2); border-radius: 6px; font-size: 13px; outline: none; font-family: inherit; }\n"
+            + "  .p-table input { width: 100%; padding: 6px 10px; border: 1px solid var(--border2); " +
+                    "border-radius: 6px; font-size: 13px; outline: none; font-family: inherit; }\n"
             + "  .p-table input:focus { border-color: var(--accent); }\n"
-            + "  .p-del { border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; }\n"
+            + "  .p-del { border: none; background: transparent; color: var(--muted); cursor: pointer; " +
+                    "font-size: 13px; }\n"
             + "  .p-del:hover { color: var(--err); }\n"
-            + "  .add-param { border: 1px dashed var(--border2); background: transparent; color: var(--muted); padding: 5px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; margin-top: 6px; }\n"
+            + "  .add-param { border: 1px dashed var(--border2); background: transparent; color: " +
+                    "var(--muted); padding: 5px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; " +
+                    "margin-top: 6px; }\n"
             + "  .add-param:hover { border-color: var(--accent); color: var(--accent-2); }\n"
             + "  /* 响应区 */\n"
             + "  .response { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 0 18px 18px; }\n"
@@ -885,17 +910,26 @@ public class DataSearchServerFilter implements ServerFilter {
             + "  .resp-status.err { color: var(--err); }\n"
             + "  .resp-time { font-size: 12px; color: var(--muted); }\n"
             + "  .tabs { display: flex; gap: 2px; margin-left: auto; }\n"
-            + "  .tab { padding: 6px 14px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; border-radius: 6px; transition: all .15s ease; font-family: inherit; }\n"
+            + "  .tab { padding: 6px 14px; border: 1px solid var(--border); background: transparent; " +
+                    "color: var(--muted); font-size: 12px; cursor: pointer; border-radius: 6px; transition: all " +
+                    ".15s ease; font-family: inherit; }\n"
             + "  .tab:first-child { border-top-right-radius: 0; border-bottom-right-radius: 0; }\n"
             + "  .tab + .tab { border-left: none; border-radius: 0; }\n"
-            + "  .tab:last-child { border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 6px; border-bottom-right-radius: 6px; }\n"
-            + "  .tab.active { background: var(--accent-bg); color: var(--accent-2); border-color: var(--accent); font-weight: 600; }\n"
-            + "  .resp-body { flex: 1; min-height: 0; background: var(--code-bg); border-radius: var(--radius); overflow: auto; }\n"
-            + "  pre.json { color: var(--code); font-size: 12.5px; line-height: 1.6; padding: 16px; white-space: pre-wrap; word-break: break-all; font-family: 'Cascadia Code', Consolas, monospace; }\n"
-            + "  .placeholder { display: flex; align-items: center; justify-content: center; height: 100%; color: #6b7280; font-size: 13px; }\n"
+            + "  .tab:last-child { border-top-left-radius: 0; border-bottom-left-radius: 0; " +
+                    "border-top-right-radius: 6px; border-bottom-right-radius: 6px; }\n"
+            + "  .tab.active { background: var(--accent-bg); color: var(--accent-2); border-color: " +
+                    "var(--accent); font-weight: 600; }\n"
+            + "  .resp-body { flex: 1; min-height: 0; background: var(--code-bg); border-radius: " +
+                    "var(--radius); overflow: auto; }\n"
+            + "  pre.json { color: var(--code); font-size: 12.5px; line-height: 1.6; padding: 16px; " +
+                    "white-space: pre-wrap; word-break: break-all; font-family: 'Cascadia Code', Consolas, " +
+                    "monospace; }\n"
+            + "  .placeholder { display: flex; align-items: center; justify-content: center; height: " +
+                    "100%; color: #6b7280; font-size: 13px; }\n"
             + "  /* 渲染视图 */\n"
             + "  .render { padding: 16px; color: #e5e7eb; }\n"
-            + "  .r-card { background: #1f2937; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }\n"
+            + "  .r-card { background: #1f2937; border: 1px solid #374151; border-radius: 8px; padding: " +
+                    "12px 14px; margin-bottom: 10px; }\n"
             + "  .r-card .r-title { font-size: 13px; font-weight: 700; color: #93c5fd; margin-bottom: 8px; }\n"
             + "  .r-kv { width: 100%; border-collapse: collapse; font-size: 12.5px; }\n"
             + "  .r-kv td { padding: 3px 6px; vertical-align: top; }\n"
@@ -909,7 +943,8 @@ public class DataSearchServerFilter implements ServerFilter {
             + "<div class=\"app\">\n"
             + "  <!-- 左侧接口菜单 -->\n"
             + "  <aside class=\"sidebar\">\n"
-            + "    <div class=\"brand\"><h1><span class=\"dot\"></span>数据搜索服务</h1><div class=\"sub\">datasearch-starter · REST 接口</div></div>\n"
+            + "    <div class=\"brand\"><h1><span class=\"dot\"></span>数据搜索服务</h1><div " +
+                    "class=\"sub\">datasearch-starter · REST 接口</div></div>\n"
             + "    <nav class=\"menu\" id=\"menu\"></nav>\n"
             + "    <div class=\"foot\"><a href=\"/datasearch\">查看接口索引 JSON</a></div>\n"
             + "  </aside>\n"
@@ -929,8 +964,11 @@ public class DataSearchServerFilter implements ServerFilter {
             + "      </div>\n"
             + "    </div>\n"
             + "    <div class=\"params\">\n"
-            + "      <div class=\"p-head\"><span class=\"p-title\">查询参数</span><span style=\"font-size:12px;color:var(--muted)\">仅 GET</span></div>\n"
-            + "      <table class=\"p-table\" id=\"params\"><thead><tr><th style=\"width:34%\">名称</th><th>值</th><th style=\"width:44px\"></th></tr></thead><tbody></tbody></table>\n"
+            + "      <div class=\"p-head\"><span class=\"p-title\">查询参数</span><span " +
+                    "style=\"font-size:12px;color:var(--muted)\">仅 GET</span></div>\n"
+            + "      <table class=\"p-table\" id=\"params\"><thead><tr><th " +
+                    "style=\"width:34%\">名称</th><th>值</th><th " +
+                    "style=\"width:44px\"></th></tr></thead><tbody></tbody></table>\n"
             + "      <button class=\"add-param\" id=\"addParam\">+ 添加参数</button>\n"
             + "    </div>\n"
             + "    <div class=\"response\">\n"
@@ -951,19 +989,24 @@ public class DataSearchServerFilter implements ServerFilter {
             + "var API = 'http://' + location.host + '/datasearch';\n"
             + "var ENDPOINTS = [\n"
             + "  { group: '成语', items: [\n"
-            + "    { name: '成语接龙', path: '/idiom/chain', params: [{ k: 'word', v: '守株待兔' }, { k: 'limit', v: '10' }] },\n"
+            + "    { name: '成语接龙', path: '/idiom/chain', params: [{ k: 'word', v: '守株待兔' }, { k: 'limit', " +
+                    "v: '10' }] },\n"
             + "    { name: '精确查询', path: '/idiom/get', params: [{ k: 'word', v: '守株待兔' }] },\n"
-            + "    { name: '模糊搜索', path: '/idiom/search', params: [{ k: 'keyword', v: '兔' }, { k: 'limit', v: '10' }] },\n"
+            + "    { name: '模糊搜索', path: '/idiom/search', params: [{ k: 'keyword', v: '兔' }, { k: " +
+                    "'limit', v: '10' }] },\n"
             + "    { name: '随机成语', path: '/idiom/random', params: [] }\n"
             + "  ]},\n"
             + "  { group: '古诗词', items: [\n"
             + "    { name: '随机诗词', path: '/poetry/random', params: [] },\n"
-            + "    { name: '按作者', path: '/poetry/author', params: [{ k: 'author', v: '李白' }, { k: 'limit', v: '5' }] },\n"
-            + "    { name: '搜索', path: '/poetry/search', params: [{ k: 'keyword', v: '明月' }, { k: 'limit', v: '10' }] }\n"
+            + "    { name: '按作者', path: '/poetry/author', params: [{ k: 'author', v: '李白' }, { k: " +
+                    "'limit', v: '5' }] },\n"
+            + "    { name: '搜索', path: '/poetry/search', params: [{ k: 'keyword', v: '明月' }, { k: " +
+                    "'limit', v: '10' }] }\n"
             + "  ]},\n"
             + "  { group: '汉字字典', items: [\n"
             + "    { name: '查询', path: '/hanzi/get', params: [{ k: 'character', v: '中' }] },\n"
-            + "    { name: '搜索', path: '/hanzi/search', params: [{ k: 'keyword', v: 'zhong' }, { k: 'limit', v: '10' }] },\n"
+            + "    { name: '搜索', path: '/hanzi/search', params: [{ k: 'keyword', v: 'zhong' }, { k: " +
+                    "'limit', v: '10' }] },\n"
             + "    { name: '随机', path: '/hanzi/random', params: [] }\n"
             + "  ]},\n"
             + "  { group: '手机归属地', items: [\n"
@@ -998,12 +1041,15 @@ public class DataSearchServerFilter implements ServerFilter {
             + "  { group: 'IP 定位 / 地址', items: [\n"
             + "    { name: '定位自身', path: '/location/self', params: [] },\n"
             + "    { name: 'IP 定位', path: '/location/ip', params: [{ k: 'ip', v: '8.8.8.8' }] },\n"
-            + "    { name: '逆地理编码', path: '/geocode/reverse', params: [{ k: 'lat', v: '39.9' }, { k: 'lon', v: '116.4' }] },\n"
+            + "    { name: '逆地理编码', path: '/geocode/reverse', params: [{ k: 'lat', v: '39.9' }, { k: " +
+                    "'lon', v: '116.4' }] },\n"
             + "    { name: 'IP 转地址', path: '/geocode/ip', params: [{ k: 'ip', v: '8.8.8.8' }] }\n"
             + "  ]},\n"
             + "  { group: '表情包', items: [\n"
-            + "    { name: '关键词检索', path: '/emoji/search', params: [{ k: 'keyword', v: '狗子' }, { k: 'page', v: '1' }] },\n"
-            + "    { name: '指定数据源', path: '/emoji/search', params: [{ k: 'keyword', v: '抖音' }, { k: 'source', v: 'doutula' }] },\n"
+            + "    { name: '关键词检索', path: '/emoji/search', params: [{ k: 'keyword', v: '狗子' }, { k: " +
+                    "'page', v: '1' }] },\n"
+            + "    { name: '指定数据源', path: '/emoji/search', params: [{ k: 'keyword', v: '抖音' }, { k: " +
+                    "'source', v: 'doutula' }] },\n"
             + "    { name: '数据源列表', path: '/emoji/sources', params: [] }\n"
             + "  ]}\n"
             + "];\n"
@@ -1062,8 +1108,10 @@ public class DataSearchServerFilter implements ServerFilter {
             + "function addParamRow(k, v) {\n"
             + "  var tbody = document.querySelector('#params tbody');\n"
             + "  var tr = document.createElement('tr');\n"
-            + "  tr.innerHTML = '<td><input class=\"p-k\" placeholder=\"参数名\" value=\"' + escAttr(k || '') + '\"></td>' +\n"
-            + "                '<td><input class=\"p-v\" placeholder=\"值\" value=\"' + escAttr(v || '') + '\"></td>' +\n"
+            + "  tr.innerHTML = '<td><input class=\"p-k\" placeholder=\"参数名\" value=\"' + escAttr(k || " +
+                    "'') + '\"></td>' +\n"
+            + "                '<td><input class=\"p-v\" placeholder=\"值\" value=\"' + escAttr(v || '') + " +
+                    "'\"></td>' +\n"
             + "                '<td><button class=\"p-del\" title=\"删除\">x</button></td>';\n"
             + "  tr.querySelector('.p-del').addEventListener('click', function () { tr.remove(); syncUrl(); });\n"
             + "  tr.querySelectorAll('input').forEach(function (inp) { inp.addEventListener('input', syncUrl); });\n"
@@ -1119,7 +1167,8 @@ public class DataSearchServerFilter implements ServerFilter {
             + "  var body = document.querySelector('.resp-body');\n"
             + "  if (!lastStatus) { body.innerHTML = '<div class=\"placeholder\">未发送</div>'; return; }\n"
             + "  if (currentTab === 'pretty') {\n"
-            + "    body.innerHTML = '<pre class=\"json\">' + esc(lastJson ? JSON.stringify(lastJson, null, 2) : lastRaw) + '</pre>';\n"
+            + "    body.innerHTML = '<pre class=\"json\">' + esc(lastJson ? JSON.stringify(lastJson, " +
+                    "null, 2) : lastRaw) + '</pre>';\n"
             + "  } else if (currentTab === 'raw') {\n"
             + "    body.innerHTML = '<pre class=\"json\">' + esc(lastRaw) + '</pre>';\n"
             + "  } else {\n"
@@ -1134,10 +1183,12 @@ public class DataSearchServerFilter implements ServerFilter {
             + "    if (!node.length) { return '<span class=\"r-empty\">空数组</span>'; }\n"
             + "    if (node.every(function (x) { return x && typeof x === 'object' && !Array.isArray(x); })) {\n"
             + "      return node.map(function (it, i) {\n"
-            + "        return '<div class=\"r-card\"><div class=\"r-title\">#' + (i + 1) + '</div>' + kvTable(it) + '</div>';\n"
+            + "        return '<div class=\"r-card\"><div class=\"r-title\">#' + (i + 1) + '</div>' + " +
+                    "kvTable(it) + '</div>';\n"
             + "      }).join('');\n"
             + "    }\n"
-            + "    return '<div class=\"r-array\">' + node.map(function (x) { return renderTree(x); }).join('') + '</div>';\n"
+            + "    return '<div class=\"r-array\">' + node.map(function (x) { return renderTree(x); " +
+                    "}).join('') + '</div>';\n"
             + "  }\n"
             + "  if (typeof node === 'object') { return kvTable(node); }\n"
             + "  return '<span>' + esc(String(node)) + '</span>';\n"
@@ -1166,8 +1217,10 @@ public class DataSearchServerFilter implements ServerFilter {
             + "\n"
             + "/* 事件绑定 */\n"
             + "document.getElementById('send').addEventListener('click', send);\n"
-            + "document.getElementById('url').addEventListener('keydown', function (e) { if (e.key === 'Enter') { send(); } });\n"
-            + "document.getElementById('addParam').addEventListener('click', function () { addParamRow('', ''); syncUrl(); });\n"
+            + "document.getElementById('url').addEventListener('keydown', function (e) { if (e.key === " +
+                    "'Enter') { send(); } });\n"
+            + "document.getElementById('addParam').addEventListener('click', function () { " +
+                    "addParamRow('', ''); syncUrl(); });\n"
             + "document.querySelectorAll('.tab').forEach(function (t) {\n"
             + "  t.addEventListener('click', function () {\n"
             + "    document.querySelectorAll('.tab').forEach(function (x) { x.classList.remove('active'); });\n"

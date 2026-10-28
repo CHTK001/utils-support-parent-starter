@@ -187,11 +187,14 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">");
         sb.append("<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">");
         sb.append("<style>");
-        sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:Georgia,'Times New Roman',serif;padding:20px}");
-        sb.append(".header{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}");
+        sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:Georgia,'Times New " +
+                "Roman',serif;padding:20px}");
+        sb.append(".header{background:#fff;border:1px solid " +
+                "#e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}");
         sb.append("h1{margin:0 0 8px;font-size:20px;font-weight:600}");
         sb.append(".meta{color:#6b7280;font-size:13px}");
-        sb.append(".book{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:32px;max-width:700px;margin:0 auto}");
+        sb.append(".book{background:#fff;border:1px solid " +
+                "#e5e7eb;border-radius:12px;padding:32px;max-width:700px;margin:0 auto}");
         sb.append(".chapter{margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid #f3f4f6}");
         sb.append(".chapter:last-child{border-bottom:none}");
         sb.append(".chapter-title{font-size:16px;font-weight:600;margin-bottom:12px;color:#111827}");

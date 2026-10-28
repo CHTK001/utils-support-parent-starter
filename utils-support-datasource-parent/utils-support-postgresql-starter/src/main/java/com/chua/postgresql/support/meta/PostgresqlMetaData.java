@@ -164,7 +164,8 @@ public class PostgresqlMetaData extends JdbcMetaData {
     public MetaSearch search() {
         throw new UnsupportedOperationException(
                 "PostgreSQL 没有独立的搜索索引对象：全文检索要先建 tsvector 生成列"
-                        + "（ALTER TABLE t ADD COLUMN fts tsvector GENERATED ALWAYS AS (to_tsvector('simple', body)) STORED）"
+                        + "（ALTER TABLE t ADD COLUMN fts tsvector GENERATED ALWAYS AS (to_tsvector('simple', body)) " +
+                                "STORED）"
                         + "再在该列上建 GIN 索引，SearchIndexDef 无法表达这一前置，故本模块未提供 search() 实现；"
                         + "需要时请实现 com.chua.common.support.lang.datasource.meta.SearchEngine"
                         + " 并注册到 META-INF/extensions 下");

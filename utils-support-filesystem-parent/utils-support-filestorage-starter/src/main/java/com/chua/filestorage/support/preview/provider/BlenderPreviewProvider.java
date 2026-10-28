@@ -102,11 +102,14 @@ public class BlenderPreviewProvider implements FileStoragePreviewProvider {
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">");
         sb.append("<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">");
         sb.append("<style>");
-        sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:20px}");
-        sb.append(".header{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}");
+        sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +
+                "UI',sans-serif;padding:20px}");
+        sb.append(".header{background:#fff;border:1px solid " +
+                "#e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}");
         sb.append("h1{margin:0 0 8px;font-size:20px;font-weight:600}");
         sb.append(".meta{color:#6b7280;font-size:13px}");
-        sb.append(".info{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:32px;max-width:700px;margin:0 auto}");
+        sb.append(".info{background:#fff;border:1px solid " +
+                "#e5e7eb;border-radius:12px;padding:32px;max-width:700px;margin:0 auto}");
         sb.append(".field{display:flex;padding:10px 0;border-bottom:1px solid #f3f4f6}");
         sb.append(".field:last-child{border-bottom:none}");
         sb.append(".label{color:#6b7280;width:100px;font-size:13px}");
@@ -121,12 +124,14 @@ public class BlenderPreviewProvider implements FileStoragePreviewProvider {
 
         sb.append("<div class=\"info\">");
         sb.append("<div class=\"icon\">3D</div>");
-        sb.append("<div class=\"field\"><span class=\"label\">格式</span><span class=\"value\">Blender (.blend)</span></div>");
+        sb.append("<div class=\"field\"><span class=\"label\">格式</span><span class=\"value\">Blender " +
+                "(.blend)</span></div>");
         sb.append("<div class=\"field\"><span class=\"label\">版本</span><span class=\"value\">").append(escapeHtml(info.version)).append("</span></div>");
         sb.append("<div class=\"field\"><span class=\"label\">指针大小</span><span class=\"value\">").append(info.pointerSize).append(" 位</span></div>");
         sb.append("<div class=\"field\"><span class=\"label\">字节序</span><span class=\"value\">").append(info.endian).append("</span></div>");
         sb.append("<div class=\"field\"><span class=\"label\">文件大小</span><span class=\"value\">").append(humanSize(fileSize)).append("</span></div>");
-        sb.append("<div class=\"field\"><span class=\"label\">说明</span><span class=\"value\">BLEND 是 Blender 的原生 3D 文件格式。请使用 Blender 软件打开。</span></div>");
+        sb.append("<div class=\"field\"><span class=\"label\">说明</span><span class=\"value\">BLEND 是 Blender " +
+                "的原生 3D 文件格式。请使用 Blender 软件打开。</span></div>");
         sb.append("</div></body></html>");
 
         return sb.toString();

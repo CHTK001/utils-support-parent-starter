@@ -693,7 +693,8 @@ public final class WechatMemoryMessages {
             "(function(){",
             "  const names=[...new Set(DATA.map(m=>m.n||m.u).filter(Boolean))]",
             "    .sort((a,b)=>a.localeCompare(b,'zh'));",
-            "  for(const n of names){const o=document.createElement('option');o.value=n;o.textContent=n;who.appendChild(o);}",
+            "  for(const n of names){const " +
+                    "o=document.createElement('option');o.value=n;o.textContent=n;who.appendChild(o);}",
             "  const days=new Set(DATA.map(m=>m.d)).size;",
             "  const span=DATA.length?DATA[0].t.slice(0,10)+' ~ '+DATA[DATA.length-1].t.slice(0,10):'-';",
             "  stats.innerHTML=`<span class=\"stat\">消息 <b>${DATA.length}</b></span>`",

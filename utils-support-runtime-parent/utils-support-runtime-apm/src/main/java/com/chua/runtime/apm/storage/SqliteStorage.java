@@ -1076,8 +1076,10 @@ public class SqliteStorage implements ApmStorage {
         s.execute("CREATE TABLE IF NOT EXISTS transmissions ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "trace_id TEXT, span_id TEXT, parent_span_id TEXT, "
-                + "source_protocol TEXT, source_software TEXT, source_host TEXT, source_port INTEGER, source_path TEXT, "
-                + "target_protocol TEXT, target_software TEXT, target_host TEXT, target_port INTEGER, target_path TEXT, "
+                + "source_protocol TEXT, source_software TEXT, source_host TEXT, source_port INTEGER, " +
+                        "source_path TEXT, "
+                + "target_protocol TEXT, target_software TEXT, target_host TEXT, target_port INTEGER, " +
+                        "target_path TEXT, "
                 + "protocol TEXT, software TEXT, operation TEXT, status TEXT, status_code INTEGER, "
                 + "start_time INTEGER, end_time INTEGER, duration INTEGER, bytes_out INTEGER, bytes_in INTEGER, "
                 + "error_type TEXT, error_message TEXT, attributes TEXT)");

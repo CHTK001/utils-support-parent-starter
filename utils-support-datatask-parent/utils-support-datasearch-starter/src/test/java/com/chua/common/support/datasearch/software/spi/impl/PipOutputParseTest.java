@@ -25,9 +25,13 @@ public class PipOutputParseTest {
      */
     private static final String ALREADY_SATISFIED = String.join("\n",
             "Defaulting to user installation because normal site-packages is not writeable",
-            "Requirement already satisfied: flask in c:\\users\\yemen\\appdata\\roaming\\python\\python312\\site-packages (3.1.3)",
-            "Requirement already satisfied: blinker>=1.9.0 in c:\\users\\yemen\\appdata\\roaming\\python\\python312\\site-packages (from flask) (1.9.0)",
-            "Requirement already satisfied: urllib3<1.27,>=1.21.1 in c:\\users\\yemen\\appdata\\roaming\\python\\python312\\site-packages (from requests) (1.26.20)",
+            "Requirement already satisfied: flask in " +
+                    "c:\\users\\yemen\\appdata\\roaming\\python\\python312\\site-packages (3.1.3)",
+            "Requirement already satisfied: blinker>=1.9.0 in " +
+                    "c:\\users\\yemen\\appdata\\roaming\\python\\python312\\site-packages (from flask) (1.9.0)",
+            "Requirement already satisfied: urllib3<1.27,>=1.21.1 in " +
+                    "c:\\users\\yemen\\appdata\\roaming\\python\\python312\\site-packages (from requests) " +
+                    "(1.26.20)",
             "{",
             "  \"version\": \"1\",",
             "  \"pip_version\": \"24.2\",",
@@ -53,7 +57,8 @@ public class PipOutputParseTest {
             "  \"pip_version\": \"24.2\",",
             "  \"install\": [",
             "    {",
-            "      \"download_info\": {\"url\": \"https://files.pythonhosted.org/packages/ruff-0.16.8-py3-none-win_amd64.whl\"},",
+            "      \"download_info\": {\"url\": " +
+                    "\"https://files.pythonhosted.org/packages/ruff-0.16.8-py3-none-win_amd64.whl\"},",
             "      \"is_direct\": false,",
             "      \"requested\": true,",
             "      \"metadata\": {",

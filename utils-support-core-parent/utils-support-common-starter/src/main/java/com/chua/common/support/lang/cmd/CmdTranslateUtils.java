@@ -94,7 +94,8 @@ public final class CmdTranslateUtils {
         add("^find\\s+(.+?)\\s+-name\\s+['\"]([^'\"]+)['\"]",
                 ps("Get-ChildItem -Path '$1' -Recurse -Filter '$2' | Select-Object FullName"));
         add("^find\\s+(.*)",
-                ps("Get-ChildItem -Path '$1' -Recurse -ErrorAction SilentlyContinue | Select-Object FullName,Length,LastWriteTime"));
+                ps("Get-ChildItem -Path '$1' -Recurse -ErrorAction SilentlyContinue | Select-Object " +
+                        "FullName,Length,LastWriteTime"));
 
         // ---- 搜索/过滤 ----
         add("^grep\\s+-r\\s+(.+?)\\s+(.+)",
@@ -109,11 +110,15 @@ public final class CmdTranslateUtils {
 
         // ---- 磁盘/空间 ----
         add("^df\\s+-h\\s*(.*)",
-                ps("Get-Volume | Where-Object { $_.DriveLetter } | Select-Object DriveLetter, @{N='Rem(GB)';E={[math]::Round($_.SizeRemaining/1GB,1)}}, @{N='Total(GB)';E={[math]::Round($_.Size/1GB,1)}} | Format-Table -AutoSize"));
+                ps("Get-Volume | Where-Object { $_.DriveLetter } | Select-Object DriveLetter, " +
+                        "@{N='Rem(GB)';E={[math]::Round($_.SizeRemaining/1GB,1)}}, " +
+                        "@{N='Total(GB)';E={[math]::Round($_.Size/1GB,1)}} | Format-Table -AutoSize"));
         add("^du\\s+-sh\\s+(.*)",
-                ps("(Get-ChildItem -Path '$1' -Recurse -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum / 1GB GB"));
+                ps("(Get-ChildItem -Path '$1' -Recurse -ErrorAction SilentlyContinue | Measure-Object " +
+                        "-Property Length -Sum).Sum / 1GB GB"));
         add("^du\\s+-h\\s+(.*)",
-                ps("Get-ChildItem -Path '$1' -Recurse -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum | ForEach-Object { '{0:N2} GB' -f ($_.Sum/1GB) }"));
+                ps("Get-ChildItem -Path '$1' -Recurse -ErrorAction SilentlyContinue | Measure-Object -Property " +
+                        "Length -Sum | ForEach-Object { '{0:N2} GB' -f ($_.Sum/1GB) }"));
 
         // ---- 环境变量 ----
         add("^env\\s*(.*)", ps("[Environment]::GetEnvironmentVariables() | Format-Table"));

@@ -997,7 +997,8 @@ public class PlaywrightBusinessBenchmark {
         sb.append("<!DOCTYPE html>\n<html lang=\"zh-CN\">\n<head>\n<meta charset=\"UTF-8\">\n");
         sb.append("<title>Playwright 业务压测报告</title>\n");
         sb.append("<style>\n")
-                .append("body{font-family:'Microsoft YaHei',Arial,sans-serif;margin:24px;background:#f7f8fa;color:#333;}\n")
+                .append("body{font-family:'Microsoft " +
+                        "YaHei',Arial,sans-serif;margin:24px;background:#f7f8fa;color:#333;}\n")
                 .append("h1{color:#1a73e8;}h2{color:#333;border-bottom:2px solid #1a73e8;padding-bottom:4px;}\n")
                 .append("table{border-collapse:collapse;width:100%;background:#fff;margin:8px 0 20px;}\n")
                 .append("th,td{border:1px solid #ddd;padding:8px 10px;text-align:left;}\n")
