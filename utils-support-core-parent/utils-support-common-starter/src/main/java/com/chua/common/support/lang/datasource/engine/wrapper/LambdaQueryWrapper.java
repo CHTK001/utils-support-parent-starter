@@ -470,7 +470,8 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     @Override
     protected String resolveColumn(SFunction<T, ?> column) {
         try {
-            java.lang.reflect.Method writeReplace = column.getClass().getDeclaredMethod("writeReplace"); // [P3C 1.10 豁免] 序列化 writeReplace 为 lambda 私有方法，需精确方法句柄，无法用 ReflectUtils 替代
+            java.lang.reflect.Method writeReplace = column.getClass()
+                    .getDeclaredMethod("writeReplace"); // [P3C 1.10 豁免] 序列化 writeReplace 为 lambda 私有方法，需精确方法句柄，无法用 ReflectUtils 替代
             // [P3C 1.10 豁免] 序列化 writeReplace 需精确方法句柄（SerializedLambda），无法用 ReflectUtils 替代
             writeReplace.setAccessible(true);
             java.lang.invoke.SerializedLambda lambda =

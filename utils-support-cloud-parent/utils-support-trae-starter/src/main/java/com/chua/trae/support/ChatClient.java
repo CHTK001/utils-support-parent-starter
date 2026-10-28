@@ -708,7 +708,8 @@ public class ChatClient implements AutoCloseable {
                 FunctionCall fn = new FunctionCall();
                 JsonNode fnNode = tc.path("function");
                 fn.name(fnNode.has("name") ? fnNode.path("name").asText("") : tc.path("name").asText(""));
-                String args = fnNode.has("arguments") ? fnNode.path("arguments").asText("{}") : tc.path("arguments").asText("{}");
+                String args = fnNode.has("arguments") ? fnNode.path("arguments").asText("{}") : tc.path("arguments")
+                        .asText("{}");
                 fn.arguments(args);
                 call.function(fn);
                 toolCalls.add(call);

@@ -38,7 +38,8 @@ public class UrlMockString implements MockString {
     @Nonnull
     public String getString(@Nonnull MockEnvironment environment) {
         StringBuilder builder = new StringBuilder(40);
-        builder.append(environment.randomOf(PROTOCOLS)).append("://www.").append(new DomainMockString().getString(environment));
+        builder.append(environment.randomOf(PROTOCOLS)).append("://www.")
+                .append(new DomainMockString().getString(environment));
         builder.append('/').append(environment.randomOf(PATHS));
         if (environment.nextInt(2) == 0) {
             builder.append('/').append(environment.nextInt(1, 10000));

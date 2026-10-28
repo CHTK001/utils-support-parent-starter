@@ -448,11 +448,13 @@ public final class DateFormatConstant {
     /**
      * yyyy.MM.dd           2020.05.23
      */
-    public static final DateTimeFormatter YYYY_MM_DD_POINT_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_POINT).withZone(ZONE);
+    public static final DateTimeFormatter YYYY_MM_DD_POINT_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_POINT)
+            .withZone(ZONE);
     /**
      * yyyy.M.d       0           2020.5.23
      */
-    public static final DateTimeFormatter YYYY_M_D_POINT_FMT = DateTimeFormatter.ofPattern(YYYY_M_D_POINT).withZone(ZONE);
+    public static final DateTimeFormatter YYYY_M_D_POINT_FMT = DateTimeFormatter.ofPattern(YYYY_M_D_POINT)
+            .withZone(ZONE);
     /**
      * yy/MM/dd       0           20/05/23
      */
@@ -533,7 +535,8 @@ public final class DateFormatConstant {
     /**
      * yyyy-MM-dd HH:mm:ss          2020-05-23 17:06:30
      */
-    public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).withZone(ZONE);
+    public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)
+            .withZone(ZONE);
     /**
      * 创建 yyyy-MM-dd HH:mm:ss 格式的日期格式化实例。
      * <p>SimpleDateFormat 非线程安全，禁止复用静态实例，每次使用请新建。</p>
@@ -546,11 +549,13 @@ public final class DateFormatConstant {
     /**
      * yyyy-M-d H:m:s          2020-5-23 17:6:30
      */
-    public static final DateTimeFormatter YYYY_M_D_H_M_S_FMT = DateTimeFormatter.ofPattern(YYYY_M_D_H_M_S).withZone(ZONE);
+    public static final DateTimeFormatter YYYY_M_D_H_M_S_FMT = DateTimeFormatter.ofPattern(YYYY_M_D_H_M_S)
+            .withZone(ZONE);
     /**
      * yyyyMMddHHmmss          20200523170630
      */
-    public static final DateTimeFormatter YYYYMMDDHHMMSS_FMT = DateTimeFormatter.ofPattern(YYYYMMDDHHMMSS).withZone(ZONE);
+    public static final DateTimeFormatter YYYYMMDDHHMMSS_FMT = DateTimeFormatter.ofPattern(YYYYMMDDHHMMSS)
+            .withZone(ZONE);
     /**
      * yyyy/MM/dd HH:mm:ss          2020/05/23 17:06:30
      */
@@ -558,7 +563,8 @@ public final class DateFormatConstant {
     /**
      * yyyy/M/d H:m:s          2020/5/23 17:6:30
      */
-    public static final DateTimeFormatter YYYY_M_D_H_M_S_EN_FMT = DateTimeFormatter.ofPattern(YYYY_M_D_H_M_S_EN).withZone(ZONE);
+    public static final DateTimeFormatter YYYY_M_D_H_M_S_EN_FMT = DateTimeFormatter.ofPattern(YYYY_M_D_H_M_S_EN)
+            .withZone(ZONE);
     /**
      * yyyy年MM月dd日 HH:mm:ss，示例：2020年05月23日 17:06:30
      */
@@ -570,7 +576,8 @@ public final class DateFormatConstant {
     /**
      * yyyy-MM-dd HH:mm          2020-05-23 17:06
      */
-    public static final DateTimeFormatter YYYY_MM_DD_HH_MM_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM).withZone(ZONE);
+    public static final DateTimeFormatter YYYY_MM_DD_HH_MM_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM)
+            .withZone(ZONE);
     /**
      * yyyy-M-d H:m          2020-5-23 17:6
      */
@@ -582,15 +589,18 @@ public final class DateFormatConstant {
     /**
      * yyyy/MM/dd HH:mm          2020/05/23 17:06
      */
-    public static final DateTimeFormatter YYYY_MM_DD_HH_MM_EN_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_EN).withZone(ZONE);
+    public static final DateTimeFormatter YYYY_MM_DD_HH_MM_EN_FMT = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_EN)
+            .withZone(ZONE);
     /**
      * yyyy/M/d H:m          2020/5/23 17:6
      */
-    public static final DateTimeFormatter YYYY_M_D_H_M_EN_FMT = DateTimeFormatter.ofPattern(YYYY_M_D_H_M_EN).withZone(ZONE);
+    public static final DateTimeFormatter YYYY_M_D_H_M_EN_FMT = DateTimeFormatter.ofPattern(YYYY_M_D_H_M_EN)
+            .withZone(ZONE);
     /**
      * yyyy/M/d h:m a          2020/5/23 5:6                    
      */
-    public static final DateTimeFormatter YYYY_M_D_H_M_A_EN_FMT = DateTimeFormatter.ofPattern(YYYY_M_D_H_M_A_EN).withZone(ZONE);
+    public static final DateTimeFormatter YYYY_M_D_H_M_A_EN_FMT = DateTimeFormatter.ofPattern(YYYY_M_D_H_M_A_EN)
+            .withZone(ZONE);
     /**
      * yyyy/M/d h:m a          2020/5/23 5:6 PM  AM   PM
      */
@@ -602,15 +612,18 @@ public final class DateFormatConstant {
     /**
      * MM月dd日 HH:mm，示例：05月23日 17:06
      */
-    public static final DateTimeFormatter MM_DD_HH_MM_CN_FMT = DateTimeFormatter.ofPattern(MM_DD_HH_MM_CN).withZone(ZONE);
+    public static final DateTimeFormatter MM_DD_HH_MM_CN_FMT = DateTimeFormatter.ofPattern(MM_DD_HH_MM_CN)
+            .withZone(ZONE);
     /**
      * MM-dd HH:mm:ss          05-23 17:06:30
      */
-    public static final DateTimeFormatter MM_DD_HH_MM_SS_FMT = DateTimeFormatter.ofPattern(MM_DD_HH_MM_SS).withZone(ZONE);
+    public static final DateTimeFormatter MM_DD_HH_MM_SS_FMT = DateTimeFormatter.ofPattern(MM_DD_HH_MM_SS)
+            .withZone(ZONE);
     /**
      * MM月dd日 HH:mm:ss，示例：05月23日 17:06:30
      */
-    public static final DateTimeFormatter MM_DD_HH_MM_SS_CN_FMT = DateTimeFormatter.ofPattern(MM_DD_HH_MM_SS_CN).withZone(ZONE);
+    public static final DateTimeFormatter MM_DD_HH_MM_SS_CN_FMT = DateTimeFormatter.ofPattern(MM_DD_HH_MM_SS_CN)
+            .withZone(ZONE);
     /**
      * yyyy年MM月dd日 hh:mm:ss a（12 小时制），示例：2020年05月23日 05:06:30
      */
@@ -641,11 +654,13 @@ public final class DateFormatConstant {
      * Jdk8        yyyyMMddHHmmssSSS bug
      * :https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8031085
      */
-    public static final DateTimeFormatter YYYYMMDDHHMMSSSSS_FMT = new DateTimeFormatterBuilder().appendPattern(YYYYMMDDHHMMSS).appendValue(ChronoField.MILLI_OF_SECOND, 3).toFormatter().withZone(ZONE);
+    public static final DateTimeFormatter YYYYMMDDHHMMSSSSS_FMT = new DateTimeFormatterBuilder()
+            .appendPattern(YYYYMMDDHHMMSS).appendValue(ChronoField.MILLI_OF_SECOND, 3).toFormatter().withZone(ZONE);
     /**
      * yyyy-M-d H:m:s.SSS          2020-5-23 17:6:30.272
      */
-    public static final DateTimeFormatter YYYY_M_D_H_M_S_SSS_FMT = DateTimeFormatter.ofPattern(YYYY_M_D_H_M_S_SSS).withZone(ZONE);
+    public static final DateTimeFormatter YYYY_M_D_H_M_S_SSS_FMT = DateTimeFormatter.ofPattern(YYYY_M_D_H_M_S_SSS)
+            .withZone(ZONE);
     /**
      * yyyy/M/d H:m:s.SSS          2020/5/23 17:6:30.272
      */
@@ -746,7 +761,8 @@ public final class DateFormatConstant {
     /**
      * hh:mm a          05:06 PM  AM PM
      */
-    public static final DateTimeFormatter HH_MM_A_AM_PM_FMT = DateTimeFormatter.ofPattern(HH_MM_A, Locale.ENGLISH).withZone(ZONE);
+    public static final DateTimeFormatter HH_MM_A_AM_PM_FMT = DateTimeFormatter.ofPattern(HH_MM_A, Locale.ENGLISH)
+            .withZone(ZONE);
     /**
      * HH:mm:ss.SSS           17:26:30.272
      */
@@ -754,10 +770,12 @@ public final class DateFormatConstant {
     /**
      * HH:mm:ss.SSSSSS           17:26:30.272150
      */
-    public static final DateTimeFormatter HH_MM_SS_SSSSSS_FMT = DateTimeFormatter.ofPattern(HH_MM_SS_SSSSSS).withZone(ZONE);
+    public static final DateTimeFormatter HH_MM_SS_SSSSSS_FMT = DateTimeFormatter.ofPattern(HH_MM_SS_SSSSSS)
+            .withZone(ZONE);
     // ==================================             formatters==================================
     /**
      * HH:mm:ss.SSSSSSSSS           17:26:30.272150620
      */
-    public static final DateTimeFormatter HH_MM_SS_SSSSSSSSS_FMT = DateTimeFormatter.ofPattern(HH_MM_SS_SSSSSSSSS).withZone(ZONE);
+    public static final DateTimeFormatter HH_MM_SS_SSSSSSSSS_FMT = DateTimeFormatter.ofPattern(HH_MM_SS_SSSSSSSSS)
+            .withZone(ZONE);
 }

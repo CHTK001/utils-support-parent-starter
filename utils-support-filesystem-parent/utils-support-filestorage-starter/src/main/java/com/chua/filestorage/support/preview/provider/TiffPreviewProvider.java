@@ -229,7 +229,8 @@ public class TiffPreviewProvider implements FileStoragePreviewProvider {
             sb.append("<div class=\"warn\">").append(escapeHtml(pageError)).append("</div>");
         }
         if (total > pages.size()) {
-            sb.append("<div class=\"warn\">该文件共 ").append(total).append(" 页，本页仅展示前 ").append(pages.size()).append(" 页。</div>");
+            sb.append("<div class=\"warn\">该文件共 ").append(total).append(" 页，本页仅展示前 ").append(pages.size())
+                    .append(" 页。</div>");
         }
         sb.append("</div>");
 

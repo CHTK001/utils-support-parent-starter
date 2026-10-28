@@ -95,7 +95,8 @@ public class OnnxImageQualityAssessor implements ImageQualityAssessor {
     */
     @Override
     public ImageQualityInfo assess(byte[] imageData) {
-        return ImageQualityAssessor.create(resolveModel()).blurThreshold(blurThreshold).modelPath(modelPath).device(device).assess(imageData);
+        return ImageQualityAssessor.create(resolveModel()).blurThreshold(blurThreshold).modelPath(modelPath)
+                .device(device).assess(imageData);
     }
 
 }

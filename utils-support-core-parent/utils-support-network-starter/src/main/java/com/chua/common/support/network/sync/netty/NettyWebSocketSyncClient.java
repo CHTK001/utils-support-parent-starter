@@ -87,7 +87,8 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
             output = socket.getOutputStream();
             input = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
 
-            String key = Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
+            String key = Base64.getEncoder()
+                    .encodeToString(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
             String request = "GET " + path + " HTTP/1.1\r\n" +
                     "Host: " + host + ":" + port + "\r\n" +
                     "Upgrade: websocket\r\n" +

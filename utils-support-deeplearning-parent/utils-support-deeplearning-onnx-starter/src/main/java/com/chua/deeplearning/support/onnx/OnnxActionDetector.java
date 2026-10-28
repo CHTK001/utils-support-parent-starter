@@ -74,6 +74,7 @@ public class OnnxActionDetector implements ActionDetector {
 
     @Override
     public List<ActionDetectionResult> detect(byte[] videoData) {
-        return ActionDetector.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).detect(videoData);
+        return ActionDetector.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device)
+                .detect(videoData);
     }
 }

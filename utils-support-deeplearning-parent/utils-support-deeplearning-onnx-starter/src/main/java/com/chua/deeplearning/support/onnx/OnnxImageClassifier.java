@@ -92,7 +92,8 @@ public class OnnxImageClassifier implements ImageClassifier {
     */
     @Override
     public String classify(byte[] imageData) {
-        return ImageClassifier.create(resolveModel()).topK(topK).modelPath(modelPath).device(device).classify(imageData);
+        return ImageClassifier.create(resolveModel()).topK(topK).modelPath(modelPath).device(device)
+                .classify(imageData);
     }
 
     /**
@@ -100,7 +101,8 @@ public class OnnxImageClassifier implements ImageClassifier {
     */
     @Override
     public List<DetectionInfo> classifyTopK(byte[] imageData, int k) {
-        return ImageClassifier.create(resolveModel()).topK(topK).modelPath(modelPath).device(device).classifyTopK(imageData,
+        return ImageClassifier.create(resolveModel()).topK(topK).modelPath(modelPath).device(device)
+                .classifyTopK(imageData,
                                       k);
     }
 

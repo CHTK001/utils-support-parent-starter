@@ -105,7 +105,8 @@ public class OnnxImageDetector implements ImageDetector {
     */
     @Override
     public List<DetectionInfo> detect(byte[] imageData) {
-        return ImageDetector.create(resolveModel()).threshold(threshold).nms(nms).modelPath(modelPath).device(device).detect(imageData);
+        return ImageDetector.create(resolveModel()).threshold(threshold).nms(nms).modelPath(modelPath).device(device)
+                .detect(imageData);
     }
 
 }

@@ -204,7 +204,8 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
 
         sb.append("<div class=\"header\">");
         sb.append("<h1>EPUB 电子书预览</h1>");
-        sb.append("<div class=\"meta\">文件大小: ").append(humanSize(fileSize)).append(" · 章节: ").append(chapters.size()).append("</div>");
+        sb.append("<div class=\"meta\">文件大小: ").append(humanSize(fileSize)).append(" · 章节: ").append(chapters.size())
+                .append("</div>");
         sb.append("</div>");
 
         sb.append("<div class=\"book\">");
@@ -215,7 +216,8 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
             for (int i = 0; i < chapters.size() && i < 20; i++) {
                 sb.append("<div class=\"chapter\">");
                 sb.append("<div class=\"chapter-title\">第 ").append(i + 1).append(" 章</div>");
-                sb.append("<div class=\"chapter-text\">").append(escapeHtml(truncate(chapters.get(i), 500))).append("</div>");
+                sb.append("<div class=\"chapter-text\">").append(escapeHtml(truncate(chapters.get(i), 500)))
+                        .append("</div>");
                 sb.append("</div>");
             }
             if (chapters.size() > 20) {

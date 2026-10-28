@@ -225,7 +225,8 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
                     Map<String, OnnxTensor> inputs = Wraps.map();
                     inputs.put("images", tensor);
                     try (OrtSession.Result result = session.run(inputs)) {
-                        float[][][] output = (float[][][]) result.get(0).getValue(); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+                        float[][][] output = (float[][][]) result.get(0)
+                                .getValue(); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                         return decode(output[0]);
                     }
                 }

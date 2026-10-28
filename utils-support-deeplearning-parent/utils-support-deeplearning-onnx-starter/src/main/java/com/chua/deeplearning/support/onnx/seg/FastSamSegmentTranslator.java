@@ -263,7 +263,8 @@ public class FastSamSegmentTranslator implements ITranslator<byte[], byte[]> {
             Map<String, OnnxTensor> inputs = Wraps.map();
             inputs.put("images", tensor);
             try (OrtSession.Result result = session.run(inputs)) {
-                float[][][] detections = (float[][][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+                float[][][] detections = (float[][][]) result.get(0)
+                        .getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                 float[][][][] protos = (float[][][][]) result.get(1).getValue();
                 float[] flat = detections[0][0];
                 int rows = detections[0].length;

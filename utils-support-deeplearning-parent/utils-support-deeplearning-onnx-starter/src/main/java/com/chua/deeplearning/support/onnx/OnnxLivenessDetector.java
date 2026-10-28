@@ -91,7 +91,8 @@ public class OnnxLivenessDetector implements LivenessDetector {
     */
     @Override
     public boolean isLive(byte[] imageData) {
-        return LivenessDetector.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).isLive(imageData);
+        return LivenessDetector.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device)
+                .isLive(imageData);
     }
 
     /**
@@ -99,7 +100,8 @@ public class OnnxLivenessDetector implements LivenessDetector {
     */
     @Override
     public float liveScore(byte[] imageData) {
-        return LivenessDetector.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).liveScore(imageData);
+        return LivenessDetector.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device)
+                .liveScore(imageData);
     }
 
 }

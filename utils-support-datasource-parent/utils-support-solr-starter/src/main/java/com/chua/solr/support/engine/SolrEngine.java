@@ -662,7 +662,8 @@ public class SolrEngine extends AbstractEngine {
         sb.append("{\"").append(col).append("\":{");
         sb.append("\"type\":\"terms\",");
         sb.append("\"field\":\"").append(col).append("\",");
-        sb.append("\"offset\":").append(idx == 0 ? offset : 0).append(",").append("\"limit\":").append(limit).append(",");
+        sb.append("\"offset\":").append(idx == 0 ? offset : 0).append(",").append("\"limit\":").append(limit)
+                .append(",");
         sb.append("\"mincount\":1");
         if (idx < cols.size() - 1) {
             sb.append(",\"facet\":{").append(buildJsonFacet(cols, idx + 1, 0, limit)).append("}");

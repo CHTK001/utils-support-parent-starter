@@ -52,7 +52,8 @@ public class ParquetPreviewProvider implements FileStoragePreviewProvider {
             String html = previewParquet(path, content.length);
             return PreviewResult.builder().htmlContent(html).build();
         } catch (Exception e) {
-            return PreviewResult.builder().htmlContent(unavailableHtml("Parquet 解析失败: " + escape(e.getMessage()))).build();
+            return PreviewResult.builder().htmlContent(unavailableHtml("Parquet 解析失败: " + escape(e.getMessage())))
+                    .build();
         } finally {
             java.nio.file.Files.deleteIfExists(tmp);
         }

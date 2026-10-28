@@ -959,7 +959,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("qwen2-1.5b-onnx", "com.chua.deeplearning.support.onnx.text.qwen.OnnxQwenTranslator", String.class, String.class, Object.class,
                 "models/qwen2.5-1.5b-instruct/model.onnx",
                 qwenUrl, List.of(qwenUrl), false, "model.onnx",
-                HardwareConfig.builder().device("gpu").minVramMb(2048).recommended(true).description("中文大模型对话 int8 1.5GB").build());
+                HardwareConfig.builder().device("gpu").minVramMb(2048).recommended(true)
+                        .description("中文大模型对话 int8 1.5GB").build());
         // 图像分类(MobileNetV4)：MobileNetV4 1000 类 ImageNet 分类，最新版更快更准；适用移动端通用分类
         reg("mobilenetv4-classification",
             "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator",

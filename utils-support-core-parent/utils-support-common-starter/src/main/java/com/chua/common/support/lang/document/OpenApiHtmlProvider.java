@@ -101,7 +101,8 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
         if (data.getSections() != null && !data.getSections().isEmpty()) {
             String sectionNodeId = "node-" + ID_GEN.incrementAndGet();
             sb.append("<li class=\"tree-folder\"><div class=\"folder-row\"><span class=\"caret\">▾</span>");
-            sb.append("<a href=\"#").append(sectionNodeId).append("\" class=\"folder-link\">快速入门</a></div><ul class=\"children\">");
+            sb.append("<a href=\"#").append(sectionNodeId)
+                    .append("\" class=\"folder-link\">快速入门</a></div><ul class=\"children\">");
             for (OpenApiSection sec : data.getSections()) {
                 String docId = "doc-" + ID_GEN.incrementAndGet();
                 sb.append("<li class=\"tree-file\"><a href=\"#").append(docId);
@@ -142,7 +143,8 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
                 sb.append("<li class=\"tree-file\"><a href=\"#").append(docId);
                 sb.append("\" class=\"tree-link\" data-search=\"");
                 sb.append(escape((tagName == null ? "" : tagName) + " " + ep.getMethod() + " " + ep.getPath() + " " + safeStr(ep.getSummary())).toLowerCase());
-                sb.append("\">").append(escape(safeStr(ep.getSummary()).isEmpty() ? ep.getPath() : ep.getSummary())).append("</a></li>");
+                sb.append("\">").append(escape(safeStr(ep.getSummary()).isEmpty() ? ep.getPath() : ep.getSummary()))
+                        .append("</a></li>");
             }
             sb.append("</ul></li>");
         }
@@ -192,12 +194,14 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
     private void renderEndpoint(StringBuilder sb, OpenApiEndpoint ep) {
         String docId = "doc-" + ID_GEN.incrementAndGet();
         sb.append("<section class=\"doc-section\" id=\"sec-").append(docId).append("\">");
-        sb.append("<h2 id=\"").append(docId).append("\">").append(escape(safeStr(ep.getSummary()).isEmpty() ? ep.getPath() : ep.getSummary())).append("</h2>");
+        sb.append("<h2 id=\"").append(docId).append("\">")
+                .append(escape(safeStr(ep.getSummary()).isEmpty() ? ep.getPath() : ep.getSummary())).append("</h2>");
 
         // Method badge with semantic color + path
         String method = safeStr(ep.getMethod());
         String methodClass = methodToClass(method);
-        sb.append("<p><span class=\"method-badge ").append(methodClass).append("\">").append(escape(method)).append("</span>");
+        sb.append("<p><span class=\"method-badge ").append(methodClass).append("\">").append(escape(method))
+                .append("</span>");
         sb.append(" <code class=\"path-code\">").append(escape(safeStr(ep.getPath()))).append("</code></p>");
         if (ep.isDeprecated()) {
             sb.append(" <span class=\"deprecated\">已废弃</span>");
@@ -264,7 +268,8 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
         }
         if (ep.getResponseSample() != null) {
             sb.append("<h4>响应示例</h4>");
-            sb.append("<pre class=\"code-block\" data-lang=\"json\"><code>").append(escape(ep.getResponseSample())).append("</code></pre>");
+            sb.append("<pre class=\"code-block\" data-lang=\"json\"><code>").append(escape(ep.getResponseSample()))
+                    .append("</code></pre>");
         }
 
         sb.append("<hr></section>");
@@ -407,7 +412,8 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
                     li.style.display = hit ? '' : 'none';
                   });
                   tree.querySelectorAll('.tree-folder').forEach(f => {
-                    const anyVisible = Array.from(f.querySelectorAll('.tree-file')).some(x => x.style.display !== 'none');
+                    const anyVisible = Array.from(f.querySelectorAll('.tree-file'))
+                            .some(x => x.style.display !== 'none');
                     if (q && !anyVisible) {
                         f.style.display = 'none';
                     }

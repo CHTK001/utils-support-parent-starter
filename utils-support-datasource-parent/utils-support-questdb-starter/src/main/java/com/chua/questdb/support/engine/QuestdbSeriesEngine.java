@@ -329,7 +329,8 @@ public class QuestdbSeriesEngine implements SeriesEngine, AutoCloseable {
         }
         String timestampColumn = resolveTimestampColumn(target);
         StringBuilder sql = new StringBuilder("DELETE FROM \"").append(target)
-                .append("\" WHERE \"").append(timestampColumn).append("\" < '").append(toIso(beforeMillis)).append('\'');
+                .append("\" WHERE \"").append(timestampColumn).append("\" < '").append(toIso(beforeMillis))
+                        .append('\'');
         if (monitorId != null) {
             sql.append(" AND \"").append(TAG_MONITOR_ID).append("\" = '").append(monitorId).append('\'');
         }

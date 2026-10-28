@@ -1378,7 +1378,8 @@ public class MapUtils {
         for (Map.Entry<String, Object> entry : source.entrySet()) {
             Object value1 = entry.getValue();
             result.put(entry.getKey(),
-                       value1 instanceof Collection && ((Collection<?>) value1).size() == 1 ? CollectionUtils.findFirst((Collection) value1).toString() : value1.toString());
+                       value1 instanceof Collection && ((Collection<?>) value1)
+                               .size() == 1 ? CollectionUtils.findFirst((Collection) value1).toString() : value1.toString());
         }
         return Collections.unmodifiableMap(result);
     }
@@ -2063,7 +2064,8 @@ public class MapUtils {
         if (isEmpty(beanOfTypes)) {
             return Collections.emptyList();
         }
-        return beanOfTypes.entrySet().stream().map(entry -> function.apply(entry.getKey(), entry.getValue())).collect(Collectors.toList());
+        return beanOfTypes.entrySet().stream().map(entry -> function.apply(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
     }
 
     /**

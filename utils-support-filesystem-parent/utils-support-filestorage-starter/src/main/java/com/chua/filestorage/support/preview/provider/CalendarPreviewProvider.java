@@ -169,7 +169,8 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
 
         sb.append("<div class=\"header\">");
         sb.append("<h1>日历事件预览</h1>");
-        sb.append("<div class=\"meta\">文件大小: ").append(humanSize(fileSize)).append(" · 事件: ").append(events.size()).append("</div>");
+        sb.append("<div class=\"meta\">文件大小: ").append(humanSize(fileSize)).append(" · 事件: ").append(events.size())
+                .append("</div>");
         sb.append("</div>");
 
         sb.append("<div class=\"events\">");
@@ -179,18 +180,23 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
         } else {
             for (CalendarEvent event : events) {
                 sb.append("<div class=\"event\">");
-                sb.append("<div class=\"summary\">").append(escapeHtml(event.summary != null ? event.summary : "无标题")).append("</div>");
+                sb.append("<div class=\"summary\">")
+                        .append(escapeHtml(event.summary != null ? event.summary : "无标题")).append("</div>");
                 if (event.dtstart != null) {
-                    sb.append("<div class=\"detail\">开始: <span>").append(escapeHtml(event.dtstart)).append("</span></div>");
+                    sb.append("<div class=\"detail\">开始: <span>").append(escapeHtml(event.dtstart))
+                            .append("</span></div>");
                 }
                 if (event.dtend != null) {
-                    sb.append("<div class=\"detail\">结束: <span>").append(escapeHtml(event.dtend)).append("</span></div>");
+                    sb.append("<div class=\"detail\">结束: <span>").append(escapeHtml(event.dtend))
+                            .append("</span></div>");
                 }
                 if (event.location != null && !event.location.isEmpty()) {
-                    sb.append("<div class=\"detail\">地点: <span>").append(escapeHtml(event.location)).append("</span></div>");
+                    sb.append("<div class=\"detail\">地点: <span>").append(escapeHtml(event.location))
+                            .append("</span></div>");
                 }
                 if (event.description != null && !event.description.isEmpty()) {
-                    sb.append("<div class=\"detail\">描述: <span>").append(escapeHtml(truncate(event.description, 200))).append("</span></div>");
+                    sb.append("<div class=\"detail\">描述: <span>")
+                            .append(escapeHtml(truncate(event.description, 200))).append("</span></div>");
                 }
                 sb.append("</div>");
             }

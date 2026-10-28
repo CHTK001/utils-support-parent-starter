@@ -95,7 +95,8 @@ public class CollapsibleIntercept
         if (((Collection<?>) args[0]).isEmpty()) {
             return invocation.proceed();
         }
-        CollapseExecutorFactory factory = ServiceProvider.of(CollapseExecutorFactory.class).getExtension(DEFAULT_FACTORY_NAME);
+        CollapseExecutorFactory factory = ServiceProvider.of(CollapseExecutorFactory.class)
+                .getExtension(DEFAULT_FACTORY_NAME);
         if (factory == null) {
             log.warn("未找到折叠执行器工厂 SPI[collapse]，请引入 utils-support-collapse-starter，本次调用不折叠直接执行。");
             return invocation.proceed();

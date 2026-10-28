@@ -214,7 +214,8 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
      * @param packet 数据报
      */
     private void handlePacket(DatagramPacket packet) {
-        String message = new String(packet.getData(), packet.getOffset(), packet.getLength(), StandardCharsets.UTF_8).trim();
+        String message = new String(packet.getData(), packet.getOffset(), packet.getLength(), StandardCharsets.UTF_8)
+                .trim();
         int colon = message.indexOf(':');
         String topic = colon > 0 ? message.substring(0, colon) : message;
         String payload = colon > 0 ? message.substring(colon + 1) : message;

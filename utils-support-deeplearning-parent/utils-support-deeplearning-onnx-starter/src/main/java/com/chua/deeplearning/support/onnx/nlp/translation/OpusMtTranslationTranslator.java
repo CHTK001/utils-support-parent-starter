@@ -283,10 +283,14 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
                 float[][][] dKv = new float[NUM_LAYERS][2][];
                 float[][][] eKv = new float[NUM_LAYERS][2][];
                 for (int i = 0; i < NUM_LAYERS; i++) {
-                    dKv[i][0] = ((OnnxTensor) first.get("present." + i + ".decoder.key").get()).getFloatBuffer().array().clone();
-                    dKv[i][1] = ((OnnxTensor) first.get("present." + i + ".decoder.value").get()).getFloatBuffer().array().clone();
-                    eKv[i][0] = ((OnnxTensor) first.get("present." + i + ".encoder.key").get()).getFloatBuffer().array().clone();
-                    eKv[i][1] = ((OnnxTensor) first.get("present." + i + ".encoder.value").get()).getFloatBuffer().array().clone();
+                    dKv[i][0] = ((OnnxTensor) first.get("present." + i + ".decoder.key").get()).getFloatBuffer()
+                            .array().clone();
+                    dKv[i][1] = ((OnnxTensor) first.get("present." + i + ".decoder.value").get()).getFloatBuffer()
+                            .array().clone();
+                    eKv[i][0] = ((OnnxTensor) first.get("present." + i + ".encoder.key").get()).getFloatBuffer()
+                            .array().clone();
+                    eKv[i][1] = ((OnnxTensor) first.get("present." + i + ".encoder.value").get()).getFloatBuffer()
+                            .array().clone();
                 }
                 long[] eKvShape = ((OnnxTensor) first.get("present.0.encoder.key").get()).getInfo().getShape();
                 decSeq = (int) ((OnnxTensor) first.get("present.0.decoder.key").get()).getInfo().getShape()[2];
@@ -312,7 +316,8 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
                     try (OrtSession.Result stepResult = decoderPastSession.run(f2)) {
                         next = argmax(stepResult, generated);
                         for (int layer = 0; layer < NUM_LAYERS; layer++) {
-                            dKv[layer][0] = ((OnnxTensor) stepResult.get("present." + layer + ".decoder.key").get()).getFloatBuffer().array().clone();
+                            dKv[layer][0] = ((OnnxTensor) stepResult.get("present." + layer + ".decoder.key").get())
+                                    .getFloatBuffer().array().clone();
                             dKv[layer][1] = ((OnnxTensor) stepResult.get("present." + layer + ".decoder.value").get()).getFloatBuffer().array().clone();
                         }
                     }

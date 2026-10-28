@@ -1068,7 +1068,8 @@ public class NioHttpServer extends AbstractServer {
         @Override public Map<String, String> getParams() { return Collections.emptyMap(); }
         @Override public String getParam(String name) { return null; }
         @Override public String getContentType() { return "text/plain"; }
-        @Override public long getContentLength() { return body != null ? body.getBytes(StandardCharsets.UTF_8).length : -1; }
+        @Override public long getContentLength() { return body != null ? body.getBytes(StandardCharsets.UTF_8)
+                .length : -1; }
         @Override public byte[] getBody() { return body != null ? body.getBytes(StandardCharsets.UTF_8) : new byte[0]; }
         @Override public String getBodyString() { return body; }
         @Override public InputStream getInputStream() { return new ByteArrayInputStream(getBody()); }

@@ -312,7 +312,8 @@ public class FeatureExtractor {
         }
         Map<String, Integer> counts = Wraps.map(Math.max(8, window.size()));
         for (TrafficEvent event : window) {
-            String ua = event.getUserAgent() == null || event.getUserAgent().isBlank() ? "UNKNOWN" : event.getUserAgent();
+            String ua = event.getUserAgent() == null || event.getUserAgent()
+                    .isBlank() ? "UNKNOWN" : event.getUserAgent();
             counts.put(ua, 1);
         }
         return (double) counts.size() / window.size();

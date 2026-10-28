@@ -260,7 +260,8 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
         sb.append(".empty{color:#9ca3af}");
         sb.append("</style></head><body>");
         sb.append("<div class=\"header\"><h1>").append(escape(title)).append("</h1>");
-        sb.append("<div class=\"meta\">文件大小: ").append(readableSize(size)).append(" · 单元格: ").append(cells.size()).append("</div></div>");
+        sb.append("<div class=\"meta\">文件大小: ").append(readableSize(size)).append(" · 单元格: ").append(cells.size())
+                .append("</div></div>");
         sb.append("<div class=\"notebook\">");
         if (cells.isEmpty()) {
             sb.append("<div class=\"empty\">笔记本无单元格</div>");

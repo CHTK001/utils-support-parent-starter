@@ -602,10 +602,14 @@ public class IworkPreviewProvider implements FileStoragePreviewProvider {
                         "#d1d5db;border-radius:12px}")
                 .append("</style></head><body>")
                 .append("<div class=\"header\"><h1>iWork 文档预览</h1><div class=\"grid\">");
-        sb.append("<div><span class=\"k\">文件大小</span><br><span class=\"v\">").append(humanSize(size)).append("</span></div>")
-                .append("<div><span class=\"k\">容器部件</span><br><span class=\"v\">").append(partNum).append("</span></div>")
-                .append("<div><span class=\"k\">IWA 部件</span><br><span class=\"v\">").append(iwaNum).append("</span></div>")
-                .append("<div><span class=\"k\">可读章节</span><br><span class=\"v\">").append(sections.size()).append("</span></div>")
+        sb.append("<div><span class=\"k\">文件大小</span><br><span class=\"v\">").append(humanSize(size))
+                .append("</span></div>")
+                .append("<div><span class=\"k\">容器部件</span><br><span class=\"v\">").append(partNum)
+                        .append("</span></div>")
+                .append("<div><span class=\"k\">IWA 部件</span><br><span class=\"v\">").append(iwaNum)
+                        .append("</span></div>")
+                .append("<div><span class=\"k\">可读章节</span><br><span class=\"v\">").append(sections.size())
+                        .append("</span></div>")
                 .append("</div></div>");
         if (cover != null) {
             String mime = cover.length > 1 && cover[0] == (byte) 0x89 ? "image/png" : "image/jpeg";

@@ -250,7 +250,8 @@ public final class HprofToHtmlSerializer {
     private static void appendHtmlHead(StringBuilder sb, String fileName, HprofParser.Result result) {
         sb.append("<!DOCTYPE html>\n<html lang=\"zh-CN\">\n<head>\n<meta charset=\"UTF-8\">\n")
                 .append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n")
-                .append("<title>HPROF 堆分析 - ").append(escape(fileName == null ? "stream" : fileName)).append("</title>\n")
+                .append("<title>HPROF 堆分析 - ").append(escape(fileName == null ? "stream" : fileName))
+                        .append("</title>\n")
                 .append("<style>\n")
                 .append("  * { box-sizing: border-box; margin: 0; padding: 0; }\n")
                 .append("  body { font-family: -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;")

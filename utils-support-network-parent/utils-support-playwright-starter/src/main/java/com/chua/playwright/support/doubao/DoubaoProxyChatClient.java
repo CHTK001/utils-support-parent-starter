@@ -450,7 +450,8 @@ public class DoubaoProxyChatClient implements ChatClient {
                 StringBuilder toolPrompt = new StringBuilder();
                 toolPrompt.append("可用的工具：\n");
                 for (ChatTool tool : tools) {
-                    toolPrompt.append("- ").append(tool.getName()).append(": ").append(tool.getDescription()).append("\n");
+                    toolPrompt.append("- ").append(tool.getName()).append(": ").append(tool.getDescription())
+                            .append("\n");
                     if (tool.getParameters() != null) {
                         toolPrompt.append("  参数：").append(Json.toJson(tool.getParameters())).append("\n");
                     }

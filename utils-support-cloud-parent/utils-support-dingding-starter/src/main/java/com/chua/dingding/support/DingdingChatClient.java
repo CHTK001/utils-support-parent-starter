@@ -325,7 +325,8 @@ public ChatClient newChat() {
                 actualSystem = SkillPrompt.inject(system, skillManager);
             }
             if (actualSystem != null && !actualSystem.isEmpty()) {
-                messagesJson.append("{\"role\":\"system\",\"content\":\"").append(escapeJson(actualSystem)).append("\"},");
+                messagesJson.append("{\"role\":\"system\",\"content\":\"").append(escapeJson(actualSystem))
+                        .append("\"},");
             }
             List<ChatMessage> messages = externalHistory != null ? externalHistory : history;
             for (ChatMessage msg : messages) {

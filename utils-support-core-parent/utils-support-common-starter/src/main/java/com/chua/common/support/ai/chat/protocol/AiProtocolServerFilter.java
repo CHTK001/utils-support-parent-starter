@@ -1136,8 +1136,10 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
 
         if (result != null && result.getUsage() != null) {
             body.put(KEY_USAGE, Map.of(
-                    "prompt_tokens", result.getUsage().getInputTokens() != null ? result.getUsage().getInputTokens() : 0,
-                    "completion_tokens", result.getUsage().getOutputTokens() != null ? result.getUsage().getOutputTokens() : 0,
+                    "prompt_tokens", result.getUsage().getInputTokens() != null ? result.getUsage()
+                            .getInputTokens() : 0,
+                    "completion_tokens", result.getUsage().getOutputTokens() != null ? result.getUsage()
+                            .getOutputTokens() : 0,
                     "total_tokens", result.getUsage().getTotalTokens() != null ? result.getUsage().getTotalTokens() : 0
             ));
         }
@@ -1219,8 +1221,10 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
         body.put(KEY_CHOICES, List.of(choice));
         if (result != null && result.getUsage() != null) {
             body.put(KEY_USAGE, Map.of(
-                    "prompt_tokens", result.getUsage().getInputTokens() != null ? result.getUsage().getInputTokens() : 0,
-                    "completion_tokens", result.getUsage().getOutputTokens() != null ? result.getUsage().getOutputTokens() : 0,
+                    "prompt_tokens", result.getUsage().getInputTokens() != null ? result.getUsage()
+                            .getInputTokens() : 0,
+                    "completion_tokens", result.getUsage().getOutputTokens() != null ? result.getUsage()
+                            .getOutputTokens() : 0,
                     "total_tokens", result.getUsage().getTotalTokens() != null ? result.getUsage().getTotalTokens() : 0
             ));
         }

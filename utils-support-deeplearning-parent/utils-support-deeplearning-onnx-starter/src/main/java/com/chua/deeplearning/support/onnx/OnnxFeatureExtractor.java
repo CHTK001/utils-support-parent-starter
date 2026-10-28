@@ -93,7 +93,8 @@ public class OnnxFeatureExtractor implements FeatureExtractor {
     */
     @Override
     public float[] extract(byte[] imageData) {
-        return FeatureExtractor.create(resolveModel()).modelPath(modelPath).normalize(normalize).device(device).extract(imageData);
+        return FeatureExtractor.create(resolveModel()).modelPath(modelPath).normalize(normalize).device(device)
+                .extract(imageData);
     }
 
     /**
@@ -101,7 +102,8 @@ public class OnnxFeatureExtractor implements FeatureExtractor {
     */
     @Override
     public float[] extract(String text) {
-        return FeatureExtractor.create(resolveModel()).modelPath(modelPath).normalize(normalize).device(device).extract(text);
+        return FeatureExtractor.create(resolveModel()).modelPath(modelPath).normalize(normalize).device(device)
+                .extract(text);
     }
 
 }

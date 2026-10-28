@@ -152,8 +152,10 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
         sb.append("<div class=\"icon\">GIS</div>");
         sb.append("<div class=\"field\"><span class=\"label\">格式</span><span class=\"value\">ESRI " +
                 "Shapefile</span></div>");
-        sb.append("<div class=\"field\"><span class=\"label\">版本</span><span class=\"value\">").append(escapeHtml(info.version)).append("</span></div>");
-        sb.append("<div class=\"field\"><span class=\"label\">几何类型</span><span class=\"value\">").append(escapeHtml(info.shapeType)).append("</span></div>");
+        sb.append("<div class=\"field\"><span class=\"label\">版本</span><span class=\"value\">")
+                .append(escapeHtml(info.version)).append("</span></div>");
+        sb.append("<div class=\"field\"><span class=\"label\">几何类型</span><span class=\"value\">")
+                .append(escapeHtml(info.shapeType)).append("</span></div>");
 
         if (info.xmin != 0 || info.ymin != 0) {
             sb.append("<div class=\"field\"><span class=\"label\">边界范围</span><span class=\"value\">");
@@ -161,7 +163,8 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
             sb.append("</span></div>");
         }
 
-        sb.append("<div class=\"field\"><span class=\"label\">文件大小</span><span class=\"value\">").append(humanSize(fileSize)).append("</span></div>");
+        sb.append("<div class=\"field\"><span class=\"label\">文件大小</span><span class=\"value\">")
+                .append(humanSize(fileSize)).append("</span></div>");
         sb.append("<div class=\"field\"><span class=\"label\">说明</span><span class=\"value\">SHP 是 ESRI " +
                 "的地理信息系统 (GIS) 矢量数据格式。请使用 QGIS 或 ArcGIS 打开。</span></div>");
         sb.append("</div></body></html>");

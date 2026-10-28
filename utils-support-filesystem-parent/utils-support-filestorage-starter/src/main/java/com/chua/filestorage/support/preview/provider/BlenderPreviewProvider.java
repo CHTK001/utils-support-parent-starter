@@ -126,10 +126,14 @@ public class BlenderPreviewProvider implements FileStoragePreviewProvider {
         sb.append("<div class=\"icon\">3D</div>");
         sb.append("<div class=\"field\"><span class=\"label\">格式</span><span class=\"value\">Blender " +
                 "(.blend)</span></div>");
-        sb.append("<div class=\"field\"><span class=\"label\">版本</span><span class=\"value\">").append(escapeHtml(info.version)).append("</span></div>");
-        sb.append("<div class=\"field\"><span class=\"label\">指针大小</span><span class=\"value\">").append(info.pointerSize).append(" 位</span></div>");
-        sb.append("<div class=\"field\"><span class=\"label\">字节序</span><span class=\"value\">").append(info.endian).append("</span></div>");
-        sb.append("<div class=\"field\"><span class=\"label\">文件大小</span><span class=\"value\">").append(humanSize(fileSize)).append("</span></div>");
+        sb.append("<div class=\"field\"><span class=\"label\">版本</span><span class=\"value\">")
+                .append(escapeHtml(info.version)).append("</span></div>");
+        sb.append("<div class=\"field\"><span class=\"label\">指针大小</span><span class=\"value\">")
+                .append(info.pointerSize).append(" 位</span></div>");
+        sb.append("<div class=\"field\"><span class=\"label\">字节序</span><span class=\"value\">").append(info.endian)
+                .append("</span></div>");
+        sb.append("<div class=\"field\"><span class=\"label\">文件大小</span><span class=\"value\">")
+                .append(humanSize(fileSize)).append("</span></div>");
         sb.append("<div class=\"field\"><span class=\"label\">说明</span><span class=\"value\">BLEND 是 Blender " +
                 "的原生 3D 文件格式。请使用 Blender 软件打开。</span></div>");
         sb.append("</div></body></html>");

@@ -80,7 +80,8 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         if (!Files.exists(visionPath) || !Files.exists(decoderPath) || !Files.exists(tokenizerPath)) {
             throw new IllegalStateException("Florence-2 model files missing: vision=" + visionPath + " decoder=" + decoderPath);
         }
-        tokenizer = HuggingFaceTokenizer.builder().optTokenizerPath(tokenizerPath).optPadding(false).optMaxLength(128).build();
+        tokenizer = HuggingFaceTokenizer.builder().optTokenizerPath(tokenizerPath).optPadding(false)
+                .optMaxLength(128).build();
         ortEnv = OrtEnvironment.getEnvironment();
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(4, Runtime.getRuntime().availableProcessors()));
@@ -287,9 +288,11 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                                 }
                                 generatedTokens.add((long) nextTok);
                                 for (int l = 0; l < NUM_LAYERS; l++) {
-                                    pastKV[l][0] = (OnnxTensor) stepDecodeResult.get("present." + l + ".decoder.key").get();
+                                    pastKV[l][0] = (OnnxTensor) stepDecodeResult.get("present." + l + ".decoder.key")
+                                            .get();
                                     pastKV[l][1] = (OnnxTensor) stepDecodeResult.get("present." + l + ".decoder.value").get();
-                                    pastKV[l][2] = (OnnxTensor) stepDecodeResult.get("present." + l + ".encoder.key").get();
+                                    pastKV[l][2] = (OnnxTensor) stepDecodeResult.get("present." + l + ".encoder.key")
+                                            .get();
                                     pastKV[l][3] = (OnnxTensor) stepDecodeResult.get("present." + l + ".encoder.value").get();
                                 }
                             }

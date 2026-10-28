@@ -452,9 +452,12 @@ public class XpsPreviewProvider implements FileStoragePreviewProvider {
                 .append("<div class=\"grid\">");
         meta.forEach((k, v) -> sb.append("<div><span class=\"k\">").append(escape(k))
                 .append("</span><br><span class=\"v\">").append(escape(v)).append("</span></div>"));
-        sb.append("<div><span class=\"k\">文件大小</span><br><span class=\"v\">").append(humanSize(size)).append("</span></div>")
-                .append("<div><span class=\"k\">页数</span><br><span class=\"v\">").append(pageCount).append("</span></div>")
-                .append("<div><span class=\"k\">抽字</span><br><span class=\"v\">").append(glyph).append(" 字</span></div>")
+        sb.append("<div><span class=\"k\">文件大小</span><br><span class=\"v\">").append(humanSize(size))
+                .append("</span></div>")
+                .append("<div><span class=\"k\">页数</span><br><span class=\"v\">").append(pageCount)
+                        .append("</span></div>")
+                .append("<div><span class=\"k\">抽字</span><br><span class=\"v\">").append(glyph)
+                        .append(" 字</span></div>")
                 .append("</div>");
         if (pageCount > pages.size()) {
             sb.append("<div class=\"notice\">共 ").append(pageCount).append(" 页，仅展示前 ")

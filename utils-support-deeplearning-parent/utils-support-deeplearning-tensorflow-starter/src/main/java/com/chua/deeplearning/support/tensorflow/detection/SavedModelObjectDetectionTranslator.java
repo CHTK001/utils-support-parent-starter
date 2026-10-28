@@ -112,9 +112,11 @@ public class SavedModelObjectDetectionTranslator implements NoBatchifyTranslator
                 continue;
             }
             if ("detection_boxes".equals(name)) {
-                boundingBoxes = array.getShape().dimension() > 2 ? array.get(0) : array; // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
+                boundingBoxes = array.getShape()
+                        .dimension() > 2 ? array.get(0) : array; // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
             } else if ("detection_scores".equals(name)) {
-                probabilities = (array.getShape().dimension() > 1 ? array.get(0) : array).toFloatArray(); // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
+                probabilities = (array.getShape().dimension() > 1 ? array.get(0) : array)
+                        .toFloatArray(); // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
             } else if ("detection_classes".equals(name)) {
                 classIds = (array.getShape().dimension() > 1 ? array.get(0) : array) // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
                         .toType(DataType.INT32, true).toIntArray();
@@ -123,8 +125,10 @@ public class SavedModelObjectDetectionTranslator implements NoBatchifyTranslator
         // 无名输出时按常见顺序兜底
         if (classIds == null || probabilities == null || boundingBoxes == null) {
             if (list.size() >= 3) {
-                boundingBoxes = list.getFirst().getShape().dimension() > 2 ? list.getFirst().get(0) : list.getFirst(); // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
-                probabilities = (list.get(1).getShape().dimension() > 1 ? list.get(1).get(0) : list.get(1)).toFloatArray(); // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
+                boundingBoxes = list.getFirst().getShape().dimension() > 2 ? list.getFirst()
+                        .get(0) : list.getFirst(); // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
+                probabilities = (list.get(1).getShape().dimension() > 1 ? list.get(1).get(0) : list.get(1))
+                        .toFloatArray(); // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
                 classIds = (list.get(2).getShape().dimension() > 1 ? list.get(2).get(0) : list.get(2)) // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
                         .toType(DataType.INT32, true).toIntArray();
             } else {
