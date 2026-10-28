@@ -80,7 +80,8 @@ public class MysqlEngine extends JdbcEngine {
             }
         }
 
-        ds.setJdbcUrl("jdbc:mysql://" + JdbcUrl.hostPort(targetHost, targetPort) + "/" + options.database() + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC");
+        ds.setJdbcUrl("jdbc:mysql://" + JdbcUrl.hostPort(targetHost, targetPort) + "/" + options.database()
+                + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC");
         ds.setUsername(options.username());
         ds.setPassword(options.password());
         ds.setMaximumPoolSize(10);

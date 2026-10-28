@@ -1526,7 +1526,8 @@ public class AgentScopeAgent implements Agent {
                 final String skillName = entry.getKey();
                 final com.chua.common.support.ai.skill.SkillHandler handler = entry.getValue();
                 String desc = skillDescriptions.get(skillName);
-                toolkit.registerAgentTool(new SkillAgentTool(skillName, desc != null ? desc : "Skill: " + skillName, handler));
+                toolkit.registerAgentTool(new SkillAgentTool(skillName, desc != null ? desc : "Skill: "
+                        + skillName, handler));
             }
             for (McpToolDescriptor descriptor : mcpTools) {
                 toolkit.registerAgentTool(new McpAgentTool(descriptor, globalMcpManager));

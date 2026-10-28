@@ -551,7 +551,8 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
             // 说成格式兼容问题」是同一类错误（实测 matrix-legacy.xls 520 B 就是这个表现，
             // 而同批的 matrix-legacy.doc 因为 Word 路径有兜底，能正确报出原因）。
             return PreviewResult.builder()
-                    .htmlContent(page(unavailableHtml("Excel 97-2003 (.xls) 解析失败: " + escape(String.valueOf(e.getMessage()))))).build();
+                    .htmlContent(page(unavailableHtml("Excel 97-2003 (.xls) 解析失败: "
+                            + escape(String.valueOf(e.getMessage()))))).build();
         }
         appendEmbeddedObjectsSection(body, content);
         return PreviewResult.builder().htmlContent(page(body.toString())).build();

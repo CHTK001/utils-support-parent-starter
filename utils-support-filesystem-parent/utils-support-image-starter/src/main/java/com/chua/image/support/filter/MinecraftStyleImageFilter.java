@@ -300,8 +300,10 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
 
                 // 应用对比度增强
                 red = ImageProcessorUtils.clamp((int) ((red - 128) * contrastEnhancement + 128 + brightnessAdjustment));
-                green = ImageProcessorUtils.clamp((int) ((green - 128) * contrastEnhancement + 128 + brightnessAdjustment));
-                blue = ImageProcessorUtils.clamp((int) ((blue - 128) * contrastEnhancement + 128 + brightnessAdjustment));
+                green = ImageProcessorUtils.clamp((int) ((green - 128) * contrastEnhancement + 128
+                        + brightnessAdjustment));
+                blue = ImageProcessorUtils.clamp((int) ((blue - 128) * contrastEnhancement + 128
+                        + brightnessAdjustment));
 
                 // 转换到HSV进行饱和度调整
                 float[] hsv = rgbToHsv(red, green, blue);

@@ -359,7 +359,8 @@ public class DefaultPipeline implements Pipeline {
 
             while (ctx.getAction() != Action.EXIT) {
                 if (++depth > MAX_EXECUTION_DEPTH) {
-                    throw new PipelineException("Execution depth exceeded " + MAX_EXECUTION_DEPTH + ", possible infinite loop",
+                    throw new PipelineException("Execution depth exceeded " + MAX_EXECUTION_DEPTH
+                            + ", possible infinite loop",
                             ctx.getCurrentNodeId(), id, null);
                 }
                 String nodeId = ctx.getNextNodeId();

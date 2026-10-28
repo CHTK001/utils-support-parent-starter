@@ -2211,7 +2211,8 @@ public class ClassUtils {
      * @since 1.0
      */
     public static Method findMethod(Class<?> clazz, String name, Class<?>... paramTypes) {
-        return CACHE_METHOD.computeIfAbsent(clazz.hashCode() + name.hashCode() + paramTypes.hashCode(), new Function<Integer, Method>() {
+        return CACHE_METHOD.computeIfAbsent(clazz.hashCode() + name.hashCode()
+                + paramTypes.hashCode(), new Function<Integer, Method>() {
             /**
              * 应用
              * @param integer integer

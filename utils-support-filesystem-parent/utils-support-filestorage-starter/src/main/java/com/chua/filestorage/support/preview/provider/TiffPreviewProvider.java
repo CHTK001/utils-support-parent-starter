@@ -95,7 +95,8 @@ public class TiffPreviewProvider implements FileStoragePreviewProvider {
         }
         if (content.length > MAX_FILE_SIZE) {
             return PreviewResult.builder()
-                    .htmlContent(messageHtml("文件过大", "该 TIFF 超过 " + formatSize(MAX_FILE_SIZE) + "，为避免服务端内存占用过高，暂不在线解码，请下载后本地查看。"))
+                    .htmlContent(messageHtml("文件过大", "该 TIFF 超过 " + formatSize(MAX_FILE_SIZE)
+                            + "，为避免服务端内存占用过高，暂不在线解码，请下载后本地查看。"))
                     .build();
         }
 

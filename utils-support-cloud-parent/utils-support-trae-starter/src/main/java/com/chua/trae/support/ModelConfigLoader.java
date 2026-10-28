@@ -49,7 +49,8 @@ public class ModelConfigLoader {
             }
             return Optional.ofNullable(MAPPER.readValue(is, ModelConfig.class));
         } catch (Exception e) {
-            throw new IllegalArgumentException("Failed to load model config from " + resourceName + ": " + e.getMessage(),
+            throw new IllegalArgumentException("Failed to load model config from " + resourceName + ": "
+                    + e.getMessage(),
                     e);
         }
     }

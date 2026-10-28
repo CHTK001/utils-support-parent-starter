@@ -52,7 +52,8 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     public static KademliaNodeId random() {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
-            byte[] seed = (System.nanoTime() + "-" + ThreadLocalRandom.current().nextDouble()).getBytes(StandardCharsets.UTF_8);
+            byte[] seed = (System.nanoTime() + "-"
+                    + ThreadLocalRandom.current().nextDouble()).getBytes(StandardCharsets.UTF_8);
             return new KademliaNodeId(md.digest(seed));
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("随机节点标识生成失败: " + e.getMessage(), e);

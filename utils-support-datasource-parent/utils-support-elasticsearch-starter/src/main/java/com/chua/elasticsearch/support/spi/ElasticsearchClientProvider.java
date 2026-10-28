@@ -164,7 +164,8 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
                 Map.Entry<String, JsonNode> e = it.next();
                 String type = e.getValue().path("type").asText("-");
                 String index = e.getValue().path("index").asText("");
-                out.add(new MiddlewareTreeNode(e.getKey(), e.getKey(), type + (index.isEmpty() ? "" : " index=" + index), null));
+                out.add(new MiddlewareTreeNode(e.getKey(), e.getKey(), type
+                        + (index.isEmpty() ? "" : " index=" + index), null));
             }
             out.sort((a, b) -> a.key().compareToIgnoreCase(b.key()));
         } catch (Exception e) {

@@ -239,8 +239,10 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
 
                 // 应用对比度增强
                 red = ImageProcessorUtils.clamp((int) ((red - 128) * contrastEnhancement + 128 + brightnessAdjustment));
-                green = ImageProcessorUtils.clamp((int) ((green - 128) * contrastEnhancement + 128 + brightnessAdjustment));
-                blue = ImageProcessorUtils.clamp((int) ((blue - 128) * contrastEnhancement + 128 + brightnessAdjustment));
+                green = ImageProcessorUtils.clamp((int) ((green - 128) * contrastEnhancement + 128
+                        + brightnessAdjustment));
+                blue = ImageProcessorUtils.clamp((int) ((blue - 128) * contrastEnhancement + 128
+                        + brightnessAdjustment));
 
                 int newRgb = (alpha << 24) | (red << 16) | (green << 8) | blue;
                 result.setRGB(x, y, newRgb);

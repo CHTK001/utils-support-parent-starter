@@ -109,7 +109,8 @@ public class KrpcDhtBridge {
     public static byte[] generateNodeId() {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
-            md.update(("krpc-" + System.nanoTime() + "-" + ThreadLocalRandom.current().nextDouble()).getBytes(StandardCharsets.UTF_8));
+            md.update(("krpc-" + System.nanoTime() + "-"
+                    + ThreadLocalRandom.current().nextDouble()).getBytes(StandardCharsets.UTF_8));
             return md.digest();
         } catch (NoSuchAlgorithmException e) {
             byte[] id = new byte[20];
