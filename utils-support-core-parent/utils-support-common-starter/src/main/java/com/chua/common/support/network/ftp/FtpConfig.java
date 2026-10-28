@@ -281,7 +281,9 @@ public class FtpConfig {
     public void setAnonymousEnabled(boolean anonymousEnabled) { this.anonymousEnabled = anonymousEnabled; }
 
     public boolean isAnonymousWriteEnabled() { return anonymousWriteEnabled; }
-    public void setAnonymousWriteEnabled(boolean anonymousWriteEnabled) { this.anonymousWriteEnabled = anonymousWriteEnabled; }
+    public void setAnonymousWriteEnabled(boolean anonymousWriteEnabled) {
+        this.anonymousWriteEnabled = anonymousWriteEnabled;
+    }
 
     public int getMaxConnections() { return maxConnections; }
     public void setMaxConnections(int maxConnections) { this.maxConnections = maxConnections; }
@@ -320,7 +322,9 @@ public class FtpConfig {
     public void setDataTimeout(int dataTimeout) { this.dataTimeout = dataTimeout; }
 
     public boolean isAllowAnonymousUpload() { return allowAnonymousUpload; }
-    public void setAllowAnonymousUpload(boolean allowAnonymousUpload) { this.allowAnonymousUpload = allowAnonymousUpload; }
+    public void setAllowAnonymousUpload(boolean allowAnonymousUpload) {
+        this.allowAnonymousUpload = allowAnonymousUpload;
+    }
 
     public String getAnonymousUploadDir() { return anonymousUploadDir; }
     public void setAnonymousUploadDir(String anonymousUploadDir) { this.anonymousUploadDir = anonymousUploadDir; }

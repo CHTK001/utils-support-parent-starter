@@ -894,7 +894,9 @@ public class JdbcReactorEngine implements ReactorEngine {
     */
     private class R2dbcEngineAdapter implements Engine {
         @Override
-        public <T> Engine addDataSource(String name, EngineDataSource<T> ds) { throw new UnsupportedOperationException(); }
+        public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
+            throw new UnsupportedOperationException();
+        }
         @Override
         public <T> Engine store(String name, List<T> data) { throw new UnsupportedOperationException(); }
         @Override
@@ -935,7 +937,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         private final DataSource ds;
         UnifiedEngineAdapter(DataSource ds) { this.ds = ds; }
         @Override
-        public <T> Engine addDataSource(String name, EngineDataSource<T> ds) { throw new UnsupportedOperationException(); }
+        public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
+            throw new UnsupportedOperationException();
+        }
         @Override
         public <T> Engine store(String name, List<T> data) { throw new UnsupportedOperationException(); }
         @Override
