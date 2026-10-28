@@ -34,6 +34,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 微信数据库密钥内存扫描器（免重启微信）。
@@ -321,7 +323,7 @@ public final class WechatMemoryKeyScanner {
 
             // 第二遍：逐字节穷举
             int threads = Math.max(1, Runtime.getRuntime().availableProcessors());
-            ExecutorService pool = Executors.newFixedThreadPool(threads);
+            ExecutorService pool = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(1024), Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
             Semaphore slots = new Semaphore(threads * 2);
             List<Future<Long>> futures = Wraps.list(64);
             AtomicLong counter = new AtomicLong();

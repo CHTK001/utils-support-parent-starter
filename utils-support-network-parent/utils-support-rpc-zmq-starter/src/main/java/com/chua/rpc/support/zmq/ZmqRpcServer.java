@@ -28,6 +28,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * zeromq RPC 服务端实现（jeromq，纯 Java 无需原生依赖）。
@@ -280,8 +283,11 @@ public class ZmqRpcServer implements RpcServer {
             throw new IllegalStateException("ZmqRpcServer bind failed: " + bindAddress, e);
         }
 
-        executorService = java.util.concurrent.Executors.newFixedThreadPool(threads, Thread.ofPlatform()
-                .name("zmq-rpc-worker-", 0).daemon(true).factory());
+        executorService = new java.util.concurrent.ThreadPoolExecutor(threads, threads, 0L,
+                java.util.concurrent.TimeUnit.MILLISECONDS,
+                new java.util.concurrent.LinkedBlockingQueue<>(1024),
+                Thread.ofPlatform().name("zmq-rpc-worker-", 0).daemon(true).factory(),
+                new java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy());
 
         recvThread = Thread.ofPlatform().name("zmq-rpc-recv").daemon(true).start(this::recvLoop);
         log.info("ZmqRpcServer started on {} (workers={}, serialization={})",

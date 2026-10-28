@@ -23,6 +23,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * WebSocket 数据同步 Agent 服务端
@@ -90,7 +93,7 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         try {
             serverSocket = new ServerSocket();
             serverSocket.bind(new InetSocketAddress(port));
-            executor = Executors.newCachedThreadPool(r -> new Thread(r, "ws-agent-server-" + r.hashCode()));
+            executor = new ThreadPoolExecutor(0, 200, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), r -> new Thread(r, "ws-agent-server-" + r.hashCode()), new ThreadPoolExecutor.CallerRunsPolicy());
             executor.submit(this::acceptLoop);
             running = true;
             log.info("[WebSocketDataSyncAgentServer] 已启动，监听端口: {}", port);

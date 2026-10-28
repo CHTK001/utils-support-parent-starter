@@ -30,6 +30,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * JSON-RPC 2.0 服务端实现（JDK {@link HttpServer} + {@link JsonRpcBasicServer} 多服务模式）。
@@ -190,11 +193,12 @@ public class JsonRpcServer implements RpcServer {
                 int threads = protocolConfig != null && protocolConfig.threads() != null
                         ? protocolConfig.threads() : DEFAULT_THREADS;
                 httpServer = HttpServer.create(new InetSocketAddress(port), 0);
-                executorService = Executors.newFixedThreadPool(threads, r -> {
-                    Thread thread = new Thread(r, "json-rpc-http");
-                    thread.setDaemon(true);
-                    return thread;
-                });
+                executorService = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS,
+                        new LinkedBlockingQueue<>(1024), r -> {
+                            Thread thread = new Thread(r, "json-rpc-http");
+                            thread.setDaemon(true);
+                            return thread;
+                        }, new ThreadPoolExecutor.CallerRunsPolicy());
                 httpServer.setExecutor(executorService);
                 httpServer.createContext("/", this::handleHttp);
                 httpServer.start();

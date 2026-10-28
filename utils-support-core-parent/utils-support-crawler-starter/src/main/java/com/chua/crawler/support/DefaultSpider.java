@@ -31,6 +31,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 默认爬虫实现。
@@ -179,7 +181,7 @@ public class DefaultSpider implements Spider {
             return;
         }
 
-        executor = Executors.newFixedThreadPool(threads);
+        executor = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(1024), Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
         try {
             initPipelines();
             enqueueSeedUrls();
