@@ -91,23 +91,23 @@ public class XmlConfigParser implements ConfigParser {
             
             Element root = document.getDocumentElement();
             
-            //                                                                      
+            // 优先按列表格式解析
             List<Map<String, Object>> listItems = parseAsList(root);
             if (listItems != null) {
                 return new PropertiesMutiPropertySource(urlPath, listItems);
             }
             
-            //                 property       
+            // 其次按 property 键值格式解析
             Map<String, Object> propertyMap = parsePropertyFormat(root);
             if (propertyMap != null) {
                 return new MapPropertySource(urlPath, propertyMap);
             }
             
-            //                   
+            // 最后按普通元素结构解析
             Map<String, Object> map = parseElement(root);
             return new MapPropertySource(urlPath, map);
         } catch (Exception e) {
-            log.error("       XML                   : {}", e.getMessage(), e);
+            log.error("解析 XML 配置失败: {}", e.getMessage(), e);
             return PropertySource.EMPTY;
         }
     }
