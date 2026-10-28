@@ -74,6 +74,8 @@ public final class MiddlewareConnectRequest {
     }
 
     /**
+     * 获取数据源 ID。
+     *
      * @return 数据源主键
      */
     public long datasourceId() {
@@ -81,6 +83,8 @@ public final class MiddlewareConnectRequest {
     }
 
     /**
+     * 获取数据源名称。
+     *
      * @return 数据源名称
      */
     public String datasourceName() {
@@ -106,6 +110,8 @@ public final class MiddlewareConnectRequest {
     }
 
     /**
+     * 获取数据库名，空值返回空串。
+     *
      * @return 默认逻辑库，未配置时为空串
      */
     public String database() {

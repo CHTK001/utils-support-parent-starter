@@ -80,6 +80,8 @@ public final class MiddlewareTreeNode {
     }
 
     /**
+     * 获取节点注释，空值返回空串。
+     *
      * @return 附加说明，无则为空串
      */
     public String comment() {

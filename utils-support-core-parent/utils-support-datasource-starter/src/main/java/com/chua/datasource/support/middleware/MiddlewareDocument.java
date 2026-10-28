@@ -60,6 +60,8 @@ public final class MiddlewareDocument {
     }
 
     /**
+     * 获取文档属性集合。
+     *
      * @return 附加属性
      */
     public java.util.Map<String, String> attributes() {

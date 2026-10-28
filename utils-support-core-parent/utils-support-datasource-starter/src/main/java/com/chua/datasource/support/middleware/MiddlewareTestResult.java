@@ -60,6 +60,8 @@ public final class MiddlewareTestResult {
     }
 
     /**
+     * 判断是否连接成功。
+     *
      * @return 是否连通
      */
     public boolean connected() {
@@ -67,6 +69,8 @@ public final class MiddlewareTestResult {
     }
 
     /**
+     * 获取版本号，空值返回空串。
+     *
      * @return 服务端版本号，未探测到为空串
      */
     public String version() {
@@ -74,6 +78,8 @@ public final class MiddlewareTestResult {
     }
 
     /**
+     * 获取详细信息，空值返回空串。
+     *
      * @return 附加信息
      */
     public String detail() {

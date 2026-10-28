@@ -97,6 +97,8 @@ public final class MiddlewareCapability {
     }
 
     /**
+     * 是否支持子节点。
+     *
      * @return 是否支持展开子节点
      */
     public boolean childNodeSupported() {
@@ -113,6 +115,8 @@ public final class MiddlewareCapability {
     }
 
     /**
+     * 是否支持文档内容。
+     *
      * @return 是否支持查看单条详情
      */
     public boolean documentSupported() {
@@ -129,6 +133,8 @@ public final class MiddlewareCapability {
     }
 
     /**
+     * 获取子节点标签。
+     *
      * @return 子节点称呼
      */
     public String childNodeLabel() {

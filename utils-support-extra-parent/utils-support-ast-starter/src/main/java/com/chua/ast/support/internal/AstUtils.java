@@ -405,6 +405,8 @@ public final class AstUtils {
     // ========================================================================
 
     /**
+     * 转换为 javac 方法声明节点。
+     *
      * @deprecated 已废弃，请使用 {@link #asJcMethod(Element, ProcessingEnvironment, Messager)}
      * @param methodTree 方法树
      * @return asjc方法decl的结果

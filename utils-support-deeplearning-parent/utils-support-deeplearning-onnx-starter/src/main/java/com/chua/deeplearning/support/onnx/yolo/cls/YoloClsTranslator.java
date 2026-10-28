@@ -174,6 +174,7 @@ public class YoloClsTranslator implements Translator<Image, Classifications> {
     }
 
     /**
+     * 生成默认类别名列表。
      *                           
      *
      * @param size                   

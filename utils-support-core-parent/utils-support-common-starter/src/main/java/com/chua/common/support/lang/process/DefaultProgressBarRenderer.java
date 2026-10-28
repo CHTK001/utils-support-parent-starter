@@ -183,6 +183,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 计算进度比例。
      *                                  /            
      *
      * @param progress             
