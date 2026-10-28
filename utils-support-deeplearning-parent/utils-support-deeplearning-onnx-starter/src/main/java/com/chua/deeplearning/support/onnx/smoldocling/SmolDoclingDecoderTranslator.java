@@ -82,7 +82,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
 
             int inferredHeadDim = hiddenSize / NUM_ATTENTION_HEADS;
             if (inferredHeadDim != HEAD_DIM) {
-                log.warn("          head_dim                   : hidden_size={}, inferred={}, preset={}",
+            log.warn("head_dim 与预期不符: hidden_size={}, inferred={}, preset={}",
                         hiddenSize, inferredHeadDim, HEAD_DIM);
             }
 
@@ -103,7 +103,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("             past_key_values: {}    ", NUM_LAYERS);
+        log.debug("预分配 past_key_values: {} 层", NUM_LAYERS);
             }
         } else {
  // past_键_值
@@ -117,12 +117,12 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
                     inputs.add(key);
                     inputs.add(value);
                 } else {
-                    log.warn("past_key_values              {}     key     value", i);
+                    log.warn("past_key_values 第 {} 层缺少 key 或 value", i);
                 }
             }
         }
 
-        log.debug("Decoder                   : inputs_embeds={}, attention_mask={}, position_ids={}, past_key_values={}    ",
+        log.debug("Decoder 输入: inputs_embeds={}, attention_mask={}, position_ids={}, past_key_values={} 层",
                 inputsEmbeds.getShape(), attentionMask.getShape(), positionIds.getShape(), NUM_LAYERS);
 
         return inputs;
@@ -134,11 +134,11 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
     @Override
     public DecoderStepOutput processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
-            log.debug("             Decoder             : {}          ", list.size());
+            log.debug("Decoder 模型输出 {} 个张量", list.size());
         }
 
         if (list.isEmpty()) {
-            log.warn("Decoder                   ");
+            log.warn("Decoder 模型输出为空");
             return null;
         }
 
@@ -147,7 +147,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         long[] logitsShape = logits.getShape().getShape();
 
         if (log.isDebugEnabled()) {
-            log.debug("Decoder             : logits shape={}", logits.getShape());
+        log.debug("Decoder 输出: logits shape={}", logits.getShape());
         }
 
         //                             logits: [batch_size, seq_len, vocab_size] -> [batch_size, vocab_size]
@@ -158,7 +158,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         long[] shape = lastLogits.getShape().getShape();
         float[] logitsData = lastLogits.toFloatArray();
 
-        log.debug("Decoder                      :       shape={},             shape={}, data length={}",
+                log.debug("Decoder 输出解析: logits shape={}, 注意力形状={}, 数据长度={}",
                 logitsShape, shape, logitsData.length);
 
  // past_键_值
@@ -185,10 +185,10 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
                     pastKeyValues.put("past_key_values." + i + ".value", valueCopied);
                 }
                 if (log.isDebugEnabled()) {
-                    log.debug("       past_key_values: {}    ", NUM_LAYERS);
+        log.debug("预分配 past_key_values: {} 层", NUM_LAYERS);
                 }
             } else {
-                log.warn("past_key_values                      :        {},        {}", expectedOutputs, list.size());
+            log.warn("past_key_values 输出数量不符: 期望 {}, 实际 {}", expectedOutputs, list.size());
             }
         }
 

@@ -64,7 +64,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
      */
     @Override
     public void prepare(TranslatorContext ctx) throws Exception {
-        log.info("[Donut][         ]                                  ");
+        log.info("[Donut][初始化] 模型路径与 tokenizer 准备完成");
     }
 
     /**
@@ -120,7 +120,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
             var sequenceLength = (int) shape.get(1);
             var vocabSize = (int) shape.get(2);
 
-            log.info("[Donut][            ]           logits       : [{}x{}x{}]", batchSize, sequenceLength, vocabSize);
+            log.info("[Donut][解码] 输出 logits 形状: [{}x{}x{}]", batchSize, sequenceLength, vocabSize);
 
             //                      
             var batchOutput = batchSize > 1 ? output.get("0") : output;
@@ -149,7 +149,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
 
             if (dim2 > 1000) {
  // [sequence_长度, vocab_大小]
-                log.info("[Donut][            ]           logits       : [{}x{}]", dim1, dim2);
+            log.info("[Donut][解码] 输出 logits 形状: [{}x{}]", dim1, dim2);
                 var tokenIds = new long[dim1];
                 for (int i = 0; i < dim1; i++) {
                     var positionLogits = output.get("{}", i);
@@ -164,7 +164,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
                         .build();
             } else {
  // 令牌 标识 [批量_大小, sequence_长度]
-                log.info("[Donut][            ]           token IDs       : [{}x{}]", dim1, dim2);
+            log.info("[Donut][解码] 输出 token IDs 形状: [{}x{}]", dim1, dim2);
                 var batchOutput = dim1 > 1 ? output.get("0") : output;
                 var tokenIds = batchOutput.toLongArray();
                 var jsonText = decodeTokens(tokenIds);
@@ -175,7 +175,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
                         .build();
             }
         } else {
-            log.warn("[Donut][            ]                         : {}", shape.dimension());
+            log.warn("[Donut][解码] 输出维度不符合预期: {}", shape.dimension());
             return DonutResult.builder()
                     .jsonText("")
                     .confidence(0.0f)
@@ -258,12 +258,12 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
             }
 
             var result = sb.toString().trim();
-            log.debug("[Donut][      ] token       : {},                   : {}", tokenIds.length, result.length());
+            log.debug("[Donut][分词] token 数量: {}, 解码字符数: {}", tokenIds.length, result.length());
 
             return result;
 
         } catch (Exception e) {
-            log.error("[Donut][      ] token             : {}", e.getMessage(), e);
+            log.error("[Donut][分词] token 解码失败: {}", e.getMessage(), e);
             return "";
         }
     }
