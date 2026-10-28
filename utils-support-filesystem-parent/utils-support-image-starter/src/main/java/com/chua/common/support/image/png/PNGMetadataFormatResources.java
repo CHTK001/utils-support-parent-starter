@@ -43,7 +43,8 @@ public class PNGMetadataFormatResources extends ListResourceBundle {
         { "hIST", "The hIST chunk, containing histogram information " },
         { "hISTEntry", "A histogram entry" },
         { "iCCP", "The iCCP chunk, containing an ICC color profile" },
-        { "cICP", "The cICP chunk, containing coding-independent code points (CICP) for video signal type identification" },
+        { "cICP", "The cICP chunk, containing coding-independent code points (CICP) for video signal type " +
+                "identification" },
         { "eXIf", "The eXIf chunk, containing an Exif profile" },
         { "iTXt", "The iTXt chunk, containing internationalized text" },
         { "iTXtEntry", "A localized text entry" },

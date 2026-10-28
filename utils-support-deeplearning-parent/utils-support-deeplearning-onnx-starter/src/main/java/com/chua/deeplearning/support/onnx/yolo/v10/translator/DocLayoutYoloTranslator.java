@@ -366,7 +366,8 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     public String getModelDescription() {
         return "DocLayout-YOLO Document Layout Detection (DocStructBench) - " +
                 "Supports 10 document element types: " +
-                "title, plain text, abandon, figure, figure_caption, table, table_caption, table_footnote, isolate_formula, formula_caption";
+                "title, plain text, abandon, figure, figure_caption, table, table_caption, table_footnote, " +
+                        "isolate_formula, formula_caption";
     }
 
     /**

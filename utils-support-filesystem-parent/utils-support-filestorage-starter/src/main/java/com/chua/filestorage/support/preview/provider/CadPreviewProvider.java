@@ -53,9 +53,11 @@ public class CadPreviewProvider implements FileStoragePreviewProvider {
         String html = "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">" +
                 "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
                 "<style>" +
-                "body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;" +
+                "body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +
+                        "UI',sans-serif;" +
                 "display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px}" +
-                ".card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:32px;max-width:480px;width:100%;" +
+                ".card{background:#fff;border:1px solid " +
+                        "#e5e7eb;border-radius:12px;padding:32px;max-width:480px;width:100%;" +
                 "box-shadow:0 1px 3px rgba(0,0,0,.08)}" +
                 ".icon{width:64px;height:64px;background:#eff6ff;border-radius:12px;display:flex;align-items:center;justify-content:center;" +
                 "margin:0 auto 20px}" +
@@ -66,12 +68,14 @@ public class CadPreviewProvider implements FileStoragePreviewProvider {
                 "td{padding:8px 0;font-size:13px;border-bottom:1px solid #f3f4f6}" +
                 "td:first-child{color:#6b7280;width:100px}" +
                 "td:last-child{font-weight:500}" +
-                ".badge{display:inline-block;background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500}" +
+                ".badge{display:inline-block;background:#dbeafe;color:#1d4ed8;padding:2px " +
+                        "8px;border-radius:4px;font-size:12px;font-weight:500}" +
                 ".note{margin-top:16px;padding:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;" +
                 "font-size:12px;color:#92400e}" +
                 "</style></head><body>" +
                 "<div class=\"card\">" +
-                "<div class=\"icon\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\">" +
+                "<div class=\"icon\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" " +
+                        "stroke-width=\"2\">" +
                 "<path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/>" +
                 "<polyline points=\"14 2 14 8 20 8\"/></svg></div>" +
                 "<h2>" + formatName + " 文件预览</h2>" +

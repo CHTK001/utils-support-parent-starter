@@ -425,7 +425,8 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
                 + " If baseline contains important information missing in current context, add it back. "
                 + " Output format: each line [role]: content, "
                 + " must include original text of last " + config.getRetainMessages()
-                + " uncompressed messages from current context, and one [COMPRESSED_CONTEXT] prefixed compression summary.");
+                + " uncompressed messages from current context, and one [COMPRESSED_CONTEXT] prefixed " +
+                        "compression summary.");
 
         String prompt = "[Baseline Summary (Core Truth)]\n" + baselineSummary + "\n\n"
                 + "[Current Context]\n" + formatMessages(currentContext) + "\n\n"

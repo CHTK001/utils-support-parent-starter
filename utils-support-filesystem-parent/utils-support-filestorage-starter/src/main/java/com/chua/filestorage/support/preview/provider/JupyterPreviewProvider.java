@@ -233,13 +233,17 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">");
         sb.append("<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">");
         sb.append("<style>");
-        sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:20px}");
-        sb.append(".header{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}");
+        sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +
+                "UI',sans-serif;padding:20px}");
+        sb.append(".header{background:#fff;border:1px solid " +
+                "#e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}");
         sb.append("h1{margin:0 0 8px;font-size:20px;font-weight:600}");
         sb.append(".meta{color:#6b7280;font-size:13px}");
         sb.append(".notebook{max-width:860px;margin:0 auto}");
-        sb.append(".cell{background:#fff;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:14px;overflow:hidden}");
-        sb.append(".cell-head{display:flex;align-items:center;padding:8px 16px;background:#f9fafb;border-bottom:1px solid #f0f0f0;font-size:12px;color:#6b7280}");
+        sb.append(".cell{background:#fff;border:1px solid " +
+                "#e5e7eb;border-radius:10px;margin-bottom:14px;overflow:hidden}");
+        sb.append(".cell-head{display:flex;align-items:center;padding:8px " +
+                "16px;background:#f9fafb;border-bottom:1px solid #f0f0f0;font-size:12px;color:#6b7280}");
         sb.append(".badge{padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;margin-right:8px}");
         sb.append(".badge-md{background:#ecfdf5;color:#047857}.badge-code{background:#eff6ff;color:#1d4ed8}");
         sb.append(".cell-body{padding:16px}");
@@ -247,10 +251,12 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
         sb.append(".cell-body h1,.cell-body h2,.cell-body h3,.cell-body h4{margin:10px 0 8px}");
         sb.append(".cell-body ul,.cell-body ol{margin:4px 0;padding-left:22px}");
         sb.append(".cell-body blockquote{margin:8px 0;padding:2px 12px;border-left:3px solid #d1d5db;color:#6b7280}");
-        sb.append(".cell-body code{background:#f3f4f6;padding:2px 5px;border-radius:4px;font-family:Consolas,monospace;font-size:12px}");
+        sb.append(".cell-body code{background:#f3f4f6;padding:2px " +
+                "5px;border-radius:4px;font-family:Consolas,monospace;font-size:12px}");
         sb.append(".cell-body pre{background:#1e1e1e;color:#d4d4d4;border-radius:6px;padding:12px;overflow-x:auto}");
         sb.append(".cell-body pre code{background:none;color:inherit;padding:0}");
-        sb.append(".output{background:#fbfbfb;border-top:1px solid #eee;padding:8px 16px;font-size:12px;font-family:Consolas,monospace;white-space:pre-wrap;word-break:break-all}");
+        sb.append(".output{background:#fbfbfb;border-top:1px solid #eee;padding:8px " +
+                "16px;font-size:12px;font-family:Consolas,monospace;white-space:pre-wrap;word-break:break-all}");
         sb.append(".empty{color:#9ca3af}");
         sb.append("</style></head><body>");
         sb.append("<div class=\"header\"><h1>").append(escape(title)).append("</h1>");

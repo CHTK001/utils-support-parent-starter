@@ -501,17 +501,22 @@ public class DjvuPreviewProvider implements FileStoragePreviewProvider {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">")
                 .append("<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>")
-                .append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:20px}")
-                .append(".header{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}")
+                .append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +
+                        "UI',sans-serif;padding:20px}")
+                .append(".header{background:#fff;border:1px solid " +
+                        "#e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}")
                 .append("h1{margin:0 0 12px;font-size:20px;font-weight:600}")
                 .append(".grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;font-size:13px}")
                 .append(".k{color:#9ca3af}.v{color:#1f2937;word-break:break-all}")
-                .append(".sec{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px}")
+                .append(".sec{background:#fff;border:1px solid " +
+                        "#e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px}")
                 .append(".sec-title{font-size:13px;font-weight:600;color:#6b7280;margin-bottom:10px}")
                 .append(".text{font-size:15px;line-height:1.8;white-space:pre-wrap;word-break:break-word;color:#374151}")
                 .append(".tree{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.7;color:#4b5563;white-space:pre-wrap}")
-                .append(".notice{margin-bottom:16px;padding:8px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;color:#92400e;font-size:13px}")
-                .append(".empty{color:#6b7280;text-align:center;padding:32px;background:#fff;border:1px dashed #d1d5db;border-radius:12px}")
+                .append(".notice{margin-bottom:16px;padding:8px 12px;background:#fffbeb;border:1px solid " +
+                        "#fde68a;border-radius:8px;color:#92400e;font-size:13px}")
+                .append(".empty{color:#6b7280;text-align:center;padding:32px;background:#fff;border:1px dashed " +
+                        "#d1d5db;border-radius:12px}")
                 .append("</style></head><body>")
                 .append("<div class=\"header\"><h1>DjVu 预览（结构 / 元数据 / 文本）</h1><div class=\"grid\">");
 

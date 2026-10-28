@@ -194,7 +194,8 @@ public class DoubaoBrowserSession implements AutoCloseable {
                 .setTimeout(LAUNCH_TIMEOUT.toMillis()));
         this.context = browser.newContext(new Browser.NewContextOptions()
                 .setViewportSize(1280, 720)
-                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"));
+                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " +
+                        "Chrome/130.0.0.0 Safari/537.36"));
         this.context.setDefaultNavigationTimeout(NAV_TIMEOUT.toMillis());
         Runtime.getRuntime().addShutdownHook(new Thread(this::close));
     }

@@ -28,7 +28,8 @@ public class HtmlPreviewProvider implements FileStoragePreviewProvider {
      * 注入到 srcdoc 中的沙箱样式
      */
     private static final String SANDBOX_STYLE = "<style>" +
-            "html,body{margin:0;padding:12px;height:100%;box-sizing:border-box;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif}" +
+            "html,body{margin:0;padding:12px;height:100%;box-sizing:border-box;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe " +
+                    "UI,sans-serif}" +
             "</style>";
 
     /**
@@ -98,7 +99,8 @@ public class HtmlPreviewProvider implements FileStoragePreviewProvider {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>HTML Preview</title></head><body>");
         sb.append("<div id=\"preview-wrapper\" style=\"height:100vh;width:100%;display:flex;flex-direction:column\">");
-        sb.append("<div id=\"preview-toolbar\" style=\"padding:6px 12px;background:#f0f2f5;border-bottom:1px solid #e4e7ed;display:flex;align-items:center;gap:8px;font-size:13px;color:#666\">");
+        sb.append("<div id=\"preview-toolbar\" style=\"padding:6px 12px;background:#f0f2f5;border-bottom:1px " +
+                "solid #e4e7ed;display:flex;align-items:center;gap:8px;font-size:13px;color:#666\">");
         sb.append("<span>HTML 预览</span>");
         sb.append("<span style=\"margin-left:auto;font-size:12px;color:#999\">安全沙箱模式</span>");
         sb.append("</div>");

@@ -50,7 +50,8 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
         if (!checkCuvsApiPresent()) {
             log.warn("[vector-runtime] cuVS Java API not found in classpath. "
                     + "Install via: conda install -c rapidsai -c conda-forge libcuvs cuda-version=12.9\n"
-                    + "  Or build from source: git clone https://github.com/rapidsai/cuvs && cd cuvs/java && ./build.sh");
+                    + "  Or build from source: git clone https://github.com/rapidsai/cuvs && cd cuvs/java && " +
+                            "./build.sh");
             return false;
         }
 

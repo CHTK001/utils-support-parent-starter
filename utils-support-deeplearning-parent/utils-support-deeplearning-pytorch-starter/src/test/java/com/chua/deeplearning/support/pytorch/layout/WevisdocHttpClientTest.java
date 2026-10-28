@@ -21,7 +21,8 @@ public class WevisdocHttpClientTest {
 
     @Test
     void testParseMarkdownWithQuotes() {
-        String json = "{\"markdown\":\"# Heading\\n\\n\\\"quoted text\\\"\\n\\n- item 1\\n- item 2\",\"elapsed_ms\":5000}";
+        String json = "{\"markdown\":\"# Heading\\n\\n\\\"quoted text\\\"\\n\\n- item 1\\n- item " +
+                "2\",\"elapsed_ms\":5000}";
         String md = WevisdocHttpClient.parseMarkdown(json);
         assertTrue(md.contains("# Heading"));
         assertTrue(md.contains("item 1"));

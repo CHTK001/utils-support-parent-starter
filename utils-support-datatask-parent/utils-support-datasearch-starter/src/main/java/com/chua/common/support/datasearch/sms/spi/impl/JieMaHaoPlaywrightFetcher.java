@@ -296,7 +296,8 @@ public class JieMaHaoPlaywrightFetcher implements AutoCloseable {
                         + "const remarkEl = li.querySelector('p small'); "
                         + "return { phone: link ? link.innerText.trim() : '', href: link ? link.href : '', "
                         + "country: flag ? flag.getAttribute('alt') : '', flagUrl: flag ? flag.src : '', "
-                        + "time: timeEl ? timeEl.innerText.trim() : '', remark: remarkEl ? remarkEl.innerText.trim() : '' }; })");
+                        + "time: timeEl ? timeEl.innerText.trim() : '', remark: remarkEl ? remarkEl.innerText.trim() " +
+                                ": '' }; })");
         if (!(raw instanceof java.util.List<?> list) || list.isEmpty()) {
             return Collections.emptyList();
         }

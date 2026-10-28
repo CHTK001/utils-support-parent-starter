@@ -188,12 +188,14 @@ public class SqlitePreviewProvider implements FileStoragePreviewProvider {
     private String wrapHtml(String body) {
         return "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
                 + "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>"
-                + "body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:20px}"
+                + "body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +
+                        "UI',sans-serif;padding:20px}"
                 + ".header{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}"
                 + "h1{margin:0 0 8px;font-size:20px;font-weight:600}"
                 + ".meta{color:#6b7280;font-size:13px}"
                 + ".tables{max-width:960px;margin:0 auto}"
-                + ".table-block{background:#fff;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:16px;overflow-x:auto}"
+                + ".table-block{background:#fff;border:1px solid " +
+                        "#e5e7eb;border-radius:10px;margin-bottom:16px;overflow-x:auto}"
                 + ".table-head{padding:10px 16px;font-weight:600;border-bottom:1px solid #f0f0f0;background:#f9fafb}"
                 + "table{border-collapse:collapse;width:100%;font-size:13px}"
                 + "th,td{border:1px solid #eee;padding:6px 12px;text-align:left;white-space:nowrap}"

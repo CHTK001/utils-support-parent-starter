@@ -167,7 +167,9 @@ public class WalStoreEnvDetector implements RuntimeDetector {
             String disk = dir.substring(0, 2); // "C:\"
             ProcessBuilder pb = new ProcessBuilder(
                     "powershell", "-Command",
-                    "Get-PhysicalDisk -DeviceId (Get-Disk -PartitionAccessible | Where-Object {$_.PartitionStyle -eq 'MBR' -or $_.PartitionStyle -eq 'GPT'} | Select-Object -First 1).DeviceId | Select-Object MediaType | ConvertTo-Json"
+                    "Get-PhysicalDisk -DeviceId (Get-Disk -PartitionAccessible | Where-Object " +
+                            "{$_.PartitionStyle -eq 'MBR' -or $_.PartitionStyle -eq 'GPT'} | Select-Object -First " +
+                            "1).DeviceId | Select-Object MediaType | ConvertTo-Json"
             );
             pb.redirectErrorStream(true);
             Process p = pb.start();

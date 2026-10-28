@@ -52,7 +52,8 @@ public class JcefWebviewWindow implements WebViewWindow {
      * ipc 页面
      */
     private static final String IPC_PAGE =
-            "<!DOCTYPE html><html><body style='background:#1e1e1e;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0'>" +
+            "<!DOCTYPE html><html><body " +
+                    "style='background:#1e1e1e;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0'>" +
             "<div style='text-align:center'>" +
             "<h2>JCEF IPC Bridge</h2>" +
             "<p style='color:#888'>IPC protocol server is ready</p>" +

@@ -78,13 +78,15 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
     private String buildScript(String b64, String ext) {
         return "(async function(){var b='" + b64 + "';var e='" + ext.toLowerCase() + "';" +
  // 基础64 → array缓冲
-                "var p=function(b){for(var a=atob(b),i=a.length,ab=new ArrayBuffer(i),v=new Uint8Array(ab);i--;)v[i]=a.charCodeAt(i);return ab};" +
+                "var p=function(b){for(var a=atob(b),i=a.length,ab=new ArrayBuffer(i),v=new " +
+                        "Uint8Array(ab);i--;)v[i]=a.charCodeAt(i);return ab};" +
  // 基础64 → 字符串
                 "var ts=function(b){return new TextDecoder().decode(p(b))};" +
  // 导入 Three.js
                 // 错误 处理器（必须先定义：渲染器自身加载失败时也要有可读反馈，
                 // 否则 async IIFE 直接 reject，页面永远停在「加载 3D 模型中...」）
-                "var sh=function(msg){var el=document.getElementById('error');el.textContent=msg;el.style.display='block';" +
+                "var sh=function(msg){var " +
+                        "el=document.getElementById('error');el.textContent=msg;el.style.display='block';" +
                 "document.getElementById('loading').style.display='none'};" +
                 // 渲染器同源自托管：早期版本把 three 的 ES Module 同时写进 jsUrls
                 // （被渲染成普通 <script>，必然报 Unexpected token 'export'）

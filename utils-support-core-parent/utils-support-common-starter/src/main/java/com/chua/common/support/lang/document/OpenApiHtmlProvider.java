@@ -92,7 +92,8 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
 
         sb.append("<div class=\"topbar\"><h1>").append(escape(title)).append("</h1>");
         sb.append("<span class=\"ver\">版本 ").append(escape(version)).append("</span>");
-        sb.append("<div class=\"search\"><input id=\"navSearch\" type=\"text\" placeholder=\"搜索 API 或接口…\"></div></div>");
+        sb.append("<div class=\"search\"><input id=\"navSearch\" type=\"text\" placeholder=\"搜索 API " +
+                "或接口…\"></div></div>");
 
         sb.append("<div class=\"layout\"><nav class=\"sidebar\"><ul class=\"tree\" id=\"apiTree\">");
 

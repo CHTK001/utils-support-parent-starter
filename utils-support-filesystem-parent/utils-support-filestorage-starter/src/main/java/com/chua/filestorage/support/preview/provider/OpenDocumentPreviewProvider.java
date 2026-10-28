@@ -77,10 +77,13 @@ public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
         String mimeType = getMimeType(type);
 
         StringBuilder sb = new StringBuilder();
-        sb.append("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>OpenDocument Preview</title></head><body>");
+        sb.append("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>OpenDocument " +
+                "Preview</title></head><body>");
         sb.append("<div id=\"app\" style=\"height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f5f5f5\">");
-        sb.append("<div style=\"text-align:center;padding:40px;background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.1);max-width:600px;width:90%\">");
-        sb.append("<svg style=\"width:64px;height:64px;margin-bottom:16px\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#409EFF\" stroke-width=\"2\">");
+        sb.append("<div style=\"text-align:center;padding:40px;background:#fff;border-radius:12px;box-shadow:0 " +
+                "2px 12px rgba(0,0,0,0.1);max-width:600px;width:90%\">");
+        sb.append("<svg style=\"width:64px;height:64px;margin-bottom:16px\" viewBox=\"0 0 24 24\" " +
+                "fill=\"none\" stroke=\"#409EFF\" stroke-width=\"2\">");
         sb.append("<path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/>");
         sb.append("<polyline points=\"14 2 14 8 20 8\"/>");
         sb.append("<line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"/>");

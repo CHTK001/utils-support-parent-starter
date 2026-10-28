@@ -151,12 +151,16 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">");
         sb.append("<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">");
         sb.append("<style>");
-        sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:20px}");
-        sb.append(".header{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}");
+        sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +
+                "UI',sans-serif;padding:20px}");
+        sb.append(".header{background:#fff;border:1px solid " +
+                "#e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px}");
         sb.append("h1{margin:0 0 8px;font-size:20px;font-weight:600}");
         sb.append(".meta{color:#6b7280;font-size:13px}");
-        sb.append(".contacts{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:24px;max-width:700px;margin:0 auto}");
-        sb.append(".contact{padding:16px;margin-bottom:12px;background:#f9fafb;border-radius:8px;border-left:4px solid #8b5cf6}");
+        sb.append(".contacts{background:#fff;border:1px solid " +
+                "#e5e7eb;border-radius:12px;padding:24px;max-width:700px;margin:0 auto}");
+        sb.append(".contact{padding:16px;margin-bottom:12px;background:#f9fafb;border-radius:8px;border-left:4px " +
+                "solid #8b5cf6}");
         sb.append(".contact:last-child{margin-bottom:0}");
         sb.append(".name{font-weight:600;font-size:16px;margin-bottom:8px}");
         sb.append(".org{color:#6b7280;font-size:13px;margin-bottom:8px}");

@@ -82,26 +82,31 @@ public class FontPreviewProvider implements FileStoragePreviewProvider {
                 "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
                 "<style>" +
                 "@font-face{font-family:'" + familyName + "';src:url('" + dataUri + "') format('" + getFormat(e) + "');font-display:swap}" +
-                "body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;" +
+                "body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +
+                        "UI',sans-serif;" +
                 "display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px}" +
-                ".card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:32px;max-width:600px;width:100%;" +
+                ".card{background:#fff;border:1px solid " +
+                        "#e5e7eb;border-radius:12px;padding:32px;max-width:600px;width:100%;" +
                 "box-shadow:0 1px 3px rgba(0,0,0,.08)}" +
                 ".icon{width:64px;height:64px;background:#faf5ff;border-radius:12px;display:flex;align-items:center;justify-content:center;" +
                 "margin:0 auto 20px}" +
                 ".icon svg{width:32px;height:32px;color:#9333ea}" +
                 "h2{margin:0 0 8px;font-size:18px;font-weight:600;text-align:center}" +
                 ".meta{color:#6b7280;font-size:14px;text-align:center;margin-bottom:20px}" +
-                ".preview{margin:20px 0;padding:24px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;text-align:center}" +
+                ".preview{margin:20px 0;padding:24px;background:#f9fafb;border:1px solid " +
+                        "#e5e7eb;border-radius:8px;text-align:center}" +
                 ".preview-text{font-family:'" + familyName + "';font-size:32px;line-height:1.5;color:#111827}" +
                 ".preview-chars{font-family:'" + familyName + "';font-size:24px;letter-spacing:4px;color:#374151;margin-top:12px}" +
                 "table{width:100%;border-collapse:collapse}" +
                 "td{padding:8px 0;font-size:13px;border-bottom:1px solid #f3f4f6}" +
                 "td:first-child{color:#6b7280;width:100px}" +
                 "td:last-child{font-weight:500}" +
-                ".badge{display:inline-block;background:#f3e8ff;color:#7e22ce;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500}" +
+                ".badge{display:inline-block;background:#f3e8ff;color:#7e22ce;padding:2px " +
+                        "8px;border-radius:4px;font-size:12px;font-weight:500}" +
                 "</style></head><body>" +
                 "<div class=\"card\">" +
-                "<div class=\"icon\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\">" +
+                "<div class=\"icon\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" " +
+                        "stroke-width=\"2\">" +
                 "<path d=\"M4 7V4h16v3\"/><path d=\"M9 20h6\"/><path d=\"M12 4v16\"/></svg></div>" +
                 "<h2>字体预览</h2>" +
                 "<div class=\"meta\">." + e + " 字体文件</div>" +

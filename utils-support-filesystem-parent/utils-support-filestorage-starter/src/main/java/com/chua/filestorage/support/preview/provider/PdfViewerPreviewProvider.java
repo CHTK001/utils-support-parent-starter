@@ -74,7 +74,8 @@ public class PdfViewerPreviewProvider implements FileStoragePreviewProvider {
                 + "<style>"
                 + "*{margin:0;padding:0;box-sizing:border-box}"
                 + "body{background:#525659;font-family:sans-serif}"
-                + "#pdf-container{width:100%;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:8px 0}"
+                + "#pdf-container{width:100%;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:8px " +
+                        "0}"
                 + ".page{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.3);margin:4px auto;"
                 + "min-height:600px;width:100%;max-width:816px;padding:48px 56px;position:relative}"
                 + ".page canvas{width:100%!important;height:auto!important}"
