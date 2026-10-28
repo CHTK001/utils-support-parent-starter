@@ -292,7 +292,8 @@ public class InMemoryStorage implements ApmStorage {
      */
     private long cleanupInternal(long cutoff) {
         long removed = 0;
-        removed += doRemoveOlder(transmissions, cutoff, (java.util.function.Function<TransmissionEvent, Long>) e -> e.getStartTime());
+        removed += doRemoveOlder(transmissions, cutoff,
+                (java.util.function.Function<TransmissionEvent, Long>) e -> e.getStartTime());
         removed += doRemoveOlder(logs, cutoff, (java.util.function.Function<LogRecord, Long>) e -> e.getTimestamp());
         // leak 只清理已关闭的过期记录,活跃泄漏永远保留
         removed += removeIfOlderThanLeak(leaks, cutoff, e -> e.getClosedAt() > 0 ? e.getClosedAt() : 0L);

@@ -309,7 +309,8 @@ public class NativeLoader {
                     java.io.File[] files = dirFile.listFiles((d, name) -> match(name, glob));
                     if (files != null) {
                         for (java.io.File f : files) {
-                            result.add(new ResourceItem(f.getName(), f.length(), () -> Files.newInputStream(f.toPath())));
+                            result.add(new ResourceItem(f.getName(), f.length(),
+                                    () -> Files.newInputStream(f.toPath())));
                         }
                     }
                 } else if ("jar".equals(protocol)) {
@@ -330,7 +331,8 @@ public class NativeLoader {
                                 continue;
                             }
                             long size = entry.getSize();
-                            result.add(new ResourceItem(simpleName, size < 0 ? 0 : size, () -> classLoader.getResourceAsStream(name)));
+                            result.add(new ResourceItem(simpleName, size < 0 ? 0 : size,
+                                    () -> classLoader.getResourceAsStream(name)));
                         }
                     }
                 } else {

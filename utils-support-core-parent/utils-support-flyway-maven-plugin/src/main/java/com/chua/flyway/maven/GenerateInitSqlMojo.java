@@ -79,7 +79,8 @@ public class GenerateInitSqlMojo extends AbstractMojo {
     /**
      * 输出文件路径，存在则覆盖.
      */
-    @Parameter(defaultValue = "${project.build.directory}/db/init-all.sql", property = "flyway.outputFile", required = true)
+    @Parameter(defaultValue = "${project.build.directory}/db/init-all.sql", property = "flyway.outputFile",
+            required = true)
     private File outputFile;
 
     /**

@@ -67,7 +67,8 @@ public class ImageReaderFileSystem extends AbstractReader {
      */
     private static Set<String> getSupportedExtensions() {
         var extensions = Wraps.<String>set();
-        extensions.addAll(Set.of(".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp", ".tiff", ".tif", ".ico", ".heic", ".heif"));
+        extensions.addAll(Set.of(".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp", ".tiff", ".tif", ".ico", ".heic",
+                ".heif"));
         // 尝试加载 Rust HEIF 加速库（幂等）
         com.chua.image.support.heif.HeifImageIoRegistrar.register();
         return Set.copyOf(extensions);

@@ -161,7 +161,8 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
 
         if (info.xmin != 0 || info.ymin != 0) {
             sb.append("<div class=\"field\"><span class=\"label\">边界范围</span><span class=\"value\">");
-            sb.append(String.format(Locale.ENGLISH, "%.6f, %.6f ~ %.6f, %.6f", info.xmin, info.ymin, info.xmax, info.ymax));
+            sb.append(String.format(Locale.ENGLISH, "%.6f, %.6f ~ %.6f, %.6f", info.xmin, info.ymin, info.xmax,
+                    info.ymax));
             sb.append("</span></div>");
         }
 

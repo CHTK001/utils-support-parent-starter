@@ -37,6 +37,7 @@ public class SequentialThinkingMcpProvider extends AbstractExternalMcpInstallerP
                                 "thoughtNumber", Map.of("type", "integer", "description", "思考序号"),
                                 "totalThoughts", Map.of("type", "integer", "description", "总思考数"),
                                 "nextThoughtNeeded", Map.of("type", "boolean", "description", "是否继续")),
-                                "required", List.of("thought", "thoughtNumber", "totalThoughts", "nextThoughtNeeded"))));
+                                "required", List.of("thought", "thoughtNumber", "totalThoughts",
+                                        "nextThoughtNeeded"))));
     }
 }

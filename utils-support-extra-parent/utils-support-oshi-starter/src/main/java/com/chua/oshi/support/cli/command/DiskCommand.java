@@ -50,7 +50,8 @@ public final class DiskCommand extends AbstractCommand {
         if (rows.isEmpty()) {
             System.out.println("  (none)");
         } else {
-            System.out.println(Formatter.table("", new String[]{"Model", "Serial", "Size", "Partitions", "State"}, rows));
+            System.out.println(Formatter.table("", new String[]{"Model", "Serial", "Size", "Partitions", "State"},
+                    rows));
         }
 
  // ── 分区 ──
@@ -97,7 +98,8 @@ public final class DiskCommand extends AbstractCommand {
         if (frow.isEmpty()) {
             System.out.println("  (none)");
         } else {
-            System.out.println(Formatter.table("", new String[]{"Mount", "Type", "Total", "Used", "Free", "Usage", "Bar"}, frow));
+            System.out.println(Formatter.table("",
+                    new String[]{"Mount", "Type", "Total", "Used", "Free", "Usage", "Bar"}, frow));
         }
         double pct = totalAll > 0 ? (double) totalUsed / totalAll * 100 : 0;
         System.out.println(Formatter.panel("",

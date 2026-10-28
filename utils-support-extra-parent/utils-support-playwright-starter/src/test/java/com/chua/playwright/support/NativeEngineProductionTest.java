@@ -473,7 +473,8 @@ class NativeEngineProductionTest {
             assertEquals("none",
                          ev(p, "function(){ return getComputedStyle(document.getElementById('tip')).display; }"));
             engine.hover(p, "#hov");
-            assertEquals("block", ev(p, "function(){ return getComputedStyle(document.getElementById('tip')).display; }"),
+            assertEquals("block", ev(p,
+                    "function(){ return getComputedStyle(document.getElementById('tip')).display; }"),
                     "hover 后提示应显示");
         } finally {
             engine.close(p);

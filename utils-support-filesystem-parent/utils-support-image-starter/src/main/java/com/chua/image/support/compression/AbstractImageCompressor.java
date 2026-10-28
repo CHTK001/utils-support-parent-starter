@@ -237,7 +237,8 @@ public abstract class AbstractImageCompressor implements ImageCompressor {
             // jpeg / bmp 不支持 Alpha，先铺白底再编码，否则透明区会变黑
             prepared = flatten(image);
         }
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream(Math.max(1024, image.getWidth() * image.getHeight() / 4));
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream(Math.max(1024,
+                image.getWidth() * image.getHeight() / 4));
              ImageOutputStream stream = ImageIO.createImageOutputStream(out)) {
             if (stream == null) {
                 throw new IOException("无法创建图片输出流");

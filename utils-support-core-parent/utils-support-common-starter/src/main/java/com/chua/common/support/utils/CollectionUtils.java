@@ -1392,7 +1392,8 @@ public class CollectionUtils {
      * @param <V>               值 类型
      * @return 映射结果
      */
-    public static <K, V> V computeIfAbsent(Map<K, V> concurrentHashMap, K key, Function<? super K, ? extends V> mappingFunction) {
+    public static <K, V> V computeIfAbsent(Map<K, V> concurrentHashMap, K key, Function<? super K,
+            ? extends V> mappingFunction) {
         Objects.requireNonNull(mappingFunction);
         if (Projects.JDK_8) {
             V v = concurrentHashMap.get(key);

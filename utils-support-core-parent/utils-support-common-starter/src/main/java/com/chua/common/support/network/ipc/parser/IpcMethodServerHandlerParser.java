@@ -74,7 +74,8 @@ public class IpcMethodServerHandlerParser implements ServerHandlerAnnotationPars
                     }
                     String fullPath = joinPath(basePath, ann.value().trim());
                     ClassUtils.setAccessible(method);
-                    result.add(new IpcMethodServerHandler(objectContext, clazz, method, UrlUtils.normalizePath(fullPath)));
+                    result.add(new IpcMethodServerHandler(objectContext, clazz, method,
+                            UrlUtils.normalizePath(fullPath)));
                 }
             }
         }

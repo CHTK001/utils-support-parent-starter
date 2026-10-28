@@ -54,7 +54,8 @@ import java.util.concurrent.ConcurrentMap;
         type = "WECHAT",
         desc = "支持企业微信群机器人 Webhook、公众号模板消息、小程序订阅消息",
         optional = {
-                @SpiParam(value = "wechat.type", defaultValue = "webhook", desc = "推送类型: webhook/mp/mini", type = "String"),
+                @SpiParam(value = "wechat.type", defaultValue = "webhook", desc = "推送类型: webhook/mp/mini",
+                        type = "String"),
                 @SpiParam(value = "wechat.webhookUrl", desc = "企业微信群机器人 Webhook 地址", type = "String"),
                 @SpiParam(value = "wechat.appId", desc = "公众号/小程序 AppID", type = "String"),
                 @SpiParam(value = "wechat.appSecret", desc = "公众号/小程序 AppSecret", type = "String"),

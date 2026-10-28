@@ -1115,7 +1115,8 @@ public class ArrayUtils {
      * @return the 结果
      * @param generator 生成器
      */
-    public static <T, A> A[] toArray(Iterable<? extends T> iterable, Function<T, A> function, IntFunction<A[]> generator) {
+    public static <T, A> A[] toArray(Iterable<? extends T> iterable, Function<T, A> function,
+            IntFunction<A[]> generator) {
         if (null == iterable) {
             return null;
         }

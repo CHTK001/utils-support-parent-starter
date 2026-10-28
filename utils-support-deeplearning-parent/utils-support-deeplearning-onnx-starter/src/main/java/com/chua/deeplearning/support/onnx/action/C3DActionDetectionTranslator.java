@@ -198,7 +198,8 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
                              OnnxTensor heightTensor = OnnxTensor.createTensor(ortEnv,
                                      LongBuffer.wrap(new long[]{INPUT_HEIGHT}), new long[0]);
                              OnnxTensor widthTensor =
-                                     OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(new long[]{INPUT_WIDTH}), new long[0])) {
+                                     OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(new long[]{INPUT_WIDTH}),
+                                             new long[0])) {
                             Map<String, OnnxTensor> inputs = Wraps.map();
                             inputs.put("input_frames", inputTensor);
                             inputs.put("height", heightTensor);

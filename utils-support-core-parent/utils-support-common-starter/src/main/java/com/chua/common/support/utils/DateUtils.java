@@ -1729,7 +1729,8 @@ public class DateUtils {
      */
     public static LocalDateTime toLocalDateTime(final String date, final String pattern) {
         try {
-            return toLocalDateTime(parseDate(date, Optional.ofNullable(pattern).orElse(DateFormatConstant.YYYY_MM_DD_HH_MM_SS)));
+            return toLocalDateTime(parseDate(date,
+                    Optional.ofNullable(pattern).orElse(DateFormatConstant.YYYY_MM_DD_HH_MM_SS)));
         } catch (ParseException e) {
             log.error("", e);
         }

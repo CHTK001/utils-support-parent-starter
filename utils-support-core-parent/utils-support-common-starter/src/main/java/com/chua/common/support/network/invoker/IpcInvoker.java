@@ -192,7 +192,8 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
          */
         private final StringValuePropertyResolver propertyResolver = new StringValuePropertyResolver(null);
 
-        IpcInvocationHandler(String baseUrl, String namespace, List<ServerFilter> filters, SharedInvocationContext sharedContext) {
+        IpcInvocationHandler(String baseUrl, String namespace, List<ServerFilter> filters,
+                SharedInvocationContext sharedContext) {
             this.baseUrl = baseUrl;
             this.namespace = namespace;
             this.filters = filters;

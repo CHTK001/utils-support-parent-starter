@@ -80,7 +80,8 @@ public class OpencvModelProvider implements BulkModelProvider {
         add(list, "opencv-smile-detector", SMILE,
                 () -> new OpencvCascadeDetector("opencv-smile-detector", SMILE, "smile", 1.1, 15, 20, 20));
         add(list, "opencv-profile-face-detector", PROFILE,
-                () -> new OpencvCascadeDetector("opencv-profile-face-detector", PROFILE, "profile_face", 1.1, 3, 30, 30));
+                () -> new OpencvCascadeDetector("opencv-profile-face-detector", PROFILE, "profile_face", 1.1, 3, 30,
+                        30));
         add(list, "opencv-fullbody-detector", FULLBODY,
                 () -> new OpencvCascadeDetector("opencv-fullbody-detector", FULLBODY, "fullbody", 1.1, 3, 40, 80));
         add(list, "opencv-pedestrian-hog", null, OpencvHogPedestrianDetector::new);

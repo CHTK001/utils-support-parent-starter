@@ -62,9 +62,12 @@ public class VectorPerfBench {
      */
     private static void runAll() {
         printf("\n【MemoryVectorStorage】\n");
-        bench("memory-cosine",      () -> VectorStorageBuilder.newBuilder().dimension(DIM).algorithm(VectorCompareAlgorithm.cosine()).build());
-        bench("memory-euclidean",   () -> VectorStorageBuilder.newBuilder().dimension(DIM).algorithm(VectorCompareAlgorithm.euclidean()).build());
-        bench("memory-dot",         () -> VectorStorageBuilder.newBuilder().dimension(DIM).algorithm(VectorCompareAlgorithm.dotProduct()).build());
+        bench("memory-cosine",
+                () -> VectorStorageBuilder.newBuilder().dimension(DIM).algorithm(VectorCompareAlgorithm.cosine()).build());
+        bench("memory-euclidean",
+                () -> VectorStorageBuilder.newBuilder().dimension(DIM).algorithm(VectorCompareAlgorithm.euclidean()).build());
+        bench("memory-dot",
+                () -> VectorStorageBuilder.newBuilder().dimension(DIM).algorithm(VectorCompareAlgorithm.dotProduct()).build());
 
         printf("\n【DefaultVectorStorage HYBRID】\n");
         bench("default-hyb-cosine", () -> DefaultVectorStorage.builder()

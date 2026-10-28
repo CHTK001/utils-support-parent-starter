@@ -61,7 +61,8 @@ public interface Model3DGenerator {
      * @return 3D 模型
      * @throws IOException IO 异常
      */
-    Model3D generateFromSketch(byte[] sketch, String description, Model3DFormat format, Model3DStyle style, String quality) throws IOException;
+    Model3D generateFromSketch(byte[] sketch, String description, Model3DFormat format, Model3DStyle style,
+            String quality) throws IOException;
 
     /**
      * 风格化处理

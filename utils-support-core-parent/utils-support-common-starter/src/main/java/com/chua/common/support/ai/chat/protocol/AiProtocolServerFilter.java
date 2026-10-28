@@ -1357,7 +1357,8 @@ choice.put(KEY_INDEX, 0);
      * @param status     状态
      * @return 响应体
      */
-    private Map<String, Object> buildCcsResponse(String responseId, String messageId, String model, String text, String status) {
+    private Map<String, Object> buildCcsResponse(String responseId, String messageId, String model, String text,
+            String status) {
         String resolvedModel = model != null ? model : DEFAULT_MODEL;
         Map<String, Object> body = Wraps.linkedMap(13);
         body.put(KEY_ID, responseId);

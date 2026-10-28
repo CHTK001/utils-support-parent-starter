@@ -134,7 +134,8 @@ public class QrCodeRenderUtils {
 
         Graphics2D g2d = GraphicUtil.getG2d(bottomImg);
         boolean needScale = frontImgOptions.getFtW() < ftImg.getWidth() || frontImgOptions.getFtH() < ftImg.getHeight();
-        g2d.drawImage(!needScale ? ftImg : ftImg.getScaledInstance(frontImgOptions.getFtW(), frontImgOptions.getFtH(), BufferedImage.SCALE_SMOOTH),
+        g2d.drawImage(!needScale ? ftImg : ftImg.getScaledInstance(frontImgOptions.getFtW(), frontImgOptions.getFtH(),
+                BufferedImage.SCALE_SMOOTH),
                 -Math.min(startX, 0), -Math.min(startY, 0), null);
         g2d.dispose();
         return bottomImg;
@@ -171,7 +172,8 @@ public class QrCodeRenderUtils {
             BufferedImage bgImg = GraphicUtil.createImg(resW, resH, bottomImg);
             Graphics2D bgGraphic = GraphicUtil.getG2d(bgImg);
             ftImg = frontImgOptions.getGifDecoder().getFrame(index);
-            bgGraphic.drawImage(!needScale ? ftImg : ftImg.getScaledInstance(frontImgOptions.getFtW(), frontImgOptions.getFtH(), BufferedImage.SCALE_SMOOTH),
+            bgGraphic.drawImage(!needScale ? ftImg : ftImg.getScaledInstance(frontImgOptions.getFtW(),
+                    frontImgOptions.getFtH(), BufferedImage.SCALE_SMOOTH),
                     -Math.min(startX, 0), -Math.min(startY, 0), null);
 
             bgGraphic.dispose();

@@ -449,7 +449,8 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
                             byte[] buffer = new byte[8192];
                             int total = 0;
                             int len;
-                            while ((len = sz.read(buffer, 0, Math.min(buffer.length, MAX_EXTRACT_ENTRY_BYTES - total))) > 0) {
+                            while ((len = sz.read(buffer, 0,
+                                    Math.min(buffer.length, MAX_EXTRACT_ENTRY_BYTES - total))) > 0) {
                                 baos.write(buffer, 0, len);
                                 total += len;
                                 if (total >= MAX_EXTRACT_ENTRY_BYTES) {

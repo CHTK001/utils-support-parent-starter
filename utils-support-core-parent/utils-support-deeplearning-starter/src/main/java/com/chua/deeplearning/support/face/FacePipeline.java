@@ -1898,8 +1898,10 @@ public class FacePipeline {
         // 能力接口未声明时的名称约定回退
         return nameContains(name, "anime-face") ? "animeDetector"
                 : nameContains(name, "spoof", "liveness") ? "liveness"
-                : nameContains(name, "face-detect", "face_detect", "scrfd", "ultra-face", "yolo-face-det", "faceplugin-face-detect") ? "detector"
-                : nameContains(name, "face-feature", "face_feature", "arc-face", "ada-face", "face-rec", "faceplugin-face-feature", "r50-face", "face-feature") ? "feature"
+                : nameContains(name, "face-detect", "face_detect", "scrfd", "ultra-face", "yolo-face-det",
+                        "faceplugin-face-detect") ? "detector"
+                : nameContains(name, "face-feature", "face_feature", "arc-face", "ada-face", "face-rec",
+                        "faceplugin-face-feature", "r50-face", "face-feature") ? "feature"
                 : nameContains(name, "gfpgan", "esrgan", "super-res") ? "superResolution"
                 : nameContains(name, "codeformer", "restoreformer", "face-enhance") ? "restore"
                 : nameContains(name, "emotion-fer", "fer-plus", "ferplus", "yolo-face-emotion") ? "emotion"

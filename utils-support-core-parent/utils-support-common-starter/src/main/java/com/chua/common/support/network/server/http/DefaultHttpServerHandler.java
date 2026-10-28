@@ -79,7 +79,8 @@ public class DefaultHttpServerHandler implements HttpDefaultServerHandler {
 
         // 确保方法可访问
         ClassUtils.setAccessible(method);
-        response.setResult(ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), request, response));
+        response.setResult(ReflectUtils.invoke(bean, method.getName(), method.getReturnType(),
+                method.getParameterTypes(), request, response));
     }
 
     /**

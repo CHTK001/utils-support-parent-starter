@@ -689,7 +689,8 @@ public class AnnotationUtils {
      * @param annotationClass 注解类
      * @return 获取注解attributes的结果
      */
-    public static Map<String, Object> getAnnotationAttributes(Class<?> clazz, Class<? extends Annotation> annotationClass) {
+    public static Map<String, Object> getAnnotationAttributes(Class<?> clazz,
+            Class<? extends Annotation> annotationClass) {
         Map<String, Object> attributes = Wraps.map();
         Annotation annotation = clazz.getAnnotation(annotationClass);
         if (annotation == null) {

@@ -136,7 +136,8 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
                                 videoInfo.setVideoDirector(author);
                                 videoInfo.setVideoActor(author);
                                 videoInfo.setVideoDescription(description);
-                                videoInfo.setVideoScore(Converter.convertIfNecessary(video.path("score").asText(), BigDecimal.class));
+                                videoInfo.setVideoScore(Converter.convertIfNecessary(video.path("score").asText(),
+                                        BigDecimal.class));
                                 videoInfo.setVideoCover(coverUrl);
                                 videoInfo.setVideoYear(Converter.convertIfNecessary(pubDate, Integer.class));
 

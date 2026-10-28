@@ -66,7 +66,8 @@ public final class MemCommand extends AbstractCommand {
                         pm.getManufacturer() == null ? "N/A" : pm.getManufacturer()
                 });
             }
-            System.out.println(Formatter.table("", new String[]{"Bank", "Part Number", "Type", "Capacity", "Speed", "Manufacturer"}, rows));
+            System.out.println(Formatter.table("",
+                    new String[]{"Bank", "Part Number", "Type", "Capacity", "Speed", "Manufacturer"}, rows));
         }
 
  // ── 虚拟 内存 / 掉期 ──
