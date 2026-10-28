@@ -138,6 +138,7 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
 21. **1.4.8 `@Deprecated` 说明**：全仓 5 处 `@Deprecated` 缺少废弃原因与替代接口指引，已补充 `@deprecated` 标签（CompatibleTranslator、GreptimeDbEngine ×2、PrometheusEngine ×2）；复查归零。
 22. **5.1.9 存储过程**：`MysqlMetaProcedure` / `PostgresqlMetaProcedure` 提供的是「建过程」DDL 能力（工具库职责），全仓无业务侧存储过程调用——4 处 `prepareCall` 均为元数据/DDL 通用执行或测试透传断言，业务 SQL 不含 `CALL`。
 23. **1.5.1 集合初始容量（推荐）**：全仓 768 处 `new HashMap<>()/ArrayList<>()` 等无参构造，多数场景无法预知元素数量，强行估算容量反而可能浪费内存；建议在已知规模的批量场景就地补充，不做批量改写。
+24. **1.4.6 清理无用代码（强制，但不可机械判定）**：静态扫描得到 860 个「疑似未被调用的私有方法」与 89 行「疑似注释掉的代码」，但抽样核对发现大量误判——私有方法常通过方法引用（`this::runWebSocketLoop`）、反射/SPI 调用；被注释的代码中有相当一部分是「为什么这样做」的决策记录（如 `// array = array.expandDims(0); // 批处理由 Batchifier 负责`）。删除属破坏性操作且无法靠编译验证兜底，故不做批量清理，建议随功能迭代人工判断。
 
 ## 五、最终状态（本轮结束时）
 
