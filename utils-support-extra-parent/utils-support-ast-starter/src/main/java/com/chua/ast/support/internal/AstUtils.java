@@ -452,6 +452,8 @@ public final class AstUtils {
     }
 
     /**
+     * 构造 null 字面量节点。
+     *
      * @deprecated 已废弃，请使用 {@link #nullLiteral(TreeMaker)}
      * @param maker maker
      * @return make空字面量的结果

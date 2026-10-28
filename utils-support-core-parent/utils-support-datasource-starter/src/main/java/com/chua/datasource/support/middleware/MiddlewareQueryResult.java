@@ -116,6 +116,8 @@ public final class MiddlewareQueryResult {
     }
 
     /**
+     * 获取行集合。
+     *
      * @return 行数据
      */
     public List<Map<String, Object>> rows() {
@@ -123,6 +125,8 @@ public final class MiddlewareQueryResult {
     }
 
     /**
+     * 获取行数。
+     *
      * @return 行数
      */
     public int rowCount() {
@@ -130,6 +134,8 @@ public final class MiddlewareQueryResult {
     }
 
     /**
+     * 获取截断后的文本。
+     *
      * @return 是否被截断
      */
     public boolean truncated() {

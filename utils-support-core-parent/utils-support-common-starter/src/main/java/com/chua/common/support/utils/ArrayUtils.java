@@ -418,6 +418,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 判断是否包含指定元素。
      *
      *
      * @param array array
@@ -430,6 +431,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 判断是否包含指定元素。
      *
      *
      * @param array array

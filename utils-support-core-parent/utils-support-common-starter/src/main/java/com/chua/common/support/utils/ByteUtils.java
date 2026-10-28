@@ -657,6 +657,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
+     * 按 UTF-8 编码为字节数组。
      *
      *
      * @param str          

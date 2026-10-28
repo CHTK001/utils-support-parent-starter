@@ -42,6 +42,8 @@ public final class MiddlewareDocument {
     }
 
     /**
+     * 获取标题。
+     *
      * @return 标题
      */
     public String title() {
@@ -49,6 +51,8 @@ public final class MiddlewareDocument {
     }
 
     /**
+     * 获取文本。
+     *
      * @return 正文
      */
     public String text() {

@@ -274,6 +274,7 @@ public final class ChainedTrainer {
 
     /**
      * 对参数副本执行的链式命令（同一终端调用内部复用）。
+     *
      * @author CH
      * @since 4.0.0
      */
@@ -324,6 +325,8 @@ public final class ChainedTrainer {
     }
 
     /**
+     * 获取训练器。
+     *
      * @return 底层训练器
      */
     public Trainer trainer() {

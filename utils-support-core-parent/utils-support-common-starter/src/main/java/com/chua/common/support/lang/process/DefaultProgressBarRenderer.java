@@ -165,6 +165,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 计算百分比。
      *                         
      *
      * @param progress             
