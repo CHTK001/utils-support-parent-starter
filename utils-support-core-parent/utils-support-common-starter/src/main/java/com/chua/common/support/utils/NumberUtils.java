@@ -1666,7 +1666,7 @@ public class NumberUtils {
      * @since 4.0.9
      */
     public static BigDecimal toBigDecimal(String number) {
-        if(isThousandSeparator(number)) {
+        if (isThousandSeparator(number)) {
             number = number.replaceAll(",", "");
         }
         return (null == number) ? BigDecimal.ZERO : new BigDecimal(number);

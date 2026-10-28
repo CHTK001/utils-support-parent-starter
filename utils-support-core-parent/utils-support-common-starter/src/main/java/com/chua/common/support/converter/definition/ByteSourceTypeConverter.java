@@ -41,11 +41,11 @@ public class ByteSourceTypeConverter implements TypeConverter<byte[]> {
      */
     @Override
     public byte[] convert(Object value) {
-        if(value instanceof byte[]) {
+        if (value instanceof byte[]) {
             return (byte[]) value;
         }
 
-        if(value instanceof InputStream) {
+        if (value instanceof InputStream) {
             try {
                 return readBytes((InputStream) value);
             } catch (IOException e) {
@@ -53,7 +53,7 @@ public class ByteSourceTypeConverter implements TypeConverter<byte[]> {
             }
         }
 
-        if(value instanceof Path) {
+        if (value instanceof Path) {
             try {
                 return java.nio.file.Files.readAllBytes((Path) value);
             } catch (IOException e) {
@@ -61,7 +61,7 @@ public class ByteSourceTypeConverter implements TypeConverter<byte[]> {
             }
         }
 
-        if(value instanceof File) {
+        if (value instanceof File) {
             try {
                 return java.nio.file.Files.readAllBytes(((File) value).toPath());
             } catch (IOException e) {
@@ -69,7 +69,7 @@ public class ByteSourceTypeConverter implements TypeConverter<byte[]> {
             }
         }
 
-        if(value instanceof String) {
+        if (value instanceof String) {
             try {
                 return java.nio.file.Files.readAllBytes(java.nio.file.Paths.get((String) value));
             } catch (Exception e) {
@@ -77,7 +77,7 @@ public class ByteSourceTypeConverter implements TypeConverter<byte[]> {
             }
         }
 
-        if(value instanceof URI) {
+        if (value instanceof URI) {
             try {
                 try (InputStream is = ((URI) value).toURL().openStream()) {
                     return readBytes(is);
@@ -87,7 +87,7 @@ public class ByteSourceTypeConverter implements TypeConverter<byte[]> {
             }
         }
 
-        if(value instanceof URL) {
+        if (value instanceof URL) {
             try {
                 try (InputStream is = ((URL) value).openStream()) {
                     return readBytes(is);

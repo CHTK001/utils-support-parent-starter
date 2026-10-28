@@ -42,7 +42,7 @@ public class RequestMethodServerHandlerParser implements ServerHandlerAnnotation
      */
     @Override
     public List<ServerHandler> parse(ObjectContext objectContext, ServerFilter serverFilter) {
-        if(!(serverFilter instanceof UrlMappingServerFilter)) {
+        if (!(serverFilter instanceof UrlMappingServerFilter)) {
             return List.of();
         }
 

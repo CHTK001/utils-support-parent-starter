@@ -391,7 +391,7 @@ public class QrCodeRenderUtils {
         QrCodeOptions.DrawStyle drawStyle = drawOptions.getDrawStyle();
 
         DrawResolver drawResolver;
-        if(drawStyle == QrCodeOptions.DrawStyle.IMAGE_V2) {
+        if (drawStyle == QrCodeOptions.DrawStyle.IMAGE_V2) {
             drawResolver = new ImageDrawResolver(g2, detectInnerColor, detectOutColor, qrCodeConfig, bitMatrix, drawOptions, setting);
         } else {
             drawResolver = new DefaultDrawResolver(g2, detectInnerColor, detectOutColor, qrCodeConfig, bitMatrix, drawOptions, setting);

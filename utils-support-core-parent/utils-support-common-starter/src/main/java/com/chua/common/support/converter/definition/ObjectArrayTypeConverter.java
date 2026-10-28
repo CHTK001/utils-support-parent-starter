@@ -115,7 +115,7 @@ List<Object> tpl = Wraps.list();
         Class<?> actualType = ClassUtils.getActualType(newType);
         if (value instanceof Collection) {
             ((Collection<?>) value).forEach(it -> {
-                if(ClassUtils.isPrimitive(actualType)) {
+                if (ClassUtils.isPrimitive(actualType)) {
                     tpl.add(Converter.convertIfNecessary(it, actualType));
                     return;
                 }

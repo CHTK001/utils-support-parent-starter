@@ -544,13 +544,13 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
      */
     @SuppressWarnings("ALL")
     public <T> T newInstance(ServiceAutowire serviceAutowire, Object... args) {
-        if(null == implClass) {
+        if (null == implClass) {
             return null;
         }
 
         try {
             Constructor<?> declaredConstructor = ClassUtils.getConstructor(implClass, ClassUtils.toType(args));
-            if(null != declaredConstructor) {
+            if (null != declaredConstructor) {
                 ClassUtils.setAccessible(declaredConstructor);
                 T instance = (T) serviceAutowire.autowire(ClassUtils.newInstance(declaredConstructor, args));
                 if (null == instance) {
@@ -583,7 +583,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         }
         Constructor<?>[] constructors = implClass.getConstructors();
         for (Constructor<?> constructor : constructors) {
-            if(constructor.getParameterCount() != args.length) {
+            if (constructor.getParameterCount() != args.length) {
                 if (constructor.getParameterCount() > args.length) {
                     continue;
                 }
@@ -603,7 +603,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
             }
             ClassUtils.setAccessible(constructor);
             try {
-                if(ArrayUtils.isEquals(constructor.getParameterTypes(), args)) {
+                if (ArrayUtils.isEquals(constructor.getParameterTypes(), args)) {
                     T instance = (T) serviceAutowire.autowire(ClassUtils.newInstance(constructor, args));
                     if (instance != null && !checkSpiCondition(instance)) {
                         return null;
@@ -612,7 +612,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
                 }
             } catch (Exception e) {
                 T bean = (T) serviceAutowire.createBean(implClass);
-                if(null == bean) {
+                if (null == bean) {
                     log.error("", e);
                     throw new RuntimeException("SPI 服务创建失败: " + e.getMessage(), e);
                 }
@@ -741,12 +741,12 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
                     isLoaded = true;
                     try {
                         this.obj = null == implClass ? null : ClassUtils.newInstance(implClass);
-                        if(null != serviceAutowire) {
+                        if (null != serviceAutowire) {
                             serviceAutowire.autowire(obj);
                         }
                     } catch (Exception e) {
                         stack = Thread.currentThread().getStackTrace();
-                        if(log.isDebugEnabled()) {
+                        if (log.isDebugEnabled()) {
                             log.error(" :{} : : {}", implClass.getTypeName(), e.getLocalizedMessage());
                         }
                         ex = e;

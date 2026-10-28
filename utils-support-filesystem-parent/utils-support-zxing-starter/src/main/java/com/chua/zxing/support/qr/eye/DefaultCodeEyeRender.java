@@ -72,15 +72,15 @@ public class DefaultCodeEyeRender implements CodeEyeRender {
      */
     private void formatCodeEye(QrCodeGenWrapper.Builder builder, CodeEyeSetting setting) {
         CodeEyeStyle codeEye = setting.getCodeEye();
-        if(null == codeEye || NONE == codeEye) {
+        if (null == codeEye || NONE == codeEye) {
             return;
         }
 
-        if(codeEye == CodeEyeStyle.CIRCLE) {
+        if (codeEye == CodeEyeStyle.CIRCLE) {
             try (InputStream inputStream = DefaultQrCode.class.getResourceAsStream("/eye3.png")) {
                 byte[] byteArray = IoUtils.asBytes(inputStream);
                 BufferedImage bufferedImage = BufferedImageUtils.toBufferedImage(byteArray);
-                if(StringUtils.isNotBlank(setting.getCodeEyeColor())) {
+                if (StringUtils.isNotBlank(setting.getCodeEyeColor())) {
                     BufferedImageUtils.changeColor(bufferedImage, Converter.convertIfNecessary(setting.getCodeEyeColor(), Color.class));
                 }
                 builder.setDetectImg(bufferedImage);

@@ -180,7 +180,7 @@ final class ReaderUtils {
     {
         int value = iis.readByte();
         int result = value & 0x7f;
-        while((value & 0x80) == 0x80) {
+        while ((value & 0x80) == 0x80) {
             result <<= 7;
             value = iis.readByte();
             result |= (value & 0x7f);

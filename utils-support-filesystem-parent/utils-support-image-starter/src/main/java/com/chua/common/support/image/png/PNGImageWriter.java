@@ -1225,7 +1225,7 @@ public final class PNGImageWriter extends ImageWriter {
         int deflaterLevel = DEFAULT_COMPRESSION_LEVEL;
 
         if (param != null) {
-            switch(param.getCompressionMode()) {
+            switch (param.getCompressionMode()) {
                 case ImageWriteParam.MODE_DISABLED:
                     deflaterLevel = Deflater.NO_COMPRESSION;
                     break;

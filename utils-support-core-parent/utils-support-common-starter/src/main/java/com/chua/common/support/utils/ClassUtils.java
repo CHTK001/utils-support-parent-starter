@@ -1744,7 +1744,7 @@ public class ClassUtils {
             if (methodFilter != null && !methodFilter.matches(method)) {
                 continue;
             }
-            if(cache.contains(method)) {
+            if (cache.contains(method)) {
                 return;
             }
             cache.add(method);
@@ -2241,7 +2241,7 @@ public class ClassUtils {
              * @param validate 校验
              */
             private void doRegisterMethod(List<Method> rs, Class<?> aClass, List<Class<?>> validate) {
-                if(validate.contains(aClass)) {
+                if (validate.contains(aClass)) {
                     return;
                 }
                 validate.add(aClass);
@@ -2275,7 +2275,7 @@ public class ClassUtils {
         Class<?>[] parameterTypes = method.getParameterTypes();
         for (int i = 0; i < parameterTypes.length; i++) {
             Class<?> parameterType = parameterTypes[i];
-            if(parameterType.isPrimitive()) {
+            if (parameterType.isPrimitive()) {
                 parameterType = ClassUtils.primitiveToWrapper(parameterType);
             }
             if (!parameterType.isAssignableFrom(paramTypes[i])) {
@@ -2296,17 +2296,17 @@ public class ClassUtils {
         } catch (Throwable t) {
  // graalvm NAT-镜像 / 模块化环境下模块导出不可用时静默忽略
         }
-        if(null == object) {
+        if (null == object) {
             return false;
         }
-        if(object instanceof Method && !((Method) object).isAccessible()) {
+        if (object instanceof Method && !((Method) object).isAccessible()) {
             //        return AccessController.doPrivileged(new SetAccessibleAction<>(object));
             ((Method) object).setAccessible(true); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（反射基础设施）
             return true;
         }
-        if(object instanceof Field && !((Field) object).isAccessible()) {
+        if (object instanceof Field && !((Field) object).isAccessible()) {
             ((Field) object).setAccessible(true); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（反射基础设施）
-            if(Modifier.isPrivate(((Field) object).getModifiers()) && Modifier.isFinal(((Field) object).getModifiers())) {
+            if (Modifier.isPrivate(((Field) object).getModifiers()) && Modifier.isFinal(((Field) object).getModifiers())) {
                 try {
                     Field modifiersField = Field.class.getDeclaredField("modifiers"); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（移除 final 修饰需触碰修饰符元字段）
                     modifiersField.setAccessible(true); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（反射基础设施）
@@ -2319,7 +2319,7 @@ public class ClassUtils {
                 }
             }
         }
-        if(object instanceof Constructor && !((Constructor) object).isAccessible()) {
+        if (object instanceof Constructor && !((Constructor) object).isAccessible()) {
             ((Constructor) object).setAccessible(true); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（反射基础设施）
             return true;
         }
@@ -2490,7 +2490,7 @@ public class ClassUtils {
         if (null == bean) {
             setAccessible(field);
             try {
-                if(Modifier.isFinal(field.getModifiers())) {
+                if (Modifier.isFinal(field.getModifiers())) {
                     Field modifiers = Field.class.getDeclaredField("modifiers"); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（静态 final 字段需移除 final 修饰）
                     setAccessible(modifiers);
                     modifiers.setInt(field, field.getModifiers() & ~Modifier.FINAL);
@@ -3150,28 +3150,28 @@ public class ClassUtils {
      */
     public static int primitiveInt(Object fieldValue) {
         Class<?> aClass = primitiveToWrapper(fieldValue.getClass());
-        if(aClass == Integer.class) {
+        if (aClass == Integer.class) {
             return (int) fieldValue;
         }
-        if(aClass == Long.class) {
+        if (aClass == Long.class) {
             return ((Long) fieldValue).intValue();
         }
-        if(aClass == Float.class) {
+        if (aClass == Float.class) {
             return ((Float) fieldValue).intValue();
         }
-        if(aClass == Double.class) {
+        if (aClass == Double.class) {
             return ((Double) fieldValue).intValue();
         }
-        if(aClass == Byte.class) {
+        if (aClass == Byte.class) {
             return ((Byte) fieldValue).intValue();
         }
-        if(aClass == Short.class) {
+        if (aClass == Short.class) {
             return ((Short) fieldValue).intValue();
         }
-        if(aClass == Character.class) {
+        if (aClass == Character.class) {
             return Character.getNumericValue((Character) fieldValue);
         }
-        if(aClass == Boolean.class) {
+        if (aClass == Boolean.class) {
             return ((Boolean) fieldValue) ? 1 : 0;
         }
         return 0;
@@ -3219,7 +3219,7 @@ public class ClassUtils {
         try {
             Constructor<?>[] declaredConstructors = protoMapClass.getDeclaredConstructors(); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（newInstance 构造器枚举匹配）
             for (Constructor<?> declaredConstructor : declaredConstructors) {
-                if(declaredConstructor.getParameterCount() == args.length) {
+                if (declaredConstructor.getParameterCount() == args.length) {
                     try {
                         setAccessible(declaredConstructor);
                         return (T) declaredConstructor.newInstance(args); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（newInstance(Class) 构造器匹配实例化）
@@ -3228,7 +3228,7 @@ public class ClassUtils {
                     }
                 }
             }
-            if(args.length == 0) {
+            if (args.length == 0) {
                 T built = staticBuilderMethod(protoMapClass);
                 if (null == built) {
                     recordInstantiationFailure(protoMapClass, declaredConstructors.length, lastError);
@@ -3260,7 +3260,7 @@ public class ClassUtils {
         } catch (NoSuchMethodException e) {
             log.debug("[ClassUtils] 方法不存在，已忽略: {}", e.getMessage());
         }
-        if(null != builder) {
+        if (null != builder) {
             ClassUtils.setAccessible(builder);
             return (T) ClassUtils.invokeBean(ClassUtils.invokeMethod(builder, null), "build");
         }
@@ -3297,14 +3297,14 @@ public class ClassUtils {
      */
     public static <T> T forObjectOfMap(Class<T> target, Map map, Object... args) {
         T t = forObject(target, args);
-        if(null != t) {
+        if (null != t) {
             return t;
         }
         Constructor<?>[] declaredConstructors = target.getDeclaredConstructors(); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（forObjectOfMap 构造器枚举匹配）
         for (Constructor<?> declaredConstructor : declaredConstructors) {
             Parameter[] parameters = declaredConstructor.getParameters();
             Object[] newArgs = createArgs(parameters, map);
-            if(null == newArgs) {
+            if (null == newArgs) {
                 continue;
             }
             setAccessible(declaredConstructor);
@@ -3335,7 +3335,7 @@ public class ClassUtils {
             }
             value[i] = map.get(name);
         }
-        if(nullCount >= parameters.length * 0.6) {
+        if (nullCount >= parameters.length * 0.6) {
             return null;
         }
         return value;

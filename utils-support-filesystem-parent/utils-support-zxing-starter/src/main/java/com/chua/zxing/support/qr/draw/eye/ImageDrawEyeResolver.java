@@ -49,7 +49,7 @@ public class ImageDrawEyeResolver extends AbstractDrawEyeResolver{
     public void draw(int x, int y, QrCodeRenderHelper.DetectLocation detectLocation) {
         BufferedImage detectedImg = qrCodeConfig.getDetectOptions().chooseDetectedImg(detectLocation);
         if (detectedImg != null) {
-            if(StringUtils.isNotBlank(codeEyeSetting.getCodeEyeColor())) {
+            if (StringUtils.isNotBlank(codeEyeSetting.getCodeEyeColor())) {
                 BufferedImageUtils.changeColor(detectedImg, Converter.convertIfNecessary(codeEyeSetting.getCodeEyeColor(), Color.class));
             }
             // 使用探测图形的图片来渲染

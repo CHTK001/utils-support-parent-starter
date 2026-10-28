@@ -125,7 +125,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
             if (!loadedClasses.isEmpty()) {
                 this.classes = loadedClasses;
             }
-        } else if(looksLikeDefaultClasses(this.classes) && this.classes.size() != DEFAULT_CLASS_COUNT) {
+        } else if (looksLikeDefaultClasses(this.classes) && this.classes.size() != DEFAULT_CLASS_COUNT) {
             this.classes = defaultClasses(DEFAULT_CLASS_COUNT);
         }
 

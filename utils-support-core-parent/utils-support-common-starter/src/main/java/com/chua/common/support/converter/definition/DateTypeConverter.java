@@ -42,23 +42,23 @@ public class DateTypeConverter implements TypeConverter<Date> {
             return date;
         }
 
-        if(value instanceof LocalDate) {
+        if (value instanceof LocalDate) {
             return DateUtils.parseDate((LocalDate) value);
         }
 
-        if(value instanceof LocalDateTime) {
+        if (value instanceof LocalDateTime) {
             return DateUtils.parseDate((LocalDateTime) value);
         }
 
-        if(value instanceof Calendar) {
+        if (value instanceof Calendar) {
             return DateUtils.parseDate((Calendar) value);
         }
 
-        if(value instanceof Long) {
+        if (value instanceof Long) {
             return DateUtils.parseDate((Long) value);
         }
 
-        if(value instanceof java.sql.Date) {
+        if (value instanceof java.sql.Date) {
             return (Date) value;
         }
         //                     

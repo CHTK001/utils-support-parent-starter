@@ -444,8 +444,8 @@ public class ObjectUtils {
      */
 @SuppressWarnings("ALL")
     public static <T>T firstNonNull(T v1, T v2) {
-        if(v1 instanceof Optional<?> optionalO) {
-            if(optionalO.isPresent()) {
+        if (v1 instanceof Optional<?> optionalO) {
+            if (optionalO.isPresent()) {
                 Object object = optionalO.get();
                 return (T) firstNonNull(object, v2);
             }
@@ -464,7 +464,7 @@ public class ObjectUtils {
      */
     public static boolean isAnyEmpty(Object... args) {
         for (Object arg : args) {
-            if(null == arg) {
+            if (null == arg) {
                 return true;
             }
 
@@ -546,7 +546,7 @@ public class ObjectUtils {
      * @return 对象的字符串表示或默认值
      */
     public static String defaultIfStringNull(Object value, String defaultValue) {
-        if(null == value) {
+        if (null == value) {
             return defaultValue;
         }
         return value.toString();
@@ -659,11 +659,11 @@ public class ObjectUtils {
      * @see Objects#equals(Object, Object)
      */
     public static boolean equals(Integer obj1, Integer obj2) {
-        if(null == obj1) {
+        if (null == obj1) {
             obj1 = 0;
         }
 
-        if(null == obj2) {
+        if (null == obj2) {
             obj2 = 0;
         }
 
@@ -709,7 +709,7 @@ public class ObjectUtils {
         if (obj1 instanceof BigDecimal && obj2 instanceof BigDecimal) {
             return NumberUtils.equals((BigDecimal) obj1, (BigDecimal) obj2);
         }
-        if(obj1 instanceof String && obj2 instanceof String) {
+        if (obj1 instanceof String && obj2 instanceof String) {
             return StringUtils.equalsIgnoreCase((String) obj1, (String) obj2);
         }
 
@@ -780,11 +780,11 @@ public class ObjectUtils {
      * @return 为空返回 true，否则返回 false
      */
     public static boolean isEmpty(Object reference) {
-        if(null == reference) {
+        if (null == reference) {
             return true;
         }
 
-        if(reference instanceof Boolean) {
+        if (reference instanceof Boolean) {
             return (boolean) reference;
         }
 
@@ -792,7 +792,7 @@ public class ObjectUtils {
             return CollectionUtils.isEmpty((Iterable)reference);
         }
 
-        if(reference instanceof String) {
+        if (reference instanceof String) {
             return StringUtils.isEmpty(reference.toString());
         }
 
@@ -935,15 +935,15 @@ public class ObjectUtils {
      * @return 转换后的对象
      */
     public static Object toObject(Serializable serializable) {
-        if(null == serializable) {
+        if (null == serializable) {
             return null;
         }
 
-        if(serializable.getClass().isPrimitive()) {
+        if (serializable.getClass().isPrimitive()) {
             return serializable;
         }
 
-        if(serializable.getClass().isArray()) {
+        if (serializable.getClass().isArray()) {
             return StringUtils.utf8Str(serializable);
         }
 
@@ -1008,14 +1008,14 @@ public class ObjectUtils {
      * @return Comparable 实例
      */
     public static <E>Comparable<E> newComparable(E value) {
-        if(value == null) {
+        if (value == null) {
             return o -> 0;
         }
 
-        if(value instanceof Comparable comparable) {
+        if (value instanceof Comparable comparable) {
             return comparable;
         }
 
-        return (Comparable<E>)(Comparable<String>) o -> o.compareTo( value.toString());
+        return (Comparable<E>)(Comparable<String>) o -> o.compareTo(value.toString());
     }
 }

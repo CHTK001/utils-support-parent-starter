@@ -587,7 +587,7 @@ public class MapUtils {
         }
 
         String string = object.toString();
-        if(string.startsWith("[") && string.endsWith("]")) {
+        if (string.startsWith("[") && string.endsWith("]")) {
             string = string.substring(1, string.length() - 1);
         }
         return Splitter.on(",").omitEmptyStrings().trimResults().splitToList(string).toArray(new String[0]);

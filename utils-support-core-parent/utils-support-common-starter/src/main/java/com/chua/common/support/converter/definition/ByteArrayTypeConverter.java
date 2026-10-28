@@ -52,10 +52,10 @@ public class ByteArrayTypeConverter implements TypeConverter<byte[]> {
             return new byte[0];
         }
 
-        if(value instanceof String) {
+        if (value instanceof String) {
             String string = value.toString();
             File file = new File(string);
-            if(file.exists() && file.isFile()) {
+            if (file.exists() && file.isFile()) {
                 try {
                     return Files.readAllBytes(file.toPath());
                 } catch (Exception e) {
@@ -63,7 +63,7 @@ public class ByteArrayTypeConverter implements TypeConverter<byte[]> {
                 }
             }
 
-            if(string.startsWith("http://") || string.startsWith("https://")) {
+            if (string.startsWith("http://") || string.startsWith("https://")) {
                 try {
                     URL url = new URL(string);
                     try (InputStream is = url.openStream()) {
@@ -77,11 +77,11 @@ public class ByteArrayTypeConverter implements TypeConverter<byte[]> {
             return StringUtils.utf8Bytes(value.toString());
         }
 
-        if(value instanceof Map map) {
+        if (value instanceof Map map) {
             return map.toString().getBytes(StandardCharsets.UTF_8);
         }
 
-        if(value instanceof Collection collection) {
+        if (value instanceof Collection collection) {
             byte[] bytes = new byte[collection.size()];
             int index = 0;
             for (Object object : collection) {
@@ -90,43 +90,43 @@ public class ByteArrayTypeConverter implements TypeConverter<byte[]> {
             return bytes;
         }
 
-        if(value instanceof byte[]) {
+        if (value instanceof byte[]) {
             return (byte[]) value;
         }
 
-        if(value instanceof Byte) {
+        if (value instanceof Byte) {
             return new byte[]{(byte) value};
         }
 
-        if(value instanceof Short) {
+        if (value instanceof Short) {
             return ByteBuffer.allocate(Short.BYTES).putShort((Short) value).array();
         }
 
-        if(value instanceof Character) {
+        if (value instanceof Character) {
             return ByteBuffer.allocate(Character.BYTES).putChar((Character) value).array();
         }
 
-        if(value instanceof Integer) {
+        if (value instanceof Integer) {
             return ByteBuffer.allocate(Integer.BYTES).putInt((Integer) value).array();
         }
 
-        if(value instanceof Long) {
+        if (value instanceof Long) {
             return ByteBuffer.allocate(Long.BYTES).putLong((Long) value).array();
         }
 
-        if(value instanceof Float) {
+        if (value instanceof Float) {
             return ByteBuffer.allocate(Float.BYTES).putFloat((Float) value).array();
         }
 
-        if(value instanceof Double) {
+        if (value instanceof Double) {
             return ByteBuffer.allocate(Double.BYTES).putDouble((Double) value).array();
         }
 
-        if(value instanceof Number) {
+        if (value instanceof Number) {
             return ByteBuffer.allocate(Long.BYTES).putLong(((Number) value).longValue()).array();
         }
 
-        if(value instanceof File) {
+        if (value instanceof File) {
             try (FileInputStream fis = new FileInputStream((File) value)) {
                 return readBytes(fis);
             } catch (Exception e) {
@@ -134,14 +134,14 @@ public class ByteArrayTypeConverter implements TypeConverter<byte[]> {
             }
         }
 
-        if(value instanceof Path) {
+        if (value instanceof Path) {
             try (InputStream fis = Files.newInputStream((Path) value)) {
                 return readBytes(fis);
             } catch (Exception e) {
                 LOG.log(System.Logger.Level.DEBUG, "[converter] 转换失败，已忽略: " + e.getMessage(), e);
             }
         }
-        if(value instanceof java.net.URL) {
+        if (value instanceof java.net.URL) {
             try (InputStream is = ((URL) value).openStream()) {
                 return readBytes(is);
             } catch (Exception e) {
@@ -150,7 +150,7 @@ public class ByteArrayTypeConverter implements TypeConverter<byte[]> {
         }
 
 
-        if(value instanceof com.google.common.io.ByteSource) {
+        if (value instanceof com.google.common.io.ByteSource) {
             try (InputStream fis = ((com.google.common.io.ByteSource) value).openStream()) {
                 return readBytes(fis);
             } catch (Exception e) {
