@@ -85,7 +85,7 @@ public class ClassUtils {
      * 键                   值              方法
      * 并发引用哈希映射                512
      */
-    private static final Map<Integer, Method> cacheMethod = new ConcurrentReferenceHashMap<>(512);
+    private static final Map<Integer, Method> CACHE_METHOD = new ConcurrentReferenceHashMap<>(512);
     /**
      * 反射实例化彻底失败的原因摘要。
      *
@@ -2169,7 +2169,7 @@ public class ClassUtils {
         }
     }
     /**
-     * 在类中查找指定名称与参数类型的方法（结果缓存于 {@link #cacheMethod}）。
+     * 在类中查找指定名称与参数类型的方法（结果缓存于 {@link #CACHE_METHOD}）。
      *
      * <p>查找范围包括本类及继承链、接口方法。按方法名精确匹配，
      * 参数类型按可赋值性（含基本类型/包装类型互转）判定。</p>
@@ -2181,7 +2181,7 @@ public class ClassUtils {
      * @since 1.0
      */
     public static Method findMethod(Class<?> clazz, String name, Class<?>... paramTypes) {
-        return cacheMethod.computeIfAbsent(clazz.hashCode() + name.hashCode() + paramTypes.hashCode(), new Function<Integer, Method>() {
+        return CACHE_METHOD.computeIfAbsent(clazz.hashCode() + name.hashCode() + paramTypes.hashCode(), new Function<Integer, Method>() {
             /**
              * 应用
              * @param integer integer

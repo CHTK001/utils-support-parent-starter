@@ -46,7 +46,7 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
     /**
      * JSON 对象映射器
     */
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
      * 创建 bilibiliresource提供者 实例
@@ -104,7 +104,7 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
 
             // 解析响应
             if (responseBody != null) {
-                JsonNode rootNode = objectMapper.readTree(responseBody);
+                JsonNode rootNode = OBJECT_MAPPER.readTree(responseBody);
 
                 // 检查响应状态
                 int code = rootNode.path("code").asInt(-1);

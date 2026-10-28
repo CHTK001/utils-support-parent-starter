@@ -45,12 +45,12 @@ public final class RuntimeContextHolder {
     /**
      * 全局 runtime管理器 实例
      */
-    private static final AtomicReference<RuntimeManager> managerRef = new AtomicReference<>(null);
+    private static final AtomicReference<RuntimeManager> MANAGER_REF = new AtomicReference<>(null);
 
     /**
      * 快捷工件注册表
      */
-    private static final Map<String, RuntimeArtifact> quickArtifacts = new ConcurrentHashMap<>();
+    private static final Map<String, RuntimeArtifact> QUICK_ARTIFACTS = new ConcurrentHashMap<>();
 
     /**
      * 创建 runtime上下文holder 实例
@@ -64,7 +64,7 @@ public final class RuntimeContextHolder {
      * @param manager runtime管理器 实例
      */
     public static void setManager(RuntimeManager manager) {
-        RuntimeManager old = managerRef.getAndSet(manager);
+        RuntimeManager old = MANAGER_REF.getAndSet(manager);
         if (old != null) {
             try {
                 old.close();
@@ -80,7 +80,7 @@ public final class RuntimeContextHolder {
      * @return RuntimeManager 实例，未初始化返回 空
      */
     public static RuntimeManager getManager() {
-        return managerRef.get();
+        return MANAGER_REF.get();
     }
 
     /**
@@ -89,13 +89,13 @@ public final class RuntimeContextHolder {
      * @return RuntimeManager 实例
      */
     public static RuntimeManager getOrCreateManager() {
-        RuntimeManager manager = managerRef.get();
+        RuntimeManager manager = MANAGER_REF.get();
         if (manager == null) {
             synchronized (RuntimeContextHolder.class) {
-                manager = managerRef.get();
+                manager = MANAGER_REF.get();
                 if (manager == null) {
                     manager = new DefaultRuntimeManager();
-                    managerRef.set(manager);
+                    MANAGER_REF.set(manager);
                 }
             }
         }
@@ -110,7 +110,7 @@ public final class RuntimeContextHolder {
     public static void register(RuntimeArtifact artifact) {
         RuntimeManager manager = getOrCreateManager();
         manager.register(artifact);
-        quickArtifacts.put(artifact.getId(), artifact);
+        QUICK_ARTIFACTS.put(artifact.getId(), artifact);
     }
 
     /**
@@ -120,7 +120,7 @@ public final class RuntimeContextHolder {
      * @return 工件描述
      */
     public static RuntimeArtifact getArtifact(String id) {
-        return quickArtifacts.get(id);
+        return QUICK_ARTIFACTS.get(id);
     }
 
     /**
@@ -205,11 +205,11 @@ public final class RuntimeContextHolder {
      * 关闭全局 runtime管理器。
      */
     public static void shutdown() throws Exception {
-        RuntimeManager manager = managerRef.get();
+        RuntimeManager manager = MANAGER_REF.get();
         if (manager != null) {
             manager.close();
-            managerRef.set(null);
-            quickArtifacts.clear();
+            MANAGER_REF.set(null);
+            QUICK_ARTIFACTS.clear();
         }
     }
 }
