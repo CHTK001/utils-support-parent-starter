@@ -60,7 +60,7 @@ public class ImageFindEdgeFilter extends AbstractImageFilter {
      * @see ImageProcessorUtils#SOBEL_Y
      */
     public static final int[] SOBEL_X = ImageProcessorUtils.SOBEL_Y;
-    
+
     /**
      * 垂直方向 Sobel 算子（检测垂直边缘）
      *
@@ -80,7 +80,7 @@ public class ImageFindEdgeFilter extends AbstractImageFilter {
 
         // 偏移量，计算当前行在数组中的位置
         int offset = 0;
-        
+
         // 提取SOBEL_X滤波器的各个系数
         int x0 = SOBEL_X[0];
         int x1 = SOBEL_X[1];
@@ -108,73 +108,73 @@ public class ImageFindEdgeFilter extends AbstractImageFilter {
         int xr = 0, xg = 0, xb = 0;
         // 存储最终的RGB分量值
         int r = 0, g = 0, b = 0;
-        
+
         // 遍历图像的每个像素（跳过边界）
         for (int row = 1; row < height - 1; row++) {
             // 计算当前行的偏移量
             offset = row * width;
             for (int col = 1; col < width - 1; col++) {
                 // 对红色分量进行卷积运算
-                yr = k0 * (rArr[offset - width + col - 1] & 0xff) + 
-                     k1 * (rArr[offset - width + col] & 0xff) + 
-                     k2 * (rArr[offset - width + col + 1] & 0xff) + 
-                     k3 * (rArr[offset + col - 1] & 0xff) + 
-                     k4 * (rArr[offset + col] & 0xff) + 
-                     k5 * (rArr[offset + col + 1] & 0xff) + 
-                     k6 * (rArr[offset + width + col - 1] & 0xff) + 
-                     k7 * (rArr[offset + width + col] & 0xff) + 
+                yr = k0 * (rArr[offset - width + col - 1] & 0xff) +
+                     k1 * (rArr[offset - width + col] & 0xff) +
+                     k2 * (rArr[offset - width + col + 1] & 0xff) +
+                     k3 * (rArr[offset + col - 1] & 0xff) +
+                     k4 * (rArr[offset + col] & 0xff) +
+                     k5 * (rArr[offset + col + 1] & 0xff) +
+                     k6 * (rArr[offset + width + col - 1] & 0xff) +
+                     k7 * (rArr[offset + width + col] & 0xff) +
                      k8 * (rArr[offset + width + col + 1] & 0xff);
 
-                xr = x0 * (rArr[offset - width + col - 1] & 0xff) + 
-                     x1 * (rArr[offset - width + col] & 0xff) + 
-                     x2 * (rArr[offset - width + col + 1] & 0xff) + 
-                     x3 * (rArr[offset + col - 1] & 0xff) + 
-                     x4 * (rArr[offset + col] & 0xff) + 
-                     x5 * (rArr[offset + col + 1] & 0xff) + 
-                     x6 * (rArr[offset + width + col - 1] & 0xff) + 
-                     x7 * (rArr[offset + width + col] & 0xff) + 
+                xr = x0 * (rArr[offset - width + col - 1] & 0xff) +
+                     x1 * (rArr[offset - width + col] & 0xff) +
+                     x2 * (rArr[offset - width + col + 1] & 0xff) +
+                     x3 * (rArr[offset + col - 1] & 0xff) +
+                     x4 * (rArr[offset + col] & 0xff) +
+                     x5 * (rArr[offset + col + 1] & 0xff) +
+                     x6 * (rArr[offset + width + col - 1] & 0xff) +
+                     x7 * (rArr[offset + width + col] & 0xff) +
                      x8 * (rArr[offset + width + col + 1] & 0xff);
 
                 // 对绿色分量进行卷积运算
-                yg = k0 * (gArr[offset - width + col - 1] & 0xff) + 
-                     k1 * (gArr[offset - width + col] & 0xff) + 
-                     k2 * (gArr[offset - width + col + 1] & 0xff) + 
-                     k3 * (gArr[offset + col - 1] & 0xff) + 
-                     k4 * (gArr[offset + col] & 0xff) + 
-                     k5 * (gArr[offset + col + 1] & 0xff) + 
-                     k6 * (gArr[offset + width + col - 1] & 0xff) + 
-                     k7 * (gArr[offset + width + col] & 0xff) + 
+                yg = k0 * (gArr[offset - width + col - 1] & 0xff) +
+                     k1 * (gArr[offset - width + col] & 0xff) +
+                     k2 * (gArr[offset - width + col + 1] & 0xff) +
+                     k3 * (gArr[offset + col - 1] & 0xff) +
+                     k4 * (gArr[offset + col] & 0xff) +
+                     k5 * (gArr[offset + col + 1] & 0xff) +
+                     k6 * (gArr[offset + width + col - 1] & 0xff) +
+                     k7 * (gArr[offset + width + col] & 0xff) +
                      k8 * (gArr[offset + width + col + 1] & 0xff);
 
-                xg = x0 * (gArr[offset - width + col - 1] & 0xff) + 
-                     x1 * (gArr[offset - width + col] & 0xff) + 
-                     x2 * (gArr[offset - width + col + 1] & 0xff) + 
-                     x3 * (gArr[offset + col - 1] & 0xff) + 
-                     x4 * (gArr[offset + col] & 0xff) + 
-                     x5 * (gArr[offset + col + 1] & 0xff) + 
-                     x6 * (gArr[offset + width + col - 1] & 0xff) + 
-                     x7 * (gArr[offset + width + col] & 0xff) + 
+                xg = x0 * (gArr[offset - width + col - 1] & 0xff) +
+                     x1 * (gArr[offset - width + col] & 0xff) +
+                     x2 * (gArr[offset - width + col + 1] & 0xff) +
+                     x3 * (gArr[offset + col - 1] & 0xff) +
+                     x4 * (gArr[offset + col] & 0xff) +
+                     x5 * (gArr[offset + col + 1] & 0xff) +
+                     x6 * (gArr[offset + width + col - 1] & 0xff) +
+                     x7 * (gArr[offset + width + col] & 0xff) +
                      x8 * (gArr[offset + width + col + 1] & 0xff);
-                
+
                 // 对蓝色分量进行卷积运算
-                yb = k0 * (bArr[offset - width + col - 1] & 0xff) + 
-                     k1 * (bArr[offset - width + col] & 0xff) + 
-                     k2 * (bArr[offset - width + col + 1] & 0xff) + 
-                     k3 * (bArr[offset + col - 1] & 0xff) + 
-                     k4 * (bArr[offset + col] & 0xff) + 
-                     k5 * (bArr[offset + col + 1] & 0xff) + 
-                     k6 * (bArr[offset + width + col - 1] & 0xff) + 
-                     k7 * (bArr[offset + width + col] & 0xff) + 
+                yb = k0 * (bArr[offset - width + col - 1] & 0xff) +
+                     k1 * (bArr[offset - width + col] & 0xff) +
+                     k2 * (bArr[offset - width + col + 1] & 0xff) +
+                     k3 * (bArr[offset + col - 1] & 0xff) +
+                     k4 * (bArr[offset + col] & 0xff) +
+                     k5 * (bArr[offset + col + 1] & 0xff) +
+                     k6 * (bArr[offset + width + col - 1] & 0xff) +
+                     k7 * (bArr[offset + width + col] & 0xff) +
                      k8 * (bArr[offset + width + col + 1] & 0xff);
 
-                xb = x0 * (bArr[offset - width + col - 1] & 0xff) + 
-                     x1 * (bArr[offset - width + col] & 0xff) + 
-                     x2 * (bArr[offset - width + col + 1] & 0xff) + 
-                     x3 * (bArr[offset + col - 1] & 0xff) + 
-                     x4 * (bArr[offset + col] & 0xff) + 
-                     x5 * (bArr[offset + col + 1] & 0xff) + 
-                     x6 * (bArr[offset + width + col - 1] & 0xff) + 
-                     x7 * (bArr[offset + width + col] & 0xff) + 
+                xb = x0 * (bArr[offset - width + col - 1] & 0xff) +
+                     x1 * (bArr[offset - width + col] & 0xff) +
+                     x2 * (bArr[offset - width + col + 1] & 0xff) +
+                     x3 * (bArr[offset + col - 1] & 0xff) +
+                     x4 * (bArr[offset + col] & 0xff) +
+                     x5 * (bArr[offset + col + 1] & 0xff) +
+                     x6 * (bArr[offset + width + col - 1] & 0xff) +
+                     x7 * (bArr[offset + width + col] & 0xff) +
                      x8 * (bArr[offset + width + col + 1] & 0xff);
 
                 // 计算梯度幅值

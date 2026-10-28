@@ -9,13 +9,13 @@ import java.util.Map;
  * @since 1.0
  */
 public interface PathMatcher {
-    
+
     /**
      * 默认实例
      * 使用 Ant 风格的路径匹配器
      */
     static PathMatcher INSTANCE = new AntPathMatcher();
-    
+
     /**
      * 判断给定的路径是否是一个模式字符串
      * 支持 Ant 风格的通配符，如 * ? ** 等

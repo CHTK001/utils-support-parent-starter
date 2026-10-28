@@ -1,7 +1,7 @@
 package com.chua.deeplearning.support.onnx.ocr.entity;
 
 /**
- * OCR         
+ * OCR
  *
  * @author CH
  * @since 4.0.0.42

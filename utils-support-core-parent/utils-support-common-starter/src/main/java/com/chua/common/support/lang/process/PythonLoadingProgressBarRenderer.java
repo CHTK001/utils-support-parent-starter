@@ -101,11 +101,11 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
 
     /**
      * 渲染输出。
-     *                
      *
-     * @param progress             
-     * @param maxLength             
-     * @return                               
+     *
+     * @param progress
+     * @param maxLength
+     * @return
      */
     @Override
     public String render(ProgressState progress, int maxLength) {
@@ -113,31 +113,31 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
             return "";
         }
 
-        //                                           
+        //
         String taskName = progress.getTaskName();
         String progressInfo = String.format("(%s/%s)", unit.format(progress.current), unit.format(progress.max));
         String percentage = String.format("%.1f%%", progress.getNormalizedProgress() * 100);
-        
-        //                                  
+
+        //
         // 任务名最大长度约为进度条长度的 1/3，最小为 10
-        int maxTaskNameLength = Math.max(10, maxLength / 3);         
+        int maxTaskNameLength = Math.max(10, maxLength / 3);
         if (taskName != null && getStringDisplayLength(taskName) > maxTaskNameLength) {
-            //                                     
+            //
             taskName = truncateString(taskName, maxTaskNameLength - 3) + "...";
         }
-        
-        //                      
+
+        //
         String prefix = taskName + progressInfo + " ";
         String suffix = " " + percentage;
-        
-        //                   
+
+        //
         if (isEtaShown) {
             String etaString = getEtaString(progress);
             String elapsedString = Util.formatDuration(progress.getTotalElapsed());
             suffix += "     " + elapsedString + "     " + etaString;
         }
-        
-        //                   
+
+        //
         if (isSpeedShown) {
             String speedString = speed(progress);
             suffix += "      " + speedString;
@@ -149,28 +149,28 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
 
         StringBuilder sb = new StringBuilder();
         sb.append(prefix);
-        
-        //                      
+
+        //
         sb.append(renderProgressBar(progress, progressBarLength));
-        
+
         sb.append(suffix);
-        
+
         return sb.toString();
     }
 
     /**
      * 获取速率。
-     *                      
      *
-     * @param progress             
-     * @return                
+     *
+     * @param progress
+     * @return
      */
     protected String speed(ProgressState progress) {
         String suffix = "/s";
         double elapsedSeconds = progress.getElapsedAfterStart().getSeconds();
         double elapsedInUnit = elapsedSeconds;
-        
-        //                   
+
+        //
         if (null != speedUnit) {
             switch (speedUnit) {
                 case MINUTES:
@@ -192,116 +192,116 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
         if (elapsedSeconds == 0) {
             return "?" + unitName + suffix;
         }
-        
-        //                            /      
+
+        //                            /
         double bytesPerSecond = (double) (progress.current - progress.start) / elapsedInUnit;
-        
-        //                                                          
+
+        //
         if ("B".equals(unitName) || "bytes".equals(unitName)) {
             return formatDownloadSpeed(bytesPerSecond, suffix);
         }
-        
-        //                               
+
+        //
         double speedWithUnit = bytesPerSecond / unitSize;
         return speedFormat.format(speedWithUnit) + unitName + suffix;
     }
-    
+
     /**
      * 格式化下载速度。
-     *                                                    
-     * 
-     * @param bytesPerSecond                
-     * @param timeSuffix                    /s, /min, /h   
-     * @return                               
+     *
+     *
+     * @param bytesPerSecond
+     * @param timeSuffix                    /s, /min, /h
+     * @return
      */
     private String formatDownloadSpeed(double bytesPerSecond, String timeSuffix) {
         if (bytesPerSecond < 0) {
             return "0 B" + timeSuffix;
         }
-        
+
         String[] units = {"B", "KB", "MB", "GB", "TB", "PB"};
         int unitIndex = 0;
         double speed = bytesPerSecond;
-        
-        //                            
+
+        //
         while (speed >= 1024 && unitIndex < units.length - 1) {
             speed /= 1024;
             unitIndex++;
         }
-        
-        //                                              
+
+        //
         DecimalFormat format;
         if (speed >= 100) {
-            format = new DecimalFormat("#");             
+            format = new DecimalFormat("#");
         } else if (speed >= 10) {
-            format = new DecimalFormat("#.#");             
+            format = new DecimalFormat("#.#");
         } else {
-            format = new DecimalFormat("#.##");             
+            format = new DecimalFormat("#.##");
         }
-        
+
         return format.format(speed) + " " + units[unitIndex] + timeSuffix;
     }
 
     /**
      * 渲染进度条。
-     *                            
      *
-     * @param progress             
-     * @param length                
-     * @return                   
+     *
+     * @param progress
+     * @param length
+     * @return
      */
     private String renderProgressBar(ProgressState progress, int length) {
         StringBuilder sb = new StringBuilder();
-        
+
         if (progress.indefinite) {
-            //                                     
+            //
             int pos = (int) (progress.current % length);
-            sb.append("\u001b[95m");          
+            sb.append("\u001b[95m");
             for (int i = 0; i < length; i++) {
                 if (i == pos) {
                     sb.append("   ");
                 } else if (Math.abs(i - pos) <= 2) {
                     sb.append("   ");
                 } else {
-                    sb.append("\u001b[90m   \u001b[95m");             
+                    sb.append("\u001b[90m   \u001b[95m");
                 }
             }
-            sb.append("\u001b[0m");             
+            sb.append("\u001b[0m");
         } else {
-            //                                           
+            //
             double progressRatio = progress.getNormalizedProgress();
             int filledLength = (int) (length * progressRatio);
-            
-            //                               
-            sb.append("\u001b[95m");          
+
+            //
+            sb.append("\u001b[95m");
             for (int i = 0; i < filledLength; i++) {
                 sb.append("   ");
             }
-            
-            //                            
-            sb.append("\u001b[90m");       
+
+            //
+            sb.append("\u001b[90m");
             for (int i = filledLength; i < length; i++) {
                 sb.append("   ");
             }
-            
-            sb.append("\u001b[0m");             
+
+            sb.append("\u001b[0m");
         }
-        
+
         return sb.toString();
     }
 
     /**
      * 获取 EtaString。
-     *                                  
      *
-     * @param progress             
-     * @return                            
+     *
+     * @param progress
+     * @return
      */
     private String getEtaString(ProgressState progress) {
         if (eta == null) {
             return "--:--:--";
         }
-        
+
         Optional<Duration> etaOpt = eta.apply(progress);
         if (etaOpt.isPresent()) {
             return Util.formatDuration(etaOpt.get());
@@ -312,99 +312,99 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
 
     /**
      * 获取 SpeedString。
-     *                      
      *
-     * @param progress             
-     * @return                
+     *
+     * @param progress
+     * @return
      */
     private String getSpeedString(ProgressState progress) {
         if (speedFormat == null) {
             return "";
         }
-        
+
         Duration elapsed = progress.getTotalElapsed();
         if (elapsed.isZero()) {
             return "0.0/s";
         }
-        
+
         double speed = (double) progress.current / elapsed.toMillis() * 1000;
         return speedFormat.format(speed) + "/s";
     }
 
     /**
-     *                                     ANSI               
+     *                                     ANSI
      *
-     * @param str          
-     * @return             
+     * @param str
+     * @return
      */
     private int getStringDisplayLength(String str) {
         if (str == null) {
             return 0;
         }
-        //       ANSI                           
+        //       ANSI
         String cleaned = str.replaceAll("\\u001b\\[[0-9;]*m", "");
         return cleaned.length();
     }
 
     /**
      * 截断字符串。
-     *                               
      *
-     * @param str                
-     * @param maxLength             
-     * @return                      
+     *
+     * @param str
+     * @param maxLength
+     * @return
      */
     private String truncateString(String str, int maxLength) {
         if (str == null || maxLength <= 0) {
             return "";
         }
-        
-        //       ANSI            
+
+        //       ANSI
         String cleaned = str.replaceAll("\\u001b\\[[0-9;]*m", "");
-        
+
         if (cleaned.length() <= maxLength) {
             // 未超出最大长度时直接返回原字符串
-            return str;         
+            return str;
         }
-        
-        //                
+
+        //
         StringBuilder result = new StringBuilder();
         int displayLength = 0;
         boolean inAnsiSequence = false;
-        
+
         for (int i = 0; i < str.length() && displayLength < maxLength; i++) {
             char c = str.charAt(i);
-            
+
             if (c == '\u001b' && i + 1 < str.length() && str.charAt(i + 1) == '[') {
                 inAnsiSequence = true;
             }
-            
+
             result.append(c);
-            
+
             if (!inAnsiSequence) {
                 displayLength++;
             }
-            
+
             if (inAnsiSequence && c == 'm') {
                 inAnsiSequence = false;
             }
         }
-        
+
         return result.toString();
     }
 
     /**
-     *       Python Loading                           
+     *       Python Loading
      *
-     * @param unit             
-     * @param unitName             
-     * @param unitSize             
-     * @param showSpeed                   
-     * @param speedFormat             
-     * @param speedUnit             
-     * @param showEta                               
-     * @param eta                               
-     * @return Python Loading                     
+     * @param unit
+     * @param unitName
+     * @param unitSize
+     * @param showSpeed
+     * @param speedFormat
+     * @param speedUnit
+     * @param showEta
+     * @param eta
+     * @return Python Loading
      */
     public static PythonLoadingProgressBarRenderer create(
             ProgressUnit unit,

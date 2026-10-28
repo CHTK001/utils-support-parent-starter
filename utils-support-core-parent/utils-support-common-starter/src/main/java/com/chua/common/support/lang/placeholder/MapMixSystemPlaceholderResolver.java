@@ -17,7 +17,7 @@ public class MapMixSystemPlaceholderResolver implements PlaceholderResolver, Pla
      * 存储用户自定义属性的映射表，优先级高于系统属性。
      */
     private final Map<String, Object> props;
-    
+
     /**
      * 用于解析系统属性（如 JVM 系统属性）的辅助解析器。
      */
@@ -49,7 +49,7 @@ public class MapMixSystemPlaceholderResolver implements PlaceholderResolver, Pla
         if (placeholderName == null) {
             return null;
         }
-        
+
         Object objects = props.get(placeholderName);
         if (objects != null) {
             return objects.toString();

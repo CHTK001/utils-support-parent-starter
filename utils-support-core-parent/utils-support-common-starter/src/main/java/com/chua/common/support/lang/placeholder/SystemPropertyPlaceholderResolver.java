@@ -29,7 +29,7 @@ public class SystemPropertyPlaceholderResolver implements PlaceholderResolver {
         try {
             // 优先尝试从系统属性中获取值
             String propVal = System.getProperty(placeholderName);
-            
+
             // 如果系统属性为空，则回退到操作系统环境变量中查找
             if (propVal == null) {
                 propVal = System.getenv(placeholderName);

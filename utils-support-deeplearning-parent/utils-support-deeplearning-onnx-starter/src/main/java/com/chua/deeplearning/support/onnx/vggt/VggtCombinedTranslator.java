@@ -10,21 +10,21 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 
 /**
- * VGGT                   
+ * VGGT
  * <p>
- * VGGT                                                        3D                   
+ * VGGT                                                        3D
  * </p>
  * <p>
- *                
- * 1.              -> VGGT       -> 3D            
+ *
+ * 1.              -> VGGT       -> 3D
  * </p>
  * <p>
- *                
- * -               3D       
- * -               3D                   
+ *
+ * -               3D
+ * -               3D
  * </p>
  * <p>
- *          VGGT                          Translator                               
+ *          VGGT                          Translator
  * </p>
  *
  * @author CH
@@ -37,13 +37,13 @@ public class VggtCombinedTranslator implements Translator<Image, VggtOutput> {
 
     /**
      * 初始化。
-     *             
+     *
      * <p>
-     *                         
+     *
      * </p>
      *
-     * @param ctx                   
-     * @throws IOException IO      
+     * @param ctx
+     * @throws IOException IO
      */
     @Override
     public void prepare(TranslatorContext ctx) throws IOException {
@@ -61,15 +61,15 @@ public class VggtCombinedTranslator implements Translator<Image, VggtOutput> {
 
     /**
      * 执行 Input。
-     *                   
+     *
      * <p>
-     *                                           
+     *
      * </p>
      *
-     * @param ctx                     
-     * @param input             
+     * @param ctx
+     * @param input
      * @return              NDList
-     * @throws Exception             
+     * @throws Exception
      */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
@@ -77,15 +77,15 @@ public class VggtCombinedTranslator implements Translator<Image, VggtOutput> {
     }
 
     /**
-     *                   
+     *
      * <p>
      * vggt输出
      * </p>
      *
-     * @param ctx                    
+     * @param ctx
      * @param list              nd列表
-     * @return VggtOutput       
-     * @throws Exception             
+     * @return VggtOutput
+     * @throws Exception
      */
     @Override
     public VggtOutput processOutput(TranslatorContext ctx, NDList list) throws Exception {
@@ -94,9 +94,9 @@ public class VggtCombinedTranslator implements Translator<Image, VggtOutput> {
 
     /**
      * 获取 Batchifier。
-     *                   
      *
-     * @return null                        
+     *
+     * @return null
      */
     @Override
     public Batchifier getBatchifier() {

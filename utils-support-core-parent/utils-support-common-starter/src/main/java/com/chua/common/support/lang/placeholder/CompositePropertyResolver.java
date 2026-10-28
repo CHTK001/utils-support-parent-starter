@@ -17,7 +17,7 @@ import java.util.List;
  * <pre>{@code
  * // 创建支持 ${} 和 <> 两种格式的解析器
  * CompositePropertyResolver resolver = CompositePropertyResolver.builder()
- *     .addResolver(PlaceholderSupport.DEFAULT_PLACEHOLDER_PREFIX, 
+ *     .addResolver(PlaceholderSupport.DEFAULT_PLACEHOLDER_PREFIX,
  *                  PlaceholderSupport.DEFAULT_PLACEHOLDER_SUFFIX,
  *                  PlaceholderSupport.DEFAULT_VALUE_SEPARATOR)
  *     .addResolver("<", ">", ":")

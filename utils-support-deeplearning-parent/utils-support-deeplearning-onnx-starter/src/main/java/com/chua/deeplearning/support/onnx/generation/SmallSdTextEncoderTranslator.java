@@ -14,20 +14,20 @@ import java.nio.file.Paths;
 import javax.annotation.Nonnull;
 
 /**
- * Small Stable Diffusion v0                         
+ * Small Stable Diffusion v0
  * <p>
- *              Small Stable Diffusion v0                               
- *                                                       
+ *              Small Stable Diffusion v0
+ *
  * </p>
  * <p>
- *                
- * -                       
- * -            CLIP                
- * -                       
+ *
+ * -
+ * -            CLIP
+ * -
  * </p>
  * <p>
- *                      
- * -                         
+ *
+ * -
  * -                             nd列表   shape: [1, 77, 768]     [1, 768]
  * </p>
  *
@@ -38,7 +38,7 @@ import javax.annotation.Nonnull;
 public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String, NDList> {
 
     /**
-     * CLIP                                  
+     * CLIP
      */
     private static final int MAX_SEQUENCE_LENGTH = 77;
 
@@ -48,20 +48,20 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
     private HuggingFaceTokenizer tokenizer;
 
     /**
-     *             
+     *
      * <p>
      *                             tokenizer.json
      * </p>
      *
-     * @param ctx                   
-     * @throws IOException IO      
+     * @param ctx
+     * @throws IOException IO
      */
     @Override
     public void prepare(@Nonnull TranslatorContext ctx) throws IOException {
         try {
             var model = ctx.getModel();
             var modelPath = model.getModelPath();
-            
+
             if (modelPath == null) {
                 log.warn("[Small SD v0][Text Encoder] 模型路径为空，跳过 tokenizer 加载");
                 return;
@@ -93,16 +93,16 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
     }
 
     /**
-     *                   
+     *
      * <p>
-     * Small Stable Diffusion v0                               
+     * Small Stable Diffusion v0
      * - 输入_标识: 令牌 标识          shape: [1, 77]
      * </p>
      *
-     * @param ctx                     
-     * @param input             
-     * @return                         
-     * @throws Exception             
+     * @param ctx
+     * @param input
+     * @return
+     * @throws Exception
      */
     @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull String input) throws Exception {
@@ -110,7 +110,7 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
             throw new IllegalStateException("HuggingFaceTokenizer 未初始化，请确认模型目录包含 tokenizer.json");
         }
 
-        //        Tokenizer             
+        //        Tokenizer
         Encoding encoding = tokenizer.encode(input);
         long[] tokenIds = encoding.getIds();
 
@@ -132,17 +132,17 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
     }
 
     /**
-     *                   
+     *
      * <p>
-     * Small Stable Diffusion v0                         
+     * Small Stable Diffusion v0
      * - 最后一个_hidden_状态:                         shape: [1, 77, 768]
      * -     游泳池_输出:                shape: [1, 768]
      * </p>
      *
-     * @param ctx                    
-     * @param list                   
+     * @param ctx
+     * @param list
      * @return                 NDList
-     * @throws Exception             
+     * @throws Exception
      */
     @Override
     public NDList processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) throws Exception {

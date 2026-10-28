@@ -15,11 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
- * VGG-16              Translator       
+ * VGG-16              Translator
  *
  *          https://github.com/onnx/models/tree/main/validated/vision/body_analysis/age_gender
  *
- *                                                                                                    
+ *
  *
  *              (vgg_ilsvrc_16_gender_imdb_wiki):
  * -       : [批量_大小=1, 通道=3, height=224, width=224] float32
@@ -42,9 +42,9 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
     private static final String[] GENDER_LABELS = {"Female", "Male"};
 
     /**
-     *                 -                
+     *                 -
      *
-     * @param ctx                   
+     * @param ctx
      */
     @Override
     public void prepare(TranslatorContext ctx) {
@@ -57,13 +57,13 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
      *             :
      * 1.     镜像           ndarray
      * 2.           224  224
-     * 3.           CHW       
+     * 3.           CHW
      * 4.           float32
-     * 5.                          127,           128   
+     * 5.                          127,           128
      *
-     * @param ctx                   
-     * @param input             
-     * @return NDList                   
+     * @param ctx
+     * @param input
+     * @return NDList
      */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
@@ -119,13 +119,13 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
      *
      *             :
      * 1.     nd列表
-     * 2.                      
-     * 3.                                  
-     * 4.                            
+     * 2.
+     * 3.
+     * 4.
      *
-     * @param ctx                   
+     * @param ctx
      * @param list                 nd列表
-     * @return                             "Male"   
+     * @return                             "Male"
      */
     @Override
     public PredictResult processOutput(TranslatorContext ctx, NDList list) {
@@ -135,27 +135,27 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
                 return PredictResult.empty();
             }
 
-            //                   
+            //
             NDArray output = list.getFirst();
             if (log.isDebugEnabled()) {
                 log.debug("模型输出张量形状: {}", output.getShape());
             }
 
-            //                   
+            //
             float[] probs = null;
 
-            //           2D        [1, 2]               
+            //           2D        [1, 2]
             if (output.getShape().dimension() == 2) {
                 NDArray firstRow = output.get(0); // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
                 probs = firstRow.toFloatArray();
             }
-            //           1D        [2]               
+            //           1D        [2]
             else if (output.getShape().dimension() == 1) {
                 probs = output.toFloatArray();
             }
 
             if (probs != null && probs.length >= GENDER_LABELS.length) {
-                //                                  
+                //
                 int maxIdx = argMax(probs);
 
                 if (maxIdx >= 0 && maxIdx < GENDER_LABELS.length) {
@@ -184,10 +184,10 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
 
     /**
      * 取最大值下标。
-     *                                  
      *
-     * @param array             
-     * @return                   
+     *
+     * @param array
+     * @return
      */
     private int argMax(float[] array) {
         if (array.length == 0) {

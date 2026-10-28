@@ -19,25 +19,25 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * CLIP                      
+ * CLIP
  * <p>
- * CLIP                                     
+ * CLIP
  * CLIP-vit-B-16-文本     CLIP-vit-B-32-文本
  * </p>
  * <p>
- *                  
+ *
  * 1.        huggingface Tokenizer
  * 2.     令牌 ids
- * 3.                                     77       
+ * 3.                                     77
  * </p>
  * <p>
- *                            
+ *
  * -          输入_标识 (shape: [批量_大小, sequence_长度], 最大_长度=77)
  * -          文本_embeds (shape: [批量_大小, 512])
  * </p>
  * <p>
  * CLIP-vit-B-16-文本     CLIP-vit-B-32-文本
- *    512                                                                   
+ *    512
  * </p>
  *
  * @author CH
@@ -47,7 +47,7 @@ import javax.annotation.Nullable;
 public class ClipTextFeatureTranslator implements Translator<String, float[]> {
 
     /**
-     * CLIP                                  
+     * CLIP
      *   CLIP Vision                               77
      */
     private static final int MAX_SEQUENCE_LENGTH = 77;
@@ -63,13 +63,13 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     private HuggingFaceTokenizer tokenizer;
 
     /**
-     *               
+     *
      * <p>
      *                             tokenizer.json
      * </p>
      *
-     * @param ctx                   
-     * @throws IOException              tokenizer       
+     * @param ctx
+     * @throws IOException              tokenizer
      */
     @Override
     public void prepare(@Nonnull TranslatorContext ctx) throws IOException {
@@ -84,7 +84,7 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
 
             var tokenizerPath = Paths.get(modelPath.toString(), "tokenizer.json");
             if (!Files.exists(tokenizerPath)) {
-                //                         
+                //
                 var parentPath = modelPath.getParent();
                 if (parentPath != null) {
                     tokenizerPath = Paths.get(parentPath.toString(), "tokenizer.json");
@@ -108,18 +108,18 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     }
 
     /**
-     *                   
+     *
      * <p>
-     *                                                 
-     * 1.        Tokenizer                      
+     *
+     * 1.        Tokenizer
      * 2.        令牌 ids
-     * 3.                                              
+     * 3.
      * </p>
      *
-     * @param ctx                     
-     * @param input             
+     * @param ctx
+     * @param input
      * @return              NDList                   [1, sequence_长度]     输入_标识
-     * @throws Exception                   
+     * @throws Exception
      */
     @Override
     @Nonnull
@@ -128,14 +128,14 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
                 throw new IllegalStateException("HuggingFaceTokenizer 未初始化，请确认模型目录包含 tokenizer.json");
         }
 
-        //        Tokenizer             
+        //        Tokenizer
         Encoding encoding = tokenizer.encode(input);
         long[] tokenIds = normalizeTokenIds(encoding.getIds());
 
  // 输入_标识
  // ONNX                       [批量_大小, sequence_长度]
         var inputIds = ctx.getNDManager().create(tokenIds);
-        //                       INT64               
+        //                       INT64
         if (!inputIds.getDataType().equals(DataType.INT64)) {
             inputIds = inputIds.toType(DataType.INT64, false);
         }
@@ -147,22 +147,22 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     }
 
     /**
-     *                   
+     *
      * <p>
-     *                                                       
+     *
      * CLIP vit-B/16     vit-B/32                       512
      * </p>
      *
-     * @param ctx                    
+     * @param ctx
      * @param list                 nd列表          文本_embeds
-     * @return                            512       
+     * @return                            512
      */
     @Override
     @Nonnull
     public float[] processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = selectEmbeddingOutput(list);
 
-        //                                           
+        //
         // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         if (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) {
             output = output.squeeze(0);
@@ -172,14 +172,14 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     }
 
     /**
-     *                                      
+     *
      * <p>
      * : 文本_embeds / 游泳池_输出 / sentence_嵌入
-     *                                     
+     *
      * </p>
      *
      * @param list nd列表
-     * @return                               
+     * @return
      */
     private NDArray selectEmbeddingOutput(NDList list) {
         if (list == null || list.isEmpty()) {
@@ -205,9 +205,9 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
 
     /**
      * 获取 Batchifier。
-     *                   
      *
-     * @return null                     
+     *
+     * @return null
      */
     @Override
     @Nullable
@@ -218,8 +218,8 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     /**
      * 令牌 ids
      *
-     * @param tokenIds                  
-     * @return                            MAX_SEQUENCE_LENGTH       
+     * @param tokenIds
+     * @return                            MAX_SEQUENCE_LENGTH
      */
     private long[] normalizeTokenIds(long[] tokenIds) {
         if (tokenIds == null || tokenIds.length == 0) {

@@ -23,19 +23,19 @@ public class DelegatingProgressBarConsumer implements ProgressBarConsumer {
     private final Consumer<String> consumer;
     /**
      * 构造 DelegatingProgressBarConsumer 实例。
-     *             
      *
-     * @param consumer                   
+     *
+     * @param consumer
      */
     public DelegatingProgressBarConsumer(Consumer<String> consumer) {
         this(consumer, TerminalUtils.getTerminalWidth());
     }
     /**
      * 构造 DelegatingProgressBarConsumer 实例。
-     *             
      *
-     * @param consumer                   
-     * @param maxProgressLength                      
+     *
+     * @param consumer
+     * @param maxProgressLength
      */
     public DelegatingProgressBarConsumer(Consumer<String> consumer, int maxProgressLength) {
         this.maxProgressLength = maxProgressLength;
@@ -43,9 +43,9 @@ public class DelegatingProgressBarConsumer implements ProgressBarConsumer {
     }
     /**
      * 获取 MaxRenderedLength。
-     *                         
      *
-     * @return                   
+     *
+     * @return
      */
     @Override
     public int getMaxRenderedLength() {
@@ -53,9 +53,9 @@ public class DelegatingProgressBarConsumer implements ProgressBarConsumer {
     }
     /**
      * 接收并处理输入。
-     *                                  
      *
-     * @param str                               
+     *
+     * @param str
      */
     @Override
     public void accept(String str) {
@@ -64,10 +64,10 @@ public class DelegatingProgressBarConsumer implements ProgressBarConsumer {
     /**
      * 关闭。
      * <p>
-     *                                           
+     *
      */
     @Override
     public void close() {
-        //          
+        //
     }
 }

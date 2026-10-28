@@ -116,7 +116,7 @@ public class SipTunnelSession {
      * @param data 字节数据
      */
     public void sendBytes(byte[] data) {
-       
+
         SipMuxStream mux = muxStream;
         if (mux != null) {
             if (!mux.isClosed()) {

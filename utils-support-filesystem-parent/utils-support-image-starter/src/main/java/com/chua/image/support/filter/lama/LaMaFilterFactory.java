@@ -222,7 +222,7 @@ public class LaMaFilterFactory {
      */
     public static void clearAllFilters() {
         log.info("开始清理所有缓存的LaMa滤镜，数量: {}", FILTER_CACHE.size());
-        
+
         FILTER_CACHE.values().forEach(filter -> {
             try {
                 filter.cleanup();
@@ -230,7 +230,7 @@ public class LaMaFilterFactory {
                 log.warn("清理滤镜时出错", e);
             }
         });
-        
+
         FILTER_CACHE.clear();
         log.info("所有LaMa滤镜清理完成");
     }
@@ -259,7 +259,7 @@ public class LaMaFilterFactory {
      */
     public static void warmUpAllFilters() {
         log.info("开始预热所有缓存的LaMa滤镜");
-        
+
         FILTER_CACHE.values().parallelStream().forEach(filter -> {
             try {
                 filter.warmUp();
@@ -267,7 +267,7 @@ public class LaMaFilterFactory {
                 log.warn("预热滤镜时出错", e);
             }
         });
-        
+
         log.info("所有LaMa滤镜预热完成");
     }
 
@@ -342,7 +342,7 @@ public class LaMaFilterFactory {
         status.append("- 默认模型路径: ").append(defaultModelPath).append("\n");
         status.append("- 缓存滤镜数量: ").append(FILTER_CACHE.size()).append("\n");
         status.append("- 缓存键列表: ").append(FILTER_CACHE.keySet()).append("\n");
-        
+
         return status.toString();
     }
 

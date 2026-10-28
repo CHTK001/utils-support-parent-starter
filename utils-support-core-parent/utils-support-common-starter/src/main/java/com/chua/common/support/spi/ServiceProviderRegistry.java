@@ -24,22 +24,22 @@ import static com.chua.common.support.spi.definition.ServiceDefinition.COMPARATO
  * @since 2024-12-05
  */
 class ServiceProviderRegistry {
-    
+
     /**
      * 服务定义映射表
      */
     private final Map<String, SortedList<ServiceDefinition>> definitions;
-    
+
     /**
      * 默认服务定义列表
      */
     private final SortedList<ServiceDefinition> defaultDefinitions;
-    
+
     /**
      * 自动装配器
      */
     private final ServiceAutowire serviceAutowire;
-    
+
     /**
      * 构造服务提供者注册表
      *
@@ -50,7 +50,7 @@ class ServiceProviderRegistry {
         this.definitions = new ConcurrentHashMap<>();
         this.defaultDefinitions = new SortedArrayList<>(COMPARATOR);
     }
-    
+
     /**
      * 注册服务定义列表
      *
@@ -62,14 +62,14 @@ class ServiceProviderRegistry {
             if (StringUtils.isEmpty(name)) {
                 continue;
             }
-            
+
             definitions.computeIfAbsent(name, it -> new SortedArrayList<>(COMPARATOR)).add(serviceDefinition);
             if (serviceDefinition.isDefault()) {
                 defaultDefinitions.add(serviceDefinition);
             }
         }
     }
-    
+
     /**
      * 注册服务定义数组
      *
@@ -78,7 +78,7 @@ class ServiceProviderRegistry {
     public void register(ServiceDefinition... serviceDefinitions) {
         register(List.of(serviceDefinitions));
     }
-    
+
     /**
      * 通过解析器注册服务定义
      *
@@ -90,7 +90,7 @@ class ServiceProviderRegistry {
         List<ServiceDefinition> resolve = resolver.resolve(type, classLoader);
         register(resolve);
     }
-    
+
     /**
      * 注册对象实例
      *
@@ -106,7 +106,7 @@ class ServiceProviderRegistry {
         serviceDefinition.setImplClass(ref.getClass());
         definitions.computeIfAbsent(name, it -> new SortedArrayList<>(COMPARATOR)).add(serviceDefinition);
     }
-    
+
     /**
      * 注册实现类
      *
@@ -121,7 +121,7 @@ class ServiceProviderRegistry {
         serviceDefinition.setType(type);
         definitions.computeIfAbsent(name, it -> new SortedArrayList<>(COMPARATOR)).add(serviceDefinition);
     }
-    
+
     /**
      * 注销服务定义
      *
@@ -136,33 +136,33 @@ class ServiceProviderRegistry {
                 doRegisterRemoveCollection(remove, baseName, resolverType, serviceDefinition, entry.getKey());
             }
         }
-        
+
         if (remove.isEmpty()) {
             return;
         }
-        
+
         for (Map.Entry<String, List<ServiceDefinition>> entry : remove.entrySet()) {
             definitions.get(entry.getKey()).removeAll(entry.getValue());
         }
     }
-    
+
     /**
      * 收集待移除的服务定义
      */
-    private void doRegisterRemoveCollection(Map<String, List<ServiceDefinition>> remove, String baseName, 
-                                             Class<? extends ServiceResolver> resolverType, 
+    private void doRegisterRemoveCollection(Map<String, List<ServiceDefinition>> remove, String baseName,
+                                             Class<? extends ServiceResolver> resolverType,
                                              ServiceDefinition serviceDefinition, String key) {
         Class<?> finderType = serviceDefinition.getFinderType();
         if (null != finderType && resolverType.isAssignableFrom(finderType)) {
             doRegisterRemoveCollectionItem(baseName, key, remove, serviceDefinition);
         }
     }
-    
+
     /**
      * 添加到待移除集合
      */
-    private void doRegisterRemoveCollectionItem(String baseName, String key, 
-                                                Map<String, List<ServiceDefinition>> remove, 
+    private void doRegisterRemoveCollectionItem(String baseName, String key,
+                                                Map<String, List<ServiceDefinition>> remove,
                                                 ServiceDefinition serviceDefinition) {
         if (StringUtils.isBlank(baseName)) {
             remove.computeIfAbsent(key, it -> Wraps.list()).add(serviceDefinition);
@@ -171,7 +171,7 @@ class ServiceProviderRegistry {
             remove.computeIfAbsent(key, it -> Wraps.list()).add(serviceDefinition);
         }
     }
-    
+
     /**
      * 获取所有服务定义
      *
@@ -180,7 +180,7 @@ class ServiceProviderRegistry {
     public Map<String, SortedList<ServiceDefinition>> getDefinitions() {
         return definitions;
     }
-    
+
     /**
      * 获取默认服务定义列表
      *
@@ -189,7 +189,7 @@ class ServiceProviderRegistry {
     public SortedList<ServiceDefinition> getDefaultDefinitions() {
         return defaultDefinitions;
     }
-    
+
     /**
      * 判断是否为空
      *
@@ -198,7 +198,7 @@ class ServiceProviderRegistry {
     public boolean isEmpty() {
         return definitions.isEmpty();
     }
-    
+
     /**
      * 获取所有扩展名称
      *

@@ -20,12 +20,12 @@ public class AutoServiceAutowire implements ServiceAutowire {
      * 默认的单例实例，用于全局获取自动装配器
      */
     public static ServiceAutowire INSTANCE = new AutoServiceAutowire();
-    
+
     /**
      * Spring application上下文 的全限定类名，用于检测 Spring 环境
      */
     static final String APPLICATION_CONTEXT = "org.springframework.context.ApplicationContext";
-    
+
     /**
      * Spring Bean 工具类的全限定类名
      */

@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 /**
  * <p>
- *                    config_center                     
+ *                    config_center
  * </p>
  *
  * @author CH
@@ -24,11 +24,11 @@ public class ConfigCenterEntity {
      */
     private Long id;
     /**
-     *       ID       application.yml   
+     *       ID       application.yml
      */
     private String dataId;
     /**
-     *                          dev   prod   DEFAULT_GROUP   
+     *                          dev   prod   DEFAULT_GROUP
      */
     private String groupName;
     private String configKey;

@@ -39,13 +39,13 @@ class ProgressUpdateAction implements Runnable {
     volatile private boolean first;
     /**
      * 构造 ProgressUpdateAction 实例。
-     *             
      *
-     * @param progress                      
-     * @param renderer                   
-     * @param consumer                   
-     * @param continuousUpdate                   
-     * @param clearDisplayOnFinish                            
+     *
+     * @param progress
+     * @param renderer
+     * @param consumer
+     * @param continuousUpdate
+     * @param clearDisplayOnFinish
      */
     ProgressUpdateAction(
             ProgressState progress,
@@ -65,18 +65,18 @@ class ProgressUpdateAction implements Runnable {
     /**
      * 刷新。
      * <p>
-     *                                                                                     
+     *
      */
     void refresh() {
         if (continuousUpdate || (progress.current > last)) {
             forceRefresh();
         }
-        //                                                                               #91   
+        //                                                                               #91
     }
     /**
      * 强制刷新。
      * <p>
-     *                                                                
+     *
      */
     public void forceRefresh() {
         String rendered = renderer.render(progress, consumer.getMaxRenderedLength());
@@ -86,8 +86,8 @@ class ProgressUpdateAction implements Runnable {
     /**
      * 执行。
      * <p>
-     *                                                                                        
-     *                                                                   
+     *
+     *
      */
     @Override
     public void run() {

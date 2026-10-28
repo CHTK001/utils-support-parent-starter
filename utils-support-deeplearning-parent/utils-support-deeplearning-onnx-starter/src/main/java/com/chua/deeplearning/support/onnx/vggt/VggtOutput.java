@@ -3,9 +3,9 @@ package com.chua.deeplearning.support.onnx.vggt;
 import lombok.Data;
 
 /**
- * VGGT             
+ * VGGT
  * <p>
- *        VGGT                                      3D                      
+ *        VGGT                                      3D
  *
  * @author CH
  * @since 2024/11/08
@@ -14,26 +14,26 @@ import lombok.Data;
 public class VggtOutput {
 
     /**
-     * 3D                   
+     * 3D
      * <p>
-     *                                                    
+     *
      * -        (xyz)
      * -        (scale)
      * -        (rotation quaternion)
      * -              (opacity)
-     * -              (SH coefficients)             
+     * -              (SH coefficients)
      */
     private float[] gaussianData;
 
     /**
-     *             
+     *
      * <p>
      * [num_gaussians, 特征_dim]
      */
     private long[] shape;
 
     /**
-     * 3D                  
+     * 3D
      */
     private int numGaussians;
 
@@ -41,16 +41,16 @@ public class VggtOutput {
 
     /**
      * 构造 VggtOutput 实例。
-     *             
      *
-     * @param gaussianData                   
-     * @param shape             
+     *
+     * @param gaussianData
+     * @param shape
      */
     public VggtOutput(float[] gaussianData, long[] shape) {
         this.gaussianData = gaussianData;
         this.shape = shape;
 
-        //                                                                         
+        //
         if (shape != null && shape.length >= 2) {
             long gaussianCount = 1L;
             for (int i = 0; i < shape.length - 1; i++) {
@@ -59,7 +59,7 @@ public class VggtOutput {
             this.numGaussians = (int) gaussianCount;
             this.featureDimension = (int) Math.max(1L, shape[shape.length - 1]);
         } else if (shape != null && shape.length == 1) {
-            //                                                                      
+            //
             this.numGaussians = gaussianData == null || gaussianData.length == 0 ? 0 : 1;
             this.featureDimension = (int) Math.max(1L, shape[0]);
         }
@@ -67,9 +67,9 @@ public class VggtOutput {
 
     /**
      * 是否为 Valid。
-     *             
      *
-     * @return true                       3D       
+     *
+     * @return true                       3D
      */
     public boolean isValid() {
         return gaussianData != null && gaussianData.length > 0 && numGaussians > 0;
@@ -77,9 +77,9 @@ public class VggtOutput {
 
     /**
      * 获取 DataSizeBytes。
-     *                               
      *
-     * @return             
+     *
+     * @return
      */
     public long getDataSizeBytes() {
         return gaussianData != null ? (long) gaussianData.length * Float.BYTES : 0;

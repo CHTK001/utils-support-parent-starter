@@ -50,7 +50,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
      * 类缓存，用于加速重复加载
      */
     private static final Map<String, Class<?>> CLASS_CACHE = new ConcurrentHashMap<>(512);
-    
+
     /**
      * 类锁缓存，用于并发安全加载
      */
@@ -116,7 +116,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
         }
 
         if (log.isTraceEnabled()) {
-            log.trace("[SPI] 接口：{}，找到：{}，有效：{}，最终：{}", 
+            log.trace("[SPI] 接口：{}，找到：{}，有效：{}，最终：{}",
                     service.getName(), foundCount, validCount, result.size());
         }
 
@@ -268,7 +268,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
             List<String> classNames = jarFile.stream()
                     .filter(jarEntry -> {
                         String entryName = jarEntry.getName();
-                        return entryName.endsWith(".class") 
+                        return entryName.endsWith(".class")
                                 && entryName.startsWith(packageDirName)
                                 && entryName.indexOf('$') == -1;
                     })
@@ -327,14 +327,14 @@ public class SamePackageServiceResolver implements ServiceResolver {
                                 String relativeStr = relativePath.toString()
                                         .replace(File.separatorChar, '.')
                                         .replace('/', '.');
-                                
+
                                 int len = relativeStr.length();
                                 if (len > 6 && relativeStr.endsWith(".class")) {
                                     relativeStr = relativeStr.substring(0, len - 6);
                                 }
 
-                                return relativeStr.isEmpty() 
-                                        ? packageName 
+                                return relativeStr.isEmpty()
+                                        ? packageName
                                         : packageName + "." + relativeStr;
                             } catch (Throwable e) {
                                 if (log.isTraceEnabled()) {
@@ -410,8 +410,8 @@ public class SamePackageServiceResolver implements ServiceResolver {
 
             String relative = absolutePath.substring(baseLen + 1, pathLen - 6);
             String subPackage = relative.replace(File.separatorChar, '.');
-            String fullClassName = subPackage.isEmpty() 
-                    ? packageName 
+            String fullClassName = subPackage.isEmpty()
+                    ? packageName
                     : packageName + "." + subPackage;
 
             try {
@@ -437,8 +437,8 @@ public class SamePackageServiceResolver implements ServiceResolver {
      * @param classLoader 类加载器
      * @param result 结果集合
      */
-    private void loadClassesInBatch(List<String> classNames, 
-                                    Class<?> service, 
+    private void loadClassesInBatch(List<String> classNames,
+                                    Class<?> service,
                                     ClassLoader classLoader,
                                     Collection<Class<?>> result) {
         if (classNames.isEmpty()) {
@@ -448,7 +448,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
         for (int i = 0; i < classNames.size(); i += BATCH_SIZE) {
             int end = Math.min(i + BATCH_SIZE, classNames.size());
             List<String> batch = classNames.subList(i, end);
-            
+
             for (String className : batch) {
                 try {
                     Class<?> aClass = loadClassWithCache(className, classLoader);
@@ -491,7 +491,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
         if (cached != null) {
             return cached;
         }
-        
+
         Object lock = CLASS_LOCKS.get(className);
         if (lock == null) {
             synchronized (CLASS_LOCKS) {
@@ -502,13 +502,13 @@ public class SamePackageServiceResolver implements ServiceResolver {
                 }
             }
         }
-        
+
         synchronized (lock) {
             cached = CLASS_CACHE.get(className);
             if (cached != null) {
                 return cached;
             }
-            
+
             try {
                 if (log.isTraceEnabled()) {
                     log.trace("[SPI] 加载类：{}", className);

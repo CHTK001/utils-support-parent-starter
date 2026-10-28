@@ -18,14 +18,14 @@ import lombok.extern.slf4j.Slf4j;
  *                                     ONNX
  * <p>
  *
- *                                                             
- *                
- * 1.                                        
- * 2.              [0, 1]       
- * 3.                         0.5            0.5   
- * 4.             
- * 5.                            
- * 6.                         
+ *
+ *
+ * 1.
+ * 2.              [0, 1]
+ * 3.                         0.5            0.5
+ * 4.
+ * 5.
+ * 6.
  *
  * @author CH
  * @since 2025-11-21
@@ -42,9 +42,9 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
 
     /**
      * 初始化。
-     *                                           
      *
-     * @param ctx                   
+     *
+     * @param ctx
      */
     @Override
     public void prepare(TranslatorContext ctx) {
@@ -54,16 +54,16 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
     /**
      * nd列表
      * <p>
-     *                
+     *
      * 1.                   ndarray         FLOAT32
-     * 2.                                                 
-     * 3.                                  
+     * 2.
+     * 3.
      * 4.                      HWC -> CHW
-     * 5.              [0, 1]                255   
+     * 5.              [0, 1]                255
      * 6.                   (array - 0.5) / 0.5
      *
-     * @param ctx                     
-     * @param input             
+     * @param ctx
+     * @param input
      * @return                         NDList
      */
     @Override
@@ -75,7 +75,7 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
  // ndarray         FLOAT32
         NDArray array = input.toNDArray(this.manager).toType(DataType.FLOAT32, false);
 
-        //                                                       
+        //
         float upScale = (float) detectResolution / (float) input.getHeight();
         int resizedWidth = (int) (upScale * input.getWidth());
 
@@ -83,17 +83,17 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
             log.debug("缩放尺寸: {}x{} -> {}x{}", input.getWidth(), input.getHeight(), resizedWidth, detectResolution);
         }
 
-        //                   
+        //
         array = NDImageUtils.resize(array, resizedWidth, detectResolution);
 
-        //                      HWC -> CHW                  [0,1]      
+        //                      HWC -> CHW                  [0,1]
         array = array.transpose(2, 0, 1).div(255f);
 
-        //                                  
+        //
         NDArray mean = ctx.getNDManager()
                 .create(new float[]{0.5f, 0.5f, 0.5f}, new Shape(3, 1, 1));
 
-        //                                     
+        //
         NDArray std = ctx.getNDManager()
                 .create(new float[]{0.5f, 0.5f, 0.5f}, new Shape(3, 1, 1));
 
@@ -110,16 +110,16 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
     /**
      * nd列表
      * <p>
-     *                
-     * 1.                               
+     *
+     * 1.
      * 2.                输出 * 0.5 + 0.5
-     * 3.                   [0,1]         
-     * 4.          UINT8                  [0,255]      
+     * 3.                   [0,1]
+     * 4.          UINT8                  [0,255]
      * 5.    ndarray
      *
-     * @param ctx                    
+     * @param ctx
      * @param list                nd列表
-     * @return                               
+     * @return
      */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
@@ -127,7 +127,7 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
             log.debug("开始处理模型输出");
         }
 
-        //                               
+        //
         NDArray outputImg = list.singletonOrThrow();
 
         if (log.isDebugEnabled()) {
@@ -137,10 +137,10 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
  // 输出 * 0.5 + 0.5
         outputImg = outputImg.mul(0.5f).add(0.5f);
 
-        //                   [0,1]         
+        //                   [0,1]
         outputImg = outputImg.clip(0, 1);
 
-        //          UINT8                  [0,255]      
+        //          UINT8                  [0,255]
         outputImg = outputImg.mul(255.0f).round().toType(DataType.UINT8, false);
 
  // ndarray
@@ -150,7 +150,7 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
             log.debug("输出图像尺寸: {}x{}", img.getWidth(), img.getHeight());
         }
 
-        //             
+        //
         this.manager.close();
 
         return img;
@@ -158,9 +158,9 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
 
     /**
      * 获取 Batchifier。
-     *                      
      *
-     * @return                               STACK      
+     *
+     * @return                               STACK
      */
     @Override
     public Batchifier getBatchifier() {

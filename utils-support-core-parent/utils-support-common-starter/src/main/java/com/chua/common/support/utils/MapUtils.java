@@ -1920,7 +1920,7 @@ public class MapUtils {
         if (null == value || null == kvMap || null == name) {
             return;
         }
-        //                                                                
+        //
         kvMap.putIfAbsent(name, value);
     }
 
@@ -1960,7 +1960,7 @@ public class MapUtils {
      * @return 若 映射 非空且包含 键 则返回 true
      */
     public static <K, V> boolean containsKey(Map<K, V> source, K name) {
-        //                                                 
+        //
         return !isEmpty(source) && source.containsKey(name);
     }
 
@@ -2122,7 +2122,7 @@ public class MapUtils {
             String key = entry.getKey();
             Object value = entry.getValue();
 
-            //                   
+            //
             String newKey = StringUtils.isEmpty(prefix) ? key : prefix + "." + key;
 
             if (value instanceof Map) {
@@ -2130,7 +2130,7 @@ public class MapUtils {
                 Map<String, Object> nestedMap = (Map<String, Object>) value;
                 result.putAll(flattenToProperties(nestedMap, newKey));
             } else if (value instanceof Collection<?> collection) {
-                //                   
+                //
                 int index = 0;
                 for (Object item : collection) {
                     String indexKey = newKey + "[" + index + "]";
@@ -2143,7 +2143,7 @@ public class MapUtils {
                     index++;
                 }
             } else if (value != null && value.getClass().isArray()) {
-                //                   
+                //
                 Object[] array = (Object[]) value;
                 for (int i = 0; i < array.length; i++) {
                     String indexKey = newKey + "[" + i + "]";
@@ -2156,7 +2156,7 @@ public class MapUtils {
                     }
                 }
             } else {
-                //                            
+                //
                 result.put(newKey, value);
             }
         }
@@ -2206,13 +2206,13 @@ public class MapUtils {
         String[] parts = key.split("\\.");
         Map<String, Object> current = map;
 
-        //                                              
+        //
         for (int i = 0; i < parts.length - 1; i++) {
             String part = parts[i];
             current = processMapPart(current, part);
         }
 
-        //                
+        //
         String finalKey = parts[parts.length - 1];
         setFinalValue(current, finalKey, value);
     }
@@ -2237,7 +2237,7 @@ public class MapUtils {
             try {
                 int index = Integer.parseInt(indexStr);
 
-                //                   
+                //
                 if (!current.containsKey(arrayName)) {
                     current.put(arrayName, Wraps.list());
                 }
@@ -2250,7 +2250,7 @@ public class MapUtils {
 
                 List<Object> list = (List<Object>) arrayObj;
 
-                //                  
+                //
                 while (list.size() <= index) {
                     list.add(Wraps.linkedMap());
                 }
@@ -2262,11 +2262,11 @@ public class MapUtils {
 
                 return (Map<String, Object>) list.get(index);
             } catch (NumberFormatException e) {
-                //                                                    
+                //
                 return ensureMapExists(current, part);
             }
         } else {
-            //             
+            //
             return ensureMapExists(current, part);
         }
     }

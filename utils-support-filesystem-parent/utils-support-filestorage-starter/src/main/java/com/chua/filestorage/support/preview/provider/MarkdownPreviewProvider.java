@@ -45,7 +45,7 @@ public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
     private static final Pattern LINK_PATTERN = Pattern.compile("\\[([^\\]]+)]\\(([^)\\s]+)\\)");
 
     /**
-     * 有序列表前缀：1. 
+     * 有序列表前缀：1.
      */
     private static final Pattern ORDERED_LIST_PATTERN = Pattern.compile("^\\d+\\.\\s+(.*)$");
 
