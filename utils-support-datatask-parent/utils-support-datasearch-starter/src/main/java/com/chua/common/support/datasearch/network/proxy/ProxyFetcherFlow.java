@@ -1,11 +1,18 @@
 package com.chua.common.support.datasearch.network.proxy;
 
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.collection.wrap.Wraps;
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.spi.ServiceProvider;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
 /**
@@ -107,7 +114,7 @@ public final class ProxyFetcherFlow {
         if (roundRobin) {
             return roundRobinSelect(proxies);
         }
-        return proxies.get((int) (Math.random() * proxies.size()));
+        return proxies.get((int) (ThreadLocalRandom.current().nextDouble() * proxies.size()));
     }
 
     /**

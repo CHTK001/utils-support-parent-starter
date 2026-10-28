@@ -1,16 +1,28 @@
 package com.chua.common.support.datasearch.email.spi.impl;
 
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.collection.wrap.Wraps;
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.datasearch.email.model.EmailInfo;
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.datasearch.email.spi.EmailProvider;
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.network.client.HttpClientFactory;
+import java.util.concurrent.ThreadLocalRandom;
 import com.chua.common.support.spi.annotations.Spi;
+import java.util.concurrent.ThreadLocalRandom;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.concurrent.ThreadLocalRandom;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.concurrent.ThreadLocalRandom;
 import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.Collections;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
 /**
@@ -63,7 +75,7 @@ public class FceEmailProvider implements EmailProvider {
             return null;
         }
         String prefix = randomPrefix(10);
-        String domain = DOMAINS[(int) (Math.random() * DOMAINS.length)];
+        String domain = DOMAINS[(int) (ThreadLocalRandom.current().nextDouble() * DOMAINS.length)];
         String email = prefix + "@" + domain;
         try {
             String body = HttpClientFactory.of(API_BASE + "/inboxes")
@@ -157,7 +169,7 @@ public class FceEmailProvider implements EmailProvider {
         String chars = "abcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder sb = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
-            sb.append(chars.charAt((int) (Math.random() * chars.length())));
+            sb.append(chars.charAt((int) (ThreadLocalRandom.current().nextDouble() * chars.length())));
         }
         return sb.toString();
     }
