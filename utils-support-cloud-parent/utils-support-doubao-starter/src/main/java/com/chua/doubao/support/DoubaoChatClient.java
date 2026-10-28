@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import com.volcengine.ark.runtime.model.completion.chat.ChatTool;
+import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest;
 
 /**
  * 豆包/火山引擎大模型对话客户端
@@ -308,7 +309,7 @@ public class DoubaoChatClient implements ChatClient {
                     .maxTokens(maxTokens != null ? maxTokens : 2048);
 
             if (thinking) {
-                requestBuilder.thinking(new com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest.ChatCompletionRequestThinking("enabled"));
+                requestBuilder.thinking(new ChatCompletionRequest.ChatCompletionRequestThinking("enabled"));
             }
             if (smartSearch) {
                 requestBuilder.tools(List.of(new ChatTool("web_search", null)));

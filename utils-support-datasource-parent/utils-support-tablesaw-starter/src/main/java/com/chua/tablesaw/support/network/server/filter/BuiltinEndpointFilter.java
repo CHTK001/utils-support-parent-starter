@@ -11,6 +11,7 @@ import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.utils.BeanUtils;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.network.server.response.ServerResponse;
 
 /**
  * 内置端点过滤器。
@@ -132,7 +133,7 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
      *
      * @param response 响应对象
      */
-    private void handleHealth(com.chua.common.support.network.server.response.ServerResponse response) throws Exception {
+    private void handleHealth(ServerResponse response) throws Exception {
         Map<String, Object> body = Wraps.linkedMap(6);
         BeanUtils.copyProperties(metrics, body);
         body.put("status", "UP");
@@ -149,7 +150,7 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
      *
      * @param response 响应对象
      */
-    private void handleMetrics(com.chua.common.support.network.server.response.ServerResponse response) throws Exception {
+    private void handleMetrics(ServerResponse response) throws Exception {
         Map<String, Object> body = Wraps.linkedMap(12);
         BeanUtils.copyProperties(metrics, body);
         long lastErrorTime = metrics.getLastErrorTime();
@@ -171,7 +172,7 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
      *
      * @param response 响应对象
      */
-    private void handleLatencyHistogram(com.chua.common.support.network.server.response.ServerResponse response) {
+    private void handleLatencyHistogram(ServerResponse response) {
         Map<String, Long> histogram = metrics.getLatencyHistogram();
         List<Map.Entry<String, Long>> entries = Wraps.list(histogram.entrySet());
 

@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.chua.common.support.storage.request.MultipartUploadPartRequest;
 
 /**
  * 文件存储抽象基类。
@@ -135,7 +136,7 @@ public abstract class AbstractFileStorage implements FileStorage {
          * @param request 请求
          */
         @Override
-        public MultipartPartResult uploadPart(com.chua.common.support.storage.request.MultipartUploadPartRequest request) {
+        public MultipartPartResult uploadPart(MultipartUploadPartRequest request) {
             MultipartContext ctx = contexts.get(request.getUploadId());
             if (ctx == null) {
                 return MultipartPartResult.builder()

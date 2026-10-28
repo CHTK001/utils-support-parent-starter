@@ -31,6 +31,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.time.Duration;
 
 /**
  * 默认数据同步调度器管理器。
@@ -346,14 +347,14 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
                 String cron = mapping.cron();
                 if (cron == null || cron.isBlank()) {
  // cron 为空，使用默认 简单trigger（每分钟触发一次）
-                    return new com.chua.common.support.task.scheduler.SimpleTrigger(java.time.Duration.ofMinutes(1));
+                    return new com.chua.common.support.task.scheduler.SimpleTrigger(Duration.ofMinutes(1));
                 } else {
                     try {
                         return new CronTrigger(cron);
                     } catch (Exception e) {
                         log.warn("Cron 表达式构造失败: mappingId={}, cron={}，使用默认 SimpleTrigger", mapping.mappingId(), cron,
                                  e);
-                        return new com.chua.common.support.task.scheduler.SimpleTrigger(java.time.Duration.ofMinutes(1));
+                        return new com.chua.common.support.task.scheduler.SimpleTrigger(Duration.ofMinutes(1));
                     }
                 }
             });

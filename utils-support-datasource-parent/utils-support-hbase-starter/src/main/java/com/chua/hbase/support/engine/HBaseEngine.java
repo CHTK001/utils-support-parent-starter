@@ -25,6 +25,7 @@ import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
 import org.apache.hadoop.hbase.util.Bytes;
 import java.util.List;
 import java.util.Map;
+import java.util.List;
 
 /**
  * HBase 引擎实现（真实 ZooKeeper 连接）。
@@ -221,11 +222,11 @@ public class HBaseEngine extends AbstractEngine {
      * @param rowPrefix  行键前缀，可为 空
      * @return 行列表，每行含 {@code __row} 键为行键
      */
-    public java.util.List<Map<String, String>> scan(String table, String family, String rowPrefix) {
+    public List<Map<String, String>> scan(String table, String family, String rowPrefix) {
         Connection c = conn();
         try (Table t = c.getTable(TableName.valueOf(table));
              ResultScanner scanner = t.getScanner(buildScan(family, rowPrefix))) {
-            java.util.List<Map<String, String>> out = Wraps.list();
+            List<Map<String, String>> out = Wraps.list();
             for (Result r : scanner) {
                 if (r.isEmpty()) {
                     continue;
@@ -337,7 +338,7 @@ public class HBaseEngine extends AbstractEngine {
      * HBase 无 SQL：请使用 扫描()。
      */
     @Override
-    protected <T> java.util.List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
+    protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         throw new UnsupportedOperationException(
                 "HBase 无 SQL 查询。请使用 scan(table, family, rowPrefix) 真实 API。");
     }
