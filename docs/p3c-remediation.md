@@ -130,6 +130,8 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
 13. **1.5.5 Map 遍历**：3 处 `keySet()` + `get()` 二次查找已改为 `entrySet()` 一次遍历（LocaleTypeConverter、NacosConfigCenter、RedisSearchSink）。
 14. **2.2.1 日志占位符**：SLF4J 日志中的字符串拼接已改为 `{}` 占位符；JUL（`java.util.logging`）不支持占位符，相关文件整体排除，避免把 `{0}` 语义写坏。
 15. **1.6.3 ThreadLocal**：66 个使用 ThreadLocal 的文件中，`new ThreadLocal` 后未调用 `remove()` 的为 0。
+16. **1.1.2 包名规范**：全仓扫描出 4 个含下划线的包名（`gpu_llama3` ×3 类、`yolo_uniow` ×1 类），已改为 `gpu.llama3` 与 `yolo.uniow`，并同步 SPI 注册文件与 README；旧包名残留 0。
+17. **6.x 工程结构**：`pom.xml` 中无 SNAPSHOT 依赖版本；所有 `artifactId` 均为小写连字符；类名与文件名一致（0 处不匹配）。
 
 ## 五、最终状态（本轮结束时）
 
