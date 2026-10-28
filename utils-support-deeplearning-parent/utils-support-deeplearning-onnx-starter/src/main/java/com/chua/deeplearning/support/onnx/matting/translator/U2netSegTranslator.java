@@ -70,9 +70,11 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
         BufferedImage mask = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
         WritableRaster raster = mask.getRaster();
         int idx = 0;
-        for (int y = 0; y < h; y++)
-            for (int x = 0; x < w; x++)
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
                 raster.setSample(x, y, 0, Math.round(vals[idx++] * 255f));
+            }
+        }
         if (w != width || h != height) {
             BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
             Graphics2D g = resized.createGraphics();
