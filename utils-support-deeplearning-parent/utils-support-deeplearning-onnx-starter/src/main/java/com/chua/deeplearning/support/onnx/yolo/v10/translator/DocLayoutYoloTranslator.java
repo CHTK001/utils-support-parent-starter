@@ -159,7 +159,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
         this.threshold = threshold;
         this.classes = Wraps.list(classes);
         this.normalizeCoordinates = true;
-        log.info("          DocLayout-YOLO                             -             : {}x{},       : {},          : {}",
+        log.info("DocLayout-YOLO 检测器初始化 - 输入尺寸: {}x{}, 置信度阈值: {}, NMS 阈值: {}",
                 inputSize, inputSize, threshold, classes.size());
     }
 
@@ -178,7 +178,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
         imageHeight = input.getHeight();
 
         if (log.isDebugEnabled()) {
-            log.debug("                  : {}x{}", imageWidth, imageHeight);
+            log.debug("原图尺寸: {}x{}", imageWidth, imageHeight);
         }
 
  // 提取 缓冲镜像，AWT 缩放至 输入大小（规避 DJL 镜像.resize 走 ndarray）
@@ -223,7 +223,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
-            log.debug("             DocLayout-YOLO             ");
+            log.debug("开始处理 DocLayout-YOLO 模型输出");
         }
 
  // 输出 [1, num_boxes, 6]，用 转为floatarray 手动索引（规避 squeeze/获取 不支持）
@@ -256,7 +256,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
  // 标识
             if (classId < 0 || classId >= classes.size()) {
                 if (log.isDebugEnabled()) {
-                    log.debug("                  ID: classId={},             ={}", classId, classes.size());
+                    log.debug("未知类别 ID: classId={}, 类别表大小={}", classId, classes.size());
                 }
                 continue;
             }
@@ -264,7 +264,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
             //                      
             if (x1 < 0 || y1 < 0 || x2 <= x1 || y2 <= y1) {
                 if (log.isDebugEnabled()) {
-                    log.debug("                  : x1={}, y1={}, x2={}, y2={}", x1, y1, x2, y2);
+                log.debug("边界框坐标: x1={}, y1={}, x2={}, y2={}", x1, y1, x2, y2);
                 }
                 continue;
             }
@@ -297,7 +297,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
             //                   
             if (origW <= 0 || origH <= 0) {
                 if (log.isDebugEnabled()) {
-                    log.debug("                              : w={}, h={}", origW, origH);
+                log.debug("原图宽高用于还原: w={}, h={}", origW, origH);
                 }
                 continue;
             }
@@ -325,7 +325,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
                 finalH = origH;
             }
 
-            log.debug("               [{}]: class={}, confidence={},       ({}, {}, {}, {})",
+            log.debug("检测结果 [{}]: class={}, confidence={}, 框 ({}, {}, {}, {})",
                     i, classes.get(classId), String.format("%.3f", confidence),
                     String.format("%.3f", finalX), String.format("%.3f", finalY),
                     String.format("%.3f", finalW), String.format("%.3f", finalH));
@@ -336,7 +336,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
             probabilities.add((double) confidence);
         }
 
-        log.info("          {}                   ", boxes.size());
+        log.info("筛选后候选框数量: {}", boxes.size());
 
         return new DetectedObjects(classNames, probabilities, boxes);
     }

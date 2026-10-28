@@ -78,7 +78,7 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
             var modelPath = model.getModelPath();
 
             if (modelPath == null) {
-                log.warn("[CLIP][      ]                                   tokenizer");
+                log.warn("[CLIP][准备] 模型路径为空，跳过 tokenizer 加载");
                 return;
             }
 
@@ -97,13 +97,13 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
                         .optPadding(true)
                         .optMaxLength(MAX_SEQUENCE_LENGTH)
                         .build();
-                log.debug("[CLIP][      ] Translator                Tokenizer             : {}", tokenizerPath);
+            log.debug("[CLIP][准备] Translator 使用的 Tokenizer 路径: {}", tokenizerPath);
             } else {
-                log.warn("[CLIP][      ]           tokenizer.json         : {}", tokenizerPath);
+                log.warn("[CLIP][准备] 未找到 tokenizer.json，路径: {}", tokenizerPath);
             }
         } catch (Exception e) {
-            log.error("[CLIP][      ] Tokenizer             ", e);
-            throw new IOException("Tokenizer             : " + e.getMessage(), e);
+            log.error("[CLIP][准备] Tokenizer 初始化失败", e);
+            throw new IOException("Tokenizer 初始化失败: " + e.getMessage(), e);
         }
     }
 
@@ -125,7 +125,7 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     @Nonnull
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull String input) throws Exception {
         if (tokenizer == null) {
-            throw new IllegalStateException("HuggingFaceTokenizer                                                     tokenizer.json");
+                throw new IllegalStateException("HuggingFaceTokenizer 未初始化，请确认模型目录包含 tokenizer.json");
         }
 
         //        Tokenizer             
@@ -182,7 +182,7 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
      */
     private NDArray selectEmbeddingOutput(NDList list) {
         if (list == null || list.isEmpty()) {
-            throw new IllegalStateException("CLIP                         ");
+            throw new IllegalStateException("CLIP 文本特征模型未初始化");
         }
 
         for (String preferredName : new String[]{"text_embeds", "pooler_output", "sentence_embedding"}) {
