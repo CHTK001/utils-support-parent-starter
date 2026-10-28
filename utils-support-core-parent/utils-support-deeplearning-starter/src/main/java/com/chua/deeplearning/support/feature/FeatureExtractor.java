@@ -54,7 +54,8 @@ public interface FeatureExtractor {
      * @return 创建的结果
      */
     static FeatureExtractor create(String name) {
-        return new DefaultFeatureExtractor(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultFeatureExtractor(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

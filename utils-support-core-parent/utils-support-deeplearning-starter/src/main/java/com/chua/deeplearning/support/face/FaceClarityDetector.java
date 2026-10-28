@@ -71,7 +71,8 @@ public interface FaceClarityDetector {
      * @return 实例
      */
     static FaceClarityDetector create(String name) {
-        return new DefaultFaceClarityDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultFaceClarityDetector(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

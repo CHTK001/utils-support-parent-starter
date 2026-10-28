@@ -47,7 +47,8 @@ public interface FaceDetector {
      * @return 检测器
      */
     static FaceDetector create(String name) {
-        return new DefaultFaceDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultFaceDetector(AbstractIdentificationEngine.getInstance(), name,
+                                       ModelSetting.builder().build());
     }
 
     /**
@@ -364,7 +365,8 @@ class DefaultFaceDetector implements FaceDetector {
     @SuppressWarnings("unchecked")
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =
-                (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
+                (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class,
+                        DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }

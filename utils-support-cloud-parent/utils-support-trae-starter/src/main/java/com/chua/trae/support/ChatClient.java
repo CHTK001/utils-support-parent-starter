@@ -142,7 +142,8 @@ public class ChatClient implements AutoCloseable {
         try {
             ensureAuth();
             ChatRequest effective = withModel(request, resolveModel(request));
-            StreamCollector collector = new StreamCollector(effective, onTextChunk, onReasoningChunk, onComplete, onError);
+            StreamCollector collector = new StreamCollector(effective, onTextChunk, onReasoningChunk, onComplete,
+                    onError);
             openSse(effective, collector);
         } catch (ChatException e) {
             onError.accept(e);

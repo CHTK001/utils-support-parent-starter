@@ -311,7 +311,8 @@ public class HBaseEngine extends AbstractEngine {
         for (org.apache.hadoop.hbase.Cell cell : r.rawCells()) {
             String fam = Bytes.toString(cell.getFamilyArray(), cell.getFamilyOffset(), cell.getFamilyLength());
             if (allFamilies || family.equals(fam)) {
-                String q = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+                String q = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(),
+                        cell.getQualifierLength());
                 String v = Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
                 if (q != null && v != null) {
                     m.put(allFamilies ? fam + ":" + q : q, v);

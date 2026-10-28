@@ -333,7 +333,8 @@ public class KafkaWalLog implements WalLog {
                     }
                 }
             }
-            return new WalReplayResult(new CheckpointMeta(checkpointLsn.get(), 1, 0, System.currentTimeMillis()), records);
+            return new WalReplayResult(new CheckpointMeta(checkpointLsn.get(), 1, 0, System.currentTimeMillis()),
+                                       records);
         } finally {
             lock.unlock();
         }

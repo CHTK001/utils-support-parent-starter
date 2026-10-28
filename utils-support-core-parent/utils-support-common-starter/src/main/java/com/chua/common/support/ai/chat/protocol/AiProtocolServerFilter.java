@@ -1113,7 +1113,8 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
      * @return 响应体
      */
     private Map<String, Object> buildOpenAiChatResponse(ChatSyncResponse result, String model) {
-        String id = PREFIX_CHAT_COMPLETION + UUID.randomUUID().toString().replace("-", "").substring(0, ID_TRUNCATE_LENGTH);
+        String id = PREFIX_CHAT_COMPLETION + UUID.randomUUID().toString().replace("-", "").substring(0,
+                ID_TRUNCATE_LENGTH);
         String text = result != null ? result.getText() : "";
         String resolvedModel = model != null ? model : DEFAULT_MODEL;
 
@@ -1151,7 +1152,8 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
      * @return 响应体
      */
     private Map<String, Object> buildOpenAiChatError(String model, String errorMessage) {
-        String id = PREFIX_CHAT_COMPLETION + UUID.randomUUID().toString().replace("-", "").substring(0, ID_TRUNCATE_LENGTH);
+        String id = PREFIX_CHAT_COMPLETION + UUID.randomUUID().toString().replace("-", "").substring(0,
+                ID_TRUNCATE_LENGTH);
         Map<String, Object> message = Wraps.linkedMap(3);
         message.put(KEY_ROLE, ROLE_ASSISTANT);
         message.put(KEY_CONTENT, errorMessage);

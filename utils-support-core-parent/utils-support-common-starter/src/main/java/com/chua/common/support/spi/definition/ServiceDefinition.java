@@ -33,7 +33,8 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
     /**
      * 默认排序比较器，优先级越高的服务定义排在前面。
      */
-    public static final Comparator<ServiceDefinition> COMPARATOR = (o1, o2) -> Integer.compare(o2.getOrder(), o1.getOrder());
+    public static final Comparator<ServiceDefinition> COMPARATOR = (o1, o2) -> Integer.compare(o2.getOrder(),
+            o1.getOrder());
 
     /**
      * 服务实现类。

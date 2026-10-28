@@ -102,7 +102,8 @@ public interface SpeakerDiarizer {
      * @return 说话人分离实例
      */
     static SpeakerDiarizer create(String name) {
-        return new DefaultSpeakerDiarizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultSpeakerDiarizer(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

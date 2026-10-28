@@ -264,7 +264,8 @@ public class RedisEngine {
         List<T> result = Wraps.list();
         String cursor = "0";
         do {
-            var scanResult = jedis.scan(cursor, new redis.clients.jedis.params.ScanParams().match(keyPrefix + ":*").count(100));
+            var scanResult = jedis.scan(cursor,
+                                        new redis.clients.jedis.params.ScanParams().match(keyPrefix + ":*").count(100));
             cursor = scanResult.getCursor();
             for (String key : scanResult.getResult()) {
                 Map<String, String> hash = jedis.hgetAll(key);

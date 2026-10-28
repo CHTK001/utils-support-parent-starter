@@ -194,7 +194,9 @@ public class WebhookInboundAdapter {
         ExecutorService pool = null;
         try {
             created = HttpServer.create(new InetSocketAddress(InetAddress.getByName(host), port), 0);
-            pool = new ThreadPoolExecutor(WORKER_THREADS, WORKER_THREADS, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(1024), Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
+            pool = new ThreadPoolExecutor(WORKER_THREADS, WORKER_THREADS, 0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(1024), Executors.defaultThreadFactory(),
+                    new ThreadPoolExecutor.CallerRunsPolicy());
             created.createContext(CONTEXT_PREFIX, this::handleRequest);
             created.setExecutor(pool);
             created.start();

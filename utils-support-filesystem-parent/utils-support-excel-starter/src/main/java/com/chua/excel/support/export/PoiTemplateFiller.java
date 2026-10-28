@@ -407,10 +407,14 @@ public class PoiTemplateFiller implements TemplateFiller {
                 return new CellSnapshot(CellType.BLANK, "", 0d, false, null);
             }
             return switch (cell.getCellType()) {
-                case STRING -> new CellSnapshot(CellType.STRING, cell.getStringCellValue(), 0d, false, cell.getCellStyle());
-                case NUMERIC -> new CellSnapshot(CellType.NUMERIC, null, cell.getNumericCellValue(), false, cell.getCellStyle());
-                case BOOLEAN -> new CellSnapshot(CellType.BOOLEAN, null, 0d, cell.getBooleanCellValue(), cell.getCellStyle());
-                case FORMULA -> new CellSnapshot(CellType.STRING, "=" + cell.getCellFormula(), 0d, false, cell.getCellStyle());
+                case STRING -> new CellSnapshot(CellType.STRING, cell.getStringCellValue(), 0d, false,
+                        cell.getCellStyle());
+                case NUMERIC -> new CellSnapshot(CellType.NUMERIC, null, cell.getNumericCellValue(), false,
+                        cell.getCellStyle());
+                case BOOLEAN -> new CellSnapshot(CellType.BOOLEAN, null, 0d, cell.getBooleanCellValue(),
+                        cell.getCellStyle());
+                case FORMULA -> new CellSnapshot(CellType.STRING, "=" + cell.getCellFormula(), 0d, false,
+                        cell.getCellStyle());
                 default -> new CellSnapshot(CellType.BLANK, null, 0d, false, cell.getCellStyle());
             };
         }

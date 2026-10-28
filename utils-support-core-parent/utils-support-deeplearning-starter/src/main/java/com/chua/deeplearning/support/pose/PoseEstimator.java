@@ -55,7 +55,8 @@ public interface PoseEstimator {
      * @return 创建的结果
      */
     static PoseEstimator create(String name) {
-        return new DefaultPoseEstimator(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultPoseEstimator(AbstractIdentificationEngine.getInstance(), name,
+                                        ModelSetting.builder().build());
     }
 
     /**

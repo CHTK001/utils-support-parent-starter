@@ -158,7 +158,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
      * @param quality quality
      * @return 构建文本请求主体的结果
      */
-    protected abstract String buildTextRequestBody(String prompt, Model3DFormat format, Model3DStyle style, String quality);
+    protected abstract String buildTextRequestBody(String prompt, Model3DFormat format, Model3DStyle style,
+            String quality);
 
     /**
      * 构建图片请求体
@@ -168,7 +169,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
      * @param quality quality
      * @return 构建镜像请求主体的结果
      */
-    protected abstract String buildImageRequestBody(byte[] image, Model3DFormat format, Model3DStyle style, String quality);
+    protected abstract String buildImageRequestBody(byte[] image, Model3DFormat format, Model3DStyle style,
+            String quality);
 
     /**
      * 构建多视角图片请求体
@@ -178,7 +180,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
      * @param quality quality
      * @return 构建multiview请求主体的结果
      */
-    protected abstract String buildMultiViewRequestBody(byte[][] images, Model3DFormat format, Model3DStyle style, String quality);
+    protected abstract String buildMultiViewRequestBody(byte[][] images, Model3DFormat format, Model3DStyle style,
+            String quality);
 
     /**
      * 构建草图请求体
@@ -189,7 +192,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
      * @param quality quality
      * @return 构建sketch请求主体的结果
      */
-    protected abstract String buildSketchRequestBody(byte[] sketch, String description, Model3DFormat format, Model3DStyle style, String quality);
+    protected abstract String buildSketchRequestBody(byte[] sketch, String description, Model3DFormat format,
+            Model3DStyle style, String quality);
 
     /**
      * 构建风格化请求体

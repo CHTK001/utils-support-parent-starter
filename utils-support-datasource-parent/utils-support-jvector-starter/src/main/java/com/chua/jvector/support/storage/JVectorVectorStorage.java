@@ -106,7 +106,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         return switch (properties.getMode()) {
             case MEMORY -> new EagerMemoryStrategy(dimension(), similarity, properties, getAlgorithm());
             case ON_DISK -> new DiskStrategy(dimension(), similarity, properties, getAlgorithm());
-            case LARGER_THAN_MEMORY -> new LargerThanMemoryStrategy(dimension(), similarity, properties, getAlgorithm());
+            case LARGER_THAN_MEMORY -> new LargerThanMemoryStrategy(dimension(), similarity, properties,
+                    getAlgorithm());
         };
     }
 

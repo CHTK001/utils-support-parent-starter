@@ -96,7 +96,8 @@ public final class EngineAwareDataSource implements DataSource {
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             String name = method.getName();
             if ("createStatement".equals(name)) {
-                Statement st = (Statement) ReflectUtils.invoke(target, method.getName(), Statement.class, method.getParameterTypes(), args);
+                Statement st = (Statement) ReflectUtils.invoke(target, method.getName(), Statement.class,
+                        method.getParameterTypes(), args);
                 return wrapStatement(st);
             }
             if ("prepareStatement".equals(name) && args != null && args.length >= 1 && args[0] instanceof String sql) {

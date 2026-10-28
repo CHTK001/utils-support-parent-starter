@@ -240,7 +240,8 @@ public final class CryptoLauncher {
             if (appId == null) {
                 appId = mainAttributes(jar).getValue(ATTR_ORIGINAL_MAIN);
             }
-            String licSecret = firstNonBlank(System.getProperty(PROP_LICENSE_SECRET), System.getenv(ENV_LICENSE_SECRET));
+            String licSecret = firstNonBlank(System.getProperty(PROP_LICENSE_SECRET),
+                    System.getenv(ENV_LICENSE_SECRET));
             byte[] blob = LicenseKeyClient.fetch(licenseUrl, appId,
                     PayloadCipher.fingerprint(serverId),
                     licSecret == null ? null : licSecret.toCharArray());

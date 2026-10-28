@@ -40,12 +40,14 @@ public class AsposeWordFileConvertSystem implements FileConvertSystem {
      * （实测同一份样本，SPI 出 {@code RTF ???????????}，而 Aspose 转 PDF 后
      * 中文与加粗/斜体都完整保留）。因此 RTF 也走转换通道。</p>
      */
-    private static final List<String> SOURCES = List.of("doc", "docx", "dot", "dotx", "docm", "dotm", "wps", "odt", "ott", "rtf");
+    private static final List<String> SOURCES = List.of("doc", "docx", "dot", "dotx", "docm", "dotm", "wps", "odt",
+            "ott", "rtf");
 
     /**
      * 支持的目标文件格式列表
      */
-    private static final List<String> TARGETS = List.of("pdf", "doc", "docx", "dot", "dotx", "html", "htm", "txt", "rtf", "epub", "odt", "xps");
+    private static final List<String> TARGETS = List.of("pdf", "doc", "docx", "dot", "dotx", "html", "htm", "txt",
+            "rtf", "epub", "odt", "xps");
 
     /**
      * 格式与 Aspose.Words 保存格式化 常量映射表

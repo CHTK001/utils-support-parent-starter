@@ -193,8 +193,10 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
                         float[] inputData = preprocess(windowFrames);
                         long[] shape = {1, INPUT_CHANNELS, INPUT_FRAMES, INPUT_HEIGHT, INPUT_WIDTH};
                         float timestamp = (float) startTs / (float) actualFps;
-                        try (OnnxTensor inputTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(inputData), shape);
-                             OnnxTensor heightTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(new long[]{INPUT_HEIGHT}), new long[0]);
+                        try (OnnxTensor inputTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(inputData),
+                                shape);
+                             OnnxTensor heightTensor = OnnxTensor.createTensor(ortEnv,
+                                     LongBuffer.wrap(new long[]{INPUT_HEIGHT}), new long[0]);
                              OnnxTensor widthTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(new long[]{INPUT_WIDTH}), new long[0])) {
                             Map<String, OnnxTensor> inputs = Wraps.map();
                             inputs.put("input_frames", inputTensor);
@@ -203,7 +205,8 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
                             try (OrtSession.Result result = session.run(inputs)) {
                                 float[][] predBboxes = parseTensor(result, "pred_bboxes", 3);
                                 float[][] predScores = parseTensor(result, "pred_scores", 3);
-                                List<ActionDetectionResult> windowResults = postprocess(predBboxes, predScores, timestamp);
+                                List<ActionDetectionResult> windowResults = postprocess(predBboxes, predScores,
+                                        timestamp);
                                 results.addAll(windowResults);
                             }
                         }

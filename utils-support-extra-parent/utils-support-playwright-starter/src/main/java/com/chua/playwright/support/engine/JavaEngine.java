@@ -326,7 +326,8 @@ public class JavaEngine implements Engine {
     @Override
     public String getAttribute(long handle, String selector, String name) {
         Object target = registry.get(handle);
-        return target instanceof ElementHandle element ? element.getAttribute(name) : get(handle, Page.class).getAttribute(selector, name);
+        return target instanceof ElementHandle element ? element.getAttribute(name) : get(handle, Page.class).getAttribute(selector,
+                name);
     }
 
     /**
@@ -365,7 +366,8 @@ public class JavaEngine implements Engine {
     @Override
     public Object evaluate(long handle, String expression, Object arg) {
         Object target = registry.get(handle);
-        return target instanceof ElementHandle element ? element.evaluate(expression, arg) : get(handle, Page.class).evaluate(expression, arg);
+        return target instanceof ElementHandle element ? element.evaluate(expression, arg) : get(handle, Page.class).evaluate(expression,
+                arg);
     }
 
     /**

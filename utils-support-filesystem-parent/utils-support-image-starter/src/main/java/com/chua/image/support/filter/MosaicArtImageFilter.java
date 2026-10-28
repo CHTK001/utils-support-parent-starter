@@ -213,7 +213,8 @@ public class MosaicArtImageFilter extends AbstractImageFilter {
         int width = src.getWidth();
         int height = src.getHeight();
         boolean hasAlpha = (background.getAlpha() == 0);
-        BufferedImage out = new BufferedImage(width, height, hasAlpha ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
+        BufferedImage out = new BufferedImage(width, height,
+                hasAlpha ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
 
         // 填充底色
         Graphics2D g = out.createGraphics();

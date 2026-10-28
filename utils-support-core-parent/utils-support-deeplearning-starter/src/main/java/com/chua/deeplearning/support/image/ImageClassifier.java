@@ -57,7 +57,8 @@ public interface ImageClassifier {
      * @return 创建的结果
      */
     static ImageClassifier create(String name) {
-        return new DefaultImageClassifier(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultImageClassifier(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**
@@ -251,7 +252,8 @@ class DefaultImageClassifier implements ImageClassifier {
     @SuppressWarnings("unchecked")
     public String classify(byte[] imageData) {
         ITranslator<byte[], String> t =
-                (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
+                (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class,
+                        DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }
@@ -269,7 +271,8 @@ class DefaultImageClassifier implements ImageClassifier {
     @SuppressWarnings("unchecked")
     public List<DetectionInfo> classifyTopK(byte[] imageData, int k) {
         ITranslator<byte[], List<DetectionInfo>> t =
-                (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
+                (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class,
+                        DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }

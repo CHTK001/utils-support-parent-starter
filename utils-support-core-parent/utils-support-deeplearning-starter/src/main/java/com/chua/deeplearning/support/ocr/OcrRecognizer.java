@@ -56,7 +56,8 @@ public interface OcrRecognizer {
      * @return 识别器
      */
     static OcrRecognizer create(String name) {
-        return new DefaultOcrRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultOcrRecognizer(AbstractIdentificationEngine.getInstance(), name,
+                                        ModelSetting.builder().build());
     }
 
     /**
@@ -272,7 +273,8 @@ class DefaultOcrRecognizer implements OcrRecognizer {
     public String recognize(byte[] imageData) {
         // 优先走字符串路径（单行 rec 模型返回纯文本）；返回 List 的模型则回退到拼接路径
         ITranslator<byte[], Object> t =
-                (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
+                (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class,
+                        DetectOptions.of(threshold, null));
         if (t != null) {
             Object raw = t.translate(imageData);
             if (raw instanceof String s && !s.isEmpty()) {

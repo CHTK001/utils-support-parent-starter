@@ -48,7 +48,8 @@ public class CircleDrawEyeResolver extends AbstractDrawEyeResolver {
     */
     @Override
     public void draw(int x, int y, QrCodeRenderHelper.DetectLocation detectLocation) {
-        Ellipse2D.Double shape = new Ellipse2D.Double(leftPadding + x * infoSize, topPadding + y * infoSize,infoSize * detectCornerSize, infoSize * detectCornerSize);
+        Ellipse2D.Double shape = new Ellipse2D.Double(leftPadding + x * infoSize, topPadding + y * infoSize,
+                infoSize * detectCornerSize, infoSize * detectCornerSize);
         g2.setColor(Converter.convertIfNecessary(codeEyeSetting.getCodeEyeColor(), Color.class));
         g2.fill(shape);
 //        // 清除中心的形状，以模拟二维码码眼的效果

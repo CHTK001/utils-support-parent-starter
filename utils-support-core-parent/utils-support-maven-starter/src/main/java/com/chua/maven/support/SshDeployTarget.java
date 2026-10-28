@@ -130,7 +130,8 @@ public class SshDeployTarget implements MavenDeployTarget {
  // 通过 reflect工具 动态加载避免编译时强依赖
             Class<?> builderClass = ReflectUtils.forName("com.chua.ssh.support.client.SftpClient$Builder");
             Class<?> sftpClientClass = ReflectUtils.forName("com.chua.ssh.support.client.SftpClient");
-            Object builder = ReflectUtils.invokeStatic((Class<?>) sftpClientClass, "builder", Object.class, new Class<?>[0]);
+            Object builder = ReflectUtils.invokeStatic((Class<?>) sftpClientClass, "builder", Object.class,
+                    new Class<?>[0]);
             ReflectUtils.invoke(builder, "host", void.class, new Class<?>[]{String.class}, host);
             ReflectUtils.invoke(builder, "port", void.class, new Class<?>[]{int.class}, port);
             ReflectUtils.invoke(builder, "username", void.class, new Class<?>[]{String.class}, username);

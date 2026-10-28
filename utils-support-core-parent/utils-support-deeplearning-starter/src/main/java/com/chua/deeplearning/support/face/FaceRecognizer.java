@@ -55,7 +55,8 @@ public interface FaceRecognizer {
      * @return 创建的结果
      */
     static FaceRecognizer create(String name) {
-        return new DefaultFaceRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultFaceRecognizer(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

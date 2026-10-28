@@ -831,7 +831,8 @@ public class PipelineBuilder {
         if (walDir != null) {
             effectiveWal = new PipelineWal(id, walDir);
         }
-        return new DefaultPipeline(id, startNodeId, endNodeId, nodeMap, nodes, listeners, effectiveStrategy, effectiveWal);
+        return new DefaultPipeline(id, startNodeId, endNodeId, nodeMap, nodes, listeners, effectiveStrategy,
+                                   effectiveWal);
     }
 
     /**

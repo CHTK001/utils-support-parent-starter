@@ -305,9 +305,11 @@ public class SpringBeanUtils {
         final Class<?> targetClass = controller.getClass();
         doWithMethods(targetClass, method -> {
             try {
-                Method createMappingMethod = findMethod(requestMappingHandlerMapping.getClass(), "getMappingForMethod", Method.class, Class.class);
+                Method createMappingMethod = findMethod(requestMappingHandlerMapping.getClass(),
+                        "getMappingForMethod", Method.class, Class.class);
                 if (createMappingMethod != null) {
-                    Object requestMappingInfo = ReflectUtils.invoke(requestMappingHandlerMapping, createMappingMethod.getName(), createMappingMethod.getReturnType(), method, targetClass);
+                    Object requestMappingInfo = ReflectUtils.invoke(requestMappingHandlerMapping,
+                            createMappingMethod.getName(), createMappingMethod.getReturnType(), method, targetClass);
                     if (requestMappingInfo != null && requestMappingInfo instanceof RequestMappingInfo) {
                         requestMappingHandlerMapping.unregisterMapping((RequestMappingInfo) requestMappingInfo);
                     }

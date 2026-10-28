@@ -56,7 +56,8 @@ public interface DepthEstimator {
      * @return 估计器
      */
     static DepthEstimator create(String name) {
-        return new DefaultDepthEstimator(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultDepthEstimator(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

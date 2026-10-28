@@ -72,8 +72,10 @@ public class SshTunnel implements Tunnel {
             forward.bindAddress(bindAddress);
 
             switch (definition.getType()) {
-                case LOCAL -> forward.local(definition.getLocalPort(), definition.getRemoteHost(), definition.getRemotePort());
-                case REMOTE -> forward.remote(definition.getRemotePort(), definition.getRemoteHost(), definition.getLocalPort());
+                case LOCAL -> forward.local(definition.getLocalPort(), definition.getRemoteHost(),
+                        definition.getRemotePort());
+                case REMOTE -> forward.remote(definition.getRemotePort(), definition.getRemoteHost(),
+                        definition.getLocalPort());
                 case DYNAMIC -> forward.dynamic(definition.getLocalPort());
             }
 

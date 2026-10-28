@@ -137,7 +137,8 @@ public class FelixOsgiBundle implements OsgiBundle {
         try {
             boolean wasActive = bundle.getState() == Bundle.ACTIVE || bundle.getState() == Bundle.STARTING;
             FelixOsgiLauncher launcher = this.owner;
-            int baseline = launcher == null ? 0 : launcher.processedEventCount(bundle.getBundleId(), BundleEvent.STOPPED);
+            int baseline = launcher == null ? 0 : launcher.processedEventCount(bundle.getBundleId(),
+                    BundleEvent.STOPPED);
             releaseHeldReferences();
             bundle.stop();
             // 规范约定：bundle 停止时其注册的服务由框架自动注销，此处仅清理本地句柄缓存，
@@ -161,7 +162,8 @@ public class FelixOsgiBundle implements OsgiBundle {
                 releaseHeldReferences();
             }
             FelixOsgiLauncher launcher = this.owner;
-            int baseline = launcher == null ? 0 : launcher.processedEventCount(bundle.getBundleId(), BundleEvent.UNINSTALLED);
+            int baseline = launcher == null ? 0 : launcher.processedEventCount(bundle.getBundleId(),
+                    BundleEvent.UNINSTALLED);
             bundle.uninstall();
             registrations.clear();
             if (launcher != null) {

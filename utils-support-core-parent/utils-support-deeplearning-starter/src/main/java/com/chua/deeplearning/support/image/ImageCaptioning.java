@@ -62,7 +62,8 @@ public interface ImageCaptioning {
      * @return 创建的结果
      */
     static ImageCaptioning create(String name) {
-        return new DefaultImageCaptioning(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultImageCaptioning(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

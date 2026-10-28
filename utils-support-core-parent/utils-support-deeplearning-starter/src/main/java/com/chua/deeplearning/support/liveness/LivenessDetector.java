@@ -55,7 +55,8 @@ public interface LivenessDetector {
      * @return 创建的结果
      */
     static LivenessDetector create(String name) {
-        return new DefaultLivenessDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultLivenessDetector(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**
@@ -222,7 +223,8 @@ class DefaultLivenessDetector implements LivenessDetector {
     @SuppressWarnings("unchecked")
     public boolean isLive(byte[] imageData) {
         ITranslator<byte[], Object> t =
-                (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
+                (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class,
+                        DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }
@@ -252,7 +254,8 @@ class DefaultLivenessDetector implements LivenessDetector {
     @SuppressWarnings("unchecked")
     public float liveScore(byte[] imageData) {
         ITranslator<byte[], Object> t =
-                (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
+                (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class,
+                        DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }

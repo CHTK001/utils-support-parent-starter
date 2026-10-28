@@ -343,7 +343,8 @@ public class SwaggerOpenApiParser implements DocumentParser {
      */
     private static OpenApiParam parseParam(JsonObject node) {
         JsonObject schema = node.getJsonObject("schema");
-        String type = schema != null ? schema.getType("type", null, String.class) : node.getType("type", null, String.class);
+        String type = schema != null ? schema.getType("type", null, String.class) : node.getType("type", null,
+                String.class);
         return new OpenApiParam(node.getType("name", "", String.class),
                 node.getType("in", "query", String.class),
                 type != null ? type : "string",

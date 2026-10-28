@@ -473,13 +473,15 @@ public class RedisReactorEngine implements ReactorEngine {
                     result = conn.incr(args[0]);
                     break;
                 case "INCRBY":
-                    result = conn.incrby(args[0], parseLong(Converter.convertIfNecessary(args[1], Long.class), args[1]));
+                    result = conn.incrby(args[0],
+                            parseLong(Converter.convertIfNecessary(args[1], Long.class), args[1]));
                     break;
                 case "DECR":
                     result = conn.decr(args[0]);
                     break;
                 case "DECRBY":
-                    result = conn.decrby(args[0], parseLong(Converter.convertIfNecessary(args[1], Long.class), args[1]));
+                    result = conn.decrby(args[0],
+                            parseLong(Converter.convertIfNecessary(args[1], Long.class), args[1]));
                     break;
                 case "APPEND":
                     result = conn.append(args[0], args[1]);
@@ -568,7 +570,8 @@ public class RedisReactorEngine implements ReactorEngine {
                     result = "OK";
                     break;
                 case "EXPIRE":
-                    result = conn.expire(args[0], parseLong(Converter.convertIfNecessary(args[1], Long.class), args[1]));
+                    result = conn.expire(args[0],
+                            parseLong(Converter.convertIfNecessary(args[1], Long.class), args[1]));
                     break;
                 case "FLUSHDB":
                     conn.flushdb();

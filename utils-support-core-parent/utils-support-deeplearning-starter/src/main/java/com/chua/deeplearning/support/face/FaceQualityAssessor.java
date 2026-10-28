@@ -56,7 +56,8 @@ public interface FaceQualityAssessor {
      * @return 创建的结果
      */
     static FaceQualityAssessor create(String name) {
-        return new DefaultFaceQualityAssessor(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultFaceQualityAssessor(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

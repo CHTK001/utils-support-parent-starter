@@ -168,7 +168,8 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
         while (running.get()) {
             try {
                 receiveSocket.receive(packet);
-                String msg = new String(packet.getData(), packet.getOffset(), packet.getLength(), StandardCharsets.UTF_8);
+                String msg = new String(packet.getData(), packet.getOffset(), packet.getLength(),
+                                        StandardCharsets.UTF_8);
                 handleMessage(msg);
             } catch (SocketTimeoutException ignored) {
                 // 忽略超时异常

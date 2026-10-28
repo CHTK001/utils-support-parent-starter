@@ -78,7 +78,8 @@ public class JdkUdpServer extends AbstractServer {
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
-            int bufferSize = (int) Math.min(setting.getMaxRequestSize() > 0 ? setting.getMaxRequestSize() : 65535, 65535);
+            int bufferSize = (int) Math.min(setting.getMaxRequestSize() > 0 ? setting.getMaxRequestSize() : 65535,
+                    65535);
             datagramSocket = new DatagramSocket(addr);
             datagramSocket.setReceiveBufferSize(bufferSize);
             datagramSocket.setSoTimeout(1000);

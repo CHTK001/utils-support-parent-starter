@@ -458,7 +458,8 @@ public class DataSyncAgentServer implements AgentServerManager {
                                 sink.complete();
                             } else if (message instanceof String) {
                                 try {
-                                    List<Map<String, Object>> data = com.chua.common.support.lang.json.Json.fromJson((String) message, List.class);
+                                    List<Map<String, Object>> data = com.chua.common.support.lang.json.Json.fromJson((String) message,
+                                            List.class);
                                     if (data != null) {
                                         for (Map<String, Object> row : data) {
                                             sink.next(row);

@@ -57,7 +57,8 @@ public interface PedestrianDetector {
      * @return 检测器
      */
     static PedestrianDetector create(String name) {
-        return new DefaultPedestrianDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultPedestrianDetector(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

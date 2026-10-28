@@ -64,7 +64,8 @@ public class RobotScreenCapture implements ScreenCature {
             this.fps = fps;
             this.frameConverter = new Java2DFrameConverter();
             java.awt.Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            this.captureBuf = new BufferedImage((int) screenSize.getWidth(), (int) screenSize.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+            this.captureBuf = new BufferedImage((int) screenSize.getWidth(), (int) screenSize.getHeight(),
+                    BufferedImage.TYPE_3BYTE_BGR);
             this.initialized = true;
             log.info("[RobotScreenCapture] 已初始化: {}x{} {}fps YUV420P", width, height, fps);
             return true;

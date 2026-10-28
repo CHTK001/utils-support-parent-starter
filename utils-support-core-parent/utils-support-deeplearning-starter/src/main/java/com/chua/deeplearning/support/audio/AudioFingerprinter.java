@@ -100,7 +100,8 @@ public interface AudioFingerprinter {
      * @return 指纹提取器实例
      */
     static AudioFingerprinter create(String name) {
-        return new DefaultAudioFingerprinter(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultAudioFingerprinter(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

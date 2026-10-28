@@ -55,7 +55,8 @@ public interface ImageGenerator {
      * @return 创建的结果
      */
     static ImageGenerator create(String name) {
-        return new DefaultImageGenerator(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultImageGenerator(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

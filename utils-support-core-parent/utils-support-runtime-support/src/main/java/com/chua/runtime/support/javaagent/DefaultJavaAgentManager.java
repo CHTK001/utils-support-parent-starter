@@ -78,7 +78,8 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
 
         try {
             Class<?> vmClass = ReflectUtils.forName("com.sun.tools.attach.VirtualMachine");
-            Object vm = ReflectUtils.invokeStatic(vmClass, "attach", Object.class, new Class<?>[]{String.class}, String.valueOf(pid));
+            Object vm = ReflectUtils.invokeStatic(vmClass, "attach", Object.class, new Class<?>[]{String.class},
+                    String.valueOf(pid));
             String classPath = (String) ReflectUtils.invoke(vm, "getClassPath", String.class);
             String systemProps = (String) ReflectUtils.invoke(vm, "getSystemProperties", String.class);
             String mainClass = getMainClassName(pid);

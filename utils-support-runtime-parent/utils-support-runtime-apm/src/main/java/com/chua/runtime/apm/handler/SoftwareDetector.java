@@ -368,7 +368,8 @@ public final class SoftwareDetector {
      */
     public static Protocol inferProtocolFromSocket(Socket socket) {
         try {
-            InetSocketAddress addr = (InetSocketAddress) ReflectUtils.invoke(socket, "getRemoteSocketAddress", InetSocketAddress.class);
+            InetSocketAddress addr = (InetSocketAddress) ReflectUtils.invoke(socket, "getRemoteSocketAddress",
+                    InetSocketAddress.class);
             if (addr != null) {
                 return Protocol.inferByPort(addr.getPort());
             }
@@ -401,7 +402,8 @@ public final class SoftwareDetector {
      */
     public static String extractSocketTarget(Socket socket) {
         try {
-            InetSocketAddress addr = (InetSocketAddress) ReflectUtils.invoke(socket, "getRemoteSocketAddress", InetSocketAddress.class);
+            InetSocketAddress addr = (InetSocketAddress) ReflectUtils.invoke(socket, "getRemoteSocketAddress",
+                    InetSocketAddress.class);
             if (addr != null && addr.isUnresolved()) {
                 return addr.getHostName() + ":" + addr.getPort();
             }

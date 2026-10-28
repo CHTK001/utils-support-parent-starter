@@ -4201,7 +4201,8 @@ public class StringUtils {
     /**
      * '   ;               SQL
      */
-    private static final Pattern SQL_COMMENT_PATTERN = Pattern.compile("'.*(or|union|--|#|/*|;)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern SQL_COMMENT_PATTERN = Pattern.compile("'.*(or|union|--|#|/*|;)",
+            Pattern.CASE_INSENSITIVE);
 
     /**
      * SQL 注入替换空白字符

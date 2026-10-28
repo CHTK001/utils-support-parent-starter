@@ -72,7 +72,8 @@ public interface ImageClarityDetector {
      * @return 实例
      */
     static ImageClarityDetector create(String name) {
-        return new DefaultImageClarityDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultImageClarityDetector(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

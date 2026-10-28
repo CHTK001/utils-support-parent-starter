@@ -103,7 +103,8 @@ public class SamePackageServiceResolver implements ServiceResolver {
             }
 
             validCount++;
-            List<ServiceDefinition> serviceDefinitions = buildDefinition(service, aClass, SamePackageServiceResolver.class);
+            List<ServiceDefinition> serviceDefinitions = buildDefinition(service, aClass,
+                    SamePackageServiceResolver.class);
             if (!serviceDefinitions.isEmpty()) {
                 result.addAll(serviceDefinitions);
                 continue;

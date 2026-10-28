@@ -87,7 +87,8 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
         Object[] args = resolveArgs(map.get("params"), method.getParameters());
 
         try {
-            Object result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
+            Object result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(),
+                    method.getParameterTypes(), args);
             Map<String, Object> resultMap = Wraps.linkedMap();
             resultMap.put("success", true);
             resultMap.put("result", result);

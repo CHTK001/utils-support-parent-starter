@@ -66,7 +66,8 @@ public interface MattingService {
      * @return 抠图服务
      */
     static MattingService create(String name) {
-        return new DefaultMattingService(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultMattingService(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

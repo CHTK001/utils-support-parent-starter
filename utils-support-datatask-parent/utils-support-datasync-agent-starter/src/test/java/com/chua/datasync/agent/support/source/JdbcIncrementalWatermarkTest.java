@@ -86,7 +86,8 @@ class JdbcIncrementalWatermarkTest {
     @DisplayName("复合增量 SQL 展开成字典序条件")
     void compositeIncrementalSql() throws Exception {
         JdbcDataSyncAgentSource source = newSource("SELECT a, b FROM t");
-        String sql = invokeBuildSql(source, java.util.List.<String>of("created_at", "id"), "[\"2026-10-24 10:00:00\",\"812\"]");
+        String sql = invokeBuildSql(source, java.util.List.<String>of("created_at", "id"),
+                                    "[\"2026-10-24 10:00:00\",\"812\"]");
 
         assertTrue(sql.contains("created_at > '2026-10-24 10:00:00'"), "首个分支应比第一列: " + sql);
         assertTrue(sql.contains("(created_at = '2026-10-24 10:00:00' AND id > 812)"),

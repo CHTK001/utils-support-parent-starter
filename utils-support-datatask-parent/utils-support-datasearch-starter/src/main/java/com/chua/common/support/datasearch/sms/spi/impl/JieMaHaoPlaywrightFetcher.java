@@ -73,7 +73,8 @@ public class JieMaHaoPlaywrightFetcher implements AutoCloseable {
     /**
      * 英文验证码模式：code/code is/verification code + 数字
      */
-    private static final Pattern EN_CODE_PATTERN = Pattern.compile("(?:code|otp)[^0-9]{0,12}([0-9]{4,8})", Pattern.CASE_INSENSITIVE);
+    private static final Pattern EN_CODE_PATTERN = Pattern.compile("(?:code|otp)[^0-9]{0,12}([0-9]{4,8})",
+            Pattern.CASE_INSENSITIVE);
 
     /**
      * 纯数字验证码模式（正文尾部独立数字段）

@@ -23,7 +23,8 @@ public interface EmbeddingService {
      * @return EmbeddingService 实例
      */
     static EmbeddingService create(String name) {
-        return new DefaultEmbeddingService(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+        return new DefaultEmbeddingService(AbstractIdentificationEngine.getInstance(), name,
+                ModelSetting.builder().build());
     }
 
     /**

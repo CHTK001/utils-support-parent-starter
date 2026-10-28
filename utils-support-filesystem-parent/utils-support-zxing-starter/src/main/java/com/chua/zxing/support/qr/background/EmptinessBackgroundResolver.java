@@ -98,7 +98,8 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
             return;
         }
         int[] arrColor = new int[324];
-        arrColor = bufferedImage.getRGB(UNIT_WIDTH + i * UNIT_WIDTH + 3, UNIT_WIDTH + j * UNIT_WIDTH + 3, UNIT_WIDTH - 6, UNIT_WIDTH - 6, arrColor, 0, 4);
+        arrColor = bufferedImage.getRGB(UNIT_WIDTH + i * UNIT_WIDTH + 3, UNIT_WIDTH + j * UNIT_WIDTH + 3,
+                                        UNIT_WIDTH - 6, UNIT_WIDTH - 6, arrColor, 0, 4);
         for (int value : arrColor) {
             if (value != -1) {
                 g.setColor(blackColor);

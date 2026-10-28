@@ -264,7 +264,8 @@ public class NativeRpcClient implements RpcClient {
             try {
                 java.lang.reflect.Method m = pm.getMethod();
                 ClassUtils.setAccessible(m);
-                Object result = ReflectUtils.invoke(localService, m.getName(), Object.class, m.getParameterTypes(), pm.getArgs());
+                Object result = ReflectUtils.invoke(localService, m.getName(), Object.class, m.getParameterTypes(),
+                        pm.getArgs());
                 // 语义对齐：服务端通过 RpcServer 返回 Future 时也做同样解包
                 if (result instanceof java.util.concurrent.Future) {
                     return ((java.util.concurrent.Future<?>) result).get();
