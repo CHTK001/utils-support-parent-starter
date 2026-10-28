@@ -63,6 +63,7 @@ class Util {
                 : new ConsoleProgressBarConsumer(out, predefinedWidth);
     }
     /**
+     * 重复生成内容。
      *                         
      *
      * @param c                   

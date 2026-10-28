@@ -1418,6 +1418,8 @@ public class QqBotClient implements BotClient {
     }
 
     /**
+     * 判断客户端是否未运行。
+     *
      * @return 客户端未启动的失败结果
      */
     private static BotSendResult notRunning() {
@@ -1597,6 +1599,8 @@ public class QqBotClient implements BotClient {
     }
 
     /**
+     * 拼接绝对地址。
+     *
      * @param path 路径
      * @return 绝对地址
      */
@@ -1605,6 +1609,8 @@ public class QqBotClient implements BotClient {
     }
 
     /**
+     * 拼接会话资源路径前缀。
+     *
      * @param target  会话目标
      * @param toGroup 是否群聊
      * @return 会话资源路径前缀
@@ -1614,6 +1620,8 @@ public class QqBotClient implements BotClient {
     }
 
     /**
+     * 拼接消息发送路径。
+     *
      * @param target  会话目标
      * @param toGroup 是否群聊
      * @return 消息发送路径
@@ -1623,6 +1631,8 @@ public class QqBotClient implements BotClient {
     }
 
     /**
+     * 拼接文件资源路径。
+     *
      * @param target  会话目标
      * @param toGroup 是否群聊
      * @return 整文件上传/合并路径
@@ -1632,6 +1642,8 @@ public class QqBotClient implements BotClient {
     }
 
     /**
+     * 拼接分片预上传路径。
+     *
      * @param target  会话目标
      * @param toGroup 是否群聊
      * @return 分片预上传路径
@@ -1641,6 +1653,8 @@ public class QqBotClient implements BotClient {
     }
 
     /**
+     * 拼接分片完成通知路径。
+     *
      * @param target  会话目标
      * @param toGroup 是否群聊
      * @return 分片完成通知路径
@@ -1856,6 +1870,8 @@ public class QqBotClient implements BotClient {
     }
 
     /**
+     * 取字符串值。
+     *
      * @param value 原始值
      * @return 文本，null 返回 null
      */
@@ -1864,6 +1880,8 @@ public class QqBotClient implements BotClient {
     }
 
     /**
+     * 取整数值。
+     *
      * @param value        原始值
      * @param defaultValue 默认值
      * @return 整数
@@ -1873,6 +1891,8 @@ public class QqBotClient implements BotClient {
     }
 
     /**
+     * 取长整数值。
+     *
      * @param value        原始值
      * @param defaultValue 默认值
      * @return 长整数
@@ -1892,6 +1912,8 @@ public class QqBotClient implements BotClient {
     }
 
     /**
+     * 取首个非空白文本。
+     *
      * @param values 候选文本
      * @return 首个非空白文本，全部为空返回 null
      */
@@ -1942,6 +1964,8 @@ public class QqBotClient implements BotClient {
     }
 
     /**
+     * 去掉末尾斜杠。
+     *
      * @param value 地址
      * @return 去掉结尾斜杠的地址
      */

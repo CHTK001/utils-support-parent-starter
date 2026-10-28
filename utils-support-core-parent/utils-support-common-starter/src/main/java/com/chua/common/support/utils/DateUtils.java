@@ -704,6 +704,7 @@ public class DateUtils {
         return df.format(date);
     }
     /**
+     * 格式化日期时间。
      *
      *
      * @param date the 日期
@@ -871,6 +872,7 @@ public class DateUtils {
         return nearLocalDateTime(localTime, localTimes);
     }
     /**
+     * 取就近的本地日期时间。
      *
      *
      * @param localDateTime the 本地日期时间
@@ -910,6 +912,7 @@ public class DateUtils {
         return nearLocalTime(localTime, localTimes);
     }
     /**
+     * 取就近的本地时间。
      *
      *
      * @param localTime the 本地时间
@@ -2233,6 +2236,7 @@ public class DateUtils {
         return idx;
     }
     /**
+     * 转换时区表示。
      *
      *
      * @param str the str
@@ -2280,6 +2284,7 @@ public class DateUtils {
         return sdf;
     }
     /**
+     * 补齐毫秒位。
      *
      *
      * @param time the 时间
@@ -2421,6 +2426,7 @@ public class DateUtils {
         }
     }
     /**
+     * 查找元素下标。
      *
      *
      * @param str the str
@@ -2436,6 +2442,7 @@ public class DateUtils {
         }
     }
     /**
+     * 查找元素下标。
      *
      *
      * @param str the str
@@ -2498,18 +2505,23 @@ public class DateUtils {
         return Year.isLeap(year);
     }
     /**
+     * 获取当前日期。
+     *
      * @return the 结果
      */
     public static Date currentDate() {
         return new Date();
     }
     /**
+     * 获取今年年份。
+     *
      * @return the 结果
      */
     public static int thisYear() {
         return year(currentDate());
     }
     /**
+     * 获取年份。
      *
      *
      * @param date the 日期

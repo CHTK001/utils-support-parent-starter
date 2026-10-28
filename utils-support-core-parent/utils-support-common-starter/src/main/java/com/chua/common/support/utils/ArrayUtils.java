@@ -104,6 +104,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 为空时返回默认值。
      *
      *
      * @param source       源
@@ -461,6 +462,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 忽略大小写判断是否包含。
      *
      *
      * @param array array
@@ -754,6 +756,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 二维数组转一维数组。
      *
      *
      * @param x          x
@@ -808,6 +811,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 合并数组。
      *
      *
      * @param target Target
@@ -1149,6 +1153,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 裁剪或以分隔符拼接。
      *
      *
      * @param split     分割
@@ -1276,6 +1281,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 转换为整型数组。
      *
      *
      * @param value 值
@@ -1363,6 +1369,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 判断是否全部为空。
      *
      *
      * @param arr arr
@@ -1418,6 +1425,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 字符串数组转列表。
      *
      *
      * @param arr arr
@@ -1488,6 +1496,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 截取子数组。
      *
      *
      * @param arr    arr
@@ -1505,6 +1514,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 反转数组。
      * <p>
      *
      * <p>       {@code null}
@@ -1547,6 +1557,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 截取子数组。
      *
      *
      * @param arr     arr
@@ -1569,6 +1580,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 判断数组是否包含指定元素。
      *
      *
      * @param arr         arr
@@ -1585,6 +1597,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 截取子数组。
      *
      *
      * @param arr     arr
@@ -1607,6 +1620,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 获取数组长度。
      *
      *
      * @param value 值
@@ -1617,6 +1631,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 反转数组并返回新数组。
      *
      *
      * @param array array
@@ -1636,6 +1651,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 生成固定长度数组。
      *
      *
      * @param bytes       bytes
@@ -1655,6 +1671,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 取首个元素。
      *
      *
      * @param array array
@@ -1669,6 +1686,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 取最后一个元素。
      *
      *
      * @param array array
@@ -1701,6 +1719,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 判断是否包含任一元素。
      *
      *
      * @param source     源
@@ -1741,6 +1760,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 忽略大小写判断是否包含全部元素。
      *
      *
      * @param source 源
@@ -1764,6 +1784,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 右填充并截断到指定长度。
      *
      *
      * @param key   键
@@ -2029,6 +2050,7 @@ public class ArrayUtils {
     }
 
     /**
+     * 以分隔符拼接数组元素。
      *
      *
      * @param firstValue 第一个值

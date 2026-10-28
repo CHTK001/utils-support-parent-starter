@@ -182,6 +182,7 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 渲染进度条。
      *                            
      *
      * @param progress             

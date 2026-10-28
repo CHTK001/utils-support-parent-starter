@@ -153,6 +153,8 @@ public final class MiddlewareQueryResult {
     }
 
     /**
+     * 获取消息内容。
+     *
      * @return 失败原因，成功时为空串
      */
     public String message() {

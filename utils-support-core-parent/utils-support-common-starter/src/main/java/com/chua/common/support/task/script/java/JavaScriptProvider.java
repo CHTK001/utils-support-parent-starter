@@ -69,6 +69,8 @@ public class JavaScriptProvider implements ScriptProvider {
     private static final String SCRIPT_HOST_KEY = "scriptHost";
 
     /**
+     * 获取引擎名称。
+     *
      * @return 引擎名称 {@code java}
      */
     @Override

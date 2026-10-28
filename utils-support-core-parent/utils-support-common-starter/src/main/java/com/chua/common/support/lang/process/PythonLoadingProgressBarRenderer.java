@@ -159,6 +159,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 获取速率。
      *                      
      *
      * @param progress             
@@ -241,6 +242,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 渲染进度条。
      *                            
      *
      * @param progress             

@@ -126,6 +126,8 @@ public class RedisSearchSink implements DataSink {
     }
 
     /**
+     * 获取类型。
+     *
      * @return SPI 类型 {@code redis-search}
      */
     @Override

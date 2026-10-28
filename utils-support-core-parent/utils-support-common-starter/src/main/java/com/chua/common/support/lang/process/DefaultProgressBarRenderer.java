@@ -128,6 +128,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 获取进度整数部分。
      *                                     
      *
      * @param progress             
@@ -139,6 +140,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 获取进度小数部分。
      *                                     
      *
      * @param progress             
@@ -194,6 +196,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
+     * 获取速率。
      *                      
      *
      * @param progress             

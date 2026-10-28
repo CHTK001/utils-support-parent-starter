@@ -536,6 +536,7 @@ public class DataExportBuilder {
     }
 
     /**
+     * 生成预览内容。
      * <b>预览而不写出</b> —— 构建元数据供调用方检查。
      *
      * @return 文档元数据
