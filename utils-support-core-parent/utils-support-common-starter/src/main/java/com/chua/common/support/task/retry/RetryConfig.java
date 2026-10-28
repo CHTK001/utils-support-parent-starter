@@ -43,6 +43,12 @@ public class RetryConfig {
     }
 
     public interface RetryListenerCallback {
+    /**
+     * 重试前的回调。
+     *
+     * @param attemptNumber 当前重试次数
+     * @param cause 失败原因
+     */
         void onRetry(int attemptNumber, Throwable cause);
     }
 

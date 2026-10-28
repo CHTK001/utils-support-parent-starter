@@ -223,6 +223,9 @@ public interface RuntimeManager extends AutoCloseable {
      */
     Map<Integer, String> listJavaProcesses();
 
+    /**
+     * 关闭并释放底层资源。
+     */
     @Override
     void close() throws Exception;
 }

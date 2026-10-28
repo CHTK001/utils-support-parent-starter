@@ -205,6 +205,11 @@ public class MetricsServerFilter implements ServerFilter {
      * 指标回调接口。
      */
     public interface MetricsCallback {
+    /**
+     * 接收指标快照回调。
+     *
+     * @param snapshot 指标快照
+     */
         void onMetrics(MetricsSnapshot snapshot);
     }
 

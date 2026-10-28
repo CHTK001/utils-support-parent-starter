@@ -18,10 +18,25 @@ public interface UserManager {
      */
     interface CreateUserStep {
 
+    /**
+     * 设置用户密码。
+     *
+     * @param password 密码
+     * @return 当前步骤，便于链式调用
+     */
         CreateUserStep withPassword(String password);
 
+    /**
+     * 设置允许登录的主机。
+     *
+     * @param host 主机
+     * @return 当前步骤，便于链式调用
+     */
         CreateUserStep withHost(String host);
 
+    /**
+     * 执行已配置的操作。
+     */
         void execute();
     }
 
@@ -33,14 +48,43 @@ public interface UserManager {
      */
     interface AlterUserStep {
 
+    /**
+     * 设置用户密码。
+     *
+     * @param password 密码
+     * @return 当前步骤，便于链式调用
+     */
         AlterUserStep withPassword(String password);
 
+    /**
+     * 设置允许登录的主机。
+     *
+     * @param host 主机
+     * @return 当前步骤，便于链式调用
+     */
         AlterUserStep withHost(String host);
 
+    /**
+     * 追加授权项。
+     *
+     * @param privilege 权限名
+     * @param database 数据库名
+     * @return 当前步骤，便于链式调用
+     */
         AlterUserStep withGrant(String privilege, String database);
 
+    /**
+     * 追加回收项。
+     *
+     * @param privilege 权限名
+     * @param database 数据库名
+     * @return 当前步骤，便于链式调用
+     */
         AlterUserStep withRevoke(String privilege, String database);
 
+    /**
+     * 执行已配置的操作。
+     */
         void execute();
     }
 
@@ -52,6 +96,9 @@ public interface UserManager {
      */
     interface DropUserStep {
 
+    /**
+     * 执行已配置的操作。
+     */
         void execute();
     }
 

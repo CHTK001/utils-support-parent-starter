@@ -35,6 +35,9 @@ public interface OffsetStore extends AutoCloseable {
      */
     void start();
 
+    /**
+     * 关闭并释放底层资源。
+     */
     @Override
     void close();
 }

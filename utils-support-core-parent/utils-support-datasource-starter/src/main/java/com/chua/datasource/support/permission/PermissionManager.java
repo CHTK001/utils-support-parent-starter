@@ -37,11 +37,45 @@ public interface PermissionManager {
      * @since 4.0.0
      */
     interface GrantStep {
+    /**
+     * 指定被授权的用户。
+     *
+     * @param username 用户名
+     * @return 当前步骤，便于链式调用
+     */
         GrantStep toUser(String username);
+    /**
+     * 指定操作的数据库。
+     *
+     * @param database 数据库名
+     * @return 当前步骤，便于链式调用
+     */
         GrantStep onDatabase(String database);
+    /**
+     * 指定操作的表。
+     *
+     * @param table 表名
+     * @return 当前步骤，便于链式调用
+     */
         GrantStep onTable(String table);
+    /**
+     * 指定操作的表与列。
+     *
+     * @param table 表名
+     * @param column 列名
+     * @return 当前步骤，便于链式调用
+     */
         GrantStep onColumn(String table, String column);
+    /**
+     * 设置是否允许转授权。
+     *
+     * @param grantable 是否允许转授权
+     * @return 当前步骤，便于链式调用
+     */
         GrantStep withGrantOption(boolean grantable);
+    /**
+     * 执行已配置的操作。
+     */
         void execute();
     }
 
@@ -51,10 +85,38 @@ public interface PermissionManager {
      * @since 4.0.0
      */
     interface RevokeStep {
+    /**
+     * 指定被回收权限的用户。
+     *
+     * @param username 用户名
+     * @return 当前步骤，便于链式调用
+     */
         RevokeStep fromUser(String username);
+    /**
+     * 指定操作的数据库。
+     *
+     * @param database 数据库名
+     * @return 当前步骤，便于链式调用
+     */
         RevokeStep onDatabase(String database);
+    /**
+     * 指定操作的表。
+     *
+     * @param table 表名
+     * @return 当前步骤，便于链式调用
+     */
         RevokeStep onTable(String table);
+    /**
+     * 指定操作的表与列。
+     *
+     * @param table 表名
+     * @param column 列名
+     * @return 当前步骤，便于链式调用
+     */
         RevokeStep onColumn(String table, String column);
+    /**
+     * 执行已配置的操作。
+     */
         void execute();
     }
 

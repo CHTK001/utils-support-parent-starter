@@ -480,10 +480,20 @@ public final class EngineFunctional {
     // ---------------- 断言与统计 ----------------
 
     interface Init {
+    /**
+     * 创建实例。
+     *
+     * @return 新建的引擎实例
+     */
         Engine create();
     }
 
     interface Probe {
+    /**
+     * 执行并返回结果。
+     *
+     * @return 结果字符串
+     */
         String run() throws Exception;
     }
 
