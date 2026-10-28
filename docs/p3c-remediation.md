@@ -187,7 +187,7 @@ mvn -o -q compile -pl "module-a,module-b" -DskipTests "-Dpmd.skip=true" `
 | --- | --- | --- | --- |
 | 1.1 命名 | 类/方法/变量/常量/包/artifactId 命名 | ✅ 已合规 | 包名 4699→4695（4 处下划线已改）；常量 236 处排查后仅 7 处私有常量改名，其余为 serialVersionUID / Logger / API 兼容项 |
 | 1.2 常量 | 魔法值不得直接出现 | ⚠️ 记录豁免 | 重复字面量集中于测试与领域标签，机械提取会降低可读性；已写入遗留项 |
-| 1.3 格式 | 缩进/空格/换行/120 列 | ✅ 已合规 | 关键字括号空格 149、括号内空格 3、注释折行 109、制表符 0、行尾空白 2529→0；超长行 2251→165（其中 47 处为文本块内模板、118 处为长正则/URL/字符表，均不可语义无损拆分） |
+| 1.3 格式 | 缩进/空格/换行/120 列 | ✅ 已合规 | 关键字括号空格 149、括号内空格 3、注释折行 109、制表符 0、行尾空白 2529→0；超长行 2251→143（其中 47 处为文本块内模板、118 处为长正则/URL/字符表，均不可语义无损拆分） |
 | 1.4 OOP | `@Override`、包装类 `==`、POJO `toString`、`@Deprecated` 说明 | ✅ 已合规 | 可静态验证的 `@Override` 补 4 处；57 个 POJO 补 `@ToString`（20 个含敏感字段主动跳过）；包装类 `==` 复查无可信违规 |
 | 1.5 集合 | `toArray`、`entrySet`、`subList` | ✅ 已合规 | 34 处 `toArray(new Object[0])`；3 处 `keySet+get` 改 `entrySet` |
 | 1.6 并发 | 线程池、ThreadLocal、SimpleDateFormat | ✅ 已合规 | 10+7+5+3 个 Executors 改显式线程池并设拒绝策略；66 个 ThreadLocal 类均调用 remove；无 static SimpleDateFormat |
@@ -226,6 +226,7 @@ mvn -o -q compile -pl "module-a,module-b" -DskipTests "-Dpmd.skip=true" `
 | 19 | 任意深度 `+` | 括号内算术累加 | 36 |
 | 20 | 顶层逗号 | 任意以 `{`/`)`/`);` 结尾的行 | 23 |
 | 21 | 长 `reg(...)` 调用 | 逐实参换行 | 14 |
+| 21b | 任意深度三元 | `f(cond ? a : b)` | 23 |
 | 22 | 注解数组 | `@Spi({...})` | 2 |
 | 23 | 注释折行 | 超长 Javadoc/行注释 | 109 |
 | 24 | 行尾空白/制表符 | 格式清理 | 2529 |
