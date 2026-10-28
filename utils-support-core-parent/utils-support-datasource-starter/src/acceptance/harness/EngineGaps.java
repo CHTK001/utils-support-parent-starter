@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.List;
 import java.util.Properties;
+import com.chua.influxdb.support.engine.InfluxdbSeriesEngine;
 
 /**
  * 引擎验收运行器 —— 阶段五：补齐 KvEngine / SeriesEngine 全子类与 monitor 装配面。
@@ -81,7 +82,7 @@ public final class EngineGaps {
         // url/database 留空 → 构造器走「未配置」分支，不发起任何网络连接
         InfluxdbSeriesEngineHolder holder;
         try {
-            holder = new InfluxdbSeriesEngineHolder(new com.chua.influxdb.support.engine.InfluxdbSeriesEngine(new Properties()));
+            holder = new InfluxdbSeriesEngineHolder(new InfluxdbSeriesEngine(new Properties()));
         } catch (Throwable t) {
             EngineFunctional.recordFail(p + "构造异常: " + EngineFunctional.chain(t));
             return;

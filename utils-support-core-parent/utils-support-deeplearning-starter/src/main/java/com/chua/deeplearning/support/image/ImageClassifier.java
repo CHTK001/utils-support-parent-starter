@@ -9,6 +9,7 @@ import com.chua.deeplearning.support.translator.ITranslator;
 
 import java.util.List;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.deeplearning.support.engine.ModelRegistry;
 
 /**
  * 图像分类器，对图像进行单标签或多标签分类。
@@ -64,13 +65,13 @@ public interface ImageClassifier {
     /**
      * 查询该能力下全部可用模型。
      *
-     * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
+     * <p>按能力接口从 {@link ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
      * @return 模型 标识 列表
      */
     static List<String> listModels() {
-        return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageClassifier.class);
+        return ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageClassifier.class);
     }
 
     /**

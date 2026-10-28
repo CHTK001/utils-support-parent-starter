@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.chua.common.support.objects.environment.EnvironmentChangeListener;
 
 /**
  * Spring Boot 集成 对象上下文 — 桥接 Spring application上下文 与核心容器。
@@ -623,7 +624,7 @@ public class SpringBootObjectContext implements ObjectContext {
          * 添加改变监听器
         */
         @Override
-        public void addChangeListener(com.chua.common.support.objects.environment.EnvironmentChangeListener listener) {
+        public void addChangeListener(EnvironmentChangeListener listener) {
  // Spring 环境 适配器暂不实现监听器
         }
 
@@ -631,7 +632,7 @@ public class SpringBootObjectContext implements ObjectContext {
          * 移除改变监听器
         */
         @Override
-        public void removeChangeListener(com.chua.common.support.objects.environment.EnvironmentChangeListener listener) {
+        public void removeChangeListener(EnvironmentChangeListener listener) {
  // Spring 环境 适配器暂不实现监听器
         }
 

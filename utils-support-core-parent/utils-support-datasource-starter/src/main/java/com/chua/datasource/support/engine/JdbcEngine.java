@@ -31,6 +31,7 @@ import java.sql.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import com.chua.common.support.lang.datasource.engine.ddl.ColumnDef;
 
 /**
  * JDBC 引擎基类，提供基于 JDBC 的数据库查询实现。
@@ -1050,7 +1051,7 @@ public abstract class JdbcEngine extends AbstractEngine {
      * @throws IllegalArgumentException 表名为空或列定义为空时抛出
      */
     public boolean createTable(String tableName,
-                               List<com.chua.common.support.lang.datasource.engine.ddl.ColumnDef> columns) {
+                               List<ColumnDef> columns) {
         if (tableName == null || tableName.isBlank()) {
             throw new IllegalArgumentException("表名不能为空");
         }
@@ -1079,12 +1080,12 @@ public abstract class JdbcEngine extends AbstractEngine {
      * @return 完整建表 DDL 语句
      */
     private String buildFallbackCreateTableSql(String tableName,
-                                               List<com.chua.common.support.lang.datasource.engine.ddl.ColumnDef> columns) {
+                                               List<ColumnDef> columns) {
         String ident = escapeIdentifier(tableName);
         StringBuilder sb = new StringBuilder("CREATE TABLE IF NOT EXISTS ")
                 .append(ident).append(" (\n");
         for (int i = 0; i < columns.size(); i++) {
-            com.chua.common.support.lang.datasource.engine.ddl.ColumnDef c = columns.get(i);
+            ColumnDef c = columns.get(i);
             if (c.getName() == null || c.getType() == null) {
                 throw new IllegalArgumentException("列定义缺少 name 或 type: " + c);
             }

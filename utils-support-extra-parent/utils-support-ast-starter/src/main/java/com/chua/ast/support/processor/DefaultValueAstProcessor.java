@@ -12,6 +12,8 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import java.util.Set;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeMaker;
 
 /**
  * {@link DefaultValue} 注解的 AST 处理器
@@ -223,9 +225,9 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
      * @param arrayType 数组类型
      * @return 赋值表达式语句
      */
-    private com.sun.tools.javac.tree.JCTree.JCExpressionStatement buildArrayAssignment(com.sun.tools.javac.tree.TreeMaker maker,
+    private JCTree.JCExpressionStatement buildArrayAssignment(TreeMaker maker,
             com.sun.tools.javac.util.Names names,
-            com.sun.tools.javac.tree.JCTree.JCIdent paramIdent,
+            JCTree.JCIdent paramIdent,
             String[] defaultValues,
             ArrayType arrayType) {
 
@@ -235,7 +237,7 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
 
  // 构造数组元素类型表达式：新 组件类型[]{v1, v2, ...}
  // 对于 字符串 和 charsequence 使用简单名称
-        com.sun.tools.javac.tree.JCTree.JCExpression componentTypeExpr;
+        JCTree.JCExpression componentTypeExpr;
         if ("java.lang.String".equals(componentTypeName) || "java.lang.CharSequence".equals(componentTypeName)) {
             componentTypeExpr = maker.Ident(names.fromString("String"));
         } else {
@@ -244,8 +246,8 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
         }
 
         // 构造数组元素字面量
-        com.sun.tools.javac.tree.JCTree.JCExpression[] elements =
-                new com.sun.tools.javac.tree.JCTree.JCExpression[defaultValues.length];
+        JCTree.JCExpression[] elements =
+                new JCTree.JCExpression[defaultValues.length];
         for (int i = 0; i < defaultValues.length; i++) {
             elements[i] = AstUtils.makeLiteral(maker, defaultValues[i], componentType);
         }
@@ -271,9 +273,9 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
      * @param paramType 参数类型
      * @return 赋值表达式语句
      */
-    private com.sun.tools.javac.tree.JCTree.JCExpressionStatement buildEnumAssignment(com.sun.tools.javac.tree.TreeMaker maker,
+    private JCTree.JCExpressionStatement buildEnumAssignment(TreeMaker maker,
             com.sun.tools.javac.util.Names names,
-            com.sun.tools.javac.tree.JCTree.JCIdent paramIdent,
+            JCTree.JCIdent paramIdent,
             String enumValue,
             TypeMirror paramType) {
 
@@ -293,14 +295,14 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
      * @param qualifiedName 全限定类名
      * @return 全限定名标识符表达式
      */
-    private com.sun.tools.javac.tree.JCTree.JCExpression buildQualifiedIdent(com.sun.tools.javac.tree.TreeMaker maker,
+    private JCTree.JCExpression buildQualifiedIdent(TreeMaker maker,
             com.sun.tools.javac.util.Names names,
             String qualifiedName) {
 
         String[] parts = qualifiedName.split("\\.");
         if (parts.length == 0) { return maker.Ident(names.fromString(qualifiedName)); }
 
-        com.sun.tools.javac.tree.JCTree.JCExpression expr = maker.Ident(names.fromString(parts[0]));
+        JCTree.JCExpression expr = maker.Ident(names.fromString(parts[0]));
         for (int i = 1; i < parts.length; i++) {
             expr = maker.Select(expr, names.fromString(parts[i]));
         }

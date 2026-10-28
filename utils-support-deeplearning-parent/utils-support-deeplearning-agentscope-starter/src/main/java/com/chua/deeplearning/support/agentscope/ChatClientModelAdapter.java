@@ -40,6 +40,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import com.openai.models.chat.completions.ChatCompletionFunctionTool;
+import io.agentscope.core.model.ChatUsage;
+import com.openai.models.completions.CompletionUsage;
 
 /**
  * 对话客户端模型适配器类。
@@ -250,7 +252,7 @@ public class ChatClientModelAdapter implements Model {
             try (com.openai.core.http.StreamResponse<ChatCompletionChunk> stream =
                          getOpenAiClient().chat().completions().createStreaming(params)) {
                 Map<Integer, ToolCallAcc> accumulators = Wraps.linkedMap();
-                final io.agentscope.core.model.ChatUsage[] usage = {null};
+                final ChatUsage[] usage = {null};
 
                 stream.stream().forEach(chunk -> {
                     chunk.usage().ifPresent(u -> usage[0] = toAgentscopeUsage(u));
@@ -702,8 +704,8 @@ public class ChatClientModelAdapter implements Model {
      * @param usage OpenAI 用量
      * @return agentscope 用量
      */
-    private static io.agentscope.core.model.ChatUsage toAgentscopeUsage(com.openai.models.completions.CompletionUsage usage) {
-        return io.agentscope.core.model.ChatUsage.builder()
+    private static ChatUsage toAgentscopeUsage(CompletionUsage usage) {
+        return ChatUsage.builder()
                 .inputTokens((int) usage.promptTokens())
                 .outputTokens((int) usage.completionTokens())
                 .build();
@@ -715,11 +717,11 @@ public class ChatClientModelAdapter implements Model {
      * @param usage 项目用量
      * @return agentscope 用量
      */
-    private static io.agentscope.core.model.ChatUsage toAgentscopeUsage(com.chua.common.support.ai.AiUsage usage) {
+    private static ChatUsage toAgentscopeUsage(com.chua.common.support.ai.AiUsage usage) {
         if (usage == null) {
             return null;
         }
-        return io.agentscope.core.model.ChatUsage.builder()
+        return ChatUsage.builder()
                 .inputTokens(usage.getInputTokens() != null ? usage.getInputTokens() : 0)
                 .outputTokens(usage.getOutputTokens() != null ? usage.getOutputTokens() : 0)
                 .cachedTokens(usage.getCacheTokens() != null ? usage.getCacheTokens() : 0)

@@ -6,6 +6,7 @@ import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.deeplearning.support.engine.ModelRegistry;
 
 /**
  * 音频指纹提取器接口，负责从音频信号中提取可用于比对的特征向量。
@@ -83,7 +84,7 @@ public interface AudioFingerprinter {
     /**
      * 设置要使用的模型 标识（链式调用）。
      *
-     * <p>模型 ID 须在 {@link com.chua.deeplearning.support.engine.ModelRegistry}
+     * <p>模型 ID 须在 {@link ModelRegistry}
      * 中提前注册，可通过 {@link #listModels()} 查询可用列表。</p>
      *
      * @param model 模型标识，如 "wav2vec2-zh"
@@ -107,14 +108,14 @@ public interface AudioFingerprinter {
     /**
      * 查询当前引擎下所有已注册的音频指纹模型 标识 列表。
      *
-     * <p>该方法通过 {@link com.chua.deeplearning.support.engine.ModelRegistry}
+     * <p>该方法通过 {@link ModelRegistry}
      * 按 {@link AudioFingerprinter} 能力接口过滤已注册模型，
      * 常用于前端下拉框或能力清单展示。</p>
      *
      * @return 模型 标识 列表，如 ["wav2vec2-zh", "wespeaker-resnet34"]
      */
     static List<String> listModels() {
-        return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.audio.AudioFingerprinter.class);
+        return ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.audio.AudioFingerprinter.class);
     }
 
     /**

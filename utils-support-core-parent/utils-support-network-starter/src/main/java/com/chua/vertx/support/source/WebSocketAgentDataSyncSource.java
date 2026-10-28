@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Map;
+import com.chua.vertx.support.server.WebSocketDataSyncAgentServer;
 
 /**
  * WebSocket Agent 数据源
@@ -21,7 +22,7 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
     /**
      * Connection
     */
-    private final com.chua.vertx.support.server.WebSocketDataSyncAgentServer.Connection connection;
+    private final WebSocketDataSyncAgentServer.Connection connection;
     /**
      * 来源标识
     */
@@ -33,7 +34,7 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
      * @param sourceId 字符串
      */
     public WebSocketAgentDataSyncSource(
-                                        com.chua.vertx.support.server.WebSocketDataSyncAgentServer.Connection connection,
+                                        WebSocketDataSyncAgentServer.Connection connection,
                                         String sourceId) {
         this.connection = connection;
         this.sourceId = sourceId;

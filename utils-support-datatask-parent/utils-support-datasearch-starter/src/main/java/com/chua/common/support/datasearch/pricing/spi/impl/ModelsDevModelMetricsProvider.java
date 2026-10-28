@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * models.dev 模型目录提供者。
@@ -66,8 +67,8 @@ public class ModelsDevModelMetricsProvider extends AbstractModelMetricsProvider 
     /**
      * 网关 / 代理识别：厂商 id 里的关键字
      */
-    private static final java.util.regex.Pattern GATEWAY_PATTERN = java.util.regex.Pattern.compile(
-            "gateway|router|proxy|aggregat|relay|hub|openai-compatible|302|merge", java.util.regex.Pattern.CASE_INSENSITIVE);
+    private static final Pattern GATEWAY_PATTERN = Pattern.compile(
+            "gateway|router|proxy|aggregat|relay|hub|openai-compatible|302|merge", Pattern.CASE_INSENSITIVE);
 
     /**
      * 从 models.dev 拉取全量模型能力与价格。

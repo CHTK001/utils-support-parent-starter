@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 基于 kcp-基础 的 KCP 消息服务器实现（消息型，协议分类与 MQTT 一致）。
@@ -109,7 +110,7 @@ public class KcpServer extends AbstractServer {
      * 显著减少逐条 写入 与 ACK 确认次数（KCP 可靠确认是下行吞吐主瓶颈）。</p>
      */
     private final Map<Ukcp, java.util.concurrent.ConcurrentLinkedQueue<byte[]>> batchQueues =
-            new java.util.concurrent.ConcurrentHashMap<>();
+            new ConcurrentHashMap<>();
 
     /**
      * 批量 flusher 列表（虚拟线程，按连接 哈希 分片并发冲刷）。
@@ -964,6 +965,6 @@ public class KcpServer extends AbstractServer {
     /**
      * 用 并发哈希映射 包装 topic->处理器（避免再写一个类）。
      */
-    private static final class ConcurrentHashMapAliasMap extends java.util.concurrent.ConcurrentHashMap<String, List<BiConsumer<String, String>>> {
+    private static final class ConcurrentHashMapAliasMap extends ConcurrentHashMap<String, List<BiConsumer<String, String>>> {
     }
 }

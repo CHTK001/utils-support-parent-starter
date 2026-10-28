@@ -19,6 +19,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import io.agentscope.core.middleware.ReasoningInput;
     /**
      * Agent调试 middleware 类。
      * 拦截Agent推理/执行事件，统计迭代次数、工具调用次数与 token 用量，
@@ -78,11 +79,11 @@ public class AgentDebugMiddleware implements MiddlewareBase {
 
     @Override
     public Flux<AgentEvent> onReasoning(Agent agent, io.agentscope.core.agent.RuntimeContext ctx,
-                                          io.agentscope.core.middleware.ReasoningInput input,
-                                          Function<io.agentscope.core.middleware.ReasoningInput, Flux<AgentEvent>> next) {
+                                          ReasoningInput input,
+                                          Function<ReasoningInput, Flux<AgentEvent>> next) {
         iteration++;
         log.info("[AgentTrace][{}] ────── 第 {} 轮 · 推理(Reasoning) ──────", agentId, iteration);
-        io.agentscope.core.middleware.ReasoningInput effectiveInput = injectFeedback(ctx, input);
+        ReasoningInput effectiveInput = injectFeedback(ctx, input);
         return next.apply(effectiveInput).doOnEach(signal -> {
             if (!signal.isOnError() && signal.get() != null) {
                 onEvent(signal.get());
@@ -100,9 +101,9 @@ public class AgentDebugMiddleware implements MiddlewareBase {
      * @param input 本次推理入参
      * @return 实际用于 next 的推理入参（可能为追加反馈后的新实例）
      */
-    private io.agentscope.core.middleware.ReasoningInput injectFeedback(
+    private ReasoningInput injectFeedback(
             io.agentscope.core.agent.RuntimeContext ctx,
-            io.agentscope.core.middleware.ReasoningInput input) {
+            ReasoningInput input) {
         if (feedbackInjected || feedback == null || feedback.isBlank() || ctx == null || input == null) {
             return input;
         }
@@ -128,7 +129,7 @@ public class AgentDebugMiddleware implements MiddlewareBase {
                 } catch (UnsupportedOperationException uoe) {
                     List<Msg> copy = Wraps.list(orig);
                     copy.add(feedbackMsg);
-                    return new io.agentscope.core.middleware.ReasoningInput(
+                    return new ReasoningInput(
                             copy, input.tools(), input.options());
                 }
             }

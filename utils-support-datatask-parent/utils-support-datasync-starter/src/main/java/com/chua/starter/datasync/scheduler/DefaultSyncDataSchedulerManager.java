@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.time.Duration;
+import com.chua.datasync.agent.support.model.SyncDataOffset;
 
 /**
  * 默认数据同步调度器管理器。
@@ -572,7 +573,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         Map<String, Object> params = mapping.params() == null ? Wraps.map() : Wraps.map(mapping.params());
         // 水位按「源 + 映射」读取：多目标时同一源对应多个映射，各目标必须各记各的水位。
         // 若只按源读，两个目标会互相覆盖水位，导致要么重复同步、要么漏数据。
-        com.chua.datasync.agent.support.model.SyncDataOffset storedOffset =
+        SyncDataOffset storedOffset =
                 source.readOffset(params, mapping.mappingId());
         if (storedOffset == null) {
             storedOffset = source.readOffset(params);
@@ -598,7 +599,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
             return;
         }
         try {
-            com.chua.datasync.agent.support.model.SyncDataOffset offset = new com.chua.datasync.agent.support.model.SyncDataOffset(
+            SyncDataOffset offset = new SyncDataOffset(
                     source.sourceId(),
                     lastOffset,
                     System.currentTimeMillis(),
