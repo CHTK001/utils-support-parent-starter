@@ -1045,7 +1045,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     @Override
     public <T> int executeUpdate(UpdateSql<T> sql) {
         String ql = sql.whereClause();
-        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray();
+        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray(new Object[0]);
         List<com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor> interceptorList = interceptors();
         for (com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor interceptor : interceptorList) {
             interceptor.beforeUpdate(ql, params);
@@ -1117,7 +1117,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     @Override
     public <T> int executeDelete(DeleteSql<T> sql) {
         String ql = sql.whereClause();
-        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray();
+        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray(new Object[0]);
         List<com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor> interceptorList = interceptors();
         for (com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor interceptor : interceptorList) {
             interceptor.beforeUpdate(ql, params);

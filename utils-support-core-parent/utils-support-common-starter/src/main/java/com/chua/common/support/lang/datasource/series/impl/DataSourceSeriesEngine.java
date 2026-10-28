@@ -200,7 +200,7 @@ public class DataSourceSeriesEngine implements SeriesEngine {
             params.add(monitorId);
         }
         try {
-            int deleted = executor.execute(sql.toString(), params.toArray());
+            int deleted = executor.execute(sql.toString(), params.toArray(new Object[0]));
             log.info("[SeriesEngine] JDBC 保留期清理 target={} monitor={} before={} 删除={} 行",
                     target, monitorId, beforeMillis, deleted);
             return deleted;

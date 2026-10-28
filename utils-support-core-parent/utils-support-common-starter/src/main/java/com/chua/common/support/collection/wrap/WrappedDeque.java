@@ -125,7 +125,7 @@ public class WrappedDeque<E> implements Deque<E>, Serializable {
 
     @Override
     public Object[] toArray() {
-        return delegate.toArray();
+        return delegate.toArray(new Object[0]);
     }
 
     @Override

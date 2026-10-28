@@ -114,7 +114,7 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
                 ordered.add(named.get(name));
             }
         }
-        return ordered.toArray();
+        return ordered.toArray(new Object[0]);
     }
 
     /**

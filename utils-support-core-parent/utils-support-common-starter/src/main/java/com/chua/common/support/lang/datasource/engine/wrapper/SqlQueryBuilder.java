@@ -646,7 +646,7 @@ public final class SqlQueryBuilder {
         List<Object> all = Wraps.list(params.size() + havingParams.size());
         all.addAll(params);
         all.addAll(havingParams);
-        return all.toArray();
+        return all.toArray(new Object[0]);
     }
 
     // ==================== 终端执行 ====================

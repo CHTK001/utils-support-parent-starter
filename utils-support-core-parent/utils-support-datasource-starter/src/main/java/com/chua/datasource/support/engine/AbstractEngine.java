@@ -431,7 +431,7 @@ public abstract class AbstractEngine implements Engine {
     public <T> List<T> executeQuery(LambdaQueryWrapper<T> wrapper, Class<T> entityClass) {
         var sql = wrapper.buildSql();
         String ql = sql.whereClause();
-        Object[] queryParams = sql.params().toArray();
+        Object[] queryParams = sql.params().toArray(new Object[0]);
         return interceptQuery(ql, queryParams, () -> executeQueryFull(sql));
     }
 
@@ -452,7 +452,7 @@ public abstract class AbstractEngine implements Engine {
     protected <T> List<T> executeQueryFull(QuerySql<T> sql) {
         // 分页只在 processQueryResult 截一次：这里以 (0,0) 取全量过滤结果，
         // 避免 executeNewQuery 先截、排序后内存再截导致第二页起恒为空
-        List<T> result = executeNewQuery(sql.whereClause(), sql.params().toArray(),
+        List<T> result = executeNewQuery(sql.whereClause(), sql.params().toArray(new Object[0]),
                 sql.entityClass(), 0, 0);
         return processQueryResult(sql, result);
     }
@@ -652,7 +652,7 @@ public abstract class AbstractEngine implements Engine {
      */
     public <T> int executeUpdate(UpdateSql<T> sql) {
         String ql = sql.whereClause();
-        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray();
+        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray(new Object[0]);
         return interceptUpdate(ql, params, () -> executeUpdateInMemory(sql));
     }
 
@@ -667,7 +667,7 @@ public abstract class AbstractEngine implements Engine {
      */
     public <T> int executeDelete(DeleteSql<T> sql) {
         String ql = sql.whereClause();
-        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray();
+        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray(new Object[0]);
         return interceptUpdate(ql, params, () -> executeDeleteInMemory(sql));
     }
 
@@ -1034,7 +1034,7 @@ public abstract class AbstractEngine implements Engine {
             values.append(')');
         }
         return executeSql("INSERT INTO " + table + " (" + String.join(", ", columns)
-                + ") VALUES " + values, params.toArray());
+                + ") VALUES " + values, params.toArray(new Object[0]));
     }
 
     /* ==================== 能力入口（与 meta() 同模式） ==================== */

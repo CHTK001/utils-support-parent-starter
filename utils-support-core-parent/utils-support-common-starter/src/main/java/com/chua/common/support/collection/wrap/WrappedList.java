@@ -173,7 +173,7 @@ public class WrappedList<E> extends AbstractList<E> implements RandomAccess, Ser
 
     @Override
     public Object[] toArray() {
-        return delegate.toArray();
+        return delegate.toArray(new Object[0]);
     }
 
     @Override

@@ -415,7 +415,7 @@ public class PostgresqlMetaData extends JdbcMetaData {
     private static IllegalStateException describe(Throwable cause, String context, String sql, List<?> args) {
         StringBuilder msg = new StringBuilder("PostgreSQL 元数据操作失败[").append(context).append("]: ");
         if (args != null && !args.isEmpty()) {
-            msg.append(Arrays.toString(args.toArray())).append(" | ");
+            msg.append(Arrays.toString(args.toArray(new Object[0]))).append(" | ");
         }
         msg.append(sql);
         return new IllegalStateException(msg.toString(), cause);

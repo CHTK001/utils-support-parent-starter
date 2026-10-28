@@ -146,7 +146,7 @@ public class WrappedQueue<E> extends AbstractQueue<E> implements Serializable {
 
     @Override
     public Object[] toArray() {
-        return delegate.toArray();
+        return delegate.toArray(new Object[0]);
     }
 
     @Override

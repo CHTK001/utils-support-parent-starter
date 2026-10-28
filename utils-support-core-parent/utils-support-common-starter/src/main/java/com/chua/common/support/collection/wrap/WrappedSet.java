@@ -117,7 +117,7 @@ public class WrappedSet<E> extends AbstractSet<E> implements Serializable {
 
     @Override
     public Object[] toArray() {
-        return delegate.toArray();
+        return delegate.toArray(new Object[0]);
     }
 
     @Override

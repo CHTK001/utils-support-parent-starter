@@ -2823,7 +2823,7 @@ public class ClassUtils {
      * @return 匹配的唯一值，无匹配时返回 null
      */
     public static Object findOnlyOneValue(Collection<Object> args, Class<?> aClass) {
-        return findOnlyOneValue(args.toArray(), aClass, 0);
+        return findOnlyOneValue(args.toArray(new Object[0]), aClass, 0);
     }
     /**
      * 从对象数组中查找可赋值到指定类型的唯一值（支持按索引定位）。

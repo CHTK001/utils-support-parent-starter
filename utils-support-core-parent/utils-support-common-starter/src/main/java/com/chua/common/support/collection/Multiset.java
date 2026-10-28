@@ -199,7 +199,7 @@ public class Multiset<E> extends AbstractSet<E> {
      */
     @Override
     public Object[] toArray() {
-        return countMap.keySet().toArray();
+        return countMap.keySet().toArray(new Object[0]);
     }
 
     /**

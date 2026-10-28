@@ -110,7 +110,7 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
         if (params == null) {
             return new Object[parameters.length];
         }
-        Object[] pa = params instanceof java.util.List<?> list ? list.toArray() : new Object[]{params};
+        Object[] pa = params instanceof java.util.List<?> list ? list.toArray(new Object[0]) : new Object[]{params};
         Object[] args = new Object[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             args[i] = i < pa.length ? convertParam(pa[i], parameters[i].getType()) : null;

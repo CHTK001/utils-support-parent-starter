@@ -259,7 +259,7 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
      */
     @Override
     public Object[] toArray() {
-        return delegate.keySet().toArray();
+        return delegate.keySet().toArray(new Object[0]);
     }
 
     /**

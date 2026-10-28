@@ -133,7 +133,7 @@ public class ReactorLambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, Reac
         if (sql.hasWhere()) {
             fullSql.append(" WHERE ").append(sql.whereClause());
         }
-        return engine.getExecutor().execute(fullSql.toString(), sql.params().toArray());
+        return engine.getExecutor().execute(fullSql.toString(), sql.params().toArray(new Object[0]));
     }
 
     @Override

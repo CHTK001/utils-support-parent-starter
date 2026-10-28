@@ -80,7 +80,7 @@ public class ObjectArrayTypeConverter implements TypeConverter<Object[]> {
         }
 
         if (value instanceof Collection) {
-            return ((Collection<?>) value).toArray();
+            return ((Collection<?>) value).toArray(new Object[0]);
         }
 
         return new Object[]{value};
