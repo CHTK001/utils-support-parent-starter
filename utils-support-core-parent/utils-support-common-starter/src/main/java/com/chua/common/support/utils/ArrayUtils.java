@@ -1759,7 +1759,8 @@ public class ArrayUtils {
      */
     public static byte[] range(byte[] responseBody, Integer start, Integer end) {
         return ArrayUtils.subArray(responseBody,
-                                   (start == null || start < 0 ? 0 : start), (null == end || end < 0 ? responseBody.length : end));
+                                   (start == null || start < 0 ? 0 : start),
+                                           (null == end || end < 0 ? responseBody.length : end));
     }
 
     /**

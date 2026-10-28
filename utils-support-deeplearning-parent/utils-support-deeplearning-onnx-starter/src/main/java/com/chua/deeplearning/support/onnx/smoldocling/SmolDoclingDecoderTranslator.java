@@ -32,7 +32,8 @@ import java.util.Map;
  * @since 2025/01/22
  */
 @Slf4j
-public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecoderTranslator.DecoderInput, SmolDoclingDecoderTranslator.DecoderStepOutput> {
+public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecoderTranslator.DecoderInput,
+        SmolDoclingDecoderTranslator.DecoderStepOutput> {
 
     /**
      *                                               30

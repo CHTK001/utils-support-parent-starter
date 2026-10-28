@@ -268,7 +268,8 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
      * @throws ExecutionException 执行异常
      * @throws TimeoutException 超时异常
      */
-    protected Object getFutureResult(Future<Object> future) throws InterruptedException, ExecutionException, TimeoutException {
+    protected Object getFutureResult(Future<Object> future) throws InterruptedException, ExecutionException,
+            TimeoutException {
         if (timeout > 0) {
             return future.get(timeout, timeUnit);
         }

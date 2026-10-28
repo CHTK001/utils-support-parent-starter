@@ -113,7 +113,8 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
      * @return 折叠门面实例
      */
     public static <INPUT, OUTPUT> CollapseFlow<INPUT, OUTPUT> ofMapped(String name,
-                                                                       CollapseResultMapper<INPUT, OUTPUT> resultMapper) {
+                                                                       CollapseResultMapper<INPUT,
+                                                                               OUTPUT> resultMapper) {
         return new CollapseFlow<>(name, null, Objects.requireNonNull(resultMapper, "resultMapper must not be null."));
     }
 

@@ -215,7 +215,8 @@ public class GenerateInitSqlMojo extends AbstractMojo {
      * @throws IOException 目录遍历失败时抛出
      */
     private List<Path> collectScripts(final Path root, final List<Path> excludedOutputs,
-                                      final List<String> effectiveIncludes, final List<String> effectiveExcludes) throws IOException {
+                                      final List<String> effectiveIncludes,
+                                              final List<String> effectiveExcludes) throws IOException {
         final List<Path> excluded = Wraps.list(excludedOutputs.size());
         for (final Path output : excludedOutputs) {
             excluded.add(output.toAbsolutePath().normalize());

@@ -274,7 +274,8 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
      * @throws Exception 读取或过滤失败
      */
     private byte[] streamAndFilterImage(ServerRequest request, ServerResponse response,
-                                        FileStorage storage, String key, String ext, FileOperationSetting ops) throws Exception {
+                                        FileStorage storage, String key, String ext,
+                                                FileOperationSetting ops) throws Exception {
         var getResult = storage.getObject(key);
         if (getResult == null || getResult.getInputStream() == null) {
             response.setStatus(404).end("File not found");

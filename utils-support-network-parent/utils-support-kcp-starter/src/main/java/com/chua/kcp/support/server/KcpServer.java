@@ -965,6 +965,7 @@ public class KcpServer extends AbstractServer {
     /**
      * 用 并发哈希映射 包装 topic->处理器（避免再写一个类）。
      */
-    private static final class ConcurrentHashMapAliasMap extends ConcurrentHashMap<String, List<BiConsumer<String, String>>> {
+    private static final class ConcurrentHashMapAliasMap extends ConcurrentHashMap<String, List<BiConsumer<String,
+            String>>> {
     }
 }

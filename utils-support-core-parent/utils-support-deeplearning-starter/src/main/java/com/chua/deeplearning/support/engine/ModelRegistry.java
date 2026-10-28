@@ -1380,7 +1380,8 @@ public final class ModelRegistry {
     /**
      * 懒加载 DJL Translator：首次推理时才实例化模型。
      */
-    private static final class LazyDjlTranslator implements ITranslator<Object, Object>, AutoCloseable, DetectionConfigurable {
+    private static final class LazyDjlTranslator implements ITranslator<Object, Object>, AutoCloseable,
+            DetectionConfigurable {
 
         /**
          * 模型标识
@@ -1600,7 +1601,8 @@ public final class ModelRegistry {
      * {@link DjlModelTranslator} 兼容的委托。此类与 {@link DjlModelTranslator}
      * 具有相同的对外形态（名称/translate/关闭），便于 lazydjltranslator 统一持有。</p>
      */
-    private static final class ITranslatorDelegate implements ITranslator<Object, Object>, AutoCloseable, DetectionConfigurable {
+    private static final class ITranslatorDelegate implements ITranslator<Object, Object>, AutoCloseable,
+            DetectionConfigurable {
 
         /**
          * 模型标识

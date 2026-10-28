@@ -225,7 +225,8 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
      * 填充兜底运势库（today/week/month 使用同一条兜底数据）
     */
     private static void put(Map<String, Map<String, HoroscopeInfo>> map, String sign, int overall, int love,
-                            int career, int wealth, int health, String luckyNumber, String luckyColor, String description) {
+                            int career, int wealth, int health, String luckyNumber, String luckyColor,
+                                    String description) {
         Map<String, HoroscopeInfo> inner = Wraps.map();
         inner.put("today",
                   new HoroscopeInfo(sign, "today", overall, love, career, wealth, health, luckyNumber, luckyColor,

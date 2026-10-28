@@ -537,7 +537,8 @@ public class QrCodeRenderUtils {
     public static void drawDetectImg(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int matrixW,
                                      int matrixH, int leftPadding, int topPadding, int infoSize, int detectCornerSize,
                                              int x, int y,
-                                     Color detectOutColor, Color detectInnerColor, QrCodeRenderHelper.DetectLocation detectLocation) {
+                                     Color detectOutColor, Color detectInnerColor,
+                                             QrCodeRenderHelper.DetectLocation detectLocation) {
 
         BufferedImage detectedImg = qrCodeConfig.getDetectOptions().chooseDetectedImg(detectLocation);
         if (detectedImg != null) {
@@ -604,7 +605,8 @@ public class QrCodeRenderUtils {
      * @param y            目标点y坐标
      */
     public static void drawQrDotImg(QrCodeOptions qrCodeConfig, QrCodeOptions.DrawStyle drawStyle, Graphics2D g2,
-                                    BitMatrixEx bitMatrix, int leftPadding, int topPadding, int infoSize, int x, int y) {
+                                    BitMatrixEx bitMatrix, int leftPadding, int topPadding, int infoSize, int x,
+                                            int y) {
 
         if (drawStyle != QrCodeOptions.DrawStyle.IMAGE) {
             drawGeometricFigure(qrCodeConfig, drawStyle, g2, bitMatrix, leftPadding, topPadding, infoSize, x, y);
@@ -627,7 +629,8 @@ public class QrCodeRenderUtils {
      * @param y            目标点y坐标
      */
     public static void drawGeometricFigure(QrCodeOptions qrCodeConfig, QrCodeOptions.DrawStyle drawStyle,
-                                           Graphics2D g2, BitMatrixEx bitMatrix, int leftPadding, int topPadding, int infoSize, int x, int y) {
+                                           Graphics2D g2, BitMatrixEx bitMatrix, int leftPadding, int topPadding,
+                                                   int infoSize, int x, int y) {
         if (!qrCodeConfig.getDrawOptions().isEnableScale()) {
             // 用几何图形进行填充时，如果不支持多个像素点渲染一个几何图形时，直接返回即可
             drawStyle.draw(g2, leftPadding + x * infoSize, topPadding + y * infoSize, infoSize, infoSize,
@@ -675,7 +678,8 @@ public class QrCodeRenderUtils {
      * @param y            目标点y坐标
      */
     public static void drawSpecialImg(QrCodeOptions qrCodeConfig, QrCodeOptions.DrawStyle drawStyle, Graphics2D g2,
-                                      BitMatrixEx bitMatrix, int leftPadding, int topPadding, int infoSize, int x, int y) {
+                                      BitMatrixEx bitMatrix, int leftPadding, int topPadding, int infoSize, int x,
+                                              int y) {
         // 针对图片扩展的方式，支持更加灵活的填充方式
         int maxRow = getMaxRow(bitMatrix.getByteMatrix(), x, y);
         int maxCol = getMaxCol(bitMatrix.getByteMatrix(), x, y);

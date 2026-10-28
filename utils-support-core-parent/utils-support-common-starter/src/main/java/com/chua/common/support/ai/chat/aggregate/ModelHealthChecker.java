@@ -167,18 +167,21 @@ public class ModelHealthChecker {
                             health.setRateLimited(true);
                             health.setQuotaExhausted(false);
                             log.warn("[ModelHealthChecker] client {}:{} rate limited: {} (failures: {})",
-                                    health.getProvider(), health.getModel(), result.getMessage(), health.getConsecutiveFailures());
+                                    health.getProvider(), health.getModel(), result.getMessage(),
+                                            health.getConsecutiveFailures());
                         }
                         case QUOTA_EXHAUSTED -> {
                             health.setQuotaExhausted(true);
                             health.setRateLimited(false);
                             log.warn("[ModelHealthChecker] client {}:{} quota exhausted: {} (failures: {})",
-                                    health.getProvider(), health.getModel(), result.getMessage(), health.getConsecutiveFailures());
+                                    health.getProvider(), health.getModel(), result.getMessage(),
+                                            health.getConsecutiveFailures());
                         }
                         default -> {
                             if (health.getConsecutiveFailures() >= 3) {
                                 log.warn("[ModelHealthChecker] client {}:{} error: {} (failures: {})",
-                                        health.getProvider(), health.getModel(), result.getMessage(), health.getConsecutiveFailures());
+                                        health.getProvider(), health.getModel(), result.getMessage(),
+                                                health.getConsecutiveFailures());
                             }
                         }
                     }

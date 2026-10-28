@@ -271,7 +271,8 @@ public class MavenCompileResult {
      * @return 编译失败结果
      */
     public static MavenCompileResult failure(String projectPath, int exitCode, String output,
-                                             List<String> errors, List<String> goals, List<String> profiles, long duration) {
+                                             List<String> errors, List<String> goals, List<String> profiles,
+                                                     long duration) {
         String projectDir = resolveProjectDir(projectPath);
         return new MavenCompileResult(false, exitCode, output, errors, duration,
                 projectPath, projectDir, goals, profiles, List.of());

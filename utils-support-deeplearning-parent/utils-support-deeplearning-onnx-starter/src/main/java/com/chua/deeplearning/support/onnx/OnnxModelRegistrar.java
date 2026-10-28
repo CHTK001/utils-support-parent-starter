@@ -1685,7 +1685,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                             HardwareConfig hardwareConfig) {
         if (ModelRegistry.get(modelId) == null) {
             ModelRegistry.register(modelId, translatorClassName, inputType, outputType, capability,
-                    relativePath, downloadUrl, downloadMirrors, downloadFiles, compress, downloadFileName, hardwareConfig);
+                    relativePath, downloadUrl, downloadMirrors, downloadFiles, compress, downloadFileName,
+                            hardwareConfig);
         }
     }
 
