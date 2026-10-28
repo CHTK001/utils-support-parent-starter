@@ -17,12 +17,12 @@ public enum PanType {
     MOBILE("mobile", "移动云盘"),
     PAN_115("115", "115网盘"),
     PIKPAK("pikpak", "PikPak"),
-    XUNLEI("xunlei", "Ѹ雷网盘"),
+    XUNLEI("xunlei", "迅雷网盘"),
     PAN_123("123", "123网盘"),
     MAGNET("magnet", "磁力链接"),
-    ED2K("ed2k", "电¿链接"),
+    ED2K("ed2k", "电驴链接"),
     /**
-     * 构造方法，创建 OTHERS 实例。
+     * 其他网盘/未知来源
      */
     OTHERS("others", "其他");
 
