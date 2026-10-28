@@ -526,7 +526,8 @@ public final class ReflectUtils {
                 Class<?> c = clazz;
                 while (c != null) {
                     try {
-                        java.lang.reflect.Field f = c.getDeclaredField(fieldName); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（unreflectGetter）
+                        java.lang.reflect.Field f =
+                                c.getDeclaredField(fieldName); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（unreflectGetter）
                         // Java 9+ 使用 privateLookupIn：解决内部类/嵌套类私有字段的方法处理权限问题
                         MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(c, LOOKUP);
                         return lookup.unreflectGetter(f);
@@ -557,7 +558,8 @@ public final class ReflectUtils {
                 Class<?> c = clazz;
                 while (c != null) {
                     try {
-                        java.lang.reflect.Field f = c.getDeclaredField(fieldName); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（unreflectSetter）
+                        java.lang.reflect.Field f =
+                                c.getDeclaredField(fieldName); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（unreflectSetter）
                         // Java 9+ 使用 privateLookupIn：解决内部类/嵌套类私有字段的方法处理权限问题
                         MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(c, LOOKUP);
                         return lookup.unreflectSetter(f);

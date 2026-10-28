@@ -48,7 +48,8 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     /**
      * Chronicle 初始化失败时启用的内存回退队列
     */
-    private final java.util.Map<String, java.util.Queue<Object>> memoryFallback = new java.util.concurrent.ConcurrentHashMap<>();
+    private final java.util.Map<String, java.util.Queue<Object>> memoryFallback =
+            new java.util.concurrent.ConcurrentHashMap<>();
     /**
      * 执行器
     */

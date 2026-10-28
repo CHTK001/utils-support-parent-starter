@@ -21,7 +21,8 @@ public class RSocketHandler extends AbstractAppHandler {
     /**
      * rsocket 方法
      */
-    private static final String[] RSOCKET_METHODS = {"requestResponse", "requestStream", "requestChannel", "requestFireAndForget"};
+    private static final String[] RSOCKET_METHODS =
+            {"requestResponse", "requestStream", "requestChannel", "requestFireAndForget"};
 
     /**
      * 名称

@@ -61,7 +61,8 @@ public class VertxHttpServer extends AbstractServer {
     /**
      * WebSocket 主题处理器映射
     */
-    private final Map<String, java.util.List<com.chua.common.support.network.server.handler.ServerHandler>> wsTopicHandlers = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<String, java.util.List<com.chua.common.support.network.server.handler.ServerHandler>> wsTopicHandlers =
+            new java.util.concurrent.ConcurrentHashMap<>();
     /**
      * 基准测试模式:跳过虚拟线程,直接在 事件 循环 执行
     */
@@ -595,7 +596,8 @@ public class VertxHttpServer extends AbstractServer {
         /**
          * 头部 - 可能被工人线程池访问,保留并发哈希映射
         */
-        private final java.util.concurrent.ConcurrentHashMap<String, String> headers = new java.util.concurrent.ConcurrentHashMap<>(4);
+        private final java.util.concurrent.ConcurrentHashMap<String, String> headers =
+                new java.util.concurrent.ConcurrentHashMap<>(4);
         /**
          * 内容类型
         */
@@ -932,7 +934,8 @@ public class VertxHttpServer extends AbstractServer {
         /**
          * attributes - 可能被工人线程池访问,保留并发哈希映射
         */
-        private final java.util.concurrent.ConcurrentHashMap<String, Object> attributes = new java.util.concurrent.ConcurrentHashMap<>(4);
+        private final java.util.concurrent.ConcurrentHashMap<String, Object> attributes =
+                new java.util.concurrent.ConcurrentHashMap<>(4);
 
         VertxServerRequest(RoutingContext ctx) {
             this.ctx = ctx;

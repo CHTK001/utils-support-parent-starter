@@ -121,7 +121,8 @@ public class KcpServer extends AbstractServer {
      * <p>不能复用 {@code running}（AbstractServer.start() 先 doStart 后置 running=true，
      * 执行启动 内启动的 flusher 会因 running=false 立即退出导致批量队列永不冲刷）。</p>
      */
-    private final java.util.concurrent.atomic.AtomicBoolean batchRunning = new java.util.concurrent.atomic.AtomicBoolean(false);
+    private final java.util.concurrent.atomic.AtomicBoolean batchRunning =
+            new java.util.concurrent.atomic.AtomicBoolean(false);
 
     /**
      * 客户端元数据集合（客户端id -> 映射）

@@ -108,7 +108,8 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
      */
     private Context getContextFromJavacEnv() {
         try {
-            Class<?> javacEnvClass = Class.forName( // [P3C 1.10 豁免] javac 编译器内部实现类（com.sun.tools.javac.*），本模块未依赖 utils-support-common-starter，无 ReflectUtils 可用
+            Class<?> javacEnvClass =
+                    Class.forName( // [P3C 1.10 豁免] javac 编译器内部实现类（com.sun.tools.javac.*），本模块未依赖 utils-support-common-starter，无 ReflectUtils 可用
                     "com.sun.tools.javac.processing.JavacProcessingEnvironment");
             if (!javacEnvClass.isInstance(processingEnv)) {
                 return null;
@@ -118,7 +119,8 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
                 java.lang.reflect.Method getContextMethod = javacEnvClass.getMethod("getContext");
                 return (Context) getContextMethod.invoke(processingEnv);
             } catch (NoSuchMethodException nsme) {
-                Field contextField = javacEnvClass.getDeclaredField("context"); // [P3C 1.10 豁免] javac 内部 Context 私有字段，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
+                Field contextField =
+                        javacEnvClass.getDeclaredField("context"); // [P3C 1.10 豁免] javac 内部 Context 私有字段，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
                 contextField.setAccessible(true);
                 return (Context) contextField.get(processingEnv);
             }
@@ -143,7 +145,8 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
 
         for (String fieldName : fieldNames) {
             try {
-                Field contextField = JavacTrees.class.getDeclaredField(fieldName); // [P3C 1.10 豁免] javac 内部 JavacTrees 私有字段，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
+                Field contextField =
+                        JavacTrees.class.getDeclaredField(fieldName); // [P3C 1.10 豁免] javac 内部 JavacTrees 私有字段，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
                 contextField.setAccessible(true);
                 return (Context) contextField.get(javacTrees);
             } catch (Exception e) {

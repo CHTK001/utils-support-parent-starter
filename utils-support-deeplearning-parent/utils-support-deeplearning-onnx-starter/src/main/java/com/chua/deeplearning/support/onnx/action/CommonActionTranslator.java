@@ -37,7 +37,8 @@ public class CommonActionTranslator implements Translator<Image, Classifications
     /**
      * KINETICS400                      400      
      */
-    public static final String RAW_LABELS = "'abseiling','air_drumming','answering_questions','applauding','applying_cream','archery'," +
+    public static final String RAW_LABELS =
+            "'abseiling','air_drumming','answering_questions','applauding','applying_cream','archery'," +
             "'arm_wrestling','arranging_flowers','assembling_computer','auctioning','baby_waking_up','baking_cookies'," +
             "'balloon_blowing','bandaging','barbequing','bartending','beatboxing','bee_keeping','belly_dancing'," +
             "'bench_pressing','bending_back','bending_metal','biking_through_snow','blasting_sand','blowing_glass'," +

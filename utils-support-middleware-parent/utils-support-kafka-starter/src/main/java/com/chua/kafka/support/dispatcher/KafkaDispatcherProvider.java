@@ -50,7 +50,8 @@ public class KafkaDispatcherProvider extends AbstractDispatcherProvider {
     /**
      * 消费者线程池
      */
-    private final ExecutorService executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
+    private final ExecutorService executor =
+            new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
             /**
              * Thread工厂Builder。
              *

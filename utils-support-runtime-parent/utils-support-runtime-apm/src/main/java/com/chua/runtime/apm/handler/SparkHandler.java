@@ -21,7 +21,8 @@ public class SparkHandler extends AbstractAppHandler {
     /**
      * 动作 方法
      */
-    private static final String[] ACTION_METHODS = {"collect", "show", "count", "head", "first", "take", "foreach", "write"};
+    private static final String[] ACTION_METHODS =
+            {"collect", "show", "count", "head", "first", "take", "foreach", "write"};
 
     /**
      * 名称

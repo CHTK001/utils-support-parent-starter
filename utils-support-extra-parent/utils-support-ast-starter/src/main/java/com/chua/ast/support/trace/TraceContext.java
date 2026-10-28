@@ -58,7 +58,8 @@ public final class TraceContext {
     /**
      * 共享节点存储：追踪id → 该调用链的所有节点（跨线程共享）
     */
-    private static final java.util.concurrent.ConcurrentHashMap<String, List<TraceNode>> SHARED_NODES = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.concurrent.ConcurrentHashMap<String, List<TraceNode>> SHARED_NODES =
+            new java.util.concurrent.ConcurrentHashMap<>();
     /**
      * 标识序号生成器
     */

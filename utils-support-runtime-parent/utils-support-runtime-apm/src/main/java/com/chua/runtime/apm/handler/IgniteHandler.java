@@ -21,7 +21,8 @@ public class IgniteHandler extends AbstractAppHandler {
     /**
      * 缓存 方法
      */
-    private static final String[] CACHE_METHODS = {"get", "put", "remove", "replace", "getAndPut", "getAndRemove", "query"};
+    private static final String[] CACHE_METHODS =
+            {"get", "put", "remove", "replace", "getAndPut", "getAndRemove", "query"};
 
     /**
      * 名称

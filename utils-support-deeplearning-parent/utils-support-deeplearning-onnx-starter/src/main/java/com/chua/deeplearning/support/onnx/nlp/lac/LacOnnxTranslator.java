@@ -53,12 +53,14 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
     /**
      * encoder 下载地址（jar 内缺失时回退，GitHub raw）。
      */
-    private static final String ENCODER_URL = "https://raw.githubusercontent.com/kniost/LAC-ONNX/main/lac_onnx/lac_encoder.onnx";
+    private static final String ENCODER_URL =
+            "https://raw.githubusercontent.com/kniost/LAC-ONNX/main/lac_onnx/lac_encoder.onnx";
 
     /**
      * encoder 镜像地址（jsDelivr）。
      */
-    private static final String ENCODER_MIRROR = "https://cdn.jsdelivr.net/gh/kniost/LAC-ONNX@main/lac_onnx/lac_encoder.onnx";
+    private static final String ENCODER_MIRROR =
+            "https://cdn.jsdelivr.net/gh/kniost/LAC-ONNX@main/lac_onnx/lac_encoder.onnx";
 
     /**
      * 词典下载基址。

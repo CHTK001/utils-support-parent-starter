@@ -56,7 +56,8 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
     /**
      * 字符集（yaml 名称，索引 0 为 blank）。
      */
-    private static final String CHARS = "#京沪津渝冀晋蒙辽吉黑苏浙皖闽赣鲁豫鄂湘粤桂琼川贵云藏陕甘青宁新学警港澳挂使领民航危0123456789ABCDEFGHJKLMNPQRSTUVWXYZ险品";
+    private static final String CHARS =
+            "#京沪津渝冀晋蒙辽吉黑苏浙皖闽赣鲁豫鄂湘粤桂琼川贵云藏陕甘青宁新学警港澳挂使领民航危0123456789ABCDEFGHJKLMNPQRSTUVWXYZ险品";
 
     /**
      * 车牌颜色类别。
@@ -168,7 +169,8 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
                 Map<String, OnnxTensor> inputs = Wraps.map();
                 inputs.put(session.getInputInfo().keySet().iterator().next(), tensor);
                 try (OrtSession.Result result = session.run(inputs)) {
-                    float[][] ctcLogits = toMat2D(result.get(0).getValue()); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+                    float[][] ctcLogits =
+                            toMat2D(result.get(0).getValue()); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                     float[] colorLogits = toVector(result.get(1).getValue());
                     return new PlateResult(decodeCtc(ctcLogits), decodeColor(colorLogits));
                 }

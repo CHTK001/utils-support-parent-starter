@@ -25,12 +25,14 @@ public class WebClientHandler extends AbstractAppHandler {
     /**
      * 默认web客户端 类内部名
      */
-    private static final String DEFAULT_WEB_CLIENT = "org/springframework/web/reactive/function/client/DefaultWebClient";
+    private static final String DEFAULT_WEB_CLIENT =
+            "org/springframework/web/reactive/function/client/DefaultWebClient";
 
     /**
      * exchangefunctions 类内部名
      */
-    private static final String EXCHANGE_FUNCTIONS = "org/springframework/web/reactive/function/client/ExchangeFunctions";
+    private static final String EXCHANGE_FUNCTIONS =
+            "org/springframework/web/reactive/function/client/ExchangeFunctions";
 
     /**
      * 默认web客户端 方法集合（请求构建）

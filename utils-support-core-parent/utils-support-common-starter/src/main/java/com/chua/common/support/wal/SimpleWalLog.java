@@ -341,7 +341,8 @@ public class SimpleWalLog implements WalLog {
         java.lang.reflect.Method m = null;
         try {
             // [P3C 1.10 豁免] JDK 内部 Unsafe 反射，无法用 ReflectUtils 替代
-            Class<?> unsafeCls = Class.forName("sun.misc.Unsafe"); // [P3C 1.10 豁免] Wal 基础设施 JDK 内部 Unsafe 类加载，无法用 ReflectUtils 替代
+            Class<?> unsafeCls =
+                    Class.forName("sun.misc.Unsafe"); // [P3C 1.10 豁免] Wal 基础设施 JDK 内部 Unsafe 类加载，无法用 ReflectUtils 替代
             Field f = unsafeCls.getDeclaredField("theUnsafe"); // [P3C 1.10 豁免] Wal 基础设施 JDK 内部 Unsafe 单例字段，无法用 ReflectUtils 替代
             f.setAccessible(true); // [P3C 1.10 豁免] Wal 基础设施 JDK 内部 Unsafe 字段放开访问，无法用 ReflectUtils 替代
             Object unsafe = f.get(null);

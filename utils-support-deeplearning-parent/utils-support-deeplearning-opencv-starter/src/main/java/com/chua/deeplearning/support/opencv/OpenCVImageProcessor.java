@@ -418,7 +418,8 @@ public class OpenCVImageProcessor implements ImageProcessor {
             // 阈值过滤
             double threshold = params.get("threshold") != null ? ((Number) params.get("threshold")).doubleValue() : 0.8;
             int maxCount = ImageProcessorUtils.toInt(params.get("maxCount"), 10);
-            boolean drawMatch = params.get("drawMatch") == null || Boolean.parseBoolean(params.get("drawMatch").toString());
+            boolean drawMatch =
+                    params.get("drawMatch") == null || Boolean.parseBoolean(params.get("drawMatch").toString());
 
             // 查找匹配位置（NMS 简化版）
             List<Map<String, Object>> matches = Wraps.list();

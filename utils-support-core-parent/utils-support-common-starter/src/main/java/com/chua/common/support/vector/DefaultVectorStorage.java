@@ -161,7 +161,8 @@ public class DefaultVectorStorage implements VectorStorage {
      * 复用读缓冲：128维向量约 600B，thread本地 避免多线程竞争。
      */
     private static final int DEFAULT_READ_BUF = 4096;
-    private final ThreadLocal<byte[]> threadLocalReadBuf = ThreadLocal.withInitial(() -> new byte[DEFAULT_READ_BUF]); // thread本地读取buf
+    private final ThreadLocal<byte[]> threadLocalReadBuf =
+            ThreadLocal.withInitial(() -> new byte[DEFAULT_READ_BUF]); // thread本地读取buf
     /**
      * thread本地 float 缓冲：动态扩容，默认 128 维。
      */

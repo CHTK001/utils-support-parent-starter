@@ -255,7 +255,8 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
                         for (int layer = 0; layer < NUM_LAYERS; layer++) {
                             dKv[layer][0] = ((OnnxTensor) stepResult.get("present." + layer + ".decoder.key").get())
                                     .getFloatBuffer().array().clone();
-                            dKv[layer][1] = ((OnnxTensor) stepResult.get("present." + layer + ".decoder.value").get()).getFloatBuffer().array().clone();
+                            dKv[layer][1] =
+                                    ((OnnxTensor) stepResult.get("present." + layer + ".decoder.value").get()).getFloatBuffer().array().clone();
                         }
                     }
                     decSeq++;

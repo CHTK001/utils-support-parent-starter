@@ -572,7 +572,8 @@ public class AgentScopeAgent implements Agent {
      * ConcurrentHashMap 触发 NPE；② 工具入参丢失。故在 RequireUserConfirmEvent 缓存完整块，
      * resume 时原样回传（harness 仅 withState 翻转允许状态，其余字段保留）。
      */
-    private static final Map<String, Map<String, ToolUseBlock>> PENDING_BLOCKS = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final Map<String, Map<String, ToolUseBlock>> PENDING_BLOCKS =
+            new java.util.concurrent.ConcurrentHashMap<>();
 
     /**
      * 待批缓存条目数上限。

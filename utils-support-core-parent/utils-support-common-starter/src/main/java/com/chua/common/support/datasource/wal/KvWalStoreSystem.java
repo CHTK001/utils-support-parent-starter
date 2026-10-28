@@ -25,7 +25,8 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     private final WalStoreConfig config;
     private final SegmentWalLog[] walLogs;
     private final ShardedIndex index = new ShardedIndex(1);
-    private final java.util.concurrent.ConcurrentHashMap<String, byte[]> memIndex = new java.util.concurrent.ConcurrentHashMap<>();
+    private final java.util.concurrent.ConcurrentHashMap<String, byte[]> memIndex =
+            new java.util.concurrent.ConcurrentHashMap<>();
     private final AtomicLong totalRecords = new AtomicLong(0);
     private volatile boolean closed = false;
     /**

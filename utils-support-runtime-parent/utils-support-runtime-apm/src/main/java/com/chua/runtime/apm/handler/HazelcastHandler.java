@@ -28,7 +28,8 @@ public class HazelcastHandler extends AbstractAppHandler {
     /**
      * 映射 方法
      */
-    private static final String[] MAP_METHODS = {"get", "put", "remove", "replace", "putIfAbsent", "delete", "containsKey", "size"};
+    private static final String[] MAP_METHODS =
+            {"get", "put", "remove", "replace", "putIfAbsent", "delete", "containsKey", "size"};
 
     /**
      * 名称

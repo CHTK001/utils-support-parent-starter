@@ -46,12 +46,14 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     /**
      * 美元金额起始标记（$ 紧跟数字）
      */
-    private static final java.util.regex.Pattern DOLLAR_AMOUNT_PATTERN = java.util.regex.Pattern.compile("\\$\\s*[0-9]");
+    private static final java.util.regex.Pattern DOLLAR_AMOUNT_PATTERN =
+            java.util.regex.Pattern.compile("\\$\\s*[0-9]");
 
     /**
      * 十进制数字（含可选小数部分）
      */
-    private static final java.util.regex.Pattern DECIMAL_NUMBER_PATTERN = java.util.regex.Pattern.compile("[0-9]+(?:\\.[0-9]+)?");
+    private static final java.util.regex.Pattern DECIMAL_NUMBER_PATTERN =
+            java.util.regex.Pattern.compile("[0-9]+(?:\\.[0-9]+)?");
 
     /**
      * 本地缓存键前缀

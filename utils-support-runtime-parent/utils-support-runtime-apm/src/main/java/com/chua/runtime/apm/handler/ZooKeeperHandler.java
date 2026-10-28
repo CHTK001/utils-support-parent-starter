@@ -188,7 +188,8 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
         }
 
  // Curator 入口：获取数据 / 创建 / 删除 / 设置数据 / 获取children / 检查exists
-        String[] curatorMethods = {"getData", "create", "delete", "setData", "getChildren", "checkExists", "createContainers"};
+        String[] curatorMethods =
+                {"getData", "create", "delete", "setData", "getChildren", "checkExists", "createContainers"};
         for (String method : curatorMethods) {
             RuntimeSpy.registerInterceptor(CURATOR_CLASS, method, "", InterceptPoint.ENTRY, this);
             RuntimeSpy.registerInterceptor(CURATOR_CLASS, method, "", InterceptPoint.EXIT, this);

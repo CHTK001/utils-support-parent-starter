@@ -328,8 +328,10 @@ public class SpringBeanUtils {
      * @param beanDefinition Bean 的定义对象，包含 Bean 的类名、作用域等信息
      */
     public static void registerBean(String beanName, BeanDefinition beanDefinition) {
-        ConfigurableApplicationContext configurableApplicationContext = (ConfigurableApplicationContext) getApplicationContext();
-        DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) configurableApplicationContext.getBeanFactory();
+        ConfigurableApplicationContext configurableApplicationContext =
+                (ConfigurableApplicationContext) getApplicationContext();
+        DefaultListableBeanFactory defaultListableBeanFactory =
+                (DefaultListableBeanFactory) configurableApplicationContext.getBeanFactory();
         defaultListableBeanFactory.registerBeanDefinition(beanName, beanDefinition);
     }
 
