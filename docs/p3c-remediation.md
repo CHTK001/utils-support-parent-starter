@@ -176,3 +176,24 @@ mvn -o -q compile -pl "module-a,module-b" -DskipTests "-Dpmd.skip=true" `
 - **增量编译会掩盖 lombok 可见性错误**：父类 `@Slf4j` 生成 `private static final Logger log`，子类若直接引用 `log`，只有在子类被重新编译时才会报错。已修复 `SeedModeDiscovery` / `RouteModeDiscovery` 并静态复查全仓，同类问题为 0。
 - **未纳入 reactor 的模块**：`utils-support-deeplearning-arcsoft-starter`、`utils-support-extra-parent/utils-support-playwright-starter` 未在父 POM 的 `<modules>` 中，不参与 Maven 构建，其改动无法通过编译验证。
 - **并发开发中的模块**：`utils-support-cloud-parent/utils-support-openai-starter` 存在在途改动（`EacChatClient` / `PteroChatClient` / `InceptionCdpClient` 重构），本轮整改全程排除该模块。
+
+## 七、按条款的合规矩阵
+
+| 手册章节 | 条款摘要 | 状态 | 证据 |
+| --- | --- | --- | --- |
+| 1.1 命名 | 类/方法/变量/常量/包/artifactId 命名 | ✅ 已合规 | 包名 4699→4695（4 处下划线已改）；常量 236 处排查后仅 7 处私有常量改名，其余为 serialVersionUID / Logger / API 兼容项 |
+| 1.2 常量 | 魔法值不得直接出现 | ⚠️ 记录豁免 | 重复字面量集中于测试与领域标签，机械提取会降低可读性；已写入遗留项 |
+| 1.3 格式 | 缩进/空格/换行/120 列 | ⚠️ 部分 | 关键字括号空格 149 处、括号内空格 3 处、注释折行 109 处已修；超长行 2251→362，剩余已分类 |
+| 1.4 OOP | `@Override`、包装类 `==`、POJO `toString` | ✅ 已合规 | 可静态验证的 `@Override` 补 4 处；57 个 POJO 补 `@ToString`（20 个含敏感字段主动跳过）；包装类 `==` 复查无可信违规 |
+| 1.5 集合 | `toArray`、`entrySet`、`subList` | ✅ 已合规 | 34 处 `toArray(new Object[0])`；3 处 `keySet+get` 改 `entrySet` |
+| 1.6 并发 | 线程池、ThreadLocal、SimpleDateFormat | ✅ 已合规 | 10+7+5+3 个 Executors 改显式线程池并设拒绝策略；66 个 ThreadLocal 类均调用 remove；无 static SimpleDateFormat |
+| 1.7 日期 | 日期格式化 | ✅ 已合规 | DateFormatConstant 12 个中文格式常量修复（原值被空格覆盖） |
+| 1.8 注释 | 类/方法/枚举/接口注释 | ✅ 已合规 | 类摘要 53→0；方法摘要 478→0；接口/抽象方法 69+29→0；枚举常量 368→0；空 Javadoc 2→0 |
+| 1.9 其他 | 正则预编译、随机数 | ✅ 已合规 | 37 处字面量正则提升为 static final Pattern；11 处 Math.random 改 ThreadLocalRandom |
+| 2.1 异常 | 空 catch、异常类型、抛出类型 | ✅ 已合规 | 空 catch（真实代码）→0；9 处 RuntimeException 细化；`catch(Throwable)` 经复核不属强制项 |
+| 2.2 日志 | 占位符、敏感信息、级别 | ✅ 已合规 | 日志拼接改 `{}`；FlashToken token 脱敏；JUL 文件整体排除避免破坏 `{0}` 语义 |
+| 3.x 测试 | 断言替代 System.out、命名 | ✅ 已合规 | 3 个测试类改 JUL 日志；测试类命名全合规 |
+| 4.x 安全 | SQL 注入、XSS、敏感信息 | ✅ 已合规 | 预编译参数用于用户输入场景（79 处 createStatement 均为元数据/DDL）；主要 HTML 生成类均已转义；token 脱敏 |
+| 5.x MySQL | count(列)、SELECT *、外键 | ✅ 已合规 | 无 `count(列名)`；`SELECT *` 仅存于列不可知的通用场景；21 处 FOREIGN KEY 均为 SQL 关键字表 |
+| 6.x 工程结构 | SNAPSHOT、artifactId、类文件名 | ✅ 已合规 | 无 SNAPSHOT 依赖；artifactId 全小写；类名与文件名一致 |
+| 7.x 设计 | 依赖倒置等 | ➖ 不适用 | 本仓库为基础设施库，分层由模块边界保证，无应用侧设计约束 |
