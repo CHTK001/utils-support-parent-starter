@@ -52,6 +52,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AbstractServerConcurrencyLoadTest {
 
     /**
+     * 测试日志（避免使用 System.out 输出）
+     */
+    private static final java.util.logging.Logger LOG =
+            java.util.logging.Logger.getLogger(AbstractServerConcurrencyLoadTest.class.getName());
+
+    /**
      * 并发压测用的回显服务。
      *
      * <p>刻意继承真实的 {@link AbstractServer}，这样 {@code start()} / {@code stop()} /
@@ -503,9 +509,9 @@ class AbstractServerConcurrencyLoadTest {
             assertEquals("mid-flight-probe", roundTrip(port, "mid-flight-probe"),
                     "压测进行中服务必须仍然可用");
 
-            System.out.printf("  [load] %d 并发 x %d 行 = %d 行, %d ms, 峰值连接 %d, 吞吐 %.0f 行/s%n",
+            LOG.info(String.format("  [load] %d 并发 x %d 行 = %d 行, %d ms, 峰值连接 %d, 吞吐 %.0f 行/s",
                     clients, linesPerClient, totalLines, elapsedMs,
-                    server.peakConnections.get(), totalLines * 1000.0 / Math.max(1L, elapsedMs));
+                    server.peakConnections.get(), totalLines * 1000.0 / Math.max(1L, elapsedMs)));
         } finally {
             pool.shutdownNow();
             server.stop();

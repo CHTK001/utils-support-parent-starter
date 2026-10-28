@@ -33,6 +33,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class DshSessionDiagnosticTest {
 
     /**
+     * 测试日志（避免使用 System.out 输出）
+     */
+    private static final java.util.logging.Logger LOG =
+            java.util.logging.Logger.getLogger(DshSessionDiagnosticTest.class.getName());
+
+    /**
      * 解析 DSH 会话根目录。
      *
      * <p>刻意<b>延迟</b>到调用时求值：同 JVM 内其它测试会把 {@code user.home}
@@ -100,11 +106,11 @@ class DshSessionDiagnosticTest {
                     }
                 }
                 totalLines += lines;
-                System.out.println("[dsh-diag] " + p.getFileName()
+                LOG.info("[dsh-diag] " + p.getFileName()
                         + " lines=" + lines + " usageLines=" + usageLines + " types=" + types);
             }
         }
-        System.out.println("[dsh-diag] files=" + files + " totalLines=" + totalLines);
+        LOG.info("[dsh-diag] files=" + files + " totalLines=" + totalLines);
         assertTrue(files >= 0);
     }
 
