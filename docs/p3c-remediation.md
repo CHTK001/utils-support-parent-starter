@@ -101,47 +101,47 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
 | `finally` 块中的 `return` | 0 |
 | 子类引用父类 private `log` | 0 |
 
-## 四、遗留项（需人工判断，未批量修改）
+## 四、遗留项与不批量修改的理由（收口版）
 
-1. **520 处方法级 Javadoc 缺一句话摘要**（286 处仅有 `@param/@return`、166 处仅 `@return`、68 处仅 `@param`）：类级摘要已全部补齐（53 处），方法级需按语义撰写，机械生成会降低可读性。
-2. **54 处 `Executors.newXxx()`**：P3C 要求改用 `ThreadPoolExecutor`。但其中大量为虚拟线程执行器（`newVirtualThreadPerTaskExecutor`，无队列堆积风险），改造会改变并发语义（队列容量、拒绝策略），需按场景设计。
-3. **324 处 `catch (Throwable ...)`**：**经复核不属于 P3C 强制项**（手册 2.1 节无「禁止捕获 Throwable」条款），且多数位于线程池/插件加载/Agent 织入等必须拦截 Error 的入口，维持现状。
-4. **`new Thread(...)` 83 处**：均为具名长生命周期线程、`ThreadFactory` 实现或 `addShutdownHook`，符合「使用 ThreadFactory 创建线程」的要求。
-5. **`System.out/err` 真实代码调用 372 处（51 文件）**：复查后剩余均为 CLI 子命令（oshi 系列）、基准测试/演示 `main`、`TraceContext` 与 `SelfDefense` 的「日志系统不可用」兜底输出，属合理用途。
-6. **62 处 `throw new RuntimeException("msg")`**：均位于正常流程（无 catch 上下文），属参数校验或上游返回为空抛出的新异常（无 cause 可传），是否改为 `IllegalArgumentException` / `IllegalStateException` 待定。
-7. **18 处 `@param` 名称与签名不符的残留**：经人工核对，其中约 10 处为扫描器误判（枚举常量、lambda、`new X(...)` 被当作方法签名），其余已修完。
-8. **超长行剩余 483 处（1.3.7）**：已用十二类变换器（签名、调用语句、最外层调用、调用尾行、赋值、`+` 拼接、实参内 `+`、链式点号、`if/while` 条件、三元表达式、列注解数组、行尾注释外移、全限定名简化）累计折行 1768 行，剩余部分分类如下：
+> 下列条目均已人工核对，确认为「语法不可拆」「非 P3C 强制项」或「机械改写会降低可读性/改变语义」。
+> 数字为收口时的实测值。
 
-   | 类别 | 数量 | 不改原因 |
-   | --- | --- | --- |
-   | 文本块（`"""`）内的 CSS/JS/HTML 模板行 | 47 | 文本块内容插入换行会改变模板语义，只能重构为外部资源文件 |
-   | 含长单字面量（字符表、HTML 片段、无分隔符字符串） | 115 | 无空格/逗号可切；强切会产生大量无意义片段 |
-   | 嵌套 builder / 深层调用表达式 | 约 200 | 单层折行后仍超限，继续拆分需重排整个表达式 |
-   | 长正则字面量 | 约 20 | 拆分会破坏正则可读性（值虽可保持），且 `\\` 转义易错 |
-   | 注释行（含 `@param` 长描述） | 11 | 已是注释，不影响代码行长度判定 |
-   | `import` 语句 | 1 | Java 语法不允许折行（123 字符） |
-   | 其他（FQN 签名、位运算表达式等） | 约 110 | 需按语义重排 |
+| # | 条目 | 实测 | 不批量修改的理由 |
+| --- | --- | --- | --- |
+| 1 | `catch (Throwable ...)` | 322 | P3C 2.1 无「禁止捕获 Throwable」条款；多数位于线程池、插件加载、Agent 织入等必须拦截 `Error` 的边界 |
+| 2 | `System.out/err` 真实调用 | 366 | 集中在 CLI 子命令（oshi 系列）、基准/演示 `main`、`TraceContext`/`SelfDefense` 的「日志系统不可用」兜底 |
+| 3 | `new Thread(...)` | 82 | 均为具名长生命周期线程、`ThreadFactory` 实现或 `addShutdownHook`，符合「用 ThreadFactory 创建线程」 |
+| 4 | `Executors.newXxx()` | 28 | 相当比例为 `newVirtualThreadPerTaskExecutor`（无队列堆积），改为 `ThreadPoolExecutor` 会改变并发语义 |
+| 5 | `createStatement(...)` | 80 | 集中在 JDBC 元数据查询与 DDL 下发（`show tables`、`desc`、DDL），表名/列名无法参数化；含用户输入的查询已全部预编译 |
+| 6 | 集合未指定初始容量 | 322 | 多数场景无法预知规模，强行估算反而浪费内存；建议在已知规模的批量场景就地补充 |
+| 7 | 魔法值（1.2 强制） | — | 重复字面量集中在测试用例与领域标签，缺语义信息时机械提取常量降低可读性且易错 |
+| 8 | 清理无用代码（1.4.6 强制） | — | 静态扫描出的「死方法」大量为方法引用/反射/SPI 调用；被注释代码常是决策记录。删除属破坏性操作，建议随迭代人工判断 |
+| 9 | 超长行剩余 | 2 | ① 123 字符的 `import`（Java 语法禁止折行）② lambda 内单条 `append` 链（含多处 `\"` 转义，拆分后更难读） |
+| 10 | `@param` 与签名一致性 | — | 本仓大量 record 与 20+ 参数构造器，自动比对误判率高；抽检 `ModelInfo`/`ModelConfig`/`AgentDefinition` 确认一致 |
 
-   上述类别均已确认**无法在不改变语义或可读性的前提下机械处理**，如需要可后续逐个精修。
-9. **方法级 Javadoc 摘要已全部补齐**：478 处标签-only 注释全部补上描述（前缀规则 315 处、精确词典 140 处、逐个人工撰写 23 处），复查剩余为 0。
-10. **79 处 `createStatement(...)`**：集中在 JDBC 元数据查询（`show tables`、`desc xxx`、DDL 下发等），表名/列名/DDL 无法用 `PreparedStatement` 参数化，属合理用法；涉及用户输入的查询已使用预编译参数。
-11. **日志敏感信息**：复查 7 处可能打印 token/password 的日志，`FlashTokenService` 3 处直接打印完整 token 已改为脱敏输出（保留前 4 后 4 位），其余为「token 数量」「已 mask 的 token」等安全用法。
-12. **1.9.2 随机数**：11 处 `Math.random()` 已统一改为 `ThreadLocalRandom.current().nextDouble()`（9 个文件），语义等价且无锁竞争。
-13. **1.5.5 Map 遍历**：3 处 `keySet()` + `get()` 二次查找已改为 `entrySet()` 一次遍历（LocaleTypeConverter、NacosConfigCenter、RedisSearchSink）。
-14. **2.2.1 日志占位符**：SLF4J 日志中的字符串拼接已改为 `{}` 占位符；JUL（`java.util.logging`）不支持占位符，相关文件整体排除，避免把 `{0}` 语义写坏。
-15. **1.6.3 ThreadLocal**：66 个使用 ThreadLocal 的文件中，`new ThreadLocal` 后未调用 `remove()` 的为 0。
-16. **1.1.2 包名规范**：全仓扫描出 4 个含下划线的包名（`gpu_llama3` ×3 类、`yolo_uniow` ×1 类），已改为 `gpu.llama3` 与 `yolo.uniow`，并同步 SPI 注册文件与 README；旧包名残留 0。
-17. **6.x 工程结构**：`pom.xml` 中无 SNAPSHOT 依赖版本；所有 `artifactId` 均为小写连字符；类名与文件名一致（0 处不匹配）。
-18. **1.8.2 补漏**：此前接口方法扫描只匹配带 `{` 的具体方法，漏掉以 `);` 结尾的接口声明共 29 处（ServerRequest 15、MappingDefinition 7、ProgressBarConsumer 3、MappingParser 2、ProtocolServer 2），已全部补齐描述；复查归零。
-19. **1.2 魔法值（强制）未做批量整改**：全仓重复字面量主要集中在测试用例（`abc`、`Hello`、`cam-A`）与领域标签（`cpu`、`memory`、`value`），在缺少语义信息时机械提取常量反而降低可读性，且极易引入错误；建议在后续迭代中随功能改动就地整改。
-20. **4.3 XSS 复查**：主要 HTML 生成类（OpenApiHtmlProvider、BenchmarkHtmlProvider、FileStorageViewServerFilter）均已使用 `StringUtils.escapeAttr`/`escapeHtml` 对动态内容转义；其余匹配到 `<div>` 等字符串的文件为提示词模板、JSON 片段或静态片段，不构成注入面。
-21. **1.4.8 `@Deprecated` 说明**：全仓 5 处 `@Deprecated` 缺少废弃原因与替代接口指引，已补充 `@deprecated` 标签（CompatibleTranslator、GreptimeDbEngine ×2、PrometheusEngine ×2）；复查归零。
-22. **5.1.9 存储过程**：`MysqlMetaProcedure` / `PostgresqlMetaProcedure` 提供的是「建过程」DDL 能力（工具库职责），全仓无业务侧存储过程调用——4 处 `prepareCall` 均为元数据/DDL 通用执行或测试透传断言，业务 SQL 不含 `CALL`。
-23. **1.5.1 集合初始容量（推荐）**：全仓 768 处 `new HashMap<>()/ArrayList<>()` 等无参构造，多数场景无法预知元素数量，强行估算容量反而可能浪费内存；建议在已知规模的批量场景就地补充，不做批量改写。
-24. **1.4.6 清理无用代码（强制，但不可机械判定）**：静态扫描得到 860 个「疑似未被调用的私有方法」与 89 行「疑似注释掉的代码」，但抽样核对发现大量误判——私有方法常通过方法引用（`this::runWebSocketLoop`）、反射/SPI 调用；被注释的代码中有相当一部分是「为什么这样做」的决策记录（如 `// array = array.expandDims(0); // 批处理由 Batchifier 负责`）。删除属破坏性操作且无法靠编译验证兜底，故不做批量清理，建议随功能迭代人工判断。
-25. **1.4.4 大括号（强制）**：全仓按「`if/for/while` 头部括号配平 + 下一行非 `{` 语句」精确扫描，真实违规仅 **1 处**（`U2netSegTranslator` 的双层 `for` 循环无大括号），已补全；`else` 分支复查 4 处命中均为「单行带大括号」或 JS 字符串中的 `else {`，无违规。
-26. **1.4.5 条件中不执行复杂语句**：用括号深度解析精确扫描，`if/while` 条件内**没有**真实赋值副作用（4 处命中均为 `c == '='` 之类的比较）；26 处 `while (retries-- > 0)` / `if (++depth > MAX)` 形式的自增属 Java 惯用写法（局部一目了然），强行改写为「先赋值再判断」反而增加噪音，保留并记录。
+### 已整改并留档的项
 
+| # | 条目 | 结果 |
+| --- | --- | --- |
+| 11 | 方法级 Javadoc 摘要 | 478 → 0（前缀规则 + 精确词典 + 人工撰写 23 处） |
+| 12 | 接口/抽象方法描述 | 98 → 0（含 29 处 `);` 结尾声明补漏） |
+| 13 | 枚举常量注释 | 368 → 0 |
+| 14 | 类级摘要 | 53 → 0 |
+| 15 | 超长行（1.3.7） | 2251 → 2 |
+| 16 | 行尾空白 / 制表符 | 2529 → 0 / 0 |
+| 17 | `Math.random()` | 11 处 → `ThreadLocalRandom` |
+| 18 | `keySet()` + `get()` | 3 处 → `entrySet()` |
+| 19 | 包名下划线 | 4 处 → `gpu.llama3` / `yolo.uniow`，SPI 注册同步 |
+| 20 | `@Deprecated` 说明 | 5 → 0 |
+| 21 | 大括号缺失（1.4.4） | 1 → 0 |
+| 22 | 日志占位符缺陷 | 7 → 0 |
+| 23 | 命令注入 | 2 → 0 |
+| 24 | `@since` 覆盖 | 补齐 13 个公共类型 |
+| 25 | 日志敏感信息 | `FlashTokenService` 3 处 token 脱敏 |
+| 26 | 线程池显式化 | 25 处 `Executors` → 显式 `ThreadPoolExecutor` + 拒绝策略 |
+| 27 | 存储过程（5.1.9） | 工具库 DDL 能力，业务侧 0 调用 |
+| 28 | XSS（4.3） | HTML 生成类均已 `escapeAttr`/`escapeHtml` |
+| 29 | 反序列化（4.x） | 5 处均为 RPC/模型内部受信二进制 |
 ## 五、最终状态（收口）
 
 | 校验项 | 结果 |
