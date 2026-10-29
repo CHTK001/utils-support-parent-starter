@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>线程安全：底层用 {@link ConcurrentHashMap}，状态迁移由 {@link GoalTracker} 自身串行化。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public final class GoalRegistry {
 

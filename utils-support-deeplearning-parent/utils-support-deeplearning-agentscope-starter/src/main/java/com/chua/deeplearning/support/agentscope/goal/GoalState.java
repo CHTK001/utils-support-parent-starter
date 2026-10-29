@@ -16,6 +16,7 @@ package com.chua.deeplearning.support.agentscope.goal;
  * <p>其中 COMPLETED / FAILED / CANCELED 为终态，一旦进入不可再迁移。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public enum GoalState {
 

@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
  * @param <V> Value 类型
  * @author CH
  * @version 1.0.0
+ * @since 4.0.0.42
  */
 public interface MultiValueMap<K, V> {
     /**

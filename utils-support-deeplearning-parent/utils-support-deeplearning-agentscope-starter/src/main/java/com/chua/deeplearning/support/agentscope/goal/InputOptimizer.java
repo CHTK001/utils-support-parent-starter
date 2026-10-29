@@ -18,6 +18,7 @@ import java.util.Objects;
  * <p><b>有界</b>：只做一次模型调用，不重试、不循环；上下文按字符数截断，避免长会话把提示词撑爆。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public final class InputOptimizer {
 

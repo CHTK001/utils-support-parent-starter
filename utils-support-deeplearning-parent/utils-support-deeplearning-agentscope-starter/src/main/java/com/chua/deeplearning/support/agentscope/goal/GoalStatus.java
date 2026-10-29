@@ -16,6 +16,7 @@ import java.util.Locale;
  * @param rounds     已执行轮次
  * @param updatedAt  最近更新时间（毫秒时间戳）
  * @author CH
+ * @since 4.0.0.42
  */
 public record GoalStatus(String id, String title, String detail, GoalState state,
                          long tokensUsed, int rounds, long updatedAt) {
