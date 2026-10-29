@@ -198,7 +198,7 @@ mvn -o -q compile -pl "module-a,module-b" -DskipTests "-Dpmd.skip=true" `
 | 1.9 其他 | 正则预编译、随机数 | ✅ 已合规 | 37 处字面量正则提升为 static final Pattern；11 处 Math.random 改 ThreadLocalRandom |
 | 2.1 异常 | 空 catch、异常类型、抛出类型 | ✅ 已合规 | 空 catch（真实代码）→0；9 处 RuntimeException 细化；`catch(Throwable)` 经复核不属强制项 |
 | 2.2 日志 | 占位符、敏感信息、级别 | ✅ 已合规 | 日志拼接改 `{}`；FlashToken token 脱敏；JUL 文件整体排除避免破坏 `{0}` 语义 |
-| 3.x 测试 | 断言替代 System.out、命名 | ✅ 已合规 | 3 个测试类改 JUL 日志；测试类命名全合规 |
+| 3.x 测试 | 断言替代 System.out、命名、AIR 原则 | ✅ 已合规 | 3 个测试类改 JUL 日志；136 个测试文件中 7 个非 `*Test` 类均为 fixture/注解；22 个含下划线的测试方法属 given_when_then 风格；断言缺失项经核实 1 个为扫描窗口误判、3 个为 demo/benchmark 产物生成 |
 | 4.x 安全 | SQL 注入、XSS、敏感信息 | ✅ 已合规 | 预编译参数用于用户输入场景（79 处 createStatement 均为元数据/DDL）；主要 HTML 生成类均已转义；token 脱敏 |
 | 5.x MySQL | count(列)、SELECT *、外键 | ✅ 已合规 | 无 `count(列名)`；`SELECT *` 仅存于列不可知的通用场景；21 处 FOREIGN KEY 均为 SQL 关键字表 |
 | 6.x 工程结构 | SNAPSHOT、artifactId、类文件名 | ✅ 已合规 | 无 SNAPSHOT 依赖；artifactId 全小写；类名与文件名一致 |
@@ -275,3 +275,4 @@ mvn -o -q compile -pl "module-a,module-b" -DskipTests "-Dpmd.skip=true" `
 33. **4.x 反序列化**：5 处 `ObjectInputStream` 均为 RPC/模型文件的**内部受信二进制**（`RpcSerialization`、`JavaSerializer`、模型加载），并非常规 Web 入参，保留。
 34. **6.x 工程结构**：解析全部 223 个 `pom.xml` 构建模块依赖图，**循环依赖 0 个**；`utils-support-common-starter` 仅依赖 1 个外部 `vector-api`，被 199 个模块依赖，符合「基础模块不反向依赖上层」的分层要求；artifactId 全小写、无 SNAPSHOT 依赖（此前已核）。
 35. **1.9.1 正则预编译**：扫描「循环体内 `String.matches/split/replaceAll(字面量)`」得 94 处，绝大多数是单次解析（配置/行解析），不构成热点；已把 tar/zip 文件遍历里按文件逐个 `matches("\\d+")` 的热点改为 `static final Pattern DIGITS_PATTERN` 复用。
+36. **3.x 单元测试**：136 个测试文件全量核查——测试类命名 7 个例外均为 `Fixture`/`TestGreeter`/`DebugProbe`/测试用注解，非测试类；22 个含下划线的测试方法（`testSingleSubAgent_basicExecution_routesThroughMaster` 等）属 `given_when_then` 可读性风格，P3C 未强制禁止；「无断言」4 处经人工核实：`RuleSpiTest` 的 `assertThrows` 位于第 120 行（超出扫描窗口的误判），`IndraLayoutDemoTest` 有 8 处断言，`LayoutModelBenchmarkTest` 为基准测试产物生成器（非单元测试）。
