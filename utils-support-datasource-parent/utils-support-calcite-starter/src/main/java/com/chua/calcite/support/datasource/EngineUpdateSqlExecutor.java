@@ -32,7 +32,8 @@ public final class EngineUpdateSqlExecutor {
      * 更新 语句解析正则
      */
     private static final Pattern UPDATE = Pattern.compile(
-            "(?is)^\\s*UPDATE\\s+(?:(?:`([^`]+)`|([A-Za-z_][\\w$]*))\\s*\\.\\s*)?(?:`([^`]+)`|([A-Za-z_][\\w$]*))\\s+SET\\s+(.+?)(?:\\s+WHERE\\s+(.+))?\\s*$"
+            "(?is)^\\s*UPDATE\\s+(?:(?:`([^`]+)`|([A-Za-z_][\\w$]*))\\s*\\.\\s*)?(?:`([^`]+)`|" +
+                    "([A-Za-z_][\\w$]*))\\s+SET\\s+(.+?)(?:\\s+WHERE\\s+(.+))?\\s*$"
     );
 
     /**

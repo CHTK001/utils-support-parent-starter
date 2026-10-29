@@ -798,7 +798,8 @@ try {
             return images;
         }
         Matcher matcher = Pattern.compile(
-                "!\\[.*?\\]\\((https?://[^)]+)\\)|https?://[^\\s)\"'<>]+(?:\\.(?:png|jpg|jpeg|webp|gif))(?:\\?[^\\s)\"'<>]*)?"
+                "!\\[.*?\\]\\((https?://[^)]+)\\)|https?://[^\\s)\"'<>]+(?:\\.(?:png|jpg|jpeg|webp|" +
+                        "gif))(?:\\?[^\\s)\"'<>]*)?"
         ).matcher(text);
         int idx = 0;
         while (matcher.find() && idx < 10) {

@@ -276,7 +276,8 @@ public class DefaultScriptConverter implements ScriptConverter {
      * 产出 {@code BIGINT NOT NULL INT} 这种坏列定义。</p>
      */
     private static final Pattern COLUMN_AUTO_INCREMENT_BARE = Pattern.compile(
-            "(?i)([`\"]?(?!NULL\\b|NOT\\b|NULL_|PRIMARY\\b|UNIQUE\\b|KEY\\b|DEFAULT\\b|CONSTRAINT\\b)[A-Za-z_]\\w*[`\"]?)"
+            "(?i)([`\"]?(?!NULL\\b|NOT\\b|NULL_|PRIMARY\\b|UNIQUE\\b|KEY\\b|DEFAULT\\b|" +
+                    "CONSTRAINT\\b)[A-Za-z_]\\w*[`\"]?)"
                     + "\\s+AUTO_INCREMENT\\b");
 
     /**
@@ -496,7 +497,8 @@ public class DefaultScriptConverter implements ScriptConverter {
         // 标识符定界要同时认反引号与双引号：rewriteBackticks 在本方法之前执行，
         // 反引号此时已变成双引号，只认反引号会匹配不上
         java.util.regex.Matcher m = Pattern.compile(
-                "(?is)^ALTER\\s+TABLE\\s+[`\"]?([A-Za-z_]\\w*)[`\"]?\\s+ADD\\s+COLUMN\\s+[`\"]?([A-Za-z_]\\w*)[`\"]?\\s+(.+)$")
+                "(?is)^ALTER\\s+TABLE\\s+[`\"]?([A-Za-z_]\\w*)[`\"]?\\s+ADD\\s+COLUMN\\s+[`\"]?([A-Za-z_]\\w*)[`\"]" +
+                        "?\\s+(.+)$")
                 .matcher(trimmed);
         if (!m.find()) {
             return null;

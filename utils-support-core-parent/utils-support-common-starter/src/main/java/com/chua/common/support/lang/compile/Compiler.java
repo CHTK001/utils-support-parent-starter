@@ -58,7 +58,8 @@ public interface Compiler {
      * 结构复杂，旨在捕获访问修饰符、返回类型（含泛型）、方法名、参数列表及方法体。
      * 注意：此正则表达式较为宽泛，可能无法完美匹配所有复杂的 Java 语法场景。
      */
-    Pattern METHOD_PATTERN = Pattern.compile("(private|public|protect)\\s+(([a-zA-z][$_a-zA-z0-9.]*)(<(.*?)>)*)\\s+([a-zA-z][$_a-zA-z0-9.]*)(\\s+)*\\((.*)\\)(\\s+)*\\{((.*?)|\n)*}");
+    Pattern METHOD_PATTERN = Pattern.compile("(private|public|protect)\\s+(([a-zA-z][$_a-zA-z0-9.]*)(<(.*?)>)*)\\s+(" +
+            "[a-zA-z][$_a-zA-z0-9.]*)(\\s+)*\\((.*)\\)(\\s+)*\\{((.*?)|\n)*}");
 
     /**
      * 使用当前线程上下文类加载器编译给定的 Java 源代码字符串。
