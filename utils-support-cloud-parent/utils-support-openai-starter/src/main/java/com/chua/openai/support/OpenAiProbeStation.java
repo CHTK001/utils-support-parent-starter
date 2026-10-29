@@ -618,7 +618,8 @@ public class OpenAiProbeStation {
 
         for (int i = 0; i < BENCHMARK_REQUEST_COUNT; i++) {
             try {
-                String body = buildChatBody(resolveModel(), "count from 1 to 20", BENCHMARK_MAX_TOKENS, DEFAULT_TEMPERATURE);
+                String body = buildChatBody(resolveModel(), "count from 1 to 20", BENCHMARK_MAX_TOKENS,
+                                            DEFAULT_TEMPERATURE);
                 long reqStart = System.currentTimeMillis();
 
                 ClientResponse response = HttpClientFactory.of(resolveBaseUrl())

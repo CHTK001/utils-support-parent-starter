@@ -1,4 +1,4 @@
-package com.chua.openai.support.inception;
+package com.chua.common.support.browser.cdp;
 
 import com.chua.common.support.lang.json.Json;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ import java.util.function.Consumer;
  * 极简 Chrome DevTools Protocol 客户端
  *
  * <p>基于 JDK 自带的 {@link WebSocket} 实现，不引入任何第三方依赖。
- * 只覆盖本项目需要的三个能力：</p>
+ * 只覆盖三个能力：</p>
  * <ul>
  *   <li>按 id 发送命令并同步等待结果；</li>
  *   <li>按方法名订阅浏览器事件；</li>
@@ -39,7 +39,7 @@ import java.util.function.Consumer;
  * @since 4.0.0.42
  */
 @Slf4j
-final class InceptionCdpClient implements AutoCloseable {
+final class CdpConnection implements AutoCloseable {
 
     /**
      * 单条命令的默认等待时间
@@ -67,21 +67,21 @@ final class InceptionCdpClient implements AutoCloseable {
     private final AtomicLong sequence = new AtomicLong();
 
     /**
+     * 是否正在关闭（用于抑制关闭阶段的连接告警）
+     */
+    private volatile boolean closing;
+
+    /**
      * 发送锁（WebSocket 不允许并发发送）
      */
     private final Object sendLock = new Object();
-
-    /**
-     * 分片消息缓冲（CDP 单条消息可能被拆成多个帧）
-     */
-    private final StringBuilder partial = new StringBuilder();
 
     /**
      * 构造客户端
      *
      * @param socket 已建立的 WebSocket 连接
      */
-    private InceptionCdpClient(WebSocket socket) {
+    private CdpConnection(WebSocket socket) {
         this.socket = socket;
     }
 
@@ -92,15 +92,15 @@ final class InceptionCdpClient implements AutoCloseable {
      * @param timeout  连接超时
      * @return CDP 客户端
      */
-    static InceptionCdpClient connect(URI endpoint, Duration timeout) {
-        AtomicReference<InceptionCdpClient> reference = new AtomicReference<>();
+    static CdpConnection connect(URI endpoint, Duration timeout) {
+        AtomicReference<CdpConnection> reference = new AtomicReference<>();
         Listener listener = new Listener(reference);
         WebSocket socket = HttpClient.newHttpClient()
                 .newWebSocketBuilder()
                 .connectTimeout(timeout)
                 .buildAsync(endpoint, listener)
                 .join();
-        InceptionCdpClient client = new InceptionCdpClient(socket);
+        CdpConnection client = new CdpConnection(socket);
         reference.set(client);
         return client;
     }
@@ -169,7 +169,7 @@ final class InceptionCdpClient implements AutoCloseable {
         try {
             message = Json.fromJson(text);
         } catch (Exception e) {
-            log.debug("[inception] 忽略无法解析的 CDP 消息: {}", e.getMessage());
+            log.debug("[cdp] 忽略无法解析的消息: {}", e.getMessage());
             return;
         }
         if (message == null) {
@@ -209,7 +209,7 @@ final class InceptionCdpClient implements AutoCloseable {
             try {
                 handler.accept(message);
             } catch (Exception e) {
-                log.warn("[inception] CDP 事件处理失败 {}: {}", name, e.getMessage());
+                log.warn("[cdp] 事件处理失败 {}: {}", name, e.getMessage());
             }
         }
     }
@@ -219,10 +219,11 @@ final class InceptionCdpClient implements AutoCloseable {
      */
     @Override
     public void close() {
+        closing = true;
         try {
             socket.sendClose(WebSocket.NORMAL_CLOSURE, "bye").get(5, TimeUnit.SECONDS);
         } catch (Exception e) {
-            log.debug("[inception] 关闭 CDP 连接失败: {}", e.getMessage());
+            log.debug("[cdp] 关闭连接失败: {}", e.getMessage());
         }
         for (CompletableFuture<Map<String, Object>> future : pending.values()) {
             future.completeExceptionally(new IllegalStateException("CDP 连接已关闭"));
@@ -238,7 +239,7 @@ final class InceptionCdpClient implements AutoCloseable {
         /**
          * 客户端引用（构造顺序决定了需要延迟注入）
          */
-        private final AtomicReference<InceptionCdpClient> reference;
+        private final AtomicReference<CdpConnection> reference;
 
         /**
          * 分片缓冲
@@ -250,7 +251,7 @@ final class InceptionCdpClient implements AutoCloseable {
          *
          * @param reference 客户端引用
          */
-        private Listener(AtomicReference<InceptionCdpClient> reference) {
+        private Listener(AtomicReference<CdpConnection> reference) {
             this.reference = reference;
         }
 
@@ -265,7 +266,7 @@ final class InceptionCdpClient implements AutoCloseable {
             if (last) {
                 String text = buffer.toString();
                 buffer.setLength(0);
-                InceptionCdpClient client = reference.get();
+                CdpConnection client = reference.get();
                 if (client != null) {
                     client.dispatch(text);
                 }
@@ -276,7 +277,11 @@ final class InceptionCdpClient implements AutoCloseable {
 
         @Override
         public void onError(WebSocket webSocket, Throwable error) {
-            log.warn("[inception] CDP WebSocket 异常: {}", error.getMessage());
+            CdpConnection client = reference.get();
+            if (client != null && client.closing) {
+                return;
+            }
+            log.warn("[cdp] WebSocket 异常: {}", error.getMessage());
         }
     }
 }

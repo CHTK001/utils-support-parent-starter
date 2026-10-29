@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-filesystem-parent</artifactId>
-        <version>4.0.0.42</version>
+        <version>4.0.0.43</version>
     </parent>
     <artifactId>utils-support-syslog-starter</artifactId>
     <name>Utils Support Syslog Starter - 绯荤粺鏃ュ織妯″潡</name>

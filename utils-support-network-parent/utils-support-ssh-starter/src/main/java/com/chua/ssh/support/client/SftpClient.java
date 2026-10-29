@@ -455,19 +455,42 @@ public class SftpClient implements AutoCloseable {
         */
         public void exec() {
             try {
-                if (recursive) {
-                    for (String part : path.split("/")) {
-                        if (part.isEmpty()) {
-                            continue;
-                        }
+                if (!recursive) {
+                    client.getSftp().mkdir(path);
+                    log.info("目录创建: {}", path);
+                    return;
+                }
+                // SFTP 的 mkdir 只能建一层，父目录不存在时直接失败。
+                // 这里按「累积前缀」逐级创建（/a、/a/b、/a/b/c），已存在的层级跳过；
+                // 逐级失败不立即抛出，最后统一 stat 校验，避免出现「日志说创建成功、
+                // 远端其实没有目录」的假成功（曾导致 git 首次发布上传必然失败）。
+                String normalized = path.replace('\\', '/');
+                StringBuilder prefix = new StringBuilder();
+                if (normalized.startsWith("/")) {
+                    prefix.append('/');
+                }
+                for (String part : normalized.split("/")) {
+                    if (part.isEmpty()) {
+                        continue;
+                    }
+                    if (prefix.length() > 0 && prefix.charAt(prefix.length() - 1) != '/') {
+                        prefix.append('/');
+                    }
+                    prefix.append(part);
+                    String current = prefix.toString();
+                    try {
+                        client.getSftp().stat(current);
+                    } catch (IOException notExists) {
                         try {
-                            client.getSftp().mkdir(path);
+                            client.getSftp().mkdir(current);
                         } catch (IOException e) {
-                            log.debug("[SFTP] 创建远端目录失败: {}", e.getMessage());
+                            // 并发创建或权限不足：先记下，交给最终校验判定真实结果
+                            log.debug("[SFTP] 创建远端目录失败: {} - {}", current, e.getMessage());
                         }
                     }
-                } else {
-                    client.getSftp().mkdir(path);
+                }
+                if (!client.getSftp().stat(path).isDirectory()) {
+                    throw new IllegalStateException("远端路径存在但不是目录");
                 }
                 log.info("目录创建: {}", path);
             } catch (Exception e) { throw new SftpClientException("创建目录失败: " + path, e); }

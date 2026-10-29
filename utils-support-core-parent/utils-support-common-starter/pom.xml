@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-core-parent</artifactId>
-        <version>4.0.0.42</version>
+        <version>4.0.0.43</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>utils-support-common-starter</artifactId>
@@ -71,6 +71,7 @@
         <dependency>
             <groupId>com.chua.jdk</groupId>
             <artifactId>vector-api</artifactId>
+            <!-- 外部发布包，不随本反应器版本同步（已发版 4.0.0.42），本地仅经 local-vector-api 仓库提供 -->
             <version>4.0.0.42</version>
             <scope>provided</scope>
         </dependency>

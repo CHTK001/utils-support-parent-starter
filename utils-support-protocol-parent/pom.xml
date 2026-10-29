@@ -4,12 +4,12 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-parent-starter</artifactId>
-        <version>4.0.0.42</version>
+        <version>4.0.0.43</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>com.chua</groupId>
     <artifactId>utils-support-protocol-parent</artifactId>
-    <version>4.0.0.42</version>
+    <version>4.0.0.43</version>
     <packaging>pom</packaging>
     <properties>        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>    </properties>
     <modules>

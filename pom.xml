@@ -4,7 +4,7 @@
     <groupId>com.chua</groupId>
     <artifactId>utils-support-parent-starter</artifactId>
     <packaging>pom</packaging>
-    <version>4.0.0.42</version>
+    <version>4.0.0.43</version>
       <modules>
           <module>utils-support-core-parent</module>
           <module>utils-support-filesystem-parent</module>
@@ -23,7 +23,7 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <java.version>25</java.version>
-        <utils.version>4.0.0.42</utils.version>
+        <utils.version>4.0.0.43</utils.version>
         <djl.version>0.36.0</djl.version>
 
         <skipTests>true</skipTests>
@@ -2014,12 +2014,12 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-resource-qqwry</artifactId>
-                <version>4.0.0.42</version>
+                <version>4.0.0.43</version>
             </dependency>
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-resource-ip2region</artifactId>
-                <version>4.0.0.42</version>
+                <version>4.0.0.43</version>
             </dependency>
             <dependency>
                 <groupId>com.aliyun</groupId>

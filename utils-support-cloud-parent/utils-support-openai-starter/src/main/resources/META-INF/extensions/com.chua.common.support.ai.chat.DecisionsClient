@@ -1,0 +1,8 @@
+openai=com.chua.openai.support.OpenAiDecisionsClient
+siliconflow=com.chua.openai.support.OpenAiDecisionsClient
+sensetime=com.chua.openai.support.OpenAiDecisionsClient
+github=com.chua.openai.support.OpenAiDecisionsClient
+gitee=com.chua.openai.support.OpenAiDecisionsClient
+dots=com.chua.openai.support.OpenAiDecisionsClient
+kilo=com.chua.openai.support.OpenAiDecisionsClient
+custom=com.chua.openai.support.OpenAiDecisionsClient

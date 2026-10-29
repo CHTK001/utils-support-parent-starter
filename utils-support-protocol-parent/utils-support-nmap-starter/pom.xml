@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-protocol-parent</artifactId>
-        <version>4.0.0.42</version>
+        <version>4.0.0.43</version>
     </parent>
     <artifactId>utils-support-nmap-starter</artifactId>
     <name>Utils Support Nmap Starter - Rust原生网络扫描模块</name>

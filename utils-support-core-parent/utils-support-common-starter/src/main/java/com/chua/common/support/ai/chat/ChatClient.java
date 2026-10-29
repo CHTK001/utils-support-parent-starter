@@ -692,7 +692,15 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
      *
      * <p>调用 {@code GET {baseUrl}/v1/models} 接口查询可用模型。
      * 返回包含模型 ID、名称、描述、能力等信息的 {@link ModelDefinition} 列表。
-     * 默认返回空列表，子类可按需覆写。
+     * 默认返回空列表，子类可按需覆写。</p>
+     *
+     * <p><b>元数据契约</b>：上游 {@code /models} 返回的上下文窗口
+     * （{@link ModelDefinition#getContextWindowTokens()}）、单次输出上限
+     * （{@link ModelDefinition#getMaxOutputTokens()}）、价格、推理 / 工具调用 /
+     * 图片与附件输入能力、输入输出模态等，凡上游确实提供的，实现类应原样填入，
+     * <b>不要用模型名猜测</b>。上游未声明的字段保持 {@code null}，表示「未知」，
+     * 由调用方回退到指标库快照，而不是当成不支持或 0。统一的解析口径见
+     * {@code com.chua.common.support.ai.chat.indicator.HttpChatClientIndicator#parseModelMetrics}。</p>
      *
      * @return 可用模型定义列表
      */
@@ -904,5 +912,21 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     default String getBaseUrl() {
         ChatClientSetting setting = getSetting();
         return setting != null ? setting.getBaseUrl() : null;
+    }
+
+    /**
+     * 获取客户端协议类型。
+     *
+     * <p>默认均为 OpenAI 兼容 Chat Completions 协议；服务商标识（如 Claude、Gemini）的
+     * 原生协议客户端需重写为 {@link ChatClientType#PROVIDER_NATIVE}，
+     * 以便调用方在 IQ/路由/网关层按协议族做区分。</p>
+     *
+     * <p>注意：这是一个语义标记，不改变 {@link #chatSync(String)} 的统一参数约定：
+     *  callers 通过 {@code ChatClient#chatSync} 链路下发拼接好的 prompt。</p>
+     *
+     * @return 协议类型
+     */
+    default ChatClientType type() {
+        return ChatClientType.OPENAI_COMPATIBLE;
     }
 }

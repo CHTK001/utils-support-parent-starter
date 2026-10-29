@@ -35,9 +35,14 @@ import java.util.Set;
  *       自动判定）、{@code pricing.prompt/completion}、{@code pricing.promptTextTokens/
  *       completionTextTokens}、{@code cost.input/output}（models.dev 口径）；</li>
  *   <li>上下文与输出上限：{@code context_window}、{@code context_length}、
- *       {@code limit.context}、{@code max_completion_tokens}、{@code limit.output}；</li>
+ *       {@code limit.context}、{@code max_completion_tokens}、{@code limit.output}；
+ *       intern-ai schema 2.4 的 {@code input_modalities[].supported_inputs.max_context_length.value}
+ *       与 {@code output_modalities[].supported_parameters.max_tokens.max} 同样识别；</li>
  *   <li>能力：{@code supported_parameters}、{@code capabilities}、
- *       {@code architecture.input_modalities}、{@code modalities.input} 与常见布尔字段；</li>
+ *       {@code architecture.input_modalities}、{@code modalities.input}、
+ *       {@code input_modalities[]} / {@code output_modalities[]}（元素可为字符串或对象）
+ *       与常见布尔字段；</li>
+ *   <li>配额：{@code capacity} 的每分钟请求数 / 每分钟提示词 Token；</li>
  *   <li>端点与参数：顶层或模型级的 {@code supported_endpoints} / {@code supported_parameters}。</li>
  * </ul>
  *
@@ -229,7 +234,7 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
                 if (modelId == null) {
                     continue;
                 }
-                Map<String, Object> metrics = metricsOf(model);
+                Map<String, Object> metrics = parseModelMetrics(model);
                 metricsByModel.put(modelId, metrics);
                 int slash = modelId.lastIndexOf('/');
                 if (slash >= 0 && slash + 1 < modelId.length()) {
@@ -312,10 +317,24 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
     }
 
     /**
-     * 汇总单个模型的指标 Map。
+     * 解析单个模型条目的标准指标（{@code snake_case}，价格统一为 USD / 百万 Token）。
+     *
+     * <p>本方法是<b>模型目录 → 指标</b>的唯一口径，既是本类抓取 {@code metrics_url}
+     * 的解析实现，也被服务商「一键批量录入模型」直接复用：上游 {@code GET /models}
+     * 返回的条目（OpenAI 兼容、OpenRouter、Pollinations、Vercel AI Gateway、
+     * intern-ai schema 2.4 等）都走这里，导入时即可落库上下文窗口 / 输出上限 /
+     * 能力开关 / 价格，而不是只留一个模型名。</p>
+     *
+     * <p>容错语义：所有字段都「取不到就不写」，不产生空值也不会把未知当成 0。</p>
+     *
+     * @param model 单个模型条目 JSON（对象）
+     * @return 指标 Map（可能为空，不会返回 null）
      */
-    private Map<String, Object> metricsOf(JsonNode model) {
+    public static Map<String, Object> parseModelMetrics(JsonNode model) {
         Map<String, Object> metrics = new LinkedHashMap<>(32);
+        if (model == null || !model.isObject()) {
+            return metrics;
+        }
         // 1) 目录已给出标准指标（metrics 子对象）时优先采用
         JsonNode explicitMetrics = model.get("metrics");
         if (explicitMetrics != null && explicitMetrics.isObject()) {
@@ -349,18 +368,34 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
             putMillionPrice(metrics, "price_cache_write_per_musd", cost.get("cache_write"));
             putMillionPrice(metrics, "price_internal_reasoning_per_musd", cost.get("reasoning"));
         }
+        // 2.1) intern-ai schema 2.4 等把价格嵌在 pricing.price / pricing.cost 里，
+        //      既可能是 {input,output} 对象，也可能是一个「输入输出同价」的数值
+        if (pricing != null && pricing.isObject()) {
+            applyNestedPrice(metrics, pricing.get("price"));
+            applyNestedPrice(metrics, pricing.get("cost"));
+        }
 
         // 3) 上下文与输出上限
         Long context = firstLong(model, "context_window", "context_length",
-                "max_context_tokens", "max_input_tokens");
+                "max_context_tokens", "max_input_tokens",
+                "input_token_limit", "inputTokenLimit");
         JsonNode limit = model.get("limit");
         if (context == null) {
             context = IndicatorJsonSupport.longValue(limit, "context");
         }
+        if (context == null) {
+            // intern-ai schema 2.4：input_modalities[].supported_inputs.max_context_length.value
+            context = arrayDeepLong(model.get("input_modalities"),
+                    "supported_inputs", "max_context_length", "value");
+        }
+        if (context == null) {
+            context = IndicatorJsonSupport.longValue(model.get("capacity"), "max_context_length");
+        }
         if (context != null && context > 0) {
             metrics.put("context_window_tokens", context);
         }
-        Long maxOutput = firstLong(model, "max_output_tokens", "max_completion_tokens");
+        Long maxOutput = firstLong(model, "max_output_tokens", "max_completion_tokens",
+                "output_token_limit", "outputTokenLimit");
         if (maxOutput == null) {
             maxOutput = IndicatorJsonSupport.longValue(limit, "output");
         }
@@ -368,9 +403,16 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
             JsonNode topProvider = model.get("top_provider");
             maxOutput = IndicatorJsonSupport.longValue(topProvider, "max_completion_tokens");
         }
+        if (maxOutput == null) {
+            // intern-ai schema 2.4：output_modalities[].supported_parameters.max_tokens.max
+            maxOutput = arrayDeepLong(model.get("output_modalities"),
+                    "supported_parameters", "max_tokens", "max");
+        }
         if (maxOutput != null && maxOutput > 0) {
             metrics.put("max_output_tokens", maxOutput);
         }
+        // 3.1) 吞吐配额（intern-ai 的 capacity：每分钟请求数 / 每分钟提示词 Token）
+        applyCapacity(metrics, model.get("capacity"));
 
         // 4) 能力标记：显式布尔优先，其次参数列表 / 模态
         copyBoolean(metrics, "reasoning", model, "reasoning");
@@ -395,25 +437,31 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
             inputs = modalities.get("input");
         }
         if (inputs != null) {
-            if (IndicatorJsonSupport.containsText(inputs, "image")) {
+            // 字符串数组（OpenRouter）与对象数组（intern-ai: [{name,supported_inputs}]）都归一成名称列表
+            List<String> inputNames = modalityNames(inputs);
+            if (inputNames.contains("image")) {
                 metrics.put("image_input", true);
             }
-            if (IndicatorJsonSupport.containsText(inputs, "audio")) {
+            if (inputNames.contains("audio")) {
                 metrics.put("audio_input", true);
             }
-            if (IndicatorJsonSupport.containsText(inputs, "video")) {
+            if (inputNames.contains("video")) {
                 metrics.put("video_input", true);
             }
-            if (IndicatorJsonSupport.containsText(inputs, "file")) {
+            if (inputNames.contains("file") || inputNames.contains("pdf")) {
                 metrics.put("file_input", true);
             }
-            metrics.put("input_modalities", IndicatorJsonSupport.toJava(inputs));
-        }
-        if (modalities != null && modalities.isObject()) {
-            List<String> outputs = IndicatorJsonSupport.stringList(modalities.get("output"));
-            if (!outputs.isEmpty()) {
-                metrics.put("output_modalities", outputs);
+            if (!inputNames.isEmpty()) {
+                metrics.put("input_modalities", inputNames);
             }
+        }
+        JsonNode outputsNode = model.get("output_modalities");
+        if (outputsNode == null && modalities != null && modalities.isObject()) {
+            outputsNode = modalities.get("output");
+        }
+        List<String> outputNames = modalityNames(outputsNode);
+        if (!outputNames.isEmpty()) {
+            metrics.put("output_modalities", outputNames);
         }
 
         JsonNode supported = model.get("supported_parameters");
@@ -446,7 +494,7 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
 
         // 5) 展示 / 溯源字段
         IndicatorJsonSupport.put(metrics, "model_name",
-                firstText(model, "name", "title", "display_name"));
+                firstText(model, "display_name", "name", "title"));
         IndicatorJsonSupport.put(metrics, "model_provider",
                 firstText(model, "publisher", "owned_by", "provider"));
         IndicatorJsonSupport.put(metrics, "model_type",
@@ -467,12 +515,144 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
     /**
      * 复制 metrics 子对象（已存在的标准键优先）。
      */
-    private void copyObject(JsonNode object, Map<String, Object> target) {
+    private static void copyObject(JsonNode object, Map<String, Object> target) {
         Iterator<Map.Entry<String, JsonNode>> fields = object.fields();
         while (fields.hasNext()) {
             Map.Entry<String, JsonNode> field = fields.next();
             target.putIfAbsent(field.getKey(), IndicatorJsonSupport.toJava(field.getValue()));
         }
+    }
+
+    /**
+     * 嵌套价格：对象按 input/output 取值，单一数值视为输入输出同价。
+     *
+     * @param target 目标指标 Map
+     * @param node   {@code pricing.price} / {@code pricing.cost} 节点
+     */
+    private static void applyNestedPrice(Map<String, Object> target, JsonNode node) {
+        if (node == null || node.isNull()) {
+            return;
+        }
+        if (node.isObject()) {
+            putHeuristicPrice(target, "price_input_per_musd", node.get("input"));
+            putHeuristicPrice(target, "price_output_per_musd", node.get("output"));
+            putHeuristicPrice(target, "price_cache_hit_per_musd", node.get("cache_read"));
+            putHeuristicPrice(target, "price_cache_write_per_musd", node.get("cache_write"));
+            putUnitPrice(target, "price_image_per_unit", node.get("image"));
+            putUnitPrice(target, "price_web_search_per_unit", node.get("web_search"));
+            return;
+        }
+        putHeuristicPrice(target, "price_input_per_musd", node);
+        putHeuristicPrice(target, "price_output_per_musd", node);
+    }
+
+    /**
+     * 吞吐配额：{@code capacity.requests_per_minute} / {@code capacity.prompt_tokens_per_minute}。
+     *
+     * <p>兼容扁平（{@code capacity.{...}}）与一层嵌套（{@code capacity.llm.{...}}）两种形态。</p>
+     *
+     * @param target   目标指标 Map
+     * @param capacity capacity 节点
+     */
+    private static void applyCapacity(Map<String, Object> target, JsonNode capacity) {
+        if (capacity == null || !capacity.isObject()) {
+            return;
+        }
+        JsonNode scope = capacity;
+        Long rpm = firstLong(scope, "requests_per_minute", "requests_per_min", "rpm");
+        Long tpm = firstLong(scope, "prompt_tokens_per_minute", "tokens_per_minute", "tpm");
+        if (rpm == null && tpm == null) {
+            JsonNode nested = capacity.get("llm");
+            if (nested != null && nested.isObject()) {
+                scope = nested;
+                rpm = firstLong(scope, "requests_per_minute", "requests_per_min", "rpm");
+                tpm = firstLong(scope, "prompt_tokens_per_minute", "tokens_per_minute", "tpm");
+            }
+        }
+        if (rpm != null && rpm > 0) {
+            target.put("requests_per_minute", rpm);
+        }
+        if (tpm != null && tpm > 0) {
+            target.put("prompt_tokens_per_minute", tpm);
+        }
+    }
+
+    /**
+     * 在对象数组中沿给定路径取第一个正数值。
+     *
+     * <p>用于 intern-ai 这类「能力参数嵌在模态数组元素里」的结构，例如
+     * {@code output_modalities[].supported_parameters.max_tokens.max}。</p>
+     *
+     * @param array 对象数组
+     * @param path  从数组元素起的字段路径
+     * @return 数值；任一段缺失时返回 null
+     */
+    private static Long arrayDeepLong(JsonNode array, String... path) {
+        if (array == null || !array.isArray()) {
+            return null;
+        }
+        for (JsonNode item : array) {
+            if (item == null || !item.isObject()) {
+                continue;
+            }
+            JsonNode current = item;
+            for (String key : path) {
+                if (current == null) {
+                    break;
+                }
+                current = current.get(key);
+            }
+            Long value = longOf(current);
+            if (value != null && value > 0) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 任意 JSON 节点转 Long（非数值返回 null）。
+     *
+     * @param node 节点
+     * @return 数值
+     */
+    private static Long longOf(JsonNode node) {
+        BigDecimal value = IndicatorJsonSupport.decimal(node);
+        return value == null ? null : value.longValue();
+    }
+
+    /**
+     * 模态节点归一为名称列表。
+     *
+     * <p>既接受字符串数组（{@code ["text","image"]}），也接受对象数组
+     * （{@code [{"name":"image","supported_inputs":{...}}]}），对象取
+     * {@code name} / {@code type} / {@code id}。返回元素一定是字符串，
+     * 避免下游 {@code modalities} 落库成对象列表。</p>
+     *
+     * @param node 模态节点
+     * @return 名称列表（去重保序）；无法识别时返回空列表
+     */
+    private static List<String> modalityNames(JsonNode node) {
+        if (node == null || node.isNull()) {
+            return List.of();
+        }
+        if (node.isTextual()) {
+            String text = IndicatorJsonSupport.text(node);
+            return text == null ? List.of() : List.of(text);
+        }
+        if (!node.isArray()) {
+            return List.of();
+        }
+        Set<String> names = new LinkedHashSet<>(node.size());
+        for (JsonNode item : node) {
+            String name = item != null && item.isObject()
+                    ? firstText(item, "name", "type", "id")
+                    : IndicatorJsonSupport.text(item);
+            if (name != null && !name.isBlank()) {
+                names.add(name.trim());
+            }
+        }
+        return List.copyOf(names);
     }
 
     /**

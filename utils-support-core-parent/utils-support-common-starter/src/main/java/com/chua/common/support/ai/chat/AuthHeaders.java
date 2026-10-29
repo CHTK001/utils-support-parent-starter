@@ -155,6 +155,20 @@ public final class AuthHeaders {
     }
 
     /**
+     * 从决策客户端配置解析认证头
+     *
+     * @param setting 决策客户端配置，可为 null
+     * @param apiKey  API Key
+     * @return 认证头键值对；免鉴权或无 Key 时返回 null
+     */
+    public static Map.Entry<String, String> resolve(DecisionsSetting setting, String apiKey) {
+        if (setting == null) {
+            return resolve(null, null, null, apiKey);
+        }
+        return resolve(setting.getAuthScheme(), setting.getAuthHeader(), setting.getAuthPrefix(), apiKey);
+    }
+
+    /**
      * 是否为标准 {@code Authorization: Bearer} 认证
      *
      * <p>为 true 时可交给 SDK 原生 apiKey 通道，无需额外干预。</p>

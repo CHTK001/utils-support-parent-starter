@@ -4,6 +4,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientIndicator;
+import com.chua.common.support.ai.chat.ChatClientType;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.chat.ChatResponse;
@@ -486,6 +487,16 @@ public class GoogleChatClient implements ChatClient {
     @Override
     public ChatClientIndicator indicator() {
         return ChatClient.super.indicator();
+    }
+
+    /**
+     * 使用 Google Gemini generateContent 原生协议，不是 OpenAI 兼容 Chat Completions 协议。
+     *
+     * @return 协议类型
+     */
+    @Override
+    public ChatClientType type() {
+        return ChatClientType.PROVIDER_NATIVE;
     }
 
 

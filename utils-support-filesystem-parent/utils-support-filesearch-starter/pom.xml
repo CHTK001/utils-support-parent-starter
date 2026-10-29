@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-filesystem-parent</artifactId>
-        <version>4.0.0.42</version>
+        <version>4.0.0.43</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>com.chua</groupId>
     <artifactId>utils-support-filesearch-starter</artifactId>
-    <version>4.0.0.42</version>
+    <version>4.0.0.43</version>
     <packaging>jar</packaging>
     <name>Utils Support Filesearch Starter</name>
     <description>文件搜索引擎模块，基于 Rust 原生库 + Java 25 FFM</description>
