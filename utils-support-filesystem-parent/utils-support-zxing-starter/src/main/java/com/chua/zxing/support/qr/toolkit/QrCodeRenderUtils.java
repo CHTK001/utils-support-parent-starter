@@ -544,7 +544,8 @@ public class QrCodeRenderUtils {
         if (detectedImg != null) {
             // 使用探测图形的图片来渲染
             g2.drawImage(detectedImg
-                            .getScaledInstance(infoSize * detectCornerSize, infoSize * detectCornerSize, Image.SCALE_SMOOTH),
+                            .getScaledInstance(infoSize * detectCornerSize, infoSize * detectCornerSize,
+                                    Image.SCALE_SMOOTH),
                     leftPadding + x * infoSize, topPadding + y * infoSize, null);
 
             // 图片直接渲染完毕之后，将其他探测图形的点设置为0，表示不需要再次渲染
