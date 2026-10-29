@@ -598,7 +598,8 @@ public class QwenProxyChatClient implements ChatClient {
         }
         // 匹配 Markdown 图片 ![alt](url) 或直接 URL
         java.util.regex.Matcher m = java.util.regex.Pattern.compile(
-                "!\\[.*?\\]\\((https?://[^)]+)\\)|https?://[^\\s)\"'<>]+(?:\\.(?:png|jpg|jpeg|webp|gif))(?:\\?[^\\s)\"'<>]*)?"
+                "!\\[.*?\\]\\((https?://[^)]+)\\)|https?://[^\\s)\"'<>]+(?:\\.(?:png|jpg|jpeg|webp|" +
+                        "gif))(?:\\?[^\\s)\"'<>]*)?"
         ).matcher(text);
         int idx = 0;
         while (m.find() && idx < 10) {

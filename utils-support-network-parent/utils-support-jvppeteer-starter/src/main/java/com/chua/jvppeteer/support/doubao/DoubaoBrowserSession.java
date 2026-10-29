@@ -280,7 +280,8 @@ public class DoubaoBrowserSession implements AutoCloseable {
             String csrf = cookies.getOrDefault("passport_csrf_token", "");
             String script = "async (id) => {"
                     + " try { const r = await fetch('https://www.doubao.com/samantha/thread/delete', {"
-                    + "   method: 'POST', headers: { 'Content-Type': 'application/json', 'a-csrf-token': '" + csrf + "' },"
+                    + "   method: 'POST',"
+                    + " headers: { 'Content-Type': 'application/json', 'a-csrf-token': '" + csrf + "' },"
                     + "   credentials: 'include', body: JSON.stringify({ thread_id: id }) });"
                     + " const d = await r.json(); return r.ok && d.code === 0; }"
                     + " catch(e) { return false; } }";

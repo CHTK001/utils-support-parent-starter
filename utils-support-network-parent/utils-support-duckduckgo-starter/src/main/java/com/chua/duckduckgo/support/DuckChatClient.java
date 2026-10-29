@@ -435,9 +435,12 @@ public class DuckChatClient implements ChatClient {
         List<ModelDefinition> models = new ArrayList<>();
         models.add(ModelDefinition.builder().id("gpt-6-luna").name("GPT-6 Luna").provider("duckduckgo").build());
         models.add(ModelDefinition.builder().id("gpt-5.6-terra").name("GPT-5.6 Terra").provider("duckduckgo").build());
-        models.add(ModelDefinition.builder().id("claude-sonnet-4-6").name("Claude Sonnet 4.6").provider("duckduckgo").build());
-        models.add(ModelDefinition.builder().id("claude-haiku-4-5").name("Claude Haiku 4.5").provider("duckduckgo").build());
-        models.add(ModelDefinition.builder().id("mistral-small-2603").name("Mistral Small 2603").provider("duckduckgo").build());
+        models.add(ModelDefinition.builder().id("claude-sonnet-4-6").name("Claude Sonnet 4.6")
+                .provider("duckduckgo").build());
+        models.add(ModelDefinition.builder().id("claude-haiku-4-5").name("Claude Haiku 4.5")
+                .provider("duckduckgo").build());
+        models.add(ModelDefinition.builder().id("mistral-small-2603").name("Mistral Small 2603")
+                .provider("duckduckgo").build());
         return models;
     }
 
@@ -471,7 +474,9 @@ public class DuckChatClient implements ChatClient {
                         if (b64Image == null || b64Image.isEmpty()) {
                             return;
                         }
-                        String format = imageFormat == null || imageFormat.isBlank() ? "png" : imageFormat.trim().toLowerCase();
+                        String format = imageFormat == null || imageFormat.isBlank()
+                                ? "png"
+                                : imageFormat.trim().toLowerCase();
                         String dataUrl = "data:image/" + format + ";base64," + b64Image;
                         images.add(new ImageGenerationResult.GeneratedImage(
                                 "duck-" + (images.size() + 1),

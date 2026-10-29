@@ -306,7 +306,8 @@ class OpenAiDecisionsClientTest {
         received.clear();
         hit.set(false);
         error400.set(false);
-        DecisionsRequest request = DecisionsRequest.create("无密钥", List.of(DecisionQuestion.noul("hasDuplicate", "是不是")));
+        DecisionsRequest request = DecisionsRequest.create("无密钥",
+                List.of(DecisionQuestion.noul("hasDuplicate", "是不是")));
 
         DecisionsClient client = new OpenAiDecisionsClient(
                 DecisionsSetting.builder()
@@ -327,7 +328,8 @@ class OpenAiDecisionsClientTest {
         received.clear();
         hit.set(false);
         error400.set(true);
-        DecisionsRequest request = DecisionsRequest.create("无密钥", List.of(DecisionQuestion.noul("hasDuplicate", "是不是")));
+        DecisionsRequest request = DecisionsRequest.create("无密钥",
+                List.of(DecisionQuestion.noul("hasDuplicate", "是不是")));
         try {
             new OpenAiDecisionsClient(
                     DecisionsSetting.builder()
@@ -349,7 +351,8 @@ class OpenAiDecisionsClientTest {
         received.clear();
         hit.set(false);
         error400.set(false);
-        DecisionsRequest request = DecisionsRequest.create("无密钥", List.of(DecisionQuestion.noul("hasDuplicate", "是不是")));
+        DecisionsRequest request = DecisionsRequest.create("无密钥",
+                List.of(DecisionQuestion.noul("hasDuplicate", "是不是")));
         DecisionsClient client = new OpenAiDecisionsClient(
                 DecisionsSetting.builder()
                         .provider("openai").appKey(API_KEY).baseUrl(BASE_URL).build());
