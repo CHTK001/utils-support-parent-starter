@@ -7,10 +7,10 @@
 | 类型 | 数量 | 典型成因 | 建议处理方式 |
 | --- | --- | --- | --- |
 | literal | 51 | 单条字符串超过 120 字符（HTML/CSS 片段、提示词、错误消息） | 长字符串字面量：可提取为 `private static final String` 常量，或按 `+` 拼接拆分（值不变，但可读性下降） |
-| other | 12 | 深层调用/长表达式（builder 链、三元、try-with-resources） | 深层表达式：需按语义重排（提取局部变量或拆分调用链） |
+| other | 2 | 深层调用/长表达式（builder 链、三元、try-with-resources） | 深层表达式：需按语义重排（提取局部变量或拆分调用链） |
 | signature | 0 | 方法签名参数多或含全限定类型名 | 超长签名：多为泛型/长类型名，建议把全限定名改 import 简写，或按参数逐个换行 |
 | regex | 13 | 正则表达式字面量 | 正则字面量：建议保留原样，或提取为 `static final Pattern` 常量以便复用与预编译 |
-| **合计** | **76** | — | — |
+| **合计** | **66** | — | — |
 
 ## 二、完整清单
 
@@ -70,22 +70,12 @@
 | 50 | `com.chua.kafka.support.spi.KafkaClientProvider.java:159` | 123 | `return MiddlewareQueryResult.fail("查询表达式为空。支持：topics / brokers / groups / describe <topic> / preview <topic>");` |
 | 51 | `com.chua.prometheus.support.engine.PrometheusEngine.java:350` | 121 | `throw new UnsupportedOperationException("Prometheus 引擎为只读数据源，不支持数据操作语句，请使用 queryInstant(promql) 执行 PromQL 即时查询");` |
 
-### other（12 处）
+### other（2 处）
 
 | # | 文件:行 | 字符数 | 代码片段 |
 | --- | --- | --- | --- |
 | 1 | `com.chua.alibaba.support.sms.AlibabaSmsMessagePush.java:16` | 123 | `import com.aliyun.dysmsapi20170525.models.QuerySmsTemplateListResponseBody.QuerySmsTemplateListResponseBodySmsTemplateLi…` |
-| 2 | `com.chua.common.support.utils.ClassUtils.java:2191` | 135 | `return (constructor.getParameterCount() == 2 ? ((MethodHandles.Lookup) constructor.newInstance(declaringClass, allModes)…` |
-| 3 | `com.chua.common.support.utils.StringUtils.java:94` | 122 | `"                ", "                 ", "                  ", "                   ", "                    "};` |
-| 4 | `com.chua.ast.support.internal.AbstractAstProcessor.java:112` | 143 | `Class.forName( // [P3C 1.10 豁免] javac 编译器内部实现类（com.sun.tools.javac.*），本模块未依赖 utils-support-common-starter，无 ReflectUtils…` |
-| 5 | `com.chua.filestorage.support.cache.PreviewPdfCache.java:192` | 122 | `this.convertExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), r -> {` |
-| 6 | `com.chua.zxing.support.qr.draw.eye.ImageDrawEyeResolver.java:62` | 125 | `.getScaledInstance(infoSize * detectCornerSize, infoSize * detectCornerSize, Image.SCALE_SMOOTH),` |
-| 7 | `com.chua.zxing.support.qr.toolkit.QrCodeRenderUtils.java:150` | 136 | `QrCodeOptions.FrontImgOptions frontImgOptions) {` |
-| 8 | `com.chua.zxing.support.qr.toolkit.QrCodeRenderUtils.java:252` | 132 | `QrCodeOptions.BgImgOptions bgImgOptions) {` |
-| 9 | `com.chua.zxing.support.qr.toolkit.QrCodeRenderUtils.java:547` | 125 | `.getScaledInstance(infoSize * detectCornerSize, infoSize * detectCornerSize, Image.SCALE_SMOOTH),` |
-| 10 | `com.chua.minio.support.storage.MinioFileStorage.java:151` | 126 | `? Long.parseLong(Objects.requireNonNull(response.headers().get("Content-Length")))` |
-| 11 | `com.chua.rpc.support.sofa.SofaRpcClient.java:95` | 132 | `if (rpcConsumerConfig.getAsync() != null)        { c.setInvokeType(Boolean.TRUE.equals(rpcConsumerConfig.getAsync())` |
-| 12 | `com.chua.runtime.core.service.SystemdServiceManager.java:259` | 123 | `service.getEnv().forEach((k, v) -> sb.append("Environment=\"").append(k).append("=").append(v).append("\"\n"));` |
+| 2 | `com.chua.runtime.core.service.SystemdServiceManager.java:259` | 123 | `service.getEnv().forEach((k, v) -> sb.append("Environment=\"").append(k).append("=").append(v).append("\"\n"));` |
 
 ### signature（0 处）
 
