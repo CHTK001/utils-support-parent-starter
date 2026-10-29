@@ -156,7 +156,8 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
     @Override
     public MiddlewareQueryResult query(MiddlewareConnectRequest request, String expression, int limit) {
         if (expression == null || expression.isBlank()) {
-            return MiddlewareQueryResult.fail("查询表达式为空。支持：topics / brokers / groups / describe <topic> / preview <topic>");
+            return MiddlewareQueryResult.fail("查询表达式为空。支持：topics / brokers / groups / describe <topic> / preview " +
+                    "<topic>");
         }
         String cmd = expression.trim();
         String lower = cmd.toLowerCase();

@@ -187,7 +187,8 @@ public class AvroPreviewProvider implements FileStoragePreviewProvider {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">")
                 .append("<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>")
-                .append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +
+                .append("body{margin:0;background:#f8f9fa;color:#1a1a2e;" +
+                        "font-family:-apple-system,BlinkMacSystemFont,'Segoe " +
                         "" +
                         "" +
                         "UI',sans-serif;padding:20px}")

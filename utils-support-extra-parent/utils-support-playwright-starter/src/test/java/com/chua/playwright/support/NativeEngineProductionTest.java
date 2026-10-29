@@ -430,20 +430,24 @@ class NativeEngineProductionTest {
     void ariaRoleCheckStates() {
         long p = newPage();
         try {
-            assertFalse((Boolean) ev(p, "function(){ return document.getElementById('sw').getAttribute('aria-checked') === 'true'; " +
+            assertFalse((Boolean) ev(p, "function(){ return " +
+                    "document.getElementById('sw').getAttribute('aria-checked') === 'true'; " +
                     "}"));
             engine.check(p, "#sw", true);
-            assertTrue((Boolean) ev(p, "function(){ return document.getElementById('sw').getAttribute('aria-checked') === 'true'; " +
+            assertTrue((Boolean) ev(p, "function(){ return " +
+                    "document.getElementById('sw').getAttribute('aria-checked') === 'true'; " +
                     "}"),
                     "role=switch 应可勾选");
 
             engine.check(p, "#mi", false);
-            assertFalse((Boolean) ev(p, "function(){ return document.getElementById('mi').getAttribute('aria-checked') === 'true'; " +
+            assertFalse((Boolean) ev(p, "function(){ return " +
+                    "document.getElementById('mi').getAttribute('aria-checked') === 'true'; " +
                     "}"),
                     "role=menuitemcheckbox 应可取消勾选");
 
             engine.check(p, "#tree1", true);
-            assertTrue((Boolean) ev(p, "function(){ return document.getElementById('tree1').getAttribute('aria-checked') === " +
+            assertTrue((Boolean) ev(p, "function(){ return " +
+                    "document.getElementById('tree1').getAttribute('aria-checked') === " +
                     "'true'; }"),
                     "role=treeitem 应可勾选");
         } finally {

@@ -105,7 +105,8 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
                 // scene setup
                 "var s=new m.Scene();s.background=new m.Color(0x1a1a2e);" +
                 "var ca=new m.PerspectiveCamera(45,innerWidth/innerHeight,0.01,1e5);" +
-                "var r=new m.WebGLRenderer({antialias:true});r.setSize(innerWidth,innerHeight);r.setPixelRatio(devicePixelRatio);" +
+                "var r=new m.WebGLRenderer({antialias:true});r.setSize(innerWidth,innerHeight);" +
+                        "r.setPixelRatio(devicePixelRatio);" +
                 "var app=document.getElementById('app');app.innerHTML='';app.appendChild(r.domElement);" +
                 // lights
                 "s.add(new m.AmbientLight(0xffffff,0.6));" +
@@ -164,7 +165,8 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
                 "if(isNaN(c))continue;i++;var v=(lines[i]||'').trim();grps.push({c:c,v:v})}" +
                 "var pts=[],curves=[];var inEnt=false;" +
                 "for(i=0;i<grps.length;i++){" +
-                "if(grps[i].c===0&&grps[i].v==='SECTION'&&i+1<grps.length&&grps[i+1].c===2&&grps[i+1].v==='ENTITIES'){inEnt=true;continue}" +
+                "if(grps[i].c===0&&grps[i].v==='SECTION'&&i+1<grps.length&&grps[i+1].c===2&&" +
+                        "grps[i+1].v==='ENTITIES'){inEnt=true;continue}" +
                 "if(inEnt&&grps[i].c===0&&grps[i].v==='ENDSEC')break;" +
                 "if(!inEnt||grps[i].c!==0)continue;" +
                 "var et=grps[i].v,eg=[];i++;while(i<grps.length&&grps[i].c!==0){eg.push(grps[i]);i++}i--;" +

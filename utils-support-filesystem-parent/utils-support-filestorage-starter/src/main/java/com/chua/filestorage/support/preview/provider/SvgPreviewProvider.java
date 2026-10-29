@@ -71,7 +71,8 @@ public class SvgPreviewProvider implements FileStoragePreviewProvider {
 
         return PreviewResult.builder()
                 .htmlContent(html)
-                .embeddedCss("html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;font-family:system-ui}" +
+                .embeddedCss("html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;" +
+                        "font-family:system-ui}" +
                         "#svg-container{overflow:auto;background:#fafafa}" +
                         "#svg-container img{display:block;transition:transform .2s ease}")
                 // SVG 内容为不可信输入，统一沙箱隔离以防御可能携带的脚本

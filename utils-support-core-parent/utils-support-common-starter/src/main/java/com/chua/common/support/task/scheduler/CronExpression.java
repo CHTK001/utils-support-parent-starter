@@ -115,7 +115,8 @@ public class CronExpression {
     public CronExpression(String expression) {
         String[] fields = expression.trim().split("\\s+");
         if (fields.length != 6) {
-            throw new IllegalArgumentException("Cron expression must have 6 fields (second minute hour day-of-month month day-of-week)");
+            throw new IllegalArgumentException("Cron expression must have 6 fields (second minute hour day-of-month " +
+                    "month day-of-week)");
         }
         parseSeconds(fields[0]);
         parseMinutes(fields[1]);
