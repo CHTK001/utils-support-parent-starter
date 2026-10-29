@@ -146,7 +146,7 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
 
 | 校验项 | 结果 |
 | --- | --- |
-| 空 catch 块（真实代码） | 0（6 处命中均为注释或 JS 字符串中的 `catch(e){}`） |
+| 空 catch 块（真实代码） | 0（9 处命中均为注释或 JS 字符串中的 `catch(e){}`） |
 | 注解位于 Javadoc 之前 | 0 |
 | 连续重复 Javadoc | 0（25 处命中均为 `= true` 示例、箭头图等有意重复的文档示例） |
 | void 方法带 `@return` | 0 |
@@ -163,13 +163,13 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
 | `finally` 中 return | 0 |
 | 日志占位符缺陷（2.4） | 7 → 0 |
 | `new Date().getTime()`（1.9.5） | 0 |
-| 超长行（1.3.7） | **2251 → 2**（超长 import、lambda 内单条 append，语法不可拆） |
+| 超长行（1.3.7） | **2251 → 2**（收口后又清理并行开发新增代码的 11 处，仍为 2 处不可拆项） |
 | 行尾空白 / 制表符 | 2529 → 0 / 0 |
 | 编码问题（BOM / 非法 UTF-8 / U+FFFD） | 0 / 0 / 0 |
 | POJO `toString`（1.4.12） | 57 补 `@ToString`，20 个含敏感字段类跳过 |
 | 命令注入（4.x） | 2 处已修复（进程查询、PDF 转换） |
 | 模块循环依赖（6.x） | 0（223 个模块） |
-| 全量 reactor 编译 | 排除 2 个在途模块后 222 个模块 `EXIT=0` |
+| 全量 reactor 编译 | **224 个模块全量 `EXIT=0`**（含并行开发者提交的全部代码） |
 | 本地/远端同步 | `HEAD == origin/master` |
 
 ## 六、复验命令清单
