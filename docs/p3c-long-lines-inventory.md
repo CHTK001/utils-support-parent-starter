@@ -7,10 +7,10 @@
 | 类型 | 数量 | 典型成因 | 建议处理方式 |
 | --- | --- | --- | --- |
 | literal | 51 | 单条字符串超过 120 字符（HTML/CSS 片段、提示词、错误消息） | 长字符串字面量：可提取为 `private static final String` 常量，或按 `+` 拼接拆分（值不变，但可读性下降） |
-| other | 21 | 深层调用/长表达式（builder 链、三元、try-with-resources） | 深层表达式：需按语义重排（提取局部变量或拆分调用链） |
+| other | 12 | 深层调用/长表达式（builder 链、三元、try-with-resources） | 深层表达式：需按语义重排（提取局部变量或拆分调用链） |
 | signature | 0 | 方法签名参数多或含全限定类型名 | 超长签名：多为泛型/长类型名，建议把全限定名改 import 简写，或按参数逐个换行 |
 | regex | 13 | 正则表达式字面量 | 正则字面量：建议保留原样，或提取为 `static final Pattern` 常量以便复用与预编译 |
-| **合计** | **85** | — | — |
+| **合计** | **76** | — | — |
 
 ## 二、完整清单
 
@@ -70,7 +70,7 @@
 | 50 | `com.chua.kafka.support.spi.KafkaClientProvider.java:159` | 123 | `return MiddlewareQueryResult.fail("查询表达式为空。支持：topics / brokers / groups / describe <topic> / preview <topic>");` |
 | 51 | `com.chua.prometheus.support.engine.PrometheusEngine.java:350` | 121 | `throw new UnsupportedOperationException("Prometheus 引擎为只读数据源，不支持数据操作语句，请使用 queryInstant(promql) 执行 PromQL 即时查询");` |
 
-### other（21 处）
+### other（12 处）
 
 | # | 文件:行 | 字符数 | 代码片段 |
 | --- | --- | --- | --- |
@@ -79,22 +79,13 @@
 | 3 | `com.chua.common.support.utils.StringUtils.java:94` | 122 | `"                ", "                 ", "                  ", "                   ", "                    "};` |
 | 4 | `com.chua.ast.support.internal.AbstractAstProcessor.java:112` | 143 | `Class.forName( // [P3C 1.10 豁免] javac 编译器内部实现类（com.sun.tools.javac.*），本模块未依赖 utils-support-common-starter，无 ReflectUtils…` |
 | 5 | `com.chua.filestorage.support.cache.PreviewPdfCache.java:192` | 122 | `this.convertExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), r -> {` |
-| 6 | `com.chua.filestorage.support.preview.provider.VCardPreviewProvider.java:210` | 170 | `sb.append("<div class=\"field\"><span class=\"field-label\">电话</span><span class=\"field-value\">").append(escapeHtml(ph…` |
-| 7 | `com.chua.filestorage.support.preview.provider.VCardPreviewProvider.java:214` | 170 | `sb.append("<div class=\"field\"><span class=\"field-label\">邮箱</span><span class=\"field-value\">").append(escapeHtml(em…` |
-| 8 | `com.chua.filestorage.support.preview.provider.VCardPreviewProvider.java:218` | 180 | `sb.append("<div class=\"field\"><span class=\"field-label\">地址</span><span class=\"field-value\">").append(escapeHtml(co…` |
-| 9 | `com.chua.zxing.support.qr.draw.eye.ImageDrawEyeResolver.java:62` | 125 | `.getScaledInstance(infoSize * detectCornerSize, infoSize * detectCornerSize, Image.SCALE_SMOOTH),` |
-| 10 | `com.chua.zxing.support.qr.toolkit.QrCodeRenderUtils.java:150` | 136 | `QrCodeOptions.FrontImgOptions frontImgOptions) {` |
-| 11 | `com.chua.zxing.support.qr.toolkit.QrCodeRenderUtils.java:252` | 132 | `QrCodeOptions.BgImgOptions bgImgOptions) {` |
-| 12 | `com.chua.zxing.support.qr.toolkit.QrCodeRenderUtils.java:547` | 125 | `.getScaledInstance(infoSize * detectCornerSize, infoSize * detectCornerSize, Image.SCALE_SMOOTH),` |
-| 13 | `com.chua.minio.support.storage.MinioFileStorage.java:151` | 126 | `? Long.parseLong(Objects.requireNonNull(response.headers().get("Content-Length")))` |
-| 14 | `com.chua.rpc.support.dubbo.DubboRpcClient.java:124` | 123 | `if (rpcConsumerConfig.getLoadBalance() != null) { ref.setLoadbalance(rpcConsumerConfig.getLoadBalance()); }` |
-| 15 | `com.chua.rpc.support.dubbo.DubboRpcClient.java:127` | 123 | `if (rpcConsumerConfig.getConnections() != null) { ref.setConnections(rpcConsumerConfig.getConnections()); }` |
-| 16 | `com.chua.rpc.support.sofa.SofaRpcClient.java:85` | 123 | `if (rpcConsumerConfig.getLoadBalance() != null)  { c.setLoadBalancer(rpcConsumerConfig.getLoadBalance()); }` |
-| 17 | `com.chua.rpc.support.sofa.SofaRpcClient.java:86` | 124 | `if (rpcConsumerConfig.getConnections() != null)  { c.setConnectionNum(rpcConsumerConfig.getConnections()); }` |
-| 18 | `com.chua.rpc.support.sofa.SofaRpcClient.java:87` | 126 | `if (rpcConsumerConfig.getSerialization() != null){ c.setSerialization(rpcConsumerConfig.getSerialization()); }` |
-| 19 | `com.chua.rpc.support.sofa.SofaRpcClient.java:89` | 132 | `if (rpcConsumerConfig.getAsync() != null)        { c.setInvokeType(Boolean.TRUE.equals(rpcConsumerConfig.getAsync())` |
-| 20 | `com.chua.rpc.support.sofa.SofaRpcClient.java:94` | 129 | `if (rpcConsumerConfig.getConnectTimeout() != null){ c.setConnectTimeout(rpcConsumerConfig.getConnectTimeout()); }` |
-| 21 | `com.chua.runtime.core.service.SystemdServiceManager.java:259` | 123 | `service.getEnv().forEach((k, v) -> sb.append("Environment=\"").append(k).append("=").append(v).append("\"\n"));` |
+| 6 | `com.chua.zxing.support.qr.draw.eye.ImageDrawEyeResolver.java:62` | 125 | `.getScaledInstance(infoSize * detectCornerSize, infoSize * detectCornerSize, Image.SCALE_SMOOTH),` |
+| 7 | `com.chua.zxing.support.qr.toolkit.QrCodeRenderUtils.java:150` | 136 | `QrCodeOptions.FrontImgOptions frontImgOptions) {` |
+| 8 | `com.chua.zxing.support.qr.toolkit.QrCodeRenderUtils.java:252` | 132 | `QrCodeOptions.BgImgOptions bgImgOptions) {` |
+| 9 | `com.chua.zxing.support.qr.toolkit.QrCodeRenderUtils.java:547` | 125 | `.getScaledInstance(infoSize * detectCornerSize, infoSize * detectCornerSize, Image.SCALE_SMOOTH),` |
+| 10 | `com.chua.minio.support.storage.MinioFileStorage.java:151` | 126 | `? Long.parseLong(Objects.requireNonNull(response.headers().get("Content-Length")))` |
+| 11 | `com.chua.rpc.support.sofa.SofaRpcClient.java:95` | 132 | `if (rpcConsumerConfig.getAsync() != null)        { c.setInvokeType(Boolean.TRUE.equals(rpcConsumerConfig.getAsync())` |
+| 12 | `com.chua.runtime.core.service.SystemdServiceManager.java:259` | 123 | `service.getEnv().forEach((k, v) -> sb.append("Environment=\"").append(k).append("=").append(v).append("\"\n"));` |
 
 ### signature（0 处）
 
