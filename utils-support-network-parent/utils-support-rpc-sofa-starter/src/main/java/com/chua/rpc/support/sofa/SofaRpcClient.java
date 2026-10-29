@@ -82,16 +82,24 @@ public class SofaRpcClient implements RpcClient {
                 if (rpcConsumerConfig.getCheck() != null)       { c.setCheck(rpcConsumerConfig.getCheck()); }
                 if (rpcConsumerConfig.getTimeout() != null)      { c.setTimeout(rpcConsumerConfig.getTimeout()); }
                 if (rpcConsumerConfig.getRetries() != null)      { c.setRetries(rpcConsumerConfig.getRetries()); }
-                if (rpcConsumerConfig.getLoadBalance() != null)  { c.setLoadBalancer(rpcConsumerConfig.getLoadBalance()); }
-                if (rpcConsumerConfig.getConnections() != null)  { c.setConnectionNum(rpcConsumerConfig.getConnections()); }
-                if (rpcConsumerConfig.getSerialization() != null){ c.setSerialization(rpcConsumerConfig.getSerialization()); }
+                if (rpcConsumerConfig.getLoadBalance() != null) {
+                    c.setLoadBalancer(rpcConsumerConfig.getLoadBalance());
+                }
+                if (rpcConsumerConfig.getConnections() != null) {
+                    c.setConnectionNum(rpcConsumerConfig.getConnections());
+                }
+                if (rpcConsumerConfig.getSerialization() != null) {
+                    c.setSerialization(rpcConsumerConfig.getSerialization());
+                }
                 if (rpcConsumerConfig.getCluster() != null)      { c.setCluster(rpcConsumerConfig.getCluster()); }
                 if (rpcConsumerConfig.getAsync() != null)        { c.setInvokeType(Boolean.TRUE.equals(rpcConsumerConfig.getAsync())
                         ? "future"
                         : "sync"); }
                 if (rpcConsumerConfig.getVersion() != null)      { c.setVersion(rpcConsumerConfig.getVersion()); }
                 if (rpcConsumerConfig.getGroup() != null)        { c.setUniqueId(rpcConsumerConfig.getGroup()); }
-                if (rpcConsumerConfig.getConnectTimeout() != null){ c.setConnectTimeout(rpcConsumerConfig.getConnectTimeout()); }
+                if (rpcConsumerConfig.getConnectTimeout() != null) {
+                    c.setConnectTimeout(rpcConsumerConfig.getConnectTimeout());
+                }
                 if (Boolean.TRUE.equals(rpcConsumerConfig.getSticky())) { c.setSticky(true); }
             }
             return c;
