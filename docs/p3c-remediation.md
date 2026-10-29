@@ -273,3 +273,5 @@ mvn -o -q compile -pl "module-a,module-b" -DskipTests "-Dpmd.skip=true" `
     - `PidFileProcessTracker.findPidByName` 原先把 `serviceName` 直接拼进 `wmic/pgrep` 命令字符串并经 shell 执行 → 改为「白名单校验（`[A-Za-z0-9._-]+`）+ `ProcessBuilder` 参数数组」，彻底移除注入面；
     - `PdfDocumentRenderer.convertHtmlToPdf` 原先用 `cmd /c "wkhtmltopdf ... \"路径\" ..."` 拼 shell 命令 → 改为 `Runtime.exec(String[])` 参数数组，路径含特殊字符也不再被解释。
 33. **4.x 反序列化**：5 处 `ObjectInputStream` 均为 RPC/模型文件的**内部受信二进制**（`RpcSerialization`、`JavaSerializer`、模型加载），并非常规 Web 入参，保留。
+34. **6.x 工程结构**：解析全部 223 个 `pom.xml` 构建模块依赖图，**循环依赖 0 个**；`utils-support-common-starter` 仅依赖 1 个外部 `vector-api`，被 199 个模块依赖，符合「基础模块不反向依赖上层」的分层要求；artifactId 全小写、无 SNAPSHOT 依赖（此前已核）。
+35. **1.9.1 正则预编译**：扫描「循环体内 `String.matches/split/replaceAll(字面量)`」得 94 处，绝大多数是单次解析（配置/行解析），不构成热点；已把 tar/zip 文件遍历里按文件逐个 `matches("\\d+")` 的热点改为 `static final Pattern DIGITS_PATTERN` 复用。
