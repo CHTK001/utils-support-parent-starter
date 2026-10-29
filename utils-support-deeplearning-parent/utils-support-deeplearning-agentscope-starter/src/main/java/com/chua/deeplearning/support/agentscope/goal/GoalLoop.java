@@ -17,6 +17,7 @@ import java.util.function.Function;
  * 等待期间不发起任何模型调用。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public final class GoalLoop {
 

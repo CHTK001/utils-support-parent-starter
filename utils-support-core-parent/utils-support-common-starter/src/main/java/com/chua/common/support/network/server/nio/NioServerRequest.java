@@ -35,6 +35,7 @@ import lombok.ToString;
  *
  * @author CH
  * <p>每次 feed 返回:1=完整请求解析完成;0=还需更多数据;-1=解析错误。</p>
+ * @since 4.0.0.42
  */
 @Slf4j
 @ToString

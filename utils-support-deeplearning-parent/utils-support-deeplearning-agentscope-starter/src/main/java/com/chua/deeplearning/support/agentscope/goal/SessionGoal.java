@@ -21,6 +21,7 @@ import java.util.Objects;
  * @param createdAt 创建时间（毫秒时间戳）
  * @param updatedAt 最近一次变更时间（毫秒时间戳）
  * @author CH
+ * @since 4.0.0.42
  */
 public record SessionGoal(String id, String sessionId, String title, String detail,
                           GoalState state, long tokensUsed, int rounds,

@@ -13,6 +13,7 @@ import java.util.Objects;
  * 静默纠正（例如把「已完成」再改回「进行中」）会让前端看到一个自相矛盾的状态。
  *
  * @author CH
+ * @since 4.0.0.42
  */
 public final class GoalTracker {
 
