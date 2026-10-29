@@ -146,8 +146,8 @@ public class QrCodeRenderUtils {
      * @param qrImg qrimg
      * @param frontImgOptions frontimg期权
      */
-    public static java.util.List<ImmutablePair<BufferedImage, Integer>> drawFrontGifImg(BufferedImage qrImg,
-                                                                                        QrCodeOptions.FrontImgOptions frontImgOptions) {
+    public static java.util.List<ImmutablePair<BufferedImage, Integer>> drawFrontGifImg(
+            BufferedImage qrImg, QrCodeOptions.FrontImgOptions frontImgOptions) {
         final int qrWidth = qrImg.getWidth();
         final int qrHeight = qrImg.getHeight();
 
@@ -248,8 +248,8 @@ public class QrCodeRenderUtils {
      * @param bgImgOptions
      * @return
      */
-    public static java.util.List<ImmutablePair<BufferedImage, Integer>> drawGifBackground(BufferedImage qrImg,
-                                                                                          QrCodeOptions.BgImgOptions bgImgOptions) {
+    public static java.util.List<ImmutablePair<BufferedImage, Integer>> drawGifBackground(
+            BufferedImage qrImg, QrCodeOptions.BgImgOptions bgImgOptions) {
         final int qrWidth = qrImg.getWidth();
         final int qrHeight = qrImg.getHeight();
 
