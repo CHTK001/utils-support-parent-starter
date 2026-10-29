@@ -2188,8 +2188,9 @@ public class ClassUtils {
             int allModes = MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE
                     | MethodHandles.Lookup.PROTECTED | MethodHandles.Lookup.PACKAGE;
             // [P3C 1.10 豁免] JDK 内部 MethodHandles.Lookup 构造器调用 + ClassUtils 为反射基础设施本体
-            return (constructor.getParameterCount() == 2 ? ((MethodHandles.Lookup) constructor.newInstance(declaringClass, allModes)) :
-                    ((MethodHandles.Lookup) constructor.newInstance(declaringClass, declaringClass.getSuperclass(),
+            return (constructor.getParameterCount() == 2
+                    ? ((MethodHandles.Lookup) constructor.newInstance(declaringClass, allModes))
+                    : ((MethodHandles.Lookup) constructor.newInstance(declaringClass, declaringClass.getSuperclass(),
                             allModes)))
                     .unreflectSpecial(method, declaringClass)
                     .bindTo(bean)
