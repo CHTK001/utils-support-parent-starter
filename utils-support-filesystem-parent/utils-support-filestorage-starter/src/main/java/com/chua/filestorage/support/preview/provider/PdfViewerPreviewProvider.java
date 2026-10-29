@@ -74,7 +74,8 @@ public class PdfViewerPreviewProvider implements FileStoragePreviewProvider {
                 + "<style>"
                 + "*{margin:0;padding:0;box-sizing:border-box}"
                 + "body{background:#525659;font-family:sans-serif}"
-                + "#pdf-container{width:100%;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:8px " +
+                + "#pdf-container{width:100%;min-height:100vh;display:flex;flex-direction:column;align-items:center;" +
+                        "padding:8px " +
                         "" +
                         "" +
                         "0}"
@@ -97,7 +98,8 @@ public class PdfViewerPreviewProvider implements FileStoragePreviewProvider {
                 + "pdf.getPage(pageNum).then(function(page){"
                 + "var viewport=page.getViewport({scale:1.5});"
                 + "var pageDiv=document.createElement('div');pageDiv.className='page';"
-                + "var canvas=document.createElement('canvas');canvas.height=viewport.height;canvas.width=viewport.width;"
+                + "var canvas=document.createElement('canvas');canvas.height=viewport.height;" +
+                        "canvas.width=viewport.width;"
                 + "var ctx=canvas.getContext('2d');"
                 + "page.render({canvasContext:ctx,viewport:viewport});"
                 + "pageDiv.appendChild(canvas);container.appendChild(pageDiv);"

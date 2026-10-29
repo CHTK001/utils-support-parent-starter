@@ -653,7 +653,8 @@ public class ServiceBuilder implements Closeable {
                 throw new IllegalStateException("[service] withJar() 未设置");
             }
             if (sshHost == null || sshHost.isBlank()) {
-                throw new IllegalStateException("[service-remote] SSH host 未设置，调用 withHost() 或 toRemote(host,port,user,pwd)");
+                throw new IllegalStateException("[service-remote] SSH host 未设置，" +
+                        "调用 withHost() 或 toRemote(host,port,user,pwd)");
             }
             if (sshUsername == null || sshUsername.isBlank()) {
                 throw new IllegalStateException("[service-remote] SSH username 未设置");

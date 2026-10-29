@@ -118,7 +118,8 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
     */
     @Override
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
-        throw new UnsupportedOperationException("[datalake-query] HttpDatalakeQueryEngine 不支持 Lambda 查询，请使用 getExecutor()");
+        throw new UnsupportedOperationException("[datalake-query] HttpDatalakeQueryEngine 不支持 Lambda 查询，" +
+                "请使用 getExecutor()");
     }
 
     /**

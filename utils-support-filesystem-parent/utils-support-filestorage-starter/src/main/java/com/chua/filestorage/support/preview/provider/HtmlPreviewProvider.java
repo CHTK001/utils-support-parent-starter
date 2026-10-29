@@ -28,7 +28,8 @@ public class HtmlPreviewProvider implements FileStoragePreviewProvider {
      * 注入到 srcdoc 中的沙箱样式
      */
     private static final String SANDBOX_STYLE = "<style>" +
-            "html,body{margin:0;padding:12px;height:100%;box-sizing:border-box;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe " +
+            "html,body{margin:0;padding:12px;height:100%;box-sizing:border-box;" +
+                    "font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe " +
                     "" +
                     "" +
                     "UI,sans-serif}" +
@@ -64,7 +65,8 @@ public class HtmlPreviewProvider implements FileStoragePreviewProvider {
 
         return PreviewResult.builder()
                 .htmlContent(wrapperHtml)
-                .embeddedCss("html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;font-family:system-ui}")
+                .embeddedCss("html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;" +
+                        "font-family:system-ui}")
                 // 内容源自用户上传的原始 HTML，即使经 sanitize 仍可能被绕过，必须沙箱隔离
                 .requiresSandbox(true)
                 .build();

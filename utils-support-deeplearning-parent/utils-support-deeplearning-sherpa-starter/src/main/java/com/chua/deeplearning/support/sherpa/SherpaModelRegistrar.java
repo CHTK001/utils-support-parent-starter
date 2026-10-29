@@ -126,7 +126,8 @@ public class SherpaModelRegistrar implements ModelRegistrar {
 
         // ==================== 二、实时/流式识别（streaming）：麦克风边说边出字 ====================
         reg(SherpaUsage.STREAMING, "sherpa-streaming-zipformer-zh-en",
-                HF + "sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20/resolve/main/encoder-epoch-99-avg-1.int8.onnx",
+                HF + "sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20/resolve/main/" +
+                        "encoder-epoch-99-avg-1.int8.onnx",
                 List.of("encoder-epoch-99-avg-1.int8.onnx", "decoder-epoch-99-avg-1.int8.onnx",
                         "joiner-epoch-99-avg-1.int8.onnx", "tokens.txt"),
                 "中英双语 Zipformer Transducer，chunk 增量解码；约 193MB");
