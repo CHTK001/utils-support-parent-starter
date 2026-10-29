@@ -6,25 +6,20 @@
 
 | 类型 | 数量 | 典型成因 | 建议处理方式 |
 | --- | --- | --- | --- |
-| literal | 7 | 单条字符串超过 120 字符（HTML/CSS 片段、提示词、错误消息） | 长字符串字面量：可提取为 `private static final String` 常量，或按 `+` 拼接拆分（值不变，但可读性下降） |
+| literal | 2 | 单条字符串超过 120 字符（HTML/CSS 片段、提示词、错误消息） | 长字符串字面量：可提取为 `private static final String` 常量，或按 `+` 拼接拆分（值不变，但可读性下降） |
 | other | 2 | 深层调用/长表达式（builder 链、三元、try-with-resources） | 深层表达式：需按语义重排（提取局部变量或拆分调用链） |
 | signature | 0 | 方法签名参数多或含全限定类型名 | 超长签名：多为泛型/长类型名，建议把全限定名改 import 简写，或按参数逐个换行 |
 | regex | 13 | 正则表达式字面量 | 正则字面量：建议保留原样，或提取为 `static final Pattern` 常量以便复用与预编译 |
-| **合计** | **22** | — | — |
+| **合计** | **17** | — | — |
 
 ## 二、完整清单
 
-### literal（7 处）
+### literal（2 处）
 
 | # | 文件:行 | 字符数 | 代码片段 |
 | --- | --- | --- | --- |
-| 1 | `com.chua.common.support.lang.json.JacksonJsonProvider.java:205` | 126 | `objectMapper.registerModule(ClassUtils.forObject("com.fasterxml.jackson.module.paramnames.ParameterNamesModule"));` |
-| 2 | `com.chua.common.support.matcher.AntPathMatcher.java:727` | 121 | `throw new IllegalArgumentException("The number of capturing groups in the pattern segment " +` |
-| 3 | `com.chua.common.support.utils.StringUtils.java:4212` | 148 | `Pattern.compile("(insert\|delete\|update\|select\|create\|drop\|truncate\|grant\|alter\|deny\|revoke\|call\|execute\|exe…` |
-| 4 | `com.chua.common.support.datasearch.music.spi.impl.TencentMusicSourceProvider.java:334` | 121 | `"Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)")), "req", "data", "track_info");` |
-| 5 | `com.chua.filestorage.support.preview.provider.OpenDocumentPreviewProvider.java:84` | 168 | `sb.append("<div id=\"app\" style=\"height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;justify…` |
-| 6 | `com.chua.filestorage.support.preview.provider.ThreeModelPreviewProvider.java:60` | 122 | `"<div id=\"loading\" style=\"position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);" +` |
-| 7 | `com.chua.prometheus.support.engine.PrometheusEngine.java:350` | 121 | `throw new UnsupportedOperationException("Prometheus 引擎为只读数据源，不支持数据操作语句，请使用 queryInstant(promql) 执行 PromQL 即时查询");` |
+| 1 | `com.chua.common.support.utils.StringUtils.java:4212` | 148 | `Pattern.compile("(insert\|delete\|update\|select\|create\|drop\|truncate\|grant\|alter\|deny\|revoke\|call\|execute\|exe…` |
+| 2 | `com.chua.common.support.datasearch.music.spi.impl.TencentMusicSourceProvider.java:334` | 121 | `"Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)")), "req", "data", "track_info");` |
 
 ### other（2 处）
 
