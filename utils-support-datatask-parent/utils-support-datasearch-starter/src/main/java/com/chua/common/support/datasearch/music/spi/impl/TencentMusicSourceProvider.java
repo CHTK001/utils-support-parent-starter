@@ -331,7 +331,8 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
                         "param", Map.of("song_type", 0, "song_mid", trackId)
                 )
         ), builder -> builder.header("User-Agent",
-                "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)")), "req", "data", "track_info");
+                "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)")),
+                "req", "data", "track_info");
 
         String songMid = text(item, "mid");
         String songId = text(item, "id");
