@@ -6,15 +6,15 @@
 
 | 类型 | 数量 | 典型成因 | 建议处理方式 |
 | --- | --- | --- | --- |
-| literal | 51 | 单条字符串超过 120 字符（HTML/CSS 片段、提示词、错误消息） | 长字符串字面量：可提取为 `private static final String` 常量，或按 `+` 拼接拆分（值不变，但可读性下降） |
+| literal | 41 | 单条字符串超过 120 字符（HTML/CSS 片段、提示词、错误消息） | 长字符串字面量：可提取为 `private static final String` 常量，或按 `+` 拼接拆分（值不变，但可读性下降） |
 | other | 2 | 深层调用/长表达式（builder 链、三元、try-with-resources） | 深层表达式：需按语义重排（提取局部变量或拆分调用链） |
 | signature | 0 | 方法签名参数多或含全限定类型名 | 超长签名：多为泛型/长类型名，建议把全限定名改 import 简写，或按参数逐个换行 |
 | regex | 13 | 正则表达式字面量 | 正则字面量：建议保留原样，或提取为 `static final Pattern` 常量以便复用与预编译 |
-| **合计** | **66** | — | — |
+| **合计** | **56** | — | — |
 
 ## 二、完整清单
 
-### literal（51 处）
+### literal（41 处）
 
 | # | 文件:行 | 字符数 | 代码片段 |
 | --- | --- | --- | --- |
@@ -36,39 +36,29 @@
 | 16 | `com.chua.playwright.support.NativeEngineProductionTest.java:441` | 134 | `assertFalse((Boolean) ev(p, "function(){ return document.getElementById('mi').getAttribute('aria-checked') === 'true'; "…` |
 | 17 | `com.chua.playwright.support.NativeEngineProductionTest.java:446` | 128 | `assertTrue((Boolean) ev(p, "function(){ return document.getElementById('tree1').getAttribute('aria-checked') === " +` |
 | 18 | `com.chua.filestorage.support.preview.provider.AvroPreviewProvider.java:190` | 127 | `.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 19 | `com.chua.filestorage.support.preview.provider.BlenderPreviewProvider.java:105` | 121 | `sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 20 | `com.chua.filestorage.support.preview.provider.CalendarPreviewProvider.java:153` | 121 | `sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 21 | `com.chua.filestorage.support.preview.provider.DjvuPreviewProvider.java:504` | 127 | `.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 22 | `com.chua.filestorage.support.preview.provider.EmailPreviewProvider.java:153` | 121 | `sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 23 | `com.chua.filestorage.support.preview.provider.FbxPreviewProvider.java:106` | 121 | `sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 24 | `com.chua.filestorage.support.preview.provider.HeicPreviewProvider.java:780` | 127 | `.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 25 | `com.chua.filestorage.support.preview.provider.HtmlPreviewProvider.java:31` | 143 | `"html,body{margin:0;padding:12px;height:100%;box-sizing:border-box;font-family:system-ui,-apple-system,BlinkMacSystemFon…` |
-| 26 | `com.chua.filestorage.support.preview.provider.HtmlPreviewProvider.java:67` | 122 | `.embeddedCss("html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;font-family:system-ui}")` |
-| 27 | `com.chua.filestorage.support.preview.provider.IworkPreviewProvider.java:583` | 127 | `.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 28 | `com.chua.filestorage.support.preview.provider.JupyterPreviewProvider.java:236` | 121 | `sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 29 | `com.chua.filestorage.support.preview.provider.MobiPreviewProvider.java:772` | 127 | `.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 30 | `com.chua.filestorage.support.preview.provider.OldOfficePreviewProvider.java:694` | 121 | `+ "body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 31 | `com.chua.filestorage.support.preview.provider.OpenDocumentPreviewProvider.java:84` | 168 | `sb.append("<div id=\"app\" style=\"height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;justify…` |
-| 32 | `com.chua.filestorage.support.preview.provider.ParquetPreviewProvider.java:116` | 127 | `.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 33 | `com.chua.filestorage.support.preview.provider.PdfViewerPreviewProvider.java:77` | 131 | `+ "#pdf-container{width:100%;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:8px " +` |
-| 34 | `com.chua.filestorage.support.preview.provider.PdfViewerPreviewProvider.java:100` | 122 | `+ "var canvas=document.createElement('canvas');canvas.height=viewport.height;canvas.width=viewport.width;"` |
-| 35 | `com.chua.filestorage.support.preview.provider.PsdPreviewProvider.java:58` | 121 | `+ "body{margin:0;background:#1a1a1a;color:#d4d4d4;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 36 | `com.chua.filestorage.support.preview.provider.RawPreviewProvider.java:356` | 127 | `.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 37 | `com.chua.filestorage.support.preview.provider.RtfPreviewProvider.java:203` | 121 | `sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 38 | `com.chua.filestorage.support.preview.provider.ShapefilePreviewProvider.java:131` | 121 | `sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 39 | `com.chua.filestorage.support.preview.provider.ShapefilePreviewProvider.java:196` | 121 | `sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 40 | `com.chua.filestorage.support.preview.provider.SqlitePreviewProvider.java:191` | 121 | `+ "body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 41 | `com.chua.filestorage.support.preview.provider.SvgPreviewProvider.java:74` | 123 | `.embeddedCss("html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;font-family:system-ui}" +` |
-| 42 | `com.chua.filestorage.support.preview.provider.TextPreviewProvider.java:35` | 132 | `String css = "body{margin:0;padding:16px;font-family:'Georgia',serif;line-height:1.8;color:#333;max-width:720px;margin:0…` |
-| 43 | `com.chua.filestorage.support.preview.provider.ThreeModelPreviewProvider.java:60` | 122 | `"<div id=\"loading\" style=\"position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);" +` |
-| 44 | `com.chua.filestorage.support.preview.provider.ThreeModelPreviewProvider.java:108` | 132 | `"var r=new m.WebGLRenderer({antialias:true});r.setSize(innerWidth,innerHeight);r.setPixelRatio(devicePixelRatio);" +` |
-| 45 | `com.chua.filestorage.support.preview.provider.ThreeModelPreviewProvider.java:167` | 141 | `"if(grps[i].c===0&&grps[i].v==='SECTION'&&i+1<grps.length&&grps[i+1].c===2&&grps[i+1].v==='ENTITIES'){inEnt=true;continu…` |
-| 46 | `com.chua.filestorage.support.preview.provider.VCardPreviewProvider.java:154` | 121 | `sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 47 | `com.chua.filestorage.support.preview.provider.XMindPreviewProvider.java:396` | 121 | `sb.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 48 | `com.chua.filestorage.support.preview.provider.XpsPreviewProvider.java:436` | 127 | `.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
-| 49 | `com.chua.chronicle.support.dispatcher.ChronicleDispatcherProvider.java:123` | 131 | `throw new RuntimeException("Chronicle Queue 初始化失败。请添加 --add-opens 相关 JVM 参数，或使用 directDispatch=true 绕过。topic=" + topic,` |
-| 50 | `com.chua.kafka.support.spi.KafkaClientProvider.java:159` | 123 | `return MiddlewareQueryResult.fail("查询表达式为空。支持：topics / brokers / groups / describe <topic> / preview <topic>");` |
-| 51 | `com.chua.prometheus.support.engine.PrometheusEngine.java:350` | 121 | `throw new UnsupportedOperationException("Prometheus 引擎为只读数据源，不支持数据操作语句，请使用 queryInstant(promql) 执行 PromQL 即时查询");` |
+| 19 | `com.chua.filestorage.support.preview.provider.DjvuPreviewProvider.java:504` | 127 | `.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
+| 20 | `com.chua.filestorage.support.preview.provider.HeicPreviewProvider.java:780` | 127 | `.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
+| 21 | `com.chua.filestorage.support.preview.provider.HtmlPreviewProvider.java:31` | 143 | `"html,body{margin:0;padding:12px;height:100%;box-sizing:border-box;font-family:system-ui,-apple-system,BlinkMacSystemFon…` |
+| 22 | `com.chua.filestorage.support.preview.provider.HtmlPreviewProvider.java:67` | 122 | `.embeddedCss("html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;font-family:system-ui}")` |
+| 23 | `com.chua.filestorage.support.preview.provider.IworkPreviewProvider.java:583` | 127 | `.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
+| 24 | `com.chua.filestorage.support.preview.provider.MobiPreviewProvider.java:772` | 127 | `.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
+| 25 | `com.chua.filestorage.support.preview.provider.OldOfficePreviewProvider.java:694` | 121 | `+ "body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
+| 26 | `com.chua.filestorage.support.preview.provider.OpenDocumentPreviewProvider.java:84` | 168 | `sb.append("<div id=\"app\" style=\"height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;justify…` |
+| 27 | `com.chua.filestorage.support.preview.provider.ParquetPreviewProvider.java:116` | 127 | `.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
+| 28 | `com.chua.filestorage.support.preview.provider.PdfViewerPreviewProvider.java:77` | 131 | `+ "#pdf-container{width:100%;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:8px " +` |
+| 29 | `com.chua.filestorage.support.preview.provider.PdfViewerPreviewProvider.java:100` | 122 | `+ "var canvas=document.createElement('canvas');canvas.height=viewport.height;canvas.width=viewport.width;"` |
+| 30 | `com.chua.filestorage.support.preview.provider.PsdPreviewProvider.java:58` | 121 | `+ "body{margin:0;background:#1a1a1a;color:#d4d4d4;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
+| 31 | `com.chua.filestorage.support.preview.provider.RawPreviewProvider.java:356` | 127 | `.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
+| 32 | `com.chua.filestorage.support.preview.provider.SqlitePreviewProvider.java:191` | 121 | `+ "body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
+| 33 | `com.chua.filestorage.support.preview.provider.SvgPreviewProvider.java:74` | 123 | `.embeddedCss("html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;font-family:system-ui}" +` |
+| 34 | `com.chua.filestorage.support.preview.provider.TextPreviewProvider.java:35` | 132 | `String css = "body{margin:0;padding:16px;font-family:'Georgia',serif;line-height:1.8;color:#333;max-width:720px;margin:0…` |
+| 35 | `com.chua.filestorage.support.preview.provider.ThreeModelPreviewProvider.java:60` | 122 | `"<div id=\"loading\" style=\"position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);" +` |
+| 36 | `com.chua.filestorage.support.preview.provider.ThreeModelPreviewProvider.java:108` | 132 | `"var r=new m.WebGLRenderer({antialias:true});r.setSize(innerWidth,innerHeight);r.setPixelRatio(devicePixelRatio);" +` |
+| 37 | `com.chua.filestorage.support.preview.provider.ThreeModelPreviewProvider.java:167` | 141 | `"if(grps[i].c===0&&grps[i].v==='SECTION'&&i+1<grps.length&&grps[i+1].c===2&&grps[i+1].v==='ENTITIES'){inEnt=true;continu…` |
+| 38 | `com.chua.filestorage.support.preview.provider.XpsPreviewProvider.java:436` | 127 | `.append("body{margin:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe " +` |
+| 39 | `com.chua.chronicle.support.dispatcher.ChronicleDispatcherProvider.java:123` | 131 | `throw new RuntimeException("Chronicle Queue 初始化失败。请添加 --add-opens 相关 JVM 参数，或使用 directDispatch=true 绕过。topic=" + topic,` |
+| 40 | `com.chua.kafka.support.spi.KafkaClientProvider.java:159` | 123 | `return MiddlewareQueryResult.fail("查询表达式为空。支持：topics / brokers / groups / describe <topic> / preview <topic>");` |
+| 41 | `com.chua.prometheus.support.engine.PrometheusEngine.java:350` | 121 | `throw new UnsupportedOperationException("Prometheus 引擎为只读数据源，不支持数据操作语句，请使用 queryInstant(promql) 执行 PromQL 即时查询");` |
 
 ### other（2 处）
 
