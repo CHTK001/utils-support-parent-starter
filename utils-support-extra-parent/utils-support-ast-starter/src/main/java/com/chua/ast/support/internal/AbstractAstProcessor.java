@@ -109,7 +109,9 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     private Context getContextFromJavacEnv() {
         try {
             Class<?> javacEnvClass =
-                    Class.forName( // [P3C 1.10 豁免] javac 编译器内部实现类（com.sun.tools.javac.*），本模块未依赖 utils-support-common-starter，无 ReflectUtils 可用
+                    // [P3C 1.10 豁免] javac 编译器内部实现类（com.sun.tools.javac.*），
+                    // 本模块未依赖 utils-support-common-starter，无 ReflectUtils 可用
+                    Class.forName(
                     "com.sun.tools.javac.processing.JavacProcessingEnvironment");
             if (!javacEnvClass.isInstance(processingEnv)) {
                 return null;
