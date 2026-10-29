@@ -121,10 +121,14 @@ public class DubboRpcClient implements RpcClient {
             if (rpcConsumerConfig != null) {
                 if (rpcConsumerConfig.getTimeout() != null)     { ref.setTimeout(rpcConsumerConfig.getTimeout()); }
                 if (rpcConsumerConfig.getRetries() != null)     { ref.setRetries(rpcConsumerConfig.getRetries()); }
-                if (rpcConsumerConfig.getLoadBalance() != null) { ref.setLoadbalance(rpcConsumerConfig.getLoadBalance()); }
+                if (rpcConsumerConfig.getLoadBalance() != null) {
+                    ref.setLoadbalance(rpcConsumerConfig.getLoadBalance());
+                }
                 if (rpcConsumerConfig.getAsync() != null)       { ref.setAsync(rpcConsumerConfig.getAsync()); }
                 if (rpcConsumerConfig.getCheck() != null)       { ref.setCheck(rpcConsumerConfig.getCheck()); }
-                if (rpcConsumerConfig.getConnections() != null) { ref.setConnections(rpcConsumerConfig.getConnections()); }
+                if (rpcConsumerConfig.getConnections() != null) {
+                    ref.setConnections(rpcConsumerConfig.getConnections());
+                }
                 if (rpcConsumerConfig.getCluster() != null)     { ref.setCluster(rpcConsumerConfig.getCluster()); }
                 if (rpcConsumerConfig.getSticky() != null)      { ref.setSticky(rpcConsumerConfig.getSticky()); }
                 if (rpcConsumerConfig.getVersion() != null)     { ref.setVersion(rpcConsumerConfig.getVersion()); }

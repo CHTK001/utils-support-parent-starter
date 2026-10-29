@@ -207,15 +207,21 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
                 }
 
                 for (String phone : contact.phones) {
-                    sb.append("<div class=\"field\"><span class=\"field-label\">电话</span><span class=\"field-value\">").append(escapeHtml(phone)).append("</span></div>");
+                    sb.append("<div class=\"field\"><span class=\"field-label\">电话</span>"
+                                    + "<span class=\"field-value\">")
+                            .append(escapeHtml(phone)).append("</span></div>");
                 }
 
                 for (String email : contact.emails) {
-                    sb.append("<div class=\"field\"><span class=\"field-label\">邮箱</span><span class=\"field-value\">").append(escapeHtml(email)).append("</span></div>");
+                    sb.append("<div class=\"field\"><span class=\"field-label\">邮箱</span>"
+                                    + "<span class=\"field-value\">")
+                            .append(escapeHtml(email)).append("</span></div>");
                 }
 
                 if (contact.address != null && !contact.address.isEmpty()) {
-                    sb.append("<div class=\"field\"><span class=\"field-label\">地址</span><span class=\"field-value\">").append(escapeHtml(contact.address)).append("</span></div>");
+                    sb.append("<div class=\"field\"><span class=\"field-label\">地址</span>"
+                                    + "<span class=\"field-value\">")
+                            .append(escapeHtml(contact.address)).append("</span></div>");
                 }
 
                 sb.append("</div>");
