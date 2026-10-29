@@ -268,3 +268,8 @@ mvn -o -q compile -pl "module-a,module-b" -DskipTests "-Dpmd.skip=true" `
 28. **2.5 `finally` 中 return（强制）**：全仓扫描 `finally` 块内的 `return`，命中 0。
 29. **1.5.5 foreach 中增删（强制）**：按「被遍历集合是否被修改」精确匹配（词边界 + 同一表达式），命中 0；先前 1002 处命中均为「向另一个集合添加元素」的误判。
 30. **1.9.5 取时间戳**：`new Date().getTime()` 命中 0，全部使用 `System.currentTimeMillis()`。
+31. **1.1.4 缩写词命名**：按「同词干出现 `Id`/`ID` 两种写法」精确扫描得 33 处，逐一核对后确认**代码标识符本身一致**（统一 `xxxId`），差异仅出现在 Javadoc/注释里（如 `Offset` 注释写 `subscriberID`，方法却是 `subscriberId()`）；`toUri` 与 `java.net.URI` 属「方法名 vs 类型名」，不算混用。结论：命名合规，注释里的 `ID` 写法不影响编译与调用。
+32. **4.x 命令注入（强制）**：
+    - `PidFileProcessTracker.findPidByName` 原先把 `serviceName` 直接拼进 `wmic/pgrep` 命令字符串并经 shell 执行 → 改为「白名单校验（`[A-Za-z0-9._-]+`）+ `ProcessBuilder` 参数数组」，彻底移除注入面；
+    - `PdfDocumentRenderer.convertHtmlToPdf` 原先用 `cmd /c "wkhtmltopdf ... \"路径\" ..."` 拼 shell 命令 → 改为 `Runtime.exec(String[])` 参数数组，路径含特殊字符也不再被解释。
+33. **4.x 反序列化**：5 处 `ObjectInputStream` 均为 RPC/模型文件的**内部受信二进制**（`RpcSerialization`、`JavaSerializer`、模型加载），并非常规 Web 入参，保留。
