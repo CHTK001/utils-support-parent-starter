@@ -189,7 +189,8 @@ public class PreviewPdfCache {
         }
 
         // 独立转换线程池：单线程串行执行转换，隔离于公共池，避免阻塞核心业务线程
-        this.convertExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), r -> {
+        this.convertExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(), r -> {
             Thread t = new Thread(r, "preview-pdf-convert");
             t.setDaemon(true);
             return t;
