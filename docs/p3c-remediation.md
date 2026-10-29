@@ -142,7 +142,7 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
 25. **1.4.4 大括号（强制）**：全仓按「`if/for/while` 头部括号配平 + 下一行非 `{` 语句」精确扫描，真实违规仅 **1 处**（`U2netSegTranslator` 的双层 `for` 循环无大括号），已补全；`else` 分支复查 4 处命中均为「单行带大括号」或 JS 字符串中的 `else {`，无违规。
 26. **1.4.5 条件中不执行复杂语句**：用括号深度解析精确扫描，`if/while` 条件内**没有**真实赋值副作用（4 处命中均为 `c == '='` 之类的比较）；26 处 `while (retries-- > 0)` / `if (++depth > MAX)` 形式的自增属 Java 惯用写法（局部一目了然），强行改写为「先赋值再判断」反而增加噪音，保留并记录。
 
-## 五、最终状态（本轮结束时）
+## 五、最终状态（收口）
 
 | 校验项 | 结果 |
 | --- | --- |
@@ -151,38 +151,57 @@ log.warn("...{}", error.getMessage())   →  log.warn("...{}", error.getMessage(
 | 连续重复 Javadoc | 0（25 处命中均为 `= true` 示例、箭头图等有意重复的文档示例） |
 | void 方法带 `@return` | 0 |
 | 空 Javadoc 块 | 2 → 0 |
-| `@param` 与签名不符 | 111 → 18（其中约 10 处为误判） |
 | 类级 Javadoc 无摘要 | 53 → 0 |
-| 接口/抽象方法无可读描述（1.8.2） | 0（含 29 处接口方法补漏） |
+| 方法级 Javadoc 摘要（1.8.1） | 478 → 0（含 41 个构造器、29 个接口方法） |
+| 接口/抽象方法无可读描述（1.8.2） | 98 → 0 |
 | 枚举常量缺注释（1.8.5） | 368 → 0 |
-| 包装类 `==` 误用（1.4.7） | 扫描 33 处候选，经类型核对无可信违规 |
-| `@Override` 可静态验证的缺失（1.4.2） | 补 4 处，复查 0（其余需编译器级类型解析） |
-| 超长行（1.3.7） | **2251 → 2**（仅剩超长 import 与 lambda 内单条 append，语法不可拆） |
-| 方法级 Javadoc 摘要（1.8.1） | 478 → 0（累计补 478，含 41 个构造器与 29 个接口方法） |
+| `@author` / `@since` 覆盖 | 100% / 补齐 13 个公共类型 |
+| `@Deprecated` 缺废弃说明（1.4.8） | 5 → 0 |
+| 大括号缺失（1.4.4） | 1 → 0 |
+| 条件内赋值副作用（1.4.5） | 0（26 处自增属惯用写法，保留） |
+| foreach 中增删被遍历集合（1.5.5） | 0 |
+| `finally` 中 return | 0 |
+| 日志占位符缺陷（2.4） | 7 → 0 |
+| `new Date().getTime()`（1.9.5） | 0 |
+| 超长行（1.3.7） | **2251 → 2**（超长 import、lambda 内单条 append，语法不可拆） |
+| 行尾空白 / 制表符 | 2529 → 0 / 0 |
+| 编码问题（BOM / 非法 UTF-8 / U+FFFD） | 0 / 0 / 0 |
 | POJO `toString`（1.4.12） | 57 补 `@ToString`，20 个含敏感字段类跳过 |
-| 日志敏感信息（4.x） | `FlashTokenService` 3 处 token 已脱敏 |
-| 触及模块编译 | 57 个模块分 2 批 `EXIT=0` |
-| 全量 reactor 编译 | 除 2 个在途模块外 222 个模块 `EXIT=0` |
-| 本地/远端同步 | `HEAD == origin/master`（0 ahead / 0 behind） |
+| 命令注入（4.x） | 2 处已修复（进程查询、PDF 转换） |
+| 模块循环依赖（6.x） | 0（223 个模块） |
+| 全量 reactor 编译 | 排除 2 个在途模块后 222 个模块 `EXIT=0` |
+| 本地/远端同步 | `HEAD == origin/master` |
 
-## 六、验证方式
+## 六、复验命令清单
 
 ```powershell
-# 1. 受影响模块编译（全量重编译，避免增量缓存掩盖问题）
-mvn -o compile -DskipTests "-Dpmd.skip=true" "-Dspotbugs.skip=true" `
-    "-Dmaven.javadoc.skip=true" "-Dmaven.compiler.useIncrementalCompilation=false"
+# 1. 全量编译（排除并发开发者正在改的模块）
+mvn -o -q compile -DskipTests "-Dpmd.skip=true" "-Dspotbugs.skip=true" `
+    "-Dmaven.javadoc.skip=true" `
+    -pl '!utils-support-network-parent/utils-support-playwright-starter,!utils-support-core-parent/utils-support-springboot-starter'
 
-# 2. 分批编译（Windows 命令行长度受限时）
-mvn -o -q compile -pl "module-a,module-b" -DskipTests "-Dpmd.skip=true" `
-    "-Dspotbugs.skip=true" "-Dmaven.javadoc.skip=true"
+# 2. 超长行统计（排除注释与文本块）
+#    口径：代码行 > 120 字符
+
+# 3. 不变量复查
+#    - 注解先于 Javadoc = 0
+#    - void 方法带 @return = 0
+#    - 空 Javadoc 块 = 0
+#    - 枚举常量缺注释 = 0
+#    - 接口方法缺描述 = 0
+
+# 4. 编码复查：BOM = 0，非法 UTF-8 = 0，U+FFFD = 0
+
+# 5. 日志占位符：placeholders 与实参数量（末位 Throwable 除外）一致
+
+# 6. 模块依赖：223 个 pom 无循环依赖
 ```
 
 ### 注意事项
 
-- **增量编译会掩盖 lombok 可见性错误**：父类 `@Slf4j` 生成 `private static final Logger log`，子类若直接引用 `log`，只有在子类被重新编译时才会报错。已修复 `SeedModeDiscovery` / `RouteModeDiscovery` 并静态复查全仓，同类问题为 0。
-- **未纳入 reactor 的模块**：`utils-support-deeplearning-arcsoft-starter`、`utils-support-extra-parent/utils-support-playwright-starter` 未在父 POM 的 `<modules>` 中，不参与 Maven 构建，其改动无法通过编译验证。
-- **并发开发中的模块**：`utils-support-cloud-parent/utils-support-openai-starter` 存在在途改动（`EacChatClient` / `PteroChatClient` / `InceptionCdpClient` 重构），本轮整改全程排除该模块。
-
+- **增量编译会掩盖 lombok 可见性错误**：父类 `@Slf4j` 生成 `private static final Logger log`，子类直接引用 `log` 时只有子类被重编译才报错。已修复 `SeedModeDiscovery` / `RouteModeDiscovery` 并静态复查全仓。
+- **并发开发者改动的模块**：`openai-starter`、`ssh-starter`、`mysql-starter`、`playwright-starter`、`springboot-starter` 存在在途改动，整改全程只提交自己改的文件（显式路径 `git add -- <path>`）。
+- **当前已知阻塞**：`springboot-starter/pom.xml`（他人未提交改动）引用了尚不存在的 `spring-support-datasource-starter`，导致该模块离线编译失败；`playwright-starter` 因新增未跟踪的 `browser/` 源码编译失败。二者均与本轮整改无关。
 ## 七、按条款的合规矩阵
 
 | 手册章节 | 条款摘要 | 状态 | 证据 |
