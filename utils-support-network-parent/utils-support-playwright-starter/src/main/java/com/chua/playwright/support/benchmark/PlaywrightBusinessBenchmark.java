@@ -678,7 +678,7 @@ public class PlaywrightBusinessBenchmark {
 
         BenchmarkSummary summary = new BenchmarkSummary(allRuns, totalElapsedMs.get(), concurrency, iterations);
         writeReport(summary);
-        log.info("[playwright-bench] 完成: total={} errors={} rps={:.0f} p50={}ms p95={}ms p99={}ms",
+        log.info("[playwright-bench] 完成: total={} errors={} rps={} p50={}ms p95={}ms p99={}ms",
                 summary.total, summary.errors, summary.rps(), summary.p50, summary.p95, summary.p99);
         return summary;
     }

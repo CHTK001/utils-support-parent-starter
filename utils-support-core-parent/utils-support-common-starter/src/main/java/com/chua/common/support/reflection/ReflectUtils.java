@@ -745,7 +745,8 @@ public final class ReflectUtils {
         try {
             return clazz.getMethod(methodName, paramTypes); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（findMethod 对外封装）
         } catch (NoSuchMethodException e) {
-            log.debug("[ReflectUtils] 未找到公共方法: {}.{}({})", clazz.getSimpleName(), methodName);
+            log.debug("[ReflectUtils] 未找到公共方法: {}.{}({} 个参数)", clazz.getSimpleName(), methodName,
+                    paramTypes.length);
             return null;
         }
     }
@@ -770,7 +771,8 @@ public final class ReflectUtils {
             // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（findDeclaredMethod 对外封装）
             return clazz.getDeclaredMethod(methodName, paramTypes);
         } catch (NoSuchMethodException e) {
-            log.debug("[ReflectUtils] 未找到声明方法: {}.{}({})", clazz.getSimpleName(), methodName);
+            log.debug("[ReflectUtils] 未找到声明方法: {}.{}({} 个参数)", clazz.getSimpleName(), methodName,
+                    paramTypes.length);
             return null;
         }
     }

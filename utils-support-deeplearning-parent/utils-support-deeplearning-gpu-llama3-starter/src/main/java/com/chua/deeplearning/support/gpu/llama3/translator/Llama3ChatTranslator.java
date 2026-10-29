@@ -172,7 +172,7 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
             if (v instanceof Number n) {
                 this.threads = n.intValue();
             }
-            log.info("[Llama3-GPU:{}]{:} 参数注入完成: {}", modelId, System.currentTimeMillis(), options);
+            log.info("[Llama3-GPU:{}]{} 参数注入完成: {}", modelId, System.currentTimeMillis(), options);
         }
     }
 

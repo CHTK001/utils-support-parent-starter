@@ -277,7 +277,7 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
         }
 
         // 日志输出统计信息
-        log.info("[SpeakerDiarizer] 完成：输入 {:.2f}s 音频，检测 {} 个语音片段，{} 个说话人",
+        log.info("[SpeakerDiarizer] 完成：输入 {}s 音频，检测 {} 个语音片段，{} 个说话人",
                 pcm.length / (double) sampleRate, segments.size(), speakerCounter);
         return segments;
     }
