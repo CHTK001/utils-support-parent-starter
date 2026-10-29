@@ -32,6 +32,12 @@ public class PidFileProcessTracker implements ServiceProcessTracker {
      */
     private static final int PID_CMD_TIMEOUT_SECONDS = 15;
 
+    /**
+     * 合法服务名字符白名单（用于拼接进程查询命令前校验，避免命令注入）
+     */
+    private static final java.util.regex.Pattern SERVICE_NAME_PATTERN =
+            java.util.regex.Pattern.compile("[A-Za-z0-9._\\-]+");
+
     private final ConcurrentHashMap<String, Long> pidCache = new ConcurrentHashMap<>(); // pid缓存
 
     @Override
@@ -142,10 +148,25 @@ public class PidFileProcessTracker implements ServiceProcessTracker {
             return cached;
         }
         try {
-            String cmd = isWindows()
-                    ? "wmic process where \"CommandLine like '% " + serviceName + "%'\" get ProcessId"
-                    : "pgrep -f " + serviceName;
-            Process p = Runtime.getRuntime().exec(cmd);
+            // [P3C 4.x 安全] 服务名参与命令行参数，先做白名单校验并改为参数数组调用，避免命令注入
+            if (serviceName == null || !SERVICE_NAME_PATTERN.matcher(serviceName).matches()) {
+                log.debug("[service] 服务名包含非法字符，跳过按名称查找 PID: {}", serviceName);
+                return -1;
+            }
+            java.util.List<String> command = new java.util.ArrayList<>(6);
+            if (isWindows()) {
+                command.add("wmic");
+                command.add("process");
+                command.add("where");
+                command.add("CommandLine like '% " + serviceName + "%'");
+                command.add("get");
+                command.add("ProcessId");
+            } else {
+                command.add("pgrep");
+                command.add("-f");
+                command.add(serviceName);
+            }
+            Process p = new ProcessBuilder(command).redirectErrorStream(true).start();
             java.io.BufferedReader reader = new java.io.BufferedReader(
                     new java.io.InputStreamReader(p.getInputStream()));
             String line;

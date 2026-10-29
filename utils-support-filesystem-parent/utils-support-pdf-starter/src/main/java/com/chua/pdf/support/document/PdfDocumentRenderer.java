@@ -77,15 +77,16 @@ public class PdfDocumentRenderer implements DocumentProvider {
      * @return 转换html转为pdf的结果
      */
     private boolean convertHtmlToPdf(File htmlFile, File pdfFile) {
-        String[] commands = {
-                "wkhtmltopdf --encoding utf-8 --enable-local-file-access \""
-                        + htmlFile.getAbsolutePath() + "\" \"" + pdfFile.getAbsolutePath() + "\"",
-                "wkhtmltopdf --encoding utf-8 \""
-                        + htmlFile.getAbsolutePath() + "\" \"" + pdfFile.getAbsolutePath() + "\""
+        // [P3C 4.x 安全] 使用参数数组直接调用，不经过 cmd /c 外壳，避免文件路径中的特殊字符引发命令注入
+        String[][] commands = {
+                {"wkhtmltopdf", "--encoding", "utf-8", "--enable-local-file-access",
+                        htmlFile.getAbsolutePath(), pdfFile.getAbsolutePath()},
+                {"wkhtmltopdf", "--encoding", "utf-8",
+                        htmlFile.getAbsolutePath(), pdfFile.getAbsolutePath()}
         };
-        for (String cmd : commands) {
+        for (String[] cmd : commands) {
             try {
-                Process process = Runtime.getRuntime().exec(new String[]{"cmd", "/c", cmd});
+                Process process = Runtime.getRuntime().exec(cmd);
                 int exitCode = process.waitFor();
                 if (exitCode == 0 && pdfFile.exists()) {
                     log.info("PDF 转换成功: {}", pdfFile.getAbsolutePath());
