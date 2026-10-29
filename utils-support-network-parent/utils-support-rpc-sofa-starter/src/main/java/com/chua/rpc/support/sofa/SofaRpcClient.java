@@ -92,9 +92,11 @@ public class SofaRpcClient implements RpcClient {
                     c.setSerialization(rpcConsumerConfig.getSerialization());
                 }
                 if (rpcConsumerConfig.getCluster() != null)      { c.setCluster(rpcConsumerConfig.getCluster()); }
-                if (rpcConsumerConfig.getAsync() != null)        { c.setInvokeType(Boolean.TRUE.equals(rpcConsumerConfig.getAsync())
-                        ? "future"
-                        : "sync"); }
+                if (rpcConsumerConfig.getAsync() != null) {
+                    c.setInvokeType(Boolean.TRUE.equals(rpcConsumerConfig.getAsync())
+                            ? "future"
+                            : "sync");
+                }
                 if (rpcConsumerConfig.getVersion() != null)      { c.setVersion(rpcConsumerConfig.getVersion()); }
                 if (rpcConsumerConfig.getGroup() != null)        { c.setUniqueId(rpcConsumerConfig.getGroup()); }
                 if (rpcConsumerConfig.getConnectTimeout() != null) {
