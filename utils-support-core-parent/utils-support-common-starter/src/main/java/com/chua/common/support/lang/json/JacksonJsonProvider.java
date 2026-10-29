@@ -202,7 +202,8 @@ public class JacksonJsonProvider implements JsonProvider {
             objectMapper.registerModule(ClassUtils.forObject("org.springframework.boot.jackson.JsonMixinModule"));
         }
         if (ClassUtils.isPresent("com.fasterxml.jackson.module.paramnames.ParameterNamesModule")) {
-            objectMapper.registerModule(ClassUtils.forObject("com.fasterxml.jackson.module.paramnames.ParameterNamesModule"));
+            objectMapper.registerModule(ClassUtils.forObject("com.fasterxml.jackson.module.paramnames.ParameterNames" +
+                    "Module"));
         }
 
         return objectMapper;

@@ -724,7 +724,8 @@ public class AntPathMatcher implements PathMatcher {
                 if (matcher.matches()) {
                     if (uriTemplateVariables != null) {
                         if (this.variableNames.size() != matcher.groupCount()) {
-                            throw new IllegalArgumentException("The number of capturing groups in the pattern segment " +
+                            throw new IllegalArgumentException("The number of capturing groups in the pattern " +
+                                    "segment " +
                                     this.pattern + " does not match the number of URI template variables it defines, " +
                                     "which can occur if capturing groups are used in a URI template regex. " +
                                     "Use non-capturing groups instead.");
