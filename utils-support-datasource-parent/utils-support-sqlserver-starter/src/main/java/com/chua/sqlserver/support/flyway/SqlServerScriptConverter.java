@@ -127,7 +127,8 @@ public class SqlServerScriptConverter extends DefaultScriptConverter {
      */
     private static final Pattern CREATE_INDEX_IF_NOT_EXISTS = Pattern.compile(
             "(?is)^(\\s*)CREATE\\s+(UNIQUE\\s+)?INDEX\\s+IF\\s+NOT\\s+EXISTS\\s+"
-                    + "([\"\\[]?[A-Za-z_]\\w*[\"\\]]?)\\s+ON\\s+([\"\\[]?[A-Za-z_]\\w*[\"\\]]?)\\s*(\\(.*\\))\\s*;?\\s*$");
+                    + "([\"\\[]?[A-Za-z_]\\w*[\"\\]]?)\\s+ON\\s+([\"\\[]?[A-Za-z_]\\w*[\"\\]]?)\\s*(\\(.*\\))\\s*;" +
+                            "?\\s*$");
 
     /**
      * {@code DROP INDEX IF EXISTS ix ON t} —— 真 SQL Server 不支持该写法。
