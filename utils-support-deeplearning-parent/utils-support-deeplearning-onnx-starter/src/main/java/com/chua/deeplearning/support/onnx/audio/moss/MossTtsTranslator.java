@@ -229,7 +229,7 @@ public class MossTtsTranslator implements AutoCloseable {
                 }
                 codes.add(row);
             }
-            log.info("[MossTTS] 克隆参考: {} 帧 ({:.1f}s)", frames, n / 48000.0);
+            log.info("[MossTTS] 克隆参考: {} 帧 ({}s)", frames, n / 48000.0);
             return codes;
         }
     }
@@ -400,7 +400,7 @@ public class MossTtsTranslator implements AutoCloseable {
      * @param samples 样本
      */
     private void logChunk(int index, int total, String chunk, int samples) {
-        log.info("[MossTTS] 段 {}/{} ({}字, {:.2fs}: {}",
+        log.info("[MossTTS] 段 {}/{} ({}字, {}s: {}",
                 index, total, chunk.length(), samples / 48000.0,
                 chunk.length() > 20 ? chunk.substring(0, 20) + "…" : chunk);
     }

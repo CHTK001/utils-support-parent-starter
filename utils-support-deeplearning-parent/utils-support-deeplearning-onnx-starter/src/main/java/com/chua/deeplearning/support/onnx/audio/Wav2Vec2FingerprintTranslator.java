@@ -288,7 +288,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
 
         // 步骤 2：截断至模型最大输入长度
         if (samples.length > maxInputLength) {
-            log.warn("[Wav2Vec2Fingerprint] 输入音频过长（{}s），已截断至 {:.2f}s",
+            log.warn("[Wav2Vec2Fingerprint] 输入音频过长（{}s），已截断至 {}s",
                     samples.length / 16000.0, maxInputLength / 16000.0);
             float[] truncated = new float[maxInputLength];
             System.arraycopy(samples, 0, truncated, 0, maxInputLength);
