@@ -5,6 +5,7 @@ import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.chat.ChatResponse;
 import com.chua.common.support.ai.chat.ChatClientSetting;
+import com.chua.common.support.ai.chat.ChatClientType;
 import com.chua.common.support.ai.chat.ChatSyncResponse;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.lang.datasource.engine.Engine;
@@ -340,6 +341,11 @@ public class UsagePersistChatClient implements ChatClient {
     @Override
     public ChatClientSetting getSetting() {
         return delegate.getSetting();
+    }
+
+    @Override
+    public ChatClientType type() {
+        return delegate.type();
     }
 
     @Override

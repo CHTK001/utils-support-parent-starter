@@ -8,3 +8,7 @@ dots=com.chua.openai.support.OpenAiChatClient
 kilo=com.chua.openai.support.OpenAiChatClient
 custom=com.chua.openai.support.OpenAiChatClient
 free-channel=com.chua.openai.support.FreeChannelChatClient
+inceptionlabs=com.chua.openai.support.InceptionChatClient
+mercury=com.chua.openai.support.InceptionChatClient
+ptero=com.chua.openai.support.PteroChatClient
+eac=com.chua.openai.support.EacChatClient

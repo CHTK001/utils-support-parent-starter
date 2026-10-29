@@ -129,4 +129,220 @@ public interface ChatClientIndicator {
     default Long contextWindowTokens(String modelId) {
         return null;
     }
+
+    /**
+     * 取单个模型的指标快照（未知时返回空 Map，不返回 null）。
+     *
+     * <p>用于需要按标准键读取任意指标（价格、评分、模态、思考档位）的调用方，
+     * 避免为每个键都在本接口上加一个方法。</p>
+     *
+     * @param modelId 模型 ID
+     * @return 指标 Map（snake_case 标准键）
+     */
+    default Map<String, Object> modelMetricsOf(String modelId) {
+        if (modelId == null) {
+            return Map.of();
+        }
+        Map<String, Map<String, Object>> all = modelMetrics();
+        if (all == null || all.isEmpty()) {
+            return Map.of();
+        }
+        Map<String, Object> hit = all.get(modelId);
+        if (hit != null) {
+            return hit;
+        }
+        // 兼容 provider/model 与短 slug 两种键
+        int slash = modelId.lastIndexOf('/');
+        if (slash >= 0 && slash + 1 < modelId.length()) {
+            hit = all.get(modelId.substring(slash + 1));
+            if (hit != null) {
+                return hit;
+            }
+        }
+        return Map.of();
+    }
+
+    /**
+     * 单次请求的最大输出 Token 数（{@code max_output_tokens}）。
+     *
+     * @param modelId 模型 ID
+     * @return 输出上限，未知时返回 null
+     */
+    default Long outputTokens(String modelId) {
+        return longMetric(modelId, "max_output_tokens");
+    }
+
+    /**
+     * 是否支持推理 / 思考模式（{@code reasoning}）。
+     *
+     * @param modelId 模型 ID
+     * @return 支持返回 true，未知返回 null
+     */
+    default Boolean supportsReasoning(String modelId) {
+        return boolMetric(modelId, "reasoning");
+    }
+
+    /**
+     * 是否支持工具调用（{@code function_calling}）。
+     *
+     * @param modelId 模型 ID
+     * @return 支持返回 true，未知返回 null
+     */
+    default Boolean supportsToolCall(String modelId) {
+        return boolMetric(modelId, "function_calling");
+    }
+
+    /**
+     * 是否支持图片输入（{@code image_input}）。
+     *
+     * @param modelId 模型 ID
+     * @return 支持返回 true，未知返回 null
+     */
+    default Boolean supportsImageInput(String modelId) {
+        return boolMetric(modelId, "image_input");
+    }
+
+    /**
+     * 是否支持文件 / 附件输入（{@code attachment}）。
+     *
+     * @param modelId 模型 ID
+     * @return 支持返回 true，未知返回 null
+     */
+    default Boolean supportsAttachment(String modelId) {
+        return boolMetric(modelId, "attachment");
+    }
+
+    /**
+     * 模型族（{@code model_family}），如 {@code claude-4}、{@code gpt-4o}。
+     *
+     * @param modelId 模型 ID
+     * @return 模型族，未知时返回 null
+     */
+    default String modelFamily(String modelId) {
+        return textMetric(modelId, "model_family");
+    }
+
+    /**
+     * 知识截止日期（{@code knowledge_cutoff}）。
+     *
+     * @param modelId 模型 ID
+     * @return 日期文本，未知时返回 null
+     */
+    default String knowledgeCutoff(String modelId) {
+        return textMetric(modelId, "knowledge_cutoff");
+    }
+
+    /**
+     * 输入模态列表（{@code input_modalities}），如 text / image / audio。
+     *
+     * @param modelId 模型 ID
+     * @return 模态列表，未知时返回空列表
+     */
+    default List<String> inputModalities(String modelId) {
+        return stringListMetric(modelId, "input_modalities");
+    }
+
+    /**
+     * 输出模态列表（{@code output_modalities}），如 text / image。
+     *
+     * @param modelId 模型 ID
+     * @return 模态列表，未知时返回空列表
+     */
+    default List<String> outputModalities(String modelId) {
+        return stringListMetric(modelId, "output_modalities");
+    }
+
+    /**
+     * 思考强度档位（{@code reasoning_efforts}），如 low / medium / high / max。
+     *
+     * @param modelId 模型 ID
+     * @return 档位列表，未知时返回空列表
+     */
+    default List<String> reasoningEfforts(String modelId) {
+        return stringListMetric(modelId, "reasoning_efforts");
+    }
+
+    /**
+     * 读取整型指标。
+     *
+     * @param modelId 模型 ID
+     * @param key     指标键
+     * @return 值；缺失或非数值时返回 null
+     */
+    private Long longMetric(String modelId, String key) {
+        Object value = modelMetricsOf(modelId).get(key);
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        if (value instanceof String text) {
+            try {
+                return Long.parseLong(text.trim());
+            } catch (NumberFormatException ignored) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 读取布尔指标。
+     *
+     * @param modelId 模型 ID
+     * @param key     指标键
+     * @return 值；缺失时返回 null
+     */
+    private Boolean boolMetric(String modelId, String key) {
+        Object value = modelMetricsOf(modelId).get(key);
+        if (value instanceof Boolean bool) {
+            return bool;
+        }
+        if (value instanceof String text) {
+            return Boolean.parseBoolean(text.trim());
+        }
+        return null;
+    }
+
+    /**
+     * 读取文本指标。
+     *
+     * @param modelId 模型 ID
+     * @param key     指标键
+     * @return 值；缺失或空白时返回 null
+     */
+    private String textMetric(String modelId, String key) {
+        Object value = modelMetricsOf(modelId).get(key);
+        if (value == null) {
+            return null;
+        }
+        String text = String.valueOf(value);
+        return text.isBlank() ? null : text;
+    }
+
+    /**
+     * 读取字符串列表指标（元素为对象时取 {@code name} / {@code type}）。
+     *
+     * @param modelId 模型 ID
+     * @param key     指标键
+     * @return 列表；缺失时返回空列表
+     */
+    private List<String> stringListMetric(String modelId, String key) {
+        Object value = modelMetricsOf(modelId).get(key);
+        if (!(value instanceof List<?> list)) {
+            return List.of();
+        }
+        List<String> values = new java.util.ArrayList<>(list.size());
+        for (Object item : list) {
+            if (item instanceof String text) {
+                if (!text.isBlank()) {
+                    values.add(text);
+                }
+            } else if (item instanceof Map<?, ?> map) {
+                Object name = map.get("name") != null ? map.get("name") : map.get("type");
+                if (name != null) {
+                    values.add(String.valueOf(name));
+                }
+            }
+        }
+        return values;
+    }
 }

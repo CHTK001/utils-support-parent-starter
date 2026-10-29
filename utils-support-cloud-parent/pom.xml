@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-parent-starter</artifactId>
-        <version>4.0.0.42</version>
+        <version>4.0.0.43</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>utils-support-cloud-parent</artifactId>
@@ -36,6 +36,7 @@
         <module>utils-support-ilink-starter</module>
         <module>utils-support-alibaba-starter</module>
         <module>utils-support-openai-starter</module>
+        <module>utils-support-mosi-starter</module>
         <module>utils-support-wechat-starter</module>
         <module>utils-support-webhook-starter</module>
         <module>utils-support-whatsapp-starter</module>

@@ -6,10 +6,10 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-filesystem-parent</artifactId>
-        <version>4.0.0.42</version>
+        <version>4.0.0.43</version>
     </parent>
     <artifactId>utils-support-ffmpeg-rust-starter</artifactId>
-    <version>4.0.0.42</version>
+    <version>4.0.0.43</version>
     <packaging>jar</packaging>
     <description>FFmpeg 音视频处理模块 — Rust native 编解码实现</description>
     <dependencies>

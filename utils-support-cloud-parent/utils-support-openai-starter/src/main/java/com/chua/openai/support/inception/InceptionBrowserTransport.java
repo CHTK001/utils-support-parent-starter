@@ -1,23 +1,16 @@
 package com.chua.openai.support.inception;
 
+import com.chua.common.support.browser.BrowserEngine;
+import com.chua.common.support.browser.BrowserOptions;
+import com.chua.common.support.browser.BrowserPage;
+import com.chua.common.support.browser.cdp.CdpBrowserEngine;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 基于真实 Chromium 的 Inception 传输通道
@@ -29,39 +22,44 @@ import java.util.concurrent.TimeUnit;
  *   <li>启动本机 Chrome / Chromium（无头模式，独立临时用户目录）；</li>
  *   <li>打开站点首页，等待 Vercel 检查点的 WASM 挑战自动完成；</li>
  *   <li>{@code GET /api/session} 拿本轮会话 token；</li>
- *   <li>在页面上下文里 {@code fetch('/api/chat')}，通过
- *       {@code Runtime.addBinding} 把响应流分片回传给 Java。</li>
+ *   <li>{@code POST /api/chat} 并把 SSE 分片逐块转给 {@link InceptionStreamParser}。</li>
  * </ol>
  *
- * <p>因为请求由浏览器自己发出，TLS 指纹、HTTP2 设置、Cookie、挑战令牌全部
- * 天然一致，不需要手工抓 Cookie。代价是每次调用要占用一个浏览器进程，
- * 因此通道内部复用同一个页面，并按客户端实例串行化请求。</p>
+ * <p>浏览器生命周期与 CDP 协议细节由 common-starter 的轻量
+ * {@link BrowserEngine}（SPI 名称 {@code cdp}）负责，本类只保留 Inception 站点
+ * 特有的「就绪判定 + token + 协议」逻辑。</p>
+ *
+ * <p>一个传输通道只启动一个浏览器进程，页面在多次对话之间复用；仅当页面失效
+ * 或显式 {@link #close()} 时才关闭。这样连续多轮对话不会反复启动浏览器。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Slf4j
-public final class InceptionBrowserTransport implements InceptionTransport {
+public class InceptionBrowserTransport implements InceptionTransport {
 
     /**
-     * 页面与 Java 之间的桥接函数名
-     */
-    private static final String BRIDGE = "__inceptionChatBridge";
-
-    /**
-     * 默认等待站点就绪的时间（毫秒）
+     * 站点就绪等待时间（毫秒）
      */
     private static final long READY_TIMEOUT_MILLIS = 120_000L;
 
     /**
-     * 启动浏览器后等待 DevTools 端口的时间（毫秒）
+     * 被检查点拦截时的最大尝试次数
      */
-    private static final long DEVTOOLS_TIMEOUT_MILLIS = 60_000L;
+    private static final int MAX_ATTEMPTS = 3;
 
     /**
-     * 单条 CDP 命令的等待时间
+     * 重试基础等待时间（毫秒），实际等待按次数递增
      */
-    private static final Duration COMMAND_TIMEOUT = Duration.ofSeconds(60);
+    private static final long RETRY_DELAY_MILLIS = 6_000L;
+
+    /**
+     * 页面已加载完成但界面未就绪时，等待多久改用接口直接探测（毫秒）
+     *
+     * <p>实测站点有时一直停在检查点页，但同源的 {@code /api/chat} 已经可用，
+     * 此时继续等输入框只会白等；先探测接口，失败再按重试策略处理。</p>
+     */
+    private static final long PROCEED_AFTER_READY_MILLIS = 12_000L;
 
     /**
      * 站点根地址
@@ -74,54 +72,44 @@ public final class InceptionBrowserTransport implements InceptionTransport {
     private final long timeoutMillis;
 
     /**
-     * 指定的浏览器可执行文件路径，可为空
+     * 浏览器路径，可为空
      */
     private final String chromePath;
 
     /**
-     * 是否使用无头模式
+     * 是否无头模式
      */
     private final boolean headless;
 
     /**
-     * 浏览器代理地址，可为空
+     * 浏览器代理，可为空
      */
     private final String proxy;
 
     /**
-     * 请求串行锁：同一个页面同一时刻只跑一轮对话
+     * 自定义 UA，可为空
+     */
+    private final String userAgent;
+
+    /**
+     * 是否随机轮换 UA
+     */
+    private final boolean rotateUserAgent;
+
+    /**
+     * 串行化对话，页面内同一时刻只允许一条流
      */
     private final Object lock = new Object();
 
     /**
-     * 浏览器进程
+     * 浏览器引擎
      */
-    private Process process;
+    private BrowserEngine engine;
 
     /**
-     * 临时用户目录
+     * 当前页面
      */
-    private Path profileDir;
-
-    /**
-     * CDP 客户端
-     */
-    private InceptionCdpClient cdp;
-
-    /**
-     * 页面会话 ID
-     */
-    private String sessionId;
-
-    /**
-     * 当前流事件的接收器
-     */
-    private volatile java.util.function.Consumer<String> sink;
-
-    /**
-     * 是否已注册 JVM 关闭钩子
-     */
-    private boolean shutdownHookRegistered;
+    private BrowserPage page;
 
     /**
      * 构造浏览器通道
@@ -131,79 +119,105 @@ public final class InceptionBrowserTransport implements InceptionTransport {
      * @param chromePath    浏览器路径，可为空（自动探测）
      * @param headless      是否无头模式
      * @param proxy         浏览器代理，可为空
+     * @param userAgent     自定义 UA，可为空
+     * @param rotateUserAgent 是否随机轮换 UA
      */
     public InceptionBrowserTransport(String baseUrl, long timeoutMillis, String chromePath,
-                                     boolean headless, String proxy) {
+                                     boolean headless, String proxy, String userAgent,
+                                     boolean rotateUserAgent) {
         this.baseUrl = baseUrl;
         this.timeoutMillis = timeoutMillis;
         this.chromePath = chromePath;
         this.headless = headless;
         this.proxy = proxy;
+        this.userAgent = userAgent;
+        this.rotateUserAgent = rotateUserAgent;
     }
 
     @Override
     public void chat(String payloadJson, InceptionStreamListener listener) throws Exception {
         synchronized (lock) {
             ensurePage();
-            String token = readSessionToken();
+            IllegalStateException lastError = null;
+            for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+                lastError = null;
+                String token = readSessionToken();
 
-            BlockingQueue<String> queue = new LinkedBlockingQueue<>();
-            sink = queue::offer;
-            try {
-                evaluate(streamScript(payloadJson, token), false, COMMAND_TIMEOUT);
+                Map<String, String> headers = new LinkedHashMap<>();
+                headers.put("content-type", "application/json");
+                headers.put("accept", "text/event-stream");
+                if (StringUtils.isNotBlank(token)) {
+                    headers.put("x-session-token", token);
+                }
 
                 InceptionStreamParser parser = new InceptionStreamParser(listener);
                 StringBuilder errorBody = new StringBuilder();
-                int status = 0;
-                long deadline = System.currentTimeMillis() + timeoutMillis;
+                int[] statusHolder = {0};
+                boolean[] contentReceived = {false};
+                int status;
+                try {
+                    status = page.fetchStream("POST", baseUrl + "/api/chat", payloadJson, headers,
+                            timeoutMillis, new BrowserPage.FetchSink() {
+                                @Override
+                                public void onStatus(int code) {
+                                    statusHolder[0] = code;
+                                }
 
-                while (true) {
-                    long remain = deadline - System.currentTimeMillis();
-                    if (remain <= 0) {
-                        throw new IllegalStateException("等待 Inception 上游响应超时（" + timeoutMillis + "ms），"
-                                + "可能是页面被风控拦截或浏览器已退出");
+                                @Override
+                                public void onChunk(String chunk) {
+                                    if (statusHolder[0] == 200) {
+                                        contentReceived[0] = true;
+                                        parser.feed(chunk);
+                                    } else {
+                                        errorBody.append(chunk == null ? "" : chunk);
+                                    }
+                                }
+                            });
+                } catch (IllegalStateException e) {
+                    if (isPageAlive()) {
+                        throw e;
                     }
-                    String item = queue.poll(Math.min(remain, 1000L), TimeUnit.MILLISECONDS);
-                    if (item == null) {
-                        continue;
-                    }
-                    Map<String, Object> message = Json.fromJson(item);
-                    if (message == null) {
-                        continue;
-                    }
-                    String kind = asString(message.get("k"));
-                    if ("status".equals(kind)) {
-                        Object value = message.get("v");
-                        status = value instanceof Number number ? number.intValue() : 0;
-                        continue;
-                    }
-                    if ("chunk".equals(kind)) {
-                        String chunk = asString(message.get("v"));
-                        if (status == 200) {
-                            parser.feed(chunk);
-                        } else {
-                            errorBody.append(chunk == null ? "" : chunk);
-                        }
-                        continue;
-                    }
-                    if ("error".equals(kind)) {
-                        throw new IllegalStateException("浏览器内请求失败: " + asString(message.get("v")));
-                    }
-                    if ("end".equals(kind)) {
-                        break;
-                    }
+                    closeBrowser();
+                    throw new IllegalStateException("Inception 浏览器页面已失效，请重试: " + e.getMessage(), e);
                 }
 
                 parser.flush();
-                if (status != 200) {
-                    throw new IllegalStateException(describeFailure(status, errorBody.toString()));
+                if (status == 200) {
+                    if (parser.error() != null) {
+                        throw new IllegalStateException("Inception 上游返回错误: " + parser.error());
+                    }
+                    return;
                 }
-                if (parser.error() != null) {
-                    throw new IllegalStateException("Inception 上游返回错误: " + parser.error());
+
+                lastError = new IllegalStateException(describeFailure(status, errorBody.toString()));
+                boolean challenged = (status == 429 || status == 403) && !contentReceived[0];
+                if (!challenged || attempt >= MAX_ATTEMPTS) {
+                    throw lastError;
                 }
-            } finally {
-                sink = null;
+                long delay = RETRY_DELAY_MILLIS * attempt;
+                log.warn("[inception] 第 {} 次请求被 Vercel 检查点拦截，{}ms 后重试", attempt, delay);
+                sleep(delay);
+                if (attempt >= 2) {
+                    refreshPage();
+                }
             }
+            if (lastError != null) {
+                throw lastError;
+            }
+        }
+    }
+
+    /**
+     * 重新加载站点并等待检查点通过
+     */
+    private void refreshPage() {
+        try {
+            page.navigate(baseUrl + "/");
+            waitReady();
+        } catch (RuntimeException e) {
+            log.warn("[inception] 刷新页面失败，重建浏览器: {}", e.getMessage());
+            closeBrowser();
+            ensurePage();
         }
     }
 
@@ -211,12 +225,39 @@ public final class InceptionBrowserTransport implements InceptionTransport {
      * 确保页面已打开且检查点已通过
      */
     private void ensurePage() {
-        if (cdp != null && isPageAlive()) {
+        if (page != null && isPageAlive()) {
             return;
         }
         closeBrowser();
-        launchBrowser();
-        openPage();
+        engine = createEngine();
+        BrowserOptions options = new BrowserOptions()
+                .setHeadless(headless)
+                .setExecutablePath(locateBrowser(chromePath))
+                .setProxy(proxy)
+                .setUserAgent(userAgent)
+                .setRotateUserAgent(rotateUserAgent);
+        try {
+            page = engine.openPage(options);
+            page.navigate(baseUrl + "/");
+            waitReady();
+        } catch (RuntimeException e) {
+            closeBrowser();
+            throw e;
+        }
+    }
+
+    /**
+     * 创建浏览器引擎，优先走 SPI
+     *
+     * @return 浏览器引擎
+     */
+    private static BrowserEngine createEngine() {
+        try {
+            return BrowserEngine.cdp();
+        } catch (RuntimeException e) {
+            log.debug("[inception] SPI 未找到 cdp 引擎，使用内置实现: {}", e.getMessage());
+            return new CdpBrowserEngine();
+        }
     }
 
     /**
@@ -226,7 +267,7 @@ public final class InceptionBrowserTransport implements InceptionTransport {
      */
     private boolean isPageAlive() {
         try {
-            evaluate("1", true, Duration.ofSeconds(5));
+            page.evaluate("1", false);
             return true;
         } catch (Exception e) {
             log.debug("[inception] 浏览器页面已失效，将重新启动: {}", e.getMessage());
@@ -235,120 +276,15 @@ public final class InceptionBrowserTransport implements InceptionTransport {
     }
 
     /**
-     * 启动浏览器并连接 CDP
-     */
-    private void launchBrowser() {
-        String executable = locateBrowser(chromePath);
-        try {
-            profileDir = Files.createTempDirectory("inception-chrome-");
-        } catch (IOException e) {
-            throw new IllegalStateException("创建浏览器临时目录失败: " + e.getMessage(), e);
-        }
-
-        List<String> command = new ArrayList<>();
-        command.add(executable);
-        if (headless) {
-            command.add("--headless=new");
-        }
-        command.add("--remote-debugging-port=0");
-        command.add("--user-data-dir=" + profileDir.toAbsolutePath());
-        command.add("--no-first-run");
-        command.add("--no-default-browser-check");
-        command.add("--disable-blink-features=AutomationControlled");
-        command.add("--disable-dev-shm-usage");
-        command.add("--disable-features=Translate,OptimizationHints");
-        command.add("--window-size=1280,900");
-        command.add("--lang=zh-CN");
-        if (StringUtils.isNotBlank(proxy)) {
-            command.add("--proxy-server=" + proxy.trim());
-        }
-        command.add("about:blank");
-
-        Path logFile = profileDir.resolve("chrome.log");
-        try {
-            process = new ProcessBuilder(command)
-                    .redirectErrorStream(true)
-                    .redirectOutput(ProcessBuilder.Redirect.appendTo(logFile.toFile()))
-                    .start();
-        } catch (IOException e) {
-            throw new IllegalStateException("启动浏览器失败（" + executable + "）: " + e.getMessage(), e);
-        }
-        registerShutdownHook();
-
-        Path activePortFile = profileDir.resolve("DevToolsActivePort");
-        long deadline = System.currentTimeMillis() + DEVTOOLS_TIMEOUT_MILLIS;
-        String port = null;
-        String wsPath = null;
-        while (System.currentTimeMillis() < deadline) {
-            if (!process.isAlive()) {
-                throw new IllegalStateException("浏览器进程已退出（exit=" + process.exitValue() + "），日志: "
-                        + tail(logFile));
-            }
-            if (Files.exists(activePortFile)) {
-                try {
-                    List<String> lines = Files.readAllLines(activePortFile, StandardCharsets.UTF_8);
-                    if (lines.size() >= 2) {
-                        port = lines.get(0).trim();
-                        wsPath = lines.get(1).trim();
-                        break;
-                    }
-                } catch (IOException e) {
-                    log.debug("[inception] 读取 DevToolsActivePort 失败: {}", e.getMessage());
-                }
-            }
-            sleep(200L);
-        }
-        if (port == null || wsPath == null) {
-            throw new IllegalStateException("等待浏览器 DevTools 端口超时，日志: " + tail(logFile));
-        }
-
-        URI endpoint = URI.create("ws://127.0.0.1:" + port + wsPath);
-        cdp = InceptionCdpClient.connect(endpoint, Duration.ofSeconds(30));
-        cdp.on("Runtime.bindingCalled", this::onBindingCalled);
-        log.debug("[inception] 浏览器已启动: {} (headless={}, port={})", executable, headless, port);
-    }
-
-    /**
-     * 处理页面桥接回调
+     * 等待站点就绪（检查点通过且输入框出现）
      *
-     * @param message CDP 事件
+     * <p>正常情况下几秒内就能看到输入框；若页面已加载完成但长时间停在检查点页
+     * （实测此时同源接口可能已经可用），不再死等，先交给接口探测，避免白等到超时。</p>
      */
-    private void onBindingCalled(Map<String, Object> message) {
-        Map<String, Object> params = asMap(message.get("params"));
-        if (params == null || !BRIDGE.equals(params.get("name"))) {
-            return;
-        }
-        Object payload = params.get("payload");
-        java.util.function.Consumer<String> current = sink;
-        if (current != null && payload != null) {
-            current.accept(String.valueOf(payload));
-        }
-    }
-
-    /**
-     * 打开站点首页并等待检查点通过
-     */
-    private void openPage() {
-        Map<String, Object> created = cdp.call("Target.createTarget",
-                Map.of("url", "about:blank"), null, COMMAND_TIMEOUT);
-        String targetId = asString(created.get("targetId"));
-        if (StringUtils.isBlank(targetId)) {
-            throw new IllegalStateException("创建浏览器标签页失败: " + Json.toJson(created));
-        }
-        Map<String, Object> attached = cdp.call("Target.attachToTarget",
-                Map.of("targetId", targetId, "flatten", true), null, COMMAND_TIMEOUT);
-        sessionId = asString(attached.get("sessionId"));
-        if (StringUtils.isBlank(sessionId)) {
-            throw new IllegalStateException("附加浏览器标签页失败: " + Json.toJson(attached));
-        }
-        cdp.call("Page.enable", Map.of(), sessionId, COMMAND_TIMEOUT);
-        cdp.call("Runtime.enable", Map.of(), sessionId, COMMAND_TIMEOUT);
-        // 绑定名对「当前及以后创建的上下文」都生效，必须在导航前注册
-        cdp.call("Runtime.addBinding", Map.of("name", BRIDGE), sessionId, COMMAND_TIMEOUT);
-        cdp.call("Page.navigate", Map.of("url", baseUrl + "/"), sessionId, COMMAND_TIMEOUT);
-
+    private void waitReady() {
         boolean hosted = baseUrl.contains("inceptionlabs.ai");
-        long deadline = System.currentTimeMillis() + READY_TIMEOUT_MILLIS;
+        long start = System.currentTimeMillis();
+        long deadline = start + READY_TIMEOUT_MILLIS;
         String lastState = "";
         while (System.currentTimeMillis() < deadline) {
             Map<String, Object> state = pageState();
@@ -360,10 +296,15 @@ public final class InceptionBrowserTransport implements InceptionTransport {
                 log.debug("[inception] 站点已就绪: {}", lastState);
                 return;
             }
+            if (complete && System.currentTimeMillis() - start >= PROCEED_AFTER_READY_MILLIS) {
+                log.warn("[inception] 页面停留 {}ms 仍未出现输入框，改用接口探测: {}",
+                        PROCEED_AFTER_READY_MILLIS, lastState);
+                return;
+            }
             sleep(500L);
         }
         throw new IllegalStateException("等待 Inception 站点就绪超时，最后一次页面状态: "
-                + (lastState.length() > 300 ? lastState.substring(0, 300) + "..." : lastState));
+                + truncate(lastState));
     }
 
     /**
@@ -379,7 +320,7 @@ public final class InceptionBrowserTransport implements InceptionTransport {
                 + "+((document.body&&document.body.innerText)||'')),"
                 + "input:!!document.querySelector('textarea')"
                 + "})";
-        String value = evaluate(expression, true, Duration.ofSeconds(15));
+        String value = page.evaluate(expression);
         try {
             Map<String, Object> state = Json.fromJson(value);
             return state == null ? Map.of() : state;
@@ -401,7 +342,7 @@ public final class InceptionBrowserTransport implements InceptionTransport {
                 + "return JSON.stringify({status:r.status, body:t});"
                 + "} catch (e) { return JSON.stringify({status:-1, body:String(e)}); }"
                 + "})()";
-        String value = evaluate(script, true, COMMAND_TIMEOUT);
+        String value = page.evaluate(script);
         Map<String, Object> result;
         try {
             result = Json.fromJson(value);
@@ -432,104 +373,24 @@ public final class InceptionBrowserTransport implements InceptionTransport {
     }
 
     /**
-     * 构建页面内的流式请求脚本
-     *
-     * @param payloadJson 请求体
-     * @param token       会话 token
-     * @return JavaScript 表达式
-     */
-    private String streamScript(String payloadJson, String token) {
-        String tokenLiteral = Json.toJson(token == null ? "" : token);
-        String bodyLiteral = Json.toJson(payloadJson);
-        return "(async () => {"
-                + "const send = (o) => { try { window." + BRIDGE + "(JSON.stringify(o)); } catch (e) {} };"
-                + "try {"
-                + "const res = await fetch('/api/chat', {"
-                + "method:'POST', credentials:'include',"
-                + "headers:{'content-type':'application/json','accept':'text/event-stream',"
-                + "'x-session-token':" + tokenLiteral + "},"
-                + "body:" + bodyLiteral
-                + "});"
-                + "send({k:'status', v:res.status});"
-                + "if (!res.body) { send({k:'chunk', v: await res.text()}); send({k:'end'}); return; }"
-                + "const reader = res.body.getReader();"
-                + "const decoder = new TextDecoder('utf-8');"
-                + "for (;;) {"
-                + "const step = await reader.read();"
-                + "if (step.done) break;"
-                + "send({k:'chunk', v: decoder.decode(step.value, {stream:true})});"
-                + "}"
-                + "send({k:'end'});"
-                + "} catch (e) { send({k:'error', v: String(e && e.message ? e.message : e)}); }"
-                + "})()";
-    }
-
-    /**
-     * 在页面内求值
-     *
-     * @param expression 表达式
-     * @param awaitPromise 是否等待 Promise
-     * @param timeout    超时
-     * @return 求值结果（字符串或 null）
-     */
-    private String evaluate(String expression, boolean awaitPromise, Duration timeout) {
-        Map<String, Object> params = new LinkedHashMap<>();
-        params.put("expression", expression);
-        params.put("returnByValue", true);
-        params.put("awaitPromise", awaitPromise);
-        params.put("userGesture", false);
-        Map<String, Object> result = cdp.call("Runtime.evaluate", params, sessionId, timeout);
-        Map<String, Object> exception = asMap(result.get("exceptionDetails"));
-        if (exception != null) {
-            throw new IllegalStateException("页面脚本执行失败: " + Json.toJson(exception));
-        }
-        Map<String, Object> value = asMap(result.get("result"));
-        if (value == null) {
-            return null;
-        }
-        Object raw = value.get("value");
-        return raw == null ? null : String.valueOf(raw);
-    }
-
-    /**
-     * 关闭浏览器并清理临时目录
+     * 关闭浏览器并释放资源
      */
     private void closeBrowser() {
-        if (cdp != null) {
-            cdp.close();
-            cdp = null;
-        }
-        sessionId = null;
-        if (process != null) {
-            process.destroy();
+        if (page != null) {
             try {
-                if (!process.waitFor(5, TimeUnit.SECONDS)) {
-                    process.destroyForcibly();
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                process.destroyForcibly();
+                page.close();
+            } catch (Exception e) {
+                log.debug("[inception] 关闭页面失败: {}", e.getMessage());
             }
-            process = null;
+            page = null;
         }
-        if (profileDir != null) {
-            deleteQuietly(profileDir);
-            profileDir = null;
-        }
-    }
-
-    /**
-     * 注册 JVM 关闭钩子，避免残留浏览器进程
-     */
-    private void registerShutdownHook() {
-        if (shutdownHookRegistered) {
-            return;
-        }
-        shutdownHookRegistered = true;
-        try {
-            Runtime.getRuntime().addShutdownHook(new Thread(this::closeBrowser, "inception-browser-cleanup"));
-        } catch (Exception e) {
-            log.debug("[inception] 注册关闭钩子失败: {}", e.getMessage());
+        if (engine != null) {
+            try {
+                engine.close();
+            } catch (Exception e) {
+                log.debug("[inception] 关闭浏览器失败: {}", e.getMessage());
+            }
+            engine = null;
         }
     }
 
@@ -538,6 +399,16 @@ public final class InceptionBrowserTransport implements InceptionTransport {
         synchronized (lock) {
             closeBrowser();
         }
+    }
+
+    /**
+     * 定位可用的浏览器
+     *
+     * @param configured 显式配置的路径，可为空
+     * @return 可执行文件路径
+     */
+    static String locateBrowser(String configured) {
+        return CdpBrowserEngine.locateBrowser(configured);
     }
 
     /**
@@ -568,206 +439,7 @@ public final class InceptionBrowserTransport implements InceptionTransport {
         if (text == null) {
             return "";
         }
-        String trimmed = text.trim();
-        return trimmed.length() <= 400 ? trimmed : trimmed.substring(0, 400) + "...";
-    }
-
-    /**
-     * 读取日志尾部
-     *
-     * @param logFile 日志文件
-     * @return 末尾若干行
-     */
-    private static String tail(Path logFile) {
-        try {
-            if (!Files.exists(logFile)) {
-                return "<无日志>";
-            }
-            List<String> lines = Files.readAllLines(logFile, StandardCharsets.UTF_8);
-            int from = Math.max(0, lines.size() - 15);
-            return String.join(" | ", lines.subList(from, lines.size()));
-        } catch (IOException e) {
-            return "<读取日志失败: " + e.getMessage() + ">";
-        }
-    }
-
-    /**
-     * 递归删除目录（尽力而为）
-     *
-     * @param dir 目录
-     */
-    private static void deleteQuietly(Path dir) {
-        try (java.util.stream.Stream<Path> stream = Files.walk(dir)) {
-            stream.sorted(Comparator.reverseOrder()).forEach(path -> {
-                try {
-                    Files.deleteIfExists(path);
-                } catch (IOException ignored) {
-                    // 浏览器可能仍占用部分文件，忽略即可
-                }
-            });
-        } catch (IOException e) {
-            log.debug("[inception] 清理临时目录失败: {}", e.getMessage());
-        }
-    }
-
-    /**
-     * 定位可用的 Chromium 内核浏览器
-     *
-     * <p>优先级：显式配置 → 系统属性 {@code inception.chrome} → 环境变量
-     * {@code INCEPTION_CHROME} → 常见安装路径 → Playwright 缓存。</p>
-     *
-     * @param configured 显式配置的路径
-     * @return 可执行文件路径
-     */
-    static String locateBrowser(String configured) {
-        if (StringUtils.isNotBlank(configured) && Files.isExecutable(Path.of(configured))) {
-            return configured;
-        }
-        String property = System.getProperty("inception.chrome");
-        if (StringUtils.isNotBlank(property) && Files.isExecutable(Path.of(property))) {
-            return property;
-        }
-        for (String env : new String[]{"INCEPTION_CHROME", "CHROME_PATH", "CHROME_BIN"}) {
-            String value = System.getenv(env);
-            if (StringUtils.isNotBlank(value) && Files.isExecutable(Path.of(value))) {
-                return value;
-            }
-        }
-        for (String candidate : candidates()) {
-            if (StringUtils.isNotBlank(candidate) && Files.isExecutable(Path.of(candidate))) {
-                return candidate;
-            }
-        }
-        String playwright = locatePlaywrightChromium();
-        if (playwright != null) {
-            return playwright;
-        }
-        throw new IllegalStateException("未找到可用的 Chrome/Chromium 内核浏览器。"
-                + "请设置系统属性 -Dinception.chrome=<chrome 可执行文件路径>，"
-                + "或环境变量 INCEPTION_CHROME；也可以使用 -Dinception.transport=http 改走纯 HTTP 通道");
-    }
-
-    /**
-     * 常见安装路径候选
-     *
-     * @return 候选路径
-     */
-    private static List<String> candidates() {
-        List<String> list = new ArrayList<>();
-        String localAppData = System.getenv("LOCALAPPDATA");
-        String programFiles = System.getenv("ProgramFiles");
-        String programFilesX86 = System.getenv("ProgramFiles(x86)");
-        String os = System.getProperty("os.name", "").toLowerCase();
-
-        if (os.contains("win")) {
-            addIfPresent(list, localAppData, "Google/Chrome/Application/chrome.exe");
-            addIfPresent(list, programFiles, "Google/Chrome/Application/chrome.exe");
-            addIfPresent(list, programFilesX86, "Google/Chrome/Application/chrome.exe");
-            addIfPresent(list, localAppData, "Chromium/Application/chrome.exe");
-            addIfPresent(list, localAppData, "Microsoft/Edge/Application/msedge.exe");
-            addIfPresent(list, programFiles, "Microsoft/Edge/Application/msedge.exe");
-            addIfPresent(list, programFilesX86, "Microsoft/Edge/Application/msedge.exe");
-        } else if (os.contains("mac")) {
-            list.add("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome");
-            list.add("/Applications/Chromium.app/Contents/MacOS/Chromium");
-            list.add("/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge");
-        } else {
-            list.add("/usr/bin/google-chrome");
-            list.add("/usr/bin/google-chrome-stable");
-            list.add("/usr/bin/chromium");
-            list.add("/usr/bin/chromium-browser");
-            list.add("/usr/bin/microsoft-edge");
-        }
-        return list;
-    }
-
-    /**
-     * 追加候选路径
-     *
-     * @param list 候选列表
-     * @param base 基础目录
-     * @param rest 相对路径
-     */
-    private static void addIfPresent(List<String> list, String base, String rest) {
-        if (StringUtils.isBlank(base)) {
-            return;
-        }
-        list.add(Path.of(base, rest.split("/")).toString());
-    }
-
-    /**
-     * 从 Playwright 缓存里找 Chromium（本机已下载过浏览器时最省事）
-     *
-     * @return 可执行文件路径，找不到返回 null
-     */
-    private static String locatePlaywrightChromium() {
-        String localAppData = System.getenv("LOCALAPPDATA");
-        String home = System.getProperty("user.home");
-        List<Path> roots = new ArrayList<>();
-        if (StringUtils.isNotBlank(localAppData)) {
-            roots.add(Path.of(localAppData, "ms-playwright"));
-        }
-        if (StringUtils.isNotBlank(home)) {
-            roots.add(Path.of(home, ".cache", "ms-playwright"));
-            roots.add(Path.of(home, "Library", "Caches", "ms-playwright"));
-        }
-        for (Path root : roots) {
-            if (!Files.isDirectory(root)) {
-                continue;
-            }
-            List<Path> dirs;
-            try (java.util.stream.Stream<Path> stream = Files.list(root)) {
-                dirs = stream.filter(Files::isDirectory)
-                        .filter(path -> path.getFileName().toString().startsWith("chromium-"))
-                        .sorted(Comparator.comparingLong(InceptionBrowserTransport::revisionOf).reversed())
-                        .toList();
-            } catch (IOException e) {
-                continue;
-            }
-            for (Path dir : dirs) {
-                for (String relative : new String[]{"chrome-win64/chrome.exe", "chrome-win/chrome.exe",
-                        "chrome-linux/chrome", "chrome-mac/Chromium.app/Contents/MacOS/Chromium"}) {
-                    Path executable = dir.resolve(relative.replace('/', java.io.File.separatorChar));
-                    if (Files.isExecutable(executable)) {
-                        return executable.toString();
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 解析 Playwright 目录名里的版本号
-     *
-     * @param dir 目录
-     * @return 版本号，解析失败返回 0
-     */
-    private static long revisionOf(Path dir) {
-        String name = dir.getFileName().toString();
-        int index = name.lastIndexOf('-');
-        if (index < 0) {
-            return 0L;
-        }
-        try {
-            return Long.parseLong(name.substring(index + 1));
-        } catch (NumberFormatException e) {
-            return 0L;
-        }
-    }
-
-    /**
-     * 休眠
-     *
-     * @param millis 毫秒
-     */
-    private static void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("等待被中断", e);
-        }
+        return text.length() > 300 ? text.substring(0, 300) + "..." : text;
     }
 
     /**
@@ -781,17 +453,15 @@ public final class InceptionBrowserTransport implements InceptionTransport {
     }
 
     /**
-     * 安全转换 Map
+     * 休眠
      *
-     * @param value 原始值
-     * @return 字符串键 Map，类型不符返回 null
+     * @param millis 毫秒
      */
-    private static Map<String, Object> asMap(Object value) {
-        if (!(value instanceof Map<?, ?> map)) {
-            return null;
+    private static void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
-        Map<String, Object> result = new LinkedHashMap<>();
-        map.forEach((key, item) -> result.put(String.valueOf(key), item));
-        return result;
     }
 }

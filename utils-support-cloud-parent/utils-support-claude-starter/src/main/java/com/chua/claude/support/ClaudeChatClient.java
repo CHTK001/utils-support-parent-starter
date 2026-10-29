@@ -4,6 +4,7 @@ import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientIndicator;
+import com.chua.common.support.ai.chat.ChatClientType;
 import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.ai.chat.ChatClientSetting;
@@ -469,6 +470,17 @@ public ChatClient newChat() {
     @Override
     public ChatClientIndicator indicator() {
         return ChatClient.super.indicator();
+    }
+
+    /**
+     * Anthropic 原生 Messages 协议（{@code https://api.anthropic.com/v1/messages}），
+     * 不是 OpenAI 兼容 Chat Completions 协议。
+     *
+     * @return 协议类型
+     */
+    @Override
+    public ChatClientType type() {
+        return ChatClientType.PROVIDER_NATIVE;
     }
 
 

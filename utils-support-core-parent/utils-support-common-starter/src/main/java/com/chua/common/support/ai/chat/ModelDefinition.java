@@ -256,6 +256,16 @@ public class ModelDefinition {
     private Long contextWindowTokens;
 
     /**
+     * 单次请求的最大输出 Token 数
+     *
+     * <p>与 {@link #contextWindowTokens} 不同：上下文窗口是「输入 + 输出」的总预算，
+     * 本字段只约束单次回复能生成的长度（上游目录通常写作 {@code max_output_tokens}、
+     * {@code max_completion_tokens}、{@code output_modalities[].supported_parameters.max_tokens.max}）。
+     * 未知时为 null，表示「上游未声明」，不是 0。</p>
+     */
+    private Long maxOutputTokens;
+
+    /**
      * 缓存命中输入价（USD / 百万 Token）
      *
      * <p>提示词缓存命中（cache read）时的输入单价，通常为正常输入价的一半。
@@ -308,6 +318,14 @@ public class ModelDefinition {
      * <p>数据源通常无显式字段，按模型名规律（vision、-v 结尾等）推断，可被人工配置覆盖。</p>
      */
     private Boolean imageInput;
+
+    /**
+     * 是否支持文件 / 附件输入
+     *
+     * <p>与 {@link #imageInput} 区分：附件指 PDF、文档等非图片文件。
+     * 来自数据源的 {@code attachment} 字段（models.dev / 服务商模型目录）。</p>
+     */
+    private Boolean attachment;
 
     /**
      * 是否支持函数调用（工具调用）

@@ -59,14 +59,14 @@ import java.util.function.Consumer;
  * <pre>{@code
  *   // 默认：浏览器通道，免 Cookie
  *   ChatClient client = ChatClient.create(ChatClientSetting.builder()
- *           .provider("inception")
+ *           .provider("inceptionlabs")
  *           .model("mercury-3")
  *           .build());
  *   System.out.println(client.chatSync("用一句话介绍你自己"));
  *
  *   // 纯 HTTP 通道（仅在网关已放行时有意义）
  *   ChatClient http = ChatClient.create(ChatClientSetting.builder()
- *           .provider("inception")
+ *           .provider("inceptionlabs")
  *           .appKey("cf_clearance=...; _vcrcs=...")
  *           .extraHeaders(Map.of("User-Agent", "Mozilla/5.0 ... Chrome/156.0.0.0 ...",
  *                   "x-inception-transport", "http"))
@@ -78,14 +78,28 @@ import java.util.function.Consumer;
  *   <li>{@code x-inception-transport}：{@code browser}（默认）/ {@code http}；</li>
  *   <li>{@code x-inception-headless}：{@code true}（默认）/ {@code false}，
  *       无头模式被风控判定时改成有头；</li>
- *   <li>{@code x-inception-chrome}：Chromium 可执行文件路径。</li>
+ *   <li>{@code x-inception-chrome}：Chromium 可执行文件路径；</li>
+ *   <li>{@code User-Agent}：固定 UA（浏览器通道下会同步覆盖 {@code Sec-CH-UA}）；</li>
+ *   <li>{@code x-cdp-rotate-ua}：{@code true} 时每个页面随机轮换 UA。</li>
  * </ul>
+ *
+ * <h2>浏览器生命周期</h2>
+ * <p>一个客户端对应一个浏览器进程：首次对话时启动，之后的同步 / 流式调用
+ * 都复用同一个页面，不会每次请求都重启浏览器；页面意外失效时才重建。
+ * 调用 {@link #close()} 会关闭浏览器并清理临时目录；关闭后再次调用等同于
+ * 重新创建客户端（会重新启动浏览器）。</p>
+ *
+ * <h2>上游未开放的参数</h2>
+ * <p>网页版协议只接受 {@code reasoningEffort}、{@code webSearchEnabled} 等字段，
+ * <b>不支持采样参数</b>：{@code maxTokens}、{@code temperature}、{@code topP}、
+ * {@code stop}、{@code seed} 会被客户端接收但不会发给上游，也不影响输出。
+ * 需要限制输出长度时，请在提示词或调用方做截断。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Slf4j
-@Spi({"inception", "mercury"})
+@Spi({"inceptionlabs", "mercury"})
 public class InceptionChatClient implements ChatClient {
 
     /**
@@ -498,7 +512,7 @@ public class InceptionChatClient implements ChatClient {
         long[] firstTokenAt = {0L};
         AiUsage.AiUsageBuilder usageBuilder = AiUsage.builder()
                 .model(modelOr())
-                .provider("inception")
+                .provider("inceptionlabs")
                 .startTime(startTime);
 
         try {
@@ -737,9 +751,12 @@ public class InceptionChatClient implements ChatClient {
                 boolean headless = !"false".equalsIgnoreCase(
                         control(HEADER_HEADLESS, "inception.headless", "INCEPTION_HEADLESS"));
                 String chrome = control(HEADER_CHROME, "inception.chrome", "INCEPTION_CHROME");
+                boolean rotateUa = Boolean.parseBoolean(
+                        control("x-cdp-rotate-ua", "chua.browser.rotateUserAgent", "CHUA_ROTATE_UA"));
                 transport = new InceptionBrowserTransport(baseUrl, timeoutMillis(), chrome, headless,
-                        setting.getProxy());
-                log.debug("[inception] 使用浏览器通道: {} (headless={})", baseUrl, headless);
+                        setting.getProxy(), userAgent(), rotateUa);
+                log.debug("[inception] 使用浏览器通道: {} (headless={}, rotateUa={})",
+                        baseUrl, headless, rotateUa);
             }
             return transport;
         }
@@ -869,7 +886,7 @@ public class InceptionChatClient implements ChatClient {
         return List.of(ModelDefinition.builder()
                 .id(DEFAULT_MODEL)
                 .name(DEFAULT_MODEL_NAME)
-                .provider("inception")
+                .provider("inceptionlabs")
                 .build());
     }
 

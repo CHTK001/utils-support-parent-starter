@@ -1,13 +1,12 @@
 package com.chua.dingding.support.bot;
 
+import com.chua.common.support.network.client.ClientResponse;
+import com.chua.common.support.network.client.HttpClientBuilder;
+import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.collection.wrap.Wraps;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.net.http.WebSocket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -251,11 +250,6 @@ public class DingTalkBotClient implements BotClient {
     private static final String HMAC_SHA256 = "HmacSHA256";
 
     /**
-     * 多部分表单边界前缀
-     */
-    private static final String BOUNDARY_PREFIX = "----chuaDingTalk";
-
-    /**
      * 应用凭证 ID，即钉钉 AppKey / Client ID
      */
     private String clientId;
@@ -346,7 +340,8 @@ public class DingTalkBotClient implements BotClient {
     private volatile String gatewayEndpoint;
 
     /**
-     * HTTP 客户端
+     * WebSocket 专用客户端，仅用于长连接建连；REST 请求全走
+     * {@link HttpClientFactory}，不在此持有
      */
     private volatile HttpClient httpClient;
 
@@ -1727,28 +1722,18 @@ public class DingTalkBotClient implements BotClient {
     private String uploadMedia(String mediaPath, String type) throws Exception {
         byte[] bytes = Files.readAllBytes(Paths.get(mediaPath));
         String fileName = Paths.get(mediaPath).getFileName().toString();
-        String boundary = BOUNDARY_PREFIX + System.currentTimeMillis();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        String head = "--" + boundary + "\r\n"
-                + "Content-Disposition: form-data; name=\"media\"; filename=\"" + fileName
-                + "\"\r\nContent-Type: application/octet-stream\r\n\r\n";
-        out.write(head.getBytes(StandardCharsets.UTF_8));
-        out.write(bytes);
-        out.write(("\r\n--" + boundary + "--\r\n").getBytes(StandardCharsets.UTF_8));
         String url = legacyBaseUrl + MEDIA_UPLOAD_PATH + "?access_token="
                 + URLEncoder.encode(accessTokenOrFetch(), StandardCharsets.UTF_8.name())
                 + "&type=" + type;
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .timeout(Duration.ofMillis(readTimeoutMillis))
-                .header("Content-Type", "multipart/form-data; boundary=" + boundary)
-                .POST(HttpRequest.BodyPublishers.ofByteArray(out.toByteArray()))
-                .build();
-        HttpResponse<String> response = send(request, MEDIA_UPLOAD_PATH);
+        ClientResponse response = HttpClientFactory.of(url)
+                .connectTimeout(connectTimeoutMillis)
+                .readTimeout(readTimeoutMillis)
+                .formData("media", bytes, "application/octet-stream", fileName)
+                .post();
         Map<String, Object> result = parse(response);
         int errcode = (int) longValueOrDefault(result.get("errcode"), 0L);
-        if (response.statusCode() >= 400 || errcode != 0) {
-            throw new DingTalkApiException(errcode != 0 ? errcode : response.statusCode(),
+        if (response.getStatusCode() >= 400 || errcode != 0) {
+            throw new DingTalkApiException(errcode != 0 ? errcode : response.getStatusCode(),
                     firstNonBlank(stringValue(result.get("errmsg")),
                             stringValue(result.get("message")), "素材上传失败"));
         }
@@ -1775,17 +1760,14 @@ public class DingTalkBotClient implements BotClient {
             return BotSendResult.fail(-1, "Webhook 通道不支持该消息类型");
         }
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(allowSign ? signUrl(url, signKey) : url))
-                    .timeout(Duration.ofMillis(readTimeoutMillis))
+            ClientResponse response = HttpClientFactory.of(url)
+                    .connectTimeout(connectTimeoutMillis)
+                    .readTimeout(readTimeoutMillis)
                     .header("Content-Type", "application/json;charset=utf-8")
-                    .POST(HttpRequest.BodyPublishers.ofString(Json.toJson(body),
-                            StandardCharsets.UTF_8))
-                    .build();
-            HttpResponse<String> response = httpClient.send(request,
-                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                    .body(Json.toJson(body))
+                    .post();
             Map<String, Object> result = parse(response);
-            int code = response.statusCode() >= 400 ? response.statusCode()
+            int code = response.getStatusCode() >= 400 ? response.getStatusCode()
                     : (int) longValueOrDefault(result.get("errcode"), 0L);
             if (code != 0) {
                 String errmsg = firstNonBlank(stringValue(result.get("errmsg")),
@@ -1872,21 +1854,21 @@ public class DingTalkBotClient implements BotClient {
      * @throws DingTalkApiException 请求失败或平台返回错误
      */
     private Map<String, Object> api(String path, JsonObject body, boolean authed) {
-        HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(absolute(path)))
-                .timeout(Duration.ofMillis(readTimeoutMillis))
+        HttpClientBuilder builder = HttpClientFactory.of(absolute(path))
+                .connectTimeout(connectTimeoutMillis)
+                .readTimeout(readTimeoutMillis)
                 .header("Content-Type", "application/json;charset=utf-8");
         if (authed) {
             builder.header("x-acs-dingtalk-access-token", accessTokenOrFetch());
         }
-        HttpRequest request = builder
-                .POST(HttpRequest.BodyPublishers.ofString(Json.toJson(body), StandardCharsets.UTF_8))
-                .build();
-        HttpResponse<String> response = send(request, path);
+        if (body != null) {
+            builder.body(Json.toJson(body));
+        }
+        ClientResponse response = builder.post();
         Map<String, Object> result = parse(response);
-        if (response.statusCode() >= 400) {
-            throw new DingTalkApiException(response.statusCode(),
-                    describeApiError(result, response.body()));
+        if (response.getStatusCode() >= 400) {
+            throw new DingTalkApiException(response.getStatusCode(),
+                    describeApiError(result, response.getBodyString()));
         }
         return result;
     }
@@ -1924,33 +1906,14 @@ public class DingTalkBotClient implements BotClient {
      * @return 响应体
      */
     private Map<String, Object> apiQuiet(String path, JsonObject body) {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(absolute(path)))
-                .timeout(Duration.ofMillis(readTimeoutMillis))
-                .header("Content-Type", "application/json;charset=utf-8")
-                .POST(HttpRequest.BodyPublishers.ofString(Json.toJson(body), StandardCharsets.UTF_8))
-                .build();
-        return parse(send(request, path));
-    }
-
-    /**
-     * 执行 HTTP 请求
-     *
-     * @param request 请求
-     * @param path    接口路径，用于错误描述
-     * @return HTTP 响应
-     * @throws DingTalkApiException 请求失败
-     */
-    private HttpResponse<String> send(HttpRequest request, String path) {
-        try {
-            return httpClient.send(request,
-                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new DingTalkApiException(-1, "请求被中断: " + path);
-        } catch (IOException e) {
-            throw new DingTalkApiException(-1, "请求失败: " + path + " " + e.getMessage());
+        HttpClientBuilder builder = HttpClientFactory.of(absolute(path))
+                .connectTimeout(connectTimeoutMillis)
+                .readTimeout(readTimeoutMillis)
+                .header("Content-Type", "application/json;charset=utf-8");
+        if (body != null) {
+            builder.body(Json.toJson(body));
         }
+        return parse(builder.execute());
     }
 
     /**
@@ -1959,8 +1922,8 @@ public class DingTalkBotClient implements BotClient {
      * @param response HTTP 响应
      * @return 响应体映射，空体返回空映射
      */
-    private Map<String, Object> parse(HttpResponse<String> response) {
-        JsonObject json = objectValue(response.body());
+    private Map<String, Object> parse(ClientResponse response) {
+        JsonObject json = objectValue(response.getBodyString());
         return json == null ? Wraps.linkedMap() : json;
     }
 

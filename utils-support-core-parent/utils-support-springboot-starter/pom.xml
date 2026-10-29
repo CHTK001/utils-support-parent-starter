@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-core-parent</artifactId>
-        <version>4.0.0.42</version>
+        <version>4.0.0.43</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>utils-support-springboot-starter</artifactId>
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-datasource-starter</artifactId>
-            <version>4.0.0.42</version>
+            <version>${project.version}</version>
             <optional>true</optional>
         </dependency>
 

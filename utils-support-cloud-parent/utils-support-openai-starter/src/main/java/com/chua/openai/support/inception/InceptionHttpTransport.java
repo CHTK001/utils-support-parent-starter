@@ -1,27 +1,27 @@
 package com.chua.openai.support.inception;
 
 import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.network.client.ClientResponse;
+import com.chua.common.support.network.client.HttpClientBuilder;
+import com.chua.common.support.network.client.HttpClientFactory;
+import com.chua.common.support.network.http.HttpMethod;
+import com.chua.common.support.network.sse.SseClient;
+import com.chua.common.support.network.sse.SseConnection;
+import com.chua.common.support.network.sse.SseListener;
+import com.chua.common.support.network.sse.SseRequest;
 import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.ProxySelector;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 纯 HTTP 版 Inception 传输通道
  *
- * <p>用 JDK {@link HttpClient} 直接访问 {@code /api/session} 与 {@code /api/chat}。
+ * <p>通过仓库统一的 {@link HttpClientFactory} 访问 {@code /api/session}，并通过
+ * {@link SseClient} SPI 订阅 {@code /api/chat} 的事件流。
  * 由于站点前置了 Vercel 安全网关（按 TLS / HTTP2 指纹判定），在官方域名上
  * 直接使用通常会被 HTTP 429 拒绝；本通道适用于：</p>
  * <ul>
@@ -55,6 +55,11 @@ public final class InceptionHttpTransport implements InceptionTransport {
             + "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36";
 
     /**
+     * 连接超时（毫秒）
+     */
+    private static final long CONNECT_TIMEOUT_MILLIS = 30000L;
+
+    /**
      * 站点根地址
      */
     private final String baseUrl;
@@ -75,9 +80,9 @@ public final class InceptionHttpTransport implements InceptionTransport {
     private final long timeoutMillis;
 
     /**
-     * HTTP 客户端
+     * 代理地址（{@code host:port}），可为空
      */
-    private final HttpClient httpClient;
+    private final String proxy;
 
     /**
      * 构造 HTTP 通道
@@ -94,36 +99,76 @@ public final class InceptionHttpTransport implements InceptionTransport {
         this.cookie = cookie;
         this.userAgent = StringUtils.isBlank(userAgent) ? DEFAULT_USER_AGENT : userAgent;
         this.timeoutMillis = timeoutMillis;
-        HttpClient.Builder builder = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_1_1)
-                .connectTimeout(Duration.ofSeconds(30));
-        ProxySelector selector = proxySelector(proxy);
-        if (selector != null) {
-            builder.proxy(selector);
-        }
-        this.httpClient = builder.build();
+        this.proxy = normalizeProxy(proxy);
     }
 
     @Override
     public void chat(String payloadJson, InceptionStreamListener listener) throws Exception {
         String token = readSessionToken();
-        HttpRequest request = newRequestBuilder(URI.create(baseUrl + CHAT_PATH))
-                .header("Accept", "text/event-stream")
-                .header("x-session-token", token)
-                .POST(HttpRequest.BodyPublishers.ofString(payloadJson, StandardCharsets.UTF_8))
+        InceptionStreamParser parser = new InceptionStreamParser(listener);
+        CountDownLatch done = new CountDownLatch(1);
+        Throwable[] failure = new Throwable[1];
+        SseConnection[] holder = new SseConnection[1];
+
+        Map<String, String> headers = new LinkedHashMap<>(commonHeaders());
+        headers.put("Accept", "text/event-stream");
+        headers.put("x-session-token", token);
+
+        SseRequest request = SseRequest.builder()
+                .url(baseUrl + CHAT_PATH)
+                .method(HttpMethod.POST)
+                .headers(headers)
+                .body(payloadJson)
+                .connectTimeout(CONNECT_TIMEOUT_MILLIS)
+                .readTimeout(timeoutMillis)
                 .build();
 
-        HttpResponse<Stream<String>> response = httpClient.send(
-                request, HttpResponse.BodyHandlers.ofLines());
-        if (response.statusCode() != 200) {
-            throw new IllegalStateException(describeFailure(response.statusCode(), response.body()));
-        }
+        SseConnection connection = SseClient.create().connect(request, new SseListener() {
+            /**
+             * 收到 SSE 数据帧
+             *
+             * @param data data 内容
+             */
+            @Override
+            public void onData(String data) {
+                // 复用既有行解析器：把负载还原成一行 SSE 再喂入
+                parser.feed("data: " + data + "\n");
+            }
 
-        InceptionStreamParser parser = new InceptionStreamParser(listener);
-        try (Stream<String> lines = response.body()) {
-            lines.forEach(line -> parser.feed(line + "\n"));
+            /**
+             * 流式连接正常结束
+             */
+            @Override
+            public void onComplete() {
+                done.countDown();
+            }
+
+            /**
+             * 流式连接异常结束
+             *
+             * @param error 异常信息
+             */
+            @Override
+            public void onError(Throwable error) {
+                failure[0] = error;
+                done.countDown();
+            }
+        });
+        holder[0] = connection;
+
+        long waitMillis = timeoutMillis > 0L ? timeoutMillis + 60_000L : 0L;
+        if (waitMillis > 0L) {
+            if (!done.await(waitMillis, TimeUnit.MILLISECONDS)) {
+                connection.close();
+                throw new IllegalStateException("Inception 流式响应超时（" + waitMillis + "ms 未结束）");
+            }
+        } else {
+            done.await();
         }
         parser.flush();
+        if (failure[0] != null) {
+            throw new IllegalStateException("Inception 流式请求失败: " + failure[0].getMessage(), failure[0]);
+        }
         if (parser.error() != null) {
             throw new IllegalStateException("Inception 上游返回错误: " + parser.error());
         }
@@ -134,65 +179,85 @@ public final class InceptionHttpTransport implements InceptionTransport {
      *
      * @return 会话 token，可能为空串
      */
-    private String readSessionToken() throws IOException, InterruptedException {
-        HttpRequest request = newRequestBuilder(URI.create(baseUrl + SESSION_PATH))
+    private String readSessionToken() {
+        ClientResponse response = newBuilder(SESSION_PATH)
                 .header("Accept", "application/json")
-                .GET()
-                .build();
-        HttpResponse<String> response = httpClient.send(request,
-                HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-        if (response.statusCode() != 200) {
-            throw new IllegalStateException(describeFailure(response.statusCode(), Stream.of(response.body())));
+                .readTimeout(timeoutMillis > 0L ? timeoutMillis : 60000L)
+                .get();
+        String body = response.getBodyString();
+        if (response.getStatusCode() != 200) {
+            throw new IllegalStateException(describeFailure(response.getStatusCode(), body));
         }
-        Map<String, Object> body;
+        Map<String, Object> parsed;
         try {
-            body = Json.fromJson(response.body());
+            parsed = Json.fromJson(body);
         } catch (Exception e) {
-            throw new IllegalStateException("解析 /api/session 响应失败: " + truncate(response.body()), e);
+            throw new IllegalStateException("解析 /api/session 响应失败: " + truncate(body), e);
         }
-        if (body == null) {
+        if (parsed == null) {
             return "";
         }
-        Object token = body.get("token");
+        Object token = parsed.get("token");
         return token instanceof String str ? str : "";
     }
 
     /**
-     * 创建带公共请求头的构建器
+     * 创建带公共配置的请求构建器
      *
-     * @param uri 目标地址
+     * @param path 请求路径（含前导斜杠）
      * @return 请求构建器
      */
-    private HttpRequest.Builder newRequestBuilder(URI uri) {
-        HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(uri)
-                .timeout(Duration.ofMillis(timeoutMillis))
-                .header("Content-Type", "application/json")
-                .header("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8")
-                .header("Origin", baseUrl)
-                .header("Referer", baseUrl + "/")
-                .header("User-Agent", userAgent);
-        if (StringUtils.isNotBlank(cookie)) {
-            builder.header("Cookie", cookie);
+    private HttpClientBuilder newBuilder(String path) {
+        HttpClientBuilder builder = HttpClientFactory.of(baseUrl)
+                .path(path)
+                .connectTimeout(CONNECT_TIMEOUT_MILLIS);
+        commonHeaders().forEach(builder::header);
+        if (proxy != null) {
+            int idx = proxy.lastIndexOf(':');
+            try {
+                builder.proxy(proxy.substring(0, idx), Integer.parseInt(proxy.substring(idx + 1)));
+            } catch (RuntimeException e) {
+                log.warn("[inception] 代理端口非法，已忽略: {}", proxy);
+            }
         }
         return builder;
     }
 
     /**
-     * 组装错误信息
+     * 组装公共请求头
      *
-     * @param status 状态码
-     * @param body   响应体
-     * @return 错误描述
+     * @return 请求头
      */
-    private static String describeFailure(int status, Stream<String> body) {
-        StringBuilder snippet = new StringBuilder();
-        try (Stream<String> lines = body) {
-            lines.limit(20).forEach(line -> snippet.append(line).append('\n'));
-        } catch (Exception e) {
-            snippet.append("<读取响应体失败: ").append(e.getMessage()).append('>');
+    private Map<String, String> commonHeaders() {
+        Map<String, String> headers = new LinkedHashMap<>();
+        headers.put("Content-Type", "application/json");
+        headers.put("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8");
+        headers.put("Origin", baseUrl);
+        headers.put("Referer", baseUrl + "/");
+        headers.put("User-Agent", userAgent);
+        if (StringUtils.isNotBlank(cookie)) {
+            headers.put("Cookie", cookie);
         }
-        return describeFailure(status, snippet.toString());
+        return headers;
+    }
+
+    /**
+     * 规范化代理地址：剥离协议前缀，保留 {@code host:port}
+     *
+     * @param proxyStr 原始代理地址
+     * @return {@code host:port}；未配置返回 null
+     */
+    private static String normalizeProxy(String proxyStr) {
+        if (StringUtils.isBlank(proxyStr)) {
+            return null;
+        }
+        String hostPort = proxyStr.trim();
+        int sep = hostPort.indexOf("://");
+        if (sep >= 0) {
+            hostPort = hostPort.substring(sep + 3);
+        }
+        int idx = hostPort.lastIndexOf(':');
+        return idx > 0 && idx < hostPort.length() - 1 ? hostPort : null;
     }
 
     /**
@@ -225,47 +290,5 @@ public final class InceptionHttpTransport implements InceptionTransport {
         }
         String trimmed = text.trim();
         return trimmed.length() <= 400 ? trimmed : trimmed.substring(0, 400) + "...";
-    }
-
-    /**
-     * 解析代理地址
-     *
-     * @param proxyStr 代理地址，支持 http://、socks5://
-     * @return 代理选择器，未配置返回 null
-     */
-    private static ProxySelector proxySelector(String proxyStr) {
-        if (StringUtils.isBlank(proxyStr)) {
-            return null;
-        }
-        Proxy.Type proxyType;
-        String hostPort;
-        String text = proxyStr.trim();
-        if (text.startsWith("socks5://") || text.startsWith("socks://")) {
-            proxyType = Proxy.Type.SOCKS;
-            hostPort = text.substring(text.indexOf("://") + 3);
-        } else if (text.startsWith("http://")) {
-            proxyType = Proxy.Type.HTTP;
-            hostPort = text.substring(7);
-        } else if (text.startsWith("https://")) {
-            proxyType = Proxy.Type.HTTP;
-            hostPort = text.substring(8);
-        } else {
-            proxyType = Proxy.Type.HTTP;
-            hostPort = text;
-        }
-        String[] parts = hostPort.split(":");
-        String host = parts[0];
-        int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 80;
-        final Proxy proxy = new Proxy(proxyType, new InetSocketAddress(host, port));
-        return new ProxySelector() {
-            @Override
-            public List<Proxy> select(URI uri) {
-                return List.of(proxy);
-            }
-
-            @Override
-            public void connectFailed(URI uri, java.net.SocketAddress sa, IOException ioe) {
-            }
-        };
     }
 }

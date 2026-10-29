@@ -1,0 +1,2 @@
+jvppeteer-qwen-proxy=com.chua.jvppeteer.support.qwen.QwenProxyChatClient
+jvppeteer-doubao-proxy=com.chua.jvppeteer.support.doubao.DoubaoProxyChatClient

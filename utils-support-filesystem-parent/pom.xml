@@ -4,12 +4,12 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-parent-starter</artifactId>
-        <version>4.0.0.42</version>
+        <version>4.0.0.43</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>com.chua</groupId>
     <artifactId>utils-support-filesystem-parent</artifactId>
-    <version>4.0.0.42</version>
+    <version>4.0.0.43</version>
     <packaging>pom</packaging>
     <name>Utils Support Filesystem Parent</name>
     <description>鏂囦欢绯荤粺鐖舵ā鍧楋紝鎻愪緵绯荤粺鏃ュ織妫€绱㈢瓑鍔熻兘</description>

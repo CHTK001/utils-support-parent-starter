@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-network-parent</artifactId>
+        <version>4.0.0.43</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-cdp-starter</artifactId>
+    <name>Utils Support CDP Starter</name>
+    <description>轻量 CDP 浏览器抓取：复用 common-starter 内置的 JDK CDP 引擎，零第三方浏览器依赖，与 playwright/jvppeteer 的 SPI 对等</description>
+    <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-crawler-starter</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

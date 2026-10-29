@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-parent-starter</artifactId>
-        <version>4.0.0.42</version>
+        <version>4.0.0.43</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>utils-support-network-parent</artifactId>
@@ -22,6 +22,7 @@
         <module>utils-support-okhttp-starter</module>
         <module>utils-support-retrofit-starter</module>
         <module>utils-support-dht-starter</module>
+        <module>utils-support-duckduckgo-starter</module>
         <module>utils-support-webdav-starter</module>
         <module>utils-support-rpc-sofa-starter</module>
         <module>utils-support-rpc-json-starter</module>
@@ -29,6 +30,8 @@
         <module>utils-support-rpc-zmq-starter</module>
         <module>utils-support-kitesurf-starter</module>
         <module>utils-support-playwright-starter</module>
+        <module>utils-support-jvppeteer-starter</module>
+        <module>utils-support-cdp-starter</module>
         <module>utils-support-kimi-starter</module>
         <module>utils-support-armeria-starter</module>
         <module>utils-support-sinch-starter</module>
@@ -40,6 +43,7 @@
         <module>utils-support-tshark-starter</module>
         <module>utils-support-smb-starter</module>
         <module>utils-support-ngrok-starter</module>
+        <module>utils-support-cloudflared-starter</module>
         <module>utils-support-git-starter</module>
         <module>utils-support-kcp-starter</module>
         <module>utils-support-webview-starter</module>

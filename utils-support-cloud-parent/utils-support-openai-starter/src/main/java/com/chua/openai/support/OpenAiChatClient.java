@@ -693,7 +693,9 @@ public class OpenAiChatClient implements ChatClient {
  // 构建 打开AI HTTP 客户端
             OpenAIOkHttpClient.Builder clientBuilder = OpenAIOkHttpClient.builder()
                     .baseUrl(actualBaseUrl)
-                    .timeout((setting != null && setting.getTimeoutMillis() != null && setting.getTimeoutMillis() > 0L) ? Duration.ofMillis(setting.getTimeoutMillis()) : Duration.ofSeconds(90));
+                    .timeout((setting != null && setting.getTimeoutMillis() != null && setting.getTimeoutMillis() > 0L)
+                            ? Duration.ofMillis(setting.getTimeoutMillis())
+                            : Duration.ofSeconds(90));
 
             // 认证头解析：SDK 的 apiKey() 恒产生 Authorization: Bearer <key>，
             // 无法表达「api-key: <key>」这类非标准方案（如 Dots Studio 只认 api-key 头）。
@@ -732,6 +734,7 @@ public class OpenAiChatClient implements ChatClient {
                     clientBuilder.putHeader(entry.getKey(), entry.getValue());
                 }
             }
+            configureClientBuilder(clientBuilder);
             client = clientBuilder.build();
 
             // 发送开始事件
@@ -1120,7 +1123,6 @@ public class OpenAiChatClient implements ChatClient {
 
     /**
      * 附加
-     * @param  附加
      * @param additionalProps additionalprops
      * @return extractReasonML的结果
      */
@@ -1197,5 +1199,17 @@ public class OpenAiChatClient implements ChatClient {
     @Override
     public String getModel() {
         return model;
+    }
+
+    /**
+     * 子类钩子：在构建 OpenAI HTTP 客户端之前自定义 builder。
+     *
+     * <p>默认空实现。EacChatClient 覆写此方法注入 HMAC 签名拦截器，
+     * 其余子类（如 Kilo keyless）无需干预。</p>
+     *
+     * @param builder OpenAI OkHttp 客户端构建器
+     */
+    protected void configureClientBuilder(OpenAIOkHttpClient.Builder builder) {
+        // 默认空实现，子类可覆写
     }
 }
