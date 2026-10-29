@@ -81,7 +81,8 @@ public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>OpenDocument " +
                 "Preview</title></head><body>");
-        sb.append("<div id=\"app\" style=\"height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f5f5f5\">");
+        sb.append("<div id=\"app\" style=\"height:100vh;width:100%;display:flex;"
+                + "flex-direction:column;align-items:center;justify-content:center;background:#f5f5f5\">");
         sb.append("<div style=\"text-align:center;padding:40px;background:#fff;border-radius:12px;box-shadow:0 " +
                 "2px 12px rgba(0,0,0,0.1);max-width:600px;width:90%\">");
         sb.append("<svg style=\"width:64px;height:64px;margin-bottom:16px\" viewBox=\"0 0 24 24\" " +

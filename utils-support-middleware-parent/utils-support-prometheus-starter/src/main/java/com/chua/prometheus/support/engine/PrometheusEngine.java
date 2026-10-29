@@ -347,7 +347,8 @@ public class PrometheusEngine implements Engine {
      */
     @Override
     public int execute(String ql, Object... params) {
-        throw new UnsupportedOperationException("Prometheus 引擎为只读数据源，不支持数据操作语句，请使用 queryInstant(promql) 执行 PromQL 即时查询");
+        throw new UnsupportedOperationException("Prometheus 引擎为只读数据源，不支持数据操作语句，" +
+                "请使用 queryInstant(promql) 执行 PromQL 即时查询");
     }
 
     /**

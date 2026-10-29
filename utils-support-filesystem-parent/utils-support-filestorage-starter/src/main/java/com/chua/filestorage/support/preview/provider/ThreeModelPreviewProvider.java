@@ -57,7 +57,8 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
                         // canvas（app.innerHTML='' 后 appendChild），放在里面会被一起清掉，
                         // 于是失败回调 sh() 去写 #error 时抛 null，把真实失败原因盖掉，
                         // 页面只剩一个永远转不完的「加载中」。
-                        "<div id=\"loading\" style=\"position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);" +
+                        "<div id=\"loading\" style=\"position:absolute;top:50%;left:50%;"
+                        + "transform:translate(-50%,-50%);" +
                         "color:#aaa;font-family:sans-serif;font-size:14px\">加载 3D 模型中...</div>" +
                         "<div id=\"error\"></div>")
                 .embeddedCss("body{margin:0;padding:0;overflow:hidden;background:#1a1a2e}" +
