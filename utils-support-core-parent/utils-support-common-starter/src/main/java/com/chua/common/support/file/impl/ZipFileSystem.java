@@ -60,6 +60,11 @@ import java.util.zip.ZipInputStream;
  */
 @Spi({"zip"})
 public class ZipFileSystem implements FileSystem {
+    /**
+     * 纯数字文件名判断（预编译复用，避免循环内重复编译正则）
+     */
+    private static final java.util.regex.Pattern DIGITS_PATTERN = java.util.regex.Pattern.compile("\\d+");
+
 
     /**
      * 获取Type
@@ -199,7 +204,7 @@ public class ZipFileSystem implements FileSystem {
                 for (File f : files) {
                     String name = f.getName();
                     String ext = name.substring(prefix.length());
-                    if (ext.matches("\\d+")) {
+                    if (DIGITS_PATTERN.matcher(ext).matches()) {
                         sortedFiles.add(f);
                     }
                 }

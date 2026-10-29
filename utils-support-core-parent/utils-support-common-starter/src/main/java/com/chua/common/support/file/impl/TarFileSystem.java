@@ -83,6 +83,11 @@ import java.util.zip.GZIPOutputStream;
  */
 @Spi("tar")
 public class TarFileSystem implements FileSystem {
+    /**
+     * 纯数字文件名判断（预编译复用，避免循环内重复编译正则）
+     */
+    private static final java.util.regex.Pattern DIGITS_PATTERN = java.util.regex.Pattern.compile("\\d+");
+
 
     /**
      * 读写缓冲区的字节数
@@ -233,7 +238,7 @@ public class TarFileSystem implements FileSystem {
                 for (File f : files) {
                     String name = f.getName();
                     String ext = name.substring(prefix.length());
-                    if (ext.matches("\\d+")) {
+                    if (DIGITS_PATTERN.matcher(ext).matches()) {
                         sortedFiles.add(f);
                     }
                 }
