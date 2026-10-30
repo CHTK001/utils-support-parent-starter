@@ -60,25 +60,33 @@ public class IpFilter implements ServerFilter {
 
     /**
      * 添加Whitelist
-     */
+     * @param ip 字符串
+     * @return 返回值
+    */
     public void addWhitelist(String ip) {
         whitelist.add(ip);
     }
     /**
      * 添加Blacklist
-     */
+     * @param ip 字符串
+     * @return 返回值
+    */
     public void addBlacklist(String ip) {
         blacklist.add(ip);
     }
     /**
      * 移除Whitelist
-     */
+     * @param ip 字符串
+     * @return 返回值
+    */
     public void removeWhitelist(String ip) {
         whitelist.remove(ip);
     }
     /**
      * 移除Blacklist
-     */
+     * @param ip 字符串
+     * @return 返回值
+    */
     public void removeBlacklist(String ip) {
         blacklist.remove(ip);
     }

@@ -1220,9 +1220,9 @@ onSignalClosed(clientId);
 
         /**
          * 创建角色。
-         *
          * @param name 名称
-         */
+         * @return 返回值
+        */
         SipDataPlaneRole(String name) {
             this.name = name;
         }

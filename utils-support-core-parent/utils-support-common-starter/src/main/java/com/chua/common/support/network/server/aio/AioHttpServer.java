@@ -883,10 +883,12 @@ public class AioHttpServer extends AbstractServer {
 
     /**
      * Future 阻塞读网络(握手与 WS 帧循环使用,虚拟线程阻塞零平台线程占用)。
-     * @param state 状态，不允许为 null
      * @param dst 方法入参 dst
+     * @param state 状态，不允许为 null
      * @param timeoutMs 超时时间毫秒数，不允许为 null
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void readNetBlocking(ConnState state, ByteBuffer dst, long timeoutMs) throws Exception {
         Integer n;
         try {
@@ -901,10 +903,12 @@ public class AioHttpServer extends AbstractServer {
 
     /**
      * Future 阻塞写网络直至缓冲排空。
-     * @param state 状态，不允许为 null
      * @param src 方法入参 src
+     * @param state 状态，不允许为 null
      * @param timeoutMs 超时时间毫秒数，不允许为 null
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void writeNetBlocking(ConnState state, ByteBuffer src, long timeoutMs) throws Exception {
         while (src.hasRemaining()) {
             Integer n;
@@ -1153,7 +1157,9 @@ public class AioHttpServer extends AbstractServer {
 
         /**
          * 进入载荷阶段(按需补掩码键)。
-         */
+         * @param masked 布尔值
+         * @return 返回值
+        */
         private void enterPayload(boolean masked) {
             if (masked && mask == null) {
                 mask = new byte[4];
@@ -1322,6 +1328,11 @@ public class AioHttpServer extends AbstractServer {
             final ByteBuffer buf = ByteBuffer.allocate(
                     Math.max(setting.getBufferSize(), READ_BUFFER_SIZE));
 
+            /**
+             * fill
+             * @return 返回值
+             * @throws IOException 异常
+            */
             private int fill() throws IOException {
                 buf.clear();
                 try {
@@ -1398,6 +1409,12 @@ public class AioHttpServer extends AbstractServer {
         long timeoutMs = Math.max(setting.getReadTimeout(), 10_000L);
         return new OutputStream() {
 
+            /**
+             * write All
+             * @param src 参数
+             * @return 返回值
+             * @throws IOException 异常
+            */
             private void writeAll(ByteBuffer src) throws IOException {
                 try {
                     writeNetBlocking(state, src, timeoutMs);
@@ -1580,9 +1597,9 @@ public class AioHttpServer extends AbstractServer {
 
         /**
          * 创建连接状态。
-         *
          * @param channel 异步通道
-         */
+         * @return 返回值
+        */
         ConnState(AsynchronousSocketChannel channel) {
             this.channel = channel;
             // 远端地址一次性预存:热路径(getRemoteAddress/IP 限流)零系统调用;
@@ -1605,6 +1622,11 @@ public class AioHttpServer extends AbstractServer {
             return wsDec;
         }
 
+        /**
+         * remote Address Or Null
+         * @param channel 参数
+         * @return 返回值
+        */
         private InetSocketAddress remoteAddressOrNull(AsynchronousSocketChannel channel) {
             try {
                 return (InetSocketAddress) channel.getRemoteAddress();
@@ -1659,6 +1681,11 @@ public class AioHttpServer extends AbstractServer {
          */
         volatile boolean handshakeDone;
 
+        /**
+         * Tls State
+         * @param engine 参数
+         * @return 返回值
+        */
         TlsState(SSLEngine engine) {
             this.engine = engine;
             this.packetSize = engine.getSession().getPacketBufferSize();
@@ -1681,6 +1708,11 @@ public class AioHttpServer extends AbstractServer {
          */
         private final java.util.function.Consumer<byte[]> sender;
 
+        /**
+         * Aio Ws Connection
+         * @param sender 参数
+         * @return 返回值
+        */
         AioWsConnection(java.util.function.Consumer<byte[]> sender) {
             this.sender = sender;
         }
@@ -1720,6 +1752,12 @@ public class AioHttpServer extends AbstractServer {
          */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
+        /**
+         * Aio Ws Request
+         * @param body 字符串
+         * @param topic 字符串
+         * @return 返回值
+        */
         AioWsRequest(String topic, String body) {
             this.topic = topic;
             this.body = body;
@@ -1780,6 +1818,11 @@ public class AioHttpServer extends AbstractServer {
          */
         private Object result;
 
+        /**
+         * Aio Ws Response
+         * @param connection 参数
+         * @return 返回值
+        */
         AioWsResponse(AioWsConnection connection) {
             this.connection = connection;
         }

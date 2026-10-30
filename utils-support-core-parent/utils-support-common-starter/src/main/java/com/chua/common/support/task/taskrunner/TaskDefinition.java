@@ -111,11 +111,12 @@ public final class TaskDefinition {
 
     /**
      * 创建任务定义（由 任务runner#任务 调用）。
-     *
-     * @param owner  所属运行器
-     * @param id     节点 标识，不为空
+     * @param Function<RunnerContext 参数
      * @param action 执行函数，不为 空
-     */
+     * @param id 节点 标识，不为空
+     * @param owner 所属运行器
+     * @return 返回值
+    */
     TaskDefinition(TaskRunner owner, String id, Function<RunnerContext, Object> action) {
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("节点 id 不能为空");

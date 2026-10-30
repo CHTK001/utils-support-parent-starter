@@ -572,9 +572,9 @@ public class GuacamoleClient {
 
         /**
          * 创建登记操作链。
-         *
          * @param client 所属客户端，不能为 空
-         */
+         * @return 返回值
+        */
         IssueOperation(GuacamoleClient client) {
             this.client = client;
         }
@@ -775,10 +775,10 @@ public class GuacamoleClient {
 
         /**
          * 创建协议枚举常量。
-         *
-         * @param value guacd 参数值
          * @param defaultPort 默认端口
-         */
+         * @param value guacd 参数值
+         * @return 返回值
+        */
         RemoteProtocol(String value, int defaultPort) {
             this.value = value;
             this.defaultPort = defaultPort;

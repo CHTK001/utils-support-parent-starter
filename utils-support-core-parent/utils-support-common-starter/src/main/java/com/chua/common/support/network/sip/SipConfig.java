@@ -367,61 +367,120 @@ public class SipConfig {
     public static class Builder {
         private final SipConfig config = new SipConfig();
 
+        /**
+         * 压缩
+         * @param compress 压缩
+         * @return 返回值
+        */
         public Builder compress(boolean compress) {
             config.compress = compress;
             return this;
         }
 
+        /**
+         * 加密
+         * @param encrypt 加密
+         * @return 返回值
+        */
         public Builder encrypt(boolean encrypt) {
             config.encrypt = encrypt;
             return this;
         }
 
+        /**
+         * compressor
+         * @param compressor 字符串
+         * @return 返回值
+        */
         public Builder compressor(String compressor) {
             config.compressor = compressor;
             return this;
         }
 
+        /**
+         * cipher
+         * @param cipher 字符串
+         * @return 返回值
+        */
         public Builder cipher(String cipher) {
             config.cipher = cipher;
             return this;
         }
 
+        /**
+         * token
+         * @param token 字符串
+         * @return 返回值
+        */
         public Builder token(String token) {
             config.token = token;
             return this;
         }
 
+        /**
+         * 设置主机地址
+         * @param host 设置主机地址
+         * @return 返回值
+        */
         public Builder host(String host) {
             config.host = host;
             return this;
         }
 
+        /**
+         * 设置端口号
+         * @param port 设置端口号
+         * @return 返回值
+        */
         public Builder port(int port) {
             config.port = port;
             return this;
         }
 
+        /**
+         * data Plane Mode
+         * @param dataPlaneMode 字符串
+         * @return 返回值
+        */
         public Builder dataPlaneMode(String dataPlaneMode) {
             config.dataPlaneMode = dataPlaneMode;
             return this;
         }
 
+        /**
+         * min Frame Interval Ns
+         * @param minFrameIntervalNs 长整数
+         * @return 返回值
+        */
         public Builder minFrameIntervalNs(long minFrameIntervalNs) {
             config.minFrameIntervalNs = minFrameIntervalNs;
             return this;
         }
 
+        /**
+         * max Auth Per Ip Per Min
+         * @param maxAuthPerIpPerMin 整数
+         * @return 返回值
+        */
         public Builder maxAuthPerIpPerMin(int maxAuthPerIpPerMin) {
             config.maxAuthPerIpPerMin = maxAuthPerIpPerMin;
             return this;
         }
 
+        /**
+         * token File
+         * @param tokenFile 字符串
+         * @return 返回值
+        */
         public Builder tokenFile(String tokenFile) {
             config.tokenFile = tokenFile;
             return this;
         }
 
+        /**
+         * 构建
+         * @return 返回值
+        */
         public SipConfig build() {
             return config;
         }

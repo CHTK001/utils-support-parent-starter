@@ -155,112 +155,222 @@ public class FtpConfig {
     public static class Builder {
         private final FtpConfig config = new FtpConfig();
 
+        /**
+         * control Port
+         * @param controlPort 整数
+         * @return 返回值
+        */
         public Builder controlPort(int controlPort) {
             config.controlPort = controlPort;
             return this;
         }
 
+        /**
+         * 设置主机地址
+         * @param host 设置主机地址
+         * @return 返回值
+        */
         public Builder host(String host) {
             config.host = host;
             return this;
         }
 
+        /**
+         * home Directory
+         * @param homeDirectory 文件
+         * @return 返回值
+        */
         public Builder homeDirectory(File homeDirectory) {
             config.homeDirectory = homeDirectory;
             return this;
         }
 
+        /**
+         * home Directory
+         * @param homeDirectory 字符串
+         * @return 返回值
+        */
         public Builder homeDirectory(String homeDirectory) {
             config.homeDirectory = new File(homeDirectory);
             return this;
         }
 
+        /**
+         * anonymous Enabled
+         * @param anonymousEnabled 布尔值
+         * @return 返回值
+        */
         public Builder anonymousEnabled(boolean anonymousEnabled) {
             config.anonymousEnabled = anonymousEnabled;
             return this;
         }
 
+        /**
+         * anonymous Write Enabled
+         * @param anonymousWriteEnabled 布尔值
+         * @return 返回值
+        */
         public Builder anonymousWriteEnabled(boolean anonymousWriteEnabled) {
             config.anonymousWriteEnabled = anonymousWriteEnabled;
             return this;
         }
 
+        /**
+         * max Connections
+         * @param maxConnections 整数
+         * @return 返回值
+        */
         public Builder maxConnections(int maxConnections) {
             config.maxConnections = maxConnections;
             return this;
         }
 
+        /**
+         * passive Port Range
+         * @param max 整数
+         * @param min 整数
+         * @return 返回值
+        */
         public Builder passivePortRange(int min, int max) {
             config.passivePortMin = min;
             config.passivePortMax = max;
             return this;
         }
 
+        /**
+         * passive Mode
+         * @param passiveMode 布尔值
+         * @return 返回值
+        */
         public Builder passiveMode(boolean passiveMode) {
             config.passiveMode = passiveMode;
             return this;
         }
 
+        /**
+         * ssl Enabled
+         * @param sslEnabled 布尔值
+         * @return 返回值
+        */
         public Builder sslEnabled(boolean sslEnabled) {
             config.sslEnabled = sslEnabled;
             return this;
         }
 
+        /**
+         * cert Path
+         * @param certPath 字符串
+         * @return 返回值
+        */
         public Builder certPath(String certPath) {
             config.certPath = certPath;
             return this;
         }
 
+        /**
+         * key Path
+         * @param keyPath 字符串
+         * @return 返回值
+        */
         public Builder keyPath(String keyPath) {
             config.keyPath = keyPath;
             return this;
         }
 
+        /**
+         * key Password
+         * @param keyPassword 字符串
+         * @return 返回值
+        */
         public Builder keyPassword(String keyPassword) {
             config.keyPassword = keyPassword;
             return this;
         }
 
+        /**
+         * trust All
+         * @param trustAll 布尔值
+         * @return 返回值
+        */
         public Builder trustAll(boolean trustAll) {
             config.trustAll = trustAll;
             return this;
         }
 
+        /**
+         * self Signed Auto
+         * @param selfSignedAuto 布尔值
+         * @return 返回值
+        */
         public Builder selfSignedAuto(boolean selfSignedAuto) {
             config.selfSignedAuto = selfSignedAuto;
             return this;
         }
 
+        /**
+         * control Timeout
+         * @param controlTimeout 整数
+         * @return 返回值
+        */
         public Builder controlTimeout(int controlTimeout) {
             config.controlTimeout = controlTimeout;
             return this;
         }
 
+        /**
+         * data Timeout
+         * @param dataTimeout 整数
+         * @return 返回值
+        */
         public Builder dataTimeout(int dataTimeout) {
             config.dataTimeout = dataTimeout;
             return this;
         }
 
+        /**
+         * allow Anonymous Upload
+         * @param allowAnonymousUpload 布尔值
+         * @return 返回值
+        */
         public Builder allowAnonymousUpload(boolean allowAnonymousUpload) {
             config.allowAnonymousUpload = allowAnonymousUpload;
             return this;
         }
 
+        /**
+         * anonymous Upload Dir
+         * @param anonymousUploadDir 字符串
+         * @return 返回值
+        */
         public Builder anonymousUploadDir(String anonymousUploadDir) {
             config.anonymousUploadDir = anonymousUploadDir;
             return this;
         }
 
+        /**
+         * allow Passive Mode
+         * @param allowPassiveMode 布尔值
+         * @return 返回值
+        */
         public Builder allowPassiveMode(boolean allowPassiveMode) {
             config.allowPassiveMode = allowPassiveMode;
             return this;
         }
 
+        /**
+         * allow Active Mode
+         * @param allowActiveMode 布尔值
+         * @return 返回值
+        */
         public Builder allowActiveMode(boolean allowActiveMode) {
             config.allowActiveMode = allowActiveMode;
             return this;
         }
 
+        /**
+         * 构建
+         * @return 返回值
+        */
         public FtpConfig build() {
             return config;
         }
@@ -268,149 +378,338 @@ public class FtpConfig {
 
     // ======================== Getters & Setters ========================
 
+    /**
+     * get Control Port
+     * @return 返回值
+    */
     public int getControlPort() {
         return controlPort;
     }
+    /**
+     * set Control Port
+     * @param controlPort 整数
+     * @return 返回值
+    */
     public void setControlPort(int controlPort) {
         this.controlPort = controlPort;
     }
 
+    /**
+     * get Host
+     * @return 返回值
+    */
     public String getHost() {
         return host;
     }
+    /**
+     * set Host
+     * @param host 设置主机地址
+     * @return 返回值
+    */
     public void setHost(String host) {
         this.host = host;
     }
 
+    /**
+     * get Home Directory
+     * @return 返回值
+    */
     public File getHomeDirectory() {
         return homeDirectory;
     }
+    /**
+     * set Home Directory
+     * @param homeDirectory 文件
+     * @return 返回值
+    */
     public void setHomeDirectory(File homeDirectory) {
         this.homeDirectory = homeDirectory;
     }
 
+    /**
+     * is Anonymous Enabled
+     * @return 返回值
+    */
     public boolean isAnonymousEnabled() {
         return anonymousEnabled;
     }
+    /**
+     * set Anonymous Enabled
+     * @param anonymousEnabled 布尔值
+     * @return 返回值
+    */
     public void setAnonymousEnabled(boolean anonymousEnabled) {
         this.anonymousEnabled = anonymousEnabled;
     }
 
+    /**
+     * is Anonymous Write Enabled
+     * @return 返回值
+    */
     public boolean isAnonymousWriteEnabled() {
         return anonymousWriteEnabled;
     }
+    /**
+     * set Anonymous Write Enabled
+     * @param anonymousWriteEnabled 布尔值
+     * @return 返回值
+    */
     public void setAnonymousWriteEnabled(boolean anonymousWriteEnabled) {
         this.anonymousWriteEnabled = anonymousWriteEnabled;
     }
 
+    /**
+     * get Max Connections
+     * @return 返回值
+    */
     public int getMaxConnections() {
         return maxConnections;
     }
+    /**
+     * set Max Connections
+     * @param maxConnections 整数
+     * @return 返回值
+    */
     public void setMaxConnections(int maxConnections) {
         this.maxConnections = maxConnections;
     }
 
+    /**
+     * get Passive Port Min
+     * @return 返回值
+    */
     public int getPassivePortMin() {
         return passivePortMin;
     }
+    /**
+     * set Passive Port Min
+     * @param passivePortMin 整数
+     * @return 返回值
+    */
     public void setPassivePortMin(int passivePortMin) {
         this.passivePortMin = passivePortMin;
     }
 
+    /**
+     * get Passive Port Max
+     * @return 返回值
+    */
     public int getPassivePortMax() {
         return passivePortMax;
     }
+    /**
+     * set Passive Port Max
+     * @param passivePortMax 整数
+     * @return 返回值
+    */
     public void setPassivePortMax(int passivePortMax) {
         this.passivePortMax = passivePortMax;
     }
 
+    /**
+     * is Passive Mode
+     * @return 返回值
+    */
     public boolean isPassiveMode() {
         return passiveMode;
     }
+    /**
+     * set Passive Mode
+     * @param passiveMode 布尔值
+     * @return 返回值
+    */
     public void setPassiveMode(boolean passiveMode) {
         this.passiveMode = passiveMode;
     }
 
+    /**
+     * is Ssl Enabled
+     * @return 返回值
+    */
     public boolean isSslEnabled() {
         return sslEnabled;
     }
+    /**
+     * set Ssl Enabled
+     * @param sslEnabled 布尔值
+     * @return 返回值
+    */
     public void setSslEnabled(boolean sslEnabled) {
         this.sslEnabled = sslEnabled;
     }
 
+    /**
+     * get Cert Path
+     * @return 返回值
+    */
     public String getCertPath() {
         return certPath;
     }
+    /**
+     * set Cert Path
+     * @param certPath 字符串
+     * @return 返回值
+    */
     public void setCertPath(String certPath) {
         this.certPath = certPath;
     }
 
+    /**
+     * get Key Path
+     * @return 返回值
+    */
     public String getKeyPath() {
         return keyPath;
     }
+    /**
+     * set Key Path
+     * @param keyPath 字符串
+     * @return 返回值
+    */
     public void setKeyPath(String keyPath) {
         this.keyPath = keyPath;
     }
 
+    /**
+     * get Key Password
+     * @return 返回值
+    */
     public String getKeyPassword() {
         return keyPassword;
     }
+    /**
+     * set Key Password
+     * @param keyPassword 字符串
+     * @return 返回值
+    */
     public void setKeyPassword(String keyPassword) {
         this.keyPassword = keyPassword;
     }
 
+    /**
+     * is Trust All
+     * @return 返回值
+    */
     public boolean isTrustAll() {
         return trustAll;
     }
+    /**
+     * set Trust All
+     * @param trustAll 布尔值
+     * @return 返回值
+    */
     public void setTrustAll(boolean trustAll) {
         this.trustAll = trustAll;
     }
 
+    /**
+     * is Self Signed Auto
+     * @return 返回值
+    */
     public boolean isSelfSignedAuto() {
         return selfSignedAuto;
     }
+    /**
+     * set Self Signed Auto
+     * @param selfSignedAuto 布尔值
+     * @return 返回值
+    */
     public void setSelfSignedAuto(boolean selfSignedAuto) {
         this.selfSignedAuto = selfSignedAuto;
     }
 
+    /**
+     * get Control Timeout
+     * @return 返回值
+    */
     public int getControlTimeout() {
         return controlTimeout;
     }
+    /**
+     * set Control Timeout
+     * @param controlTimeout 整数
+     * @return 返回值
+    */
     public void setControlTimeout(int controlTimeout) {
         this.controlTimeout = controlTimeout;
     }
 
+    /**
+     * get Data Timeout
+     * @return 返回值
+    */
     public int getDataTimeout() {
         return dataTimeout;
     }
+    /**
+     * set Data Timeout
+     * @param dataTimeout 整数
+     * @return 返回值
+    */
     public void setDataTimeout(int dataTimeout) {
         this.dataTimeout = dataTimeout;
     }
 
+    /**
+     * is Allow Anonymous Upload
+     * @return 返回值
+    */
     public boolean isAllowAnonymousUpload() {
         return allowAnonymousUpload;
     }
+    /**
+     * set Allow Anonymous Upload
+     * @param allowAnonymousUpload 布尔值
+     * @return 返回值
+    */
     public void setAllowAnonymousUpload(boolean allowAnonymousUpload) {
         this.allowAnonymousUpload = allowAnonymousUpload;
     }
 
+    /**
+     * get Anonymous Upload Dir
+     * @return 返回值
+    */
     public String getAnonymousUploadDir() {
         return anonymousUploadDir;
     }
+    /**
+     * set Anonymous Upload Dir
+     * @param anonymousUploadDir 字符串
+     * @return 返回值
+    */
     public void setAnonymousUploadDir(String anonymousUploadDir) {
         this.anonymousUploadDir = anonymousUploadDir;
     }
 
+    /**
+     * is Allow Passive Mode
+     * @return 返回值
+    */
     public boolean isAllowPassiveMode() {
         return allowPassiveMode;
     }
+    /**
+     * set Allow Passive Mode
+     * @param allowPassiveMode 布尔值
+     * @return 返回值
+    */
     public void setAllowPassiveMode(boolean allowPassiveMode) {
         this.allowPassiveMode = allowPassiveMode;
     }
 
+    /**
+     * is Allow Active Mode
+     * @return 返回值
+    */
     public boolean isAllowActiveMode() {
         return allowActiveMode;
     }
+    /**
+     * set Allow Active Mode
+     * @param allowActiveMode 布尔值
+     * @return 返回值
+    */
     public void setAllowActiveMode(boolean allowActiveMode) {
         this.allowActiveMode = allowActiveMode;
     }

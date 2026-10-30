@@ -63,6 +63,10 @@ public class AntigravityUsageParser extends BaseUsageParser {
     private static final Pattern SETTINGS_MODEL = Pattern.compile(
             "\"model\"\\s*:\\s*\"([^\"]+)\"");
 
+    /**
+     * resolve Gemini Home
+     * @return 返回值
+    */
     private static Path resolveGeminiHome() {
         String geminiHome = System.getenv("GEMINI_HOME");
         if (geminiHome != null && !geminiHome.isBlank()) {

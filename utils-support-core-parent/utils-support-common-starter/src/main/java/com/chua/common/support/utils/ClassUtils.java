@@ -2998,6 +2998,12 @@ public class ClassUtils {
      */
     public static Map<String, Method> getMethodsByName(Class<?> type, Predicate<Method> predicate) {
             Map<String, Method> rs = Wraps.linkedMap(64);
+        /**
+         * do With Methods
+         * @param SafeConsumer<Method>( 参数
+         * @param type 参数
+         * @return 返回值
+        */
         doWithMethods(type, new SafeConsumer<Method>() {
             /**
              * 安全回调：注册方法的原始名与驼峰名映射

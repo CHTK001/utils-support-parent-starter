@@ -266,6 +266,12 @@ public final class CmdExecutors {
      */
     public static CompletableFuture<CmdResult> executeAsync(String command) {
         CompletableFuture<CmdResult> future = new CompletableFuture<>();
+        /**
+         * Cmd Callback
+         * @param CmdCallback( 参数
+         * @param command 参数
+         * @return 返回值
+        */
         executeAsync(command, new CmdCallback() {
             /**
              * OnComplete
@@ -296,6 +302,14 @@ public final class CmdExecutors {
      */
     public static CompletableFuture<CmdResult> executeAsync(String command, long timeout, TimeUnit unit) {
         CompletableFuture<CmdResult> future = new CompletableFuture<>();
+        /**
+         * Cmd Callback
+         * @param CmdCallback( 参数
+         * @param command 参数
+         * @param timeout 参数
+         * @param unit 参数
+         * @return 返回值
+        */
         executeAsync(command, timeout, unit, new CmdCallback() {
             /**
              * OnComplete

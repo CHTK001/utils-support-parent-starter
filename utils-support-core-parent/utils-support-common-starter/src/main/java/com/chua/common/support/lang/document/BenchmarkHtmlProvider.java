@@ -275,24 +275,48 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
                   chart.setOption(option);
                   window.addEventListener('resize', () => chart.resize());
                 }
+                /**
+                 * init Chart
+                 * @param 'chartRate' 参数
+                 * @param { 参数
+                 * @return 返回值
+                */
                 initChart('chartRate', {
                   tooltip: { trigger: 'axis' }, legend: { bottom: 0 },
                   xAxis: { type: 'category', data: VUS, axisLine: { lineStyle: { color: '#cbd5e1' } } },
                   yAxis: { type: 'value', min: 0, max: 100, name: '成功率 %%', splitLine: { lineStyle: { color: '#f1f5f9' } } },
                   series: mkSeries(rateData, 'rate', 'bar'),
                 });
+                /**
+                 * init Chart
+                 * @param 'chartP95' 参数
+                 * @param { 参数
+                 * @return 返回值
+                */
                 initChart('chartP95', {
                   tooltip: { trigger: 'axis' }, legend: { bottom: 0 },
                   xAxis: { type: 'category', data: VUS, axisLine: { lineStyle: { color: '#cbd5e1' } } },
                   yAxis: { type: 'value', name: 'ms', splitLine: { lineStyle: { color: '#f1f5f9' } } },
                   series: mkSeries(p95Data, 'p95', 'line'),
                 });
+                /**
+                 * init Chart
+                 * @param 'chartP99' 参数
+                 * @param { 参数
+                 * @return 返回值
+                */
                 initChart('chartP99', {
                   tooltip: { trigger: 'axis' }, legend: { bottom: 0 },
                   xAxis: { type: 'category', data: VUS, axisLine: { lineStyle: { color: '#cbd5e1' } } },
                   yAxis: { type: 'value', name: 'ms', splitLine: { lineStyle: { color: '#f1f5f9' } } },
                   series: mkSeries(p99Data, 'p99', 'line'),
                 });
+                /**
+                 * init Chart
+                 * @param 'chartRps' 参数
+                 * @param { 参数
+                 * @return 返回值
+                */
                 initChart('chartRps', {
                   tooltip: { trigger: 'axis' }, legend: { bottom: 0 },
                   xAxis: { type: 'category', data: VUS, axisLine: { lineStyle: { color: '#cbd5e1' } } },

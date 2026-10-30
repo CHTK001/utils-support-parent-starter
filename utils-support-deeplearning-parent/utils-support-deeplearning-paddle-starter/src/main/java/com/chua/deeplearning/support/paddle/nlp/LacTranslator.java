@@ -69,9 +69,10 @@ public class LacTranslator implements Translator<String, String[][]> {
 
     /**
      * 加载worddic
-     *
      * @param model 模型
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void loadWordDic(Model model) throws IOException {
         try (InputStream is = open(model, "lac/word.dic", "word.dic")) {
             for (String word : Utils.readLines(is, true)) {
@@ -90,9 +91,10 @@ public class LacTranslator implements Translator<String, String[][]> {
 
     /**
      * 加载标签dic
-     *
      * @param model 模型
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void loadTagDic(Model model) throws IOException {
         try (InputStream is = open(model, "lac/tag.dic", "tag.dic")) {
             for (String word : Utils.readLines(is, true)) {
@@ -132,11 +134,11 @@ public class LacTranslator implements Translator<String, String[][]> {
 
     /**
      * 打开
-     *
      * @param model 模型
      * @param names 名称
      * @return 打开的结果
-     */
+     * @throws IOException 异常
+    */
     private InputStream open(Model model, String... names) throws IOException {
         for (String name : names) {
             try {

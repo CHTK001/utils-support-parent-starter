@@ -35,6 +35,11 @@ public class BulkheadAdvisor extends StaticMethodMatcherPointcutAdvisor {
     private static class BulkheadAdvice implements MethodInterceptor {
         private final BulkheadIntercept intercept; // intercept
 
+        /**
+         * Bulkhead Advice
+         * @param intercept 参数
+         * @return 返回值
+        */
         BulkheadAdvice(BulkheadIntercept intercept) {
             this.intercept = intercept;
         }

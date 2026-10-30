@@ -1129,6 +1129,10 @@ public class OpenAiDecisionsClient implements DecisionsClient {
         return this.protocol;
     }
 
+    /**
+     * default Base Url For Protocol
+     * @return 返回值
+    */
     private String defaultBaseUrlForProtocol() {
         String provider = setting.getProvider();
         if (protocol() == DecisionsProtocol.SYSTEMONE) {

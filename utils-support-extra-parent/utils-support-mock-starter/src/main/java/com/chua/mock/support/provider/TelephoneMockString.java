@@ -36,6 +36,11 @@ public class TelephoneMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         if (environment.nextInt(2) == 0) {
             String code = environment.randomOf(CODE_3);

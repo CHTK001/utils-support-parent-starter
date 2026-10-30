@@ -101,9 +101,9 @@ public enum HmacAlgorithm {
 
  /**
   * 构造函数，初始化算法名称。
-  *
   * @param value 算法在 JCA 中的标准名称字符串
-  */
+  * @return 返回值
+ */
  HmacAlgorithm(String value) {
  this.value = value;
  }

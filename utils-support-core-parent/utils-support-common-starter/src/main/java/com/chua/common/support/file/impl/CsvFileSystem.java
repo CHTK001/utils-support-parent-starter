@@ -101,6 +101,11 @@ public class CsvFileSystem implements FileSystem {
          */
         private char delimiter = DEFAULT_DELIMITER;
 
+        /**
+         * Csv Read Builder
+         * @param file 文件
+         * @return 返回值
+        */
         CsvReadBuilder(File file) {
             super(file);
         }
@@ -232,6 +237,11 @@ public class CsvFileSystem implements FileSystem {
          */
         private String[] header;
 
+        /**
+         * Csv Write Builder
+         * @param file 文件
+         * @return 返回值
+        */
         CsvWriteBuilder(File file) {
             super(file);
         }

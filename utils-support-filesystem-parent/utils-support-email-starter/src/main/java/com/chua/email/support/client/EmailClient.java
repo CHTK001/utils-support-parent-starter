@@ -252,6 +252,11 @@ public class EmailClient {
         */
         private Map<String, byte[]> attachments = Wraps.linkedMap();
 
+        /**
+         * Send Operation
+         * @param client 参数
+         * @return 返回值
+        */
         SendOperation(EmailClient client) {
             this.client = client;
         }
@@ -444,6 +449,11 @@ public class EmailClient {
         */
         private String searchTerm;
 
+        /**
+         * Fetch Operation
+         * @param client 参数
+         * @return 返回值
+        */
         FetchOperation(EmailClient client) {
             this.client = client;
         }
@@ -595,6 +605,11 @@ public class EmailClient {
         */
         private volatile boolean running = false;
 
+        /**
+         * Watch Operation
+         * @param client 参数
+         * @return 返回值
+        */
         WatchOperation(EmailClient client) {
             this.client = client;
         }

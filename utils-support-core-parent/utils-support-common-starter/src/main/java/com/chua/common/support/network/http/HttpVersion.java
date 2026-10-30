@@ -86,10 +86,10 @@ public enum HttpVersion {
 
     /**
      * 构造方法，创建 Http版本 实例。
-     *
      * @param major 方法入参 major
      * @param minor 方法入参 minor
-     */
+     * @return 返回值
+    */
     HttpVersion(int major, int minor) {
         this.major = major;
         this.minor = minor;

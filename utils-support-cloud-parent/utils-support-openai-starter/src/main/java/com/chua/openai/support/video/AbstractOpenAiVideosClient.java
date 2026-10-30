@@ -121,9 +121,9 @@ abstract class AbstractOpenAiVideosClient implements VideoClient {
 
     /**
      * 构造视频生成客户端。
-     *
      * @param setting 客户端配置，含 provider、appKey、baseUrl
-     */
+     * @return 返回值
+    */
     AbstractOpenAiVideosClient(VideoClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();

@@ -128,6 +128,8 @@ public class FastSamSegmentTranslator implements ITranslator<byte[], byte[]> {
 
     /**
      * Prepare
+     * @return 返回值
+     * @throws Exception 异常
     */
     private synchronized void prepare() throws Exception {
         if (session != null) {
@@ -233,10 +235,10 @@ public class FastSamSegmentTranslator implements ITranslator<byte[], byte[]> {
 
     /**
      * Segment
-     *
      * @param input 输入
      * @return segment的结果
-     */
+     * @throws Exception 异常
+    */
     public Image segment(Image input) throws Exception {
         prepare();
         srcWidth = input.getWidth();
@@ -280,11 +282,11 @@ public class FastSamSegmentTranslator implements ITranslator<byte[], byte[]> {
 
     /**
      * Postprocess
-     *
      * @param detections detections
      * @param protos Proto.io.io
      * @return postprocess的结果
-     */
+     * @throws Exception 异常
+    */
     private Image postprocess(float[] detections, float[][][] protos) throws Exception {
         int numPreds = detections.length / 37;
         int numDetections = 0;

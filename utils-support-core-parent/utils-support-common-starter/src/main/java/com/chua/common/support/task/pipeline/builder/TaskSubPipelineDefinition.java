@@ -122,11 +122,11 @@ public class TaskSubPipelineDefinition {
 
     /**
      * 构造子流水线定义。
-     *
-     * @param id           节点唯一标识
-     * @param builder      流水线构建器
-     * @param subPipeline  子流水线实例
-     */
+     * @param builder 流水线构建器
+     * @param id 节点唯一标识
+     * @param subPipeline 子流水线实例
+     * @return 返回值
+    */
     TaskSubPipelineDefinition(String id, PipelineBuilder builder, Pipeline subPipeline) {
         this.id = id;
         this.builder = builder;

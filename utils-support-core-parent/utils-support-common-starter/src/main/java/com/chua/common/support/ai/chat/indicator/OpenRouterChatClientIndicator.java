@@ -141,7 +141,8 @@ public final class OpenRouterChatClientIndicator implements ChatClientIndicator 
 
     /**
      * 取带 TTL 的快照；过期后重新抓取。
-     */
+     * @return 返回值
+    */
     private Snapshot ensureSnapshot() {
         Snapshot current = snapshot;
         long now = System.currentTimeMillis();
@@ -165,7 +166,8 @@ public final class OpenRouterChatClientIndicator implements ChatClientIndicator 
 
     /**
      * 抓取并解析；失败时返回 null，不抛出。
-     */
+     * @return 返回值
+    */
     private Snapshot fetch() {
         try {
             HttpRequest.Builder builder = HttpRequest.newBuilder()
@@ -244,7 +246,9 @@ public final class OpenRouterChatClientIndicator implements ChatClientIndicator 
 
     /**
      * 解析单个模型节点。
-     */
+     * @param item 参数
+     * @return 返回值
+    */
     private Map<String, Object> parseModel(JsonNode item) {
         Map<String, Object> metrics = new LinkedHashMap<>(24);
         JsonNode pricing = item.get("pricing");
@@ -344,6 +348,13 @@ public final class OpenRouterChatClientIndicator implements ChatClientIndicator 
         return metrics;
     }
 
+    /**
+     * read Price
+     * @param key 字符串
+     * @param modelId 字符串
+     * @param snapshot 参数
+     * @return 返回值
+    */
     private static BigDecimal readPrice(Snapshot snapshot, String modelId, String key) {
         if (snapshot == null || modelId == null) {
             return null;
@@ -362,6 +373,13 @@ public final class OpenRouterChatClientIndicator implements ChatClientIndicator 
         return null;
     }
 
+    /**
+     * read Long
+     * @param key 字符串
+     * @param modelId 字符串
+     * @param snapshot 参数
+     * @return 返回值
+    */
     private static Long readLong(Snapshot snapshot, String modelId, String key) {
         if (snapshot == null || modelId == null) {
             return null;

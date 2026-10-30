@@ -152,11 +152,12 @@ public class DataSearchServerFilter implements ServerFilter {
 
     /**
      * 分发路由
-     *
-     * @param subPath sub路径
      * @param request 请求
      * @param response 响应
-     */
+     * @param subPath sub路径
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void dispatch(String subPath, ServerRequest request, ServerResponse response) throws Exception {
         if (subPath.isEmpty() || "/".equals(subPath)) {
             write(response, 200, "ok", index());
@@ -226,11 +227,12 @@ public class DataSearchServerFilter implements ServerFilter {
 
     /**
      * 成语路由
-     *
      * @param action 动作
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleIdiom(String action, ServerRequest request, ServerResponse response) throws Exception {
         IdiomProvider provider = loadFirst(IdiomProvider.class);
         if (provider == null) {
@@ -262,11 +264,12 @@ public class DataSearchServerFilter implements ServerFilter {
 
     /**
      * 诗词路由
-     *
      * @param action 动作
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handlePoetry(String action, ServerRequest request, ServerResponse response) throws Exception {
         PoetryProvider provider = loadFirst(PoetryProvider.class);
         if (provider == null) {
@@ -292,11 +295,12 @@ public class DataSearchServerFilter implements ServerFilter {
 
     /**
      * 汉字路由
-     *
      * @param action 动作
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleHanzi(String action, ServerRequest request, ServerResponse response) throws Exception {
         HanziProvider provider = loadFirst(HanziProvider.class);
         if (provider == null) {
@@ -321,11 +325,12 @@ public class DataSearchServerFilter implements ServerFilter {
 
     /**
      * 节假日路由
-     *
      * @param action 动作
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleHoliday(String action, ServerRequest request, ServerResponse response) throws Exception {
         HolidayProvider provider = loadFirst(HolidayProvider.class);
         if (provider == null) {
@@ -365,11 +370,12 @@ public class DataSearchServerFilter implements ServerFilter {
 
     /**
      * 行政区划路由
-     *
-     * @param subPath sub路径
      * @param request 请求
      * @param response 响应
-     */
+     * @param subPath sub路径
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleRegion(String subPath, ServerRequest request, ServerResponse response) throws Exception {
         RegionProvider provider = loadFirst(RegionProvider.class);
         if (provider == null) {
@@ -389,11 +395,12 @@ public class DataSearchServerFilter implements ServerFilter {
 
     /**
      * 汇率路由
-     *
      * @param action 动作
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleExchange(String action, ServerRequest request, ServerResponse response) throws Exception {
         ExchangeRateProvider provider = loadFirst(ExchangeRateProvider.class);
         if (provider == null) {
@@ -424,11 +431,12 @@ public class DataSearchServerFilter implements ServerFilter {
 
     /**
      * 台风路由
-     *
-     * @param subPath sub路径
      * @param request 请求
      * @param response 响应
-     */
+     * @param subPath sub路径
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleTyphoon(String subPath, ServerRequest request, ServerResponse response) throws Exception {
         TyphoonProvider provider = loadFirst(TyphoonProvider.class);
         if (provider == null) {
@@ -444,11 +452,12 @@ public class DataSearchServerFilter implements ServerFilter {
 
     /**
      * 定位路由
-     *
      * @param action 动作
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleLocation(String action, ServerRequest request, ServerResponse response) throws Exception {
         LocationProvider provider = loadFirst(LocationProvider.class);
         if (provider == null) {
@@ -469,11 +478,12 @@ public class DataSearchServerFilter implements ServerFilter {
 
     /**
      * 逆地理编码路由
-     *
      * @param action 动作
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleGeocode(String action, ServerRequest request, ServerResponse response) throws Exception {
         GeocodeProvider provider = loadFirst(GeocodeProvider.class);
         if (provider == null) {
@@ -505,16 +515,13 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-     * 表情包路由。
-     *
-     * <p>支持 {@code /emoji/search?keyword=&page=&source=} 检索、
-     * {@code /emoji/sources} 数据源列表。
-     * 未指定 {@code source} 时聚合全部数据源并按原图地址去重。</p>
-     *
-     * @param subPath sub路径
+     * 表情包路由。 <p>支持 {@code /emoji/search?keyword=&page=&source=} 检索、 {@code /emoji/sources} 数据源列表。 未指定 {@code source} 时聚合全部数据源并按原图地址去重。</p>
      * @param request 请求
      * @param response 响应
-     */
+     * @param subPath sub路径
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleEmoji(String subPath, ServerRequest request, ServerResponse response) throws Exception {
         Map<String, EmojiProvider> providers = ServiceProvider.of(EmojiProvider.class).list();
         if (providers == null || providers.isEmpty()) {
@@ -572,10 +579,11 @@ public class DataSearchServerFilter implements ServerFilter {
 
     /**
      * 手机归属地路由
-     *
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handlePhone(ServerRequest request, ServerResponse response) throws Exception {
         PhoneLocationProvider provider = loadFirst(PhoneLocationProvider.class);
         if (provider == null) {
@@ -587,10 +595,11 @@ public class DataSearchServerFilter implements ServerFilter {
 
     /**
      * 星座运势路由
-     *
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleHoroscope(ServerRequest request, ServerResponse response) throws Exception {
         HoroscopeProvider provider = loadFirst(HoroscopeProvider.class);
         if (provider == null) {
@@ -602,10 +611,11 @@ public class DataSearchServerFilter implements ServerFilter {
 
     /**
      * 天气路由
-     *
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleWeather(ServerRequest request, ServerResponse response) throws Exception {
         WeatherProvider provider = loadFirst(WeatherProvider.class);
         if (provider == null) {
@@ -617,10 +627,11 @@ public class DataSearchServerFilter implements ServerFilter {
 
     /**
      * 快递路由
-     *
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleExpress(ServerRequest request, ServerResponse response) throws Exception {
         ExpressProvider provider = loadFirst(ExpressProvider.class);
         if (provider == null) {

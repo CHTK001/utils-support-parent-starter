@@ -344,7 +344,10 @@ public class TinyAiMlpClassifier implements ClassifierTask, Serializable {
 
     /**
      * 由混淆矩阵算 Kappa。
-     */
+     * @param confusion 参数
+     * @param total 整数
+     * @return 返回值
+    */
     private static double kappa(int[][] confusion, int total) {
         var classes = confusion.length;
         var rowSum = new int[classes];

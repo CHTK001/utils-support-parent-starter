@@ -34,7 +34,9 @@ public abstract class AbstractProtocolServer {
 
     /**
      * 启动服务器。
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     public void start() throws Exception {
         if (running) {
             log.warn("Server already running");
@@ -48,7 +50,9 @@ public abstract class AbstractProtocolServer {
 
     /**
      * 停止服务器。
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     public void stop() throws Exception {
         if (!running) {
             return;

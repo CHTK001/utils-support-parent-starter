@@ -406,12 +406,12 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
 
         /**
          * 构造任务条目。
-         *
-         * @param taskId     任务 ID
-         * @param type       任务类型
+         * @param client 任务所属的客户端实例
          * @param createTime 创建时间戳
-         * @param client     任务所属的客户端实例
-         */
+         * @param taskId 任务 ID
+         * @param type 任务类型
+         * @return 返回值
+        */
         TaskEntry(String taskId, String type, long createTime, ImageClient client) {
             this.taskId = taskId;
             this.type = type;

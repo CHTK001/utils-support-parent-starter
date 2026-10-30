@@ -251,7 +251,10 @@ public class WhatsAppBotClient implements BotClient {
 
     /**
      * 发送单段文本。
-     */
+     * @param content 字符串
+     * @param toUser 字符串
+     * @return 返回值
+    */
     private BotSendResult sendTextChunk(String toUser, String content) {
         Map<String, Object> text = new LinkedHashMap<>();
         text.put("preview_url", false);
@@ -262,10 +265,11 @@ public class WhatsAppBotClient implements BotClient {
     }
 
     /**
-     * 长文本按 Cloud API 上限分段发送，尽量在换行处断开。
-     *
-     * <p>任一段失败即返回该段失败结果（此前已发出的不回滚）。</p>
-     */
+     * 长文本按 Cloud API 上限分段发送，尽量在换行处断开。 <p>任一段失败即返回该段失败结果（此前已发出的不回滚）。</p>
+     * @param content 字符串
+     * @param toUser 字符串
+     * @return 返回值
+    */
     private BotSendResult sendLongText(String toUser, String content) {
         BotSendResult last = null;
         int index = 0;
@@ -350,7 +354,9 @@ public class WhatsAppBotClient implements BotClient {
 
     /**
      * 从 URL 末段推断文件名（用于 document 消息）。
-     */
+     * @param link 字符串
+     * @return 返回值
+    */
     private static String fileNameOf(String link) {
         try {
             String path = URI.create(link).getPath();
@@ -562,6 +568,12 @@ public class WhatsAppBotClient implements BotClient {
         }
     }
 
+    /**
+     * dispatch Payload
+     * @param Map<String 参数
+     * @param payload 参数
+     * @return 返回值
+    */
     private void dispatchPayload(Map<String, Object> payload) {
         Object entryObj = payload.get("entry");
         if (!(entryObj instanceof List<?> entries)) {
@@ -588,6 +600,12 @@ public class WhatsAppBotClient implements BotClient {
         }
     }
 
+    /**
+     * dispatch Messages
+     * @param Map<String 参数
+     * @param value 参数
+     * @return 返回值
+    */
     private void dispatchMessages(Map<String, Object> value) {
         Object messagesObj = value.get("messages");
         if (!(messagesObj instanceof List<?> messages)) {
@@ -660,7 +678,9 @@ public class WhatsAppBotClient implements BotClient {
 
     /**
      * 位置消息格式化为 {@code 纬度,经度}。
-     */
+     * @param locationObj 对象
+     * @return 返回值
+    */
     private static String formatLocation(Object locationObj) {
         if (locationObj instanceof Map<?, ?> locationRaw) {
             Map<String, Object> location = asMap(locationRaw);
@@ -684,6 +704,11 @@ public class WhatsAppBotClient implements BotClient {
         return null;
     }
 
+    /**
+     * map Type
+     * @param type 字符串
+     * @return 返回值
+    */
     private BotInboundMessage.Type mapType(String type) {
         if (type == null) {
             return BotInboundMessage.Type.UNKNOWN;
@@ -698,6 +723,12 @@ public class WhatsAppBotClient implements BotClient {
         };
     }
 
+    /**
+     * send Payload
+     * @param Map<String 参数
+     * @param payload 参数
+     * @return 返回值
+    */
     private BotSendResult sendPayload(Map<String, Object> payload) {
         if (phoneNumberId == null || accessToken == null) {
             return BotSendResult.fail(-1, "WhatsApp client not configured");
@@ -725,6 +756,12 @@ public class WhatsAppBotClient implements BotClient {
         }
     }
 
+    /**
+     * base Payload
+     * @param toUser 字符串
+     * @param type 字符串
+     * @return 返回值
+    */
     private Map<String, Object> basePayload(String toUser, String type) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("messaging_product", "whatsapp");
@@ -735,9 +772,12 @@ public class WhatsAppBotClient implements BotClient {
     }
 
     /**
-     * 校验 Meta 回调签名 {@code X-Hub-Signature-256}。
-     * 未配置 App Secret 时跳过（仅用于联调）。
-     */
+     * 校验 Meta 回调签名 {@code X-Hub-Signature-256}。 未配置 App Secret 时跳过（仅用于联调）。
+     * @param Map<String 参数
+     * @param body 字符串
+     * @param headers 参数
+     * @return 返回值
+    */
     private boolean verifySignature(String body, Map<String, String> headers) {
         if (appSecret == null || appSecret.isBlank()) {
             return true;
@@ -823,6 +863,11 @@ public class WhatsAppBotClient implements BotClient {
         return value;
     }
 
+    /**
+     * notify Error
+     * @param e 可抛出异常
+     * @return 返回值
+    */
     private void notifyError(Throwable e) {
         for (BotErrorListener listener : errorListeners) {
             try {
@@ -833,6 +878,11 @@ public class WhatsAppBotClient implements BotClient {
         }
     }
 
+    /**
+     * extract Message Id
+     * @param body 字符串
+     * @return 返回值
+    */
     private static String extractMessageId(String body) {
         try {
             Map<String, Object> root = Json.fromJson(body);
@@ -847,20 +897,41 @@ public class WhatsAppBotClient implements BotClient {
         return null;
     }
 
+    /**
+     * safe Body
+     * @param response 参数
+     * @return 返回值
+    */
     private static String safeBody(ClientResponse response) {
         String body = response.getBodyString();
         return body == null ? "" : body;
     }
 
     @SuppressWarnings("unchecked")
+    /**
+     * as Map
+     * @param Map<? 参数
+     * @param map 映射
+     * @return 返回值
+    */
     private static Map<String, Object> asMap(Map<?, ?> map) {
         return (Map<String, Object>) map;
     }
 
+    /**
+     * str
+     * @param value 对象
+     * @return 返回值
+    */
     private static String str(Object value) {
         return value == null ? null : String.valueOf(value);
     }
 
+    /**
+     * parse Millis
+     * @param timestamp 对象
+     * @return 返回值
+    */
     private static long parseMillis(Object timestamp) {
         if (timestamp == null) {
             return System.currentTimeMillis();

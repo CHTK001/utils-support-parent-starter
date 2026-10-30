@@ -130,6 +130,12 @@ public final class GuacamoleArtifact {
          */
         private String healthCheckUrl;
 
+        /**
+         * Guacamole Builder
+         * @param artifactId 字符串
+         * @param version 字符串
+         * @return 返回值
+        */
         GuacamoleBuilder(String artifactId, String version) {
             this.artifactId = artifactId;
             this.version = version;

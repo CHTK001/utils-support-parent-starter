@@ -247,7 +247,9 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
 
     /**
      * Do连接
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void doConnect() throws Exception {
         String url = serverUrl;
         if (!url.startsWith("ws://") && !url.startsWith("wss://")) {
@@ -315,7 +317,9 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
 
     /**
      * 读取Frames
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void readFrames() throws IOException {
         InputStream in = socket.getInputStream();
         while (connected && !socket.isClosed() && !Thread.currentThread().isInterrupted()) {

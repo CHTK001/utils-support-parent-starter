@@ -212,6 +212,12 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
          */
         private String onUpdate;
 
+        /**
+         * Mysql Foreign Key Create Builder
+         * @param fkName 字符串
+         * @param metaFk 参数
+         * @return 返回值
+        */
         MysqlForeignKeyCreateBuilder(MysqlMetaForeignKey metaFk, String fkName) {
             this.metaFk = metaFk;
             this.fkName = fkName;

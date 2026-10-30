@@ -102,10 +102,10 @@ public class FileSearchWalFileSystem implements WalFileSystem {
 
     /**
      * Glob 模式搜索 WAL 段文件。
-     *
      * @param pattern glob 模式（如 "*-000*.wal"）
      * @return 匹配的文件路径列表
-     */
+     * @throws IOException 异常
+    */
     public List<java.nio.file.Path> searchFiles(String pattern) throws IOException {
         java.nio.file.Path walDir = delegate instanceof AbstractWalFileSystem awf
                 ? awf.config().baseDir().resolve("_wal")
@@ -124,7 +124,8 @@ public class FileSearchWalFileSystem implements WalFileSystem {
      * 正则表达式搜索 WAL 段文件。
      * @param regex regex
      * @return 搜索文件的结果
-     */
+     * @throws IOException 异常
+    */
     public List<java.nio.file.Path> searchFiles(Pattern regex) throws IOException {
         java.nio.file.Path walDir = delegate instanceof AbstractWalFileSystem awf
                 ? awf.config().baseDir().resolve("_wal")
@@ -142,10 +143,11 @@ public class FileSearchWalFileSystem implements WalFileSystem {
     /**
      * 在指定 LSN 范围内搜索包含指定字节的记录（调试用）。
      * @param fromLsn 从lsn
-     * @param toLsn 转为lsn
      * @param keyword keyword
+     * @param toLsn 转为lsn
      * @return 搜索内容的结果
-     */
+     * @throws IOException 异常
+    */
     public List<WalSearchHit> searchContent(long fromLsn, long toLsn, byte[] keyword) throws IOException {
         List<WalSearchHit> hits = Wraps.list();
         // 遍历所有分片，扫描记录内容

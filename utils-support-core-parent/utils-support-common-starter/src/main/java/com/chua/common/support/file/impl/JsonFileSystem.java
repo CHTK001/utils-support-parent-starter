@@ -76,6 +76,11 @@ public class JsonFileSystem implements FileSystem {
      */
     public static class JsonReadBuilder extends ReadBuilder {
 
+        /**
+         * Json Read Builder
+         * @param file 文件
+         * @return 返回值
+        */
         JsonReadBuilder(File file) {
             super(file);
         }
@@ -224,6 +229,11 @@ public class JsonFileSystem implements FileSystem {
          */
         private boolean pretty;
 
+        /**
+         * Json Write Builder
+         * @param file 文件
+         * @return 返回值
+        */
         JsonWriteBuilder(File file) {
             super(file);
         }

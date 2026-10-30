@@ -72,11 +72,11 @@ public class SipTunnelSession {
 
     /**
      * 创建隧道会话。
-     *
-     * @param client      关联的 SIP 客户端
-     * @param channelId   通道标识
+     * @param channelId 通道标识
+     * @param client 关联的 SIP 客户端
      * @param serviceName 服务名称
-     */
+     * @return 返回值
+    */
     SipTunnelSession(SipClient client, String channelId, String serviceName) {
         this.client = client;
         this.channelId = channelId;

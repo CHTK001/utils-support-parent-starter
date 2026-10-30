@@ -1113,9 +1113,10 @@ public class IbdDataRestore extends AbstractDataRestore {
 
     /**
      * 确保目录存在。
-     *
      * @param dir 目录路径
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void ensureDir(File dir) throws Exception {
         if (dir != null && !dir.exists()) {
             boolean created = dir.mkdirs();

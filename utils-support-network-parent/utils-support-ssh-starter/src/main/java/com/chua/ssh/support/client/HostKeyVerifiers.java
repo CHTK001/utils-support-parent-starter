@@ -112,6 +112,11 @@ final class HostKeyVerifiers {
 
         private final Path knownHostsPath;
 
+        /**
+         * Accept New Server Key Verifier
+         * @param knownHostsPath 路径
+         * @return 返回值
+        */
         AcceptNewServerKeyVerifier(Path knownHostsPath) {
             this.knownHostsPath = knownHostsPath;
         }

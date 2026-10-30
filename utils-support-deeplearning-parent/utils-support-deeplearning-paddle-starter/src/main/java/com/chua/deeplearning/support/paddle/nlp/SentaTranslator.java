@@ -63,10 +63,10 @@ public class SentaTranslator implements Translator<String[], float[]> {
 
     /**
      * 打开Vocab
-     *
      * @param model 模型
      * @return 打开vocab的结果
-     */
+     * @throws IOException 异常
+    */
     private InputStream openVocab(Model model) throws IOException {
         String[] candidates = {"assets/vocab.txt", "vocab.txt", "word_dict.txt"};
         for (String name : candidates) {

@@ -192,10 +192,10 @@ public enum DataSyncErrorCode {
 
     /**
      * 构造方法，创建 数据SyncError编码 实例。
-     *
      * @param code 编码，不允许为 null
      * @param template 模板，不允许为 null
-     */
+     * @return 返回值
+    */
     DataSyncErrorCode(int code, String template) {
         this.code = code;
         this.template = template;

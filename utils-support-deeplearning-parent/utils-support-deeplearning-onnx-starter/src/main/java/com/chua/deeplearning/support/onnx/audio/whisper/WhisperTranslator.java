@@ -109,9 +109,10 @@ public class WhisperTranslator {
 
     /**
      * Prepare
-     *
      * @param modelDir 模型dir
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     public void prepare(Path modelDir) throws Exception {
         Path onnxDir = modelDir.resolve("onnx");
         Path encoderPath = Files.isDirectory(onnxDir) ? findOnnx(onnxDir, "encoder_model") : null;
@@ -149,11 +150,11 @@ public class WhisperTranslator {
 
     /**
      * 查找Onnx
-     *
      * @param dir dir
      * @param prefix 前缀
      * @return findOnnx的结果
-     */
+     * @throws IOException 异常
+    */
     private static Path findOnnx(Path dir, String prefix) throws IOException {
         try (var stream = Files.list(dir)) {
             Path result = stream
@@ -166,10 +167,11 @@ public class WhisperTranslator {
     }
 
     /**
-     * 从 类路径 jar 内按 音频/asr/whisper-tiny/ 路径解压到 模型dir。
-     * 保留子目录结构（onnx/编码器_模型_quantized.onnx 等）。
+     * 从 类路径 jar 内按 音频/asr/whisper-tiny/ 路径解压到 模型dir。 保留子目录结构（onnx/编码器_模型_quantized.onnx 等）。
      * @param modelDir 模型dir
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private static void extractFromJar(Path modelDir) throws Exception {
         final String basePath = "audio/asr/whisper-tiny";
         ClassLoader cl = WhisperTranslator.class.getClassLoader();
@@ -238,10 +240,10 @@ public class WhisperTranslator {
 
     /**
      * Transcribe
-     *
      * @param audioPath 音频路径
      * @return transcribe的结果
-     */
+     * @throws Exception 异常
+    */
     public String transcribe(Path audioPath) throws Exception {
         long start = System.currentTimeMillis();
         log.info("[Whisper] loadAudio start");
@@ -261,10 +263,10 @@ public class WhisperTranslator {
 
     /**
      * 执行transcribe
-     *
      * @param mel mel
      * @return 执行transcribe的结果
-     */
+     * @throws Exception 异常
+    */
     private String doTranscribe(float[][] mel) throws Exception {
 
         // encoder input: (1, 80, 3000) flat
@@ -395,10 +397,10 @@ public class WhisperTranslator {
 
     /**
      * 加载音频
-     *
      * @param path 路径
      * @return 加载音频的结果
-     */
+     * @throws Exception 异常
+    */
     public static float[] loadAudio(Path path) throws Exception {
         try (AudioInputStream in = AudioSystem.getAudioInputStream(new File(path.toUri()))) {
             AudioFormat fmt = in.getFormat();

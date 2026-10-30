@@ -283,6 +283,10 @@ public class AioHttpProxyServer extends AbstractServer {
             finish();
         }
 
+        /**
+         * 完成
+         * @return 返回值
+        */
         private void finish() {
             if (fired.compareAndSet(false, true)) {
                 closeQuietly(src);
@@ -650,6 +654,11 @@ public class AioHttpProxyServer extends AbstractServer {
          */
         boolean closed;
 
+        /**
+         * Client Ctx
+         * @param client 参数
+         * @return 返回值
+        */
         ClientCtx(AsynchronousSocketChannel client) {
             this.client = client;
         }
@@ -815,6 +824,10 @@ public class AioHttpProxyServer extends AbstractServer {
             head = null;
         }
 
+        /**
+         * ends With Header End
+         * @return 返回值
+        */
         private boolean endsWithHeaderEnd() {
             byte[] d = acc.toByteArray();
             int n = d.length;
@@ -822,6 +835,11 @@ public class AioHttpProxyServer extends AbstractServer {
                     && d[n - 2] == '\r' && d[n - 1] == '\n';
         }
 
+        /**
+         * 解析
+         * @param raw 字符串
+         * @return 返回值
+        */
         private RequestHead parse(String raw) {
             String[] lines = raw.split("\r\n");
             if (lines.length < 1) {
@@ -984,6 +1002,10 @@ public class AioHttpProxyServer extends AbstractServer {
             return meta;
         }
 
+        /**
+         * ends With Header End
+         * @return 返回值
+        */
         private boolean endsWithHeaderEnd() {
             byte[] d = acc.toByteArray();
             int n = d.length;
@@ -991,6 +1013,11 @@ public class AioHttpProxyServer extends AbstractServer {
                     && d[n - 2] == '\r' && d[n - 1] == '\n';
         }
 
+        /**
+         * 解析
+         * @param raw 参数
+         * @return 返回值
+        */
         private ResponseMeta parse(byte[] raw) {
             String text = new String(raw, StandardCharsets.ISO_8859_1);
             if (!text.startsWith("HTTP/")) {
@@ -1032,6 +1059,13 @@ public class AioHttpProxyServer extends AbstractServer {
          */
         final boolean close;
 
+        /**
+         * Response Meta
+         * @param close 关闭
+         * @param contentLength 长整数
+         * @param rawHeader 参数
+         * @return 返回值
+        */
         ResponseMeta(byte[] rawHeader, long contentLength, boolean close) {
             this.rawHeader = rawHeader;
             this.contentLength = contentLength;

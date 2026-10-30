@@ -206,11 +206,12 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
 
     /**
      * 发送响应
-     *
-     * @param exchange exchange
-     * @param code 编码
      * @param body 主体
-     */
+     * @param code 编码
+     * @param exchange exchange
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void sendResponse(com.sun.net.httpserver.HttpExchange exchange, int code, String body) throws IOException {
         byte[] bytes = body.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json");

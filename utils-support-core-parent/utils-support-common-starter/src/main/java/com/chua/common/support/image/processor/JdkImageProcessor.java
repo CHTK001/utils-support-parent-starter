@@ -500,11 +500,12 @@ public class JdkImageProcessor implements ImageProcessor {
 
     /**
      * 编码输出
-     *
-     * @param image  处理后的图像
+     * @param Map<String 参数
+     * @param image 处理后的图像
      * @param params 参数：format（png / jpeg，默认 png）
      * @return 编码后的字节
-     */
+     * @throws IOException 异常
+    */
     private byte[] encode(BufferedImage image, Map<String, Object> params) throws IOException {
         String format = params.get("format") != null ? params.get("format").toString() : "png";
         if ("jpeg".equalsIgnoreCase(format)) {

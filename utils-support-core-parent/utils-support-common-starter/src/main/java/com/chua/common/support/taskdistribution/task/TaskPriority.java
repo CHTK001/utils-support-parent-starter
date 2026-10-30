@@ -32,9 +32,9 @@ public enum TaskPriority {
 
     /**
      * 构造方法，创建 TaskPriority 实例。
-     *
      * @param level 级别，不允许为 null
-     */
+     * @return 返回值
+    */
     TaskPriority(int level) {
         this.level = level;
     }

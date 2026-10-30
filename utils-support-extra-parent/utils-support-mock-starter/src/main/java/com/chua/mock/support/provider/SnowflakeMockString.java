@@ -33,6 +33,11 @@ public class SnowflakeMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public synchronized String getString(@Nonnull MockEnvironment environment) {
         long timestamp = System.currentTimeMillis();
         if (timestamp == lastTimestamp) {

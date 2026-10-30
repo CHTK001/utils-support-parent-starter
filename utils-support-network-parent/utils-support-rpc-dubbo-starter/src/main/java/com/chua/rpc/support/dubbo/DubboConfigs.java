@@ -119,6 +119,11 @@ final class DubboConfigs {
          */
         final AtomicInteger refCount = new AtomicInteger(1);
 
+        /**
+         * Config Holder
+         * @param config 参数
+         * @return 返回值
+        */
         ConfigHolder(ApplicationConfig config) {
             this.config = config;
         }

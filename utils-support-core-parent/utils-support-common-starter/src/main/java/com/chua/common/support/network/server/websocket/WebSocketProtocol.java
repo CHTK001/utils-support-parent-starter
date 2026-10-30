@@ -190,7 +190,9 @@ public final class WebSocketProtocol {
      * 读取完整数据到目标数组。
      * @param in 方法入参 in
      * @param target 目标，不允许为 null
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private static void readFully(InputStream in, byte[] target) throws IOException {
         int off = 0;
         while (off < target.length) {

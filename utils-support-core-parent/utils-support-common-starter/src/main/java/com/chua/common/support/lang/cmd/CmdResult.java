@@ -241,11 +241,17 @@ public class CmdResult {
          */
         private Throwable throwable;
 
+        /**
+         * Cmd Result Builder
+         * @return 返回值
+        */
         CmdResultBuilder() {}
 
         /**
          * ExitCode
-         */
+         * @param exitCode 整数
+         * @return 返回值
+        */
         public CmdResultBuilder exitCode(int exitCode) {
             this.exitCode = exitCode;
             return this;
@@ -253,7 +259,9 @@ public class CmdResult {
 
         /**
          * Stdout
-         */
+         * @param stdout 字符串
+         * @return 返回值
+        */
         public CmdResultBuilder stdout(String stdout) {
             this.stdout = stdout;
             return this;
@@ -261,7 +269,9 @@ public class CmdResult {
 
         /**
          * Stderr
-         */
+         * @param stderr 字符串
+         * @return 返回值
+        */
         public CmdResultBuilder stderr(String stderr) {
             this.stderr = stderr;
             return this;
@@ -269,7 +279,9 @@ public class CmdResult {
 
         /**
          * Command
-         */
+         * @param command 字符串
+         * @return 返回值
+        */
         public CmdResultBuilder command(String command) {
             this.command = command;
             return this;
@@ -277,7 +289,9 @@ public class CmdResult {
 
         /**
          * 开始Time
-         */
+         * @param startTime 长整数
+         * @return 返回值
+        */
         public CmdResultBuilder startTime(long startTime) {
             this.startTime = startTime;
             return this;
@@ -285,7 +299,9 @@ public class CmdResult {
 
         /**
          * EndTime
-         */
+         * @param endTime 长整数
+         * @return 返回值
+        */
         public CmdResultBuilder endTime(long endTime) {
             this.endTime = endTime;
             return this;
@@ -293,7 +309,9 @@ public class CmdResult {
 
         /**
          * Timeout
-         */
+         * @param timeout 布尔值
+         * @return 返回值
+        */
         public CmdResultBuilder timeout(boolean timeout) {
             this.timeout = timeout;
             return this;
@@ -301,7 +319,9 @@ public class CmdResult {
 
         /**
          * Throwable
-         */
+         * @param throwable 可抛出异常
+         * @return 返回值
+        */
         public CmdResultBuilder throwable(Throwable throwable) {
             this.throwable = throwable;
             return this;
@@ -309,7 +329,8 @@ public class CmdResult {
 
         /**
          * 构建
-         */
+         * @return 返回值
+        */
         public CmdResult build() {
             return new CmdResult(exitCode, stdout, stderr, command, startTime, endTime, timeout, throwable);
         }

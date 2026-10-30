@@ -107,7 +107,9 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
      * @param dir dir
      * @param fileName 文件名称
      * @param url url
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private static void downloadIfMissing(Path dir, String fileName, String url) throws Exception {
         if (dir == null) {
             return;
@@ -249,7 +251,8 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
      * 对话。
      * @param userPrompt 用户提示符
      * @return 对话的结果
-     */
+     * @throws Exception 异常
+    */
     public String chat(String userPrompt) throws Exception {
         prepare();
         String chat = "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
@@ -352,7 +355,8 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     /**
      * 空past。
      * @return 空past的结果
-     */
+     * @throws Exception 异常
+    */
     private Map<String, OnnxTensor> emptyPast() throws Exception {
         Map<String, OnnxTensor> m = Wraps.map();
         for (int layer = 0; layer < nLayers; layer++) {
@@ -370,7 +374,8 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
      * collectpast。
      * @param result 结果
      * @return collectPast的结果
-     */
+     * @throws Exception 异常
+    */
     private Map<String, OnnxTensor> collectPast(OrtSession.Result result) throws Exception {
         Map<String, OnnxTensor> m = Wraps.map();
         for (int layer = 0; layer < nLayers; layer++) {

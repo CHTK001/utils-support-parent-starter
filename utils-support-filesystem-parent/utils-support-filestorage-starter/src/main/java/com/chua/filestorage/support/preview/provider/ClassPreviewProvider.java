@@ -82,10 +82,10 @@ public class ClassPreviewProvider implements FileStoragePreviewProvider {
 
     /**
      * 用 CFR 把 {@code .class} 字节还原为 Java 源码。
-     *
      * @param content .class 字节
      * @return Java 源码文本；失败时抛出 {@link IOException}
-     */
+     * @throws IOException 异常
+    */
     private String decompile(byte[] content) throws IOException {
         Path tmp = Files.createTempFile("fv-class-", "." + EXT);
         try {
@@ -125,7 +125,10 @@ public class ClassPreviewProvider implements FileStoragePreviewProvider {
         }
     }
 
-    /** 预览页内联样式（与 CodePreviewProvider 同款深色代码底） */
+    /**
+     * css
+     * @return 返回值
+    */
     private String css() {
         return "body{margin:0;background:#1e1e1e;color:#d4d4d4;"
                 + "font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:13px;line-height:1.5}"
@@ -136,7 +139,11 @@ public class ClassPreviewProvider implements FileStoragePreviewProvider {
                 + ".hljs{padding:0!important;background:transparent!important}";
     }
 
-    /** 预览页 HTML：语言徽章 + 高亮源码 + 同源 highlight.js */
+    /**
+     * html
+     * @param source 字符串
+     * @return 返回值
+    */
     private String html(String source) {
         return "<div class=\"lang-badge\">" + escapeHtml(LANG) + "（CFR 反编译）</div>"
                 + "<pre><code class=\"hljs language-" + escapeHtml(LANG) + "\">" + escapeHtml(source) + "</code></pre>"
@@ -145,7 +152,11 @@ public class ClassPreviewProvider implements FileStoragePreviewProvider {
                 + "<script>hljs.highlightAll()</script>";
     }
 
-    /** HTML 转义（反编译输出里几乎必然含尖括号，必须转义后再拼进 HTML） */
+    /**
+     * escape Html
+     * @param s 字符串
+     * @return 返回值
+    */
     private String escapeHtml(String s) {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
                 .replace("\"", "&quot;");

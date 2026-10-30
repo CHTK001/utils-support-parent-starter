@@ -162,11 +162,11 @@ class DefaultSmileDetector implements SmileDetector {
 
     /**
      * 构造默认微笑检测器。
-     *
-     * @param engine    识别引擎
+     * @param engine 识别引擎
      * @param modelName 模型名称
-     * @param setting   模型配置
-     */
+     * @param setting 模型配置
+     * @return 返回值
+    */
     DefaultSmileDetector(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;

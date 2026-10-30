@@ -153,6 +153,8 @@ public class BgeEmbeddingClient implements EmbeddingClient {
 
     /**
      * Prepare
+     * @return 返回值
+     * @throws Exception 异常
     */
     private synchronized void prepare() throws Exception {
         if (loaded) {
@@ -164,7 +166,9 @@ public class BgeEmbeddingClient implements EmbeddingClient {
 
     /**
      * 将 registry 解析到的模型路径适配为本地可加载形式。
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void translateModel() throws Exception {
         if (embeddedBase != null) {
             translator = new BgeEmbeddingTranslator();

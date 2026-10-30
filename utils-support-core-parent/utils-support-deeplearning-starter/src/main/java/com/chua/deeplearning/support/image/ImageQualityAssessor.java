@@ -179,11 +179,11 @@ class DefaultImageQualityAssessor implements ImageQualityAssessor {
 
     /**
      * 构造默认图像质量评估器。
-     *
-     * @param engine    识别引擎
+     * @param engine 识别引擎
      * @param modelName 模型名称
-     * @param setting   模型配置
-     */
+     * @param setting 模型配置
+     * @return 返回值
+    */
     DefaultImageQualityAssessor(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;

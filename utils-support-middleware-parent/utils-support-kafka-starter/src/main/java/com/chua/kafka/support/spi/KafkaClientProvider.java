@@ -212,11 +212,10 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
     // ==================== 内部实现 ====================
 
     /**
-     * 按数据源行建管理客户端。
-     *
-     * <p>Kafka 的账号密码是 SASL 机制（PLAIN/SCRAM），由 {@code username} 决定是否开启；
-     * {@code database} 字段在这里没有语义，忽略。</p>
-     */
+     * 按数据源行建管理客户端。 <p>Kafka 的账号密码是 SASL 机制（PLAIN/SCRAM），由 {@code username} 决定是否开启； {@code database} 字段在这里没有语义，忽略。</p>
+     * @param request 参数
+     * @return 返回值
+    */
     private AdminClient adminClient(MiddlewareConnectRequest request) {
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, request.address());
@@ -233,7 +232,14 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
         return AdminClient.create(props);
     }
 
-    /** topics 查询：主题名 + 分区数 + 副本因子 */
+    /**
+     * table
+     * @param admin 参数
+     * @param limit 整数
+     * @param t0 长整数
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private MiddlewareQueryResult table(AdminClient admin, long t0, int limit) throws Exception {
         Set<String> names = admin.listTopics().names().get(ADMIN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         List<String> sorted = new ArrayList<>(names);
@@ -260,7 +266,13 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
                 System.currentTimeMillis() - t0);
     }
 
-    /** brokers 查询：节点 ID + 主机端口 */
+    /**
+     * brokers
+     * @param admin 参数
+     * @param t0 长整数
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private MiddlewareQueryResult brokers(AdminClient admin, long t0) throws Exception {
         Collection<Node> nodes = admin.describeCluster().nodes().get(ADMIN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         List<Map<String, Object>> rows = new ArrayList<>();
@@ -275,7 +287,13 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
                 System.currentTimeMillis() - t0);
     }
 
-    /** groups 查询：消费组 + 主题 + 分区 + 已提交 offset - 末尾 offset（负值取 0） */
+    /**
+     * groups
+     * @param admin 参数
+     * @param t0 长整数
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private MiddlewareQueryResult groups(AdminClient admin, long t0) throws Exception {
         Collection<ConsumerGroupListing> listings = admin.listConsumerGroups().all()
                 .get(ADMIN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -314,7 +332,14 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
                 System.currentTimeMillis() - t0);
     }
 
-    /** describe &lt;topic&gt;：主题的分区明细 */
+    /**
+     * describe
+     * @param admin 参数
+     * @param t0 长整数
+     * @param topic 字符串
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private MiddlewareQueryResult describe(AdminClient admin, long t0, String topic) throws Exception {
         if (topic.isEmpty()) {
             return MiddlewareQueryResult.fail("describe 需要主题名，如 describe orders");
@@ -337,12 +362,13 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
     }
 
     /**
-     * preview &lt;topic&gt;：从每个分区的**队首**读几条消息（只读预览）。
-     *
-     * <p>用独立的短生命周期 {@link KafkaConsumer}，{@code enable.auto.commit=false}、
-     * {@code auto.offset.reset=earliest}，读完立即关闭 —— 绝不提交 offset，
-     * 不影响真实消费者的消费位点。</p>
-     */
+     * preview &lt;topic&gt;：从每个分区的**队首**读几条消息（只读预览）。 <p>用独立的短生命周期 {@link KafkaConsumer}，{@code enable.auto.commit=false}、 {@code auto.offset.reset=earliest}，读完立即关闭 —— 绝不提交 offset， 不影响真实消费者的消费位点。</p>
+     * @param limit 整数
+     * @param request 参数
+     * @param t0 长整数
+     * @param topic 字符串
+     * @return 返回值
+    */
     private MiddlewareQueryResult preview(MiddlewareConnectRequest request, long t0, String topic, int limit) {
         if (topic.isEmpty()) {
             return MiddlewareQueryResult.fail("preview 需要主题名，如 preview orders");
@@ -394,7 +420,13 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
                 System.currentTimeMillis() - t0);
     }
 
-    /** 主题详情文档：分区 + leader + 副本 + ISR */
+    /**
+     * topic Document
+     * @param admin 参数
+     * @param topic 字符串
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private MiddlewareDocument topicDocument(AdminClient admin, String topic) throws Exception {
         var desc = admin.describeTopics(Set.of(topic)).topicNameValues().get(topic)
                 .get(ADMIN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -413,7 +445,13 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
         return new MiddlewareDocument("主题 " + topic, sb.toString(), attrs);
     }
 
-    /** 消费组详情文档：成员与各分区 lag */
+    /**
+     * group Document
+     * @param admin 参数
+     * @param group 字符串
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private MiddlewareDocument groupDocument(AdminClient admin, String group) throws Exception {
         DescribeConsumerGroupsResult result = admin.describeConsumerGroups(Set.of(group));
         var described = result.describedGroups().get(group).get(ADMIN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -437,7 +475,13 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
         return new MiddlewareDocument("消费组 " + group, sb.toString(), Map.of());
     }
 
-    /** Broker 详情文档 */
+    /**
+     * broker Document
+     * @param admin 参数
+     * @param idText 字符串
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private MiddlewareDocument brokerDocument(AdminClient admin, String idText) throws Exception {
         int id = Integer.parseInt(idText.trim());
         Collection<Node> nodes = admin.describeCluster().nodes().get(ADMIN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -452,7 +496,11 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
         return null;
     }
 
-    /** 截断超长消息体，避免响应体被单条大消息撑爆 */
+    /**
+     * truncate
+     * @param s 字符串
+     * @return 返回值
+    */
     private String truncate(String s) {
         if (s == null) {
             return "";
@@ -460,7 +508,11 @@ public class KafkaClientProvider implements MiddlewareClientProvider {
         return s.length() <= VALUE_TEXT_LIMIT ? s : s.substring(0, VALUE_TEXT_LIMIT) + "…(已截断)";
     }
 
-    /** 取根因消息：Kafka 的异常常包好几层，最里层才有用 */
+    /**
+     * root Message
+     * @param e 可抛出异常
+     * @return 返回值
+    */
     private String rootMessage(Throwable e) {
         Throwable t = e;
         while (t instanceof ExecutionException && t.getCause() != null) {

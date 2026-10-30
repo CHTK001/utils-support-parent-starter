@@ -91,7 +91,8 @@ public class ConfigSaveLoadSetting {
 
     /**
      * 获取ContentType
-     */
+     * @return 返回值
+    */
     public String getContentType() {
         return contentType;
     }

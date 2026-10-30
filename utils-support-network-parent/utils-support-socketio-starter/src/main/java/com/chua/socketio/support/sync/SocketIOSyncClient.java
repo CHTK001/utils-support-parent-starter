@@ -191,6 +191,8 @@ public class SocketIOSyncClient implements SyncClient {
 
     /**
      * 执行连接
+     * @return 返回值
+     * @throws Exception 异常
     */
     private void doConnect() throws Exception {
         URI uri = URI.create(serverUrl);

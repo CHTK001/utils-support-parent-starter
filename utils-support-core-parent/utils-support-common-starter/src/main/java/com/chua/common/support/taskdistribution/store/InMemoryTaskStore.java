@@ -33,6 +33,12 @@ public class InMemoryTaskStore implements TaskStore {
         TaskStatus status; // 状态
         TaskResult<?> result; // 结果
 
+        /**
+         * Task Entry
+         * @param status 参数
+         * @param task 参数
+         * @return 返回值
+        */
         TaskEntry(Task<?> task, TaskStatus status) {
             this.task = task;
             this.status = status;

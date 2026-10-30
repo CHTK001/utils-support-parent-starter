@@ -285,6 +285,11 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
         } catch (IOException e) { return null; }
     }
 
+    /**
+     * is Tombstone
+     * @param op 参数
+     * @return 返回值
+    */
     protected static boolean isTombstone(byte op) {
         return (op & AbstractWalFileSystem.OP_TOMBSTONE) != 0;
     }

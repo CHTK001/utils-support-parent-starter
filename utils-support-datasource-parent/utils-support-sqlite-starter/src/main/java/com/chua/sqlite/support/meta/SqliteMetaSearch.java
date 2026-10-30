@@ -111,6 +111,11 @@ public class SqliteMetaSearch extends AbstractMetaSearch {
         private int shards = 1; // shards
         private int replicas = 1; // replicas
 
+        /**
+         * Sqlite Create Index Builder
+         * @param indexName 字符串
+         * @return 返回值
+        */
         SqliteCreateIndexBuilder(String indexName) {
             this.indexName = indexName;
         }

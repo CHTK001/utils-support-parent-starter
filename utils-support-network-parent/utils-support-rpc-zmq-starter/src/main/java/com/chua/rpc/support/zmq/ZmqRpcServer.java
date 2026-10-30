@@ -387,10 +387,11 @@ public class ZmqRpcServer implements RpcServer {
 
     /**
      * 按 identity 回写响应帧（ROUTER 首帧必须为对端标识符）。
-     *
      * @param identity 对端标识符
      * @param response RPC 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void sendResponse(byte[] identity, RpcResponse response) throws Exception {
         synchronized (routerSocket) {
             byte[] responseData = rpcSerialization.serialize(response);

@@ -605,11 +605,11 @@ public final class CliModelRunner {
 
     /**
      * 单文件下载（支持 3xx 重定向、临时文件原子写、大小上限）
-     *
-     * @param url 源
      * @param dir 目标目录
+     * @param url 源
      * @return 文件；失败返回 空
-     */
+     * @throws IOException 异常
+    */
     private static Path downloadSingle(String url, Path dir) throws IOException {
         URL u = new URL(url);
         int i = u.getPath().lastIndexOf('/');

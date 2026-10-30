@@ -26,20 +26,39 @@ public final class BranchFlow {
      */
     private final BranchFlowState state;
 
+    /**
+     * Branch Flow
+     * @return 返回值
+    */
     BranchFlow() {
         this.state = new BranchFlowState();
     }
 
+    /**
+     * Branch Flow
+     * @param condition 参数
+     * @return 返回值
+    */
     BranchFlow(Predicate<RuleContext> condition) {
         this.state = new BranchFlowState();
         state.openBranch(condition);
     }
 
+    /**
+     * Branch Flow
+     * @param expression 字符串
+     * @return 返回值
+    */
     BranchFlow(String expression) {
         this.state = new BranchFlowState();
         state.openBranch(expression);
     }
 
+    /**
+     * Branch Flow
+     * @param state 参数
+     * @return 返回值
+    */
     BranchFlow(BranchFlowState state) {
         this.state = Objects.requireNonNull(state, "state 不能为 null");
     }

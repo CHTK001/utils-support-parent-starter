@@ -162,6 +162,11 @@ public class FileOffsetStore implements OffsetStore {
          */
         private volatile boolean closed;
 
+        /**
+         * File Offset
+         * @param subscriberId 字符串
+         * @return 返回值
+        */
         FileOffset(String subscriberId) {
             this.subscriberId = subscriberId;
             this.offsetPath = config.getBasePath().resolve(subscriberId + ".offset");
@@ -251,7 +256,8 @@ public class FileOffsetStore implements OffsetStore {
 
         /**
          * 加载FromFile
-         */
+         * @return 返回值
+        */
         private long loadFromFile() {
             if (!config.isPersistent()) {
                 return 0L;

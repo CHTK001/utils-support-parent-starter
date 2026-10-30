@@ -67,6 +67,10 @@ public class EacChatClient extends OpenAiChatClient {
         }
     }
 
+    /**
+     * resolve Setter
+     * @return 返回值
+    */
     private static Method resolveSetter() {
         if (setterResolved) {
             return authenticatorSetter;
@@ -117,6 +121,11 @@ public class EacChatClient extends OpenAiChatClient {
 
         private final String signingSecret;
 
+        /**
+         * Eac Hmac Authenticator
+         * @param signingSecret 字符串
+         * @return 返回值
+        */
         EacHmacAuthenticator(String signingSecret) {
             this.signingSecret = signingSecret;
         }
@@ -142,6 +151,11 @@ public class EacChatClient extends OpenAiChatClient {
             }
         }
 
+        /**
+         * build Path
+         * @param request 参数
+         * @return 返回值
+        */
         private static String buildPath(HttpRequest request) {
             String baseUrl = request.baseUrl();
             StringBuilder path = new StringBuilder();
@@ -170,6 +184,12 @@ public class EacChatClient extends OpenAiChatClient {
             return path.toString();
         }
 
+        /**
+         * hash Body
+         * @param body 参数
+         * @return 返回值
+         * @throws Exception 异常
+        */
         private static String hashBody(HttpRequestBody body) throws Exception {
             if (body == null) {
                 return sha256Hex("");
@@ -182,12 +202,25 @@ public class EacChatClient extends OpenAiChatClient {
             return sha256Hex(baos.toString(StandardCharsets.UTF_8));
         }
 
+        /**
+         * sha256Hex
+         * @param input 字符串
+         * @return 返回值
+         * @throws Exception 异常
+        */
         private static String sha256Hex(String input) throws Exception {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(input.getBytes(StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(hash);
         }
 
+        /**
+         * hmac Sha256
+         * @param message 字符串
+         * @param secret 字符串
+         * @return 返回值
+         * @throws Exception 异常
+        */
         private static String hmacSha256(String secret, String message) throws Exception {
             Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));

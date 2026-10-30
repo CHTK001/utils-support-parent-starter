@@ -292,32 +292,58 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
      * @param newH  内容高度（像素）
      */
     private record LetterBoxMeta(int left, int top, int newW, int newH) {
-        /** 内容右沿 x（左闭右开 +1，clamp 右端开放） */
+        /**
+         * right
+         * @return 返回值
+        */
         private int right() {
             return left + newW;
         }
-        /** 内容下沿 y */
+        /**
+         * bottom
+         * @return 返回值
+        */
         private int bottom() {
             return top + newH;
         }
-        /** 画布 X → 原图归一化 X [0,1] */
+        /**
+         * norm X
+         * @param canvasX 浮点数
+         * @return 返回值
+        */
         private float normX(float canvasX) {
             return clamp01((canvasX - left) / newW);
         }
-        /** 画布 Y → 原图归一化 Y [0,1] */
+        /**
+         * norm Y
+         * @param canvasY 浮点数
+         * @return 返回值
+        */
         private float normY(float canvasY) {
             return clamp01((canvasY - top) / newH);
         }
+        /**
+         * clamp01
+         * @param v 浮点数
+         * @return 返回值
+        */
         private static float clamp01(float v) {
             return Math.max(0f, Math.min(1f, v));
         }
-        /** 缺省实例 = 旧拉伸口径（640 全幅直除） */
+        /**
+         * legacy
+         * @return 返回值
+        */
         private static LetterBoxMeta legacy() {
             return new LetterBoxMeta(0, 0, INPUT_SIZE, INPUT_SIZE);
         }
     }
 
-    /** 从 ctx 附件取 LetterBoxMeta；拿不到即旧口径 */
+    /**
+     * resolve Meta
+     * @param ctx 参数
+     * @return 返回值
+    */
     private static LetterBoxMeta resolveMeta(TranslatorContext ctx) {
         Object v = ctx.getAttachment(ATTACHMENT_KEY);
         return v instanceof LetterBoxMeta meta ? meta : LetterBoxMeta.legacy();

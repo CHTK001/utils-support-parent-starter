@@ -393,6 +393,11 @@ public class FtpClient implements AutoCloseable {
          */
         private InputStream inputStream;
 
+        /**
+         * Upload Operation
+         * @param client 参数
+         * @return 返回值
+        */
         UploadOperation(FtpClient client) {
             this.client = client;
         }
@@ -488,6 +493,11 @@ public class FtpClient implements AutoCloseable {
          */
         private OutputStream outputStream;
 
+        /**
+         * Download Operation
+         * @param client 参数
+         * @return 返回值
+        */
         DownloadOperation(FtpClient client) {
             this.client = client;
         }
@@ -578,6 +588,11 @@ public class FtpClient implements AutoCloseable {
          */
         private String path = ".";
 
+        /**
+         * List Operation
+         * @param client 参数
+         * @return 返回值
+        */
         ListOperation(FtpClient client) {
             this.client = client;
         }
@@ -635,6 +650,11 @@ public class FtpClient implements AutoCloseable {
          */
         private String path;
 
+        /**
+         * Cd Operation
+         * @param client 参数
+         * @return 返回值
+        */
         CdOperation(FtpClient client) {
             this.client = client;
         }
@@ -692,6 +712,11 @@ public class FtpClient implements AutoCloseable {
          */
         private String path;
 
+        /**
+         * Mkdir Operation
+         * @param client 参数
+         * @return 返回值
+        */
         MkdirOperation(FtpClient client) {
             this.client = client;
         }
@@ -741,6 +766,11 @@ public class FtpClient implements AutoCloseable {
          */
         private String path;
 
+        /**
+         * Rm Operation
+         * @param client 参数
+         * @return 返回值
+        */
         RmOperation(FtpClient client) {
             this.client = client;
         }
@@ -790,6 +820,11 @@ public class FtpClient implements AutoCloseable {
          */
         private String path;
 
+        /**
+         * Rmdir Operation
+         * @param client 参数
+         * @return 返回值
+        */
         RmdirOperation(FtpClient client) {
             this.client = client;
         }
@@ -844,6 +879,11 @@ public class FtpClient implements AutoCloseable {
          */
         private String newPath;
 
+        /**
+         * Rename Operation
+         * @param client 参数
+         * @return 返回值
+        */
         RenameOperation(FtpClient client) {
             this.client = client;
         }

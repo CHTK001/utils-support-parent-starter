@@ -242,13 +242,11 @@ public final class KvCacheDecoder implements AutoCloseable {
     }
 
     /**
-     * 创建空 fp16 张量（首步 past 占位）。
-     * <p>ORT Java API 对 FLOAT16 类型要求用 {@code ShortBuffer} 创建
-     * （每元素 2 字节 = 1 个 short），传 byte缓冲 会在 ortutil.prepare缓冲
-     * 抛 heapbyte缓冲→short缓冲 强转异常。</p>
+     * 创建空 fp16 张量（首步 past 占位）。 <p>ORT Java API 对 FLOAT16 类型要求用 {@code ShortBuffer} 创建 （每元素 2 字节 = 1 个 short），传 byte缓冲 会在 ortutil.prepare缓冲 抛 heapbyte缓冲→short缓冲 强转异常。</p>
      * @param shape shape
      * @return 创建空fp16的结果
-     */
+     * @throws OrtException 异常
+    */
     private OnnxTensor createEmptyFp16(long[] shape) throws OrtException {
         int elems = (int) (shape[0] * shape[1] * shape[2] * shape[3]);
         return OnnxTensor.createTensor(env, ShortBuffer.allocate(elems), shape, OnnxJavaType.FLOAT16);
@@ -283,13 +281,11 @@ public final class KvCacheDecoder implements AutoCloseable {
     }
 
     /**
-     * 复制 fp16 张量数据到新张量（避免 结果 关闭后数据失效）。
-     * <p>ORT Java API 对 FLOAT16 输出张量的 {@code getValue()} 返回 float 多维数组
-     * （自动转换），需转回 half 位模式后用 short缓冲 重建 FLOAT16 张量；
-     * 部分版本直接返回 short缓冲，也一并兼容。</p>
+     * 复制 fp16 张量数据到新张量（避免 结果 关闭后数据失效）。 <p>ORT Java API 对 FLOAT16 输出张量的 {@code getValue()} 返回 float 多维数组 （自动转换），需转回 half 位模式后用 short缓冲 重建 FLOAT16 张量； 部分版本直接返回 short缓冲，也一并兼容。</p>
      * @param src src
      * @return 副本fp16的结果
-     */
+     * @throws OrtException 异常
+    */
     private OnnxTensor copyFp16(OnnxTensor src) throws OrtException {
         long[] shape = src.getInfo().getShape();
         int elems = 1;

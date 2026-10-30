@@ -239,7 +239,8 @@ public class JdkWebSocketServer extends AbstractServer {
      * PerformHandshake
      * @param conn 连接，不允许为 null
      * @return 是否成功（true 表示成功）
-     */
+     * @throws IOException 异常
+    */
     private boolean performHandshake(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
         OutputStream out = conn.socket.getOutputStream();
@@ -292,7 +293,9 @@ public class JdkWebSocketServer extends AbstractServer {
     /**
      * 读取Frames
      * @param conn 连接，不允许为 null
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void readFrames(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
         while (!conn.socket.isClosed() && !Thread.currentThread().isInterrupted()) {
@@ -380,7 +383,8 @@ public class JdkWebSocketServer extends AbstractServer {
      * 构建TextFrame
      * @param payload 方法入参 payload
      * @return 结果字符串
-     */
+     * @throws Exception 异常
+    */
     private String buildTextFrame(String payload) throws Exception {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -456,7 +460,8 @@ public class JdkWebSocketServer extends AbstractServer {
      * 构建关闭Frame
      * @param reason 方法入参 reason
      * @return 结果字符串
-     */
+     * @throws Exception 异常
+    */
     private String buildCloseFrame(String reason) throws Exception {
         byte[] data = reason.getBytes(StandardCharsets.UTF_8);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -499,6 +504,11 @@ public class JdkWebSocketServer extends AbstractServer {
         final Socket socket;
         OutputStream out;
 
+        /**
+         * Connection
+         * @param socket 参数
+         * @return 返回值
+        */
         Connection(Socket socket) {
             this.socket = socket;
         }
@@ -525,6 +535,12 @@ public class JdkWebSocketServer extends AbstractServer {
          */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
+        /**
+         * Simple Server Request
+         * @param body 字符串
+         * @param topic 字符串
+         * @return 返回值
+        */
         SimpleServerRequest(String topic, String body) {
             this.topic = topic;
             this.body = body;
@@ -694,6 +710,11 @@ public class JdkWebSocketServer extends AbstractServer {
          */
         private String closeMessage;
 
+        /**
+         * Simple Server Response
+         * @param connection 参数
+         * @return 返回值
+        */
         SimpleServerResponse(Connection connection) {
             this.connection = connection;
         }

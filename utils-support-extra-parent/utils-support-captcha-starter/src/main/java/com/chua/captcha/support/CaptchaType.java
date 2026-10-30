@@ -60,9 +60,9 @@ public enum CaptchaType {
 
     /**
      * 构造验证码类型
-     *
      * @param type 类型标识字符串
-     */
+     * @return 返回值
+    */
     CaptchaType(String type) {
         this.type = type;
     }

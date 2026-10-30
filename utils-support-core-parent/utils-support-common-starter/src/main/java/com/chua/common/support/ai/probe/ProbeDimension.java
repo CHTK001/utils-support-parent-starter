@@ -102,9 +102,9 @@ public enum ProbeDimension {
 
     /**
      * 构造维度枚举。
-     *
      * @param key 维度标识键
-     */
+     * @return 返回值
+    */
     ProbeDimension(String key) {
         this.key = key;
     }

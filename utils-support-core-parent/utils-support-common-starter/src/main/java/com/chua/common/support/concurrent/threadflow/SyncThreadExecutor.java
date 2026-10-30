@@ -62,6 +62,11 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
          */
         private final Object result;
 
+        /**
+         * Completed Future
+         * @param result 对象
+         * @return 返回值
+        */
         CompletedFuture(Object result) {
             this.result = result;
         }
@@ -116,6 +121,11 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
          */
         private final Exception exception;
 
+        /**
+         * Failed Future
+         * @param exception 异常
+         * @return 返回值
+        */
         FailedFuture(Exception exception) {
             this.exception = exception;
         }

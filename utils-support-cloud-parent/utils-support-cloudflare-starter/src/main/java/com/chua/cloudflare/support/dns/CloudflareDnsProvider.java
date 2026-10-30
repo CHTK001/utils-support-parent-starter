@@ -123,6 +123,12 @@ public class CloudflareDnsProvider implements DnsProvider {
 
     @Override
     @SuppressWarnings("unchecked")
+    /**
+     * list Records
+     * @param name 字符串
+     * @param type 字符串
+     * @return 返回值
+    */
     public List<DnsRecord> listRecords(String name, String type) {
         ensureReady();
         StringBuilder path = new StringBuilder("/zones/").append(zoneId).append("/dns_records");

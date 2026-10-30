@@ -326,6 +326,12 @@ public class VertxWebSocketServer extends AbstractServer {
         */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
+        /**
+         * Vertx Server Request
+         * @param body 字符串
+         * @param topic 字符串
+         * @return 返回值
+        */
         VertxServerRequest(String topic, String body) {
             this.topic = topic;
             this.body = body;
@@ -496,6 +502,11 @@ public class VertxWebSocketServer extends AbstractServer {
         */
         private Object result;
 
+        /**
+         * Vertx Server Response
+         * @param ws 参数
+         * @return 返回值
+        */
         VertxServerResponse(ServerWebSocket ws) {
             this.ws = ws;
         }

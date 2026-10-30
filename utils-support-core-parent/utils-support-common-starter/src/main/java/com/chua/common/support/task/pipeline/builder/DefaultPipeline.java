@@ -887,6 +887,13 @@ public class DefaultPipeline implements Pipeline {
          */
         final String label;
 
+        /**
+         * Edge
+         * @param from 字符串
+         * @param label 字符串
+         * @param to 字符串
+         * @return 返回值
+        */
         Edge(String from, String to, String label) {
             this.from = from;
             this.to = to;

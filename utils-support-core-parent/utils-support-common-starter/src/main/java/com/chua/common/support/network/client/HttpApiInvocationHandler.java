@@ -878,22 +878,22 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
 
         /**
          * 构造（required=true, defaultValue=""）
-         *
-         * @param type 注解类型
          * @param name 参数名
-         */
+         * @param type 注解类型
+         * @return 返回值
+        */
         ParamAnnotation(ParamType type, String name) {
             this(type, name, true, "");
         }
 
         /**
          * 构造
-         *
-         * @param type         注解类型
-         * @param name         参数名
-         * @param required     是否必传
          * @param defaultValue 默认值
-         */
+         * @param name 参数名
+         * @param required 是否必传
+         * @param type 注解类型
+         * @return 返回值
+        */
         ParamAnnotation(ParamType type, String name, boolean required, String defaultValue) {
             this.type = type;
             this.name = name;

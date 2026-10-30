@@ -183,6 +183,12 @@ public class DuckChatClient implements ChatClient {
         try {
             StringBuilder text = new StringBuilder();
             AiUsage[] usage = new AiUsage[1];
+            /**
+             * chat
+             * @param prompt 参数
+             * @param { 参数
+             * @return 返回值
+            */
             chat(prompt, response -> {
                 if (response.getState() == ChatResponse.State.STOP) {
                     usage[0] = response.getUsage();
@@ -200,6 +206,13 @@ public class DuckChatClient implements ChatClient {
 
     @Override
     public void chat(String prompt, java.util.function.Consumer<ChatResponse> consumer) {
+        /**
+         * chat
+         * @param ( 参数
+         * @param consumer 参数
+         * @param prompt 参数
+         * @return 返回值
+        */
         chat(prompt, consumer, () -> {
         }, e -> {
             throw new RuntimeException("对话请求失败: " + e.getMessage(), e);
@@ -222,6 +235,10 @@ public class DuckChatClient implements ChatClient {
 
         try {
             List<Map<String, Object>> messages = buildMessages(prompt);
+            /**
+             * model Or
+             * @return 返回值
+            */
             transport().chat(modelOr(), messages, delta -> {
                 if (firstTokenAt[0] == 0L) {
                     firstTokenAt[0] = System.currentTimeMillis();
@@ -460,6 +477,10 @@ public class DuckChatClient implements ChatClient {
             long startTime = System.currentTimeMillis();
             try {
                 List<Map<String, Object>> messages = buildMessages(prompt);
+                /**
+                 * Duck Stream Listener
+                 * @return 返回值
+                */
                 transport().chat(modelOr(), messages, new DuckBrowserTransport.DuckStreamListener() {
                     @Override
                     public void onText(String delta) {

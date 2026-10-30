@@ -297,6 +297,12 @@ public class ZhipuChatClient implements ChatClient {
     private ChatSyncResponse chatSyncInternal(String prompt) {
         StringBuilder result = new StringBuilder();
         AiUsage[] usageHolder = new AiUsage[1];
+        /**
+         * chat
+         * @param prompt 参数
+         * @param { 参数
+         * @return 返回值
+        */
         chat(prompt, response -> {
             if ((response.getState() == ChatResponse.State.STREAMING
                     || response.getState() == ChatResponse.State.STOP)
@@ -318,6 +324,13 @@ public class ZhipuChatClient implements ChatClient {
     */
     @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
+        /**
+         * chat
+         * @param ( 参数
+         * @param consumer 参数
+         * @param prompt 参数
+         * @return 返回值
+        */
         chat(prompt, consumer, () -> {
         }, e -> {
             throw new RuntimeException("对话请求失败: " + e.getMessage(), e);

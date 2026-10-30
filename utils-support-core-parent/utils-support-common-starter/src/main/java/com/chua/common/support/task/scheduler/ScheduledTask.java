@@ -55,11 +55,11 @@ public class ScheduledTask {
 
     /**
      * 构造一个调度任务实例
-     *
-     * @param id      任务唯一标识
-     * @param task    待执行的任务逻辑
+     * @param id 任务唯一标识
+     * @param task 待执行的任务逻辑
      * @param trigger 触发策略
-     */
+     * @return 返回值
+    */
     ScheduledTask(String id, Runnable task, Trigger trigger) {
         this.id = id;
         this.task = task;

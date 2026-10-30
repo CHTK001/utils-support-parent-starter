@@ -138,10 +138,10 @@ public class HttpClient5Executor implements HttpClientExecutor {
 
     /**
      * 转为客户端响应
-     *
      * @param resp resp
      * @return 转为客户端响应的结果
-     */
+     * @throws Exception 异常
+    */
     private ClientResponse toClientResponse(CloseableHttpResponse resp) throws Exception {
         ClientResponse cr = new ClientResponse();
         cr.setStatusCode(resp.getCode());

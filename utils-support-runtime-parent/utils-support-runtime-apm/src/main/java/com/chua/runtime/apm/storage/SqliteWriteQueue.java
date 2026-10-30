@@ -125,9 +125,9 @@ final class SqliteWriteQueue {
 
     /**
      * 构造器。
-     *
      * @param batch 批执行器
-     */
+     * @return 返回值
+    */
     SqliteWriteQueue(Batch batch) {
         this.batch = batch;
     }

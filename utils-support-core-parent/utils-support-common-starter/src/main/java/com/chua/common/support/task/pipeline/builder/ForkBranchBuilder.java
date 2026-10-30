@@ -80,10 +80,10 @@ public class ForkBranchBuilder {
 
     /**
      * 构造分支定义构建器。
-     *
      * @param branchName 分支名称
-     * @param parent     父分叉定义
-     */
+     * @param parent 父分叉定义
+     * @return 返回值
+    */
     ForkBranchBuilder(String branchName, TaskForkDefinition parent) {
         this.branchName = branchName;
         this.innerBuilder = PipelineBuilder.newBuilder(branchName);

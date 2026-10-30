@@ -592,6 +592,12 @@ public class MobiPreviewProvider implements FileStoragePreviewProvider {
             return unpack(data, 0);
         }
 
+        /**
+         * 解封装
+         * @param data 参数
+         * @param depth 整数
+         * @return 返回值
+        */
         private byte[] unpack(byte[] data, int depth) {
             if (depth > 64 || data.length == 0) {
                 return new byte[0];

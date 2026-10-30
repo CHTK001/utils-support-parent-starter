@@ -508,12 +508,18 @@ public class AgentDefinition {
          */
         private AgentPlanHook planHook;
 
+        /**
+         * Builder
+         * @return 返回值
+        */
         Builder() {
         }
 
         /**
          * Id
-         */
+         * @param id 字符串
+         * @return 返回值
+        */
         public Builder id(String id) {
             this.id = id;
             return this;
@@ -521,7 +527,9 @@ public class AgentDefinition {
 
         /**
          * Name
-         */
+         * @param name 字符串
+         * @return 返回值
+        */
         public Builder name(String name) {
             this.name = name;
             return this;
@@ -529,7 +537,9 @@ public class AgentDefinition {
 
         /**
          * Description
-         */
+         * @param description 字符串
+         * @return 返回值
+        */
         public Builder description(String description) {
             this.description = description;
             return this;
@@ -537,7 +547,9 @@ public class AgentDefinition {
 
         /**
          * Role
-         */
+         * @param role 字符串
+         * @return 返回值
+        */
         public Builder role(String role) {
             this.role = role;
             return this;
@@ -576,7 +588,9 @@ public class AgentDefinition {
 
         /**
          * Planning
-         */
+         * @param planning 布尔值
+         * @return 返回值
+        */
         public Builder planning(boolean planning) {
             this.planning = planning;
             return this;
@@ -642,7 +656,9 @@ public class AgentDefinition {
 
         /**
          * Leader
-         */
+         * @param leader 布尔值
+         * @return 返回值
+        */
         public Builder leader(boolean leader) {
             this.leader = leader;
             return this;

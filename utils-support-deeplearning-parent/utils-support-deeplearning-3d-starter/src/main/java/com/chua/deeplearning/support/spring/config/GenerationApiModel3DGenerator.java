@@ -34,6 +34,11 @@ public class GenerationApiModel3DGenerator {
     @Bean
     @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "text-to-3d-enable", havingValue = "true",
                            matchIfMissing = true)
+    /**
+     * text To3 D Generator
+     * @param config 参数
+     * @return 返回值
+    */
     public TextTo3DGenerator textTo3DGenerator(Model3DConfig config) {
         return new ForgeStyleApiModel3DGenerator(config);
     }
@@ -47,6 +52,11 @@ public class GenerationApiModel3DGenerator {
     @Bean
     @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "image-to-3d-enable", havingValue = "true",
                            matchIfMissing = true)
+    /**
+     * image To3 D Generator
+     * @param config 参数
+     * @return 返回值
+    */
     public ImageTo3DGenerator imageTo3DGenerator(Model3DConfig config) {
         return new ForgeStyleApiModel3DGenerator(config);
     }
@@ -60,6 +70,11 @@ public class GenerationApiModel3DGenerator {
     @Bean
     @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "sketch-to-3d-enable", havingValue = "true",
                            matchIfMissing = true)
+    /**
+     * sketch To3 D Generator
+     * @param config 参数
+     * @return 返回值
+    */
     public SketchTo3DGenerator sketchTo3DGenerator(Model3DConfig config) {
         return new ForgeStyleApiModel3DGenerator(config);
     }
@@ -73,6 +88,11 @@ public class GenerationApiModel3DGenerator {
     @Bean
     @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "generator-enable", havingValue = "true",
                            matchIfMissing = true)
+    /**
+     * model3 D Generator
+     * @param config 参数
+     * @return 返回值
+    */
     public Model3DGenerator model3DGenerator(Model3DConfig config) {
         return new ForgeStyleApiModel3DGenerator(config);
     }
@@ -86,6 +106,11 @@ public class GenerationApiModel3DGenerator {
     @Bean
     @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "stylizer-enable", havingValue = "true",
                            matchIfMissing = true)
+    /**
+     * model3 D Stylizer
+     * @param config 参数
+     * @return 返回值
+    */
     public Model3DStylizer model3DStylizer(Model3DConfig config) {
         return new ForgeStyleApiModel3DGenerator(config);
     }

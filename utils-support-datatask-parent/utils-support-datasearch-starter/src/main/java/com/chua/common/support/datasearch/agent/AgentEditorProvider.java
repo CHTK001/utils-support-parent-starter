@@ -1851,9 +1851,9 @@ public class AgentEditorProvider {
 
         /**
          * 根据待解析的 JSON 字符串构建解析器实例，初始位置为 0。
-         *
          * @param json 待解析的 JSON 字符串
-         */
+         * @return 返回值
+        */
         JsonParser(String json) {
             this.json = json;
             this.pos = 0;

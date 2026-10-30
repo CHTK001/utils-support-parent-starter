@@ -64,43 +64,50 @@ public record RelationshipData(
 ) {
     /**
      * 获取FkName
-     */
+     * @return 返回值
+    */
     public String getFkName() {
         return fkName;
     }
     /**
      * 获取FkTableName
-     */
+     * @return 返回值
+    */
     public String getFkTableName() {
         return fkTableName;
     }
     /**
      * 获取FkColumnName
-     */
+     * @return 返回值
+    */
     public String getFkColumnName() {
         return fkColumnName;
     }
     /**
      * 获取PkTableName
-     */
+     * @return 返回值
+    */
     public String getPkTableName() {
         return pkTableName;
     }
     /**
      * 获取PkColumnName
-     */
+     * @return 返回值
+    */
     public String getPkColumnName() {
         return pkColumnName;
     }
     /**
      * 获取更新Rule
-     */
+     * @return 返回值
+    */
     public String getUpdateRule() {
         return updateRule;
     }
     /**
      * 获取删除Rule
-     */
+     * @return 返回值
+    */
     public String getDeleteRule() {
         return deleteRule;
     }

@@ -298,7 +298,9 @@ public final class TinyAiEngine implements Serializable {
 
     /**
      * 取 argmax 下标。
-     */
+     * @param probs 参数
+     * @return 返回值
+    */
     private static int argMax(float[] probs) {
         var best = 0;
         for (var i = 1; i < probs.length; i++) {
@@ -319,11 +321,11 @@ public final class TinyAiEngine implements Serializable {
 
         /**
          * 构造数据集。
-         *
          * @param batchSize 批大小
          * @param xs 输入张量
          * @param ys 标签张量
-         */
+         * @return 返回值
+        */
         TabularDataset(int batchSize, NdArray[] xs, NdArray[] ys) {
             super(batchSize);
             this.xs = xs;

@@ -159,10 +159,12 @@ public abstract class AbstractWriter implements FileSystem {
     }
 
     /**
+    /**
      * 写入Single
      * @param item 项，不允许为 null
-     */
-    @SuppressWarnings("unchecked")
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void writeSingle(Object item) throws IOException {
         if (item instanceof Map) {
             doWrite((Map<String, Object>) item);
@@ -177,7 +179,9 @@ public abstract class AbstractWriter implements FileSystem {
 
     /**
      * EnsureInitialized
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     protected void ensureInitialized() throws IOException {
         if (initialized) {
             return;
@@ -240,7 +244,9 @@ public abstract class AbstractWriter implements FileSystem {
 
     /**
      * 关闭
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     public void close() throws IOException {
         try {
             if (initialized) {

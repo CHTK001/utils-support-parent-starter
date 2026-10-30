@@ -174,9 +174,9 @@ public final class DxfParser {
 
         /**
          * 构造读取器
-         *
          * @param reader 底层读取器
-         */
+         * @return 返回值
+        */
         PairReader(BufferedReader reader) {
             this.reader = reader;
         }

@@ -233,7 +233,9 @@ public class PNGImageReader extends ImageReader {
      * 读取NullTerminatedString
      * @param charset charset
      * @param maxLen maxLen
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private String readNullTerminatedString(String charset, int maxLen) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         int b = 0;
@@ -252,6 +254,8 @@ public class PNGImageReader extends ImageReader {
 
     /**
      * 读取Header
+     * @return 返回值
+     * @throws IIOException 异常
     */
     private void readHeader() throws IIOException {
         if (gotHeader) {
@@ -353,6 +357,8 @@ public class PNGImageReader extends ImageReader {
 
     /**
      * 解析acTchunk
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void parse_acTL_chunk() throws IOException {
         if (metadata.acTL_present) {
@@ -371,6 +377,8 @@ public class PNGImageReader extends ImageReader {
 
     /**
      * 解析fcTchunk
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void parse_fcTL_chunk() throws IOException {
         if (!frameMetadata.containsKey(nextImageIndex)) {
@@ -402,7 +410,9 @@ public class PNGImageReader extends ImageReader {
     /**
      * 解析PLTchunk
      * @param chunkLength chunkLength
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void parse_PLTE_chunk(int chunkLength) throws IOException {
         if (metadata.PLTE_present) {
             processWarningOccurred(
@@ -458,6 +468,8 @@ public class PNGImageReader extends ImageReader {
 
     /**
      * 解析bKGchunk
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void parse_bKGD_chunk() throws IOException {
         if (metadata.IHDR_colorType == PNG_COLOR_PALETTE) {
@@ -480,6 +492,8 @@ public class PNGImageReader extends ImageReader {
 
     /**
      * 解析cHRchunk
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void parse_cHRM_chunk() throws IOException {
         metadata.cHRM_whitePointX = stream.readInt();
@@ -496,6 +510,8 @@ public class PNGImageReader extends ImageReader {
 
     /**
      * 解析gAMchunk
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void parse_gAMA_chunk() throws IOException {
         int gamma = stream.readInt();
@@ -507,7 +523,9 @@ public class PNGImageReader extends ImageReader {
     /**
      * 解析h是否chunk
      * @param chunkLength chunkLength
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void parse_hIST_chunk(int chunkLength) throws IOException {
         if (!metadata.PLTE_present) {
             throw new IIOException("hIST chunk without prior PLTE chunk!");
@@ -527,7 +545,9 @@ public class PNGImageReader extends ImageReader {
     /**
      * 解析iCCchunk
      * @param chunkLength chunkLength
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void parse_iCCP_chunk(int chunkLength) throws IOException {
         String keyword = readNullTerminatedString("ISO-8859-1", 80);
         int compressedProfileLength = chunkLength - keyword.length() - 2;
@@ -549,7 +569,9 @@ public class PNGImageReader extends ImageReader {
     /**
      * 解析iTXtchunk
      * @param chunkLength chunkLength
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void parse_iTXt_chunk(int chunkLength) throws IOException {
         long chunkStart = stream.getStreamPosition();
 
@@ -604,6 +626,8 @@ public class PNGImageReader extends ImageReader {
 
     /**
      * 解析pHYschunk
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void parse_pHYs_chunk() throws IOException {
         metadata.pHYs_pixelsPerUnitXAxis = stream.readInt();
@@ -615,6 +639,8 @@ public class PNGImageReader extends ImageReader {
 
     /**
      * 解析sBIchunk
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void parse_sBIT_chunk() throws IOException {
         int colorType = metadata.IHDR_colorType;
@@ -686,6 +712,8 @@ public class PNGImageReader extends ImageReader {
 
     /**
      * 解析sRGchunk
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void parse_sRGB_chunk() throws IOException {
         metadata.sRGB_renderingIntent = stream.readUnsignedByte();
@@ -695,6 +723,8 @@ public class PNGImageReader extends ImageReader {
 
     /**
      * 解析cICchunk
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void parse_cICP_chunk() throws IOException {
         metadata.cICP_colourPrimaries = stream.readUnsignedByte();
@@ -708,7 +738,9 @@ public class PNGImageReader extends ImageReader {
     /**
      * 解析tEXtchunk
      * @param chunkLength chunkLength
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void parse_tEXt_chunk(int chunkLength) throws IOException {
         String keyword = readNullTerminatedString("ISO-8859-1", 80);
         int textLength = chunkLength - keyword.length() - 1;
@@ -732,6 +764,8 @@ public class PNGImageReader extends ImageReader {
 
     /**
      * 解析tIMchunk
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void parse_tIME_chunk() throws IOException {
         metadata.tIME_year = stream.readUnsignedShort();
@@ -747,7 +781,9 @@ public class PNGImageReader extends ImageReader {
     /**
      * 解析tRNchunk
      * @param chunkLength chunkLength
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void parse_tRNS_chunk(int chunkLength) throws IOException {
         int colorType = metadata.IHDR_colorType;
         if (colorType == PNG_COLOR_PALETTE) {
@@ -798,6 +834,12 @@ public class PNGImageReader extends ImageReader {
         metadata.tRNS_present = true;
     }
 
+    /**
+     * inflate
+     * @param b 参数
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private static byte[] inflate(byte[] b) throws IOException {
         InputStream bais = new ByteArrayInputStream(b);
         InputStream iis = new InflaterInputStream(bais);
@@ -817,7 +859,9 @@ public class PNGImageReader extends ImageReader {
     /**
      * 解析eXIfchunk
      * @param chunkLength chunkLength
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void parse_eXIf_chunk(int chunkLength) throws IOException {
         byte[] b = new byte[chunkLength];
         stream.readFully(b);
@@ -829,7 +873,9 @@ public class PNGImageReader extends ImageReader {
     /**
      * 解析zTXtchunk
      * @param chunkLength chunkLength
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void parse_zTXt_chunk(int chunkLength) throws IOException {
         String keyword = readNullTerminatedString("ISO-8859-1", 80);
         int textLength = chunkLength - keyword.length() - 2;
@@ -856,6 +902,8 @@ public class PNGImageReader extends ImageReader {
 
     /**
      * 读取Metadata
+     * @return 返回值
+     * @throws IIOException 异常
     */
     private void readMetadata() throws IIOException {
         if (gotMetadata) {
@@ -1173,6 +1221,13 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
+    /**
+     * paeth Predictor
+     * @param a 整数
+     * @param b 整数
+     * @param c 整数
+     * @return 返回值
+    */
     private static int paethPredictor(int a, int b, int c) {
         int p = a + b - c;
         int pa = Math.abs(p - a);
@@ -1664,7 +1719,9 @@ public class PNGImageReader extends ImageReader {
      * 读取Image
      * @param imageIndex imageIndex
      * @param param param
-     */
+     * @return 返回值
+     * @throws IIOException 异常
+    */
     private void readImage(int imageIndex, ImageReadParam param) throws IIOException {
         readMetadata();
 

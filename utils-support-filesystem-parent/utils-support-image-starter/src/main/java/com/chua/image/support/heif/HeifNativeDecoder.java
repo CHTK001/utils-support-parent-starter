@@ -23,7 +23,8 @@ public class HeifNativeDecoder {
      * 解码 HEIC/HEIF 数据为 RGBA 字节数组。
      * @param input 输入
      * @return decode的结果
-     */
+     * @throws IOException 异常
+    */
     public static byte[] decode(ImageInputStream input) throws IOException {
         // 读取并验证文件头
         byte[] header = new byte[16];
@@ -74,7 +75,9 @@ public class HeifNativeDecoder {
     /**
      * 解析boxes。
      * @param input 输入
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private static void parseBoxes(ImageInputStream input) throws IOException {
         long end = input.length();
         long pos = 0;
@@ -102,7 +105,8 @@ public class HeifNativeDecoder {
      * @param input 输入
      * @param start 启动
      * @return extractjpeg从heif的结果
-     */
+     * @throws IOException 异常
+    */
     private static byte[] extractJpegFromHeif(ImageInputStream input, long start) throws IOException {
         long end = input.length();
         long pos = start;
@@ -156,7 +160,8 @@ public class HeifNativeDecoder {
      * decodejpeg转为rgba。
      * @param jpegData jpeg数据
      * @return decodejpeg转为rgba的结果
-     */
+     * @throws IOException 异常
+    */
     private static byte[] decodeJpegToRgba(byte[] jpegData) throws IOException {
         java.io.ByteArrayInputStream bis = new java.io.ByteArrayInputStream(jpegData);
         java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(bis);

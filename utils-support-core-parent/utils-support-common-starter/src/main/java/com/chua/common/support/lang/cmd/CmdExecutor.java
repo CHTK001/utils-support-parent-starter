@@ -288,6 +288,14 @@ public interface CmdExecutor extends AutoCloseable {
     default CmdResult executeWithOutput(String command, long timeout, TimeUnit unit, LineCallback callback) {
         CmdResult[] result = new CmdResult[1];
         Object lock = new Object();
+        /**
+         * Cmd Callback
+         * @param CmdCallback( 参数
+         * @param command 参数
+         * @param timeout 参数
+         * @param unit 参数
+         * @return 返回值
+        */
         executeAsync(command, timeout, unit, new CmdCallback() {
             /**
              * On开始

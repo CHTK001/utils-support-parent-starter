@@ -121,7 +121,8 @@ public class H2CleanupPlugin {
     /**
      * 获取connection。
      * @return 获取connection的结果
-     */
+     * @throws SQLException 异常
+    */
     private Connection getConnection() throws SQLException {
         DataSource ds = getDataSource();
         if (ds == null) {
@@ -144,7 +145,8 @@ public class H2CleanupPlugin {
      * 删除所有用户索引（H2 2.x 无 文本 索引，按普通索引清理）。
      * @param conn conn
      * @return 掉落全部用户索引的结果
-     */
+     * @throws SQLException 异常
+    */
     private int dropAllUserIndexes(Connection conn) throws SQLException {
         List<String> indexes = Wraps.list();
         try (Statement stmt = conn.createStatement();
@@ -162,11 +164,11 @@ public class H2CleanupPlugin {
     }
 
     /**
-     * 获取所有用户表名（排除系统表）。
-     * <p>H2 2.x 中用户表的 TABLE_TYPE 为 'BASE TABLE'（SQL 标准值）。</p>
+     * 获取所有用户表名（排除系统表）。 <p>H2 2.x 中用户表的 TABLE_TYPE 为 'BASE TABLE'（SQL 标准值）。</p>
      * @param conn conn
      * @return 获取用户table名称的结果
-     */
+     * @throws SQLException 异常
+    */
     private List<String> getUserTableNames(Connection conn) throws SQLException {
         List<String> tables = Wraps.list();
         try (Statement stmt = conn.createStatement();
@@ -188,7 +190,8 @@ public class H2CleanupPlugin {
      * 删除所有用户表。
      * @param conn conn
      * @return 掉落全部用户tables的结果
-     */
+     * @throws SQLException 异常
+    */
     private int dropAllUserTables(Connection conn) throws SQLException {
         List<String> tables = getUserTableNames(conn);
         for (String table : tables) {
@@ -201,7 +204,9 @@ public class H2CleanupPlugin {
      * 删除指定表。
      * @param conn conn
      * @param tableName table名称
-     */
+     * @return 返回值
+     * @throws SQLException 异常
+    */
     private void dropTable(Connection conn, String tableName) throws SQLException {
         try (Statement stmt = conn.createStatement()) {
             stmt.execute("DROP TABLE IF EXISTS \"" + tableName + "\"");
@@ -214,7 +219,9 @@ public class H2CleanupPlugin {
      * 删除指定索引。
      * @param conn conn
      * @param indexName 索引名称
-     */
+     * @return 返回值
+     * @throws SQLException 异常
+    */
     private void dropIndex(Connection conn, String indexName) throws SQLException {
         try (Statement stmt = conn.createStatement()) {
             stmt.execute("DROP INDEX IF EXISTS \"" + indexName + "\"");

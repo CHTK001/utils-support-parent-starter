@@ -123,7 +123,12 @@ public final class ClassObfuscator {
 
         /**
          * 构造收集器
-         */
+         * @param Map<String 参数
+         * @param fields 参数
+         * @param methods 参数
+         * @param owner 字符串
+         * @return 返回值
+        */
         CollectorVisitor(String owner, Map<String, String> methods, Map<String, String> fields) {
             super(Opcodes.ASM9);
             this.owner = owner;
@@ -201,7 +206,12 @@ public final class ClassObfuscator {
 
         /**
          * 构造改写器
-         */
+         * @param Map<String 参数
+         * @param fields 参数
+         * @param methods 参数
+         * @param owner 字符串
+         * @return 返回值
+        */
         PrivateMemberRemapper(String owner, Map<String, String> methods, Map<String, String> fields) {
             this.owner = owner;
             this.methods = methods;

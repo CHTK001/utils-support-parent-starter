@@ -270,9 +270,9 @@ public class ZmqRpcClient implements RpcClient {
 
         /**
          * 构造器。
-         *
          * @param targetType 目标接口
-         */
+         * @return 返回值
+        */
         RpcInvoker(Class<?> targetType) {
             this.targetType = targetType;
         }

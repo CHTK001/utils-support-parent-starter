@@ -32,6 +32,11 @@ public class QqMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         int length = environment.nextInt(LENGTH_MIN, LENGTH_MAX + 1);
         StringBuilder builder = new StringBuilder(length);

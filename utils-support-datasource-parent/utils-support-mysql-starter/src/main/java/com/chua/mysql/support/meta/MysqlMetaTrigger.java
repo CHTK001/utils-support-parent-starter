@@ -230,6 +230,12 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
          */
         private String body;
 
+        /**
+         * Mysql Trigger Create Builder
+         * @param metaTrigger 参数
+         * @param triggerName 字符串
+         * @return 返回值
+        */
         MysqlTriggerCreateBuilder(MysqlMetaTrigger metaTrigger, String triggerName) {
             this.metaTrigger = metaTrigger;
             this.triggerName = triggerName;

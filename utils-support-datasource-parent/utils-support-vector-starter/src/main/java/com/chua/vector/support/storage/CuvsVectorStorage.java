@@ -333,11 +333,11 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         }
 
         /**
+        /**
          * 根据算法映射 cuvs 距离类型。
-         *
          * @return cuVS 距离类型枚举值
-         */
-        @SuppressWarnings("unchecked")
+         * @throws Exception 异常
+        */
         private Object cuvsDistanceType() throws Exception {
             VectorCompareAlgorithm algo = getAlgorithm();
             Class<?> distanceTypeClass = forName("com.nvidia.cuvs.CuvsDistanceType");
@@ -469,6 +469,12 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             }
         }
 
+        /**
+         * fallback Search
+         * @param query 查询
+         * @param topK 整数
+         * @return 返回值
+        */
         private List<Vector> fallbackSearch(float[] query, int topK) {
             if (rawVectors.isEmpty() || topK <= 0) {
                 return List.of();
@@ -487,6 +493,10 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             return Wraps.list(all.subList(0, Math.min(topK, all.size())));
         }
 
+        /**
+         * ensure Index Built
+         * @return 返回值
+        */
         private synchronized void ensureIndexBuilt() {
             if (indexBuilt || rawVectors.isEmpty() || building) {
                 return;
@@ -526,6 +536,10 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             }
         }
 
+        /**
+         * release Resources
+         * @return 返回值
+        */
         private void releaseResources() {
             if (resources != null) {
                 try {
@@ -538,6 +552,11 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         }
 
         @SuppressWarnings("unchecked")
+        /**
+         * cuvs Distance Type
+         * @return 返回值
+         * @throws Exception 异常
+        */
         private Object cuvsDistanceType() throws Exception {
             VectorCompareAlgorithm algo = getAlgorithm();
             Class<?> distanceTypeClass = forName("com.nvidia.cuvs.CuvsDistanceType");

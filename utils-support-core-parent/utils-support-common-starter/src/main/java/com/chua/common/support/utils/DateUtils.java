@@ -601,21 +601,21 @@ public class DateUtils {
     }
     /**
      * 将 zoned日期时间 按指定格式字符串转换为日期字符串。
-     *
+     * @param pattern 日期格式字符串，如 "yyyy-MM-dd HH:mm:ss"
      * @param zonedDateTime 带时区的时间对象
-     * @param pattern       日期格式字符串，如 "yyyy-MM-dd HH:mm:ss"
      * @return 格式化后的字符串
-     */
+     * @throws ParseException 异常
+    */
     public static String format(ZonedDateTime zonedDateTime, String pattern) throws ParseException {
         return format(zonedDateTime, DateTimeFormatter.ofPattern(pattern));
     }
     /**
      * 将 zoned日期时间 按指定 {@link DateTimeFormatter} 转换为日期字符串。
-     *
+     * @param df 日期时间格式化器
      * @param zonedDateTime 带时区的时间对象
-     * @param df            日期时间格式化器
      * @return 格式化后的字符串
-     */
+     * @throws ParseException 异常
+    */
     public static String format(ZonedDateTime zonedDateTime, DateTimeFormatter df) throws ParseException {
         return zonedDateTime.format(df);
     }
@@ -961,11 +961,11 @@ public class DateUtils {
     }
     /**
      * 自动推断格式解析日期时间字符串。支持数字时间戳（长度 > 10）及常见日期格式。
-     *
      * @param str 日期时间字符串
      * @return 解析后的 日期，可能为 空
      * @throws IllegalArgumentException 若 str 为 空 或空字符串
-     */
+     * @throws ParseException 异常
+    */
     public static Date parseDate(String str) throws ParseException {
         if (StringUtils.isNullOrEmpty(str)) {
             throw new IllegalArgumentException("str is null");
@@ -1583,11 +1583,11 @@ public class DateUtils {
     }
     /**
      * 日期str   本地日期
-     *
      * @param dateStr 日期str
      * @return LocalDate
      * @throws NullPointerException if 日期 是否 not valid
-     */
+     * @throws ParseException 异常
+    */
     public static LocalDate toLocalDate(final String dateStr) throws ParseException {
         return toLocalDateTime(dateStr).toLocalDate();
     }
@@ -1740,10 +1740,10 @@ public class DateUtils {
     }
     /**
      * 日期 -> 本地日期时间
-     *
      * @param date 日期
      * @return LocalDateTime
-     */
+     * @throws ParseException 异常
+    */
     public static LocalDateTime toLocalDateTime(final String date) throws ParseException {
         return toLocalDateTime(parseDate(date));
     }
@@ -1879,11 +1879,11 @@ public class DateUtils {
     }
     /**
      * 日期str -> 本地日期时间
-     *
      * @param dateStr 日期str
      * @return LocalDateTime
      * @throws NullPointerException if 日期str 是否 not valid
-     */
+     * @throws ParseException 异常
+    */
     public static LocalTime toLocalTime(final String dateStr) throws ParseException {
         if (NumberUtils.isNumber(dateStr)) {
             return LocalTime.ofSecondOfDay(Long.parseLong(dateStr));

@@ -14,10 +14,10 @@ public class BrowserContext {
 
     /**
      * 创建浏览器上下文句柄包装。
-     *
      * @param engine 驱动引擎实例，不允许为 null
      * @param handle 引擎侧的上下文句柄标识
-     */
+     * @return 返回值
+    */
     BrowserContext(Engine engine, long handle) {
         this.engine = engine;
         this.handle = handle;
@@ -40,6 +40,10 @@ public class BrowserContext {
         return new Page(engine, h);
     }
 
+    /**
+     * 关闭
+     * @return 返回值
+    */
     public void close() {
         engine.close(handle);
     }

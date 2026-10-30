@@ -72,9 +72,9 @@ public final class CliRequest {
 
     /**
      * 创建请求实例
-     *
      * @param tool 所属的 CLI 工具
-     */
+     * @return 返回值
+    */
     CliRequest(@Nonnull CliTool tool) {
         this.tool = tool;
         this.timeout = tool.descriptor().defaultTimeoutSeconds();

@@ -155,14 +155,10 @@ public class JsonArray extends LinkedList<Object> {
  }
 
  /**
-  * 重写 forEach 方法，在遍历时自动将内部存储的 Map 转换为 JsonObject，
-  * 将 Collection 转换为 JsonArray，以便使用者直接获得强类型的对象。
-  *
+  * 重写 forEach 方法，在遍历时自动将内部存储的 Map 转换为 JsonObject， 将 Collection 转换为 JsonArray，以便使用者直接获得强类型的对象。 /    @Override ForEach
   * @param action 要执行的操作
-  */    @Override
-    /**
-     * ForEach
-     */
+  * @return 返回值
+ */
     public void forEach(Consumer<? super Object> action) {
         super.forEach(new SafeConsumer<Object>() {
             /**
@@ -193,6 +189,11 @@ public class JsonArray extends LinkedList<Object> {
   * @param <E> 泛型类型
   */
  public <E> void forEach(Consumer<E> consumer, Class<E> type) {
+ /**
+  * for Each
+  * @param { 参数
+  * @return 返回值
+ */
  forEach(o -> {
  consumer.accept(Converter.convertIfNecessary(o, type));
  });

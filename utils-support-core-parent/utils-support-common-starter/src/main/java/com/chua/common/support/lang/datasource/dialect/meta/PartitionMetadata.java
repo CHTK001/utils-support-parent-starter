@@ -148,9 +148,9 @@ public class PartitionMetadata {
 
         /**
          * 构造分区类型枚举。
-         *
          * @param keyword SQL DDL 中对应的关键字字符串
-         */
+         * @return 返回值
+        */
         PartitionType(String keyword) {
             this.keyword = keyword;
         }

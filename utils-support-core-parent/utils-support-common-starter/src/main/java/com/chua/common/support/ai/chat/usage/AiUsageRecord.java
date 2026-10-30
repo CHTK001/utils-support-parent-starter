@@ -379,7 +379,8 @@ public class AiUsageRecord {
 
         /**
          * 构造 Builder，初始化创建时间为当前毫秒
-         */
+         * @return 返回值
+        */
         Builder() {
             record.createdAt = System.currentTimeMillis();
         }

@@ -35,6 +35,11 @@ public class FileExtMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         return environment.randomOf(EXTENSIONS);
     }

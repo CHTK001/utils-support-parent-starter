@@ -156,9 +156,9 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
 
     /**
      * 创建默认代理提供者实例。
-     *
      * @param type 目标接口类型，不能为 空
-     */
+     * @return 返回值
+    */
     DefaultProxyProvider(Class<T> type) {
         this.type = type;
     }

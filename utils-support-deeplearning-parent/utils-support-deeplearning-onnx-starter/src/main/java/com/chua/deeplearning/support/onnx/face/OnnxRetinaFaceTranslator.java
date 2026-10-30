@@ -275,6 +275,16 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
         final double prob;
         final double[] kp;
 
+        /**
+         * Candidate
+         * @param h 双精度数
+         * @param kp 参数
+         * @param prob 双精度数
+         * @param w 双精度数
+         * @param x 双精度数
+         * @param y 双精度数
+         * @return 返回值
+        */
         Candidate(double x, double y, double w, double h, double prob, double[] kp) {
             this.x = x;
             this.y = y;

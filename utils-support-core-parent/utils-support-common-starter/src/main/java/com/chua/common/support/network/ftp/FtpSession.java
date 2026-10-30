@@ -103,11 +103,11 @@ class FtpSession {
 
     /**
      * 创建 FTP 会话。
-     *
+     * @param config FTP 配置
      * @param controlSocket 控制连接 Socket
-     * @param config        FTP 配置
+     * @return 返回值
      * @throws IOException IO 异常
-     */
+    */
     FtpSession(Socket controlSocket, FtpConfig config) throws IOException {
         this.id = "ftp-" + SESSION_COUNTER.incrementAndGet();
         this.controlSocket = controlSocket;

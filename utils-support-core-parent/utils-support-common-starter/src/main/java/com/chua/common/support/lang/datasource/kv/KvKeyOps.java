@@ -33,10 +33,10 @@ public class KvKeyOps {
 
     /**
      * 根据底层引擎与键构造键级操作器。
-     *
      * @param engine 底层 KV 引擎实现，不可为 null
-     * @param key    绑定的键，不可为 null
-     */
+     * @param key 绑定的键，不可为 null
+     * @return 返回值
+    */
     KvKeyOps(KvEngine engine, String key) {
         this.engine = engine;
         this.key = key;

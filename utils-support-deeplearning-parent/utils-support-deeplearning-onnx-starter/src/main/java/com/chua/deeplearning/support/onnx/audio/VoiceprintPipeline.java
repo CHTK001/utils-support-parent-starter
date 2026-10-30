@@ -342,6 +342,11 @@ public class VoiceprintPipeline implements AutoCloseable {
          */
         private Path audioPath;
 
+        /**
+         * Enroll Config
+         * @param parent 参数
+         * @return 返回值
+        */
         EnrollConfig(VoiceprintPipeline parent) {
             this.parent = parent;
         /**
@@ -351,16 +356,31 @@ public class VoiceprintPipeline implements AutoCloseable {
          */
         }
 
+        /**
+         * id
+         * @param speakerId 字符串
+         * @return 返回值
+        */
         public EnrollConfig id(String speakerId) {
             this.id = speakerId;
             return this;
         }
 
+        /**
+         * label
+         * @param label 字符串
+         * @return 返回值
+        */
         public EnrollConfig label(String label) {
             this.label = label;
             return this;
         }
 
+        /**
+         * audio
+         * @param audioPath 路径
+         * @return 返回值
+        */
         public EnrollConfig audio(Path audioPath) {
             this.audioPath = audioPath;
             return this;
@@ -368,9 +388,9 @@ public class VoiceprintPipeline implements AutoCloseable {
 
         /**
          * 执行入库并返回管线实例（可继续链式）。
-         *
          * @return 执行的结果
-         */
+         * @throws Exception 异常
+        */
         public VoiceprintPipeline execute() throws Exception {
             if (id == null || audioPath == null) {
                 throw new IllegalStateException("id 和 audio 均为必填");
@@ -408,6 +428,11 @@ public class VoiceprintPipeline implements AutoCloseable {
          */
         private Path queryPath;
 
+        /**
+         * Search Config
+         * @param parent 参数
+         * @return 返回值
+        */
         SearchConfig(VoiceprintPipeline parent) {
             this.parent = parent;
         /**
@@ -417,16 +442,31 @@ public class VoiceprintPipeline implements AutoCloseable {
          */
         }
 
+        /**
+         * top K
+         * @param k 整数
+         * @return 返回值
+        */
         public SearchConfig topK(int k) {
             this.topK = Math.max(1, k);
             return this;
         }
 
+        /**
+         * threshold
+         * @param t 双精度数
+         * @return 返回值
+        */
         public SearchConfig threshold(double t) {
             this.threshold = t;
             return this;
         }
 
+        /**
+         * 查询
+         * @param queryPath 路径
+         * @return 返回值
+        */
         public SearchConfig query(Path queryPath) {
             this.queryPath = queryPath;
             return this;
@@ -434,9 +474,9 @@ public class VoiceprintPipeline implements AutoCloseable {
 
         /**
          * 执行检索，返回匹配结果。
-         *
          * @return 执行的结果
-         */
+         * @throws Exception 异常
+        */
         public List<Match> execute() throws Exception {
             if (queryPath == null) {
                 throw new IllegalStateException("query 为必填");
@@ -546,11 +586,22 @@ public class VoiceprintPipeline implements AutoCloseable {
             return this;
         }
 
+        /**
+         * vector Storage
+         * @param s 参数
+         * @return 返回值
+        */
         public Builder vectorStorage(VectorStorage s) {
             this.vectorStorage = s;
             return this;
         }
 
+        /**
+         * vector Storage
+         * @param config 对象
+         * @param provider 字符串
+         * @return 返回值
+        */
         public Builder vectorStorage(String provider, Object config) {
             String host = null;
             Integer port = null;
@@ -602,6 +653,11 @@ public class VoiceprintPipeline implements AutoCloseable {
             return this;
         }
 
+        /**
+         * storage Dir
+         * @param dir 路径
+         * @return 返回值
+        */
         public Builder storageDir(Path dir) {
             this.storageDir = dir;
             return this;
@@ -650,6 +706,10 @@ public class VoiceprintPipeline implements AutoCloseable {
             return this;
         }
 
+        /**
+         * 构建
+         * @return 返回值
+        */
         public VoiceprintPipeline build() {
             VectorStorage s = vectorStorage;
             if (s == null) {

@@ -290,7 +290,13 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
                 out, total > out.size(), total, System.currentTimeMillis() - t0);
     }
 
-    /** 另取一次真实总数：hits.total 走 track_total_hits 时才有值，这里直接用 _count 更稳 */
+    /**
+     * read Json Total
+     * @param client 参数
+     * @param index 字符串
+     * @param query 查询
+     * @return 返回值
+    */
     private long readJsonTotal(RestClient client, String index, String query) {
         try {
             String body = (query == null || query.isEmpty())
@@ -304,6 +310,12 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
         }
     }
 
+    /**
+     * node Rows
+     * @param client 参数
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private List<Map<String, Object>> nodeRows(RestClient client) throws Exception {
         JsonNode rows = readJson(client, new Request("GET", "/_cat/nodes?format=json&h=ip,node.role,master,name"));
         List<Map<String, Object>> out = new ArrayList<>();
@@ -317,6 +329,12 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
         return out;
     }
 
+    /**
+     * field Rows
+     * @param index 字符串
+     * @param mapping 参数
+     * @return 返回值
+    */
     private List<Map<String, Object>> fieldRows(JsonNode mapping, String index) {
         List<Map<String, Object>> out = new ArrayList<>();
         JsonNode props = mappingProperties(mapping, index);
@@ -335,14 +353,11 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
     }
 
     /**
-     * 从 {@code GET /{index}/_mapping} 的响应里取字段定义。
-     *
-     * <p>真实响应是<b>三层</b>：{@code {索引: {mappings: {properties: {...}}}}}。
-     * 少写中间那层 {@code mappings}，{@code path("properties")} 会静默拿到缺失节点、
-     * 返回空字段表——不报错，只是「字段永远为空」，正是最难发现的那类错。
-     * ES 7 之前的老响应体曾直接是 {@code {索引: {properties: ...}}}，
-     * 这里同时兼容两种形状，避免老集群下又变成空的。</p>
-     */
+     * 从 {@code GET /{index}/_mapping} 的响应里取字段定义。 <p>真实响应是<b>三层</b>：{@code {索引: {mappings: {properties: {...}}}}}。 少写中间那层 {@code mappings}，{@code path("properties")} 会静默拿到缺失节点、 返回空字段表——不报错，只是「字段永远为空」，正是最难发现的那类错。 ES 7 之前的老响应体曾直接是 {@code {索引: {properties: ...}}}， 这里同时兼容两种形状，避免老集群下又变成空的。</p>
+     * @param index 字符串
+     * @param mapping 参数
+     * @return 返回值
+    */
     private static JsonNode mappingProperties(JsonNode mapping, String index) {
         JsonNode node = mapping.path(index);
         JsonNode nested = node.path("mappings").path("properties");
@@ -373,7 +388,11 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
 
     // ==================== 底层工具 ====================
 
-    /** 构造只读客户端；账号为空则不加认证（ES 允许匿名读） */
+    /**
+     * client
+     * @param request 参数
+     * @return 返回值
+    */
     private RestClient client(MiddlewareConnectRequest request) {
         RestClientBuilder builder = RestClient.builder(HttpHost.create("http://" + request.address()));
         // 回调要交回 Builder 本身，不是配好的 RequestConfig：RestClient 每次建连都从它 clone
@@ -389,11 +408,22 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
         return builder.build();
     }
 
+    /**
+     * cat Indices
+     * @param path 字符串
+     * @return 返回值
+    */
     private static Request catIndices(String path) {
         return new Request("GET", path);
     }
 
-    /** 执行请求并把响应体解析成 JSON；响应体为空时返回空对象而不是抛异常 */
+    /**
+     * read Json
+     * @param client 参数
+     * @param request 请求
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private static JsonNode readJson(RestClient client, Request request) throws Exception {
         Response response = client.performRequest(request);
         HttpEntity entity = response.getEntity();
@@ -404,13 +434,24 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
         return body.isBlank() ? MAPPER.createObjectNode() : MAPPER.readTree(body);
     }
 
-    /** 取「count 」/「mapping 」这类前缀后的第一个参数 */
+    /**
+     * arg
+     * @param lower 字符串
+     * @param verb 字符串
+     * @return 返回值
+    */
     private static String arg(String lower, String verb) {
         String[] a = args(lower, verb, 1);
         return a.length >= 1 ? a[0] : "";
     }
 
-    /** 按 verb 切分表达式，最多取 limit 个参数；search 的第二段是查询串，不做空白切分 */
+    /**
+     * args
+     * @param limit 整数
+     * @param lower 字符串
+     * @param verb 字符串
+     * @return 返回值
+    */
     private static String[] args(String lower, String verb, int limit) {
         String tail = lower.substring(verb.length()).trim();
         if (tail.isEmpty()) {
@@ -426,16 +467,29 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
         return tail.split("\\s+", limit);
     }
 
-    /** 路径片段转义：ES 索引名里常含 * 与 , 不能直接拼路径 */
+    /**
+     * enc
+     * @param s 字符串
+     * @return 返回值
+    */
     private static String enc(String s) {
         return s == null ? "" : s.replace(" ", "%20");
     }
 
+    /**
+     * json Escape
+     * @param s 字符串
+     * @return 返回值
+    */
     private static String jsonEscape(String s) {
         return s.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
-    /** _cat 的计数列在无文档时返回空串 */
+    /**
+     * parse Long
+     * @param s 字符串
+     * @return 返回值
+    */
     private static Long parseLong(String s) {
         try {
             return s == null || s.isEmpty() ? null : Long.valueOf(s.trim());
@@ -444,11 +498,20 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
         }
     }
 
-    /** 1.2gb -> 1.2gb（_cat 已带单位，这里只补空值） */
+    /**
+     * human Size
+     * @param s 字符串
+     * @return 返回值
+    */
     private static String humanSize(String s) {
         return s == null || s.isEmpty() ? "-" : s;
     }
 
+    /**
+     * truncate
+     * @param s 字符串
+     * @return 返回值
+    */
     private static String truncate(String s) {
         if (s == null) {
             return "";
@@ -456,7 +519,11 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
         return s.length() <= MAX_TEXT ? s : s.substring(0, MAX_TEXT) + "…(截断)";
     }
 
-    /** 异常消息取根因，链路上层层包装时最内层才是真因 */
+    /**
+     * root Message
+     * @param e 可抛出异常
+     * @return 返回值
+    */
     private static String rootMessage(Throwable e) {
         Throwable cur = e;
         while (cur.getCause() != null && cur.getCause() != cur) {

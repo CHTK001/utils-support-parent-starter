@@ -497,6 +497,12 @@ public class PostgresqlMetaTrigger extends AbstractMetaTrigger {
          */
         private String comment;
 
+        /**
+         * Postgres Trigger Create Builder
+         * @param metaTrigger 参数
+         * @param triggerName 字符串
+         * @return 返回值
+        */
         PostgresTriggerCreateBuilder(PostgresqlMetaTrigger metaTrigger, String triggerName) {
             this.metaTrigger = metaTrigger;
             this.triggerName = triggerName;

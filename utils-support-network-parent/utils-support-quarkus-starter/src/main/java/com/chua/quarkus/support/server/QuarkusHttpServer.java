@@ -241,6 +241,11 @@ public class QuarkusHttpServer extends AbstractServer {
          */
         private boolean sseMode;
 
+        /**
+         * Quarkus Server Response
+         * @param ctx 参数
+         * @return 返回值
+        */
         QuarkusServerResponse(RoutingContext ctx) {
             this.ctx = ctx;
         }
@@ -582,6 +587,11 @@ public class QuarkusHttpServer extends AbstractServer {
          */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
+        /**
+         * Quarkus Server Request
+         * @param ctx 参数
+         * @return 返回值
+        */
         QuarkusServerRequest(RoutingContext ctx) {
             this.ctx = ctx;
  // 预缓存 主体

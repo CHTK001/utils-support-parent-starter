@@ -417,6 +417,11 @@ public class HashedWheelTimer implements Timer {
          */
         TaskNode next;
 
+        /**
+         * Task Node
+         * @param task 参数
+         * @return 返回值
+        */
         TaskNode(TimerTask task) {
             this.taskFromWheel = task;
         }

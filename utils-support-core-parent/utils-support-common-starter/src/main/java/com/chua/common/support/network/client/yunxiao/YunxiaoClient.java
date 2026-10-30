@@ -308,9 +308,9 @@ public class YunxiaoClient {
 
         /**
          * 构造制品查询构建器。
-         *
          * @param repoId 仓库 Id
-         */
+         * @return 返回值
+        */
         ArtifactQuery(String repoId) {
             this.repoId = repoId;
         }

@@ -275,7 +275,8 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
      * 执行 WebSocket 握手
      * @param conn 连接，不允许为 null
      * @return 是否成功（true 表示成功）
-     */
+     * @throws IOException 异常
+    */
     private boolean performHandshake(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
         ByteArrayOutputStream reqBuf = new ByteArrayOutputStream();
@@ -315,7 +316,9 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
     /**
      * 读取 WebSocket 帧
      * @param conn 连接，不允许为 null
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void readFrames(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
         while (!conn.socket.isClosed() && !Thread.currentThread().isInterrupted()) {
@@ -380,7 +383,8 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
      * 计算 WebSocket 接受密钥
      * @param key 键，不允许为 null
      * @return 结果字符串
-     */
+     * @throws Exception 异常
+    */
     private String computeWebSocketAccept(String key) throws Exception {
         String combined = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
         MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -389,13 +393,11 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
     }
 
     /**
-     * 构建 WebSocket 文本帧
-     *
-     * <p>协议规定：仅客户端帧需掩码（masked），服务端帧必须无掩码——否则客户端按协议
-     * 校验会异常关闭连接（1006）。</p>
+     * 构建 WebSocket 文本帧 <p>协议规定：仅客户端帧需掩码（masked），服务端帧必须无掩码——否则客户端按协议 校验会异常关闭连接（1006）。</p>
      * @param payload 方法入参 payload
      * @return 结果值
-     */
+     * @throws Exception 异常
+    */
     private static byte[] buildTextFrame(String payload) throws Exception {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -457,6 +459,11 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
         OutputStream out;
         String sessionId;
 
+        /**
+         * Connection
+         * @param socket 参数
+         * @return 返回值
+        */
         Connection(Socket socket) {
             this.socket = socket;
             try {

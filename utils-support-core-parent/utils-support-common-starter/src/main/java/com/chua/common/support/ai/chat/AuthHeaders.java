@@ -74,6 +74,11 @@ public final class AuthHeaders {
     }
 
 
+    /**
+     * header Prefix
+     * @param authPrefix 字符串
+     * @return 返回值
+    */
     public static String headerPrefix(String authPrefix) {
         return (authPrefix == null) ? DEFAULT_PREFIX : authPrefix;
     }

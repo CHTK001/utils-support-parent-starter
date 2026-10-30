@@ -231,11 +231,11 @@ public class LaMaOnnxInfer implements AutoCloseable {
 
     /**
      * 执行ONNX推理
-     *
      * @param imageData 图像数据
-     * @param maskData  mask数据
+     * @param maskData mask数据
      * @return 推理结果
-     */
+     * @throws Exception 异常
+    */
     private float[] runInference(float[] imageData, float[] maskData) throws Exception {
         Class<?> onnxTensorClass = ClassUtils.forName("ai.onnxruntime.OnnxTensor");
         Class<?> ortSessionClass = ClassUtils.forName("ai.onnxruntime.OrtSession");

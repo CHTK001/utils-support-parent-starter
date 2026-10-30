@@ -47,11 +47,11 @@ public class OracleDropIndexStep implements IndexManager.DropIndexStep {
 
     /**
      * 构造方法，创建 Oracle 删除索引 Step 实例。
-     *
      * @param dataSource 数据来源，不允许为 null
-     * @param indexName  索引名称，必须通过 {@link SqlName} 白名单校验
+     * @param indexName 索引名称，必须通过 {@link SqlName} 白名单校验
+     * @return 返回值
      * @throws IllegalArgumentException 数据源为空，或索引名为空、含非法字符
-     */
+    */
     OracleDropIndexStep(DataSource dataSource, String indexName) {
         if (dataSource == null) {
             throw new IllegalArgumentException("删除 Oracle 索引需要数据源");

@@ -577,6 +577,11 @@ public class MqttClientWrapper implements AutoCloseable {
         */
         private BiConsumer<String, String> handler;
 
+        /**
+         * Subscribe Operation
+         * @param client 参数
+         * @return 返回值
+        */
         SubscribeOperation(MqttClientWrapper client) {
             this.client = client;
         }
@@ -677,6 +682,11 @@ public class MqttClientWrapper implements AutoCloseable {
         */
         private boolean retained = false;
 
+        /**
+         * Publish Operation
+         * @param client 参数
+         * @return 返回值
+        */
         PublishOperation(MqttClientWrapper client) {
             this.client = client;
         }

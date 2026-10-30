@@ -404,10 +404,10 @@ public class DefaultDownloadService implements DownloadService {
 
         /**
          * 创建限速输入流。
-         *
-         * @param delegate       底层输入流
          * @param bytesPerSecond 限速字节/秒，0 表示不限速
-         */
+         * @param delegate 底层输入流
+         * @return 返回值
+        */
         ThrottledInputStream(InputStream delegate, long bytesPerSecond) {
             this.delegate = delegate;
             this.bytesPerMs = bytesPerSecond / 1000;

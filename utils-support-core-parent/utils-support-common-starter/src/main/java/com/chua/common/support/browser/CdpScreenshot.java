@@ -120,6 +120,13 @@ public final class CdpScreenshot {
      * @param options 配置回调
      */
     public static void fullPageScreenshot(String url, String outFile, Consumer<ScreenshotConfig> options) {
+        /**
+         * screenshot
+         * @param outFile 参数
+         * @param url 参数
+         * @param { 参数
+         * @return 返回值
+        */
         screenshot(url, outFile, config -> {
             config.setFullPage(true);
             if (options != null) {

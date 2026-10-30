@@ -51,10 +51,10 @@ public class OracleCreateUserStep implements UserManager.CreateUserStep {
 
     /**
      * 构造方法，创建 Oracle 创建用户步骤实例。
-     *
      * @param dataSource 数据来源，不允许为 null
-     * @param username   用户名，必须命中用户名白名单
-     */
+     * @param username 用户名，必须命中用户名白名单
+     * @return 返回值
+    */
     OracleCreateUserStep(DataSource dataSource, String username) {
         this.dataSource = dataSource;
         this.username = OracleSqlNames.checkUserName(username);

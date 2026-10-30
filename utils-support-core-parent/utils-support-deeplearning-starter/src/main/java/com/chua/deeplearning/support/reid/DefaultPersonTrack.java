@@ -403,6 +403,12 @@ public class DefaultPersonTrack implements PersonTrack {
          */
         private int observations;
 
+        /**
+         * Track State
+         * @param feature 参数
+         * @param id 字符串
+         * @return 返回值
+        */
         TrackState(String id, float[] feature) {
             this.id = id;
             this.feature = feature.clone();

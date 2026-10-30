@@ -167,6 +167,12 @@ public class SshMultiProgress implements AutoCloseable {
         final String name; // 名称
         final long total; // total
 
+        /**
+         * Task Def
+         * @param name 字符串
+         * @param total 长整数
+         * @return 返回值
+        */
         TaskDef(String name, long total) {
             this.name = name;
             this.total = total;

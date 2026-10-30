@@ -319,6 +319,11 @@ public class ServerFilterManager {
          */
         private final ServerFilter delegate;
 
+        /**
+         * Static Reactive Filter Adapter
+         * @param delegate 参数
+         * @return 返回值
+        */
         StaticReactiveFilterAdapter(ServerFilter delegate) {
             this.delegate = delegate;
         }

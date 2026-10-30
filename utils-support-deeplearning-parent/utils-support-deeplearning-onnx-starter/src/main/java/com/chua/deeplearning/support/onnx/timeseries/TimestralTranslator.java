@@ -120,7 +120,12 @@ public class TimestralTranslator implements TimeSeriesForecaster {
         }
     }
 
-    /** 实际预测逻辑（抛出 {@code OrtException}，由 {@link #forecast} 捕获转为 {@code RuntimeException}）。 */
+    /**
+     * do Forecast
+     * @param request 参数
+     * @return 返回值
+     * @throws ai.onnxruntime.OrtException 异常
+    */
     private ForecastResult doForecast(ForecastRequest request) throws ai.onnxruntime.OrtException {
             double[] ctx = padContext(request.context());
             boolean[] obs = new boolean[CONTEXT];
@@ -263,7 +268,11 @@ public class TimestralTranslator implements TimeSeriesForecaster {
 
     // ---------------------------------------------------------------- 预处理
 
-    /** 补齐/截断至 512 步，左填充（与 prep.ts padded 一致：超出部分置 NaN）。 */
+    /**
+     * pad Context
+     * @param raw 参数
+     * @return 返回值
+    */
     private static double[] padContext(double[] raw) {
         double[] out = new double[CONTEXT];
         Arrays.fill(out, Double.NaN);
@@ -380,7 +389,11 @@ public class TimestralTranslator implements TimeSeriesForecaster {
         return q;
     }
 
-    /** 将目标分位数值映射到 21 档输出中最近档的索引。 */
+    /**
+     * nearest Quantile Index
+     * @param q 双精度数
+     * @return 返回值
+    */
     private static int nearestQuantileIndex(double q) {
         int best = 0;
         double bestDist = Double.MAX_VALUE;
@@ -396,15 +409,31 @@ public class TimestralTranslator implements TimeSeriesForecaster {
 
     // ---------------------------------------------------------------- 工具方法
 
+    /**
+     * f32
+     * @param v 双精度数
+     * @return 返回值
+    */
     private static float f32(double v) {
         return (float) v;
     }
 
+    /**
+     * asinh
+     * @param x 双精度数
+     * @return 返回值
+    */
     private static double asinh(double x) {
         return Math.log(x + Math.sqrt(x * x + 1.0));
     }
 
     @SuppressWarnings("unchecked")
+    /**
+     * to Flat Float3d
+     * @param val 对象
+     * @return 返回值
+     * @throws ai.onnxruntime.OrtException 异常
+    */
     private static float[] toFlatFloat3d(Object val) throws ai.onnxruntime.OrtException {
         if (val instanceof float[][][] f) {
             int total = f.length * f[0].length * f[0][0].length;
@@ -440,6 +469,10 @@ public class TimestralTranslator implements TimeSeriesForecaster {
 
     // ---------------------------------------------------------------- 惰性加载
 
+    /**
+     * ensure Prepared
+     * @return 返回值
+    */
     private void ensurePrepared() {
         if (prepared) {
     return;

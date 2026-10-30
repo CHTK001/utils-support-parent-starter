@@ -186,6 +186,13 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
     @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                           ServerFilterChain chain) throws Exception {
+        /**
+         * execute Discovery
+         * @param request 参数
+         * @param res 参数
+         * @param response 参数
+         * @return 返回值
+        */
         executeDiscovery(request, response, (req, res) -> {
             try {
                 chain.doFilter(req, res);

@@ -84,6 +84,13 @@ public class FileEngine extends AbstractEngine {
         String fileType; // 文件类型
         boolean autoPersist; // autopersist
 
+        /**
+         * Table Meta
+         * @param autoPersist 布尔值
+         * @param file 文件
+         * @param fileType 字符串
+         * @return 返回值
+        */
         TableMeta(File file, String fileType, boolean autoPersist) {
             this.file = file;
             this.fileType = fileType;

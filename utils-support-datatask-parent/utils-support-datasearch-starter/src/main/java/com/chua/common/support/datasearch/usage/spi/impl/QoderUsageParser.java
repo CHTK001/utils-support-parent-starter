@@ -294,7 +294,9 @@ public class QoderUsageParser extends BaseUsageParser {
 
     /**
      * 从 assistant message 中提取文本内容用于 token 估算。
-     */
+     * @param message 参数
+     * @return 返回值
+    */
     private String extractAssistantText(JsonNode message) {
         JsonNode content = message.get("content");
         if (content == null) {
@@ -305,7 +307,9 @@ public class QoderUsageParser extends BaseUsageParser {
 
     /**
      * 按字符启发式估算 token 数：中文约 1 字/token，英文约 4 字符/token。
-     */
+     * @param text 字符串
+     * @return 返回值
+    */
     private int estimateTokens(String text) {
         if (text == null || text.isEmpty()) {
             return 0;

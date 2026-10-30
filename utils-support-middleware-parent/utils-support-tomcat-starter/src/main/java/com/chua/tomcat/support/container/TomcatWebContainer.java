@@ -95,11 +95,12 @@ public class TomcatWebContainer extends AbstractWebContainer {
     }
 
     /**
-     * 部署 WAR 文件到 Tomcat。
-     * 先解压 WAR 到独立目录，再部署解压后的目录（避免 fixdocbase 失败）。
+     * 部署 WAR 文件到 Tomcat。 先解压 WAR 到独立目录，再部署解压后的目录（避免 fixdocbase 失败）。
      * @param archivePath Arch Linux Linux路径
      * @param contextPath 上下文路径
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void deployWar(String archivePath, String contextPath) throws Exception {
         var warFile = resolveFile(archivePath);
  // 部署目录：使用固定独立路径，避免 docbase 路径解析冲突

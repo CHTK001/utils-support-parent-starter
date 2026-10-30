@@ -225,11 +225,12 @@ public class JdkUdpServer extends AbstractServer {
 
     /**
      * 发送 UDP 数据包。
-     *
+     * @param data 数据
      * @param host 目标主机
      * @param port 目标端口
-     * @param data 数据
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     public void send(String host, int port, byte[] data) throws Exception {
         DatagramPacket packet = new DatagramPacket(data, data.length, new InetSocketAddress(host, port));
         datagramSocket.send(packet);

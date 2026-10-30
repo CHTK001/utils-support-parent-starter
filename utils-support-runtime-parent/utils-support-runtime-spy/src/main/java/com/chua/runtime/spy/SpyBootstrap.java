@@ -175,16 +175,11 @@ public class SpyBootstrap {
     }
 
     /**
-     * 初始化字节码转换器。
-     *
-     * <p><b>不做全量 retransform</b>：实测对运行中 JVM（Tomcat 已承载流量）逐类
-     * retransform 会触发 {@code InternalError: invalid class} 或长时间挂起，
-     * 导致 agentmain 整体失败。这里只注册 retransformable transformer ——
-     * 对<b>未来加载</b>的类生效（应用请求处理会持续懒加载新类，覆盖足够）。
-     * handler 的拦截规则注册后，新类加载时即被织入。</p>
-     *
+     * 初始化字节码转换器。 <p><b>不做全量 retransform</b>：实测对运行中 JVM（Tomcat 已承载流量）逐类 retransform 会触发 {@code InternalError: invalid class} 或长时间挂起， 导致 agentmain 整体失败。这里只注册 retransformable transformer —— 对<b>未来加载</b>的类生效（应用请求处理会持续懒加载新类，覆盖足够）。 handler 的拦截规则注册后，新类加载时即被织入。</p>
      * @param inst Instrumentation 实例
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private static void initTransformer(Instrumentation inst) throws Exception {
         transformer = new SpyTransformer(null, INCLUDE_PATTERNS, EXCLUDE_PATTERNS);
         inst.addTransformer(transformer, true);

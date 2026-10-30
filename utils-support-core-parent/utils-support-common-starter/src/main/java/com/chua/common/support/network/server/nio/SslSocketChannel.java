@@ -103,7 +103,9 @@ public class SslSocketChannel extends SocketChannel {
 
     /**
      * 阻塞式 TLS 握手，直至 {@link SSLEngineResult.HandshakeStatus#FINISHED}。
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void handshake() throws IOException {
         engine.beginHandshake();
         while (true) {
@@ -257,9 +259,9 @@ public class SslSocketChannel extends SocketChannel {
 
     /**
      * 从底层通道读取密文到 {@link #netIn}。
-     *
      * @return true 表示读取成功（含 0 字节重试后的数据）；false 表示对端关闭（EOF）
-     */
+     * @throws IOException 异常
+    */
     private boolean readNet() throws IOException {
         netIn.clear();
         int n;
@@ -275,7 +277,9 @@ public class SslSocketChannel extends SocketChannel {
 
     /**
      * 将 {@link #netOut} 中的密文全部写入底层通道。
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void flushNetOut() throws IOException {
         netOut.flip();
         while (netOut.hasRemaining()) {
@@ -298,9 +302,11 @@ public class SslSocketChannel extends SocketChannel {
 
     /**
      * 校验 wrap/unwrap 结果，非 OK 状态抛出异常。
-     * @param result 结果，不允许为 null
      * @param phase 方法入参 phase
-     */
+     * @param result 结果，不允许为 null
+     * @return 返回值
+     * @throws SSLException 异常
+    */
     private static void check(SSLEngineResult result, String phase) throws SSLException {
         if (result.getStatus() != SSLEngineResult.Status.OK
                 && result.getStatus() != SSLEngineResult.Status.CLOSED) {

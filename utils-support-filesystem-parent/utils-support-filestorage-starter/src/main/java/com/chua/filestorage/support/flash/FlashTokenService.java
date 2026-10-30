@@ -56,9 +56,9 @@ public class FlashTokenService {
 
     /**
      * 创建一个闪图 令牌，返回生成的 令牌 字符串。
-     *
      * @return token
-     */
+     * @throws IOException 异常
+    */
     public String createToken() throws IOException {
         String token = UUID.randomUUID().toString().replace("-", "");
         Path marker = flashDir.resolve(token);

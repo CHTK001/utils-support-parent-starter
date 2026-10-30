@@ -356,6 +356,12 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
          */
         private String database = null;
 
+        /**
+         * Grant Action
+         * @param dataSource 数据源
+         * @param privileges 字符串
+         * @return 返回值
+        */
         GrantAction(DataSource dataSource, String privileges) {
             this.dataSource = dataSource;
             this.privileges = checkPrivileges(privileges);
@@ -461,6 +467,12 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
          */
         private String user = null;
 
+        /**
+         * Revoke Action
+         * @param dataSource 数据源
+         * @param privileges 字符串
+         * @return 返回值
+        */
         RevokeAction(DataSource dataSource, String privileges) {
             this.dataSource = dataSource;
             this.privileges = checkPrivileges(privileges);

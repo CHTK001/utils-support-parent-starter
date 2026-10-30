@@ -43,6 +43,7 @@ class DfsmnStftIStft {
 
     /**
      * 创建 dfsmnstftistft 实例
+     * @return 返回值
     */
     DfsmnStftIStft() {
         this.analysisWindow = buildTorchHammingWindow();

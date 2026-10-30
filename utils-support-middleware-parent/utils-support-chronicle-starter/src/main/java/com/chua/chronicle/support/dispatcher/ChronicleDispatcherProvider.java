@@ -351,6 +351,10 @@ executor.submit(() -> {
     static class ChronicleQueueSerializer {
         final com.fasterxml.jackson.databind.ObjectMapper mapper; // 映射器
 
+        /**
+         * Chronicle Queue Serializer
+         * @return 返回值
+        */
         ChronicleQueueSerializer() {
             this.mapper = new com.fasterxml.jackson.databind.ObjectMapper();
         }

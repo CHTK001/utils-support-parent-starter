@@ -105,53 +105,121 @@ public class DownloadConfig {
         this.resumeOffset = builder.resumeOffset;
     }
 
+    /**
+     * get Url
+     * @return 返回值
+    */
     public String getUrl() {
         return url;
     }
+    /**
+     * get Target Dir
+     * @return 返回值
+    */
     public Path getTargetDir() {
         return targetDir;
     }
+    /**
+     * get Filename
+     * @return 返回值
+    */
     public String getFilename() {
         return filename;
     }
+    /**
+     * get Expected Md5
+     * @return 返回值
+    */
     public String getExpectedMd5() {
         return expectedMd5;
     }
+    /**
+     * get Concurrency
+     * @return 返回值
+    */
     public int getConcurrency() {
         return concurrency;
     }
+    /**
+     * get Max Speed
+     * @return 返回值
+    */
     public long getMaxSpeed() {
         return maxSpeed;
     }
+    /**
+     * get Proxy
+     * @return 返回值
+    */
     public Proxy getProxy() {
         return proxy;
     }
+    /**
+     * is Auto Extract
+     * @return 返回值
+    */
     public boolean isAutoExtract() {
         return autoExtract;
     }
+    /**
+     * get Extract To
+     * @return 返回值
+    */
     public Path getExtractTo() {
         return extractTo;
     }
+    /**
+     * is Skip Md5 Check
+     * @return 返回值
+    */
     public boolean isSkipMd5Check() {
         return skipMd5Check;
     }
+    /**
+     * is Force Download
+     * @return 返回值
+    */
     public boolean isForceDownload() {
         return forceDownload;
     }
+    /**
+     * is Show Progress
+     * @return 返回值
+    */
     public boolean isShowProgress() {
         return showProgress;
     }
+    /**
+     * get Connect Timeout Ms
+     * @return 返回值
+    */
     public int getConnectTimeoutMs() {
         return connectTimeoutMs;
     }
+    /**
+     * get Read Timeout Ms
+     * @return 返回值
+    */
     public int getReadTimeoutMs() {
         return readTimeoutMs;
     }
+    /**
+     * get Headers
+     * @return 返回值
+    */
     public Map<String, String> getHeaders() { return headers; }
+    /**
+     * get Resume Offset
+     * @return 返回值
+    */
     public long getResumeOffset() {
         return resumeOffset;
     }
 
+    /**
+     * builder
+     * @return 返回值
+    */
     public static Builder builder() {
         return new Builder();
     }

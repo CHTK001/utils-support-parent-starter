@@ -161,7 +161,8 @@ public final class SslUtils {
      * 从 KeyStore 文件（JKS/PKCS12）加载。
      * @param ssl 方法入参 ssl
      * @return 键Store 对象
-     */
+     * @throws Exception 异常
+    */
     private static KeyStore loadKeyStoreFile(ServerSetting.SslConfig ssl) throws Exception {
         String type = ssl.getKeyStorePath().toLowerCase().endsWith(".p12") ? "PKCS12" : "JKS";
         KeyStore ks = KeyStore.getInstance(type);
@@ -176,7 +177,8 @@ public final class SslUtils {
      * 从 PEM 证书文件和私钥文件加载为 KeyStore。
      * @param ssl 方法入参 ssl
      * @return 键Store 对象
-     */
+     * @throws Exception 异常
+    */
     private static KeyStore loadPemKeyStore(ServerSetting.SslConfig ssl) throws Exception {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         Certificate cert;
@@ -204,7 +206,8 @@ public final class SslUtils {
      * 使用 {@link JdkCertificateProvider} 自动生成自签名证书并加载为 KeyStore。
      * @param ssl 方法入参 ssl
      * @return 键Store 对象
-     */
+     * @throws Exception 异常
+    */
     private static KeyStore generateSelfSignedKeyStore(ServerSetting.SslConfig ssl) throws Exception {
         JdkCertificateProvider provider = new JdkCertificateProvider();
         provider.setKeyAlg(ssl.getSelfSignedKeyAlg());

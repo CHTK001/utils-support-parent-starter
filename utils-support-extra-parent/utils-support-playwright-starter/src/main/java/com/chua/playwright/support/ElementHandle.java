@@ -14,10 +14,10 @@ public class ElementHandle {
 
     /**
      * 创建元素句柄包装。
-     *
      * @param engine 驱动引擎实例，不允许为 null
      * @param handle 引擎侧的元素句柄标识
-     */
+     * @return 返回值
+    */
     ElementHandle(Engine engine, long handle) {
         this.engine = engine;
         this.handle = handle;

@@ -165,10 +165,10 @@ public class ApacheMultipartParser implements MultipartParser {
 
     /**
      * 读取全部bytes
-     *
      * @param in 入
      * @return 读取全部bytes的结果
-     */
+     * @throws IOException 异常
+    */
     private byte[] readAllBytes(InputStream in) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         byte[] buf = new byte[8192];

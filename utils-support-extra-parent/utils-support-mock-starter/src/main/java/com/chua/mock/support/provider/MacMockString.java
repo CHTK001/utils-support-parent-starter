@@ -29,6 +29,11 @@ public class MacMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         StringBuilder builder = new StringBuilder(17);
         for (int i = 0; i < 6; i++) {

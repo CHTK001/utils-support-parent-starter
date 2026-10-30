@@ -373,10 +373,10 @@ public class PeerWireClient implements AutoCloseable {
 
         /**
          * 构造消息帧。
-         *
-         * @param id     消息 标识
+         * @param id 消息 标识
          * @param payload 消息负载
-         */
+         * @return 返回值
+        */
         Frame(int id, byte[] payload) {
             this.id = id;
             this.payload = payload;

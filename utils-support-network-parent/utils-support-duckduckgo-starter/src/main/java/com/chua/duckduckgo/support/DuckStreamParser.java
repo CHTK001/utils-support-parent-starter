@@ -32,9 +32,9 @@ final class DuckStreamParser {
 
     /**
      * 构造解析器
-     *
      * @param listener 文本回调
-     */
+     * @return 返回值
+    */
     DuckStreamParser(DuckBrowserTransport.DuckStreamListener listener) {
         this.listener = listener;
     }

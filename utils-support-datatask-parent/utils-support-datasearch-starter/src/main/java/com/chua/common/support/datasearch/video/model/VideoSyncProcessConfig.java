@@ -158,6 +158,10 @@ public class VideoSyncProcessConfig {
         */
         private int totalPages;
 
+        /**
+         * Video Sync Process Config Builder
+         * @return 返回值
+        */
         VideoSyncProcessConfigBuilder() {
         }
 

@@ -95,6 +95,7 @@ class DfsmnKaldiFbank {
 
     /**
      * 创建 dfsmnkaldifbank 实例（dither=1.0）
+     * @return 返回值
     */
     DfsmnKaldiFbank() {
         this(DITHER);
@@ -102,9 +103,9 @@ class DfsmnKaldiFbank {
 
     /**
      * 创建 dfsmnkaldifbank 实例。
-     *
      * @param dither dither 系数
-     */
+     * @return 返回值
+    */
     DfsmnKaldiFbank(float dither) {
         this.window = buildHammingWindow();
         this.melBanks = buildMelBanks();

@@ -279,7 +279,8 @@ public class LogWriteBuilder extends WriteBuilder {
     /**
      * 创建文件写入器（根据 appendMode 决定追加或覆盖）。
      * @return BufferedWriter 对象
-     */
+     * @throws IOException 异常
+    */
     private BufferedWriter createWriter() throws IOException {
         if (file.getParentFile() != null && !file.getParentFile().exists()) {
             file.getParentFile().mkdirs();

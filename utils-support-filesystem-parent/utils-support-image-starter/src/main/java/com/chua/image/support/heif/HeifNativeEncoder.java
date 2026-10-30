@@ -22,7 +22,9 @@ public class HeifNativeEncoder {
      * encode。
      * @param image 镜像
      * @param output 输出
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     public static void encode(BufferedImage image, ImageOutputStream output) throws IOException {
         int w = image.getWidth();
         int h = image.getHeight();
@@ -52,10 +54,12 @@ public class HeifNativeEncoder {
 
     /**
      * 写入box。
+     * @param data 数据
      * @param out 出
      * @param type 类型
-     * @param data 数据
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private static void writeBox(ByteArrayOutputStream out, String type, byte[] data) throws IOException {
         int size = 8 + data.length;
         out.write(intToBytes(size));
@@ -122,7 +126,8 @@ public class HeifNativeEncoder {
      * @param image 镜像
      * @param quality quality
      * @return 转为jpegbytes的结果
-     */
+     * @throws IOException 异常
+    */
     private static byte[] toJpegBytes(BufferedImage image, float quality) throws IOException {
         // 转为 RGB 再交给 JPEG 编码（JPEG 不支持 alpha 通道与索引色）
         BufferedImage rgb;

@@ -73,9 +73,9 @@ public record TsharkArtifact(
 
         /**
          * 构造枚举值。
-         *
          * @param extension 文件名后缀
-         */
+         * @return 返回值
+        */
         Kind(String extension) {
             this.extension = extension;
         }

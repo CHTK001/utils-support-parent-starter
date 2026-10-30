@@ -181,6 +181,12 @@ public class PostgresqlMetaIndex extends AbstractMetaIndex {
          */
         private String comment;
 
+        /**
+         * Postgres Index Create Builder
+         * @param indexName 字符串
+         * @param metaIndex 参数
+         * @return 返回值
+        */
         PostgresIndexCreateBuilder(PostgresqlMetaIndex metaIndex, String indexName) {
             this.metaIndex = metaIndex;
             this.indexName = indexName;

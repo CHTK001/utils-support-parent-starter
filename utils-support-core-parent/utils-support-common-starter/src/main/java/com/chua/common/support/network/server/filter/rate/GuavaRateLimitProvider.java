@@ -53,6 +53,11 @@ public class GuavaRateLimitProvider implements RateLimitProvider {
          */
         private final double capacity;
 
+        /**
+         * Guava Rate Limiter
+         * @param qps 双精度数
+         * @return 返回值
+        */
         GuavaRateLimiter(double qps) {
             this.limiter = com.google.common.util.concurrent.RateLimiter.create(qps);
             this.capacity = qps;
@@ -104,6 +109,11 @@ public class GuavaRateLimitProvider implements RateLimitProvider {
          */
         private final Map<String, com.google.common.util.concurrent.RateLimiter> limiters = new ConcurrentHashMap<>();
 
+        /**
+         * Per Key Guava Rate Limiter
+         * @param qps 双精度数
+         * @return 返回值
+        */
         PerKeyGuavaRateLimiter(double qps) {
             this.qps = qps;
         }
@@ -142,7 +152,9 @@ public class GuavaRateLimitProvider implements RateLimitProvider {
 
         /**
          * 获取Or创建
-         */
+         * @param key 字符串
+         * @return 返回值
+        */
         private com.google.common.util.concurrent.RateLimiter getOrCreate(String key) {
             return limiters.computeIfAbsent(key, k -> com.google.common.util.concurrent.RateLimiter.create(qps));
         }

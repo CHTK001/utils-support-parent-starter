@@ -254,7 +254,9 @@ public final class StructuredConcurrencyFlow {
 
     /**
      * 合并
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     public void join() throws Exception {
         executeAll();
     }
@@ -298,7 +300,8 @@ public final class StructuredConcurrencyFlow {
     /**
      * 执行All
      * @return 结果列表，无数据时为空列表
-     */
+     * @throws Exception 异常
+    */
     private List<Object> executeAll() throws Exception {
         if (tasks.isEmpty()) {
             return List.of();
@@ -321,7 +324,8 @@ public final class StructuredConcurrencyFlow {
      * 快速失败策略：使用 invokeAll 并行执行，任一失败即取消其余。
      * @param executor 方法入参 executor
      * @return 结果列表，无数据时为空列表
-     */
+     * @throws Exception 异常
+    */
     private List<Object> executeFailFast(ExecutorService executor) throws Exception {
         List<Future<Object>> futures = invokeAll(executor);
         List<Object> results = Wraps.list();
@@ -363,7 +367,8 @@ public final class StructuredConcurrencyFlow {
      * 成功计数策略：达到指定成功数后立即取消其余任务。
      * @param executor 方法入参 executor
      * @return 结果列表，无数据时为空列表
-     */
+     * @throws Exception 异常
+    */
     private List<Object> executeSuccessCount(ExecutorService executor) throws Exception {
         List<Future<Object>> futures = invokeAll(executor);
         List<Object> results = Wraps.list();
@@ -398,7 +403,8 @@ public final class StructuredConcurrencyFlow {
      * 失败计数策略：达到指定失败数后停止。
      * @param executor 方法入参 executor
      * @return 结果列表，无数据时为空列表
-     */
+     * @throws Exception 异常
+    */
     private List<Object> executeFailureCount(ExecutorService executor) throws Exception {
         List<Future<Object>> futures = invokeAll(executor);
         List<Object> results = Wraps.list();
@@ -424,11 +430,17 @@ public final class StructuredConcurrencyFlow {
      * 带重试的失败策略：任务失败后进行重试。
      * @param executor 方法入参 executor
      * @return 结果列表，无数据时为空列表
-     */
+     * @throws Exception 异常
+    */
     private List<Object> executeWithRetry(ExecutorService executor) throws Exception {
         List<Object> results = Wraps.list();
         List<Integer> failedIndices = Wraps.list();
 
+        /**
+         * for Each
+         * @param executor 参数
+         * @return 返回值
+        */
         invokeAll(executor).forEach(f -> {
             try {
                 results.add(f.get());
@@ -469,7 +481,8 @@ public final class StructuredConcurrencyFlow {
      * 使用执行器并行执行所有任务。
      * @param executor 方法入参 executor
      * @return 结果列表，无数据时为空列表
-     */
+     * @throws InterruptedException 异常
+    */
     private List<Future<Object>> invokeAll(ExecutorService executor) throws InterruptedException {
         return executor.invokeAll(tasks.stream()
                 .map(t -> (Callable<Object>) () -> t.call())
@@ -480,7 +493,8 @@ public final class StructuredConcurrencyFlow {
      * 获取WithTimeout
      * @param future 方法入参 future
      * @return 对象 对象
-     */
+     * @throws Exception 异常
+    */
     private Object getWithTimeout(Future<Object> future) throws Exception {
         if (timeout > 0 && timeUnit != null) {
             return future.get(timeout, timeUnit);
@@ -492,7 +506,8 @@ public final class StructuredConcurrencyFlow {
      * 处理Failure
      * @param e 方法入参 e
      * @return 结果列表，无数据时为空列表
-     */
+     * @throws Exception 异常
+    */
     private List<Object> handleFailure(Exception e) throws Exception {
         if (fallback != null) {
             return List.of(fallback.get());

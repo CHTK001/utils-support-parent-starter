@@ -55,9 +55,9 @@ public class OnnxFeatureClient implements FeatureClient {
 
     /**
      * 获取Translator
-     *
      * @return 获取translator的结果
-     */
+     * @throws Exception 异常
+    */
     private synchronized ITranslator<Object, Object> getTranslator() throws Exception {
         if (translator == null) {
             String modelId = setting.getModel();

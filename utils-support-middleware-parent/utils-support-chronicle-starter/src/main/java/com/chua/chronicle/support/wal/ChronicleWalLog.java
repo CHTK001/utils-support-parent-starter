@@ -578,6 +578,11 @@ public class ChronicleWalLog implements WalLog {
         */
         private final List<WalOp> ops;
 
+        /**
+         * Chronicle Wal Chain
+         * @param ops 参数
+         * @return 返回值
+        */
         ChronicleWalChain(List<WalOp> ops) {
             this.ops = ops;
         }

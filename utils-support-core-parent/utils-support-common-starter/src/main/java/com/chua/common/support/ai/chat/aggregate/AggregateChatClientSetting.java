@@ -211,35 +211,40 @@ public class AggregateChatClientSetting {
 
         /**
          * 获取Name
-         */
+         * @return 返回值
+        */
         public String getName() {
             return name;
         }
 
         /**
          * 获取Strategy
-         */
+         * @return 返回值
+        */
         public String getStrategy() {
             return strategy;
         }
 
         /**
          * 获取Condition
-         */
+         * @return 返回值
+        */
         public String getCondition() {
             return condition;
         }
 
         /**
          * 获取TokenGroups
-         */
+         * @return 返回值
+        */
         public List<String> getTokenGroups() {
             return tokenGroups;
         }
 
         /**
          * 获取Clients
-         */
+         * @return 返回值
+        */
         public List<ClientConfig> getClients() {
             return clients;
         }
@@ -307,35 +312,40 @@ public class AggregateChatClientSetting {
 
         /**
          * 获取Provider
-         */
+         * @return 返回值
+        */
         public String getProvider() {
             return provider;
         }
 
         /**
          * 获取ApiKey
-         */
+         * @return 返回值
+        */
         public String getApiKey() {
             return apiKey;
         }
 
         /**
          * 获取System
-         */
+         * @return 返回值
+        */
         public String getSystem() {
             return system;
         }
 
         /**
          * 获取Model
-         */
+         * @return 返回值
+        */
         public String getModel() {
             return model;
         }
 
         /**
          * 获取Weight
-         */
+         * @return 返回值
+        */
         public int getWeight() {
             return weight;
         }
@@ -381,14 +391,16 @@ public class AggregateChatClientSetting {
 
         /**
          * 获取Token
-         */
+         * @return 返回值
+        */
         public String getToken() {
             return token;
         }
 
         /**
          * 获取分组
-         */
+         * @return 返回值
+        */
         public String getGroup() {
             return group;
         }

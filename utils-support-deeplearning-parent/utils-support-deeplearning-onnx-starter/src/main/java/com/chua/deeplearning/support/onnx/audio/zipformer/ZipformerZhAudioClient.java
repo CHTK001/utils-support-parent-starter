@@ -266,7 +266,8 @@ public class ZipformerZhAudioClient implements VirtualClient {
     /**
      * 模型dir。
      * @return 模型dir的结果
-     */
+     * @throws IOException 异常
+    */
     private Path modelDir() throws IOException {
         String prop = System.getProperty("speech.loop.zipformer-zh.dir");
         if (prop != null && !prop.isBlank()) {

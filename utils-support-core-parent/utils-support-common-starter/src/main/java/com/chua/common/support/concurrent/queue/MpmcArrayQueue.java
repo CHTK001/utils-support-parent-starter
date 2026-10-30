@@ -378,9 +378,9 @@ public class MpmcArrayQueue<E> implements LockFreeQueue<E> {
 
         /**
          * 构造环形槽位。
-         *
          * @param initialSequence 初始序号，等于槽位下标
-         */
+         * @return 返回值
+        */
         RingCell(long initialSequence) {
             sequence.set(initialSequence);
         }

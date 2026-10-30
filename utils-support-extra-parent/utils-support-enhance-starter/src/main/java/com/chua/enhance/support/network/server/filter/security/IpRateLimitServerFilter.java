@@ -153,6 +153,12 @@ public class IpRateLimitServerFilter implements ServerFilter {
         */
         private volatile long lastRefillTime;
 
+        /**
+         * Token Bucket
+         * @param capacity 整数
+         * @param refillRatePerSecond 整数
+         * @return 返回值
+        */
         TokenBucket(int capacity, int refillRatePerSecond) {
             this.capacity = capacity;
             this.refillRatePerMs = (double) refillRatePerSecond / 1000.0;

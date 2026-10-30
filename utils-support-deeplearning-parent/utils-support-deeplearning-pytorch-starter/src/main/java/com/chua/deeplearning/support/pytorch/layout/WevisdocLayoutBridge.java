@@ -76,7 +76,9 @@ public class WevisdocLayoutBridge {
 
         /**
          * 计算与另一个块的 IoU。
-         */
+         * @param other 参数
+         * @return 返回值
+        */
         public float iou(OcrBlock other) {
             float ix1 = Math.max(x1, other.x1);
             float iy1 = Math.max(y1, other.y1);
@@ -91,7 +93,9 @@ public class WevisdocLayoutBridge {
 
         /**
          * 合并另一个块的坐标（扩展当前块）。
-         */
+         * @param other 参数
+         * @return 返回值
+        */
         public void merge(OcrBlock other) {
             this.x1 = Math.min(x1, other.x1);
             this.y1 = Math.min(y1, other.y1);
@@ -221,7 +225,10 @@ public class WevisdocLayoutBridge {
 
     /**
      * 文本相似度（基于字符重叠的简单度量）。
-     */
+     * @param a 字符串
+     * @param b 字符串
+     * @return 返回值
+    */
     private static float textSimilarity(String a, String b) {
         if (a == null || b == null || a.isEmpty() || b.isEmpty()) {
             return 0;

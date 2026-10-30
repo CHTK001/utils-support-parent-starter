@@ -129,7 +129,8 @@ public class JavaBenchmark implements Benchmark {
      * @param uri URI，不允许为 null
      * @param vus 方法入参 vus
      * @return BenchmarkDocument数据Benchmark行 对象
-     */
+     * @throws Exception 异常
+    */
     private BenchmarkDocumentData.BenchmarkRow runLevel(HttpClient client, URI uri, int vus) throws Exception {
         int perVus = Math.max(1, config.getIterationsPerVus());
         long totalTarget = (long) vus * perVus;

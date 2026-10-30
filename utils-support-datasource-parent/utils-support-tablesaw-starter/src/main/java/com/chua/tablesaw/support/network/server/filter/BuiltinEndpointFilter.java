@@ -130,9 +130,10 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
 
     /**
      * 处理健康检查请求，返回服务器运行状态。
-     *
      * @param response 响应对象
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleHealth(ServerResponse response) throws Exception {
         Map<String, Object> body = Wraps.linkedMap(6);
         BeanUtils.copyProperties(metrics, body);
@@ -147,9 +148,10 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
 
     /**
      * 处理指标查询请求，返回运行时计数器。
-     *
      * @param response 响应对象
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleMetrics(ServerResponse response) throws Exception {
         Map<String, Object> body = Wraps.linkedMap(12);
         BeanUtils.copyProperties(metrics, body);

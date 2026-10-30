@@ -25,6 +25,10 @@ public class SipMetrics {
 
     private static final SipMetrics INSTANCE = new SipMetrics();
 
+    /**
+     * 获取
+     * @return 返回值
+    */
     public static SipMetrics get() {
         return INSTANCE;
     }
@@ -51,6 +55,10 @@ public class SipMetrics {
      */
     private final Map<String, AtomicLong> errorsByCategory = new ConcurrentHashMap<>();
 
+    /**
+     * on Auth Accept
+     * @return 返回值
+    */
     public void onAuthAccept() {
         authAcceptTotal.incrementAndGet();
     }
@@ -63,9 +71,17 @@ public class SipMetrics {
         authRejectTotal.incrementAndGet();
         incError(category);
     }
+    /**
+     * on Service Register
+     * @return 返回值
+    */
     public void onServiceRegister() {
         serviceRegisterTotal.incrementAndGet();
     }
+    /**
+     * on Service Unregister
+     * @return 返回值
+    */
     public void onServiceUnregister() {
         serviceUnregisterTotal.incrementAndGet();
     }
@@ -88,17 +104,35 @@ public class SipMetrics {
             errorCloseTotal.incrementAndGet();
         }
     }
+    /**
+     * on Client Connect
+     * @return 返回值
+    */
     public void onClientConnect() {
         activeClients.incrementAndGet();
     }
+    /**
+     * on Client Disconnect
+     * @return 返回值
+    */
     public void onClientDisconnect() {
         activeClients.decrementAndGet();
     }
+    /**
+     * on Frame Bytes In
+     * @param n 长整数
+     * @return 返回值
+    */
     public void onFrameBytesIn(long n) {
         if (n > 0) {
             frameBytesIn.addAndGet(n);
         }
     }
+    /**
+     * on Frame Bytes Out
+     * @param n 长整数
+     * @return 返回值
+    */
     public void onFrameBytesOut(long n) {
         if (n > 0) {
             frameBytesOut.addAndGet(n);
@@ -114,9 +148,17 @@ public class SipMetrics {
             muxFlushTotal.addAndGet(frames);
         }
     }
+    /**
+     * on Mux Early Frame Buffered
+     * @return 返回值
+    */
     public void onMuxEarlyFrameBuffered() {
         muxEarlyFrameBufferedTotal.incrementAndGet();
     }
+    /**
+     * on Mux Close Marker
+     * @return 返回值
+    */
     public void onMuxCloseMarker() {
         muxCloseMarkerTotal.incrementAndGet();
     }

@@ -20,10 +20,9 @@ import javax.annotation.Nullable;
 public enum ProgressUnitType implements ProgressUnit {
 
     /**
-     * 无单位
-     * <p>
-     * 返回空字符串，不显示任何数值。
-     */
+     * 无单位 <p> 返回空字符串，不显示任何数值。
+     * @return 返回值
+    */
     NONE() {
         /**
          * 格式化
@@ -35,10 +34,9 @@ public enum ProgressUnitType implements ProgressUnit {
     },
 
     /**
-     * 字节单位
-     * <p>
-     * 自动转换为 B、KB、MB、GB 等单位显示，使用 SizeValue 进行格式化。
-     */
+     * 字节单位 <p> 自动转换为 B、KB、MB、GB 等单位显示，使用 SizeValue 进行格式化。
+     * @return 返回值
+    */
     BYTE() {
         /**
          * 格式化
@@ -50,10 +48,9 @@ public enum ProgressUnitType implements ProgressUnit {
     },
 
     /**
-     * 原始数值
-     * <p>
-     * 直接显示原始数字，不进行单位转换。
-     */
+     * 原始数值 <p> 直接显示原始数字，不进行单位转换。
+     * @return 返回值
+    */
     ORIGINAL() {
         /**
          * 格式化
@@ -65,10 +62,9 @@ public enum ProgressUnitType implements ProgressUnit {
     },
 
     /**
-     * 大小单位
-     * <p>
-     * 使用 SizeValue 格式化为 B、KB、MB、GB 等单位，基于 BigDecimal 计算。
-     */
+     * 大小单位 <p> 使用 SizeValue 格式化为 B、KB、MB、GB 等单位，基于 BigDecimal 计算。
+     * @return 返回值
+    */
     SIZE() {
         /**
          * 格式化

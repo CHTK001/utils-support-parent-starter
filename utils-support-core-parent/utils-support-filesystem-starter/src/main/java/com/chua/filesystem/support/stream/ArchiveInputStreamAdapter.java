@@ -36,11 +36,11 @@ public class ArchiveInputStreamAdapter implements ArchiveInputStream {
 
     /**
      * 获取下一个entry
-     *
+    /**
+     * 获取下一个entry
      * @return 获取下一个entry的结果
-     */
-    @Override
-    @Nullable
+     * @throws IOException 异常
+    */
     public ArchiveEntry getNextEntry() throws IOException {
         var entry = delegate.getNextEntry();
         if (entry == null) {

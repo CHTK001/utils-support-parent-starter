@@ -78,10 +78,10 @@ public class OracleCreateIndexStep implements IndexManager.CreateIndexStep {
 
         /**
          * 构造索引形态。
-         *
-         * @param keyword {@code CREATE} 与 {@code INDEX} 之间的关键字，普通索引传空串
          * @param aliases 可映射到本形态的别名，需为大写形式
-         */
+         * @param keyword {@code CREATE} 与 {@code INDEX} 之间的关键字，普通索引传空串
+         * @return 返回值
+        */
         OracleIndexKind(String keyword, String... aliases) {
             this.keyword = keyword;
             this.aliases = aliases;
@@ -155,11 +155,11 @@ public class OracleCreateIndexStep implements IndexManager.CreateIndexStep {
 
     /**
      * 构造方法，创建 Oracle 创建索引 Step 实例。
-     *
      * @param dataSource 数据来源，不允许为 null
-     * @param indexName  索引名称，必须通过 {@link SqlName} 白名单校验
+     * @param indexName 索引名称，必须通过 {@link SqlName} 白名单校验
+     * @return 返回值
      * @throws IllegalArgumentException 索引名为空或含非法字符
-     */
+    */
     OracleCreateIndexStep(DataSource dataSource, String indexName) {
         if (dataSource == null) {
             throw new IllegalArgumentException("创建 Oracle 索引需要数据源");

@@ -136,6 +136,11 @@ public class EsMeta extends AbstractMetaSearch {
         */
         private int replicas = 1;
 
+        /**
+         * Es Create Index Builder
+         * @param indexName 字符串
+         * @return 返回值
+        */
         EsCreateIndexBuilder(String indexName) {
             this.indexName = indexName;
         }

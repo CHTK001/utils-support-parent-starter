@@ -80,12 +80,12 @@ public class RateLimiterIntercept extends AbstractMethodAnnotationIntercept
 
     /**
      * 限流拒绝处理：优先返回回退结果，无回退时抛出限流异常。
-     *
-     * @param annotation  限流注解
+     * @param annotation 限流注解
      * @param proxyMethod 被拦截的方法信息
      * @return 回退方法的返回值
      * @throws IllegalStateException 无回退方法时抛出
-     */
+     * @throws Throwable 异常
+    */
     private Object onRejected(RateLimiter annotation, ProxyMethod proxyMethod) throws Throwable {
         Object fallbackResult = resolveFallback(annotation, proxyMethod);
         if (fallbackResult != null) {

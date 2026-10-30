@@ -22,19 +22,19 @@ class BTreeNode<K, V> {
 
     /**
      * 构造方法，创建 BTree节点 实例。
-     *
      * @param leaf leaf（布尔开关）
-     */
+     * @return 返回值
+    */
     BTreeNode(boolean leaf) {
         this(leaf, 16);
     }
 
     /**
      * 构造方法，创建 BTree节点 实例。
-     *
-     * @param leaf leaf（布尔开关）
      * @param capacity 方法入参 capacity
-     */
+     * @param leaf leaf（布尔开关）
+     * @return 返回值
+    */
     BTreeNode(boolean leaf, int capacity) {
         this.leaf = leaf;
         if (keys instanceof ArrayList) {

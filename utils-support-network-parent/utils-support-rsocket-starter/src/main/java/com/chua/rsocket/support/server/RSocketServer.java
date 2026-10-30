@@ -463,6 +463,12 @@ public class RSocketServer extends AbstractServer {
          */
         private final byte[] body;
 
+        /**
+         * Simple Server Request
+         * @param body 字符串
+         * @param topic 字符串
+         * @return 返回值
+        */
         SimpleServerRequest(String topic, String body) {
             this.topic = topic;
             this.body = body != null ? body.getBytes(StandardCharsets.UTF_8) : new byte[0];

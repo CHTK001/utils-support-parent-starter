@@ -35,7 +35,9 @@ public class VectorIOBench {
     /**
      * main。
      * @param args 参数
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     public static void main(String[] args) throws Exception {
         testDir = Files.createTempDirectory("io-bench-");
         System.out.println("============================================");
@@ -113,12 +115,12 @@ public class VectorIOBench {
 
     /**
      * A: 旧版顺序扫描 - 每个分片开 数据输入流 逐条读
-     *
      * @param dir dir
-     * @param expectedCount 期望数量
      * @param diskBytes diskbytes
+     * @param expectedCount 期望数量
      * @return 测量sequential的结果
-     */
+     * @throws Exception 异常
+    */
     private static long measureSequential(Path dir, int expectedCount, long diskBytes) throws Exception {
         File[] files = dir.toFile().listFiles((d, n) -> n.matches("shard_\\d{4}\\.bin"));
         if (files == null || files.length == 0) {
@@ -155,12 +157,12 @@ public class VectorIOBench {
 
     /**
      * B: mappedbyte缓冲 顺序扫描 - 整文件 mmap 后顺序读
-     *
      * @param dir dir
-     * @param expectedCount 期望数量
      * @param diskBytes diskbytes
+     * @param expectedCount 期望数量
      * @return 测量mmapsequential的结果
-     */
+     * @throws Exception 异常
+    */
     private static long measureMmapSequential(Path dir, int expectedCount, long diskBytes) throws Exception {
         File[] files = dir.toFile().listFiles((d, n) -> n.matches("shard_\\d{4}\\.bin"));
         if (files == null || files.length == 0) {
@@ -201,12 +203,12 @@ public class VectorIOBench {
 
     /**
      * C: HYBRID - B+树 索引 + mappedbyte缓冲 精确偏移读取
-     *
      * @param dir dir
-     * @param expectedCount 期望数量
      * @param diskBytes diskbytes
+     * @param expectedCount 期望数量
      * @return 测量hybrid的结果
-     */
+     * @throws Exception 异常
+    */
     private static long measureHybrid(Path dir, int expectedCount, long diskBytes) throws Exception {
         DefaultVectorStorage storage = DefaultVectorStorage.builder()
                 .dimension(DIM).dir(dir)

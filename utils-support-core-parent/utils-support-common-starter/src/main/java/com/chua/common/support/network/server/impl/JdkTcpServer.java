@@ -428,7 +428,9 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     /**
      * DoAccept
      * @param key 键，不允许为 null
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void doAccept(SelectionKey key) throws IOException {
         SocketChannel sc = ((ServerSocketChannel) key.channel()).accept();
         if (sc == null) {
@@ -459,7 +461,9 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     /**
      * Do读取
      * @param key 键，不允许为 null
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void doRead(SelectionKey key) throws IOException {
         SocketChannel sc = (SocketChannel) key.channel();
         Attachment att = (Attachment) key.attachment();
@@ -473,10 +477,11 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
 
     /**
      * 读取Frame
-     * @param sc 方法入参 sc
      * @param att 方法入参 att
+     * @param sc 方法入参 sc
      * @return 是否成功（true 表示成功）
-     */
+     * @throws IOException 异常
+    */
     private boolean readFrame(SocketChannel sc, Attachment att) throws IOException {
         if (att.state == State.HEADER) {
             // 只在起始位置清空 header，避免半包场景下把已读字节清掉导致数据丢失
@@ -970,9 +975,9 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
 
         /**
          * 创建连接级拼帧上下文。
-         *
          * @param ioSelector 归属的 IO Selector
-         */
+         * @return 返回值
+        */
         Attachment(Selector ioSelector) {
             this.ioSelector = ioSelector;
         }

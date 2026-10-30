@@ -87,6 +87,11 @@ public class TxtFileSystem implements FileSystem {
          */
         private char delimiter = DEFAULT_DELIMITER;
 
+        /**
+         * Txt Read Builder
+         * @param file 文件
+         * @return 返回值
+        */
         TxtReadBuilder(File file) {
             super(file);
         }
@@ -223,6 +228,11 @@ public class TxtFileSystem implements FileSystem {
          */
         private List<String> txtHeaderCols;
 
+        /**
+         * Txt Write Builder
+         * @param file 文件
+         * @return 返回值
+        */
         TxtWriteBuilder(File file) {
             super(file);
         }
@@ -238,9 +248,11 @@ public class TxtFileSystem implements FileSystem {
 
         /**
          * 写入
-         */
-        @Override
-        @SuppressWarnings("unchecked")
+        /**
+         * 写入
+         * @param data 对象
+         * @return 返回值
+        */
         public TxtWriteBuilder write(Object data) {
             if (data instanceof Map || data instanceof List) {
                 pending.add(data);

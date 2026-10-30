@@ -115,6 +115,11 @@ public class MysqlMetaSearch extends AbstractMetaSearch {
         private int shards = 1; // shards
         private int replicas = 1; // replicas
 
+        /**
+         * Mysql Create Index Builder
+         * @param indexName 字符串
+         * @return 返回值
+        */
         MysqlCreateIndexBuilder(String indexName) {
             this.indexName = indexName;
         }

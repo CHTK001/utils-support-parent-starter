@@ -263,10 +263,10 @@ public enum FileType {
 
     /**
      * 构造方法，创建 文件类型 实例。
-     *
-     * @param primaryExtension 方法入参 primaryExtension
      * @param category 方法入参 category
-     */
+     * @param primaryExtension 方法入参 primaryExtension
+     * @return 返回值
+    */
     FileType(String primaryExtension, Category category) {
         this.extensions = new String[]{primaryExtension};
         this.category = category;
@@ -274,11 +274,11 @@ public enum FileType {
 
     /**
      * 构造方法，创建 文件类型 实例。
-     *
+     * @param category 方法入参 category
      * @param ext1 方法入参 ext1
      * @param ext2 方法入参 ext2
-     * @param category 方法入参 category
-     */
+     * @return 返回值
+    */
     FileType(String ext1, String ext2, Category category) {
         this.extensions = new String[]{ext1, ext2};
         this.category = category;
@@ -286,12 +286,12 @@ public enum FileType {
 
     /**
      * 构造方法，创建 文件类型 实例。
-     *
+     * @param category 方法入参 category
      * @param ext1 方法入参 ext1
      * @param ext2 方法入参 ext2
      * @param ext3 方法入参 ext3
-     * @param category 方法入参 category
-     */
+     * @return 返回值
+    */
     FileType(String ext1, String ext2, String ext3, Category category) {
         this.extensions = new String[]{ext1, ext2, ext3};
         this.category = category;

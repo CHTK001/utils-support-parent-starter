@@ -58,25 +58,32 @@ public class InvocationContext implements ServerRequest, ServerResponse {
 
     /**
      * 获取Path
-     */
+     * @return 返回值
+    */
     public String getPath() {
         return path;
     }
     /**
      * 设置Path
-     */
+     * @param path 字符串
+     * @return 返回值
+    */
     public void setPath(String path) {
         this.path = path;
     }
     /**
      * 获取Result
-     */
+     * @return 返回值
+    */
     public Object getResult() {
         return result;
     }
     /**
      * 添加Header
-     */
+     * @param name 字符串
+     * @param value 字符串
+     * @return 返回值
+    */
     public void addHeader(String name, String value) {
         if (name != null && value != null) {
             headers.put(name, value);
@@ -84,7 +91,10 @@ public class InvocationContext implements ServerRequest, ServerResponse {
     }
     /**
      * 添加Headers
-     */
+     * @param Map<String 参数
+     * @param h 参数
+     * @return 返回值
+    */
     public void addHeaders(Map<String, String> h) {
         if (h != null) {
             headers.putAll(h);

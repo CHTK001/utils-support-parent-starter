@@ -59,9 +59,9 @@ public enum DateUnit  {
 
     /**
      * 构造方法，创建 日期Unit 实例。
-     *
      * @param millis 毫秒数，不允许为 null
-     */
+     * @return 返回值
+    */
     DateUnit(long millis) {
         this.millis = millis;
     }

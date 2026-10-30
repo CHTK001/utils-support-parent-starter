@@ -125,7 +125,8 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
      * 探测 frames 表实际存在的令牌列。
      * @param conn 连接，不允许为 null
      * @return 结果列表，无数据时为空列表
-     */
+     * @throws SQLException 异常
+    */
     private List<String> collectPresentColumns(Connection conn) throws SQLException {
         List<String> present = Wraps.list();
         Set<String> columns = Wraps.set();

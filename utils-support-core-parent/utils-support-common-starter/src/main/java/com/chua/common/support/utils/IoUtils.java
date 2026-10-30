@@ -28,11 +28,11 @@ public class IoUtils {
 
     /**
      * asbytes
-     *
-     * @param input 输入
      * @param charset 字符集
+     * @param input 输入
      * @return asBytes的结果
-     */
+     * @throws IOException 异常
+    */
     public static byte[] asBytes(final InputStreamReader input, final Charset charset) throws IOException {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             copy(input, output, charset);
@@ -42,10 +42,10 @@ public class IoUtils {
 
     /**
      * asbytes
-     *
      * @param input 输入
      * @return asBytes的结果
-     */
+     * @throws IOException 异常
+    */
     public static byte[] asBytes(final InputStreamReader input) throws IOException {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             copy(input, output, Charset.defaultCharset());
@@ -54,10 +54,10 @@ public class IoUtils {
     }
     /**
      * asbytes
-     *
      * @param input 输入
      * @return asBytes的结果
-     */
+     * @throws IOException 异常
+    */
     public static byte[] asBytes(final InputStream input) throws IOException {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             copy(input, output);
@@ -67,32 +67,32 @@ public class IoUtils {
 
     /**
      * 转为字节数组
-     *
      * @param input 输入
      * @return 转为字节数组的结果
-     */
+     * @throws IOException 异常
+    */
     public static byte[] toByteArray(final InputStream input) throws IOException {
         return asBytes(input);
     }
 
     /**
      * 转为字节数组
-     *
-     * @param input 输入
      * @param charset 字符集
+     * @param input 输入
      * @return 转为字节数组的结果
-     */
+     * @throws IOException 异常
+    */
     public static byte[] toByteArray(final InputStream input, final Charset charset) throws IOException {
         return asBytes(input, charset);
     }
 
     /**
      * asbytes
-     *
-     * @param input 输入
      * @param charset 字符集
+     * @param input 输入
      * @return asBytes的结果
-     */
+     * @throws IOException 异常
+    */
     public static byte[] asBytes(final InputStream input, final Charset charset) throws IOException {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             copy(new InputStreamReader(input, charset), output, charset);
@@ -156,20 +156,20 @@ public class IoUtils {
 
     /**
      * 打开流
-     *
      * @param url url
      * @return 打开流的结果
-     */
+     * @throws IOException 异常
+    */
     public static InputStream openStream(final URL url) throws IOException {
         return null != url ? url.openStream() : null;
     }
 
     /**
      * 打开流
-     *
      * @param file 文件
      * @return 打开流的结果
-     */
+     * @throws IOException 异常
+    */
     public static InputStream openStream(final File file) throws IOException {
         if (null == file) {
             throw new FileNotFoundException();
@@ -187,10 +187,10 @@ public class IoUtils {
 
     /**
      * 打开流
-     *
      * @param path 路径
      * @return 打开流的结果
-     */
+     * @throws IOException 异常
+    */
     public static InputStream openStream(final Path path) throws IOException {
         if (null == path) {
             throw new FileNotFoundException();
@@ -200,10 +200,10 @@ public class IoUtils {
 
     /**
      * 复制
-     *
      * @param input 输入
      * @return 副本的结果
-     */
+     * @throws IOException 异常
+    */
     public static InputStream copy(final InputStream input) throws IOException {
         try (ByteArrayOutputStream baas = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[2048];
@@ -230,11 +230,12 @@ public class IoUtils {
 
     /**
      * 复制
-     *
+     * @param charset 字符集
      * @param input 输入
      * @param output 输出
-     * @param charset 字符集
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     public static void copy(final InputStream input, final Writer output, final Charset charset) throws IOException {
         final InputStreamReader in = new InputStreamReader(input, charset);
         copy(in, output);
@@ -255,11 +256,11 @@ public class IoUtils {
 
     /**
      * 复制
-     *
      * @param input 输入
      * @param output 输出
      * @return 副本的结果
-     */
+     * @throws IOException 异常
+    */
     public static int copy(final Reader input, final Writer output) throws IOException {
         final long count = copyLarge(input, output);
         if (count > Integer.MAX_VALUE) {
@@ -270,11 +271,11 @@ public class IoUtils {
 
     /**
      * 复制
-     *
      * @param input 输入
      * @param output 输出
      * @return 副本的结果
-     */
+     * @throws IOException 异常
+    */
     public static int copy(final InputStream input, final OutputStream output) throws IOException {
         final long count = copyLarge(input, output);
         if (count > Integer.MAX_VALUE) {
@@ -285,23 +286,23 @@ public class IoUtils {
 
     /**
      * 复制Large
-     *
      * @param input 输入
      * @param output 输出
      * @return 副本large的结果
-     */
+     * @throws IOException 异常
+    */
     public static long copyLarge(final Reader input, final Writer output) throws IOException {
         return copyLarge(input, output, new char[DEFAULT_BUFFER_SIZE]);
     }
 
     /**
      * 复制Large
-     *
+     * @param buffer 缓冲
      * @param input 输入
      * @param output 输出
-     * @param buffer 缓冲
      * @return 副本large的结果
-     */
+     * @throws IOException 异常
+    */
     public static long copyLarge(final Reader input, final Writer output, final char[] buffer) throws IOException {
         long count = 0;
         int n;
@@ -337,11 +338,11 @@ public class IoUtils {
 
     /**
      * 复制Large
-     *
      * @param input 输入
      * @param output 输出
      * @return 副本large的结果
-     */
+     * @throws IOException 异常
+    */
     public static long copyLarge(final InputStream input, final OutputStream output) throws IOException {
         return copy(input, output, DEFAULT_BUFFER_SIZE);
     }

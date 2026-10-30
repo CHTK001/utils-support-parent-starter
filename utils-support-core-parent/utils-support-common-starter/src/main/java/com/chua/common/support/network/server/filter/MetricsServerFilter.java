@@ -127,79 +127,92 @@ public class MetricsServerFilter implements ServerFilter {
 
         /**
          * 获取总计Requests
-         */
+         * @return 返回值
+        */
         public long getTotalRequests() {
             return totalRequests;
         }
         /**
          * 获取记录错误计算数量
-         */
+         * @return 返回值
+        */
         public long getErrorCount() {
             return errorCount;
         }
         /**
          * 获取ActiveRequests
-         */
+         * @return 返回值
+        */
         public long getActiveRequests() {
             return activeRequests;
         }
         /**
          * 获取平均值LatencyMs
-         */
+         * @return 返回值
+        */
         public double getAvgLatencyMs() {
             return avgLatencyMs;
         }
         /**
          * 获取最大值LatencyMs
-         */
+         * @return 返回值
+        */
         public long getMaxLatencyMs() {
             return maxLatencyMs;
         }
         /**
          * 获取Ms
-         */
+         * @return 返回值
+        */
         public double getP50Ms() {
             return p50Ms;
         }
         /**
          * 获取Ms
-         */
+         * @return 返回值
+        */
         public double getP75Ms() {
             return p75Ms;
         }
         /**
          * 获取Ms
-         */
+         * @return 返回值
+        */
         public double getP90Ms() {
             return p90Ms;
         }
         /**
          * 获取Ms
-         */
+         * @return 返回值
+        */
         public double getP95Ms() {
             return p95Ms;
         }
         /**
          * 获取Ms
-         */
+         * @return 返回值
+        */
         public double getP99Ms() {
             return p99Ms;
         }
         /**
          * 获取Qps
-         */
+         * @return 返回值
+        */
         public double getQps() {
             return qps;
         }
         /**
          * 获取Tps
-         */
+         * @return 返回值
+        */
         public double getTps() {
             return tps;
         }
         /**
          * 获取UptimeMs
-         */
+         * @return 返回值
+        */
         public long getUptimeMs() {
             return uptimeMs;
         }

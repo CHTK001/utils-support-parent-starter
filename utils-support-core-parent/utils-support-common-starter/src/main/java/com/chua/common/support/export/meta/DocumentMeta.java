@@ -407,6 +407,11 @@ public final class DocumentMeta {
         return type == null || type == Object.class ? "Sheet1" : type.getSimpleName();
     }
 
+    /**
+     * property Of
+     * @param meta 参数
+     * @return 返回值
+    */
     private String propertyOf(ColumnMeta meta) {
         return meta.getProperty();
     }

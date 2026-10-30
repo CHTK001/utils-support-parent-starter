@@ -207,7 +207,8 @@ public class MossTtsTranslator implements AutoCloseable {
      * 参考音频 → 提示码。任意采样率/声道统一转为 48khz 双声道。
      * @param refWav refwav
      * @return 立体flat的结果
-     */
+     * @throws Exception 异常
+    */
     private List<int[]> encodeReference(Path refWav) throws Exception {
         float[][] stereo = loadStereo48k(refWav);
         int n = stereo[0].length;
@@ -252,7 +253,8 @@ public class MossTtsTranslator implements AutoCloseable {
      * 加载stereo48k。任意 WAV → 48k 双声道 float[2][N]。
      * @param path 路径
      * @return 加载stereo48k的结果
-     */
+     * @throws Exception 异常
+    */
     private float[][] loadStereo48k(Path path) throws Exception {
         try (var ais = AudioSystem.getAudioInputStream(path.toFile())) {
             var fmt = ais.getFormat();
@@ -593,11 +595,14 @@ public class MossTtsTranslator implements AutoCloseable {
         private int pastValidLengths; // pastvalid长度
         private OrtSession.Result pastResult; // past结果
 /**
+/**
  * 关闭。
+ * @param globalHidden 参数
  * @param inputIds 输入标识
+ * @param pastResult 参数
+ * @param pastValidLengths 整数
  * @return 运行prefill的结果
- */
-
+*/
         PrefillState(OnnxTensor globalHidden, int pastValidLengths, OrtSession.Result pastResult) {
             this.globalHidden = globalHidden;
             this.pastValidLengths = pastValidLengths;

@@ -842,7 +842,8 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
      * 将 缓冲镜像 编码为 JPEG 字节
      * @param image 镜像
      * @return 转为jpegbytes的结果
-     */
+     * @throws IOException 异常
+    */
     private byte[] toJpegBytes(BufferedImage image) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "jpg", baos);

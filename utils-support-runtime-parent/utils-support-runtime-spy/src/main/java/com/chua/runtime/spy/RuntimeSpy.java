@@ -886,6 +886,12 @@ public class RuntimeSpy {
         final List<TraceStackFrame> frames;
         final long createdAt;
 
+        /**
+         * Trace Envelope
+         * @param createdAt 长整数
+         * @param frames 参数
+         * @return 返回值
+        */
         TraceEnvelope(List<TraceStackFrame> frames, long createdAt) {
             this.frames = frames;
             this.createdAt = createdAt;
@@ -918,6 +924,12 @@ public class RuntimeSpy {
          */
         private final AtomicLong lastCleanup = new AtomicLong();
 
+        /**
+         * Bounded Local Cache
+         * @param maxSize 整数
+         * @param ttlMs 长整数
+         * @return 返回值
+        */
         BoundedLocalCache(int maxSize, long ttlMs) {
             this.maxSize = maxSize;
             this.ttlMs = ttlMs;

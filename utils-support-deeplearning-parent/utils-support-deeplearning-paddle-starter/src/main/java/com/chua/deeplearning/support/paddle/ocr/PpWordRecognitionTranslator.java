@@ -70,10 +70,10 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
 
     /**
      * 打开Vocabulary
-     *
      * @param model 模型
      * @return 打开vocabulary的结果
-     */
+     * @throws IOException 异常
+    */
     private InputStream openVocabulary(Model model) throws IOException {
         String[] candidates = {
                 "ppocr_keys_v1.txt",

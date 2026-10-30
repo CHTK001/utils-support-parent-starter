@@ -383,11 +383,11 @@ public class ReactiveTaskManager {
 
         /**
          * 构造链式构建器。
-         *
-         * @param owner    目标门面
+         * @param owner 目标门面
+         * @param payload 负载数据
          * @param taskType 任务类型
-         * @param payload  负载数据
-         */
+         * @return 返回值
+        */
         TaskFluent(ReactiveTaskManager owner, String taskType, T payload) {
             this.owner = owner;
             this.taskType = taskType;

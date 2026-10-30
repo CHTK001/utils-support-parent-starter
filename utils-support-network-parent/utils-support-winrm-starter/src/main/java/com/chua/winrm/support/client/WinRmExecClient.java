@@ -329,6 +329,11 @@ public class WinRmExecClient implements AutoCloseable {
          */
         private String command;
 
+        /**
+         * Exec Operation
+         * @param client 参数
+         * @return 返回值
+        */
         ExecOperation(WinRmExecClient client) {
             this.client = client;
         }
@@ -406,6 +411,11 @@ public class WinRmExecClient implements AutoCloseable {
          */
         private ShellCommand shell;
 
+        /**
+         * Shell Operation
+         * @param client 参数
+         * @return 返回值
+        */
         ShellOperation(WinRmExecClient client) {
             this.client = client;
         }
@@ -430,10 +440,10 @@ public class WinRmExecClient implements AutoCloseable {
 
         /**
          * 发送
-         *
          * @param cmd CMD
          * @return 发送的结果
-         */
+         * @throws IOException 异常
+        */
         public ShellOperation send(String cmd) throws IOException {
             if (shell == null) {
                 throw new WinRMException("Shell 未连接，先调用 connect()", null);
@@ -449,9 +459,9 @@ public class WinRmExecClient implements AutoCloseable {
 
         /**
          * 读取全部
-         *
          * @return 读取全部的结果
-         */
+         * @throws IOException 异常
+        */
         public String readAll() throws IOException {
             if (shell == null) {
                 throw new WinRMException("Shell 未连接", null);
@@ -507,6 +517,11 @@ public class WinRmExecClient implements AutoCloseable {
          */
         private StringBuilder outputBuffer = new StringBuilder();
 
+        /**
+         * Terminal Operation
+         * @param client 参数
+         * @return 返回值
+        */
         TerminalOperation(WinRmExecClient client) {
             this.client = client;
         }

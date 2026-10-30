@@ -169,7 +169,9 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
 
     /**
      * 惰性加载模型与分词器。
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private synchronized void prepare() throws Exception {
         if (loaded) {
             return;

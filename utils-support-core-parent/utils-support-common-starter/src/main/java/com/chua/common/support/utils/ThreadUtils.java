@@ -1122,6 +1122,11 @@ public class ThreadUtils {
          * E
          */
         private final ScheduledExecutorService e;
+        /**
+         * Delegated Scheduled Executor Service Impl
+         * @param executor 调度执行器
+         * @return 返回值
+        */
         DelegatedScheduledExecutorServiceImpl(ScheduledExecutorService executor) {
             super(executor);
             e = executor;
@@ -1159,6 +1164,11 @@ public class ThreadUtils {
          * E
          */
         private final ExecutorService e;
+        /**
+         * Delegated Executor Service
+         * @param executor 执行器
+         * @return 返回值
+        */
         DelegatedExecutorService(ExecutorService executor) {
             e = executor;
         }

@@ -142,16 +142,13 @@ public class PolledDirectoryBackup implements BackupStrategy {
     }
 
     /**
-     * 备份轮询目录中的已处理文件
-     *
-     * <p>读取源目录中的文件，通过转换器转换为 insert 格式，
-     * 写入备份目录的子目录中。
-     *
+     * 备份轮询目录中的已处理文件 <p>读取源目录中的文件，通过转换器转换为 insert 格式， 写入备份目录的子目录中。
+     * @param config 备份配置
      * @param source 源轮询目录
      * @param target 备份目标目录
-     * @param config 备份配置
      * @return 备份的文件列表
-     */
+     * @throws IOException 异常
+    */
     private List<Path> backupPolledFiles(Path source, Path target, BackupConfig config) throws IOException {
         List<Path> backedUp = Wraps.list();
         if (!Files.exists(source)) {

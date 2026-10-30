@@ -149,10 +149,11 @@ public class DefaultBackupRestore implements BackupRestore {
 
     /**
      * 从目录恢复文件
-     * @param source 源
      * @param config 配置
+     * @param source 源
      * @return restore从目录的结果
-     */
+     * @throws IOException 异常
+    */
     private List<Path> restoreFromDirectory(Path source, RestoreConfig config) throws IOException {
         List<Path> restored = Wraps.list();
         Files.walkFileTree(source, new SimpleFileVisitor<>() {
@@ -187,10 +188,11 @@ public class DefaultBackupRestore implements BackupRestore {
 
     /**
      * 从 压缩 恢复文件
-     * @param zipFile 压缩文件
      * @param config 配置
+     * @param zipFile 压缩文件
      * @return restore从压缩的结果
-     */
+     * @throws IOException 异常
+    */
     private List<Path> restoreFromZip(Path zipFile, RestoreConfig config) throws IOException {
         List<Path> restored = Wraps.list();
         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFile))) {
@@ -235,7 +237,9 @@ public class DefaultBackupRestore implements BackupRestore {
     /**
      * 递归删除目录及其全部内容。
      * @param dir dir
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void deleteDirectory(Path dir) throws IOException {
         if (!Files.exists(dir)) {
             return;

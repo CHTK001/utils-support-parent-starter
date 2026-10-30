@@ -222,7 +222,11 @@ public class RedisClientProvider implements MiddlewareClientProvider {
 
     // ==================== 内部实现 ====================
 
-    /** 按数据源行建 Jedis 连接（用完即关，管理面请求稀疏） */
+    /**
+     * jedis
+     * @param request 参数
+     * @return 返回值
+    */
     private Jedis jedis(MiddlewareConnectRequest request) {
         DefaultJedisClientConfig.Builder b = DefaultJedisClientConfig.builder()
                 .connectionTimeoutMillis(TIMEOUT_MS)
@@ -242,7 +246,11 @@ public class RedisClientProvider implements MiddlewareClientProvider {
         return new Jedis(request.host(), request.port() <= 0 ? 6379 : request.port(), b.build());
     }
 
-    /** 数据库名/编号 → 索引；非 db 形式返回 0 */
+    /**
+     * db Index
+     * @param text 字符串
+     * @return 返回值
+    */
     private int dbIndex(String text) {
         if (text == null) {
             return 0;
@@ -258,7 +266,15 @@ public class RedisClientProvider implements MiddlewareClientProvider {
         }
     }
 
-    /** scan 查询：按模式扫键，返回键名 + 类型 + TTL */
+    /**
+     * 扫描
+     * @param jedis 参数
+     * @param limit 整数
+     * @param pattern 字符串
+     * @param t0 长整数
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private MiddlewareQueryResult scan(Jedis jedis, long t0, String pattern, int limit) throws Exception {
         String match = pattern.isBlank() ? "*" : pattern;
         ScanParams params = new ScanParams().count(SCAN_COUNT).match(match);
@@ -285,7 +301,11 @@ public class RedisClientProvider implements MiddlewareClientProvider {
                 System.currentTimeMillis() - t0);
     }
 
-    /** 从 keyspace 行里取 keys 数 */
+    /**
+     * keys Of
+     * @param spec 字符串
+     * @return 返回值
+    */
     private Long keysOf(String spec) {
         for (String part : spec.split(",")) {
             int eq = part.indexOf('=');
@@ -300,7 +320,12 @@ public class RedisClientProvider implements MiddlewareClientProvider {
         return null;
     }
 
-    /** 从 INFO 的多节文本里取一个字段 */
+    /**
+     * section
+     * @param field 字符串
+     * @param info 字符串
+     * @return 返回值
+    */
     private String section(String info, String field) {
         if (info == null) {
             return "";
@@ -314,7 +339,11 @@ public class RedisClientProvider implements MiddlewareClientProvider {
         return "";
     }
 
-    /** 取根因消息 */
+    /**
+     * root Message
+     * @param e 可抛出异常
+     * @return 返回值
+    */
     private String rootMessage(Throwable e) {
         Throwable t = e;
         while (t.getCause() != null && t.getCause() != t) {

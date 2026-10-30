@@ -177,9 +177,10 @@ public class LstmAttentionBehaviorTranslator {
 
     /**
      * 初始化并加载 ONNX 模型，线程安全且只加载一次。
-     *
+     * @return 返回值
+     * @throws Exception 异常
      * @throws IOException 当模型文件不存在或创建 ONNX Runtime 会话失败时
-     */
+    */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;

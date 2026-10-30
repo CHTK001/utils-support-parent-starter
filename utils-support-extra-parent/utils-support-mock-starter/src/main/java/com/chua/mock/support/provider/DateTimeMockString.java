@@ -32,6 +32,11 @@ public class DateTimeMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         long today = LocalDate.now().toEpochDay();
         LocalDate date = LocalDate.ofEpochDay(environment.nextLong(0, today + 1));

@@ -704,6 +704,12 @@ public final class WechatMemoryKeyScanner {
          */
         final AtomicLong address = new AtomicLong();
 
+        /**
+         * Ctx
+         * @param database 文件
+         * @return 返回值
+         * @throws Exception 异常
+        */
         Ctx(File database) throws Exception {
             long size = database.length();
             if (size < PAGE) {
@@ -774,6 +780,13 @@ public final class WechatMemoryKeyScanner {
         final long size;
         final int protect;
 
+        /**
+         * Region
+         * @param base 长整数
+         * @param protect 整数
+         * @param size 获取数量
+         * @return 返回值
+        */
         Region(long base, long size, int protect) {
             this.base = base;
             this.size = size;

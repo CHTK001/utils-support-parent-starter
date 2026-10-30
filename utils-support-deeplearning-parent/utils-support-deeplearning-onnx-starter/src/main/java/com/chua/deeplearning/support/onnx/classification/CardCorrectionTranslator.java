@@ -125,6 +125,8 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
 
     /**
      * Prepare
+     * @return 返回值
+     * @throws Exception 异常
     */
     private synchronized void prepare() throws Exception {
         if (session != null) {

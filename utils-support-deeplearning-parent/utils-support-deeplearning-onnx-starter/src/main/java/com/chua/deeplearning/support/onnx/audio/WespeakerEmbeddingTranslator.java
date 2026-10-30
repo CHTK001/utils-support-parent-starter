@@ -121,7 +121,9 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
 
     /**
      * ensureprepared。
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void ensurePrepared() throws Exception {
         if (prepared) {
             return;

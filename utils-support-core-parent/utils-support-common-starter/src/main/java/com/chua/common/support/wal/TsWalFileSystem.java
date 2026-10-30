@@ -163,6 +163,11 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
         public long expireAt() {
             return ttlSec == null ? Long.MAX_VALUE : ts + (long) ttlSec * 1000L;
         }
+        /**
+         * is Expired
+         * @param now 长整数
+         * @return 返回值
+        */
         public boolean isExpired(long now) {
             return expireAt() <= now;
         }

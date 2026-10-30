@@ -374,9 +374,10 @@ public class SmbClient implements AutoCloseable {
 
     /**
      * ensure父路径
-     *
      * @param fullPath 完整路径
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void ensureParentPath(String fullPath) throws IOException {
         int lastSep = fullPath.lastIndexOf('/');
         if (lastSep <= 0) {

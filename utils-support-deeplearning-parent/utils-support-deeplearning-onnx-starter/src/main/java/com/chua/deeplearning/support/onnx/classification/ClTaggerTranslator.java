@@ -269,10 +269,10 @@ finally {
 
     /**
      * 加载标签mapping
-     *
      * @param tagMappingPath 标签mapping路径
      * @return 加载标签mapping的结果
-     */
+     * @throws IOException 异常
+    */
     private static List<String> loadTagMapping(Path tagMappingPath) throws IOException {
         Map<String, TagMappingEntry> rawMapping = OBJECT_MAPPER.readValue(tagMappingPath.toFile(),
                 new TypeReference<Map<String, TagMappingEntry>>() {

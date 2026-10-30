@@ -142,6 +142,11 @@ public class SolrMeta extends AbstractMetaSearch {
         */
         private int replicas = 1;
 
+        /**
+         * Solr Create Index Builder
+         * @param indexName 字符串
+         * @return 返回值
+        */
         SolrCreateIndexBuilder(String indexName) {
             this.indexName = indexName;
         }

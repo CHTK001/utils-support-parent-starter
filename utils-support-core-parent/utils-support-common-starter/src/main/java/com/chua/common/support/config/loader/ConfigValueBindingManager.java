@@ -446,6 +446,12 @@ public class ConfigValueBindingManager implements ConfigListener {
         final String key;
         final String defaultValue;
 
+        /**
+         * Parsed Expression
+         * @param defaultValue 字符串
+         * @param key 字符串
+         * @return 返回值
+        */
         ParsedExpression(String key, String defaultValue) {
             this.key = key;
             this.defaultValue = defaultValue;

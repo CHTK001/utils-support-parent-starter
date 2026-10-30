@@ -57,10 +57,10 @@ public enum TmdbGenre {
 
     /**
      * 构造方法，创建 TmdbGenre 实例。
-     *
      * @param id ID，不允许为 null
      * @param name 名称，不允许为 null
-     */
+     * @return 返回值
+    */
     TmdbGenre(int id, String name) {
         this.id = id;
         this.name = name;

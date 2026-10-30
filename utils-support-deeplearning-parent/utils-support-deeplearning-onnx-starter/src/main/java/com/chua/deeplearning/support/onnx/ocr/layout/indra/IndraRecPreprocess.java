@@ -184,7 +184,13 @@ public final class IndraRecPreprocess {
         return hi - med > 2 * (med - lo) + 8;
     }
 
-    /** 由累积直方图取分位数（对齐 {@code _percentiles} 的线性插值）。 */
+    /**
+     * percentile
+     * @param cum 参数
+     * @param n 整数
+     * @param q 双精度数
+     * @return 返回值
+    */
     private static double percentile(int[] cum, int n, double q) {
         double x = q * (n - 1);
         int i = (int) Math.floor(x);
@@ -195,7 +201,12 @@ public final class IndraRecPreprocess {
         return g >= 0.5 ? hi - d * (1 - g) : lo + d * g;
     }
 
-    /** 对齐 {@code np.searchsorted(cum, v, side="right")}。 */
+    /**
+     * search Sorted Right
+     * @param cum 参数
+     * @param v 双精度数
+     * @return 返回值
+    */
     private static int searchSortedRight(int[] cum, double v) {
         for (int k = 0; k < cum.length; k++) {
             if (cum[k] > v) {

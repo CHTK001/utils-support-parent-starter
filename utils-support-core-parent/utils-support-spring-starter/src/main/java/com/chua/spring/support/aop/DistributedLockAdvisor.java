@@ -57,9 +57,9 @@ public class DistributedLockAdvisor extends StaticMethodMatcherPointcutAdvisor {
 
         /**
          * 构造方法。
-         *
          * @param intercept 分布式锁拦截器实例
-         */
+         * @return 返回值
+        */
         DistributedLockAdvice(DistributedLockIntercept intercept) {
             this.intercept = intercept;
         }

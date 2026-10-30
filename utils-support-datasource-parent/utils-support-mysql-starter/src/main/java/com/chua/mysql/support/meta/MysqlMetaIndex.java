@@ -157,6 +157,12 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
          */
         private boolean visible = true;
 
+        /**
+         * Mysql Index Create Builder
+         * @param indexName 字符串
+         * @param metaIndex 参数
+         * @return 返回值
+        */
         MysqlIndexCreateBuilder(MysqlMetaIndex metaIndex, String indexName) {
             this.metaIndex = metaIndex;
             this.indexName = indexName;

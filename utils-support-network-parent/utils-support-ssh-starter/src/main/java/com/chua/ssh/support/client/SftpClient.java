@@ -298,6 +298,11 @@ public class SftpClient implements AutoCloseable {
          * 远程文件路径
          */
         private String remotePath;
+        /**
+         * Upload Operation
+         * @param client 参数
+         * @return 返回值
+        */
         UploadOperation(SftpClient client) {
             this.client = client;
         }
@@ -351,6 +356,11 @@ public class SftpClient implements AutoCloseable {
          * 本地文件路径
          */
         private String localPath;
+        /**
+         * Download Operation
+         * @param client 参数
+         * @return 返回值
+        */
         DownloadOperation(SftpClient client) {
             this.client = client;
         }
@@ -404,6 +414,11 @@ public class SftpClient implements AutoCloseable {
          * 路径
          */
         private String path = ".";
+        /**
+         * List Operation
+         * @param client 参数
+         * @return 返回值
+        */
         ListOperation(SftpClient client) {
             this.client = client;
         }
@@ -453,6 +468,11 @@ public class SftpClient implements AutoCloseable {
          * recursive
          */
         private boolean recursive = false;
+        /**
+         * Mkdir Operation
+         * @param client 参数
+         * @return 返回值
+        */
         MkdirOperation(SftpClient client) {
             this.client = client;
         }
@@ -537,6 +557,11 @@ public class SftpClient implements AutoCloseable {
          * recursive
          */
         private boolean recursive = false;
+        /**
+         * Rm Operation
+         * @param client 参数
+         * @return 返回值
+        */
         RmOperation(SftpClient client) {
             this.client = client;
         }
@@ -591,6 +616,11 @@ public class SftpClient implements AutoCloseable {
          * 新路径
          */
         private String newPath;
+        /**
+         * Rename Operation
+         * @param client 参数
+         * @return 返回值
+        */
         RenameOperation(SftpClient client) {
             this.client = client;
         }
@@ -637,6 +667,11 @@ public class SftpClient implements AutoCloseable {
          * 路径
          */
         private String path;
+        /**
+         * Stat Operation
+         * @param client 参数
+         * @return 返回值
+        */
         StatOperation(SftpClient client) {
             this.client = client;
         }

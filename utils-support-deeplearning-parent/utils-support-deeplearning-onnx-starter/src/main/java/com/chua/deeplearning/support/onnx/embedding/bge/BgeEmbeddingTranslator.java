@@ -99,9 +99,10 @@ public class BgeEmbeddingTranslator {
 
     /**
      * 创建会话
-     *
      * @param modelPath 模型路径
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void createSession(String modelPath) throws IOException {
         try {
             this.ortEnv = OrtEnvironment.getEnvironment();
@@ -116,11 +117,11 @@ public class BgeEmbeddingTranslator {
 
     /**
      * 计算文本句向量（已池化）。
-     *
-     * @param inputIds      令牌 标识
      * @param attentionMask attention mask
+     * @param inputIds 令牌 标识
      * @return 句向量 float[]
-     */
+     * @throws Exception 异常
+    */
     public float[] embed(long[] inputIds, long[] attentionMask) throws Exception {
         if (session == null) {
             throw new IllegalStateException("BGE 模型未初始化");

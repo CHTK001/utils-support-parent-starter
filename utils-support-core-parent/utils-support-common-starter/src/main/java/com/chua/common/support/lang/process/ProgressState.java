@@ -59,13 +59,12 @@ public class ProgressState {
     volatile boolean paused = false;
     /**
      * 构造 ProgressState 实例。
-     *
-     *
-     * @param taskName
-     * @param initialMax                               0
-     * @param startFrom
-     * @param elapsedBeforeStart
-     */
+     * @param elapsedBeforeStart 
+     * @param initialMax 0
+     * @param startFrom 
+     * @param taskName 
+     * @return 返回值
+    */
     ProgressState(String taskName, long initialMax, long startFrom, Duration elapsedBeforeStart) {
         this.taskName = taskName;
         if (initialMax < 0) {

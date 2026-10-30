@@ -323,9 +323,18 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
         return new SimpleSqlParser(this).parseDml(sql, params);
     }
 
+    /**
+     * set Join Strategy
+     * @param name 字符串
+     * @return 返回值
+    */
     public void setJoinStrategy(String name) {
         this.joinStrategyName = name;
     }
+    /**
+     * join Strategy
+     * @return 返回值
+    */
     public String joinStrategy() {
         return joinStrategyName;
     }

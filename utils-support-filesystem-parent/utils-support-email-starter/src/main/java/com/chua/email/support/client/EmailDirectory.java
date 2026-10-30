@@ -100,6 +100,7 @@ public class EmailDirectory implements PolledDirectory {
 
     /**
      * Builder
+     * @return 返回值
     */
     public static Builder builder() {
         return new Builder();
@@ -268,6 +269,8 @@ public class EmailDirectory implements PolledDirectory {
 
         /**
          * ImapHost
+         * @param h 字符串
+         * @return 返回值
         */
         public Builder imapHost(String h) {
             this.imapHost = h;
@@ -275,6 +278,8 @@ public class EmailDirectory implements PolledDirectory {
         }
         /**
          * ImapPort
+         * @param p 整数
+         * @return 返回值
         */
         public Builder imapPort(int p) {
             this.imapPort = p;
@@ -282,6 +287,8 @@ public class EmailDirectory implements PolledDirectory {
         }
         /**
          * Username
+         * @param u 字符串
+         * @return 返回值
         */
         public Builder username(String u) {
             this.username = u;
@@ -289,6 +296,8 @@ public class EmailDirectory implements PolledDirectory {
         }
         /**
          * Password
+         * @param p 字符串
+         * @return 返回值
         */
         public Builder password(String p) {
             this.password = p;
@@ -296,6 +305,8 @@ public class EmailDirectory implements PolledDirectory {
         }
         /**
          * Folder
+         * @param f 字符串
+         * @return 返回值
         */
         public Builder folder(String f) {
             this.folder = f;
@@ -303,6 +314,8 @@ public class EmailDirectory implements PolledDirectory {
         }
         /**
          * 取出Interval
+         * @param seconds 整数
+         * @return 返回值
         */
         public Builder pollInterval(int seconds) {
             this.pollIntervalSeconds = seconds;
@@ -311,6 +324,7 @@ public class EmailDirectory implements PolledDirectory {
 
         /**
          * 构建
+         * @return 返回值
         */
         public EmailDirectory build() {
             if (imapHost == null) {

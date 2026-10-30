@@ -256,6 +256,13 @@ public class TarGzExtractor implements Extractor {
         long size = 0;
         boolean isDirectory = false;
 
+        /**
+         * Tar Header
+         * @param isDirectory 布尔值
+         * @param name 字符串
+         * @param size 获取数量
+         * @return 返回值
+        */
         TarHeader(String name, long size, boolean isDirectory) {
             this.name = name;
             this.size = size;

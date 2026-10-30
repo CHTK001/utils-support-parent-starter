@@ -91,9 +91,9 @@ public enum ProtocolType {
 
     /**
      * 构造函数，初始化协议类型及其对应的服务类别。
-     *
      * @param category 服务类别，由 {@link ServerCategory} 定义。
-     */
+     * @return 返回值
+    */
     ProtocolType(final ServerCategory category) {
         this.category = category;
     }

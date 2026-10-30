@@ -226,6 +226,11 @@ finally {
          */
         private final IpcProtocolServer ipcServer;
 
+        /**
+         * Ipc Message Router Handler
+         * @param ipcServer 参数
+         * @return 返回值
+        */
         IpcMessageRouterHandler(IpcProtocolServer ipcServer) {
             this.ipcServer = ipcServer;
         }

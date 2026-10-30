@@ -353,6 +353,12 @@ public class JdbcSqlExecutor implements SqlExecutor {
         return sql.length();
     }
 
+    /**
+     * build Page Sql
+     * @param pagination 参数
+     * @param sql 字符串
+     * @return 返回值
+    */
     private String buildPageSql(String sql, Pagination pagination) {
         Dialect dialect = engine.getDialect(engine.getDefaultDataSourceName());
         if (dialect == null) {

@@ -135,6 +135,10 @@ public final class PollinationsChatClientIndicator implements ChatClientIndicato
         return readLong(ensureSnapshot(), modelId, "context_window_tokens");
     }
 
+    /**
+     * ensure Snapshot
+     * @return 返回值
+    */
     private Snapshot ensureSnapshot() {
         Snapshot current = snapshot;
         long now = System.currentTimeMillis();
@@ -156,6 +160,10 @@ public final class PollinationsChatClientIndicator implements ChatClientIndicato
         }
     }
 
+    /**
+     * 获取
+     * @return 返回值
+    */
     private Snapshot fetch() {
         try {
             HttpRequest.Builder builder = HttpRequest.newBuilder()
@@ -177,6 +185,11 @@ public final class PollinationsChatClientIndicator implements ChatClientIndicato
         }
     }
 
+    /**
+     * 解析
+     * @param body 字符串
+     * @return 返回值
+    */
     private Snapshot parse(String body) {
         try {
             JsonNode root = objectMapper.readTree(body);
@@ -215,6 +228,11 @@ public final class PollinationsChatClientIndicator implements ChatClientIndicato
         }
     }
 
+    /**
+     * parse Model
+     * @param item 参数
+     * @return 返回值
+    */
     private Map<String, Object> parseModel(JsonNode item) {
         Map<String, Object> metrics = new LinkedHashMap<>(24);
         JsonNode pricing = item.get("pricing");
@@ -335,7 +353,10 @@ public final class PollinationsChatClientIndicator implements ChatClientIndicato
 
     /**
      * 收集数组中的字符串名称。
-     */
+     * @param array 参数
+     * @param target 参数
+     * @return 返回值
+    */
     private static void collectNames(JsonNode array, Set<String> target) {
         if (array == null || !array.isArray()) {
             return;
@@ -350,7 +371,9 @@ public final class PollinationsChatClientIndicator implements ChatClientIndicato
 
     /**
      * 名称集合转 {@code [{name}]} 列表。
-     */
+     * @param names 参数
+     * @return 返回值
+    */
     private static List<Map<String, Object>> toNameList(Set<String> names) {
         List<Map<String, Object>> rows = new ArrayList<>(names.size());
         for (String name : names) {
@@ -363,7 +386,9 @@ public final class PollinationsChatClientIndicator implements ChatClientIndicato
 
     /**
      * 端点集合转 {@code [{name, path}]} 列表。
-     */
+     * @param endpoints 参数
+     * @return 返回值
+    */
     private static List<Map<String, Object>> toEndpointList(Set<String> endpoints) {
         List<Map<String, Object>> rows = new ArrayList<>(endpoints.size());
         for (String name : endpoints) {
@@ -375,6 +400,13 @@ public final class PollinationsChatClientIndicator implements ChatClientIndicato
         return List.copyOf(rows);
     }
 
+    /**
+     * read Price
+     * @param key 字符串
+     * @param modelId 字符串
+     * @param snapshot 参数
+     * @return 返回值
+    */
     private static BigDecimal readPrice(Snapshot snapshot, String modelId, String key) {
         if (snapshot == null || modelId == null) {
             return null;
@@ -393,6 +425,13 @@ public final class PollinationsChatClientIndicator implements ChatClientIndicato
         return null;
     }
 
+    /**
+     * read Long
+     * @param key 字符串
+     * @param modelId 字符串
+     * @param snapshot 参数
+     * @return 返回值
+    */
     private static Long readLong(Snapshot snapshot, String modelId, String key) {
         if (snapshot == null || modelId == null) {
             return null;

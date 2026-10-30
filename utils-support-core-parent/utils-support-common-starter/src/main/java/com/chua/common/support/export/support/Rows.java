@@ -254,11 +254,24 @@ public final class Rows {
         };
     }
 
+    /**
+     * pattern
+     * @param column 参数
+     * @param fallback 字符串
+     * @return 返回值
+    */
     private static String pattern(ColumnMeta column, String fallback) {
         String format = column.getDateFormat();
         return format.isEmpty() ? fallback : format;
     }
 
+    /**
+     * temporal
+     * @param column 参数
+     * @param pattern 字符串
+     * @param value 对象
+     * @return 返回值
+    */
     private static Object temporal(Object value, String pattern, ColumnMeta column) {
         if (value instanceof CharSequence text) {
             return text;
@@ -286,6 +299,12 @@ public final class Rows {
         return value;
     }
 
+    /**
+     * enum Text
+     * @param column 参数
+     * @param value 对象
+     * @return 返回值
+    */
     private static Object enumText(Object value, ColumnMeta column) {
         Map<String, String> mapping = column.getEnumNames();
         if (mapping.isEmpty()) {
@@ -298,10 +317,23 @@ public final class Rows {
         return value instanceof Enum<?> e ? e.name() : value;
     }
 
+    /**
+     * decimal
+     * @param column 参数
+     * @param value 对象
+     * @return 返回值
+    */
     private static Object decimal(Object value, ColumnMeta column) {
         return decimal(value, column, column.getScale());
     }
 
+    /**
+     * decimal
+     * @param column 参数
+     * @param scale 整数
+     * @param value 对象
+     * @return 返回值
+    */
     private static Object decimal(Object value, ColumnMeta column, int scale) {
         if (value instanceof CharSequence text) {
             return text;
@@ -314,6 +346,12 @@ public final class Rows {
         return target < 0 ? number.stripTrailingZeros() : number.setScale(target, RoundingMode.HALF_UP);
     }
 
+    /**
+     * to Number
+     * @param column 参数
+     * @param value 对象
+     * @return 返回值
+    */
     private static Object toNumber(Object value, ColumnMeta column) {
         if (value instanceof CharSequence text) {
             return text;
@@ -353,6 +391,12 @@ public final class Rows {
         }
     }
 
+    /**
+     * decorate
+     * @param column 参数
+     * @param value 对象
+     * @return 返回值
+    */
     private static Object decorate(Object value, ColumnMeta column) {
         String prefix = column.getPrefix();
         String suffix = column.getSuffix();

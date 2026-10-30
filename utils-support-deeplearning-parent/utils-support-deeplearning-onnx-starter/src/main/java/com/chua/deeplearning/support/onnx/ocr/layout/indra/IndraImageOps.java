@@ -86,7 +86,14 @@ public final class IndraImageOps {
 
     /**
      * 面积平均重采样（{@code INTER_AREA}）：每个目标像素取源矩形区域的精确加权平均。
-     */
+     * @param dh 整数
+     * @param dw 整数
+     * @param out 参数
+     * @param sh 整数
+     * @param src 参数
+     * @param sw 整数
+     * @return 返回值
+    */
     private static void resizeArea(byte[][] src, int sw, int sh, byte[][] out, int dw, int dh) {
         double sx = (double) sw / dw;
         double sy = (double) sh / dh;
@@ -128,7 +135,14 @@ public final class IndraImageOps {
 
     /**
      * 双线性重采样（{@code INTER_LINEAR}）：源坐标 {@code (d+0.5)*scale-0.5}，边界复制。
-     */
+     * @param dh 整数
+     * @param dw 整数
+     * @param out 参数
+     * @param sh 整数
+     * @param src 参数
+     * @param sw 整数
+     * @return 返回值
+    */
     private static void resizeLinear(byte[][] src, int sw, int sh, byte[][] out, int dw, int dh) {
         double sx = (double) sw / dw;
         double sy = (double) sh / dh;

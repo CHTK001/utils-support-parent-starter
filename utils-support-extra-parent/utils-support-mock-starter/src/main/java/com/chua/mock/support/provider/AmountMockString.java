@@ -34,6 +34,11 @@ public class AmountMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         long cents = environment.nextLong(MIN_CENTS, MAX_CENTS);
         BigDecimal amount = BigDecimal.valueOf(cents, 2);

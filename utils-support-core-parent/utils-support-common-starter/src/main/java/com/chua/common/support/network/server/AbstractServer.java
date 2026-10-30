@@ -613,6 +613,11 @@ public abstract class AbstractServer implements ConfigServer {
          */
         private final ServerSetting setting;
 
+        /**
+         * Simple Server Filter Config
+         * @param setting 参数
+         * @return 返回值
+        */
         SimpleServerFilterConfig(ServerSetting setting) {
             this.setting = setting;
         }

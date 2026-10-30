@@ -196,14 +196,14 @@ public class GithubSkillProvider {
     }
 
     /**
+    /**
      * 获取指定仓库的分支递归文件树路径。
-     *
-     * @param owner  仓库 owner
-     * @param name   仓库名
      * @param branch 分支
+     * @param name 仓库名
+     * @param owner 仓库 owner
      * @return 文件路径列表
-     */
-    @SuppressWarnings("unchecked")
+     * @throws Exception 异常
+    */
     protected List<String> fetchTreePaths(String owner, String name, String branch) throws Exception {
         String url = API_BASE + "/repos/" + owner + "/" + name + "/git/trees/" + encode(branch) + "?recursive=1";
         ClientResponse response = HttpClientFactory.of(url)

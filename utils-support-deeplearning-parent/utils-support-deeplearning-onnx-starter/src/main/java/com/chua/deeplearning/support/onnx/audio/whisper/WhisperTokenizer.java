@@ -65,21 +65,21 @@ public class WhisperTokenizer {
 
     /**
      * 从 vocab.json 加载（兼容旧版，不含特殊 令牌）。
-     *
      * @param vocabJson vocab.json 路径
      * @return tokenizer 实例
-     */
+     * @throws IOException 异常
+    */
     public static WhisperTokenizer load(Path vocabJson) throws IOException {
         return load(vocabJson, vocabJson.resolveSibling("tokenizer.json"));
     }
 
     /**
      * 从 vocab.json + tokenizer.json 加载完整 vocab（含特殊 令牌）。
-     *
-     * @param vocabJson  vocab.json 路径
-     * @param tokJson    tokenizer.json 路径
+     * @param tokJson tokenizer.json 路径
+     * @param vocabJson vocab.json 路径
      * @return tokenizer 实例
-     */
+     * @throws IOException 异常
+    */
     public static WhisperTokenizer load(Path vocabJson, Path tokJson) throws IOException {
  // 1. 加载 BPE vocab（自动识别方向：标识→令牌 或 令牌→标识）
         Map<Integer, String> idToTokenMap = Wraps.map();

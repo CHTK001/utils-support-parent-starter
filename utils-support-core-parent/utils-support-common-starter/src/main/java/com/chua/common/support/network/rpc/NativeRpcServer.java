@@ -149,10 +149,10 @@ public class NativeRpcServer implements RpcServer {
 
     /**
      * RPC 帧处理：反序列化请求、调用方法、序列化响应。
-     *
      * @param reqData 请求帧字节
      * @return 响应帧字节
-     */
+     * @throws Exception 异常
+    */
     private byte[] handleRequest(byte[] reqData) throws Exception {
         try {
             RpcRequest request = rpcSerialization.deserializeRequest(reqData);

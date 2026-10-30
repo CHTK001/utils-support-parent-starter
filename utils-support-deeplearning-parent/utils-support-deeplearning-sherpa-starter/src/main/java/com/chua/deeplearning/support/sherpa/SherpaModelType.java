@@ -51,10 +51,10 @@ public enum SherpaModelType {
 
     /**
      * 构造枚举项。
-     *
-     * @param code        短标识
+     * @param code 短标识
      * @param description 中文说明
-     */
+     * @return 返回值
+    */
     SherpaModelType(String code, String description) {
         this.code = code;
         this.description = description;

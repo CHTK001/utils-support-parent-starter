@@ -44,6 +44,11 @@ public class CompanyMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         return environment.randomOf(CITIES) + environment.randomOf(CORES)
                 + environment.randomOf(INDUSTRIES) + "有限公司";

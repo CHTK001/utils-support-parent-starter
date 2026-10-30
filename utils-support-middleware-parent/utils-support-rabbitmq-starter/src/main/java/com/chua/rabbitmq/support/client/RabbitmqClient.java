@@ -536,6 +536,11 @@ public class RabbitmqClient implements AutoCloseable {
         */
         private Map<String, Object> arguments;
 
+        /**
+         * Exchange Operation
+         * @param client 参数
+         * @return 返回值
+        */
         ExchangeOperation(RabbitmqClient client) {
             this.client = client;
         }
@@ -695,6 +700,11 @@ public class RabbitmqClient implements AutoCloseable {
         */
         private Map<String, Object> arguments = Wraps.map();
 
+        /**
+         * Queue Operation
+         * @param client 参数
+         * @return 返回值
+        */
         QueueOperation(RabbitmqClient client) {
             this.client = client;
         }
@@ -917,6 +927,11 @@ public class RabbitmqClient implements AutoCloseable {
         */
         private Map<String, Object> arguments;
 
+        /**
+         * Bind Operation
+         * @param client 参数
+         * @return 返回值
+        */
         BindOperation(RabbitmqClient client) {
             this.client = client;
         }
@@ -1021,6 +1036,11 @@ public class RabbitmqClient implements AutoCloseable {
         */
         private long confirmTimeoutMs = 10000;
 
+        /**
+         * Publish Operation
+         * @param client 参数
+         * @return 返回值
+        */
         PublishOperation(RabbitmqClient client) {
             this.client = client;
         }
@@ -1348,6 +1368,11 @@ public class RabbitmqClient implements AutoCloseable {
         */
         private String channelName = "default";
 
+        /**
+         * Consume Operation
+         * @param client 参数
+         * @return 返回值
+        */
         ConsumeOperation(RabbitmqClient client) {
             this.client = client;
         }
@@ -1519,6 +1544,11 @@ public class RabbitmqClient implements AutoCloseable {
         */
         private final RabbitmqClient client;
 
+        /**
+         * Tx Operation
+         * @param client 参数
+         * @return 返回值
+        */
         TxOperation(RabbitmqClient client) {
             this.client = client;
         }
@@ -1552,6 +1582,11 @@ public class RabbitmqClient implements AutoCloseable {
          * @param batch 批量
          */
         public void sendBatch(Runnable batch) {
+            /**
+             * execute
+             * @param { 参数
+             * @return 返回值
+            */
             execute(ch -> {
                 batch.run();
                 return null;
@@ -1597,6 +1632,14 @@ public class RabbitmqClient implements AutoCloseable {
         */
         private final String consumerTag;
 
+        /**
+         * Message Handler
+         * @param channel 通道
+         * @param client 参数
+         * @param consumerTag 字符串
+         * @param delivery 参数
+         * @return 返回值
+        */
         MessageHandler(RabbitmqClient client, Channel channel, Delivery delivery, String consumerTag) {
             this.client = client;
             this.channel = channel;

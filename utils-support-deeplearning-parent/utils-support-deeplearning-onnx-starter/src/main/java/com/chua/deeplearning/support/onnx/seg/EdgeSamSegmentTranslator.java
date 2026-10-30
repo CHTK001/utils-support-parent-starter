@@ -126,6 +126,8 @@ public class EdgeSamSegmentTranslator {
 
     /**
      * Prepare
+     * @return 返回值
+     * @throws Exception 异常
     */
     private synchronized void prepare() throws Exception {
         if (encoderSession != null && decoderSession != null) {
@@ -166,11 +168,11 @@ public class EdgeSamSegmentTranslator {
 
     /**
      * 用提示框对图像做目标分割，返回与原图同尺寸的灰度掩码图。
-     *
-     * @param input      输入图像
-     * @param box        提示框 [x1, y1, x2, y2]（原图像素坐标）
+     * @param box 提示框 [x1, y1, x2, y2]（原图像素坐标）
+     * @param input 输入图像
      * @return 灰度掩码图（0=背景，255=前景）
-     */
+     * @throws Exception 异常
+    */
     public Image segment(Image input, float[] box) throws Exception {
         if (box == null || box.length != 4) {
             throw new IllegalArgumentException("box 必须为 [x1, y1, x2, y2]");

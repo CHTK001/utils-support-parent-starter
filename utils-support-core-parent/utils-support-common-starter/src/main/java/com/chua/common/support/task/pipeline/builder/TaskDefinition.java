@@ -145,11 +145,11 @@ public class TaskDefinition {
 
     /**
      * 构造任务定义。
-     *
-     * @param id      节点唯一标识
-     * @param handler 业务逻辑处理器
      * @param builder 流水线构建器
-     */
+     * @param handler 业务逻辑处理器
+     * @param id 节点唯一标识
+     * @return 返回值
+    */
     TaskDefinition(String id, PipelineNode handler, PipelineBuilder builder) {
         this.id = id;
         this.handler = handler;

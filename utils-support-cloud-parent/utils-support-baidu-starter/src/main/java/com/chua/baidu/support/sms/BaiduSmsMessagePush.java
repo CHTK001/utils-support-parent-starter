@@ -200,12 +200,12 @@ public class BaiduSmsMessagePush implements MessagePush {
 
     /**
      * 生成百度云 AK/SK 认证头
-     *
      * @param accessKey 百度云 访问密钥
      * @param secretKey 百度云 密钥
      * @param timestamp 时间戳
      * @return Authorization 头值
-     */
+     * @throws Exception 异常
+    */
     private String generateAuthorization(String accessKey, String secretKey, String timestamp) throws Exception {
         String method = "POST";
         String path = "/api/v2/sms";

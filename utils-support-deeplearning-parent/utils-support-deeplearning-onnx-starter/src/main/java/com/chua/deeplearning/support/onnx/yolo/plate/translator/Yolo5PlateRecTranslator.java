@@ -91,7 +91,9 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
 
     /**
      * Prepare。
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private synchronized void prepare() throws Exception {
         if (loaded) {
             return;
@@ -137,10 +139,10 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
 
     /**
      * 识别车牌：预处理 → 推理 → CTC 解码车牌号 + 颜色 softmax。
-     *
      * @param imageData 原图（应为检测到的车牌裁剪块）
      * @return 车牌识别结果
-     */
+     * @throws Exception 异常
+    */
     private PlateResult recognize(byte[] imageData) throws Exception {
         ImageUtils.load();
         Mat src = ImageUtils.decode(imageData);

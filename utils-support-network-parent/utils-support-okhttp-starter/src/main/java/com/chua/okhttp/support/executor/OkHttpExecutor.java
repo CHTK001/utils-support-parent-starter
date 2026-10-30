@@ -113,10 +113,10 @@ public class OkHttpExecutor implements HttpClientExecutor {
 
     /**
      * 转为客户端响应
-     *
      * @param okResp okresp
      * @return 转为客户端响应的结果
-     */
+     * @throws IOException 异常
+    */
     private ClientResponse toClientResponse(Response okResp) throws IOException {
         ClientResponse resp = new ClientResponse();
         resp.setStatusCode(okResp.code());

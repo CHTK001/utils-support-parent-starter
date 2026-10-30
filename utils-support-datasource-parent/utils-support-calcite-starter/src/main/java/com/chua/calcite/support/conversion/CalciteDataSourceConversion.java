@@ -73,9 +73,9 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
 
         /**
          * 构造内部 Calcite 数据源。
-         *
          * @param delegates 被聚合的数据源列表
-         */
+         * @return 返回值
+        */
         CalciteDataSource(List<DataSource> delegates) {
             this.delegates = delegates;
         }

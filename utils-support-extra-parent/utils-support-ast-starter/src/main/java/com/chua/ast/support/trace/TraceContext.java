@@ -333,6 +333,10 @@ public final class TraceContext {
         return stack.isEmpty() ? null : stack.peek().traceId;
     }
 
+    /**
+     * is Enabled
+     * @return 返回值
+    */
     public static boolean isEnabled() {
         return ENABLED;
     }
@@ -675,12 +679,10 @@ public final class TraceContext {
     }
 
     /**
-     * 获取日志记录器。
+     * 获取日志记录器。 <p>豁免说明：SLF4J 为可选依赖，按需软探测加载；本模块未依赖 utils-support-common-starter，无 ReflectUtils 可用。</p>
      * @return 获取日志记录器的结果
-     *
-     * <p>豁免说明：SLF4J 为可选依赖，按需软探测加载；本模块未依赖
-     * utils-support-common-starter，无 ReflectUtils 可用。</p>
-     */
+     * @throws Throwable 异常
+    */
     private static Object getLogger() throws Throwable {
         if (logger == null && slf4jAvailable) {
             // [P3C 1.10 豁免] 可选依赖 SLF4J 软探测加载，本模块无 ReflectUtils 可用
@@ -726,6 +728,14 @@ public final class TraceContext {
         Throwable exception;
         String packageName;
 
+        /**
+         * Trace Node
+         * @param className 字符串
+         * @param depth 整数
+         * @param methodName 字符串
+         * @param traceId 字符串
+         * @return 返回值
+        */
         TraceNode(String traceId, String className, String methodName, int depth) {
             this.traceId = traceId;
             this.className = className;

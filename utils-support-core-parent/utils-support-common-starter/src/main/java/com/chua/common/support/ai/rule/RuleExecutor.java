@@ -215,18 +215,20 @@ public final class RuleExecutor {
 
     /**
      * 条件求值，无条件视为成立。
-     */
+     * @param context 参数
+     * @param rule 参数
+     * @return 返回值
+    */
     private static boolean matches(Rule rule, RuleContext context) {
         return rule.matched(context);
     }
 
     /**
-     * 把规则声明的变量注入 vars 层。
-     *
-     * <p>vars 层是最高优先级，刻意盖过决策展平结果与原始输入：
-     * 规则作者对自己这条规则的显式声明，是这条规则内部最权威的数据。
-     * 这里只在规则<b>真的命中</b>时才注入——未命中的规则不应影响上下文。</p>
-     */
+     * 把规则声明的变量注入 vars 层。 <p>vars 层是最高优先级，刻意盖过决策展平结果与原始输入： 规则作者对自己这条规则的显式声明，是这条规则内部最权威的数据。 这里只在规则<b>真的命中</b>时才注入——未命中的规则不应影响上下文。</p>
+     * @param context 参数
+     * @param rule 参数
+     * @return 返回值
+    */
     private static void bind(Rule rule, RuleContext context) {
         for (Map.Entry<String, Object> entry : rule.variables().entrySet()) {
             context.declare(entry.getKey(), entry.getValue());
@@ -234,11 +236,10 @@ public final class RuleExecutor {
     }
 
     /**
-     * 冻结上下文变量。
-     *
-     * <p>把五层（输入、环境量、决策展平、规则中间结果、规则声明）拍平。
-     * 拍平顺序即优先级顺序，后写入的覆盖先写入的。</p>
-     */
+     * 冻结上下文变量。 <p>把五层（输入、环境量、决策展平、规则中间结果、规则声明）拍平。 拍平顺序即优先级顺序，后写入的覆盖先写入的。</p>
+     * @param context 参数
+     * @return 返回值
+    */
     private static Map<String, Object> snapshot(RuleContext context) {
         Map<String, Object> all = Wraps.linkedMap();
         if (context.input() instanceof Map<?, ?> map) {

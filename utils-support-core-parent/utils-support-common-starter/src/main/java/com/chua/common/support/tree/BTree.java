@@ -336,6 +336,15 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         final BTreeNode<K, V> left;
         final BTreeNode<K, V> right;
 
+        /**
+         * Split Result
+         * @param BTreeNode<K 参数
+         * @param k 参数
+         * @param left 参数
+         * @param right 参数
+         * @param v 参数
+         * @return 返回值
+        */
         SplitResult(K k, V v, BTreeNode<K, V> left, BTreeNode<K, V> right) {
             this.promotedKey = k;
             this.promotedValue = v;

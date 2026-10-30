@@ -63,9 +63,9 @@ final class PoiStyles {
 
     /**
      * 构造样式工厂。
-     *
      * @param workbook 工作簿
-     */
+     * @return 返回值
+    */
     PoiStyles(Workbook workbook) {
         this.workbook = workbook;
     }

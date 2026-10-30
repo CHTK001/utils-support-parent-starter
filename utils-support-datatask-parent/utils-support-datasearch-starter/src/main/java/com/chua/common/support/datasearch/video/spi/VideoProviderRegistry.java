@@ -58,6 +58,11 @@ public final class VideoProviderRegistry {
         UNREACHABLE("不可达");
 
         private final String label;
+        /**
+         * Block Reason
+         * @param label 字符串
+         * @return 返回值
+        */
         BlockReason(String label) {
             this.label = label;
         }

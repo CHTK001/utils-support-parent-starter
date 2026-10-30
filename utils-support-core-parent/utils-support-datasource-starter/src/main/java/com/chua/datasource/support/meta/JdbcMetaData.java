@@ -89,7 +89,8 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
      * @param catalog catalog
      * @param schemaPattern 模式模式
      * @return 列表table名称的结果
-     */
+     * @throws Exception 异常
+    */
     protected List<String> listTableNames(String catalog, String schemaPattern) throws Exception {
         List<String> result = Wraps.list();
         try (Connection conn = getDataSource().getConnection()) {
@@ -113,7 +114,8 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
      * @param schema 模式
      * @param tableName table名称
      * @return 列表column名称的结果
-     */
+     * @throws Exception 异常
+    */
     protected List<String> listColumnNames(String catalog, String schema, String tableName) throws Exception {
         List<String> result = Wraps.list();
         try (Connection conn = getDataSource().getConnection()) {
@@ -183,7 +185,8 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
     /**
      * 获取 JDBC 连接（与 jdbcengine 同模式）。
      * @return 获取jdbcconnection的结果
-     */
+     * @throws Exception 异常
+    */
     protected Connection getJdbcConnection() throws Exception {
         com.chua.common.support.lang.datasource.engine.EngineDataSource<?> eds =
                 engine.getDataSource(engine.getDefaultDataSourceName());

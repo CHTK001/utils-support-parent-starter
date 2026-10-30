@@ -29,6 +29,11 @@ public class IpMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         int a = environment.nextInt(1, FIRST_OCTET_MAX);
         int b = environment.nextInt(256);

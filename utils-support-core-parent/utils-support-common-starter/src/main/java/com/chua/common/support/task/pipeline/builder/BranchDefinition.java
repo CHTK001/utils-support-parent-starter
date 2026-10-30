@@ -62,10 +62,10 @@ public class BranchDefinition {
 
     /**
      * 构造分支定义。
-     *
-     * @param key    分支标签
+     * @param key 分支标签
      * @param parent 父级判断节点定义
-     */
+     * @return 返回值
+    */
     BranchDefinition(String key, TaskDecisionDefinition parent) {
         this.key = key;
         this.parent = parent;

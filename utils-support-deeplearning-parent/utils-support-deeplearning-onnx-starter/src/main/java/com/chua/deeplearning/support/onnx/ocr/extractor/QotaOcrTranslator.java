@@ -68,6 +68,11 @@ public class QotaOcrTranslator implements ITranslator<byte[], String>, AutoClose
         this.modelName = modelName;
     }
 
+    /**
+     * prepare
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
@@ -88,6 +93,11 @@ public class QotaOcrTranslator implements ITranslator<byte[], String>, AutoClose
         log.info("[Qota-OCR] ONNX loaded: {} dict_size={}", modelPath, dict.size());
     }
 
+    /**
+     * set Model Path
+     * @param path 字符串
+     * @return 返回值
+    */
     public void setModelPath(String path) {
         if (path != null && !path.isBlank()) {
             this.injectedPath = path.trim();
@@ -96,6 +106,11 @@ public class QotaOcrTranslator implements ITranslator<byte[], String>, AutoClose
 
     private volatile String injectedPath;
 
+    /**
+     * resolve Model File
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private Path resolveModelFile() throws Exception {
         Path external = ModelResourceResolver
                 .resolveOnnx(injectedPath, modelName, resourceBase, MODEL_FILE);
@@ -121,10 +136,20 @@ public class QotaOcrTranslator implements ITranslator<byte[], String>, AutoClose
         return modelPath;
     }
 
+    /**
+     * load Character Dict
+     * @param jsonPath 路径
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private static List<String> loadCharacterDict(Path jsonPath) throws Exception {
         return parseCharacterDict(new String(Files.readAllBytes(jsonPath), StandardCharsets.UTF_8));
     }
 
+    /**
+     * load Character Dict From Classpath
+     * @return 返回值
+    */
     private List<String> loadCharacterDictFromClasspath() {
         String resource = resourceBase.endsWith("/") ? resourceBase + CONFIG_FILE : resourceBase + "/" + CONFIG_FILE;
         try (InputStream is = QotaOcrTranslator.class.getClassLoader().getResourceAsStream(resource)) {
@@ -198,6 +223,11 @@ public class QotaOcrTranslator implements ITranslator<byte[], String>, AutoClose
         }
     }
 
+    /**
+     * recognize
+     * @param imageData 参数
+     * @return 返回值
+    */
     private String recognize(byte[] imageData) {
         try {
             ImageUtils.load();
@@ -253,6 +283,11 @@ public class QotaOcrTranslator implements ITranslator<byte[], String>, AutoClose
         }
     }
 
+    /**
+     * 解码
+     * @param seqProbs 参数
+     * @return 返回值
+    */
     private String decode(float[][] seqProbs) {
         StringBuilder sb = new StringBuilder();
         int prevIdx = -1;
@@ -269,6 +304,11 @@ public class QotaOcrTranslator implements ITranslator<byte[], String>, AutoClose
         return sb.toString();
     }
 
+    /**
+     * arg Max
+     * @param arr 参数
+     * @return 返回值
+    */
     private int argMax(float[] arr) {
         int idx = 0;
         float best = arr[0];

@@ -232,7 +232,9 @@ public record ModelDomain(List<FeatureColumn> features, String targetName, List<
 
     /**
      * 转 double 值（缺失 / 非法按 0）。
-     */
+     * @param value 对象
+     * @return 返回值
+    */
     private static float toDouble(Object value) {
         if (value instanceof Number number) {
             return number.floatValue();

@@ -183,6 +183,14 @@ public class MosaicArtImageFilter extends AbstractImageFilter {
         private final int avgG;
         private final int avgB;
 
+        /**
+         * Tile Record
+         * @param avgB 整数
+         * @param avgG 整数
+         * @param avgR 整数
+         * @param image 参数
+         * @return 返回值
+        */
         TileRecord(BufferedImage image, int avgR, int avgG, int avgB) {
             this.image = image;
             this.avgR = avgR;

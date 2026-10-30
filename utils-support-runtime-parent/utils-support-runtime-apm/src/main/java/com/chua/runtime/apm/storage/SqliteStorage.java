@@ -723,6 +723,11 @@ public class SqliteStorage implements ApmStorage {
         final AtomicLong evicted = new AtomicLong(0L);
         final java.util.concurrent.atomic.AtomicBoolean done =
                 new java.util.concurrent.atomic.AtomicBoolean(false);
+        /**
+         * submit
+         * @param ( 参数
+         * @return 返回值
+        */
         submit(() -> {
             try {
                 SqliteSession s = session;
@@ -792,6 +797,11 @@ public class SqliteStorage implements ApmStorage {
         final java.util.concurrent.atomic.AtomicBoolean done =
                 new java.util.concurrent.atomic.AtomicBoolean(false);
         // 清理也必须走写线程：否则会与批量事务并发抢同一个 SQLite 写锁
+        /**
+         * submit
+         * @param ( 参数
+         * @return 返回值
+        */
         submit(() -> {
             try {
                 SqliteSession s = session;
@@ -1005,6 +1015,11 @@ public class SqliteStorage implements ApmStorage {
      * @param logLabel 日志前缀
      */
     private void executeWrite(String sql, String logLabel) {
+        /**
+         * submit
+         * @param ( 参数
+         * @return 返回值
+        */
         submit(() -> {
             SqliteSession s = session;
             if (s == null) {

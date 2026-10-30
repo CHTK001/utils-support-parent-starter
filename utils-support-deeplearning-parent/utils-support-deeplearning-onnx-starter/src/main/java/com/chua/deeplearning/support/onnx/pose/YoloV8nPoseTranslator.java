@@ -131,6 +131,8 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
 
     /**
      * Prepare
+     * @return 返回值
+     * @throws Exception 异常
     */
     private synchronized void prepare() throws Exception {
         if (session != null) {

@@ -16,10 +16,10 @@ public class APIRequestContext {
 
     /**
      * 创建 API 请求上下文句柄包装。
-     *
      * @param engine 驱动引擎实例，不允许为 null
      * @param handle 引擎侧的请求上下文句柄标识
-     */
+     * @return 返回值
+    */
     APIRequestContext(Engine engine, long handle) {
         this.engine = engine;
         this.handle = handle;

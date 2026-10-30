@@ -32,6 +32,11 @@ public class PortMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         return String.valueOf(environment.nextInt(PORT_MIN, PORT_MAX + 1));
     }

@@ -182,7 +182,9 @@ public class ApngDecoder {
     /**
      * 解码所有帧：zlib 解压 → 逐行 unfilter → 按 fcTL 合成到画布。
      * @param frameDataList 帧数据列表
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void decodeFrames(List<FrameData> frameDataList) throws IOException {
         if (frameDataList.isEmpty()) {
             return;
@@ -225,12 +227,12 @@ public class ApngDecoder {
 
     /**
      * 解码单帧数据：zlib 解压后按 PNG 扫描线格式还原像素。
-     *
+     * @param h 帧高
      * @param rawData 压缩的帧数据（IDAT/fdat 内容）
-     * @param w       帧宽
-     * @param h       帧高
+     * @param w 帧宽
      * @return RGBA 图像
-     */
+     * @throws IOException 异常
+    */
     private BufferedImage decodeFrameData(byte[] rawData, int w, int h) throws IOException {
         byte[] unfiltered = inflate(rawData);
         int bpp = 4; // RGBA
@@ -266,7 +268,8 @@ public class ApngDecoder {
      * zlib 解压。
      * @param data 数据
      * @return inflate的结果
-     */
+     * @throws IOException 异常
+    */
     private static byte[] inflate(byte[] data) throws IOException {
         Inflater inflater = new Inflater();
         try {

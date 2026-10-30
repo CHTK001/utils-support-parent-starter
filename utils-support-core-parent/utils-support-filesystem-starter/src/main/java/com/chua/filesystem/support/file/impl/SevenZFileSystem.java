@@ -68,6 +68,11 @@ public class SevenZFileSystem implements FileSystem {
         */
         private boolean splitMode = false;
 
+        /**
+         * Seven ZRead Builder
+         * @param file 文件
+         * @return 返回值
+        */
         SevenZReadBuilder(File file) {
             super(file);
         }
@@ -318,6 +323,11 @@ public class SevenZFileSystem implements FileSystem {
         */
         private long splitSize = 0;
 
+        /**
+         * Seven ZWrite Builder
+         * @param file 文件
+         * @return 返回值
+        */
         SevenZWriteBuilder(File file) {
             super(file);
         }
@@ -561,7 +571,8 @@ public class SevenZFileSystem implements FileSystem {
         /**
          * 根据配置的压缩方法和级别创建 sevenz输出文件。
          * @return 创建输出文件的结果
-         */
+         * @throws IOException 异常
+        */
         private SevenZOutputFile createOutputFile() throws IOException {
             return createOutputFile(file);
         }
@@ -587,10 +598,11 @@ public class SevenZFileSystem implements FileSystem {
 
         /**
          * 写入文件
-         *
-         * @param out 出
          * @param file 文件
-         */
+         * @param out 出
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private void writeFile(SevenZOutputFile out, File file) throws IOException {
             try (FileInputStream fis = new FileInputStream(file)) {
                 writeStream(out, fis);
@@ -599,10 +611,11 @@ public class SevenZFileSystem implements FileSystem {
 
         /**
          * 写入流
-         *
-         * @param out 出
          * @param in 入
-         */
+         * @param out 出
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private void writeStream(SevenZOutputFile out, InputStream in) throws IOException {
             byte[] buffer = new byte[8192];
             int len;
@@ -640,18 +653,36 @@ public class SevenZFileSystem implements FileSystem {
             final InputStream inputStream; // 输入流
             final byte[] bytes;
 
+            /**
+             * Entry Data
+             * @param entryName 字符串
+             * @param source 文件
+             * @return 返回值
+            */
             EntryData(String entryName, File source) {
                 this.entryName = entryName;
                 this.source = source;
                 this.inputStream = null;
                 this.bytes = null;
             }
+            /**
+             * Entry Data
+             * @param entryName 字符串
+             * @param inputStream 输入流
+             * @return 返回值
+            */
             EntryData(String entryName, InputStream inputStream) {
                 this.entryName = entryName;
                 this.source = null;
                 this.inputStream = inputStream;
                 this.bytes = null;
             }
+            /**
+             * Entry Data
+             * @param bytes 参数
+             * @param entryName 字符串
+             * @return 返回值
+            */
             EntryData(String entryName, byte[] bytes) {
                 this.entryName = entryName;
                 this.source = null;

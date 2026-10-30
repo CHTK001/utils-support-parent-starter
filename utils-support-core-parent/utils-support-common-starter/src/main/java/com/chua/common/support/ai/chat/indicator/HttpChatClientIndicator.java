@@ -149,7 +149,8 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
 
     /**
      * 拉取并解析指标 URL；失败时返回 {@code null}（上层回退指标库快照）。
-     */
+     * @return 返回值
+    */
     private IndicatorSnapshot ensureSnapshot() {
         IndicatorSnapshot current = snapshot;
         long now = System.currentTimeMillis();
@@ -176,7 +177,8 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
 
     /**
      * 执行一次抓取与解析；任何异常都返回 {@code null}，不抛出。
-     */
+     * @return 返回值
+    */
     private IndicatorSnapshot fetch() {
         try {
             HttpRequest.Builder builder = HttpRequest.newBuilder()
@@ -262,7 +264,9 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
 
     /**
      * 在多种常见包装结构中找到模型数组 / 单模型对象。
-     */
+     * @param root 参数
+     * @return 返回值
+    */
     private JsonNode locateModels(JsonNode root) {
         if (root.isArray()) {
             return root;
@@ -303,7 +307,9 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
 
     /**
      * 提取模型标识：{@code id} 优先，其次 {@code name}、{@code model}。
-     */
+     * @param model 参数
+     * @return 返回值
+    */
     private static String modelIdOf(JsonNode model) {
         String id = IndicatorJsonSupport.text(model, "id");
         if (id != null) {
@@ -514,7 +520,11 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
 
     /**
      * 复制 metrics 子对象（已存在的标准键优先）。
-     */
+     * @param Map<String 参数
+     * @param object 参数
+     * @param target 参数
+     * @return 返回值
+    */
     private static void copyObject(JsonNode object, Map<String, Object> target) {
         Iterator<Map.Entry<String, JsonNode>> fields = object.fields();
         while (fields.hasNext()) {
@@ -657,7 +667,12 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
 
     /**
      * 每百万口径价格；已存在时不覆盖。
-     */
+     * @param Map<String 参数
+     * @param key 字符串
+     * @param node 参数
+     * @param target 参数
+     * @return 返回值
+    */
     private static void putMillionPrice(Map<String, Object> target, String key, JsonNode node) {
         if (IndicatorJsonSupport.has(target, key)) {
             return;
@@ -667,7 +682,12 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
 
     /**
      * 每 Token 口径价格；已存在时不覆盖。
-     */
+     * @param Map<String 参数
+     * @param key 字符串
+     * @param node 参数
+     * @param target 参数
+     * @return 返回值
+    */
     private static void putPerTokenPrice(Map<String, Object> target, String key, JsonNode node) {
         if (IndicatorJsonSupport.has(target, key)) {
             return;
@@ -677,7 +697,12 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
 
     /**
      * 每 Token / 每百万自适应口径；已存在时不覆盖。
-     */
+     * @param Map<String 参数
+     * @param key 字符串
+     * @param node 参数
+     * @param target 参数
+     * @return 返回值
+    */
     private static void putHeuristicPrice(Map<String, Object> target, String key, JsonNode node) {
         if (IndicatorJsonSupport.has(target, key)) {
             return;
@@ -687,7 +712,12 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
 
     /**
      * 按次计费价格；已存在时不覆盖，0 表示不单独收费，不写入。
-     */
+     * @param Map<String 参数
+     * @param key 字符串
+     * @param node 参数
+     * @param target 参数
+     * @return 返回值
+    */
     private static void putUnitPrice(Map<String, Object> target, String key, JsonNode node) {
         if (IndicatorJsonSupport.has(target, key)) {
             return;
@@ -700,7 +730,13 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
 
     /**
      * 复制布尔字段：节点为布尔时才写入。
-     */
+     * @param Map<String 参数
+     * @param field 字符串
+     * @param key 字符串
+     * @param model 参数
+     * @param target 参数
+     * @return 返回值
+    */
     private static void copyBoolean(Map<String, Object> target, String key, JsonNode model, String field) {
         JsonNode value = model.get(field);
         if (value != null && value.isBoolean()) {
@@ -710,7 +746,10 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
 
     /**
      * 取第一个存在的 Long 字段。
-     */
+     * @param keys 参数
+     * @param node 参数
+     * @return 返回值
+    */
     private static Long firstLong(JsonNode node, String... keys) {
         if (node == null) {
             return null;
@@ -726,7 +765,10 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
 
     /**
      * 取第一个存在的文本字段。
-     */
+     * @param keys 参数
+     * @param node 参数
+     * @return 返回值
+    */
     private static String firstText(JsonNode node, String... keys) {
         if (node == null) {
             return null;
@@ -742,7 +784,10 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
 
     /**
      * 收集数组中的字符串名称。
-     */
+     * @param array 参数
+     * @param target 参数
+     * @return 返回值
+    */
     private static void collectNames(JsonNode array, Set<String> target) {
         if (array == null || !array.isArray()) {
             return;
@@ -759,7 +804,9 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
 
     /**
      * 名称集合转 {@code [{name}]} 列表。
-     */
+     * @param names 参数
+     * @return 返回值
+    */
     private static List<Map<String, Object>> toNameList(Set<String> names) {
         List<Map<String, Object>> rows = new ArrayList<>(names.size());
         for (String name : names) {
@@ -772,7 +819,9 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
 
     /**
      * 端点集合转 {@code [{name, path}]} 列表。
-     */
+     * @param endpoints 参数
+     * @return 返回值
+    */
     private static List<Map<String, Object>> toEndpointList(Set<String> endpoints) {
         List<Map<String, Object>> rows = new ArrayList<>(endpoints.size());
         for (String name : endpoints) {
@@ -784,6 +833,13 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
         return List.copyOf(rows);
     }
 
+    /**
+     * read Price
+     * @param key 字符串
+     * @param modelId 字符串
+     * @param snapshot 参数
+     * @return 返回值
+    */
     private static BigDecimal readPrice(IndicatorSnapshot snapshot, String modelId, String key) {
         if (snapshot == null || modelId == null) {
             return null;
@@ -802,6 +858,13 @@ public final class HttpChatClientIndicator implements ChatClientIndicator {
         return null;
     }
 
+    /**
+     * read Long
+     * @param key 字符串
+     * @param modelId 字符串
+     * @param snapshot 参数
+     * @return 返回值
+    */
     private static Long readLong(IndicatorSnapshot snapshot, String modelId, String key) {
         if (snapshot == null || modelId == null) {
             return null;

@@ -913,7 +913,8 @@ public class FilePushClient implements AutoCloseable {
     /**
      * 打开到服务端的 TCP 连接（带重连重试）
      * @return Socket 对象
-     */
+     * @throws IOException 异常
+    */
     private Socket openSocket() throws IOException {
         int maxRetries = 5;
         IOException last = null;

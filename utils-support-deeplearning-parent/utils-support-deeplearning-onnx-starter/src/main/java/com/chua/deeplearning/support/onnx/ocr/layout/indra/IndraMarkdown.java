@@ -502,6 +502,13 @@ public final class IndraMarkdown {
         return String.join("\n", out);
     }
 
+    /**
+     * cell Logits
+     * @param cells 参数
+     * @param logit 参数
+     * @param m 整数
+     * @return 返回值
+    */
     private static double[][] cellLogits(double[][] logit, List<int[]> cells, int m) {
         double[][] out = new double[m][m];
         for (int a = 0; a < m; a++) {
@@ -522,6 +529,13 @@ public final class IndraMarkdown {
         return out;
     }
 
+    /**
+     * sort By
+     * @param axis 整数
+     * @param cb 参数
+     * @param groups 参数
+     * @return 返回值
+    */
     private static List<int[]> sortBy(List<int[]> groups, double[][] cb, int axis) {
         List<int[]> list = new ArrayList<>(groups);
         list.sort((g1, g2) -> {
@@ -540,6 +554,12 @@ public final class IndraMarkdown {
 
     // ------------------------------------------------------------------ 工具
 
+    /**
+     * class Of
+     * @param blk 参数
+     * @param cls 参数
+     * @return 返回值
+    */
     private static int classOf(int[] blk, float[][] cls) {
         double[] sum = new double[IndraOrderPost.BLOCK_CLASSES.length];
         for (int li : blk) {
@@ -556,6 +576,12 @@ public final class IndraMarkdown {
         return best;
     }
 
+    /**
+     * sub Boxes
+     * @param blk 参数
+     * @param boxes 参数
+     * @return 返回值
+    */
     private static float[][] subBoxes(float[][] boxes, int[] blk) {
         float[][] out = new float[blk.length][4];
         for (int i = 0; i < blk.length; i++) {
@@ -564,7 +590,13 @@ public final class IndraMarkdown {
         return out;
     }
 
-    /** 块内单层 tab 子矩阵 {@code [blk][blk]}。 */
+    /**
+     * sub Tab
+     * @param blk 参数
+     * @param k 整数
+     * @param tab 参数
+     * @return 返回值
+    */
     private static double[][] subTab(double[][][] tab, int[] blk, int k) {
         int n = blk.length;
         double[][] out = new double[n][n];
@@ -576,11 +608,22 @@ public final class IndraMarkdown {
         return out;
     }
 
-    /** 块内三层 tab 子矩阵 {@code [3][blk][blk]}。 */
+    /**
+     * sub Tab All
+     * @param blk 参数
+     * @param tab 参数
+     * @return 返回值
+    */
     private static double[][][] subTabAll(double[][][] tab, int[] blk) {
         return new double[][][]{subTab(tab, blk, 0), subTab(tab, blk, 1), subTab(tab, blk, 2)};
     }
 
+    /**
+     * min Of
+     * @param axis 整数
+     * @param boxes 参数
+     * @return 返回值
+    */
     private static double minOf(float[][] boxes, int axis) {
         double v = Double.MAX_VALUE;
         for (float[] b : boxes) {
@@ -589,6 +632,12 @@ public final class IndraMarkdown {
         return v;
     }
 
+    /**
+     * max Of
+     * @param axis 整数
+     * @param boxes 参数
+     * @return 返回值
+    */
     private static double maxOf(float[][] boxes, int axis) {
         double v = -Double.MAX_VALUE;
         for (float[] b : boxes) {
@@ -597,6 +646,12 @@ public final class IndraMarkdown {
         return v;
     }
 
+    /**
+     * search Sorted Right
+     * @param arr 参数
+     * @param v 双精度数
+     * @return 返回值
+    */
     private static int searchSortedRight(double[] arr, double v) {
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] > v) {

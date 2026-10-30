@@ -395,6 +395,11 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
          */
         private final AtomicBoolean closed = new AtomicBoolean(false);
 
+        /**
+         * Async Conn Impl
+         * @param channel 参数
+         * @return 返回值
+        */
         AsyncConnImpl(AsynchronousSocketChannel channel) {
             this.channel = channel;
         }
@@ -472,6 +477,11 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
             final ByteBuffer buf = ByteBuffer.allocate(8192);
             { buf.position(buf.limit()); } // 初始为空:避免把零填充当数据
 
+            /**
+             * fill
+             * @return 返回值
+             * @throws Exception 异常
+            */
             private int fill() throws Exception {
                 buf.clear();
                 Integer n = channel.read(buf).get();

@@ -314,7 +314,8 @@ public class SqliteSearchEngineImpl implements SearchEngine {
     /**
      * 获取 JDBC 连接。
      * @return 获取jdbcconnection的结果
-     */
+     * @throws SQLException 异常
+    */
     private Connection getJdbcConnection() throws SQLException {
         return getDataSource().getConnection();
     }

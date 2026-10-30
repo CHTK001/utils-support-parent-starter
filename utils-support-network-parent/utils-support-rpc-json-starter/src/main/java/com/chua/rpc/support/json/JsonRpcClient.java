@@ -141,6 +141,11 @@ public class JsonRpcClient implements RpcClient {
          */
         private final Class<?> targetType;
 
+        /**
+         * Rpc Invoker
+         * @param targetType 参数
+         * @return 返回值
+        */
         RpcInvoker(Class<?> targetType) {
             this.targetType = targetType;
         }
@@ -199,10 +204,10 @@ public class JsonRpcClient implements RpcClient {
 
         /**
          * 执行调用
-         *
          * @param proxyMethod 代理方法
          * @return 执行invoke的结果
-         */
+         * @throws Throwable 异常
+        */
         private Object doInvoke(ProxyMethod proxyMethod) throws Throwable {
             JsonRpcHttpClient client = ensureClient(targetType);
             Map<String, String> headers = buildHeaders();

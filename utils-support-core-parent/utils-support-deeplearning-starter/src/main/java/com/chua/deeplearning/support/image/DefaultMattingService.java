@@ -37,11 +37,11 @@ class DefaultMattingService implements MattingService {
 
     /**
      * 构造默认抠图服务。
-     *
-     * @param engine    识别引擎
+     * @param engine 识别引擎
      * @param modelName 模型名称
-     * @param setting   模型配置
-     */
+     * @param setting 模型配置
+     * @return 返回值
+    */
     DefaultMattingService(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName != null ? modelName : DEFAULT_MODEL;

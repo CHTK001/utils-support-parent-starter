@@ -133,14 +133,15 @@ public class SkillsmpProvider {
     }
 
     /**
+    /**
      * 调用 skillsmp API
-     * @param search 搜索
-     * @param page page
      * @param limit 限制
+     * @param page page
+     * @param search 搜索
      * @param sortBy 排序by
      * @return callApi的结果
-     */
-    @SuppressWarnings("unchecked")
+     * @throws Exception 异常
+    */
     protected Map<String, Object> callApi(String search, int page, int limit, String sortBy) throws Exception {
         String url = API_BASE + "?page=" + page + "&limit=" + limit + "&sortBy=" + sortBy
                 + "&search=" + URLEncoder.encode(search, StandardCharsets.UTF_8);

@@ -51,7 +51,9 @@ public class ClusterServer implements AutoCloseable {
 
     /**
      * 启动节点：启动 HTTP/TCP 代理入口并注册服务到集群。
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     public void start() throws Exception {
         node.start();
         log.info("ClusterServer 已加入集群: nodeId={}, scatterId={}, httpPort={}, tcpPort={}",
@@ -290,7 +292,8 @@ public class ClusterServer implements AutoCloseable {
         /**
          * 构建集群服务器实例（未启动）。
          * @return 构建的结果
-         */
+         * @throws Exception 异常
+        */
         public ClusterServer build() throws Exception {
             setting.setServerEntries(Wraps.list(entries));
             ClusterNode node = new ClusterNode(setting);

@@ -85,9 +85,9 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
 
     /**
      * 构造 dfsmnanstranslator 实例。
-     *
      * @param dither fbank dither 系数（0 关闭，供确定性测试）
-     */
+     * @return 返回值
+    */
     DfsmnAnsTranslator(float dither) {
         this.fbank = new DfsmnKaldiFbank(dither);
     }
@@ -197,10 +197,11 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
 
     /**
      * 读取 (1, 帧, 961) mask 张量为 [帧][961]。
-     * @param tensor tensor
      * @param frames 帧
+     * @param tensor tensor
      * @return 读取masks的结果
-     */
+     * @throws Exception 异常
+    */
     private float[][] readMasks(OnnxTensor tensor, int frames) throws Exception {
         float[] flat = tensor.getFloatBuffer().array();
         int total = frames * N_MASK;

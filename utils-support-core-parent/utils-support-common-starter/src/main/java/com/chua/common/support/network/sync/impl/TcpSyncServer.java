@@ -423,9 +423,10 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
 
     /**
      * 处理 accept 事件: 从 boss accept 后轮询分发到 worker 待注册队列。
-     *
      * @param key 选择键
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void handleAccept(SelectionKey key) throws IOException {
         ServerSocketChannel channel = (ServerSocketChannel) key.channel();
         SocketChannel socketChannel;
@@ -443,9 +444,10 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
 
     /**
      * 处理 read 事件：非阻塞读入缓冲，按行切分后交虚拟线程处理。
-     *
      * @param key 选择键
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void handleRead(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
         ClientConnection connection = (ClientConnection) key.attachment();
@@ -472,9 +474,10 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
 
     /**
      * 处理 write 事件：冲刷连接发送队列。
-     *
      * @param key 选择键
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void handleWrite(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
         ClientConnection connection = (ClientConnection) key.attachment();

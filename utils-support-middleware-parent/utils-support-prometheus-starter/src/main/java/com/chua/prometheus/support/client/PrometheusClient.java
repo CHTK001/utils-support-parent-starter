@@ -1040,9 +1040,9 @@ public class PrometheusClient implements AutoCloseable {
 
         /**
          * 构造方法
-         *
          * @param promql promql
-         */
+         * @return 返回值
+        */
         QueryOperation(String promql) {
             this.promql = promql;
         }
@@ -1121,9 +1121,9 @@ public class PrometheusClient implements AutoCloseable {
 
         /**
          * 构造方法
-         *
          * @param promql promql
-         */
+         * @return 返回值
+        */
         RangeQueryOperation(String promql) {
             this.promql = promql;
         }

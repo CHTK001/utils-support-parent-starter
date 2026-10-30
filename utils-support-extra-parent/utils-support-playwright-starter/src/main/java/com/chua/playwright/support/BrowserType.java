@@ -14,6 +14,11 @@ public class BrowserType {
 
     private final Engine engine; // engine
 
+    /**
+     * Browser Type
+     * @param engine 参数
+     * @return 返回值
+    */
     BrowserType(Engine engine) {
         this.engine = engine;
     }

@@ -38,13 +38,15 @@ public class GeoSetting {
 
     /**
      * 获取DatabaseFile
-     */
+     * @return 返回值
+    */
     public String getDatabaseFile() {
         return databaseFile;
     }
     /**
      * 获取LicenseKey
-     */
+     * @return 返回值
+    */
     public String getLicenseKey() {
         return licenseKey;
     }
@@ -69,21 +71,26 @@ public class GeoSetting {
 
         /**
          * DatabaseFile
-         */
+         * @param databaseFile 字符串
+         * @return 返回值
+        */
         public Builder databaseFile(String databaseFile) {
             this.databaseFile = databaseFile;
             return this;
         }
         /**
          * LicenseKey
-         */
+         * @param licenseKey 字符串
+         * @return 返回值
+        */
         public Builder licenseKey(String licenseKey) {
             this.licenseKey = licenseKey;
             return this;
         }
         /**
          * 构建
-         */
+         * @return 返回值
+        */
         public GeoSetting build() {
             return new GeoSetting(databaseFile, licenseKey);
         }

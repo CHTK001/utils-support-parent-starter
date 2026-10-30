@@ -54,6 +54,11 @@ public abstract class ShmQueue implements AutoCloseable {
          */
         public final int code;
 
+        /**
+         * Mode
+         * @param code 整数
+         * @return 返回值
+        */
         Mode(int code) {
             this.code = code;
         }

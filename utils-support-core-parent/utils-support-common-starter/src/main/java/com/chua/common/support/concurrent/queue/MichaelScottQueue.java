@@ -186,9 +186,9 @@ public class MichaelScottQueue<E> implements LockFreeQueue<E> {
 
         /**
          * 构造节点。
-         *
          * @param value 元素值，哨兵传入 null
-         */
+         * @return 返回值
+        */
         Node(E value) {
             this.value = value;
         }

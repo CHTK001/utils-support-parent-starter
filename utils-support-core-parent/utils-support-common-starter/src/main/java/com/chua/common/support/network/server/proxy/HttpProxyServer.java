@@ -94,7 +94,8 @@ public class HttpProxyServer extends AbstractProxyServer {
      * 借出后端连接：优先复用池中空闲连接，无则新建。
      * @param backend 方法入参 backend
      * @return Socket 对象
-     */
+     * @throws IOException 异常
+    */
     private Socket borrowBackend(InetSocketAddress backend) throws IOException {
         Socket pooled;
         while ((pooled = backendPool.poll()) != null) {
@@ -270,7 +271,8 @@ OutputStream backOut = backendSocket.getOutputStream();
      * 读 HTTP 头（直到 \r\n\r\n），BufferedInputStream 包装后逐字节读已足够快且不吞 body。
      * @param in 方法入参 in
      * @return 结果值
-     */
+     * @throws IOException 异常
+    */
     private byte[] readHeader(InputStream in) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
         int prevPrev = -1;
@@ -293,10 +295,11 @@ OutputStream backOut = backendSocket.getOutputStream();
 
     /**
      * 读取请求体（按 Content-Length 或 chunked）。
-     * @param in 方法入参 in
      * @param headText 头部文本，不允许为 null
+     * @param in 方法入参 in
      * @return 结果值
-     */
+     * @throws IOException 异常
+    */
     private byte[] readBody(InputStream in, String headText) throws IOException {
         int len = contentLength(headText);
         if (len > 0) {
@@ -357,7 +360,9 @@ OutputStream backOut = backendSocket.getOutputStream();
      * 原样泵送响应体（chunked 或定长）。
      * @param in 方法入参 in
      * @param out 方法入参 out
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void pipeRaw(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[8192];
         int n;
@@ -370,9 +375,11 @@ OutputStream backOut = backendSocket.getOutputStream();
     /**
      * 精确读取并转发 {@code length} 字节（Content-Length 响应体，避免 keep-alive 连接阻塞到超时）。
      * @param in 方法入参 in
-     * @param out 方法入参 out
      * @param length 长度，不允许为 null
-     */
+     * @param out 方法入参 out
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void pipeN(InputStream in, OutputStream out, int length) throws IOException {
         byte[] buffer = new byte[8192];
         int remaining = length;
@@ -391,7 +398,9 @@ OutputStream backOut = backendSocket.getOutputStream();
      * 按 chunked 编码解析并转发响应体（直到 0 长度 chunk 后的终止 CRLF）。
      * @param in 方法入参 in
      * @param out 方法入参 out
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void pipeChunked(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[8192];
         while (true) {

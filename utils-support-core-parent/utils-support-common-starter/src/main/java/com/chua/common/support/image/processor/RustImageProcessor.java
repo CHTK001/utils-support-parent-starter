@@ -168,7 +168,8 @@ public class RustImageProcessor implements ImageProcessor {
      * @param len 方法入参 len
      * @param paramJson 参数Json，不允许为 null
      * @return 结果值
-     */
+     * @throws Throwable 异常
+    */
     private byte[] processMalloc(Arena arena, MemorySegment input, long len, MemorySegment paramJson) throws Throwable {
         MemorySegment result = (MemorySegment) LINKER.downcallHandle(
                 processImage,
@@ -179,20 +180,14 @@ public class RustImageProcessor implements ImageProcessor {
     }
 
     /**
-     * 使用共享内存协议处理图像（v0.2 零 malloc/free 模式）
-     *
-     * <p>流程：
-     * 1. 在 Arena 中预分配输出缓冲区
-     * 2. 调用 process_image_shared 直接写入缓冲区
-     * 3. 返回值 > 0 表示写入字节数，直接从缓冲区读取
-     * 4. 返回值 < 0 表示容量不足，|返回值| 为所需字节数，扩容后重试
-     * 5. 返回值 = 0 表示处理失败
+     * 使用共享内存协议处理图像（v0.2 零 malloc/free 模式） <p>流程： 1. 在 Arena 中预分配输出缓冲区 2. 调用 process_image_shared 直接写入缓冲区 3. 返回值 > 0 表示写入字节数，直接从缓冲区读取 4. 返回值 < 0 表示容量不足，|返回值| 为所需字节数，扩容后重试 5. 返回值 = 0 表示处理失败
      * @param arena 方法入参 arena
      * @param input 方法入参 input
      * @param len 方法入参 len
      * @param paramJson 参数Json，不允许为 null
      * @return 结果值
-     */
+     * @throws Throwable 异常
+    */
     private byte[] processShared(Arena arena, MemorySegment input, long len, MemorySegment paramJson) throws Throwable {
         long capacity = sharedBufferCapacity;
         MemorySegment outputBuf = arena.allocate(capacity);

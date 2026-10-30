@@ -136,10 +136,11 @@ public final class DxfSvgRenderer {
 
     /**
      * 追加单个图元的 SVG 片段
-     *
-     * @param sb     输出缓冲
+     * @param e 参数
      * @param entity 图元
-     */
+     * @param sb 输出缓冲
+     * @return 返回值
+    */
     private void appendEntity(StringBuilder sb, DxfEntity e) {
         switch (e.type()) {
             case "LINE" -> {

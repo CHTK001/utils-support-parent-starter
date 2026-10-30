@@ -274,10 +274,12 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
 
     /**
      * 发送响应
-     * @param exchange 方法入参 exchange
-     * @param code 编码，不允许为 null
      * @param body 请求体，不允许为 null
-     */
+     * @param code 编码，不允许为 null
+     * @param exchange 方法入参 exchange
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void sendResponse(com.sun.net.httpserver.HttpExchange exchange, int code, String body) throws IOException {
         byte[] bytes = body.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json");

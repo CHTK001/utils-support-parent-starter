@@ -108,11 +108,11 @@ public class TaskParallelDefinition {
 
     /**
      * 构造并行子流水线定义。
-     *
-     * @param id          节点唯一标识
-     * @param builder     流水线构建器
+     * @param builder 流水线构建器
+     * @param id 节点唯一标识
      * @param subPipeline 并行子流水线实例
-     */
+     * @return 返回值
+    */
     TaskParallelDefinition(String id, PipelineBuilder builder, Pipeline subPipeline) {
         this.id = id;
         this.builder = builder;

@@ -102,6 +102,11 @@ public class ZipFileSystem implements FileSystem {
          */
         private boolean splitMode = false;
 
+        /**
+         * Zip Read Builder
+         * @param file 文件
+         * @return 返回值
+        */
         ZipReadBuilder(File file) {
             super(file);
         }
@@ -224,6 +229,12 @@ public class ZipFileSystem implements FileSystem {
             private int currentIndex = 0;
             private FileInputStream currentStream;
 
+            /**
+             * Merged Input Stream
+             * @param files 参数
+             * @return 返回值
+             * @throws FileNotFoundException 异常
+            */
             MergedInputStream(List<File> files) throws FileNotFoundException {
                 this.files = files;
                 if (!files.isEmpty()) {
@@ -508,6 +519,11 @@ public class ZipFileSystem implements FileSystem {
          */
         private long splitSize = 0;
 
+        /**
+         * Zip Write Builder
+         * @param file 文件
+         * @return 返回值
+        */
         ZipWriteBuilder(File file) {
             super(file);
         }
@@ -755,7 +771,11 @@ public class ZipFileSystem implements FileSystem {
 
         /**
          * 写入File
-         */
+         * @param file 文件
+         * @param zos 参数
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private void writeFile(ZipOutputStream zos, File file) throws IOException {
             try (FileInputStream fis = new FileInputStream(file)) {
                 writeStream(zos, fis);
@@ -764,7 +784,11 @@ public class ZipFileSystem implements FileSystem {
 
         /**
          * 写入Stream
-         */
+         * @param in 输入流
+         * @param zos 参数
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private void writeStream(ZipOutputStream zos, InputStream in) throws IOException {
             byte[] buffer = new byte[8192];
             int len;
@@ -809,6 +833,12 @@ public class ZipFileSystem implements FileSystem {
              */
             private final byte[] bytes;
 
+            /**
+             * Zip Entry Data
+             * @param entryName 字符串
+             * @param source 文件
+             * @return 返回值
+            */
             ZipEntryData(String entryName, File source) {
                 this.entryName = entryName;
                 this.source = source;
@@ -816,6 +846,12 @@ public class ZipFileSystem implements FileSystem {
                 this.bytes = null;
             }
 
+            /**
+             * Zip Entry Data
+             * @param entryName 字符串
+             * @param inputStream 输入流
+             * @return 返回值
+            */
             ZipEntryData(String entryName, InputStream inputStream) {
                 this.entryName = entryName;
                 this.source = null;
@@ -823,6 +859,12 @@ public class ZipFileSystem implements FileSystem {
                 this.bytes = null;
             }
 
+            /**
+             * Zip Entry Data
+             * @param bytes 参数
+             * @param entryName 字符串
+             * @return 返回值
+            */
             ZipEntryData(String entryName, byte[] bytes) {
                 this.entryName = entryName;
                 this.source = null;

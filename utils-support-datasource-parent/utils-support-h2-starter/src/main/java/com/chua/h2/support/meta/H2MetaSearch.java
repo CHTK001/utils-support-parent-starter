@@ -165,9 +165,9 @@ public class H2MetaSearch extends AbstractMetaSearch {
 
         /**
          * 构造 H2 创建索引构建器。
-         *
          * @param indexName 索引名称
-         */
+         * @return 返回值
+        */
         H2CreateIndexBuilder(String indexName) {
             this.indexName = indexName;
         }

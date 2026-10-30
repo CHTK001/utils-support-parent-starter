@@ -381,6 +381,12 @@ public class AsmBeanCopier implements BeanCopier {
         final Method getter; // getter
         final Method setter; // setter
 
+        /**
+         * Property Pair
+         * @param getter 参数
+         * @param setter 参数
+         * @return 返回值
+        */
         PropertyPair(Method getter, Method setter) {
             this.getter = getter;
             this.setter = setter;
@@ -393,6 +399,11 @@ public class AsmBeanCopier implements BeanCopier {
      * @since 4.0.0
      */
     static class GeneratedClassLoader extends ClassLoader {
+        /**
+         * Generated Class Loader
+         * @param parent 参数
+         * @return 返回值
+        */
         GeneratedClassLoader(ClassLoader parent) {
             super(parent);
         }

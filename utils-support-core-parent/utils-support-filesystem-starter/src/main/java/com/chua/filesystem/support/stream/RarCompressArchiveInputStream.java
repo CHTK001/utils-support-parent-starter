@@ -93,6 +93,13 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
         */
         private int currentEntryPosition = 0;
 
+        /**
+         * Rar Archive Input Stream Adapter
+         * @param file 文件
+         * @param password 设置认证密码
+         * @return 返回值
+         * @throws IOException 异常
+        */
         RarArchiveInputStreamAdapter(File file, @Nullable char[] password) throws IOException {
             try {
                 this.archive = new Archive(file);
@@ -106,11 +113,11 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
 
         /**
          * 获取下一个entry
-         *
+        /**
+         * 获取下一个entry
          * @return 获取下一个entry的结果
-         */
-        @Override
-        @Nullable
+         * @throws IOException 异常
+        */
         public ArchiveEntry getNextEntry() throws IOException {
             // 关闭当前条目流
             if (currentEntryStream != null) {
@@ -271,6 +278,11 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
         */
         private final FileHeader fileHeader;
 
+        /**
+         * Rar Archive Entry Adapter
+         * @param fileHeader 参数
+         * @return 返回值
+        */
         RarArchiveEntryAdapter(FileHeader fileHeader) {
             this.fileHeader = fileHeader;
         }

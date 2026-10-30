@@ -35,10 +35,10 @@ public class MysqlCreateIndexStep implements IndexManager.CreateIndexStep {
 
     /**
      * 构造方法，创建 Mysql创建索引Step 实例。
-     *
      * @param dataSource 数据来源，不允许为 null
      * @param indexName 索引名称，不允许为 null
-     */
+     * @return 返回值
+    */
     MysqlCreateIndexStep(DataSource dataSource, String indexName) {
         this.dataSource = dataSource;
         this.indexName = indexName;

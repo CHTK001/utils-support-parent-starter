@@ -47,6 +47,10 @@ final class CRC {
         }
     }
 
+    /**
+     * C RC
+     * @return 返回值
+    */
     CRC() {}
 
     /**

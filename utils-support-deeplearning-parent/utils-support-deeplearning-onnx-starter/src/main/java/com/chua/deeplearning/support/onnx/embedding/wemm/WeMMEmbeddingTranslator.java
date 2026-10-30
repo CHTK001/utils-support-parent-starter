@@ -152,6 +152,8 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
 
     /**
      * Prepare
+     * @return 返回值
+     * @throws Exception 异常
     */
     private synchronized void prepare() throws Exception {
         if (loaded) {
@@ -238,11 +240,11 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
 
     /**
      * 计算文本嵌入向量，并 Matryoshka 截断至指定维度。
-     *
-     * @param text  输入文本
-     * @param dim   目标维度（必须 ≤ 模型原始维度）
+     * @param dim 目标维度（必须 ≤ 模型原始维度）
+     * @param text 输入文本
      * @return 截断并 L2 归一化后的 float[dim]
-     */
+     * @throws Exception 异常
+    */
     public float[] embed(String text, int dim) throws Exception {
         if (dim <= 0 || dim > defaultDim) {
             throw new IllegalArgumentException("dim must be in (0, " + defaultDim + "], got " + dim);

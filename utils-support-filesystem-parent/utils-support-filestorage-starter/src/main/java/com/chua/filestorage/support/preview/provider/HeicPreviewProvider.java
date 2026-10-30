@@ -980,18 +980,33 @@ public class HeicPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /* ------------------------------------------------------------------ */
-    /* 字节读取辅助                                                        */
-    /* ------------------------------------------------------------------ */
-
+    /**
+     * u16
+     * @param b 参数
+     * @param p 整数
+     * @return 返回值
+    */
     private static long u16(byte[] b, int p) {
         return ((b[p] & 0xFFL) << 8) | (b[p + 1] & 0xFFL);
     }
 
+    /**
+     * u32
+     * @param b 参数
+     * @param p 整数
+     * @return 返回值
+    */
     private static long u32(byte[] b, int p) {
         return ((b[p] & 0xFFL) << 24) | ((b[p + 1] & 0xFFL) << 16)
                 | ((b[p + 2] & 0xFFL) << 8) | (b[p + 3] & 0xFFL);
     }
 
+    /**
+     * u64
+     * @param b 参数
+     * @param p 整数
+     * @return 返回值
+    */
     private static long u64(byte[] b, int p) {
         long hi = u32(b, p);
         long lo = u32(b, p + 4);
@@ -1120,6 +1135,13 @@ public class HeicPreviewProvider implements FileStoragePreviewProvider {
         /** infe：项名称 */
         String itemName = "";
 
+        /**
+         * Heif Box
+         * @param end 整数
+         * @param name 字符串
+         * @param start 启动
+         * @return 返回值
+        */
         HeifBox(String name, int start, int end) {
             this.name = name;
             this.start = start;

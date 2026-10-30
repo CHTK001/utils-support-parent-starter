@@ -191,8 +191,8 @@ public class DockerClient implements Closeable {
 
     /**
      * 检查 Docker 是否可用。
-     *
-     */
+     * @return 返回值
+    */
     public Void ping() {
         return delegate.pingCmd().exec();
     }
@@ -338,9 +338,9 @@ public class DockerClient implements Closeable {
 
         /**
          * 构造容器操作对象。
-         *
          * @param client 父客户端
-         */
+         * @return 返回值
+        */
         ContainerOps(DockerClient client) {
             this.client = client;
         }
@@ -624,10 +624,10 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造创建命令。
-             *
              * @param client 父客户端
-             * @param name   容器名称
-             */
+             * @param name 容器名称
+             * @return 返回值
+            */
             CreateCmd(DockerClient client, String name) {
                 this.client = client;
                 this.name = name;
@@ -879,10 +879,10 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造启动命令。
-             *
              * @param client 父客户端
-             * @param id     容器 标识
-             */
+             * @param id 容器 标识
+             * @return 返回值
+            */
             StartCmd(DockerClient client, String id) {
                 this.client = client;
                 this.id = id;
@@ -943,10 +943,10 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造停止命令。
-             *
              * @param client 父客户端
-             * @param id     容器 标识
-             */
+             * @param id 容器 标识
+             * @return 返回值
+            */
             StopCmd(DockerClient client, String id) {
                 this.client = client;
                 this.id = id;
@@ -1018,10 +1018,10 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造重启命令。
-             *
              * @param client 父客户端
-             * @param id     容器 标识
-             */
+             * @param id 容器 标识
+             * @return 返回值
+            */
             RestartCmd(DockerClient client, String id) {
                 this.client = client;
                 this.id = id;
@@ -1097,10 +1097,10 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造删除命令。
-             *
              * @param client 父客户端
-             * @param id     容器 标识
-             */
+             * @param id 容器 标识
+             * @return 返回值
+            */
             RemoveCmd(DockerClient client, String id) {
                 this.client = client;
                 this.id = id;
@@ -1185,9 +1185,9 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造列表命令。
-             *
              * @param client 父客户端
-             */
+             * @return 返回值
+            */
             ListCmd(DockerClient client) {
                 this.client = client;
             }
@@ -1268,10 +1268,10 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造检查命令。
-             *
              * @param client 父客户端
-             * @param id     容器 标识
-             */
+             * @param id 容器 标识
+             * @return 返回值
+            */
             InspectCmd(DockerClient client, String id) {
                 this.client = client;
                 this.id = id;
@@ -1343,10 +1343,10 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造日志命令。
-             *
              * @param client 父客户端
-             * @param id     容器 标识
-             */
+             * @param id 容器 标识
+             * @return 返回值
+            */
             LogsCmd(DockerClient client, String id) {
                 this.client = client;
                 this.id = id;
@@ -1469,10 +1469,10 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造执行命令。
-             *
              * @param client 父客户端
-             * @param id     容器 标识
-             */
+             * @param id 容器 标识
+             * @return 返回值
+            */
             ExecCmd(DockerClient client, String id) {
                 this.client = client;
                 this.id = id;
@@ -1598,10 +1598,10 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造杀掉命令。
-             *
              * @param client 父客户端
-             * @param id     容器 标识
-             */
+             * @param id 容器 标识
+             * @return 返回值
+            */
             KillCmd(DockerClient client, String id) {
                 this.client = client;
                 this.id = id;
@@ -1662,9 +1662,9 @@ public class DockerClient implements Closeable {
 
         /**
          * 构造镜像操作对象。
-         *
          * @param client 父客户端
-         */
+         * @return 返回值
+        */
         ImageOps(DockerClient client) {
             this.client = client;
         }
@@ -1763,10 +1763,10 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造拉取命令。
-             *
              * @param client 父客户端
-             * @param name   镜像名称
-             */
+             * @param name 镜像名称
+             * @return 返回值
+            */
             PullImageCmd(DockerClient client, String name) {
                 this.client = client;
                 this.name = name;
@@ -1853,9 +1853,9 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造列表命令。
-             *
              * @param client 父客户端
-             */
+             * @return 返回值
+            */
             ListImageCmd(DockerClient client) {
                 this.client = client;
             }
@@ -1892,10 +1892,10 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造删除命令。
-             *
              * @param client 父客户端
-             * @param id     镜像 标识
-             */
+             * @param id 镜像 标识
+             * @return 返回值
+            */
             RemoveImageCmd(DockerClient client, String id) {
                 this.client = client;
                 this.id = id;
@@ -1938,9 +1938,9 @@ public class DockerClient implements Closeable {
 
         /**
          * 构造网络操作对象。
-         *
          * @param client 父客户端
-         */
+         * @return 返回值
+        */
         NetworkOps(DockerClient client) {
             this.client = client;
         }
@@ -2081,10 +2081,10 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造创建网络命令。
-             *
              * @param client 父客户端
-             * @param name   网络名称
-             */
+             * @param name 网络名称
+             * @return 返回值
+            */
             CreateNetworkCmd(DockerClient client, String name) {
                 this.client = client;
                 this.name = name;
@@ -2165,9 +2165,9 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造列表命令。
-             *
              * @param client 父客户端
-             */
+             * @return 返回值
+            */
             ListNetworkCmd(DockerClient client) {
                 this.client = client;
             }
@@ -2199,10 +2199,10 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造删除网络命令。
-             *
              * @param client 父客户端
-             * @param id     网络 标识
-             */
+             * @param id 网络 标识
+             * @return 返回值
+            */
             RemoveNetworkCmd(DockerClient client, String id) {
                 this.client = client;
                 this.id = id;
@@ -2234,9 +2234,9 @@ public class DockerClient implements Closeable {
 
         /**
          * 构造卷操作对象。
-         *
          * @param client 父客户端
-         */
+         * @return 返回值
+        */
         VolumeOps(DockerClient client) {
             this.client = client;
         }
@@ -2346,10 +2346,10 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造创建卷命令。
-             *
              * @param client 父客户端
-             * @param name   卷名称
-             */
+             * @param name 卷名称
+             * @return 返回值
+            */
             CreateVolumeCmd(DockerClient client, String name) {
                 this.client = client;
                 this.name = name;
@@ -2418,9 +2418,9 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造列表命令。
-             *
              * @param client 父客户端
-             */
+             * @return 返回值
+            */
             ListVolumeCmd(DockerClient client) {
                 this.client = client;
             }
@@ -2452,10 +2452,10 @@ public class DockerClient implements Closeable {
 
             /**
              * 构造删除卷命令。
-             *
              * @param client 父客户端
-             * @param name   卷名称
-             */
+             * @param name 卷名称
+             * @return 返回值
+            */
             RemoveVolumeCmd(DockerClient client, String name) {
                 this.client = client;
                 this.name = name;

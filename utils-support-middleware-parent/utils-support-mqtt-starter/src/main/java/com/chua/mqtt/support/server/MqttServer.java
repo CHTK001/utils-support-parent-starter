@@ -624,6 +624,13 @@ public class MqttServer extends AbstractServer {
         */
         private volatile int keepAliveSeconds;
 
+        /**
+         * Client Session
+         * @param sessionKey 字符串
+         * @param socket 参数
+         * @return 返回值
+         * @throws IOException 异常
+        */
         ClientSession(String sessionKey, Socket socket) throws IOException {
             this.sessionKey = sessionKey;
             this.clientId = sessionKey;
@@ -694,8 +701,9 @@ public class MqttServer extends AbstractServer {
 
         /**
          * 处理连接
-         *
          * @param packet 可变头 + 载荷
+         * @return 返回值
+         * @throws IOException 异常
         */
         private void handleConnect(byte[] packet) throws IOException {
             if (connected) {
@@ -794,10 +802,11 @@ public class MqttServer extends AbstractServer {
 
         /**
          * 处理发布
-         *
          * @param firstByte 首字节（含 QoS/DUP/RETAIN 标志）
-         * @param packet    报文内容
-         */
+         * @param packet 报文内容
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private void handlePublish(int firstByte, byte[] packet) throws IOException {
             int qos = (firstByte >> 1) & 0x03;
             boolean retain = (firstByte & 0x01) != 0;
@@ -848,10 +857,11 @@ public class MqttServer extends AbstractServer {
 
         /**
          * 处理 PUBREL —— 完成 QoS 2 投递并回 PUBCOMP。
-         *
-         * @param flags  首字节低 4 位（MQTT 3.1.1 要求 PUBREL 为 0x2）
+         * @param flags 首字节低 4 位（MQTT 3.1.1 要求 PUBREL 为 0x2）
          * @param packet 报文内容
-         */
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private void handlePubrel(int flags, byte[] packet) throws IOException {
             if (flags != 0x02) {
                 throw new MqttProtocolViolation("PUBREL 标志位必须为 0x2，实际 0x" + Integer.toHexString(flags));
@@ -867,8 +877,9 @@ public class MqttServer extends AbstractServer {
 
         /**
          * 处理订阅
-         *
          * @param packet 报文内容
+         * @return 返回值
+         * @throws IOException 异常
         */
         private void handleSubscribe(byte[] packet) throws IOException {
             PacketReader r = new PacketReader(packet);
@@ -900,8 +911,9 @@ public class MqttServer extends AbstractServer {
 
         /**
          * 处理取消订阅
-         *
          * @param packet 报文内容
+         * @return 返回值
+         * @throws IOException 异常
         */
         private void handleUnsubscribe(byte[] packet) throws IOException {
             PacketReader r = new PacketReader(packet);
@@ -916,10 +928,11 @@ public class MqttServer extends AbstractServer {
 
         /**
          * 发送Suback
-         *
-         * @param packetId    数据包标识
+         * @param packetId 数据包标识
          * @param returnCodes 每个订阅授予的 QoS
-         */
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private void sendSuback(int packetId, byte[] returnCodes) throws IOException {
             byte[] body = new byte[returnCodes.length + 2];
             body[0] = (byte) ((packetId >> 8) & 0xFF);
@@ -930,15 +943,18 @@ public class MqttServer extends AbstractServer {
 
         /**
          * 发送Unsuback
-         *
          * @param packetId 数据包标识
-         */
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private void sendUnsuback(int packetId) throws IOException {
             writePacket(0xB0, new byte[]{(byte) ((packetId >> 8) & 0xFF), (byte) (packetId & 0xFF)});
         }
 
         /**
          * 处理Pingreq
+         * @return 返回值
+         * @throws IOException 异常
         */
         private void handlePingreq() throws IOException {
             writePacket(0xD0, new byte[0]);
@@ -946,8 +962,9 @@ public class MqttServer extends AbstractServer {
 
         /**
          * 发送Connack
-         *
          * @param returnCode 返回码
+         * @return 返回值
+         * @throws IOException 异常
         */
         private void sendConnack(int returnCode) throws IOException {
             writePacket(0x20, new byte[]{0x00, (byte) returnCode});
@@ -955,27 +972,30 @@ public class MqttServer extends AbstractServer {
 
         /**
          * 发送Puback
-         *
          * @param packetId 数据包标识
-         */
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private void sendPuback(int packetId) throws IOException {
             writePacket(0x40, idBytes(packetId));
         }
 
         /**
          * 发送Pubrec
-         *
          * @param packetId 数据包标识
-         */
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private void sendPubrec(int packetId) throws IOException {
             writePacket(0x50, idBytes(packetId));
         }
 
         /**
          * 发送Pubcomp
-         *
          * @param packetId 数据包标识
-         */
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private void sendPubcomp(int packetId) throws IOException {
             writePacket(0x70, idBytes(packetId));
         }
@@ -992,11 +1012,12 @@ public class MqttServer extends AbstractServer {
 
         /**
          * 发送发布
-         *
-         * @param topic topic
          * @param payload payload
          * @param qos qos
-         */
+         * @param topic topic
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private void sendPublish(String topic, String payload, int qos) throws IOException {
             byte[] topicBytes = topic.getBytes(StandardCharsets.UTF_8);
             byte[] payloadBytes = payload.getBytes(StandardCharsets.UTF_8);
@@ -1021,10 +1042,11 @@ public class MqttServer extends AbstractServer {
 
         /**
          * 写入一个完整控制包 —— 单锁内完成头部与载荷，保证帧不被交错。
-         *
+         * @param body 可变头与载荷
          * @param flagsByte 首字节（类型 + 标志）
-         * @param body      可变头与载荷
-         */
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private void writePacket(int flagsByte, byte[] body) throws IOException {
             synchronized (writeLock) {
                 if (socket.isClosed()) {
@@ -1079,9 +1101,10 @@ public class MqttServer extends AbstractServer {
 
         /**
          * 写入Remaining获取长度
-         *
          * @param length 长度
-         */
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private void writeRemainingLength(int length) throws IOException {
             do {
                 int digit = length % 128;
@@ -1153,6 +1176,11 @@ public class MqttServer extends AbstractServer {
          */
         private int pos;
 
+        /**
+         * Packet Reader
+         * @param buf 参数
+         * @return 返回值
+        */
         PacketReader(byte[] buf) {
             this.buf = buf;
         }
@@ -1258,6 +1286,11 @@ public class MqttServer extends AbstractServer {
      */
     private static class MqttProtocolViolation extends RuntimeException {
 
+        /**
+         * Mqtt Protocol Violation
+         * @param message 字符串
+         * @return 返回值
+        */
         MqttProtocolViolation(String message) {
             super(message, null, false, false);
         }

@@ -408,6 +408,12 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             return reRank(graphResults, query, algo, topK);
         }
 
+        /**
+         * graph Search
+         * @param fetchK 整数
+         * @param query 查询
+         * @return 返回值
+        */
         private List<Vector> graphSearch(float[] query, int fetchK) {
             if (vectors.isEmpty()) {
                 return List.of();
@@ -449,6 +455,14 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             return bruteForceSearch(query, fetchK);
         }
 
+        /**
+         * re Rank
+         * @param algo 参数
+         * @param candidates 参数
+         * @param query 查询
+         * @param topK 整数
+         * @return 返回值
+        */
         private List<Vector> reRank(List<Vector> candidates, float[] query, VectorCompareAlgorithm algo, int topK) {
             // compare() 语义为相似度（越大越相似），必须降序排列才能保留最优 topK
             candidates.sort((a, b) -> Float.compare(
@@ -523,6 +537,12 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             return result;
         }
 
+        /**
+         * brute Force Cosine
+         * @param query 查询
+         * @param topK 整数
+         * @return 返回值
+        */
         private List<Vector> bruteForceCosine(float[] query, int topK) {
             int n = vectors.size();
             int k = Math.min(topK, n);

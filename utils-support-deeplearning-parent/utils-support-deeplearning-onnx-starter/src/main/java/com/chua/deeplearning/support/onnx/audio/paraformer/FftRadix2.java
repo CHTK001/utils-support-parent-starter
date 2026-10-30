@@ -34,9 +34,9 @@ class FftRadix2 {
 
     /**
      * 构造指定长度的 FFT。
-     *
      * @param n 长度，必须为 2 的幂
-     */
+     * @return 返回值
+    */
     FftRadix2(int n) {
         if ((n & (n - 1)) != 0) {
             throw new IllegalArgumentException("n must be a power of two: " + n);

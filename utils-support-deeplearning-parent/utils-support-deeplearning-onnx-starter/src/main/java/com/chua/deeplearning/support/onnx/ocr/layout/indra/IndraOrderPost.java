@@ -455,6 +455,13 @@ public final class IndraOrderPost {
         return res;
     }
 
+    /**
+     * rec Xy Cut
+     * @param boxes 参数
+     * @param ids 参数
+     * @param out 参数
+     * @return 返回值
+    */
     private static void recXyCut(int[] ids, float[][] boxes, List<Integer> out) {
         if (ids.length <= 1) {
             for (int id : ids) {
@@ -484,7 +491,13 @@ public final class IndraOrderPost {
         recXyCut(right, boxes, out);
     }
 
-    /** 在给定行集合上找最宽空白切分（对齐 {@code best_cut}）。 */
+    /**
+     * best Cut
+     * @param axis 整数
+     * @param boxes 参数
+     * @param ids 参数
+     * @return 返回值
+    */
     private static Cut bestCut(int[] ids, float[][] boxes, int axis) {
         int m = ids.length;
         double[] lo = new double[m];
@@ -566,6 +579,13 @@ public final class IndraOrderPost {
         final int k;
         final int[] o;
 
+        /**
+         * Cut
+         * @param gap 双精度数
+         * @param k 整数
+         * @param o 参数
+         * @return 返回值
+        */
         Cut(double gap, int k, int[] o) {
             this.gap = gap;
             this.k = k;
@@ -573,6 +593,12 @@ public final class IndraOrderPost {
         }
     }
 
+    /**
+     * subset
+     * @param boxes 参数
+     * @param ids 参数
+     * @return 返回值
+    */
     private static float[][] subset(int[] ids, float[][] boxes) {
         float[][] out = new float[ids.length][4];
         for (int i = 0; i < ids.length; i++) {
@@ -589,6 +615,11 @@ public final class IndraOrderPost {
         return v - Math.log1p(Math.exp(v));
     }
 
+    /**
+     * argmax
+     * @param arr 参数
+     * @return 返回值
+    */
     private static int argmax(double[] arr) {
         int best = 0;
         for (int i = 1; i < arr.length; i++) {
@@ -612,6 +643,11 @@ public final class IndraOrderPost {
         return (copy[n / 2 - 1] + copy[n / 2]) / 2.0;
     }
 
+    /**
+     * display Len
+     * @param t 字符串
+     * @return 返回值
+    */
     private static int displayLen(String t) {
         int len = 0;
         for (int i = 0; i < t.length(); ) {
@@ -622,7 +658,11 @@ public final class IndraOrderPost {
         return len;
     }
 
-    /** 近似 East Asian Wide/Fullwidth 判定。 */
+    /**
+     * is East Asian Wide
+     * @param cp 整数
+     * @return 返回值
+    */
     private static boolean isEastAsianWide(int cp) {
         return (cp >= 0x1100 && cp <= 0x115F)
                 || (cp >= 0x2E80 && cp <= 0xA4CF && cp != 0x303F)
@@ -637,6 +677,11 @@ public final class IndraOrderPost {
                 || (cp >= 0x20000 && cp <= 0x3FFFD);
     }
 
+    /**
+     * is All Digits
+     * @param s 字符串
+     * @return 返回值
+    */
     private static boolean isAllDigits(String s) {
         for (int i = 0; i < s.length(); i++) {
             if (!Character.isDigit(s.charAt(i))) {
@@ -646,6 +691,12 @@ public final class IndraOrderPost {
         return !s.isEmpty();
     }
 
+    /**
+     * rstrip
+     * @param chars 字符串
+     * @param s 字符串
+     * @return 返回值
+    */
     private static String rstrip(String s, String chars) {
         int end = s.length();
         while (end > 0 && chars.indexOf(s.charAt(end - 1)) >= 0) {

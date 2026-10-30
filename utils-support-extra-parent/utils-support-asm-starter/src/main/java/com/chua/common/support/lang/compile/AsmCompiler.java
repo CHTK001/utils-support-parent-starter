@@ -87,6 +87,12 @@ public class AsmCompiler implements Compiler {
         */
         private final String code;
 
+        /**
+         * String Source
+         * @param className 字符串
+         * @param code 字符串
+         * @return 返回值
+        */
         StringSource(String className, String code) {
             super(URI.create("string:///" + className.replace('.', '/') + Kind.SOURCE.extension), Kind.SOURCE);
             this.code = code;
@@ -116,6 +122,11 @@ public class AsmCompiler implements Compiler {
         */
         private final String className;
 
+        /**
+         * In Memory Byte Code
+         * @param className 字符串
+         * @return 返回值
+        */
         InMemoryByteCode(String className) {
             super(URI.create("byte:///" + className.replace('.', '/') + Kind.CLASS.extension), Kind.CLASS);
             this.className = className;
@@ -149,6 +160,11 @@ public class AsmCompiler implements Compiler {
         */
         private final Map<String, InMemoryByteCode> bytecodes = Wraps.map();
 
+        /**
+         * In Memory Class Loader
+         * @param parent 参数
+         * @return 返回值
+        */
         InMemoryClassLoader(ClassLoader parent) {
             super(parent);
         }
@@ -191,6 +207,12 @@ public class AsmCompiler implements Compiler {
         */
         private final InMemoryClassLoader classLoader;
 
+        /**
+         * In Memory File Manager
+         * @param classLoader 参数
+         * @param fileManager 参数
+         * @return 返回值
+        */
         InMemoryFileManager(JavaFileManager fileManager, InMemoryClassLoader classLoader) {
             super(fileManager);
             this.classLoader = classLoader;

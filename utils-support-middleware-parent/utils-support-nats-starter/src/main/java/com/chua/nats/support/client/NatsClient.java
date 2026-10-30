@@ -564,6 +564,11 @@ public class NatsClient implements AutoCloseable {
         */
         private Map<String, String> headers;
 
+        /**
+         * Publish Operation
+         * @param client 参数
+         * @return 返回值
+        */
         PublishOperation(NatsClient client) {
             this.client = client;
         }
@@ -704,6 +709,11 @@ public class NatsClient implements AutoCloseable {
         */
         private boolean autoAck = true;
 
+        /**
+         * Subscribe Operation
+         * @param client 参数
+         * @return 返回值
+        */
         SubscribeOperation(NatsClient client) {
             this.client = client;
         }
@@ -826,6 +836,11 @@ public class NatsClient implements AutoCloseable {
         */
         private final NatsClient client;
 
+        /**
+         * Jet Stream Operation
+         * @param client 参数
+         * @return 返回值
+        */
         JetStreamOperation(NatsClient client) {
             this.client = client;
         }
@@ -914,6 +929,12 @@ public class NatsClient implements AutoCloseable {
         */
         private StreamConfiguration config;
 
+        /**
+         * Stream Operation
+         * @param client 参数
+         * @param streamName 字符串
+         * @return 返回值
+        */
         StreamOperation(NatsClient client, String streamName) {
             this.client = client;
             this.streamName = streamName;
@@ -1071,6 +1092,12 @@ public class NatsClient implements AutoCloseable {
         */
         private KeyValueConfiguration config;
 
+        /**
+         * Kv Operation
+         * @param bucketName 字符串
+         * @param client 参数
+         * @return 返回值
+        */
         KvOperation(NatsClient client, String bucketName) {
             this.client = client;
             this.bucketName = bucketName;
@@ -1219,6 +1246,12 @@ public class NatsClient implements AutoCloseable {
         */
         private final String bucketName;
 
+        /**
+         * Object Store Operation
+         * @param bucketName 字符串
+         * @param client 参数
+         * @return 返回值
+        */
         ObjectStoreOperation(NatsClient client, String bucketName) {
             this.client = client;
             this.bucketName = bucketName;
@@ -1345,6 +1378,12 @@ public class NatsClient implements AutoCloseable {
         */
         private volatile boolean cancelled;
 
+        /**
+         * Dispatched Subscription
+         * @param isJetStream 布尔值
+         * @param subscription 参数
+         * @return 返回值
+        */
         DispatchedSubscription(io.nats.client.Subscription subscription, boolean isJetStream) {
             this.coreSubscription = subscription;
             this.jsSubscription = isJetStream ? (io.nats.client.JetStreamSubscription) subscription : null;

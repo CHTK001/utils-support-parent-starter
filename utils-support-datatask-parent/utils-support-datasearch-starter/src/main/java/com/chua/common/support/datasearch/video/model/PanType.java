@@ -49,10 +49,10 @@ public enum PanType {
 
     /**
      * 构造方法，创建 Pan类型 实例。
-     *
      * @param code 编码，不允许为 null
      * @param name 名称，不允许为 null
-     */
+     * @return 返回值
+    */
     PanType(String code, String name) {
         this.code = code;
         this.name = name;

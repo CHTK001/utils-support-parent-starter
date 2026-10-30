@@ -126,10 +126,11 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
 
     /**
      * Generate CLIP 文本 嵌入 for the given 类.
-     * @param ctx ctx
      * @param classes 类
+     * @param ctx ctx
      * @return generate文本嵌入的结果
-     */
+     * @throws Exception 异常
+    */
     private NDArray generateTextEmbeddings(TranslatorContext ctx, List<String> classes) throws Exception {
         NDManager manager = ctx.getNDManager();
         int numClasses = classes.isEmpty() ? 80 : classes.size();
@@ -311,6 +312,13 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
 
     @Override public Batchifier getBatchifier() { return null; }
 
+    /**
+     * nms
+     * @param boxes 参数
+     * @param iouTh 双精度数
+     * @param scores 参数
+     * @return 返回值
+    */
     private List<Integer> nms(List<BoundingBox> boxes, List<Double> scores, double iouTh) {
         List<Integer> keep = Wraps.list();
         if (boxes.isEmpty()) {

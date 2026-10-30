@@ -444,6 +444,11 @@ public final class RuleContext implements ObjectContent {
     }
 
     @SuppressWarnings("unchecked")
+    /**
+     * cast
+     * @param value 对象
+     * @return 返回值
+    */
     private static <T> T cast(Object value) {
         return (T) value;
     }

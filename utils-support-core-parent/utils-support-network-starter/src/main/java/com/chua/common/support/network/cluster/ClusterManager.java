@@ -171,10 +171,10 @@ public class ClusterManager {
     public com.chua.common.support.network.server.proxy.DiscoveryProxyTargetResolver
             /**
              * 构造方法，创建 tcpResolver 实例。
-             *
-             * @param servicePath 服务路径，不允许为 null
              * @param scatterId scatterID，不允许为 null
-             */
+             * @param servicePath 服务路径，不允许为 null
+             * @return 返回值
+            */
             tcpResolver(String servicePath, String scatterId) {
         return new com.chua.common.support.network.server.proxy.DiscoveryProxyTargetResolver(
                 discovery, servicePath, scatterId, balance);

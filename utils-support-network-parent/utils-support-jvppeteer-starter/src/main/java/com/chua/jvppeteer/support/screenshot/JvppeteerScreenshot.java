@@ -150,6 +150,13 @@ public final class JvppeteerScreenshot {
      * @param options 配置回调
      */
     public static void fullPageScreenshot(String url, String outFile, Consumer<ScreenshotConfig> options) {
+        /**
+         * screenshot
+         * @param outFile 参数
+         * @param url 参数
+         * @param { 参数
+         * @return 返回值
+        */
         screenshot(url, outFile, config -> {
             config.setFullPage(true);
             if (options != null) {
@@ -271,109 +278,218 @@ public final class JvppeteerScreenshot {
          */
         private String executablePath;
 
+        /**
+         * get Viewport Width
+         * @return 返回值
+        */
         public int getViewportWidth() {
             return viewportWidth;
         }
 
+        /**
+         * set Viewport Width
+         * @param viewportWidth 整数
+         * @return 返回值
+        */
         public ScreenshotConfig setViewportWidth(int viewportWidth) {
             this.viewportWidth = viewportWidth;
             return this;
         }
 
+        /**
+         * get Viewport Height
+         * @return 返回值
+        */
         public int getViewportHeight() {
             return viewportHeight;
         }
 
+        /**
+         * set Viewport Height
+         * @param viewportHeight 整数
+         * @return 返回值
+        */
         public ScreenshotConfig setViewportHeight(int viewportHeight) {
             this.viewportHeight = viewportHeight;
             return this;
         }
 
+        /**
+         * get Full Page
+         * @return 返回值
+        */
         public boolean getFullPage() {
             return fullPage;
         }
 
+        /**
+         * set Full Page
+         * @param fullPage 布尔值
+         * @return 返回值
+        */
         public ScreenshotConfig setFullPage(boolean fullPage) {
             this.fullPage = fullPage;
             return this;
         }
 
+        /**
+         * get Wait Selector
+         * @return 返回值
+        */
         public String getWaitSelector() {
             return waitSelector;
         }
 
+        /**
+         * set Wait Selector
+         * @param waitSelector 字符串
+         * @return 返回值
+        */
         public ScreenshotConfig setWaitSelector(String waitSelector) {
             this.waitSelector = waitSelector;
             return this;
         }
 
+        /**
+         * get Wait Timeout
+         * @return 返回值
+        */
         public long getWaitTimeout() {
             return waitTimeout;
         }
 
+        /**
+         * set Wait Timeout
+         * @param waitTimeout 长整数
+         * @return 返回值
+        */
         public ScreenshotConfig setWaitTimeout(long waitTimeout) {
             this.waitTimeout = waitTimeout;
             return this;
         }
 
+        /**
+         * get Extra Wait Millis
+         * @return 返回值
+        */
         public long getExtraWaitMillis() {
             return extraWaitMillis;
         }
 
+        /**
+         * set Extra Wait Millis
+         * @param extraWaitMillis 长整数
+         * @return 返回值
+        */
         public ScreenshotConfig setExtraWaitMillis(long extraWaitMillis) {
             this.extraWaitMillis = extraWaitMillis;
             return this;
         }
 
+        /**
+         * get Locale
+         * @return 返回值
+        */
         public String getLocale() {
             return locale;
         }
 
+        /**
+         * set Locale
+         * @param locale 字符串
+         * @return 返回值
+        */
         public ScreenshotConfig setLocale(String locale) {
             this.locale = locale;
             return this;
         }
 
+        /**
+         * get Timezone Id
+         * @return 返回值
+        */
         public String getTimezoneId() {
             return timezoneId;
         }
 
+        /**
+         * set Timezone Id
+         * @param timezoneId 字符串
+         * @return 返回值
+        */
         public ScreenshotConfig setTimezoneId(String timezoneId) {
             this.timezoneId = timezoneId;
             return this;
         }
 
+        /**
+         * get Base Url
+         * @return 返回值
+        */
         public String getBaseUrl() {
             return baseUrl;
         }
 
+        /**
+         * set Base Url
+         * @param baseUrl 字符串
+         * @return 返回值
+        */
         public ScreenshotConfig setBaseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
             return this;
         }
 
+        /**
+         * get Extra Http Headers
+         * @return 返回值
+        */
         public Map<String, String> getExtraHttpHeaders() {
             return extraHttpHeaders;
         }
 
+        /**
+         * set Extra Http Headers
+         * @param Map<String 参数
+         * @param extraHttpHeaders 参数
+         * @return 返回值
+        */
         public ScreenshotConfig setExtraHttpHeaders(Map<String, String> extraHttpHeaders) {
             this.extraHttpHeaders = extraHttpHeaders;
             return this;
         }
 
+        /**
+         * get Slow Mo
+         * @return 返回值
+        */
         public long getSlowMo() {
             return slowMo;
         }
 
+        /**
+         * set Slow Mo
+         * @param slowMo 长整数
+         * @return 返回值
+        */
         public ScreenshotConfig setSlowMo(long slowMo) {
             this.slowMo = slowMo;
             return this;
         }
 
+        /**
+         * get Executable Path
+         * @return 返回值
+        */
         public String getExecutablePath() {
             return executablePath;
         }
 
+        /**
+         * set Executable Path
+         * @param executablePath 字符串
+         * @return 返回值
+        */
         public ScreenshotConfig setExecutablePath(String executablePath) {
             this.executablePath = executablePath;
             return this;

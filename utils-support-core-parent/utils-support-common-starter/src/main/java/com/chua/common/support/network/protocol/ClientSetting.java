@@ -159,49 +159,63 @@ public class ClientSetting {
 
         /**
          * Host
-         */
+         * @param h 字符串
+         * @return 返回值
+        */
         public Builder host(String h) {
             host = h;
             return this;
         }
         /**
          * Port
-         */
+         * @param p 整数
+         * @return 返回值
+        */
         public Builder port(int p) {
             port = p;
             return this;
         }
         /**
          * Username
-         */
+         * @param u 字符串
+         * @return 返回值
+        */
         public Builder username(String u) {
             username = u;
             return this;
         }
         /**
          * Password
-         */
+         * @param p 字符串
+         * @return 返回值
+        */
         public Builder password(String p) {
             password = p;
             return this;
         }
         /**
          * 连接Timeout
-         */
+         * @param t 长整数
+         * @return 返回值
+        */
         public Builder connectTimeout(long t) {
             connectTimeout = t;
             return this;
         }
         /**
          * 读取Timeout
-         */
+         * @param t 长整数
+         * @return 返回值
+        */
         public Builder readTimeout(long t) {
             readTimeout = t;
             return this;
         }
         /**
          * 写入Timeout
-         */
+         * @param t 长整数
+         * @return 返回值
+        */
         public Builder writeTimeout(long t) {
             writeTimeout = t;
             return this;
@@ -209,7 +223,8 @@ public class ClientSetting {
 
         /**
          * 构建
-         */
+         * @return 返回值
+        */
         public ClientSetting build() {
             if (host == null || host.isEmpty()) {
                 throw new IllegalArgumentException("host 不能为空");

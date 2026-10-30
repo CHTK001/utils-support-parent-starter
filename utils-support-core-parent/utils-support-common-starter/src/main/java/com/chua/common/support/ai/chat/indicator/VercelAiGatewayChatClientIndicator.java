@@ -127,6 +127,10 @@ public final class VercelAiGatewayChatClientIndicator implements ChatClientIndic
         return readLong(ensureSnapshot(), modelId, "context_window_tokens");
     }
 
+    /**
+     * ensure Snapshot
+     * @return 返回值
+    */
     private Snapshot ensureSnapshot() {
         Snapshot current = snapshot;
         long now = System.currentTimeMillis();
@@ -148,6 +152,10 @@ public final class VercelAiGatewayChatClientIndicator implements ChatClientIndic
         }
     }
 
+    /**
+     * 获取
+     * @return 返回值
+    */
     private Snapshot fetch() {
         try {
             HttpRequest.Builder builder = HttpRequest.newBuilder()
@@ -169,6 +177,11 @@ public final class VercelAiGatewayChatClientIndicator implements ChatClientIndic
         }
     }
 
+    /**
+     * 解析
+     * @param body 字符串
+     * @return 返回值
+    */
     private Snapshot parse(String body) {
         try {
             JsonNode root = objectMapper.readTree(body);
@@ -223,6 +236,11 @@ public final class VercelAiGatewayChatClientIndicator implements ChatClientIndic
         }
     }
 
+    /**
+     * parse Model
+     * @param item 参数
+     * @return 返回值
+    */
     private Map<String, Object> parseModel(JsonNode item) {
         Map<String, Object> metrics = new LinkedHashMap<>(24);
         JsonNode pricing = item.get("pricing");
@@ -307,6 +325,13 @@ public final class VercelAiGatewayChatClientIndicator implements ChatClientIndic
         return metrics;
     }
 
+    /**
+     * read Price
+     * @param key 字符串
+     * @param modelId 字符串
+     * @param snapshot 参数
+     * @return 返回值
+    */
     private static BigDecimal readPrice(Snapshot snapshot, String modelId, String key) {
         if (snapshot == null || modelId == null) {
             return null;
@@ -325,6 +350,13 @@ public final class VercelAiGatewayChatClientIndicator implements ChatClientIndic
         return null;
     }
 
+    /**
+     * read Long
+     * @param key 字符串
+     * @param modelId 字符串
+     * @param snapshot 参数
+     * @return 返回值
+    */
     private static Long readLong(Snapshot snapshot, String modelId, String key) {
         if (snapshot == null || modelId == null) {
             return null;

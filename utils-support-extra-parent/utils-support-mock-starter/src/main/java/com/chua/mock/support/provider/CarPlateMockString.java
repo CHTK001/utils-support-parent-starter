@@ -48,6 +48,11 @@ public class CarPlateMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         StringBuilder builder = new StringBuilder(SERIAL_LENGTH + 2);
         builder.append(environment.randomOf(PROVINCES));

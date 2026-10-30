@@ -166,7 +166,9 @@ public class SimpleWalLog implements WalLog {
 
     /**
      * 打开
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void open() throws IOException {
  // 打开 随机access文件（支持读写 + 追加 + mmap）
         boolean exists = Files.exists(walFile);
@@ -210,7 +212,9 @@ public class SimpleWalLog implements WalLog {
 
     /**
      * 写入魔法转为mmap
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void writeMagicToMmap() throws IOException {
         byte[] magic = config.magic();
         mmapBuffer.put(magic);
@@ -220,9 +224,10 @@ public class SimpleWalLog implements WalLog {
 
     /**
      * 扫描Tail
-     *
      * @param len len
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void scanTail(long len) throws IOException {
         if (len <= config.magic().length) {
             this.currentLsn = 0L;
@@ -299,9 +304,10 @@ public class SimpleWalLog implements WalLog {
 
     /**
      * ensuremmap容量
-     *
      * @param needed needed
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void ensureMmapCapacity(long needed) throws IOException {
         if (mmapBuffer == null) {
             return;
@@ -359,7 +365,9 @@ public class SimpleWalLog implements WalLog {
 
     /**
      * maybefsync
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void maybeFsync() throws IOException {
         if (!config.syncOnWrite()) {
             return;
@@ -417,9 +425,9 @@ public class SimpleWalLog implements WalLog {
 
     /**
      * 读取checkpoint从disk
-     *
      * @return 读取checkpoint从disk的结果
-     */
+     * @throws IOException 异常
+    */
     private CheckpointMeta readCheckpointFromDisk() throws IOException {
         if (!Files.exists(checkpointFile)) {
             return CheckpointMeta.empty();
@@ -451,9 +459,10 @@ public class SimpleWalLog implements WalLog {
 
     /**
      * 写入checkpoint转为disk
-     *
      * @param meta meta
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void writeCheckpointToDisk(CheckpointMeta meta) throws IOException {
         ByteBuffer buf = ByteBuffer.allocate(CHECKPOINT_META_SIZE);
         buf.put(CHECKPOINT_MAGIC);
@@ -848,6 +857,11 @@ public class SimpleWalLog implements WalLog {
          */
         private final List<WalOp> ops;
 
+        /**
+         * Wal Chain Impl
+         * @param ops 参数
+         * @return 返回值
+        */
         WalChainImpl(List<WalOp> ops) {
             this.ops = ops;
         }

@@ -145,7 +145,9 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
 
     /**
      * 构建initial状态。
-     */
+     * @return 返回值
+     * @throws OrtException 异常
+    */
     private void buildInitialStates() throws OrtException {
         inputNames = Wraps.list(encoderSession.getInputInfo().keySet());
         Collections.sort(inputNames);
@@ -178,7 +180,8 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
      * 创建zerolongtensor。
      * @param dims dims
      * @return 创建zerolongtensor的结果
-     */
+     * @throws OrtException 异常
+    */
     private OnnxTensor createZeroLongTensor(long[] dims) throws OrtException {
         Object arr;
         if (dims.length == 2) {
@@ -193,10 +196,11 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
 
     /**
      * 创建zerofloattensor。
-     * @param name 名称
      * @param dims dims
+     * @param name 名称
      * @return 创建zerofloattensor的结果
-     */
+     * @throws OrtException 异常
+    */
     private OnnxTensor createZeroFloatTensor(String name, long[] dims) throws OrtException {
         switch (dims.length) {
             case 2:
@@ -228,13 +232,12 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
     }
 
     /**
-     * 实时流式输入音频样本（16khz mono float）。
-     *
-     * <p>音频按 chunk 送入编码器，增量维护内部状态。
-     * 调用 {@link #getResult()} 可获取当前已识别的文本。</p>
-     *
+     * 实时流式输入音频样本（16khz mono float）。 <p>音频按 chunk 送入编码器，增量维护内部状态。 调用 {@link #getResult()} 可获取当前已识别的文本。</p>
      * @param samples 音频样本数组（float 范围 [-1, 1]）
-     */
+     * @return 返回值
+     * @throws IOException 异常
+     * @throws OrtException 异常
+    */
     public void feedAudioSamples(float[] samples) throws OrtException, IOException {
         if (samples == null || samples.length == 0) {
             return;
@@ -357,7 +360,8 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
      * 运行编码器。
      * @param features 特征
      * @return 运行编码器的结果
-     */
+     * @throws OrtException 异常
+    */
     private float[][] runEncoder(float[][] features) throws OrtException {
         int totalFrames = features.length;
         int numChunks = Math.max(1, (totalFrames + DECODE_CHUNK_LEN - 1) / DECODE_CHUNK_LEN);
@@ -432,7 +436,8 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
      * 副本转为tensor。
      * @param value 值
      * @return 副本转为tensor的结果
-     */
+     * @throws OrtException 异常
+    */
     private OnnxTensor copyToTensor(Object value) throws OrtException {
         if (value instanceof long[] flatLongs) {
             return OnnxTensor.createTensor(env, flatLongs);
@@ -459,7 +464,8 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
      * greedydecode。
      * @param encoderOut 编码器出
      * @return greedyDecode的结果
-     */
+     * @throws OrtException 异常
+    */
     private String greedyDecode(float[][] encoderOut) throws OrtException {
         StringBuilder sb = new StringBuilder();
         long[] context = {-1L, BLANK_ID};
@@ -485,7 +491,8 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
      * 运行解码器。
      * @param y y
      * @return 运行解码器的结果
-     */
+     * @throws OrtException 异常
+    */
     private float[] runDecoder(long[] y) throws OrtException {
         try (OnnxTensor tensor = OnnxTensor.createTensor(env, new long[][]{y});
              OrtSession.Result result =
@@ -496,10 +503,11 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
 
     /**
      * 运行连接。
-     * @param encFrame enc帧
      * @param decOut dec出
+     * @param encFrame enc帧
      * @return 运行连接的结果
-     */
+     * @throws OrtException 异常
+    */
     private float[] runJoiner(float[] encFrame, float[] decOut) throws OrtException {
         try (OnnxTensor encTensor = OnnxTensor.createTensor(env, new float[][]{encFrame});
              OnnxTensor decTensor = OnnxTensor.createTensor(env, new float[][]{decOut});

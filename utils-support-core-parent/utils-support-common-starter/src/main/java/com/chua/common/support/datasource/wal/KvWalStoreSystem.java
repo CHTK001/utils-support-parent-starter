@@ -274,7 +274,8 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
      * @param key 键，不允许为 null
      * @param value 值，不允许为 null
      * @return 结果数值
-     */
+     * @throws IOException 异常
+    */
     public long putFast(byte[] key, byte[] value) throws IOException {
         int vlen = value == null ? 0 : value.length;
         int total = 4 + key.length + 4 + vlen;

@@ -77,9 +77,9 @@ public enum UnderstandTask {
 
     /**
      * 构造方法，创建 UnderstandTask 实例。
-     *
      * @param prompt 提示词，不允许为 null
-     */
+     * @return 返回值
+    */
     UnderstandTask(String prompt) {
         this.prompt = prompt;
     }

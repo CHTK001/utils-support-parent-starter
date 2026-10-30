@@ -208,7 +208,9 @@ public final class TinyAiTrainData implements Serializable {
 
     /**
      * 判断单个值是否可作为数值列内容。
-     */
+     * @param value 对象
+     * @return 返回值
+    */
     private static boolean isNumericValue(Object value) {
         if (value instanceof Number) {
             return true;

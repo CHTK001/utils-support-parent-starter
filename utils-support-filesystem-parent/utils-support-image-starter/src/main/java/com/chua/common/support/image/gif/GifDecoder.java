@@ -92,10 +92,11 @@ public class GifDecoder {
 
     /**
      * 读取并解析指定索引的单帧画面，同时记录该帧的延迟时间。
-     *
-     * @param reader     图像读取器
      * @param frameIndex 帧索引，从 0 开始
-     */
+     * @param reader 图像读取器
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void readFrame(ImageReader reader, int frameIndex) throws IOException {
         BufferedImage frame = reader.read(frameIndex);
         frames.add(frame);

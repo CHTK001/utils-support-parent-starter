@@ -53,11 +53,12 @@ public class Condition {
 
     /**
      * 构造方法，创建 Condition 实例。
-     *
+     * @param SFunction<? 参数
      * @param column 列，不允许为 null
      * @param operator 方法入参 operator
      * @param value 值，不允许为 null
-     */
+     * @return 返回值
+    */
     Condition(SFunction<?, ?> column, String operator, Object value) {
         this.column = column;
         this.operator = operator;
@@ -68,10 +69,10 @@ public class Condition {
 
     /**
      * 构造方法，创建 Condition 实例。
-     *
      * @param nested 方法入参 nested
      * @param nestedOperator 方法入参 nestedOperator
-     */
+     * @return 返回值
+    */
     Condition(List<Condition> nested, String nestedOperator) {
         this.column = null;
         this.operator = null;

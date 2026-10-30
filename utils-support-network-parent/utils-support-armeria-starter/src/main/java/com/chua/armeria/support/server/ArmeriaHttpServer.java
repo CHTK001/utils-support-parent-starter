@@ -197,6 +197,11 @@ public class ArmeriaHttpServer extends AbstractServer {
          */
         private Object result;
 
+        /**
+         * Armeria Server Response
+         * @param ctx 参数
+         * @return 返回值
+        */
         ArmeriaServerResponse(com.linecorp.armeria.server.ServiceRequestContext ctx) {
             this.ctx = ctx;
         }

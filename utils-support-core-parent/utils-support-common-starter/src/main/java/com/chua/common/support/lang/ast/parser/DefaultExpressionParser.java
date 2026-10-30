@@ -317,6 +317,11 @@ public class DefaultExpressionParser implements ExpressionParser {
          */
         private int pos;
 
+        /**
+         * Parser
+         * @param input 字符串
+         * @return 返回值
+        */
         Parser(String input) {
             this.input = input;
             this.pos = 0;

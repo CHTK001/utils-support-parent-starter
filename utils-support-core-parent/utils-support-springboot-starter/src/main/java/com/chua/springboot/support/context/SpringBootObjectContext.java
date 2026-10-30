@@ -567,6 +567,11 @@ public class SpringBootObjectContext implements ObjectContext {
         */
         private final org.springframework.core.env.Environment springEnv;
 
+        /**
+         * Spring Boot Environment
+         * @param applicationContext 参数
+         * @return 返回值
+        */
         SpringBootEnvironment(ApplicationContext applicationContext) {
             this.springEnv = applicationContext.getEnvironment();
         }

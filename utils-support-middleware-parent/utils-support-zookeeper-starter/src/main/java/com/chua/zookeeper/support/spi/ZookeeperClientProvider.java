@@ -163,7 +163,11 @@ public class ZookeeperClientProvider implements MiddlewareClientProvider {
 
     // ==================== 内部实现 ====================
 
-    /** 按数据源行建 Curator 客户端（用完即关，不缓存：管理面请求稀疏，缓存连接不划算） */
+    /**
+     * new Client
+     * @param request 参数
+     * @return 返回值
+    */
     private CuratorFramework newClient(MiddlewareConnectRequest request) {
         String connect = request.address();
         StringBuilder jaas = null;
@@ -187,7 +191,12 @@ public class ZookeeperClientProvider implements MiddlewareClientProvider {
         return b.build();
     }
 
-    /** 列某个路径的子节点 */
+    /**
+     * children Of
+     * @param path 字符串
+     * @param request 参数
+     * @return 返回值
+    */
     private List<MiddlewareTreeNode> childrenOf(MiddlewareConnectRequest request, String path) {
         List<MiddlewareTreeNode> out = new ArrayList<>();
         try (CuratorFramework client = newClient(request)) {
@@ -221,7 +230,14 @@ public class ZookeeperClientProvider implements MiddlewareClientProvider {
         return out;
     }
 
-    /** ls 查询 */
+    /**
+     * ls
+     * @param client 参数
+     * @param path 字符串
+     * @param t0 长整数
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private MiddlewareQueryResult ls(CuratorFramework client, long t0, String path) throws Exception {
         String p = path.isBlank() ? "/" : path;
         List<String> children = client.getChildren().forPath(p);
@@ -238,7 +254,14 @@ public class ZookeeperClientProvider implements MiddlewareClientProvider {
                 System.currentTimeMillis() - t0);
     }
 
-    /** get 查询：读 znode 数据 */
+    /**
+     * 获取
+     * @param client 参数
+     * @param path 字符串
+     * @param t0 长整数
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private MiddlewareQueryResult get(CuratorFramework client, long t0, String path) throws Exception {
         if (path.isBlank()) {
             return MiddlewareQueryResult.fail("get 需要路径，如 get /config/app");
@@ -260,7 +283,14 @@ public class ZookeeperClientProvider implements MiddlewareClientProvider {
                 System.currentTimeMillis() - t0);
     }
 
-    /** stat 查询：看元信息 */
+    /**
+     * stat
+     * @param client 参数
+     * @param path 字符串
+     * @param t0 长整数
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private MiddlewareQueryResult stat(CuratorFramework client, long t0, String path) throws Exception {
         if (path.isBlank()) {
             return MiddlewareQueryResult.fail("stat 需要路径，如 stat /config/app");
@@ -288,6 +318,11 @@ public class ZookeeperClientProvider implements MiddlewareClientProvider {
                 System.currentTimeMillis() - t0);
     }
 
+    /**
+     * 关闭
+     * @param client 参数
+     * @return 返回值
+    */
     private void close(CuratorFramework client) {
         if (client != null) {
             try {
@@ -298,7 +333,11 @@ public class ZookeeperClientProvider implements MiddlewareClientProvider {
         }
     }
 
-    /** 取根因：ZooKeeper 的异常常包在 KeeperException 里 */
+    /**
+     * root Message
+     * @param e 可抛出异常
+     * @return 返回值
+    */
     private String rootMessage(Throwable e) {
         Throwable t = e;
         while (t.getCause() != null && t.getCause() != t) {

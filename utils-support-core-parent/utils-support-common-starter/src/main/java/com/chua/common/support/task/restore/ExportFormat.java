@@ -52,10 +52,10 @@ public enum ExportFormat {
 
     /**
      * 构造器。
-     *
-     * @param value     格式名称
      * @param extension 默认文件后缀
-     */
+     * @param value 格式名称
+     * @return 返回值
+    */
     ExportFormat(String value, String extension) {
         this.value = value;
         this.extension = extension;

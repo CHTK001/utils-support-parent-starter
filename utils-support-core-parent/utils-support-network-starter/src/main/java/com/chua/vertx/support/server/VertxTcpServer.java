@@ -354,6 +354,11 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         private static final class Segment {
             final byte[] data;
             int pos;
+            /**
+             * Segment
+             * @param data 参数
+             * @return 返回值
+            */
             Segment(byte[] data) {
                 this.data = data;
             }
@@ -379,6 +384,11 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         */
         private Segment current;
 
+        /**
+         * Net Socket Input Stream
+         * @param socket 参数
+         * @return 返回值
+        */
         NetSocketInputStream(NetSocket socket) {
             this.socket = socket;
             socket.handler(buf -> {
@@ -459,6 +469,11 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         private final byte[] buf = new byte[8192];
         private int pos;
 
+        /**
+         * Net Socket Output Stream
+         * @param socket 参数
+         * @return 返回值
+        */
         NetSocketOutputStream(NetSocket socket) {
             this.socket = socket;
         }
