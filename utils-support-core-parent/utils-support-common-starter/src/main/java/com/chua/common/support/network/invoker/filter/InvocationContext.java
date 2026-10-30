@@ -78,13 +78,17 @@ public class InvocationContext implements ServerRequest, ServerResponse {
      * 添加Header
      */
     public void addHeader(String name, String value) {
-        if (name != null && value != null) headers.put(name, value);
+        if (name != null && value != null) {
+            headers.put(name, value);
+        }
     }
     /**
      * 添加Headers
      */
     public void addHeaders(Map<String, String> h) {
-        if (h != null) headers.putAll(h);
+        if (h != null) {
+            headers.putAll(h);
+        }
     }
 
     @Override public String getUri() { return path; }

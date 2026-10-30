@@ -95,10 +95,14 @@ public class SipMetrics {
         activeClients.decrementAndGet();
     }
     public void onFrameBytesIn(long n) {
-        if (n > 0) frameBytesIn.addAndGet(n);
+        if (n > 0) {
+            frameBytesIn.addAndGet(n);
+        }
     }
     public void onFrameBytesOut(long n) {
-        if (n > 0) frameBytesOut.addAndGet(n);
+        if (n > 0) {
+            frameBytesOut.addAndGet(n);
+        }
     }
     /**
      * 响应Mux刷写。

@@ -35,11 +35,12 @@
             <artifactId>gson</artifactId>
         </dependency>
         <!-- dubbo-common 的 FastJsonSerialization 启动时即引用 com.alibaba.fastjson.JSON，
-             dubbo 自身未声明该依赖，缺此 jar 抛 NoClassDefFoundError；2.x 即 fastjson2（兼容旧 API） -->
+             dubbo 自身未声明该依赖，缺此 jar 抛 NoClassDefFoundError；2.x 即 fastjson2（兼容旧 API），
+             2026-10-30 由 2.0.65 升为 2.0.66（同 minor 修复版） -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>2.0.65</version>
+            <version>2.0.66</version>
         </dependency>
     </dependencies>
 </project>
