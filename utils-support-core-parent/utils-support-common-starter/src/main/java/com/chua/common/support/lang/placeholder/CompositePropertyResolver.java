@@ -304,6 +304,13 @@ public class CompositePropertyResolver implements PropertyResolver {
             final String suffix;
             final String separator;
 
+            /**
+             * Placeholder Config
+             * @param prefix 字符串
+             * @param separator 字符串
+             * @param suffix 字符串
+             * @return 返回值
+            */
             PlaceholderConfig(String prefix, String suffix, String separator) {
                 this.prefix = prefix;
                 this.suffix = suffix;

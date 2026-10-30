@@ -275,6 +275,15 @@ public class PlaywrightBusinessBenchmark {
          */
         private final String detail;
 
+        /**
+         * Step Result
+         * @param detail 字符串
+         * @param latencyMs 长整数
+         * @param name 字符串
+         * @param success 标记成功
+         * @param type 参数
+         * @return 返回值
+        */
         StepResult(String name, StepType type, boolean success, long latencyMs, String detail) {
             this.name = name;
             this.type = type;
@@ -350,6 +359,14 @@ public class PlaywrightBusinessBenchmark {
          */
         private final String screenshotBase64;
 
+        /**
+         * Business Run
+         * @param screenshotBase64 字符串
+         * @param stepResults 参数
+         * @param success 标记成功
+         * @param totalLatencyMs 长整数
+         * @return 返回值
+        */
         BusinessRun(List<StepResult> stepResults, long totalLatencyMs, boolean success, String screenshotBase64) {
             this.stepResults = stepResults;
             this.totalLatencyMs = totalLatencyMs;
@@ -800,6 +817,14 @@ public class PlaywrightBusinessBenchmark {
          */
         private final double stddev;
 
+        /**
+         * Benchmark Summary
+         * @param concurrency 整数
+         * @param elapsedMs 长整数
+         * @param iterations 整数
+         * @param runs 参数
+         * @return 返回值
+        */
         BenchmarkSummary(List<BusinessRun> runs, long elapsedMs, int concurrency, int iterations) {
             this.runs = runs;
             this.elapsedMs = elapsedMs;

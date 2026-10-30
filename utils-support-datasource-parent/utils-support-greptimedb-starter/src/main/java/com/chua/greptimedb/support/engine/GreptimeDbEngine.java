@@ -716,9 +716,9 @@ public class GreptimeDbEngine extends AbstractEngine {
 
         /**
          * 构造执行器适配器。
-         *
          * @param dataSourceName 绑定的数据源名称，不可为 空
-         */
+         * @return 返回值
+        */
         JdbcExecutorAdapter(String dataSourceName) {
             this.dataSourceName = dataSourceName;
         }

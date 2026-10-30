@@ -54,10 +54,10 @@ public enum SizeUnit {
 
     /**
      * 构造方法，创建 大小Unit 实例。
-     *
-     * @param suffix 后缀，不允许为 null
      * @param byteSize byte大小，不允许为 null
-     */
+     * @param suffix 后缀，不允许为 null
+     * @return 返回值
+    */
     SizeUnit(String suffix, long byteSize) {
         this.suffix = suffix;
         this.byteSize = byteSize;

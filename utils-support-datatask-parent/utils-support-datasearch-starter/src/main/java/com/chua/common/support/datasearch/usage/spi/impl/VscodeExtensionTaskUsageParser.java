@@ -285,6 +285,12 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
         return provider.isBlank() ? "unknown" : "protocol:" + provider.toLowerCase();
     }
 
+    /**
+     * 读取全部
+     * @param reader 参数
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private static String readAll(BufferedReader reader) throws IOException {
         StringBuilder sb = new StringBuilder();
         char[] buf = new char[8192];

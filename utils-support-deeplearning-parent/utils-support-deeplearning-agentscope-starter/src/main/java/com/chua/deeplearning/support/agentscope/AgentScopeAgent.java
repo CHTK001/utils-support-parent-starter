@@ -1430,11 +1430,9 @@ public class AgentScopeAgent implements Agent {
     }
 
     /**
-     * 构建运行时上下文，并把当前会话 ID 透传给 AgentScope。
-     * 注意：{@code enterPlanMode} / {@code call} / {@code streamEvents} 等方法
-     * 直接读取 {@link RuntimeContext#getSessionId()}，仅在 Builder 上设置
-     * defaultSessionId 不足以让这些路径工作，因此必须将其写入上下文。
-     */
+     * 构建运行时上下文，并把当前会话 ID 透传给 AgentScope。 注意：{@code enterPlanMode} / {@code call} / {@code streamEvents} 等方法 直接读取 {@link RuntimeContext#getSessionId()}，仅在 Builder 上设置 defaultSessionId 不足以让这些路径工作，因此必须将其写入上下文。
+     * @return 返回值
+    */
     private RuntimeContext buildRuntimeContext() {
         RuntimeContext.Builder builder = RuntimeContext.builder();
         if (this.defaultSessionId != null && !this.defaultSessionId.isBlank()) {
@@ -1717,6 +1715,13 @@ public class AgentScopeAgent implements Agent {
         private final String description; // description
           private final com.chua.common.support.ai.skill.SkillHandler handler; // 处理器
 
+        /**
+         * Skill Agent Tool
+         * @param description 字符串
+         * @param handler 参数
+         * @param name 字符串
+         * @return 返回值
+        */
         SkillAgentTool(String name, String description, com.chua.common.support.ai.skill.SkillHandler handler) {
             this.name = name;
             this.description = description;
@@ -1777,6 +1782,12 @@ public class AgentScopeAgent implements Agent {
          */
         private final McpManager manager;
 
+        /**
+         * Mcp Agent Tool
+         * @param descriptor 参数
+         * @param manager 参数
+         * @return 返回值
+        */
         McpAgentTool(McpToolDescriptor descriptor, McpManager manager) {
             this.descriptor = descriptor;
             this.manager = manager;

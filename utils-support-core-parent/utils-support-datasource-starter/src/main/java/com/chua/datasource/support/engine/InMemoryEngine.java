@@ -602,6 +602,11 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     private class InMemQueryWrapper<T> extends EngineQueryWrapper<T> {
+        /**
+         * In Mem Query Wrapper
+         * @param clazz 参数
+         * @return 返回值
+        */
         InMemQueryWrapper(Class<T> clazz) {
             super(InMemoryEngine.this, clazz);
         }
@@ -651,6 +656,11 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     private class InMemUpdateWrapper<T> extends EngineUpdateWrapper<T> {
+        /**
+         * In Mem Update Wrapper
+         * @param clazz 参数
+         * @return 返回值
+        */
         InMemUpdateWrapper(Class<T> clazz) {
             super(InMemoryEngine.this, clazz);
         }
@@ -669,6 +679,11 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     private class InMemDeleteWrapper<T> extends EngineDeleteWrapper<T> {
+        /**
+         * In Mem Delete Wrapper
+         * @param clazz 参数
+         * @return 返回值
+        */
         InMemDeleteWrapper(Class<T> clazz) {
             super(InMemoryEngine.this, clazz);
         }

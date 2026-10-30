@@ -155,10 +155,11 @@ public class LogOperation {
 
     /**
      * resolveref。
-     * @param repo repo
      * @param ref ref
+     * @param repo repo
      * @return resolveRef的结果
-     */
+     * @throws Exception 异常
+    */
     private ObjectId resolveRef(Repository repo, String ref) throws Exception {
         ObjectId oid = repo.resolve(ref);
         if (oid == null) {

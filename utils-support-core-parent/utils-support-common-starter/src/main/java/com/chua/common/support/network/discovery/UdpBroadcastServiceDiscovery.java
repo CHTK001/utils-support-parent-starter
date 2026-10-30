@@ -375,56 +375,68 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
 
         /**
          * 获取Path
-         */
+         * @return 返回值
+        */
         public String getPath() {
             return path;
         }
 
         /**
          * 设置Path
-         */
+         * @param path 字符串
+         * @return 返回值
+        */
         public void setPath(String path) {
             this.path = path;
         }
 
         /**
          * 获取ServerId
-         */
+         * @return 返回值
+        */
         public String getServerId() {
             return serverId;
         }
 
         /**
          * 设置ServerId
-         */
+         * @param serverId 字符串
+         * @return 返回值
+        */
         public void setServerId(String serverId) {
             this.serverId = serverId;
         }
 
         /**
          * 获取Discovery
-         */
+         * @return 返回值
+        */
         public Discovery getDiscovery() {
             return discovery;
         }
 
         /**
          * 设置Discovery
-         */
+         * @param discovery 参数
+         * @return 返回值
+        */
         public void setDiscovery(Discovery discovery) {
             this.discovery = discovery;
         }
 
         /**
          * 是否移除
-         */
+         * @return 返回值
+        */
         public boolean isRemove() {
             return remove;
         }
 
         /**
          * 设置移除
-         */
+         * @param remove 移除
+         * @return 返回值
+        */
         public void setRemove(boolean remove) {
             this.remove = remove;
         }

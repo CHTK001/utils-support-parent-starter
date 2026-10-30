@@ -247,7 +247,8 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
      * 读取图片
      * @param p 方法入参 p
      * @return BufferedImage 对象
-     */
+     * @throws IOException 异常
+    */
     private BufferedImage ImageIORead(Path p) throws IOException {
         return javax.imageio.ImageIO.read(p.toFile());
     }

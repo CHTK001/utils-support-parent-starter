@@ -177,6 +177,11 @@ public class XmlFileSystem implements FileSystem {
          */
         private boolean hasHeader;
 
+        /**
+         * Xml Read Builder
+         * @param file 文件
+         * @return 返回值
+        */
         XmlReadBuilder(File file) {
             super(file);
         }
@@ -335,6 +340,11 @@ public class XmlFileSystem implements FileSystem {
      */
     public static class XmlWriteBuilder extends WriteBuilder {
 
+        /**
+         * Xml Write Builder
+         * @param file 文件
+         * @return 返回值
+        */
         XmlWriteBuilder(File file) {
             super(file);
         }

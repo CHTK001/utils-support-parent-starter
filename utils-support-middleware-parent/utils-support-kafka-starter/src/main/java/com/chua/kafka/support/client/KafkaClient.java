@@ -377,6 +377,11 @@ public class KafkaClient implements AutoCloseable {
         */
         private Long timestamp;
 
+        /**
+         * Producer Operation
+         * @param client 参数
+         * @return 返回值
+        */
         ProducerOperation(KafkaClient client) {
             this.client = client;
         }
@@ -542,6 +547,11 @@ public class KafkaClient implements AutoCloseable {
         */
         private long pollTimeoutMs = 1000;
 
+        /**
+         * Consumer Operation
+         * @param client 参数
+         * @return 返回值
+        */
         ConsumerOperation(KafkaClient client) {
             this.client = client;
         }
@@ -696,6 +706,11 @@ public class KafkaClient implements AutoCloseable {
         */
         private final KafkaClient client;
 
+        /**
+         * Admin Operation
+         * @param client 参数
+         * @return 返回值
+        */
         AdminOperation(KafkaClient client) {
             this.client = client;
         }

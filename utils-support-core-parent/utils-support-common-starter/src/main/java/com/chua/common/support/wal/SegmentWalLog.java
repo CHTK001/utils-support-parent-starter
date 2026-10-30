@@ -180,7 +180,9 @@ public class SegmentWalLog implements WalLog {
 
     /**
      * 打开
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void open() throws IOException {
         List<WalSegmentInfo> segments = scanSegments();
         if (segments.isEmpty()) {
@@ -283,9 +285,10 @@ public class SegmentWalLog implements WalLog {
 
     /**
      * 打开活跃segmentwriter
-     *
      * @param segNo segno
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void openActiveSegmentWriter(int segNo) throws IOException {
         Path p = segmentPath(segNo);
         this.activeRaf = new RandomAccessFile(p.toFile(), "rw");
@@ -355,7 +358,9 @@ public class SegmentWalLog implements WalLog {
 
     /**
      * rollsegment
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void rollSegment() throws IOException {
         if (activeOut != null) {
             try {
@@ -406,7 +411,9 @@ public class SegmentWalLog implements WalLog {
 
     /**
      * Force
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void force() throws IOException {
         if (activeOut != null) {
             activeOut.flush();
@@ -435,7 +442,9 @@ public class SegmentWalLog implements WalLog {
 
     /**
      * maybefsync
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void maybeFsync() throws IOException {
         if (!config.syncOnWrite()) {
             return;
@@ -467,9 +476,9 @@ public class SegmentWalLog implements WalLog {
 
     /**
      * 读取checkpoint从disk
-     *
      * @return 读取checkpoint从disk的结果
-     */
+     * @throws IOException 异常
+    */
     private CheckpointMeta readCheckpointFromDisk() throws IOException {
         if (!Files.exists(checkpointFile)) {
             return CheckpointMeta.empty();
@@ -501,9 +510,10 @@ public class SegmentWalLog implements WalLog {
 
     /**
      * 写入checkpoint转为disk
-     *
      * @param meta meta
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void writeCheckpointToDisk(CheckpointMeta meta) throws IOException {
         ByteBuffer buf = ByteBuffer.allocate(CHECKPOINT_META_SIZE);
         buf.put(CHECKPOINT_MAGIC);
@@ -715,11 +725,11 @@ public class SegmentWalLog implements WalLog {
 
     /**
      * 查找写入分段
-     *
-     * @param seg seg
      * @param lsn lsn
+     * @param seg seg
      * @return 写入分段的结果
-     */
+     * @throws IOException 异常
+    */
     private Optional<WalRecord> findInSegment(WalSegmentInfo seg, long lsn) throws IOException {
         try (DataInputStream in = new DataInputStream(new BufferedInputStream(
                 Files.newInputStream(seg.path())))) {
@@ -957,6 +967,11 @@ public class SegmentWalLog implements WalLog {
          */
         private final List<WalOp> ops;
 
+        /**
+         * Wal Chain Impl
+         * @param ops 参数
+         * @return 返回值
+        */
         WalChainImpl(List<WalOp> ops) {
             this.ops = ops;
         }

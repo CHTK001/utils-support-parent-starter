@@ -227,56 +227,68 @@ public class ModelHealthChecker {
 
         /**
          * Healthy
-         */
+         * @return 返回值
+        */
         public static ModelHealthCheckResult healthy() {
             return new ModelHealthCheckResult(true, IssueType.NONE, null);
         }
 
         /**
          * Healthy
-         */
+         * @param message 字符串
+         * @return 返回值
+        */
         public static ModelHealthCheckResult healthy(String message) {
             return new ModelHealthCheckResult(true, IssueType.NONE, message);
         }
 
         /**
          * RateLimited
-         */
+         * @param message 字符串
+         * @return 返回值
+        */
         public static ModelHealthCheckResult rateLimited(String message) {
             return new ModelHealthCheckResult(false, IssueType.RATE_LIMITED, message);
         }
 
         /**
          * QuotaExhausted
-         */
+         * @param message 字符串
+         * @return 返回值
+        */
         public static ModelHealthCheckResult quotaExhausted(String message) {
             return new ModelHealthCheckResult(false, IssueType.QUOTA_EXHAUSTED, message);
         }
 
         /**
          * 记录错误
-         */
+         * @param message 字符串
+         * @return 返回值
+        */
         public static ModelHealthCheckResult error(String message) {
             return new ModelHealthCheckResult(false, IssueType.OTHER_ERROR, message);
         }
 
         /**
          * 是否Healthy
-         */
+         * @return 返回值
+        */
         public boolean isHealthy() {
             return healthy;
         }
 
         /**
          * 获取IssueType
-         */
+         * @return 返回值
+        */
         public IssueType getIssueType() {
             return issueType;
         }
 
         /**
          * 获取Message
-         */
+         * @return 返回值
+        */
         public String getMessage() {
             return message;
         }

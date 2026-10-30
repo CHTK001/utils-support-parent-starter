@@ -137,10 +137,10 @@ public class MossTextToAudioClient implements TextToAudioClient {
 
     /**
      * 设置克隆参考音频字节。
-     *
      * @param wavBytes 参考音频 WAV 字节
      * @return this
-     */
+     * @throws IOException 异常
+    */
     public MossTextToAudioClient reference(byte[] wavBytes) throws IOException {
         Path temp = Files.createTempFile("moss-ref-", ".wav");
         Files.write(temp, wavBytes);

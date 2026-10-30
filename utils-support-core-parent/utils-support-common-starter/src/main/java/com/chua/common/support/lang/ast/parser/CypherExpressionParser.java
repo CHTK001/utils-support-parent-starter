@@ -175,6 +175,11 @@ public class CypherExpressionParser implements ExpressionParser {
          */
         private int pos;
 
+        /**
+         * Cypher Parser
+         * @param input 字符串
+         * @return 返回值
+        */
         CypherParser(String input) {
             this.input = input;
             this.pos = 0;

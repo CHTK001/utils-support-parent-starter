@@ -367,6 +367,13 @@ import java.util.*;
         */
         private int limit = 1000;
 
+        /**
+         * Group By Query Wrapper
+         * @param engine 参数
+         * @param entityClass 参数
+         * @param groupByCols 参数
+         * @return 返回值
+        */
         GroupByQueryWrapper(RediSearchEngine engine, Class<T> entityClass, String... groupByCols) {
             this.engine = engine;
             this.entityClass = entityClass;

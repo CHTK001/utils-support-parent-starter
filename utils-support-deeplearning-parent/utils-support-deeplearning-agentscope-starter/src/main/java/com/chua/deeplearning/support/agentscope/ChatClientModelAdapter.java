@@ -250,6 +250,10 @@ public class ChatClientModelAdapter implements Model {
         ChatCompletionCreateParams params = buildToolParams(messages, tools, systemPrompt, options);
         return Flux.create(sink -> {
             try (com.openai.core.http.StreamResponse<ChatCompletionChunk> stream =
+                         /**
+                          * create Streaming
+                          * @return 返回值
+                         */
                          getOpenAiClient().chat().completions().createStreaming(params)) {
                 Map<Integer, ToolCallAcc> accumulators = Wraps.linkedMap();
                 final ChatUsage[] usage = {null};

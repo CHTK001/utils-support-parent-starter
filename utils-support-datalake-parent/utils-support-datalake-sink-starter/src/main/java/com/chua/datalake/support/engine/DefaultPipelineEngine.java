@@ -348,6 +348,13 @@ public class DefaultPipelineEngine implements PipelineEngine {
         final boolean declaredSinks;
         final boolean complete;
 
+        /**
+         * Compiled Pipeline
+         * @param complete 布尔值
+         * @param declaredSinks 布尔值
+         * @param sinks 参数
+         * @return 返回值
+        */
         CompiledPipeline(CompiledSink[] sinks, boolean declaredSinks, boolean complete) {
             this.sinks = sinks;
             this.declaredSinks = declaredSinks;
@@ -373,6 +380,14 @@ public class DefaultPipelineEngine implements PipelineEngine {
         final DataSink sink;
         final Map<String, Object> config;
 
+        /**
+         * Compiled Sink
+         * @param Map<String 参数
+         * @param config 参数
+         * @param sink 参数
+         * @param type 字符串
+         * @return 返回值
+        */
         CompiledSink(String type, DataSink sink, Map<String, Object> config) {
             this.type = type;
             this.sink = sink;

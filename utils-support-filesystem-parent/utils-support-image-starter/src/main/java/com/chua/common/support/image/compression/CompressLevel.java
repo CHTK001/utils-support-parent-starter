@@ -66,9 +66,9 @@ public enum CompressLevel {
 
     /**
      * 构造压缩等级
-     *
      * @param index 等级序号
-     */
+     * @return 返回值
+    */
     CompressLevel(int index) {
         this.index = index;
     }

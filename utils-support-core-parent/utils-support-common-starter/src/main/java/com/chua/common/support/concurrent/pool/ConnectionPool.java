@@ -147,6 +147,11 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
          */
         private final Builder builder;
 
+        /**
+         * Connection Factory
+         * @param builder 参数
+         * @return 返回值
+        */
         ConnectionFactory(Builder builder) {
             this.builder = builder;
         }
@@ -323,6 +328,10 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
          */
         private boolean testOnReturn = true;
 
+        /**
+         * Builder
+         * @return 返回值
+        */
         Builder() {
         }
 

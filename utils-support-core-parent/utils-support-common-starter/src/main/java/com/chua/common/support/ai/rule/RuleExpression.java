@@ -216,7 +216,10 @@ public final class RuleExpression {
 
     /**
      * 解析列引用：合成名还原成原路径，再交给 {@link RuleContext} 逐段读取。
-     */
+     * @param column 对象
+     * @param context 参数
+     * @return 返回值
+    */
     private Object resolve(Object column, RuleContext context) {
         String key = String.valueOf(column);
         String path = paths.get(key);
@@ -224,11 +227,11 @@ public final class RuleExpression {
     }
 
     /**
-     * 判断是否属于集合。
-     *
-     * <p>共享解析器把 {@code IN (1,2,3)} 的右节点存成字符串 {@code "(1,2,3)"}，
-     * 因此这里负责拆分。若集合元素本身是数组或集合，直接用。</p>
-     */
+     * 判断是否属于集合。 <p>共享解析器把 {@code IN (1,2,3)} 的右节点存成字符串 {@code "(1,2,3)"}， 因此这里负责拆分。若集合元素本身是数组或集合，直接用。</p>
+     * @param collection 对象
+     * @param value 对象
+     * @return 返回值
+    */
     private static boolean contains(Object collection, Object value) {
         if (collection == null) {
             return false;
@@ -254,11 +257,11 @@ public final class RuleExpression {
     }
 
     /**
-     * 判断是否落在闭区间内。
-     *
-     * <p>{@code a BETWEEN x AND y} 解析出的右子树是 {@code COMPARE(AND)}，
-     * 两个边界是它的 left 与 right，这里直接从结构取，不做字符串拆分。</p>
-     */
+     * 判断是否落在闭区间内。 <p>{@code a BETWEEN x AND y} 解析出的右子树是 {@code COMPARE(AND)}， 两个边界是它的 left 与 right，这里直接从结构取，不做字符串拆分。</p>
+     * @param context 参数
+     * @param node 参数
+     * @return 返回值
+    */
     private boolean between(BTreeNode node, RuleContext context) {
         Object value = evaluate(node.getLeft(), context);
         BTreeNode bounds = node.getRight();
@@ -274,11 +277,11 @@ public final class RuleExpression {
     }
 
     /**
-     * 判断是否匹配 LIKE 模式。
-     *
-     * <p>只支持 {@code %} 通配，不支持 {@code _}：规则配置里的单字符通配
-     * 极少用到，而把它实现错的风险高于收益。</p>
-     */
+     * 判断是否匹配 LIKE 模式。 <p>只支持 {@code %} 通配，不支持 {@code _}：规则配置里的单字符通配 极少用到，而把它实现错的风险高于收益。</p>
+     * @param pattern 对象
+     * @param value 对象
+     * @return 返回值
+    */
     private static boolean like(Object value, Object pattern) {
         if (value == null || pattern == null) {
             return false;
@@ -292,12 +295,10 @@ public final class RuleExpression {
     }
 
     /**
-     * 按顶层逗号拆分集合字面量，忽略括号与引号内的逗号。
-     *
-     * <p>共享解析器把 {@code IN (1,2,3)} 整体存成字符串 {@code "(1,2,3)"}，
-     * 最外层那对括号必须先剥掉：留着的话内部逗号的深度是 1 而非 0，
-     * 会被当成「不在顶层」而不拆分，整串退化成单个元素。</p>
-     */
+     * 按顶层逗号拆分集合字面量，忽略括号与引号内的逗号。 <p>共享解析器把 {@code IN (1,2,3)} 整体存成字符串 {@code "(1,2,3)"}， 最外层那对括号必须先剥掉：留着的话内部逗号的深度是 1 而非 0， 会被当成「不在顶层」而不拆分，整串退化成单个元素。</p>
+     * @param raw 字符串
+     * @return 返回值
+    */
     private static List<String> splitTopLevel(String raw) {
         String body = raw.trim();
         if (body.length() >= 2 && body.charAt(0) == '(' && body.charAt(body.length() - 1) == ')') {
@@ -333,7 +334,10 @@ public final class RuleExpression {
 
     /**
      * 把缓冲区里的一段收成一个元素并清空缓冲区，空段丢弃。
-     */
+     * @param buffer 字符串构建器
+     * @param parts 参数
+     * @return 返回值
+    */
     private static void addPart(List<String> parts, StringBuilder buffer) {
         String part = buffer.toString().trim();
         buffer.setLength(0);
@@ -344,7 +348,9 @@ public final class RuleExpression {
 
     /**
      * 把字面量文本转成值：去引号、识别数字与布尔。
-     */
+     * @param raw 字符串
+     * @return 返回值
+    */
     private static Object literal(String raw) {
         String text = raw.trim();
         if (text.length() >= 2 && text.charAt(0) == '\'' && text.charAt(text.length() - 1) == '\'') {
@@ -370,9 +376,11 @@ public final class RuleExpression {
     }
 
     /**
-     * 相等比较：数值按数值比，其余按字符串比，避免 {@code 12800L} 与
-     * {@code 12800.0} 因类型不同判为不等。
-     */
+     * 相等比较：数值按数值比，其余按字符串比，避免 {@code 12800L} 与 {@code 12800.0} 因类型不同判为不等。
+     * @param left 对象
+     * @param right 对象
+     * @return 返回值
+    */
     private static boolean equalsValue(Object left, Object right) {
         if (left == null || right == null) {
             return left == right;
@@ -384,9 +392,12 @@ public final class RuleExpression {
     }
 
     /**
+    /**
      * 大小比较。任一侧非数值时退回字符串比较，字符串无法比较则视为不成立。
-     */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+     * @param left 对象
+     * @param right 对象
+     * @return 返回值
+    */
     private static int compare(Object left, Object right) {
         if (left == null || right == null) {
             return Integer.MIN_VALUE;
@@ -405,7 +416,9 @@ public final class RuleExpression {
 
     /**
      * 宽松取布尔：仅 {@link Boolean#TRUE} 视为真，null 与其他类型均视为假。
-     */
+     * @param value 对象
+     * @return 返回值
+    */
     private static boolean truthy(Object value) {
         return value instanceof Boolean b && b;
     }
@@ -479,7 +492,9 @@ public final class RuleExpression {
 
     /**
      * 收集文本中出现的全部标识（忽略引号内容），用于合成名防撞。
-     */
+     * @param text 字符串
+     * @return 返回值
+    */
     private static Set<String> identifiersOf(String text) {
         Set<String> found = Wraps.linkedSet();
         boolean quoted = false;
@@ -508,14 +523,18 @@ public final class RuleExpression {
 
     /**
      * 是否为标识首字符。
-     */
+     * @param ch 参数
+     * @return 返回值
+    */
     private static boolean isIdentifierStart(char ch) {
         return Character.isLetter(ch) || ch == '_';
     }
 
     /**
      * 是否为标识后续字符。
-     */
+     * @param ch 参数
+     * @return 返回值
+    */
     private static boolean isIdentifierPart(char ch) {
         return Character.isLetterOrDigit(ch) || ch == '_';
     }

@@ -203,6 +203,11 @@ public final class ZeroShot {
         private final String modelId;
         private String device = "cpu";
 
+        /**
+         * Classifier Builder
+         * @param modelId 字符串
+         * @return 返回值
+        */
         ClassifierBuilder(String modelId) {
             this.modelId = modelId;
         }
@@ -237,6 +242,11 @@ public final class ZeroShot {
         private String device = "cpu";
         private float threshold = 0.1f;
 
+        /**
+         * Detector Builder
+         * @param modelId 字符串
+         * @return 返回值
+        */
         DetectorBuilder(String modelId) {
             this.modelId = modelId;
         }
@@ -284,6 +294,11 @@ public final class ZeroShot {
         private final String modelId;
         private String device = "cpu";
 
+        /**
+         * Segmenter Builder
+         * @param modelId 字符串
+         * @return 返回值
+        */
         SegmenterBuilder(String modelId) {
             this.modelId = modelId;
         }

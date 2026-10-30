@@ -61,9 +61,9 @@ class PooledObject<T> {
 
     /**
      * 构造方法，创建 Pooled对象 实例。
-     *
      * @param object 对象，不允许为 null
-     */
+     * @return 返回值
+    */
     PooledObject(T object) {
         this.object = object;
         this.status = Status.IDLE;

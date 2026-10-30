@@ -229,7 +229,14 @@ public class NacosClientProvider implements MiddlewareClientProvider {
     /** 实例健康状态字段 */
     private static final Pattern HEALTHY_PATTERN = Pattern.compile("\"healthy\"\\s*:\\s*(true|false)");
 
-    /** 服务列表 */
+    /**
+     * services
+     * @param ns 字符串
+     * @param request 参数
+     * @param t0 长整数
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private MiddlewareQueryResult services(MiddlewareConnectRequest request, long t0, String ns) throws Exception {
         String namespaceId = ns.isEmpty() || "public".equals(ns) ? "" : ns;
         String body = send(request, GET,
@@ -278,7 +285,13 @@ public class NacosClientProvider implements MiddlewareClientProvider {
                 System.currentTimeMillis() - t0);
     }
 
-    /** 服务实例详情文档 */
+    /**
+     * instances Document
+     * @param request 参数
+     * @param service 字符串
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private MiddlewareDocument instancesDocument(MiddlewareConnectRequest request, String service) throws Exception {
         MiddlewareQueryResult r = instances(request, System.currentTimeMillis(), service);
         StringBuilder sb = new StringBuilder("服务 ").append(service).append('\n');
@@ -289,7 +302,14 @@ public class NacosClientProvider implements MiddlewareClientProvider {
         return MiddlewareDocument.of("服务 " + service, sb.toString());
     }
 
-    /** 单个配置内容 */
+    /**
+     * config
+     * @param dataId 字符串
+     * @param request 参数
+     * @param t0 长整数
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private MiddlewareQueryResult config(MiddlewareConnectRequest request, long t0, String dataId) throws Exception {
         if (dataId.isEmpty()) {
             return MiddlewareQueryResult.fail("configs 需要 dataId，如 configs application.yml");
@@ -327,10 +347,20 @@ public class NacosClientProvider implements MiddlewareClientProvider {
         return r;
     }
 
+    /**
+     * base Url
+     * @param request 参数
+     * @return 返回值
+    */
     private String baseUrl(MiddlewareConnectRequest request) {
         return "http://" + request.address();
     }
 
+    /**
+     * url
+     * @param s 字符串
+     * @return 返回值
+    */
     private String url(String s) {
         return URLEncoder.encode(s == null ? "" : s, StandardCharsets.UTF_8);
     }

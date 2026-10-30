@@ -54,11 +54,11 @@ public final class TinyAiMlpModel implements Serializable {
 
     /**
      * 内部构造器。
-     *
+     * @param domain 数据域，不能为 null
      * @param model 训练好的模型，不能为 null
      * @param options 训练参数，不能为 null
-     * @param domain 数据域，不能为 null
-     */
+     * @return 返回值
+    */
     TinyAiMlpModel(Model model, MlpOptions options, ModelDomain domain) {
         this.model = Objects.requireNonNull(model, "model must not be null");
         this.options = Objects.requireNonNull(options, "options must not be null");
@@ -103,11 +103,13 @@ public final class TinyAiMlpModel implements Serializable {
     }
 
     /**
+    /**
      * 反序列化后重建瞬时引擎。
-     *
      * @param in 对象输入流
-     */
-    @Serial
+     * @return 返回值
+     * @throws ClassNotFoundException 异常
+     * @throws IOException 异常
+    */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         engine = new TinyAiEngine();

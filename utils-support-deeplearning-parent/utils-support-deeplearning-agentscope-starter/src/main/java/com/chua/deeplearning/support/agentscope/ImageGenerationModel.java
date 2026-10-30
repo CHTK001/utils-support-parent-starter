@@ -97,10 +97,10 @@ public class ImageGenerationModel implements Model {
 
     /**
      * 转为basepng
-     *
      * @param image 镜像
      * @return 转为base64png的结果
-     */
+     * @throws Exception 异常
+    */
     private static String toBase64Png(BufferedImage image) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "png", baos);

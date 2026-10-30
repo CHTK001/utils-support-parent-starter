@@ -61,9 +61,9 @@ final class InceptionStreamParser {
 
     /**
      * 构造解析器
-     *
      * @param listener 流式回调
-     */
+     * @return 返回值
+    */
     InceptionStreamParser(InceptionTransport.InceptionStreamListener listener) {
         this.listener = listener;
     }

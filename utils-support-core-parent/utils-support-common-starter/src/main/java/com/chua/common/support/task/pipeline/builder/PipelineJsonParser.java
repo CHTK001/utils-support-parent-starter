@@ -169,6 +169,12 @@ public class PipelineJsonParser {
          */
         private final Map<String, Object> data;
 
+        /**
+         * Json Node
+         * @param Map<String 参数
+         * @param data 参数
+         * @return 返回值
+        */
         JsonNode(Map<String, Object> data) {
             this.data = data != null ? data : Wraps.linkedMap();
         }

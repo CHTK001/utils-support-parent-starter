@@ -157,4 +157,33 @@ public @interface RpcService {
      * @return 缓存策略名称，默认空字符串表示不缓存
      */
     String cache() default "";
+
+    /**
+     * 降级的 RPC 提供者名称
+     *
+     * <p>当 RPC 远端调用不可用或失败时（例如 Dubbo / SOFA / JSON 注册中心无可用节点、
+     * 网络故障、连接拒绝等），消费端回退到的 RPC 协议提供者名称。
+     * 默认 {@code "springbean"}，即回退到本 Spring 应用上下文内同一个接口的本地 Bean，
+     * 不触发任何网络传输（实现「Bean 即 RPC」的永久降级），避免服务不可用导致调用链级联故障。</p>
+     *
+     * <p>示例：{@code @RpcService(degrade = "springbean")} 表示 RPC 不通时直调本地 Bean。</p>
+     *
+     * @return 降级的提供者名称，默认 {"springbean"}
+     * @since 4.0.0.51
+     */
+    String degrade() default "springbean";
+
+    /**
+     * 未找到降级 Bean 时是否抛出异常
+     *
+     * <ul>
+     *   <li><b>true</b>（默认）：RPC 调用与降级目标均不可用时，抛出 RPC 异常</li>
+     *   <li><b>false</b>：RPC 调用与降级目标均不可用时，静默返回 {@code null}，
+     *   由调用方自行处理空结果</li>
+     * </ul>
+     *
+     * @return 未找到 Bean 时是否抛出异常，默认 {@code true}
+     * @since 4.0.0.51
+     */
+    boolean exception() default true;
 }

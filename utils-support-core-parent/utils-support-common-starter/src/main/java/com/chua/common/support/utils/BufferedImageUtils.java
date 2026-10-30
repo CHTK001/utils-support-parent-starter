@@ -863,10 +863,10 @@ public class BufferedImageUtils {
 
     /**
      * 获取缓冲镜像
-     *
      * @param bytes bytes
      * @return 获取缓冲镜像的结果
-     */
+     * @throws IOException 异常
+    */
     public static BufferedImage getBufferedImage(byte[] bytes) throws IOException {
         if (bytes == null) {
             return null;
@@ -876,10 +876,10 @@ public class BufferedImageUtils {
 
     /**
      * 获取缓冲镜像
-     *
      * @param file 文件
      * @return 获取缓冲镜像的结果
-     */
+     * @throws IOException 异常
+    */
     public static BufferedImage getBufferedImage(File file) throws IOException {
         if (file == null) {
             return null;
@@ -889,10 +889,10 @@ public class BufferedImageUtils {
 
     /**
      * 获取缓冲镜像
-     *
      * @param inputStream 输入流
      * @return 获取缓冲镜像的结果
-     */
+     * @throws IOException 异常
+    */
     public static BufferedImage getBufferedImage(InputStream inputStream) throws IOException {
         if (inputStream == null) {
             return null;
@@ -902,21 +902,21 @@ public class BufferedImageUtils {
 
     /**
      * 转为缓冲镜像array
-     *
      * @param bufferedImage 缓冲镜像
      * @return 转为缓冲镜像array的结果
-     */
+     * @throws IOException 异常
+    */
     public static byte[] toBufferedImageArray(BufferedImage bufferedImage) throws IOException {
         return toBufferedImageArray(bufferedImage, "png");
     }
 
     /**
      * 转为缓冲镜像array
-     *
      * @param bufferedImage 缓冲镜像
      * @param format 格式化
      * @return 转为缓冲镜像array的结果
-     */
+     * @throws IOException 异常
+    */
     public static byte[] toBufferedImageArray(BufferedImage bufferedImage, String format) throws IOException {
         if (bufferedImage == null || format == null) {
             return new byte[0];
@@ -1072,6 +1072,11 @@ public class BufferedImageUtils {
         return res;
     }
 
+    /**
+     * gauss Kernel
+     * @param radius 浮点数
+     * @return 返回值
+    */
     private static float[] gaussKernel(float radius) {
         int r = Math.max(1, Math.round(radius));
         float[] k = new float[r * 2 + 1];
@@ -1088,10 +1093,25 @@ public class BufferedImageUtils {
         return k;
     }
 
+    /**
+     * clamp Idx
+     * @param hi 整数
+     * @param lo 整数
+     * @param v 整数
+     * @return 返回值
+    */
     private static int clampIdx(int v, int lo, int hi) {
         return v < lo ? lo : (v > hi ? hi : v);
     }
 
+    /**
+     * argb
+     * @param a 浮点数
+     * @param b 浮点数
+     * @param g 浮点数
+     * @param r 浮点数
+     * @return 返回值
+    */
     private static int argb(float a, float r, float g, float b) {
         return (clamp((int) a) & 0xFF) << 24 | (clamp((int) r) & 0xFF) << 16
                 | (clamp((int) g) & 0xFF) << 8 | (clamp((int) b) & 0xFF);
@@ -1170,6 +1190,12 @@ public class BufferedImageUtils {
         return 1;
     }
 
+    /**
+     * read Orientation From Tiff
+     * @param b 参数
+     * @param tiff 整数
+     * @return 返回值
+    */
     private static int readOrientationFromTiff(byte[] b, int tiff) {
         if (tiff + 8 > b.length) {
             return 1;
@@ -1197,6 +1223,13 @@ public class BufferedImageUtils {
         return 1;
     }
 
+    /**
+     * u2
+     * @param b 参数
+     * @param i 整数
+     * @param little 布尔值
+     * @return 返回值
+    */
     private static int u2(byte[] b, int i, boolean little) {
         if (i + 1 >= b.length) {
             return 0;

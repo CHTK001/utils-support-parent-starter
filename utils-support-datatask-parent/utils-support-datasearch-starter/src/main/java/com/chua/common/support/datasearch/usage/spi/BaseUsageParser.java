@@ -338,6 +338,12 @@ public abstract class BaseUsageParser implements UsageParser {
         private long totalDuration;
         private int count;
 
+        /**
+         * Day Aggregator
+         * @param day 字符串
+         * @param provider 字符串
+         * @return 返回值
+        */
         DayAggregator(String day, String provider) {
             this.day = day;
             this.provider = provider;
@@ -379,6 +385,11 @@ public abstract class BaseUsageParser implements UsageParser {
                     .build();
         }
 
+        /**
+         * to Millis
+         * @param d 字符串
+         * @return 返回值
+        */
         private long toMillis(String d) {
             try {
                 return LocalDate.parse(d, DAY_FMT).atStartOfDay(ZoneId.systemDefault())

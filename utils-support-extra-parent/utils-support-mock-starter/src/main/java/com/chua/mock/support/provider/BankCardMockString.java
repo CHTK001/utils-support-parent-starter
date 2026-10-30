@@ -42,6 +42,11 @@ public class BankCardMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         int total = environment.nextInt(2) == 0 ? LENGTH_16 : LENGTH_19;
         StringBuilder builder = new StringBuilder(total);

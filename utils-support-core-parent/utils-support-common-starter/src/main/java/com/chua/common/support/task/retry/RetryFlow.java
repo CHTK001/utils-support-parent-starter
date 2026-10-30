@@ -202,6 +202,11 @@ public final class RetryFlow {
      * @throws Exception 所有重试均失败后抛出最后一次异常
      */
     public void execute(Runnable task) throws Exception {
+        /**
+         * execute
+         * @param ( 参数
+         * @return 返回值
+        */
         execute(() -> {
             task.run();
             return null;

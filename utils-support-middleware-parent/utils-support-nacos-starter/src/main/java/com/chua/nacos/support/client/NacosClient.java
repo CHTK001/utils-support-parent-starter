@@ -147,9 +147,9 @@ public class NacosClient implements AutoCloseable {
 
     /**
      * 开始
-     *
      * @return 启动的结果
-     */
+     * @throws NacosException 异常
+    */
     public NacosClient start() throws NacosException {
         Properties props = buildProperties();
         this.configService = NacosFactory.createConfigService(props);
@@ -350,6 +350,11 @@ public class NacosClient implements AutoCloseable {
         */
         private long timeoutMs = 5000;
 
+        /**
+         * Config Operation
+         * @param client 参数
+         * @return 返回值
+        */
         ConfigOperation(NacosClient client) {
             this.client = client;
         }
@@ -556,6 +561,11 @@ public class NacosClient implements AutoCloseable {
         */
         private Map<String, String> metadata = Wraps.map();
 
+        /**
+         * Naming Operation
+         * @param client 参数
+         * @return 返回值
+        */
         NamingOperation(NacosClient client) {
             this.client = client;
         }

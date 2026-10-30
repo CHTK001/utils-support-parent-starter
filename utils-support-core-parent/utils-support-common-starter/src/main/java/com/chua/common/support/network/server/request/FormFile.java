@@ -45,31 +45,36 @@ public class FormFile {
 
     /**
      * 获取FieldName
-     */
+     * @return 返回值
+    */
     public String getFieldName() {
         return fieldName;
     }
     /**
      * 获取FileName
-     */
+     * @return 返回值
+    */
     public String getFileName() {
         return fileName;
     }
     /**
      * 获取ContentType
-     */
+     * @return 返回值
+    */
     public String getContentType() {
         return contentType;
     }
     /**
      * 获取Data
-     */
+     * @return 返回值
+    */
     public byte[] getData() {
         return data;
     }
     /**
      * 获取获取大小
-     */
+     * @return 返回值
+    */
     public long getSize() {
         return data != null ? data.length : 0;
     }

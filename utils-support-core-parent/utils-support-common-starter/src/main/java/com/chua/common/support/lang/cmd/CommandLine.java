@@ -835,7 +835,9 @@ public final class CommandLine {
 
         /**
          * 检查是否已存在指定长名称的选项。
-         */
+         * @param longName 字符串
+         * @return 返回值
+        */
         private boolean hasOption(String longName) {
             for (CliOption opt : options) {
                 if (opt.longName().equals(longName)) {
@@ -846,9 +848,11 @@ public final class CommandLine {
         }
 
         /**
+        /**
          * 按短名称查找已添加的选项。
-         */
-        @Nullable
+         * @param shortName 字符串
+         * @return 返回值
+        */
         private CliOption findOptionByShortName(String shortName) {
             for (CliOption opt : options) {
                 if (shortName.equals(opt.shortName())) {
@@ -1086,9 +1090,11 @@ public final class CommandLine {
         // ========== 内部方法 ==========
 
         /**
+        /**
          * 通过长名称或短名称解析对应的选项定义。
-         */
-        @Nullable
+         * @param name 字符串
+         * @return 返回值
+        */
         private CliOption resolveOption(String name) {
             // 先按长名称查找
             for (CliOption opt : options) {

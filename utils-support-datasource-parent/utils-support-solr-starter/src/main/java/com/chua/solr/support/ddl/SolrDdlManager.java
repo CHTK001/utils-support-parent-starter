@@ -192,7 +192,9 @@ public class SolrDdlManager implements DslManager, EngineAware {
     /**
      * 真正创建集合（结构性 DDL 执行）。
      * @param collectionName 集合名称
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     public void createCollection(String collectionName) throws Exception {
         CollectionAdminRequest.Create.createCollection(collectionName, numShards, replicationFactor)
                 .process(client);
@@ -203,7 +205,9 @@ public class SolrDdlManager implements DslManager, EngineAware {
      * @param collectionName 集合名称
      * @param fieldName 字段名称
      * @param fieldType 字段类型
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     public void addField(String collectionName, String fieldName, String fieldType) throws Exception {
         new SchemaRequest.AddField(java.util.Map.of("name", fieldName, "type", fieldType))
                 .process(client, collectionName);
@@ -212,7 +216,9 @@ public class SolrDdlManager implements DslManager, EngineAware {
     /**
      * 删除集合。
      * @param collectionName 集合名称
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     public void dropCollection(String collectionName) throws Exception {
         CollectionAdminRequest.deleteCollection(collectionName).process(client);
     }

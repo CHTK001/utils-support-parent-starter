@@ -77,10 +77,10 @@ public class OracleAlterUserStep implements UserManager.AlterUserStep {
 
     /**
      * 构造方法，创建 Oracle 修改用户步骤实例。
-     *
      * @param dataSource 数据来源，不允许为 null
-     * @param username   用户名，必须命中用户名白名单
-     */
+     * @param username 用户名，必须命中用户名白名单
+     * @return 返回值
+    */
     OracleAlterUserStep(DataSource dataSource, String username) {
         this.dataSource = dataSource;
         this.username = OracleSqlNames.checkUserName(username);

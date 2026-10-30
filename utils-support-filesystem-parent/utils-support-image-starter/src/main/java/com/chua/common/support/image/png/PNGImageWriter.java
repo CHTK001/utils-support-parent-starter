@@ -207,6 +207,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入魔法
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_magic() throws IOException {
         // write signature
@@ -216,6 +218,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入IHDR
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_IHDR() throws IOException {
         // write IHDR chunk
@@ -245,6 +249,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入chrm
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_cHRM() throws IOException {
         if (metadata.cHRM_present) {
@@ -263,6 +269,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入cicp
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_cICP() throws IOException {
         if (metadata.cICP_present) {
@@ -277,6 +285,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入gama
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_gAMA() throws IOException {
         if (metadata.gAMA_present) {
@@ -288,6 +298,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入iccp
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_iCCP() throws IOException {
         if (metadata.iCCP_present) {
@@ -307,6 +319,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入 sBIT
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_sBIT() throws IOException {
         if (metadata.sBIT_present) {
@@ -340,6 +354,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入srgb
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_sRGB() throws IOException {
         if (metadata.sRGB_present) {
@@ -351,6 +367,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入PLTE
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_PLTE() throws IOException {
         if (metadata.PLTE_present) {
@@ -382,6 +400,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入hist
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_hIST() throws IOException {
         if (metadata.hIST_present) {
@@ -399,6 +419,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入trns
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_tRNS() throws IOException {
         if (metadata.tRNS_present) {
@@ -445,6 +467,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入bkgd
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_bKGD() throws IOException {
         if (metadata.bKGD_present) {
@@ -491,6 +515,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入phys
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_pHYs() throws IOException {
         if (metadata.pHYs_present) {
@@ -504,6 +530,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入splt
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_sPLT() throws IOException {
         if (metadata.sPLT_present) {
@@ -543,6 +571,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入时间
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_tIME() throws IOException {
         if (metadata.tIME_present) {
@@ -559,6 +589,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入文本
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_tEXt() throws IOException {
         Iterator<String> keywordIter = metadata.tEXt_keyword.iterator();
@@ -581,10 +613,10 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 对字节数组做 deflate 压缩。
-     *
      * @param b 待压缩数据
      * @return 压缩后的字节数组
-     */
+     * @throws IOException 异常
+    */
     private byte[] deflate(byte[] b) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DeflaterOutputStream dos = new DeflaterOutputStream(baos);
@@ -595,6 +627,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入itxt
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_iTXt() throws IOException {
         Iterator<String> keywordIter = metadata.iTXt_keyword.iterator();
@@ -639,6 +673,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入ztxt
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_zTXt() throws IOException {
         Iterator<String> keywordIter = metadata.zTXt_keyword.iterator();
@@ -665,6 +701,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入exif
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_eXIf() throws IOException {
         if (metadata.eXIf_present) {
@@ -676,7 +714,9 @@ public final class PNGImageWriter extends ImageWriter {
 
      /**
       * 写入unknownchunks。
-      */
+      * @return 返回值
+      * @throws IOException 异常
+     */
     private void writeUnknownChunks() throws IOException {
         Iterator<String> typeIter = metadata.unknownChunkType.iterator();
         Iterator<byte[]> dataIter = metadata.unknownChunkData.iterator();
@@ -918,6 +958,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入IEND
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_IEND() throws IOException {
         ChunkStream cs = new ChunkStream(PNGImageReader.IEND_TYPE, stream);
@@ -960,6 +1002,12 @@ public final class PNGImageWriter extends ImageWriter {
 
         // If the existing tables are still valid, just return
         if (bitDepth == scalingBitDepth &&
+            /**
+             * equals
+             * @param sampleSize 参数
+             * @param this.sampleSize 参数
+             * @return 返回值
+            */
             equals(sampleSize, this.sampleSize)) {
             return;
         }
@@ -1035,6 +1083,8 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入actl
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void write_acTL() throws IOException {
         if (metadata.acTL_present) {
@@ -1081,7 +1131,9 @@ public final class PNGImageWriter extends ImageWriter {
     /**
      * 写入 fcTL
      * @param metadata metadata
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void write_fcTL(PNGMetadata metadata) throws IOException {
         if (metadata.fcTL_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.fcTL_TYPE, stream);
@@ -1127,11 +1179,12 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
      * 写入图像序列中的一帧。
-     *
-     * @param image         待写图像
-     * @param param         写入参数
-     * @param acTL_present  是否写入 acTL 块
-     */
+     * @param acTL_present 是否写入 acTL 块
+     * @param image 待写图像
+     * @param param 写入参数
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void writeToSequence0(IIOImage image, ImageWriteParam param, boolean acTL_present) throws IOException {
 
         if (stream == null) {

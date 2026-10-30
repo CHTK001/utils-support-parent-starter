@@ -162,11 +162,11 @@ public class VitH14TextTranslator implements Translator<String, float[]> {
 
     /**
      * 解析 第一个existing
-     *
      * @param modelRoot 模型根
      * @param names 名称
      * @return resolve第一个existing的结果
-     */
+     * @throws IOException 异常
+    */
     private static Path resolveFirstExisting(Path modelRoot, String... names) throws IOException {
         for (String name : names) {
             Path p = modelRoot.resolve(name);

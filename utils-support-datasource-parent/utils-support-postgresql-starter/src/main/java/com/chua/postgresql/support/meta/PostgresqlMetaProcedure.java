@@ -423,6 +423,12 @@ public class PostgresqlMetaProcedure extends AbstractMetaProcedure {
          */
         private boolean orReplace;
 
+        /**
+         * Postgres Procedure Create Builder
+         * @param metaProcedure 参数
+         * @param procedureName 字符串
+         * @return 返回值
+        */
         PostgresProcedureCreateBuilder(PostgresqlMetaProcedure metaProcedure, String procedureName) {
             this.metaProcedure = metaProcedure;
             this.procedureName = procedureName;

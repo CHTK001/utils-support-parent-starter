@@ -330,6 +330,12 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
         private final AutoCloseable delegate;
         private final ScatterSetting setting;
 
+        /**
+         * Scatter Node Server Wrapper
+         * @param delegate 参数
+         * @param setting 参数
+         * @return 返回值
+        */
         ScatterNodeServerWrapper(AutoCloseable delegate, ScatterSetting setting) {
             this.delegate = delegate;
             this.setting = setting;

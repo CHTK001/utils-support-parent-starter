@@ -994,11 +994,11 @@ public class DefaultScriptConverter implements ScriptConverter {
 
     /**
      * CREATE TABLE 转换 + 副产品收集（索引语句、自增列）。
-     *
-     * @param sql   SQL，不允许为 null
      * @param index 收集到的 CREATE INDEX 语句（可为空），不允许为 null
+     * @param protocol 字符串
+     * @param sql SQL，不允许为 null
      * @return 转换后的建表语句
-     */
+    */
     private String convertCreateTable(String sql, List<String> index, String protocol) {
         // 先剥掉块注释：运行期的 FlywayScripts.splitStatements 只跳过 "--" 行注释，
         // 块注释会原样留在语句里（本仓多个模块的脚本头部就是块注释）。

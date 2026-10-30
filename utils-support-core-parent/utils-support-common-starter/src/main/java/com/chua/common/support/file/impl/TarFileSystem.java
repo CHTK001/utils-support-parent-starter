@@ -150,6 +150,11 @@ public class TarFileSystem implements FileSystem {
          */
         private boolean splitMode = false;
 
+        /**
+         * Tar Read Builder
+         * @param file 文件
+         * @return 返回值
+        */
         TarReadBuilder(File file) {
             super(file);
         }
@@ -177,7 +182,9 @@ public class TarFileSystem implements FileSystem {
 
         /**
          * 创建输入流，自动判断是否使用 GZIP 解包。
-         */
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private InputStream openInput() throws IOException {
             InputStream is;
             if (splitMode) {
@@ -264,6 +271,12 @@ public class TarFileSystem implements FileSystem {
             private int currentIndex = 0;
             private FileInputStream currentStream;
 
+            /**
+             * Merged Input Stream
+             * @param files 参数
+             * @return 返回值
+             * @throws FileNotFoundException 异常
+            */
             MergedInputStream(List<File> files) throws FileNotFoundException {
                 this.files = files;
                 if (!files.isEmpty()) {
@@ -316,6 +329,10 @@ public class TarFileSystem implements FileSystem {
             }
         }
 
+        /**
+         * 列出所有条目
+         * @return 返回值
+        */
         public List<String> listEntries() {
             List<String> entries = Wraps.list();
             try (TarInputStream tis = new TarInputStream(openInput())) {
@@ -329,14 +346,31 @@ public class TarFileSystem implements FileSystem {
             return entries;
         }
 
+        /**
+         * extract All
+         * @param targetDir 文件
+         * @return 返回值
+        */
         public void extractAll(File targetDir) {
             extract(targetDir);
         }
 
+        /**
+         * extract
+         * @param entryName 字符串
+         * @param targetDir 文件
+         * @return 返回值
+        */
         public void extract(String entryName, File targetDir) {
             extract(targetDir, entryName);
         }
 
+        /**
+         * extract
+         * @param entryNames 参数
+         * @param targetDir 文件
+         * @return 返回值
+        */
         public void extract(File targetDir, String... entryNames) {
             try (TarInputStream tis = new TarInputStream(openInput())) {
                 if (!targetDir.exists()) {
@@ -384,6 +418,11 @@ public class TarFileSystem implements FileSystem {
             }
         }
 
+        /**
+         * read Entry
+         * @param entryName 字符串
+         * @return 返回值
+        */
         public String readEntry(String entryName) {
             try (TarInputStream tis = new TarInputStream(openInput())) {
                 TarEntry entry;
@@ -428,36 +467,73 @@ public class TarFileSystem implements FileSystem {
         private int gzipLevel = Deflater.DEFAULT_COMPRESSION;
         private long splitSize = 0;
 
+        /**
+         * Tar Write Builder
+         * @param file 文件
+         * @return 返回值
+        */
         TarWriteBuilder(File file) {
             super(file);
         }
 
+        /**
+         * gz
+         * @return 返回值
+        */
         public TarWriteBuilder gz() {
             this.gzipEnabled = true;
             return this;
         }
 
+        /**
+         * gz
+         * @param level 整数
+         * @return 返回值
+        */
         public TarWriteBuilder gz(int level) {
             this.gzipEnabled = true;
             this.gzipLevel = level;
             return this;
         }
 
+        /**
+         * split Size
+         * @param size 获取数量
+         * @return 返回值
+        */
         public TarWriteBuilder splitSize(long size) {
             this.splitSize = size;
             return this;
         }
 
+        /**
+         * add File
+         * @param entryName 字符串
+         * @param source 文件
+         * @return 返回值
+        */
         public TarWriteBuilder addFile(String entryName, File source) {
             entries.add(new TarEntryData(entryName, source));
             return this;
         }
 
+        /**
+         * add Stream
+         * @param entryName 字符串
+         * @param in 输入流
+         * @return 返回值
+        */
         public TarWriteBuilder addStream(String entryName, InputStream in) {
             entries.add(new TarEntryData(entryName, drain(in)));
             return this;
         }
 
+        /**
+         * add Bytes
+         * @param bytes 参数
+         * @param entryName 字符串
+         * @return 返回值
+        */
         public TarWriteBuilder addBytes(String entryName, byte[] bytes) {
             entries.add(new TarEntryData(entryName, bytes));
             return this;
@@ -476,6 +552,10 @@ public class TarFileSystem implements FileSystem {
             }
         }
 
+        /**
+         * finish Normal
+         * @return 返回值
+        */
         private void finishNormal() {
             try (OutputStream fos = new FileOutputStream(file);
                  OutputStream bos = new BufferedOutputStream(fos);
@@ -502,6 +582,10 @@ public class TarFileSystem implements FileSystem {
             }
         }
 
+        /**
+         * finish Split
+         * @return 返回值
+        */
         private void finishSplit() {
             File tempFile = null;
             try {
@@ -539,6 +623,14 @@ public class TarFileSystem implements FileSystem {
             }
         }
 
+        /**
+         * split File
+         * @param maxSize 长整数
+         * @param outputFile 文件
+         * @param sourceFile 文件
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private void splitFile(File sourceFile, File outputFile, long maxSize) throws IOException {
             String baseName = outputFile.getName();
             String baseNameWithoutExt = baseName;
@@ -596,6 +688,13 @@ public class TarFileSystem implements FileSystem {
             }
         }
 
+        /**
+         * copy File
+         * @param source 文件
+         * @param target 文件
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private void copyFile(File source, File target) throws IOException {
             try (FileInputStream fis = new FileInputStream(source);
                  FileOutputStream fos = new FileOutputStream(target)) {
@@ -607,6 +706,13 @@ public class TarFileSystem implements FileSystem {
             }
         }
 
+        /**
+         * write File
+         * @param source 文件
+         * @param tos 参数
+         * @return 返回值
+         * @throws IOException 异常
+        */
         private void writeFile(TarOutputStream tos, File source) throws IOException {
             if (!source.isFile() || !source.canRead()) {
                 return;
@@ -637,6 +743,11 @@ public class TarFileSystem implements FileSystem {
             return this;
         }
 
+        /**
+         * drain
+         * @param inputStream 输入流
+         * @return 返回值
+        */
         private static byte[] drain(InputStream inputStream) {
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 byte[] buf = new byte[STREAM_BUFFER_SIZE];
@@ -658,12 +769,24 @@ public class TarFileSystem implements FileSystem {
         private final File source;
         private final byte[] bytes;
 
+        /**
+         * Tar Entry Data
+         * @param entryName 字符串
+         * @param source 文件
+         * @return 返回值
+        */
         TarEntryData(String entryName, File source) {
             this.entryName = entryName;
             this.source = source;
             this.bytes = null;
         }
 
+        /**
+         * Tar Entry Data
+         * @param bytes 参数
+         * @param entryName 字符串
+         * @return 返回值
+        */
         TarEntryData(String entryName, byte[] bytes) {
             this.entryName = entryName;
             this.source = null;

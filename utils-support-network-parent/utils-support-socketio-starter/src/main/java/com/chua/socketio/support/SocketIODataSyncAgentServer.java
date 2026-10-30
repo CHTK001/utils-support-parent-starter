@@ -122,6 +122,13 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
          */
         private final com.corundumstudio.socketio.SocketIOClient client;
 
+        /**
+         * Simple Data Sync Agent
+         * @param agentId 字符串
+         * @param client 参数
+         * @param sourceId 字符串
+         * @return 返回值
+        */
         SimpleDataSyncAgent(String agentId, String sourceId, com.corundumstudio.socketio.SocketIOClient client) {
             this.agentId = agentId;
             this.sourceId = sourceId;

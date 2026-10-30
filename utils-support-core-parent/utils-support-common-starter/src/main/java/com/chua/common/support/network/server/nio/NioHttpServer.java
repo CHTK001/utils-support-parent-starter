@@ -350,7 +350,9 @@ public class NioHttpServer extends AbstractServer {
     /**
      * 处理Accept
      * @param key 键，不允许为 null
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void handleAccept(SelectionKey key) throws IOException {
         SocketChannel accepted = serverChannel.accept();
         if (accepted == null) {
@@ -388,7 +390,9 @@ public class NioHttpServer extends AbstractServer {
     /**
      * 处理读取
      * @param key 键，不允许为 null
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void handleRead(SelectionKey key) throws IOException {
         ConnectionState st = (ConnectionState) key.attachment();
         // 请求已在 worker 处理中:摘除读兴趣,避免事件循环空转与重复提交 worker;
@@ -679,7 +683,9 @@ public class NioHttpServer extends AbstractServer {
     /**
      * 处理写入
      * @param key 键，不允许为 null
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void handleWrite(SelectionKey key) throws IOException {
         ConnectionState st = (ConnectionState) key.attachment();
         // 与 worker 的 asyncWriter 共用同一把锁排空队列:
@@ -747,6 +753,13 @@ public class NioHttpServer extends AbstractServer {
          */
         int shard = 0;
 
+        /**
+         * Connection State
+         * @param channel 参数
+         * @param charset 字符串
+         * @param maxRequestSize 长整数
+         * @return 返回值
+        */
         ConnectionState(SocketChannel channel, long maxRequestSize, String charset) {
             this.channel = channel;
             this.request = new NioServerRequest(channel, maxRequestSize, charset);
@@ -1012,6 +1025,11 @@ public class NioHttpServer extends AbstractServer {
          */
         private final OutputStream out;
 
+        /**
+         * Ws Connection
+         * @param out 输出流
+         * @return 返回值
+        */
         WsConnection(OutputStream out) {
             this.out = out;
         }
@@ -1055,6 +1073,12 @@ public class NioHttpServer extends AbstractServer {
          */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
+        /**
+         * Ws Server Request
+         * @param body 字符串
+         * @param topic 字符串
+         * @return 返回值
+        */
         WsServerRequest(String topic, String body) {
             this.topic = topic;
             this.body = body;
@@ -1105,6 +1129,11 @@ public class NioHttpServer extends AbstractServer {
          */
         private Object result;
 
+        /**
+         * Ws Server Response
+         * @param connection 参数
+         * @return 返回值
+        */
         WsServerResponse(WsConnection connection) {
             this.connection = connection;
         }

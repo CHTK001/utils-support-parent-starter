@@ -72,10 +72,10 @@ public class IbdToSqlFileConvertSystem implements FileConvertSystem {
 
     /**
      * 执行外部 Python ibd2SQL 命令以生成 SQL 内容
-     *
      * @param ibdFile 待转换的 IBD 文件对象
      * @return 生成的 SQL 字符串内容
-     */
+     * @throws Exception 异常
+    */
     private String executeIbd2Sql(File ibdFile) throws Exception {
         String python = findPython();
         String[] command = {python, "-m", "ibd2sql", ibdFile.getAbsolutePath(), "--ddl", "--sql"};
@@ -88,13 +88,11 @@ public class IbdToSqlFileConvertSystem implements FileConvertSystem {
     }
 
     /**
-     * 将 文件源 转换为本地 文件 对象
-     *
-     * <p>如果源是路径则直接返回，如果是输入流则先复制到临时文件再返回。</p>
-     *
+     * 将 文件源 转换为本地 文件 对象 <p>如果源是路径则直接返回，如果是输入流则先复制到临时文件再返回。</p>
      * @param src 源文件源
      * @return 对应的 文件 对象
-     */
+     * @throws IOException 异常
+    */
     private File toFile(FileSource src) throws IOException {
         if (src.isPath()) {
             return new File(src.getPath());

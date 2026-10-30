@@ -82,7 +82,9 @@ public class ClusterNode implements AutoCloseable {
 
     /**
      * 启动节点：绑定端口 → 启动 discovery 定时任务 → 启动 HTTP/TCP 代理 → 注册服务。
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     public void start() throws Exception {
  // ① 先启动 节点服务端，确定 scatter 通信端口
         this.nodeServer = new TcpScatterBuilder(clusterSetting.toScatterSetting())

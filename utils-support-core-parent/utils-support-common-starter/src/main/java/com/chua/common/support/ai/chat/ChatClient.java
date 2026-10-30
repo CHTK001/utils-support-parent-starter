@@ -569,6 +569,13 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
      * @param consumer 流式响应回调，接收 {@link ChatResponse} 事件对象
      */
     default void chat(String prompt, Consumer<ChatResponse> consumer) {
+        /**
+         * chat
+         * @param ( 参数
+         * @param consumer 参数
+         * @param prompt 参数
+         * @return 返回值
+        */
         chat(prompt, consumer, () -> {
         }, throwable -> {
             throw new RuntimeException(throwable);

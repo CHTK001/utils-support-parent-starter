@@ -98,11 +98,11 @@ public final class Outputs {
 
     /**
      * 打开模板文件。
-     *
      * @param file 模板文件
      * @return 输入流
      * @throws FileNotFoundException 文件不存在
-     */
+     * @throws IOException 异常
+    */
     public static InputStream openTemplate(File file) throws IOException {
         if (file == null || !file.isFile()) {
             throw new ExportException("模板文件不存在: " + file);

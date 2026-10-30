@@ -52,6 +52,11 @@ public class MatchUtils {
          */
         private final String description;
 
+        /**
+         * Match Type
+         * @param description 字符串
+         * @return 返回值
+        */
         MatchType(String description) {
             this.description = description;
         }

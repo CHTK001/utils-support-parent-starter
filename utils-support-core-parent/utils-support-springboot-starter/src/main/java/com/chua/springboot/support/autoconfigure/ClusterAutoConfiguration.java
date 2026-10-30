@@ -77,10 +77,11 @@ public class ClusterAutoConfiguration {
 
     /**
      * cluster服务端。
+    /**
+     * cluster服务端。
      * @return cluster服务端的结果
-     */
-    @Bean
-    @ConditionalOnMissingBean
+     * @throws Exception 异常
+    */
     public ClusterServer clusterServer() throws Exception {
         autoDetect();
         ClusterProperties props = clusterProperties;

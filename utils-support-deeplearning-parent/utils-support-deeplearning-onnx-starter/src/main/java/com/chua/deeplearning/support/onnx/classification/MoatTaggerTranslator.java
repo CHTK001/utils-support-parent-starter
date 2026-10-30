@@ -149,6 +149,11 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
 
     @Override public Batchifier getBatchifier() { return Batchifier.STACK; }
 
+    /**
+     * resolve Model Root
+     * @param modelPath 路径
+     * @return 返回值
+    */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -161,7 +166,8 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
      * 加载csv。
      * @param csv csv
      * @return 加载csv的结果
-     */
+     * @throws Exception 异常
+    */
     private static List<String> loadCsv(Path csv) throws Exception {
         List<String> names = Wraps.list();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(csv),

@@ -261,11 +261,11 @@ public enum Protocol {
 
     /**
      * 构造方法，创建 Protocol 实例。
-     *
-     * @param displayName display名称，不允许为 null
      * @param defaultPort default端口，不允许为 null
+     * @param displayName display名称，不允许为 null
      * @param text 文本，不允许为 null
-     */
+     * @return 返回值
+    */
     Protocol(String displayName, int defaultPort, boolean text) {
         this.displayName = displayName;
         this.defaultPort = defaultPort;

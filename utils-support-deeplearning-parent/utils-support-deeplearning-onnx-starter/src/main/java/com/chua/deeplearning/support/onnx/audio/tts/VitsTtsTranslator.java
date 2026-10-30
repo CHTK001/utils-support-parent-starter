@@ -174,7 +174,9 @@ public class VitsTtsTranslator {
     /**
      * 加载 令牌.txt（每行 {@code token id}）。
      * @param path 路径
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void loadTokens(Path path) throws Exception {
         for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
             if (line.isBlank()) {
@@ -190,7 +192,9 @@ public class VitsTtsTranslator {
     /**
      * 加载 lexicon.txt（每行 {@code 字 音素...}），音素逐一转 令牌 标识。
      * @param path 路径
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void loadLexicon(Path path) throws Exception {
         for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
             if (line.isBlank()) {
@@ -223,7 +227,9 @@ public class VitsTtsTranslator {
     /**
      * 加载 speakers.txt（每行一个说话人 标识，按行序对应 0~N-1）。
      * @param path 路径
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void loadSpeakers(Path path) throws Exception {
         for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
             if (!line.isBlank()) {
@@ -314,11 +320,11 @@ public class VitsTtsTranslator {
 
     /**
      * 运行 VITS ONNX 推理。
-     *
+     * @param sid 说话人 标识
      * @param tokenIds 音素 令牌 标识 序列
-     * @param sid      说话人 标识
      * @return 8kHz 波形
-     */
+     * @throws Exception 异常
+    */
     private float[] runInference(int[] tokenIds, int sid) throws Exception {
         long[] tokensShape = new long[]{1, tokenIds.length};
         long[] lenShape = new long[]{1};
@@ -350,10 +356,10 @@ public class VitsTtsTranslator {
 
     /**
      * float 波形转 16-钻头 WAV 字节。
-     *
      * @param samples 波形数据
      * @return WAV 字节
-     */
+     * @throws Exception 异常
+    */
     private static byte[] toWav(float[] samples) throws Exception {
         byte[] pcm = new byte[samples.length * 2];
         for (int i = 0; i < samples.length; i++) {

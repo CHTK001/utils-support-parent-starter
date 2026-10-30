@@ -117,31 +117,36 @@ public class VideoGenerationSpec {
 
     /**
      * Prompt
-     */
+     * @return 返回值
+    */
     public String prompt() {
         return prompt;
     }
     /**
      * Ratio
-     */
+     * @return 返回值
+    */
     public String ratio() {
         return ratio;
     }
     /**
      * CameraMovement
-     */
+     * @return 返回值
+    */
     public String cameraMovement() {
         return cameraMovement;
     }
     /**
      * RefImageKey
-     */
+     * @return 返回值
+    */
     public String refImageKey() {
         return refImageKey;
     }
     /**
      * TimeoutSeconds
-     */
+     * @return 返回值
+    */
     public int timeoutSeconds() {
         return timeoutSeconds;
     }

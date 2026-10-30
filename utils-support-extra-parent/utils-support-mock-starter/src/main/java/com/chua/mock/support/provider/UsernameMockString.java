@@ -38,6 +38,11 @@ public class UsernameMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         int min = Math.max(environment.getMinLength(), DEFAULT_MIN);
         int max = Math.min(Math.max(environment.getMaxLength(), min), DEFAULT_MAX);

@@ -27,6 +27,11 @@ public final class BranchWhenBuilder {
      */
     private final BranchFlowState state;
 
+    /**
+     * Branch When Builder
+     * @param state 参数
+     * @return 返回值
+    */
     BranchWhenBuilder(BranchFlowState state) {
         this.state = Objects.requireNonNull(state, "state 不能为 null");
     }

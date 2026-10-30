@@ -424,9 +424,9 @@ public enum Software {
 
     /**
      * 构造方法，创建 Software 实例。
-     *
      * @param displayName display名称，不允许为 null
-     */
+     * @return 返回值
+    */
     Software(String displayName) {
         this.displayName = displayName;
     }

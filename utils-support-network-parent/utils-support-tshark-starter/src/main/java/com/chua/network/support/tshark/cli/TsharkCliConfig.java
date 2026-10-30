@@ -71,9 +71,9 @@ public final class TsharkCliConfig {
 
         /**
          * 构造枚举值。
-         *
          * @param token 配置项中的名称
-         */
+         * @return 返回值
+        */
         Stage(String token) {
             this.token = token;
         }

@@ -177,6 +177,11 @@ public class NativeRpcClient implements RpcClient {
     private class RpcInvoker implements Function<ProxyMethod, Object> {
         private final Class<?> targetType;
 
+        /**
+         * Rpc Invoker
+         * @param targetType 参数
+         * @return 返回值
+        */
         RpcInvoker(Class<?> targetType) {
             this.targetType = targetType;
         }
@@ -240,7 +245,11 @@ public class NativeRpcClient implements RpcClient {
 
         /**
          * 调用
-         */
+         * @param addr 字符串
+         * @param req 参数
+         * @return 返回值
+         * @throws Exception 异常
+        */
         private Object call(String addr, RpcRequest req) throws Exception {
             String host = addr.contains(":") ? addr.split(":")[0] : addr;
             int port = addr.contains(":") ? Integer.parseInt(addr.split(":")[1]) : DEFAULT_PORT;

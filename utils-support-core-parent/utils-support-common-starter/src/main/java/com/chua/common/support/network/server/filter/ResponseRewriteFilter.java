@@ -201,14 +201,17 @@ public class ResponseRewriteFilter implements ServerFilter {
 
         /**
          * Builder
-         */
+         * @return 返回值
+        */
         public static RewriteRule builder() {
             return new RewriteRule();
         }
 
         /**
          * Condition
-         */
+         * @param condition 参数
+         * @return 返回值
+        */
         public RewriteRule condition(Predicate<ServerRequest> condition) {
             this.condition = condition;
             return this;
@@ -216,7 +219,9 @@ public class ResponseRewriteFilter implements ServerFilter {
 
         /**
          * StatusRewrite
-         */
+         * @param statusRewrite 参数
+         * @return 返回值
+        */
         public RewriteRule statusRewrite(java.util.function.IntUnaryOperator statusRewrite) {
             this.statusRewrite = statusRewrite;
             return this;
@@ -224,7 +229,11 @@ public class ResponseRewriteFilter implements ServerFilter {
 
         /**
          * BodyRewrite
-         */
+         * @param String 参数
+         * @param bodyRewrite 参数
+         * @param java.util.function.BiFunction<ServerRequest 参数
+         * @return 返回值
+        */
         public RewriteRule bodyRewrite(java.util.function.BiFunction<ServerRequest, String, String> bodyRewrite) {
             this.bodyRewrite = bodyRewrite;
             return this;
@@ -232,7 +241,11 @@ public class ResponseRewriteFilter implements ServerFilter {
 
         /**
          * BodyRewriteBytes
-         */
+         * @param bodyRewrite 参数
+         * @param byte[] 参数
+         * @param java.util.function.BiFunction<ServerRequest 参数
+         * @return 返回值
+        */
         public RewriteRule bodyRewriteBytes(java.util.function.BiFunction<ServerRequest, byte[], byte[]> bodyRewrite) {
             this.bodyRewriteBytes = bodyRewrite;
             return this;
@@ -240,7 +253,9 @@ public class ResponseRewriteFilter implements ServerFilter {
 
         /**
          * EndImmediately
-         */
+         * @param endImmediately 布尔值
+         * @return 返回值
+        */
         public RewriteRule endImmediately(boolean endImmediately) {
             this.endImmediately = endImmediately;
             return this;

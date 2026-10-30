@@ -76,6 +76,10 @@ public final class SqliteChangeEvent {
         return new SqliteChangeEvent(Type.DELETE, table, rowId);
     }
 
+    /**
+     * get Type
+     * @return 返回值
+    */
     public Type getType() {
         return type;
     }

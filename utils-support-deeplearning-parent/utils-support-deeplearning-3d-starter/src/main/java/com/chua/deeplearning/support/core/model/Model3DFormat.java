@@ -49,10 +49,10 @@ public enum Model3DFormat {
 
     /**
      * 构造方法，创建 Model3D格式化 实例。
-     *
      * @param extension 方法入参 extension
      * @param mimeType mime类型，不允许为 null
-     */
+     * @return 返回值
+    */
     Model3DFormat(String extension, String mimeType) {
         this.extension = extension;
         this.mimeType = mimeType;

@@ -13,12 +13,12 @@ public class DbConfig {
     final String algorithm;
     /**
      * 构造方法，创建 Db配置 实例。
-     *
+     * @param a 方法入参 a
+     * @param c 方法入参 c
      * @param p 方法入参 p
      * @param sc 方法入参 sc
-     * @param c 方法入参 c
-     * @param a 方法入参 a
-     */
+     * @return 返回值
+    */
     DbConfig(String p, String sc, int c, String a) {
         this.prefix = p;
         this.shardingColumn = sc;

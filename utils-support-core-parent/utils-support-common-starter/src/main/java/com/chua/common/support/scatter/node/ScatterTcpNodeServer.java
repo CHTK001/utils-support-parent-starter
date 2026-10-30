@@ -81,10 +81,10 @@ public class ScatterTcpNodeServer extends AbstractProxyServer {
 
     /**
      * 从输入流读取一帧（兼容 TcpClient 长度帧协议：4 字节长度头 + ScatterFrame body）。
-     *
      * @param in 输入流
      * @return 帧，EOF 返回 null
-     */
+     * @throws IOException 异常
+    */
     private ScatterFrame readFrame(InputStream in) throws IOException {
         byte[] lenBytes = new byte[4];
         int n = readFully(in, lenBytes);
@@ -106,11 +106,11 @@ public class ScatterTcpNodeServer extends AbstractProxyServer {
 
     /**
      * 读取完整字节块。
-     *
-     * @param in   输入流
-     * @param buf  目标缓冲
+     * @param buf 目标缓冲
+     * @param in 输入流
      * @return 已读字节数；首字节即 EOF 返回 -1
-     */
+     * @throws IOException 异常
+    */
     private static int readFully(InputStream in, byte[] buf) throws IOException {
         int total = 0;
         while (total < buf.length) {

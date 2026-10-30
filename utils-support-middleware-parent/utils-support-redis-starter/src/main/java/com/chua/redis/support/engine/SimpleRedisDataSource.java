@@ -28,10 +28,10 @@ public class SimpleRedisDataSource implements EngineDataSource<JedisPool> {
 
         /**
          * 构造方法，创建 SimpleRedis数据来源 实例。
-         *
          * @param name 名称，不允许为 null
          * @param pool 方法入参 pool
-         */
+         * @return 返回值
+        */
         SimpleRedisDataSource(String name, JedisPool pool) {
             this.name = name;
             this.pool = pool;

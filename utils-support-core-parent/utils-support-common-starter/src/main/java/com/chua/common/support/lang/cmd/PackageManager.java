@@ -49,6 +49,13 @@ public class PackageManager {
   */
  private final boolean available;
 
+ /**
+  * Type
+  * @param available 布尔值
+  * @param command 字符串
+  * @param installTemplate 字符串
+  * @return 返回值
+ */
  Type(String command, String installTemplate, boolean available) {
  this.command = command;
  this.installTemplate = installTemplate;
@@ -57,19 +64,22 @@ public class PackageManager {
 
  /**
   * 获取Command
-  */
+  * @return 返回值
+ */
  public String getCommand() {
      return command;
  }
  /**
   * 获取InstallTemplate
-  */
+  * @return 返回值
+ */
  public String getInstallTemplate() {
      return installTemplate;
  }
  /**
   * 是否Available
-  */
+  * @return 返回值
+ */
  public boolean isAvailable() {
      return available;
  }

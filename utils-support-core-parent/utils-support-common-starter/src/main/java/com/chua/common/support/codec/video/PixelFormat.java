@@ -49,9 +49,9 @@ public enum PixelFormat {
 
     /**
      * 构造像素格式。
-     *
      * @param planes 平面数量
-     */
+     * @return 返回值
+    */
     PixelFormat(int planes) {
         this.planes = planes;
     }

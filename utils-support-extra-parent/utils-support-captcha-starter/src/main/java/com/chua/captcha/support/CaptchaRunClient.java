@@ -178,10 +178,10 @@ public class CaptchaRunClient implements CaptchaParser {
 
     /**
      * 执行获取
-     *
      * @param path 接口路径
      * @return 执行获取的结果
-     */
+     * @throws Exception 异常
+    */
     private String doGet(String path) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(setting.apiUrlOr(CaptchaSetting.CAPTCHA_RUN_API_URL) + path))
@@ -200,11 +200,12 @@ public class CaptchaRunClient implements CaptchaParser {
 
     /**
      * 执行post
-     *
-     * @param path 接口路径
+     * @param Map<String 参数
      * @param body 主体
+     * @param path 接口路径
      * @return 执行post的结果
-     */
+     * @throws Exception 异常
+    */
     private String doPost(String path, Map<String, Object> body) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(setting.apiUrlOr(CaptchaSetting.CAPTCHA_RUN_API_URL) + path))

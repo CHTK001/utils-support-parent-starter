@@ -69,10 +69,10 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
 
     /**
      * 打开
-     *
      * @param model 模型
      * @return 打开的结果
-     */
+     * @throws IOException 异常
+    */
     private InputStream open(Model model) throws IOException {
         String[] names = {"vocab.txt", "assets/vocab.txt", "word_dict.txt"};
         for (String n : names) {

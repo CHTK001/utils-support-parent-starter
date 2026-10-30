@@ -229,10 +229,10 @@ public class NettyWebSocketSyncServer extends AbstractServer implements SyncServ
 
     /**
      * 执行handshake
-     *
      * @param conn conn
      * @return 执行handshake的结果
-     */
+     * @throws IOException 异常
+    */
     private boolean performHandshake(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
         ByteArrayOutputStream reqBuf = new ByteArrayOutputStream();
@@ -271,9 +271,10 @@ public class NettyWebSocketSyncServer extends AbstractServer implements SyncServ
 
     /**
      * 读取帧
-     *
      * @param conn conn
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void readFrames(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
         while (!conn.socket.isClosed() && !Thread.currentThread().isInterrupted()) {
@@ -336,10 +337,10 @@ public class NettyWebSocketSyncServer extends AbstractServer implements SyncServ
 
     /**
      * computewebSocketaccept
-     *
      * @param key 键
      * @return computewebSocketaccept的结果
-     */
+     * @throws Exception 异常
+    */
     private String computeWebSocketAccept(String key) throws Exception {
         String combined = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
         MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -349,10 +350,10 @@ public class NettyWebSocketSyncServer extends AbstractServer implements SyncServ
 
     /**
      * 构建文本帧
-     *
      * @param payload payload
      * @return 构建文本帧的结果
-     */
+     * @throws Exception 异常
+    */
     private static byte[] buildTextFrame(String payload) throws Exception {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -422,6 +423,11 @@ public class NettyWebSocketSyncServer extends AbstractServer implements SyncServ
         OutputStream out; // 出
         String sessionId; // 会话标识
 
+        /**
+         * Connection
+         * @param socket 参数
+         * @return 返回值
+        */
         Connection(Socket socket) {
             this.socket = socket;
             try {

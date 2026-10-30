@@ -150,10 +150,10 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
     }
 
     /**
-     * 懒加载模型与 tokenizer。
-     *
-     * <p>优先从 classpath/jar 内嵌资源解压；否则从 downloadBaseUrl 下载四文件到缓存目录。</p>
-     */
+     * 懒加载模型与 tokenizer。 <p>优先从 classpath/jar 内嵌资源解压；否则从 downloadBaseUrl 下载四文件到缓存目录。</p>
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private synchronized void prepare() throws Exception {
         if (loaded) {
             return;
@@ -382,11 +382,11 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
 
     /**
      * 从 logits 取 argmax（含重复惩罚 + 禁止 pad）。
-     *
+     * @param gen 已生成 令牌
      * @param result ORT 推理结果
-     * @param gen    已生成 令牌
      * @return 下一 令牌 标识
-     */
+     * @throws Exception 异常
+    */
     private static long argmax(OrtSession.Result result, List<Long> gen) throws Exception {
         OnnxTensor logitsTensor = (OnnxTensor) result.get("logits").get();
         float[][][] logits = (float[][][]) logitsTensor.getValue();

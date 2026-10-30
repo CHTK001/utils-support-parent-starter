@@ -159,14 +159,12 @@ public class RequestSpec {
     private int proxyPort;
 
     /**
-     * 使用指定的客户端、URL 和请求方法创建请求规格。
-     *
-     * <p>包级访问权限，由 {@link HttpClient} 接口的 default 方法内部创建。</p>
-     *
+     * 使用指定的客户端、URL 和请求方法创建请求规格。 <p>包级访问权限，由 {@link HttpClient} 接口的 default 方法内部创建。</p>
      * @param client 绑定的 HTTP 客户端
-     * @param url    请求 URL
      * @param method HTTP 请求方法
-     */
+     * @param url 请求 URL
+     * @return 返回值
+    */
     RequestSpec(HttpClient client, String url, HttpMethod method) {
         this.client = client;
         this.url = url;

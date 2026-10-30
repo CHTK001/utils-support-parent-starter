@@ -185,9 +185,9 @@ public class OkHttpSseClient implements SseClient {
 
         /**
          * 构造 OkHttp SSE 连接
-         *
          * @param response OkHttp 响应
-         */
+         * @return 返回值
+        */
         OkHttpSseConnection(Response response) {
             this.response = response;
         }

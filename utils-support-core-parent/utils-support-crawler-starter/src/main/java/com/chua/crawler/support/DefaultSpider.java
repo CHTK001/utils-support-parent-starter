@@ -823,6 +823,11 @@ public class DefaultSpider implements Spider {
             */
             private final Consumer<SpiderResult> consumer;
 
+            /**
+             * Consumer Pipeline
+             * @param consumer 参数
+             * @return 返回值
+            */
             ConsumerPipeline(Consumer<SpiderResult> consumer) {
                 this.consumer = consumer;
             }

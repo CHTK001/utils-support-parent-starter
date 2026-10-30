@@ -331,9 +331,10 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
 
     /**
      * 加载preprocessor配置
-     *
      * @param configPath 配置路径
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void loadPreprocessorConfig(Path configPath) throws IOException {
         JsonNode root = OBJECT_MAPPER.readTree(configPath.toFile());
         JsonNode size = root.path("size");
@@ -364,6 +365,8 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
 
     /**
      * 构建文本输入
+     * @return 返回值
+     * @throws Exception 异常
     */
     private void buildTextInputs() throws Exception {
         List<long[]> idsList = Wraps.list();
@@ -597,11 +600,11 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
 
     /**
      * 解析required文件
-     *
-     * @param root 根
      * @param name 名称
+     * @param root 根
      * @return resolverequired文件的结果
-     */
+     * @throws IOException 异常
+    */
     private Path resolveRequiredFile(Path root, String name) throws IOException {
         Path file = root.resolve(name);
         if (Files.exists(file)) {

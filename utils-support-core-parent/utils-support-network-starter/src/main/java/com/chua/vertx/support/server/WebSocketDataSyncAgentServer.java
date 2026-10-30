@@ -254,10 +254,10 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
 
     /**
      * 读取文本帧
-     *
      * @param in 入
      * @return 读取文本帧的结果
-     */
+     * @throws IOException 异常
+    */
     private static String readTextFrame(InputStream in) throws IOException {
         int b0 = in.read();
         if (b0 < 0) {
@@ -315,10 +315,11 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
 
     /**
      * 写入文本帧
-     *
      * @param out 出
      * @param payload payload
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private static void writeTextFrame(OutputStream out, String payload) throws IOException {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
         out.write(0x81);
@@ -343,12 +344,10 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
 
     /**
      * computewebSocketaccept
-     *
      * @param key 键
      * @return computewebSocketaccept的结果
-     * @author CH
-     * @since 4.0.0
-     */
+     * @throws Exception 异常
+    */
     private static String computeWebSocketAccept(String key) throws Exception {
         String combined = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
         MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -369,6 +368,13 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         */
         private final String sourceId;
 
+        /**
+         * Connection
+         * @param agentId 字符串
+         * @param socket 参数
+         * @param sourceId 字符串
+         * @return 返回值
+        */
         Connection(Socket socket, String agentId, String sourceId) {
             this.socket = socket;
             this.agentId = agentId;
@@ -377,9 +383,10 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
 
         /**
          * 发送文本帧
-         *
          * @param text 文本
-         */
+         * @return 返回值
+         * @throws IOException 异常
+        */
         public void sendTextFrame(String text) throws IOException {
             synchronized (socket) {
                 writeTextFrame(socket.getOutputStream(), text);
@@ -424,6 +431,12 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         */
         private final String sourceId;
 
+        /**
+         * Simple Data Sync Agent
+         * @param agentId 字符串
+         * @param sourceId 字符串
+         * @return 返回值
+        */
         SimpleDataSyncAgent(String agentId, String sourceId) {
             this.agentId = agentId;
             this.sourceId = sourceId;

@@ -34,6 +34,11 @@ public class CaptchaMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         int length = environment.length();
         if (length < 4 || length > 6) {

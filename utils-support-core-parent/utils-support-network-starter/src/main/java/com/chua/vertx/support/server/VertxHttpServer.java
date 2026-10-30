@@ -284,6 +284,12 @@ public class VertxHttpServer extends AbstractServer {
                 //  触发 Vert.x 桥接排队,高并发下桥接队列积压 → 延迟吸附)
                 virtualThreadExecutor.execute(() -> {
                     try {
+                        /**
+                         * when Complete
+                         * @param request 参数
+                         * @param response 参数
+                         * @return 返回值
+                        */
                         handleRequestAsync(request, response).whenComplete((v, ex) -> {
                             ctx.vertx().runOnContext(v2 -> {
                                 if (!response.isCommitted()) {
@@ -426,6 +432,12 @@ public class VertxHttpServer extends AbstractServer {
         */
         private final Map<String, Object> attributes = new java.util.concurrent.ConcurrentHashMap<>();
 
+        /**
+         * Vertx Ws Request
+         * @param body 字符串
+         * @param topic 字符串
+         * @return 返回值
+        */
         VertxWsRequest(String topic, String body) {
             this.topic = topic;
             this.body = body;
@@ -476,6 +488,11 @@ public class VertxHttpServer extends AbstractServer {
         */
         private Object result;
 
+        /**
+         * Vertx Ws Response
+         * @param ws 参数
+         * @return 返回值
+        */
         VertxWsResponse(io.vertx.core.http.ServerWebSocket ws) {
             this.ws = ws;
         }
@@ -622,6 +639,11 @@ public class VertxHttpServer extends AbstractServer {
         */
         private boolean sseMode;
 
+        /**
+         * Vertx Server Response
+         * @param ctx 参数
+         * @return 返回值
+        */
         VertxServerResponse(RoutingContext ctx) {
             this.ctx = ctx;
         }
@@ -893,6 +915,10 @@ public class VertxHttpServer extends AbstractServer {
             ctx.response().end();
         }
 
+        /**
+         * end Vertx
+         * @return 返回值
+        */
         public void endVertx() {
             if (committed) {
                 return;
@@ -940,6 +966,11 @@ public class VertxHttpServer extends AbstractServer {
         private final java.util.concurrent.ConcurrentHashMap<String, Object> attributes =
                 new java.util.concurrent.ConcurrentHashMap<>(4);
 
+        /**
+         * Vertx Server Request
+         * @param ctx 参数
+         * @return 返回值
+        */
         VertxServerRequest(RoutingContext ctx) {
             this.ctx = ctx;
  // 获取/HEAD 请求无 主体,跳过拷贝

@@ -431,7 +431,9 @@ public class PocketTtsTranslator {
     /**
      * 加载并扁平化 配置.json（支持 a.b 点路径）。
      * @param configPath 配置路径
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void loadConfig(Path configPath) throws Exception {
         if (configPath == null || !Files.exists(configPath)) {
             log.warn("[Pocket-TTS] config.json 不存在，使用默认配置");
@@ -559,7 +561,9 @@ public class PocketTtsTranslator {
     /**
      * 加载Tokenizer
      * @param tokenizerPath tokenizer路径
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void loadTokenizer(Path tokenizerPath) throws Exception {
  // 优先尝试 vocab.json（词表格式），兼容 sentencepiece .模型
         Path vocabPath = tokenizerPath.getParent().resolve("vocab.json");
@@ -661,13 +665,11 @@ public class PocketTtsTranslator {
     }
 
     /**
-     * 运行 lm_main（状态 流 LM）获取文本条件向量。
-     * <p>将 token ids（或参考音频投影特征）转为 float sequence [1, seqLen, 32]，
-     * 传入 流 LM 获取 空调 [1, 1024] + 初始 状态。</p>
-     *
+     * 运行 lm_main（状态 流 LM）获取文本条件向量。 <p>将 token ids（或参考音频投影特征）转为 float sequence [1, seqLen, 32]， 传入 流 LM 获取 空调 [1, 1024] + 初始 状态。</p>
      * @param seqFloat 序列输入（令牌 标识 转 float 或参考音频投影特征）
      * @return conditioning 向量 [1024]
-     */
+     * @throws Exception 异常
+    */
     private float[] runTextConditioner(float[] seqFloat) throws Exception {
         int seqLen = seqFloat.length / SEQUENCE_EMBED_DIM;
         long[] seqShape = new long[]{1, seqLen, SEQUENCE_EMBED_DIM};
@@ -731,12 +733,11 @@ public class PocketTtsTranslator {
     }
 
     /**
-     * 构建零初始化 状态 张量。
-     * <p>根据模型元数据中的实际 dtype（float32 / int64）创建对应类型的零张量，
-     * 形状严格遵循模型定义（包含 0 维的空张量）。</p>
+     * 构建零初始化 状态 张量。 <p>根据模型元数据中的实际 dtype（float32 / int64）创建对应类型的零张量， 形状严格遵循模型定义（包含 0 维的空张量）。</p>
      * @param index 索引
      * @return 构建zero状态tensor的结果
-     */
+     * @throws Exception 异常
+    */
     private OnnxTensor buildZeroStateTensor(int index) throws Exception {
         try {
             Map<String, ?> meta = textEncoderSession.getInputInfo();
@@ -799,13 +800,11 @@ public class PocketTtsTranslator {
     }
 
     /**
-     * 编码参考音频为说话人潜变量（零样本声音克隆）。
-     *
-     * <p>WAV 字节 → 24kHz 单声道 float 波形 → mimi_encoder.onnx → 1024维特征 → 投影到32维 → 供 decoder 使用。</p>
-     *
+     * 编码参考音频为说话人潜变量（零样本声音克隆）。 <p>WAV 字节 → 24kHz 单声道 float 波形 → mimi_encoder.onnx → 1024维特征 → 投影到32维 → 供 decoder 使用。</p>
      * @param refAudioWav 参考音频 WAV 字节；为空或 mimi_编码器 缺失时返回 空（默认音色）
      * @return 32维潜变量（扁平数组，长度 = seqlen * 32）；空 表示使用默认音色
-     */
+     * @throws Exception 异常
+    */
     private float[] encodeRefAudio(byte[] refAudioWav) throws Exception {
         if (refAudioWav == null || refAudioWav.length == 0) {
             return null;
@@ -860,15 +859,13 @@ public class PocketTtsTranslator {
     }
 
     /**
-     * 流匹配一致性采样：逐帧运行 流 LM，Euler 积分生成潜变量。
-     *
-     * <p>flow_lm_flow.onnx 接受单帧输入 x [1, 32]，
-     * 需逐帧迭代。每步：x += v / 流steps，其中 v 来自 流 模型。</p>
+     * 流匹配一致性采样：逐帧运行 流 LM，Euler 积分生成潜变量。 <p>flow_lm_flow.onnx 接受单帧输入 x [1, 32]， 需逐帧迭代。每步：x += v / 流steps，其中 v 来自 流 模型。</p>
      * @param conditioning 空调
-     * @param textLen 文本len
      * @param refLatents reflatents
+     * @param textLen 文本len
      * @return 运行流匹配的结果
-     */
+     * @throws Exception 异常
+    */
     private float[] runFlowMatching(float[] conditioning, int textLen, float[] refLatents) throws Exception {
         int frames = (int) Math.max(1, Math.round(textLen * framesPerToken));
         frames = Math.min(frames, maxFrames);
@@ -934,11 +931,11 @@ public class PocketTtsTranslator {
     private int refLatentsLen = 0;
 
     /**
-     * 运行 mimi_解码器.onnx：latents [1, seq_len, 32] → waveform。
-     * <p>同时传入零初始化 state 张量，decoder 为自回归模型。</p>
+     * 运行 mimi_解码器.onnx：latents [1, seq_len, 32] → waveform。 <p>同时传入零初始化 state 张量，decoder 为自回归模型。</p>
      * @param latents latents
      * @return 运行mimi解码器的结果
-     */
+     * @throws Exception 异常
+    */
     private float[] runMimiDecoder(float[] latents) throws Exception {
         int latentSize = SEQUENCE_EMBED_DIM;
         int frames = latents.length / latentSize;

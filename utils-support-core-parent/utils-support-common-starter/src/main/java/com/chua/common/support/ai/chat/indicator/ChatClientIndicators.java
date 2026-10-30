@@ -167,7 +167,9 @@ public final class ChatClientIndicators {
 
     /**
      * 归一化服务商标识：小写、去空白、下划线转连字符。
-     */
+     * @param provider 字符串
+     * @return 返回值
+    */
     private static String normalize(String provider) {
         if (provider == null) {
             return "";
@@ -177,7 +179,8 @@ public final class ChatClientIndicators {
 
     /**
      * 构建别名索引。
-     */
+     * @return 返回值
+    */
     private static Map<String, ProviderSpec> buildSpecs() {
         List<ProviderSpec> specs = new ArrayList<>(64);
         specs.add(ProviderSpec.modelsDev("openai", "OpenAI",
@@ -443,7 +446,9 @@ public final class ChatClientIndicators {
 
         /**
          * 别名去重并保持顺序。
-         */
+         * @param aliases 参数
+         * @return 返回值
+        */
         private static Set<String> aliasSet(String... aliases) {
             Set<String> set = new LinkedHashSet<>(aliases.length + 1);
             for (String alias : aliases) {

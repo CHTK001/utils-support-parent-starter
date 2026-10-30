@@ -135,6 +135,11 @@ public class ExcelFileSystem implements FileSystem {
         */
         private Set<String> selectedColumns;
 
+        /**
+         * Excel Read Builder
+         * @param file 文件
+         * @return 返回值
+        */
         ExcelReadBuilder(File file) {
             super(file);
         }
@@ -438,6 +443,11 @@ public class ExcelFileSystem implements FileSystem {
             boolean autoFilter; // auto过滤器
             Integer defaultColumnWidth; // 默认columnwidth
 
+            /**
+             * Sheet Context
+             * @param name 字符串
+             * @return 返回值
+            */
             SheetContext(String name) {
                 this.name = name;
             }
@@ -466,6 +476,11 @@ public class ExcelFileSystem implements FileSystem {
         */
         private SheetContext activeSheet;
 
+        /**
+         * Excel Write Builder
+         * @param file 文件
+         * @return 返回值
+        */
         ExcelWriteBuilder(File file) {
             super(file);
             // 默认活跃 Sheet = "Sheet1"

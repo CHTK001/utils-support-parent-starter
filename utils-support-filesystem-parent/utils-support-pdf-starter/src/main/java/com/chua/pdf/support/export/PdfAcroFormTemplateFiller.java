@@ -211,11 +211,11 @@ public class PdfAcroFormTemplateFiller implements TemplateFiller {
 
     /**
      * 从域的默认值中解析 {@code {{tag}}} 占位符。
-     *
-     * @param context  模板上下文
+     * @param context 模板上下文
      * @param terminal 域
      * @return 解析结果，不含占位符或未匹配时返回 {@code null}
-     */
+     * @throws IOException 异常
+    */
     private String placeholder(TemplateContext context, PDTerminalField terminal) throws IOException {
         String current = terminal.getValueAsString();
         if (current == null || current.isEmpty()) {

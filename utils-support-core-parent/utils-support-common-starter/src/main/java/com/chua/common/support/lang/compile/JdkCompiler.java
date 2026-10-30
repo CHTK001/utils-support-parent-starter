@@ -406,14 +406,16 @@ public class JdkCompiler implements Compiler {
 
         /**
          * 获取编译后的字节码数组
-         */
+         * @return 返回值
+        */
         public byte[] getByteCode() {
             return byteArrayOutputStream.toByteArray();
         }
 
         /**
          * 从 URI 中提取类名
-         */
+         * @return 返回值
+        */
         public String getClassName() {
             String className = getName();
             className = className.replace(DIR_SEPARATOR, PKG_SEPARATOR);
@@ -481,7 +483,10 @@ public class JdkCompiler implements Compiler {
 
         /**
          * 根据 URL 类型决定是扫描本地目录还是 JAR 包
-         */
+         * @param packageName 字符串
+         * @param url 参数
+         * @return 返回值
+        */
         private Collection<JavaFileObject> listUnder(String packageName, URL url) {
             File directory = new File(url.getFile());
             // 浏览本地 .class 文件 - 适用于本地执行环境
@@ -495,7 +500,9 @@ public class JdkCompiler implements Compiler {
 
         /**
          * 处理 JAR 包中的类文件
-         */
+         * @param url 参数
+         * @return 返回值
+        */
         private List<JavaFileObject> processJar(URL url) {
             List<JavaFileObject> result = Wraps.list();
             try {
@@ -528,7 +535,10 @@ public class JdkCompiler implements Compiler {
 
         /**
          * 处理本地目录中的类文件
-         */
+         * @param directory 文件
+         * @param packageName 字符串
+         * @return 返回值
+        */
         private List<JavaFileObject> processDir(String packageName, File directory) {
             List<JavaFileObject> result = Wraps.list();
 
@@ -612,14 +622,19 @@ public class JdkCompiler implements Compiler {
 
         /**
          * 添加源码字符串进行编译
-         */
+         * @param className 字符串
+         * @param source 字符串
+         * @return 返回值
+        */
         public void addSource(String className, String source) {
             addSource(new StringSource(className, source));
         }
 
         /**
          * 添加 JavaFileObject 进行编译
-         */
+         * @param javaFileObject 参数
+         * @return 返回值
+        */
         public void addSource(JavaFileObject javaFileObject) {
             compilationUnits.add(javaFileObject);
         }
@@ -738,28 +753,33 @@ public class JdkCompiler implements Compiler {
 
         /**
          * 获取动态类加载器
-         */
+         * @return 返回值
+        */
         public ClassLoader getClassLoader() {
             return dynamicClassLoader;
         }
 
         /**
          * 获取编译错误信息列表
-         */
+         * @return 返回值
+        */
         public List<String> getErrors() {
             return diagnosticToString(errors);
         }
 
         /**
          * 获取编译警告信息列表
-         */
+         * @return 返回值
+        */
         public List<String> getWarnings() {
             return diagnosticToString(warnings);
         }
 
         /**
          * 将诊断信息转换为可读的字符串列表
-         */
+         * @param diagnostics 参数
+         * @return 返回值
+        */
         private List<String> diagnosticToString(List<Diagnostic<? extends JavaFileObject>> diagnostics) {
 
             List<String> diagnosticMessages = Wraps.list();
@@ -940,7 +960,8 @@ public class JdkCompiler implements Compiler {
 
         /**
          * BinaryName
-         */
+         * @return 返回值
+        */
         public String binaryName() {
             return this.binaryName;
         }

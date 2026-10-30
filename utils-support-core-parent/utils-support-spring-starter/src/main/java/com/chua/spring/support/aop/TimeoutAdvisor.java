@@ -35,6 +35,11 @@ public class TimeoutAdvisor extends StaticMethodMatcherPointcutAdvisor {
     private static class TimeoutAdvice implements MethodInterceptor {
         private final TimeoutIntercept intercept; // intercept
 
+        /**
+         * Timeout Advice
+         * @param intercept 参数
+         * @return 返回值
+        */
         TimeoutAdvice(TimeoutIntercept intercept) {
             this.intercept = intercept;
         }

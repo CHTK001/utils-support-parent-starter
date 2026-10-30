@@ -131,6 +131,12 @@ public class WinRmFileClient implements FileClient {
                 + " -PathType Container -ErrorAction Stop)").trim());
     }
 
+    /**
+     * execute Power Shell
+     * @param script 字符串
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private String executePowerShell(String script) throws IOException {
         requirePath(script);
         byte[] encoded = Base64.getEncoder().encode(script.getBytes(StandardCharsets.UTF_16LE));
@@ -152,17 +158,35 @@ public class WinRmFileClient implements FileClient {
         }
     }
 
+    /**
+     * quote
+     * @param path 字符串
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private static String quote(String path) throws IOException {
         requirePath(path);
         return "'" + path.replace("'", "''") + "'";
     }
 
+    /**
+     * require Path
+     * @param path 字符串
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private static void requirePath(String path) throws IOException {
         if (path == null || path.isBlank()) {
             throw new IOException("远程路径不能为空");
         }
     }
 
+    /**
+     * io Failure
+     * @param cause 异常
+     * @param message 字符串
+     * @return 返回值
+    */
     private static IOException ioFailure(String message, Exception cause) {
         if (cause instanceof IOException ioException) {
             return ioException;

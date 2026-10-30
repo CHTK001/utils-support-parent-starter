@@ -292,10 +292,10 @@ public class NativeLoader {
 
     /**
      * 列表类路径resources
-     *
      * @param resourceBase resourcebase
      * @return 列表类路径resources的结果
-     */
+     * @throws Exception 异常
+    */
     private List<ResourceItem> listClasspathResources(String resourceBase) throws Exception {
         List<ResourceItem> result = Wraps.list();
         // 原生镜像内不存在目录资源条目，getResources(目录) 无法枚举，直接走精确路径探测
@@ -451,10 +451,10 @@ public class NativeLoader {
 
     /**
      * computeresourcesmd
-     *
      * @param items items
      * @return computeResourcesMd5的结果
-     */
+     * @throws Exception 异常
+    */
     private static String computeResourcesMd5(List<ResourceItem> items) throws Exception {
         MessageDigest md = MessageDigest.getInstance("MD5");
         List<ResourceItem> sorted = Wraps.list(items);
@@ -516,9 +516,9 @@ public class NativeLoader {
 
         /**
          * 打开
-         *
          * @return 打开的结果
-         */
+         * @throws Exception 异常
+        */
         private InputStream open() throws Exception {
             InputStream in = supplier.open();
             if (in == null) {

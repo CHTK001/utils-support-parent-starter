@@ -186,6 +186,13 @@ public interface TranslateClient extends AutoCloseable, PooledObjectClient<Trans
      * @param consumer 流式响应回调，接收 {@link TranslateResponse} 事件对象
      */
     default void translate(String text, Consumer<TranslateResponse> consumer) {
+        /**
+         * translate
+         * @param ( 参数
+         * @param consumer 参数
+         * @param text 参数
+         * @return 返回值
+        */
         translate(text, consumer, () -> {
         }, throwable -> {
             throw new RuntimeException(throwable);

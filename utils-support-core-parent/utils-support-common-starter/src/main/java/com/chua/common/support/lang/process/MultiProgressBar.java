@@ -294,6 +294,12 @@ public class MultiProgressBar implements AutoCloseable {
     static class TaskProgress {
         final ProgressState state;
 
+        /**
+         * Task Progress
+         * @param max 长整数
+         * @param name 字符串
+         * @return 返回值
+        */
         TaskProgress(String name, long max) {
             this.state = new ProgressState(name, max, 0, java.time.Duration.ZERO);
         }
@@ -325,6 +331,10 @@ public class MultiProgressBar implements AutoCloseable {
          */
         private int updateIntervalMillis = 100;
 
+        /**
+         * Builder
+         * @return 返回值
+        */
         Builder() {
         }
 

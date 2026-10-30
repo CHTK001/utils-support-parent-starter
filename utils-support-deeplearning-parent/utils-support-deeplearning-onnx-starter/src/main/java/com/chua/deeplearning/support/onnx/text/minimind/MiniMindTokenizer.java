@@ -118,7 +118,8 @@ public class MiniMindTokenizer {
      * 从 tokenizer.json 路径加载
      * @param tokenizerJson tokenizerjson
      * @return 加载的结果
-     */
+     * @throws IOException 异常
+    */
     public static MiniMindTokenizer load(Path tokenizerJson) throws IOException {
         try (InputStream in = Files.newInputStream(tokenizerJson)) {
             return loadFromJson(in);
@@ -129,7 +130,8 @@ public class MiniMindTokenizer {
      * 从 输入流 加载（用于 类路径 资源）
      * @param in 入
      * @return 加载从json的结果
-     */
+     * @throws IOException 异常
+    */
     public static MiniMindTokenizer loadFromJson(InputStream in) throws IOException {
         JsonNode root = MAPPER.readTree(in);
         JsonNode model = root.get("model");

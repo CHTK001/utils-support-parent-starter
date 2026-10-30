@@ -444,6 +444,8 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
 
     /**
      * 校验流可用
+     * @return 返回值
+     * @throws IOException 异常
     */
     private void checkStreamAvailable() throws IOException {
         if (!NativeFFmpeg.isLoaded()) {
@@ -454,10 +456,10 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
 
     /**
      * 解析media信息
-     *
      * @param json json
      * @return 解析media信息的结果
-     */
+     * @throws IOException 异常
+    */
     private FFmpegMediaInfo parseMediaInfo(String json) throws IOException {
         JsonNode root = OBJECT_MAPPER.readTree(json);
         FFmpegMediaInfo info = new FFmpegMediaInfo();

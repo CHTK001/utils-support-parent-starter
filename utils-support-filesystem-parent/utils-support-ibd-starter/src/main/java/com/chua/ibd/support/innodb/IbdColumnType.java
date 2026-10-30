@@ -207,9 +207,9 @@ public enum IbdColumnType {
 
     /**
      * 构造方法，创建 Ibd列类型 实例。
-     *
      * @param code 编码，不允许为 null
-     */
+     * @return 返回值
+    */
     IbdColumnType(int code) {
         this.code = code;
     }

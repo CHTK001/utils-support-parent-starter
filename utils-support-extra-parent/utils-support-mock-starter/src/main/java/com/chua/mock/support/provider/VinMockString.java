@@ -38,6 +38,11 @@ public class VinMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         char[] vin = new char[LENGTH];
         for (int i = 0; i < LENGTH; i++) {

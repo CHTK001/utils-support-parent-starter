@@ -103,10 +103,18 @@ public interface AnnotationDefinitionResolver {
             this.wideName = wideName;
         }
 
+        /**
+         * get Narrow Name
+         * @return 返回值
+        */
         public String getNarrowName() {
             return narrowName;
         }
 
+        /**
+         * get Wide Name
+         * @return 返回值
+        */
         public String getWideName() {
             return wideName;
         }

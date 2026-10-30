@@ -34,16 +34,17 @@ public class OffsetConfig {
 
     /**
      * 构造方法，创建 偏移量配置 实例。
-     */
+     * @return 返回值
+    */
     OffsetConfig() {
     }
 
     /**
      * 构造方法，创建 偏移量配置 实例。
-     *
      * @param basePath base路径，不允许为 null
      * @param persistent persistent（布尔开关）
-     */
+     * @return 返回值
+    */
     OffsetConfig(Path basePath, boolean persistent) {
         this.basePath = basePath;
         this.persistent = persistent;

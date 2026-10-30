@@ -13,10 +13,11 @@ public class AlgorithmHolder {
     final Map<String, String> props;
     /**
      * 构造方法，创建 AlgorithmHolder 实例。
-     *
-     * @param type 类型，不允许为 null
+     * @param Map<String 参数
      * @param props 属性，不允许为 null
-     */
+     * @param type 类型，不允许为 null
+     * @return 返回值
+    */
     AlgorithmHolder(String type, Map<String, String> props) {
         this.type = type;
         this.props = props;

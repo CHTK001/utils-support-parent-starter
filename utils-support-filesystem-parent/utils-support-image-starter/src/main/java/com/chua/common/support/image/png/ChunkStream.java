@@ -38,11 +38,11 @@ final class ChunkStream extends ImageOutputStreamImpl {
 
     /**
      * 构造方法，创建 分块流 实例。
-     *
-     * @param type 类型，不允许为 null
      * @param stream 流，不允许为 null
+     * @param type 类型，不允许为 null
+     * @return 返回值
      * @throws IOException 当执行过程不满足前置条件时
-     */
+    */
     ChunkStream(int type, ImageOutputStream stream) throws IOException {
         this.stream = stream;
         this.startPos = stream.getStreamPosition();

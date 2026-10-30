@@ -411,6 +411,13 @@ public class ForkNode implements PipelineNode {
         final PipelineContext<?> context; // 上下文
         final Exception error; // 错误
 
+        /**
+         * Branch Result
+         * @param branchName 字符串
+         * @param context 参数
+         * @param error 异常
+         * @return 返回值
+        */
         BranchResult(String branchName, PipelineContext<?> context, Exception error) {
             this.branchName = branchName;
             this.context = context;

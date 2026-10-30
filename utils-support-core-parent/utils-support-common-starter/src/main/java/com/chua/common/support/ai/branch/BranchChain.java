@@ -173,21 +173,28 @@ public final class BranchChain {
 
     /**
      * 命中结果。
-     */
+     * @param branch 参数
+     * @param context 参数
+     * @return 返回值
+    */
     private static BranchResult hit(Branch branch, RuleContext context) {
         return new BranchResult(branch.id(), branch.message(), context.action(), snapshot(context));
     }
 
     /**
      * 未命中结果。
-     */
+     * @param context 参数
+     * @return 返回值
+    */
     private static BranchResult miss(RuleContext context) {
         return new BranchResult(null, null, context.action(), snapshot(context));
     }
 
     /**
      * 冻结上下文变量。
-     */
+     * @param context 参数
+     * @return 返回值
+    */
     private static Map<String, Object> snapshot(RuleContext context) {
         Map<String, Object> all = Wraps.linkedMap();
         if (context.input() instanceof Map<?, ?> map) {

@@ -58,11 +58,11 @@ public enum SherpaUsage {
 
     /**
      * 构造枚举项。
-     *
-     * @param code        短标识
-     * @param label       中文名
+     * @param code 短标识
      * @param description 用途说明
-     */
+     * @param label 中文名
+     * @return 返回值
+    */
     SherpaUsage(String code, String label, String description) {
         this.code = code;
         this.label = label;

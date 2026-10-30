@@ -189,11 +189,10 @@ public class HttpClientBuilder {
     private HttpInterceptor interceptor;
 
     /**
-     * 构造一个指定基础 URL 的请求构建器。
-     * <p>包级访问权限，外部通过 {@link HttpClientFactory#of(String)} 工厂方法创建。</p>
-     *
+     * 构造一个指定基础 URL 的请求构建器。 <p>包级访问权限，外部通过 {@link HttpClientFactory#of(String)} 工厂方法创建。</p>
      * @param baseUrl 基础 URL，例如 {@code "http://localhost:8080"} 或 {@code "http://localhost:8080/"}
-     */
+     * @return 返回值
+    */
     HttpClientBuilder(String baseUrl) {
         this.baseUrl = baseUrl;
     }

@@ -271,7 +271,8 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
      * 按完整 gemma-3 对话 模板执行生成（模板已含 {@code <bos>} 与 {@code <start_of_turn>} 收尾）。
      * @param fullPrompt 完整提示符
      * @return generate的结果
-     */
+     * @throws Exception 异常
+    */
     private String generate(String fullPrompt) throws Exception {
         Encoding enc = tokenizer.encode(fullPrompt);
         long[] promptIds = enc.getIds();
@@ -535,7 +536,9 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
 
     /**
      * 懒加载：解析模型路径（嵌入式 类路径 资源自动抽取）、加载 tokenizer 与 ORT 会话。
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private synchronized void prepare() throws Exception {
         if (initialized) {
             return;

@@ -198,7 +198,8 @@ public class PandocEnvironment {
      * 在 窗口 上安装 Pandoc
      * @param arch Arch Linux Linux
      * @return install窗口的结果
-     */
+     * @throws Exception 异常
+    */
     private static String installWindows(String arch) throws Exception {
         String fileName = "pandoc-" + PANDOC_VERSION + "-windows-x86_64.msi";
         String downloadUrl = GITHUB_RELEASE + "/" + fileName;
@@ -258,7 +259,8 @@ public class PandocEnvironment {
     /**
      * 在 macOS 上安装 Pandoc
      * @return installMacOs的结果
-     */
+     * @throws Exception 异常
+    */
     private static String installMacOs() throws Exception {
         String fileName = "pandoc-" + PANDOC_VERSION + "-macOS.dmg";
         String downloadUrl = GITHUB_RELEASE + "/" + fileName;
@@ -342,7 +344,8 @@ public class PandocEnvironment {
      * 在 Linux 上安装 Pandoc
      * @param arch Arch Linux Linux
      * @return installLinux的结果
-     */
+     * @throws Exception 异常
+    */
     private static String installLinux(String arch) throws Exception {
         String archSuffix = arch.contains("64") ? "amd64" : "arm64";
         String fileName = "pandoc-" + PANDOC_VERSION + "-linux-" + archSuffix + ".tar.gz";
@@ -433,9 +436,10 @@ public class PandocEnvironment {
 
     /**
      * 递归删除目录
-     *
      * @param path 目录路径
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private static void deleteDirectory(Path path) throws Exception {
         if (Files.isDirectory(path)) {
             try (var walk = Files.walk(path)) {
@@ -453,10 +457,11 @@ public class PandocEnvironment {
 
     /**
      * 从 URL 下载文件到本地，跳过 SSL 证书验证
-     *
      * @param downloadUrl 下载地址
-     * @param targetPath  目标文件路径
-     */
+     * @param targetPath 目标文件路径
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private static void downloadFile(String downloadUrl, Path targetPath) throws Exception {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(null, new TrustManager[]{new X509TrustManager() {

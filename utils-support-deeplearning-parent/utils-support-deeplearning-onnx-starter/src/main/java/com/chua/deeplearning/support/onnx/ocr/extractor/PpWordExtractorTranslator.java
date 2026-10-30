@@ -106,6 +106,8 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
 
     /**
      * Prepare
+     * @return 返回值
+     * @throws Exception 异常
     */
     private synchronized void prepare() throws Exception {
         if (session != null) {
@@ -185,10 +187,10 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
 
     /**
      * 从 推理.yml 的 character_dict 提取完整字符表（含 blank 前缀，与模型类数对齐）。
-     *
      * @param ymlPath 推理.yml 路径
      * @return 字符表（index 0 为 blank，其余为字符）
-     */
+     * @throws Exception 异常
+    */
     private static List<String> loadCharacterDict(Path ymlPath) throws Exception {
         return parseCharacterDict(Files.readAllLines(ymlPath));
     }

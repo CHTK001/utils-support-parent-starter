@@ -86,6 +86,10 @@ public class Playwright {
         return new Playwright();
     }
 
+    /**
+     * version
+     * @return 返回值
+    */
     public static String version() {
         return getEngine().version();
     }

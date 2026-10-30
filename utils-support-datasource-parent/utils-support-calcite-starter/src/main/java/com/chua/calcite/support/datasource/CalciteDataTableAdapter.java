@@ -551,6 +551,11 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     private static final class ModifiableCalciteDataTableAdapter
             extends CalciteDataTableAdapter implements ModifiableTable {
 
+        /**
+         * Modifiable Calcite Data Table Adapter
+         * @param dataTable 参数
+         * @return 返回值
+        */
         ModifiableCalciteDataTableAdapter(DataTable dataTable) {
             super(dataTable);
         }
@@ -661,6 +666,11 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         */
         private final List<Row> rows = Wraps.list();
 
+        /**
+         * Object Array Mutable Collection
+         * @param dataTable 参数
+         * @return 返回值
+        */
         ObjectArrayMutableCollection(DataTable dataTable) {
             this.dataTable = dataTable;
             this.columnNames = dataTable.getColumnNames();
@@ -812,6 +822,11 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     private static final class Row {
         final Object[] values;
 
+        /**
+         * Row
+         * @param values 参数
+         * @return 返回值
+        */
         Row(Object[] values) {
             this.values = values != null ? values : new Object[0];
         }

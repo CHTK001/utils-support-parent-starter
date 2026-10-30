@@ -75,6 +75,12 @@ public class OpenVsxPluginOnlineProvider implements PluginOnlineProvider {
     }
 
     @SuppressWarnings("unchecked")
+    /**
+     * to Plugin
+     * @param Map<String 参数
+     * @param fields 参数
+     * @return 返回值
+    */
     private PluginDefinition toPlugin(Map<String, Object> fields) {
         String name = str(fields.get("name"));
         String publisher = str(fields.get("publisher"));
@@ -98,10 +104,20 @@ public class OpenVsxPluginOnlineProvider implements PluginOnlineProvider {
         return new PluginDefinition(id, display, description, publisher, version, url, name());
     }
 
+    /**
+     * str
+     * @param value 对象
+     * @return 返回值
+    */
     private static String str(Object value) {
         return value == null ? "" : String.valueOf(value);
     }
 
+    /**
+     * 编码
+     * @param value 字符串
+     * @return 返回值
+    */
     private static String encode(String value) {
         try {
             return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());

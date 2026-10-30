@@ -264,6 +264,11 @@ public class SystemOutCaptureHandler implements Plugin {
             writeLine(String.valueOf(x));
         }
 
+        /**
+         * write Line
+         * @param line 字符串
+         * @return 返回值
+        */
         private void writeLine(String line) {
             addEntry(line);
             if (original != null) {
@@ -271,6 +276,10 @@ public class SystemOutCaptureHandler implements Plugin {
             }
         }
 
+        /**
+         * flush Line If Needed
+         * @return 返回值
+        */
         private void flushLineIfNeeded() {
             byte[] bytes = lineBuffer.toByteArray();
             String text = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
@@ -289,6 +298,11 @@ public class SystemOutCaptureHandler implements Plugin {
             }
         }
 
+        /**
+         * add Entry
+         * @param text 字符串
+         * @return 返回值
+        */
         private void addEntry(String text) {
             if (text == null || text.isEmpty()) {
                 return;

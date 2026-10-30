@@ -231,6 +231,11 @@ public class IndraLayoutTranslator implements ITranslator<byte[], List<Detection
         List<int[]> blocks;
     }
 
+    /**
+     * analyze
+     * @param imageData 参数
+     * @return 返回值
+    */
     private Analysis analyze(byte[] imageData) {
         if (imageData == null || imageData.length == 0) {
             return null;
@@ -246,6 +251,12 @@ public class IndraLayoutTranslator implements ITranslator<byte[], List<Detection
         }
     }
 
+    /**
+     * do Analyze
+     * @param imageData 参数
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private Analysis doAnalyze(byte[] imageData) throws IOException {
         byte[][] gray = IndraImageOps.toGray(imageData);
         int pageH = gray.length;
@@ -276,13 +287,11 @@ public class IndraLayoutTranslator implements ITranslator<byte[], List<Detection
     }
 
     /**
-     * 行检测（对齐 {@code detect}）：常规长边一次检测；若检出 ≥8 行且行高中位数
-     * 低于 {@link #ADAPTIVE_MIN_H} 输入像素（小字密排页），按目标行高把长边抬到
-     * {@link #ADAPTIVE_TARGET_H} 对应的尺度再检测一次（上限 {@link #ADAPTIVE_MAX_SIDE}）。
-     *
+     * 行检测（对齐 {@code detect}）：常规长边一次检测；若检出 ≥8 行且行高中位数 低于 {@link #ADAPTIVE_MIN_H} 输入像素（小字密排页），按目标行高把长边抬到 {@link #ADAPTIVE_TARGET_H} 对应的尺度再检测一次（上限 {@link #ADAPTIVE_MAX_SIDE}）。
      * @param gray 灰度页
      * @return 行框（原图像素坐标）
-     */
+     * @throws IOException 异常
+    */
     private List<float[]> detectLines(byte[][] gray) throws IOException {
         List<float[]> boxes = runDet(IndraLineNet.pageToInput(gray, detLongSide));
         if (boxes.size() >= ADAPTIVE_MIN_LINES) {
@@ -305,6 +314,12 @@ public class IndraLayoutTranslator implements ITranslator<byte[], List<Detection
         return boxes;
     }
 
+    /**
+     * run Det
+     * @param in 参数
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private List<float[]> runDet(IndraLineNet.DetInput in) throws IOException {
         long[] shape = {1, 1, in.h(), in.w()};
         try (OnnxTensor tensor = OnnxTensor.createTensor(env, FloatBuffer.wrap(in.ink()), shape);
@@ -320,7 +335,13 @@ public class IndraLayoutTranslator implements ITranslator<byte[], List<Detection
         }
     }
 
-    /** 将 {@code [h][w]} 平面压平为行主序数组。 */
+    /**
+     * flatten
+     * @param h 整数
+     * @param plane 参数
+     * @param w 整数
+     * @return 返回值
+    */
     private static float[] flatten(float[][] plane, int h, int w) {
         float[] out = new float[h * w];
         for (int y = 0; y < h; y++) {
@@ -330,15 +351,12 @@ public class IndraLayoutTranslator implements ITranslator<byte[], List<Detection
     }
 
     /**
-     * 逐行识别（对齐 {@code recognize}）：{@code script.onnx} 为每行判定脚本分组
-     * （{@code cjk / rtl / world …}），分组识别器读单窗口裁剪，基础识别器读多窗口裁剪；
-     * 分类器不确定的行由两者都读、取置信度高者；置信度低于 {@link #MIN_CONF} 的行不出文字
-     * （其行框仍参与版面与阅读顺序）。
-     *
-     * @param gray  灰度页
+     * 逐行识别（对齐 {@code recognize}）：{@code script.onnx} 为每行判定脚本分组 （{@code cjk / rtl / world …}），分组识别器读单窗口裁剪，基础识别器读多窗口裁剪； 分类器不确定的行由两者都读、取置信度高者；置信度低于 {@link #MIN_CONF} 的行不出文字 （其行框仍参与版面与阅读顺序）。
      * @param boxes 行框
+     * @param gray 灰度页
      * @return 每行文本
-     */
+     * @throws IOException 异常
+    */
     private List<String> recognizeLines(byte[][] gray, List<float[]> boxes) throws IOException {
         int n = boxes.size();
         List<float[][]> band = new ArrayList<>(n);
@@ -390,11 +408,12 @@ public class IndraLayoutTranslator implements ITranslator<byte[], List<Detection
 
     /**
      * 用 {@code script.onnx} 判定每行脚本分组（对齐 {@code line_groups}）。
-     *
-     * @param band  单窗口行裁剪
+     * @param band 单窗口行裁剪
      * @param names 输出：每行分组名
-     * @param sure  输出：分类器是否可信
-     */
+     * @param sure 输出：分类器是否可信
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void classifyScript(List<float[][]> band, String[] names, boolean[] sure) throws IOException {
         for (int start = 0; start < band.size(); start += REC_BATCH) {
             int end = Math.min(band.size(), start + REC_BATCH);
@@ -528,6 +547,14 @@ public class IndraLayoutTranslator implements ITranslator<byte[], List<Detection
         final float[][] cls;
         final double[][][] tab;
 
+        /**
+         * Order Out
+         * @param a 参数
+         * @param cls 参数
+         * @param same 参数
+         * @param tab 参数
+         * @return 返回值
+        */
         OrderOut(double[][] a, double[][] same, float[][] cls, double[][][] tab) {
             this.a = a;
             this.same = same;
@@ -541,6 +568,13 @@ public class IndraLayoutTranslator implements ITranslator<byte[], List<Detection
         }
     }
 
+    /**
+     * run Order
+     * @param feats 参数
+     * @param n 整数
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private OrderOut runOrder(float[][] feats, int n) throws IOException {
         int nf = IndraOrderPost.N_FEATS;
         float[] flat = new float[n * nf];
@@ -586,6 +620,11 @@ public class IndraLayoutTranslator implements ITranslator<byte[], List<Detection
 
     // ------------------------------------------------------------------ 装载
 
+    /**
+     * ensure Prepared
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void ensurePrepared() throws IOException {
         if (prepared) {
             return;
@@ -635,6 +674,12 @@ public class IndraLayoutTranslator implements ITranslator<byte[], List<Detection
         }
     }
 
+    /**
+     * load Meta
+     * @param metaFile 路径
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void loadMeta(Path metaFile) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode meta = mapper.readTree(metaFile.toFile());
@@ -661,7 +706,13 @@ public class IndraLayoutTranslator implements ITranslator<byte[], List<Detection
         }
     }
 
-    /** 解析词表 JSON（值为内嵌 JSON 字符串或对象，取其中的 {@code chars}）。 */
+    /**
+     * parse Chars
+     * @param mapper 参数
+     * @param vocabNode 参数
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private static List<String> parseChars(ObjectMapper mapper, JsonNode vocabNode) throws IOException {
         JsonNode inner = vocabNode.isTextual() ? mapper.readTree(vocabNode.asText()) : vocabNode;
         JsonNode chars = inner.path("chars");
@@ -718,6 +769,12 @@ public class IndraLayoutTranslator implements ITranslator<byte[], List<Detection
         return null;
     }
 
+    /**
+     * softmax Max
+     * @param idx 整数
+     * @param logits 参数
+     * @return 返回值
+    */
     private static float softmaxMax(double[] logits, int idx) {
         double max = logits[0];
         for (double v : logits) {

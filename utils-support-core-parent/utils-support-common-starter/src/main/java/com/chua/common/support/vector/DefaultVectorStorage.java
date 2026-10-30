@@ -433,7 +433,9 @@ public class DefaultVectorStorage implements VectorStorage {
      * 写入shard。
      * @param path 路径
      * @param vectors 向量
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void writeShard(Path path, List<Vector> vectors) throws IOException {
         try (DataOutputStream out = new DataOutputStream(
                 new BufferedOutputStream(Files.newOutputStream(path)))) {

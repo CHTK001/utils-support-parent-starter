@@ -142,12 +142,12 @@ public class FileResourceFinder implements ResourceFinder {
 
     /**
      * 搜索Linuxlocate
-     *
-     * @param name 名称
      * @param fullPath 完整路径
      * @param matchPath 匹配路径
+     * @param name 名称
      * @return 搜索Linuxlocate的结果
-     */
+     * @throws Exception 异常
+    */
     private Set<Resource> searchLinuxLocate(String name, String fullPath, String matchPath) throws Exception {
         if (!isCommandAvailable("locate")) {
             tryInstallLocate();
@@ -223,12 +223,12 @@ public class FileResourceFinder implements ResourceFinder {
 
     /**
      * 搜索窗口where
-     *
-     * @param name 名称
      * @param fullPath 完整路径
      * @param matchPath 匹配路径
+     * @param name 名称
      * @return 搜索窗口where的结果
-     */
+     * @throws Exception 异常
+    */
     private Set<Resource> searchWindowsWhere(String name, String fullPath, String matchPath) throws Exception {
         String searchRoot = fullPath.isEmpty() ? "C:\\" : fullPath;
         String filePattern = matchPath.contains("/")
@@ -267,12 +267,12 @@ public class FileResourceFinder implements ResourceFinder {
 
     /**
      * 搜索macmdfind
-     *
-     * @param name 名称
      * @param fullPath 完整路径
      * @param matchPath 匹配路径
+     * @param name 名称
      * @return 搜索macmdfind的结果
-     */
+     * @throws Exception 异常
+    */
     private Set<Resource> searchMacMdfind(String name, String fullPath, String matchPath) throws Exception {
         String searchRoot = fullPath.isEmpty() ? "/" : fullPath;
         String nameOnly = matchPath.contains("/")
@@ -613,6 +613,14 @@ public class FileResourceFinder implements ResourceFinder {
         */
         private final AtomicLong scannedCount;
 
+        /**
+         * File Visitor Impl
+         * @param fullPath 字符串
+         * @param matchPath 字符串
+         * @param results 参数
+         * @param scannedCount 参数
+         * @return 返回值
+        */
         FileVisitorImpl(String fullPath, String matchPath, Set<Resource> results, AtomicLong scannedCount) {
             this.fullPath = fullPath;
             this.matchPath = matchPath;

@@ -203,7 +203,9 @@ public final class RuntimeContextHolder {
 
     /**
      * 关闭全局 runtime管理器。
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     public static void shutdown() throws Exception {
         RuntimeManager manager = MANAGER_REF.get();
         if (manager != null) {

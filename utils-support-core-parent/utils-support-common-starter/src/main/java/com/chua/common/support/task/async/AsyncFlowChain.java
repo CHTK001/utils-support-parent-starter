@@ -66,9 +66,9 @@ public final class AsyncFlowChain<T> {
 
     /**
      * 创建任务链（包内入口，由 {@link AsyncFlow#task(Supplier)} 等调用）。
-     *
      * @param flow 底座门面
-     */
+     * @return 返回值
+    */
     AsyncFlowChain(AsyncFlow flow) {
         this.flow = flow;
     }
@@ -201,11 +201,11 @@ public final class AsyncFlowChain<T> {
     }
 
     /**
+    /**
      * 将当前值按链类型还原（由本链步骤按序流转而来）。
-     *
+     * @param value 对象
      * @return 当前值
-     */
-    @SuppressWarnings("unchecked")
+    */
     private T castValue(Object value) {
         return (T) value;
     }

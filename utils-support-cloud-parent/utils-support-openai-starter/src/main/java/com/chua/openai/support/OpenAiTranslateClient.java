@@ -242,6 +242,12 @@ public class OpenAiTranslateClient implements TranslateClient {
         try {
             StringBuilder result = new StringBuilder();
             final AiUsage[] usage = new AiUsage[1];
+            /**
+             * translate
+             * @param text 参数
+             * @param { 参数
+             * @return 返回值
+            */
             translate(text, response -> {
                 if (response.getState() == TranslateResponse.State.STREAMING
                         && response.getContent() != null) {

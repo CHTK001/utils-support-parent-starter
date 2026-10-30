@@ -178,9 +178,9 @@ public class MavenClient implements AutoCloseable {
 
     /**
      * 构造方法，创建 Maven客户端 实例。
-     *
      * @param builder 方法入参 builder
-     */
+     * @return 返回值
+    */
     MavenClient(MavenClientBuilder builder) {
         this.projectPath = builder.getProjectPath();
         this.goals = builder.getEffectiveGoals();

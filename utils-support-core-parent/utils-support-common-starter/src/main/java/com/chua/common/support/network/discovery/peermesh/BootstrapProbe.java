@@ -67,7 +67,9 @@ public class BootstrapProbe {
 
     /**
      * 执行启动巡检。
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     public void run() throws Exception {
         ProbeStrategy strategy = createStrategy();
         if (strategy == null) {

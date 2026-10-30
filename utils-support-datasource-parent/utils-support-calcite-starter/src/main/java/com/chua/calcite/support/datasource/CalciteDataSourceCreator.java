@@ -350,6 +350,12 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
         */
         private final Map<String, Table> tableMap;
 
+        /**
+         * Data Scheme Schema
+         * @param Map<String 参数
+         * @param tableMap 参数
+         * @return 返回值
+        */
         DataSchemeSchema(Map<String, Table> tableMap) {
             this.tableMap = tableMap;
         }

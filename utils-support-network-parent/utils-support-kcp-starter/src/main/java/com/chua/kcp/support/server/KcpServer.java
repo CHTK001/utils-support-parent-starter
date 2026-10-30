@@ -848,6 +848,13 @@ public class KcpServer extends AbstractServer {
          */
         private final byte[] payload;
 
+        /**
+         * Kcp Server Request
+         * @param clientId 字符串
+         * @param payload 字符串
+         * @param topic 字符串
+         * @return 返回值
+        */
         KcpServerRequest(String clientId, String topic, String payload) {
             this.clientId = clientId;
             this.topic = topic;

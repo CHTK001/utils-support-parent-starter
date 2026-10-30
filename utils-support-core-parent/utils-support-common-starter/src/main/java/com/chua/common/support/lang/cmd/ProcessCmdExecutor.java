@@ -895,6 +895,12 @@ public class ProcessCmdExecutor implements CmdExecutor {
          */
         private volatile String content;
 
+        /**
+         * Stream Gobbler
+         * @param charset 字符集
+         * @param inputStream 输入流
+         * @return 返回值
+        */
         StreamGobbler(InputStream inputStream, Charset charset) {
             this.inputStream = inputStream;
             this.charset = charset;
@@ -945,6 +951,13 @@ public class ProcessCmdExecutor implements CmdExecutor {
          */
         private final StringBuilder content;
 
+        /**
+         * Line Stream Gobbler
+         * @param callback 参数
+         * @param charset 字符集
+         * @param inputStream 输入流
+         * @return 返回值
+        */
         LineStreamGobbler(InputStream inputStream, Charset charset, LineCallback callback) {
             this.inputStream = inputStream;
             this.charset = charset;

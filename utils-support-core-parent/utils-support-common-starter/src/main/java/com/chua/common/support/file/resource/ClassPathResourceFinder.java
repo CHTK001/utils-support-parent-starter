@@ -293,6 +293,13 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
          */
         private final AtomicLong scannedCount;
 
+        /**
+         * Class Path File Visitor
+         * @param fullPattern 字符串
+         * @param result 参数
+         * @param scannedCount 参数
+         * @return 返回值
+        */
         ClassPathFileVisitor(String fullPattern, Set<Resource> result, AtomicLong scannedCount) {
             this.fullPattern = fullPattern;
             this.result = result;

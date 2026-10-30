@@ -314,7 +314,11 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
         return out;
     }
 
-    /** 去掉 {@code prefix:} 得到 localName（节点未启用命名空间感知时的兜底） */
+    /**
+     * local Name Of
+     * @param qualifiedName 字符串
+     * @return 返回值
+    */
     private static String localNameOf(String qualifiedName) {
         int colon = qualifiedName == null ? -1 : qualifiedName.indexOf(':');
         return colon >= 0 ? qualifiedName.substring(colon + 1) : qualifiedName;
@@ -517,9 +521,9 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
 
         /**
          * 创建主题节点。
-         *
          * @param title 主题标题
-         */
+         * @return 返回值
+        */
         TopicNode(String title) {
             this.title = title;
         }

@@ -34,6 +34,11 @@ public class OrgCodeMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         StringBuilder body = new StringBuilder(8);
         for (int i = 0; i < 8; i++) {

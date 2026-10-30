@@ -585,7 +585,9 @@ public class NioServerRequest implements ServerRequest {
 
     /**
      * 解码
-     */
+     * @param value 字符串
+     * @return 返回值
+    */
     private String decode(String value) {
         return URLDecoder.decode(value, defaultCharset);
     }

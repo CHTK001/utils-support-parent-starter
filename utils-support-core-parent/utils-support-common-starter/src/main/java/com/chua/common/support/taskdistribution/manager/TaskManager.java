@@ -444,6 +444,12 @@ private long cleanExpireMs = 60000;
         volatile long completedAt; // 完成at
         volatile TaskResult<?> result; // 结果
 
+        /**
+         * Task Holder
+         * @param callback 参数
+         * @param task 参数
+         * @return 返回值
+        */
         TaskHolder(Task<?> task, TaskCallback callback) {
             this.task = task;
             this.callback = callback;

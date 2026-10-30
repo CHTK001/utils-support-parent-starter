@@ -104,6 +104,11 @@ public abstract class AbstractFileStorage implements FileStorage {
          */
         private final Map<String, MultipartContext> contexts;
 
+        /**
+         * Local Tmp Multipart Storage
+         * @param fileStorage 参数
+         * @return 返回值
+        */
         LocalTmpMultipartStorage(FileStorage fileStorage) {
             this.fileStorage = fileStorage;
             this.contexts = new ConcurrentHashMap<>();
@@ -221,7 +226,8 @@ public abstract class AbstractFileStorage implements FileStorage {
          * @param ctx ctx
          * @param parts parts
          * @return 合并parts的结果
-         */
+         * @throws IOException 异常
+        */
         private byte[] mergeParts(MultipartContext ctx, List<PartETag> parts) throws IOException {
             parts.sort((a, b) -> Integer.compare(a.getPartNumber(), b.getPartNumber()));
             long totalSize = parts.stream().mapToLong(p -> {

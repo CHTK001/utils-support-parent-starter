@@ -601,6 +601,11 @@ public class SipClient {
 
         private final String serviceName;
 
+        /**
+         * Service Dsl
+         * @param serviceName 字符串
+         * @return 返回值
+        */
         ServiceDsl(String serviceName) {
             this.serviceName = serviceName;
         }
@@ -634,6 +639,11 @@ public class SipClient {
 
         private final String serviceName;
 
+        /**
+         * Tunnel Dsl
+         * @param serviceName 字符串
+         * @return 返回值
+        */
         TunnelDsl(String serviceName) {
             this.serviceName = serviceName;
         }

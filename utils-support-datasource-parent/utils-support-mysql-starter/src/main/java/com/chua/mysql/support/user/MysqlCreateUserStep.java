@@ -48,10 +48,10 @@ public class MysqlCreateUserStep implements UserManager.CreateUserStep {
 
     /**
      * 构造方法，创建 MySQL 创建用户步骤实例。
-     *
      * @param dataSource 数据来源，不允许为 null
-     * @param username   用户名，必须命中用户名白名单
-     */
+     * @param username 用户名，必须命中用户名白名单
+     * @return 返回值
+    */
     MysqlCreateUserStep(DataSource dataSource, String username) {
         this.dataSource = dataSource;
         this.username = MysqlSqlNames.checkUserName(username);

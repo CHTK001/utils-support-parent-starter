@@ -51,6 +51,11 @@ public class PermissionUtils {
          */
         private final int mode;
 
+        /**
+         * Standard File Permission
+         * @param mode 整数
+         * @return 返回值
+        */
         StandardFilePermission(int mode) {
             this.mode = mode;
         }

@@ -213,6 +213,8 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
 
     /**
      * 拉取消息
+     * @return 返回值
+     * @throws Exception 异常
     */
     private void pullMessages() throws Exception {
         if (subscriptions.isEmpty()) {

@@ -115,20 +115,20 @@ public final class GoalRegistry {
 
     /**
      * 暂停会话目标。
-     *
+     * @param now 长整数
      * @param sessionId 会话标识
      * @return 暂停后的展示投影
-     */
+    */
     public GoalStatus pause(String sessionId, long now) {
         return require(sessionId).pause(now);
     }
 
     /**
      * 恢复会话目标。
-     *
+     * @param now 长整数
      * @param sessionId 会话标识
      * @return 恢复后的展示投影
-     */
+    */
     public GoalStatus resume(String sessionId, long now) {
         return require(sessionId).resume(now);
     }

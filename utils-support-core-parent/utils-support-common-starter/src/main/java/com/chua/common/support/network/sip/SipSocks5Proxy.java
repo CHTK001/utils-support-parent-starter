@@ -106,10 +106,10 @@ public class SipSocks5Proxy extends Socks5ProxyServer {
 
         /**
          * 创建桥接器。
-         *
          * @param clientSocket 客户端 Socket
-         * @param session      SIP 隧道会话
-         */
+         * @param session SIP 隧道会话
+         * @return 返回值
+        */
         Socks5TunnelBridge(Socket clientSocket, SipTunnelSession session) {
             this.clientSocket = clientSocket;
             this.session = session;

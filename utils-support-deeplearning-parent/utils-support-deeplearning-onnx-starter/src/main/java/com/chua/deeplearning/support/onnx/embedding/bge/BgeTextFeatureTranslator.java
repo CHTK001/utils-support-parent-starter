@@ -51,6 +51,8 @@ public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
 
     /**
      * Prepare
+     * @return 返回值
+     * @throws Exception 异常
     */
     private synchronized void prepare() throws Exception {
         if (loaded) {

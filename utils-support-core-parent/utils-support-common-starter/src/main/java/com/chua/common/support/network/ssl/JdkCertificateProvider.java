@@ -392,7 +392,8 @@ public class JdkCertificateProvider implements AcmeProvider {
      * 将 X509 证书转换为 PEM 格式
      * @param cert 方法入参 cert
      * @return 结果字符串
-     */
+     * @throws Exception 异常
+    */
     private String convertToPem(X509Certificate cert) throws Exception {
         StringBuilder pem = new StringBuilder();
         pem.append("-----BEGIN CERTIFICATE-----\n");

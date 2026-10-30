@@ -170,10 +170,11 @@ public record DecisionQuestion(
 
     /**
      * 拷贝并校验选项表。
-     *
+     * @param Map<String 参数
      * @param criteria 选项表
+     * @param type 参数
      * @return 不可变选项表
-     */
+    */
     private static Map<String, String> copyCriteria(DecisionType type, Map<String, String> criteria) {
         if (criteria == null) {
             throw new IllegalArgumentException(type + " 类型必须提供 criteria 选项表");
@@ -188,15 +189,12 @@ public record DecisionQuestion(
     }
 
     /**
-     * 拷贝并校验结论说明表。
-     *
-     * <p>键<b>必须</b>取自 {@link DecisionType#TRUE_LABEL} /
-     * {@link DecisionType#FALSE_LABEL}。这里刻意不接受自定义键：{@code criteria}
-     * 的角色是「给 true / false 两端配说明文字」，而不是重新定义答案标签。</p>
-     *
+     * 拷贝并校验结论说明表。 <p>键<b>必须</b>取自 {@link DecisionType#TRUE_LABEL} / {@link DecisionType#FALSE_LABEL}。这里刻意不接受自定义键：{@code criteria} 的角色是「给 true / false 两端配说明文字」，而不是重新定义答案标签。</p>
+     * @param Map<String 参数
      * @param criteria 结论说明表，可为 null
+     * @param type 参数
      * @return 不可变结论说明表，或 null
-     */
+    */
     private static Map<String, String> copyNoulCriteria(DecisionType type, Map<String, String> criteria) {
         if (criteria == null) {
             return null;

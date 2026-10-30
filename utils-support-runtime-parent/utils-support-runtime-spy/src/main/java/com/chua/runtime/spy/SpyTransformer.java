@@ -296,11 +296,11 @@ public class SpyTransformer implements ClassFileTransformer {
 
         /**
          * 构造器。
-         *
-         * @param reader       类读取器
+         * @param flags 标志位
+         * @param reader 类读取器
          * @param targetLoader 目标类加载器（可为 空 表示 bootstrap）
-         * @param flags        标志位
-         */
+         * @return 返回值
+        */
         ResolvingClassWriter(ClassReader reader, ClassLoader targetLoader, int flags) {
             super(reader, flags);
             this.targetLoader = targetLoader;
@@ -438,6 +438,12 @@ public class SpyTransformer implements ClassFileTransformer {
          */
         private final Set<InterceptPoint> classRules;
 
+        /**
+         * Spy Class Visitor
+         * @param cv 参数
+         * @param targetClass 字符串
+         * @return 返回值
+        */
         SpyClassVisitor(ClassVisitor cv, String targetClass) {
             super(ASM_API, cv);
             this.targetClass = targetClass;

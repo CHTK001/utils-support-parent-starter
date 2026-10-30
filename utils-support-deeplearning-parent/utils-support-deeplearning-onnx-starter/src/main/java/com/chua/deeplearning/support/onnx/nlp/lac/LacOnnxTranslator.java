@@ -111,7 +111,9 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
 
     /**
      * 懒加载模型与词典。
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private synchronized void prepare() throws Exception {
         if (loaded) {
             return;
@@ -187,7 +189,10 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
 
     /**
      * 加载 word.dic（格式 id\tchar）。
-     */
+     * @param path 路径
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void loadWordDic(Path path) throws Exception {
         try (BufferedReader r = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             String line;
@@ -214,7 +219,10 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
 
     /**
      * 加载 tag.dic（格式 id\tlabel）。
-     */
+     * @param path 路径
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void loadTagDic(Path path) throws Exception {
         try (BufferedReader r = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             String line;
@@ -235,7 +243,10 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
 
     /**
      * 加载 q2b.dic（格式 全角\t半角）。
-     */
+     * @param path 路径
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void loadQ2b(Path path) throws Exception {
         try (BufferedReader r = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             String line;
@@ -257,7 +268,10 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
 
     /**
      * 读取 numpy npy 二维 float 数组（C order，descr '&lt;f4'）。
-     */
+     * @param path 路径
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private static float[][] readNpy2d(Path path) throws Exception {
         byte[] all = Files.readAllBytes(path);
         // npy 头：magic(6) + ver(2) + hlen(2 LE) + header
@@ -280,7 +294,9 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
 
     /**
      * 解析 npy 头中 shape 元组。
-     */
+     * @param header 字符串
+     * @return 返回值
+    */
     private static int[] parseShape(String header) {
         int s = header.indexOf('(');
         int e = header.indexOf(')', s);
@@ -344,7 +360,10 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
 
     /**
      * Viterbi 解码，返回最优标签 id 序列。
-     */
+     * @param emissions 参数
+     * @param seqLen 整数
+     * @return 返回值
+    */
     private int[] viterbi(float[][] emissions, int seqLen) {
         double[] dp = new double[numTags];
         for (int j = 0; j < numTags; j++) {
@@ -383,10 +402,11 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
     }
 
     /**
-     * BIO 合并为 [token,label]，对齐上游 LAC-ONNX {@code _decode_bio}：
-     * 以 {@code B-} 开新词，{@code *-I} 续接当前词（无论前后缀是否一致），
-     * 标签取 {@code raw_tag} 中 {@code -} 最后一节之前缀；缺省 {@code n-B}。
-     */
+     * BIO 合并为 [token,label]，对齐上游 LAC-ONNX {@code _decode_bio}： 以 {@code B-} 开新词，{@code *-I} 续接当前词（无论前后缀是否一致）， 标签取 {@code raw_tag} 中 {@code -} 最后一节之前缀；缺省 {@code n-B}。
+     * @param input 字符串
+     * @param tagIds 参数
+     * @return 返回值
+    */
     private String[][] decodeBio(String input, int[] tagIds) {
         List<String> tokens = Wraps.list();
         List<String> labels = Wraps.list();
@@ -415,7 +435,9 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
 
     /**
      * 取 BIO 标签前缀（{@code B-}/{@code I-} 后缀之前部分，无后缀则原样返回）。
-     */
+     * @param rawTag 字符串
+     * @return 返回值
+    */
     private static String stripBio(String rawTag) {
         int dash = rawTag.lastIndexOf('-');
         return dash > 0 ? rawTag.substring(0, dash) : rawTag;
@@ -423,7 +445,10 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
 
     /**
      * classpath 直拷单个文件（目标已存在且非空则跳过）。
-     */
+     * @param name 字符串
+     * @param target 路径
+     * @return 返回值
+    */
     private static void copyFromClasspath(String name, Path target) {
         try {
             if (Files.isRegularFile(target) && Files.size(target) > 0) {
@@ -445,7 +470,10 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
 
     /**
      * 下载文件（失败吞掉，由调用方校验）。
-     */
+     * @param target 路径
+     * @param url 字符串
+     * @return 返回值
+    */
     private static void download(String url, Path target) {
         try {
             Files.createDirectories(target.getParent());
@@ -460,9 +488,11 @@ public class LacOnnxTranslator implements ITranslator<String, String[][]>, AutoC
     }
 
     /**
+    /**
      * classpath 兜底读取（jar 内嵌词典直读，NativeLoader 解压失败时用）。
-     */
-    @SuppressWarnings("unused")
+     * @param name 字符串
+     * @return 返回值
+    */
     private static InputStream openResource(String name) {
         ClassLoader loader = LacOnnxTranslator.class.getClassLoader();
         InputStream in = loader.getResourceAsStream(RESOURCE_BASE + name);

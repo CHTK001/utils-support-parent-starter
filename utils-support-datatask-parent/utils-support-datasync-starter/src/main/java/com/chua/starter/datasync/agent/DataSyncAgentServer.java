@@ -406,11 +406,11 @@ public class DataSyncAgentServer implements AgentServerManager {
 
         /**
          * 构造远程 源 代理。
-         *
          * @param agentId Agent 标识
          * @param sourceId 源 标识
          * @param syncServer 同步服务端 实例
-         */
+         * @return 返回值
+        */
         RemoteAgentSource(String agentId, String sourceId, SyncServer syncServer) {
             this.agentId = agentId;
             this.sourceId = sourceId;
@@ -534,11 +534,11 @@ public class DataSyncAgentServer implements AgentServerManager {
 
         /**
          * 构造远程 Sink 代理。
-         *
          * @param agentId Agent 标识
          * @param sinkId Sink 标识
          * @param syncServer 同步服务端 实例
-         */
+         * @return 返回值
+        */
         RemoteAgentSink(String agentId, String sinkId, SyncServer syncServer) {
             this.agentId = agentId;
             this.sinkId = sinkId;

@@ -172,9 +172,11 @@ public class ApngEncoder {
 
     /**
      * 写入 IHDR 块：8 位 RGBA（颜色类型 6），无隔行。
-     * @param width width
      * @param height height
-     */
+     * @param width width
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void writeIHDR(int width, int height) throws IOException {
         byte[] ihdr = new byte[13];
         putIntBE(ihdr, 0, width);
@@ -213,9 +215,11 @@ public class ApngEncoder {
 
     /**
      * 写入一个 PNG 块：长度 + 类型 + 数据 + CRC。
-     * @param type 类型
      * @param data 数据
-     */
+     * @param type 类型
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void writeChunk(String type, byte[] data) throws IOException {
         out.writeInt(data.length);
         byte[] typeBytes = type.getBytes(java.nio.charset.StandardCharsets.US_ASCII);
@@ -230,11 +234,12 @@ public class ApngEncoder {
 
     /**
      * 压缩一帧为 PNG 扫描线数据：每行 过滤器=0 + RGBA 像素，zlib 压缩。
-     * @param frame 帧
-     * @param canvasW Canvasw
      * @param canvasH Canvash
+     * @param canvasW Canvasw
+     * @param frame 帧
      * @return compress帧的结果
-     */
+     * @throws IOException 异常
+    */
     private static byte[] compressFrame(BufferedImage frame, int canvasW, int canvasH) throws IOException {
         int w = frame.getWidth();
         int h = frame.getHeight();

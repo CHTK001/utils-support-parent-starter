@@ -106,9 +106,9 @@ public class ClientConfig {
 
     /**
      * 创建绑定到指定客户端的预配置构建器。
-     *
      * @param client 绑定的 HTTP 客户端
-     */
+     * @return 返回值
+    */
     ClientConfig(HttpClient client) {
         this.client = client;
     }

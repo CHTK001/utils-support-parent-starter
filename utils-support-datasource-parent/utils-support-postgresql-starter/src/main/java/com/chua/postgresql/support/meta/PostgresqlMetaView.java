@@ -204,6 +204,12 @@ public class PostgresqlMetaView extends AbstractMetaView {
          */
         private String checkOption;
 
+        /**
+         * Postgres View Create Builder
+         * @param metaView 参数
+         * @param viewName 字符串
+         * @return 返回值
+        */
         PostgresViewCreateBuilder(PostgresqlMetaView metaView, String viewName) {
             this.metaView = metaView;
             this.viewName = viewName;
@@ -287,6 +293,11 @@ public class PostgresqlMetaView extends AbstractMetaView {
          */
         private String newName;
 
+        /**
+         * Postgres View Alter Builder
+         * @param metaView 参数
+         * @return 返回值
+        */
         PostgresViewAlterBuilder(PostgresqlMetaView metaView) {
             this.metaView = metaView;
         }

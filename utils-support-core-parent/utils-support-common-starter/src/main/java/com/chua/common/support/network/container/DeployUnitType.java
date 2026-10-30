@@ -49,9 +49,9 @@ public enum DeployUnitType {
 
     /**
      * 构造方法，创建 DeployUnit类型 实例。
-     *
      * @param extension 方法入参 extension
-     */
+     * @return 返回值
+    */
     DeployUnitType(String extension) {
         this.extension = extension;
     }

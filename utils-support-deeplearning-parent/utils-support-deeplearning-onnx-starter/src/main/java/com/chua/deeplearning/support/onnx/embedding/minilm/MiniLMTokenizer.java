@@ -103,10 +103,10 @@ public class MiniLMTokenizer {
 
     /**
      * 从 vocab.txt 加载词表。
-     *
      * @param vocabPath vocab.txt 路径，每行一个 令牌
      * @return 加载好的 tokenizer
-     */
+     * @throws IOException 异常
+    */
     public static MiniLMTokenizer load(Path vocabPath) throws IOException {
         Map<String, Integer> vocab = Wraps.map();
         try (BufferedReader reader = Files.newBufferedReader(vocabPath)) {

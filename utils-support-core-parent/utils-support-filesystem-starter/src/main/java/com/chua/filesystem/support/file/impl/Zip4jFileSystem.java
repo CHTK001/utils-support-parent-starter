@@ -62,6 +62,11 @@ public class Zip4jFileSystem implements FileSystem {
         */
         private char[] password;
 
+        /**
+         * Zip4j Read Builder
+         * @param file 文件
+         * @return 返回值
+        */
         Zip4jReadBuilder(File file) {
             super(file);
         }
@@ -246,6 +251,11 @@ public class Zip4jFileSystem implements FileSystem {
         */
         private long splitSize = 0;
 
+        /**
+         * Zip4j Write Builder
+         * @param file 文件
+         * @return 返回值
+        */
         Zip4jWriteBuilder(File file) {
             super(file);
         }
@@ -433,6 +443,12 @@ public class Zip4jFileSystem implements FileSystem {
             final InputStream inputStream; // 输入流
             final byte[] bytes; // bytes
 
+            /**
+             * Entry Data
+             * @param entryName 字符串
+             * @param source 文件
+             * @return 返回值
+            */
             EntryData(String entryName, File source) {
                 this.entryName = entryName;
                 this.source = source;
@@ -440,6 +456,12 @@ public class Zip4jFileSystem implements FileSystem {
                 this.bytes = null;
             }
 
+            /**
+             * Entry Data
+             * @param entryName 字符串
+             * @param inputStream 输入流
+             * @return 返回值
+            */
             EntryData(String entryName, InputStream inputStream) {
                 this.entryName = entryName;
                 this.source = null;
@@ -447,6 +469,12 @@ public class Zip4jFileSystem implements FileSystem {
                 this.bytes = null;
             }
 
+            /**
+             * Entry Data
+             * @param bytes 参数
+             * @param entryName 字符串
+             * @return 返回值
+            */
             EntryData(String entryName, byte[] bytes) {
                 this.entryName = entryName;
                 this.source = null;

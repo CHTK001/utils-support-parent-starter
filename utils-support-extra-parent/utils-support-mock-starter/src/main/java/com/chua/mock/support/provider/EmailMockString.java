@@ -44,6 +44,11 @@ public class EmailMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         int length = environment.nextInt(USERNAME_MIN, USERNAME_MAX);
         StringBuilder builder = new StringBuilder(length + DOMAINS[0].length());

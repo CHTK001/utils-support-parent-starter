@@ -40,31 +40,67 @@ public class WalStoreConfig {
         this.namespace = b.namespace;
     }
 
+    /**
+     * shard Count
+     * @return 返回值
+    */
     public int shardCount() {
         return shardCount;
     }
+    /**
+     * segment Bytes
+     * @return 返回值
+    */
     public long segmentBytes() {
         return segmentBytes;
     }
+    /**
+     * flush Batch Size
+     * @return 返回值
+    */
     public int flushBatchSize() {
         return flushBatchSize;
     }
+    /**
+     * flush Interval Ms
+     * @return 返回值
+    */
     public long flushIntervalMs() {
         return flushIntervalMs;
     }
+    /**
+     * cpu Cores
+     * @return 返回值
+    */
     public int cpuCores() {
         return cpuCores;
     }
+    /**
+     * is SS D
+     * @return 返回值
+    */
     public boolean isSSD() {
         return isSSD;
     }
+    /**
+     * base Dir
+     * @return 返回值
+    */
     public Path baseDir() {
         return baseDir;
     }
+    /**
+     * namespace
+     * @return 返回值
+    */
     public String namespace() {
         return namespace;
     }
 
+    /**
+     * builder
+     * @return 返回值
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -79,39 +115,83 @@ public class WalStoreConfig {
         private Path baseDir;
         private String namespace = "default";
 
+        /**
+         * shard Count
+         * @param n 整数
+         * @return 返回值
+        */
         public Builder shardCount(int n) {
             this.shardCount = n;
             return this;
         }
+        /**
+         * segment Bytes
+         * @param bytes 长整数
+         * @return 返回值
+        */
         public Builder segmentBytes(long bytes) {
             this.segmentBytes = bytes;
             return this;
         }
+        /**
+         * flush Batch Size
+         * @param n 整数
+         * @return 返回值
+        */
         public Builder flushBatchSize(int n) {
             this.flushBatchSize = n;
             return this;
         }
+        /**
+         * flush Interval Ms
+         * @param ms 长整数
+         * @return 返回值
+        */
         public Builder flushIntervalMs(long ms) {
             this.flushIntervalMs = ms;
             return this;
         }
+        /**
+         * cpu Cores
+         * @param n 整数
+         * @return 返回值
+        */
         public Builder cpuCores(int n) {
             this.cpuCores = n;
             return this;
         }
+        /**
+         * is SS D
+         * @param v 布尔值
+         * @return 返回值
+        */
         public Builder isSSD(boolean v) {
             this.isSSD = v;
             return this;
         }
+        /**
+         * base Dir
+         * @param p 路径
+         * @return 返回值
+        */
         public Builder baseDir(Path p) {
             this.baseDir = p;
             return this;
         }
+        /**
+         * namespace
+         * @param ns 字符串
+         * @return 返回值
+        */
         public Builder namespace(String ns) {
             this.namespace = ns;
             return this;
         }
 
+        /**
+         * 构建
+         * @return 返回值
+        */
         public WalStoreConfig build() {
             return new WalStoreConfig(this);
         }

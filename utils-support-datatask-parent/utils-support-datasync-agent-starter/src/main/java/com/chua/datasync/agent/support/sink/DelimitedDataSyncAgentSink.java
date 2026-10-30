@@ -105,9 +105,9 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
 
     /**
      * 打开Writer
-     *
      * @return 打开writer的结果
-     */
+     * @throws java.io.IOException 异常
+    */
     private BufferedWriter openWriter() throws java.io.IOException {
         if (append) {
             return Files.newBufferedWriter(filePath, StandardCharsets.UTF_8,

@@ -378,6 +378,10 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
      * @return 结果值
      */
     public record TsPoint(String measure, long ts, double value, Integer ttlSec) {
+        /**
+         * expire At
+         * @return 返回值
+        */
         public long expireAt() {
             return ttlSec == null ? Long.MAX_VALUE : ts + (long) ttlSec * 1000L;
         }
@@ -422,6 +426,13 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
      */
     public record TsAggregate(String measure, long fromTs, long toTs,
                               double avg, double min, double max, long count, double sum) {
+        /**
+         * empty
+         * @param f 长整数
+         * @param m 字符串
+         * @param t 长整数
+         * @return 返回值
+        */
         public static TsAggregate empty(String m, long f, long t) {
             return new TsAggregate(m, f, t, Double.NaN, Double.NaN, Double.NaN, 0, 0.0);
         }

@@ -235,6 +235,12 @@ public class PostgresqlMetaForeignKey extends AbstractMetaForeignKey {
          */
         private String onUpdate;
 
+        /**
+         * Postgres Foreign Key Create Builder
+         * @param fkName 字符串
+         * @param metaFk 参数
+         * @return 返回值
+        */
         PostgresForeignKeyCreateBuilder(PostgresqlMetaForeignKey metaFk, String fkName) {
             this.metaFk = metaFk;
             this.fkName = fkName;

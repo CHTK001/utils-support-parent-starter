@@ -210,10 +210,10 @@ public class AioTcpProxyServer extends AbstractServer {
 
         /**
          * 创建单向泵。
-         *
-         * @param src 源通道
          * @param dst 目标通道
-         */
+         * @param src 源通道
+         * @return 返回值
+        */
         PipeReader(AsynchronousSocketChannel src, AsynchronousSocketChannel dst) {
             this.src = src;
             this.dst = dst;

@@ -517,10 +517,11 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
 
     /**
      * 处理心跳消息。
-     *
      * @param msg 消息
      * @param out 输出流
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void handleHeartbeat(MessageProtocol.PeerMeshMessage msg, DataOutputStream out) throws IOException {
         List<NodeTable.NodeEntry> entries = Json.fromJsonToList(msg.payload(), NodeTable.NodeEntry.class);
         if (entries != null) {
@@ -552,10 +553,11 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
 
     /**
      * 处理新节点通知。
-     *
      * @param msg 消息
      * @param out 输出流
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void handleNewPeer(MessageProtocol.PeerMeshMessage msg, DataOutputStream out) throws IOException {
         NodeTable.NodeEntry entry = Json.fromJson(msg.payload(), NodeTable.NodeEntry.class);
         if (entry != null && !serverId.equals(entry.getDiscovery().getServerId())) {

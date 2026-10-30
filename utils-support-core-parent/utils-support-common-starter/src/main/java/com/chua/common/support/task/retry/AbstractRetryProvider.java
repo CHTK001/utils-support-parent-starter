@@ -18,6 +18,11 @@ public abstract class AbstractRetryProvider implements RetryProvider {
      */
     @Override
     public void execute(Runnable task, RetryConfig config) throws Exception {
+        /**
+         * do Execute
+         * @param ( 参数
+         * @return 返回值
+        */
         doExecute(() -> {
             task.run();
             return null;

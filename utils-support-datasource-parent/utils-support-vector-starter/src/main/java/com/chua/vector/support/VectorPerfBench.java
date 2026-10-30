@@ -40,7 +40,9 @@ public class VectorPerfBench {
     /**
      * main。
      * @param args 参数
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     public static void main(String[] args) throws Exception {
         benchDir = Files.createTempDirectory("vector-perf-bench-");
         System.out.println("============================================================");
@@ -81,12 +83,24 @@ public class VectorPerfBench {
                 .shardSize(FLUSH_BATCH).algorithm(VectorCompareAlgorithm.euclidean()).build());
 
         printf("\n【JVectorVectorStorage MEMORY】\n");
+        /**
+         * bench
+         * @param "jvector-mem-cosine" 参数
+         * @param ( 参数
+         * @return 返回值
+        */
         bench("jvector-mem-cosine", () -> {
             var p = new JVectorStorageProperties();
             p.setMode(JVectorStorageProperties.Mode.MEMORY);
             return VectorStorageProvider.of("jvector").dimension(DIM)
                     .algorithm(VectorCompareAlgorithm.cosine()).properties(p).build();
         });
+        /**
+         * bench
+         * @param "jvector-mem-eucl" 参数
+         * @param ( 参数
+         * @return 返回值
+        */
         bench("jvector-mem-eucl",   () -> {
             var p = new JVectorStorageProperties();
             p.setMode(JVectorStorageProperties.Mode.MEMORY);
@@ -228,6 +242,12 @@ public class VectorPerfBench {
         }
     }
 
+    /**
+     * printf
+     * @param args 参数
+     * @param fmt 字符串
+     * @return 返回值
+    */
     private static void printf(String fmt, Object... args) {
         System.out.printf(fmt, args);
     }

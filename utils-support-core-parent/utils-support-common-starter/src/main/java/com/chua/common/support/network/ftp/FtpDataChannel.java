@@ -48,12 +48,12 @@ class FtpDataChannel {
 
     /**
      * 创建数据通道。
-     *
-     * @param session          关联的 FTP 会话
-     * @param portMin          被动模式端口范围起始
-     * @param portMax          被动模式端口范围结束
      * @param connectTimeoutMs 连接超时（毫秒）
-     */
+     * @param portMax 被动模式端口范围结束
+     * @param portMin 被动模式端口范围起始
+     * @param session 关联的 FTP 会话
+     * @return 返回值
+    */
     FtpDataChannel(FtpSession session, int portMin, int portMax, int connectTimeoutMs) {
         this.session = session;
         this.portMin = portMin;

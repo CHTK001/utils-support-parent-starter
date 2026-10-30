@@ -86,6 +86,12 @@ public class VscodeMarketplacePluginOnlineProvider implements PluginOnlineProvid
     }
 
     @SuppressWarnings("unchecked")
+    /**
+     * to Plugin
+     * @param Map<String 参数
+     * @param raw 参数
+     * @return 返回值
+    */
     private PluginDefinition toPlugin(Map<String, Object> raw) {
         Map<String, Object> metadata = (Map<String, Object>) raw.get("extension");
         if (metadata == null) {
@@ -105,6 +111,11 @@ public class VscodeMarketplacePluginOnlineProvider implements PluginOnlineProvid
         return new PluginDefinition(id, displayName, description, publisher, version, url, name());
     }
 
+    /**
+     * str
+     * @param value 对象
+     * @return 返回值
+    */
     private static String str(Object value) {
         return value == null ? "" : String.valueOf(value);
     }

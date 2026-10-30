@@ -157,6 +157,11 @@ public class RedisSearchMeta extends AbstractMetaSearch {
         */
         private int replicas = 1;
 
+        /**
+         * Redis Search Create Index Builder
+         * @param indexName 字符串
+         * @return 返回值
+        */
         RedisSearchCreateIndexBuilder(String indexName) {
             this.indexName = indexName;
         }

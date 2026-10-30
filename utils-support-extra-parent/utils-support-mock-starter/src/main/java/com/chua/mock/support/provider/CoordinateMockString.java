@@ -43,6 +43,11 @@ public class CoordinateMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         double lng = LNG_MIN + environment.random().nextDouble() * (LNG_MAX - LNG_MIN);
         double lat = LAT_MIN + environment.random().nextDouble() * (LAT_MAX - LAT_MIN);

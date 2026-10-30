@@ -63,6 +63,8 @@ public class KcpHttpClient {
 
     /**
      * 连接
+     * @return 返回值
+     * @throws Exception 异常
     */
     public void connect() throws Exception {
         client = new KcpClient("kcp-http-client", "kcp://" + host + ":" + port);
@@ -75,13 +77,14 @@ public class KcpHttpClient {
 
     /**
      * 请求
-     *
+     * @param Map<String 参数
+     * @param body 主体
+     * @param headers 头部
      * @param method 方法
      * @param path 路径
-     * @param headers 头部
-     * @param body 主体
      * @return 请求的结果
-     */
+     * @throws Exception 异常
+    */
     public HttpResponse request(String method, String path, Map<String, String> headers, byte[] body) throws Exception {
         if (!isConnected()) {
             throw new IllegalStateException("KCP HTTP 客户端未连接");
@@ -117,21 +120,21 @@ public class KcpHttpClient {
 
     /**
      * 获取
-     *
      * @param path 路径
      * @return 获取的结果
-     */
+     * @throws Exception 异常
+    */
     public HttpResponse get(String path) throws Exception {
         return request("GET", path, null, null);
     }
 
     /**
      * Post
-     *
-     * @param path 路径
      * @param body 主体
+     * @param path 路径
      * @return post的结果
-     */
+     * @throws Exception 异常
+    */
     public HttpResponse post(String path, byte[] body) throws Exception {
         return request("POST", path, null, body);
     }

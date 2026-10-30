@@ -262,7 +262,12 @@ public class LayaDecisionClient implements DecisionClient {
 
     /**
      * 校验答案类型与问题类型一致。
-     */
+     * @param actual 字符串
+     * @param answer 参数
+     * @param expected 字符串
+     * @param query 查询
+     * @return 返回值
+    */
     private static void requireType(DecisionQuery query, JsonNode answer, String expected, String actual) {
         if (!expected.equals(actual)) {
             throw new DecisionException(query.id(), "答案类型为 " + actual + "，问题类型要求 " + expected);
@@ -271,7 +276,10 @@ public class LayaDecisionClient implements DecisionClient {
 
     /**
      * 读取 choice 分布并做钳位（只钳位不归一，保留模型原始置信度）。
-     */
+     * @param probabilities 参数
+     * @param query 查询
+     * @return 返回值
+    */
     private static Map<String, Double> readDistribution(DecisionQuery query, JsonNode probabilities) {
         Map<String, Double> distribution = Wraps.linkedMap();
         probabilities.fields().forEachRemaining(e -> distribution.put(e.getKey(), clamp(e.getValue().asDouble(0.0D))));
@@ -284,7 +292,9 @@ public class LayaDecisionClient implements DecisionClient {
 
     /**
      * 把概率钳位到 [0, 1]。
-     */
+     * @param value 双精度数
+     * @return 返回值
+    */
     private static double clamp(double value) {
         if (Double.isNaN(value)) {
             return 0.0D;
@@ -293,9 +303,12 @@ public class LayaDecisionClient implements DecisionClient {
     }
 
     /**
-     * 校验分布之和大于 0（满足 {@link Decision} 构造约束），不做重缩放：
-     * Laya 输出已是 softmax 分布，原样透传最能保留模型真实置信度。
-     */
+     * 校验分布之和大于 0（满足 {@link Decision} 构造约束），不做重缩放： Laya 输出已是 softmax 分布，原样透传最能保留模型真实置信度。
+     * @param Map<String 参数
+     * @param distribution 参数
+     * @param queryId 字符串
+     * @return 返回值
+    */
     private static void ensurePositive(String queryId, Map<String, Double> distribution) {
         double sum = 0.0D;
         for (double value : distribution.values()) {

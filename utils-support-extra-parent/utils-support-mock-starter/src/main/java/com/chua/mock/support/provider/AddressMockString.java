@@ -52,6 +52,11 @@ public class AddressMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         String[] provinces = PROVINCE_CITIES.keySet().toArray(new String[0]);
         String province = environment.randomOf(provinces);

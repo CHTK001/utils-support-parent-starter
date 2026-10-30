@@ -448,6 +448,12 @@ public class MysqlMetaTable extends AbstractMetaTable {
          */
         private String collate;
 
+        /**
+         * Mysql Table Create Builder
+         * @param metaTable 参数
+         * @param tableName 字符串
+         * @return 返回值
+        */
         MysqlTableCreateBuilder(MysqlMetaTable metaTable, String tableName) {
             this.metaTable = metaTable;
             this.tableName = tableName;
@@ -634,6 +640,11 @@ public class MysqlMetaTable extends AbstractMetaTable {
          */
         private final List<String> clauses = Wraps.list();
 
+        /**
+         * Mysql Table Alter Builder
+         * @param metaTable 参数
+         * @return 返回值
+        */
         MysqlTableAlterBuilder(MysqlMetaTable metaTable) {
             this.metaTable = metaTable;
         }
@@ -776,6 +787,14 @@ public class MysqlMetaTable extends AbstractMetaTable {
          */
         private boolean first;
 
+        /**
+         * Mysql Alter Column Builder
+         * @param columnName 字符串
+         * @param columnType 字符串
+         * @param keyword 字符串
+         * @param parent 参数
+         * @return 返回值
+        */
         MysqlAlterColumnBuilder(MysqlTableAlterBuilder parent, String keyword, String columnName, String columnType) {
             this.parent = parent;
             this.keyword = keyword;
@@ -825,10 +844,18 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return parent;
         }
 
+        /**
+         * 刷新
+         * @return 返回值
+        */
         private void refresh() {
             parent.replaceSql(clauseIndex, rebuild());
         }
 
+        /**
+         * rebuild
+         * @return 返回值
+        */
         private String rebuild() {
             MysqlMetaTable target = parent.metaTable();
             StringBuilder sb = new StringBuilder(keyword)
@@ -885,6 +912,12 @@ public class MysqlMetaTable extends AbstractMetaTable {
          */
         private String type;
 
+        /**
+         * Mysql Alter Index Builder
+         * @param indexName 字符串
+         * @param parent 参数
+         * @return 返回值
+        */
         MysqlAlterIndexBuilder(MysqlTableAlterBuilder parent, String indexName) {
             this.parent = parent;
             this.indexName = indexName;
@@ -954,6 +987,12 @@ public class MysqlMetaTable extends AbstractMetaTable {
          */
         private String onUpdate;
 
+        /**
+         * Mysql Alter Foreign Key Builder
+         * @param fkName 字符串
+         * @param parent 参数
+         * @return 返回值
+        */
         MysqlAlterForeignKeyBuilder(MysqlTableAlterBuilder parent, String fkName) {
             this.parent = parent;
             this.fkName = fkName;

@@ -147,13 +147,15 @@ public class ImageGenerationSpec {
 
     /**
      * Prompt
-     */
+     * @return 返回值
+    */
     public String prompt() {
         return prompt;
     }
     /**
      * Ratio
-     */
+     * @return 返回值
+    */
     public String ratio() {
         return ratio;
     }
@@ -165,25 +167,29 @@ public class ImageGenerationSpec {
     }
     /**
      * Width
-     */
+     * @return 返回值
+    */
     public int width() {
         return width;
     }
     /**
      * Height
-     */
+     * @return 返回值
+    */
     public int height() {
         return height;
     }
     /**
      * Quality
-     */
+     * @return 返回值
+    */
     public String quality() {
         return quality;
     }
     /**
      * RefImageKey
-     */
+     * @return 返回值
+    */
     public String refImageKey() {
         return refImageKey;
     }

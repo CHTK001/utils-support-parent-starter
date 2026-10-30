@@ -72,6 +72,11 @@ public class DoubaoBrowserSession implements AutoCloseable {
      * 聊天请求脚本（页面内执行，自动触发签名 hook）
      */
     private static final String CHAT_SCRIPT = """
+            /**
+             * async
+             * @param args 参数
+             * @return 返回值
+            */
             async (args) => {
                 const extractMsg = (obj) => { try { return obj.content?.text || obj.text || JSON.stringify(obj); } catch(e) { return String(obj); } };
                 const csrfToken = document.cookie.split('; ').find(c => c.startsWith('passport_csrf_token='))?.split('=')[1] || '';

@@ -232,6 +232,10 @@ public class CircuitBreaker {
          */
         private String expressionType = "expr";
 
+        /**
+         * Builder
+         * @return 返回值
+        */
         Builder() {
         }
 

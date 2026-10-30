@@ -349,6 +349,14 @@ private int consumeValue(int index, String token) {
  final String description; // description
  final String defaultValue; // 默认值
 
+ /**
+  * Command Spec
+  * @param defaultValue 字符串
+  * @param description 字符串
+  * @param name 字符串
+  * @param shortName 字符串
+  * @return 返回值
+ */
  CommandSpec(String name, String shortName, String description, String defaultValue) {
  this.name = name;
  this.shortName = shortName;

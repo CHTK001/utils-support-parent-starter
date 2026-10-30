@@ -53,16 +53,11 @@ public class FelixBundleContext implements com.chua.common.support.osgi.BundleCo
     }
 
     /**
-     * 构造函数。
-     * <p>
-     * 传入归属 launcher 后，本上下文派生的 {@link FelixOsgiBundle} 会绑定该 launcher，
-     * 使其 {@code stop()} / {@code uninstall()} 具备事件同步屏障
-     * （Felix 在分发线程上异步投递 bundle 事件，不等待会读到滞后状态）。
-     * </p>
-     *
+     * 构造函数。 <p> 传入归属 launcher 后，本上下文派生的 {@link FelixOsgiBundle} 会绑定该 launcher， 使其 {@code stop()} / {@code uninstall()} 具备事件同步屏障 （Felix 在分发线程上异步投递 bundle 事件，不等待会读到滞后状态）。 </p>
      * @param delegate OSGI bundle 上下文
-     * @param owner    归属 launcher，可为 {@code null}
-     */
+     * @param owner 归属 launcher，可为 {@code null}
+     * @return 返回值
+    */
     FelixBundleContext(org.osgi.framework.BundleContext delegate, FelixOsgiLauncher owner) {
         this.delegate = delegate;
         this.owner = owner;

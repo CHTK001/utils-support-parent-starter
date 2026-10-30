@@ -17,10 +17,10 @@ public class Response {
 
     /**
      * 构造方法，创建 响应 实例。
-     *
      * @param status 状态，不允许为 null
      * @param url URL，不允许为 null
-     */
+     * @return 返回值
+    */
     Response(int status, String url) {
         this.status = status;
         this.url = url;
@@ -28,9 +28,10 @@ public class Response {
 
     /**
      * 构造方法，创建 响应 实例。
-     *
+     * @param Map<String 参数
      * @param d 方法入参 d
-     */
+     * @return 返回值
+    */
     Response(Map<String, Object> d) {
         this.status = d.get("status") == null ? 0 : ((Number) d.get("status")).intValue();
         this.url = (String) d.get("url");
@@ -38,14 +39,18 @@ public class Response {
 
     /**
      * 构造方法，创建 响应 实例。
-     *
      * @param d 方法入参 d
-     */
+     * @return 返回值
+    */
     Response(com.chua.playwright.support.engine.Engine.ResponseData d) {
         this.status = d.status;
         this.url = d.url;
     }
 
+    /**
+     * status
+     * @return 返回值
+    */
     public int status() {
         return status;
     }

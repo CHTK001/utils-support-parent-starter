@@ -140,12 +140,18 @@ public class FieldMappingContext {
          */
         private Object originalValue;
 
+        /**
+         * Builder
+         * @return 返回值
+        */
         Builder() {
         }
 
         /**
          * FieldName
-         */
+         * @param fieldName 字符串
+         * @return 返回值
+        */
         public Builder fieldName(String fieldName) {
             this.fieldName = fieldName;
             return this;
@@ -153,7 +159,9 @@ public class FieldMappingContext {
 
         /**
          * MappedName
-         */
+         * @param mappedName 字符串
+         * @return 返回值
+        */
         public Builder mappedName(String mappedName) {
             this.mappedName = mappedName;
             return this;
@@ -161,7 +169,9 @@ public class FieldMappingContext {
 
         /**
          * 格式化
-         */
+         * @param format 格式化
+         * @return 返回值
+        */
         public Builder format(String format) {
             this.format = format;
             return this;
@@ -169,7 +179,9 @@ public class FieldMappingContext {
 
         /**
          * DefaultValue
-         */
+         * @param defaultValue 字符串
+         * @return 返回值
+        */
         public Builder defaultValue(String defaultValue) {
             this.defaultValue = defaultValue;
             return this;
@@ -177,7 +189,10 @@ public class FieldMappingContext {
 
         /**
          * Context
-         */
+         * @param Map<String 参数
+         * @param context 参数
+         * @return 返回值
+        */
         public Builder context(Map<String, Object> context) {
             this.context = context;
             return this;
@@ -185,7 +200,9 @@ public class FieldMappingContext {
 
         /**
          * OriginalValue
-         */
+         * @param originalValue 对象
+         * @return 返回值
+        */
         public Builder originalValue(Object originalValue) {
             this.originalValue = originalValue;
             return this;
@@ -193,7 +210,8 @@ public class FieldMappingContext {
 
         /**
          * 构建
-         */
+         * @return 返回值
+        */
         public FieldMappingContext build() {
             return new FieldMappingContext(fieldName, mappedName, format, defaultValue, context, originalValue);
         }

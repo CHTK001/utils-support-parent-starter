@@ -338,11 +338,11 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
 
     /**
      * 解析required文件
-     *
-     * @param root 根
      * @param fileName 文件名称
+     * @param root 根
      * @return resolverequired文件的结果
-     */
+     * @throws IOException 异常
+    */
     private Path resolveRequiredFile(Path root, String fileName) throws IOException {
         Path file = root.resolve(fileName);
         if (Files.exists(file)) {

@@ -174,11 +174,12 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
 
     /**
      * 拷贝目录
+     * @param config 配置
      * @param source 源
      * @param target Target
-     * @param config 配置
      * @return 副本目录的结果
-     */
+     * @throws IOException 异常
+    */
     private List<Path> copyDirectory(Path source, Path target, BackupConfig config) throws IOException {
         List<Path> copied = Wraps.list();
         if (!Files.exists(source)) {
@@ -229,7 +230,9 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
      * 压缩为 压缩
      * @param source 源
      * @param zipFile 压缩文件
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void compressToZip(Path source, Path zipFile) throws IOException {
         Files.createDirectories(zipFile.getParent());
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipFile))) {
@@ -252,7 +255,9 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
     /**
      * 递归删除目录
      * @param dir dir
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void deleteDirectory(Path dir) throws IOException {
         if (!Files.exists(dir)) {
             return;

@@ -133,6 +133,8 @@ public class MiniLMEmbeddingTranslator {
 
     /**
      * Prepare
+     * @return 返回值
+     * @throws Exception 异常
     */
     private synchronized void prepare() throws Exception {
         if (session != null) {
@@ -178,11 +180,11 @@ public class MiniLMEmbeddingTranslator {
 
     /**
      * 计算文本的 384 维句向量（已 L2 归一化）。
-     *
-     * @param text    输入文本
-     * @param maxLen  最大序列长度（必须 ≥ 2，包含 [CLS]/[SEP]）
+     * @param maxLen 最大序列长度（必须 ≥ 2，包含 [CLS]/[SEP]）
+     * @param text 输入文本
      * @return 长度 384 的 float 数组
-     */
+     * @throws Exception 异常
+    */
     public float[] embed(String text, int maxLen) throws Exception {
         if (maxLen < 2) {
             throw new IllegalArgumentException("maxLen 必须 >= 2");

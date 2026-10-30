@@ -78,12 +78,12 @@ final class CdpPage implements BrowserPage {
 
     /**
      * 构造页面
-     *
-     * @param connection     CDP 连接
-     * @param targetId       标签页 ID
-     * @param sessionId      会话 ID
      * @param commandTimeout 命令超时
-     */
+     * @param connection CDP 连接
+     * @param sessionId 会话 ID
+     * @param targetId 标签页 ID
+     * @return 返回值
+    */
     CdpPage(CdpConnection connection, String targetId, String sessionId, Duration commandTimeout) {
         this.connection = connection;
         this.targetId = targetId;

@@ -65,117 +65,144 @@ public class GeoCity {
 
     /**
      * 获取Country
-     */
+     * @return 返回值
+    */
     public String getCountry() {
         return country;
     }
     /**
      * 设置Country
-     */
+     * @param country 字符串
+     * @return 返回值
+    */
     public void setCountry(String country) {
         this.country = country;
     }
 
     /**
      * 获取Province
-     */
+     * @return 返回值
+    */
     public String getProvince() {
         return province;
     }
     /**
      * 设置Province
-     */
+     * @param province 字符串
+     * @return 返回值
+    */
     public void setProvince(String province) {
         this.province = province;
     }
 
     /**
      * 获取City
-     */
+     * @return 返回值
+    */
     public String getCity() {
         return city;
     }
     /**
      * 设置City
-     */
+     * @param city 字符串
+     * @return 返回值
+    */
     public void setCity(String city) {
         this.city = city;
     }
 
     /**
      * 获取Isp
-     */
+     * @return 返回值
+    */
     public String getIsp() {
         return isp;
     }
     /**
      * 设置Isp
-     */
+     * @param isp 字符串
+     * @return 返回值
+    */
     public void setIsp(String isp) {
         this.isp = isp;
     }
 
     /**
      * 获取Ip
-     */
+     * @return 返回值
+    */
     public String getIp() {
         return ip;
     }
     /**
      * 设置Ip
-     */
+     * @param ip 字符串
+     * @return 返回值
+    */
     public void setIp(String ip) {
         this.ip = ip;
     }
 
     /**
      * 获取Latitude
-     */
+     * @return 返回值
+    */
     public Double getLatitude() {
         return latitude;
     }
     /**
      * 设置Latitude
-     */
+     * @param latitude 双精度数
+     * @return 返回值
+    */
     public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
     /**
      * 获取Longitude
-     */
+     * @return 返回值
+    */
     public Double getLongitude() {
         return longitude;
     }
     /**
      * 设置Longitude
-     */
+     * @param longitude 双精度数
+     * @return 返回值
+    */
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 
     /**
      * 获取Postal
-     */
+     * @return 返回值
+    */
     public String getPostal() {
         return postal;
     }
     /**
      * 设置Postal
-     */
+     * @param postal 字符串
+     * @return 返回值
+    */
     public void setPostal(String postal) {
         this.postal = postal;
     }
 
     /**
      * 获取TimeZone
-     */
+     * @return 返回值
+    */
     public String getTimeZone() {
         return timeZone;
     }
     /**
      * 设置TimeZone
-     */
+     * @param timeZone 字符串
+     * @return 返回值
+    */
     public void setTimeZone(String timeZone) {
         this.timeZone = timeZone;
     }

@@ -502,6 +502,12 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
          */
         private final String streamId;
 
+        /**
+         * Logging Print Stream
+         * @param out 输出流
+         * @param streamId 字符串
+         * @return 返回值
+        */
         LoggingPrintStream(OutputStream out, String streamId) {
             super(out);
             this.streamId = streamId;

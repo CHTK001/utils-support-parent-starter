@@ -240,6 +240,12 @@ public class MysqlMetaView extends AbstractMetaView {
          */
         private String checkOption;
 
+        /**
+         * Mysql View Create Builder
+         * @param metaView 参数
+         * @param viewName 字符串
+         * @return 返回值
+        */
         MysqlViewCreateBuilder(MysqlMetaView metaView, String viewName) {
             this.metaView = metaView;
             this.viewName = viewName;
@@ -320,6 +326,11 @@ public class MysqlMetaView extends AbstractMetaView {
          */
         private String checkOption;
 
+        /**
+         * Mysql View Alter Builder
+         * @param metaView 参数
+         * @return 返回值
+        */
         MysqlViewAlterBuilder(MysqlMetaView metaView) {
             this.metaView = metaView;
         }

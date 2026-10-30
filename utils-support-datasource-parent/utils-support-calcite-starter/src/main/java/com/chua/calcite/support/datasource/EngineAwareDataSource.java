@@ -84,6 +84,12 @@ public final class EngineAwareDataSource implements DataSource {
         */
         private final EngineUpdateSqlExecutor updateExecutor;
 
+        /**
+         * Connection Handler
+         * @param target 参数
+         * @param updateExecutor 参数
+         * @return 返回值
+        */
         ConnectionHandler(Connection target, EngineUpdateSqlExecutor updateExecutor) {
             this.target = target;
             this.updateExecutor = updateExecutor;

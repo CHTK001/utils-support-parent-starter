@@ -92,7 +92,9 @@ import java.util.UUID;
      * 处理创建Lease
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleCreateLease(ServerRequest request, ServerResponse response) throws Exception {
         String body = request.getBodyString();
         Map<String, Object> params = parseBody(body);
@@ -120,7 +122,9 @@ import java.util.UUID;
      * 处理校验Connection
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleValidateConnection(ServerRequest request, ServerResponse response) throws Exception {
         Map<String, Object> result = Wraps.map();
         result.put("serverVersion", "3.2.4");
@@ -145,7 +149,9 @@ import java.util.UUID;
      * 处理Ping
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handlePing(ServerRequest request, ServerResponse response) throws Exception {
         Map<String, Object> result = licenseService.createPingResponse();
 
@@ -160,7 +166,9 @@ import java.util.UUID;
      * 处理generateguid
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleGenerateGuid(ServerRequest request, ServerResponse response) throws Exception {
         String clientId = request.getParam("clientId");
         String guid = licenseService.generateGuid(clientId);
@@ -180,7 +188,9 @@ import java.util.UUID;
      * 处理obtainticket
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleObtainTicket(ServerRequest request, ServerResponse response) throws Exception {
         String salt = request.getParam("salt");
         String username = request.getParam("userName");
@@ -214,7 +224,9 @@ licenseType=0
      * 处理释放Ticket
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleReleaseTicket(ServerRequest request, ServerResponse response) throws Exception {
         String ticketId = request.getParam("ticketId");
 

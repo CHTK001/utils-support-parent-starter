@@ -62,11 +62,11 @@ class LanzouHttp {
 
     /**
      * 构造 HTTP 客户端。
-     *
-     * @param rawCookie      初始 Cookie 串，形如 {@code ylogin=123; phpdisk_info=xxx}，可为 空
      * @param connectTimeout 连接超时（毫秒）
-     * @param readTimeout    读取超时（毫秒）
-     */
+     * @param rawCookie 初始 Cookie 串，形如 {@code ylogin=123; phpdisk_info=xxx}，可为 空
+     * @param readTimeout 读取超时（毫秒）
+     * @return 返回值
+    */
     LanzouHttp(String rawCookie, int connectTimeout, int readTimeout) {
         this.connectTimeout = connectTimeout;
         this.readTimeout = readTimeout;

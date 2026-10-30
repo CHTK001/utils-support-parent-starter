@@ -23,6 +23,11 @@ public class VersionMockString implements MockString {
 
     @Override
     @Nonnull
+    /**
+     * get String
+     * @param environment 参数
+     * @return 返回值
+    */
     public String getString(@Nonnull MockEnvironment environment) {
         int major = environment.nextInt(0, 9);
         int minor = environment.nextInt(0, 30);

@@ -59,9 +59,13 @@ public class ObjectBeanPath implements BeanPath {
 
     /**
      * 设置Value
-     */
-    @Override
-    @SuppressWarnings("unchecked")
+    /**
+     * 设置Value
+     * @param path 字符串
+     * @param source 对象
+     * @param value 对象
+     * @return 返回值
+    */
     public void setValue(Object source, String path, Object value) {
         if (source == null || path == null || path.isEmpty()) {
             return;

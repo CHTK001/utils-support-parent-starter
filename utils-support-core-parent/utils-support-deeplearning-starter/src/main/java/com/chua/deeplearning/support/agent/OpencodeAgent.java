@@ -773,6 +773,11 @@ public class OpencodeAgent implements Agent {
         */
         int stepCount;
 
+        /**
+         * Stream State
+         * @param onEvent 参数
+         * @return 返回值
+        */
         StreamState(Consumer<AgentEvent> onEvent) {
             this.onEvent = onEvent;
         }
@@ -1169,6 +1174,10 @@ public class OpencodeAgent implements Agent {
         */
         private static final long serialVersionUID = 1L;
 
+        /**
+         * Iteration Limit
+         * @return 返回值
+        */
         IterationLimit() {
             super("maxToolIterations reached", null, false, false);
         }

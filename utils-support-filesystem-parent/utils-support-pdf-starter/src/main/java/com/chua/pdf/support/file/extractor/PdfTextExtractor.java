@@ -65,7 +65,8 @@ public class PdfTextExtractor implements TextExtractor {
      * 解析 PDF 书签（大纲），建立 页码 → 章节名称 的映射。
      * @param doc doc
      * @return resolveBookmarks的结果
-     */
+     * @throws IOException 异常
+    */
     private Map<Integer, String> resolveBookmarks(PDDocument doc) throws IOException {
         Map<Integer, String> pageToSection = Wraps.linkedMap();
         PDDocumentOutline outline = doc.getDocumentCatalog().getDocumentOutline();

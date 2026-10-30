@@ -209,7 +209,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
      * 执行 POST 请求
      * @param requestBody 请求主体
      * @return 执行post的结果
-     */
+     * @throws IOException 异常
+    */
     protected byte[] doPost(String requestBody) throws IOException {
         RequestBody body = RequestBody.create(requestBody, JSON);
         Request.Builder builder = new Request.Builder()
@@ -240,7 +241,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
      * 从 JSON 响应中解析结果
      * @param json json
      * @return 解析结果从json的结果
-     */
+     * @throws IOException 异常
+    */
     protected byte[] parseResultFromJson(String json) throws IOException {
         try {
             JsonNode root = objectMapper.readTree(json);

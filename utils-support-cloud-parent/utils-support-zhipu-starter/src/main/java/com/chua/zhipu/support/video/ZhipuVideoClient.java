@@ -282,6 +282,7 @@ public class ZhipuVideoClient implements VideoClient {
 
     /**
      * normalizebaseurl
+     * @return 返回值
     */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();

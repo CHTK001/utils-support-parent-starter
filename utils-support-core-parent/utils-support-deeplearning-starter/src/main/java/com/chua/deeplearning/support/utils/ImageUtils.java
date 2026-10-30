@@ -181,9 +181,10 @@ public final class ImageUtils {
 
     /**
      * 递归删除目录（文件在前、目录在后，避免非空目录删不掉）。
-     *
      * @param root 待删除的根目录
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private static void deleteRecursively(Path root) throws IOException {
         try (var paths = Files.walk(root)) {
             var all = paths.collect(Collectors.toList());

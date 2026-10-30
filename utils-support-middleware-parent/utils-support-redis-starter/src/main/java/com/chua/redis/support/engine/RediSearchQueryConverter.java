@@ -271,9 +271,9 @@ public class RediSearchQueryConverter {
 
         /**
          * 创建参数持有者。
-         *
          * @param params 参数列表
-         */
+         * @return 返回值
+        */
         ParamHolder(List<Object> params) {
             this.params = params;
             this.idx = 0;

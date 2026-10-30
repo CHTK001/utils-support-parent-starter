@@ -166,15 +166,10 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     }
 
     /**
-     * 准备会话。
-     *
-     * <p>权重按三级回退解析，使「外部目录绑定」与「显式路径」都能生效：</p>
-     * <ol>
-     *   <li>框架注入的路径 / 外部目录（{@code setModelPath}，目录内取 inference.onnx）；</li>
-     *   <li>注册表解析（{@code ModelRegistry.resolveModelPath}，覆盖下载缓存等）；</li>
-     *   <li>classpath 兜底（{@link NativeLoader} 按 {@code resourceBase} 解压，内置 jar 场景）。</li>
-     * </ol>
-     */
+     * 准备会话。 <p>权重按三级回退解析，使「外部目录绑定」与「显式路径」都能生效：</p> <ol> <li>框架注入的路径 / 外部目录（{@code setModelPath}，目录内取 inference.onnx）；</li> <li>注册表解析（{@code ModelRegistry.resolveModelPath}，覆盖下载缓存等）；</li> <li>classpath 兜底（{@link NativeLoader} 按 {@code resourceBase} 解压，内置 jar 场景）。</li> </ol>
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
@@ -243,7 +238,9 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
 
     /**
      * 预热推理（全零小图），确保后续调用稳定。
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void warmup() throws Exception {
         try {
             int w = 960;

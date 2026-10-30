@@ -502,6 +502,12 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
          */
         private String accessMethod;
 
+        /**
+         * Postgres Table Create Builder
+         * @param metaTable 参数
+         * @param tableName 字符串
+         * @return 返回值
+        */
         PostgresTableCreateBuilder(PostgresqlMetaTable metaTable, String tableName) {
             this.metaTable = metaTable;
             this.tableName = tableName;
@@ -652,6 +658,10 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
             }
         }
 
+        /**
+         * last
+         * @return 返回值
+        */
         private ColumnDef last() {
             if (columns.isEmpty()) {
                 throw new IllegalStateException("请先调用 column(String, String)");
@@ -688,6 +698,11 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
          */
         private final Map<String, String> columnComments = Wraps.linkedMap();
 
+        /**
+         * Postgres Table Alter Builder
+         * @param metaTable 参数
+         * @return 返回值
+        */
         PostgresTableAlterBuilder(PostgresqlMetaTable metaTable) {
             this.metaTable = metaTable;
         }
@@ -950,6 +965,12 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
          */
         private String type;
 
+        /**
+         * Postgres Alter Index Builder
+         * @param indexName 字符串
+         * @param parent 参数
+         * @return 返回值
+        */
         PostgresAlterIndexBuilder(PostgresTableAlterBuilder parent, String indexName) {
             this.parent = parent;
             this.indexName = indexName;
@@ -1043,6 +1064,12 @@ public class PostgresqlMetaTable extends AbstractMetaTable {
          */
         private String onUpdate;
 
+        /**
+         * Postgres Alter Foreign Key Builder
+         * @param fkName 字符串
+         * @param parent 参数
+         * @return 返回值
+        */
         PostgresAlterForeignKeyBuilder(PostgresTableAlterBuilder parent, String fkName) {
             this.parent = parent;
             this.fkName = fkName;

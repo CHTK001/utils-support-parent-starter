@@ -84,12 +84,13 @@ public class DirectoryBackup implements BackupStrategy {
 
     /**
      * 仅拷贝变更的文件
-     * @param source 源
-     * @param target Target
      * @param config 配置
      * @param since 自
+     * @param source 源
+     * @param target Target
      * @return 副本改变文件的结果
-     */
+     * @throws IOException 异常
+    */
     private List<Path> copyChangedFiles(Path source, Path target, BackupConfig config, long since) throws IOException {
         List<Path> changed = Wraps.list();
         if (!Files.exists(source)) {

@@ -472,7 +472,8 @@ public final class WindowsConPtyProcess implements Closeable {
      * @param cmdArray cmd数组，不允许为 null
      * @param workDir work目录，不允许为 null
      * @return WindowsConPty处理 对象
-     */
+     * @throws IOException 异常
+    */
     public static WindowsConPtyProcess start(String[] cmdArray, String workDir) throws IOException {
         if (!AVAILABLE) {
             throw new UnsupportedOperationException("当前系统不支持 ConPTY（Windows 伪终端）");
@@ -702,7 +703,8 @@ public final class WindowsConPtyProcess implements Closeable {
     /**
      * WaitFor
      * @return 结果数值
-     */
+     * @throws InterruptedException 异常
+    */
     public int waitFor() throws InterruptedException {
         if (hProcess == null) {
             return -1;
@@ -727,7 +729,8 @@ public final class WindowsConPtyProcess implements Closeable {
      * WaitFor
      * @param timeout 超时时间，不允许为 null
      * @return 是否成功（true 表示成功）
-     */
+     * @throws InterruptedException 异常
+    */
     public boolean waitFor(long timeout) throws InterruptedException {
         if (hProcess == null) {
             return true;
@@ -834,6 +837,11 @@ public final class WindowsConPtyProcess implements Closeable {
          */
         private final MemorySegment handle;
 
+        /**
+         * Con Pty Input Stream
+         * @param handle 处理
+         * @return 返回值
+        */
         ConPtyInputStream(MemorySegment handle) {
             this.handle = handle;
         }

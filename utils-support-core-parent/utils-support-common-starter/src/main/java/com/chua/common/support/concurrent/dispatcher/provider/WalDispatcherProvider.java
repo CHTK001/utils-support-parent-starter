@@ -381,6 +381,11 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
          */
         private final Object writeLock = new Object();
 
+        /**
+         * Wal Log
+         * @param file 路径
+         * @return 返回值
+        */
         WalLog(Path file) {
             this.file = file;
             try {
@@ -413,7 +418,9 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
 
         /**
          * 确保 mmap 缓冲区有足够空间写入指定大小的数据。
-         */
+         * @param needed 整数
+         * @return 返回值
+        */
         private void ensureMmap(int needed) {
             if (!useMmap || mappedBuf == null) {
                 return;

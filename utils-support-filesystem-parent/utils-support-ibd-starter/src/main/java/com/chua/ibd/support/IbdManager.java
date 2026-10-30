@@ -143,7 +143,9 @@ public class IbdManager {
 
     /**
      * 从 JAR 内解压资源
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void extractResources() throws IOException {
         String classPath = getClass().getProtectionDomain()
                 .getCodeSource().getLocation().getPath();
@@ -159,9 +161,10 @@ public class IbdManager {
 
     /**
      * extract从jar
-     *
      * @param jarPath jar路径
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void extractFromJar(String jarPath) throws IOException {
         Path jar = Path.of(jarPath);
         try (var fs = FileSystems.newFileSystem(jar)) {

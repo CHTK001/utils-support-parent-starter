@@ -1258,11 +1258,11 @@ public final class ModelRegistry {
 
     /**
      * extract类路径resource
-     *
      * @param resourcePath resource路径
      * @param url url
      * @return extract类路径resource的结果
-     */
+     * @throws IOException 异常
+    */
     private static Path extractClasspathResource(String resourcePath, URL url) throws IOException {
         Path target = extractRoot.resolve(resourcePath);
         Files.createDirectories(target.getParent());

@@ -78,11 +78,11 @@ public class LibreOfficeFileConvertSystem implements FileConvertSystem {
 
     /**
      * 将输入流写入临时文件
-     *
-     * @param in     输入流
+     * @param in 输入流
      * @param suffix 文件后缀
      * @return 临时文件绝对路径
-     */
+     * @throws IOException 异常
+    */
     private static String writeTemp(InputStream in, String suffix) throws IOException {
         File f = File.createTempFile("lo_", suffix);
         try (OutputStream os = new FileOutputStream(f)) {

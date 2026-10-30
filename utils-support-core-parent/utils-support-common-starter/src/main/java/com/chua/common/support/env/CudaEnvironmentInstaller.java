@@ -64,6 +64,11 @@ public final class CudaEnvironmentInstaller {
         }
         if (INSTALLING.compareAndSet(false, true)) {
             log.warn("[cuda-env] CUDA 运行库未就绪，异步触发安装脚本...");
+            /**
+             * Install Callback
+             * @param InstallCallback( 参数
+             * @return 返回值
+            */
             installAsync(new InstallCallback() {
                 @Override
                 public void onFinished(boolean success, String detail) {

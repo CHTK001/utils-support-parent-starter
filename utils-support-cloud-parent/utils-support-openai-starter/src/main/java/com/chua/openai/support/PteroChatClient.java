@@ -356,6 +356,12 @@ public class PteroChatClient implements ChatClient {
             StringBuilder text = new StringBuilder();
             AiUsage[] usage = new AiUsage[1];
             String[] failure = new String[1];
+            /**
+             * chat
+             * @param prompt 参数
+             * @param { 参数
+             * @return 返回值
+            */
             chat(prompt, response -> {
                 if (response.getState() == ChatResponse.State.STOP) {
                     usage[0] = response.getUsage();
@@ -380,6 +386,13 @@ public class PteroChatClient implements ChatClient {
 
     @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
+        /**
+         * chat
+         * @param ( 参数
+         * @param consumer 参数
+         * @param prompt 参数
+         * @return 返回值
+        */
         chat(prompt, consumer, () -> {
         }, e -> {
             throw new RuntimeException("Ptero 对话请求失败: " + e.getMessage(), e);

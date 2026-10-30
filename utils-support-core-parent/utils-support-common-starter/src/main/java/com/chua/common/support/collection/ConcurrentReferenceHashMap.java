@@ -241,9 +241,11 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
      * 获取
-     */
-    @Override
-
+    /**
+     * 获取
+     * @param key 对象
+     * @return 返回值
+    */
     public V get(Object key) {
         Reference<K, V> ref = getReference(key, Restructure.WHEN_NECESSARY);
         Entry<K, V> entry = (ref != null ? ref.get() : null);
@@ -252,9 +254,12 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
      * 获取OrDefault
-     */
-    @Override
-
+    /**
+     * 获取OrDefault
+     * @param defaultValue 参数
+     * @param key 对象
+     * @return 返回值
+    */
     public V getOrDefault(Object key, V defaultValue) {
         Reference<K, V> ref = getReference(key, Restructure.WHEN_NECESSARY);
         Entry<K, V> entry = (ref != null ? ref.get() : null);
@@ -287,18 +292,24 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
      * Put
-     */
-    @Override
-
+    /**
+     * Put
+     * @param key 参数
+     * @param value 参数
+     * @return 返回值
+    */
     public V put(K key, V value) {
         return put(key, value, true);
     }
 
     /**
      * PutIfAbsent
-     */
-    @Override
-
+    /**
+     * PutIfAbsent
+     * @param key 参数
+     * @param value 参数
+     * @return 返回值
+    */
     public V putIfAbsent(K key, V value) {
         return put(key, value, false);
     }
@@ -315,9 +326,15 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         return doTask(key, new AbstractTask<V>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.RESIZE) {
             /**
              * 执行
-             */
-            @Override
-
+            /**
+             * 执行
+             * @param Entry<K 参数
+             * @param Reference<K 参数
+             * @param entries 参数
+             * @param entry 参数
+             * @param ref 参数
+             * @return 返回值
+            */
             protected V execute(Reference<K, V> ref, Entry<K, V> entry, Entries<V> entries) {
                 if (entry != null) {
                     V oldValue = entry.getValue();
@@ -334,16 +351,23 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
      * 移除
-     */
-    @Override
-
+    /**
+     * 移除
+     * @param key 对象
+     * @return 返回值
+    */
     public V remove(Object key) {
         return doTask(key, new AbstractTask<V>(TaskOption.RESTRUCTURE_AFTER, TaskOption.SKIP_IF_EMPTY) {
             /**
              * 执行
-             */
-            @Override
-
+            /**
+             * 执行
+             * @param Entry<K 参数
+             * @param Reference<K 参数
+             * @param entry 参数
+             * @param ref 参数
+             * @return 返回值
+            */
             protected V execute(Reference<K, V> ref, Entry<K, V> entry) {
                 if (entry != null) {
                     if (ref != null) {
@@ -403,16 +427,24 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
      * Replace
-     */
-    @Override
-
+    /**
+     * Replace
+     * @param key 参数
+     * @param value 参数
+     * @return 返回值
+    */
     public V replace(K key, final V value) {
         return doTask(key, new AbstractTask<V>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.SKIP_IF_EMPTY) {
             /**
              * 执行
-             */
-            @Override
-
+            /**
+             * 执行
+             * @param Entry<K 参数
+             * @param Reference<K 参数
+             * @param entry 参数
+             * @param ref 参数
+             * @return 返回值
+            */
             protected V execute(Reference<K, V> ref, Entry<K, V> entry) {
                 if (entry != null) {
                     V oldValue = entry.getValue();
@@ -586,7 +618,11 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 获取Reference
-         */
+         * @param hash 哈希
+         * @param key 对象
+         * @param restructure 参数
+         * @return 返回值
+        */
         public Reference<K, V> getReference(Object key, int hash, Restructure restructure) {
             if (restructure == Restructure.WHEN_NECESSARY) {
                 restructureIfNecessary(false);
@@ -673,7 +709,11 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * Restructure
-         */
+         * @param Reference<K 参数
+         * @param allowResize 布尔值
+         * @param ref 参数
+         * @return 返回值
+        */
         private void restructure(boolean allowResize, Reference<K, V> ref) {
             boolean needsResize;
             lock();
@@ -735,7 +775,12 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 查找InChain
-         */
+         * @param Reference<K 参数
+         * @param hash 哈希
+         * @param key 对象
+         * @param ref 参数
+         * @return 返回值
+        */
         private Reference<K, V> findInChain(Reference<K, V> ref, Object key, int hash) {
             Reference<K, V> currRef = ref;
             while (currRef != null) {
@@ -755,28 +800,36 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 创建ReferenceArray
-         */
+         * @param size 获取数量
+         * @return 返回值
+        */
         private Reference<K, V>[] createReferenceArray(int size) {
             return new Reference[size];
         }
 
         /**
          * 获取Index
-         */
+         * @param Reference<K 参数
+         * @param hash 哈希
+         * @param references 参数
+         * @return 返回值
+        */
         private int getIndex(int hash, Reference<K, V>[] references) {
             return (hash & (references.length - 1));
         }
 
         /**
          * 返回当前引用数组的大小。
-         */
+         * @return 返回值
+        */
         public final int getSize() {
             return this.references.length;
         }
 
         /**
          * 返回此分段中的引用总数。
-         */
+         * @return 返回值
+        */
         public final int getCount() {
             return this.count.get();
         }
@@ -851,27 +904,31 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 获取Key
-         */
-        @Override
-
+        /**
+         * 获取Key
+         * @return 返回值
+        */
         public K getKey() {
             return this.key;
         }
 
         /**
          * 获取Value
-         */
-        @Override
-
+        /**
+         * 获取Value
+         * @return 返回值
+        */
         public V getValue() {
             return this.value;
         }
 
         /**
          * 设置Value
-         */
-        @Override
-
+        /**
+         * 设置Value
+         * @param value 参数
+         * @return 返回值
+        */
         public V setValue(V value) {
             V previous = this.value;
             this.value = value;
@@ -932,7 +989,9 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 是否拥有Option
-         */
+         * @param option 参数
+         * @return 返回值
+        */
         public boolean hasOption(TaskOption option) {
             return this.options.contains(option);
         }
@@ -1281,9 +1340,10 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 获取Next
-         */
-        @Override
-
+        /**
+         * 获取Next
+         * @return 返回值
+        */
         public Reference<K, V> getNext() {
             return this.nextReference;
         }

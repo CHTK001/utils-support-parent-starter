@@ -25,7 +25,9 @@ public class VectorStorageBench {
     /**
      * main。
      * @param args 参数
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     public static void main(String[] args) throws Exception {
         testDir = Files.createTempDirectory("vector-bench-");
         System.out.println("========================================");
@@ -150,7 +152,9 @@ public class VectorStorageBench {
 
     /**
      * 测试默认hybrid。
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private static void testDefaultHybrid() throws Exception {
         System.out.println("【2. DefaultVectorStorage (HYBRID)】");
         int dim = DIMENSION;
@@ -228,7 +232,9 @@ public class VectorStorageBench {
 
     /**
      * 测试largescale。
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private static void testLargeScale() throws Exception {
         System.out.println("【3. 大规模 - 100万条向量】");
         int dim = DIMENSION;

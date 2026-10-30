@@ -992,10 +992,10 @@ public class ParquetEngine extends AbstractEngine {
 
         /**
          * 创建 Parquet 目录数据源。
-         *
          * @param dataSourceName 数据源名称
-         * @param dir            基础目录
-         */
+         * @param dir 基础目录
+         * @return 返回值
+        */
         ParquetDataSource(String dataSourceName, String dir) {
             this.dataSourceName = dataSourceName;
             this.dir = dir;

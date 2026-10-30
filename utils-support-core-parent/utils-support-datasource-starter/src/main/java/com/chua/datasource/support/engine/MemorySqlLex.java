@@ -38,9 +38,9 @@ final class MemorySqlLex {
 
         /**
          * 构造词法流并完成全量切分。
-         *
          * @param sql 原始 SQL 文本
-         */
+         * @return 返回值
+        */
         TokenStream(String sql) {
             this.tokens = tokenize(sql);
         }

@@ -215,11 +215,11 @@ public class DuckDBEngine extends JdbcEngine {
 
         /**
          * 构造基于 DriverManager 的数据源。
-         *
-         * @param jdbcUrl  JDBC 连接串
-         * @param username 用户名（可为 null）
+         * @param jdbcUrl JDBC 连接串
          * @param password 密码（可为 null）
-         */
+         * @param username 用户名（可为 null）
+         * @return 返回值
+        */
         DriverDataSource(String jdbcUrl, String username, String password) {
             this.jdbcUrl = jdbcUrl;
             this.username = username;

@@ -120,7 +120,8 @@ public class ZookeeperClient implements AutoCloseable {
     /**
      * 等待连接就绪。
      * @return blockuntil连接的结果
-     */
+     * @throws InterruptedException 异常
+    */
     public ZookeeperClient blockUntilConnected() throws InterruptedException {
         curator.blockUntilConnected();
         return this;
@@ -350,6 +351,11 @@ public class ZookeeperClient implements AutoCloseable {
          */
         private Map<String, byte[]> acl;
 
+        /**
+         * Create Builder
+         * @param curator 参数
+         * @return 返回值
+        */
         CreateBuilder(CuratorFramework curator) {
             this.curator = curator;
         }
@@ -454,7 +460,8 @@ public class ZookeeperClient implements AutoCloseable {
         /**
          * 执行创建，返回创建的路径。
          * @return for路径的结果
-         */
+         * @throws Exception 异常
+        */
         public String forPath() throws Exception {
             var op = curator.create();
             if (creatingParentsIfNeeded) {
@@ -488,6 +495,11 @@ public class ZookeeperClient implements AutoCloseable {
          */
         private boolean quiet = false;
 
+        /**
+         * Delete Builder
+         * @param curator 参数
+         * @return 返回值
+        */
         DeleteBuilder(CuratorFramework curator) {
             this.curator = curator;
         }
@@ -525,7 +537,9 @@ public class ZookeeperClient implements AutoCloseable {
 
         /**
          * 执行删除。
-         */
+         * @return 返回值
+         * @throws Exception 异常
+        */
         public void forPath() throws Exception {
             var op = curator.delete();
             if (deletingChildrenIfNeeded) {
@@ -553,6 +567,11 @@ public class ZookeeperClient implements AutoCloseable {
          */
         private String path;
 
+        /**
+         * Get Data Builder
+         * @param curator 参数
+         * @return 返回值
+        */
         GetDataBuilder(CuratorFramework curator) {
             this.curator = curator;
         }
@@ -571,7 +590,8 @@ public class ZookeeperClient implements AutoCloseable {
         /**
          * 获取数据（字节数组）。
          * @return forBytes的结果
-         */
+         * @throws Exception 异常
+        */
         public byte[] forBytes() throws Exception {
             return curator.getData().forPath(path);
         }
@@ -579,7 +599,8 @@ public class ZookeeperClient implements AutoCloseable {
         /**
          * 获取数据（字符串）。
          * @return for字符串的结果
-         */
+         * @throws Exception 异常
+        */
         public String forString() throws Exception {
             byte[] data = forBytes();
             return data != null ? new String(data) : null;
@@ -588,7 +609,8 @@ public class ZookeeperClient implements AutoCloseable {
         /**
          * 获取数据长度（-1 表示节点不存在）。
          * @return forStat的结果
-         */
+         * @throws Exception 异常
+        */
         public int forStat() throws Exception {
             var stat = curator.checkExists().forPath(path);
             return stat != null ? stat.getDataLength() : -1;
@@ -614,6 +636,11 @@ public class ZookeeperClient implements AutoCloseable {
          */
         private byte[] data;
 
+        /**
+         * Set Data Builder
+         * @param curator 参数
+         * @return 返回值
+        */
         SetDataBuilder(CuratorFramework curator) {
             this.curator = curator;
         }
@@ -651,7 +678,9 @@ public class ZookeeperClient implements AutoCloseable {
 
         /**
          * 执行设置。
-         */
+         * @return 返回值
+         * @throws Exception 异常
+        */
         public void forPath() throws Exception {
             curator.setData().forPath(path, data);
         }
@@ -672,6 +701,11 @@ public class ZookeeperClient implements AutoCloseable {
          */
         private String path;
 
+        /**
+         * Check Exists Builder
+         * @param curator 参数
+         * @return 返回值
+        */
         CheckExistsBuilder(CuratorFramework curator) {
             this.curator = curator;
         }
@@ -690,7 +724,8 @@ public class ZookeeperClient implements AutoCloseable {
         /**
          * 判断是否存在。
          * @return forBool的结果
-         */
+         * @throws Exception 异常
+        */
         public boolean forBool() throws Exception {
             return curator.checkExists().forPath(path) != null;
         }
@@ -711,6 +746,11 @@ public class ZookeeperClient implements AutoCloseable {
          */
         private String path;
 
+        /**
+         * Get Children Builder
+         * @param curator 参数
+         * @return 返回值
+        */
         GetChildrenBuilder(CuratorFramework curator) {
             this.curator = curator;
         }
@@ -729,7 +769,8 @@ public class ZookeeperClient implements AutoCloseable {
         /**
          * 获取子节点列表。
          * @return for列表的结果
-         */
+         * @throws Exception 异常
+        */
         public List<String> forList() throws Exception {
             return curator.getChildren().forPath(path);
         }
@@ -737,7 +778,8 @@ public class ZookeeperClient implements AutoCloseable {
         /**
          * 获取子节点数量。
          * @return for数量的结果
-         */
+         * @throws Exception 异常
+        */
         public int forCount() throws Exception {
             return forList().size();
         }

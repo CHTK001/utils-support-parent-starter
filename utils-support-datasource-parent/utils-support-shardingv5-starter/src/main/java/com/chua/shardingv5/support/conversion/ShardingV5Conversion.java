@@ -376,7 +376,10 @@ public class ShardingV5Conversion implements DataSourceConversion {
 
     /**
      * 确保算法已注册；内置算法自动注册并设 分库分表-数量
-     */
+     * @param algoName 字符串
+     * @param count 统计数量
+     * @return 返回值
+    */
     private void ensureAlgo(String algoName, int count) {
         if (algorithms.containsKey(algoName)) {
             validateAlgo(algoName);
@@ -489,6 +492,14 @@ public class ShardingV5Conversion implements DataSourceConversion {
         final String shardingColumn;
         final int shardCount;
         final String algorithm;
+        /**
+         * Table Config
+         * @param a 字符串
+         * @param c 整数
+         * @param p 字符串
+         * @param sc 字符串
+         * @return 返回值
+        */
         TableConfig(String p, String sc, int c, String a) {
             this.prefix = p;
             this.shardingColumn = sc;

@@ -308,6 +308,14 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
             }
         }
 
+        /**
+         * resolve Source
+         * @param args 参数
+         * @param beanPath 参数
+         * @param ctx 参数
+         * @param source 字符串
+         * @return 返回值
+        */
         private static Object resolveSource(String source, InvocationContext ctx, Object[] args, BeanPath beanPath) {
             if (source.startsWith("result.")) {
                 return beanPath.getValue(ctx.getResult(), source.substring(7));
@@ -347,7 +355,8 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
         /**
          * 解析Placeholders
          * @param text text
-         */
+         * @return 返回值
+        */
         private String resolvePlaceholders(String text) {
             if (StringUtils.isEmpty(text) || !text.contains("${")) {
                 return text;
@@ -355,6 +364,11 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
             return propertyResolver.resolvePlaceholders(text);
         }
 
+        /**
+         * resolve Method Name
+         * @param method 参数
+         * @return 返回值
+        */
         private static String resolveMethodName(Method method) {
             RemoteMethod rm = method.getAnnotation(RemoteMethod.class);
             if (rm != null && !StringUtils.isEmpty(rm.value())) {
@@ -363,6 +377,12 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
             return method.getName();
         }
 
+        /**
+         * run Filter Chain
+         * @param ctx 参数
+         * @param filters 参数
+         * @return 返回值
+        */
         private static void runFilterChain(InvocationContext ctx, List<ServerFilter> filters) {
             ServerFilterChain chain = new ServerFilterChain() {
                 /**

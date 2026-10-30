@@ -282,6 +282,12 @@ public class JdkTelnetServer extends AbstractServer {
      * 注册BuiltinCommands
      */
     private void registerBuiltinCommands() {
+        /**
+         * register Command
+         * @param "help" 参数
+         * @param args 参数
+         * @return 返回值
+        */
         registerCommand("help", (session, args) -> {
             session.println("可用命令:");
             for (String name : commands.keySet()) {
@@ -289,18 +295,42 @@ public class JdkTelnetServer extends AbstractServer {
             }
         });
 
+        /**
+         * register Command
+         * @param "whoami" 参数
+         * @param args 参数
+         * @return 返回值
+        */
         registerCommand("whoami", (session, args) -> {
             session.println("会话ID: " + session.getClientId());
         });
 
+        /**
+         * register Command
+         * @param "time" 参数
+         * @param args 参数
+         * @return 返回值
+        */
         registerCommand("time", (session, args) -> {
             session.println("时间: " + java.time.LocalDateTime.now());
         });
 
+        /**
+         * register Command
+         * @param "echo" 参数
+         * @param args 参数
+         * @return 返回值
+        */
         registerCommand("echo", (session, args) -> {
             session.println(String.join(" ", args));
         });
 
+        /**
+         * register Command
+         * @param "quit" 参数
+         * @param args 参数
+         * @return 返回值
+        */
         registerCommand("quit", (session, args) -> {
             session.println("再见!");
             session.close();
@@ -386,6 +416,13 @@ public class JdkTelnetServer extends AbstractServer {
          */
         private final DataOutputStream writer;
 
+        /**
+         * Telnet Session
+         * @param clientId 字符串
+         * @param socket 参数
+         * @return 返回值
+         * @throws IOException 异常
+        */
         TelnetSession(String clientId, Socket socket) throws IOException {
             this.clientId = clientId;
             this.socket = socket;
@@ -444,7 +481,10 @@ public class JdkTelnetServer extends AbstractServer {
 
         /**
          * 输出文本（UTF-8 编码）。
-         */
+         * @param text 字符串
+         * @return 返回值
+         * @throws IOException 异常
+        */
         public void print(String text) throws IOException {
             writer.write(text.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             writer.flush();
@@ -452,7 +492,10 @@ public class JdkTelnetServer extends AbstractServer {
 
         /**
          * 输出文本并换行（UTF-8 编码）。
-         */
+         * @param text 字符串
+         * @return 返回值
+         * @throws IOException 异常
+        */
         public void println(String text) throws IOException {
             writer.write((text + "\r\n").getBytes(java.nio.charset.StandardCharsets.UTF_8));
             writer.flush();
@@ -460,7 +503,8 @@ public class JdkTelnetServer extends AbstractServer {
 
         /**
          * 获取客户端 ID。
-         */
+         * @return 返回值
+        */
         public String getClientId() {
             return clientId;
         }
@@ -478,7 +522,8 @@ public class JdkTelnetServer extends AbstractServer {
 
         /**
          * 判断会话是否活跃。
-         */
+         * @return 返回值
+        */
         public boolean isActive() {
             return socket != null && !socket.isClosed() && socket.isConnected();
         }

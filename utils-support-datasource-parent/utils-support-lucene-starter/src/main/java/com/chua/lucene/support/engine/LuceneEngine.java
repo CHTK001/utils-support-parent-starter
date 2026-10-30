@@ -492,6 +492,13 @@ import java.util.concurrent.ConcurrentHashMap;
         */
         private boolean sortAsc = true;
 
+        /**
+         * Group By Query Wrapper
+         * @param engine 参数
+         * @param entityClass 参数
+         * @param groupByCols 参数
+         * @return 返回值
+        */
         GroupByQueryWrapper(LuceneEngine engine, Class<T> entityClass, String... groupByCols) {
             this.engine = engine;
             this.entityClass = entityClass;

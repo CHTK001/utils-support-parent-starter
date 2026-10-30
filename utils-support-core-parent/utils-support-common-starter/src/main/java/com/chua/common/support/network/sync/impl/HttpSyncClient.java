@@ -325,7 +325,9 @@ public class HttpSyncClient implements SyncClient {
 
     /**
      * 拉取Messages
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void pullMessages() throws Exception {
         if (subscriptions.isEmpty()) {
             ThreadUtils.sleep(500);
@@ -382,7 +384,9 @@ public class HttpSyncClient implements SyncClient {
 
     /**
      * 注册Client
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void registerClient() throws Exception {
         String body = "clientId=" + java.net.URLEncoder.encode(clientId, "UTF-8");
         HttpRequest request = HttpRequest.newBuilder()

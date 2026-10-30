@@ -194,6 +194,12 @@ public class MysqlMetaUser implements MetaUser {
          */
         private String host = "%";
 
+        /**
+         * Create Step
+         * @param dataSource 数据源
+         * @param username 设置用户名
+         * @return 返回值
+        */
         CreateStep(DataSource dataSource, String username) {
             this.dataSource = dataSource;
             this.username = MysqlSqlNames.checkUserName(username);
@@ -258,6 +264,12 @@ public class MysqlMetaUser implements MetaUser {
          */
         private String password = null;
 
+        /**
+         * Alter Step
+         * @param dataSource 数据源
+         * @param username 设置用户名
+         * @return 返回值
+        */
         AlterStep(DataSource dataSource, String username) {
             this.dataSource = dataSource;
             this.username = MysqlSqlNames.checkUserName(username);

@@ -544,6 +544,11 @@ public class TmdbCountry {
         */
         private final String nativeName;
 
+        /**
+         * Code
+         * @param nativeName 字符串
+         * @return 返回值
+        */
         Code(String nativeName) {
             this.nativeName = nativeName;
         }

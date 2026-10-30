@@ -282,6 +282,11 @@ public interface VectorStorageProvider {
          */
         private Object properties;
 
+        /**
+         * Builder
+         * @param provider 参数
+         * @return 返回值
+        */
         Builder(VectorStorageProvider provider) {
             this.provider = provider;
         }

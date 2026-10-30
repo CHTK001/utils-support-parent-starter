@@ -96,12 +96,12 @@ class LzwEncoder {
 
     /**
      * 构造方法，创建 LzwEncoder 实例。
-     *
-     * @param width 宽度，不允许为 null
+     * @param colorDepth color深度，不允许为 null
      * @param height 高度，不允许为 null
      * @param pixels 方法入参 pixels
-     * @param colorDepth color深度，不允许为 null
-     */
+     * @param width 宽度，不允许为 null
+     * @return 返回值
+    */
     LzwEncoder(int width, int height, byte[] pixels, int colorDepth) {
         imgW = width;
         imgH = height;

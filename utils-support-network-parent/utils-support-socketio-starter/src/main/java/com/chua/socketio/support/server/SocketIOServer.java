@@ -326,6 +326,12 @@ public class SocketIOServer extends AbstractServer {
          */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
+        /**
+         * Simple Server Request
+         * @param body 字符串
+         * @param topic 字符串
+         * @return 返回值
+        */
         SimpleServerRequest(String topic, String body) {
             this.topic = topic;
             this.body = body;

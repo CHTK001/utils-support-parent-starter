@@ -123,7 +123,10 @@ public class WevisdocHttpClient {
 
     /**
      * 将 DJL Image 转为 PNG 字节。
-     */
+     * @param image 参数
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private static byte[] toPngBytes(Image image) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         image.save(baos, "png");

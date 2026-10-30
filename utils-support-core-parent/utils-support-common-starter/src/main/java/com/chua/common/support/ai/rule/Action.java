@@ -51,6 +51,11 @@ public enum Action {
      */
     private final String description;
 
+    /**
+     * Action
+     * @param description 字符串
+     * @return 返回值
+    */
     Action(String description) {
         this.description = description;
     }

@@ -184,6 +184,12 @@ public class ResultBuffer {
         final TaskResult<?> result; // 结果
         final long timestamp; // 时间戳
 
+        /**
+         * Result Entry
+         * @param result 参数
+         * @param timestamp 长整数
+         * @return 返回值
+        */
         ResultEntry(TaskResult<?> result, long timestamp) {
             this.result = result;
             this.timestamp = timestamp;

@@ -240,7 +240,8 @@ public class Socks5ProxyServer extends AbstractProxyServer {
      * @param in 方法入参 in
      * @param out 方法入参 out
      * @return 是否成功（true 表示成功）
-     */
+     * @throws IOException 异常
+    */
     protected boolean negotiateAuth(InputStream in, OutputStream out) throws IOException {
         int ver = in.read();
         if (ver != VERSION) {
@@ -291,7 +292,8 @@ public class Socks5ProxyServer extends AbstractProxyServer {
      * @param in 方法入参 in
      * @param out 方法入参 out
      * @return 是否成功（true 表示成功）
-     */
+     * @throws IOException 异常
+    */
     protected boolean doUserPassAuth(InputStream in, OutputStream out) throws IOException {
         int ver = in.read();
         if (ver != USER_PASS_VERSION) {
@@ -319,7 +321,8 @@ public class Socks5ProxyServer extends AbstractProxyServer {
      * 读取Request
      * @param in 方法入参 in
      * @return Socks5请求 对象
-     */
+     * @throws IOException 异常
+    */
     protected Socks5Request readRequest(InputStream in) throws IOException {
         int ver = in.read();
         int cmd = in.read();
@@ -383,7 +386,9 @@ public class Socks5ProxyServer extends AbstractProxyServer {
      * @param clientSocket 客户端Socket，不允许为 null
      * @param out 方法入参 out
      * @param target 目标，不允许为 null
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     protected void handleConnect(Socket clientSocket, OutputStream out, InetSocketAddress target) throws IOException {
         if (target == null || target.isUnresolved()) {
             writeReply(out, REP_HOST_UNREACHABLE, new InetSocketAddress(0));
@@ -412,10 +417,12 @@ public class Socks5ProxyServer extends AbstractProxyServer {
 
     /**
      * 写入Reply
+     * @param bindAddr 绑定Addr，不允许为 null
      * @param out 方法入参 out
      * @param rep 方法入参 rep
-     * @param bindAddr 绑定Addr，不允许为 null
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     protected void writeReply(OutputStream out, byte rep, InetSocketAddress bindAddr) throws IOException {
         out.write(new byte[]{VERSION, rep, 0x00, ATYP_IPV4, 0, 0, 0, 0, 0, 0});
         out.flush();

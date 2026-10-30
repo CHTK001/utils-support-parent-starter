@@ -366,11 +366,11 @@ public class AlibabaCasProvider implements AcmeProvider {
 
     /**
      * 创建订单并返回 订单id（缓存避免重复下单）
-     *
-     * @param domain domain
      * @param csr csr
+     * @param domain domain
      * @return 创建订单id的结果
-     */
+     * @throws Exception 异常
+    */
     private Long createOrderId(String domain, String csr) throws Exception {
         return orderIdCache.computeIfAbsent(domain + "|" + (csr == null ? "" : csr), key -> {
             try {
@@ -400,10 +400,10 @@ public class AlibabaCasProvider implements AcmeProvider {
 
     /**
      * 查询 instanceid（首次申请后立即可用）
-     *
      * @param orderId 订单标识
      * @return 查询instanceid的结果
-     */
+     * @throws Exception 异常
+    */
     private String queryInstanceId(Long orderId) throws Exception {
         if (orderId == null) {
             return null;
@@ -432,10 +432,10 @@ public class AlibabaCasProvider implements AcmeProvider {
 
     /**
      * 轮询证书详情（最多 60 次，每次 5 秒）
-     *
      * @param orderId 订单标识
      * @return poll证书detail的结果
-     */
+     * @throws Exception 异常
+    */
     private GetCertificateDetailResponse pollCertificateDetail(Long orderId) throws Exception {
         int maxAttempts = 60;
         while (maxAttempts-- > 0) {

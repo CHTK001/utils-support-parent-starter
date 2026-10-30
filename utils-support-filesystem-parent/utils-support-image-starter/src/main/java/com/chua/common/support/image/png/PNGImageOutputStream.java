@@ -76,6 +76,8 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
 
     /**
      * 收尾 chunk
+     * @return 返回值
+     * @throws IOException 异常
     */
     protected void finishChunk() throws IOException {
  // 写入 CRC

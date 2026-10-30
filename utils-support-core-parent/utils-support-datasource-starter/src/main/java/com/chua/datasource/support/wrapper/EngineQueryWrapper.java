@@ -333,6 +333,11 @@ public class EngineQueryWrapper<T> extends LambdaQueryWrapper<T> {
 
     @Override
     @SafeVarargs
+    /**
+     * group By
+     * @param columns 参数
+     * @return 返回值
+    */
     public final EngineQueryWrapper<T> groupBy(String... columns) {
         super.groupBy(columns);
         return this;

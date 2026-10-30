@@ -194,7 +194,9 @@ public class HybridStrategy implements RouterStrategy {
 
         /**
          * Matches
-         */
+         * @param prompt 字符串
+         * @return 返回值
+        */
         public boolean matches(String prompt) {
             return condition == null || condition.test(prompt);
         }

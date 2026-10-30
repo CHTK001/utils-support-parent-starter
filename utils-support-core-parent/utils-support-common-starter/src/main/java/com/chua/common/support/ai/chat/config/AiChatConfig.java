@@ -407,10 +407,10 @@ public class AiChatConfig {
 
         /**
          * 构造一个 GroupBuilder。
-         *
+         * @param name 组名
          * @param parent 父级配置
-         * @param name   组名
-         */
+         * @return 返回值
+        */
         GroupBuilder(AiChatConfig parent, String name) {
             this.parent = parent;
             this.name = name;
@@ -560,11 +560,11 @@ public class AiChatConfig {
 
         /**
          * 构造一个 ClientBuilder。
-         *
-         * @param parent   父级 GroupBuilder
+         * @param apiKey API 密钥
+         * @param parent 父级 GroupBuilder
          * @param provider 提供方标识
-         * @param apiKey   API 密钥
-         */
+         * @return 返回值
+        */
         ClientBuilder(GroupBuilder parent, String provider, String apiKey) {
             this.parent = parent;
             this.provider = provider;

@@ -147,11 +147,11 @@ public class SenseVoiceTranslator {
     }
 
     /**
-     * 从 ONNX 模型自定义元数据读取完整 CMVN（neg_mean / inv_stddev，560 维）
-     * 及 LFR 参数，覆盖硬编码占位值。
-     *
+     * 从 ONNX 模型自定义元数据读取完整 CMVN（neg_mean / inv_stddev，560 维） 及 LFR 参数，覆盖硬编码占位值。
      * @param session 已创建的 ORT 会话
-     */
+     * @return 返回值
+     * @throws OrtException 异常
+    */
     private void applyModelMetadata(OrtSession session) throws OrtException {
         Map<String, String> meta = session.getMetadata().getCustomMetadata();
         if (meta == null || meta.isEmpty()) {
@@ -205,9 +205,10 @@ public class SenseVoiceTranslator {
 
     /**
      * 加载 标识→令牌 词表（令牌.txt 格式：令牌 空格 标识）
-     *
      * @param tokensPath 令牌路径
-     */
+     * @return 返回值
+     * @throws IOException 异常
+    */
     private void loadVocab(Path tokensPath) throws IOException {
         this.vocab = Wraps.map(4096);
         for (String line : Files.readAllLines(tokensPath)) {

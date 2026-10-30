@@ -224,12 +224,12 @@ public class MultipartBody {
 
         /**
          * 创建单个 multipart 部件。
-         *
-         * @param name        字段名
-         * @param content     内容字节数组
+         * @param content 内容字节数组
          * @param contentType 内容类型
-         * @param filename    文件名（文件上传时使用，文本字段传 null）
-         */
+         * @param filename 文件名（文件上传时使用，文本字段传 null）
+         * @param name 字段名
+         * @return 返回值
+        */
         Part(String name, byte[] content, String contentType, String filename) {
             this.name = name;
             this.content = content;

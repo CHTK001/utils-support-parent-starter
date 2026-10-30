@@ -46,9 +46,9 @@ public enum LogLevel {
 
     /**
      * 构造方法，创建 Log级别 实例。
-     *
      * @param severity 方法入参 severity
-     */
+     * @return 返回值
+    */
     LogLevel(int severity) {
         this.severity = severity;
     }

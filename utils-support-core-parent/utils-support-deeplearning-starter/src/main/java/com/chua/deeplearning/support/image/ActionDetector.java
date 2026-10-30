@@ -131,11 +131,11 @@ class DefaultActionDetector implements ActionDetector {
 
     /**
      * 构造方法，创建 DefaultActionDetector 实例。
-     *
      * @param engine 引擎，不允许为 null
      * @param modelName 模型名称，不允许为 null
      * @param setting 方法入参 setting
-     */
+     * @return 返回值
+    */
     DefaultActionDetector(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;
@@ -185,6 +185,11 @@ class DefaultActionDetector implements ActionDetector {
 
     @Override
     @SuppressWarnings("unchecked")
+    /**
+     * detect
+     * @param videoData 参数
+     * @return 返回值
+    */
     public List<ActionDetectionResult> detect(byte[] videoData) {
         ITranslator<byte[], Object> t =
                 (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);

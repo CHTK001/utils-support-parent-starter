@@ -278,6 +278,13 @@ public class MysqlMetaPermission implements MetaPermission {
          */
         private String user;
 
+        /**
+         * Grant Step
+         * @param dataSource 数据源
+         * @param privileges 字符串
+         * @param user 字符串
+         * @return 返回值
+        */
         GrantStep(DataSource dataSource, String privileges, String user) {
             this.dataSource = dataSource;
             this.privileges = checkPrivileges(privileges);
@@ -334,6 +341,13 @@ public class MysqlMetaPermission implements MetaPermission {
          */
         private String user;
 
+        /**
+         * Revoke Step
+         * @param dataSource 数据源
+         * @param privileges 字符串
+         * @param user 字符串
+         * @return 返回值
+        */
         RevokeStep(DataSource dataSource, String privileges, String user) {
             this.dataSource = dataSource;
             this.privileges = checkPrivileges(privileges);

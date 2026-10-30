@@ -247,6 +247,11 @@ public class ApolloClient implements AutoCloseable {
         */
         private String namespace = "application";
 
+        /**
+         * Config Operation
+         * @param client 参数
+         * @return 返回值
+        */
         ConfigOperation(ApolloClient client) {
             this.client = client;
         }

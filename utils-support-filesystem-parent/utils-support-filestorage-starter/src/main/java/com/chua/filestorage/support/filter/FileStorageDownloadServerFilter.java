@@ -84,10 +84,11 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
 
     /**
      * 处理Download
-     *
      * @param request 请求
      * @param response 响应
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleDownload(ServerRequest request, ServerResponse response) throws Exception {
  // 从 路径 解析文件路径：/{bucket}/{filepath}
         String key = resolveFilepath(request);
@@ -132,11 +133,12 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
 
     /**
      * 处理Flash
-     *
+     * @param flashTokenOrCmd flash令牌或CMD
      * @param request 请求
      * @param response 响应
-     * @param flashTokenOrCmd flash令牌或CMD
-     */
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private void handleFlash(ServerRequest request, ServerResponse response, String flashTokenOrCmd) throws Exception {
         FlashTokenService svc = getFlashService();
 

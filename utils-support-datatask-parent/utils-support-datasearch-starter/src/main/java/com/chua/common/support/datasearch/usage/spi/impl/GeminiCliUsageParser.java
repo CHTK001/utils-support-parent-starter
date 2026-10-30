@@ -111,11 +111,11 @@ public class GeminiCliUsageParser extends BaseUsageParser {
 
     /**
      * 读取转录首行中的会话 id；该行随后不再进入下游解析。
-     *
      * @param reader 已读到首行的读取器
      * @return 首行携带的 sessionId；缺失或非法时 ""
+     * @throws IOException 异常
      * @throws java.io.IOException 读取失败
-     */
+    */
     private String readSessionId(java.io.BufferedReader reader) throws IOException {
         String first = reader.readLine();
         if (first == null || first.isBlank()) {

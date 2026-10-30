@@ -101,10 +101,10 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
 
         /**
          * 构造GZIP归档输入流适配器
-         *
+         * @param file 压缩文件
          * @param gzipInputStream commons-compress的gzipcompressor输入流
-         * @param file            压缩文件
-         */
+         * @return 返回值
+        */
         GzipArchiveInputStreamAdapter(GzipCompressorInputStream gzipInputStream, File file) {
             this.gzipInputStream = gzipInputStream;
             this.file = file;
@@ -112,10 +112,11 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
 
         /**
          * 获取下一个entry
+        /**
+         * 获取下一个entry
          * @return getNextEntry
-         */
-        @Override
-        @Nullable
+         * @throws IOException 异常
+        */
         public ArchiveEntry getNextEntry() throws IOException {
             if (entryRead) {
                 currentEntry = null;
@@ -233,6 +234,11 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         */
         private final String name;
 
+        /**
+         * Gzip Entry Adapter
+         * @param name 字符串
+         * @return 返回值
+        */
         GzipEntryAdapter(String name) {
             this.name = name;
         }

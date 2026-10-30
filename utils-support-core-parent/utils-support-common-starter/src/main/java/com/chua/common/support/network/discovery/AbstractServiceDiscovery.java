@@ -406,6 +406,13 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
          */
         final Set<String> serviceKeys;
 
+        /**
+         * Cached Load Balance
+         * @param loadBalance 参数
+         * @param serviceKeys 参数
+         * @param version 长整数
+         * @return 返回值
+        */
         CachedLoadBalance(LoadBalance loadBalance, long version, Set<String> serviceKeys) {
             this.loadBalance = loadBalance;
             this.version = version;

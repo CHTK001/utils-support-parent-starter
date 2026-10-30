@@ -464,6 +464,12 @@ public class InceptionChatClient implements ChatClient {
             StringBuilder text = new StringBuilder();
             StringBuilder reasoning = new StringBuilder();
             final AiUsage[] usage = new AiUsage[1];
+            /**
+             * chat
+             * @param prompt 参数
+             * @param { 参数
+             * @return 返回值
+            */
             chat(prompt, response -> {
                 if (response.getState() == ChatResponse.State.STOP) {
                     usage[0] = response.getUsage();
@@ -493,6 +499,13 @@ public class InceptionChatClient implements ChatClient {
 
     @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
+        /**
+         * chat
+         * @param ( 参数
+         * @param consumer 参数
+         * @param prompt 参数
+         * @return 返回值
+        */
         chat(prompt, consumer, () -> {
         }, e -> {
             throw new RuntimeException("对话请求失败: " + e.getMessage(), e);
@@ -521,6 +534,10 @@ public class InceptionChatClient implements ChatClient {
             }
             String payloadJson = Json.toJson(buildPayload(prompt));
 
+            /**
+             * Inception Stream Listener
+             * @return 返回值
+            */
             transport().chat(payloadJson, new InceptionTransport.InceptionStreamListener() {
                 @Override
                 public void onText(String delta) {

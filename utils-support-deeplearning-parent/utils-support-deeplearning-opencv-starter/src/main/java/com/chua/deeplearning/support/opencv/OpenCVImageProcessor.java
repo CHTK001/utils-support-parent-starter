@@ -133,10 +133,19 @@ public class OpenCVImageProcessor implements ImageProcessor {
      * @since 4.0.0
      */
     private static class CloseableMob extends MatOfByte implements AutoCloseable {
+        /**
+         * Closeable Mob
+         * @param data 参数
+         * @return 返回值
+        */
         CloseableMob(byte[] data) {
             super(data);
         }
 
+        /**
+         * Closeable Mob
+         * @return 返回值
+        */
         CloseableMob() {
             super();
         }

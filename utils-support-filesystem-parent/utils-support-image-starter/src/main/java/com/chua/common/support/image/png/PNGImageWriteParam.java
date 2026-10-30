@@ -49,9 +49,9 @@ public final class PNGImageWriteParam extends ImageWriteParam {
 
     /**
      * 构造函数，初始化 PNG 图像写入参数。
-     *
      * @param locale 本地化设置，确定压缩质量描述的语言
-     */
+     * @return 返回值
+    */
     PNGImageWriteParam(Locale locale) {
         super();
         // 支持渐进式编码

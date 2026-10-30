@@ -66,6 +66,12 @@ public class SpringConfigSourceProvider implements ConfigSourceProvider {
         */
         private final int priority;
 
+        /**
+         * Spring Property Source Adapter
+         * @param delegate 参数
+         * @param priority 整数
+         * @return 返回值
+        */
         SpringPropertySourceAdapter(org.springframework.core.env.PropertySource<?> delegate, int priority) {
             this.delegate = delegate;
             this.name = delegate.getName();

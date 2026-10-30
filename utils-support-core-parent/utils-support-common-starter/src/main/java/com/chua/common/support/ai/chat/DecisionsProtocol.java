@@ -35,6 +35,11 @@ public enum DecisionsProtocol {
      */
     private final String path;
 
+    /**
+     * Decisions Protocol
+     * @param path 字符串
+     * @return 返回值
+    */
     DecisionsProtocol(String path) {
         this.path = path;
     }

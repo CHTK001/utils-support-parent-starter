@@ -121,10 +121,10 @@ public class TaskForkDefinition {
 
     /**
      * 构造分叉节点定义。
-     *
-     * @param id      节点唯一标识
      * @param builder 流水线构建器
-     */
+     * @param id 节点唯一标识
+     * @return 返回值
+    */
     TaskForkDefinition(String id, PipelineBuilder builder) {
         this.id = id;
         this.builder = builder;

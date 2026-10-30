@@ -167,6 +167,10 @@ public final class ModelsDevChatClientIndicator implements ChatClientIndicator {
         return readLong(ensureSnapshot(), modelId, "context_window_tokens");
     }
 
+    /**
+     * ensure Snapshot
+     * @return 返回值
+    */
     private Snapshot ensureSnapshot() {
         Snapshot current = snapshot;
         long now = System.currentTimeMillis();
@@ -188,6 +192,10 @@ public final class ModelsDevChatClientIndicator implements ChatClientIndicator {
         }
     }
 
+    /**
+     * 获取
+     * @return 返回值
+    */
     private Snapshot fetch() {
         try {
             HttpRequest.Builder builder = HttpRequest.newBuilder()
@@ -275,7 +283,11 @@ public final class ModelsDevChatClientIndicator implements ChatClientIndicator {
 
     /**
      * 汇总单个模型的指标 Map（models.dev 字段 → 标准 snake_case 键）。
-     */
+     * @param model 参数
+     * @param providerId 字符串
+     * @param providerName 字符串
+     * @return 返回值
+    */
     private Map<String, Object> modelMetricsOf(String providerId, String providerName, JsonNode model) {
         Map<String, Object> metrics = new LinkedHashMap<>(24);
 
@@ -390,7 +402,9 @@ public final class ModelsDevChatClientIndicator implements ChatClientIndicator {
 
     /**
      * 负值（表示价格不定）按未知处理。
-     */
+     * @param value 参数
+     * @return 返回值
+    */
     private static BigDecimal nonNegative(BigDecimal value) {
         return value == null || value.signum() < 0 ? null : value;
     }
@@ -411,6 +425,15 @@ public final class ModelsDevChatClientIndicator implements ChatClientIndicator {
         return result;
     }
 
+    /**
+     * put Boolean
+     * @param Map<String 参数
+     * @param field 字符串
+     * @param key 字符串
+     * @param model 参数
+     * @param target 参数
+     * @return 返回值
+    */
     private static void putBoolean(Map<String, Object> target, String key, JsonNode model, String field) {
         JsonNode value = model.get(field);
         if (value != null && value.isBoolean()) {
@@ -418,6 +441,13 @@ public final class ModelsDevChatClientIndicator implements ChatClientIndicator {
         }
     }
 
+    /**
+     * read Price
+     * @param key 字符串
+     * @param modelId 字符串
+     * @param snapshot 参数
+     * @return 返回值
+    */
     private static BigDecimal readPrice(Snapshot snapshot, String modelId, String key) {
         if (snapshot == null || modelId == null) {
             return null;
@@ -436,6 +466,13 @@ public final class ModelsDevChatClientIndicator implements ChatClientIndicator {
         return null;
     }
 
+    /**
+     * read Long
+     * @param key 字符串
+     * @param modelId 字符串
+     * @param snapshot 参数
+     * @return 返回值
+    */
     private static Long readLong(Snapshot snapshot, String modelId, String key) {
         if (snapshot == null || modelId == null) {
             return null;

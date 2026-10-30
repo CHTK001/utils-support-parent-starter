@@ -1347,49 +1347,61 @@ public class RagPipeline implements RagClient {
 
         /**
          * 获取文档 ID
-         */
+         * @return 返回值
+        */
         public String docId() {
             return docId;
         }
         /**
          * 设置文档 ID
-         */
+         * @param docId 字符串
+         * @return 返回值
+        */
         public void docId(String docId) {
             this.docId = docId;
         }
         /**
          * 获取文件名
-         */
+         * @return 返回值
+        */
         public String fileName() {
             return fileName;
         }
         /**
          * 设置文件名
-         */
+         * @param fileName 字符串
+         * @return 返回值
+        */
         public void fileName(String fileName) {
             this.fileName = fileName;
         }
         /**
          * 获取文件类型
-         */
+         * @return 返回值
+        */
         public String fileType() {
             return fileType;
         }
         /**
          * 设置文件类型
-         */
+         * @param fileType 字符串
+         * @return 返回值
+        */
         public void fileType(String fileType) {
             this.fileType = fileType;
         }
         /**
          * 获取文件字节
-         */
+         * @return 返回值
+        */
         public byte[] data() {
             return data;
         }
         /**
          * 设置文件字节
-         */
+         * @param data 参数
+         * @return 返回值
+        */
         public void data(byte[] data) {
             this.data = data;
         }
@@ -1411,157 +1423,196 @@ public class RagPipeline implements RagClient {
         }
         /**
          * 获取查询语句
-         */
+         * @return 返回值
+        */
         public String query() {
             return query;
         }
         /**
          * 设置查询语句
-         */
+         * @param query 查询
+         * @return 返回值
+        */
         public void query(String query) {
             this.query = query;
         }
         /**
          * 获取 TopK
-         */
+         * @return 返回值
+        */
         public int topK() {
             return topK;
         }
         /**
          * 设置 TopK
-         */
+         * @param topK 整数
+         * @return 返回值
+        */
         public void topK(int topK) {
             this.topK = topK;
         }
         /**
          * 获取相似度阈值
-         */
+         * @return 返回值
+        */
         public double threshold() {
             return threshold;
         }
         /**
          * 设置相似度阈值
-         */
+         * @param threshold 双精度数
+         * @return 返回值
+        */
         public void threshold(double threshold) {
             this.threshold = threshold;
         }
         /**
          * 获取文件 ID
-         */
+         * @return 返回值
+        */
         public String currentFileId() {
             return currentFileId;
         }
         /**
          * 设置文件 ID
-         */
+         * @param currentFileId 字符串
+         * @return 返回值
+        */
         public void currentFileId(String currentFileId) {
             this.currentFileId = currentFileId;
         }
         /**
          * 获取抽取文本
-         */
+         * @return 返回值
+        */
         public String currentText() {
             return currentText;
         }
         /**
          * 设置抽取文本
-         */
+         * @param currentText 字符串
+         * @return 返回值
+        */
         public void currentText(String currentText) {
             this.currentText = currentText;
         }
         /**
          * 获取分块列表
-         */
+         * @return 返回值
+        */
         public List<TextChunk> currentChunks() {
             return currentChunks;
         }
         /**
          * 设置分块列表
-         */
+         * @param currentChunks 参数
+         * @return 返回值
+        */
         public void currentChunks(List<TextChunk> currentChunks) {
             this.currentChunks = currentChunks;
         }
         /**
          * 获取入库分块数
-         */
+         * @return 返回值
+        */
         public int currentChunkCount() {
             return currentChunkCount;
         }
         /**
          * 设置入库分块数
-         */
+         * @param currentChunkCount 整数
+         * @return 返回值
+        */
         public void currentChunkCount(int currentChunkCount) {
             this.currentChunkCount = currentChunkCount;
         }
         /**
          * 获取错误信息
-         */
+         * @return 返回值
+        */
         public String currentError() {
             return currentError;
         }
         /**
          * 设置错误信息
-         */
+         * @param currentError 字符串
+         * @return 返回值
+        */
         public void currentError(String currentError) {
             this.currentError = currentError;
         }
         /**
          * 获取查询向量
-         */
+         * @return 返回值
+        */
         public float[] currentQueryVector() {
             return currentQueryVector;
         }
         /**
          * 设置查询向量
-         */
+         * @param currentQueryVector 参数
+         * @return 返回值
+        */
         public void currentQueryVector(float[] currentQueryVector) {
             this.currentQueryVector = currentQueryVector;
         }
         /**
          * 获取检索命中向量
-         */
+         * @return 返回值
+        */
         public List<Vector> currentResults() {
             return currentResults;
         }
         /**
          * 设置检索命中向量
-         */
+         * @param currentResults 参数
+         * @return 返回值
+        */
         public void currentResults(List<Vector> currentResults) {
             this.currentResults = currentResults;
         }
         /**
          * 获取过滤后来源
-         */
+         * @return 返回值
+        */
         public List<RagResponse.Source> currentSources() {
             return currentSources;
         }
         /**
          * 设置过滤后来源
-         */
+         * @param currentSources 参数
+         * @return 返回值
+        */
         public void currentSources(List<RagResponse.Source> currentSources) {
             this.currentSources = currentSources;
         }
         /**
          * 获取模型回答
-         */
+         * @return 返回值
+        */
         public String currentAnswer() {
             return currentAnswer;
         }
         /**
          * 设置模型回答
-         */
+         * @param currentAnswer 字符串
+         * @return 返回值
+        */
         public void currentAnswer(String currentAnswer) {
             this.currentAnswer = currentAnswer;
         }
         /**
          * 获取查询响应
-         */
+         * @return 返回值
+        */
         public RagResponse currentResponse() {
             return currentResponse;
         }
         /**
          * 设置查询响应
-         */
+         * @param currentResponse 参数
+         * @return 返回值
+        */
         public void currentResponse(RagResponse currentResponse) {
             this.currentResponse = currentResponse;
         }
@@ -1583,25 +1634,31 @@ public class RagPipeline implements RagClient {
         }
         /**
          * 获取处理中标志
-         */
+         * @return 返回值
+        */
         public boolean processing() {
             return processing;
         }
         /**
          * 设置处理中标志
-         */
+         * @param processing 布尔值
+         * @return 返回值
+        */
         public void processing(boolean processing) {
             this.processing = processing;
         }
         /**
          * 获取入库文档元数据
-         */
+         * @return 返回值
+        */
         public RagDocument currentDocument() {
             return currentDocument;
         }
         /**
          * 设置入库文档元数据
-         */
+         * @param currentDocument 参数
+         * @return 返回值
+        */
         public void currentDocument(RagDocument currentDocument) {
             this.currentDocument = currentDocument;
         }

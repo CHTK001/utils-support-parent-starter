@@ -223,15 +223,22 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
     // ==================== 内部实现 ====================
 
     /**
-     * v3 判定：数据源的 {@code database} 字段写 {@code v3} 即视为 v3 实例。
-     *
-     * <p>不引入版本探测接口：那要多一次 HTTP 往返，而建数据源时就已经知道版本。</p>
-     */
+     * v3 判定：数据源的 {@code database} 字段写 {@code v3} 即视为 v3 实例。 <p>不引入版本探测接口：那要多一次 HTTP 往返，而建数据源时就已经知道版本。</p>
+     * @param request 参数
+     * @return 返回值
+    */
     private boolean isV3(MiddlewareConnectRequest request) {
         return "v3".equalsIgnoreCase(request.database().trim());
     }
 
-    /** Flux 查询：POST /api/v2/query，返回注解 CSV */
+    /**
+     * flux Query
+     * @param flux 字符串
+     * @param limit 整数
+     * @param request 参数
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private MiddlewareQueryResult fluxQuery(MiddlewareConnectRequest request, String flux, int limit) throws Exception {
         String q = flux + "\n|> limit(n: " + Math.max(1, limit) + ")";
         HttpResponse<String> r = send(request, "POST", "/api/v2/query?org=" + url(request.username()), q,
@@ -239,7 +246,14 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
         return parseCsv(r.body());
     }
 
-    /** SQL 查询（v3）：POST /api/v3/query_sql */
+    /**
+     * sql Query
+     * @param limit 整数
+     * @param request 参数
+     * @param sql 字符串
+     * @return 返回值
+     * @throws Exception 异常
+    */
     private MiddlewareQueryResult sqlQuery(MiddlewareConnectRequest request, String sql, int limit) throws Exception {
         String body = "{\"db\":\"" + jsonEscape(request.database()) + "\",\"q\":\""
                 + jsonEscape(sql) + "\",\"format\":\"json\"}";
@@ -273,15 +287,29 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
         return r;
     }
 
-    /** 基础地址 */
+    /**
+     * base Url
+     * @param request 参数
+     * @return 返回值
+    */
     private String baseUrl(MiddlewareConnectRequest request) {
         return "http://" + request.address();
     }
 
+    /**
+     * url
+     * @param s 字符串
+     * @return 返回值
+    */
     private String url(String s) {
         return URLEncoder.encode(s == null ? "" : s, StandardCharsets.UTF_8);
     }
 
+    /**
+     * json Escape
+     * @param s 字符串
+     * @return 返回值
+    */
     private String jsonEscape(String s) {
         if (s == null) {
             return "";
@@ -289,7 +317,12 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
         return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
     }
 
-    /** 从 JSON 响应里取某个字符串数组字段（v2 buckets 的 name） */
+    /**
+     * json String Array
+     * @param field 字符串
+     * @param json 字符串
+     * @return 返回值
+    */
     private List<String> jsonStringArray(String json, String field) {
         List<String> out = new ArrayList<>();
         Matcher m = Pattern.compile("\"" + field + "\"\\s*:\\s*\"([^\"]*)\"").matcher(json);
@@ -299,7 +332,11 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
         return out;
     }
 
-    /** 取响应体里的版本号 */
+    /**
+     * extract Version
+     * @param body 字符串
+     * @return 返回值
+    */
     private String extractVersion(String body) {
         if (body == null) {
             return "";
@@ -309,12 +346,10 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
     }
 
     /**
-     * 解析 InfluxDB 的注解 CSV 成表格。
-     *
-     * <p>格式：前若干行是 {@code #datatype}/{@code #group}/{@code #default} 注解，
-     * 之后第一行是列名。列名可能重复（result/table/_value），按首次出现顺序去重，
-     * 与前端「列并集推导」的口径一致。</p>
-     */
+     * 解析 InfluxDB 的注解 CSV 成表格。 <p>格式：前若干行是 {@code #datatype}/{@code #group}/{@code #default} 注解， 之后第一行是列名。列名可能重复（result/table/_value），按首次出现顺序去重， 与前端「列并集推导」的口径一致。</p>
+     * @param csv 字符串
+     * @return 返回值
+    */
     private MiddlewareQueryResult parseCsv(String csv) {
         if (csv == null || csv.isBlank()) {
             return MiddlewareQueryResult.empty();
@@ -352,7 +387,11 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
         return MiddlewareQueryResult.of(header, rows, false, rows.size(), 0);
     }
 
-    /** 单行 CSV 切分（支持引号转义） */
+    /**
+     * parse Csv Line
+     * @param line 字符串
+     * @return 返回值
+    */
     private List<String> parseCsvLine(String line) {
         List<String> out = new ArrayList<>();
         StringBuilder cur = new StringBuilder();
@@ -381,7 +420,11 @@ public class InfluxdbClientProvider implements MiddlewareClientProvider {
         return out;
     }
 
-    /** 解析 v3 SQL 的 JSON 行结果 */
+    /**
+     * parse Json Rows
+     * @param json 字符串
+     * @return 返回值
+    */
     private MiddlewareQueryResult parseJsonRows(String json) {
         if (json == null || json.isBlank()) {
             return MiddlewareQueryResult.empty();

@@ -493,11 +493,11 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
 
     /**
      * 带大小上限地读取压缩条目内容，超过上限时截断返回。
-     *
-     * @param in     压缩条目输入流
-     * @param limit  最大字节数
+     * @param in 压缩条目输入流
+     * @param limit 最大字节数
      * @return 条目内容字节；超过上限时仅返回前 limit 字节
-     */
+     * @throws IOException 异常
+    */
     private static byte[] readEntryLimited(InputStream in, int limit) throws IOException {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream(limit)) {
             byte[] buffer = new byte[8192];
