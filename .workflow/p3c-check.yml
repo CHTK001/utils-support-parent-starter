@@ -1,0 +1,24 @@
+version: 1.0
+name: p3c-check
+displayName: P3C 质量门禁
+triggers:
+  push:
+    branches:
+      include:
+        - master
+  pullRequest:
+    branches:
+      include:
+        - master
+stages:
+  - stage:
+      name: check
+      displayName: P3C 机械校验
+      steps:
+        - step:
+            name: run-gate
+            displayName: 运行门禁（11 项）
+            script: |
+              set -e
+              java -version
+              java tools/p3c-check/P3cCheck.java
