@@ -274,6 +274,9 @@ MODEL_REGISTRY = {
         {"id": "deepseek-ocr-2", "hf": "deepseek-ai/DeepSeek-OCR-2", "source": "huggingface", "runner": "deepseek_ocr"},
         # CPU 可用变体：官方权重内含硬编码 .cuda()，此 fork 将其改为 no-op 并放开设备约束
         {"id": "deepseek-ocr-2-cpu", "hf": "Dogacel/Universal-DeepSeek-OCR-2", "source": "huggingface", "runner": "deepseek_ocr"},
+        # ── SoMark OXR-1.0 远程文档解析（默认免费 API，可用 base_url/api_key 覆盖）──
+        {"id": "oxr-layout", "runner": "oxr"},
+        {"id": "oxr", "runner": "oxr"},
     ],
 }
 
@@ -329,6 +332,8 @@ def _create_runner(model_name: str, model_type: str, model_root: Path, entry: di
         return UnlimitedOcrRunner(model_name, model_type, model_root, entry)
     if entry.get("runner") == "deepseek_ocr":
         return DeepSeekOcrRunner(model_name, model_type, model_root, entry)
+    if entry.get("runner") == "oxr":
+        return OxrLayoutRunner(model_name, model_type, model_root, entry)
     if entry.get("local") and model_type in ("detection", "face_detection", "ocr"):
         return LocalVisionRunner(model_name, model_type, model_root, entry)
     if entry.get("local") and model_type == "vlm":
@@ -2537,5 +2542,110 @@ class OpenAIVlmRunner(BaseRunner):
         data = resp.json()
 
         return data["choices"][0]["message"]["content"]
+
+
+class OxrLayoutRunner(BaseRunner):
+    """SoMark OXR-1.0 远程文档解析 — 整页图 → 结构化 Markdown + 布局坐标。
+
+    OXR 是 SoMark 开源的文档解析模型（1.3B，olmOCR/OmniDocBench/docparsingbench SOTA），
+    本地推理需 24GB 显存；这里通过其官方 HTTP API 调用，无需本地 GPU。
+
+    默认使用免费 API（api_key=dummy），可用环境变量或 params 覆盖：
+      - OXR_BASE_URL / params.base_url  服务地址，默认 https://free-oxr.somark.ai/api/v1
+      - OXR_API_KEY  / params.api_key   API 密钥，免费 API 用 dummy
+      - params.output_formats           默认 ["markdown", "json"]
+      - params.timeout                  请求超时秒数，默认 600
+
+    输入:
+        image (base64): 文档图像（与 file_url 二选一）
+        file_url (可选): 文档下载链接
+    输出:
+        dict: {"markdown": str, "json": {"pages": [...]}, "page_count": int, "file_name": str}
+              json.pages[].blocks[] 含 type / bbox=[x1,y1,x2,y2] / content，可直接映射版面检测框。
+    """
+
+    DEFAULT_BASE_URL = "https://free-oxr.somark.ai/api/v1"
+    DEFAULT_USER_AGENT = (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+    )
+
+    def run(self, inputs: dict, params: dict) -> dict:
+        image_b64 = inputs.get("image", "")
+        file_url = inputs.get("file_url", "")
+        if not image_b64 and not file_url:
+            raise ValueError("缺少 image 或 file_url 输入")
+
+        base_url = (params.get("base_url") or os.environ.get("OXR_BASE_URL")
+                    or self.DEFAULT_BASE_URL).rstrip("/")
+        if not base_url.endswith("/parse/sync") and "/v1" not in base_url:
+            base_url = base_url + "/api/v1"
+        endpoint = base_url if base_url.endswith("/parse/sync") else base_url + "/parse/sync"
+
+        api_key = params.get("api_key") or os.environ.get("OXR_API_KEY") or "dummy"
+        output_formats = params.get("output_formats") or ["markdown", "json"]
+        if isinstance(output_formats, str):
+            output_formats = [output_formats]
+        element_formats = params.get("element_formats") or {
+            "image": "none", "formula": "latex", "table": "html",
+        }
+
+        form = {
+            "api_key": api_key,
+            "output_formats": output_formats,
+            "element_formats": json.dumps(element_formats, ensure_ascii=False),
+        }
+        feature_config = params.get("feature_config")
+        if feature_config:
+            form["feature_config"] = json.dumps(feature_config, ensure_ascii=False)
+
+        files = None
+        if image_b64:
+            raw = base64.b64decode(image_b64)
+            filename, mime = self._detect_image(raw)
+            files = {"file": (filename, raw, mime)}
+        else:
+            form["file_url"] = file_url
+
+        headers = {"User-Agent": self.DEFAULT_USER_AGENT, "Accept": "application/json"}
+        log.info("[OXR] 解析请求: %s (image=%s)", endpoint, "yes" if image_b64 else "via-url")
+        resp = requests.post(
+            endpoint,
+            headers=headers,
+            data=form,
+            files=files,
+            timeout=float(params.get("timeout", 600)),
+        )
+        resp.raise_for_status()
+        body = resp.json()
+        code = body.get("code")
+        if code not in (0, None):
+            raise RuntimeError("OXR 解析失败: code=%s message=%s" % (code, body.get("message")))
+
+        data = body.get("data") or {}
+        result = data.get("result") or {}
+        outputs = result.get("outputs") or {}
+        markdown = outputs.get("markdown") or ""
+        json_out = outputs.get("json") or {}
+        pages = json_out.get("pages") or []
+        log.info("[OXR] 解析完成: markdown=%d chars, pages=%d", len(markdown), len(pages))
+        return {
+            "markdown": markdown,
+            "json": json_out,
+            "page_count": len(pages),
+            "file_name": result.get("file_name", ""),
+        }
+
+    @staticmethod
+    def _detect_image(raw: bytes):
+        if raw[:8] == b"\x89PNG\r\n\x1a\n":
+            return "image.png", "image/png"
+        if raw[:3] == b"\xff\xd8\xff":
+            return "image.jpg", "image/jpeg"
+        if raw[:4] == b"RIFF" and raw[8:12] == b"WEBP":
+            return "image.webp", "image/webp"
+        if raw[:6] in (b"GIF87a", b"GIF89a"):
+            return "image.gif", "image/gif"
+        return "image.png", "image/png"
 
 

@@ -363,6 +363,10 @@ list.add(new ModelEntry("gpt-4o", "vlm", "openai", "GPT-4o 在线图文理解"))
                 "DeepSeek-OCR-2 整页图→Markdown 解析 (3B MoE, 视觉因果流，阅读顺序由模型保证，需 GPU)"));
         list.add(new ModelEntry("deepseek-ocr-2-cpu", "document_ocr", "huggingface",
                 "DeepSeek-OCR-2 CPU/MPS 变体 (Universal fork，解除硬编码 .cuda()，约 2-3 分钟/页)"));
+        list.add(new ModelEntry("oxr-layout", "document_ocr", "remote",
+                "SoMark OXR-1.0 远程文档解析 (SOTA，Markdown + 布局坐标，默认免费 API)"));
+        list.add(new ModelEntry("oxr-layout-detect", "document_ocr", "remote",
+                "SoMark OXR-1.0 版面检测框 (类型 + bbox，默认免费 API)"));
 
         // LLM (HuggingFace 额外补充)
         list.add(new ModelEntry("mistral-7b", "llm", "huggingface", "Mistral-7B Instruct"));

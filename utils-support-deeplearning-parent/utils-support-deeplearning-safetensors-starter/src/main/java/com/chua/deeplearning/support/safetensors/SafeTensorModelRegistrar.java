@@ -28,16 +28,35 @@ public class SafeTensorModelRegistrar implements ModelRegistrar {
      * 注册全部
      */
     private static void registerAll() {
-        if (ModelRegistry.get("indra-layout") != null) {
-            return;
+        if (ModelRegistry.get("indra-layout") == null) {
+            ModelRegistry.register(
+                    "indra-layout",
+                    IndraLayoutTranslator.class,
+                    byte[].class,
+                    String.class,
+                    LayoutDetector.class,
+                    "python/indra"
+            );
         }
-        ModelRegistry.register(
-                "indra-layout",
-                IndraLayoutTranslator.class,
-                byte[].class,
-                String.class,
-                LayoutDetector.class,
-                "python/indra"
-        );
+        if (ModelRegistry.get("oxr-layout") == null) {
+            ModelRegistry.register(
+                    "oxr-layout",
+                    OxrLayoutTranslator.class,
+                    byte[].class,
+                    String.class,
+                    LayoutDetector.class,
+                    "python/oxr"
+            );
+        }
+        if (ModelRegistry.get("oxr-layout-detect") == null) {
+            ModelRegistry.register(
+                    "oxr-layout-detect",
+                    OxrDetectTranslator.class,
+                    byte[].class,
+                    Object.class,
+                    LayoutDetector.class,
+                    "python/oxr"
+            );
+        }
     }
 }
