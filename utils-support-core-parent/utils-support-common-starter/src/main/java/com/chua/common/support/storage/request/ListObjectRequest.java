@@ -32,4 +32,13 @@ public class ListObjectRequest {
      */
     @Builder.Default
     private int limit = 10;
+
+    /**
+     * 跳过前 N 条记录（从排序后的列表偏移开始），默认 0。
+     *
+     * <p>与 {@link #limit} 配合使用：先按名称枚举排序，再从 offset 开始
+     * 仅读取 limit 个对象的属性，适用于大目录分页。</p>
+     */
+    @Builder.Default
+    private int offset = 0;
 }
