@@ -296,3 +296,25 @@ mvn -o -q compile -DskipTests "-Dpmd.skip=true" "-Dspotbugs.skip=true" `
 35. **1.9.1 正则预编译**：扫描「循环体内 `String.matches/split/replaceAll(字面量)`」得 94 处，绝大多数是单次解析（配置/行解析），不构成热点；已把 tar/zip 文件遍历里按文件逐个 `matches("\\d+")` 的热点改为 `static final Pattern DIGITS_PATTERN` 复用。
 36. **3.x 单元测试**：136 个测试文件全量核查——测试类命名 7 个例外均为 `Fixture`/`TestGreeter`/`DebugProbe`/测试用注解，非测试类；22 个含下划线的测试方法（`testSingleSubAgent_basicExecution_routesThroughMaster` 等）属 `given_when_then` 可读性风格，P3C 未强制禁止；「无断言」4 处经人工核实：`RuleSpiTest` 的 `assertThrows` 位于第 120 行（超出扫描窗口的误判），`IndraLayoutDemoTest` 有 8 处断言，`LayoutModelBenchmarkTest` 为基准测试产物生成器（非单元测试）。
 37. **1.8.x 注释细节**：`@author` 覆盖率 100%；`@since` 缺 14 个公共类型，已补齐 13 个（版本统一为仓内主流的 `4.0.0.42`），剩余 1 个为测试类；`@param` 与签名的自动比对不可靠（本仓大量 record 与 20+ 参数构造器，扫描器易误判），抽检 `AgentDefinition`/`ModelInfo`/`ModelConfig` 等样例确认参数名与声明一致。
+
+## 九、质量门禁（防回退）
+
+整改成果已固化为可执行门禁：`tools/p3c-check/Check-P3c.ps1`（11 项机械校验）。
+
+```powershell
+pwsh -NoProfile -File tools/p3c-check/Check-P3c.ps1        # 违规时退出码 1，可用于 CI
+```
+
+| 检查 | 条款 |
+| --- | --- |
+| 超长行 > 120 字符（排除注释/文本块） | 1.3.7 |
+| 行尾空白、制表符缩进 | 1.3.1 |
+| 空 Javadoc、注解先于 Javadoc、void 方法带 `@return` | 1.8 |
+| 空 catch（排除字符串内 JS） | 2.1 |
+| 日志占位符与实参数量不匹配 | 2.4 |
+| BOM、U+FFFD | 编码 |
+| 模块循环依赖 | 6.x |
+
+**豁免机制**：`$longLineAllow` 登记 2 处语法不可拆的超长行（超长 `import`、lambda 内单条 `append` 链），新增豁免需注明原因。
+
+**自检验证**：注入 4 类违规样例后门禁报出 4 处 FAIL，移除后恢复全 PASS；当前仓库运行结果为**全部通过**。
