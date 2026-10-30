@@ -33,6 +33,14 @@ public class ListObjectResult extends ObjectResult {
     private List<Metadata> metadata;
 
     /**
+     * 与 {@link #metadata} 对应的匹配总数（未分页前的全部条目数）。
+     *
+     * <p>为 0 时表示旧实现未统计总数，调用方可回退为
+     * {@link #metadata} 的实际条数。</p>
+     */
+    private long total;
+
+    /**
      * 下一页的分页标记（记号笔）。
      *
      * <p>如果为 null 或空字符串，表示已翻到最后一页，没有更多数据。<br>
