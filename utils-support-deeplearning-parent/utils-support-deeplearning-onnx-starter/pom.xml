@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-deeplearning-parent</artifactId>
-        <version>4.0.0.43</version>
+        <version>4.0.0.50</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 <artifactId>utils-support-deeplearning-onnx-starter</artifactId>
@@ -266,21 +266,21 @@
         <!-- 宓屽叆寮忎腑鏂囧璇濇ā鍨嬶紙Gemma-3-270M锛寀int8 ONNX锛寏519MB锛夛紝渚?Gemma3GpuTest 浣跨敤 -->
 
         <!-- 音频模型（wespeaker/campplus/wav2vec2/sensevoice）：从 utils-support-models-parent 独立仓库构建，本地 maven repo install 后自动可用；downloadUrl 作为网络备用（HF: chtk/chua-dl-models） -->
-        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-lac</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-lac</artifactId><version>4.0.0.43</version><scope>test</scope></dependency>
         <!-- 中文拼写纠错模型（macbert4csc-base-chinese，约 474MB）：从 utils-support-models-parent 独立仓库构建；MacBertCscTranslator 与 OcrPipeline 中文纠错测试使用 -->
-        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-macbert4csc</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-macbert4csc</artifactId><version>4.0.0.43</version><scope>test</scope></dependency>
         <!-- 时序预测模型（timestral-5m，约 18.6MB）：从 utils-support-models-parent 独立仓库构建；TimestralTranslatorTest 使用 -->
-        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-timestral-5m</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-timestral-5m</artifactId><version>4.0.0.43</version><scope>test</scope></dependency>
         <!-- 文档版面分析模型（indra det+rec+order，约 8.6MB）：从 utils-support-models-parent 独立仓库构建；IndraLayoutTranslatorTest 使用 -->
-        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-indra-layout</artifactId><version>${project.version}</version><scope>test</scope></dependency>
-        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wespeaker</artifactId><version>${project.version}</version><scope>test</scope></dependency>
-                        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-sensevoice</artifactId><version>${project.version}</version><scope>test</scope></dependency>
-        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-zipformer-zh</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-indra-layout</artifactId><version>4.0.0.43</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wespeaker</artifactId><version>4.0.0.43</version><scope>test</scope></dependency>
+                        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-sensevoice</artifactId><version>4.0.0.43</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-zipformer-zh</artifactId><version>4.0.0.43</version><scope>test</scope></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-paddleocrv6-tiny</artifactId><version>4.0.0.43</version><scope>test</scope></dependency>
-        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-qota-ocr</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-qota-ocr</artifactId><version>4.0.0.43</version><scope>test</scope></dependency>
         <!-- WeMM-Embedding 多模态嵌入模型（2B/4B/9B）：文本分支 ONNX，供 WeMMEmbeddingClient 测试 -->
-        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wemm-embedding-2b</artifactId><version>${project.version}</version><scope>test</scope></dependency>
-        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wemm-embedding-4b</artifactId><version>${project.version}</version><scope>test</scope></dependency>
-        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wemm-embedding-9b</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wemm-embedding-2b</artifactId><version>4.0.0.43</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wemm-embedding-4b</artifactId><version>4.0.0.43</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wemm-embedding-9b</artifactId><version>4.0.0.43</version><scope>test</scope></dependency>
       </dependencies>
 </project>

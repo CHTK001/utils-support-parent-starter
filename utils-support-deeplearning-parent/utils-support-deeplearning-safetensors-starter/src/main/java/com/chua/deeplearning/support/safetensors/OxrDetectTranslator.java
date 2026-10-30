@@ -102,7 +102,9 @@ public class OxrDetectTranslator implements ITranslator<byte[], Object> {
                     if (!(blockObj instanceof Map<?, ?> block)) {
                         continue;
                     }
-                    String type = String.valueOf(block.getOrDefault("type", "unknown"));
+                    Object typeObj = block.get("type");
+                    String type = typeObj == null || String.valueOf(typeObj).isBlank()
+                            ? "unknown" : typeObj.toString();
                     PredictRectangle rect = toRectangle(block.get("bbox"), type);
                     if (rect != null) {
                         grouped.computeIfAbsent(type, k -> new ArrayList<>()).add(rect);

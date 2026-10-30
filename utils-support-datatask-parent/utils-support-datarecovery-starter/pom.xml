@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-datatask-parent</artifactId>
-        <version>4.0.0.43</version>
+        <version>4.0.0.50</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>utils-support-datarecovery-starter</artifactId>
@@ -30,7 +30,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-native-datarecovery</artifactId>
-            <version>${project.version}</version>
+            <version>4.0.0.43</version>
             <scope>compile</scope>
         </dependency>
 

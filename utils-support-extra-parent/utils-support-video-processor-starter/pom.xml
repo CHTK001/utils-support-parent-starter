@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-extra-parent</artifactId>
-        <version>4.0.0.43</version>
+        <version>4.0.0.50</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>utils-support-video-processor-starter</artifactId>
@@ -25,7 +25,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-native-video-processor</artifactId>
-            <version>${project.version}</version>
+            <version>4.0.0.43</version>
             <scope>compile</scope>
         </dependency>
         <!-- FFmpeg Rust 备用（代码未直接 import，可选） -->

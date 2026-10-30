@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-network-parent</artifactId>
-        <version>4.0.0.43</version>
+        <version>4.0.0.50</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>com.chua</groupId>
     <artifactId>utils-support-smb-starter</artifactId>
-    <version>4.0.0.43</version>
+    <version>4.0.0.50</version>
     <packaging>jar</packaging>
     <name>Utils Support SMB Starter</name>
     <description>SMB 协议集成：Rust 服务端（SMB2/3） + smb-jna 链式客户端 + FileStorage SPI</description>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-native-smb</artifactId>
-            <version>${project.version}</version>
+            <version>4.0.0.43</version>
         </dependency>
         <dependency>
             <groupId>com.hierynomus</groupId>

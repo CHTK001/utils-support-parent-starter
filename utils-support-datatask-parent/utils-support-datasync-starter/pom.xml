@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-datatask-parent</artifactId>
-        <version>4.0.0.43</version>
+        <version>4.0.0.50</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>utils-support-datasync-starter</artifactId>
@@ -24,7 +24,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-datasync-agent-starter</artifactId>
-            <version>4.0.0.43</version>
+            <version>4.0.0.50</version>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>

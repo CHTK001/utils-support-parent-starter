@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-datasource-parent</artifactId>
-        <version>4.0.0.43</version>
+        <version>4.0.0.50</version>
     </parent>
     <artifactId>utils-support-sqlite-starter</artifactId>
     <name>Utils Support SQLite Starter</name>
@@ -26,7 +26,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-native-sqlite</artifactId>
-            <version>${project.version}</version>
+            <version>4.0.0.43</version>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
