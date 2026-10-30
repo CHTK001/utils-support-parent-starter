@@ -129,7 +129,9 @@ public class SftpClient implements AutoCloseable {
      *
      * @return 构建器的结果
      */
-    public static Builder builder() { return new Builder(); }
+    public static Builder builder() {
+        return new Builder();
+    }
     /**
      * 创建
      *
@@ -206,7 +208,9 @@ public class SftpClient implements AutoCloseable {
      * 关闭
     */
     @Override
-    public void close() { disconnect(); }
+    public void close() {
+        disconnect();
+    }
 
     /**
      * 会话是否仍处于打开状态（隐藏底层 ClientSession，调用方无需依赖 sshd 类型）。
@@ -226,37 +230,49 @@ public class SftpClient implements AutoCloseable {
      *
      * @return upload的结果
      */
-    public UploadOperation upload() { return new UploadOperation(this); }
+    public UploadOperation upload() {
+        return new UploadOperation(this);
+    }
     /**
      * Download
      *
      * @return download的结果
      */
-    public DownloadOperation download() { return new DownloadOperation(this); }
+    public DownloadOperation download() {
+        return new DownloadOperation(this);
+    }
     /**
      * Ls
      *
      * @return ls的结果
      */
-    public ListOperation ls() { return new ListOperation(this); }
+    public ListOperation ls() {
+        return new ListOperation(this);
+    }
     /**
      * 创建目录
      *
      * @return mkdir的结果
      */
-    public MkdirOperation mkdir() { return new MkdirOperation(this); }
+    public MkdirOperation mkdir() {
+        return new MkdirOperation(this);
+    }
     /**
      * Rm
      *
      * @return rm的结果
      */
-    public RmOperation rm() { return new RmOperation(this); }
+    public RmOperation rm() {
+        return new RmOperation(this);
+    }
     /**
      * 重命名
      *
      * @return rename的结果
      */
-    public RenameOperation rename() { return new RenameOperation(this); }
+    public RenameOperation rename() {
+        return new RenameOperation(this);
+    }
     /**
      * Stat
      *
@@ -264,7 +280,9 @@ public class SftpClient implements AutoCloseable {
      * @author CH
      * @since 4.0.0
      */
-    public StatOperation stat() { return new StatOperation(this); }
+    public StatOperation stat() {
+        return new StatOperation(this);
+    }
 
     @Getter
     public static class UploadOperation {
@@ -280,7 +298,9 @@ public class SftpClient implements AutoCloseable {
          * 远程文件路径
          */
         private String remotePath;
-        UploadOperation(SftpClient client) { this.client = client; }
+        UploadOperation(SftpClient client) {
+            this.client = client;
+        }
         /**
          * 本地
          *
@@ -331,7 +351,9 @@ public class SftpClient implements AutoCloseable {
          * 本地文件路径
          */
         private String localPath;
-        DownloadOperation(SftpClient client) { this.client = client; }
+        DownloadOperation(SftpClient client) {
+            this.client = client;
+        }
         /**
          * 远程
          *
@@ -382,7 +404,9 @@ public class SftpClient implements AutoCloseable {
          * 路径
          */
         private String path = ".";
-        ListOperation(SftpClient client) { this.client = client; }
+        ListOperation(SftpClient client) {
+            this.client = client;
+        }
         /**
          * 路径
          *
@@ -429,7 +453,9 @@ public class SftpClient implements AutoCloseable {
          * recursive
          */
         private boolean recursive = false;
-        MkdirOperation(SftpClient client) { this.client = client; }
+        MkdirOperation(SftpClient client) {
+            this.client = client;
+        }
         /**
          * 路径
          *
@@ -511,7 +537,9 @@ public class SftpClient implements AutoCloseable {
          * recursive
          */
         private boolean recursive = false;
-        RmOperation(SftpClient client) { this.client = client; }
+        RmOperation(SftpClient client) {
+            this.client = client;
+        }
         /**
          * 路径
          *
@@ -563,7 +591,9 @@ public class SftpClient implements AutoCloseable {
          * 新路径
          */
         private String newPath;
-        RenameOperation(SftpClient client) { this.client = client; }
+        RenameOperation(SftpClient client) {
+            this.client = client;
+        }
         /**
          * 从
          *
@@ -607,7 +637,9 @@ public class SftpClient implements AutoCloseable {
          * 路径
          */
         private String path;
-        StatOperation(SftpClient client) { this.client = client; }
+        StatOperation(SftpClient client) {
+            this.client = client;
+        }
         /**
          * 路径
          *
@@ -779,6 +811,8 @@ public class SftpClient implements AutoCloseable {
          * @param msg msg
          * @param cause Throwable
          */
-        public SftpClientException(String msg, Throwable cause) { super(msg, cause); }
+        public SftpClientException(String msg, Throwable cause) {
+            super(msg, cause);
+        }
     }
 }

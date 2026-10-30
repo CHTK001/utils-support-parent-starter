@@ -63,7 +63,9 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
     @Override
     public Optional<byte[]> get(String key) throws IOException { return Optional.empty(); }
     @Override
-    public boolean contains(String key) { return false; }
+    public boolean contains(String key) {
+        return false;
+    }
 
     /**
      * 范围查询：按 key（即 measure）升序返回 [from, to) 内的所有记录。
@@ -211,7 +213,9 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
         }
     }
     @Override
-    public int size() { return (int) totalRecords.get(); }
+    public int size() {
+        return (int) totalRecords.get();
+    }
     @Override
     public List<WalSegmentInfo> listSegments() throws IOException {
         List<WalSegmentInfo> all = Wraps.list();
@@ -374,7 +378,9 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
      * @return 结果值
      */
     public record TsPoint(String measure, long ts, double value, Integer ttlSec) {
-        public long expireAt() { return ttlSec == null ? Long.MAX_VALUE : ts + (long) ttlSec * 1000L; }
+        public long expireAt() {
+            return ttlSec == null ? Long.MAX_VALUE : ts + (long) ttlSec * 1000L;
+        }
     }
 
     public enum AggregateFn { AVG, MIN, MAX, COUNT, SUM; }

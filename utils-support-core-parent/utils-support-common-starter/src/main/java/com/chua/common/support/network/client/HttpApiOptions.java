@@ -337,7 +337,9 @@ public class HttpApiOptions {
      *
      * @return 连接超时，-1 表示未设置
      */
-    public long getConnectTimeout() { return connectTimeout; }
+    public long getConnectTimeout() {
+        return connectTimeout;
+    }
 
     /**
      * 设置连接超时（毫秒）。
@@ -355,7 +357,9 @@ public class HttpApiOptions {
      *
      * @return 读取超时，-1 表示未设置
      */
-    public long getReadTimeout() { return readTimeout; }
+    public long getReadTimeout() {
+        return readTimeout;
+    }
 
     /**
      * 设置读取超时（毫秒）。
@@ -373,7 +377,9 @@ public class HttpApiOptions {
      *
      * @return 写入超时，-1 表示未设置
      */
-    public long getWriteTimeout() { return writeTimeout; }
+    public long getWriteTimeout() {
+        return writeTimeout;
+    }
 
     /**
      * 设置写入超时（毫秒）。
@@ -391,7 +397,9 @@ public class HttpApiOptions {
      *
      * @return 最大重试次数，-1 表示未设置
      */
-    public int getMaxRetries() { return maxRetries; }
+    public int getMaxRetries() {
+        return maxRetries;
+    }
 
     /**
      * 设置最大重试次数。
@@ -409,7 +417,9 @@ public class HttpApiOptions {
      *
      * @return 缓存有效期，-1 表示未设置
      */
-    public long getCacheTtl() { return cacheTtl; }
+    public long getCacheTtl() {
+        return cacheTtl;
+    }
 
     /**
      * 设置响应缓存有效期（毫秒）。
@@ -427,7 +437,9 @@ public class HttpApiOptions {
      *
      * @return 是否跟随重定向，null 表示未设置
      */
-    public Boolean getFollowRedirects() { return followRedirects; }
+    public Boolean getFollowRedirects() {
+        return followRedirects;
+    }
 
     /**
      * 设置是否跟随重定向。
@@ -445,7 +457,9 @@ public class HttpApiOptions {
      *
      * @return HTTP 版本，null 表示未设置
      */
-    public HttpVersion getVersion() { return version; }
+    public HttpVersion getVersion() {
+        return version;
+    }
 
     /**
      * 设置 HTTP 协议版本。
@@ -463,14 +477,18 @@ public class HttpApiOptions {
      *
      * @return 代理主机名，null 表示未设置
      */
-    public String getProxyHost() { return proxyHost; }
+    public String getProxyHost() {
+        return proxyHost;
+    }
 
     /**
      * 获取代理端口号。
      *
      * @return 代理端口号
      */
-    public int getProxyPort() { return proxyPort; }
+    public int getProxyPort() {
+        return proxyPort;
+    }
 
     /**
      * 设置 HTTP 代理。

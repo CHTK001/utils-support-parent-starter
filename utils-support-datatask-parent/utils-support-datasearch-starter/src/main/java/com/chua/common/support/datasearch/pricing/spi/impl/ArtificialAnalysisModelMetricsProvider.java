@@ -126,7 +126,9 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
             String win = html.substring(from, to);
 
             String slug = group1(win, "slug\\\\\\\":\\\\\\\"([^\\\\]+)");
-            if (slug == null || slug.isEmpty() || dedup.containsKey(slug)) { continue; }
+            if (slug == null || slug.isEmpty() || dedup.containsKey(slug)) {
+                continue;
+            }
 
             BigDecimal intelligence = num(win, "intelligenceIndex\\\\\\\":");
             BigDecimal hle = num(win, "hle\\\\\\\":");
@@ -192,7 +194,9 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
             if (fc != null) {
                 functionCalling = Boolean.parseBoolean(fc);
             }
-            if (in == null && out == null && intelligence == null) { continue; }
+            if (in == null && out == null && intelligence == null) {
+                continue;
+            }
 
             // 联网查询/图片识别无显式字段，按模型名规律推断（可被人工配置覆盖）
             boolean webSearch = slug.contains("search") || slug.contains("online");
@@ -214,10 +218,18 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
  // 能力标签：基础 对话 + 推断出的多维能力
             List<String> capabilities = Wraps.list(4);
             capabilities.add("chat");
-            if (Boolean.TRUE.equals(reasoning)) { capabilities.add("reasoning"); }
-            if (webSearch) { capabilities.add("web_search"); }
-            if (imageInput) { capabilities.add("image_input"); }
-            if (Boolean.TRUE.equals(functionCalling)) { capabilities.add("function_calling"); }
+            if (Boolean.TRUE.equals(reasoning)) {
+                capabilities.add("reasoning");
+            }
+            if (webSearch) {
+                capabilities.add("web_search");
+            }
+            if (imageInput) {
+                capabilities.add("image_input");
+            }
+            if (Boolean.TRUE.equals(functionCalling)) {
+                capabilities.add("function_calling");
+            }
 
             dedup.put(slug, ModelDefinition.builder()
                     .id(slug)
@@ -327,7 +339,9 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
      */
     private BigDecimal num(String window, String key) {
         Matcher m = Pattern.compile(key + "(-?[0-9]+(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)").matcher(window);
-        if (!m.find()) { return null; }
+        if (!m.find()) {
+            return null;
+        }
         try {
             return new BigDecimal(m.group(1)).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros();
         } catch (NumberFormatException e) {

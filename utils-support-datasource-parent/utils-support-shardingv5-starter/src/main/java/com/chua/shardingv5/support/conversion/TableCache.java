@@ -75,7 +75,9 @@ public class TableCache {
     /**
      * Clear
     */
-    public void clear() { cache.clear(); }
+    public void clear() {
+        cache.clear();
+    }
 
     /**
      * 扫描Tables

@@ -256,7 +256,9 @@ public class AuthManager {
          *
          * @param message 异常消息
          */
-        public AuthException(String message) { super(message); }
+        public AuthException(String message) {
+            super(message);
+        }
 
         /**
          * 创建带原因的认证异常。
@@ -264,6 +266,8 @@ public class AuthManager {
          * @param message 异常消息
          * @param cause 原因
          */
-        public AuthException(String message, Throwable cause) { super(message, cause); }
+        public AuthException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 }

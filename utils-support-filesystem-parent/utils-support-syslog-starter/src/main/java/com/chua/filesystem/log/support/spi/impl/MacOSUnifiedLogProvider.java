@@ -177,7 +177,9 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
         }
 
         if (query.minLevel() != null) {
-            if (!sb.isEmpty()) { sb.append(" AND "); }
+            if (!sb.isEmpty()) {
+                sb.append(" AND ");
+            }
             switch (query.minLevel()) {
                 case ERROR, CRITICAL -> sb.append("messageType >= error");
                 case WARNING -> sb.append("messageType >= default");
@@ -198,7 +200,9 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
      * @return 解析日志show线的结果
      */
     private LogEntry parseLogShowLine(String line) {
-        if (line == null || line.isBlank()) { return null; }
+        if (line == null || line.isBlank()) {
+            return null;
+        }
         try {
             int firstSpace = line.indexOf(' ');
             if (firstSpace <= 0) {
@@ -247,11 +251,15 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
             if (!Files.isRegularFile(path) || !Files.isReadable(path)) {
                 continue;
             }
-            if (results.size() >= maxResults) { break; }
+            if (results.size() >= maxResults) {
+                break;
+            }
 
             try (Stream<String> lines = Files.lines(path)) {
                 lines.forEach(line -> {
-                    if (results.size() >= maxResults) { return; }
+                    if (results.size() >= maxResults) {
+                        return;
+                    }
                     LogEntry entry = parseVarLogLine(line, logFile);
                     if (entry == null) {
                         return;
@@ -281,7 +289,9 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
      * @return 解析var日志线的结果
      */
     private LogEntry parseVarLogLine(String line, String source) {
-        if (line == null || line.isBlank()) { return null; }
+        if (line == null || line.isBlank()) {
+            return null;
+        }
         String timestamp = "unknown";
         if (line.length() > 15) {
             timestamp = line.substring(0, 15).trim();
@@ -325,7 +335,9 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
      * @return compile模式的结果
      */
     private Pattern compilePattern(String glob) {
-        if (glob == null || glob.isEmpty()) { return null; }
+        if (glob == null || glob.isEmpty()) {
+            return null;
+        }
         try {
             String regex = glob.replace(".", "\\.").replace("*", ".*").replace("?", ".");
             return Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);

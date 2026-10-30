@@ -14,13 +14,17 @@ public class BrowserType {
 
     private final Engine engine; // engine
 
-    BrowserType(Engine engine) { this.engine = engine; }
+    BrowserType(Engine engine) {
+        this.engine = engine;
+    }
 
     /**
      * launch。
      * @return launch的结果
      */
-    public Browser launch() { return launch(null); }
+    public Browser launch() {
+        return launch(null);
+    }
 
     /**
      * launch。

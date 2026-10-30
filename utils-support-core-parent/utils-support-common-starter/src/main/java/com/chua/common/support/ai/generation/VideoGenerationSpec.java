@@ -118,21 +118,31 @@ public class VideoGenerationSpec {
     /**
      * Prompt
      */
-    public String prompt() { return prompt; }
+    public String prompt() {
+        return prompt;
+    }
     /**
      * Ratio
      */
-    public String ratio() { return ratio; }
+    public String ratio() {
+        return ratio;
+    }
     /**
      * CameraMovement
      */
-    public String cameraMovement() { return cameraMovement; }
+    public String cameraMovement() {
+        return cameraMovement;
+    }
     /**
      * RefImageKey
      */
-    public String refImageKey() { return refImageKey; }
+    public String refImageKey() {
+        return refImageKey;
+    }
     /**
      * TimeoutSeconds
      */
-    public int timeoutSeconds() { return timeoutSeconds; }
+    public int timeoutSeconds() {
+        return timeoutSeconds;
+    }
 }

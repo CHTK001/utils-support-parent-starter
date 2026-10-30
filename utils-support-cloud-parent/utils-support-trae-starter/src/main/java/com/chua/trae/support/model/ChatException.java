@@ -64,5 +64,7 @@ public class ChatException extends Exception {
      *
      * @return 状态码，0 表示非 HTTP 错误
      */
-    public int statusCode() { return statusCode; }
+    public int statusCode() {
+        return statusCode;
+    }
 }

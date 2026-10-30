@@ -14,10 +14,14 @@ public class H2Dialect extends SqlDialect {
     /**
      * H2Dialect。
      */
-    public H2Dialect() { super("h2"); }
+    public H2Dialect() {
+        super("h2");
+    }
     /**
      * H2Dialect。
      * @param properties 属性
      */
-    public H2Dialect(Properties properties) { super("h2", properties); }
+    public H2Dialect(Properties properties) {
+        super("h2", properties);
+    }
 }

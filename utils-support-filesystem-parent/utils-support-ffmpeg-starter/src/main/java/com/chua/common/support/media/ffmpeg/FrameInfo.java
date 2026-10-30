@@ -66,104 +66,136 @@ public class FrameInfo {
      *
      * @return 获取帧数字的结果
      */
-    public long getFrameNumber() { return frameNumber; }
+    public long getFrameNumber() {
+        return frameNumber;
+    }
     /**
      * 设置帧数字
      *
      * @param frameNumber 帧数字
      */
-    public void setFrameNumber(long frameNumber) { this.frameNumber = frameNumber; }
+    public void setFrameNumber(long frameNumber) {
+        this.frameNumber = frameNumber;
+    }
 
     /**
      * 获取时间戳ms
      *
      * @return 获取时间戳ms的结果
      */
-    public long getTimestampMs() { return timestampMs; }
+    public long getTimestampMs() {
+        return timestampMs;
+    }
     /**
      * 设置时间戳ms
      *
      * @param timestampMs 时间戳ms
      */
-    public void setTimestampMs(long timestampMs) { this.timestampMs = timestampMs; }
+    public void setTimestampMs(long timestampMs) {
+        this.timestampMs = timestampMs;
+    }
 
     /**
      * 获取Width
      *
      * @return 获取width的结果
      */
-    public int getWidth() { return width; }
+    public int getWidth() {
+        return width;
+    }
     /**
      * 设置Width
      *
      * @param width width
      */
-    public void setWidth(int width) { this.width = width; }
+    public void setWidth(int width) {
+        this.width = width;
+    }
 
     /**
      * 获取Height
      *
      * @return 获取height的结果
      */
-    public int getHeight() { return height; }
+    public int getHeight() {
+        return height;
+    }
     /**
      * 设置Height
      *
      * @param height height
      */
-    public void setHeight(int height) { this.height = height; }
+    public void setHeight(int height) {
+        this.height = height;
+    }
 
     /**
      * 获取Codec
      *
      * @return 获取codec的结果
      */
-    public String getCodec() { return codec; }
+    public String getCodec() {
+        return codec;
+    }
     /**
      * 设置Codec
      *
      * @param codec codec
      */
-    public void setCodec(String codec) { this.codec = codec; }
+    public void setCodec(String codec) {
+        this.codec = codec;
+    }
 
     /**
      * 获取Fps
      *
      * @return 获取fps的结果
      */
-    public double getFps() { return fps; }
+    public double getFps() {
+        return fps;
+    }
     /**
      * 设置Fps
      *
      * @param fps fps
      */
-    public void setFps(double fps) { this.fps = fps; }
+    public void setFps(double fps) {
+        this.fps = fps;
+    }
 
     /**
      * 是否键帧
      *
      * @return 是否键帧的结果
      */
-    public boolean isKeyFrame() { return keyFrame; }
+    public boolean isKeyFrame() {
+        return keyFrame;
+    }
     /**
      * 设置键帧
      *
      * @param keyFrame 键帧
      */
-    public void setKeyFrame(boolean keyFrame) { this.keyFrame = keyFrame; }
+    public void setKeyFrame(boolean keyFrame) {
+        this.keyFrame = keyFrame;
+    }
 
     /**
      * 获取镜像数据
      *
      * @return 获取镜像数据的结果
      */
-    public byte[] getImageData() { return imageData; }
+    public byte[] getImageData() {
+        return imageData;
+    }
     /**
      * 设置镜像数据
      *
      * @param imageData 镜像数据
      */
-    public void setImageData(byte[] imageData) { this.imageData = imageData; }
+    public void setImageData(byte[] imageData) {
+        this.imageData = imageData;
+    }
 
     /**
      * 转为字符串

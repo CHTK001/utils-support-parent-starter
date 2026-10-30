@@ -377,7 +377,9 @@ public class KafkaClient implements AutoCloseable {
         */
         private Long timestamp;
 
-        ProducerOperation(KafkaClient client) { this.client = client; }
+        ProducerOperation(KafkaClient client) {
+            this.client = client;
+        }
 
         /**
          * Topic
@@ -540,7 +542,9 @@ public class KafkaClient implements AutoCloseable {
         */
         private long pollTimeoutMs = 1000;
 
-        ConsumerOperation(KafkaClient client) { this.client = client; }
+        ConsumerOperation(KafkaClient client) {
+            this.client = client;
+        }
 
         /**
          * 分组标识
@@ -692,7 +696,9 @@ public class KafkaClient implements AutoCloseable {
         */
         private final KafkaClient client;
 
-        AdminOperation(KafkaClient client) { this.client = client; }
+        AdminOperation(KafkaClient client) {
+            this.client = client;
+        }
 
         /**
          * 创建 Topic。

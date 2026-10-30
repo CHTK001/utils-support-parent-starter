@@ -16,10 +16,14 @@ import java.util.Map;
 public class NoJoinStrategy implements JoinStrategy {
 
     @Override
-    public String name() { return "none"; }
+    public String name() {
+        return "none";
+    }
 
     @Override
-    public boolean enabled() { return false; }
+    public boolean enabled() {
+        return false;
+    }
 
     @Override
     public List<Map<String, Object>> execute(JoinContext ctx) {

@@ -659,9 +659,13 @@ public class ClassUtils {
      * @since 1.0
      */
     public static <T> void isPresent(final String className, Class<T> type, Consumer<T> consumer) {
-        if (!isPresent(className)) { return; }
+        if (!isPresent(className)) {
+            return;
+        }
         Class<?> aClass = forName(className);
-        if (null == aClass || !type.isAssignableFrom(aClass)) { return; }
+        if (null == aClass || !type.isAssignableFrom(aClass)) {
+            return;
+        }
         consumer.accept((T) forObject(aClass));
     }
     /**
@@ -731,7 +735,9 @@ public class ClassUtils {
      * @since 1.0
      */
     public static Class<?> forName(String name) {
-        if (null == name) { return null; }
+        if (null == name) {
+            return null;
+        }
         return forName(name, getDefaultClassLoader());
     }
     /**
@@ -825,7 +831,9 @@ public class ClassUtils {
      * @since 1.0
      */
     public static Class<?> forName(String name, ClassLoader classLoader) {
-        if (null == name) { return null; }
+        if (null == name) {
+            return null;
+        }
         //
         Class<?> clazz = CLASS_NAME_CACHE.get(name);
         if (clazz != null) {
@@ -913,7 +921,9 @@ public class ClassUtils {
      * @since 4.0.0.43
      */
     public static Class<?> forNameSafe(String name) {
-        if (null == name) { return void.class; }
+        if (null == name) {
+            return void.class;
+        }
         Class<?> clazz = forName(name);
         return clazz != null ? clazz : void.class;
     }
@@ -926,7 +936,9 @@ public class ClassUtils {
      * @since 4.0.0.43
      */
     public static Class<?> forNameSafe(String name, ClassLoader classLoader) {
-        if (null == name) { return void.class; }
+        if (null == name) {
+            return void.class;
+        }
         Class<?> clazz = forName(name, classLoader);
         return clazz != null ? clazz : void.class;
     }
@@ -1034,7 +1046,9 @@ public class ClassUtils {
      * @since 1.0
      */
     public static <T> T forObject(Class<T> tClass, ClassLoader classLoader, Object... params) throws Exception {
-        if (null == tClass) { return null; }
+        if (null == tClass) {
+            return null;
+        }
         if (List.class.isAssignableFrom(tClass) || Collection.class.isAssignableFrom(tClass)) {
             return (T) Wraps.list(16);
         }
@@ -1278,7 +1292,9 @@ public class ClassUtils {
      * @throws NullPointerException ex
      */
     public static Class<?>[] toType(Object[] collection) {
-        if (null == collection || collection.length == 0) { return new Class[0]; }
+        if (null == collection || collection.length == 0) {
+            return new Class[0];
+        }
         Class<?>[] rs = new Class<?>[collection.length];
         int index = 0;
         for (Object o : collection) {
@@ -1417,7 +1433,9 @@ public class ClassUtils {
      * @return
      */
     public static String[] toTypeName(Annotation[] annotations) {
-        if (null == annotations || annotations.length == 0) { return SYMBOL_EMPTY_STRING_ARRAY; }
+        if (null == annotations || annotations.length == 0) {
+            return SYMBOL_EMPTY_STRING_ARRAY;
+        }
         String[] result = new String[annotations.length];
         for (int i = 0; i < annotations.length; i++) {
             Annotation parameterType = annotations[i];
@@ -1433,7 +1451,9 @@ public class ClassUtils {
      * @return
      */
     public static String[] toTypeName(Class<?>[] parameterTypes) {
-        if (null == parameterTypes || parameterTypes.length == 0) { return SYMBOL_EMPTY_STRING_ARRAY; }
+        if (null == parameterTypes || parameterTypes.length == 0) {
+            return SYMBOL_EMPTY_STRING_ARRAY;
+        }
         String[] result = new String[parameterTypes.length];
         for (int i = 0; i < parameterTypes.length; i++) {
             Class<?> parameterType = parameterTypes[i];
@@ -1610,7 +1630,9 @@ public class ClassUtils {
      * @since 1.0
      */
     public static Field getFields(final Object obj, String fieldName) {
-        if (null == obj) { return null; }
+        if (null == obj) {
+            return null;
+        }
         for (Field field : getFields(obj)) {
             if (fieldName.equals(field.getName())) {
                 return field;
@@ -1628,7 +1650,9 @@ public class ClassUtils {
      * @since 1.0
      */
     public static List<Field> getFields(final Object obj) {
-        if (null == obj) { return Collections.emptyList(); }
+        if (null == obj) {
+            return Collections.emptyList();
+        }
         final Class<?> aClass = ClassUtils.toType(obj);
         return MapUtils.getComputeIfFunction(CLASS_FIELD_LOCAL, aClass, aClass12 -> {
             List<Field> result = Wraps.list();
@@ -1672,7 +1696,9 @@ public class ClassUtils {
      * @since 1.0
      */
     public static List<Field> getLocalFields(final Object obj) {
-        if (null == obj) { return Collections.emptyList(); }
+        if (null == obj) {
+            return Collections.emptyList();
+        }
         final Class<?> aClass = ClassUtils.toType(obj);
         return MapUtils.getComputeIfFunction(CLASS_FIELD, aClass, it -> {
             Field[] fields = aClass.getDeclaredFields();

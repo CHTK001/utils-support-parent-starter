@@ -391,13 +391,17 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
          *
          * @return 获取Agentid的结果
          */
-        public String getAgentId() { return agentId; }
+        public String getAgentId() {
+            return agentId;
+        }
         /**
          * 获取源标识
          *
          * @return 获取源id的结果
          */
-        public String getSourceId() { return sourceId; }
+        public String getSourceId() {
+            return sourceId;
+        }
         /**
          * 关闭
         */

@@ -203,7 +203,9 @@ public class ILinkBotClient implements BotClient {
                 }
                 String state = getString(status, "status");
                 if ("scaned".equals(state)) {
-                    if (qrcodeListener != null) { qrcodeListener.scanned(); }
+                    if (qrcodeListener != null) {
+                        qrcodeListener.scanned();
+                    }
                     log.info("[ILink] 已扫码，等待确认...");
                 } else if ("confirmed".equals(state)) {
  // confirmed 响应携带凭证（实测字段：ilink_机器人_标识 / ilink_用户_标识 / 机器人_令牌）
@@ -218,7 +220,9 @@ public class ILinkBotClient implements BotClient {
                     log.info("[ILink] 登录成功 botId={} token={}", botId, token != null);
                     return botId;
                 } else if ("expired".equals(state)) {
-                    if (qrcodeListener != null) { qrcodeListener.expired(); }
+                    if (qrcodeListener != null) {
+                        qrcodeListener.expired();
+                    }
                     log.warn("[ILink] 二维码已过期");
                     return null;
                 }
@@ -228,7 +232,9 @@ public class ILinkBotClient implements BotClient {
             return null;
         } catch (Exception e) {
             log.error("[ILink] 登录异常", e);
-            if (qrcodeListener != null) { qrcodeListener.error(e.getMessage(), e); }
+            if (qrcodeListener != null) {
+                qrcodeListener.error(e.getMessage(), e);
+            }
             return null;
         }
     }
@@ -343,7 +349,9 @@ public class ILinkBotClient implements BotClient {
     }
 
     @Override
-    public ILinkBotClient configSaveOrLoader(ConfigSaveOrLoader loader) { return this; }
+    public ILinkBotClient configSaveOrLoader(ConfigSaveOrLoader loader) {
+        return this;
+    }
 
     @Override
     public ILinkBotClient start() {
@@ -364,7 +372,9 @@ public class ILinkBotClient implements BotClient {
     }
 
     @Override
-    public boolean isRunning() { return running.get(); }
+    public boolean isRunning() {
+        return running.get();
+    }
 
     @Override
     public BotSendResult sendText(String toUser, String content) {
@@ -412,7 +422,9 @@ public class ILinkBotClient implements BotClient {
     }
 
     @Override
-    public List<BotGroupInfo> listGroups() { return List.of(); }
+    public List<BotGroupInfo> listGroups() {
+        return List.of();
+    }
 
     @Override
     public BotSendResult sendToGroup(String groupId, String content) {
@@ -436,10 +448,14 @@ public class ILinkBotClient implements BotClient {
     }
 
     @Override
-    public ILinkBotClient userStore(com.chua.common.support.ai.bot.BotUserStore userStore) { return this; }
+    public ILinkBotClient userStore(com.chua.common.support.ai.bot.BotUserStore userStore) {
+        return this;
+    }
 
     @Override
-    public List<BotUserInfo> listUsers() { return List.of(); }
+    public List<BotUserInfo> listUsers() {
+        return List.of();
+    }
 
     @Override
     public ILinkBotClient addMessageListener(BotMessageListener listener) {
@@ -454,7 +470,9 @@ public class ILinkBotClient implements BotClient {
     }
 
     @Override
-    public ILinkBotClient addErrorListener(com.chua.common.support.ai.bot.BotErrorListener listener) { return this; }
+    public ILinkBotClient addErrorListener(com.chua.common.support.ai.bot.BotErrorListener listener) {
+        return this;
+    }
 
     @Override
     public Map<String, Object> getConfig() { return Map.of("baseUrl", baseUrl); }
@@ -592,7 +610,9 @@ public class ILinkBotClient implements BotClient {
  // 会话过期：令牌 失效，需重新扫码
                 log.warn("[ILink] 会话过期 (-14)，停止轮询，需重新扫码绑定");
                 running.set(false);
-                if (qrcodeListener != null) { qrcodeListener.error("会话过期，请重新扫码绑定", null); }
+                if (qrcodeListener != null) {
+                    qrcodeListener.error("会话过期，请重新扫码绑定", null);
+                }
                 return result;
             }
             if (ret != 0 || errcode != 0) {
@@ -601,28 +621,38 @@ public class ILinkBotClient implements BotClient {
                          getString(resp, "errmsg"));
                 if (ret == -1) {
                     running.set(false);
-                    if (qrcodeListener != null) { qrcodeListener.error("Bot 凭证已失效，请重新扫码绑定", null); }
+                    if (qrcodeListener != null) {
+                        qrcodeListener.error("Bot 凭证已失效，请重新扫码绑定", null);
+                    }
                 }
                 return result;
             }
             String nextBuf = getString(resp, "get_updates_buf");
-            if (nextBuf != null) { getUpdatesBuf = nextBuf; }
+            if (nextBuf != null) {
+                getUpdatesBuf = nextBuf;
+            }
  // 消息列表字段为 msgs（兼容 消息）
             Object itemsObj = resp.get("msgs");
-            if (itemsObj == null) { itemsObj = resp.get("messages"); }
+            if (itemsObj == null) {
+                itemsObj = resp.get("messages");
+            }
             if (!(itemsObj instanceof List<?> list)) {
                 log.debug("[ILink] getupdates 响应无 msgs: {}", resp);
                 return result;
             }
             log.info("[ILink] getupdates 返回 {} 条消息", list.size());
             for (var item : list) {
-                if (!(item instanceof Map)) { continue; }
+                if (!(item instanceof Map)) {
+                    continue;
+                }
                 @SuppressWarnings("unchecked")
                 Map<String, Object> msg = (Map<String, Object>) item;
  // 字段为 snake_大小写：从_用户_标识 / 上下文_令牌
                 String fromUser = firstNonBlank(msg, "from_user_id", "fromUserId");
                 String ctxToken = firstNonBlank(msg, "context_token", "contextToken");
-                if (ctxToken != null) { contextTokens.put(fromUser, ctxToken); }
+                if (ctxToken != null) {
+                    contextTokens.put(fromUser, ctxToken);
+                }
                 String textContent = extractNestedText(msg);
                 log.info("[ILink] 收到消息 from={} content={}", fromUser, textContent);
                 // 优先取平台真实消息 ID（跨实例稳定）用于幂等；协议未提供时留空，
@@ -653,10 +683,14 @@ public class ILinkBotClient implements BotClient {
      */
     private String extractNestedText(Map<String, Object> msg) {
         var itemList = msg.get("item_list");
-        if (!(itemList instanceof List<?> list)) { return ""; }
+        if (!(itemList instanceof List<?> list)) {
+            return "";
+        }
         StringBuilder sb = new StringBuilder();
         for (var o : list) {
-            if (!(o instanceof Map<?, ?> item)) { continue; }
+            if (!(o instanceof Map<?, ?> item)) {
+                continue;
+            }
             var textItem = item.get("text_item");
             if (textItem instanceof Map<?, ?> tm && tm.get("text") != null) {
                 sb.append(tm.get("text").toString());

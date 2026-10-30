@@ -24,92 +24,128 @@ public class CnIdCardResult {
      * 获取名称。
      * @return 获取名称的结果
      */
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
     /**
      * 设置名称。
      * @param name 名称
      */
-    public void setName(String name) { this.name = name; }
+    public void setName(String name) {
+        this.name = name;
+    }
     /**
      * 获取标识数字。
      * @return 获取id数字的结果
      */
-    public String getIdNumber() { return idNumber; }
+    public String getIdNumber() {
+        return idNumber;
+    }
     /**
      * 设置标识数字。
      * @param idNumber 标识数字
      */
-    public void setIdNumber(String idNumber) { this.idNumber = idNumber; }
+    public void setIdNumber(String idNumber) {
+        this.idNumber = idNumber;
+    }
     /**
      * 获取地址。
      * @return 获取地址的结果
      */
-    public String getAddress() { return address; }
+    public String getAddress() {
+        return address;
+    }
     /**
      * 设置地址。
      * @param address 地址
      */
-    public void setAddress(String address) { this.address = address; }
+    public void setAddress(String address) {
+        this.address = address;
+    }
     /**
      * 获取gender。
      * @return 获取gender的结果
      */
-    public String getGender() { return gender; }
+    public String getGender() {
+        return gender;
+    }
     /**
      * 设置gender。
      * @param gender gender
      */
-    public void setGender(String gender) { this.gender = gender; }
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
     /**
      * 获取ethnicity。
      * @return 获取ethnicity的结果
      */
-    public String getEthnicity() { return ethnicity; }
+    public String getEthnicity() {
+        return ethnicity;
+    }
     /**
      * 设置ethnicity。
      * @param ethnicity ethnicity
      */
-    public void setEthnicity(String ethnicity) { this.ethnicity = ethnicity; }
+    public void setEthnicity(String ethnicity) {
+        this.ethnicity = ethnicity;
+    }
     /**
      * 获取birth日期。
      * @return 获取birth日期的结果
      */
-    public String getBirthDate() { return birthDate; }
+    public String getBirthDate() {
+        return birthDate;
+    }
     /**
      * 设置birth日期。
      * @param birthDate birth日期
      */
-    public void setBirthDate(String birthDate) { this.birthDate = birthDate; }
+    public void setBirthDate(String birthDate) {
+        this.birthDate = birthDate;
+    }
     /**
      * 获取issueauthority。
      * @return 获取issueauthority的结果
      */
-    public String getIssueAuthority() { return issueAuthority; }
+    public String getIssueAuthority() {
+        return issueAuthority;
+    }
     /**
      * 设置issueauthority。
      * @param issueAuthority issueauthority
      */
-    public void setIssueAuthority(String issueAuthority) { this.issueAuthority = issueAuthority; }
+    public void setIssueAuthority(String issueAuthority) {
+        this.issueAuthority = issueAuthority;
+    }
     /**
      * 获取valid周期。
      * @return 获取valid周期的结果
      */
-    public String getValidPeriod() { return validPeriod; }
+    public String getValidPeriod() {
+        return validPeriod;
+    }
     /**
      * 设置valid周期。
      * @param validPeriod valid周期
      */
-    public void setValidPeriod(String validPeriod) { this.validPeriod = validPeriod; }
+    public void setValidPeriod(String validPeriod) {
+        this.validPeriod = validPeriod;
+    }
     /**
      * 获取信心。
      * @return 获取信心的结果
      */
-    public float getConfidence() { return confidence; }
+    public float getConfidence() {
+        return confidence;
+    }
     /**
      * 设置信心。
      * @param confidence 信心
      */
-    public void setConfidence(float confidence) { this.confidence = confidence; }
+    public void setConfidence(float confidence) {
+        this.confidence = confidence;
+    }
 
     /**
      * 是否valid。

@@ -1159,32 +1159,44 @@ public class ThreadUtils {
          * E
          */
         private final ExecutorService e;
-        DelegatedExecutorService(ExecutorService executor) { e = executor; }
+        DelegatedExecutorService(ExecutorService executor) {
+            e = executor;
+        }
         /**
          * 执行
          */
         @Override
-        public void execute(Runnable command) { e.execute(command); }
+        public void execute(Runnable command) {
+            e.execute(command);
+        }
         /**
          * 关闭
          */
         @Override
-        public void shutdown() { e.shutdown(); }
+        public void shutdown() {
+            e.shutdown();
+        }
         /**
          * 关闭Now
          */
         @Override
-        public List<Runnable> shutdownNow() { return e.shutdownNow(); }
+        public List<Runnable> shutdownNow() {
+            return e.shutdownNow();
+        }
         /**
          * 是否关闭
          */
         @Override
-        public boolean isShutdown() { return e.isShutdown(); }
+        public boolean isShutdown() {
+            return e.isShutdown();
+        }
         /**
          * 是否Terminated
          */
         @Override
-        public boolean isTerminated() { return e.isTerminated(); }
+        public boolean isTerminated() {
+            return e.isTerminated();
+        }
         /**
          * await终止
          */

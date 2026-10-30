@@ -30,13 +30,17 @@ public class Browser {
  * @return 处理的结果
  */
 
-    public long handle() { return handle; }
+    public long handle() {
+        return handle;
+    }
 /**
  * 新上下文。
  * @return 新上下文的结果
  */
 
-    public BrowserContext newContext() { return newContext(null); }
+    public BrowserContext newContext() {
+        return newContext(null);
+    }
 /**
  * 新上下文。
  * @param options 期权
@@ -58,5 +62,7 @@ public class Browser {
         return new Page(engine, h);
     }
 
-    public void close() { engine.close(handle); }
+    public void close() {
+        engine.close(handle);
+    }
 }

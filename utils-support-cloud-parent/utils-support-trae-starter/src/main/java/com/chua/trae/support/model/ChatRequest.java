@@ -68,119 +68,153 @@ public class ChatRequest {
      *
      * @return Builder 实例
      */
-    public static Builder builder() { return new Builder(); }
+    public static Builder builder() {
+        return new Builder();
+    }
 
     /**
      * 模型标识。
      *
      * @return 模型名或 空
      */
-    public String model() { return model; }
+    public String model() {
+        return model;
+    }
 
     /**
      * 设置模型。
      *
      * @param model 模型名
      */
-    public void model(String model) { this.model = model; }
+    public void model(String model) {
+        this.model = model;
+    }
 
     /**
      * 消息列表。
      *
      * @return 消息列表
      */
-    public List<ChatMessage> messages() { return messages; }
+    public List<ChatMessage> messages() {
+        return messages;
+    }
 
     /**
      * 设置消息列表。
      *
      * @param messages 消息列表
      */
-    public void messages(List<ChatMessage> messages) { this.messages = messages; }
+    public void messages(List<ChatMessage> messages) {
+        this.messages = messages;
+    }
 
     /**
      * 是否流式。
      *
      * @return true 流式，false 非流式，空 默认流式
      */
-    public Boolean stream() { return stream; }
+    public Boolean stream() {
+        return stream;
+    }
 
     /**
      * 设置是否流式。
      *
      * @param stream 流式标志
      */
-    public void stream(Boolean stream) { this.stream = stream; }
+    public void stream(Boolean stream) {
+        this.stream = stream;
+    }
 
     /**
      * 温度参数。
      *
      * @return 温度或 空
      */
-    public Double temperature() { return temperature; }
+    public Double temperature() {
+        return temperature;
+    }
 
     /**
      * 设置温度。
      *
      * @param temperature 温度值
      */
-    public void temperature(Double temperature) { this.temperature = temperature; }
+    public void temperature(Double temperature) {
+        this.temperature = temperature;
+    }
 
     /**
      * 最大 令牌 数。
      *
      * @return 上限或 空
      */
-    public Integer maxTokens() { return maxTokens; }
+    public Integer maxTokens() {
+        return maxTokens;
+    }
 
     /**
      * 设置最大 令牌 数。
      *
      * @param maxTokens 上限
      */
-    public void maxTokens(Integer maxTokens) { this.maxTokens = maxTokens; }
+    public void maxTokens(Integer maxTokens) {
+        this.maxTokens = maxTokens;
+    }
 
     /**
      * Top-P 参数。
      *
      * @return Top-P 或 空
      */
-    public Double topP() { return topP; }
+    public Double topP() {
+        return topP;
+    }
 
     /**
      * 设置 Top-P。
      *
      * @param topP Top-P 值
      */
-    public void topP(Double topP) { this.topP = topP; }
+    public void topP(Double topP) {
+        this.topP = topP;
+    }
 
     /**
      * 工具定义列表。
      *
      * @return 工具列表或 空
      */
-    public List<ToolDefinition> tools() { return tools; }
+    public List<ToolDefinition> tools() {
+        return tools;
+    }
 
     /**
      * 设置工具定义。
      *
      * @param tools 工具列表
      */
-    public void tools(List<ToolDefinition> tools) { this.tools = tools; }
+    public void tools(List<ToolDefinition> tools) {
+        this.tools = tools;
+    }
 
     /**
      * 工具选择策略。
      *
      * @return 策略或 空
      */
-    public String toolChoice() { return toolChoice; }
+    public String toolChoice() {
+        return toolChoice;
+    }
 
     /**
      * 设置工具选择策略。
      *
      * @param toolChoice 策略
      */
-    public void toolChoice(String toolChoice) { this.toolChoice = toolChoice; }
+    public void toolChoice(String toolChoice) {
+        this.toolChoice = toolChoice;
+    }
 
     /**
      * 扩展参数。
@@ -194,7 +228,9 @@ public class ChatRequest {
      *
      * @param extra 扩展 映射
      */
-    public void extra(Map<String, Object> extra) { this.extra = extra; }
+    public void extra(Map<String, Object> extra) {
+        this.extra = extra;
+    }
 
     /**
      * 请求 构建器。
@@ -311,7 +347,9 @@ public class ChatRequest {
          *
          * @return ChatRequest 实例
          */
-        public ChatRequest build() { return req; }
+        public ChatRequest build() {
+            return req;
+        }
     }
 
     /**
@@ -343,31 +381,41 @@ public class ChatRequest {
          *
          * @param content 文本内容
          */
-        public UserMessage(String content) { this.content = content; }
+        public UserMessage(String content) {
+            this.content = content;
+        }
 
         @Override
-        public String role() { return role; }
+        public String role() {
+            return role;
+        }
 
         /**
          * 文本内容。
          *
          * @return 内容
          */
-        public String content() { return content; }
+        public String content() {
+            return content;
+        }
 
         /**
          * 工具调用列表。
          *
          * @return 调用列表或 空
          */
-        public List<ToolCall> toolCalls() { return toolCalls; }
+        public List<ToolCall> toolCalls() {
+            return toolCalls;
+        }
 
         /**
          * 设置工具调用列表。
          *
          * @param toolCalls 调用列表
          */
-        public void toolCalls(List<ToolCall> toolCalls) { this.toolCalls = toolCalls; }
+        public void toolCalls(List<ToolCall> toolCalls) {
+            this.toolCalls = toolCalls;
+        }
     }
 
     /**
@@ -403,52 +451,68 @@ public class ChatRequest {
          *
          * @param content 文本内容
          */
-        public AssistantMessage(String content) { this.content = content; }
+        public AssistantMessage(String content) {
+            this.content = content;
+        }
 
         @Override
-        public String role() { return role; }
+        public String role() {
+            return role;
+        }
 
         /**
          * 文本内容。
          *
          * @return 内容
          */
-        public String content() { return content; }
+        public String content() {
+            return content;
+        }
 
         /**
          * 设置文本内容。
          *
          * @param content 内容
          */
-        public void content(String content) { this.content = content; }
+        public void content(String content) {
+            this.content = content;
+        }
 
         /**
          * 工具调用列表。
          *
          * @return 调用列表或 空
          */
-        public List<ToolCall> toolCalls() { return toolCalls; }
+        public List<ToolCall> toolCalls() {
+            return toolCalls;
+        }
 
         /**
          * 设置工具调用列表。
          *
          * @param toolCalls 调用列表
          */
-        public void toolCalls(List<ToolCall> toolCalls) { this.toolCalls = toolCalls; }
+        public void toolCalls(List<ToolCall> toolCalls) {
+            this.toolCalls = toolCalls;
+        }
 
         /**
          * 推理内容。
          *
          * @return 推理文本或 空
          */
-        public String reasoningContent() { return reasoningContent; }
+        public String reasoningContent() {
+            return reasoningContent;
+        }
 
         /**
          * 设置推理内容。
          *
          * @param reasoningContent 推理文本
          */
-        public void reasoningContent(String reasoningContent) { this.reasoningContent = reasoningContent; }
+        public void reasoningContent(String reasoningContent) {
+            this.reasoningContent = reasoningContent;
+        }
     }
 
     /**
@@ -487,21 +551,27 @@ public class ChatRequest {
         }
 
         @Override
-        public String role() { return role; }
+        public String role() {
+            return role;
+        }
 
         /**
          * 工具调用 标识。
          *
          * @return 调用 标识
          */
-        public String toolCallId() { return toolCallId; }
+        public String toolCallId() {
+            return toolCallId;
+        }
 
         /**
          * 工具执行结果。
          *
          * @return 结果文本
          */
-        public String content() { return content; }
+        public String content() {
+            return content;
+        }
     }
 
     /**
@@ -532,42 +602,54 @@ public class ChatRequest {
          *
          * @return ID
          */
-        public String id() { return id; }
+        public String id() {
+            return id;
+        }
 
         /**
          * 设置调用 标识。
          *
          * @param id 标识
          */
-        public void id(String id) { this.id = id; }
+        public void id(String id) {
+            this.id = id;
+        }
 
         /**
          * 调用类型。
          *
          * @return 类型
          */
-        public String type() { return type; }
+        public String type() {
+            return type;
+        }
 
         /**
          * 设置调用类型。
          *
          * @param type 类型
          */
-        public void type(String type) { this.type = type; }
+        public void type(String type) {
+            this.type = type;
+        }
 
         /**
          * 函数调用详情。
          *
          * @return 函数或 空
          */
-        public FunctionCall function() { return function; }
+        public FunctionCall function() {
+            return function;
+        }
 
         /**
          * 设置函数调用详情。
          *
          * @param function 函数
          */
-        public void function(FunctionCall function) { this.function = function; }
+        public void function(FunctionCall function) {
+            this.function = function;
+        }
 
         /**
          * 参数 映射。
@@ -581,7 +663,9 @@ public class ChatRequest {
          *
          * @param arguments 参数
          */
-        public void arguments(Map<String, Object> arguments) { this.arguments = arguments; }
+        public void arguments(Map<String, Object> arguments) {
+            this.arguments = arguments;
+        }
     }
 
     /**
@@ -620,28 +704,36 @@ public class ChatRequest {
          *
          * @return 名称
          */
-        public String name() { return name; }
+        public String name() {
+            return name;
+        }
 
         /**
          * 设置函数名。
          *
          * @param name 名称
          */
-        public void name(String name) { this.name = name; }
+        public void name(String name) {
+            this.name = name;
+        }
 
         /**
          * 参数 JSON。
          *
          * @return 参数字符串
          */
-        public String arguments() { return arguments; }
+        public String arguments() {
+            return arguments;
+        }
 
         /**
          * 设置参数 JSON。
          *
          * @param arguments 参数字符串
          */
-        public void arguments(String arguments) { this.arguments = arguments; }
+        public void arguments(String arguments) {
+            this.arguments = arguments;
+        }
     }
 
     /**

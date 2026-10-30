@@ -57,13 +57,19 @@ public final class TrimAstProcessor extends AbstractProcessor {
     */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        if (roundEnv.processingOver() || trees == null) { return false; }
+        if (roundEnv.processingOver() || trees == null) {
+            return false;
+        }
 
         for (Element element : roundEnv.getElementsAnnotatedWith(Trim.class)) {
-            if (!(element instanceof VariableElement paramElement)) { continue; }
+            if (!(element instanceof VariableElement paramElement)) {
+                continue;
+            }
 
             Element enclosing = paramElement.getEnclosingElement();
-            if (!(enclosing instanceof ExecutableElement methodElement)) { continue; }
+            if (!(enclosing instanceof ExecutableElement methodElement)) {
+                continue;
+            }
 
             TypeMirror paramType = paramElement.asType();
             if (!isStringType(paramType)) {
@@ -76,7 +82,9 @@ public final class TrimAstProcessor extends AbstractProcessor {
             String paramName = paramElement.getSimpleName().toString();
 
             com.sun.source.tree.Tree methodTree = trees.getTree(methodElement);
-            if (!(methodTree instanceof com.sun.source.tree.MethodTree)) { continue; }
+            if (!(methodTree instanceof com.sun.source.tree.MethodTree)) {
+                continue;
+            }
 
             try {
                 applyTrimTransform((com.sun.source.tree.MethodTree) methodTree, paramName);
@@ -97,7 +105,9 @@ public final class TrimAstProcessor extends AbstractProcessor {
      * @return 是否字符串类型的结果
      */
     private boolean isStringType(TypeMirror type) {
-        if (type.getKind() != javax.lang.model.type.TypeKind.DECLARED) { return false; }
+        if (type.getKind() != javax.lang.model.type.TypeKind.DECLARED) {
+            return false;
+        }
         String typeName = type.toString();
         return "java.lang.String".equals(typeName) || "java.lang.CharSequence".equals(typeName);
     }
@@ -111,7 +121,9 @@ public final class TrimAstProcessor extends AbstractProcessor {
             String paramName) throws Exception {
 
         var jcMethod = AstUtils.asJcMethodDecl(methodTree);
-        if (jcMethod == null || jcMethod.body == null) { return; }
+        if (jcMethod == null || jcMethod.body == null) {
+            return;
+        }
 
         var maker = AstUtils.getTreeMaker(pe);
         var names = AstUtils.getNames(pe);

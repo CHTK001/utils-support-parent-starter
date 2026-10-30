@@ -105,24 +105,56 @@ public class DownloadConfig {
         this.resumeOffset = builder.resumeOffset;
     }
 
-    public String getUrl() { return url; }
-    public Path getTargetDir() { return targetDir; }
-    public String getFilename() { return filename; }
-    public String getExpectedMd5() { return expectedMd5; }
-    public int getConcurrency() { return concurrency; }
-    public long getMaxSpeed() { return maxSpeed; }
-    public Proxy getProxy() { return proxy; }
-    public boolean isAutoExtract() { return autoExtract; }
-    public Path getExtractTo() { return extractTo; }
-    public boolean isSkipMd5Check() { return skipMd5Check; }
-    public boolean isForceDownload() { return forceDownload; }
-    public boolean isShowProgress() { return showProgress; }
-    public int getConnectTimeoutMs() { return connectTimeoutMs; }
-    public int getReadTimeoutMs() { return readTimeoutMs; }
+    public String getUrl() {
+        return url;
+    }
+    public Path getTargetDir() {
+        return targetDir;
+    }
+    public String getFilename() {
+        return filename;
+    }
+    public String getExpectedMd5() {
+        return expectedMd5;
+    }
+    public int getConcurrency() {
+        return concurrency;
+    }
+    public long getMaxSpeed() {
+        return maxSpeed;
+    }
+    public Proxy getProxy() {
+        return proxy;
+    }
+    public boolean isAutoExtract() {
+        return autoExtract;
+    }
+    public Path getExtractTo() {
+        return extractTo;
+    }
+    public boolean isSkipMd5Check() {
+        return skipMd5Check;
+    }
+    public boolean isForceDownload() {
+        return forceDownload;
+    }
+    public boolean isShowProgress() {
+        return showProgress;
+    }
+    public int getConnectTimeoutMs() {
+        return connectTimeoutMs;
+    }
+    public int getReadTimeoutMs() {
+        return readTimeoutMs;
+    }
     public Map<String, String> getHeaders() { return headers; }
-    public long getResumeOffset() { return resumeOffset; }
+    public long getResumeOffset() {
+        return resumeOffset;
+    }
 
-    public static Builder builder() { return new Builder(); }
+    public static Builder builder() {
+        return new Builder();
+    }
 
     /**
      * 下载配置构建器，支持链式调用构建 {@link DownloadConfig} 实例。

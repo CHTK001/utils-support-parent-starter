@@ -360,7 +360,9 @@ public ChatClient newChat() {
                     Integer in = toInt(usage.get("input_tokens"));
                     Integer out = toInt(usage.get("output_tokens"));
                     usageBuilder.inputTokens(in).outputTokens(out);
-                    if (in != null && out != null) { usageBuilder.totalTokens(in + out); }
+                    if (in != null && out != null) {
+                        usageBuilder.totalTokens(in + out);
+                    }
                 }
             } catch (Exception e) {
                 log.debug("[claude] 解析用量统计失败，已忽略: {}", e.getMessage());
@@ -430,7 +432,9 @@ public ChatClient newChat() {
      * @return 转为int的结果
      */
     private static Integer toInt(Object val) {
-        if (val instanceof Number n) { return n.intValue(); }
+        if (val instanceof Number n) {
+            return n.intValue();
+        }
         return null;
     }
 

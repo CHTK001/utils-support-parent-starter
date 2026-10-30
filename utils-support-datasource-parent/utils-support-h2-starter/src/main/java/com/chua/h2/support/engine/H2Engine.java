@@ -58,9 +58,13 @@ public class H2Engine extends JdbcEngine {
         EngineDataSource<Object> dataSource = new EngineDataSource<Object>() {
             private Dialect dialect = Dialect.require("h2");
             @Override
-            public String name() { return name; }
+            public String name() {
+                return name;
+            }
             @Override
-            public Object getSource() { return ds; }
+            public Object getSource() {
+                return ds;
+            }
             @Override
             public <R> R getSource(Class<R> type) { return type.cast(ds); }
             @Override
@@ -68,7 +72,9 @@ public class H2Engine extends JdbcEngine {
                 throw new UnsupportedOperationException("运行期不支持替换数据源对象，请重新调用 addDataSource 注册新数据源");
             }
             @Override
-            public Dialect getDialect() { return dialect; }
+            public Dialect getDialect() {
+                return dialect;
+            }
             @Override
             public EngineDataSource<Object> setDialect(Dialect d) {
                 if (d != null) {
@@ -77,11 +83,17 @@ public class H2Engine extends JdbcEngine {
                 return this;
             }
             @Override
-            public String url() { return ds.getJdbcUrl(); }
+            public String url() {
+                return ds.getJdbcUrl();
+            }
             @Override
-            public String username() { return ds.getUsername(); }
+            public String username() {
+                return ds.getUsername();
+            }
             @Override
-            public String password() { return ds.getPassword(); }
+            public String password() {
+                return ds.getPassword();
+            }
         };
         return super.addDataSource(name, dataSource);
     }

@@ -167,7 +167,9 @@ public final class TraeTcDecryptor {
          *
          * @param message 消息
          */
-        public TcDecryptException(String message) { super(message); }
+        public TcDecryptException(String message) {
+            super(message);
+        }
 
         /**
          * 创建带原因的异常。
@@ -175,7 +177,9 @@ public final class TraeTcDecryptor {
          * @param message 消息
          * @param cause 原因
          */
-        public TcDecryptException(String message, Throwable cause) { super(message, cause); }
+        public TcDecryptException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 
     /**

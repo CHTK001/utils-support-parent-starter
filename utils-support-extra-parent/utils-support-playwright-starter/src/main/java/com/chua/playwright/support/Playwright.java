@@ -86,11 +86,15 @@ public class Playwright {
         return new Playwright();
     }
 
-    public static String version() { return getEngine().version(); }
+    public static String version() {
+        return getEngine().version();
+    }
 
     /**
      * 铬。
      * @return 铬的结果
      */
-    public BrowserType chromium() { return new BrowserType(getEngine()); }
+    public BrowserType chromium() {
+        return new BrowserType(getEngine());
+    }
 }

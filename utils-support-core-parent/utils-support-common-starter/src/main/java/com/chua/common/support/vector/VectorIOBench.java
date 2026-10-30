@@ -257,7 +257,9 @@ public class VectorIOBench {
      */
     private static float cosineSIMD(float[] a, float[] b) {
         double dot = 0, nA = 0, nB = 0;
-        for (int i = 0; i < a.length; i++) { dot += a[i] * b[i]; nA += a[i] * a[i]; nB += b[i] * b[i]; }
+        for (int i = 0; i < a.length; i++) {
+            dot += a[i] * b[i]; nA += a[i] * a[i]; nB += b[i] * b[i];
+        }
         double d = Math.sqrt(nA) * Math.sqrt(nB);
         return d == 0 ? 0f : (float) (dot / d);
     }

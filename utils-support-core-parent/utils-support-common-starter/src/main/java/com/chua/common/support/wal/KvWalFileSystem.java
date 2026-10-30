@@ -35,7 +35,9 @@ public class KvWalFileSystem extends AbstractWalFileSystem {
     }
 
     @Override
-    protected byte opType() { return 0x01; }
+    protected byte opType() {
+        return 0x01;
+    }
 
     @Override
     protected String decodeKey(byte[] payload) {

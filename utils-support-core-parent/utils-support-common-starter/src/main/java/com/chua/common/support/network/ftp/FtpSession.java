@@ -125,7 +125,9 @@ class FtpSession {
     /**
      * 获取会话 ID。
      */
-    String getId() { return id; }
+    String getId() {
+        return id;
+    }
 
     /**
      * 发送 FTP 响应码 + 消息。
@@ -173,92 +175,128 @@ class FtpSession {
     /**
      * 获取控制连接输入流。
      */
-    BufferedReader getControlIn() { return controlIn; }
+    BufferedReader getControlIn() {
+        return controlIn;
+    }
 
     /**
      * 获取控制连接输出流。
      */
-    PrintWriter getControlOut() { return controlOut; }
+    PrintWriter getControlOut() {
+        return controlOut;
+    }
 
     /**
      * 获取 FTP 配置。
      */
-    FtpConfig getConfig() { return config; }
+    FtpConfig getConfig() {
+        return config;
+    }
 
     /**
      * 获取数据通道。
      */
-    FtpDataChannel getDataChannel() { return dataChannel; }
+    FtpDataChannel getDataChannel() {
+        return dataChannel;
+    }
 
     /**
      * 获取当前工作目录。
      */
-    String getCurrentDir() { return currentDir; }
+    String getCurrentDir() {
+        return currentDir;
+    }
 
     /**
      * 设置当前工作目录。
      */
-    void setCurrentDir(String dir) { this.currentDir = dir; }
+    void setCurrentDir(String dir) {
+        this.currentDir = dir;
+    }
 
     /**
      * 获取已认证用户名。
      */
-    String getUsername() { return username; }
+    String getUsername() {
+        return username;
+    }
 
     /**
      * 设置已认证用户名。
      */
-    void setUsername(String username) { this.username = username; }
+    void setUsername(String username) {
+        this.username = username;
+    }
 
     /**
      * 是否已认证。
      */
-    boolean isAuthenticated() { return authenticated; }
+    boolean isAuthenticated() {
+        return authenticated;
+    }
 
     /**
      * 设置认证状态。
      */
-    void setAuthenticated(boolean authenticated) { this.authenticated = authenticated; }
+    void setAuthenticated(boolean authenticated) {
+        this.authenticated = authenticated;
+    }
 
     /**
      * 是否匿名用户。
      */
-    boolean isAnonymous() { return anonymous; }
+    boolean isAnonymous() {
+        return anonymous;
+    }
 
     /**
      * 设置匿名用户标志。
      */
-    void setAnonymous(boolean anonymous) { this.anonymous = anonymous; }
+    void setAnonymous(boolean anonymous) {
+        this.anonymous = anonymous;
+    }
 
     /**
      * 是否二进制传输模式。
      */
-    boolean isBinaryMode() { return binaryMode; }
+    boolean isBinaryMode() {
+        return binaryMode;
+    }
 
     /**
      * 设置二进制传输模式。
      */
-    void setBinaryMode(boolean binaryMode) { this.binaryMode = binaryMode; }
+    void setBinaryMode(boolean binaryMode) {
+        this.binaryMode = binaryMode;
+    }
 
     /**
      * 获取传输类型字符。
      */
-    char getTransferType() { return transferType; }
+    char getTransferType() {
+        return transferType;
+    }
 
     /**
      * 设置传输类型。
      */
-    void setTransferType(char transferType) { this.transferType = transferType; }
+    void setTransferType(char transferType) {
+        this.transferType = transferType;
+    }
 
     /**
      * 获取重启标记偏移量。
      */
-    long getRestartMarker() { return restartMarker; }
+    long getRestartMarker() {
+        return restartMarker;
+    }
 
     /**
      * 设置重启标记偏移量。
      */
-    void setRestartMarker(long restartMarker) { this.restartMarker = restartMarker; }
+    void setRestartMarker(long restartMarker) {
+        this.restartMarker = restartMarker;
+    }
 
     /**
      * 将客户端相对路径转换为服务器绝对路径。
@@ -335,12 +373,16 @@ class FtpSession {
     /**
      * 会话是否已关闭。
      */
-    boolean isClosed() { return closed; }
+    boolean isClosed() {
+        return closed;
+    }
 
     /**
      * 获取控制连接 Socket。
      */
-    Socket getControlSocket() { return controlSocket; }
+    Socket getControlSocket() {
+        return controlSocket;
+    }
 
     /**
      * 设置会话属性。

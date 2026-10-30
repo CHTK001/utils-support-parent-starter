@@ -165,7 +165,9 @@ public class MqttClientWrapper implements AutoCloseable {
      *
      * @return 构建器的结果
      */
-    public static Builder builder() { return new Builder(); }
+    public static Builder builder() {
+        return new Builder();
+    }
 
     /**
      * 判断客户端是否已连接。
@@ -309,7 +311,9 @@ public class MqttClientWrapper implements AutoCloseable {
      * 关闭
     */
     @Override
-    public void close() { shutdown(); }
+    public void close() {
+        shutdown();
+    }
 
     // ==================== 操作入口 ====================
 
@@ -318,13 +322,17 @@ public class MqttClientWrapper implements AutoCloseable {
      *
      * @return 订阅的结果
      */
-    public SubscribeOperation subscribe() { return new SubscribeOperation(this); }
+    public SubscribeOperation subscribe() {
+        return new SubscribeOperation(this);
+    }
     /**
      * 发布
      *
      * @return 发布的结果
      */
-    public PublishOperation publish() { return new PublishOperation(this); }
+    public PublishOperation publish() {
+        return new PublishOperation(this);
+    }
 
     /**
      * 注册注解处理器。
@@ -538,7 +546,9 @@ public class MqttClientWrapper implements AutoCloseable {
          *
          * @return 构建的结果
          */
-        public MqttClientWrapper build() { return new MqttClientWrapper(this); }
+        public MqttClientWrapper build() {
+            return new MqttClientWrapper(this);
+        }
     }
 
     // ==================== 订阅操作 ====================
@@ -567,7 +577,9 @@ public class MqttClientWrapper implements AutoCloseable {
         */
         private BiConsumer<String, String> handler;
 
-        SubscribeOperation(MqttClientWrapper client) { this.client = client; }
+        SubscribeOperation(MqttClientWrapper client) {
+            this.client = client;
+        }
 
         /**
          * Topic
@@ -629,7 +641,9 @@ public class MqttClientWrapper implements AutoCloseable {
             client.requireClient();
             client.subscriptions.remove(topic);
             try { client.mqttClient.unsubscribe(topic); }
-            catch (MqttException e) { throw new MqttClientException("取消订阅失败", e); }
+            catch (MqttException e) {
+                throw new MqttClientException("取消订阅失败", e);
+            }
         }
     }
 
@@ -663,7 +677,9 @@ public class MqttClientWrapper implements AutoCloseable {
         */
         private boolean retained = false;
 
-        PublishOperation(MqttClientWrapper client) { this.client = client; }
+        PublishOperation(MqttClientWrapper client) {
+            this.client = client;
+        }
 
         /**
          * Topic
@@ -905,6 +921,8 @@ public class MqttClientWrapper implements AutoCloseable {
          * @param message 消息
          * @param cause Throwable
          */
-        public MqttClientException(String message, Throwable cause) { super(message, cause); }
+        public MqttClientException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 }

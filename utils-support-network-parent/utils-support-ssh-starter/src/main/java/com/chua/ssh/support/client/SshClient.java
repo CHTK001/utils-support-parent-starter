@@ -131,7 +131,9 @@ public class SshClient implements AutoCloseable {
     /**
      * Builder
     */
-    public static Builder builder() { return new Builder(); }
+    public static Builder builder() {
+        return new Builder();
+    }
 
     /**
      * 创建
@@ -282,29 +284,39 @@ public class SshClient implements AutoCloseable {
      * 关闭
     */
     @Override
-    public void close() { disconnect(); }
+    public void close() {
+        disconnect();
+    }
 
     // ==================== 操作入口 ====================
 
     /**
      * 执行命令
      */
-    public ExecOperation exec() { return new ExecOperation(this); }
+    public ExecOperation exec() {
+        return new ExecOperation(this);
+    }
 
     /**
      * 交互式 Shell（同步读取全部输出）
      */
-    public ShellOperation shell() { return new ShellOperation(this); }
+    public ShellOperation shell() {
+        return new ShellOperation(this);
+    }
 
     /**
      * PTY 交互式终端（实时输入输出）
      */
-    public TerminalOperation terminal() { return new TerminalOperation(this); }
+    public TerminalOperation terminal() {
+        return new TerminalOperation(this);
+    }
 
     /**
      * 隧道操作（正向/反向/动态）
      */
-    public ForwardOperation forward() { return new ForwardOperation(this); }
+    public ForwardOperation forward() {
+        return new ForwardOperation(this);
+    }
 
     /**
      * 在既有连接上新开 SFTP 通道（复用当前已认证会话，不新建立连接）。
@@ -330,7 +342,9 @@ public class SshClient implements AutoCloseable {
         return s != null && !s.isClosed();
     }
 
-    ClientSession getSession() { return session; }
+    ClientSession getSession() {
+        return session;
+    }
 
     // ==================== ExecOperation ====================
 
@@ -345,7 +359,9 @@ public class SshClient implements AutoCloseable {
          */
         private String command;
 
-        ExecOperation(SshClient client) { this.client = client; }
+        ExecOperation(SshClient client) {
+            this.client = client;
+        }
 
         /**
          * Command
@@ -390,11 +406,15 @@ public class SshClient implements AutoCloseable {
         /**
          * 执行And获取Output
         */
-        public String executeAndGetOutput() { return execute().stdout(); }
+        public String executeAndGetOutput() {
+            return execute().stdout();
+        }
         /**
          * 执行And获取ExitCode
         */
-        public int executeAndGetExitCode() { return execute().exitCode(); }
+        public int executeAndGetExitCode() {
+            return execute().exitCode();
+        }
 
         /**
          * 流式执行（阻塞到命令结束）：stdout / stderr 逐行回调，同时保留完整输出。
@@ -475,7 +495,9 @@ public class SshClient implements AutoCloseable {
          */
         private ChannelShell channel;
 
-        ShellOperation(SshClient client) { this.client = client; }
+        ShellOperation(SshClient client) {
+            this.client = client;
+        }
 
         /**
          * 连接
@@ -564,7 +586,9 @@ public class SshClient implements AutoCloseable {
          */
         private int actualPort = -1;
 
-        ForwardOperation(SshClient client) { this.client = client; }
+        ForwardOperation(SshClient client) {
+            this.client = client;
+        }
 
         /**
          * 正向隧道（本地端口转发）
@@ -825,7 +849,9 @@ public class SshClient implements AutoCloseable {
          */
         private CountDownLatch promptLatch = new CountDownLatch(1);
 
-        TerminalOperation(SshClient client) { this.client = client; }
+        TerminalOperation(SshClient client) {
+            this.client = client;
+        }
 
         /**
          * Pty
@@ -903,7 +929,9 @@ public class SshClient implements AutoCloseable {
                     while (connected && (len = inputStream.read(buf)) != -1) {
                         if (len > 0) {
                             String data = new String(buf, 0, len, StandardCharsets.UTF_8);
-                            synchronized (outputBuffer) { outputBuffer.append(data); }
+                            synchronized (outputBuffer) {
+                                outputBuffer.append(data);
+                            }
                             if (outputCallback != null) {
                                 outputCallback.accept(data);
                             }
@@ -1015,7 +1043,9 @@ public class SshClient implements AutoCloseable {
         /**
          * 是否Connected
         */
-        public boolean isConnected() { return connected; }
+        public boolean isConnected() {
+            return connected;
+        }
     }
 
     // ==================== 流式辅助 ====================
@@ -1311,6 +1341,8 @@ public class SshClient implements AutoCloseable {
          * @param msg msg
          * @param Throwable Throwable
          */
-        public SshClientException(String msg, Throwable cause) { super(msg, cause); }
+        public SshClientException(String msg, Throwable cause) {
+            super(msg, cause);
+        }
     }
 }

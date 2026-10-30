@@ -209,7 +209,9 @@ public class VecWalStoreSystem implements WalStoreSystem<String> {
         }
     }
     @Override
-    public int size() { return (int) totalRecords.get(); }
+    public int size() {
+        return (int) totalRecords.get();
+    }
     @Override
     public List<WalSegmentInfo> listSegments() throws IOException {
         List<WalSegmentInfo> all = Wraps.list();
@@ -329,7 +331,9 @@ public class VecWalStoreSystem implements WalStoreSystem<String> {
             if (heap.size() < topK) {
                 heap.add(vs);
             }
-            else if (vs.score() > heap.peek().score()) { heap.poll(); heap.add(vs); }
+            else if (vs.score() > heap.peek().score()) {
+                heap.poll(); heap.add(vs);
+            }
         }
         List<VectorScored> r = Wraps.list(heap);
         r.sort((a, b) -> Float.compare(b.score(), a.score()));
@@ -345,7 +349,9 @@ public class VecWalStoreSystem implements WalStoreSystem<String> {
      */
     private static float cosineSim(float[] a, float[] b) {
         double dot = 0, na = 0, nb = 0;
-        for (int i = 0; i < a.length; i++) { dot += a[i]*b[i]; na += a[i]*a[i]; nb += b[i]*b[i]; }
+        for (int i = 0; i < a.length; i++) {
+            dot += a[i]*b[i]; na += a[i]*a[i]; nb += b[i]*b[i];
+        }
         double d = Math.sqrt(na)*Math.sqrt(nb);
         return d == 0 ? 0f : (float)(dot/d);
     }

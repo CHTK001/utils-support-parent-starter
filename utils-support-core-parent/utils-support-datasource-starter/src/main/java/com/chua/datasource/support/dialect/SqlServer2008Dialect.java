@@ -11,10 +11,14 @@ public class SqlServer2008Dialect extends SqlDialect {
     /**
      * sql服务端2008Dialect。
      */
-    public SqlServer2008Dialect() { super("sqlserver2008"); }
+    public SqlServer2008Dialect() {
+        super("sqlserver2008");
+    }
     /**
      * sql服务端2008Dialect。
      * @param properties 属性
      */
-    public SqlServer2008Dialect(Properties properties) { super("sqlserver2008", properties); }
+    public SqlServer2008Dialect(Properties properties) {
+        super("sqlserver2008", properties);
+    }
 }

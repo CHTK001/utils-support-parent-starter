@@ -61,15 +61,33 @@ public class DubboRpcClient implements RpcClient {
             item.setPort(cfg.getPort());
             item.setUsername(cfg.getUsername());
             item.setPassword(cfg.getPassword());
-            if (cfg.getTimeout() != null) { item.setTimeout(cfg.getTimeout()); }
-            if (cfg.getSessionTimeout() != null) { item.setSession(cfg.getSessionTimeout()); }
-            if (cfg.getFile() != null) { item.setFile(cfg.getFile()); }
-            if (cfg.getCheck() != null) { item.setCheck(cfg.getCheck()); }
-            if (cfg.getRegister() != null) { item.setRegister(cfg.getRegister()); }
-            if (cfg.getSubscribe() != null) { item.setSubscribe(cfg.getSubscribe()); }
-            if (cfg.getDynamic() != null) { item.setDynamic(cfg.getDynamic()); }
-            if (cfg.getGroup() != null) { item.setGroup(cfg.getGroup()); }
-            if (cfg.getVersion() != null) { item.setVersion(cfg.getVersion()); }
+            if (cfg.getTimeout() != null) {
+                item.setTimeout(cfg.getTimeout());
+            }
+            if (cfg.getSessionTimeout() != null) {
+                item.setSession(cfg.getSessionTimeout());
+            }
+            if (cfg.getFile() != null) {
+                item.setFile(cfg.getFile());
+            }
+            if (cfg.getCheck() != null) {
+                item.setCheck(cfg.getCheck());
+            }
+            if (cfg.getRegister() != null) {
+                item.setRegister(cfg.getRegister());
+            }
+            if (cfg.getSubscribe() != null) {
+                item.setSubscribe(cfg.getSubscribe());
+            }
+            if (cfg.getDynamic() != null) {
+                item.setDynamic(cfg.getDynamic());
+            }
+            if (cfg.getGroup() != null) {
+                item.setGroup(cfg.getGroup());
+            }
+            if (cfg.getVersion() != null) {
+                item.setVersion(cfg.getVersion());
+            }
             if (cfg.getParameters() != null &&
                     !cfg.getParameters().isEmpty()) { item.setParameters(cfg.getParameters()); }
             registryConfigs.add(item);
@@ -88,16 +106,36 @@ public class DubboRpcClient implements RpcClient {
             return null;
         }
         ConsumerConfig config = new ConsumerConfig();
-        if (cfg.getCheck() != null)           { config.setCheck(cfg.getCheck()); }
-        if (cfg.getAsync() != null)            { config.setAsync(cfg.getAsync()); }
-        if (cfg.getTimeout() != null)          { config.setTimeout(cfg.getTimeout()); }
-        if (cfg.getRetries() != null)          { config.setRetries(cfg.getRetries()); }
-        if (cfg.getLoadBalance() != null)      { config.setLoadbalance(cfg.getLoadBalance()); }
-        if (cfg.getConnections() != null)      { config.setConnections(cfg.getConnections()); }
-        if (cfg.getCluster() != null)          { config.setCluster(cfg.getCluster()); }
-        if (cfg.getSticky() != null)           { config.setSticky(cfg.getSticky()); }
-        if (cfg.getVersion() != null)          { config.setVersion(cfg.getVersion()); }
-        if (cfg.getGroup() != null)            { config.setGroup(cfg.getGroup()); }
+        if (cfg.getCheck() != null) {
+            config.setCheck(cfg.getCheck());
+        }
+        if (cfg.getAsync() != null) {
+            config.setAsync(cfg.getAsync());
+        }
+        if (cfg.getTimeout() != null) {
+            config.setTimeout(cfg.getTimeout());
+        }
+        if (cfg.getRetries() != null) {
+            config.setRetries(cfg.getRetries());
+        }
+        if (cfg.getLoadBalance() != null) {
+            config.setLoadbalance(cfg.getLoadBalance());
+        }
+        if (cfg.getConnections() != null) {
+            config.setConnections(cfg.getConnections());
+        }
+        if (cfg.getCluster() != null) {
+            config.setCluster(cfg.getCluster());
+        }
+        if (cfg.getSticky() != null) {
+            config.setSticky(cfg.getSticky());
+        }
+        if (cfg.getVersion() != null) {
+            config.setVersion(cfg.getVersion());
+        }
+        if (cfg.getGroup() != null) {
+            config.setGroup(cfg.getGroup());
+        }
         return config;
     }
 
@@ -119,20 +157,36 @@ public class DubboRpcClient implements RpcClient {
             }
             ref.setInterface(type);
             if (rpcConsumerConfig != null) {
-                if (rpcConsumerConfig.getTimeout() != null)     { ref.setTimeout(rpcConsumerConfig.getTimeout()); }
-                if (rpcConsumerConfig.getRetries() != null)     { ref.setRetries(rpcConsumerConfig.getRetries()); }
+                if (rpcConsumerConfig.getTimeout() != null) {
+                    ref.setTimeout(rpcConsumerConfig.getTimeout());
+                }
+                if (rpcConsumerConfig.getRetries() != null) {
+                    ref.setRetries(rpcConsumerConfig.getRetries());
+                }
                 if (rpcConsumerConfig.getLoadBalance() != null) {
                     ref.setLoadbalance(rpcConsumerConfig.getLoadBalance());
                 }
-                if (rpcConsumerConfig.getAsync() != null)       { ref.setAsync(rpcConsumerConfig.getAsync()); }
-                if (rpcConsumerConfig.getCheck() != null)       { ref.setCheck(rpcConsumerConfig.getCheck()); }
+                if (rpcConsumerConfig.getAsync() != null) {
+                    ref.setAsync(rpcConsumerConfig.getAsync());
+                }
+                if (rpcConsumerConfig.getCheck() != null) {
+                    ref.setCheck(rpcConsumerConfig.getCheck());
+                }
                 if (rpcConsumerConfig.getConnections() != null) {
                     ref.setConnections(rpcConsumerConfig.getConnections());
                 }
-                if (rpcConsumerConfig.getCluster() != null)     { ref.setCluster(rpcConsumerConfig.getCluster()); }
-                if (rpcConsumerConfig.getSticky() != null)      { ref.setSticky(rpcConsumerConfig.getSticky()); }
-                if (rpcConsumerConfig.getVersion() != null)     { ref.setVersion(rpcConsumerConfig.getVersion()); }
-                if (rpcConsumerConfig.getGroup() != null)       { ref.setGroup(rpcConsumerConfig.getGroup()); }
+                if (rpcConsumerConfig.getCluster() != null) {
+                    ref.setCluster(rpcConsumerConfig.getCluster());
+                }
+                if (rpcConsumerConfig.getSticky() != null) {
+                    ref.setSticky(rpcConsumerConfig.getSticky());
+                }
+                if (rpcConsumerConfig.getVersion() != null) {
+                    ref.setVersion(rpcConsumerConfig.getVersion());
+                }
+                if (rpcConsumerConfig.getGroup() != null) {
+                    ref.setGroup(rpcConsumerConfig.getGroup());
+                }
             }
             return ref;
         });

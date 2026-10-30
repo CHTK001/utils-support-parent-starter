@@ -54,10 +54,14 @@ public final class TraceAstProcessor extends AbstractProcessor {
     */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        if (roundEnv.processingOver() || trees == null) { return false; }
+        if (roundEnv.processingOver() || trees == null) {
+            return false;
+        }
 
         for (Element element : roundEnv.getElementsAnnotatedWith(Trace.class)) {
-            if (!(element instanceof ExecutableElement methodElement)) { continue; }
+            if (!(element instanceof ExecutableElement methodElement)) {
+                continue;
+            }
             if (methodElement.getModifiers().contains(Modifier.ABSTRACT)) {
                 messager.printMessage(Diagnostic.Kind.WARNING,
                         "抽象方法不支持 @Trace：" + methodElement.getSimpleName(), element);
@@ -65,7 +69,9 @@ public final class TraceAstProcessor extends AbstractProcessor {
             }
 
             com.sun.source.tree.Tree methodTree = trees.getTree(methodElement);
-            if (!(methodTree instanceof com.sun.source.tree.MethodTree)) { continue; }
+            if (!(methodTree instanceof com.sun.source.tree.MethodTree)) {
+                continue;
+            }
 
             Trace trace = methodElement.getAnnotation(Trace.class);
             String methodName = methodElement.getSimpleName().toString();
@@ -99,7 +105,9 @@ public final class TraceAstProcessor extends AbstractProcessor {
             ExecutableElement methodElement, Trace trace) throws Exception {
 
         var jcMethod = AstUtils.asJcMethodDecl(methodTree);
-        if (jcMethod == null || jcMethod.body == null) { return; }
+        if (jcMethod == null || jcMethod.body == null) {
+            return;
+        }
 
         var maker = AstUtils.getTreeMaker(pe);
         var names = AstUtils.getNames(pe);
@@ -138,7 +146,9 @@ public final class TraceAstProcessor extends AbstractProcessor {
 
         // 4. 组装
         java.util.List<com.sun.tools.javac.tree.JCTree.JCStatement> body = Wraps.list();
-        if (setDepthStmt != null) { body.add(setDepthStmt); }
+        if (setDepthStmt != null) {
+            body.add(setDepthStmt);
+        }
         body.add(pushStmt);
         body.add(tryCatchFinally);
 
@@ -152,11 +162,15 @@ public final class TraceAstProcessor extends AbstractProcessor {
      */
     private String buildArgsExpression(ExecutableElement methodElement) {
         List<? extends VariableElement> params = methodElement.getParameters();
-        if (params.isEmpty()) { return null; }
+        if (params.isEmpty()) {
+            return null;
+        }
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < params.size(); i++) {
-            if (i > 0) { sb.append(" + \", \" + "); }
+            if (i > 0) {
+                sb.append(" + \", \" + ");
+            }
             String paramName = params.get(i).getSimpleName().toString();
             TypeMirror paramType = params.get(i).asType();
 
@@ -229,7 +243,9 @@ public final class TraceAstProcessor extends AbstractProcessor {
             com.sun.tools.javac.tree.TreeMaker maker, com.sun.tools.javac.util.Names names, String expr) {
 
         String[] parts = expr.split(" \\+ ");
-        if (parts.length == 0) { return maker.Literal(com.sun.tools.javac.code.TypeTag.CLASS, expr); }
+        if (parts.length == 0) {
+            return maker.Literal(com.sun.tools.javac.code.TypeTag.CLASS, expr);
+        }
 
         com.sun.tools.javac.tree.JCTree.JCExpression result = null;
         for (String part : parts) {

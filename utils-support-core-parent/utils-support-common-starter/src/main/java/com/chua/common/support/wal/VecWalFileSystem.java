@@ -30,7 +30,9 @@ public class VecWalFileSystem extends AbstractWalFileSystem {
     }
 
     @Override
-    protected byte opType() { return 0x03; }
+    protected byte opType() {
+        return 0x03;
+    }
 
     @Override
     protected String decodeKey(byte[] payload) {

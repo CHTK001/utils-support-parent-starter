@@ -14,10 +14,14 @@ public class SqlServerDialect extends SqlDialect {
     /**
      * SQL服务端dialect。
      */
-    public SqlServerDialect() { super("sqlserver"); }
+    public SqlServerDialect() {
+        super("sqlserver");
+    }
     /**
      * SQL服务端dialect。
      * @param properties 属性
      */
-    public SqlServerDialect(Properties properties) { super("sqlserver", properties); }
+    public SqlServerDialect(Properties properties) {
+        super("sqlserver", properties);
+    }
 }

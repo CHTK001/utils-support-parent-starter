@@ -335,8 +335,12 @@ public class HuaweiChatClient implements ChatClient {
             messagesJson.append("]");
 
             StringBuilder extraFlags = new StringBuilder();
-            if (thinking) { extraFlags.append(",\"thinking\":true"); }
-            if (smartSearch) { extraFlags.append(",\"enable_search\":true"); }
+            if (thinking) {
+                extraFlags.append(",\"thinking\":true");
+            }
+            if (smartSearch) {
+                extraFlags.append(",\"enable_search\":true");
+            }
 
             String requestBody = "{\"model\":\"" + (model != null ? model : "pangu-ultra")
                     + "\",\"messages\":" + messagesJson
@@ -461,7 +465,9 @@ public class HuaweiChatClient implements ChatClient {
      * @return 转为int的结果
      */
     private static Integer toInt(Object val) {
-        if (val instanceof Number n) { return n.intValue(); }
+        if (val instanceof Number n) {
+            return n.intValue();
+        }
         return null;
     }
 

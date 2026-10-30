@@ -203,7 +203,9 @@ public class ClientRequest {
      *
      * @return 请求级拦截器，未设置时返回 null
      */
-    public HttpInterceptor getInterceptor() { return interceptor; }
+    public HttpInterceptor getInterceptor() {
+        return interceptor;
+    }
 
     /**
      * 设置请求级拦截器。
@@ -221,35 +223,45 @@ public class ClientRequest {
      *
      * @return 完整的请求 URL 字符串
      */
-    public String getUrl() { return url; }
+    public String getUrl() {
+        return url;
+    }
 
     /**
      * 设置请求 URL。
      *
      * @param url 完整的请求 URL，包含协议、主机、端口、路径和查询参数
      */
-    public void setUrl(String url) { this.url = url; }
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     /**
      * 获取 HTTP 请求方法。
      *
      * @return HTTP 请求方法，默认为 GET
      */
-    public HttpMethod getMethod() { return method; }
+    public HttpMethod getMethod() {
+        return method;
+    }
 
     /**
      * 设置 HTTP 请求方法。
      *
      * @param method HTTP 请求方法（GET/POST/PUT/DELETE/PATCH/HEAD/OPTIONS）
      */
-    public void setMethod(HttpMethod method) { this.method = method; }
+    public void setMethod(HttpMethod method) {
+        this.method = method;
+    }
 
     /**
      * 获取请求头集合。
      *
      * @return 请求头集合，不会返回 null
      */
-    public HttpHeader getHeaders() { return headers; }
+    public HttpHeader getHeaders() {
+        return headers;
+    }
 
     /**
      * 设置请求头集合。
@@ -267,7 +279,9 @@ public class ClientRequest {
      *
      * @return 请求体对象，可能为 null、String、byte[]、{@link MultipartBody} 或任意对象
      */
-    public Object getBody() { return body; }
+    public Object getBody() {
+        return body;
+    }
 
     /**
      * 设置请求体。
@@ -275,7 +289,9 @@ public class ClientRequest {
      * @param body 请求体对象，支持 String、byte[]、{@link MultipartBody} 或任意 Java 对象；
      *             null 表示无请求体
      */
-    public void setBody(Object body) { this.body = body; }
+    public void setBody(Object body) {
+        this.body = body;
+    }
 
     /**
      * 获取 URL 查询参数。
@@ -290,112 +306,144 @@ public class ClientRequest {
      * @param params 查询参数 Map，键为参数名，值为参数值；
      *               由执行器拼接到 URL 末尾作为 query string
      */
-    public void setParams(Map<String, String> params) { this.params = params; }
+    public void setParams(Map<String, String> params) {
+        this.params = params;
+    }
 
     /**
      * 获取连接超时时间。
      *
      * @return 连接超时时间（毫秒）
      */
-    public long getConnectTimeout() { return connectTimeout; }
+    public long getConnectTimeout() {
+        return connectTimeout;
+    }
 
     /**
      * 设置连接超时时间。
      *
      * @param connectTimeout 连接超时时间（毫秒），必须为正数
      */
-    public void setConnectTimeout(long connectTimeout) { this.connectTimeout = connectTimeout; }
+    public void setConnectTimeout(long connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
 
     /**
      * 获取读取超时时间。
      *
      * @return 读取超时时间（毫秒）
      */
-    public long getReadTimeout() { return readTimeout; }
+    public long getReadTimeout() {
+        return readTimeout;
+    }
 
     /**
      * 设置读取超时时间。
      *
      * @param readTimeout 读取超时时间（毫秒），0 表示无限等待（具体行为取决于底层执行器）
      */
-    public void setReadTimeout(long readTimeout) { this.readTimeout = readTimeout; }
+    public void setReadTimeout(long readTimeout) {
+        this.readTimeout = readTimeout;
+    }
 
     /**
      * 获取连接保活超时时间。
      *
      * @return 保活超时时间（毫秒）
      */
-    public long getKeepAliveTimeout() { return keepAliveTimeout; }
+    public long getKeepAliveTimeout() {
+        return keepAliveTimeout;
+    }
 
     /**
      * 设置连接保活超时时间。
      *
      * @param keepAliveTimeout 保活超时时间（毫秒），0 表示不限制
      */
-    public void setKeepAliveTimeout(long keepAliveTimeout) { this.keepAliveTimeout = keepAliveTimeout; }
+    public void setKeepAliveTimeout(long keepAliveTimeout) {
+        this.keepAliveTimeout = keepAliveTimeout;
+    }
 
     /**
      * 获取写入超时时间。
      *
      * @return 写入超时时间（毫秒）
      */
-    public long getWriteTimeout() { return writeTimeout; }
+    public long getWriteTimeout() {
+        return writeTimeout;
+    }
 
     /**
      * 设置写入超时时间。
      *
      * @param writeTimeout 写入超时时间（毫秒）
      */
-    public void setWriteTimeout(long writeTimeout) { this.writeTimeout = writeTimeout; }
+    public void setWriteTimeout(long writeTimeout) {
+        this.writeTimeout = writeTimeout;
+    }
 
     /**
      * 获取 HTTP 协议版本。
      *
      * @return HTTP 协议版本，null 表示使用执行器默认版本
      */
-    public HttpVersion getVersion() { return version; }
+    public HttpVersion getVersion() {
+        return version;
+    }
 
     /**
      * 设置 HTTP 协议版本。
      *
      * @param version HTTP 协议版本，null 表示使用执行器默认版本
      */
-    public void setVersion(HttpVersion version) { this.version = version; }
+    public void setVersion(HttpVersion version) {
+        this.version = version;
+    }
 
     /**
      * 获取缓存有效期。
      *
      * @return 缓存有效期（毫秒），{@code -1} 表示不启用缓存
      */
-    public long getCacheTtl() { return cacheTtl; }
+    public long getCacheTtl() {
+        return cacheTtl;
+    }
 
     /**
      * 设置缓存有效期。
      *
      * @param cacheTtl 缓存有效期（毫秒），{@code -1} 表示不启用缓存
      */
-    public void setCacheTtl(long cacheTtl) { this.cacheTtl = cacheTtl; }
+    public void setCacheTtl(long cacheTtl) {
+        this.cacheTtl = cacheTtl;
+    }
 
     /**
      * 获取最大重试次数。
      *
      * @return 最大重试次数，{@code 0} 表示不重试
      */
-    public int getMaxRetries() { return maxRetries; }
+    public int getMaxRetries() {
+        return maxRetries;
+    }
 
     /**
      * 设置最大重试次数。
      *
      * @param maxRetries 最大重试次数，{@code 0} 表示不重试
      */
-    public void setMaxRetries(int maxRetries) { this.maxRetries = maxRetries; }
+    public void setMaxRetries(int maxRetries) {
+        this.maxRetries = maxRetries;
+    }
 
     /**
      * 判断是否自动跟随 HTTP 重定向。
      *
      * @return true 表示跟随重定向（默认），false 表示不跟随
      */
-    public boolean isFollowRedirects() { return followRedirects; }
+    public boolean isFollowRedirects() {
+        return followRedirects;
+    }
 
     /**
      * 设置是否自动跟随 HTTP 重定向。
@@ -405,14 +453,18 @@ public class ClientRequest {
      *
      * @param followRedirects true 跟随重定向，false 不跟随
      */
-    public void setFollowRedirects(boolean followRedirects) { this.followRedirects = followRedirects; }
+    public void setFollowRedirects(boolean followRedirects) {
+        this.followRedirects = followRedirects;
+    }
 
     /**
      * 获取自定义重定向处理器。
      *
      * @return 重定向处理器，未设置时返回 null
      */
-    public Consumer<ClientResponse> getRedirectHandler() { return redirectHandler; }
+    public Consumer<ClientResponse> getRedirectHandler() {
+        return redirectHandler;
+    }
 
     /**
      * 设置自定义重定向处理器。
@@ -423,35 +475,45 @@ public class ClientRequest {
      *
      * @param redirectHandler 重定向处理器，null 表示清除
      */
-    public void setRedirectHandler(Consumer<ClientResponse> redirectHandler) { this.redirectHandler = redirectHandler; }
+    public void setRedirectHandler(Consumer<ClientResponse> redirectHandler) {
+        this.redirectHandler = redirectHandler;
+    }
 
     /**
      * 获取代理主机名。
      *
      * @return 代理主机名，null 表示不使用代理
      */
-    public String getProxyHost() { return proxyHost; }
+    public String getProxyHost() {
+        return proxyHost;
+    }
 
     /**
      * 设置代理主机名。
      *
      * @param proxyHost 代理主机名或 IP 地址；null 或空字符串表示不使用代理
      */
-    public void setProxyHost(String proxyHost) { this.proxyHost = proxyHost; }
+    public void setProxyHost(String proxyHost) {
+        this.proxyHost = proxyHost;
+    }
 
     /**
      * 获取代理端口号。
      *
      * @return 代理端口号
      */
-    public int getProxyPort() { return proxyPort; }
+    public int getProxyPort() {
+        return proxyPort;
+    }
 
     /**
      * 设置代理端口号。
      *
      * @param proxyPort 代理端口号，当 proxyHost 为 null 时此值无效
      */
-    public void setProxyPort(int proxyPort) { this.proxyPort = proxyPort; }
+    public void setProxyPort(int proxyPort) {
+        this.proxyPort = proxyPort;
+    }
 
     /**
      * 便捷方法：同时设置代理主机和端口。

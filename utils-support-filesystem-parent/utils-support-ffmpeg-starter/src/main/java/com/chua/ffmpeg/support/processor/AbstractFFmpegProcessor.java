@@ -151,9 +151,15 @@ public abstract class AbstractFFmpegProcessor implements FFmpegProcessor {
             args.add("-preset");
             args.add(opts.getPreset());
         }
-        if (opts.isOverwrite()) { args.add("-y"); }
-        if (opts.isMute()) { args.add("-an"); }
-        if (opts.isRemoveVideo()) { args.add("-vn"); }
+        if (opts.isOverwrite()) {
+            args.add("-y");
+        }
+        if (opts.isMute()) {
+            args.add("-an");
+        }
+        if (opts.isRemoveVideo()) {
+            args.add("-vn");
+        }
         return args.toArray(new String[0]);
     }
 
@@ -161,5 +167,7 @@ public abstract class AbstractFFmpegProcessor implements FFmpegProcessor {
      * 是否可用
     */
     @Override
-    public boolean isAvailable() { return available; }
+    public boolean isAvailable() {
+        return available;
+    }
 }

@@ -148,29 +148,43 @@ public class ImageGenerationSpec {
     /**
      * Prompt
      */
-    public String prompt() { return prompt; }
+    public String prompt() {
+        return prompt;
+    }
     /**
      * Ratio
      */
-    public String ratio() { return ratio; }
+    public String ratio() {
+        return ratio;
+    }
     /**
      * N
      */
-    public int n() { return n; }
+    public int n() {
+        return n;
+    }
     /**
      * Width
      */
-    public int width() { return width; }
+    public int width() {
+        return width;
+    }
     /**
      * Height
      */
-    public int height() { return height; }
+    public int height() {
+        return height;
+    }
     /**
      * Quality
      */
-    public String quality() { return quality; }
+    public String quality() {
+        return quality;
+    }
     /**
      * RefImageKey
      */
-    public String refImageKey() { return refImageKey; }
+    public String refImageKey() {
+        return refImageKey;
+    }
 }

@@ -59,22 +59,30 @@ public class ApacheMultipartParser implements MultipartParser {
                  * 获取内容类型
                 */
                 @Override
-                public String getContentType() { return contentType; }
+                public String getContentType() {
+                    return contentType;
+                }
                 /**
                  * 获取character编码
                 */
                 @Override
-                public String getCharacterEncoding() { return StandardCharsets.UTF_8.name(); }
+                public String getCharacterEncoding() {
+                    return StandardCharsets.UTF_8.name();
+                }
                 /**
                  * 获取内容获取长度
                 */
                 @Override
-                public long getContentLength() { return body.length; }
+                public long getContentLength() {
+                    return body.length;
+                }
                 /**
                  * 获取输入流
                 */
                 @Override
-                public InputStream getInputStream() { return new ByteArrayInputStream(body); }
+                public InputStream getInputStream() {
+                    return new ByteArrayInputStream(body);
+                }
             };
             FileItemInputIterator iter = upload.getItemIterator(ctx);
             while (iter.hasNext()) {
@@ -115,22 +123,30 @@ public class ApacheMultipartParser implements MultipartParser {
                  * 获取内容类型
                 */
                 @Override
-                public String getContentType() { return contentType; }
+                public String getContentType() {
+                    return contentType;
+                }
                 /**
                  * 获取character编码
                 */
                 @Override
-                public String getCharacterEncoding() { return StandardCharsets.UTF_8.name(); }
+                public String getCharacterEncoding() {
+                    return StandardCharsets.UTF_8.name();
+                }
                 /**
                  * 获取内容获取长度
                 */
                 @Override
-                public long getContentLength() { return body.length; }
+                public long getContentLength() {
+                    return body.length;
+                }
                 /**
                  * 获取输入流
                 */
                 @Override
-                public InputStream getInputStream() { return new ByteArrayInputStream(body); }
+                public InputStream getInputStream() {
+                    return new ByteArrayInputStream(body);
+                }
             };
             FileItemInputIterator iter = upload.getItemIterator(ctx);
             while (iter.hasNext()) {

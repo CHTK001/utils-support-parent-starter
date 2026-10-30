@@ -958,32 +958,44 @@ public class HttpClientBuilder {
     /**
      * 内部访问：获取 baseUrl（供同包工具类使用）。
      */
-    String _url() { return baseUrl; }
+    String _url() {
+        return baseUrl;
+    }
 
     /**
      * 内部访问：获取 path（供同包工具类使用）。
      */
-    String _path() { return path; }
+    String _path() {
+        return path;
+    }
 
     /**
      * 内部访问：获取请求方法（供同包工具类使用）。
      */
-    HttpMethod _method() { return method; }
+    HttpMethod _method() {
+        return method;
+    }
 
     /**
      * 内部访问：获取请求头（供同包工具类使用）。
      */
-    com.chua.common.support.network.http.HttpHeader _headers() { return headers; }
+    com.chua.common.support.network.http.HttpHeader _headers() {
+        return headers;
+    }
 
     /**
      * 内部访问：获取请求体（供同包工具类使用）。
      */
-    Object _body() { return body; }
+    Object _body() {
+        return body;
+    }
 
     /**
      * 内部访问：获取 multipart 请求体（供同包工具类使用）。
      */
-    MultipartBody _multipartBody() { return multipartBody; }
+    MultipartBody _multipartBody() {
+        return multipartBody;
+    }
 
     /**
      * 内部访问：获取纯文本表单字段（供同包工具类使用）。
@@ -993,32 +1005,44 @@ public class HttpClientBuilder {
     /**
      * 内部访问：获取连接超时（供同包工具类使用）。
      */
-    long _connectTimeout() { return connectTimeout; }
+    long _connectTimeout() {
+        return connectTimeout;
+    }
 
     /**
      * 内部访问：获取读取超时（供同包工具类使用）。
      */
-    long _readTimeout() { return readTimeout; }
+    long _readTimeout() {
+        return readTimeout;
+    }
 
     /**
      * 内部访问：获取保活超时（供同包工具类使用）。
      */
-    long _keepAliveTimeout() { return keepAliveTimeout; }
+    long _keepAliveTimeout() {
+        return keepAliveTimeout;
+    }
 
     /**
      * 内部访问：获取是否跟随重定向（供同包工具类使用）。
      */
-    boolean _followRedirects() { return followRedirects; }
+    boolean _followRedirects() {
+        return followRedirects;
+    }
 
     /**
      * 内部访问：获取代理主机（供同包工具类使用）。
      */
-    String _proxyHost() { return proxyHost; }
+    String _proxyHost() {
+        return proxyHost;
+    }
 
     /**
      * 内部访问：获取代理端口（供同包工具类使用）。
      */
-    int _proxyPort() { return proxyPort; }
+    int _proxyPort() {
+        return proxyPort;
+    }
 
     /**
      * 从 curl 命令字符串创建 {@link HttpClientBuilder}。

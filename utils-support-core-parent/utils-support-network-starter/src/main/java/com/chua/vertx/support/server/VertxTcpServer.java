@@ -354,7 +354,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         private static final class Segment {
             final byte[] data;
             int pos;
-            Segment(byte[] data) { this.data = data; }
+            Segment(byte[] data) {
+                this.data = data;
+            }
         }
         /**
          * 结束哨兵(关闭信号)

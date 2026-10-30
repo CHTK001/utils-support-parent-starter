@@ -39,11 +39,15 @@ public class GeoSetting {
     /**
      * 获取DatabaseFile
      */
-    public String getDatabaseFile() { return databaseFile; }
+    public String getDatabaseFile() {
+        return databaseFile;
+    }
     /**
      * 获取LicenseKey
      */
-    public String getLicenseKey() { return licenseKey; }
+    public String getLicenseKey() {
+        return licenseKey;
+    }
 
     /**
      * 创建 Builder
@@ -80,6 +84,8 @@ public class GeoSetting {
         /**
          * 构建
          */
-        public GeoSetting build() { return new GeoSetting(databaseFile, licenseKey); }
+        public GeoSetting build() {
+            return new GeoSetting(databaseFile, licenseKey);
+        }
     }
 }

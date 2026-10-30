@@ -48,12 +48,26 @@ class BTreeNode<K, V> {
         }
     }
 
-    List<K> getKeys() { return keys; }
-    List<V> getValues() { return values; }
+    List<K> getKeys() {
+        return keys;
+    }
+    List<V> getValues() {
+        return values;
+    }
     List<BTreeNode<K, V>> getChildren() { return children; }
-    boolean isLeaf() { return leaf; }
-    void setLeaf(boolean leaf) { this.leaf = leaf; }
-    void setKeys(List<K> keys) { this.keys = keys; }
-    void setValues(List<V> values) { this.values = values; }
-    void setChildren(List<BTreeNode<K, V>> children) { this.children = children; }
+    boolean isLeaf() {
+        return leaf;
+    }
+    void setLeaf(boolean leaf) {
+        this.leaf = leaf;
+    }
+    void setKeys(List<K> keys) {
+        this.keys = keys;
+    }
+    void setValues(List<V> values) {
+        this.values = values;
+    }
+    void setChildren(List<BTreeNode<K, V>> children) {
+        this.children = children;
+    }
 }

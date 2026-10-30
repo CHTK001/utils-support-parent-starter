@@ -202,7 +202,9 @@ public class FileMemoryStore implements MemoryStore {
                     .filter(p -> p.toString().endsWith(".json"))
                     .sorted(Comparator.comparing(p -> {
                         try { return Files.getLastModifiedTime(p); }
-                        catch (IOException ex) { return java.nio.file.attribute.FileTime.fromMillis(0); }
+                        catch (IOException ex) {
+                            return java.nio.file.attribute.FileTime.fromMillis(0);
+                        }
                     }, Comparator.reverseOrder()))
                     .limit(limit)
                     .forEach(p -> {
@@ -233,7 +235,9 @@ public class FileMemoryStore implements MemoryStore {
                     .filter(p -> p.toString().endsWith(".json"))
                     .sorted(Comparator.comparing(p -> {
                         try { return Files.getLastModifiedTime(p); }
-                        catch (IOException ex) { return java.nio.file.attribute.FileTime.fromMillis(0); }
+                        catch (IOException ex) {
+                            return java.nio.file.attribute.FileTime.fromMillis(0);
+                        }
                     }))
                     .limit(toRemove)
                     .forEach(p -> {

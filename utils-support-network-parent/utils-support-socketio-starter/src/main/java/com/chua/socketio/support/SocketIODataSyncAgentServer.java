@@ -134,7 +134,11 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
         @Override public void stop() {}
         @Override public boolean isRunning() { return false; }
         @Override public String dataUrl() { return ""; }
-        com.corundumstudio.socketio.SocketIOClient getClient() { return client; }
-        String getSourceId() { return sourceId; }
+        com.corundumstudio.socketio.SocketIOClient getClient() {
+            return client;
+        }
+        String getSourceId() {
+            return sourceId;
+        }
     }
 }

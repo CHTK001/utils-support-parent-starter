@@ -105,21 +105,27 @@ public class ClientResponse {
      *
      * @return HTTP 状态码，如 200、404、500
      */
-    public int getStatusCode() { return statusCode; }
+    public int getStatusCode() {
+        return statusCode;
+    }
 
     /**
      * 设置 HTTP 状态码。
      *
      * @param statusCode HTTP 状态码
      */
-    public void setStatusCode(int statusCode) { this.statusCode = statusCode; }
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
+    }
 
     /**
      * 获取所有响应头。
      *
      * @return 响应头集合，不会返回 null
      */
-    public HttpHeader getHeaders() { return headers; }
+    public HttpHeader getHeaders() {
+        return headers;
+    }
 
     /**
      * 设置响应头集合。
@@ -137,14 +143,18 @@ public class ClientResponse {
      *
      * @return 响应体字节数组，可能为 null（表示无响应体）
      */
-    public byte[] getBody() { return body; }
+    public byte[] getBody() {
+        return body;
+    }
 
     /**
      * 设置响应体字节数组。
      *
      * @param body 响应体字节数组
      */
-    public void setBody(byte[] body) { this.body = body; }
+    public void setBody(byte[] body) {
+        this.body = body;
+    }
 
     /**
      * 获取 HTTP 响应状态消息。
@@ -153,28 +163,36 @@ public class ClientResponse {
      *
      * @return 响应状态消息字符串，可能为 null 或空字符串
      */
-    public String getMessage() { return message; }
+    public String getMessage() {
+        return message;
+    }
 
     /**
      * 设置 HTTP 响应状态消息。
      *
      * @param message 响应状态消息，如 {@code "OK"}、{@code "Not Found"}
      */
-    public void setMessage(String message) { this.message = message; }
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
     /**
      * 获取 HTTP 协议版本。
      *
      * @return HTTP 协议版本，可能为 null（执行器未填充时）
      */
-    public HttpVersion getVersion() { return version; }
+    public HttpVersion getVersion() {
+        return version;
+    }
 
     /**
      * 设置 HTTP 协议版本。
      *
      * @param version HTTP 协议版本
      */
-    public void setVersion(HttpVersion version) { this.version = version; }
+    public void setVersion(HttpVersion version) {
+        this.version = version;
+    }
 
     /**
      * 获取响应体字符串（UTF-8 编码）。

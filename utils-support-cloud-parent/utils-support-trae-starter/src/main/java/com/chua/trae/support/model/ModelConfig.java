@@ -181,35 +181,45 @@ public record ModelConfig(
          *
          * @return true 表示启用
          */
-        public boolean autoFallback() { return autoFlag != null && autoFlag; }
+        public boolean autoFallback() {
+            return autoFlag != null && autoFlag;
+        }
 
         /**
          * 是否启用分档降级。
          *
          * @return true 表示启用
          */
-        public boolean tieredFallback() { return tieredFlag != null && tieredFlag; }
+        public boolean tieredFallback() {
+            return tieredFlag != null && tieredFlag;
+        }
 
         /**
          * 是否同档竞速。
          *
          * @return true 表示启用
          */
-        public boolean raceWithinTier() { return raceFlag != null && raceFlag; }
+        public boolean raceWithinTier() {
+            return raceFlag != null && raceFlag;
+        }
 
         /**
          * 排队阈值，默认 300。
          *
          * @return 阈值
          */
-        public int queueThreshold() { return queueThresholdValue != null ? queueThresholdValue : 300; }
+        public int queueThreshold() {
+            return queueThresholdValue != null ? queueThresholdValue : 300;
+        }
 
         /**
          * 兜底模型，默认 glm-5。
          *
          * @return 兜底模型名
          */
-        public String fallbackModel() { return fallbackModel != null ? fallbackModel : "glm-5"; }
+        public String fallbackModel() {
+            return fallbackModel != null ? fallbackModel : "glm-5";
+        }
     }
 
     /**

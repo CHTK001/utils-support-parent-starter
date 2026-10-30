@@ -117,67 +117,89 @@ public class SymmetricEnvironment {
      * @param engineName engine名称
      * @return mysql的结果
      */
-    public static Builder mysql(String engineName) { return builder().engineName(engineName).dbType("mysql"); }
+    public static Builder mysql(String engineName) {
+        return builder().engineName(engineName).dbType("mysql");
+    }
     /**
      * 创建 PostgreSQL 环境的 构建器。
      * @param engineName engine名称
      * @return postgres的结果
      */
-    public static Builder postgres(String engineName) { return builder().engineName(engineName).dbType("postgres"); }
+    public static Builder postgres(String engineName) {
+        return builder().engineName(engineName).dbType("postgres");
+    }
     /**
      * 创建 Oracle 环境的 构建器。
      * @param engineName engine名称
      * @return oracle的结果
      */
-    public static Builder oracle(String engineName) { return builder().engineName(engineName).dbType("oracle"); }
+    public static Builder oracle(String engineName) {
+        return builder().engineName(engineName).dbType("oracle");
+    }
     /**
      * 创建 SQL 服务端 环境的 构建器。
      * @param engineName engine名称
      * @return sqlserver的结果
      */
-    public static Builder sqlserver(String engineName) { return builder().engineName(engineName).dbType("sqlserver"); }
+    public static Builder sqlserver(String engineName) {
+        return builder().engineName(engineName).dbType("sqlserver");
+    }
     /**
      * 创建 mariadb 环境的 构建器。
      * @param engineName engine名称
      * @return mariadb的结果
      */
-    public static Builder mariadb(String engineName) { return builder().engineName(engineName).dbType("mariadb"); }
+    public static Builder mariadb(String engineName) {
+        return builder().engineName(engineName).dbType("mariadb");
+    }
     /**
      * 创建 DB2 环境的 构建器。
      * @param engineName engine名称
      * @return db2的结果
      */
-    public static Builder db2(String engineName) { return builder().engineName(engineName).dbType("db2"); }
+    public static Builder db2(String engineName) {
+        return builder().engineName(engineName).dbType("db2");
+    }
     /**
      * 创建 Informix 环境的 构建器。
      * @param engineName engine名称
      * @return informix的结果
      */
-    public static Builder informix(String engineName) { return builder().engineName(engineName).dbType("informix"); }
+    public static Builder informix(String engineName) {
+        return builder().engineName(engineName).dbType("informix");
+    }
     /**
      * 创建 H2 环境的 构建器。
      * @param engineName engine名称
      * @return h2的结果
      */
-    public static Builder h2(String engineName) { return builder().engineName(engineName).dbType("h2"); }
+    public static Builder h2(String engineName) {
+        return builder().engineName(engineName).dbType("h2");
+    }
     /**
      * 创建 Derby 环境的 构建器。
      * @param engineName engine名称
      * @return derby的结果
      */
-    public static Builder derby(String engineName) { return builder().engineName(engineName).dbType("derby"); }
+    public static Builder derby(String engineName) {
+        return builder().engineName(engineName).dbType("derby");
+    }
     /**
      * 创建 Firebird 环境的 构建器。
      * @param engineName engine名称
      * @return firebird的结果
      */
-    public static Builder firebird(String engineName) { return builder().engineName(engineName).dbType("firebird"); }
+    public static Builder firebird(String engineName) {
+        return builder().engineName(engineName).dbType("firebird");
+    }
     /**
      * 创建 Sybase ASE 环境的 构建器。
      * @param engineName engine名称
      * @return ase的结果
      */
-    public static Builder ase(String engineName) { return builder().engineName(engineName).dbType("ase"); }
+    public static Builder ase(String engineName) {
+        return builder().engineName(engineName).dbType("ase");
+    }
     /**
      * 创建 SQL Anywhere 环境的 构建器。
      * @param engineName engine名称
@@ -190,7 +212,9 @@ public class SymmetricEnvironment {
      * @param engineName engine名称
      * @return vertica的结果
      */
-    public static Builder vertica(String engineName) { return builder().engineName(engineName).dbType("vertica"); }
+    public static Builder vertica(String engineName) {
+        return builder().engineName(engineName).dbType("vertica");
+    }
     /**
      * 创建 click房子 环境的 构建器。
      * @param engineName engine名称

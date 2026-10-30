@@ -135,7 +135,9 @@ public final class TraceContext {
      * @return traceId
      */
     public static String push(String className, String packageName, String methodName) {
-        if (!ENABLED) { return ""; }
+        if (!ENABLED) {
+            return "";
+        }
 
         Deque<TraceNode> stack = STACK.get();
         String traceId;
@@ -178,7 +180,9 @@ public final class TraceContext {
      * @param methodName 方法名称
      */
     public static void push(String traceId, String className, String packageName, String methodName) {
-        if (!ENABLED) { return; }
+        if (!ENABLED) {
+            return;
+        }
 
         Deque<TraceNode> stack = STACK.get();
         int depth = stack.isEmpty() ? 0 : stack.peek().depth + 1;
@@ -210,7 +214,9 @@ public final class TraceContext {
      * @return pushwith参数的结果
      */
     public static String pushWithArgs(String className, String packageName, String methodName, String args) {
-        if (!ENABLED) { return ""; }
+        if (!ENABLED) {
+            return "";
+        }
 
         Deque<TraceNode> stack = STACK.get();
         String traceId;
@@ -250,7 +256,9 @@ public final class TraceContext {
      * @param t 捕获的异常
      */
     public static void catchException(Throwable t) {
-        if (!ENABLED) { return; }
+        if (!ENABLED) {
+            return;
+        }
         Deque<TraceNode> stack = STACK.get();
         if (!stack.isEmpty()) {
             stack.peek().exception = t;
@@ -261,10 +269,14 @@ public final class TraceContext {
      * pop。
      */
     public static void pop() {
-        if (!ENABLED) { return; }
+        if (!ENABLED) {
+            return;
+        }
 
         Deque<TraceNode> stack = STACK.get();
-        if (stack.isEmpty()) { return; }
+        if (stack.isEmpty()) {
+            return;
+        }
 
         TraceNode node = stack.pop();
         node.elapsed = System.nanoTime() - node.startTime;
@@ -321,7 +333,9 @@ public final class TraceContext {
         return stack.isEmpty() ? null : stack.peek().traceId;
     }
 
-    public static boolean isEnabled() { return ENABLED; }
+    public static boolean isEnabled() {
+        return ENABLED;
+    }
 
     /**
      * 获取深度。
@@ -340,10 +354,14 @@ public final class TraceContext {
      * @return wrap的结果
      */
     public static Runnable wrap(Runnable task) {
-        if (!ENABLED) { return task; }
+        if (!ENABLED) {
+            return task;
+        }
         String traceId = getTraceId();
         int parentDepth = getDepth();
-        if (traceId == null) { return task; }
+        if (traceId == null) {
+            return task;
+        }
         return () -> {
             pushWithDepth(traceId, "Thread", "run", parentDepth);
             try {
@@ -371,10 +389,14 @@ public final class TraceContext {
      * @return wrap的结果
      */
     public static <T> Callable<T> wrap(Callable<T> task) {
-        if (!ENABLED) { return task; }
+        if (!ENABLED) {
+            return task;
+        }
         String traceId = getTraceId();
         int parentDepth = getDepth();
-        if (traceId == null) { return task; }
+        if (traceId == null) {
+            return task;
+        }
         return () -> {
             pushWithDepth(traceId, "Thread", "call", parentDepth);
             try {
@@ -403,11 +425,15 @@ public final class TraceContext {
      * @param parentDepth 父深度
      */
     private static void pushWithDepth(String traceId, String className, String methodName, int parentDepth) {
-        if (!ENABLED) { return; }
+        if (!ENABLED) {
+            return;
+        }
         Deque<TraceNode> stack = STACK.get();
         int depth = parentDepth + 1;
         Integer maxDepth = MAX_DEPTH.get();
-        if (maxDepth != null && maxDepth > 0 && depth >= maxDepth) { return; }
+        if (maxDepth != null && maxDepth > 0 && depth >= maxDepth) {
+            return;
+        }
         TraceNode node = new TraceNode(traceId, className, methodName, depth);
         stack.push(node);
         SHARED_NODES.computeIfAbsent(traceId, k -> Wraps.list()).add(node);
@@ -437,7 +463,9 @@ public final class TraceContext {
      */
     private static void flushTree(String traceId) {
         List<TraceNode> nodes = SHARED_NODES.get(traceId);
-        if (nodes == null || nodes.isEmpty()) { return; }
+        if (nodes == null || nodes.isEmpty()) {
+            return;
+        }
 
         // 找到根节点的耗时作为基准
         long rootElapsed = 0;
@@ -456,7 +484,9 @@ public final class TraceContext {
         // 第一遍：计算最大左侧宽度（缩进 + 百分比 + 类.方法）
         int maxLeftWidth = 0;
         for (TraceNode node : nodes) {
-            if (maxDepth != null && maxDepth > 0 && node.depth >= maxDepth) { continue; }
+            if (maxDepth != null && maxDepth > 0 && node.depth >= maxDepth) {
+                continue;
+            }
             // 左侧宽度先计入百分比展示宽度（"100%  " 共 5 个字符）
             int leftWidth = getIndent(node.depth).length() + 5;
             leftWidth += node.className.length() + 1 + node.methodName.length();
@@ -466,13 +496,17 @@ public final class TraceContext {
             } else {
                 leftWidth += 2;
             }
-            if (leftWidth > maxLeftWidth) { maxLeftWidth = leftWidth; }
+            if (leftWidth > maxLeftWidth) {
+                maxLeftWidth = leftWidth;
+            }
         }
 
         // 第二遍：输出对齐的结果
         StringBuilder sb = new StringBuilder(128);
         for (TraceNode node : nodes) {
-            if (maxDepth != null && maxDepth > 0 && node.depth >= maxDepth) { continue; }
+            if (maxDepth != null && maxDepth > 0 && node.depth >= maxDepth) {
+                continue;
+            }
 
             sb.setLength(0);
 
@@ -558,9 +592,13 @@ public final class TraceContext {
      * @return 获取indent的结果
      */
     private static String getIndent(int depth) {
-        if (depth < INDENTS.length) { return INDENTS[depth]; }
+        if (depth < INDENTS.length) {
+            return INDENTS[depth];
+        }
         StringBuilder sb = new StringBuilder(depth * 4);
-        for (int i = 0; i < depth; i++) { sb.append(INDENT_UNIT); }
+        for (int i = 0; i < depth; i++) {
+            sb.append(INDENT_UNIT);
+        }
         return sb.toString();
     }
 
@@ -664,7 +702,9 @@ public final class TraceContext {
     private static void initSlf4jHandle() {
         // [P3C 1.10 豁免] 仅探测 SLF4J 是否在classpath 上（可选依赖），本模块无 ReflectUtils 可用
         try { Class.forName("org.slf4j.LoggerFactory"); }
-        catch (Exception ignored) { slf4jAvailable = false; }
+        catch (Exception ignored) {
+            slf4jAvailable = false;
+        }
     }
 
     // ==================== 内部类 ====================

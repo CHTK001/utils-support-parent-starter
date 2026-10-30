@@ -69,47 +69,63 @@ public class VipParseResult {
      *
      * @return 是否成功
      */
-    public boolean isSuccess() { return success; }
+    public boolean isSuccess() {
+        return success;
+    }
     /**
      * 设置是否成功。
      *
      * @param success 是否成功
      */
-    public void setSuccess(boolean success) { this.success = success; }
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
     /**
      * 获取播放地址列表。
      *
      * @return 播放地址
      */
-    public List<VideoPlayAddress> getPlayAddresses() { return playAddresses; }
+    public List<VideoPlayAddress> getPlayAddresses() {
+        return playAddresses;
+    }
     /**
      * 设置播放地址列表。
      *
      * @param playAddresses 播放地址
      */
-    public void setPlayAddresses(List<VideoPlayAddress> playAddresses) { this.playAddresses = playAddresses; }
+    public void setPlayAddresses(List<VideoPlayAddress> playAddresses) {
+        this.playAddresses = playAddresses;
+    }
     /**
      * 获取错误信息。
      *
      * @return 错误信息
      */
-    public String getErrorMessage() { return errorMessage; }
+    public String getErrorMessage() {
+        return errorMessage;
+    }
     /**
      * 设置错误信息。
      *
      * @param errorMessage 错误信息
      */
-    public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
     /**
      * 获取视频标题。
      *
      * @return 标题
      */
-    public String getTitle() { return title; }
+    public String getTitle() {
+        return title;
+    }
     /**
      * 设置视频标题。
      *
      * @param title 标题
      */
-    public void setTitle(String title) { this.title = title; }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 }

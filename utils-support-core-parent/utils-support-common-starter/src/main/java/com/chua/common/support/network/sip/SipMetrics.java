@@ -25,7 +25,9 @@ public class SipMetrics {
 
     private static final SipMetrics INSTANCE = new SipMetrics();
 
-    public static SipMetrics get() { return INSTANCE; }
+    public static SipMetrics get() {
+        return INSTANCE;
+    }
 
     // 服务端计数器
     private final AtomicLong authAcceptTotal = new AtomicLong();
@@ -49,7 +51,9 @@ public class SipMetrics {
      */
     private final Map<String, AtomicLong> errorsByCategory = new ConcurrentHashMap<>();
 
-    public void onAuthAccept() { authAcceptTotal.incrementAndGet(); }
+    public void onAuthAccept() {
+        authAcceptTotal.incrementAndGet();
+    }
     /**
      * 记录一次鉴权拒绝事件：累加拒绝总量，并按分类计数。
      *
@@ -59,8 +63,12 @@ public class SipMetrics {
         authRejectTotal.incrementAndGet();
         incError(category);
     }
-    public void onServiceRegister() { serviceRegisterTotal.incrementAndGet(); }
-    public void onServiceUnregister() { serviceUnregisterTotal.incrementAndGet(); }
+    public void onServiceRegister() {
+        serviceRegisterTotal.incrementAndGet();
+    }
+    public void onServiceUnregister() {
+        serviceUnregisterTotal.incrementAndGet();
+    }
     /**
      * 响应Tunnel打开。
      */
@@ -80,10 +88,18 @@ public class SipMetrics {
             errorCloseTotal.incrementAndGet();
         }
     }
-    public void onClientConnect() { activeClients.incrementAndGet(); }
-    public void onClientDisconnect() { activeClients.decrementAndGet(); }
-    public void onFrameBytesIn(long n) { if (n > 0) frameBytesIn.addAndGet(n); }
-    public void onFrameBytesOut(long n) { if (n > 0) frameBytesOut.addAndGet(n); }
+    public void onClientConnect() {
+        activeClients.incrementAndGet();
+    }
+    public void onClientDisconnect() {
+        activeClients.decrementAndGet();
+    }
+    public void onFrameBytesIn(long n) {
+        if (n > 0) frameBytesIn.addAndGet(n);
+    }
+    public void onFrameBytesOut(long n) {
+        if (n > 0) frameBytesOut.addAndGet(n);
+    }
     /**
      * 响应Mux刷写。
      *
@@ -94,8 +110,12 @@ public class SipMetrics {
             muxFlushTotal.addAndGet(frames);
         }
     }
-    public void onMuxEarlyFrameBuffered() { muxEarlyFrameBufferedTotal.incrementAndGet(); }
-    public void onMuxCloseMarker() { muxCloseMarkerTotal.incrementAndGet(); }
+    public void onMuxEarlyFrameBuffered() {
+        muxEarlyFrameBufferedTotal.incrementAndGet();
+    }
+    public void onMuxCloseMarker() {
+        muxCloseMarkerTotal.incrementAndGet();
+    }
     /**
      * incError。
      *

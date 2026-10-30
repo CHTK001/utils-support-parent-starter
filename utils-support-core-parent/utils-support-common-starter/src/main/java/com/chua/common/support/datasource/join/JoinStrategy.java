@@ -23,7 +23,9 @@ public interface JoinStrategy {
     /**
      * 是否启用（none 默认不启用）
      */
-    default boolean enabled() { return false; }
+    default boolean enabled() {
+        return false;
+    }
 
     /**
      * 执行 JOIN 查询。

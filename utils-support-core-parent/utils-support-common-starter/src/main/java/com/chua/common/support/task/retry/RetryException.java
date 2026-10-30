@@ -39,12 +39,16 @@ public class RetryException extends Exception {
      *
      * @return 重试次数
      */
-    public int getAttemptCount() { return attemptCount; }
+    public int getAttemptCount() {
+        return attemptCount;
+    }
 
     /**
      * 获取最后一次异常
      *
      * @return 最后一次异常
      */
-    public Throwable getLastCause() { return lastCause; }
+    public Throwable getLastCause() {
+        return lastCause;
+    }
 }

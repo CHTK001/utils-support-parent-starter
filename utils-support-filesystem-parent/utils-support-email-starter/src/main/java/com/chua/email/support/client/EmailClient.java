@@ -127,7 +127,9 @@ public class EmailClient {
      *
      * @return 构建器的结果
      */
-    public static Builder builder() { return new Builder(); }
+    public static Builder builder() {
+        return new Builder();
+    }
 
     /**
      * 创建
@@ -147,19 +149,25 @@ public class EmailClient {
      * 发送邮件。
      * @return 发送的结果
      */
-    public SendOperation send() { return new SendOperation(this); }
+    public SendOperation send() {
+        return new SendOperation(this);
+    }
 
     /**
      * 获取邮件。
      * @return 获取的结果
      */
-    public FetchOperation fetch() { return new FetchOperation(this); }
+    public FetchOperation fetch() {
+        return new FetchOperation(this);
+    }
 
     /**
      * 监听收件箱。
      * @return watch的结果
      */
-    public WatchOperation watch() { return new WatchOperation(this); }
+    public WatchOperation watch() {
+        return new WatchOperation(this);
+    }
 
     /**
      * 获取收件箱未读数。
@@ -244,7 +252,9 @@ public class EmailClient {
         */
         private Map<String, byte[]> attachments = Wraps.linkedMap();
 
-        SendOperation(EmailClient client) { this.client = client; }
+        SendOperation(EmailClient client) {
+            this.client = client;
+        }
 
         /**
          * 转为
@@ -434,7 +444,9 @@ public class EmailClient {
         */
         private String searchTerm;
 
-        FetchOperation(EmailClient client) { this.client = client; }
+        FetchOperation(EmailClient client) {
+            this.client = client;
+        }
 
         /**
          * 文件夹
@@ -583,7 +595,9 @@ public class EmailClient {
         */
         private volatile boolean running = false;
 
-        WatchOperation(EmailClient client) { this.client = client; }
+        WatchOperation(EmailClient client) {
+            this.client = client;
+        }
 
         /**
          * 文件夹

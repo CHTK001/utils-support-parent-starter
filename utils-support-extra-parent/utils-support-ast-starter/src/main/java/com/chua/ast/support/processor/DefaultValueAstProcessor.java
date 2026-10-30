@@ -89,21 +89,33 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        if (roundEnv.processingOver() || trees == null) { return false; }
+        if (roundEnv.processingOver() || trees == null) {
+            return false;
+        }
 
         for (Element element : roundEnv.getElementsAnnotatedWith(DefaultValue.class)) {
-            if (!(element instanceof VariableElement paramElement)) { continue; }
+            if (!(element instanceof VariableElement paramElement)) {
+                continue;
+            }
             Element enclosing = paramElement.getEnclosingElement();
-            if (!(enclosing instanceof ExecutableElement methodElement)) { continue; }
+            if (!(enclosing instanceof ExecutableElement methodElement)) {
+                continue;
+            }
 
             com.sun.source.tree.Tree methodTree = trees.getTree(methodElement);
-            if (!(methodTree instanceof com.sun.source.tree.MethodTree)) { continue; }
+            if (!(methodTree instanceof com.sun.source.tree.MethodTree)) {
+                continue;
+            }
 
             DefaultValue annotation = paramElement.getAnnotation(DefaultValue.class);
-            if (annotation == null) { continue; }
+            if (annotation == null) {
+                continue;
+            }
 
             String[] defaultValues = annotation.value();
-            if (defaultValues.length == 0) { continue; }
+            if (defaultValues.length == 0) {
+                continue;
+            }
 
             String paramName = paramElement.getSimpleName().toString();
             TypeMirror paramType = paramElement.asType();
@@ -138,7 +150,9 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
             VariableElement paramElement) throws Exception {
 
         var jcMethod = AstUtils.asJcMethodDecl(methodTree);
-        if (jcMethod == null || jcMethod.body == null) { return; }
+        if (jcMethod == null || jcMethod.body == null) {
+            return;
+        }
 
         var maker = AstUtils.getTreeMaker(pe);
         var names = AstUtils.getNames(pe);
@@ -195,7 +209,9 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
      * @return 如果是字符串类型返回 true，否则返回 false
      */
     private boolean isStringType(TypeMirror type) {
-        if (type.getKind() != TypeKind.DECLARED) { return false; }
+        if (type.getKind() != TypeKind.DECLARED) {
+            return false;
+        }
         String typeName = type.toString();
         return "java.lang.String".equals(typeName) || "java.lang.CharSequence".equals(typeName);
     }
@@ -207,7 +223,9 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
      * @return 如果是枚举类型返回 true，否则返回 false
      */
     private boolean isEnumType(TypeMirror type) {
-        if (type.getKind() != TypeKind.DECLARED) { return false; }
+        if (type.getKind() != TypeKind.DECLARED) {
+            return false;
+        }
         try {
             return ((javax.lang.model.type.DeclaredType) type).asElement().getKind() == ElementKind.ENUM;
         } catch (Exception e) {
@@ -300,7 +318,9 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
             String qualifiedName) {
 
         String[] parts = qualifiedName.split("\\.");
-        if (parts.length == 0) { return maker.Ident(names.fromString(qualifiedName)); }
+        if (parts.length == 0) {
+            return maker.Ident(names.fromString(qualifiedName));
+        }
 
         JCTree.JCExpression expr = maker.Ident(names.fromString(parts[0]));
         for (int i = 1; i < parts.length; i++) {

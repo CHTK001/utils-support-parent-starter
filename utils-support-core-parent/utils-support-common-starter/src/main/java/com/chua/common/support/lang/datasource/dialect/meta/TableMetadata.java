@@ -72,7 +72,9 @@ public class TableMetadata {
      * @return 列Metadata 对象
      */
     public ColumnMetadata getPartitionColumn() {
-        if (partitionColumn == null || partitionColumn.isEmpty() || columns == null) { return null; }
+        if (partitionColumn == null || partitionColumn.isEmpty() || columns == null) {
+            return null;
+        }
         return columns.stream()
                 .filter(col -> partitionColumn.equals(col.getColumnName()))
                 .findFirst().orElse(null);

@@ -413,34 +413,46 @@ public class AgentEditorProvider {
          *
          * @return 获取名称的结果
          */
-        public String getName() { return name; }
+        public String getName() {
+            return name;
+        }
         /**
          * 设置名称
          * @param name 名称
          */
-        public void setName(String name) { this.name = name; }
+        public void setName(String name) {
+            this.name = name;
+        }
         /**
          * 获取命令
          *
          * @return 获取命令的结果
          */
-        public String getCommand() { return command; }
+        public String getCommand() {
+            return command;
+        }
         /**
          * 设置命令
          * @param command 命令
          */
-        public void setCommand(String command) { this.command = command; }
+        public void setCommand(String command) {
+            this.command = command;
+        }
         /**
          * 获取参数
          *
          * @return 获取参数的结果
          */
-        public List<String> getArgs() { return args; }
+        public List<String> getArgs() {
+            return args;
+        }
         /**
          * 设置参数
          * @param args 参数
          */
-        public void setArgs(List<String> args) { this.args = args; }
+        public void setArgs(List<String> args) {
+            this.args = args;
+        }
         /**
          * 获取env。
          * @return 获取env的结果
@@ -450,29 +462,39 @@ public class AgentEditorProvider {
          * 设置Env
          * @param env env
          */
-        public void setEnv(Map<String, String> env) { this.env = env; }
+        public void setEnv(Map<String, String> env) {
+            this.env = env;
+        }
         /**
          * 获取Url
          *
          * @return 获取url的结果
          */
-        public String getUrl() { return url; }
+        public String getUrl() {
+            return url;
+        }
         /**
          * 设置Url
          * @param url url
          */
-        public void setUrl(String url) { this.url = url; }
+        public void setUrl(String url) {
+            this.url = url;
+        }
         /**
          * 获取类型
          *
          * @return 获取类型的结果
          */
-        public String getType() { return type; }
+        public String getType() {
+            return type;
+        }
         /**
          * 设置类型
          * @param type 类型
          */
-        public void setType(String type) { this.type = type; }
+        public void setType(String type) {
+            this.type = type;
+        }
 
         /**
          * 转为字符串
@@ -1456,7 +1478,9 @@ public class AgentEditorProvider {
          * @return 工具描述符列表
          */
         @Override
-        public List<McpToolDescriptor> listTools() { return toolDescriptors(); }
+        public List<McpToolDescriptor> listTools() {
+            return toolDescriptors();
+        }
 
         /**
          * 调用指定 MCP 工具，按工具名称分发到对应的处理方法。
@@ -1487,7 +1511,9 @@ public class AgentEditorProvider {
          * @return 已调用 {@link #init()} 完成初始化返回 true；否则返回 false
          */
         @Override
-        public boolean isInitialized() { return initialized; }
+        public boolean isInitialized() {
+            return initialized;
+        }
     }
 
     // ==================== 工具处理 ====================

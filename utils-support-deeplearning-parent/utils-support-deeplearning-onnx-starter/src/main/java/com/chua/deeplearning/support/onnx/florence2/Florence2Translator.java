@@ -244,8 +244,12 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                     OnnxTensor logitsTensor = (OnnxTensor) decodeResult.get("logits").get();
                     float[] logits = logitsTensor.getFloatBuffer().array();
                     int nextToken = argmax(logits, (embedSeqLen - 1) * VOCAB_SIZE, VOCAB_SIZE);
-                    if (nextToken == EOS_ID) { log.debug("[Florence-2] EOS at step 0"); }
-                    else { generatedTokens.add((long) nextToken); }
+                    if (nextToken == EOS_ID) {
+                        log.debug("[Florence-2] EOS at step 0");
+                    }
+                    else {
+                        generatedTokens.add((long) nextToken);
+                    }
                     OnnxTensor[][] pastKV = new OnnxTensor[NUM_LAYERS][];
                     for (int l = 0; l < NUM_LAYERS; l++) {
                         pastKV[l] = new OnnxTensor[4];

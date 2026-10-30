@@ -71,10 +71,14 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
     }
 
     @Override
-    public Path baseDir() { return config.baseDir(); }
+    public Path baseDir() {
+        return config.baseDir();
+    }
 
     @Override
-    public String type() { return storeType().name().toLowerCase(); }
+    public String type() {
+        return storeType().name().toLowerCase();
+    }
 
     @Override
     public void close() throws IOException {
@@ -213,7 +217,9 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
 
     // ==================== 统计 =============
     @Override
-    public int size() { return (int) Math.max(0, totalRecords.get()); }
+    public int size() {
+        return (int) Math.max(0, totalRecords.get());
+    }
 
     @Override
     public List<WalSegmentInfo> listSegments() throws IOException {
@@ -279,7 +285,9 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
         } catch (IOException e) { return null; }
     }
 
-    protected static boolean isTombstone(byte op) { return (op & AbstractWalFileSystem.OP_TOMBSTONE) != 0; }
+    protected static boolean isTombstone(byte op) {
+        return (op & AbstractWalFileSystem.OP_TOMBSTONE) != 0;
+    }
 
     /**
      * namespace。

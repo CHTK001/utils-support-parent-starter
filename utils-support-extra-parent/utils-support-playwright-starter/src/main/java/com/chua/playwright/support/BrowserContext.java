@@ -27,7 +27,9 @@ public class BrowserContext {
      * 处理。
      * @return 处理的结果
      */
-    public long handle() { return handle; }
+    public long handle() {
+        return handle;
+    }
 
     /**
      * 新page。
@@ -38,5 +40,7 @@ public class BrowserContext {
         return new Page(engine, h);
     }
 
-    public void close() { engine.close(handle); }
+    public void close() {
+        engine.close(handle);
+    }
 }

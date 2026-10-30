@@ -454,10 +454,18 @@ public class Zip4jFileSystem implements FileSystem {
                 this.bytes = bytes;
             }
 
-            String getEntryName() { return entryName; }
-            File getSource() { return source; }
-            InputStream getInputStream() { return inputStream; }
-            byte[] getBytes() { return bytes; }
+            String getEntryName() {
+                return entryName;
+            }
+            File getSource() {
+                return source;
+            }
+            InputStream getInputStream() {
+                return inputStream;
+            }
+            byte[] getBytes() {
+                return bytes;
+            }
         }
     }
 }

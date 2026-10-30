@@ -59,23 +59,33 @@ public class InvocationContext implements ServerRequest, ServerResponse {
     /**
      * 获取Path
      */
-    public String getPath() { return path; }
+    public String getPath() {
+        return path;
+    }
     /**
      * 设置Path
      */
-    public void setPath(String path) { this.path = path; }
+    public void setPath(String path) {
+        this.path = path;
+    }
     /**
      * 获取Result
      */
-    public Object getResult() { return result; }
+    public Object getResult() {
+        return result;
+    }
     /**
      * 添加Header
      */
-    public void addHeader(String name, String value) { if (name != null && value != null) headers.put(name, value); }
+    public void addHeader(String name, String value) {
+        if (name != null && value != null) headers.put(name, value);
+    }
     /**
      * 添加Headers
      */
-    public void addHeaders(Map<String, String> h) { if (h != null) headers.putAll(h); }
+    public void addHeaders(Map<String, String> h) {
+        if (h != null) headers.putAll(h);
+    }
 
     @Override public String getUri() { return path; }
     @Override public String getHeader(String name) { return headers.get(name); }

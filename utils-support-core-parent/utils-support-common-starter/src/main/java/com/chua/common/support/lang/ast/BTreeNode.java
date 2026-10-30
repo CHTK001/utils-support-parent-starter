@@ -310,8 +310,12 @@ public class BTreeNode {
      * @return Integer 对象
      */
     public Integer asInteger() {
-        if (value instanceof Number n) { return n.intValue(); }
-        if (value instanceof String s) { return Integer.parseInt(s); }
+        if (value instanceof Number n) {
+            return n.intValue();
+        }
+        if (value instanceof String s) {
+            return Integer.parseInt(s);
+        }
         return null;
     }
 
@@ -320,8 +324,12 @@ public class BTreeNode {
      * @return Double 对象
      */
     public Double asDouble() {
-        if (value instanceof Number n) { return n.doubleValue(); }
-        if (value instanceof String s) { return Double.parseDouble(s); }
+        if (value instanceof Number n) {
+            return n.doubleValue();
+        }
+        if (value instanceof String s) {
+            return Double.parseDouble(s);
+        }
         return null;
     }
 

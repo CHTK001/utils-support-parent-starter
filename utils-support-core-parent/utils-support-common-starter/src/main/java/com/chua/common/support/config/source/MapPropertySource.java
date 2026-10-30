@@ -65,10 +65,14 @@ public class MapPropertySource extends AbstractPropertySource {
      */
     @Override
     protected Object getRawProperty(String key) {
-        if (key == null) { return null; }
+        if (key == null) {
+            return null;
+        }
         // 1. 精确匹配：key 完全一致
         Object exact = properties.get(key);
-        if (exact != null) { return exact; }
+        if (exact != null) {
+            return exact;
+        }
         // 2. 嵌套穿透：server.port → server.get("port")
         return properties.getDot(key);
     }

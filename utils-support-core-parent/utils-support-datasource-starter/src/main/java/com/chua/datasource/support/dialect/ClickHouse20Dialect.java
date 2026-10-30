@@ -14,8 +14,12 @@ public class ClickHouse20Dialect extends SqlDialect {
     /**
      * 构造 ClickHouse 20.x 方言，使用默认属性。
      */
-    public ClickHouse20Dialect() { super("clickhouse20", defaultProps()); }
-    public ClickHouse20Dialect(Properties properties) { super("clickhouse20", merge(defaultProps(), properties)); }
+    public ClickHouse20Dialect() {
+        super("clickhouse20", defaultProps());
+    }
+    public ClickHouse20Dialect(Properties properties) {
+        super("clickhouse20", merge(defaultProps(), properties));
+    }
     /**
      * default属性。
      *

@@ -31,7 +31,9 @@ public class SimpleSqlParser {
      *
      * @param store 存储系统，不允许为 null
      */
-    public SimpleSqlParser(JdbcWalStoreSystem store) { this.store = store; }
+    public SimpleSqlParser(JdbcWalStoreSystem store) {
+        this.store = store;
+    }
 
     /**
      * 解析Select。

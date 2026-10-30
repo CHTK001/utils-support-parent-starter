@@ -11,10 +11,14 @@ public class Postgresql9Dialect extends SqlDialect {
     /**
      * PostgreSQL9Dialect。
      */
-    public Postgresql9Dialect() { super("postgresql9"); }
+    public Postgresql9Dialect() {
+        super("postgresql9");
+    }
     /**
      * PostgreSQL9Dialect。
      * @param properties 属性
      */
-    public Postgresql9Dialect(Properties properties) { super("postgresql9", properties); }
+    public Postgresql9Dialect(Properties properties) {
+        super("postgresql9", properties);
+    }
 }

@@ -105,7 +105,9 @@ public class FFmpegOptions {
      *
      * @return 默认期权的结果
      */
-    public static FFmpegOptions defaultOptions() { return new FFmpegOptions(); }
+    public static FFmpegOptions defaultOptions() {
+        return new FFmpegOptions();
+    }
 
     /**
      * highquality
@@ -141,197 +143,263 @@ public class FFmpegOptions {
      *
      * @return 获取视频codec的结果
      */
-    public String getVideoCodec() { return videoCodec; }
+    public String getVideoCodec() {
+        return videoCodec;
+    }
     /**
      * 设置视频codec
      *
      * @param videoCodec 视频codec
      */
-    public void setVideoCodec(String videoCodec) { this.videoCodec = videoCodec; }
+    public void setVideoCodec(String videoCodec) {
+        this.videoCodec = videoCodec;
+    }
     /**
      * 获取音频codec
      *
      * @return 获取音频codec的结果
      */
-    public String getAudioCodec() { return audioCodec; }
+    public String getAudioCodec() {
+        return audioCodec;
+    }
     /**
      * 设置音频codec
      *
      * @param audioCodec 音频codec
      */
-    public void setAudioCodec(String audioCodec) { this.audioCodec = audioCodec; }
+    public void setAudioCodec(String audioCodec) {
+        this.audioCodec = audioCodec;
+    }
     /**
      * 获取视频bitrate
      *
      * @return 获取视频bitrate的结果
      */
-    public String getVideoBitrate() { return videoBitrate; }
+    public String getVideoBitrate() {
+        return videoBitrate;
+    }
     /**
      * 设置视频bitrate
      *
      * @param videoBitrate 视频bitrate
      */
-    public void setVideoBitrate(String videoBitrate) { this.videoBitrate = videoBitrate; }
+    public void setVideoBitrate(String videoBitrate) {
+        this.videoBitrate = videoBitrate;
+    }
     /**
      * 获取音频bitrate
      *
      * @return 获取音频bitrate的结果
      */
-    public String getAudioBitrate() { return audioBitrate; }
+    public String getAudioBitrate() {
+        return audioBitrate;
+    }
     /**
      * 设置音频bitrate
      *
      * @param audioBitrate 音频bitrate
      */
-    public void setAudioBitrate(String audioBitrate) { this.audioBitrate = audioBitrate; }
+    public void setAudioBitrate(String audioBitrate) {
+        this.audioBitrate = audioBitrate;
+    }
     /**
      * 获取Fps
      *
      * @return 获取fps的结果
      */
-    public Integer getFps() { return fps; }
+    public Integer getFps() {
+        return fps;
+    }
     /**
      * 设置Fps
      *
      * @param fps fps
      */
-    public void setFps(Integer fps) { this.fps = fps; }
+    public void setFps(Integer fps) {
+        this.fps = fps;
+    }
     /**
      * 获取Width
      *
      * @return 获取width的结果
      */
-    public Integer getWidth() { return width; }
+    public Integer getWidth() {
+        return width;
+    }
     /**
      * 设置Width
      *
      * @param width width
      */
-    public void setWidth(Integer width) { this.width = width; }
+    public void setWidth(Integer width) {
+        this.width = width;
+    }
     /**
      * 获取Height
      *
      * @return 获取height的结果
      */
-    public Integer getHeight() { return height; }
+    public Integer getHeight() {
+        return height;
+    }
     /**
      * 设置Height
      *
      * @param height height
      */
-    public void setHeight(Integer height) { this.height = height; }
+    public void setHeight(Integer height) {
+        this.height = height;
+    }
     /**
      * 获取音频样本rate
      *
      * @return 获取音频样本rate的结果
      */
-    public Integer getAudioSampleRate() { return audioSampleRate; }
+    public Integer getAudioSampleRate() {
+        return audioSampleRate;
+    }
     /**
      * 设置音频样本rate
      *
      * @param audioSampleRate 音频样本rate
      */
-    public void setAudioSampleRate(Integer audioSampleRate) { this.audioSampleRate = audioSampleRate; }
+    public void setAudioSampleRate(Integer audioSampleRate) {
+        this.audioSampleRate = audioSampleRate;
+    }
     /**
      * 获取音频通道
      *
      * @return 获取音频通道的结果
      */
-    public Integer getAudioChannels() { return audioChannels; }
+    public Integer getAudioChannels() {
+        return audioChannels;
+    }
     /**
      * 设置音频通道
      *
      * @param audioChannels 音频通道
      */
-    public void setAudioChannels(Integer audioChannels) { this.audioChannels = audioChannels; }
+    public void setAudioChannels(Integer audioChannels) {
+        this.audioChannels = audioChannels;
+    }
     /**
      * 获取Quality
      *
      * @return 获取quality的结果
      */
-    public Integer getQuality() { return quality; }
+    public Integer getQuality() {
+        return quality;
+    }
     /**
      * 设置Quality
      *
      * @param quality quality
      */
-    public void setQuality(Integer quality) { this.quality = quality; }
+    public void setQuality(Integer quality) {
+        this.quality = quality;
+    }
     /**
      * 获取Preset
      *
      * @return 获取preset的结果
      */
-    public String getPreset() { return preset; }
+    public String getPreset() {
+        return preset;
+    }
     /**
      * 设置Preset
      *
      * @param preset preset
      */
-    public void setPreset(String preset) { this.preset = preset; }
+    public void setPreset(String preset) {
+        this.preset = preset;
+    }
     /**
      * 获取Pixel格式化
      *
      * @return 获取pixel格式化的结果
      */
-    public String getPixelFormat() { return pixelFormat; }
+    public String getPixelFormat() {
+        return pixelFormat;
+    }
     /**
      * 是否Mute
      *
      * @return 是否mute的结果
      */
-    public boolean isMute() { return mute; }
+    public boolean isMute() {
+        return mute;
+    }
     /**
      * 设置Mute
      *
      * @param mute mute
      */
-    public void setMute(boolean mute) { this.mute = mute; }
+    public void setMute(boolean mute) {
+        this.mute = mute;
+    }
     /**
      * 是否移除视频
      *
      * @return 是否移除视频的结果
      */
-    public boolean isRemoveVideo() { return removeVideo; }
+    public boolean isRemoveVideo() {
+        return removeVideo;
+    }
     /**
      * 设置移除视频
      *
      * @param removeVideo 移除视频
      */
-    public void setRemoveVideo(boolean removeVideo) { this.removeVideo = removeVideo; }
+    public void setRemoveVideo(boolean removeVideo) {
+        this.removeVideo = removeVideo;
+    }
     /**
      * 是否移除音频
      *
      * @return 是否移除音频的结果
      */
-    public boolean isRemoveAudio() { return removeAudio; }
+    public boolean isRemoveAudio() {
+        return removeAudio;
+    }
     /**
      * 设置移除音频
      *
      * @param removeAudio 移除音频
      */
-    public void setRemoveAudio(boolean removeAudio) { this.removeAudio = removeAudio; }
+    public void setRemoveAudio(boolean removeAudio) {
+        this.removeAudio = removeAudio;
+    }
     /**
      * 是否Overwrite
      *
      * @return 是否overwrite的结果
      */
-    public boolean isOverwrite() { return overwrite; }
+    public boolean isOverwrite() {
+        return overwrite;
+    }
     /**
      * 设置Overwrite
      *
      * @param overwrite overwrite
      */
-    public void setOverwrite(boolean overwrite) { this.overwrite = overwrite; }
+    public void setOverwrite(boolean overwrite) {
+        this.overwrite = overwrite;
+    }
     /**
      * 获取超时
      *
      * @return 获取超时的结果
      */
-    public long getTimeout() { return timeout; }
+    public long getTimeout() {
+        return timeout;
+    }
     /**
      * 设置超时
      *
      * @param timeout 超时
      */
-    public void setTimeout(long timeout) { this.timeout = timeout; }
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
+    }
 }

@@ -37,7 +37,9 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     }
 
     @Override
-    public String type() { return "B_TREE"; }
+    public String type() {
+        return "B_TREE";
+    }
 
     // ==================== get ====================
 
@@ -303,9 +305,13 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     }
 
     @Override
-    public int size() { return size; }
+    public int size() {
+        return size;
+    }
     @Override
-    public boolean isEmpty() { return size == 0; }
+    public boolean isEmpty() {
+        return size == 0;
+    }
     @Override
     public void clear() {
         root = new BTreeNode<>(true, order);

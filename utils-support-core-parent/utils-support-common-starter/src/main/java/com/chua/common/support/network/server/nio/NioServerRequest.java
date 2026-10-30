@@ -586,7 +586,9 @@ public class NioServerRequest implements ServerRequest {
     /**
      * 解码
      */
-    private String decode(String value) { return URLDecoder.decode(value, defaultCharset); }
+    private String decode(String value) {
+        return URLDecoder.decode(value, defaultCharset);
+    }
     /**
      * 解析Charset
      * @return 字符集 对象
@@ -612,7 +614,9 @@ public class NioServerRequest implements ServerRequest {
      *
      * @return 协议版本字符串
      */
-    public String getHttpVersion() { return httpVersion; }
+    public String getHttpVersion() {
+        return httpVersion;
+    }
 
     /**
      * 重置解析状态以复用同一实例处理 Keep-Alive 连接的下一条请求。

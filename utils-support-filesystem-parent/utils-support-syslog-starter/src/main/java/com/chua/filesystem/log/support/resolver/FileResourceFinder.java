@@ -199,7 +199,9 @@ public class FileResourceFinder implements ResourceFinder {
                 new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty()) { continue; }
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
                 File file = new File(line);
                 String realName = getRealName(line, fullPath);
                 boolean isFile = file.isFile();
@@ -232,7 +234,9 @@ public class FileResourceFinder implements ResourceFinder {
         String filePattern = matchPath.contains("/")
                 ? matchPath.substring(matchPath.lastIndexOf('/') + 1)
                 : matchPath;
-        if (filePattern.isEmpty()) { filePattern = "*"; }
+        if (filePattern.isEmpty()) {
+            filePattern = "*";
+        }
 
         ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/c", "where", "/r", searchRoot, filePattern);
         pb.redirectErrorStream(true);
@@ -249,7 +253,9 @@ public class FileResourceFinder implements ResourceFinder {
             String line;
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
-                if (line.isEmpty()) { continue; }
+                if (line.isEmpty()) {
+                    continue;
+                }
                 File file = new File(line);
                 if (file.isFile() && isMatch(getRealName(line, fullPath), matchPath)) {
                     results.add(new FileSystemResource(file));
@@ -272,7 +278,9 @@ public class FileResourceFinder implements ResourceFinder {
         String nameOnly = matchPath.contains("/")
                 ? matchPath.substring(matchPath.lastIndexOf('/') + 1)
                 : matchPath;
-        if (nameOnly.isEmpty()) { nameOnly = "*"; }
+        if (nameOnly.isEmpty()) {
+            nameOnly = "*";
+        }
 
         String mdfindQuery = "kMDItemFSName == '*" + nameOnly.replace("*", "").replace("?", "") + "*'";
         ProcessBuilder pb = new ProcessBuilder("mdfind", "-onlyin", searchRoot, mdfindQuery);
@@ -290,7 +298,9 @@ public class FileResourceFinder implements ResourceFinder {
             String line;
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
-                if (line.isEmpty()) { continue; }
+                if (line.isEmpty()) {
+                    continue;
+                }
                 File file = new File(line);
                 if (file.isFile() && isMatch(getRealName(line, fullPath), matchPath)) {
                     results.add(new FileSystemResource(file));
@@ -335,8 +345,12 @@ public class FileResourceFinder implements ResourceFinder {
      * @return calculate最大深度的结果
      */
     private int calculateMaxDepth(String matchPath) {
-        if (StringUtils.isEmpty(matchPath)) { return 1; }
-        if (matchPath.contains("**")) { return DEFAULT_MAX_DEPTH; }
+        if (StringUtils.isEmpty(matchPath)) {
+            return 1;
+        }
+        if (matchPath.contains("**")) {
+            return DEFAULT_MAX_DEPTH;
+        }
         return (int) matchPath.chars().filter(c -> c == '/').count() + 1;
     }
 
@@ -366,10 +380,16 @@ public class FileResourceFinder implements ResourceFinder {
     private String getFullPath(String path) {
         path = path.replace("\\", "/");
         StringBuilder sb = new StringBuilder();
-        if (path.startsWith("/")) { sb.append("/"); }
+        if (path.startsWith("/")) {
+            sb.append("/");
+        }
         for (String item : path.split("/")) {
-            if (item.contains("*") || item.contains("?")) { break; }
-            if (!sb.toString().equals("/")) { sb.append("/"); }
+            if (item.contains("*") || item.contains("?")) {
+                break;
+            }
+            if (!sb.toString().equals("/")) {
+                sb.append("/");
+            }
             sb.append(item);
         }
         return sb.toString().replace("//", "/");
@@ -383,11 +403,15 @@ public class FileResourceFinder implements ResourceFinder {
      */
     private String getMatchPath(String path) {
         path = path.replace("\\", "/");
-        if (path.startsWith("/")) { path = path.substring(1); }
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
         StringBuilder sb = new StringBuilder();
         for (String item : path.split("/")) {
             if (item.contains("*") || item.contains("?")) {
-                if (!sb.isEmpty()) { sb.append("/"); }
+                if (!sb.isEmpty()) {
+                    sb.append("/");
+                }
                 sb.append(item);
             }
         }
@@ -421,7 +445,9 @@ public class FileResourceFinder implements ResourceFinder {
      * @return 是否匹配的结果
      */
     private boolean isMatch(String name, String matchPath) {
-        if (StringUtils.isEmpty(matchPath) || "*".equals(matchPath) || "**".equals(matchPath)) { return true; }
+        if (StringUtils.isEmpty(matchPath) || "*".equals(matchPath) || "**".equals(matchPath)) {
+            return true;
+        }
         if (matchPath.contains("*") || matchPath.contains("?")) {
             return name.matches(globToRegex(matchPath));
         }

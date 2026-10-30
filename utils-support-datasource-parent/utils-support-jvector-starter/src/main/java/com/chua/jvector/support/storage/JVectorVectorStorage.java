@@ -532,7 +532,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             String[] topIds = new String[k];
             float[] topScores = new float[k];
             double qNorm = 0;
-            for (float f : query) { qNorm += f * f; }
+            for (float f : query) {
+                qNorm += f * f;
+            }
             qNorm = Math.sqrt(qNorm);
             if (qNorm == 0) {
                 return List.of();
@@ -625,7 +627,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
          * 获取大小
         */
         @Override
-        public synchronized int size() { return vectors.size(); }
+        public synchronized int size() {
+            return vectors.size();
+        }
 
         /**
          * Clear
@@ -944,7 +948,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
          * 获取大小
         */
         @Override
-        public synchronized int size() { return vectors.size(); }
+        public synchronized int size() {
+            return vectors.size();
+        }
 
         /**
          * Clear
@@ -1303,7 +1309,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
          * 获取大小
         */
         @Override
-        public synchronized int size() { return vectors.size(); }
+        public synchronized int size() {
+            return vectors.size();
+        }
 
         /**
          * Clear

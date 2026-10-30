@@ -90,6 +90,8 @@ public class ILinkBotClientFactory implements BotClient.Factory {
         }
 
         @Override
-        public BotClient build() { return client; }
+        public BotClient build() {
+            return client;
+        }
     }
 }

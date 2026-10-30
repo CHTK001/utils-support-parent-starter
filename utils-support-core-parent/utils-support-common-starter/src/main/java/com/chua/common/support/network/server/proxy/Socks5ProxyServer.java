@@ -334,7 +334,9 @@ public class Socks5ProxyServer extends AbstractProxyServer {
                 byte[] ipv4 = readBytes(in, 4);
                 int port = readPort(in);
                 try { target = new InetSocketAddress(InetAddress.getByAddress(ipv4), port); }
-                catch (UnknownHostException e) { target = null; }
+                catch (UnknownHostException e) {
+                    target = null;
+                }
                 break;
             case ATYP_DOMAIN:
                 int len = in.read();
@@ -350,7 +352,9 @@ public class Socks5ProxyServer extends AbstractProxyServer {
                 byte[] ipv6 = readBytes(in, 16);
                 int port3 = readPort(in);
                 try { target = new InetSocketAddress(InetAddress.getByAddress(ipv6), port3); }
-                catch (UnknownHostException e) { target = null; }
+                catch (UnknownHostException e) {
+                    target = null;
+                }
                 break;
             default:
                 return null;

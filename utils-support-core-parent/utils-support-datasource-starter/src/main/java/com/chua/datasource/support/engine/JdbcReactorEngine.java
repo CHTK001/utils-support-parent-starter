@@ -794,9 +794,15 @@ public class JdbcReactorEngine implements ReactorEngine {
         boolean upperNext = false;
         for (int i = 0; i < name.length(); i++) {
             char c = name.charAt(i);
-            if (c == '_') { upperNext = true; }
-            else if (upperNext) { sb.append(Character.toUpperCase(c)); upperNext = false; }
-            else { sb.append(c); }
+            if (c == '_') {
+                upperNext = true;
+            }
+            else if (upperNext) {
+                sb.append(Character.toUpperCase(c)); upperNext = false;
+            }
+            else {
+                sb.append(c);
+            }
         }
         return sb.toString();
     }
@@ -909,7 +915,9 @@ public class JdbcReactorEngine implements ReactorEngine {
             return new R2dbcSqlExecutorWrapper(r2dbcFactories.get(dataSourceName), dialects.get(dataSourceName));
         }
         @Override
-        public SqlExecutor getExecutor() { return getExecutor(defaultDataSourceName); }
+        public SqlExecutor getExecutor() {
+            return getExecutor(defaultDataSourceName);
+        }
         @Override
         public <T> EngineDataSource<T> getDataSource(String name) { return JdbcReactorEngine.this.getDataSource(name); }
         @Override
@@ -921,11 +929,17 @@ public class JdbcReactorEngine implements ReactorEngine {
         @Override
         public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) { throw new UnsupportedOperationException(); }
         @Override
-        public Dialect getDialect(String dataSourceName) { return dialects.get(dataSourceName); }
+        public Dialect getDialect(String dataSourceName) {
+            return dialects.get(dataSourceName);
+        }
         @Override
-        public String getDefaultDataSourceName() { return defaultDataSourceName; }
+        public String getDefaultDataSourceName() {
+            return defaultDataSourceName;
+        }
         @Override
-        public boolean supportsMeta() { return false; }
+        public boolean supportsMeta() {
+            return false;
+        }
         @Override
         public void close() {}
     }
@@ -935,7 +949,9 @@ public class JdbcReactorEngine implements ReactorEngine {
     */
     private class UnifiedEngineAdapter implements Engine {
         private final DataSource ds;
-        UnifiedEngineAdapter(DataSource ds) { this.ds = ds; }
+        UnifiedEngineAdapter(DataSource ds) {
+            this.ds = ds;
+        }
         @Override
         public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
             throw new UnsupportedOperationException();
@@ -943,12 +959,16 @@ public class JdbcReactorEngine implements ReactorEngine {
         @Override
         public <T> Engine store(String name, List<T> data) { throw new UnsupportedOperationException(); }
         @Override
-        public Engine setDefaultDataSourceName(String name) { return this; }
+        public Engine setDefaultDataSourceName(String name) {
+            return this;
+        }
         @Override
         public SqlExecutor getExecutor(String dataSourceName) { return new JdbcSqlExecutorWrapper(ds,
                 dialects.get(defaultDataSourceName)); }
         @Override
-        public SqlExecutor getExecutor() { return new JdbcSqlExecutorWrapper(ds, dialects.get(defaultDataSourceName)); }
+        public SqlExecutor getExecutor() {
+            return new JdbcSqlExecutorWrapper(ds, dialects.get(defaultDataSourceName));
+        }
         @Override
         public <T> EngineDataSource<T> getDataSource(String name) { return null; }
         @Override
@@ -960,11 +980,17 @@ public class JdbcReactorEngine implements ReactorEngine {
         @Override
         public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) { throw new UnsupportedOperationException(); }
         @Override
-        public Dialect getDialect(String dataSourceName) { return dialects.get(defaultDataSourceName); }
+        public Dialect getDialect(String dataSourceName) {
+            return dialects.get(defaultDataSourceName);
+        }
         @Override
-        public String getDefaultDataSourceName() { return null; }
+        public String getDefaultDataSourceName() {
+            return null;
+        }
         @Override
-        public boolean supportsMeta() { return false; }
+        public boolean supportsMeta() {
+            return false;
+        }
         @Override
         public void close() {}
     }
@@ -1072,7 +1098,9 @@ public class JdbcReactorEngine implements ReactorEngine {
     private class JdbcSqlExecutorWrapper implements SqlExecutor {
         private final DataSource ds;
         private final Dialect dialect;
-        JdbcSqlExecutorWrapper(DataSource ds, Dialect dialect) { this.ds = ds; this.dialect = dialect; }
+        JdbcSqlExecutorWrapper(DataSource ds, Dialect dialect) {
+            this.ds = ds; this.dialect = dialect;
+        }
         @Override
         public List<Map<String, Object>> query(String sql, Object... params) {
             try (java.sql.Connection conn = ds.getConnection();

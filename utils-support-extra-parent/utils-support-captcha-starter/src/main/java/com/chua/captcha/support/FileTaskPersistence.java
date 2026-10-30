@@ -102,7 +102,9 @@ public class FileTaskPersistence implements TaskPersistence {
             String line;
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
-                if (line.isEmpty()) { continue; }
+                if (line.isEmpty()) {
+                    continue;
+                }
                 String[] parts = line.split("\\|", -1);
                 if (parts.length >= 5) {
                     String taskId = decode(parts[0]);
