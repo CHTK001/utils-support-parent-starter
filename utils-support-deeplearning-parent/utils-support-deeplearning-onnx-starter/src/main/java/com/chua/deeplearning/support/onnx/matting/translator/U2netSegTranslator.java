@@ -32,8 +32,12 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
     */
     private BufferedImage originalImage;
 
-    public U2netSegTranslator() { this(DEFAULT_MODE); }
-    public U2netSegTranslator(MattingTranslator.MattingMode mode) { this.mode = mode; }
+    public U2netSegTranslator() {
+        this(DEFAULT_MODE);
+    }
+    public U2netSegTranslator(MattingTranslator.MattingMode mode) {
+        this.mode = mode;
+    }
 
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
@@ -182,5 +186,7 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    public Batchifier getBatchifier() { return null; }
+    public Batchifier getBatchifier() {
+        return null;
+    }
 }

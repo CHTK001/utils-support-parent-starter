@@ -87,5 +87,7 @@ public class ConfigSaveLoadSetting {
      *
      * @return 内容类型
      */
-    public String getContentType() { return contentType; }
+    public String getContentType() {
+        return contentType;
+    }
 }

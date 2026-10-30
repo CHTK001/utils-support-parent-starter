@@ -169,7 +169,9 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
         }
     }
     @Override
-    public int size() { return (int) totalRecords.get(); }
+    public int size() {
+        return (int) totalRecords.get();
+    }
     @Override
     public List<WalSegmentInfo> listSegments() throws IOException {
         List<WalSegmentInfo> all = Wraps.list();
@@ -321,8 +323,12 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
         return new SimpleSqlParser(this).parseDml(sql, params);
     }
 
-    public void setJoinStrategy(String name) { this.joinStrategyName = name; }
-    public String joinStrategy() { return joinStrategyName; }
+    public void setJoinStrategy(String name) {
+        this.joinStrategyName = name;
+    }
+    public String joinStrategy() {
+        return joinStrategyName;
+    }
 
     // ==================== 内部 ====================
 

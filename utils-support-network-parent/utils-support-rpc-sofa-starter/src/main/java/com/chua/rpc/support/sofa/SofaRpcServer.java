@@ -59,9 +59,15 @@ public class SofaRpcServer implements RpcServer {
         applicationConfig.setAppName(name);
         for (RpcRegistryConfig config : rpcRegistryConfigs) {
             RegistryConfig item = new RegistryConfig();
-            if (config.getProtocol() != null) { item.setProtocol(config.getProtocol()); }
-            if (config.getAddress() != null)  { item.setAddress(config.getAddress()); }
-            if (config.getTimeout() != null)  { item.setTimeout(config.getTimeout()); }
+            if (config.getProtocol() != null) {
+                item.setProtocol(config.getProtocol());
+            }
+            if (config.getAddress() != null) {
+                item.setAddress(config.getAddress());
+            }
+            if (config.getTimeout() != null) {
+                item.setTimeout(config.getTimeout());
+            }
             if ("local".equals(config.getProtocol())) {
  // SOFA 本地registry 的 reg文件 为 空 时抛 RPC-010060017，必须显式指定本地注册文件路径
                 item.setFile(localRegistryFile(name));
@@ -99,20 +105,46 @@ public class SofaRpcServer implements RpcServer {
      * @param config 配置
      */
     private void initProtocol(RpcProtocolConfig config) {
-        if (config == null) { return; }
+        if (config == null) {
+            return;
+        }
         ServerConfig item = new ServerConfig();
-        if (config.name() != null)      { item.setProtocol(config.name()); }
-        if (config.port() != null)      { item.setPort(config.port()); }
-        if (config.host() != null)      { item.setHost(config.host()); }
-        if (config.threads() != null)   { item.setCoreThreads(config.threads()); }
-        if (config.accepts() != null)   { item.setAccepts(config.accepts()); }
-        if (config.queues() != null)    { item.setQueues(config.queues()); }
-        if (config.alive() != null)     { item.setAliveTime(config.alive()); }
-        if (config.ioThreads() != null) { item.setIoThreads(config.ioThreads()); }
-        if (config.payload() != null)   { item.setPayload(config.payload()); }
-        if (config.maxThreads() != null){ item.setMaxThreads(config.maxThreads()); }
-        if (config.idleTimeout() != null){ item.setAliveTime(config.idleTimeout()); }
-        if (config.keepAlive() != null && config.keepAlive()) { item.setDaemon(false); }
+        if (config.name() != null) {
+            item.setProtocol(config.name());
+        }
+        if (config.port() != null) {
+            item.setPort(config.port());
+        }
+        if (config.host() != null) {
+            item.setHost(config.host());
+        }
+        if (config.threads() != null) {
+            item.setCoreThreads(config.threads());
+        }
+        if (config.accepts() != null) {
+            item.setAccepts(config.accepts());
+        }
+        if (config.queues() != null) {
+            item.setQueues(config.queues());
+        }
+        if (config.alive() != null) {
+            item.setAliveTime(config.alive());
+        }
+        if (config.ioThreads() != null) {
+            item.setIoThreads(config.ioThreads());
+        }
+        if (config.payload() != null) {
+            item.setPayload(config.payload());
+        }
+        if (config.maxThreads() != null) {
+            item.setMaxThreads(config.maxThreads());
+        }
+        if (config.idleTimeout() != null) {
+            item.setAliveTime(config.idleTimeout());
+        }
+        if (config.keepAlive() != null && config.keepAlive()) {
+            item.setDaemon(false);
+        }
         serverConfigs.add(item);
     }
 

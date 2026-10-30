@@ -14,10 +14,14 @@ public class PostgresqlDialect extends SqlDialect {
     /**
      * postgresqldialect。
      */
-    public PostgresqlDialect() { super("postgresql"); }
+    public PostgresqlDialect() {
+        super("postgresql");
+    }
     /**
      * postgresqldialect。
      * @param properties 属性
      */
-    public PostgresqlDialect(Properties properties) { super("postgresql", properties); }
+    public PostgresqlDialect(Properties properties) {
+        super("postgresql", properties);
+    }
 }

@@ -57,10 +57,14 @@ public final class VirtualAstProcessor extends AbstractProcessor {
     */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        if (roundEnv.processingOver() || trees == null) { return false; }
+        if (roundEnv.processingOver() || trees == null) {
+            return false;
+        }
 
         for (Element element : roundEnv.getElementsAnnotatedWith(Virtual.class)) {
-            if (!(element instanceof ExecutableElement methodElement)) { continue; }
+            if (!(element instanceof ExecutableElement methodElement)) {
+                continue;
+            }
 
             if (methodElement.getReturnType().getKind() != TypeKind.VOID) {
                 messager.printMessage(Diagnostic.Kind.WARNING,
@@ -70,7 +74,9 @@ public final class VirtualAstProcessor extends AbstractProcessor {
             }
 
             com.sun.source.tree.Tree methodTree = trees.getTree(methodElement);
-            if (!(methodTree instanceof com.sun.source.tree.MethodTree)) { continue; }
+            if (!(methodTree instanceof com.sun.source.tree.MethodTree)) {
+                continue;
+            }
 
             String methodName = methodElement.getSimpleName().toString();
 
@@ -94,7 +100,9 @@ public final class VirtualAstProcessor extends AbstractProcessor {
     private void applyVirtualTransform(com.sun.source.tree.MethodTree methodTree) throws Exception {
 
         var jcMethod = AstUtils.asJcMethodDecl(methodTree);
-        if (jcMethod == null || jcMethod.body == null) { return; }
+        if (jcMethod == null || jcMethod.body == null) {
+            return;
+        }
 
         var maker = AstUtils.getTreeMaker(pe);
         var names = AstUtils.getNames(pe);

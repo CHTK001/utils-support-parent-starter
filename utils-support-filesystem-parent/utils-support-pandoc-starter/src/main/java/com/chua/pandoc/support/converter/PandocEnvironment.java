@@ -479,7 +479,9 @@ public class PandocEnvironment {
              *
              * @return 获取acceptedissuers的结果
              */
-            public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+            public X509Certificate[] getAcceptedIssuers() {
+                return new X509Certificate[0];
+            }
         }}, new java.security.SecureRandom());
         HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);

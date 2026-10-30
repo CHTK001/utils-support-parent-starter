@@ -45,84 +45,108 @@ public class ChatResponse {
      *
      * @return ID
      */
-    public String id() { return id; }
+    public String id() {
+        return id;
+    }
 
     /**
      * 设置响应 标识。
      *
      * @param id 标识
      */
-    public void id(String id) { this.id = id; }
+    public void id(String id) {
+        this.id = id;
+    }
 
     /**
      * 对象类型。
      *
      * @return 类型
      */
-    public String object() { return object; }
+    public String object() {
+        return object;
+    }
 
     /**
      * 设置对象类型。
      *
      * @param object 类型
      */
-    public void object(String object) { this.object = object; }
+    public void object(String object) {
+        this.object = object;
+    }
 
     /**
      * 创建时间戳。
      *
      * @return 秒级时间戳
      */
-    public Long created() { return created; }
+    public Long created() {
+        return created;
+    }
 
     /**
      * 设置创建时间戳。
      *
      * @param created 时间戳
      */
-    public void created(Long created) { this.created = created; }
+    public void created(Long created) {
+        this.created = created;
+    }
 
     /**
      * 模型标识。
      *
      * @return 模型名
      */
-    public String model() { return model; }
+    public String model() {
+        return model;
+    }
 
     /**
      * 设置模型标识。
      *
      * @param model 模型名
      */
-    public void model(String model) { this.model = model; }
+    public void model(String model) {
+        this.model = model;
+    }
 
     /**
      * 候选结果列表。
      *
      * @return 结果列表
      */
-    public List<Choice> choices() { return choices; }
+    public List<Choice> choices() {
+        return choices;
+    }
 
     /**
      * 设置候选结果列表。
      *
      * @param choices 结果列表
      */
-    public void choices(List<Choice> choices) { this.choices = choices; }
+    public void choices(List<Choice> choices) {
+        this.choices = choices;
+    }
 
     /**
      * 令牌 用量。
      *
      * @return 用量或 空
      */
-    public Usage usage() { return usage; }
+    public Usage usage() {
+        return usage;
+    }
 
     /**
      * 设置 令牌 用量。
      *
      * @param usage 用量
      */
-    public void usage(Usage usage) { this.usage = usage; }
+    public void usage(Usage usage) {
+        this.usage = usage;
+    }
 
     /**
      * 候选结果，承载单条消息。
@@ -152,56 +176,72 @@ public class ChatResponse {
          *
          * @return 索引
          */
-        public Integer index() { return index; }
+        public Integer index() {
+            return index;
+        }
 
         /**
          * 设置结果索引。
          *
          * @param index 索引
          */
-        public void index(Integer index) { this.index = index; }
+        public void index(Integer index) {
+            this.index = index;
+        }
 
         /**
          * 完整消息。
          *
          * @return 消息或 空
          */
-        public ResponseMessage message() { return message; }
+        public ResponseMessage message() {
+            return message;
+        }
 
         /**
          * 设置完整消息。
          *
          * @param message 消息
          */
-        public void message(ResponseMessage message) { this.message = message; }
+        public void message(ResponseMessage message) {
+            this.message = message;
+        }
 
         /**
          * 增量消息。
          *
          * @return 增量或 空
          */
-        public ResponseMessage delta() { return delta; }
+        public ResponseMessage delta() {
+            return delta;
+        }
 
         /**
          * 设置增量消息。
          *
          * @param delta 增量
          */
-        public void delta(ResponseMessage delta) { this.delta = delta; }
+        public void delta(ResponseMessage delta) {
+            this.delta = delta;
+        }
 
         /**
          * 结束原因。
          *
          * @return 原因
          */
-        public String finishReason() { return finishReason; }
+        public String finishReason() {
+            return finishReason;
+        }
 
         /**
          * 设置结束原因。
          *
          * @param finishReason 原因
          */
-        public void finishReason(String finishReason) { this.finishReason = finishReason; }
+        public void finishReason(String finishReason) {
+            this.finishReason = finishReason;
+        }
     }
 
     /**
@@ -232,56 +272,72 @@ public class ChatResponse {
          *
          * @return 角色名
          */
-        public String role() { return role; }
+        public String role() {
+            return role;
+        }
 
         /**
          * 设置角色。
          *
          * @param role 角色名
          */
-        public void role(String role) { this.role = role; }
+        public void role(String role) {
+            this.role = role;
+        }
 
         /**
          * 文本内容。
          *
          * @return 内容
          */
-        public String content() { return content; }
+        public String content() {
+            return content;
+        }
 
         /**
          * 设置文本内容。
          *
          * @param content 内容
          */
-        public void content(String content) { this.content = content; }
+        public void content(String content) {
+            this.content = content;
+        }
 
         /**
          * 推理内容。
          *
          * @return 推理文本或 空
          */
-        public String reasoningContent() { return reasoningContent; }
+        public String reasoningContent() {
+            return reasoningContent;
+        }
 
         /**
          * 设置推理内容。
          *
          * @param reasoningContent 推理文本
          */
-        public void reasoningContent(String reasoningContent) { this.reasoningContent = reasoningContent; }
+        public void reasoningContent(String reasoningContent) {
+            this.reasoningContent = reasoningContent;
+        }
 
         /**
          * 工具调用列表。
          *
          * @return 调用列表或 空
          */
-        public List<ChatRequest.ToolCall> toolCalls() { return toolCalls; }
+        public List<ChatRequest.ToolCall> toolCalls() {
+            return toolCalls;
+        }
 
         /**
          * 设置工具调用列表。
          *
          * @param toolCalls 调用列表
          */
-        public void toolCalls(List<ChatRequest.ToolCall> toolCalls) { this.toolCalls = toolCalls; }
+        public void toolCalls(List<ChatRequest.ToolCall> toolCalls) {
+            this.toolCalls = toolCalls;
+        }
     }
 
     /**
@@ -326,20 +382,26 @@ public class ChatResponse {
          *
          * @return 数量
          */
-        public Integer promptTokens() { return promptTokens; }
+        public Integer promptTokens() {
+            return promptTokens;
+        }
 
         /**
          * 补全 令牌 数。
          *
          * @return 数量
          */
-        public Integer completionTokens() { return completionTokens; }
+        public Integer completionTokens() {
+            return completionTokens;
+        }
 
         /**
          * 总 令牌 数。
          *
          * @return 数量
          */
-        public Integer totalTokens() { return totalTokens; }
+        public Integer totalTokens() {
+            return totalTokens;
+        }
     }
 }

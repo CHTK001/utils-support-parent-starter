@@ -65,29 +65,43 @@ public record RelationshipData(
     /**
      * 获取FkName
      */
-    public String getFkName() { return fkName; }
+    public String getFkName() {
+        return fkName;
+    }
     /**
      * 获取FkTableName
      */
-    public String getFkTableName() { return fkTableName; }
+    public String getFkTableName() {
+        return fkTableName;
+    }
     /**
      * 获取FkColumnName
      */
-    public String getFkColumnName() { return fkColumnName; }
+    public String getFkColumnName() {
+        return fkColumnName;
+    }
     /**
      * 获取PkTableName
      */
-    public String getPkTableName() { return pkTableName; }
+    public String getPkTableName() {
+        return pkTableName;
+    }
     /**
      * 获取PkColumnName
      */
-    public String getPkColumnName() { return pkColumnName; }
+    public String getPkColumnName() {
+        return pkColumnName;
+    }
     /**
      * 获取更新Rule
      */
-    public String getUpdateRule() { return updateRule; }
+    public String getUpdateRule() {
+        return updateRule;
+    }
     /**
      * 获取删除Rule
      */
-    public String getDeleteRule() { return deleteRule; }
+    public String getDeleteRule() {
+        return deleteRule;
+    }
 }

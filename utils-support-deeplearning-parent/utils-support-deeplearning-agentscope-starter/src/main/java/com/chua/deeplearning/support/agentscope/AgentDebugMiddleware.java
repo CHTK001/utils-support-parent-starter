@@ -330,7 +330,9 @@ public class AgentDebugMiddleware implements MiddlewareBase {
         return false;
     }
 
-    private static long safeLong(int v) { return v < 0 ? 0L : (long) v; }
+    private static long safeLong(int v) {
+        return v < 0 ? 0L : (long) v;
+    }
 }
 
 

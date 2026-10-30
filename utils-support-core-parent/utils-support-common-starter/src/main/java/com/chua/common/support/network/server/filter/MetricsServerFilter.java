@@ -128,55 +128,81 @@ public class MetricsServerFilter implements ServerFilter {
         /**
          * 获取总计Requests
          */
-        public long getTotalRequests() { return totalRequests; }
+        public long getTotalRequests() {
+            return totalRequests;
+        }
         /**
          * 获取记录错误计算数量
          */
-        public long getErrorCount() { return errorCount; }
+        public long getErrorCount() {
+            return errorCount;
+        }
         /**
          * 获取ActiveRequests
          */
-        public long getActiveRequests() { return activeRequests; }
+        public long getActiveRequests() {
+            return activeRequests;
+        }
         /**
          * 获取平均值LatencyMs
          */
-        public double getAvgLatencyMs() { return avgLatencyMs; }
+        public double getAvgLatencyMs() {
+            return avgLatencyMs;
+        }
         /**
          * 获取最大值LatencyMs
          */
-        public long getMaxLatencyMs() { return maxLatencyMs; }
+        public long getMaxLatencyMs() {
+            return maxLatencyMs;
+        }
         /**
          * 获取Ms
          */
-        public double getP50Ms() { return p50Ms; }
+        public double getP50Ms() {
+            return p50Ms;
+        }
         /**
          * 获取Ms
          */
-        public double getP75Ms() { return p75Ms; }
+        public double getP75Ms() {
+            return p75Ms;
+        }
         /**
          * 获取Ms
          */
-        public double getP90Ms() { return p90Ms; }
+        public double getP90Ms() {
+            return p90Ms;
+        }
         /**
          * 获取Ms
          */
-        public double getP95Ms() { return p95Ms; }
+        public double getP95Ms() {
+            return p95Ms;
+        }
         /**
          * 获取Ms
          */
-        public double getP99Ms() { return p99Ms; }
+        public double getP99Ms() {
+            return p99Ms;
+        }
         /**
          * 获取Qps
          */
-        public double getQps() { return qps; }
+        public double getQps() {
+            return qps;
+        }
         /**
          * 获取Tps
          */
-        public double getTps() { return tps; }
+        public double getTps() {
+            return tps;
+        }
         /**
          * 获取UptimeMs
          */
-        public long getUptimeMs() { return uptimeMs; }
+        public long getUptimeMs() {
+            return uptimeMs;
+        }
 
         /**
          * ToString

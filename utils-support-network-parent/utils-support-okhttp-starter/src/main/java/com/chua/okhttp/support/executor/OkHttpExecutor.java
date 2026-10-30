@@ -131,7 +131,9 @@ public class OkHttpExecutor implements HttpClientExecutor {
      * 获取订单
     */
     @Override
-    public int getOrder() { return 0; }
+    public int getOrder() {
+        return 0;
+    }
 
     /**
      * 关闭

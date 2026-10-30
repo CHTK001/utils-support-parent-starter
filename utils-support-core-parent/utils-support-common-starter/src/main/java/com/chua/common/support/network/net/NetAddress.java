@@ -86,7 +86,9 @@ public class NetAddress implements Serializable {
      * @param url URL，不允许为 null
      */
     private void parse(String url) {
-        if (StringUtils.isNullOrEmpty(url)) { return; }
+        if (StringUtils.isNullOrEmpty(url)) {
+            return;
+        }
         try {
             String s = url.trim();
             // R2DBC URL: r2dbc:h2:mem://dbname 或 r2dbc:mysql://host:port/db
@@ -229,7 +231,9 @@ public class NetAddress implements Serializable {
      * @return InetSocket地址 对象
      */
     public InetSocketAddress toInetSocketAddress() {
-        if (host != null && port != null) { return new InetSocketAddress(host, port); }
+        if (host != null && port != null) {
+            return new InetSocketAddress(host, port);
+        }
         return null;
     }
 
@@ -276,7 +280,9 @@ public class NetAddress implements Serializable {
      * @return 结果数值
      */
     private static int getDefaultPort(String protocol) {
-        if (StringUtils.isNullOrEmpty(protocol)) { return -1; }
+        if (StringUtils.isNullOrEmpty(protocol)) {
+            return -1;
+        }
         return switch (protocol.toLowerCase()) {
             case "http" -> 80;
             case "https" -> 443;

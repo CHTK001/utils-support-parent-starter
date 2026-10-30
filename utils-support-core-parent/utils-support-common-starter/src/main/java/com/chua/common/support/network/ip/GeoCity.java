@@ -66,83 +66,119 @@ public class GeoCity {
     /**
      * 获取Country
      */
-    public String getCountry() { return country; }
+    public String getCountry() {
+        return country;
+    }
     /**
      * 设置Country
      */
-    public void setCountry(String country) { this.country = country; }
+    public void setCountry(String country) {
+        this.country = country;
+    }
 
     /**
      * 获取Province
      */
-    public String getProvince() { return province; }
+    public String getProvince() {
+        return province;
+    }
     /**
      * 设置Province
      */
-    public void setProvince(String province) { this.province = province; }
+    public void setProvince(String province) {
+        this.province = province;
+    }
 
     /**
      * 获取City
      */
-    public String getCity() { return city; }
+    public String getCity() {
+        return city;
+    }
     /**
      * 设置City
      */
-    public void setCity(String city) { this.city = city; }
+    public void setCity(String city) {
+        this.city = city;
+    }
 
     /**
      * 获取Isp
      */
-    public String getIsp() { return isp; }
+    public String getIsp() {
+        return isp;
+    }
     /**
      * 设置Isp
      */
-    public void setIsp(String isp) { this.isp = isp; }
+    public void setIsp(String isp) {
+        this.isp = isp;
+    }
 
     /**
      * 获取Ip
      */
-    public String getIp() { return ip; }
+    public String getIp() {
+        return ip;
+    }
     /**
      * 设置Ip
      */
-    public void setIp(String ip) { this.ip = ip; }
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
 
     /**
      * 获取Latitude
      */
-    public Double getLatitude() { return latitude; }
+    public Double getLatitude() {
+        return latitude;
+    }
     /**
      * 设置Latitude
      */
-    public void setLatitude(Double latitude) { this.latitude = latitude; }
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
 
     /**
      * 获取Longitude
      */
-    public Double getLongitude() { return longitude; }
+    public Double getLongitude() {
+        return longitude;
+    }
     /**
      * 设置Longitude
      */
-    public void setLongitude(Double longitude) { this.longitude = longitude; }
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
 
     /**
      * 获取Postal
      */
-    public String getPostal() { return postal; }
+    public String getPostal() {
+        return postal;
+    }
     /**
      * 设置Postal
      */
-    public void setPostal(String postal) { this.postal = postal; }
+    public void setPostal(String postal) {
+        this.postal = postal;
+    }
 
     /**
      * 获取TimeZone
      */
-    public String getTimeZone() { return timeZone; }
+    public String getTimeZone() {
+        return timeZone;
+    }
     /**
      * 设置TimeZone
      */
-    public void setTimeZone(String timeZone) { this.timeZone = timeZone; }
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
+    }
 
     /**
      * 获取完整地址字符串

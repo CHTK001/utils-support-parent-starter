@@ -561,7 +561,9 @@ public void close() {
         }
         if (stop != null && !stop.isEmpty()) {
             JsonArray stopArr = new JsonArray();
-            for (String s : stop) { stopArr.add(s); }
+            for (String s : stop) {
+                stopArr.add(s);
+            }
             completionOption.fluent("stop", stopArr);
         }
         if (seed != null) {

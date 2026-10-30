@@ -101,7 +101,9 @@ public class EmailDirectory implements PolledDirectory {
     /**
      * Builder
     */
-    public static Builder builder() { return new Builder(); }
+    public static Builder builder() {
+        return new Builder();
+    }
 
     // ==================== PolledDirectory 实现 ====================
 

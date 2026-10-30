@@ -350,7 +350,9 @@ public class NacosClient implements AutoCloseable {
         */
         private long timeoutMs = 5000;
 
-        ConfigOperation(NacosClient client) { this.client = client; }
+        ConfigOperation(NacosClient client) {
+            this.client = client;
+        }
 
         /**
          * 数据id
@@ -554,7 +556,9 @@ public class NacosClient implements AutoCloseable {
         */
         private Map<String, String> metadata = Wraps.map();
 
-        NamingOperation(NacosClient client) { this.client = client; }
+        NamingOperation(NacosClient client) {
+            this.client = client;
+        }
 
         /**
          * 服务名称

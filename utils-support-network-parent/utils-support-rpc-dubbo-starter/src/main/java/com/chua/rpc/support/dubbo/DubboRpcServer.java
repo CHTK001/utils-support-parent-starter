@@ -81,14 +81,22 @@ public class DubboRpcServer implements RpcServer {
             item.setUsername(config.getUsername());
             item.setPassword(config.getPassword());
             item.setTimeout(config.getTimeout());
-            if (config.getSessionTimeout() != null) { item.setSession(config.getSessionTimeout()); }
+            if (config.getSessionTimeout() != null) {
+                item.setSession(config.getSessionTimeout());
+            }
             item.setGroup(config.getGroup());
             item.setVersion(config.getVersion());
             item.setCheck(config.getCheck());
             item.setAddress(config.getAddress());
-            if (config.getFile() != null) { item.setFile(config.getFile()); }
-            if (config.getRegister() != null) { item.setRegister(config.getRegister()); }
-            if (config.getDynamic() != null) { item.setDynamic(config.getDynamic()); }
+            if (config.getFile() != null) {
+                item.setFile(config.getFile());
+            }
+            if (config.getRegister() != null) {
+                item.setRegister(config.getRegister());
+            }
+            if (config.getDynamic() != null) {
+                item.setDynamic(config.getDynamic());
+            }
             if (config.getParameters() != null &&
                     !config.getParameters().isEmpty()) { item.setParameters(config.getParameters()); }
             registryConfigs.add(item);
@@ -105,29 +113,75 @@ public class DubboRpcServer implements RpcServer {
             return;
         }
         ProtocolConfig item = new ProtocolConfig();
-        if (config.name() != null)       { item.setName(config.name()); }
-        if (config.port() != null)       { item.setPort(config.port()); }
-        if (config.host() != null)       { item.setHost(config.host()); }
-        if (config.payload() != null)    { item.setPayload(config.payload()); }
-        if (config.buffer() != null)     { item.setBuffer(config.buffer()); }
-        if (config.threads() != null)    { item.setThreads(config.threads()); }
-        if (config.accepts() != null)    { item.setAccepts(config.accepts()); }
-        if (config.ioThreads() != null)  { item.setIothreads(config.ioThreads()); }
-        if (config.alive() != null)      { item.setAlive(config.alive()); }
-        if (config.queues() != null)     { item.setQueues(config.queues()); }
-        if (config.serialization() != null) { item.setSerialization(config.serialization()); }
-        if (config.codec() != null)      { item.setCodec(config.codec()); }
-        if (config.transporter() != null){ item.setTransporter(config.transporter()); }
-        if (config.dispatcher() != null) { item.setDispatcher(config.dispatcher()); }
-        if (config.threadpool() != null) { item.setThreadpool(config.threadpool()); }
-        if (config.heartbeat() != null)  { item.setHeartbeat(config.heartbeat()); }
-        if (config.ssl() != null)        { item.setSslEnabled(config.ssl()); }
-        if (Boolean.FALSE.equals(config.register())) { item.setRegister(false); }
-        if (config.keepAlive() != null)  { item.setKeepAlive(config.keepAlive()); }
-        if (config.charset() != null)    { item.setCharset(config.charset()); }
-        if (config.coreThreads() != null){ item.setCorethreads(config.coreThreads()); }
-        if (config.maxThreads() != null) { item.setThreads(config.maxThreads()); }
-        if (config.idleTimeout() != null){ item.setAlive(config.idleTimeout()); }
+        if (config.name() != null) {
+            item.setName(config.name());
+        }
+        if (config.port() != null) {
+            item.setPort(config.port());
+        }
+        if (config.host() != null) {
+            item.setHost(config.host());
+        }
+        if (config.payload() != null) {
+            item.setPayload(config.payload());
+        }
+        if (config.buffer() != null) {
+            item.setBuffer(config.buffer());
+        }
+        if (config.threads() != null) {
+            item.setThreads(config.threads());
+        }
+        if (config.accepts() != null) {
+            item.setAccepts(config.accepts());
+        }
+        if (config.ioThreads() != null) {
+            item.setIothreads(config.ioThreads());
+        }
+        if (config.alive() != null) {
+            item.setAlive(config.alive());
+        }
+        if (config.queues() != null) {
+            item.setQueues(config.queues());
+        }
+        if (config.serialization() != null) {
+            item.setSerialization(config.serialization());
+        }
+        if (config.codec() != null) {
+            item.setCodec(config.codec());
+        }
+        if (config.transporter() != null) {
+            item.setTransporter(config.transporter());
+        }
+        if (config.dispatcher() != null) {
+            item.setDispatcher(config.dispatcher());
+        }
+        if (config.threadpool() != null) {
+            item.setThreadpool(config.threadpool());
+        }
+        if (config.heartbeat() != null) {
+            item.setHeartbeat(config.heartbeat());
+        }
+        if (config.ssl() != null) {
+            item.setSslEnabled(config.ssl());
+        }
+        if (Boolean.FALSE.equals(config.register())) {
+            item.setRegister(false);
+        }
+        if (config.keepAlive() != null) {
+            item.setKeepAlive(config.keepAlive());
+        }
+        if (config.charset() != null) {
+            item.setCharset(config.charset());
+        }
+        if (config.coreThreads() != null) {
+            item.setCorethreads(config.coreThreads());
+        }
+        if (config.maxThreads() != null) {
+            item.setThreads(config.maxThreads());
+        }
+        if (config.idleTimeout() != null) {
+            item.setAlive(config.idleTimeout());
+        }
         protocolConfigs.add(item);
     }
 

@@ -14,10 +14,14 @@ public class ClickHouseDialect extends SqlDialect {
     /**
      * click房子dialect。
      */
-    public ClickHouseDialect() { super("clickhouse"); }
+    public ClickHouseDialect() {
+        super("clickhouse");
+    }
     /**
      * click房子dialect。
      * @param properties 属性
      */
-    public ClickHouseDialect(Properties properties) { super("clickhouse", properties); }
+    public ClickHouseDialect(Properties properties) {
+        super("clickhouse", properties);
+    }
 }

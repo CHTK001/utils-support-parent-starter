@@ -195,7 +195,9 @@ public final class AstUtils {
      * @return strip后缀的结果
      */
     private static String stripSuffix(String value) {
-        if (value == null || value.isEmpty()) { return value; }
+        if (value == null || value.isEmpty()) {
+            return value;
+        }
         char last = value.charAt(value.length() - 1);
         if (last == 'L' || last == 'l' || last == 'F' || last == 'f' || last == 'D' || last == 'd') {
             return value.substring(0, value.length() - 1);
@@ -225,7 +227,9 @@ public final class AstUtils {
      */
     public static void prependToMethodBody(JCTree.JCMethodDecl jcMethod,
             JCTree.JCStatement stmt) {
-        if (jcMethod.body == null) { return; }
+        if (jcMethod.body == null) {
+            return;
+        }
 
         JCTree.JCStatement[] original =
                 jcMethod.body.stats.toArray(new JCTree.JCStatement[0]);
@@ -244,7 +248,9 @@ public final class AstUtils {
      */
     public static void appendToMethodBody(JCTree.JCMethodDecl jcMethod,
             JCTree.JCStatement stmt) {
-        if (jcMethod.body == null) { return; }
+        if (jcMethod.body == null) {
+            return;
+        }
 
         JCTree.JCStatement[] original =
                 jcMethod.body.stats.toArray(new JCTree.JCStatement[0]);

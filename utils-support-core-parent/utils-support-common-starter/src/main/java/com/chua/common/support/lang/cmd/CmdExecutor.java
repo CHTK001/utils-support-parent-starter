@@ -303,7 +303,9 @@ public interface CmdExecutor extends AutoCloseable {
             public void onComplete(CmdResult r) {
                 result[0] = r;
                 callback.onComplete(r.getExitCode());
-                synchronized (lock) { lock.notifyAll(); }
+                synchronized (lock) {
+                    lock.notifyAll();
+                }
             }
             /**
              * On记录错误
@@ -311,7 +313,9 @@ public interface CmdExecutor extends AutoCloseable {
             @Override
             public void onError(String cmd, Throwable t) {
                 callback.onError(cmd, t);
-                synchronized (lock) { lock.notifyAll(); }
+                synchronized (lock) {
+                    lock.notifyAll();
+                }
             }
             /**
              * OnTimeout
@@ -319,7 +323,9 @@ public interface CmdExecutor extends AutoCloseable {
             @Override
             public void onTimeout(String cmd, long t, TimeUnit u) {
                 callback.onLine("[timeout] " + cmd);
-                synchronized (lock) { lock.notifyAll(); }
+                synchronized (lock) {
+                    lock.notifyAll();
+                }
             }
         });
         synchronized (lock) {

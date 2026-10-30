@@ -12,10 +12,14 @@ public class MysqlDialect extends SqlDialect {
     /**
      * mysqldialect。
      */
-    public MysqlDialect() { super("mysql"); }
+    public MysqlDialect() {
+        super("mysql");
+    }
     /**
      * mysqldialect。
      * @param properties 属性
      */
-    public MysqlDialect(Properties properties) { super("mysql", properties); }
+    public MysqlDialect(Properties properties) {
+        super("mysql", properties);
+    }
 }

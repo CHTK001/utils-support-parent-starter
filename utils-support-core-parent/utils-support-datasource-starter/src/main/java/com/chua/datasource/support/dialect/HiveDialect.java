@@ -11,10 +11,14 @@ public class HiveDialect extends SqlDialect {
     /**
      * Hivedialect。
      */
-    public HiveDialect() { super("hive"); }
+    public HiveDialect() {
+        super("hive");
+    }
     /**
      * Hivedialect。
      * @param properties 属性
      */
-    public HiveDialect(Properties properties) { super("hive", properties); }
+    public HiveDialect(Properties properties) {
+        super("hive", properties);
+    }
 }

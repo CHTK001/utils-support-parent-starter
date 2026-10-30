@@ -49,7 +49,9 @@ public class ObjectDescribe {
      * @return 获取方法描述的结果
      */
     public MethodDescribe getMethodDescribe(String methodName) {
-        if (objectClass == null || methodName == null) { return null; }
+        if (objectClass == null || methodName == null) {
+            return null;
+        }
         Method method = findMethod(methodName);
         return method != null ? new MethodDescribe(object, method) : null;
     }
@@ -60,7 +62,9 @@ public class ObjectDescribe {
      * @return 获取方法描述的结果
      */
     public List<MethodDescribe> getMethodDescribes() {
-        if (objectClass == null) { return Collections.emptyList(); }
+        if (objectClass == null) {
+            return Collections.emptyList();
+        }
         List<Method> methods = ClassUtils.getLocalMethods(objectClass);
         List<MethodDescribe> describes = Wraps.list();
         for (Method method : methods) {
@@ -76,7 +80,9 @@ public class ObjectDescribe {
      * @return find方法的结果
      */
     private Method findMethod(String methodName) {
-        if (objectClass == null || methodName == null) { return null; }
+        if (objectClass == null || methodName == null) {
+            return null;
+        }
         for (Method method : ClassUtils.getLocalMethods(objectClass)) {
             if (method.getName().equals(methodName)) {
                 return method;

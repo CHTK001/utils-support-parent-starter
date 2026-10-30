@@ -58,15 +58,21 @@ public class PackageManager {
  /**
   * 获取Command
   */
- public String getCommand() { return command; }
+ public String getCommand() {
+     return command;
+ }
  /**
   * 获取InstallTemplate
   */
- public String getInstallTemplate() { return installTemplate; }
+ public String getInstallTemplate() {
+     return installTemplate;
+ }
  /**
   * 是否Available
   */
- public boolean isAvailable() { return available; }
+ public boolean isAvailable() {
+     return available;
+ }
  }
 
  /**

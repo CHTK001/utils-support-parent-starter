@@ -273,19 +273,25 @@ public class TraeHttpClient {
      *
      * @return 原始 OkHttp 客户端
      */
-    public OkHttpClient rawClient() { return client; }
+    public OkHttpClient rawClient() {
+        return client;
+    }
 
     /**
      * 获取 API 主机地址。
      *
      * @return 主机 URL
      */
-    public String apiHost() { return apiHost; }
+    public String apiHost() {
+        return apiHost;
+    }
 
     /**
      * 获取认证管理器。
      *
      * @return AuthManager 实例
      */
-    public AuthManager authManager() { return authManager; }
+    public AuthManager authManager() {
+        return authManager;
+    }
 }

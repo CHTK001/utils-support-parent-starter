@@ -39,6 +39,8 @@ public class OfdFileSystem implements FileSystem {
      * 写入
     */
     @Override
-    public WriteBuilder write(File file) { throw new UnsupportedOperationException("OFD write not yet supported"); }
+    public WriteBuilder write(File file) {
+        throw new UnsupportedOperationException("OFD write not yet supported");
+    }
 }
 

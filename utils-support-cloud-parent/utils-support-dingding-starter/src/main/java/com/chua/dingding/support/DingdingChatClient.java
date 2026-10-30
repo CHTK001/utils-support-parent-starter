@@ -325,8 +325,12 @@ public ChatClient newChat() {
             messagesJson.append("]");
 
             StringBuilder extraFlags = new StringBuilder();
-            if (thinking) { extraFlags.append(",\"thinking\":true"); }
-            if (smartSearch) { extraFlags.append(",\"enable_search\":true"); }
+            if (thinking) {
+                extraFlags.append(",\"thinking\":true");
+            }
+            if (smartSearch) {
+                extraFlags.append(",\"enable_search\":true");
+            }
 
             String requestBody = "{\"model\":\"" + (model != null ? model : "dingtalk-ai")
                     + "\",\"messages\":" + messagesJson
@@ -423,7 +427,9 @@ public ChatClient newChat() {
      * @return 转为int的结果
      */
     private static Integer toInt(Object val) {
-        if (val instanceof Number n) { return n.intValue(); }
+        if (val instanceof Number n) {
+            return n.intValue();
+        }
         return null;
     }
 

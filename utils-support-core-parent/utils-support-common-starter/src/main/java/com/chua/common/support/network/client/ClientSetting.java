@@ -109,63 +109,81 @@ public class ClientSetting {
      *
      * @return 连接超时时间（毫秒）
      */
-    public long getConnectTimeout() { return connectTimeout; }
+    public long getConnectTimeout() {
+        return connectTimeout;
+    }
 
     /**
      * 设置连接超时时间。
      *
      * @param connectTimeout 连接超时时间（毫秒），推荐范围：3000~30000
      */
-    public void setConnectTimeout(long connectTimeout) { this.connectTimeout = connectTimeout; }
+    public void setConnectTimeout(long connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
 
     /**
      * 获取读取超时时间。
      *
      * @return 读取超时时间（毫秒）
      */
-    public long getReadTimeout() { return readTimeout; }
+    public long getReadTimeout() {
+        return readTimeout;
+    }
 
     /**
      * 设置读取超时时间。
      *
      * @param readTimeout 读取超时时间（毫秒），0 表示部分实现中为无限等待
      */
-    public void setReadTimeout(long readTimeout) { this.readTimeout = readTimeout; }
+    public void setReadTimeout(long readTimeout) {
+        this.readTimeout = readTimeout;
+    }
 
     /**
      * 获取写入超时时间。
      *
      * @return 写入超时时间（毫秒）
      */
-    public long getWriteTimeout() { return writeTimeout; }
+    public long getWriteTimeout() {
+        return writeTimeout;
+    }
 
     /**
      * 设置写入超时时间。
      *
      * @param writeTimeout 写入超时时间（毫秒），0 表示部分实现中为无限等待
      */
-    public void setWriteTimeout(long writeTimeout) { this.writeTimeout = writeTimeout; }
+    public void setWriteTimeout(long writeTimeout) {
+        this.writeTimeout = writeTimeout;
+    }
 
     /**
      * 判断是否自动跟随 HTTP 重定向。
      *
      * @return true 表示跟随重定向，false 表示不跟随
      */
-    public boolean isFollowRedirects() { return followRedirects; }
+    public boolean isFollowRedirects() {
+        return followRedirects;
+    }
 
     /**
      * 设置是否自动跟随 HTTP 重定向。
      *
      * @param followRedirects true 跟随重定向，false 不跟随
      */
-    public void setFollowRedirects(boolean followRedirects) { this.followRedirects = followRedirects; }
+    public void setFollowRedirects(boolean followRedirects) {
+        this.followRedirects = followRedirects;
+    }
 
     /**
      * 获取最大重试次数。
      *
      * @return 最大重试次数，0 表示不重试
      */
-    public int getMaxRetries() { return maxRetries; }
+    public int getMaxRetries() {
+        return maxRetries;
+    }
 
     /**
      * 设置最大重试次数。
@@ -174,14 +192,18 @@ public class ClientSetting {
      *
      * @param maxRetries 最大重试次数，0 表示不重试
      */
-    public void setMaxRetries(int maxRetries) { this.maxRetries = maxRetries; }
+    public void setMaxRetries(int maxRetries) {
+        this.maxRetries = maxRetries;
+    }
 
     /**
      * 获取代理服务器主机名。
      *
      * @return 代理主机名，null 或空字符串表示不使用代理
      */
-    public String getProxyHost() { return proxyHost; }
+    public String getProxyHost() {
+        return proxyHost;
+    }
 
     /**
      * 设置代理服务器主机名。
@@ -189,14 +211,18 @@ public class ClientSetting {
      * @param proxyHost 代理主机名或 IP 地址，如 {@code "proxy.example.com"}；
      *                  null 或空字符串表示不使用代理
      */
-    public void setProxyHost(String proxyHost) { this.proxyHost = proxyHost; }
+    public void setProxyHost(String proxyHost) {
+        this.proxyHost = proxyHost;
+    }
 
     /**
      * 获取代理服务器端口号。
      *
      * @return 代理端口号，0 表示未设置
      */
-    public int getProxyPort() { return proxyPort; }
+    public int getProxyPort() {
+        return proxyPort;
+    }
 
     /**
      * 代理服务器端口号。
@@ -205,7 +231,9 @@ public class ClientSetting {
      *
      * @param proxyPort 代理端口号，如 8080、3128
      */
-    public void setProxyPort(int proxyPort) { this.proxyPort = proxyPort; }
+    public void setProxyPort(int proxyPort) {
+        this.proxyPort = proxyPort;
+    }
 
     /**
      * 连接保活超时时间（毫秒）。
@@ -221,12 +249,16 @@ public class ClientSetting {
      *
      * @return 保活超时时间（毫秒）
      */
-    public long getKeepAliveTimeout() { return keepAliveTimeout; }
+    public long getKeepAliveTimeout() {
+        return keepAliveTimeout;
+    }
 
     /**
      * 设置连接保活超时时间。
      *
      * @param keepAliveTimeout 保活超时时间（毫秒），0 表示不限制
      */
-    public void setKeepAliveTimeout(long keepAliveTimeout) { this.keepAliveTimeout = keepAliveTimeout; }
+    public void setKeepAliveTimeout(long keepAliveTimeout) {
+        this.keepAliveTimeout = keepAliveTimeout;
+    }
 }

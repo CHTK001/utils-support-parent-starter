@@ -325,8 +325,12 @@ public ChatClient newChat() {
             }
 
             StringBuilder extraFlags = new StringBuilder();
-            if (thinking) { extraFlags.append(",\"thinking\":true"); }
-            if (smartSearch) { extraFlags.append(",\"enable_search\":true"); }
+            if (thinking) {
+                extraFlags.append(",\"thinking\":true");
+            }
+            if (smartSearch) {
+                extraFlags.append(",\"enable_search\":true");
+            }
 
             String requestBody = "{\"modelId\":\"" + (model != null ? model : "anthropic.claude-3-sonnet-20240229")
                     + "\",\"messages\":" + messagesJson
@@ -357,7 +361,9 @@ public ChatClient newChat() {
                     Integer in = toInt(usage.get("input_tokens"));
                     Integer out = toInt(usage.get("output_tokens"));
                     usageBuilder.inputTokens(in).outputTokens(out);
-                    if (in != null && out != null) { usageBuilder.totalTokens(in + out); }
+                    if (in != null && out != null) {
+                        usageBuilder.totalTokens(in + out);
+                    }
                 }
             } catch (Exception e) {
                 log.debug("[amazon] 解析用量统计失败，已忽略: {}", e.getMessage());
@@ -427,7 +433,9 @@ public ChatClient newChat() {
      * @return 转为int的结果
      */
     private static Integer toInt(Object val) {
-        if (val instanceof Number n) { return n.intValue(); }
+        if (val instanceof Number n) {
+            return n.intValue();
+        }
         return null;
     }
 

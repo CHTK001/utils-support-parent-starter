@@ -477,13 +477,17 @@ public class JsoupResponse {
          * @param elements elements
          * @return View的结果
          */
-        private View(Elements elements) { this.elements = elements; }
+        private View(Elements elements) {
+            this.elements = elements;
+        }
         /**
          * 创建 View 实例
          * @param document 文档
          * @return View的结果
          */
-        private View(Document document) { this.elements = document.getAllElements(); }
+        private View(Document document) {
+            this.elements = document.getAllElements();
+        }
 
         /**
          * CSS
@@ -491,7 +495,9 @@ public class JsoupResponse {
          * @param selector selector
          * @return css的结果
          */
-        public View css(String selector) { return new View(elements.select(selector)); }
+        public View css(String selector) {
+            return new View(elements.select(selector));
+        }
         /**
          * Xpath
          *
@@ -554,6 +560,8 @@ public class JsoupResponse {
          *
          * @return 获取elements的结果
          */
-        public Elements getElements() { return elements; }
+        public Elements getElements() {
+            return elements;
+        }
     }
 }

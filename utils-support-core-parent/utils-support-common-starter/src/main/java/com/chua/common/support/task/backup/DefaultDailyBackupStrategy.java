@@ -80,7 +80,9 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
             long totalSize = copiedFiles.stream()
                     .mapToLong(p -> {
                         try { return Files.size(p); }
-                        catch (IOException e) { return 0; }
+                        catch (IOException e) {
+                            return 0;
+                        }
                     })
                     .sum();
 

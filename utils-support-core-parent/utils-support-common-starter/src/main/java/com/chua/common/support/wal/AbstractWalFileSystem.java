@@ -67,7 +67,9 @@ public abstract class AbstractWalFileSystem implements WalFileSystem {
     public void sync() throws IOException { walLog.sync(); }
 
     @Override
-    public long currentLsn() { return currentLsn.get(); }
+    public long currentLsn() {
+        return currentLsn.get();
+    }
 
     @Override
     public Optional<WalRecord> readByLsn(long lsn) throws IOException {
@@ -94,7 +96,9 @@ public abstract class AbstractWalFileSystem implements WalFileSystem {
     public List<WalSegmentInfo> listSegments() throws IOException { return walLog.listSegments(); }
 
     @Override
-    public WalSegmentInfo currentSegment() { return walLog.currentSegment(); }
+    public WalSegmentInfo currentSegment() {
+        return walLog.currentSegment();
+    }
 
     @Override
     public CheckpointMeta loadCheckpoint() throws IOException { return walLog.loadCheckpoint(); }
@@ -108,7 +112,9 @@ public abstract class AbstractWalFileSystem implements WalFileSystem {
     // ==================== FileSystem 接口 ====================
 
     @Override
-    public String getType() { return "wal-" + opType(); }
+    public String getType() {
+        return "wal-" + opType();
+    }
 
     @Override
     public com.chua.common.support.file.builder.ReadBuilder read(File file) {
@@ -141,7 +147,9 @@ public abstract class AbstractWalFileSystem implements WalFileSystem {
      * 配置。
      * @return 配置的结果
      */
-    public WalStoreConfig config() { return config; }
+    public WalStoreConfig config() {
+        return config;
+    }
 
     /**
      * 获取分段路径。

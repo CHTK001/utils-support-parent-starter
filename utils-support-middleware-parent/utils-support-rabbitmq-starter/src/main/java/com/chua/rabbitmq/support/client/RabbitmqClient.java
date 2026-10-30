@@ -174,13 +174,17 @@ public class RabbitmqClient implements AutoCloseable {
      *
      * @return 创建的结果
      */
-    public static RabbitmqClient create() { return builder().build(); }
+    public static RabbitmqClient create() {
+        return builder().build();
+    }
     /**
      * 构建器
      *
      * @return 构建器的结果
      */
-    public static Builder builder() { return new Builder(); }
+    public static Builder builder() {
+        return new Builder();
+    }
 
     // ==================== 启动/停止 ====================
 
@@ -249,7 +253,9 @@ public class RabbitmqClient implements AutoCloseable {
      * 关闭
     */
     @Override
-    public void close() { shutdown(); }
+    public void close() {
+        shutdown();
+    }
 
     // ==================== Channel 管理 ====================
 
@@ -305,37 +311,49 @@ public class RabbitmqClient implements AutoCloseable {
      *
      * @return exchange的结果
      */
-    public ExchangeOperation exchange() { return new ExchangeOperation(this); }
+    public ExchangeOperation exchange() {
+        return new ExchangeOperation(this);
+    }
     /**
      * 队列
      *
      * @return 队列的结果
      */
-    public QueueOperation queue() { return new QueueOperation(this); }
+    public QueueOperation queue() {
+        return new QueueOperation(this);
+    }
     /**
      * 绑定
      *
      * @return bind的结果
      */
-    public BindOperation bind() { return new BindOperation(this); }
+    public BindOperation bind() {
+        return new BindOperation(this);
+    }
     /**
      * 发布
      *
      * @return 发布的结果
      */
-    public PublishOperation publish() { return new PublishOperation(this); }
+    public PublishOperation publish() {
+        return new PublishOperation(this);
+    }
     /**
      * Consume
      *
      * @return consume的结果
      */
-    public ConsumeOperation consume() { return new ConsumeOperation(this); }
+    public ConsumeOperation consume() {
+        return new ConsumeOperation(this);
+    }
     /**
      * Tx
      *
      * @return tx的结果
      */
-    public TxOperation tx() { return new TxOperation(this); }
+    public TxOperation tx() {
+        return new TxOperation(this);
+    }
 
     // ==================== Builder ====================
     /**
@@ -479,7 +497,9 @@ public class RabbitmqClient implements AutoCloseable {
          *
          * @return 构建的结果
          */
-        public RabbitmqClient build() { return new RabbitmqClient(this); }
+        public RabbitmqClient build() {
+            return new RabbitmqClient(this);
+        }
     }
 
     // ==================== 交换机操作 ====================
@@ -516,7 +536,9 @@ public class RabbitmqClient implements AutoCloseable {
         */
         private Map<String, Object> arguments;
 
-        ExchangeOperation(RabbitmqClient client) { this.client = client; }
+        ExchangeOperation(RabbitmqClient client) {
+            this.client = client;
+        }
 
         /**
          * 名称
@@ -619,7 +641,9 @@ public class RabbitmqClient implements AutoCloseable {
         */
         public void delete() {
             try { client.getChannel().exchangeDelete(name); }
-            catch (IOException e) { throw new RabbitmqClientException("删除交换机失败: " + name, e); }
+            catch (IOException e) {
+                throw new RabbitmqClientException("删除交换机失败: " + name, e);
+            }
         }
 
         /**
@@ -671,7 +695,9 @@ public class RabbitmqClient implements AutoCloseable {
         */
         private Map<String, Object> arguments = Wraps.map();
 
-        QueueOperation(RabbitmqClient client) { this.client = client; }
+        QueueOperation(RabbitmqClient client) {
+            this.client = client;
+        }
 
         /**
          * 名称
@@ -821,7 +847,9 @@ public class RabbitmqClient implements AutoCloseable {
         */
         public void delete() {
             try { client.getChannel().queueDelete(name); }
-            catch (IOException e) { throw new RabbitmqClientException("删除队列失败: " + name, e); }
+            catch (IOException e) {
+                throw new RabbitmqClientException("删除队列失败: " + name, e);
+            }
         }
 
         /**
@@ -829,7 +857,9 @@ public class RabbitmqClient implements AutoCloseable {
         */
         public void purge() {
             try { client.getChannel().queuePurge(name); }
-            catch (IOException e) { throw new RabbitmqClientException("清空队列失败: " + name, e); }
+            catch (IOException e) {
+                throw new RabbitmqClientException("清空队列失败: " + name, e);
+            }
         }
 
         /**
@@ -839,7 +869,9 @@ public class RabbitmqClient implements AutoCloseable {
          */
         public long messageCount() {
             try { return client.getChannel().queueDeclarePassive(name).getMessageCount(); }
-            catch (IOException e) { throw new RabbitmqClientException("获取队列消息数失败: " + name, e); }
+            catch (IOException e) {
+                throw new RabbitmqClientException("获取队列消息数失败: " + name, e);
+            }
         }
 
         /**
@@ -849,7 +881,9 @@ public class RabbitmqClient implements AutoCloseable {
          */
         public long consumerCount() {
             try { return client.getChannel().queueDeclarePassive(name).getConsumerCount(); }
-            catch (IOException e) { throw new RabbitmqClientException("获取消费者数失败: " + name, e); }
+            catch (IOException e) {
+                throw new RabbitmqClientException("获取消费者数失败: " + name, e);
+            }
         }
     }
 
@@ -883,7 +917,9 @@ public class RabbitmqClient implements AutoCloseable {
         */
         private Map<String, Object> arguments;
 
-        BindOperation(RabbitmqClient client) { this.client = client; }
+        BindOperation(RabbitmqClient client) {
+            this.client = client;
+        }
 
         /**
          * 队列
@@ -931,7 +967,9 @@ public class RabbitmqClient implements AutoCloseable {
         */
         public void bind() {
             try { client.getChannel().queueBind(queue, exchange, routingKey, arguments); }
-            catch (IOException e) { throw new RabbitmqClientException("绑定失败", e); }
+            catch (IOException e) {
+                throw new RabbitmqClientException("绑定失败", e);
+            }
         }
 
         /**
@@ -939,7 +977,9 @@ public class RabbitmqClient implements AutoCloseable {
         */
         public void unbind() {
             try { client.getChannel().queueUnbind(queue, exchange, routingKey, arguments); }
-            catch (IOException e) { throw new RabbitmqClientException("解绑失败", e); }
+            catch (IOException e) {
+                throw new RabbitmqClientException("解绑失败", e);
+            }
         }
     }
 
@@ -981,7 +1021,9 @@ public class RabbitmqClient implements AutoCloseable {
         */
         private long confirmTimeoutMs = 10000;
 
-        PublishOperation(RabbitmqClient client) { this.client = client; }
+        PublishOperation(RabbitmqClient client) {
+            this.client = client;
+        }
 
         /**
          * Exchange
@@ -1306,7 +1348,9 @@ public class RabbitmqClient implements AutoCloseable {
         */
         private String channelName = "default";
 
-        ConsumeOperation(RabbitmqClient client) { this.client = client; }
+        ConsumeOperation(RabbitmqClient client) {
+            this.client = client;
+        }
 
         /**
          * 队列
@@ -1455,7 +1499,9 @@ public class RabbitmqClient implements AutoCloseable {
          */
         public void stop(String consumerTag) {
             try { client.getChannel(channelName).basicCancel(consumerTag); }
-            catch (IOException e) { throw new RabbitmqClientException("停止消费失败", e); }
+            catch (IOException e) {
+                throw new RabbitmqClientException("停止消费失败", e);
+            }
         }
     }
 
@@ -1473,7 +1519,9 @@ public class RabbitmqClient implements AutoCloseable {
         */
         private final RabbitmqClient client;
 
-        TxOperation(RabbitmqClient client) { this.client = client; }
+        TxOperation(RabbitmqClient client) {
+            this.client = client;
+        }
 
         /**
          * 执行事务操作
@@ -1561,37 +1609,49 @@ public class RabbitmqClient implements AutoCloseable {
          *
          * @return 获取主体的结果
          */
-        public byte[] getBody() { return delivery.getBody(); }
+        public byte[] getBody() {
+            return delivery.getBody();
+        }
         /**
          * 获取主体as字符串
          *
          * @return 获取主体as字符串的结果
          */
-        public String getBodyAsString() { return new String(delivery.getBody(), StandardCharsets.UTF_8); }
+        public String getBodyAsString() {
+            return new String(delivery.getBody(), StandardCharsets.UTF_8);
+        }
         /**
          * 获取delivery标签
          *
          * @return 获取delivery标签的结果
          */
-        public long getDeliveryTag() { return delivery.getEnvelope().getDeliveryTag(); }
+        public long getDeliveryTag() {
+            return delivery.getEnvelope().getDeliveryTag();
+        }
         /**
          * 获取Exchange
          *
          * @return 获取exchange的结果
          */
-        public String getExchange() { return delivery.getEnvelope().getExchange(); }
+        public String getExchange() {
+            return delivery.getEnvelope().getExchange();
+        }
         /**
          * 获取routing键
          *
          * @return 获取routing键的结果
          */
-        public String getRoutingKey() { return delivery.getEnvelope().getRoutingKey(); }
+        public String getRoutingKey() {
+            return delivery.getEnvelope().getRoutingKey();
+        }
         /**
          * 获取属性
          *
          * @return 获取属性的结果
          */
-        public AMQP.BasicProperties getProperties() { return delivery.getProperties(); }
+        public AMQP.BasicProperties getProperties() {
+            return delivery.getProperties();
+        }
         /**
          * 获取头部
          *
@@ -1617,7 +1677,9 @@ public class RabbitmqClient implements AutoCloseable {
          */
         public void ack() {
             try { channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false); }
-            catch (IOException e) { throw new RabbitmqClientException("ACK 失败", e); }
+            catch (IOException e) {
+                throw new RabbitmqClientException("ACK 失败", e);
+            }
         }
 
         /**
@@ -1625,7 +1687,9 @@ public class RabbitmqClient implements AutoCloseable {
          */
         public void ackMultiple() {
             try { channel.basicAck(delivery.getEnvelope().getDeliveryTag(), true); }
-            catch (IOException e) { throw new RabbitmqClientException("ACK 失败", e); }
+            catch (IOException e) {
+                throw new RabbitmqClientException("ACK 失败", e);
+            }
         }
 
         /**
@@ -1634,7 +1698,9 @@ public class RabbitmqClient implements AutoCloseable {
          */
         public void nack(boolean requeue) {
             try { channel.basicNack(delivery.getEnvelope().getDeliveryTag(), false, requeue); }
-            catch (IOException e) { throw new RabbitmqClientException("NACK 失败", e); }
+            catch (IOException e) {
+                throw new RabbitmqClientException("NACK 失败", e);
+            }
         }
 
         /**
@@ -1642,7 +1708,9 @@ public class RabbitmqClient implements AutoCloseable {
          */
         public void reject() {
             try { channel.basicReject(delivery.getEnvelope().getDeliveryTag(), true); }
-            catch (IOException e) { throw new RabbitmqClientException("Reject 失败", e); }
+            catch (IOException e) {
+                throw new RabbitmqClientException("Reject 失败", e);
+            }
         }
 
         /**
@@ -1650,7 +1718,9 @@ public class RabbitmqClient implements AutoCloseable {
          */
         public void rejectAndDrop() {
             try { channel.basicReject(delivery.getEnvelope().getDeliveryTag(), false); }
-            catch (IOException e) { throw new RabbitmqClientException("Reject 失败", e); }
+            catch (IOException e) {
+                throw new RabbitmqClientException("Reject 失败", e);
+            }
         }
     }
 
@@ -1668,11 +1738,15 @@ public class RabbitmqClient implements AutoCloseable {
          * @param message 消息
          * @param cause Throwable
          */
-        public RabbitmqClientException(String message, Throwable cause) { super(message, cause); }
+        public RabbitmqClientException(String message, Throwable cause) {
+            super(message, cause);
+        }
         /**
          * 创建 rabbitmq客户端异常 实例
          * @param message 消息
          */
-        public RabbitmqClientException(String message) { super(message); }
+        public RabbitmqClientException(String message) {
+            super(message);
+        }
     }
 }

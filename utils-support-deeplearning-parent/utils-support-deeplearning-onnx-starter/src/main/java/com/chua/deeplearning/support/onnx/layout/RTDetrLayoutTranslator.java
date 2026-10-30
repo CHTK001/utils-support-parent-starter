@@ -46,7 +46,9 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
      * rtdetrlayouttranslator。
      * @param threshold 阈值
      */
-    public RTDetrLayoutTranslator(float threshold) { this.scoreThreshold = threshold; }
+    public RTDetrLayoutTranslator(float threshold) {
+        this.scoreThreshold = threshold;
+    }
 
     /**
      * 创建 Translator（支持外部阈值覆盖，未提供时使用内置默认值）。
@@ -161,5 +163,7 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
     };
 
     @Override
-    public Batchifier getBatchifier() { return null; }
+    public Batchifier getBatchifier() {
+        return null;
+    }
 }

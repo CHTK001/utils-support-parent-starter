@@ -220,7 +220,9 @@ public class RSocketDataSyncAgentServer extends com.chua.starter.datasync.agent.
          * Agent 标识
          */
         private final String agentId;
-        SimpleDataSyncAgent(String agentId) { this.agentId = agentId; }
+        SimpleDataSyncAgent(String agentId) {
+            this.agentId = agentId;
+        }
         @Override public String agentId() { return agentId; }
         @Override public DataSyncSource toSource() { return null; }
         @Override public void start() {}

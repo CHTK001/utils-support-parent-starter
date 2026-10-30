@@ -1348,179 +1348,263 @@ public class RagPipeline implements RagClient {
         /**
          * 获取文档 ID
          */
-        public String docId() { return docId; }
+        public String docId() {
+            return docId;
+        }
         /**
          * 设置文档 ID
          */
-        public void docId(String docId) { this.docId = docId; }
+        public void docId(String docId) {
+            this.docId = docId;
+        }
         /**
          * 获取文件名
          */
-        public String fileName() { return fileName; }
+        public String fileName() {
+            return fileName;
+        }
         /**
          * 设置文件名
          */
-        public void fileName(String fileName) { this.fileName = fileName; }
+        public void fileName(String fileName) {
+            this.fileName = fileName;
+        }
         /**
          * 获取文件类型
          */
-        public String fileType() { return fileType; }
+        public String fileType() {
+            return fileType;
+        }
         /**
          * 设置文件类型
          */
-        public void fileType(String fileType) { this.fileType = fileType; }
+        public void fileType(String fileType) {
+            this.fileType = fileType;
+        }
         /**
          * 获取文件字节
          */
-        public byte[] data() { return data; }
+        public byte[] data() {
+            return data;
+        }
         /**
          * 设置文件字节
          */
-        public void data(byte[] data) { this.data = data; }
+        public void data(byte[] data) {
+            this.data = data;
+        }
         /**
          * 获取本次入库专用的分片器
          *
          * @return 分片器，null 表示用全局默认
          */
-        public TextSplitter splitter() { return splitter; }
+        public TextSplitter splitter() {
+            return splitter;
+        }
         /**
          * 设置本次入库专用的分片器
          *
          * @param splitter 分片器，null 表示用全局默认
          */
-        public void splitter(TextSplitter splitter) { this.splitter = splitter; }
+        public void splitter(TextSplitter splitter) {
+            this.splitter = splitter;
+        }
         /**
          * 获取查询语句
          */
-        public String query() { return query; }
+        public String query() {
+            return query;
+        }
         /**
          * 设置查询语句
          */
-        public void query(String query) { this.query = query; }
+        public void query(String query) {
+            this.query = query;
+        }
         /**
          * 获取 TopK
          */
-        public int topK() { return topK; }
+        public int topK() {
+            return topK;
+        }
         /**
          * 设置 TopK
          */
-        public void topK(int topK) { this.topK = topK; }
+        public void topK(int topK) {
+            this.topK = topK;
+        }
         /**
          * 获取相似度阈值
          */
-        public double threshold() { return threshold; }
+        public double threshold() {
+            return threshold;
+        }
         /**
          * 设置相似度阈值
          */
-        public void threshold(double threshold) { this.threshold = threshold; }
+        public void threshold(double threshold) {
+            this.threshold = threshold;
+        }
         /**
          * 获取文件 ID
          */
-        public String currentFileId() { return currentFileId; }
+        public String currentFileId() {
+            return currentFileId;
+        }
         /**
          * 设置文件 ID
          */
-        public void currentFileId(String currentFileId) { this.currentFileId = currentFileId; }
+        public void currentFileId(String currentFileId) {
+            this.currentFileId = currentFileId;
+        }
         /**
          * 获取抽取文本
          */
-        public String currentText() { return currentText; }
+        public String currentText() {
+            return currentText;
+        }
         /**
          * 设置抽取文本
          */
-        public void currentText(String currentText) { this.currentText = currentText; }
+        public void currentText(String currentText) {
+            this.currentText = currentText;
+        }
         /**
          * 获取分块列表
          */
-        public List<TextChunk> currentChunks() { return currentChunks; }
+        public List<TextChunk> currentChunks() {
+            return currentChunks;
+        }
         /**
          * 设置分块列表
          */
-        public void currentChunks(List<TextChunk> currentChunks) { this.currentChunks = currentChunks; }
+        public void currentChunks(List<TextChunk> currentChunks) {
+            this.currentChunks = currentChunks;
+        }
         /**
          * 获取入库分块数
          */
-        public int currentChunkCount() { return currentChunkCount; }
+        public int currentChunkCount() {
+            return currentChunkCount;
+        }
         /**
          * 设置入库分块数
          */
-        public void currentChunkCount(int currentChunkCount) { this.currentChunkCount = currentChunkCount; }
+        public void currentChunkCount(int currentChunkCount) {
+            this.currentChunkCount = currentChunkCount;
+        }
         /**
          * 获取错误信息
          */
-        public String currentError() { return currentError; }
+        public String currentError() {
+            return currentError;
+        }
         /**
          * 设置错误信息
          */
-        public void currentError(String currentError) { this.currentError = currentError; }
+        public void currentError(String currentError) {
+            this.currentError = currentError;
+        }
         /**
          * 获取查询向量
          */
-        public float[] currentQueryVector() { return currentQueryVector; }
+        public float[] currentQueryVector() {
+            return currentQueryVector;
+        }
         /**
          * 设置查询向量
          */
-        public void currentQueryVector(float[] currentQueryVector) { this.currentQueryVector = currentQueryVector; }
+        public void currentQueryVector(float[] currentQueryVector) {
+            this.currentQueryVector = currentQueryVector;
+        }
         /**
          * 获取检索命中向量
          */
-        public List<Vector> currentResults() { return currentResults; }
+        public List<Vector> currentResults() {
+            return currentResults;
+        }
         /**
          * 设置检索命中向量
          */
-        public void currentResults(List<Vector> currentResults) { this.currentResults = currentResults; }
+        public void currentResults(List<Vector> currentResults) {
+            this.currentResults = currentResults;
+        }
         /**
          * 获取过滤后来源
          */
-        public List<RagResponse.Source> currentSources() { return currentSources; }
+        public List<RagResponse.Source> currentSources() {
+            return currentSources;
+        }
         /**
          * 设置过滤后来源
          */
-        public void currentSources(List<RagResponse.Source> currentSources) { this.currentSources = currentSources; }
+        public void currentSources(List<RagResponse.Source> currentSources) {
+            this.currentSources = currentSources;
+        }
         /**
          * 获取模型回答
          */
-        public String currentAnswer() { return currentAnswer; }
+        public String currentAnswer() {
+            return currentAnswer;
+        }
         /**
          * 设置模型回答
          */
-        public void currentAnswer(String currentAnswer) { this.currentAnswer = currentAnswer; }
+        public void currentAnswer(String currentAnswer) {
+            this.currentAnswer = currentAnswer;
+        }
         /**
          * 获取查询响应
          */
-        public RagResponse currentResponse() { return currentResponse; }
+        public RagResponse currentResponse() {
+            return currentResponse;
+        }
         /**
          * 设置查询响应
          */
-        public void currentResponse(RagResponse currentResponse) { this.currentResponse = currentResponse; }
+        public void currentResponse(RagResponse currentResponse) {
+            this.currentResponse = currentResponse;
+        }
         /**
          * 获取跳过生成标志
          *
          * @return 为 true 时只检索不调用 LLM
          */
-        public boolean skipGenerate() { return skipGenerate; }
+        public boolean skipGenerate() {
+            return skipGenerate;
+        }
         /**
          * 设置跳过生成标志
          *
          * @param skipGenerate 为 true 时只检索不调用 LLM
          */
-        public void skipGenerate(boolean skipGenerate) { this.skipGenerate = skipGenerate; }
+        public void skipGenerate(boolean skipGenerate) {
+            this.skipGenerate = skipGenerate;
+        }
         /**
          * 获取处理中标志
          */
-        public boolean processing() { return processing; }
+        public boolean processing() {
+            return processing;
+        }
         /**
          * 设置处理中标志
          */
-        public void processing(boolean processing) { this.processing = processing; }
+        public void processing(boolean processing) {
+            this.processing = processing;
+        }
         /**
          * 获取入库文档元数据
          */
-        public RagDocument currentDocument() { return currentDocument; }
+        public RagDocument currentDocument() {
+            return currentDocument;
+        }
         /**
          * 设置入库文档元数据
          */
-        public void currentDocument(RagDocument currentDocument) { this.currentDocument = currentDocument; }
+        public void currentDocument(RagDocument currentDocument) {
+            this.currentDocument = currentDocument;
+        }
     }
 
     /**

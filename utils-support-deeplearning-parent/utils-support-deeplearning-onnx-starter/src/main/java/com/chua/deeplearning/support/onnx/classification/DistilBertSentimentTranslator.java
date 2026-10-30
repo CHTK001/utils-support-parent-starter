@@ -137,12 +137,18 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
      */
     private static Path findTokenizerPath(Path modelPath) {
         Path root = Files.isDirectory(modelPath) ? modelPath : modelPath.getParent();
-        if (root == null) { return null; }
+        if (root == null) {
+            return null;
+        }
         Path p = root.resolve("tokenizer.json");
-        if (Files.exists(p)) { return p; }
+        if (Files.exists(p)) {
+            return p;
+        }
         if (root.getParent() != null) {
             p = root.getParent().resolve("tokenizer.json");
-            if (Files.exists(p)) { return p; }
+            if (Files.exists(p)) {
+                return p;
+            }
         }
         return null;
     }
@@ -155,15 +161,21 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
      */
     private static double[] softmax(float[] logits) {
         double max = Double.NEGATIVE_INFINITY;
-        for (float l : logits) { max = Math.max(max, l); }
+        for (float l : logits) {
+            max = Math.max(max, l);
+        }
         double sum = 0d;
         double[] exp = new double[logits.length];
         for (int i = 0; i < logits.length; i++) {
             exp[i] = Math.exp(logits[i] - max);
             sum += exp[i];
         }
-        if (sum <= 0d) { return new double[logits.length]; }
-        for (int i = 0; i < exp.length; i++) { exp[i] /= sum; }
+        if (sum <= 0d) {
+            return new double[logits.length];
+        }
+        for (int i = 0; i < exp.length; i++) {
+            exp[i] /= sum;
+        }
         return exp;
     }
 }

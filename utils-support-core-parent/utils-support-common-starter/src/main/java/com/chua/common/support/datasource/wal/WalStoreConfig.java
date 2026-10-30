@@ -40,16 +40,34 @@ public class WalStoreConfig {
         this.namespace = b.namespace;
     }
 
-    public int shardCount() { return shardCount; }
-    public long segmentBytes() { return segmentBytes; }
-    public int flushBatchSize() { return flushBatchSize; }
-    public long flushIntervalMs() { return flushIntervalMs; }
-    public int cpuCores() { return cpuCores; }
-    public boolean isSSD() { return isSSD; }
-    public Path baseDir() { return baseDir; }
-    public String namespace() { return namespace; }
+    public int shardCount() {
+        return shardCount;
+    }
+    public long segmentBytes() {
+        return segmentBytes;
+    }
+    public int flushBatchSize() {
+        return flushBatchSize;
+    }
+    public long flushIntervalMs() {
+        return flushIntervalMs;
+    }
+    public int cpuCores() {
+        return cpuCores;
+    }
+    public boolean isSSD() {
+        return isSSD;
+    }
+    public Path baseDir() {
+        return baseDir;
+    }
+    public String namespace() {
+        return namespace;
+    }
 
-    public static Builder builder() { return new Builder(); }
+    public static Builder builder() {
+        return new Builder();
+    }
 
     public static final class Builder {
         private int shardCount = 100;

@@ -158,7 +158,9 @@ public class HttpClient5Executor implements HttpClientExecutor {
      * 获取订单
     */
     @Override
-    public int getOrder() { return 1; }
+    public int getOrder() {
+        return 1;
+    }
 
     /**
      * 关闭

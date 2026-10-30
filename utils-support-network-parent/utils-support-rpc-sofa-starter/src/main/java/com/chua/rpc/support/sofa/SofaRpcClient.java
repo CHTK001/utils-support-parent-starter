@@ -51,9 +51,15 @@ public class SofaRpcClient implements RpcClient {
         applicationConfig.setAppName(name);
         for (RpcRegistryConfig config : rpcRegistryConfigs) {
             RegistryConfig item = new RegistryConfig();
-            if (config.getProtocol() != null) { item.setProtocol(config.getProtocol()); }
-            if (config.getAddress() != null)  { item.setAddress(config.getAddress()); }
-            if (config.getTimeout() != null)  { item.setTimeout(config.getTimeout()); }
+            if (config.getProtocol() != null) {
+                item.setProtocol(config.getProtocol());
+            }
+            if (config.getAddress() != null) {
+                item.setAddress(config.getAddress());
+            }
+            if (config.getTimeout() != null) {
+                item.setTimeout(config.getTimeout());
+            }
             if ("local".equals(config.getProtocol())) {
  // 与 sofarpc服务端 使用同一注册文件路径（按应用名），保证同机跨进程也能互相发现
                 item.setFile(SofaRpcServer.localRegistryFile(name));
@@ -79,9 +85,15 @@ public class SofaRpcClient implements RpcClient {
             c.setInterfaceId(type.getName());
             c.setRegistry(registryConfigs);
             if (rpcConsumerConfig != null) {
-                if (rpcConsumerConfig.getCheck() != null)       { c.setCheck(rpcConsumerConfig.getCheck()); }
-                if (rpcConsumerConfig.getTimeout() != null)      { c.setTimeout(rpcConsumerConfig.getTimeout()); }
-                if (rpcConsumerConfig.getRetries() != null)      { c.setRetries(rpcConsumerConfig.getRetries()); }
+                if (rpcConsumerConfig.getCheck() != null) {
+                    c.setCheck(rpcConsumerConfig.getCheck());
+                }
+                if (rpcConsumerConfig.getTimeout() != null) {
+                    c.setTimeout(rpcConsumerConfig.getTimeout());
+                }
+                if (rpcConsumerConfig.getRetries() != null) {
+                    c.setRetries(rpcConsumerConfig.getRetries());
+                }
                 if (rpcConsumerConfig.getLoadBalance() != null) {
                     c.setLoadBalancer(rpcConsumerConfig.getLoadBalance());
                 }
@@ -91,18 +103,26 @@ public class SofaRpcClient implements RpcClient {
                 if (rpcConsumerConfig.getSerialization() != null) {
                     c.setSerialization(rpcConsumerConfig.getSerialization());
                 }
-                if (rpcConsumerConfig.getCluster() != null)      { c.setCluster(rpcConsumerConfig.getCluster()); }
+                if (rpcConsumerConfig.getCluster() != null) {
+                    c.setCluster(rpcConsumerConfig.getCluster());
+                }
                 if (rpcConsumerConfig.getAsync() != null) {
                     c.setInvokeType(Boolean.TRUE.equals(rpcConsumerConfig.getAsync())
                             ? "future"
                             : "sync");
                 }
-                if (rpcConsumerConfig.getVersion() != null)      { c.setVersion(rpcConsumerConfig.getVersion()); }
-                if (rpcConsumerConfig.getGroup() != null)        { c.setUniqueId(rpcConsumerConfig.getGroup()); }
+                if (rpcConsumerConfig.getVersion() != null) {
+                    c.setVersion(rpcConsumerConfig.getVersion());
+                }
+                if (rpcConsumerConfig.getGroup() != null) {
+                    c.setUniqueId(rpcConsumerConfig.getGroup());
+                }
                 if (rpcConsumerConfig.getConnectTimeout() != null) {
                     c.setConnectTimeout(rpcConsumerConfig.getConnectTimeout());
                 }
-                if (Boolean.TRUE.equals(rpcConsumerConfig.getSticky())) { c.setSticky(true); }
+                if (Boolean.TRUE.equals(rpcConsumerConfig.getSticky())) {
+                    c.setSticky(true);
+                }
             }
             return c;
         });

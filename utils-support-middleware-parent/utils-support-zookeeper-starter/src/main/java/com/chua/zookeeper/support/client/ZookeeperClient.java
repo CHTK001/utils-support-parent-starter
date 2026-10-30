@@ -350,7 +350,9 @@ public class ZookeeperClient implements AutoCloseable {
          */
         private Map<String, byte[]> acl;
 
-        CreateBuilder(CuratorFramework curator) { this.curator = curator; }
+        CreateBuilder(CuratorFramework curator) {
+            this.curator = curator;
+        }
 
         /**
          * 路径
@@ -486,7 +488,9 @@ public class ZookeeperClient implements AutoCloseable {
          */
         private boolean quiet = false;
 
-        DeleteBuilder(CuratorFramework curator) { this.curator = curator; }
+        DeleteBuilder(CuratorFramework curator) {
+            this.curator = curator;
+        }
 
         /**
          * 路径
@@ -549,7 +553,9 @@ public class ZookeeperClient implements AutoCloseable {
          */
         private String path;
 
-        GetDataBuilder(CuratorFramework curator) { this.curator = curator; }
+        GetDataBuilder(CuratorFramework curator) {
+            this.curator = curator;
+        }
 
         /**
          * 路径
@@ -608,7 +614,9 @@ public class ZookeeperClient implements AutoCloseable {
          */
         private byte[] data;
 
-        SetDataBuilder(CuratorFramework curator) { this.curator = curator; }
+        SetDataBuilder(CuratorFramework curator) {
+            this.curator = curator;
+        }
 
         /**
          * 路径
@@ -664,7 +672,9 @@ public class ZookeeperClient implements AutoCloseable {
          */
         private String path;
 
-        CheckExistsBuilder(CuratorFramework curator) { this.curator = curator; }
+        CheckExistsBuilder(CuratorFramework curator) {
+            this.curator = curator;
+        }
 
         /**
          * 路径
@@ -701,7 +711,9 @@ public class ZookeeperClient implements AutoCloseable {
          */
         private String path;
 
-        GetChildrenBuilder(CuratorFramework curator) { this.curator = curator; }
+        GetChildrenBuilder(CuratorFramework curator) {
+            this.curator = curator;
+        }
 
         /**
          * 路径

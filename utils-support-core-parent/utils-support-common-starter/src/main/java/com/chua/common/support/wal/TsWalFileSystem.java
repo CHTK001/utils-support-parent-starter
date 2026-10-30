@@ -29,7 +29,9 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
     }
 
     @Override
-    protected byte opType() { return 0x02; }
+    protected byte opType() {
+        return 0x02;
+    }
 /**
  * decode键。
  * @param payload payload
@@ -161,6 +163,8 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
         public long expireAt() {
             return ttlSec == null ? Long.MAX_VALUE : ts + (long) ttlSec * 1000L;
         }
-        public boolean isExpired(long now) { return expireAt() <= now; }
+        public boolean isExpired(long now) {
+            return expireAt() <= now;
+        }
     }
 }

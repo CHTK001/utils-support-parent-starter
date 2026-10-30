@@ -15,10 +15,14 @@ import java.util.*;
 public class InnerJoinStrategy implements JoinStrategy {
 
     @Override
-    public String name() { return "inner"; }
+    public String name() {
+        return "inner";
+    }
 
     @Override
-    public boolean enabled() { return true; }
+    public boolean enabled() {
+        return true;
+    }
 
     @Override
     public List<Map<String, Object>> execute(JoinContext ctx) {

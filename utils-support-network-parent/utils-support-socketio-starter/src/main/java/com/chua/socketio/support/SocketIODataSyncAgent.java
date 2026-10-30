@@ -106,25 +106,33 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
      * AgentId
     */
     @Override
-    public String agentId() { return agentId; }
+    public String agentId() {
+        return agentId;
+    }
 
     /**
      * ToSource
     */
     @Override
-    public DataSyncSource toSource() { return source; }
+    public DataSyncSource toSource() {
+        return source;
+    }
 
     /**
      * 是否Running
     */
     @Override
-    public boolean isRunning() { return running; }
+    public boolean isRunning() {
+        return running;
+    }
 
     /**
      * DataUrl
     */
     @Override
-    public String dataUrl() { return ""; }
+    public String dataUrl() {
+        return "";
+    }
 
     /**
      * 处理拉取

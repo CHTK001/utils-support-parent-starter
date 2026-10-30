@@ -257,7 +257,9 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
      * 获取Batchifier
      */
     @Override
-    public Batchifier getBatchifier() { return null; }
+    public Batchifier getBatchifier() {
+        return null;
+    }
 
     /**
      * Candidate
@@ -271,7 +273,9 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
          * rectangle。
          * @return rectangle的结果
          */
-        private Rectangle rectangle() { return landmark; }
+        private Rectangle rectangle() {
+            return landmark;
+        }
     }
 
     /**
@@ -289,9 +293,13 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
      */
     private record LetterBoxMeta(int left, int top, int newW, int newH) {
         /** 内容右沿 x（左闭右开 +1，clamp 右端开放） */
-        private int right() { return left + newW; }
+        private int right() {
+            return left + newW;
+        }
         /** 内容下沿 y */
-        private int bottom() { return top + newH; }
+        private int bottom() {
+            return top + newH;
+        }
         /** 画布 X → 原图归一化 X [0,1] */
         private float normX(float canvasX) {
             return clamp01((canvasX - left) / newW);

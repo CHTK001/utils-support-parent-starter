@@ -84,7 +84,9 @@ public class MemoryMcpPlugin {
              * 初始化
              */
             @Override
-            public void init() { initialized = true; }
+            public void init() {
+                initialized = true;
+            }
 
             /**
              * ListTools
@@ -155,7 +157,9 @@ public class MemoryMcpPlugin {
              * 是否Initialized
              */
             @Override
-            public boolean isInitialized() { return initialized; }
+            public boolean isInitialized() {
+                return initialized;
+            }
 
             /**
              * 关闭

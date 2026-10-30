@@ -192,12 +192,16 @@ public class OpenAiImageClient implements ImageClient {
      * 镜像strength
     */
     @Override
-    public ImageClient imageStrength(double strength) { throw new UnsupportedOperationException("该服务商不支持参考图强度"); }
+    public ImageClient imageStrength(double strength) {
+        throw new UnsupportedOperationException("该服务商不支持参考图强度");
+    }
     /**
      * control类型
     */
     @Override
-    public ImageClient controlType(String controlType) { throw new UnsupportedOperationException("该服务商不支持ControlNet"); }
+    public ImageClient controlType(String controlType) {
+        throw new UnsupportedOperationException("该服务商不支持ControlNet");
+    }
 
     /**
      * 参考图请求载荷：Data URI 数组。

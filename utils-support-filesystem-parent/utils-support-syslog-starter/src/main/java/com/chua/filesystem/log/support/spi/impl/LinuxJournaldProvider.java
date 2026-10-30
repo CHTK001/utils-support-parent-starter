@@ -381,11 +381,15 @@ public class LinuxJournaldProvider implements SystemLogProvider {
             if (!Files.isRegularFile(path) || !Files.isReadable(path)) {
                 continue;
             }
-            if (results.size() >= maxResults) { break; }
+            if (results.size() >= maxResults) {
+                break;
+            }
 
             try (Stream<String> lines = Files.lines(path)) {
                 lines.forEach(line -> {
-                    if (results.size() >= maxResults) { return; }
+                    if (results.size() >= maxResults) {
+                        return;
+                    }
                     LogEntry entry = parseLogLine(line, logFile);
                     if (entry == null) {
                         return;
@@ -417,7 +421,9 @@ public class LinuxJournaldProvider implements SystemLogProvider {
      * @return 解析日志线的结果
      */
     private LogEntry parseLogLine(String line, String source) {
-        if (line == null || line.isBlank()) { return null; }
+        if (line == null || line.isBlank()) {
+            return null;
+        }
         try {
             String timestamp = "unknown";
             String message = line;
@@ -465,7 +471,9 @@ public class LinuxJournaldProvider implements SystemLogProvider {
      * @return compile模式的结果
      */
     private Pattern compilePattern(String glob) {
-        if (glob == null || glob.isEmpty()) { return null; }
+        if (glob == null || glob.isEmpty()) {
+            return null;
+        }
         try {
             String regex = glob.replace(".", "\\.").replace("*", ".*").replace("?", ".");
             return Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);

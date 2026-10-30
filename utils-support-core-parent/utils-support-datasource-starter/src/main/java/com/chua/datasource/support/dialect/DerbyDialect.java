@@ -11,10 +11,14 @@ public class DerbyDialect extends SqlDialect {
     /**
      * derbydialect。
      */
-    public DerbyDialect() { super("derby"); }
+    public DerbyDialect() {
+        super("derby");
+    }
     /**
      * derbydialect。
      * @param properties 属性
      */
-    public DerbyDialect(Properties properties) { super("derby", properties); }
+    public DerbyDialect(Properties properties) {
+        super("derby", properties);
+    }
 }

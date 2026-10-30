@@ -60,12 +60,16 @@ public abstract class HtmlScraperResourceProvider extends AbstractResourceProvid
         return v;
     }
 
-    public HtmlScraperResourceProvider() { super(); }
+    public HtmlScraperResourceProvider() {
+        super();
+    }
     /**
      * htmlscraperresource提供者。
      * @param vs vs
      */
-    public HtmlScraperResourceProvider(com.chua.common.support.datasearch.video.model.VideoSource vs) { super(vs); }
+    public HtmlScraperResourceProvider(com.chua.common.support.datasearch.video.model.VideoSource vs) {
+        super(vs);
+    }
 
     @Override
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {

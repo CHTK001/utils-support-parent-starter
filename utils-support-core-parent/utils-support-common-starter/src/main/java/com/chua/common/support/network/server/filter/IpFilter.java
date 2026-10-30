@@ -61,19 +61,27 @@ public class IpFilter implements ServerFilter {
     /**
      * 添加Whitelist
      */
-    public void addWhitelist(String ip) { whitelist.add(ip); }
+    public void addWhitelist(String ip) {
+        whitelist.add(ip);
+    }
     /**
      * 添加Blacklist
      */
-    public void addBlacklist(String ip) { blacklist.add(ip); }
+    public void addBlacklist(String ip) {
+        blacklist.add(ip);
+    }
     /**
      * 移除Whitelist
      */
-    public void removeWhitelist(String ip) { whitelist.remove(ip); }
+    public void removeWhitelist(String ip) {
+        whitelist.remove(ip);
+    }
     /**
      * 移除Blacklist
      */
-    public void removeBlacklist(String ip) { blacklist.remove(ip); }
+    public void removeBlacklist(String ip) {
+        blacklist.remove(ip);
+    }
 
     /**
      * 获取Order

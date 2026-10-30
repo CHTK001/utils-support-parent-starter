@@ -61,7 +61,9 @@ public class RetryConfig {
      *
      * @return 获取最大重试的结果
      */
-    public int getMaxRetries() { return maxRetries; }
+    public int getMaxRetries() {
+        return maxRetries;
+    }
     /**
      * 设置最大值Retries
      *
@@ -77,7 +79,9 @@ public class RetryConfig {
      *
      * @return 获取延迟的结果
      */
-    public long getDelay() { return delay; }
+    public long getDelay() {
+        return delay;
+    }
     /**
      * 设置延迟
      *
@@ -93,7 +97,9 @@ public class RetryConfig {
      *
      * @return 获取退避乘数的结果
      */
-    public double getMultiplier() { return multiplier; }
+    public double getMultiplier() {
+        return multiplier;
+    }
     /**
      * 设置Multiplier
      *
@@ -109,7 +115,9 @@ public class RetryConfig {
      *
      * @return 获取退避strategy的结果
      */
-    public BackoffStrategy getBackoffStrategy() { return backoffStrategy; }
+    public BackoffStrategy getBackoffStrategy() {
+        return backoffStrategy;
+    }
     /**
      * 设置退避strategy
      *
@@ -125,7 +133,9 @@ public class RetryConfig {
      *
      * @return 获取重试on异常的结果
      */
-    public Predicate<Throwable> getRetryOnException() { return retryOnException; }
+    public Predicate<Throwable> getRetryOnException() {
+        return retryOnException;
+    }
     /**
      * 设置重试on异常
      *
@@ -141,7 +151,9 @@ public class RetryConfig {
      *
      * @return 获取重试监听器的结果
      */
-    public RetryListenerCallback getRetryListener() { return retryListener; }
+    public RetryListenerCallback getRetryListener() {
+        return retryListener;
+    }
     /**
      * 设置重试监听器
      *

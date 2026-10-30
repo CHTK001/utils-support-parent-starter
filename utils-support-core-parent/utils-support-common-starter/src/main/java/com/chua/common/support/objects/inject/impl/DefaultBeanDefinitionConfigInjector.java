@@ -29,7 +29,9 @@ public class DefaultBeanDefinitionConfigInjector implements BeanDefinitionConfig
      */
     @Override
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
-        if (field == null) { return false; }
+        if (field == null) {
+            return false;
+        }
         return field.isAnnotationPresent(ConfigValue.class);
     }
 
@@ -38,9 +40,13 @@ public class DefaultBeanDefinitionConfigInjector implements BeanDefinitionConfig
      */
     @Override
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition, Environment environment) {
-        if (field == null || bean == null || environment == null) { return null; }
+        if (field == null || bean == null || environment == null) {
+            return null;
+        }
         ConfigValue configValue = field.getAnnotation(ConfigValue.class);
-        if (configValue == null) { return null; }
+        if (configValue == null) {
+            return null;
+        }
         return rawValue(configValue.value(), configValue.defaultValue());
     }
 

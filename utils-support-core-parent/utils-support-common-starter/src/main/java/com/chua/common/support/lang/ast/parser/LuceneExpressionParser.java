@@ -65,7 +65,9 @@ public class LuceneExpressionParser implements ExpressionParser {
     @Override
     public String generate(BTreeNode tree) {
         // 将 B-Tree 还原为 Lucene 查询语法
-        if (tree == null) { return ""; }
+        if (tree == null) {
+            return "";
+        }
         return switch (tree.getType()) {
             case LOGIC -> {
                 String left = generate(tree.getLeft());

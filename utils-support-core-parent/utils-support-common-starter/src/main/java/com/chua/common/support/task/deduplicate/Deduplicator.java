@@ -82,8 +82,12 @@ public interface Deduplicator {
      */
     static String buildKey(String clientId, String topic, String traceId, long offset) {
         StringBuilder sb = new StringBuilder();
-        if (clientId != null) { sb.append(clientId).append(':'); }
-        if (topic != null) { sb.append(topic).append(':'); }
+        if (clientId != null) {
+            sb.append(clientId).append(':');
+        }
+        if (topic != null) {
+            sb.append(topic).append(':');
+        }
         sb.append(traceId != null ? traceId : "").append(':').append(offset);
         return sb.toString();
     }

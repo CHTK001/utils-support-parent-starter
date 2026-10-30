@@ -11,10 +11,14 @@ public class SqliteDialect extends SqlDialect {
     /**
      * sqlitedialect。
      */
-    public SqliteDialect() { super("sqlite"); }
+    public SqliteDialect() {
+        super("sqlite");
+    }
     /**
      * sqlitedialect。
      * @param properties 属性
      */
-    public SqliteDialect(Properties properties) { super("sqlite", properties); }
+    public SqliteDialect(Properties properties) {
+        super("sqlite", properties);
+    }
 }

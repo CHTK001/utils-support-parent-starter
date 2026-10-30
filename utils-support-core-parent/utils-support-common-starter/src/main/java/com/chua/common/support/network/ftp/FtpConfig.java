@@ -268,70 +268,150 @@ public class FtpConfig {
 
     // ======================== Getters & Setters ========================
 
-    public int getControlPort() { return controlPort; }
-    public void setControlPort(int controlPort) { this.controlPort = controlPort; }
+    public int getControlPort() {
+        return controlPort;
+    }
+    public void setControlPort(int controlPort) {
+        this.controlPort = controlPort;
+    }
 
-    public String getHost() { return host; }
-    public void setHost(String host) { this.host = host; }
+    public String getHost() {
+        return host;
+    }
+    public void setHost(String host) {
+        this.host = host;
+    }
 
-    public File getHomeDirectory() { return homeDirectory; }
-    public void setHomeDirectory(File homeDirectory) { this.homeDirectory = homeDirectory; }
+    public File getHomeDirectory() {
+        return homeDirectory;
+    }
+    public void setHomeDirectory(File homeDirectory) {
+        this.homeDirectory = homeDirectory;
+    }
 
-    public boolean isAnonymousEnabled() { return anonymousEnabled; }
-    public void setAnonymousEnabled(boolean anonymousEnabled) { this.anonymousEnabled = anonymousEnabled; }
+    public boolean isAnonymousEnabled() {
+        return anonymousEnabled;
+    }
+    public void setAnonymousEnabled(boolean anonymousEnabled) {
+        this.anonymousEnabled = anonymousEnabled;
+    }
 
-    public boolean isAnonymousWriteEnabled() { return anonymousWriteEnabled; }
+    public boolean isAnonymousWriteEnabled() {
+        return anonymousWriteEnabled;
+    }
     public void setAnonymousWriteEnabled(boolean anonymousWriteEnabled) {
         this.anonymousWriteEnabled = anonymousWriteEnabled;
     }
 
-    public int getMaxConnections() { return maxConnections; }
-    public void setMaxConnections(int maxConnections) { this.maxConnections = maxConnections; }
+    public int getMaxConnections() {
+        return maxConnections;
+    }
+    public void setMaxConnections(int maxConnections) {
+        this.maxConnections = maxConnections;
+    }
 
-    public int getPassivePortMin() { return passivePortMin; }
-    public void setPassivePortMin(int passivePortMin) { this.passivePortMin = passivePortMin; }
+    public int getPassivePortMin() {
+        return passivePortMin;
+    }
+    public void setPassivePortMin(int passivePortMin) {
+        this.passivePortMin = passivePortMin;
+    }
 
-    public int getPassivePortMax() { return passivePortMax; }
-    public void setPassivePortMax(int passivePortMax) { this.passivePortMax = passivePortMax; }
+    public int getPassivePortMax() {
+        return passivePortMax;
+    }
+    public void setPassivePortMax(int passivePortMax) {
+        this.passivePortMax = passivePortMax;
+    }
 
-    public boolean isPassiveMode() { return passiveMode; }
-    public void setPassiveMode(boolean passiveMode) { this.passiveMode = passiveMode; }
+    public boolean isPassiveMode() {
+        return passiveMode;
+    }
+    public void setPassiveMode(boolean passiveMode) {
+        this.passiveMode = passiveMode;
+    }
 
-    public boolean isSslEnabled() { return sslEnabled; }
-    public void setSslEnabled(boolean sslEnabled) { this.sslEnabled = sslEnabled; }
+    public boolean isSslEnabled() {
+        return sslEnabled;
+    }
+    public void setSslEnabled(boolean sslEnabled) {
+        this.sslEnabled = sslEnabled;
+    }
 
-    public String getCertPath() { return certPath; }
-    public void setCertPath(String certPath) { this.certPath = certPath; }
+    public String getCertPath() {
+        return certPath;
+    }
+    public void setCertPath(String certPath) {
+        this.certPath = certPath;
+    }
 
-    public String getKeyPath() { return keyPath; }
-    public void setKeyPath(String keyPath) { this.keyPath = keyPath; }
+    public String getKeyPath() {
+        return keyPath;
+    }
+    public void setKeyPath(String keyPath) {
+        this.keyPath = keyPath;
+    }
 
-    public String getKeyPassword() { return keyPassword; }
-    public void setKeyPassword(String keyPassword) { this.keyPassword = keyPassword; }
+    public String getKeyPassword() {
+        return keyPassword;
+    }
+    public void setKeyPassword(String keyPassword) {
+        this.keyPassword = keyPassword;
+    }
 
-    public boolean isTrustAll() { return trustAll; }
-    public void setTrustAll(boolean trustAll) { this.trustAll = trustAll; }
+    public boolean isTrustAll() {
+        return trustAll;
+    }
+    public void setTrustAll(boolean trustAll) {
+        this.trustAll = trustAll;
+    }
 
-    public boolean isSelfSignedAuto() { return selfSignedAuto; }
-    public void setSelfSignedAuto(boolean selfSignedAuto) { this.selfSignedAuto = selfSignedAuto; }
+    public boolean isSelfSignedAuto() {
+        return selfSignedAuto;
+    }
+    public void setSelfSignedAuto(boolean selfSignedAuto) {
+        this.selfSignedAuto = selfSignedAuto;
+    }
 
-    public int getControlTimeout() { return controlTimeout; }
-    public void setControlTimeout(int controlTimeout) { this.controlTimeout = controlTimeout; }
+    public int getControlTimeout() {
+        return controlTimeout;
+    }
+    public void setControlTimeout(int controlTimeout) {
+        this.controlTimeout = controlTimeout;
+    }
 
-    public int getDataTimeout() { return dataTimeout; }
-    public void setDataTimeout(int dataTimeout) { this.dataTimeout = dataTimeout; }
+    public int getDataTimeout() {
+        return dataTimeout;
+    }
+    public void setDataTimeout(int dataTimeout) {
+        this.dataTimeout = dataTimeout;
+    }
 
-    public boolean isAllowAnonymousUpload() { return allowAnonymousUpload; }
+    public boolean isAllowAnonymousUpload() {
+        return allowAnonymousUpload;
+    }
     public void setAllowAnonymousUpload(boolean allowAnonymousUpload) {
         this.allowAnonymousUpload = allowAnonymousUpload;
     }
 
-    public String getAnonymousUploadDir() { return anonymousUploadDir; }
-    public void setAnonymousUploadDir(String anonymousUploadDir) { this.anonymousUploadDir = anonymousUploadDir; }
+    public String getAnonymousUploadDir() {
+        return anonymousUploadDir;
+    }
+    public void setAnonymousUploadDir(String anonymousUploadDir) {
+        this.anonymousUploadDir = anonymousUploadDir;
+    }
 
-    public boolean isAllowPassiveMode() { return allowPassiveMode; }
-    public void setAllowPassiveMode(boolean allowPassiveMode) { this.allowPassiveMode = allowPassiveMode; }
+    public boolean isAllowPassiveMode() {
+        return allowPassiveMode;
+    }
+    public void setAllowPassiveMode(boolean allowPassiveMode) {
+        this.allowPassiveMode = allowPassiveMode;
+    }
 
-    public boolean isAllowActiveMode() { return allowActiveMode; }
-    public void setAllowActiveMode(boolean allowActiveMode) { this.allowActiveMode = allowActiveMode; }
+    public boolean isAllowActiveMode() {
+        return allowActiveMode;
+    }
+    public void setAllowActiveMode(boolean allowActiveMode) {
+        this.allowActiveMode = allowActiveMode;
+    }
 }

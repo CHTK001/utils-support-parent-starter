@@ -245,6 +245,8 @@ public final class SqliteHookConnection implements AutoCloseable {
             end++;
         }
         try { return Long.parseLong(json.substring(ci + 1, end)); }
-        catch (NumberFormatException e) { return 0L; }
+        catch (NumberFormatException e) {
+            return 0L;
+        }
     }
 }

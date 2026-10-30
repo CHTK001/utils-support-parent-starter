@@ -171,7 +171,9 @@ public class TimestralTranslator implements TimeSeriesForecaster {
             boolean[] obsPatch = new boolean[NP];
             for (int p = 0; p < NP; p++) {
                 for (int i = p * 32; i < (p + 1) * 32; i++) {
-                    if (obs[i]) { obsPatch[p] = true; break; }
+                    if (obs[i]) {
+                        obsPatch[p] = true; break;
+                    }
                 }
             }
             boolean[] keyValid = new boolean[TOKENS];

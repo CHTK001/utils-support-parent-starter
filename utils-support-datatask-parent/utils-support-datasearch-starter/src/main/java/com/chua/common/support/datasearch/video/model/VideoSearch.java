@@ -65,116 +65,152 @@ public class VideoSearch {
      *
      * @return 获取keyword的结果
      */
-    public String getKeyword() { return keyword; }
+    public String getKeyword() {
+        return keyword;
+    }
     /**
      * 设置Keyword
      *
      * @param keyword keyword
      */
-    public void setKeyword(String keyword) { this.keyword = keyword; }
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
 
     /**
      * 获取Year
      *
      * @return 获取year的结果
      */
-    public Integer getYear() { return year; }
+    public Integer getYear() {
+        return year;
+    }
     /**
      * 设置Year
      *
      * @param year year
      */
-    public void setYear(Integer year) { this.year = year; }
+    public void setYear(Integer year) {
+        this.year = year;
+    }
 
     /**
      * 获取分类
      *
      * @return 获取分类的结果
      */
-    public String getCategory() { return category; }
+    public String getCategory() {
+        return category;
+    }
     /**
      * 设置分类
      *
      * @param category 分类
      */
-    public void setCategory(String category) { this.category = category; }
+    public void setCategory(String category) {
+        this.category = category;
+    }
 
     /**
      * 获取视频类型
      *
      * @return 获取视频类型的结果
      */
-    public String getVideoType() { return videoType; }
+    public String getVideoType() {
+        return videoType;
+    }
     /**
      * 设置视频类型
      *
      * @param videoType 视频类型
      */
-    public void setVideoType(String videoType) { this.videoType = videoType; }
+    public void setVideoType(String videoType) {
+        this.videoType = videoType;
+    }
 
     /**
      * 获取Platform
      *
      * @return 获取platform的结果
      */
-    public String getPlatform() { return platform; }
+    public String getPlatform() {
+        return platform;
+    }
     /**
      * 设置Platform
      *
      * @param platform platform
      */
-    public void setPlatform(String platform) { this.platform = platform; }
+    public void setPlatform(String platform) {
+        this.platform = platform;
+    }
 
     /**
      * 获取Page
      *
      * @return 获取page的结果
      */
-    public int getPage() { return page; }
+    public int getPage() {
+        return page;
+    }
     /**
      * 设置Page
      *
      * @param page page
      */
-    public void setPage(int page) { this.page = page; }
+    public void setPage(int page) {
+        this.page = page;
+    }
 
     /**
      * 获取Page获取大小
      *
      * @return 获取page大小的结果
      */
-    public int getPageSize() { return pageSize; }
+    public int getPageSize() {
+        return pageSize;
+    }
     /**
      * 设置Page获取大小
      *
      * @param pageSize page大小
      */
-    public void setPageSize(int pageSize) { this.pageSize = pageSize; }
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
 
     /**
      * 获取订单
      *
      * @return 获取订单的结果
      */
-    public String getOrder() { return order; }
+    public String getOrder() {
+        return order;
+    }
     /**
      * 设置订单
      *
      * @param order 订单
      */
-    public void setOrder(String order) { this.order = order; }
+    public void setOrder(String order) {
+        this.order = order;
+    }
 
     /**
      * 获取Prop
      *
      * @return 获取prop的结果
      */
-    public String[] getProp() { return prop; }
+    public String[] getProp() {
+        return prop;
+    }
     /**
      * 设置Prop
      *
      * @param prop prop
      */
-    public void setProp(String[] prop) { this.prop = prop; }
+    public void setProp(String[] prop) {
+        this.prop = prop;
+    }
 }
 

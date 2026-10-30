@@ -76,17 +76,23 @@ public final class SqliteChangeEvent {
         return new SqliteChangeEvent(Type.DELETE, table, rowId);
     }
 
-    public Type getType() { return type; }
+    public Type getType() {
+        return type;
+    }
     /**
      * 获取table。
      * @return 获取table的结果
      */
-    public String getTable() { return table; }
+    public String getTable() {
+        return table;
+    }
     /**
      * 获取rowid。
      * @return 获取rowid的结果
      */
-    public long getRowId() { return rowId; }
+    public long getRowId() {
+        return rowId;
+    }
 
     @Override
     public String toString() {

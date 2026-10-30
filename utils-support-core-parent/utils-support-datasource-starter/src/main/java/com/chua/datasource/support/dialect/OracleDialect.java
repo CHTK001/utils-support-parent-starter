@@ -14,10 +14,14 @@ public class OracleDialect extends SqlDialect {
     /**
      * oracledialect。
      */
-    public OracleDialect() { super("oracle"); }
+    public OracleDialect() {
+        super("oracle");
+    }
     /**
      * oracledialect。
      * @param properties 属性
      */
-    public OracleDialect(Properties properties) { super("oracle", properties); }
+    public OracleDialect(Properties properties) {
+        super("oracle", properties);
+    }
 }

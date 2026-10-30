@@ -26,7 +26,9 @@ public class DefaultBeanDefinitionServiceInjector implements BeanDefinitionServi
      */
     @Override
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
-        if (field == null) { return false; }
+        if (field == null) {
+            return false;
+        }
         return field.isAnnotationPresent(AutoInject.class);
     }
 
@@ -42,9 +44,13 @@ public class DefaultBeanDefinitionServiceInjector implements BeanDefinitionServi
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition,
                          Function<String, Object> beanProvider,
                          Function<Class<?>, Object> typeProvider) {
-        if (field == null || bean == null || beanProvider == null) { return null; }
+        if (field == null || bean == null || beanProvider == null) {
+            return null;
+        }
         AutoInject autoInject = field.getAnnotation(AutoInject.class);
-        if (autoInject == null) { return null; }
+        if (autoInject == null) {
+            return null;
+        }
         try {
             Class<?> fieldType = field.getType();
             String beanName = autoInject.value();
@@ -55,7 +61,9 @@ public class DefaultBeanDefinitionServiceInjector implements BeanDefinitionServi
             } else {
                 value = typeProvider != null ? typeProvider.apply(fieldType) : null;
             }
-            if (value != null) { return value; }
+            if (value != null) {
+                return value;
+            }
             if (required) {
                 throw new IllegalStateException(
                         String.format("无法注入 Bean 字段 %s.%s (类型: %s)", bean.getClass().getName(), field.getName(),
@@ -66,7 +74,9 @@ public class DefaultBeanDefinitionServiceInjector implements BeanDefinitionServi
             throw e;
         } catch (Exception e) {
             log.error("注入字段失败: {}", field.getName(), e);
-            if (autoInject.required()) { throw new IllegalStateException("Bean 注入失败: " + field.getName(), e); }
+            if (autoInject.required()) {
+                throw new IllegalStateException("Bean 注入失败: " + field.getName(), e);
+            }
             return null;
         }
     }

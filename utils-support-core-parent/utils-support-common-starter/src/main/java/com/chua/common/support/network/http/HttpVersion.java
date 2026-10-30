@@ -100,19 +100,25 @@ public enum HttpVersion {
      *
      * @return 主版本号，如 HTTP/1.1 返回 1，HTTP/2 返回 2，HTTP/3 返回 3
      */
-    public int getMajor() { return major; }
+    public int getMajor() {
+        return major;
+    }
 
     /**
      * 获取次版本号。
      *
      * @return 次版本号，如 HTTP/1.1 返回 1，HTTP/2 返回 0
      */
-    public int getMinor() { return minor; }
+    public int getMinor() {
+        return minor;
+    }
 
     /**
      * 判断此版本是否为 HTTP/3（基于 QUIC 传输）。
      *
      * @return HTTP/3 返回 true
      */
-    public boolean isQuic() { return this == HTTP_3; }
+    public boolean isQuic() {
+        return this == HTTP_3;
+    }
 }

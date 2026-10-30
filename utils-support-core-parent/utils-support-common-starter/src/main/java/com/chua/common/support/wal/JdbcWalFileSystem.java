@@ -26,7 +26,9 @@ public class JdbcWalFileSystem extends AbstractWalFileSystem {
     }
 
     @Override
-    protected byte opType() { return 0x04; }
+    protected byte opType() {
+        return 0x04;
+    }
 
     @Override
     protected String decodeKey(byte[] payload) {

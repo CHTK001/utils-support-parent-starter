@@ -277,7 +277,9 @@ public class AgentScopeAgent implements Agent {
     public Agent skill(String name, String description, com.chua.common.support.ai.skill.SkillHandler handler) {
         if (name != null && handler != null) {
             this.skills.put(name, handler);
-            if (description != null) { this.skillDescriptions.put(name, description); }
+            if (description != null) {
+                this.skillDescriptions.put(name, description);
+            }
         }
         return this;
     }
@@ -1722,10 +1724,14 @@ public class AgentScopeAgent implements Agent {
         }
 
         @Override
-        public String getName() { return name; }
+        public String getName() {
+            return name;
+        }
 
         @Override
-        public String getDescription() { return description; }
+        public String getDescription() {
+            return description;
+        }
 
         @Override
         public java.util.Map<String, Object> getParameters() {

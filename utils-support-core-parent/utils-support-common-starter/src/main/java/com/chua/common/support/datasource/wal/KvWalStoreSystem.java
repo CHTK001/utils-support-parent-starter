@@ -171,12 +171,16 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
 
     @Override
     public void compact() throws IOException {
-        for (SegmentWalLog log : walLogs) { log.purgeCheckpointed(1); }
+        for (SegmentWalLog log : walLogs) {
+            log.purgeCheckpointed(1);
+        }
         rebuildIndex();
     }
 
     @Override
-    public int size() { return (int) totalRecords.get(); }
+    public int size() {
+        return (int) totalRecords.get();
+    }
 
     @Override
     public List<WalSegmentInfo> listSegments() throws IOException {
@@ -385,7 +389,9 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     /**
      * 供测试访问内部 walLogs，生产环境不应暴露
      */
-    SegmentWalLog[] getWalLogs() { return walLogs; }
+    SegmentWalLog[] getWalLogs() {
+        return walLogs;
+    }
 
     /**
      * 创建。

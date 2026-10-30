@@ -11,10 +11,14 @@ public class MariaDbDialect extends SqlDialect {
     /**
      * mariadbdialect。
      */
-    public MariaDbDialect() { super("mariadb"); }
+    public MariaDbDialect() {
+        super("mariadb");
+    }
     /**
      * mariadbdialect。
      * @param properties 属性
      */
-    public MariaDbDialect(Properties properties) { super("mariadb", properties); }
+    public MariaDbDialect(Properties properties) {
+        super("mariadb", properties);
+    }
 }

@@ -46,10 +46,14 @@ public class Response {
         this.url = d.url;
     }
 
-    public int status() { return status; }
+    public int status() {
+        return status;
+    }
     /**
      * url。
      * @return url的结果
      */
-    public String url() { return url; }
+    public String url() {
+        return url;
+    }
 }

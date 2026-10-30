@@ -73,12 +73,24 @@ class BPlusTreeNode<K, V> {
         return keys instanceof ArrayList ? ((ArrayList<?>) keys).size() : keys.size();
     }
 
-    List<K> getKeys() { return keys; }
-    List<V> getValues() { return values; }
+    List<K> getKeys() {
+        return keys;
+    }
+    List<V> getValues() {
+        return values;
+    }
     List<BPlusTreeNode<K, V>> getChildren() { return children; }
     BPlusTreeNode<K, V> getNext() { return next; }
-    void setNext(BPlusTreeNode<K, V> next) { this.next = next; }
-    void setKeys(List<K> keys) { this.keys = keys; }
-    void setValues(List<V> values) { this.values = values; }
-    void setChildren(List<BPlusTreeNode<K, V>> children) { this.children = children; }
+    void setNext(BPlusTreeNode<K, V> next) {
+        this.next = next;
+    }
+    void setKeys(List<K> keys) {
+        this.keys = keys;
+    }
+    void setValues(List<V> values) {
+        this.values = values;
+    }
+    void setChildren(List<BPlusTreeNode<K, V>> children) {
+        this.children = children;
+    }
 }

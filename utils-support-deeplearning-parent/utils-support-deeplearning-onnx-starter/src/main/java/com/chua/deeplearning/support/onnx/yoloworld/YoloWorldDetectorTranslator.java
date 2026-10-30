@@ -77,7 +77,9 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
      * @return 解析类的结果
      */
 
-    public YoloWorldDetectorTranslator() { this(null); }
+    public YoloWorldDetectorTranslator() {
+        this(null);
+    }
 
     /**
      * 构造方法，创建 YoloWorldDetectorTranslator 实例。

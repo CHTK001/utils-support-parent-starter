@@ -228,7 +228,9 @@ public class VectorPerfBench {
         }
     }
 
-    private static void printf(String fmt, Object... args) { System.out.printf(fmt, args); }
+    private static void printf(String fmt, Object... args) {
+        System.out.printf(fmt, args);
+    }
 
     @FunctionalInterface
     private interface StorageFactory { VectorStorage create() throws Exception; }

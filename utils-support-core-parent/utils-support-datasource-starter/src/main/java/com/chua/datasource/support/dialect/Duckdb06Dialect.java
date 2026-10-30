@@ -11,10 +11,14 @@ public class Duckdb06Dialect extends SqlDialect {
     /**
      * Duckdb06Dialect。
      */
-    public Duckdb06Dialect() { super("duckdb06"); }
+    public Duckdb06Dialect() {
+        super("duckdb06");
+    }
     /**
      * Duckdb06Dialect。
      * @param properties 属性
      */
-    public Duckdb06Dialect(Properties properties) { super("duckdb06", properties); }
+    public Duckdb06Dialect(Properties properties) {
+        super("duckdb06", properties);
+    }
 }

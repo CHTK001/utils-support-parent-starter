@@ -30,7 +30,9 @@ public class Page {
      * 处理。
      * @return 处理的结果
      */
-    public long handle() { return handle; }
+    public long handle() {
+        return handle;
+    }
 
     // ==================== 导航 ====================
 
@@ -39,7 +41,9 @@ public class Page {
      * @param url url
      * @return gotoPage的结果
      */
-    public Response gotoPage(String url) { return gotoPage(url, null); }
+    public Response gotoPage(String url) {
+        return gotoPage(url, null);
+    }
 
     /**
      * gotopage。
@@ -55,7 +59,9 @@ public class Page {
     /**
      * reload。
      */
-    public void reload() { engine.reload(handle); }
+    public void reload() {
+        engine.reload(handle);
+    }
 
     /**
      * goback。
@@ -81,13 +87,17 @@ public class Page {
      * title。
      * @return title的结果
      */
-    public String title() { return engine.title(handle); }
+    public String title() {
+        return engine.title(handle);
+    }
 
     /**
      * url。
      * @return url的结果
      */
-    public String url() { return engine.url(handle); }
+    public String url() {
+        return engine.url(handle);
+    }
 
     // ==================== 视口 ====================
 
@@ -96,7 +106,9 @@ public class Page {
      * @param w w
      * @param h h
      */
-    public void setViewportSize(int w, int h) { engine.setViewportSize(handle, w, h); }
+    public void setViewportSize(int w, int h) {
+        engine.setViewportSize(handle, w, h);
+    }
 
     // ==================== 交互 ====================
 
@@ -104,51 +116,69 @@ public class Page {
      * click。
      * @param selector selector
      */
-    public void click(String selector) { engine.click(handle, selector, null); }
+    public void click(String selector) {
+        engine.click(handle, selector, null);
+    }
     /**
      * click。
      * @param selector selector
      * @param options 期权
      */
-    public void click(String selector, Map<String, Object> options) { engine.click(handle, selector, options); }
+    public void click(String selector, Map<String, Object> options) {
+        engine.click(handle, selector, options);
+    }
     /**
      * dblclick。
      * @param selector selector
      */
-    public void dblclick(String selector) { engine.dblclick(handle, selector); }
+    public void dblclick(String selector) {
+        engine.dblclick(handle, selector);
+    }
     /**
      * fill。
      * @param selector selector
      * @param value 值
      */
-    public void fill(String selector, String value) { engine.fill(handle, selector, value); }
+    public void fill(String selector, String value) {
+        engine.fill(handle, selector, value);
+    }
     /**
      * 类型。
      * @param selector selector
      * @param text 文本
      */
-    public void type(String selector, String text) { engine.type(handle, selector, text); }
+    public void type(String selector, String text) {
+        engine.type(handle, selector, text);
+    }
     /**
      * press。
      * @param selector selector
      * @param key 键
      */
-    public void press(String selector, String key) { engine.press(handle, selector, key); }
+    public void press(String selector, String key) {
+        engine.press(handle, selector, key);
+    }
     /**
      * 检查。
      * @param selector selector
      */
-    public void check(String selector) { engine.check(handle, selector, true); }
+    public void check(String selector) {
+        engine.check(handle, selector, true);
+    }
     /**
      * uncheck。
      * @param selector selector
      */
-    public void uncheck(String selector) { engine.check(handle, selector, false); }
+    public void uncheck(String selector) {
+        engine.check(handle, selector, false);
+    }
     /**
      * hover。
      * @param selector selector
      */
-    public void hover(String selector) { engine.hover(handle, selector); }
+    public void hover(String selector) {
+        engine.hover(handle, selector);
+    }
 
     // ==================== 内容 ====================
 
@@ -157,32 +187,42 @@ public class Page {
      * @param selector selector
      * @return 文本内容的结果
      */
-    public String textContent(String selector) { return engine.textContent(handle, selector); }
+    public String textContent(String selector) {
+        return engine.textContent(handle, selector);
+    }
     /**
      * 内部文本。
      * @param selector selector
      * @return 内部文本的结果
      */
-    public String innerText(String selector) { return engine.innerText(handle, selector); }
+    public String innerText(String selector) {
+        return engine.innerText(handle, selector);
+    }
     /**
      * 内部html。
      * @param selector selector
      * @return 内部html的结果
      */
-    public String innerHTML(String selector) { return engine.innerHTML(handle, selector); }
+    public String innerHTML(String selector) {
+        return engine.innerHTML(handle, selector);
+    }
     /**
      * 获取attribute。
      * @param selector selector
      * @param name 名称
      * @return 获取attribute的结果
      */
-    public String getAttribute(String selector, String name) { return engine.getAttribute(handle, selector, name); }
+    public String getAttribute(String selector, String name) {
+        return engine.getAttribute(handle, selector, name);
+    }
     /**
      * 输入值。
      * @param selector selector
      * @return 输入值的结果
      */
-    public String inputValue(String selector) { return engine.inputValue(handle, selector); }
+    public String inputValue(String selector) {
+        return engine.inputValue(handle, selector);
+    }
 
     // ==================== 截图 ====================
 
@@ -190,13 +230,17 @@ public class Page {
      * screenshot。
      * @return screenshot的结果
      */
-    public byte[] screenshot() { return engine.screenshot(handle, null); }
+    public byte[] screenshot() {
+        return engine.screenshot(handle, null);
+    }
     /**
      * screenshot。
      * @param options 期权
      * @return screenshot的结果
      */
-    public byte[] screenshot(Map<String, Object> options) { return engine.screenshot(handle, options); }
+    public byte[] screenshot(Map<String, Object> options) {
+        return engine.screenshot(handle, options);
+    }
 
     // ==================== 脚本 ====================
 
@@ -205,14 +249,18 @@ public class Page {
      * @param expression expression
      * @return 评估的结果
      */
-    public Object evaluate(String expression) { return engine.evaluate(handle, expression, null); }
+    public Object evaluate(String expression) {
+        return engine.evaluate(handle, expression, null);
+    }
     /**
      * 评估。
      * @param expression expression
      * @param arg 参数
      * @return 评估的结果
      */
-    public Object evaluate(String expression, Object arg) { return engine.evaluate(handle, expression, arg); }
+    public Object evaluate(String expression, Object arg) {
+        return engine.evaluate(handle, expression, arg);
+    }
 
     // ==================== 元素查询 ====================
 
@@ -247,7 +295,9 @@ public class Page {
      * waitforselector。
      * @param selector selector
      */
-    public void waitForSelector(String selector) { engine.waitForSelector(handle, selector, null); }
+    public void waitForSelector(String selector) {
+        engine.waitForSelector(handle, selector, null);
+    }
     /**
      * waitforselector。
      * @param selector selector
@@ -272,5 +322,7 @@ public class Page {
     /**
      * 关闭。
      */
-    public void close() { engine.close(handle); }
+    public void close() {
+        engine.close(handle);
+    }
 }

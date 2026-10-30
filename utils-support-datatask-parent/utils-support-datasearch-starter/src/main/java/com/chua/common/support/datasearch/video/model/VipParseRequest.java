@@ -48,47 +48,63 @@ public class VipParseRequest {
      *
      * @return URL
      */
-    public String getUrl() { return url; }
+    public String getUrl() {
+        return url;
+    }
     /**
      * 设置视频 URL。
      *
      * @param url URL
      */
-    public void setUrl(String url) { this.url = url; }
+    public void setUrl(String url) {
+        this.url = url;
+    }
     /**
      * 获取来源编码。
      *
      * @return 编码
      */
-    public String getSource() { return source; }
+    public String getSource() {
+        return source;
+    }
     /**
      * 设置来源编码。
      *
      * @param source 编码
      */
-    public void setSource(String source) { this.source = source; }
+    public void setSource(String source) {
+        this.source = source;
+    }
     /**
      * 获取是否强制解析。
      *
      * @return 是否强制
      */
-    public boolean isForceRefresh() { return forceRefresh; }
+    public boolean isForceRefresh() {
+        return forceRefresh;
+    }
     /**
      * 设置是否强制解析。
      *
      * @param forceRefresh 是否强制
      */
-    public void setForceRefresh(boolean forceRefresh) { this.forceRefresh = forceRefresh; }
+    public void setForceRefresh(boolean forceRefresh) {
+        this.forceRefresh = forceRefresh;
+    }
     /**
      * 获取超时毫秒。
      *
      * @return 超时
      */
-    public int getTimeoutMs() { return timeoutMs; }
+    public int getTimeoutMs() {
+        return timeoutMs;
+    }
     /**
      * 设置超时毫秒。
      *
      * @param timeoutMs 超时
      */
-    public void setTimeoutMs(int timeoutMs) { this.timeoutMs = timeoutMs; }
+    public void setTimeoutMs(int timeoutMs) {
+        this.timeoutMs = timeoutMs;
+    }
 }
