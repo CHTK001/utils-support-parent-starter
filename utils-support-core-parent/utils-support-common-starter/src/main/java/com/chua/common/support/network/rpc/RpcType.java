@@ -43,6 +43,20 @@ public enum RpcType {
     JSON,
 
     /**
+     * 基于 Spring Application Context 的 Bean RPC 协议类型。
+     *
+     * <p>无需网络传输：消费端与提供端直接使用同一进程内的 Spring Bean，
+     * 通过 Spring Bean 的生命周期管理实现无缝切换。
+     * 当 {@link RpcType#DUBBO}、SOFA、JSON 等远端 RPC 不可用时，
+     * 此协议天然可作为最终降级目标。</p>
+     *
+     * <h2>与 HttpInvoker 的关系</h2>
+     * <p>Spring 6 起已移除 {@code HttpInvokerServiceExporter} / {@code HttpInvokerProxyFactoryBean}，
+     * 本实现承担同等的「Bean 即 RPC」职责，但省去了序列化与网络传输层。</p>
+     */
+    SPRINGBEAN,
+
+    /**
      * 未指定的空值占位
      *
      * <p>用于表示未设置或待填充的协议类型，系统内部使用。</p>
