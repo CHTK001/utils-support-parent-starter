@@ -318,3 +318,17 @@ pwsh -NoProfile -File tools/p3c-check/Check-P3c.ps1        # 违规时退出码 
 **豁免机制**：`$longLineAllow` 登记 2 处语法不可拆的超长行（超长 `import`、lambda 内单条 `append` 链），新增豁免需注明原因。
 
 **自检验证**：注入 4 类违规样例后门禁报出 4 处 FAIL，移除后恢复全 PASS；当前仓库运行结果为**全部通过**。
+
+**双实现**：
+
+| 实现 | 依赖 | 场景 |
+| --- | --- | --- |
+| `tools/p3c-check/P3cCheck.java` | 仅 JDK 11+（单文件直接运行） | 跨平台 / CI |
+| `tools/p3c-check/Check-P3c.ps1` | PowerShell 7+ | Windows 本地开发 |
+
+```powershell
+java tools/p3c-check/P3cCheck.java --quiet     # Java 版
+pwsh -NoProfile -File tools/p3c-check/Check-P3c.ps1 -Quiet
+```
+
+Java 版在 4772 个源文件上运行结果为 **11/11 PASS**；注入 5 类违规样例后准确报出 5 处 FAIL，移除后恢复全通过。
