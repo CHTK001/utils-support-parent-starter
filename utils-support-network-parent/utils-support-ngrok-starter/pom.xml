@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-network-parent</artifactId>
-        <version>4.0.0.43</version>
+        <version>4.0.0.50</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>com.chua</groupId>
     <artifactId>utils-support-ngrok-starter</artifactId>
-    <version>4.0.0.43</version>
+    <version>4.0.0.50</version>
     <packaging>jar</packaging>
     <name>Utils Support Ngrok Starter</name>
     <description>Ngrok 内嵌客户端，基于 ngrok-java Agent SDK，提供链式 API 启动 HTTP/TCP/TLS 隧道。</description>

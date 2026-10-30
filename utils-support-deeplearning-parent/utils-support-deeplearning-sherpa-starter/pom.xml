@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-deeplearning-parent</artifactId>
-        <version>4.0.0.43</version>
+        <version>4.0.0.50</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>utils-support-deeplearning-sherpa-starter</artifactId>
@@ -83,7 +83,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-macbert4csc</artifactId>
-            <version>${project.version}</version>
+            <version>4.0.0.43</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

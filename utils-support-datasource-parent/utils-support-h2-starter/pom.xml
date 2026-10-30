@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-datasource-parent</artifactId>
-        <version>4.0.0.43</version>
+        <version>4.0.0.50</version>
     </parent>
     <artifactId>utils-support-h2-starter</artifactId>
     <name>Utils Support H2 Starter</name>

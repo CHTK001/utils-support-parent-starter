@@ -4,7 +4,7 @@
     <groupId>com.chua</groupId>
     <artifactId>utils-support-parent-starter</artifactId>
     <packaging>pom</packaging>
-    <version>4.0.0.43</version>
+    <version>4.0.0.50</version>
       <modules>
           <module>utils-support-core-parent</module>
           <module>utils-support-filesystem-parent</module>
@@ -23,7 +23,9 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <java.version>25</java.version>
-        <utils.version>4.0.0.43</utils.version>
+        <utils.version>4.0.0.50</utils.version>
+        <!-- 反向依赖的 spring 制品版本：utils 版本始终比 spring 低一个补丁位，跨仓引用必须显式指定 spring 版本 -->
+        <spring.support.version>4.0.0.51</spring.support.version>
         <djl.version>0.36.0</djl.version>
 
         <skipTests>true</skipTests>

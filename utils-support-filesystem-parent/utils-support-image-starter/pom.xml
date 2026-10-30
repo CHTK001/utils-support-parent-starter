@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-filesystem-parent</artifactId>
-        <version>4.0.0.43</version>
+        <version>4.0.0.50</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>utils-support-image-starter</artifactId>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-native-libjpeg-turbo</artifactId>
-            <version>${project.version}</version>
+            <version>4.0.0.43</version>
         </dependency>
         <!-- 图片压缩的 native 钩子：libdeflate（deflate 内核）+ libimagequant（调色板量化内核）。
              动态库缺失时 CompressionEngines 自动回退到纯 Java 实现，功能不受影响。
@@ -54,7 +54,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-native-imageopt</artifactId>
-            <version>${project.version}</version>
+            <version>4.0.0.43</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

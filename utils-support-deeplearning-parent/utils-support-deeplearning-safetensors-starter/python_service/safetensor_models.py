@@ -2,7 +2,7 @@
 SafeTensor 模型运行器 — 多模型备份 + ModelScope 自动下载
 各类型提供 2+ 个备用模型，按优先级选择，失败自动回退。
 """
-import logging, os, io, base64, tempfile
+import logging, os, io, base64, tempfile, json
 import numpy as np
 from typing import Optional
 
