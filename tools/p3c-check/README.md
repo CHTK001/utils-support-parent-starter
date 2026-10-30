@@ -1,14 +1,23 @@
 # P3C 质量门禁
 
-Alibaba Java Coding Guidelines（黄山版）中**可机械校验**部分的自动化检查脚本，用于防止整改成果回退。
+Alibaba Java Coding Guidelines（黄山版）中**可机械校验**部分的自动化检查，用于防止整改成果回退。
+
+两种实现，检查项与判定口径完全一致：
+
+| 实现 | 依赖 | 适用场景 |
+| --- | --- | --- |
+| `P3cCheck.java` | 仅 JDK 11+（单文件直接运行） | 跨平台 / CI（Linux、macOS、Windows 均可） |
+| `Check-P3c.ps1` | PowerShell 7+ | Windows 本地开发 |
 
 ## 用法
 
 ```powershell
-# 全仓检查（违规时退出码 1，可直接用于 CI）
-pwsh -NoProfile -File tools/p3c-check/Check-P3c.ps1
+# 方式一：Java 版（推荐，无需额外运行时）
+java tools/p3c-check/P3cCheck.java            # 全仓检查，违规时退出码 1
+java tools/p3c-check/P3cCheck.java --quiet    # 只看汇总
 
-# 只看汇总
+# 方式二：PowerShell 版
+pwsh -NoProfile -File tools/p3c-check/Check-P3c.ps1
 pwsh -NoProfile -File tools/p3c-check/Check-P3c.ps1 -Quiet
 ```
 
