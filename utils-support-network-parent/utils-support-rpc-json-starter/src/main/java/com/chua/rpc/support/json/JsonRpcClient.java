@@ -165,9 +165,8 @@ public class JsonRpcClient implements RpcClient {
                 try {
                     return doInvoke(proxyMethod);
                 } catch (Throwable e) {
-                    Throwable cause = unwrap(e);
                     // 业务异常：直接抛出，不重试（避免放大非幂等接口副作用）
-                    if (cause instanceof com.googlecode.jsonrpc4j.JsonRpcClientException) {
+                    if (isBusinessFailure(e)) {
                         throw com.chua.common.support.network.rpc.RpcException.business(
                                 "JSON-RPC business failure: " + proxyMethod.getMethod().getName(), e);
                     }
@@ -189,17 +188,31 @@ public class JsonRpcClient implements RpcClient {
         }
 
         /**
-         * 解包异常链，找到最底层原因（jsonrpc4j 会把业务异常包装为 jsonrpc客户端异常）。
+         * 判断是否为服务端业务异常。
+         * <p>
+         * jsonrpc4j 把服务端抛出的异常还原成同一个异常类型抛给调用方（异常链中不含 IO 异常），
+         * 而连接失败、超时、HTTP 非 2xx、响应解析失败都以 {@link java.io.IOException} 形态出现。
+         * 因此「异常链中不存在 IO 异常」即为业务异常；旧实现只识别
+         * {@link com.googlecode.jsonrpc4j.JsonRpcClientException}，会漏判被还原的业务异常，
+         * 导致业务失败被当作传输失败重试，并触发不必要的本地降级。
+         * </p>
          *
-         * @param throwable 原始异常
-         * @return 最底层异常
+         * @param error 调用异常
+         * @return true 表示服务端业务异常，不应重试、不应降级
          */
-        private Throwable unwrap(Throwable throwable) {
-            Throwable cur = throwable;
-            while (cur.getCause() != null && cur.getCause() != cur) {
-                cur = cur.getCause();
+        private boolean isBusinessFailure(Throwable error) {
+            Throwable cur = error;
+            while (cur != null) {
+                if (cur instanceof java.io.IOException) {
+                    return false;
+                }
+                Throwable next = cur.getCause();
+                if (next == cur) {
+                    break;
+                }
+                cur = next;
             }
-            return cur;
+            return !(error instanceof com.chua.common.support.network.rpc.RpcException);
         }
 
         /**
