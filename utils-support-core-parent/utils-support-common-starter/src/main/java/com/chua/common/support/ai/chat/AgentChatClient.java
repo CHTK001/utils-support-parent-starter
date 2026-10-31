@@ -5,6 +5,7 @@ import com.chua.common.support.ai.agent.Agent;
 import com.chua.common.support.ai.agent.AgentDefinition;
 import com.chua.common.support.ai.agent.AgentMode;
 import com.chua.common.support.ai.agent.AgentResponse;
+import com.chua.common.support.spi.annotations.SpiIgnore;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.function.Consumer;
  * @author CH
  * @since 4.0.0.41
  */
+@SpiIgnore
 public class AgentChatClient implements ChatClient {
 
     /**
