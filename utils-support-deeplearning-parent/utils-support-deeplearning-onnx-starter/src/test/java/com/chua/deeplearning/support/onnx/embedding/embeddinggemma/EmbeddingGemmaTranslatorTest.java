@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
- * embeddinggemma-2 文本只（text-only）文本嵌入 Translator（String â float[768]）验收。
+ * embeddinggemma-2 文本只（text-only）文本嵌入 Translator（String → float[768]）验收。
  *
  * <p>覆盖：注册表条目与能力标签 / {@code name()} / {@code translate()}（768 维、L2 归一化、
  * null/空白、重复一致）/ {@code setModelPath}（文件路径与目录路径）/ {@code close()}，
@@ -138,7 +138,7 @@ u.contains("huggingface.co/onnx-community/embeddinggemma-2-ONNX")));
         List<ModelDefinition> models = DeeplearningModels.models("onnx", String.class, float[].class);
         assertNotNull(models);
         assertTrue(models.stream().anyMatch(d -> MODEL_ID.equals(d.getId())),
-                "onnx 引擎下应出现 embeddinggemma-2-embedding（String â float[]）: "
+                "onnx 引擎下应出现 embeddinggemma-2-embedding（String → float[]）: "
                         + models.size() + " 个模型");
         ModelDefinition found = models.stream().filter(d -> MODEL_ID.equals(d.getId())).findFirst().orElse(null);
         assertNotNull(found);
@@ -161,7 +161,7 @@ u.contains("huggingface.co/onnx-community/embeddinggemma-2-ONNX")));
     @Test
     void translateChinese() throws Exception {
         requireOfflineModel();
-        float[] vec = translator.translate("ä½ å¥½ä¸ç");
+        float[] vec = translator.translate("你好世界");
         assertNotNull(vec);
         assertEquals(DIM, vec.length);
         assertL2Norm(vec);
@@ -174,7 +174,7 @@ u.contains("huggingface.co/onnx-community/embeddinggemma-2-ONNX")));
         float[] b = translator.translate("Hello world, this is a test.");
         assertEquals(a.length, b.length);
         for (int i = 0; i < a.length; i++) {
-            assertEquals(a[i], b[i], "ç¬¬ " + i + " ç»´ä¸ä¸è´");
+            assertEquals(a[i], b[i], "第 " + i + " 维不一致");
         }
     }
 
@@ -190,7 +190,7 @@ u.contains("huggingface.co/onnx-community/embeddinggemma-2-ONNX")));
         assertNotNull(vec);
         assertEquals(DIM, vec.length);
         for (float v : vec) {
-            assertTrue(Float.isFinite(v), "è¾åºä¸è½å« NaN/Infinity");
+            assertTrue(Float.isFinite(v), "输出不能含 NaN/Infinity");
         }
         assertL2Norm(vec);
     }
@@ -227,7 +227,7 @@ u.contains("huggingface.co/onnx-community/embeddinggemma-2-ONNX")));
         assertL2Dim(vec);
     }
 
-    // ----------------------------------------------------------------- ç§ææ ¡é¨
+    // ----------------------------------------------------------------- private methods
 
     private static void assertL2Dim(float[] vec) {
         assertEquals(DIM, vec.length);
