@@ -68,7 +68,7 @@ byte[] enhanced = pipeline.enhance(imageBytes);            // 文字高清化
 |------|---------|
 | 图像分类 | `efficientnet-b1-classification`、`fer-plus` |
 | 视觉特征 | `mobileclip-s0-vision`、`dino-v2-small-embedding` |
-| 文本嵌入 | `minilm-embedding`、`bge-small-zh-embedding` |
+| 文本嵌入 | `minilm-embedding`、`bge-small-zh-embedding`、`embeddinggemma-2-embedding` |
 | 抠图 | `modnet`（MattingService） |
 | 姿态估计 | `yolov8n-pose` |
 | 车牌检测 | `yolov5-plate-detect` |
@@ -76,6 +76,21 @@ byte[] enhanced = pipeline.enhance(imageBytes);            // 文字高清化
 | 语音合成 | `mms-tts-eng` |
 | 图像描述 | `vit-gpt2-captioning` |
 | 人脸修复 | `codeformer` |
+
+### 文本嵌入
+
+ONNX 引擎注册 `embeddinggemma-2-embedding`（onnx-community/embeddinggemma-2-ONNX，文本只 270M，q4 量化，768 维 L2 归一化句向量）：
+
+```java
+float[] vec = EmbeddingClient.create("onnx", "")
+        .model("embeddinggemma-2-embedding")
+        .embedding("Hello world");  // 768 维，L2 模长 ≈ 1
+```
+
+- 文本分支接收 `input_ids` + `attention_mask`（长度必须精确一致）及 3 个 rank-2 float32 `[0, 512]` zero 占位张量（`image_features`/`video_features`/`audio_features`）
+- 输出 `sentence_embedding`（float32 `[1,768]`，L2 归一化，不重新归一化）
+- 首次运行自动下载 `model_q4.onnx`（~490KB）+ `model_q4.onnx_data`（~174MB）+ `tokenizer.json`（~32MB），主源 hf-mirror，备用 huggingface.co
+- 词表 262144（BPE，`<bos>`/`<eos>` 控制符），`<bos>` + A + `<eos>` 模板处理
 
 ### 关键工具类
 
