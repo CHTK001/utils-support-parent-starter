@@ -1507,6 +1507,29 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("vit-h-14-text", "com.chua.deeplearning.support.onnx.vision.clip.VitH14TextTranslator",
                 String.class, float[].class, Object.class,
                 "vision/clip/vit-h-14/text_encoder.onnx");
+        // ==================== 文本嵌入 EmbeddingGemma-2（text-only） ====================
+        // embeddinggemma-2-embedding：onnx-community/embeddinggemma-2-ONNX 文本只嵌入模型
+        // （270M，q4 量化），输出 768 维 L2 归一化句向量（float32，[1, 768]）。
+        // 文本分支需输入 input_ids + attention_mask（二者长度必须精确一致，否则触发
+        // attention bias 的 BroadcastIterator InvalidArgument）及 3 个 rank-2 [0, 512]
+        // zero 占位张量（image_features/video_features/audio_features，零长度 buffer）；
+        // 模型约 270MB（model_q4.onnx 490KB + model_q4.onnx_data 174MB + tokenizer.json 32MB），
+        // 词表 262144（BPE，<bos>/<eos> 控制符）。downloadUrl 自动下载
+        // （hf-mirror 主、huggingface 备用），并补齐附属文件 onnx_data + tokenizer.json。
+        String embeddinggemmaUrl =
+                "https://hf-mirror.com/onnx-community/embeddinggemma-2-ONNX/resolve/main/onnx/model_q4.onnx";
+        reg("embeddinggemma-2-embedding",
+                "com.chua.deeplearning.support.onnx.embedding.embeddinggemma.EmbeddingGemmaTranslator",
+                String.class, float[].class, FeatureExtractor.class,
+                "nlp/embedding/embeddinggemma-2/model_q4.onnx",
+                embeddinggemmaUrl, List.of(embeddinggemmaUrl,
+                        "https://huggingface.co/onnx-community/embeddinggemma-2-ONNX/resolve/main/onnx/" +
+                                "model_q4.onnx"),
+                List.of("model_q4.onnx_data", "tokenizer.json"),
+                false, "model_q4.onnx",
+                HardwareConfig.builder().device("cpu").recommended(true)
+                        .minVramMb(2048)
+                        .description("embeddinggemma-2 文本只嵌入（768 维，q4 量化，约 270MB）").build());
         // ==================== WeMM-Embedding 多模态文本嵌入 ====================
         // 中文分词/词性标注/NER(LAC-ONNX)：百度 LAC BiGRU+CRF 的 ONNX 版（kniost/LAC-ONNX），
         // Embedding+BiGRU+FC encoder + numpy Viterbi，输出 [token,label]；词典随新模型（word/tag/q2b.dic）。
