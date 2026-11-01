@@ -18,17 +18,14 @@ import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
- * 性能基准测试工具:测量 server 并发连接数 / 吞吐 / 延迟。
+ * 耳求基准测试工具:测量 server 并发连接数 / 吞吐 / 延迟。
  *
- * <p>用法: java HttpBench &lt;type: nio|aio&gt; &lt;connections&gt; &lt;duration_sgt
- * 例: java HttpBench nio 5000 30</p>
- *
- * <p>客户度用原始 Socket 模拟 keep-alive, 按 HTTP/1.1 完整读写(解析 Content-Length),
- * 每连接持续发请求到 duration 秒结束。</p>
+ * 用法: java HttpBench <type: nio|aio> <connections> <duration_s>
+ * 例: java HttpBench nio 5000 30
  */
 public class HttpBench {
 
-    /** echo handler: 返回 "hello bench" */
+    /** echo handler: 返回 hello bench (12 字节) */
     private static final ServerHandler ECHO = (req, res) -> {
         res.setBody("hello bench");
         res.end();
@@ -39,7 +36,6 @@ public class HttpBench {
             "GET /echo HTTP/1.1\r\nHost: 127.0.0.1:8080\r\nConnection: keep-alive\r\n"
                     + "Accept: */*\r\nUser-Agent: bench\r\n\r\n";
 
-    /** body 定长: "hello bench" */
     private static final int BODY_LEN = 12;
     private static final int MAX_RES = 4096;
 
@@ -52,7 +48,7 @@ public class HttpBench {
         int duration = Integer.parseInt(args.length > 2 ? args[2] : "30");
 
         ServerSetting setting = ServerSetting.auto();
-        setting.setInlineDispatch(true); // 关闭虚拟线程,事件循环全速内联
+        setting.setInlineDispatch(true); // 事件循环内联 handler (fast path)
         setting.setMaxConcurrency(-1); // 不限制
         setting.setResponseTimeout(-1); // 不限制
         setting.setMaxKeepAliveRequests(-1);
@@ -70,16 +66,17 @@ public class HttpBench {
         } else {
             server = new NioHttpServer(setting);
         }
-        server.registerMapping("/echo", HttpMethod.GET, ECHO);
+        AbstractServer abs = (AbstractServer) server;
+        abs.registerMapping("/echo", HttpMethod.GET, ECHO);
         server.start();
         try {
-            runBench(server, connections, duration);
+            runBench(server, abs, connections, duration);
         } finally {
             server.stop();
         }
     }
 
-    private static void runBench(Server server, int connections, int duration) throws Exception {
+    private static void runBench(Server server, AbstractServer abs, int connections, int duration) throws Exception {
         int port = server.getPort();
         Runner runner = new Runner(port, connections, duration);
         long t0 = System.currentTimeMillis();
@@ -88,22 +85,19 @@ public class HttpBench {
         runner.stop();
         runner.complete();
         long elapsed = System.currentTimeMillis() - t0;
-        AbstractServer abs = (AbstractServer) server;
         String report = runner.report();
         System.out.println(report);
         System.out.println("[bench] elapsed=" + elapsed + "ms");
-        System.out.println("[bench] metrics: total=" + abs.getMetrics().getTotalRequests()
+        System.out.println("[bench] server metrics: total=" + abs.getMetrics().getTotalRequests()
                 + " active=" + abs.getMetrics().getActiveRequests()
                 + " err=" + abs.getMetrics().getErrorCount()
                 + " avgms=" + abs.getMetrics().getAverageLatencyMillis()
                 + " maxms=" + abs.getMetrics().getMaxLatencyMillis());
-        System.out.println("[bench] metrics: " + abs.getMetrics().getLatencyHistogram());
-        System.out.println("[bench] metrics: " + report);
+        System.out.println("[bench] server metrics: " + abs.getMetrics().getLatencyHistogram());
+        System.out.println("[bench] result: " + report);
     }
 
-    /**
-     * 客户端工作线程,模拟 keep-alive 连接。
-     */
+    /** 客户端工作线程, 模拟 keep-alive 连接 */
     private static class Runner {
 
         private final int port;
@@ -115,7 +109,7 @@ public class HttpBench {
         private final LongAdder totalRequests = new LongAdder();
         private final LongAdder totalLatency = new LongAdder();
         private final LongAdder errors = new LongAdder();
-        /** 延迟桶 (ms 0..5000) */
+        /** 延迟桶 (us 0..5000) */
         private final AtomicLongArray hist = new AtomicLongArray(5001);
 
         private volatile boolean running = true;
@@ -144,7 +138,6 @@ public class HttpBench {
             }
         }
 
-        /** 等待所有客户端线程结束 */
         public void complete() throws Exception {
             for (Thread t : threads) {
                 t.join(2000);
@@ -161,15 +154,14 @@ public class HttpBench {
             StringBuilder sb = new StringBuilder();
             sb.append("requests=").append(total).append(" err=").append(err)
                     .append(" qps=").append(total / (long) duration)
-                    .append(" p50=").append(q50).append("ms")
-                    .append(" p95=").append(q95).append("ms")
-                    .append(" p99=").append(q99).append("ms")
-                    .append(" avg=").append(String.format("%.3f", avg)).append("ms");
+                    .append(" p50=").append(q50).append("us")
+                    .append(" p95=").append(q95).append("us")
+                    .append(" p99=").append(q99).append("us")
+                    .append(" avg=").append(String.format("%.3f", avg)).append("us");
             return sb.toString();
         }
 
         private int _quantile(int p) {
-            // 统计桶里测速数据, 用直方图近似分位数
             long count = 0;
             for (int i = 0; i < hist.length(); i++) {
                 count += hist.get(i);
@@ -213,11 +205,10 @@ public class HttpBench {
                         long start = System.nanoTime();
                         out.write(REQUEST.getBytes(StandardCharsets.UTF_8));
                         totalRequests.increment();
-                        // 读回完整响应: header(到 \r\n\r\n) + Content-Length 个 body 字节
                         int read = readFullResponse(in);
                         if (read > 0) {
                             totalLatency.increment();
-                            addHist((int) ((System.nanoTime() - start) / 1_000_000));
+                            addHist((int) ((System.nanoTime() - start) / 1_000));
                         } else {
                             errors.increment();
                         }
@@ -229,21 +220,18 @@ public class HttpBench {
                 }
             }
 
-            /**
-             * 读完整响应:* 读 header 直到 \r\n\r\n, 解析 Content-Length, 再抽 body。
-             */
+            /** 读完整响应: header(到 \r\n\r\n), 解析 Content-Length, 再抽 body */
             private int readFullResponse(InputStream in) throws IOException {
                 int len = 0;
-                boolean clParsed = false;
                 int contentLen = 0;
+                boolean parsed = false;
                 while (true) {
                     int n = in.read(buf, len, MAX_RES - len);
                     if (n <= 0) {
                         return -1;
                     }
                     len += n;
-                    if (!clParsed && len >= 4) {
-                        // 检测 header 结尾 \r\n\r\n
+                    if (!parsed && len >= 4) {
                         boolean end = true;
                         for (int i = len - 4; i < len; i++) {
                             if (buf[i] != (i == len - 4 || i == len - 2 ? 13 : 10)) {
@@ -253,7 +241,6 @@ public class HttpBench {
                         }
                         if (end) {
                             // 解析 Content-Length: N
-                            contentLen = 0;
                             for (int i = 0; i < len - 4; i++) {
                                 if (buf[i] == 'C' && buf[i + 1] == 'o' && buf[i + 2] == 'n'
                                         && buf[i + 3] == 't' && buf[i + 4] == 'e' && buf[i + 5] == 'n'
@@ -274,7 +261,7 @@ public class HttpBench {
                                     break;
                                 }
                             }
-                            clParsed = true;
+                            parsed = true;
                             break;
                         }
                     }
@@ -283,9 +270,8 @@ public class HttpBench {
                     }
                 }
                 if (contentLen <= 0) {
-                    return len; // 没有 Content-Length, 只读 header
+                    return len;
                 }
-                // 读 body
                 int total = len;
                 int remaining = contentLen;
                 while (remaining > 0) {
@@ -306,6 +292,7 @@ public class HttpBench {
                 closed = true;
                 try {
                     if (sock != null) {
+                        sock.shutdownInput();
                         sock.close();
                     }
                 } catch (IOException e) {
@@ -314,9 +301,9 @@ public class HttpBench {
             }
         }
 
-        private void addHist(int ms) {
-            if (ms >= 0 && ms < hist.length()) {
-                hist.getAndIncrement(ms);
+        private void addHist(int us) {
+            if (us >= 0 && us < hist.length()) {
+                hist.getAndIncrement(us);
             }
         }
     }
