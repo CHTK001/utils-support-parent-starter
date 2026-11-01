@@ -1,4 +1,4 @@
-package com.chua.common.support.network.server.nio;
+﻿package com.chua.common.support.network.server.nio;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
@@ -66,8 +66,8 @@ import java.util.concurrent.atomic.LongAdder;
  */
 @Slf4j
 @Spi({"nio", "nio-http"})
-public class NioHttpServer extends AbstractServer {
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(NioHttpServer.class);
+
 
     /**
      * 服务器通道
@@ -134,7 +134,7 @@ public class NioHttpServer extends AbstractServer {
             ServerSetting.SslConfig ssl = setting.getSsl();
             sslContext = SslUtils.autoSsl(ssl);
             if (sslContext != null) {
-                log.info("NIO HttpServer SSL enabled (selfSigned={})", ssl.isSelfSigned());
+                LOG.info("NIO HttpServer SSL enabled (selfSigned={})", ssl.isSelfSigned());
             }
 
             serverChannel = ServerSocketChannel.open();
@@ -174,7 +174,7 @@ public class NioHttpServer extends AbstractServer {
             // Windows 推荐上限 4：实测 4 分片吞吐最优,超出 16+ 分片 select() 并发开销反而负优化;
             // 保留 bench.fast 绕过供实验验证其他分片数。
             if (windows && eventLoops > 4 && !"true".equals(System.getProperty("bench.fast"))) {
-                log.warn("NIO HttpServer eventLoops={} 超过 Windows 实测最优上限 4，已收敛至 4"
+                LOG.warn("NIO HttpServer eventLoops={} 超过 Windows 实测最优上限 4，已收敛至 4"
                         + "(16+ 分片 select 并发负优化)。如需更高并行度请使用 Linux+epoll", eventLoops);
                 eventLoops = 4;
             }
@@ -186,7 +186,7 @@ public class NioHttpServer extends AbstractServer {
                     try {
                         eventLoops = Integer.parseInt(el);
                     } catch (NumberFormatException e) {
-                        log.debug("[nio] 解析端口失败，已忽略: {}", e.getMessage());
+                        LOG.debug("[nio] 解析端口失败，已忽略: {}", e.getMessage());
                     }
                 }
             }
@@ -221,12 +221,12 @@ public class NioHttpServer extends AbstractServer {
                     try {
                         eventLoop(idx);
                     } catch (Throwable t) {
-                        log.error("nio event-loop[{}] 终止,堆栈: {}", idx, t.getMessage(), t);
+                        LOG.error("nio event-loop[{}] 终止,堆栈: {}", idx, t.getMessage(), t);
                     }
                 });
             }
 
-            log.info("NIO HttpServer started on {}:{} (backlog={}, eventLoops={}, reactive=true)",
+            LOG.info("NIO HttpServer started on {}:{} (backlog={}, eventLoops={}, reactive=true)",
                     setting.getHost(), setting.getPort(), backlog, eventLoops);
         } catch (Exception e) {
             throw new RuntimeException("NIO HttpServer 启动失败", e);
@@ -241,14 +241,14 @@ public class NioHttpServer extends AbstractServer {
     private void eventLoop(int idx) {
         Selector sel = selectors[idx];
         java.util.Queue<SelectionKey> writeQueue = pendingWriteQueues[idx];
-        log.info("nio event-loop[{}] started, selector={}", idx, sel);
+        LOG.info("nio event-loop[{}] started, selector={}", idx, sel);
         // 分片 0 承载 OP_ACCEPT:由本事件循环线程自行注册 serverChannel(与 select 同线程),
         // 消除主线程跨线程 register 与 select 之间的竞态(连续启停时 OP_ACCEPT 感知不到)
         if (idx == 0 && serverChannel != null && serverChannel.isOpen()) {
             try {
                 serverChannel.register(sel, SelectionKey.OP_ACCEPT);
             } catch (Exception e) {
-                log.warn("nio event-loop[0] 注册 OP_ACCEPT 失败: {}", e.getMessage(), e);
+                LOG.warn("nio event-loop[0] 注册 OP_ACCEPT 失败: {}", e.getMessage(), e);
             }
         }
         // 关键竞态防护:doStart() 里 submit 本任务时 running 可能仍为 false(start() 在 doStart()
@@ -328,12 +328,12 @@ public class NioHttpServer extends AbstractServer {
                     } catch (Throwable t) {
                         // 单个连接异常(如并发关闭导致的 CancelledKeyException/RuntimeException)
                         // 只清理该连接,不允许杀死整个事件循环线程
-                        log.warn("Event loop[{}] key error: {} -> {}, closing conn", idx,
+                        LOG.warn("Event loop[{}] key error: {} -> {}, closing conn", idx,
                                 t.getClass().getSimpleName(), t.getMessage(), t);
                         try {
                             key.cancel();
                         } catch (Exception e) {
-                            log.debug("[nio] 取消 SelectionKey 失败，已忽略: {}", e.getMessage());
+                            LOG.debug("[nio] 取消 SelectionKey 失败，已忽略: {}", e.getMessage());
                         }
                         ConnectionState st = (ConnectionState) key.attachment();
                         closeQuietly(st != null ? st.channel : null);
@@ -343,7 +343,7 @@ public class NioHttpServer extends AbstractServer {
                 // 事件循环线程绝不能死:任何未预期异常(含 Runtime/Error)都只记录并继续,
                 // 否则该分片连接的 accept/read/write 全部停摆(高并发压力下实测请求 100% 超时)
                 if (running) {
-                    log.warn("Event loop[{}] error: {} -> {}", idx, t.getClass().getSimpleName(), t.getMessage(), t);
+                    LOG.warn("Event loop[{}] error: {} -> {}", idx, t.getClass().getSimpleName(), t.getMessage(), t);
                 }
             }
         }
@@ -372,7 +372,7 @@ public class NioHttpServer extends AbstractServer {
                     SocketChannel client = new SslSocketChannel(accepted, sslContext.createSSLEngine());
                     handleConnection(client);
                 } catch (IOException e) {
-                    log.warn("TLS 握手失败，关闭连接: {}", e.getMessage(), e);
+                    LOG.warn("TLS 握手失败，关闭连接: {}", e.getMessage(), e);
                     closeQuietly(accepted);
                 }
             });
@@ -386,7 +386,7 @@ public class NioHttpServer extends AbstractServer {
         // 避免跨线程 register 与 select() 的竞态导致 OP_READ 感知不到、请求超时
         pendingAcceptQueues[shard].add(accepted);
         selectors[shard].wakeup();
-        log.debug("nio accepted -> shard={}", shard);
+        LOG.debug("nio accepted -> shard={}", shard);
     }
 
     /**
@@ -462,7 +462,7 @@ public class NioHttpServer extends AbstractServer {
             try {
                 handleRequest(st.request, response);
             } catch (Exception e) {
-                log.debug("Inline handler failed: {}", e.getMessage());
+                LOG.debug("Inline handler failed: {}", e.getMessage());
                 if (!response.isCommitted()) {
                     response.sendError(500, "Internal Server Error");
                 }
@@ -485,7 +485,7 @@ public class NioHttpServer extends AbstractServer {
             long us = (System.nanoTime() - t0)/1000;
             perfRecord(st.shard, us);
         } catch (Exception e) {
-            log.warn("Inline worker failed: {}", e.getMessage(), e);
+            LOG.warn("Inline worker failed: {}", e.getMessage(), e);
             closeConn(key, st);
         }
     }
@@ -572,7 +572,7 @@ public class NioHttpServer extends AbstractServer {
             try {
                 handleRequest(st.request, response);
             } catch (Exception e) {
-                log.warn("Request handling failed: {}", e.getMessage(), e);
+                LOG.warn("Request handling failed: {}", e.getMessage(), e);
                 if (!response.isCommitted()) {
                     response.sendError(500, "Internal Server Error");
                 }
@@ -591,7 +591,7 @@ public class NioHttpServer extends AbstractServer {
                 selectors[st.shard].wakeup();
             }
         } catch (Exception e) {
-            log.warn("Worker handling failed: {} -> {}", e.getClass().getSimpleName(), e.getMessage(), e);
+            LOG.warn("Worker handling failed: {} -> {}", e.getClass().getSimpleName(), e.getMessage(), e);
             closeConn(key, st);
         }
     }
@@ -627,7 +627,7 @@ public class NioHttpServer extends AbstractServer {
             try {
                 handleRequest(st.request, response);
             } catch (Exception e) {
-                log.warn("Request handling failed: {}", e.getMessage(), e);
+                LOG.warn("Request handling failed: {}", e.getMessage(), e);
                 if (!response.isCommitted()) {
                     response.sendError(500, "Internal Server Error");
                 }
@@ -651,7 +651,7 @@ public class NioHttpServer extends AbstractServer {
                 selectors[st.shard].wakeup();
             }
         } catch (Exception e) {
-            log.warn("DirectWrite worker failed: {} -> {}", e.getClass().getSimpleName(), e.getMessage(), e);
+            LOG.warn("DirectWrite worker failed: {} -> {}", e.getClass().getSimpleName(), e.getMessage(), e);
             closeConn(key, st);
         }
     }
@@ -736,7 +736,7 @@ public class NioHttpServer extends AbstractServer {
         try {
             key.cancel();
         } catch (Exception e) {
-            log.debug("[nio] 操作失败，已忽略: {}", e.getMessage());
+            LOG.debug("[nio] 操作失败，已忽略: {}", e.getMessage());
         }
         closeQuietly(st.channel);
     }
@@ -814,7 +814,7 @@ public class NioHttpServer extends AbstractServer {
                 try {
                     handleRequest(request, response);
                 } catch (Exception e) {
-                    log.warn("Request handling failed: {}", e.getMessage(), e);
+                    LOG.warn("Request handling failed: {}", e.getMessage(), e);
                     if (!response.isCommitted()) {
                         response.sendError(500, "Internal Server Error");
                     }
@@ -828,7 +828,7 @@ public class NioHttpServer extends AbstractServer {
                 request.resetForNextRequest();
             }
         } catch (Exception e) {
-            log.debug("Connection handling failed: {}", e.getMessage());
+            LOG.debug("Connection handling failed: {}", e.getMessage());
         } finally {
             closeQuietly(channel);
         }
@@ -883,13 +883,13 @@ public class NioHttpServer extends AbstractServer {
                 wsConnections.remove(conn);
             }
         } catch (IOException e) {
-            log.debug("WebSocket 连接结束: {}", e.getMessage());
+            LOG.debug("WebSocket 连接结束: {}", e.getMessage());
         } finally {
             if (out != null) {
                 try {
                     out.flush();
                 } catch (IOException e) {
-                    log.debug("[nio] 关闭连接失败，已忽略: {}", e.getMessage());
+                    LOG.debug("[nio] 关闭连接失败，已忽略: {}", e.getMessage());
                 }
             }
         }
@@ -924,7 +924,7 @@ public class NioHttpServer extends AbstractServer {
             try {
                 handler.handle(wsRequest, wsResponse);
             } catch (Exception e) {
-                log.warn("WebSocket handler error: {}", e.getMessage(), e);
+                LOG.warn("WebSocket handler error: {}", e.getMessage(), e);
             }
             if (wsResponse.getResult() != null) {
                 conn.send(wsResponse.getResult().toString());
@@ -1059,7 +1059,7 @@ public class NioHttpServer extends AbstractServer {
                     out.flush();
                 }
             } catch (IOException e) {
-                log.debug("[nio] IO 操作失败，已忽略: {}", e.getMessage());
+                LOG.debug("[nio] IO 操作失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -1228,7 +1228,7 @@ public class NioHttpServer extends AbstractServer {
         try {
             ch.close();
         } catch (IOException e) {
-            log.debug("[nio] 关闭服务失败，已忽略: {}", e.getMessage());
+            LOG.debug("[nio] 关闭服务失败，已忽略: {}", e.getMessage());
         }
     }
 
@@ -1241,7 +1241,7 @@ public class NioHttpServer extends AbstractServer {
             try {
                 serverChannel.close();
             } catch (IOException e) {
-                log.debug("[nio] IO 操作失败，已忽略: {}", e.getMessage());
+                LOG.debug("[nio] IO 操作失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -1256,7 +1256,7 @@ public class NioHttpServer extends AbstractServer {
                 try {
                     sel.close();
                 } catch (IOException e) {
-                    log.debug("[nio] 关闭连接失败，已忽略: {}", e.getMessage());
+                    LOG.debug("[nio] 关闭连接失败，已忽略: {}", e.getMessage());
                 }
             }
         }
@@ -1270,11 +1270,11 @@ public class NioHttpServer extends AbstractServer {
             try {
                 serverChannel.close();
             } catch (IOException e) {
-                log.debug("[nio] IO 操作失败，已忽略: {}", e.getMessage());
+                LOG.debug("[nio] IO 操作失败，已忽略: {}", e.getMessage());
             }
         }
         wsConnections.clear();
-        log.info("NIO HttpServer stopped");
+        LOG.info("NIO HttpServer stopped");
     }
 
     /**
@@ -1292,7 +1292,7 @@ public class NioHttpServer extends AbstractServer {
     private static final LongAdder[] PERF_B = new LongAdder[PNB];
     private static final LongAdder PERF_SLOW = new LongAdder();
     private static final LongAdder PERF_TOTAL = new LongAdder();
-    private static final AtomicLong PERF_LOG = new AtomicLong();
+    private static final AtomicLong PERF_= new AtomicLong();
     private static final long LOG_MARK = 2_000_000_000L;
     static { for (int i=0;i<PNB;i++) PERF_B[i]=new LongAdder(); }
 
