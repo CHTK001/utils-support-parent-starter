@@ -544,7 +544,8 @@ public class NioHttpServer extends AbstractServer {
             closeConn(key, st);
         }
         int us = (int) ((System.nanoTime() - t0) / 1000L);
-        recordPhase(2, us);
+        if (us > 5000) PERF_SLOW.incrementAndGet();
+        perfRecord(perfBin(us));
     }
 
     /**
@@ -594,7 +595,7 @@ public class NioHttpServer extends AbstractServer {
         }
         long us = (System.nanoTime() - t0) / 1000L;
         if (us > 100) PERF_FLUSH_SLOW.incrementAndGet();
-        recordPhase(3, (int) us);
+        perfRecord(perfBin((int) us));
     }
 
     /**
