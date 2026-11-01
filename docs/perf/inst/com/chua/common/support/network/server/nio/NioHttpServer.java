@@ -1,4 +1,4 @@
-﻿package com.chua.common.support.network.server.nio;
+ackage com.chua.common.support.network.server.nio;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
@@ -16,7 +16,6 @@ import com.chua.common.support.network.server.websocket.WebSocketProtocol;
 import com.chua.common.support.network.ssl.SslUtils;
 import com.chua.common.support.objects.annotation.OnMessage;
 import com.chua.common.support.spi.annotations.Spi;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.net.ssl.SSLContext;
 import java.io.ByteArrayInputStream;
@@ -37,6 +36,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -64,9 +65,52 @@ import java.util.concurrent.Executors;
  * @since 2026/08/12
  */
 @Spi({"nio", "nio-http"})
-public class NioHttpServer extends AbstractServer {
-    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(NioHttpServer.class);
 
+    // ===== perf probe (instrumented bench copy only, not project source) =====
+    private static final int PERF_BINS = 6;
+    private static final long[] PERF_NS = {0, 50_000, 100_000, 500_000, 1_000_000, 5_000_000};
+    private static final String[] PERF_LABEL = {"0-50us", "50-100us", "100-500us", "0.5-1ms", "1-5ms", "5ms+"};
+    private static final java.util.concurrent.atomic.LongAdder[] PERF_COUNT = new java.util.concurrent.atomic.LongAdder[PERF_BINS];
+    private static final java.util.concurrent.atomic.AtomicLong PERF_SLOW = new java.util.concurrent.atomic.AtomicLong(0L);
+    private static final java.util.concurrent.atomic.AtomicLong PERF_FLUSH_SLOW = new java.util.concurrent.atomic.AtomicLong(0L);
+    private static final java.util.concurrent.atomic.AtomicLong PERF_LAST = new java.util.concurrent.atomic.AtomicLong(0L);
+    private static final long PERF_INTERVAL = 2_000_000_000L; // 2s
+
+    static {
+        for (int i = 0; i < PERF_BINS; i++) {
+            PERF_COUNT[i] = new java.util.concurrent.atomic.LongAdder();
+        }
+    }
+
+    private static void perfRecord(int bin) {
+        PERF_COUNT[bin].increment();
+        long now = System.nanoTime();
+        long last = PERF_LAST.get();
+        if (now - last > PERF_INTERVAL) {
+            if (PERF_LAST.compareAndSet(last, now)) {
+                printStats(now);
+            }
+        }
+    }
+
+    private static void printStats(long now) {
+        long total = 0;
+        for (int i = 0; i < PERF_BINS; i++) {
+            total += PERF_COUNT[i].sum();
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("[perf] total=").append(total).append(" us=").append(now / 1000000L);
+        for (int i = 0; i < PERF_BINS; i++) {
+            sb.append(' ').append(PERF_LABEL[i]).append('=').append(PERF_COUNT[i].sum());
+        }
+        sb.append(" slow=").append(PERF_SLOW.get()).append(" flushSlow=").append(PERF_FLUSH_SLOW.get());
+        LOG.info(sb.toString());
+        for (int i = 0; i < PERF_BINS; i++) {
+            PERF_COUNT[i].reset();
+        }
+        PERF_SLOW.set(0L);
+        PERF_FLUSH_SLOW.set(0L);
+    }
     /**
      * 服务器通道
      */
@@ -444,6 +488,7 @@ public class NioHttpServer extends AbstractServer {
      * @param key 键，不允许为 null
      */
     private void processRequestInline(ConnectionState st, SelectionKey key) {
+        long t0 = System.nanoTime();
         try {
             NioServerResponse response = new NioServerResponse(st.channel);
             // 内联写出:事件循环线程同步写通道,未写完部分入 writeQueue 交由 OP_WRITE 续写
@@ -483,6 +528,9 @@ public class NioHttpServer extends AbstractServer {
             LOG.warn("Inline worker failed: {}", e.getMessage(), e);
             closeConn(key, st);
         }
+        int us = (int) ((System.nanoTime() - t0) / 1000L);
+        if (us > 5000) PERF_SLOW.incrementAndGet();
+        perfRecord(us);
     }
 
     /**
@@ -507,6 +555,7 @@ public class NioHttpServer extends AbstractServer {
      * @param key 键，不允许为 null
      */
     private void flushInlineWrite(ConnectionState st, SelectionKey key) {
+        long t0 = System.nanoTime();
         synchronized (st.writeQueue) {
             while (true) {
                 ByteBuffer bb = st.writeQueue.peek();
@@ -529,6 +578,9 @@ public class NioHttpServer extends AbstractServer {
                 st.writeQueue.poll();
             }
         }
+        long us = (System.nanoTime() - t0) / 1000L;
+        if (us > 100) PERF_FLUSH_SLOW.incrementAndGet();
+        perfRecord((int) us);
     }
 
     /**
