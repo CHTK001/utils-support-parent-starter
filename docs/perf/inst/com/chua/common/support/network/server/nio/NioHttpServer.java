@@ -95,6 +95,15 @@ public class NioHttpServer extends AbstractServer {
         }
     }
 
+    private static int perfBin(int us) {
+        int bin = 0;
+        for (int i = 0; i < PERF_BINS; i++) {
+            if (us >= PERF_NS[i]) bin = i;
+            else break;
+        }
+        return bin;
+    }
+
     private static void printStats(long now) {
         long total = 0;
         for (int i = 0; i < PERF_BINS; i++) {
@@ -440,6 +449,7 @@ public class NioHttpServer extends AbstractServer {
      * @throws IOException 异常
     */
     private void handleRead(SelectionKey key) throws IOException {
+        long t0 = System.nanoTime();
         ConnectionState st = (ConnectionState) key.attachment();
         // 请求已在 worker 处理中:摘除读兴趣,避免事件循环空转与重复提交 worker;
         // worker 完成后经 pendingWrites 由事件循环重新注册 OP_WRITE
@@ -479,6 +489,8 @@ public class NioHttpServer extends AbstractServer {
         } else if (r < 0) {
             closeConn(key, st);
         }
+        int us = (int) ((System.nanoTime() - t0) / 1000L);
+        perfRecord(perfBin(us));
     }
 
     /**
