@@ -41,6 +41,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * 基于 NIO {@link ServerSocketChannel} 的 HTTP/1.1 服务器实现。
@@ -444,6 +446,7 @@ public class NioHttpServer extends AbstractServer {
      * @param key 键，不允许为 null
      */
     private void processRequestInline(ConnectionState st, SelectionKey key) {
+        long t0 = System.nanoTime(); // ⏱ event-loop blocked start
         try {
             NioServerResponse response = new NioServerResponse(st.channel);
             // 内联写出:事件循环线程同步写通道,未写完部分入 writeQueue 交由 OP_WRITE 续写
@@ -479,6 +482,8 @@ public class NioHttpServer extends AbstractServer {
             } else {
                 finishAfterWrite(st, key);
             }
+            long us = (System.nanoTime() - t0)/1000;
+            perfRecord(st.shard, us);
         } catch (Exception e) {
             log.warn("Inline worker failed: {}", e.getMessage(), e);
             closeConn(key, st);
@@ -508,6 +513,7 @@ public class NioHttpServer extends AbstractServer {
      */
     private void flushInlineWrite(ConnectionState st, SelectionKey key) {
         synchronized (st.writeQueue) {
+            long tw0 = System.nanoTime(); // ⏱ write start
             while (true) {
                 ByteBuffer bb = st.writeQueue.peek();
                 if (bb == null) {
@@ -528,6 +534,8 @@ public class NioHttpServer extends AbstractServer {
                 }
                 st.writeQueue.poll();
             }
+            long tw = (System.nanoTime() - tw0)/1000;
+            if (tw > 100) System.out.println("[perf] SLOW-write shard=" + st.shard + " us=" + tw);
         }
     }
 
@@ -1275,6 +1283,34 @@ public class NioHttpServer extends AbstractServer {
     @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
+    }
+
+    /**
+     * ⏱ per-request event-loop blocked time (us) -- instrumented perf copy only
+     */
+    private static final int PNB = 6;
+    private static final LongAdder[] PERF_B = new LongAdder[PNB];
+    private static final LongAdder PERF_SLOW = new LongAdder();
+    private static final LongAdder PERF_TOTAL = new LongAdder();
+    private static final AtomicLong PERF_LOG = new AtomicLong();
+    private static final long LOG_MARK = 2_000_000_000L;
+    static { for (int i=0;i<PNB;i++) PERF_B[i]=new LongAdder(); }
+
+    private static void perfRecord(int shard, long us) {
+        int i = us<1?0:us<10?1:us<100?2:us<1000?3:us<10000?4:5;
+        PERF_B[i].increment();
+        PERF_TOTAL.increment();
+        if (us>1000) { PERF_SLOW.increment(); System.out.println("[perf] SLOW inline shard=" + shard + " us=" + us); }
+        long now = System.nanoTime();
+        if (now - PERF_LOG.get() >= LOG_MARK) {
+            if (PERF_LOG.compareAndSet(PERF_LOG.get(), now)) {
+                StringBuilder sb = new StringBuilder("[perf] ");
+                long tot = 0;
+                for (int k=0;k<PNB;k++) { sb.append("b").append(k).append("=").append(PERF_B[k].sum()).append("; "); tot += PERF_B[k].sum(); }
+                sb.append("slow=").append(PERF_SLOW.sum()).append(" raw=").append(tot);
+                System.out.println(sb);
+            }
+        }
     }
 }
 
