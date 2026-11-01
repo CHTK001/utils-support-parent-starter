@@ -12,15 +12,19 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongArray;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * 性能基准测试工具:测量 server 并发连接数 / 吞吐 / 延迟。
  *
- * <p>用法: java HttpBench &lt;type: nio|aio|jdk&gt; &lt;connections&gt; &lt;duration_s&gt;
+ * <p>用法: java HttpBench &lt;type: nio|aio|jdk&gt; &lt;connections&gt; &lt;duration_sgt
  * 例: java HttpBench nio 5000 30</p>
  *
- * 客户度用原始 Socket 模拟 keep-alive, 每连接持续发请求到 duration 秒结束。
+ * <p>客户度用原始 Socket 模拟 keep-alive, 按 HTTP/1.1 完整读写(解析 Content-Length),
+ * 每连接持续发请求到 duration 秒结束。</p>
  */
 public class HttpBench {
 
@@ -35,11 +39,9 @@ public class HttpBench {
             "GET /echo HTTP/1.1\r\nHost: 127.0.0.1:8080\r\nConnection: keep-alive\r\n"
                     + "Accept: */*\r\nUser-Agent: bench\r\n\r\n";
 
-    /** 响应头里 Content-Length 的 Target */
-    private static final int RESPONSE_BODY_LEN = "hello bench".length();
-
-    /** 单个请求完整报文(头 + 体) */
-    private static final int RESPONSE_SIZE = 500;
+    /** body 定长: "hello bench" */
+    private static final int BODY_LEN = 12;
+    private static final int MAX_RES = 4096;
 
     private HttpBench() {
     }
@@ -56,14 +58,17 @@ public class HttpBench {
         setting.setMaxKeepAliveRequests(-1);
         System.out.println("[bench] type=" + type + " connections=" + connections + " duration=" + duration + "s");
         System.out.println("[bench] setting: ioThreads=" + setting.getIoThreads()
-                + " eventLoops=" + setting.getEventLoops() + " maxConcurrency=" + setting.getMaxConcurrency()
-                + " maxConnections=" + setting.getMaxConnections() + " backlog=" + setting.getBacklog());
+                + " eventLoops=" + setting.getEventLoops()
+                + " maxConcurrency=" + setting.getMaxConcurrency()
+                + " maxConnections=" + setting.getMaxConnections()
+                + " backlog=" + setting.getBacklog()
+                + " buffer=" + setting.getBufferSize());
 
         Server server;
         if ("aio".equals(type)) {
             server = new AioHttpServer(setting);
         } else if ("jdk".equals(type)) {
-            System.out.println("[bench] warning: jdk server is not an NIO implementation, using nio");
+            System.out.println("[bench] note: jdk server is not an NIO implementation, using nio");
             server = new NioHttpServer(setting);
         } else {
             server = new NioHttpServer(setting);
@@ -109,23 +114,18 @@ public class HttpBench {
 
         private final List<Client> clients = new ArrayList<>();
         private final List<Thread> threads = new ArrayList<>();
-        private final AtomicLong totalRequests = new AtomicLong();
-        private final AtomicLong totalLatency = new AtomicLong();
-        private final AtomicLong errors = new AtomicLong();
-        private final AtomicLong[] latencies;
+        private final LongAdder totalRequests = new LongAdder();
+        private final LongAdder totalLatency = new LongAdder();
+        private final LongAdder errors = new LongAdder();
+        /** 延迟桶 (ms 0..5000) */
+        private final AtomicLongArray hist = new AtomicLongArray(5001);
 
         private volatile boolean running = true;
-        private volatile boolean done = false;
 
         public Runner(int port, int connections, int duration) {
             this.port = port;
             this.connections = connections;
             this.duration = duration;
-            // 万级并发下建小数组加速
-            this.latencies = new AtomicLong[1024];
-            for (int i = 0; i < 1024; i++) {
-                latencies[i] = new AtomicLong();
-            }
         }
 
         public void start() throws Exception {
@@ -146,59 +146,55 @@ public class HttpBench {
             }
         }
 
-        /** 等待所有客户端线程结束 */
         public void complete() throws Exception {
-            Thread.sleep(500);
             for (Thread t : threads) {
                 t.join(2000);
             }
-            Thread.sleep(1000);
         }
 
         public String report() {
-            long total = totalRequests.get();
+            long total = totalRequests.sum();
+            long err = errors.sum();
             int q50 = _quantile(50);
             int q95 = _quantile(95);
             int q99 = _quantile(99);
-            double avg = totalRequests.get() == 0 ? 0 : (double) totalLatency.get() / total / 1_000_000;
-            return "requests=" + total + " err=" + errors.get()
-                    + " qps=" + (total / Math.max(duration, 1))
-                    + " p50=" + q50 + "ms p95=" + q95 + "ms p99=" + q99 + "ms"
-                    + " avg=" + new StringBuilder().append(avg).append("ms");
+            double avg = totalRequests.sum() == 0 ? 0 : (double) totalLatency.sum() / total / 1_000_000;
+            StringBuilder sb = new StringBuilder();
+            sb.append("requests=").append(total).append(" err=").append(err)
+                    .append(" qps=").append(total / (long) duration)
+                    .append(" p50=").append(q50).append("ms")
+                    .append(" p95=").append(q95).append("ms")
+                    .append(" p99=").append(q99).append("ms")
+                    .append(" avg=").append(String.format("%.3f", avg)).append("ms");
+            return sb.toString();
         }
 
         private int _quantile(int p) {
-            // 用所有 latencies 值做简单分位数
-            long list[] = new long[latencies.length];
-            int count = 0;
-            for (AtomicLong al : latencies) {
-                long v = al.get();
-                if (v > 0) {
-                    list[count++] = v;
-                }
+            // 统计桶里测速数据, 用直方图近似分位数
+            long count = 0;
+            for (int i = 0; i < hist.length(); i++) {
+                count += hist.get(i);
             }
             if (count == 0) {
                 return 0;
             }
-            if (count == 1) {
-                return (int) list[0];
-            }
-            // 快速排序前一部分
-            java.util.Arrays.parallelSort(list, 0, count);
             long idx = Math.round(p / 100.0 * count);
-            if (idx <= 0) {
-                return (int) list[0];
+            idx = Math.max(0, Math.min(idx, count - 1));
+            long acc = 0;
+            for (int i = 0; i < hist.length(); i++) {
+                acc += hist.get(i);
+                if (acc >= idx) {
+                    return i;
+                }
             }
-            if (idx >= count) {
-                return (int) list[count - 1];
-            }
-            return (int) list[(int) idx];
+            return hist.length() - 1;
         }
 
         public class Client implements Runnable {
             private final int id;
             private volatile Socket sock;
             private volatile boolean closed;
+            private final byte[] buf = new byte[MAX_RES];
 
             public Client(int id) {
                 this.id = id;
@@ -217,27 +213,91 @@ public class HttpBench {
                     while (running) {
                         long start = System.nanoTime();
                         out.write(REQUEST.getBytes(StandardCharsets.UTF_8));
-                        totalRequests.incrementAndGet();
-                        // 读回: 固定长度
-                        int read = 0;
-                        byte[] buf = new byte[RESPONSE_SIZE];
-                        try {
-                            read = in.read(buf);
-                        } catch (IOException e) {
-                            break;
-                        }
+                        totalRequests.increment();
+                        // 读回完整响应: header(到 \r\n\r\n) + Content-Length 个 body 字节
+                        int read = readFullResponse(in);
                         if (read > 0) {
-                            totalLatency.addAndGet(System.nanoTime() - start);
-                            addLatency((int) ((System.nanoTime() - start) / 1_000_000));
+                            totalLatency.increment();
+                            addHist((int) ((System.nanoTime() - start) / 1_000_000));
                         } else {
-                            errors.incrementAndGet();
+                            errors.increment();
                         }
                     }
                 } catch (IOException e) {
-                    errors.incrementAndGet();
+                    errors.increment();
                 } finally {
                     close();
                 }
+            }
+
+            /**
+             * 读完整响应:* 读 header 直到 \r\n\r\n, 解析 Content-Length, 再抽 body。
+             */
+            private int readFullResponse(InputStream in) throws IOException {
+                int len = 0;
+                boolean clParsed = false;
+                int contentLen = 0;
+                while (true) {
+                    int n = in.read(buf, len, MAX_RES - len);
+                    if (n <= 0) {
+                        return -1;
+                    }
+                    len += n;
+                    if (!clParsed && len >= 4) {
+                        // 检测 header 结尾 \r\n\r\n
+                        boolean end = true;
+                        for (int i = len - 4; i < len; i++) {
+                            if (i < 0 || buf[i] != (i == len - 4 || i == len - 2 ? 13 : 10)) {
+                                end = false;
+                                break;
+                            }
+                        }
+                        if (end) {
+                            // 解析 Content-Length: N
+                            contentLen = 0;
+                            for (int i = 0; i < len - 4; i++) {
+                                if (buf[i] == 'C' && buf[i + 1] == 'o' && buf[i + 2] == 'n'
+                                        && buf[i + 3] == 't' && buf[i + 4] == 'e' && buf[i + 5] == 'n'
+                                        && buf[i + 6] == 't' && buf[i + 7] == '-' && buf[i + 8] == 'L'
+                                        && buf[i + 9] == 'e' && buf[i + 10] == 'n' && buf[i + 11] == 'g'
+                                        && buf[i + 12] == 't' && buf[i + 13] == ':') {
+                                    int j = i + 14;
+                                    int v = 0;
+                                    boolean has = false;
+                                    while (j < len - 4 && buf[j] >= '0' && buf[j] <= '9') {
+                                        v = v * 10 + (buf[j] - '0');
+                                        j++;
+                                        has = true;
+                                    }
+                                    if (has) {
+                                        contentLen = v;
+                                    }
+                                    break;
+                                }
+                            }
+                            clParsed = true;
+                            break;
+                        }
+                    }
+                    if (len >= MAX_RES - BODY_LEN) {
+                        return len;
+                    }
+                }
+                if (contentLen <= 0) {
+                    return len; // 没有 Content-Length, 只读 header
+                }
+                // 读 body
+                int total = len;
+                int remaining = contentLen;
+                while (remaining > 0) {
+                    int n = in.read(buf, total, Math.min(remaining, MAX_RES - total));
+                    if (n <= 0) {
+                        return -1;
+                    }
+                    total += n;
+                    remaining -= n;
+                }
+                return total;
             }
 
             public void close() {
@@ -255,10 +315,9 @@ public class HttpBench {
             }
         }
 
-        private void addLatency(int ms) {
-            for (AtomicLong al : latencies) {
-                al.getAndIncrement();
-                return;
+        private void addHist(int ms) {
+            if (ms >= 0 && ms < hist.length()) {
+                hist.getAndIncrement(ms);
             }
         }
     }
