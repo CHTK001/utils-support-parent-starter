@@ -90,6 +90,9 @@ public class NioHttpServer extends AbstractServer {
         for (int i = 0; i < PERF_BINS; i++) {
             PERF_COUNT[i] = new java.util.concurrent.atomic.LongAdder();
         }
+        for (int i = 0; i < 4 * PERF_BINS; i++) {
+            PHASES[i] = new java.util.concurrent.atomic.LongAdder();
+        }
     }
 
     private static void perfRecord(int bin) {
