@@ -69,14 +69,22 @@ public class NioHttpServer extends AbstractServer {
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(NioHttpServer.class);
 
     // ===== perf probe (instrumented bench copy only, not project source) =====
-    private static final int PERF_BINS = 6;
-    private static final long[] PERF_NS = {0, 50_000, 100_000, 500_000, 1_000_000, 5_000_000};
-    private static final String[] PERF_LABEL = {"0-50us", "50-100us", "100-500us", "0.5-1ms", "1-5ms", "5ms+"};
+    private static final int PERF_BINS = 7;
+    private static final long[] PERF_NS = {0, 10, 50, 100, 500, 1_000, 5_000};
+    private static final String[] PERF_LABEL = {"<10us", "10-50us", "50-100us", "100-500us", "0.5-1ms", "1-5ms", "5ms+"};
     private static final java.util.concurrent.atomic.LongAdder[] PERF_COUNT = new java.util.concurrent.atomic.LongAdder[PERF_BINS];
     private static final java.util.concurrent.atomic.AtomicLong PERF_SLOW = new java.util.concurrent.atomic.AtomicLong(0L);
     private static final java.util.concurrent.atomic.AtomicLong PERF_FLUSH_SLOW = new java.util.concurrent.atomic.AtomicLong(0L);
     private static final java.util.concurrent.atomic.AtomicLong PERF_LAST = new java.util.concurrent.atomic.AtomicLong(0L);
     private static final long PERF_INTERVAL = 2_000_000_000L; // 2s
+
+    /** 分阶段统计: 0=read 1=parse 2=handler 3=flush */
+    private static final java.util.concurrent.atomic.LongAdder[] PHASES = new java.util.concurrent.atomic.LongAdder[4 * PERF_BINS];
+
+    /** 记录(阶段, us): 计入分阶段桶 */
+    private static void recordPhase(int phase, int us) {
+        PHASES[phase * PERF_BINS + perfBin(us)].increment();
+    }
 
     static {
         for (int i = 0; i < PERF_BINS; i++) {
@@ -115,12 +123,25 @@ public class NioHttpServer extends AbstractServer {
             sb.append(' ').append(PERF_LABEL[i]).append('=').append(PERF_COUNT[i].sum());
         }
         sb.append(" slow=").append(PERF_SLOW.get()).append(" flushSlow=").append(PERF_FLUSH_SLOW.get());
+        for (int i = 0; i < PERF_BINS; i++) {
+            long p0 = PHASES[0 * PERF_BINS + i].sum();
+            long p1 = PHASES[1 * PERF_BINS + i].sum();
+            long p2 = PHASES[2 * PERF_BINS + i].sum();
+            long p3 = PHASES[3 * PERF_BINS + i].sum();
+            sb.append(' ').append(PERF_LABEL[i]).append('[').append(p0).append('/')
+                .append(p1).append('/').append(p2).append('/').append(p3).append(']');
+        }
         System.out.println(sb.toString());
         for (int i = 0; i < PERF_BINS; i++) {
             PERF_COUNT[i].reset();
         }
         PERF_SLOW.set(0L);
         PERF_FLUSH_SLOW.set(0L);
+        for (int p = 0; p < 4; p++) {
+            for (int i = 0; i < PERF_BINS; i++) {
+                PHASES[p * PERF_BINS + i].reset();
+            }
+        }
     }
     /**
      * 服务器通道
@@ -449,6 +470,7 @@ public class NioHttpServer extends AbstractServer {
      * @throws IOException 异常
     */
     private void handleRead(SelectionKey key) throws IOException {
+        long t0 = System.nanoTime();
         ConnectionState st = (ConnectionState) key.attachment();
         // 请求已在 worker 处理中:摘除读兴趣,避免事件循环空转与重复提交 worker;
         // worker 完成后经 pendingWrites 由事件循环重新注册 OP_WRITE
@@ -462,7 +484,9 @@ public class NioHttpServer extends AbstractServer {
             buf = ByteBuffer.allocate(32768);
             st.readBuf = buf;
         }
+        long t1 = System.nanoTime();
         int n = st.channel.read(buf);
+        long t2 = System.nanoTime();
         if (n < 0) {
             closeConn(key, st);
             return;
@@ -472,6 +496,7 @@ public class NioHttpServer extends AbstractServer {
         }
         buf.flip();
         int r = st.request.feed(buf);
+        long t3 = System.nanoTime();
         buf.compact(); // 保留未消费数据
         if (r == 1) {
             // 完整请求解析完成:摘除 OP_READ
@@ -488,6 +513,11 @@ public class NioHttpServer extends AbstractServer {
         } else if (r < 0) {
             closeConn(key, st);
         }
+        recordPhase(0, (int) ((t2 - t1) / 1000L));
+        recordPhase(1, (int) ((t3 - t2) / 1000L));
+        int us = (int) ((System.nanoTime() - t0) / 1000L);
+        if (us > 5000) PERF_SLOW.incrementAndGet();
+        perfRecord(perfBin(us));
     }
 
     /**
@@ -540,8 +570,7 @@ public class NioHttpServer extends AbstractServer {
             closeConn(key, st);
         }
         int us = (int) ((System.nanoTime() - t0) / 1000L);
-        if (us > 5000) PERF_SLOW.incrementAndGet();
-        perfRecord(perfBin(us));
+        recordPhase(2, us);
     }
 
     /**
@@ -591,7 +620,7 @@ public class NioHttpServer extends AbstractServer {
         }
         long us = (System.nanoTime() - t0) / 1000L;
         if (us > 100) PERF_FLUSH_SLOW.incrementAndGet();
-        perfRecord(perfBin((int) us));
+        recordPhase(3, (int) us);
     }
 
     /**
