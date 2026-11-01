@@ -1,4 +1,5 @@
 import com.chua.common.support.network.http.HttpMethod;
+import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.Server;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.aio.AioHttpServer;
@@ -12,7 +13,6 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.atomic.LongAdder;
@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.LongAdder;
 /**
  * 性能基准测试工具:测量 server 并发连接数 / 吞吐 / 延迟。
  *
- * <p>用法: java HttpBench &lt;type: nio|aio|jdk&gt; &lt;connections&gt; &lt;duration_sgt
+ * <p>用法: java HttpBench &lt;type: nio|aio&gt; &lt;connections&gt; &lt;duration_sgt
  * 例: java HttpBench nio 5000 30</p>
  *
  * <p>客户度用原始 Socket 模拟 keep-alive, 按 HTTP/1.1 完整读写(解析 Content-Length),
@@ -67,9 +67,6 @@ public class HttpBench {
         Server server;
         if ("aio".equals(type)) {
             server = new AioHttpServer(setting);
-        } else if ("jdk".equals(type)) {
-            System.out.println("[bench] note: jdk server is not an NIO implementation, using nio");
-            server = new NioHttpServer(setting);
         } else {
             server = new NioHttpServer(setting);
         }
@@ -91,15 +88,16 @@ public class HttpBench {
         runner.stop();
         runner.complete();
         long elapsed = System.currentTimeMillis() - t0;
+        AbstractServer abs = (AbstractServer) server;
         String report = runner.report();
         System.out.println(report);
         System.out.println("[bench] elapsed=" + elapsed + "ms");
-        System.out.println("[bench] metrics: total=" + server.getMetrics().getTotalRequests()
-                + " active=" + server.getMetrics().getActiveRequests()
-                + " err=" + server.getMetrics().getErrorCount()
-                + " avgms=" + server.getMetrics().getAverageLatencyMillis()
-                + " maxms=" + server.getMetrics().getMaxLatencyMillis());
-        System.out.println("[bench] metrics: " + server.getMetrics().getLatencyHistogram());
+        System.out.println("[bench] metrics: total=" + abs.getMetrics().getTotalRequests()
+                + " active=" + abs.getMetrics().getActiveRequests()
+                + " err=" + abs.getMetrics().getErrorCount()
+                + " avgms=" + abs.getMetrics().getAverageLatencyMillis()
+                + " maxms=" + abs.getMetrics().getMaxLatencyMillis());
+        System.out.println("[bench] metrics: " + abs.getMetrics().getLatencyHistogram());
         System.out.println("[bench] metrics: " + report);
     }
 
@@ -146,6 +144,7 @@ public class HttpBench {
             }
         }
 
+        /** 等待所有客户端线程结束 */
         public void complete() throws Exception {
             for (Thread t : threads) {
                 t.join(2000);
@@ -247,7 +246,7 @@ public class HttpBench {
                         // 检测 header 结尾 \r\n\r\n
                         boolean end = true;
                         for (int i = len - 4; i < len; i++) {
-                            if (i < 0 || buf[i] != (i == len - 4 || i == len - 2 ? 13 : 10)) {
+                            if (buf[i] != (i == len - 4 || i == len - 2 ? 13 : 10)) {
                                 end = false;
                                 break;
                             }
