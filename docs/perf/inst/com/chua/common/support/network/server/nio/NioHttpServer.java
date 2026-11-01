@@ -1,4 +1,4 @@
-﻿package com.chua.common.support.network.server.nio;
+package com.chua.common.support.network.server.nio;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.reflection.ReflectUtils;
