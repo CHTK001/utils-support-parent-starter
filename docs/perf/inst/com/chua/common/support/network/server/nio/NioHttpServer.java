@@ -67,6 +67,7 @@ import java.util.concurrent.atomic.LongAdder;
 @Slf4j
 @Spi({"nio", "nio-http"})
 public class NioHttpServer extends AbstractServer {
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(NioHttpServer.class);
 
     /**
      * 服务器通道
