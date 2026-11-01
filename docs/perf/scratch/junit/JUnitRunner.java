@@ -1,4 +1,5 @@
 import org.junit.jupiter.engine.JupiterTestEngine;
+import org.junit.platform.engine.CancellationToken;
 import org.junit.platform.engine.ConfigurationParameters;
 import org.junit.platform.engine.DiscoveryFilter;
 import org.junit.platform.engine.DiscoverySelector;
@@ -12,6 +13,8 @@ import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.discovery.ClassSelector;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.engine.reporting.ReportEntry;
+import org.junit.platform.engine.support.store.NamespacedHierarchicalStore;
+import org.junit.platform.engine.support.store.Namespace;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -79,7 +82,7 @@ public class JUnitRunner {
 
             @Override
             public OutputDirectoryCreator getOutputDirectoryCreator() {
-                // 不需要甲方 launcher 提供：把输出写向临时目录即可
+                // 不需要 launcher 提供：把输出写向临时目录即可
                 return new OutputDirectoryCreator() {
                     @Override
                     public Path getRootDirectory() {
@@ -95,6 +98,7 @@ public class JUnitRunner {
         };
 
         TestDescriptor root = engine.discover(request, UniqueId.forEngine("junit-jupiter-6.0.3"));
+
         EngineExecutionListener listener = new EngineExecutionListener() {
             @Override
             public void dynamicTestRegistered(TestDescriptor testDescriptor) {
@@ -131,8 +135,13 @@ public class JUnitRunner {
             }
         };
 
+        // 必须提供 NamespacedHierarchicalStore（通常由 launcher 提供）
+        Namespace rootNamespace = Namespace.create("junit-jupiter-6.0.3");
+        NamespacedHierarchicalStore store = new NamespacedHierarchicalStore(rootNamespace);
+
         ExecutionRequest executionRequest = ExecutionRequest.create(root, listener,
-                request.getConfigurationParameters());
+                request.getConfigurationParameters(),
+                request.getOutputDirectoryCreator(), store, CancellationToken.NONE);
         engine.execute(executionRequest);
 
         System.out.println("Pass=" + pass + " Fail=" + fail + " Skip=" + skip + " DynTests=" + total
