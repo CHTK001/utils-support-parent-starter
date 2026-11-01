@@ -95,6 +95,15 @@ public class NioHttpServer extends AbstractServer {
         }
     }
 
+    private static int perfBin(int us) {
+        int bin = 0;
+        for (int i = 0; i < PERF_BINS; i++) {
+            if (us >= PERF_NS[i]) bin = i;
+            else break;
+        }
+        return bin;
+    }
+
     private static void printStats(long now) {
         long total = 0;
         for (int i = 0; i < PERF_BINS; i++) {
@@ -106,7 +115,7 @@ public class NioHttpServer extends AbstractServer {
             sb.append(' ').append(PERF_LABEL[i]).append('=').append(PERF_COUNT[i].sum());
         }
         sb.append(" slow=").append(PERF_SLOW.get()).append(" flushSlow=").append(PERF_FLUSH_SLOW.get());
-        LOG.info(sb.toString());
+        System.out.println(sb.toString());
         for (int i = 0; i < PERF_BINS; i++) {
             PERF_COUNT[i].reset();
         }
@@ -532,7 +541,7 @@ public class NioHttpServer extends AbstractServer {
         }
         int us = (int) ((System.nanoTime() - t0) / 1000L);
         if (us > 5000) PERF_SLOW.incrementAndGet();
-        perfRecord(us);
+        perfRecord(perfBin(us));
     }
 
     /**
@@ -582,7 +591,7 @@ public class NioHttpServer extends AbstractServer {
         }
         long us = (System.nanoTime() - t0) / 1000L;
         if (us > 100) PERF_FLUSH_SLOW.incrementAndGet();
-        perfRecord((int) us);
+        perfRecord(perfBin((int) us));
     }
 
     /**
