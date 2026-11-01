@@ -1,5 +1,4 @@
 ﻿package com.chua.common.support.network.server.nio;
-
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.reflection.ReflectUtils;
@@ -16,7 +15,6 @@ import com.chua.common.support.network.server.websocket.WebSocketProtocol;
 import com.chua.common.support.network.ssl.SslUtils;
 import com.chua.common.support.objects.annotation.OnMessage;
 import com.chua.common.support.spi.annotations.Spi;
-
 import javax.net.ssl.SSLContext;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -42,7 +40,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
-
 /**
  * 基于 NIO {@link ServerSocketChannel} 的 HTTP/1.1 服务器实现。
  *
@@ -66,10 +63,7 @@ import java.util.concurrent.atomic.LongAdder;
  */
 @Slf4j
 @Spi({"nio", "nio-http"})
-public class NioHttpServer extends AbstractServer {
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(NioHttpServer.class);
-
-
     /**
      * 服务器通道
      */
@@ -102,17 +96,14 @@ public class NioHttpServer extends AbstractServer {
      * SSL上下文
      */
     private SSLContext sslContext;
-
     /**
      * WebSocket 主题处理器映射（topic -> handlers）。
      */
     private final Map<String, List<ServerHandler>> wsTopicHandlers = new ConcurrentHashMap<>();
-
     /**
      * 当前活跃的 WebSocket 连接。
      */
     private final List<WsConnection> wsConnections = new CopyOnWriteArrayList<>();
-
     /**
      * 创建 NioHttpServer 实例
      * @param setting setting
@@ -120,7 +111,6 @@ public class NioHttpServer extends AbstractServer {
     public NioHttpServer(ServerSetting setting) {
         super(setting);
     }
-
     /**
      * Do开始
      */
@@ -137,7 +127,6 @@ public class NioHttpServer extends AbstractServer {
             if (sslContext != null) {
                 LOG.info("NIO HttpServer SSL enabled (selfSigned={})", ssl.isSelfSigned());
             }
-
             serverChannel = ServerSocketChannel.open();
             // 非阻塞 accept:Selector 事件循环驱动,真正的 NIO 响应式接入,
             // 避免阻塞 accept 单点瓶颈,提升高并发连接接纳吞吐
@@ -147,11 +136,9 @@ public class NioHttpServer extends AbstractServer {
             // 高并发连接接纳：backlog 下限 65536，万级并发突发下避免连接被内核拒绝
             int backlog = Math.max(setting.getBacklog(), 65536);
             serverChannel.bind(new InetSocketAddress(setting.getHost(), setting.getPort()), backlog);
-
             // 回填实际端口（port=0 时由系统分配）
             InetSocketAddress bound = (InetSocketAddress) serverChannel.getLocalAddress();
             setting.setPort(bound.getPort());
-
             executor = Executors.newVirtualThreadPerTaskExecutor();
             // 多 Selector 分片:每分片一个事件循环线程,连接按 hash 分散注册,
             // 解决单事件循环在高并发(2000+)下成为吞吐瓶颈的问题(类 Netty 主从模型)。
@@ -226,14 +213,12 @@ public class NioHttpServer extends AbstractServer {
                     }
                 });
             }
-
             LOG.info("NIO HttpServer started on {}:{} (backlog={}, eventLoops={}, reactive=true)",
                     setting.getHost(), setting.getPort(), backlog, eventLoops);
         } catch (Exception e) {
             throw new RuntimeException("NIO HttpServer 启动失败", e);
         }
     }
-
     /**
      * 事件循环(分片版):每分片一个 Selector + 线程,处理该分片连接的 OP_READ/OP_WRITE。
      * 分片 0 额外承载 OP_ACCEPT。连接不占线程;完整请求解析后提交虚拟线程 worker 池执行 handler 链。
@@ -349,7 +334,6 @@ public class NioHttpServer extends AbstractServer {
             }
         }
     }
-
     /**
      * 处理Accept
      * @param key 键，不允许为 null
@@ -389,7 +373,6 @@ public class NioHttpServer extends AbstractServer {
         selectors[shard].wakeup();
         LOG.debug("nio accepted -> shard={}", shard);
     }
-
     /**
      * 处理读取
      * @param key 键，不允许为 null
@@ -437,7 +420,6 @@ public class NioHttpServer extends AbstractServer {
             closeConn(key, st);
         }
     }
-
     /**
      * 内联快速路径:事件循环线程直接执行 handler 链并同步写出。
      * <p>仅适用于非阻塞 handler(setting.inlineDispatch=true 且非 SSL/WS)。
@@ -490,7 +472,6 @@ public class NioHttpServer extends AbstractServer {
             closeConn(key, st);
         }
     }
-
     /**
      * 内联路径写出完成收尾：Keep-Alive 恢复 OP_READ 继续读，否则关闭连接。
      * <p>对照 {@link #handleWrite} 写完后的收尾语义。</p>
@@ -506,7 +487,6 @@ public class NioHttpServer extends AbstractServer {
             closeConn(key, st);
         }
     }
-
     /**
      * 事件循环线程同步写缓冲队列;写不完整时交由 OP_WRITE 续写
      * @param st 方法入参 st
@@ -539,7 +519,6 @@ public class NioHttpServer extends AbstractServer {
             if (tw > 100) System.out.println("[perf] SLOW-write shard=" + st.shard + " us=" + tw);
         }
     }
-
     /**
      * worker(虚拟线程)执行 handler 链,响应通过 asyncWriter 交给事件循环 OP_WRITE 写出。
      * @param st 方法入参 st
@@ -596,7 +575,6 @@ public class NioHttpServer extends AbstractServer {
             closeConn(key, st);
         }
     }
-
     /**
      * worker(虚拟线程)执行 handler 链后,由 worker 线程直接同步写出(直写路径)。
      * <p>对比 {@link #processRequest}:直写让 socket 写调用在 12 核虚拟线程上并行执行,
@@ -656,7 +634,6 @@ public class NioHttpServer extends AbstractServer {
             closeConn(key, st);
         }
     }
-
     /**
      * 排空 writeQueue 至写满或清空。
      * <p>必须在持有 st.writeQueue 锁的情况下调用(与事件循环 handleWrite 互斥)。
@@ -688,7 +665,6 @@ public class NioHttpServer extends AbstractServer {
             st.writeQueue.poll();
         }
     }
-
     /**
      * 处理写入
      * @param key 键，不允许为 null
@@ -727,7 +703,6 @@ public class NioHttpServer extends AbstractServer {
             closeConn(key, st);
         }
     }
-
     /**
      * 关闭Conn
      * @param key 键，不允许为 null
@@ -741,7 +716,6 @@ public class NioHttpServer extends AbstractServer {
         }
         closeQuietly(st.channel);
     }
-
     /**
      * 连接状态:非阻塞通道 + 增量解析器 + 读缓冲 + 待写队列
      */
@@ -761,7 +735,6 @@ public class NioHttpServer extends AbstractServer {
          * 所属分片索引(决定注册到哪个 Selector 与写队列)
          */
         int shard = 0;
-
         /**
          * Connection State
          * @param channel 参数
@@ -774,7 +747,6 @@ public class NioHttpServer extends AbstractServer {
             this.request = new NioServerRequest(channel, maxRequestSize, charset);
         }
     }
-
     /**
      * 处理连接(SSL 回退路径):阻塞读 + feed() 增量解析,支持 Keep-Alive。
      * 普通 HTTP 走事件循环 processRequest;SSL 通道无法注册 Selector,回退此处。
@@ -834,9 +806,7 @@ public class NioHttpServer extends AbstractServer {
             closeQuietly(channel);
         }
     }
-
     // ==================== WebSocket 支持 ====================
-
     /**
      * 处理 WebSocket 升级：握手后进入帧循环，按主题分发消息。
      * @param channel 方法入参 channel
@@ -895,7 +865,6 @@ public class NioHttpServer extends AbstractServer {
             }
         }
     }
-
     /**
      * 按主题分发 WebSocket 消息（{@code topic\nbody} 约定，与 JdkWebSocketServer 一致）。
      * @param frame 方法入参 frame
@@ -932,7 +901,6 @@ public class NioHttpServer extends AbstractServer {
             }
         }
     }
-
     /**
      * 订阅指定主题的 WebSocket 消息。
      *
@@ -944,7 +912,6 @@ public class NioHttpServer extends AbstractServer {
         wsTopicHandlers.computeIfAbsent(topic, k -> new CopyOnWriteArrayList<>()).add(handler);
         return this;
     }
-
     /**
      * 向指定主题广播消息。
      *
@@ -958,7 +925,6 @@ public class NioHttpServer extends AbstractServer {
             conn.sendRaw(frame);
         }
     }
-
     /**
      * 注册Bean
      */
@@ -983,7 +949,6 @@ public class NioHttpServer extends AbstractServer {
         }
         return this;
     }
-
     /**
      * 构建基于 {@code @OnMessage} 注解方法的处理器。
      * @param bean 方法入参 bean
@@ -1022,9 +987,7 @@ public class NioHttpServer extends AbstractServer {
             }
         };
     }
-
     // ==================== WebSocket 内部类 ====================
-
     /**
      * WebSocket 连接封装，负责向对端发送帧。
      */
@@ -1033,7 +996,6 @@ public class NioHttpServer extends AbstractServer {
          * OUT
          */
         private final OutputStream out;
-
         /**
          * Ws Connection
          * @param out 输出流
@@ -1042,14 +1004,12 @@ public class NioHttpServer extends AbstractServer {
         WsConnection(OutputStream out) {
             this.out = out;
         }
-
         /**
          * 发送文本消息。
          */
         void send(String text) {
             sendRaw(WebSocketProtocol.textFrame(text));
         }
-
         /**
          * 发送原始帧数据。
          */
@@ -1064,7 +1024,6 @@ public class NioHttpServer extends AbstractServer {
             }
         }
     }
-
     /**
      * WebSocket 消息请求（与 JdkWebSocketServer.SimpleServerRequest 行为一致）。
      */
@@ -1081,7 +1040,6 @@ public class NioHttpServer extends AbstractServer {
          * attributes
          */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
-
         /**
          * Ws Server Request
          * @param body 字符串
@@ -1092,7 +1050,6 @@ public class NioHttpServer extends AbstractServer {
             this.topic = topic;
             this.body = body;
         }
-
         @Override public String getUri() { return "/ws/" + topic; }
         @Override public String getPath() { return "/ws/" + topic; }
         @Override public HttpMethod getMethod() { return HttpMethod.POST; }
@@ -1112,7 +1069,6 @@ public class NioHttpServer extends AbstractServer {
         @Override public Object getAttribute(String name) { return attributes.get(name); }
         @Override public void setAttribute(String name, Object value) { attributes.put(name, value); }
     }
-
     /**
      * WebSocket 消息响应（与 JdkWebSocketServer.SimpleServerResponse 行为一致）。
      */
@@ -1137,7 +1093,6 @@ public class NioHttpServer extends AbstractServer {
          * 结果
          */
         private Object result;
-
         /**
          * Ws Server Response
          * @param connection 参数
@@ -1146,7 +1101,6 @@ public class NioHttpServer extends AbstractServer {
         WsServerResponse(WsConnection connection) {
             this.connection = connection;
         }
-
         @Override public int getStatus() { return status; }
         @Override
         public ServerResponse setStatus(int statusCode) {
@@ -1202,7 +1156,6 @@ public class NioHttpServer extends AbstractServer {
         @Override public void sseEvent(String event, String data) { }
         @Override public void sseClose() { }
     }
-
     /**
      * 判断是否保持连接
      * @param request 请求，不允许为 null
@@ -1220,7 +1173,6 @@ public class NioHttpServer extends AbstractServer {
         // HTTP/1.1 默认 Keep-Alive
         return "HTTP/1.1".equalsIgnoreCase(request.getHttpVersion());
     }
-
     /**
      * 安静关闭SocketChannel
      * @param ch 方法入参 ch
@@ -1232,7 +1184,6 @@ public class NioHttpServer extends AbstractServer {
             LOG.debug("[nio] 关闭服务失败，已忽略: {}", e.getMessage());
         }
     }
-
     /**
      * Do停止Accepting
      */
@@ -1246,7 +1197,6 @@ public class NioHttpServer extends AbstractServer {
             }
         }
     }
-
     /**
      * Do停止
      */
@@ -1277,7 +1227,6 @@ public class NioHttpServer extends AbstractServer {
         wsConnections.clear();
         LOG.info("NIO HttpServer stopped");
     }
-
     /**
      * 获取ProtocolType
      */
@@ -1285,7 +1234,6 @@ public class NioHttpServer extends AbstractServer {
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }
-
     /**
      * ⏱ per-request event-loop blocked time (us) -- instrumented perf copy only
      */
@@ -1296,7 +1244,6 @@ public class NioHttpServer extends AbstractServer {
     private static final AtomicLong PERF_= new AtomicLong();
     private static final long LOG_MARK = 2_000_000_000L;
     static { for (int i=0;i<PNB;i++) PERF_B[i]=new LongAdder(); }
-
     private static void perfRecord(int shard, long us) {
         int i = us<1?0:us<10?1:us<100?2:us<1000?3:us<10000?4:5;
         PERF_B[i].increment();
