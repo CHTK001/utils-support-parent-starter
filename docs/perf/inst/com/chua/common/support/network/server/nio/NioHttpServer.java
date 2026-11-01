@@ -63,9 +63,9 @@ import java.util.concurrent.Executors;
  * @author CH
  * @since 2026/08/12
  */
-@Slf4j
 @Spi({"nio", "nio-http"})
 public class NioHttpServer extends AbstractServer {
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(NioHttpServer.class);
 
     /**
      * 服务器通道
