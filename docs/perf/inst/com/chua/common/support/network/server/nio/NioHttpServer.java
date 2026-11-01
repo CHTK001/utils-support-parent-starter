@@ -1,4 +1,4 @@
-ackage com.chua.common.support.network.server.nio;
+package com.chua.common.support.network.server.nio;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
@@ -65,6 +65,8 @@ import java.util.concurrent.Executors;
  * @since 2026/08/12
  */
 @Spi({"nio", "nio-http"})
+public class NioHttpServer extends AbstractServer {
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(NioHttpServer.class);
 
     // ===== perf probe (instrumented bench copy only, not project source) =====
     private static final int PERF_BINS = 6;
