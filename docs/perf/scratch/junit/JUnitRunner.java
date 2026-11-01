@@ -5,6 +5,7 @@ import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.EngineDiscoveryRequest;
 import org.junit.platform.engine.EngineExecutionListener;
 import org.junit.platform.engine.ExecutionRequest;
+import org.junit.platform.engine.OutputDirectoryCreator;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.UniqueId;
@@ -12,6 +13,8 @@ import org.junit.platform.engine.discovery.ClassSelector;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.engine.reporting.ReportEntry;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -70,6 +73,22 @@ public class JUnitRunner {
                     @Override
                     public Set<String> keySet() {
                         return Collections.emptySet();
+                    }
+                };
+            }
+
+            @Override
+            public OutputDirectoryCreator getOutputDirectoryCreator() {
+                // 不需要甲方 launcher 提供：把输出写向临时目录即可
+                return new OutputDirectoryCreator() {
+                    @Override
+                    public Path getRootDirectory() {
+                        return Paths.get(System.getProperty("user.dir"), "target/junit");
+                    }
+
+                    @Override
+                    public Path createOutputDirectory(TestDescriptor testDescriptor) {
+                        return getRootDirectory();
                     }
                 };
             }
