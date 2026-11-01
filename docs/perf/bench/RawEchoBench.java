@@ -54,8 +54,7 @@ public class RawEchoBench {
                         c.setOption(java.net.StandardSocketOptions.TCP_NODELAY, true);
                         byte[] req = new byte[MSG_LEN];
                         for (int k = 0; k < MSG_LEN; k++) req[k] = (byte) (k & 0xFF);
-                        OAuth2 kis = null;
-                        ClientRunner(r, c, req, latSum, counter, errCount, duration);
+                        ClientRunner(duration, c, req, latSum, counter, errCount);
                     } catch (Exception e) {
                         System.err.println("[raw] conn-" + idx + " err: " + e);
                         errCount.incrementAndGet();
