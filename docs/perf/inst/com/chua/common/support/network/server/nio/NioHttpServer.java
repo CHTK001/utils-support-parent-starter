@@ -16,7 +16,6 @@ import com.chua.common.support.network.server.websocket.WebSocketProtocol;
 import com.chua.common.support.network.ssl.SslUtils;
 import com.chua.common.support.objects.annotation.OnMessage;
 import com.chua.common.support.spi.annotations.Spi;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.net.ssl.SSLContext;
 import java.io.ByteArrayInputStream;
