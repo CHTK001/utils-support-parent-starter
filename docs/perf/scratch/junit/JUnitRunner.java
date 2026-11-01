@@ -16,26 +16,24 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 最小 JUnit 6.0.3 运行器：绕过 surefire（离线，不下载 junit-platform-launcher），
- * 直接在 JVM 内调用 JupiterTestEngine 跑 JUnit 测试。
+ * 最小 JUnit 6.0.3 运行器：绕过 surefire（离线，打不到 junit-platform-launcher），
+ * 直接在 JVM 内调用 JupiterTestEngine 跑 JUnit 5/6 测试。
  *
  * @author CH
  */
 public class JUnitRunner {
 
-    public static void main(String[] args) throws Exception {
-        int pass = 0;
-        int fail = 0;
-        int skip = 0;
-        long start = System.nanoTime();
+    static int pass = 0;
+    static int fail = 0;
+    static int skip = 0;
+    static int total = 0;
 
+    public static void main(String[] args) throws Exception {
+        long start = System.nanoTime();
         JupiterTestEngine engine = new JupiterTestEngine();
-        List<DiscoverySelector> selectors = java.util.Arrays.asList(
-                DiscoverySelectors.selectClass(args[0])
-        );
+        List<DiscoverySelector> selectors = Collections.singletonList(DiscoverySelectors.selectClass(args[0]));
         for (int i = 1; i < args.length; i++) {
             selectors.add(DiscoverySelectors.selectClass(args[i]));
         }
@@ -78,12 +76,48 @@ public class JUnitRunner {
         };
 
         TestDescriptor root = engine.discover(request, UniqueId.forEngine("junit-jupiter-6.0.3"));
+        EngineExecutionListener listener = new EngineExecutionListener() {
+            @Override
+            public void dynamicTestRegistered(TestDescriptor testDescriptor) {
+                total++;
+            }
+
+            @Override
+            public void executionSkipped(TestDescriptor testDescriptor, String reason) {
+                skip++;
+            }
+
+            @Override
+            public void executionStarted(TestDescriptor testDescriptor) {
+                System.out.println("  [start] " + testDescriptor.getUniqueId());
+            }
+
+            @Override
+            public void executionFinished(TestDescriptor testDescriptor, TestExecutionResult result) {
+                if (result.getStatus() == TestExecutionResult.Status.SUCCESSFUL) {
+                    pass++;
+                } else if (result.getStatus() == TestExecutionResult.Status.FAILED) {
+                    fail++;
+                    System.out.println("  [fail] " + testDescriptor.getUniqueId() + " -> " + result.getThrowable());
+                } else {
+                    skip++;
+                    System.out.println("  [skip] " + testDescriptor.getUniqueId() + " -> " + result.getStatus());
+                }
+            }
+
+            @Override
+            public void reportingEntryPublished(TestDescriptor testDescriptor, ReportEntry entry) {
+                // JUnit 6 ReportEntry 是类：getKeyValuePairs()
+                System.out.println("  [report] " + entry.getKeyValuePairs());
+            }
+        };
+
         ExecutionRequest executionRequest = ExecutionRequest.create(root, listener,
                 request.getConfigurationParameters());
         engine.execute(executionRequest);
 
-        System.out.println("Pass=" + pass + " Fail=" + fail + " Skip=" + skip + " elapsed="
-                + (System.nanoTime() - start) / 1_000_000L + "ms");
+        System.out.println("Pass=" + pass + " Fail=" + fail + " Skip=" + skip + " DynTests=" + total
+                + " elapsed=" + (System.nanoTime() - start) / 1_000_000L + "ms");
         if (fail > 0) {
             System.exit(1);
         }
