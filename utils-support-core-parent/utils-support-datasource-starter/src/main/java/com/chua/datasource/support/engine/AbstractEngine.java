@@ -690,34 +690,13 @@ public abstract class AbstractEngine implements Engine {
             return 0;
         }
 
- // 解析 设置 子句，分离参数：仅 "?" 占位符消费参数，字面量赋值直接取值
+        // 解析 SET 子句：支持 "a = 1, b = 2"、"a=1,b=2"、"a = ?, b = ?" 等写法
         List<Object> params = sql.params() == null ? Collections.emptyList() : sql.params();
-        Map<String, Object> setValues = Wraps.linkedMap();
-        String[] setParts = setClause.split(", ");
-        int paramIdx = 0;
-        for (String setPart : setParts) {
-            int eqIdx = setPart.indexOf(" = ");
-            if (eqIdx <= 0) {
-                continue;
-            }
-            String column = setPart.substring(0, eqIdx).trim();
-            String rhs = setPart.substring(eqIdx + 3).trim();
-            if ("?".equals(rhs)) {
-                if (paramIdx >= params.size()) {
-                    throw new IllegalStateException("UPDATE SET 占位符数量超过参数个数: " + setClause);
-                }
-                setValues.put(column, params.get(paramIdx++));
-            } else {
-                Object literal = parseMemoryLiteral(rhs);
-                if (literal != null) {
-                    setValues.put(column, literal);
-                }
-                // 无法求值的 SQL 表达式（如 now()）在内存引擎跳过，不消费参数
-            }
-        }
+        int[] paramIdx = new int[]{0};
+        Map<String, Object> setValues = parseSetClause(setClause, params, paramIdx);
+        int setParamCount = paramIdx[0];
 
  // WHERE 参数在 设置 参数之后（按实际消费的占位符个数切分）
-        int setParamCount = paramIdx;
         List<Object> whereParams;
         int totalParams = params.size();
         if (totalParams > setParamCount) {
@@ -775,9 +754,106 @@ public abstract class AbstractEngine implements Engine {
     }
 
     /**
+     * 解析 SET 子句，按列名路由值。
+     * <p>SET 分号段按英文逗号拆分，但引号内的逗号不拆分；每段按等号拆分列名与右侧，
+     * 仅 ? 占位符消费参数，字面量直接求值，不知道如何求值的如 now() 等会被静默忽略。</p>
+     *
+     * @param setClause SET 子句
+     * @param params    参数列表（占位符按消费顺序取值）
+     * @param paramIdx  参数消费索引持有者
+     * @param <T>       实体类型
+     * @return 列名 → 值 的映射
+     */
+    private static <T> Map<String, Object> parseSetClause(String setClause, List<Object> params, int[] paramIdx) {
+        Map<String, Object> setValues = Wraps.linkedMap();
+        for (String setPart : splitSetParts(setClause)) {
+            int eqIdx = indexOfUnquoted(setPart, '=');
+            if (eqIdx <= 0) {
+                continue;
+            }
+            String column = setPart.substring(0, eqIdx).trim();
+            String rhs = setPart.substring(eqIdx + 1).trim();
+            if ("?".equals(rhs)) {
+                if (paramIdx[0] >= params.size()) {
+                    throw new IllegalStateException("UPDATE SET 占位符数量超过参数个数: " + setClause);
+                }
+                setValues.put(column, params.get(paramIdx[0]++));
+            } else {
+                Object literal = parseMemoryLiteral(rhs);
+                if (literal != null) {
+                    setValues.put(column, literal);
+                }
+            }
+        }
+        return setValues;
+    }
+
+    /**
+     * 拆分 SET 子句各列，忽略引号内的逗号（如 a='x, y'）。
+     *
+     * @param setClause SET 子句
+     * @return 各列的文本片段
+     */
+    private static List<String> splitSetParts(String setClause) {
+        List<String> parts = Wraps.list();
+        StringBuilder sb = new StringBuilder();
+        boolean inQuote = false;
+        for (int i = 0; i < setClause.length(); i++) {
+            char c = setClause.charAt(i);
+            if (inQuote) {
+                sb.append(c);
+                if (c == '\'') {
+                    inQuote = false;
+                }
+            } else if (c == '\'') {
+                inQuote = true;
+                sb.append(c);
+            } else if (c == ',') {
+                parts.add(sb.toString());
+                sb.setLength(0);
+            } else {
+                sb.append(c);
+            }
+        }
+        if (sb.length() > 0) {
+            parts.add(sb.toString());
+        }
+        return parts;
+    }
+
+    /**
+     * 求限定的等号在引号外的第一个位置（引号内的等号不参与拆分）。
+     *
+     * @param part SET 片段
+     * @param c    目标字符
+     * @return 位置，未找到返回 -1
+     */
+    private static int indexOfUnquoted(String part, char c) {
+        boolean inQuote = false;
+        for (int i = 0; i < part.length(); i++) {
+            char ch = part.charAt(i);
+            if (inQuote) {
+                if (ch == '\'') {
+                    inQuote = false;
+                }
+            } else if (ch == '\'') {
+                inQuote = true;
+            } else if (ch == c) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
      * 解析内存引擎可求值的 SQL 字面量。
      * <p>支持单引号字符串（'' 转义）、整数与小数；其余（NULL、函数表达式等）
      * 返回 null 表示无法在内存中求值，由调用方决定跳过。</p>
+     *
+     * <p>整数一律返回 {@link Long}，由 {@link MethodCache#setValue} 的
+     * 「包装类型 → 基本类型」候选链完成到目标形参的收窄转换；
+     * 若在此处猜测 {@code Integer}/{@code Long}，{@code age = 45} 这类语句
+     * 会因 {@code Long} 无法赋给 {@code setAge(Integer)} 而静默不生效。</p>
      *
      * @param rhs 赋值右侧文本
      * @return 字面量值，无法求值返回 null
@@ -790,7 +866,7 @@ public abstract class AbstractEngine implements Engine {
             return rhs.substring(1, rhs.length() - 1).replace("''", "'");
         }
         try {
-            if (rhs.indexOf('.') >= 0) {
+            if (rhs.indexOf('.') >= 0 || rhs.indexOf('e') >= 0 || rhs.indexOf('E') >= 0) {
                 return Double.parseDouble(rhs);
             }
             return Long.parseLong(rhs);
