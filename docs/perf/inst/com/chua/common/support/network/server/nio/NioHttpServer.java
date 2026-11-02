@@ -1376,4 +1376,9 @@ public class NioHttpServer extends AbstractServer {
     /**
      * 获取ProtocolType
      */
-    @Over
+    @Override
+    public ProtocolType getProtocolType() {
+        return ProtocolType.HTTP;
+    }
+}
+
