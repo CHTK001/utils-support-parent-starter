@@ -407,6 +407,40 @@ public class EngineQueryWrapper<T> extends LambdaQueryWrapper<T> {
     }
 
     /**
+     * AND 逻辑分组，括号包裹一组条件。
+     * <p>
+     * 覆写父类，使链式调用保持在 {@link EngineQueryWrapper} 类型；否则链后调用的
+     * {@link #list()} / {@link #count()} / {@link #page(int, int)} 等方法将回到
+     * {@link LambdaQueryWrapper} 的声明类型，失去引擎的实现。
+     * </p>
+     *
+     * @param andGroup and分组，不允许为 null
+     * @return this
+     */
+    @Override
+    public EngineQueryWrapper<T> and(Consumer<LambdaQueryWrapper<T>> andGroup) {
+        super.and(andGroup);
+        return this;
+    }
+
+    /**
+     * OR 逻辑分组，括号包裹一组条件。
+     * <p>
+     * 覆写父类，使链式调用保持在 {@link EngineQueryWrapper} 类型；否则链后调用的
+     * {@link #list()} / {@link #count()} / {@link #page(int, int)} 等方法将回到
+     * {@link LambdaQueryWrapper} 的声明类型，失去引擎的实现。
+     * </p>
+     *
+     * @param orGroup or分组，不允许为 null
+     * @return this
+     */
+    @Override
+    public EngineQueryWrapper<T> or(Consumer<LambdaQueryWrapper<T>> orGroup) {
+        super.or(orGroup);
+        return this;
+    }
+
+    /**
      * 列表
     */
     @Override

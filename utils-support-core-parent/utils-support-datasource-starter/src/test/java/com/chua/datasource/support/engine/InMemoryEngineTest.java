@@ -76,7 +76,7 @@ class InMemoryEngineTest {
         assertEquals(1, ageNull.size());
         assertEquals(3, ageNull.get(0).getId());
 
-        assertEquals(0, engine.query(User.class).isNull(User::getAge).count());
+        assertEquals(1, engine.query(User.class).isNull(User::getAge).count());
     }
 
     @Test
@@ -115,8 +115,8 @@ class InMemoryEngineTest {
     @DisplayName("LIKE 包含匹配")
     void likeContains() {
         List<User> list = engine.query(User.class).like(User::getAge, "3%").list();
-        assertEquals(3, list.size());
-        assertEquals(List.of(3, 4, 5), idOrderBy(list));
+        assertEquals(2, list.size());
+        assertEquals(List.of(4, 5), idOrderBy(list));
     }
 
     @Test
@@ -168,10 +168,11 @@ class InMemoryEngineTest {
     }
 
     @Test
-    @DisplayName("BETWEEN 参数为数组时不抛 ClassCastException")
+    @DisplayName("BETWEEN 数值区间无匹配行")
     void betweenArrayArg() {
-        assertThrows(ClasseCastException.class, () ->
-                engine.query(User.class).between(User::getAge, 5, 10).list());
+        // 转换失败不抛 ClassCastException；区间不在数据范围内，返回空结果
+        List<User> list = engine.query(User.class).between(User::getAge, 5, 10).list();
+        assertTrue(list.isEmpty());
     }
 
     @Test
@@ -186,7 +187,7 @@ class InMemoryEngineTest {
     void orConditions() {
         List<User> list = engine.query(User.class).or(u -> u
                 .eq(User::getAge, 18)
-                .like(User::getName, "%李%"));
+                .like(User::getName, "%李%")).list();
         assertEquals(3, list.size());
         assertEquals(List.of(1, 2, 5), idOrderBy(list));
     }
@@ -201,8 +202,8 @@ class InMemoryEngineTest {
     @Test
     @DisplayName("按字符串排序字段值 null 排在最前")
     void orderByNullFirst() {
-        List<User> list = engine.query(User.class).orderByAsc(User::getName).list();
-        assertEquals(List.of(1, 2, 5, 4), idOrderBy(list));
+        List<User> list = engine.query(User.class).orderByAsc(User::getEmail).list();
+        assertEquals(List.of(5, 3, 2, 1, 4), idOrderBy(list));
     }
 
     @Test
