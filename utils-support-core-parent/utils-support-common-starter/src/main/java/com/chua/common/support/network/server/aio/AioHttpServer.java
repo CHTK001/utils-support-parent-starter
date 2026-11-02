@@ -316,6 +316,22 @@ public class AioHttpServer extends AbstractServer {
      * @param channel 新接入的通道
      */
     private void handleNewConnection(AsynchronousSocketChannel channel) {
+        // 连接数门限:超限直接关闭,与 AbstractProxyServer 语义一致。
+        // 先占位再校验,并发 accept 下计数不会突破上限(超额立即归还)。
+        int max = setting.getMaxConnections();
+        if (max > 0 && activeConnections.incrementAndGet() > max) {
+            activeConnections.decrementAndGet();
+            log.warn("AIO 连接数已达上限 (max={}), 拒绝 {}", max, safeRemote(channel));
+            try {
+                channel.close();
+            } catch (Exception ignored) {
+                // 关闭失败无需处理
+            }
+            return;
+        }
+        if (max <= 0) {
+            activeConnections.incrementAndGet();
+        }
         try {
             channel.setOption(StandardSocketOptions.TCP_NODELAY, setting.isTcpNoDelay());
         } catch (Exception e) {
@@ -323,7 +339,6 @@ public class AioHttpServer extends AbstractServer {
             log.debug("TCP_NODELAY 设置失败: {}", e.getMessage());
         }
         ConnState state = new ConnState(channel);
-        activeConnections.incrementAndGet();
         if (sslContext != null) {
             // TLS 连接:每连接独立 SSLEngine,纯异步状态机驱动握手(零阻塞、零驻留线程)
             SSLEngine engine = sslContext.createSSLEngine();
@@ -1454,6 +1469,21 @@ public class AioHttpServer extends AbstractServer {
             public void flush() {
             }
         };
+    }
+
+    /**
+     * 取远端地址用于日志,连接已断时返回 "-",不抛异常。
+     *
+     * @param channel 通道
+     * @return 远端地址字符串
+     */
+    private static String safeRemote(AsynchronousSocketChannel channel) {
+        try {
+            java.net.SocketAddress addr = channel.getRemoteAddress();
+            return addr == null ? "-" : addr.toString();
+        } catch (Exception e) {
+            return "-";
+        }
     }
 
     /**
