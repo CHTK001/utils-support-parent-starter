@@ -111,6 +111,37 @@ public class NioHttpServer extends AbstractServer {
     private final List<WsConnection> wsConnections = new CopyOnWriteArrayList<>();
 
     /**
+     * 头体合并写阈值：响应头+体不超过该字节数时合并成单个 ByteBuffer 一次写出。
+     * <p>非合并时每次响应要两次 {@code SocketChannel.write}(header/body 各一次),
+     * Windows 上每次内核态往返成本明显,合并后每请求只写一次。</p>
+     */
+    private static final int COMBINE_THRESHOLD = Integer.getInteger("nio.combine", 65536);
+
+    /**
+     * 将响应头与体追加到连接的写队列,小响应合并成单个缓冲以减少 socket 写次数。
+     * <p>调用方需持有 {@code st.writeQueue} 的锁。</p>
+     * @param st 连接状态
+     * @param header 已编码的响应头缓冲
+     * @param body 响应体缓冲,可为 null 或已写尽
+     */
+    private static void appendResponseBuffers(ConnectionState st, ByteBuffer header, ByteBuffer body) {
+        if (body != null && body.hasRemaining()
+                && header.remaining() + body.remaining() <= COMBINE_THRESHOLD) {
+            // 小响应:头体合并为单缓冲,一次 write 完成(对齐 AioHttpServer 的极限优化)
+            int total = header.remaining() + body.remaining();
+            ByteBuffer combined = ByteBuffer.allocate(total);
+            combined.put(header).put(body);
+            combined.flip();
+            st.writeQueue.add(combined);
+            return;
+        }
+        st.writeQueue.add(header);
+        if (body != null && body.hasRemaining()) {
+            st.writeQueue.add(body);
+        }
+    }
+
+    /**
      * 创建 NioHttpServer 实例
      * @param setting setting
      */
@@ -449,10 +480,7 @@ public class NioHttpServer extends AbstractServer {
             // 内联写出:事件循环线程同步写通道,未写完部分入 writeQueue 交由 OP_WRITE 续写
             response.setAsyncWriter((header, body) -> {
                 synchronized (st.writeQueue) {
-                    st.writeQueue.add(header);
-                    if (body != null && body.hasRemaining()) {
-                        st.writeQueue.add(body);
-                    }
+                    appendResponseBuffers(st, header, body);
                 }
                 flushInlineWrite(st, key);
             });
@@ -552,10 +580,7 @@ public class NioHttpServer extends AbstractServer {
             NioServerResponse response = new NioServerResponse(st.channel);
             response.setAsyncWriter((header, body) -> {
                 synchronized (st.writeQueue) {
-                    st.writeQueue.add(header);
-                    if (body != null && body.hasRemaining()) {
-                        st.writeQueue.add(body);
-                    }
+                    appendResponseBuffers(st, header, body);
                 }
                 // 交由所属分片事件循环线程统一注册 OP_WRITE,避免 worker 线程跨线程改 interestOps 竞态
                 pendingWriteQueues[st.shard].add(key);
@@ -610,10 +635,7 @@ public class NioHttpServer extends AbstractServer {
             NioServerResponse response = new NioServerResponse(st.channel);
             response.setAsyncWriter((header, body) -> {
                 synchronized (st.writeQueue) {
-                    st.writeQueue.add(header);
-                    if (body != null && body.hasRemaining()) {
-                        st.writeQueue.add(body);
-                    }
+                    appendResponseBuffers(st, header, body);
                 }
             });
             try {

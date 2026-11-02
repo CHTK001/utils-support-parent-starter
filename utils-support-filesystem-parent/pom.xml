@@ -26,6 +26,7 @@
         <module>utils-support-wechat-restore-starter</module>
         <module>utils-support-html-starter</module>
         <module>utils-support-image-apng-starter</module>
+        <module>utils-support-image-starter</module>
         <module>utils-support-ofd-starter</module>
         <module>utils-support-zxing-starter</module>
         <module>utils-support-ffmpeg-starter</module>
