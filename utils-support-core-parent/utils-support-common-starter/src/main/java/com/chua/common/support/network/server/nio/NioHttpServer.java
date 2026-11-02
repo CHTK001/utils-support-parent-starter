@@ -172,27 +172,19 @@ public class NioHttpServer extends AbstractServer {
         long max = setting.getMaxPendingWriteBytes();
         synchronized (st.writeQueue) {
             if (max > 0 && st.pendingWriteBytes + bytes.length > max) {
-                // 慢消费者:队列已到门限,无法在不阻塞事件循环的前提下继续写入
+                // 慢客户端:队列已到门限。这里不阻塞等待——SSE 生产者可能正是事件循环线程,
+                // 阻塞它会连同该分片上的所有连接一起卡死。关闭连接是唯一安全的选择:
+                // 响应体已无法在有限内存内完整送达。
                 log.warn("NIO 待写队列超过背压门限 (pending={}, max={}, remote={}),关闭连接",
                         st.pendingWriteBytes, max, safeRemote(st.channel));
-                exceededBackpressure(st, key);
+                st.keepAlive = false;
+                st.inWorker = false;
+                closeConn(key, st);
                 return;
             }
             st.writeQueue.add(ByteBuffer.wrap(bytes));
             st.pendingWriteBytes += bytes.length;
         }
-    }
-
-    /**
-     * 背压超限处理:标记连接不可继续复用并尝试立刻排空/关闭。
-     *
-     * @param st  连接状态
-     * @param key 选择键
-     */
-    private void exceededBackpressure(ConnectionState st, SelectionKey key) {
-        st.keepAlive = false;
-        st.inWorker = false;
-        closeConn(key, st);
     }
 
     /**
@@ -829,6 +821,9 @@ public class NioHttpServer extends AbstractServer {
      * @param st 方法入参 st
      */
     private void closeConn(SelectionKey key, ConnectionState st) {
+        if (!st.closed.compareAndSet(false, true)) {
+            return;
+        }
         try {
             key.cancel();
         } catch (Exception e) {
@@ -899,6 +894,12 @@ public class NioHttpServer extends AbstractServer {
         long pendingWriteBytes;
         boolean keepAlive = true;
         boolean inWorker = false;
+        /**
+         * 连接关闭标志(幂等关闭):closeConn 可能被事件循环、worker 与背压路径并发调用,
+         * 若不判重会重复递减 activeConnections,导致连接数上限被提前耗尽。
+         */
+        final java.util.concurrent.atomic.AtomicBoolean closed =
+                new java.util.concurrent.atomic.AtomicBoolean(false);
         /**
          * 所属分片索引(决定注册到哪个 Selector 与写队列)
          */
