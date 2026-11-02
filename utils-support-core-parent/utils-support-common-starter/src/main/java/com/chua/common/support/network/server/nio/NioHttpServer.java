@@ -721,6 +721,13 @@ public class NioHttpServer extends AbstractServer {
                     appendResponseBuffers(st, header, body);
                 }
             });
+            // 流式直写(SSE):worker 线程排空队列;排不完交由事件循环 OP_WRITE 续写
+            response.setStreamWriter(bytes -> {
+                enqueueStream(st, key, bytes);
+                synchronized (st.writeQueue) {
+                    drainWriteQueue(st, key);
+                }
+            });
             try {
                 handleRequest(st.request, response);
             } catch (Exception e) {
