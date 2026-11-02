@@ -154,6 +154,48 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
+     * 流式分片入队(SSE/{@code writeRaw}):受单连接背压门限约束。
+     *
+     * <p>与 {@link #appendResponseBuffers} 的区别:这里是**生产端持续推送**的路径,
+     * 慢客户端会让队列无界增长,所以必须在入队前检查
+     * {@link ServerSetting#getMaxPendingWriteBytes()};超限视为慢消费者,
+     * 关闭连接并丢弃该分片(整帧语义,不会写出半帧)。</p>
+     *
+     * @param st    连接状态
+     * @param key   选择键
+     * @param bytes 分片字节
+     */
+    private void enqueueStream(ConnectionState st, SelectionKey key, byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return;
+        }
+        long max = setting.getMaxPendingWriteBytes();
+        synchronized (st.writeQueue) {
+            if (max > 0 && st.pendingWriteBytes + bytes.length > max) {
+                // 慢消费者:队列已到门限,无法在不阻塞事件循环的前提下继续写入
+                log.warn("NIO 待写队列超过背压门限 (pending={}, max={}, remote={}),关闭连接",
+                        st.pendingWriteBytes, max, safeRemote(st.channel));
+                exceededBackpressure(st, key);
+                return;
+            }
+            st.writeQueue.add(ByteBuffer.wrap(bytes));
+            st.pendingWriteBytes += bytes.length;
+        }
+    }
+
+    /**
+     * 背压超限处理:标记连接不可继续复用并尝试立刻排空/关闭。
+     *
+     * @param st  连接状态
+     * @param key 选择键
+     */
+    private void exceededBackpressure(ConnectionState st, SelectionKey key) {
+        st.keepAlive = false;
+        st.inWorker = false;
+        closeConn(key, st);
+    }
+
+    /**
      * 创建 NioHttpServer 实例
      * @param setting setting
      */
