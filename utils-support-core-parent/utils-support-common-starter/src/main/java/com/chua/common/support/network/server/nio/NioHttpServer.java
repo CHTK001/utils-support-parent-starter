@@ -111,6 +111,13 @@ public class NioHttpServer extends AbstractServer {
     private final List<WsConnection> wsConnections = new CopyOnWriteArrayList<>();
 
     /**
+     * 头体合并写阈值：响应头+体不超过该字节数时合并成单个 ByteBuffer 一次写出。
+     * <p>非合并时每次响应要两次 {@code SocketChannel.write}(header/body 各一次),
+     * Windows 上每次内核态往返成本明显,合并后每请求只写一次。</p>
+     */
+    private static final int COMBINE_THRESHOLD = 65536;
+
+    /**
      * 创建 NioHttpServer 实例
      * @param setting setting
      */
@@ -449,9 +456,19 @@ public class NioHttpServer extends AbstractServer {
             // 内联写出:事件循环线程同步写通道,未写完部分入 writeQueue 交由 OP_WRITE 续写
             response.setAsyncWriter((header, body) -> {
                 synchronized (st.writeQueue) {
-                    st.writeQueue.add(header);
-                    if (body != null && body.hasRemaining()) {
-                        st.writeQueue.add(body);
+                    if (body != null && body.hasRemaining()
+                            && header.remaining() + body.remaining() <= COMBINE_THRESHOLD) {
+                        // 极限优化(对齐 AioHttpServer):小响应头体合并为单缓冲,一次 write 完成。
+                        // 非合并时 flushInlineWrite 需要两次 socket 写调用,Windows 上内核态往返成本明显
+                        int total = header.remaining() + body.remaining();
+                        ByteBuffer combined = ByteBuffer.allocate(total);
+                        combined.put(header).put(body);
+                        combined.flip();
+                        st.writeQueue.add(combined);                    } else {
+                        st.writeQueue.add(header);
+                        if (body != null && body.hasRemaining()) {
+                            st.writeQueue.add(body);
+                        }
                     }
                 }
                 flushInlineWrite(st, key);
