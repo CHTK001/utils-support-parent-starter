@@ -555,6 +555,11 @@ public class NioHttpServer extends AbstractServer {
                 }
                 flushInlineWrite(st, key);
             });
+            // 流式直写(SSE):入待写队列并受背压门限约束,不再在事件循环里忙等非阻塞通道
+            response.setStreamWriter(bytes -> {
+                enqueueStream(st, key, bytes);
+                flushInlineWrite(st, key);
+            });
             try {
                 handleRequest(st.request, response);
             } catch (Exception e) {
@@ -655,6 +660,12 @@ public class NioHttpServer extends AbstractServer {
                     appendResponseBuffers(st, header, body);
                 }
                 // 交由所属分片事件循环线程统一注册 OP_WRITE,避免 worker 线程跨线程改 interestOps 竞态
+                pendingWriteQueues[st.shard].add(key);
+                selectors[st.shard].wakeup();
+            });
+            // 流式直写(SSE):分片入待写队列并由事件循环续写;受背压门限约束
+            response.setStreamWriter(bytes -> {
+                enqueueStream(st, key, bytes);
                 pendingWriteQueues[st.shard].add(key);
                 selectors[st.shard].wakeup();
             });
