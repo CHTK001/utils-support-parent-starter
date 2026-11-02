@@ -320,6 +320,33 @@ public final class ReflectUtils {
     }
 
     /**
+     * 获取能访问指定类成员的 Lookup。
+     *
+     * <p>{@code LOOKUP} 是 ReflectUtils 所在包（ {@code com.chua.common.support.reflection} ）的
+     * 私有查找，当目标类是 {@code public} 时它可以顺利完成查找；但目标类是包级私有或私有类时
+     * （最典型的场景是外层是另一个包的嵌套类，如各模块测试中的实体类）， {@code LOOKUP} 无法
+     * 访问其成员。</p>
+     *
+     * <p>Java 9+ 通过 {@link MethodHandles#privateLookupIn(Class, Lookup)} 把 LOOKUP 的访问域
+     * 扩大到目标类所在的包；若目标类不可访问，则按原样返回 LOOKUP，由调用方走不依赖类访问权限
+     * 的降级路径（如 {@code findFieldGetter} 的 unreflectGetter 或 java.lang.reflect）。</p>
+     *
+     * @param clazz 目标类，为 null 时返回 LOOKUP
+     * @return 可访问 clazz 的包级私有与私有成员的 Lookup
+     */
+    private static MethodHandles.Lookup accessLookup(Class<?> clazz) {
+        if (clazz == null) {
+            return LOOKUP;
+        }
+        try {
+            return MethodHandles.privateLookupIn(clazz, LOOKUP);
+        } catch (IllegalAccessException e) {
+            log.debug("[ReflectUtils] 无法私有访问 " + clazz.getName() + ": " + e);
+            return LOOKUP;
+        }
+    }
+
+    /**
      * 获取实例方法处理（带缓存）。
      *
      * <p>通过 {@link MethodHandles#lookup()} 查找方法句柄，结果按 (类, 方法名, 参数类型) 键缓存于
