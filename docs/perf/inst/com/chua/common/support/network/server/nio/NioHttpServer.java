@@ -86,6 +86,7 @@ public class NioHttpServer extends AbstractServer {
 
     private static void perfRecord(int bin) {
         PERF_COUNT[bin].increment();
+        System.out.println("[probe] bin=" + bin);
         long now = System.nanoTime();
         long last = PERF_LAST.get();
         if (now - last > PERF_INTERVAL) {
