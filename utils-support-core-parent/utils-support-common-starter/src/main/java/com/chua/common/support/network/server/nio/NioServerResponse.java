@@ -418,10 +418,27 @@ public class NioServerResponse implements ServerResponse {
         }
         sb.append('\n');
         byte[] frameBytes = sb.toString().getBytes(StandardCharsets.UTF_8);
-        // chunked frame: hex-size CRLF data CRLF
-        writeToChannel((Integer.toHexString(frameBytes.length) + "\r\n").getBytes(StandardCharsets.US_ASCII));
-        writeToChannel(frameBytes);
-        writeToChannel(CRLF);
+        // chunked frame: hex-size CRLF data CRLF。
+        // 必须作为**单次写入**入队:背压丢弃以整帧为单位,拆成三次写会出现
+        // "长度行已写、数据被丢"的帧结构破损;合并后还少两次入队/系统调用。
+        byte[] chunk = buildChunk(frameBytes);
+        writeToChannel(chunk);
+    }
+
+    /**
+     * 构造一个完整的 chunked 帧(长度行 + 数据 + CRLF)。
+     *
+     * @param frameBytes 帧数据
+     * @return 完整 chunk 字节
+     */
+    private static byte[] buildChunk(byte[] frameBytes) {
+        byte[] sizeLine = (Integer.toHexString(frameBytes.length) + "\r\n")
+                .getBytes(StandardCharsets.US_ASCII);
+        byte[] chunk = new byte[sizeLine.length + frameBytes.length + CRLF.length];
+        System.arraycopy(sizeLine, 0, chunk, 0, sizeLine.length);
+        System.arraycopy(frameBytes, 0, chunk, sizeLine.length, frameBytes.length);
+        System.arraycopy(CRLF, 0, chunk, sizeLine.length + frameBytes.length, CRLF.length);
+        return chunk;
     }
 
     /**
