@@ -115,7 +115,7 @@ public class NioHttpServer extends AbstractServer {
      * <p>非合并时每次响应要两次 {@code SocketChannel.write}(header/body 各一次),
      * Windows 上每次内核态往返成本明显,合并后每请求只写一次。</p>
      */
-    private static final int COMBINE_THRESHOLD = 65536;
+    private static final int COMBINE_THRESHOLD = Integer.getInteger("nio.combine", 65536);
 
     /**
      * 将响应头与体追加到连接的写队列,小响应合并成单个缓冲以减少 socket 写次数。
