@@ -120,7 +120,12 @@ public class HttpClientMain {
                         ERRORS.increment();
                         break;
                     }
-                    LATENCY.add(end - start);
+                    long delta = end - start;
+                    LATENCY.add(delta);
+                    int us = (int) (delta / 1000L);
+                    if (us >= 0 && us < HIST.length()) {
+                        HIST.getAndIncrement(us);
+                    }
                 }
             } catch (IOException e) {
                 ERRORS.increment();
