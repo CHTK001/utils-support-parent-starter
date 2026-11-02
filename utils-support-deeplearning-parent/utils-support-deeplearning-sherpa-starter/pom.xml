@@ -80,12 +80,12 @@
           真正执行「因该→应该」的核对。该模型由 utils-support-models-parent 独立构建并
           install 到本地仓库；缺失时用例会 skip（不伪装通过），不影响主线编译。
         -->
-        <dependency>
+        <!-- <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-macbert4csc</artifactId>
             <version>4.0.0.43</version>
             <scope>test</scope>
-        </dependency>
+        </dependency> -->
     </dependencies>
 
     <profiles>
