@@ -68,8 +68,31 @@ public class NioServerResponse implements ServerResponse {
     private int statusCode = 200;
     /**
      * headers
+     * <p>惰性创建：echo 类小响应遵循「status=200 + 无自定义头」快路径，完全不碰该 map，
+     * 避免每请求分配 TreeMap + 包装对象（高并发下是显著的分配压力）。</p>
      */
-    private final Map<String, String> headers = Wraps.sortedMap(String.CASE_INSENSITIVE_ORDER);
+    private Map<String, String> headers;
+
+    /**
+     * 取得 headers，首次使用时创建大小写不敏感的有序 map。
+     * @return 可写的 header map
+     */
+    private Map<String, String> headers() {
+        Map<String, String> h = headers;
+        if (h == null) {
+            h = Wraps.sortedMap(String.CASE_INSENSITIVE_ORDER);
+            headers = h;
+        }
+        return h;
+    }
+
+    /**
+     * headers 是否为空（含从未创建的情况）。
+     * @return 无自定义头时返回 true
+     */
+    private boolean headersEmpty() {
+        return headers == null || headers.isEmpty();
+    }
     /**
      * 请求体
      */
@@ -160,7 +183,7 @@ public class NioServerResponse implements ServerResponse {
         if (ended) {
             return this;
         }
-        headers.put(name, value);
+        headers().put(name, value);
         return this;
     }
 
@@ -169,7 +192,7 @@ public class NioServerResponse implements ServerResponse {
      */
     @Override
     public String getHeader(String name) {
-        return headers.get(name);
+        return headers == null ? null : headers.get(name);
     }
 
     /**
@@ -178,7 +201,9 @@ public class NioServerResponse implements ServerResponse {
     @Override
     public HttpHeader getHeaders() {
         HttpHeader h = HttpHeader.create();
-        headers.forEach(h::add);
+        if (headers != null) {
+            headers.forEach(h::add);
+        }
         return h;
     }
 
@@ -315,7 +340,9 @@ public class NioServerResponse implements ServerResponse {
             return this;
         }
         statusCode = 200;
-        headers.clear();
+        if (headers != null) {
+            headers.clear();
+        }
         body = null;
         result = null;
         if (rawOutput != null) {
@@ -459,11 +486,12 @@ public class NioServerResponse implements ServerResponse {
         try (java.nio.channels.FileChannel fileChannel = java.nio.channels.FileChannel.open(file,
                 java.nio.file.StandardOpenOption.READ)) {
             long fileSize = fileChannel.size();
-            if (!headers.containsKey("Content-Length")) {
-                headers.put("Content-Length", String.valueOf(fileSize));
+            Map<String, String> h = headers();
+            if (!h.containsKey("Content-Length")) {
+                h.put("Content-Length", String.valueOf(fileSize));
             }
-            if (!headers.containsKey("Content-Type")) {
-                headers.put("Content-Type", "application/octet-stream");
+            if (!h.containsKey("Content-Type")) {
+                h.put("Content-Type", "application/octet-stream");
             }
             // 响应头先写
             writeToChannel(buildHttpHeaders((int) fileSize));
@@ -491,22 +519,23 @@ public class NioServerResponse implements ServerResponse {
      */
     private byte[] buildHttpHeaders(int bodyLength) {
         // 快路径:status=200 + 无用户自定义 header + keep-alive,即 echo 场景
-        if (statusCode == 200 && headers.isEmpty()) {
+        if (statusCode == 200 && headersEmpty()) {
             return buildEchoHeader(bodyLength);
         }
         // 慢路径:自定义 header 或非 200,降级到通用构建
         StringBuilder sb = new StringBuilder(256);
         sb.append("HTTP/1.1 ").append(statusCode).append(' ').append(reasonPhrase(statusCode)).append("\r\n");
-        if (!headers.containsKey("Content-Type")) {
+        Map<String, String> h = headers();
+        if (!h.containsKey("Content-Type")) {
             sb.append("Content-Type: text/plain; charset=UTF-8\r\n");
         }
-        if (!headers.containsKey("Content-Length")) {
+        if (!h.containsKey("Content-Length")) {
             sb.append("Content-Length: ").append(bodyLength).append("\r\n");
         }
-        if (!headers.containsKey("Connection")) {
+        if (!h.containsKey("Connection")) {
             sb.append("Connection: keep-alive\r\n");
         }
-        for (Map.Entry<String, String> e : headers.entrySet()) {
+        for (Map.Entry<String, String> e : h.entrySet()) {
             sb.append(e.getKey()).append(": ").append(e.getValue()).append("\r\n");
         }
         sb.append("\r\n");
@@ -577,11 +606,13 @@ public class NioServerResponse implements ServerResponse {
             ByteArrayOutputStream headerBuf = new ByteArrayOutputStream(256);
             headerBuf.write(("HTTP/1.1 " + status + " " + reasonPhrase(status) + "\r\n")
                     .getBytes(StandardCharsets.US_ASCII));
-            for (Map.Entry<String, String> e : headers.entrySet()) {
-                headerBuf.write(e.getKey().getBytes(StandardCharsets.US_ASCII));
-                headerBuf.write(COLON_SP);
-                headerBuf.write(e.getValue().getBytes(StandardCharsets.US_ASCII));
-                headerBuf.write(CRLF);
+            if (headers != null) {
+                for (Map.Entry<String, String> e : headers.entrySet()) {
+                    headerBuf.write(e.getKey().getBytes(StandardCharsets.US_ASCII));
+                    headerBuf.write(COLON_SP);
+                    headerBuf.write(e.getValue().getBytes(StandardCharsets.US_ASCII));
+                    headerBuf.write(CRLF);
+                }
             }
             headerBuf.write(CRLF);
             writeToChannel(headerBuf.toByteArray());
