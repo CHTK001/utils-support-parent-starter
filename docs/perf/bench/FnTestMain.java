@@ -17,6 +17,8 @@ public class FnTestMain {
     public static void main(String[] args) throws Exception {
         String type = args.length > 0 ? args[0] : "nio";
         int port = args.length > 1 ? Integer.parseInt(args[1]) : 8080;
+        // 可选:限制最大连接数,用于验证连接数门限(不传则走 autoConfig 的堆推导值)
+        int maxConnections = args.length > 2 ? Integer.parseInt(args[2]) : -1;
 
         ServerSetting setting = ServerSetting.auto();
         setting.setInlineDispatch(true);
@@ -24,6 +26,9 @@ public class FnTestMain {
         setting.setResponseTimeout(-1);
         setting.setMaxKeepAliveRequests(-1);
         setting.setPort(port);
+        if (maxConnections > 0) {
+            setting.setMaxConnections(maxConnections);
+        }
 
         AbstractServer server = "aio".equals(type) ? new AioHttpServer(setting) : new NioHttpServer(setting);
 

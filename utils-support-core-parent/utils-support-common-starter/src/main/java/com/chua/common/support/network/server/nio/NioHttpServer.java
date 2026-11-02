@@ -88,6 +88,13 @@ public class NioHttpServer extends AbstractServer {
      */
     private java.util.Queue<SocketChannel>[] pendingAcceptQueues;
     /**
+     * 当前活跃连接数(accept 成功后 +1,连接关闭时 -1)。
+     * <p>用于实施 {@link ServerSetting#getMaxConnections()}:超出上限的新连接在 accept 阶段直接关闭,
+     * 避免内核已接纳连接后在此处无限堆积、把进程内存打爆。</p>
+     */
+    private final java.util.concurrent.atomic.AtomicInteger activeConnections =
+            new java.util.concurrent.atomic.AtomicInteger();
+    /**
      * 执行器
      */
     private ExecutorService executor;
@@ -114,6 +121,8 @@ public class NioHttpServer extends AbstractServer {
      * 头体合并写阈值：响应头+体不超过该字节数时合并成单个 ByteBuffer 一次写出。
      * <p>非合并时每次响应要两次 {@code SocketChannel.write}(header/body 各一次),
      * Windows 上每次内核态往返成本明显,合并后每请求只写一次。</p>
+     * <p>可通过 {@code -Dnio.combine=<字节数>} 覆盖,设为 {@code 0} 即彻底关闭合并;
+     * 该属性在类初始化时读取一次,运行时无额外开销。</p>
      */
     private static final int COMBINE_THRESHOLD = Integer.getInteger("nio.combine", 65536);
 
@@ -310,7 +319,12 @@ public class NioHttpServer extends AbstractServer {
                     } catch (Exception e) {
                         // 对已取消(客户端断开)的 key 操作会抛 CancelledKeyException,
                         // 绝不能让它逃出事件循环线程,否则该分片所有连接静默血崩(0 吞吐)
-                        closeQuietly(rk.channel() instanceof SocketChannel sc ? sc : null);
+                        ConnectionState rst = rk.attachment() instanceof ConnectionState c ? c : null;
+                        if (rst != null) {
+                            closeConn(rk, rst);
+                        } else {
+                            closeQuietly(rk.channel() instanceof SocketChannel sc ? sc : null);
+                        }
                     }
                 }
                 // 统一在本分片事件循环线程注册 OP_WRITE(worker 只入队 + wakeup,避免跨线程 interestOps 竞态)
@@ -321,7 +335,12 @@ public class NioHttpServer extends AbstractServer {
                             wk.interestOps(SelectionKey.OP_WRITE);
                         }
                     } catch (Exception e) {
-                        closeQuietly(wk.channel() instanceof SocketChannel sc ? sc : null);
+                        ConnectionState wst = wk.attachment() instanceof ConnectionState c ? c : null;
+                        if (wst != null) {
+                            closeConn(wk, wst);
+                        } else {
+                            closeQuietly(wk.channel() instanceof SocketChannel sc ? sc : null);
+                        }
                     }
                 }
                 // 注册新连接:由本分片事件循环线程自行 register(与 select 同线程),
@@ -330,12 +349,16 @@ public class NioHttpServer extends AbstractServer {
                 while ((ac = pendingAcceptQueues[idx].poll()) != null) {
                     try {
                         if (!ac.isOpen()) {
+                            // 已在别处关闭:归还 accept 时占用的名额
+                            activeConnections.decrementAndGet();
                             continue;
                         }
                         ConnectionState st = new ConnectionState(ac, setting.getMaxRequestSize(), setting.getCharset());
                         st.shard = idx;
                         ac.register(sel, SelectionKey.OP_READ, st);
                     } catch (Exception e) {
+                        // register 失败:连接从未进入 ConnectionState,closeConn 无从调用,此处归还名额
+                        activeConnections.decrementAndGet();
                         closeQuietly(ac);
                     }
                 }
@@ -365,7 +388,10 @@ public class NioHttpServer extends AbstractServer {
                             log.debug("[nio] 取消 SelectionKey 失败，已忽略: {}", e.getMessage());
                         }
                         ConnectionState st = (ConnectionState) key.attachment();
-                        closeQuietly(st != null ? st.channel : null);
+                        // 走 closeConn 统一归还连接名额;st 为 null 表示该 key 从未承载连接状态
+                        if (st != null) {
+                            closeConn(key, st);
+                        }
                     }
                 }
             } catch (Throwable t) {
@@ -389,6 +415,11 @@ public class NioHttpServer extends AbstractServer {
         if (accepted == null) {
             return;
         }
+        // 连接数门限:超限直接关闭,与 AbstractProxyServer 语义一致。
+        // 放在 accept 之后立刻判断,避免连接进入分片队列后仍占用内存与文件句柄。
+        if (!tryAcquireConnection(accepted)) {
+            return;
+        }
         // SSL 场景:回退虚拟线程阻塞路径(SSL 通道无法注册 Selector)
         if (sslContext != null) {
             accepted.configureBlocking(true);
@@ -403,6 +434,9 @@ public class NioHttpServer extends AbstractServer {
                 } catch (IOException e) {
                     log.warn("TLS 握手失败，关闭连接: {}", e.getMessage(), e);
                     closeQuietly(accepted);
+                } finally {
+                    // 阻塞路径不经 closeConn,计数在此回收
+                    activeConnections.decrementAndGet();
                 }
             });
             return;
@@ -753,6 +787,45 @@ public class NioHttpServer extends AbstractServer {
             log.debug("[nio] 操作失败，已忽略: {}", e.getMessage());
         }
         closeQuietly(st.channel);
+        activeConnections.decrementAndGet();
+    }
+
+    /**
+     * 尝试为已 accept 的连接占用一个名额。
+     * <p>未配置上限({@code maxConnections <= 0})时直接放行,不做任何原子操作检查之外的额外开销。</p>
+     *
+     * @param channel 已 accept 的通道
+     * @return true 表示已占用名额、连接可以继续;false 表示超限并已关闭该通道
+     */
+    private boolean tryAcquireConnection(SocketChannel channel) {
+        int max = setting.getMaxConnections();
+        if (max <= 0) {
+            activeConnections.incrementAndGet();
+            return true;
+        }
+        // 先占位再校验:并发 accept 下不会突破上限(无用名额由紧随其后的 decrementAndGet 归还)
+        if (activeConnections.incrementAndGet() <= max) {
+            return true;
+        }
+        activeConnections.decrementAndGet();
+        log.warn("NIO 连接数已达上限 (max={}), 拒绝 {}", max, safeRemote(channel));
+        closeQuietly(channel);
+        return false;
+    }
+
+    /**
+     * 取远端地址用于日志,连接已断时返回 "-",不抛异常。
+     *
+     * @param channel 通道
+     * @return 远端地址字符串
+     */
+    private static String safeRemote(SocketChannel channel) {
+        try {
+            java.net.SocketAddress addr = channel.getRemoteAddress();
+            return addr == null ? "-" : addr.toString();
+        } catch (Exception e) {
+            return "-";
+        }
     }
 
     /**

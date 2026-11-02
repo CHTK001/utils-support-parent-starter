@@ -80,6 +80,16 @@ public class HttpServerCpuMain {
         }
         System.out.println("[cpu] wall=" + wall / 1_000_000_000L + "s processCpu="
                 + String.format("%.2f", totalCpu * 100.0 / wall) + "% (of 1600% machine capacity)");
+
+        // 关键指标:每请求消耗的服务端 CPU 纳秒。
+        // 后台进程抢占只会拉长 wall、压低 QPS,不会改变 CPU/请求,因此该指标对噪声免疫,
+        // 是跨轮次比较优化效果的可靠依据(吞吐量受机器负载影响无法直接比较)。
+        long requests = server.getMetrics().getTotalRequests();
+        double cpuPerReq = requests > 0 ? (double) totalCpu / requests : 0;
+        double reqPerCpuSec = totalCpu > 0 ? requests / (totalCpu / 1e9) : 0;
+        System.out.println("[cpu] requests=" + requests + " cpu_ns_per_request="
+                + String.format("%.1f", cpuPerReq) + " req_per_cpu_sec="
+                + String.format("%.0f", reqPerCpuSec));
         System.out.println("[cpu] per thread:");
         System.out.print(sb);
     }

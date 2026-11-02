@@ -1,4 +1,7 @@
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -6,16 +9,24 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
- * 纯 Selector-NIO echo 服务端（单次 write），用于测量 Windows 上
- * 非阻塞 {@code SocketChannel.write} / {@code read} 的真实成本。
- * <p>用法: java NioEchoServerMain &lt;port&gt; &lt;eventLoops&gt; &lt;duration_s&gt;</p>
- * <p>与 HttpServerMain 同构：事件循环线程内联 read→write，无任何框架层。</p>
+ * 裸 Selector-NIO echo 服务器 + 每请求 CPU 标定。
+ * <p>用与 {@link NioEchoServerMain} 相同的「一次 read + 一次 write」模型，
+ * 但额外统计实际处理的请求数与线程 CPU 时间，输出 cpu_ns_per_request。</p>
+ * <p>目的：为 HTTP 服务端提供一个平台下限参照。若裸 echo 的 cpu_ns_per_request
+ * 与 HTTP 服务端接近，说明剩下的开销几乎全是 Windows loopback 的内核 syscall，
+ * 用户态已无多少可优化空间。</p>
+ * <p>用法: java RawEchoCpuMain &lt;port&gt; &lt;eventLoops&gt; &lt;duration_s&gt;</p>
  */
-public class NioEchoServerMain {
+public class RawEchoCpuMain {
 
     private static volatile boolean running = true;
+    private static final LongAdder SERVED = new LongAdder();
+
+    private RawEchoCpuMain() {
+    }
 
     public static void main(String[] args) throws Exception {
         int port = Integer.parseInt(args[0]);
@@ -29,12 +40,11 @@ public class NioEchoServerMain {
         Selector[] sels = new Selector[loops];
         for (int i = 0; i < loops; i++) {
             sels[i] = Selector.open();
-            final Selector sel = sels[i];
+            Selector sel = sels[i];
             Thread t = new Thread(() -> loop(sel), "echo-loop-" + i);
             t.setDaemon(true);
             t.start();
         }
-        // accept 线程：注册到 loops[0]
         Thread acc = new Thread(() -> {
             try {
                 while (running) {
@@ -58,9 +68,36 @@ public class NioEchoServerMain {
 
         System.out.println("[echo] READY port=" + port + " loops=" + loops);
         System.out.flush();
-        Thread.sleep(duration * 1_000L);
+
+        ThreadMXBean mx = ManagementFactory.getThreadMXBean();
+        if (mx.isThreadCpuTimeSupported() && !mx.isThreadCpuTimeEnabled()) {
+            mx.setThreadCpuTimeEnabled(true);
+        }
+        long startNs = System.nanoTime();
+        long wall = 0;
+        while (wall < (long) duration * 1_000_000_000L) {
+            Thread.sleep(1000);
+            wall = System.nanoTime() - startNs;
+        }
+
+        // 必须在 running=false 之前采样:循环线程一旦退出,getThreadCpuTime 会返回 -1,
+        // 统计就只剩主线程,导致 CPU/请求严重失真。
+        long totalCpu = 0;
+        for (ThreadInfo ti : mx.getThreadInfo(mx.getAllThreadIds())) {
+            if (ti == null) {
+                continue;
+            }
+            long cpu = mx.getThreadCpuTime(ti.getThreadId());
+            if (cpu > 0) {
+                totalCpu += cpu;
+            }
+        }
+        long served = SERVED.sum();
         running = false;
-        System.out.println("[echo] done");
+        System.out.println("[cpu] wall=" + wall / 1_000_000_000L + "s processCpu="
+                + String.format("%.2f", totalCpu * 100.0 / wall) + "%"
+                + " requests=" + served + " cpu_ns_per_request="
+                + String.format("%.1f", served > 0 ? (double) totalCpu / served : 0));
     }
 
     private static void loop(Selector sel) {
@@ -92,6 +129,7 @@ public class NioEchoServerMain {
                         while (out.hasRemaining()) {
                             ch.write(out);
                         }
+                        SERVED.increment();
                     } catch (IOException e) {
                         key.cancel();
                         try { ch.close(); } catch (IOException ignore) { }

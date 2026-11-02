@@ -86,14 +86,18 @@ public class ServerSetting {
                 : Math.min(Math.max(cpus * 128, 256), 4096);
 
         // 最大连接数：按可用堆内存分级(目标:百万级并发连接,配合各实现的每连接懒分配内存)
-        if (heapMb >= 8192) {
-            this.maxConnections = 1000000;
-        } else if (heapMb >= 4096) {
-            this.maxConnections = 500000;
-        } else if (heapMb >= 2048) {
-            this.maxConnections = 200000;
-        } else {
-            this.maxConnections = 100000;
+        // 连接上限:按可用堆推导(每连接约数百字节堆占用);
+        // 用户显式设置的值优先,不被覆盖
+        if (!maxConnectionsExplicit) {
+            if (heapMb >= 8192) {
+                this.maxConnections = 1000000;
+            } else if (heapMb >= 4096) {
+                this.maxConnections = 500000;
+            } else if (heapMb >= 2048) {
+                this.maxConnections = 200000;
+            } else {
+                this.maxConnections = 100000;
+            }
         }
 
         // 缓冲区：内存充足时放大，减少系统调用次数
@@ -199,6 +203,23 @@ public class ServerSetting {
      */
     @Builder.Default
     private int maxConnections = 10000;
+
+    /**
+     * 是否显式设置过 maxConnections(autoConfig 内部标记;默认 false)。
+     * <p>与 {@link #maxConcurrencyExplicit} 同理:用户显式设置的上限不能被 {@code autoConfig()} 按堆大小覆盖。</p>
+     */
+    @Builder.Default
+    private boolean maxConnectionsExplicit = false;
+
+    /**
+     * 设置最大连接数,并标记为显式配置(避免被 {@link #autoConfig()} 覆盖)。
+     *
+     * @param maxConnections 最大连接数,{@code <= 0} 表示不限制
+     */
+    public void setMaxConnections(int maxConnections) {
+        this.maxConnections = maxConnections;
+        this.maxConnectionsExplicit = true;
+    }
 
     /**
      * 字符集
