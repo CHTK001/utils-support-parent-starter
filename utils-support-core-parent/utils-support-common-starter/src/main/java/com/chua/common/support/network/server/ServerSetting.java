@@ -266,6 +266,33 @@ public class ServerSetting {
     }
 
     /**
+     * 单连接待写队列字节上限(背压门限),{@code <= 0} 表示不限制。
+     *
+     * <p>慢客户端不读取响应时,服务端待写队列会持续增长;超过该门限后
+     * 服务端不再接受该连接的新数据(SSE 分片会被丢弃),避免内存无界膨胀。
+     * 默认 {@value #DEFAULT_MAX_PENDING_WRITE_BYTES} 字节(4MB)。</p>
+     */
+    public static final long DEFAULT_MAX_PENDING_WRITE_BYTES = 4L * 1024 * 1024;
+
+    /**
+     * 单连接待写队列字节上限,{@code <= 0} 表示不限制
+     *
+     * <p>该值是背压门限,不是硬性内存配额:达到门限后服务端停止向该连接
+     * 追加新的流式分片(SSE),直到队列回落到门限以下。</p>
+     */
+    @Builder.Default
+    private long maxPendingWriteBytes = DEFAULT_MAX_PENDING_WRITE_BYTES;
+
+    /**
+     * 设置单连接待写队列字节上限。
+     *
+     * @param maxPendingWriteBytes 字节上限,{@code <= 0} 表示不限制
+     */
+    public void setMaxPendingWriteBytes(long maxPendingWriteBytes) {
+        this.maxPendingWriteBytes = maxPendingWriteBytes;
+    }
+
+    /**
      * NIO 事件循环(Selector)数量，0 表示自动按 CPU 核数。
      *
      * <p>控制 {@code nio} 实现的事件循环线程数，影响读写 CPU 并行度与吞吐上限。
