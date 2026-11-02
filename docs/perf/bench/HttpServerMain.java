@@ -24,6 +24,7 @@ public class HttpServerMain {
     public static void main(String[] args) throws Exception {
         String type = args.length > 0 ? args[0] : "nio";
         int port = args.length > 1 ? Integer.parseInt(args[1]) : 8080;
+        int eventLoops = args.length > 2 ? Integer.parseInt(args[2]) : -1;
 
         ServerSetting setting = ServerSetting.auto();
         setting.setInlineDispatch(true);
@@ -31,6 +32,9 @@ public class HttpServerMain {
         setting.setResponseTimeout(-1);
         setting.setMaxKeepAliveRequests(-1);
         setting.setPort(port);
+        if (eventLoops > 0) {
+            setting.setEventLoops(eventLoops);
+        }
 
         AbstractServer server = "aio".equals(type) ? new AioHttpServer(setting) : new NioHttpServer(setting);
         server.registerMapping("/echo", HttpMethod.GET, ECHO);
