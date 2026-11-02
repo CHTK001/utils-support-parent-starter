@@ -78,7 +78,41 @@ NIO 与 AIO 共用同一个 `NioServerResponse`（`AioHttpServer` 只 `import` �
 
 该项在吞吐量上测不出差异（噪声远大于收益），但属于确定性的无用功消除，保留。
 
-### 4. 压测客户端解析 bug（`HttpBench`）
+### 4. 连接数上限（`NioHttpServer` / `AioHttpServer` / `ServerSetting`）
+
+`ServerSetting.autoConfig()` 会按堆大小把 `maxConnections` 设为 10 万~100 万，但 **HTTP 的 NIO/AIO
+两条路径从来没有读过这个值**：任何数量的连接都能被接纳，`maxConnections` 是个空设置。
+同时 `AbstractServer.start()` 会再调一次 `autoConfig()`，把用户显式设置的值静默覆盖回堆推导值。
+
+修复分三处：
+
+1. `ServerSetting` 增加 `maxConnectionsExplicit` 标记与显式 `setMaxConnections()`，`autoConfig()`
+   仅在未显式设置时才按堆推导——与既有的 `maxConcurrencyExplicit` 同一模式。
+2. `NioHttpServer` 增加 `activeConnections` 计数：`accept` 成功后 +1，`closeConn` 时 -1；
+   超限的新连接在 accept 阶段立刻关闭，语义对齐 `AbstractProxyServer`（`Semaphore` 耗尽即关闭）。
+   占位用「先 increment 再判断，超额立刻 decrement 归还」，并发 accept 下不会突破上限。
+3. `AioHttpServer` 已有 `activeConnections` 计数，补上同样的上限校验（原本只统计不校验）。
+
+计数回收覆盖了全部关闭路径：NIO 的 `closeConn` 是唯一出口，另外三条绕过它的路径
+（SSL 阻塞路径的 `finally`、`pendingAcceptQueues` 中连接已失效/register 失败、事件循环的异常兜底）
+也逐一补了归还。
+
+验证用 `maxconncheck.ps1` + `MaxConnProbe.java`（`-Max N` 启动服务端，开 2N 个 keep-alive 连接）：
+
+```
+=== nio (maxConnections=5) ===
+  [probe] max=5 kept=5 extra_served=0 extra_rejected=5 total_served=5
+  [probe] PASS
+  [probe] after_release_served=5/5
+  [probe] LEASE-OK
+=== aio (maxConnections=5) ===  同上
+```
+
+`after_release_served=5/5` 专门用于证明名额会归还——若计数泄漏，长时间运行后必然全量拒连。
+该项对吞吐无影响（每连接一次原子操作，不在每请求路径上）：实测 NIO 71K / AIO 73K QPS、
+每请求 CPU 53µs。
+
+### 5. 压测客户端解析 bug（`HttpBench`）
 
 `readFullResponse` 原来只检查缓冲区最后 4 个字节是否为 `\r\n\r\n`。keep-alive 下当
 header 与 body 在同一次 read 中到达时，行尾标记不在缓冲区尾部，客户端会**永远阻塞**，
@@ -99,15 +133,18 @@ OP_READ，理论上可省两次 selector 更新。实测出现服务端吞吐崩
 - ~~响应头解析分配~~：`substring`/`trim`/`toLowerCase` 每头约 4 个临时对象，但相对 syscall 成本可忽略
 
 ### B. 性能关键（能追上 Go 的前提是换掉 syscall 模型）
-1. **连接数门限 + 背压门限** — 当前 `ServerSetting.maxConnections` 只在 `AbstractProxyServer` 里起效，
-   HTTP@NIO/AIO 里面没有连接计数门限，不对
-2. **批量系统调用** — 真正的下一步：单次 `select` 后按批分发、把多个响应合并成一次 gather write；
+1. ~~连接数门限~~ — **已完成**，见上文第 4 项
+2. **背压门限** — 连接数上限已实施，但「单连接在途请求数/写队列深度」仍无上限，
+   慢客户端持续灌数据时写队列可无限增长。`maxConcurrency` 目前只在 `AbstractServer` 的
+   请求计数上起作用，不约束单连接队列深度
+3. **批量系统调用** — 真正的下一步：单次 `select` 后按批分发、把多个响应合并成一次 gather write；
    在 Windows 上受限于 IOCP/epoll 语义，Linux 上用 `epoll` + `writev` 才有空间
-3. **更低的延迟：inline dispatch** — NIO 已实现，AIO 尚无等效 inline（AIO 已有小响应合并逻辑）
-4. **更低的 stack 膨胀：虚拟线程 vs goroutine** — JDK 25 的虚拟线程可以比 goroutine 更轻松地扩展到 100 万线程
-5. **零拷贝 I/O** — `transferTo` + NIO gather into...
-6. **TLS 优化** — 使用 SSLEngine 的批量 wrap/unwrap
-7. **算力和监听** — SO_REUSEPORT、epoll level triggered。注意：Windows 上 `ServerSetting.autoConfig()`
+4. **AIO 的 inline 派发** — 该条实为误判，已修正：`AioHttpServer` 是纯异步 IOCP 回调状态机，
+   全程没有 `executor.submit`，不存在「线程跳转」开销，因此不需要 NIO 那种 inline 快速路径
+5. **更低的 stack 膨胀：虚拟线程 vs goroutine** — JDK 25 的虚拟线程可以比 goroutine 更轻松地扩展到 100 万线程
+6. **零拷贝 I/O** — `transferTo` + NIO gather into...
+7. **TLS 优化** — 使用 SSLEngine 的批量 wrap/unwrap
+8. **算力和监听** — SO_REUSEPORT、epoll level triggered。注意：Windows 上 `ServerSetting.autoConfig()`
    会锁定 `eventLoops = 4`，这是刻意为之，不要为压测去改
 
 ### C. 架构优化
@@ -117,6 +154,7 @@ OP_READ，理论上可省两次 selector 更新。实测出现服务端吞吐崩
 ### D. 测试验证
 - 功能回归：`docs/perf/bench/fncheck.ps1`（快路径 200 / 自定义多头的慢路径 / 自定义状态码 /
   用户覆盖系统头 / 空体 / 100KB 大体 / keep-alive 复用 / 404），NIO 与 AIO 各跑一遍
+- 连接数门限：`docs/perf/bench/maxconncheck.ps1 -Max 5`（限额生效 + 名额归还）
 - 性能：`srvcpu.ps1 -Option '-Dnio.combine=0'` 与默认配置交错跑，比较 `cpu_ns_per_request`
 - 平台下限：`rawcal.ps1`
 - 本机 Windows 11 测试

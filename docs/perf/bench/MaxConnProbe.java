@@ -13,7 +13,7 @@ import java.util.List;
 public class MaxConnProbe {
 
     private static final String REQ =
-            "GET /echo HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n";
+            "GET /echo HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: keep-alive\r\n\r\n";
 
     private MaxConnProbe() {
     }
@@ -66,16 +66,35 @@ public class MaxConnProbe {
                 + " extra_served=" + extra.size() + " extra_rejected=" + rejected
                 + " total_served=" + served);
 
+        boolean pass = (extra.size() == 0) && (rejected == max);
+        System.out.println(pass ? "[probe] PASS" : "[probe] FAIL");
+        if (!pass) {
+            return0(1);
+            return;
+        }
+
+        // 名额归还验证:释放全部占用的连接,等端口回收后新连接必须重新可服务。
+        // 若计数泄漏,这里会全部被拒(长时间运行必然耗尽名额)。
         for (Socket s : held) {
             closeQuietly(s);
         }
-        for (Socket s : extra) {
+        held.clear();
+        Thread.sleep(600);
+        int afterRelease = 0;
+        for (int i = 0; i < max; i++) {
+            Socket s = connect(port);
+            if (s != null && serve(s)) {
+                afterRelease++;
+                held.add(s);
+            }
+        }
+        System.out.println("[probe] after_release_served=" + afterRelease + "/" + max);
+        for (Socket s : held) {
             closeQuietly(s);
         }
-
-        boolean pass = (extra.size() == 0) && (rejected == max);
-        System.out.println(pass ? "[probe] PASS" : "[probe] FAIL");
-        return0(pass ? 0 : 1);
+        boolean lease = afterRelease == max;
+        System.out.println(lease ? "[probe] LEASE-OK" : "[probe] LEASE-LEAK");
+        return0(lease ? 0 : 1);
     }
 
     private static void return0(int code) {
