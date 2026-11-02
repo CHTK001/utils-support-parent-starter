@@ -522,12 +522,8 @@ public class NioHttpServer extends AbstractServer {
      */
     private void finishAfterWrite(ConnectionState st, SelectionKey key) {
         if (st.keepAlive && running) {
+            key.interestOps(SelectionKey.OP_READ);
             st.inWorker = false;
-            // 内联路径全程未摘除 OP_READ,此时兴趣位已是 OP_READ:
-            // 跳过重复的 interestOps 写入(会触发 selector 重新登记 poll 事件)
-            if (key.interestOps() != SelectionKey.OP_READ) {
-                key.interestOps(SelectionKey.OP_READ);
-            }
         } else {
             closeConn(key, st);
         }
