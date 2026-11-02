@@ -478,6 +478,15 @@ public class AioHttpServer extends AbstractServer {
             response.setStreamWriter(bytes -> {
                 // 标记 SSE 流式期:写链排空时不按 HTTP 收尾(见 continueWrite)
                 state.sseActive = true;
+                // 背压门限:慢客户端不读响应时,生产端会持续入队,必须在此拦住,
+                // 否则内存无界增长。超限即视为慢消费者并关闭连接(整帧丢弃,不留半帧)
+                long max = setting.getMaxPendingWriteBytes();
+                if (max > 0 && state.pendingWriteBytes.get() + bytes.length > max) {
+                    log.warn("AIO 待写队列超过背压门限 (pending={}, max={}),关闭连接",
+                            state.pendingWriteBytes.get(), max);
+                    closeConn(state);
+                    return;
+                }
                 enqueueWrite(state, java.nio.ByteBuffer.wrap(bytes), null);
                 if (!state.closed.get() && state.writing.compareAndSet(false, true)) {
                     continueWrite(state);
