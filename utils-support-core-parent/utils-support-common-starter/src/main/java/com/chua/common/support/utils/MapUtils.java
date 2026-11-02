@@ -661,6 +661,7 @@ public class MapUtils {
         }
 
         if (answer instanceof String) {
+            // [P3C-1.2 B2] 使用默认日期格式（Locale 敏感），Per-Call 新建实例，不涉及共享线程安全
             DateFormat dateFormat = new SimpleDateFormat();
             try {
                 return dateFormat.parse((String) answer);

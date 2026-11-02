@@ -702,10 +702,28 @@ public final class TraceContext {
      * 初始化slf4j处理。
      */
     private static void initSlf4jHandle() {
-        // [P3C 1.10 豁免] 仅探测 SLF4J 是否在classpath 上（可选依赖），本模块无 ReflectUtils 可用
+        // [P3C 1.10] 仅探测 SLF4J 是否在 classpath 上（可选依赖），本模块无 ReflectUtils 可用
         try { Class.forName("org.slf4j.LoggerFactory"); }
-        catch (Exception ignored) {
+        catch (Exception e) {
             slf4jAvailable = false;
+            // [P3C F1] 软探测失败时必须记录日志，禁止空 catch
+            logSlf4j("SLF4J 不可用，链路追踪降级输出");
+        }
+    }
+
+    /**
+     * 反射句柄输出日志（避免对可选依赖 org.slf4j 的编译期直接依赖；不可用时静默）
+     *
+     * @param msg 日志信息
+     */
+    private static void logSlf4j(String msg) {
+        try {
+            Object log = getLogger();
+            if (log != null && loggerInfoHandle != null) {
+                loggerInfoHandle.invoke(log, msg);
+            }
+        } catch (Throwable ignored) {
+            // SLF4J 运行时不可用，静默
         }
     }
 

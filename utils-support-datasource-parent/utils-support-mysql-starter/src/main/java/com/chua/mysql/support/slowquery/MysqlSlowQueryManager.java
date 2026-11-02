@@ -10,6 +10,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -411,7 +414,8 @@ public class MysqlSlowQueryManager implements SlowQueryManager, DataSourceAware 
             return null;
         }
         Date date = new Date(timestamp.getTime());
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+        DateTimeFormatter sdf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return sdf.format(date.toInstant().atZone(ZoneId.systemDefault()));
     }
 
     /**
