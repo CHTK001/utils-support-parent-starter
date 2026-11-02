@@ -80,6 +80,9 @@ public class NioHttpServer extends AbstractServer {
     private static final java.util.concurrent.atomic.AtomicLong PERF_SELECT_CALLS = new java.util.concurrent.atomic.AtomicLong(0L);
     private static final java.util.concurrent.atomic.AtomicLong PERF_SELECT_READY = new java.util.concurrent.atomic.AtomicLong(0L);
     private static final java.util.concurrent.atomic.AtomicLong PERF_KEY_HANDLED = new java.util.concurrent.atomic.AtomicLong(0L);
+    private static final java.util.concurrent.atomic.AtomicLong PERF_READ_NS = new java.util.concurrent.atomic.AtomicLong(0L);
+    private static final java.util.concurrent.atomic.AtomicLong PERF_FEED_NS = new java.util.concurrent.atomic.AtomicLong(0L);
+    private static final java.util.concurrent.atomic.AtomicLong PERF_HANDLE_NS = new java.util.concurrent.atomic.AtomicLong(0L);
     private static final long PERF_INTERVAL = 2_000_000_000L; // 2s
 
     static {
@@ -121,6 +124,13 @@ public class NioHttpServer extends AbstractServer {
         sb.append(" slow=").append(PERF_SLOW.get()).append(" flushSlow=").append(PERF_FLUSH_SLOW.get());
         sb.append(" selCalls=").append(PERF_SELECT_CALLS.get()).append(" selMs=").append(PERF_SELECT_NS.get() / 1000000L)
                 .append(" selReady=").append(PERF_SELECT_READY.get()).append(" keys=").append(PERF_KEY_HANDLED.get());
+        long keys = PERF_KEY_HANDLED.get();
+        if (keys > 0) {
+            sb.append(String.format(" read=%.2fus feed=%.2fus handle=%.2fus",
+                    PERF_READ_NS.get() / 1000.0 / keys,
+                    PERF_FEED_NS.get() / 1000.0 / keys,
+                    PERF_HANDLE_NS.get() / 1000.0 / keys));
+        }
         System.out.println(sb.toString());
         for (int i = 0; i < PERF_BINS; i++) {
             PERF_COUNT[i].reset();
@@ -131,6 +141,9 @@ public class NioHttpServer extends AbstractServer {
         PERF_SELECT_CALLS.set(0L);
         PERF_SELECT_READY.set(0L);
         PERF_KEY_HANDLED.set(0L);
+        PERF_READ_NS.set(0L);
+        PERF_FEED_NS.set(0L);
+        PERF_HANDLE_NS.set(0L);
     }
     /**
      * 服务器通道
@@ -481,7 +494,9 @@ public class NioHttpServer extends AbstractServer {
             buf = ByteBuffer.allocate(32768);
             st.readBuf = buf;
         }
+        long tRead0 = System.nanoTime();
         int n = st.channel.read(buf);
+        long tRead1 = System.nanoTime();
         if (n < 0) {
             closeConn(key, st);
             return;
@@ -491,6 +506,7 @@ public class NioHttpServer extends AbstractServer {
         }
         buf.flip();
         int r = st.request.feed(buf);
+        long tFeed1 = System.nanoTime();
         buf.compact(); // 保留未消费数据
         if (r == 1) {
             // 完整请求解析完成:摘除 OP_READ
@@ -507,7 +523,11 @@ public class NioHttpServer extends AbstractServer {
         } else if (r < 0) {
             closeConn(key, st);
         }
-        int us = (int) ((System.nanoTime() - t0) / 1000L);
+        long tEnd = System.nanoTime();
+        PERF_READ_NS.addAndGet(tRead1 - tRead0);
+        PERF_FEED_NS.addAndGet(tFeed1 - tRead1);
+        PERF_HANDLE_NS.addAndGet(tEnd - tFeed1);
+        int us = (int) ((tEnd - t0) / 1000L);
         perfRecord(perfBin(us));
     }
 
@@ -1356,9 +1376,4 @@ public class NioHttpServer extends AbstractServer {
     /**
      * 获取ProtocolType
      */
-    @Override
-    public ProtocolType getProtocolType() {
-        return ProtocolType.HTTP;
-    }
-}
-
+    @Over
