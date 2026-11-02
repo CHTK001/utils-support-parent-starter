@@ -69,9 +69,9 @@ public class NioHttpServer extends AbstractServer {
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(NioHttpServer.class);
 
     // ===== perf probe (instrumented bench copy only, not project source) =====
-    private static final int PERF_BINS = 6;
-    private static final long[] PERF_NS = {0, 50_000, 100_000, 500_000, 1_000_000, 5_000_000};
-    private static final String[] PERF_LABEL = {"0-50us", "50-100us", "100-500us", "0.5-1ms", "1-5ms", "5ms+"};
+    private static final int PERF_BINS = 7;
+    private static final long[] PERF_NS = {0, 10, 50, 100, 500, 1000, 5000};
+    private static final String[] PERF_LABEL = {"<10us", "10-50us", "50-100us", "100-500us", "0.5-1ms", "1-5ms", "5ms+"};
     private static final java.util.concurrent.atomic.LongAdder[] PERF_COUNT = new java.util.concurrent.atomic.LongAdder[PERF_BINS];
     private static final java.util.concurrent.atomic.AtomicLong PERF_SLOW = new java.util.concurrent.atomic.AtomicLong(0L);
     private static final java.util.concurrent.atomic.AtomicLong PERF_FLUSH_SLOW = new java.util.concurrent.atomic.AtomicLong(0L);

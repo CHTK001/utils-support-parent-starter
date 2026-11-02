@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-resource-qqwry</artifactId>
-            <version>4.0.0.43</version>
+            <version>4.0.0.42</version>
         </dependency>
     </dependencies>
 </project>
