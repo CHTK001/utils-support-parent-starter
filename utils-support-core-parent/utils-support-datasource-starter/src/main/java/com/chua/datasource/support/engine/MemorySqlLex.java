@@ -139,6 +139,58 @@ final class MemorySqlLex {
     }
 
     /**
+     * SQL LIKE 语义匹配，全包内统一实现，避免三处副本各自漂移。
+     *
+     * <p>{@code %} 匹配任意长度字符序列（含空串），{@code _} 匹配恰好一个字符，
+     * 不区分大小写；模式或值任一为 {@code null} 时返回 false（SQL 中 NULL 参与
+     * LIKE 结果不为真）。</p>
+     *
+     * <p>实现采用「记录最近一个 {@code %} 的回溯点」的单遍贪心算法，
+     * 命中 {@code %} 时只推进模式游标、不推进值游标，值游标仅在普通字符或
+     * {@code _} 匹配成功时前进；失配时回退到回溯点后一格重试。
+     * 该点很关键：若在 {@code %} 处同时推进值游标，{@code %x%%} 这类由
+     * 「包装值」生成的模式会在首字符即失配后耗尽值游标，返回错误的 false。</p>
+     *
+     * @param value   待匹配的字段值
+     * @param pattern LIKE 模式
+     * @return 是否匹配
+     */
+    static boolean like(String value, String pattern) {
+        if (value == null || pattern == null) {
+            return false;
+        }
+        String v = value.toLowerCase(java.util.Locale.ROOT);
+        String p = pattern.toLowerCase(java.util.Locale.ROOT);
+        int vi = 0;
+        int pi = 0;
+        int vStar = -1;
+        int pStar = -1;
+        int vLen = v.length();
+        int pLen = p.length();
+        while (vi < vLen) {
+            if (pi < pLen && (p.charAt(pi) == '_' || p.charAt(pi) == v.charAt(vi))) {
+                vi++;
+                pi++;
+            } else if (pi < pLen && p.charAt(pi) == '%') {
+                vStar = vi;
+                pStar = pi;
+                pi++;
+            } else if (vStar >= 0) {
+                // 回退：让上一个 % 多吞一个字符，从其后一位继续尝试
+                vi = ++vStar;
+                pi = pStar + 1;
+            } else {
+                return false;
+            }
+        }
+        // 值已耗尽，模式尾部若只剩 % 仍算匹配
+        while (pi < pLen && p.charAt(pi) == '%') {
+            pi++;
+        }
+        return pi >= pLen;
+    }
+
+    /**
      * 行访问器：行可为 映射（列名忽略大小写）或 Bean（getter 反射）。
      */
     static final class RowAccessor {

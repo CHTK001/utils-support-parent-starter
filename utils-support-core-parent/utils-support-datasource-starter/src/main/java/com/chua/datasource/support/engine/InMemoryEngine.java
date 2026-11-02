@@ -41,6 +41,11 @@ import java.util.function.Predicate;
 public class InMemoryEngine extends AbstractEngine {
 
     /**
+     * 索引用 null 占位，{@code ConcurrentHashMap} 不允许空键，处理 null 字段值
+     */
+    private static final Object NULL_IDX_KEY = new Object();
+
+    /**
      * indexes
     */
     private final Map<String, Map<String, Map<Object, List<Object>>>> indexes = new ConcurrentHashMap<>();
@@ -86,9 +91,14 @@ public class InMemoryEngine extends AbstractEngine {
         for (Object row : rows) {
             for (String field : fields) {
                 Object val = MethodCache.getValue(row, field);
-                tableIdx.computeIfAbsent(field, k -> Wraps.map())
-                        .computeIfAbsent(val, k -> Wraps.list())
-                        .add(row);
+                Map<Object, List<Object>> fieldIdx = tableIdx.computeIfAbsent(field, k -> Wraps.map());
+                // null 字段值不能入 ConcurrentHashMap（空键 NPE），统一用占位键
+                List<Object> idxRows = fieldIdx.get(val == null ? NULL_IDX_KEY : val);
+                if (idxRows == null) {
+                    idxRows = Wraps.list();
+                    fieldIdx.put(val == null ? NULL_IDX_KEY : val, idxRows);
+                }
+                idxRows.add(row);
             }
         }
     }
@@ -330,7 +340,8 @@ public class InMemoryEngine extends AbstractEngine {
         if (fieldIdx == null) {
             return data;
         }
-        List<Object> matched = fieldIdx.getOrDefault(first.getValue(), Collections.emptyList());
+        List<Object> matched = fieldIdx.getOrDefault(first.getValue() == null
+                ? NULL_IDX_KEY : first.getValue(), Collections.emptyList());
         if (matched.isEmpty()) {
             return Collections.emptyList();
         }
@@ -463,10 +474,25 @@ public class InMemoryEngine extends AbstractEngine {
         return switch (op) {
             case "=" -> t -> Objects.equals(MethodCache.getValue(t, field), val);
             case "!=", "<>" -> t -> !Objects.equals(MethodCache.getValue(t, field), val);
-            case ">" -> t -> compare((Comparable) MethodCache.getValue(t, field), val) > 0;
-            case ">=" -> t -> compare((Comparable) MethodCache.getValue(t, field), val) >= 0;
-            case "<" -> t -> compare((Comparable) MethodCache.getValue(t, field), val) < 0;
-            case "<=" -> t -> compare((Comparable) MethodCache.getValue(t, field), val) <= 0;
+            // 字段或参数不可比较时不抛 ClassCastException，默认不命中
+            case ">", ">=", "<", "<=" -> t -> {
+                Object fieldVal = MethodCache.getValue(t, field);
+                Comparable fv = asComparable(fieldVal);
+                if (fv == null) {
+                    return false;
+                }
+                // 可比较：参数同类型，或可转换为目标类型
+                Comparable cv = compareableOf(fv, val);
+                if (cv == null) {
+                    return false;
+                }
+                return switch (op) {
+                    case ">" -> fv.compareTo(cv) > 0;
+                    case ">=" -> fv.compareTo(cv) >= 0;
+                    case "<" -> fv.compareTo(cv) < 0;
+                    default -> fv.compareTo(cv) <= 0;
+                };
+            };
             case "LIKE" -> t -> like(MethodCache.getValue(t, field), val);
             case "IS NULL" -> t -> MethodCache.getValue(t, field) == null;
             case "IS NOT NULL" -> t -> MethodCache.getValue(t, field) != null;
@@ -475,12 +501,23 @@ public class InMemoryEngine extends AbstractEngine {
             case "NOT IN" -> t -> !(val instanceof Collection<?> col)
                     || !col.contains(MethodCache.getValue(t, field));
             case "BETWEEN" -> {
-                Object[] range = (Object[]) val;
-                Object start = range[0];
-                Object end = range[1];
+                Object[] range = val instanceof Object[] arr ? arr : null;
+                if (range == null || range.length < 2) {
+                    yield t -> false;
+                }
                 yield t -> {
-                    Comparable fv = (Comparable) MethodCache.getValue(t, field);
-                    return fv != null && compare(fv, start) >= 0 && compare(fv, end) <= 0;
+                    Object fieldVal = MethodCache.getValue(t, field);
+                    Comparable fv = asComparable(fieldVal);
+                    if (fv == null) {
+                        return false;
+                    }
+                    // 上下界需转为字段类型才可比较，转换失败则不匹配
+                    Comparable start = compareableOf(fv, range[0]);
+                    Comparable end = compareableOf(fv, range[1]);
+                    if (start == null || end == null) {
+                        return false;
+                    }
+                    return fv.compareTo(start) >= 0 && fv.compareTo(end) <= 0;
                 };
             }
             default -> t -> true;
@@ -488,19 +525,31 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     /**
-     * 比较
-     *
-     * @param fieldVal 字段val
-     * @param paramVal 参数val
-     * @return compare的结果
+     * 转为 Comparable，取不到（null 或非 Comparable）时返回 null，避免 ClassCastException。
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private static int compare(Comparable fieldVal, Object paramVal) {
-        if (fieldVal == null) {
-            return -1;
+    private static Comparable asComparable(Object value) {
+        if (value == null || !(value instanceof Comparable c)) {
+            return null;
+        }
+        return c;
+    }
+
+    /**
+     * 尝试将参数转到字段类型后再比较，失败时返回 null。
+     *
+     * @param fieldVal 字段值
+     * @param paramVal 参数值
+     * @return 转换后的 Comparable，无法比较时返回 null
+     */
+    private static Comparable compareableOf(Object fieldVal, Object paramVal) {
+        if (paramVal == null) {
+            return null;
         }
         Object cv = convertToMatch(fieldVal, paramVal);
-        return fieldVal.compareTo(cv);
+        if (cv == null || !fieldVal.getClass().isInstance(cv)) {
+            return null;
+        }
+        return (Comparable) cv;
     }
 
     /**
@@ -514,9 +563,7 @@ public class InMemoryEngine extends AbstractEngine {
         if (fieldVal == null || patternVal == null) {
             return false;
         }
-        String val = fieldVal.toString().toLowerCase();
-        String pattern = patternVal.toString().replace("%", "").toLowerCase();
-        return val.contains(pattern);
+        return MemorySqlLex.like(String.valueOf(fieldVal), String.valueOf(patternVal));
     }
 
     /**
