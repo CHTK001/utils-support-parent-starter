@@ -30,9 +30,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class InMemoryEngineTest {
 
-    private static final String TABLE = "users";
-
     private InMemoryEngine engine;
+
+    /**
+     * 行为约定：{@code query(User.class)} 按 {@link AbstractEngine#resolveTableName} 定位表名，
+     * 存入的数据必须使用同一表名。
+     */
+    private static String table() {
+        return AbstractEngine.resolveTableName(User.class);
+    }
 
     @BeforeEach
     void setUp() {
@@ -41,7 +47,7 @@ class InMemoryEngineTest {
     }
 
     private void storeRows() {
-        engine.store(TABLE, List.of(
+        engine.store(table(), List.of(
                 new User(1, "张三", 18, "zhangsan@example.com"),
                 new User(2, "李四", 25, "lisi@example.com"),
                 new User(3, "王五", null, "wangwu@example.com"),
@@ -249,7 +255,8 @@ class InMemoryEngineTest {
     @Test
     @DisplayName("原生 SQL 查询 LIKE")
     void querySqlLike() {
-        List<Map<String, Object>> rows = engine.querySql("SELECT * FROM users WHERE name LIKE ?", "%四%");
+        List<Map<String, Object>> rows = engine.querySql("SELECT * FROM " + table()
+                + " WHERE name LIKE ?", "%四%");
         assertEquals(1, rows.size());
         assertEquals("李四", rows.get(0).get("name"));
     }
@@ -258,7 +265,7 @@ class InMemoryEngineTest {
     @DisplayName("原生 SQL 查询 BETWEEN")
     void querySqlBetween() {
         List<Map<String, Object>> rows = engine.querySql(
-                "SELECT * FROM users WHERE age BETWEEN ? AND ?", 18, 30);
+                "SELECT * FROM " + table() + " WHERE age BETWEEN ? AND ?", 18, 30);
         assertEquals(3, rows.size());
         assertEquals(List.of(1, 2, 4), idsFrom(rows));
     }
@@ -266,7 +273,7 @@ class InMemoryEngineTest {
     @Test
     @DisplayName("原生 SQL 删除")
     void querySqlDelete() {
-        int removed = engine.executeSql("DELETE FROM users WHERE id = ?", 3);
+        int removed = engine.executeSql("DELETE FROM " + table() + " WHERE id = ?", 3);
         assertEquals(1, removed);
         assertEquals(4, engine.query(User.class).count());
     }
