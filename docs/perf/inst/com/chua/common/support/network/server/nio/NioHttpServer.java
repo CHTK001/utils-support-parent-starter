@@ -76,6 +76,10 @@ public class NioHttpServer extends AbstractServer {
     private static final java.util.concurrent.atomic.AtomicLong PERF_SLOW = new java.util.concurrent.atomic.AtomicLong(0L);
     private static final java.util.concurrent.atomic.AtomicLong PERF_FLUSH_SLOW = new java.util.concurrent.atomic.AtomicLong(0L);
     private static final java.util.concurrent.atomic.AtomicLong PERF_LAST = new java.util.concurrent.atomic.AtomicLong(0L);
+    private static final java.util.concurrent.atomic.AtomicLong PERF_SELECT_NS = new java.util.concurrent.atomic.AtomicLong(0L);
+    private static final java.util.concurrent.atomic.AtomicLong PERF_SELECT_CALLS = new java.util.concurrent.atomic.AtomicLong(0L);
+    private static final java.util.concurrent.atomic.AtomicLong PERF_SELECT_READY = new java.util.concurrent.atomic.AtomicLong(0L);
+    private static final java.util.concurrent.atomic.AtomicLong PERF_KEY_HANDLED = new java.util.concurrent.atomic.AtomicLong(0L);
     private static final long PERF_INTERVAL = 2_000_000_000L; // 2s
 
     static {
@@ -115,12 +119,18 @@ public class NioHttpServer extends AbstractServer {
             sb.append(' ').append(PERF_LABEL[i]).append('=').append(PERF_COUNT[i].sum());
         }
         sb.append(" slow=").append(PERF_SLOW.get()).append(" flushSlow=").append(PERF_FLUSH_SLOW.get());
+        sb.append(" selCalls=").append(PERF_SELECT_CALLS.get()).append(" selMs=").append(PERF_SELECT_NS.get() / 1000000L)
+                .append(" selReady=").append(PERF_SELECT_READY.get()).append(" keys=").append(PERF_KEY_HANDLED.get());
         System.out.println(sb.toString());
         for (int i = 0; i < PERF_BINS; i++) {
             PERF_COUNT[i].reset();
         }
         PERF_SLOW.set(0L);
         PERF_FLUSH_SLOW.set(0L);
+        PERF_SELECT_NS.set(0L);
+        PERF_SELECT_CALLS.set(0L);
+        PERF_SELECT_READY.set(0L);
+        PERF_KEY_HANDLED.set(0L);
     }
     /**
      * 服务器通道
@@ -317,7 +327,13 @@ public class NioHttpServer extends AbstractServer {
         }
         while (running) {
             try {
-                sel.select(200L);
+                long selT0 = System.nanoTime();
+                int nSel = sel.select(200L);
+                PERF_SELECT_NS.addAndGet(System.nanoTime() - selT0);
+                PERF_SELECT_CALLS.incrementAndGet();
+                if (nSel > 0) {
+                    PERF_SELECT_READY.addAndGet(nSel);
+                }
                 // worker 直写排空后:本分片事件循环统一恢复 OP_READ(与 select 同线程,无跨线程竞态)
                 SelectionKey rk;
                 while ((rk = rearmReadQueues[idx].poll()) != null) {
@@ -374,8 +390,10 @@ public class NioHttpServer extends AbstractServer {
                         if (key.isAcceptable()) {
                             handleAccept(key);
                         } else if (key.isReadable()) {
+                            PERF_KEY_HANDLED.incrementAndGet();
                             handleRead(key);
                         } else if (key.isWritable()) {
+                            PERF_KEY_HANDLED.incrementAndGet();
                             handleWrite(key);
                         }
                     } catch (Throwable t) {
