@@ -83,6 +83,11 @@ public class NioHttpServer extends AbstractServer {
     private static final java.util.concurrent.atomic.AtomicLong PERF_READ_NS = new java.util.concurrent.atomic.AtomicLong(0L);
     private static final java.util.concurrent.atomic.AtomicLong PERF_FEED_NS = new java.util.concurrent.atomic.AtomicLong(0L);
     private static final java.util.concurrent.atomic.AtomicLong PERF_HANDLE_NS = new java.util.concurrent.atomic.AtomicLong(0L);
+    private static final java.util.concurrent.atomic.AtomicLong PERF_CHAIN_NS = new java.util.concurrent.atomic.AtomicLong(0L);
+    private static final java.util.concurrent.atomic.AtomicLong PERF_COMPLETE_NS = new java.util.concurrent.atomic.AtomicLong(0L);
+    private static final java.util.concurrent.atomic.AtomicLong PERF_TAIL_NS = new java.util.concurrent.atomic.AtomicLong(0L);
+    private static final java.util.concurrent.atomic.AtomicLong PERF_WRITE_NS = new java.util.concurrent.atomic.AtomicLong(0L);
+    private static final java.util.concurrent.atomic.AtomicLong PERF_INLINE_COUNT = new java.util.concurrent.atomic.AtomicLong(0L);
     private static final long PERF_INTERVAL = 2_000_000_000L; // 2s
 
     static {
@@ -130,6 +135,14 @@ public class NioHttpServer extends AbstractServer {
                     PERF_READ_NS.get() / 1000.0 / keys,
                     PERF_FEED_NS.get() / 1000.0 / keys,
                     PERF_HANDLE_NS.get() / 1000.0 / keys));
+            long inl = PERF_INLINE_COUNT.get();
+            if (inl > 0) {
+                sb.append(String.format(" | chain=%.2fus complete=%.2fus tail=%.2fus write=%.2fus inl=%d",
+                        PERF_CHAIN_NS.get() / 1000.0 / inl,
+                        PERF_COMPLETE_NS.get() / 1000.0 / inl,
+                        PERF_TAIL_NS.get() / 1000.0 / inl,
+                        PERF_WRITE_NS.get() / 1000.0 / inl, inl));
+            }
         }
         System.out.println(sb.toString());
         for (int i = 0; i < PERF_BINS; i++) {
@@ -144,6 +157,11 @@ public class NioHttpServer extends AbstractServer {
         PERF_READ_NS.set(0L);
         PERF_FEED_NS.set(0L);
         PERF_HANDLE_NS.set(0L);
+        PERF_CHAIN_NS.set(0L);
+        PERF_COMPLETE_NS.set(0L);
+        PERF_TAIL_NS.set(0L);
+        PERF_WRITE_NS.set(0L);
+        PERF_INLINE_COUNT.set(0L);
     }
     /**
      * 服务器通道
@@ -541,6 +559,7 @@ public class NioHttpServer extends AbstractServer {
      */
     private void processRequestInline(ConnectionState st, SelectionKey key) {
         long t0 = System.nanoTime();
+        PERF_INLINE_COUNT.incrementAndGet();
         try {
             NioServerResponse response = new NioServerResponse(st.channel);
             // 内联写出:事件循环线程同步写通道,未写完部分入 writeQueue 交由 OP_WRITE 续写
@@ -554,15 +573,20 @@ public class NioHttpServer extends AbstractServer {
                 flushInlineWrite(st, key);
             });
             try {
+                long tA = System.nanoTime();
                 handleRequest(st.request, response);
+                PERF_CHAIN_NS.addAndGet(System.nanoTime() - tA);
             } catch (Exception e) {
                 LOG.debug("Inline handler failed: {}", e.getMessage());
                 if (!response.isCommitted()) {
                     response.sendError(500, "Internal Server Error");
                 }
             } finally {
+                long tB = System.nanoTime();
                 response.complete();
+                PERF_COMPLETE_NS.addAndGet(System.nanoTime() - tB);
             }
+            long tC = System.nanoTime();
             st.keepAlive = shouldKeepAlive(st.request, response);
             st.request.resetForNextRequest();
             // 同步写出已尝试,若队列仍有残留则回退事件循环 OP_WRITE 续写
@@ -576,6 +600,7 @@ public class NioHttpServer extends AbstractServer {
             } else {
                 finishAfterWrite(st, key);
             }
+            PERF_TAIL_NS.addAndGet(System.nanoTime() - tC);
         } catch (Exception e) {
             LOG.warn("Inline worker failed: {}", e.getMessage(), e);
             closeConn(key, st);
@@ -615,7 +640,9 @@ public class NioHttpServer extends AbstractServer {
                     break;
                 }
                 try {
+                    long tW = System.nanoTime();
                     int w = st.channel.write(bb);
+                    PERF_WRITE_NS.addAndGet(System.nanoTime() - tW);
                     if (w < 0) {
                         closeConn(key, st);
                         return;
