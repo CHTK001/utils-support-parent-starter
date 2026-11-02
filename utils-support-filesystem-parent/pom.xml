@@ -14,7 +14,6 @@
     <name>Utils Support Filesystem Parent</name>
     <description>鏂囦欢绯荤粺鐖舵ā鍧楋紝鎻愪緵绯荤粺鏃ュ織妫€绱㈢瓑鍔熻兘</description>
     <modules>
-        <module>utils-support-syslog-starter</module>
         <module>utils-support-email-starter</module>
         <module>utils-support-pdf-starter</module>
         <module>utils-support-word-starter</module>
@@ -26,7 +25,6 @@
         <module>utils-support-ibd-starter</module>
         <module>utils-support-wechat-restore-starter</module>
         <module>utils-support-html-starter</module>
-        <module>utils-support-image-starter</module>
         <module>utils-support-image-apng-starter</module>
         <module>utils-support-ofd-starter</module>
         <module>utils-support-zxing-starter</module>
@@ -34,7 +32,6 @@
         <module>utils-support-ffmpeg-javacv-starter</module>
         <module>utils-support-ffmpeg-rust-starter</module>
         <module>utils-support-groovy-starter</module>
-        <module>utils-support-qqwry-starter</module>
         <module>utils-support-ip2region-starter</module>
         <module>utils-support-pandoc-starter</module>
         <module>utils-support-json-starter</module>
