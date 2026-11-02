@@ -500,23 +500,26 @@ public class NioServerResponse implements ServerResponse {
         sent = true;
         ended = true;
         committed = true;
+        long fileSize;
         try (java.nio.channels.FileChannel fileChannel = java.nio.channels.FileChannel.open(file,
                 java.nio.file.StandardOpenOption.READ)) {
-            long fileSize = fileChannel.size();
-            Map<String, String> h = headers();
-            if (!h.containsKey("Content-Length")) {
-                h.put("Content-Length", String.valueOf(fileSize));
-            }
-            if (!h.containsKey("Content-Type")) {
-                h.put("Content-Type", "application/octet-stream");
+            fileSize = fileChannel.size();
+            byte[] headerBytes = buildFileHeaders(fileSize);
+            if (streamWriter != null) {
+                // 流式钩子存在(AIO,或 NIO 的事件循环路径):头与体必须走同一队列保序,
+                // 且分块入队以受背压门限约束(整文件一次入队会绕过门限)
+                streamWriter.accept(headerBytes);
+                writeFileChunks(fileChannel, fileSize);
+                return this;
             }
             // 响应头先写
-            writeToChannel(buildHttpHeaders((int) fileSize));
+            writeBytesDirect(headerBytes);
             // 文件体 zero-copy 发送
             long position = 0;
             while (position < fileSize) {
                 long transferred = fileChannel.transferTo(position, fileSize - position, channel);
                 if (transferred <= 0) {
+                    // 阻塞通道下不应发生;发生即视为对端不可写,放弃剩余部分
                     break;
                 }
                 position += transferred;
@@ -525,6 +528,47 @@ public class NioServerResponse implements ServerResponse {
             channelClosed = true;
         }
         return this;
+    }
+
+    /**
+     * 按固定块大小经由流式钩子写出文件内容,保持内存占用有界。
+     *
+     * @param fileChannel 文件通道
+     * @param fileSize    文件大小
+     * @throws IOException 读取失败
+     */
+    private void writeFileChunks(java.nio.channels.FileChannel fileChannel, long fileSize) throws IOException {
+        java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(256 * 1024);
+        long position = 0;
+        while (position < fileSize && !channelClosed) {
+            buf.clear();
+            int read = fileChannel.read(buf, position);
+            if (read <= 0) {
+                break;
+            }
+            position += read;
+            buf.flip();
+            byte[] chunk = new byte[read];
+            buf.get(chunk);
+            streamWriter.accept(chunk);
+        }
+    }
+
+    /**
+     * 构建文件响应的响应头字节(自动补 Content-Length 与 Content-Type)。
+     *
+     * @param fileSize 文件大小
+     * @return 响应头字节
+     */
+    private byte[] buildFileHeaders(long fileSize) {
+        Map<String, String> h = headers();
+        if (!h.containsKey("Content-Length")) {
+            h.put("Content-Length", String.valueOf(fileSize));
+        }
+        if (!h.containsKey("Content-Type")) {
+            h.put("Content-Type", "application/octet-stream");
+        }
+        return buildHttpHeaders((int) fileSize);
     }
 
     /**
@@ -659,7 +703,7 @@ public class NioServerResponse implements ServerResponse {
      * @param data 数据，不允许为 null
      */
     private void writeToChannel(byte[] data) {
-        // 流式钩子优先(AIO 复用):TLS 感知的阻塞写出
+        // 流式钩子优先(AIO/NIO 复用):把分片交给服务器待写队列,避免在非阻塞通道上忙等
         if (streamWriter != null) {
             try {
                 streamWriter.accept(data);
@@ -668,6 +712,19 @@ public class NioServerResponse implements ServerResponse {
             }
             return;
         }
+        writeBytesDirect(data);
+    }
+
+    /**
+     * 直接写入通道(不经待写队列)。
+     *
+     * <p>仅用于需要与内核态零拷贝体保持严格顺序的场景({@code sendFile} 的响应头),
+     * 以及没有流式钩子的兜底路径。非阻塞通道下若发送缓冲已满,本方法会把剩余部分
+     * 计入队列由 OP_WRITE 续写,不会忙等。</p>
+     *
+     * @param data 数据,不允许为 null
+     */
+    private void writeBytesDirect(byte[] data) {
         // 无通道场景(AIO 复用,channel 为 null):直接写通道不可用,标记关闭并静默返回,
         // 正常响应路径由 asyncWriter 接管,此处仅兜底 SSE 等直写调用
         if (channelClosed || channel == null) {
@@ -680,6 +737,11 @@ public class NioServerResponse implements ServerResponse {
                 int written = channel.write(bb);
                 if (written < 0) {
                     channelClosed = true;
+                    return;
+                }
+                if (written == 0) {
+                    // 非阻塞通道发送缓冲已满:剩余部分交给调用方的续写机制,
+                    // 不再原地重试(否则事件循环线程会 100% 空转)
                     return;
                 }
             }

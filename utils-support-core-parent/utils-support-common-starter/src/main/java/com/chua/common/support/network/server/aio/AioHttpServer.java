@@ -551,12 +551,15 @@ public class AioHttpServer extends AbstractServer {
                         combined.put(header).put(body);
                         combined.flip();
                         state.writeQueue.add(combined);
+                        state.pendingWriteBytes.addAndGet(total);
                         return;
                     }
                 }
                 state.writeQueue.add(header);
+                state.pendingWriteBytes.addAndGet(header.remaining());
                 if (body != null && body.hasRemaining()) {
                     state.writeQueue.add(body);
+                    state.pendingWriteBytes.addAndGet(body.remaining());
                 }
                 return;
             }
@@ -581,6 +584,7 @@ public class AioHttpServer extends AbstractServer {
                     netOut.flip();
                     if (netOut.hasRemaining()) {
                         state.writeQueue.add(netOut);
+                        state.pendingWriteBytes.addAndGet(netOut.remaining());
                     }
                 }
             }
@@ -664,6 +668,8 @@ public class AioHttpServer extends AbstractServer {
                 closeConn(state);
                 return;
             }
+            // 门限计数按实际写出字节回退(未写出的部分仍留在队首)
+            state.pendingWriteBytes.addAndGet(-written);
             {
                 ByteBuffer head = state.writeQueue.peek();
                 if (head != null && !head.hasRemaining()) {
@@ -1613,6 +1619,16 @@ public class AioHttpServer extends AbstractServer {
          * 是否保持连接(每条响应处理后更新)
          */
         volatile boolean keepAlive = true;
+
+        /**
+         * 待写队列中尚未写出的字节数(网络字节,与 writeQueue 内容严格对应)。
+         *
+         * <p>用于实施 {@link ServerSetting#getMaxPendingWriteBytes()} 背压门限:
+         * 慢客户端不读响应时,SSE 生产者会持续入队,该计数随之增长;
+         * 超过门限即判定为慢消费者并关闭连接,避免堆内存无界膨胀。</p>
+         */
+        final java.util.concurrent.atomic.AtomicLong pendingWriteBytes =
+                new java.util.concurrent.atomic.AtomicLong();
 
         /**
          * 串行写权标志:true 表示已有 outstanding write,

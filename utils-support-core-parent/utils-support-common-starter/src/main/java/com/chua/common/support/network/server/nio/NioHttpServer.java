@@ -142,11 +142,14 @@ public class NioHttpServer extends AbstractServer {
             combined.put(header).put(body);
             combined.flip();
             st.writeQueue.add(combined);
+            st.pendingWriteBytes += total;
             return;
         }
         st.writeQueue.add(header);
+        st.pendingWriteBytes += header.remaining();
         if (body != null && body.hasRemaining()) {
             st.writeQueue.add(body);
+            st.pendingWriteBytes += body.remaining();
         }
     }
 
@@ -581,6 +584,7 @@ public class NioHttpServer extends AbstractServer {
                         closeConn(key, st);
                         return;
                     }
+                    st.pendingWriteBytes -= w;
                     if (bb.hasRemaining()) {
                         return;
                     }
@@ -725,6 +729,7 @@ public class NioHttpServer extends AbstractServer {
                     closeConn(key, st);
                     return true;
                 }
+                st.pendingWriteBytes -= w;
                 if (bb.hasRemaining()) {
                     return false;
                 }
@@ -759,6 +764,7 @@ public class NioHttpServer extends AbstractServer {
                     closeConn(key, st);
                     return;
                 }
+                st.pendingWriteBytes -= w;
                 if (bb.hasRemaining()) {
                     // 未写完,等待下次 OP_WRITE
                     return;
@@ -841,6 +847,14 @@ public class NioHttpServer extends AbstractServer {
         // 实测 ArrayDeque + synchronized 在 1000/2000 并发下吞吐最高(3876/2430 RPS),
         // 无锁队列 + pendingWrites 因多一轮 select 循环反而降低吞吐
         final java.util.Deque<ByteBuffer> writeQueue = Wraps.deque();
+        /**
+         * 待写队列中尚未写出的字节数(受 {@link #writeQueue} 监视器保护)。
+         *
+         * <p>用于实施 {@link ServerSetting#getMaxPendingWriteBytes()} 背压门限:
+         * 慢客户端不读响应时,流式(SSE)生产者会持续入队,该计数随之增长;
+         * 超过门限即判定为慢消费者并关闭连接,避免堆内存无界膨胀。</p>
+         */
+        long pendingWriteBytes;
         boolean keepAlive = true;
         boolean inWorker = false;
         /**
