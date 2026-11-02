@@ -40,6 +40,10 @@ import static java.util.Calendar.getInstance;
  * 日期比较、时区处理、工作日计算等。
  * 部分方法参考 Apache Commons Lang 实现。
  *
+ * <p>[P3C-1.2 B2 豁免] 本类为公共日期工具 API，需保持对 {@link java.text.DateFormat} 参数和返回类型的支持
+ * （下游自行传入 {@code SimpleDateFormat} 或 {@code DateTimeFormatter}），因此本地以
+ * {@code SimpleDateFormat} 实现模式转换/时区/容错解析。</p>
+ *
  * @author CH
  * @since 2020/12/21
  */
@@ -596,6 +600,7 @@ public class DateUtils {
      * @throws ParseException 解析失败时抛出
      */
     public static Date format(String str, String pattern) throws ParseException {
+        // [P3C-1.2 B2] 公共 API，必须保持 String→Date 动态模式解析，Per-Call 新建
         DateFormat df = new SimpleDateFormat(pattern);
         return df.parse(str);
     }
@@ -1150,6 +1155,7 @@ public class DateUtils {
      * @throws ParseException
      */
     public static Date parseDateWithLeniency(String str, String[] parsePatterns, Locale loc) throws ParseException {
+        // [P3C-1.2 B2] 必须为每个候选模式分别新建实例（applyPattern 不线程安全），Per-Call 创建
         for (String dateFormat : parsePatterns) {
             SimpleDateFormat sdf2 = new SimpleDateFormat(dateFormat, loc);
             Date parse = null;
@@ -2277,6 +2283,10 @@ public class DateUtils {
      * @param timeZone the 时间zone
      * @return DateFormat
      * @see DateFormat
+     *
+     * <p>[P3C-1.2 B2 豁免] 必须返回 {@link DateFormat} 抽象类型，否则 {@link #createDateFormat(String, String)} 的
+     * 返回类型与 {@code format(Date, DateFormat)} 参数类型无法匹配；实现内部需要 {@code setLenient/setTimeZone}
+     * 等不支持的动态 API，故使用 {@code SimpleDateFormat}。</p>
      */
     private static DateFormat createDateFormat(String pattern, String timeZone) {
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);

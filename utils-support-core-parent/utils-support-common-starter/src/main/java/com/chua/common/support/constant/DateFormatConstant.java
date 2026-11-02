@@ -553,6 +553,9 @@ public final class DateFormatConstant {
     /**
      * 创建 yyyy-MM-dd HH:mm:ss 格式的日期格式化实例。
      * <p>SimpleDateFormat 非线程安全，禁止复用静态实例，每次使用请新建。</p>
+     * <p>[P3C-1.2 B2 豁免] 此方法供 JacksonJsonProvider / JacksonConfiguration 调用，而 Jackson
+     * {@link ObjectMapper#setDateFormat(DateFormat)} 与 {@code new DateSerializer(...)} 只接受 {@code DateFormat}，
+     * 因此不能改为 {@code DateTimeFormatter}。</p>
      *
      * @return 新的日期格式化实例
      */

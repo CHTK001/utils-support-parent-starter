@@ -9,7 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -415,7 +416,7 @@ public class AggregateChatClientSetting {
                 return null;
             }
             try {
-                return new SimpleDateFormat("yyyy-MM-dd").parse(expireTime);
+                return Date.from(LocalDate.parse(expireTime).atStartOfDay(ZoneId.systemDefault()).toInstant());
             } catch (Exception e) {
                 return null;
             }

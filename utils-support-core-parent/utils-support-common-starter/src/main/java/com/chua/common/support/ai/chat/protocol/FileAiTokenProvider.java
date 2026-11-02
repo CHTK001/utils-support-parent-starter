@@ -14,7 +14,9 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +72,8 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     /**
      * 日期格式
      */
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final ZoneId ZONE = ZoneId.systemDefault();
 
     /**
      * 创建文件令牌提供者。
@@ -132,7 +135,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
                 Date expireTime = null;
                 if (parts.length > 2) {
                     try {
-                        expireTime = dateFormat.parse(parts[2]);
+                        expireTime = Date.from(LocalDate.parse(parts[2], DATE_FMT).atStartOfDay(ZONE).toInstant());
                     } catch (Exception e) {
                         log.warn("[FileAiTokenProvider] 解析过期时间失败: {}", parts[2]);
                     }
@@ -170,7 +173,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
                 StringBuilder sb = new StringBuilder(token.getToken());
                 sb.append(' ').append(token.getGroup() != null ? token.getGroup() : "default");
                 if (token.getExpireTime() != null) {
-                    sb.append(' ').append(dateFormat.format(token.getExpireTime()));
+                    sb.append(' ').append(token.getExpireTime().toInstant().atZone(ZONE).format(DATE_FMT));
                 }
                 lines.add(sb.toString());
             }

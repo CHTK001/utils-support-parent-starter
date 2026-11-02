@@ -338,6 +338,7 @@ public class Socks5ProxyServer extends AbstractProxyServer {
                 int port = readPort(in);
                 try { target = new InetSocketAddress(InetAddress.getByAddress(ipv4), port); }
                 catch (UnknownHostException e) {
+                    log.warn("SOCKS5 域名/IPv4 解析失败 [{}]: {}", atyp, e.getMessage());
                     target = null;
                 }
                 break;
@@ -356,6 +357,7 @@ public class Socks5ProxyServer extends AbstractProxyServer {
                 int port3 = readPort(in);
                 try { target = new InetSocketAddress(InetAddress.getByAddress(ipv6), port3); }
                 catch (UnknownHostException e) {
+                    log.warn("SOCKS5 域名/IPv6 解析失败 [{}]: {}", atyp, e.getMessage());
                     target = null;
                 }
                 break;
