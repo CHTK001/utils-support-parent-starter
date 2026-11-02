@@ -289,15 +289,15 @@ final class MemorySqlAst {
     */
     static final class LikeNode extends Node {
         private final ColumnNode col;
-        private final String pattern;
+        private final Object pattern;
 
         /**
          * 构造 LIKE 节点。
          * @param col 目标列
-         * @param pattern 模式串，仅支持 % 通配（前缀/后缀/包含）
+         * @param pattern 模式串，仅支持 % 通配（前缀/后缀/包含），可为 参数记号笔
          * @return 返回值
         */
-        LikeNode(ColumnNode col, String pattern) {
+        LikeNode(ColumnNode col, Object pattern) {
             this.col = col;
             this.pattern = pattern;
         }
@@ -308,18 +308,8 @@ final class MemorySqlAst {
             if (v == null) {
                 return false;
             }
-            String s = String.valueOf(v);
-            String pat = pattern;
-            if (pat.startsWith("%") && pat.endsWith("%")) {
-                return s.contains(pat.substring(1, pat.length() - 1));
-            }
-            if (pat.startsWith("%")) {
-                return s.endsWith(pat.substring(1));
-            }
-            if (pat.endsWith("%")) {
-                return s.startsWith(pat.substring(0, pat.length() - 1));
-            }
-            return s.equals(pat);
+            return MemorySqlLex.like(String.valueOf(v), String.valueOf(
+                    LiteralNode.unwrap(pattern, p)));
         }
     }
 

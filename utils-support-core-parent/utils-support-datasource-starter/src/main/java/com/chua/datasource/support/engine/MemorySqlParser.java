@@ -195,11 +195,7 @@ public class MemorySqlParser {
             consume(ts, ")");
             result = new InNode(col, values);
         } else if (matchKeyword(ts, "LIKE")) {
-            String pattern = ts.next();
-            if (!pattern.startsWith("'")) {
-                throw new IllegalArgumentException("LIKE 模式需为字符串: " + pattern);
-            }
-            result = new LikeNode(col, pattern.substring(1, pattern.length() - 1));
+            result = new LikeNode(col, consumeValueOrParam(ts));
         } else {
             String op = consumeOperator(ts);
             Object rhs = consumeValueOrParam(ts);
