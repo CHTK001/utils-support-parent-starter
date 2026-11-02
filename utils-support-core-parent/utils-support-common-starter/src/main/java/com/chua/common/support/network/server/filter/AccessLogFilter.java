@@ -30,6 +30,12 @@ public class AccessLogFilter implements ServerFilter {
      */
     @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
+        // 日志级别未开 info 时直接透传：否则每请求都要构造 remoteAddr/method/path 字符串并触发
+        // slf4j 参数求值(getRemoteAddress 还会格式化地址)，是热路径上最昂贵的固定开销之一
+        if (!log.isInfoEnabled()) {
+            chain.doFilter(request, response);
+            return;
+        }
         long start = System.nanoTime();
         try {
             chain.doFilter(request, response);
