@@ -419,12 +419,17 @@ public final class ReflectUtils {
         Object key = buildStaticMethodKey(clazz, methodName, returnType, paramTypes);
         try {
             return METHOD_HANDLE_CACHE.computeIfAbsent(key, k -> {
+                MethodType mt = MethodType.methodType(returnType, paramTypes);
                 try {
-                    MethodType mt = MethodType.methodType(returnType, paramTypes);
+                    // 公共类： LOOKUP 足可以访问
                     return LOOKUP.findStatic(clazz, methodName, mt);
                 } catch (NoSuchMethodException | IllegalAccessException e) {
                     // 包级私有/私有类：通过 privateLookupIn 落到目标类所在包
-                    return accessLookup(clazz).findStatic(clazz, methodName, mt);
+                    try {
+                        return accessLookup(clazz).findStatic(clazz, methodName, mt);
+                    } catch (NoSuchMethodException | IllegalAccessException ex) {
+                        return null;
+                    }
                 }
             });
         } catch (Exception e) {
