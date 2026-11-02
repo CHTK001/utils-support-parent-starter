@@ -220,69 +220,84 @@ public class HttpBench {
                 }
             }
 
-            /** 读完整响应: header(到 \r\n\r\n), 解析 Content-Length, 再抽 body */
+            /**
+             * 读完整响应：在缓冲区任意位置定位头部结束符 {@code \r\n\r\n}，解析 Content-Length 后补齐 body。
+             * <p>关键点：服务端常把 header 与 body 合并在同一次 flush 写出，TCP 也可能合并成一次 read；
+             * 若只检查缓冲区末尾 4 字节，body 存在时永远匹配不到头部结束符，keep-alive 连接会一直阻塞。</p>
+             */
             private int readFullResponse(InputStream in) throws IOException {
                 int len = 0;
-                int contentLen = 0;
-                boolean parsed = false;
+                int contentLen = -1;
+                int headerEnd = -1;
                 while (true) {
                     int n = in.read(buf, len, MAX_RES - len);
                     if (n <= 0) {
                         return -1;
                     }
                     len += n;
-                    if (!parsed && len >= 4) {
-                        boolean end = true;
-                        for (int i = len - 4; i < len; i++) {
-                            if (buf[i] != (i == len - 4 || i == len - 2 ? 13 : 10)) {
-                                end = false;
-                                break;
+                    if (headerEnd < 0) {
+                        headerEnd = findHeaderEnd(len);
+                        if (headerEnd >= 0) {
+                            contentLen = parseContentLength(headerEnd);
+                            if (contentLen < 0) {
+                                contentLen = 0;
                             }
-                        }
-                        if (end) {
-                            // 解析 Content-Length: N
-                            for (int i = 0; i < len - 4; i++) {
-                                if (buf[i] == 'C' && buf[i + 1] == 'o' && buf[i + 2] == 'n'
-                                        && buf[i + 3] == 't' && buf[i + 4] == 'e' && buf[i + 5] == 'n'
-                                        && buf[i + 6] == 't' && buf[i + 7] == '-' && buf[i + 8] == 'L'
-                                        && buf[i + 9] == 'e' && buf[i + 10] == 'n' && buf[i + 11] == 'g'
-                                        && buf[i + 12] == 't' && buf[i + 13] == ':') {
-                                    int j = i + 14;
-                                    int v = 0;
-                                    boolean has = false;
-                                    while (j < len - 4 && buf[j] >= '0' && buf[j] <= '9') {
-                                        v = v * 10 + (buf[j] - '0');
-                                        j++;
-                                        has = true;
-                                    }
-                                    if (has) {
-                                        contentLen = v;
-                                    }
-                                    break;
-                                }
-                            }
-                            parsed = true;
-                            break;
                         }
                     }
-                    if (len >= MAX_RES - BODY_LEN) {
+                    if (headerEnd >= 0) {
+                        int have = len - headerEnd;
+                        if (have >= contentLen) {
+                            return len;
+                        }
+                        int need = contentLen - have;
+                        while (need > 0) {
+                            int r = in.read(buf, len, Math.min(need, MAX_RES - len));
+                            if (r <= 0) {
+                                return -1;
+                            }
+                            len += r;
+                            need -= r;
+                        }
                         return len;
                     }
-                }
-                if (contentLen <= 0) {
-                    return len;
-                }
-                int total = len;
-                int remaining = contentLen;
-                while (remaining > 0) {
-                    int n = in.read(buf, total, Math.min(remaining, MAX_RES - total));
-                    if (n <= 0) {
+                    if (len >= MAX_RES - 1) {
                         return -1;
                     }
-                    total += n;
-                    remaining -= n;
                 }
-                return total;
+            }
+
+            /** 在 [0, len) 内定位 \r\n\r\n，返回其后的下标；未找到返回 -1 */
+            private int findHeaderEnd(int len) {
+                for (int i = 3; i < len; i++) {
+                    if (buf[i] == '\n' && buf[i - 1] == '\r' && buf[i - 2] == '\n' && buf[i - 3] == '\r') {
+                        return i + 1;
+                    }
+                }
+                return -1;
+            }
+
+            /** 在头部区间 [0, headerEnd) 解析 Content-Length；未出现返回 -1 */
+            private int parseContentLength(int headerEnd) {
+                for (int i = 0; i + 13 < headerEnd; i++) {
+                    if (buf[i] == 'C' && buf[i + 1] == 'o' && buf[i + 2] == 'n' && buf[i + 3] == 't'
+                            && buf[i + 4] == 'e' && buf[i + 5] == 'n' && buf[i + 6] == 't' && buf[i + 7] == '-'
+                            && buf[i + 8] == 'L' && buf[i + 9] == 'e' && buf[i + 10] == 'n' && buf[i + 11] == 'g'
+                            && buf[i + 12] == 't' && buf[i + 13] == ':') {
+                        int j = i + 14;
+                        while (j < headerEnd && (buf[j] == ' ' || buf[j] == '\t')) {
+                            j++;
+                        }
+                        int v = 0;
+                        boolean has = false;
+                        while (j < headerEnd && buf[j] >= '0' && buf[j] <= '9') {
+                            v = v * 10 + (buf[j] - '0');
+                            j++;
+                            has = true;
+                        }
+                        return has ? v : -1;
+                    }
+                }
+                return -1;
             }
 
             public void close() {
