@@ -339,19 +339,30 @@ public final class ReflectUtils {
         Object key = buildMethodKey(clazz, methodName, returnType, paramTypes);
         try {
             return METHOD_HANDLE_CACHE.computeIfAbsent(key, k -> {
+                MethodType mt = MethodType.methodType(returnType, paramTypes);
                 try {
-                    MethodType mt = MethodType.methodType(returnType, paramTypes);
+                    // 公共类：LOOKUP 足可以访问
                     return LOOKUP.findVirtual(clazz, methodName, mt);
                 } catch (NoSuchMethodException | IllegalAccessException e) {
                     // 实例方法查找失败，尝试公共静态方法
                     try {
-                        MethodType mt = MethodType.methodType(returnType, paramTypes);
                         return LOOKUP.findStatic(clazz, methodName, mt);
                     } catch (NoSuchMethodException | IllegalAccessException ex) {
-                        // 返回类型容错：请求的返回类型与方法实际类型不一致（如注解代理 value() 实际返回 String
-                        // 而调用方请求 Object.class），查找虚拟方法为精确类型匹配会失败；
-                        // 按实际返回类型查找后原样返回，由 invokeWithArguments 自动适配
-                        return findWithActualReturnType(clazz, methodName, paramTypes);
+                        // 包级私有/私有类：LOOKUP 不在其所属包，通过 privateLookupIn 落到目标类所在包
+                        //（与 findFieldGetter/findFieldSetter 一致的 privateLookupIn 对称实现）
+                        MethodHandles.Lookup lkp = accessLookup(clazz);
+                        try {
+                            return lkp.findVirtual(clazz, methodName, mt);
+                        } catch (NoSuchMethodException | IllegalAccessException ex1) {
+                            try {
+                                return lkp.findStatic(clazz, methodName, mt);
+                            } catch (NoSuchMethodException | IllegalAccessException ex2) {
+                                // 返回类型容错：请求的返回类型与方法实际类型不一致（如注解代理 value() 实际返回 String
+                                // 而调用方请求 Object.class），查找虚拟方法为精确类型匹配会失败；
+                                // 按实际返回类型查找后原样返回，由 invokeWithArguments 自动适配
+                                return findWithActualReturnType(clazz, methodName, paramTypes);
+                            }
+                        }
                     }
                 }
             });
@@ -385,7 +396,8 @@ public final class ReflectUtils {
                     MethodType mt = MethodType.methodType(returnType, paramTypes);
                     return LOOKUP.findStatic(clazz, methodName, mt);
                 } catch (NoSuchMethodException | IllegalAccessException e) {
-                    return null;
+                    // 包级私有/私有类：通过 privateLookupIn 落到目标类所在包
+                    return accessLookup(clazz).findStatic(clazz, methodName, mt);
                 }
             });
         } catch (Exception e) {
@@ -1031,7 +1043,8 @@ public final class ReflectUtils {
             }
             if (matched) {
                 try {
-                    return LOOKUP.unreflect(method);
+                    // 包级私有/私有类必须落到方音类所在包，否则 unreflect 拒绝访问
+                    return accessLookup(method.getDeclaringClass()).unreflect(method);
                 } catch (IllegalAccessException e) {
                     return null;
                 }
@@ -1162,7 +1175,7 @@ public final class ReflectUtils {
         if (!target.canAccess(null)) {
             target.setAccessible(true);
         }
-        return LOOKUP.unreflect(target).invokeWithArguments(args == null ? new Object[0] : args);
+        return accessLookup(target.getDeclaringClass()).unreflect(target).invokeWithArguments(args == null ? new Object[0] : args);
     }
 
     /**
