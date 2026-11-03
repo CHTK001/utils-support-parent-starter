@@ -460,6 +460,28 @@ public class OpenTelemetryClient implements AutoCloseable {
     }
 
     /**
+     * 判断 Span 是否一条 Trace 的根 Span
+     * <p>
+     * 根 Span 没有父 Span: {@code parentSpanId} 为 null 或空串;
+     * OTel SDK 在 {@link SpanData} 里对根 Span 记的父 SpanId 固定为 16 个 0
+     * （{@code 0000000000000000}）, 也视作没有父 Span.
+     *
+     * @param parentSpanId 父 SpanId
+     * @return 根 Span 返回 true
+     */
+    private static boolean isRootSpanId(String parentSpanId) {
+        if (parentSpanId == null || parentSpanId.isEmpty()) {
+            return true;
+        }
+        for (int i = 0; i < parentSpanId.length(); i++) {
+            if (parentSpanId.charAt(i) != '0') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Trace 拼装
      *
      * @param traceId traceId
@@ -479,7 +501,7 @@ public class OpenTelemetryClient implements AutoCloseable {
         builder.spans(sorted);
         Span root = null;
         for (Span span : sorted) {
-            if (span.getParentSpanId() == null || span.getParentSpanId().isEmpty()) {
+            if (isRootSpanId(span.getParentSpanId())) {
                 root = span;
                 break;
             }
