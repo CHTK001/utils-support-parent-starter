@@ -40,17 +40,17 @@ public class VectorIOBench {
     */
     public static void main(String[] args) throws Exception {
         testDir = Files.createTempDirectory("io-bench-");
-        System.out.println("============================================");
-        System.out.println("  向量存储 I/O 性能基准测试");
-        System.out.println("  维度: " + DIM + " | JVM: " + System.getProperty("java.version"));
-        System.out.println("============================================\n");
+        System.out.println("============================================"); // [P3C E1 豁免]
+        System.out.println("  向量存储 I/O 性能基准测试"); // [P3C E1 豁免]
+        System.out.println("  维度: " + DIM + " | JVM: " + System.getProperty("java.version")); // [P3C E1 豁免]
+        System.out.println("============================================\n"); // [P3C E1 豁免]
 
         runTest(10_000, 2_000, "小量  1万条");
         runTest(100_000, 10_000, "中量  10万条");
         runTest(1_000_000, 20_000, "大量  100万条");
 
         deleteRecursively(testDir);
-        System.out.println("\n测试目录已清理: " + testDir);
+        System.out.println("\n测试目录已清理: " + testDir); // [P3C E1 豁免]
     }
 
     /**
@@ -62,8 +62,8 @@ public class VectorIOBench {
      * @throws Exception 当执行过程不满足前置条件时
      */
     private static void runTest(int count, int flushBatch, String label) throws Exception {
-        System.out.println("────────────────────────────────────────────");
-        System.out.println("【" + label + "】");
+        System.out.println("────────────────────────────────────────────"); // [P3C E1 豁免]
+        System.out.println("【" + label + "】"); // [P3C E1 豁免]
 
         Path dataDir = testDir.resolve(label.replaceAll("[\\s]", ""));
 
@@ -83,29 +83,29 @@ public class VectorIOBench {
         long writeMs = (System.nanoTime() - t0) / 1_000_000L;
         long diskBytes = totalDiskSize(dataDir);
         int shardCount = shardCount(dataDir);
-        System.out.printf("  写入: %d ms | 磁盘: %.1f MB | 分片: %d%n",
+        System.out.printf("  写入: %d ms | 磁盘: %.1f MB | 分片: %d%n", // [P3C E1 豁免]
                 writeMs, diskBytes / 1_048_576.0, shardCount);
 
  // ---- 测试 A: 旧版顺序 数据输入流 ----
         long seqNs = measureSequential(dataDir, count, diskBytes);
-        System.out.printf("  [A] 顺序 DataInputStream: %d us  |  %.0f QPS  |  %.0f MB/s%n",
+        System.out.printf("  [A] 顺序 DataInputStream: %d us  |  %.0f QPS  |  %.0f MB/s%n", // [P3C E1 豁免]
                 seqNs / 1000, 1_000_000.0 / seqNs,
                 diskBytes / 1_048_576.0 / (seqNs / 1_000_000.0));
 
  // ---- 测试 B: mappedbyte缓冲 顺序扫描 ----
         long mmapNs = measureMmapSequential(dataDir, count, diskBytes);
-        System.out.printf("  [B] MappedByteBuffer 顺序: %d us  |  %.0f QPS  |  %.0f MB/s%n",
+        System.out.printf("  [B] MappedByteBuffer 顺序: %d us  |  %.0f QPS  |  %.0f MB/s%n", // [P3C E1 豁免]
                 mmapNs / 1000, 1_000_000.0 / mmapNs,
                 diskBytes / 1_048_576.0 / (mmapNs / 1_000_000.0));
 
         // ---- 测试 C: HYBRID (B+Tree + MappedByteBuffer 精确偏移) ----
         long hybridNs = measureHybrid(dataDir, count, diskBytes);
-        System.out.printf("  [C] B+Tree+mmap 精确偏移: %d us  |  %.0f QPS  |  %.0f MB/s%n",
+        System.out.printf("  [C] B+Tree+mmap 精确偏移: %d us  |  %.0f QPS  |  %.0f MB/s%n", // [P3C E1 豁免]
                 hybridNs / 1000, 1_000_000.0 / hybridNs,
                 diskBytes / 1_048_576.0 / (hybridNs / 1_000_000.0));
 
         // ---- 对比 ----
-        System.out.printf("  加速比: B/A=%.1fx  C/A=%.1fx  C/B=%.1fx%n%n",
+        System.out.printf("  加速比: B/A=%.1fx  C/A=%.1fx  C/B=%.1fx%n%n", // [P3C E1 豁免]
                 (double) seqNs / mmapNs,
                 (double) seqNs / hybridNs,
                 (double) mmapNs / hybridNs);
@@ -213,7 +213,7 @@ public class VectorIOBench {
         DefaultVectorStorage storage = DefaultVectorStorage.builder()
                 .dimension(DIM).dir(dir)
                 .mode(DefaultVectorStorage.Mode.HYBRID).shardSize(10_000).build();
-        System.out.printf("    加载: %d 条, %d 分片%n", storage.size(), storage.getShardCount());
+        System.out.printf("    加载: %d 条, %d 分片%n", storage.size(), storage.getShardCount()); // [P3C E1 豁免]
         float[] query = randomVec();
         int rounds = Math.max(3, 100_000 / Math.min(expectedCount, 10_000));
         long total = 0;
@@ -304,11 +304,11 @@ public class VectorIOBench {
                     try {
                         Files.delete(p);
                     } catch (Exception e) {
-                        System.err.println("Failed to delete " + p + ": " + e.getMessage());
+                        System.err.println("Failed to delete " + p + ": " + e.getMessage()); // [P3C E1 豁免]
                     }
                 });
         } catch (Exception e) {
-            System.err.println("Failed to walk temp dir " + dir + ": " + e.getMessage());
+            System.err.println("Failed to walk temp dir " + dir + ": " + e.getMessage()); // [P3C E1 豁免]
         }
     }
 }

@@ -307,11 +307,6 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
     private void addAndEmit(TransmissionRecord record, boolean isError) {
         records.add(record);
         try {
-            com.chua.runtime.apm.storage.StorageManager.appendTransmission(record);
-        } catch (Exception e) {
-            LOG.log(java.util.logging.Level.FINE, "记录传输失败，已忽略", e);
-        }
-        try {
             DependencyGraphHandler handler = ApmBootstrap.getGlobalHandler(DependencyGraphHandler.class);
             if (handler == null) {
                 return;

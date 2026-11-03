@@ -4,7 +4,6 @@ import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -18,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -136,8 +136,12 @@ public class JdkTelnetServer extends AbstractServer {
         try {
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(true);
-            serverSocket.bind(new InetSocketAddress(setting.getHost(), setting.getPort()), setting.getBacklog());
-            workerPool = ThreadUtils.newFixedThreadPool(setting.getWorkerThreads());
+            serverSocket.bind(new InetSocketAddress(setting.getHost(), setting.getPort()),
+                    setting.resolveBacklog(1024));
+            // Telnet 是长连接：旧实现用固定平台线程池（workerThreads），
+            // 每条连接独占一个平台线程，连接数一多就卡在池容量上排队。
+            // 改为虚拟线程池，连接数与平台线程数解耦（百万连接目标的前提）。
+            workerPool = Executors.newVirtualThreadPerTaskExecutor();
             running = true;
 
             // 内置命令
@@ -197,7 +201,25 @@ public class JdkTelnetServer extends AbstractServer {
         while (running) {
             try {
                 Socket socket = serverSocket.accept();
-                workerPool.submit(() -> handleConnection(socket));
+                if (!accepting) {
+                    // 优雅关闭中：不再接纳新连接
+                    socket.close();
+                    continue;
+                }
+                if (!tryAcquireConnection()) {
+                    log.warn("Telnet 连接数超限 (max={})，拒绝 {}", setting.getMaxConnections(),
+                            socket.getRemoteSocketAddress());
+                    socket.close();
+                    continue;
+                }
+                try {
+                    applySocketOptions(socket);
+                    workerPool.submit(() -> handleConnection(socket));
+                } catch (java.util.concurrent.RejectedExecutionException e) {
+                    // 停止中任务被拒：连接不会被处理，必须在这里归还预算
+                    socket.close();
+                    releaseConnection();
+                }
             } catch (IOException e) {
                 if (running) {
                     log.error("接受连接异常", e);
@@ -224,6 +246,7 @@ public class JdkTelnetServer extends AbstractServer {
             } catch (IOException ignored) {
                 // NOTHING
             }
+            releaseConnection();
             return;
         }
         sessions.put(clientId, session);
@@ -274,6 +297,7 @@ public class JdkTelnetServer extends AbstractServer {
         } finally {
             sessions.remove(clientId);
             session.close();
+            releaseConnection();
             log.info("Telnet 断开: {}", clientId);
         }
     }

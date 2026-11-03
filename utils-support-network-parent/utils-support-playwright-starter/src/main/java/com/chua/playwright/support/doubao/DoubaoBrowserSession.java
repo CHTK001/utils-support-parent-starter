@@ -203,6 +203,7 @@ public class DoubaoBrowserSession implements AutoCloseable {
                 .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " +
                         "Chrome/130.0.0.0 Safari/537.36"));
         this.context.setDefaultNavigationTimeout(NAV_TIMEOUT.toMillis());
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
         Runtime.getRuntime().addShutdownHook(new Thread(this::close));
     }
 

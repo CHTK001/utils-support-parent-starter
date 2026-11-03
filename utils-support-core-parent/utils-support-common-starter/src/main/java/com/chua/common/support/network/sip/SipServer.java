@@ -1,9 +1,11 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.sip;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.algorithm.hmac.HMacUtils;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.AbstractServer;
+import com.chua.common.support.network.server.ServerMetrics;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.impl.JdkTcpServer;
 import com.chua.common.support.network.tcp.TcpServer;
@@ -189,6 +191,78 @@ private static ServerSetting serverSetting(SipConfig config) {
         tcpServer.start();
         setting.setPort(tcpServer.getPort());
         log.info("SIP 单端口服务器启动成功: {}:{}", setting.getHost(), setting.getPort());
+    }
+
+    /**
+     * 获取指标：SIP 的连接全部由内部 {@link JdkTcpServer} 承载。
+     *
+     * <p>SIP 自身不处理 HTTP 语义、也不走 {@code handleRequest} 热路径，
+     * 基类那份 {@link ServerMetrics} 在这里恒为 0。若不转发，监控看到的
+     * 「活跃连接数 / 峰值连接数 / 拒绝数」永远是 0，反而掩盖真实容量。</p>
+     *
+     * @return 内部 TCP 服务器的指标；尚未启动时返回基类实例
+     */
+    @Override
+    public ServerMetrics getMetrics() {
+        JdkTcpServer server = this.tcpServer;
+        return server != null ? server.getMetrics() : super.getMetrics();
+    }
+
+    /**
+     * 获取活跃连接数（转发到内部 TCP 服务器）。
+     *
+     * @return 活跃连接数
+     */
+    @Override
+    public int getActiveConnections() {
+        return getMetrics().getActiveConnections();
+    }
+
+    /**
+     * 获取峰值连接数（转发到内部 TCP 服务器）。
+     *
+     * @return 峰值连接数
+     */
+    @Override
+    public int getPeakConnections() {
+        return getMetrics().getPeakConnections();
+    }
+
+    /**
+     * 是否仍接受新连接：由内部 TCP 服务器的接纳开关决定。
+     *
+     * @return true 表示可以接受新连接
+     */
+    @Override
+    public boolean isAcceptingConnections() {
+        JdkTcpServer server = this.tcpServer;
+        return server != null ? server.isAcceptingConnections() : super.isAcceptingConnections();
+    }
+
+    /**
+     * 停止接纳：转发到内部 {@link JdkTcpServer}。
+     *
+     * <p>基类 {@code stop()} 先用 {@code doStopAccepting()} 摘接纳、再等存量请求。
+     * SIP 的连接都在内部 TCP 服务器上，若不转发，等待期间仍会不断建连，
+     * 优雅关闭就永远等不到活跃数归零。</p>
+     */
+    @Override
+    protected void doStopAccepting() {
+        JdkTcpServer server = this.tcpServer;
+        if (server != null) {
+            server.setAccepting(false);
+        }
+    }
+
+    /**
+     * 恢复接纳：转发到内部 {@link JdkTcpServer}。
+     */
+    @Override
+    protected void doStartAccepting() {
+        JdkTcpServer server = this.tcpServer;
+        if (server != null) {
+            server.setAccepting(true);
+        }
     }
 
     /**

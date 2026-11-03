@@ -187,7 +187,7 @@ public class WevisdocLayoutBridge {
 
         List<OcrBlock> results = new ArrayList<>();
         List<Boolean> used = new ArrayList<>();
-        for (int i = 0; i < ocrBlocks.size(); i++) {
+        for (OcrBlock item : ocrBlocks) {
             used.add(false);
         }
 

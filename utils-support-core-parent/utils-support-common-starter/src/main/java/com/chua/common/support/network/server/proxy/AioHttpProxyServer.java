@@ -16,7 +16,6 @@ import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * AIO 正向 HTTP 代理 —— 纯非阻塞响应式实现(Proactor/IOCP)。
@@ -30,6 +29,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class AioHttpProxyServer extends AbstractServer {
 
     /**
+     * 握手队列最小长度（等价于「用平台允许的最大队列」，内核按 somaxconn 截断）。
+     */
+    private static final int MIN_BACKLOG = 65536;
+
+    /**
      * 监听通道
      */
     private AsynchronousServerSocketChannel serverChannel;
@@ -37,10 +41,6 @@ public class AioHttpProxyServer extends AbstractServer {
      * IOCP 线程组
      */
     private AsynchronousChannelGroup group;
-    /**
-     * 活跃连接数
-     */
-    private final AtomicInteger activeConnections = new AtomicInteger();
 
     /**
      * 后端空闲连接池(target -> 空闲通道列表,复用避免每次 connect)
@@ -98,6 +98,7 @@ public class AioHttpProxyServer extends AbstractServer {
             int threads = setting.getEventLoops() > 0
                     ? setting.getEventLoops() : Runtime.getRuntime().availableProcessors();
             group = AsynchronousChannelGroup.withFixedThreadPool(threads, r -> {
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
                 Thread t = new Thread(r, "aio-httpproxy-iocp");
                 t.setDaemon(true);
                 return t;
@@ -105,7 +106,7 @@ public class AioHttpProxyServer extends AbstractServer {
             serverChannel = AsynchronousServerSocketChannel.open(group);
             serverChannel.setOption(StandardSocketOptions.SO_REUSEADDR, setting.isSoReuseAddr());
             serverChannel.bind(new InetSocketAddress(setting.getHost(), setting.getPort()),
-                    Math.max(setting.getBacklog(), 65536));
+                    setting.resolveBacklog(MIN_BACKLOG));
             setting.setPort(((InetSocketAddress) serverChannel.getLocalAddress()).getPort());
             issueAccept();
             log.info("AIO HttpProxy started on {}:{} (iocpThreads={}, reactive=true)",
@@ -127,6 +128,16 @@ public class AioHttpProxyServer extends AbstractServer {
             @Override
             public void completed(AsynchronousSocketChannel channel, Void attachment) {
                 issueAccept();
+                if (!accepting) {
+                    // 优雅关闭中：不再接纳新连接（存量连接不受影响）
+                    closeQuietly(channel);
+                    return;
+                }
+                if (!tryAcquireConnection()) {
+                    // 超限：回 503 + Retry-After 后关闭，拒绝数计入 metrics
+                    rejectOverloaded(channel);
+                    return;
+                }
                 handleClient(channel);
             }
 
@@ -140,17 +151,45 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
+     * 对超出连接上限的客户端回 503 + {@code Retry-After} 后关闭。
+     *
+     * @param channel 刚 accept 的连接
+     */
+    private void rejectOverloaded(AsynchronousSocketChannel channel) {
+        if (!setting.isRejectWith503()) {
+            closeQuietly(channel);
+            return;
+        }
+        byte[] body = ("Service Unavailable: connection limit reached (maxConnections="
+                + setting.getMaxConnections() + ")").getBytes(StandardCharsets.UTF_8);
+        byte[] head = ("HTTP/1.1 503 Service Unavailable\r\n"
+                + "Content-Type: text/plain; charset=utf-8\r\n"
+                + "Content-Length: " + body.length + "\r\n"
+                + "Retry-After: 1\r\n"
+                + "Connection: close\r\n\r\n").getBytes(StandardCharsets.US_ASCII);
+        ByteBuffer out = ByteBuffer.allocate(head.length + body.length);
+        out.put(head).put(body).flip();
+        try {
+            writeAll(channel, out, () -> closeQuietly(channel), err -> closeQuietly(channel));
+        } catch (Throwable t) {
+            log.debug("[proxy] 写 503 拒绝响应失败，直接关闭: {}", t.toString());
+            closeQuietly(channel);
+        }
+    }
+
+    /**
      * 处理客户端。
      *
      * @param channel 方法入参 channel
      */
     private void handleClient(AsynchronousSocketChannel channel) {
-        activeConnections.incrementAndGet();
         try {
             channel.setOption(StandardSocketOptions.TCP_NODELAY, true);
         } catch (Exception e) {
             log.debug("[proxy] 操作失败，已忽略: {}", e.getMessage());
         }
+        // 缓冲区按配置应用（默认不配置时无系统调用）
+        applyChannelSocketOptions(channel);
         ClientCtx ctx = new ClientCtx(channel);
         issueClientRead(ctx);
     }
@@ -291,7 +330,6 @@ public class AioHttpProxyServer extends AbstractServer {
             if (fired.compareAndSet(false, true)) {
                 closeQuietly(src);
                 closeQuietly(dst);
-                activeConnections.decrementAndGet();
                 onClose.run();
             }
         }
@@ -665,7 +703,7 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 结束客户端连接(幂等):关通道并扣减计数。
+     * 结束客户端连接(幂等):关通道并归还连接预算。
      * @param ctx 上下文，不允许为 null
      */
     private void finishClient(ClientCtx ctx) {
@@ -675,7 +713,7 @@ public class AioHttpProxyServer extends AbstractServer {
         ctx.closed = true;
         closeQuietly(ctx.client);
         closeQuietly(ctx.backend);
-        activeConnections.decrementAndGet();
+        releaseConnection();
     }
 
     /**
@@ -1115,8 +1153,9 @@ public class AioHttpProxyServer extends AbstractServer {
      *
      * @return 活跃连接数
      */
+    @Override
     public int getActiveConnections() {
-        return activeConnections.get();
+        return metrics.getActiveConnections();
     }
 
 }

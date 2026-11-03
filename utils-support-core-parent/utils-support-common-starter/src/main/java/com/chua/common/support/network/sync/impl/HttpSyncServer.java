@@ -2,7 +2,6 @@ package com.chua.common.support.network.sync.impl;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.network.ProtocolType;
-import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServer;
 import com.chua.common.support.network.server.SyncServerListener;
@@ -25,6 +24,10 @@ import com.chua.common.support.network.server.AbstractServer;
  * <p>
  * 提供主题发布、客户端消息拉取等能力。
  * </p>
+ *
+ * <p>与 {@code JdkHttpServer} 同样的连接层边界：{@code com.sun.net.httpserver} 不暴露
+ * accept 钩子，本实现无法按 {@code maxConnections} 做连接预算，连接数指标恒为 0；
+ * 长轮询的并发量由虚拟线程 executor 承载，容量取决于内核 fd 与系统参数。</p>
  *
  * @author CH
  * @since 2026-07-25
@@ -70,6 +73,21 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
     private final Map<String, java.util.Queue<String>> messageQueues = new ConcurrentHashMap<>();
 
     /**
+     * 长轮询唤醒源。
+     *
+     * <p>{@code /api/sync/pull} 是长轮询接口，旧实现在循环里 {@code sleep(100)} 主动轮询，
+     * 每条挂起的拉取连接都要睡上若干个 100ms：既让新消息至少延迟 100ms 送达，
+     * 也在连接数上万时制造大量无效唤醒。改为「发布即唤醒」，队列变化时由
+     * {@link #publish} / {@link #send} 通知，延迟降到唤醒开销量级。</p>
+     */
+    private final Object messageSignal = new Object();
+
+    /**
+     * 处理请求的执行器（stop 时关闭，避免线程池泄漏）。
+     */
+    private java.util.concurrent.ExecutorService handlerExecutor;
+
+    /**
      * 监听器列表
      */
     private final List<SyncServerListener> listeners = Wraps.list();
@@ -101,9 +119,12 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
     @Override
     protected void doStart() {
         try {
+            // backlog 取配置值（0 会让内核用极小默认值）：百万连接目标下握手队列是关键一环
             server = com.sun.net.httpserver.HttpServer.create(
-                    new InetSocketAddress(setting.getHost(), setting.getPort()), 0);
-            server.setExecutor(java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
+                    new InetSocketAddress(setting.getHost(), setting.getPort()),
+                    setting.resolveBacklog(1024));
+            handlerExecutor = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
+            server.setExecutor(handlerExecutor);
 
             server.createContext("/api/sync/send", exchange -> {
                 if (!"POST".equals(exchange.getRequestMethod())) {
@@ -181,6 +202,10 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
             server.stop(0);
             server = null;
         }
+        if (handlerExecutor != null) {
+            handlerExecutor.shutdownNow();
+            handlerExecutor = null;
+        }
         clients.clear();
         messageQueues.clear();
     }
@@ -192,6 +217,20 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
     public void publish(String topic, Object message) {
         String payload = topic + ":" + message.toString();
         messageQueues.computeIfAbsent(topic, k -> Wraps.deque()).add(payload);
+        signalMessage();
+    }
+
+    /**
+     * 唤醒所有挂起的长轮询拉取（发布/投递后调用）。
+     *
+     * <p>用 {@code notifyAll} 而不是按 topic 精确唤醒：一条通知只做一次
+     * {@link System#currentTimeMillis()} 检查，代价远低于「按 topic 维护等待集合」的复杂度；
+     * 未命中自己 topic 的等待者会被重新挂起，不会丢消息也不会忙等。</p>
+     */
+    private void signalMessage() {
+        synchronized (messageSignal) {
+            messageSignal.notifyAll();
+        }
     }
 
     /**
@@ -205,6 +244,7 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
         }
         messageQueues.computeIfAbsent(topic, k -> Wraps.deque())
                 .add(topic + ":" + message.toString());
+        signalMessage();
         notifyListener(l -> l.onMessage(clientId, topic, message));
     }
 
@@ -252,22 +292,60 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
     // ==================== 内部方法 ====================
 
     /**
-     * 拉取消息（阻塞直到有消息或超时）
-     * @param topics 方法入参 topics
-     * @param timeout 超时时间，不允许为 null
+     * 拉取消息（阻塞直到有消息或超时）。
+     *
+     * <p>旧实现是 {@code sleep(100)} 轮询：新消息平均延迟 50ms、挂起连接多时还会
+     * 产生大量无效唤醒。这里改为在 {@link #messageSignal} 上等待，由
+     * {@link #publish} / {@link #send} 在入队后 {@code notifyAll} 唤醒；
+     * 等待期间释放监视器，连接数再多也只是虚拟线程挂起。</p>
+     *
+     * @param topics  方法入参 topics
+     * @param timeout 超时时间（秒），不允许为 null
      * @return 结果字符串
      */
     private String pullMessage(String[] topics, int timeout) {
         long deadline = System.currentTimeMillis() + timeout * 1000L;
-        while (System.currentTimeMillis() < deadline) {
-            for (String topic : topics) {
-                java.util.Queue<String> queue = messageQueues.get(topic);
-                if (queue != null && !queue.isEmpty()) {
-                    return queue.poll();
+        while (true) {
+            String message = pollFromTopics(topics);
+            if (message != null) {
+                return message;
+            }
+            long remain = deadline - System.currentTimeMillis();
+            if (remain <= 0) {
+                return null;
+            }
+            synchronized (messageSignal) {
+                // 先复查再等待，避免「入队与等待之间」的通知丢失
+                message = pollFromTopics(topics);
+                if (message != null) {
+                    return message;
+                }
+                remain = deadline - System.currentTimeMillis();
+                if (remain <= 0) {
+                    return null;
+                }
+                try {
+                    messageSignal.wait(Math.min(remain, 1000L));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return null;
                 }
             }
-            // ThreadUtils.sleep(long) 不抛 checked 异常，直接调用即可
-            ThreadUtils.sleep(100);
+        }
+    }
+
+    /**
+     * 按 topic 顺序取出第一条消息。
+     *
+     * @param topics 主题列表
+     * @return 消息，全部为空时返回 null
+     */
+    private String pollFromTopics(String[] topics) {
+        for (String topic : topics) {
+            java.util.Queue<String> queue = messageQueues.get(topic);
+            if (queue != null && !queue.isEmpty()) {
+                return queue.poll();
+            }
         }
         return null;
     }

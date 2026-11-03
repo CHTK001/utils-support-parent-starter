@@ -266,6 +266,7 @@ public class MobiPreviewProvider implements FileStoragePreviewProvider {
         int total = be32(rec0, off + 4);
         int count = be32(rec0, off + 8);
         int p = off + 12;
+        // [P3C B6 豁免] 计数型字节流循环：下标不用于循环体（使用 byte 指针 p），无法用增强 for 替代
         for (int i = 0; i < count && p + 8 <= rec0.length && p - off < total; i++) {
             int type = be32(rec0, p);
             int len = be32(rec0, p + 4);

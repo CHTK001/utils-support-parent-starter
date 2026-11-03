@@ -1,63 +1,126 @@
 [
   {
-    "name": "com.chua.runtime.apm.handler.FileHandler",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
+    "name": "com.chua.runtime.protocol.Endpoint",
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "com.chua.runtime.protocol.TransmissionRecord",
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "com.chua.runtime.protocol.Span",
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "com.chua.runtime.protocol.Trace",
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "com.chua.runtime.protocol.DependencyEdge",
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "com.chua.runtime.protocol.StatusCode",
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "com.chua.runtime.protocol.EndpointKind",
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "com.chua.runtime.protocol.Protocol",
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "com.chua.runtime.protocol.Software",
     "allPublicMethods": true,
     "allDeclaredFields": true,
     "allPublicFields": true
   },
   {
     "name": "com.chua.runtime.apm.handler.LogHandler",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
     "allPublicMethods": true,
     "allDeclaredFields": true,
     "allPublicFields": true
   },
   {
-    "name": "com.chua.runtime.apm.handler.NetHandler",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
+    "name": "com.chua.runtime.apm.handler.TransmissionHandler",
     "allPublicMethods": true,
     "allDeclaredFields": true,
     "allPublicFields": true
   },
   {
     "name": "com.chua.runtime.apm.handler.TraceHandler",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
     "allPublicMethods": true,
     "allDeclaredFields": true,
     "allPublicFields": true
   },
   {
-    "name": "com.chua.runtime.apm.storage.InMemoryStorage",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
+    "name": "com.chua.runtime.apm.handler.DependencyGraphHandler",
     "allPublicMethods": true,
     "allDeclaredFields": true,
     "allPublicFields": true
   },
   {
-    "name": "com.chua.runtime.apm.storage.NoopStorage",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
+    "name": "com.chua.runtime.apm.handler.HandleLeakHandler",
     "allPublicMethods": true,
     "allDeclaredFields": true,
     "allPublicFields": true
   },
   {
-    "name": "com.chua.runtime.apm.storage.SqliteStorage",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
+    "name": "com.chua.runtime.apm.handler.HandleInventoryHandler",
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "com.chua.runtime.apm.handler.SystemOutCaptureHandler",
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "com.chua.runtime.apm.handler.NetHandler",
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "com.chua.runtime.apm.handler.FileHandler",
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "com.chua.runtime.apm.handler.ZooKeeperHandler",
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "com.chua.runtime.apm.handler.JedisHandler",
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "com.chua.runtime.apm.handler.KafkaHandler",
     "allPublicMethods": true,
     "allDeclaredFields": true,
     "allPublicFields": true

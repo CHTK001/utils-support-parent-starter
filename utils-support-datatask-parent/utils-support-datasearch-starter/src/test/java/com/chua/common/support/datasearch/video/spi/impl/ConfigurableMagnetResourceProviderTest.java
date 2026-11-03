@@ -354,7 +354,7 @@ public class ConfigurableMagnetResourceProviderTest {
      * 输出汇总并在失败时退出非零。
      */
     private static void summary() {
-        System.out.println("[ConfigurableMagnetResourceProviderTest] pass=" + pass + " fail=" + fail);
+        System.out.println("[ConfigurableMagnetResourceProviderTest] pass=" + pass + " fail=" + fail); // [P3C E1 豁免]
         if (fail > 0) {
             System.exit(1);
         }
@@ -369,10 +369,10 @@ public class ConfigurableMagnetResourceProviderTest {
     private static void check(String name, boolean ok) {
         if (ok) {
             pass++;
-            System.out.println("  PASS " + name);
+            System.out.println("  PASS " + name); // [P3C E1 豁免]
         } else {
             fail++;
-            System.out.println("  FAIL " + name);
+            System.out.println("  FAIL " + name); // [P3C E1 豁免]
         }
     }
 }

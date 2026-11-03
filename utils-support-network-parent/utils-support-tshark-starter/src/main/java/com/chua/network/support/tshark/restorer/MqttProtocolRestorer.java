@@ -171,6 +171,7 @@ public class MqttProtocolRestorer extends AbstractProtocolRestorer {
         int value = 0;
         int multiplier = 1;
         int idx = offset;
+        // [P3C B6 豁免] 计数型 LEB128 循环：下标不用于循环体（使用 byte 指针 idx），无法用增强 for 替代
         for (int i = 0; i < MAX_LENGTH_BYTES && idx < rawData.length; i++, idx++) {
             int byteVal = rawData[idx] & 0xff;
             value += (byteVal & 0x7f) * multiplier;

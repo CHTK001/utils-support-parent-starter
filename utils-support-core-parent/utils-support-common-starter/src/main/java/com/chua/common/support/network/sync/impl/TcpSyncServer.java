@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import com.chua.common.support.network.server.AbstractServer;
 
@@ -50,6 +49,11 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
      * 读取缓冲大小
      */
     private static final int READ_BUFFER_SIZE = 16384;
+
+    /**
+     * 握手队列最小长度（等价于「用平台允许的最大队列」，内核按 somaxconn 截断）。
+     */
+    private static final int MIN_BACKLOG = 65536;
 
     /**
      * IO 缓冲线程本地实例（worker 复用一个，避免每事件 new 导致 GC 压力）
@@ -110,6 +114,15 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
             new java.util.concurrent.atomic.AtomicInteger();
 
     /**
+     * 业务处理线程池。
+     *
+     * <p>虚拟线程池 + 有界并发：业务回调（{@code onMessage}）可能是阻塞写库/发 HTTP，
+     * 不能放在事件循环线程里；但「每行一个虚拟线程」在百万连接下会产生每秒百万级的
+     * 调度开销，故按「连接批次」提交，由虚拟线程调度器自然扩展。</p>
+     */
+    private java.util.concurrent.ExecutorService handlerPool;
+
+    /**
      * 运行状态
      */
     private final AtomicBoolean running = new AtomicBoolean(false);
@@ -164,7 +177,8 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
             serverChannel = ServerSocketChannel.open();
             serverChannel.configureBlocking(false);
             serverChannel.setOption(java.net.StandardSocketOptions.SO_REUSEADDR, true);
-            serverChannel.bind(new InetSocketAddress(setting.getHost(), setting.getPort()), setting.getBacklog());
+            serverChannel.bind(new InetSocketAddress(setting.getHost(), setting.getPort()),
+                    setting.resolveBacklog(MIN_BACKLOG));
             // 主从多线程 Reactor: boss 仅 accept, workCount 个 worker 各自 Selector 处理 read/write,
             // 避免单 Selector 单线程在千级并发下成为 IO 事件瓶颈
             workerCount = Math.max(1, Math.min(
@@ -175,6 +189,8 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
             workerSelectors = new Selector[workerCount];
             workerThreads = new Thread[workerCount];
             pendingRegistrations.clear();
+            // 业务回调线程池：虚拟线程 executor，任务粒度是「一批行」而非「一行」
+            handlerPool = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
             running.set(true);
             for (int i = 0; i < workerCount; i++) {
                 Selector worker = Selector.open();
@@ -192,6 +208,32 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
             bossThread.start();
         } catch (IOException e) {
             throw new RuntimeException("TCP SyncServer 启动失败", e);
+        }
+    }
+
+    /**
+     * 停止接纳：优雅关闭期间先把 boss 事件循环摘掉。
+     *
+     * <p>基类的 {@code stop()} 顺序是「摘接纳 → 等存量请求 → doStop」。若不在这一步停掉
+     * boss 循环，等待期间仍会不断建立新连接，优雅关闭就永远等不到活跃数归零。
+     * 存量连接由 worker 继续服务，不受影响。</p>
+     */
+    @Override
+    protected void doStopAccepting() {
+        running.set(false);
+        if (bossSelector != null) {
+            try {
+                bossSelector.wakeup();
+            } catch (Exception e) {
+                log.debug("[sync] 唤醒 boss 失败，已忽略: {}", e.getMessage());
+            }
+        }
+        if (serverChannel != null) {
+            try {
+                serverChannel.close();
+            } catch (IOException e) {
+                log.debug("[sync] 关闭监听通道失败，已忽略: {}", e.getMessage());
+            }
         }
     }
 
@@ -262,6 +304,10 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
             workerSelectors = null;
         }
         pendingRegistrations.clear();
+        if (handlerPool != null) {
+            handlerPool.shutdownNow();
+            handlerPool = null;
+        }
         if (serverChannel != null) {
             try {
                 serverChannel.close();
@@ -423,16 +469,31 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
 
     /**
      * 处理 accept 事件: 从 boss accept 后轮询分发到 worker 待注册队列。
+     *
+     * <p>百万连接下的连接预算在这里判定：accept 之后、入队注册之前，
+     * 超限直接关闭（回 503 由调用方决定），绝不让超卖连接进入 Selector。</p>
+     *
      * @param key 选择键
      * @return 返回值
      * @throws IOException 异常
-    */
+     */
     private void handleAccept(SelectionKey key) throws IOException {
         ServerSocketChannel channel = (ServerSocketChannel) key.channel();
         SocketChannel socketChannel;
-        while ((socketChannel = channel.accept()) != null) {
+        // 批量 drain 必须有上限：突发建连（每秒数千）时队列可能很长，
+        // 一次事件循环全抽空会让 worker 队列瞬间堆积，也拖慢已建立连接的读事件
+        int batch = Math.max(setting.getAcceptBatch(), 1);
+        int accepted = 0;
+        while (accepted++ < batch && (socketChannel = channel.accept()) != null) {
+            if (!tryAcquireConnection()) {
+                // 超限：尽力回 503（若配置开启），然后关闭
+                writeOverloadAndClose(socketChannel);
+                continue;
+            }
             socketChannel.configureBlocking(false);
             socketChannel.setOption(java.net.StandardSocketOptions.TCP_NODELAY, true);
+            // 缓冲区按配置应用（默认不配置时无系统调用）
+            applyChannelSocketOptions(socketChannel);
             int target = workerIndex.getAndIncrement() & 0x7FFFFFFF;
             pendingRegistrations.get(target % workerCount).offer(socketChannel);
             Selector worker = workerSelectors[target % workerCount];
@@ -443,11 +504,50 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
     }
 
     /**
-     * 处理 read 事件：非阻塞读入缓冲，按行切分后交虚拟线程处理。
+     * 对超出连接上限的客户端回 503 后关闭（尽力而为，写失败直接断开）。
+     *
+     * @param channel 刚 accept 的连接
+     */
+    private void writeOverloadAndClose(SocketChannel channel) {
+        try {
+            if (setting.isRejectWith503()) {
+                int max = setting.getMaxConnections();
+                byte[] body = ("Service Unavailable: connection limit reached (maxConnections="
+                        + max + ")").getBytes(StandardCharsets.UTF_8);
+                ByteBuffer resp = ByteBuffer.wrap((
+                        "HTTP/1.1 503 Service Unavailable\r\n"
+                                + "Content-Type: text/plain; charset=utf-8\r\n"
+                                + "Content-Length: " + body.length + "\r\n"
+                                + "Retry-After: 1\r\n"
+                                + "Connection: close\r\n\r\n").getBytes(StandardCharsets.US_ASCII));
+                channel.write(new ByteBuffer[]{resp, ByteBuffer.wrap(body)});
+            }
+        } catch (Exception e) {
+            log.debug("[sync] 写 503 拒绝响应失败，直接关闭: {}", e.getMessage());
+        } finally {
+            try {
+                channel.close();
+            } catch (IOException ignored) {
+                // 关闭失败不影响判定
+            }
+        }
+    }
+
+    /**
+     * 处理 read 事件：非阻塞读入缓冲，按行切分后交业务线程处理。
+     *
+     * <p>与旧实现的关键差异：不再对每一行 {@code Thread.ofVirtual().start(...)}。
+     * 虚拟线程本身便宜，但「每行一个新线程」意味着每条心跳/每条消息都要一次
+     * 线程对象分配 + 调度器入队，在百万连接下就是每秒百万级的调度压力，
+     * 而且这些任务之间毫无并发收益（它们的临界区只有连接自身的写队列）。</p>
+     *
+     * <p>改为复用同一条连接上已提交的任务：一个连接一批行只提交一个任务，
+     * 顺序仍在连接内保证，且由 {@link #handlerPool} 承担背压。</p>
+     *
      * @param key 选择键
      * @return 返回值
      * @throws IOException 异常
-    */
+     */
     private void handleRead(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
         ClientConnection connection = (ClientConnection) key.attachment();
@@ -464,12 +564,16 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
             connection.unregister();
             return;
         }
-        // 切分完整行并交虚拟线程处理
+        // 切分完整行，一批行只提交一次
         List<String> lines = connection.drainLines();
-        for (String line : lines) {
-            final String msg = line;
-            Thread.ofVirtual().name("tcp-sync-handler").start(() -> connection.handleLine(msg));
+        if (lines.isEmpty()) {
+            return;
         }
+        handlerPool.execute(() -> {
+            for (String line : lines) {
+                connection.handleLine(line);
+            }
+        });
     }
 
     /**
@@ -547,19 +651,37 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
         private final Map<String, Object> metadata = Wraps.map();
 
         /**
-         * 读取缓冲（按行切分前的原始字节）
+         * 读取缓冲（按行切分前的原始字节），首次收到数据时才分配。
          */
-        private final ByteBuffer readBuffer = ByteBuffer.allocate(READ_BUFFER_SIZE * 2);
+        private ByteBuffer readBuffer;
 
         /**
-         * 发送队列（写事件就绪时冲刷）
+         * 发送队列（写事件就绪时冲刷）。
+         *
+         * <p>用 {@link java.util.ArrayDeque} + 同步块而非 {@link java.util.concurrent.LinkedBlockingQueue}：
+         * 后者每个元素一个 Node 对象、每次 offer/poll 一次 CAS，而这里从不阻塞等待
+         * （非阻塞通道 + OP_WRITE 续写），LinkedBlockingQueue 的阻塞语义完全用不上，
+         * 只剩下每条消息一次进队一次出队的额外对象与原子操作开销。</p>
+         *
+         * <p>并发边界：入队来自业务线程（{@link #write(String)}），出队来自该连接所属
+         * worker 事件循环（{@link #flushQueue}），二者用同一把锁串行化。</p>
          */
-        private final LinkedBlockingQueue<String> writeQueue = new LinkedBlockingQueue<>();
+        private final java.util.ArrayDeque<String> writeQueue = new java.util.ArrayDeque<>(4);
+
+        /**
+         * 发送队列锁（同时保护 {@link #pendingWrite}）
+         */
+        private final Object writeLock = new Object();
 
         /**
          * 是否已注册写事件
          */
         private final AtomicBoolean writePending = new AtomicBoolean(false);
+
+        /**
+         * 是否已占用连接预算（保证 {@code releaseConnection()} 幂等）
+         */
+        private boolean budgetAcquired = true;
 
         /**
          * 创建客户端连接。
@@ -570,20 +692,33 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
         private ClientConnection(SocketChannel channel, Selector worker) {
             this.channel = channel;
             this.worker = worker;
-            // 初始置为读模式（无数据）：position=0, limit=0，供 appendBuffer 的 compact() 正确腾出空间
-            readBuffer.flip();
         }
 
         /**
-         * 追加读取字节。调用前 readBuffer 处于读模式（position=0, limit=数据末尾）。
+         * 追加读取字节。
          *
-         * @param buffer 数据
+         * <p>读缓冲首次到达时按需分配：百万连接绝大多数是空闲长连接，
+         * 构造时给每条 32KB 就是几十 GB 的纯浪费（见 {@link #readBuffer} 说明）。</p>
+         *
+         * @param buffer 数据（读模式）
          */
         void appendBuffer(ByteBuffer buffer) {
-            synchronized (readBuffer) {
+            // 事件循环线程单线程访问本连接，但业务虚拟线程可能同时读 readBuffer
+            // （见 drainLines 的调用顺序），故仍用同一把锁保证可见性
+            synchronized (writeLock) {
+                if (readBuffer == null) {
+                    readBuffer = ByteBuffer.allocate(READ_BUFFER_SIZE * 2);
+                    readBuffer.limit(0);
+                }
                 readBuffer.compact();
-                while (buffer.hasRemaining()) {
-                    readBuffer.put(buffer.get());
+                // 按需拷贝：缓冲已满且仍有剩余时不再 put（否则 BufferOverflowException），
+                // 让调用方的 clear 循环在下一轮继续读（backpressure 天然生效）
+                int toCopy = Math.min(buffer.remaining(), readBuffer.remaining());
+                if (toCopy > 0) {
+                    int oldLimit = buffer.limit();
+                    buffer.limit(buffer.position() + toCopy);
+                    readBuffer.put(buffer);
+                    buffer.limit(oldLimit);
                 }
                 readBuffer.flip();
             }
@@ -596,12 +731,15 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
          */
         List<String> drainLines() {
             List<String> lines = Wraps.list();
-            synchronized (readBuffer) {
+            synchronized (writeLock) {
+                ByteBuffer rb = readBuffer;
+                if (rb == null) {
+                    return lines;
+                }
                 // 在字节层面定位换行符，整段解码，避免逐字节 char 转换破坏 UTF-8 多字节字符
-                ByteBuffer src = readBuffer.duplicate();
-                int start = src.position();
-                int limit = src.limit();
-                ByteBuffer binary = src.slice();
+                int start = rb.position();
+                int limit = rb.limit();
+                ByteBuffer binary = rb.duplicate().slice();
                 int from = 0;
                 int len = limit - start;
                 for (int i = 0; i < len; i++) {
@@ -611,24 +749,27 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
                             binary.get(from, chunk, 0, i - from);
                             lines.add(new String(chunk, StandardCharsets.UTF_8));
                         }
+                        // i == from 表示空行（心跳），不产生消息，直接跳过
                         from = i + 1;
                     }
                 }
                 // 未完成行写回缓冲头部，保持读模式
                 int tailLen = len - from;
-                readBuffer.clear();
+                rb.clear();
                 if (tailLen > 0) {
+                    // 只有半包（一行还没收完）时才会走这里，分配一次小块即可；
+                    // Buffer.put(ByteBuffer,int,int) 不存在，故先取到 byte[] 再写入
                     byte[] tail = new byte[tailLen];
                     binary.get(from, tail, 0, tailLen);
-                    readBuffer.put(tail);
+                    rb.put(tail);
                 }
-                readBuffer.flip();
+                rb.flip();
             }
             return lines;
         }
 
         /**
-         * 处理一行消息（虚拟线程中执行）。
+         * 处理一行消息（由 {@link #handlerPool} 中的虚拟线程执行）。
          *
          * @param line 消息行
          */
@@ -657,7 +798,9 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
          * @param payload 消息内容
          */
         void write(String payload) {
-            writeQueue.offer(payload);
+            synchronized (writeLock) {
+                writeQueue.addLast(payload);
+            }
             if (writePending.compareAndSet(false, true)) {
                 SelectionKey key = channel.keyFor(worker);
                 if (key != null) {
@@ -678,23 +821,26 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
          * @param key 选择键
          */
         void flushQueue(SocketChannel ch, SelectionKey key) throws IOException {
-            ByteBuffer buffer = pendingWrite;
-            while (true) {
-                if (buffer != null) {
-                    int written = ch.write(buffer);
-                    if (buffer.hasRemaining()) {
-                        // 内核发送缓冲已满，保留剩余,等下一轮 OP_WRITE
-                        return;
+            synchronized (writeLock) {
+                ByteBuffer buffer = pendingWrite;
+                while (true) {
+                    if (buffer != null) {
+                        int written = ch.write(buffer);
+                        if (buffer.hasRemaining()) {
+                            // 内核发送缓冲已满，保留剩余,等下一轮 OP_WRITE
+                            pendingWrite = buffer;
+                            return;
+                        }
+                        buffer = null;
                     }
-                    buffer = null;
+                    String payload = writeQueue.pollFirst();
+                    if (payload == null) {
+                        break;
+                    }
+                    buffer = ByteBuffer.wrap((payload + "\n").getBytes(StandardCharsets.UTF_8));
                 }
-                String payload = writeQueue.poll();
-                if (payload == null) {
-                    break;
-                }
-                buffer = ByteBuffer.wrap((payload + "\n").getBytes(StandardCharsets.UTF_8));
+                pendingWrite = null;
             }
-            pendingWrite = null;
             key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
             writePending.set(false);
         }
@@ -721,6 +867,10 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
 
         /**
          * 关闭连接。
+         *
+         * <p>{@link #TcpSyncServer#releaseConnection()} 必须与 accept 期的
+         * {@link TcpSyncServer#tryAcquireConnection()} 严格配对，且只能执行一次：
+         * 同一连接可能被「读结束 / 异常 / stop()」多路径关闭，用标志位保证幂等。</p>
          */
         void close() {
             try {
@@ -731,6 +881,15 @@ public class TcpSyncServer extends AbstractServer implements SyncServer, SyncPro
                 channel.close();
             } catch (IOException e) {
                 log.debug("[sync] IO 操作失败，已忽略: {}", e.getMessage());
+            } finally {
+                if (budgetAcquired) {
+                    budgetAcquired = false;
+                    releaseConnection();
+                }
+                synchronized (writeLock) {
+                    writeQueue.clear();
+                    pendingWrite = null;
+                }
             }
         }
     }

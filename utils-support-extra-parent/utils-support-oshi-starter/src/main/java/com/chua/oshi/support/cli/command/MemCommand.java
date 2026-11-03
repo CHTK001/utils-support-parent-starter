@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.oshi.support.cli.command;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -36,11 +37,11 @@ public final class MemCommand extends AbstractCommand {
         GlobalMemory globalMemory = hw.getMemory();
         Mem mem = Oshi.newMem();
 
-        System.out.println();
+        System.out.println(); // [P3C E1 豁免]
         double usage = mem.getUsage();
-        System.out.println("Physical Memory: " + Formatter.formatBytes(mem.getTotal()));
-        System.out.println("  " + Formatter.bar(usage, 30) + "  " + String.format("%.1f%%", usage));
-        System.out.println(
+        System.out.println("Physical Memory: " + Formatter.formatBytes(mem.getTotal())); // [P3C E1 豁免]
+        System.out.println("  " + Formatter.bar(usage, 30) + "  " + String.format("%.1f%%", usage)); // [P3C E1 豁免]
+        System.out.println( // [P3C E1 豁免]
                 Formatter.panel("oshc mem",
                         "Total", Formatter.formatBytes(mem.getTotal()),
                         "Used", Formatter.formatBytes(mem.getUsed()),
@@ -53,8 +54,8 @@ public final class MemCommand extends AbstractCommand {
  // ── Physical 内存 modules ──
         List<PhysicalMemory> modules = globalMemory.getPhysicalMemory();
         if (modules != null && !modules.isEmpty()) {
-            System.out.println();
-            System.out.println("Physical Memory Modules (" + modules.size() + "):");
+            System.out.println(); // [P3C E1 豁免]
+            System.out.println("Physical Memory Modules (" + modules.size() + "):"); // [P3C E1 豁免]
             List<String[]> rows = Wraps.list();
             for (PhysicalMemory pm : modules) {
                 rows.add(new String[]{
@@ -66,20 +67,20 @@ public final class MemCommand extends AbstractCommand {
                         pm.getManufacturer() == null ? "N/A" : pm.getManufacturer()
                 });
             }
-            System.out.println(Formatter.table("",
+            System.out.println(Formatter.table("", // [P3C E1 豁免]
                     new String[]{"Bank", "Part Number", "Type", "Capacity", "Speed", "Manufacturer"}, rows));
         }
 
  // ── 虚拟 内存 / 掉期 ──
         VirtualMemory virtualMemory = globalMemory.getVirtualMemory();
-        System.out.println();
+        System.out.println(); // [P3C E1 豁免]
         long swapTotal = virtualMemory.getSwapTotal();
         long swapUsed = virtualMemory.getSwapUsed();
         long swapFree = swapTotal - swapUsed;
         double swapPct = swapTotal > 0 ? (double) swapUsed / swapTotal * 100 : 0;
-        System.out.println("Swap:");
-        System.out.println("  " + Formatter.bar(swapPct, 30) + "  " + String.format("%.1f%%", swapPct));
-        System.out.println(
+        System.out.println("Swap:"); // [P3C E1 豁免]
+        System.out.println("  " + Formatter.bar(swapPct, 30) + "  " + String.format("%.1f%%", swapPct)); // [P3C E1 豁免]
+        System.out.println( // [P3C E1 豁免]
                 Formatter.panel("",
                         "Swap total", Formatter.formatBytes(swapTotal),
                         "Swap used", Formatter.formatBytes(swapUsed),
@@ -96,8 +97,8 @@ public final class MemCommand extends AbstractCommand {
             procs = procs.subList(0, 10);
         }
         if (!procs.isEmpty()) {
-            System.out.println();
-            System.out.println("Top 10 Processes by RSS:");
+            System.out.println(); // [P3C E1 豁免]
+            System.out.println("Top 10 Processes by RSS:"); // [P3C E1 豁免]
             List<String[]> rows = Wraps.list();
             for (oshi.software.os.OSProcess p : procs) {
                 rows.add(new String[]{
@@ -107,7 +108,7 @@ public final class MemCommand extends AbstractCommand {
                         Formatter.formatBytes(p.getVirtualSize())
                 });
             }
-            System.out.println(Formatter.table("", new String[]{"PID", "Name", "RSS", "VSZ"}, rows));
+            System.out.println(Formatter.table("", new String[]{"PID", "Name", "RSS", "VSZ"}, rows)); // [P3C E1 豁免]
         }
     }
 }

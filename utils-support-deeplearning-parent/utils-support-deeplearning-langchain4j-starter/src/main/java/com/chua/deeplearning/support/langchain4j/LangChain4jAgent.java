@@ -3,6 +3,7 @@ package com.chua.deeplearning.support.langchain4j;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.agent.Agent;
 import com.chua.common.support.ai.agent.AgentDefinition;
+import com.chua.common.support.ai.agent.AgentLoopGuard;
 import com.chua.common.support.ai.agent.AgentMode;
 import com.chua.common.support.ai.agent.AgentResponse;
 import com.chua.common.support.ai.chat.ChatClient;
@@ -58,6 +59,17 @@ public class LangChain4jAgent implements Agent {
      * 工具调用最大迭代次数，防止无限循环
      */
     private int maxToolIterations = 5;
+
+    /**
+     * 硬性安全上限：{@code maxToolIterations} 为 0/负数时（语义上的“不限制”）
+     * 由本上限兜底，避免真的跑成死循环
+     */
+    private static final int SAFETY_MAX_ITERS = 100;
+
+    /**
+     * 会话护栏：死循环判定 + 中断信号
+     */
+    private volatile AgentLoopGuard loopGuard = new AgentLoopGuard();
 
     /**
      * 聊天客户端集合，键 为 Agent 标识
@@ -222,6 +234,43 @@ public class LangChain4jAgent implements Agent {
     @Override
     public Agent maxToolIterations(int maxIterations) {
         this.maxToolIterations = maxIterations;
+        return this;
+    }
+
+    /**
+     * 注入会话护栏
+     *
+     * @param guard 会话护栏，null 时回退为新建默认护栏
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent loopGuard(AgentLoopGuard guard) {
+        this.loopGuard = guard != null ? guard : new AgentLoopGuard();
+        return this;
+    }
+
+    /**
+     * 获取会话护栏
+     *
+     * @return 会话护栏，恒不为 null
+     */
+    @Override
+    public AgentLoopGuard loopGuard() {
+        return loopGuard;
+    }
+
+    /**
+     * 要求中断本轮执行
+     *
+     * <p>本实现没有外部资源可释放（模型调用走 langchain4j，工具执行是方法调用），
+     * 因此只需置位护栏：{@link #run(String)} 在循环点与每次工具调用前检测，
+     * 置位后立即跳出循环并返回已产生的部分结果。
+     *
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent interrupt() {
+        loopGuard.interrupt();
         return this;
     }
 
@@ -400,9 +449,17 @@ public class LangChain4jAgent implements Agent {
         history.add(SystemMessage.from(systemPrompt));
         history.add(UserMessage.from(input));
 
+        // 新的一轮：清掉上一轮的中断信号与重复计数
+        loopGuard.reset();
+
         String finalOutput = "";
+        String abortReason = null;
         int iter = 0;
         while (iter < effectiveMaxIters) {
+            if (loopGuard.isInterrupted()) {
+                abortReason = "interrupted";
+                break;
+            }
             try {
                 ChatResponse response = chatModel.chat(ChatRequest.builder()
                         .messages(history)
@@ -422,8 +479,21 @@ public class LangChain4jAgent implements Agent {
 
                 List<ToolExecutionResultMessage> results = Wraps.list();
                 for (ToolExecutionRequest request : aiMessage.toolExecutionRequests()) {
+                    if (loopGuard.isInterrupted()) {
+                        abortReason = "interrupted";
+                        break;
+                    }
+                    // 连续相同（工具名 + 入参）调用：模型在原地打转，不再执行
+                    if (loopGuard.recordToolCall(request.name(), request.arguments())) {
+                        abortReason = loopGuard.describe();
+                        break;
+                    }
                     String resultText = executeTool(request, executors);
                     results.add(ToolExecutionResultMessage.from(request, resultText));
+                }
+                if (abortReason != null) {
+                    history.addAll(results);
+                    break;
                 }
                 history.addAll(results);
                 iter++;
@@ -437,17 +507,28 @@ public class LangChain4jAgent implements Agent {
             }
         }
 
-        return AgentResponse.builder()
+        AgentResponse resp = AgentResponse.builder()
                 .output(finalOutput)
                 .mode(mode != null ? mode.name() : AgentMode.AUTO.name())
                 .build();
+        if (abortReason != null) {
+            resp.getMetadata().put("aborted", Boolean.TRUE);
+            resp.getMetadata().put("reason", abortReason);
+            resp.getMetadata().put("repeats", loopGuard.consecutiveRepeats());
+            resp.getMetadata().put("lastTool", loopGuard.lastToolName());
+        }
+        return resp;
     }
 
     /**
      * 关闭 Agent，释放资源
+     *
+     * <p>关闭即等于中断：正在跑的一轮会在下一个循环点退出，
+     * 不会留下一个已经没人要却还在调用工具的循环。
      */
     @Override
     public void close() {
+        loopGuard.interrupt();
     }
 
     /**
@@ -464,7 +545,11 @@ public class LangChain4jAgent implements Agent {
     /**
      * 解析有效最大工具迭代次数。
      * 优先使用链式设置的值，其次使用 definition 中的值，
-     * 两者均未设置时使用默认值 5。若最终值为非正数则使用 Integer.最大_值。
+     * 两者均未设置时使用默认值 5。
+     *
+     * <p>非正数在语义上是“业务上不限制”，但这里不再退回 {@code Integer.MAX_VALUE}
+     * ——那等于把死循环当成默认行为（模型持续发起工具调用时永远停不下来）。
+     * 改为用 {@link #SAFETY_MAX_ITERS} 兜底：足够宽，但一定收得住。</p>
      *
      * @param chainValue 链式设置的值
      * @param defValue   定义中的值
@@ -472,7 +557,7 @@ public class LangChain4jAgent implements Agent {
      */
     private static int resolveMaxIters(int chainValue, int defValue) {
         int effective = chainValue != 0 ? chainValue : (defValue != 0 ? defValue : 5);
-        return effective > 0 ? effective : Integer.MAX_VALUE;
+        return effective > 0 ? effective : SAFETY_MAX_ITERS;
     }
 
     /**

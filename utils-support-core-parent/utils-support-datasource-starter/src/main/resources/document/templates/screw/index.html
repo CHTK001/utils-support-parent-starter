@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>#title# - #databaseName#</title>
+<style>
+:root {
+  --bg-base: #0e1116;
+  --bg-surface: #151a21;
+  --bg-card: #1a2129;
+  --bg-inset: #0b0e12;
+  --border: #2a333d;
+  --border-strong: #3b4754;
+  --text-primary: #e6edf3;
+  --text-secondary: #9fb0c0;
+  --text-muted: #6b7d8f;
+  --accent: #f0b429;
+  --accent-soft: rgba(240, 180, 41, .12);
+  --accent-line: rgba(240, 180, 41, .38);
+  --steel: #7d8fa3;
+  --pk-color: #f0b429; --pk-bg: rgba(240,180,41,.1); --pk-border: rgba(240,180,41,.35);
+  --fk-color: #56b6c2; --fk-bg: rgba(86,182,194,.1); --fk-border: rgba(86,182,194,.35);
+  --null-color: #e06c75; --not-null-color: #98c379;
+  --code-bg: #0a0d11;
+  --code-keyword: #e5a86a; --code-string: #98c379; --code-type: #c678dd; --code-comment: #5c6b7a;
+  --sidebar-w: 296px;
+  --font: 'Inter','SF Pro','PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+  --mono: 'JetBrains Mono','Fira Code','Cascadia Code','SF Mono','Consolas',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg-base);color:var(--text-primary);min-height:100vh;line-height:1.6;
+  background-image:radial-gradient(circle at 15% 0%, rgba(240,180,41,.05), transparent 45%),
+                   radial-gradient(circle at 85% 100%, rgba(86,182,194,.04), transparent 40%);}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#333f4b;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#465563}
+
+/* ── 铆接画布：虚线基准网格，像装配图蓝本 ── */
+.app{display:flex;width:100%;min-height:100vh}
+
+/* ── 侧栏 ── */
+.sidebar{width:var(--sidebar-w);flex-shrink:0;height:100vh;position:sticky;top:0;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,#12171d,#0f141a);border-right:1px solid var(--border)}
+.sidebar-header{padding:22px 18px 14px;border-bottom:1px solid var(--border);position:relative}
+.sidebar-header h1{font-size:16px;font-weight:800;letter-spacing:-.2px;line-height:1.3;display:flex;align-items:center;gap:9px}
+.nut{width:18px;height:18px;flex-shrink:0;display:inline-block;
+  background:conic-gradient(from 0deg, var(--accent) 0 60deg, #8a6a1c 60deg 120deg, var(--accent) 120deg 180deg, #8a6a1c 180deg 240deg, var(--accent) 240deg 300deg, #8a6a1c 300deg 360deg);
+  clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%)}
+.sidebar-header .sub{font-size:11.5px;color:var(--text-muted);margin-top:6px;font-family:var(--mono);letter-spacing:.2px}
+.sidebar-search{padding:12px 14px 10px;border-bottom:1px solid var(--border)}
+.search-box{position:relative}
+.search-box svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-muted);pointer-events:none}
+.search-box input{width:100%;padding:8px 10px 8px 31px;border:1px solid var(--border);border-radius:6px;background:var(--bg-inset);
+  color:var(--text-primary);font-size:12.5px;outline:none;transition:border-color .2s,box-shadow .2s}
+.search-box input::placeholder{color:var(--text-muted)}
+.search-box input:focus{border-color:var(--accent-line);box-shadow:0 0 0 3px var(--accent-soft)}
+.search-box .kbd{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--text-muted);
+  background:#1f272f;border:1px solid var(--border);padding:1px 6px;border-radius:4px;font-family:var(--mono)}
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px 10px 16px}
+.nav-count{font-size:11px;color:var(--text-muted);padding:8px 10px 6px;font-family:var(--mono)}
+.nav-count strong{color:var(--accent)}
+.nav-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:5px;cursor:pointer;color:var(--text-secondary);
+  font-size:12.5px;text-decoration:none;transition:all .15s;border-left:2px solid transparent}
+.nav-item:hover{background:#1b232b;color:var(--text-primary)}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);border-left-color:var(--accent)}
+.nav-item .idx{font-size:10px;font-family:var(--mono);min-width:20px;color:var(--text-muted);flex-shrink:0}
+.nav-item .label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-item .badge{font-size:9.5px;color:var(--text-muted);background:#1f272f;padding:1px 6px;border-radius:3px;font-family:var(--mono);flex-shrink:0}
+.nav-item.hidden{display:none}
+.sidebar-resize-handle{position:absolute;top:0;right:-4px;width:6px;height:100%;cursor:col-resize;z-index:20;opacity:0;transition:opacity .2s}
+.sidebar-resize-handle:hover,.sidebar-resize-handle.active{opacity:1;background:var(--accent-line)}
+.sidebar:hover .sidebar-resize-handle{opacity:.35}
+
+/* ── 主区 ── */
+.main{flex:1;min-width:0;padding:34px 40px 64px}
+.hero{margin-bottom:32px;padding-bottom:22px;border-bottom:1px dashed var(--border-strong)}
+.hero h1{font-size:26px;font-weight:800;letter-spacing:-.4px;line-height:1.25;display:flex;align-items:center;gap:11px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.hero .tag{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:4px;background:var(--bg-surface);
+  border:1px solid var(--border);font-size:11.5px;color:var(--text-secondary);font-family:var(--mono)}
+.hero .tag .dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.hero .tag .dot.db{background:var(--accent)}
+.hero .tag .dot.ver{background:#c678dd}
+.hero .tag .dot.prod{background:var(--fk-color)}
+.hero .desc{margin-top:13px;font-size:13.5px;color:var(--text-secondary);line-height:1.75;max-width:760px}
+
+.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);
+  margin-bottom:16px;display:flex;align-items:center;gap:9px;font-family:var(--mono)}
+.section-title::after{content:'';flex:1;height:1px;background:repeating-linear-gradient(90deg,var(--border-strong) 0 4px,transparent 4px 8px)}
+
+/* ── 钢板卡片 ── */
+.cards{display:flex;flex-direction:column;gap:14px;margin-bottom:40px}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden;position:relative;transition:border-color .2s,box-shadow .2s}
+.card::before{content:'';position:absolute;inset:0;pointer-events:none;border-radius:5px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.card:hover{border-color:var(--accent-line);box-shadow:0 6px 26px rgba(0,0,0,.45)}
+.card-header{padding:13px 16px;cursor:pointer;display:flex;align-items:center;gap:11px;user-select:none;background:#1c242c}
+.card-header:hover{background:#202932}
+.card-method{font-size:10px;font-weight:800;padding:3px 9px;border-radius:3px;background:var(--accent-soft);color:var(--accent);
+  letter-spacing:.7px;font-family:var(--mono);flex-shrink:0;border:1px solid var(--accent-line)}
+.card-title{font-size:14px;font-weight:700;color:var(--text-primary);font-family:var(--mono)}
+.card-title .remark{color:var(--text-muted);font-weight:400;font-size:12.5px;margin-left:8px;font-family:var(--font)}
+.card-title .remark::before{content:'//';margin-right:5px;color:var(--steel)}
+.card-schema{font-size:10.5px;padding:2px 9px;border-radius:3px;background:#222c35;color:var(--steel);
+  border:1px solid var(--border-strong);margin-left:auto;flex-shrink:0;font-family:var(--mono)}
+.card-expand{width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:4px;
+  border:1px solid var(--border-strong);background:var(--bg-inset);cursor:pointer;color:var(--text-muted);
+  transition:all .2s;font-size:11px;flex-shrink:0}
+.card-expand:hover{background:#26313b;color:var(--accent);border-color:var(--accent-line)}
+.card-expand.expanded{transform:rotate(180deg);color:var(--accent);border-color:var(--accent-line)}
+.card-body{padding:0 16px 14px;display:none}
+.card-body.open{display:block;animation:slideDown .2s ease-out}
+@keyframes slideDown{from{opacity:0;max-height:0}to{opacity:1;max-height:4000px}}
+
+/* ── 字段表：有点像螺纹参数表 ── */
+.ftable{width:100%;border-collapse:collapse;font-size:12.5px}
+.ftable thead th{text-align:left;padding:7px 11px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--text-muted);border-bottom:1px solid var(--border-strong);background:var(--bg-inset);font-family:var(--mono)}
+.ftable tbody tr{border-bottom:1px solid #222b34;transition:background .12s}
+.ftable tbody tr:hover{background:#1e262e}
+.ftable tbody tr:last-child{border-bottom:none}
+.ftable tbody td{padding:8px 11px;vertical-align:top;line-height:1.5}
+.ftable .seq{color:var(--text-muted);text-align:center;font-family:var(--mono);font-size:11px}
+.ftable .col-name{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:600}
+.ftable .col-type{font-family:var(--mono);font-size:11.5px;color:var(--code-type)}
+.ftable .col-badge{display:inline-flex;gap:3px;flex-wrap:wrap}
+.badge-pk{font-size:9px;padding:1px 6px;border-radius:3px;font-weight:800;letter-spacing:.4px;
+  background:var(--pk-bg);color:var(--pk-color);border:1px solid var(--pk-border)}
+.badge-fk{font-size:9px;padding:1px 6px;border-radius:3px;font-weight:800;letter-spacing:.4px;
+  background:var(--fk-bg);color:var(--fk-color);border:1px solid var(--fk-border)}
+.nullable-yes{font-size:10.5px;color:var(--null-color);font-family:var(--mono)}
+.nullable-no{font-size:10.5px;color:var(--not-null-color);font-family:var(--mono)}
+.col-default{font-family:var(--mono);font-size:11px;color:var(--text-muted)}
+.col-remark{font-size:12px;color:var(--text-secondary)}
+.col-remark.empty{color:var(--text-muted);font-style:italic}
+
+/* ── SQL 代码块 ── */
+.sql-block{margin-top:11px;background:var(--code-bg);border:1px solid var(--border);border-radius:5px;overflow:hidden}
+.sql-block-header{display:flex;align-items:center;justify-content:space-between;padding:7px 13px;
+  background:rgba(240,180,41,.05);border-bottom:1px solid var(--border)}
+.sql-block-header span{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.8px;font-family:var(--mono)}
+.copy-btn{font-size:10.5px;color:var(--text-muted);background:none;border:1px solid var(--border-strong);border-radius:3px;
+  padding:2px 8px;cursor:pointer;transition:all .15s;font-family:var(--font)}
+.copy-btn:hover{color:var(--accent);border-color:var(--accent-line);background:var(--accent-soft)}
+.sql-block pre{padding:11px 13px;font-size:11.5px;line-height:1.75;overflow-x:auto;font-family:var(--mono);color:#c8d4df}
+.sql-block pre .kw{color:var(--code-keyword);font-weight:600}
+.sql-block pre .str{color:var(--code-string)}
+.sql-block pre .typ{color:var(--code-type)}
+.sql-block pre .cmt{color:var(--code-comment);font-style:italic}
+
+/* ── 外键关系 ── */
+.rels{margin-top:11px;border-top:1px dashed var(--border-strong);padding-top:9px;display:flex;flex-direction:column;gap:5px}
+.rel-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rel-label{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);min-width:44px;font-family:var(--mono)}
+.rel-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:3px;font-size:11.5px;
+  background:rgba(86,182,194,.07);border:1px solid rgba(86,182,194,.25);color:var(--text-secondary)}
+.rel-arrow{font-weight:700;font-size:12px;color:var(--fk-color)}
+.rel-table{font-family:var(--mono);font-size:11px;color:var(--fk-color)}
+.rel-col{font-family:var(--mono);font-size:11px;color:var(--text-primary)}
+.rel-via{font-size:10px;color:var(--text-muted)}
+
+.no-results{text-align:center;padding:76px 20px;color:var(--text-muted)}
+.no-results .icon{font-size:40px;margin-bottom:12px;opacity:.35}
+.no-results h3{font-size:15px;color:var(--text-secondary);margin-bottom:4px}
+.no-results p{font-size:12.5px}
+
+/* ── 侧栏收起 ── */
+.sidebar-toggle{position:fixed;top:13px;right:13px;z-index:100;width:32px;height:32px;display:flex;align-items:center;
+  justify-content:center;border-radius:5px;border:1px solid var(--border);background:var(--bg-surface);cursor:pointer;
+  color:var(--text-secondary);transition:all .2s;font-size:15px;box-shadow:0 2px 10px rgba(0,0,0,.5)}
+.sidebar-toggle:hover{background:var(--accent);color:#12171d;border-color:var(--accent)}
+.app.sidebar-hidden .sidebar{width:0 !important;overflow:hidden;border-right:none}
+.app.sidebar-hidden .sidebar .sidebar-header,.app.sidebar-hidden .sidebar .sidebar-search,.app.sidebar-hidden .sidebar .sidebar-nav{display:none}
+
+@media(max-width:860px){
+  .sidebar{width:0;overflow:hidden;border-right:none;position:fixed;z-index:90;height:100vh}
+  .sidebar-header,.sidebar-search,.sidebar-nav{display:none}
+  .main{padding:18px 14px 40px}
+  .hero h1{font-size:20px}
+  .card-header{flex-wrap:wrap}
+}
+@media print{
+  body{background:#fff;color:#111}
+  .sidebar,.sidebar-toggle,.copy-btn{display:none !important}
+  .main{padding:8px}
+  .card-body{display:block !important;page-break-inside:avoid}
+  .card,.hero{border-color:#bbb}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1><span class="nut"></span>#title#</h1>
+    <div class="sub">#databaseName# / #productName# #productVersion#</div>
+  </div>
+  <div class="sidebar-search">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="搜索表名 / 备注 / 字段…" autocomplete="off">
+      <span class="kbd">/</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav" id="sidebarNav">
+    <div class="nav-count">装配清单 <strong id="totalNavCount">0</strong> 件</div>
+  </nav>
+  <div class="sidebar-resize-handle" id="resizeHandle" title="拖拽调整侧边栏宽度"></div>
+</aside>
+
+<main class="main">
+  <section class="hero">
+    <h1><span class="nut"></span>#title#</h1>
+    <div class="meta">
+      <span class="tag"><span class="dot db"></span>#databaseName#</span>
+      <span class="tag"><span class="dot ver"></span>v#version#</span>
+      <span class="tag"><span class="dot prod"></span>#productName# #productVersion#</span>
+      <span class="tag" style="margin-left:auto;opacity:.7">导出：#exportTime#</span>
+    </div>
+    <div class="desc">#description#</div>
+  </section>
+
+  <div class="section-title">数据表装配图 <span id="filterInfo"></span></div>
+  <div class="cards" id="cardsContainer"></div>
+  <div class="no-results" id="noResults" style="display:none">
+    <div class="icon">🔩</div>
+    <h3>没有匹配的零件</h3>
+    <p>换个搜索条件再试试</p>
+  </div>
+</main>
+</div>
+
+<button class="sidebar-toggle" id="sidebarToggle" title="展开侧栏">☰</button>
+
+<script>
+(function(){
+  var data = #dataJson#;
+  var tables = data && data.tables ? data.tables : [];
+  var container = document.getElementById('cardsContainer');
+  var nav = document.getElementById('sidebarNav');
+  var searchInput = document.getElementById('searchInput');
+  var noResults = document.getElementById('noResults');
+  var filterInfo = document.getElementById('filterInfo');
+  var totalNavCount = document.getElementById('totalNavCount');
+  var app = document.getElementById('app');
+  var sidebar = document.getElementById('sidebar');
+  var toggleBtn = document.getElementById('sidebarToggle');
+
+  totalNavCount.textContent = tables.length;
+
+  function getSidebarState(){
+    try{
+      var s = localStorage.getItem('screw-doc-sidebar-hidden');
+      return s !== 'true';
+    }catch(e){return true}
+  }
+  var visible = getSidebarState();
+  toggleBtn.style.display = visible ? 'none' : 'block';
+
+  toggleBtn.addEventListener('click', function(){
+    visible = true;
+    app.classList.remove('sidebar-hidden');
+    sidebar.style.width = '';
+    toggleBtn.style.display = 'none';
+  });
+
+  var handle = document.getElementById('resizeHandle');
+  if(handle){
+    var resizing = false, startX = 0, startW = 0;
+    handle.addEventListener('mousedown', function(e){
+      resizing = true;
+      startX = e.clientX;
+      startW = parseInt(getComputedStyle(sidebar).width, 10);
+      document.body.style.cursor = 'col-resize';
+      e.preventDefault();
+      handle.classList.add('active');
+    });
+    document.addEventListener('mousemove', function(e){
+      if(!resizing) return;
+      var w = startW + (e.clientX - startX);
+      if(w < 210) w = 210;
+      if(w > 620) w = 620;
+      sidebar.style.setProperty('--sidebar-w', w + 'px');
+    });
+    document.addEventListener('mouseup', function(){
+      if(resizing){
+        resizing = false;
+        document.body.style.cursor = '';
+        handle.classList.remove('active');
+      }
+    });
+  }
+
+  function escHtml(s){
+    if(s === null || s === undefined) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escAttr(s){
+    if(s === null || s === undefined) return '';
+    return String(s).replace(/"/g,'&quot;').replace(/&/g,'&amp;');
+  }
+
+  function tableRemark(t){
+    var r = t.remark || t.tableComment || '';
+    return String(r).trim();
+  }
+
+  function fieldText(t){
+    var cols = t.columns || [];
+    return cols.map(function(c){
+      return [c.columnName, (c.remark||c.columnComment||''), (c.typeName||c.dataType||'')].filter(Boolean).join(' ');
+    }).join(' ');
+  }
+
+  function renderNav(){
+    var html = '<div class="nav-count">装配清单 <strong>' + tables.length + '</strong> 件</div>';
+    tables.forEach(function(t, i){
+      var remark = tableRemark(t);
+      var display = remark ? remark : t.tableName;
+      var schema = t.schema || t.tableSchema || '';
+      html += '<a class="nav-item" href="#card-' + escAttr(i) + '" data-index="' + escAttr(i) +
+        '" data-name="' + escAttr(String(t.tableName||'').toLowerCase()) +
+        '" data-remark="' + escAttr(String(remark||'').toLowerCase()) +
+        '" data-fields="' + escAttr(fieldText(t).toLowerCase()) + '">';
+      html += '<span class="idx">' + (i+1) + '</span>';
+      html += '<span class="label">' + escHtml(display) + '</span>';
+      html += '<span class="badge">' + escHtml(schema) + '</span>';
+      html += '</a>';
+    });
+    nav.innerHTML = html;
+    nav.querySelectorAll('.nav-item').forEach(function(el){
+      el.addEventListener('click', function(e){
+        e.preventDefault();
+        nav.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active')});
+        el.classList.add('active');
+        var idx = el.getAttribute('data-index');
+        var card = document.getElementById('card-' + idx);
+        if(card){
+          card.scrollIntoView({behavior:'smooth', block:'center'});
+          setTimeout(function(){
+            var body = card.querySelector('.card-body');
+            if(body && !body.classList.contains('open')){
+              var btn = card.querySelector('.card-expand');
+              if(btn) btn.click();
+            }
+          }, 320);
+        }
+      });
+    });
+  }
+
+  function generateCreateSql(t){
+    var cols = t.columns || [];
+    var pkCols = cols.filter(function(c){ return c.primaryKey; }).map(function(c){ return '`' + c.columnName + '`'; });
+    var lines = ['CREATE TABLE `' + t.tableName + '` ('];
+    var fieldLines = cols.map(function(c, i){
+      var line = '  `' + c.columnName + '` ' + (c.typeName || 'VARCHAR(255)');
+      if(c.columnSize && c.decimalDigits != null) line += '(' + c.columnSize + ',' + c.decimalDigits + ')';
+      else if(c.columnSize) line += '(' + c.columnSize + ')';
+      if(!c.nullable) line += ' NOT NULL';
+      if(c.defaultValue != null && c.defaultValue !== '') line += ' DEFAULT ' + c.defaultValue;
+      if(c.remark) line += '  /* ' + c.remark + ' */';
+      return line;
+    });
+    if(pkCols.length) fieldLines.push('  PRIMARY KEY (' + pkCols.join(', ') + ')');
+    lines.push(fieldLines.join(',\n'));
+    lines.push(');');
+    return lines.join('\n');
+  }
+
+  function highlightSql(sql){
+    var kw = ['CREATE','TABLE','IF','NOT','EXISTS','PRIMARY','KEY','FOREIGN','REFERENCES','INSERT','INTO','VALUES','SELECT','FROM','WHERE','AND','OR','DEFAULT','NULL','VARCHAR','CHAR','INT','INTEGER','BIGINT','TEXT','BOOLEAN','DATE','DATETIME','TIMESTAMP','DECIMAL','FLOAT','DOUBLE','COMMENT'];
+    return sql
+      .replace(/\/\*([\s\S]*?)\*\//g, function(m){return '<span class="cmt">' + escHtml(m) + '</span>'})
+      .replace(new RegExp('\\b(' + kw.join('|') + ')\\b','gi'), function(m){return '<span class="kw">' + m + '</span>'})
+      .replace(/`([^`]*)`/g, function(m, g1){return '<span class="typ">`' + escHtml(g1) + '`</span>';});
+  }
+
+  function renderCards(){
+    var html = '';
+    tables.forEach(function(t, i){
+      var cols = t.columns || [];
+      var remark = tableRemark(t);
+      var schema = t.schema || t.tableSchema || '';
+      var colRows = cols.map(function(c, idx){
+        var keyBadges = '';
+        if(c.primaryKey) keyBadges += '<span class="badge-pk">PK</span>';
+        var hasFk = false;
+        if(t.importedKeys){
+          t.importedKeys.forEach(function(r){ if(r.fkColumnName === c.columnName) hasFk = true; });
+        }
+        if(hasFk) keyBadges += '<span class="badge-fk">FK</span>';
+        var nullableStr = c.nullable ? '<span class="nullable-yes">NULL</span>' : '<span class="nullable-no">NOT NULL</span>';
+        var remarkText = String(c.remark || '').trim();
+        return '<tr>' +
+          '<td class="seq">' + (idx + 1) + '</td>' +
+          '<td><span class="col-name">' + escHtml(c.columnName) + '</span>' + (keyBadges ? ' <span class="col-badge">' + keyBadges + '</span>' : '') + '</td>' +
+          '<td><span class="col-type">' + escHtml(c.typeName || 'VARCHAR(255)') + (c.columnSize && c.decimalDigits != null ? '(' + c.columnSize + ',' + c.decimalDigits + ')' : (c.columnSize ? '(' + c.columnSize + ')' : '')) + '</span></td>' +
+          '<td>' + nullableStr + '</td>' +
+          '<td><span class="col-default">' + escHtml(c.defaultValue != null ? c.defaultValue : '—') + '</span></td>' +
+          '<td class="col-remark ' + (remarkText ? '' : 'empty') + '">' + (remarkText || '—') + '</td>' +
+          '</tr>';
+      }).join('');
+
+      var importHtml = '';
+      if(t.importedKeys && t.importedKeys.length > 0){
+        importHtml = '<div class="rel-group"><span class="rel-label">引用</span>';
+        t.importedKeys.forEach(function(r){
+          importHtml += '<span class="rel-tag"><span class="rel-arrow">→</span><span class="rel-table">' +
+            escHtml(r.pkTableName) + '</span><span class="rel-col">.' + escHtml(r.pkColumnName) +
+            '</span><span class="rel-via">via ' + escHtml(r.fkColumnName) + '</span></span>';
+        });
+        importHtml += '</div>';
+      }
+      var exportHtml = '';
+      if(t.exportedKeys && t.exportedKeys.length > 0){
+        exportHtml = '<div class="rel-group"><span class="rel-label">被引用</span>';
+        t.exportedKeys.forEach(function(r){
+          exportHtml += '<span class="rel-tag"><span class="rel-arrow">←</span><span class="rel-table">' +
+            escHtml(r.fkTableName) + '</span><span class="rel-col">.' + escHtml(r.fkColumnName) + '</span></span>';
+        });
+        exportHtml += '</div>';
+      }
+      var relHtml = '';
+      if(importHtml || exportHtml){
+        relHtml = '<div class="rels">' + importHtml + exportHtml + '</div>';
+      }
+
+      var sql = generateCreateSql(t);
+      html += '<div class="card" id="card-' + i + '" data-index="' + i + '"' +
+        ' data-name="' + escAttr(String(t.tableName||'').toLowerCase()) + '"' +
+        ' data-remark="' + escAttr(String(remark||'').toLowerCase()) + '"' +
+        ' data-fields="' + escAttr(fieldText(t).toLowerCase()) + '">' +
+        '<div class="card-header">' +
+          '<span class="card-method">TABLE</span>' +
+          '<span class="card-title">' + escHtml(t.tableName) + (remark ? '<span class="remark">' + escHtml(remark) + '</span>' : '') + '</span>' +
+          (schema ? '<span class="card-schema">' + escHtml(schema) + '</span>' : '') +
+          '<button class="card-expand" onclick="toggleCard(this)" aria-label="展开">▾</button>' +
+        '</div>' +
+        '<div class="card-body">' +
+          '<table class="ftable">' +
+            '<thead><tr>' +
+              '<th style="width:32px">#</th>' +
+              '<th style="width:24%">字段名</th>' +
+              '<th style="width:16%">类型</th>' +
+              '<th style="width:11%">约束</th>' +
+              '<th style="width:13%">默认值</th>' +
+              '<th style="width:36%">备注</th>' +
+            '</tr></thead>' +
+            '<tbody>' + colRows + '</tbody>' +
+          '</table>' +
+          relHtml +
+          '<div class="sql-block">' +
+            '<div class="sql-block-header"><span>CREATE TABLE</span><button class="copy-btn" onclick="copySql(this)">复制</button></div>' +
+            '<pre>' + highlightSql(sql) + '</pre>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    });
+    container.innerHTML = html;
+  }
+
+  window.toggleCard = function(btn){
+    var card = btn.closest('.card');
+    var body = card.querySelector('.card-body');
+    var isOpen = body.classList.toggle('open');
+    btn.classList.toggle('expanded', isOpen);
+  };
+
+  window.copySql = function(btn){
+    var pre = btn.closest('.sql-block').querySelector('pre');
+    var text = pre.textContent || pre.innerText;
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(text).then(function(){
+        btn.textContent = '已复制';
+        setTimeout(function(){btn.textContent = '复制';}, 1500);
+      });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      btn.textContent = '已复制';
+      setTimeout(function(){btn.textContent = '复制';}, 1500);
+    }
+  };
+
+  function filter(q){
+    var query = String(q || '').trim().toLowerCase();
+    var cards = container.querySelectorAll('.card');
+    var items = nav.querySelectorAll('.nav-item');
+    var visibleCount = 0;
+    cards.forEach(function(c){
+      var match = !query ||
+        (c.dataset.name || '').indexOf(query) !== -1 ||
+        (c.dataset.remark || '').indexOf(query) !== -1 ||
+        (c.dataset.fields || '').indexOf(query) !== -1;
+      c.style.display = match ? '' : 'none';
+      if(match) visibleCount++;
+    });
+    items.forEach(function(el){
+      var hit = !query ||
+        (el.dataset.name || '').indexOf(query) !== -1 ||
+        (el.dataset.remark || '').indexOf(query) !== -1 ||
+        (el.dataset.fields || '').indexOf(query) !== -1;
+      el.classList.toggle('hidden', !hit);
+    });
+    noResults.style.display = visibleCount === 0 && query ? 'block' : 'none';
+    filterInfo.textContent = query ? ' · ' + visibleCount + ' / ' + tables.length : '';
+  }
+
+  var timer = null;
+  searchInput.addEventListener('input', function(){
+    clearTimeout(timer);
+    timer = setTimeout(function(){ filter(searchInput.value); }, 80);
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === '/' && document.activeElement !== searchInput){
+      e.preventDefault();
+      searchInput.focus();
+    }
+    if(e.key === 'Escape' && document.activeElement === searchInput){
+      searchInput.value = '';
+      filter('');
+      searchInput.blur();
+    }
+  });
+
+  renderNav();
+  renderCards();
+  filter('');
+})();
+</script>
+</body>
+</html>

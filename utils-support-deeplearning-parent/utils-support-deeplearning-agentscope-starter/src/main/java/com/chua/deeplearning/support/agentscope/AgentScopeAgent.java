@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.deeplearning.support.agentscope;
 
 import com.chua.common.support.ai.AiUsage;
@@ -7,6 +8,7 @@ import com.chua.common.support.ai.agent.AgentDebugHook;
 import com.chua.common.support.ai.agent.AgentDefinition;
 import com.chua.common.support.ai.agent.AgentEvent;
 import com.chua.common.support.ai.agent.AgentHookEvent;
+import com.chua.common.support.ai.agent.AgentLoopGuard;
 import com.chua.common.support.ai.agent.AgentMode;
 import com.chua.common.support.ai.agent.AgentPlanHook;
 import com.chua.common.support.ai.agent.AgentResponse;
@@ -96,6 +98,14 @@ public class AgentScopeAgent implements Agent {
      * 最大工具迭代次数
     */
     private int maxToolIterations = 5;
+    /**
+     * 会话护栏：死循环判定 + 中断信号
+    */
+    private volatile AgentLoopGuard loopGuard = new AgentLoopGuard();
+    /**
+     * 正在运行的 Harness（中断时关闭它，令阻塞中的调用尽快结束）
+    */
+    private volatile HarnessAgent runningHarness;
     /**
      * 聊天客户端映射
     */
@@ -303,6 +313,56 @@ public class AgentScopeAgent implements Agent {
     }
 
     /**
+     * 注入会话护栏
+     *
+     * @param guard 会话护栏，null 时回退为新建默认护栏
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent loopGuard(AgentLoopGuard guard) {
+        this.loopGuard = guard != null ? guard : new AgentLoopGuard();
+        return this;
+    }
+
+    /**
+     * 获取会话护栏
+     *
+     * @return 会话护栏，恒不为 null
+     */
+    @Override
+    public AgentLoopGuard loopGuard() {
+        return loopGuard;
+    }
+
+    /**
+     * 要求中断本轮执行。
+     *
+     * <p>Harness 的 ReAct 循环在框架内部，外部没有「停一步」的接口，
+     * 能用的中断手段就是<b>关掉当前 Harness</b>：置位中断信号 + {@code close()} 正在运行的
+     * Harness，令阻塞中的 {@code call()/streamEvents()} 以异常或结束收场，
+     * 上层的 AgentResponse/Flux 随即收尾（中断不是错误，{@code run} 会带着已得的输出返回）。</p>
+     *
+     * <p>与 opencode 实现的差别：那边能强杀子进程，这边只能关闭内部资源。
+     * 因此本实现的中断是「尽力而为」——若 Harness 正卡在 {@code close()} 也解不开的
+     * 底层 IO 上，仍需外部超时兜底。</p>
+     *
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public Agent interrupt() {
+        loopGuard.interrupt();
+        HarnessAgent harness = runningHarness;
+        if (harness != null) {
+            try {
+                harness.close();
+            } catch (Exception e) {
+                log.debug("[AgentScope] 中断时关闭 Harness 异常: {}", e.getMessage(), e);
+            }
+        }
+        return this;
+    }
+
+    /**
      * 内存配置
     */
     @Override
@@ -487,6 +547,8 @@ public class AgentScopeAgent implements Agent {
     @Override
     public AgentResponse run(String input) {
         RunPlan plan = prepareRun(input);
+        // 新的一轮：清掉上一轮的中断信号与重复计数
+        loopGuard.reset();
 
         AgentResponse result = null;
         HarnessAgent harnessAgent = null;
@@ -494,12 +556,19 @@ public class AgentScopeAgent implements Agent {
         int attempt = 0;
         int maxRetriesE = maxRetries;
         while (true) {
+            if (loopGuard.isInterrupted()) {
+                log.info("[AgentScope] 本轮已被要求中断，停止重试并收尾: agentId={}", plan.agentId);
+                result = interruptedResponse(plan.agentId, attempt);
+                break;
+            }
             attempt++;
             try {
                 harnessAgent = buildHarness(plan.agentId, plan.sysPrompt,
                         plan.primaryModelId, plan.declarations, plan.effectivePlan,
                         plan.effectivePlanMaxTask, plan.effectiveDebugHook,
                         plan.effectivePlanHook, plan.effectiveMaxIters, null);
+                // 暴露给 interrupt()：外部中断靠关闭它来打断阻塞中的 call()
+                runningHarness = harnessAgent;
 
                 // 复用同一个 RuntimeContext：Plan 模式需在调用模型前预先进入，
                 // 使首轮即处于只读状态；call 也用同一 ctx 加载该状态
@@ -516,6 +585,13 @@ public class AgentScopeAgent implements Agent {
                         .build();
                 break;
             } catch (Exception e) {
+                if (loopGuard.isInterrupted()) {
+                    // 中断导致的异常：不重试，按中断收尾
+                    log.info("[AgentScope] 中断令执行提前结束 attempt={}, agentId={}, reason={}",
+                            attempt, plan.agentId, e.getMessage());
+                    result = interruptedResponse(plan.agentId, attempt);
+                    break;
+                }
                 log.error("[AgentScope] run执行失败 attempt={}/{}, agentId={}",
                         attempt, maxRetriesE + 1, plan.agentId, e);
                 if (attempt > maxRetriesE) {
@@ -535,6 +611,7 @@ public class AgentScopeAgent implements Agent {
                     break;
                 }
             } finally {
+                runningHarness = null;
                 if (harnessAgent != null) {
                     try {
                         harnessAgent.close();
@@ -547,6 +624,25 @@ public class AgentScopeAgent implements Agent {
 
         cleanupModelRegistrations();
         return result;
+    }
+
+    /**
+     * 中断收尾响应：中断不是错误，故不打 {@code error}，只标出 {@code aborted}
+     *
+     * @param agentId 本轮 Agent 标识
+     * @param attempt 已执行到第几次尝试
+     * @return 收尾响应（output 为空，metadata 标明 aborted）
+     */
+    private AgentResponse interruptedResponse(String agentId, int attempt) {
+        AgentResponse resp = AgentResponse.builder()
+                .output("")
+                .mode(mode != null ? mode.name() : AgentMode.AUTO.name())
+                .build();
+        resp.getMetadata().put("aborted", Boolean.TRUE);
+        resp.getMetadata().put("reason", "interrupted");
+        resp.getMetadata().put("attempts", attempt);
+        resp.getMetadata().put("agentId", agentId);
+        return resp;
     }
 
     /**
@@ -764,6 +860,8 @@ public class AgentScopeAgent implements Agent {
     private Flux<AgentStreamEvent> drive(final RunPlan plan, boolean initialRun) {
         final long startTime = System.currentTimeMillis();
         return Flux.defer(() -> {
+            // 新的一轮：清掉上一轮的中断信号与重复计数
+            loopGuard.reset();
             final HarnessAgent harnessAgent;
             try {
                 harnessAgent = buildHarness(plan.agentId, plan.sysPrompt,
@@ -773,6 +871,8 @@ public class AgentScopeAgent implements Agent {
             } catch (Exception e) {
                 return Flux.error(e);
             }
+            // 暴露给 interrupt()：外部中断靠关闭它来打断阻塞中的 streamEvents()
+            runningHarness = harnessAgent;
             final long[] inputTokens = {0L};
             final long[] outputTokens = {0L};
             final long[] cachedTokens = {0L};
@@ -1003,6 +1103,7 @@ public class AgentScopeAgent implements Agent {
                                 .build());
                     }))
                     .doFinally(signal -> {
+                        runningHarness = null;
                         try {
                             harnessAgent.close();
                         } catch (Exception ignored) {
@@ -1403,6 +1504,8 @@ public class AgentScopeAgent implements Agent {
     */
     @Override
     public void close() {
+        // 先中断：不留下一个还在跑的循环（中断会关掉当前 Harness）
+        interrupt();
         cleanupModelRegistrations();
         for (ChatClient client : chatClients.values()) {
             try {
@@ -1539,8 +1642,12 @@ public class AgentScopeAgent implements Agent {
 
         // 始终注册调试中间件：输出 thinking/输出/轮次/工具全量轨迹日志（hooks 可为 null）
         {
+            // 护栏一并交给中间件：工具入参在 ToolCallDelta 里是流式片段，
+            // 只有在中间件内才能按 callId 拼完再做「工具名 + 入参」的重复判定；
+            // 判定命中就回调 interrupt()，关闭当前 Harness。
             MiddlewareBase middleware = new AgentDebugMiddleware(
-                    agentId, effectiveDebugHook, effectivePlanHook, effectivePlanMaxTask, feedback);
+                    agentId, effectiveDebugHook, effectivePlanHook, effectivePlanMaxTask, feedback,
+                    loopGuard, this::interrupt);
             builder.middleware(middleware);
             if (effectivePlan && effectivePlanHook != null && effectivePlanMaxTask > 0) {
                 effectivePlanHook.onPlan(AgentHookEvent.builder()

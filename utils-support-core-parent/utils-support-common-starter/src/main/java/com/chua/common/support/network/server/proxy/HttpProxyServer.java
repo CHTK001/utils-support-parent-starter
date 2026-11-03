@@ -262,8 +262,6 @@ OutputStream backOut = backendSocket.getOutputStream();
             }
         } catch (IOException e) {
             log.debug("http-proxy 连接异常: {}", e.getMessage());
-        } finally {
-            activeConnections.decrementAndGet();
         }
     }
 

@@ -357,10 +357,12 @@ public class CsvFileSystem implements FileSystem {
                 for (Object entry : pending) {
                     if (entry instanceof List) {
                         List<?> list = (List<?>) entry;
-                        if (list.isEmpty()) {
+                        // 空表 + 已知列（显式表头）也必须写出表头行：
+                        // 直接跳过会把文件清成 0 字节，丢失列结构。
+                        if (list.isEmpty() && cols == null) {
                             continue;
                         }
-                        if (list.getFirst() instanceof Map) {
+                        if (list.isEmpty() || list.getFirst() instanceof Map) {
                             if (withHeader && !headerWritten && cols != null) {
                                 String headerLine = String.join(String.valueOf(delimiter), cols);
                                 writer.write(headerLine);

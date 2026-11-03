@@ -275,6 +275,7 @@ public class SshServer extends AbstractServer {
         */
         @Override
         public void start(ChannelSession channel, Environment env) throws IOException {
+// [P3C C1 豁免] I/O 阻塞循环（aio/nio/ssh/ftp/终端），不适合交给通用执行器
             thread = new Thread(this, "ssh-shell-" + channel.getSession().getIoSession().getRemoteAddress());
             thread.start();
         }
@@ -491,6 +492,7 @@ public class SshServer extends AbstractServer {
                     .password(password)
                     .build();
             server.start();
+// [P3C C1 豁免] 关闭钩子必须由 JVM 创建独立线程
             Runtime.getRuntime().addShutdownHook(new Thread(server::close));
         } catch (Exception e) {
             log.error("启动 SshServer 失败", e);

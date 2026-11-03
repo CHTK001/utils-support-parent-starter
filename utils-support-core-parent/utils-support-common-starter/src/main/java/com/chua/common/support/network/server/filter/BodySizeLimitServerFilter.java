@@ -96,7 +96,7 @@ public class BodySizeLimitServerFilter implements ServerFilter, ReactiveServerFi
                                           ReactiveFilterChain chain) {
         if (exceedsLimit(request)) {
             reject(response);
-            return CompletableFuture.completedStage(null);
+            return CompletableFuture.completedFuture(null);
         }
         return chain.doFilter(request, response);
     }

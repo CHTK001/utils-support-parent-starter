@@ -2,12 +2,7 @@ package com.chua.datasource.support.engine;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.lang.datasource.engine.Engine;
-import com.chua.common.support.lang.datasource.engine.wrapper.SFunction;
-import com.chua.common.support.lang.datasource.page.Page;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.datasource.support.wrapper.EngineDeleteWrapper;
-import com.chua.datasource.support.wrapper.EngineQueryWrapper;
-import com.chua.datasource.support.wrapper.EngineUpdateWrapper;
 import com.chua.datasource.support.wrapper.ReactorLambdaDeleteWrapper;
 import com.chua.datasource.support.wrapper.ReactorLambdaQueryWrapper;
 import com.chua.datasource.support.wrapper.ReactorLambdaUpdateWrapper;
@@ -40,69 +35,19 @@ public class InMemoryReactorEngine implements ReactorEngine {
      */
     @Override
     public <T> ReactorLambdaQueryWrapper<T> query(Class<T> entityClass) {
-        return new ReactorLambdaQueryWrapper<T>(delegate, entityClass) {
-            @Override
-            public Flux<T> list() {
-                return Flux.fromIterable(doQuery(entityClass));
-            }
-
-            @Override
-            public Mono<T> one() {
-                return Mono.fromSupplier(() -> {
-                    List<T> r = doQuery(entityClass);
-                    return r.isEmpty() ? null : r.getFirst();
-                });
-            }
-
-            @Override
-            public Mono<Page<T>> page(int pn, int ps) {
-                return Mono.fromSupplier(() -> {
-                    List<T> r = doQuery(entityClass);
-                    int from = (pn - 1) * ps;
-                    int to = Math.min(from + ps, r.size());
-                    if (from >= r.size()) {
-                        return new Page<T>(pn, ps, r.size(), List.of());
-                    }
-                    return new Page<T>(pn, ps, r.size(), r.subList(from, to));
-                });
-            }
-
-            private <T> List<T> doQuery(Class<T> clazz) {
-                EngineQueryWrapper<T> w = new EngineQueryWrapper<>(delegate, clazz);
-                w.getConditions().addAll(getConditions());
-                w.getOrderBys().addAll(getOrderBys());
-                return delegate.evaluateQuery(w);
-            }
-        };
+        // 内存引擎没有 SqlExecutor，包装器默认的「渲染 SQL 再执行」路径会直接 NPE。
+        // 统一由 MemoryReactorWrappers 走内存索引求值入口。
+        return MemoryReactorWrappers.query(delegate, entityClass);
     }
 
     @Override
     public <T> ReactorLambdaUpdateWrapper<T> update(Class<T> entityClass) {
-        return new ReactorLambdaUpdateWrapper<T>(delegate, entityClass) {
-            @Override
-            public Mono<Integer> update() {
-                return Mono.fromSupplier(() -> {
-                    EngineUpdateWrapper<T> w = new EngineUpdateWrapper<>(delegate, entityClass);
-                    w.getConditions().addAll(getConditions());
-                    w.getSetValues().putAll(getSetValues());
-                    return delegate.evaluateUpdate(w);
-                });
-            }
-        };
+        return MemoryReactorWrappers.update(delegate, entityClass);
     }
 
     @Override
     public <T> ReactorLambdaDeleteWrapper<T> delete(Class<T> entityClass) {
-        return new ReactorLambdaDeleteWrapper<T>(delegate, entityClass) {
-            @Override
-            public Mono<Integer> remove() {
-                return Mono.fromSupplier(() -> {
-                    EngineDeleteWrapper<T> w = new EngineDeleteWrapper<>(delegate, entityClass);
-                    w.getConditions().addAll(getConditions());
-                    return delegate.evaluateDelete(w);
-                });
-            }
-        };
+        return MemoryReactorWrappers.delete(delegate, entityClass);
     }
 
     @Override

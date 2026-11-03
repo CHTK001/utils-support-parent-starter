@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 基于 AIO(Proactor/IOCP) 的 TCP 代理:接入连接与后端连接均为
@@ -33,6 +33,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 @Spi({"aio-tcp-proxy"})
 public class AioTcpProxyServer extends AbstractServer {
+
+    /**
+     * 握手队列最小长度（等价于「用平台允许的最大队列」，内核按 somaxconn 截断）。
+     */
+    private static final int MIN_BACKLOG = 65536;
 
     /**
      * 监听通道
@@ -50,11 +55,6 @@ public class AioTcpProxyServer extends AbstractServer {
      * 固定后端目标(null 则回退 setting host/port)
      */
     private volatile InetSocketAddress target;
-
-    /**
-     * 活跃连接数
-     */
-    private final AtomicInteger activeConnections = new AtomicInteger();
 
     /**
      * 创建 AIO TCP 代理(SPI 入口,目标取 setting host/port)。
@@ -98,6 +98,7 @@ public class AioTcpProxyServer extends AbstractServer {
             int threads = setting.getEventLoops() > 0
                     ? setting.getEventLoops() : Runtime.getRuntime().availableProcessors();
             group = AsynchronousChannelGroup.withFixedThreadPool(threads, r -> {
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
                 Thread t = new Thread(r, "aio-tcpproxy-iocp");
                 t.setDaemon(true);
                 return t;
@@ -105,7 +106,7 @@ public class AioTcpProxyServer extends AbstractServer {
             serverChannel = AsynchronousServerSocketChannel.open(group);
             serverChannel.setOption(StandardSocketOptions.SO_REUSEADDR, setting.isSoReuseAddr());
             serverChannel.bind(new InetSocketAddress(setting.getHost(), setting.getPort()),
-                    Math.max(setting.getBacklog(), 65536));
+                    setting.resolveBacklog(MIN_BACKLOG));
             setting.setPort(((InetSocketAddress) serverChannel.getLocalAddress()).getPort());
             executor = Executors.newVirtualThreadPerTaskExecutor();
             acceptLoop();
@@ -135,6 +136,16 @@ public class AioTcpProxyServer extends AbstractServer {
             @Override
             public void completed(AsynchronousSocketChannel channel, Void attachment) {
                 issueAccept();
+                if (!accepting) {
+                    // 优雅关闭中：不再接纳新连接
+                    closeQuietly(channel);
+                    return;
+                }
+                if (!tryAcquireConnection()) {
+                    // 超限：直接关闭（TCP 代理无法回 503），拒绝数计入 metrics
+                    closeQuietly(channel);
+                    return;
+                }
                 handleClient(channel);
             }
 
@@ -153,12 +164,14 @@ public class AioTcpProxyServer extends AbstractServer {
      * @param client 接入通道
      */
     private void handleClient(AsynchronousSocketChannel client) {
-        activeConnections.incrementAndGet();
+        ProxySession session = new ProxySession(client);
         try {
             client.setOption(StandardSocketOptions.TCP_NODELAY, true);
         } catch (Exception e) {
             log.debug("[proxy] 操作失败，已忽略: {}", e.getMessage());
         }
+        // 缓冲区按配置应用（默认不配置时无系统调用）
+        applyChannelSocketOptions(client);
         InetSocketAddress addr = resolveTarget();
         AsynchronousSocketChannel backend;
         try {
@@ -166,26 +179,68 @@ public class AioTcpProxyServer extends AbstractServer {
             backend.setOption(StandardSocketOptions.TCP_NODELAY, true);
         } catch (java.io.IOException e) {
             log.debug("AIO TcpProxy 打开后端通道失败: {}", e.getMessage());
-            closeQuietly(client);
-            activeConnections.decrementAndGet();
+            session.close();
             return;
         }
+        session.backend = backend;
         // 异步连接后端,完成后启动纯回调双向泵
         backend.connect(addr, null, new java.nio.channels.CompletionHandler<Void, Void>() {
             @Override
             public void completed(Void result, Void attachment) {
-                new PipeReader(client, backend).start();
-                new PipeReader(backend, client).start();
+                new PipeReader(client, backend, session).start();
+                new PipeReader(backend, client, session).start();
             }
 
             @Override
             public void failed(Throwable exc, Void attachment) {
                 log.debug("AIO TcpProxy 连接后端失败: {}", exc.getMessage());
-                closeQuietly(client);
-                closeQuietly(backend);
-                activeConnections.decrementAndGet();
+                session.close();
             }
         });
+    }
+
+    /**
+     * 一条代理连接的收尾句柄：两端通道 + 幂等释放。
+     *
+     * <p>双向泵各有一份关闭路径，任一方向 EOF/失败都会关闭两端，另一方向的回调随后
+     * 也会走到关闭分支。若每处都直接 {@code decrementAndGet()}，一条连接会被减两次，
+     * 活跃数迟早变成负数，{@link #tryAcquireConnection()} 的配额随之失真
+     * （表现为「明明没那么多连接却一直被拒绝」）。因此一条连接只允许释放一次。</p>
+     */
+    private final class ProxySession {
+
+        /**
+         * 接入通道
+         */
+        private final AsynchronousSocketChannel client;
+        /**
+         * 后端通道（连接成功后才有）
+         */
+        private volatile AsynchronousSocketChannel backend;
+        /**
+         * 已释放标志
+         */
+        private final AtomicBoolean released = new AtomicBoolean(false);
+
+        /**
+         * Proxy Session
+         * @param client 参数
+         */
+        ProxySession(AsynchronousSocketChannel client) {
+            this.client = client;
+        }
+
+        /**
+         * 关闭两端并归还连接预算（幂等）。
+         */
+        void close() {
+            if (!released.compareAndSet(false, true)) {
+                return;
+            }
+            closeQuietly(client);
+            closeQuietly(backend);
+            releaseConnection();
+        }
     }
 
     /**
@@ -204,6 +259,10 @@ public class AioTcpProxyServer extends AbstractServer {
          */
         private final AsynchronousSocketChannel dst;
         /**
+         * 所属连接
+         */
+        private final ProxySession session;
+        /**
          * 中转缓冲
          */
         private final ByteBuffer buf;
@@ -212,11 +271,13 @@ public class AioTcpProxyServer extends AbstractServer {
          * 创建单向泵。
          * @param dst 目标通道
          * @param src 源通道
+         * @param session 所属连接
          * @return 返回值
         */
-        PipeReader(AsynchronousSocketChannel src, AsynchronousSocketChannel dst) {
+        PipeReader(AsynchronousSocketChannel src, AsynchronousSocketChannel dst, ProxySession session) {
             this.src = src;
             this.dst = dst;
+            this.session = session;
             this.buf = ByteBuffer.allocateDirect(Math.max(setting.getBufferSize(), 32768));
         }
 
@@ -228,18 +289,14 @@ public class AioTcpProxyServer extends AbstractServer {
                 buf.clear();
                 src.read(buf, null, this);
             } else {
-                closeQuietly(src);
-                closeQuietly(dst);
-                activeConnections.decrementAndGet();
+                session.close();
             }
         }
 
         @Override
         public void completed(Integer n, Void attachment) {
             if (n == null || n < 0 || !running) {
-                closeQuietly(src);
-                closeQuietly(dst);
-                activeConnections.decrementAndGet();
+                session.close();
                 return;
             }
             buf.flip();
@@ -255,18 +312,14 @@ public class AioTcpProxyServer extends AbstractServer {
 
                 @Override
                 public void failed(Throwable exc, Void attachment) {
-                    closeQuietly(src);
-                    closeQuietly(dst);
-                    activeConnections.decrementAndGet();
+                    session.close();
                 }
             });
         }
 
         @Override
         public void failed(Throwable exc, Void attachment) {
-            closeQuietly(src);
-            closeQuietly(dst);
-            activeConnections.decrementAndGet();
+            session.close();
         }
     }
 
@@ -330,7 +383,8 @@ public class AioTcpProxyServer extends AbstractServer {
      *
      * @return 活跃连接数
      */
+    @Override
     public int getActiveConnections() {
-        return activeConnections.get();
+        return metrics.getActiveConnections();
     }
 }

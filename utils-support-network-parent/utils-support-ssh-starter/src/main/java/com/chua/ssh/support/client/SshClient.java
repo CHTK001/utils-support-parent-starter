@@ -995,6 +995,7 @@ public class SshClient implements AutoCloseable {
          * 会导致首批输出要等到按键或 resize 才出现。通道关闭时 read() 返回 -1 退出。
          */
         private void startReaderThread() {
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
             readerThread = new Thread(() -> {
                 byte[] buf = new byte[4096];
                 try {

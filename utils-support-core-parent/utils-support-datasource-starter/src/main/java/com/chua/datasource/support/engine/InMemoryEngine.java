@@ -453,9 +453,18 @@ public class InMemoryEngine extends AbstractEngine {
      * @return 构建predicate的结果
      */
     private static <T> Predicate<T> buildPredicate(List<Condition> conditions) {
-        Predicate<T> result = t -> true;
-        for (Condition c : conditions) {
-            result = result.and(toPredicate(c));
+        if (conditions.isEmpty()) {
+            return t -> true;
+        }
+        // 与 AbstractLambdaWrapper.buildWhere 的连接规则保持一致：
+        // OR 嵌套分组与前文以 OR 连接，其余条件一律 AND。
+        Predicate<T> result = toPredicate(conditions.getFirst());
+        for (int i = 1; i < conditions.size(); i++) {
+            Condition current = conditions.get(i);
+            boolean leadingOr = current.isNested()
+                    && "OR".equalsIgnoreCase(current.getNestedOperator());
+            Predicate<T> next = toPredicate(current);
+            result = leadingOr ? result.or(next) : result.and(next);
         }
         return result;
     }
@@ -468,6 +477,25 @@ public class InMemoryEngine extends AbstractEngine {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static <T> Predicate<T> toPredicate(Condition c) {
+        // 嵌套条件（{@code and(Consumer)} / {@code or(Consumer)} 产生）没有 operator，
+        // 必须先按 nestedOperator 折叠子条件，否则 switch(null) 抛 NPE。
+        if (c.isNested()) {
+            List<Condition> nested = c.getNested();
+            if (nested == null || nested.isEmpty()) {
+                return t -> true;
+            }
+            boolean any = "OR".equalsIgnoreCase(c.getNestedOperator());
+            Predicate<T> result = null;
+            for (Condition child : nested) {
+                Predicate<T> childPredicate = toPredicate(child);
+                if (result == null) {
+                    result = childPredicate;
+                } else {
+                    result = any ? result.or(childPredicate) : result.and(childPredicate);
+                }
+            }
+            return result == null ? t -> true : result;
+        }
         String field = c.getColumnName();
         String op = c.getOperator();
         Object val = c.getValue();

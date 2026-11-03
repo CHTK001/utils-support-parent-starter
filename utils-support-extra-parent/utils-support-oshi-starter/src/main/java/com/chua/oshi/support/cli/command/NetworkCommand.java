@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.oshi.support.cli.command;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -41,9 +42,10 @@ public final class NetworkCommand extends AbstractCommand {
             nets = nets.stream().filter(n -> "UP".equalsIgnoreCase(n.getIfOperStatus())).toList();
         }
 
-        System.out.println();
-        System.out.println("Network Interfaces (" + nets.size() + "):");
+        System.out.println(); // [P3C E1 豁免]
+        System.out.println("Network Interfaces (" + nets.size() + "):"); // [P3C E1 豁免]
         List<String[]> rows = Wraps.list();
+        // [P3C E1 豁免] CLI 命令输出：网络接口列表展示
         for (Network net : nets) {
             String[] ipv4 = net.getIpv4();
             String ip = (ipv4 != null && ipv4.length > 0) ? String.join(", ", ipv4) : "N/A";
@@ -59,9 +61,10 @@ public final class NetworkCommand extends AbstractCommand {
             });
         }
         if (rows.isEmpty()) {
-            System.out.println("  (none)");
+            // [P3C E1 豁免] CLI 命令输出：无网络接口时的展示
+            System.out.println("  (none)"); // [P3C E1 豁免]
         } else {
-            System.out.println(Formatter.table("",
+            System.out.println(Formatter.table("", // [P3C E1 豁免]
                     new String[]{"Name", "Display", "IPv4", "MAC", "RX", "TX", "Speed", "Status"}, rows));
         }
     }

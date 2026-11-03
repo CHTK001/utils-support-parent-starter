@@ -28,7 +28,7 @@ public class ExecutableLocatorShimTest {
      */
     public static void main(String[] args) throws Exception {
         boolean windows = OsFamily.current().isWindows();
-        System.out.println("      os=" + OsFamily.current() + " windows=" + windows);
+        System.out.println("      os=" + OsFamily.current() + " windows=" + windows); // [P3C E1 豁免]
 
         Path dir = Files.createTempDirectory("locator-shim");
         Path bare = dir.resolve("fakecli");
@@ -36,7 +36,7 @@ public class ExecutableLocatorShimTest {
         Path shim = dir.resolve("fakecli.cmd");
         Files.writeString(shim, "@echo off\necho shim\r\n");
         boolean launched = toExecutable(bare) && toExecutable(shim);
-        System.out.println("      fixture=" + dir + " prepared=" + launched);
+        System.out.println("      fixture=" + dir + " prepared=" + launched); // [P3C E1 豁免]
 
         Optional<Path> located = ExecutableLocator.locate(ExecutableLocator.LocateRequest
                 .builder("fakecli")
@@ -44,7 +44,7 @@ public class ExecutableLocatorShimTest {
                 .searchPath(false)
                 .systemLookup(false)
                 .build());
-        System.out.println("      locate(fakecli) -> " + located);
+        System.out.println("      locate(fakecli) -> " + located); // [P3C E1 豁免]
         check("定位结果优先取可启动的扩展名", windows
                 ? located.map(p -> p.getFileName().toString().equals("fakecli.cmd")).orElse(false)
                 : located.map(p -> p.getFileName().toString().equals("fakecli")).orElse(false));
@@ -67,7 +67,7 @@ public class ExecutableLocatorShimTest {
         Optional<Path> present = ExecutableLocator.locate(program);
         if (present.isPresent()) {
             String resolved = ExecutableLocator.resolveProgram(program);
-            System.out.println("      resolveProgram(" + program + ") -> " + resolved);
+            System.out.println("      resolveProgram(" + program + ") -> " + resolved); // [P3C E1 豁免]
             if (windows) {
                 check("裸名被替换为批处理外壳", resolved.toLowerCase().endsWith(".cmd")
                         || resolved.toLowerCase().endsWith(".bat")
@@ -81,17 +81,17 @@ public class ExecutableLocatorShimTest {
             if (out.isEmpty()) {
                 out = String.valueOf(result.getStderr()).trim();
             }
-            System.out.println("      execute(" + java.util.Arrays.toString(argv) + ") exit="
+            System.out.println("      execute(" + java.util.Arrays.toString(argv) + ") exit=" // [P3C E1 豁免]
                     + result.getExitCode()
                     + " err=" + (result.getThrowable() == null ? "-" : result.getThrowable().getMessage())
                     + " out=" + (out.length() > 40 ? out.substring(0, 40) : out));
             check("数组形式能用裸名启动 " + program, result.getExitCode() == 0);
         } else {
-            System.out.println("      " + program + " 未安装，跳过启动校验");
+            System.out.println("      " + program + " 未安装，跳过启动校验"); // [P3C E1 豁免]
         }
 
         delete(dir);
-        System.out.println("[ExecutableLocatorShimTest] pass=" + pass + " fail=" + fail);
+        System.out.println("[ExecutableLocatorShimTest] pass=" + pass + " fail=" + fail); // [P3C E1 豁免]
         if (fail > 0) {
             System.exit(1);
         }
@@ -136,10 +136,10 @@ public class ExecutableLocatorShimTest {
     private static void check(String name, boolean ok) {
         if (ok) {
             pass++;
-            System.out.println("  PASS " + name);
+            System.out.println("  PASS " + name); // [P3C E1 豁免]
         } else {
             fail++;
-            System.out.println("  FAIL " + name);
+            System.out.println("  FAIL " + name); // [P3C E1 豁免]
         }
     }
 }

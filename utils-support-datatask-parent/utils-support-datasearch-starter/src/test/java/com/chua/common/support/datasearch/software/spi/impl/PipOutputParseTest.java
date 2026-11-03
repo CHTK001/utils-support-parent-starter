@@ -82,7 +82,7 @@ public class PipOutputParseTest {
      */
     public static void main(String[] args) {
         List<SoftwareInfo> installed = PipSoftwareProvider.parsePipOutput(ALREADY_SATISFIED);
-        System.out.println(dump(installed));
+        System.out.println(dump(installed)); // [P3C E1 豁免]
         check("已满足依赖可解析出条目", installed.size() == 3);
         check("版本来自末括号（修复前恒为空串）", installed.stream().allMatch(s -> !s.getVersion().isEmpty()));
         check("flask 版本正确", "3.1.3".equals(versionOf(installed, "flask")));
@@ -93,7 +93,7 @@ public class PipOutputParseTest {
         check("报告 JSON 不会被误当成软件条目", installed.stream().noneMatch(s -> "cpython".equals(s.getName())));
 
         List<SoftwareInfo> resolved = PipSoftwareProvider.parsePipOutput(RESOLVED_REPORT);
-        System.out.println(dump(resolved));
+        System.out.println(dump(resolved)); // [P3C E1 豁免]
         check("必装场景可解析出条目", resolved.size() == 1);
         check("必装版本来自报告（修复前恒为空串）", "0.16.8".equals(versionOf(resolved, "ruff")));
         check("必装描述来自 summary（修复前恒为空串）", resolved.stream()
@@ -104,7 +104,7 @@ public class PipOutputParseTest {
                 "ERROR: No matching distribution found for nosuchpkg-xyz");
         check("pip 失败时返回空列表而非脏数据", failed.isEmpty());
 
-        System.out.println("[PipOutputParseTest] pass=" + pass + " fail=" + fail);
+        System.out.println("[PipOutputParseTest] pass=" + pass + " fail=" + fail); // [P3C E1 豁免]
         if (fail > 0) {
             System.exit(1);
         }
@@ -133,10 +133,10 @@ public class PipOutputParseTest {
     private static void check(String name, boolean ok) {
         if (ok) {
             pass++;
-            System.out.println("  PASS " + name);
+            System.out.println("  PASS " + name); // [P3C E1 豁免]
         } else {
             fail++;
-            System.out.println("  FAIL " + name);
+            System.out.println("  FAIL " + name); // [P3C E1 豁免]
         }
     }
 }

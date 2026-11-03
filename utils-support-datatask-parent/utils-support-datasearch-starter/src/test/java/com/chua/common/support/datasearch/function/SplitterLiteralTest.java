@@ -36,7 +36,7 @@ public class SplitterLiteralTest {
         check("空输入返回空列表",
                 Splitter.on("$$$").splitToList("").equals(List.of()));
 
-        System.out.println("[SplitterLiteralTest] pass=" + pass + " fail=" + fail);
+        System.out.println("[SplitterLiteralTest] pass=" + pass + " fail=" + fail); // [P3C E1 豁免]
         if (fail > 0) {
             System.exit(1);
         }
@@ -45,10 +45,10 @@ public class SplitterLiteralTest {
     private static void check(String name, boolean ok) {
         if (ok) {
             pass++;
-            System.out.println("  PASS " + name);
+            System.out.println("  PASS " + name); // [P3C E1 豁免]
         } else {
             fail++;
-            System.out.println("  FAIL " + name);
+            System.out.println("  FAIL " + name); // [P3C E1 豁免]
         }
     }
 }

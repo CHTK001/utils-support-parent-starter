@@ -118,6 +118,14 @@ final class MemorySqlLex {
                     i += 2;
                     continue;
                 }
+                // != 必须作为整体令牌：若把 '!' 单独切出，后续会得到 "!" 与 "="
+                // 两个令牌，consumeOperator 只认 "!="，于是 age != ? 直接报
+                // 「不支持的运算符: !」—— SQL 标准的不等值写法在原生通道不可用。
+                if (c == '!' && i + 1 < n && sql.charAt(i + 1) == '=') {
+                    out.add("!=");
+                    i += 2;
+                    continue;
+                }
                 if (c == '(' || c == ')' || c == ',' || c == '*' || c == '?' || c == '='
                         || c == '<' || c == '>') {
                     out.add(String.valueOf(c));
@@ -125,7 +133,7 @@ final class MemorySqlLex {
                     continue;
                 }
                 int start = i;
-                while (i < n && !Character.isWhitespace(sql.charAt(i)) && ",()*?=<>".indexOf(sql.charAt(i)) < 0
+                while (i < n && !Character.isWhitespace(sql.charAt(i)) && ",()*?=<>!".indexOf(sql.charAt(i)) < 0
                         && sql.charAt(i) != '\'') {
                     i++;
                 }
@@ -272,6 +280,16 @@ final class MemorySqlLex {
         /**
          * 向行写入列值（映射 忽略大小写覆盖；Bean 走 setter）。
          *
+         * <p>Bean 分支委托 {@link MethodCache#setValue}：那里有「形参类型收敛」
+         * （SQL 字面量解析出的整数是 {@link Long}，实体 setter 普遍接收
+         * {@code Integer}/{@code int}）与 setter/字段级兜底。此前本方法按
+         * {@code value.getClass()} 直接反射调用 setter，Long 赋给
+         * {@code setAge(Integer)} 会失败且被静默吞掉 —— 表现为
+         * 「更新语句成功执行但数据没变」，是本类最危险的一类缺陷。</p>
+         *
+         * <p>写入前先确认存在可写属性：无 setter 且无同名字段时返回 false，
+         * 让调用方能统计真实影响行数，而不是把「什么都没写进去」当成成功。</p>
+         *
          * @param row    行对象
          * @param column 列名
          * @param value  值
@@ -290,53 +308,58 @@ final class MemorySqlLex {
                 m.put(column, value);
                 return true;
             }
-            try {
-                String setterName = "set" + Character.toUpperCase(column.charAt(0)) + column.substring(1);
-                // 按「包装类型 → 基本类型」逐个尝试：Lombok @Data 生成的 setter 形参是包装类型
-                // （setAge(Integer)），手写实体常是基本类型（setAge(int)）。任一步成功即返回；
-                // 全部失败才返回 false，避免把形参不匹配静默变成「字段丢失」。
-                for (Class<?> paramType : candidateParamTypes(value)) {
-                    try {
-                        ReflectUtils.invoke(row, setterName, void.class, new Class<?>[]{paramType}, value);
-                        return true;
-                    } catch (Exception ignored) {
-                        // 换下一种候选形参类型重试
-                    }
-                }
-                return false;
-            } catch (Exception e) {
+            String camel = toCamelCase(column);
+            if (!hasWritableProperty(row.getClass(), camel) && !hasWritableProperty(row.getClass(), column)) {
                 return false;
             }
+            MethodCache.setValue(row, camel, value);
+            return true;
         }
 
         /**
-         * 给出 setter 形参类型的候选顺序：值自身的包装类型在前，对应基本类型兜底。
+         * 判断类型是否存在可通过 setter 或字段写入的属性。
          *
-         * <p>顺序很关键：本仓库实体普遍由 Lombok 生成 boxed setter，若只按
-         * {@code int.class}/{@code long.class} 查找会因形参不匹配而失败，且失败被
-         * 上层 catch 吞掉 —— 曾使内存/文件引擎的类型化查询把全部非 String 字段
-         * 静默映射成 null（读路径数据丢失）。</p>
-         *
-         * @param v 值
-         * @return 候选形参类型数组（至少一个元素）
+         * @param type  目标类型
+         * @param field 属性名（驼峰）
+         * @return 存在可写属性返回 true
          */
-        private static Class<?>[] candidateParamTypes(Object v) {
-            if (v == null) {
-                return new Class<?>[]{Object.class};
+        private static boolean hasWritableProperty(Class<?> type, String field) {
+            String setterName = "set" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
+            for (Method m : type.getMethods()) {
+                if (m.getParameterCount() == 1 && m.getName().equals(setterName)) {
+                    return true;
+                }
             }
-            Class<?> boxed = v.getClass();
-            Class<?> primitive = switch (boxed.getName()) {
-                case "java.lang.Integer" -> int.class;
-                case "java.lang.Long" -> long.class;
-                case "java.lang.Double" -> double.class;
-                case "java.lang.Float" -> float.class;
-                case "java.lang.Short" -> short.class;
-                case "java.lang.Byte" -> byte.class;
-                case "java.lang.Boolean" -> boolean.class;
-                case "java.lang.Character" -> char.class;
-                default -> null;
-            };
-            return primitive == null ? new Class<?>[]{boxed} : new Class<?>[]{boxed, primitive};
+            for (Class<?> c = type; c != null && c != Object.class; c = c.getSuperclass()) {
+                for (java.lang.reflect.Field f : c.getDeclaredFields()) {
+                    if (f.getName().equals(field) && !java.lang.reflect.Modifier.isStatic(f.getModifiers())) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        /**
+         * 转为 camel 大小写（下划线分隔 → 驼峰）。
+         *
+         * @param name 列名
+         * @return 驼峰名
+         */
+        private static String toCamelCase(String name) {
+            StringBuilder sb = new StringBuilder();
+            boolean upper = false;
+            for (char c : name.toCharArray()) {
+                if (c == '_') {
+                    upper = true;
+                } else if (upper) {
+                    sb.append(Character.toUpperCase(c));
+                    upper = false;
+                } else {
+                    sb.append(c);
+                }
+            }
+            return sb.toString();
         }
 
         /**

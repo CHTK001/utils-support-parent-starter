@@ -36,7 +36,7 @@ public class SmallFileSpeed {
                 cc.setFilesPerConnection(perConn);
                 try (FilePushClient client = new FilePushClient(cc)) {
                     var r = client.push();
-                    System.out.printf("perConn=%-3d success=%-6d failed=%d %d ms %.2f MB/s%n",
+                    System.out.printf("perConn=%-3d success=%-6d failed=%d %d ms %.2f MB/s%n", // [P3C E1 豁免]
                             perConn, r.successCount(), r.failedCount(),
                             (long) r.elapsedMs(), r.throughputMbs());
                 }

@@ -14,7 +14,8 @@ import java.net.Socket;
 /**
  * scatter TCP 节点服务端（短连接，基于 {@link AbstractProxyServer} 骨架）。
  *
- * <p>复用 AbstractProxyServer 的非阻塞批量 accept + Semaphore 连接限流 + 虚拟线程池；
+ * <p>复用 AbstractProxyServer 的非阻塞批量 accept + 连接预算（{@code tryAcquireConnection}）
+ * + 虚拟线程池；
  * {@link #handleConnection(Socket)} 内完成"读帧 → 分派处理 → 回响应帧 → 关闭连接"，
  * 一请求一响应一断，消除长连接 N×(N-1) 连接数爆炸。</p>
  *
@@ -69,8 +70,6 @@ public class ScatterTcpNodeServer extends AbstractProxyServer {
             out.flush();
         } catch (IOException e) {
             log.debug("scatter 连接处理异常: {}", e.getMessage());
-        } finally {
-            activeConnections.decrementAndGet();
         }
     }
 

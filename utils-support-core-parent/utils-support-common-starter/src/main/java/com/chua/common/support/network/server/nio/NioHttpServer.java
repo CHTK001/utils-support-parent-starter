@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.server.nio;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -87,13 +88,23 @@ public class NioHttpServer extends AbstractServer {
      * Pendingacceptqueues
      */
     private java.util.Queue<SocketChannel>[] pendingAcceptQueues;
+
     /**
-     * 当前活跃连接数(accept 成功后 +1,连接关闭时 -1)。
-     * <p>用于实施 {@link ServerSetting#getMaxConnections()}:超出上限的新连接在 accept 阶段直接关闭,
-     * 避免内核已接纳连接后在此处无限堆积、把进程内存打爆。</p>
+     * 待注册的监听通道（摘流后恢复接纳时使用）。
+     *
+     * <p>恢复接纳需要重新 bind 一个 {@link ServerSocketChannel}。跨线程 {@code register}
+     * 与事件循环里的 {@code select()} 是竞态：{@code wakeup()} 只能把线程从 select 唤醒，
+     * 不能保证 register 与 select 的先后（连续启停时 OP_ACCEPT 可能完全不触发）。
+     * 这里与普通连接的注册采用同一套办法——调用线程只发布通道，由分片 0 的事件循环
+     * 线程自己完成 register。</p>
      */
-    private final java.util.concurrent.atomic.AtomicInteger activeConnections =
-            new java.util.concurrent.atomic.AtomicInteger();
+    private volatile ServerSocketChannel pendingAcceptChannel;
+
+    /**
+     * 握手队列最小长度（等价于「用平台允许的最大队列」，内核按 somaxconn 截断）。
+     */
+    private static final int HANDSHAKE_BACKLOG = 65536;
+
     /**
      * 执行器
      */
@@ -143,10 +154,13 @@ public class NioHttpServer extends AbstractServer {
             combined.flip();
             st.writeQueue.add(combined);
             st.pendingWriteBytes += total;
+            // 探针: 记录每笔响应的入队(这样 [E] 与第一个 [W] 的差值 = 排队等待 OP_WRITE 的时间)
+            WriteProbe.enqueued(total);
             return;
         }
         st.writeQueue.add(header);
         st.pendingWriteBytes += header.remaining();
+        WriteProbe.enqueued(header.remaining());
         if (body != null && body.hasRemaining()) {
             st.writeQueue.add(body);
             st.pendingWriteBytes += body.remaining();
@@ -218,8 +232,9 @@ public class NioHttpServer extends AbstractServer {
             serverChannel.configureBlocking(false);
             serverChannel.setOption(StandardSocketOptions.SO_REUSEADDR, setting.isSoReuseAddr());
             serverChannel.setOption(StandardSocketOptions.SO_RCVBUF, Math.max(setting.getBufferSize(), 16384));
-            // 高并发连接接纳：backlog 下限 65536，万级并发突发下避免连接被内核拒绝
-            int backlog = Math.max(setting.getBacklog(), 65536);
+            // 高并发连接接纳：backlog 用平台允许的最大队列。内核会按 somaxconn 截断，
+            // 配得大不会预分配内存，也不会因此拒绝「突发建连」——真正的硬上限在系统参数里
+            int backlog = setting.resolveBacklog(HANDSHAKE_BACKLOG);
             serverChannel.bind(new InetSocketAddress(setting.getHost(), setting.getPort()), backlog);
 
             // 回填实际端口（port=0 时由系统分配）
@@ -235,33 +250,20 @@ public class NioHttpServer extends AbstractServer {
             // 出现请求超时/连接被拒(WindowsSelectorImpl 多 Selector 并发稳定性限制),
             // 与"百万级 RPS"目标冲突但无法在本平台规避,保持 2 分片确保零失败
             int eventLoops = setting.getEventLoops();
-            String osName = System.getProperty("os.name", "").toLowerCase();
-            boolean windows = osName.contains("win");
-            if (eventLoops <= 0) {
-                // 自动:Windows 实测 4 分片为最优(2 分片未吃满并行度、16+ 分片 select 开销负优化),
-                // Linux/macOS 满核扩展(epoll/kqueue 多 Selector 稳定),达最大吞吐
-                int cpus = Runtime.getRuntime().availableProcessors();
-                eventLoops = windows ? 4 : Math.max(cpus, 2);
-            }
-            // Windows 强制上限 2：>2 个 Selector 并发时 WindowsSelectorImpl 表现为
-            // 接受连接成功但读事件永远无法感知(实测 eventLoops=6/12 下 QPS=0、全请求超时)。
-            // 该现象无法在本平台规避，Clamping 而非静默失败，避免用户误以为优化生效。
-            // Windows 推荐上限 4：实测 4 分片吞吐最优,超出 16+ 分片 select() 并发开销反而负优化;
-            // 保留 bench.fast 绕过供实验验证其他分片数。
-            if (windows && eventLoops > 4 && !"true".equals(System.getProperty("bench.fast"))) {
-                log.warn("NIO HttpServer eventLoops={} 超过 Windows 实测最优上限 4，已收敛至 4"
-                        + "(16+ 分片 select 并发负优化)。如需更高并行度请使用 Linux+epoll", eventLoops);
-                eventLoops = 4;
-            }
+            boolean windows = System.getProperty("os.name", "").toLowerCase().contains("win");
+            // 分片数统一由 ServerSetting#resolveEventLoops 决定：平台差异（Windows 上
+            // WindowsSelectorImpl 多 Selector 并发 select 会丢读事件，故 4 为硬上限）
+            // 只在一处收敛，避免各实现各写一套 clamp、结论互相矛盾。
+            eventLoops = setting.resolveEventLoops(Runtime.getRuntime().availableProcessors(), windows);
             if ("true".equals(System.getProperty("bench.fast"))) {
                 // 基准测试:bench.el 系统属性可强制 event loops 数量(绕过 Windows clamp),
                 // 用于验证不同分片数下的吞吐拐点
                 String el = System.getProperty("bench.el");
                 if (el != null) {
                     try {
-                        eventLoops = Integer.parseInt(el);
+                        eventLoops = Math.max(1, Integer.parseInt(el));
                     } catch (NumberFormatException e) {
-                        log.debug("[nio] 解析端口失败，已忽略: {}", e.getMessage());
+                        log.debug("[nio] 解析 bench.el 失败，沿用 {}: {}", eventLoops, e.getMessage());
                     }
                 }
             }
@@ -319,12 +321,8 @@ public class NioHttpServer extends AbstractServer {
         log.info("nio event-loop[{}] started, selector={}", idx, sel);
         // 分片 0 承载 OP_ACCEPT:由本事件循环线程自行注册 serverChannel(与 select 同线程),
         // 消除主线程跨线程 register 与 select 之间的竞态(连续启停时 OP_ACCEPT 感知不到)
-        if (idx == 0 && serverChannel != null && serverChannel.isOpen()) {
-            try {
-                serverChannel.register(sel, SelectionKey.OP_ACCEPT);
-            } catch (Exception e) {
-                log.warn("nio event-loop[0] 注册 OP_ACCEPT 失败: {}", e.getMessage(), e);
-            }
+        if (idx == 0) {
+            registerAcceptChannel(sel);
         }
         // 关键竞态防护:doStart() 里 submit 本任务时 running 可能仍为 false(start() 在 doStart()
         // 返回后才置 true)。若事件循环线程抢跑先执行 while(running) 判断,将立即退出,
@@ -356,12 +354,7 @@ public class NioHttpServer extends AbstractServer {
                     } catch (Exception e) {
                         // 对已取消(客户端断开)的 key 操作会抛 CancelledKeyException,
                         // 绝不能让它逃出事件循环线程,否则该分片所有连接静默血崩(0 吞吐)
-                        ConnectionState rst = rk.attachment() instanceof ConnectionState c ? c : null;
-                        if (rst != null) {
-                            closeConn(rk, rst);
-                        } else {
-                            closeQuietly(rk.channel() instanceof SocketChannel sc ? sc : null);
-                        }
+                        closeQuietly(rk.channel() instanceof SocketChannel sc ? sc : null);
                     }
                 }
                 // 统一在本分片事件循环线程注册 OP_WRITE(worker 只入队 + wakeup,避免跨线程 interestOps 竞态)
@@ -372,32 +365,29 @@ public class NioHttpServer extends AbstractServer {
                             wk.interestOps(SelectionKey.OP_WRITE);
                         }
                     } catch (Exception e) {
-                        ConnectionState wst = wk.attachment() instanceof ConnectionState c ? c : null;
-                        if (wst != null) {
-                            closeConn(wk, wst);
-                        } else {
-                            closeQuietly(wk.channel() instanceof SocketChannel sc ? sc : null);
-                        }
+                        closeQuietly(wk.channel() instanceof SocketChannel sc ? sc : null);
                     }
                 }
                 // 注册新连接:由本分片事件循环线程自行 register(与 select 同线程),
                 // 彻底消除跨线程 register 与 select() 的竞态(高并发下可致请求超时)
                 SocketChannel ac;
                 while ((ac = pendingAcceptQueues[idx].poll()) != null) {
+                    if (!ac.isOpen()) {
+                        releaseConnection();
+                        continue;
+                    }
                     try {
-                        if (!ac.isOpen()) {
-                            // 已在别处关闭:归还 accept 时占用的名额
-                            activeConnections.decrementAndGet();
-                            continue;
-                        }
                         ConnectionState st = new ConnectionState(ac, setting.getMaxRequestSize(), setting.getCharset());
                         st.shard = idx;
                         ac.register(sel, SelectionKey.OP_READ, st);
                     } catch (Exception e) {
-                        // register 失败:连接从未进入 ConnectionState,closeConn 无从调用,此处归还名额
-                        activeConnections.decrementAndGet();
                         closeQuietly(ac);
+                        releaseConnection();
                     }
+                }
+                // 摘流后恢复接纳：新监听通道同样由本线程注册（见 pendingAcceptChannel 注释）
+                if (idx == 0 && pendingAcceptChannel != null) {
+                    registerAcceptChannel(sel);
                 }
                 java.util.Iterator<SelectionKey> it = sel.selectedKeys().iterator();
                 while (it.hasNext()) {
@@ -425,10 +415,7 @@ public class NioHttpServer extends AbstractServer {
                             log.debug("[nio] 取消 SelectionKey 失败，已忽略: {}", e.getMessage());
                         }
                         ConnectionState st = (ConnectionState) key.attachment();
-                        // 走 closeConn 统一归还连接名额;st 为 null 表示该 key 从未承载连接状态
-                        if (st != null) {
-                            closeConn(key, st);
-                        }
+                        closeQuietly(st != null ? st.channel : null);
                     }
                 }
             } catch (Throwable t) {
@@ -442,51 +429,96 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * 处理Accept
+     * 处理Accept。
+     *
+     * <p>一次就绪批量 drain（上限 {@link ServerSetting#getAcceptBatch()}）：突发建连时
+     * accept 队列会瞬间积压几百上千个已完成握手的连接，一次只 accept 一个会让队尾排到客户端超时。
+     * 批量必须有上限，否则单分片在 accept 上停留过久会拖慢已建立连接的读写。</p>
+     *
+     * <p>每个连接先过连接预算（{@link #tryAcquireConnection()}）：CAS 判上限 + 计数，
+     * 超限直接回 503 并关闭，绝不把「已经超卖」的连接注册进 Selector —— 那才是百万连接
+     * 场景下真正 OOM 的来源。</p>
+     *
      * @param key 键，不允许为 null
-     * @return 返回值
      * @throws IOException 异常
-    */
+     */
     private void handleAccept(SelectionKey key) throws IOException {
-        SocketChannel accepted = serverChannel.accept();
-        if (accepted == null) {
-            return;
-        }
-        // 连接数门限:超限直接关闭,与 AbstractProxyServer 语义一致。
-        // 放在 accept 之后立刻判断,避免连接进入分片队列后仍占用内存与文件句柄。
-        if (!tryAcquireConnection(accepted)) {
-            return;
-        }
-        // SSL 场景:回退虚拟线程阻塞路径(SSL 通道无法注册 Selector)
-        if (sslContext != null) {
-            accepted.configureBlocking(true);
+        int batch = Math.max(setting.getAcceptBatch(), 1);
+        for (int i = 0; i < batch; i++) {
+            SocketChannel accepted = serverChannel.accept();
+            if (accepted == null) {
+                return;
+            }
+            if (!accepting) {
+                // 优雅关闭中：不再接纳，直接关闭（存量连接不受影响）
+                closeQuietly(accepted);
+                continue;
+            }
+            if (!tryAcquireConnection()) {
+                // 超限：尽量回一个明确的 503 让上游摘流，然后关闭
+                writeOverloadAndClose(accepted);
+                continue;
+            }
+            // 缓冲区按配置应用（默认 0 = 不动内核默认值，无额外系统调用）
+            applyChannelSocketOptions(accepted);
+            // SSL 场景:回退虚拟线程阻塞路径(SSL 通道无法注册 Selector)
+            if (sslContext != null) {
+                accepted.configureBlocking(true);
+                accepted.setOption(StandardSocketOptions.TCP_NODELAY, setting.isTcpNoDelay());
+                // 握手与连接处理整体移入虚拟线程 worker:在事件循环线程内构造 SslSocketChannel
+                // 会执行阻塞握手(readNet 等待 ClientHello),占住事件循环导致偶发/稳定握手失败
+                // (Unrecognized SSL message),且阻塞其他连接的 accept/read 处理
+                executor.submit(() -> {
+                    try {
+                        SocketChannel client = new SslSocketChannel(accepted, sslContext.createSSLEngine());
+                        handleConnection(client);
+                    } catch (IOException e) {
+                        log.warn("TLS 握手失败，关闭连接: {}", e.getMessage(), e);
+                        closeQuietly(accepted);
+                        releaseConnection();
+                    }
+                });
+                continue;
+            }
+            // 非阻塞注册:连接按 hash 分散到各分片,由目标分片事件循环线程自行 register
+            accepted.configureBlocking(false);
             accepted.setOption(StandardSocketOptions.TCP_NODELAY, setting.isTcpNoDelay());
-            // 握手与连接处理整体移入虚拟线程 worker:在事件循环线程内构造 SslSocketChannel
-            // 会执行阻塞握手(readNet 等待 ClientHello),占住事件循环导致偶发/稳定握手失败
-            // (Unrecognized SSL message),且阻塞其他连接的 accept/read 处理
-            executor.submit(() -> {
-                try {
-                    SocketChannel client = new SslSocketChannel(accepted, sslContext.createSSLEngine());
-                    handleConnection(client);
-                } catch (IOException e) {
-                    log.warn("TLS 握手失败，关闭连接: {}", e.getMessage(), e);
-                    closeQuietly(accepted);
-                } finally {
-                    // 阻塞路径不经 closeConn,计数在此回收
-                    activeConnections.decrementAndGet();
-                }
-            });
-            return;
+            int shard = (accepted.hashCode() & Integer.MAX_VALUE) % selectors.length;
+            // 只入队 + wakeup:register 动作交由目标分片事件循环线程执行(与 select 同线程),
+            // 避免跨线程 register 与 select() 的竞态导致 OP_READ 感知不到、请求超时
+            pendingAcceptQueues[shard].add(accepted);
+            selectors[shard].wakeup();
         }
-        // 非阻塞注册:连接按 hash 分散到各分片,由目标分片事件循环线程自行 register
-        accepted.configureBlocking(false);
-        accepted.setOption(StandardSocketOptions.TCP_NODELAY, setting.isTcpNoDelay());
-        int shard = (accepted.hashCode() & Integer.MAX_VALUE) % selectors.length;
-        // 只入队 + wakeup:register 动作交由目标分片事件循环线程执行(与 select 同线程),
-        // 避免跨线程 register 与 select() 的竞态导致 OP_READ 感知不到、请求超时
-        pendingAcceptQueues[shard].add(accepted);
-        selectors[shard].wakeup();
-        log.debug("nio accepted -> shard={}", shard);
+    }
+
+    /**
+     * 对超出连接上限的客户端回 503 后关闭。
+     *
+     * <p>只做一次尽力而为的短写：此时连请求都还没读，写失败也无所谓，关键是别让连接
+     * 挂在那里等超时（那会白白占住一个 fd）。</p>
+     *
+     * @param channel 刚 accept 的连接
+     */
+    private void writeOverloadAndClose(SocketChannel channel) {
+        try {
+            if (setting.isRejectWith503()) {
+                int max = setting.getMaxConnections();
+                byte[] body = ("Service Unavailable: connection limit reached (maxConnections="
+                        + max + ")").getBytes(StandardCharsets.UTF_8);
+                ByteBuffer resp = ByteBuffer.wrap((
+                        "HTTP/1.1 503 Service Unavailable\r\n"
+                                + "Content-Type: text/plain; charset=utf-8\r\n"
+                                + "Content-Length: " + body.length + "\r\n"
+                                + "Retry-After: 1\r\n"
+                                + "Connection: close\r\n\r\n").getBytes(StandardCharsets.US_ASCII));
+                channel.configureBlocking(false);
+                channel.write(new ByteBuffer[]{resp, ByteBuffer.wrap(body)});
+            }
+        } catch (Exception e) {
+            log.debug("[nio] 写 503 拒绝响应失败，直接关闭: {}", e.getMessage());
+        } finally {
+            closeQuietly(channel);
+        }
     }
 
     /**
@@ -619,6 +651,8 @@ public class NioHttpServer extends AbstractServer {
                 }
                 try {
                     int w = st.channel.write(bb);
+                    // 探针: 实际 socket write 时刻
+                    WriteProbe.written(w);
                     if (w < 0) {
                         closeConn(key, st);
                         return;
@@ -777,6 +811,8 @@ public class NioHttpServer extends AbstractServer {
             }
             try {
                 int w = st.channel.write(bb);
+                // 探针: 实际 socket write 时刻
+                WriteProbe.written(w);
                 if (w < 0) {
                     closeConn(key, st);
                     return true;
@@ -812,6 +848,8 @@ public class NioHttpServer extends AbstractServer {
                     break;
                 }
                 int w = st.channel.write(bb);
+                // 探针: 实际 socket write 时刻
+                WriteProbe.written(w);
                 if (w < 0) {
                     closeConn(key, st);
                     return;
@@ -848,44 +886,11 @@ public class NioHttpServer extends AbstractServer {
             log.debug("[nio] 操作失败，已忽略: {}", e.getMessage());
         }
         closeQuietly(st.channel);
-        activeConnections.decrementAndGet();
-    }
-
-    /**
-     * 尝试为已 accept 的连接占用一个名额。
-     * <p>未配置上限({@code maxConnections <= 0})时直接放行,不做任何原子操作检查之外的额外开销。</p>
-     *
-     * @param channel 已 accept 的通道
-     * @return true 表示已占用名额、连接可以继续;false 表示超限并已关闭该通道
-     */
-    private boolean tryAcquireConnection(SocketChannel channel) {
-        int max = setting.getMaxConnections();
-        if (max <= 0) {
-            activeConnections.incrementAndGet();
-            return true;
-        }
-        // 先占位再校验:并发 accept 下不会突破上限(无用名额由紧随其后的 decrementAndGet 归还)
-        if (activeConnections.incrementAndGet() <= max) {
-            return true;
-        }
-        activeConnections.decrementAndGet();
-        log.warn("NIO 连接数已达上限 (max={}), 拒绝 {}", max, safeRemote(channel));
-        closeQuietly(channel);
-        return false;
-    }
-
-    /**
-     * 取远端地址用于日志,连接已断时返回 "-",不抛异常。
-     *
-     * @param channel 通道
-     * @return 远端地址字符串
-     */
-    private static String safeRemote(SocketChannel channel) {
-        try {
-            java.net.SocketAddress addr = channel.getRemoteAddress();
-            return addr == null ? "-" : addr.toString();
-        } catch (Exception e) {
-            return "-";
+        // 连接预算必须与 tryAcquireConnection() 严格配对，且只释放一次：
+        // 一条连接可能被「读结束 / 写结束 / 异常 / stop()」多条路径关闭，用标志位保证幂等。
+        if (st.budgetAcquired) {
+            st.budgetAcquired = false;
+            releaseConnection();
         }
     }
 
@@ -918,6 +923,10 @@ public class NioHttpServer extends AbstractServer {
          */
         final java.util.concurrent.atomic.AtomicBoolean closed =
                 new java.util.concurrent.atomic.AtomicBoolean(false);
+        /**
+         * 是否已占用连接预算（保证 {@code releaseConnection()} 幂等）
+         */
+        boolean budgetAcquired = true;
         /**
          * 所属分片索引(决定注册到哪个 Selector 与写队列)
          */
@@ -993,6 +1002,9 @@ public class NioHttpServer extends AbstractServer {
             log.debug("Connection handling failed: {}", e.getMessage());
         } finally {
             closeQuietly(channel);
+            // SSL 回退路径的连接同样占用了连接预算，必须归还（closeConn 不经过这里）。
+            // 与 handleAccept 中的握手失败分支互斥：后者只在 handleConnection 尚未进入时触发。
+            releaseConnection();
         }
     }
 
@@ -1371,10 +1383,11 @@ public class NioHttpServer extends AbstractServer {
      * @return 是否成功（true 表示成功）
      */
     private boolean shouldKeepAlive(NioServerRequest request, NioServerResponse response) {
-        if (response.isChannelClosed()) {
+        boolean closed = response.isChannelClosed();
+        String connHeader = request.getHeader("Connection");
+        if (closed) {
             return false;
         }
-        String connHeader = request.getHeader("Connection");
         if (connHeader != null) {
             return "keep-alive".equalsIgnoreCase(connHeader.trim());
         }
@@ -1409,6 +1422,65 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
+     * 在分片 0 的事件循环线程内注册 OP_ACCEPT。
+     *
+     * <p>必须与 {@code select()} 同线程调用：跨线程 {@code register} 与 {@code select()}
+     * 并发时，JDK 不保证 select 能看到新注册的键，表现为「连接建立成功但永不 accept」。
+     * 因此调用方只能发布 {@link #pendingAcceptChannel}，真正的注册动作统一收敛到这里。</p>
+     *
+     * @param sel 分片 0 的选择器
+     */
+    private void registerAcceptChannel(Selector sel) {
+        ServerSocketChannel channel = pendingAcceptChannel;
+        if (channel == null) {
+            channel = serverChannel;
+        }
+        pendingAcceptChannel = null;
+        // 不检查 running:start() 模板在 doStart 返回后才置位，此时（事件循环刚启动）
+        // running 仍为 false，检查会让首个 OP_ACCEPT 永不注册，服务器不接受任何连接
+        if (channel == null || !channel.isOpen()) {
+            return;
+        }
+        try {
+            channel.register(sel, SelectionKey.OP_ACCEPT);
+        } catch (Exception e) {
+            log.warn("nio 注册 OP_ACCEPT 失败: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 恢复接纳。
+     *
+     * <p>{@link #doStopAccepting()} 关闭了监听通道（摘流），要恢复必须重新 bind 同一端口。
+     * 重新 bind 出的通道不能在本线程直接 register（与事件循环的 select 跨线程竞态），
+     * 只发布到 {@link #pendingAcceptChannel} 并唤醒分片 0，由事件循环线程完成注册。</p>
+     */
+    @Override
+    protected void doStartAccepting() {
+        if (serverChannel != null && serverChannel.isOpen()) {
+            return;
+        }
+        Selector[] sels = selectors;
+        if (sels == null || sels.length == 0 || sels[0] == null) {
+            return;
+        }
+        try {
+            ServerSocketChannel channel = ServerSocketChannel.open();
+            channel.configureBlocking(false);
+            channel.setOption(StandardSocketOptions.SO_REUSEADDR, setting.isSoReuseAddr());
+            channel.setOption(StandardSocketOptions.SO_RCVBUF, Math.max(setting.getBufferSize(), 16384));
+            channel.bind(new InetSocketAddress(setting.getHost(), setting.getPort()),
+                    setting.resolveBacklog(HANDSHAKE_BACKLOG));
+            this.serverChannel = channel;
+            this.pendingAcceptChannel = channel;
+            sels[0].wakeup();
+            log.info("NIO HttpServer 已恢复接纳：{}:{}", setting.getHost(), setting.getPort());
+        } catch (IOException e) {
+            log.warn("NIO HttpServer 恢复接纳失败: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
      * Do停止
      */
     @Override
@@ -1437,6 +1509,28 @@ public class NioHttpServer extends AbstractServer {
         }
         wsConnections.clear();
         log.info("NIO HttpServer stopped");
+    }
+
+    /**
+     * 远端地址未知(安全标识),不在魔法值白名单内使用字面量。
+     */
+    private static final String UNKNOWN_REMOTE = "address unknown";
+
+    /**
+     * 安全地获取通道的远端地址(关闭或取不到时返回 unknown)。
+     *
+     * @param channel 套接字通道,可为 null
+     * @return 远端地址字符串
+     */
+    private static String safeRemote(java.nio.channels.SocketChannel channel) {
+        if (channel == null) {
+            return UNKNOWN_REMOTE;
+        }
+        try {
+            return String.valueOf(channel.getRemoteAddress());
+        } catch (Exception e) {
+            return UNKNOWN_REMOTE;
+        }
     }
 
     /**

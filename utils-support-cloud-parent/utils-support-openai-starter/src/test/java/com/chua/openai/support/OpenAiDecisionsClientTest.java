@@ -146,7 +146,7 @@ class OpenAiDecisionsClientTest {
      * 两种协议的判读入口。
      */
     private void handleDecisions(HttpExchange exchange) {
-        System.out.println("MOCK[DEBUG] " + exchange.getRequestMethod() + " " + exchange.getRequestURI().getPath()
+        System.out.println("MOCK[DEBUG] " + exchange.getRequestMethod() + " " + exchange.getRequestURI().getPath() // [P3C E1 豁免]
                 + " auth=[" + exchange.getRequestHeaders().getFirst("Authorization") + "]");
         hit.set(true);
         try {

@@ -8,6 +8,7 @@ import com.chua.common.support.ai.agent.AgentDebugHook;
 import com.chua.common.support.ai.agent.AgentDefinition;
 import com.chua.common.support.ai.agent.AgentEvent;
 import com.chua.common.support.ai.agent.AgentHookEvent;
+import com.chua.common.support.ai.agent.AgentLoopGuard;
 import com.chua.common.support.ai.agent.AgentMode;
 import com.chua.common.support.ai.agent.AgentPlanHook;
 import com.chua.common.support.ai.agent.AgentResponse;
@@ -152,6 +153,15 @@ public class OpencodeAgent implements Agent {
      * 进程超时（秒）
     */
     private long timeoutSeconds = DEFAULT_TIMEOUT_SECONDS;
+
+    /**
+     * 会话护栏：死循环判定 + 中断信号
+     *
+     * <p>opencode 是子进程，能给它的最强中断就是<b>强杀进程</b>：
+     * 中断信号在逐行消费处检测，置位即抛 {@link RunAborted}，
+     * 由 {@code CliModelRunner.runStream} 捕获回调异常后 {@code destroyForcibly()}。</p>
+     */
+    private volatile AgentLoopGuard loopGuard = new AgentLoopGuard();
 
     /**
      * 执行模式（仅支持 SINGLE）
@@ -431,6 +441,57 @@ public class OpencodeAgent implements Agent {
         return this;
     }
 
+    /**
+     * 注入会话护栏
+     *
+     * @param guard 会话护栏，null 时回退为新建默认护栏
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public OpencodeAgent loopGuard(AgentLoopGuard guard) {
+        this.loopGuard = guard != null ? guard : new AgentLoopGuard();
+        return this;
+    }
+
+    /**
+     * 获取会话护栏
+     *
+     * @return 会话护栏，恒不为 null
+     */
+    @Override
+    public AgentLoopGuard loopGuard() {
+        return loopGuard;
+    }
+
+    /**
+     * 要求中断本轮执行：置位中断信号，并让 CLI 子进程尽快结束。
+     *
+     * <p>置位后，逐行消费 NDJSON 的线程在下一行就会抛 {@link RunAborted}，
+     * {@code CliModelRunner.runStream} 捕获回调异常后 {@code destroyForcibly()} 强杀进程
+     * ——这就是“把那个 cmd 关掉”；{@link #runOnce} 随后带着已采集的部分事件正常返回。</p>
+     *
+     * <p>注意：进程阻塞在 readLine（模型长时间无输出）时，中断要等下一行到达才生效；
+     * 那种情况由 {@code timeoutSeconds} 兜底。</p>
+     *
+     * @return 当前 Agent 实例
+     */
+    @Override
+    public OpencodeAgent interrupt() {
+        loopGuard.interrupt();
+        return this;
+    }
+
+    /**
+     * 关闭 Agent：等同中断。
+     *
+     * <p>过去 {@code close()} 走的是接口空实现，等于关闭了也不管那个还在跑的 CLI 进程，
+     * 子进程会一直挂在那里写日志、占端口。现在关闭即中断，进程随后被杀。</p>
+     */
+    @Override
+    public void close() {
+        interrupt();
+    }
+
     @Override
     public OpencodeAgent memoryConfig(MemoryConfig memoryConfig) {
         markIgnored("memoryConfig(opencode 自管会话记忆)");
@@ -698,8 +759,12 @@ public class OpencodeAgent implements Agent {
      * @return 汇总响应
      */
     private AgentResponse runOnce(String input, Consumer<AgentEvent> onEvent) {
+        // 新的一轮：清掉上一轮的中断信号与重复计数
+        loopGuard.reset();
         StreamState st = new StreamState(onEvent);
         boolean capped = false;
+        boolean loopDetected = false;
+        String abortedReason = null;
         long startMs = System.currentTimeMillis();
         fireDebug("PRE_CALL", preview(input), 1);
         try {
@@ -707,6 +772,10 @@ public class OpencodeAgent implements Agent {
             String[] args = buildArgs(input);
             try {
                 CliModelRunner.runStream(exe, args, timeoutSeconds, line -> {
+                    // 中断优先：上层要求停时立刻令 runStream 强杀进程（关掉这个 cmd）
+                    if (loopGuard.isInterrupted()) {
+                        throw new RunAborted("interrupted");
+                    }
                     // 看门狗：feedLine 在 step_finish 达上限时返回 true，抛异常令 runStream 强杀进程
                     if (feedLine(st, line)) {
                         throw new IterationLimit();
@@ -716,6 +785,15 @@ public class OpencodeAgent implements Agent {
                 capped = true;
                 log.info("[opencode] 达到 maxToolIterations={}，提前终止进程（已采集 {} 事件）",
                         maxToolIterations, st.events.size());
+            } catch (LoopDetected detected) {
+                loopDetected = true;
+                abortedReason = detected.getMessage();
+                log.warn("[opencode] 判定为死循环，已强杀 CLI 进程（已采集 {} 事件）：{}",
+                        st.events.size(), abortedReason);
+            } catch (RunAborted aborted) {
+                abortedReason = aborted.reason();
+                log.info("[opencode] 收到中断（{}），已强杀 CLI 进程（已采集 {} 事件）",
+                        abortedReason, st.events.size());
             }
             long duration = System.currentTimeMillis() - startMs;
             AgentResponse resp = AgentResponse.builder()
@@ -736,6 +814,15 @@ public class OpencodeAgent implements Agent {
             }
             if (capped) {
                 resp.getMetadata().put("cappedByMaxToolIterations", Boolean.TRUE);
+            }
+            if (abortedReason != null) {
+                resp.getMetadata().put("aborted", Boolean.TRUE);
+                resp.getMetadata().put("reason", abortedReason);
+            }
+            if (loopDetected) {
+                resp.getMetadata().put("loopDetected", Boolean.TRUE);
+                resp.getMetadata().put("repeats", loopGuard.consecutiveRepeats());
+                resp.getMetadata().put("lastTool", loopGuard.lastToolName());
             }
             fireDebug("POST_CALL", preview(st.output.toString()), 1);
             return resp;
@@ -772,6 +859,13 @@ public class OpencodeAgent implements Agent {
          * step_finish 计数（看门狗用）
         */
         int stepCount;
+        /**
+         * 最近一次工具调用的入参 JSON（死循环判定用）。
+         *
+         * <p>opencode 的 {@code tool} 事件把入参放在 {@code part.state.input}，
+         * 只对当前这一个事件有效，故解析时随手存进状态里，供 {@code feedLine} 判定重复。</p>
+         */
+        String lastToolArgs = "";
 
         /**
          * Stream State
@@ -795,7 +889,7 @@ public class OpencodeAgent implements Agent {
         if (t.isEmpty() || t.charAt(0) != '{') {
             return false;
         }
-        AgentEvent ev = parseEvent(t, st.output, st.acc);
+        AgentEvent ev = parseEvent(t, st);
         if (ev == null) {
             return false;
         }
@@ -803,18 +897,23 @@ public class OpencodeAgent implements Agent {
         if (st.onEvent != null) {
             st.onEvent.accept(ev);
         }
+        // 死循环判定：同一工具 + 同一入参连续若干次，就是模型在同一个动作上打转。
+        // 入参缺失时宁可不判定——只按工具名比会把「连续读不同文件」误判成死循环。
+        if ("tool".equals(ev.type()) && !st.lastToolArgs.isEmpty()
+                && loopGuard.recordToolCall(ev.message(), st.lastToolArgs)) {
+            throw new LoopDetected(loopGuard.describe());
+        }
         return maxToolIterations > 0 && "step_finish".equals(ev.type()) && ++st.stepCount >= maxToolIterations;
     }
 
     /**
      * 解析单行 NDJSON 事件：累计文本输出与用量，并构建 {@link AgentEvent}。
      *
-     * @param line   一行 JSON
-     * @param output 文本输出累加器
-     * @param acc    用量累加器
+     * @param line 一行 JSON
+     * @param st   流式累加状态（文本/用量累加，以及本次工具调用的入参）
      * @return 事件；解析失败返回 null（跳过该行进事件列表）
      */
-    private AgentEvent parseEvent(String line, StringBuilder output, UsageAccum acc) {
+    private AgentEvent parseEvent(String line, StreamState st) {
         try {
             JsonNode n = Json.parse(line);
             String type = n.get("type").toStringValue("");
@@ -823,9 +922,13 @@ public class OpencodeAgent implements Agent {
             JsonNode part = n.get("part");
             if ("text".equals(type)) {
                 String txt = part.get("text").toStringValue("");
-                output.append(txt);
+                st.output.append(txt);
             } else if ("step_finish".equals(type)) {
-                acc.addStepFinish(part);
+                st.acc.addStepFinish(part);
+            } else if ("tool".equals(type)) {
+                st.lastToolArgs = toolArgsText(part);
+            } else {
+                st.lastToolArgs = "";
             }
             return AgentEvent.builder()
                     .type(type)
@@ -836,6 +939,41 @@ public class OpencodeAgent implements Agent {
         } catch (RuntimeException e) {
             log.debug("[opencode] 跳过非事件行: {}", line);
             return null;
+        }
+    }
+
+    /**
+     * 取出 tool 事件的入参文本。
+     *
+     * <p>opencode 的 tool part 形如
+     * {@code {"tool":"read","callID":"...","state":{"status":"completed","input":{...}}}},
+     * 入参在 {@code state.input}；不同版本也出现过直接挂在 {@code part.input} 的，
+     * 故两处都看。取不到时返回空串——那等于退化成「只按工具名判重复」，
+     * 会让连续读不同文件被误判，所以宁可返回空串也不编一个指纹。</p>
+     *
+     * @param part tool 事件的 part 节点
+     * @return 入参的 JSON 文本；取不到返回空串
+     */
+    private static String toolArgsText(JsonNode part) {
+        if (part == null || part.isMissingValue()) {
+            return "";
+        }
+        JsonNode state = part.get("state");
+        JsonNode input = state == null || state.isMissingValue() ? null : state.get("input");
+        if (input == null || input.isMissingValue() || input.isNull()) {
+            input = part.get("input");
+        }
+        if (input == null || input.isMissingValue() || input.isNull()) {
+            return "";
+        }
+        if (!input.isContainerNode()) {
+            return input.toStringValue("");
+        }
+        try {
+            return Json.getMapper().writeValueAsString(input.getValue());
+        } catch (RuntimeException | com.fasterxml.jackson.core.JsonProcessingException e) {
+            // 序列化不了就退回 toString：指纹只要稳定，不要求漂亮。
+            return String.valueOf(input.getValue());
         }
     }
 
@@ -1180,6 +1318,68 @@ public class OpencodeAgent implements Agent {
         */
         IterationLimit() {
             super("maxToolIterations reached", null, false, false);
+        }
+    }
+
+    /**
+     * 死循环信号异常：非错误，仅用于令 {@link CliModelRunner#runStream} 强杀进程后
+     * 由 {@link #runOnce} 带着已采集的部分结果正常返回。
+     *
+     * <p>与 {@link IterationLimit}（跑满次数）的区别是判定依据：这里判定的是
+     * 「同一工具 + 同一入参连续重复」，也就是模型在原地打转，而不是任务真的需要那么多轮。</p>
+     */
+    private static final class LoopDetected extends RuntimeException {
+        /**
+         * 序列化版本号
+        */
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * 死循环判定
+         *
+         * @param message 给用户看的判定说明
+         */
+        LoopDetected(String message) {
+            super(message, null, false, false);
+        }
+    }
+
+    /**
+     * 中断信号异常：非错误，仅用于令 {@link CliModelRunner#runStream} 强杀进程后
+     * 由 {@link #runOnce} 带着已采集的部分结果正常返回。
+     *
+     * <p>之所以靠“回调里抛异常”来中断，是因为 {@code runStream} 的协议就是
+     * 「回调抛 RuntimeException → {@code destroyForcibly()} 强杀 → 向上抛」，
+     * 除此之外没有把进程句柄交出来的通道。</p>
+     */
+    private static final class RunAborted extends RuntimeException {
+        /**
+         * 序列化版本号
+        */
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * 中断原因
+        */
+        private final String reason;
+
+        /**
+         * 中断信号
+         *
+         * @param reason 中断原因（如 interrupted）
+         */
+        RunAborted(String reason) {
+            super("agent run aborted: " + reason, null, false, false);
+            this.reason = reason;
+        }
+
+        /**
+         * 中断原因
+         *
+         * @return 原因文本
+         */
+        String reason() {
+            return reason;
         }
     }
 

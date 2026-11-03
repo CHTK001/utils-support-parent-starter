@@ -1,0 +1,100 @@
+package com.chua.common.support.network.server.nio;
+
+import java.io.PrintWriter;
+import java.util.concurrent.atomic.AtomicLong;
+
+/**
+ * 写路径探针（仅基准测试 -Dbench.debug=true 时使能）。
+ *
+ * <p>记录每笔响应的关键时间:
+ * <ul>
+ *   <li>[E] 响应完成: handler 级的 end() / complete() 到达, 响应头体已构造完毕</li>
+ *   <li>[Q] 写入待写队列: 字节追加到 socket 的 pendingWriteQueue</li>
+ *   <li>[W] 实际写出: SocketChannel.write() 被调用 (分片写, 可能多次)</li>
+ * </ul>
+ *
+ * <p>配合 HttpBench client0 的 [dbg2] (逐轮 client 侧读开始+耗时) 做时间对齐,
+ * 从而拆分 "server 写完" 与 "client 读到" 之间的间隙。</p>
+ */
+public final class WriteProbe {
+
+    /** 是否使能探针: 由 -Dbench.debug=true 控制 */
+    private static final boolean ENABLED = "true".equals(System.getProperty("bench.debug"));
+
+    /** 探针输出: System.err (与 bench 系统输出分开, 复用同一日志文件) */
+    private static final PrintWriter OUT = new PrintWriter(System.err, true);
+
+    private static final AtomicLong COUNT_E = new AtomicLong();
+    private static final AtomicLong COUNT_Q = new AtomicLong();
+    private static final AtomicLong COUNT_W = new AtomicLong();
+    private static final AtomicLong MAX_E2Q = new AtomicLong();
+    private static final AtomicLong MAX_Q2W = new AtomicLong();
+
+    /** 同一条出栈连接的时间戳, 配合 maxUpdate 算最大排队时延 */
+    private static final ThreadLocal<Long> LAST_E = new ThreadLocal<>();
+    private static final ThreadLocal<Long> LAST_Q = new ThreadLocal<>();
+
+    private WriteProbe() {
+    }
+
+    /**
+     * 响应完成: handler 的 end() 已执行, header+body 已构造
+     * @param len 响应总字节数 (头+体, 合并后)
+     */
+    public static void completed(int len) {
+        if (!ENABLED) {
+            return;
+        }
+        long t = System.nanoTime() / 1000;
+        OUT.println("[E] t=" + t + " len=" + len);
+        COUNT_E.incrementAndGet();
+        LAST_E.set(t);
+    }
+
+    /**
+     * 响应已入队到 socket 待写队列 (可由事件循环的 OP_WRITE 续写)
+     * @param len 入队的字节数
+     */
+    public static void enqueued(int len) {
+        if (!ENABLED) {
+            return;
+        }
+        long t = System.nanoTime() / 1000;
+        OUT.println("[Q] t=" + t + " len=" + len);
+        COUNT_Q.incrementAndGet();
+        MAX_E2Q.updateAndGet(v -> Math.max(v, t - value0(LAST_E.get())));
+        LAST_Q.set(t);
+    }
+
+    /**
+     * socket 实际写出
+     * @param len 本次 write 写出的字节数
+     */
+    public static void written(int len) {
+        if (!ENABLED) {
+            return;
+        }
+        long t = System.nanoTime() / 1000;
+        OUT.println("[W] t=" + t + " len=" + len);
+        COUNT_W.incrementAndGet();
+        MAX_Q2W.updateAndGet(v -> Math.max(v, t - value0(LAST_Q.get())));
+    }
+
+    /**
+     * 端到端统计摘要: 打印入队次数/写出次数/最大排队时延
+     */
+    public static void report() {
+        if (!ENABLED) {
+            return;
+        }
+        OUT.println("[probe] completed=" + COUNT_E.get()
+                + " enqueued=" + COUNT_Q.get()
+                + " written=" + COUNT_W.get()
+                + " maxE2Q_us=" + MAX_E2Q.get()
+                + " maxQ2W_us=" + MAX_Q2W.get());
+    }
+
+    private static long value0(Long v) {
+        return v == null ? 0L : v;
+    }
+}

@@ -460,6 +460,7 @@ public class CloudflareTunnelClient implements AutoCloseable {
      */
     private void startOutputConsumer(CountDownLatch urlReady) {
         Process p = process;
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
         Thread consumer = new Thread(() -> {
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {

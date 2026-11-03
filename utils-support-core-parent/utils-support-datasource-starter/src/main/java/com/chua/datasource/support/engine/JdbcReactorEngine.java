@@ -270,7 +270,10 @@ public class JdbcReactorEngine implements ReactorEngine {
             builder.option(PROTOCOL, (String) val);
         }
         if ((val = parsed.getValue(SSL)) != null) {
-            builder.option(SSL, (Boolean) val);
+            // URL 上的 ?ssl=true 会被解析成字符串而非布尔值，直接强转会抛
+            // ClassCastException，使「带 ssl 参数的数据源」整体注册失败；此处按布尔语义收敛
+            builder.option(SSL, val instanceof Boolean b
+                    ? b : Boolean.parseBoolean(String.valueOf(val).trim()));
         }
 
         // 特殊处理：H2 mem/file 模式，URL 解析会把 database 当成 host
@@ -468,6 +471,45 @@ public class JdbcReactorEngine implements ReactorEngine {
         return r2dbcFactories.size() > 1 || jdbcDataSources.size() > 1;
     }
 
+    /**
+     * 获取指定数据源的同步 SQL 执行器。
+     *
+     * <p>按「R2DBC 工厂优先、JDBC 兜底」的顺序选择，与 {@link #query(String, Object...)} 的路径判定
+     * 保持一致。早期 Lambda 包装器只查 R2DBC 工厂，导致 sqlite 这类没有 r2dbc 驱动的数据源
+     * 一旦走 Lambda 查询就抛「连接工厂未配置」——尽管 {@link #execute(String, Object...)}
+     * 早已能通过 JDBC 兜底正常工作。</p>
+     *
+     * @param name 数据源名称，null 表示默认数据源
+     * @return SQL 执行器，数据源不存在时返回 null
+     */
+    public SqlExecutor getExecutor(String name) {
+        if (isMultiDataSource() && unifiedDataSource != null) {
+            return new JdbcSqlExecutorWrapper(unifiedDataSource, dialects.get(defaultDataSourceName));
+        }
+        String target = name != null ? name : defaultDataSourceName;
+        if (target == null) {
+            return null;
+        }
+        ConnectionFactory factory = r2dbcFactories.get(target);
+        if (factory != null) {
+            return new R2dbcSqlExecutorWrapper(factory, dialects.get(target));
+        }
+        DataSource jdbc = jdbcDataSources.get(target);
+        if (jdbc != null) {
+            return new JdbcSqlExecutorWrapper(jdbc, dialects.get(target));
+        }
+        return null;
+    }
+
+    /**
+     * 获取默认数据源的同步 SQL 执行器。
+     *
+     * @return SQL 执行器，未配置数据源时返回 null
+     */
+    public SqlExecutor getExecutor() {
+        return getExecutor(defaultDataSourceName);
+    }
+
     // ==================== ReactorEngine 接口实现 ====================
 
     @Override
@@ -641,6 +683,18 @@ public class JdbcReactorEngine implements ReactorEngine {
      * @param sql 字符串
      * @return 返回值
     */
+    /**
+     * 按批次逐条执行并逐批发出影响行数。
+     *
+     * <p>接口约定是「每批操作影响的行数」（对应 {@link SqlExecutor#batch} 的 {@code int[]}），
+     * 因此这里必须每个批次发出一个元素。早期实现把各批行数 {@code sum} 成单个值再发出，
+     * 调用方拿到的是「一个总数」而不是「逐批行数」，与 JDBC 路径的行为不一致。</p>
+     *
+     * @param name        数据源名称
+     * @param sql         SQL 模板
+     * @param batchParams 批量参数列表
+     * @return 每批影响行数的 Flux
+     */
     private Flux<Integer> batchViaR2dbc(String name, String sql, List<Object[]> batchParams) {
         ConnectionFactory factory = r2dbcFactories.get(name);
         if (factory == null) {
@@ -649,20 +703,19 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (batchParams == null || batchParams.isEmpty()) {
             return Flux.empty();
         }
-        return Flux.from(Mono.usingWhen(
+        return Flux.usingWhen(
                 Mono.from(factory.create()),
                 conn -> Flux.fromIterable(batchParams)
                         .concatMap(paramArray -> {
                             Statement stmt = conn.createStatement(sql);
                             bindParams(stmt, paramArray);
                             return Flux.from(stmt.execute())
-                                    .flatMap(result -> safeGetRowsUpdated(result))
-                                    .collectList()
-                                    .map(list -> list.isEmpty() ? 0L : list.stream().mapToLong(Long::longValue).sum());
-                        })
-                        .collectList()
-                        .map(list -> list == null || list.isEmpty() ? 0 : list.stream().mapToInt(Long::intValue).sum()),
-                conn -> Mono.from(conn.close())));
+                                    .flatMap(JdbcReactorEngine.this::safeGetRowsUpdated)
+                                    .reduce(0L, Long::sum)
+                                    .map(Long::intValue)
+                                    .flux();
+                        }),
+                conn -> Mono.from(conn.close()));
     }
 
     // ==================== JDBC 执行路径（多数据源联邦） ====================
@@ -843,61 +896,18 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
-     * set Field Value
-     * @param columnName 字符串
-     * @param instance 对象
-     * @param value 对象
-     * @return 返回值
-    */
+     * 设置字段值。
+     *
+     * <p>委托给 {@link EntityFieldMapper}，与 {@link JdbcEngine}（同步 JDBC 链路）共用同一份
+     * 列名匹配规则。早期这里只做「列名原样 + 下划线转驼峰」的精确查找，而 H2 返回的列标签
+     * 是全大写（{@code ID}/{@code NAME}），结果是「查询返回了正确的行数，但实体字段全是 null」。</p>
+     *
+     * @param instance 目标实体实例
+     * @param columnName 结果集列标签
+     * @param value 列值
+     */
     private static void setFieldValue(Object instance, String columnName, Object value) {
-        List<String> candidates = List.of(columnName, toCamelCase(columnName));
-        for (String candidate : candidates) {
-            java.lang.reflect.Field field = findField(instance.getClass(), candidate);
-            if (field == null) {
-                continue;
-            }
-            Object converted = com.chua.common.support.converter.Converter.convertIfNecessary(value, field.getType());
-            if (converted != null) {
-                ReflectUtils.setField(instance, candidate, converted);
-            }
-            return;
-        }
-    }
-
-    /**
-     * find Field
-     * @param clazz 参数
-     * @param name 字符串
-     * @return 返回值
-    */
-    private static java.lang.reflect.Field findField(Class<?> clazz, String name) {
-        return ReflectUtils.findField(clazz, name);
-    }
-
-    /**
-     * to Camel Case
-     * @param name 字符串
-     * @return 返回值
-    */
-    private static String toCamelCase(String name) {
-        if (name == null || name.isEmpty()) {
-            return name;
-        }
-        StringBuilder sb = new StringBuilder(name.length());
-        boolean upperNext = false;
-        for (int i = 0; i < name.length(); i++) {
-            char c = name.charAt(i);
-            if (c == '_') {
-                upperNext = true;
-            }
-            else if (upperNext) {
-                sb.append(Character.toUpperCase(c)); upperNext = false;
-            }
-            else {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
+        EntityFieldMapper.setFieldValue(instance, columnName, value);
     }
 
     // ==================== 内部适配器 ====================
@@ -1005,11 +1015,13 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
         @Override
         public SqlExecutor getExecutor(String dataSourceName) {
-            return new R2dbcSqlExecutorWrapper(r2dbcFactories.get(dataSourceName), dialects.get(dataSourceName));
+            // 与 ReactorEngine 的路径判定保持一致：R2DBC 工厂优先，无 r2dbc 驱动时走 JDBC 兜底。
+            // 早期这里直接取 r2dbcFactories，sqlite 等数据源 Lambda 查询会误报「连接工厂未配置」。
+            return JdbcReactorEngine.this.getExecutor(dataSourceName);
         }
         @Override
         public SqlExecutor getExecutor() {
-            return getExecutor(defaultDataSourceName);
+            return JdbcReactorEngine.this.getExecutor();
         }
         @Override
         public <T> EngineDataSource<T> getDataSource(String name) { return JdbcReactorEngine.this.getDataSource(name); }

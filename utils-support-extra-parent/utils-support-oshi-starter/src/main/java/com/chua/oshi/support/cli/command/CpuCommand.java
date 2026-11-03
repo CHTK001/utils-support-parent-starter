@@ -33,9 +33,9 @@ public final class CpuCommand extends AbstractCommand {
         HardwareAbstractionLayer hw = Oshi.getHardware();
         CentralProcessor processor = hw.getProcessor();
 
-        System.out.println();
-        System.out.println("CPU: " + processor.getProcessorIdentifier().getName().trim());
-        System.out.println(
+        System.out.println(); // [P3C E1 豁免]
+        System.out.println("CPU: " + processor.getProcessorIdentifier().getName().trim()); // [P3C E1 豁免]
+        System.out.println( // [P3C E1 豁免]
                 Formatter.panel("oshc cpu",
                         "Cores", processor.getPhysicalProcessorCount() + " physical / " +
                                 processor.getLogicalProcessorCount() + " logical",
@@ -57,8 +57,8 @@ public final class CpuCommand extends AbstractCommand {
         }
         double[] perCore = processor.getProcessorCpuLoadBetweenTicks(prev);
 
-        System.out.println();
-        System.out.println("Per-Core Usage:");
+        System.out.println(); // [P3C E1 豁免]
+        System.out.println("Per-Core Usage:"); // [P3C E1 豁免]
         int n = perCore.length;
         int cols = 4;
         List<String[]> rows = Wraps.list();
@@ -82,10 +82,10 @@ public final class CpuCommand extends AbstractCommand {
             headers[j * 2] = "Core";
             headers[j * 2 + 1] = "Usage";
         }
-        System.out.println(Formatter.table("", headers, rows));
+        System.out.println(Formatter.table("", headers, rows)); // [P3C E1 豁免]
 
  // ── 加载 & 上下文 switches ──
-        System.out.println(
+        System.out.println( // [P3C E1 豁免]
                 Formatter.panel("",
                         "Load (1/5/15m)", String.format("%.2f / %.2f / %.2f",
                                 processor.getSystemLoadAverage(3)[0],
@@ -103,8 +103,8 @@ public final class CpuCommand extends AbstractCommand {
             procs = procs.subList(0, 10);
         }
         if (procs != null && !procs.isEmpty()) {
-            System.out.println();
-            System.out.println("Top 10 Processes by CPU:");
+            System.out.println(); // [P3C E1 豁免]
+            System.out.println("Top 10 Processes by CPU:"); // [P3C E1 豁免]
             List<String[]> procs2 = Wraps.list();
             for (OSProcess p : procs) {
                 procs2.add(new String[]{
@@ -114,7 +114,7 @@ public final class CpuCommand extends AbstractCommand {
                         Formatter.formatBytes(p.getResidentSetSize())
                 });
             }
-            System.out.println(Formatter.table("", new String[]{"PID", "Name", "CPU", "RSS"}, procs2));
+            System.out.println(Formatter.table("", new String[]{"PID", "Name", "CPU", "RSS"}, procs2)); // [P3C E1 豁免]
         }
     }
 

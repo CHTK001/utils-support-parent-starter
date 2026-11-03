@@ -650,6 +650,7 @@ public class EmailClient {
          */
         public void start() {
             running = true;
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
             watchThread = new Thread(() -> {
                 log.info("邮件监听启动: folder={}, interval={}s, mode={}",
                         folder, pollInterval, client.smtpAvailable ? "SMTP" : "POP3轮询");

@@ -122,6 +122,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         if (!REAPER_STARTED.compareAndSet(false, true)) {
             return;
         }
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
         Thread t = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 try {

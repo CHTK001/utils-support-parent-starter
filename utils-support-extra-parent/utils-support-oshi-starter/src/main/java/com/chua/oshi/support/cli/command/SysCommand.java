@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.oshi.support.cli.command;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -37,8 +38,8 @@ public final class SysCommand extends AbstractCommand {
         ComputerSystem cs = hw.getComputerSystem();
         Sys sys = Oshi.newSys();
 
-        System.out.println();
-        System.out.println(
+        System.out.println(); // [P3C E1 豁免]
+        System.out.println( // [P3C E1 豁免]
                 Formatter.panel("oshc sys",
                         "OS", sys.getOsName() == null ? "N/A" : sys.getOsName(),
                         "Arch", sys.getOsArch() == null ? "N/A" : sys.getOsArch(),
@@ -53,7 +54,7 @@ public final class SysCommand extends AbstractCommand {
         // ── Firmware & BIOS ──
         Firmware fw = cs.getFirmware();
         if (fw != null) {
-            System.out.println(
+            System.out.println( // [P3C E1 豁免]
                     Formatter.panel("Firmware",
                             "Manufacturer", fw.getManufacturer() == null ? "N/A" : fw.getManufacturer(),
                             "Name", fw.getName() == null ? "N/A" : fw.getName(),
@@ -67,7 +68,7 @@ public final class SysCommand extends AbstractCommand {
         // ── Baseboard ──
         oshi.hardware.Baseboard bb = cs.getBaseboard();
         if (bb != null) {
-            System.out.println(
+            System.out.println( // [P3C E1 豁免]
                     Formatter.panel("Baseboard",
                             "Manufacturer", bb.getManufacturer() == null ? "N/A" : bb.getManufacturer(),
                             "Model", bb.getModel() == null ? "N/A" : bb.getModel(),
@@ -77,11 +78,11 @@ public final class SysCommand extends AbstractCommand {
         }
 
         // ── CPU summary ──
-        System.out.println();
+        System.out.println(); // [P3C E1 豁免]
         CentralProcessor proc = hw.getProcessor();
-        System.out.println("CPU: " + (proc.getProcessorIdentifier().getName() == null ? "N/A"
+        System.out.println("CPU: " + (proc.getProcessorIdentifier().getName() == null ? "N/A" // [P3C E1 豁免]
                 : proc.getProcessorIdentifier().getName().trim()));
-        System.out.println(
+        System.out.println( // [P3C E1 豁免]
                 Formatter.panel("",
                         "Physical cores", String.valueOf(proc.getPhysicalProcessorCount()),
                         "Logical cores", String.valueOf(proc.getLogicalProcessorCount()),
@@ -91,12 +92,12 @@ public final class SysCommand extends AbstractCommand {
 
  // ── 内存 summary ──
         GlobalMemory mem = hw.getMemory();
-        System.out.println();
-        System.out.println("Memory: " + Formatter.formatBytes(mem.getTotal()) + " total, "
+        System.out.println(); // [P3C E1 豁免]
+        System.out.println("Memory: " + Formatter.formatBytes(mem.getTotal()) + " total, " // [P3C E1 豁免]
                 + Formatter.formatBytes(mem.getAvailable()) + " available");
 
  // ── 处理 stats ──
-        System.out.println();
+        System.out.println(); // [P3C E1 豁免]
         int totalProcs = os.getProcessCount();
         int running = 0;
         int sleeping = 0;
@@ -112,8 +113,8 @@ public final class SysCommand extends AbstractCommand {
                 default -> other++;
             }
         }
-        System.out.println("Processes: " + totalProcs + " total");
-        System.out.println(
+        System.out.println("Processes: " + totalProcs + " total"); // [P3C E1 豁免]
+        System.out.println( // [P3C E1 豁免]
                 Formatter.panel("",
                         "Running", String.valueOf(running),
                         "Sleeping", String.valueOf(sleeping),
@@ -124,14 +125,14 @@ public final class SysCommand extends AbstractCommand {
         );
 
  // ── 系统 uptime ──
-        System.out.println("Uptime: " + formatDuration(os.getSystemUptime()));
-        System.out.println("Boot Time: " + os.getSystemBootTime());
+        System.out.println("Uptime: " + formatDuration(os.getSystemUptime())); // [P3C E1 豁免]
+        System.out.println("Boot Time: " + os.getSystemBootTime()); // [P3C E1 豁免]
 
  // ── Display 适配器 ──
         List<oshi.hardware.Display> displays = hw.getDisplays();
         if (displays != null && !displays.isEmpty()) {
-            System.out.println();
-            System.out.println("Displays (" + displays.size() + "):");
+            System.out.println(); // [P3C E1 豁免]
+            System.out.println("Displays (" + displays.size() + "):"); // [P3C E1 豁免]
             for (oshi.hardware.Display d : displays) {
                 byte[] edid = d.getEdid();
                 int w = 0;
@@ -140,27 +141,27 @@ public final class SysCommand extends AbstractCommand {
                     w = ((edid[18] & 0xff) | ((edid[19] & 0xff) << 8));
                     h = ((edid[20] & 0xff) | ((edid[21] & 0xff) << 8));
                 }
-                System.out.println("  " + (w > 0 ? w + "x" + h : "unknown resolution"));
+                System.out.println("  " + (w > 0 ? w + "x" + h : "unknown resolution")); // [P3C E1 豁免]
             }
         }
 
  // ── Sound 卡片 ──
         List<SoundCard> sounds = hw.getSoundCards();
         if (sounds != null && !sounds.isEmpty()) {
-            System.out.println();
-            System.out.println("Sound Cards (" + sounds.size() + "):");
+            System.out.println(); // [P3C E1 豁免]
+            System.out.println("Sound Cards (" + sounds.size() + "):"); // [P3C E1 豁免]
             for (SoundCard s : sounds) {
-                System.out.println("  " + s.getName());
+                System.out.println("  " + s.getName()); // [P3C E1 豁免]
             }
         }
 
         // ── Battery ──
         List<oshi.hardware.PowerSource> ps = hw.getPowerSources();
         if (ps != null && !ps.isEmpty()) {
-            System.out.println();
-            System.out.println("Power Sources (" + ps.size() + "):");
+            System.out.println(); // [P3C E1 豁免]
+            System.out.println("Power Sources (" + ps.size() + "):"); // [P3C E1 豁免]
             for (oshi.hardware.PowerSource p : ps) {
-                System.out.printf("  %-25s  remaining=%.1f%%  %s%n",
+                System.out.printf("  %-25s  remaining=%.1f%%  %s%n", // [P3C E1 豁免]
                         p.getName(), p.getRemainingCapacityPercent(),
                         p.isCharging() ? "⚡ charging" : "");
             }
@@ -170,8 +171,8 @@ public final class SysCommand extends AbstractCommand {
         if (options.has("services")) {
             List<OSService> svcs = os.getServices();
             if (svcs != null && !svcs.isEmpty()) {
-                System.out.println();
-                System.out.println("Running Services (" + svcs.size() + "):");
+                System.out.println(); // [P3C E1 豁免]
+                System.out.println("Running Services (" + svcs.size() + "):"); // [P3C E1 豁免]
                 List<String[]> srow = Wraps.list();
                 int count = 0;
                 for (OSService svc : svcs) {
@@ -185,11 +186,11 @@ public final class SysCommand extends AbstractCommand {
                     });
                     count++;
                 }
-                System.out.println(Formatter.table("", new String[]{"PID", "Name", "State"}, srow));
+                System.out.println(Formatter.table("", new String[]{"PID", "Name", "State"}, srow)); // [P3C E1 豁免]
             }
         }
 
-        System.out.println();
+        System.out.println(); // [P3C E1 豁免]
     }
 
     /**

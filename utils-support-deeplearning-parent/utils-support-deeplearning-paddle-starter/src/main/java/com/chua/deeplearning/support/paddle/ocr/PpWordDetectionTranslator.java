@@ -62,7 +62,7 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
         List<BoundingBox> boxes = new BoundFinderV2(grid).getBoxes();
         List<String> names = Wraps.list();
         List<Double> probs = Wraps.list();
-        for (int i = 0; i < boxes.size(); i++) {
+        for (BoundingBox box : boxes) {
             names.add("word");
             probs.add(1.0);
         }

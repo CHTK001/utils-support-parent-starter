@@ -49,12 +49,6 @@ public class TracingFilter implements ServerFilter {
      */
     @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
-        // 无 info 日志时不生成 traceId / 监听器 / 链日志：UUID.randomUUID() 依赖 SecureRandom,
-        // 单请求数微秒级开销,且每请求额外分配 3 个对象,是热路径上的显著成本
-        if (!log.isInfoEnabled()) {
-            chain.doFilter(request, response);
-            return;
-        }
         String traceId = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
         request.setAttribute(TRACE_ID_KEY, traceId);
 

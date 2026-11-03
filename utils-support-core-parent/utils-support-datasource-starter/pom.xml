@@ -79,6 +79,23 @@
             <version>3.5.10</version>
             <scope>test</scope>
         </dependency>
+        <!-- 内存型 JDBC 数据库：JDBC 引擎链路（物理分页 / 原生 SQL / 类型映射）验收用 -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <!-- 必须与下面 r2dbc-h2 0.9.1 的编译期 H2 版本一致：
+                 2.5.x 改了 Session.prepareCommand 签名，r2dbc-h2 会抛
+                 NoSuchMethodError，响应式路径将完全不可用 -->
+            <version>2.2.224</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- H2 的 R2DBC 驱动：响应式 JDBC 引擎（真非阻塞路径）验收用 -->
+        <dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-h2</artifactId>
+            <version>0.9.1.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
         <!-- SQL 解析器 -->
         <dependency>
             <groupId>com.github.jsqlparser</groupId>

@@ -184,7 +184,9 @@ public class FtpServer extends AbstractServer implements TcpServer {
         try {
             controlServerSocket = new ServerSocket();
             controlServerSocket.setReuseAddress(true);
-            controlServerSocket.bind(new InetSocketAddress(ftpConfig.getHost(), ftpConfig.getControlPort()), 50);
+            // backlog 统一由 ServerSetting#resolveBacklog 收敛（FTP 控制连接突发密度中等，下限 128）
+            controlServerSocket.bind(new InetSocketAddress(ftpConfig.getHost(), ftpConfig.getControlPort()),
+                    setting.resolveBacklog(128));
             setting.setPort(controlServerSocket.getLocalPort());
             running = true;
             acceptThread = Thread.ofVirtual().name(ACCEPT_THREAD_NAME).start(this::acceptLoop);
@@ -198,18 +200,52 @@ public class FtpServer extends AbstractServer implements TcpServer {
 
     /**
      * 接受连接主循环：每个控制连接派发到独立虚拟线程处理。
+     *
+     * <p>接纳前用 {@link #tryAcquireConnection()} 做一次 CAS 登记：超限时直接关闭，
+     * 不让内核连进来再占住 fd 与线程（FTP 无 HTTP 语义，回 503 没有意义）。</p>
      */
     private void acceptLoop() {
         while (running && !controlServerSocket.isClosed()) {
             try {
                 var socket = controlServerSocket.accept();
+                if (!accepting) {
+                    // 优雅关闭中：不再接纳新连接（存量连接继续服务）
+                    closeQuietly(socket);
+                    continue;
+                }
+                if (!tryAcquireConnection()) {
+                    log.warn("FTP 连接数超限 (max={})，拒绝 {}", setting.getMaxConnections(),
+                            socket.getRemoteSocketAddress());
+                    closeQuietly(socket);
+                    continue;
+                }
                 socket.setSoTimeout(ftpConfig.getControlTimeout() * 1000);
-                virtualExecutor.submit(() -> handleControlConnection(socket));
+                try {
+                    applySocketOptions(socket);
+                    virtualExecutor.submit(() -> handleControlConnection(socket));
+                } catch (java.util.concurrent.RejectedExecutionException e) {
+                    // 停止中任务被拒：连接不会被处理，必须在这里归还预算
+                    closeQuietly(socket);
+                    releaseConnection();
+                }
             } catch (IOException e) {
                 if (running) {
                     log.debug("FTP 接受连接异常: {}", e.getMessage());
                 }
             }
+        }
+    }
+
+    /**
+     * 静默关闭 Socket。
+     *
+     * @param socket 目标 Socket
+     */
+    private static void closeQuietly(Socket socket) {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            log.debug("关闭 FTP 连接失败，已忽略: {}", e.getMessage());
         }
     }
 
@@ -246,6 +282,7 @@ public class FtpServer extends AbstractServer implements TcpServer {
                 sessions.remove(session.getId());
                 session.close();
             }
+            releaseConnection();
             log.debug("FTP 控制连接关闭");
         }
     }

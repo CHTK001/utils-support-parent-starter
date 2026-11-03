@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.server.websocket;
 
 import com.chua.common.support.network.ProtocolType;
@@ -85,11 +86,11 @@ public class JdkWebSocketServer extends AbstractServer {
             serverSocket.setReuseAddress(setting.isSoReuseAddr());
             serverSocket.setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384));
             serverSocket.bind(new java.net.InetSocketAddress(setting.getHost(), setting.getPort()),
-                    Math.max(setting.getBacklog(), 2048));
+                    setting.resolveBacklog(2048));
             executor = Executors.newVirtualThreadPerTaskExecutor();
             executor.submit(this::acceptLoop);
             log.info("JDK WebSocketServer started on {}:{} (backlog={}, virtualThreads=true)",
-                    setting.getHost(), setting.getPort(), Math.max(setting.getBacklog(), 2048));
+                    setting.getHost(), setting.getPort(), setting.resolveBacklog(2048));
         } catch (IOException e) {
             throw new RuntimeException("WebSocket 服务启动失败: " + e.getMessage(), e);
         }
@@ -108,11 +109,7 @@ public class JdkWebSocketServer extends AbstractServer {
             log.debug("[ws] 关闭连接失败，已忽略: {}", e.getMessage());
         }
         for (Connection c : connections) {
-            try {
-                c.close();
-            } catch (IOException e) {
-                log.debug("[ws] IO 操作失败，已忽略: {}", e.getMessage());
-            }
+            closeConnection(c);
         }
         connections.clear();
         if (executor != null) {
@@ -196,10 +193,27 @@ public class JdkWebSocketServer extends AbstractServer {
         while (!serverSocket.isClosed() && !Thread.currentThread().isInterrupted()) {
             try {
                 Socket socket = serverSocket.accept();
-                socket.setTcpNoDelay(setting.isTcpNoDelay());
-                Connection conn = new Connection(socket);
-                connections.add(conn);
-                executor.submit(() -> handleConnection(conn));
+                if (!accepting) {
+                    // 优雅关闭中：不再接纳新连接（存量连接不受影响）
+                    socket.close();
+                    continue;
+                }
+                if (!tryAcquireConnection()) {
+                    // 超限：握手前无法回 HTTP 语义的 503，直接关闭并计入拒绝数
+                    socket.close();
+                    continue;
+                }
+                try {
+                    socket.setTcpNoDelay(setting.isTcpNoDelay());
+                    applySocketOptions(socket);
+                    Connection conn = new Connection(socket);
+                    connections.add(conn);
+                    executor.submit(() -> handleConnection(conn));
+                } catch (Exception e) {
+                    // 任一环节失败（含停止中任务被拒）都必须归还预算
+                    socket.close();
+                    releaseConnection();
+                }
             } catch (IOException e) {
                 if (serverSocket.isClosed()) {
                     break;
@@ -216,8 +230,6 @@ public class JdkWebSocketServer extends AbstractServer {
     private void handleConnection(Connection conn) {
         try {
             if (!performHandshake(conn)) {
-                conn.close();
-                connections.remove(conn);
                 return;
             }
             invokeAnnotatedMethods(OnOpen.class);
@@ -225,14 +237,30 @@ public class JdkWebSocketServer extends AbstractServer {
         } catch (IOException e) {
             log.debug("WebSocket connection closed: {}", e.getMessage());
         } finally {
-            try {
-                conn.close();
-            } catch (IOException e) {
-                log.debug("[ws] IO 操作失败，已忽略: {}", e.getMessage());
-            }
-            connections.remove(conn);
+            closeConnection(conn);
             invokeAnnotatedMethods(OnClose.class);
         }
+    }
+
+    /**
+     * 关闭连接（幂等）：关通道、移出连接表并归还连接预算。
+     *
+     * <p>accept 失败、握手失败、读帧结束、stop() 都会走到这里，因此必须幂等：
+     * 重复归还预算会把活跃连接数打成负数，之后所有新连接都会被限额拒绝。</p>
+     *
+     * @param conn 连接，不允许为 null
+     */
+    private void closeConnection(Connection conn) {
+        if (!conn.closed.compareAndSet(false, true)) {
+            return;
+        }
+        try {
+            conn.close();
+        } catch (IOException e) {
+            log.debug("[ws] IO 操作失败，已忽略: {}", e.getMessage());
+        }
+        connections.remove(conn);
+        releaseConnection();
     }
 
     /**
@@ -503,6 +531,11 @@ public class JdkWebSocketServer extends AbstractServer {
     private static class Connection {
         final Socket socket;
         OutputStream out;
+        /**
+         * 关闭标志（幂等收尾用）
+         */
+        final java.util.concurrent.atomic.AtomicBoolean closed =
+                new java.util.concurrent.atomic.AtomicBoolean(false);
 
         /**
          * Connection

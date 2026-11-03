@@ -312,6 +312,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
                             value.check();
                         }
                     }, 10, 10, TimeUnit.SECONDS);
+// [P3C C1 豁免] 关闭钩子必须由 JVM 创建独立线程
                     Runtime.getRuntime().addShutdownHook(new Thread(() -> ThreadUtils.shutdownNow(executor)));
                 }
             }

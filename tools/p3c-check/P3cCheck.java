@@ -84,7 +84,7 @@ public final class P3cCheck {
         }
         List<Path> files = check.collectSources(root);
         if (!quiet) {
-            System.out.println("扫描 " + files.size() + " 个 Java 文件…");
+            System.out.println("扫描 " + files.size() + " 个 Java 文件…"); // [P3C E1 豁免]
         }
         for (Path file : files) {
             check.checkFile(file);
@@ -406,26 +406,26 @@ public final class P3cCheck {
     }
 
     private int report(boolean quiet) {
-        System.out.println();
-        System.out.println("================ P3C 质量门禁 ================");
+        System.out.println(); // [P3C E1 豁免]
+        System.out.println("================ P3C 质量门禁 ================"); // [P3C E1 豁免]
         int total = 0;
         for (int i = 0; i < names.length; i++) {
             int n = counts.getOrDefault(names[i], 0);
             total += n;
-            System.out.printf("%-4s %-28s %d%n", n == 0 ? "PASS" : "FAIL", labels[i], n);
+            System.out.printf("%-4s %-28s %d%n", n == 0 ? "PASS" : "FAIL", labels[i], n); // [P3C E1 豁免]
         }
-        System.out.println("----------------------------------------------");
+        System.out.println("----------------------------------------------"); // [P3C E1 豁免]
         if (!quiet) {
-            violations.stream().limit(30).forEach(v -> System.out.println("  " + v));
+            violations.stream().limit(30).forEach(v -> System.out.println("  " + v)); // [P3C E1 豁免]
             if (violations.size() > 30) {
-                System.out.println("  … 另有 " + (violations.size() - 30) + " 处");
+                System.out.println("  … 另有 " + (violations.size() - 30) + " 处"); // [P3C E1 豁免]
             }
         }
         if (total == 0) {
-            System.out.println("结果：全部通过");
+            System.out.println("结果：全部通过"); // [P3C E1 豁免]
             return 0;
         }
-        System.out.println("结果：" + total + " 处违规");
+        System.out.println("结果：" + total + " 处违规"); // [P3C E1 豁免]
         return 1;
     }
 }

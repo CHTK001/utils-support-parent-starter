@@ -24,6 +24,18 @@ import java.util.concurrent.Executors;
  * 同步阻塞模型，使用虚拟线程池处理请求。
  * SSL 支持 KeyStore（JKS/PKCS12）和 PEM 证书文件两种模式。</p>
  *
+ * <h2>连接层指标的边界</h2>
+ * <p>{@code com.sun.net.httpserver} 不对外暴露 accept 钩子，连接的生命周期完全在其内部
+ * （{@code ServerImpl}）管理，因此本实现<b>无法</b>做「按 {@code maxConnections} 判上限」的
+ * 连接预算，也拿不到真实连接数 —— 连接层容量只能交给底层 HttpServer 与操作系统参数。</p>
+ *
+ * <p>能观测到的部分仍然准确：{@link com.chua.common.support.network.server.ServerMetrics}
+ * 里的请求数、活跃请求数、错误数、延迟直方图都走 {@code handleRequest} 统一入口，
+ * 与其它实现口径一致；但 {@code getActiveConnections()} / {@code getPeakConnections()}
+ * 在本实现上恒为 0。若需要按连接数限流与观测（百万连接目标），请改用
+ * {@code NioHttpServer} / {@code AioHttpServer}：它们走自己的 accept 路径，
+ * 连接预算与峰值统计都是真实值。</p>
+ *
  * @author CH
  * @since 2026/07/16
  */
@@ -60,7 +72,7 @@ public class JdkHttpServer extends AbstractServer {
             if (sslCtx != null) {
                 server = createHttpsServer(addr, sslCtx);
             } else {
-                int backlog = Math.max(setting.getBacklog(), 8192);
+                int backlog = setting.resolveBacklog(8192);
                 server = HttpServer.create(addr, backlog);
             }
             // 回填实际端口（port=0 时由系统分配）
@@ -70,7 +82,7 @@ public class JdkHttpServer extends AbstractServer {
             server.createContext(setting.getContextPath(), this::handleExchange);
             server.start();
             log.info("JDK HttpServer started on {}:{} (backlog={}, virtualThreads=true)",
-                    setting.getHost(), setting.getPort(), Math.max(setting.getBacklog(), 8192));
+                    setting.getHost(), setting.getPort(), setting.resolveBacklog(8192));
         } catch (IOException e) {
             throw new RuntimeException("HTTP 服务启动失败: " + e.getMessage(), e);
         }
@@ -84,7 +96,7 @@ public class JdkHttpServer extends AbstractServer {
      */
     private HttpServer createHttpsServer(InetSocketAddress addr, SSLContext sslContext) {
         try {
-            HttpsServer httpsServer = HttpsServer.create(addr, Math.max(setting.getBacklog(), 8192));
+            HttpsServer httpsServer = HttpsServer.create(addr, setting.resolveBacklog(8192));
             httpsServer.setHttpsConfigurator(new HttpsConfigurator(sslContext));
             return httpsServer;
         } catch (IOException e) {

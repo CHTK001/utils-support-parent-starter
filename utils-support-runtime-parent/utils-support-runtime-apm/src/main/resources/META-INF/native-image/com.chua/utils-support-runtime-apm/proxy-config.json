@@ -1,4 +1,5 @@
 [
-  ["com.chua.runtime.apm.storage.ApmStorage"],
-  ["com.chua.runtime.plugin.Plugin"]
+  [
+    "com.chua.runtime.plugin.Plugin"
+  ]
 ]

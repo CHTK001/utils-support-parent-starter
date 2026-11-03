@@ -186,6 +186,7 @@ public class TelnetServer {
         }
         LOG.log(Level.INFO, "Telnet Shell 已启动，监听地址: " + bind.getHostAddress() + ":" + port
                 + "，最大并发会话: " + maxSessions);
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
         Thread acceptor = new Thread(this::acceptLoop, "runtime-shell-acceptor");
         acceptor.setDaemon(true);
         acceptor.start();

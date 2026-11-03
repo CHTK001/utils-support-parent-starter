@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.utils;
 
 import com.chua.common.support.function.NamedThreadFactory;
@@ -653,6 +654,7 @@ public class ThreadUtils {
      * @return 新线程
      */
     public static Thread newThread(final Runnable runnable) {
+// [P3C C1 豁免] 工具方法返回 Thread，由调用者组建线程池/线程组
         return new Thread(runnable);
     }
 
@@ -1332,6 +1334,7 @@ public class ThreadUtils {
          */
         @Override
         public Thread newThread(Runnable r) {
+// [P3C C1 豁免] 工具方法返回 Thread，由调用者组建线程池/线程组
             Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
             if (t.isDaemon()) {
                 t.setDaemon(false);

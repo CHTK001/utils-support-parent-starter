@@ -13,7 +13,7 @@ import java.util.concurrent.CompletionStage;
  *
  * <p>同步 {@link ServerFilter} 也可通过 <b>包装</b> 接入响应式链：
  * 只需在同步 {@code doFilter} 内部调用 {@code chain.doFilter(...)} 并将返回值包装为
- * {@code CompletableFuture.completedStage(null)} 即可。</p>
+ * {@code CompletableFuture.completedFuture(null)} 即可。</p>
  *
  * @author CH
  * @since 2026/07/16

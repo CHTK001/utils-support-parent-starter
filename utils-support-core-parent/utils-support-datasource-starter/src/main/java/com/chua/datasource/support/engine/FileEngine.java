@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.datasource.support.engine;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -83,6 +84,12 @@ public class FileEngine extends AbstractEngine {
         File file; // 文件
         String fileType; // 文件类型
         boolean autoPersist; // autopersist
+        /**
+         * 加载时识别出的列顺序，写回时固定表头。
+         * <p>为空表写回时没有行可以推断列，必须靠它保留表头，
+         * 否则文件会被清成 0 字节，下次 load 连列名都没有。</p>
+         */
+        List<String> columns;
 
         /**
          * Table Meta
@@ -169,9 +176,43 @@ public class FileEngine extends AbstractEngine {
         rows = normalizeEmptyStrings(rows);
 
         TableMeta meta = new TableMeta(file, resolved, defaultAutoPersist);
+        // 记录列顺序：空表写回时必须靠它保留表头
+        if (!rows.isEmpty()) {
+            meta.columns = new ArrayList<>(rows.getFirst().keySet());
+        }
         tableMetas.put(name, meta);
 
         dataStores.put(name, Wraps.list(rows));
+        if (defaultDataSourceName == null) {
+            defaultDataSourceName = name;
+        }
+        return this;
+    }
+
+    /**
+     * 注册已解析好的行数据（由异步通道解析完成后调用）。
+     *
+     * <p>响应式引擎用 {@code AsynchronousFileChannel} 自己解析 CSV/JSON，不经过
+     * {@link #load(String, File, String)}，但写回链路（{@link #save(String)} /
+     * {@code persistIfAuto}）依赖 {@code tableMetas} 里的文件路径与 autoPersist 开关。
+     * 早期异步通道直接调用 {@code store()}，元数据没注册，
+     * 结果是「更新/删除在内存中生效，但源文件永远是旧的」。</p>
+     *
+     * @param name  数据源名称
+     * @param file  源文件
+     * @param type  文件类型（csv/json 等 SPI 类型名）
+     * @param rows  已解析的行（Map 形式）
+     * @return 当前引擎实例
+     */
+    public FileEngine registerRows(String name, File file, String type, List<Map<String, Object>> rows) {
+        List<Map<String, Object>> normalized = normalizeEmptyStrings(rows);
+        TableMeta meta = new TableMeta(file, type, defaultAutoPersist);
+        // 记录列顺序：空表写回时必须靠它保留表头
+        if (normalized != null && !normalized.isEmpty()) {
+            meta.columns = new ArrayList<>(normalized.getFirst().keySet());
+        }
+        tableMetas.put(name, meta);
+        dataStores.put(name, Wraps.list(normalized == null ? List.of() : normalized));
         if (defaultDataSourceName == null) {
             defaultDataSourceName = name;
         }
@@ -220,6 +261,11 @@ public class FileEngine extends AbstractEngine {
      */
     public FileEngine autoPersist(boolean autoPersist) {
         this.defaultAutoPersist = autoPersist;
+        // 全局开关必须对已加载的表同样生效：load 之后再调用是常见用法，
+        // 只改「未来加载」的默认值会让当前表的写回行为静默不变。
+        for (TableMeta meta : tableMetas.values()) {
+            meta.autoPersist = autoPersist;
+        }
         return this;
     }
 
@@ -629,6 +675,14 @@ public class FileEngine extends AbstractEngine {
     private <T> void writeFile(TableMeta meta, List<Map<String, Object>> maps) {
         FileSystem fs = FileSystem.create(meta.fileType);
         WriteBuilder writer = fs.write(meta.file);
+        // 固定表头：空表也要写出列名，否则文件被清空、下次 load 丢失列结构
+        if (meta.columns != null && !meta.columns.isEmpty()) {
+            writer.withHeaders(meta.columns);
+        }
+        if (!maps.isEmpty() && meta.columns == null) {
+            meta.columns = new ArrayList<>(maps.getFirst().keySet());
+            writer.withHeaders(meta.columns);
+        }
         writer.write(maps);
         writer.finish();
     }
@@ -693,120 +747,20 @@ public class FileEngine extends AbstractEngine {
     }
 
     /**
-     * 获取财产值
+     * 设置字段值。
      *
-     * @param bean Bean
-     * @param field 字段
-     * @return 获取财产值的结果
-     */
-    private static Object getPropertyValue(Object bean, String field) {
-        try {
-            String getter = "get" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
-            Object result = ReflectUtils.invoke(bean, getter, Object.class);
-            if (result != null) {
-                return result;
-            }
-            String isGetter = "is" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
-            return ReflectUtils.invoke(bean, isGetter, Object.class);
-        } catch (Exception e) {
-            log.debug("[datasource] 反射读取属性值失败，返回 null: {}", e.getMessage());
-        }
-        return null;
-    }
-
-    /**
-     * 转为camel大小写
-     *
-     * @param name 名称
-     * @return 转为camel大小写的结果
-     */
-    private static String toCamelCase(String name) {
-        StringBuilder sb = new StringBuilder();
-        boolean upper = false;
-        for (char c : name.toCharArray()) {
-            if (c == '_') {
-                upper = true;
-            } else if (upper) {
-                sb.append(Character.toUpperCase(c));
-                upper = false;
-            } else {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
-    }
-
-    /**
-     * 设置字段值
+     * <p>表格文件读出的列值统一是字符串（{@code "18"}），而实体属性普遍是
+     * {@code Integer}/{@code int}。这里必须交给 {@link MethodCache#setValue}：
+     * 它先按目标 setter 的形参类型收敛再写入，并在无 setter 时兜底写字段。
+     * 早期实现按 {@code Object.class} 形参查找 setter，MethodHandle 精确匹配
+     * 必然失败，列值被静默丢弃——表现为「加载成功但每个字段都是 null」。</p>
      *
      * @param obj obj
      * @param field 字段
      * @param value 值
      */
     private void setFieldValue(Object obj, String field, Object value) {
-        try {
-            String camelField = toCamelCase(field);
-            String setterName = "set"
-                    + Character.toUpperCase(camelField.charAt(0))
-                    + camelField.substring(1);
-            ReflectUtils.invoke(obj, setterName, void.class, new Class<?>[]{Object.class},
-                                convertValue(value, Object.class));
-        } catch (Exception ignored) {
-            // silent
-        }
-    }
-
-     /**
-      * 转换值。
-      * @param value 值
-      * @param targetType 目标类型
-      * @return 转换值的结果
-      */
-    private Object convertValue(Object value, Class<?> targetType) {
-        if (value == null || targetType.isInstance(value)) {
-            return value;
-        }
-        if (targetType == String.class) {
-            return String.valueOf(value);
-        }
-        if (value instanceof String str && !str.isBlank()) {
-            if (targetType == Integer.class || targetType == int.class) {
-                return Integer.valueOf(str);
-            }
-            if (targetType == Long.class || targetType == long.class) {
-                return Long.valueOf(str);
-            }
-            if (targetType == Double.class || targetType == double.class) {
-                return Double.valueOf(str);
-            }
-            if (targetType == Float.class || targetType == float.class) {
-                return Float.valueOf(str);
-            }
-            if (targetType == Short.class || targetType == short.class) {
-                return Short.valueOf(str);
-            }
-            if (targetType == Byte.class || targetType == byte.class) {
-                return Byte.valueOf(str);
-            }
-            if (targetType == Boolean.class || targetType == boolean.class) {
-                return Boolean.parseBoolean(str);
-            }
-        }
-        if (value instanceof Number num) {
-            if (targetType == Integer.class || targetType == int.class) {
-                return num.intValue();
-            }
-            if (targetType == Long.class || targetType == long.class) {
-                return num.longValue();
-            }
-            if (targetType == Double.class || targetType == double.class) {
-                return num.doubleValue();
-            }
-            if (targetType == Float.class || targetType == float.class) {
-                return num.floatValue();
-            }
-        }
-        return value;
+        MethodCache.setValue(obj, field, value);
     }
 
     /**

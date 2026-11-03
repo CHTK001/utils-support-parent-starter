@@ -41,10 +41,12 @@ public class RawEchoCpuMain {
         for (int i = 0; i < loops; i++) {
             sels[i] = Selector.open();
             Selector sel = sels[i];
+// [P3C C1 豁免] 性能测试，线程创建为基准参数描述
             Thread t = new Thread(() -> loop(sel), "echo-loop-" + i);
             t.setDaemon(true);
             t.start();
         }
+// [P3C C1 豁免] 性能测试，线程创建为基准参数描述
         Thread acc = new Thread(() -> {
             try {
                 while (running) {
@@ -66,8 +68,8 @@ public class RawEchoCpuMain {
         acc.setDaemon(true);
         acc.start();
 
-        System.out.println("[echo] READY port=" + port + " loops=" + loops);
-        System.out.flush();
+        System.out.println("[echo] READY port=" + port + " loops=" + loops); // [P3C E1 豁免]
+        System.out.flush(); // [P3C E1 豁免]
 
         ThreadMXBean mx = ManagementFactory.getThreadMXBean();
         if (mx.isThreadCpuTimeSupported() && !mx.isThreadCpuTimeEnabled()) {
@@ -94,7 +96,7 @@ public class RawEchoCpuMain {
         }
         long served = SERVED.sum();
         running = false;
-        System.out.println("[cpu] wall=" + wall / 1_000_000_000L + "s processCpu="
+        System.out.println("[cpu] wall=" + wall / 1_000_000_000L + "s processCpu=" // [P3C E1 豁免]
                 + String.format("%.2f", totalCpu * 100.0 / wall) + "%"
                 + " requests=" + served + " cpu_ns_per_request="
                 + String.format("%.1f", served > 0 ? (double) totalCpu / served : 0));

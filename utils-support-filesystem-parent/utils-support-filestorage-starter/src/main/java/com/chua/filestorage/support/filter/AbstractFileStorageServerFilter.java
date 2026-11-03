@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.filestorage.support.filter;
 
 import com.chua.common.support.file.converter.ImageOperation;
@@ -115,6 +116,7 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
         if (shutdownHook == null) {
             synchronized (AbstractFileStorageServerFilter.class) {
                 if (shutdownHook == null) {
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
                     shutdownHook = new Thread(() -> {
                         for (PreviewPdfCache cache : ALL_CACHES) {
                             try {

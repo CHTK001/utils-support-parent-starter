@@ -12,7 +12,7 @@
     <artifactId>utils-support-middleware-parent</artifactId>
     <packaging>pom</packaging>
     <name>Utils Support Middleware Parent</name>
-    <description>中间件集成父模块：Kafka、RabbitMQ、Redis、Chronicle、Tomcat、Undertow 等</description>
+    <description>中间件集成父模块：Kafka、RabbitMQ、Redis、Chronicle、Tomcat、Undertow、OpenTelemetry、Prometheus 等</description>
     <modules>
         <module>utils-support-kafka-starter</module>
         <module>utils-support-nats-starter</module>
@@ -22,6 +22,7 @@
         <module>utils-support-redis-starter</module>
         <module>utils-support-nacos-starter</module>
         <module>utils-support-zookeeper-starter</module>
+        <module>utils-support-opentelemetry-starter</module>
         <module>utils-support-apollo-starter</module>
         <module>utils-support-minio-starter</module>
         <module>utils-support-docker-starter</module>

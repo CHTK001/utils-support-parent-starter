@@ -140,7 +140,7 @@ public class CommandLine {
  }
 
  /**
-  * 打印帮助信息（根据已注册的命令自动组装）。
+  * 打印帮助信息（根据已注册的命令自动组装）。（P3C E1 豁免：CLI 程序的标准输出契约）
   */
  public void help() {
  StringBuilder sb = new StringBuilder();
@@ -160,7 +160,7 @@ public class CommandLine {
  }
  sb.append("\n");
  }
- System.out.println(sb);
+ System.out.println(sb); // [P3C E1 豁免]
  }
 
  /**

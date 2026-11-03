@@ -43,9 +43,9 @@ public class HttpServerCpuMain {
         AbstractServer server = "aio".equals(type) ? new AioHttpServer(setting) : new NioHttpServer(setting);
         server.registerMapping("/echo", HttpMethod.GET, ECHO);
         server.start();
-        System.out.println("[server] READY type=" + type + " port=" + server.getPort()
+        System.out.println("[server] READY type=" + type + " port=" + server.getPort() // [P3C E1 豁免]
                 + " eventLoops=" + setting.getEventLoops());
-        System.out.flush();
+        System.out.flush(); // [P3C E1 豁免]
 
         ThreadMXBean mx = ManagementFactory.getThreadMXBean();
         boolean cpuSupported = mx.isThreadCpuTimeSupported();
@@ -78,7 +78,7 @@ public class HttpServerCpuMain {
                 sb.append(String.format("  %-40s %8.2f%%%n", name, cpu * 100.0 / wall));
             }
         }
-        System.out.println("[cpu] wall=" + wall / 1_000_000_000L + "s processCpu="
+        System.out.println("[cpu] wall=" + wall / 1_000_000_000L + "s processCpu=" // [P3C E1 豁免]
                 + String.format("%.2f", totalCpu * 100.0 / wall) + "% (of 1600% machine capacity)");
 
         // 关键指标:每请求消耗的服务端 CPU 纳秒。
@@ -87,10 +87,10 @@ public class HttpServerCpuMain {
         long requests = server.getMetrics().getTotalRequests();
         double cpuPerReq = requests > 0 ? (double) totalCpu / requests : 0;
         double reqPerCpuSec = totalCpu > 0 ? requests / (totalCpu / 1e9) : 0;
-        System.out.println("[cpu] requests=" + requests + " cpu_ns_per_request="
+        System.out.println("[cpu] requests=" + requests + " cpu_ns_per_request=" // [P3C E1 豁免]
                 + String.format("%.1f", cpuPerReq) + " req_per_cpu_sec="
                 + String.format("%.0f", reqPerCpuSec));
-        System.out.println("[cpu] per thread:");
-        System.out.print(sb);
+        System.out.println("[cpu] per thread:"); // [P3C E1 豁免]
+        System.out.print(sb); // [P3C E1 豁免]
     }
 }

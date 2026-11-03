@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.dingding.support.bot;
 
 import com.chua.common.support.network.client.ClientResponse;
@@ -810,6 +811,7 @@ public class DingTalkBotClient implements BotClient {
      * 启动长连接线程
      */
     private void startWebSocketLoop() {
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
         Thread thread = new Thread(this::runWebSocketLoop, "dingtalk-bot-ws");
         thread.setDaemon(true);
         wsThread = thread;

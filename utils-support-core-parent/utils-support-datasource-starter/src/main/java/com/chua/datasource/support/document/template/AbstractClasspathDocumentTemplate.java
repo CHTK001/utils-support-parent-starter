@@ -279,7 +279,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
         for (TableData table : data.getTables()) {
             String title = nullToEmpty(table.getTableName());
             if (table.getRemark() != null && !table.getRemark().isEmpty()) {
-                title += "（" + table.getRemark() + "）";
+                title = title.concat("（" + table.getRemark() + "）");
             }
             sb.append("## ").append(title).append("\n\n");
             sb.append("| 序号 | 列名 | 类型 | 大小 | 小数位 | 可空 | 主键 | 默认值 | 备注 |\n");

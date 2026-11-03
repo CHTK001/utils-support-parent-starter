@@ -75,7 +75,7 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
                     }
                     // 同步执行：避免与 whenComplete 竞争导致 404 状态丢失
                     handler.handle(request, response);
-                    return CompletableFuture.completedStage(null);
+                    return CompletableFuture.completedFuture(null);
                 } catch (Exception e) {
                     log.warn("响应式处理器执行异常: {}", e.getMessage(), e);
                     if (!response.isEnded()) {
@@ -87,7 +87,7 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
                     }
                 }
             }
-            return CompletableFuture.completedStage(null);
+            return CompletableFuture.completedFuture(null);
         }
 
         ReactiveServerFilter filter = filters.get(index++);
@@ -98,7 +98,7 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
         // 视为恒启用（仅包装的同步过滤器与 DelegatingServerFilter 支持热启停）。
         if (filter instanceof ServerFilter syncFilter && !syncFilter.isEnabled()) {
             if (response.isEnded()) {
-                return CompletableFuture.completedStage(null);
+                return CompletableFuture.completedFuture(null);
             }
             return doFilter(request, response);
         }
@@ -108,7 +108,7 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
         if (path != null && !matchPath(path, request.getPath())) {
             // 路径不匹配，跳过此 filter 继续下一个
             if (response.isEnded()) {
-                return CompletableFuture.completedStage(null);
+                return CompletableFuture.completedFuture(null);
             }
             return doFilter(request, response);
         }
@@ -116,7 +116,7 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
         try {
             CompletionStage<Void> stage = filter.doFilter(request, response, this);
             if (stage == null) {
-                return CompletableFuture.completedStage(null);
+                return CompletableFuture.completedFuture(null);
             }
             return stage;
         } catch (Exception e) {
@@ -128,7 +128,7 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
                     log.warn("发送 500 错误失败: {}", ex.getMessage(), ex);
                 }
             }
-            return CompletableFuture.completedStage(null);
+            return CompletableFuture.completedFuture(null);
         }
     }
 
