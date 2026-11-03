@@ -27,9 +27,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -645,27 +647,53 @@ public class TraeChatClient implements ChatClient {
     /**
      * 探测本机 Trae 数据根目录（storage.json 的上级目录）。
      *
-     * <p>注意 {@link AuthManager} 的 {@code dataDir} 语义是「应用数据根目录」，
-     * 它内部会再拼 {@code User/globalStorage/storage.json}，因此这里只返回根目录，
-     * 不能直接给 globalStorage 路径（否则会拼成两段 User）。</p>
-     *
      * @return 数据根目录；找不到时返回 {@code null}
      */
     private String resolveDataDir() {
-        List<Path> candidates = new ArrayList<>(3);
-        String env = System.getenv(DATA_DIR_ENV);
-        if (!StringUtils.isEmpty(env)) {
-            candidates.add(Path.of(env));
+        return resolveDataDir(edition,
+                System.getenv(DATA_DIR_ENV),
+                System.getenv("APPDATA"),
+                System.getProperty("user.home"));
+    }
+
+    /**
+     * 按版本挑选本机 Trae 数据根目录（storage.json 的<b>上级</b>目录）。
+     *
+     * <p>注意 {@link AuthManager} 的 {@code dataDir} 语义是「应用数据根目录」，它内部会再拼
+     * {@code User/globalStorage/storage.json}；因此这里必须返回根目录，不能直接给
+     * {@code globalStorage} 路径（否则会拼成两段 {@code User}，
+     * {@link AuthManager#fromTraeDataDir(Path)} 就踩了这个坑）。</p>
+     *
+     * <p><b>版本与目录必须匹配</b>：国内版（cn）把数据放在 {@code Trae CN}，国际版（sg）放在
+     * {@code Trae}。两台都装时若不分版本取第一个存在的目录，就会拿国内 token 去打国际网关
+     * （{@code apiHost} 只由 provider 决定），登录态必然失效，故先按版本排序候选目录。</p>
+     *
+     * <p>候选优先级：显式环境变量 {@value #DATA_DIR_ENV} → {@code %APPDATA%} 下对应版本目录
+     * → {@code ~/AppData/Roaming} 下对应版本目录（后两者相同路径会被去重）。
+     * 只有 {@code User/globalStorage/storage.json} 真实存在的目录才会被采用。</p>
+     *
+     * @param edition 版本：{@code cn} / {@code sg}
+     * @param envDir  环境变量 {@value #DATA_DIR_ENV} 的值，可为空
+     * @param appData 环境变量 {@code APPDATA} 的值，可为空
+     * @param home    系统属性 {@code user.home} 的值，可为空
+     * @return 数据根目录；找不到时返回 {@code null}
+     */
+    static String resolveDataDir(String edition, String envDir, String appData, String home) {
+        Set<Path> candidates = new LinkedHashSet<>(8);
+        if (!StringUtils.isEmpty(envDir)) {
+            candidates.add(Path.of(envDir));
         }
-        String appData = System.getenv("APPDATA");
+        // 国际版优先找 Trae，其余（含空值）按国内版优先找 Trae CN
+        List<String> names = "sg".equalsIgnoreCase(edition) ? List.of("Trae", "Trae CN") : List.of("Trae CN", "Trae");
         if (!StringUtils.isEmpty(appData)) {
-            candidates.add(Path.of(appData, "Trae CN"));
-            candidates.add(Path.of(appData, "Trae"));
+            for (String name : names) {
+                candidates.add(Path.of(appData, name));
+            }
         }
-        String home = System.getProperty("user.home");
         if (!StringUtils.isEmpty(home)) {
-            candidates.add(Path.of(home, "AppData", "Roaming", "Trae CN"));
-            candidates.add(Path.of(home, "AppData", "Roaming", "Trae"));
+            for (String name : names) {
+                candidates.add(Path.of(home, "AppData", "Roaming", name));
+            }
         }
         for (Path candidate : candidates) {
             if (Files.exists(candidate.resolve("User").resolve("globalStorage").resolve("storage.json"))) {

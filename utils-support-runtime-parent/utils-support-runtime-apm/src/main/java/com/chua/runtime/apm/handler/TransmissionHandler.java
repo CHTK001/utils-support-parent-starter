@@ -400,7 +400,6 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
  // 同步到依赖图（dependency图计算处理器）
             emitToDependencyGraph(record);
 
-            // 持久化（SPI 接入存储层）
             LOG.log(Level.FINE,
                     String.format("[Transmission] %s %s -> %s %sms software=%s", record.getProtocol(),
                                   record.getOperation(),
@@ -663,6 +662,18 @@ case HDFS, SPARK, FLINK -> { return Protocol.INTERNAL; }
      */
     public List<TransmissionRecord> getRecords() {
         return records.snapshot();
+    }
+
+    /**
+     * 新增一条传输记录（供慢调用等分析器写入）
+     *
+     * @param record 传输记录
+     */
+    public void record(TransmissionRecord record) {
+        if (record == null) {
+            return;
+        }
+        records.add(record);
     }
 
     /**
