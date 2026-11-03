@@ -250,6 +250,41 @@ class TraeLoginStateResolutionTest {
     }
 
     /**
+     * 出图张数超上限必须在**任何网络调用之前**被拒绝（按张计费，防止参数被放大）。
+     */
+    @Test
+    @DisplayName("出图张数超过上限直接拒绝")
+    void rejectsTooManyImages() {
+        TraeChatClient client = new TraeChatClient(ChatClientSetting.builder().provider("trae").build());
+        try {
+            IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                    () -> client.generateImage("一只猫", "1:1", 50, 0, 0, null, null));
+            assertTrue(error.getMessage().contains("单次最多"), error.getMessage());
+        } finally {
+            client.close();
+        }
+    }
+
+    /**
+     * 空提示词与不合法的自定义尺寸同样是本地校验失败（不发请求、不计费）。
+     */
+    @Test
+    @DisplayName("空提示词与非法尺寸在本地被拒")
+    void rejectsInvalidImageArguments() {
+        TraeChatClient client = new TraeChatClient(ChatClientSetting.builder().provider("trae").build());
+        try {
+            assertThrows(IllegalArgumentException.class,
+                    () -> client.generateImage("", "1:1", 1, 0, 0, null, null));
+            // 1024x1024 总像素低于 Ark 下限，必须在本地被拒（否则上游报错且浪费时间）
+            IllegalArgumentException sizeError = assertThrows(IllegalArgumentException.class,
+                    () -> client.generateImage("一只猫", "1:1", 1, 1024, 1024, null, null));
+            assertTrue(sizeError.getMessage().contains("总像素"), sizeError.getMessage());
+        } finally {
+            client.close();
+        }
+    }
+
+    /**
      * 本机真实登录态探测（国内版）：解析目录 → 读 storage.json（CN 版为 tc 加密串）→ 得到 JWT。
      *
      * <p>未安装 Trae 的环境自动跳过。</p>

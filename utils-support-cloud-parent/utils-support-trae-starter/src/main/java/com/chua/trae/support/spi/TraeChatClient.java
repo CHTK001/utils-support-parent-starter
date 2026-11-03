@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -112,6 +111,15 @@ public class TraeChatClient implements ChatClient {
      * JWT 前缀，用于区分「手动令牌」与普通密钥
      */
     private static final String JWT_PREFIX = "eyJ";
+
+    /**
+     * 单次调用允许的最大出图张数。
+     *
+     * <p>Trae 文生图按张计费（单张约 8.8 积分），且是同步阻塞调用：一旦请求体里的
+     * {@code n} 被放大成几十张，就会在几分钟内产生真实的积分消耗。这里在客户端侧兜底，
+     * 超过上限直接拒绝，而不是静默截断（避免「以为生成了 10 张、实际只出 4 张」）。</p>
+     */
+    private static final int MAX_IMAGES_PER_CALL = 4;
 
     /**
      * Trae 数据根目录环境变量（便于测试与非默认安装位）
@@ -253,9 +261,15 @@ public class TraeChatClient implements ChatClient {
     @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
+        Consumer<ChatResponse> sink = consumer == null ? response -> {
+        } : consumer;
+        Runnable complete = onComplete == null ? () -> {
+        } : onComplete;
+        Consumer<Throwable> failure = onError == null ? error -> {
+        } : onError;
         try {
             delegate().chatStream(buildRequest(prompt),
-                    text -> consumer.accept(ChatResponse.builder()
+                    text -> sink.accept(ChatResponse.builder()
                             .state(ChatResponse.State.STREAMING)
                             .content(text)
                             .build()),
@@ -263,25 +277,25 @@ public class TraeChatClient implements ChatClient {
                         // 推理片段不单独推送：统一在完成事件里返回完整文本，避免前端拼接错位
                     },
                     response -> {
-                        consumer.accept(ChatResponse.builder()
+                        sink.accept(ChatResponse.builder()
                                 .state(ChatResponse.State.STOP)
                                 .content(textOf(response))
                                 .build());
-                        onComplete.run();
+                        complete.run();
                     },
                     error -> {
-                        consumer.accept(ChatResponse.builder()
+                        sink.accept(ChatResponse.builder()
                                 .state(ChatResponse.State.ERROR)
-                                .errorMessage(error.getMessage())
+                                .errorMessage(error == null ? "" : error.getMessage())
                                 .build());
-                        onError.accept(error);
+                        failure.accept(error);
                     });
         } catch (Throwable e) {
-            consumer.accept(ChatResponse.builder()
+            sink.accept(ChatResponse.builder()
                     .state(ChatResponse.State.ERROR)
                     .errorMessage(e.getMessage())
                     .build());
-            onError.accept(e);
+            failure.accept(e);
         }
     }
 
@@ -351,6 +365,10 @@ public class TraeChatClient implements ChatClient {
         if (StringUtils.isEmpty(prompt)) {
             throw new IllegalArgumentException("prompt 不能为空");
         }
+        if (n > MAX_IMAGES_PER_CALL) {
+            throw new IllegalArgumentException("Trae 文生图按张计费，单次最多 " + MAX_IMAGES_PER_CALL
+                    + " 张，当前请求 n=" + n);
+        }
         String imageSize = resolveImageSize(ratio, width, height);
         int count = Math.max(1, n);
         List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>(count);
@@ -358,6 +376,8 @@ public class TraeChatClient implements ChatClient {
             String uri = requestImage(prompt, imageSize);
             String signedUrl = signedResourceUrl(uri);
             int[] size = parseSize(imageSize);
+            // 注意 GeneratedImage 的形参顺序是 (key, thumbUrl, oriUrl, rawUrl, w, h, format)：
+            // Trae 只返回一个签名地址，缩略图 / 原图 / 预览图共用同一 URL（前端按 oriUrl 打开原图）
             images.add(new ImageGenerationResult.GeneratedImage(
                     uri, signedUrl, signedUrl, signedUrl, size[0], size[1], "jpeg"));
         }
@@ -503,11 +523,19 @@ public class TraeChatClient implements ChatClient {
     @Override
     public void close() {
         com.chua.trae.support.ChatClient client = this.delegate;
+        TraeHttpClient http = this.httpClient;
+        // 先置空再释放：OkHttp 的 dispatcher 线程池一旦 shutdown 就不能再提交任务，
+        // 若保留引用，后续误用同一个实例会抛 RejectedExecutionException；
+        // 置空后再次调用 chat 会重新解析登录态并重建客户端，语义更接近「连接池已关闭」。
+        this.delegate = null;
+        this.authManager = null;
+        this.httpClient = null;
         if (client != null) {
             client.close();
         }
-        TraeHttpClient http = this.httpClient;
         if (http != null) {
+            // TraeHttpClient 每次 build 都持有独立的 OkHttpClient（非共享单例），
+            // 因此这里终止它自己的线程池即可，不会影响其它实例
             http.rawClient().dispatcher().executorService().shutdown();
             http.rawClient().connectionPool().evictAll();
         }
