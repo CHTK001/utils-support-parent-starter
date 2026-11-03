@@ -55,7 +55,7 @@ class OpenTelemetryEngineTest {
         try {
             OpenTelemetryClient clientA = OpenTelemetryClient.builder().serviceName("a").build();
             engine.addDataSource("a", clientA);
-            OpenTelemetryDataSource dataSourceA = (OpenTelemetryDataSource) engine.getDataSource("a");
+            EngineDataSource<OpenTelemetryClient> dataSourceA = engine.getDataSource("a");
             assertEquals(clientA, dataSourceA.getSource());
             assertEquals("a", dataSourceA.name());
             assertEquals(clientA.getEndpoint(), dataSourceA.url());

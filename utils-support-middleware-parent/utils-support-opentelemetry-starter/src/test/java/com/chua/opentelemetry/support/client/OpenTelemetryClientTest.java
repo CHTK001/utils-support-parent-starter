@@ -74,7 +74,7 @@ class OpenTelemetryClientTest {
             io.opentelemetry.api.trace.Span root = client.startSpan("root");
             io.opentelemetry.api.trace.Span child = client.tracer()
                     .spanBuilder("child")
-                    .setParent(root)
+                    .setParent(root.storeInContext(io.opentelemetry.context.Context.root()))
                     .setSpanKind(SpanKind.CLIENT)
                     .startSpan();
             child.setAttribute("error.type", "java.io.IOException");
