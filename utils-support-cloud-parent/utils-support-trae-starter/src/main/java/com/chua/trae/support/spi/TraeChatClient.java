@@ -637,11 +637,18 @@ public class TraeChatClient implements ChatClient {
     /**
      * 取手动 JWT 令牌。
      *
+     * <p>先 {@code trim()} 再判断前缀：从浏览器 / 文档复制 JWT 时经常带首尾空白或换行，
+     * 若先判断前缀就会把合法令牌误判成「不是 JWT」，进而回落本机登录态或直接报「未检测到登录态」。</p>
+     *
      * @return JWT；未配置或格式不符时返回 {@code null}
      */
     private String resolveManualToken() {
         String appKey = setting.getAppKey();
-        return appKey != null && appKey.startsWith(JWT_PREFIX) ? appKey.trim() : null;
+        if (appKey == null) {
+            return null;
+        }
+        String token = appKey.trim();
+        return token.startsWith(JWT_PREFIX) ? token : null;
     }
 
     /**
