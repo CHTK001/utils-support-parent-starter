@@ -57,6 +57,19 @@
           集中在此定义，便于个别模块覆盖。
         -->
         <enable.preview.jvm.args>--enable-preview</enable.preview.jvm.args>
+        <!--
+          【2026-11-03 修复】surefire 的 &lt;argLine&gt; 需要拼接 JaCoCo prepare-agent 写入的
+          ${argLine}（-javaagent 参数）。此前该属性没有任何默认值，在「未启用 JaCoCo」的
+          模块里它不会被插值，字面量 "${argLine}" 被原样传进 fork JVM：
+
+              java [enable-preview 参数] ${argLine} -jar surefirebooter.jar ...
+
+          fork 启动即失败，现象是 Process Exit Code: 1 + Tests run: 0 +
+          "The forked VM terminated without properly saying goodbye"，看起来像是测试代码的问题，
+          实为构建配置问题。这里给一个空默认值消除字面量；命令行仍可用 -DargLine="..."
+          覆盖（用户属性优先于本属性）。
+        -->
+        <argLine></argLine>
         <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
         <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
@@ -2219,11 +2232,18 @@
                           表现为 Tests run: 0 且 BUILD FAILURE。
                           故此处统一为所有模块的测试 JVM 开启预览特性。
 
-                          【2026-11-03 补充】${argLine} 是 JaCoCo prepare-agent 的代理参数（-javaagent:...），
-                          若不在这里拼接，surefire 会只沿用 ${enable.preview.jvm.args}，
-                          导致 JaCoCo 探针不生效、jacoco.exec 缺失、jacoco:report 报 "missing execution data file"。
+                          【2026-11-03 修正】JaCoCo prepare-agent 的代理参数（-javaagent:...）
+                          通过属性 argLine 传递给 fork JVM。这里必须用 surefire 的**延迟求值**
+                          语法 @{argLine}（而不是 ${argLine}）：
+                            · ${argLine} 在 POM 建模阶段就完成插值，那时 prepare-agent 还没跑，
+                              JaCoCo 探针会丢，jacoco.exec 缺失、jacoco:report 报
+                              "missing execution data file"；
+                            · @{argLine} 在插件执行、真正拼 fork 命令时才取值，JaCoCo 参数
+                              与预览特性参数都能生效。
+                          argLine 属性在父 POM properties 里已给空默认值，未启用 JaCoCo 时
+                          只会得到预览特性参数，不会再把字面量占位符传给 java。
                         -->
-                        <argLine>${enable.preview.jvm.args} ${argLine}</argLine>
+                        <argLine>@{argLine} ${enable.preview.jvm.args}</argLine>
                         <includes>
                             <include>**/*Test.java</include>
                             <include>**/*IT.java</include>

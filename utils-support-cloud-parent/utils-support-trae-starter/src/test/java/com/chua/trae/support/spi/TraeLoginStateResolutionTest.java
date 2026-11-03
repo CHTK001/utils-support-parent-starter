@@ -250,7 +250,7 @@ class TraeLoginStateResolutionTest {
     }
 
     /**
-     * 本机真实登录态探测：解析目录 → 读 storage.json（CN 版为 tc 加密串）→ 得到 JWT。
+     * 本机真实登录态探测（国内版）：解析目录 → 读 storage.json（CN 版为 tc 加密串）→ 得到 JWT。
      *
      * <p>未安装 Trae 的环境自动跳过。</p>
      *
@@ -259,14 +259,44 @@ class TraeLoginStateResolutionTest {
     @Test
     @DisplayName("本机真实登录态可被解析（未安装则跳过）")
     void realMachineLoginStateResolves() throws Exception {
-        TraeChatClient client = new TraeChatClient(ChatClientSetting.builder().provider("trae").build());
-        String dataDir = invokeString(client, "resolveDataDir");
-        Assumptions.assumeTrue(dataDir != null, "本机未检测到 Trae 登录态，跳过真实数据校验");
+        assertRealLoginState("cn");
+    }
 
-        AuthManager.AuthSnapshot snapshot = new AuthManager("cn", dataDir, null, CN_HOST).getAuth();
+    /**
+     * 本机真实登录态探测（国际版）：{@code sg} 必须命中 {@code Trae} 目录且能解出 JWT。
+     *
+     * <p>本机只装了国内版时自动跳过；同时装了国际版时用来证明「版本 → 目录」映射没有串味。</p>
+     *
+     * @throws Exception 反射 / 读取失败
+     */
+    @Test
+    @DisplayName("国际版本机登录态可被解析（未安装则跳过）")
+    void realMachineGlobalLoginStateResolves() throws Exception {
+        assertRealLoginState("sg");
+    }
+
+    /**
+     * 按版本探测本机真实登录态并断言拿到 JWT。
+     *
+     * @param edition 版本：{@code cn} / {@code sg}
+     * @throws Exception 反射 / 读取失败
+     */
+    private static void assertRealLoginState(String edition) throws Exception {
+        String dataDir = TraeChatClient.resolveDataDir(edition,
+                System.getenv("TRAE_DATA_DIR"), System.getenv("APPDATA"), System.getProperty("user.home"));
+        Assumptions.assumeTrue(dataDir != null, "本机未检测到 " + edition + " 版 Trae 登录态，跳过真实数据校验");
+
+        AuthManager.AuthSnapshot snapshot = new AuthManager(edition, dataDir, null,
+                "sg".equals(edition) ? GLOBAL_HOST : CN_HOST).getAuth();
         assertNotNull(snapshot.token(), "storage.json 中应存在 token");
-        assertTrue(snapshot.token().startsWith("eyJ"), "token 应为 JWT（CN 版 tc 解密结果）");
+        assertTrue(snapshot.token().startsWith("eyJ"), "token 应为 JWT（tc 解密结果）");
         assertTrue(snapshot.token().length() > 60, "JWT 长度异常");
+        // 版本必须与目录一致：sg 取的是 Trae，cn 取的是 Trae CN
+        if ("sg".equals(edition)) {
+            assertTrue(dataDir.endsWith("Trae"), "sg 应命中 Trae 目录: " + dataDir);
+        } else {
+            assertTrue(dataDir.endsWith("Trae CN"), "cn 应命中 Trae CN 目录: " + dataDir);
+        }
     }
 
     /**
