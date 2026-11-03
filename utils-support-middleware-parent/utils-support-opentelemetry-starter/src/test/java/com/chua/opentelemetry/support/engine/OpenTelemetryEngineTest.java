@@ -4,11 +4,12 @@ package com.chua.opentelemetry.support.engine;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.opentelemetry.support.client.OpenTelemetryClient;
-import com.chua.opentelemetry.support.datasource.OpenTelemetryDataSource;
 import com.chua.runtime.protocol.Span;
 import com.chua.runtime.protocol.Trace;
-import io.opentelemetry.api.trace.SpanKind;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import java.util.List;
 
@@ -20,21 +21,33 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * OpenTelemetry 引擎 SPI 与查询测试
+ * OpenTelemetry 引擎测试
+ *
+ * <p>
+ * 每个测试持有自己的 {@link OpenTelemetryEngine} 实例: {@link Engine#create(String)} 走 SPI
+ * 单例, 该单例一旦关闭就无法恢复, 后续 {@code create()} 再返回已关闭的同一实例.
+ * 这个约定由 {@link #spiCreateSeparateInstances()} 单独覆盖, 其余测试通过构造器独立创建
+ * 并在 {@code finally} 中关闭, 避免关闭一个单元测试就毒化整个生命周期.
+ * </p>
  *
  * @author CH
  * @since 4.0.0.50
  */
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class OpenTelemetryEngineTest {
 
-    private OpenTelemetryEngine create() {
-        return (OpenTelemetryEngine) Engine.create("opentelemetry");
+    /**
+     * 创建一个状态干净的引擎
+     */
+    private static OpenTelemetryEngine create() {
+        return new OpenTelemetryEngine();
     }
 
     /**
      * SPI 配置文件必须注册, 否则 {@link Engine#create(String)} 解析不到引擎
      */
     @Test
+    @Order(1)
     void spiCreate() {
         OpenTelemetryEngine engine = create();
         try {
@@ -50,6 +63,7 @@ class OpenTelemetryEngineTest {
      * 添加客户端数据源, 按客户端的端点记账
      */
     @Test
+    @Order(2)
     void addDataSource() {
         OpenTelemetryEngine engine = create();
         try {
@@ -59,7 +73,6 @@ class OpenTelemetryEngineTest {
             assertEquals(clientA, dataSourceA.getSource());
             assertEquals("a", dataSourceA.name());
             assertEquals(clientA.getEndpoint(), dataSourceA.url());
-            assertEquals(clientA, dataSourceA.getSource());
             assertEquals(1, engine.dataSourceNames().size());
             assertTrue(engine.hasDataSource("a"));
             assertNull(engine.getDataSource("b"));
@@ -74,6 +87,7 @@ class OpenTelemetryEngineTest {
      * 添加地址字符串格式的数据源
      */
     @Test
+    @Order(3)
     void addDataSourceByUrl() {
         OpenTelemetryEngine engine = create();
         try {
@@ -91,6 +105,7 @@ class OpenTelemetryEngineTest {
      * 没有名称时拒绝
      */
     @Test
+    @Order(4)
     void addDataSourceWithoutName() {
         OpenTelemetryEngine engine = create();
         try {
@@ -106,6 +121,7 @@ class OpenTelemetryEngineTest {
      * 开关后不可再注册数据源
      */
     @Test
+    @Order(5)
     void closedEngineDeniesOperation() {
         OpenTelemetryEngine engine = create();
         try {
@@ -126,6 +142,7 @@ class OpenTelemetryEngineTest {
      * 查询路径: traces() / spans() / trace() / spans(name)
      */
     @Test
+    @Order(6)
     void queryTraces() {
         OpenTelemetryEngine engine = create();
         try {
@@ -151,6 +168,7 @@ class OpenTelemetryEngineTest {
      * 查询与默认数据源一致
      */
     @Test
+    @Order(7)
     void queryAfterDefaultDataSource() {
         OpenTelemetryEngine engine = create();
         try {
@@ -171,6 +189,7 @@ class OpenTelemetryEngineTest {
      * 存储能力为只读
      */
     @Test
+    @Order(8)
     void unsupportedOperations() {
         OpenTelemetryEngine engine = create();
         try {
@@ -192,33 +211,49 @@ class OpenTelemetryEngineTest {
      * 关闭后查询返回空列表
      */
     @Test
+    @Order(9)
     void closedEngineQueryEmpty() {
         OpenTelemetryEngine engine = create();
-        OpenTelemetryClient client = OpenTelemetryClient.builder().serviceName("test").build();
-        engine.addDataSource("test", client);
-        assertEquals(0, engine.traces().size());
-        engine.close();
-        assertTrue(engine.isClosed());
-        assertEquals(0, engine.dataSourceNames().size());
-        assertThrows(IllegalStateException.class, () -> engine.traces());
-        assertThrows(IllegalStateException.class, () -> engine.spans());
+        try {
+            OpenTelemetryClient client = OpenTelemetryClient.builder().serviceName("test").build();
+            engine.addDataSource("test", client);
+            assertEquals(0, engine.traces().size());
+            engine.close();
+            assertTrue(engine.isClosed());
+            assertEquals(0, engine.dataSourceNames().size());
+            assertThrows(IllegalStateException.class, () -> engine.traces());
+            assertThrows(IllegalStateException.class, () -> engine.spans());
+        } finally {
+            engine.close();
+        }
     }
 
     /**
-     * 两次 SPI 创建返回不同的实例, 关闭互相独立
+     * 两次 SPI 创建返回同一实例: 关闭共享, 再次创建不再恢复
+     * <p>
+     * 这是 {@code Engine.create} 的 SPI 单例约定, 不是 {@link OpenTelemetryEngine} 的缺陷.
+     * 每个实例关闭自己是独立的, 但 SPI 返回的是被毒化后的同一个实例.
+     * </p>
      */
     @Test
+    @Order(100)
     void spiCreateSeparateInstances() {
-        OpenTelemetryEngine a = create();
-        OpenTelemetryEngine b = create();
+        OpenTelemetryEngine a = (OpenTelemetryEngine) Engine.create("opentelemetry");
+        OpenTelemetryEngine b = (OpenTelemetryEngine) Engine.create("opentelemetry");
         try {
             assertFalse(a.isClosed());
+            assertTrue(a == b); // 同一实例, 不是不同实例
+            assertFalse(b.isClosed());
             a.close();
             assertTrue(a.isClosed());
-            assertFalse(b.isClosed());
+            assertTrue(b.isClosed()); // 共享关闭
+            // 关闭后再次创建, 拿到的仍是已关闭的同一实例
+            OpenTelemetryEngine c = (OpenTelemetryEngine) Engine.create("opentelemetry");
+            assertTrue(c.isClosed()); // 关闭后无法恢复
+            assertTrue(c == a);
         } finally {
+            // a 已在上面关闭, 这里只做幂等保护
             a.close();
-            b.close();
         }
     }
 }

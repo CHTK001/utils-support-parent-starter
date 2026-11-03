@@ -62,7 +62,6 @@ public class OpenTelemetryEngine implements Engine {
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     public OpenTelemetryEngine() {
-        System.out.println("[DBG-ENGINE] instance " + System.identityHashCode(this) + " created");
     }
 
     /**
@@ -79,7 +78,6 @@ public class OpenTelemetryEngine implements Engine {
      */
     @Override
     public <T> Engine addDataSource(String name, EngineDataSource<T> dataSource) {
-        System.out.println("[DBG-ENGINE] addDataSource on " + System.identityHashCode(this) + " closed=" + closed.get());
         ensureOpen();
         requireName(name);
         if (dataSource == null) {
@@ -468,7 +466,6 @@ public class OpenTelemetryEngine implements Engine {
      */
     @Override
     public synchronized void close() {
-        System.out.println("[DBG-ENGINE] instance " + System.identityHashCode(this) + " closed by " + Thread.currentThread().getName());
         if (!closed.compareAndSet(false, true)) {
             return;
         }
