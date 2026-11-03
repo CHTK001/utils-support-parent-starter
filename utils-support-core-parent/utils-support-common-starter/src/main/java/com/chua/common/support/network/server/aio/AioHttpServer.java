@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.server.aio;
 
 import com.chua.common.support.network.ProtocolType;
@@ -45,7 +46,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 基于 {@link AsynchronousSocketChannel} 的 HTTP/1.1 服务器实现(Proactor 模式)。
@@ -104,7 +104,10 @@ public class AioHttpServer extends AbstractServer {
     private static final int ACCEPT_DEPTH = 2;
 
     /**
-     * 最小 backlog:高并发连接突发下避免内核因队列满拒绝连接(与 NIO 版对齐)
+     * 最小 backlog：高并发连接突发下避免内核队列满导致连接被拒（与 NIO 版对齐）。
+     *
+     * <p>内核会按 {@code somaxconn} 截断，这里给大值等价于「用平台允许的最大队列」，
+     * 不预分配内存。</p>
      */
     private static final int MIN_BACKLOG = 65536;
 
@@ -181,9 +184,9 @@ public class AioHttpServer extends AbstractServer {
     private final List<AioWsConnection> wsConnections = new CopyOnWriteArrayList<>();
 
     /**
-     * 当前活跃连接数(观测用,验证高并发连接目标)
+     * 当前活跃连接数取 {@code metrics}（accept 时由 {@link #tryAcquireConnection()} 登记），
+     * 本类不再单独维护一份，避免两边漂移。
      */
-    private final AtomicInteger activeConnections = new AtomicInteger();
 
     /**
      * 读完成处理器(单例复用:attachment 携带连接状态,无 per-read 分配)
@@ -230,6 +233,7 @@ public class AioHttpServer extends AbstractServer {
             int groupThreads = setting.getEventLoops() > 0
                     ? setting.getEventLoops() : Runtime.getRuntime().availableProcessors();
             group = AsynchronousChannelGroup.withFixedThreadPool(groupThreads, r -> {
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
                 Thread t = new Thread(r, "aio-iocp-group");
                 t.setDaemon(true);
                 return t;
@@ -239,7 +243,7 @@ public class AioHttpServer extends AbstractServer {
             serverChannel.setOption(StandardSocketOptions.SO_REUSEADDR, setting.isSoReuseAddr());
             serverChannel.setOption(StandardSocketOptions.SO_RCVBUF,
                     Math.max(setting.getBufferSize(), MIN_SO_RCVBUF));
-            int backlog = Math.max(setting.getBacklog(), MIN_BACKLOG);
+            int backlog = setting.resolveBacklog(MIN_BACKLOG);
             serverChannel.bind(new InetSocketAddress(setting.getHost(), setting.getPort()), backlog);
 
             // 回填实际端口(port=0 时由系统分配)
@@ -297,6 +301,16 @@ public class AioHttpServer extends AbstractServer {
         public void completed(AsynchronousSocketChannel channel, Void attachment) {
             // 先补位:保证 accept 流水线不间断
             issueAccept();
+            if (!accepting) {
+                // 优雅关闭中：不再接纳新连接（存量连接不受影响）
+                closeChannelQuietly(channel);
+                return;
+            }
+            if (!tryAcquireConnection()) {
+                // 超限：回 503 + Retry-After 后关闭，让上游负载均衡正确摘流而不是当成网络故障
+                rejectOverloadedConnection(channel);
+                return;
+            }
             handleNewConnection(channel);
         }
 
@@ -316,28 +330,14 @@ public class AioHttpServer extends AbstractServer {
      * @param channel 新接入的通道
      */
     private void handleNewConnection(AsynchronousSocketChannel channel) {
-        // 连接数门限:超限直接关闭,与 AbstractProxyServer 语义一致。
-        // 先占位再校验,并发 accept 下计数不会突破上限(超额立即归还)。
-        int max = setting.getMaxConnections();
-        if (max > 0 && activeConnections.incrementAndGet() > max) {
-            activeConnections.decrementAndGet();
-            log.warn("AIO 连接数已达上限 (max={}), 拒绝 {}", max, safeRemote(channel));
-            try {
-                channel.close();
-            } catch (Exception ignored) {
-                // 关闭失败无需处理
-            }
-            return;
-        }
-        if (max <= 0) {
-            activeConnections.incrementAndGet();
-        }
         try {
             channel.setOption(StandardSocketOptions.TCP_NODELAY, setting.isTcpNoDelay());
         } catch (Exception e) {
             // 个别平台设置失败不影响主流程
             log.debug("TCP_NODELAY 设置失败: {}", e.getMessage());
         }
+        // 缓冲区按配置应用（默认不配置时无系统调用）
+        applyChannelSocketOptions(channel);
         ConnState state = new ConnState(channel);
         if (sslContext != null) {
             // TLS 连接:每连接独立 SSLEngine,纯异步状态机驱动握手(零阻塞、零驻留线程)
@@ -1487,29 +1487,76 @@ public class AioHttpServer extends AbstractServer {
     }
 
     /**
-     * 取远端地址用于日志,连接已断时返回 "-",不抛异常。
+     * 静默关闭通道（accept 后拒绝路径使用）。
      *
      * @param channel 通道
-     * @return 远端地址字符串
      */
-    private static String safeRemote(AsynchronousSocketChannel channel) {
+    private static void closeChannelQuietly(AsynchronousSocketChannel channel) {
         try {
-            java.net.SocketAddress addr = channel.getRemoteAddress();
-            return addr == null ? "-" : addr.toString();
-        } catch (Exception e) {
-            return "-";
+            channel.close();
+        } catch (Exception ignored) {
+            // 关闭失败无需处理
         }
     }
 
     /**
-     * 关闭连接(幂等):close 触发未完成的 read/write 回调进入 failed,
-     * 由 closed 标志短路,不会产生级联副作用。
+     * 对超出连接上限的客户端回 503 + {@code Retry-After} 后关闭。
+     *
+     * <p>只做一次尽力而为的异步短写：此时连请求都还没读，写失败也无所谓，
+     * 关键是别让连接挂在那里等超时（那会白占一个 fd 与一份连接预算）。</p>
+     *
+     * @param channel 刚 accept 的连接
+     */
+    private void rejectOverloadedConnection(AsynchronousSocketChannel channel) {
+        if (!setting.isRejectWith503()) {
+            closeChannelQuietly(channel);
+            return;
+        }
+        byte[] body = ("Service Unavailable: connection limit reached (maxConnections="
+                + setting.getMaxConnections() + ")").getBytes(StandardCharsets.UTF_8);
+        ByteBuffer resp = ByteBuffer.wrap((
+                "HTTP/1.1 503 Service Unavailable\r\n"
+                        + "Content-Type: text/plain; charset=utf-8\r\n"
+                        + "Content-Length: " + body.length + "\r\n"
+                        + "Retry-After: 1\r\n"
+                        + "Connection: close\r\n\r\n").getBytes(StandardCharsets.US_ASCII));
+        try {
+            channel.write(resp, null, new java.nio.channels.CompletionHandler<Integer, Void>() {
+                @Override
+                public void completed(Integer w, Void attachment) {
+                    channel.write(ByteBuffer.wrap(body), null, new java.nio.channels.CompletionHandler<Integer, Void>() {
+                        @Override
+                        public void completed(Integer w2, Void a2) {
+                            closeChannelQuietly(channel);
+                        }
+
+                        @Override
+                        public void failed(Throwable exc, Void a2) {
+                            closeChannelQuietly(channel);
+                        }
+                    });
+                }
+
+                @Override
+                public void failed(Throwable exc, Void attachment) {
+                    closeChannelQuietly(channel);
+                }
+            });
+        } catch (Throwable t) {
+            log.debug("[aio] 写 503 拒绝响应失败，直接关闭: {}", t.toString());
+            closeChannelQuietly(channel);
+        }
+    }
+
+    /**
+     * 关闭连接(幂等)：先 CAS 抢占关闭权再归还连接预算，
+     * 保证一条连接只归还一次（多处回调路径都会走到这里）。
      *
      * @param state 连接状态
      */
     private void closeConn(ConnState state) {
         if (!state.closed.getAndSet(true)) {
-            activeConnections.decrementAndGet();
+            releaseConnection();
             try {
                 state.channel.close();
             } catch (Exception ignored) {
@@ -1529,6 +1576,30 @@ public class AioHttpServer extends AbstractServer {
             } catch (Exception e) {
                 log.debug("关闭 serverChannel 失败，已忽略: {}", e.getMessage());
             }
+        }
+    }
+
+    /**
+     * 恢复接纳：{@link #doStopAccepting()} 关闭了监听通道，重开需要重新 bind。
+     *
+     * <p>与 {@link com.chua.common.support.network.server.nio.NioHttpServer} 保持同一语义：
+     * 摘流（{@code setAccepting(false)}）后可以原地恢复，不必 stop/start 整台服务器。</p>
+     */
+    @Override
+    protected void doStartAccepting() {
+        if (group == null) {
+            return;
+        }
+        try {
+            serverChannel = AsynchronousServerSocketChannel.open(group);
+            serverChannel.setOption(StandardSocketOptions.SO_REUSEADDR, setting.isSoReuseAddr());
+            serverChannel.bind(new InetSocketAddress(setting.getHost(), setting.getPort()),
+                    setting.resolveBacklog(MIN_BACKLOG));
+            setting.setPort(((InetSocketAddress) serverChannel.getLocalAddress()).getPort());
+            issueAccept();
+            log.info("AIO HttpServer 恢复接纳 {}:{}", setting.getHost(), setting.getPort());
+        } catch (Exception e) {
+            log.warn("AIO HttpServer 恢复接纳失败: {}", e.getMessage());
         }
     }
 
@@ -1560,8 +1631,9 @@ public class AioHttpServer extends AbstractServer {
      *
      * @return 活跃连接数
      */
+    @Override
     public int getActiveConnections() {
-        return activeConnections.get();
+        return metrics.getActiveConnections();
     }
 
     /**

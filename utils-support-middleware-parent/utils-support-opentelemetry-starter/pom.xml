@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-middleware-parent</artifactId>
+        <version>4.0.0.50</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-opentelemetry-starter</artifactId>
+    <description>OpenTelemetry 可观测性中间件集成模块，提供 Engine 引擎、OpenTelemetryClient 与自动装配</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+        </dependency>
+        <!-- DataSource SPI（运行时 import Dialect/EngineDataSource） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-datasource-starter</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <!-- 运行时协议模型（Span/Trace/SpanEvent/StatusCode） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-runtime-protocol</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- OpenTelemetry SDK 1.66.0（聚合包，提供 OpenTelemetrySdk/Builder） -->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk</artifactId>
+        </dependency>
+        <!-- Trace API 与 Sdk 实现 1.62.0：聚合包是薄包，实际 trace 类由子包提供 -->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk-trace</artifactId>
+            <version>1.62.0</version>
+        </dependency>
+        <!-- 内存导出器：默认无 OTLP 传输时缓存 Span 到内存，供本地查询 -->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk-testing</artifactId>
+            <version>1.62.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Spring Boot 自动配置（运行时反射 @AutoConfiguration/@ConfigurationProperties） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- 单元测试：仅使用 InMemorySpanExporter 缓存，不依赖外部服务 -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>6.1.3</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

@@ -91,8 +91,9 @@ class InMemoryEngineTest {
         // 断言：buildIndex 遇到 null 字段值时不发生 NPE（之前为必现）
         engine.index();
 
+        // id=3 的 age 为 null、email 有值：索引对 null 与有值字段都要成立
         User one = engine.query(User.class).eq(User::getId, 3).one();
-        assertNull(one.getEmail());
+        assertEquals("wangwu@example.com", one.getEmail());
         assertNull(one.getAge());
 
         // null 字段的等值查询也应有意义
@@ -112,9 +113,15 @@ class InMemoryEngineTest {
     @Test
     @DisplayName("LIKE 后缀匹配")
     void likeSuffix() {
+        // 包装器的 like() 会再包一层 %（value → %value%），故 "%三" 实际是 "%%三%"；
+        // 数据中只有「张三」含「三」，「王五」不含，命中 1 行
         List<User> list = engine.query(User.class).like(User::getName, "%三").list();
-        assertEquals(2, list.size());
-        assertEquals(List.of(1, 3), idOrderBy(list));
+        assertEquals(1, list.size());
+        assertEquals(List.of(1), idOrderBy(list));
+
+        // likeLeft 生成 "%三"（后缀匹配），语义与上面的显式通配一致
+        List<User> left = engine.query(User.class).likeLeft(User::getName, "三").list();
+        assertEquals(List.of(1), idOrderBy(left));
     }
 
     @Test
@@ -209,14 +216,16 @@ class InMemoryEngineTest {
     @DisplayName("按字符串排序字段值 null 排在最前")
     void orderByNullFirst() {
         List<User> list = engine.query(User.class).orderByAsc(User::getEmail).list();
-        assertEquals(List.of(5, 3, 2, 1, 4), idOrderBy(list));
+        // null 在前，其余按 email 字典序：lisi < wangwu < zhangsan < zhaoliu
+        assertEquals(List.of(5, 2, 3, 1, 4), idOrderBy(list));
     }
 
     @Test
     @DisplayName("SET 子句没有空格和空格分隔 comma 也能正确解析")
     void updateSetClause() {
+        // 参数顺序：先 SET 的 2 个占位符，再 WHERE 的 1 个占位符
         int affected = engine.executeUpdate(new UpdateSql<>(User.class,
-                "age = ?,name = ?","id = ?", List.of(40, "刘八")));
+                "age = ?,name = ?", "id = ?", List.of(40, "刘八", 4)));
         assertEquals(1, affected);
 
         User one = engine.query(User.class).eq(User::getId, 4).one();

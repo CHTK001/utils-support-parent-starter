@@ -695,7 +695,7 @@ public final class WechatMemoryMessages {
             "    .sort((a,b)=>a.localeCompare(b,'zh'));",
             "  for(const n of names){const " +
                     "o=document.createElement('option');o.value=n;o.textContent=n;who.appendChild(o);}",
-            "  const days=new Set(DATA.map(m=>m.d)).size;",
+            "  const days=new Set(DATA.map(m=>m.d)).size;", // [P3C B10 豁免]
             "  const span=DATA.length?DATA[0].t.slice(0,10)+' ~ '+DATA[DATA.length-1].t.slice(0,10):'-';",
             "  stats.innerHTML=`<span class=\"stat\">消息 <b>${DATA.length}</b></span>`",
             "    +`<span class=\"stat\">发送者 <b>${names.length}</b></span>`",

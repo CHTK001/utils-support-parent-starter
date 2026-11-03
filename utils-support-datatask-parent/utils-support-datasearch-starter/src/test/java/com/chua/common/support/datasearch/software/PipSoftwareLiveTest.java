@@ -33,8 +33,8 @@ public class PipSoftwareLiveTest {
         PipSoftwareProvider provider = new PipSoftwareProvider();
 
         List<SoftwareInfo> results = provider.search("requests");
-        System.out.println("      search(requests) ->");
-        results.forEach(s -> System.out.println("        " + s.getName() + " " + s.getVersion()
+        System.out.println("      search(requests) ->"); // [P3C E1 豁免]
+        results.forEach(s -> System.out.println("        " + s.getName() + " " + s.getVersion() // [P3C E1 豁免]
                 + " src=" + s.getSource() + " id=" + s.getPackageId()));
         check("pip 可返回解析结果", !results.isEmpty());
         check("version 已填充（修复前恒为空串）", !results.isEmpty()
@@ -44,12 +44,12 @@ public class PipSoftwareLiveTest {
         check("source 固定为 pip", results.stream().allMatch(s -> "pip".equals(s.getSource())));
 
         List<SoftwareInfo> injected = provider.search("requests & echo Collecting evil-pkg");
-        System.out.println("      search(注入串) -> size=" + injected.size());
-        injected.forEach(s -> System.out.println("        " + s.getName() + " " + s.getVersion()));
+        System.out.println("      search(注入串) -> size=" + injected.size()); // [P3C E1 豁免]
+        injected.forEach(s -> System.out.println("        " + s.getName() + " " + s.getVersion())); // [P3C E1 豁免]
         check("keyword 中的 & 未被当作命令执行", injected.stream()
                 .noneMatch(s -> "evil-pkg".equals(s.getName())));
 
-        System.out.println("[PipSoftwareLiveTest] pass=" + pass + " fail=" + fail);
+        System.out.println("[PipSoftwareLiveTest] pass=" + pass + " fail=" + fail); // [P3C E1 豁免]
         if (fail > 0) {
             System.exit(1);
         }
@@ -58,10 +58,10 @@ public class PipSoftwareLiveTest {
     private static void check(String name, boolean ok) {
         if (ok) {
             pass++;
-            System.out.println("  PASS " + name);
+            System.out.println("  PASS " + name); // [P3C E1 豁免]
         } else {
             fail++;
-            System.out.println("  FAIL " + name);
+            System.out.println("  FAIL " + name); // [P3C E1 豁免]
         }
     }
 }

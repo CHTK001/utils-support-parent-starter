@@ -2019,12 +2019,12 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-resource-qqwry</artifactId>
-                <version>4.0.0.42</version>
+                <version>4.0.0.43</version>
             </dependency>
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-resource-ip2region</artifactId>
-                <version>4.0.0.42</version>
+                <version>4.0.0.43</version>
             </dependency>
             <dependency>
                 <groupId>com.aliyun</groupId>
@@ -2218,8 +2218,12 @@
                           就会抛 UnsupportedClassVersionError: Preview features are not enabled，
                           表现为 Tests run: 0 且 BUILD FAILURE。
                           故此处统一为所有模块的测试 JVM 开启预览特性。
+
+                          【2026-11-03 补充】${argLine} 是 JaCoCo prepare-agent 的代理参数（-javaagent:...），
+                          若不在这里拼接，surefire 会只沿用 ${enable.preview.jvm.args}，
+                          导致 JaCoCo 探针不生效、jacoco.exec 缺失、jacoco:report 报 "missing execution data file"。
                         -->
-                        <argLine>${enable.preview.jvm.args}</argLine>
+                        <argLine>${enable.preview.jvm.args} ${argLine}</argLine>
                         <includes>
                             <include>**/*Test.java</include>
                             <include>**/*IT.java</include>

@@ -36,7 +36,7 @@ public class OpenMeteoWeatherFieldTest {
             summary();
             return;
         }
-        System.out.println("      city=" + info.city() + " temp=" + info.tempC()
+        System.out.println("      city=" + info.city() + " temp=" + info.tempC() // [P3C E1 豁免]
                 + " feelsLike=" + info.feelsLikeC() + " cloud=" + info.cloudcover()
                 + " pressure=" + info.pressure() + " obs=" + info.observationTime()
                 + " desc=" + info.weatherDesc());
@@ -55,7 +55,7 @@ public class OpenMeteoWeatherFieldTest {
             return;
         }
         for (DailyForecast day : forecast) {
-            System.out.println("      " + day.getDate() + " min=" + day.getMinTempC()
+            System.out.println("      " + day.getDate() + " min=" + day.getMinTempC() // [P3C E1 豁免]
                     + " avg=" + day.getAvgTempC() + " max=" + day.getMaxTempC()
                     + " uv=" + day.getUvIndex() + " sunHour=" + day.getSunHour()
                     + " hourly=" + (day.getHourly() == null ? 0 : day.getHourly().size()));
@@ -81,7 +81,7 @@ public class OpenMeteoWeatherFieldTest {
     }
 
     private static void summary() {
-        System.out.println("[OpenMeteoWeatherFieldTest] pass=" + pass + " fail=" + fail);
+        System.out.println("[OpenMeteoWeatherFieldTest] pass=" + pass + " fail=" + fail); // [P3C E1 豁免]
         if (fail > 0) {
             System.exit(1);
         }
@@ -94,10 +94,10 @@ public class OpenMeteoWeatherFieldTest {
     private static void check(String name, boolean ok) {
         if (ok) {
             pass++;
-            System.out.println("  PASS " + name);
+            System.out.println("  PASS " + name); // [P3C E1 豁免]
         } else {
             fail++;
-            System.out.println("  FAIL " + name);
+            System.out.println("  FAIL " + name); // [P3C E1 豁免]
         }
     }
 }

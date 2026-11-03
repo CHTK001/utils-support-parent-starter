@@ -78,7 +78,7 @@ public class MagnetProviderSuiteLiveTest {
                 && System.getenv("VIDEO_SEARCH_PROXY") == null) {
             System.setProperty("video.search.proxy", "127.0.0.1:7897");
         }
-        System.out.println("      proxy=" + System.getProperty("video.search.proxy",
+        System.out.println("      proxy=" + System.getProperty("video.search.proxy", // [P3C E1 豁免]
                 System.getenv("VIDEO_SEARCH_PROXY")));
     }
 
@@ -98,7 +98,7 @@ public class MagnetProviderSuiteLiveTest {
             return;
         }
 
-        list.stream().limit(2).forEach(it -> System.out.println("        [" + name + "] " + it.getVideoName()
+        list.stream().limit(2).forEach(it -> System.out.println("        [" + name + "] " + it.getVideoName() // [P3C E1 豁免]
                 + " | " + it.getVideoSize() + " | " + it.getVideoUrl()));
         check(name + " 均为磁力链接", list.stream().allMatch(it -> it.getVideoUrl() != null
                 && it.getVideoUrl().startsWith("magnet:?xt=urn:btih:")));
@@ -156,7 +156,7 @@ public class MagnetProviderSuiteLiveTest {
      * 输出汇总并在失败时退出非零。
      */
     private static void summary() {
-        System.out.println("[MagnetProviderSuiteLiveTest] pass=" + pass + " fail=" + fail);
+        System.out.println("[MagnetProviderSuiteLiveTest] pass=" + pass + " fail=" + fail); // [P3C E1 豁免]
         if (fail > 0) {
             System.exit(1);
         }
@@ -171,10 +171,10 @@ public class MagnetProviderSuiteLiveTest {
     private static void check(String name, boolean ok) {
         if (ok) {
             pass++;
-            System.out.println("  PASS " + name);
+            System.out.println("  PASS " + name); // [P3C E1 豁免]
         } else {
             fail++;
-            System.out.println("  FAIL " + name);
+            System.out.println("  FAIL " + name); // [P3C E1 豁免]
         }
     }
 }

@@ -104,7 +104,7 @@ public class WordDocumentRenderer implements DocumentProvider {
         for (TableData table : data.getTables()) {
             String title = nullToEmpty(table.getTableName());
             if (table.getRemark() != null && !table.getRemark().isEmpty()) {
-                title += "（" + table.getRemark() + "）";
+                title = title.concat("（" + table.getRemark() + "）");
             }
             XWPFParagraph tableTitle = doc.createParagraph();
             XWPFRun tableTitleRun = tableTitle.createRun();

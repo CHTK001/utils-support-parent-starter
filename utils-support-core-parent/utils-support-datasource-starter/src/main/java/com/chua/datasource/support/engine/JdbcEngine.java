@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.datasource.support.engine;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -389,95 +390,18 @@ public abstract class JdbcEngine extends AbstractEngine {
     }
 
     /**
-     * 设置字段值
+     * 设置字段值。
+     *
+     * <p>委托给 {@link EntityFieldMapper}：结果集列名的大小写/下划线差异（H2 返回大写
+     * {@code ID}、PG 返回小写 {@code id}、Oracle 返回 {@code DEPT_ID}）统一在那里处理。
+     * 与 {@link JdbcReactorEngine}（R2DBC 链路）共用同一份规则，避免只修好其中一条链路。</p>
      *
      * @param instance instance
      * @param columnName column名称
      * @param value 值
      */
     private static <T> void setFieldValue(T instance, String columnName, Object value) {
-        if (columnName == null) {
-            return;
-        }
-        // 列名候选：原名（MySQL 小写场景）→ 全小写（H2/PostgreSQL/Oracle 默认返回大写标签）
-        // → 下划线转驼峰（user_name → userName）
-        String[] candidates = {
-                columnName,
-                columnName.toLowerCase(),
-                toCamelCase(columnName)
-        };
-        Class<?> current = instance.getClass();
-        while (current != null) {
-            for (String candidate : candidates) {
-                Field field = ReflectUtils.findField(current, candidate);
-                if (field == null) {
-                    continue;
-                }
-                if (field.getType().isPrimitive() && value == null) {
-                    return;
-                }
-                // 复用 转换器 完成类型转换（如 Oracle NUMBER → BigDecimal 赋给 Long 字段）
-                Object converted = Converter.convertIfNecessary(value, field.getType());
-                if (converted != null) {
-                    ReflectUtils.setField(instance, candidate, converted);
-                }
-                return;
-            }
-            // 兜底：忽略大小写与下划线的宽松匹配，覆盖 H2/Oracle 大写蛇形标签
-            // （如 DEPT_ID → 字段 deptId、TOTAL_SALARY → totalSalary）
-            Field loose = findFieldLoose(current, columnName);
-            if (loose != null) {
-                Object converted = Converter.convertIfNecessary(value, loose.getType());
-                if (converted != null) {
-                    ReflectUtils.setField(instance, loose.getName(), converted);
-                }
-            }
-            current = current.getSuperclass();
-        }
-    }
-
-    /**
-     * 按忽略大小写与下划线的规则宽松查找字段。
-     *
-     * @param type       字段所在的类
-     * @param columnName 结果集列名
-     * @return 匹配的字段，未匹配返回 null
-     */
-    private static Field findFieldLoose(Class<?> type, String columnName) {
-        String normalizedColumn = columnName.replace("_", "").toLowerCase();
-        for (Field field : type.getDeclaredFields()) {
-            if (field.isSynthetic()) {
-                continue;
-            }
-            String normalizedField = field.getName().replace("_", "").toLowerCase();
-            if (normalizedField.equals(normalizedColumn)) {
-                return field;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 下划线列名转驼峰属性名（如 {@code user_name} → {@code userName}）。
-     *
-     * @param name 原始列名
-     * @return 驼峰属性名
-     */
-    private static String toCamelCase(String name) {
-        StringBuilder sb = new StringBuilder(name.length());
-        boolean upperNext = false;
-        for (int i = 0; i < name.length(); i++) {
-            char ch = name.charAt(i);
-            if (ch == '_') {
-                upperNext = true;
-            } else if (upperNext) {
-                sb.append(Character.toUpperCase(ch));
-                upperNext = false;
-            } else {
-                sb.append(ch);
-            }
-        }
-        return sb.toString();
+        EntityFieldMapper.setFieldValue(instance, columnName, value);
     }
 
     // ==================== 执行器 / 方言 ====================

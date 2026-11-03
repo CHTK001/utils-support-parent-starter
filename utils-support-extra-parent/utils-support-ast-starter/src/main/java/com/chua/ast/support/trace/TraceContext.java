@@ -620,7 +620,9 @@ public final class TraceContext {
                 }
             } catch (Throwable ignored) { slf4jAvailable = false; }
         }
-        System.out.println(sb.toString());
+        // [P3C E1 豁免] SLF4J 不可用时，trace 树形输出通过日志回退通道的最佳可尝试输出，
+        // 不直写 System.out（Debug 输出，非错误路径）
+        logSlf4j(sb.toString());
     }
 
     // ==================== ID / MDC / slf4j ====================

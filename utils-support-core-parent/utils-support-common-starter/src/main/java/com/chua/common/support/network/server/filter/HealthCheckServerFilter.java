@@ -109,7 +109,7 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
                                           ReactiveFilterChain chain) {
         if (isHealthPath(request)) {
             respondOk(response);
-            return CompletableFuture.completedStage(null);
+            return CompletableFuture.completedFuture(null);
         }
         return chain.doFilter(request, response);
     }

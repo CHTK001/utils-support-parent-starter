@@ -447,6 +447,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
      */
     private void startLogReader(Process process) {
         stopLogReader();
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
         Thread thread = new Thread(() -> {
             try (InputStream inputStream = process.getInputStream()) {
                 java.io.BufferedReader reader = new java.io.BufferedReader(

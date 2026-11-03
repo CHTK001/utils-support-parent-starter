@@ -793,6 +793,7 @@ public final class CliModelRunner {
         });
         // 看门狗：到点强杀，使阻塞在 readLine 的当前线程收到 EOF/异常而解除
         AtomicBoolean timedOut = new AtomicBoolean(false);
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
         Thread watchdog = new Thread(() -> {
             try {
                 if (!p.waitFor(timeoutSec, TimeUnit.SECONDS)) {

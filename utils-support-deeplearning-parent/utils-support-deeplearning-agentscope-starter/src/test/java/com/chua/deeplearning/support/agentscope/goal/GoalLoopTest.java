@@ -120,6 +120,7 @@ class GoalLoopTest {
         AtomicInteger calls = new AtomicInteger();
         AtomicReference<GoalStatus> result = new AtomicReference<>();
 
+// [P3C C1 豁免] 测试代码，验证线程行为，不必走线程池
         Thread worker = new Thread(() -> {
             try {
                 result.set(GoalLoop.run(tracker, prompt -> {
@@ -149,6 +150,7 @@ class GoalLoopTest {
         tracker.pause(1100L);
         AtomicReference<GoalStatus> result = new AtomicReference<>();
 
+// [P3C C1 豁免] 测试代码，验证线程行为，不必走线程池
         Thread worker = new Thread(() -> {
             try {
                 result.set(GoalLoop.run(tracker,

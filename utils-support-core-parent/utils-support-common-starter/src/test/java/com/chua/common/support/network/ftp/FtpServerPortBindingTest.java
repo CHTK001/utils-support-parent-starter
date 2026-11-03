@@ -245,6 +245,7 @@ class FtpServerPortBindingTest {
         FtpsServer target = new FtpsServer(setting(held));
         target.setBindRetryPolicy(quickRetryPolicy());
         AtomicReference<Throwable> failure = new AtomicReference<>();
+// [P3C C1 豁免] 测试代码，验证线程行为，不必走线程池
         Thread starter = new Thread(() -> {
             try {
                 target.start();
@@ -284,6 +285,7 @@ class FtpServerPortBindingTest {
         FtpServer target = new FtpServer(setting(held));
         target.setBindRetryPolicy(new PortBindRetry.Policy(30, 100L, 200L, 20_000L));
         AtomicReference<Throwable> failure = new AtomicReference<>();
+// [P3C C1 豁免] 测试代码，验证线程行为，不必走线程池
         Thread starter = new Thread(() -> {
             try {
                 target.start();

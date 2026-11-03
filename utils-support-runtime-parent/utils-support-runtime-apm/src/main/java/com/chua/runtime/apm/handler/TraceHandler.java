@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.runtime.apm.handler;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -16,6 +17,7 @@ import lombok.Data;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
@@ -90,11 +92,6 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
      * 追踪类列表属性 键（逗号分隔）
      */
     private static final String PROP_TRACE_CLASSES = "trace.classes";
-
-    /**
-     * 追踪 标识 长度（UUID 去横线后取前 N 位）
-     */
-    private static final int ID_LENGTH = 16;
 
     /**
      * 状态值：成功
@@ -230,6 +227,20 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
                 return xff.split(",")[0].trim();
             }
             return (String) ReflectUtils.invoke(requestObj, "getRemoteAddr", String.class);
+        } catch (Exception e) {
+            return "?";
+        }
+    }
+
+    /**
+     * 提取 User-Agent 头部。
+     *
+     * @param requestObj httpservlet请求 实例
+     * @return User-Agent 值，获取失败返回 "?"
+     */
+    private String extractUserAgent(Object requestObj) {
+        try {
+            return (String) ReflectUtils.invoke(requestObj, "getHeader", String.class, "User-Agent");
         } catch (Exception e) {
             return "?";
         }
@@ -429,6 +440,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
             String path = extractServletPath(requestObj);
             String clientIp = extractClientIp(requestObj);
             String accept = extractAccept(requestObj);
+            String userAgent = extractUserAgent(requestObj);
 
             HttpRequestContext httpCtx = new HttpRequestContext();
             httpCtx.setRequestPath(path);
@@ -445,11 +457,13 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
                     "(Ljavax/servlet/Servlet;Ljavax/servlet/ServletRequest;)V",
                     traceId, parentSpanId
             );
+
             httpCtx.setSpanId(spanId);
             httpCtx.setTraceId(traceId != null ? traceId : generateTraceId());
+            httpCtx.setUserAgent(userAgent);
             HTTP_REQUEST_CONTEXT.set(httpCtx);
 
-            LOG.log(Level.FINE, String.format("[Trace-HTTP] %s clientIp=%s accept=%s", path, clientIp, accept));
+            LOG.log(Level.FINE, String.format("[Trace-HTTP] %s clientIp=%s accept=%s ua=%s", path, clientIp, accept, userAgent));
         } catch (Exception e) {
             LOG.log(Level.FINE, String.format("TraceHandler.handleHttpEntry 处理异常: %s", e.getMessage()));
         }
@@ -480,22 +494,28 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
             long endTime = System.currentTimeMillis();
             long duration = endTime - httpCtx.getStartTime();
 
-            // 结束 Span
+            // 结束 Span — 请求入口的 HTTP Span 可能已被用户方法 EXIT _pop_，
+            // 此时按 spanId 从 spanMap 回查。
             Span span = traceContext.currentSpan();
-            if (span != null) {
-                span.setEndTime(endTime);
-                span.setDuration(duration);
-                span.setStatus(status >= 400 ? STATUS_ERROR : STATUS_OK);
-                span.setStatusCode(status);
-                span.setErrorMessage(status > 0 ? "HTTP " + status : null);
-                span.setRequestPath(httpCtx.getRequestPath());
-                span.setClientIp(httpCtx.getClientIp());
-                span.setAccept(httpCtx.getAccept());
-
-                LOG.log(Level.FINE,
-                        String.format("[Trace-HTTP] %s status=%s duration=%sms clientIp=%s", httpCtx.getRequestPath(),
-                                      status, duration, httpCtx.getClientIp()));
+            if (span == null) {
+                span = spanMap.get(httpCtx.getSpanId());
             }
+            if (span == null) {
+                return;
+            }
+            span.setEndTime(endTime);
+            span.setDuration(duration);
+            span.setStatus(status >= 400 ? STATUS_ERROR : STATUS_OK);
+            span.setStatusCode(status);
+            span.setErrorMessage(status > 0 ? "HTTP " + status : null);
+            span.setRequestPath(httpCtx.getRequestPath());
+            span.setClientIp(httpCtx.getClientIp());
+            span.setAccept(httpCtx.getAccept());
+            span.setUserAgent(httpCtx.getUserAgent());
+
+            LOG.log(Level.FINE,
+                    String.format("[Trace-HTTP] %s status=%s duration=%sms clientIp=%s", httpCtx.getRequestPath(),
+                                  status, duration, httpCtx.getClientIp()));
         } catch (Exception e) {
             LOG.log(Level.FINE, String.format("TraceHandler.handleHttpExit 处理异常: %s", e.getMessage()));
         }
@@ -522,7 +542,6 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         span.setDescriptor(descriptor);
         span.setStartTime(System.currentTimeMillis());
         span.setPhase(inferPhase(className));
-
         traceContext.setSpan(span);
         spans.add(span);
         spanMap.put(span.getSpanId(), span);
@@ -595,21 +614,38 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 生成 追踪id。
+     * 生成 追踪id（32 位 hex）。
      *
-     * @return traceId（16 字符）
+     * @return traceId
      */
     private String generateTraceId() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, ID_LENGTH);
+        return hex(32);
     }
 
     /**
-     * 生成 Span 标识。
+     * 生成 Span 标识（16 位 hex）。
      *
-     * @return Span 标识（16 字符）
+     * @return spanId
      */
     private String generateSpanId() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, ID_LENGTH);
+        return hex(16);
+    }
+
+    /**
+     * 按长度生成随机 hex 串。
+     *
+     * @param bytes hex 长度
+     * @return hex 串
+     */
+    private String hex(int bytes) {
+        byte[] buf = new byte[bytes / 2 + (bytes % 2)];
+        ThreadLocalRandom.current().nextBytes(buf);
+        StringBuilder sb = new StringBuilder(bytes);
+        for (byte b : buf) {
+            sb.append("0123456789abcdef".charAt((b >> 4) & 0xF));
+            sb.append("0123456789abcdef".charAt(b & 0xF));
+        }
+        return sb.toString();
     }
 
     /**
@@ -671,7 +707,7 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         }
         String c = className.toLowerCase();
         if (c.contains("http") || c.contains("servlet") || c.contains("tomcat")
-                || c.contains("undertow") || c.contains("jetty")) {
+                || c.contains("undertow") || c.contains("jetty") || c.contains("catalina")) {
             return "http";
         }
         if (c.contains("socket") || c.contains("netty") || c.contains("channel")) {
@@ -719,6 +755,11 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
          * Accept 头部
          */
         private String accept;
+
+        /**
+         * User-Agent 头部
+         */
+        private String userAgent;
 
         /**
          * 请求开始时间（毫秒）
@@ -787,6 +828,24 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
          */
         public void setAccept(String accept) {
             this.accept = accept;
+        }
+
+        /**
+         * 获取UserAgent
+         *
+         * @return 获取useragent的结果
+         */
+        public String getUserAgent() {
+            return userAgent;
+        }
+
+        /**
+         * 设置UserAgent
+         *
+         * @param userAgent useragent
+         */
+        public void setUserAgent(String userAgent) {
+            this.userAgent = userAgent;
         }
 
         /**
@@ -976,12 +1035,17 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         private String accept;
 
         /**
+         * User-Agent 头部
+         */
+        private String userAgent;
+
+        /**
          * 阶段（method / http / network / db / cache / mq / rpc / async）
          */
         private String phase = "method";
 
         /**
-         * 子阶段耗时累计（不含嵌套子 Span 的自耗时；仅当前 Span 自身代码耗时）
+         * 子阶段耗时累计
          */
         private long selfTime;
 

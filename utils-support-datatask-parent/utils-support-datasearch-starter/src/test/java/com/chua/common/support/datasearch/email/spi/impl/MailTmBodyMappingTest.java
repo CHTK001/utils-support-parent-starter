@@ -51,7 +51,7 @@ public class MailTmBodyMappingTest {
                 new ObjectMapper().readTree("{\"html\":null}").path("html")) == null);
         check("from 仍按对象取 address", "sender@example.com".equals(detail.path("from").path("address").asText(null)));
 
-        System.out.println("[MailTmBodyMappingTest] pass=" + pass + " fail=" + fail);
+        System.out.println("[MailTmBodyMappingTest] pass=" + pass + " fail=" + fail); // [P3C E1 豁免]
         if (fail > 0) {
             System.exit(1);
         }
@@ -60,10 +60,10 @@ public class MailTmBodyMappingTest {
     private static void check(String name, boolean ok) {
         if (ok) {
             pass++;
-            System.out.println("  PASS " + name);
+            System.out.println("  PASS " + name); // [P3C E1 豁免]
         } else {
             fail++;
-            System.out.println("  FAIL " + name);
+            System.out.println("  FAIL " + name); // [P3C E1 豁免]
         }
     }
 }

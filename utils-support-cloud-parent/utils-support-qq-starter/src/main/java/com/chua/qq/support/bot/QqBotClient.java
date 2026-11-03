@@ -648,6 +648,7 @@ public class QqBotClient implements BotClient {
      * 启动长连接线程
      */
     private void startWebSocketLoop() {
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
         Thread thread = new Thread(this::runWebSocketLoop, "qq-bot-ws");
         thread.setDaemon(true);
         wsThread = thread;

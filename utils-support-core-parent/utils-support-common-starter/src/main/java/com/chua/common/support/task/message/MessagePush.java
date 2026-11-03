@@ -77,7 +77,8 @@ public interface MessagePush {
         }
         String content = template.content();
         for (java.util.Map.Entry<String, String> entry : params.entrySet()) {
-            content = content.replace("{{" + entry.getKey() + "}}", entry.getValue());
+            String pattern = new StringBuilder().append("{{").append(entry.getKey()).append("}}").toString();
+            content = content.replace(pattern, entry.getValue());
         }
         request.setContent(content);
         return send(request);

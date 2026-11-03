@@ -1,6 +1,5 @@
 package com.chua.runtime.apm;
 
-import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.runtime.apm.handler.AsyncHttpClientHandler;
 import com.chua.runtime.apm.handler.CassandraHandler;
 import com.chua.runtime.apm.handler.ClickHouseHandler;
@@ -88,18 +87,14 @@ import com.chua.runtime.apm.handler.WebClientHandler;
 import com.chua.runtime.apm.handler.WebSocketHandler;
 import com.chua.runtime.apm.handler.XxlJobHandler;
 import com.chua.runtime.apm.handler.ZooKeeperHandler;
-import com.chua.runtime.apm.storage.StorageConfig;
-import com.chua.runtime.apm.storage.StorageManager;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
-import com.chua.runtime.spy.SpyBootstrap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * APM 启动器 — 程序化启动所有 APM 处理器。
@@ -135,26 +130,6 @@ public class ApmBootstrap {
     private volatile boolean started;
 
     /**
-     * 外部显式指定的存储配置（优先级最高，覆盖 agent options 与系统属性）。
-     *
-     * <p>宿主应用（如 hotsport 的本地 APM 引擎）在 {@link #start()} 之前调用
-     * {@link #storageConfig(Map)} 注入，即可让 {@code plugin.*} 配置真正生效。</p>
-     */
-    private volatile Map<String, String> storageOverrides = java.util.Collections.emptyMap();
-
-    /**
-     * 存储配置来源（宿主提供，运行时可随时更新）。
-     *
-     * <p>与 {@link #storageOverrides} 的区别：{@code overrides} 是一份静态快照，
-     * 只适合启动时注入；{@code provider} 是一个可变的活配置源，</p>
-     * {@link #reloadStorageConfig()} 每次都重新向它取值，
-     * 因此宿主改完配置后调一次热更新即可生效，无需重启进程。</p>
-     *
-     * <p>优先级最高：provider 返回值 &gt; overrides &gt; Agent options &gt; 系统属性 &gt; 默认值。</p>
-     */
-    private volatile java.util.function.Supplier<Map<String, String>> storageConfigProvider;
-
-    /**
      * 创建 APM 启动器。
      *
      * @param pluginDir 插件目录
@@ -164,37 +139,6 @@ public class ApmBootstrap {
         this.started = false;
         registerDefaults(pluginDir);
         globalInstance = this;
-    }
-
-    /**
-     * 指定存储配置的活来源（热更新时每次重新取值）。
-     *
-     * <p>返回 null 或空映射表示「宿主未配置」，此时回落到 Agent options / 系统属性 / 默认值。
-     * provider 抛出的异常会被吞掉并按「未配置」处理 —— 配置读取失败不能影响观测组件本身。</p>
-     *
-     * @param provider 配置提供者
-     * @return 自身，便于链式调用
-     */
-    public ApmBootstrap storageConfigProvider(
-            java.util.function.Supplier<Map<String, String>> provider) {
-        this.storageConfigProvider = provider;
-        return this;
-    }
-
-    /**
-     * 指定存储配置（需在 {@link #start()} 之前调用）。
-     *
-     * <p>键名使用 {@code apm.storage.*}，与 agent options / 系统属性同名；</p>
-     * <p>优先级：本方法注入值 &gt; Agent options &gt; 系统属性 &gt; 默认值。</p>
-     *
-     * @param overrides 存储配置（可为空或 null）
-     * @return 自身，便于链式调用
-     */
-    public ApmBootstrap storageConfig(Map<String, String> overrides) {
-        this.storageOverrides = overrides == null
-                ? java.util.Collections.emptyMap()
-                : java.util.Collections.unmodifiableMap(new java.util.LinkedHashMap<>(overrides));
-        return this;
     }
 
     /**
@@ -291,7 +235,7 @@ public class ApmBootstrap {
         handlers.add(new CuratorHandler());
         handlers.add(new PahoMqttHandler());
         handlers.add(new AsyncHttpClientHandler());
- // 每个 处理器 独立 尝试/卡扣,单个失败不阻断其他
+        // 每个 处理器 独立 尝试/卡扣,单个失败不阻断其他
         for (Plugin handler : handlers) {
             try {
                 handler.init(context);
@@ -329,15 +273,7 @@ public class ApmBootstrap {
         if (started) {
             return;
         }
-        // 1. 先启动存储层(Handlers 在 addRecord 时会调用 StorageManager.append)
-        try {
-            StorageManager.init(resolveStorageConfig());
-        } catch (Throwable e) {
-            // StorageManager 内部已做降级，这里再兜一层：观测组件永不阻断宿主启动
-            LOG.log(Level.SEVERE, "APM 存储层启动异常，APM 采集本次不生效（业务进程继续启动）", e);
-        }
-
-        // 2. 启动所有 Handler — 失败标记但不阻断(便于排查)
+        // 启动所有 Handler — 失败标记但不阻断(便于排查)
         int startedCount = 0;
         for (Plugin handler : handlers) {
             try {
@@ -355,189 +291,19 @@ public class ApmBootstrap {
     }
 
     /**
-     * 解析当前应使用的存储配置。
-     *
-     * <p>取值优先级（高 → 低）：宿主注入值 &gt; Agent options &gt; 系统属性 &gt; 默认值。
-     * Agent options 即 {@code -javaagent:jar=storage.type=sqlite,...} 或
-     * {@code plugin.agent.options}，部署方按环境调整存储行为时无需改系统属性。</p>
-     *
-     * <p>{@link #start()} 与 {@link #reloadStorageConfig()} 共用本方法，
-     * 保证「启动时生效的配置」与「热更新时生效的配置」口径完全一致。</p>
-     *
-     * @return 存储配置
-     */
-    public StorageConfig resolveStorageConfig() {
-        Map<String, String> configMap = Wraps.map();
-        configMap.put("apm.storage.type",
-                resolveConfig("storage.type", "apm.storage.type", "inmemory"));
-        configMap.put("apm.storage.retention.ms",
-                resolveConfig("storage.retention.ms", "apm.storage.retention.ms",
-                        String.valueOf(7L * 24 * 60 * 60 * 1000)));
-        configMap.put("apm.storage.capacity",
-                resolveConfig("storage.capacity", "apm.storage.capacity", "100000"));
-        String storagePath = resolveConfig("storage.path", "apm.storage.path", "");
-        if (!storagePath.isEmpty()) {
-            configMap.put("apm.storage.path", storagePath);
-        }
-        // 驱动目录：agent 场景下 sqlite-jdbc 及其依赖（guava 等）需通过独立 ClassLoader 加载
-        String jdbcLibs = resolveConfig("storage.jdbc.libs", "apm.storage.jdbc.libs", "");
-        if (!jdbcLibs.isEmpty()) {
-            configMap.put("apm.storage.jdbc.libs", jdbcLibs);
-        }
-        String jdbcDriver = resolveConfig("storage.jdbc.driver", "apm.storage.jdbc.driver", "");
-        if (!jdbcDriver.isEmpty()) {
-            configMap.put("apm.storage.jdbc.driver", jdbcDriver);
-        }
-        // 写入模式：async=true 异步批量（默认），false 逐条同步
-        String async = resolveConfig("storage.async", "apm.storage.async", "true");
-        configMap.put("apm.storage.async", async);
-        String flushTimeout = resolveConfig("storage.flush.timeout.ms", "apm.storage.flush.timeout.ms", "");
-        if (!flushTimeout.isEmpty()) {
-            configMap.put("apm.storage.flush.timeout.ms", flushTimeout);
-        }
-        // 自维护周期：按保留期/容量自动淘汰的检查间隔
-        String maintenanceInterval = resolveConfig("storage.maintenance.interval.ms",
-                "apm.storage.maintenance.interval.ms", "");
-        if (!maintenanceInterval.isEmpty()) {
-            configMap.put("apm.storage.maintenance.interval.ms", maintenanceInterval);
-        }
-        // 未显式给出的键沿用系统属性直传（便于运维临时加参数）。
-        // 但宿主已在活配置源里显式声明的键（哪怕是空值）不得被系统属性覆盖回来，
-        // 否则「运行中清空 path 回到默认目录」这类操作会被旧系统属性悄悄抵消。
-        java.util.Set<String> hostKeys = providerKeys();
-        for (String key : System.getProperties().stringPropertyNames()) {
-            if (key.startsWith("apm.storage.") && !configMap.containsKey(key) && !hostKeys.contains(key)) {
-                configMap.put(key, System.getProperty(key));
-            }
-        }
-        return new StorageConfig(configMap);
-    }
-
-    /**
-     * 运行时重新加载存储配置（热更新）。
-     *
-     * <p>重新解析当前配置（含宿主注入、Agent options、系统属性）并与生效配置比对，
-     * 有差异时才切换存储实例。切换失败时保留原存储继续工作，不影响已采集的数据。</p>
-     *
-     * <p>典型用法：运维调整 {@code plugin.hotsport.apm.storage.*} 或系统属性后，
-     * 通过 HTTP 接口触发，无需重启进程。</p>
-     *
-     * @return 切换成功或无需切换返回 true；新配置不可用返回 false
-     */
-    public boolean reloadStorageConfig() {
-        StorageConfig config;
-        try {
-            config = resolveStorageConfig();
-        } catch (Throwable e) {
-            LOG.log(Level.WARNING, "热更新：解析存储配置失败，保持原配置", e);
-            return false;
-        }
-        return StorageManager.reconfigure(config);
-    }
-
-    /**
-     * 当前存储的运行时状态（运维自检）。
-     *
-     * @return 状态映射
-     */
-    public Map<String, Object> storageStatus() {
-        Map<String, Object> status = new java.util.LinkedHashMap<>(StorageManager.describe());
-        status.putIfAbsent("type", StorageManager.get().name());
-        status.put("available", StorageManager.get().available());
-        return status;
-    }
-
-    /**
-     * 按优先级解析存储配置项：
-     * 宿主注入值 &gt; Agent options（短名 / 全名）&gt; 系统属性 &gt; 默认值。
-     *
-     * @param agentOptionKey Agent options 短名 key（如 storage.type）
-     * @param sysPropKey     系统属性名（如 apm.storage.type）
-     * @param defaultValue   默认值
-     * @return 生效值
-     */
-    private String resolveConfig(String agentOptionKey, String sysPropKey, String defaultValue) {
-        // 1. 宿主活配置源（运行时可变的 plugin.* 配置）优先级最高。
-        //    「显式声明」本身就有意义：provider 里放了 key 但值为空，表示宿主主动把它改回默认，
-        //    此时不能再往下去问 Agent options / 系统属性，否则旧值会把「清空」抵消掉。
-        Map<String, String> liveValues = providerValues();
-        if (liveValues != null && liveValues.containsKey(sysPropKey)) {
-            String raw = liveValues.get(sysPropKey);
-            return raw == null ? "" : raw.trim();
-        }
-        // 2. 宿主启动时注入的静态快照（同样是「声明即接管」语义）
-        if (storageOverrides.containsKey(sysPropKey)) {
-            String raw = storageOverrides.get(sysPropKey);
-            return raw == null ? "" : raw.trim();
-        }
-        Map<String, String> options;
-        try {
-            options = SpyBootstrap.agentOptions();
-        } catch (Throwable t) {
-            // spy 模块不可见（宿主自建 ApmBootstrap 且未挂 agent）时降级为纯系统属性
-            options = java.util.Collections.emptyMap();
-        }
-        String fromAgent = options.get(agentOptionKey);
-        if (fromAgent == null || fromAgent.isEmpty()) {
-            // 兼容全名 key（用户写 apm.storage.type 而非 storage.type）
-            fromAgent = options.get("apm." + agentOptionKey);
-        }
-        if (fromAgent != null && !fromAgent.isEmpty()) {
-            return fromAgent;
-        }
-        String fromSys = System.getProperty(sysPropKey);
-        if (fromSys != null && !fromSys.isEmpty()) {
-            return fromSys;
-        }
-        return defaultValue;
-    }
-
-    /**
-     * 读取宿主活配置源的全部键值。
-     *
-     * <p>provider 异常按「未配置」处理：配置读取失败只降级优先级，不能让观测组件抛错。
-     * 每次调用都重新向 provider 取值，因此宿主改完配置后热更新即可看到新值。</p>
-     *
-     * @return 键值映射；无 provider 或读取失败返回 null
-     */
-    private Map<String, String> providerValues() {
-        java.util.function.Supplier<Map<String, String>> provider = this.storageConfigProvider;
-        if (provider == null) {
-            return null;
-        }
-        try {
-            return provider.get();
-        } catch (Throwable e) {
-            LOG.log(Level.FINE, "读取宿主存储配置失败，按未配置处理: " + e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * 宿主活配置源当前显式声明的键集合。
-     *
-     * @return 键集合；无 provider 时为空
-     */
-    private java.util.Set<String> providerKeys() {
-        Map<String, String> values = providerValues();
-        return values == null ? java.util.Collections.emptySet() : values.keySet();
-    }
-
-    /**
      * 停止所有处理器。
      *
      * <p>正确顺序:</p>
      * <ol>
      *   <li>每个 handler.stop() — 注销 SpyTransformer 拦截规则(防止新事件入队)</li>
-     *   <li>短暂等待(让 in-flight 事件完成落盘)</li>
-     *   <li>StorageManager.shutdown() — 关闭存储</li>
+     *   <li>短暂等待(让 in-flight 事件完成排空)</li>
      * </ol>
      */
     public synchronized void stop() {
         if (!started) {
             return;
         }
- // 1. 逆序停止 处理器 — 注销拦截规则
+        // 1. 逆序停止 处理器 — 注销拦截规则
         for (int i = handlers.size() - 1; i >= 0; i--) {
             Plugin handler = handlers.get(i);
             try {
@@ -547,17 +313,11 @@ public class ApmBootstrap {
                 LOG.log(Level.SEVERE, String.format("APM 处理器[%s] 停止失败", handler.name()), e);
             }
         }
- // 2. 短暂排空 — 让 入-flight 的事件完成 onintercept 落盘
+        // 2. 短暂排空 — 让 入-flight 的事件完成 onintercept 落盘
         try {
             Thread.sleep(100L);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        }
-        // 3. 最后关闭存储
-        try {
-            StorageManager.shutdown();
-        } catch (Exception e) {
-            LOG.log(Level.SEVERE, "StorageManager 关闭失败", e);
         }
         started = false;
     }

@@ -32,29 +32,29 @@ public final class DebugProbe {
         var server = Fixture.start();
         String base = "http://127.0.0.1:" + server.getAddress().getPort();
         Engine e = Playwright.getEngine();
-        System.out.println("native=" + Playwright.isNative() + " chrome=" + chrome);
+        System.out.println("native=" + Playwright.isNative() + " chrome=" + chrome); // [P3C E1 豁免]
         long b = e.launch(true, chrome, List.of());
 
         // ---- A: 逐个点击 + 逐个 data-count ----
         long p = e.newPage(b);
         e.gotoPage(p, base + "/", null);
         Object ids = ev(e, p, Fixture.CLICKABLE_IDS_JS);
-        System.out.println("A ids=" + ids);
+        System.out.println("A ids=" + ids); // [P3C E1 豁免]
         for (Object id : (List<?>) ids) {
             String sel = "[data-clickable][data-id='" + id + "']";
             try {
                 e.click(p, sel, Map.of());
-                System.out.println("A clicked " + id);
+                System.out.println("A clicked " + id); // [P3C E1 豁免]
             } catch (Exception ex) {
-                System.out.println("A CLICK FAIL " + id + ": " + ex.getMessage());
+                System.out.println("A CLICK FAIL " + id + ": " + ex.getMessage()); // [P3C E1 豁免]
             }
         }
         for (Object id : (List<?>) ids) {
             String sel = "[data-clickable][data-id='" + id + "']";
             try {
-                System.out.println("A count " + id + " = " + e.getAttribute(p, sel, "data-count"));
+                System.out.println("A count " + id + " = " + e.getAttribute(p, sel, "data-count")); // [P3C E1 豁免]
             } catch (Exception ex) {
-                System.out.println("A GETATTR FAIL " + id + ": " + ex.getMessage());
+                System.out.println("A GETATTR FAIL " + id + ": " + ex.getMessage()); // [P3C E1 豁免]
             }
         }
         e.close(p);
@@ -62,25 +62,25 @@ public final class DebugProbe {
         // ---- B: checkbox 时间线 ----
         p = e.newPage(b);
         e.gotoPage(p, base + "/", null);
-        System.out.println("B cb(getElementById)=" + ev(e, p,
+        System.out.println("B cb(getElementById)=" + ev(e, p, // [P3C E1 豁免]
                 "function(){ return document.getElementById('cb').checked; }"));
         long h = e.querySelector(p, "#cb");
-        System.out.println("B handle=" + h);
+        System.out.println("B handle=" + h); // [P3C E1 豁免]
         if (h > 0) {
-            System.out.println("B resolved=" + evEl(e, h,
+            System.out.println("B resolved=" + evEl(e, h, // [P3C E1 豁免]
                     "function(el){ return {id: el.id, type: el.type, checked: !!el.checked}; }"));
         }
         try {
             e.check(p, "#cb", false);
-            System.out.println("B check(cb,false) OK");
+            System.out.println("B check(cb,false) OK"); // [P3C E1 豁免]
         } catch (Exception ex) {
-            System.out.println("B check(cb,false) EX: " + ex.getMessage());
+            System.out.println("B check(cb,false) EX: " + ex.getMessage()); // [P3C E1 豁免]
         }
-        System.out.println("B clickLog=" + ev(e, p, "function(){ return window.__clickLog; }"));
-        System.out.println("B cb immediate=" + ev(e, p,
+        System.out.println("B clickLog=" + ev(e, p, "function(){ return window.__clickLog; }")); // [P3C E1 豁免]
+        System.out.println("B cb immediate=" + ev(e, p, // [P3C E1 豁免]
                 "function(){ return document.getElementById('cb').checked; }"));
         Thread.sleep(300);
-        System.out.println("B cb after300ms=" + ev(e, p,
+        System.out.println("B cb after300ms=" + ev(e, p, // [P3C E1 豁免]
                 "function(){ return document.getElementById('cb').checked; }"));
         e.close(p);
 
@@ -88,22 +88,22 @@ public final class DebugProbe {
         p = e.newPage(b);
         e.gotoPage(p, base + "/", null);
         long rh = e.querySelector(p, "#r2");
-        System.out.println("C r2 rect=" + evEl(e, rh,
+        System.out.println("C r2 rect=" + evEl(e, rh, // [P3C E1 豁免]
                 "function(el){ var r = el.getBoundingClientRect();"
                         + " var hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);"
                         + " return {x: r.x, y: r.y, w: r.width, h: r.height, sy: window.scrollY,"
                         + " vh: window.innerHeight, hit: hit ? (hit.id || hit.tagName) : null}; }"));
         try {
             e.check(p, "#r2", true);
-            System.out.println("C check(r2,true) OK");
+            System.out.println("C check(r2,true) OK"); // [P3C E1 豁免]
         } catch (Exception ex) {
-            System.out.println("C check(r2,true) EX: " + ex.getMessage());
+            System.out.println("C check(r2,true) EX: " + ex.getMessage()); // [P3C E1 豁免]
         }
-        System.out.println("C clickLog=" + ev(e, p, "function(){ return window.__clickLog; }"));
-        System.out.println("C r1=" + ev(e, p, "function(){ return document.getElementById('r1').checked; }")
+        System.out.println("C clickLog=" + ev(e, p, "function(){ return window.__clickLog; }")); // [P3C E1 豁免]
+        System.out.println("C r1=" + ev(e, p, "function(){ return document.getElementById('r1').checked; }") // [P3C E1 豁免]
                 + " r2=" + ev(e, p, "function(){ return document.getElementById('r2').checked; }"));
         Thread.sleep(300);
-        System.out.println("C after300ms r1=" + ev(e, p, "function(){ return document.getElementById('r1').checked; }")
+        System.out.println("C after300ms r1=" + ev(e, p, "function(){ return document.getElementById('r1').checked; }") // [P3C E1 豁免]
                 + " r2=" + ev(e, p, "function(){ return document.getElementById('r2').checked; }"));
         e.close(p);
 
@@ -112,18 +112,18 @@ public final class DebugProbe {
         e.gotoPage(p, base + "/", null);
         try {
             e.check(p, "#sw", true);
-            System.out.println("D check(sw,true) OK");
+            System.out.println("D check(sw,true) OK"); // [P3C E1 豁免]
         } catch (Exception ex) {
-            System.out.println("D check(sw,true) EX: " + ex.getMessage());
+            System.out.println("D check(sw,true) EX: " + ex.getMessage()); // [P3C E1 豁免]
         }
-        System.out.println("D sw aria=" + e.getAttribute(p, "#sw", "aria-checked"));
+        System.out.println("D sw aria=" + e.getAttribute(p, "#sw", "aria-checked")); // [P3C E1 豁免]
         e.close(p);
 
         // ---- E: hover / tip ----
         p = e.newPage(b);
         e.gotoPage(p, base + "/", null);
         long hh = e.querySelector(p, "#hov");
-        System.out.println("E hov=" + evEl(e, hh,
+        System.out.println("E hov=" + evEl(e, hh, // [P3C E1 豁免]
                 "function(el){ var r = el.getBoundingClientRect();"
                         + " var hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);"
                         + " return {x: r.x, y: r.y, w: r.width, h: r.height, sy: window.scrollY,"
@@ -131,11 +131,11 @@ public final class DebugProbe {
                         + " hit: hit ? (hit.id || hit.tagName) : null}; }"));
         try {
             e.hover(p, "#hov");
-            System.out.println("E hover OK");
+            System.out.println("E hover OK"); // [P3C E1 豁免]
         } catch (Exception ex) {
-            System.out.println("E hover EX: " + ex.getMessage());
+            System.out.println("E hover EX: " + ex.getMessage()); // [P3C E1 豁免]
         }
-        System.out.println("E tip after=" + ev(e, p,
+        System.out.println("E tip after=" + ev(e, p, // [P3C E1 豁免]
                 "function(){ return getComputedStyle(document.getElementById('tip')).display; }"));
         e.close(p);
 

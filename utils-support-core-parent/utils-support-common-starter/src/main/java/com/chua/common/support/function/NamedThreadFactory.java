@@ -74,6 +74,7 @@ public class NamedThreadFactory implements ThreadFactory {
     @Override
     public Thread newThread(Runnable runnable) {
         String name = mPrefix + mThreadNum.getAndIncrement();
+// [P3C C1 豁免] 工具方法返回 Thread，由调用者组建线程池/线程组
         Thread ret = new Thread(mGroup, runnable, name, 0);
         ret.setDaemon(mDaemon);
         return ret;

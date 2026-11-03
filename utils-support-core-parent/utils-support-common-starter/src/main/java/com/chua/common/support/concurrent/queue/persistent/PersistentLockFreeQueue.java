@@ -484,6 +484,7 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
      * 启动异步刷盘后台线程。
      */
     private void startFlushThread() {
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
         flushThread = new Thread(() -> {
             while (running) {
                 try {

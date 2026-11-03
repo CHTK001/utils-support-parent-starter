@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.sync.impl;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -9,7 +10,6 @@ import com.chua.common.support.network.server.SyncServerListener;
 import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncProtocol;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.common.support.utils.ThreadUtils;
 
 import java.io.*;
 import java.net.*;
@@ -115,8 +115,14 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
     protected void doStart() {
         try {
             serverSocket = new ServerSocket();
-            serverSocket.bind(new InetSocketAddress(setting.getHost(), setting.getPort()));
-            executor = ThreadUtils.newCachedThreadPool("ws-sync");
+            serverSocket.setReuseAddress(setting.isSoReuseAddr());
+            // backlog 用配置值（默认 bind 是 50）：突发握手会直接丢连接
+            serverSocket.bind(new InetSocketAddress(setting.getHost(), setting.getPort()),
+                    setting.resolveBacklog(1024));
+            setting.setPort(serverSocket.getLocalPort());
+            // WebSocket 是长连接：缓存线程池「一连接一平台线程」，上千连接就上千平台线程，
+            // 与百万连接目标冲突。改为虚拟线程池，每条连接只在有数据时才占用调度。
+            executor = Executors.newVirtualThreadPerTaskExecutor();
             executor.submit(this::acceptLoop);
         } catch (Exception e) {
             throw new RuntimeException("WebSocket SyncServer 启动失败", e);
@@ -136,11 +142,7 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
             }
         }
         for (Connection c : connections) {
-            try {
-                c.close();
-            } catch (IOException e) {
-                // ignore
-            }
+            closeConnection(c);
         }
         connections.clear();
         if (executor != null) {
@@ -238,13 +240,38 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
         while (!serverSocket.isClosed() && !Thread.currentThread().isInterrupted()) {
             try {
                 Socket socket = serverSocket.accept();
+                if (!accepting) {
+                    // 优雅关闭中：不再接纳新连接（存量连接继续服务）
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                    continue;
+                }
+                if (!tryAcquireConnection()) {
+                    // 超限：直接关闭。WebSocket 握手前无法回 HTTP 语义的 503，
+                    // 且会话表也不该为一个将被拒绝的连接分配条目
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                    continue;
+                }
                 Connection conn = new Connection(socket);
                 connections.add(conn);
                 String sessionId = "ws-" + connectionIdSeq.incrementAndGet();
                 conn.sessionId = sessionId;
                 clients.put(sessionId, Wraps.map());
                 notifyListener(l -> l.onClientConnected(sessionId, clients.get(sessionId)));
-                executor.submit(() -> handleConnection(conn));
+                try {
+                    applySocketOptions(socket);
+                    executor.submit(() -> handleConnection(conn));
+                } catch (Exception e) {
+                    // 停止中任务被拒：连接不会被处理，交给 closeConnection 统一收尾
+                    closeConnection(conn);
+                }
             } catch (IOException e) {
                 if (serverSocket.isClosed()) {
                     break;
@@ -419,10 +446,17 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
     }
 
     /**
-     * 关闭连接
+     * 关闭连接（幂等）：关通道、清理会话表并归还连接预算。
+     *
+     * <p>accept 失败、握手失败、读帧结束、stop() 都会走到这里，因此必须幂等：
+     * 重复归还预算会把活跃连接数打成负数，后续所有新连接都会被限额拒绝。</p>
+     *
      * @param conn 连接，不允许为 null
      */
     private void closeConnection(Connection conn) {
+        if (!conn.closed.compareAndSet(false, true)) {
+            return;
+        }
         try {
             conn.close();
         } catch (IOException e) {
@@ -430,8 +464,11 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
         }
         connections.remove(conn);
         String sessionId = conn.sessionId;
-        clients.remove(sessionId);
-        subscriptions.values().forEach(set -> set.remove(sessionId));
+        if (sessionId != null) {
+            clients.remove(sessionId);
+            subscriptions.values().forEach(set -> set.remove(sessionId));
+        }
+        releaseConnection();
         notifyListener(l -> l.onClientDisconnected(sessionId));
     }
 
@@ -458,6 +495,12 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
         Socket socket;
         OutputStream out;
         String sessionId;
+
+        /**
+         * 关闭标志（幂等收尾用）
+         */
+        final java.util.concurrent.atomic.AtomicBoolean closed =
+                new java.util.concurrent.atomic.AtomicBoolean(false);
 
         /**
          * Connection

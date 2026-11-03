@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.server.nio;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -134,6 +135,14 @@ public class NioServerRequest implements ServerRequest {
      * attributes
      */
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
+
+    /**
+     * 查询参数解析缓存（null 表示尚未解析；随 {@link #resetForNextRequest()} 失效）。
+     *
+     * <p>Keep-Alive 下同一实例跨请求复用，若直接把上一次的解析结果留下，
+     * 第二个请求会读到第一个请求的参数——必须显式清空。</p>
+     */
+    private Map<String, String> paramsCache;
 
     // ==================== 增量解析状态机 ====================
 
@@ -483,8 +492,16 @@ public class NioServerRequest implements ServerRequest {
         return h;
     }
     @Override public Map<String, String> getParams() {
+        // 查询参数在每个请求中被 UrlMapping / 参数解析 / 业务代码反复读取，
+        // 原实现每次调用都重新 split + URLDecode（一次请求可达 5~10 次）。
+        // Keep-Alive 下同一 request 实例会被 resetForNextRequest 复用，故缓存随重置失效。
+        Map<String, String> cached = this.paramsCache;
+        if (cached != null) {
+            return cached;
+        }
         if (queryString == null || queryString.isEmpty()) {
-            return Map.of();
+            this.paramsCache = Map.of();
+            return this.paramsCache;
         }
         Map<String, String> map = Wraps.linkedMap();
         for (String pair : queryString.split("&")) {
@@ -493,7 +510,9 @@ public class NioServerRequest implements ServerRequest {
                 map.put(decode(kv[0]), kv.length > 1 ? decode(kv[1]) : "");
             }
         }
-        return map;
+        Map<String, String> resolved = Map.copyOf(map);
+        this.paramsCache = resolved;
+        return resolved;
     }
     @Override public String getParam(String name) { return getParams().get(name); }
     @Override public String getContentType() { return headers.get("content-type"); }
@@ -634,6 +653,7 @@ public class NioServerRequest implements ServerRequest {
         headers.clear();
         body = null;
         attributes.clear();
+        paramsCache = null;
         // 重置状态机(保留缓冲中未消费的数据,供 Keep-Alive 下一条请求复用)
         parseState = ParseState.REQUEST_LINE;
         bodyRemaining = 0;

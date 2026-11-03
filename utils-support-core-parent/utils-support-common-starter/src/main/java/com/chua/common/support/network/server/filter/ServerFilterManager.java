@@ -294,7 +294,7 @@ public class ServerFilterManager {
      * 将同步过滤器包装为响应式过滤器。
      *
      * <p>包装后在同步 {@code doFilter} 内部调用 {@code chain.doFilter(...)}，
-     * 并将完成信号包装为 {@link CompletableFuture#completedStage(Object)}；
+     * 并将完成信号包装为 {@link CompletableFuture#completedFuture(Object)}；
      * 同步过滤器抛出的异常经失败阶段向上传播。</p>
      *
      * @param filter 待包装的同步过滤器
@@ -333,7 +333,7 @@ public class ServerFilterManager {
                                               ReactiveFilterChain chain) {
             try {
                 delegate.doFilter(request, response, chain::doFilter);
-                return CompletableFuture.completedStage(null);
+                return CompletableFuture.completedFuture(null);
             } catch (Exception e) {
                 CompletableFuture<Void> failed = new CompletableFuture<>();
                 failed.completeExceptionally(e);

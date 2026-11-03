@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-native-libjpeg-turbo</artifactId>
-            <version>4.0.0.42</version>
+            <version>4.0.0.43</version>
         </dependency>
         <!-- 图片压缩的 native 钩子：libdeflate（deflate 内核）+ libimagequant（调色板量化内核）。
              动态库缺失时 CompressionEngines 自动回退到纯 Java 实现，功能不受影响。

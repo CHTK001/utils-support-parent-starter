@@ -1,5 +1,6 @@
 package com.chua.runtime.protocol;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 
 import java.util.Map;
@@ -83,15 +84,25 @@ public final class SkyWalkingPropagator {
     }
 
     /**
-     * 生成当前线程 sw8 header（基于 RuntimeSpy 当前 traceId/spanId，失败则随机）。
+     * 生成本进程 spanId（16 位 hex，需与 traceId 同用，避免冲突）。
+     *
+     * @return 16 位 hex spanId
+     */
+    private static String generateSpanId() {
+        String hex = UUID.randomUUID().toString().replace("-", "");
+        return hex.substring(0, 16);
+    }
+
+    /**
+     * 生成当前 traceId/spanId 的 sw8 header（基于 RuntimeSpy 当前 traceId/spanId，失败则随机）。
      *
      * @return sw8 header 值
      */
     public static String inject() {
         String traceId = readCurrentTraceId();
         String spanId = readCurrentSpanId();
-        String fullTraceId = StringUtils.isEmpty(traceId) ? W3CTraceContext.generateTraceId() : traceId;
-        String fullSpanId = StringUtils.isEmpty(spanId) ? W3CTraceContext.generateSpanId() : spanId;
+        String fullTraceId = StringUtils.isEmpty(traceId) ? generateTraceId() : traceId;
+        String fullSpanId = StringUtils.isEmpty(spanId) ? generateSpanId() : spanId;
         String segmentId = "segment-" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
         return String.join("-",
                 "1",
@@ -134,7 +145,18 @@ public final class SkyWalkingPropagator {
     }
 
     /**
-     * 从 header 提取并恢复当前线程追踪上下文。
+     * 生成 traceId（32 位 hex，与 W3C traceparent 格式一致）。
+     *
+     * @return 32 位 hex traceId
+     */
+    private static String generateTraceId() {
+        String hex = UUID.randomUUID().toString().replace("-", "");
+        // UUID 是 32 位 hex，去横线后刚好 32 字符
+        return hex;
+    }
+
+    /**
+     * 从 header 提取并恢复当前线程追踪上下文（直接推送 RuntimeSpy 追踪栈）。
      *
      * @param header sw8 header 值
      * @return 是否恢复成功
@@ -144,8 +166,28 @@ public final class SkyWalkingPropagator {
         if (ctx == null) {
             return false;
         }
-        return W3CTraceContext.extractAndRestore(W3CTraceContext.inject(ctx.getTraceId(), ctx.getSpanId(),
-                (byte) 0x01));
+        return restoreTraceContext(ctx.getTraceId(), ctx.getSpanId());
+    }
+
+    /**
+     * 向当前线程追踪栈推送 traceId/spanId（等价于 W3C 传播器的 restore 逻辑，直接反射 RuntimeSpy）。
+     *
+     * @param traceId traceId
+     * @param spanId  spanId
+     * @return 是否恢复成功
+     */
+    private static boolean restoreTraceContext(String traceId, String spanId) {
+        try {
+            Class<?> snapshotCls = Class.forName("com.chua.runtime.spy.RuntimeSpy$TraceContextSnapshot");
+            Class<?> frameCls = Class.forName("com.chua.runtime.spy.RuntimeSpy$TraceStackFrame");
+            Object frame = ReflectUtils.instantiate(frameCls, traceId, spanId);
+            Object list = java.util.List.of(frame);
+            Object snapshot = ReflectUtils.instantiate(snapshotCls, traceId, list);
+            ReflectUtils.invokeStatic("com.chua.runtime.spy.RuntimeSpy", "restore", void.class, snapshotCls, snapshot);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**

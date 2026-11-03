@@ -144,6 +144,7 @@ class ClassUtilsInstantiationFailureTest {
     @DisplayName("按线程隔离：别的线程的失败不会被本线程读到")
     void failureIsThreadConfined() throws Exception {
         AtomicReference<ClassUtils.NewInstanceFailure> otherThread = new AtomicReference<>();
+// [P3C C1 豁免] 测试代码，验证线程行为，不必走线程池
         Thread worker = new Thread(() -> {
             try {
                 Constructor<ThrowingWithMessage> constructor =

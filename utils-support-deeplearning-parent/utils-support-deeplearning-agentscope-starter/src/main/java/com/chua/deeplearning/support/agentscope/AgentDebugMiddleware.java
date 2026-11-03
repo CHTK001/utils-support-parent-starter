@@ -1,8 +1,10 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.deeplearning.support.agentscope;
 
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.agent.AgentDebugHook;
 import com.chua.common.support.ai.agent.AgentHookEvent;
+import com.chua.common.support.ai.agent.AgentLoopGuard;
 import com.chua.common.support.ai.agent.AgentPlanHook;
 import io.agentscope.core.agent.Agent;
 import io.agentscope.core.event.*;
@@ -39,6 +41,10 @@ public class AgentDebugMiddleware implements MiddlewareBase {
     private final AgentPlanHook planHook; // planhook
     private final int planMaxTask; // plan最大任务
     private final String feedback; // 用户对计划的修改意见（仅 resume 拒绝时非空）
+    private final AgentLoopGuard loopGuard; // 会话护栏（死循环判定），可为 null
+    private final Runnable onLoopDetected; // 判定为死循环时的回调（通常是 interrupt()），可为 null
+    /** 工具调用 id → 已累积的入参文本（工具入参是流式 delta，要拼完才能判重复） */
+    private final Map<String, StringBuilder> toolCallArgs = new java.util.HashMap<>();
 
     private long startTime = System.currentTimeMillis(); // 启动时间
     private int iteration = 0; // 迭代
@@ -49,11 +55,32 @@ public class AgentDebugMiddleware implements MiddlewareBase {
 
     public AgentDebugMiddleware(String agentId, AgentDebugHook debugHook,
                                  AgentPlanHook planHook, int planMaxTask, String feedback) {
+        this(agentId, debugHook, planHook, planMaxTask, feedback, null, null);
+    }
+
+    /**
+     * 带会话护栏的构造：护栏非空时，本中间件会在工具调用结束时登记
+     * 「工具名 + 入参」，连续重复到阈值就调 {@code onLoopDetected}
+     * （通常是 {@code AgentScopeAgent.interrupt()}，即关闭当前 Harness）。
+     *
+     * @param agentId        Agent 标识
+     * @param debugHook      调试钩子，可空
+     * @param planHook       计划钩子，可空
+     * @param planMaxTask    计划最大任务数
+     * @param feedback       用户修改意见，可空
+     * @param loopGuard      会话护栏，可空（空表示不启用死循环判定）
+     * @param onLoopDetected 判定为死循环时的回调，可空
+     */
+    public AgentDebugMiddleware(String agentId, AgentDebugHook debugHook,
+                                 AgentPlanHook planHook, int planMaxTask, String feedback,
+                                 AgentLoopGuard loopGuard, Runnable onLoopDetected) {
         this.agentId = agentId;
         this.debugHook = debugHook;
         this.planHook = planHook;
         this.planMaxTask = planMaxTask;
         this.feedback = feedback;
+        this.loopGuard = loopGuard;
+        this.onLoopDetected = onLoopDetected;
     }
 
     @Override
@@ -194,6 +221,26 @@ public class AgentDebugMiddleware implements MiddlewareBase {
                 toolCallCount++;
                 attrs.put("toolCallCount", toolCallCount);
                 attrs.put("iteration", iteration);
+            }
+            // 死循环判定：工具入参是流式 delta，先按调用 id 拼起来，
+            // 在 ToolCallEnd（参数齐全）时连同工具名一起登记。
+            if (event instanceof ToolCallDeltaEvent argDelta) {
+                String callId = argDelta.getToolCallId();
+                String deltaText = argDelta.getDelta();
+                if (callId != null && deltaText != null && !deltaText.isEmpty()) {
+                    toolCallArgs.computeIfAbsent(callId, key -> new StringBuilder()).append(deltaText);
+                }
+            }
+            if (event instanceof ToolCallEndEvent argEnd) {
+                StringBuilder collected = toolCallArgs.remove(argEnd.getToolCallId());
+                // 入参缺失时宁可不判定：只按工具名比会把「连续读不同文件」误判成死循环
+                if (loopGuard != null && collected != null && collected.length() > 0
+                        && loopGuard.recordToolCall(argEnd.getToolCallName(), collected.toString())) {
+                    log.warn("[AgentTrace][{}] 判定为死循环: {}", agentId, loopGuard.describe());
+                    if (onLoopDetected != null) {
+                        onLoopDetected.run();
+                    }
+                }
             }
 
             AgentHookEvent hookEvent = AgentHookEvent.builder()

@@ -49,7 +49,7 @@ public class EmojiProviderLiveTest {
         for (EmojiProvider provider : providers.values()) {
             byName.put(provider.name(), provider);
         }
-        System.out.println("[EmojiProviderLiveTest] 已注册数据源: " + byName.keySet());
+        System.out.println("[EmojiProviderLiveTest] 已注册数据源: " + byName.keySet()); // [P3C E1 豁免]
         check("SPI 注册了两个数据源", byName.size() >= 2);
         check("包含垂直站点 doutula", byName.containsKey("doutula"));
         check("包含通用检索 bing", byName.containsKey("bing"));
@@ -65,7 +65,7 @@ public class EmojiProviderLiveTest {
         for (String keyword : KEYWORDS) {
             List<EmojiInfo> vertical = doutula.search(keyword, 1);
             List<EmojiInfo> general = bing.search(keyword, 1);
-            System.out.println("      [" + keyword + "] doutula=" + vertical.size()
+            System.out.println("      [" + keyword + "] doutula=" + vertical.size() // [P3C E1 豁免]
                     + " bing=" + general.size());
             print("doutula", vertical);
             print("bing", general);
@@ -86,7 +86,7 @@ public class EmojiProviderLiveTest {
 
         List<EmojiInfo> firstPage = doutula.search("狗子", 1);
         List<EmojiInfo> secondPage = doutula.search("狗子", 2);
-        System.out.println("      [狗子] 分页 doutula p1=" + firstPage.size() + " p2=" + secondPage.size());
+        System.out.println("      [狗子] 分页 doutula p1=" + firstPage.size() + " p2=" + secondPage.size()); // [P3C E1 豁免]
         check("doutula 内存分页第二页非空", !secondPage.isEmpty());
         check("doutula 分页无重复", secondPage.stream()
                 .noneMatch(it -> firstPage.stream().anyMatch(f -> f.getImageUrl().equals(it.getImageUrl()))));
@@ -104,7 +104,7 @@ public class EmojiProviderLiveTest {
      */
     private static void print(String source, List<EmojiInfo> list) {
         list.stream().limit(3).forEach(it ->
-                System.out.println("        " + source + " | " + it.getTitle() + " | " + it.getImageUrl()));
+                System.out.println("        " + source + " | " + it.getTitle() + " | " + it.getImageUrl())); // [P3C E1 豁免]
     }
 
     /**
@@ -121,7 +121,7 @@ public class EmojiProviderLiveTest {
      * 输出汇总并在失败时退出非零。
      */
     private static void summary() {
-        System.out.println("[EmojiProviderLiveTest] pass=" + pass + " fail=" + fail);
+        System.out.println("[EmojiProviderLiveTest] pass=" + pass + " fail=" + fail); // [P3C E1 豁免]
         if (fail > 0) {
             System.exit(1);
         }
@@ -136,10 +136,10 @@ public class EmojiProviderLiveTest {
     private static void check(String name, boolean ok) {
         if (ok) {
             pass++;
-            System.out.println("  PASS " + name);
+            System.out.println("  PASS " + name); // [P3C E1 豁免]
         } else {
             fail++;
-            System.out.println("  FAIL " + name);
+            System.out.println("  FAIL " + name); // [P3C E1 豁免]
         }
     }
 }

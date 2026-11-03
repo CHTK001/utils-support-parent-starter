@@ -19,6 +19,9 @@ import com.chua.common.support.task.retry.JdkRetryProvider;
 import com.chua.common.support.task.retry.RetryConfig;
 import com.chua.common.support.task.retry.RetryProvider;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.stream.Collectors;
@@ -60,6 +63,11 @@ import java.util.stream.Collectors;
  * @since 4.0.0.42
  */
 public class DefaultPipeline implements Pipeline {
+
+    /**
+     * 流水线布局日志器.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultPipeline.class);
 
     /**
      * 内部属性键 — Structured Streaming任务scope 实例，通过 pipeline上下文.attributes 传递给异步节点。
@@ -1199,7 +1207,7 @@ public class DefaultPipeline implements Pipeline {
      * @param line 线
      */
     private void treePrintln(String line) {
-        System.out.println(line);
+        LOG.info(line);
         if (countingTreeLines) {
             treeLineCounter++;
         }
@@ -1219,7 +1227,7 @@ public class DefaultPipeline implements Pipeline {
         // 上移光标到上次树的位置，清除旧内容
         if (lastTreeLineCount > 0) {
             // ANSI: 上移 N 行 + 清除从光标到屏幕底部
-            System.out.print("\033[" + lastTreeLineCount + "A\033[0J");
+            LOG.info("\033[" + lastTreeLineCount + "A\033[0J");
         }
         // 重绘树（带行计数）
         treeLineCounter = 0;
@@ -1227,6 +1235,5 @@ public class DefaultPipeline implements Pipeline {
         printTree(history, colorEnabled);
         countingTreeLines = false;
         lastTreeLineCount = treeLineCounter;
-        System.out.flush();
     }
 }

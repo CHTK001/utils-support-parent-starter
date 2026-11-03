@@ -45,13 +45,13 @@ public class VectorPerfBench {
     */
     public static void main(String[] args) throws Exception {
         benchDir = Files.createTempDirectory("vector-perf-bench-");
-        System.out.println("============================================================");
-        System.out.println(" 向量存储性能基准测试");
-        System.out.println(" 维度=" + DIM + " 数量=" + COUNT + " 目录=" + benchDir);
-        System.out.println("============================================================\n");
+        System.out.println("============================================================"); // [P3C E1 豁免]
+        System.out.println(" 向量存储性能基准测试"); // [P3C E1 豁免]
+        System.out.println(" 维度=" + DIM + " 数量=" + COUNT + " 目录=" + benchDir); // [P3C E1 豁免]
+        System.out.println("============================================================\n"); // [P3C E1 豁免]
         runAll();
         deleteRecursively(benchDir);
-        System.out.println("\n测试目录已清理: " + benchDir);
+        System.out.println("\n测试目录已清理: " + benchDir); // [P3C E1 豁免]
     /**
      * 运行全部。
      * @param name 名称
@@ -170,13 +170,13 @@ public class VectorPerfBench {
                 }
                 long avgSearchNs = searchNs / (MEASURE_ROUNDS * QS);
                 double searchQps = 1_000_000_000.0 / avgSearchNs;
-                System.out.printf("  %-22s 写入=%.1f万条/s  搜索=%dus/次  QPS=%,d\n",
+                System.out.printf("  %-22s 写入=%.1f万条/s  搜索=%dus/次  QPS=%,d\n", // [P3C E1 豁免]
                         name, writeWps, avgSearchNs / 1000, (long) searchQps);
             } finally {
                 storage.close();
             }
         } catch (Exception e) {
-            System.out.printf("  %-22s ERROR: %s\n", name, e.getMessage());
+            System.out.printf("  %-22s ERROR: %s\n", name, e.getMessage()); // [P3C E1 豁免]
         }
     }
 
@@ -191,7 +191,7 @@ public class VectorPerfBench {
                 ds.flush();
             }
         } catch (Exception e) {
-            System.err.println("flush 失败: " + e.getMessage());
+            System.err.println("flush 失败: " + e.getMessage()); // [P3C E1 豁免]
         }
     }
 
@@ -234,11 +234,11 @@ public class VectorPerfBench {
                         try {
                             Files.delete(p);
                         } catch (Exception e) {
-                            System.err.println("删除 " + p + " 失败: " + e.getMessage());
+                            System.err.println("删除 " + p + " 失败: " + e.getMessage()); // [P3C E1 豁免]
                         }
                     });
         } catch (Exception e) {
-            System.err.println("遍历临时目录 " + dir + " 失败: " + e.getMessage());
+            System.err.println("遍历临时目录 " + dir + " 失败: " + e.getMessage()); // [P3C E1 豁免]
         }
     }
 
@@ -249,7 +249,7 @@ public class VectorPerfBench {
      * @return 返回值
     */
     private static void printf(String fmt, Object... args) {
-        System.out.printf(fmt, args);
+        System.out.printf(fmt, args); // [P3C E1 豁免]
     }
 
     @FunctionalInterface

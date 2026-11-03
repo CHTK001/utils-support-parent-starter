@@ -74,6 +74,7 @@ public final class UsageTestHome {
             throw new UncheckedIOException("初始化假主目录失败: " + dir, e);
         }
         System.setProperty("user.home", dir.toString());
+// [P3C C1 豁免] 关闭钩子必须由 JVM 创建独立线程
         Runtime.getRuntime().addShutdownHook(new Thread(() -> deleteRecursively(dir)));
         return dir;
     }

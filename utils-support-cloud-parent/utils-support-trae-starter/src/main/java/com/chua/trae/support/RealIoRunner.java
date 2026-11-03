@@ -50,47 +50,47 @@ public class RealIoRunner {
                 .maxTokens(1024)
                 .build();
 
-            System.out.println("========================================");
-            System.out.println(" [INPUT] 请求参数");
-            System.out.println("========================================");
-            System.out.println("model=" + model + " temperature=0.7 max_tokens=1024");
-            System.out.println("messages: [{role: user, content: 用一句话介绍 Java}]");
-            System.out.println();
+            System.out.println("========================================"); // [P3C E1 豁免]
+            System.out.println(" [INPUT] 请求参数"); // [P3C E1 豁免]
+            System.out.println("========================================"); // [P3C E1 豁免]
+            System.out.println("model=" + model + " temperature=0.7 max_tokens=1024"); // [P3C E1 豁免]
+            System.out.println("messages: [{role: user, content: 用一句话介绍 Java}]"); // [P3C E1 豁免]
+            System.out.println(); // [P3C E1 豁免]
 
-            System.out.println("========================================");
-            System.out.println(" [OUTPUT] SSE 流式事件（实时打印）");
-            System.out.println("========================================");
+            System.out.println("========================================"); // [P3C E1 豁免]
+            System.out.println(" [OUTPUT] SSE 流式事件（实时打印）"); // [P3C E1 豁免]
+            System.out.println("========================================"); // [P3C E1 豁免]
 
             CountDownLatch latch = new CountDownLatch(1);
             StringBuilder fullText = new StringBuilder();
             client.chatStream(request,
                 text -> {
-                    System.out.print(text);
+                    System.out.print(text); // [P3C E1 豁免]
                     fullText.append(text);
                 },
-                reasoning -> System.out.println("\n[reasoning] " + reasoning),
+                reasoning -> System.out.println("\n[reasoning] " + reasoning), // [P3C E1 豁免]
                 resp -> {
-                    System.out.println("\n[done] finish=" + resp.choices().getFirst().finishReason());
+                    System.out.println("\n[done] finish=" + resp.choices().getFirst().finishReason()); // [P3C E1 豁免]
                     if (resp.usage() != null) {
-                        System.out.println("[usage] prompt=" + resp.usage().promptTokens()
+                        System.out.println("[usage] prompt=" + resp.usage().promptTokens() // [P3C E1 豁免]
                             + " completion=" + resp.usage().completionTokens());
                     }
                     latch.countDown();
                 },
                 err -> {
-                    System.err.println("\n[error] " + err.getMessage() + " (http=" + err.statusCode() + ")");
+                    System.err.println("\n[error] " + err.getMessage() + " (http=" + err.statusCode() + ")"); // [P3C E1 豁免]
                     latch.countDown();
                 });
 
             boolean finished = latch.await(120, TimeUnit.SECONDS);
             if (!finished) {
-                System.err.println("[timeout] 120s 未完成");
+                System.err.println("[timeout] 120s 未完成"); // [P3C E1 豁免]
             }
 
-            System.out.println("========================================");
-            System.out.println(" [OUTPUT] 完整文本");
-            System.out.println("========================================");
-            System.out.println(fullText.toString());
+            System.out.println("========================================"); // [P3C E1 豁免]
+            System.out.println(" [OUTPUT] 完整文本"); // [P3C E1 豁免]
+            System.out.println("========================================"); // [P3C E1 豁免]
+            System.out.println(fullText.toString()); // [P3C E1 豁免]
         } finally {
             client.close();
         }

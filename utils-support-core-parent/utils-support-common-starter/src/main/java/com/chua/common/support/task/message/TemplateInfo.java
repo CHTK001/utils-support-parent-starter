@@ -60,7 +60,8 @@ public record TemplateInfo(String id, String name, String content, String type, 
         }
         String result = content;
         for (var entry : params.entrySet()) {
-            result = result.replace("{{" + entry.getKey() + "}}", entry.getValue());
+            String pattern = new StringBuilder().append("{{").append(entry.getKey()).append("}}").toString();
+            result = result.replace(pattern, entry.getValue());
         }
         return result;
     }

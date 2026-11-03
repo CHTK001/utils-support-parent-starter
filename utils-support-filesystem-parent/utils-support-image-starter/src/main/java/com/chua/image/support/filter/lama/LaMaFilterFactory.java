@@ -350,6 +350,7 @@ public class LaMaFilterFactory {
      * 注册JVM关闭钩子，确保资源清理
      */
     static {
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("JVM关闭，清理LaMa滤镜资源");
             clearAllFilters();

@@ -57,43 +57,43 @@ public class WechatRestoreDemo {
             outputDir.mkdirs();
         }
 
-        System.out.println("=== 微信聊天记录还原演示 ===");
-        System.out.println("消息总数: " + messages.size());
+        System.out.println("=== 微信聊天记录还原演示 ==="); // [P3C E1 豁免]
+        System.out.println("消息总数: " + messages.size()); // [P3C E1 豁免]
 
         // 1. 导出 CSV
         File csvFile = new File(outputDir, "张三.csv");
         WechatExportUtils.writeCsv(csvFile,
                 List.of("id", "sender_username", "message_content", "create_time"),
                 messages, StandardCharsets.UTF_8);
-        System.out.println("CSV 输出: " + csvFile.getAbsolutePath() + " (" + csvFile.length() + " bytes)");
+        System.out.println("CSV 输出: " + csvFile.getAbsolutePath() + " (" + csvFile.length() + " bytes)"); // [P3C E1 豁免]
 
         // 2. 导出 SQL
         String sql = WechatExportUtils.buildSqlScript(messages, "wechat_message", "wechat", true);
         File sqlFile = new File(outputDir, "wechat_message.sql");
         Files.writeString(sqlFile.toPath(), sql, StandardCharsets.UTF_8);
-        System.out.println("SQL 输出: " + sqlFile.getAbsolutePath() + " (" + sqlFile.length() + " bytes)");
+        System.out.println("SQL 输出: " + sqlFile.getAbsolutePath() + " (" + sqlFile.length() + " bytes)"); // [P3C E1 豁免]
 
         // 3. 验证 CSV 内容
-        System.out.println("\n--- CSV 内容预览 ---");
+        System.out.println("\n--- CSV 内容预览 ---"); // [P3C E1 豁免]
         Files.readAllLines(csvFile.toPath()).forEach(System.out::println);
 
         // 4. 验证 SQL 内容预览
-        System.out.println("\n--- SQL 内容预览 ---");
+        System.out.println("\n--- SQL 内容预览 ---"); // [P3C E1 豁免]
         String[] sqlLines = sql.split("\n");
         for (int i = 0; i < Math.min(10, sqlLines.length); i++) {
-            System.out.println(sqlLines[i]);
+            System.out.println(sqlLines[i]); // [P3C E1 豁免]
         }
-        System.out.println("... (共 " + sqlLines.length + " 行)");
+        System.out.println("... (共 " + sqlLines.length + " 行)"); // [P3C E1 豁免]
 
         // 5. 列出输出目录
-        System.out.println("\n--- 输出目录文件 ---");
+        System.out.println("\n--- 输出目录文件 ---"); // [P3C E1 豁免]
         File[] files = outputDir.listFiles();
         if (files != null) {
             for (File f : files) {
-                System.out.println("  " + f.getName() + " (" + f.length() + " bytes)");
+                System.out.println("  " + f.getName() + " (" + f.length() + " bytes)"); // [P3C E1 豁免]
             }
         }
 
-        System.out.println("\n还原完成！文件位于: " + outputDir.getAbsolutePath());
+        System.out.println("\n还原完成！文件位于: " + outputDir.getAbsolutePath()); // [P3C E1 豁免]
     }
 }

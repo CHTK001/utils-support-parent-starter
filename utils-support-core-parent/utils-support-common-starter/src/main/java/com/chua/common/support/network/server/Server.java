@@ -115,6 +115,67 @@ public interface Server extends AutoCloseable {
     ServerSetting getSetting();
 
     /**
+     * 获取当前活跃连接数。
+     *
+     * <p>「连接」指传输层已建立的长连接，与「在途请求数」是两个维度：HTTP/1.1 Keep-Alive
+     * 下一个连接会承载成百上千个请求，所以百万连接场景下必须分别观测。</p>
+     *
+     * <p>默认实现返回 {@link ServerMetrics#getActiveConnections()}；自行管理连接表的实现
+     * （如代理类服务器）应覆写为真实值。</p>
+     *
+     * @return 活跃连接数
+     */
+    default int getActiveConnections() {
+        ServerMetrics metrics = getMetrics();
+        return metrics != null ? metrics.getActiveConnections() : 0;
+    }
+
+    /**
+     * 获取峰值并发连接数。
+     *
+     * @return 峰值连接数，未统计时返回 0
+     */
+    default int getPeakConnections() {
+        ServerMetrics metrics = getMetrics();
+        return metrics != null ? metrics.getPeakConnections() : 0;
+    }
+
+    /**
+     * 判断当前是否仍接受新连接。
+     *
+     * <p>优雅关闭期间应返回 false：{@link Server#stop()} 先停止接纳、
+     * 再等待活跃请求完成，期间对外表现为「不接新连接但仍服务存量」。</p>
+     *
+     * @return true 表示可以接受新连接
+     */
+    default boolean isAcceptingConnections() {
+        return isRunning();
+    }
+
+    /**
+     * 开关连接接纳。
+     *
+     * <p>用于灰度摘流：置为 false 后实现应停止 accept（或 accept 后立即关闭），
+     * 但已建立的连接继续服务。默认实现不做任何事，由传输层按需覆写。</p>
+     *
+     * @param accepting false 表示停止接受新连接
+     */
+    default void setAccepting(boolean accepting) {
+        // 默认无操作：需要摘流能力的传输层覆写
+    }
+
+    /**
+     * 获取当前连接的服务器指标快照。
+     *
+     * <p>协议无关的通用计数器集合，供健康检查、监控上报统一取数。</p>
+     *
+     * @return 指标实例，不支持时返回 null
+     */
+    default ServerMetrics getMetrics() {
+        return null;
+    }
+
+    /**
      * 获取 IOC 对象上下文。
      *
      * @return ObjectContext 实例，可能为 null

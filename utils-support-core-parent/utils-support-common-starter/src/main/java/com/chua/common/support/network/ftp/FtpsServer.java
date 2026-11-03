@@ -173,7 +173,9 @@ public class FtpsServer extends FtpServer {
             sslServerSocket.setReuseAddress(true);
             sslServerSocket.setEnabledProtocols(new String[]{"TLSv1.2", "TLSv1.3"});
             sslServerSocket.setNeedClientAuth(false);
-            sslServerSocket.bind(new InetSocketAddress(getFtpConfig().getHost(), getFtpConfig().getControlPort()), 50);
+            // backlog 与 FtpServer 保持同一口径（统一由 ServerSetting#resolveBacklog 收敛）
+            sslServerSocket.bind(new InetSocketAddress(getFtpConfig().getHost(), getFtpConfig().getControlPort()),
+                    setting.resolveBacklog(128));
             markRunning();
             Thread.ofVirtual().name("ftps-accept").start(this::acceptLoop);
             log.info("FTPS 服务器启动成功: {}:{} (隐式={})",
@@ -190,7 +192,26 @@ public class FtpsServer extends FtpServer {
         while (!sslServerSocket.isClosed()) {
             try {
                 var socket = (Socket) sslServerSocket.accept();
-                getVirtualExecutor().submit(() -> handleControlConnection(socket));
+                // 与 FtpServer 同口径：先过接纳闸门与连接预算，再派发（FTPS 无 503 语义）
+                if (!accepting) {
+                    // 优雅关闭中：不再接纳新连接（存量连接继续服务）
+                    socket.close();
+                    continue;
+                }
+                if (!tryAcquireConnection()) {
+                    log.warn("FTPS 连接数超限 (max={})，拒绝 {}", setting.getMaxConnections(),
+                            socket.getRemoteSocketAddress());
+                    socket.close();
+                    continue;
+                }
+                try {
+                    applySocketOptions(socket);
+                    getVirtualExecutor().submit(() -> handleControlConnection(socket));
+                } catch (java.util.concurrent.RejectedExecutionException e) {
+                    // 停止中任务被拒：连接不会被处理，必须在这里归还预算
+                    socket.close();
+                    releaseConnection();
+                }
             } catch (IOException e) {
                 if (!sslServerSocket.isClosed()) {
                     log.debug("FTPS 接受连接异常: {}", e.getMessage());
@@ -238,7 +259,16 @@ public class FtpsServer extends FtpServer {
             if (session != null) {
                 getSessionMap().remove(session.getId());
                 session.close();
+            } else {
+                // 会话构造失败时连接仍由本方法持有，必须在这里关掉（与 FtpServer 一致）
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    log.debug("关闭 FTPS 控制连接失败，已忽略: {}", e.getMessage());
+                }
             }
+            // 连接预算必须与 accept 期的 tryAcquireConnection() 严格配对
+            releaseConnection();
         }
     }
 

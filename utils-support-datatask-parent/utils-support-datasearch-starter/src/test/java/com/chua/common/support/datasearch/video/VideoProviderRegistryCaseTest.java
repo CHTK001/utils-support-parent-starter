@@ -41,8 +41,8 @@ public class VideoProviderRegistryCaseTest {
     public static void main(String[] args) {
         Set<String> blocked = VideoProviderRegistry.getBlockedNames();
         Set<String> spiKeys = ServiceProvider.of(ResourceProvider.class).list().keySet();
-        System.out.println("      blocked=" + blocked);
-        System.out.println("      spiKeys=" + spiKeys);
+        System.out.println("      blocked=" + blocked); // [P3C E1 豁免]
+        System.out.println("      spiKeys=" + spiKeys); // [P3C E1 豁免]
 
         check("封禁名单已从 blocked-providers.json 加载", !blocked.isEmpty());
         check("SPI 注册表非空", !spiKeys.isEmpty());
@@ -82,7 +82,7 @@ public class VideoProviderRegistryCaseTest {
 
         check("空名不误判为已封禁", !VideoProviderRegistry.isBlocked(null));
 
-        System.out.println("[VideoProviderRegistryCaseTest] pass=" + pass + " fail=" + fail);
+        System.out.println("[VideoProviderRegistryCaseTest] pass=" + pass + " fail=" + fail); // [P3C E1 豁免]
         if (fail > 0) {
             System.exit(1);
         }
@@ -110,10 +110,10 @@ public class VideoProviderRegistryCaseTest {
     private static void check(String name, boolean ok) {
         if (ok) {
             pass++;
-            System.out.println("  PASS " + name);
+            System.out.println("  PASS " + name); // [P3C E1 豁免]
         } else {
             fail++;
-            System.out.println("  FAIL " + name);
+            System.out.println("  FAIL " + name); // [P3C E1 豁免]
         }
     }
 }

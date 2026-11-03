@@ -139,6 +139,7 @@ class GoalTrackerTest {
 
         CountDownLatch returned = new CountDownLatch(1);
         AtomicReference<GoalStatus> seen = new AtomicReference<>();
+// [P3C C1 豁免] 测试代码，验证线程行为，不必走线程池
         Thread waiter = new Thread(() -> {
             try {
                 seen.set(tracker.awaitResumable(10_000L));
@@ -178,6 +179,7 @@ class GoalTrackerTest {
         tracker.pause(1100L);
 
         AtomicReference<GoalStatus> seen = new AtomicReference<>();
+// [P3C C1 豁免] 测试代码，验证线程行为，不必走线程池
         Thread waiter = new Thread(() -> {
             try {
                 seen.set(tracker.awaitResumable(10_000L));

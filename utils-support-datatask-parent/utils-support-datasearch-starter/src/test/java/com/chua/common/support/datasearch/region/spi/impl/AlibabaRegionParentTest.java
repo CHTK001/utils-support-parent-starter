@@ -31,10 +31,10 @@ public class AlibabaRegionParentTest {
         long withParent = kids.stream().filter(r -> "310000".equals(r.getParent())).count();
         check("每个子级 parent 均为 310000（修复前恒为 null/空）", !kids.isEmpty() && withParent == kids.size());
         kids.stream().filter(r -> !"310000".equals(r.getParent())).findFirst()
-                .ifPresent(r -> System.out.println("      例外: " + r.getAdcode() + " parent=" + r.getParent()));
+                .ifPresent(r -> System.out.println("      例外: " + r.getAdcode() + " parent=" + r.getParent())); // [P3C E1 豁免]
 
         List<RegionInfo> provinces = provider.getChildren("100000");
-        System.out.println("      provinces=" + provinces.size()
+        System.out.println("      provinces=" + provinces.size() // [P3C E1 豁免]
                 + " distinctParent=" + provinces.stream().map(RegionInfo::getParent).distinct().toList()
                 + " distinctLevel=" + provinces.stream().map(RegionInfo::getLevelName).distinct().toList());
         check("省级 parent 均为 100000", !provinces.isEmpty()
@@ -45,7 +45,7 @@ public class AlibabaRegionParentTest {
         RegionInfo root = provider.getTree(1);
         check("根节点 parent 保持 null", root != null && root.getParent() == null);
 
-        System.out.println("[AlibabaRegionParentTest] pass=" + pass + " fail=" + fail);
+        System.out.println("[AlibabaRegionParentTest] pass=" + pass + " fail=" + fail); // [P3C E1 豁免]
         if (fail > 0) {
             System.exit(1);
         }
@@ -54,10 +54,10 @@ public class AlibabaRegionParentTest {
     private static void check(String name, boolean ok) {
         if (ok) {
             pass++;
-            System.out.println("  PASS " + name);
+            System.out.println("  PASS " + name); // [P3C E1 豁免]
         } else {
             fail++;
-            System.out.println("  FAIL " + name);
+            System.out.println("  FAIL " + name); // [P3C E1 豁免]
         }
     }
 }

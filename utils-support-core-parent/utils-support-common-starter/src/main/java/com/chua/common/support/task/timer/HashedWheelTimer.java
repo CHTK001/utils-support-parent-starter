@@ -199,6 +199,7 @@ public class HashedWheelTimer implements Timer {
      * 到期任务先做周期重排（时间轴优先，不丢拍），再提交执行器并发运行。</p>
      */
     private void startTickThread() {
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
         Thread t = new Thread(() -> {
             long startNanos = System.nanoTime();
             while (running) {
@@ -278,7 +279,8 @@ public class HashedWheelTimer implements Timer {
         try {
             log.error("[HashedWheelTimer] 任务执行失败: {}", taskName, failure);
         } catch (Throwable loggingFailure) {
-            System.err.println("[HashedWheelTimer] 任务执行失败(日志系统不可用): "
+            // [P3C E1 豁免] SLF4J 日志系统自身不可用时，降级 stderr — 非应用输出
+            System.err.println("[HashedWheelTimer] 任务执行失败(日志系统不可用): " // [P3C E1 豁免]
                     + taskName + " -> " + failure);
         }
     }

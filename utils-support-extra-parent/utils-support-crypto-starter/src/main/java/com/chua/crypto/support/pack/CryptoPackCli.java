@@ -39,6 +39,9 @@ public final class CryptoPackCli {
     /**
      * CLI 入口
      *
+    /**
+     * CLI 入口：打印程序包使用方式与结果（P3C E1 豁免：CLI 程序的标准输出契约）
+     *
      * @param args 参数
      * @throws Exception 打包失败
      */
@@ -48,7 +51,7 @@ public final class CryptoPackCli {
         String source = opts.get("source");
         String output = opts.get("output");
         if (source == null || output == null) {
-            System.err.println("用法: CryptoPackCli --source <app.jar> --output <secure.jar> "
+            System.err.println("用法: CryptoPackCli --source <app.jar> --output <secure.jar> " // [P3C E1 豁免]
                     + "[--policy SERVER_BOUND|CUSTOM] [--pin xxx] [--server-id id] "
                     + "[--encrypt-config|--no-encrypt-config] [--encrypt-libs|--no-encrypt-libs] "
                     + "[--no-embed-key] [--obfuscate] [--rename-privates]");
@@ -77,8 +80,8 @@ public final class CryptoPackCli {
                     .renamePrivates(opts.containsKey("rename-privates"))
                     .embedKeyBlob(!opts.containsKey("no-embed-key"))
                     .execute();
-            System.out.println("[chua-crypto] 加密完成: " + output);
-            System.out.println("[chua-crypto] 运行方式: java -jar " + output
+            System.out.println("[chua-crypto] 加密完成: " + output); // [P3C E1 豁免]
+            System.out.println("[chua-crypto] 运行方式: java -jar " + output // [P3C E1 豁免]
                     + ("CUSTOM" == policy.name() ? "  (-Dchua.crypto.pin=xxx)" : ""));
         } finally {
             crypto.close();

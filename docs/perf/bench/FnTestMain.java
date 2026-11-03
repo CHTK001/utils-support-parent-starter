@@ -72,8 +72,8 @@ public class FnTestMain {
         });
 
         server.start();
-        System.out.println("[fn] READY type=" + type + " port=" + server.getPort());
-        System.out.flush();
+        System.out.println("[fn] READY type=" + type + " port=" + server.getPort()); // [P3C E1 豁免]
+        System.out.flush(); // [P3C E1 豁免]
         Thread.sleep(Long.MAX_VALUE);
     }
 }

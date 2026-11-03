@@ -227,11 +227,6 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     private void addAndEmit(TransmissionRecord record, boolean isError) {
         records.add(record);
         try {
-            com.chua.runtime.apm.storage.StorageManager.appendTransmission(record);
-        } catch (Exception appendEx) {
-            LOG.log(Level.FINE, String.format("%s appendTransmission 异常: %s", name(), appendEx.getMessage()));
-        }
-        try {
             DependencyGraphHandler handler = ApmBootstrap.getGlobalHandler(DependencyGraphHandler.class);
             if (handler == null) {
                 return;

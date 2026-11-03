@@ -476,10 +476,12 @@ public class NioServerResponse implements ServerResponse {
             byte[] data = resolveBody();
             byte[] headerBytes = buildHttpHeaders(data.length);
             if (asyncWriter != null) {
+                WriteProbe.completed(headerBytes.length + (data == null ? 0 : data.length));
                 // 真响应式:字节交给事件循环 OP_WRITE 异步写出
                 asyncWriter.accept(ByteBuffer.wrap(headerBytes), ByteBuffer.wrap(data));
             } else {
                 // gather write：将 header 和 body 一次性写出
+                WriteProbe.completed(headerBytes.length + (data == null ? 0 : data.length));
                 writeToChannel(ByteBuffer.wrap(headerBytes), ByteBuffer.wrap(data));
             }
         } catch (Exception e) {

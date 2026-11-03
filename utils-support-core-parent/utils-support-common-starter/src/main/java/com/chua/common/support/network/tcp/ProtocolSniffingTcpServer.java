@@ -185,7 +185,7 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(true);
             serverSocket.bind(new InetSocketAddress(setting.getHost(), setting.getPort()),
-                    Math.max(setting.getBacklog(), 128));
+                    setting.resolveBacklog(128));
             setting.setPort(serverSocket.getLocalPort());
             virtualPool = Executors.newVirtualThreadPerTaskExecutor();
             acceptThread = ThreadUtils.newThread(this::acceptLoop, "protocol-sniff-accept");
@@ -237,18 +237,52 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
 
     /**
      * 接受连接循环：每个连接交给虚拟线程执行协议嗅探与分流。
+     *
+     * <p>接纳前用 {@link #tryAcquireConnection()} 做一次 CAS 登记：超限时直接关闭，
+     * 避免让嗅探阶段（每条连接至少占一块 peek 缓冲 + 一个虚拟线程）无限堆积。</p>
      */
     private void acceptLoop() {
         while (running) {
             try {
                 Socket socket = serverSocket.accept();
-                socket.setTcpNoDelay(true);
-                virtualPool.execute(() -> handleConnection(socket));
+                if (!accepting) {
+                    // 优雅关闭中：不再接纳新连接（存量连接继续服务）
+                    closeQuietly(socket);
+                    continue;
+                }
+                if (!tryAcquireConnection()) {
+                    log.warn("协议嗅探连接数超限 (max={})，拒绝 {}", setting.getMaxConnections(),
+                            socket.getRemoteSocketAddress());
+                    closeQuietly(socket);
+                    continue;
+                }
+                try {
+                    socket.setTcpNoDelay(true);
+                    applySocketOptions(socket);
+                    virtualPool.execute(() -> handleConnection(socket));
+                } catch (Exception e) {
+                    // 任一环节失败（含停止中任务被拒）都必须归还预算，否则配额只减不增
+                    closeQuietly(socket);
+                    releaseConnection();
+                }
             } catch (IOException e) {
                 if (running) {
                     log.debug("协议嗅探服务器接受连接异常: {}", e.getMessage());
                 }
             }
+        }
+    }
+
+    /**
+     * 静默关闭 Socket。
+     *
+     * @param socket 目标 Socket
+     */
+    private static void closeQuietly(Socket socket) {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            log.debug("关闭嗅探连接失败，已忽略: {}", e.getMessage());
         }
     }
 
@@ -281,11 +315,8 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
         } catch (Exception e) {
             log.debug("协议处理器执行异常: {}", e.getMessage());
         } finally {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                log.debug("关闭嗅探连接失败，已忽略: {}", e.getMessage());
-            }
+            closeQuietly(socket);
+            releaseConnection();
         }
     }
 

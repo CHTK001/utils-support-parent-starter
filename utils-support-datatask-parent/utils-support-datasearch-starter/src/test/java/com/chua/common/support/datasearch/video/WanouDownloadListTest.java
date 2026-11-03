@@ -37,7 +37,7 @@ public class WanouDownloadListTest {
         List<VideoInfoResult> list = (pr == null || pr.getData() == null) ? List.of() : pr.getData();
         check("接口可返回条目", !list.isEmpty());
         if (list.isEmpty()) {
-            System.out.println("[WanouDownloadListTest] pass=" + pass + " fail=" + fail);
+            System.out.println("[WanouDownloadListTest] pass=" + pass + " fail=" + fail); // [P3C E1 豁免]
             return;
         }
 
@@ -45,13 +45,13 @@ public class WanouDownloadListTest {
                 .filter(r -> r.getDownloadList() != null && !r.getDownloadList().isEmpty())
                 .count();
         check("downloadList 已挂到实体（修复前恒为 null）", withDownloads > 0);
-        System.out.println("      items=" + list.size() + " withDownloads=" + withDownloads);
+        System.out.println("      items=" + list.size() + " withDownloads=" + withDownloads); // [P3C E1 豁免]
         long maxDownloads = list.stream()
                 .filter(r -> r.getDownloadList() != null)
                 .mapToLong(r -> r.getDownloadList().size())
                 .max().orElse(0);
         check("多平台条目被拆成多条下载项", maxDownloads >= 2);
-        System.out.println("      maxDownloadsPerItem=" + maxDownloads);
+        System.out.println("      maxDownloadsPerItem=" + maxDownloads); // [P3C E1 豁免]
 
         list.stream()
                 .filter(r -> r.getDownloadList() != null && !r.getDownloadList().isEmpty())
@@ -59,7 +59,7 @@ public class WanouDownloadListTest {
                 .ifPresent(r -> {
                     List<?> downloads = r.getDownloadList();
                     VideoDownload first = (VideoDownload) downloads.get(0);
-                    System.out.println("      " + r.getVideoName() + " downloads=" + downloads.size()
+                    System.out.println("      " + r.getVideoName() + " downloads=" + downloads.size() // [P3C E1 豁免]
                             + " firstName=" + first.getVideoDownloadName()
                             + " firstUrl=" + first.getVideoDownloadUrl());
                     check("每条下载项都带名称与地址", downloads.stream().allMatch(d ->
@@ -72,7 +72,7 @@ public class WanouDownloadListTest {
                                     && !v.getVideoDownloadUrl().contains("$$$")));
                 });
 
-        System.out.println("[WanouDownloadListTest] pass=" + pass + " fail=" + fail);
+        System.out.println("[WanouDownloadListTest] pass=" + pass + " fail=" + fail); // [P3C E1 豁免]
         if (fail > 0) {
             System.exit(1);
         }
@@ -81,10 +81,10 @@ public class WanouDownloadListTest {
     private static void check(String name, boolean ok) {
         if (ok) {
             pass++;
-            System.out.println("  PASS " + name);
+            System.out.println("  PASS " + name); // [P3C E1 豁免]
         } else {
             fail++;
-            System.out.println("  FAIL " + name);
+            System.out.println("  FAIL " + name); // [P3C E1 豁免]
         }
     }
 }

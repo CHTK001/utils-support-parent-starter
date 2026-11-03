@@ -66,6 +66,7 @@ public class ServerSetting {
         int cpus = Runtime.getRuntime().availableProcessors();
         long heapMb = Runtime.getRuntime().maxMemory() / (1024 * 1024);
         String os = System.getProperty("os.name", "").toLowerCase();
+        boolean windows = os.contains("win");
 
         // 线程模型：Worker 随 CPU 核数伸缩，Boss 保持默认（accept 循环按核数扩展现已足够，
         // 且 KCP 等同时用 bossThreads 作为 IO event loop 数，需随核数扩展）
@@ -74,30 +75,25 @@ public class ServerSetting {
             this.bossThreads = 1;
         }
 
-        // IO Selector 事件循环：Windows 实测 4 分片为最优（2 分片未吃满并行度，16+ 分片 select 负优化），
-        // Linux/macOS 按核数扩展；eventLoops 与 ioThreads 保持一致
-        int io = os.contains("win") ? 4 : Math.max(cpus, 2);
+        // IO Selector 事件循环：Windows 实测 4 分片为最优并作为硬上限（见 resolveEventLoops），
+        // Linux/macOS 按核数扩展。eventLoops 与 ioThreads 保持一致，避免两个字段互相打架。
+        int io = resolveEventLoops(cpus, windows);
         this.ioThreads = io;
         this.eventLoops = io;
 
-        // 等待队列：Windows 语义较弱适当收敛，Unix 系可放大
-        this.backlog = os.contains("win")
+        // 等待队列：Windows 语义较弱适当收敛，Unix 系可放大。
+        // 百万连接场景下 backlog 只影响「瞬时未 accept 的握手队列」，真正的容量由
+        // maxConnections + 每连接内存决定，因此这里不做数量级放大（内核 somaxconn 才是硬上限）。
+        this.backlog = windows
                 ? Math.min(Math.max(cpus * 64, 128), 1024)
                 : Math.min(Math.max(cpus * 128, 256), 4096);
 
-        // 最大连接数：按可用堆内存分级(目标:百万级并发连接,配合各实现的每连接懒分配内存)
-        // 连接上限:按可用堆推导(每连接约数百字节堆占用);
-        // 用户显式设置的值优先,不被覆盖
+        // 最大连接数：按可用堆内存分级(目标:百万级并发连接,配合各实现的每连接懒分配内存)。
+        // 同时按操作系统可用的 fd 语义收敛：Linux 受 ulimit -n、Windows 受句柄配额约束，
+        // 超过时会在 accept 阶段失败而不是优雅拒绝，故此处给出可观测的保守值。
+        // 用户显式设置过的值优先，不被覆盖
         if (!maxConnectionsExplicit) {
-            if (heapMb >= 8192) {
-                this.maxConnections = 1000000;
-            } else if (heapMb >= 4096) {
-                this.maxConnections = 500000;
-            } else if (heapMb >= 2048) {
-                this.maxConnections = 200000;
-            } else {
-                this.maxConnections = 100000;
-            }
+            this.maxConnections = resolveMaxConnections(heapMb, os);
         }
 
         // 缓冲区：内存充足时放大，减少系统调用次数
@@ -108,9 +104,11 @@ public class ServerSetting {
 
         // 最大并发请求数：与连接池容量对齐（RPC auto 连接数=cpu*8）,
         // 防止异常场景下在途请求无限堆积击穿内存,同时不限制正常高吞吐。
+        // 旧值 cpu*8（12 核=96）会把「百万连接下的正常请求突发」直接判成 503，
+        // 与「单服务支撑百万连接」的目标冲突，故按核数放大两个数量级并保底 4096。
         // 显式配置过(>0 或 0=不限制)时保留原值,仅未配置时按核数给默认
         if (!maxConcurrencyExplicit) {
-            this.maxConcurrency = Math.max(cpus * 8, 32);
+            this.maxConcurrency = Math.max(cpus * 256, 4096);
         }
 
         // 最大 Keep-Alive 请求数：内存充足时放宽长连接复用次数，
@@ -121,6 +119,143 @@ public class ServerSetting {
         this.reactor = cpus >= 8;
 
         return this;
+    }
+
+    /**
+     * 计算实际生效的事件循环（Selector）数量。
+     *
+     * <p>把平台差异收敛到一处，避免各实现各自 clamp 且结论互相矛盾：</p>
+     * <ul>
+     *   <li>Windows：实测 4 分片吞吐最优，且 {@code WindowsSelectorImpl} 在更多分片并发 select 时
+     *       会丢失读事件（表现为连接已建立但请求 100% 超时），因此 4 是硬上限；</li>
+     *   <li>Linux/macOS：epoll/kqueue 可安全扩展，取 CPU 核数（至少 2）。</li>
+     * </ul>
+     *
+     * <p>显式配置的 {@link #eventLoops} 大于 0 时以配置为准，仅 Windows 仍收敛到 4 ——
+     * 那不是调优选择，而是平台缺陷：放行只会得到一个「连接建立成功但永不回包」的服务。</p>
+     *
+     * @param cpus     CPU 核数
+     * @param windows  是否为 Windows
+     * @return 实际使用的事件循环数，恒大于 0
+     */
+    public int resolveEventLoops(int cpus, boolean windows) {
+        // 显式配置优先（eventLoops 与 ioThreads 任一配置都算显式）
+        int configured = this.eventLoops > 0 ? this.eventLoops : this.ioThreads;
+        int loops;
+        if (configured > 0) {
+            loops = configured;
+        } else {
+            loops = windows ? 4 : Math.max(cpus, 2);
+        }
+        if (windows) {
+            // Windows 硬上限：>4 个 Selector 并发 select 会丢读事件，无法在本平台规避
+            loops = Math.min(loops, 4);
+        }
+        return Math.max(loops, 1);
+    }
+
+    /**
+     * 按堆内存与操作系统计算最大连接数。
+     *
+     * <p>分级依据是「每连接常驻内存」：空闲连接不分配读写缓冲（各实现已改为懒分配），
+     * 但仍需要 JDK 侧 {@code SocketChannel} + 内核 socket 结构，约 4~8KB 量级；
+     * 收到数据后才有 16KB 级缓冲。按 1MB 连接 × 8KB ≈ 8GB 的上界给出分级，
+     * 并对 Windows 的句柄语义做收敛。</p>
+     *
+     * @param heapMb 最大堆内存（MB）
+     * @param os     操作系统名称（小写）
+     * @return 最大连接数
+     */
+    private static int resolveMaxConnections(long heapMb, String os) {
+        int limit;
+        if (heapMb >= 16384) {
+            limit = 1_000_000;
+        } else if (heapMb >= 8192) {
+            limit = 800_000;
+        } else if (heapMb >= 4096) {
+            limit = 400_000;
+        } else if (heapMb >= 2048) {
+            limit = 200_000;
+        } else {
+            limit = 100_000;
+        }
+        if (os.contains("win")) {
+            // Windows 默认没有 ulimit 概念，但单进程句柄与 afd.sys 的非分页池更早成为瓶颈；
+            // 百万连接需要显式调大注册表/内核参数，未调优时按半数收敛，避免 accept 阶段批量失败
+            limit = Math.min(limit, 500_000);
+        }
+        return limit;
+    }
+
+    /**
+     * 校验连接相关配置，返回人可读的问题列表（空列表表示无问题）。
+     *
+     * <p>百万连接的目标里，绝大多数「起不来 / 连不上 / 内存爆」都不是代码问题而是参数组合：
+     * 上限大于 fd 上限、backlog 小于突发速率、缓冲区乘上连接数超过堆。这里在启动前一次性
+     * 把不可能成立的组合挑出来，比运行期出现 {@code Too many open files} 好排查得多。</p>
+     *
+     * @return 配置问题描述列表，无问题时为空列表
+     */
+    public List<String> validate() {
+        List<String> problems = new java.util.ArrayList<>(4);
+        if (maxConnections < 0) {
+            problems.add("maxConnections 不能为负数（0 表示不限制）: " + maxConnections);
+        }
+        if (backlog < 1) {
+            problems.add("backlog 必须 >= 1: " + backlog);
+        }
+        if (bufferSize < 1024) {
+            problems.add("bufferSize 过小（<1KB），会导致大量系统调用: " + bufferSize);
+        }
+        if (soSndBuf < 0 || soRcvBuf < 0) {
+            problems.add("soSndBuf/soRcvBuf 不能为负数（0 表示使用内核默认值）: soSndBuf="
+                    + soSndBuf + ", soRcvBuf=" + soRcvBuf);
+        }
+        if (maxConnections > 0 && (soSndBuf > 0 || soRcvBuf > 0)) {
+            // 这两项按连接数线性占用内核非分页内存，是百万连接下最容易踩的坑
+            long perConnKb = (Math.max(soSndBuf, 0) + Math.max(soRcvBuf, 0)) / 1024L;
+            long totalMb = maxConnections * perConnKb / 1024L;
+            if (totalMb > 65536L) {
+                problems.add("soSndBuf=" + soSndBuf + " / soRcvBuf=" + soRcvBuf + " 按 maxConnections="
+                        + maxConnections + " 计算约需 " + totalMb + "MB 内核内存；"
+                        + "百万连接下建议保持 0（内核自适应），仅在明确带宽需求时对小连接数场景放大");
+            }
+        }
+        if (maxConnections > 0) {
+            // 每连接常驻内存的粗估：懒分配后空闲连接约 1KB 元数据 + 内核结构，
+            // 有流量时再叠加 readBuf/writeQueue，这里只做量级告警（不阻断启动）
+            long perConnectionKb = Math.max(bufferSize / 1024L, 1L) + 4L;
+            long neededMb = maxConnections * perConnectionKb / 1024L;
+            long heapMb = Runtime.getRuntime().maxMemory() / (1024 * 1024);
+            if (neededMb > heapMb) {
+                problems.add("maxConnections=" + maxConnections + " 在满载且每连接有流量时约需 "
+                        + neededMb + "MB，超过最大堆 " + heapMb + "MB；"
+                        + "请调小 maxConnections 或调大 -Xmx（空闲连接不分配缓冲，此为满载上界估算）");
+            }
+            if (maxConnections > 200_000 && System.getProperty("os.name", "").toLowerCase().contains("win")
+                    && !WindowsMaxConnectionHint.SHOWN.getAndSet(true)) {
+                problems.add("Windows 下单进程百万连接需要同时调大句柄上限与 afd 非分页池；"
+                        + "建议先在 Linux 上验收该容量目标");
+            }
+        }
+        return problems;
+    }
+
+    /**
+     * Windows 连接数提示去重标记（避免每个实例重复打印同一条告警）。
+     */
+    private static final class WindowsMaxConnectionHint {
+        /**
+         * 是否已提示过
+         */
+        private static final java.util.concurrent.atomic.AtomicBoolean SHOWN =
+                new java.util.concurrent.atomic.AtomicBoolean(false);
+
+        /**
+         * 工具类不允许实例化
+         */
+        private WindowsMaxConnectionHint() {
+        }
     }
 
     /**
@@ -183,10 +318,32 @@ public class ServerSetting {
     /**
      * 等待队列长度
      *
+     * <p>只影响「已完成三次握手但尚未被 accept」的瞬时排队长度，真正的容量由
+     * {@link #maxConnections} 与每连接内存决定。内核会把超过平台上限的值
+     * （Linux {@code somaxconn}、Windows 的 listen 上限）静默截断，所以这里配一个小值
+     * 并不会耗尽内核队列，配一个大值也不会真的预分配那么多内存。</p>
+     *
+     * <p>各协议实现通过 {@link #resolveBacklog(int)} 取「配置值与协议下限的较大者」，
+     * 避免在实现里各写一个魔术数字。</p>
+     *
      * Backlog
      */
     @Builder.Default
     private int backlog = 128;
+
+    /**
+     * 计算提交给内核的 backlog 值。
+     *
+     * <p>传一个足够大的 {@code floor} 等价于「用平台允许的最大队列」，因为内核会按
+     * {@code somaxconn} 自动截断；它不会预分配内存，也不会因为配得大而导致 OOM。
+     * 真正需要调整的是系统参数（{@code net.core.somaxconn}），这一点仅靠代码改不了。</p>
+     *
+     * @param floor 协议侧的最小期望值（突发建连密集的协议取大值）
+     * @return 实际提交给 bind 的 backlog，恒 {@code >= 1}
+     */
+    public int resolveBacklog(int floor) {
+        return Math.max(backlog, Math.max(floor, 1));
+    }
 
     /**
      * 最大请求体/消息大小（字节）
@@ -195,6 +352,41 @@ public class ServerSetting {
      */
     @Builder.Default
     private long maxRequestSize = 10 * 1024 * 1024;
+
+    /**
+     * 单连接待写队列字节上限（背压门限），{@code <= 0} 表示不限制。
+     *
+     * <p>慢客户端不读取响应时，服务端待写队列会持续增长；超过该门限后
+     * 服务端不再接受该连接的新数据（SSE 分片会被丢弃），避免内存无界膨胀。
+     * 默认 {@value #DEFAULT_MAX_PENDING_WRITE_BYTES} 字节（4MB）。</p>
+     *
+     * <p>该值是背压门限，不是硬性内存配额：达到门限后服务端停止向该连接
+     * 追加新的流式分片（SSE），直到队列回落到门限以下。</p>
+     */
+    public static final long DEFAULT_MAX_PENDING_WRITE_BYTES = 4L * 1024 * 1024;
+
+    /**
+     * 最大待写队列字节数（背压门限）。
+     *
+     * <p>当单条连接的写队列中尚未写出的字节数超过此门限时，判定为慢消费者，
+     * 关闭连接并丢弃该分片，避免响应数据在堆内无界堆积。</p>
+     *
+     * <p>{@link com.chua.common.support.network.server.nio.NioHttpServer} 与
+     * {@link com.chua.common.support.network.server.aio.AioHttpServer} 依此实施背压。</p>
+     *
+     * 最大值待写字节数
+     */
+    @Builder.Default
+    private long maxPendingWriteBytes = DEFAULT_MAX_PENDING_WRITE_BYTES;
+
+    /**
+     * 设置单连接待写队列字节上限（背压门限）。
+     *
+     * @param maxPendingWriteBytes 字节上限，{@code <= 0} 表示不限制
+     */
+    public void setMaxPendingWriteBytes(long maxPendingWriteBytes) {
+        this.maxPendingWriteBytes = maxPendingWriteBytes;
+    }
 
     /**
      * 最大连接数
@@ -206,7 +398,9 @@ public class ServerSetting {
 
     /**
      * 是否显式设置过 maxConnections(autoConfig 内部标记;默认 false)。
-     * <p>与 {@link #maxConcurrencyExplicit} 同理:用户显式设置的上限不能被 {@code autoConfig()} 按堆大小覆盖。</p>
+     *
+     * <p>与 {@link #maxConcurrencyExplicit} 同理：用户显式设置的上限不能被
+     * {@code autoConfig()} 按堆大小覆盖。</p>
      */
     @Builder.Default
     private boolean maxConnectionsExplicit = false;
@@ -263,33 +457,6 @@ public class ServerSetting {
     public void setMaxConcurrency(int maxConcurrency) {
         this.maxConcurrency = maxConcurrency;
         this.maxConcurrencyExplicit = true;
-    }
-
-    /**
-     * 单连接待写队列字节上限(背压门限),{@code <= 0} 表示不限制。
-     *
-     * <p>慢客户端不读取响应时,服务端待写队列会持续增长;超过该门限后
-     * 服务端不再接受该连接的新数据(SSE 分片会被丢弃),避免内存无界膨胀。
-     * 默认 {@value #DEFAULT_MAX_PENDING_WRITE_BYTES} 字节(4MB)。</p>
-     */
-    public static final long DEFAULT_MAX_PENDING_WRITE_BYTES = 4L * 1024 * 1024;
-
-    /**
-     * 单连接待写队列字节上限,{@code <= 0} 表示不限制
-     *
-     * <p>该值是背压门限,不是硬性内存配额:达到门限后服务端停止向该连接
-     * 追加新的流式分片(SSE),直到队列回落到门限以下。</p>
-     */
-    @Builder.Default
-    private long maxPendingWriteBytes = DEFAULT_MAX_PENDING_WRITE_BYTES;
-
-    /**
-     * 设置单连接待写队列字节上限。
-     *
-     * @param maxPendingWriteBytes 字节上限,{@code <= 0} 表示不限制
-     */
-    public void setMaxPendingWriteBytes(long maxPendingWriteBytes) {
-        this.maxPendingWriteBytes = maxPendingWriteBytes;
     }
 
     /**
@@ -381,6 +548,60 @@ public class ServerSetting {
      */
     @Builder.Default
     private boolean soReuseAddr = true;
+
+    /**
+     * 发送缓冲区大小（字节），0 表示使用操作系统默认值（由内核自动调优）。
+     *
+     * <p>仅在 {@code >0} 时由各实现于 accepted 连接上调用 {@code SO_SNDBUF}；默认 0 不会产生
+     * 任何额外系统调用。</p>
+     *
+     * <p>百万连接场景下不要盲目调大：每个连接的内核发送缓冲都会占用非分页内存，
+     * {@code 1M × 64KB = 64GB}。真正的吞吐瓶颈通常是单个连接的往返延迟，
+     * 而不是缓冲大小；需要大带宽时优先调大 {@code TCP_NODELAY=false + 单连接大缓冲}，
+     * 而不是给所有连接统一放大。</p>
+     *
+     * Sosndbuf
+     */
+    @Builder.Default
+    private int soSndBuf = 0;
+
+    /**
+     * 接收缓冲区大小（字节），0 表示使用操作系统默认值。
+     *
+     * <p>仅在 {@code >0} 时由各实现于 accepted 连接上调用 {@code SO_RCVBUF}；默认 0 不会产生
+     * 任何额外系统调用。</p>
+     *
+     * <p>与 {@link #soSndBuf} 同理：百万连接下每连接放大 1MB 就等于 1TB 内核内存，
+     * 默认值与内核自适应（tcp_moderate_rcvbuf）已经足够。</p>
+     *
+     * Sorcvbuf
+     */
+    @Builder.Default
+    private int soRcvBuf = 0;
+
+    /**
+     * 单次事件循环最多 accept 的连接数。
+     *
+     * <p>突发建连（负载均衡摘挂、客户端重连风暴）时 accept 队列会瞬间积压，
+     * 一次就绪只 accept 一个会让队列排到超时；批量 drain 但又必须有上限，
+     * 否则单个分片在 accept 上停留过久会拖慢已建立连接的读写。</p>
+     *
+     * Acceptbatch
+     */
+    @Builder.Default
+    private int acceptBatch = 128;
+
+    /**
+     * 超过 {@link #maxConnections} 时是否用 503 明确拒绝（而不是直接断开）。
+     *
+     * <p>直接 close 对客户端表现为「连接被重置」，难以区分「服务已满」与「网络故障」；
+     * 回 503 + {@code Retry-After} 才能让上游负载均衡正确摘流。
+     * 对非 HTTP 协议该开关无效，实现会直接关闭连接。</p>
+     *
+     * Rejectwith503
+     */
+    @Builder.Default
+    private boolean rejectWith503 = true;
 
     /**
      * 默认 Content-Type

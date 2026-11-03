@@ -30,7 +30,7 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-native-datarecovery</artifactId>
-            <version>4.0.0.42</version>
+            <version>4.0.0.43</version>
             <scope>compile</scope>
         </dependency>
 

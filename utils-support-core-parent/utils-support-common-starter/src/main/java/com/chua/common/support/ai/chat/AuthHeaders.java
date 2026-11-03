@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 仅含常量定义行，豁免。
 package com.chua.common.support.ai.chat;
 import com.chua.common.support.collection.wrap.Wraps;
 import java.util.Map;

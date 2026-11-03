@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.oshi.support.cli.command;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -35,8 +36,8 @@ public final class DiskCommand extends AbstractCommand {
 
         // ── Physical disks ──
         List<HWDiskStore> disks = hw.getDiskStores();
-        System.out.println();
-        System.out.println("Physical Disks (" + disks.size() + "):");
+        System.out.println(); // [P3C E1 豁免]
+        System.out.println("Physical Disks (" + disks.size() + "):"); // [P3C E1 豁免]
         List<String[]> rows = Wraps.list();
         for (HWDiskStore d : disks) {
             rows.add(new String[]{
@@ -48,15 +49,15 @@ public final class DiskCommand extends AbstractCommand {
             });
         }
         if (rows.isEmpty()) {
-            System.out.println("  (none)");
+            System.out.println("  (none)"); // [P3C E1 豁免]
         } else {
-            System.out.println(Formatter.table("", new String[]{"Model", "Serial", "Size", "Partitions", "State"},
+            System.out.println(Formatter.table("", new String[]{"Model", "Serial", "Size", "Partitions", "State"}, // [P3C E1 豁免]
                     rows));
         }
 
  // ── 分区 ──
-        System.out.println();
-        System.out.println("Partitions:");
+        System.out.println(); // [P3C E1 豁免]
+        System.out.println("Partitions:"); // [P3C E1 豁免]
         List<String[]> prow = Wraps.list();
         for (HWDiskStore d : disks) {
             for (HWPartition p : d.getPartitions()) {
@@ -70,15 +71,15 @@ public final class DiskCommand extends AbstractCommand {
             }
         }
         if (prow.isEmpty()) {
-            System.out.println("  (none)");
+            System.out.println("  (none)"); // [P3C E1 豁免]
         } else {
-            System.out.println(Formatter.table("", new String[]{"ID", "Disk", "Mount", "Size", "Type"}, prow));
+            System.out.println(Formatter.table("", new String[]{"ID", "Disk", "Mount", "Size", "Type"}, prow)); // [P3C E1 豁免]
         }
 
  // ── 文件 系统 usage ──
-        System.out.println();
+        System.out.println(); // [P3C E1 豁免]
         List<SysFile> sysFiles = Oshi.newSysFile();
-        System.out.println("File System Usage (" + sysFiles.size() + "):");
+        System.out.println("File System Usage (" + sysFiles.size() + "):"); // [P3C E1 豁免]
         List<String[]> frow = Wraps.list();
         long totalUsed = 0;
         long totalAll = 0;
@@ -96,13 +97,13 @@ public final class DiskCommand extends AbstractCommand {
             });
         }
         if (frow.isEmpty()) {
-            System.out.println("  (none)");
+            System.out.println("  (none)"); // [P3C E1 豁免]
         } else {
-            System.out.println(Formatter.table("",
+            System.out.println(Formatter.table("", // [P3C E1 豁免]
                     new String[]{"Mount", "Type", "Total", "Used", "Free", "Usage", "Bar"}, frow));
         }
         double pct = totalAll > 0 ? (double) totalUsed / totalAll * 100 : 0;
-        System.out.println(Formatter.panel("",
+        System.out.println(Formatter.panel("", // [P3C E1 豁免]
                 "Aggregate", Formatter.formatBytes(totalUsed) + " / " + Formatter.formatBytes(totalAll)
                         + " (" + String.format("%.1f%%", pct) + ")"));
     }

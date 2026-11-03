@@ -217,6 +217,7 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
      * 开始接收Thread
     */
     private void startReceiveThread() {
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
         receiveThread = new Thread(() -> {
             while (connected && socket != null && socket.isConnected()) {
                 try {

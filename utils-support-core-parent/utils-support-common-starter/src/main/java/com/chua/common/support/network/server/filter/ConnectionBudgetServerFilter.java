@@ -133,7 +133,7 @@ public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServe
         if (counter.incrementAndGet() > maxConcurrentPerIp) {
             counter.decrementAndGet();
             reject(response);
-            return CompletableFuture.completedStage(null);
+            return CompletableFuture.completedFuture(null);
         }
         // whenComplete 释放预算:无论成功失败都归还,且不改变上游异常传播
         return chain.doFilter(request, response).whenComplete((v, ex) ->

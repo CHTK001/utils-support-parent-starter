@@ -489,6 +489,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
 
         @Override
         public Thread newThread(Runnable runnable) {
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
             Thread thread = new Thread(runnable);
             thread.setName(prefix + "-" + sequence.incrementAndGet());
             thread.setDaemon(true);

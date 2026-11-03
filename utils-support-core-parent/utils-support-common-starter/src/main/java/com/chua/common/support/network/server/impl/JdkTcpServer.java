@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
@@ -96,6 +97,11 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
      * 接收连接用 Selector（专用线程）
      */
     private Selector acceptSelector;
+
+    /**
+     * 监听通道的注册键（用于摘流/恢复接纳，不需关闭通道）。
+     */
+    private volatile SelectionKey acceptKey;
 
     /**
      * IO Selector 数组（多线程分发读事件）
@@ -266,7 +272,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             serverChannel = ServerSocketChannel.open();
             serverChannel.configureBlocking(false);
             serverChannel.setOption(java.net.StandardSocketOptions.SO_REUSEADDR, setting.isSoReuseAddr());
-            serverChannel.bind(addr, Math.max(setting.getBacklog(), 2048));
+            serverChannel.bind(addr, setting.resolveBacklog(2048));
             // 回填实际端口（port=0 时由系统分配）
             setting.setPort(serverChannel.socket().getLocalPort());
 
@@ -284,7 +290,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             }
 
             acceptSelector = Selector.open();
-            serverChannel.register(acceptSelector, SelectionKey.OP_ACCEPT);
+            acceptKey = serverChannel.register(acceptSelector, SelectionKey.OP_ACCEPT);
 
             // 必须先置运行标志再启动线程，否则 IO/接收线程读到 false 立即退出
             running = true;
@@ -302,6 +308,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
                 final Selector ioSelector = Selector.open();
                 ioSelectors[i] = ioSelector;
                 final int idx = i;
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
                 ioThreads[i] = new Thread(() -> ioEventLoop(ioSelector), "jdk-tcp-io-" + idx);
                 ioThreads[i].setDaemon(true);
                 ioThreads[i].start();
@@ -310,6 +317,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             // 虚拟线程池处理连接/请求业务（高并发，JDK21+）
             virtualPool = Executors.newVirtualThreadPerTaskExecutor();
 
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
             acceptThread = new Thread(this::acceptLoop, "jdk-tcp-accept");
             acceptThread.setDaemon(true);
             acceptThread.start();
@@ -317,6 +325,54 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
                     setting.getHost(), setting.getPort(), ioThreadsCount, setting.getWorkerThreads());
         } catch (IOException e) {
             throw new RuntimeException("TCP 服务器启动失败", e);
+        }
+    }
+
+    /**
+     * 停止接纳：把监听通道从 accept Selector 上摘下来。
+     *
+     * <p>不关闭通道（那样端口就放了，恢复要重新 bind）：只取消 {@code OP_ACCEPT} 关注，
+     * 攒在 accept 循环里的事件自然不再触发；内核里已完成握手的队列留给后面的
+     * {@link #doStartAccepting()} 一并接纳，或者连接方超时。存量连接由 IO Selector 继续服务。</p>
+     *
+     * <p>用醒 Selector 的方式让 {@code acceptLoop} 立刻离开 {@code select} 阻塞，
+     * 否则最长要等一个 select 超时周期才会生效。</p>
+     */
+    @Override
+    protected void doStopAccepting() {
+        SelectionKey key = this.acceptKey;
+        if (key != null && key.isValid()) {
+            key.interestOps(0);
+        }
+        Selector selector = this.acceptSelector;
+        if (selector != null) {
+            try {
+                selector.wakeup();
+            } catch (Exception e) {
+                log.debug("唤醒 accept Selector 失败，已忽略: {}", e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 恢复接纳：重新关注 {@code OP_ACCEPT}。
+     *
+     * <p>通道一直保持打开，所以恢复只需改关注位，不用重新 bind（也就没有端口被别人
+     * 抢占的风险）。</p>
+     */
+    @Override
+    protected void doStartAccepting() {
+        SelectionKey key = this.acceptKey;
+        if (key != null && key.isValid()) {
+            key.interestOps(SelectionKey.OP_ACCEPT);
+        }
+        Selector selector = this.acceptSelector;
+        if (selector != null) {
+            try {
+                selector.wakeup();
+            } catch (Exception e) {
+                log.debug("唤醒 accept Selector 失败，已忽略: {}", e.getMessage());
+            }
         }
     }
 
@@ -413,6 +469,10 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
                     if (!key.isValid()) {
                         continue;
                     }
+                    if (key.isWritable()) {
+                        // 续写未写完的响应帧：写就绪才回写，不再忙等 Thread.yield()
+                        flushPendingWrite(key);
+                    }
                     if (key.isReadable()) {
                         doRead(key);
                     }
@@ -426,33 +486,93 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
+     * 续写未完成的响应帧。
+     *
+     * <p>非阻塞通道上「写不完」是常态（对端背压、内核发送缓冲满），旧实现在
+     * {@code while (buf.hasRemaining()) { write; if (0) Thread.yield(); }} 里死循环，
+     * 吃满一个 CPU 核却毫无进展，几十个慢客户端就足以拖垮整台机器。
+     * 正确做法是把剩余字节挂到连接上，注册 OP_WRITE，等内核告诉我们可写再续。</p>
+     *
+     * @param key 选择键
+     */
+    private void flushPendingWrite(SelectionKey key) {
+        Attachment att = (Attachment) key.attachment();
+        if (att == null) {
+            return;
+        }
+        ByteBuffer buffer = att.pendingWrite;
+        if (buffer == null) {
+            key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
+            return;
+        }
+        try {
+            SocketChannel channel = (SocketChannel) key.channel();
+            channel.write(buffer);
+            if (buffer.hasRemaining()) {
+                return;
+            }
+            att.pendingWrite = null;
+            key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
+        } catch (IOException e) {
+            log.debug("续写响应失败，关闭连接: {}", e.getMessage());
+            att.pendingWrite = null;
+            closeChannel(key);
+        }
+    }
+
+    /**
      * DoAccept
      * @param key 键，不允许为 null
      * @return 返回值
      * @throws IOException 异常
     */
     private void doAccept(SelectionKey key) throws IOException {
-        SocketChannel sc = ((ServerSocketChannel) key.channel()).accept();
-        if (sc == null) {
-            return;
-        }
-        if (frameHandler != null) {
-            // 帧式协议：注册到 IO Selector，NIO 拼帧（加密告警已在 doStart 统一提示）
-            sc.configureBlocking(false);
-            Selector ioSelector = ioSelectors[Math.floorMod(ioCursor.getAndIncrement(), ioSelectors.length)];
-            sc.register(ioSelector, SelectionKey.OP_READ, new Attachment(ioSelector));
-        } else {
-            // 流式协议：虚拟线程阻塞处理
-            Socket socket = sc.socket();
-            socket.setTcpNoDelay(setting.isTcpNoDelay());
-            try {
-                virtualPool.submit(() -> handleConnection(socket));
-            } catch (Exception e) {
-                log.warn("TCP 任务被拒绝: {}", e.getMessage(), e);
+        SocketChannel sc;
+        int accepted = 0;
+        int batch = Math.max(setting.getAcceptBatch(), 1);
+        // 批量 drain：突发建连时一次就绪可能有成百上千条已完成握手的连接排队，
+        // 一次只 accept 一个会让队尾排到客户端超时
+        while (accepted++ < batch && (sc = ((ServerSocketChannel) key.channel()).accept()) != null) {
+            if (!accepting) {
+                // 优雅关闭中：不再接纳，直接关闭（存量连接不受影响）
                 try {
-                    socket.close();
-                } catch (IOException ioe) {
-                    log.debug("拒绝任务后关闭 socket 失败，已忽略: {}", ioe.getMessage());
+                    sc.close();
+                } catch (IOException ignored) {
+                    // 关闭失败不影响接纳后续连接
+                }
+                continue;
+            }
+            if (!tryAcquireConnection()) {
+                // 超限：直接关闭（非 HTTP 协议回 503 无意义），并让监控可见
+                try {
+                    sc.close();
+                } catch (IOException ignored) {
+                    // 关闭失败不影响接纳后续连接
+                }
+                continue;
+            }
+            if (frameHandler != null) {
+                // 帧式协议：注册到 IO Selector，NIO 拼帧（加密告警已在 doStart 统一提示）
+                sc.configureBlocking(false);
+                sc.setOption(StandardSocketOptions.TCP_NODELAY, setting.isTcpNoDelay());
+                applyChannelSocketOptions(sc);
+                Selector ioSelector = ioSelectors[Math.floorMod(ioCursor.getAndIncrement(), ioSelectors.length)];
+                sc.register(ioSelector, SelectionKey.OP_READ, new Attachment(ioSelector));
+            } else {
+                // 流式协议：虚拟线程阻塞处理
+                Socket socket = sc.socket();
+                socket.setTcpNoDelay(setting.isTcpNoDelay());
+                applySocketOptions(socket);
+                try {
+                    virtualPool.submit(() -> handleConnection(socket));
+                } catch (Exception e) {
+                    log.warn("TCP 任务被拒绝: {}", e.getMessage(), e);
+                    releaseConnection();
+                    try {
+                        socket.close();
+                    } catch (IOException ioe) {
+                        log.debug("拒绝任务后关闭 socket 失败，已忽略: {}", ioe.getMessage());
+                    }
                 }
             }
         }
@@ -576,64 +696,113 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
      * @param sc 方法入参 sc
      */
     private void writeEmptyResponse(SocketChannel sc) {
-        try {
-            String resp = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n";
-            byte[] bytes = resp.getBytes(StandardCharsets.US_ASCII);
-            ByteBuffer buf = ByteBuffer.allocate(4 + bytes.length);
-            buf.putInt(bytes.length);
-            buf.put(bytes);
-            buf.flip();
-            while (buf.hasRemaining()) {
-                int written = sc.write(buf);
-                if (written <= 0) {
-                    Thread.yield();
-                }
-            }
-        } catch (Exception e) {
-            log.debug("写空响应失败: {}", e.getMessage());
-        }
+        byte[] bytes = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n".getBytes(StandardCharsets.US_ASCII);
+        writeFrame(sc, bytes);
     }
 
     /**
-     * 将响应帧完整写入通道。通道为非阻塞模式，必须循环写入直至缓冲区耗尽，避免粘包/半包。
+     * 将响应帧写入通道：先尝试一次同步写，未写完的剩余字节挂到连接上，
+     * 注册 OP_WRITE 由 {@link #flushPendingWrite(SelectionKey)} 续写。
+     *
+     * <p>旧实现是在非阻塞通道上 {@code while (hasRemaining()) { write; Thread.yield() }}
+     * 忙等：对端一旦不读，就会有一个线程在自旋里烧满 CPU，且永不超时。
+     * 非阻塞通道的「写不完」是正常状态，必须交还给 Selector。</p>
      *
      * @param sc       目标通道
      * @param respData 响应帧字节（不含长度头）
      */
     private void writeResponse(SocketChannel sc, byte[] respData) {
+        if (respData.length > MAX_BODY_SIZE) {
+            log.warn("Response too large: {}", respData.length);
+            return;
+        }
+        writeFrame(sc, respData);
+    }
+
+    /**
+     * 以「4 字节长度头 + 消息体」的帧格式写出。
+     *
+     * @param sc   目标通道
+     * @param data 消息体
+     */
+    private void writeFrame(SocketChannel sc, byte[] data) {
+        ByteBuffer buf = ByteBuffer.allocate(HEADER_SIZE + data.length);
+        buf.putInt(data.length);
+        buf.put(data);
+        buf.flip();
         try {
-            if (respData.length > MAX_BODY_SIZE) {
-                log.warn("Response too large: {}", respData.length);
+            int written = sc.write(buf);
+            if (!buf.hasRemaining() || written < 0) {
                 return;
             }
-            ByteBuffer buf = ByteBuffer.allocate(HEADER_SIZE + respData.length);
-            buf.putInt(respData.length);
-            buf.put(respData);
-            buf.flip();
-            while (buf.hasRemaining()) {
-                int written = sc.write(buf);
-                if (written <= 0) {
-                    // 非阻塞模式下无更多空间，短暂让步避免忙等
-                    Thread.yield();
-                }
+            // 未写完：剩余字节挂到连接上，注册 OP_WRITE 由事件循环续写
+            Attachment att = resolveAttachment(sc);
+            if (att == null) {
+                log.debug("连接无拼帧上下文，未写完的响应被丢弃（对端可能已退出）");
+                return;
             }
+            SelectionKey k = sc.keyFor(att.ioSelector);
+            if (k == null || !k.isValid()) {
+                log.debug("连接已注销，丢弃剩余响应字节");
+                return;
+            }
+            att.pendingWrite = buf;
+            k.interestOps(k.interestOps() | SelectionKey.OP_WRITE);
+            att.ioSelector.wakeup();
         } catch (Exception e) {
             log.error("Write response error", e);
+            try {
+                sc.close();
+            } catch (IOException ignored) {
+                // 关闭失败不影响判定
+            }
         }
     }
 
     /**
+     * 取连接对应的拼帧上下文。
+     *
+     * @param sc 通道
+     * @return 拼帧上下文，取不到返回 null
+     */
+    private Attachment resolveAttachment(SocketChannel sc) {
+        if (ioSelectors == null) {
+            return null;
+        }
+        for (Selector selector : ioSelectors) {
+            if (selector == null) {
+                continue;
+            }
+            SelectionKey key = sc.keyFor(selector);
+            if (key != null && key.attachment() instanceof Attachment att) {
+                return att;
+            }
+        }
+        return null;
+    }
+
+    /**
      * 关闭Channel
+     *
+     * <p>帧式协议的连接关闭统一收敛到这里，因此连接预算也在这里归还：
+     * 一条连接可能因「解析错误 / 对端关闭 / 写失败 / stop()」多条路径关闭，
+     * 归还必须幂等，故以 {@link Attachment#budgetReleased} 做一次性标记。</p>
+     *
      * @param key 键，不允许为 null
      */
     private void closeChannel(SelectionKey key) {
         if (key != null) {
+            Attachment att = key.attachment() instanceof Attachment a ? a : null;
             try {
                 key.channel().close();
             } catch (IOException ignored) {
                 // NOTHING
             }
             key.cancel();
+            if (att != null && !att.budgetReleased) {
+                att.budgetReleased = true;
+                releaseConnection();
+            }
         }
     }
 
@@ -680,6 +849,8 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             } catch (IOException ignored) {
                 // NOTHING
             }
+            // 连接预算必须与 accept 期的 tryAcquireConnection() 严格配对
+            releaseConnection();
         }
     }
 
@@ -972,6 +1143,19 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
          * 消息体缓冲区
          */
         ByteBuffer bodyBuf;
+
+        /**
+         * 未写完的响应字节（非阻塞写入的剩余部分，注册 OP_WRITE 后由事件循环续写）。
+         *
+         * <p>取代旧实现的 {@code while (hasRemaining()) { write; Thread.yield(); }} 忙等：
+         * 对端不读时忙等会烧满一个核且永不超时，而这里只是挂起一次、等内核通知可写。</p>
+         */
+        ByteBuffer pendingWrite;
+
+        /**
+         * 连接预算是否已归还（保证 {@code releaseConnection()} 幂等）
+         */
+        boolean budgetReleased;
 
         /**
          * 创建连接级拼帧上下文。

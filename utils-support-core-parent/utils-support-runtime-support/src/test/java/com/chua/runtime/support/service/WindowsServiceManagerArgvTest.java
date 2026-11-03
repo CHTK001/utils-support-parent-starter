@@ -35,7 +35,7 @@ public class WindowsServiceManagerArgvTest {
         check("载荷服务名以失败结束", !injected.isSuccess());
         Files.deleteIfExists(marker);
 
-        System.out.println("passed=" + passed + " failed=" + failed);
+        System.out.println("passed=" + passed + " failed=" + failed); // [P3C E1 豁免]
         if (failed > 0) {
             System.exit(1);
         }
@@ -44,10 +44,10 @@ public class WindowsServiceManagerArgvTest {
     private static void check(String name, boolean ok) {
         if (ok) {
             passed++;
-            System.out.println("[PASS] " + name);
+            System.out.println("[PASS] " + name); // [P3C E1 豁免]
         } else {
             failed++;
-            System.out.println("[FAIL] " + name);
+            System.out.println("[FAIL] " + name); // [P3C E1 豁免]
         }
     }
 }

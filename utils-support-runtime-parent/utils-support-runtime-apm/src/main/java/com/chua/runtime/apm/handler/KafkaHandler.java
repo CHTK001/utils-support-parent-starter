@@ -318,11 +318,6 @@ public class KafkaHandler implements Plugin, RuntimeSpy.Interceptor {
     private void addAndEmit(TransmissionRecord record, boolean isError) {
         records.add(record);
         try {
-            com.chua.runtime.apm.storage.StorageManager.appendTransmission(record);
-        } catch (Exception appendEx) {
-            LOG.log(Level.FINE, String.format("KafkaHandler appendTransmission 异常: %s", appendEx.getMessage()));
-        }
-        try {
             DependencyGraphHandler handler = ApmBootstrap.getGlobalHandler(DependencyGraphHandler.class);
             if (handler == null) {
                 return;

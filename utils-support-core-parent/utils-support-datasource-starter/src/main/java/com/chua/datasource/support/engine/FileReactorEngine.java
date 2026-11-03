@@ -3,12 +3,7 @@ package com.chua.datasource.support.engine;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.FileUtils;
-import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
-import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 import com.chua.common.support.lang.datasource.page.Page;
-import com.chua.datasource.support.wrapper.EngineDeleteWrapper;
-import com.chua.datasource.support.wrapper.EngineQueryWrapper;
-import com.chua.datasource.support.wrapper.EngineUpdateWrapper;
 import com.chua.datasource.support.wrapper.ReactorLambdaDeleteWrapper;
 import com.chua.datasource.support.wrapper.ReactorLambdaQueryWrapper;
 import com.chua.datasource.support.wrapper.ReactorLambdaUpdateWrapper;
@@ -17,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
@@ -62,79 +58,19 @@ public class FileReactorEngine implements ReactorEngine {
      */
     @Override
     public <T> ReactorLambdaQueryWrapper<T> query(Class<T> entityClass) {
-        return new ReactorLambdaQueryWrapper<T>(delegate, entityClass) {
-            @Override
-            public Flux<T> list() {
-                return Flux.fromIterable(doQuery(entityClass));
-            /**
-             * one。
-             * @return one的结果
-             * @param clazz clazz
-             * @param pn pn
-             * @param ps ps
-             */
-            }
-
-            @Override
-            public Mono<T> one() {
-                return Mono.fromSupplier(() -> {
-                    List<T> r = doQuery(entityClass);
-                    return r.isEmpty() ? null : r.getFirst();
-                });
-            }
-
-            @Override
-            public Mono<Page<T>> page(int pn, int ps) {
-                return Mono.fromSupplier(() -> {
-                    List<T> r = doQuery(entityClass);
-                    int from = (pn - 1) * ps;
-                    int to = Math.min(from + ps, r.size());
-                    if (from >= r.size()) {
-                        return new Page<T>(pn, ps, r.size(), List.of());
-                    }
-                    return new Page<T>(pn, ps, r.size(), r.subList(from, to));
-                });
-            }
-
-            @SuppressWarnings({"unchecked", "rawtypes"})
-            private <T> List<T> doQuery(Class<T> clazz) {
-                EngineQueryWrapper<T> w = new EngineQueryWrapper<>(delegate, clazz);
-                w.getConditions().addAll((List) getConditions());
-                w.getOrderBys().addAll(getOrderBys());
-                return (List<T>) delegate.executeQuery(w, clazz);
-            }
-        };
+        // 文件引擎没有 SqlExecutor：包装器默认的「渲染 SQL 再执行」路径会直接 NPE，
+        // 且查询条件/排序/limit/offset 需要平移到内存求值。
+        return MemoryReactorWrappers.query(delegate, entityClass);
     }
 
     @Override
     public <T> ReactorLambdaUpdateWrapper<T> update(Class<T> entityClass) {
-        return new ReactorLambdaUpdateWrapper<T>(delegate, entityClass) {
-            @Override
-            public Mono<Integer> update() {
-                return Mono.fromSupplier(() -> {
-                    EngineUpdateWrapper<T> w = new EngineUpdateWrapper<>(delegate, entityClass);
-                    w.getConditions().addAll(getConditions());
-                    w.getSetValues().putAll(getSetValues());
-                    UpdateSql<T> sql = w.buildSql();
-                    return delegate.executeUpdate(sql);
-                });
-            }
-        };
+        return MemoryReactorWrappers.update(delegate, entityClass);
     }
 
     @Override
     public <T> ReactorLambdaDeleteWrapper<T> delete(Class<T> entityClass) {
-        return new ReactorLambdaDeleteWrapper<T>(delegate, entityClass) {
-            @Override
-            public Mono<Integer> remove() {
-                return Mono.fromSupplier(() -> {
-                    EngineDeleteWrapper<T> w = new EngineDeleteWrapper<>(delegate, entityClass);
-                    w.getConditions().addAll(getConditions());
-                    DeleteSql<T> sql = w.buildSql();
-                    return delegate.executeDelete(sql);
-                });
-            }
-        };
+        return MemoryReactorWrappers.delete(delegate, entityClass);
     }
 
     @Override
@@ -175,6 +111,7 @@ public class FileReactorEngine implements ReactorEngine {
      * @return 当前引擎实例的 Mono
      */
     public Mono<FileReactorEngine> load(String name, String filePath) {
+        File file = new File(filePath);
         Path path = Path.of(filePath);
         String ext = FileUtils.getExtension(filePath);
 
@@ -182,7 +119,9 @@ public class FileReactorEngine implements ReactorEngine {
             return readFileAsync(path)
                     .map(bytes -> parseJson(name, bytes))
                     .flatMap(list -> Mono.fromRunnable(() ->
-                            delegate.store(name, Wraps.list(list))
+                            // 必须走 registerRows 而不是 store：store 不注册表元数据，
+                            // 写回链路（save/persistIfAuto）会因为找不到文件路径而永不落盘
+                            delegate.registerRows(name, file, "json", list)
                     ).then(Mono.just(this)));
         }
 
@@ -191,7 +130,7 @@ public class FileReactorEngine implements ReactorEngine {
             return readFileAsync(path)
                     .map(bytes -> parseCsv(name, bytes, sep))
                     .flatMap(list -> Mono.fromRunnable(() ->
-                            delegate.store(name, Wraps.list(list))
+                            delegate.registerRows(name, file, "csv", list)
                     ).then(Mono.just(this)));
         }
 

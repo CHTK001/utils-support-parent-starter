@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.datasource.support.engine;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -218,11 +219,16 @@ public abstract class AbstractEngine implements Engine {
 
     /**
      * 获取默认数据源
+     * <p>未设置默认数据源名时返回 null：底层为 {@link ConcurrentHashMap}，
+     * 以 null 键查询会抛 NPE，而"未设置默认数据源"是正常状态。</p>
      *
      * @return 获取数据源的结果
      */
     @Override
     public <T> EngineDataSource<T> getDataSource() {
+        if (defaultDataSourceName == null) {
+            return null;
+        }
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }
 
@@ -686,7 +692,7 @@ public abstract class AbstractEngine implements Engine {
         }
         String where = sql.whereClause();
         String setClause = sql.setClause();
-        if (setClause == null || setClause.isEmpty()) {
+        if (setClause == null || setClause.isBlank()) {
             return 0;
         }
 
@@ -695,6 +701,11 @@ public abstract class AbstractEngine implements Engine {
         int[] paramIdx = new int[]{0};
         Map<String, Object> setValues = parseSetClause(setClause, params, paramIdx);
         int setParamCount = paramIdx[0];
+        // SET 全部无法求值（如 now() / 未知函数）时没有任何列被写入，
+        // 必须报告 0：否则调用方会按"影响 N 行"认为更新成功，实际数据未变。
+        if (setValues.isEmpty()) {
+            return 0;
+        }
 
  // WHERE 参数在 设置 参数之后（按实际消费的占位符个数切分）
         List<Object> whereParams;

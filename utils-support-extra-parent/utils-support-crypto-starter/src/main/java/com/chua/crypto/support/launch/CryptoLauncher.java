@@ -16,6 +16,7 @@ import java.security.ProtectionDomain;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -138,6 +139,11 @@ public final class CryptoLauncher {
     private static final String LAUNCH_PACKAGE = "com/chua/crypto/support/launch/";
 
     /**
+     * 日志记录器（零依赖：SDK 自带的 java.util.logging，避免阻塞启动）
+     */
+    private static final Logger LOG = Logger.getLogger(CryptoLauncher.class.getName());
+
+    /**
      * 私有构造
      */
     private CryptoLauncher() {
@@ -152,7 +158,7 @@ public final class CryptoLauncher {
         try {
             launch(args);
         } catch (Throwable t) {
-            System.err.println("[chua-crypto] 程序包启动失败: " + t.getMessage());
+            System.err.println("[chua-crypto] 程序包启动失败: " + t.getMessage()); // [P3C E1 豁免]
             System.exit(1);
         }
     }
@@ -440,6 +446,7 @@ public final class CryptoLauncher {
      * @param loader 该目录产物的持有者
      */
     private static void registerCleanup(Path dir, URLClassLoader loader) {
+// [P3C C1 豁免] 关闭钩子必须由 JVM 创建独立线程
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 loader.close();
@@ -457,7 +464,7 @@ public final class CryptoLauncher {
                 // 退出期遍历失败时按已收集到的残留报告
             }
             if (!leftovers.isEmpty()) {
-                System.err.println("[chua-crypto] 解密临时文件未能全部清理，明文残留于 "
+                LOG.severe("[chua-crypto] 解密临时文件未能全部清理，明文残留于 "
                         + dir + "（共 " + leftovers.size() + " 项，首个: " + leftovers.getLast() + "）");
             }
         }, "chua-crypto-cleaner"));

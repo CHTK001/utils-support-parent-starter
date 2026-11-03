@@ -110,7 +110,12 @@ public class MemoryWhereParser {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private <T> Predicate<T> parseConditions(String where, List<Object> params, int[] idxHolder) {
-        Predicate<T> result = t -> true;
+        // SQL 优先级：AND 高于 OR。按 OR 切分为若干组，组内以 AND 折叠，
+        // 组间以 OR 折叠。若简单地按出现顺序左折叠（曾如此），
+        // "a = ? OR b = ? AND c = ?" 会被算成 "(a OR b) AND c"，
+        // 与数据库的 "a OR (b AND c)" 不一致，WHERE 命中的行不同。
+        List<Predicate<T>> preds = Wraps.list();
+        List<String> connectors = Wraps.list();
         String remaining = where.trim();
         String lastConnector = "AND";
 
@@ -140,9 +145,8 @@ public class MemoryWhereParser {
                 remaining = remaining.substring(end).trim();
                 // 子分组通过共享的 idxHolder 消费参数，天然推进父级索引
                 Predicate<T> subPredicate = parseConditions(inner, params, idxHolder);
-                result = "OR".equalsIgnoreCase(lastConnector)
-                        ? result.or(subPredicate)
-                        : result.and(subPredicate);
+                preds.add(subPredicate);
+                connectors.add(lastConnector);
                 continue;
             }
 
@@ -164,7 +168,7 @@ public class MemoryWhereParser {
                     }
                     return c.compareTo(cv1) >= 0 && c.compareTo(cv2) <= 0;
                 };
-                result = "OR".equalsIgnoreCase(lastConnector) ? result.or(pred) : result.and(pred);
+                addPredicate(preds, connectors, lastConnector, pred);
                 remaining = remaining.substring(between.end()).trim();
                 continue;
             }
@@ -179,7 +183,7 @@ public class MemoryWhereParser {
                     Object fv = getFieldValue(t, field);
                     return fv != null && MemorySqlLex.like(String.valueOf(fv), patternText);
                 };
-                result = "OR".equalsIgnoreCase(lastConnector) ? result.or(pred) : result.and(pred);
+                addPredicate(preds, connectors, lastConnector, pred);
                 remaining = remaining.substring(like.end()).trim();
                 continue;
             }
@@ -189,7 +193,7 @@ public class MemoryWhereParser {
             if (isNotNull.lookingAt()) {
                 String field = isNotNull.group(1);
                 Predicate<T> pred = t -> getFieldValue(t, field) != null;
-                result = "OR".equalsIgnoreCase(lastConnector) ? result.or(pred) : result.and(pred);
+                addPredicate(preds, connectors, lastConnector, pred);
                 remaining = remaining.substring(isNotNull.end()).trim();
                 continue;
             }
@@ -199,7 +203,7 @@ public class MemoryWhereParser {
             if (isNull.lookingAt()) {
                 String field = isNull.group(1);
                 Predicate<T> pred = t -> getFieldValue(t, field) == null;
-                result = "OR".equalsIgnoreCase(lastConnector) ? result.or(pred) : result.and(pred);
+                addPredicate(preds, connectors, lastConnector, pred);
                 remaining = remaining.substring(isNull.end()).trim();
                 continue;
             }
@@ -213,7 +217,7 @@ public class MemoryWhereParser {
                     Object fv = getFieldValue(t, field);
                     return fv != null && !values.contains(fv);
                 };
-                result = "OR".equalsIgnoreCase(lastConnector) ? result.or(pred) : result.and(pred);
+                addPredicate(preds, connectors, lastConnector, pred);
                 remaining = remaining.substring(notIn.end()).trim();
                 continue;
             }
@@ -227,7 +231,7 @@ public class MemoryWhereParser {
                     Object fv = getFieldValue(t, field);
                     return fv != null && values.contains(fv);
                 };
-                result = "OR".equalsIgnoreCase(lastConnector) ? result.or(pred) : result.and(pred);
+                addPredicate(preds, connectors, lastConnector, pred);
                 remaining = remaining.substring(in.end()).trim();
                 continue;
             }
@@ -248,7 +252,7 @@ public class MemoryWhereParser {
                     default -> true;
                 };
                 Predicate<T> pred = t -> constResult;
-                result = "OR".equalsIgnoreCase(lastConnector) ? result.or(pred) : result.and(pred);
+                addPredicate(preds, connectors, lastConnector, pred);
                 remaining = remaining.substring(constant.end()).trim();
                 continue;
             }
@@ -273,7 +277,7 @@ public class MemoryWhereParser {
                         default -> true;
                     };
                 };
-                result = "OR".equalsIgnoreCase(lastConnector) ? result.or(pred) : result.and(pred);
+                addPredicate(preds, connectors, lastConnector, pred);
                 remaining = remaining.substring(binary.end()).trim();
                 continue;
             }
@@ -292,7 +296,58 @@ public class MemoryWhereParser {
 
             throw new IllegalArgumentException("无法解析的 WHERE 片段: " + remaining);
         }
+        return foldByPrecedence(preds, connectors);
+    }
+
+    /**
+     * 按 SQL 优先级折叠谓词序列：AND 高于 OR。
+     *
+     * <p>先做 AND 归并（相邻 AND 连接的谓词先合成一组），再在组间做 OR。
+     * 这样 {@code a OR b AND c} 求得 {@code a OR (b AND c)}，
+     * 与数据库的求值顺序一致。</p>
+     *
+     * @param preds      谓词序列（与 {@code connectors} 一一对应，首个连接符无意义）
+     * @param connectors 第 i 个元素表示 preds[i] 与前一个谓词之间的连接符
+     * @param <T>        实体类型
+     * @return 折叠后的谓词；序列为空时返回恒真
+     */
+    private static <T> Predicate<T> foldByPrecedence(List<Predicate<T>> preds, List<String> connectors) {
+        if (preds.isEmpty()) {
+            return t -> true;
+        }
+        // 先按 OR 切组，组内 AND 折叠；再在组间 OR 折叠。
+        List<Predicate<T>> orGroups = Wraps.list();
+        Predicate<T> group = preds.getFirst();
+        for (int i = 1; i < preds.size(); i++) {
+            Predicate<T> next = preds.get(i);
+            if ("OR".equalsIgnoreCase(connectors.get(i))) {
+                orGroups.add(group);
+                group = next;
+            } else {
+                group = group.and(next);
+            }
+        }
+        orGroups.add(group);
+        Predicate<T> result = orGroups.getFirst();
+        for (int i = 1; i < orGroups.size(); i++) {
+            result = result.or(orGroups.get(i));
+        }
         return result;
+    }
+
+    /**
+     * 追加一个谓词与其前置连接符。
+     *
+     * @param preds       已收集谓词
+     * @param connectors  已收集连接符
+     * @param connector   当前谓词与前一个之间的连接符
+     * @param pred        当前谓词
+     * @param <T>         实体类型
+     */
+    private static <T> void addPredicate(List<Predicate<T>> preds, List<String> connectors,
+                                        String connector, Predicate<T> pred) {
+        preds.add(pred);
+        connectors.add(connector);
     }
 
     /**

@@ -187,7 +187,7 @@ public class PoiWordTemplateFiller implements TemplateFiller {
 
         List<String> result = new ArrayList<>(source.subList(0, first));
         if (!templates.isEmpty() && !data.isEmpty()) {
-            for (int i = 0; i < data.size(); i++) {
+            for (Map<String, Object> row : data) {
                 result.addAll(templates);
             }
         }

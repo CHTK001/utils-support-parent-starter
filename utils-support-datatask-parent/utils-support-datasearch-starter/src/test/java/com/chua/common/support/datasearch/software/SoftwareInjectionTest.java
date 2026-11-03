@@ -42,12 +42,12 @@ public class SoftwareInjectionTest {
         SoftwareProvider npm = new NpmSoftwareProvider();
 
         List<SoftwareInfo> crates = cargo.search("serde");
-        System.out.println("      cargo search(serde) -> " + brief(crates));
+        System.out.println("      cargo search(serde) -> " + brief(crates)); // [P3C E1 豁免]
         check("cargo 数组形式仍可正常执行并解析", !crates.isEmpty());
         check("cargo 版本已解析", crates.stream().allMatch(s -> !s.getVersion().isEmpty()));
 
         List<SoftwareInfo> packages = npm.search("express");
-        System.out.println("      npm search(express) -> " + brief(packages));
+        System.out.println("      npm search(express) -> " + brief(packages)); // [P3C E1 豁免]
         check("npm 数组形式仍可正常执行并解析", !packages.isEmpty());
         check("npm 描述已解析", packages.stream().anyMatch(s -> !s.getDescription().isEmpty()));
 
@@ -56,7 +56,7 @@ public class SoftwareInjectionTest {
 
         control();
 
-        System.out.println("[SoftwareInjectionTest] pass=" + pass + " fail=" + fail);
+        System.out.println("[SoftwareInjectionTest] pass=" + pass + " fail=" + fail); // [P3C E1 豁免]
         if (fail > 0) {
             System.exit(1);
         }
@@ -75,7 +75,7 @@ public class SoftwareInjectionTest {
         List<SoftwareInfo> results = provider.search(payload);
         boolean wrote = Files.exists(marker);
         Files.deleteIfExists(marker);
-        System.out.println("      " + tag + " 注入探针 -> results=" + results.size() + " markerWritten=" + wrote);
+        System.out.println("      " + tag + " 注入探针 -> results=" + results.size() + " markerWritten=" + wrote); // [P3C E1 豁免]
         check(tag + " 的 keyword 未经 shell 执行", !wrote);
     }
 
@@ -102,7 +102,7 @@ public class SoftwareInjectionTest {
                 });
         boolean wrote = Files.exists(marker);
         Files.deleteIfExists(marker);
-        System.out.println("      字符串形式对照 -> markerWritten=" + wrote);
+        System.out.println("      字符串形式对照 -> markerWritten=" + wrote); // [P3C E1 豁免]
         check("对照：字符串形式确实会被 shell 执行（探针有效）", wrote);
     }
 
@@ -120,10 +120,10 @@ public class SoftwareInjectionTest {
     private static void check(String name, boolean ok) {
         if (ok) {
             pass++;
-            System.out.println("  PASS " + name);
+            System.out.println("  PASS " + name); // [P3C E1 豁免]
         } else {
             fail++;
-            System.out.println("  FAIL " + name);
+            System.out.println("  FAIL " + name); // [P3C E1 豁免]
         }
     }
 }

@@ -53,17 +53,41 @@ public class DefaultReactorEngine implements ReactorEngine {
 
     @Override
     public <T> ReactorLambdaQueryWrapper<T> query(Class<T> entityClass) {
+        // 有 SqlExecutor 的引擎（JDBC/R2DBC）走包装器默认的 SQL 下推路径；
+        // 没有执行器的引擎（内存/文件/自定义）必须先走内存求值适配，
+        // 否则默认实现会抛 NullPointerException 而不是返回数据。
+        if (memoryOnly()) {
+            return MemoryReactorWrappers.query((AbstractEngine) delegate, entityClass);
+        }
         return new ReactorLambdaQueryWrapper<>(delegate, entityClass);
     }
 
     @Override
     public <T> ReactorLambdaUpdateWrapper<T> update(Class<T> entityClass) {
+        if (memoryOnly()) {
+            return MemoryReactorWrappers.update((AbstractEngine) delegate, entityClass);
+        }
         return new ReactorLambdaUpdateWrapper<>(delegate, entityClass);
     }
 
     @Override
     public <T> ReactorLambdaDeleteWrapper<T> delete(Class<T> entityClass) {
+        if (memoryOnly()) {
+            return MemoryReactorWrappers.delete((AbstractEngine) delegate, entityClass);
+        }
         return new ReactorLambdaDeleteWrapper<>(delegate, entityClass);
+    }
+
+    /**
+     * 被包装引擎是否只能做内存求值（无 {@code SqlExecutor}）。
+     *
+     * <p>判定依据是执行器是否存在，而不是引擎类型：{@link JdbcEngine} 同样继承
+     * {@link AbstractEngine}，但它有执行器，必须走 SQL 下推路径。</p>
+     *
+     * @return true 表示需要走 {@link MemoryReactorWrappers}
+     */
+    private boolean memoryOnly() {
+        return delegate instanceof AbstractEngine && delegate.getExecutor() == null;
     }
 
     @Override

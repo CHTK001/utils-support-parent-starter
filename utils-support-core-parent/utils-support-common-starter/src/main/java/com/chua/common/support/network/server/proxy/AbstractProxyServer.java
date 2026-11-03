@@ -17,8 +17,6 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * TCP 代理服务器抽象基类。
@@ -28,7 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  *   <li>虚拟线程池生命周期管理（start 时创建，stop 时关闭）</li>
  *   <li>ServerSocket 监听与接受循环</li>
  *   <li>双向数据转发</li>
- *   <li>活跃连接计数</li>
+ *   <li>活跃连接计数（{@link com.chua.common.support.network.server.ServerMetrics}
+ *       的连接预算，与 {@code maxConnections} 一次 CAS 判定）</li>
  * </ul>
  *
  * <p>子类只需实现 {@link #handleConnection(Socket)} 即可。</p>
@@ -38,11 +37,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Slf4j
 public abstract class AbstractProxyServer extends AbstractServer {
-
-    /**
-     * 活跃连接计数。
-     */
-    protected final AtomicInteger activeConnections = new AtomicInteger(0);
 
     /**
      * 虚拟线程池（start 时创建，stop 时关闭）。
@@ -55,12 +49,6 @@ public abstract class AbstractProxyServer extends AbstractServer {
      * JDK 服务端监听Socket。
      */
     protected ServerSocket serverSocket;
-
-    /**
-     * 连接数限流信号量（maxConnections > 0 时启用）。
-     * <p>超出上限时直接关闭客户端 Socket，避免内存溢出。</p>
-     */
-    protected Semaphore connectionLimiter;
 
     /**
      * 是否使用非阻塞事件循环批量 accept（默认 false = 阻塞 accept）。
@@ -94,8 +82,9 @@ public abstract class AbstractProxyServer extends AbstractServer {
      *
      * @return 活跃连接数
      */
+    @Override
     public int getActiveConnections() {
-        return activeConnections.get();
+        return metrics.getActiveConnections();
     }
 
     /**
@@ -105,8 +94,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
-            int backlog = Math.max(setting.getBacklog(), 65536);
-            connectionLimiter = maxConnectionsSemaphore();
+            int backlog = setting.resolveBacklog(MIN_BACKLOG);
             running = true;
             proxyPool = Executors.newVirtualThreadPerTaskExecutor();
             if (preferNonBlockingAccept) {
@@ -126,13 +114,13 @@ public abstract class AbstractProxyServer extends AbstractServer {
                 proxyPool.submit(this::nonBlockingAcceptLoop);
                 log.info("{} 启动成功（非阻塞批量 accept）：{}://{}:{} (backlog={}, maxConn={})",
                         getClass().getSimpleName(), setting.getProtocol(), setting.getHost(),
-                        setting.getPort(), backlog, connectionLimiter != null ? setting.getMaxConnections() : 0);
+                        setting.getPort(), backlog, Math.max(setting.getMaxConnections(), 0));
                 return;
             }
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(setting.isSoReuseAddr());
             serverSocket.setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384));
-            // backlog 下限 65536:瞬间并发连接(万级突发)下避免内核 accept 队列溢出导致连接被拒
+            // backlog 统一由 ServerSetting#resolveBacklog 收敛（内核会按 somaxconn 再截断一次）
             serverSocket.bind(addr, backlog);
             // 回填实际端口（port=0 时由系统分配）
             setting.setPort(serverSocket.getLocalPort());
@@ -144,19 +132,10 @@ public abstract class AbstractProxyServer extends AbstractServer {
             }
             log.info("{} 启动成功：{}://{}:{} (acceptors={}, maxConn={}, backlog={})",
                     getClass().getSimpleName(), setting.getProtocol(), setting.getHost(),
-                    setting.getPort(), acceptors, connectionLimiter != null ? setting.getMaxConnections() : 0, backlog);
+                    setting.getPort(), acceptors, Math.max(setting.getMaxConnections(), 0), backlog);
         } catch (IOException e) {
             throw new RuntimeException(getClass().getSimpleName() + " 启动失败", e);
         }
-    }
-
-    /**
-     * 构建连接限流信号量（maxConnections > 0 时启用），供 doStart 分支复用。
-     * @return Semaphore 对象
-     */
-    private Semaphore maxConnectionsSemaphore() {
-        int maxConn = setting.getMaxConnections();
-        return maxConn > 0 ? new Semaphore(maxConn) : null;
     }
 
     /**
@@ -199,34 +178,35 @@ public abstract class AbstractProxyServer extends AbstractServer {
         while (running) {
             try {
                 Socket clientSocket = serverSocket.accept();
-                // 连接限流：超出上限直接拒绝
-                if (connectionLimiter != null && !connectionLimiter.tryAcquire()) {
+                // 连接限流：超出上限直接拒绝（一次 CAS 完成判定与登记，无排队、无线程阻塞）
+                if (!tryAcquireConnection()) {
                     log.warn("{} 连接数超限 (max={})，拒绝 {}", getClass().getSimpleName(),
                             setting.getMaxConnections(), clientSocket.getRemoteSocketAddress());
-                    try {
-                        clientSocket.close();
-                    } catch (IOException e) {
-                        log.debug("[proxy] 关闭连接失败，已忽略: {}", e.getMessage());
-                    }
+                    closeSocket(clientSocket);
                     continue;
                 }
-                proxyPool.submit(() -> {
-                    try {
-                        // TCP_NODELAY 移到连接处理线程:accept 热路径只做 accept+限流+submit,
-                        // 提升瞬时连接接纳能力
+                try {
+                    proxyPool.submit(() -> {
                         try {
-                            clientSocket.setTcpNoDelay(setting.isTcpNoDelay());
-                        } catch (IOException e) {
-                            log.debug("[proxy] 关闭连接失败，已忽略: {}", e.getMessage());
+                            // TCP_NODELAY 移到连接处理线程:accept 热路径只做 accept+限流+submit,
+                            // 提升瞬时连接接纳能力
+                            try {
+                                clientSocket.setTcpNoDelay(setting.isTcpNoDelay());
+                            } catch (IOException e) {
+                                log.debug("[proxy] 关闭连接失败，已忽略: {}", e.getMessage());
+                            }
+                            applySocketOptions(clientSocket);
+                            handleConnection(clientSocket);
+                        } finally {
+                            READ_BUFFER.remove();
+                            releaseConnection();
                         }
-                        handleConnection(clientSocket);
-                    } finally {
-                        READ_BUFFER.remove();
-                        if (connectionLimiter != null) {
-                            connectionLimiter.release();
-                        }
-                    }
-                });
+                    });
+                } catch (java.util.concurrent.RejectedExecutionException e) {
+                    // 停止中任务被拒：连接不会被处理，必须在这里归还预算
+                    closeSocket(clientSocket);
+                    releaseConnection();
+                }
             } catch (IOException e) {
                 if (running) {
                     log.error("{} 接受连接异常", getClass().getSimpleName(), e);
@@ -255,45 +235,23 @@ public abstract class AbstractProxyServer extends AbstractServer {
                 while (it.hasNext()) {
                     SelectionKey key = it.next();
                     it.remove();
-                    SocketChannel ch;
-                    try {
-                        ch = acceptChannel.accept();
-                    } catch (java.nio.channels.ClosedChannelException e2) {
-                        log.info("{} nonBlockingAcceptLoop: ClosedChannelException, exiting",
-                                 getClass().getSimpleName());
-                        return;
-                    }
-                    if (ch == null) {
-                        continue;
-                    }
-                    try {
-                        ch.configureBlocking(true);
-                        Socket clientSocket = ch.socket();
-                        if (connectionLimiter != null && !connectionLimiter.tryAcquire()) {
-                            log.warn("{} 连接数超限 (max={})，拒绝 {}", getClass().getSimpleName(),
-                                    setting.getMaxConnections(), clientSocket.getRemoteSocketAddress());
-                            closeSocket(clientSocket);
-                            continue;
+                    // 批量 drain：一次 select 就绪后把内核 accept 队列抽空，
+                    // 但必须有上限（else 单次事件循环长时间停在 accept 上，拖慢已建立连接的处理）
+                    int batch = Math.max(setting.getAcceptBatch(), 1);
+                    int drained = 0;
+                    while (running && drained++ < batch) {
+                        SocketChannel ch;
+                        try {
+                            ch = acceptChannel.accept();
+                        } catch (java.nio.channels.ClosedChannelException e2) {
+                            log.info("{} nonBlockingAcceptLoop: ClosedChannelException, exiting",
+                                     getClass().getSimpleName());
+                            return;
                         }
-                        proxyPool.submit(() -> {
-                            try {
-                                try {
-                                    clientSocket.setTcpNoDelay(setting.isTcpNoDelay());
-                                } catch (IOException e) {
-                                    log.debug("[proxy] 关闭连接失败，已忽略: {}", e.getMessage());
-                                }
-                                handleConnection(clientSocket);
-                            } finally {
-                                READ_BUFFER.remove();
-                                if (connectionLimiter != null) {
-                                    connectionLimiter.release();
-                                }
-                            }
-                        });
-                    } catch (Exception e) {
-                        log.warn("{} accept handler exception: {} {}", getClass().getSimpleName(),
-                                e.getClass().getSimpleName(), e.getMessage(), e);
-                        closeSocket(ch.socket());
+                        if (ch == null) {
+                            break;
+                        }
+                        acceptOne(ch);
                     }
                 }
             } catch (java.nio.channels.ClosedSelectorException e2) {
@@ -306,6 +264,47 @@ public abstract class AbstractProxyServer extends AbstractServer {
             }
         }
         log.info("{} nonBlockingAcceptLoop ended", getClass().getSimpleName());
+    }
+
+    /**
+     * 处理一个已 accept 的通道：限流 → 转阻塞 → 提交连接处理任务。
+     *
+     * @param ch 已接入的非阻塞通道
+     */
+    private void acceptOne(SocketChannel ch) {
+        try {
+            ch.configureBlocking(true);
+            Socket clientSocket = ch.socket();
+            if (!tryAcquireConnection()) {
+                log.warn("{} 连接数超限 (max={})，拒绝 {}", getClass().getSimpleName(),
+                        setting.getMaxConnections(), clientSocket.getRemoteSocketAddress());
+                closeSocket(clientSocket);
+                return;
+            }
+            try {
+                proxyPool.submit(() -> {
+                    try {
+                        try {
+                            clientSocket.setTcpNoDelay(setting.isTcpNoDelay());
+                        } catch (IOException e) {
+                            log.debug("[proxy] 关闭连接失败，已忽略: {}", e.getMessage());
+                        }
+                        applySocketOptions(clientSocket);
+                        handleConnection(clientSocket);
+                    } finally {
+                        READ_BUFFER.remove();
+                        releaseConnection();
+                    }
+                });
+            } catch (java.util.concurrent.RejectedExecutionException e) {
+                closeSocket(clientSocket);
+                releaseConnection();
+            }
+        } catch (Exception e) {
+            log.warn("{} accept handler exception: {} {}", getClass().getSimpleName(),
+                    e.getClass().getSimpleName(), e.getMessage(), e);
+            closeSocket(ch.socket());
+        }
     }
 
     /**
@@ -386,6 +385,11 @@ public abstract class AbstractProxyServer extends AbstractServer {
      * read/write 系统调用进一步减半。</p>
      */
     private static final int FORWARD_BUFFER_SIZE = 64 * 1024;
+
+    /**
+     * 握手队列最小长度（等价于「用平台允许的最大队列」，内核按 somaxconn 截断）。
+     */
+    private static final int MIN_BACKLOG = 65536;
 
     /**
      * 转发用缓冲区，每虚拟线程独立缓存。

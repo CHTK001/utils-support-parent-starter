@@ -332,6 +332,7 @@ class AbstractServerConcurrencyLoadTest {
             CountDownLatch go = new CountDownLatch(1);
             List<Thread> workers = new ArrayList<>(threads);
             for (int i = 0; i < threads; i++) {
+// [P3C C1 豁免] 测试代码，验证线程行为，不必走线程池
                 Thread worker = new Thread(() -> {
                     ready.countDown();
                     try {
@@ -531,6 +532,7 @@ class AbstractServerConcurrencyLoadTest {
             CountDownLatch done = new CountDownLatch(clients);
             List<Thread> workers = new ArrayList<>(clients);
             for (int i = 0; i < clients; i++) {
+// [P3C C1 豁免] 测试代码，验证线程行为，不必走线程池
                 Thread worker = new Thread(() -> {
                     try {
                         roundTrip(port, "ping");
@@ -581,6 +583,7 @@ class AbstractServerConcurrencyLoadTest {
             occupant.setReuseAddress(true);
             occupant.bind(new InetSocketAddress("127.0.0.1", port));
 
+// [P3C C1 豁免] 测试代码，验证线程行为，不必走线程池
             Thread releaser = new Thread(() -> {
                 try {
                     Thread.sleep(2_000L);

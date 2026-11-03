@@ -404,11 +404,77 @@ public interface Agent extends AutoCloseable {
      *       .build();
      * }</pre>
      *
+     * <p>注意：0 或负数表示“业务上不限制”，但实现类仍会再加一层硬性安全上限，
+     * 真正不限的循环是没有意义也没法收场的。需要主动结束一轮执行请用
+     * {@link #interrupt()}，需要识别“原地打转”请用 {@link #loopGuard(AgentLoopGuard)}。
+     *
      * @param maxIterations 最大迭代次数，0 或负数表示不限制
      * @return 当前 Agent 实例，支持链式调用
      */
     default Agent maxToolIterations(int maxIterations) {
         return this;
+    }
+
+    /**
+     * 注入会话护栏（死循环判定 + 中断信号）
+     *
+     * <p>由上层（网关 / 会话编排）注入并持有，实现类在执行过程中：
+     * <ul>
+     *   <li>turn 开始时调用 {@link AgentLoopGuard#reset()}</li>
+     *   <li>每次工具调用前调用 {@link AgentLoopGuard#recordToolCall(String, String)}，
+     *       返回 true 时停止继续调用工具并以「死循环」收尾</li>
+     *   <li>循环点上检测 {@link AgentLoopGuard#isInterrupted()}，为 true 时收尾退出</li>
+     * </ul>
+     * 默认实现忽略注入，仅保证旧实现不被破坏；本仓库的三个实现（opencode /
+     * langchain4j / agentscope）均已覆盖。
+     *
+     * @param guard 会话护栏，可为 null（表示不启用）
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent loopGuard(AgentLoopGuard guard) {
+        return this;
+    }
+
+    /**
+     * 获取当前会话护栏
+     *
+     * <p>供 {@link #interrupt()}、{@link #isInterrupted()} 的默认实现使用。
+     * 未注入时返回 null。
+     *
+     * @return 会话护栏，未注入时返回 null
+     */
+    default AgentLoopGuard loopGuard() {
+        return null;
+    }
+
+    /**
+     * 要求中断本轮执行
+     *
+     * <p>可从任意线程调用：置位护栏的中断信号，实现类在自己的循环点收尾退出。
+     * 能拿到系统资源的实现必须同时释放资源——
+     * opencode 实现会强杀子进程（即“关掉那个 cmd”），
+     * agentscope 实现会关闭当前 Harness，langchain4j 实现会跳出 ReAct 循环。
+     *
+     * <p>默认实现只置位护栏信号，不碰资源；实现了真实资源释放的实现应覆盖本方法。
+     *
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent interrupt() {
+        AgentLoopGuard guard = loopGuard();
+        if (guard != null) {
+            guard.interrupt();
+        }
+        return this;
+    }
+
+    /**
+     * 本轮执行是否已被要求中断
+     *
+     * @return true 表示已收到中断请求
+     */
+    default boolean isInterrupted() {
+        AgentLoopGuard guard = loopGuard();
+        return guard != null && guard.isInterrupted();
     }
 
     /**

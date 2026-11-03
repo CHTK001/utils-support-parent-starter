@@ -4,6 +4,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Logger;
 
 /**
  * 运行时自我防护（零依赖，随引导器注入）
@@ -33,6 +34,11 @@ import java.util.Locale;
  * @since 2026-08-26
  */
 public final class SelfDefense {
+
+    /**
+     * 日志记录器（零依赖：SDK 自带的 java.util.logging，避免启动期循环依赖）
+     */
+    private static final Logger LOG = Logger.getLogger(SelfDefense.class.getName());
 
     /**
      * 防护模式系统属性
@@ -109,6 +115,7 @@ public final class SelfDefense {
      * @param mode 防护模式
      */
     private static void startToolkitScanner(String mode) {
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
         Thread scanner = new Thread(() -> {
             while (true) {
                 try {
@@ -153,9 +160,9 @@ public final class SelfDefense {
      * @param message 事件描述
      */
     private static void respond(String mode, String message) {
-        System.err.println("[chua-crypto-guard] " + message);
+        LOG.severe("[chua-crypto-guard] " + message);
         if ("strict".equals(mode)) {
-            System.err.println("[chua-crypto-guard] strict 模式：终止进程");
+            LOG.severe("[chua-crypto-guard] strict 模式：终止进程");
             Runtime.getRuntime().halt(96);
         }
     }

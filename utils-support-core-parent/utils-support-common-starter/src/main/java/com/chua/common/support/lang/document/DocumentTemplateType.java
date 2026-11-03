@@ -34,5 +34,11 @@ public enum DocumentTemplateType {
      * Stripe 开发者文档风格模板。
      * <p>左侧表导航 + 语义色标签（PK/FK/可空）、深色 SQL 代码块、搜索过滤、响应式布局。</p>
      */
-    STRIPE
+    STRIPE,
+
+    /**
+     * 工业螺丝风格数据库文档模板。
+     * <p>暗色机械风 + 六角螺丝元素 + 数据表拆解视图，适合数据库设计评审与交付。</p>
+     */
+    SCREW
 }
