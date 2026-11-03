@@ -200,11 +200,11 @@ class TraeLoginStateResolutionTest {
      * {@code AuthManager#fromTraeDataDir} 的语义不能直接用于本客户端的探测结果。</p>
      *
      * @param base 临时根目录
-     * @throws IOException 造目录失败
+     * @throws Exception 造目录失败 / 读取登录态失败
      */
     @Test
     @DisplayName("AuthManager 只接受应用数据根目录")
-    void authManagerRequiresApplicationRoot(@TempDir Path base) throws IOException {
+    void authManagerRequiresApplicationRoot(@TempDir Path base) throws Exception {
         Path root = createFakeTrae(base, "Trae CN", DEMO_JWT);
 
         AuthManager.AuthSnapshot snapshot = new AuthManager("cn", root.toString(), null, CN_HOST).getAuth();
