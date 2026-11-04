@@ -13,6 +13,9 @@ import com.chua.common.support.apm.model.OtnlInstance;
 import com.chua.common.support.apm.model.OtnlLogRecord;
 import com.chua.common.support.apm.model.OtnlMetricDefinition;
 import com.chua.common.support.apm.model.OtnlMetricSeries;
+import com.chua.common.support.apm.model.OtnlProfileAnalysis;
+import com.chua.common.support.apm.model.OtnlProfileTask;
+import com.chua.common.support.apm.model.OtnlProfiledSegment;
 import com.chua.common.support.apm.model.OtnlService;
 import com.chua.common.support.apm.model.OtnlSpan;
 import com.chua.common.support.apm.model.OtnlStatus;
@@ -23,12 +26,14 @@ import com.chua.skywalking.support.client.SkywalkingOapClient;
 import com.chua.skywalking.support.client.SkywalkingQueries;
 import com.chua.skywalking.support.client.SkywalkingSettings;
 import com.chua.skywalking.support.client.SkywalkingTimes;
+import com.chua.skywalking.support.client.SkywalkingVersion;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,6 +111,27 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
      */
     private static final double UNKNOWN = -1D;
 
+    /**
+     * 一次剖析分析最多提交的片段数（OAP 端逐段读磁盘，过多会拖垮查询）
+     */
+    private static final int PROFILE_ANALYZE_SEGMENTS = 10;
+
+    /**
+     * {@code readMetricsValues} 单次查询的窗口跨度上限（以步长计）。
+     * <p>
+     * OAP 侧是硬限制：超过就整条查询失败（不是截断）。实测真实 OAP 9.7.0：
+     * 跨度正好 500 个步长可以，501 个就报
+     * {@code Duration data error, the range between the start time and the end time can't exceed 500 minutes}；
+     * SECOND / MINUTE / HOUR / DAY 表现一致 —— 限制的是<b>步长数</b>而非墙钟时间，
+     * 报错文案里的「500 minutes」只是以分钟步长举例。
+     * </p>
+     * <p>
+     * 注意点数是「跨度 + 1」，所以 500 个步长对应 501 个数据点。
+     * 见 {@link #metricChunks(long, long, String)}。
+     * </p>
+     */
+    private static final int METRIC_MAX_POINTS = 500;
+
     private volatile SkywalkingOapClient client;
     private volatile ExecutorService executor;
 
@@ -122,9 +148,38 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
     private volatile OtnlStatus cachedStatus;
     private volatile long statusExpireAt;
 
+    /**
+     * 解析后的 OAP 版本（能力判断用），与 {@link #cachedStatus} 同步刷新
+     */
+    private volatile SkywalkingVersion oapVersion = SkywalkingVersion.UNKNOWN;
+
+    /**
+     * 当前 OAP 版本能力。
+     * <p>
+     * 版本未知时按最低能力处理：宁可少发一个 11.x 专有查询（走 legacy 语句），
+     * 也不要在老 OAP 上触发一串 GraphQL 校验错误。
+     * </p>
+     *
+     * @return 版本能力
+     */
+    private SkywalkingVersion version() {
+        if (oapVersion == SkywalkingVersion.UNKNOWN) {
+            // 触发一次探测：status() 会把版本一并解析出来
+            status();
+        }
+        return oapVersion;
+    }
+
     @Override
     public String name() {
         return "skywalking";
+    }
+
+    @Override
+    public List<String> capabilities() {
+        // SkyWalking 9.x 起提供 Profile 协议；老版本调用失败只会返回空列表，不影响其它能力
+        return List.of(CAP_SERVICES, CAP_INSTANCES, CAP_ENDPOINTS, CAP_TRACES, CAP_TOPOLOGY,
+                CAP_METRICS, CAP_RUNTIME, CAP_ALARMS, CAP_ALERTS, CAP_LOGS, CAP_PROFILES);
     }
 
     @Override
@@ -145,9 +200,11 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
         OtnlStatus fresh;
         try {
             String version = client().version();
+            oapVersion = SkywalkingVersion.parse(version);
             fresh = OtnlStatus.available(name(), version, SkywalkingSettings.url(), "remote", capabilities());
             statusExpireAt = now + STATUS_OK_TTL;
         } catch (Exception e) {
+            oapVersion = SkywalkingVersion.UNKNOWN;
             fresh = OtnlStatus.unavailable(name(), "SkyWalking OAP 不可达: " + rootMessage(e));
             statusExpireAt = now + STATUS_FAIL_TTL;
         }
@@ -347,59 +404,79 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
         Window window = Window.of(query);
         try {
             Map<String, Object> duration = SkywalkingTimes.duration(window.start, window.end, "MINUTE");
+            SkywalkingVersion version = version();
             JsonNode topology;
             if (query.serviceName() == null || query.serviceName().isBlank()) {
-                topology = client().data(SkywalkingQueries.GLOBAL_TOPOLOGY, Map.of("duration", duration))
+                // Node.layers 是 10.0.0 才有的字段，9.x 选了它整页拓扑就没数据
+                String statement = version.supportsNodeLayers()
+                        ? SkywalkingQueries.GLOBAL_TOPOLOGY
+                        : SkywalkingQueries.GLOBAL_TOPOLOGY_LEGACY;
+                topology = client().data(statement, Map.of("duration", duration))
                         .path("getGlobalTopology");
             } else {
-                String serviceId = serviceId(query.serviceName());
                 topology = null;
-                try {
+                if (version.supportsTopologyByName()) {
                     Map<String, Object> vars = new LinkedHashMap<>(4);
                     vars.put("service", Map.of("serviceName", query.serviceName()));
                     vars.put("duration", duration);
                     topology = client().data(SkywalkingQueries.SERVICE_TOPOLOGY_BY_NAME, vars)
                             .path("getServiceTopologyByName");
-                } catch (Exception ignore) {
-                    // 10.0 之前没有 ByName 版本，回落 ID 形式
                 }
-                if ((topology == null || topology.isMissingNode()) && serviceId != null) {
+                if (topology == null || topology.isMissingNode()) {
+                    // 10.x 及更早只能按 serviceId 查
+                    String serviceId = serviceId(query.serviceName());
+                    if (serviceId == null) {
+                        return OtnlTopology.empty();
+                    }
+                    String statement = version.supportsNodeLayers()
+                            ? SkywalkingQueries.SERVICE_TOPOLOGY_BY_ID
+                            : SkywalkingQueries.SERVICE_TOPOLOGY_BY_ID_LEGACY;
                     Map<String, Object> vars = new LinkedHashMap<>(4);
                     vars.put("serviceId", serviceId);
                     vars.put("duration", duration);
-                    topology = client().data(SkywalkingQueries.SERVICE_TOPOLOGY_BY_ID, vars)
-                            .path("getServiceTopology");
+                    topology = client().data(statement, vars).path("getServiceTopology");
                 }
             }
             if (topology == null || topology.isMissingNode()) {
                 return OtnlTopology.empty();
             }
-
-            Map<String, String> nameById = new LinkedHashMap<>();
-            List<OtnlTopology.OtnlTopologyNode> nodes = new ArrayList<>();
-            for (JsonNode node : topology.path("nodes")) {
-                String id = node.path("id").asText("");
-                String nodeName = node.path("name").asText("");
-                nameById.put(id, nodeName);
-                List<String> layers = textList(node.path("layers"));
-                nodes.add(new OtnlTopology.OtnlTopologyNode(id, nodeName,
-                        node.path("type").asText(""), node.path("isReal").asBoolean(true),
-                        nodeName.equals(query.serviceName()),
-                        layers.isEmpty() ? null : layers.get(0)));
-            }
-            List<OtnlTopology.OtnlTopologyCall> calls = new ArrayList<>();
-            for (JsonNode node : topology.path("calls")) {
-                List<String> points = textList(node.path("detectPoints"));
-                calls.add(new OtnlTopology.OtnlTopologyCall(node.path("id").asText(""),
-                        node.path("source").asText(""), node.path("target").asText(""),
-                        points.isEmpty() ? "CLIENT" : points.get(0),
-                        UNKNOWN_LONG, UNKNOWN, UNKNOWN));
-            }
-            return new OtnlTopology(nodes, enrichTopologyCalls(calls, nameById, window));
+            return readTopology(topology, query.serviceName(), window);
         } catch (Exception e) {
             log.debug("[SkyWalking] 查询拓扑失败: {}", rootMessage(e));
             return OtnlTopology.empty();
         }
+    }
+
+    /**
+     * 解析拓扑 JSON（全局 / 单服务 / 多服务共用）
+     *
+     * @param topology    拓扑节点
+     * @param selfService 当前服务名（用于标记 isSelf），可为空
+     * @param window      时间窗口
+     * @return 拓扑
+     */
+    private OtnlTopology readTopology(JsonNode topology, String selfService, Window window) {
+        Map<String, String> nameById = new LinkedHashMap<>();
+        List<OtnlTopology.OtnlTopologyNode> nodes = new ArrayList<>();
+        for (JsonNode node : topology.path("nodes")) {
+            String id = node.path("id").asText("");
+            String nodeName = node.path("name").asText("");
+            nameById.put(id, nodeName);
+            List<String> layers = textList(node.path("layers"));
+            nodes.add(new OtnlTopology.OtnlTopologyNode(id, nodeName,
+                    node.path("type").asText(""), node.path("isReal").asBoolean(true),
+                    selfService != null && nodeName.equals(selfService),
+                    layers.isEmpty() ? null : layers.get(0)));
+        }
+        List<OtnlTopology.OtnlTopologyCall> calls = new ArrayList<>();
+        for (JsonNode node : topology.path("calls")) {
+            List<String> points = textList(node.path("detectPoints"));
+            calls.add(new OtnlTopology.OtnlTopologyCall(node.path("id").asText(""),
+                    node.path("source").asText(""), node.path("target").asText(""),
+                    points.isEmpty() ? "CLIENT" : points.get(0),
+                    UNKNOWN_LONG, UNKNOWN, UNKNOWN));
+        }
+        return new OtnlTopology(nodes, enrichTopologyCalls(calls, nameById, window));
     }
 
     @Override
@@ -434,20 +511,27 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
             Map<String, Object> condition = new LinkedHashMap<>(2);
             condition.put("name", query.name());
             condition.put("entity", entity);
-            Map<String, Object> vars = new LinkedHashMap<>(4);
-            vars.put("condition", condition);
-            vars.put("duration", SkywalkingTimes.duration(start, end, step));
-            JsonNode data = client().data(SkywalkingQueries.METRICS_VALUES, vars);
 
             String actualStep = SkywalkingTimes.normalizeStep(step, start, end);
-            List<OtnlMetricSeries.OtnlMetricPoint> points = new ArrayList<>();
-            for (JsonNode point : data.path("readMetricsValues").path("values").path("values")) {
-                long time = SkywalkingTimes.parse(point.path("id").asText(""), actualStep);
-                double value = point.path("value").asDouble(0D);
-                if (time > 0) {
-                    points.add(new OtnlMetricSeries.OtnlMetricPoint(time, value));
+            // OAP 对单次 readMetricsValues 有点数硬上限，超了就整条报错（见 METRIC_MAX_POINTS），
+            // 因此按窗口切片查询再合并，而不是把超长窗口直接发出去
+            Map<Long, Double> byTime = new LinkedHashMap<>();
+            for (long[] chunk : metricChunks(start, end, actualStep)) {
+                Map<String, Object> vars = new LinkedHashMap<>(4);
+                vars.put("condition", condition);
+                vars.put("duration", SkywalkingTimes.duration(chunk[0], chunk[1], actualStep));
+                JsonNode data = client().data(SkywalkingQueries.METRICS_VALUES, vars);
+                for (JsonNode point : data.path("readMetricsValues").path("values").path("values")) {
+                    long time = SkywalkingTimes.parse(point.path("id").asText(""), actualStep);
+                    if (time > 0) {
+                        // 相邻切片在边界上可能重叠一个点，取后查到的值覆盖
+                        byTime.put(time, point.path("value").asDouble(0D));
+                    }
                 }
             }
+            List<OtnlMetricSeries.OtnlMetricPoint> points = new ArrayList<>(byTime.size());
+            byTime.forEach((time, value) -> points.add(new OtnlMetricSeries.OtnlMetricPoint(time, value)));
+            points.sort(Comparator.comparingLong(OtnlMetricSeries.OtnlMetricPoint::time));
             return new OtnlMetricSeries(query.name(), scope, label, unitOf(query.name(), scope), points);
         } catch (Exception e) {
             log.debug("[SkyWalking] 查询指标失败({}): {}", query.name(), rootMessage(e));
@@ -455,38 +539,273 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
         }
     }
 
+    /**
+     * 把时间窗口切成若干个「点数不超上限」的片段。
+     * <p>
+     * <b>为什么必须切。</b>OAP 的 {@code readMetricsValues} 对单次查询的点数有硬上限，
+     * 超出时返回的是
+     * {@code Duration data error, the range between the start time and the end time can't exceed 500 minutes}，
+     * 并让整条查询失败 —— 拿不到任何数据点，不是「只截断到 500 个」。而
+     * {@code readMetricsValue}（单值，列表页聚合用）没有这个限制。
+     * </p>
+     * <p>
+     * 实测（真实 OAP 9.7.0）：跨度正好 500 个步长可以，501 个就报错，
+     * SECOND / MINUTE / HOUR / DAY 四种步长表现一致 —— 上限是<b>点数</b>，不是墙钟时间，
+     * 报错文案里的「500 minutes」只是以分钟步长举例。
+     * </p>
+     * <p>
+     * 前端的「最近 24 小时 + 分钟级」就是 1440 个点，必然超过上限，这是最常见的触发场景。
+     * </p>
+     *
+     * @param start 起始毫秒
+     * @param end   结束毫秒
+     * @param step  步长
+     * @return 片段数组，每项为 {@code [start, end]}；窗口不超限时只有一段
+     */
+    private List<long[]> metricChunks(long start, long end, String step) {
+        long stepMillis = SkywalkingTimes.stepMillis(step);
+        if (stepMillis <= 0 || end <= start) {
+            return List.of(new long[]{start, end});
+        }
+        long maxSpan = METRIC_MAX_POINTS * stepMillis;
+        if (end - start <= maxSpan) {
+            return List.of(new long[]{start, end});
+        }
+        List<long[]> chunks = new ArrayList<>();
+        long cursor = start;
+        while (true) {
+            // 每段跨度不超过 maxSpan
+            long chunkEnd = Math.min(cursor + maxSpan, end);
+            chunks.add(new long[]{cursor, chunkEnd});
+            if (chunkEnd >= end) {
+                break;
+            }
+            // 下一段从上一段结束后的一个步长开始：边界点已由上一段取到，不重复
+            cursor = chunkEnd + stepMillis;
+            if (cursor > end) {
+                break;
+            }
+        }
+        return chunks;
+    }
+
+    /**
+     * 批量指标时序（多实体对比）
+     * <p>
+     * <b>没有可用的批量入口。</b>OAP 的 metrics-v2 里 {@code readMetricsValues}
+     * 只接受单个 {@code condition}，<b>不存在</b> {@code conditions: [...]} 这种复数签名
+     * （9.7 / 10.2 / 11.0 各版本都确认过）。因此这里不做「先发一次批量请求、
+     * 失败再逐条重试」——那次批量请求注定失败，只会给 OAP 日志灌一条假错误。
+     * </p>
+     * <p>
+     * 直接走 {@link OtnlEngine#metricsBatch} 的默认实现：逐条查询，单条失败只丢那一条，
+     * 对比页不会因为某个实例刚下线就整张图空白。
+     * </p>
+     *
+     * @param queries 查询列表
+     * @return 时序列表，与入参顺序一致
+     */
+    @Override
+    public List<OtnlMetricSeries> metricsBatch(List<OtnlMetricQuery> queries) {
+        return OtnlEngine.super.metricsBatch(queries);
+    }
+
+    /**
+     * 曲线展示名
+     *
+     * @param query 查询条件
+     * @param scope 作用域
+     * @return 标签
+     */
+    private String scopeLabel(OtnlMetricQuery query, OtnlScope scope) {
+        return switch (scope) {
+            case ENDPOINT -> query.endpointName();
+            case SERVICE_INSTANCE -> query.instanceName();
+            case SERVICE, SERVICE_RELATION, ENDPOINT_RELATION -> query.serviceName();
+            case ALL -> null;
+        };
+    }
+
+    /**
+     * 多服务拓扑（一次请求拿多个服务的关系，供对比页使用）
+     *
+     * @param serviceNames 服务名列表
+     * @param query        时间窗口
+     * @return 合并拓扑
+     */
+    @Override
+    public OtnlTopology multiTopology(List<String> serviceNames, OtnlQuery query) {
+        if (serviceNames == null || serviceNames.isEmpty()) {
+            return OtnlTopology.empty();
+        }
+        OtnlQuery safe = query == null ? OtnlQuery.empty() : query;
+        if (!version().supportsTopologyByName()) {
+            // 11.0.0 之前没有多服务拓扑入口，只能逐个服务查再合并
+            return OtnlEngine.super.multiTopology(serviceNames, safe);
+        }
+        Window window = Window.of(safe);
+        try {
+            List<Map<String, Object>> services = new ArrayList<>(serviceNames.size());
+            for (String name : serviceNames) {
+                if (name != null && !name.isBlank()) {
+                    services.add(Map.of("serviceName", name));
+                }
+            }
+            if (services.isEmpty()) {
+                return OtnlTopology.empty();
+            }
+            Map<String, Object> vars = new LinkedHashMap<>(4);
+            vars.put("services", services);
+            vars.put("duration", SkywalkingTimes.duration(window.start, window.end, "MINUTE"));
+            JsonNode topology = client().data(SkywalkingQueries.SERVICES_TOPOLOGY_BY_NAMES, vars)
+                    .path("getServicesTopologyByNames");
+            if (topology.isMissingNode() || topology.isNull()) {
+                return OtnlEngine.super.multiTopology(serviceNames, safe);
+            }
+            return readTopology(topology, null, window);
+        } catch (Exception e) {
+            log.debug("[SkyWalking] 多服务拓扑查询失败，逐个重试: {}", rootMessage(e));
+            return OtnlEngine.super.multiTopology(serviceNames, safe);
+        }
+    }
+
     @Override
     public List<OtnlAlarm> alarms(OtnlQuery query) {
         Window window = Window.of(query);
         try {
-            Map<String, Object> single = new LinkedHashMap<>(2);
-            single.put("pageNum", query.pageNumOrOne());
-            single.put("pageSize", query.pageSizeOrTwenty());
-            Map<String, Object> vars = new LinkedHashMap<>(4);
-            vars.put("duration", SkywalkingTimes.duration(window.start, window.end, query.step()));
-            vars.put("scope", "Service");
-            vars.put("keyword", query.keyword() == null ? "" : query.keyword());
-            vars.put("paging", single);
-            JsonNode data = client().data(SkywalkingQueries.ALARMS, vars);
-            List<OtnlAlarm> result = new ArrayList<>();
-            for (JsonNode node : data.path("getAlarm").path("msgs")) {
-                List<OtnlTag> tags = new ArrayList<>();
-                for (JsonNode tag : node.path("tags")) {
-                    tags.add(OtnlTag.of(tag.path("key").asText(""), tag.path("value").asText("")));
-                }
-                result.add(new OtnlAlarm(node.path("id").asText(""),
-                        node.path("name").asText(""),
-                        node.path("message").asText(""),
-                        node.path("startTime").asLong(0L),
-                        node.path("scope").asText(""),
-                        node.path("name").asText(""),
-                        null, List.of(), tags));
+            if (version().supportsQueryAlarms()) {
+                return alarmsV2(query, window);
             }
-            return result;
+            return alarmsLegacy(query, window);
         } catch (Exception e) {
             log.debug("[SkyWalking] 查询告警失败: {}", rootMessage(e));
             return List.of();
         }
+    }
+
+    /**
+     * 新版告警查询（11.0.0 的 queryAlarms）：支持实体、规则名、层过滤
+     *
+     * @param query  查询条件
+     * @param window 时间窗口
+     * @return 告警列表
+     */
+    private List<OtnlAlarm> alarmsV2(OtnlQuery query, Window window) {
+        Map<String, Object> condition = new LinkedHashMap<>(8);
+        condition.put("duration", SkywalkingTimes.duration(window.start, window.end, query.step()));
+        condition.put("paging", paging(query));
+        if (query.serviceName() != null && !query.serviceName().isBlank()) {
+            condition.put("entities", List.of(Map.of("serviceName", query.serviceName())));
+        }
+        if (query.keyword() != null && !query.keyword().isBlank()) {
+            condition.put("keyword", query.keyword());
+        }
+        JsonNode data = client().data(SkywalkingQueries.ALARMS_V2, Map.of("condition", condition));
+        return readAlarms(data.path("queryAlarms").path("msgs"));
+    }
+
+    /**
+     * 老版告警查询（getAlarm，9.x ~ 10.x 唯一入口）
+     * <p>
+     * {@code scope} 传 null 而不是写死 {@code Service}：写死会把实例 / 端点作用域的
+     * 告警全部过滤掉，而前端恰恰要按实体聚合。
+     * </p>
+     *
+     * @param query  查询条件
+     * @param window 时间窗口
+     * @return 告警列表
+     */
+    private List<OtnlAlarm> alarmsLegacy(OtnlQuery query, Window window) {
+        Map<String, Object> vars = new LinkedHashMap<>(4);
+        vars.put("duration", SkywalkingTimes.duration(window.start, window.end, query.step()));
+        vars.put("scope", null);
+        vars.put("keyword", query.keyword() == null ? "" : query.keyword());
+        vars.put("paging", paging(query));
+        JsonNode data = client().data(SkywalkingQueries.ALARMS, vars);
+        return readAlarms(data.path("getAlarm").path("msgs"));
+    }
+
+    /**
+     * 分页变量
+     *
+     * @param query 查询条件
+     * @return 分页 Map
+     */
+    private Map<String, Object> paging(OtnlQuery query) {
+        Map<String, Object> paging = new LinkedHashMap<>(2);
+        paging.put("pageNum", query.pageNumOrOne());
+        paging.put("pageSize", query.pageSizeOrTwenty());
+        return paging;
+    }
+
+    /**
+     * 解析告警消息数组（{@code getAlarm} 与 {@code queryAlarms} 返回结构相同）
+     * <p>
+     * 字段语义以 OAP 的 {@code RunningRule#buildAlarmMessage} 为准，别按字面猜：
+     * </p>
+     * <ul>
+     *   <li>{@code name} —— <b>触发告警的实体名</b>，写的是 {@code AlarmEntity#getName()}：
+     *       Service 作用域就是服务名，Instance 是「实例 of 服务」，Endpoint 是「端点 in 服务」。
+     *       注意这个字段 <b>10.2.0 才进 schema</b>，老版本查不到，只能从事件来源反推；</li>
+     *   <li>{@code message} —— 规则模板格式化后的文案（如
+     *       {@code Successful rate of endpoint X is lower than 75%}）；</li>
+     *   <li>{@code tags} —— <b>规则上自定义的标签</b>（alarm-settings.yml 的 {@code tags:}），
+     *       不是实体标签，因此不能拿来取服务名；</li>
+     *   <li>{@code events} —— {@code [Event!]!}，每项有 name / message / type / source。</li>
+     * </ul>
+     * <p>
+     * {@code ruleName} 在 query-protocol 的 {@code AlarmMessage} 里<b>没有暴露</b>：
+     * 存储层有 rule_name 列，但它只作为 {@code queryAlarms} 的 {@code ruleNames}
+     * <b>过滤条件</b>可用，查询结果里拿不回来。所以这里留空 —— 宁可前端回落，
+     * 也不把实体名冒充规则名。
+     * </p>
+     *
+     * @param msgs 消息数组
+     * @return 告警列表
+     */
+    private List<OtnlAlarm> readAlarms(JsonNode msgs) {
+        List<OtnlAlarm> result = new ArrayList<>();
+        for (JsonNode node : msgs) {
+            List<OtnlTag> tags = new ArrayList<>();
+            for (JsonNode tag : node.path("tags")) {
+                tags.add(OtnlTag.of(tag.path("key").asText(""), tag.path("value").asText("")));
+            }
+            List<String> events = new ArrayList<>();
+            String eventService = null;
+            String eventInstance = null;
+            for (JsonNode event : node.path("events")) {
+                String name = event.path("name").asText("");
+                String text = event.path("message").asText("");
+                String label = name.isEmpty() ? text : (text.isEmpty() ? name : name + ": " + text);
+                if (!label.isEmpty()) {
+                    events.add(label);
+                }
+                if (eventService == null) {
+                    JsonNode source = event.path("source");
+                    String service = source.path("service").asText("");
+                    if (!service.isEmpty()) {
+                        eventService = service;
+                        String instance = source.path("serviceInstance").asText("");
+                        eventInstance = instance.isEmpty() ? null : instance;
+                    }
+                }
+            }
+            // 10.2.0 起直接给实体名；更早的版本靠事件来源拼：
+            // 实例作用域拼成「实例 of 服务」，与服务作用域的口径保持一致。
+            String entity = node.path("name").asText("");
+            if (entity.isEmpty()) {
+                entity = eventService == null ? "" : (eventInstance == null ? eventService : eventInstance + " of " + eventService);
+            }
+            result.add(new OtnlAlarm(node.path("id").asText(""),
+                    entity,
+                    node.path("message").asText(""),
+                    node.path("startTime").asLong(0L),
+                    node.path("scope").asText(""),
+                    eventService,
+                    "",
+                    events, tags));
+        }
+        return result;
     }
 
     @Override
@@ -565,6 +884,188 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
         } catch (Exception e) {
             log.debug("[SkyWalking] 查询健康度失败: {}", rootMessage(e));
             return OtnlHealth.empty("SkyWalking OAP 不可达: " + rootMessage(e));
+        }
+    }
+
+    /**
+     * 剖析任务列表（Profile Task）
+     * <p>
+     * OAP 的 {@code getProfileTaskList} 只按 serviceId / endpointName 过滤，
+     * 服务名需要先换成 ID；服务名为空时逐个服务查询成本太高，因此
+     * 「全局任务列表」在本实现里退化为空 —— 前端本页默认按服务查。
+     * </p>
+     *
+     * @param query 查询条件
+     * @return 任务列表
+     */
+    @Override
+    public List<OtnlProfileTask> profileTasks(OtnlQuery query) {
+        if (query == null || query.serviceName() == null || query.serviceName().isBlank()) {
+            return List.of();
+        }
+        try {
+            String serviceId = serviceId(query.serviceName());
+            Map<String, Object> vars = new LinkedHashMap<>(4);
+            if (serviceId != null) {
+                vars.put("serviceId", serviceId);
+            }
+            String endpoint = query.endpointName();
+            if (endpoint != null && !endpoint.isBlank()) {
+                vars.put("endpointName", endpoint);
+            }
+            JsonNode data = client().data(SkywalkingQueries.PROFILE_TASKS, vars);
+            List<OtnlProfileTask> result = new ArrayList<>();
+            for (JsonNode node : data.path("getProfileTaskList")) {
+                List<String> instances = new ArrayList<>();
+                for (JsonNode log : node.path("logs")) {
+                    String instanceName = log.path("instanceName").asText("");
+                    if (!instanceName.isEmpty() && !instances.contains(instanceName)) {
+                        instances.add(instanceName);
+                    }
+                }
+                result.add(new OtnlProfileTask(node.path("id").asText(""),
+                        node.path("serviceId").asText(""),
+                        node.path("serviceName").asText(query.serviceName()),
+                        node.path("endpointName").asText(""),
+                        node.path("startTime").asLong(0L),
+                        node.path("duration").asInt(0),
+                        node.path("minDurationThreshold").asInt(0),
+                        node.path("dumpPeriod").asInt(0),
+                        node.path("maxSamplingCount").asInt(0),
+                        instances.size(), List.copyOf(instances)));
+            }
+            return result;
+        } catch (Exception e) {
+            log.debug("[SkyWalking] 查询剖析任务失败({}): {}", query.serviceName(), rootMessage(e));
+            return List.of();
+        }
+    }
+
+    /**
+     * 剖析任务采样到的链路片段
+     *
+     * @param taskId 任务 ID
+     * @return 片段列表
+     */
+    @Override
+    public List<OtnlProfiledSegment> profiledSegments(String taskId) {
+        if (taskId == null || taskId.isBlank()) {
+            return List.of();
+        }
+        try {
+            JsonNode data = client().data(SkywalkingQueries.PROFILE_SEGMENTS, Map.of("taskId", taskId));
+            List<OtnlProfiledSegment> result = new ArrayList<>();
+            for (JsonNode node : data.path("getProfileTaskSegments")) {
+                List<String> endpoints = textList(node.path("endpointNames"));
+                String segmentId = "";
+                int spanCount = 0;
+                for (JsonNode span : node.path("spans")) {
+                    spanCount++;
+                    if (segmentId.isEmpty()) {
+                        segmentId = span.path("segmentId").asText("");
+                    }
+                }
+                result.add(new OtnlProfiledSegment(node.path("traceId").asText(""),
+                        segmentId,
+                        node.path("instanceId").asText(""),
+                        node.path("instanceName").asText(""),
+                        endpoints,
+                        node.path("duration").asLong(0L),
+                        SkywalkingTimes.parse(node.path("start").asText(""), "MINUTE"),
+                        spanCount));
+            }
+            return result;
+        } catch (Exception e) {
+            log.debug("[SkyWalking] 查询剖析片段失败({}): {}", taskId, rootMessage(e));
+            return List.of();
+        }
+    }
+
+    /**
+     * 剖析结果分析：取任务下全部片段，交给 OAP 聚合成栈树
+     *
+     * @param taskId 任务 ID
+     * @return 分析结果
+     */
+    @Override
+    public OtnlProfileAnalysis profileAnalysis(String taskId) {
+        if (taskId == null || taskId.isBlank()) {
+            return OtnlProfileAnalysis.empty(taskId, "缺少剖析任务 ID");
+        }
+        List<OtnlProfiledSegment> segments = profiledSegments(taskId);
+        if (segments.isEmpty()) {
+            return OtnlProfileAnalysis.empty(taskId, "该任务没有采样到慢请求（可能是阈值过高或任务尚未开始）");
+        }
+        try {
+            List<Map<String, Object>> queries = new ArrayList<>();
+            for (OtnlProfiledSegment segment : segments) {
+                if (segment.segmentId() == null || segment.segmentId().isBlank()) {
+                    continue;
+                }
+                // 单段分析窗口：以采样到的起点为中心取 1 秒，OAP 按段内 Span 时间过滤
+                Map<String, Object> range = new LinkedHashMap<>(2);
+                range.put("start", segment.startTime());
+                range.put("end", segment.startTime() + Math.max(1000L, segment.durationMs()));
+                Map<String, Object> item = new LinkedHashMap<>(2);
+                item.put("segmentId", segment.segmentId());
+                item.put("timeRange", range);
+                queries.add(item);
+                if (queries.size() >= PROFILE_ANALYZE_SEGMENTS) {
+                    break;
+                }
+            }
+            if (queries.isEmpty()) {
+                return OtnlProfileAnalysis.empty(taskId, "采样的片段缺少 segmentId，无法分析");
+            }
+            JsonNode data = client().data(SkywalkingQueries.PROFILE_ANALYZE, Map.of("queries", queries));
+            JsonNode analyzation = data.path("getSegmentsProfileAnalyze");
+            List<OtnlProfileAnalysis.OtnlProfileStack> trees = new ArrayList<>();
+            for (JsonNode tree : analyzation.path("trees")) {
+                Map<String, List<OtnlProfileAnalysis.OtnlProfileStack>> childrenByParent = new LinkedHashMap<>();
+                List<JsonNode> elements = new ArrayList<>();
+                for (JsonNode element : tree.path("elements")) {
+                    elements.add(element);
+                }
+                // 先建索引再递归：OAP 的元素顺序不保证是拓扑序
+                for (JsonNode element : elements) {
+                    String parentId = element.path("parentId").asText("");
+                    childrenByParent.computeIfAbsent(parentId, key -> new ArrayList<>());
+                }
+                for (JsonNode element : elements) {
+                    String parentId = element.path("parentId").asText("");
+                    childrenByParent.get(parentId).add(new OtnlProfileAnalysis.OtnlProfileStack(
+                            element.path("id").asText(""),
+                            parentId,
+                            element.path("codeSignature").asText(""),
+                            element.path("duration").asInt(0),
+                            element.path("durationChildExcluded").asInt(0),
+                            element.path("count").asInt(0),
+                            List.of()));
+                }
+                for (JsonNode element : elements) {
+                    String id = element.path("id").asText("");
+                    List<OtnlProfileAnalysis.OtnlProfileStack> children = childrenByParent.get(id);
+                    if (children == null || children.isEmpty()) {
+                        continue;
+                    }
+                    String parentId = element.path("parentId").asText("");
+                    List<OtnlProfileAnalysis.OtnlProfileStack> siblings = childrenByParent.get(parentId);
+                    if (siblings != null) {
+                        siblings.replaceAll(stack -> stack.id().equals(id)
+                                ? new OtnlProfileAnalysis.OtnlProfileStack(stack.id(), stack.parentId(),
+                                stack.codeSignature(), stack.durationMs(), stack.selfDurationMs(),
+                                stack.count(), List.copyOf(children))
+                                : stack);
+                    }
+                }
+                for (OtnlProfileAnalysis.OtnlProfileStack root : childrenByParent.getOrDefault("", List.of())) {
+                    trees.add(root);
+                }
+            }
+            return new OtnlProfileAnalysis(taskId, analyzation.path("tip").asText(""), trees);
+        } catch (Exception e) {
+            log.debug("[SkyWalking] 剖析结果分析失败({}): {}", taskId, rootMessage(e));
+            return OtnlProfileAnalysis.empty(taskId, "剖析分析失败: " + rootMessage(e));
         }
     }
 

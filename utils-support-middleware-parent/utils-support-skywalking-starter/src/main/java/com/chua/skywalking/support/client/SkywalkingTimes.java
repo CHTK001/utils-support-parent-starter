@@ -156,6 +156,25 @@ public final class SkywalkingTimes {
     }
 
     /**
+     * 步长对应的毫秒数
+     *
+     * @param step 步长（已规范化或大小写混写均可）
+     * @return 毫秒；无法识别返回 0
+     */
+    public static long stepMillis(String step) {
+        if (step == null || step.isBlank()) {
+            return 0L;
+        }
+        return switch (step.trim().toUpperCase(Locale.ROOT)) {
+            case STEP_SECOND -> 1_000L;
+            case STEP_MINUTE -> 60_000L;
+            case STEP_HOUR -> 3_600_000L;
+            case STEP_DAY -> DAY_MS;
+            default -> 0L;
+        };
+    }
+
+    /**
      * 构建 GraphQL {@code Duration} 变量
      *
      * @param start 起始毫秒
