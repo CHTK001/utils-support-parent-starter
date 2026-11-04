@@ -1,1 +1,2 @@
 opencode=com.chua.deeplearning.support.agent.OpencodeAgent
+opencode-server=com.chua.deeplearning.support.agent.opencode.OpencodeServerAgent

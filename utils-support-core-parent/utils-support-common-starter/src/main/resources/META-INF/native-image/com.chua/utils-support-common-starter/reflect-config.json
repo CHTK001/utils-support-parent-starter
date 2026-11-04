@@ -531,7 +531,7 @@
     "allPublicFields": true
   },
   {
-    "name": "com.chua.common.support.objects.inject.impl.JsrBeanDefinitionServiceInjector",
+    "name": "com.chua.common.support.objects.inject.impl.JsrBeanDefinitionMethodInjector",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -576,7 +576,7 @@
     "allPublicFields": true
   },
   {
-    "name": "com.chua.common.support.scatter.TcpScatterNodeServer",
+    "name": "com.chua.common.support.scatter.node.ScatterTcpNodeServer",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -594,7 +594,7 @@
     "allPublicFields": true
   },
   {
-    "name": "com.chua.common.support.scatter.UdpScatterNodeServer",
+    "name": "com.chua.common.support.scatter.node.UdpScatterNodeServer",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
