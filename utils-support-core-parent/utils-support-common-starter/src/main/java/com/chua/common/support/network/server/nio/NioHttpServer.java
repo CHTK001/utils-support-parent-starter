@@ -549,7 +549,11 @@ public class NioHttpServer extends AbstractServer {
         if (n == 0) {
             return;
         }
+        // 探针: 数据到达服务端 (read() 返回, 落用户态缓冲)
+        WriteProbe.received(n);
         buf.flip();
+        // 探针: 请求开始解析 (feed() 之前)
+        WriteProbe.entered(n);
         int r = st.request.feed(buf);
         buf.compact(); // 保留未消费数据
         if (r == 1) {

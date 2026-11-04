@@ -200,11 +200,6 @@ public class OpencodeServerAgent implements Agent {
     private static final String PLAN_AGENT_NAME = "plan";
 
     /**
-     * 事件流首次连接等待时间
-     */
-    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5L);
-
-    /**
      * 单轮默认超时秒数
      */
     private static final long DEFAULT_TURN_TIMEOUT_SECONDS = 1800L;
@@ -901,7 +896,7 @@ public class OpencodeServerAgent implements Agent {
                     requestInterrupt(context);
                 }
             });
-            turn.awaitConnected();
+            turn.subscribe();
             try {
                 starter.run();
             } catch (Throwable t) {
@@ -1304,16 +1299,17 @@ public class OpencodeServerAgent implements Agent {
         }
 
         /**
-         * 建立事件订阅并等待首次连接。
+         * 建立事件订阅（不阻塞等待握手）。
+         *
+         * <p>opencode 的 SSE 在首条事件产生前不会下发响应头，若在此阻塞等待“已连接”会白白
+         * 拖慢每一轮；而事件本身带 {@code durable.seq}，稍后建立也只会从游标处补齐，不会丢。
+         * 因此这里发起订阅后立即返回，由调用方紧接着发送 prompt。</p>
          */
-        private void awaitConnected() {
+        private void subscribe() {
             long after = resolveCursor(context);
             stream = new OpencodeEventStream(context.client(), context.sessionId(), after,
                     this::onEvent, this::onStreamError);
             stream.start();
-            if (!stream.awaitConnected(CONNECT_TIMEOUT)) {
-                log.debug("[opencode-server] 事件流首次连接未在 {} 内建立，继续执行启动动作", CONNECT_TIMEOUT);
-            }
         }
 
         /**
