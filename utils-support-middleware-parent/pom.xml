@@ -23,6 +23,7 @@
         <module>utils-support-nacos-starter</module>
         <module>utils-support-zookeeper-starter</module>
         <module>utils-support-opentelemetry-starter</module>
+    <module>utils-support-skywalking-starter</module>
         <module>utils-support-apollo-starter</module>
         <module>utils-support-minio-starter</module>
         <module>utils-support-docker-starter</module>
