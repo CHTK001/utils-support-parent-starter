@@ -1,0 +1,2 @@
+# OtnlEngine SPI 注册：名称=实现类
+hotspot=com.chua.runtime.apm.engine.HotspotOtnlEngine
