@@ -1,0 +1,2 @@
+# OtnlEngine SPI 注册：名称=实现类
+opentelemetry=com.chua.opentelemetry.support.engine.OpenTelemetryOtnlEngine

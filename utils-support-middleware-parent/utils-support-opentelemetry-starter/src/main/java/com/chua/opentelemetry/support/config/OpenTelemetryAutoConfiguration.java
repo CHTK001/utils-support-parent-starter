@@ -2,8 +2,10 @@
 package com.chua.opentelemetry.support.config;
 
 import com.chua.opentelemetry.support.client.OpenTelemetryClient;
+import com.chua.opentelemetry.support.client.OpenTelemetryClientHolder;
 import com.chua.opentelemetry.support.engine.OpenTelemetryEngine;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -24,7 +26,7 @@ import org.springframework.context.annotation.Bean;
 @AutoConfiguration
 @EnableConfigurationProperties(OpenTelemetryProperties.class)
 @ConditionalOnProperty(prefix = "opentelemetry", name = "enabled", havingValue = "true", matchIfMissing = true)
-public class OpenTelemetryAutoConfiguration {
+public class OpenTelemetryAutoConfiguration implements DisposableBean {
 
     /**
      * 创建默认 OpenTelemetry 客户端
@@ -42,6 +44,8 @@ public class OpenTelemetryAutoConfiguration {
                 .build();
         log.info("[OpenTelemetry] 客户端初始化: {} (采样器 {}, 采样比 {})",
                 properties.getServiceName(), properties.getSampler(), properties.getRatio());
+        // 登记给 SPI 的 OtnlEngine 使用（引擎是 SPI 无参构造，拿不到 Spring Bean）
+        OpenTelemetryClientHolder.register(client);
         return client;
     }
 
@@ -58,5 +62,15 @@ public class OpenTelemetryAutoConfiguration {
         OpenTelemetryEngine engine = new OpenTelemetryEngine();
         engine.addDataSource("default", client);
         return engine;
+    }
+
+    /**
+     * 容器关闭时注销客户端登记，避免 SPI 引擎继续查一个已关闭的内存导出器
+     *
+     * @throws Exception 关闭异常
+     */
+    @Override
+    public void destroy() throws Exception {
+        OpenTelemetryClientHolder.unregister(null);
     }
 }
