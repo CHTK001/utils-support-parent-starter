@@ -90,7 +90,7 @@
     "com.chua.common.support.objects.environment.ConfigValueExpressionResolver"
   ],
   [
-    "com.chua.common.support.scatter.ScatterNodeServer"
+    "com.chua.common.support.scatter.node.ScatterNodeServer"
   ],
   [
     "com.chua.common.support.scatter.ScatterRemoteClient"
