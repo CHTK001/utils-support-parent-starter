@@ -170,15 +170,35 @@ public class SkywalkingOapClient implements AutoCloseable {
 
     /**
      * 探测 OAP 版本
+     * <p>
+     * 查询失败（连接不上 / HTTP 非 2xx / GraphQL 报错）时把异常抛出去，
+     * 调用方用它判断「OAP 为什么不可用」。
+     * </p>
+     *
+     * @return 版本号，取不到返回 {@code unknown}
+     * @throws SkywalkingException 平台不可达
+     */
+    public String versionChecked() {
+        JsonNode node = data("query { version }");
+        String version = node.path("version").asText("");
+        return version.isEmpty() ? "unknown" : version;
+    }
+
+    /**
+     * 探测 OAP 版本
+     * <p>
+     * 旧版 OAP 不支持 {@code query { version }} 时返回空串（不是报错），
+     * 这种「取不到版本」不构成故障，所以包一层容错：
+     * {@link #versionChecked()} 失败时一律返回 {@code unknown}。
+     * </p>
      *
      * @return 版本号，取不到返回 {@code unknown}
      */
     public String version() {
         try {
-            JsonNode node = data("query { version }");
-            String version = node.path("version").asText("");
-            return version.isEmpty() ? "unknown" : version;
+            return versionChecked();
         } catch (Exception e) {
+            log.debug("[SkyWalking] 探测 OAP 版本失败: {}", e.getMessage());
             return "unknown";
         }
     }

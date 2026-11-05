@@ -209,7 +209,7 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
         }
         OtnlStatus fresh;
         try {
-            String version = client().version();
+            String version = client().versionChecked();
             oapVersion = SkywalkingVersion.parse(version);
             fresh = OtnlStatus.available(name(), version, SkywalkingSettings.url(), "remote", capabilities());
             statusExpireAt = now + STATUS_OK_TTL;

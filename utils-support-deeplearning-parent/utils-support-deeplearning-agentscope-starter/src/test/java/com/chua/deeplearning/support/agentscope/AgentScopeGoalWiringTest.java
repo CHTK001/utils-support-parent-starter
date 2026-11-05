@@ -1,10 +1,10 @@
 package com.chua.deeplearning.support.agentscope;
 
 import com.chua.common.support.ai.agent.Agent;
-import com.chua.deeplearning.support.agentscope.goal.GoalRegistry;
-import com.chua.deeplearning.support.agentscope.goal.GoalState;
-import com.chua.deeplearning.support.agentscope.goal.GoalStatus;
-import com.chua.deeplearning.support.agentscope.goal.SessionGoal;
+import com.chua.common.support.ai.agent.goal.GoalRegistry;
+import com.chua.common.support.ai.agent.goal.GoalState;
+import com.chua.common.support.ai.agent.goal.GoalStatus;
+import com.chua.common.support.ai.agent.goal.SessionGoal;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
