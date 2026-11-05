@@ -41,5 +41,27 @@ public enum OtnlScope {
     /**
      * 端点间关系
      */
-    ENDPOINT_RELATION
+    ENDPOINT_RELATION;
+
+    /**
+     * 按名称解析作用域（支持空值、大小写和方括号之外的任何写法）
+     * <p>
+     * 匹配不上时返回 {@code null}，由 {@link OtnlMetricQuery#scopeOrService()}
+     * 归一化到 {@code SERVICE}，避免非预期的调用抛入 500。
+     * </p>
+     *
+     * @param scope 作用域字符名，支持 {@code null}
+     * @return 对应作用域，找不到返回 {@code null}
+     */
+    public static OtnlScope of(String scope) {
+        if (scope == null || scope.isBlank()) {
+            return null;
+        }
+        for (OtnlScope value : values()) {
+            if (value.name().equalsIgnoreCase(scope)) {
+                return value;
+            }
+        }
+        return null;
+    }
 }

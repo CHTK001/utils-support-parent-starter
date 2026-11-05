@@ -10,8 +10,10 @@ import java.util.Objects;
  *
  * <p>记录 Agent 执行过程中的事件信息，用于追踪和监控。
  *
- * <p>当前唯一生产者是 {@code OpencodeAgent}：逐行解析 {@code opencode run --format json}
- * 输出的 NDJSON，把每行转成本 record，收集到 {@code AgentResponse} 的事件列表。
+ * <p>形态源自 {@code opencode run --format json} 输出的 NDJSON：逐行解析、每行一个事件，
+ * 收集到 {@code AgentResponse} 的事件列表。基于 {@code opencode run} 子进程的实现
+ * （{@code OpencodeAgent}）已移除，本 record 作为 {@link AgentResponse#getEvents()} 的元素类型
+ * 保留以兼容既有读取方；新增实现应优先产出 {@link AgentStreamEvent}（provider 中立的事件模型）。
  * 本 record 实现 {@link Serializable}，跨进程传递依赖 {@code serialVersionUID = 1L}。</p>
  *
  * @param type      事件类型，原样取自 NDJSON 行的 {@code type} 字段，不做枚举收敛；

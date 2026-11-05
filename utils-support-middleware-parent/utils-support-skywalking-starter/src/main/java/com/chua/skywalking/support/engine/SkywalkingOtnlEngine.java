@@ -102,6 +102,15 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
     private static final double SLA_FULL = 10_000D;
 
     /**
+     * OAP {@code Entity} 的 normal 标记。
+     * <p>
+     * 真实 OAP 9.7.0 上：不带该字段（或 false）时，指标查询命中的是「非正常实体」，
+     * 服务/端点指标一律返回 0 且不报错；带 {@code normal=true} 才返回真实值。
+     * </p>
+     */
+    private static final String NORMAL = "normal";
+
+    /**
      * 请求补齐时的并发度
      */
     private static final int ENRICH_PARALLELISM = 4;
@@ -326,7 +335,7 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
                 List<String> endpointNames = textList(node.path("endpointNames"));
                 List<String> traceIds = textList(node.path("traceIds"));
                 String traceId = traceIds.isEmpty() ? node.path("segmentId").asText("") : traceIds.get(0);
-                long start = SkywalkingTimes.parse(node.path("start").asText(""), "MINUTE");
+                long start = startTime(node);
                 long duration = node.path("duration").asLong(0L);
                 result.add(OtnlTrace.summary(traceId,
                         query.serviceName(),
@@ -461,7 +470,12 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
         for (JsonNode node : topology.path("nodes")) {
             String id = node.path("id").asText("");
             String nodeName = node.path("name").asText("");
-            nameById.put(id, nodeName);
+            boolean real = node.path("isReal").asBoolean(true);
+            if (real) {
+                // 只把「真实服务」放进映射：User 等虚拟节点没有 serviceName 实体，
+                // 拿它去查关系指标只会得到 0，进而把边渲染成「0 次调用 / 100% 错误」。
+                nameById.put(id, nodeName);
+            }
             List<String> layers = textList(node.path("layers"));
             nodes.add(new OtnlTopology.OtnlTopologyNode(id, nodeName,
                     node.path("type").asText(""), node.path("isReal").asBoolean(true),
@@ -507,6 +521,12 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
                     entity.put("endpointName", query.endpointName());
                 }
                 default -> entity.put("scope", "All");
+            }
+            // OAP 的 Entity 默认取 normal=false（即"非正常实体"），必须显式 normal=true
+            // 才会命中真实服务/端点的指标；缺这个字段不会报错，只会安静地返回 0，
+            // 表现是"服务列表调用数全 0、错误率恒 100%"。已在真实 OAP 9.7.0 上复现。
+            if (scope != OtnlScope.ALL) {
+                entity.put("normal", true);
             }
             Map<String, Object> condition = new LinkedHashMap<>(2);
             condition.put("name", query.name());
@@ -695,7 +715,7 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
         condition.put("duration", SkywalkingTimes.duration(window.start, window.end, query.step()));
         condition.put("paging", paging(query));
         if (query.serviceName() != null && !query.serviceName().isBlank()) {
-            condition.put("entities", List.of(Map.of("serviceName", query.serviceName())));
+            condition.put("entities", List.of(Map.of("serviceName", query.serviceName(), NORMAL, true)));
         }
         if (query.keyword() != null && !query.keyword().isBlank()) {
             condition.put("keyword", query.keyword());
@@ -1105,11 +1125,18 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
      * @return 补齐后的服务
      */
     private OtnlService enrichService(OtnlService service, Window window, long minutes) {
-        Map<String, Object> entity = Map.of("serviceName", service.name());
+        Map<String, Object> entity = new LinkedHashMap<>(2);
+        entity.put("serviceName", service.name());
+        entity.put(NORMAL, true);
         double cpm = metricValue(SkywalkingQueries.METRIC_SERVICE_CPM, entity, window);
         double resp = metricValue(SkywalkingQueries.METRIC_SERVICE_RESP_TIME, entity, window);
         double p99 = metricValue(SkywalkingQueries.METRIC_SERVICE_P99, entity, window);
         double sla = metricValue(SkywalkingQueries.METRIC_SERVICE_SLA, entity, window);
+        // 分位值默认不开：OAP 未配置百分位采样时 service_p99 恒为 0（不是查不到，是没样本）。
+        // 0ms 的 P99 对列表毫无意义，按「未知」返回，前端显示 —，避免误判成性能极好。
+        if (p99 <= 0D) {
+            p99 = UNKNOWN;
+        }
         return new OtnlService(service.id(), service.name(), service.group(), service.layers(),
                 service.instances(), service.endpoints(),
                 cpm < 0 ? UNKNOWN_LONG : Math.round(cpm * minutes),
@@ -1140,6 +1167,7 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
                 Map<String, Object> entity = new LinkedHashMap<>(2);
                 entity.put("serviceName", serviceName);
                 entity.put("endpointName", endpoint.name());
+                entity.put(NORMAL, true);
                 double cpm = metricValue(SkywalkingQueries.METRIC_ENDPOINT_CPM, entity, window);
                 double resp = metricValue(SkywalkingQueries.METRIC_ENDPOINT_RESP_TIME, entity, window);
                 double sla = metricValue(SkywalkingQueries.METRIC_ENDPOINT_SLA, entity, window);
@@ -1187,6 +1215,8 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
                 Map<String, Object> entity = new LinkedHashMap<>(2);
                 entity.put("serviceName", source);
                 entity.put("destServiceName", target);
+                entity.put(NORMAL, true);
+                entity.put("destNormal", true);
                 double cpm = metricValue(SkywalkingQueries.METRIC_RELATION_CLIENT_CPM, entity, window);
                 double sla = metricValue(SkywalkingQueries.METRIC_RELATION_CLIENT_SLA, entity, window);
                 return new OtnlTopology.OtnlTopologyCall(call.id(), call.source(), call.target(),
@@ -1356,6 +1386,36 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
             }
         }
         return null;
+    }
+
+    /**
+     * 链路起始时间。
+     * <p>
+     * {@code BasicTrace.start} 在 OAP 的 schema 里是 {@code Long!}，返回的是
+     * <b>epoch 毫秒</b>（如 {@code 1793841737406}）；而 metrics 的 {@code id} 才是
+     * {@code yyyyMMddHHmmss_entity} 这种紧凑时间桶。两者不能共用同一个解析器：
+     * 把 epoch 毫秒当时间桶解析会得到 0，表现是「链路列表时间全变成 1970」。
+     * </p>
+     * <p>
+     * 这里优先按数值读（兼容 10~13 位的 epoch 秒/毫秒），非数值时才退回时间桶解析，
+     * 以兼容少数把 start 输出成 Duration 字符串的定制版本。
+     * </p>
+     *
+     * @param node {@code BasicTrace}
+     * @return epoch 毫秒
+     */
+    private static long startTime(JsonNode node) {
+        JsonNode start = node.path("start");
+        if (start.isNumber()) {
+            long value = start.asLong(0L);
+            return value > 0L && value < 100_000_000_000L ? value * 1_000L : value;
+        }
+        String text = start.asText("");
+        if (!text.isBlank() && text.chars().allMatch(Character::isDigit)) {
+            long value = Long.parseLong(text);
+            return value > 0L && value < 100_000_000_000L ? value * 1_000L : value;
+        }
+        return SkywalkingTimes.parse(text, "MINUTE");
     }
 
     /**

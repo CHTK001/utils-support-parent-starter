@@ -129,20 +129,56 @@ public final class SkywalkingTimes {
     }
 
     /**
-     * 解析时间点字符串，失败返回 0
+     * 解析时间点字符串，失败返回 0。
+     * <p>
+     * <b>入参有两种形态，必须都支持：</b>
+     * </p>
+     * <ol>
+     *   <li>{@code readMetricsValues} 返回的 {@code KVInt.id}：形如
+     *       {@code 202611040700_ILLEGAL_ENTITY}，即 {@code <时间桶>_<entityId>}
+     *       （OAP 的 {@code PointOfTime#generateId()} 用 {@code _} 拼 {@code Const.ID_CONNECTOR}）。</li>
+     *   <li>查询侧自己回写的 {@code yyyy-MM-dd HHmm} 这种带分隔符的形态。</li>
+     * </ol>
+     * <p>
+     * 时间桶本身是紧凑格式、<b>没有分隔符</b>（{@code yyyyMMddHHmmss} / {@code yyyyMMddHHmm} /
+     * {@code yyyyMMddHH} / {@code yyyyMMdd}），不是查询 Duration 用的
+     * {@code yyyy-MM-dd HHmm}。这一点在协议文件里看不出来，只能从 OAP 实现确认。
+     * </p>
+     * <p>
+     * 解析不出来时返回 0，调用方据此丢弃该点 —— 所以格式一旦不匹配，
+     * 表现是「指标图整张空白」而不是报错，最容易漏测。
+     * </p>
      *
      * @param text 时间字符串
      * @param step 步长
-     * @return 毫秒时间戳
+     * @return 毫秒时间戳，失败返回 0
      */
     public static long parse(String text, String step) {
         if (text == null || text.isBlank()) {
             return 0L;
         }
         String value = text.trim();
-        // OAP 可能返回 "yyyy-MM-dd HHmmss" 形式的带秒串，即便查询用分钟步长
+        // KVInt.id 是「时间桶_entityId」，时间桶在前，取第一个下划线之前的部分
+        int connector = value.indexOf('_');
+        if (connector > 0) {
+            value = value.substring(0, connector);
+        }
+        // 1) 紧凑时间桶（OAP 存储格式）：yyyyMMddHHmmss / yyyyMMddHHmm / yyyyMMddHH / yyyyMMdd
+        Long bucket = parseCompact(value);
+        if (bucket != null) {
+            return bucket;
+        }
+        // 2) 带分隔符的形态（查询侧自造 / 日志回显）
         for (String candidateStep : new String[]{normalizeStep(step, 0, 0), STEP_SECOND, STEP_MINUTE, STEP_HOUR, STEP_DAY}) {
             try {
+                if (STEP_DAY.equals(candidateStep)) {
+                    // DAY 的格式不带时分秒，LocalDateTime 解析必然失败，得用 LocalDate
+                    return java.time.LocalDate
+                            .parse(value, formatter(candidateStep))
+                            .atStartOfDay(zone())
+                            .toInstant()
+                            .toEpochMilli();
+                }
                 return java.time.LocalDateTime
                         .parse(value, formatter(candidateStep))
                         .atZone(zone())
@@ -153,6 +189,49 @@ public final class SkywalkingTimes {
             }
         }
         return 0L;
+    }
+
+    /**
+     * 解析 OAP 存储用的紧凑时间桶（无分隔符）
+     * <p>
+     * 依次尝试 14 / 12 / 10 / 8 位，分别对应 SECOND / MINUTE / HOUR / DAY。
+     * 位数是唯一的判别依据，因此不需要外部传入步长。
+     * </p>
+     * <p>
+     * <b>这里必须按「位数」逐个字段取，不能用「边界数组长度」做判断。</b>
+     * 曾经用 {@code int[]{0,4,6,10}} 这样的边界数组，再拿数组长度去比 3/4/5，
+     * 结果 12 位（MINUTE）的分钟位被判成「不存在」，整点之后的数据点全被压到整点，
+     * 表现是：查 24 小时分钟级，只回来 25 个点（每小时一个），图上是一天 25 个台阶。
+     * 这个错误用整点、整分的用例测不出来（秒/分恰好为 0 时结果一样），
+     * 必须用「分钟/秒非 0」的时间做断言。
+     * </p>
+     *
+     * @param value 纯数字时间桶
+     * @return 毫秒时间戳；不是紧凑时间桶时返回 null
+     */
+    private static Long parseCompact(String value) {
+        if (value.length() < 8 || !value.chars().allMatch(Character::isDigit)) {
+            return null;
+        }
+        // 位数 -> 各字段的结束下标：年 4 / 月 6 / 日 8 / 时 10 / 分 12 / 秒 14
+        int end = value.length();
+        if (end != 8 && end != 10 && end != 12 && end != 14) {
+            return null;
+        }
+        try {
+            int year = Integer.parseInt(value.substring(0, 4));
+            int month = Integer.parseInt(value.substring(4, 6));
+            int day = Integer.parseInt(value.substring(6, 8));
+            int hour = end >= 10 ? Integer.parseInt(value.substring(8, 10)) : 0;
+            int minute = end >= 12 ? Integer.parseInt(value.substring(10, 12)) : 0;
+            int second = end >= 14 ? Integer.parseInt(value.substring(12, 14)) : 0;
+            return java.time.LocalDateTime.of(year, month, day, hour, minute, second)
+                    .atZone(zone())
+                    .toInstant()
+                    .toEpochMilli();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**

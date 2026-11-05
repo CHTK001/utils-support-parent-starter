@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * 基于单个 {@code opencode serve} + HTTP/SSE 的 Agent 实现。
  *
- * <p>与旧的 {@code OpencodeAgent}（每次运行拉起一次 {@code opencode run} 子进程）相比，
+ * <p>与已移除的旧实现（每次运行拉起一次 {@code opencode run} 子进程）相比，
  * 本实现把 opencode 当作<b>常驻 agent 运行时</b>使用：JVM 内只托管一个 server 进程，
  * 每轮对话对应 server 上的一个会话，正文/思考/工具/权限事件通过 SSE 持久事件流实时取回。
  * 这样做保留了 opencode 的全部 agent 能力（多步工具循环、子 agent、LSP、MCP、技能），

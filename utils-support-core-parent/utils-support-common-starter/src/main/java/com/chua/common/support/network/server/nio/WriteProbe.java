@@ -55,7 +55,7 @@ public final class WriteProbe {
             return;
         }
         long t = System.nanoTime() / 1000;
-        OUT.println("[E] t=" + t + " len=" + len);
+        OUT.println("[E] t=" + t + " len=" + len + " thr=" + Thread.currentThread().getName());
         COUNT_E.incrementAndGet();
         LAST_E.set(t);
         MAX_R2E.updateAndGet(v -> Math.max(v, t - value0(LAST_R2.get())));
@@ -70,7 +70,7 @@ public final class WriteProbe {
             return;
         }
         long t = System.nanoTime() / 1000;
-        OUT.println("[Q] t=" + t + " len=" + len);
+        OUT.println("[Q] t=" + t + " len=" + len + " thr=" + Thread.currentThread().getName());
         COUNT_Q.incrementAndGet();
         MAX_E2Q.updateAndGet(v -> Math.max(v, t - value0(LAST_E.get())));
         LAST_Q.set(t);
@@ -85,7 +85,7 @@ public final class WriteProbe {
             return;
         }
         long t = System.nanoTime() / 1000;
-        OUT.println("[W] t=" + t + " len=" + len);
+        OUT.println("[W] t=" + t + " len=" + len + " thr=" + Thread.currentThread().getName());
         COUNT_W.incrementAndGet();
         MAX_Q2W.updateAndGet(v -> Math.max(v, t - value0(LAST_Q.get())));
         LAST_W.set(t);
@@ -101,7 +101,7 @@ public final class WriteProbe {
             return;
         }
         long t = System.nanoTime() / 1000;
-        OUT.println("[R2] t=" + t + " len=" + len);
+        OUT.println("[R2] t=" + t + " len=" + len + " thr=" + Thread.currentThread().getName());
         COUNT_R2.incrementAndGet();
         LAST_R2.set(t);
     }
@@ -116,7 +116,7 @@ public final class WriteProbe {
             return;
         }
         long t = System.nanoTime() / 1000;
-        OUT.println("[R] t=" + t + " len=" + len);
+        OUT.println("[R] t=" + t + " len=" + len + " thr=" + Thread.currentThread().getName());
         COUNT_R.incrementAndGet();
         LAST_R.set(t);
         MAX_R2R.updateAndGet(v -> Math.max(v, t - value0(LAST_R2.get())));
