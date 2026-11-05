@@ -55,14 +55,12 @@ ${project.build.directory}
 *.dylib
 src/paddle/
 src/lib/
-logs/
 /index/
 .repository.metadata/
 # Native库文件（已移至 utils-native-parent 模块管理）
 *.so
 *.dll
 *.exe
-*.dylib
 # 资源文件
 !/data/**/*.java
 **/audio/
@@ -124,7 +122,6 @@ utils-support-protocol-parent/utils-support-datalake-starter/data/
 *.orig
 *.rej
 *.ctxt
-*.class
 *.log.*
 hs_err_pid*
 replay_pid*
@@ -135,7 +132,6 @@ replay_pid*
 nul
 
 # 错误日志
-*.err
 
 # 备份错误代码
 _backup_error/
@@ -173,7 +169,6 @@ utils-support-extra-parent/utils-support-example-starter/hs_err_pid*.log
 
 
 dependency-reduced-pom.xml
-*.err
 
 # Rust
 **/Cargo.lock
@@ -188,13 +183,11 @@ std_probe2*
 *.gguf
 
 **/models/**/*.gguf
-*.gguf
 
 # 运行时探针/临时诊断文件
 Utf8Probe.java
 hs_err_pid*.log
 replay_pid*.log
-*.class
 stash.diff
 .out/
 
@@ -208,20 +201,14 @@ utils-support-models-parent/
 **/seg/birefnet/birefnet_large_1024.onnx
 
 # 崩溃/回放/JVM dump 与打包临时残留
-replay_pid*
 hs_err*
 thread-dump*
-__pycache__/
-*.orig
 target.locked/
 
 # block: added by cleanup script 2026-11-04 10:30
 # ===== exceptions: dev snapshot / build / runtime junk must never enter git history =====
-*.out
-*.err
 *.err.txt
 *.jsonl
-*.tmp
 *.tmp.*
 **/.agentscope/**
 **/.tmp-*
