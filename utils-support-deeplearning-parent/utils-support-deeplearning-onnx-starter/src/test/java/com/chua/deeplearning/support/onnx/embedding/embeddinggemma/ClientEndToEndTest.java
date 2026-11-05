@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.deeplearning.support.onnx.embedding.embeddinggemma;
 
 import com.chua.common.support.ai.chat.ModelDefinition;
@@ -54,8 +55,8 @@ class ClientEndToEndTest {
                 originalEntry.inputType(), originalEntry.outputType(), originalEntry.capabilityInterface(),
                 originalEntry.relativePath(), originalEntry.downloadUrl(), originalEntry.downloadMirrors(),
                 originalEntry.downloadFiles(), originalEntry.compress(), originalEntry.downloadFileName(),
-                originalEntry.hardwareConfig());
-        System.out.println("[restore] 注册表相对路径恢复为: " + originalEntry.relativePath()); // [P3C E1 豁免]
+                originalEntry.hardwareConfig());        System.out.println("[restore] 注册表相对路径恢复为: " + originalEntry.relativePath()); // [P3C E1 豁免]
+
     }
 
     /**
@@ -77,8 +78,8 @@ class ClientEndToEndTest {
         ModelRegistry.register(MODEL_ID, entry.translatorClassName(), entry.inputType(), entry.outputType(),
                 entry.capabilityInterface(), localModelDir.toAbsolutePath().normalize().toString(),
                 entry.downloadUrl(), entry.downloadMirrors(), entry.downloadFiles(),
-                entry.compress(), entry.downloadFileName(), entry.hardwareConfig());
-        System.out.println("[offline] " + MODEL_ID + " relativePath -> " + entry.relativePath() // [P3C E1 豁免]
+                entry.compress(), entry.downloadFileName(), entry.hardwareConfig());        System.out.println("[offline] " + MODEL_ID + " relativePath -> " + entry.relativePath() // [P3C E1 豁免]
+
                 + " (模型目录: " + localModelDir + ")");
     }
 
@@ -88,8 +89,8 @@ class ClientEndToEndTest {
         List<ModelDefinition> models = client.models();
         assertNotNull(models, "onnx 客户端的模型列表");
         assertTrue(models.stream().anyMatch(d -> MODEL_ID.equals(d.getId())),
-                "onnx 客户端模型列表应包含 " + MODEL_ID + "（String -> float[]）: " + models.size() + " 个模型");
-        System.out.println("[Models] onnx 客户端共有 " + models.size() + " 个模型"); // [P3C E1 豁免]
+                "onnx 客户端模型列表应包含 " + MODEL_ID + "（String -> float[]）: " + models.size() + " 个模型");        System.out.println("[Models] onnx 客户端共有 " + models.size() + " 个模型"); // [P3C E1 豁免]
+
     }
 
     @Test
@@ -103,8 +104,8 @@ class ClientEndToEndTest {
         for (float v : vec) {
             norm += (double) v * v;
         }
-        assertTrue(Math.abs(Math.sqrt(norm) - 1.0) < 1e-4, "L2 norm 应 ~1, actual " + Math.sqrt(norm));
-        System.out.println("[3] vec.length=768 L2_norm=" + Math.sqrt(norm)); // [P3C E1 豁免]
+        assertTrue(Math.abs(Math.sqrt(norm) - 1.0) < 1e-4, "L2 norm 应 ~1, actual " + Math.sqrt(norm));        System.out.println("[3] vec.length=768 L2_norm=" + Math.sqrt(norm)); // [P3C E1 豁免]
+
 
         float[] a = client.model(MODEL_ID).embedding("你好世界");
         double n2 = 0.0;
@@ -112,22 +113,22 @@ class ClientEndToEndTest {
             n2 += (double) v * v;
         }
         assertEquals(768, a.length, "中文句向量也应为 768 维");
-        assertTrue(Math.abs(Math.sqrt(n2) - 1.0) < 1e-4, "中文句向量的 L2 norm 也应 ~1");
-        System.out.println("[4] chinese vec.length=768 L2_norm=" + Math.sqrt(n2)); // [P3C E1 豁免]
+        assertTrue(Math.abs(Math.sqrt(n2) - 1.0) < 1e-4, "中文句向量的 L2 norm 也应 ~1");        System.out.println("[4] chinese vec.length=768 L2_norm=" + Math.sqrt(n2)); // [P3C E1 豁免]
+
 
         float[] b = client.model(MODEL_ID).embedding("Hello world");
         assertEquals(vec.length, b.length);
         for (int i = 0; i < vec.length; i++) {
             assertEquals(vec[i], b[i], "第 " + i + " 维不一致");
-        }
-        System.out.println("[5] deterministic YES: String -> float[] (client)"); // [P3C E1 豁免]
+        }        System.out.println("[5] deterministic YES: String -> float[] (client)"); // [P3C E1 豁免]
+
     }
 
     @Test
     void embeddingClientNullTextThrows() {
         EmbeddingClient client = newClient();
-        assertThrows(IllegalArgumentException.class, () -> client.model(MODEL_ID).embedding(null));
-        System.out.println("[8] null text -> IllegalArgumentException"); // [P3C E1 豁免]
+        assertThrows(IllegalArgumentException.class, () -> client.model(MODEL_ID).embedding(null));        System.out.println("[8] null text -> IllegalArgumentException"); // [P3C E1 豁免]
+
     }
 
     @Test
@@ -142,8 +143,8 @@ class ClientEndToEndTest {
                 n2 += (double) x * x;
             }
             assertTrue(Math.abs(Math.sqrt(n2) - 1.0) < 1e-4, "每行向量的 L2 norm 应 ~1");
-        }
-        System.out.println("[7] batch OK: " + vs.length + " x " + vs[0].length); // [P3C E1 豁免]
+        }        System.out.println("[7] batch OK: " + vs.length + " x " + vs[0].length); // [P3C E1 豁免]
+
     }
 
     /**

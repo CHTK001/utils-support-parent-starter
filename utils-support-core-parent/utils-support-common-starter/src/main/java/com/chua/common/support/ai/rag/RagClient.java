@@ -27,9 +27,11 @@ import java.util.function.Consumer;
  *
  *   // 查询
  *   RagResponse response = client.query("如何配置数据源？");
+// [P3C E1 豁免] 场景化输出，非业务日志
  *   System.out.println(response.answer());
  *
  *   // 流式查询
+// [P3C E1 豁免] 场景化输出，非业务日志
  *   client.queryStream("如何配置数据源？", answer -> System.out.print(answer));
  *
  *   client.close();
@@ -382,5 +384,4 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
      * 关闭
      */
     @Override
-    default void close() {}
-}
+    default void close() {}}

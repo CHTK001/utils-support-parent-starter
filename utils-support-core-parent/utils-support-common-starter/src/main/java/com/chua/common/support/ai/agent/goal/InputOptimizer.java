@@ -1,4 +1,5 @@
-package com.chua.deeplearning.support.agentscope.goal;
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
+package com.chua.common.support.ai.agent.goal;
 
 import com.chua.common.support.ai.chat.ChatClient;
 import org.slf4j.Logger;
@@ -79,7 +80,7 @@ public final class InputOptimizer {
      * @param recentContext 最近上下文，可为 null
      * @return 提示词
      */
-    static String buildPrompt(String rawInput, SessionGoal goal, List<String> recentContext) {
+    public static String buildPrompt(String rawInput, SessionGoal goal, List<String> recentContext) {
         StringBuilder sb = new StringBuilder(512);
         sb.append("你是输入改写助手。请把【用户输入】改写成一条清晰、具体、可直接执行的指令，")
                 .append("保留原意与关键约束，不要添加用户没提的需求。\n");

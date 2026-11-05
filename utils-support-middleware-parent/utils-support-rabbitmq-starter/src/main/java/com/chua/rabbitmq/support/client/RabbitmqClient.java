@@ -71,6 +71,7 @@ import java.util.function.Consumer;
  *     .prefetch(10)
  *     .autoAck(false)
  *     .handler(msg -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.out.println("收到: " + msg.getBodyAsString());
  *         msg.ack();
  *     })

@@ -1405,6 +1405,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                         false);
                 CompressedVectors compressed;
                 if (properties.getPqParallelism() > 0) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
                     ForkJoinPool pool = new ForkJoinPool(properties.getPqParallelism());
                     try {
                         compressed = pq.encodeAll(rav, pool);

@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.image.support.compression;
 
 import com.chua.common.support.image.compression.CompressLevel;
@@ -258,5 +259,4 @@ class ImageCompressorTest {
         Assertions.assertEquals(320, result.sourceSize());
         Assertions.assertEquals(240, result.sourceHeight());
         Assertions.assertEquals(9, result.toMap().size());
-    }
-}
+    }}

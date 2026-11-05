@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.mqtt.support.server;
 
 import com.chua.common.support.network.ProtocolType;
@@ -65,12 +66,15 @@ import java.util.function.Consumer;
  *
  * server.register(new Object() {
  *     &#64;OnOpen
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     public void onConnect() { System.out.println("客户端连接"); }
  *
  *     &#64;OnMessage("order/#")
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     public void onOrder(String payload) { System.out.println("收到: " + payload); }
  *
  *     &#64;OnClose
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     public void onDisconnect() { System.out.println("客户端断开"); }
  * });
  *
@@ -1330,7 +1334,4 @@ public class MqttServer extends AbstractServer {
          * @param username 用户名，CONNECT 未携带时为 {@code null}
          * @param password 密码，CONNECT 未携带时为 {@code null}
          * @return 允许接入返回 true
-         */
-        boolean authenticate(String clientId, String username, String password);
-    }
-}
+         */        boolean authenticate(String clientId, String username, String password);    }}

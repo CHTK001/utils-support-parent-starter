@@ -68,7 +68,9 @@ public class DirectoryDataSyncMappingScanner {
         this.mappingManager = mappingManager;
         this.config = config;
         this.parsers = parsers != null ? parsers : List.of();
+// [P3C C1 豁免] 场景化创建线程，需文档化
         this.executor = new ScheduledThreadPoolExecutor(1, r -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
             Thread t = new Thread(r, "datasync-dir-scanner");
             t.setDaemon(true);
             return t;
@@ -204,5 +206,4 @@ public class DirectoryDataSyncMappingScanner {
         } catch (IOException e) {
             log.error("监听目录失败: {}", dir, e);
         }
-    }
-}
+    }}

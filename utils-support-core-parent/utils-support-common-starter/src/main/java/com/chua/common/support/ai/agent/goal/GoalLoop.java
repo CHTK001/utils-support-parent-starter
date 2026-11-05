@@ -1,4 +1,5 @@
-package com.chua.deeplearning.support.agentscope.goal;
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
+package com.chua.common.support.ai.agent.goal;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -8,7 +9,7 @@ import java.util.function.Function;
  *
  * <p>这是「制定目标直到完成目标为止」的执行体。循环本身不关心模型怎么调、消息怎么落库——
  * 它只依赖一个 {@code turn} 回调（输入提示词，返回本轮回复与令牌消耗）和一个
- * {@link GoalEvaluator}（判断是否达成），因此可以脱离 AgentScope 被单元测试覆盖。
+ * {@link GoalEvaluator}（判断是否达成），因此可以脱离任何具体 Agent 实现被单元测试覆盖。
  *
  * <p><b>有界性</b>：{@code maxRounds} 是硬上限。达到上限仍未达成时判定为 FAILED 并写明原因，
  * 而不是无限重试——无限循环会把「目标没做完」变成「线程永远占着」，与仓库既有纪律相悖。

@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.sync.netty;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -55,6 +56,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
         try {
             server = com.sun.net.httpserver.HttpServer.create(
                     new InetSocketAddress(setting.getHost(), setting.getPort()), 0);
+// [P3C C1 豁免] 场景化创建线程，需文档化
             server.setExecutor(java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
             server.createContext("/api/sync/send", exchange -> {
                 if (!"POST".equals(exchange.getRequestMethod())) {
@@ -286,5 +288,4 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
                 // ignore
             }
         }
-    }
-}
+    }}

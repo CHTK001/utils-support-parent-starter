@@ -49,12 +49,15 @@ import com.chua.common.support.network.server.request.AbstractServerRequest;
  *
  * server.register(new Object() {
  *     &#64;OnOpen
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     public void onConnect() { System.out.println("客户端连接"); }
  *
  *     &#64;OnMessage("order")
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     public void onOrder(String payload) { System.out.println("收到: " + payload); }
  *
  *     &#64;OnClose
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     public void onDisconnect() { System.out.println("客户端断开"); }
  * });
  *
@@ -569,6 +572,4 @@ public class RSocketServer extends AbstractServer {
      * @param sink sink
      * @return fluxsink包装器的结果
      */
-    private record FluxSinkWrapper(reactor.core.publisher.FluxSink<io.rsocket.Payload> sink) {
-    }
-}
+    private record FluxSinkWrapper(reactor.core.publisher.FluxSink<io.rsocket.Payload> sink) {    }}

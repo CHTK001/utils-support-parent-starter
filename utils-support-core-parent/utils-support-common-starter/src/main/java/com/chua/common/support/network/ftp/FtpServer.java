@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.ftp;
 
 import com.chua.common.support.network.ProtocolType;
@@ -88,6 +89,7 @@ public class FtpServer extends AbstractServer implements TcpServer {
     /**
      * 虚拟线程执行器（每连接一虚拟线程，承载控制连接生命周期）
      */
+// [P3C C1 豁免] 场景化创建线程，需文档化
     private final ExecutorService virtualExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
     /**
@@ -387,5 +389,4 @@ public class FtpServer extends AbstractServer implements TcpServer {
      */
     protected void markStopped() {
         this.running = false;
-    }
-}
+    }}

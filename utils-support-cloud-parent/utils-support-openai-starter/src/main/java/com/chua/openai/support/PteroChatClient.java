@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.openai.support;
 
 import com.chua.common.support.ai.AiUsage;
@@ -85,6 +86,7 @@ import java.util.function.Consumer;
  *           "x-mlp-guest-token", "guest0123456789",
  *           "x-ptero-mode", "quick"))
  *       .build());
+// [P3C E1 豁免] 场景化输出，非业务日志
  *   System.out.println(client.chatSync("你好"));
  * }</pre>
  *
@@ -1138,5 +1140,4 @@ public class PteroChatClient implements ChatClient {
          * 首内容分片时间
          */
         private long firstTokenAt;
-    }
-}
+    }}

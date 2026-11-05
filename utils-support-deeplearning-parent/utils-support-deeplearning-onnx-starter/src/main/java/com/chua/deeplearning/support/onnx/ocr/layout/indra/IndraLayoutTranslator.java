@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.deeplearning.support.onnx.ocr.layout.indra;
 
 import ai.onnxruntime.OnnxJavaType;
@@ -49,6 +50,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * List<DetectionInfo> blocks = ImageDetector.create("indra-layout").detect(pngBytes);
  * for (DetectionInfo b : blocks) {
  *     // label 例如 "Section-Header" / "Text" / "Table" / "List-Group" ...
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println(b.label() + " " + b.x() + "," + b.y() + " " + b.width() + "x" + b.height());
  * }
  * }</pre>
@@ -817,5 +819,4 @@ public class IndraLayoutTranslator implements ITranslator<byte[], List<Detection
             groupVocabs.clear();
             prepared = false;
         }
-    }
-}
+    }}

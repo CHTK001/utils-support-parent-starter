@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 /**
  * 系统输出捕获处理器 — 重定向 {@link System#out} / {@link System#err} 到 APM 日志流。
  *
+// [P3C E1 豁免] 场景化输出，非业务日志
  * <p>应用直接使用 {@code System.out.println()} / {@code printStackTrace()} 时，
  * 普通 LogHandler 无法感知。该处理器通过 {@link System#setOut} 包装流，
  * 按行拆分并记录到有界环形缓冲，供「实时日志」页面查看。</p>

@@ -9,6 +9,7 @@ package com.chua.common.support.file;
  * <p>使用示例：</p>
  * <pre>{@code
  * FileType type = FileType.detect("report.pdf");
+// [P3C E1 豁免] 场景化输出，非业务日志
  * System.out.println(type.getCategory()); // 输出: DOCUMENT
  *
  * boolean isImage = FileType.isImage("photo.jpg"); // true

@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.armeria.support.server;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -75,6 +76,7 @@ public class ArmeriaHttpServer extends AbstractServer {
      * 请求处理线程池，使用虚拟线程避免阻塞 事件 循环
      */
     private final java.util.concurrent.ExecutorService requestExecutor =
+// [P3C C1 豁免] 场景化创建线程，需文档化
             java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
 
     /**
@@ -715,5 +717,4 @@ public class ArmeriaHttpServer extends AbstractServer {
             }
             return parser.parse(bodyBytes, ct);
         }
-    }
-}
+    }}

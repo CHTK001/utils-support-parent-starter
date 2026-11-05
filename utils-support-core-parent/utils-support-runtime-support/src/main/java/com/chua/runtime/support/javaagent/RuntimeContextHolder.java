@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * RuntimeManager manager = RuntimeContextHolder.getManager();
  * if (manager != null) {
  *     RuntimeStatus status = manager.status("my-app");
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println("状态: " + status);
  * }
  *
@@ -213,5 +214,4 @@ public final class RuntimeContextHolder {
             MANAGER_REF.set(null);
             QUICK_ARTIFACTS.clear();
         }
-    }
-}
+    }}

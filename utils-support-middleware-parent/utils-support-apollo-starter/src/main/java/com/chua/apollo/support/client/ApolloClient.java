@@ -34,6 +34,7 @@ import java.util.function.Consumer;
  * // 监听配置变更
  * client.config().namespace("database").onChange(event -> {
  *     event.changedKeys().forEach(key -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.out.println(key + " = " + event.getChange(key).getNewValue());
  *     });
  * });

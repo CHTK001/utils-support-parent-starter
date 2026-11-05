@@ -50,6 +50,7 @@ public class CollapseHttpClient implements HttpClient {
     static {
         ThreadFactory factory = Thread.ofVirtual().name("collapse-http-async", 0).factory();
         // [P3C 1.6.4 豁免] 虚拟线程执行器，由 JVM 调度，不存在平台线程/任务队列堆积导致 OOM 的风险
+// [P3C C1 豁免] 场景化创建线程，需文档化
         ASYNC_EXECUTOR = Executors.newThreadPerTaskExecutor(factory);
     }
 

@@ -26,6 +26,7 @@ import java.lang.annotation.Target;
  *
  *     @OnRpcEvent(value = "user.login", produces = "json")
  *     public String onUserLogin(String userId) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.out.println("User logged in: " + userId);
  *         return "{\"status\":\"ok\"}";
  *     }

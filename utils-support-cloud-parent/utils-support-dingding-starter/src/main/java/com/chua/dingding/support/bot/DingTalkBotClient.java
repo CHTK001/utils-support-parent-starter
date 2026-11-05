@@ -797,8 +797,10 @@ public class DingTalkBotClient implements BotClient {
     private void startDispatch() {
         ExecutorService executor = inboundExecutor;
         if (executor == null || executor.isShutdown()) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
             executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<>(), runnable -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
                 Thread thread = new Thread(runnable, "dingtalk-bot-inbound");
                 thread.setDaemon(true);
                 return thread;
@@ -1120,7 +1122,9 @@ public class DingTalkBotClient implements BotClient {
         stopIdleWatchdog();
         ScheduledExecutorService executor = scheduler;
         if (executor == null) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
             executor = new ScheduledThreadPoolExecutor(1, runnable -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
                 Thread thread = new Thread(runnable, "dingtalk-bot-idle");
                 thread.setDaemon(true);
                 return thread;
@@ -2366,7 +2370,4 @@ public class DingTalkBotClient implements BotClient {
          * @return 错误码
          */
         public int getCode() {
-            return code;
-        }
-    }
-}
+            return code;        }    }}

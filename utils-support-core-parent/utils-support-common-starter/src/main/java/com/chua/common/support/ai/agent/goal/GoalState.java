@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.agentscope.goal;
+package com.chua.common.support.ai.agent.goal;
 
 /**
  * 会话目标（Issue）的生命周期状态。

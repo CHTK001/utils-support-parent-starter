@@ -33,6 +33,7 @@ import java.lang.annotation.*;
  * public class ConsoleMessageService implements MessageService {
  *     @Override
  *     public void sendMessage(String message) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.out.println("Console: " + message);
  *     }
  * }
@@ -78,4 +79,3 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE, ElementType.FIELD})
 public @interface SpiDefault {
 }
-

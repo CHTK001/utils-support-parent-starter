@@ -19,6 +19,7 @@ import java.lang.annotation.Target;
  *   public class UserService implements InitializingAware {
  *       &#64;Override
  *       public void afterPropertiesSet() {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *           System.out.println("UserService 初始化完成");
  *       }
  *   }

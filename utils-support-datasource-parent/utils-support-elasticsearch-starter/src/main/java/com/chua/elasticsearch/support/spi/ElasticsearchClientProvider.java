@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.elasticsearch.support.spi;
 
 import com.chua.common.support.spi.annotations.Spi;
@@ -531,5 +532,4 @@ public class ElasticsearchClientProvider implements MiddlewareClientProvider {
         }
         String msg = cur.getMessage();
         return (msg == null || msg.isBlank()) ? cur.getClass().getSimpleName() : msg;
-    }
-}
+    }}

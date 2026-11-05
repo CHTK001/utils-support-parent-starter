@@ -20,6 +20,7 @@ import com.chua.common.support.lang.cmd.CmdResult;
  * // 列出 Java 进程
  * Map<Integer, String> jvms = agentMgr.listPids();
  * for (Map.Entry<Integer, String> entry : jvms.entrySet()) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println(entry.getKey() + " - " + entry.getValue());
  * }
  *
@@ -110,5 +111,4 @@ public interface JavaAgentManager extends AutoCloseable {
     */
     @Override
     default void close() throws Exception {
-    }
-}
+    }}

@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * new DirectoryWatcher("/path/to/watch")
  *     .addListener(new SimplePolledListener())
  *     .addListener((event, observer) ->
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.out.println("收到事件: " + event + " -> " + observer.getFullPath()))
  *     .start();
  * }</pre>

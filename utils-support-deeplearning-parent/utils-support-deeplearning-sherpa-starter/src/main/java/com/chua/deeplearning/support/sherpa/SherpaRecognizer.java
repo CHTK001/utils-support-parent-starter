@@ -28,6 +28,7 @@ import java.util.Locale;
  *         .vad("/models/silero_vad.onnx")  // 可选：开启 VAD 分段，长音频更稳
  *         .build()) {
  *     SherpaRecognitionResult result = recognizer.recognize(Path.of("a.wav"));
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println(result.getText());
  * }
  * }</pre>

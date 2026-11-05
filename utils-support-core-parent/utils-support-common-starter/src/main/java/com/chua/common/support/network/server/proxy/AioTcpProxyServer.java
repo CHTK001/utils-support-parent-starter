@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.server.proxy;
 
 import com.chua.common.support.network.ProtocolType;
@@ -108,6 +109,7 @@ public class AioTcpProxyServer extends AbstractServer {
             serverChannel.bind(new InetSocketAddress(setting.getHost(), setting.getPort()),
                     setting.resolveBacklog(MIN_BACKLOG));
             setting.setPort(((InetSocketAddress) serverChannel.getLocalAddress()).getPort());
+// [P3C C1 豁免] 场景化创建线程，需文档化
             executor = Executors.newVirtualThreadPerTaskExecutor();
             acceptLoop();
             log.info("AIO TcpProxy started on {}:{} -> {} (iocpThreads={})",
@@ -386,5 +388,4 @@ public class AioTcpProxyServer extends AbstractServer {
     @Override
     public int getActiveConnections() {
         return metrics.getActiveConnections();
-    }
-}
+    }}

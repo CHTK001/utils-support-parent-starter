@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.ai.chat;
 
 import com.chua.common.support.ai.chat.usage.UsagePersistChatClient;
@@ -40,9 +41,13 @@ import java.util.function.Consumer;
  *       .model("gpt-4")
  *       .chat("讲个故事", response -> {
  *           switch (response.getState()) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *               case START     -> System.out.println("开始");
+// [P3C E1 豁免] 场景化输出，非业务日志
  *               case STREAMING -> System.out.print(response.getContent());
+// [P3C E1 豁免] 场景化输出，非业务日志
  *               case STOP      -> System.out.println("\n完成");
+// [P3C E1 豁免] 场景化输出，非业务日志
  *               case ERROR     -> System.err.println(response.getErrorMessage());
  *           }
  *       });
@@ -932,8 +937,4 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
      *  callers 通过 {@code ChatClient#chatSync} 链路下发拼接好的 prompt。</p>
      *
      * @return 协议类型
-     */
-    default ChatClientType type() {
-        return ChatClientType.OPENAI_COMPATIBLE;
-    }
-}
+     */    default ChatClientType type() {        return ChatClientType.OPENAI_COMPATIBLE;    }}

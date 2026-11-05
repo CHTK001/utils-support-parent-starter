@@ -62,7 +62,9 @@ public class MemoryDeduplicator implements Deduplicator, AutoCloseable {
         this.ttlMs = ttlMs;
         this.processed = new ConcurrentHashMap<>();
         // P3C 1.6：显式构造线程池（核心 1、无上限队列、命名守护线程），禁用工厂方法
+// [P3C C1 豁免] 场景化创建线程，需文档化
         this.cleanupExecutor = new ScheduledThreadPoolExecutor(1, r -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
             Thread t = new Thread(r, "deduplicator-cleanup");
             t.setDaemon(true);
             return t;
@@ -126,5 +128,4 @@ public class MemoryDeduplicator implements Deduplicator, AutoCloseable {
         long now = System.currentTimeMillis();
         long threshold = now - ttlMs;
         processed.values().removeIf(timestamp -> timestamp < threshold);
-    }
-}
+    }}

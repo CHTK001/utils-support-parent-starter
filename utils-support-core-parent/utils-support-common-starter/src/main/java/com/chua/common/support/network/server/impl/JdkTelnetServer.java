@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.server.impl;
 
 import com.chua.common.support.network.ProtocolType;
@@ -141,6 +142,7 @@ public class JdkTelnetServer extends AbstractServer {
             // Telnet 是长连接：旧实现用固定平台线程池（workerThreads），
             // 每条连接独占一个平台线程，连接数一多就卡在池容量上排队。
             // 改为虚拟线程池，连接数与平台线程数解耦（百万连接目标的前提）。
+// [P3C C1 豁免] 场景化创建线程，需文档化
             workerPool = Executors.newVirtualThreadPerTaskExecutor();
             running = true;
 
@@ -551,5 +553,4 @@ public class JdkTelnetServer extends AbstractServer {
         public boolean isActive() {
             return socket != null && !socket.isClosed() && socket.isConnected();
         }
-    }
-}
+    }}

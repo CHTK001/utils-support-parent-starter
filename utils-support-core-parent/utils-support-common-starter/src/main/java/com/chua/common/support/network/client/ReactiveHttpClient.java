@@ -18,6 +18,7 @@ import java.util.List;
  * // 简单 GET
  * client.executeAsync(ClientRequest.of("http://api.example.com/users"))
  *     .timeout(Duration.ofSeconds(5))
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     .subscribe(resp -> System.out.println(resp.getBodyString()));
  *
  * // 同步方法仍可用

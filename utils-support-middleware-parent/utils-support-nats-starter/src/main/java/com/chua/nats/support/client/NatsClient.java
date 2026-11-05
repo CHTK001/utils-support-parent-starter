@@ -31,6 +31,7 @@ import java.util.function.Consumer;
  * // --- Core Pub/Sub ---
  * client.publish().subject("orders.create").body("{\"id\":1}").send();
  * client.subscribe().subject("orders.>").handler(msg -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println("收到: " + new String(msg.getData()));
  * }).start();
  *

@@ -27,6 +27,7 @@ public interface SyncProvider {
      * @param consumer 视Ƶ信Ϣ消费处理器，用于处理获ȡ到的ÿ个视Ƶ信Ϣ
      *                 <pre><code>
      *                             Consumer<VideoInfoResult> consumer = videoInfo -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
      *                                 System.out.println("处理视Ƶ: " + videoInfo.getVideoTitle());
      *                             };
      *                             </code></pre>
@@ -34,4 +35,3 @@ public interface SyncProvider {
      */
     void fetchVideos(VideoSyncConfig config, BiConsumer<VideoInfoResult, VideoSyncProcessConfig> consumer);
 }
-

@@ -16,11 +16,13 @@ import com.chua.common.support.task.pipeline.core.PipelineContext;
  * .addListener(new PipelineListener() {
  *     @Override
  *     public void onStart(PipelineContext<?> ctx) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.out.println("Pipeline started: " + ctx.getPipelineId());
  *     }
  *
  *     @Override
  *     public void beforeNode(PipelineContext<?> ctx) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.out.println("Enter node: " + ctx.getCurrentNodeId());
  *     }
  *
@@ -123,5 +125,4 @@ public interface PipelineListener {
      * @param context 当前流水线上下文（含 历史 等执行状态）
      */
     default void onDraw(PipelineContext<?> context) {
-    }
-}
+    }}

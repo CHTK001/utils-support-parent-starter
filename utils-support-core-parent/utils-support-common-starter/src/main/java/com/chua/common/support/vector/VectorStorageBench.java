@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.vector;
 
 import java.nio.file.Files;
@@ -29,22 +30,22 @@ public class VectorStorageBench {
      * @throws Exception 异常
     */
     public static void main(String[] args) throws Exception {
-        testDir = Files.createTempDirectory("vector-bench-");
-        System.out.println("========================================"); // [P3C E1 豁免]
-        System.out.println("向量存储性能测试"); // [P3C E1 豁免]
-        System.out.println("维度: " + DIMENSION + ", 数量: " + COUNT); // [P3C E1 豁免]
-        System.out.println("测试目录: " + testDir.toAbsolutePath()); // [P3C E1 豁免]
-        System.out.println("========================================\n"); // [P3C E1 豁免]
+        testDir = Files.createTempDirectory("vector-bench-");        System.out.println("========================================"); // [P3C E1 豁免]
+        System.out.println("向量存储性能测试"); // [P3C E1 豁免]
+        System.out.println("维度: " + DIMENSION + ", 数量: " + COUNT); // [P3C E1 豁免]
+        System.out.println("测试目录: " + testDir.toAbsolutePath()); // [P3C E1 豁免]
+        System.out.println("========================================\n"); // [P3C E1 豁免]
 
-        testMemoryStorage();
-        System.out.println(); // [P3C E1 豁免]
-        testDefaultHybrid();
-        System.out.println(); // [P3C E1 豁免]
+
+        testMemoryStorage();        System.out.println(); // [P3C E1 豁免]
+
+        testDefaultHybrid();        System.out.println(); // [P3C E1 豁免]
+
         testLargeScale();
 
         // 清理
-        deleteRecursively(testDir);
-        System.out.println("\n测试目录已清理: " + testDir); // [P3C E1 豁免]
+        deleteRecursively(testDir);        System.out.println("\n测试目录已清理: " + testDir); // [P3C E1 豁免]
+
     }
 
     // ==================== 工具方法 ====================
@@ -83,12 +84,12 @@ public class VectorStorageBench {
                     .forEach(p -> {
                         try {
                             Files.delete(p);
-                        } catch (Exception e) {
-                            System.err.println("Failed to delete " + p + ": " + e.getMessage()); // [P3C E1 豁免]
+                        } catch (Exception e) {                            System.err.println("Failed to delete " + p + ": " + e.getMessage()); // [P3C E1 豁免]
+
                         }
                     });
-        } catch (Exception e) {
-            System.err.println("Failed to walk temp dir " + dir + ": " + e.getMessage()); // [P3C E1 豁免]
+        } catch (Exception e) {            System.err.println("Failed to walk temp dir " + dir + ": " + e.getMessage()); // [P3C E1 豁免]
+
         }
     }
 
@@ -98,8 +99,8 @@ public class VectorStorageBench {
      * @param ops ops
      * @param ms ms
      */
-    private static void printThroughput(String label, long ops, long ms) {
-        System.out.printf("[%s] %.0f ops/s (%.0f MSOPS)%n", label, ops * 1000.0 / Math.max(ms, 1), // [P3C E1 豁免]
+    private static void printThroughput(String label, long ops, long ms) {        System.out.printf("[%s] %.0f ops/s (%.0f MSOPS)%n", label, ops * 1000.0 / Math.max(ms, 1), // [P3C E1 豁免]
+
                 ops * 1000.0 / Math.max(ms, 1) / 1_000_000.0);
     }
 
@@ -108,8 +109,8 @@ public class VectorStorageBench {
     /**
      * 测试内存storage。
      */
-    private static void testMemoryStorage() {
-        System.out.println("【1. MemoryVectorStorage】"); // [P3C E1 豁免]
+    private static void testMemoryStorage() {        System.out.println("【1. MemoryVectorStorage】"); // [P3C E1 豁免]
+
         int dim = DIMENSION;
         MemoryVectorStorage storage = new MemoryVectorStorage(dim, VectorCompareAlgorithm.cosine());
 
@@ -141,10 +142,10 @@ public class VectorStorageBench {
             }
             searchTotalNs += (System.nanoTime() - start);
         }
-        long nsPerCall = searchTotalNs / (MEASURE_ROUNDS * 100L);
-        System.out.printf("  单次搜索 topK=%d: %d us, %.0f QPS%n", TOP_K, nsPerCall / 1000, // [P3C E1 豁免]
-                1_000_000.0 / Math.max(nsPerCall, 1));
-        System.out.printf("  存储大小: %d 条%n", storage.size()); // [P3C E1 豁免]
+        long nsPerCall = searchTotalNs / (MEASURE_ROUNDS * 100L);        System.out.printf("  单次搜索 topK=%d: %d us, %.0f QPS%n", TOP_K, nsPerCall / 1000, // [P3C E1 豁免]
+
+                1_000_000.0 / Math.max(nsPerCall, 1));        System.out.printf("  存储大小: %d 条%n", storage.size()); // [P3C E1 豁免]
+
         storage.close();
     }
 
@@ -155,8 +156,8 @@ public class VectorStorageBench {
      * @return 返回值
      * @throws Exception 异常
     */
-    private static void testDefaultHybrid() throws Exception {
-        System.out.println("【2. DefaultVectorStorage (HYBRID)】"); // [P3C E1 豁免]
+    private static void testDefaultHybrid() throws Exception {        System.out.println("【2. DefaultVectorStorage (HYBRID)】"); // [P3C E1 豁免]
+
         int dim = DIMENSION;
 
         // 预热
@@ -189,8 +190,8 @@ public class VectorStorageBench {
         storage.close();
         DefaultVectorStorage loaded = DefaultVectorStorage.builder()
                 .dimension(dim).dir(testDir.resolve("hybrid"))
-                .mode(DefaultVectorStorage.Mode.HYBRID).shardSize(FLUSH_BATCH).build();
-        System.out.printf("  加载后大小: %d 条, 分片数: %d%n", loaded.size(), // [P3C E1 豁免]
+                .mode(DefaultVectorStorage.Mode.HYBRID).shardSize(FLUSH_BATCH).build();        System.out.printf("  加载后大小: %d 条, 分片数: %d%n", loaded.size(), // [P3C E1 豁免]
+
                 ((DefaultVectorStorage) loaded).getShardCount());
 
         // 搜索
@@ -203,8 +204,8 @@ public class VectorStorageBench {
             }
             searchTotalNs += (System.nanoTime() - start);
         }
-        long nsPerCall = searchTotalNs / (MEASURE_ROUNDS * 100L);
-        System.out.printf("  单次搜索 topK=%d (已缓存): %d us, %.0f QPS%n", TOP_K, nsPerCall / 1000, // [P3C E1 豁免]
+        long nsPerCall = searchTotalNs / (MEASURE_ROUNDS * 100L);        System.out.printf("  单次搜索 topK=%d (已缓存): %d us, %.0f QPS%n", TOP_K, nsPerCall / 1000, // [P3C E1 豁免]
+
                 1_000_000.0 / Math.max(nsPerCall, 1));
 
  // 对比纯 文件 模式（每次重读磁盘）
@@ -219,10 +220,10 @@ public class VectorStorageBench {
             }
             fileTotalNs += (System.nanoTime() - start);
         }
-        long fileNsPerCall = fileTotalNs / (MEASURE_ROUNDS * 100L);
-        System.out.printf("  单次搜索 topK=%d (纯磁盘): %d us, %.0f QPS%n", TOP_K, fileNsPerCall / 1000, // [P3C E1 豁免]
-                1_000_000.0 / Math.max(fileNsPerCall, 1));
-        System.out.printf("  HYBRID 比 FILE 快 %.1fx%n", (double) fileNsPerCall / Math.max(nsPerCall, 1)); // [P3C E1 豁免]
+        long fileNsPerCall = fileTotalNs / (MEASURE_ROUNDS * 100L);        System.out.printf("  单次搜索 topK=%d (纯磁盘): %d us, %.0f QPS%n", TOP_K, fileNsPerCall / 1000, // [P3C E1 豁免]
+
+                1_000_000.0 / Math.max(fileNsPerCall, 1));        System.out.printf("  HYBRID 比 FILE 快 %.1fx%n", (double) fileNsPerCall / Math.max(nsPerCall, 1)); // [P3C E1 豁免]
+
 
         loaded.close();
         fileOnly.close();
@@ -235,8 +236,8 @@ public class VectorStorageBench {
      * @return 返回值
      * @throws Exception 异常
     */
-    private static void testLargeScale() throws Exception {
-        System.out.println("【3. 大规模 - 100万条向量】"); // [P3C E1 豁免]
+    private static void testLargeScale() throws Exception {        System.out.println("【3. 大规模 - 100万条向量】"); // [P3C E1 豁免]
+
         int dim = DIMENSION;
         int largeCount = 1_000_000;
         int largeFlushBatch = 20_000;
@@ -244,8 +245,8 @@ public class VectorStorageBench {
         DefaultVectorStorage storage = DefaultVectorStorage.builder()
                 .dimension(dim).dir(testDir.resolve("large"))
                 .mode(DefaultVectorStorage.Mode.HYBRID).shardSize(largeFlushBatch).build();
+        System.out.println("  写入 100 万条..."); // [P3C E1 豁免]
 
-        System.out.println("  写入 100 万条..."); // [P3C E1 豁免]
         long t0 = System.nanoTime();
         for (int i = 0; i < largeCount; i++) {
             storage.add("id_" + i, randomVector(dim));
@@ -257,18 +258,18 @@ public class VectorStorageBench {
         long writeMs = (System.nanoTime() - t0) / 1_000_000L;
         printThroughput("写入+刷盘", largeCount, writeMs);
 
-        // 统计分片数
-        System.out.printf("  分片文件数: %d, 总大小: %d 条%n", // [P3C E1 豁免]
+        // 统计分片数        System.out.printf("  分片文件数: %d, 总大小: %d 条%n", // [P3C E1 豁免]
+
                 ((DefaultVectorStorage) storage).getShardCount(), storage.size());
 
         storage.close();
 
-        // 重新加载
-        System.out.println("  重新加载并搜索..."); // [P3C E1 豁免]
+        // 重新加载        System.out.println("  重新加载并搜索..."); // [P3C E1 豁免]
+
         DefaultVectorStorage loaded = DefaultVectorStorage.builder()
                 .dimension(dim).dir(testDir.resolve("large"))
-                .mode(DefaultVectorStorage.Mode.HYBRID).shardSize(largeFlushBatch).build();
-        System.out.printf("  加载后大小: %d 条, 分片数: %d%n", loaded.size(), // [P3C E1 豁免]
+                .mode(DefaultVectorStorage.Mode.HYBRID).shardSize(largeFlushBatch).build();        System.out.printf("  加载后大小: %d 条, 分片数: %d%n", loaded.size(), // [P3C E1 豁免]
+
                 ((DefaultVectorStorage) loaded).getShardCount());
 
         float[] query = randomVector(dim);
@@ -280,8 +281,8 @@ public class VectorStorageBench {
             }
             searchTotalNs += (System.nanoTime() - start);
         }
-        long nsPerCall = searchTotalNs / 50L;
-        System.out.printf("  单次搜索 topK=10: %d us, %.0f QPS%n", nsPerCall / 1000, // [P3C E1 豁免]
+        long nsPerCall = searchTotalNs / 50L;        System.out.printf("  单次搜索 topK=10: %d us, %.0f QPS%n", nsPerCall / 1000, // [P3C E1 豁免]
+
                 1_000_000.0 / Math.max(nsPerCall, 1));
 
  // 纯 文件 模式对比
@@ -296,10 +297,10 @@ public class VectorStorageBench {
             }
             fileTotalNs += (System.nanoTime() - start);
         }
-        long fileNsPerCall = fileTotalNs / 50L;
-        System.out.printf("  纯FILE单次搜索 topK=10: %d us, %.0f QPS%n", fileNsPerCall / 1000, // [P3C E1 豁免]
-                1_000_000.0 / Math.max(fileNsPerCall, 1));
-        System.out.printf("  HYBRID 比 FILE 快 %.1fx%n", (double) fileNsPerCall / Math.max(nsPerCall, 1)); // [P3C E1 豁免]
+        long fileNsPerCall = fileTotalNs / 50L;        System.out.printf("  纯FILE单次搜索 topK=10: %d us, %.0f QPS%n", fileNsPerCall / 1000, // [P3C E1 豁免]
+
+                1_000_000.0 / Math.max(fileNsPerCall, 1));        System.out.printf("  HYBRID 比 FILE 快 %.1fx%n", (double) fileNsPerCall / Math.max(nsPerCall, 1)); // [P3C E1 豁免]
+
 
         loaded.close();
         fileOnly.close();

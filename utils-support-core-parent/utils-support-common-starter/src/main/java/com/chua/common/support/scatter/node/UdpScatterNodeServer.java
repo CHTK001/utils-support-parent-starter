@@ -53,6 +53,7 @@ public class UdpScatterNodeServer extends AbstractServer {
             socket = new DatagramSocket(new InetSocketAddress(setting.getHost(), setting.getPort()));
             setting.setPort(socket.getLocalPort());
             running = true;
+// [P3C C1 豁免] 场景化创建线程，需文档化
             workerPool = Executors.newVirtualThreadPerTaskExecutor();
             workerPool.submit(this::receiveLoop);
             log.info("Scatter UdpNodeServer started on {}:{}", setting.getHost(), setting.getPort());

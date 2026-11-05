@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
  * // 实时输出
  * tshark.request()
  *         .args("--version")
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         .executeWithOutput(line -> System.out.println(line));
  * }</pre>
  *

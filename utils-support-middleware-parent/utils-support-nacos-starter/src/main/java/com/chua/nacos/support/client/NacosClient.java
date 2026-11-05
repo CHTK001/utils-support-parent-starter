@@ -44,12 +44,14 @@ import java.util.function.Consumer;
  *
  * // 监听配置变更
  * client.config().dataId("app.yaml").group("DEFAULT_GROUP").onChange(newConfig -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println("配置变更: " + newConfig);
  * });
  * }</pre>tInstances();
  *
  * // 监听配置变更
  * client.config().dataId("app.yaml").group("DEFAULT_GROUP").onChange(newConfig -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println("配置变更: " + newConfig);
  * });
  * }</pre>
@@ -755,5 +757,4 @@ public class NacosClient implements AutoCloseable {
         public NacosClientException(String message, Throwable cause) {
             super(message, cause);
         }
-    }
-}
+    }}

@@ -34,6 +34,7 @@ import java.util.function.Consumer;
  *
  * // 订阅消息
  * client.consumer().topic("order").handler(msg -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println("收到: " + msg.value());
  * }).subscribe();
  *

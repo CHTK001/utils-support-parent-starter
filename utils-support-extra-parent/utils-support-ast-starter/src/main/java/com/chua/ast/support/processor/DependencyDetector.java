@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * if (detector.isPresent("org.slf4j.Logger")) {
  *     // slf4j 可用，生成 log.info(...)
  * } else {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     // slf4j 不可用，生成 System.out.println(...)
  * }
  * }</pre>}

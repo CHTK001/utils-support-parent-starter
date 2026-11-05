@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.starter.datasync.scheduler;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -221,7 +222,9 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     public DefaultSyncDataSchedulerManager(DataSyncServer dataSyncServer, SchedulerConfig config) {
         this.dataSyncServer = dataSyncServer;
         this.config = config;
+// [P3C C1 豁免] 场景化创建线程，需文档化
         this.scheduler = new ScheduledThreadPoolExecutor(1, r -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
             Thread t = new Thread(r, SCHEDULER_THREAD_NAME_PREFIX + r.hashCode());
             t.setDaemon(true);
             return t;
@@ -608,6 +611,4 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
             source.writeOffset(offset);
         } catch (Exception e) {
             log.warn("持久化 offset 失败: mappingId={}, sourceId={}", mapping.mappingId(), source.sourceId(), e);
-        }
-    }
-}
+        }    }}

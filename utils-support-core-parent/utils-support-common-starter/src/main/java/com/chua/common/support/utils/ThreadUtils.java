@@ -147,6 +147,7 @@ public class ThreadUtils {
      * @return 缓存线程池
      */
     public static ExecutorService newCachedThreadPool(final String name) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         return new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<>(), newThreadFactory(name));
     }
@@ -177,6 +178,7 @@ public class ThreadUtils {
      * @return 缓存线程池
      */
     public static ExecutorService newCachedThreadPool(ThreadFactory threadFactory) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         return new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<>(), threadFactory);
     }
@@ -261,6 +263,7 @@ public class ThreadUtils {
      * @return 固定大小线程池
      */
     public static ExecutorService newFixedThreadExecutor(int thread, String name) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         return new ThreadPoolExecutor(thread, thread,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(),
@@ -297,6 +300,7 @@ public class ThreadUtils {
      * @return 固定大小线程池
      */
     public static ExecutorService newFixedThreadExecutor(int thread, ThreadFactory threadFactory) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         return new ThreadPoolExecutor(thread, thread,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(),
@@ -327,6 +331,7 @@ public class ThreadUtils {
      * @return 固定大小线程池
      */
     public static ExecutorService newFixedThreadPool(int nThreads, String name) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         return new ThreadPoolExecutor(nThreads, nThreads,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(),
@@ -344,6 +349,7 @@ public class ThreadUtils {
      * @return 固定大小线程池
      */
     public static ExecutorService newFixedThreadPool(int nThreads, ThreadFactory threadFactory) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         return new ThreadPoolExecutor(nThreads, nThreads,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(),
@@ -468,6 +474,7 @@ public class ThreadUtils {
      * @return 定时任务线程池
      */
     public static ScheduledExecutorService newScheduledThreadPoolExecutor(final int thread) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         return new ScheduledThreadPoolExecutor(thread, newThreadFactory("GLOBAL-" + DEFAULT + "-SCHEDULE-POOL"));
     }
 
@@ -519,6 +526,7 @@ public class ThreadUtils {
      * @return 定时任务线程池
      */
     public static ScheduledExecutorService newScheduledThreadPoolExecutor(final int thread, final String name) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         return new ScheduledThreadPoolExecutor(thread, newThreadFactory(name));
     }
 
@@ -534,6 +542,7 @@ public class ThreadUtils {
      */
     public static ScheduledExecutorService newScheduledThreadPoolExecutor(final int thread,
             final ThreadFactory threadFactory) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         return new ScheduledThreadPoolExecutor(thread, threadFactory);
     }
 
@@ -547,6 +556,7 @@ public class ThreadUtils {
      * @return 定时任务线程池
      */
     public static ScheduledExecutorService newScheduledThreadPoolExecutor(final String name) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         return new ScheduledThreadPoolExecutor(1, newThreadFactory(name));
     }
 
@@ -597,6 +607,7 @@ public class ThreadUtils {
      * @return 单线程执行器
      */
     public static ExecutorService newSingleThreadExecutor(String name) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         return new ThreadPoolExecutor(
                 SINGLETON,
                 SINGLETON,
@@ -634,6 +645,7 @@ public class ThreadUtils {
      * @return 单线程执行器
      */
     public static ExecutorService newSingleThreadExecutor(ThreadFactory threadFactory) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         return new ThreadPoolExecutor(
                 SINGLETON,
                 SINGLETON,
@@ -1025,6 +1037,7 @@ public class ThreadUtils {
      * @return 单线程定时任务执行器
      */
     public static ScheduledExecutorService newSingleThreadScheduledExecutor(ThreadFactory threadFactory) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         return new DelegatedScheduledExecutorServiceImpl(new ScheduledThreadPoolExecutor(1, threadFactory));
     }
 
@@ -1093,6 +1106,7 @@ public class ThreadUtils {
      * @return 定时任务线程池
      */
     public static ScheduledExecutorService newScheduledThreadPool(int numThreads, String name) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         return new ScheduledThreadPoolExecutor(numThreads, new NamedThreadFactory(name));
     }
 
@@ -1364,17 +1378,4 @@ public class ThreadUtils {
     /**
      * 优雅关闭线程池（空安全）。
      * <p>
-     * 调用前检查 空，不再接受新任务，等待已有任务完成。
-     * </p>
-     *
-     * @param executorService 待关闭的线程池
-     */
-    public static void shutdown(ExecutorService executorService) {
-        if (executorService != null) {
-            executorService.shutdown();
-        }
-    }
-
-
-
-}
+     * 调用前检查 空，不再接受新任务，等待已有任务完成。     * </p>     *     * @param executorService 待关闭的线程池     */    public static void shutdown(ExecutorService executorService) {        if (executorService != null) {            executorService.shutdown();        }    }}

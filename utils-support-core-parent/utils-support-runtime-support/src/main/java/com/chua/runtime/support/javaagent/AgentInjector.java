@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.runtime.support.javaagent;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -35,6 +36,7 @@ import java.util.concurrent.TimeUnit;
  *         .agentPath(Path.of("/path/to/runtime-starter.jar"))
  *         .options("log_level=DEBUG,startup_timeout=60000")
  *         .timeout(30, TimeUnit.SECONDS)
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         .callback(line -> System.out.println("[AGENT] " + line))
  *         .inject();
  *
@@ -612,6 +614,4 @@ public class AgentInjector {
          */
         public java.util.List<java.util.Map<String, Object>> injectAll() {
             return build().injectAll();
-        }
-    }
-}
+        }    }}

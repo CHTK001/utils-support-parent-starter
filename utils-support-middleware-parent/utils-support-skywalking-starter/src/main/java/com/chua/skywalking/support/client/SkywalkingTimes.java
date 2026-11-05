@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.skywalking.support.client;
 
 import java.time.Instant;
@@ -135,8 +136,10 @@ public final class SkywalkingTimes {
      * </p>
      * <ol>
      *   <li>{@code readMetricsValues} 返回的 {@code KVInt.id}：形如
-     *       {@code 202611040700_ILLEGAL_ENTITY}，即 {@code <时间桶>_<entityId>}
-     *       （OAP 的 {@code PointOfTime#generateId()} 用 {@code _} 拼 {@code Const.ID_CONNECTOR}）。</li>
+     *       {@code service_cpm_202611050037_YXBtLWRlbW8tYQ==.1}，即
+     *       {@code <指标名>_<时间桶>_<实体ID>}。<b>第一个下划线分片是指标名，
+     *       不是时间，不能直接取。</b>完整的上游查询只查一个实体，所以时间桶恰好是
+     *       唯一全数字的长度 8/10/12/14 的分片。</li>
      *   <li>查询侧自己回写的 {@code yyyy-MM-dd HHmm} 这种带分隔符的形态。</li>
      * </ol>
      * <p>
@@ -158,10 +161,12 @@ public final class SkywalkingTimes {
             return 0L;
         }
         String value = text.trim();
-        // KVInt.id 是「时间桶_entityId」，时间桶在前，取第一个下划线之前的部分
-        int connector = value.indexOf('_');
-        if (connector > 0) {
-            value = value.substring(0, connector);
+        // 只要有形如 {指标名}_{时间桶}_{实体ID} 的 id，{时间桶} 就是分片法里的全数字分片。
+        for (String part : value.split("_")) {
+            Long bucket = parseCompact(part);
+            if (bucket != null && bucket > 0L) {
+                return bucket;
+            }
         }
         // 1) 紧凑时间桶（OAP 存储格式）：yyyyMMddHHmmss / yyyyMMddHHmm / yyyyMMddHH / yyyyMMdd
         Long bucket = parseCompact(value);

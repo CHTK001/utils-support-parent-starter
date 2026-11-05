@@ -38,6 +38,7 @@ import java.util.List;
  *
  *     SherpaRecognitionResult detail = asr.recognize(Path.of("meeting.wav"));
  *     detail.getSegments().forEach(s ->
+// [P3C E1 豁免] 场景化输出，非业务日志
  *             System.out.printf("[%.2f-%.2f] %s%n", s.getStart(), s.getEnd(), s.getText()));
  * }
  * }</pre>

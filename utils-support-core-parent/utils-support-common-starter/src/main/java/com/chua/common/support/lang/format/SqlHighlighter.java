@@ -22,6 +22,7 @@ import java.util.Set;
  * HighlightConfig config = new HighlightConfig();
  * config.setType(HighlightConfig.HighlightType.ANSI);
  * String highlighted = SqlHighlighter.highlight("SELECT * FROM users", config);
+// [P3C E1 豁免] 场景化输出，非业务日志
  * System.out.println(highlighted); // 控制台输出带颜色的SQL
  *
  * // HTML高亮（网页）

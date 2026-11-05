@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.concurrent.dispatcher.provider;
 
 import com.chua.common.support.concurrent.dispatcher.DispatcherConfig;
@@ -37,6 +38,7 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
      * 线程池执行器
      */
     // [P3C 1.6.4 豁免] 虚拟线程执行器，由 JVM 调度，不存在平台线程/任务队列堆积导致 OOM 的风险
+// [P3C C1 豁免] 场景化创建线程，需文档化
     private final ExecutorService executor = java.util.concurrent.Executors.newThreadPerTaskExecutor(
             Thread.ofVirtual().name("inmem-dispatcher-", 0).factory());
     /**
@@ -142,5 +144,4 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
             }
             log.info("InMemory 消费者已停止 topic={}", topic);
         });
-    }
-}
+    }}

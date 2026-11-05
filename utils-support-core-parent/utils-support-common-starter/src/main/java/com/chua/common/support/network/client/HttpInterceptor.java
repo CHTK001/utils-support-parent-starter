@@ -26,9 +26,11 @@ import com.chua.common.support.network.http.HttpHeader;
  * HttpClient client = HttpClientFactory.getClient();
  * client.addInterceptor((chain, request) -> {
  *     request.header("Authorization", "Bearer " + TokenManager.getToken());
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println(">> " + request.getMethod() + " " + request.getUrl());
  *     long start = System.currentTimeMillis();
  *     ClientResponse resp = chain.proceed(request);
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println("<< " + resp.getStatusCode() + " 耗时 " + (System.currentTimeMillis() - start) + "ms");
  *     return resp;
  * });
@@ -133,5 +135,4 @@ public interface HttpInterceptor {
             }
             return proceed(request());
         }
-    }
-}
+    }}

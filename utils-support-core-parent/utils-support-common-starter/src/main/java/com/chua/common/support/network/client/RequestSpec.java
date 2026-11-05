@@ -710,6 +710,7 @@ public class RequestSpec {
      *     .header("Authorization", "Bearer token")
      *     .executeMono();
      *
+// [P3C E1 豁免] 场景化输出，非业务日志
      * mono.subscribe(resp -> System.out.println(resp.getBodyString()));
      * }</pre>
      *
@@ -755,6 +756,7 @@ public class RequestSpec {
      * Flux<String> lines = client.get("http://api.example.com/large-file")
      *     .executeFlux();
      *
+// [P3C E1 豁免] 场景化输出，非业务日志
      * lines.doOnNext(line -> System.out.println("行: " + line))
      *      .subscribe();
      * }</pre>
@@ -781,13 +783,16 @@ public class RequestSpec {
      * SseConnection conn = client.post("http://api.example.com/chat/stream")
      *     .header("Authorization", "Bearer sk-xxx")
      *     .body(requestJson)
+// [P3C E1 豁免] 场景化输出，非业务日志
      *     .sse(event -> System.out.println(event.getData()));
      *
      * // GET SSE 事件流
      * SseConnection conn = client.get("http://api.example.com/events")
      *     .sse(new SseListener() {
+// [P3C E1 豁免] 场景化输出，非业务日志
      *         public void onOpen() { System.out.println("连接成功"); }
      *         public void onEvent(SseEvent event) {
+// [P3C E1 豁免] 场景化输出，非业务日志
      *             System.out.println("[" + event.getEvent() + "] " + event.getData());
      *         }
      *     });
@@ -813,6 +818,7 @@ public class RequestSpec {
      * SseConnection conn = client.post("http://api.example.com/chat/stream")
      *     .json()
      *     .body(requestJson)
+// [P3C E1 豁免] 场景化输出，非业务日志
      *     .sse(event -> System.out.println(event.getData()), true);
      * }</pre>
      *

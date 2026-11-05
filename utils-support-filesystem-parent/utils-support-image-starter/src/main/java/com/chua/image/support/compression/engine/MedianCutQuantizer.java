@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.image.support.compression.engine;
 
 import com.chua.common.support.image.compression.PaletteQuantizer;
@@ -622,5 +623,4 @@ public class MedianCutQuantizer implements PaletteQuantizer {
         private static double pivot(double value) {
             return value > 0.008856 ? Math.cbrt(value) : (7.787 * value + 16.0 / 116);
         }
-    }
-}
+    }}

@@ -37,6 +37,7 @@ import java.util.function.Consumer;
  *
  * // 订阅
  * client.subscribe().topic("order/#").qos(1).handler((topic, msg) -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println(topic + ": " + msg);
  * }).start();
  *
@@ -46,12 +47,15 @@ import java.util.function.Consumer;
  * // 注解方式
  * client.register(new Object() {
  *     &#64;OnOpen
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     public void onConnect() { System.out.println("已连接"); }
  *
  *     &#64;OnMessage("order/#")
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     public void onOrder(String payload) { System.out.println("收到: " + payload); }
  *
  *     &#64;OnClose
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     public void onDisconnect() { System.out.println("已断开"); }
  * });
  * }</pre>
@@ -932,7 +936,4 @@ public class MqttClientWrapper implements AutoCloseable {
          * @param cause Throwable
          */
         public MqttClientException(String message, Throwable cause) {
-            super(message, cause);
-        }
-    }
-}
+            super(message, cause);        }    }}

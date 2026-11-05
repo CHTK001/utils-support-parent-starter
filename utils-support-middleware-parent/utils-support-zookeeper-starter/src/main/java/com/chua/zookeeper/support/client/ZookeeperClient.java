@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * // Watch
  * client.getData().path("/app/config").watch((type, event) -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println("节点变更: " + type);
  * }).forPath();
  *

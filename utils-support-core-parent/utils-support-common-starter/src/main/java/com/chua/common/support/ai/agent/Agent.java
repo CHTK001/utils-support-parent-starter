@@ -1,5 +1,8 @@
 package com.chua.common.support.ai.agent;
 
+import com.chua.common.support.ai.agent.goal.GoalStatus;
+import com.chua.common.support.ai.agent.goal.GoalTracker;
+import com.chua.common.support.ai.agent.goal.SessionGoal;
 import com.chua.common.support.collection.wrap.Wraps;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.memory.MemoryConfig;

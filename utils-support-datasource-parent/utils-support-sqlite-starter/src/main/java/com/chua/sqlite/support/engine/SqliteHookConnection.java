@@ -18,6 +18,7 @@ import java.util.function.Consumer;
  *
  * <pre>{@code
  * try (SqliteHookConnection cdc = SqliteHookConnection.open("mydb.sqlite")) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     cdc.onEvent(e -> System.out.println(e.getType() + " on " + e.getTable()));
  *     cdc.exec("INSERT INTO users(name) VALUES('Alice')");
  *

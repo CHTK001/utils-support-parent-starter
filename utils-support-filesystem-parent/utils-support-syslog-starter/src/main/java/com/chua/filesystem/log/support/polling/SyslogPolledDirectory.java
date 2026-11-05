@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.filesystem.log.support.polling;
 
 import com.chua.common.support.lang.directory.PolledDirectory;
@@ -39,6 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * watcher.addListener(new PolledListener() {
  *     @Override
  *     public void onModify(WatcherEvent event, EventObserver observer) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.out.println("新日志: " + observer.getSource());
  *     }
  * });
@@ -420,5 +422,4 @@ public class SyslogPolledDirectory implements PolledDirectory {
             }
             return new SyslogPolledDirectory(source, pattern, minLevel, pollIntervalSeconds);
         }
-    }
-}
+    }}

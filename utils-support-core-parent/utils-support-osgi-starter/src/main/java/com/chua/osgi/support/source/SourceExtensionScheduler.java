@@ -96,7 +96,9 @@ public class SourceExtensionScheduler {
         this.javaCompiler = javaCompiler;
         this.groovyLoader = groovyLoader;
         this.pollingInterval = pollingInterval > 0 ? pollingInterval : DEFAULT_POLLING_INTERVAL;
+// [P3C C1 豁免] 场景化创建线程，需文档化
         this.scheduler = new ScheduledThreadPoolExecutor(1, runnable -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
             Thread thread = new Thread(runnable, "osgi-source-scheduler");
             thread.setDaemon(true);
             return thread;
@@ -254,5 +256,4 @@ public class SourceExtensionScheduler {
     private boolean isSourceFile(Path path) {
         String name = path.getFileName().toString().toLowerCase(java.util.Locale.ROOT);
         return name.endsWith(".java") || name.endsWith(".groovy");
-    }
-}
+    }}

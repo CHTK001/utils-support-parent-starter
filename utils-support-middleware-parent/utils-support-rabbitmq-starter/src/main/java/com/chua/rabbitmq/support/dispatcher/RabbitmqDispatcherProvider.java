@@ -49,6 +49,7 @@ public class RabbitmqDispatcherProvider extends AbstractDispatcherProvider {
      * 消费者线程池
      */
     private final ExecutorService executor =
+// [P3C C1 豁免] 场景化创建线程，需文档化
             new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
             /**
              * Thread工厂Builder。

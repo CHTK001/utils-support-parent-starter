@@ -87,6 +87,7 @@ public class JdkWebSocketServer extends AbstractServer {
             serverSocket.setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384));
             serverSocket.bind(new java.net.InetSocketAddress(setting.getHost(), setting.getPort()),
                     setting.resolveBacklog(2048));
+// [P3C C1 豁免] 场景化创建线程，需文档化
             executor = Executors.newVirtualThreadPerTaskExecutor();
             executor.submit(this::acceptLoop);
             log.info("JDK WebSocketServer started on {}:{} (backlog={}, virtualThreads=true)",

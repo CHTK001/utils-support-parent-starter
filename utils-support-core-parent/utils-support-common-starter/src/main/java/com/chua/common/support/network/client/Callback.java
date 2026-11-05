@@ -13,10 +13,13 @@ package com.chua.common.support.network.client;
  * HttpClientFactory.of("http://api.example.com/users")
  *     .getAsync(new Callback<ClientResponse>() {
  *         public void onSuccess(ClientResponse response) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *             System.out.println("状态码: " + response.getStatusCode());
+// [P3C E1 豁免] 场景化输出，非业务日志
  *             System.out.println("响应体: " + response.getBodyString());
  *         }
  *         public void onError(Throwable error) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *             System.err.println("请求失败: " + error.getMessage());
  *         }
  *     });
@@ -26,12 +29,15 @@ package com.chua.common.support.network.client;
  * <pre>{@code
  * // 仅关注成功回调
  * HttpClientFactory.of("http://api.example.com/users")
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     .getAsync(resp -> System.out.println(resp.getBodyString()));
  *
  * // 同时关注成功和失败
  * HttpClientFactory.of("http://api.example.com/users")
  *     .getAsync(
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         resp -> System.out.println(resp.getBodyString()),
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         err  -> System.err.println(err.getMessage())
  *     );
  * }</pre>
@@ -61,9 +67,4 @@ public interface Callback<T> {
      *
      * <p>当异步 HTTP 请求因网络异常、超时、解析错误等原因失败时调用此方法。
      * 默认实现为空方法，调用方可按需覆盖以处理异常。</p>
-     *
-     * @param error 异常信息，包含失败原因和堆栈
-     */
-    default void onError(Throwable error) {
-    }
-}
+     *     * @param error 异常信息，包含失败原因和堆栈     */    default void onError(Throwable error) {    }}

@@ -42,11 +42,13 @@ import java.util.concurrent.CompletableFuture;
  * RuntimeStatus status = manager.status("my-app");
  *
  * // 订阅实时日志
+// [P3C E1 豁免] 场景化输出，非业务日志
  * manager.tailLog("my-app", line -> System.out.println("[LOG] " + line));
  *
  * // 停止
  * manager.stop("my-app");
  * }</pre>日志
+// [P3C E1 豁免] 场景化输出，非业务日志
  * manager.tailLog("my-app", line -> System.out.println("[LOG] " + line));
  *
  * // 停止
@@ -285,6 +287,4 @@ public interface RuntimeManager extends AutoCloseable {
     /**
      * 释放所有资源，停止所有运行中的实例。
      */
-    @Override
-    void close() throws Exception;
-}
+    @Override    void close() throws Exception;}

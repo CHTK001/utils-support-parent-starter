@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.scatter.discovery;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -46,6 +47,7 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
     /**
      * 并发同步线程池实例。
      */
+// [P3C C1 豁免] 场景化创建线程，需文档化
     private static final ThreadPoolExecutor SYNC_EXECUTOR = new ThreadPoolExecutor(
             SYNC_POOL_SIZE,
             SYNC_POOL_SIZE,
@@ -53,6 +55,7 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
             TimeUnit.MILLISECONDS,
             new ArrayBlockingQueue<>(SYNC_QUEUE_SIZE),
             r -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
                 Thread t = new Thread(r, "scatter-sync");
                 t.setDaemon(true);
                 return t;
@@ -177,6 +180,4 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
      */
     private static String toIp(long value) {
         return ((value >> 24) & 0xff) + "." + ((value >> 16) & 0xff) + "."
-                + ((value >> 8) & 0xff) + "." + (value & 0xff);
-    }
-}
+                + ((value >> 8) & 0xff) + "." + (value & 0xff);    }}

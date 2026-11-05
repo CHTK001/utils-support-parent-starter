@@ -12,6 +12,7 @@ import java.lang.annotation.*;
  * <pre>
  *   &#64;OnError
  *   public void onError(Throwable e) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *       System.err.println("发生错误: " + e.getMessage());
  *   }
  * </pre>

@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.tcp;
 
 import com.chua.common.support.network.ProtocolType;
@@ -187,6 +188,7 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
             serverSocket.bind(new InetSocketAddress(setting.getHost(), setting.getPort()),
                     setting.resolveBacklog(128));
             setting.setPort(serverSocket.getLocalPort());
+// [P3C C1 豁免] 场景化创建线程，需文档化
             virtualPool = Executors.newVirtualThreadPerTaskExecutor();
             acceptThread = ThreadUtils.newThread(this::acceptLoop, "protocol-sniff-accept");
             acceptThread.setDaemon(true);
@@ -398,5 +400,4 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
             }
         }
         return false;
-    }
-}
+    }}

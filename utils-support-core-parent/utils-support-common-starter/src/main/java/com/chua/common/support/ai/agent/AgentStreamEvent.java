@@ -85,6 +85,11 @@ public class AgentStreamEvent implements Serializable {
     private List<ConfirmationItem> confirmations;
 
     /**
+     * 待用户回答的问题列表（仅 QUESTION_REQUEST）
+     */
+    private List<AgentQuestion> questions;
+
+    /**
      * 事件时间戳（毫秒）
      */
     private long timestamp;
@@ -122,6 +127,11 @@ public class AgentStreamEvent implements Serializable {
          * 前端渲染批准/拒绝卡片，决策回传后 Agent 继续运行
          */
         CONFIRMATION_REQUEST,
+        /**
+         * 等待用户回答问题（结构化提问）：{@link #replyId} 与 {@link #questions} 携带，
+         * 前端渲染问题卡片，答案经 {@link Agent#answerQuestion(String, List)} 回传后继续运行
+         */
+        QUESTION_REQUEST,
         /**
          * 执行异常
          */
@@ -190,6 +200,25 @@ public class AgentStreamEvent implements Serializable {
                 .agentId(agentId)
                 .replyId(replyId)
                 .confirmations(confirmations)
+                .timestamp(System.currentTimeMillis())
+                .build();
+    }
+
+    /**
+     * 构建等待用户回答问题事件。
+     *
+     * @param agentId   Agent 标识
+     * @param replyId   提问请求回复 ID（回答时原样带回）
+     * @param questions 待回答的问题
+     * @return 事件实例
+     */
+    public static AgentStreamEvent questionRequest(String agentId, String replyId,
+                                                   List<AgentQuestion> questions) {
+        return AgentStreamEvent.builder()
+                .type(Type.QUESTION_REQUEST)
+                .agentId(agentId)
+                .replyId(replyId)
+                .questions(questions)
                 .timestamp(System.currentTimeMillis())
                 .build();
     }

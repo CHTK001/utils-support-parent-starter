@@ -16,16 +16,19 @@ import java.util.List;
  *     .onCallback(new MavenCompilerCallback() {
  *         @Override
  *         public void onStart(String projectPath) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *             System.out.println("开始编译: " + projectPath);
  *         }
  *
  *         @Override
  *         public void onSuccess(MavenCompileResult result) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *             System.out.println("编译成功, 耗时: " + result.durationMillis() + "ms");
  *         }
  *
  *         @Override
  *         public void onFailure(MavenCompileResult result) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *             System.err.println("编译失败: " + result.errors());
  *         }
  *     })
@@ -74,6 +77,4 @@ public interface MavenCompilerCallback {
     /**
      * 编译取消回调
      */
-    default void onCancel() {
-    }
-}
+    default void onCancel() {    }}

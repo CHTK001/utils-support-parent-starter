@@ -13,6 +13,7 @@ import java.util.List;
  * <pre>{@code
  * MavenClient.create()
  *     .projectPath("/path/to/project")
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     .onProgress((message, percent) -> System.out.printf("[%d%%] %s%n", percent, message))
  *     .compile();
  * }</pre>age))

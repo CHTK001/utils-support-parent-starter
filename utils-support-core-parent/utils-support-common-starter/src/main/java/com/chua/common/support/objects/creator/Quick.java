@@ -36,6 +36,7 @@ import java.util.Map;
  * Object result = quick.execute("1 + 2");
  *
  * // 动态类生成（Compiler SPI：asm/javassist/jdk）
+// [P3C E1 豁免] 场景化输出，非业务日志
  * Runnable task = quick.dynamic(Runnable.class, "public void run() { System.out.println(\"hi\"); }");
  *
  * // XML/JSON 导入数据
@@ -60,6 +61,7 @@ import java.util.Map;
  *
  * // 3. 动态类生成：为接口/类生成子类并实例化，源码自动带导入包（java.time.*）
  * Runnable task = quick.dynamic(Runnable.class,
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         "public void run() { System.out.println(\"today=\" + LocalDate.now()); }");
  * task.run();                              // today=<运行当天日期>
  *
@@ -468,5 +470,4 @@ public interface Quick extends AutoCloseable {
          * @return Table 实例
          */
         Table<R, C, V> build();
-    }
-}
+    }}

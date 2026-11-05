@@ -27,6 +27,7 @@ import java.util.concurrent.CompletableFuture;
  *
  *   SseConnection conn = client.connect(request, new SseListener() {
  *       public void onData(String data) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *           System.out.println("收到: " + data);
  *       }
  *       public void onError(Throwable error) {

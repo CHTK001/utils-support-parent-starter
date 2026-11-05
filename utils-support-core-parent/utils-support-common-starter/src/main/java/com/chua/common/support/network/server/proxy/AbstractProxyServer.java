@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.server.proxy;
 
 import com.chua.common.support.network.server.AbstractServer;
@@ -96,6 +97,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
             int backlog = setting.resolveBacklog(MIN_BACKLOG);
             running = true;
+// [P3C C1 豁免] 场景化创建线程，需文档化
             proxyPool = Executors.newVirtualThreadPerTaskExecutor();
             if (preferNonBlockingAccept) {
                 // 非阻塞批量 accept：Selector 事件循环驱动，每次 select 后循环 accept 全部就绪连接，
@@ -483,5 +485,4 @@ public abstract class AbstractProxyServer extends AbstractServer {
     protected static int readPort(InputStream in) throws IOException {
         byte[] port = readBytes(in, 2);
         return ((port[0] & 0xFF) << 8) | (port[1] & 0xFF);
-    }
-}
+    }}

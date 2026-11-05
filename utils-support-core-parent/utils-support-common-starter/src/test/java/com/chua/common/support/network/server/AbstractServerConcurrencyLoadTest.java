@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.server;
 
 import com.chua.common.support.network.PortBindRetry;
@@ -98,6 +99,7 @@ class AbstractServerConcurrencyLoadTest {
                 socket.bind(new InetSocketAddress(getSetting().getHost(), getSetting().getPort()), 128);
                 serverSocket = socket;
                 bindCount.incrementAndGet();
+// [P3C C1 豁免] 场景化创建线程，需文档化
                 ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
                 acceptExecutor = executor;
                 executor.submit(this::acceptLoop);
@@ -449,6 +451,7 @@ class AbstractServerConcurrencyLoadTest {
         int linesPerClient = 25;
         int totalLines = clients * linesPerClient;
 
+// [P3C C1 豁免] 场景化创建线程，需文档化
         ExecutorService pool = Executors.newFixedThreadPool(clients);
         try {
             server.start();
@@ -625,7 +628,4 @@ class AbstractServerConcurrencyLoadTest {
         assertEquals(0, server.bindCount.get(), "未 start 不该发生 bind");
         assertFalse(isBound(port), "未 start 时端口不应被占用");
 
-        server.stop();
-        assertFalse(server.isRunning(), "对未启动实例重复 stop 必须安全");
-    }
-}
+        server.stop();        assertFalse(server.isRunning(), "对未启动实例重复 stop 必须安全");    }}

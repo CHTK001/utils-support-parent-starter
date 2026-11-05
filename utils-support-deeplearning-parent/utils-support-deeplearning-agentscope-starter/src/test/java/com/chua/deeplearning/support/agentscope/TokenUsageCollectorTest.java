@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.deeplearning.support.agentscope;
 
 import com.chua.common.support.ai.AiUsage;
@@ -75,6 +76,7 @@ class TokenUsageCollectorTest {
         TokenUsageCollector collector = new TokenUsageCollector();
         int threads = 8;
         int perThread = 500;
+// [P3C C1 豁免] 场景化创建线程，需文档化
         ExecutorService pool = Executors.newFixedThreadPool(threads);
         CountDownLatch start = new CountDownLatch(1);
         CountDownLatch done = new CountDownLatch(threads);
@@ -102,5 +104,4 @@ class TokenUsageCollectorTest {
         assertEquals(Integer.valueOf(threads * perThread), usage.getInputTokens(),
                 "并发累加不得丢失增量");
         assertEquals(Integer.valueOf(threads * perThread), usage.getOutputTokens());
-    }
-}
+    }}

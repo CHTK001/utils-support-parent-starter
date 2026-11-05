@@ -24,9 +24,11 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * registry.find("tshark")
  *         .filter(CliTool::isAvailable)
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         .ifPresent(tool -> System.out.println(tool.execute("--version").getStdout()));
  *
  * // 查看所有当前可用的 CLI 工具
+// [P3C E1 豁免] 场景化输出，非业务日志
  * registry.available().forEach(tool -> System.out.println(tool.name() + " " + tool.version()));
  * }</pre>
  *
@@ -171,5 +173,4 @@ public final class CliToolRegistry {
      */
     public void clear() {
         tools.clear();
-    }
-}
+    }}

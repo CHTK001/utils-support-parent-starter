@@ -257,6 +257,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
      *       String incremental = client.getResult();
      *       if (incremental != null && !incremental.isEmpty()) {
      *           sb.append(incremental);
+// [P3C E1 豁免] 场景化输出，非业务日志
      *           System.out.println("[stream] " + sb);
      *       }
      *   }

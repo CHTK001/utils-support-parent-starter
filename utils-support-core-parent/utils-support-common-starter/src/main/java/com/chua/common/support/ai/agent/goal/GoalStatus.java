@@ -1,4 +1,5 @@
-package com.chua.deeplearning.support.agentscope.goal;
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
+package com.chua.common.support.ai.agent.goal;
 
 import java.util.Locale;
 
@@ -93,7 +94,7 @@ public record GoalStatus(String id, String title, String detail, GoalState state
      * @param tokens 令牌数
      * @return 可读文本，如 {@code 717K 令牌} / {@code 1.2M 令牌} / {@code 512 令牌}
      */
-    static String formatTokens(long tokens) {
+    public static String formatTokens(long tokens) {
         if (tokens < 1000L) {
             return tokens + " 令牌";
         }

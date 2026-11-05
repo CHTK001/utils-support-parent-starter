@@ -40,12 +40,15 @@ import com.chua.common.support.network.server.response.ServerResponse;
  *
  * server.register(new Object() {
  *     &#64;OnOpen
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     public void onConnect() { System.out.println("客户端连接"); }
  *
  *     &#64;OnMessage("order")
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     public void onOrder(String payload) { System.out.println("收到: " + payload); }
  *
  *     &#64;OnClose
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     public void onDisconnect() { System.out.println("客户端断开"); }
  * });
  *
@@ -675,6 +678,4 @@ public class SocketIOServer extends AbstractServer {
         @Override
         public Object getResult() {
             return result;
-        }
-    }
-}
+        }    }}

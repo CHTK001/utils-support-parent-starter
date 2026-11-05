@@ -29,6 +29,7 @@ import java.lang.annotation.Target;
  * Spider.create()
  *     .addUrl("https://example.com/article")
  *     .pipeline(SpiderMappingPipeline.of(Article.class, article -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.out.println(article.getTitle());
  *     }))
  *     .run();

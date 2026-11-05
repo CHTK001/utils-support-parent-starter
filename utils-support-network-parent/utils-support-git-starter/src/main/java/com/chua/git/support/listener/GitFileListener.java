@@ -11,6 +11,7 @@ package com.chua.git.support.listener;
  * client.open().pull()
  *         .interval(10, TimeUnit.SECONDS)
  *         .listener(event -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *             System.out.println("文件 [" + event.changeType() + "]: " + event.filePath());
  *         })
  *         .start();

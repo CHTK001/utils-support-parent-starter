@@ -1,4 +1,4 @@
-package com.chua.deeplearning.support.agentscope.goal;
+package com.chua.common.support.ai.agent.goal;
 
 import java.util.Objects;
 

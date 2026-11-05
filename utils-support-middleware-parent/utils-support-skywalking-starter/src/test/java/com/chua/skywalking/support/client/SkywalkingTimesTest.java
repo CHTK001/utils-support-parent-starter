@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.skywalking.support.client;
 
 import org.junit.jupiter.api.DisplayName;
@@ -73,6 +74,31 @@ class SkywalkingTimesTest {
     @DisplayName("没有 entityId 后缀的裸时间桶也能解析")
     void parsesBucketWithoutSuffix() {
         assertEquals(millis(2026, 11, 4, 7, 0, 0), SkywalkingTimes.parse("202611040700", "MINUTE"));
+    }
+
+    @Test
+    @DisplayName("真实 OAP id 含指标名前缀：service_cpm_202611050037_YXBtLWRlbW8tYQ==.1 → 2026-11-05 00:37")
+    void parsesMetricsValueIdWithMetricNamePrefix() {
+        // 第一个分片是指标名（service_cpm），第二个分片才是时间桶（202611050037）。
+        // 旧版本取第一个下划线前缀，等同于把 "service_cpm" 当日期，所有点都被丢弃。
+        assertEquals(millis(2026, 11, 5, 0, 37, 0),
+                SkywalkingTimes.parse("service_cpm_202611050037_YXBtLWRlbW8tYQ==.1", "MINUTE"));
+        assertEquals(millis(2026, 11, 5, 0, 37, 0),
+                SkywalkingTimes.parse("service_resp_time_202611050037_YXBtLWRlbW8tYQ==.1", "MINUTE"));
+        assertEquals(millis(2026, 11, 5, 0, 3, 0),
+                SkywalkingTimes.parse("service_cpm_202611050003_YXBtLWRlbW8tYQ==.1", "MINUTE"));
+        assertEquals(millis(2026, 11, 5, 0, 37, 0),
+                SkywalkingTimes.parse("endpoint_cpm_202611050037_YXBtLWRlbW8tYQ==.1", "MINUTE"));
+    }
+
+    @Test
+    @DisplayName("非指标名、非时间桶的分片不应干扰时间桶定位")
+    void ignoresNonTimeParts() {
+        // 末尾带随机后缀 / 下划线的 id 也要能分出时间桶
+        assertEquals(millis(2026, 11, 5, 0, 37, 0),
+                SkywalkingTimes.parse("cpu_avg_202611050037_abc_def.1", "MINUTE"));
+        // 没有全数字分片就是非法数据，返回 0
+        assertEquals(0L, SkywalkingTimes.parse("service_cpm_abc_YXBtLWRlbW8tYQ==.1", "MINUTE"));
     }
 
     @Test

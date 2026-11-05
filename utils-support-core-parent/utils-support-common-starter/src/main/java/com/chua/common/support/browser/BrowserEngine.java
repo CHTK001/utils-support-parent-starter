@@ -19,6 +19,7 @@ import com.chua.common.support.spi.ServiceProvider;
  * try (BrowserEngine engine = BrowserEngine.cdp();
  *      BrowserPage page = engine.openPage(new BrowserOptions())) {
  *     page.navigate("https://example.com");
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println(page.title());
  * }
  * }</pre>

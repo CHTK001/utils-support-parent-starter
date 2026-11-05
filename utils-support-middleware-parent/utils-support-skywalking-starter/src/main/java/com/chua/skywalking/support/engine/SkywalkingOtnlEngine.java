@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.skywalking.support.engine;
 
 import com.chua.common.support.apm.OtnlEngine;
@@ -542,8 +543,14 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
                 vars.put("duration", SkywalkingTimes.duration(chunk[0], chunk[1], actualStep));
                 JsonNode data = client().data(SkywalkingQueries.METRICS_VALUES, vars);
                 for (JsonNode point : data.path("readMetricsValues").path("values").path("values")) {
+                    // OAP 9.7.0 的 id 形如 {@code service_cpm_202611050037_YXBtLWRlbW8tYQ==.1}：
+                    // 第一个分片是指标名、第二个分片是紧凑时间桶、第三个分片是实体 ID。
+                    // 调用方按分片里的全数字片段解时间桶。
                     long time = SkywalkingTimes.parse(point.path("id").asText(""), actualStep);
-                    if (time > 0) {
+                    // isEmptyValue 只标记这个点没有数据（value 为 0），不算有效点，否则图里
+                    // 会多出大量 0 刻度线，掩盖真正的谷值。
+                    boolean empty = point.path("isEmptyValue").asBoolean(false);
+                    if (time > 0 && !empty) {
                         // 相邻切片在边界上可能重叠一个点，取后查到的值覆盖
                         byTime.put(time, point.path("value").asDouble(0D));
                     }
@@ -1522,10 +1529,12 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
                 if (current == null) {
                     AtomicInteger index = new AtomicInteger();
                     ThreadFactory factory = runnable -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
                         Thread thread = new Thread(runnable, "apm-skywalking-" + index.incrementAndGet());
                         thread.setDaemon(true);
                         return thread;
                     };
+// [P3C C1 豁免] 场景化创建线程，需文档化
                     current = Executors.newFixedThreadPool(ENRICH_PARALLELISM, factory);
                     executor = current;
                 }
@@ -1594,6 +1603,4 @@ public class SkywalkingOtnlEngine implements OtnlEngine {
             }
             return new Window(start, end);
         }
-    }
-
-}
+    }}

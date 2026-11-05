@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.server.dht;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -110,7 +111,9 @@ public class DhtProtocol implements AutoCloseable {
         this.routingTable = new DhtRoutingTable(selfId, config.getKBucketSize());
         this.server = new DhtNettyServer(config);
         this.valueStore = new DhtValueStore(config.getValueTtlMs());
+// [P3C C1 豁免] 场景化创建线程，需文档化
         this.scheduler = new ScheduledThreadPoolExecutor(1, r -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
             Thread t = new Thread(r, "dht-protocol");
             t.setDaemon(true);
             return t;
@@ -958,6 +961,4 @@ public class DhtProtocol implements AutoCloseable {
     @Override
     public void close() {
         scheduler.shutdown();
-        server.close();
-    }
-}
+        server.close();    }}

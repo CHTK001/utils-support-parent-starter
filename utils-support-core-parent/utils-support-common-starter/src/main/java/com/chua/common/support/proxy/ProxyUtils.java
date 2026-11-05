@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationHandler;
  * // 使用 DelegateMethodIntercept 回调
  * Service proxy = ProxyUtils.newProxy(Service.class, classLoader,
  *     new DelegateMethodIntercept<>(Service.class, proxyMethod -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.out.println("调用方法: " + proxyMethod.getMethodName());
  *         return proxyMethod.invoke(targetBean);
  *     }));
@@ -27,6 +28,7 @@ import java.lang.reflect.InvocationHandler;
  * // 使用标准 InvocationHandler 回调
  * Service proxy = ProxyUtils.proxy(Service.class, classLoader,
  *     (obj, method, args) -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.out.println("调用方法: " + method.getName());
  *         return method.invoke(targetBean, args);
  *     });
@@ -77,5 +79,4 @@ public class ProxyUtils {
      */
     public static <T> T proxy(Class<T> type, ClassLoader classLoader, InvocationHandler handler) {
         return (T) ReflectUtils.newProxy(classLoader, new Class<?>[]{type}, handler);
-    }
-}
+    }}

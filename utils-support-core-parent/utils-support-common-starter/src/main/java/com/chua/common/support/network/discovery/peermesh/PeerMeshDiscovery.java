@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.discovery.peermesh;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -230,6 +231,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
      */
     private void startAcceptor() {
         // 有界线程数 + 同步移交 + 调用方执行：连接数超限时由接受线程执行，天然形成背压（P3C 1.6.4）
+// [P3C C1 豁免] 场景化创建线程，需文档化
         executor = new ThreadPoolExecutor(0, MAX_CONNECTION_THREADS, 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<>(), ThreadUtils.newDaemonThreadFactory("peer-mesh-acceptor"),
                 new ThreadPoolExecutor.CallerRunsPolicy());
@@ -795,5 +797,4 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
      */
     public NodeTable getNodeTable() {
         return nodeTable;
-    }
-}
+    }}

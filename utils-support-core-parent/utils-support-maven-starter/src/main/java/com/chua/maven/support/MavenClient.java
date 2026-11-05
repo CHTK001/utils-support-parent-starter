@@ -34,10 +34,12 @@ import java.util.concurrent.TimeUnit;
  *     .goal("clean", "compile")
  *     .profile("dev")
  *     .skipTests(true)
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     .onProgress((msg, pct) -> System.out.printf("[%d%%] %s%n", pct, msg))
  *     .onCallback(new MavenCompilerCallback() {
  *         @Override
  *         public void onSuccess(MavenCompileResult r) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *             System.out.println("编译成功, 耗时: " + r.getDurationMillis() + "ms");
  *         }
  *     })
@@ -616,5 +618,4 @@ public class MavenClient implements AutoCloseable {
         public MavenClientException(String message, Throwable cause) {
             super(message, cause);
         }
-    }
-}
+    }}

@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.deeplearning.support.audio;
 
 /**
@@ -21,14 +22,17 @@ package com.chua.deeplearning.support.audio;
  *   List<SpeakerSegment> segments = speakerDiarizer.diarize(audioBytes);
  *
  *   for (SpeakerSegment seg : segments) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *       System.out.printf("%s  [%,.0f ms - %,.0f ms] (%,.2f s)%n",
  *               seg.speakerId(),
  *               seg.startTimeMs(), seg.endTimeMs(),
  *               seg.durationSec());
  *       if (seg.transcript() != null) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *           System.out.println("  文本: " + seg.transcript());
  *       }
  *   }
+// [P3C E1 豁免] 场景化输出，非业务日志
  * }</pre>       System.out.println("  文本: " + seg.transcript());
  *       }
  *   }
@@ -127,7 +131,4 @@ public record SpeakerSegment(
      * @param endMs   查询区间结束（毫秒）
      * @return {@code true} 表示该片段与 [启动ms, 结束ms] 有交集
      */
-    public boolean intersects(long startMs, long endMs) {
-        return this.startTimeMs < endMs && this.endTimeMs > startMs;
-    }
-}
+    public boolean intersects(long startMs, long endMs) {        return this.startTimeMs < endMs && this.endTimeMs > startMs;    }}

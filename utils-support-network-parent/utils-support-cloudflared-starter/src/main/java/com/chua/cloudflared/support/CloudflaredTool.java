@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.cloudflared.support;
 
 import com.chua.common.support.lang.cmd.CliTool;
@@ -19,6 +20,7 @@ import java.util.regex.Pattern;
  * <pre>{@code
  * CloudflaredTool tool = new CloudflaredTool();
  * if (tool.isAvailable()) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println(tool.version().raw());
  * }
  * }</pre>
@@ -54,5 +56,4 @@ public class CloudflaredTool extends CliTool {
                 .minVersion(CliVersion.of(2022, 1))
                 .defaultTimeout(60, TimeUnit.SECONDS)
                 .build());
-    }
-}
+    }}

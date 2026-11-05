@@ -135,6 +135,7 @@ public final class FailoverTemplate {
         Exception lastError = null;
 
         // 每个候选客户端在独立线程执行，主线程只等待“首包/错误”，从而能对“慢但不报错”的密钥快速切换
+// [P3C C1 豁免] 场景化创建线程，需文档化
         ThreadPoolExecutor pool = new ThreadPoolExecutor(
                 0,
                 MAX_STREAM_CANDIDATES,
@@ -142,6 +143,7 @@ public final class FailoverTemplate {
                 TimeUnit.SECONDS,
                 new SynchronousQueue<>(),
                 r -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
                     Thread t = new Thread(r, "failover-stream");
                     t.setDaemon(true);
                     return t;
@@ -239,5 +241,4 @@ public final class FailoverTemplate {
         }
 
         throw new RuntimeException("All " + clients.size() + " client(s) stream failed", lastError);
-    }
-}
+    }}

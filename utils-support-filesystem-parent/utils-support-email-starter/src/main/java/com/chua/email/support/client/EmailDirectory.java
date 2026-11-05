@@ -32,6 +32,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *     .build();
  *
  * dir.addListener(event -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println("新邮件: " + event.get("subject"));
  * });
  *

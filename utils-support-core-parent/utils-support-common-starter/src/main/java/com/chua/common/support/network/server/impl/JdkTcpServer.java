@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.server.impl;
 
 import com.chua.common.support.network.ProtocolType;
@@ -315,6 +316,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             }
 
             // 虚拟线程池处理连接/请求业务（高并发，JDK21+）
+// [P3C C1 豁免] 场景化创建线程，需文档化
             virtualPool = Executors.newVirtualThreadPerTaskExecutor();
 
 // [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
@@ -1174,5 +1176,4 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             state = State.HEADER;
             bodyBuf = null;
         }
-    }
-}
+    }}

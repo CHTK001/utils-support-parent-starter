@@ -74,7 +74,9 @@ public class NettyWebSocketSyncServer extends AbstractServer implements SyncServ
         try {
             serverSocket = new ServerSocket();
             serverSocket.bind(new InetSocketAddress(setting.getHost(), setting.getPort()));
+// [P3C C1 豁免] 场景化创建线程，需文档化
             executor = new ThreadPoolExecutor(0, 200, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
+// [P3C C1 豁免] 场景化创建线程，需文档化
                     r -> new Thread(r, "netty-ws-" + r.hashCode()), new ThreadPoolExecutor.CallerRunsPolicy());
             executor.submit(this::acceptLoop);
         } catch (Exception e) {
@@ -449,5 +451,4 @@ public class NettyWebSocketSyncServer extends AbstractServer implements SyncServ
                 socket.close();
             }
         }
-    }
-}
+    }}

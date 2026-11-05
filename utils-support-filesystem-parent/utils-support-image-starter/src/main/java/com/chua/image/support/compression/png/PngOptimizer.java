@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.image.support.compression.png;
 
 import com.chua.common.support.image.compression.DeflateEngine;
@@ -326,5 +327,4 @@ public final class PngOptimizer {
         target[offset + 1] = (byte) (value >>> 16);
         target[offset + 2] = (byte) (value >>> 8);
         target[offset + 3] = (byte) value;
-    }
-}
+    }}

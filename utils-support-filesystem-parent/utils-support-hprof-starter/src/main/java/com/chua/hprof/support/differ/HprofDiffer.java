@@ -25,6 +25,7 @@ import java.util.Objects;
  *         HprofParser.parse(new File("before.hprof")),
  *         HprofParser.parse(new File("after.hprof")));
  * for (HprofDiffer.ClassGrowth g : diff.topGrowths(20)) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println(g.className() + " 增加 " + g.retainedDelta() + " bytes");
  * }
  * }</pre>

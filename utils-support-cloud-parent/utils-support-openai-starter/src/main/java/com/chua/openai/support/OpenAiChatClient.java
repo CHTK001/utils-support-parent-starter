@@ -74,9 +74,11 @@ import java.util.function.Consumer;
  *       .system("你是一名助手")
  *       .chat("你好", response -> {
  *           if (response.getState() == ChatResponse.State.STREAMING) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *               System.out.print(response.getContent());
  *           }
  *       });
+// [P3C E1 豁免] 场景化输出，非业务日志
  * }</pre>*               System.out.print(response.getContent());
  *           }
  *       });
@@ -1225,5 +1227,4 @@ public class OpenAiChatClient implements ChatClient {
      */
     protected void configureClientBuilder(OpenAIOkHttpClient.Builder builder) {
         // 默认空实现，子类可覆写
-    }
-}
+    }}

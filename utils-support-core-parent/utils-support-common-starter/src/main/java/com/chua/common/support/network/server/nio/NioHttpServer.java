@@ -241,6 +241,7 @@ public class NioHttpServer extends AbstractServer {
             InetSocketAddress bound = (InetSocketAddress) serverChannel.getLocalAddress();
             setting.setPort(bound.getPort());
 
+// [P3C C1 豁免] 场景化创建线程，需文档化
             executor = Executors.newVirtualThreadPerTaskExecutor();
             // 多 Selector 分片:每分片一个事件循环线程,连接按 hash 分散注册,
             // 解决单事件循环在高并发(2000+)下成为吞吐瓶颈的问题(类 Netty 主从模型)。
@@ -1545,4 +1546,3 @@ public class NioHttpServer extends AbstractServer {
         return ProtocolType.HTTP;
     }
 }
-

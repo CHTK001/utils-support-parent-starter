@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.runtime.shell;
 
 import com.chua.runtime.apm.ApmBootstrap;
@@ -175,7 +176,9 @@ public class TelnetServer {
         this.bindAddress = host;
         this.serverSocket = new ServerSocket(port, 16, bind);
         this.sessions = new Semaphore(maxSessions);
+// [P3C C1 豁免] 场景化创建线程，需文档化
         this.executor = new ThreadPoolExecutor(0, 200, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), r -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
             Thread t = new Thread(r, "runtime-shell");
             t.setDaemon(true);
             return t;
@@ -347,7 +350,4 @@ public class TelnetServer {
      *
      * @return CommandRegistry
      */
-    public CommandRegistry getRegistry() {
-        return registry;
-    }
-}
+    public CommandRegistry getRegistry() {        return registry;    }}

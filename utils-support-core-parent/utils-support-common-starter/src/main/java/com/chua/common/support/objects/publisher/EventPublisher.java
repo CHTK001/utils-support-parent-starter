@@ -18,6 +18,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <pre>{@code
  *   EventPublisher publisher = new EventPublisher();
  *   publisher.register(UserLoginEvent.class, event -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *       System.out.println("用户登录: " + event);
  *   });
  *   publisher.publish(new UserLoginEvent("admin"));

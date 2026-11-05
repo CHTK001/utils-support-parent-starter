@@ -122,6 +122,7 @@ public class WebSocketSyncServer extends AbstractServer implements SyncServer, S
             setting.setPort(serverSocket.getLocalPort());
             // WebSocket 是长连接：缓存线程池「一连接一平台线程」，上千连接就上千平台线程，
             // 与百万连接目标冲突。改为虚拟线程池，每条连接只在有数据时才占用调度。
+// [P3C C1 豁免] 场景化创建线程，需文档化
             executor = Executors.newVirtualThreadPerTaskExecutor();
             executor.submit(this::acceptLoop);
         } catch (Exception e) {

@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.tcp;
 
 import com.chua.common.support.spi.annotations.Spi;
@@ -30,6 +31,7 @@ public class JdkTcpClient implements TcpClient {
 
     private final int connectTimeout;
     private final int readTimeout;
+// [P3C C1 豁免] 场景化创建线程，需文档化
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
     private static final ThreadLocal<ByteBuffer> WRITE_BUFFER =
@@ -135,5 +137,4 @@ public class JdkTcpClient implements TcpClient {
     @Override
     public void close() {
         executor.shutdownNow();
-    }
-}
+    }}

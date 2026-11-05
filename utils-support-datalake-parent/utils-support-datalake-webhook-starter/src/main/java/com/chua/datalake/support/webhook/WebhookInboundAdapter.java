@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.datalake.support.webhook;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -194,6 +195,7 @@ public class WebhookInboundAdapter {
         ExecutorService pool = null;
         try {
             created = HttpServer.create(new InetSocketAddress(InetAddress.getByName(host), port), 0);
+// [P3C C1 豁免] 场景化创建线程，需文档化
             pool = new ThreadPoolExecutor(WORKER_THREADS, WORKER_THREADS, 0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<>(1024), Executors.defaultThreadFactory(),
                     new ThreadPoolExecutor.CallerRunsPolicy());
@@ -705,5 +707,4 @@ public class WebhookInboundAdapter {
             }
             return new WebhookInboundAdapter(this);
         }
-    }
-}
+    }}

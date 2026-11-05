@@ -77,7 +77,9 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
      * @param corePoolSize 定时调度器核心线程数
      */
     public JdkSchedulerProvider(int corePoolSize) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         this.scheduler = new ScheduledThreadPoolExecutor(corePoolSize, new NamedThreadFactory("scheduler"));
+// [P3C C1 豁免] 场景化创建线程，需文档化
         this.virtualThreadExecutor = new ThreadPoolExecutor(
                 corePoolSize, corePoolSize * 2,
                 60L, TimeUnit.SECONDS,
@@ -229,5 +231,4 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
             virtualThreadExecutor.shutdownNow();
             Thread.currentThread().interrupt();
         }
-    }
-}
+    }}

@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.sqlite.support.engine;
 
 import com.chua.nativesqlite.support.SqliteHookBridge;
@@ -33,6 +34,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *     // 事件流：完全非阻塞，OS 异步推送
  *     hook.events()
  *         .filter(e -> e.getTable().equals("users"))
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         .subscribe(e -> System.out.println(e.getType() + " on " + e.getTable()));
  *
  *     // 执行 SQL：非阻塞
@@ -342,5 +344,4 @@ public final class SqliteReactorHook implements AutoCloseable {
         } catch (NumberFormatException e) {
             return 0L;
         }
-    }
-}
+    }}

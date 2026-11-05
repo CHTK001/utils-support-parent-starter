@@ -41,11 +41,13 @@ import java.util.List;
  * MavenDeployClient.from(result)
  *     .onDeploy(new MavenDeployCallback() {
  *         public void onDeploySuccess(List&lt;String&gt; paths) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *             System.out.println("部署到: " + paths);
  *         }
  *     })
  *     .deployTo(new LocalDeployTarget("/opt/app"));
  * }</pre>
+// [P3C E1 豁免] 场景化输出，非业务日志
  *             System.out.println("部署到: " + paths);
  *         }
  *     })
@@ -310,5 +312,4 @@ public class MavenDeployClient {
                 log.warn("[maven] 部署失败回调异常: {}", ex.getMessage(), ex);
             }
         }
-    }
-}
+    }}

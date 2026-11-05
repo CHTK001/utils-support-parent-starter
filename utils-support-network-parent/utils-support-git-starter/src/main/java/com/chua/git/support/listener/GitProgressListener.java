@@ -22,6 +22,7 @@ package com.chua.git.support.listener;
  * client.cloneOp()
  *         .progressListener(new GitProgressListener() {
  *             public void onUpdate(int work) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *                 System.out.printf("已完成 %d%%\n", work);
  *             }
  *             // ... 其他方法

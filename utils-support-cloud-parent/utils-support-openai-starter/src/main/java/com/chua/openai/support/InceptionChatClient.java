@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.openai.support;
 
 import com.chua.common.support.ai.AiUsage;
@@ -62,6 +63,7 @@ import java.util.function.Consumer;
  *           .provider("inceptionlabs")
  *           .model("mercury-3")
  *           .build());
+// [P3C E1 豁免] 场景化输出，非业务日志
  *   System.out.println(client.chatSync("用一句话介绍你自己"));
  *
  *   // 纯 HTTP 通道（仅在网关已放行时有意义）
@@ -933,5 +935,4 @@ public class InceptionChatClient implements ChatClient {
                 transport = null;
             }
         }
-    }
-}
+    }}

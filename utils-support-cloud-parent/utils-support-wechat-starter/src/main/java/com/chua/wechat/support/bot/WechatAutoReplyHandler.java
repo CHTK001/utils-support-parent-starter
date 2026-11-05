@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.wechat.support.bot;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -126,11 +127,13 @@ public class WechatAutoReplyHandler implements BotMessageListener, AutoCloseable
     /**
      * 回复线程池：单线程串行，队列有界，满了直接丢消息而不是堆积
     */
+// [P3C C1 豁免] 场景化创建线程，需文档化
     private final ThreadPoolExecutor executor = new ThreadPoolExecutor(
             REPLY_THREAD_COUNT, REPLY_THREAD_COUNT,
             KEEP_ALIVE_SECONDS, TimeUnit.SECONDS,
             new LinkedBlockingQueue<>(QUEUE_CAPACITY),
             runnable -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
                 Thread thread = new Thread(runnable, REPLY_THREAD_NAME);
                 thread.setDaemon(true);
                 return thread;
@@ -351,6 +354,4 @@ public class WechatAutoReplyHandler implements BotMessageListener, AutoCloseable
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        }
-    }
-}
+        }    }}

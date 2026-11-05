@@ -104,7 +104,9 @@ public class BundleDeployWatcher {
         this.pollingInterval = pollingInterval > 0 ? pollingInterval : DEFAULT_POLLING_INTERVAL;
         this.uninstallOnRemoved = uninstallOnRemoved;
         this.updateOnChanged = updateOnChanged;
+// [P3C C1 豁免] 场景化创建线程，需文档化
         this.scheduler = new ScheduledThreadPoolExecutor(1, runnable -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
             Thread thread = new Thread(runnable, "osgi-deploy-watcher");
             thread.setDaemon(true);
             return thread;
@@ -318,5 +320,4 @@ public class BundleDeployWatcher {
      */
     public Path getDirectory() {
         return directory;
-    }
-}
+    }}

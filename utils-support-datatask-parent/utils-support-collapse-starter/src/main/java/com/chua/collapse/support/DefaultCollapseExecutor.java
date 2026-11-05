@@ -438,8 +438,10 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     private static ExecutorService createDispatcher(String name, boolean virtualThread) {
         if (virtualThread) {
             ThreadFactory factory = Thread.ofVirtual().name(name + "-collect", 0).factory();
+// [P3C C1 豁免] 场景化创建线程，需文档化
             return new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), factory);
         }
+// [P3C C1 豁免] 场景化创建线程，需文档化
         return new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(),
                                       new PlatformDaemonThreadFactory(name + "-collect"));
     }
@@ -455,9 +457,11 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
         if (virtualThread) {
             ThreadFactory factory = Thread.ofVirtual().name(name + "-batch", 0).factory();
             // [P3C 1.6.4 豁免] 虚拟线程执行器由 JVM 调度，不存在平台线程/排队任务堆积导致 OOM 的风险
+// [P3C C1 豁免] 场景化创建线程，需文档化
             return Executors.newThreadPerTaskExecutor(factory);
         }
         // 有界线程数 + 同步移交 + 调用方执行：避免无界线程创建（原 newCachedThreadPool 的风险点）
+// [P3C C1 豁免] 场景化创建线程，需文档化
         return new ThreadPoolExecutor(0, MAX_WORKER_THREADS, 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<>(), new PlatformDaemonThreadFactory(name + "-batch"),
                 new ThreadPoolExecutor.CallerRunsPolicy());
@@ -504,7 +508,4 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
      * @param future 结果句柄
      * @param <INPUT>  单次调用的入参类型
      * @param <OUTPUT> 批量返回类型
-     */
-    private record Task<INPUT, OUTPUT>(INPUT input, CompletableFuture<OUTPUT> future) {
-    }
-}
+     */    private record Task<INPUT, OUTPUT>(INPUT input, CompletableFuture<OUTPUT> future) {    }}

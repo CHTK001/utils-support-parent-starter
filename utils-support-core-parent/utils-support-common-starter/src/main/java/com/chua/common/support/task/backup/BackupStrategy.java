@@ -21,6 +21,7 @@ import java.util.List;
  *   BackupStrategy strategy = new DefaultDailyBackupStrategy();
  *   BackupResult result = strategy.execute(config);
  *   if (result.isSuccess()) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *       System.out.println("备份成功: " + result.getFileCount() + " 个文件");
  *   }
  * }</pre> + result.getFileCount() + " 个文件");

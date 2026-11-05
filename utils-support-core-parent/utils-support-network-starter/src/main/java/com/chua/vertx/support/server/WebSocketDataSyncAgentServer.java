@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.vertx.support.server;
 
 import com.chua.datasync.agent.support.DataSyncAgent;
@@ -93,7 +94,9 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         try {
             serverSocket = new ServerSocket();
             serverSocket.bind(new InetSocketAddress(port));
+// [P3C C1 豁免] 场景化创建线程，需文档化
             executor = new ThreadPoolExecutor(0, 200, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
+// [P3C C1 豁免] 场景化创建线程，需文档化
                     r -> new Thread(r, "ws-agent-server-" + r.hashCode()), new ThreadPoolExecutor.CallerRunsPolicy());
             executor.submit(this::acceptLoop);
             running = true;
@@ -447,6 +450,4 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         @Override public void start() {}
         @Override public void stop() {}
         @Override public boolean isRunning() { return false; }
-        @Override public String dataUrl() { return ""; }
-    }
-}
+        @Override public String dataUrl() { return ""; }    }}

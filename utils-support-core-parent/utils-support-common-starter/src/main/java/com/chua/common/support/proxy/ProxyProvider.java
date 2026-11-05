@@ -25,6 +25,7 @@ import com.chua.common.support.proxy.intercept.MethodIntercept;
  * Service proxy = ProxyProvider.of(Service.class)
  *     .classLoader(Thread.currentThread().getContextClassLoader())
  *     .methodIntercept((obj, method, args, proxyInstance) -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.out.println("调用方法: " + method.getName());
  *         return MethodInvoker.invoke(method, obj, args);
  *     })
@@ -206,13 +207,16 @@ public interface ProxyProvider<T> {
      * <pre>{@code
      * proxyProvider.methodIntercept(new MethodIntercept<Service>() {
      *     public void before(Object obj, Method method, Object[] args, Service proxy) {
+// [P3C E1 豁免] 场景化输出，非业务日志
      *         System.out.println("前置: " + method.getName());
      *     }
      *     public Object invoke(Object obj, Method method, Object[] args, Service proxy) {
+// [P3C E1 豁免] 场景化输出，非业务日志
      *         System.out.println("调用: " + method.getName());
      *         return MethodInvoker.invoke(method, obj, args);
      *     }
      *     public void after(Object obj, Method method, Object[] args, Service proxy) {
+// [P3C E1 豁免] 场景化输出，非业务日志
      *         System.out.println("后置: " + method.getName());
      *     }
      * });
@@ -235,7 +239,4 @@ public interface ProxyProvider<T> {
      *
      * <p>此方法应只在所有配置完成后调用一次。重复调用会创建多个代理实例。</p>
      *
-     * @return 代理对象实例，类型为构造时指定的 {@code T}
-     */
-    T build();
-}
+     * @return 代理对象实例，类型为构造时指定的 {@code T}     */    T build();}

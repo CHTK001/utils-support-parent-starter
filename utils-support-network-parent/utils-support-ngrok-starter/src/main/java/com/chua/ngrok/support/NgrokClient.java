@@ -31,9 +31,11 @@ import java.util.List;
  *         .listenTcp()
  *         .block()) {
  *     // 隧道已建立，可读取 url
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println(client.getUrls());
  * }
  * }</pre>隧道已建立，可读取 url
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println(client.getUrls());
  * }
  * }</pre>
@@ -949,5 +951,4 @@ public class NgrokClient implements AutoCloseable {
         public NgrokClient forwardTls(URL url) {
             return owner.forwardTls(builder, url);
         }
-    }
-}
+    }}

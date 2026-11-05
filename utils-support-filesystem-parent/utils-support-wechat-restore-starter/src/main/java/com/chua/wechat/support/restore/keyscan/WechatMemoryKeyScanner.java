@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.wechat.support.restore.keyscan;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -72,6 +73,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * if (WechatMemoryKeyScanner.selfTest()) {
  *     ScanResult result = WechatMemoryKeyScanner.scan(new File("session.db"));
  *     if (result.found()) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.out.println(result.keyHex());
  *     }
  * }
@@ -323,6 +325,7 @@ public final class WechatMemoryKeyScanner {
 
             // 第二遍：逐字节穷举
             int threads = Math.max(1, Runtime.getRuntime().availableProcessors());
+// [P3C C1 豁免] 场景化创建线程，需文档化
             ExecutorService pool = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<>(1024), Executors.defaultThreadFactory(),
                     new ThreadPoolExecutor.CallerRunsPolicy());
@@ -1134,6 +1137,4 @@ public final class WechatMemoryKeyScanner {
          */
         public boolean keyValid() {
             return keyHex != null && KEY_PATTERN.matcher(keyHex).matches();
-        }
-    }
-}
+        }    }}

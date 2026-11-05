@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.filepush;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -73,6 +74,7 @@ import static com.chua.common.support.utils.ThreadUtils.newVirtualThreadPerTaskE
  *         .sourceDir("/data/app").host("127.0.0.1").port(9777)
  *         .chunkSize(4 * 1024 * 1024).parallelism(64)
  *         .excludes("log", "tmp/").incremental(true)
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         .onFile(r -&gt; System.out.println((r.success() ? "OK  " : "FAIL") + " " + r.relativePath()))) {
  *     PushResult result = client.push();
  * }
@@ -1067,5 +1069,4 @@ public class FilePushClient implements AutoCloseable {
         public List<FileTaskResult> failures() {
             return tasks.stream().filter(t -> !t.success()).toList();
         }
-    }
-}
+    }}

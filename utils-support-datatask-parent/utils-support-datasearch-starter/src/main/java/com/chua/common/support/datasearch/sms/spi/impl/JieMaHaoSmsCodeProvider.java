@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.datasearch.sms.spi.impl;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -65,6 +66,7 @@ import java.util.concurrent.ExecutorService;
  * directory.addListener(new PolledListener() {
  *     public void onModify(WatcherEvent event, EventObserver observer) {
  *         if (observer.getSource() instanceof SmsPhoneMessage pm) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *             System.out.println(pm.getPhone().getPhone() + " -> " + pm.getMessages());
  *         }
  *     }
@@ -448,6 +450,4 @@ public class JieMaHaoSmsCodeProvider implements SmsCodeProvider, PolledDirectory
                 .triggerFile(id)
                 .eventType(event)
                 .build();
-        support.fire(observer);
-    }
-}
+        support.fire(observer);    }}

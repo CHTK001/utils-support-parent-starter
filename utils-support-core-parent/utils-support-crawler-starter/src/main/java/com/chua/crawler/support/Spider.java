@@ -42,6 +42,7 @@ import java.util.function.Consumer;
  * Spider.create()
  *     .addUrl("https://example.com")
  *     .threads(5)                     // 5 个线程并发
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     .pipeline(result -> System.out.println(result.getTitle()))
  *     .run();
  * }</pre>)))
@@ -316,6 +317,7 @@ public interface Spider {
          * Spider.create()
          *     .addUrl("https://example.com")
          *     .as(Article.class, article -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
          *         System.out.println(article.getTitle());
          *     })
          *     .run();
@@ -393,5 +395,4 @@ public interface Spider {
         default void run() {
             build().run();
         }
-    }
-}
+    }}

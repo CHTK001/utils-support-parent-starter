@@ -66,6 +66,7 @@ import java.util.regex.Pattern;
  * directory.addListener(new PolledListener() {
  *     public void onModify(WatcherEvent event, EventObserver observer) {
  *         if (observer.getSource() instanceof SmsPhoneMessage pm) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *             System.out.println(pm.getPhone().getPhone() + " -> " + pm.getMessages());
  *         }
  *     }

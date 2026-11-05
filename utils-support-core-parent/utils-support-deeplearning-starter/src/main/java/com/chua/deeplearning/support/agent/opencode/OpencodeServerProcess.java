@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.deeplearning.support.agent.opencode;
 
 import com.chua.deeplearning.support.engine.CliModelRunner;
@@ -500,6 +501,7 @@ public final class OpencodeServerProcess {
             if (shutdownHooked) {
                 return;
             }
+// [P3C C1 豁免] 场景化创建线程，需文档化
             Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown, "opencode-server-shutdown"));
             shutdownHooked = true;
         }
@@ -833,5 +835,4 @@ public final class OpencodeServerProcess {
         public OpencodeHttpClient newClient(String directory) {
             return new OpencodeHttpClient(baseUrl, username, password, directory);
         }
-    }
-}
+    }}

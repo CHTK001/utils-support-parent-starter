@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.mysql.support.slowquery;
 
 import com.chua.datasource.support.slowquery.SlowQueryInfo;
@@ -430,5 +431,4 @@ public class MysqlSlowQueryManager implements SlowQueryManager, DataSourceAware 
         }
         String flat = text.replaceAll("\\s+", " ").trim();
         return flat.length() > DIGEST_MAX ? flat.substring(0, DIGEST_MAX) + "…" : flat;
-    }
-}
+    }}

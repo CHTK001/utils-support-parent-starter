@@ -1,4 +1,5 @@
-package com.chua.deeplearning.support.agentscope.goal;
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
+package com.chua.common.support.ai.agent.goal;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -9,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 会话级目标注册表：把「会话 → 目标状态机」的映射集中管理。
  *
- * <p>为什么需要它：{@code AgentScopeAgent} 是<b>每请求新建</b>的（facade 每次请求建一个），
+ * <p>为什么需要它：Agent 实现是<b>每请求新建</b>的（facade 每次请求建一个），
  * 而一个目标可能横跨多次请求、被多次暂停/恢复。因此目标状态不能挂在 agent 实例上，
  * 必须有一个比请求存活更久的容器；本类就是那个容器。
  *
@@ -115,20 +116,22 @@ public final class GoalRegistry {
 
     /**
      * 暂停会话目标。
-     * @param now 长整数
+     *
      * @param sessionId 会话标识
+     * @param now 当前时间（毫秒时间戳）
      * @return 暂停后的展示投影
-    */
+     */
     public GoalStatus pause(String sessionId, long now) {
         return require(sessionId).pause(now);
     }
 
     /**
      * 恢复会话目标。
-     * @param now 长整数
+     *
      * @param sessionId 会话标识
+     * @param now 当前时间（毫秒时间戳）
      * @return 恢复后的展示投影
-    */
+     */
     public GoalStatus resume(String sessionId, long now) {
         return require(sessionId).resume(now);
     }

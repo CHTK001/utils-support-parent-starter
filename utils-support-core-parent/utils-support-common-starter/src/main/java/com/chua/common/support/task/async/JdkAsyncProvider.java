@@ -28,6 +28,7 @@ public class JdkAsyncProvider extends AbstractAsyncProvider {
     /**
      * 虚拟线程执行器
      */
+// [P3C C1 豁免] 场景化创建线程，需文档化
     private static final ExecutorService VIRTUAL_EXECUTOR = new ThreadPoolExecutor(
             4, Runtime.getRuntime().availableProcessors() * 2,
             60L, TimeUnit.SECONDS,

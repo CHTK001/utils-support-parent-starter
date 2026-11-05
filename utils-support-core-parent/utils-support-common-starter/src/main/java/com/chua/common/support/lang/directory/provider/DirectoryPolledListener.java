@@ -21,8 +21,11 @@ import java.util.function.BiConsumer;
  * 使用示例：
  * <pre>{@code
  * DirectoryPolledListener listener = new DirectoryPolledListener()
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     .onCreate((event, observer) -> System.out.println("创建: " + observer.getFullPath()))
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     .onModify((event, observer) -> System.out.println("修改: " + observer.getFullPath()))
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     .onDelete((event, observer) -> System.out.println("删除: " + observer.getFullPath()));
  * }</pre>
  * </p>
@@ -166,6 +169,4 @@ public class DirectoryPolledListener implements PolledListener {
         }
         if (onOverflowCallback != null) {
             onOverflowCallback.accept(event, observer);
-        }
-    }
-}
+        }    }}

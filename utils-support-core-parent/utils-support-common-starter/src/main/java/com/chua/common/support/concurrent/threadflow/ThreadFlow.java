@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
  * ThreadFlow.of("example")
  *     .executorType(ThreadExecutorType.VIRTUAL)
  *     .strategy(ThreadStrategy.ANY_SUCCESS)
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     .addTask(() -> System.out.println("task1"))
  *     .addCallable(() -> "result")
  *     .execute();

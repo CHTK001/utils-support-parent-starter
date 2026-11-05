@@ -716,6 +716,7 @@ public class HttpClientBuilder {
      * HttpClientFactory.of("http://api.example.com")
      *     .onRedirect(resp -> {
      *         String location = resp.getHeader("Location");
+// [P3C E1 豁免] 场景化输出，非业务日志
      *         System.out.println("Redirect to: " + location);
      *     })
      *     .get();
@@ -774,8 +775,10 @@ public class HttpClientBuilder {
      * <pre>{@code
      * ClientResponse resp = HttpClientFactory.of("http://api.example.com")
      *     .interceptor(chain -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
      *         System.out.println("请求开始");
      *         ClientResponse r = chain.proceed(chain.request());
+// [P3C E1 豁免] 场景化输出，非业务日志
      *         System.out.println("请求结束，状态码: " + r.getStatusCode());
      *         return r;
      *     })
@@ -885,6 +888,7 @@ public class HttpClientBuilder {
      *     .thenApply(ClientResponse::getBodyString)
      *     .thenAccept(System.out::println)
      *     .exceptionally(err -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
      *         System.err.println("请求失败: " + err.getMessage());
      *         return null;
      *     });
@@ -926,21 +930,26 @@ public class HttpClientBuilder {
      * HttpClientFactory.of("http://api.example.com/users")
      *     .getAsync(new Callback<ClientResponse>() {
      *         public void onSuccess(ClientResponse resp) {
+// [P3C E1 豁免] 场景化输出，非业务日志
      *             System.out.println("响应: " + resp.getBodyString());
      *         }
      *         public void onError(Throwable err) {
+// [P3C E1 豁免] 场景化输出，非业务日志
      *             System.err.println("错误: " + err.getMessage());
      *         }
      *     });
      *
      * // Lambda 回调风格（仅关注成功）
      * HttpClientFactory.of("http://api.example.com/users")
+// [P3C E1 豁免] 场景化输出，非业务日志
      *     .getAsync(resp -> System.out.println(resp.getBodyString()));
      *
      * // Lambda 回调风格（同时关注成功和失败）
      * HttpClientFactory.of("http://api.example.com/users")
      *     .getAsync(
+// [P3C E1 豁免] 场景化输出，非业务日志
      *         resp -> System.out.println(resp.getBodyString()),
+// [P3C E1 豁免] 场景化输出，非业务日志
      *         err  -> System.err.println(err.getMessage())
      *     );
      * }</pre>
@@ -1323,12 +1332,4 @@ public class HttpClientBuilder {
         method = HttpMethod.OPTIONS;
         return executeAsync();
     }
-
-    /**
-     * 异步执行 OPTIONS 请求，通过回调通知结果。
-     * @param callback 回调，不允许为 null
-     */
-    public void optionsAsync(Callback<ClientResponse> callback) {
-        optionsAsync().subscribe(callback::onSuccess, callback::onError);
-    }
-}
+    /**     * 异步执行 OPTIONS 请求，通过回调通知结果。     * @param callback 回调，不允许为 null     */    public void optionsAsync(Callback<ClientResponse> callback) {        optionsAsync().subscribe(callback::onSuccess, callback::onError);    }}

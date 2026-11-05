@@ -65,6 +65,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
     /**
      * 降级同步专用线程池实例（固定大小，与 RouteModeDiscovery 隔离，不占用 commonPool）
      */
+// [P3C C1 豁免] 场景化创建线程，需文档化
     private static final ThreadPoolExecutor DEGRADE_SYNC_EXECUTOR = new ThreadPoolExecutor(
             DEGRADE_SYNC_POOL_SIZE,
             DEGRADE_SYNC_POOL_SIZE,
@@ -72,6 +73,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
             TimeUnit.MILLISECONDS,
             new ArrayBlockingQueue<>(DEGRADE_SYNC_QUEUE_SIZE),
             r -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
                 Thread t = new Thread(r, "scatter-degrade-sync");
                 t.setDaemon(true);
                 return t;
@@ -321,5 +323,4 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
                     .build();
             updateService(setting.getServicePath(), node);
         }
-    }
-}
+    }}

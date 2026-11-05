@@ -25,6 +25,7 @@ import java.util.function.Consumer;
  * Spider.create()
  *     .addUrl("https://example.com")
  *     .as(Article.class, article -> {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.out.println(article.getTitle());
  *     })
  *     .run();

@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
  *     .goal("compile")
  *     .profile("dev")
  *     .skipTests(true)
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     .onProgress((msg, pct) -> System.out.printf("[%d%%] %s%n", pct, msg))
  *     .execute();
  *
@@ -478,6 +479,7 @@ public class MavenClientBuilder {
      * @return Future，可通过 get() 获取编译结果
      */
     public Future<MavenCompileResult> executeAsync() {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         ExecutorService pool = executor != null ? executor : new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>());
         return pool.submit(() -> MavenClient.execute(this));
@@ -528,6 +530,7 @@ public class MavenClientBuilder {
      * @return Future，异步完成后可通过 get() 获取 MavenDeployClient
      */
     public Future<MavenDeployClient> compileAndDeployAsync() {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         ExecutorService pool = executor != null ? executor : new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>());
         return pool.submit((java.util.concurrent.Callable<MavenDeployClient>) this::compileAndDeploy);
@@ -557,6 +560,4 @@ public class MavenClientBuilder {
         if (file.isDirectory()) {
             return new File(file, "pom.xml").getAbsolutePath();
         }
-        return file.getAbsolutePath();
-    }
-}
+        return file.getAbsolutePath();    }}

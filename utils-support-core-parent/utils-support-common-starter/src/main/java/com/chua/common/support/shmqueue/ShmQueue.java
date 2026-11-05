@@ -14,6 +14,7 @@ import java.util.ServiceLoader;
  *   try (ShmQueue q = ShmQueue.create("/demo", 1024, 256, Mode.HYBRID)) {
  *       q.send(1, "hello".getBytes());
  *       Message m = q.recv();
+// [P3C E1 豁免] 场景化输出，非业务日志
  *       System.out.println(m.type() + " " + new String(m.bytes()));
  *   }
  * </pre>

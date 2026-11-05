@@ -12,9 +12,11 @@ import java.util.concurrent.TimeUnit;
  * <pre>{@code
  * CmdExecutors.executeAsync("ping -c 4 127.0.0.1", new CmdCallback() {
  *     public void onComplete(CmdResult result) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.out.println("执行完成: " + result);
  *     }
  *     public void onTimeout(String command, long timeout, TimeUnit unit) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.err.println("命令超时: " + command);
  *     }
  * });
@@ -54,5 +56,4 @@ public interface CmdCallback {
      * @param command   被执行的命令字符串
      * @param throwable 捕获的异常
      */
-    default void onError(String command, Throwable throwable) {}
-}
+    default void onError(String command, Throwable throwable) {}}

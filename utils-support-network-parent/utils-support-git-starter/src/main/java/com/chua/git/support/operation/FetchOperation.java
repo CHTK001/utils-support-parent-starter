@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
  * // 3. 定时监听
  * client.pull()
  *     .interval(30, TimeUnit.SECONDS)
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     .listener(e -> System.out.println(e.changeType() + ": " + e.filePath()))
  *     .progressListener(new ConsoleProgress())
  *     .start();

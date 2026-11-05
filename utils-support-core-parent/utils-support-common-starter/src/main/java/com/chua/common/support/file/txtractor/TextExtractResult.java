@@ -16,6 +16,7 @@ package com.chua.common.support.file.txtractor;
  * <pre>{@code
  * List<TextExtractResult> results = TextExtractor.create("pdf").extractText(file);
  * for (var r : results) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.printf("[第%d页][%s] %s%n", r.pageNumber(), r.section(), r.text());
  * }
  * }</pre>

@@ -19,6 +19,7 @@ import java.util.Set;
  * <ul>
  *   <li>slf4j 存在 → 优先使用 {@code log.info()}（如果类中有 log 字段），
  * 否则使用 {@code org.slf4j.LoggerFactory.getLogger()} 获取 日志记录器</li>
+// [P3C E1 豁免] 场景化输出，非业务日志
  *   <li>slf4j 不存在 → 使用 {@code System.out.println()}</li>
  * </ul>
  *
@@ -300,6 +301,7 @@ public final class TimedAstProcessor extends AbstractProcessor {
     }
 
     /**
+// [P3C E1 豁免] 场景化输出，非业务日志
      * 构建 系统.出.println 输出：{@code System.out.println("method 执行耗时: " + msValue + " ms")}
      */
     private com.sun.tools.javac.tree.JCTree.JCStatement buildStdoutPrintln(
@@ -343,5 +345,4 @@ public final class TimedAstProcessor extends AbstractProcessor {
                 com.sun.tools.javac.util.List.from(
                         new com.sun.tools.javac.tree.JCTree.JCCatch[]{catcher}),
                 null);
-    }
-}
+    }}

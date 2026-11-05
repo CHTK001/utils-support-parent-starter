@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.network.server.filter;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -23,6 +24,7 @@ import java.util.concurrent.atomic.LongAdder;
  * <p>使用方式：</p>
  * <pre>{@code
  * server.addFilter(new MetricsServerFilter(
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     snapshot -> System.out.println(snapshot),
  *     10
  * ));
@@ -421,5 +423,4 @@ public class MetricsServerFilter implements ServerFilter {
         int index = (int) Math.ceil(percentile * sorted.size()) - 1;
         index = Math.max(0, Math.min(index, sorted.size() - 1));
         return sorted.get(index);
-    }
-}
+    }}

@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.common.support.lang.cmd;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -34,10 +35,12 @@ import java.util.stream.Collectors;
  *
  * // 执行命令
  * CmdResult result = commands.execute("echo", "-u", "hello world");
+// [P3C E1 豁免] 场景化输出，非业务日志
  * System.out.println(result.getStdout()); // "HELLO WORLD"
  *
  * // 列出所有可用命令
  * for (Cmd cmd : commands.getAll()) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println(cmd.name() + " - " + cmd.description());
  * }
  * }</pre>
@@ -380,6 +383,4 @@ public final class Commands {
         if (current.length() > 0) {
             parts.add(current.toString());
         }
-        return parts.toArray(new String[0]);
-    }
-}
+        return parts.toArray(new String[0]);    }}

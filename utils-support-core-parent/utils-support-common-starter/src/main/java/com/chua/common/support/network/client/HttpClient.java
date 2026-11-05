@@ -280,6 +280,7 @@ public interface HttpClient extends AutoCloseable {
      * <pre>{@code
      * client.executeAsync(ClientRequest.of("http://api.example.com"))
      *     .timeout(Duration.ofSeconds(5))
+// [P3C E1 豁免] 场景化输出，非业务日志
      *     .doOnNext(resp -> System.out.println(resp.getBodyString()))
      *     .subscribe();
      *
@@ -317,4 +318,3 @@ public interface HttpClient extends AutoCloseable {
     @Override
     void close();
 }
-

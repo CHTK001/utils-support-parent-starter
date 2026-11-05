@@ -14,6 +14,7 @@ import java.util.Map;
  * <p>用法：</p>
  * <pre>{@code
  * try (IbdTableReader reader = IbdTableReader.open(new File("actor.ibd"))) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println(reader.definition());
  *     List<Map<String, Object>> rows = reader.readAll();
  * }

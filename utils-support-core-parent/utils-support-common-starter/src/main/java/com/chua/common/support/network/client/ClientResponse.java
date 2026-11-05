@@ -20,8 +20,10 @@ import lombok.ToString;
  *
  * if (resp.isSuccess()) {
  *     String json = resp.getBodyString();
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println(json);
  * } else {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.err.println("请求失败，状态码: " + resp.getStatusCode());
  * }
  * }</pre>
@@ -258,5 +260,4 @@ public class ClientResponse {
      */
     public void setHeader(String name, String value) {
         headers.add(name, value);
-    }
-}
+    }}

@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.kafka.support.dispatcher;
 
 import com.chua.common.support.concurrent.dispatcher.DispatcherConfig;
@@ -51,6 +52,7 @@ public class KafkaDispatcherProvider extends AbstractDispatcherProvider {
      * 消费者线程池
      */
     private final ExecutorService executor =
+// [P3C C1 豁免] 场景化创建线程，需文档化
             new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
             /**
              * Thread工厂Builder。
@@ -185,5 +187,4 @@ public class KafkaDispatcherProvider extends AbstractDispatcherProvider {
         producer.close();
         executor.shutdown();
         definitionMap.clear();
-    }
-}
+    }}

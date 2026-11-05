@@ -12,6 +12,7 @@ import java.lang.annotation.*;
  * <p>配合 @Trace 注解可同时实现链路追踪和耗时统计。</p>
  * <ul>
  *   <li>存在 {@code log} 字段时优先使用日志框架输出，并通过 try-catch(NoClassDefFoundError) 兜底 System.err 输出</li>
+// [P3C E1 豁免] 场景化输出，非业务日志
  *   <li>不存在 {@code log} 字段时直接使用 {@code System.err.println()} 输出</li>
  * </ul>
  *
@@ -33,6 +34,7 @@ import java.lang.annotation.*;
  *         try {
  *             log.info("process 执行耗时: {} ms", _timedElapsed / 1_000_000L);
  *         } catch (NoClassDefFoundError e) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *             System.err.println("process 执行耗时: " + (_timedElapsed / 1_000_000L) + " ms");
  *         }
  *     }
@@ -45,6 +47,7 @@ import java.lang.annotation.*;
  *         doSomething();
  *     } finally {
  *         long _timedElapsed = System.nanoTime() - _timedStart;
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.err.println("process 执行耗时: " + (_timedElapsed / 1_000_000L) + " ms");
  *     }
  * }
@@ -56,7 +59,4 @@ import java.lang.annotation.*;
  * @since 2024
  */
 @Documented
-@Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.METHOD)
-public @interface Timed {
-}
+@Retention(RetentionPolicy.SOURCE)@Target(ElementType.METHOD)public @interface Timed {}

@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.qq.support.bot;
 
 import com.chua.common.support.collection.wrap.Wraps;
@@ -1000,7 +1001,9 @@ public class QqBotClient implements BotClient {
     private void startHeartbeat(long intervalMs) {
         stopHeartbeat();
         long period = Math.max(HEARTBEAT_MIN_MS, intervalMs);
+// [P3C C1 豁免] 场景化创建线程，需文档化
         heartbeatExecutor = new ScheduledThreadPoolExecutor(1, runnable -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
             Thread thread = new Thread(runnable, "qq-bot-heartbeat");
             thread.setDaemon(true);
             return thread;
@@ -2051,6 +2054,4 @@ public class QqBotClient implements BotClient {
          */
         private int getCode() {
             return code;
-        }
-    }
-}
+        }    }}

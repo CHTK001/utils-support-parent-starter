@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
  * <pre>{@code
  * CmdExecutor executor = new ProcessCmdExecutor();
  * CmdResult result = executor.execute("echo Hello World");
+// [P3C E1 豁免] 场景化输出，非业务日志
  * System.out.println(result.getStdout());  // "Hello World"
  * }</pre>
  *
@@ -170,6 +171,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     public ProcessCmdExecutor(Charset charset, File workDirectory) {
         this.charset = charset != null ? charset : Charset.defaultCharset();
         this.workDirectory = workDirectory;
+// [P3C C1 豁免] 场景化创建线程，需文档化
         this.executorService = new ThreadPoolExecutor(
                 DEFAULT_CORE_POOL_SIZE,
                 DEFAULT_MAX_POOL_SIZE,
@@ -1012,5 +1014,4 @@ public class ProcessCmdExecutor implements CmdExecutor {
         String getContent() {
             return content.toString();
         }
-    }
-}
+    }}

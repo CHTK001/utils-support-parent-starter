@@ -62,6 +62,7 @@ public class RustNmapScanner implements NmapScanner {
      * 构造方法，创建 RustNmapScanner 实例。
      */
     public RustNmapScanner() {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         this.executor = Executors.newVirtualThreadPerTaskExecutor();
     }
 

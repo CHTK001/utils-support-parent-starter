@@ -17,11 +17,13 @@ import java.util.List;
  *     .onDeploy(new MavenDeployCallback() {
  *         @Override
  *         public void onDeployProgress(String message, int percent) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *             System.out.printf("[部署 %d%%] %s%n", percent, message);
  *         }
  *
  *         @Override
  *         public void onDeploySuccess(List&lt;String&gt; deployedPaths) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *             System.out.println("部署成功: " + deployedPaths);
  *         }
  *     })
@@ -67,5 +69,4 @@ public interface MavenDeployCallback {
      * @param exception 异常信息
      */
     default void onDeployFailure(Exception exception) {
-    }
-}
+    }}

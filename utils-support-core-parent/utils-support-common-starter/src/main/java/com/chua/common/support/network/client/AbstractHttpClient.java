@@ -42,6 +42,7 @@ import java.util.List;
  *
  *     protected void beforeExecute(ClientRequest request) {
  *         // 打印请求日志
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.out.println("Request: " + request.getMethod() + " " + request.getUrl());
  *     }
  * }

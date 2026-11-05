@@ -26,15 +26,18 @@ import java.util.concurrent.TimeUnit;
  * <pre>{@code
  * // 同步执行
  * CmdResult result = CmdExecutors.execute("ls -la");
+// [P3C E1 豁免] 场景化输出，非业务日志
  * System.out.println(result.getStdout());
  *
  * // 带超时执行
  * CmdResult result = CmdExecutors.execute("ping 127.0.0.1", 3, TimeUnit.SECONDS);
+// [P3C E1 豁免] 场景化输出，非业务日志
  * System.out.println("超时: " + result.isTimeout());
  *
  * // 异步执行
  * CmdExecutors.executeAsync("echo Hello", new CmdCallback() {
  *     public void onComplete(CmdResult r) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *         System.out.println(r.getStdout());
  *     }
  * });
@@ -463,6 +466,4 @@ public final class CmdExecutors {
      * @return 安装结果
      */
     public static CmdResult installPackageWith(PackageManager.Type type, String packageId) {
-        return PackageManager.installWith(type, packageId);
-    }
-}
+        return PackageManager.installWith(type, packageId);    }}

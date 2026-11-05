@@ -165,6 +165,7 @@ public class DebeziumPolledDirectory implements PolledDirectory {
                 })
                 .build();
 
+// [P3C C1 豁免] 场景化创建线程，需文档化
         executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(),
                 new ThreadFactoryBuilder().setNameFormat("debezium-" + listenPath + "-%d").setDaemon(true).build());
         executor.execute(engine);

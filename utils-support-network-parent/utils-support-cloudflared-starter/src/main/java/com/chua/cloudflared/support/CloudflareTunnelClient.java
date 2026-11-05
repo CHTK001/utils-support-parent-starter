@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
  *         .url("http://127.0.0.1:8080")
  *         .start()) {
  *     // 公网地址
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println(client.getUrls());
  * }
  * }</pre>
@@ -40,6 +41,7 @@ import java.util.regex.Pattern;
  *         .token(System.getenv("CLOUDFLARE_TUNNEL_TOKEN"))
  *         .url("http://127.0.0.1:8080")
  *         .start()) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println(client.getUrls());
  * }
  * }</pre>
@@ -50,6 +52,7 @@ import java.util.regex.Pattern;
  *         .url("http://127.0.0.1:8080")
  *         .hostname("tunnel.example.com")
  *         .start()) {
+// [P3C E1 豁免] 场景化输出，非业务日志
  *     System.out.println(client.getUrls());
  * }
  * }</pre>
@@ -605,7 +608,4 @@ public class CloudflareTunnelClient implements AutoCloseable {
                 copy.set(i + 1, "***");
                 i++;
             }
-        }
-        return copy;
-    }
-}
+        }        return copy;    }}
