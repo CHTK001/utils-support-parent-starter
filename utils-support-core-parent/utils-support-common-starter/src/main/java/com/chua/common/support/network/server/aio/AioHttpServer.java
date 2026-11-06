@@ -476,6 +476,10 @@ public class AioHttpServer extends AbstractServer {
             // 流式直写钩子(纯非阻塞):SSE 分片按序入待写队列,TLS 在队内加密,
             // 写权空闲则踢异步续写链;分片间 FIFO 保序
             response.setStreamWriter(bytes -> {
+                if (state.closed.get()) {
+                    // 已关闭(含刚因背压被断开):后续分片直接丢弃,避免每帧一次告警刷日志
+                    return;
+                }
                 // 标记 SSE 流式期:写链排空时不按 HTTP 收尾(见 continueWrite)
                 state.sseActive = true;
                 // 背压门限:慢客户端不读响应时,生产端会持续入队,必须在此拦住,
@@ -484,6 +488,8 @@ public class AioHttpServer extends AbstractServer {
                 if (max > 0 && state.pendingWriteBytes.get() + bytes.length > max) {
                     log.warn("AIO 待写队列超过背压门限 (pending={}, max={}),关闭连接",
                             state.pendingWriteBytes.get(), max);
+                    // 告知生产端停止生成:SSE 生产循环轮询 isChannelClosed() 即可退出
+                    response.abort();
                     closeConn(state);
                     return;
                 }

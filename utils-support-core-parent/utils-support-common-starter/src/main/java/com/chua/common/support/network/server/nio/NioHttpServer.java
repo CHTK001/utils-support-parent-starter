@@ -180,7 +180,8 @@ public class NioHttpServer extends AbstractServer {
      * @param bytes 分片字节
      */
     private void enqueueStream(ConnectionState st, SelectionKey key, byte[] bytes) {
-        if (bytes == null || bytes.length == 0) {
+        if (bytes == null || bytes.length == 0 || st.closed.get()) {
+            // 已关闭(含刚因背压被断开):生产端后续分片直接丢弃,避免每帧一次告警刷日志
             return;
         }
         long max = setting.getMaxPendingWriteBytes();
@@ -594,6 +595,11 @@ public class NioHttpServer extends AbstractServer {
             // 流式直写(SSE):入待写队列并受背压门限约束,不再在事件循环里忙等非阻塞通道
             response.setStreamWriter(bytes -> {
                 enqueueStream(st, key, bytes);
+                if (st.closed.get()) {
+                    // 连接已被关闭(背压断开等):告知响应对象,让 SSE 生产端停止生成
+                    response.abort();
+                    return;
+                }
                 flushInlineWrite(st, key);
             });
             try {
@@ -704,6 +710,10 @@ public class NioHttpServer extends AbstractServer {
             // 流式直写(SSE):分片入待写队列并由事件循环续写;受背压门限约束
             response.setStreamWriter(bytes -> {
                 enqueueStream(st, key, bytes);
+                if (st.closed.get()) {
+                    response.abort();
+                    return;
+                }
                 pendingWriteQueues[st.shard].add(key);
                 selectors[st.shard].wakeup();
             });
@@ -762,6 +772,10 @@ public class NioHttpServer extends AbstractServer {
             // 流式直写(SSE):worker 线程排空队列;排不完交由事件循环 OP_WRITE 续写
             response.setStreamWriter(bytes -> {
                 enqueueStream(st, key, bytes);
+                if (st.closed.get()) {
+                    response.abort();
+                    return;
+                }
                 synchronized (st.writeQueue) {
                     drainWriteQueue(st, key);
                 }

@@ -633,6 +633,15 @@ public class NioServerResponse implements ServerResponse {
     }
 
     /**
+     * 标记响应不可再写(连接已被服务端关闭,如慢消费者被背压断开)。
+     * <p>标记后 {@link #writeToChannel(byte[])} 直接丢弃后续字节,生产端通过
+     * {@link #isChannelClosed()} 感知并停止生成数据。</p>
+     */
+    public void abort() {
+        channelClosed = true;
+    }
+
+    /**
      * 判断 channel 是否已关闭（SSE close 后）。
      * @return 是否成功（true 表示成功）
      */
@@ -707,6 +716,10 @@ public class NioServerResponse implements ServerResponse {
     private void writeToChannel(byte[] data) {
         // 流式钩子优先(AIO/NIO 复用):把分片交给服务器待写队列,避免在非阻塞通道上忙等
         if (streamWriter != null) {
+            if (channelClosed) {
+                // 连接已关闭(含背压断开):入队无意义,直接丢弃
+                return;
+            }
             try {
                 streamWriter.accept(data);
             } catch (Exception e) {

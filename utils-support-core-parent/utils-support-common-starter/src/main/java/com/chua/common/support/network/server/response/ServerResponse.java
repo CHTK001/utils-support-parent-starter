@@ -157,6 +157,17 @@ public interface ServerResponse {
     boolean isEnded();
 
     /**
+     * 判断底层连接是否已不可写（服务端关闭、对端断开，或慢消费者被背压断开）。
+     * <p>流式（SSE）生产端应轮询该标志，一旦返回 true 立即停止生成后续数据，
+     * 否则会在无人接收的流上空转（生成即丢弃，白白消耗 CPU 与 GC）。</p>
+     *
+     * @return 连接已不可写返回 true
+     */
+    default boolean isChannelClosed() {
+        return false;
+    }
+
+    /**
      * 设置返回的原始结果对象（未转换），由尾部 ResponseConverterFilter 统一转换。
      *
      * @param result bean 方法返回的原始对象
