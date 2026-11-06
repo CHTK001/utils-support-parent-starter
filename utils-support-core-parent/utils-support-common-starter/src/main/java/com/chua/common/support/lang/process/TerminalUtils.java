@@ -136,7 +136,7 @@ public class TerminalUtils {
     private static int getTerminalWidthWindows() {
         try {
             //              Windows CMD
-            Process process = Runtime.getRuntime().exec("cmd /c mode con");
+            Process process = new ProcessBuilder("cmd", "/c", "mode con").start();
             java.io.BufferedReader reader = new java.io.BufferedReader(
                 new InputStreamReader(process.getInputStream(), java.nio.charset.Charset.defaultCharset()));
 
@@ -166,7 +166,7 @@ public class TerminalUtils {
     private static int getTerminalWidthUnix() {
         try {
             //        stty
-            Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", "stty size < /dev/tty"});
+            Process process = new ProcessBuilder("sh", "-c", "stty size < /dev/tty").start();
             java.io.BufferedReader reader = new java.io.BufferedReader(
                 new InputStreamReader(process.getInputStream()));
 

@@ -26,14 +26,31 @@ import java.util.concurrent.CompletionStage;
  *   <li>全部过滤器执行完毕后，调用目标处理器 {@link ServerHandler#handle}</li>
  * </ol></p>
  *
- * <p>注意：本实现为简化版，未引入 {@link FilterChainListener} 回调，
- * 因为响应式场景下 listener 可通过 {@link ReactiveServerFilter} 自行实现。</p>
+ * <p>链路监听器：若请求上挂载了 {@code _chainListeners}（由 {@link TracingServerFilter}
+ * 写入），每个过滤器执行前后会回调 {@link FilterChainListener}；未挂载时只多一次请求
+ * 属性读取，不产生回调开销。</p>
  *
  * @author CH
  * @since 2026/07/16
  */
 @Slf4j
 public class DefaultReactiveFilterChain implements ReactiveFilterChain {
+
+    /**
+     * 过滤器链监听器在请求上的属性键（由 {@link TracingServerFilter} 写入）。
+     */
+    private static final String LISTENERS_KEY = "_chainListeners";
+
+    /**
+     * 共享的「已完成」信号。
+     *
+     * <p>同步过滤器与同步 handler 是常态，每个请求、每一步放行都会返回一个完成态；
+     * 每次 {@code CompletableFuture.completedFuture(null)} 都要新分配一个对象，
+     * 实测占全部申请的 8.5%（百万级 QPS 下是纯 GC 负担）。完成态不可再变，
+     * 因此全进程共享一个实例即可：调用方只做 {@code whenComplete}/{@code join}，
+     * 两者都不会修改该实例。</p>
+     */
+    private static final CompletableFuture<Void> COMPLETED = CompletableFuture.completedFuture(null);
 
     /**
      * 响应式过滤器列表
@@ -76,7 +93,7 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
                     }
                     // 同步执行：避免与 whenComplete 竞争导致 404 状态丢失
                     handler.handle(request, response);
-                    return CompletableFuture.completedFuture(null);
+                    return COMPLETED;
                 } catch (Exception e) {
                     log.warn("响应式处理器执行异常: {}", e.getMessage(), e);
                     if (!response.isEnded()) {
@@ -88,7 +105,7 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
                     }
                 }
             }
-            return CompletableFuture.completedFuture(null);
+            return COMPLETED;
         }
 
         ReactiveServerFilter filter = filters.get(index++);
@@ -99,7 +116,7 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
         // 视为恒启用（仅包装的同步过滤器与 DelegatingServerFilter 支持热启停）。
         if (filter instanceof ServerFilter syncFilter && !syncFilter.isEnabled()) {
             if (response.isEnded()) {
-                return CompletableFuture.completedFuture(null);
+                return COMPLETED;
             }
             return doFilter(request, response);
         }
@@ -109,17 +126,28 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
         if (path != null && !matchPath(path, request.getPath())) {
             // 路径不匹配，跳过此 filter 继续下一个
             if (response.isEnded()) {
-                return CompletableFuture.completedFuture(null);
+                return COMPLETED;
             }
             return doFilter(request, response);
         }
 
         try {
-            CompletionStage<Void> stage = filter.doFilter(request, response, this);
-            if (stage == null) {
-                return CompletableFuture.completedFuture(null);
+            List<FilterChainListener> listeners = listenersOf(request);
+            long start = listeners != null ? System.nanoTime() : 0L;
+            if (listeners != null) {
+                notifyBefore(listeners, filter, request, response);
             }
-            return stage;
+            try {
+                CompletionStage<Void> stage = filter.doFilter(request, response, this);
+                if (stage == null) {
+                    return COMPLETED;
+                }
+                return stage;
+            } finally {
+                if (listeners != null) {
+                    notifyAfter(listeners, filter, System.nanoTime() - start, request, response);
+                }
+            }
         } catch (Exception e) {
             log.warn("响应式过滤器执行异常: {}", filter.getClass().getSimpleName(), e);
             if (!response.isEnded()) {
@@ -129,7 +157,72 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
                     log.warn("发送 500 错误失败: {}", ex.getMessage(), ex);
                 }
             }
-            return CompletableFuture.completedFuture(null);
+            return COMPLETED;
+        }
+    }
+
+    /**
+     * 读取当前请求挂载的链路监听器。
+     *
+     * <p>无监听器时返回 null：未开启链路追踪的请求在下游不会产生任何额外回调开销，
+     * 只多一次请求属性读取。</p>
+     *
+     * @param request 当前请求
+     * @return 监听器列表，未挂载时返回 null
+     */
+    @SuppressWarnings("unchecked")
+    private static List<FilterChainListener> listenersOf(ServerRequest request) {
+        Object value = request.getAttribute(LISTENERS_KEY);
+        if (value instanceof List<?>) {
+            return (List<FilterChainListener>) value;
+        }
+        return null;
+    }
+
+    /**
+     * 通知 filter 执行前。
+     *
+     * @param listeners 监听器列表
+     * @param filter    将要执行的 filter
+     * @param request   当前请求
+     * @param response  当前响应
+     */
+    private static void notifyBefore(List<FilterChainListener> listeners, ReactiveServerFilter filter,
+                                     ServerRequest request, ServerResponse response) {
+        // 链上的静态过滤器都被 ServerFilterManager 包成 StaticReactiveFilterAdapter(同时实现
+        // ServerFilter)，原生响应式过滤器不参与回调：监听器契约以 ServerFilter 为标识。
+        if (!(filter instanceof ServerFilter syncFilter)) {
+            return;
+        }
+        for (FilterChainListener listener : listeners) {
+            try {
+                listener.beforeFilter(syncFilter, request, response);
+            } catch (Exception ignored) {
+                // 监听器异常与请求处理无关，忽略
+            }
+        }
+    }
+
+    /**
+     * 通知 filter 执行后。
+     *
+     * @param listeners 监听器列表
+     * @param filter    已执行的 filter
+     * @param elapsed   执行耗时（纳秒）
+     * @param request   当前请求
+     * @param response  当前响应
+     */
+    private static void notifyAfter(List<FilterChainListener> listeners, ReactiveServerFilter filter, long elapsed,
+                                    ServerRequest request, ServerResponse response) {
+        if (!(filter instanceof ServerFilter syncFilter)) {
+            return;
+        }
+        for (FilterChainListener listener : listeners) {
+            try {
+                listener.afterFilter(syncFilter, elapsed, request, response);
+            } catch (Exception ignored) {
+                // 同上
+            }
         }
     }
 

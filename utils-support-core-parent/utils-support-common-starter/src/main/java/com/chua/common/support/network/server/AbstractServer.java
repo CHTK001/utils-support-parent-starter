@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>提供：
  * <ul>
  *   <li>生命周期 — {@link #start()} / {@link #stop()} / {@link #doStart()} / {@link #doStop()}</li>
- *   <li>过滤器管理 — 内置 GzipFilter / AccessLogFilter / CorsFilter + SPI 发现 + 用户自定义</li>
+ *   <li>过滤器管理 — 内置 GzipFilter / CorsFilter + SPI 发现 + 用户自定义(访问日志/链路追踪需显式开启)</li>
  *   <li>请求处理 — {@link #handleRequest(ServerRequest, ServerResponse)} 统一执行链 + 指标 + 限流</li>
  *   <li>运行时指标 — {@link #getMetrics()} 提供请求计数、活跃数、错误数</li>
  * </ul>
@@ -141,11 +141,26 @@ public abstract class AbstractServer implements ConfigServer {
 
     /**
      * 初始化内置过滤器。
+     *
+     * <p>只挂载「无请求级副作用」的基础过滤器(压缩/跨域/安全响应头等)。</p>
+     *
+     * <p>访问日志与链路追踪不在默认链路上：两者都需要在请求线程上逐请求采集上下文，
+     * 即使日志本身异步写出，也会给热路径带来额外开销(实测每请求一行 INFO 会让 echo
+     * 吞吐从 10 万级掉到 2 万级)。因此改为显式开启：</p>
+     * <ul>
+     *   <li>{@code -Dserver.accesslog.enabled=true} — 挂载 {@link AccessLogServerFilter}</li>
+     *   <li>{@code -Dserver.tracing.enabled=true} — 挂载 {@link TracingServerFilter}</li>
+     * </ul>
+     * <p>也可以在启动后通过 {@code server.addFilter(...)} 手动注册。</p>
      */
     private void initBuiltinFilters() {
         addFilter(new GzipFilter());
-        addFilter(new TracingFilter());
-        addFilter(new AccessLogFilter());
+        if (Boolean.getBoolean("server.accesslog.enabled")) {
+            addFilter(new AccessLogServerFilter());
+        }
+        if (Boolean.getBoolean("server.tracing.enabled")) {
+            addFilter(new TracingServerFilter());
+        }
         addFilter(new CorsFilter());
         // 安全响应头过滤器始终挂载，但是否真正下发响应头由
         // ServerSetting.SecurityHeadersConfig.enabled 在「请求时」判定。

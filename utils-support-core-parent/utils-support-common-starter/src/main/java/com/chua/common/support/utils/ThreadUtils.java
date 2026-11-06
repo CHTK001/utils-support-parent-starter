@@ -63,7 +63,7 @@ public class ThreadUtils {
             "com-ch-scheduled-thread-pool");
 
     static {
-        Runtime.getRuntime().addShutdownHook(newThread(THREAD_POOL::shutdownNow));
+        // 线程池在类重启/不可重新创建时由调用方显式关闭
     }
 
     /**
@@ -1011,20 +1011,6 @@ public class ThreadUtils {
      */
     public static ScheduledExecutorService newStaticScheduledThreadPoolExecutor() {
         return SCHEDULED_EXECUTOR_SERVICE;
-    }
-
-    /**
-     * 注册 JVM 关闭钩子。
-     * <p>
-     * 将 Runnable 包装为守护线程后添加到 JVM 关闭钩子。
-     * </p>
-     *
-     * @param runnable JVM 关闭时要执行的任务
-     */
-    public static void addShutdownHook(Runnable runnable) {
-        var thread = ThreadUtils.newThread(runnable);
-        thread.setDaemon(true);
-        Runtime.getRuntime().addShutdownHook(thread);
     }
 
     /**

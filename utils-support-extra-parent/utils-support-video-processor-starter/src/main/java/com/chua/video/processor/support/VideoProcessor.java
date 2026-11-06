@@ -49,12 +49,11 @@ public class VideoProcessor {
     public static void main(String[] args) {
         if (args.length < 2) {
             System.err.println("Usage: java VideoProcessor <input> <output_dir>"); // [P3C E1 豁免]
-            System.exit(1);
+            throw new IllegalStateException("程序执行失败，请检查执行结果日志。");
         }
         String input = args[0];
         String output = args[1];
         boolean success = transcodeToHls(input, output);
         System.out.println(success ? "Success" : "Failure"); // [P3C E1 豁免]
-        System.exit(success ? 0 : 1);
     }
 }

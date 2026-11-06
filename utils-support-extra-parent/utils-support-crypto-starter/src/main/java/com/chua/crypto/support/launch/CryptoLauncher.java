@@ -159,7 +159,7 @@ public final class CryptoLauncher {
             launch(args);
         } catch (Throwable t) {
             System.err.println("[chua-crypto] 程序包启动失败: " + t.getMessage()); // [P3C E1 豁免]
-            System.exit(1);
+            throw new IllegalStateException("程序执行失败，请检查执行结果日志。");
         }
     }
 
@@ -191,9 +191,8 @@ public final class CryptoLauncher {
             harden(tempDir);
 
             URLClassLoader appLoader = Boolean.parseBoolean(System.getProperty(PROP_LAZY, "false"))
-                    ? buildLazyLoader(self, master)
+                    ? buildLazyLoader(self, master, tempDir)
                     : buildExtractedLoader(jar, master, tempDir);
-            registerCleanup(tempDir, appLoader);
             KeyShard.wipe(master);
 
             Thread.currentThread().setContextClassLoader(appLoader);
@@ -202,6 +201,9 @@ public final class CryptoLauncher {
                 mainClass.getMethod("main", String[].class).invoke(null, (Object) args);
             } catch (InvocationTargetException e) {
                 throw e.getCause() == null ? e : e.getCause();
+            } finally {
+                // 关闭类加载器与临时目录，释放文件句柄
+                cleanup(tempDir, appLoader);
             }
         }
     }
@@ -374,8 +376,10 @@ public final class CryptoLauncher {
      * @return 惰性加载器
      * @throws IOException 解密失败
      */
-    private static URLClassLoader buildLazyLoader(File self, byte[] master) throws IOException {
-        Path libsDir = Files.createTempDirectory("chua-crypto-libs");
+    private static URLClassLoader buildLazyLoader(File self, byte[] master, Path tempDir) throws IOException {
+        // 惰性模式：库文件与 classes 目录统一在 tempDir 下，归同一个 cleanup 回收
+        Path libsDir = tempDir.resolve("libs-lazy");
+        Files.createDirectories(libsDir);
 
         List<URL> urls = Wraps.list();
         try (JarFile jar = new JarFile(self)) {
@@ -388,7 +392,6 @@ public final class CryptoLauncher {
         }
         URLClassLoader libsLoader = new URLClassLoader(urls.toArray(new URL[0]),
                 ClassLoader.getPlatformClassLoader());
-        registerCleanup(libsDir, libsLoader);
         return new EncryptedAppClassLoader(self, master.clone(), libsLoader);
     }
 
@@ -437,37 +440,33 @@ public final class CryptoLauncher {
     }
 
     /**
-     * 注册 JVM 关闭钩子：先关闭应用类加载器，再递归删除临时目录。
-     * <p>
-     * 类加载器持有解密产物的文件句柄，Windows 下未关闭即删除必然失败，
-     * 明文会在临时目录中长期残留，故关闭动作与删除动作放在同一个钩子里。
+     * 清理引导器产生的类加载器与临时目录：先关闭加载器释放文件句柄，再递归删除临时目录。
      *
      * @param dir    临时目录
      * @param loader 该目录产物的持有者
      */
-    private static void registerCleanup(Path dir, URLClassLoader loader) {
-// [P3C C1 豁免] 关闭钩子必须由 JVM 创建独立线程
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
+    private static void cleanup(Path dir, URLClassLoader loader) {
+        try {
+            if (loader != null) {
                 loader.close();
-            } catch (IOException ignored) {
-                // 关闭失败仍需尝试删除
             }
-            List<Path> leftovers = Wraps.list();
-            try (var paths = Files.walk(dir)) {
-                paths.sorted(Comparator.reverseOrder()).forEach(p -> {
-                    if (!p.toFile().delete()) {
-                        leftovers.add(p);
-                    }
-                });
-            } catch (IOException ignored) {
-                // 退出期遍历失败时按已收集到的残留报告
-            }
-            if (!leftovers.isEmpty()) {
-                LOG.severe("[chua-crypto] 解密临时文件未能全部清理，明文残留于 "
-                        + dir + "（共 " + leftovers.size() + " 项，首个: " + leftovers.getLast() + "）");
-            }
-        }, "chua-crypto-cleaner"));
+        } catch (IOException ignored) {
+            // 关闭失败仍需尝试删除
+        }
+        List<Path> leftovers = Wraps.list();
+        try (var paths = Files.walk(dir)) {
+            paths.sorted(Comparator.reverseOrder()).forEach(p -> {
+                if (!p.toFile().delete()) {
+                    leftovers.add(p);
+                }
+            });
+        } catch (IOException ignored) {
+            // 退出期遍历失败时按已收集到的残留报告
+        }
+        if (!leftovers.isEmpty()) {
+            LOG.severe("[chua-crypto] 解密临时文件未能全部清理，明文残留于 "
+                    + dir + "（共 " + leftovers.size() + " 项，首个: " + leftovers.getLast() + "）");
+        }
     }
 
     /**

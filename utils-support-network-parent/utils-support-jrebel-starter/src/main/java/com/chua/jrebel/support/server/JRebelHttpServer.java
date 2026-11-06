@@ -255,12 +255,6 @@ licenseType=0
             httpServer.setExecutor(createExecutor());
             httpServer.start();
 
-// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("JRebel HttpServer shutting down...");
-                stop();
-            }));
-
             log.info("JRebel HttpServer started on http://{}:{}", setting.getHost(), setting.getPort());
         } catch (Exception e) {
             throw new RuntimeException("启动 JRebel HttpServer 失败", e);

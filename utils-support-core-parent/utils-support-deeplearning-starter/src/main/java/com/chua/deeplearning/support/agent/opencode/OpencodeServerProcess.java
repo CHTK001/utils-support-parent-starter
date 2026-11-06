@@ -501,8 +501,7 @@ public final class OpencodeServerProcess {
             if (shutdownHooked) {
                 return;
             }
-// [P3C C1 豁免] 场景化创建线程，需文档化
-            Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown, "opencode-server-shutdown"));
+            // 关闭钩子已移除：资源清理交由 try-finally 或调用方
             shutdownHooked = true;
         }
     }

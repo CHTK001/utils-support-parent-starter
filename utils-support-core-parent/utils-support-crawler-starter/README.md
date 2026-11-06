@@ -5,7 +5,7 @@
 > 2026-09-26 起本模块由 `utils-support-spider-starter` 更名而来（包路径同步改为
 > `com.chua.crawler.support`）。原内嵌的爬虫平台（`/spider/definitions`、
 > `/spider/executions`、`/spider/proxy-pools` 共 16 个端点与 SpiderTimerService
-> 定时调度器）已下线，能力由 `spring-api-support-collect-starter`（`/v2/collect/**`）承接。
+> 定时调度器）已下线，能力由 `spring-support-collect-starter`（`/v2/collect/**`）承接。
 > 类名（`Spider`、`SpiderFetcher`、`HttpFetcher` 等）保持不变，只改了包路径与模块坐标。
 
 ---

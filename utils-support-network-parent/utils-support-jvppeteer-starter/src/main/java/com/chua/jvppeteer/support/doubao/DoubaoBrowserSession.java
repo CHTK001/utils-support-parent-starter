@@ -196,8 +196,6 @@ public class DoubaoBrowserSession implements AutoCloseable {
         this.cookies = parseCookies(cookieString);
         this.userDataDir = userDataDir == null || userDataDir.isEmpty() ? DEFAULT_USER_DATA_DIR : userDataDir;
         this.browser = JvppeteerSupport.launch(true, null, List.of(STEALTH_ARGS), null);
-// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
-        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
     }
 
     /**

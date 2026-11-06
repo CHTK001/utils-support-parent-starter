@@ -2,6 +2,7 @@
 package com.chua.common.support.network.sync.impl;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServer;
@@ -67,6 +68,34 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
      * 客户端注册表（clientId -> metadata）
      */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
+
+    /**
+     * 会话最后活动时间（clientId -> epoch millis）。
+     *
+     * <p>HTTP 传输没有可断的连接：客户端被 kill 之后，{@code /api/sync/register} 留下的条目
+     * 不会有任何回调来移除。旧实现因此把早已停机的实例永远当成「在线」，
+     * 平台据此解析出的租户地址会直接打向一个死端口。这里给 HTTP 会话补上生命周期：
+     * 客户端每 30 秒至少发送一次心跳拉取，超过 {@link #SESSION_IDLE_TIMEOUT_MS}
+     * 没有任何请求即判定掉线，并按掉线事件广播出去。</p>
+     */
+    private final Map<String, Long> clientLastActive = new ConcurrentHashMap<>();
+
+    /**
+     * 空闲会话判定阈值：客户端心跳间隔 30 秒（拉取最长阻塞 5 秒），
+     * 正常活跃间隔不超过 35 秒，这里取 60 秒留约一倍余量，
+     * 保证「实例被 kill 后最迟 70 秒内」从在线列表里消失。
+     */
+    private static final long SESSION_IDLE_TIMEOUT_MS = 60_000L;
+
+    /**
+     * 空闲会话扫描间隔。
+     */
+    private static final long SESSION_SWEEP_INTERVAL_MS = 10_000L;
+
+    /**
+     * 空闲会话扫描线程。
+     */
+    private Thread sessionSweeper;
 
     /**
      * 消息队列（topic -> queue of message）
@@ -138,6 +167,8 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
                 String message = extractParam(body, "message");
                 String cid = extractParam(body, "clientId");
                 if (topic != null && message != null && cid != null) {
+                    // 客户端发消息本身也是存活证明：心跳、注册、业务消息都会走到这里
+                    touchClient(cid);
                     send(cid, topic, message);
                     sendResponse(exchange, 200, "{\"status\":\"ok\"}");
                 } else {
@@ -162,6 +193,7 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
                 }
 
                 clients.putIfAbsent(clientId, Wraps.map());
+                touchClient(clientId);
                 String[] topics = topicsStr.split(",");
                 int timeout = timeoutStr != null ? Integer.parseInt(timeoutStr) : 30;
 
@@ -182,6 +214,7 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
                 String clientId = extractParam(body, "clientId");
                 if (clientId != null) {
                     clients.putIfAbsent(clientId, Wraps.map());
+                    touchClient(clientId);
                     notifyListener(l -> l.onClientConnected(clientId, clients.get(clientId)));
                     sendResponse(exchange, 200, "{\"status\":\"ok\"}");
                 } else {
@@ -190,6 +223,7 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
             });
 
             server.start();
+            startSessionSweeper();
         } catch (Exception e) {
             throw new RuntimeException("HTTP SyncServer 启动失败", e);
         }
@@ -209,7 +243,75 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
             handlerExecutor = null;
         }
         clients.clear();
+        clientLastActive.clear();
         messageQueues.clear();
+    }
+
+    /**
+     * 启动空闲会话扫描。
+     *
+     * <p>扫描线程独立于 HTTP 请求：客户端全部跑光之后不会再有请求进来，
+     * 靠请求顺带清理会把最后一个会话永远留在表里。</p>
+     */
+    private void startSessionSweeper() {
+        sessionSweeper = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    Thread.sleep(SESSION_SWEEP_INTERVAL_MS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+                sweepIdleClients();
+            }
+        }, "http-sync-session-sweeper");
+        sessionSweeper.setDaemon(true);
+        sessionSweeper.start();
+    }
+
+    /**
+     * 清理空闲超时的会话。
+     */
+    private void sweepIdleClients() {
+        long now = System.currentTimeMillis();
+        for (Map.Entry<String, Long> entry : clientLastActive.entrySet()) {
+            Long lastActive = entry.getValue();
+            if (lastActive != null && now - lastActive > SESSION_IDLE_TIMEOUT_MS) {
+                expireClient(entry.getKey(), now - lastActive);
+            }
+        }
+    }
+
+    /**
+     * 判定一个会话掉线，并按掉线事件广播。
+     *
+     * <p>先删活动时间再删注册表：两步之间不可能被误判为「在线且无活动时间」，
+     * 相反的顺序会让 {@link #getConnectedClients()} 先把连接报成在线。</p>
+     *
+     * @param clientId 客户端标识
+     * @param idleMs   空闲时长
+     */
+    private void expireClient(String clientId, long idleMs) {
+        if (clientLastActive.remove(clientId) == null) {
+            return;
+        }
+        if (clients.remove(clientId) == null) {
+            return;
+        }
+        log.info("[Sync:http] 会话空闲超时，判定掉线: clientId={}, idleMs={}", clientId, idleMs);
+        notifyListener(l -> l.onClientDisconnected(clientId));
+    }
+
+    /**
+     * 记录一次客户端活动。
+     *
+     * @param clientId 客户端标识
+     */
+    private void touchClient(String clientId) {
+        if (clientId == null) {
+            return;
+        }
+        clientLastActive.put(clientId, System.currentTimeMillis());
     }
 
     /**
@@ -217,8 +319,7 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
      */
     @Override
     public void publish(String topic, Object message) {
-        String payload = topic + ":" + message.toString();
-        messageQueues.computeIfAbsent(topic, k -> Wraps.deque()).add(payload);
+        messageQueues.computeIfAbsent(topic, k -> Wraps.deque()).add(topic + ":" + encodeMessage(message));
         signalMessage();
     }
 
@@ -245,9 +346,26 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
             return;
         }
         messageQueues.computeIfAbsent(topic, k -> Wraps.deque())
-                .add(topic + ":" + message.toString());
+                .add(topic + ":" + encodeMessage(message));
         signalMessage();
         notifyListener(l -> l.onMessage(clientId, topic, message));
+    }
+
+    /**
+     * 把待推送的消息编码为可跨进程传输的字符串。
+     *
+     * <p>对象一律转 JSON：对端 {@code pullMessages} 拿到的是字符串，
+     * 只有 JSON 才能被 {@code Json.fromJson} 还原成结构化数据；
+     * 字符串消息原样返回，避免二次转义。</p>
+     *
+     * @param message 消息，可为 null
+     * @return 编码后的字符串
+     */
+    private String encodeMessage(Object message) {
+        if (message == null) {
+            return "";
+        }
+        return message instanceof CharSequence text ? text.toString() : Json.toJson(message);
     }
 
     /**
@@ -255,7 +373,25 @@ public class HttpSyncServer extends AbstractServer implements SyncServer, SyncPr
      */
     @Override
     public List<String> getConnectedClients() {
-        return Wraps.list(clients.keySet());
+        // 扫描线程每 15 秒才清一次，查询方不该在这段窗口里拿到已掉线的会话：
+        // 命中超时会话就地回收，保证「在线集合」始终等于「最近 90 秒有过请求的会话」
+        long now = System.currentTimeMillis();
+        List<String> connected = new java.util.ArrayList<>(clients.size());
+        for (String clientId : clients.keySet()) {
+            Long lastActive = clientLastActive.get(clientId);
+            if (lastActive == null) {
+                // 无活动时间（旧数据/异常路径）：登记过就按在线算，不误杀正在连接的客户端
+                connected.add(clientId);
+                continue;
+            }
+            long idleMs = now - lastActive;
+            if (idleMs > SESSION_IDLE_TIMEOUT_MS) {
+                expireClient(clientId, idleMs);
+                continue;
+            }
+            connected.add(clientId);
+        }
+        return connected;
     }
 
     /**

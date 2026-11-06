@@ -86,7 +86,7 @@ public class PdfDocumentRenderer implements DocumentProvider {
         };
         for (String[] cmd : commands) {
             try {
-                Process process = Runtime.getRuntime().exec(cmd);
+                Process process = new ProcessBuilder(cmd).start();
                 int exitCode = process.waitFor();
                 if (exitCode == 0 && pdfFile.exists()) {
                     log.info("PDF 转换成功: {}", pdfFile.getAbsolutePath());
@@ -97,10 +97,10 @@ public class PdfDocumentRenderer implements DocumentProvider {
             }
         }
         try {
-            Process process = Runtime.getRuntime().exec(new String[]{
+            Process process = new ProcessBuilder(
                     "wkhtmltopdf", "--encoding", "utf-8",
                     htmlFile.getAbsolutePath(), pdfFile.getAbsolutePath()
-            });
+            ).start();
             int exitCode = process.waitFor();
             if (exitCode == 0 && pdfFile.exists()) {
                 log.info("PDF 转换成功: {}", pdfFile.getAbsolutePath());

@@ -2,6 +2,7 @@
 package com.chua.common.support.network.sync.impl;
 
 import com.chua.common.support.collection.wrap.Wraps;
+import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.common.support.network.sync.SyncMessageHandler;
@@ -174,9 +175,14 @@ public class HttpSyncClient implements SyncClient {
             throw new IllegalStateException("客户端未连接");
         }
         try {
+            // 结构化消息必须走 JSON：服务端按 JSON 还原成 Map，才读得到 clientMetadata 等嵌套字段。
+            // 旧实现用 message.toString()，Map 会变成 "{a=b}" 的 Java 文本，
+            // 服务端 Json.fromJson 解析失败后只剩一个字符串，注册信息里的租户地址全部丢失。
+            // 已经是字符串的消息（如纯文本协议）保持原样，避免二次转义。
+            String payload = message instanceof CharSequence text ? text.toString() : Json.toJson(message);
             String body = "clientId=" + java.net.URLEncoder.encode(clientId, "UTF-8")
                     + "&topic=" + java.net.URLEncoder.encode(topic, "UTF-8")
-                    + "&message=" + java.net.URLEncoder.encode(message.toString(), "UTF-8");
+                    + "&message=" + java.net.URLEncoder.encode(payload, "UTF-8");
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(serverUrl + "/api/sync/send"))
                     .header("Content-Type", "application/x-www-form-urlencoded")

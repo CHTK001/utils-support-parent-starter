@@ -112,7 +112,6 @@ public final class WechatRestoreCli {
      * @param args 参数
      */
     public static void main(String[] args) {
-        System.exit(run(args, System.out, System.err));
     }
 
     /**

@@ -1,6 +1,6 @@
 [
   {
-    "name": "com.chua.common.support.network.server.filter.AccessLogFilter",
+    "name": "com.chua.common.support.network.server.filter.AccessLogServerFilter",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -90,7 +90,7 @@
     "allPublicFields": true
   },
   {
-    "name": "com.chua.common.support.network.server.filter.TracingFilter",
+    "name": "com.chua.common.support.network.server.filter.TracingServerFilter",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,

@@ -9,8 +9,15 @@ import com.chua.common.support.ai.agent.AgentDefinition;
 import com.chua.common.support.ai.agent.AgentLoopGuard;
 import com.chua.common.support.ai.agent.AgentMode;
 import com.chua.common.support.ai.agent.AgentPlanHook;
+import com.chua.common.support.ai.agent.AgentQuestion;
+import com.chua.common.support.ai.agent.AgentQuestionAnswer;
 import com.chua.common.support.ai.agent.AgentResponse;
 import com.chua.common.support.ai.agent.AgentStreamEvent;
+import com.chua.common.support.ai.agent.goal.AgentGoalSupport;
+import com.chua.common.support.ai.agent.goal.GoalLoop;
+import com.chua.common.support.ai.agent.goal.GoalStatus;
+import com.chua.common.support.ai.agent.goal.GoalTracker;
+import com.chua.common.support.ai.agent.goal.SessionGoal;
 import com.chua.common.support.ai.agent.ConfirmationDecision;
 import com.chua.common.support.ai.agent.ConfirmationItem;
 import com.chua.common.support.ai.chat.ChatClient;
@@ -32,12 +39,11 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -84,10 +90,15 @@ import java.util.concurrent.atomic.AtomicReference;
  *   <li>中断：{@link #interrupt()} 调用 {@code POST /api/session/{id}/interrupt} 终止当前轮</li>
  * </ul>
  *
- * <h3>无法映射的框架能力</h3>
- * <p>opencode 自管工具/技能/子 agent/记忆，本实现会把 {@code mcpManager/skillManager/
- * subAgent/memoryConfig} 等记录为“已忽略”，首次运行 WARN 一次。这些能力的正确接入方式是
- * 在 opencode 侧生成项目配置（后续步骤实现），而不是在本层转发。</p>
+ * <h3>能力映射</h3>
+ * <p>opencode 自管工具循环、技能、子 agent、记忆与重试，因此这些能力不是“本层转发”，
+ * 而是在 {@link #ensureSession()} 前把上层配置翻译成 opencode 自己的项目配置：
+ * {@code opencode.json}（agent / permission / mcp / compaction / skills）与
+ * {@code AGENTS.md}。生成逻辑见 {@link OpencodeProjectConfig}。</p>
+ *
+ * <p>确实无法跨进程桥接的 Java 回调（{@code McpManager}/{@code SkillManager}/
+ * {@code SkillHandler}/{@code MemoryConfig}/{@code AgentPlanHook}/{@code AgentDebugHook}）
+ * 一律抛 {@link UnsupportedOperationException} 并给出替代做法，不做静默降级。</p>
  *
  * @author CH
  * @since 4.0.0.50
@@ -201,14 +212,14 @@ public class OpencodeServerAgent implements Agent {
     private static final String PLAN_AGENT_NAME = "plan";
 
     /**
+     * 本层生成主 agent 时使用的默认名称
+     */
+    private static final String DEFAULT_MANAGED_AGENT = "chua";
+
+    /**
      * 单轮默认超时秒数
      */
     private static final long DEFAULT_TURN_TIMEOUT_SECONDS = 1800L;
-
-    /**
-     * 工具入参/出参摘要截断长度
-     */
-    private static final int TOOL_PAYLOAD_LIMIT = 2000;
 
     /**
      * 权限资源摘要最多展示条目数
@@ -291,29 +302,9 @@ public class OpencodeServerAgent implements Agent {
     private volatile AgentDefinition definition;
 
     /**
-     * 上下文压缩配置（仅存值）
+     * 上下文压缩配置（映射到 opencode compaction.auto）
      */
     private volatile AgentCompressionConfig compressionConfig;
-
-    /**
-     * 规划最大子任务数（仅存值）
-     */
-    private volatile int planMaxTask;
-
-    /**
-     * 规划 Hook（仅存值）
-     */
-    private volatile AgentPlanHook planHook;
-
-    /**
-     * 调试 Hook（仅存值）
-     */
-    private volatile AgentDebugHook debugHook;
-
-    /**
-     * 记忆体配置（仅存值，opencode 自管记忆）
-     */
-    private volatile MemoryConfig memoryConfig;
 
     /**
      * 是否打印生效配置
@@ -326,19 +317,29 @@ public class OpencodeServerAgent implements Agent {
     private volatile boolean debug;
 
     /**
-     * 子 Agent 定义（opencode 自管子 agent，本层仅记录）
+     * 是否启用 MCP（false 时把配置中的 MCP 服务统一置为 disabled）
+     */
+    private volatile boolean mcpEnabled = true;
+
+    /**
+     * 由本层写入 opencode.json 的 MCP 服务（服务名 -> opencode 原生条目）
+     */
+    private final Map<String, Map<String, Object>> mcpServerSpecs = new LinkedHashMap<>();
+
+    /**
+     * 追加的技能发现目录
+     */
+    private final List<String> skillPaths = new CopyOnWriteArrayList<>();
+
+    /**
+     * 子 agent 专属模型：agent 标识 -> ChatClient
+     */
+    private final Map<String, ChatClient> agentChatClients = new ConcurrentHashMap<>();
+
+    /**
+     * 子 Agent 定义（写入 opencode.json 的 agent 段）
      */
     private final List<AgentDefinition> subAgents = new CopyOnWriteArrayList<>();
-
-    /**
-     * 无法映射到 opencode 的框架配置项
-     */
-    private final Set<String> ignored = new LinkedHashSet<>();
-
-    /**
-     * 忽略项告警是否已发出
-     */
-    private final AtomicBoolean ignoredWarned = new AtomicBoolean(false);
 
     /**
      * 中断标记
@@ -359,6 +360,36 @@ public class OpencodeServerAgent implements Agent {
      * Agent 是否已关闭
      */
     private volatile boolean closed;
+
+    /**
+     * 目标支撑：状态机 + 循环 + 计账（与其它实现共用同一份逻辑）
+     */
+    private final AgentGoalSupport goalSupport = new AgentGoalSupport();
+
+    /**
+     * 待回答的提问：提问请求 ID -> 各问题的 questionId（顺序与提问顺序一致）
+     */
+    private final Map<String, List<String>> pendingQuestionIds = new ConcurrentHashMap<>();
+
+    /**
+     * 单条工具结果触发截断的字符数上限
+     */
+    private volatile int toolResultMaxChars = 8000;
+
+    /**
+     * 截断后保留的预览字符数
+     */
+    private volatile int toolResultHeadChars = 1500;
+
+    /**
+     * 是否允许恢复被暂停的权限/提问请求
+     */
+    private volatile boolean pendingToolRecoveryEnabled = true;
+
+    /**
+     * 模型缺少 provider 的告警是否已发出
+     */
+    private final AtomicBoolean modelProviderWarned = new AtomicBoolean(false);
 
     /**
      * 无参构造（SPI {@code create("opencode-server")} 入口）。
@@ -423,7 +454,17 @@ public class OpencodeServerAgent implements Agent {
 
     @Override
     public OpencodeServerAgent mode(AgentMode mode) {
-        this.mode = mode == null ? AgentMode.SINGLE : mode;
+        AgentMode value = mode == null ? AgentMode.SINGLE : mode;
+        switch (value) {
+            case PIPELINE, FAN_OUT -> throw new UnsupportedOperationException(
+                    "opencode 原生没有顺序/并行多 agent 编排原语，无法实现 " + value
+                            + "；请改用 goal 循环或调用方自行编排");
+            case PLAN_AND_EXECUTE -> {
+                this.planEnabled = true;
+                this.mode = value;
+            }
+            default -> this.mode = value;
+        }
         return this;
     }
 
@@ -441,54 +482,120 @@ public class OpencodeServerAgent implements Agent {
 
     @Override
     public OpencodeServerAgent chatClient(String agentId, ChatClient chatClient) {
-        markIgnored("chatClient(agentId,..)");
+        if (agentId == null || agentId.isBlank()) {
+            throw new IllegalArgumentException("agentId 不能为空");
+        }
+        if (chatClient == null) {
+            throw new IllegalArgumentException("chatClient 不能为空（agentId=" + agentId + "）");
+        }
+        agentChatClients.put(agentId.trim(), chatClient);
         return this;
     }
 
     @Override
     public OpencodeServerAgent mcp(boolean mcp) {
-        if (!mcp) {
-            markIgnored("mcp(false)");
+        this.mcpEnabled = mcp;
+        return this;
+    }
+
+    /**
+     * 登记一个 MCP 服务（直接使用 opencode 原生条目）。
+     *
+     * <p>opencode 是独立进程，无法回调本进程内的 {@code McpClient}，因此 MCP 只能以
+     * 「服务启动命令 / 远端地址」的形式写进 {@code opencode.json}。本方法就是这条通道：
+     * 生成配置时把条目原样写入 {@code mcp} 段。</p>
+     *
+     * <p>条目键：{@code type}（{@code local}/{@code remote}，必填）、
+     * {@code command}（local 必填）、{@code url}（remote 必填）、
+     * {@code environment}、{@code headers}、{@code cwd}、{@code timeout}。</p>
+     *
+     * @param name 服务名
+     * @param spec opencode 原生 MCP 条目
+     * @return 当前实例
+     */
+    public OpencodeServerAgent mcpServer(String name, Map<String, Object> spec) {
+        if (name == null || name.isBlank() || spec == null || spec.isEmpty()) {
+            throw new IllegalArgumentException("MCP 服务名与配置不能为空");
         }
+        Map<String, Object> copy = new LinkedHashMap<>(spec);
+        mcpServerSpecs.put(name.trim(), copy);
         return this;
     }
 
     @Override
     public OpencodeServerAgent mcpManager(McpManager mcpManager) {
-        markIgnored("mcpManager(..)");
-        return this;
+        if (mcpManager == null) {
+            return this;
+        }
+        throw new UnsupportedOperationException(
+                "opencode 是独立进程，无法使用进程内的 McpManager；"
+                        + "请改调 mcpServer(name, spec) 或在 workspace 的 opencode.json 中声明 mcp 服务");
     }
 
     @Override
     public OpencodeServerAgent mcpManager(String agentId, McpManager mcpManager) {
-        markIgnored("mcpManager(agentId,..)");
-        return this;
+        if (mcpManager == null) {
+            return this;
+        }
+        throw new UnsupportedOperationException(
+                "opencode 是独立进程，无法给 agent " + agentId + " 注入进程内的 McpManager；"
+                        + "请改调 mcpServer(name, spec) 或在 workspace 的 opencode.json 中声明 mcp 服务");
     }
 
     @Override
     public OpencodeServerAgent skillManager(SkillManager skillManager) {
-        markIgnored("skillManager(..)");
-        return this;
+        if (skillManager == null) {
+            return this;
+        }
+        throw new UnsupportedOperationException(
+                "opencode 是独立进程，无法使用进程内的 SkillManager；"
+                        + "请把 SKILL.md 放进 workspace 的 .opencode/skill/<name>/，或调用 skillPath(path) 追加技能目录");
     }
 
     @Override
     public OpencodeServerAgent skillManager(String agentId, SkillManager skillManager) {
-        markIgnored("skillManager(agentId,..)");
+        if (skillManager == null) {
+            return this;
+        }
+        throw new UnsupportedOperationException(
+                "opencode 是独立进程，无法给 agent " + agentId + " 注入进程内的 SkillManager；"
+                        + "请把 SKILL.md 放进 workspace 的 .opencode/skill/<name>/，或调用 skillPath(path) 追加技能目录");
+    }
+
+    /**
+     * 追加一个 opencode 技能发现目录（含 {@code SKILL.md} 的目录）。
+     *
+     * @param path 技能目录，相对路径按 workspace 解析
+     * @return 当前实例
+     */
+    public OpencodeServerAgent skillPath(String path) {
+        if (path == null || path.isBlank()) {
+            throw new IllegalArgumentException("技能目录不能为空");
+        }
+        String value = path.trim();
+        if (!skillPaths.contains(value)) {
+            skillPaths.add(value);
+        }
         return this;
     }
 
     @Override
     public OpencodeServerAgent skill(String name, String description, SkillHandler handler) {
-        markIgnored("skill(..)");
-        return this;
+        if (handler == null) {
+            throw new IllegalArgumentException("技能 handler 不能为空（skill=" + name + "）");
+        }
+        throw new UnsupportedOperationException(
+                "Java 技能 handler 只在当前进程内可调用，opencode 无法访问；技能 " + name
+                        + " 请改写为 workspace/.opencode/skill/" + name + "/SKILL.md，再调用 skillPath(..)");
     }
 
     @Override
     public OpencodeServerAgent subAgent(AgentDefinition subAgent) {
-        if (subAgent != null) {
-            subAgents.add(subAgent);
+        if (subAgent == null) {
+            return this;
         }
-        markIgnored("subAgent(..)");
+        validateDefinition(subAgent);
+        subAgents.add(subAgent);
         return this;
     }
 
@@ -511,9 +618,12 @@ public class OpencodeServerAgent implements Agent {
 
     @Override
     public OpencodeServerAgent memoryConfig(MemoryConfig memoryConfig) {
-        this.memoryConfig = memoryConfig;
-        markIgnored("memoryConfig(..)");
-        return this;
+        if (memoryConfig == null) {
+            return this;
+        }
+        throw new UnsupportedOperationException(
+                "opencode 自管会话记忆，不接受进程内 MemoryConfig；"
+                        + "如需项目级长期记忆，请写入 AGENTS.md 或改为 opencode 技能");
     }
 
     @Override
@@ -541,15 +651,20 @@ public class OpencodeServerAgent implements Agent {
 
     @Override
     public OpencodeServerAgent planMaxTask(int planMaxTask) {
-        this.planMaxTask = planMaxTask;
+        if (planMaxTask > 0) {
+            throw new UnsupportedOperationException(
+                    "opencode 没有计划子任务上限配置；请改用 maxToolIterations(steps) 或把任务拆分写进 prompt");
+        }
         return this;
     }
 
     @Override
     public OpencodeServerAgent planHook(AgentPlanHook planHook) {
-        this.planHook = planHook;
-        markIgnored("planHook(..)");
-        return this;
+        if (planHook == null) {
+            return this;
+        }
+        throw new UnsupportedOperationException(
+                "Java 规划 Hook 无法在 opencode 进程内执行；请改用 plan(true)/startInPlanMode(true) 走 opencode 原生 plan agent");
     }
 
     @Override
@@ -566,13 +681,178 @@ public class OpencodeServerAgent implements Agent {
 
     @Override
     public OpencodeServerAgent debugHook(AgentDebugHook debugHook) {
-        this.debugHook = debugHook;
-        markIgnored("debugHook(..)");
+        if (debugHook == null) {
+            return this;
+        }
+        throw new UnsupportedOperationException(
+                "Java 调试 Hook 无法在 opencode 进程内执行；请改用 debug(true) 输出适配层日志");
+    }
+
+    /**
+     * 绑定一个会话目标（Issue），供 {@link #runGoal()} 反复推进。
+     *
+     * @param goal 目标快照，不能为 null
+     * @return 当前 agent（链式）
+     */
+    @Override
+    public OpencodeServerAgent goal(SessionGoal goal) {
+        goalSupport.goal(goal);
+        return this;
+    }
+
+    /**
+     * 挂接一个已存在的目标状态机（会话级目标接力推进）。
+     *
+     * @param tracker 目标状态机，不能为 null
+     * @return 当前 agent（链式）
+     */
+    @Override
+    public OpencodeServerAgent attachGoal(GoalTracker tracker) {
+        goalSupport.attach(tracker);
+        return this;
+    }
+
+    /**
+     * 设置目标循环的轮次硬上限（至少 1）。
+     *
+     * @param maxRounds 轮次上限
+     * @return 当前 agent（链式）
+     */
+    @Override
+    public OpencodeServerAgent goalMaxRounds(int maxRounds) {
+        goalSupport.maxRounds(maxRounds);
+        return this;
+    }
+
+    /**
+     * 设置单次暂停等待上限。
+     *
+     * @param pauseTimeoutMillis 毫秒；小于等于 0 表示一直等待
+     * @return 当前 agent（链式）
+     */
+    @Override
+    public OpencodeServerAgent goalPauseTimeout(long pauseTimeoutMillis) {
+        goalSupport.pauseTimeout(pauseTimeoutMillis);
         return this;
     }
 
     @Override
+    public boolean hasGoal() {
+        return goalSupport.hasGoal();
+    }
+
+    @Override
+    public GoalStatus goalStatus() {
+        return goalSupport.status();
+    }
+
+    @Override
+    public GoalStatus pauseGoal() {
+        return goalSupport.pause();
+    }
+
+    @Override
+    public GoalStatus resumeGoal() {
+        return goalSupport.resume();
+    }
+
+    @Override
+    public GoalStatus cancelGoal(String reason) {
+        return goalSupport.cancel(reason);
+    }
+
+    /**
+     * 围绕已绑定的目标反复推进。
+     *
+     * <p>每一轮都通过 {@link #run(String)} 真实驱动一次 opencode 会话；轮次之间由
+     * {@link AgentGoalSupport} 检查暂停/取消，不会在暂停期间继续发消息。</p>
+     *
+     * @return 结束时的展示投影
+     */
+    @Override
+    public GoalStatus runGoal() {
+        return goalSupport.run(prompt -> {
+            AgentResponse response = run(prompt);
+            String reply = response != null && response.getOutput() != null ? response.getOutput() : "";
+            return new GoalLoop.TurnResult(reply, AgentGoalSupport.tokensOf(response));
+        });
+    }
+
+    /**
+     * 设置单条工具结果的截断阈值。
+     *
+     * @param maxChars  触发截断的字符数上限
+     * @param headChars 截断后保留的预览字符数
+     * @return 当前 agent（链式）
+     */
+    @Override
+    public OpencodeServerAgent toolResultEviction(int maxChars, int headChars) {
+        if (maxChars <= 0 || headChars < 0 || headChars > maxChars) {
+            throw new IllegalArgumentException("截断阈值不合法: maxChars=" + maxChars + ", headChars=" + headChars);
+        }
+        this.toolResultMaxChars = maxChars;
+        this.toolResultHeadChars = headChars;
+        return this;
+    }
+
+    /**
+     * 是否允许恢复被暂停的权限/提问请求。
+     *
+     * <p>关闭后 {@link #resumeStream} 与 {@link #answerQuestion} 会直接返回错误事件，
+     * 调用方必须重新发起 {@link #runStream(String)}。</p>
+     *
+     * @param enabled 是否启用
+     * @return 当前 agent（链式）
+     */
+    @Override
+    public OpencodeServerAgent pendingToolRecovery(boolean enabled) {
+        this.pendingToolRecoveryEnabled = enabled;
+        return this;
+    }
+
+    /**
+     * 回传结构化提问的答案并恢复执行。
+     *
+     * <p>opencode 的答复体是 {@code {"answers": [[...], ...]}}，外层顺序必须与提问顺序一致；
+     * 这里按 {@code questionId} 还原顺序，缺失的问题回传空数组。</p>
+     *
+     * @param replyId 提问请求 ID（QUESTION_REQUEST 原样带回）
+     * @param answers 用户答案
+     * @return 恢复后的流式事件
+     */
+    @Override
+    public Flux<AgentStreamEvent> answerQuestion(String replyId, List<AgentQuestionAnswer> answers) {
+        return Flux.defer(() -> {
+            if (closed) {
+                return Flux.just(errorEvent("Agent 已关闭"));
+            }
+            if (!pendingToolRecoveryEnabled) {
+                return Flux.just(errorEvent("已禁用待执行工具恢复，请重新发起运行"));
+            }
+            if (replyId == null || replyId.isBlank()) {
+                return Flux.just(errorEvent("提问请求 ID 为空"));
+            }
+            if (!pendingQuestionIds.containsKey(replyId)) {
+                return Flux.just(errorEvent("未找到待回答的提问: " + replyId));
+            }
+            try {
+                SessionContext context = currentSession;
+                if (context == null) {
+                    context = ensureSession();
+                }
+                SessionContext session = context;
+                List<List<String>> ordered = orderAnswers(replyId, answers);
+                return streamTurn(session, () -> replyQuestion(session, replyId, ordered))
+                        .timeout(Duration.ofSeconds(resolveTurnTimeoutSeconds()));
+            } catch (Throwable t) {
+                return Flux.just(errorEvent(messageOf(t)));
+            }
+        });
+    }
+
+    @Override
     public OpencodeServerAgent definition(AgentDefinition definition) {
+        validateDefinition(definition);
         this.definition = definition;
         return this;
     }
@@ -610,6 +890,7 @@ public class OpencodeServerAgent implements Agent {
     @Override
     public void close() {
         closed = true;
+        pendingQuestionIds.clear();
         Turn turn = activeTurn;
         if (turn != null) {
             turn.closeQuietly();
@@ -671,7 +952,6 @@ public class OpencodeServerAgent implements Agent {
                 guard.reset();
             }
             interrupted.set(false);
-            warnIgnoredOnce();
             try {
                 if (printConfig) {
                     log.info("[opencode-server] 生效配置: workspace={}, session={}, agent={}, model={}, shell={}, mode={}",
@@ -694,6 +974,9 @@ public class OpencodeServerAgent implements Agent {
             if (closed) {
                 return Flux.just(errorEvent("Agent 已关闭"));
             }
+            if (!pendingToolRecoveryEnabled) {
+                return Flux.just(errorEvent("已禁用待执行工具恢复，请重新发起运行"));
+            }
             try {
                 SessionContext context = currentSession;
                 if (context == null) {
@@ -714,8 +997,10 @@ public class OpencodeServerAgent implements Agent {
      * @return 会话上下文
      */
     private SessionContext ensureSession() {
+        Path workspacePath = resolveWorkspacePath();
+        applyProjectConfig(workspacePath);
         OpencodeServerProcess.ServerInfo serverInfo = server.ensureStarted();
-        String directory = resolveWorkspace(resolveWorkspacePath());
+        String directory = resolveWorkspace(workspacePath);
         String opencodeSessionId = deriveSessionId(directory);
         OpencodeHttpClient client = serverInfo.newClient(directory);
         String sessionPath = SESSION_PATH + "/" + opencodeSessionId;
@@ -776,6 +1061,51 @@ public class OpencodeServerAgent implements Agent {
             context.client().postNoContent(SESSION_PATH + "/" + context.sessionId()
                     + "/permission/" + requestId + "/reply", body);
         }
+    }
+
+    /**
+     * 回传结构化提问的答案。
+     *
+     * @param context 会话上下文
+     * @param replyId 提问请求 ID
+     * @param answers 已按提问顺序排好的答案
+     */
+    private void replyQuestion(SessionContext context, String replyId, List<List<String>> answers) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("answers", answers);
+        context.client().postNoContent(SESSION_PATH + "/" + context.sessionId()
+                + "/question/" + replyId + "/reply", body);
+        pendingQuestionIds.remove(replyId);
+    }
+
+    /**
+     * 按 {@code questionId} 还原答案顺序；未提供的问题回传空数组。
+     *
+     * @param replyId 提问请求 ID
+     * @param answers 用户答案
+     * @return 与提问顺序一致的答案
+     */
+    private List<List<String>> orderAnswers(String replyId, List<AgentQuestionAnswer> answers) {
+        List<String> questionIds = pendingQuestionIds.get(replyId);
+        Map<String, List<String>> byId = new LinkedHashMap<>();
+        if (answers != null) {
+            for (AgentQuestionAnswer answer : answers) {
+                if (answer == null) {
+                    continue;
+                }
+                byId.put(answer.getQuestionId(),
+                        answer.getAnswers() == null ? List.of() : answer.getAnswers());
+            }
+        }
+        if (questionIds == null || questionIds.isEmpty()) {
+            return answers == null ? List.of()
+                    : answers.stream()
+                    .map(item -> item == null || item.getAnswers() == null ? List.<String>of() : item.getAnswers())
+                    .toList();
+        }
+        return questionIds.stream()
+                .map(id -> byId.getOrDefault(id, List.of()))
+                .toList();
     }
 
     /**
@@ -985,7 +1315,7 @@ public class OpencodeServerAgent implements Agent {
         if (planMode) {
             return PLAN_AGENT_NAME;
         }
-        return null;
+        return managedPrimaryAgentName();
     }
 
     /**
@@ -1005,7 +1335,10 @@ public class OpencodeServerAgent implements Agent {
         }
         String provider = resolveProvider();
         if (provider == null || provider.isBlank()) {
-            markIgnored("model(缺少 provider 前缀)");
+            if (modelProviderWarned.compareAndSet(false, true)) {
+                log.warn("[opencode-server] 模型 {} 缺少 provider 前缀且无 ChatClient provider 可补齐，"
+                        + "会话将沿用 opencode 默认模型；请使用 provider/model 或先设置 chatClient(..)", value);
+            }
             return null;
         }
         return new ModelRef(provider.trim(), value);
@@ -1122,22 +1455,336 @@ public class OpencodeServerAgent implements Agent {
     }
 
     /**
-     * 记录无法映射的配置项。
+     * 把上层配置翻译成 opencode 项目配置并落盘。
      *
-     * @param feature 配置项
+     * <p>opencode 自管工具循环、子 agent、MCP、技能与压缩，进程外无法注入 Java 回调，
+     * 因此这里生成它自己会读取的 {@code opencode.json} 与 {@code AGENTS.md}。
+     * 没有任何可写内容时不触碰用户文件。</p>
+     *
+     * @param workspacePath 工作目录
      */
-    private void markIgnored(String feature) {
-        ignored.add(feature);
+    private void applyProjectConfig(Path workspacePath) {
+        Map<String, OpencodeProjectConfig.AgentSpec> specs = collectAgentSpecs();
+        String globalModel = specs.isEmpty() ? resolvedModelId(null) : null;
+        String instructions = definition == null ? null : definition.getInstruction();
+        AgentCompressionConfig compression = compressionConfig != null
+                ? compressionConfig
+                : (definition == null ? null : definition.getCompressionConfig());
+        boolean disableMcp = !mcpEnabled || (definition != null && !definition.isMcp());
+        boolean manageMcp = disableMcp || !mcpServerSpecs.isEmpty();
+        boolean managePlan = planRequested();
+        boolean hasManaged = !specs.isEmpty() || globalModel != null || hasText(instructions)
+                || manageMcp || managePlan || shellEnabled != null
+                || compression != null || !skillPaths.isEmpty();
+        if (!hasManaged) {
+            return;
+        }
+        OpencodeProjectConfig config = OpencodeProjectConfig.in(workspacePath);
+        specs.values().forEach(config::agent);
+        if (globalModel != null) {
+            config.model(globalModel);
+        }
+        if (shellEnabled != null) {
+            config.permission("bash", shellEnabled ? OpencodeProjectConfig.PERMISSION_ALLOW
+                    : OpencodeProjectConfig.PERMISSION_DENY);
+        }
+        if (managePlan) {
+            planPermissions().forEach(config::permission);
+        }
+        if (manageMcp) {
+            config.mcpEnabled(!disableMcp);
+            mcpServerSpecs.forEach(config::mcpServer);
+        }
+        if (compression != null) {
+            config.compaction(compression.isEnabled());
+        }
+        skillPaths.forEach(config::skillPath);
+        if (hasText(instructions)) {
+            config.instructions(instructions);
+        }
+        OpencodeProjectConfig.Result result = config.write();
+        if (result.changed()) {
+            log.info("[opencode-server] 已生成 opencode 配置: {}{}", result.configFile(),
+                    result.instructionsFile() == null ? "" : "，" + result.instructionsFile());
+        } else if (debug) {
+            log.info("[opencode-server] opencode 配置无变化: {}", result.configFile());
+        }
     }
 
     /**
-     * 首次运行时提示无法映射的配置项。
+     * 汇总需要写入 opencode 的 agent 定义。
+     *
+     * @return agent 名称 -> 定义
      */
-    private void warnIgnoredOnce() {
-        if (ignored.isEmpty() || !ignoredWarned.compareAndSet(false, true)) {
+    private Map<String, OpencodeProjectConfig.AgentSpec> collectAgentSpecs() {
+        Map<String, OpencodeProjectConfig.AgentSpec> specs = new LinkedHashMap<>();
+        String primaryName = managedPrimaryAgentName();
+        if (primaryName != null) {
+            specs.put(primaryName, primarySpec(primaryName));
+        }
+        int index = 0;
+        for (AgentDefinition subAgent : subAgents) {
+            index = addSubAgentSpecs(specs, subAgent, index);
+        }
+        if (definition != null) {
+            for (AgentDefinition child : definition.getAgents()) {
+                index = addSubAgentSpecs(specs, child, index);
+            }
+        }
+        for (Map.Entry<String, ChatClient> entry : agentChatClients.entrySet()) {
+            String name = sanitizeAgentName(entry.getKey());
+            if (name.isEmpty() || specs.containsKey(name)) {
+                continue;
+            }
+            specs.put(name, OpencodeProjectConfig.AgentSpec.modelOnly(name,
+                    resolvedModelId(entry.getValue())));
+        }
+        return specs;
+    }
+
+    /**
+     * 构造主 agent 定义。
+     *
+     * @param name agent 名称
+     * @return 定义
+     */
+    private OpencodeProjectConfig.AgentSpec primarySpec(String name) {
+        AgentDefinition def = definition;
+        String prompt = def == null ? null : def.getSystemPrompt();
+        String description = def == null ? null : def.getDescription();
+        int steps = maxToolIterations > 0 ? maxToolIterations
+                : (def == null ? 0 : def.getMaxToolIterations());
+        ChatClient client = findAgentChatClient(name);
+        if (client == null && def != null) {
+            client = findAgentChatClient(def.getId());
+        }
+        Map<String, String> permissions = def != null && def.isPlanning() ? planPermissions() : null;
+        return new OpencodeProjectConfig.AgentSpec(name, OpencodeProjectConfig.MODE_PRIMARY,
+                description, prompt, steps > 0 ? steps : null, resolvedModelId(client), permissions);
+    }
+
+    /**
+     * 展开一个子 agent 定义（含其嵌套子 agent）。
+     *
+     * @param specs    已登记的 agent
+     * @param subAgent 子 agent 定义
+     * @param index    已处理数量
+     * @return 新的已处理数量
+     */
+    private int addSubAgentSpecs(Map<String, OpencodeProjectConfig.AgentSpec> specs,
+                                 AgentDefinition subAgent, int index) {
+        if (subAgent == null) {
+            return index;
+        }
+        int next = index + 1;
+        String name = sanitizeAgentName(subAgent.getId());
+        if (name.isEmpty()) {
+            name = sanitizeAgentName(subAgent.getName());
+        }
+        if (name.isEmpty()) {
+            name = "subagent-" + next;
+        }
+        if (specs.containsKey(name)) {
+            throw new IllegalStateException("子 agent 名称重复: " + name);
+        }
+        String prompt = hasText(subAgent.getSystemPrompt())
+                ? subAgent.getSystemPrompt() : subAgent.getInstruction();
+        int steps = subAgent.getMaxToolIterations();
+        ChatClient client = findAgentChatClient(subAgent.getId());
+        if (client == null) {
+            client = findAgentChatClient(subAgent.getName());
+        }
+        Map<String, String> permissions = subAgent.isPlanning() ? planPermissions() : null;
+        specs.put(name, new OpencodeProjectConfig.AgentSpec(name, OpencodeProjectConfig.MODE_SUBAGENT,
+                subAgent.getDescription(), prompt, steps > 0 ? steps : null,
+                resolvedModelId(client), permissions));
+        for (AgentDefinition child : subAgent.getAgents()) {
+            next = addSubAgentSpecs(specs, child, next);
+        }
+        return next;
+    }
+
+    /**
+     * 解析生效的主 agent 名称。
+     *
+     * @return 名称；null 表示使用 opencode 默认 agent
+     */
+    private String managedPrimaryAgentName() {
+        if (agentName != null) {
+            return agentName;
+        }
+        if (!shouldManagePrimary()) {
+            return null;
+        }
+        if (definition != null && hasText(definition.getId())) {
+            String name = sanitizeAgentName(definition.getId());
+            if (!name.isEmpty()) {
+                return name;
+            }
+        }
+        return DEFAULT_MANAGED_AGENT;
+    }
+
+    /**
+     * 是否需要生成自定义主 agent。
+     *
+     * @return true 表示需要
+     */
+    private boolean shouldManagePrimary() {
+        if (maxToolIterations > 0) {
+            return true;
+        }
+        if (definition == null) {
+            return false;
+        }
+        return hasText(definition.getSystemPrompt()) || hasText(definition.getDescription())
+                || definition.isPlanning() || definition.getMaxToolIterations() > 0;
+    }
+
+    /**
+     * 是否请求了规划能力。
+     *
+     * @return true 表示请求
+     */
+    private boolean planRequested() {
+        return planEnabled || planMode || (definition != null && definition.isPlanning());
+    }
+
+    /**
+     * 规划相关权限（允许进入/退出 plan 模式）。
+     *
+     * @return 权限表
+     */
+    private static Map<String, String> planPermissions() {
+        Map<String, String> permissions = new LinkedHashMap<>();
+        permissions.put("plan_enter", OpencodeProjectConfig.PERMISSION_ALLOW);
+        permissions.put("plan_exit", OpencodeProjectConfig.PERMISSION_ALLOW);
+        return permissions;
+    }
+
+    /**
+     * 在已登记的 agent 模型中查找 ChatClient。
+     *
+     * @param agentId agent 标识
+     * @return ChatClient；未登记返回 null
+     */
+    private ChatClient findAgentChatClient(String agentId) {
+        if (!hasText(agentId)) {
+            return null;
+        }
+        ChatClient client = agentChatClients.get(agentId);
+        if (client == null) {
+            client = agentChatClients.get(sanitizeAgentName(agentId));
+        }
+        return client;
+    }
+
+    /**
+     * 解析模型标识（provider/model）。
+     *
+     * @param preferred 优先使用的 ChatClient；null 表示使用本实例的 model
+     * @return 模型标识；无法解析返回 null
+     * @throws IllegalStateException 显式指定了 ChatClient 却无法解析出 provider/model
+     */
+    private String resolvedModelId(ChatClient preferred) {
+        if (preferred != null) {
+            String derived = deriveModel(preferred);
+            if (derived != null && derived.indexOf('/') > 0) {
+                return derived;
+            }
+            throw new IllegalStateException("ChatClient 无法解析出 provider/model，"
+                    + "请在 ChatClientSetting 中设置 provider 与 model");
+        }
+        ModelRef ref = resolveModelRef();
+        return ref == null ? null : ref.providerID() + "/" + ref.id();
+    }
+
+    /**
+     * 校验无法跨进程桥接的 AgentDefinition 配置，避免静默降级。
+     *
+     * @param def 定义
+     */
+    private static void validateDefinition(AgentDefinition def) {
+        if (def == null) {
             return;
         }
-        log.info("[opencode-server] 以下框架配置由 opencode 自管，未在本层转发: {}", ignored);
+        if (def.getMcpManager() != null) {
+            throw new UnsupportedOperationException(
+                    "AgentDefinition 携带进程内 McpManager，opencode 无法使用；请用 mcpServer(name, spec) 声明 MCP");
+        }
+        if (def.getSkillManager() != null) {
+            throw new UnsupportedOperationException(
+                    "AgentDefinition 携带进程内 SkillManager，opencode 无法使用；请把 SKILL.md 放进 .opencode/skill/");
+        }
+        if (def.getMemoryConfig() != null) {
+            throw new UnsupportedOperationException(
+                    "opencode 自管会话记忆，不接受 AgentDefinition 中的 MemoryConfig");
+        }
+        if (def.getPlanHook() != null) {
+            throw new UnsupportedOperationException(
+                    "Java 规划 Hook 无法在 opencode 进程内执行；请改用 plan(true)");
+        }
+        if (def.getDebugHook() != null) {
+            throw new UnsupportedOperationException(
+                    "Java 调试 Hook 无法在 opencode 进程内执行；请改用 debug(true)");
+        }
+        if (def.getPlanMaxTask() > 0) {
+            throw new UnsupportedOperationException(
+                    "opencode 没有计划子任务上限配置: planMaxTask=" + def.getPlanMaxTask());
+        }
+        if (def.getRetryConfig() != null && def.getRetryConfig().getMaxRetries() > 0) {
+            throw new UnsupportedOperationException(
+                    "opencode 自管重试策略，不接受 AgentDefinition 中的 retryConfig");
+        }
+        if (def.isLeader()) {
+            throw new UnsupportedOperationException(
+                    "opencode 子 agent 不能作为 leader 编排其他 agent；请改用 mode(ROUTER/AUTO) 委派");
+        }
+        AgentCompressionConfig compression = def.getCompressionConfig();
+        if (compression != null && compression.getCompressionChatClient() != null) {
+            throw new UnsupportedOperationException(
+                    "压缩用的 ChatClient 无法跨进程传入 opencode；请只设置 compressionConfig.enabled");
+        }
+        for (AgentDefinition child : def.getAgents()) {
+            validateDefinition(child);
+        }
+    }
+
+    /**
+     * 把名称归一化为 opencode agent 标识（ASCII 字母/数字/-/_/.）。
+     *
+     * @param value 原始名称
+     * @return 归一化名称；全部非法时返回空串
+     */
+    private static String sanitizeAgentName(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder(value.length());
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            boolean valid = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+                    || (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.';
+            builder.append(valid ? c : '-');
+        }
+        String name = builder.toString();
+        while (name.startsWith("-") || name.startsWith(".")) {
+            name = name.substring(1);
+        }
+        while (name.endsWith("-") || name.endsWith(".")) {
+            name = name.substring(0, name.length() - 1);
+        }
+        return name;
+    }
+
+    /**
+     * 判断文本非空白。
+     *
+     * @param value 文本
+     * @return true 表示有内容
+     */
+    private static boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 
     /**
@@ -1182,16 +1829,21 @@ public class OpencodeServerAgent implements Agent {
     }
 
     /**
-     * 截断文本。
+     * 按配置阈值截断文本。
      *
      * @param value 文本
      * @return 截断结果
      */
-    private static String truncate(String value) {
+    private String truncate(String value) {
         if (value == null) {
             return "";
         }
-        return value.length() > TOOL_PAYLOAD_LIMIT ? value.substring(0, TOOL_PAYLOAD_LIMIT) + "..." : value;
+        int max = toolResultMaxChars;
+        if (value.length() <= max) {
+            return value;
+        }
+        int head = Math.min(toolResultHeadChars, value.length());
+        return value.substring(0, head) + "...[truncated " + (value.length() - head) + " chars]";
     }
 
     /**
@@ -1411,8 +2063,7 @@ public class OpencodeServerAgent implements Agent {
                 case EVENT_SESSION_ERROR -> fail(new IllegalStateException(errorText(data.path("error"))));
                 case EVENT_SESSION_IDLE -> complete();
                 case EVENT_PERMISSION_ASKED -> onPermissionAsked(data);
-                case EVENT_QUESTION_ASKED -> log.debug("[opencode-server] 收到 question.v2.asked，当前版本暂不桥接提问: {}",
-                        data.path("id").asText(""));
+                case EVENT_QUESTION_ASKED -> onQuestionAsked(data);
                 default -> log.trace("[opencode-server] 未处理事件: {}", type);
             }
         }
@@ -1538,6 +2189,51 @@ public class OpencodeServerAgent implements Agent {
          */
         private void onStepFailed(JsonNode data) {
             fail(new IllegalStateException(errorText(data.path("error"))));
+        }
+
+        /**
+         * 提问询问：翻译为 QUESTION_REQUEST 并暂停本轮，等待 {@link #answerQuestion} 回传答案。
+         *
+         * @param data 事件数据
+         */
+        private void onQuestionAsked(JsonNode data) {
+            String requestId = data.path("id").asText("");
+            if (requestId.isBlank()) {
+                log.warn("[opencode-server] 收到缺少请求 ID 的 question.v2.asked，已忽略");
+                return;
+            }
+            List<AgentQuestion> questions = new ArrayList<>();
+            List<String> questionIds = new ArrayList<>();
+            JsonNode items = data.path("questions");
+            int index = 0;
+            if (items.isArray()) {
+                for (JsonNode item : items) {
+                    String questionId = requestId + "#" + index;
+                    questionIds.add(questionId);
+                    List<String> options = new ArrayList<>();
+                    JsonNode optionNodes = item.path("options");
+                    if (optionNodes.isArray()) {
+                        for (JsonNode option : optionNodes) {
+                            String label = option.path("label").asText("");
+                            if (!label.isBlank()) {
+                                options.add(label);
+                            }
+                        }
+                    }
+                    questions.add(AgentQuestion.builder()
+                            .id(questionId)
+                            .header(item.path("header").asText(""))
+                            .question(item.path("question").asText(""))
+                            .options(options)
+                            .multiple(item.path("multiple").asBoolean(false))
+                            .custom(item.path("custom").asBoolean(true))
+                            .build());
+                    index++;
+                }
+            }
+            pendingQuestionIds.put(requestId, questionIds);
+            sink.next(AgentStreamEvent.questionRequest(agentId(), requestId, questions));
+            pause();
         }
 
         /**

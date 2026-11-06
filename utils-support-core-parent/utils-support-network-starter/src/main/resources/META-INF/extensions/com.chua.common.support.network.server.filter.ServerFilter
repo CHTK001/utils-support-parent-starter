@@ -1,6 +1,8 @@
 # ==================== 日志/监控 ====================
-logging=com.chua.common.support.network.server.filter.AccessLogFilter
-tracing=com.chua.common.support.network.server.filter.TracingFilter
+# 访问日志/链路追踪不参与 SPI 自动发现：两者都有请求级开销，
+# 默认不注册。需要时用 -Dserver.accesslog.enabled=true /
+# -Dserver.tracing.enabled=true 开启，或 server.addFilter(new AccessLogServerFilter())
+# / new TracingServerFilter() 手动注册。
 
 # ==================== 安全/认证 ====================
 ip=com.chua.common.support.network.server.filter.IpFilter

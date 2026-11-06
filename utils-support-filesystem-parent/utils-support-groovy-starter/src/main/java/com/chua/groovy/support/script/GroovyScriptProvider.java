@@ -3,6 +3,7 @@ package com.chua.groovy.support.script;
 import com.chua.common.support.lang.script.marker.listener.FileScriptListener;
 import com.chua.common.support.lang.script.marker.listener.Listener;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.task.script.ScriptHost;
 import com.chua.common.support.task.script.ScriptProvider;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
@@ -47,6 +48,11 @@ public class GroovyScriptProvider implements ScriptProvider {
      * 复用的 groovyshell，负责把源码预编译为脚本类
      */
     private final GroovyShell shell = new GroovyShell(new Binding());
+
+    /**
+     * 上下文中脚本宿主的键（与 {@code JavaScriptProvider} 同名，两个引擎共用一套上下文约定）
+     */
+    private static final String SCRIPT_HOST_KEY = "scriptHost";
 
     /**
      * 获取引擎名称。
@@ -110,6 +116,11 @@ public class GroovyScriptProvider implements ScriptProvider {
      * <p>复用加载阶段缓存好的脚本类，每次执行新建 {@link Script} 实例并运行，
      * 编译只做一次。Script 实例带执行期状态，不复用，保证并发安全。</p>
      *
+     * <p>宿主装配：上下文里带 {@link ScriptHost} 时，脚本实例创建后立即做一次字段装配，
+     * 使脚本类上声明的 {@code @Autowired} 生效（与 {@code JavaScriptProvider} 的行为对齐）。
+     * 脚本内部 {@code new} 出来的对象不会自动装配，需要在脚本里显式调用
+     * {@code scriptHost.inject(对象)} 或直接用 {@code objectContext.getBean(...)} 取 Bean。</p>
+     *
      * @param scriptPath 脚本路径
      * @param context    绑定上下文（可为 映射 或其他对象）
      * @return 脚本求值结果
@@ -137,7 +148,27 @@ public class GroovyScriptProvider implements ScriptProvider {
         }
 
         Script script = InvokerHelper.createScript(scriptClass, binding);
+        injectHost(script, context);
         return script.run();
+    }
+
+    /**
+     * 若上下文携带脚本宿主，则对脚本实例做一次字段装配。
+     *
+     * <p>Spring 宿主下这一步让脚本类字段的 {@code @Autowired} 生效；非 Spring 宿主可不提供。
+     * 装配失败不抛出：宿主能力是增强项，不该把脚本执行带崩。</p>
+     *
+     * @param instance 脚本实例
+     * @param context  执行上下文
+     */
+    private static void injectHost(Object instance, Object context) {
+        if (!(context instanceof Map)) {
+            return;
+        }
+        Object host = ((Map<?, ?>) context).get(SCRIPT_HOST_KEY);
+        if (host instanceof ScriptHost) {
+            ((ScriptHost) host).inject(instance);
+        }
     }
 
     /**

@@ -17,11 +17,11 @@
 
       原先内嵌的整套爬虫平台（/spider/definitions、/spider/executions、/spider/proxy-pools
       三个控制器共 16 个端点、3 个 Store、SpiderRunner 与 SpiderTimerService 定时调度器）
-      已整体下线，能力由 spring-api-support-collect-starter（/v2/collect/**）承接，
+      已整体下线，能力由 spring-support-collect-starter（/v2/collect/**）承接，
       同时删除了 AutoConfiguration.imports，避免任何依赖本模块的应用被动注册重复端点。
 
       【不要因为名字里带 spider 就删掉本模块】它仍被两个模块真实依赖：
-        · spring-api-support-collect-starter  —— CollectRequestExecutor 用 HttpFetcher 发起抓取
+        · spring-support-collect-starter  —— CollectRequestExecutor 用 HttpFetcher 发起抓取
         · utils-support-playwright-starter   —— PlaywrightFetcher/PlaywrightParser 实现同一套 SPI
       抓取层不走 Spring 容器：HttpFetcher 由调用方直接 new，其它实现经 META-INF/services
       的 ServiceProvider SPI 装配，因此本模块没有也不需要任何自动配置。
@@ -31,7 +31,7 @@
       29 个类、两个消费者、native-image 元数据与 META-INF/extensions 的 SPI 注册文件
       （文件名本身即接口全限定名）已同步迁移。类名保持不变，故本段仍以 Spider* 描述 API。
     -->
-    <description>抓取/解析 SPI 与数据模型（可插拔 Fetcher / Parser）。爬虫平台已下线，能力由 spring-api-support-collect-starter 承接；本模块仍被 collect 与 playwright-starter 依赖，不可删除。</description>
+    <description>抓取/解析 SPI 与数据模型（可插拔 Fetcher / Parser）。爬虫平台已下线，能力由 spring-support-collect-starter 承接；本模块仍被 collect 与 playwright-starter 依赖，不可删除。</description>
 
     <!--
       2026-09-28 解除 Boot 3 降级：本模块原先局部定义 spring.boot.version=3.2.0、

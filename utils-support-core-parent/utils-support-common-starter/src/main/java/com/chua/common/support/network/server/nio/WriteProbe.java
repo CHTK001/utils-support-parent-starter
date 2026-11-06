@@ -36,6 +36,14 @@ public final class WriteProbe {
     private static final AtomicLong MAX_R2E = new AtomicLong();
     private static final AtomicLong MAX_R2R = new AtomicLong();
 
+    /** 事件循环进入 selector.select() 前的时间戳 (同线程), 配合 selExit 算循环周期 */
+    private static final ThreadLocal<Long> LAST_SEL = new ThreadLocal<>();
+    private static final AtomicLong COUNT_S1 = new AtomicLong();
+    private static final AtomicLong COUNT_S2 = new AtomicLong();
+    private static final AtomicLong MAX_S1S2 = new AtomicLong();
+    private static final AtomicLong MAX_CPU = new AtomicLong();
+    private static final AtomicLong COUNT_KS = new AtomicLong();
+
     /** 同一条出栈连接的时间戳, 配合 maxUpdate 算最大排队时延 */
     private static final ThreadLocal<Long> LAST_E = new ThreadLocal<>();
     private static final ThreadLocal<Long> LAST_Q = new ThreadLocal<>();
@@ -123,6 +131,52 @@ public final class WriteProbe {
     }
 
     /**
+     * 事件循环进入 {@code select()} 前 (S1): 记录时间戳与线程,不做其他事,不创建对象.
+     * @see #selExit()
+     */
+    public static void selEnter() {
+        if (!ENABLED) {
+            return;
+        }
+        long t = System.nanoTime() / 1000;
+        OUT.println("[S1] t=" + t + " len=0 thr=" + Thread.currentThread().getName());
+        COUNT_S1.incrementAndGet();
+        LAST_SEL.set(t);
+    }
+
+    /**
+     * 事件循环离开 {@code select()} 返回 (S2): 打印本轮事件循环周期,并追踪
+     * 事件循环活跃时间 (MAX_CPU): 任一线程的 MAX_CPU 停止增长 = 线程卡死.
+     * @see #selEnter()
+     */
+    public static void selExit() {
+        if (!ENABLED) {
+            return;
+        }
+        long t = System.nanoTime() / 1000;
+        long cycle = t - value0(LAST_SEL.get());
+        OUT.println("[S2] t=" + t + " len=0 thr=" + Thread.currentThread().getName() + " cycle=" + cycle);
+        COUNT_S2.incrementAndGet();
+        LAST_SEL.set(t);
+        MAX_S1S2.updateAndGet(v -> Math.max(v, cycle));
+        MAX_CPU.updateAndGet(v -> Math.max(v, t));
+    }
+
+    /**
+     * 事件循环从 {@code select()} 返回后选中的 key 数量 (KS): 每轮事件循环发现的可
+     * 读写连接数（包含 OP_ACCEPT）, 与 [S2] 配对可算出平均每秒事件循环被唤起的次数.
+     * @param ks 选中的 SelectionKey 数量
+     */
+    public static void keysSelected(int ks) {
+        if (!ENABLED) {
+            return;
+        }
+        long t = System.nanoTime() / 1000;
+        OUT.println("[KS] t=" + t + " len=0 thr=" + Thread.currentThread().getName() + " count=" + ks);
+        COUNT_KS.incrementAndGet();
+    }
+
+    /**
      * 端到端统计摘要: 打印入队次数/写出次数/最大排队时延
      */
     public static void report() {
@@ -134,6 +188,11 @@ public final class WriteProbe {
                 + " written=" + COUNT_W.get()
                 + " requestReceived=" + COUNT_R2.get()
                 + " requestEntered=" + COUNT_R.get()
+                + " s1=" + COUNT_S1.get()
+                + " s2=" + COUNT_S2.get()
+                + " ks=" + COUNT_KS.get()
+                + " maxS1S2_us=" + MAX_S1S2.get()
+                + " maxCpu_us=" + MAX_CPU.get()
                 + " maxE2Q_us=" + MAX_E2Q.get()
                 + " maxQ2W_us=" + MAX_Q2W.get()
                 + " maxR2E_us=" + MAX_R2E.get()

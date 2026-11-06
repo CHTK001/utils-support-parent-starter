@@ -132,7 +132,7 @@ public class BtmuluMagnetResourceProviderLiveTest {
     private static void summary() {
         System.out.println("[BtmuluMagnetResourceProviderLiveTest] pass=" + pass + " fail=" + fail); // [P3C E1 豁免]
         if (fail > 0) {
-            System.exit(1);
+            throw new IllegalStateException("程序执行失败，请检查执行结果日志。");
         }
     }
 

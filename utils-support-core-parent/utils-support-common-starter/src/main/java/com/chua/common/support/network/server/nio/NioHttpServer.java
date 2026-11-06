@@ -138,6 +138,13 @@ public class NioHttpServer extends AbstractServer {
     private static final int COMBINE_THRESHOLD = Integer.getInteger("nio.combine", 65536);
 
     /**
+     * 事件循环 select() 超时(毫秒): 可通过 -Dbench.nio.select.timeout 覆盖, 默认 50ms.
+     * <p>基准测试中实测事件循环通常几微秒内就有就绪事件, 超时仅用于兜底; 该属性在类
+     * 初始化时读取一次, 运行时无额外开销.</p>
+     */
+    private static final long SELECT_TIMEOUT_MS = Long.parseLong(System.getProperty("bench.nio.select.timeout", "50"));
+
+    /**
      * 将响应头与体追加到连接的写队列,小响应合并成单个缓冲以减少 socket 写次数。
      * <p>调用方需持有 {@code st.writeQueue} 的锁。</p>
      * @param st 连接状态
@@ -338,7 +345,11 @@ public class NioHttpServer extends AbstractServer {
         }
         while (running) {
             try {
-                sel.select(200L);
+                // 探针: 事件循环进入 select 前
+                WriteProbe.selEnter();
+                sel.select(SELECT_TIMEOUT_MS);
+                // 探针: 事件循环离开 select 返回
+                WriteProbe.selExit();
                 // worker 直写排空后:本分片事件循环统一恢复 OP_READ(与 select 同线程,无跨线程竞态)
                 SelectionKey rk;
                 while ((rk = rearmReadQueues[idx].poll()) != null) {
@@ -390,6 +401,8 @@ public class NioHttpServer extends AbstractServer {
                 if (idx == 0 && pendingAcceptChannel != null) {
                     registerAcceptChannel(sel);
                 }
+                // 探针: 每轮事件循环选中的 key 数量 (KS)
+                WriteProbe.keysSelected(sel.selectedKeys().size());
                 java.util.Iterator<SelectionKey> it = sel.selectedKeys().iterator();
                 while (it.hasNext()) {
                     SelectionKey key = it.next();

@@ -191,6 +191,156 @@ public interface Agent extends AutoCloseable {
     }
 
     /**
+     * 回传结构化提问的答案并恢复执行。
+     *
+     * <p>{@link #runStream(String)} 因 {@link AgentStreamEvent.Type#QUESTION_REQUEST}
+     * 暂停后，调用方把用户答案交回本方法，实现应把答案回复给运行时并从暂停点继续。
+     *
+     * <p>默认实现不支持结构化提问，返回 ERROR 事件而不是静默忽略。
+     *
+     * @param replyId 提问请求 ID（QUESTION_REQUEST 原样带回）
+     * @param answers 用户答案，顺序与提问顺序一致
+     * @return 恢复后的流式事件 Flux
+     */
+    default Flux<AgentStreamEvent> answerQuestion(String replyId, List<AgentQuestionAnswer> answers) {
+        return Flux.just(AgentStreamEvent.builder()
+                .type(AgentStreamEvent.Type.ERROR)
+                .toolOutput("当前 Agent 实现不支持结构化提问恢复")
+                .timestamp(System.currentTimeMillis())
+                .build());
+    }
+
+    /**
+     * 设置单条工具结果的截断阈值。
+     *
+     * <p>超大目录清单/文件内容会撑爆下一轮 prompt，实现应在把工具结果写回上下文前截断：
+     * 超过 {@code maxChars} 时只保留前 {@code headChars} 个字符作为预览。
+     *
+     * <p>默认实现不具备该能力，抛 {@link UnsupportedOperationException}，避免“设置了但没生效”。
+     *
+     * @param maxChars  触发截断的字符数上限
+     * @param headChars 截断后保留的预览字符数
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent toolResultEviction(int maxChars, int headChars) {
+        throw new UnsupportedOperationException("当前 Agent 实现不支持工具结果截断配置");
+    }
+
+    /**
+     * 是否允许恢复被暂停的待执行工具（人工确认 / 结构化提问）。
+     *
+     * <p>关闭后，{@link #resumeStream(String, List)} 与 {@link #answerQuestion(String, List)}
+     * 必须直接返回错误事件，要求调用方重新发起运行。
+     *
+     * <p>默认实现不具备暂停/恢复能力，抛 {@link UnsupportedOperationException}。
+     *
+     * @param enabled 是否启用
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent pendingToolRecovery(boolean enabled) {
+        throw new UnsupportedOperationException("当前 Agent 实现不支持待执行工具恢复");
+    }
+
+    /**
+     * 绑定一个会话目标（Issue），供 {@link #runGoal()} 反复推进。
+     *
+     * <p>默认实现不支持目标循环，抛 {@link UnsupportedOperationException}。
+     *
+     * @param goal 目标快照，不能为 null
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent goal(SessionGoal goal) {
+        throw new UnsupportedOperationException("当前 Agent 实现不支持目标循环");
+    }
+
+    /**
+     * 挂接一个已存在的目标状态机（会话级目标接力推进）。
+     *
+     * <p>默认实现不支持目标循环，抛 {@link UnsupportedOperationException}。
+     *
+     * @param tracker 目标状态机，不能为 null
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent attachGoal(GoalTracker tracker) {
+        throw new UnsupportedOperationException("当前 Agent 实现不支持目标循环");
+    }
+
+    /**
+     * 设置目标循环的轮次硬上限（至少 1）。
+     *
+     * @param maxRounds 轮次上限
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent goalMaxRounds(int maxRounds) {
+        throw new UnsupportedOperationException("当前 Agent 实现不支持目标循环");
+    }
+
+    /**
+     * 设置单次暂停等待上限。
+     *
+     * @param pauseTimeoutMillis 毫秒；小于等于 0 表示一直等待
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent goalPauseTimeout(long pauseTimeoutMillis) {
+        throw new UnsupportedOperationException("当前 Agent 实现不支持目标循环");
+    }
+
+    /**
+     * 是否已绑定目标。
+     *
+     * @return 已绑定返回 true
+     */
+    default boolean hasGoal() {
+        return false;
+    }
+
+    /**
+     * 当前目标状态；未绑定目标时返回 null。
+     *
+     * @return 展示投影；未绑定返回 null
+     */
+    default GoalStatus goalStatus() {
+        return null;
+    }
+
+    /**
+     * 暂停当前目标。
+     *
+     * @return 暂停后的展示投影
+     */
+    default GoalStatus pauseGoal() {
+        throw new UnsupportedOperationException("当前 Agent 实现不支持目标循环");
+    }
+
+    /**
+     * 恢复当前目标。
+     *
+     * @return 恢复后的展示投影
+     */
+    default GoalStatus resumeGoal() {
+        throw new UnsupportedOperationException("当前 Agent 实现不支持目标循环");
+    }
+
+    /**
+     * 取消当前目标。
+     *
+     * @param reason 取消原因
+     * @return 取消后的展示投影
+     */
+    default GoalStatus cancelGoal(String reason) {
+        throw new UnsupportedOperationException("当前 Agent 实现不支持目标循环");
+    }
+
+    /**
+     * 围绕已绑定的目标反复推进，直到完成/失败/取消或到达轮次上限。
+     *
+     * @return 结束时的展示投影
+     */
+    default GoalStatus runGoal() {
+        throw new UnsupportedOperationException("当前 Agent 实现不支持目标循环");
+    }
+
+    /**
      * 恢复执行：回传用户对人工确认（human-in-the-loop）的决策。
      *
      * <p>当 {@link #runStream(String)} 因等待用户确认（CONFIRMATION_REQUEST）而正常暂停后，

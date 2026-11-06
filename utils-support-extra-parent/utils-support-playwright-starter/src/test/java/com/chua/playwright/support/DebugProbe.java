@@ -142,6 +142,5 @@ public final class DebugProbe {
 
         e.close(b);
         server.stop(0);
-        System.exit(0);
     }
 }

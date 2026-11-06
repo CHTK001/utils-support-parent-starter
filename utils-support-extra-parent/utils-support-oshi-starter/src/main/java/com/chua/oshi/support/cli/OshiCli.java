@@ -64,7 +64,8 @@ public final class OshiCli {
 
         String command = args[0];
 
-        if ("version".equals(command)) {            System.out.println(PROGRAM + " " + VERSION); // [P3C E1 豁免]
+        if ("version".equals(command)) {
+            System.out.println(PROGRAM + " " + VERSION); // [P3C E1 豁免]
 
             return;
         }
@@ -83,28 +84,41 @@ public final class OshiCli {
                 return;
             }
         }
-        System.err.println("Unknown command: " + command); // [P3C E1 豁免]
-        System.err.println("Run '" + PROGRAM + " help' for usage."); // [P3C E1 豁免]
 
-        System.exit(1);
+        System.err.println("Unknown command: " + command); // [P3C E1 豁免]
+
+        System.err.println("Run '" + PROGRAM + " help' for usage."); // [P3C E1 豁免]
+
+        throw new IllegalStateException("程序执行失败，请检查执行结果日志。");
     }
 
     /**
      * printusage。
      */
-    private static void printUsage() {        System.out.println(PROGRAM + " — OSHI CLI dashboard (v" + VERSION + ")\n"); // [P3C E1 豁免]
-        System.out.printf("  %-10s  %s%n", "command", "description"); // [P3C E1 豁免]
-        System.out.println("  " + "─".repeat(60)); // [P3C E1 豁免]
+    private static void printUsage() {
+        System.out.println(PROGRAM + " — OSHI CLI dashboard (v" + VERSION + ")\n"); // [P3C E1 豁免]
 
-        for (AbstractCommand cmd : COMMANDS) {            System.out.printf("  %-10s  %s%n", cmd.name(), cmd.description()); // [P3C E1 豁免]
+        System.out.printf("  %-10s  %s%n", "command", "description"); // [P3C E1 豁免]
 
-        }        System.out.println(); // [P3C E1 豁免]
-        System.out.println("Global flags:"); // [P3C E1 豁免]
-        System.out.println("  --help     Show help"); // [P3C E1 豁免]
-        System.out.println("  --up       (net only) show UP interfaces"); // [P3C E1 豁免]
-        System.out.println("  --services (sys only) list running services"); // [P3C E1 豁免]
-        System.out.println(); // [P3C E1 豁免]
-        System.out.println("Example: oshc status, oshc cpu, oshc net --up"); // [P3C E1 豁免]
+        System.out.println("  " + "─".repeat(60)); // [P3C E1 豁免]
+
+        for (AbstractCommand cmd : COMMANDS) {
+            System.out.printf("  %-10s  %s%n", cmd.name(), cmd.description()); // [P3C E1 豁免]
+
+        }
+        System.out.println(); // [P3C E1 豁免]
+
+        System.out.println("Global flags:"); // [P3C E1 豁免]
+
+        System.out.println("  --help     Show help"); // [P3C E1 豁免]
+
+        System.out.println("  --up       (net only) show UP interfaces"); // [P3C E1 豁免]
+
+        System.out.println("  --services (sys only) list running services"); // [P3C E1 豁免]
+
+        System.out.println(); // [P3C E1 豁免]
+
+        System.out.println("Example: oshc status, oshc cpu, oshc net --up"); // [P3C E1 豁免]
 
     }
 }

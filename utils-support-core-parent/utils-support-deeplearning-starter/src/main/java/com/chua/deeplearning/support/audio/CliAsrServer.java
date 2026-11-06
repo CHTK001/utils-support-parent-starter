@@ -77,11 +77,6 @@ final class CliAsrServer {
     */
     private static final Map<String, CliAsrServer> SESSIONS = new ConcurrentHashMap<>();
 
-    static {
-// [P3C C1 豁免] 关闭钩子必须由 JVM 创建独立线程
-        Runtime.getRuntime().addShutdownHook(new Thread(CliAsrServer::shutdownAll, "cli-asr-serve-shutdown"));
-    }
-
     /**
      * 会话缓存键分隔符（不会出现在路径中）
     */

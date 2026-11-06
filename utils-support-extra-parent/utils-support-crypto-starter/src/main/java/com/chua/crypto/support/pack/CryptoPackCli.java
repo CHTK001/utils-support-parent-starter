@@ -55,7 +55,6 @@ public final class CryptoPackCli {
                     + "[--policy SERVER_BOUND|CUSTOM] [--pin xxx] [--server-id id] "
                     + "[--encrypt-config|--no-encrypt-config] [--encrypt-libs|--no-encrypt-libs] "
                     + "[--no-embed-key] [--obfuscate] [--rename-privates]");
-            System.exit(2);
             return;
         }
 

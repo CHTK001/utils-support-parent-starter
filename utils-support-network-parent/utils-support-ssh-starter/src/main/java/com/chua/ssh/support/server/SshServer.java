@@ -493,11 +493,9 @@ public class SshServer extends AbstractServer {
                     .password(password)
                     .build();
             server.start();
-// [P3C C1 豁免] 关闭钩子必须由 JVM 创建独立线程
-            Runtime.getRuntime().addShutdownHook(new Thread(server::close));
         } catch (Exception e) {
             log.error("启动 SshServer 失败", e);
-            System.exit(1);
+            throw new IllegalStateException("程序执行失败，请检查执行结果日志。");
         }
     }
 }

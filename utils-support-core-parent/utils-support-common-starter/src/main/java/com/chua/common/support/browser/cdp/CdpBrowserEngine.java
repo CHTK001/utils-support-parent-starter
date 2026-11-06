@@ -684,12 +684,7 @@ public class CdpBrowserEngine implements BrowserEngine {
             return;
         }
         shutdownHookRegistered = true;
-        try {
-// [P3C C1 豁免] 关闭钩子必须由 JVM 创建独立线程
-            Runtime.getRuntime().addShutdownHook(new Thread(this::close, "chua-cdp-cleanup"));
-        } catch (Exception e) {
-            log.debug("[cdp] 注册关闭钩子失败: {}", e.getMessage());
-        }
+        // 关闭钩子已移除：浏览器资源清理交由 try-finally 或调用方 close()
     }
 
     /**

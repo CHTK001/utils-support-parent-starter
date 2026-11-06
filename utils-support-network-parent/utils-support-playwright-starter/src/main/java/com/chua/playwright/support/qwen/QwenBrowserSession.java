@@ -75,8 +75,6 @@ public class QwenBrowserSession implements AutoCloseable {
                         "Chrome/130.0.0.0 Safari/537.36"));
         this.context.setDefaultNavigationTimeout(PAGE_LOAD_TIMEOUT_MS);
         injectCookies(cookieString);
-// [P3C C1 豁免] 关闭钩子必须由 JVM 创建独立线程
-        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
     }
 
     /**

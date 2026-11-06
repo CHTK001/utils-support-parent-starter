@@ -3,7 +3,6 @@ package com.chua.common.support.ai.agent.goal;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.agent.AgentResponse;
 
-import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -40,7 +39,10 @@ public final class AgentGoalSupport {
      * @return 当前支撑实例，便于链式调用
      */
     public AgentGoalSupport goal(SessionGoal goal) {
-        this.tracker = new GoalTracker(Objects.requireNonNull(goal, "goal 不能为 null"));
+        if (goal == null) {
+            throw new IllegalArgumentException("goal 不能为 null");
+        }
+        this.tracker = new GoalTracker(goal);
         return this;
     }
 
@@ -51,7 +53,10 @@ public final class AgentGoalSupport {
      * @return 当前支撑实例，便于链式调用
      */
     public AgentGoalSupport attach(GoalTracker tracker) {
-        this.tracker = Objects.requireNonNull(tracker, "tracker 不能为 null");
+        if (tracker == null) {
+            throw new IllegalArgumentException("tracker 不能为 null");
+        }
+        this.tracker = tracker;
         return this;
     }
 

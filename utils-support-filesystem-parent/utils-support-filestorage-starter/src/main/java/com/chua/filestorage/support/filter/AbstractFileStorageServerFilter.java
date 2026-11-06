@@ -42,11 +42,6 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     */
     private static final Set<PreviewPdfCache> ALL_CACHES = newKeySet();
     /**
-     * 全局共享：单个 JVM 关闭 hook，避免多实例重复注册
-    */
-    private static volatile Thread shutdownHook;
-
-    /**
      * storage映射
     */
     protected final Map<String, FileStorage> storageMap = new ConcurrentHashMap<>();
@@ -102,31 +97,23 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
                     cacheSetting.getMaxMemoryFileSize());
         }
         loadSpis();
- // 注册全局共享 关闭 hook（仅首次创建时注册）
-        registerShutdownHook();
- // 将此实例的 缓存 注册到全局集合
+ // 关闭钩子已移除：所有缓存由显式 close() 或 closeAllCaches() 释放
         ALL_CACHES.add(this.pdfCache);
     }
 
     /**
-     * 注册全局共享的 JVM 关闭 hook，确保所有 previewpdf缓存 实例的后台清理线程被释放。
-     * 使用 double-检查 锁 确保只注册一次。
+     * 一次性关闭所有已注册的 previewpdf 缓存。
+     * <p>
+     * 此方法替代了原来的 JVM 关闭钩子：JVM 退出时不再自动释放缓存；调用方
+     * 必须在生命结束时显式关闭（各实例 close() / closeAllCaches()）。
      */
-    private static void registerShutdownHook() {
-        if (shutdownHook == null) {
-            synchronized (AbstractFileStorageServerFilter.class) {
-                if (shutdownHook == null) {
-// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
-                    shutdownHook = new Thread(() -> {
-                        for (PreviewPdfCache cache : ALL_CACHES) {
-                            try {
-                                cache.close();
-                            } catch (Exception e) {
- // 关闭 期间忽略异常
-                            }
-                        }
-                    }, "filestorage-cache-shutdown");
-                    Runtime.getRuntime().addShutdownHook(shutdownHook);
+    private static void closeAllCaches() {
+        synchronized (AbstractFileStorageServerFilter.class) {
+            for (PreviewPdfCache cache : ALL_CACHES) {
+                try {
+                    cache.close();
+                } catch (Exception e) {
+                    // 关闭 期间忽略异常
                 }
             }
         }
@@ -364,7 +351,7 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     /**
      * 关闭过滤器，释放后台资源（PDF 缓存调度线程等）。
      *
-     * <p>由 JVM shutdown hook 自动调用，也可手动调用。</p>
+     * <p>由调用方显式调用，也可手动调用。</p>
      */
     public void close() {
         if (pdfCache != null) {

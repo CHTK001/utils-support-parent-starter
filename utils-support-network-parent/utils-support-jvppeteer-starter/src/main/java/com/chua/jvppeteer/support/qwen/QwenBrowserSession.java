@@ -97,8 +97,6 @@ public class QwenBrowserSession implements AutoCloseable {
     public QwenBrowserSession(String cookieString, String userDataDir) {
         this.cookies = parseCookies(cookieString);
         this.browser = JvppeteerSupport.launch(true, null, List.of(STEALTH_ARGS), null);
-// [P3C C1 豁免] 关闭钩子必须由 JVM 创建独立线程
-        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
     }
 
     /**

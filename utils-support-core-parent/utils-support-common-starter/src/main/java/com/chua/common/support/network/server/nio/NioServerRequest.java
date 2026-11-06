@@ -144,6 +144,21 @@ public class NioServerRequest implements ServerRequest {
      */
     private Map<String, String> paramsCache;
 
+    /**
+     * 头部行解析结果:空行,头部结束。
+     */
+    private static final int HEADER_END = 1;
+
+    /**
+     * 头部行解析结果:已消费一个头部行。
+     */
+    private static final int HEADER_PARSED = 0;
+
+    /**
+     * 头部名转小写用的复用缓冲(单连接单线程 feed,复用安全)。
+     */
+    private byte[] scratchBuf;
+
     // ==================== 增量解析状态机 ====================
 
     /**
@@ -242,19 +257,21 @@ public class NioServerRequest implements ServerRequest {
         while (true) {
             switch (parseState) {
                 case REQUEST_LINE -> {
-                    String line = nextLineFromBuf();
-                    if (line == null) {
+                    // 字节级解析:不再为整行请求行分配临时 String
+                    int lf = indexOfLineFeed();
+                    if (lf < 0) {
                         return 0;
                     }
-                    parseRequestLine(line);
+                    parseRequestLineFromBuf(lf);
                     parseState = ParseState.HEADERS;
                 }
                 case HEADERS -> {
-                    String line = nextLineFromBuf();
-                    if (line == null) {
+                    // 字节级解析:请求头逐行就地取值,只对最终的名字/值建 String
+                    int lf = indexOfLineFeed();
+                    if (lf < 0) {
                         return 0;
                     }
-                    if (line.isEmpty()) {
+                    if (parseHeaderLineFromBuf(lf) == HEADER_END) {
                         // 头结束,确定请求体读取策略
                         String te = headers.get("transfer-encoding");
                         if (te != null && te.toLowerCase().contains("chunked")) {
@@ -275,12 +292,6 @@ public class NioServerRequest implements ServerRequest {
                             parseState = ParseState.BODY;
                             // BODY 阶段直接消费 buf 中已有数据
                             return feedBufBody();
-                        }
-                    } else {
-                        int colon = line.indexOf(':');
-                        if (colon > 0) {
-                            headers.put(line.substring(0, colon).trim().toLowerCase(),
-                                        line.substring(colon + 1).trim());
                         }
                     }
                 }
@@ -366,9 +377,10 @@ public class NioServerRequest implements ServerRequest {
                     return -1;
                 }
                 chunkHeaderPending = false;
-                if (body == null) {
-                    body = new byte[(int) Math.min(maxRequestSize, 1024 * 1024)];
-                }
+                // 不预分配 body:原实现按 min(maxRequestSize,1MB) 预分配整块，
+                // 而 appendBody 把 body.length 当作「已填充字节数」，导致每个 chunked
+                // 请求体都变成「1MB 零字节 + 真实数据」。这里保持 null，由 appendBody
+                // 按实际 chunk 长度增量扩容。
             } else {
                 int avail = buf.remaining();
                 if (avail == 0) {
@@ -420,6 +432,7 @@ public class NioServerRequest implements ServerRequest {
 
     /**
      * 从解析缓冲读取一行(以 \n 结尾,剔除 \r)。找不到完整行返回 null(不移除数据)。
+     * <p>仅供 chunked 行协议使用;请求行与请求头走字节级解析,不经过此处。</p>
      * @return 结果字符串
      */
     private String nextLineFromBuf() {
@@ -442,26 +455,242 @@ public class NioServerRequest implements ServerRequest {
     }
 
     /**
-     * 解析RequestLine
-     * @param line 方法入参 line
+     * 从当前位置查找行尾 {@code \n} 的绝对下标,不移动 position。
+     *
+     * @return 行尾下标;缓冲中还没有完整行时返回 -1
      */
-    private void parseRequestLine(String line) {
-        int s1 = line.indexOf(' ');
-        if (s1 < 0) {
-            throw new IllegalArgumentException("Invalid request line: " + line);
+    private int indexOfLineFeed() {
+        int limit = buf.limit();
+        for (int i = buf.position(); i < limit; i++) {
+            if (buf.get(i) == (byte) '\n') {
+                return i;
+            }
         }
-        int s2 = line.indexOf(' ', s1 + 1);
-        this.method = line.substring(0, s1);
-        this.uri = s2 > 0 ? line.substring(s1 + 1, s2) : line.substring(s1 + 1);
-        this.httpVersion = s2 > 0 ? line.substring(s2 + 1).trim() : "HTTP/1.1";
-        int q = uri.indexOf('?');
+        return -1;
+    }
+
+    /**
+     * 计算当前行内容的终点(去掉行尾 {@code \n} 与紧邻的 {@code \r})。
+     *
+     * @param lf 行尾 {@code \n} 的绝对下标
+     * @return 内容终点(不含该下标)
+     */
+    private int lineContentEnd(int lf) {
+        int start = buf.position();
+        return lf > start && buf.get(lf - 1) == (byte) '\r' ? lf - 1 : lf;
+    }
+
+    /**
+     * 判断字节是否会被 {@link String#trim()} 剔除(可视作 HTTP 的 OWS/控制字符)。
+     *
+     * @param b 字节
+     * @return true 表示该字节会被 trim 掉
+     */
+    private static boolean isTrimByte(byte b) {
+        return (b & 0xFF) <= 0x20;
+    }
+
+    /**
+     * 由解析缓冲的一段区间构造 ISO-8859-1 字符串(构造时复制,不持有缓冲引用)。
+     *
+     * @param off 起始下标
+     * @param len 长度
+     * @return 字符串,长度为 0 时返回空串
+     */
+    private String asciiString(int off, int len) {
+        if (len <= 0) {
+            return "";
+        }
+        return new String(buf.array(), buf.arrayOffset() + off, len, StandardCharsets.ISO_8859_1);
+    }
+
+    /**
+     * 判断缓冲中从 {@code off} 开始的字节是否与给定 ASCII 字面量完全相同。
+     *
+     * @param off      起始下标
+     * @param expected 期望字面量
+     * @return true 表示完全相同
+     */
+    private boolean matchesAscii(int off, String expected) {
+        byte[] a = buf.array();
+        int base = buf.arrayOffset() + off;
+        for (int i = 0; i < expected.length(); i++) {
+            if (a[base + i] != (byte) expected.charAt(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 取得可复用的临时字节数组(头部名转小写用),避免每请求再分配一次。
+     *
+     * <p>同一连接的 {@link NioServerRequest} 在任一时刻只有一个线程 feed
+     * (事件循环内联分发,或 worker 处理期间摘除读兴趣),因此复用安全。</p>
+     *
+     * @param len 需要的长度
+     * @return 长度不小于 {@code len} 的字节数组
+     */
+    private byte[] scratch(int len) {
+        byte[] s = scratchBuf;
+        if (s == null || s.length < len) {
+            s = new byte[Math.max(len, 64)];
+            scratchBuf = s;
+        }
+        return s;
+    }
+
+    /**
+     * 读取请求方法:常见方法直接返回常量,省掉每个请求一次字符串分配。
+     *
+     * @param off 起始下标
+     * @param len 长度
+     * @return 方法名
+     */
+    private String methodOrString(int off, int len) {
+        return switch (len) {
+            case 3 -> matchesAscii(off, "GET") ? "GET" : asciiString(off, len);
+            case 4 -> matchesAscii(off, "POST") ? "POST"
+                    : matchesAscii(off, "PUT") ? "PUT"
+                    : matchesAscii(off, "HEAD") ? "HEAD"
+                    : asciiString(off, len);
+            case 5 -> matchesAscii(off, "PATCH") ? "PATCH" : asciiString(off, len);
+            case 6 -> matchesAscii(off, "DELETE") ? "DELETE" : asciiString(off, len);
+            case 7 -> matchesAscii(off, "OPTIONS") ? "OPTIONS" : asciiString(off, len);
+            default -> asciiString(off, len);
+        };
+    }
+
+    /**
+     * 直接在解析缓冲上解析请求行,不产生整行临时字符串。
+     *
+     * <p>与原实现逐字对齐:第一个空格前为方法,第二个空格前为 URI(无第二个空格时
+     * 直到行尾),其后的 HTTP 版本按 {@code trim()} 语义去掉两端空白。URI 中的
+     * {@code ?} 之后为查询串,无查询串时 {@code path} 直接复用 {@code uri}。</p>
+     *
+     * @param lf 行尾 {@code \n} 的绝对下标
+     */
+    private void parseRequestLineFromBuf(int lf) {
+        int start = buf.position();
+        int end = lineContentEnd(lf);
+        int s1 = -1;
+        for (int i = start; i < end; i++) {
+            if (buf.get(i) == (byte) ' ') {
+                s1 = i;
+                break;
+            }
+        }
+        if (s1 < 0) {
+            buf.position(lf + 1);
+            throw new IllegalArgumentException("Invalid request line: " + asciiString(start, end - start));
+        }
+        int s2 = -1;
+        for (int i = s1 + 1; i < end; i++) {
+            if (buf.get(i) == (byte) ' ') {
+                s2 = i;
+                break;
+            }
+        }
+        this.method = methodOrString(start, s1 - start);
+        int uriStart = s1 + 1;
+        int uriEnd = s2 > 0 ? s2 : end;
+        this.uri = asciiString(uriStart, uriEnd - uriStart);
+        if (s2 > 0) {
+            int vs = s2 + 1;
+            int ve = end;
+            while (vs < ve && isTrimByte(buf.get(vs))) {
+                vs++;
+            }
+            while (ve > vs && isTrimByte(buf.get(ve - 1))) {
+                ve--;
+            }
+            this.httpVersion = ve - vs == 8 && matchesAscii(vs, "HTTP/1.1")
+                    ? "HTTP/1.1" : asciiString(vs, ve - vs);
+        }
+        buf.position(lf + 1);
+        int q = this.uri.indexOf('?');
         if (q >= 0) {
-            this.path = uri.substring(0, q);
-            this.queryString = uri.substring(q + 1);
+            this.path = this.uri.substring(0, q);
+            this.queryString = this.uri.substring(q + 1);
         } else {
-            this.path = uri;
+            this.path = this.uri;
             this.queryString = null;
         }
+    }
+
+    /**
+     * 直接在解析缓冲上解析一个请求头行,不产生整行临时字符串。
+     *
+     * <p>语义与原实现一致:冒号前的名字按 {@code trim()} 去空白并转小写,冒号后的值
+     * 按 {@code trim()} 去空白;没有冒号(或名字为空)的行直接忽略。</p>
+     *
+     * @param lf 行尾 {@code \n} 的绝对下标
+     * @return {@link #HEADER_END} 表示空行(头部结束),{@link #HEADER_PARSED} 表示已消费一行
+     */
+    private int parseHeaderLineFromBuf(int lf) {
+        int start = buf.position();
+        int end = lineContentEnd(lf);
+        if (end == start) {
+            buf.position(lf + 1);
+            return HEADER_END;
+        }
+        int colon = -1;
+        for (int i = start; i < end; i++) {
+            if (buf.get(i) == (byte) ':') {
+                colon = i;
+                break;
+            }
+        }
+        buf.position(lf + 1);
+        if (colon <= start) {
+            return HEADER_PARSED;
+        }
+        int nameEnd = colon;
+        while (nameEnd > start && isTrimByte(buf.get(nameEnd - 1))) {
+            nameEnd--;
+        }
+        int valueStart = colon + 1;
+        while (valueStart < end && isTrimByte(buf.get(valueStart))) {
+            valueStart++;
+        }
+        int valueEnd = end;
+        while (valueEnd > valueStart && isTrimByte(buf.get(valueEnd - 1))) {
+            valueEnd--;
+        }
+        headers.put(lowerAsciiString(start, nameEnd - start), asciiString(valueStart, valueEnd - valueStart));
+        return HEADER_PARSED;
+    }
+
+    /**
+     * 读取头部名并就地转小写(HTTP 头部名只允许 ASCII,超出范围按原字节保留)。
+     *
+     * @param off 起始下标
+     * @param len 长度
+     * @return 小写头部名
+     */
+    private String lowerAsciiString(int off, int len) {
+        if (len <= 0) {
+            return "";
+        }
+        byte[] a = buf.array();
+        int base = buf.arrayOffset() + off;
+        boolean hasUpper = false;
+        for (int i = 0; i < len; i++) {
+            byte b = a[base + i];
+            if (b >= 'A' && b <= 'Z') {
+                hasUpper = true;
+                break;
+            }
+        }
+        if (!hasUpper) {
+            return new String(a, base, len, StandardCharsets.ISO_8859_1);
+        }
+        byte[] lower = scratch(len);
+        for (int i = 0; i < len; i++) {
+            byte b = a[base + i];
+            lower[i] = b >= 'A' && b <= 'Z' ? (byte) (b + 32) : b;
+        }
+        return new String(lower, 0, len, StandardCharsets.ISO_8859_1);
     }
 
     /**

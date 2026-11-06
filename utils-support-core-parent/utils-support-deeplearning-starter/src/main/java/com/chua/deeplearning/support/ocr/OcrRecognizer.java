@@ -279,7 +279,12 @@ class DefaultOcrRecognizer implements OcrRecognizer {
                         DetectOptions.of(threshold, null));
         if (t != null) {
             Object raw = t.translate(imageData);
-            if (raw instanceof String s && !s.isEmpty()) {
+            // 返回 String 即表示这是单行识别模型：空白也必须原样返回。
+            // 旧实现用 !s.isEmpty() 判断，空白裁剪块（噪声/空白行，rec 无有效字符时
+            // 输出空串）会掉到下面的 recognizeDetail 兜底，而 recognizeDetail 对
+            // String 输出直接抛 IllegalStateException，导致整页识别失败
+            // （表现为 Node execution failed: recognize [pipeline=ocr-recognize]）。
+            if (raw instanceof String s) {
                 return s;
             }
         }

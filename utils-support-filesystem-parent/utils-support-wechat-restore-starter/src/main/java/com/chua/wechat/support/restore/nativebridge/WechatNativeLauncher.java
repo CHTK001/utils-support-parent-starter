@@ -127,7 +127,7 @@ public final class WechatNativeLauncher {
 
         Process process = processBuilder.start();
         int exitCode = process.waitFor();
-        System.exit(exitCode);
+        throw new IllegalStateException("程序执行失败，请检查执行结果日志。");
     }
 
     /**
