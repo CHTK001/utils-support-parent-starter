@@ -77,6 +77,20 @@ class AgentScopeToolWiringTest {
     }
 
     @Test
+    void disabledToolsAreNotRegisteredIntoKitchenToolkit() {
+        Map<String, com.chua.common.support.ai.skill.SkillHandler> skills = Map.of(
+                "skill-a", args -> com.chua.common.support.ai.skill.SkillResult.success("s"));
+        Map<String, AgentTool> local = Map.of("echo", echoTool());
+
+        io.agentscope.core.tool.Toolkit toolkit = AgentScopeAgent.buildToolkit(
+                skills, Map.of(), local, List.of(), null, List.of("echo"));
+
+        assertNotNull(toolkit);
+        assertTrue(toolkit.getToolNames().contains("skill-a"), "技能应照常注册: " + toolkit.getToolNames());
+        assertTrue(!toolkit.getToolNames().contains("echo"), "被关闭的工具不应注册: " + toolkit.getToolNames());
+    }
+
+    @Test
     void bridgeExecutesJavaExecutorAndReturnsTextBlock() throws Exception {
         Object bridge = bridge(echoTool());
         ToolCallParam param = ToolCallParam.builder().input(Map.of("text", "x")).build();

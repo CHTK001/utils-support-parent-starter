@@ -1674,32 +1674,9 @@ public class AgentScopeAgent implements Agent {
                 log.warn("[AgentScope] 列举 MCP 工具失败: {}", e.getMessage(), e);
             }
         }
-        if (!skills.isEmpty() || !mcpTools.isEmpty() || !localTools.isEmpty()) {
-            io.agentscope.core.tool.Toolkit toolkit = new io.agentscope.core.tool.Toolkit();
-            java.util.Set<String> registered = new java.util.LinkedHashSet<>();
-            for (Map.Entry<String, com.chua.common.support.ai.skill.SkillHandler> entry : skills.entrySet()) {
-                final String skillName = entry.getKey();
-                if (isToolDisabled(skillName) || !registered.add(skillName)) {
-                    continue;
-                }
-                final com.chua.common.support.ai.skill.SkillHandler handler = entry.getValue();
-                String desc = skillDescriptions.get(skillName);
-                toolkit.registerAgentTool(new SkillAgentTool(skillName, desc != null ? desc : "Skill: "
-                        + skillName, handler));
-            }
-            for (AgentTool tool : localTools.values()) {
-                if (isToolDisabled(tool.getName()) || !registered.add(tool.getName())) {
-                    continue;
-                }
-                toolkit.registerAgentTool(new FunctionAgentTool(tool));
-            }
-            for (McpToolDescriptor descriptor : mcpTools) {
-                if (descriptor == null || descriptor.getName() == null
-                        || isToolDisabled(descriptor.getName()) || !registered.add(descriptor.getName())) {
-                    continue;
-                }
-                toolkit.registerAgentTool(new McpAgentTool(descriptor, globalMcpManager));
-            }
+        io.agentscope.core.tool.Toolkit toolkit = buildToolkit(skills, skillDescriptions, localTools,
+                mcpTools, globalMcpManager, disabledTools);
+        if (toolkit != null) {
             builder.toolkit(toolkit);
         }
 
@@ -1875,13 +1852,65 @@ public class AgentScopeAgent implements Agent {
     }
 
     /**
-     * 判断工具是否已被 {@link #disableTool(String)} 关闭
+     * 汇总技能、进程内工具与 MCP 工具，注册成 Agentscope Toolkit。
      *
-     * @param name 工具名称
-     * @return 已关闭返回 true
+     * <p>{@code disabled} 中的名称不会注册（先注册者优先：Skill → 进程内工具 → MCP）。</p>
+     *
+     * @param skills           技能处理器
+     * @param skillDescriptions 技能描述
+     * @param localTools       进程内工具
+     * @param mcpTools         MCP 工具描述符
+     * @param mcpManager       MCP 管理器
+     * @param disabled         需要关闭的工具名
+     * @return Toolkit；没有任何工具时返回 null
      */
-    private boolean isToolDisabled(String name) {
-        return name != null && disabledTools.contains(name);
+    static io.agentscope.core.tool.Toolkit buildToolkit(
+            Map<String, com.chua.common.support.ai.skill.SkillHandler> skills,
+            Map<String, String> skillDescriptions,
+            Map<String, AgentTool> localTools,
+            List<McpToolDescriptor> mcpTools,
+            McpManager mcpManager,
+            java.util.Collection<String> disabled) {
+        boolean empty = (skills == null || skills.isEmpty())
+                && (localTools == null || localTools.isEmpty())
+                && (mcpTools == null || mcpTools.isEmpty());
+        if (empty) {
+            return null;
+        }
+        java.util.Set<String> disabledNames = disabled == null
+                ? java.util.Collections.emptySet() : new java.util.LinkedHashSet<>(disabled);
+        io.agentscope.core.tool.Toolkit toolkit = new io.agentscope.core.tool.Toolkit();
+        java.util.Set<String> registered = new java.util.LinkedHashSet<>();
+        if (skills != null) {
+            for (Map.Entry<String, com.chua.common.support.ai.skill.SkillHandler> entry : skills.entrySet()) {
+                String skillName = entry.getKey();
+                if (disabledNames.contains(skillName) || !registered.add(skillName)) {
+                    continue;
+                }
+                String desc = skillDescriptions == null ? null : skillDescriptions.get(skillName);
+                toolkit.registerAgentTool(new SkillAgentTool(skillName,
+                        desc != null ? desc : "Skill: " + skillName, entry.getValue()));
+            }
+        }
+        if (localTools != null) {
+            for (AgentTool tool : localTools.values()) {
+                if (disabledNames.contains(tool.getName()) || !registered.add(tool.getName())) {
+                    continue;
+                }
+                toolkit.registerAgentTool(new FunctionAgentTool(tool));
+            }
+        }
+        if (mcpTools != null) {
+            for (McpToolDescriptor descriptor : mcpTools) {
+                if (descriptor == null || descriptor.getName() == null
+                        || disabledNames.contains(descriptor.getName())
+                        || !registered.add(descriptor.getName())) {
+                    continue;
+                }
+                toolkit.registerAgentTool(new McpAgentTool(descriptor, mcpManager));
+            }
+        }
+        return toolkit;
     }
 
     /**
